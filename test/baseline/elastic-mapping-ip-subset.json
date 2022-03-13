@@ -1,304 +1,301 @@
 {
-  "index_patterns" : "packets-*",
   "settings": {
     "index.mapping.total_fields.limit": 1000000
   },
   "mappings": {
-    "doc" : {
-      "dynamic": false,
-      "properties": {
-        "timestamp": {
-          "type": "date"
-        },
-        "layers": {
-          "properties": {
-            "ip": {
-              "properties": {
-                "ip_ip_version": {
-                  "type": "short"
-                },
-                "ip_ip_hdr_len": {
-                  "type": "short"
-                },
-                "ip_ip_dsfield": {
-                  "type": "short"
-                },
-                "ip_ip_dsfield_dscp": {
-                  "type": "short"
-                },
-                "ip_ip_dsfield_ecn": {
-                  "type": "short"
-                },
-                "ip_ip_tos": {
-                  "type": "short"
-                },
-                "ip_ip_tos_precedence": {
-                  "type": "short"
-                },
-                "ip_ip_tos_delay": {
-                  "type": "boolean"
-                },
-                "ip_ip_tos_throughput": {
-                  "type": "boolean"
-                },
-                "ip_ip_tos_reliability": {
-                  "type": "boolean"
-                },
-                "ip_ip_tos_cost": {
-                  "type": "boolean"
-                },
-                "ip_ip_len": {
-                  "type": "integer"
-                },
-                "ip_ip_id": {
-                  "type": "integer"
-                },
-                "ip_ip_dst": {
-                  "type": "ip"
-                },
-                "ip_ip_src": {
-                  "type": "ip"
-                },
-                "ip_ip_addr": {
-                  "type": "ip"
-                },
-                "ip_ip_geoip_asnum": {
-                  "type": "long"
-                },
-                "ip_ip_geoip_lat": {
-                  "type": "float"
-                },
-                "ip_ip_geoip_lon": {
-                  "type": "float"
-                },
-                "ip_ip_geoip_src_asnum": {
-                  "type": "long"
-                },
-                "ip_ip_geoip_src_lat": {
-                  "type": "float"
-                },
-                "ip_ip_geoip_src_lon": {
-                  "type": "float"
-                },
-                "ip_ip_geoip_dst_asnum": {
-                  "type": "long"
-                },
-                "ip_ip_geoip_dst_lat": {
-                  "type": "float"
-                },
-                "ip_ip_geoip_dst_lon": {
-                  "type": "float"
-                },
-                "ip_ip_flags": {
-                  "type": "short"
-                },
-                "ip_ip_flags_sf": {
-                  "type": "boolean"
-                },
-                "ip_ip_flags_rb": {
-                  "type": "boolean"
-                },
-                "ip_ip_flags_df": {
-                  "type": "boolean"
-                },
-                "ip_ip_flags_mf": {
-                  "type": "boolean"
-                },
-                "ip_ip_frag_offset": {
-                  "type": "integer"
-                },
-                "ip_ip_ttl": {
-                  "type": "short"
-                },
-                "ip_ip_proto": {
-                  "type": "short"
-                },
-                "ip_ip_checksum": {
-                  "type": "integer"
-                },
-                "ip_ip_checksum_calculated": {
-                  "type": "integer"
-                },
-                "ip_ip_checksum_status": {
-                  "type": "short"
-                },
-                "ip_ip_opt_type": {
-                  "type": "short"
-                },
-                "ip_ip_opt_type_copy": {
-                  "type": "boolean"
-                },
-                "ip_ip_opt_type_class": {
-                  "type": "short"
-                },
-                "ip_ip_opt_type_number": {
-                  "type": "short"
-                },
-                "ip_ip_opt_len": {
-                  "type": "short"
-                },
-                "ip_ip_opt_ptr": {
-                  "type": "short"
-                },
-                "ip_ip_opt_sid": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_mtu": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_id_number": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_ohc": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_rhc": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_originator": {
-                  "type": "ip"
-                },
-                "ip_ip_opt_ra": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_addr": {
-                  "type": "ip"
-                },
-                "ip_ip_opt_padding": {
-                  "type": "byte"
-                },
-                "ip_ip_opt_qs_func": {
-                  "type": "short"
-                },
-                "ip_ip_opt_qs_rate": {
-                  "type": "short"
-                },
-                "ip_ip_opt_qs_ttl": {
-                  "type": "short"
-                },
-                "ip_ip_opt_qs_ttl_diff": {
-                  "type": "short"
-                },
-                "ip_ip_opt_qs_unused": {
-                  "type": "short"
-                },
-                "ip_ip_opt_qs_nonce": {
-                  "type": "long"
-                },
-                "ip_ip_opt_qs_reserved": {
-                  "type": "long"
-                },
-                "ip_ip_opt_sec_rfc791_sec": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_sec_rfc791_comp": {
-                  "type": "integer"
-                },
-                "ip_ip_opt_sec_cl": {
-                  "type": "short"
-                },
-                "ip_ip_opt_sec_prot_auth_flags": {
-                  "type": "short"
-                },
-                "ip_ip_opt_sec_prot_auth_genser": {
-                  "type": "boolean"
-                },
-                "ip_ip_opt_sec_prot_auth_siop_esi": {
-                  "type": "boolean"
-                },
-                "ip_ip_opt_sec_prot_auth_sci": {
-                  "type": "boolean"
-                },
-                "ip_ip_opt_sec_prot_auth_nsa": {
-                  "type": "boolean"
-                },
-                "ip_ip_opt_sec_prot_auth_doe": {
-                  "type": "boolean"
-                },
-                "ip_ip_opt_sec_prot_auth_unassigned": {
-                  "type": "short"
-                },
-                "ip_ip_opt_sec_prot_auth_unassigned": {
-                  "type": "short"
-                },
-                "ip_ip_opt_sec_prot_auth_fti": {
-                  "type": "boolean"
-                },
-                "ip_ip_opt_ext_sec_add_sec_info_format_code": {
-                  "type": "short"
-                },
-                "ip_ip_opt_ext_sec_add_sec_info": {
-                  "type": "byte"
-                },
-                "ip_ip_rec_rt": {
-                  "type": "ip"
-                },
-                "ip_ip_cur_rt": {
-                  "type": "ip"
-                },
-                "ip_ip_src_rt": {
-                  "type": "ip"
-                },
-                "ip_ip_empty_rt": {
-                  "type": "ip"
-                },
-                "ip_ip_cipso_tag_type": {
-                  "type": "short"
-                },
-                "ip_ip_fragment_overlap": {
-                  "type": "boolean"
-                },
-                "ip_ip_fragment_overlap_conflict": {
-                  "type": "boolean"
-                },
-                "ip_ip_fragment_multipletails": {
-                  "type": "boolean"
-                },
-                "ip_ip_fragment_toolongfragment": {
-                  "type": "boolean"
-                },
-                "ip_ip_fragment_error": {
-                  "type": "long"
-                },
-                "ip_ip_fragment_count": {
-                  "type": "long"
-                },
-                "ip_ip_fragment": {
-                  "type": "long"
-                },
-                "ip_ip_fragments": {
-                  "type": "byte"
-                },
-                "ip_ip_reassembled_in": {
-                  "type": "long"
-                },
-                "ip_ip_reassembled_length": {
-                  "type": "long"
-                },
-                "ip_ip_reassembled_data": {
-                  "type": "byte"
-                },
-                "ip_ip_cipso_doi": {
-                  "type": "long"
-                },
-                "ip_ip_cipso_sensitivity_level": {
-                  "type": "short"
-                },
-                "ip_ip_cipso_tag_data": {
-                  "type": "byte"
-                },
-                "ip_ip_opt_overflow": {
-                  "type": "short"
-                },
-                "ip_ip_opt_flag": {
-                  "type": "short"
-                },
-                "ip_ip_opt_time_stamp": {
-                  "type": "long"
-                },
-                "ip_ip_opt_time_stamp_addr": {
-                  "type": "ip"
-                }
+    "dynamic": false,
+    "properties": {
+      "timestamp": {
+        "type": "date"
+      },
+      "layers": {
+        "properties": {
+          "ip": {
+            "properties": {
+              "ip_ip_version": {
+                "type": "short"
+              },
+              "ip_ip_hdr_len": {
+                "type": "short"
+              },
+              "ip_ip_dsfield": {
+                "type": "short"
+              },
+              "ip_ip_dsfield_dscp": {
+                "type": "short"
+              },
+              "ip_ip_dsfield_ecn": {
+                "type": "short"
+              },
+              "ip_ip_tos": {
+                "type": "short"
+              },
+              "ip_ip_tos_precedence": {
+                "type": "short"
+              },
+              "ip_ip_tos_delay": {
+                "type": "boolean"
+              },
+              "ip_ip_tos_throughput": {
+                "type": "boolean"
+              },
+              "ip_ip_tos_reliability": {
+                "type": "boolean"
+              },
+              "ip_ip_tos_cost": {
+                "type": "boolean"
+              },
+              "ip_ip_len": {
+                "type": "integer"
+              },
+              "ip_ip_id": {
+                "type": "integer"
+              },
+              "ip_ip_dst": {
+                "type": "ip"
+              },
+              "ip_ip_src": {
+                "type": "ip"
+              },
+              "ip_ip_addr": {
+                "type": "ip"
+              },
+              "ip_ip_geoip_asnum": {
+                "type": "long"
+              },
+              "ip_ip_geoip_lat": {
+                "type": "float"
+              },
+              "ip_ip_geoip_lon": {
+                "type": "float"
+              },
+              "ip_ip_geoip_src_asnum": {
+                "type": "long"
+              },
+              "ip_ip_geoip_src_lat": {
+                "type": "float"
+              },
+              "ip_ip_geoip_src_lon": {
+                "type": "float"
+              },
+              "ip_ip_geoip_dst_asnum": {
+                "type": "long"
+              },
+              "ip_ip_geoip_dst_lat": {
+                "type": "float"
+              },
+              "ip_ip_geoip_dst_lon": {
+                "type": "float"
+              },
+              "ip_ip_flags": {
+                "type": "short"
+              },
+              "ip_ip_flags_sf": {
+                "type": "boolean"
+              },
+              "ip_ip_flags_rb": {
+                "type": "boolean"
+              },
+              "ip_ip_flags_df": {
+                "type": "boolean"
+              },
+              "ip_ip_flags_mf": {
+                "type": "boolean"
+              },
+              "ip_ip_frag_offset": {
+                "type": "integer"
+              },
+              "ip_ip_ttl": {
+                "type": "short"
+              },
+              "ip_ip_proto": {
+                "type": "short"
+              },
+              "ip_ip_checksum": {
+                "type": "integer"
+              },
+              "ip_ip_checksum_calculated": {
+                "type": "integer"
+              },
+              "ip_ip_checksum_status": {
+                "type": "short"
+              },
+              "ip_ip_opt_type": {
+                "type": "short"
+              },
+              "ip_ip_opt_type_copy": {
+                "type": "boolean"
+              },
+              "ip_ip_opt_type_class": {
+                "type": "short"
+              },
+              "ip_ip_opt_type_number": {
+                "type": "short"
+              },
+              "ip_ip_opt_len": {
+                "type": "short"
+              },
+              "ip_ip_opt_ptr": {
+                "type": "short"
+              },
+              "ip_ip_opt_sid": {
+                "type": "integer"
+              },
+              "ip_ip_opt_mtu": {
+                "type": "integer"
+              },
+              "ip_ip_opt_id_number": {
+                "type": "integer"
+              },
+              "ip_ip_opt_ohc": {
+                "type": "integer"
+              },
+              "ip_ip_opt_rhc": {
+                "type": "integer"
+              },
+              "ip_ip_opt_originator": {
+                "type": "ip"
+              },
+              "ip_ip_opt_ra": {
+                "type": "integer"
+              },
+              "ip_ip_opt_addr": {
+                "type": "ip"
+              },
+              "ip_ip_opt_padding": {
+                "type": "byte"
+              },
+              "ip_ip_opt_qs_func": {
+                "type": "short"
+              },
+              "ip_ip_opt_qs_rate": {
+                "type": "short"
+              },
+              "ip_ip_opt_qs_ttl": {
+                "type": "short"
+              },
+              "ip_ip_opt_qs_ttl_diff": {
+                "type": "short"
+              },
+              "ip_ip_opt_qs_unused": {
+                "type": "short"
+              },
+              "ip_ip_opt_qs_nonce": {
+                "type": "long"
+              },
+              "ip_ip_opt_qs_reserved": {
+                "type": "long"
+              },
+              "ip_ip_opt_sec_rfc791_sec": {
+                "type": "integer"
+              },
+              "ip_ip_opt_sec_rfc791_comp": {
+                "type": "integer"
+              },
+              "ip_ip_opt_sec_cl": {
+                "type": "short"
+              },
+              "ip_ip_opt_sec_prot_auth_flags": {
+                "type": "short"
+              },
+              "ip_ip_opt_sec_prot_auth_genser": {
+                "type": "boolean"
+              },
+              "ip_ip_opt_sec_prot_auth_siop_esi": {
+                "type": "boolean"
+              },
+              "ip_ip_opt_sec_prot_auth_sci": {
+                "type": "boolean"
+              },
+              "ip_ip_opt_sec_prot_auth_nsa": {
+                "type": "boolean"
+              },
+              "ip_ip_opt_sec_prot_auth_doe": {
+                "type": "boolean"
+              },
+              "ip_ip_opt_sec_prot_auth_unassigned": {
+                "type": "short"
+              },
+              "ip_ip_opt_sec_prot_auth_unassigned": {
+                "type": "short"
+              },
+              "ip_ip_opt_sec_prot_auth_fti": {
+                "type": "boolean"
+              },
+              "ip_ip_opt_ext_sec_add_sec_info_format_code": {
+                "type": "short"
+              },
+              "ip_ip_opt_ext_sec_add_sec_info": {
+                "type": "byte"
+              },
+              "ip_ip_rec_rt": {
+                "type": "ip"
+              },
+              "ip_ip_cur_rt": {
+                "type": "ip"
+              },
+              "ip_ip_src_rt": {
+                "type": "ip"
+              },
+              "ip_ip_empty_rt": {
+                "type": "ip"
+              },
+              "ip_ip_cipso_tag_type": {
+                "type": "short"
+              },
+              "ip_ip_fragment_overlap": {
+                "type": "boolean"
+              },
+              "ip_ip_fragment_overlap_conflict": {
+                "type": "boolean"
+              },
+              "ip_ip_fragment_multipletails": {
+                "type": "boolean"
+              },
+              "ip_ip_fragment_toolongfragment": {
+                "type": "boolean"
+              },
+              "ip_ip_fragment_error": {
+                "type": "long"
+              },
+              "ip_ip_fragment_count": {
+                "type": "long"
+              },
+              "ip_ip_fragment": {
+                "type": "long"
+              },
+              "ip_ip_fragments": {
+                "type": "byte"
+              },
+              "ip_ip_reassembled_in": {
+                "type": "long"
+              },
+              "ip_ip_reassembled_length": {
+                "type": "long"
+              },
+              "ip_ip_reassembled_data": {
+                "type": "byte"
+              },
+              "ip_ip_cipso_doi": {
+                "type": "long"
+              },
+              "ip_ip_cipso_sensitivity_level": {
+                "type": "short"
+              },
+              "ip_ip_cipso_tag_data": {
+                "type": "byte"
+              },
+              "ip_ip_opt_overflow": {
+                "type": "short"
+              },
+              "ip_ip_opt_flag": {
+                "type": "short"
+              },
+              "ip_ip_opt_time_stamp": {
+                "type": "long"
+              },
+              "ip_ip_opt_time_stamp_addr": {
+                "type": "ip"
               }
             }
           }
