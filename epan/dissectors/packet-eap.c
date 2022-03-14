@@ -1036,6 +1036,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
 end:
   g_strfreev(tokens);
   g_strfreev(realm_tokens);
+  g_strfreev(cert_tokens);
 
   return ret;
 }
