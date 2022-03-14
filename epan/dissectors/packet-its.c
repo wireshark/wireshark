@@ -2631,7 +2631,7 @@ static const per_sequence_t its_ItsPduHeader_sequence[] = {
 
 static int
 dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 711 "./asn1/its/its.cnf"
+#line 714 "./asn1/its/its.cnf"
   guint8 version = tvb_get_guint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
@@ -2900,7 +2900,7 @@ static const per_sequence_t its_PtActivation_sequence[] = {
 
 static int
 dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 881 "./asn1/its/its.cnf"
+#line 887 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -2910,7 +2910,7 @@ dissect_its_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_PtActivation, its_PtActivation_sequence);
 
-#line 887 "./asn1/its/its.cnf"
+#line 893 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -2982,7 +2982,7 @@ dissect_its_CauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_its_SubCauseCodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 849 "./asn1/its/its.cnf"
+#line 855 "./asn1/its/its.cnf"
   // Overwrite hf_index
   hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -3888,11 +3888,6 @@ dissect_its_RequestResponseIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const value_string its_SpeedLimit_vals[] = {
-  {   1, "oneKmPerHour" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_its_SpeedLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4265,12 +4260,6 @@ dissect_its_SteeringWheelAngle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const val64_string its_TimestampIts_vals[] = {
-  {   0, "utcStartOf2004" },
-  {   1, "oneMillisecAfterUTCStartOf2004" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_its_TimestampIts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4430,12 +4419,6 @@ dissect_its_TransmissionInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   return offset;
 }
 
-
-static const value_string its_ValidityDuration_vals[] = {
-  {   0, "timeOfDetection" },
-  {   1, "oneSecondAfterDetection" },
-  { 0, NULL }
-};
 
 
 static int
@@ -4939,7 +4922,7 @@ static const per_sequence_t itsv1_PtActivation_sequence[] = {
 
 static int
 dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 881 "./asn1/its/its.cnf"
+#line 887 "./asn1/its/its.cnf"
   void *priv_data = actx->private_data;
   its_pt_activation_data_t *pta;
 
@@ -4949,7 +4932,7 @@ dissect_itsv1_PtActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_itsv1_PtActivation, itsv1_PtActivation_sequence);
 
-#line 887 "./asn1/its/its.cnf"
+#line 893 "./asn1/its/its.cnf"
   dissector_try_uint_new(cam_pt_activation_table, pta->type, pta->data, actx->pinfo, tree, TRUE, NULL);
   actx->private_data = priv_data;
 
@@ -5650,11 +5633,6 @@ dissect_itsv1_RequestResponseIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const value_string itsv1_SpeedLimit_vals[] = {
-  {   1, "oneKmPerHour" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_itsv1_SpeedLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -6027,12 +6005,6 @@ dissect_itsv1_SteeringWheelAngle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const val64_string itsv1_TimestampIts_vals[] = {
-  {   0, "utcStartOf2004" },
-  {   1, "oneMillisecAfterUTCStartOf2004" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_itsv1_TimestampIts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -6191,12 +6163,6 @@ dissect_itsv1_TransmissionInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   return offset;
 }
 
-
-static const value_string itsv1_ValidityDuration_vals[] = {
-  {   0, "timeOfDetection" },
-  {   1, "oneSecondAfterDetection" },
-  { 0, NULL }
-};
 
 
 static int
@@ -7180,14 +7146,14 @@ static const per_sequence_t dsrc_Position3D_sequence[] = {
 
 static int
 dissect_dsrc_Position3D(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 616 "./asn1/its/its.cnf"
+#line 619 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_Position3D;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_Position3D, dsrc_Position3D_sequence);
 
-#line 620 "./asn1/its/its.cnf"
+#line 623 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7532,14 +7498,14 @@ static const per_sequence_t dsrc_LaneAttributes_sequence[] = {
 
 static int
 dissect_dsrc_LaneAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 562 "./asn1/its/its.cnf"
+#line 565 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneAttributes;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_LaneAttributes, dsrc_LaneAttributes_sequence);
 
-#line 566 "./asn1/its/its.cnf"
+#line 569 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7762,7 +7728,7 @@ static const per_choice_t dsrc_NodeOffsetPointXY_choice[] = {
 
 static int
 dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 607 "./asn1/its/its.cnf"
+#line 610 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeOffsetPointXY;
 
@@ -7770,7 +7736,7 @@ dissect_dsrc_NodeOffsetPointXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_NodeOffsetPointXY, dsrc_NodeOffsetPointXY_choice,
                                  NULL);
 
-#line 611 "./asn1/its/its.cnf"
+#line 614 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -7951,7 +7917,7 @@ static const per_choice_t dsrc_LaneDataAttribute_choice[] = {
 
 static int
 dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 571 "./asn1/its/its.cnf"
+#line 574 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_LaneDataAttribute;
 
@@ -7959,7 +7925,7 @@ dissect_dsrc_LaneDataAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_dsrc_LaneDataAttribute, dsrc_LaneDataAttribute_choice,
                                  NULL);
 
-#line 575 "./asn1/its/its.cnf"
+#line 578 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8007,14 +7973,14 @@ static const per_sequence_t dsrc_NodeAttributeSetXY_sequence[] = {
 
 static int
 dissect_dsrc_NodeAttributeSetXY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 598 "./asn1/its/its.cnf"
+#line 601 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_NodeAttributeSetXY;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_NodeAttributeSetXY, dsrc_NodeAttributeSetXY_sequence);
 
-#line 602 "./asn1/its/its.cnf"
+#line 605 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8161,14 +8127,14 @@ static const per_sequence_t dsrc_ComputedLane_sequence[] = {
 
 static int
 dissect_dsrc_ComputedLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 517 "./asn1/its/its.cnf"
+#line 520 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ComputedLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ComputedLane, dsrc_ComputedLane_sequence);
 
-#line 521 "./asn1/its/its.cnf"
+#line 524 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8318,14 +8284,14 @@ static const per_sequence_t dsrc_GenericLane_sequence[] = {
 
 static int
 dissect_dsrc_GenericLane(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 535 "./asn1/its/its.cnf"
+#line 538 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_GenericLane;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_GenericLane, dsrc_GenericLane_sequence);
 
-#line 539 "./asn1/its/its.cnf"
+#line 542 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8353,14 +8319,14 @@ static const per_sequence_t dsrc_SignalControlZone_sequence[] = {
 
 static int
 dissect_dsrc_SignalControlZone(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 697 "./asn1/its/its.cnf"
+#line 700 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalControlZone;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalControlZone, dsrc_SignalControlZone_sequence);
 
-#line 701 "./asn1/its/its.cnf"
+#line 704 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8410,14 +8376,14 @@ static const per_sequence_t dsrc_IntersectionGeometry_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionGeometry(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 544 "./asn1/its/its.cnf"
+#line 547 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionGeometry;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionGeometry, dsrc_IntersectionGeometry_sequence);
 
-#line 548 "./asn1/its/its.cnf"
+#line 551 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8505,14 +8471,14 @@ static const per_sequence_t dsrc_RoadSegment_sequence[] = {
 
 static int
 dissect_dsrc_RoadSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 652 "./asn1/its/its.cnf"
+#line 655 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RoadSegment;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RoadSegment, dsrc_RoadSegment_sequence);
 
-#line 656 "./asn1/its/its.cnf"
+#line 659 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8616,7 +8582,7 @@ static const per_choice_t dsrc_RestrictionUserType_choice[] = {
 
 static int
 dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 643 "./asn1/its/its.cnf"
+#line 646 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RestrictionUserType;
 
@@ -8624,7 +8590,7 @@ dissect_dsrc_RestrictionUserType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                  ett_dsrc_RestrictionUserType, dsrc_RestrictionUserType_choice,
                                  NULL);
 
-#line 647 "./asn1/its/its.cnf"
+#line 650 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -8703,7 +8669,7 @@ static const per_sequence_t dsrc_MapData_sequence[] = {
 
 static int
 dissect_dsrc_MapData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 421 "./asn1/its/its.cnf"
+#line 424 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "MAPEM");
@@ -9261,7 +9227,7 @@ static const per_sequence_t dsrc_RTCMcorrections_sequence[] = {
 
 static int
 dissect_dsrc_RTCMcorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 438 "./asn1/its/its.cnf"
+#line 441 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "RTCMEM");
@@ -9443,14 +9409,14 @@ static const per_sequence_t dsrc_AdvisorySpeed_sequence[] = {
 
 static int
 dissect_dsrc_AdvisorySpeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 508 "./asn1/its/its.cnf"
+#line 511 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_AdvisorySpeed;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_AdvisorySpeed, dsrc_AdvisorySpeed_sequence);
 
-#line 512 "./asn1/its/its.cnf"
+#line 515 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9495,14 +9461,14 @@ static const per_sequence_t dsrc_MovementEvent_sequence[] = {
 
 static int
 dissect_dsrc_MovementEvent(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 580 "./asn1/its/its.cnf"
+#line 583 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementEvent;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementEvent, dsrc_MovementEvent_sequence);
 
-#line 584 "./asn1/its/its.cnf"
+#line 587 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9567,14 +9533,14 @@ static const per_sequence_t dsrc_ConnectionManeuverAssist_sequence[] = {
 
 static int
 dissect_dsrc_ConnectionManeuverAssist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 526 "./asn1/its/its.cnf"
+#line 529 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_ConnectionManeuverAssist;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_ConnectionManeuverAssist, dsrc_ConnectionManeuverAssist_sequence);
 
-#line 530 "./asn1/its/its.cnf"
+#line 533 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9620,14 +9586,14 @@ static const per_sequence_t dsrc_MovementState_sequence[] = {
 
 static int
 dissect_dsrc_MovementState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 589 "./asn1/its/its.cnf"
+#line 592 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_MovementState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_MovementState, dsrc_MovementState_sequence);
 
-#line 593 "./asn1/its/its.cnf"
+#line 596 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9678,14 +9644,14 @@ static const per_sequence_t dsrc_IntersectionState_sequence[] = {
 
 static int
 dissect_dsrc_IntersectionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 553 "./asn1/its/its.cnf"
+#line 556 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionState;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_IntersectionState, dsrc_IntersectionState_sequence);
 
-#line 557 "./asn1/its/its.cnf"
+#line 560 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9730,7 +9696,7 @@ static const per_sequence_t dsrc_SPAT_sequence[] = {
 
 static int
 dissect_dsrc_SPAT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 429 "./asn1/its/its.cnf"
+#line 432 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SPATEM");
@@ -9822,14 +9788,14 @@ static const per_sequence_t dsrc_SignalRequest_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 670 "./asn1/its/its.cnf"
+#line 673 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequest;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequest, dsrc_SignalRequest_sequence);
 
-#line 674 "./asn1/its/its.cnf"
+#line 677 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -9861,14 +9827,14 @@ static const per_sequence_t dsrc_SignalRequestPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 661 "./asn1/its/its.cnf"
+#line 664 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequestPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalRequestPackage, dsrc_SignalRequestPackage_sequence);
 
-#line 665 "./asn1/its/its.cnf"
+#line 668 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10060,14 +10026,14 @@ static const per_sequence_t dsrc_RequestorType_sequence[] = {
 
 static int
 dissect_dsrc_RequestorType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 634 "./asn1/its/its.cnf"
+#line 637 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorType;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorType, dsrc_RequestorType_sequence);
 
-#line 638 "./asn1/its/its.cnf"
+#line 641 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10170,14 +10136,14 @@ static const per_sequence_t dsrc_RequestorDescription_sequence[] = {
 
 static int
 dissect_dsrc_RequestorDescription(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 625 "./asn1/its/its.cnf"
+#line 628 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_RequestorDescription;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_RequestorDescription, dsrc_RequestorDescription_sequence);
 
-#line 629 "./asn1/its/its.cnf"
+#line 632 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10210,7 +10176,7 @@ static const per_sequence_t dsrc_SignalRequestMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalRequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 413 "./asn1/its/its.cnf"
+#line 416 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SREM");
@@ -10292,14 +10258,14 @@ static const per_sequence_t dsrc_SignalStatusPackage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusPackage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 679 "./asn1/its/its.cnf"
+#line 682 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatusPackage;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatusPackage, dsrc_SignalStatusPackage_sequence);
 
-#line 683 "./asn1/its/its.cnf"
+#line 686 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10344,14 +10310,14 @@ static const per_sequence_t dsrc_SignalStatus_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 688 "./asn1/its/its.cnf"
+#line 691 "./asn1/its/its.cnf"
   enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
   ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatus;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_dsrc_SignalStatus, dsrc_SignalStatus_sequence);
 
-#line 692 "./asn1/its/its.cnf"
+#line 695 "./asn1/its/its.cnf"
   ((its_private_data_t*)actx->private_data)->type = save;
 
   return offset;
@@ -10397,7 +10363,7 @@ static const per_sequence_t dsrc_SignalStatusMessage_sequence[] = {
 
 static int
 dissect_dsrc_SignalStatusMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 405 "./asn1/its/its.cnf"
+#line 408 "./asn1/its/its.cnf"
   its_private_data_t *regext = wmem_new0(actx->pinfo->pool, its_private_data_t);
   actx->private_data = (void*)regext;
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SSEM");
@@ -10544,7 +10510,7 @@ static const per_sequence_t AddGrpC_ConnectionManeuverAssist_addGrpC_sequence[] 
 
 static int
 dissect_AddGrpC_ConnectionManeuverAssist_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 453 "./asn1/its/its.cnf"
+#line 456 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10562,7 +10528,7 @@ static const per_sequence_t AddGrpC_ConnectionTrajectory_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_ConnectionTrajectory_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 458 "./asn1/its/its.cnf"
+#line 461 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10609,7 +10575,7 @@ static const per_sequence_t AddGrpC_IntersectionState_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_IntersectionState_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 468 "./asn1/its/its.cnf"
+#line 471 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10627,7 +10593,7 @@ static const per_sequence_t AddGrpC_LaneAttributes_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_LaneAttributes_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 493 "./asn1/its/its.cnf"
+#line 496 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10674,7 +10640,7 @@ static const per_sequence_t AddGrpC_MapData_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MapData_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 473 "./asn1/its/its.cnf"
+#line 476 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10718,7 +10684,7 @@ static const per_sequence_t AddGrpC_MovementEvent_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_MovementEvent_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 498 "./asn1/its/its.cnf"
+#line 501 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10796,7 +10762,7 @@ static const per_sequence_t AddGrpC_NodeAttributeSet_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_NodeAttributeSet_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 463 "./asn1/its/its.cnf"
+#line 466 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10813,7 +10779,7 @@ static const per_sequence_t AddGrpC_Position3D_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_Position3D_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 478 "./asn1/its/its.cnf"
+#line 481 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10851,7 +10817,7 @@ static const per_sequence_t AddGrpC_RestrictionUserType_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RestrictionUserType_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 483 "./asn1/its/its.cnf"
+#line 486 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10887,7 +10853,7 @@ static const per_sequence_t AddGrpC_RequestorDescription_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_RequestorDescription_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 503 "./asn1/its/its.cnf"
+#line 506 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -10925,7 +10891,7 @@ static const per_sequence_t AddGrpC_SignalStatusPackage_addGrpC_sequence[] = {
 
 static int
 dissect_AddGrpC_SignalStatusPackage_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 488 "./asn1/its/its.cnf"
+#line 491 "./asn1/its/its.cnf"
   actx->private_data = wmem_new0(actx->pinfo->pool, its_private_data_t);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -11420,7 +11386,7 @@ static const value_string gdd_Code_Units_vals[] = {
 
 static int
 dissect_gdd_T_unit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 874 "./asn1/its/its.cnf"
+#line 880 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 8U, NULL, FALSE);
 
@@ -11447,7 +11413,7 @@ dissect_gdd_Distance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_gdd_T_unit_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 864 "./asn1/its/its.cnf"
+#line 870 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            10U, 12U, NULL, FALSE);
 
@@ -11501,7 +11467,7 @@ dissect_gdd_INTEGER_0_250(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_gdd_T_unit_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 859 "./asn1/its/its.cnf"
+#line 865 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            0U, 1U, NULL, FALSE);
 
@@ -11800,7 +11766,7 @@ dissect_gdd_DistOrDuration_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_gdd_DistOrDuration_Units(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 869 "./asn1/its/its.cnf"
+#line 875 "./asn1/its/its.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            2U, 9U, NULL, FALSE);
 
@@ -14242,7 +14208,7 @@ static const per_sequence_t ivi_IviStructure_sequence[] = {
 
 static int
 dissect_ivi_IviStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 399 "./asn1/its/its.cnf"
+#line 402 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IVIM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "IVIM");
@@ -14576,7 +14542,7 @@ static const per_sequence_t camv1_CoopAwarenessV1_sequence[] = {
 
 static int
 dissect_camv1_CoopAwarenessV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 363 "./asn1/its/its.cnf"
+#line 366 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
@@ -14892,7 +14858,7 @@ static const per_sequence_t cam_CoopAwareness_sequence[] = {
 
 static int
 dissect_cam_CoopAwareness(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 357 "./asn1/its/its.cnf"
+#line 360 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
@@ -15100,7 +15066,7 @@ static const per_sequence_t denmv1_DecentralizedEnvironmentalNotificationMessage
 
 static int
 dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 375 "./asn1/its/its.cnf"
+#line 378 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENMv1");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENMv1");
@@ -15308,7 +15274,7 @@ static const per_sequence_t denm_DecentralizedEnvironmentalNotificationMessage_s
 
 static int
 dissect_denm_DecentralizedEnvironmentalNotificationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 369 "./asn1/its/its.cnf"
+#line 372 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
@@ -16412,7 +16378,7 @@ static const per_choice_t tistpg_TisTpgTransaction_choice[] = {
 
 static int
 dissect_tistpg_TisTpgTransaction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 393 "./asn1/its/its.cnf"
+#line 396 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "TISTPG");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "TISTPG");
@@ -16545,7 +16511,7 @@ dissect_evcsn_ChargingSpotType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_evcsn_TypeOfReceptacle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 748 "./asn1/its/its.cnf"
+#line 751 "./asn1/its/its.cnf"
   tvbuff_t *parameter_tvb = NULL;
   int len;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -16719,7 +16685,7 @@ static const per_sequence_t evcsn_EVChargingSpotNotificationPOIMessage_sequence[
 
 static int
 dissect_evcsn_EVChargingSpotNotificationPOIMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 381 "./asn1/its/its.cnf"
+#line 384 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EVCSN");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EVCSN");
@@ -17223,7 +17189,7 @@ static const per_choice_t evrsr_EV_RSR_MessageBody_choice[] = {
 
 static int
 dissect_evrsr_EV_RSR_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 387 "./asn1/its/its.cnf"
+#line 390 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EV-RSR");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "EV-RSR");
@@ -18536,7 +18502,7 @@ static const per_sequence_t cpm_CollectivePerceptionMessage_sequence[] = {
 
 static int
 dissect_cpm_CollectivePerceptionMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 446 "./asn1/its/its.cnf"
+#line 449 "./asn1/its/its.cnf"
   actx->private_data = (void*)wmem_new0(actx->pinfo->pool, its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CPM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CPM");
@@ -18718,6 +18684,12 @@ its_speed_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
+its_speed_limit_fmt(gchar *s, guint32 v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%dkm/h (%d)", v, v);
+}
+
+static void
 its_vehicle_length_value_fmt(gchar *s, guint32 v)
 {
   if (v == 1023) {
@@ -18859,6 +18831,23 @@ dsrc_time_mark_fmt(gchar *s, guint32 v)
     snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u.%u (%d)",
             v / 600, v % 600 / 10, v % 10, v);
   }
+}
+
+static void
+its_timestamp_fmt(gchar *s, guint64 v)
+{
+  time_t secs = v / 1000 + 1072915200 - 5;
+  struct tm *tm = gmtime(&secs);
+  snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%03u (%" PRIu64 ")",
+    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, (guint32)(v % 1000), v
+  );
+}
+
+static void
+its_validity_duration_fmt(gchar *s, guint32 v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u:%02u (%d)",
+          v / 3600, v % 3600 / 60, v % 60, v);
 }
 
 static const value_string dsrc_TimeIntervalConfidence_vals[] = {
@@ -19075,11 +19064,11 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_its_deltaLatitude,
       { "deltaLatitude", "its.deltaLatitude",
-        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_deltaLongitude,
       { "deltaLongitude", "its.deltaLongitude",
-        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_deltaAltitude,
       { "deltaAltitude", "its.deltaAltitude",
@@ -19275,7 +19264,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_its_expiryTime,
       { "expiryTime", "its.expiryTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_its_protectedZoneLatitude,
       { "protectedZoneLatitude", "its.protectedZoneLatitude",
@@ -19554,11 +19543,11 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_itsv1_deltaLatitude,
       { "deltaLatitude", "itsv1.deltaLatitude",
-        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_deltaLongitude,
       { "deltaLongitude", "itsv1.deltaLongitude",
-        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_itsv1_deltaAltitude,
       { "deltaAltitude", "itsv1.deltaAltitude",
@@ -19750,7 +19739,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_itsv1_expiryTime,
       { "expiryTime", "itsv1.expiryTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(itsv1_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_itsv1_protectedZoneLatitude,
       { "protectedZoneLatitude", "itsv1.protectedZoneLatitude",
@@ -22367,15 +22356,15 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_ivi_timeStamp,
       { "timeStamp", "ivi.timeStamp",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_ivi_validFrom,
       { "validFrom", "ivi.validFrom",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_ivi_validTo,
       { "validTo", "ivi.validTo",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_ivi_connectedIviStructures,
       { "connectedIviStructures", "ivi.connectedIviStructures",
@@ -22395,7 +22384,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_ivi_referencePositionTime,
       { "referencePositionTime", "ivi.referencePositionTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_ivi_referencePositionHeading,
       { "referencePositionHeading", "ivi.referencePositionHeading_element",
@@ -22795,11 +22784,11 @@ void proto_register_its(void)
         "DeltaReferencePosition", HFILL }},
     { &hf_ivi_deltaLatitude,
       { "deltaLatitude", "ivi.deltaLatitude",
-        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
         NULL, HFILL }},
     { &hf_ivi_deltaLongitude,
       { "deltaLongitude", "ivi.deltaLongitude",
-        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_latitude_fmt), 0,
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_delta_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_ivi_dtm,
       { "dtm", "ivi.dtm_element",
@@ -23382,7 +23371,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_camv1_speedLimit,
       { "speedLimit", "camv1.speedLimit",
-        FT_UINT32, BASE_DEC, VALS(itsv1_SpeedLimit_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_speed_limit_fmt), 0,
         NULL, HFILL }},
     { &hf_camv1_protectedCommunicationZonesRSU,
       { "protectedCommunicationZonesRSU", "camv1.protectedCommunicationZonesRSU",
@@ -23585,7 +23574,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_cam_speedLimit,
       { "speedLimit", "cam.speedLimit",
-        FT_UINT32, BASE_DEC, VALS(its_SpeedLimit_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_speed_limit_fmt), 0,
         NULL, HFILL }},
     { &hf_cam_protectedCommunicationZonesRSU,
       { "protectedCommunicationZonesRSU", "cam.protectedCommunicationZonesRSU",
@@ -23620,11 +23609,11 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_denmv1_detectionTime,
       { "detectionTime", "denmv1.detectionTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(itsv1_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_denmv1_referenceTime,
       { "referenceTime", "denmv1.referenceTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(itsv1_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_denmv1_termination,
       { "termination", "denmv1.termination",
@@ -23644,7 +23633,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_denmv1_validityDuration,
       { "validityDuration", "denmv1.validityDuration",
-        FT_UINT32, BASE_DEC, VALS(itsv1_ValidityDuration_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_validity_duration_fmt), 0,
         NULL, HFILL }},
     { &hf_denmv1_transmissionInterval,
       { "transmissionInterval", "denmv1.transmissionInterval",
@@ -23748,7 +23737,7 @@ void proto_register_its(void)
         "RestrictedTypes", HFILL }},
     { &hf_denmv1_speedLimit,
       { "speedLimit", "denmv1.speedLimit",
-        FT_UINT32, BASE_DEC, VALS(itsv1_SpeedLimit_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_speed_limit_fmt), 0,
         NULL, HFILL }},
     { &hf_denmv1_incidentIndication,
       { "incidentIndication", "denmv1.incidentIndication_element",
@@ -23851,11 +23840,11 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_denm_detectionTime,
       { "detectionTime", "denm.detectionTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_denm_referenceTime,
       { "referenceTime", "denm.referenceTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_denm_termination,
       { "termination", "denm.termination",
@@ -23875,7 +23864,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_denm_validityDuration,
       { "validityDuration", "denm.validityDuration",
-        FT_UINT32, BASE_DEC, VALS(its_ValidityDuration_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_validity_duration_fmt), 0,
         NULL, HFILL }},
     { &hf_denm_transmissionInterval,
       { "transmissionInterval", "denm.transmissionInterval",
@@ -23979,7 +23968,7 @@ void proto_register_its(void)
         "RestrictedTypes", HFILL }},
     { &hf_denm_speedLimit,
       { "speedLimit", "denm.speedLimit",
-        FT_UINT32, BASE_DEC, VALS(its_SpeedLimit_vals), 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(its_speed_limit_fmt), 0,
         NULL, HFILL }},
     { &hf_denm_incidentIndication,
       { "incidentIndication", "denm.incidentIndication_element",
@@ -24102,7 +24091,7 @@ void proto_register_its(void)
         "TisTpgDRM_Location", HFILL }},
     { &hf_tistpg_generationTime,
       { "generationTime", "tistpg.generationTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_tistpg_vehicleType,
       { "vehicleType", "tistpg.vehicleType",
@@ -24186,7 +24175,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_tistpg_estArrivalTime,
       { "estArrivalTime", "tistpg.estArrivalTime",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_tistpg_proposedPairingID,
       { "proposedPairingID", "tistpg.proposedPairingID",
@@ -24218,7 +24207,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_tistpg_reservationTimeLimit,
       { "reservationTimeLimit", "tistpg.reservationTimeLimit",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_tistpg_cancellationCondition,
       { "cancellationCondition", "tistpg.cancellationCondition",
@@ -24481,7 +24470,7 @@ void proto_register_its(void)
         NULL, HFILL }},
     { &hf_evcsn_timeStamp,
       { "timeStamp", "evcsn.timeStamp",
-        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(its_TimestampIts_vals), 0,
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
         "TimestampIts", HFILL }},
     { &hf_evcsn_relayCapable,
       { "relayCapable", "evcsn.relayCapable",
@@ -25363,7 +25352,7 @@ void proto_register_its(void)
         "Offset_B16", HFILL }},
 
 /*--- End of included file: packet-its-hfarr.c ---*/
-#line 835 "./asn1/its/packet-its-template.c"
+#line 858 "./asn1/its/packet-its-template.c"
 
     { &hf_its_roadworksSubCauseCode,
       { "roadworksSubCauseCode", "its.subCauseCode",
@@ -26137,7 +26126,7 @@ void proto_register_its(void)
     &ett_cpm_NodeOffsetPointZ,
 
 /*--- End of included file: packet-its-ettarr.c ---*/
-#line 1038 "./asn1/its/packet-its-template.c"
+#line 1061 "./asn1/its/packet-its-template.c"
     };
 
     static ei_register_info ei[] = {

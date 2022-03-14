@@ -514,6 +514,12 @@ its_speed_confidence_fmt(gchar *s, guint32 v)
 }
 
 static void
+its_speed_limit_fmt(gchar *s, guint32 v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%dkm/h (%d)", v, v);
+}
+
+static void
 its_vehicle_length_value_fmt(gchar *s, guint32 v)
 {
   if (v == 1023) {
@@ -655,6 +661,23 @@ dsrc_time_mark_fmt(gchar *s, guint32 v)
     snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u.%u (%d)",
             v / 600, v % 600 / 10, v % 10, v);
   }
+}
+
+static void
+its_timestamp_fmt(gchar *s, guint64 v)
+{
+  time_t secs = v / 1000 + 1072915200 - 5;
+  struct tm *tm = gmtime(&secs);
+  snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%03u (%" PRIu64 ")",
+    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, (guint32)(v % 1000), v
+  );
+}
+
+static void
+its_validity_duration_fmt(gchar *s, guint32 v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u:%02u (%d)",
+          v / 3600, v % 3600 / 60, v % 60, v);
 }
 
 static const value_string dsrc_TimeIntervalConfidence_vals[] = {

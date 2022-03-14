@@ -287,11 +287,11 @@ Node-XY-28b/y                     n28bY
 Node-XY-32b/y                     n32bY
 
 #.TYPE_ATTR
-Longitude          DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_longitude_fmt)
 Latitude           DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_latitude_fmt)
+Longitude          DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_longitude_fmt)
 AltitudeValue      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_altitude_fmt)
-DeltaLatitude      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_delta_longitude_fmt)
-DeltaLongitude     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_delta_latitude_fmt)
+DeltaLatitude      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_delta_latitude_fmt)
+DeltaLongitude     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_delta_longitude_fmt)
 DeltaAltitude      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_delta_altitude_fmt)
 PathDeltaTime      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_path_delta_time_fmt)
 SemiAxisLength     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_sax_length_fmt)
@@ -299,6 +299,7 @@ HeadingValue       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_heading_value_fmt)
 HeadingConfidence  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_heading_confidence_fmt)
 SpeedValue         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_speed_value_fmt)
 SpeedConfidence    DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_speed_confidence_fmt)
+SpeedLimit         DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_speed_limit_fmt)
 VehicleLengthValue DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_vehicle_length_value_fmt)
 VehicleWidth       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_vehicle_width_fmt)
 LongitudinalAccelerationValue DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_acceleration_value_fmt)
@@ -309,6 +310,8 @@ CurvatureValue     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_curvature_value_fmt)
 YawRateValue       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_yaw_rate_value_fmt)
 SteeringWheelAngleValue      DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_swa_value_fmt)
 SteeringWheelAngleConfidence DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_swa_confidence_fmt)
+TimestampIts       DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_timestamp_fmt)
+ValidityDuration   DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_validity_duration_fmt)
 
 GenerationDeltaTime                STRINGS=NULL
 
@@ -792,6 +795,7 @@ $ITS-ContainerV1$HeadingValue
 HeadingConfidence
 SpeedValue
 SpeedConfidence
+SpeedLimit
 VehicleLengthValue
 VehicleWidth
 LongitudinalAccelerationValue
@@ -802,6 +806,8 @@ CurvatureValue
 YawRateValue
 SteeringWheelAngleValue
 SteeringWheelAngleConfidence
+TimestampIts
+ValidityDuration
 GenerationDeltaTime
 TimeOfMeasurement
 ClassConfidence
