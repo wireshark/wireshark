@@ -1621,46 +1621,62 @@ struct supported_block_type {
     sizeof block_type_array / sizeof block_type_array[0], block_type_array
 
 struct file_type_subtype_info {
-    /*
+    /**
      * The file type description.
      */
     const char *description;
 
-    /*
+    /**
      * The file type name, used to look up file types by name, e.g.
      * looking up a file type specified as a command-line argument.
      */
     const char *name;
 
-    /* the default file extension, used to save this type */
-    /* should be NULL if no default extension is known */
+    /**
+     * The default file extension, used to save this type.
+     * Should be NULL if no default extension is known.
+     */
     const char *default_file_extension;
 
-    /* a semicolon-separated list of additional file extensions */
-    /* used for this type */
-    /* should be NULL if no extensions, or no extensions other */
-    /* than the default extension, are known */
+    /**
+     * A semicolon-separated list of additional file extensions
+     * used for this type.
+     * Should be NULL if no extensions, or no extensions other
+     * than the default extension, are known.
+     */
     const char *additional_file_extensions;
 
-    /* when writing this file format, is seeking required? */
+    /**
+     * When writing this file format, is seeking required?
+     */
     gboolean writing_must_seek;
 
-    /* Number of block types supported. */
+    /**
+     * Number of block types supported.
+     */
     size_t num_supported_blocks;
 
-    /* Table of block types supported. */
+    /**
+     * Table of block types supported.
+     */
     const struct supported_block_type *supported_blocks;
 
-    /* can this type write this encapsulation format? */
-    /* should be NULL is this file type doesn't have write support */
+    /**
+     * Can this type write this encapsulation format?
+     * Should be NULL is this file type doesn't have write support.
+     */
     int (*can_write_encap)(int);
 
-    /* the function to open the capture file for writing */
-    /* should be NULL is this file type don't have write support */
+    /**
+     * The function to open the capture file for writing.
+     * Should be NULL if this file type doesn't have write support.
+     */
     int (*dump_open)(wtap_dumper *, int *, gchar **);
 
-    /* if can_write_encap returned WTAP_ERR_CHECK_WSLUA, then this is used instead */
-    /* this should be NULL for everyone except Lua-based file writers */
+    /**
+     * If can_write_encap returned WTAP_ERR_CHECK_WSLUA, then this is used instead.
+     * This should be NULL for everyone except Lua-based file writers.
+     */
     wtap_wslua_file_info_t *wslua_info;
 };
 
@@ -2260,86 +2276,86 @@ void wtap_cleanup(void);
  * Wiretap error codes.
  */
 #define WTAP_ERR_NOT_REGULAR_FILE              -1
-    /** The file being opened for reading isn't a plain file (or pipe) */
+    /**< The file being opened for reading isn't a plain file (or pipe) */
 
 #define WTAP_ERR_RANDOM_OPEN_PIPE              -2
-    /** The file is being opened for random access and it's a pipe */
+    /**< The file is being opened for random access and it's a pipe */
 
 #define WTAP_ERR_FILE_UNKNOWN_FORMAT           -3
-    /** The file being opened is not a capture file in a known format */
+    /**< The file being opened is not a capture file in a known format */
 
 #define WTAP_ERR_UNSUPPORTED                   -4
-    /** Supported file type, but there's something in the file we
+    /**< Supported file type, but there's something in the file we
        can't support */
 
 #define WTAP_ERR_CANT_WRITE_TO_PIPE            -5
-    /** Wiretap can't save to a pipe in the specified format */
+    /**< Wiretap can't save to a pipe in the specified format */
 
 #define WTAP_ERR_CANT_OPEN                     -6
-    /** The file couldn't be opened, reason unknown */
+    /**< The file couldn't be opened, reason unknown */
 
 #define WTAP_ERR_UNWRITABLE_FILE_TYPE          -7
-    /** Wiretap can't save files in the specified format */
+    /**< Wiretap can't save files in the specified format */
 
 #define WTAP_ERR_UNWRITABLE_ENCAP              -8
-    /** Wiretap can't read or save files in the specified format with the
+    /**< Wiretap can't read or save files in the specified format with the
        specified encapsulation */
 
 #define WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED  -9
-    /** The specified format doesn't support per-packet encapsulations */
+    /**< The specified format doesn't support per-packet encapsulations */
 
 #define WTAP_ERR_CANT_WRITE                   -10
-    /** An attempt to read failed, reason unknown */
+    /**< An attempt to read failed, reason unknown */
 
 #define WTAP_ERR_CANT_CLOSE                   -11
-    /** The file couldn't be closed, reason unknown */
+    /**< The file couldn't be closed, reason unknown */
 
 #define WTAP_ERR_SHORT_READ                   -12
-    /** An attempt to read less data than it should have */
+    /**< An attempt to read less data than it should have */
 
 #define WTAP_ERR_BAD_FILE                     -13
-    /** The file appears to be damaged or corrupted or otherwise bogus */
+    /**< The file appears to be damaged or corrupted or otherwise bogus */
 
 #define WTAP_ERR_SHORT_WRITE                  -14
-    /** An attempt to write wrote less data than it should have */
+    /**< An attempt to write wrote less data than it should have */
 
 #define WTAP_ERR_UNC_OVERFLOW                 -15
-    /** Uncompressing Sniffer data would overflow buffer */
+    /**< Uncompressing Sniffer data would overflow buffer */
 
 #define WTAP_ERR_RANDOM_OPEN_STDIN            -16
-    /** We're trying to open the standard input for random access */
+    /**< We're trying to open the standard input for random access */
 
 #define WTAP_ERR_COMPRESSION_NOT_SUPPORTED    -17
-    /* The filetype doesn't support output compression */
+    /**< The filetype doesn't support output compression */
 
 #define WTAP_ERR_CANT_SEEK                    -18
-    /** An attempt to seek failed, reason unknown */
+    /**< An attempt to seek failed, reason unknown */
 
 #define WTAP_ERR_CANT_SEEK_COMPRESSED         -19
-    /** An attempt to seek on a compressed stream */
+    /**< An attempt to seek on a compressed stream */
 
 #define WTAP_ERR_DECOMPRESS                   -20
-    /** Error decompressing */
+    /**< Error decompressing */
 
 #define WTAP_ERR_INTERNAL                     -21
-    /** "Shouldn't happen" internal errors */
+    /**< "Shouldn't happen" internal errors */
 
 #define WTAP_ERR_PACKET_TOO_LARGE             -22
-    /** Packet being written is larger than we support; do not use when
+    /**< Packet being written is larger than we support; do not use when
         reading, use WTAP_ERR_BAD_FILE instead */
 
 #define WTAP_ERR_CHECK_WSLUA                  -23
-    /** Not really an error: the file type being checked is from a Lua
+    /**< Not really an error: the file type being checked is from a Lua
         plugin, so that the code will call wslua_can_write_encap() instead if it gets this */
 
 #define WTAP_ERR_UNWRITABLE_REC_TYPE          -24
-    /** Specified record type can't be written to that file type */
+    /**< Specified record type can't be written to that file type */
 
 #define WTAP_ERR_UNWRITABLE_REC_DATA          -25
-    /** Something in the record data can't be written to that file type */
+    /**< Something in the record data can't be written to that file type */
 
 #define WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED  -26
-    /** We don't support decompressing that type of compressed file */
+    /**< We don't support decompressing that type of compressed file */
 
 #ifdef __cplusplus
 }
