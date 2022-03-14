@@ -713,6 +713,30 @@ $VAR1 = {
                                            'Source' => 'file_access.c',
                                            'SourceLine' => '2618'
                                          },
+                            '1143883' => {
+                                           'Header' => 'wtap.h',
+                                           'Line' => '2624',
+                                           'Param' => {
+                                                        '0' => {
+                                                                 'name' => 'wdh',
+                                                                 'type' => '10606'
+                                                               },
+                                                        '1' => {
+                                                                 'name' => 'needs_reload',
+                                                                 'type' => '513681'
+                                                               },
+                                                        '2' => {
+                                                                 'name' => 'err',
+                                                                 'type' => '10005'
+                                                               },
+                                                        '3' => {
+                                                                 'name' => 'err_info',
+                                                                 'type' => '2192'
+                                                               }
+                                                      },
+                                           'Return' => '432',
+                                           'ShortName' => 'wtap_dump_close_new_temp'
+                                         },
                             '1143180' => {
                                            'Line' => '2598',
                                            'Param' => {

@@ -2621,7 +2621,8 @@ wtap_dump_flush(wtap_dumper *wdh, int *err)
 }
 
 gboolean
-wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info)
+wtap_dump_close_new_temp(wtap_dumper *wdh, gboolean *needs_reload,
+    int *err, gchar **err_info)
 {
 	gboolean ret = TRUE;
 
@@ -2643,11 +2644,19 @@ wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info)
 		}
 		ret = FALSE;
 	}
+	if (needs_reload != NULL)
+		*needs_reload = wdh->needs_reload;
 	g_free(wdh->priv);
 	wtap_block_array_free(wdh->interface_data);
 	wtap_block_array_free(wdh->dsbs_initial);
 	g_free(wdh);
 	return ret;
+}
+
+gboolean
+wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info)
+{
+	return wtap_dump_close_new_temp(wdh, NULL, err, err_info);
 }
 
 int

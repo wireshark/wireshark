@@ -94,6 +94,7 @@ libwiretap.so.12 libwiretap12 #MINVER#
  wtap_dump_can_write@Base 1.9.1
  wtap_dump_can_write_encap@Base 3.5.0
  wtap_dump_close@Base 1.9.1
+ wtap_dump_close_new_temp@Base 3.6.3
  wtap_dump_discard_decryption_secrets@Base 3.0.0
  wtap_dump_fdopen@Base 1.9.1
  wtap_dump_file_encap_type@Base 1.9.1
