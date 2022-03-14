@@ -1051,7 +1051,7 @@ clean_exit:
     if (wdh) {
         int err;
         char *err_info;
-        if (!wtap_dump_close(wdh, &err, &err_info)) {
+        if (!wtap_dump_close(wdh, NULL, &err, &err_info)) {
             cfile_close_failure_message(output_filename, err, err_info);
             ret = 2;
         }

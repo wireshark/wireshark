@@ -383,7 +383,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
     {
         if (*err == ERROR_SUCCESS)
         {
-            if (!wtap_dump_close(g_pdh, err, err_info))
+            if (!wtap_dump_close(g_pdh, NULL, err, err_info))
             {
                 returnVal = WTAP_OPEN_ERROR;
             }
@@ -392,7 +392,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         {
             int err_ignore;
             gchar* err_info_ignore = NULL;
-            if (!wtap_dump_close(g_pdh, &err_ignore, &err_info_ignore))
+            if (!wtap_dump_close(g_pdh, NULL, &err_ignore, &err_info_ignore))
             {
                 returnVal = WTAP_OPEN_ERROR;
                 g_free(err_info_ignore);

@@ -357,7 +357,7 @@ main(int argc, char *argv[])
     g_ptr_array_free(frames, TRUE);
 
     /* Close outfile */
-    if (!wtap_dump_close(pdh, &err, &err_info)) {
+    if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
         cfile_close_failure_message(outfile, err, err_info);
         wtap_dump_params_cleanup(&params);
         ret = OUTPUT_FILE_ERROR;

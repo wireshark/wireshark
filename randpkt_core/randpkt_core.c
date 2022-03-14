@@ -646,7 +646,7 @@ gboolean randpkt_example_close(randpkt_example* example)
 	gchar *err_info;
 	gboolean ok = TRUE;
 
-	if (!wtap_dump_close(example->dump, &err, &err_info)) {
+	if (!wtap_dump_close(example->dump, NULL, &err, &err_info)) {
 		cfile_close_failure_message(example->filename, err, err_info);
 		ok = FALSE;
 	}

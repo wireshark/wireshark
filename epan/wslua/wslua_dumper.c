@@ -302,7 +302,7 @@ WSLUA_METHOD Dumper_close(lua_State* L) {
 
     g_hash_table_remove(dumper_encaps,*dp);
 
-    if (!wtap_dump_close(*dp, &err, &err_info)) {
+    if (!wtap_dump_close(*dp, NULL, &err, &err_info)) {
         if (err_info != NULL) {
             luaL_error(L,"error closing: %s (%s)",
                        wtap_strerror(err), err_info);
@@ -585,7 +585,7 @@ static int Dumper__gc(lua_State* L) {
 
     g_hash_table_remove(dumper_encaps,*dp);
 
-    if (!wtap_dump_close(*dp, &err, &err_info)) {
+    if (!wtap_dump_close(*dp, NULL, &err, &err_info)) {
         if (err_info != NULL) {
             luaL_error(L,"error closing: %s (%s)",
                        wtap_strerror(err), err_info);

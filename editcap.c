@@ -1023,7 +1023,7 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
                 int close_err;
                 gchar *close_err_info;
 
-                wtap_dump_close(pdh, &close_err, &close_err_info);
+                wtap_dump_close(pdh, NULL, &close_err, &close_err_info);
                 g_free(close_err_info);
                 wtap_block_unref(if_data_copy);
                 return NULL;
@@ -1808,7 +1808,7 @@ main(int argc, char *argv[])
                 }
                 while (nstime_cmp(&rec->ts, &block_next) > 0) { /* time for the next file */
 
-                    if (!wtap_dump_close(pdh, &write_err, &write_err_info)) {
+                    if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
                         cfile_close_failure_message(filename, write_err,
                                                     write_err_info);
                         ret = WRITE_ERROR;
@@ -1840,7 +1840,7 @@ main(int argc, char *argv[])
         if (split_packet_count != 0) {
             /* time for the next file? */
             if (written_count > 0 && (written_count % split_packet_count) == 0) {
-                if (!wtap_dump_close(pdh, &write_err, &write_err_info)) {
+                if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
                     cfile_close_failure_message(filename, write_err,
                                                 write_err_info);
                     ret = WRITE_ERROR;
@@ -2272,7 +2272,7 @@ main(int argc, char *argv[])
         }
     }
 
-    if (!wtap_dump_close(pdh, &write_err, &write_err_info)) {
+    if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
         cfile_close_failure_message(filename, write_err, write_err_info);
         ret = WRITE_ERROR;
         goto clean_exit;

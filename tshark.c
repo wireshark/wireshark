@@ -3895,14 +3895,14 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
                 }
             }
             /* Now close the capture file. */
-            if (!wtap_dump_close(pdh, &err, &err_info)) {
+            if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
                 cfile_close_failure_message(save_file, err, err_info);
                 status = PROCESS_FILE_ERROR;
             }
         } else {
             /* We got a write error; it was reported, so just close the dump file
                without bothering to check for further errors. */
-            wtap_dump_close(pdh, &err, &err_info);
+            wtap_dump_close(pdh, NULL, &err, &err_info);
             g_free(err_info);
             status = PROCESS_FILE_ERROR;
         }

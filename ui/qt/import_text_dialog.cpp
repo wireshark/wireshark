@@ -530,7 +530,7 @@ int ImportTextDialog::exec() {
     }
 
   cleanup: /* free in reverse order of allocation */
-    if (!wtap_dump_close(import_info_.wdh, &err, &err_info))
+    if (!wtap_dump_close(import_info_.wdh, NULL, &err, &err_info))
     {
         cfile_close_failure_alert_box(capfile_name_.toUtf8().constData(), err, err_info);
     }

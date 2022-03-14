@@ -952,7 +952,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
         cb->callback_func(MERGE_EVENT_DONE, count, in_files, in_file_count, cb->data);
 
     if (status == MERGE_OK || status == MERGE_USER_ABORTED) {
-        if (!wtap_dump_close(pdh, err, err_info))
+        if (!wtap_dump_close(pdh, NULL, err, err_info))
             status = MERGE_ERR_CANT_CLOSE_OUTFILE;
     } else {
         /*
@@ -963,7 +963,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
          */
         int close_err = 0;
         gchar *close_err_info = NULL;
-        (void)wtap_dump_close(pdh, &close_err, &close_err_info);
+        (void)wtap_dump_close(pdh, NULL, &close_err, &close_err_info);
         g_free(close_err_info);
     }
 

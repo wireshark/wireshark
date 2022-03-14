@@ -102,7 +102,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_file_type_subtype@Base 3.3.2
  wtap_dump_file_write@Base 1.12.0~rc1
  wtap_dump_flush@Base 1.9.1
- wtap_dump_get_needs_reload@Base 2.5.0
  wtap_dump_open@Base 1.9.1
  wtap_dump_open_stdout@Base 2.0.0
  wtap_dump_open_tempfile@Base 2.0.0

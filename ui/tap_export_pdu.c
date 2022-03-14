@@ -185,7 +185,7 @@ exp_pdu_close(exp_pdu_t *exp_pdu_tap_data, int *err, gchar **err_info)
 {
     gboolean status;
 
-    status = wtap_dump_close(exp_pdu_tap_data->wdh, err, err_info);
+    status = wtap_dump_close(exp_pdu_tap_data->wdh, NULL, err, err_info);
 
     wtap_block_array_free(exp_pdu_tap_data->shb_hdrs);
     wtap_free_idb_info(exp_pdu_tap_data->idb_inf);

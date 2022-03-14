@@ -4876,7 +4876,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
                    If we're writing to a temporary file, remove it.
                    XXX - should we do so even if we're not writing to a
                    temporary file? */
-                wtap_dump_close(pdh, &err, &err_info);
+                wtap_dump_close(pdh, NULL, &err, &err_info);
                 if (fname_new != NULL)
                     ws_unlink(fname_new);
                 cf_callback_invoke(cf_cb_file_save_stopped, NULL);
@@ -4887,13 +4887,11 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
                    If we're writing to a temporary file, remove it. */
                 if (fname_new != NULL)
                     ws_unlink(fname_new);
-                wtap_dump_close(pdh, &err, &err_info);
+                wtap_dump_close(pdh, NULL, &err, &err_info);
                 goto fail;
         }
 
-        needs_reload = wtap_dump_get_needs_reload(pdh);
-
-        if (!wtap_dump_close(pdh, &err, &err_info)) {
+        if (!wtap_dump_close(pdh, &needs_reload, &err, &err_info)) {
             cfile_close_failure_alert_box(fname, err, err_info);
             goto fail;
         }
@@ -5141,7 +5139,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
                If we're writing to a temporary file, remove it.
                XXX - should we do so even if we're not writing to a
                temporary file? */
-            wtap_dump_close(pdh, &err, &err_info);
+            wtap_dump_close(pdh, NULL, &err, &err_info);
             if (fname_new != NULL) {
                 ws_unlink(fname_new);
                 g_free(fname_new);
@@ -5151,7 +5149,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
 
         case PSP_FAILED:
             /* Error while saving. */
-            wtap_dump_close(pdh, &err, &err_info);
+            wtap_dump_close(pdh, NULL, &err, &err_info);
             /*
              * We don't report any error from closing; the error that caused
              * process_specified_records() to fail has already been reported.
@@ -5159,7 +5157,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
             goto fail;
     }
 
-    if (!wtap_dump_close(pdh, &err, &err_info)) {
+    if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
         cfile_close_failure_alert_box(fname, err, err_info);
         goto fail;
     }

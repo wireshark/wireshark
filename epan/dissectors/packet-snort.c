@@ -1400,7 +1400,7 @@ static void snort_cleanup(void)
     if (current_session.pdh) {
         int write_err;
         gchar *write_err_info;
-        if (!wtap_dump_close(current_session.pdh, &write_err, &write_err_info)) {
+        if (!wtap_dump_close(current_session.pdh, NULL, &write_err, &write_err_info)) {
             /* XXX - somehow report the error? */
             g_free(write_err_info);
         }

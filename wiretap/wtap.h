@@ -2121,16 +2121,27 @@ gboolean wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
-gboolean wtap_dump_get_needs_reload(wtap_dumper *wdh);
-WS_DLL_PUBLIC
 void wtap_dump_discard_decryption_secrets(wtap_dumper *wdh);
 
 /**
  * Closes open file handles and frees memory associated with wdh. Note that
  * shb_hdr, idb_inf and nrb_hdr are not freed by this routine.
+ *
+ * @param wdh handle for the file we're closing.
+ * @param[out] needs_reload if not null, points to a gboolean that will
+ *    be set to TRUE if a full reload of the file would be required if
+ *    this was done as part of a "Save" or "Save As" operation, FALSE
+ *    if no full reload would be required.
+ * @param[out] err points to an int that will be set to an error code
+ *    on failure.
+ * @param[out] err_info for some errors, points to a gchar * that will
+ *    be set to a string giving more details of the error.
+ *
+ * @return TRUE on success, FALSE on failure.
  */
 WS_DLL_PUBLIC
-gboolean wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info);
+gboolean wtap_dump_close(wtap_dumper *wdh, gboolean *needs_reload,
+    int *err, gchar **err_info);
 
 /**
  * Return TRUE if we can write a file out with the given GArray of file
