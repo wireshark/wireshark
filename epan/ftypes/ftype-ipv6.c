@@ -178,6 +178,7 @@ ftype_register_ipv6(void)
 		"IPv6 address",			/* pretty_name */
 		FT_IPv6_LEN,			/* wire_size */
 		NULL,				/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		ipv6_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */

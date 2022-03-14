@@ -28,6 +28,7 @@ enum ft_result {
 };
 
 typedef void (*FvalueNewFunc)(fvalue_t*);
+typedef void (*FvalueCopyFunc)(fvalue_t*, const fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
 typedef gboolean (*FvalueFromLiteral)(fvalue_t*, const char*, gboolean, gchar **);
@@ -70,6 +71,7 @@ struct _ftype_t {
 	const char		*pretty_name;
 	int			wire_size;
 	FvalueNewFunc		new_value;
+	FvalueCopyFunc		copy_value;
 	FvalueFreeFunc		free_value;
 	FvalueFromLiteral	val_from_literal;
 	FvalueFromString	val_from_string;

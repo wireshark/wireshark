@@ -868,6 +868,7 @@ ftype_register_integers(void)
 		"Character, 1 byte",		/* pretty name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint8_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -893,6 +894,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 1 byte",	/* pretty name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint8_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -918,6 +920,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 2 bytes",	/* pretty_name */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint16_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -943,6 +946,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 3 bytes",	/* pretty_name */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint24_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -968,6 +972,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 4 bytes",	/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint32_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -993,6 +998,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 5 bytes",	/* pretty_name */
 		5,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint40_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1018,6 +1024,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 6 bytes",	/* pretty_name */
 		6,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint48_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1043,6 +1050,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 7 bytes",	/* pretty_name */
 		7,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint56_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1068,6 +1076,7 @@ ftype_register_integers(void)
 		"Unsigned integer, 8 bytes",	/* pretty_name */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint64_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1093,6 +1102,7 @@ ftype_register_integers(void)
 		"Signed integer, 1 byte",	/* pretty_name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint8_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1118,6 +1128,7 @@ ftype_register_integers(void)
 		"Signed integer, 2 bytes",	/* pretty_name */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint16_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1143,6 +1154,7 @@ ftype_register_integers(void)
 		"Signed integer, 3 bytes",	/* pretty_name */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint24_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1168,6 +1180,7 @@ ftype_register_integers(void)
 		"Signed integer, 4 bytes",	/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint32_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1193,6 +1206,7 @@ ftype_register_integers(void)
 		"Signed integer, 5 bytes",	/* pretty_name */
 		5,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint40_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1218,6 +1232,7 @@ ftype_register_integers(void)
 		"Signed integer, 6 bytes",	/* pretty_name */
 		6,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint48_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1243,6 +1258,7 @@ ftype_register_integers(void)
 		"Signed integer, 7 bytes",	/* pretty_name */
 		7,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint56_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1268,6 +1284,7 @@ ftype_register_integers(void)
 		"Signed integer, 8 bytes",	/* pretty_name */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		sint64_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1293,6 +1310,7 @@ ftype_register_integers(void)
 		"Boolean",			/* pretty_name */
 		0,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		boolean_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1319,6 +1337,7 @@ ftype_register_integers(void)
 		"IPX network number",		/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		ipxnet_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1345,6 +1364,7 @@ ftype_register_integers(void)
 		"Frame number",			/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		uint32_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -1371,6 +1391,7 @@ ftype_register_integers(void)
 		"EUI64 address",		/* pretty_name */
 		FT_EUI64_LEN,			/* wire_size */
 		int64_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		eui64_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */

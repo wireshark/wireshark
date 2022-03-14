@@ -904,6 +904,7 @@ Example: 114 is 0x0072
         2,                                    /* wire_size */
 
         sfloat_ieee_11073_fvalue_new,         /* new_value */
+        NULL,                                 /* copy_value */
         NULL,                                 /* free_value */
         sfloat_ieee_11073_val_from_literal,   /* val_from_literal */
         NULL,                                 /* val_from_string */
@@ -957,6 +958,7 @@ Example: 36.4 is 0xFF00016C
         4,                                    /* wire_size */
 
         float_ieee_11073_fvalue_new,         /* new_value */
+        NULL,                                /* copy_value */
         NULL,                                /* free_value */
         float_ieee_11073_val_from_literal,   /* val_from_literal */
         NULL,                                /* val_from_string */

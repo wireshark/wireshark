@@ -268,6 +268,27 @@ fvalue_new(ftenum_t ftype)
 	return fv;
 }
 
+fvalue_t*
+fvalue_dup(const fvalue_t *fv_orig)
+{
+	fvalue_t		*fv_new;
+	FvalueCopyFunc		copy_value;
+
+	fv_new = g_slice_new(fvalue_t);
+	fv_new->ftype = fv_orig->ftype;
+	copy_value = fv_new->ftype->copy_value;
+	if (copy_value != NULL) {
+		/* deep copy */
+		copy_value(fv_new, fv_orig);
+	}
+	else {
+		/* shallow copy */
+		memcpy(&fv_new->value, &fv_orig->value, sizeof(fv_orig->value));
+	}
+
+	return fv_new;
+}
+
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype)
 {

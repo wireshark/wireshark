@@ -155,6 +155,7 @@ ftype_register_ipv4(void)
 		"IPv4 address",			/* pretty_name */
 		4,				/* wire_size */
 		NULL,				/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		val_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */

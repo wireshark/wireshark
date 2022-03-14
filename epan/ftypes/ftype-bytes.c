@@ -23,6 +23,14 @@ bytes_fvalue_new(fvalue_t *fv)
 }
 
 static void
+bytes_fvalue_copy(fvalue_t *dst, const fvalue_t *src)
+{
+	dst->value.bytes = g_byte_array_new();
+	dst->value.bytes->data = g_memdup2(src->value.bytes->data, src->value.bytes->len);
+	dst->value.bytes->len = src->value.bytes->len;
+}
+
+static void
 bytes_fvalue_free(fvalue_t *fv)
 {
 	if (fv->value.bytes) {
@@ -588,6 +596,7 @@ ftype_register_bytes(void)
 		"Sequence of bytes",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		bytes_from_literal,		/* val_from_literal */
 		bytes_from_string,		/* val_from_string */
@@ -614,6 +623,7 @@ ftype_register_bytes(void)
 		"Sequence of bytes",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		bytes_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -640,6 +650,7 @@ ftype_register_bytes(void)
 		"AX.25 address",		/* pretty_name */
 		FT_AX25_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		ax25_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -666,6 +677,7 @@ ftype_register_bytes(void)
 		"VINES address",		/* pretty_name */
 		FT_VINES_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		vines_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -692,6 +704,7 @@ ftype_register_bytes(void)
 		"Ethernet or other MAC address",/* pretty_name */
 		FT_ETHER_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		ether_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -718,6 +731,7 @@ ftype_register_bytes(void)
 		"ASN.1 object identifier",	/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		oid_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -744,6 +758,7 @@ ftype_register_bytes(void)
 		"ASN.1 relative object identifier",	/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		rel_oid_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -770,6 +785,7 @@ ftype_register_bytes(void)
 		"OSI System-ID",		/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		system_id_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -796,6 +812,7 @@ ftype_register_bytes(void)
 		"Fibre Channel WWN",	/* pretty_name */
 		FT_FCWWN_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_copy,		/* copy_value */
 		bytes_fvalue_free,		/* free_value */
 		fcwwn_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */

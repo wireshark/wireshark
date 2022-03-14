@@ -112,6 +112,7 @@ ftype_register_double(void)
 		"Floating point (single-precision)", /* pretty_name */
 		0,				/* wire_size */
 		double_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		val_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
@@ -138,6 +139,7 @@ ftype_register_double(void)
 		"Floating point (double-precision)", /* pretty_name */
 		0,				/* wire_size */
 		double_fvalue_new,		/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		val_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */

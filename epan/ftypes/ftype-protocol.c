@@ -26,6 +26,14 @@ value_new(fvalue_t *fv)
 }
 
 static void
+value_copy(fvalue_t *dst, const fvalue_t *src)
+{
+	dst->value.protocol.tvb = tvb_clone(src->value.protocol.tvb);
+	dst->value.protocol.proto_string = g_strdup(src->value.protocol.proto_string);
+	dst->value.protocol.tvb_is_private = TRUE;
+}
+
+static void
 value_free(fvalue_t *fv)
 {
 	if (fv->value.protocol.tvb && fv->value.protocol.tvb_is_private) {
@@ -316,6 +324,7 @@ ftype_register_tvbuff(void)
 		"Protocol",			/* pretty_name */
 		0,				/* wire_size */
 		value_new,			/* new_value */
+		value_copy,			/* copy_value */
 		value_free,			/* free_value */
 		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */

@@ -22,6 +22,12 @@ string_fvalue_new(fvalue_t *fv)
 }
 
 static void
+string_fvalue_copy(fvalue_t *dst, const fvalue_t *src)
+{
+	dst->value.string = g_strdup(src->value.string);
+}
+
+static void
 string_fvalue_free(fvalue_t *fv)
 {
 	g_free(fv->value.string);
@@ -169,6 +175,7 @@ ftype_register_string(void)
 		"Character string",		/* pretty_name */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
+		string_fvalue_copy,		/* copy_value */
 		string_fvalue_free,		/* free_value */
 		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
@@ -194,6 +201,7 @@ ftype_register_string(void)
 		"Character string",		/* pretty name */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
+		string_fvalue_copy,		/* copy_value */
 		string_fvalue_free,		/* free_value */
 		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
@@ -219,6 +227,7 @@ ftype_register_string(void)
 		"Character string",		/* pretty_name */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
+		string_fvalue_copy,		/* copy_value */
 		string_fvalue_free,		/* free_value */
 		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
@@ -244,6 +253,7 @@ ftype_register_string(void)
 		"Character string",		/* pretty name */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
+		string_fvalue_copy,		/* copy_value */
 		string_fvalue_free,		/* free_value */
 		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
@@ -269,6 +279,7 @@ ftype_register_string(void)
 		"Character string",		/* pretty name */
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
+		string_fvalue_copy,		/* copy_value */
 		string_fvalue_free,		/* free_value */
 		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */

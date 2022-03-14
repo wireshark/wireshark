@@ -103,6 +103,7 @@ ftype_register_guid(void)
         "Globally Unique Identifier",            /* pretty_name */
         GUID_LEN,            /* wire_size */
         NULL,                /* new_value */
+        NULL,                /* copy_value */
         NULL,                /* free_value */
         guid_from_literal,   /* val_from_literal */
         NULL,                /* val_from_string */

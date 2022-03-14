@@ -242,6 +242,9 @@ typedef struct _fvalue_t {
 fvalue_t*
 fvalue_new(ftenum_t ftype);
 
+fvalue_t*
+fvalue_dup(const fvalue_t *fv);
+
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype);
 

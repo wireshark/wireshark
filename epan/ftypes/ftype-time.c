@@ -321,6 +321,12 @@ time_fvalue_new(fvalue_t *fv)
 }
 
 static void
+time_fvalue_copy(fvalue_t *dst, const fvalue_t *src)
+{
+	nstime_copy(&dst->value.time, &src->value.time);
+}
+
+static void
 time_fvalue_set(fvalue_t *fv, const nstime_t *value)
 {
 	fv->value.time = *value;
@@ -429,6 +435,7 @@ ftype_register_time(void)
 		"Date and time",		/* pretty_name */
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */
+		time_fvalue_copy,		/* copy_value */
 		NULL,				/* free_value */
 		absolute_val_from_literal,	/* val_from_literal */
 		absolute_val_from_string,	/* val_from_string */
@@ -454,6 +461,7 @@ ftype_register_time(void)
 		"Time offset",			/* pretty_name */
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */
+		time_fvalue_copy,		/* copy_value */
 		NULL,				/* free_value */
 		relative_val_from_literal,	/* val_from_literal */
 		NULL,				/* val_from_string */

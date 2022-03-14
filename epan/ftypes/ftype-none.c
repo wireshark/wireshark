@@ -21,6 +21,7 @@ ftype_register_none(void)
 		"Label",			/* pretty_name */
 		0,				/* wire_size */
 		NULL,				/* new_value */
+		NULL,				/* copy_value */
 		NULL,				/* free_value */
 		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
