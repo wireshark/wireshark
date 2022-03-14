@@ -4626,9 +4626,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       goto fail;
     }
 
-    needs_reload = wtap_dump_get_needs_reload(pdh);
-
-    if (!wtap_dump_close(pdh, &err, &err_info)) {
+    if (!wtap_dump_close_new_temp(pdh, &needs_reload, &err, &err_info)) {
       cfile_close_failure_alert_box(fname, err, err_info);
       goto fail;
     }

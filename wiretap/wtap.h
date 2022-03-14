@@ -2247,6 +2247,17 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info);
 
 /**
+ * Like wtap_dump_close(), but returns a "must be reloaded" indication.
+ * This will not be present in future Wireshark releases; instead,
+ * wtap_dump_close() will change to have the additional needs_reload
+ * argument, which can be NULL if that information isn't required by
+ * the caller.
+ */
+WS_DLL_PUBLIC
+gboolean wtap_dump_close_new_temp(wtap_dumper *wdh, gboolean *needs_reload,
+    int *err, gchar **err_info);
+
+/**
  * Return TRUE if we can write a file out with the given GArray of file
  * encapsulations and the given bitmask of comment types.
  */
