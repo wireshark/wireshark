@@ -119,7 +119,7 @@ $ python3 test/test.py -p /path/to/wireshark-build/run
 ----
 
 You can list tests by passing one or more complete or partial names to
-`tshark.py`. The `-l` flag lists tests. By default all tests are shown.
+`test/test.py`. The `-l` flag lists tests. By default all tests are shown.
 
 [source,sh]
 ----
