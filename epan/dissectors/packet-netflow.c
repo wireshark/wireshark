@@ -3472,6 +3472,10 @@ static int      hf_pie_ixia_tcp_conn_setup_time         = -1;
 static int      hf_pie_ixia_tcp_app_response_time       = -1;
 static int      hf_pie_ixia_tcp_retrans_pkt_count       = -1;
 static int      hf_pie_ixia_conn_avg_rtt                = -1;
+static int      hf_pie_ixia_udpAppResponseTime          = -1;
+static int      hf_pie_ixia_quicConnSetupTime           = -1;
+static int      hf_pie_ixia_quicConnRTT                 = -1;
+static int      hf_pie_ixia_quicAppResponseTime         = -1;
 
 static int      hf_pie_netscaler                                         = -1;
 static int      hf_pie_netscaler_roundtriptime                           = -1;
@@ -10734,6 +10738,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 283):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_conn_avg_rtt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+	case ((VENDOR_IXIA << 16) | 284):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_udpAppResponseTime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 285):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_quicConnSetupTime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 286):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_quicConnRTT,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 287):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_quicAppResponseTime,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
             /* END Ixia Communications */
@@ -18833,6 +18853,34 @@ proto_register_netflow(void)
          {"Connection Average RTT (us)", "cflow.pie.ixia.conn-avg-rtt",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           "Connection Average Round Trip Time (us)", HFILL}
+        },
+
+	 /* ixia, 3054 / 284 */
+        {&hf_pie_ixia_udpAppResponseTime,
+         {"UDP Average Application Response Time (us)", "cflow.pie.ixia.udpAppResponseTime",
+         FT_UINT32, BASE_DEC, NULL, 0x0,
+         NULL, HFILL}
+        },
+
+        /* ixia, 3054 / 285 */
+        {&hf_pie_ixia_quicConnSetupTime,
+         {"Time to complete a QUIC Handshake (us)", "cflow.pie.ixia.quicConnectionSetupTime",
+         FT_UINT32, BASE_DEC, NULL, 0x0,
+         NULL, HFILL}
+        },
+
+        /* ixia, 3054 / 286 */
+        {&hf_pie_ixia_quicConnRTT,
+         {"QUIC Network RTT (us)", "cflow.pie.ixia.quicConnectionRTT",
+         FT_UINT32, BASE_DEC, NULL, 0x0,
+         NULL, HFILL}
+        },
+
+        /* ixia, 3054 / 287 */
+        {&hf_pie_ixia_quicAppResponseTime,
+         {"QUIC RTT for application packets (us)", "cflow.pie.ixia.quicAppResponseTime",
+         FT_UINT32, BASE_DEC, NULL, 0x0,
+         NULL, HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
