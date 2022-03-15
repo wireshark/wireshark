@@ -204,6 +204,7 @@ typedef struct _protocol_value_t
 {
 	tvbuff_t	*tvb;
 	gchar		*proto_string;
+	gboolean	tvb_is_private;
 } protocol_value_t;
 
 typedef struct _fvalue_t {
@@ -226,11 +227,6 @@ typedef struct _fvalue_t {
 		guint16			sfloat_ieee_11073;
 		guint32			float_ieee_11073;
 	} value;
-
-	/* The following is provided for private use
-	 * by the fvalue. */
-	gboolean	fvalue_gboolean1;
-
 } fvalue_t;
 
 fvalue_t*
