@@ -645,12 +645,15 @@ ABI Check:
     - abi-compliance-checker -l epan -old ../tools/abi-dumps/epan-abi-15.0.0.dump -new epan-abi-15*.dump || ACC_EXIT=1
     - abi-compliance-checker -l wsutil -old ../tools/abi-dumps/wsutil-abi-13.0.0.dump -new wsutil-abi-13*.dump || ACC_EXIT=1
     - mv compat_reports ..
+    - mv *-abi-*.dump ..
     - cd ..
     - zip -9 -r compat_reports.zip compat_reports
     - exit $ACC_EXIT
   artifacts:
+    when: always
     paths:
       - compat_reports.zip
+      - ./*-abi-*.dump
 
 # Fuzz TShark using ASAN and valgrind.
 .fuzz-ubuntu:
