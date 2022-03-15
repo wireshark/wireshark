@@ -3373,6 +3373,68 @@ again:
      */
     deseg_offset = offset;
 
+    /*
+     * TODO: Some notes on current limitations with TCP desegmentation:
+     *
+     * This function can be called with either relative or absolute sequence
+     * numbers; the ??_SEQ macros are called for comparisons to deal with
+     * with sequence number rollover. (With relative sequence numbers, if
+     * early TCP segments are received out of order before the SYN it can be
+     * possible for rollover to occur at the very beginning of a connection.)
+     *
+     * However, multi-segment PDU lookup does not work for MSPs that span
+     * TCP sequence number rollover, and desegmentation fails.
+     *
+     * When there is a single TCP connection that is longer than 4 GiB and
+     * thus sequence numbers are reused, multi-segment PDU lookup and
+     * retransmission identification does not work. (Bug 10503).
+     *
+     * Distinguishing between sequence number reuse on a very long connection
+     * and sequence number reuse due to retransmission is difficult. Right
+     * now very long connections are just not handled as the rarer case.
+     * Perhaps retransmission identification could be entirely left up to TCP
+     * analysis (if enabled, not done at all if disabled), instead of TCP
+     * analysis results only used to supplement work here?
+     *
+     * As mentioned below, TCP sequence analysis doesn't properly distinguish
+     * "retransmitted but with additional data", which causes that case to
+     * break if TCP analysis is enabled. (Bug 13523)
+     *
+     * If multiple TCP/IP packets are encapsulated in the same frame (such
+     * as with GSE, which has very long Baseband Frames) this causes issues:
+     *
+     * The case where more than one TCP multisegment PDU on the same
+     * connection begins in the same frame is not handled, since the
+     * key is the frame number.
+     *
+     * If a subdissector reports that it can handle a payload, but needs
+     * more data (pinfo->desegment_len > 0) and did not actually dissect
+     * any of it (pinfo->desegment_offset == 0), on the first pass it
+     * still adds layers to the frame. On subsequent passes, the MSP created
+     * (or extended) in the first pass means that the subdissector won't be
+     * called at all. If there are other protocols contained in the frame
+     * that are dissected on the second pass they will have different
+     * layer numbers than in the first pass, which can disturb proto_data
+     * lookup, reassembly, etc. (Bug 16109 describes this for TLS.)
+     *
+     * If out of order reassembly is enabled, the same problem as above
+     * occurs when an existing MSP with gaps can dissect at least one PDU
+     * (pinfo->desegment_offset > 0) but need more data for additional PDUs
+     * in the OOO MSP (pinfo->desegment_len > 0). Since MSP splitting is
+     * not supported, the earlier PDUs are processed by the subdissector
+     * twice on the first pass, and only in the later frame on subsequent
+     * passes, which affects layer numbers and various stored protocol
+     * data for both that subdissector and any other subdissectors in the
+     * frame. See test_tcp_out_of_order_twopass_with_bug() in
+     * test/suite_dissection.py
+     *
+     * If out of order reassembly is enabled, if an out of order segment
+     * is received, reassembly and dissection does not occur until all
+     * gaps are filled, even if segments are subsequently received that
+     * extend the contiguous stream and could be dissected. See the TODO
+     * in check_tcp_out_of_order() in test/suite_dissection.py
+     */
+
     if (tcpd) {
         /* Have we seen this PDU before (and is it the start of a multi-
          * segment PDU)?
