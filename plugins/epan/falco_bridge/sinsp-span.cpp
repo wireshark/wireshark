@@ -20,8 +20,6 @@
 // epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
 // handle libsinsp calls here.
 
-#include <wsutil/wmem/wmem.h>
-
 typedef struct hf_register_info hf_register_info;
 
 typedef struct ss_plugin_info ss_plugin_info;
@@ -54,45 +52,37 @@ void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
 /*
  * Populate a source_plugin_info struct with the symbols coming from a library loaded via libsinsp
  */
-bool
+char *
 create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_info_t **ssi_ptr)
 {
-    sinsp_source_info_t *ssi = new(sinsp_source_info_t);
-    ssi->source = NULL;
-    sinsp_plugin *sp = sinsp_source_plugin::register_plugin(&sinsp_span->inspector, libname, "{}").get();
-    if (sp->type() == TYPE_SOURCE_PLUGIN) {
-        ssi->source = dynamic_cast<sinsp_source_plugin *>(sp);
+    char *err_str = NULL;
+    sinsp_source_info_t *ssi = new sinsp_source_info_t();
+
+    try {
+        sinsp_plugin *sp = sinsp_source_plugin::register_plugin(&sinsp_span->inspector, libname, "{}").get();
+        if (sp->type() == TYPE_SOURCE_PLUGIN) {
+            ssi->source = dynamic_cast<sinsp_source_plugin *>(sp);
+        } else {
+            err_str = g_strdup_printf("%s has unsupported plugin type %d", libname, sp->type());
+        }
+    } catch (const sinsp_exception& e) {
+        err_str = g_strdup_printf("Caught sinsp exception %s", e.what());
     }
-    if (!ssi->source) {
+
+    if (err_str) {
         delete ssi;
-        return false;
+        return err_str;
     }
 
     ssi->name = strdup(ssi->source->name().c_str());
     ssi->description = strdup(ssi->source->description().c_str());
-    ssi->last_error = NULL;
     *ssi_ptr = ssi;
-    return true;
+    return NULL;
 }
 
 uint32_t get_sinsp_source_id(sinsp_source_info_t *ssi)
 {
     return ssi->source->id();
-}
-
-uint32_t get_sinsp_source_required_api_version_major(sinsp_source_info_t *ssi)
-{
-    return ssi->source->required_api_version().m_version_major;
-}
-
-uint32_t get_sinsp_source_required_api_version_minor(sinsp_source_info_t *ssi)
-{
-    return ssi->source->required_api_version().m_version_minor;
-}
-
-uint32_t get_sinsp_source_required_api_version_patch(sinsp_source_info_t *ssi)
-{
-    return ssi->source->required_api_version().m_version_patch;
 }
 
 bool init_sinsp_source(sinsp_source_info_t *ssi, const char *config)
@@ -173,29 +163,42 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, unsigned field_num, s
     return true;
 }
 
-bool extract_sisnp_source_field(sinsp_source_info_t *ssi, uint32_t evt_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sfe)
+// The code below, falcosecurity/libs, and falcosecurity/plugins need to be in alignment.
+// The Makefile in /plugins defines FALCOSECURITY_LIBS_REVISION and uses that version of
+// plugin_info.h. We need to build against a compatible revision of /libs.
+bool extract_sisnp_source_fields(sinsp_source_info_t *ssi, uint32_t evt_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
 {
     ss_plugin_event evt = { evt_num, evt_data, evt_datalen, (uint64_t) -1 };
-    sinsp_plugin::ext_field field;
+    std::vector<ss_plugin_extract_field> fields;
+
+    fields.resize(sinsp_field_len);
     // We must supply field_id, field, arg, and type.
-    field.field_id = sfe->field_id;
-    field.field = sfe->field_name;
-//    field.arg = NULL;
-    field.ftype = sfe->type == SFT_STRINGZ ? PT_CHARBUF : PT_UINT64;
-
-    if (!ssi->source->extract_field(evt, field)) {
-        return false;
-    }
-
-    sfe->is_present = field.field_present;
-    if (field.field_present) {
-        if (field.ftype == PT_CHARBUF) {
-            sfe->res_str = wmem_strdup(pool, field.res_str.c_str());
-        } else if (field.ftype == PT_UINT64) {
-            sfe->res_u64 = field.res_u64;
+    for (size_t i = 0; i < sinsp_field_len; i++) {
+        fields.at(i).field_id = sinsp_fields[i].field_id;
+        fields.at(i).field = sinsp_fields[i].field_name;
+        if (sinsp_fields[i].type == SFT_STRINGZ) {
+            fields.at(i).ftype = FTYPE_STRING;
         } else {
-            return false;
+            fields.at(i).ftype = FTYPE_UINT64;
         }
     }
-    return true;
+
+    bool status = true;
+    if (!ssi->source->extract_fields(evt, sinsp_field_len, fields.data())) {
+        status = false;
+    }
+
+    for (size_t i = 0; i < sinsp_field_len; i++) {
+        sinsp_fields[i].is_present = fields.at(i).res_len > 0;
+        if (sinsp_fields[i].is_present) {
+            if (fields.at(i).ftype == PT_CHARBUF) {
+                sinsp_fields[i].res_str = wmem_strdup(pool, *fields.at(i).res.str);
+            } else if (fields.at(i).ftype == PT_UINT64) {
+                sinsp_fields[i].res_u64 = *fields.at(i).res.u64;
+            } else {
+                status = false;
+            }
+        }
+    }
+    return status;
 }

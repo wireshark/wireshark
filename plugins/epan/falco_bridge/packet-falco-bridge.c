@@ -37,6 +37,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/report_message.h>
 
 #include "sinsp-span.h"
 #include "conversation-macros.h"
@@ -249,9 +250,12 @@ import_plugin(char* fname)
 
     sinsp_span = create_sinsp_span();
 
-    if (create_sinsp_source(sinsp_span, fname, &(bi->ssi)) == FALSE) {
+    char *err_str = create_sinsp_source(sinsp_span, fname, &(bi->ssi));
+    if (err_str) {
         nbridges--;
-        THROW_FORMATTED(DissectorError, "unable to load sinsp plugin %s.", fname);
+        report_failure("Unable to load sinsp plugin %s: %s.", fname, err_str);
+        g_free(err_str);
+        return;
     }
 
     configure_plugin(bi, "");
@@ -417,33 +421,38 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
     guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, plen);
 
+    sinsp_field_extract_t *sinsp_fields = (sinsp_field_extract_t*) wmem_alloc(pinfo->pool, sizeof(sinsp_field_extract_t) * bi->visible_fields);
     for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
         header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
-        sinsp_field_extract_t sfe;
+        sinsp_field_extract_t *sfe = &sinsp_fields[fld_idx];
 
-        sfe.field_id = bi->field_ids[fld_idx];
-        sfe.field_name = hfinfo->abbrev;
-        sfe.type = hfinfo->type == FT_STRINGZ ? SFT_STRINGZ : SFT_UINT64;
+        sfe->field_id = bi->field_ids[fld_idx];
+        sfe->field_name = hfinfo->abbrev;
+        sfe->type = hfinfo->type == FT_STRINGZ ? SFT_STRINGZ : SFT_UINT64;
+    }
 
-        bool rc = extract_sisnp_source_field(bi->ssi, pinfo->num, payload, plen, pinfo->pool, &sfe);
-        if (!rc) {
-            REPORT_DISSECTOR_BUG("Falco plugin %s extract error", get_sinsp_source_name(bi->ssi));
-        }
-        if (!sfe.is_present) {
+    // If we have a failure, try to dissect what we can first, then bail out with an error.
+    bool rc = extract_sisnp_source_fields(bi->ssi, pinfo->num, payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
+
+    for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
+        sinsp_field_extract_t *sfe = &sinsp_fields[fld_idx];
+        header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
+
+        if (!sfe->is_present) {
             continue;
         }
 
-        if (sfe.type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
-            proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_str);
+        if (sfe->type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
+            proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res_str);
             if (bi->field_flags[fld_idx] & BFF_INFO) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe.res_str);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe->res_str);
                 // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
                 proto_item_set_hidden(pi);
             }
 
             if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
                 char* cvalptr = conv_flt_vals[conv_vals_cnt];
-                snprintf(cvalptr, MAX_CONV_FILTER_STR_LEN, "%s", sfe.res_str);
+                snprintf(cvalptr, MAX_CONV_FILTER_STR_LEN, "%s", sfe->res_str);
                 p_add_proto_data(pinfo->pool,
                                  pinfo,
                                  proto_falco_bridge,
@@ -454,13 +463,17 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
                 conv_vals_cnt++;
             }
         }
-        else if (sfe.type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
-            proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_u64);
+        else if (sfe->type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
+            proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res_u64);
         }
         else {
-            REPORT_DISSECTOR_BUG("field %s has an unrecognized or mismatched type %u != %u",
-                hfinfo->abbrev, sfe.type, hfinfo->type);
+            REPORT_DISSECTOR_BUG("Field %s has an unrecognized or mismatched type %u != %u",
+                hfinfo->abbrev, sfe->type, hfinfo->type);
         }
+    }
+
+    if (!rc) {
+        REPORT_DISSECTOR_BUG("Falco plugin %s extract error", get_sinsp_source_name(bi->ssi));
     }
 
     return plen;
