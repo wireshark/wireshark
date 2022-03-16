@@ -20,10 +20,13 @@
 #include <wsutil/ws_assert.h>
 
 static void
+fixup_jumps(gpointer data, gpointer user_data);
+
+static void
 gencode(dfwork_t *dfw, stnode_t *st_node);
 
 static int
-gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp);
+gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr);
 
 static void
 dfw_append_insn(dfwork_t *dfw, dfvm_insn_t *insn)
@@ -121,7 +124,7 @@ dfw_append_put_fvalue(dfwork_t *dfw, fvalue_t *fv)
 
 /* returns register number */
 static int
-dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
+dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	int			hf_reg, reg;
 	stnode_t                *entity;
@@ -131,7 +134,7 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 	entity = sttype_range_entity(node);
 
 	/* XXX, check if p_jmp logic is OK */
-	hf_reg = gen_entity(dfw, entity, p_jmp);
+	hf_reg = gen_entity(dfw, entity, jumps_ptr);
 
 	insn = dfvm_insn_new(MK_RANGE);
 
@@ -157,20 +160,16 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
 /* returns register number that the functions's result will be in. */
 static int
-dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
+dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	GSList *params;
-	int i, num_params, reg;
-	dfvm_value_t **jmps;
+	int i, reg;
+	GSList *param_jumps = NULL;
+	dfvm_value_t *jmp;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2, *val;
 
 	params = sttype_function_params(node);
-	num_params = g_slist_length(params);
-
-	/* Array to hold the instructions that need to jump to
-	 * an instruction if they fail. */
-	jmps = (dfvm_value_t **)g_malloc0(num_params * sizeof(dfvm_value_t*));
 
 	/* Create the new DFVM instruction */
 	insn = dfvm_insn_new(CALL_FUNCTION);
@@ -186,7 +185,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
 	i = 0;
 	while (params) {
-		reg = gen_entity(dfw, (stnode_t *)params->data, &jmps[i]);
+		reg = gen_entity(dfw, (stnode_t *)params->data, &param_jumps);
 
 		val = dfvm_value_new(REGISTER);
 		val->value.numeric = reg;
@@ -213,21 +212,17 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 	 * after we caled dfw_append_insn above so that
 	 * we know what the next DFVM insruction is, via
 	 * dfw->next_insn_id */
-	for (i = 0; i < num_params; i++) {
-		if (jmps[i]) {
-			jmps[i]->value.numeric = dfw->next_insn_id;
-		}
-	}
+	g_slist_foreach(param_jumps, fixup_jumps, dfw);
+	g_slist_free(param_jumps);
+	param_jumps = NULL;
 
 	/* We need another instruction to jump to another exit
 	 * place, if the call() of our function failed for some reaosn */
 	insn = dfvm_insn_new(IF_FALSE_GOTO);
-	ws_assert(p_jmp);
-	*p_jmp = dfvm_value_new(INSN_NUMBER);
-	insn->arg1 = *p_jmp;
+	jmp = dfvm_value_new(INSN_NUMBER);
+	insn->arg1 = jmp;
 	dfw_append_insn(dfw, insn);
-
-	g_free(jmps);
+	*jumps_ptr = g_slist_prepend(*jumps_ptr, jmp);
 
 	return val2->value.numeric;
 }
@@ -277,25 +272,21 @@ gen_relation_regs(dfwork_t *dfw, dfvm_opcode_t op, int reg1, int reg2)
 static void
 gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_arg2)
 {
-	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL;
+	GSList		*jumps = NULL;
 	int		reg1 = -1, reg2 = -1;
 
 	/* Create code for the LHS and RHS of the relation */
-	reg1 = gen_entity(dfw, st_arg1, &jmp1);
-	reg2 = gen_entity(dfw, st_arg2, &jmp2);
+	reg1 = gen_entity(dfw, st_arg1, &jumps);
+	reg2 = gen_entity(dfw, st_arg2, &jumps);
 
 	/* Then combine them in a DFVM insruction */
 	gen_relation_regs(dfw, op, reg1, reg2);
 
 	/* If either of the relation arguments need an "exit" instruction
 	 * to jump to (on failure), mark them */
-	if (jmp1) {
-		jmp1->value.numeric = dfw->next_insn_id;
-	}
-
-	if (jmp2) {
-		jmp2->value.numeric = dfw->next_insn_id;
-	}
+	g_slist_foreach(jumps, fixup_jumps, dfw);
+	g_slist_free(jumps);
+	jumps = NULL;
 }
 
 static void
@@ -316,14 +307,14 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2, *val3;
-	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL, *jmp3 = NULL;
+	GSList		*jumps = NULL;
+	GSList		*node_jumps = NULL;
 	int		reg1;
 	stnode_t	*node1, *node2;
 	GSList		*nodelist_head, *nodelist;
-	GSList		*jumplist = NULL;
 
 	/* Create code for the LHS of the relation */
-	reg1 = gen_entity(dfw, st_arg1, &jmp1);
+	reg1 = gen_entity(dfw, st_arg1, &jumps);
 
 	/* Create code for the set on the RHS of the relation */
 	nodelist_head = nodelist = (GSList*)stnode_steal_data(st_arg2);
@@ -337,8 +328,8 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 			int	reg2, reg3;
 
 			/* Range element: add lower/upper bound test. */
-			reg2 = gen_entity(dfw, node1, &jmp2);
-			reg3 = gen_entity(dfw, node2, &jmp3);
+			reg2 = gen_entity(dfw, node1, &node_jumps);
+			reg3 = gen_entity(dfw, node2, &node_jumps);
 
 			/* Add test to see if the item is in range. */
 			insn = dfvm_insn_new(ANY_IN_RANGE);
@@ -356,7 +347,7 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 			int	reg2;
 
 			/* Normal element: add equality test. */
-			reg2 = gen_entity(dfw, node1, &jmp2);
+			reg2 = gen_entity(dfw, node1, &node_jumps);
 
 			/* Add test to see if the item matches */
 			gen_relation_regs(dfw, ANY_EQ, reg1, reg2);
@@ -368,29 +359,21 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 			val1 = dfvm_value_new(INSN_NUMBER);
 			insn->arg1 = val1;
 			dfw_append_insn(dfw, insn);
-			jumplist = g_slist_prepend(jumplist, val1);
+			jumps = g_slist_prepend(jumps, val1);
 		}
 
 		/* If an item is not present, just jump to the next item */
-		if (jmp2) {
-			jmp2->value.numeric = dfw->next_insn_id;
-			jmp2 = NULL;
-		}
-		if (jmp3) {
-			jmp3->value.numeric = dfw->next_insn_id;
-			jmp3 = NULL;
-		}
+		g_slist_foreach(node_jumps, fixup_jumps, dfw);
+		g_slist_free(node_jumps);
+		node_jumps = NULL;
 	}
 
 	/* Jump here if the LHS entity was not present */
-	if (jmp1) {
-		jmp1->value.numeric = dfw->next_insn_id;
-	}
 	/* Jump here if any of the items in the set matched */
-	g_slist_foreach(jumplist, fixup_jumps, dfw);
+	g_slist_foreach(jumps, fixup_jumps, dfw);
+	g_slist_free(jumps);
+	jumps = NULL;
 
-	/* Clean up */
-	g_slist_free(jumplist);
 	set_nodelist_free(nodelist_head);
 }
 
@@ -399,10 +382,11 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
  * be set to the place to jump to, to return to the calling code,
  * if the load of a field from the proto_tree fails. */
 static int
-gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
+gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 {
 	sttype_id_t       e_type;
 	dfvm_insn_t       *insn;
+	dfvm_value_t      *jmp;
 	header_field_info *hfinfo;
 	int reg = -1;
 	e_type = stnode_type_id(st_arg);
@@ -412,19 +396,19 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		reg = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
-		ws_assert(p_jmp);
-		*p_jmp = dfvm_value_new(INSN_NUMBER);
-		insn->arg1 = *p_jmp;
+		jmp = dfvm_value_new(INSN_NUMBER);
+		insn->arg1 = jmp;
 		dfw_append_insn(dfw, insn);
+		*jumps_ptr = g_slist_prepend(*jumps_ptr, jmp);
 	}
 	else if (e_type == STTYPE_FVALUE) {
 		reg = dfw_append_put_fvalue(dfw, (fvalue_t *)stnode_steal_data(st_arg));
 	}
 	else if (e_type == STTYPE_RANGE) {
-		reg = dfw_append_mk_range(dfw, st_arg, p_jmp);
+		reg = dfw_append_mk_range(dfw, st_arg, jumps_ptr);
 	}
 	else if (e_type == STTYPE_FUNCTION) {
-		reg = dfw_append_function(dfw, st_arg, p_jmp);
+		reg = dfw_append_function(dfw, st_arg, jumps_ptr);
 	}
 	else if (e_type == STTYPE_PCRE) {
 		reg = dfw_append_put_pcre(dfw, stnode_steal_data(st_arg));
