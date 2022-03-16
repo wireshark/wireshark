@@ -17,8 +17,6 @@
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>
 
-#define CMP_MATCHES cmp_matches
-
 static void
 value_new(fvalue_t *fv)
 {
@@ -323,7 +321,7 @@ ftype_register_tvbuff(void)
 		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,

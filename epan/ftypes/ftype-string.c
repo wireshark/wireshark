@@ -12,8 +12,6 @@
 #include <ftypes-int.h>
 #include <string.h>
 
-#define CMP_MATCHES cmp_matches
-
 #include <strutil.h>
 #include <wsutil/ws_assert.h>
 
@@ -177,7 +175,7 @@ ftype_register_string(void)
 		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -200,7 +198,7 @@ ftype_register_string(void)
 		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -223,7 +221,7 @@ ftype_register_string(void)
 		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -246,7 +244,7 @@ ftype_register_string(void)
 		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -269,7 +267,7 @@ ftype_register_string(void)
 		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,

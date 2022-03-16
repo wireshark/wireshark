@@ -16,8 +16,6 @@
 #include <epan/osi-utils.h>
 #include <epan/to_str.h>
 
-#define CMP_MATCHES cmp_matches
-
 static void
 bytes_fvalue_new(fvalue_t *fv)
 {
@@ -583,7 +581,7 @@ ftype_register_bytes(void)
 		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -631,7 +629,7 @@ ftype_register_bytes(void)
 		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -655,7 +653,7 @@ ftype_register_bytes(void)
 		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -679,7 +677,7 @@ ftype_register_bytes(void)
 		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
@@ -775,7 +773,7 @@ ftype_register_bytes(void)
 		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
-		CMP_MATCHES,
+		cmp_matches,
 
 		len,
 		slice,
