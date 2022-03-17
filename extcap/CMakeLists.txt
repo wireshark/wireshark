@@ -81,6 +81,29 @@ macro(set_extcap_executable_properties _executable)
 	endif()
 endmacro()
 
+macro(set_extlog_executable_properties _executable)
+	if(ENABLE_APPLICATION_BUNDLE)
+		if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
+			# Xcode
+			set_target_properties(${_executable} PROPERTIES
+				RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/$<CONFIG>/Logray.app/Contents/MacOS/extcap
+			)
+		else()
+			set_target_properties(${_executable} PROPERTIES
+				RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Logray.app/Contents/MacOS/extcap
+			)
+			# Create a convenience link from run/<name> to its respective
+			# target in the application bundle.
+			add_custom_target(${_executable}-symlink
+				COMMAND ln -s -f
+					Logray.app/Contents/MacOS/extcap/${_executable}
+					${CMAKE_BINARY_DIR}/run/${_executable}
+			)
+			add_dependencies(${_executable} ${_executable}-symlink)
+		endif()
+	endif()
+endmacro()
+
 add_custom_target(extcaps)
 
 add_library(extcap-base OBJECT extcap-base.c)
@@ -325,6 +348,31 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 	target_include_directories(sdjournal SYSTEM PRIVATE ${SYSTEMD_INCLUDE_DIRS})
 	install(TARGETS sdjournal RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps sdjournal)
+endif()
+
+if(BUILD_falcodump AND SINSP_FOUND)
+	set(falcodump_LIBS
+		wsutil
+		${SINSP_LINK_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${GCRYPT_LIBRARIES}
+	)
+	set(falcodump_FILES
+		$<TARGET_OBJECTS:extcap-base>
+		falcodump.cpp
+	)
+
+	set_executable_resources(falcodump "falcodump")
+	add_executable(falcodump ${falcodump_FILES})
+	set_extlog_executable_properties(falcodump)
+	target_link_libraries(falcodump ${falcodump_LIBS})
+	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS})
+	install(TARGETS falcodump RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	add_dependencies(extcaps falcodump)
+
+	# XXX Hack; We need to fix this in falcosecurity-libs.
+	target_compile_definitions(falcodump PRIVATE HAVE_STRLCPY=1)
+
 endif()
 
 #

@@ -26,6 +26,10 @@
 
 #include <wsutil/socket.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 #define EXTCAP_BASE_OPTIONS_ENUM \
     EXTCAP_OPT_LIST_INTERFACES, \
     EXTCAP_OPT_VERSION, \
@@ -104,7 +108,11 @@ void extcap_config_debug(unsigned* count);
 void extcap_base_help(void);
 void extcap_log_init(const char *progname);
 
-#endif
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+
+#endif // __EXTCAP_BASE_H__
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

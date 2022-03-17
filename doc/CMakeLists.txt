@@ -59,6 +59,7 @@ ADD_MAN_PAGE(reordercap  1)
 ADD_MAN_PAGE(sshdump     1)
 ADD_MAN_PAGE(text2pcap   1)
 ADD_MAN_PAGE(tshark      1)
+ADD_MAN_PAGE(falcodump   1)
 ADD_MAN_PAGE(udpdump     1)
 ADD_MAN_PAGE(wifidump    1)
 

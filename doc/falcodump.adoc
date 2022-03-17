@@ -1,0 +1,131 @@
+include::../docbook/attributes.adoc[]
+= falcodump(1)
+:doctype: manpage
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
+
+== NAME
+
+falcodump - Dump log data to a file using a Falco source plugin.
+
+== SYNOPSIS
+
+[manarg]
+*falcodump*
+[ *--help* ]
+[ *--version* ]
+[ *--plugin-api-version* ]
+[ *--extcap-interfaces* ]
+[ *--extcap-dlts* ]
+[ *--extcap-interface*=<interface> ]
+[ *--extcap-config* ]
+[ *--extcap-capture-filter*=<capture filter> ]
+[ *--capture* ]
+[ *--fifo*=<path to file or pipe> ]
+[ *--plugin-source*=<source path or URL> ]
+
+== DESCRIPTION
+
+*falcodump* is an extcap tool that allows one to capture log messages from cloud providers.
+
+Each plugin is listed as a separate interface.
+For example, the AWS CloudTrail plugin is listed as “cloudtrail”.
+
+== OPTIONS
+
+--help::
+Print program arguments.
+This will also list the configuration arguments for each plugin.
+
+--version::
+Print the program version.
+
+--plugin-api-version::
+Print the Falco plugin API version.
+
+--extcap-interfaces::
+List the available interfaces.
+
+--extcap-interface=<interface>::
+Use the specified interface.
+
+--extcap-dlts::
+List the DLTs of the specified interface.
+
+--extcap-config::
+List the configuration options of specified interface.
+
+--extcap-capture-filter=<capture filter>::
+The capture filter.
+Must be a valid Sysdig / Falco filter.
+
+--capture::
+Start capturing from the source specified by --plugin-source via the specified interface and write raw packet data to the location specified by --fifo.
+
+--fifo=<path to file or pipe>::
+Save captured packet to file or send it through pipe.
+
+--plugin-source=<source path or URL>::
+Capture from the specified location.
+
+== EXAMPLES
+
+To see program arguments:
+
+    falcodump --help
+
+To see program version:
+
+    falcodump --version
+
+To see interfaces:
+
+    falcodump --extcap-interfaces
+
+Only one interface (falcodump) is supported.
+
+.Example output
+    interface {value=cloudtrail}{display=Falco plugin}
+
+To see interface DLTs:
+
+    falcodump --extcap-interface=cloudtrail --extcap-dlts
+
+.Example output
+    dlt {number=147}{name=cloudtrail}{display=USER0}
+
+To see interface configuration options:
+
+    falcodump --extcap-interface=cloudtrail --extcap-config
+
+.Example output
+    arg {number=0}{call=--plugin-source}{display=Plugin source}{type=string}{tooltip=The plugin data source. This us usually a URL.}{placeholder=Enter a source URL…}{required=true}{group=Capture}
+    arg {number=1}{call=cloudtrail-s3downloadconcurrency}{display=s3DownloadConcurrency}{type=integer}{default=1}{tooltip=Controls the number of background goroutines used to download S3 files (Default: 1)}{group=Capture}
+    arg {number=2}{call=cloudtrail-sqsdelete}{display=sqsDelete}{type=boolean}{default=true}{tooltip=If true then the plugin will delete sqs messages from the queue immediately after receiving them (Default: true)}{group=Capture}
+    arg {number=3}{call=cloudtrail-useasync}{display=useAsync}{type=boolean}{default=true}{tooltip=If true then async extraction optimization is enabled (Default: true)}{group=Capture}
+
+To capture AWS CloudTrail events from an S3 bucket:
+
+    falcodump --extcap-interface=cloudtrail --fifo=/tmp/cloudtrail.pcap --plugin-source=s3://aws-cloudtrail-logs.../CloudTrail/us-east-2/... --capture
+
+NOTE: kbd:[CTRL+C] should be used to stop the capture in order to ensure clean termination.
+
+== SEE ALSO
+
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4)
+//, xref:logray.html[logray](1)
+
+== NOTES
+
+*falcodump* is part of the *Logray* distribution.
+The latest version of *Logray* can be found at https://www.wireshark.org.
+
+HTML versions of the Wireshark project man pages are available at
+https://www.wireshark.org/docs/man-pages.
+
+== AUTHORS
+
+.Original Author
+[%hardbreaks]
+Gerald Combs <gerald[AT]wireshark.org>

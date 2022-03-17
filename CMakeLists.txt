@@ -2004,6 +2004,7 @@ if (ASCIIDOCTOR_FOUND)
 		${CMAKE_BINARY_DIR}/doc/dumpcap.html
 		${CMAKE_BINARY_DIR}/doc/editcap.html
 		${CMAKE_BINARY_DIR}/doc/extcap.html
+		${CMAKE_BINARY_DIR}/doc/falcodump.html
 		${CMAKE_BINARY_DIR}/doc/mergecap.html
 		${CMAKE_BINARY_DIR}/doc/randpkt.html
 		${CMAKE_BINARY_DIR}/doc/randpktdump.html
@@ -3684,6 +3685,7 @@ set(CLEAN_C_FILES
 	${randpkt_FILES}
 	${randpktdump_FILES}
 	${etwdump_FILES}
+	${falcodump_FILES}
 	${udpdump_FILES}
 	${text2pcap_FILES}
 	${mergecap_FILES}
