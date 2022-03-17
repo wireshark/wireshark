@@ -1245,22 +1245,22 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
         if (fd_head == NULL) {
             if (p_segment_info == NULL) {
                 return NULL;
-            } else if (p_rdma_chunk->type == RDMA_REPLY_CHUNK && !setup && !pinfo->fd->visited) {
-                /*
-                 * The RPC reply has no data when having a reply chunk but it needs
-                 * to reassemble all fragments (more_frags = FALSE) in this frame
-                 */
+            } else if (p_rdma_chunk->type == RDMA_REPLY_CHUNK && !setup &&
+                    !pinfo->fd->visited && p_rdma_chunk->length > 0) {
+                /* Only reassemble if reply chunk size is non-zero to avoid
+                 * reassembly of a single fragment. The RPC-over-RDMA reply
+                 * has no data when the reply chunk size is non-zero but it
+                 * needs to reassemble all fragments (more_frags = FALSE)
+                 * in this frame. On the other hand when the reply chunk
+                 * size is zero, the whole message is given in this frame
+                 * therefore there is no need to reassemble. */
                 new_tvb = add_fragment(tvb, offset, p_segment_info->msgid, 0, FALSE, p_rdma_conv_info, pinfo, tree);
-            } else if (p_rdma_chunk->type == RDMA_READ_CHUNK) {
-                if (tvb_captured_length_remaining(tvb, offset) > 0) {
-                    /* Add data after the last read chunk */
-                    add_fragment(tvb, offset, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
-                }
-            } else if (p_offset) {
+            } else if (p_rdma_chunk->type == RDMA_READ_CHUNK && tvb_captured_length_remaining(tvb, offset) > 0) {
+                /* Add data after the last read chunk */
+                add_fragment(tvb, offset, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
+            } else if (p_offset && tvb_reported_length_remaining(tvb, offset) > 0) {
                 /* Add data after the last write chunk */
-                if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                    new_tvb = add_fragment(tvb, offset, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
-                }
+                new_tvb = add_fragment(tvb, offset, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
             }
         }
     }
