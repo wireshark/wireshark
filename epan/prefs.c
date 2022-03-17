@@ -3453,6 +3453,11 @@ prefs_register_modules(void)
                                    "Show the intelligent scroll bar (a minimap of packet list colors in the scrollbar)",
                                    &prefs.gui_packet_list_show_minimap);
 
+    prefs_register_bool_preference(gui_module, "packet_list_is_sortable",
+                                   "Allow packet list to be sortable",
+                                   "To prevent sorting by mistake (which can take some time to calculate), it can be disabled",
+                                   &prefs.gui_packet_list_sortable);
+
 
     prefs_register_bool_preference(gui_module, "interfaces_show_hidden",
                                    "Show hidden interfaces",
@@ -4165,6 +4170,7 @@ pre_init_prefs(void)
     prefs.gui_packet_list_elide_mode = ELIDE_RIGHT;
     prefs.gui_packet_list_show_related = TRUE;
     prefs.gui_packet_list_show_minimap = TRUE;
+    prefs.gui_packet_list_sortable     = TRUE;
     g_free (prefs.gui_interfaces_hide_types);
     prefs.gui_interfaces_hide_types = g_strdup("");
     prefs.gui_interfaces_show_hidden = FALSE;
