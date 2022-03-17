@@ -13,6 +13,7 @@
 #include "ws_symbol_export.h"
 
 #include <epan/conversation.h>
+#include <epan/reassemble.h>
 #include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus
@@ -142,6 +143,9 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 gboolean proto_desegment, guint fixed_len,
 		 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
 		 dissector_t dissect_pdu, void* dissector_data);
+
+extern const reassembly_table_functions
+tcp_reassembly_table_functions;
 
 extern struct tcp_multisegment_pdu *
 pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, wmem_tree_t *multisegment_pdus);
