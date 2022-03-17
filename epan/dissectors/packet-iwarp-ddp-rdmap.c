@@ -832,11 +832,11 @@ proto_register_iwarp_ddp_rdmap(void)
 				"RDMA Terminate Header", HFILL} },
 		{ &hf_iwarp_rdma_sinkstag, {
 				"Data Sink STag", "iwarp_rdma.sinkstag",
-				FT_UINT32, BASE_DEC, NULL, 0x0,
+				FT_UINT32, BASE_HEX, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_sinkto, {
 				"Data Sink Tagged Offset", "iwarp_rdma.sinkto",
-				FT_UINT64, BASE_DEC, NULL, 0x0,
+				FT_UINT64, BASE_HEX, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_rdmardsz, {
 				"RDMA Read Message Size", "iwarp_rdma.rdmardsz",
@@ -844,7 +844,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_srcstag, {
 				"Data Source STag", "iwarp_rdma.srcstag",
-				FT_UINT32, BASE_DEC, NULL, 0x0,
+				FT_UINT32, BASE_HEX, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_srcto, {
 				"Data Source Tagged Offset", "iwarp_rdma.srcto",
