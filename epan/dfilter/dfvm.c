@@ -370,7 +370,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 
 	df->registers[reg] = fvalues;
 	// These values are referenced only, do not try to free it later.
-	df->owns_memory[reg] = FALSE;
+	df->free_registers[reg] = NULL;
 	return TRUE;
 }
 
@@ -485,13 +485,6 @@ any_in_range(dfilter_t *df, dfvm_value_t *arg1,
 	return FALSE;
 }
 
-
-static void
-free_owned_register(gpointer data, gpointer user_data _U_)
-{
-	fvalue_free(data);
-}
-
 /* Clear registers that were populated during evaluation.
  * If we created the values, then these will be freed as well. */
 static void
@@ -502,9 +495,11 @@ free_register_overhead(dfilter_t* df)
 	for (i = 0; i < df->num_registers; i++) {
 		df->attempted_load[i] = FALSE;
 		if (df->registers[i]) {
-			if (df->owns_memory[i]) {
-				g_slist_foreach(df->registers[i], free_owned_register, NULL);
-				df->owns_memory[i] = FALSE;
+			if (df->free_registers[i]) {
+				for (GSList *l = df->registers[i]; l != NULL; l = l->next) {
+					df->free_registers[i](l->data);
+				}
+				df->free_registers[i] = NULL;
 			}
 			g_slist_free(df->registers[i]);
 			df->registers[i] = NULL;
@@ -539,7 +534,7 @@ mk_range(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
 	}
 
 	df->registers[to_arg->value.numeric] = to_list;
-	df->owns_memory[to_arg->value.numeric] = TRUE;
+	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
 }
 
 static gboolean
@@ -563,7 +558,7 @@ call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 
 	df->registers[arg2->value.numeric] = retval;
 	// functions create a new value, so own it.
-	df->owns_memory[arg2->value.numeric] = TRUE;
+	df->free_registers[arg2->value.numeric] = (GDestroyNotify)fvalue_free;
 	return accum;
 }
 

@@ -22,7 +22,7 @@ struct epan_dfilter {
 	guint		num_registers;
 	GSList		**registers;
 	gboolean	*attempted_load;
-	gboolean	*owns_memory;
+	GDestroyNotify	*free_registers;
 	int		*interesting_fields;
 	int		num_interesting_fields;
 	GPtrArray	*deprecated;

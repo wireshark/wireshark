@@ -204,7 +204,7 @@ dfilter_free(dfilter_t *df)
 
 	g_free(df->registers);
 	g_free(df->attempted_load);
-	g_free(df->owns_memory);
+	g_free(df->free_registers);
 	g_free(df);
 }
 
@@ -447,7 +447,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		dfilter->num_registers = dfw->next_register;
 		dfilter->registers = g_new0(GSList *, dfilter->num_registers);
 		dfilter->attempted_load = g_new0(gboolean, dfilter->num_registers);
-		dfilter->owns_memory = g_new0(gboolean, dfilter->num_registers);
+		dfilter->free_registers = g_new0(GDestroyNotify, dfilter->num_registers);
 
 		/* And give it to the user. */
 		*dfp = dfilter;
