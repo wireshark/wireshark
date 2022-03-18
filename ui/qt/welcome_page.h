@@ -59,7 +59,7 @@ private:
     QListWidget *recent_files_;
 
 signals:
-    void startCapture();
+    void startCapture(QStringList);
     void recentFileActivated(QString cfile);
     void captureFilterSyntaxChanged(bool valid);
     void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
@@ -81,7 +81,8 @@ private slots:
     void removeRecentPath();
 
     void on_interfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose);
-    void on_interfaceFrame_startCapture();
+    void on_interfaceFrame_startCapture(QStringList);
+    void captureStarting();
 };
 
 #endif // WELCOME_PAGE_H

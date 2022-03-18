@@ -151,15 +151,12 @@ QMenu * InterfaceFrame::getSelectionMenu()
     }
 #endif
 
-#if 0
-    // Disabled until bug 13354 is fixed
     contextMenu->addSeparator();
     QAction * toggleHideAction = new QAction(tr("Show hidden interfaces"), this);
     toggleHideAction->setCheckable(true);
-    toggleHideAction->setChecked(! proxy_model_->filterHidden());
+    toggleHideAction->setChecked(! proxy_model_.filterHidden());
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHiddenInterfaces()));
     contextMenu->addAction(toggleHideAction);
-#endif
 
     return contextMenu;
 }
@@ -410,10 +407,14 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
     if (! realIndex.isValid())
         return;
 
+    QStringList interfaces;
+
 #ifdef HAVE_LIBPCAP
 
     QString device_name = source_model_.getColumnContent(realIndex.row(), IFTREE_COL_NAME).toString();
     QString extcap_string = source_model_.getColumnContent(realIndex.row(), IFTREE_COL_EXTCAP_PATH).toString();
+
+    interfaces << device_name;
 
     /* We trust the string here. If this interface is really extcap, the string is
      * being checked immediatly before the dialog is being generated */
@@ -427,7 +428,8 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
         }
     }
 #endif
-    emit startCapture();
+    
+    startCapture(interfaces);
 }
 
 #ifdef HAVE_LIBPCAP
@@ -492,7 +494,21 @@ void InterfaceFrame::showContextMenu(QPoint pos)
 {
     QMenu ctx_menu;
 
-    ctx_menu.addAction(tr("Start capture"), this, SIGNAL(startCapture()));
+    ctx_menu.addAction(tr("Start capture"), this, [=] () {
+        QStringList ifaces;
+        QModelIndexList selIndices = ui->interfaceTree->selectionModel()->selectedIndexes();
+        foreach(QModelIndex idx, selIndices)
+        {
+            QModelIndex realIndex = proxy_model_.mapToSource(info_model_.mapToSource(idx));
+            if (realIndex.column() != IFTREE_COL_NAME)
+                realIndex = realIndex.siblingAtColumn(IFTREE_COL_NAME);
+            QString name = realIndex.data(Qt::DisplayRole).toString();
+            if (! ifaces.contains(name))
+                ifaces << name;
+        }
+        
+        startCapture(ifaces);
+    });
     ctx_menu.exec(ui->interfaceTree->mapToGlobal(pos));
 }
 

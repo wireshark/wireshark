@@ -86,7 +86,7 @@ WelcomePage::WelcomePage(QWidget *parent) :
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SIGNAL(captureFilterSyntaxChanged(bool)));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(startCapture()),
-            this, SIGNAL(startCapture()));
+            this, SLOT(captureStarting()));
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
     updateRecentCaptures();
 
@@ -248,9 +248,15 @@ void WelcomePage::on_interfaceFrame_showExtcapOptions(QString device_name, bool 
     emit showExtcapOptions(device_name, startCaptureOnClose);
 }
 
-void WelcomePage::on_interfaceFrame_startCapture()
+void WelcomePage::on_interfaceFrame_startCapture(QStringList ifaces)
 {
-    emit startCapture();
+    emit startCapture(ifaces);
+}
+
+void WelcomePage::captureStarting()
+{
+    welcome_ui_->interfaceFrame->ensureSelectedInterface();
+    emit startCapture(QStringList());
 }
 
 void WelcomePage::updateRecentCaptures() {

@@ -589,8 +589,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(main_ui_->mainStack, SIGNAL(currentChanged(int)),
             this, SLOT(mainStackChanged(int)));
 
-    connect(welcome_page_, SIGNAL(startCapture()),
-            this, SLOT(startCapture()));
+    connect(welcome_page_, SIGNAL(startCapture(QStringList)),
+            this, SLOT(startCapture(QStringList)));
     connect(welcome_page_, SIGNAL(recentFileActivated(QString)),
             this, SLOT(openCaptureFile(QString)));
 

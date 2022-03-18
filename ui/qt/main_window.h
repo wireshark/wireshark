@@ -388,7 +388,7 @@ private slots:
      * Start capturing from the selected interfaces using the capture filter
      * shown in the main welcome screen.
      */
-    void startCapture();
+    void startCapture(QStringList);
     void pipeTimeout();
     void pipeActivated(int source);
     void pipeNotifierDestroyed();

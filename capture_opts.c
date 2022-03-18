@@ -1307,7 +1307,7 @@ collect_ifaces(capture_options *capture_opts)
     /* Now fill the list up again. */
     for (i = 0; i < capture_opts->all_ifaces->len; i++) {
         device = &g_array_index(capture_opts->all_ifaces, interface_t, i);
-        if (!device->hidden && device->selected) {
+        if (device->selected) {
             interface_opts.name = g_strdup(device->name);
             interface_opts.descr = g_strdup(device->friendly_name);
             interface_opts.ifname = NULL;

@@ -47,7 +47,7 @@ public:
 
 Q_SIGNALS:
     void showExtcapOptions(QString device_name, bool startCaptureOnClose);
-    void startCapture();
+    void startCapture(QStringList);
     void itemSelectionChanged();
     void typeSelectionChanged();
 
