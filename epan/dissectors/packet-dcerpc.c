@@ -689,6 +689,16 @@ static const guint8 TRAILER_SIGNATURE[] = {0x8a, 0xe3, 0x13, 0x71, 0x02, 0xf4, 0
 static tvbuff_t *tvb_trailer_signature;
 
 static GSList *decode_dcerpc_bindings;
+
+static wmem_map_t *dcerpc_connections;
+
+typedef struct _dcerpc_connection {
+    conversation_t *conv;
+    guint64         transport_salt;
+    guint32         first_frame;
+    gboolean        hdr_signing_negotiated;
+} dcerpc_connection;
+
 /*
  * To keep track of ctx_id mappings.
  *
@@ -1816,6 +1826,27 @@ dcerpc_get_proto_sub_dissector(e_guid_t *uuid, guint16 ver)
     return sub_proto->procs;
 }
 
+
+static gint
+dcerpc_connection_equal(gconstpointer k1, gconstpointer k2)
+{
+    const dcerpc_connection *key1 = (const dcerpc_connection *)k1;
+    const dcerpc_connection *key2 = (const dcerpc_connection *)k2;
+    return ((key1->conv == key2->conv)
+            && (key1->transport_salt == key2->transport_salt));
+}
+
+static guint
+dcerpc_connection_hash(gconstpointer k)
+{
+    const dcerpc_connection *key = (const dcerpc_connection *)k;
+    guint hash;
+
+    hash = GPOINTER_TO_UINT(key->conv);
+    hash += g_int64_hash(&key->transport_salt);
+
+    return hash;
+}
 
 
 static gint
@@ -3821,6 +3852,35 @@ dissect_dcerpc_cn_auth_move(dcerpc_auth_info *auth_info, proto_tree *dcerpc_tree
     }
 }
 
+static dcerpc_connection *find_or_create_dcerpc_connection(packet_info *pinfo)
+{
+    dcerpc_connection connection_key = {
+        .conv = find_or_create_conversation(pinfo),
+        .transport_salt = dcerpc_get_transport_salt(pinfo),
+        .first_frame = G_MAXUINT32,
+    };
+    dcerpc_connection *connection = NULL;
+
+    connection = (dcerpc_connection *)wmem_map_lookup(dcerpc_connections, &connection_key);
+    if (connection != NULL) {
+        goto return_value;
+    }
+
+    connection = wmem_new(wmem_file_scope(), dcerpc_connection);
+    if (connection == NULL) {
+        return NULL;
+    }
+
+    *connection = connection_key;
+    wmem_map_insert(dcerpc_connections, connection, connection);
+
+return_value:
+    if (pinfo->fd->num < connection->first_frame) {
+        connection->first_frame = pinfo->fd->num;
+    }
+    return connection;
+}
+
 static dcerpc_auth_context *find_or_create_dcerpc_auth_context(packet_info *pinfo,
                                                                dcerpc_auth_info *auth_info)
 {
@@ -3901,6 +3961,7 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
          */
         offset = hdr->frag_len - (hdr->auth_len + 8);
         if (offset == 0 || tvb_offset_exists(tvb, offset - 1)) {
+            dcerpc_connection *connection = NULL;
             dcerpc_auth_context *auth_context = NULL;
             int auth_offset = offset;
 
@@ -3958,12 +4019,19 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
                                               MIN(hdr->auth_len,tvb_reported_length_remaining(tvb, offset)),
                                               hdr->auth_len);
 
+                connection = find_or_create_dcerpc_connection(pinfo);
                 auth_context = find_or_create_dcerpc_auth_context(pinfo, auth_info);
                 if (auth_context != NULL) {
                     if (hdr->ptype == PDU_BIND || hdr->ptype == PDU_ALTER) {
                         if (auth_context->first_frame == pinfo->fd->num) {
                             auth_context->hdr_signing = (hdr->flags & PFC_HDR_SIGNING);
+                            if (auth_context->hdr_signing && connection != NULL) {
+                                connection->hdr_signing_negotiated = TRUE;
+                            }
                         }
+                    }
+                    if (connection != NULL && connection->hdr_signing_negotiated) {
+                        auth_context->hdr_signing = TRUE;
                     }
 
                     auth_info->hdr_signing = auth_context->hdr_signing;
@@ -7209,8 +7277,21 @@ proto_register_dcerpc(void)
 
     uuid_dissector_table = register_dissector_table(DCERPC_TABLE_NAME, "DCE/RPC UUIDs", proto_dcerpc, FT_GUID, BASE_HEX);
 
-    /* structures and data for BIND */
-    dcerpc_binds = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), dcerpc_bind_hash, dcerpc_bind_equal);
+    /*
+     * structures and data for
+     * - per connection,
+     * - per presentation context (bind)
+     * - per authentication context
+     */
+    dcerpc_connections = wmem_map_new_autoreset(wmem_epan_scope(),
+                                                wmem_file_scope(),
+                                                dcerpc_connection_hash,
+                                                dcerpc_connection_equal);
+
+    dcerpc_binds = wmem_map_new_autoreset(wmem_epan_scope(),
+                                          wmem_file_scope(),
+                                          dcerpc_bind_hash,
+                                          dcerpc_bind_equal);
 
     dcerpc_auths = wmem_map_new_autoreset(wmem_epan_scope(),
                                           wmem_file_scope(),
