@@ -1052,7 +1052,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const guchar	*line, *firstline;
 	gint		next_offset;
 	const guchar	*linep, *lineend;
-	int		orig_offset;
+	int		orig_offset = offset;
 	int		first_linelen, linelen;
 	gboolean	is_request_or_reply, is_tls = FALSE;
 	gboolean	saw_req_resp_or_header;
@@ -1120,7 +1120,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ti = proto_tree_add_item(tree, proto, tvb, offset, -1, ENC_NA);
 			http_tree = proto_item_add_subtree(ti, ett_http);
 
-			call_data_dissector(tvb, pinfo, http_tree);
+			call_data_dissector(tvb_new_subset_remaining(tvb, orig_offset), pinfo, http_tree);
 		}
 		return -1;
 	}
@@ -1242,8 +1242,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	stat_info->full_uri = NULL;
 	stat_info->location_target = NULL;
 	stat_info->location_base_uri = NULL;
-
-	orig_offset = offset;
 
 	/*
 	 * Process the packet data, a line at a time.
@@ -1537,7 +1535,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Give the follw tap what we've currently dissected */
 	if(have_tap_listener(http_follow_tap)) {
-		tap_queue_packet(http_follow_tap, pinfo, tvb_new_subset_length(tvb, 0, offset));
+		tap_queue_packet(http_follow_tap, pinfo, tvb_new_subset_length(tvb, orig_offset, offset-orig_offset));
 	}
 
 	reported_datalen = tvb_reported_length_remaining(tvb, offset);
