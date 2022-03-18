@@ -58,23 +58,23 @@ regs = {
 
 # For those that don't know Python, r"" indicates a raw string,
 # devoid of Python escapes.
-proto_regex = r"\bproto_register_(?P<symbol>[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
+proto_regex = r"\bproto_register_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
 
-handoff_regex = r"\bproto_reg_handoff_(?P<symbol>[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
+handoff_regex = r"\bproto_reg_handoff_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
 
-wtap_reg_regex = r"\bwtap_register_(?P<symbol>[_A-Za-z0-9]+)\s*\([^;]+$"
+wtap_reg_regex = r"\bwtap_register_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
 
-codec_reg_regex = r"\bcodec_register_(?P<symbol>[_A-Za-z0-9]+)\s*\([^;]+$"
+codec_reg_regex = r"\bcodec_register_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
 
-tap_reg_regex = r"\bregister_tap_listener_(?P<symbol>[_A-Za-z0-9]+)\s*\([^;]+$"
+tap_reg_regex = r"\bregister_tap_listener_(?P<symbol>[\w]+)\s*\(\s*void\s*\)\s*{"
 
 # This table drives the pattern-matching and symbol-harvesting
 patterns = [
-        ( 'proto_reg', re.compile(proto_regex, re.MULTILINE) ),
-        ( 'handoff_reg', re.compile(handoff_regex, re.MULTILINE) ),
-        ( 'wtap_register', re.compile(wtap_reg_regex, re.MULTILINE) ),
-        ( 'codec_register', re.compile(codec_reg_regex, re.MULTILINE) ),
-        ( 'register_tap_listener', re.compile(tap_reg_regex, re.MULTILINE) ),
+        ( 'proto_reg', re.compile(proto_regex, re.MULTILINE | re.ASCII) ),
+        ( 'handoff_reg', re.compile(handoff_regex, re.MULTILINE | re.ASCII) ),
+        ( 'wtap_register', re.compile(wtap_reg_regex, re.MULTILINE | re.ASCII) ),
+        ( 'codec_register', re.compile(codec_reg_regex, re.MULTILINE | re.ASCII) ),
+        ( 'register_tap_listener', re.compile(tap_reg_regex, re.MULTILINE | re.ASCII) ),
         ]
 
 # Grep
