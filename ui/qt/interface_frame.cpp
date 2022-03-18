@@ -501,7 +501,7 @@ void InterfaceFrame::showContextMenu(QPoint pos)
         {
             QModelIndex realIndex = proxy_model_.mapToSource(info_model_.mapToSource(idx));
             if (realIndex.column() != IFTREE_COL_NAME)
-                realIndex = realIndex.siblingAtColumn(IFTREE_COL_NAME);
+                realIndex = realIndex.sibling(realIndex.row(), IFTREE_COL_NAME);
             QString name = realIndex.data(Qt::DisplayRole).toString();
             if (! ifaces.contains(name))
                 ifaces << name;
