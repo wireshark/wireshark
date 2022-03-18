@@ -658,10 +658,10 @@ static void dissect_LOGON_INFO_STATE_finish(struct LOGON_INFO_STATE *state)
         state->lm_response.length >= 24)
     {
         if (state->ntlmssph.domain_name == NULL) {
-                state->ntlmssph.domain_name = "";
+                state->ntlmssph.domain_name = (const guint8 *)"";
         }
         if (state->ntlmssph.host_name == NULL) {
-                state->ntlmssph.host_name = "";
+                state->ntlmssph.host_name = (const guint8 *)"";
         }
 
         ntlmssp_create_session_key(state->pinfo,
@@ -2629,7 +2629,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 
     debugprintf("1)Len %d offset %d txt %s\n",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
     vars = wmem_new0(wmem_file_scope(), netlogon_auth_vars);
-    vars->client_name = wmem_strdup(wmem_file_scope(), (const guint8 *)dcv->private_data);
+    vars->client_name = wmem_strdup(wmem_file_scope(), (char *)dcv->private_data);
     debugprintf("2)Len %d offset %d txt %s\n",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
