@@ -137,6 +137,7 @@ Host IP Configuration Protocol (HICP)
 Mesh Connex (MCX)
 Microsoft Cluster Remote Control Protocol (RCP)
 Realtek
+REdis Serialization Protocol v2 (RESP)
 Secure File Transfer Protocol (sftp)
 Secure Host IP Configuration Protocol (SHICP)
 USB Attached SCSI (UASP)

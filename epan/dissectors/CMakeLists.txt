@@ -1687,6 +1687,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-redbackli.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-reload-framing.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-reload.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-resp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-retix-bpdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rfc2190.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rfid-felica.c
