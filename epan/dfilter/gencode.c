@@ -544,10 +544,6 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 static void
 gencode(dfwork_t *dfw, stnode_t *st_node)
 {
-	/* const char	*name; */
-
-	/* name = */stnode_type_name(st_node);  /* XXX: is this being done just for the side-effect ? */
-
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			gen_test(dfw, st_node);
