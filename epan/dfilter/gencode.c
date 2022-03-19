@@ -452,56 +452,62 @@ gencode(dfwork_t *dfw, stnode_t *st_node)
 }
 
 
-void
-dfw_gencode(dfwork_t *dfw)
+static void
+optimize(dfwork_t *dfw)
 {
 	int		id, id1, length;
 	dfvm_insn_t	*insn, *insn1, *prev;
 	dfvm_value_t	*arg1;
 
-	dfw->insns = g_ptr_array_new();
-	dfw->loaded_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
-	dfw->interesting_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
-	gencode(dfw, dfw->st_root);
-	dfw_append_insn(dfw, dfvm_insn_new(RETURN));
-
-	/* fixup goto */
 	length = dfw->insns->len;
 
 	for (id = 0, prev = NULL; id < length; prev = insn, id++) {
 		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->insns, id);
 		arg1 = insn->arg1;
 		if (insn->op == IF_TRUE_GOTO || insn->op == IF_FALSE_GOTO) {
-			dfvm_opcode_t revert = (insn->op == IF_FALSE_GOTO)?IF_TRUE_GOTO:IF_FALSE_GOTO;
+			/* Try to optimize branch jumps */
+			dfvm_opcode_t revert = (insn->op == IF_FALSE_GOTO) ? IF_TRUE_GOTO : IF_FALSE_GOTO;
 			id1 = arg1->value.numeric;
-			do {
+			for (;;) {
 				insn1 = (dfvm_insn_t*)g_ptr_array_index(dfw->insns, id1);
 				if (insn1->op == revert) {
-					/* this one is always false and the branch is not taken*/
+					/* Skip this one; it is always false and the branch is not taken */
 					id1 = id1 +1;
 					continue;
 				}
-				else if (insn1->op == READ_TREE && prev && prev->op == READ_TREE &&
+				if (insn1->op == READ_TREE && prev && prev->op == READ_TREE &&
 						prev->arg2->value.numeric == insn1->arg2->value.numeric) {
-					/* hack if it's the same register it's the same field
-					 * and it returns the same value
-					 */
+					/* Skip this one; hack if it's the same register it's the same field
+					 * and it returns the same value */
 					id1 = id1 +1;
 					continue;
 				}
-				else if (insn1->op != insn->op) {
-					/* bail out */
-					arg1 = insn->arg1;
-					arg1->value.numeric = id1;
-					break;
+				if (insn1->op == insn->op) {
+					/* The branch jumps to the same branch instruction so
+					 * coalesce the jumps */
+					arg1 = insn1->arg1;
+					id1 = arg1->value.numeric;
+					continue;
 				}
-				arg1 = insn1->arg1;
-				id1 = arg1->value.numeric;
-			} while (1);
+				/* Finished */
+				arg1 = insn->arg1;
+				arg1->value.numeric = id1;
+				break;
+			}
 		}
 	}
 }
 
+void
+dfw_gencode(dfwork_t *dfw)
+{
+	dfw->insns = g_ptr_array_new();
+	dfw->loaded_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
+	dfw->interesting_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
+	gencode(dfw, dfw->st_root);
+	dfw_append_insn(dfw, dfvm_insn_new(RETURN));
+	optimize(dfw);
+}
 
 
 typedef struct {
