@@ -309,6 +309,7 @@ static expert_field ei_diameter_avp_vendor_id = EI_INIT;
 static expert_field ei_diameter_invalid_ipv6_prefix_len = EI_INIT;
 static expert_field ei_diameter_invalid_avp_len = EI_INIT;
 static expert_field ei_diameter_invalid_user_equipment_info_value_len = EI_INIT;
+static expert_field ei_diameter_unexpected_imei_as_user_equipment_info = EI_INIT;
 
 /* Tap for Diameter */
 static int diameter_tap = -1;
@@ -701,12 +702,17 @@ dissect_diameter_user_equipment_info_value(tvbuff_t *tvb, packet_info *pinfo, pr
 	case USER_EQUIPMENT_INFO_TYPE_IMEISV:
 		/* RFC 8506 section 8.53, 3GPP TS 23.003 */
 		len = tvb_reported_length(tvb);
-		/* IMEISV is 16 digits, but often transmitted BCD coded in 8 octets. */
+		/* IMEISV is 16 digits, but often transmitted BCD coded in 8 octets.
+		   Some implementations use IMEI (15 digits) instead of IMEISV */
 		if (len == 8) {
 			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_BCD_DIGITS_0_9|ENC_NA);
 			return len;
 		} else if (len == 16) {
 			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_ASCII);
+			return len;
+		} else if (len == 15) {
+			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_ASCII);
+			proto_tree_add_expert(tree, pinfo, &ei_diameter_unexpected_imei_as_user_equipment_info, tvb, 0, len);
 			return len;
 		}
 		proto_tree_add_expert(tree, pinfo, &ei_diameter_invalid_user_equipment_info_value_len, tvb, 0, len);
@@ -2526,7 +2532,8 @@ real_register_diameter_fields(void)
 		{ &ei_diameter_code, { "diameter.cmd.code.unknown", PI_UNDECODED, PI_WARN, "Unknown command, if you know what this is you can add it to dictionary.xml", EXPFILL }},
 		{ &ei_diameter_invalid_ipv6_prefix_len, { "diameter.invalid_ipv6_prefix_len", PI_MALFORMED, PI_ERROR, "Invalid IPv6 Prefix length", EXPFILL }},
 		{ &ei_diameter_invalid_avp_len,{ "diameter.invalid_avp_len", PI_MALFORMED, PI_ERROR, "Invalid AVP length", EXPFILL }},
-		{ &ei_diameter_invalid_user_equipment_info_value_len,{ "diameter.invalid_user_equipment_info_value_len", PI_MALFORMED, PI_ERROR, "Invalid User-Equipment-Info-Value length", EXPFILL }}
+		{ &ei_diameter_invalid_user_equipment_info_value_len,{ "diameter.invalid_user_equipment_info_value_len", PI_MALFORMED, PI_ERROR, "Invalid User-Equipment-Info-Value length", EXPFILL }},
+		{ &ei_diameter_unexpected_imei_as_user_equipment_info,{ "diameter.unexpected_imei_as_user_equipment_info", PI_MALFORMED, PI_ERROR, "Found IMEI as User-Equipment-Info-Value but IMEISV was expected", EXPFILL }},
 	};
 
 	wmem_array_append(build_dict.hf, hf_base, array_length(hf_base));
