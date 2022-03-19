@@ -2272,7 +2272,7 @@ set (_dtds_data_files)
 set (_dtds_dep_files)
 foreach(_data_file ${_dtds_src_files})
 	list(APPEND _dtds_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _dtds_dep_files ${_protocol_data_dir})
+	list(APPEND _dtds_dep_files ${_protocol_data_dir}/${_data_file})
 endforeach()
 
 add_custom_command(
