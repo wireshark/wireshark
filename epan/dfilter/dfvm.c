@@ -309,16 +309,6 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				fprintf(f, "%05d IF_FALSE_GOTO\t%u\n",
 						id, arg1->value.numeric);
 				break;
-
-			case PUT_FVALUE:
-				fprintf(f, "%05d PUT_FVALUE\t%s -> %s\n",
-					id, arg1_str, arg2_str);
-				break;
-
-			case PUT_PCRE:
-				fprintf(f, "%05d PUT_PCRE  \t%s -> %s\n",
-					id, arg1_str, arg2_str);
-				break;
 		}
 
 		g_free(arg1_str);
@@ -384,33 +374,6 @@ read_tree(dfilter_t *df, proto_tree *tree,
 	return TRUE;
 }
 
-
-/* Put a constant value in a register. These will not be cleared by
- * free_register_overhead. */
-static gboolean
-put_fvalue(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
-{
-	fvalue_t *fv = arg1->value.fvalue;
-	int reg = arg2->value.numeric;
-
-	df->registers[reg] = g_slist_prepend(NULL, fv);
-	df->owns_memory[reg] = FALSE;
-	return TRUE;
-}
-
-/* Put a constant PCRE in a register. These will not be cleared by
- * free_register_overhead. */
-static gboolean
-put_pcre(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
-{
-	ws_regex_t *pcre = arg1->value.pcre;
-	int reg = arg2->value.numeric;
-
-	df->registers[reg] = g_slist_prepend(NULL, pcre);
-	df->owns_memory[reg] = FALSE;
-	return TRUE;
-}
-
 enum match_how {
 	MATCH_ANY,
 	MATCH_ALL
@@ -420,73 +383,86 @@ typedef gboolean (*DFVMCompareFunc)(const fvalue_t*, const fvalue_t*);
 
 static gboolean
 cmp_test(enum match_how how, DFVMCompareFunc match_func,
-					GSList *reg1, GSList *reg2)
+					GSList *arg1, GSList *arg2)
 {
-	GSList *list_a, *list_b;
+	GSList *list1, *list2;
 	gboolean want_all = (how == MATCH_ALL);
 	gboolean want_any = (how == MATCH_ANY);
 	gboolean have_match;
 
-	list_a = reg1;
+	list1 = arg1;
 
-	while (list_a) {
-		list_b = reg2;
-		while (list_b) {
-			have_match = match_func(list_a->data, list_b->data);
+	while (list1) {
+		list2 = arg2;
+		while (list2) {
+			have_match = match_func(list1->data, list2->data);
 			if (want_all && !have_match) {
 				return FALSE;
 			}
 			else if (want_any && have_match) {
 				return TRUE;
 			}
-			list_b = g_slist_next(list_b);
+			list2 = g_slist_next(list2);
 		}
-		list_a = g_slist_next(list_a);
+		list1 = g_slist_next(list1);
 	}
 	/* want_all || !want_any */
 	return want_all;
 }
 
 /* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
-static inline gboolean
+static gboolean
 any_test(dfilter_t *df, DFVMCompareFunc cmp,
 				dfvm_value_t *arg1, dfvm_value_t *arg2)
 {
-	GSList *reg1 = df->registers[arg1->value.numeric];
-	GSList *reg2 = df->registers[arg2->value.numeric];
+	ws_assert(arg1->type == REGISTER);
+	GSList *list1 = df->registers[arg1->value.numeric];
 
-	return cmp_test(MATCH_ANY, cmp, reg1, reg2);
+	if (arg2->type == REGISTER) {
+		return cmp_test(MATCH_ANY, cmp, list1, df->registers[arg2->value.numeric]);
+	}
+	if (arg2->type == FVALUE) {
+		GSList list2;
+
+		list2.data = arg2->value.fvalue;
+		list2.next = NULL;
+		return cmp_test(MATCH_ANY, cmp, list1, &list2);
+	}
+	ws_assert_not_reached();
 }
 
 /* cmp(A) <=> cmp(a1) AND cmp(a2) AND cmp(a3) AND ... */
-static inline gboolean
+static gboolean
 all_test(dfilter_t *df, DFVMCompareFunc cmp,
 				dfvm_value_t *arg1, dfvm_value_t *arg2)
 {
-	GSList *reg1 = df->registers[arg1->value.numeric];
-	GSList *reg2 = df->registers[arg2->value.numeric];
+	ws_assert(arg1->type == REGISTER);
+	GSList *list1 = df->registers[arg1->value.numeric];
 
-	return cmp_test(MATCH_ALL, cmp, reg1, reg2);
+	if (arg2->type == REGISTER) {
+		return cmp_test(MATCH_ALL, cmp, list1, df->registers[arg2->value.numeric]);
+	}
+	if (arg2->type == FVALUE) {
+		GSList list2;
+
+		list2.data = arg2->value.fvalue;
+		list2.next = NULL;
+		return cmp_test(MATCH_ALL, cmp, list1, &list2);
+	}
+	ws_assert_not_reached();
 }
 
 static gboolean
 any_matches(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
 {
-	GSList *reg1 = df->registers[arg1->value.numeric];
-	GSList *reg2 = df->registers[arg2->value.numeric];
-	GSList *list_a, *list_b;
+	GSList *list1 = df->registers[arg1->value.numeric];
+	ws_regex_t *re = arg2->value.pcre;
 
-	list_a = reg1;
-
-	while (list_a) {
-		list_b = reg2;
-		while (list_b) {
-			if (fvalue_matches(list_a->data, list_b->data)) {
-				return TRUE;
-			}
-			list_b = g_slist_next(list_b);
+	while (list1) {
+		if (fvalue_matches(list1->data, re)) {
+			return TRUE;
 		}
-		list_a = g_slist_next(list_a);
+		list1 = g_slist_next(list1);
 	}
 	return FALSE;
 }
@@ -495,27 +471,13 @@ static gboolean
 any_in_range(dfilter_t *df, dfvm_value_t *arg1,
 				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
 {
-	GSList *list1, *list_low, *list_high;
-	fvalue_t *low, *high, *value;
-
-	list1 = df->registers[arg1->value.numeric];
-	list_low = df->registers[arg_low->value.numeric];
-	list_high = df->registers[arg_high->value.numeric];
-
-	/* The first register contains the values associated with a field, the
-	 * second and third arguments are expected to be a single value for the
-	 * lower and upper bound respectively. These cannot be fields and thus
-	 * the list length MUST be one. This should have been enforced by
-	 * grammar.lemon.
-	 */
-	ws_assert(list_low && !g_slist_next(list_low));
-	ws_assert(list_high && !g_slist_next(list_high));
-	low = list_low->data;
-	high = list_high->data;
+	GSList *list1 = df->registers[arg1->value.numeric];
+	fvalue_t *low = arg_low->value.fvalue;
+	fvalue_t *high = arg_high->value.fvalue;
 
 	while (list1) {
-		value = list1->data;
-		if (fvalue_ge(value, low) && fvalue_le(value, high)) {
+		if (fvalue_ge(list1->data, low) &&
+					fvalue_le(list1->data, high)) {
 			return TRUE;
 		}
 		list1 = g_slist_next(list1);
@@ -527,8 +489,7 @@ any_in_range(dfilter_t *df, dfvm_value_t *arg1,
 static void
 free_owned_register(gpointer data, gpointer user_data _U_)
 {
-	fvalue_t *value = (fvalue_t *)data;
-	fvalue_free(value);
+	fvalue_free(data);
 }
 
 /* Clear registers that were populated during evaluation.
@@ -726,14 +687,6 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 					id = arg1->value.numeric;
 					goto AGAIN;
 				}
-				break;
-
-			case PUT_FVALUE:
-				put_fvalue(df, arg1, arg2);
-				break;
-
-			case PUT_PCRE:
-				put_pcre(df, arg1, arg2);
 				break;
 		}
 	}

@@ -53,8 +53,6 @@ typedef enum {
 	NOT,
 	RETURN,
 	READ_TREE,
-	PUT_FVALUE,
-	PUT_PCRE,
 	ALL_EQ,
 	ANY_EQ,
 	ALL_NE,

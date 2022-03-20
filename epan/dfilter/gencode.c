@@ -92,23 +92,6 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 
 /* returns register number */
 static dfvm_value_t *
-dfw_append_put_fvalue(dfwork_t *dfw, fvalue_t *fv)
-{
-	dfvm_insn_t	*insn;
-	dfvm_value_t	*reg_val, *val1;
-
-	insn = dfvm_insn_new(PUT_FVALUE);
-	val1 = dfvm_value_new_fvalue(fv);
-	insn->arg1 = dfvm_value_ref(val1);
-	reg_val = dfvm_value_new_register(dfw->next_register++);
-	insn->arg2 = dfvm_value_ref(reg_val);
-	dfw_append_insn(dfw, insn);
-
-	return reg_val;
-}
-
-/* returns register number */
-static dfvm_value_t *
 dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	stnode_t                *entity;
@@ -182,24 +165,6 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 
 	return reg_val;
 }
-
-/* returns register number */
-static dfvm_value_t *
-dfw_append_put_pcre(dfwork_t *dfw, ws_regex_t *pcre)
-{
-	dfvm_insn_t	*insn;
-	dfvm_value_t	*reg_val, *val1;
-
-	insn = dfvm_insn_new(PUT_PCRE);
-	val1 = dfvm_value_new_pcre(pcre);
-	insn->arg1 = dfvm_value_ref(val1);
-	reg_val = dfvm_value_new_register(dfw->next_register++);
-	insn->arg2 = dfvm_value_ref(reg_val);
-	dfw_append_insn(dfw, insn);
-
-	return reg_val;
-}
-
 
 /**
  * Adds an instruction for a relation operator where the values are already
@@ -323,14 +288,13 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 {
 	sttype_id_t       e_type;
 	dfvm_insn_t       *insn;
-	dfvm_value_t      *jmp;
+	dfvm_value_t      *val, *jmp;
 	header_field_info *hfinfo;
-	dfvm_value_t      *reg_val;
 	e_type = stnode_type_id(st_arg);
 
 	if (e_type == STTYPE_FIELD) {
 		hfinfo = stnode_data(st_arg);
-		reg_val = dfw_append_read_tree(dfw, hfinfo);
+		val = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
 		jmp = dfvm_value_new(INSN_NUMBER);
@@ -339,22 +303,22 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 		*jumps_ptr = g_slist_prepend(*jumps_ptr, jmp);
 	}
 	else if (e_type == STTYPE_FVALUE) {
-		reg_val = dfw_append_put_fvalue(dfw, stnode_steal_data(st_arg));
+		val = dfvm_value_new_fvalue(stnode_steal_data(st_arg));
 	}
 	else if (e_type == STTYPE_RANGE) {
-		reg_val = dfw_append_mk_range(dfw, st_arg, jumps_ptr);
+		val = dfw_append_mk_range(dfw, st_arg, jumps_ptr);
 	}
 	else if (e_type == STTYPE_FUNCTION) {
-		reg_val = dfw_append_function(dfw, st_arg, jumps_ptr);
+		val = dfw_append_function(dfw, st_arg, jumps_ptr);
 	}
 	else if (e_type == STTYPE_PCRE) {
-		reg_val = dfw_append_put_pcre(dfw, stnode_steal_data(st_arg));
+		val = dfvm_value_new_pcre(stnode_steal_data(st_arg));
 	}
 	else {
 		/* printf("sttype_id is %u\n", (unsigned)e_type); */
 		ws_assert_not_reached();
 	}
-	return reg_val;
+	return val;
 }
 
 
