@@ -80,10 +80,6 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree_add_item(mpeg_pat_tree, hf_mpeg_pat_last_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    if (offset >= length)
-        return offset;
-
-
     /* Parse all the programs */
     while (offset < length) {
 
