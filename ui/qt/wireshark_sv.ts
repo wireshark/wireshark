@@ -5697,6 +5697,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Visa kolumndefinitioner i kolumnkontextmenyn</translation>
     </message>
     <message>
+        <source>Allow the list to be sorted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable mouse-over colorization</source>
         <translation>Aktivera färgläggning vid musen över</translation>
     </message>

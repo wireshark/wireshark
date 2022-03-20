@@ -5658,6 +5658,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Mostrar definición de columna en menú contextual de columna</translation>
     </message>
     <message>
+        <source>Allow the list to be sorted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable mouse-over colorization</source>
         <translation>Activar coloración mouse-over</translation>
     </message>

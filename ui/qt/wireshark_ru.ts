@@ -5716,6 +5716,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Показывать определение столбца в контекстом меню столбца</translation>
     </message>
     <message>
+        <source>Allow the list to be sorted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable mouse-over colorization</source>
         <translation type="unfinished"></translation>
     </message>

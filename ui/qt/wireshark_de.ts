@@ -5697,6 +5697,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Spaltendefinition im Spaltenkontextmenü anzeigen</translation>
     </message>
     <message>
+        <source>Allow the list to be sorted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable mouse-over colorization</source>
         <translation>Mouse-Over Einfärbung aktivieren</translation>
     </message>
