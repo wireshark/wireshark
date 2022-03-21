@@ -825,7 +825,7 @@ capture_stat_start(capture_options *capture_opts)
         /* Initialize the cache */
         for (i = 0; i < capture_opts->all_ifaces->len; i++) {
             device = &g_array_index(capture_opts->all_ifaces, interface_t, i);
-            if (device->type != IF_PIPE) {
+            if (device->type != IF_PIPE && device->type != IF_EXTCAP) {
                 sc_item = g_new0(if_stat_cache_item_t, 1);
                 ws_assert(device->if_info.name);
                 sc_item->name = g_strdup(device->if_info.name);

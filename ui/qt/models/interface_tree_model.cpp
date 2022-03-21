@@ -427,7 +427,7 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
 
     interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
 
-    if (device->if_info.type == IF_PIPE)
+    if (device->if_info.type == IF_PIPE || device->if_info.type == IF_EXTCAP)
         return;
 
     if (!stat_cache_)
