@@ -319,6 +319,8 @@ dissect_nvme_tcp_command(tvbuff_t *tvb,
     if (opcode == NVME_FABRIC_OPC) {
         cmd_ctx->n_cmd_ctx.fabric = TRUE;
         dissect_nvmeof_fabric_cmd(tvb, pinfo, nvme_tcp_tree, &queue->n_q_ctx, &cmd_ctx->n_cmd_ctx, offset, FALSE);
+        if (cmd_ctx->n_cmd_ctx.cmd_ctx.fabric_cmd.fctype == NVME_FCTYPE_CONNECT)
+            queue->n_q_ctx.qid = cmd_ctx->n_cmd_ctx.cmd_ctx.fabric_cmd.cnct.qid;
         cmd_string = get_nvmeof_cmd_string(cmd_ctx->n_cmd_ctx.cmd_ctx.fabric_cmd.fctype);
         proto_item_append_text(nvme_tcp_ti,
                 ", Fabrics Type: %s (0x%02x) Cmd ID: 0x%04x", cmd_string,
