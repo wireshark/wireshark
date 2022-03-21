@@ -3,7 +3,7 @@ include::attributes.adoc[]
 :linkcss:
 :copycss: {stylesheet}
 
-= Wireshark {wireshark-version} Release Notes
+== Wireshark {wireshark-version} Release Notes
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
@@ -46,6 +46,22 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
+* Fuzz job crash output: fuzz-2022-01-19-7399.pcap wsbuglink:17894[].
+
+* Ja3 reported is incorrect wsbuglink:17942[].
+
+* "Wiki Protocol page" in packet details menu is broken - wiki pages not migrated to GitLab? wsbuglink:17944[].
+
+* Dissector bug, protocol PFCP display Flow Description IE value error in Additional Flow Description of PFD Management Request Message wsbuglink:17951[].
+
+* Bluetooth: Fails to open Log file for SCO connection wsbuglink:17964[].
+
+* Fuzz job crash output: fuzz-2022-03-07-10896.pcap wsbuglink:17984[].
+
+* libwiretap: Save as  ERF causes segmentation fault wsbuglink:17989[].
+
+* HTTP server returning multiple early hints shows too many responses in "Follow HTTP Stream" wsbuglink:18006[].
+
 === New and Updated Features
 
 
@@ -63,15 +79,26 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+IEEE 802.11
+CSN.1
+HTTP
+NTLM SSP
+PFCP
+PKTLOG
+SSDP
+TLS
+USB HID
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcap
+pcapng
+--
 
 === New File Format Decoding Support
 
