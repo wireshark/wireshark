@@ -4519,6 +4519,7 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
 									netlogon_dissect_PAC_LOGON_INFO, NDR_POINTER_UNIQUE,
 									"PAC_LOGON_INFO:", -1);
+	free_ndr_pointer_list(&di);
 
 	return offset;
 }
@@ -4611,6 +4612,7 @@ dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int
 	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
 									netlogon_dissect_PAC_S4U_DELEGATION_INFO, NDR_POINTER_UNIQUE,
 									"PAC_S4U_DELEGATION_INFO:", -1);
+	free_ndr_pointer_list(&di);
 
 	return offset;
 }
@@ -4746,6 +4748,7 @@ dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
 				     netlogon_dissect_PAC_DEVICE_INFO, NDR_POINTER_UNIQUE,
 				     "PAC_DEVICE_INFO:", -1);
+	free_ndr_pointer_list(&di);
 
 	return offset;
 }
