@@ -298,8 +298,11 @@ Note that installation of separate Qt components are required for 64 bit and 32 
 The components are forward compatible; you can build Wireshark using Qt’s “msvc2019 64-bit” and Visual {cpp} 2022.
 The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH]` should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_
 
-The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
-upgrade Qt to newer versions.
+Wireshark has experimental support for Qt 6.
+If you would like to build Wireshark with Qt 6 you must install it along with the “Qt5 Compatibility Module” component and and pass `-DUSE_qt6=ON` to cmake.
+You can optionally set the `WIRESHARK_QT6_PREFIX_PATH` environment variable to your Qt 6 installation directory instead of `CMAKE_PREFIX_PATH`.
+
+The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to upgrade Qt to newer versions.
 
 [#ChSetupPython]
 
