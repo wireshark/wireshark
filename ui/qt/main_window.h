@@ -389,6 +389,7 @@ private slots:
      * shown in the main welcome screen.
      */
     void startCapture(QStringList);
+    void startCapture();
     void pipeTimeout();
     void pipeActivated(int source);
     void pipeNotifierDestroyed();

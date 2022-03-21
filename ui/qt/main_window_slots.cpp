@@ -831,6 +831,10 @@ void MainWindow::captureFileClosed() {
 
 // ui/gtk/capture_dlg.c:start_capture_confirmed
 
+void MainWindow::startCapture() {
+    startCapture(QStringList());
+}
+
 void MainWindow::startCapture(QStringList interfaces _U_) {
 #ifdef HAVE_LIBPCAP
     interface_options *interface_opts;
