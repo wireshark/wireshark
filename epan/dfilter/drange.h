@@ -24,25 +24,25 @@
  */
 
 typedef enum {
-	DRANGE_NODE_END_T_UNINITIALIZED,
-	DRANGE_NODE_END_T_LENGTH,
-	DRANGE_NODE_END_T_OFFSET,
-	DRANGE_NODE_END_T_TO_THE_END
+    DRANGE_NODE_END_T_UNINITIALIZED,
+    DRANGE_NODE_END_T_LENGTH,
+    DRANGE_NODE_END_T_OFFSET,
+    DRANGE_NODE_END_T_TO_THE_END
 } drange_node_end_t;
 
 typedef struct _drange_node {
-  gint			start_offset;
-  gint			length;
-  gint 			end_offset;
-  drange_node_end_t	ending;
+    gint start_offset;
+    gint length;
+    gint end_offset;
+    drange_node_end_t ending;
 } drange_node;
 
 typedef struct _drange {
-  GSList* range_list;
-  gboolean has_total_length;
-  gint total_length;
-  gint min_start_offset;
-  gint max_start_offset;
+    GSList* range_list;
+    gboolean has_total_length;
+    gint total_length;
+    gint min_start_offset;
+    gint max_start_offset;
 } drange_t;
 
 /* drange_node constructor */

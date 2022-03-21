@@ -4,50 +4,16 @@
 # https://editorconfig.org/
 #
 
-[dfilter-macro.[ch]]
+# C
+[*.{c,h}]
 indent_style = tab
 indent_size = tab
+tab_width = 8
 
-[dfilter.[ch]]
-indent_style = tab
-indent_size = tab
+[drange.[ch]]
+indent_style = space
+indent_size = 4
 
-[dfvm.[ch]]
-indent_style = tab
-indent_size = tab
-
-[gencode.[ch]]
-indent_style = tab
-indent_size = tab
-
-[semcheck.[ch]]
-indent_style = tab
-indent_size = tab
-
-[sttype-function.[ch]]
-indent_style = tab
-indent_size = tab
-
-[sttype-pointer.[ch]]
-indent_style = tab
-indent_size = tab
-
-[sttype-range.[ch]]
-indent_style = tab
-indent_size = tab
-
-[sttype-set.[ch]]
-indent_style = tab
-indent_size = tab
-
-[sttype-string.[ch]]
-indent_style = tab
-indent_size = tab
-
-[sttype-test.[ch]]
-indent_style = tab
-indent_size = tab
-
-[syntax-tree.[ch]]
-indent_style = tab
-indent_size = tab
+[dfunctions.[ch]]
+indent_style = space
+indent_size = 4
