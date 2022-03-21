@@ -76,44 +76,69 @@ dfvm_value_new(dfvm_value_type_t type)
 	return v;
 }
 
+char *
+dfvm_value_tostr(dfvm_value_t *v)
+{
+	char *s, *aux;
+
+	if (!v)
+		return NULL;
+
+	switch (v->type) {
+		case HFINFO:
+			s = ws_strdup(v->value.hfinfo->abbrev);
+			break;
+		case FVALUE:
+			aux = fvalue_to_debug_repr(NULL, v->value.fvalue);
+			s = ws_strdup_printf("%s <%s>",
+				aux, fvalue_type_name(v->value.fvalue));
+			g_free(aux);
+			break;
+		case DRANGE:
+			s = drange_tostr(v->value.drange);
+			break;
+		case PCRE:
+			s = ws_strdup(ws_regex_pattern(v->value.pcre));
+			break;
+		case REGISTER:
+			s = ws_strdup_printf("reg#%u", v->value.numeric);
+			break;
+		case FUNCTION_DEF:
+			s = ws_strdup(v->value.funcdef->name);
+			break;
+		default:
+			s = ws_strdup("FIXME");
+	}
+	return s;
+}
 
 void
 dfvm_dump(FILE *f, dfilter_t *df)
 {
 	int		id, length;
 	dfvm_insn_t	*insn;
-	dfvm_value_t	*arg1;
-	dfvm_value_t	*arg2;
-	dfvm_value_t	*arg3;
-	dfvm_value_t	*arg4;
-	char		*value_str;
-	GSList		*range_list;
-	drange_node	*range_item;
+	dfvm_value_t	*arg1, *arg2, *arg3, *arg4;
+	char 		*arg1_str, *arg2_str, *arg3_str, *arg4_str;
 
 	/* First dump the constant initializations */
 	fprintf(f, "Constants:\n");
 	length = df->consts->len;
 	for (id = 0; id < length; id++) {
 
-		insn = (dfvm_insn_t	*)g_ptr_array_index(df->consts, id);
+		insn = g_ptr_array_index(df->consts, id);
 		arg1 = insn->arg1;
 		arg2 = insn->arg2;
+		arg1_str = dfvm_value_tostr(arg1);
+		arg2_str = dfvm_value_tostr(arg2);
 
 		switch (insn->op) {
 			case PUT_FVALUE:
-				value_str = fvalue_to_string_repr(NULL, arg1->value.fvalue,
-					FTREPR_DFILTER, BASE_NONE);
-				fprintf(f, "%05d PUT_FVALUE\t%s <%s> -> reg#%u\n",
-					id, value_str,
-					fvalue_type_name(arg1->value.fvalue),
-					arg2->value.numeric);
-				wmem_free(NULL, value_str);
+				fprintf(f, "%05d PUT_FVALUE\t%s -> %s\n",
+					id, arg1_str, arg2_str);
 				break;
 			case PUT_PCRE:
-				fprintf(f, "%05d PUT_PCRE  \t%s -> reg#%u\n",
-					id,
-					ws_regex_pattern(arg1->value.pcre),
-					arg2->value.numeric);
+				fprintf(f, "%05d PUT_PCRE  \t%s -> %s\n",
+					id, arg1_str, arg2_str);
 				break;
 			case CHECK_EXISTS:
 			case READ_TREE:
@@ -135,10 +160,12 @@ dfvm_dump(FILE *f, dfilter_t *df)
 			case RETURN:
 			case IF_TRUE_GOTO:
 			case IF_FALSE_GOTO:
-			default:
 				ws_assert_not_reached();
 				break;
 		}
+
+		g_free(arg1_str);
+		g_free(arg2_str);
 	}
 
 	fprintf(f, "\nInstructions:\n");
@@ -146,144 +173,103 @@ dfvm_dump(FILE *f, dfilter_t *df)
 	length = df->insns->len;
 	for (id = 0; id < length; id++) {
 
-		insn = (dfvm_insn_t	*)g_ptr_array_index(df->insns, id);
+		insn = g_ptr_array_index(df->insns, id);
 		arg1 = insn->arg1;
 		arg2 = insn->arg2;
 		arg3 = insn->arg3;
 		arg4 = insn->arg4;
+		arg1_str = dfvm_value_tostr(arg1);
+		arg2_str = dfvm_value_tostr(arg2);
+		arg3_str = dfvm_value_tostr(arg3);
+		arg4_str = dfvm_value_tostr(arg4);
 
 		switch (insn->op) {
 			case CHECK_EXISTS:
 				fprintf(f, "%05d CHECK_EXISTS\t%s\n",
-					id, arg1->value.hfinfo->abbrev);
+					id, arg1_str);
 				break;
 
 			case READ_TREE:
-				fprintf(f, "%05d READ_TREE\t\t%s -> reg#%u\n",
-					id, arg1->value.hfinfo->abbrev,
-					arg2->value.numeric);
+				fprintf(f, "%05d READ_TREE\t\t%s -> %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case CALL_FUNCTION:
-				fprintf(f, "%05d CALL_FUNCTION\t%s (",
-					id, arg1->value.funcdef->name);
-				if (arg3) {
-					fprintf(f, "reg#%u", arg3->value.numeric);
+				fprintf(f, "%05d CALL_FUNCTION\t%s(",
+					id, arg1_str);
+				if (arg3_str) {
+					fprintf(f, "%s", arg3_str);
 				}
-				if (arg4) {
-					fprintf(f, ", reg#%u", arg4->value.numeric);
+				if (arg4_str) {
+					fprintf(f, ", %s", arg4_str);
 				}
-				fprintf(f, ") --> reg#%u\n", arg2->value.numeric);
-				break;
-
-			case PUT_FVALUE:
-				/* We already dumped these */
-				ws_assert_not_reached();
-				break;
-
-			case PUT_PCRE:
-				/* We already dumped these */
-				ws_assert_not_reached();
+				fprintf(f, ") -> %s\n", arg2_str);
 				break;
 
 			case MK_RANGE:
 				arg3 = insn->arg3;
-				fprintf(f, "%05d MK_RANGE\t\treg#%u[",
-					id,
-					arg1->value.numeric);
-				for (range_list = arg3->value.drange->range_list;
-				     range_list != NULL;
-				     range_list = range_list->next) {
-					range_item = (drange_node *)range_list->data;
-					switch (range_item->ending) {
-
-					case DRANGE_NODE_END_T_UNINITIALIZED:
-						fprintf(f, "?");
-						break;
-
-					case DRANGE_NODE_END_T_LENGTH:
-						fprintf(f, "%d:%d",
-						    range_item->start_offset,
-						    range_item->length);
-						break;
-
-					case DRANGE_NODE_END_T_OFFSET:
-						fprintf(f, "%d-%d",
-						    range_item->start_offset,
-						    range_item->end_offset);
-						break;
-
-					case DRANGE_NODE_END_T_TO_THE_END:
-						fprintf(f, "%d:",
-						    range_item->start_offset);
-						break;
-					}
-					if (range_list->next != NULL)
-						fprintf(f, ",");
-				}
-				fprintf(f, "] -> reg#%u\n",
-					arg2->value.numeric);
+				fprintf(f, "%05d MK_RANGE\t\t%s[%s] -> %s\n",
+					id, arg1_str, arg2_str, arg3_str);
 				break;
 
 			case ALL_EQ:
-				fprintf(f, "%05d ALL_EQ\t\treg#%u === reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ALL_EQ\t\t%s === %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_EQ:
-				fprintf(f, "%05d ANY_EQ\t\treg#%u == reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_EQ\t\t%s == %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ALL_NE:
-				fprintf(f, "%05d ALL_NE\t\treg#%u != reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ALL_NE\t\t%s != %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_NE:
-				fprintf(f, "%05d ANY_NE\t\treg#%u !== reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_NE\t\t%s !== %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_GT:
-				fprintf(f, "%05d ANY_GT\t\treg#%u > reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_GT\t\t%s > %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_GE:
-				fprintf(f, "%05d ANY_GE\t\treg#%u >= reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_GE\t\t%s >= %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_LT:
-				fprintf(f, "%05d ANY_LT\t\treg#%u < reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_LT\t\t%s < %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_LE:
-				fprintf(f, "%05d ANY_LE\t\treg#%u <= reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_LE\t\t%s <= %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_BITWISE_AND:
-				fprintf(f, "%05d ANY_BITWISE_AND\treg#%u & reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_BITWISE_AND\t%s & %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_CONTAINS:
-				fprintf(f, "%05d ANY_CONTAINS\treg#%u contains reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_CONTAINS\t%s contains %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_MATCHES:
-				fprintf(f, "%05d ANY_MATCHES\treg#%u matches reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric);
+				fprintf(f, "%05d ANY_MATCHES\t%s matches %s\n",
+					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_IN_RANGE:
-				fprintf(f, "%05d ANY_IN_RANGE\treg#%u in range reg#%u,reg#%u\n",
-					id, arg1->value.numeric, arg2->value.numeric,
-					arg3->value.numeric);
+				fprintf(f, "%05d ANY_IN_RANGE\t%s in { %s .. %s }\n",
+					id, arg1_str, arg2_str, arg3_str);
 				break;
 
 			case NOT:
@@ -295,19 +281,26 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			case IF_TRUE_GOTO:
-				fprintf(f, "%05d IF-TRUE-GOTO\t%u\n",
+				fprintf(f, "%05d IF_TRUE_GOTO\t%u\n",
 						id, arg1->value.numeric);
 				break;
 
 			case IF_FALSE_GOTO:
-				fprintf(f, "%05d IF-FALSE-GOTO\t%u\n",
+				fprintf(f, "%05d IF_FALSE_GOTO\t%u\n",
 						id, arg1->value.numeric);
 				break;
 
-			default:
+			case PUT_FVALUE:
+			case PUT_PCRE:
+				/* We already dumped these */
 				ws_assert_not_reached();
 				break;
 		}
+
+		g_free(arg1_str);
+		g_free(arg2_str);
+		g_free(arg3_str);
+		g_free(arg4_str);
 	}
 }
 
