@@ -41,6 +41,7 @@ typedef struct {
 		ws_regex_t		*pcre;
 	} value;
 
+	int ref_count;
 } dfvm_value_t;
 
 
@@ -88,6 +89,12 @@ dfvm_insn_free(dfvm_insn_t *insn);
 
 dfvm_value_t*
 dfvm_value_new(dfvm_value_type_t type);
+
+dfvm_value_t*
+dfvm_value_ref(dfvm_value_t *v);
+
+void
+dfvm_value_unref(dfvm_value_t *v);
 
 dfvm_value_t*
 dfvm_value_new_fvalue(fvalue_t *fv);

@@ -25,7 +25,7 @@ fixup_jumps(gpointer data, gpointer user_data);
 static void
 gencode(dfwork_t *dfw, stnode_t *st_node);
 
-static int
+static dfvm_value_t *
 gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr);
 
 static void
@@ -45,11 +45,12 @@ dfw_append_const(dfwork_t *dfw, dfvm_insn_t *insn)
 }
 
 /* returns register number */
-static int
+static dfvm_value_t *
 dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 {
 	dfvm_insn_t	*insn;
 	int		reg = -1;
+	dfvm_value_t	*reg_val, *val1;
 	gboolean	added_new_hfinfo = FALSE;
 
 	/* Rewind to find the first field of this name. */
@@ -78,8 +79,10 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 	}
 
 	insn = dfvm_insn_new(READ_TREE);
-	insn->arg1 = dfvm_value_new_hfinfo(hfinfo);
-	insn->arg2 = dfvm_value_new_register(reg);
+	val1 = dfvm_value_new_hfinfo(hfinfo);
+	insn->arg1 = dfvm_value_ref(val1);
+	reg_val = dfvm_value_new_register(reg);
+	insn->arg2 = dfvm_value_ref(reg_val);
 	dfw_append_insn(dfw, insn);
 
 	if (added_new_hfinfo) {
@@ -92,88 +95,79 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 		}
 	}
 
-	return reg;
+	return reg_val;
 }
 
 /* returns register number */
-static int
+static dfvm_value_t *
 dfw_append_put_fvalue(dfwork_t *dfw, fvalue_t *fv)
 {
 	dfvm_insn_t	*insn;
-	int		reg;
+	dfvm_value_t	*reg_val, *val1;
 
 	insn = dfvm_insn_new(PUT_FVALUE);
-	insn->arg1 = dfvm_value_new_fvalue(fv);
-	reg = dfw->first_constant--;
-	insn->arg2 = dfvm_value_new_register(reg);
+	val1 = dfvm_value_new_fvalue(fv);
+	insn->arg1 = dfvm_value_ref(val1);
+	reg_val = dfvm_value_new_register(dfw->first_constant--);
+	insn->arg2 = dfvm_value_ref(reg_val);
 	dfw_append_const(dfw, insn);
 
-	return reg;
+	return reg_val;
 }
 
 /* returns register number */
-static int
+static dfvm_value_t *
 dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
-	int			hf_reg, reg;
 	stnode_t                *entity;
 	dfvm_insn_t		*insn;
+	dfvm_value_t		*reg_val, *val1, *val3;
 
 	entity = sttype_range_entity(node);
 
 	insn = dfvm_insn_new(MK_RANGE);
-	hf_reg = gen_entity(dfw, entity, jumps_ptr);
-	insn->arg1 = dfvm_value_new_register(hf_reg);
-	reg = dfw->next_register++;
-	insn->arg2 = dfvm_value_new_register(reg);
-	insn->arg3 = dfvm_value_new_drange(sttype_range_drange(node));
+	val1 = gen_entity(dfw, entity, jumps_ptr);
+	insn->arg1 = dfvm_value_ref(val1);
+	reg_val = dfvm_value_new_register(dfw->next_register++);
+	insn->arg2 = dfvm_value_ref(reg_val);
+	val3 = dfvm_value_new_drange(sttype_range_drange(node));
+	insn->arg3 = dfvm_value_ref(val3);
 	sttype_range_remove_drange(node);
 	dfw_append_insn(dfw, insn);
 
-	return reg;
+	return reg_val;
 }
 
 /* returns register number that the functions's result will be in. */
-static int
+static dfvm_value_t *
 dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	GSList *params;
-	int i, reg;
-	int param_reg;
 	GSList *param_jumps = NULL;
 	dfvm_value_t *jmp;
 	dfvm_insn_t	*insn;
-	dfvm_value_t	*val;
+	dfvm_value_t	*reg_val, *val1, *val3, *val4;
 
 	/* Create the new DFVM instruction */
 	insn = dfvm_insn_new(CALL_FUNCTION);
-	insn->arg1 = dfvm_value_new_funcdef(sttype_function_funcdef(node));
-	reg = dfw->next_register++;
-	insn->arg2 = dfvm_value_new_register(reg);
+	val1 = dfvm_value_new_funcdef(sttype_function_funcdef(node));
+	insn->arg1 = dfvm_value_ref(val1);
+	reg_val = dfvm_value_new_register(dfw->next_register++);
+	insn->arg2 = dfvm_value_ref(reg_val);
 	insn->arg3 = NULL;
 	insn->arg4 = NULL;
 
 	params = sttype_function_params(node);
-
-	i = 0;
-	while (params) {
-		param_reg = gen_entity(dfw, (stnode_t *)params->data, &param_jumps);
-		val = dfvm_value_new_register(param_reg);
-
-		switch(i) {
-			case 0:
-				insn->arg3 = val;
-				break;
-			case 1:
-				insn->arg4 = val;
-				break;
-			default:
-				ws_assert_not_reached();
-		}
-
+	if (params) {
+		val3 = gen_entity(dfw, params->data, &param_jumps);
+		insn->arg3 = dfvm_value_ref(val3);
 		params = params->next;
-		i++;
 	}
+	if (params) {
+		val4 = gen_entity(dfw, params->data, &param_jumps);
+		insn->arg4 = dfvm_value_ref(val4);
+	}
+	ws_assert(!g_slist_next(params));
 
 	dfw_append_insn(dfw, insn);
 
@@ -190,27 +184,28 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	 * place, if the call() of our function failed for some reaosn */
 	insn = dfvm_insn_new(IF_FALSE_GOTO);
 	jmp = dfvm_value_new(INSN_NUMBER);
-	insn->arg1 = jmp;
+	insn->arg1 = dfvm_value_ref(jmp);
 	dfw_append_insn(dfw, insn);
 	*jumps_ptr = g_slist_prepend(*jumps_ptr, jmp);
 
-	return reg;
+	return reg_val;
 }
 
 /* returns register number */
-static int
+static dfvm_value_t *
 dfw_append_put_pcre(dfwork_t *dfw, ws_regex_t *pcre)
 {
 	dfvm_insn_t	*insn;
-	int		reg;
+	dfvm_value_t	*reg_val, *val1;
 
 	insn = dfvm_insn_new(PUT_PCRE);
-	insn->arg1 = dfvm_value_new_pcre(pcre);
-	reg = dfw->first_constant--;
-	insn->arg2 = dfvm_value_new_register(reg);
+	val1 = dfvm_value_new_pcre(pcre);
+	insn->arg1 = dfvm_value_ref(val1);
+	reg_val = dfvm_value_new_register(dfw->first_constant--);
+	insn->arg2 = dfvm_value_ref(reg_val);
 	dfw_append_const(dfw, insn);
 
-	return reg;
+	return reg_val;
 }
 
 
@@ -219,13 +214,17 @@ dfw_append_put_pcre(dfwork_t *dfw, ws_regex_t *pcre)
  * loaded in registers.
  */
 static void
-gen_relation_regs(dfwork_t *dfw, dfvm_opcode_t op, int reg1, int reg2)
+gen_relation_insn(dfwork_t *dfw, dfvm_opcode_t op,
+			dfvm_value_t *arg1, dfvm_value_t *arg2,
+			dfvm_value_t *arg3, dfvm_value_t *arg4)
 {
 	dfvm_insn_t	*insn;
 
 	insn = dfvm_insn_new(op);
-	insn->arg1 = dfvm_value_new_register(reg1);
-	insn->arg2 = dfvm_value_new_register(reg2);
+	insn->arg1 = dfvm_value_ref(arg1);
+	insn->arg2 = dfvm_value_ref(arg2);
+	insn->arg3 = dfvm_value_ref(arg3);
+	insn->arg4 = dfvm_value_ref(arg4);
 	dfw_append_insn(dfw, insn);
 }
 
@@ -233,14 +232,14 @@ static void
 gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	GSList		*jumps = NULL;
-	int		reg1 = -1, reg2 = -1;
+	dfvm_value_t	*val1, *val2;
 
 	/* Create code for the LHS and RHS of the relation */
-	reg1 = gen_entity(dfw, st_arg1, &jumps);
-	reg2 = gen_entity(dfw, st_arg2, &jumps);
+	val1 = gen_entity(dfw, st_arg1, &jumps);
+	val2 = gen_entity(dfw, st_arg2, &jumps);
 
 	/* Then combine them in a DFVM insruction */
-	gen_relation_regs(dfw, op, reg1, reg2);
+	gen_relation_insn(dfw, op, val1, val2, NULL, NULL);
 
 	/* If either of the relation arguments need an "exit" instruction
 	 * to jump to (on failure), mark them */
@@ -269,45 +268,41 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 	dfvm_value_t	*jmp;
 	GSList		*jumps = NULL;
 	GSList		*node_jumps = NULL;
-	int		reg1, reg2, reg3;
+	dfvm_value_t	*val1, *val2, *val3;
 	stnode_t	*node1, *node2;
 	GSList		*nodelist_head, *nodelist;
 
 	/* Create code for the LHS of the relation */
-	reg1 = gen_entity(dfw, st_arg1, &jumps);
+	val1 = gen_entity(dfw, st_arg1, &jumps);
 
 	/* Create code for the set on the RHS of the relation */
-	nodelist_head = nodelist = (GSList*)stnode_steal_data(st_arg2);
+	nodelist_head = nodelist = stnode_steal_data(st_arg2);
 	while (nodelist) {
-		node1 = (stnode_t*)nodelist->data;
+		node1 = nodelist->data;
 		nodelist = g_slist_next(nodelist);
-		node2 = (stnode_t*)nodelist->data;
+		node2 = nodelist->data;
 		nodelist = g_slist_next(nodelist);
 
 		if (node2) {
 			/* Range element: add lower/upper bound test. */
-			reg2 = gen_entity(dfw, node1, &node_jumps);
-			reg3 = gen_entity(dfw, node2, &node_jumps);
+			val2 = gen_entity(dfw, node1, &node_jumps);
+			val3 = gen_entity(dfw, node2, &node_jumps);
 
 			/* Add test to see if the item is in range. */
-			insn = dfvm_insn_new(ANY_IN_RANGE);
-			insn->arg1 = dfvm_value_new_register(reg1);
-			insn->arg2 = dfvm_value_new_register(reg2);
-			insn->arg3 = dfvm_value_new_register(reg3);
-			dfw_append_insn(dfw, insn);
+			gen_relation_insn(dfw, ANY_IN_RANGE, val1, val2, val3, NULL);
 		} else {
 			/* Normal element: add equality test. */
-			reg2 = gen_entity(dfw, node1, &node_jumps);
+			val2 = gen_entity(dfw, node1, &node_jumps);
 
 			/* Add test to see if the item matches */
-			gen_relation_regs(dfw, ANY_EQ, reg1, reg2);
+			gen_relation_insn(dfw, ANY_EQ, val1, val2, NULL, NULL);
 		}
 
 		/* Exit as soon as we find a match */
 		if (nodelist) {
 			insn = dfvm_insn_new(IF_TRUE_GOTO);
 			jmp = dfvm_value_new(INSN_NUMBER);
-			insn->arg1 = jmp;
+			insn->arg1 = dfvm_value_ref(jmp);
 			dfw_append_insn(dfw, insn);
 			jumps = g_slist_prepend(jumps, jmp);
 		}
@@ -331,43 +326,43 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
  * p_jmp will be set if it has to be set by the calling code; it should
  * be set to the place to jump to, to return to the calling code,
  * if the load of a field from the proto_tree fails. */
-static int
+static dfvm_value_t *
 gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 {
 	sttype_id_t       e_type;
 	dfvm_insn_t       *insn;
 	dfvm_value_t      *jmp;
 	header_field_info *hfinfo;
-	int reg = -1;
+	dfvm_value_t      *reg_val;
 	e_type = stnode_type_id(st_arg);
 
 	if (e_type == STTYPE_FIELD) {
-		hfinfo = (header_field_info*)stnode_data(st_arg);
-		reg = dfw_append_read_tree(dfw, hfinfo);
+		hfinfo = stnode_data(st_arg);
+		reg_val = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
 		jmp = dfvm_value_new(INSN_NUMBER);
-		insn->arg1 = jmp;
+		insn->arg1 = dfvm_value_ref(jmp);
 		dfw_append_insn(dfw, insn);
 		*jumps_ptr = g_slist_prepend(*jumps_ptr, jmp);
 	}
 	else if (e_type == STTYPE_FVALUE) {
-		reg = dfw_append_put_fvalue(dfw, (fvalue_t *)stnode_steal_data(st_arg));
+		reg_val = dfw_append_put_fvalue(dfw, stnode_steal_data(st_arg));
 	}
 	else if (e_type == STTYPE_RANGE) {
-		reg = dfw_append_mk_range(dfw, st_arg, jumps_ptr);
+		reg_val = dfw_append_mk_range(dfw, st_arg, jumps_ptr);
 	}
 	else if (e_type == STTYPE_FUNCTION) {
-		reg = dfw_append_function(dfw, st_arg, jumps_ptr);
+		reg_val = dfw_append_function(dfw, st_arg, jumps_ptr);
 	}
 	else if (e_type == STTYPE_PCRE) {
-		reg = dfw_append_put_pcre(dfw, stnode_steal_data(st_arg));
+		reg_val = dfw_append_put_pcre(dfw, stnode_steal_data(st_arg));
 	}
 	else {
 		/* printf("sttype_id is %u\n", (unsigned)e_type); */
 		ws_assert_not_reached();
 	}
-	return reg;
+	return reg_val;
 }
 
 
@@ -419,7 +414,7 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 			insn = dfvm_insn_new(IF_FALSE_GOTO);
 			jmp = dfvm_value_new(INSN_NUMBER);
-			insn->arg1 = jmp;
+			insn->arg1 = dfvm_value_ref(jmp);
 			dfw_append_insn(dfw, insn);
 
 			gencode(dfw, st_arg2);
@@ -431,7 +426,7 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 			insn = dfvm_insn_new(IF_TRUE_GOTO);
 			jmp = dfvm_value_new(INSN_NUMBER);
-			insn->arg1 = jmp;
+			insn->arg1 = dfvm_value_ref(jmp);
 			dfw_append_insn(dfw, insn);
 
 			gencode(dfw, st_arg2);

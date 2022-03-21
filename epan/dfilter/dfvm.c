@@ -47,20 +47,39 @@ dfvm_value_free(dfvm_value_t *v)
 	g_free(v);
 }
 
+dfvm_value_t*
+dfvm_value_ref(dfvm_value_t *v)
+{
+	if (v == NULL)
+		return NULL;
+	v->ref_count++;
+	return v;
+}
+
+void
+dfvm_value_unref(dfvm_value_t *v)
+{
+	ws_assert(v);
+	v->ref_count--;
+	if (v->ref_count > 0)
+		return;
+	dfvm_value_free(v);
+}
+
 void
 dfvm_insn_free(dfvm_insn_t *insn)
 {
 	if (insn->arg1) {
-		dfvm_value_free(insn->arg1);
+		dfvm_value_unref(insn->arg1);
 	}
 	if (insn->arg2) {
-		dfvm_value_free(insn->arg2);
+		dfvm_value_unref(insn->arg2);
 	}
 	if (insn->arg3) {
-		dfvm_value_free(insn->arg3);
+		dfvm_value_unref(insn->arg3);
 	}
 	if (insn->arg4) {
-		dfvm_value_free(insn->arg4);
+		dfvm_value_unref(insn->arg4);
 	}
 	g_free(insn);
 }
@@ -73,6 +92,7 @@ dfvm_value_new(dfvm_value_type_t type)
 
 	v = g_new(dfvm_value_t, 1);
 	v->type = type;
+	v->ref_count = 0;
 	return v;
 }
 
@@ -83,7 +103,6 @@ dfvm_value_new_fvalue(fvalue_t *fv)
 	v->value.fvalue = fv;
 	return v;
 }
-
 
 dfvm_value_t*
 dfvm_value_new_hfinfo(header_field_info *hfinfo)
