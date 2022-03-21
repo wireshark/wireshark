@@ -5174,8 +5174,11 @@ int
 sharkd_session_main(int mode_setting)
 {
     char buf[2 * 1024];
+    char* start_ptr, *i_ptr;
     jsmntok_t *tokens = NULL;
     int tokens_max = -1;
+    int buf_len;
+    unsigned open_brackets = 0;
 
     mode = mode_setting;
 
@@ -5190,45 +5193,81 @@ sharkd_session_main(int mode_setting)
     uat_get_table_by_name("MaxMind Database Paths")->post_update_cb();
 #endif
 
-    while (fgets(buf, sizeof(buf), stdin))
+    buf_len = (int)fread(buf, sizeof(char), sizeof(buf), stdin);
+
+    for ( start_ptr = i_ptr = buf; i_ptr < ( buf + buf_len ); i_ptr++ )
     {
-        /* every command is line seperated JSON */
-        int ret;
-
-        ret = json_parse(buf, NULL, 0);
-        if (ret <= 0)
+        switch ( *i_ptr )
         {
-            sharkd_json_error(
-                    rpcid, -32600, NULL,
-                    "Invalid JSON(1)"
-                    );
-            continue;
+            case '{':
+                if ( open_brackets == 0 )
+                    start_ptr = i_ptr;
+                open_brackets++;
+                break;
+            case '}':
+                open_brackets--;
+                if ( open_brackets == 0 )
+                {
+                    int ret;
+                    char * next_ptr;
+                    char next_char;
+
+                    next_ptr = i_ptr + 1;
+                    next_char = *next_ptr;
+                    *next_ptr = '\0';
+
+                    ret = json_parse(start_ptr, NULL, 0);
+                    if (ret <= 0)
+                    {
+                        sharkd_json_error(
+                                rpcid, -32600, NULL,
+                                "Invalid JSON(1)"
+                                );
+                        *next_ptr = next_char;
+                        continue;
+                    }
+
+                    ret += 1;
+
+                    if (tokens == NULL || tokens_max < ret)
+                    {
+                        tokens_max = ret;
+                        tokens = (jsmntok_t *) g_realloc(tokens, sizeof(jsmntok_t) * tokens_max);
+                    }
+
+                    memset(tokens, 0, ret * sizeof(jsmntok_t));
+
+                    ret = json_parse(start_ptr, tokens, ret);
+                    if (ret <= 0)
+                    {
+                        sharkd_json_error(
+                                rpcid, -32600, NULL,
+                                "Invalid JSON(2)"
+                                );
+                        *next_ptr = next_char;
+                        continue;
+                    }
+
+                    host_name_lookup_process();
+
+                    sharkd_session_process(start_ptr, tokens, ret);
+
+                    *next_ptr = next_char;
+                }
+                break;
+            case '\"':
+                /* jump over the string key/value */
+                for (i_ptr++ ; i_ptr  < ( buf + buf_len ); i_ptr++ )
+                {
+                    if ( *i_ptr == '\\' )
+                        i_ptr++;
+                    else if ( *i_ptr == '\"' )
+                        break;
+                }
+                break;
+            default:
+                break;
         }
-
-        /* fprintf(stderr, "JSON: %d tokens\n", ret); */
-        ret += 1;
-
-        if (tokens == NULL || tokens_max < ret)
-        {
-            tokens_max = ret;
-            tokens = (jsmntok_t *) g_realloc(tokens, sizeof(jsmntok_t) * tokens_max);
-        }
-
-        memset(tokens, 0, ret * sizeof(jsmntok_t));
-
-        ret = json_parse(buf, tokens, ret);
-        if (ret <= 0)
-        {
-            sharkd_json_error(
-                    rpcid, -32600, NULL,
-                    "Invalid JSON(2)"
-                    );
-            continue;
-        }
-
-        host_name_lookup_process();
-
-        sharkd_session_process(buf, tokens, ret);
     }
 
     g_hash_table_destroy(filter_table);
