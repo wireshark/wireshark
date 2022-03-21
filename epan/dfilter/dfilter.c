@@ -207,7 +207,7 @@ dfilter_free(dfilter_t *df)
 	/* Clear registers with constant values (as set by dfvm_init_const).
 	 * Other registers were cleared on RETURN by free_register_overhead. */
 	for (i = df->num_registers; i < df->max_registers; i++) {
-		g_list_free(df->registers[i]);
+		g_slist_free(df->registers[i]);
 	}
 
 	if (df->deprecated)
@@ -468,7 +468,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		/* Initialize run-time space */
 		dfilter->num_registers = dfw->first_constant;
 		dfilter->max_registers = dfw->next_register;
-		dfilter->registers = g_new0(GList*, dfilter->max_registers);
+		dfilter->registers = g_new0(GSList *, dfilter->max_registers);
 		dfilter->attempted_load = g_new0(gboolean, dfilter->max_registers);
 		dfilter->owns_memory = g_new0(gboolean, dfilter->max_registers);
 

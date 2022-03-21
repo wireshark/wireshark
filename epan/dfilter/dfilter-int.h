@@ -22,7 +22,7 @@ struct epan_dfilter {
 	GPtrArray	*consts;
 	guint		num_registers;
 	guint		max_registers;
-	GList		**registers;
+	GSList		**registers;
 	gboolean	*attempted_load;
 	gboolean	*owns_memory;
 	int		*interesting_fields;

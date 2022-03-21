@@ -15,7 +15,7 @@
 #include "syntax-tree.h"
 
 /* The run-time logic of the dfilter function */
-typedef gboolean (*DFFuncType)(GList *arg1list, GList *arg2list, GList **retval);
+typedef gboolean (*DFFuncType)(GSList *arg1list, GSList *arg2list, GSList **retval);
 
 /* The semantic check for the dfilter function */
 typedef void (*DFSemCheckType)(dfwork_t *dfw, const char *func_name,

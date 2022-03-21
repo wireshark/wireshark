@@ -24,9 +24,9 @@
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
-string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
+string_walk(GSList* arg1list, GSList **retval, gchar(*conv_func)(gchar))
 {
-    GList       *arg1;
+    GSList      *arg1;
     fvalue_t    *arg_fvalue;
     fvalue_t    *new_ft_string;
     char *s, *c;
@@ -44,7 +44,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
             new_ft_string = fvalue_new(FT_STRING);
             fvalue_set_string(new_ft_string, s);
             wmem_free(NULL, s);
-            *retval = g_list_append(*retval, new_ft_string);
+            *retval = g_slist_prepend(*retval, new_ft_string);
         }
         arg1 = arg1->next;
     }
@@ -54,23 +54,23 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
 
 /* dfilter function: lower() */
 static gboolean
-df_func_lower(GList* arg1list, GList *arg2junk _U_, GList **retval)
+df_func_lower(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
 {
     return string_walk(arg1list, retval, g_ascii_tolower);
 }
 
 /* dfilter function: upper() */
 static gboolean
-df_func_upper(GList* arg1list, GList *arg2junk _U_, GList **retval)
+df_func_upper(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
 {
     return string_walk(arg1list, retval, g_ascii_toupper);
 }
 
 /* dfilter function: len() */
 static gboolean
-df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
+df_func_len(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
 {
-    GList       *arg1;
+    GSList      *arg1;
     fvalue_t    *arg_fvalue;
     fvalue_t    *ft_len;
 
@@ -79,7 +79,7 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
         arg_fvalue = (fvalue_t *)arg1->data;
         ft_len = fvalue_new(FT_UINT32);
         fvalue_set_uinteger(ft_len, fvalue_length(arg_fvalue));
-        *retval = g_list_append(*retval, ft_len);
+        *retval = g_slist_prepend(*retval, ft_len);
         arg1 = arg1->next;
     }
 
@@ -88,25 +88,25 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
 
 /* dfilter function: count() */
 static gboolean
-df_func_count(GList* arg1list, GList *arg2junk _U_, GList **retval)
+df_func_count(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
 {
     fvalue_t *ft_ret;
     guint32   num_items;
 
-    num_items = (guint32)g_list_length(arg1list);
+    num_items = (guint32)g_slist_length(arg1list);
 
     ft_ret = fvalue_new(FT_UINT32);
     fvalue_set_uinteger(ft_ret, num_items);
-    *retval = g_list_append(*retval, ft_ret);
+    *retval = g_slist_prepend(*retval, ft_ret);
 
     return TRUE;
 }
 
 /* dfilter function: string() */
 static gboolean
-df_func_string(GList* arg1list, GList *arg2junk _U_, GList **retval)
+df_func_string(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
 {
-    GList    *arg1 = arg1list;
+    GSList   *arg1 = arg1list;
     fvalue_t *arg_fvalue;
     fvalue_t *new_ft_string;
     char     *s;
@@ -159,7 +159,7 @@ df_func_string(GList* arg1list, GList *arg2junk _U_, GList **retval)
         new_ft_string = fvalue_new(FT_STRING);
         fvalue_set_string(new_ft_string, s);
         wmem_free(NULL, s);
-        *retval = g_list_append(*retval, new_ft_string);
+        *retval = g_slist_prepend(*retval, new_ft_string);
 
         arg1 = arg1->next;
     }

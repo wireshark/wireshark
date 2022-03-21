@@ -312,7 +312,7 @@ read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 	GPtrArray	*finfos;
 	field_info	*finfo;
 	int		i, len;
-	GList		*fvalues = NULL;
+	GSList		*fvalues = NULL;
 	gboolean	found_something = FALSE;
 
 	/* Already loaded in this run of the dfilter? */
@@ -339,8 +339,8 @@ read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 
 		len = finfos->len;
 		for (i = 0; i < len; i++) {
-			finfo = (field_info *)g_ptr_array_index(finfos, i);
-			fvalues = g_list_prepend(fvalues, &finfo->value);
+			finfo = g_ptr_array_index(finfos, i);
+			fvalues = g_slist_prepend(fvalues, &finfo->value);
 		}
 
 		hfinfo = hfinfo->same_name_next;
@@ -362,7 +362,7 @@ read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 static gboolean
 put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 {
-	df->registers[reg] = g_list_append(NULL, fv);
+	df->registers[reg] = g_slist_prepend(NULL, fv);
 	df->owns_memory[reg] = FALSE;
 	return TRUE;
 }
@@ -372,7 +372,7 @@ put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 static gboolean
 put_pcre(dfilter_t *df, ws_regex_t *pcre, int reg)
 {
-	df->registers[reg] = g_list_append(NULL, pcre);
+	df->registers[reg] = g_slist_prepend(NULL, pcre);
 	df->owns_memory[reg] = FALSE;
 	return TRUE;
 }
@@ -387,7 +387,7 @@ typedef gboolean (*DFVMMatchFunc)(const fvalue_t*, const fvalue_t*);
 static gboolean
 cmp_test(dfilter_t *df, enum match_how how, DFVMMatchFunc match_func, int reg1, int reg2)
 {
-	GList	*list_a, *list_b;
+	GSList *list_a, *list_b;
 	gboolean want_all = (how == MATCH_ALL);
 	gboolean want_any = (how == MATCH_ANY);
 	gboolean have_match;
@@ -404,9 +404,9 @@ cmp_test(dfilter_t *df, enum match_how how, DFVMMatchFunc match_func, int reg1, 
 			else if (want_any && have_match) {
 				return TRUE;
 			}
-			list_b = g_list_next(list_b);
+			list_b = g_slist_next(list_b);
 		}
-		list_a = g_list_next(list_a);
+		list_a = g_slist_next(list_a);
 	}
 	/* want_all || !want_any */
 	return want_all;
@@ -457,19 +457,19 @@ all_ne(dfilter_t *df, int reg1, int reg2)
 static gboolean
 any_matches(dfilter_t *df, int reg1, int reg2)
 {
-	GList	*list_a, *list_b;
+	GSList *list_a, *list_b;
 
 	list_a = df->registers[reg1];
 
 	while (list_a) {
 		list_b = df->registers[reg2];
 		while (list_b) {
-			if (fvalue_matches((fvalue_t *)list_a->data, list_b->data)) {
+			if (fvalue_matches(list_a->data, list_b->data)) {
 				return TRUE;
 			}
-			list_b = g_list_next(list_b);
+			list_b = g_slist_next(list_b);
 		}
-		list_a = g_list_next(list_a);
+		list_a = g_slist_next(list_a);
 	}
 	return FALSE;
 }
@@ -477,8 +477,8 @@ any_matches(dfilter_t *df, int reg1, int reg2)
 static gboolean
 any_in_range(dfilter_t *df, int reg1, int reg2, int reg3)
 {
-	GList	*list1, *list_low, *list_high;
-	fvalue_t *low, *high;
+	GSList *list1, *list_low, *list_high;
+	fvalue_t *low, *high, *value;
 
 	list1 = df->registers[reg1];
 	list_low = df->registers[reg2];
@@ -490,17 +490,17 @@ any_in_range(dfilter_t *df, int reg1, int reg2, int reg3)
 	 * the list length MUST be one. This should have been enforced by
 	 * grammar.lemon.
 	 */
-	ws_assert(list_low && !g_list_next(list_low));
-	ws_assert(list_high && !g_list_next(list_high));
-	low = (fvalue_t *)list_low->data;
-	high = (fvalue_t *)list_high->data;
+	ws_assert(list_low && !g_slist_next(list_low));
+	ws_assert(list_high && !g_slist_next(list_high));
+	low = list_low->data;
+	high = list_high->data;
 
 	while (list1) {
-		fvalue_t *value = (fvalue_t *)list1->data;
+		value = list1->data;
 		if (fvalue_ge(value, low) && fvalue_le(value, high)) {
 			return TRUE;
 		}
-		list1 = g_list_next(list1);
+		list1 = g_slist_next(list1);
 	}
 	return FALSE;
 }
@@ -524,10 +524,10 @@ free_register_overhead(dfilter_t* df)
 		df->attempted_load[i] = FALSE;
 		if (df->registers[i]) {
 			if (df->owns_memory[i]) {
-				g_list_foreach(df->registers[i], free_owned_register, NULL);
+				g_slist_foreach(df->registers[i], free_owned_register, NULL);
 				df->owns_memory[i] = FALSE;
 			}
-			g_list_free(df->registers[i]);
+			g_slist_free(df->registers[i]);
 			df->registers[i] = NULL;
 		}
 	}
@@ -539,7 +539,7 @@ free_register_overhead(dfilter_t* df)
 static void
 mk_range(dfilter_t *df, int from_reg, int to_reg, drange_t *d_range)
 {
-	GList		*from_list, *to_list;
+	GSList		*from_list, *to_list;
 	fvalue_t	*old_fv, *new_fv;
 
 	to_list = NULL;
@@ -552,9 +552,9 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, drange_t *d_range)
 		 * already caught the cases in which a slice
 		 * cannot be made. */
 		ws_assert(new_fv);
-		to_list = g_list_append(to_list, new_fv);
+		to_list = g_slist_prepend(to_list, new_fv);
 
-		from_list = g_list_next(from_list);
+		from_list = g_slist_next(from_list);
 	}
 
 	df->registers[to_reg] = to_list;
@@ -574,8 +574,8 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 	dfvm_value_t	*arg3 = NULL;
 	dfvm_value_t	*arg4 = NULL;
 	header_field_info	*hfinfo;
-	GList		*param1;
-	GList		*param2;
+	GSList		*param1;
+	GSList		*param2;
 
 	ws_assert(tree);
 
