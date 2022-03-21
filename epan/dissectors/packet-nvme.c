@@ -51,13 +51,6 @@ static int proto_nvme = -1;
 #define NEG_LST_32 NEG_LST_16, NEG_LST_16
 
 
-#define NVME_FCTYPE_PROP_SET  0x0
-#define NVME_FCTYPE_CONNECT   0x1
-#define NVME_FCTYPE_PROP_GET  0x4
-#define NVME_FCTYPE_AUTH_SEND 0x5
-#define NVME_FCTYPE_AUTH_RECV 0x6
-#define NVME_FCTYPE_DISCONNECT 0x8
-
 
 /* NVMeOF fields */
 /* NVMe Fabric Cmd */
@@ -3842,14 +3835,17 @@ static
 void dissect_nvmeof_fabric_connect_cmd(proto_tree *cmd_tree, packet_info *pinfo, tvbuff_t *cmd_tvb,
         struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off)
 {
+    guint32 qid;
+
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_rsvd1, cmd_tvb,
                         5+off, 19, ENC_NA);
     dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvmeof_cmd_connect_sgl1,
         q_ctx, cmd, off, PINFO_FD_VISITED(pinfo));
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_recfmt, cmd_tvb,
                         40+off, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_qid, cmd_tvb,
-                        42+off, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(cmd_tree, hf_nvmeof_cmd_connect_qid, cmd_tvb,
+                        42+off, 2, ENC_LITTLE_ENDIAN, &qid);
+    cmd->cmd_ctx.fabric_cmd.cnct.qid = qid;
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_connect_sqsize, cmd_tvb,
                         44+off, 2, ENC_LITTLE_ENDIAN);
 
@@ -3884,7 +3880,7 @@ void dissect_nvmeof_fabric_auth_cmd(proto_tree *cmd_tree, packet_info *pinfo, tv
                         48+off, 16, ENC_NA);
 }
 
-static void dissect_nvme_fabric_disconnect_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb, guint off)
+static void dissect_nvme_fabric_disconnect_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb,  guint off)
 {
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_disconnect_rsvd0, cmd_tvb,
                         5+off, 35, ENC_NA);

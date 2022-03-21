@@ -16,6 +16,13 @@
 #define NVME_CQE_SIZE 16
 
 #define NVME_FABRIC_OPC 0x7F
+#define NVME_FCTYPE_PROP_SET  0x0
+#define NVME_FCTYPE_CONNECT   0x1
+#define NVME_FCTYPE_PROP_GET  0x4
+#define NVME_FCTYPE_AUTH_SEND 0x5
+#define NVME_FCTYPE_AUTH_RECV 0x6
+#define NVME_FCTYPE_DISCONNECT 0x8
+
 
 struct nvme_q_ctx {
     wmem_tree_t *pending_cmds;
@@ -60,10 +67,15 @@ struct nvme_cmd_ctx {
             guint8 fid;
         } set_features;
         struct {
+            union {
+                struct {
+                    guint8 offset;
+                } prop_get;
+                struct {
+                    uint16_t qid;
+                } cnct;
+            };
             guint8 fctype; /* fabric cmd type */
-            struct {
-                guint8 offset;
-            } prop_get;
         } fabric_cmd;
     } cmd_ctx;
     guint8  opcode;
