@@ -3196,7 +3196,7 @@ process_list:
 }
 
 static int
-find_pointer_index(guint32 id)
+find_pointer_index(dcerpc_info *di _U_, guint32 id)
 {
     guint *p = (guint*) g_hash_table_lookup(ndr_pointer_hash, &id);
 
@@ -3338,7 +3338,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* see if we have seen this pointer before
            The value is truncated to 32bits.  64bit values have only been
            seen on fuzz-tested files */
-        found = find_pointer_index((guint32)id);
+        found = find_pointer_index(di, (guint32)id);
 
         /* we have seen this pointer before */
         if (found) {
@@ -3469,7 +3469,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* see if we have seen this pointer before
            The value is truncated to 32bits.  64bit values have only been
            seen on fuzztested files */
-        found = find_pointer_index((guint32)id);
+        found = find_pointer_index(di, (guint32)id);
 
         /* we have seen this pointer before */
         if (found) {
