@@ -188,56 +188,8 @@ dfvm_dump(FILE *f, dfilter_t *df)
 	dfvm_value_t	*arg1, *arg2, *arg3, *arg4;
 	char 		*arg1_str, *arg2_str, *arg3_str, *arg4_str;
 
-	/* First dump the constant initializations */
-	fprintf(f, "Constants:\n");
-	length = df->consts->len;
-	for (id = 0; id < length; id++) {
+	fprintf(f, "Instructions:\n");
 
-		insn = g_ptr_array_index(df->consts, id);
-		arg1 = insn->arg1;
-		arg2 = insn->arg2;
-		arg1_str = dfvm_value_tostr(arg1);
-		arg2_str = dfvm_value_tostr(arg2);
-
-		switch (insn->op) {
-			case PUT_FVALUE:
-				fprintf(f, "%05d PUT_FVALUE\t%s -> %s\n",
-					id, arg1_str, arg2_str);
-				break;
-			case PUT_PCRE:
-				fprintf(f, "%05d PUT_PCRE  \t%s -> %s\n",
-					id, arg1_str, arg2_str);
-				break;
-			case CHECK_EXISTS:
-			case READ_TREE:
-			case CALL_FUNCTION:
-			case MK_RANGE:
-			case ALL_EQ:
-			case ANY_EQ:
-			case ALL_NE:
-			case ANY_NE:
-			case ANY_GT:
-			case ANY_GE:
-			case ANY_LT:
-			case ANY_LE:
-			case ANY_BITWISE_AND:
-			case ANY_CONTAINS:
-			case ANY_MATCHES:
-			case ANY_IN_RANGE:
-			case NOT:
-			case RETURN:
-			case IF_TRUE_GOTO:
-			case IF_FALSE_GOTO:
-				ws_assert_not_reached();
-				break;
-		}
-
-		g_free(arg1_str);
-		g_free(arg2_str);
-	}
-
-	fprintf(f, "\nInstructions:\n");
-	/* Now dump the operations */
 	length = df->insns->len;
 	for (id = 0; id < length; id++) {
 
@@ -359,9 +311,13 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			case PUT_FVALUE:
+				fprintf(f, "%05d PUT_FVALUE\t%s -> %s\n",
+					id, arg1_str, arg2_str);
+				break;
+
 			case PUT_PCRE:
-				/* We already dumped these */
-				ws_assert_not_reached();
+				fprintf(f, "%05d PUT_PCRE  \t%s -> %s\n",
+					id, arg1_str, arg2_str);
 				break;
 		}
 
@@ -575,8 +531,8 @@ free_owned_register(gpointer data, gpointer user_data _U_)
 	fvalue_free(value);
 }
 
-/* Clear registers that were populated during evaluation (leaving constants
- * intact). If we created the values, then these will be freed as well. */
+/* Clear registers that were populated during evaluation.
+ * If we created the values, then these will be freed as well. */
 static void
 free_register_overhead(dfilter_t* df)
 {
@@ -773,63 +729,16 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case PUT_FVALUE:
+				put_fvalue(df, arg1, arg2);
+				break;
+
 			case PUT_PCRE:
-				/* These were handled in the constants initialization */
-				ws_assert_not_reached();
+				put_pcre(df, arg1, arg2);
 				break;
 		}
 	}
 
 	ws_assert_not_reached();
-}
-
-void
-dfvm_init_const(dfilter_t *df)
-{
-	int		id, length;
-	dfvm_insn_t	*insn;
-	dfvm_value_t	*arg1;
-	dfvm_value_t	*arg2;
-
-	length = df->consts->len;
-
-	for (id = 0; id < length; id++) {
-
-		insn = g_ptr_array_index(df->consts, id);
-		arg1 = insn->arg1;
-		arg2 = insn->arg2;
-
-		switch (insn->op) {
-			case PUT_FVALUE:
-				put_fvalue(df, arg1, arg2);
-				break;
-			case PUT_PCRE:
-				put_pcre(df, arg1, arg2);
-				break;
-			case CHECK_EXISTS:
-			case READ_TREE:
-			case CALL_FUNCTION:
-			case MK_RANGE:
-			case ALL_EQ:
-			case ANY_EQ:
-			case ALL_NE:
-			case ANY_NE:
-			case ANY_GT:
-			case ANY_GE:
-			case ANY_LT:
-			case ANY_LE:
-			case ANY_BITWISE_AND:
-			case ANY_CONTAINS:
-			case ANY_MATCHES:
-			case ANY_IN_RANGE:
-			case NOT:
-			case RETURN:
-			case IF_TRUE_GOTO:
-			case IF_FALSE_GOTO:
-				ws_assert_not_reached();
-				break;
-		}
-	}
 }
 
 /*

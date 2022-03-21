@@ -190,25 +190,14 @@ free_insns(GPtrArray *insns)
 void
 dfilter_free(dfilter_t *df)
 {
-	guint i;
-
 	if (!df)
 		return;
 
 	if (df->insns) {
 		free_insns(df->insns);
 	}
-	if (df->consts) {
-		free_insns(df->consts);
-	}
 
 	g_free(df->interesting_fields);
-
-	/* Clear registers with constant values (as set by dfvm_init_const).
-	 * Other registers were cleared on RETURN by free_register_overhead. */
-	for (i = df->num_registers; i < df->max_registers; i++) {
-		g_slist_free(df->registers[i]);
-	}
 
 	if (df->deprecated)
 		g_ptr_array_unref(df->deprecated);
@@ -223,12 +212,7 @@ dfilter_free(dfilter_t *df)
 static dfwork_t*
 dfwork_new(void)
 {
-	dfwork_t	*dfw;
-
-	dfw = g_new0(dfwork_t, 1);
-	dfw->first_constant = -1;
-
-	return dfw;
+	return g_new0(dfwork_t, 1);
 }
 
 static void
@@ -248,10 +232,6 @@ dfwork_free(dfwork_t *dfw)
 
 	if (dfw->insns) {
 		free_insns(dfw->insns);
-	}
-
-	if (dfw->consts) {
-		free_insns(dfw->consts);
 	}
 
 	if (dfw->deprecated)
@@ -459,21 +439,15 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		/* Tuck away the bytecode in the dfilter_t */
 		dfilter = dfilter_new(dfw->deprecated);
 		dfilter->insns = dfw->insns;
-		dfilter->consts = dfw->consts;
 		dfw->insns = NULL;
-		dfw->consts = NULL;
 		dfilter->interesting_fields = dfw_interesting_fields(dfw,
 			&dfilter->num_interesting_fields);
 
 		/* Initialize run-time space */
-		dfilter->num_registers = dfw->first_constant;
-		dfilter->max_registers = dfw->next_register;
-		dfilter->registers = g_new0(GSList *, dfilter->max_registers);
-		dfilter->attempted_load = g_new0(gboolean, dfilter->max_registers);
-		dfilter->owns_memory = g_new0(gboolean, dfilter->max_registers);
-
-		/* Initialize constants */
-		dfvm_init_const(dfilter);
+		dfilter->num_registers = dfw->next_register;
+		dfilter->registers = g_new0(GSList *, dfilter->num_registers);
+		dfilter->attempted_load = g_new0(gboolean, dfilter->num_registers);
+		dfilter->owns_memory = g_new0(gboolean, dfilter->num_registers);
 
 		/* And give it to the user. */
 		*dfp = dfilter;

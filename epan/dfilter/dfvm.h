@@ -120,7 +120,4 @@ dfvm_dump(FILE *f, dfilter_t *df);
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree);
 
-void
-dfvm_init_const(dfilter_t *df);
-
 #endif
