@@ -66,7 +66,8 @@ other GUI programs.
 . The _packet bytes pane_ (see <<ChUsePacketBytesPaneSection>>) displays the
   data from the packet selected in the packet list pane, and highlights the field
   selected in the packet details pane.
-// . The _packet diagram pane_ (see <<ChUsePacketDiagramPaneSection>>) displays the packet selected in the packet list as a textbook-style diagram.
+. The _packet diagram pane_ (see <<ChUsePacketDiagramPaneSection>>) displays the
+  packet selected in the packet list as a textbook-style diagram.
 . The _statusbar_ (see <<ChUseStatusbarSection>>) shows some detailed
   information about the current program state and the captured data.
 
@@ -407,7 +408,7 @@ image::wsug_graphics/ws-view-menu.png[{screenshot-attrs}]
 |menu:Packet List[]     ||This menu item hides or shows the packet list pane, see <<ChUsePacketListPaneSection>>.
 |menu:Packet Details[]  ||This menu item hides or shows the packet details pane, see <<ChUsePacketDetailsPaneSection>>.
 |menu:Packet Bytes[]    ||This menu item hides or shows the packet bytes pane, see <<ChUsePacketBytesPaneSection>>.
-// |menu:Packet Diagram[]    ||This menu item hides or shows the packet diagram pane. See <<ChUsePacketDiagramPaneSection>>.
+|menu:Packet Diagram[]  ||This menu item hides or shows the packet diagram pane. See <<ChUsePacketDiagramPaneSection>>.
 |menu:Time Display Format[Date and Time of Day: 1970-01-01 01:02:03.123456]|| Selecting this tells Wireshark to display the time stamps in date and time of day format, see <<ChWorkTimeFormatsSection>>.
 
 The fields “Time of Day”, “Date and Time of Day”, “Seconds Since Beginning of
@@ -1067,7 +1068,6 @@ decrypted data.
 
 [#ChUsePacketDiagramPaneSection]
 
-////
 === The “Packet Diagram” Pane
 
 The packet diagram pane shows the current packet (selected in the “Packet List”
@@ -1082,7 +1082,6 @@ This pane shows the protocols and top-level protocol fields of the packet select
 
 There is a context menu (right mouse click) available.
 For details see <<ChWorkPacketDiagramPanePopUpMenu>>.
-////
 
 [#ChUseStatusbarSection]
 

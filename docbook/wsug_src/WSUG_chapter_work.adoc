@@ -393,6 +393,39 @@ Use EBCDIC encoding when displaying “hexdump” text.
 
 |===
 
+[#ChWorkPacketDiagramPanePopUpMenuSection]
+
+==== Pop-up Menu Of The “Packet Diagram” Pane
+
+[#ChWorkPacketDiagramPanePopUpMenu]
+
+.Pop-up menu of the “Packet Diagram” pane
+image::wsug_graphics/ws-diagram-pane-popup-menu.png[{screenshot-attrs}]
+
+The following table gives an overview of which functions are available
+in this pane along with a short description of each item.
+
+[#PacketDiagramPopupMenuTable]
+
+.The menu items of the “Packet Diagram” pop-up menu
+[options="header",cols="3,7"]
+|===
+|Item |Description
+
+|menu:Show Field Values[] |
+Display current value for each field on the packet diagram.
+
+|menu:Save Diagram As...[] |
+Save the packet diagram to an image file (PNG, BMP, JPEG).
+
+|menu:Copy as Raster Image[] |
+Copy the packet diagram to the clipboard in raster (ARGB32) format.
+
+// |menu:…as SVG[] |
+// (macOS) Copy the packet diagram to the clipboard in SVG format.
+
+|===
+
 [#ChWorkDisplayFilterSection]
 
 === Filtering Packets While Viewing

@@ -104,6 +104,8 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-decode-as.png
 	wsug_graphics/ws-details-pane-popup-menu.png
 	wsug_graphics/ws-details-pane.png
+	wsug_graphics/ws-diagram-pane.png
+	wsug_graphics/ws-diagram-pane-popup-menu.png
 	wsug_graphics/ws-display-filter-tcp.png # GTK+
 	wsug_graphics/ws-edit-menu.png
 	wsug_graphics/ws-enabled-protocols.png
