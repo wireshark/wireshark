@@ -67,6 +67,42 @@ extern const value_string platform_id_vals[];
 	    ALIGN_TO_2_BYTES; \
 	  } \
 	}
+
+#define UNION_ALIGN_TO_2_BYTES \
+	do { \
+	  if (di->call_data->flags & DCERPC_IS_NDR64) { \
+	    ALIGN_TO_2_BYTES; \
+	  } \
+	} while(0)
+
+#define UNION_ALIGN_TO_3_BYTES \
+	do { \
+	  if (di->call_data->flags & DCERPC_IS_NDR64) { \
+	    ALIGN_TO_3_BYTES; \
+	  } \
+	} while(0)
+
+#define UNION_ALIGN_TO_4_BYTES \
+	do { \
+	  if (di->call_data->flags & DCERPC_IS_NDR64) { \
+	    ALIGN_TO_4_BYTES; \
+	  } \
+	} while(0)
+
+#define UNION_ALIGN_TO_5_BYTES \
+	do { \
+	  if (di->call_data->flags & DCERPC_IS_NDR64) { \
+	    ALIGN_TO_5_BYTES; \
+	  } \
+	} while(0)
+
+#define UNION_ALIGN_TO_8_BYTES \
+	do { \
+	  if (di->call_data->flags & DCERPC_IS_NDR64) { \
+	    ALIGN_TO_8_BYTES; \
+	  } \
+	} while(0)
+
 int
 dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hf_index,
