@@ -147,18 +147,18 @@ guint PacketListModel::recreateVisibleRows()
 
         if (fdata->passed_dfilter || fdata->ref_time) {
             visible_rows_ << record;
-            if (number_to_row_.size() <= (int)fdata->num) {
+            if (static_cast<guint32>(number_to_row_.size()) <= fdata->num) {
                 number_to_row_.resize(fdata->num + 10000);
             }
-            number_to_row_[fdata->num] = visible_rows_.count();
+            number_to_row_[fdata->num] = static_cast<int>(visible_rows_.count());
         }
     }
     if (!visible_rows_.isEmpty()) {
-        beginInsertRows(QModelIndex(), 0, visible_rows_.count() - 1);
+        beginInsertRows(QModelIndex(), 0, static_cast<int>(visible_rows_.count()) - 1);
         endInsertRows();
     }
     idle_dissection_row_ = 0;
-    return visible_rows_.count();
+    return static_cast<guint>(visible_rows_.count());
 }
 
 void PacketListModel::clear() {
@@ -376,7 +376,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
             if (number_to_row_.size() <= (int)fdata->num) {
                 number_to_row_.resize(fdata->num + 10000);
             }
-            number_to_row_[fdata->num] = visible_rows_.count();
+            number_to_row_[fdata->num] = static_cast<int>(visible_rows_.count());
         }
     }
     emit endResetModel();
@@ -543,7 +543,7 @@ void PacketListModel::emitItemHeightChanged(const QModelIndex &ih_index)
 
 int PacketListModel::rowCount(const QModelIndex &) const
 {
-    return visible_rows_.count();
+    return static_cast<int>(visible_rows_.count());
 }
 
 int PacketListModel::columnCount(const QModelIndex &) const
@@ -658,20 +658,20 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
 
 void PacketListModel::flushVisibleRows()
 {
-    gint pos = visible_rows_.count();
+    int pos = static_cast<int>(visible_rows_.count());
 
     if (new_visible_rows_.count() > 0) {
-        emit beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
+        beginInsertRows(QModelIndex(), pos, pos + static_cast<int>(new_visible_rows_.count()));
         foreach (PacketListRecord *record, new_visible_rows_) {
             frame_data *fdata = record->frameData();
 
             visible_rows_ << record;
-            if (number_to_row_.size() <= (int)fdata->num) {
+            if (static_cast<unsigned int>(number_to_row_.size()) <= fdata->num) {
                 number_to_row_.resize(fdata->num + 10000);
             }
-            number_to_row_[fdata->num] = visible_rows_.count();
+            number_to_row_[fdata->num] = static_cast<int>(visible_rows_.count());
         }
-        emit endInsertRows();
+        endInsertRows();
         new_visible_rows_.resize(0);
     }
 }
@@ -713,7 +713,7 @@ void PacketListModel::dissectIdle(bool reset)
 gint PacketListModel::appendPacket(frame_data *fdata)
 {
     PacketListRecord *record = new PacketListRecord(fdata);
-    gint pos = -1;
+    qsizetype pos = -1;
 
 #ifdef DEBUG_PACKET_LIST_MODEL
     if (fdata->num % 10000 == 1) {
@@ -733,7 +733,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
         pos = visible_rows_.count() + new_visible_rows_.count() - 1;
     }
 
-    return pos;
+    return static_cast<gint>(pos);
 }
 
 frame_data *PacketListModel::getRowFdata(QModelIndex idx)

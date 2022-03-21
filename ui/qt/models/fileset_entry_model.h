@@ -37,7 +37,7 @@ public:
 
     virtual void appendEntry(const fileset_entry *entry);
     const fileset_entry *getRowEntry(int row) const { return entries_.value(row, NULL); }
-    int entryCount() const { return entries_.count(); }
+    int entryCount() const { return static_cast<int>(entries_.count()); }
     // Calls fileset_delete and clears our model data.
     void clear();
 

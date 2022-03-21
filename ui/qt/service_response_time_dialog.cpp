@@ -183,7 +183,7 @@ ServiceResponseTimeDialog::ServiceResponseTimeDialog(QWidget &parent, CaptureFil
     for (int col = 0; col < NUM_SRT_COLUMNS; col++) {
         header_labels.push_back(service_response_time_get_column_name(col));
     }
-    statsTreeWidget()->setColumnCount(header_labels.count());
+    statsTreeWidget()->setColumnCount(static_cast<int>(header_labels.count()));
     statsTreeWidget()->setHeaderLabels(header_labels);
 
     for (int col = 0; col < statsTreeWidget()->columnCount(); col++) {

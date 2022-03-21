@@ -954,7 +954,7 @@ public:
   friend inline const QCPDataSelection operator-(const QCPDataRange& a, const QCPDataRange& b);
 
   // getters:
-  int dataRangeCount() const { return mDataRanges.size(); }
+  int dataRangeCount() const { return static_cast<int>(mDataRanges.size()); }
   int dataPointCount() const;
   QCPDataRange dataRange(int index=0) const;
   QList<QCPDataRange> dataRanges() const { return mDataRanges; }
@@ -1358,8 +1358,8 @@ public:
   virtual ~QCPLayoutGrid() Q_DECL_OVERRIDE;
 
   // getters:
-  int rowCount() const { return mElements.size(); }
-  int columnCount() const { return mElements.size() > 0 ? mElements.first().size() : 0; }
+  int rowCount() const { return static_cast<int>(mElements.size()); }
+  int columnCount() const { return mElements.size() > 0 ? (int) mElements.first().size() : 0; }
   QList<double> columnStretchFactors() const { return mColumnStretchFactors; }
   QList<double> rowStretchFactors() const { return mRowStretchFactors; }
   int columnSpacing() const { return mColumnSpacing; }
@@ -2568,7 +2568,7 @@ public:
   QCPDataContainer();
 
   // getters:
-  int size() const { return mData.size()-mPreallocSize; }
+  int size() const { return static_cast<int>(mData.size()-mPreallocSize); }
   bool isEmpty() const { return size() == 0; }
   bool autoSqueeze() const { return mAutoSqueeze; }
 
@@ -5695,7 +5695,7 @@ public:
   // non-virtual methods:
   QList<QCPBars*> bars() const { return mBars; }
   QCPBars* bars(int index) const;
-  int size() const { return mBars.size(); }
+  int size() const { return static_cast<int>(mBars.size()); }
   bool isEmpty() const { return mBars.isEmpty(); }
   void clear();
   bool contains(QCPBars *bars) const { return mBars.contains(bars); }

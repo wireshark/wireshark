@@ -115,7 +115,7 @@ int ExportObjectModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
 
-    return objects_.count();
+    return static_cast<int>(objects_.count());
 }
 
 int ExportObjectModel::columnCount(const QModelIndex&) const
@@ -128,7 +128,7 @@ void ExportObjectModel::addObjectEntry(export_object_entry_t *entry)
     if (entry == NULL)
         return;
 
-    int count = objects_.count();
+    int count = static_cast<int>(objects_.count());
     beginInsertRows(QModelIndex(), count, count);
     objects_.append(VariantPointer<export_object_entry_t>::asQVariant(entry));
     endInsertRows();

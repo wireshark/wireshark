@@ -516,7 +516,7 @@ void CaptureFileDialog::fixFilenameExtension()
     // Find suffixes such as "pcap" or "pcap.gz" if any
     if (!fi.suffix().isEmpty()) {
         QStringList current_suffixes(fi.suffix());
-        int pos = filename.lastIndexOf('.', -2 - current_suffixes.at(0).size());
+        int pos = static_cast<int>(filename.lastIndexOf('.', -2 - current_suffixes.at(0).size()));
         if (pos > 0) {
             current_suffixes.prepend(filename.right(filename.size() - (pos + 1)));
         }

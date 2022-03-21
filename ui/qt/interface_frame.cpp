@@ -97,7 +97,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     proxy_model_.setSourceModel(&source_model_);
 
     info_model_.setSourceModel(&proxy_model_);
-    info_model_.setColumn(columns.indexOf(IFTREE_COL_STATS));
+    info_model_.setColumn(static_cast<int>(columns.indexOf(IFTREE_COL_STATS)));
 
     ui->interfaceTree->setModel(&info_model_);
 

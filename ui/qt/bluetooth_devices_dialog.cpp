@@ -295,7 +295,7 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
             int pos;
 
             bd_addr_oui = QString(manuf);
-            pos = bd_addr_oui.indexOf('_');
+            pos = static_cast<int>(bd_addr_oui.indexOf('_'));
             if (pos < 0) {
                 manuf = NULL;
             } else {

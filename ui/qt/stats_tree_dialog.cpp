@@ -124,7 +124,7 @@ void StatsTreeDialog::fillTree()
     for (int count = 0; count<st_->num_columns; count++) {
         header_labels.push_back(stats_tree_get_column_name(count));
     }
-    statsTreeWidget()->setColumnCount(header_labels.count());
+    statsTreeWidget()->setColumnCount(static_cast<int>(header_labels.count()));
     statsTreeWidget()->setHeaderLabels(header_labels);
     statsTreeWidget()->setSortingEnabled(false);
 

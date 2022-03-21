@@ -160,8 +160,8 @@ void FunnelTextDialog::on_findLineEdit_textChanged(const QString &pattern)
         QRegularExpressionMatchIterator iter = re.globalMatch(ui->textEdit->toPlainText());
         while (iter.hasNext()) {
             QRegularExpressionMatch match = iter.next();
-            csr.setPosition(match.capturedStart(), QTextCursor::MoveAnchor);
-            csr.setPosition(match.capturedEnd(), QTextCursor::KeepAnchor);
+            csr.setPosition(static_cast<int>(match.capturedStart()), QTextCursor::MoveAnchor);
+            csr.setPosition(static_cast<int>(match.capturedEnd()), QTextCursor::KeepAnchor);
             csr.setCharFormat(highlight_fmt);
         }
     }

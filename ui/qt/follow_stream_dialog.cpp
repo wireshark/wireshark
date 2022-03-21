@@ -327,7 +327,7 @@ void FollowStreamDialog::saveAs()
     }
 
     QDataStream out(&file);
-    out.writeRawData(bytes.constData(), bytes.size());
+    out.writeRawData(bytes.constData(), static_cast<int>(bytes.size()));
 }
 
 void FollowStreamDialog::helpButton()

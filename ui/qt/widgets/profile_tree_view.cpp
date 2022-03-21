@@ -61,9 +61,9 @@ void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QIt
 
     if (model())
     {
-        int offColumn = model()->columnCount();
-        int idxCount = selectedIndexes().count() / offColumn;
-        int dselCount = deselected.count() > 0 ? deselected.at(0).indexes().count() / offColumn : 0;
+        qsizetype offColumn = model()->columnCount();
+        qsizetype idxCount = selectedIndexes().count() / offColumn;
+        qsizetype dselCount = deselected.count() > 0 ? deselected.at(0).indexes().count() / offColumn : 0;
 
         /* Ensure, that the last selected row cannot be deselected */
         if (idxCount == 0 && dselCount == 1)

@@ -620,7 +620,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
     case ShowAsCArray:
     {
-        int pos = 0, len = field_bytes_.length();
+        int pos = 0, len = static_cast<int>(field_bytes_.length());
         QString text("char packet_bytes[] = {\n");
 
         while (pos < len) {
@@ -657,7 +657,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
     case ShowAsRustArray:
     {
-        int pos = 0, len = field_bytes_.length();
+        int pos = 0, len = static_cast<int>(field_bytes_.length());
         QString text("let packet_bytes: [u8; _] = [\n");
 
         while (pos < len) {
@@ -709,7 +709,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     case ShowAsEBCDIC:
     {
         QByteArray ba(field_bytes_);
-        EBCDIC_to_ASCII((guint8*)ba.data(), ba.length());
+        EBCDIC_to_ASCII((guint8*)ba.data(), static_cast<int>(ba.length()));
         sanitizeBuffer(ba, false);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(ba);
@@ -718,7 +718,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
     case ShowAsHexDump:
     {
-        int pos = 0, len = field_bytes_.length();
+        int pos = 0, len = static_cast<int>(field_bytes_.length());
         // Use 16-bit offset if there are <= 65536 bytes, 32-bit offset if there are more
         unsigned int offset_chars = (len - 1 <= 0xFFFF) ? 4 : 8;
         QString text;
@@ -798,7 +798,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     case ShowAsYAML:
     {
         const int base64_raw_len = 57; // Encodes to 76 bytes, common in RFCs
-        int pos = 0, len = field_bytes_.length();
+        int pos = 0, len = static_cast<int>(field_bytes_.length());
         QString text("# Packet Bytes: !!binary |\n");
 
         while (pos < len) {

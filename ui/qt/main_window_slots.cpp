@@ -1214,7 +1214,7 @@ void MainWindow::setEditCommentsMenu()
     }
     if (selectedRows().count() > 1) {
         main_ui_->menuPacketComment->addSeparator();
-        main_ui_->menuPacketComment->addAction(tr("Delete comments from %n packet(s)", nullptr, selectedRows().count()), this, SLOT(actionDeleteCommentsFromPackets()));
+        main_ui_->menuPacketComment->addAction(tr("Delete comments from %n packet(s)", nullptr, static_cast<int>(selectedRows().count())), this, SLOT(actionDeleteCommentsFromPackets()));
     }
 }
 
@@ -1306,8 +1306,8 @@ void MainWindow::setMenusForSelectedPacket()
         }
     }
 
-    main_ui_->actionEditMarkPacket->setText(tr("&Mark/Unmark Packet(s)", "", selectedRows().count()));
-    main_ui_->actionEditIgnorePacket->setText(tr("&Ignore/Unignore Packet(s)", "", selectedRows().count()));
+    main_ui_->actionEditMarkPacket->setText(tr("&Mark/Unmark Packet(s)", "", static_cast<int>(selectedRows().count())));
+    main_ui_->actionEditIgnorePacket->setText(tr("&Ignore/Unignore Packet(s)", "", static_cast<int>(selectedRows().count())));
 
     main_ui_->actionCopyListAsText->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsCSV->setEnabled(selectedRows().count() > 0);

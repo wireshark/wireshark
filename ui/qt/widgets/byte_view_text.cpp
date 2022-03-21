@@ -386,7 +386,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
 
     // Build our pixel to byte offset vector the first time through.
     bool build_x_pos = x_pos_to_column_.empty() ? true : false;
-    int tvb_len = data_.count();
+    int tvb_len = static_cast<int>(data_.count());
     int max_tvb_pos = qMin(offset + row_width_, tvb_len) - 1;
     QList<QTextLayout::FormatRange> fmt_list;
 
@@ -407,7 +407,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
 
     // Hex
     if (show_hex_) {
-        int ascii_start = line.length() + DataPrinter::hexChars() + 3;
+        int ascii_start = static_cast<int>(line.length()) + DataPrinter::hexChars() + 3;
         // Extra hover space before and after each byte.
         int slop = font_width_ / 2;
 
@@ -676,7 +676,7 @@ void ByteViewText::copyBytes(bool)
 // math easier. Should we do smooth scrolling?
 void ByteViewText::updateScrollbars()
 {
-    const int length = data_.count();
+    const int length = static_cast<int>(data_.count());
     if (length > 0) {
         int all_lines_height = length / row_width_ + ((length % row_width_) ? 1 : 0) - viewport()->height() / line_height_;
 

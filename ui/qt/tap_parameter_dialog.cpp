@@ -259,11 +259,11 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
             // Iterating over items within this tree.
             for (int col=0; col < ui->statsTreeWidget->columnCount(); col++) {
                 if (col_widths.size() <= col) {
-                    col_widths.append(ui->statsTreeWidget->headerItem()->text(col).length());
+                    col_widths.append(static_cast<int>(ui->statsTreeWidget->headerItem()->text(col).length()));
                 }
                 QVariant var = ui->statsTreeWidget->headerItem()->data(col, Qt::DisplayRole);
                 if (var.userType() == QMetaType::QString) {
-                    col_widths[col] = qMax(col_widths[col], itemDataToPlain(var).length());
+                    col_widths[col] = qMax(col_widths[col], static_cast<int>(itemDataToPlain(var).length()));
                 }
             }
             ++width_it;
@@ -481,7 +481,7 @@ void TapParameterDialog::addFilterActions()
 void TapParameterDialog::addTreeCollapseAllActions()
 {
     ctx_menu_.addSeparator();
-    
+
     QAction *collapse = new QAction(tr("Collapse All"), this);
     ctx_menu_.addAction(collapse);
     connect(collapse, SIGNAL(triggered()), this, SLOT(collapseAllActionTriggered()));

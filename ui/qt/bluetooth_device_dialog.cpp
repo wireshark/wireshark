@@ -379,7 +379,6 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
     bluetooth_device_tap_t       *tap_device = static_cast<bluetooth_device_tap_t *>(const_cast<void *>(data));
     QString                       bd_addr;
     QString                       bd_addr_oui;
-    QString                       name;
     const gchar                  *manuf;
     QTableWidget                 *tableWidget;
     QTableWidgetItem             *item;
@@ -404,7 +403,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
             int pos;
 
             bd_addr_oui = QString(manuf);
-            pos = bd_addr_oui.indexOf('_');
+            pos = static_cast<int>(bd_addr_oui.indexOf('_'));
             if (pos < 0) {
                 manuf = NULL;
             } else {

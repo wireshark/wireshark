@@ -116,7 +116,7 @@ void FilterDialog::updateWidgets()
     if (! ui->filterTreeView->selectionModel())
         return;
 
-    int num_selected = ui->filterTreeView->selectionModel()->selectedRows().count();
+    qsizetype num_selected = ui->filterTreeView->selectionModel()->selectedRows().count();
 
     ui->copyToolButton->setEnabled(num_selected == 1);
     ui->deleteToolButton->setEnabled(num_selected > 0);

@@ -642,7 +642,7 @@ bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
      * probably better */
     if (time_format == "ISO") {
         ret = true;
-    } else while ((idx = time_format.indexOf("%", idx)) != -1) {
+    } else while ((idx = static_cast<int>(time_format.indexOf("%", idx))) != -1) {
         idx++;
         if ((idx == time_format.size()) || !valid_code.contains(time_format[idx])) {
             return false;

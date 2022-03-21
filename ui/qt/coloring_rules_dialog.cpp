@@ -316,7 +316,7 @@ void ColoringRulesDialog::colorRuleSelectionChanged(const QItemSelection&, const
         selectedRows.insert(index.row(), index);
     }
 
-    int num_selected = selectedRows.count();
+    qsizetype num_selected = selectedRows.count();
     if (num_selected == 1) {
         setColorButtons(selectedList[0]);
     }
@@ -400,7 +400,7 @@ void ColoringRulesDialog::on_newToolButton_clicked()
 void ColoringRulesDialog::on_deleteToolButton_clicked()
 {
     QModelIndexList selectedList = ui->coloringRulesTreeView->selectionModel()->selectedIndexes();
-    int num_selected = selectedList.count()/colorRuleModel_.columnCount();
+    qsizetype num_selected = selectedList.count() / colorRuleModel_.columnCount();
     if (num_selected > 0) {
         //list is not guaranteed to be sorted, so force it
         std::sort(selectedList.begin(), selectedList.end());
@@ -408,7 +408,7 @@ void ColoringRulesDialog::on_deleteToolButton_clicked()
         //walk the list from the back because deleting a value in
         //the middle will leave the selectedList out of sync and
         //delete the wrong elements
-        for (int i = selectedList.count()-1; i >= 0; i--) {
+        for (int i = static_cast<int>(selectedList.count()) - 1; i >= 0; i--) {
             QModelIndex deleteIndex = selectedList[i];
             //selectedList includes all cells, use first column as key to remove row
             if (deleteIndex.isValid() && (deleteIndex.column() == 0)) {
@@ -443,7 +443,7 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             checkUnknownColorfilters();
         }
     } else if (button == export_button_) {
-        int num_items = ui->coloringRulesTreeView->selectionModel()->selectedIndexes().count()/colorRuleModel_.columnCount();
+        int num_items = static_cast<int>(ui->coloringRulesTreeView->selectionModel()->selectedIndexes().count()) / colorRuleModel_.columnCount();
 
         if (num_items < 1) {
             num_items = colorRuleModel_.rowCount();

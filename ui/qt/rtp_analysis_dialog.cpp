@@ -1028,7 +1028,7 @@ void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
     std::lock_guard<std::mutex> lock(mutex_);
     // Delete existing tabs (from last to first)
     if (tabs_.count() > 0) {
-        for(int i=tabs_.count(); i>0; i--) {
+        for(int i = static_cast<int>(tabs_.count()); i>0; i--) {
             closeTab(i-1);
         }
     }
@@ -1095,7 +1095,7 @@ void RtpAnalysisDialog::removeRtpStreams(QVector<rtpstream_id_t *> stream_ids)
         for (int i = 0; i < tabs.size(); i++) {
             tab_info_t *tab = tabs.at(i);
             if (rtpstream_id_equal(&tab->stream.id, id, RTPSTREAM_ID_EQUAL_SSRC))  {
-                closeTab(tabs_.indexOf(tab));
+                closeTab(static_cast<int>(tabs_.indexOf(tab)));
             }
         }
     }

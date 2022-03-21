@@ -271,7 +271,7 @@ void ExtcapOptionsDialog::updateWidgets()
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         return;
     }
-    ui->checkSaveOnStart->setText(tr("Save parameter(s) on capture start", "", extcapArguments.count()));
+    ui->checkSaveOnStart->setText(tr("Save parameter(s) on capture start", "", static_cast<int>(extcapArguments.count())));
 
     QStringList groupKeys;
     QString defaultKeyName(tr("Default"));
@@ -479,9 +479,6 @@ void ExtcapOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void ExtcapOptionsDialog::resetValues()
 {
-    ExtcapArgumentList::const_iterator iter;
-    QString value;
-
     int count = ui->verticalLayout->count();
     if (count > 0)
     {

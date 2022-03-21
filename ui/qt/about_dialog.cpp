@@ -534,7 +534,7 @@ void AboutDialog::handleCopyMenu(QPoint pos)
     connect(copyColumnAction, SIGNAL(triggered()), this, SLOT(copyActionTriggered()));
 
     QModelIndexList selectedRows = tree->selectionModel()->selectedRows();
-    QAction * copyRowAction = menu->addAction(tr("Copy Row(s)", "", selectedRows.count()));
+    QAction * copyRowAction = menu->addAction(tr("Copy Row(s)", "", static_cast<int>(selectedRows.count())));
     copyRowAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
     connect(copyRowAction, SIGNAL(triggered()), this, SLOT(copyRowActionTriggered()));
 

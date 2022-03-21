@@ -45,9 +45,10 @@ struct epan_range;
 }
 #endif /* __cplusplus */
 
-// Introduced in Qt 5.4
-#ifndef qUtf8Printable
-#define qUtf8Printable(str) str.toUtf8().constData()
+// qsizetype was added in Qt 5.10.0 and is used in the Qt 6 API.
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+#include "include/ws_posix_compat.h"
+typedef ssize_t qsizetype;
 #endif
 
 /*

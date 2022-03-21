@@ -1107,7 +1107,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
         }
         }
 
-        int chunk_size = 65536;
+        qsizetype chunk_size = 65536;
         /* XXX how do you just copy the file? */
         while (chunk_size > 0) {
             if (stop_flag)

@@ -366,7 +366,7 @@ void RpcServiceResponseTimeDialog::fillVersionCombo()
     }
     if (versions_.count() > 0) {
         // Select the highest-numbered version.
-        version_combo_->setCurrentIndex(versions_.count() - 1);
+        version_combo_->setCurrentIndex(static_cast<int>(versions_.count()) - 1);
     }
 }
 

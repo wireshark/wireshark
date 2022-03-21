@@ -147,7 +147,7 @@ void FieldFilterEdit::buildCompletionList(const QString &field_word)
 
     void *proto_cookie;
     QStringList field_list;
-    int field_dots = field_word.count('.'); // Some protocol names (_ws.expert) contain periods.
+    int field_dots = static_cast<int>(field_word.count('.')); // Some protocol names (_ws.expert) contain periods.
     for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1; proto_id = proto_get_next_protocol(&proto_cookie)) {
         protocol_t *protocol = find_protocol_by_id(proto_id);
         if (!proto_is_protocol_enabled(protocol)) continue;

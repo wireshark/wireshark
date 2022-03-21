@@ -615,7 +615,7 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
         QString err;
         if (model_->exportProfiles(zipFile, items, &err))
         {
-            QString msg = tr("%Ln profile(s) exported", "", items.count());
+            QString msg = tr("%Ln profile(s) exported", "", static_cast<int>(items.count()));
             if (skipped > 0)
                 msg.append(tr(", %Ln profile(s) skipped", "", skipped));
             QMessageBox::information(this, tr("Exporting profiles"), msg);
