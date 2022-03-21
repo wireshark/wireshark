@@ -89,6 +89,24 @@ dfvm_insn_free(dfvm_insn_t *insn);
 dfvm_value_t*
 dfvm_value_new(dfvm_value_type_t type);
 
+dfvm_value_t*
+dfvm_value_new_fvalue(fvalue_t *fv);
+
+dfvm_value_t*
+dfvm_value_new_hfinfo(header_field_info *hfinfo);
+
+dfvm_value_t*
+dfvm_value_new_register(int reg);
+
+dfvm_value_t*
+dfvm_value_new_drange(drange_t *dr);
+
+dfvm_value_t*
+dfvm_value_new_funcdef(df_func_def_t *funcdef);
+
+dfvm_value_t*
+dfvm_value_new_pcre(ws_regex_t *re);
+
 void
 dfvm_dump(FILE *f, dfilter_t *df);
 

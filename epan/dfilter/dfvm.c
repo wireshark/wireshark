@@ -76,6 +76,55 @@ dfvm_value_new(dfvm_value_type_t type)
 	return v;
 }
 
+dfvm_value_t*
+dfvm_value_new_fvalue(fvalue_t *fv)
+{
+	dfvm_value_t *v = dfvm_value_new(FVALUE);
+	v->value.fvalue = fv;
+	return v;
+}
+
+
+dfvm_value_t*
+dfvm_value_new_hfinfo(header_field_info *hfinfo)
+{
+	dfvm_value_t *v = dfvm_value_new(HFINFO);
+	v->value.hfinfo = hfinfo;
+	return v;
+}
+
+dfvm_value_t*
+dfvm_value_new_register(int reg)
+{
+	dfvm_value_t *v = dfvm_value_new(REGISTER);
+	v->value.numeric = reg;
+	return v;
+}
+
+dfvm_value_t*
+dfvm_value_new_drange(drange_t *dr)
+{
+	dfvm_value_t *v = dfvm_value_new(DRANGE);
+	v->value.drange = dr;
+	return v;
+}
+
+dfvm_value_t*
+dfvm_value_new_funcdef(df_func_def_t *funcdef)
+{
+	dfvm_value_t *v = dfvm_value_new(FUNCTION_DEF);
+	v->value.funcdef = funcdef;
+	return v;
+}
+
+dfvm_value_t*
+dfvm_value_new_pcre(ws_regex_t *re)
+{
+	dfvm_value_t *v = dfvm_value_new(PCRE);
+	v->value.pcre = re;
+	return v;
+}
+
 char *
 dfvm_value_tostr(dfvm_value_t *v)
 {
