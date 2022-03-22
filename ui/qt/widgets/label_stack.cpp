@@ -102,8 +102,13 @@ void LabelStack::setShrinkable(bool shrinkable)
 
 void LabelStack::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)
-        emit mousePressedAt(QPoint(event->globalPos()), Qt::LeftButton);
+    if (event->button() == Qt::LeftButton) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+        emit mousePressedAt(event->globalPosition().toPoint(), Qt::LeftButton);
+#else
+        emit mousePressedAt(event->globalPos(), Qt::LeftButton);
+#endif
+    }
 }
 
 void LabelStack::mouseReleaseEvent(QMouseEvent *)

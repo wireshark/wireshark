@@ -1105,7 +1105,11 @@ void RtpPlayerDialog::graphClicked(QMouseEvent *event)
 {
     updateWidgets();
     if (event->button() == Qt::RightButton) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+        graph_ctx_menu_->exec(event->globalPosition().toPoint());
+#else
         graph_ctx_menu_->exec(event->globalPos());
+#endif
     }
 }
 

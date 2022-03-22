@@ -101,7 +101,11 @@ void PacketListHeader::dropEvent(QDropEvent *event)
             MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
             if (mw)
             {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+                int idx = logicalIndexAt(event->position().toPoint());
+#else
                 int idx = logicalIndexAt(event->pos());
+#endif
                 mw->insertColumn(data["description"].toString(), data["name"].toString(), idx);
             }
 
@@ -118,11 +122,19 @@ void PacketListHeader::mousePressEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton && sectionIdx < 0)
     {
         /* No move happening yet */
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+        int sectIdx = logicalIndexAt(e->position().toPoint().x() - 4, e->position().toPoint().y());
+#else
         int sectIdx = logicalIndexAt(e->localPos().x() - 4, e->localPos().y());
+#endif
 
         QString headerName = model()->headerData(sectIdx, orientation()).toString();
         lastSize = sectionSize(sectIdx);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+        QToolTip::showText(e->globalPosition().toPoint(), QString("Width: %1").arg(sectionSize(sectIdx)));
+#else
         QToolTip::showText(e->globalPos(), QString("Width: %1").arg(sectionSize(sectIdx)));
+#endif
     }
     QHeaderView::mousePressEvent(e);
 }
@@ -138,7 +150,11 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
     else if (e->buttons() & Qt::LeftButton)
     {
         /* section being moved */
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+        int triggeredSection = logicalIndexAt(e->position().toPoint().x() - 4, e->position().toPoint().y());
+#else
         int triggeredSection = logicalIndexAt(e->localPos().x() - 4, e->localPos().y());
+#endif
 
         if (sectionIdx < 0)
             sectionIdx = triggeredSection;
@@ -147,7 +163,11 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
             /* Only run for the current moving section after a change */
             QString headerName = model()->headerData(sectionIdx, orientation()).toString();
             lastSize = sectionSize(sectionIdx);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+            QToolTip::showText(e->globalPosition().toPoint(), QString("Width: %1").arg(lastSize));
+#else
             QToolTip::showText(e->globalPos(), QString("Width: %1").arg(lastSize));
+#endif
         }
     }
     QHeaderView::mouseMoveEvent(e);

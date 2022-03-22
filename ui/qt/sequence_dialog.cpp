@@ -361,7 +361,11 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
             on_actionGoToPacket_triggered();
             break;
         case Qt::RightButton:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+            ctx_menu_.exec(event->globalPosition().toPoint());
+#else
             ctx_menu_.exec(event->globalPos());
+#endif
             break;
         default:
             break;

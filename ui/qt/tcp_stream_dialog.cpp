@@ -1663,7 +1663,11 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
     if (event->button() == Qt::RightButton) {
         // XXX We should find some way to get streamPlot to handle a
         // contextMenuEvent instead.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+        ctx_menu_.exec(event->globalPosition().toPoint());
+#else
         ctx_menu_.exec(event->globalPos());
+#endif
     } else  if (mouse_drags_) {
         if (sp->axisRect()->rect().contains(event->pos())) {
             sp->setCursor(QCursor(Qt::ClosedHandCursor));
