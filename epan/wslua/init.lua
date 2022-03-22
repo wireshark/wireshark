@@ -18,16 +18,22 @@ if not enable_lua then
     return
 end
 
--- If set and Wireshark was started as (setuid) root, then the user
+-- If false and Wireshark was started as (setuid) root, then the user
 -- will not be able to execute custom Lua scripts from the personal
 -- configuration directory, the -Xlua_script command line option or
 -- the Lua Evaluate menu option in the GUI.
+-- Note: Not checked on Windows. running_superuser is always false.
 run_user_scripts_when_superuser = true
 
 
 function typeof(obj)
     local mt = getmetatable(obj)
-    return mt and mt.__typeof or obj.__typeof or type(obj)
+
+    if type(obj) == "table" then
+        return mt and mt.__typeof or obj.__typeof or type(obj)
+    else
+        return mt and mt.__typeof or type(obj)
+    end
 end
 
 -- the following function checks if a file exists
