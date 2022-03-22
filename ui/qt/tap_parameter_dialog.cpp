@@ -213,15 +213,15 @@ QString TapParameterDialog::itemDataToPlain(QVariant var, int width)
     QString plain_str;
     int align_mul = 1;
 
-    switch (var.type()) {
-    case QVariant::String:
+    switch (var.userType()) {
+    case QMetaType::QString:
         align_mul = -1;
         // Fall through
-    case QVariant::Int:
-    case QVariant::UInt:
+    case QMetaType::Int:
+    case QMetaType::UInt:
         plain_str = var.toString();
         break;
-    case QVariant::Double:
+    case QMetaType::Double:
         plain_str = QString::number(var.toDouble(), 'f', 6);
         break;
     default:
@@ -262,7 +262,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
                     col_widths.append(ui->statsTreeWidget->headerItem()->text(col).length());
                 }
                 QVariant var = ui->statsTreeWidget->headerItem()->data(col, Qt::DisplayRole);
-                if (var.type() == QVariant::String) {
+                if (var.userType() == QMetaType::QString) {
                     col_widths[col] = qMax(col_widths[col], itemDataToPlain(var).length());
                 }
             }
@@ -360,7 +360,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
         }
         case ST_FORMAT_CSV:
             foreach (QVariant var, tid) {
-                if (var.type() == QVariant::String) {
+                if (var.userType() == QMetaType::QString) {
                     parts << QString("\"%1\"").arg(var.toString());
                 } else {
                     parts << var.toString();
@@ -385,7 +385,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
             QString indent = "-";
             foreach (QVariant var, tid) {
                 QString entry;
-                if (var.type() == QVariant::String) {
+                if (var.userType() == QMetaType::QString) {
                     entry = QString("\"%1\"").arg(var.toString());
                 } else {
                     entry = var.toString();

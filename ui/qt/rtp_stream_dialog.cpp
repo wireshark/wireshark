@@ -705,7 +705,7 @@ void RtpStreamDialog::on_actionCopyAsCsv_triggered()
         foreach (QVariant v, streamRowData(row)) {
             if (!v.isValid()) {
                 rdsl << "\"\"";
-            } else if (v.type() == QVariant::String) {
+            } else if (v.userType() == QMetaType::QString) {
                 rdsl << QString("\"%1\"").arg(v.toString());
             } else {
                 rdsl << v.toString();
