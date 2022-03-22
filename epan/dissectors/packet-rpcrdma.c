@@ -1142,7 +1142,7 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
     rdma_chunk_t *p_rdma_chunk = NULL;
     segment_info_t *p_segment_info = NULL;
     gboolean setup = FALSE;
-    wmem_list_t *msgid_segments;
+    wmem_list_t *msgid_segments = NULL;
     rdma_conv_info_t *p_rdma_conv_info;
 
     if (p_list) {
