@@ -724,6 +724,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ftype_can_cmp@Base 3.7.0
  ftype_can_contains@Base 1.9.1
  ftype_can_eq@Base 1.9.1
+ ftype_can_is_true@Base 3.7.0
  ftype_can_matches@Base 1.9.1
  ftype_can_slice@Base 1.9.1
  ftype_name@Base 1.9.1
