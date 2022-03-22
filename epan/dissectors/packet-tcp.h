@@ -372,6 +372,9 @@ typedef struct _tcp_flow_t {
 	 */
 	wmem_tree_t *multisegment_pdus;
 
+	/* A sorted list of pending out-of-order segments. */
+	wmem_list_t *ooo_segments;
+
 	/* Process info, currently discovered via IPFIX */
 	tcp_process_info_t* process_info;
 
