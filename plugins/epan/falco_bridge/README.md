@@ -20,6 +20,7 @@ You can find the global and per-user plugin folder locations on your system in A
 ## Licensing
 
 libsinsp and libscap are released under the Apache 2.0 license.
+They depend on the following libraries:
 
 - b64: MIT
 - c-ares: MIT
@@ -35,4 +36,8 @@ libsinsp and libscap are released under the Apache 2.0 license.
 - zlib: zlib
 
 Wireshark is released under the GPL version 2 (GPL-2.0-or-later). It and the Apache-2.0 license are compatible via the "any later version" provision in the GPL version 2.
+As discussed at https://www.wireshark.org/lists/wireshark-dev/202203/msg00020.html, combining Wireshark and libsinsp+libscap should be OK, but that in effect invokes the GPLv2's "any later version" provision, making the Wireshark portion of the cominbined work GPLv3+.
+
+Debian would appear to concur: https://lists.debian.org/debian-legal/2014/08/msg00102.html.
+
 No version of the GPL is compatible with the SSLeay license; you must ensure that libsinsp+libscap is linked with OpenSSL 3.0 or later.
