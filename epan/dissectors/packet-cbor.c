@@ -274,7 +274,7 @@ dissect_cbor_unsigned_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbo
 static gboolean
 dissect_cbor_negative_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
-	gint64  value;
+	gint64  value = 0;
 	proto_item *item;
 	proto_tree *subtree;
 
