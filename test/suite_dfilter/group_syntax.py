@@ -149,10 +149,14 @@ class case_bitwise(unittest.TestCase):
         dfilter = "tcp.flags & 0x8"
         checkDFilterCount(dfilter, 1)
 
-    def test_exists_1(self, checkDFilterCount):
+    def test_exists_2(self, checkDFilterCount):
+        dfilter = "eth[0] & 1"
+        checkDFilterCount(dfilter, 0)
+
+    def test_equal_1(self, checkDFilterCount):
         dfilter = "tcp.flags & 0x0F == 8"
         checkDFilterCount(dfilter, 1)
 
-    def test_exists_1(self, checkDFilterCount):
-        dfilter = "eth[0] & 1"
-        checkDFilterCount(dfilter, 0)
+    def test_equal_2(self, checkDFilterCount):
+        dfilter = "tcp.srcport != tcp.dstport & 0x0F"
+        checkDFilterCount(dfilter, 1)
