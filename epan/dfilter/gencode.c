@@ -392,8 +392,10 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 		case TEST_OP_NOTZERO:
 			val1 = gen_entity(dfw, st_arg1, &jumps);
-			insn = dfvm_insn_new(ANY_NOTZERO);
+			insn = dfvm_insn_new(ALL_ZERO);
 			insn->arg1 = dfvm_value_ref(val1);
+			dfw_append_insn(dfw, insn);
+			insn = dfvm_insn_new(NOT);
 			dfw_append_insn(dfw, insn);
 			g_slist_foreach(jumps, fixup_jumps, dfw);
 			g_slist_free(jumps);

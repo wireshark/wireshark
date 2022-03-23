@@ -748,9 +748,9 @@ uint_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err
 }
 
 gboolean
-uint_is_true(const fvalue_t *fv)
+uint_is_zero(const fvalue_t *fv)
 {
-	return fv->value.uinteger != 0;
+	return fv->value.uinteger == 0;
 }
 
 enum ft_result
@@ -761,9 +761,9 @@ uint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **e
 }
 
 gboolean
-uint64_is_true(const fvalue_t *fv)
+uint64_is_zero(const fvalue_t *fv)
 {
-	return fv->value.uinteger64 != 0;
+	return fv->value.uinteger64 == 0;
 }
 
 enum ft_result
@@ -774,9 +774,9 @@ sint_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err
 }
 
 gboolean
-sint_is_true(const fvalue_t *fv)
+sint_is_zero(const fvalue_t *fv)
 {
-	return fv->value.sinteger != 0;
+	return fv->value.sinteger == 0;
 }
 
 enum ft_result
@@ -787,9 +787,9 @@ sint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **e
 }
 
 gboolean
-sint64_is_true(const fvalue_t *fv)
+sint64_is_zero(const fvalue_t *fv)
 {
-	return fv->value.sinteger64 != 0;
+	return fv->value.sinteger64 == 0;
 }
 
 /* BOOLEAN-specific */
@@ -912,7 +912,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint_is_true,			/* is_true */
+		uint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
@@ -936,7 +936,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint_is_true,			/* is_true */
+		uint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
@@ -960,7 +960,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint_is_true,			/* is_true */
+		uint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
@@ -984,7 +984,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint_is_true,			/* is_true */
+		uint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
@@ -1008,7 +1008,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint_is_true,			/* is_true */
+		uint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
@@ -1032,7 +1032,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint64_is_true,			/* is_true */
+		uint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1056,7 +1056,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint64_is_true,			/* is_true */
+		uint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1080,7 +1080,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint64_is_true,			/* is_true */
+		uint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1104,7 +1104,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint64_is_true,			/* is_true */
+		uint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1128,7 +1128,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint_is_true,			/* is_true */
+		sint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
@@ -1152,7 +1152,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint_is_true,			/* is_true */
+		sint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
@@ -1176,7 +1176,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint_is_true,			/* is_true */
+		sint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
@@ -1200,7 +1200,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint_is_true,			/* is_true */
+		sint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
@@ -1224,7 +1224,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint64_is_true,			/* is_true */
+		sint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1248,7 +1248,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint64_is_true,			/* is_true */
+		sint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1272,7 +1272,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint64_is_true,			/* is_true */
+		sint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1296,7 +1296,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		sint64_is_true,			/* is_true */
+		sint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1320,7 +1320,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint64_is_true,			/* is_true */
+		uint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		NULL,				/* bitwise_and */
@@ -1345,7 +1345,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint_is_true,			/* is_true */
+		uint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
@@ -1370,7 +1370,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint_is_true,			/* is_true */
+		uint_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
@@ -1395,7 +1395,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		uint64_is_true,			/* is_true */
+		uint64_is_zero,			/* is_zero */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */

@@ -192,7 +192,7 @@ ftype_can_matches(enum ftenum ftype);
 
 WS_DLL_PUBLIC
 gboolean
-ftype_can_is_true(enum ftenum ftype);
+ftype_can_is_zero(enum ftenum ftype);
 
 /* ---------------- FVALUE ----------------- */
 
@@ -354,7 +354,7 @@ gboolean
 fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
 gboolean
-fvalue_is_true(const fvalue_t *a);
+fvalue_is_zero(const fvalue_t *a);
 
 guint
 fvalue_length(fvalue_t *fv);

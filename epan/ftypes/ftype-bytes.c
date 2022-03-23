@@ -563,19 +563,19 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 }
 
 static gboolean
-bytes_is_true(const fvalue_t *fv_a)
+bytes_is_zero(const fvalue_t *fv_a)
 {
 	GByteArray *a = fv_a->value.bytes;
 
 	if (a->len == 0)
-		return FALSE;
+		return TRUE;
 
 	for (guint i = 0; i < a->len; i++) {
 		if (a->data[i] != 0) {
-			return TRUE;
+			return FALSE;
 		}
 	}
-	return FALSE;
+	return TRUE;
 }
 
 void
@@ -601,7 +601,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -626,7 +626,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -651,7 +651,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -676,7 +676,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -701,7 +701,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -726,7 +726,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -751,7 +751,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -776,7 +776,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -801,7 +801,7 @@ ftype_register_bytes(void)
 		cmp_contains,
 		cmp_matches,
 
-		bytes_is_true,			/* is_true */
+		bytes_is_zero,			/* is_zero */
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */

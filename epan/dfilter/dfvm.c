@@ -277,8 +277,13 @@ dfvm_dump(FILE *f, dfilter_t *df)
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
-			case ANY_NOTZERO:
-				fprintf(f, "%05d ANY_NOTZERO\t%s\n",
+			case ANY_ZERO:
+				fprintf(f, "%05d ANY_ZERO\t\t%s\n",
+					id, arg1_str);
+				break;
+
+			case ALL_ZERO:
+				fprintf(f, "%05d ALL_ZERO\t\t%s\n",
 					id, arg1_str);
 				break;
 
@@ -440,13 +445,20 @@ cmp_test_unary(enum match_how how, DFVMTestFunc test_func, GSList *arg1)
 	return want_all;
 }
 
-/* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
 static gboolean
 any_test_unary(dfilter_t *df, DFVMTestFunc func, dfvm_value_t *arg1)
 {
 	ws_assert(arg1->type == REGISTER);
 	GSList *list1 = df->registers[arg1->value.numeric];
 	return cmp_test_unary(MATCH_ANY, func, list1);
+}
+
+static gboolean
+all_test_unary(dfilter_t *df, DFVMTestFunc func, dfvm_value_t *arg1)
+{
+	ws_assert(arg1->type == REGISTER);
+	GSList *list1 = df->registers[arg1->value.numeric];
+	return cmp_test_unary(MATCH_ALL, func, list1);
 }
 
 /* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
@@ -760,8 +772,12 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				mk_bitwise(df, fvalue_bitwise_and, arg1, arg2, arg3);
 				break;
 
-			case ANY_NOTZERO:
-				accum = any_test_unary(df, fvalue_is_true, arg1);
+			case ANY_ZERO:
+				accum = any_test_unary(df, fvalue_is_zero, arg1);
+				break;
+
+			case ALL_ZERO:
+				accum = all_test_unary(df, fvalue_is_zero, arg1);
 				break;
 
 			case ANY_CONTAINS:

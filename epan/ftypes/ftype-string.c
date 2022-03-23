@@ -102,9 +102,9 @@ val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
 }
 
 static gboolean
-string_is_true(const fvalue_t *fv)
+string_is_zero(const fvalue_t *fv)
 {
-	return fv->value.string != NULL && *(fv->value.string) != 0;
+	return fv->value.string == NULL || strlen(fv->value.string) == 0;
 }
 
 static guint
@@ -182,7 +182,7 @@ ftype_register_string(void)
 		cmp_contains,
 		cmp_matches,
 
-		string_is_true,			/* is_true */
+		string_is_zero,			/* is_zero */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -206,7 +206,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
-		string_is_true,			/* is_true */
+		string_is_zero,			/* is_zero */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -230,7 +230,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
-		string_is_true,			/* is_true */
+		string_is_zero,			/* is_zero */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -254,7 +254,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
-		string_is_true,			/* is_true */
+		string_is_zero,			/* is_zero */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -278,7 +278,7 @@ ftype_register_string(void)
 		cmp_contains,			/* cmp_contains */
 		cmp_matches,
 
-		string_is_true,			/* is_true */
+		string_is_zero,			/* is_zero */
 		len,
 		slice,
 		NULL,				/* bitwise_and */

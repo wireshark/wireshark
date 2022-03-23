@@ -453,9 +453,9 @@ sfloat_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b)
 }
 
 static gboolean
-sfloat_ieee_11073_is_true(const fvalue_t *a)
+sfloat_ieee_11073_is_zero(const fvalue_t *a)
 {
-    return a->value.sfloat_ieee_11073 != 0;
+    return a->value.sfloat_ieee_11073 == 0;
 }
 
 /*============================================================================*/
@@ -862,9 +862,9 @@ float_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b)
 }
 
 static gboolean
-float_ieee_11073_is_true(const fvalue_t *a)
+float_ieee_11073_is_zero(const fvalue_t *a)
 {
-    return a->value.float_ieee_11073 != 0;
+    return a->value.float_ieee_11073 == 0;
 }
 
 /*============================================================================*/
@@ -917,7 +917,7 @@ Example: 114 is 0x0072
         NULL,                                 /* cmp_contains */
         NULL,                                 /* cmp_matches */
 
-        sfloat_ieee_11073_is_true,           /* is_true */
+        sfloat_ieee_11073_is_zero,           /* is_zero */
         NULL,                                /* len */
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */
@@ -969,7 +969,7 @@ Example: 36.4 is 0xFF00016C
         NULL,                                /* cmp_contains */
         NULL,                                /* cmp_matches */
 
-        float_ieee_11073_is_true,            /* is_true */
+        float_ieee_11073_is_zero,            /* is_zero */
         NULL,                                /* len */
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */

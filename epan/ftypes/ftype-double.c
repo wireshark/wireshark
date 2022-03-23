@@ -85,12 +85,6 @@ double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _
 	return buf;
 }
 
-static gboolean
-double_is_true(const fvalue_t *fv)
-{
-	return fv->value.floating != 0.0;
-}
-
 static int
 cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
@@ -124,7 +118,7 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		double_is_true,			/* is_true */
+		NULL,				/* is_zero */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
@@ -149,7 +143,7 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		double_is_true,			/* is_true */
+		NULL,				/* is_zero */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */

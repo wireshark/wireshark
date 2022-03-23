@@ -162,7 +162,7 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 }
 
 static gboolean
-is_true(const fvalue_t *fv_a)
+is_zero(const fvalue_t *fv_a)
 {
 	ws_in6_addr zero = { 0 };
 	return memcmp(&fv_a->value.ipv6.addr, &zero, sizeof(ws_in6_addr)) == 0;
@@ -190,7 +190,7 @@ ftype_register_ipv6(void)
 		NULL, 				/* XXX, cmp_contains, needed? ipv4 doesn't support it */
 		NULL,				/* cmp_matches */
 
-		is_true,
+		is_zero,
 		NULL,
 		slice,
 		bitwise_and,

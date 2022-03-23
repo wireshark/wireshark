@@ -406,9 +406,9 @@ relative_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 }
 
 static gboolean
-time_is_true(const fvalue_t *fv)
+time_is_zero(const fvalue_t *fv)
 {
-	return !nstime_is_zero(&fv->value.time);
+	return nstime_is_zero(&fv->value.time);
 }
 
 void
@@ -434,7 +434,7 @@ ftype_register_time(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		time_is_true,			/* is_true */
+		time_is_zero,			/* is_zero */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
@@ -458,7 +458,7 @@ ftype_register_time(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		time_is_true,			/* is_true */
+		time_is_zero,			/* is_zero */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */

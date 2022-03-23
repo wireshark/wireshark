@@ -211,12 +211,12 @@ ftype_can_matches(enum ftenum ftype)
 }
 
 gboolean
-ftype_can_is_true(enum ftenum ftype)
+ftype_can_is_zero(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->is_true ? TRUE : FALSE;
+	return ft->is_zero ? TRUE : FALSE;
 }
 
 /* ---------------------------------------------------------- */
@@ -754,9 +754,9 @@ fvalue_matches(const fvalue_t *a, const ws_regex_t *re)
 }
 
 gboolean
-fvalue_is_true(const fvalue_t *a)
+fvalue_is_zero(const fvalue_t *a)
 {
-	return a->ftype->is_true(a);
+	return a->ftype->is_zero(a);
 }
 
 fvalue_t *

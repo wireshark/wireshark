@@ -49,7 +49,7 @@ typedef int (*FvalueCmp)(const fvalue_t*, const fvalue_t*);
 typedef gboolean (*FvalueContains)(const fvalue_t*, const fvalue_t*);
 typedef gboolean (*FvalueMatches)(const fvalue_t*, const ws_regex_t*);
 
-typedef gboolean (*FvalueIsTrue)(const fvalue_t*);
+typedef gboolean (*FvalueIsZero)(const fvalue_t*);
 typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
 typedef enum ft_result (*FvalueBitwiseAnd)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
@@ -93,7 +93,7 @@ struct _ftype_t {
 	FvalueContains		cmp_contains;
 	FvalueMatches		cmp_matches;
 
-	FvalueIsTrue		is_true;
+	FvalueIsZero		is_zero;
 	FvalueLen		len;
 	FvalueSlice		slice;
 	FvalueBitwiseAnd	bitwise_and;

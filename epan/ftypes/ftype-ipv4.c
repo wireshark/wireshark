@@ -140,9 +140,9 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 }
 
 static gboolean
-is_true(const fvalue_t *fv_a)
+is_zero(const fvalue_t *fv_a)
 {
-	return fv_a->value.ipv4.addr != 0;
+	return fv_a->value.ipv4.addr == 0;
 }
 
 void
@@ -168,7 +168,7 @@ ftype_register_ipv4(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		is_true,
+		is_zero,
 		NULL,
 		slice,
 		bitwise_and,

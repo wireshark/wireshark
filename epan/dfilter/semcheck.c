@@ -1249,7 +1249,7 @@ check_bitwise_operation(dfwork_t *dfw, stnode_t *st_node)
 	ftype1 = check_bitwise_entity(dfw, st_node, st_arg1, FT_NONE);
 	ftype2 = check_bitwise_entity(dfw, st_node, st_arg2, ftype1);
 
-	if (!ftype_can_is_true(ftype1)) {
+	if (!ftype_can_is_zero(ftype1)) {
 		FAIL(dfw, "Cannot test if %s is true", stnode_todisplay(st_arg1));
 	}
 
