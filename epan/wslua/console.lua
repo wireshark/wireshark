@@ -55,6 +55,7 @@ if (gui_enabled()) then
 		console_open = true
 
 		local w = TextWindow.new("Console")
+		w:add_button("Clear", function() w:clear(); print("Console cleared") end)
 
 		-- save original logger functions
 		local orig_print = print
@@ -73,7 +74,7 @@ if (gui_enabled()) then
 
 		-- when the window gets closed restore the original logger functions
 		local function at_close()
-			print = old_print
+			print = orig_print
 
 			console_open = false
 		end
