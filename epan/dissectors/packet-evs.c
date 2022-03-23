@@ -56,6 +56,7 @@ static int hf_evs_132_bwctrf_idx = -1;
 static int hf_evs_28_frame_type = -1;
 static int hf_evs_28_bw_ppp_nelp = -1;
 static int hf_evs_72_80_bwct_idx = -1;
+static int hf_evs_320_bwct_idx = -1;
 
 static int ett_evs = -1;
 static int ett_evs_header = -1;
@@ -421,6 +422,25 @@ static const value_string evs_72_80_bwct_idx_vals[] = {
     { 0, NULL }
 };
 
+static const value_string evs_320_bwct_idx_vals[] = {
+    { 0x0, "WB generic" },
+    { 0x1, "WB transition" },
+    { 0x2, "WB inactive" },
+    { 0x3, "SWB generic" },
+    { 0x4, "SWB transition" },
+    { 0x5, "SWB inactive" },
+    { 0x6, "FB generic" },
+    { 0x7, "FB transition" },
+    { 0x8, "FB inactive" },
+    { 0x9, "WB generic" },
+    { 0xa, "WB transition" },
+    { 0xb, "SWB generic" },
+    { 0xc, "SWB transition" },
+    { 0xd, "FB generic" },
+    { 0xe, "FB transition" },
+    { 0, NULL }
+};
+
 static void
 dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 cmr_oct)
 {
@@ -707,6 +727,26 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* Reserved 1 bit */
             proto_tree_add_bits_item(vd_tree, hf_evs_reserved_1bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             break;
+        case 80: /* 640 EVS Primary 32 */
+            /* 7.1.4 Bit allocation at 32 kbps */
+            /* CELP/MDCT core flag	1 */
+            proto_tree_add_bits_ret_val(vd_tree, hf_evs_celp_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+            bit_offset++;
+            /* In the case of MDCT-based core, the next bit decides whether HQ-MDCT core or TCX core is used */
+            if (value == 1) {
+                /* MDCT-based core*/
+                proto_tree_add_bits_ret_val(vd_tree, hf_evs_tcx_or_hq_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+                bit_offset++;
+                if (value == 1) {
+                    /* TCX core */
+                    /* BW 2 bits */
+                    proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+                }
+            } else {
+                /* BW, CT, 4*/
+                proto_tree_add_bits_item(vd_tree, hf_evs_320_bwct_idx, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            }
+            break;
         case 120: /* 960 EVS Primary 48 */
         case 240: /* 1920 EVS Primary 96 */
         case 320: /* 2560 EVS Primary 128 */
@@ -968,6 +1008,11 @@ proto_register_evs(void)
     { &hf_evs_72_80_bwct_idx,
     { "BW CT Index", "evs.72.80.bwct_idx",
         FT_UINT8, BASE_DEC, VALS(evs_72_80_bwct_idx_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_320_bwct_idx,
+    { "BW CT Index", "evs.320.bwct_idx",
+        FT_UINT8, BASE_DEC, VALS(evs_320_bwct_idx_vals), 0x0,
         NULL, HFILL }
     },
 };
