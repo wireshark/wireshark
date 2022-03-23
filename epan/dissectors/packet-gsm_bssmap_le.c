@@ -783,7 +783,7 @@ guint16 (*bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 	/* NOTE: The null types below are defined elsewhere. i.e in packet-gsm_a_bssmap.c */
 	de_bmaple_lcs_qos,				/* 10.16 LCS QoS */
 	NULL,							/* LCS Priority */
-    de_bmaple_location_type,		/* 10.18 Location Type */
+	de_bmaple_location_type,		/* 10.18 Location Type */
 	be_ganss_loc_type,				/* GANSS Location Type */
 	NULL,							/* 10.9 Geographic Location */
 	de_bmaple_pos_dta,				/* 10.20 Positioning Data */
