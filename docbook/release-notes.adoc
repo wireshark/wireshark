@@ -44,16 +44,6 @@ The following bugs have been fixed:
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* "Wiki Protocol page" in packet details menu is broken - wiki pages not migrated to GitLab? wsbuglink:17944[].
-
-* Dissector bug, protocol PFCP  display Flow Description IE value error in Additional Flow Description of PFD Management Request Message wsbuglink:17951[].
-
-* Bluetooth: Fails to open Log file for SCO connection wsbuglink:17964[].
-
-* libwiretap: Save as ERF causes segmentation fault wsbuglink:17989[].
-
-* HTTP server returning multiple early hints shows too many responses in "Follow HTTP Stream" wsbuglink:18006[].
-
 === New and Updated Features
 
 // === Removed Features and Support
@@ -76,22 +66,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
-CSN.1
-HTTP
-NTLMSSP
-PFCP
-PKTLOG
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-pcap
-pcapng
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
