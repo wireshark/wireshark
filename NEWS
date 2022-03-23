@@ -1,4 +1,4 @@
-Wireshark 3.4.13 Release Notes
+ Wireshark 3.4.13 Release Notes
 
  What is Wireshark?
 
@@ -11,6 +11,21 @@ Wireshark 3.4.13 Release Notes
 
    The following bugs have been fixed:
 
+     • "Wiki Protocol page" in packet details menu is broken - wiki
+       pages not migrated to GitLab? Issue 17944[1].
+
+     • Dissector bug, protocol PFCP display Flow Description IE value
+       error in Additional Flow Description of PFD Management Request
+       Message Issue 17951[2].
+
+     • Bluetooth: Fails to open Log file for SCO connection Issue
+       17964[3].
+
+     • libwiretap: Save as ERF causes segmentation fault Issue 17989[4].
+
+     • HTTP server returning multiple early hints shows too many
+       responses in "Follow HTTP Stream" Issue 18006[5].
+
   New and Updated Features
 
   New Protocol Support
@@ -19,9 +34,11 @@ Wireshark 3.4.13 Release Notes
 
   Updated Protocol Support
 
+   CSN.1, HTTP, NTLMSSP, PFCP, and PKTLOG
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   pcap and pcapng
 
  Getting Wireshark
 
@@ -33,7 +50,7 @@ Wireshark 3.4.13 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[6] on the Wireshark web site.
 
  File Locations
 
@@ -47,22 +64,27 @@ Wireshark 3.4.13 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[7] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[8].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[9].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2022-02-10 20:13:13 UTC
+  Last updated 2022-03-23 16:43:37 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/17944
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17951
+   3. https://gitlab.com/wireshark/wireshark/-/issues/17964
+   4. https://gitlab.com/wireshark/wireshark/-/issues/17989
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18006
+   6. https://www.wireshark.org/download.html#thirdparty
+   7. https://ask.wireshark.org/
+   8. https://www.wireshark.org/lists/
+   9. https://gitlab.com/wireshark/wireshark/-/issues
+  10. https://www.wireshark.org/faq.html

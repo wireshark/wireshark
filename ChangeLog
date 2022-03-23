@@ -1,0 +1,216 @@
+commit 1af3c7e69b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 21 14:02:21 2022 -0700
+
+    Prep for 3.4.13.
+
+commit 205cda763e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 20 16:36:03 2022 +0000
+
+    [Automatic update for 2022-03-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit cab845bc9a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 18 08:28:29 2022 -0400
+
+    http: Pass data relative to the original offset to follow tap
+
+    dissect_http_message might get called with a nonzero offset into
+    the tvb if there are multiple messages/segments in a frame. Only
+    send data starting from that offset to the follow tap, instead of
+    starting at tvb offset 0. Fix #18006
+
+    (cherry picked from commit 37a0054551fafffcac5435c3f683b45176388cd4)
+
+commit a57751fad0
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Mar 14 12:11:24 2022 -0700
+
+    wiretap: add a dump-close API that provides a "needs to be reloaded" indication.
+
+    This allows the "needs to be reloaded" indication to be set in the close
+    process, as is the case for ERF; having a routine that returns the value
+    of that indication is not useful if it gets seet in the close process,
+    as the handle for the wtap_dumper is no longer valid after
+    wtap_dump_close() finishes.
+
+    Fixes #17989.
+
+    (backported from commit 109b92b5d796f2fb64491fe1976257bc976f1f40)
+
+commit b641cf17b2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 13 16:35:49 2022 +0000
+
+    [Automatic update for 2022-03-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit dbc9e64ab0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 6 16:35:39 2022 +0000
+
+    [Automatic update for 2022-03-06]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 553e29dcfe
+Author: Oke Hargens <oke.hargens@cetitec.com>
+Date:   Fri Jan 7 15:37:45 2022 +0100
+
+    column-utils: Add missing check for frame_data::has_ts
+
+    Adds check for frame_data::has_ts in col_set_delta_time before calling
+    set_time_seconds. This is the same check that is done in multiple other
+    methods in column-utils.c. Because frame_data::tsprec might not be
+    initialized if has_ts is false, this resulted in a failed assertion in
+    set_time_seconds if the user created a column with "Delta time".
+
+    Also adds an assertion for frame_data::has_ts in set_time_seconds.
+
+    (backported from commit f461e33a41c0af201188b5130b7d0ec2b131dd60)
+
+commit 423c8d4a4b
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Feb 28 10:02:30 2022 +0100
+
+    packetlogger: Handle SCO data packets
+
+    Add handling of sent and received SCO data packets.
+
+    Fixes #17964.
+
+    (cherry picked from commit 71cb58df22f03472cfd0dbdfcd68547287d37a43)
+
+commit be77a9aa36
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 27 16:42:47 2022 +0000
+
+    [Automatic update for 2022-02-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit eaca3613de
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Feb 21 13:54:58 2022 +0100
+
+    CSN.1: Fix compiler warning showing wrong copy
+
+    Let's do what's done for u8, which looks far more sane.
+
+    Fixes following gcc 11.2.0 warning:
+    """
+    epan/dissectors/packet-csn1.c:913:17: warning: ‘ui16’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+      913 |                 memcpy(pui16, &ui16, 2);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~
+    """
+
+    (cherry picked from commit a059280b5df42e1e2ef4a9ab776fe4eabbd7127d)
+
+    Conflicts:
+            epan/dissectors/packet-csn1.c
+
+commit 4db64d0d96
+Author: Stefan Metzmacher <metze@samba.org>
+Date:   Wed Feb 23 20:47:56 2022 +0100
+
+    NTLMSSP: fix dissecting the spnego mechListMIC payload
+
+    dissect_ntlmssp() is also called from dissect_spnego_T_mechListMIC(),
+    we should detect a 16 byte structure starting with 0x01
+    and use dissect_ntlmssp_verf().
+
+    All other messages in dissect_ntlmssp() start with the
+    magic string "NTLMSSP", so they never match the 0x01.
+
+    It fixes another problem seen in the example captures
+    of https://gitlab.com/wireshark/wireshark/-/issues/17958
+
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
+
+    (cherry picked from commit af6d86d4a73f322b6963c1ad1e468b229da8592c)
+
+commit a19acb24e7
+Author: Stefan Metzmacher <metze@samba.org>
+Date:   Wed Feb 23 20:45:12 2022 +0100
+
+    NTLMSSP: fix AUTHENTICATE_MESSAGE without NTLMSSP_NEGOTIATE_VERSION
+
+    If we have data remaining before the start of the variable data,
+    we should assume the space for the version field even without
+    the NTLMSSP_NEGOTIATE_VERSION flag. In that case we should
+    mark the 8 bytes as zero bytes.
+
+    This fixes https://gitlab.com/wireshark/wireshark/-/issues/17958
+
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
+
+    (cherry picked from commit b9fcfd4f10727d780635d3f6092b1d06a1a2e2a5)
+
+commit 66d489e3a9
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 20 10:38:55 2022 -0800
+
+    pcap/pcapng: byte-swap the CAN ID field in CAN pseudo-headers for SLL2.
+
+    As for LINUX_SLL, so for LINUX_SLL2.
+
+    (cherry picked from commit c7f84156c0761e851d5cf222044bafc8d84261cd)
+
+commit 612917f5bf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 20 16:36:20 2022 +0000
+
+    [Automatic update for 2022-02-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0f6c8d29e8
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Feb 16 13:25:26 2022 +0100
+
+    QT Proto Tree: Fix link to wiki for protocol ref
+
+    The wiki pages for protocols are currently reachable via
+    https://gitlab.com/wireshark/wireshark/-/wikis/<proto_abbrev>
+
+    Fixes #17944
+
+    (cherry picked from commit 0824558af1796331879fed6e12d51719e14c9d73)
+
+commit cd5e66855d
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Fri Feb 18 09:37:56 2022 +0100
+
+    PFCP: Fix offset for hf_pfcp_flow_desc
+
+    Fixes: #17951
+
+    (cherry picked from commit e6a276f4ecfa268ccfded1ba4d9079b469eb3bcb)
+
+commit 84951c171c
+Author: Jim Young <jim.young.ws@gmail.com>
+Date:   Mon Feb 14 23:12:56 2022 +0000
+
+    make-manuf.py: Remove HTML double quote entities
+
+    (cherry picked from commit 371f98aec4e9e0617551f78d759b4d64f5a1d44d)
+
+commit 81382c49b3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 13 16:37:14 2022 +0000
+
+    [Automatic update for 2022-02-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a23d25e8cc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 10 12:13:13 2022 -0800
+
+    Version: 3.4.12 → 3.4.13
+
+    [skip ci]

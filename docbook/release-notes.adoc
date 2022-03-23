@@ -80,7 +80,7 @@ CSN.1
 HTTP
 NTLMSSP
 PFCP
-PKTLOT
+PKTLOG
 --
 
 === New and Updated Capture File Support

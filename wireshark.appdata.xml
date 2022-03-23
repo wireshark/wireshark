@@ -48,6 +48,9 @@
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
+        <release version="3.4.13" date="2022-03-23">
+            <url>https://www.wireshark.org/docs/relnotes/wireshark-3.4.13.html</url>
+        </release>
         <release version="3.4.12" date="2022-02-10">
             <url>https://www.wireshark.org/docs/relnotes/wireshark-3.4.12.html</url>
         </release>
