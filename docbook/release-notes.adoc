@@ -48,7 +48,7 @@ The following bugs have been fixed:
 
 * Fuzz job crash output: fuzz-2022-01-19-7399.pcap wsbuglink:17894[].
 
-* Ja3 reported is incorrect wsbuglink:17942[].
+* TLS dissector incorrectly reports JA3 values wsbuglink:17942[].
 
 * "Wiki Protocol page" in packet details menu is broken - wiki pages not migrated to GitLab? wsbuglink:17944[].
 
@@ -79,9 +79,9 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
-IEEE 802.11
 CSN.1
 HTTP
+IEEE 802.11
 NTLM SSP
 PFCP
 PKTLOG

@@ -1,0 +1,346 @@
+commit 212fac8ad4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 21 14:01:49 2022 -0700
+
+    Prep for 3.6.3.
+
+commit 6971c91b55
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 20 16:40:11 2022 +0000
+
+    [Automatic update for 2022-03-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit ba234f5127
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 18 08:28:29 2022 -0400
+
+    http: Pass data relative to the original offset to follow tap
+
+    dissect_http_message might get called with a nonzero offset into
+    the tvb if there are multiple messages/segments in a frame. Only
+    send data starting from that offset to the follow tap, instead of
+    starting at tvb offset 0. Fix #18006
+
+    (cherry picked from commit 37a0054551fafffcac5435c3f683b45176388cd4)
+
+commit 40d9d139b1
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Mar 17 08:17:30 2022 +0100
+
+    test: Use integer tuple to check Gcrypt version
+
+    Converting Gcrypt version to float before checking against 1.6 does
+    not work when Gcrypt version is 1.10 and above.
+
+    (cherry picked from commit eabf92859ea3d221e05551845b9610ef63cc035f)
+
+commit ff930929f0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 6 22:17:26 2022 -0500
+
+    packaging: Add RPM build dependencies for ninja, asciidoctor
+
+    If we're building with ninja, we need to require it.
+
+    While CentOS/RHEL/Rocky 8 doesn't have a asciidoctor package
+    (so we install it separately), we can add a BuildRequires on
+    the file that RubyGems creates for other rpm based distributions.
+
+    (cherry picked from commit 736441ccfaa58eb43a4d19d5b07a9e6e24163ee0)
+
+commit 2e9967ee05
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Mar 14 12:11:24 2022 -0700
+
+    wiretap: add a dump-close API that provides a "needs to be reloaded" indication.
+
+    This allows the "needs to be reloaded" indication to be set in the close
+    process, as is the case for ERF; having a routine that returns the value
+    of that indication is not useful if it gets seet in the close process,
+    as the handle for the wtap_dumper is no longer valid after
+    wtap_dump_close() finishes.
+
+    Fixes #17989.
+
+    (backported from commit 109b92b5d796f2fb64491fe1976257bc976f1f40)
+
+commit ecc17c1a36
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 14 18:49:47 2022 -0700
+
+    GitLab CI: Always create ABI check artifacts.
+
+commit 3dd0e5bd71
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 13 16:39:07 2022 +0000
+
+    [Automatic update for 2022-03-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 228648dbd3
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Mar 10 15:08:14 2022 +0100
+
+    Qt: Set Packet List scrollbar page step only on macOS
+
+    Only set the Packet List scrollbar page step to be equal to the
+    height of the scrollbar when running on macOS. Qt on Linux and
+    Windows behaves different.
+
+    (cherry picked from commit 2c4165fe5acd011b63b0fed2b483e0bd7cab476f)
+
+commit 563c52147f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 7 14:01:38 2022 -0800
+
+    USB HID: Initialize some variables.
+
+    Fixes #17984.
+
+    (cherry picked from commit 5fc1ed369c84c598727402b1200362d86a7e7585)
+
+commit 14debca3a6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 6 16:39:18 2022 +0000
+
+    [Automatic update for 2022-03-06]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 95d27cd37f
+Author: Oke Hargens <oke.hargens@cetitec.com>
+Date:   Fri Jan 7 15:37:45 2022 +0100
+
+    column-utils: Add missing check for frame_data::has_ts
+
+    Adds check for frame_data::has_ts in col_set_delta_time before calling
+    set_time_seconds. This is the same check that is done in multiple other
+    methods in column-utils.c. Because frame_data::tsprec might not be
+    initialized if has_ts is false, this resulted in a failed assertion in
+    set_time_seconds if the user created a column with "Delta time".
+
+    Also adds an assertion for frame_data::has_ts in set_time_seconds.
+
+    (cherry picked from commit f461e33a41c0af201188b5130b7d0ec2b131dd60)
+
+commit 037d793587
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Feb 28 10:02:30 2022 +0100
+
+    packetlogger: Handle SCO data packets
+
+    Add handling of sent and received SCO data packets.
+
+    Fixes #17964.
+
+    (cherry picked from commit 71cb58df22f03472cfd0dbdfcd68547287d37a43)
+
+commit 371a182084
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 27 16:39:43 2022 +0000
+
+    [Automatic update for 2022-02-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f23e86f86d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 22 18:32:28 2022 -0800
+
+    Packaging: Update our macOS notarization check.
+
+    It looks like altool changed its "info" argument from --eval-info to
+    --notarization-info at some point.
+
+    (cherry picked from commit 0e427ac837b20f37774514b270674eeb29fccd68)
+
+commit b58328d304
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 22 15:52:33 2022 -0800
+
+    GitLab CI: Try to fix macOS Arm builds.
+
+    Don't specify CMAKE_OSX_SYSROOT, for now at least.
+
+commit 390d8b54fb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 22 14:10:30 2022 -0800
+
+    GitLab CI: Remove `arch` commands.
+
+    GitLab Runner 14.8 added a native Arm binary for macOS. It's been
+    installed on our build machine, so the `arch` calls in the "macOS Arm
+    Package" job are no longer needed.
+
+    (cherry picked from commit 91f588ea6f16dce697390ca5fee23abb7bab83a8)
+
+commit e59a7f72ed
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Feb 21 13:54:58 2022 +0100
+
+    CSN.1: Fix compiler warning showing wrong copy
+
+    Let's do what's done for u8, which looks far more sane.
+
+    Fixes following gcc 11.2.0 warning:
+    """
+    epan/dissectors/packet-csn1.c:913:17: warning: ‘ui16’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+      913 |                 memcpy(pui16, &ui16, 2);
+          |                 ^~~~~~~~~~~~~~~~~~~~~~~
+    """
+
+    (cherry picked from commit a059280b5df42e1e2ef4a9ab776fe4eabbd7127d)
+
+commit 8866a5d6e8
+Author: Stefan Metzmacher <metze@samba.org>
+Date:   Wed Feb 23 20:47:56 2022 +0100
+
+    NTLMSSP: fix dissecting the spnego mechListMIC payload
+
+    dissect_ntlmssp() is also called from dissect_spnego_T_mechListMIC(),
+    we should detect a 16 byte structure starting with 0x01
+    and use dissect_ntlmssp_verf().
+
+    All other messages in dissect_ntlmssp() start with the
+    magic string "NTLMSSP", so they never match the 0x01.
+
+    It fixes another problem seen in the example captures
+    of https://gitlab.com/wireshark/wireshark/-/issues/17958
+
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
+
+    (cherry picked from commit af6d86d4a73f322b6963c1ad1e468b229da8592c)
+
+commit 79114bf62f
+Author: Stefan Metzmacher <metze@samba.org>
+Date:   Wed Feb 23 20:45:12 2022 +0100
+
+    NTLMSSP: fix AUTHENTICATE_MESSAGE without NTLMSSP_NEGOTIATE_VERSION
+
+    If we have data remaining before the start of the variable data,
+    we should assume the space for the version field even without
+    the NTLMSSP_NEGOTIATE_VERSION flag. In that case we should
+    mark the 8 bytes as zero bytes.
+
+    This fixes https://gitlab.com/wireshark/wireshark/-/issues/17958
+
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
+
+    (cherry picked from commit b9fcfd4f10727d780635d3f6092b1d06a1a2e2a5)
+
+commit 48e22c1a45
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 20 10:38:55 2022 -0800
+
+    pcap/pcapng: byte-swap the CAN ID field in CAN pseudo-headers for SLL2.
+
+    As for LINUX_SLL, so for LINUX_SLL2.
+
+    (cherry picked from commit c7f84156c0761e851d5cf222044bafc8d84261cd)
+
+commit 87292fc057
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 20 16:40:42 2022 +0000
+
+    [Automatic update for 2022-02-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit fcc98bb4f2
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Feb 16 13:25:26 2022 +0100
+
+    QT Proto Tree: Fix link to wiki for protocol ref
+
+    The wiki pages for protocols are currently reachable via
+    https://gitlab.com/wireshark/wireshark/-/wikis/<proto_abbrev>
+
+    Fixes #17944
+
+    (cherry picked from commit 0824558af1796331879fed6e12d51719e14c9d73)
+
+commit e6a276f4ec
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Fri Feb 18 09:37:56 2022 +0100
+
+    PFCP: Fix offset for hf_pfcp_flow_desc
+
+    Fixes: #17951
+
+commit ab9aad9e38
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Tue Feb 15 22:18:41 2022 +0100
+
+    TLS: Ignore GREASE values for JA3
+
+    According to https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967
+    JA3 ignores GREASE values completely.
+
+    Fixes #17942
+
+    (cherry picked from commit 2f7a18f181596bf733768fca85d265b45796e1bc)
+
+commit 83c1b11c29
+Author: Jim Young <jim.young.ws@gmail.com>
+Date:   Mon Feb 14 23:12:56 2022 +0000
+
+    make-manuf.py: Remove HTML double quote entities
+
+    (cherry picked from commit 371f98aec4e9e0617551f78d759b4d64f5a1d44d)
+
+commit 0d4eb490c7
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Wed Jan 19 16:22:01 2022 +0100
+
+    ieee80211: initialize local buffers.
+
+    Fix valgrind errors for jumps on non-initialized memory.
+
+    Fix: #17894.
+    (cherry picked from commit ac164db3ac993dfd2e896c734a6919b6054cb20e)
+
+commit 9403727cf7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 13 16:41:24 2022 +0000
+
+    [Automatic update for 2022-02-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7834d7e681
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 6 18:25:40 2022 -0800
+
+    GitLab CI: Swap the Ubuntu package and latest Clang builds.
+
+    The Ubuntu APT Package job takes a long time to run. Do so after merging
+    and add a package test job, similar to the other Linux package builds.
+    The Latest Clang job has been detecting errors that also affect macOS.
+    Run it for merge requests. Fix Ubuntu build caching.
+
+    (cherry picked from commit 947d80c477b601f0c8808ff80867aa0b3c9ebedd)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit bed261416d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 30 19:24:06 2022 +0000
+
+    CMake+GitLab CI: Add ABI checks.
+
+    Add {wiretap,epan,wsutil}-abi-dump targets that run abi-dumper on
+    each of our main libraries. Add dumps from Wireshark 3.6.0 and 3.6.1.
+    Add an "ABI Check" job that runs abi-compliance-checker on a baseline
+    dump and a current one.
+
+commit 6eafc92353
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 10 12:12:40 2022 -0800
+
+    Version: 3.6.2 → 3.6.3
+
+    [skip ci]
