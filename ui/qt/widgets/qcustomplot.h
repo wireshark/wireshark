@@ -1359,7 +1359,7 @@ public:
 
   // getters:
   int rowCount() const { return static_cast<int>(mElements.size()); }
-  int columnCount() const { return mElements.size() > 0 ? (int) mElements.first().size() : 0; }
+  int columnCount() const { return mElements.size() > 0 ? static_cast<int>(mElements.first().size()) : 0; }
   QList<double> columnStretchFactors() const { return mColumnStretchFactors; }
   QList<double> rowStretchFactors() const { return mRowStretchFactors; }
   int columnSpacing() const { return mColumnSpacing; }

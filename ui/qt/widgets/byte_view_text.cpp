@@ -332,7 +332,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
 
 void ByteViewText::mouseMoveEvent(QMouseEvent *event)
 {
-    if (marked_byte_offset_ >= 0 || allow_hover_selection_ || 
+    if (marked_byte_offset_ >= 0 || allow_hover_selection_ ||
         (!allow_hover_selection_ && event->modifiers() & Qt::ControlModifier)) {
         return;
     }

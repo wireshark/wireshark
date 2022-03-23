@@ -66,14 +66,14 @@ public:
 
     int childCount() const
     {
-        return childItems_.count();
+        return static_cast<int>(childItems_.count());
     }
 
     int row()
     {
         if (parent_)
         {
-            return parent_->childItems_.indexOf(VariantPointer<Item>::asQVariant((Item *)this));
+            return static_cast<int>(parent_->childItems_.indexOf(VariantPointer<Item>::asQVariant((Item *)this)));
         }
 
         return 0;

@@ -4254,21 +4254,21 @@ void MainWindow::activatePluginIFToolbar(bool)
     }
 }
 
-void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
+void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids _U_)
 {
 #ifdef QT_MULTIMEDIA_LIB
     openTelephonyRtpPlayerDialog()->replaceRtpStreams(stream_ids);
 #endif
 }
 
-void MainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids)
+void MainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids _U_)
 {
 #ifdef QT_MULTIMEDIA_LIB
     openTelephonyRtpPlayerDialog()->addRtpStreams(stream_ids);
 #endif
 }
 
-void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids)
+void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids _U_)
 {
 #ifdef QT_MULTIMEDIA_LIB
     openTelephonyRtpPlayerDialog()->removeRtpStreams(stream_ids);

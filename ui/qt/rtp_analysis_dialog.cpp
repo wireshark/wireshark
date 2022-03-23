@@ -851,7 +851,7 @@ void RtpAnalysisDialog::saveCsvHeader(QFile *save_file, QTreeWidget *tree)
     foreach (QVariant v, row_data) {
         if (!v.isValid()) {
             values << "\"\"";
-        } else if ((int) v.type() == (int) QMetaType::QString) {
+        } else if (v.userType() == QMetaType::QString) {
             values << QString("\"%1\"").arg(v.toString());
         } else {
             values << v.toString();
@@ -871,7 +871,7 @@ void RtpAnalysisDialog::saveCsvData(QFile *save_file, QTreeWidget *tree)
         foreach (QVariant v, ra_ti->rowData()) {
             if (!v.isValid()) {
                 values << "\"\"";
-            } else if ((int) v.type() == (int) QMetaType::QString) {
+            } else if (v.userType() == QMetaType::QString) {
                 values << QString("\"%1\"").arg(v.toString());
             } else {
                 values << v.toString();

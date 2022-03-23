@@ -225,7 +225,7 @@ QVariant ColumnListModel::headerData(int section, Qt::Orientation orientation, i
 
 int ColumnListModel::rowCount(const QModelIndex &/*parent*/) const
 {
-    return store_.count();
+    return static_cast<int>(store_.count());
 }
 
 int ColumnListModel::columnCount(const QModelIndex &/*parent*/) const
@@ -382,7 +382,7 @@ bool ColumnListModel::dropMimeData(const QMimeData *data,
         moveTo = moveTo - 1;
 
     if (moveTo >= store_.count())
-        moveTo = store_.count() - 1;
+        moveTo = static_cast<int>(store_.count()) - 1;
 
     emit beginResetModel();
     store_.move(moveFrom, moveTo);

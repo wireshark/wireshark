@@ -150,7 +150,7 @@ void AddressEditorFrame::on_nameResolutionPreferencesToolButton_clicked()
     emit showNameResolutionPreferences("nameres");
 }
 
-void AddressEditorFrame::on_addressComboBox_currentIndexChanged(const QString &)
+void AddressEditorFrame::on_addressComboBox_currentIndexChanged(int)
 {
     displayPreviousUserDefinedHostname();
     updateWidgets();

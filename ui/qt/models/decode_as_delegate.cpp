@@ -156,7 +156,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
             cb_editor->addItem(table_ui_name, table_ui_name);
         }
         if (packet_list.count() > 0) {
-            cb_editor->insertSeparator(packet_list.count());
+            cb_editor->insertSeparator(static_cast<int>(packet_list.count()));
         }
 
         //put the rest of the protocols in the combo box

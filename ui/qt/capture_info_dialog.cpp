@@ -173,7 +173,7 @@ void CaptureInfoModel::updateInfo()
 int CaptureInfoModel::rowCount(const QModelIndex &) const
 {
     if (!cap_info_) return 0;
-    return points_.keys().size() + 1;
+    return static_cast<int>(points_.keys().size()) + 1;
 }
 
 int CaptureInfoModel::columnCount(const QModelIndex &) const

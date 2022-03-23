@@ -12,7 +12,7 @@
 RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
     QObject(parent),
     // Force a deep copy.
-    filename_(QString::fromUtf16(filename.utf16()))
+    filename_(QString::fromStdU16String(filename.toStdU16String()))
 {
     // We're a QObject, which means that we emit a destroyed signal,
     // which might happen at the wrong time when automatic deletion is

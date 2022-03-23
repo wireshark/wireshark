@@ -103,9 +103,17 @@ void CredentialsDialog::actionGoToPacket(const QModelIndex& idx)
 
     QVariant packet_data = idx.data(Qt::UserRole);
     QVariant hf_id = idx.data(CredentialsModel::ColumnHFID);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    if (!hf_id.canConvert<int>())
+        hf_id = QVariant::fromValue(0);
+
+    if (packet_data.canConvert<int>())
+        packet_list_->goToPacket(packet_data.toInt(), hf_id.toInt());
+#else
     if (!hf_id.canConvert(QVariant::Int))
         hf_id = QVariant::fromValue(0);
 
     if (packet_data.canConvert(QVariant::Int))
         packet_list_->goToPacket(packet_data.toInt(), hf_id.toInt());
+#endif
 }

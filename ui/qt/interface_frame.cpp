@@ -428,7 +428,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
         }
     }
 #endif
-    
+
     startCapture(interfaces);
 }
 
@@ -506,7 +506,7 @@ void InterfaceFrame::showContextMenu(QPoint pos)
             if (! ifaces.contains(name))
                 ifaces << name;
         }
-        
+
         startCapture(ifaces);
     });
     ctx_menu.exec(ui->interfaceTree->mapToGlobal(pos));

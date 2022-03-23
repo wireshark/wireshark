@@ -730,7 +730,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
             // the next UI update.
             QTimer::singleShot(0, this, SLOT(flushVisibleRows()));
         }
-        pos = visible_rows_.count() + new_visible_rows_.count() - 1;
+        pos = static_cast<int>( visible_rows_.count() + new_visible_rows_.count() ) - 1;
     }
 
     return static_cast<gint>(pos);

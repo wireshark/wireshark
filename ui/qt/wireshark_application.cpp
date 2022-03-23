@@ -92,7 +92,9 @@
 #include <QUrl>
 #include <qmath.h>
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 #include <QFontDatabase>
+#endif
 #include <QMimeDatabase>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
@@ -129,6 +131,7 @@ private:
     }
 };
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 // Populating the font database can be slow as well.
 class FontDatabaseInitThread : public QRunnable
 {
@@ -138,6 +141,7 @@ private:
         QFontDatabase font_db;
     }
 };
+#endif
 
 void
 topic_action(topic_action_e action)
@@ -634,8 +638,10 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
     MimeDatabaseInitThread *mime_db_init_thread = new(MimeDatabaseInitThread);
     QThreadPool::globalInstance()->start(mime_db_init_thread);
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))    
     FontDatabaseInitThread *font_db_init_thread = new (FontDatabaseInitThread);
     QThreadPool::globalInstance()->start(font_db_init_thread);
+#endif
 
     Q_INIT_RESOURCE(about);
     Q_INIT_RESOURCE(i18n);
@@ -649,7 +655,9 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     ws_load_library("riched20.dll");
 #endif // Q_OS_WIN
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && defined(Q_OS_WIN)
     setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
@@ -1179,9 +1187,12 @@ void WiresharkApplication::loadLanguage(const QString newLanguage)
         switchTranslator(wsApp->translatorQt,
                 QString("qt_%1.qm").arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))), QString(get_datafile_dir()));
     } else {
-    switchTranslator(wsApp->translatorQt,
-            QString("qt_%1.qm").arg(localeLanguage),
-            QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QString translationPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
+#else
+        QString translationPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+#endif
+        switchTranslator(wsApp->translatorQt, QString("qt_%1.qm").arg(localeLanguage), translationPath);
     }
 }
 
