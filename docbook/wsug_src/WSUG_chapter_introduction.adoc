@@ -262,8 +262,8 @@ mailto:{wireshark-dev-list-email}[].
 
 You can get the latest copy of the program from the Wireshark website at {wireshark-download-url}.
 The download page should automatically highlight the appropriate download for your platform and direct you to the nearest mirror.
-Official Windows and macOS installers are signed by the *Wireshark Foundation*.
-macOS installers are also notarized.
+Official Windows and macOS installers are signed using trusted certificates on those platforms.
+macOS installers are additionally notarized.
 
 A new Wireshark version typically becomes available every six weeks.
 
