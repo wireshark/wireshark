@@ -137,16 +137,17 @@ bitwise_and(fvalue_t *dst, const fvalue_t *fv_a, const fvalue_t *fv_b, char **er
 	prefix = MIN(a->prefix, b->prefix);	/* MIN() like in IPv4 */
 	prefix = MIN(prefix, 128);		/* sanitize, max prefix is 128 */
 
-	dst->value.ipv6 = fv_a->value.ipv6;
 	while (prefix >= 8) {
-		dst->value.ipv6.addr.bytes[pos] &= b->addr.bytes[pos] & bitmasks[prefix];
+		dst->value.ipv6.addr.bytes[pos] =
+			a->addr.bytes[pos] & b->addr.bytes[pos];
 
 		prefix -= 8;
 		pos++;
 	}
 
 	if (prefix != 0) {
-		dst->value.ipv6.addr.bytes[pos] &= b->addr.bytes[pos] & bitmasks[prefix];
+		dst->value.ipv6.addr.bytes[pos] =
+			a->addr.bytes[pos] & b->addr.bytes[pos] & bitmasks[prefix];
 	}
 	return FT_OK;
 }
