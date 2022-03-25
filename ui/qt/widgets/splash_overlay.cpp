@@ -53,7 +53,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
     elapsed_timer_.start();
 
     QColor bg = QColor(tango_aluminium_6);
-    bg.setAlphaF(0.2);
+    bg.setAlphaF(0.2f);
     QPalette pal;
     pal.setColor(QPalette::Window, bg);
     setPalette(pal);

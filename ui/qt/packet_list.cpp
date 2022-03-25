@@ -2098,7 +2098,7 @@ void PacketList::drawFarOverlay()
         overlay.fill(Qt::transparent);
 
         QColor tick_color = palette().text().color();
-        tick_color.setAlphaF(0.3);
+        tick_color.setAlphaF(0.3f);
         painter.setPen(tick_color);
 
         for (int row = 0; row < pl_rows; row++) {
