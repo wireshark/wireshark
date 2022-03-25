@@ -1892,7 +1892,7 @@ get_stringztrunc_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
 #define NTP_TIMEDIFF1900TO1970SEC G_GINT64_CONSTANT(2208988800)
 
 /*
- * NTP Era 1: the epoch is January 1, 2036, 00:00:00 UTC.
+ * NTP Era 1: the epoch is February 7, 2036, 06:28:16 UTC.
  */
 #define NTP_TIMEDIFF1970TO2036SEC G_GINT64_CONSTANT(2085978496)
 
