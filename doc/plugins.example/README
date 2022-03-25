@@ -11,8 +11,11 @@ Binary compatibility is never guaranteed between those releases and Wireshark
 will explicitly check for which version the plugin was built and refuse
 to load it otherwise.
 
-Note that this method builds the plugin against Wireshark's *system installion*,
-using CMake's Config-file mechanism[1] for configuration.
+Note that the out-of-tree method builds the plugin using CMake's Config-file
+mechanism[1] for configuration. In other words the plugin build system uses
+the Wireshark headers that were installed on the system using "make install"
+or equivalent (as configured from WiresharkConfig.cmake). This is not the same
+as an in-tree build.
 
 You should of course adapt this trivial example to your own needs.
 
