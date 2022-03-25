@@ -143,8 +143,9 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 }
 
 /* Gets an fvalue from a string, and sets the error message on failure. */
+WS_RETNONNULL
 static fvalue_t*
-_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
+dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		gboolean allow_partial_value, header_field_info *hfinfo_value_string)
 {
 	fvalue_t *fv;
@@ -165,16 +166,6 @@ _fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 			dfw->error_message = NULL;
 		}
 	}
-	return fv;
-}
-
-/* Gets an fvalue from a string, and sets the error message on failure. */
-WS_RETNONNULL
-static fvalue_t*
-dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
-		gboolean allow_partial_value, header_field_info *hfinfo_value_string)
-{
-	fvalue_t *fv = _fvalue_from_literal(dfw, ftype, st, allow_partial_value, hfinfo_value_string);
 	if (fv == NULL)
 		THROW(TypeError);
 	return fv;
@@ -207,39 +198,18 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 	return fv;
 }
 
-static fvalue_t *
-dfilter_fvalue_from_unparsed_resolved(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
-		gboolean allow_partial_value, header_field_info *hfinfo_value_string)
-{
-	fvalue_t *fv = _fvalue_from_literal(dfw, ftype, st, allow_partial_value, hfinfo_value_string);
-
-	if (fv != NULL) {
-		/* convert to fvalue successfully. */
-		return fv;
-	}
-
-	header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(st));
-
-	if (hfinfo == NULL) {
-		/* This node is neither a valid fvalue nor a valid field. */
-		/* XXX Error message already set for literal? */
-		THROW(TypeError);
-	}
-
-	stnode_replace(st, STTYPE_FIELD, hfinfo);
-
-	/* Successfully resolved to a field. */
-	return NULL;
-}
-
 static gboolean
 resolve_unparsed(dfwork_t *dfw, stnode_t *st)
 {
+	if (stnode_type_id(st) != STTYPE_UNPARSED)
+		return FALSE;
+
 	header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(st));
 	if (hfinfo != NULL) {
 		stnode_replace(st, STTYPE_FIELD, hfinfo);
 		return TRUE;
 	}
+	stnode_replace(st, STTYPE_LITERAL, g_strdup(stnode_data(st)));
 	return FALSE;
 }
 
@@ -670,11 +640,9 @@ again:
 		}
 
 		if (type2 == STTYPE_UNPARSED) {
-			fvalue = dfilter_fvalue_from_unparsed_resolved(dfw, ftype1, st_arg2, allow_partial_value, hfinfo1);
-			if (fvalue == NULL) {
-				/* We have a protocol or protocol field. */
+			if (resolve_unparsed(dfw, st_arg2))
 				goto again;
-			}
+			fvalue = dfilter_fvalue_from_literal(dfw, ftype1, st_arg2, allow_partial_value, hfinfo1);
 		}
 		else if (type2 == STTYPE_STRING) {
 			fvalue = dfilter_fvalue_from_string(dfw, ftype1, st_arg2, hfinfo1);
@@ -778,9 +746,9 @@ again:
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		fvalue = dfilter_fvalue_from_unparsed_resolved(dfw, FT_BYTES, st_arg2, allow_partial_value, NULL);
-		if (fvalue == NULL)
+		if (resolve_unparsed(dfw, st_arg2))
 			goto again;
+		fvalue = dfilter_fvalue_from_literal(dfw, FT_BYTES, st_arg2, allow_partial_value, NULL);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_LITERAL) {
@@ -883,9 +851,9 @@ again:
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		fvalue = dfilter_fvalue_from_unparsed_resolved(dfw, ftype1, st_arg2, allow_partial_value, NULL);
-		if (fvalue == NULL)
+		if (resolve_unparsed(dfw, st_arg2))
 			goto again;
+		fvalue = dfilter_fvalue_from_literal(dfw, ftype1, st_arg2, allow_partial_value, NULL);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_LITERAL) {
