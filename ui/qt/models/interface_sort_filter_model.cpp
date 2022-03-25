@@ -327,7 +327,7 @@ int InterfaceSortFilterModel::mapSourceToColumn(InterfaceTreeColumns mdlIndex)
     if (! _columns.contains(mdlIndex))
         return -1;
 
-    return _columns.indexOf(mdlIndex, 0);
+    return static_cast<int>(_columns.indexOf(mdlIndex, 0));
 }
 
 QModelIndex InterfaceSortFilterModel::mapToSource(const QModelIndex &proxyIndex) const
@@ -353,7 +353,7 @@ QModelIndex InterfaceSortFilterModel::mapFromSource(const QModelIndex &sourceInd
 
     QModelIndex newIndex = QSortFilterProxyModel::mapFromSource(sourceIndex);
 
-    return index(newIndex.row(), _columns.indexOf((InterfaceTreeColumns) sourceIndex.column()));
+    return index(newIndex.row(), static_cast<int>(_columns.indexOf((InterfaceTreeColumns) sourceIndex.column())));
 }
 
 QString InterfaceSortFilterModel::interfaceError()

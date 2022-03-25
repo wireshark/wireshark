@@ -136,7 +136,7 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showASCII)
         cnt++;
     }
 
-    int lines = printData.length() / byteLineLength_;
+    int lines = static_cast<int>(printData.length()) / byteLineLength_;
     if (printData.length() % byteLineLength_ > 0)
         lines++;
 
@@ -155,7 +155,7 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showASCII)
             /* separation bytes last line */
             if (cnt == (lines - 1) )
             {
-                int remSpace = byteLineLength_ - dataStr.mid(offset, byteLineLength_).length();
+                int remSpace = byteLineLength_ - static_cast<int>(dataStr.mid(offset, byteLineLength_).length());
                 clipboard_text += QString(remSpace * 3, ' ');
             }
 

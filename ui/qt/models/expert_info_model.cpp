@@ -71,13 +71,13 @@ ExpertPacketItem* ExpertPacketItem::child(QString hash)
 
 int ExpertPacketItem::childCount() const
 {
-    return childItems_.count();
+    return static_cast<int>(childItems_.count());
 }
 
 int ExpertPacketItem::row() const
 {
     if (parentItem_)
-        return parentItem_->childItems_.indexOf(const_cast<ExpertPacketItem*>(this));
+        return static_cast<int>(parentItem_->childItems_.indexOf(const_cast<ExpertPacketItem*>(this)));
 
     return 0;
 }

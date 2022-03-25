@@ -152,7 +152,7 @@ int PrefsModel::rowCount(const QModelIndex &parent) const
     if (parent_item == NULL)
         return 0;
 
-    return parent_item->childCount();
+    return static_cast<int>(parent_item->childCount());
 }
 
 int PrefsModel::columnCount(const QModelIndex&) const

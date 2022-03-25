@@ -213,7 +213,7 @@ int DecodeAsModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
 
-    return decode_as_items_.count();
+    return static_cast<int>(decode_as_items_.count());
 }
 
 int DecodeAsModel::columnCount(const QModelIndex &parent) const

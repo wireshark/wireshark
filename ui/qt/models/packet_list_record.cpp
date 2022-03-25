@@ -302,7 +302,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         }
 
         col_text_ << col_str;
-        col_lines = col_str.count('\n');
+        col_lines = static_cast<int>(col_str.count('\n'));
         if (col_lines > lines_) {
             lines_ = col_lines;
             line_count_changed_ = true;

@@ -229,7 +229,7 @@ bool ProfileModel::userProfilesExist() const
 
 int ProfileModel::rowCount(const QModelIndex &) const
 {
-    return profiles_.count();
+    return static_cast<int>(profiles_.count());
 }
 
 int ProfileModel::columnCount(const QModelIndex &) const

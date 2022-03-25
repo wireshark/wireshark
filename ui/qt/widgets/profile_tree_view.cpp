@@ -9,6 +9,7 @@
 
 #include <ui/qt/models/url_link_delegate.h>
 #include <ui/qt/models/profile_model.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/profile_tree_view.h>
 
 #include <QDesktopServices>

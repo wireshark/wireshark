@@ -37,7 +37,7 @@ void AStringListListModel::appendRow(const QStringList & display_strings, const 
 
 int AStringListListModel::rowCount(const QModelIndex &) const
 {
-    return display_data_.count();
+    return static_cast<int>(display_data_.count());
 }
 
 int AStringListListModel::columnCount(const QModelIndex &parent) const
@@ -45,7 +45,7 @@ int AStringListListModel::columnCount(const QModelIndex &parent) const
     if (rowCount(parent) == 0)
         return 0;
 
-    return headerColumns().count();
+    return static_cast<int>(headerColumns().count());
 }
 
 QVariant AStringListListModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -114,14 +114,22 @@ void AStringListListSortFilterProxyModel::setFilter(const QString & filter)
 
 static bool AContainsB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity cs)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    if (! a.canConvert<QString>() || ! b.canConvert<QString>())
+#else
     if (! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String))
+#endif
         return false;
     return a.toString().contains(b.toString(), cs);
 }
 
 static bool AStartsWithB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity cs)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    if (! a.canConvert<QString>() || ! b.canConvert<QString>())
+#else
     if (! a.canConvert(QVariant::String) || ! b.canConvert(QVariant::String))
+#endif
         return false;
     return a.toString().startsWith(b.toString(), cs);
 }
@@ -267,7 +275,11 @@ QVariant AStringListListUrlProxyModel::data(const QModelIndex &index, int role) 
     QVariant result = QIdentityProxyModel::data(index, role);
 
     if (role == Qt::ForegroundRole && urls_.contains(index.column())
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+            && result.canConvert<QBrush>())
+#else
             && result.canConvert(QVariant::Brush))
+#endif
     {
         QBrush selected = result.value<QBrush>();
         selected.setColor(ColorUtils::themeLinkBrush().color());

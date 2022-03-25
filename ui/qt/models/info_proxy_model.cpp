@@ -38,7 +38,7 @@ void InfoProxyModel::clearInfos()
 
 int InfoProxyModel::rowCount(const QModelIndex &parent) const
 {
-    return sourceModel()->rowCount(parent) + infos_.count();
+    return static_cast<int>(sourceModel()->rowCount(parent) + infos_.count());
 }
 
 QVariant InfoProxyModel::data (const QModelIndex &index, int role) const

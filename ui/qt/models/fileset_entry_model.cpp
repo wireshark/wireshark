@@ -30,7 +30,7 @@ QModelIndex FilesetEntryModel::index(int row, int column, const QModelIndex &) c
 
 int FilesetEntryModel::rowCount(const QModelIndex &) const
 {
-    return entries_.count();
+    return static_cast<int>(entries_.count());
 }
 
 QVariant FilesetEntryModel::data(const QModelIndex &index, int role) const

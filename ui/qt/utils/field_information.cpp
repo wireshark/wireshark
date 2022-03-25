@@ -141,7 +141,7 @@ QString FieldInformation::toString()
     QByteArray display_label;
 
     display_label.resize(80); // Arbitrary.
-    proto_item_fill_display_label(fi_, display_label.data(), display_label.size());
+    proto_item_fill_display_label(fi_, display_label.data(), static_cast<int>(display_label.size()));
 
     if (display_label.isEmpty()) {
         return "[no value for field]";

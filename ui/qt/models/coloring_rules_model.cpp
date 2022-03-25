@@ -347,13 +347,21 @@ bool ColoringRulesModel::setData(const QModelIndex &dataIndex, const QVariant &v
         }
         break;
     case Qt::BackgroundRole:
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        if (!value.canConvert<QColor>())
+#else
         if (!value.canConvert(QVariant::Color))
+#endif
             return false;
 
         rule->background_ = QColor(value.toString());
         break;
     case Qt::ForegroundRole:
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        if (!value.canConvert<QColor>())
+#else
         if (!value.canConvert(QVariant::Color))
+#endif
             return false;
 
         rule->foreground_ = QColor(value.toString());
@@ -486,7 +494,7 @@ bool ColoringRulesModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
         rules.append(VariantPointer<ColoringRuleItem>::asQVariant(item));
     }
 
-    insertRows(beginRow, rules.count(), QModelIndex());
+    insertRows(beginRow, static_cast<int>(rules.count()), QModelIndex());
     for (int i = 0; i < rules.count(); i++) {
         QModelIndex idx = index(beginRow, 0, QModelIndex());
         setData(idx, rules[i], Qt::UserRole);

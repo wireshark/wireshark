@@ -109,7 +109,11 @@ static void accumulate_rgb(float rgb[TIMELINE_HEIGHT][3], int height, int dfilte
 
 void WirelessTimeline::mousePressEvent(QMouseEvent *event)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+    start_x = last_x = event->position().x();
+#else
     start_x = last_x = event->localPos().x();
+#endif
 }
 
 
@@ -118,8 +122,13 @@ void WirelessTimeline::mouseMoveEvent(QMouseEvent *event)
     if (event->buttons() == Qt::NoButton)
         return;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+    qreal offset = event->position().x() - last_x;
+    last_x = event->position().x();
+#else
     qreal offset = event->localPos().x() - last_x;
     last_x = event->localPos().x();
+#endif
 
     qreal shift = ((qreal) (end_tsf - start_tsf))/width() * offset;
     start_tsf -= shift;
@@ -135,7 +144,11 @@ void WirelessTimeline::mouseMoveEvent(QMouseEvent *event)
 
 void WirelessTimeline::mouseReleaseEvent(QMouseEvent *event)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
+    QPointF localPos = event->position();
+#else
     QPointF localPos = event->localPos();
+#endif
     qreal offset = localPos.x() - start_x;
 
     /* if this was a drag, ignore it */

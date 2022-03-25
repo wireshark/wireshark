@@ -145,7 +145,7 @@ int VoipCallsInfoModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
 
-    return callinfos_.size();
+    return static_cast<int>(callinfos_.size());
 }
 
 int VoipCallsInfoModel::columnCount(const QModelIndex &parent) const
@@ -185,7 +185,7 @@ bool VoipCallsInfoModel::timeOfDay() const
 void VoipCallsInfoModel::updateCalls(GQueue *callsinfos)
 {
     if (callsinfos) {
-        int calls = callinfos_.count();
+        qsizetype calls = callinfos_.count();
         int cnt = 0;
         GList *cur_call;
 

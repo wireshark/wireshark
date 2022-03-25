@@ -149,7 +149,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                             {
                                 QByteArray buf;
                                 buf.resize(IO_BUF_SIZE);
-                                while ((err = unzReadCurrentFile(uf, buf.data(), buf.size())) != UNZ_EOF)
+                                while ((err = unzReadCurrentFile(uf, buf.data(), static_cast<int>(buf.size()))) != UNZ_EOF)
                                     file.write(buf.constData(), err);
 
                                 file.close();
