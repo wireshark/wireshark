@@ -661,7 +661,23 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         vd_tree = proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_voice_data, NULL, "Voice Data");
         switch (packet_len) {
-        case 6: /*  48 bits EVS Primary SID 2.4 */
+        case 17: /* 136 EVS AMR-WB IO 6.6 */
+        case 23: /* 184 EVS AMR-WB IO 8.85 */
+        case 32: /* 256 EVS AMR-WB IO 12.65 */
+        case 36: /* 288 EVS AMR-WB IO 14.25 */
+        case 40: /* 320 EVS AMR-WB IO 15.85 */
+        case 46: /* 368 EVS AMR-WB IO 18.25 */
+        case 50: /* 400 EVS AMR-WB IO 19.85 */
+        case 58: /* 464 EVS AMR-WB IO 23.05 */
+        case 60: /* 480 EVS AMR-WB IO 23.85 */
+            /* A.2.1.2 Compact format for EVS AMR-WB IO mode (except SID)
+             * In the Compact format for EVS AMR-WB IO mode, except SID, the RTP payload consists of one 3-bit CMR field,
+             * one coded frame, and zero-padding bits if necessary.
+             */
+            /* CMR */
+            proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case 6: /* 48 EVS Primary SID 2.4 */
             /* 7.2	Bit allocation for SID frames in the DTX operation */
             /* CNG type flag 1 bit */
             proto_tree_add_bits_ret_val(vd_tree, hf_evs_sid_cng, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
@@ -686,38 +702,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_bits_item(vd_tree, hf_evs_core_sample_rate, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             }
             break;
-        case 17: /* 136 EVS AMR-WB IO */
-        case 23: /* 184 EVS AMR-WB IO */
-        case 32: /* 256 EVS AMR-WB IO */
-                 /* A.2.1.2 Compact format for EVS AMR-WB IO mode (except SID)
-                 * In the Compact format for EVS AMR-WB IO mode, except SID, the RTP payload consists of one 3-bit CMR field,
-                 * one coded frame, and zero-padding bits if necessary.
-                 */
-                 /* CMR */
-            proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
-            break;
-        case 33: /* 264 EVS Primary 13.2 */
-            /* 7.1.2 Bit allocation at 13.2 kbps
-             * The EVS codec encodes NB, WB and SWB content at 13.2 kbps with CELP core, HQ-MDCT core, or TCX core.
-             * For WB signals, the CELP core uses TBE or FD extension layer. For SWB signals, the CELP core uses TBE or FD extension layer,
-             * and the TCX core uses IGF extension layer
-             */
-            /* BW, CT, RF	5*/
-            proto_tree_add_bits_item(vd_tree, hf_evs_132_bwctrf_idx, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
-            break;
-        case 36: /* 288 EVS AMR-WB IO */
-        case 40: /* 320 EVS AMR-WB IO */
-        case 46: /* 368 EVS AMR-WB IO */
-        case 50: /* 400 EVS AMR-WB IO */
-        case 58: /* 464 EVS AMR-WB IO */
-                 /* A.2.1.2 Compact format for EVS AMR-WB IO mode (except SID)
-                 * In the Compact format for EVS AMR-WB IO mode, except SID, the RTP payload consists of one 3-bit CMR field,
-                 * one coded frame, and zero-padding bits if necessary.
-                 */
-                 /* CMR */
-            proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
-            break;
-        case 7:
+        case 7: /*  56 EVS Primary SID 2.8 */
             /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
             /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
                most significant bit (MSB) of the first byte of the payload. By definition, the first data bit d(0) of the EVS Primary 2.8
@@ -744,38 +729,17 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* BW 2 bits */
             proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             break;
+        case 33: /* 264 EVS Primary 13.2 */
+            /* 7.1.2 Bit allocation at 13.2 kbps
+             * The EVS codec encodes NB, WB and SWB content at 13.2 kbps with CELP core, HQ-MDCT core, or TCX core.
+             * For WB signals, the CELP core uses TBE or FD extension layer. For SWB signals, the CELP core uses TBE or FD extension layer,
+             * and the TCX core uses IGF extension layer
+             */
+            /* BW, CT, RF	5*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_132_bwctrf_idx, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+            break;
         case 41: /* 328 EVS Primary 16.4 */
             /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
-            /* BW 2 bits*/
-            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-            bit_offset+=2;
-            /* Reserved 1 bit */
-            proto_tree_add_bits_item(vd_tree, hf_evs_reserved_1bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-            break;
-        case 80: /* 640 EVS Primary 32 */
-            /* 7.1.4 Bit allocation at 32 kbps */
-            /* CELP/MDCT core flag	1 */
-            proto_tree_add_bits_ret_val(vd_tree, hf_evs_celp_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
-            bit_offset++;
-            /* In the case of MDCT-based core, the next bit decides whether HQ-MDCT core or TCX core is used */
-            if (value == 1) {
-                /* MDCT-based core*/
-                proto_tree_add_bits_ret_val(vd_tree, hf_evs_tcx_or_hq_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
-                bit_offset++;
-                if (value == 1) {
-                    /* TCX core */
-                    /* BW 2 bits */
-                    proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-                }
-            } else {
-                /* BW, CT, 4*/
-                proto_tree_add_bits_item(vd_tree, hf_evs_320_bwct_idx, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-            }
-            break;
-        case 120: /* 960 EVS Primary 48 */
-        case 240: /* 1920 EVS Primary 96 */
-        case 320: /* 2560 EVS Primary 128 */
-            /* 7.1.5 Bit allocation at 48, 64, 96 and 128 kbps */
             /* BW 2 bits*/
             proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset+=2;
@@ -799,6 +763,26 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_bits_ret_val(vd_tree, hf_evs_tcx_or_hq_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
             }
             break;
+        case 80: /* 640 EVS Primary 32 */
+            /* 7.1.4 Bit allocation at 32 kbps */
+            /* CELP/MDCT core flag	1 */
+            proto_tree_add_bits_ret_val(vd_tree, hf_evs_celp_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+            bit_offset++;
+            /* In the case of MDCT-based core, the next bit decides whether HQ-MDCT core or TCX core is used */
+            if (value == 1) {
+                /* MDCT-based core*/
+                proto_tree_add_bits_ret_val(vd_tree, hf_evs_tcx_or_hq_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+                bit_offset++;
+                if (value == 1) {
+                    /* TCX core */
+                    /* BW 2 bits */
+                    proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+                }
+            } else {
+                /* BW, CT, 4*/
+                proto_tree_add_bits_item(vd_tree, hf_evs_320_bwct_idx, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            }
+            break;
         case 160: /* 1280 EVS Primary 64 */
             /* 7.1.5 Bit allocation at 48, 64, 96 and 128 kbps */
             /* CELP/MDCT core flag	1 */
@@ -820,6 +804,16 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_bits_item(vd_tree, hf_evs_640_bwct_idx, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             }
             break;
+        case 120: /* 960 EVS Primary 48 */
+        case 240: /* 1920 EVS Primary 96 */
+        case 320: /* 2560 EVS Primary 128 */
+            /* 7.1.5 Bit allocation at 48, 64, 96 and 128 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            bit_offset+=2;
+            /* Reserved 1 bit */
+            proto_tree_add_bits_item(vd_tree, hf_evs_reserved_1bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            break;
         default:
             break;
         }
@@ -836,7 +830,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     h_bit = oct >> 7;
 
     if (h_bit == 1) {
-        /* `CMR */
+        /* CMR */
         dissect_evs_cmr(tvb, pinfo, evs_tree, offset, oct);
         offset++;
     }
@@ -1022,7 +1016,7 @@ proto_register_evs(void)
         NULL, HFILL }
     },
     { &hf_evs_tcx_or_hq_mdct_core,
-    { "TCX/HQ-MDCT core", "evs.celp_mdct_core",
+    { "TCX/HQ-MDCT core", "evs.tcx_hq_mdct_core",
         FT_UINT8, BASE_DEC, VALS(evs_tcx_or_hq_mdct_core_values), 0x0,
         NULL, HFILL }
     },
