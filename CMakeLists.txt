@@ -2359,7 +2359,7 @@ set (_protobuf_data_files)
 set (_protobuf_dep_files)
 foreach(_data_file ${_protobuf_src_files})
 	list(APPEND _protobuf_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _protobuf_data_files ${_protocol_data_dir}/${_data_file})
+	list(APPEND _protobuf_dep_files ${_protocol_data_dir}/${_data_file})
 endforeach()
 
 add_custom_command(
