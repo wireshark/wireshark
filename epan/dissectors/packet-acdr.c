@@ -942,10 +942,10 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         offset += HEADER_FIELD_SIG_SIZE_BYTE_COUNT;
     } else {
         const guint32 timestamp = tvb_get_ntohl(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO);
-        nstime_t time = {timestamp / 1000000, (timestamp % 1000000) * 1000};
+        nstime_t sig_time = {timestamp / 1000000, (timestamp % 1000000) * 1000};
         proto_tree_add_time_format_value(
                     tree, hf_acdr_signaling_timestamp, tvb, HEADER_FIELD_SIG_TIME_BYTE_NO,
-                    HEADER_FIELD_SIG_TIME_BYTE_COUNT, &time, "%f sec", timestamp / 1000000.0f);
+                    HEADER_FIELD_SIG_TIME_BYTE_COUNT, &sig_time, "%f sec", timestamp / 1000000.0f);
         offset += HEADER_FIELD_SIG_TIME_BYTE_COUNT;
     }
 
@@ -986,7 +986,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     guint8 media_type, extra_data;
     gboolean medium_mii = 0;
     gint64 timestamp;
-    nstime_t time = NSTIME_INIT_ZERO;
+    nstime_t acdr_time = NSTIME_INIT_ZERO;
     gint time_size = 0;
     int acdr_header_length;
     gboolean header_added;
@@ -1034,9 +1034,9 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
         timestamp = tvb_get_ntohl(tvb, offset);
         time_size = 4;
     }
-    time.secs = timestamp / 1000000;
-    time.nsecs = (timestamp % 1000000) * 1000;
-    proto_tree_add_time_format_value(acdr_tree, hf_acdr_timestamp, tvb, offset, time_size, &time,
+    acdr_time.secs = timestamp / 1000000;
+    acdr_time.nsecs = (timestamp % 1000000) * 1000;
+    proto_tree_add_time_format_value(acdr_tree, hf_acdr_timestamp, tvb, offset, time_size, &acdr_time,
                                      "%f sec", timestamp / 1000000.0f);
     offset += time_size;
 
