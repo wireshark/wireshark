@@ -297,11 +297,6 @@ frame_data_reset(frame_data *fdata)
     g_slist_free(fdata->pfd);
     fdata->pfd = NULL;
   }
-
-  if (fdata->dependent_frames) {
-    g_slist_free(fdata->dependent_frames);
-    fdata->dependent_frames = NULL;
-  }
 }
 
 void
