@@ -2859,7 +2859,7 @@ void QCPDataContainer<DataType>::add(const QVector<DataType> &data, bool already
     return;
   }
 
-  const int n = data.size();
+  const int n = static_cast<int>(data.size());
   const int oldSize = size();
 
   if (alreadySorted && oldSize > 0 && !qcpLessThanSortKey<DataType>(*constBegin(), *(data.constEnd()-1))) // prepend if new data is sorted and keys are all smaller than or equal to existing ones
@@ -4654,7 +4654,7 @@ void QCPAbstractPlottable1D<DataType>::drawPolyline(QCPPainter *painter, const Q
   {
     int i = 0;
     bool lastIsNan = false;
-    const int lineDataSize = lineData.size();
+    const int lineDataSize = static_cast<int>(lineData.size());
     while (i < lineDataSize && (qIsNaN(lineData.at(i).y()) || qIsNaN(lineData.at(i).x()))) // make sure first point is not NaN
       ++i;
     ++i; // because drawing works in 1 point retrospect
@@ -4674,7 +4674,7 @@ void QCPAbstractPlottable1D<DataType>::drawPolyline(QCPPainter *painter, const Q
   {
     int segmentStart = 0;
     int i = 0;
-    const int lineDataSize = lineData.size();
+    const int lineDataSize = static_cast<int>(lineData.size());
     while (i < lineDataSize)
     {
       if (qIsNaN(lineData.at(i).y()) || qIsNaN(lineData.at(i).x()) || qIsInf(lineData.at(i).y())) // NaNs create a gap in the line. Also filter Infs which make drawPolyline block
