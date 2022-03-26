@@ -8023,7 +8023,7 @@ static gint ett_zbee_zcl_msg = -1;
 static gint ett_zbee_zcl_msg_message_control = -1;
 static gint ett_zbee_zcl_msg_ext_message_control = -1;
 
-static expert_field ei_zbee_zcl_msg_msg_ctrl_depreciated = EI_INIT;
+static expert_field ei_zbee_zcl_msg_msg_ctrl_deprecated = EI_INIT;
 
 /* Message Control Transmission */
 static const value_string zbee_zcl_msg_ctrl_tx_names[] = {
@@ -8221,7 +8221,7 @@ dissect_zcl_msg_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     *offset += 1;
 
     if (msg_ctrl != 0x00) {
-       expert_add_info(pinfo, tree, &ei_zbee_zcl_msg_msg_ctrl_depreciated);
+       expert_add_info(pinfo, tree, &ei_zbee_zcl_msg_msg_ctrl_deprecated);
     }
 
 } /* dissect_zcl_msg_cancel */
@@ -8436,7 +8436,7 @@ proto_register_zbee_zcl_msg(void)
     /* Expert Info */
     expert_module_t* expert_zbee_zcl_msg;
     static ei_register_info ei[] = {
-        { &ei_zbee_zcl_msg_msg_ctrl_depreciated, { "zbee_zcl_se.msg.msg_ctrl.depreciated", PI_PROTOCOL, PI_WARN, "Message Control depreciated in this message, should be 0x00", EXPFILL }},
+        { &ei_zbee_zcl_msg_msg_ctrl_deprecated, { "zbee_zcl_se.msg.msg_ctrl.deprecated", PI_PROTOCOL, PI_WARN, "Message Control deprecated in this message, should be 0x00", EXPFILL }},
     };
 
     /* Register the ZigBee ZCL Messaging cluster protocol name and description */

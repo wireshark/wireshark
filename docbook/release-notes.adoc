@@ -102,6 +102,8 @@ They previously shipped with Npcap 1.55.
 
 * macOS debugging symbols are now shipped in separate packages.
 
+* ZigBee ZCL Messaging: rename zbee_zcl_se.msg.msg_ctrl.depreciated to zbee_zcl_se.msg.msg_ctrl.deprecated
+
 === Removed Features and Support
 
 * CMake: The options starting with DISABLE_something were renamed ENABLE_something for consistency.

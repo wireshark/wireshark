@@ -42,7 +42,7 @@ https://www.itu.int/en/ITU-T/asn1/Pages/asn1_project.aspx[the ASN.1 Consortium's
 
 The compiler needs 4 input files: an ASN.1 description of a protocol, a .cnf file, and two template files.
 The ASN.1 specification may have to be edited to work, however work is in progress to at least read all ASN1 specifications.
-Changing the ASN1 file is being depreciated as this creates problems when updating protocols.
+Changing the ASN1 file is being deprecated as this creates problems when updating protocols.
 The H.248 Binary encoding dissector is a good example of a dissector with relatively small changes.
 
 A complete <<SimpleASN1BasedDissector,simple ASN1 UDP-based dissector>> is also available.

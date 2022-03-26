@@ -46,7 +46,7 @@
 #define ISIS_CLV_EXT_IP_REACH        130 /* rfc1195, rfc2966 */
 #define ISIS_CLV_IDRP_INFO           131 /* rfc1195 */
 #define ISIS_CLV_IP_ADDR             132 /* rfc1195 */
-#define ISIS_CLV_IP_AUTHENTICATION   133 /* rfc1195, depreciated */
+#define ISIS_CLV_IP_AUTHENTICATION   133 /* rfc1195, deprecated in rfc3787 */
 #define ISIS_CLV_TE_ROUTER_ID        134 /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_EXTD_IP_REACH       135 /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_HOSTNAME            137 /* rfc2763 */
