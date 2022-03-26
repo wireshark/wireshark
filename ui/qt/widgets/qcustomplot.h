@@ -1001,7 +1001,7 @@ public:
   friend inline const QCPDataSelection operator-(const QCPDataRange& a, const QCPDataRange& b);
 
   // getters:
-  int dataRangeCount() const { return mDataRanges.size(); }
+  int dataRangeCount() const { return static_cast<int>(mDataRanges.size()); }
   int dataPointCount() const;
   QCPDataRange dataRange(int index=0) const;
   QList<QCPDataRange> dataRanges() const { return mDataRanges; }
@@ -1405,8 +1405,8 @@ public:
   virtual ~QCPLayoutGrid() Q_DECL_OVERRIDE;
 
   // getters:
-  int rowCount() const { return mElements.size(); }
-  int columnCount() const { return mElements.size() > 0 ? mElements.first().size() : 0; }
+  int rowCount() const { return static_cast<int>(mElements.size()); }
+  int columnCount() const { return mElements.size() > 0 ? static_cast<int>(mElements.first().size()) : 0; }
   QList<double> columnStretchFactors() const { return mColumnStretchFactors; }
   QList<double> rowStretchFactors() const { return mRowStretchFactors; }
   int columnSpacing() const { return mColumnSpacing; }
@@ -2615,7 +2615,7 @@ public:
   QCPDataContainer();
 
   // getters:
-  int size() const { return mData.size()-mPreallocSize; }
+  int size() const { return static_cast<int>(mData.size()-mPreallocSize); }
   bool isEmpty() const { return size() == 0; }
   bool autoSqueeze() const { return mAutoSqueeze; }
 
@@ -2906,7 +2906,7 @@ void QCPDataContainer<DataType>::add(const QVector<DataType> &data, bool already
     return;
   }
 
-  const int n = data.size();
+  const int n = static_cast<int>(data.size());
   const int oldSize = size();
 
   if (alreadySorted && oldSize > 0 && !qcpLessThanSortKey<DataType>(*constBegin(), *(data.constEnd()-1))) // prepend if new data is sorted and keys are all smaller than or equal to existing ones
@@ -4703,7 +4703,7 @@ void QCPAbstractPlottable1D<DataType>::drawPolyline(QCPPainter *painter, const Q
   {
     int i = 0;
     bool lastIsNan = false;
-    const int lineDataSize = lineData.size();
+    const int lineDataSize = static_cast<int>(lineData.size());
     while (i < lineDataSize && (qIsNaN(lineData.at(i).y()) || qIsNaN(lineData.at(i).x()))) // make sure first point is not NaN
       ++i;
     ++i; // because drawing works in 1 point retrospect
@@ -4723,7 +4723,7 @@ void QCPAbstractPlottable1D<DataType>::drawPolyline(QCPPainter *painter, const Q
   {
     int segmentStart = 0;
     int i = 0;
-    const int lineDataSize = lineData.size();
+    const int lineDataSize = static_cast<int>(lineData.size());
     while (i < lineDataSize)
     {
       if (qIsNaN(lineData.at(i).y()) || qIsNaN(lineData.at(i).x()) || qIsInf(lineData.at(i).y())) // NaNs create a gap in the line. Also filter Infs which make drawPolyline block
@@ -5744,7 +5744,7 @@ public:
   // non-virtual methods:
   QList<QCPBars*> bars() const { return mBars; }
   QCPBars* bars(int index) const;
-  int size() const { return mBars.size(); }
+  int size() const { return static_cast<int>(mBars.size()); }
   bool isEmpty() const { return mBars.isEmpty(); }
   void clear();
   bool contains(QCPBars *bars) const { return mBars.contains(bars); }
