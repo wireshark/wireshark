@@ -79,6 +79,7 @@ static gint hf_ber_id_uni_tag_ext = -1;
 static gint hf_ber_id_tag = -1;
 static gint hf_ber_id_tag_ext = -1;
 static gint hf_ber_length = -1;
+static gint hf_ber_length_octets = -1;
 static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_bitstring_empty = -1;
 static gint hf_ber_unknown_OID = -1;
@@ -1385,7 +1386,12 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
         if (tmp_ind) {
             proto_tree_add_uint_format_value(tree, hf_ber_length, tvb, old_offset, 1, tmp_length, "Indefinite length %d", tmp_length);
         } else {
-            proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset, offset - old_offset, tmp_length);
+            if ((offset - old_offset) > 1) {
+                proto_tree_add_uint(tree, hf_ber_length_octets, tvb, old_offset, 1, (tvb_get_guint8(tvb, old_offset) & 0x7f));
+                proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset+1, offset - (old_offset+1), tmp_length);
+            } else {
+                proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset, offset - old_offset, tmp_length);
+            }
         }
     }
     if (length)
@@ -4275,6 +4281,9 @@ proto_register_ber(void)
         { &hf_ber_id_tag_ext, {
                 "Tag", "ber.id.tag", FT_UINT32, BASE_DEC,
                 NULL, 0, "Tag value for non-Universal classes", HFILL }},
+        { &hf_ber_length_octets, {
+                "Length Octets", "ber.length_octets", FT_UINT8, BASE_DEC,
+                NULL, 0, "Number of length octets", HFILL }},
         { &hf_ber_length, {
                 "Length", "ber.length", FT_UINT32, BASE_DEC,
                 NULL, 0, "Length of contents", HFILL }},
