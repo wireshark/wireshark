@@ -195,7 +195,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_GOOGLE_CONNECTION_OPTIONS           0x3128
 /* https://github.com/facebookincubator/mvfst/blob/master/quic/QuicConstants.h */
 #define SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY        0xFF00
-#define SSL_HND_QUIC_TP_VERSION_NEGOTIATION                 0xFF73DB /* https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-05 */
+#define SSL_HND_QUIC_TP_VERSION_INFORMATION                 0xFF73DB /* https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-06 */
 /*
  * Lookup tables
  */

@@ -15,7 +15,7 @@
  * RFC9000 QUIC: A UDP-Based Multiplexed and Secure Transport
  * RFC9001 Using TLS to Secure QUIC
  * RFC8889 Version-Independent Properties of QUIC
- * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-05
+ * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-06
  * https://datatracker.ietf.org/doc/html/draft-ietf-quic-v2-01
  *
  * Extension:

@@ -2160,7 +2160,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_GREASE_QUIC_BIT, "grease_quic_bit" },
     { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP, "enable_time_stamp" },
     { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP_V2, "enable_time_stamp_v2" },
-    { SSL_HND_QUIC_TP_VERSION_NEGOTIATION, "version_negotiation" },
+    { SSL_HND_QUIC_TP_VERSION_INFORMATION, "version_information" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
     { SSL_HND_QUIC_TP_GOOGLE_USER_AGENT, "google_user_agent" },
     { SSL_HND_QUIC_TP_GOOGLE_KEY_UPDATE_NOT_YET_SUPPORTED, "google_key_update_not_yet_supported" },
@@ -8005,7 +8005,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 offset += parameter_length;
             break;
-            case SSL_HND_QUIC_TP_VERSION_NEGOTIATION:
+            case SSL_HND_QUIC_TP_VERSION_INFORMATION:
                 quic_proto_tree_add_version(tvb, parameter_tree,
                                             hf->hf.hs_ext_quictp_parameter_chosen_version, offset);
                 offset += 4;
