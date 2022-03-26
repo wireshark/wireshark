@@ -10793,6 +10793,11 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
                             val_to_str(subtype >> 8, dpp_subtype_vals,
                                        "Unknown (%u)"));
             dissect_wifi_dpp_config_proto(pinfo, query, new_tvb, 0);
+          } else {
+            proto_tree_add_item(query, hf_ieee80211_ff_query_response,
+                                new_tvb, 0,
+                                tvb_reported_length_remaining(new_tvb, 0),
+                                ENC_NA);
           }
           break;
         default:
