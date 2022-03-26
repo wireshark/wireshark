@@ -10782,13 +10782,25 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
                                          frag_msg, &gas_resp_frag_items,
                                          NULL, tree);
       if (new_tvb) {
-        if (type == ADV_PROTO_ID_ANQP)
+        switch (type) {
+        case ADV_PROTO_ID_ANQP:
           dissect_anqp(query, new_tvb, pinfo, 0, FALSE);
-        else
+          break;
+        case ADV_PROTO_ID_VS:
+          if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) |
+                           WFA_SUBTYPE_DPP)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
+                            val_to_str(subtype >> 8, dpp_subtype_vals,
+                                       "Unknown (%u)"));
+            dissect_wifi_dpp_config_proto(pinfo, query, new_tvb, 0);
+          }
+          break;
+        default:
           proto_tree_add_item(query, hf_ieee80211_ff_query_response,
                               new_tvb, 0,
                               tvb_reported_length_remaining(new_tvb, 0),
                               ENC_NA);
+        }
       }
 
       /* The old tvb cannot be used anymore */
