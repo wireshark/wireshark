@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 3.6.3 (v3.6.3rc0-2-g7834d7e6816e)
+Dumpcap (Wireshark) 3.6.4 (v3.6.4rc0-1-g0ef4884c4fb2)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
