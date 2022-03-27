@@ -92,5 +92,5 @@ void SupportedProtocolsDialog::on_searchLineEdit_textChanged(const QString &sear
      * the countdown.
      */
     searchLineEditText = search_re;
-    searchLineEditTimer->start(200);
+    searchLineEditTimer->start(1000);
 }
