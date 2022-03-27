@@ -1187,7 +1187,7 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 static void
 check_test(dfwork_t *dfw, stnode_t *st_node)
 {
-	test_op_t		st_op, st_arg_op;
+	test_op_t		st_op;
 	stnode_t		*st_arg1, *st_arg2;
 
 	LOG_NODE(st_node);
@@ -1214,22 +1214,6 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 
 		case TEST_OP_AND:
 		case TEST_OP_OR:
-			if (stnode_type_id(st_arg1) == STTYPE_TEST) {
-				sttype_test_get(st_arg1, &st_arg_op, NULL, NULL);
-				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
-					if (st_op != st_arg_op && !stnode_inside_parens(st_arg1))
-						add_deprecated_token(dfw, "suggest parentheses around '&&' within '||'");
-				}
-			}
-
-			if (stnode_type_id(st_arg2) == STTYPE_TEST) {
-				sttype_test_get(st_arg2, &st_arg_op, NULL, NULL);
-				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
-					if (st_op != st_arg_op && !stnode_inside_parens(st_arg2))
-						add_deprecated_token(dfw, "suggest parentheses around '&&' within '||'");
-				}
-			}
-
 			semcheck(dfw, st_arg1);
 			semcheck(dfw, st_arg2);
 			break;

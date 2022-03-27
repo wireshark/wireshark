@@ -81,10 +81,6 @@ class case_syntax(unittest.TestCase):
         checkDFilterCount(dfilter, 0)
 
     def test_deprecated_1(self, checkDFilterSucceed):
-        dfilter = "http && udp || tcp"
-        checkDFilterSucceed(dfilter, "suggest parentheses around")
-
-    def test_deprecated_2(self, checkDFilterSucceed):
         dfilter = "bootp"
         checkDFilterSucceed(dfilter, "Deprecated tokens: \"bootp\"")
 

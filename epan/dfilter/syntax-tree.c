@@ -88,7 +88,6 @@ stnode_clear(stnode_t *node)
 	}
 
 	node->type = NULL;
-	node->flags = 0;
 	node->data = NULL;
 	g_free(node->repr_display);
 	node->repr_display = NULL;
@@ -106,7 +105,6 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token)
 	ws_assert_magic(node, STNODE_MAGIC);
 	ws_assert(!node->type);
 	ws_assert(!node->data);
-	node->flags = 0;
 	node->repr_display = NULL;
 	node->repr_debug = NULL;
 	node->repr_token = token;
@@ -133,11 +131,9 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token)
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 {
-	uint16_t flags = node->flags; /* Save flags. */
 	char *repr_token = g_strdup(node->repr_token);
 	stnode_clear(node);
 	stnode_init(node, type_id, data, NULL);
-	node->flags = flags;
 	node->repr_token = repr_token;
 }
 
@@ -197,7 +193,6 @@ stnode_dup(const stnode_t *node)
 	ws_assert_magic(node, STNODE_MAGIC);
 	new = g_new(stnode_t, 1);
 	new->magic = STNODE_MAGIC;
-	new->flags = node->flags;
 	new->repr_display = NULL;
 	new->repr_debug = NULL;
 	new->repr_token = g_strdup(node->repr_token);
@@ -256,23 +251,6 @@ stnode_steal_data(stnode_t *node)
 	ws_assert(data);
 	node->data = NULL;
 	return data;
-}
-
-gboolean
-stnode_inside_parens(stnode_t *node)
-{
-	return node->flags & STNODE_F_INSIDE_PARENS;
-}
-
-void
-stnode_set_inside_parens(stnode_t *node, gboolean inside)
-{
-	if (inside) {
-		node->flags |= STNODE_F_INSIDE_PARENS;
-	}
-	else {
-		node->flags &= ~STNODE_F_INSIDE_PARENS;
-	}
 }
 
 static char *
@@ -338,7 +316,6 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf, "magic=0x%"PRIx32", ", node->magic);
 	wmem_strbuf_append_printf(buf, "type=%s, ", stnode_type_name(node));
 	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todebug(node));
-	wmem_strbuf_append_printf(buf, "flags=0x%04"PRIx16" }", node->flags);
 	return wmem_strbuf_finalize(buf);
 }
 

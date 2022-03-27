@@ -75,13 +75,10 @@ typedef struct {
 	STTypeToStrFunc		func_tostr;
 } sttype_t;
 
-#define STNODE_F_INSIDE_PARENS (1 << 0)
-
 /** Node (type instance) information */
 typedef struct {
 	uint32_t	magic;
 	sttype_t	*type;
-	uint16_t	flags;
 	gpointer	data;
 	char 		*repr_token;
 	char 		*repr_display;
@@ -157,12 +154,6 @@ stnode_tostr(stnode_t *node, gboolean pretty);
 #define stnode_todisplay(node) stnode_tostr(node, TRUE)
 
 #define stnode_todebug(node) stnode_tostr(node, FALSE)
-
-gboolean
-stnode_inside_parens(stnode_t *node);
-
-void
-stnode_set_inside_parens(stnode_t *node, gboolean inside);
 
 void
 log_node_full(enum ws_log_level level,

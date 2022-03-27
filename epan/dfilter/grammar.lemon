@@ -378,6 +378,5 @@ function_params(P) ::= function_params(L) COMMA entity(E).
 expr(X) ::= LPAREN expr(Y) RPAREN.
 {
     X = Y;
-    stnode_set_inside_parens(X, TRUE);
 }
 
