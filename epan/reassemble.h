@@ -213,6 +213,27 @@ fragment_add_multiple_ok(reassembly_table *table, tvbuff_t *tvb,
 			 const gboolean more_frags);
 
 /*
+ * Like fragment_add, except that the fragment may originate from a frame
+ * other than pinfo->num. For use when you are adding an out of order segment
+ * that arrived in an earlier frame, so that show_fragment_tree will display
+ * the correct fragment numbers.
+ *
+ * This is for protocols like TCP, where the correct reassembly to add a
+ * segment to cannot be determined without processing previous segments
+ * in sequence order, including handing them to subdissectors.
+ *
+ * Note that pinfo is still used to set reassembled_in if we have all the
+ * fragments, so that results on subsequent passes can be the same as the
+ * first pass.
+ */
+WS_DLL_PUBLIC fragment_head *
+fragment_add_out_of_order(reassembly_table *table, tvbuff_t *tvb,
+                          const int offset, const packet_info *pinfo,
+                          const guint32 id, const void *data,
+                          const guint32 frag_offset,
+                          const guint32 frag_data_len,
+                          const gboolean more_frags, const guint32 frag_frame);
+/*
  * Like fragment_add, but maintains a table for completed reassemblies.
  *
  * If the packet was seen before, return the head of the fully reassembled

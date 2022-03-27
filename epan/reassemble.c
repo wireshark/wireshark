@@ -993,7 +993,8 @@ MERGE_FRAG(fragment_head *fd_head, fragment_item *fd)
 static gboolean
 fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 		 const packet_info *pinfo, const guint32 frag_offset,
-		 const guint32 frag_data_len, const gboolean more_frags)
+		 const guint32 frag_data_len, const gboolean more_frags,
+		 const guint32 frag_frame)
 {
 	fragment_item *fd;
 	fragment_item *fd_i;
@@ -1005,7 +1006,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	fd = g_slice_new(fragment_item);
 	fd->next = NULL;
 	fd->flags = 0;
-	fd->frame = pinfo->num;
+	fd->frame = frag_frame;
 	fd->offset = frag_offset;
 	fd->fragment_nr_offset = 0; /* will only be used with sequence */
 	fd->len  = frag_data_len;
@@ -1338,7 +1339,8 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		    const packet_info *pinfo, const guint32 id,
 		    const void *data, const guint32 frag_offset,
 		    const guint32 frag_data_len, const gboolean more_frags,
-		    const gboolean check_already_added)
+		    const gboolean check_already_added,
+		    const guint32 frag_frame)
 {
 	fragment_head *fd_head;
 	fragment_item *fd_item;
@@ -1396,7 +1398,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 			 * reassembly; if this frame is later than that
 			 * frame, we know it hasn't been added yet.
 			 */
-			if (pinfo->num <= fd_head->frame) {
+			if (frag_frame <= fd_head->frame) {
 				already_added = FALSE;
 				/*
 				 * The first item in the reassembly list
@@ -1406,7 +1408,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 				 */
 				for (fd_item = fd_head->next; fd_item;
 				    fd_item = fd_item->next) {
-					if (pinfo->num == fd_item->frame &&
+					if (frag_frame == fd_item->frame &&
 					    frag_offset == fd_item->offset) {
 						already_added = TRUE;
 						break;
@@ -1455,7 +1457,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 			 * Is it later in the capture than all of the
 			 * fragments in the reassembly?
 			 */
-			if (pinfo->num > fd_head->frame) {
+			if (frag_frame > fd_head->frame) {
 				/*
 				 * Yes, so report this as a problem,
 				 * possibly a retransmission.
@@ -1510,7 +1512,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	}
 
 	if (fragment_add_work(fd_head, tvb, offset, pinfo, frag_offset,
-		frag_data_len, more_frags)) {
+		frag_data_len, more_frags, frag_frame)) {
 		/*
 		 * Reassembly is complete.
 		 */
@@ -1530,7 +1532,7 @@ fragment_add(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	     const gboolean more_frags)
 {
 	return fragment_add_common(table, tvb, offset, pinfo, id, data,
-		frag_offset, frag_data_len, more_frags, TRUE);
+		frag_offset, frag_data_len, more_frags, TRUE, pinfo->num);
 }
 
 /*
@@ -1545,7 +1547,29 @@ fragment_add_multiple_ok(reassembly_table *table, tvbuff_t *tvb,
 			 const guint32 frag_data_len, const gboolean more_frags)
 {
 	return fragment_add_common(table, tvb, offset, pinfo, id, data,
-		frag_offset, frag_data_len, more_frags, FALSE);
+		frag_offset, frag_data_len, more_frags, FALSE, pinfo->num);
+}
+
+/*
+ * For use in protocols like TCP when you are adding an out of order segment
+ * that arrived in an earlier frame because the correct fragment id could not
+ * be determined until later. By allowing fd->frame to be different than
+ * pinfo->num, show_fragment_tree will display the correct fragment numbers.
+ *
+ * Note that pinfo is still used to set reassembled_in if we have all the
+ * fragments, so that results on subsequent passes can be the same as the
+ * first pass.
+ */
+fragment_head *
+fragment_add_out_of_order(reassembly_table *table, tvbuff_t *tvb,
+			  const int offset, const packet_info *pinfo,
+			  const guint32 id, const void *data,
+			  const guint32 frag_offset,
+			  const guint32 frag_data_len,
+			  const gboolean more_frags, const guint32 frag_frame)
+{
+	return fragment_add_common(table, tvb, offset, pinfo, id, data,
+		frag_offset, frag_data_len, more_frags, TRUE, frag_frame);
 }
 
 fragment_head *
@@ -1594,7 +1618,7 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	}
 
 	if (fragment_add_work(fd_head, tvb, offset, pinfo, frag_offset,
-		frag_data_len, more_frags)) {
+		frag_data_len, more_frags, pinfo->num)) {
 		/*
 		 * Reassembly is complete.
 		 * Remove this from the table of in-progress
