@@ -181,13 +181,16 @@ dfvm_value_tostr(dfvm_value_t *v)
 }
 
 char *
-dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df)
+dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 {
 	int		id, length;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*arg1, *arg2, *arg3, *arg4;
 	char 		*arg1_str, *arg2_str, *arg3_str, *arg4_str;
 	wmem_strbuf_t	*buf;
+	GHashTableIter	ref_iter;
+	gpointer	key, value;
+	char		*str;
 
 	buf = wmem_strbuf_new(alloc, NULL);
 
@@ -216,6 +219,11 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df)
 
 			case READ_TREE:
 				wmem_strbuf_append_printf(buf, "%05d READ_TREE\t\t%s -> %s\n",
+					id, arg1_str, arg2_str);
+				break;
+
+			case READ_REFERENCE:
+				wmem_strbuf_append_printf(buf, "%05d READ_REFERENCE\t${%s} -> %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
@@ -337,13 +345,37 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df)
 		g_free(arg4_str);
 	}
 
+	if (print_references && g_hash_table_size(df->references) > 0) {
+		wmem_strbuf_append(buf, "\nReferences:\n");
+		g_hash_table_iter_init(&ref_iter, df->references);
+		while (g_hash_table_iter_next(&ref_iter, &key, &value)) {
+			const char *abbrev = ((header_field_info *)key)->abbrev;
+			GSList *fvalues = *(GSList **)value;
+
+			wmem_strbuf_append_printf(buf, "${%s} = {", abbrev);
+
+			if (fvalues != NULL) {
+				str = fvalue_to_debug_repr(NULL, fvalues->data);
+				wmem_strbuf_append_printf(buf, "%s <%s>", str, fvalue_type_name(fvalues->data));
+				g_free(str);
+
+				for (fvalues = fvalues->next; fvalues != NULL; fvalues = fvalues->next) {
+					str = fvalue_to_debug_repr(NULL, fvalues->data);
+					wmem_strbuf_append_printf(buf, ", %s <%s>", str, fvalue_type_name(fvalues->data));
+					g_free(str);
+				}
+			}
+			wmem_strbuf_append(buf, "}\n");
+		}
+	}
+
 	return wmem_strbuf_finalize(buf);
 }
 
 void
 dfvm_dump(FILE *f, dfilter_t *df)
 {
-	char *str = dfvm_dump_str(NULL, df);
+	char *str = dfvm_dump_str(NULL, df, FALSE);
 	fputs(str, f);
 	wmem_free(NULL, str);
 }
@@ -400,6 +432,39 @@ read_tree(dfilter_t *df, proto_tree *tree,
 
 	df->registers[reg] = fvalues;
 	// These values are referenced only, do not try to free it later.
+	df->free_registers[reg] = NULL;
+	return TRUE;
+}
+
+static gboolean
+read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
+{
+	GSList		**fvalues_ptr;
+
+	header_field_info *hfinfo = arg1->value.hfinfo;
+	int reg = arg2->value.numeric;
+
+	/* Already loaded in this run of the dfilter? */
+	if (df->attempted_load[reg]) {
+		if (df->registers[reg]) {
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
+	}
+
+	df->attempted_load[reg] = TRUE;
+
+	fvalues_ptr = g_hash_table_lookup(df->references, hfinfo);
+	if (*fvalues_ptr == NULL) {
+		df->registers[reg] = NULL;
+		return FALSE;
+	}
+
+	/* Shallow copy */
+	df->registers[reg] = g_slist_copy(*fvalues_ptr);
+	/* These values are referenced only, do not try to free it later. */
 	df->free_registers[reg] = NULL;
 	return TRUE;
 }
@@ -785,6 +850,10 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case READ_TREE:
 				accum = read_tree(df, tree, arg1, arg2);
+				break;
+
+			case READ_REFERENCE:
+				accum = read_reference(df, arg1, arg2);
 				break;
 
 			case CALL_FUNCTION:

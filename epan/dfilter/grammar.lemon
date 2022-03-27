@@ -166,6 +166,16 @@ atom(E) ::= IDENTIFIER(F).
     df_lval_free(F, FALSE);
 }
 entity(E) ::= atom(A).          { E = A; }
+entity(E) ::= REF_OPEN REFERENCE(F) REF_CLOSE.
+{
+    char *name = df_lval_value(F);
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, name);
+    if (hfinfo == NULL) {
+        dfilter_fail(dfw, "\"%s\" is not a valid protocol or protocol field.", name);
+    }
+    E = stnode_new(STTYPE_REFERENCE, hfinfo, df_lval_value(F));
+    df_lval_free(F, FALSE);
+}
 entity(E) ::= range(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
 

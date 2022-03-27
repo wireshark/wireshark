@@ -73,6 +73,11 @@ dfilter_apply(dfilter_t *df, proto_tree *tree);
 void
 dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree);
 
+/* Refresh references in a compiled display filter. */
+WS_DLL_PUBLIC
+void
+dfilter_load_field_references(const dfilter_t *df, proto_tree *tree);
+
 /* Check if dfilter has interesting fields */
 gboolean
 dfilter_has_interesting_fields(const dfilter_t *df);

@@ -39,7 +39,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
-#include <epan/dfilter/dfilter-macro.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/color_filters.h>
@@ -1678,6 +1677,11 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
      */
     compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
     ws_assert(!cf->dfilter || (compiled && dfcode));
+
+    /* Update references in display filter (if any) for the protocol
+     * tree corresponding to the current frame. */
+    if (dfcode && cf->edt != NULL && cf->edt->tree != NULL)
+        dfilter_load_field_references(dfcode, cf->edt->tree);
 
     if (dfcode != NULL) {
         dfilter_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_DEBUG, NULL, -1, NULL,
@@ -4154,8 +4158,6 @@ cf_select_packet(capture_file *cf, int row)
     epan_dissect_run(cf->edt, cf->cd_t, &cf->rec,
             frame_tvbuff_new_buffer(&cf->provider, cf->current_frame, &cf->buf),
             cf->current_frame, NULL);
-
-    dfilter_macro_build_ftv_cache(cf->edt->tree);
 
     if (old_edt != NULL)
         epan_dissect_free(old_edt);

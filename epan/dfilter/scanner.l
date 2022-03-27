@@ -103,6 +103,7 @@ WORD_CHAR			[[:alnum:]_:/+-]
 %x RANGE
 %x DQUOTE
 %x SQUOTE
+%x REFERENCE
 
 %%
 
@@ -152,6 +153,25 @@ WORD_CHAR			[[:alnum:]_:/+-]
 
 "&"		return simple(TOKEN_BITWISE_AND);
 "bitwise_and"	return simple(TOKEN_BITWISE_AND);
+
+"${"					{
+	BEGIN(REFERENCE);
+	return simple(TOKEN_REF_OPEN);
+}
+
+<REFERENCE>[^}]+		{
+	return set_lval_str(TOKEN_REFERENCE, yytext);
+}
+
+<REFERENCE>"}"				{
+	BEGIN(INITIAL);
+	return simple(TOKEN_REF_CLOSE);
+}
+
+<REFERENCE><<EOF>>				{
+	dfilter_fail(yyextra->dfw, "Right brace missing from field reference.");
+	return SCAN_FAILED;
+}
 
 "["				{
 	BEGIN(RANGE);

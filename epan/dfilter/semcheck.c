@@ -464,6 +464,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_FIELD:
 			/* This is OK */
 			break;
+		case STTYPE_REFERENCE:
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
 		case STTYPE_LITERAL:
@@ -623,7 +624,7 @@ again:
 				stnode_todisplay(st_node));
 	}
 
-	if (type2 == STTYPE_FIELD) {
+	if (type2 == STTYPE_FIELD || type2 == STTYPE_REFERENCE) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
@@ -747,7 +748,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 again:
 	type2 = stnode_type_id(st_arg2);
 
-	if (type2 == STTYPE_FIELD) {
+	if (type2 == STTYPE_FIELD || type2 == STTYPE_REFERENCE) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
@@ -865,7 +866,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 again:
 	type2 = stnode_type_id(st_arg2);
 
-	if (type2 == STTYPE_FIELD) {
+	if (type2 == STTYPE_FIELD || type2 == STTYPE_REFERENCE) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
@@ -980,7 +981,8 @@ check_relation_LHS_BITWISE(dfwork_t *dfw, test_op_t st_op _U_,
 	sttype_test_get(st_arg1, NULL, &bitwise_entity, NULL);
 	bitwise_entity_type = stnode_type_id(bitwise_entity);
 
-	if (bitwise_entity_type == STTYPE_FIELD) {
+	if (bitwise_entity_type == STTYPE_FIELD ||
+				bitwise_entity_type == STTYPE_REFERENCE) {
 		check_relation_LHS_FIELD(dfw, st_op, can_func, allow_partial_value, st_node, bitwise_entity, st_arg2);
 	}
 	else if (bitwise_entity_type == STTYPE_RANGE) {
@@ -1008,7 +1010,7 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, test_op_t st_op _U_,
 	sttype_test_get(st_arg1, NULL, &entity, NULL);
 	entity_type = stnode_type_id(entity);
 
-	if (entity_type == STTYPE_FIELD) {
+	if (entity_type == STTYPE_FIELD || entity_type == STTYPE_REFERENCE) {
 		check_arithmetic_operation(dfw, st_arg1, FT_NONE);
 
 		check_relation_LHS_FIELD(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
@@ -1036,6 +1038,7 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
+		case STTYPE_REFERENCE:
 			check_relation_LHS_FIELD(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
@@ -1071,6 +1074,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
+		case STTYPE_REFERENCE:
 			check_relation_LHS_FIELD(dfw, TEST_OP_CONTAINS, ftype_can_contains,
 							TRUE, st_node, st_arg1, st_arg2);
 			break;
@@ -1119,6 +1123,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
+		case STTYPE_REFERENCE:
 			check_relation_LHS_FIELD(dfw, TEST_OP_MATCHES, ftype_can_matches,
 							TRUE, st_node, st_arg1, st_arg2);
 			break;
@@ -1259,7 +1264,7 @@ check_bitwise_entity(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg, ftenum_
 	resolve_unparsed(dfw, st_arg);
 	type = stnode_type_id(st_arg);
 
-	if (type == STTYPE_FIELD) {
+	if (type == STTYPE_FIELD || type == STTYPE_REFERENCE) {
 		hfinfo = stnode_data(st_arg);
 		ftype = hfinfo->type;
 
@@ -1381,7 +1386,7 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 			stnode_replace(st_node, STTYPE_FVALUE, new_fv);
 		}
 	}
-	else if (type == STTYPE_FIELD) {
+	else if (type == STTYPE_FIELD || type == STTYPE_REFERENCE) {
 		header_field_info *hfinfo = stnode_data(st_arg);
 		ftype = hfinfo->type;
 

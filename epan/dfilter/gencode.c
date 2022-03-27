@@ -92,6 +92,53 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 
 /* returns register number */
 static dfvm_value_t *
+dfw_append_read_reference(dfwork_t *dfw, header_field_info *hfinfo)
+{
+	dfvm_insn_t	*insn;
+	dfvm_value_t	*reg_val, *val1;
+	GSList		**fvalues_ptr;
+	gboolean	added_new_hfinfo = FALSE;
+
+	/* Rewind to find the first field of this name. */
+	while (hfinfo->same_name_prev_id != -1) {
+		hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
+	}
+
+	/* Keep track of which registers
+	 * were used for which hfinfo's so that we
+	 * can re-use registers. */
+	reg_val = g_hash_table_lookup(dfw->loaded_references, hfinfo);
+	if (!reg_val) {
+		reg_val = dfvm_value_new_register(dfw->next_register++);
+		g_hash_table_insert(dfw->loaded_references, hfinfo, dfvm_value_ref(reg_val));
+		added_new_hfinfo = TRUE;
+	}
+
+	insn = dfvm_insn_new(READ_REFERENCE);
+	val1 = dfvm_value_new_hfinfo(hfinfo);
+	insn->arg1 = dfvm_value_ref(val1);
+	insn->arg2 = dfvm_value_ref(reg_val);
+	dfw_append_insn(dfw, insn);
+
+	fvalues_ptr = g_new(GSList *, 1);
+	*fvalues_ptr = NULL;
+	g_hash_table_insert(dfw->references, hfinfo, fvalues_ptr);
+
+	if (added_new_hfinfo) {
+		while (hfinfo) {
+			/* Record the FIELD_ID in hash of interesting fields. */
+			g_hash_table_insert(dfw->interesting_fields,
+			    GINT_TO_POINTER(hfinfo->id),
+			    GUINT_TO_POINTER(TRUE));
+			hfinfo = hfinfo->same_name_next;
+		}
+	}
+
+	return reg_val;
+}
+
+/* returns register number */
+static dfvm_value_t *
 dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	stnode_t                *entity;
@@ -345,6 +392,16 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	if (e_type == STTYPE_FIELD) {
 		hfinfo = stnode_data(st_arg);
 		val = dfw_append_read_tree(dfw, hfinfo);
+
+		insn = dfvm_insn_new(IF_FALSE_GOTO);
+		jmp = dfvm_value_new(INSN_NUMBER);
+		insn->arg1 = dfvm_value_ref(jmp);
+		dfw_append_insn(dfw, insn);
+		*jumps_ptr = g_slist_prepend(*jumps_ptr, jmp);
+	}
+	else if (e_type == STTYPE_REFERENCE) {
+		hfinfo = stnode_data(st_arg);
+		val = dfw_append_read_reference(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
 		jmp = dfvm_value_new(INSN_NUMBER);

@@ -53,6 +53,7 @@ typedef enum {
 	NOT,
 	RETURN,
 	READ_TREE,
+	READ_REFERENCE,
 	ALL_EQ,
 	ANY_EQ,
 	ALL_NE,
@@ -119,7 +120,7 @@ void
 dfvm_dump(FILE *f, dfilter_t *df);
 
 char *
-dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df);
+dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references);
 
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree);

@@ -27,6 +27,7 @@ struct epan_dfilter {
 	int		num_interesting_fields;
 	GPtrArray	*deprecated;
 	char		*expanded_text;
+	GHashTable	*references;
 };
 
 typedef struct {
@@ -40,6 +41,8 @@ typedef struct {
 	int		next_insn_id;
 	int		next_register;
 	GPtrArray	*deprecated;
+	GHashTable	*references; /* hfinfo -> pointer to GSList of const fvalues */
+	GHashTable	*loaded_references;
 } dfwork_t;
 
 /*
