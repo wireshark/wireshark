@@ -180,18 +180,20 @@ dfvm_value_tostr(dfvm_value_t *v)
 	return s;
 }
 
-void
-dfvm_dump(FILE *f, dfilter_t *df)
+char *
+dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df)
 {
 	int		id, length;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*arg1, *arg2, *arg3, *arg4;
 	char 		*arg1_str, *arg2_str, *arg3_str, *arg4_str;
+	wmem_strbuf_t	*buf;
 
+	buf = wmem_strbuf_new(alloc, NULL);
 
-	fprintf(f, "Filter: %s\n", df->expanded_text);
+	wmem_strbuf_append_printf(buf, "Filter: %s\n", df->expanded_text);
 
-	fprintf(f, "\nInstructions:\n");
+	wmem_strbuf_append(buf, "\nInstructions:\n");
 
 	length = df->insns->len;
 	for (id = 0; id < length; id++) {
@@ -208,123 +210,123 @@ dfvm_dump(FILE *f, dfilter_t *df)
 
 		switch (insn->op) {
 			case CHECK_EXISTS:
-				fprintf(f, "%05d CHECK_EXISTS\t%s\n",
+				wmem_strbuf_append_printf(buf, "%05d CHECK_EXISTS\t%s\n",
 					id, arg1_str);
 				break;
 
 			case READ_TREE:
-				fprintf(f, "%05d READ_TREE\t\t%s -> %s\n",
+				wmem_strbuf_append_printf(buf, "%05d READ_TREE\t\t%s -> %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case CALL_FUNCTION:
-				fprintf(f, "%05d CALL_FUNCTION\t%s(",
+				wmem_strbuf_append_printf(buf, "%05d CALL_FUNCTION\t%s(",
 					id, arg1_str);
 				if (arg3_str) {
-					fprintf(f, "%s", arg3_str);
+					wmem_strbuf_append_printf(buf, "%s", arg3_str);
 				}
 				if (arg4_str) {
-					fprintf(f, ", %s", arg4_str);
+					wmem_strbuf_append_printf(buf, ", %s", arg4_str);
 				}
-				fprintf(f, ") -> %s\n", arg2_str);
+				wmem_strbuf_append_printf(buf, ") -> %s\n", arg2_str);
 				break;
 
 			case MK_RANGE:
 				arg3 = insn->arg3;
-				fprintf(f, "%05d MK_RANGE\t\t%s[%s] -> %s\n",
+				wmem_strbuf_append_printf(buf, "%05d MK_RANGE\t\t%s[%s] -> %s\n",
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
 			case ALL_EQ:
-				fprintf(f, "%05d ALL_EQ\t\t%s === %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ALL_EQ\t\t%s === %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_EQ:
-				fprintf(f, "%05d ANY_EQ\t\t%s == %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_EQ\t\t%s == %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ALL_NE:
-				fprintf(f, "%05d ALL_NE\t\t%s != %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ALL_NE\t\t%s != %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_NE:
-				fprintf(f, "%05d ANY_NE\t\t%s !== %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_NE\t\t%s !== %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_GT:
-				fprintf(f, "%05d ANY_GT\t\t%s > %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_GT\t\t%s > %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_GE:
-				fprintf(f, "%05d ANY_GE\t\t%s >= %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_GE\t\t%s >= %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_LT:
-				fprintf(f, "%05d ANY_LT\t\t%s < %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_LT\t\t%s < %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_LE:
-				fprintf(f, "%05d ANY_LE\t\t%s <= %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_LE\t\t%s <= %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case MK_BITWISE_AND:
-				fprintf(f, "%05d MK_BITWISE_AND\t%s & %s -> %s\n",
+				wmem_strbuf_append_printf(buf, "%05d MK_BITWISE_AND\t%s & %s -> %s\n",
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
 			case ANY_ZERO:
-				fprintf(f, "%05d ANY_ZERO\t\t%s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_ZERO\t\t%s\n",
 					id, arg1_str);
 				break;
 
 			case ALL_ZERO:
-				fprintf(f, "%05d ALL_ZERO\t\t%s\n",
+				wmem_strbuf_append_printf(buf, "%05d ALL_ZERO\t\t%s\n",
 					id, arg1_str);
 				break;
 
 			case ANY_CONTAINS:
-				fprintf(f, "%05d ANY_CONTAINS\t%s contains %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_CONTAINS\t%s contains %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_MATCHES:
-				fprintf(f, "%05d ANY_MATCHES\t%s matches %s\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_MATCHES\t%s matches %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case ANY_IN_RANGE:
-				fprintf(f, "%05d ANY_IN_RANGE\t%s in { %s .. %s }\n",
+				wmem_strbuf_append_printf(buf, "%05d ANY_IN_RANGE\t%s in { %s .. %s }\n",
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
 			case MK_MINUS:
-				fprintf(f, "%05d MK_MINUS\t\t-%s -> %s\n",
+				wmem_strbuf_append_printf(buf, "%05d MK_MINUS\t\t-%s -> %s\n",
 					id, arg1_str, arg2_str);
 				break;
 
 			case NOT:
-				fprintf(f, "%05d NOT\n", id);
+				wmem_strbuf_append_printf(buf, "%05d NOT\n", id);
 				break;
 
 			case RETURN:
-				fprintf(f, "%05d RETURN\n", id);
+				wmem_strbuf_append_printf(buf, "%05d RETURN\n", id);
 				break;
 
 			case IF_TRUE_GOTO:
-				fprintf(f, "%05d IF_TRUE_GOTO\t%u\n",
+				wmem_strbuf_append_printf(buf, "%05d IF_TRUE_GOTO\t%u\n",
 						id, arg1->value.numeric);
 				break;
 
 			case IF_FALSE_GOTO:
-				fprintf(f, "%05d IF_FALSE_GOTO\t%u\n",
+				wmem_strbuf_append_printf(buf, "%05d IF_FALSE_GOTO\t%u\n",
 						id, arg1->value.numeric);
 				break;
 		}
@@ -334,6 +336,16 @@ dfvm_dump(FILE *f, dfilter_t *df)
 		g_free(arg3_str);
 		g_free(arg4_str);
 	}
+
+	return wmem_strbuf_finalize(buf);
+}
+
+void
+dfvm_dump(FILE *f, dfilter_t *df)
+{
+	char *str = dfvm_dump_str(NULL, df);
+	fputs(str, f);
+	wmem_free(NULL, str);
 }
 
 /* Reads a field from the proto_tree and loads the fvalues into a register,

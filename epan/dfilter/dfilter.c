@@ -545,6 +545,28 @@ dfilter_dump(dfilter_t *df)
 	}
 }
 
+void
+dfilter_log_full(const char *domain, enum ws_log_level level,
+			const char *file, long line, const char *func,
+			dfilter_t *df, const char *msg)
+{
+	if (!ws_log_msg_is_active(domain, level))
+		return;
+
+	if (df == NULL) {
+		ws_log_write_always_full(domain, level, file, line, func,
+				"%s: NULL display filter", msg ? msg : "?");
+		return;
+	}
+
+	char *str = dfvm_dump_str(NULL, df);
+	if (G_UNLIKELY(msg == NULL))
+		ws_log_write_always_full(domain, level, file, line, func, "\n%s", str);
+	else
+		ws_log_write_always_full(domain, level, file, line, func, "%s\n%s", msg, str);
+	g_free(str);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

@@ -86,6 +86,27 @@ WS_DLL_PUBLIC
 void
 dfilter_dump(dfilter_t *df);
 
+/* Print bytecode of dfilter to log */
+WS_DLL_PUBLIC
+void
+dfilter_log_full(const char *domain, enum ws_log_level level,
+			const char *file, long line, const char *func,
+			dfilter_t *dfcode, const char *msg);
+
+#ifndef WS_DISABLE_DEBUG
+#define dfilter_log(dfcode, msg) \
+	dfilter_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_NOISY,	\
+				__FILE__, __LINE__, __func__,	\
+				dfcode, msg)
+#else
+#define dfilter_log(dfcode, msg) (void)0
+#endif
+
+#define DFILTER_DEBUG_HERE(dfcode) \
+	dfilter_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_ECHO,	\
+				__FILE__, __LINE__, __func__,	\
+				dfcode, #dfcode);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
