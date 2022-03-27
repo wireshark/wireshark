@@ -5193,7 +5193,7 @@ sharkd_session_main(int mode_setting)
     uat_get_table_by_name("MaxMind Database Paths")->post_update_cb();
 #endif
 
-    buf_len = (int)fread(buf, sizeof(char), sizeof(buf), stdin);
+    buf_len = (int)fread(buf, sizeof(char), sizeof(buf) - 1, stdin);
 
     for ( start_ptr = i_ptr = buf; i_ptr < ( buf + buf_len ); i_ptr++ )
     {
