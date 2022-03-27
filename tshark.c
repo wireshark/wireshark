@@ -3120,14 +3120,14 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
         cf->provider.prev_cap = cf->provider.prev_dis = frame_data_sequence_add(cf->provider.frames, &fdlocal);
 
         /* If we're not doing dissection then there won't be any dependent frames.
-         * More importantly, edt.pi.fd.dependent_frames won't be initialized because
+         * More importantly, edt.pi.dependent_frames won't be initialized because
          * epan hasn't been initialized.
          * if we *are* doing dissection, then mark the dependent frames, but only
          * if a display filter was given and it matches this packet.
          */
         if (edt && cf->dfcode) {
             if (dfilter_apply_edt(cf->dfcode, edt)) {
-                g_slist_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+                g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
             }
         }
 

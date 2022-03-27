@@ -161,7 +161,6 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
   fdata->subnum = 0;
   fdata->passed_dfilter = 0;
   fdata->dependent_of_displayed = 0;
-  fdata->dependent_frames = NULL;
   fdata->encoding = PACKET_CHAR_ENC_CHAR_ASCII;
   fdata->visited = 0;
   fdata->marked = 0;
@@ -305,11 +304,6 @@ frame_data_destroy(frame_data *fdata)
   if (fdata->pfd) {
     g_slist_free(fdata->pfd);
     fdata->pfd = NULL;
-  }
-
-  if (fdata->dependent_frames) {
-    g_slist_free(fdata->dependent_frames);
-    fdata->dependent_frames = NULL;
   }
 }
 

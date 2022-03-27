@@ -1879,7 +1879,7 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item_set_generated(pi);
         /* XXX: Need to do this each time because pinfo is discarded. Filtering does not reset visited as it does not do a full redissect.
         We also might not catch all frames in the first pass (e.g. comment after record). */
-        mark_frame_as_depended_upon(pinfo->fd, anchored_info->frame_num);
+        mark_frame_as_depended_upon(pinfo, anchored_info->frame_num);
       }
       frame = wmem_list_frame_next(frame);
     }
@@ -1925,12 +1925,12 @@ dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
       pi = proto_tree_add_uint(hostid_tree, hf_erf_source_next, tvb, 0, 0, fnum_next);
       proto_item_set_generated(pi);
       /* XXX: Save the surrounding nearest periodic records when we do a filtered save so we keep native ERF metadata */
-      mark_frame_as_depended_upon(pinfo->fd, fnum_next);
+      mark_frame_as_depended_upon(pinfo, fnum_next);
     }
     if (fnum != G_MAXUINT32) {
       pi = proto_tree_add_uint(hostid_tree, hf_erf_source_prev, tvb, 0, 0, fnum);
       proto_item_set_generated(pi);
-      mark_frame_as_depended_upon(pinfo->fd, fnum);
+      mark_frame_as_depended_upon(pinfo, fnum);
     }
   }
 }

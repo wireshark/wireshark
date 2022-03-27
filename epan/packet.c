@@ -444,11 +444,11 @@ free_data_sources(packet_info *pinfo)
 }
 
 void
-mark_frame_as_depended_upon(frame_data *fd, guint32 frame_num)
+mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num)
 {
 	/* Don't mark a frame as dependent on itself */
-	if (frame_num != fd->num) {
-		fd->dependent_frames = g_slist_prepend(fd->dependent_frames, GUINT_TO_POINTER(frame_num));
+	if (frame_num != pinfo->num) {
+		pinfo->dependent_frames = g_slist_prepend(pinfo->dependent_frames, GUINT_TO_POINTER(frame_num));
 	}
 }
 
