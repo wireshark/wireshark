@@ -188,7 +188,10 @@ dfvm_dump(FILE *f, dfilter_t *df)
 	dfvm_value_t	*arg1, *arg2, *arg3, *arg4;
 	char 		*arg1_str, *arg2_str, *arg3_str, *arg4_str;
 
-	fprintf(f, "Instructions:\n");
+
+	fprintf(f, "Filter: %s\n", df->expanded_text);
+
+	fprintf(f, "\nInstructions:\n");
 
 	length = df->insns->len;
 	for (id = 0; id < length; id++) {

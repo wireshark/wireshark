@@ -205,6 +205,7 @@ dfilter_free(dfilter_t *df)
 	g_free(df->registers);
 	g_free(df->attempted_load);
 	g_free(df->free_registers);
+	g_free(df->expanded_text);
 	g_free(df);
 }
 
@@ -444,6 +445,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		dfw->insns = NULL;
 		dfilter->interesting_fields = dfw_interesting_fields(dfw,
 			&dfilter->num_interesting_fields);
+		dfilter->expanded_text = ws_strdup(expanded_text);
 
 		/* Initialize run-time space */
 		dfilter->num_registers = dfw->next_register;

@@ -26,6 +26,7 @@ struct epan_dfilter {
 	int		*interesting_fields;
 	int		num_interesting_fields;
 	GPtrArray	*deprecated;
+	char		*expanded_text;
 };
 
 typedef struct {

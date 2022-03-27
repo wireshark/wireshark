@@ -130,8 +130,6 @@ main(int argc, char **argv)
     /* Get filter text */
     text = get_args_as_string(argc, argv, 1);
 
-    printf("Filter: %s\n", text);
-
     /* Compile it */
     if (!dfilter_compile(text, &df, &err_msg)) {
         fprintf(stderr, "dftest: %s\n", err_msg);
@@ -140,8 +138,6 @@ main(int argc, char **argv)
         g_free(text);
         exit(2);
     }
-
-    printf("\n");
 
     if (df == NULL)
         printf("Filter is empty\n");
