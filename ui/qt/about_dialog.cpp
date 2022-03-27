@@ -292,8 +292,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->pte_Authors->moveCursor(QTextCursor::Start);
 
     ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblAuthors, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
-    connect(ui->searchAuthors, SIGNAL(textChanged(QString)), proxyAuthorModel, SLOT(setFilter(QString)));
+    connect(ui->tblAuthors, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->searchAuthors, &QLineEdit::textChanged, proxyAuthorModel, &AStringListListSortFilterProxyModel::setFilter);
 
     /* Wireshark tab */
     updateWiresharkText();
@@ -322,9 +322,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblFolders->setTextElideMode(Qt::ElideMiddle);
     ui->tblFolders->setSortingEnabled(true);
     ui->tblFolders->sortByColumn(0, Qt::AscendingOrder);
-    connect(ui->tblFolders, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
-    connect(ui->searchFolders, SIGNAL(textChanged(QString)), folderProxyModel, SLOT(setFilter(QString)));
-    connect(ui->tblFolders, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(urlDoubleClicked(QModelIndex)));
+    connect(ui->tblFolders, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->searchFolders, &QLineEdit::textChanged, folderProxyModel, &AStringListListSortFilterProxyModel::setFilter);
+    connect(ui->tblFolders, &QTreeView::doubleClicked, this, &AboutDialog::urlDoubleClicked);
 
 
     /* Plugins */
@@ -347,9 +347,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblPlugins->setTextElideMode(Qt::ElideMiddle);
     ui->tblPlugins->setSortingEnabled(true);
     ui->tblPlugins->sortByColumn(0, Qt::AscendingOrder);
-    connect(ui->tblPlugins, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
-    connect(ui->searchPlugins, SIGNAL(textChanged(QString)), pluginFilterModel, SLOT(setFilter(QString)));
-    connect(ui->cmbType, SIGNAL(currentIndexChanged(QString)), pluginTypeModel, SLOT(setFilter(QString)));
+    connect(ui->tblPlugins, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->searchPlugins, &QLineEdit::textChanged, pluginFilterModel, &AStringListListSortFilterProxyModel::setFilter);
+    connect(ui->cmbType, &QComboBox::currentTextChanged, pluginTypeModel, &AStringListListSortFilterProxyModel::setFilter);
     if (ui->tblPlugins->model()->rowCount() < 1) {
         foreach (QWidget *w, ui->tab_plugins->findChildren<QWidget *>()) {
             w->hide();
@@ -371,8 +371,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblShortcuts->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblShortcuts->setSortingEnabled(true);
     ui->tblShortcuts->sortByColumn(1, Qt::AscendingOrder);
-    connect(ui->tblShortcuts, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
-    connect(ui->searchShortcuts, SIGNAL(textChanged(QString)), shortcutProxyModel, SLOT(setFilter(QString)));
+    connect(ui->tblShortcuts, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->searchShortcuts, &QLineEdit::textChanged, shortcutProxyModel, &AStringListListSortFilterProxyModel::setFilter);
 
     /* License */
 #if defined(_WIN32)
@@ -526,17 +526,17 @@ void AboutDialog::handleCopyMenu(QPoint pos)
 #endif
         QAction * showInFolderAction = menu->addAction(show_in_str);
         showInFolderAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
-        connect(showInFolderAction, SIGNAL(triggered()), this, SLOT(showInFolderActionTriggered()));
+        connect(showInFolderAction, &QAction::triggered, this, &AboutDialog::showInFolderActionTriggered);
     }
 
     QAction * copyColumnAction = menu->addAction(tr("Copy"));
     copyColumnAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
-    connect(copyColumnAction, SIGNAL(triggered()), this, SLOT(copyActionTriggered()));
+    connect(copyColumnAction, &QAction::triggered, this, &AboutDialog::copyActionTriggered);
 
     QModelIndexList selectedRows = tree->selectionModel()->selectedRows();
     QAction * copyRowAction = menu->addAction(tr("Copy Row(s)", "", static_cast<int>(selectedRows.count())));
     copyRowAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
-    connect(copyRowAction, SIGNAL(triggered()), this, SLOT(copyRowActionTriggered()));
+    connect(copyRowAction, &QAction::triggered, this, &AboutDialog::copyRowActionTriggered);
 
     menu->popup(tree->viewport()->mapToGlobal(pos));
 }
