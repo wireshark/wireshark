@@ -628,6 +628,16 @@ Windows Build:
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
+Windows Qt5 Build:
+  extends: .build-windows
+  rules: !reference [.if-w-w-only-merge-request]
+  tags:
+    - wireshark-windows-merge-req
+  script:
+    - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
+    - msbuild /verbosity:minimal /maxcpucount ui\qt\qtui.vcxproj
+
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 Coverity GCC Scan:
