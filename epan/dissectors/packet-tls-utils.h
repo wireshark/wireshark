@@ -2371,12 +2371,12 @@ ssl_common_dissect_t name = {   \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_chosen_version,                \
-      { "Chosen Version", prefix ".quic.parameter.vn.chosen_version",   \
+      { "Chosen Version", prefix ".quic.parameter.vi.chosen_version",   \
         FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_other_version,                 \
-      { "Other Version", prefix ".quic.parameter.vn.other_version",     \
+      { "Other Version", prefix ".quic.parameter.vi.other_version",     \
         FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
