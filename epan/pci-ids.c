@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2022.03.20
- * Date:    2022-03-20 03:15:02
+ * Version: 2022.03.22
+ * Date:    2022-03-22 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -24921,6 +24921,7 @@ pci_id_t pci_vid_15B3[] = {
 {0x15B3, 0x0271, 0xFFFF, 0xFFFF, "Spectrum-4L, RMA(0x0271)"},
 {0x15B3, 0x0274, 0xFFFF, 0xFFFF, "Spectrum-4C, Flash recovery mode(0x0274)"},
 {0x15B3, 0x0275, 0xFFFF, 0xFFFF, "Spectrum-4C RMA(0x0275)"},
+{0x15B3, 0x0277, 0xFFFF, 0xFFFF, "Spectrum-4TOR RMA(0x0277)"},
 {0x15B3, 0x0281, 0xFFFF, 0xFFFF, "NPS-600 Flash Recovery(0x0281)"},
 {0x15B3, 0x1002, 0xFFFF, 0xFFFF, "MT25400 Family [ConnectX-2 Virtual Function](0x1002)"},
 {0x15B3, 0x1003, 0xFFFF, 0xFFFF, "MT27500 Family [ConnectX-3](0x1003)"},
@@ -28616,12 +28617,15 @@ pci_id_t pci_vid_1B21[] = {
 {0x1B21, 0x1080, 0xFFFF, 0xFFFF, "ASM1083/1085 PCIe to PCI Bridge(0x1080)"},
 {0x1B21, 0x1080, 0x1849, 0x1080, "Motherboard(0x1849-0x1080)"},
 {0x1B21, 0x1142, 0xFFFF, 0xFFFF, "ASM1042A USB 3.0 Host Controller(0x1142)"},
+{0x1B21, 0x1166, 0xFFFF, 0xFFFF, "ASM1166 Serial ATA Controller(0x1166)"},
 {0x1B21, 0x1182, 0xFFFF, 0xFFFF, "ASM1182e 2-Port PCIe x1 Gen2 Packet Switch(0x1182)"},
 {0x1B21, 0x1182, 0x1B21, 0x118F, "ASM1182e 2-Port PCIe x1 Gen2 Packet Switch(0x1B21-0x118F)"},
 {0x1B21, 0x1184, 0xFFFF, 0xFFFF, "ASM1184e 4-Port PCIe x1 Gen2 Packet Switch(0x1184)"},
 {0x1B21, 0x1184, 0x1849, 0x1184, "ASM1184e 4-Port PCIe x1 Gen2 Packet Switch(0x1849-0x1184)"},
+{0x1B21, 0x1187, 0xFFFF, 0xFFFF, "ASM1187e 7-Port PCIe x1 Gen2 Packet Switch(0x1187)"},
 {0x1B21, 0x1242, 0xFFFF, 0xFFFF, "ASM1142 USB 3.1 Host Controller(0x1242)"},
 {0x1B21, 0x1343, 0xFFFF, 0xFFFF, "ASM1143 USB 3.1 Host Controller(0x1343)"},
+{0x1B21, 0x1812, 0xFFFF, 0xFFFF, "ASM1812 6-Port PCIe x4 Gen2 Packet Switch(0x1812)"},
 {0x1B21, 0x2142, 0xFFFF, 0xFFFF, "ASM2142 USB 3.1 Host Controller(0x2142)"},
 {0x1B21, 0x2142, 0x1462, 0x7A72, "H270 PC MATE(0x1462-0x7A72)"},
 {0x1B21, 0x2824, 0xFFFF, 0xFFFF, "ASM2824 PCIe Gen3 Packet Switch(0x2824)"},
@@ -32193,8 +32197,8 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x0DD2, 0x8086, 0x0010, "Ethernet Network Adapter I710-T4L for OCP 3.0(0x8086-0x0010)"},
 {0x8086, 0x0DD2, 0x8086, 0x401A, "Ethernet Network Adapter I710-T4L(0x8086-0x401A)"},
 {0x8086, 0x0DD2, 0x8086, 0x401B, "Ethernet Network Adapter I710-T4L for OCP 3.0(0x8086-0x401B)"},
-{0x8086, 0x0DDA, 0xFFFF, 0xFFFF, "Connection X722 for 10GbE SFP+(0x0DDA)"},
-{0x8086, 0x0DDA, 0x1BD4, 0x0076, "Connection X722 for 10GbE SFP+(0x1BD4-0x0076)"},
+{0x8086, 0x0DDA, 0xFFFF, 0xFFFF, "Ethernet Connection X722 for 10GbE SFP+(0x0DDA)"},
+{0x8086, 0x0DDA, 0x1BD4, 0x0076, "Ethernet Connection X722 for 10GbE SFP+(0x1BD4-0x0076)"},
 {0x8086, 0x0E00, 0xFFFF, 0xFFFF, "Xeon E7 v2/Xeon E5 v2/Core i7 DMI2(0x0E00)"},
 {0x8086, 0x0E00, 0x1028, 0x04F7, "Xeon E5 v2 on PowerEdge R320 server(0x1028-0x04F7)"},
 {0x8086, 0x0E00, 0x15D9, 0x066B, "X9SRL-F(0x15D9-0x066B)"},
@@ -40557,6 +40561,11 @@ pci_id_t pci_vid_CEBA[] = {
 {0xCEBA, 0xFFFF, 0xFFFF, 0xFFFF, "KEBA AG(0xCEBA)"},
 }; /* pci_vid_CEBA[] */
 
+pci_id_t pci_vid_CF86[] = {
+{0xCF86, 0xFFFF, 0xFFFF, 0xFFFF, "Spectrum-4TOR(0xCF86)"},
+{0xCF86, 0x0276, 0xFFFF, 0xFFFF, "Spectrum-4TOR in Flash Recovery Mode(0x0276)"},
+}; /* pci_vid_CF86[] */
+
 pci_id_t pci_vid_D161[] = {
 {0xD161, 0xFFFF, 0xFFFF, 0xFFFF, "Digium, Inc.(0xD161)"},
 {0xD161, 0x0120, 0xFFFF, 0xFFFF, "Wildcard TE120P single-span T1/E1/J1 card(0x0120)"},
@@ -42403,7 +42412,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x15B0, 1, pci_vid_15B0 },
 {0x15B1, 1, pci_vid_15B1 },
 {0x15B2, 1, pci_vid_15B2 },
-{0x15B3, 233, pci_vid_15B3 },
+{0x15B3, 234, pci_vid_15B3 },
 {0x15B4, 1, pci_vid_15B4 },
 {0x15B5, 1, pci_vid_15B5 },
 {0x15B6, 17, pci_vid_15B6 },
@@ -42792,7 +42801,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1B13, 1, pci_vid_1B13 },
 {0x1B1A, 2, pci_vid_1B1A },
 {0x1B1C, 1, pci_vid_1B1C },
-{0x1B21, 22, pci_vid_1B21 },
+{0x1B21, 25, pci_vid_1B21 },
 {0x1B26, 11, pci_vid_1B26 },
 {0x1B2C, 1, pci_vid_1B2C },
 {0x1B36, 21, pci_vid_1B36 },
@@ -43177,6 +43186,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0xCCEC, 1, pci_vid_CCEC },
 {0xCDDD, 3, pci_vid_CDDD },
 {0xCEBA, 1, pci_vid_CEBA },
+{0xCF86, 2, pci_vid_CF86 },
 {0xD161, 35, pci_vid_D161 },
 {0xD209, 4, pci_vid_D209 },
 {0xD4D4, 2, pci_vid_D4D4 },
@@ -43218,7 +43228,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2276 VIDs */
+}; /* We have 2277 VIDs */
 
 static pci_vid_index_t *get_vid_index(guint16 vid)
 {

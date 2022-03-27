@@ -5698,7 +5698,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Allow the list to be sorted</source>
-        <translation type="unfinished"></translation>
+        <translation>Consenti l&apos;ordinamento dell&apos;elenco</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>

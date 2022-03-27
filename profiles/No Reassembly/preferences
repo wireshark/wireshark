@@ -104,6 +104,7 @@ ppi.reassemble: FALSE
 pvfs.desegment: FALSE
 q931.desegment_h323_messages: FALSE
 q931.reassembly: FALSE
+resp.desegment_data: FALSE
 rlc.perform_reassembly: FALSE
 rlc-lte.reassembly: FALSE
 rlc-nr.reassemble_am_frames: FALSE

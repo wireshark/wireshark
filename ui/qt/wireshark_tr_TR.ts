@@ -970,7 +970,7 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation>Karma SHA256)</translation>
+        <translation>Karma (SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
@@ -3876,7 +3876,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>Süre</translation>
+        <translation>Süre ()</translation>
     </message>
     <message>
         <source>I/O Graphs</source>
@@ -5679,7 +5679,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Allow the list to be sorted</source>
-        <translation type="unfinished"></translation>
+        <translation>Listenin sıralanmasına izin ver</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
@@ -6851,7 +6851,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Mark/Unmark Packet(s)</source>
         <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Paket(ler)i İşaretle/İşaretini Kaldır</translation>
+        <translation>&amp;Paketi İşaretle/İşaretini Kaldır</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
@@ -6884,7 +6884,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&amp;Ignore/Unignore Packet(s)</source>
         <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Paket(ler)i Yoksay/Yoksay</translation>
+        <translation>&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
@@ -9788,11 +9788,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Time (s)</source>
-        <translation>Süre</translation>
+        <translation>Süre ()</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation>Pencere Boyutu</translation>
+        <translation>Pencere Boyutu (B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -10868,7 +10868,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Time Span (s)</source>
-        <translation>Zaman Aralığı</translation>
+        <translation>Zaman Aralığı (s)</translation>
     </message>
     <message>
         <source>Payloads</source>

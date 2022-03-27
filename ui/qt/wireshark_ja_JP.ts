@@ -5678,7 +5678,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Allow the list to be sorted</source>
-        <translation type="unfinished"></translation>
+        <translation>ソートされるリストを許可</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
@@ -7307,11 +7307,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Strip Headers…</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘッダーを除去…</translation>
     </message>
     <message>
         <source>Strip headers and export higher level encapsulations to file</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘッダを除去して上位のカプセル化をファイルにエクスポートします</translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13046,11 +13046,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>StripHeadersDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">表示フィルタ:</translation>
+        <translation>表示フィルタ:</translation>
     </message>
 </context>
 <context>

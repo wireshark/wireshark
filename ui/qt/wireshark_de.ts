@@ -1987,11 +1987,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn dieser Wert auf das Feld zutrifft, soll das Verhalten geändert werden</translation>
     </message>
     <message>
         <source>Field value type (and base, if Integer)</source>
-        <translation type="unfinished"></translation>
+        <translation>Feldwert Typ (und Basis, falls Ganzzahl)</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
@@ -4348,11 +4348,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Soll der Start der ASCII-Repräsentation am Ende einer Hex+ASCII Zeile auch erkannt werden, wenn dieser wie Hex-Bytes aussieht?&lt;/p&gt;&lt;p&gt;Nicht aktivieren, wenn Hex Dump kein ASCII enthält.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII Identifikation:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -4428,11 +4428,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>The name of the interface to write to the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Schnittstelle, der in die Import-Mitschnittdatei geschrieben wird</translation>
     </message>
     <message>
         <source>Fake IF, Import from Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Fake IF, Import aus Hex Dump</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
@@ -5698,7 +5698,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Allow the list to be sorted</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaube Sortierung der Liste</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
@@ -7205,11 +7205,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP-SD-Einträge</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP-SD-Einträge Statistiken</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -7325,11 +7325,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Strip Headers…</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopfdaten entfernen...</translation>
     </message>
     <message>
         <source>Strip headers and export higher level encapsulations to file</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopfdaten entfernen und Verkapselungen höherer Schichten in Datei exportieren</translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -8984,7 +8984,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generiere zusätzlich zum Frame Hex Dumps für sekundäre Datenquellen, wie zusammengefügte oder entschlüsselte Puffer.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -13077,11 +13077,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>StripHeadersDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">Anzeigefilter:</translation>
+        <translation>Anzeigefilter:</translation>
     </message>
 </context>
 <context>
