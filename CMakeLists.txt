@@ -1303,9 +1303,10 @@ ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 
-# libsinsp+libscap, required for falco-bridge
-ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP)
-
+if (NOT WIN32)
+	# libsinsp+libscap, required for falco-bridge
+	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP)
+endif()
 
 # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of the cache entry
 # storing the find_library result. Transfer it to the new cache variable such
