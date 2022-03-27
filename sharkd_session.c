@@ -5173,7 +5173,7 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 int
 sharkd_session_main(int mode_setting)
 {
-    char buf[2 * 1024];
+    char buf[2 * 1024 + 1];
     char* start_ptr, *i_ptr;
     jsmntok_t *tokens = NULL;
     int tokens_max = -1;
