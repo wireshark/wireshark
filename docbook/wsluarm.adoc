@@ -233,18 +233,18 @@ Trying to access a non-existing property, function or method currently gives an
 error, but do not rely on it as the behavior may change in the future.
 
 
-include::{build_dir}/wsluarm_src/wslua_dumper.adoc[]
-include::{build_dir}/wsluarm_src/wslua_field.adoc[]
+include::{build_dir}/wsluarm_src/wslua_utility.adoc[]
 include::{build_dir}/wsluarm_src/wslua_gui.adoc[]
-include::{build_dir}/wsluarm_src/wslua_listener.adoc[]
-include::{build_dir}/wsluarm_src/wslua_pinfo.adoc[]
 include::{build_dir}/wsluarm_src/wslua_proto.adoc[]
-include::{build_dir}/wsluarm_src/wslua_tree.adoc[]
+include::{build_dir}/wsluarm_src/wslua_field.adoc[]
+include::{build_dir}/wsluarm_src/wslua_pinfo.adoc[]
 include::{build_dir}/wsluarm_src/wslua_tvb.adoc[]
+include::{build_dir}/wsluarm_src/wslua_tree.adoc[]
+include::{build_dir}/wsluarm_src/wslua_listener.adoc[]
+include::{build_dir}/wsluarm_src/wslua_dumper.adoc[]
+include::{build_dir}/wsluarm_src/wslua_wtap.adoc[]
 include::{build_dir}/wsluarm_src/wslua_file.adoc[]
 include::{build_dir}/wsluarm_src/wslua_dir.adoc[]
-include::{build_dir}/wsluarm_src/wslua_wtap.adoc[]
-include::{build_dir}/wsluarm_src/wslua_utility.adoc[]
 include::{build_dir}/wsluarm_src/wslua_int64.adoc[]
 include::{build_dir}/wsluarm_src/wslua_struct.adoc[]
 
