@@ -476,7 +476,7 @@ static int
 dissect_snmp_variable_string(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 
-	proto_tree_add_item(tree, hf_snmp_var_bind_str, tvb, 0, -1, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_snmp_var_bind_str, tvb, 0, -1, ENC_ASCII);
 
 	return tvb_captured_length(tvb);
 }
@@ -1316,7 +1316,7 @@ dissect_snmp_engineid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int o
 		case SNMP_ENGINEID_FORMAT_TEXT:
 			/* max. 27-byte string, administratively assigned */
 			if (len_remain<=27) {
-				proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, ENC_ASCII);
 				offset+=len_remain;
 				len_remain=0;
 			}

@@ -1566,7 +1566,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
         if (marc_directory[dir_index].tag < 10) {
             proto_tree_add_item(field_tree, hf_marc_field_control,
-                    tvb, offset, marc_directory[dir_index].length - 1, ENC_ASCII|ENC_NA);
+                    tvb, offset, marc_directory[dir_index].length - 1, ENC_ASCII);
             offset += marc_directory[dir_index].length - 1;
             proto_tree_add_item(field_tree, hf_marc_field_terminator,
                     tvb, offset, 1, ENC_ASCII);
@@ -1592,12 +1592,12 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                                                 MARC_SUBFIELD_INDICATOR);
                 if (next_subfield >= 0) {
                     proto_tree_add_item(field_tree, hf_marc_field_subfield,
-                            tvb, offset, next_subfield - offset, ENC_ASCII|ENC_NA);
+                            tvb, offset, next_subfield - offset, ENC_ASCII);
                     offset += (next_subfield - offset);
                 }
                 else {
                     proto_tree_add_item(field_tree, hf_marc_field_subfield,
-                            tvb, offset, next_offset - offset, ENC_ASCII|ENC_NA);
+                            tvb, offset, next_offset - offset, ENC_ASCII);
                     offset = next_offset;
                 }
             } while (offset < next_offset);
