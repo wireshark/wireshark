@@ -583,9 +583,9 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
     def test_tcp_out_of_order_onepass(self, cmd_tshark, dirs):
         self.check_tcp_out_of_order(cmd_tshark, dirs)
 
-    @unittest.skip("MSP splitting is not implemented yet")
-    def test_tcp_out_of_order_twopass(self, cmd_tshark, dirs):
-        self.check_tcp_out_of_order(cmd_tshark, dirs, extraArgs=['-2'])
+#    @unittest.skip("MSP splitting is not implemented yet")
+#    def test_tcp_out_of_order_twopass(self, cmd_tshark, dirs):
+#        self.check_tcp_out_of_order(cmd_tshark, dirs, extraArgs=['-2'])
 
     def test_tcp_out_of_order_twopass_with_bug(self, cmd_tshark, capture_file):
         # TODO fix the issue below, remove this and enable
