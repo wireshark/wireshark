@@ -663,9 +663,12 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
                 guint32 parameter_record_length = data_length - UDS_DSC_PARAMETER_RECORD_OFFSET;
                 proto_tree_add_item(subtree, hf_uds_dsc_parameter_record, tvb,
                                     UDS_DSC_PARAMETER_RECORD_OFFSET, parameter_record_length, ENC_NA);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
-                                tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_DSC_PARAMETER_RECORD_OFFSET,
-                                                       parameter_record_length, ' '));
+                if (parameter_record_length != 0) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
+                                    tvb_bytes_to_str_punct(pinfo->pool, tvb, UDS_DSC_PARAMETER_RECORD_OFFSET,
+                                                           parameter_record_length, ' '));
+                }
+
             }
             break;
 
