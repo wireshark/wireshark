@@ -178,7 +178,7 @@ def features(cmd_tshark, make_env):
         have_x64='Compiled (64-bit)' in tshark_v,
         have_lua='with Lua' in tshark_v,
         have_nghttp2='with nghttp2' in tshark_v,
-        have_kerberos='with MIT Kerberos' in tshark_v or 'with Heimdal Kerberos' in tshark_v,
+        have_kerberos='with Kerberos' in tshark_v,
         have_libgcrypt16=gcry_m and gcry_ver >= (1,6),
         have_libgcrypt17=gcry_m and gcry_ver >= (1,7),
         have_libgcrypt18=gcry_m and gcry_ver >= (1,8),
