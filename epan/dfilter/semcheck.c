@@ -1451,7 +1451,7 @@ dfw_semcheck(dfwork_t *dfw)
 {
 	volatile gboolean ok_filter = TRUE;
 
-	ws_debug("Starting semantic check (dfw = %p)", dfw);
+	ws_noisy("Starting semantic check (dfw = %p)", dfw);
 
 	/* Instead of having to check for errors at every stage of
 	 * the semantic-checking, the semantic-checking code will
@@ -1464,7 +1464,7 @@ dfw_semcheck(dfwork_t *dfw)
 	}
 	ENDTRY;
 
-	ws_debug("Semantic check (dfw = %p) returns %s",
+	ws_noisy("Semantic check (dfw = %p) returns %s",
 			dfw, ok_filter ? "TRUE" : "FALSE");
 
 	return ok_filter;
