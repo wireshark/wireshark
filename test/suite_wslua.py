@@ -265,7 +265,7 @@ class case_wslua(subprocesstest.SubprocessTestCase):
     def test_wslua_gregex(self, check_lua_script, dirs):
         '''wslua GRegex'''
         check_lua_script(self, 'gregex.lua', empty_pcap, True,
-            '-X', 'lua_script1:' + os.path.join(dirs.lua_dir, ''),
+            '-X', 'lua_script1:-d' + os.path.join(dirs.lua_dir, ''),
             '-X', 'lua_script1:glib',
             '-X', 'lua_script1:-V',
         )
