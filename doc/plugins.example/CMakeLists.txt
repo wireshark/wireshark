@@ -49,3 +49,20 @@ add_custom_target(copy_plugin
 	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hello> ${Wireshark_PLUGIN_INSTALL_DIR}
 	COMMENT "Installing plugin to: ${Wireshark_PLUGIN_INSTALL_DIR}"
 )
+
+string(TOLOWER "${PROJECT_NAME}-${PROJECT_VERSION}" _pkgname)
+
+add_custom_target(package_prep
+	COMMAND ${CMAKE_COMMAND} -E make_directory  ${CMAKE_BINARY_DIR}/${_pkgname}
+	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/README $<TARGET_FILE:hello> ${CMAKE_BINARY_DIR}/${_pkgname}
+)
+
+add_custom_target(package
+	COMMAND ${CMAKE_COMMAND} -E tar czf ${CMAKE_BINARY_DIR}/${_pkgname}.tar.gz --format=gnutar -- ${CMAKE_BINARY_DIR}/${_pkgname}
+)
+add_dependencies(package package_prep)
+
+add_custom_target(package_zip
+	COMMAND ${CMAKE_COMMAND} -E tar cf ${CMAKE_BINARY_DIR}/${_pkgname}.zip --format=zip -- ${CMAKE_BINARY_DIR}/${_pkgname}
+)
+add_dependencies(package_zip package_prep)
