@@ -191,5 +191,7 @@ void ber_decode_as_foreach(GHFunc func, gpointer user_data); /* iterate through 
 WS_DLL_PUBLIC
 gboolean oid_has_dissector(const char *oid);
 
+WS_DLL_PUBLIC
+void add_ber_encoded_label(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree);
 #endif  /* __PACKET_BER_H__ */
 

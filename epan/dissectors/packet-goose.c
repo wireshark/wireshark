@@ -520,7 +520,7 @@ dissect_goose_GSEMngtPdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 31 "./asn1/goose/goose.cnf"
+#line 33 "./asn1/goose/goose.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -564,7 +564,7 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_goose_T_simulation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 14 "./asn1/goose/goose.cnf"
+#line 16 "./asn1/goose/goose.cnf"
 	gboolean value;
 	guint32 len = tvb_reported_length_remaining(tvb, offset);
 	int origin_offset = offset;
@@ -622,7 +622,7 @@ dissect_goose_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "./asn1/goose/goose.cnf"
+#line 70 "./asn1/goose/goose.cnf"
 
 	int len = tvb_reported_length_remaining(tvb, offset);
 
@@ -848,6 +848,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_goose);
+	add_ber_encoded_label(tvb, pinfo, parent_tree);
 
 
 	/* APPID */
@@ -1486,7 +1487,7 @@ void proto_register_goose(void) {
         "UtcTime", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 566 "./asn1/goose/packet-goose-template.c"
+#line 567 "./asn1/goose/packet-goose-template.c"
 	};
 
 	/* List of subtrees */
@@ -1522,7 +1523,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 580 "./asn1/goose/packet-goose-template.c"
+#line 581 "./asn1/goose/packet-goose-template.c"
 	};
 
 	static ei_register_info ei[] = {

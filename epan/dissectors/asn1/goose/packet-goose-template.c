@@ -165,6 +165,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_goose);
+	add_ber_encoded_label(tvb, pinfo, parent_tree);
 
 
 	/* APPID */
