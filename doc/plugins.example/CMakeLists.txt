@@ -14,6 +14,12 @@ project(Hello VERSION 0.0.1 DESCRIPTION "Wireshark Hello Plugin" LANGUAGES C)
 
 find_package(Wireshark CONFIG REQUIRED)
 
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	set(CMAKE_INSTALL_PREFIX "${Wireshark_INSTALL_PREFIX}"
+		CACHE PATH "Installation prefix" FORCE
+	)
+endif()
+
 if(NOT Wireshark_PLUGINS_ENABLED)
 	message(WARNING "Wireshark was compiled without support for plugins")
 endif()
@@ -36,5 +42,10 @@ set_target_properties(hello PROPERTIES PREFIX "" DEFINE_SYMBOL "")
 target_link_libraries(hello epan)
 
 install(TARGETS hello
-	LIBRARY DESTINATION "${Wireshark_PLUGIN_INSTALL_DIR}/epan" NAMELINK_SKIP
+	LIBRARY DESTINATION "${Wireshark_PLUGIN_LIBDIR}/epan" NAMELINK_SKIP
+)
+
+add_custom_target(copy_plugin
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hello> ${Wireshark_PLUGIN_INSTALL_DIR}
+	COMMENT "Installing plugin to: ${Wireshark_PLUGIN_INSTALL_DIR}"
 )

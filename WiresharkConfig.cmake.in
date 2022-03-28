@@ -4,9 +4,11 @@ set(Wireshark_PATCH_VERSION @PROJECT_PATCH_VERSION@)
 set(Wireshark_VERSION "@PROJECT_VERSION@")
 
 set(Wireshark_PLUGINS_ENABLED @HAVE_PLUGINS@)
+set(Wireshark_PLUGIN_LIBDIR "@PLUGIN_INSTALL_VERSION_LIBDIR@")
 
 @PACKAGE_INIT@
 
+set_and_check(Wireshark_INSTALL_PREFIX     "${PACKAGE_PREFIX_DIR}")
 set_and_check(Wireshark_LIB_DIR            "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
 set_and_check(Wireshark_INCLUDE_DIR        "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/wireshark")
 if(Wireshark_PLUGINS_ENABLED)
