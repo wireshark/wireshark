@@ -1081,6 +1081,7 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_id_t *> stream_id
     setUpdatesEnabled(true);
     registerTapListener("rtp", this, NULL, 0, tapReset, tapPacket, tapDraw);
     cap_file_.retapPackets();
+    updateStatistics();
     removeTapListeners();
 
     updateGraph();
