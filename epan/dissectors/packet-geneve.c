@@ -20,6 +20,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/value_string.h>
 
 #define UDP_PORT_GENEVE  6081
 #define GENEVE_VER 0
@@ -55,6 +56,17 @@ static const range_string class_id_names[] = {
     { 0, 0, NULL }
 };
 
+#define GENEVE_GCP_VNID     0x013201
+#define GENEVE_GCP_ENDPOINT 0x013202
+#define GENEVE_GCP_PROFILE  0x013203
+
+static const val64_string option_names[] = {
+  { GENEVE_GCP_VNID,     "GCP Virtual Network ID" },
+  { GENEVE_GCP_ENDPOINT, "GCP Endpoint ID" },
+  { GENEVE_GCP_PROFILE,  "GCP Profile ID" },
+  { 0, NULL }
+};
+
 void proto_register_geneve(void);
 void proto_reg_handoff_geneve(void);
 
@@ -75,27 +87,39 @@ static int hf_geneve_option_type_critical = -1;
 static int hf_geneve_option_flags = -1;
 static int hf_geneve_option_flags_reserved = -1;
 static int hf_geneve_option_length = -1;
-static int hf_geneve_opt_unknown = -1;
+static int hf_geneve_option = -1;
+static int hf_geneve_opt_gcp_vnid = -1;
+static int hf_geneve_opt_gcp_reserved = -1;
+static int hf_geneve_opt_gcp_direction = -1;
+static int hf_geneve_opt_gcp_endpoint = -1;
+static int hf_geneve_opt_gcp_profile = -1;
 static int hf_geneve_opt_unknown_data = -1;
 
 static int ett_geneve = -1;
 static int ett_geneve_flags = -1;
 static int ett_geneve_opt_flags = -1;
 static int ett_geneve_options = -1;
-static int ett_geneve_unknown_opt = -1;
+static int ett_geneve_opt_data = -1;
 
 static expert_field ei_geneve_ver_unknown = EI_INIT;
 static expert_field ei_geneve_opt_len_invalid = EI_INIT;
 
 static dissector_table_t ethertype_dissector_table;
 
+static const struct true_false_string tfs_geneve_gcp_direction = {
+  "Egress",
+  "Ingress"
+};
+
 static const char *
-format_unknown_option_name(guint16 opt_class, guint8 opt_type)
+format_option_name(guint16 opt_class, guint8 opt_type)
 {
     const char *name;
 
     name = wmem_strdup_printf(wmem_packet_scope(),
-                              "Unknown, Class: %s (0x%04x) Type: 0x%02x",
+                              "%s, Class: %s (0x%04x) Type: 0x%02x",
+                              val64_to_str_const(((guint64)opt_class << 8) | opt_type,
+                                                 option_names, "Unknown"),
                               rval_to_str_const(opt_class, class_id_names, "Unknown"),
                               opt_class, opt_type);
 
@@ -103,8 +127,8 @@ format_unknown_option_name(guint16 opt_class, guint8 opt_type)
 }
 
 static void
-dissect_unknown_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
-                       guint16 opt_class, guint8 opt_type, int len)
+dissect_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
+               guint16 opt_class, guint8 opt_type, int len)
 {
     proto_item *opt_item, *type_item, *hidden_item, *flag_item;
     proto_tree *opt_tree, *flag_tree;
@@ -113,13 +137,13 @@ dissect_unknown_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
 
     critical = opt_type & OPT_TYPE_CRITICAL ? "Critical" : "Non-critical";
 
-    opt_item = proto_tree_add_item(opts_tree, hf_geneve_opt_unknown,
+    opt_item = proto_tree_add_item(opts_tree, hf_geneve_option,
                                    tvb, offset, len, ENC_NA);
     proto_item_set_text(opt_item, "%s (%s)",
-                        format_unknown_option_name(opt_class, opt_type),
+                        format_option_name(opt_class, opt_type),
                         critical);
 
-    opt_tree = proto_item_add_subtree(opt_item, ett_geneve_unknown_opt);
+    opt_tree = proto_item_add_subtree(opt_item, ett_geneve_opt_data);
 
     proto_tree_add_item(opt_tree, hf_geneve_option_class, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
@@ -148,8 +172,28 @@ dissect_unknown_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
     proto_tree_add_uint(opt_tree, hf_geneve_option_length, tvb, offset, 1, len);
     offset += 1;
 
-    proto_tree_add_item(opt_tree, hf_geneve_opt_unknown_data, tvb, offset,
-                        len - 4, ENC_NA);
+    switch (((guint64)opt_class << 8) | opt_type) {
+        case GENEVE_GCP_VNID:
+            proto_tree_add_bits_item(opt_tree, hf_geneve_opt_gcp_vnid, tvb, offset * 8,
+                                     28, ENC_BIG_ENDIAN);
+            proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_direction, tvb, offset,
+                                4, ENC_NA);
+            proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_reserved, tvb, offset,
+                                4, ENC_NA);
+            break;
+        case GENEVE_GCP_ENDPOINT:
+            proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_endpoint, tvb, offset,
+                                len - 4, ENC_NA);
+            break;
+        case GENEVE_GCP_PROFILE:
+            proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_profile, tvb, offset,
+                                len - 4, ENC_BIG_ENDIAN);
+            break;
+        default:
+            proto_tree_add_item(opt_tree, hf_geneve_opt_unknown_data, tvb, offset,
+                                len - 4, ENC_NA);
+            break;
+    }
 }
 
 static void
@@ -177,14 +221,12 @@ dissect_geneve_options(tvbuff_t *tvb, packet_info *pinfo,
                                          &ei_geneve_opt_len_invalid, tvb,
                                          offset + 3, 1,
                                          "%s (length of %u is past end of options)",
-                                         format_unknown_option_name(opt_class,
-                                                                    opt_type),
+                                         format_option_name(opt_class, opt_type),
                                          opt_len);
             return;
         }
 
-        dissect_unknown_option(tvb, opts_tree, offset,
-                               opt_class, opt_type, opt_len);
+        dissect_option(tvb, opts_tree, offset, opt_class, opt_type, opt_len);
 
         offset += opt_len;
         len -= opt_len;
@@ -360,13 +402,38 @@ proto_register_geneve(void)
             FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00,
             NULL, HFILL }
         },
-        { &hf_geneve_opt_unknown,
-          { "Unknown Option", "geneve.option.unknown",
+        { &hf_geneve_option,
+          { "Option", "geneve.option",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_geneve_opt_gcp_vnid,
+          { "GCP Virtual Network ID", "geneve.option.gcp.vnid",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_geneve_opt_gcp_reserved,
+          { "GCP Reserved bits", "geneve.option.gcp.reserved",
+            FT_BOOLEAN, 32, NULL, 0x0000000E,
+            NULL, HFILL }
+        },
+        { &hf_geneve_opt_gcp_direction,
+          { "GCP Traffic Direction", "geneve.option.gcp.direction",
+            FT_BOOLEAN, 32, TFS(&tfs_geneve_gcp_direction), 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_geneve_opt_gcp_endpoint,
+          { "GCP Endpoint ID", "geneve.option.gcp.endpoint",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_geneve_opt_gcp_profile,
+          { "GCP Profile ID", "geneve.option.gcp.profile",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_geneve_opt_unknown_data,
-          { "Option Data", "geneve.option.unknown.data",
+          { "Unknown Option Data", "geneve.option.unknown.data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
@@ -377,7 +444,7 @@ proto_register_geneve(void)
         &ett_geneve_flags,
         &ett_geneve_options,
         &ett_geneve_opt_flags,
-        &ett_geneve_unknown_opt,
+        &ett_geneve_opt_data,
     };
 
     static ei_register_info ei[] = {
