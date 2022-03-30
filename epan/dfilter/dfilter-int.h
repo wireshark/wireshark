@@ -41,7 +41,7 @@ typedef struct {
 	int		next_insn_id;
 	int		next_register;
 	GPtrArray	*deprecated;
-	GHashTable	*references; /* hfinfo -> pointer to GSList of const fvalues */
+	GHashTable	*references; /* hfinfo -> pointer to GSList of fvalues */
 	GHashTable	*loaded_references;
 } dfwork_t;
 

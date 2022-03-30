@@ -213,10 +213,10 @@ dfilter_free(dfilter_t *df)
 
 static void free_reference(gpointer data)
 {
-	/* List data is not owned by us. */
+	/* List data must be freed. */
 	GSList **fvalues_ptr = data;
 	if (*fvalues_ptr)
-		g_slist_free(*fvalues_ptr);
+		g_slist_free_full(*fvalues_ptr, (GDestroyNotify)fvalue_free);
 	g_free(fvalues_ptr);
 }
 
@@ -618,8 +618,8 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 
 	g_hash_table_iter_init( &iter, df->references);
 	while (g_hash_table_iter_next (&iter, (void **)&hfinfo, (void **)&fvalues_ptr)) {
-		/* If we have a previous list free it leaving the data alone */
-		g_slist_free(*fvalues_ptr);
+		/* If we have a previous list free it and the data too */
+		g_slist_free_full(*fvalues_ptr, (GDestroyNotify)fvalue_free);
 		*fvalues_ptr = NULL;
 
 		while (hfinfo) {
@@ -632,7 +632,8 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 			len = finfos->len;
 			for (i = 0; i < len; i++) {
 				finfo = g_ptr_array_index(finfos, i);
-				*fvalues_ptr = g_slist_prepend(*fvalues_ptr, &finfo->value);
+				*fvalues_ptr = g_slist_prepend(*fvalues_ptr,
+						fvalue_dup(&finfo->value));
 			}
 
 			hfinfo = hfinfo->same_name_next;
