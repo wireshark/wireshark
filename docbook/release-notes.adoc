@@ -55,14 +55,14 @@ They previously shipped with Npcap 1.55.
 ** Adds a new strict equality operator "===" or "all_eq". The expression "a === b" is true if and only if all a's are equal to b.
    The negation of "===" can now be written as "!==" (any_ne).
 ** Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
+** The operator "~=" is deprecated and will be removed in a future version. Use "!==" with the same meaning instead.
 ** Date and time can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
    Otherwise local time is used.
 ** Integer literal constants may be written in binary (in addition to decimal/octal/hexadecimal) using the prefix "0b" or "0B".
 ** New syntax to disambiguate literals from identifiers. Every value with a leading dot is a protocol or protocol field.
    Every value with a leading colon or in between angle brackets is a literal value. See the User Guide for details.
 ** Floats must be written with a leading and ending digit. For example the values ".7" and "7." are now invalid as floats.
-   It must be written "7.0" and "0.7" respectively.
-** The operator "~=" is deprecated and will be removed in a future version. Use "!==" with the same meaning instead.
+   It must be written "0.7" and "7.0" respectively.
 ** The "bitwise and" operator is now a first-class bit operator, not a boolean operator. In particular this means
    it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
 
