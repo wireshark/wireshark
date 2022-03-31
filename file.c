@@ -1679,7 +1679,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     ws_assert(!cf->dfilter || (compiled && dfcode));
 
     /* Update references in display filter (if any) for the protocol
-     * tree corresponding to the current frame. */
+     * tree corresponding to the currently selected frame in the GUI. */
     if (dfcode && cf->edt != NULL && cf->edt->tree != NULL)
         dfilter_load_field_references(dfcode, cf->edt->tree);
 
