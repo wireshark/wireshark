@@ -637,13 +637,13 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     addMatch( NSTime(), 8)
 
     testlib.test(OTHER, "add_pfield-time-bytes-local",    treeAddPField ( tree, AUTC, tvb:range(8,8), ENC_BIG_ENDIAN) )
-    addMatch( NSTime( 0x0000FF0F, 0x00FF000F), 8)
+    addMatch( NSTime( 0x0000FF0F, 0x00FF000F), 16)
 
     testlib.test(OTHER, "add_pfield-time-bytes-local-le", treeAddPField ( tree, AUTC, tvb:range(0,8), ENC_LITTLE_ENDIAN) )
     addMatch( NSTime(), 8)
 
     testlib.test(OTHER, "add_pfield-time-bytes-local-le", treeAddPField ( tree, AUTC, tvb:range(8,8), ENC_LITTLE_ENDIAN) )
-    addMatch( NSTime( 0x0FFF0000, 0x0F00FF00 ), 8)
+    addMatch( NSTime( 0x0FFF0000, 0x0F00FF00 ), 16)
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
 

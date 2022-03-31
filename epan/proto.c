@@ -4280,7 +4280,7 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 		tvb_ensure_bytes_exist(tvb, start, length);
 		get_time_value(tree, tvb, start, length, encoding, &time_stamp, is_relative);
-		if (endoff) *endoff = length;
+		if (endoff) *endoff = start + length;
 	}
 
 	if (err) *err = saved_err;
