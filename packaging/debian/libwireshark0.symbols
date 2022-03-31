@@ -21,6 +21,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  _try_val_to_str_ext_init@Base 1.9.1
  abs_time_secs_to_str_ex@Base 3.7.0
  abs_time_to_str_ex@Base 3.7.0
+ add_ber_encoded_label@Base 3.7.0
  add_conversation_table_data@Base 2.5.0
  add_conversation_table_data_with_conv_id@Base 2.5.0
  add_hostlist_table_data@Base 2.5.0
