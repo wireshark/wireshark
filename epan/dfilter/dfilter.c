@@ -292,6 +292,9 @@ const char *tokenstr(int token)
 		case TOKEN_BITWISE_AND: return "BITWISE_AND";
 		case TOKEN_PLUS:	return "PLUS";
 		case TOKEN_MINUS:	return "MINUS";
+		case TOKEN_STAR:	return "STAR";
+		case TOKEN_RSLASH:	return "RSLASH";
+		case TOKEN_PERCENT:	return "PERCENT";
 		case TOKEN_TEST_NOT:	return "TEST_NOT";
 		case TOKEN_STRING:	return "STRING";
 		case TOKEN_CHARCONST:	return "CHARCONST";

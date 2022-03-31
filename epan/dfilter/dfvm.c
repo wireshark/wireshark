@@ -311,6 +311,21 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
+			case DFVM_MULTIPLY:
+				wmem_strbuf_append_printf(buf, "%05d MULTIPLY\t\t%s * %s -> %s\n",
+					id, arg1_str, arg2_str, arg3_str);
+				break;
+
+			case DFVM_DIVIDE:
+				wmem_strbuf_append_printf(buf, "%05d DIVIDE\t\t%s / %s -> %s\n",
+					id, arg1_str, arg2_str, arg3_str);
+				break;
+
+			case DFVM_MODULO:
+				wmem_strbuf_append_printf(buf, "%05d MODULO\t\t%s %% %s -> %s\n",
+					id, arg1_str, arg2_str, arg3_str);
+				break;
+
 			case ANY_CONTAINS:
 				wmem_strbuf_append_printf(buf, "%05d ANY_CONTAINS\t%s contains %s\n",
 					id, arg1_str, arg2_str);
@@ -950,6 +965,18 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case DFVM_SUBTRACT:
 				mk_binary(df, fvalue_subtract, arg1, arg2, arg3);
+				break;
+
+			case DFVM_MULTIPLY:
+				mk_binary(df, fvalue_multiply, arg1, arg2, arg3);
+				break;
+
+			case DFVM_DIVIDE:
+				mk_binary(df, fvalue_divide, arg1, arg2, arg3);
+				break;
+
+			case DFVM_MODULO:
+				mk_binary(df, fvalue_modulo, arg1, arg2, arg3);
 				break;
 
 			case ANY_ZERO:

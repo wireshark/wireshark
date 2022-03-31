@@ -211,6 +211,27 @@ arithmetic_term(T) ::= entity(E) MINUS(M) entity(N).
     df_lval_free(M, FALSE);
 }
 
+arithmetic_term(T) ::= entity(E) STAR(P) entity(N).
+{
+    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(P));
+    sttype_test_set2(T, OP_MULTIPLY, E, N);
+    df_lval_free(P, FALSE);
+}
+
+arithmetic_term(T) ::= entity(E) RSLASH(M) entity(N).
+{
+    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(M));
+    sttype_test_set2(T, OP_DIVIDE, E, N);
+    df_lval_free(M, FALSE);
+}
+
+arithmetic_term(T) ::= entity(E) PERCENT(M) entity(N).
+{
+    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(M));
+    sttype_test_set2(T, OP_MODULO, E, N);
+    df_lval_free(M, FALSE);
+}
+
 term(T) ::= entity(E).          { T = E; }
 term(T) ::= bitwise_term(E).    { T = E; }
 term(T) ::= arithmetic_term(E). { T = E; }

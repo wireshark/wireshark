@@ -147,6 +147,9 @@ ftype_register_double(void)
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */
 		val_subtract,			/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 
 	static ftype_t double_type = {
@@ -176,6 +179,9 @@ ftype_register_double(void)
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */
 		val_subtract,			/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 
 	ftype_register(FT_FLOAT, &float_type);

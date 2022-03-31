@@ -117,6 +117,9 @@ WORD_CHAR			[[:alnum:]_:/+-]
 "}"		return simple(TOKEN_RBRACE);
 "+"		return simple(TOKEN_PLUS);
 "-"		return simple(TOKEN_MINUS);
+"*"		return simple(TOKEN_STAR);
+"/"		return simple(TOKEN_RSLASH);
+"%"		return simple(TOKEN_PERCENT);
 
 "=="		return simple(TOKEN_TEST_ANY_EQ);
 "eq"		return simple(TOKEN_TEST_ANY_EQ);

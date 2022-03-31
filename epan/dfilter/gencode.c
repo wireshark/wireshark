@@ -371,6 +371,15 @@ gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	else if (st_op == OP_SUBTRACT) {
 		op = DFVM_SUBTRACT;
 	}
+	else if (st_op == OP_MULTIPLY) {
+		op = DFVM_MULTIPLY;
+	}
+	else if (st_op == OP_DIVIDE) {
+		op = DFVM_DIVIDE;
+	}
+	else if (st_op == OP_MODULO) {
+		op = DFVM_MODULO;
+	}
 	else {
 		ws_assert_not_reached();
 	}
@@ -577,6 +586,9 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 		case OP_UNARY_MINUS:
 		case OP_ADD:
 		case OP_SUBTRACT:
+		case OP_MULTIPLY:
+		case OP_DIVIDE:
+		case OP_MODULO:
 			ws_assert_not_reached();
 			break;
 	}

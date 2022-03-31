@@ -62,10 +62,8 @@ typedef gboolean (*FvalueMatches)(const fvalue_t*, const ws_regex_t*);
 typedef gboolean (*FvalueIsZero)(const fvalue_t*);
 typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
-typedef enum ft_result (*FvalueBitwiseAnd)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
-typedef enum ft_result (*FvalueUnaryMinus)(fvalue_t *, const fvalue_t*, gchar **);
-typedef enum ft_result (*FvalueAdd)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
-typedef enum ft_result (*FvalueSubtract)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
+typedef enum ft_result (*FvalueUnaryOp)(fvalue_t *, const fvalue_t*, gchar **);
+typedef enum ft_result (*FvalueBinaryOp)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
 
 struct _ftype_t {
 	ftenum_t		ftype;
@@ -110,10 +108,13 @@ struct _ftype_t {
 	FvalueIsZero		is_zero;
 	FvalueLen		len;
 	FvalueSlice		slice;
-	FvalueBitwiseAnd	bitwise_and;
-	FvalueUnaryMinus	unary_minus;
-	FvalueAdd		add;
-	FvalueSubtract		subtract;
+	FvalueBinaryOp		bitwise_and;
+	FvalueUnaryOp		unary_minus;
+	FvalueBinaryOp		add;
+	FvalueBinaryOp		subtract;
+	FvalueBinaryOp		multiply;
+	FvalueBinaryOp		divide;
+	FvalueBinaryOp		modulo;
 };
 
 void ftype_register(enum ftenum ftype, ftype_t *ft);

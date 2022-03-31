@@ -237,6 +237,33 @@ ftype_can_subtract(enum ftenum ftype)
 }
 
 gboolean
+ftype_can_multiply(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->multiply != NULL;
+}
+
+gboolean
+ftype_can_divide(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->divide != NULL;
+}
+
+gboolean
+ftype_can_modulo(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->modulo != NULL;
+}
+
+gboolean
 ftype_can_contains(enum ftenum ftype)
 {
 	ftype_t	*ft;
@@ -824,52 +851,65 @@ fvalue_is_zero(const fvalue_t *a)
 	return a->ftype->is_zero(a);
 }
 
-fvalue_t *
-fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b, char **err_msg)
+static fvalue_t *
+_fvalue_binop(FvalueBinaryOp op, const fvalue_t *a, const fvalue_t *b, char **err_msg)
 {
 	fvalue_t *result;
 
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->bitwise_and);
-
 	result = fvalue_new(a->ftype->ftype);
-	if (a->ftype->bitwise_and(result, a, b, err_msg) != FT_OK) {
+	if (op(result, a, b, err_msg) != FT_OK) {
 		fvalue_free(result);
 		return NULL;
 	}
 	return result;
+}
+
+fvalue_t *
+fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b, char **err_msg)
+{
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->bitwise_and);
+	return _fvalue_binop(a->ftype->bitwise_and, a, b, err_msg);
 }
 
 fvalue_t *
 fvalue_add(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
 {
-	fvalue_t *result;
-
 	/* XXX - check compatibility of a and b */
 	ws_assert(a->ftype->add);
-
-	result = fvalue_new(a->ftype->ftype);
-	if (a->ftype->add(result, a, b, err_msg) != FT_OK) {
-		fvalue_free(result);
-		return NULL;
-	}
-	return result;
+	return _fvalue_binop(a->ftype->add, a, b, err_msg);
 }
 
 fvalue_t *
 fvalue_subtract(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
 {
-	fvalue_t *result;
-
 	/* XXX - check compatibility of a and b */
 	ws_assert(a->ftype->subtract);
+	return _fvalue_binop(a->ftype->subtract, a, b, err_msg);
+}
 
-	result = fvalue_new(a->ftype->ftype);
-	if (a->ftype->subtract(result, a, b, err_msg) != FT_OK) {
-		fvalue_free(result);
-		return NULL;
-	}
-	return result;
+fvalue_t *
+fvalue_multiply(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
+{
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->multiply);
+	return _fvalue_binop(a->ftype->multiply, a, b, err_msg);
+}
+
+fvalue_t *
+fvalue_divide(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
+{
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->divide);
+	return _fvalue_binop(a->ftype->divide, a, b, err_msg);
+}
+
+fvalue_t *
+fvalue_modulo(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
+{
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->modulo);
+	return _fvalue_binop(a->ftype->modulo, a, b, err_msg);
 }
 
 fvalue_t*

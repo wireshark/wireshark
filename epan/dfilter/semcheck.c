@@ -1341,31 +1341,14 @@ check_bitwise_operation(dfwork_t *dfw, stnode_t *st_node)
 }
 
 ftenum_t
-check_arithmetic_entity(dfwork_t *dfw, FtypeCanFunc can_func,
+check_arithmetic_entity(dfwork_t *dfw, FtypeCanFunc can_func, test_op_t st_op,
 		stnode_t *st_node, stnode_t *st_arg, ftenum_t lhs_ftype)
 {
 	sttype_id_t		type;
 	ftenum_t		ftype;
-	test_op_t		st_op;
 
 	resolve_unparsed(dfw, st_arg);
 	type = stnode_type_id(st_arg);
-
-	sttype_test_get(st_node, &st_op, NULL, NULL);
-
-	switch (st_op) {
-		case OP_UNARY_MINUS:
-			can_func = ftype_can_unary_minus;
-			break;
-		case OP_ADD:
-			can_func = ftype_can_add;
-			break;
-		case OP_SUBTRACT:
-			can_func = ftype_can_subtract;
-			break;
-		default:
-			ws_assert_not_reached();
-	}
 
 	if (type == STTYPE_LITERAL) {
 		/* numeric constant */
@@ -1436,20 +1419,29 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 
 	switch (st_op) {
 		case OP_UNARY_MINUS:
-			return check_arithmetic_entity(dfw, ftype_can_unary_minus, st_node, st_arg1, lhs_ftype);
+			return check_arithmetic_entity(dfw, ftype_can_unary_minus, st_op, st_node, st_arg1, lhs_ftype);
 		case OP_ADD:
 			can_func = ftype_can_add;
 			break;
 		case OP_SUBTRACT:
 			can_func = ftype_can_subtract;
 			break;
+		case OP_MULTIPLY:
+			can_func = ftype_can_multiply;
+			break;
+		case OP_DIVIDE:
+			can_func = ftype_can_divide;
+			break;
+		case OP_MODULO:
+			can_func = ftype_can_modulo;
+			break;
 		default:
 			ws_assert_not_reached();
 	}
 
 
-	ftype1 = check_arithmetic_entity(dfw, can_func, st_node, st_arg1, lhs_ftype);
-	ftype2 = check_arithmetic_entity(dfw, can_func, st_node, st_arg2, lhs_ftype);
+	ftype1 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg1, lhs_ftype);
+	ftype2 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg2, lhs_ftype);
 
 	if (!compatible_ftypes(ftype1, ftype2)) {
 		FAIL(dfw, "%s and %s are not type compatible.",

@@ -470,6 +470,9 @@ ftype_register_time(void)
 		NULL,				/* unary_minus */
 		NULL,				/* add */
 		NULL,				/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 	static ftype_t reltime_type = {
 		FT_RELATIVE_TIME,		/* ftype */
@@ -498,6 +501,9 @@ ftype_register_time(void)
 		time_unary_minus,		/* unary_minus */
 		time_add,			/* add */
 		time_subtract,			/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 
 	ftype_register(FT_ABSOLUTE_TIME, &abstime_type);

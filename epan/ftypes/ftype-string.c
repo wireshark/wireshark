@@ -196,6 +196,9 @@ ftype_register_string(void)
 		NULL,				/* unary_minus */
 		NULL,				/* add */
 		NULL,				/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 	static ftype_t stringz_type = {
 		FT_STRINGZ,			/* ftype */
@@ -224,6 +227,9 @@ ftype_register_string(void)
 		NULL,				/* unary_minus */
 		NULL,				/* add */
 		NULL,				/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 	static ftype_t uint_string_type = {
 		FT_UINT_STRING,		/* ftype */
@@ -252,6 +258,9 @@ ftype_register_string(void)
 		NULL,				/* unary_minus */
 		NULL,				/* add */
 		NULL,				/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 	static ftype_t stringzpad_type = {
 		FT_STRINGZPAD,			/* ftype */
@@ -280,6 +289,9 @@ ftype_register_string(void)
 		NULL,				/* unary_minus */
 		NULL,				/* add */
 		NULL,				/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 	static ftype_t stringztrunc_type = {
 		FT_STRINGZTRUNC,		/* ftype */
@@ -308,6 +320,9 @@ ftype_register_string(void)
 		NULL,				/* unary_minus */
 		NULL,				/* add */
 		NULL,				/* subtract */
+		NULL,				/* multiply */
+		NULL,				/* divide */
+		NULL,				/* modulo */
 	};
 
 	ftype_register(FT_STRING, &string_type);

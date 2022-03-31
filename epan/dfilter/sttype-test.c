@@ -116,6 +116,15 @@ test_todisplay(test_op_t op)
 		case OP_SUBTRACT:
 			s = "-";
 			break;
+		case OP_MULTIPLY:
+			s = "*";
+			break;
+		case OP_DIVIDE:
+			s = "/";
+			break;
+		case OP_MODULO:
+			s = "%";
+			break;
 		case TEST_OP_NOTZERO:
 			s = "<notzero>";
 			break;
@@ -189,6 +198,15 @@ test_todebug(test_op_t op)
 		case OP_SUBTRACT:
 			s = "SUBTRACT";
 			break;
+		case OP_MULTIPLY:
+			s = "MULTIPLY";
+			break;
+		case OP_DIVIDE:
+			s = "DIVIDE";
+			break;
+		case OP_MODULO:
+			s = "MODULO";
+			break;
 		case TEST_OP_NOTZERO:
 			s = "TEST_NOTZERO";
 			break;
@@ -246,6 +264,9 @@ num_operands(test_op_t op)
 		case OP_BITWISE_AND:
 		case OP_ADD:
 		case OP_SUBTRACT:
+		case OP_MULTIPLY:
+		case OP_DIVIDE:
+		case OP_MODULO:
 		case TEST_OP_CONTAINS:
 		case TEST_OP_MATCHES:
 		case TEST_OP_IN:

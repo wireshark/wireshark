@@ -194,6 +194,15 @@ ftype_can_add(enum ftenum ftype);
 gboolean
 ftype_can_subtract(enum ftenum ftype);
 
+gboolean
+ftype_can_multiply(enum ftenum ftype);
+
+gboolean
+ftype_can_divide(enum ftenum ftype);
+
+gboolean
+ftype_can_modulo(enum ftenum ftype);
+
 WS_DLL_PUBLIC
 gboolean
 ftype_can_contains(enum ftenum ftype);
@@ -388,6 +397,15 @@ fvalue_add(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
 
 fvalue_t*
 fvalue_subtract(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+
+fvalue_t*
+fvalue_multiply(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+
+fvalue_t*
+fvalue_divide(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+
+fvalue_t*
+fvalue_modulo(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
 
 #ifdef __cplusplus
 }
