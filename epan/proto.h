@@ -1330,6 +1330,78 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, ws_in4_addr *retval);
 
+/**
+ * @brief Parse an ipv6 address from the buffer and add it to the tree,
+ * writing the value to the pointer specified by the caller. The pointer
+ * must not be null.
+ *
+ * @param tree the tree
+ * @param hfindex the field
+ * @param tvb the tv buffer
+ * @param start the start index of data in tvb
+ * @param length the length of data. calls REPORT_DISSECTOR_BUG if not equal to FT_IPv6_LEN
+ * @param encoding encodings not yet supported. calls REPORT_DISSECTOR_BUG if not equal to 0
+ * @param retval where the address should be written, must not be null
+ * @return the newly created item
+ */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, ws_in6_addr *retval);
+
+/**
+ * @brief Parse an ethernet address from the buffer and add it to the tree,
+ * writing the value to the pointer specified by the caller. The pointer
+ * must not be null.
+ *
+ * @param tree the tree
+ * @param hfindex the field
+ * @param tvb the tv buffer
+ * @param start the start index of data in tvb
+ * @param length the length of data. calls REPORT_DISSECTOR_BUG if not equal to FT_ETHER_LEN
+ * @param encoding encodings not yet supported. calls REPORT_DISSECTOR_BUG if not equal to 0
+ * @param retval a buffer of at least FT_ETHER_LEN bytes for the address, must not be null
+ * @return the newly created item
+ */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, guint8 *retval);
+
+/**
+ * @brief Parse a float from the buffer and add it to the tree,
+ * returning the item added and the parsed value via retval.
+ *
+ * @param tree the tree
+ * @param hfindex the field
+ * @param tvb the tv buffer
+ * @param start start index of data in tvb
+ * @param length the length of data. calls REPORT_DISSECTOR_BUG if not equal to 4
+ * @param encoding ENC_LITTLE_ENDIAN or ENC_BIG_ENDIAN
+ * @param[out] retval for the decoded value
+ * @return the newly created item
+ */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_float(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                                const gint start, gint length,
+                                const guint encoding, gfloat *retval);
+
+/**
+ * @brief Parse a double from the buffer and add it to the tree,
+ * returning the item added and the parsed value via retval
+ *
+ * @param tree the tree
+ * @param hfindex the field
+ * @param tvb the tv buffer
+ * @param start start index of data in tvb
+ * @param length length of data. calls REPORT_DISSECTOR_BUG if not equal to 8
+ * @param encoding ENC_LITTLE_ENDIAN or ENC_BIG_ENDIAN
+ * @param[out] retval for the decoded value
+ * @return the newly created item and retval is set to the decoded value
+ */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_double(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                                const gint start, gint length,
+                                const guint encoding, gdouble *retval);
+
 /** Add an string item to a proto_tree, using the text label registered to
 that item.
 

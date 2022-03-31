@@ -3681,6 +3681,84 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 }
 
 proto_item *
+proto_tree_add_item_ret_float(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                                const gint start, gint length,
+                                const guint encoding, gfloat *retval)
+{
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+	gfloat		   value;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	if (hfinfo->type != FT_FLOAT) {
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_FLOAT", hfinfo->abbrev);
+	}
+
+	if (length != 4) {
+		report_type_length_mismatch(tree, "a single-precision floating point number", length, TRUE);
+	}
+
+	/* treat any nonzero encoding as little endian for backwards compatibility */
+	value = encoding ? tvb_get_letohieee_float(tvb, start) : tvb_get_ntohieee_float(tvb, start);
+	if (retval) {
+		*retval = value;
+	}
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+	if (encoding) {
+		new_fi->flags |= FI_LITTLE_ENDIAN;
+	}
+
+	proto_tree_set_float(new_fi, value);
+
+	return proto_tree_add_node(tree, new_fi);
+}
+
+proto_item *
+proto_tree_add_item_ret_double(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                                const gint start, gint length,
+                                const guint encoding, gdouble *retval)
+{
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+	gdouble		   value;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	if (hfinfo->type != FT_DOUBLE) {
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_DOUBLE", hfinfo->abbrev);
+	}
+
+	if (length != 8) {
+		report_type_length_mismatch(tree, "a double-precision floating point number", length, TRUE);
+	}
+
+	/* treat any nonzero encoding as little endian for backwards compatibility */
+	value = encoding ? tvb_get_letohieee_double(tvb, start) : tvb_get_ntohieee_double(tvb, start);
+	if (retval) {
+		*retval = value;
+	}
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+	if (encoding) {
+		new_fi->flags |= FI_LITTLE_ENDIAN;
+	}
+
+	proto_tree_set_double(new_fi, value);
+
+	return proto_tree_add_node(tree, new_fi);
+}
+
+proto_item *
 proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
                              const gint start, gint length,
                              const guint encoding, ws_in4_addr *retval)
@@ -3732,6 +3810,84 @@ proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	new_fi->flags |= encoding ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 	return proto_tree_add_node(tree, new_fi);
 }
+
+proto_item *
+proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                             const gint start, gint length,
+                             const guint encoding, ws_in6_addr *addr)
+{
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	switch (hfinfo->type) {
+	case FT_IPv6:
+		break;
+	default:
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_IPv6",
+		    hfinfo->abbrev);
+	}
+
+	if (length != FT_IPv6_LEN)
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_ipv6",
+			length);
+
+	if (encoding) {
+		REPORT_DISSECTOR_BUG("Encodings not yet implemented for proto_tree_add_item_ret_ipv6");
+	}
+
+	tvb_get_ipv6(tvb, start, addr);
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+
+	proto_tree_set_ipv6(new_fi, addr->bytes);
+
+	return proto_tree_add_node(tree, new_fi);
+}
+
+proto_item *
+proto_tree_add_item_ret_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, guint8 *retval) {
+
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	switch (hfinfo->type) {
+	case FT_ETHER:
+		break;
+	default:
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_ETHER",
+		    hfinfo->abbrev);
+	}
+
+	if (length != FT_ETHER_LEN)
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_ether",
+			length);
+
+	if (encoding) {
+		REPORT_DISSECTOR_BUG("Encodings not yet implemented for proto_tree_add_item_ret_ether");
+	}
+
+	tvb_memcpy(tvb, retval, start, length);
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+
+	proto_tree_set_ether(new_fi, retval);
+
+	return proto_tree_add_node(tree, new_fi);
+}
+
 
 proto_item *
 proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
