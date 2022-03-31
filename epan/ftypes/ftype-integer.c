@@ -765,7 +765,7 @@ sint64_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
 static enum ft_result
 sint_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_add(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
+	if (!psnip_safe_int32_add(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
 		*err_ptr = ws_strdup_printf("sint_add: overflow");
 		return FT_ERROR;
 	}
@@ -775,7 +775,7 @@ sint_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 static enum ft_result
 _sint_subtract(gint32 *sint_dst, gint32 sint_a, gint32 sint_b, char **err_ptr)
 {
-	if (!psnip_safe_sub(sint_dst, sint_a, sint_b)) {
+	if (!psnip_safe_int32_sub(sint_dst, sint_a, sint_b)) {
 		*err_ptr = ws_strdup_printf("sint_subtract: overflow");
 		return FT_ERROR;
 	}
@@ -791,7 +791,7 @@ sint_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 static enum ft_result
 sint_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_mul(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
+	if (!psnip_safe_int32_mul(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
 		*err_ptr = ws_strdup_printf("sint_multiply: overflow");
 		return FT_ERROR;
 	}
@@ -806,7 +806,7 @@ sint_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_div(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
+	if (!psnip_safe_int32_div(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
 		*err_ptr = ws_strdup_printf("sint_divide: overflow");
 		return FT_ERROR;
 	}
@@ -821,7 +821,7 @@ sint_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_mod(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
+	if (!psnip_safe_int32_mod(&dst->value.sinteger, a->value.sinteger, b->value.sinteger)) {
 		*err_ptr = ws_strdup_printf("sint_modulo: overflow");
 		return FT_ERROR;
 	}
@@ -831,7 +831,7 @@ sint_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 static enum ft_result
 uint_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_add(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
+	if (!psnip_safe_uint32_add(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
 		*err_ptr = ws_strdup_printf("uint_add: overflow");
 		return FT_ERROR;
 	}
@@ -852,7 +852,7 @@ uint_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return _sint_subtract(&dst->value.sinteger, (gint32)a->value.uinteger, (gint32)b->value.uinteger, err_ptr);
 	}
 
-	if (!psnip_safe_sub(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
+	if (!psnip_safe_uint32_sub(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
 		*err_ptr = ws_strdup_printf("uint_subtract: overflow");
 		return FT_ERROR;
 	}
@@ -862,7 +862,7 @@ uint_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 static enum ft_result
 uint_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_mul(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
+	if (!psnip_safe_uint32_mul(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
 		*err_ptr = ws_strdup_printf("uint_multiply: overflow");
 		return FT_ERROR;
 	}
@@ -877,7 +877,7 @@ uint_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_div(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
+	if (!psnip_safe_uint32_div(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
 		*err_ptr = ws_strdup_printf("uint_divide: overflow");
 		return FT_ERROR;
 	}
@@ -892,7 +892,7 @@ uint_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_mod(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
+	if (!psnip_safe_uint32_mod(&dst->value.uinteger, a->value.uinteger, b->value.uinteger)) {
 		*err_ptr = ws_strdup_printf("uint_modulo: overflow");
 		return FT_ERROR;
 	}
@@ -902,7 +902,7 @@ uint_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 static enum ft_result
 sint64_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_add(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	if (!psnip_safe_int64_add(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
 		*err_ptr = ws_strdup_printf("sint64_add: overflow");
 		return FT_ERROR;
 	}
@@ -912,7 +912,7 @@ sint64_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 static enum ft_result
 _sint64_subtract(gint64 *sint_dst, gint64 sint_a, gint64 sint_b, char **err_ptr)
 {
-	if (!psnip_safe_sub(sint_dst, sint_a, sint_b)) {
+	if (!psnip_safe_int64_sub(sint_dst, sint_a, sint_b)) {
 		*err_ptr = ws_strdup_printf("sint64_subtract: overflow");
 		return FT_ERROR;
 	}
@@ -928,7 +928,7 @@ sint64_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_
 static enum ft_result
 sint64_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_mul(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	if (!psnip_safe_int64_mul(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
 		*err_ptr = ws_strdup_printf("sint64_multiply: overflow");
 		return FT_ERROR;
 	}
@@ -943,7 +943,7 @@ sint64_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_div(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	if (!psnip_safe_int64_div(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
 		*err_ptr = ws_strdup_printf("sint64_divide: overflow");
 		return FT_ERROR;
 	}
@@ -958,7 +958,7 @@ sint64_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_mod(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	if (!psnip_safe_int64_mod(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
 		*err_ptr = ws_strdup_printf("sint64_modulo: overflow");
 		return FT_ERROR;
 	}
@@ -968,7 +968,7 @@ sint64_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 static enum ft_result
 uint64_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_add(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (!psnip_safe_uint64_add(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_add: overflow");
 		return FT_ERROR;
 	}
@@ -989,7 +989,7 @@ uint64_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_
 		return _sint64_subtract(&dst->value.sinteger64, (gint64)a->value.uinteger64, (gint64)b->value.uinteger64, err_ptr);
 	}
 
-	if (!psnip_safe_sub(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (!psnip_safe_uint64_sub(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_subtract: overflow");
 		return FT_ERROR;
 	}
@@ -999,7 +999,7 @@ uint64_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_
 static enum ft_result
 uint64_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_mul(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (!psnip_safe_uint64_mul(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_multiply: overflow");
 		return FT_ERROR;
 	}
@@ -1014,7 +1014,7 @@ uint64_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_div(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (!psnip_safe_uint64_div(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_divide: overflow");
 		return FT_ERROR;
 	}
@@ -1029,7 +1029,7 @@ uint64_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_mod(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (!psnip_safe_uint64_mod(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_modulo: overflow");
 		return FT_ERROR;
 	}
