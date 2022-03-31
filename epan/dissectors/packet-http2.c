@@ -1903,7 +1903,7 @@ fix_partial_header_dissection_support(nghttp2_hd_inflater *hd_inflater, gboolean
                                          HTTP2_HEADER_UNKNOWN /* Name String */
                                          "\0";       /* Value Length */
     const int dummy_header_size = sizeof(dummy_header) - 1;
-    const int dummy_entries_to_add = 4096 / (32 + dummy_header_size - 3);
+    const int dummy_entries_to_add = (int)(nghttp2_hd_inflate_get_max_dynamic_table_size(hd_inflater) / (32 + dummy_header_size - 3));
     for (int i = dummy_entries_to_add - 1; i >= 0; --i) {
         nghttp2_nv nv;
         int inflate_flags = 0;
