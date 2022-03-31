@@ -371,10 +371,10 @@ can be convenient:
     frame[4] == 0xff
     frame[1:4] contains 0x02
 
-=== Bit field operations
+=== Bitwise operators
 
-It is also possible to define tests with bit field operations. Currently the
-following bit field operation is supported:
+It is also possible to define tests with bitwise operations. Currently the
+following bitwise operator is supported:
 
     bitwise_and, &	Bitwise AND
 
@@ -388,14 +388,42 @@ When testing for TCP SYN packets, you can write:
 That expression will match all packets that contain a "tcp.flags" field
 with the 0x02 bit, i.e. the SYN bit, set.
 
-Similarly, filtering for all WSP GET and extended GET methods is achieved with:
+To match locally administered unicast ethernet addresses you can use:
 
-    wsp.pdu_type & 0x40
+    eth.addr[0] & 0x0f == 2
 
 When using slices, the bit mask must be specified as a byte string, and it must
 have the same number of bytes as the slice itself, as in:
 
     ip[42:2] & 40:ff
+
+=== Arithmetic operators
+
+Simple arithmetic expressions are available. The following operators are
+supported:
+
+    +   Addition
+    -   Subtraction
+    *   Multiplication
+    /   Division
+    %   Modulo (integer remainder)
+
+For example it is possible to filter for UDP destination ports greater or
+equal by one to the source port with the expression:
+
+    udp.dstport >= udp.srcport + 1
+
+=== Protocol field references
+
+A variable using a sigil with the form ${some.proto.field} is called a field
+reference. A field reference is a field value read from the currently
+selected frame in the GUI. This is useful to build dynamic filters such as,
+frames since the last five minutes to the selected frame:
+
+    frame.time_relative >= ${frame.time_relative} - 300
+
+Field references share a similar notation to macros but are distinct
+syntactical elements in the filter language.
 
 === Logical expressions
 
