@@ -21,7 +21,7 @@
 #include <wsutil/inet_ipv6.h>
 
 #if 0
-#define wtap_debug(...) g_warning(__VA_ARGS__)
+#define wtap_debug(...) ws_warning(__VA_ARGS__)
 #define DEBUG_COUNT_REFS
 #else
 #define wtap_debug(...)

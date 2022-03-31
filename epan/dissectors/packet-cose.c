@@ -14,6 +14,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN "packet-cose"
 
 #include "packet-cose.h"
 #include <epan/wscbor.h>
@@ -27,8 +28,6 @@
 void proto_register_cose(void);
 void proto_reg_handoff_cose(void);
 
-/// Glib logging "domain" name
-static const char *LOG_DOMAIN = "COSE";
 /// Protocol column name
 static const char *const proto_name_cose = "COSE";
 
@@ -706,14 +705,14 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!dissector) {
             continue;
         }
-        g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" PRIu64, tag->value);
+        ws_info("main dissector using tag %" PRIu64, tag->value);
         int sublen = call_dissector_only(dissector, tvb, pinfo, tree, tag);
         if (sublen > 0) {
             return sublen;
         }
     }
 
-    g_log(LOG_DOMAIN, G_LOG_LEVEL_WARNING, "main dissector did not match any known tag");
+    ws_warning("main dissector did not match any known tag");
     proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, 0);
     expert_add_info(pinfo, item_msg, &ei_invalid_tag);
     return -1;

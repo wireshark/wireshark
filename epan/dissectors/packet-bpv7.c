@@ -12,6 +12,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-bpv7"
 
 #include "packet-bpv7.h"
 #include "epan/wscbor.h"
@@ -28,8 +29,6 @@
 #include <wsutil/utf8_entities.h>
 #include <inttypes.h>
 
-/// Glib logging "domain" name
-static const char *LOG_DOMAIN = "bpv7";
 /// Protocol column name
 static const char *const proto_name_bp = "BPv7";
 static const char *const proto_name_bp_admin = "BPv7 Admin";
@@ -1607,7 +1606,7 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         // Back-references to this status
         if (!wmem_map_contains(status_set, context->bundle->ident)) {
-            g_log(LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "status for %p in frame %d", (void*)context->bundle, context->bundle->frame_num);
+            ws_debug("status for %p in frame %d", (void*)context->bundle, context->bundle->frame_num);
             wmem_map_insert(status_set, context->bundle->ident, NULL);
         }
     }

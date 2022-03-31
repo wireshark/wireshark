@@ -36,9 +36,8 @@
 /* "SSH" prefixes are for version 2, whereas "SSH1" is for version 1 */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "packet-ssh"
 
-/* Start with G_MESSAGES_DEBUG=ssh to see messages. */
-#define G_LOG_DOMAIN "ssh"
 // Define this to get hex dumps more similar to what you get in openssh. If not defined, dumps look more like what you get with other dissectors.
 #define OPENSSH_STYLE
 
@@ -846,7 +845,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 
             ssh2_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ssh2, NULL, wmem_strbuf_get_str(title));
         }
-g_debug("....ssh_dissect_ssh2[%c]: frame_key_start=%d, pinfo->num=%d, frame_key_end=%d, offset=%d, frame_key_end_offset=%d ", is_response==SERVER_PEER_DATA?'S':'C', peer_data->frame_key_start, pinfo->num, peer_data->frame_key_end, offset, peer_data->frame_key_end_offset);
+        ws_noisy("....ssh_dissect_ssh2[%c]: frame_key_start=%d, pinfo->num=%d, frame_key_end=%d, offset=%d, frame_key_end_offset=%d ", is_response==SERVER_PEER_DATA?'S':'C', peer_data->frame_key_start, pinfo->num, peer_data->frame_key_end, offset, peer_data->frame_key_end_offset);
         if ((peer_data->frame_key_start == 0) ||
             ((peer_data->frame_key_start <= pinfo->num) &&
             ((peer_data->frame_key_end == 0) || (pinfo->num < peer_data->frame_key_end) ||
@@ -2375,7 +2374,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             gcry_cipher_open(hd2, GCRY_CIPHER_CHACHA20, GCRY_CIPHER_MODE_STREAM, 0)) {
             gcry_cipher_close(*hd1);
             gcry_cipher_close(*hd2);
-            g_debug("ssh: can't open chacha20 cipher handles");
+            ws_debug("ssh: can't open chacha20 cipher handles");
             return;
         }
 
@@ -2395,14 +2394,14 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
 
         if ((err = gcry_cipher_setkey(*hd1, k1, 32))) {
             gcry_cipher_close(*hd1);
-            g_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
+            ws_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
             return;
         }
 
         if ((err = gcry_cipher_setkey(*hd2, k2, 32))) {
             gcry_cipher_close(*hd1);
             gcry_cipher_close(*hd2);
-            g_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
+            ws_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
             return;
         }
     }
@@ -2442,7 +2441,6 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
     ssh_message_info_t *message = NULL;
     ssh_message_info_t **pmessage = &packet->messages;
     while(*pmessage){
-//        g_debug("looking for message %d now %d", record_id, (*pmessage)->id);
         if ((*pmessage)->id == record_id) {
             message = *pmessage;
             break;
@@ -2473,7 +2471,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         if (!ssh_decrypt_chacha20(peer_data->cipher_2, seqnr, 0, ctext, 4,
                     plain_length_buf, 4)) {
-            g_debug("ERROR: could not decrypt packet len");
+            ws_debug("ERROR: could not decrypt packet len");
             return tvb_captured_length(tvb);
         }
 
@@ -2483,7 +2481,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         ssh_debug_printf("%s plain for seq = %d len = %u\n", is_response?"s2c":"c2s", seqnr, message_length);
         if(message_length>32768){
-            g_debug("ssh: unreasonable message length %u", message_length);
+            ws_debug("ssh: unreasonable message length %u", message_length);
             return tvb_captured_length(tvb);
         }
 
@@ -2494,7 +2492,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         if (!ssh_decrypt_chacha20(peer_data->cipher, seqnr, 1, ctext2,
                     message_length, plain+4, message_length)) {
-            g_debug("ERROR: could not decrypt packet payload");
+            ws_debug("ERROR: could not decrypt packet payload");
             return tvb_captured_length(tvb);
         }
 
@@ -2514,7 +2512,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         gcry_mac_write(mac_hd, ctext, 4);
         gcry_mac_write(mac_hd, ctext2, message_length);
         if (gcry_mac_verify(mac_hd, mac, mac_len)) {
-            g_debug("ssh: MAC does not match");
+            ws_debug("ssh: MAC does not match");
         }
         size_t buflen = DIGEST_MAX_SIZE;
         gcry_mac_read(mac_hd, message->calc_mac, &buflen);
@@ -3090,7 +3088,7 @@ get_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel
             if(channel_number==uiNumChannel){return ci->subdissector_handle;}
             ci = ci->next;
         }
-        g_debug("Error lookin up channel %d", uiNumChannel);
+        ws_debug("Error lookin up channel %d", uiNumChannel);
         return NULL;
 }
 
