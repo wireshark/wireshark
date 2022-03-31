@@ -75,54 +75,49 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", type,
 		    tvb_format_text(pinfo->pool, tvb, offset, linelen));
 
-	{
-		ti = proto_tree_add_item(tree, proto_nntp, tvb, offset, -1,
-		    ENC_NA);
-		nntp_tree = proto_item_add_subtree(ti, ett_nntp);
+	ti = proto_tree_add_item(tree, proto_nntp, tvb, offset, -1, ENC_NA);
+	nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
-		if (pinfo->match_uint == pinfo->destport) {
-			ti = proto_tree_add_boolean(nntp_tree,
-			    hf_nntp_request, tvb, 0, 0, TRUE);
+	if (pinfo->match_uint == pinfo->destport) {
+		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_request, tvb, 0, 0, TRUE);
 
-			if (g_ascii_strncasecmp(line, "STARTTLS", 8) == 0) {
-				session_state->tls_requested = TRUE;
-			}
-		} else {
-			ti = proto_tree_add_boolean(nntp_tree,
-			    hf_nntp_response, tvb, 0, 0, TRUE);
-
-			if (session_state->tls_requested) {
-				if (g_ascii_strncasecmp(line, "382", 3) == 0) {
-					/* STARTTLS command accepted */
-					ssl_starttls_ack(tls_handle, pinfo, nntp_handle);
-				}
-				session_state->tls_requested = FALSE;
-			}
+		if (g_ascii_strncasecmp(line, "STARTTLS", 8) == 0) {
+			session_state->tls_requested = TRUE;
 		}
-		proto_item_set_hidden(ti);
+	} else {
+		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_response, tvb, 0, 0, TRUE);
 
-		/*
-		 * Show the request or response as text, a line at a time.
-		 * XXX - for requests, we could display the stuff after the
-		 * first line, if any, based on what the request was, and
-		 * for responses, we could display it based on what the
-		 * matching request was, although the latter requires us to
-		 * know what the matching request was....
-		 */
-		while (tvb_offset_exists(tvb, offset)) {
-			/*
-			 * Find the end of the line.
-			 */
-			tvb_find_line_end(tvb, offset, -1, &next_offset,
-			    FALSE);
-
-			/*
-			 * Put this line.
-			 */
-			proto_tree_add_format_text(nntp_tree, tvb, offset, next_offset - offset);
-			offset = next_offset;
+		if (session_state->tls_requested) {
+			if (g_ascii_strncasecmp(line, "382", 3) == 0) {
+				/* STARTTLS command accepted */
+				ssl_starttls_ack(tls_handle, pinfo, nntp_handle);
+			}
+			session_state->tls_requested = FALSE;
 		}
 	}
+	proto_item_set_hidden(ti);
+
+	/*
+	 * Show the request or response as text, a line at a time.
+	 * XXX - for requests, we could display the stuff after the
+	 * first line, if any, based on what the request was, and
+	 * for responses, we could display it based on what the
+	 * matching request was, although the latter requires us to
+	 * know what the matching request was....
+	 */
+	while (tvb_offset_exists(tvb, offset)) {
+		/*
+		 * Find the end of the line.
+		 */
+		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+
+		/*
+		 * Put this line.
+		 */
+		proto_tree_add_format_text(nntp_tree, tvb, offset, next_offset - offset);
+		offset = next_offset;
+	}
+
 	return tvb_captured_length(tvb);
 }
 
