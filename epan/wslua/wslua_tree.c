@@ -114,6 +114,162 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             }
             break;
 
+        case FT_INT8:
+        case FT_INT16:
+        case FT_INT24:
+        case FT_INT32:
+            {
+                gint32 ret;
+                item = proto_tree_add_item_ret_int(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                tvbr->offset, tvbr->len, encoding,
+                                                &ret);
+                lua_pushnumber(L, (lua_Number)ret);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_INT40:
+        case FT_INT48:
+        case FT_INT56:
+        case FT_INT64:
+            {
+                gint64 ret;
+                item = proto_tree_add_item_ret_int64(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                tvbr->offset, tvbr->len, encoding,
+                                                &ret);
+                pushInt64(L, ret);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_CHAR:
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT24:
+        case FT_UINT32:
+            {
+                guint32 ret;
+                item = proto_tree_add_item_ret_uint(tree_item-> tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    &ret);
+                lua_pushnumber(L, (lua_Number)ret);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_UINT40:
+        case FT_UINT48:
+        case FT_UINT56:
+        case FT_UINT64:
+            {
+                guint64 ret;
+                item = proto_tree_add_item_ret_uint64(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    &ret);
+                pushUInt64(L, ret);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_BOOLEAN:
+            {
+                gboolean ret;
+                item = proto_tree_add_item_ret_boolean(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    &ret);
+                lua_pushboolean(L, ret);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_STRING:
+            {
+                const guint8 *ret;
+                gint len;
+                item = proto_tree_add_item_ret_string_and_length(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    NULL, &ret, &len);
+                lua_pushstring(L, ret);
+                lua_pushinteger(L, tvbr->offset + len);
+                wmem_free(NULL, (void*)ret);
+            }
+            break;
+
+        case FT_STRINGZ:
+            {
+                const guint8 *ret;
+                gint len;
+                item = proto_tree_add_item_ret_string_and_length(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, -1, encoding,
+                                                    NULL, &ret, &len);
+                lua_pushstring(L, ret);
+                lua_pushinteger(L, tvbr->offset + len);
+                wmem_free(NULL, (void*)ret);
+            }
+            break;
+
+        case FT_FLOAT:
+            {
+                gfloat ret;
+                item = proto_tree_add_item_ret_float(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    &ret);
+                lua_pushnumber(L, (lua_Number)ret);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_DOUBLE:
+            {
+                gdouble ret;
+                item = proto_tree_add_item_ret_double(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    &ret);
+                lua_pushnumber(L, (lua_Number)ret);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_IPv4:
+            {
+                Address addr = g_new(address,1);
+                ws_in4_addr ret;
+                item = proto_tree_add_item_ret_ipv4(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    &ret);
+                alloc_address_wmem(NULL, addr, AT_IPv4, sizeof(ret), &ret);
+                pushAddress(L, addr);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_IPv6:
+            {
+                Address addr = g_new(address, 1);
+                ws_in6_addr ret;
+                item = proto_tree_add_item_ret_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    &ret);
+                alloc_address_wmem(NULL, addr, AT_IPv6, sizeof(ret), &ret);
+                pushAddress(L, addr);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
+        case FT_ETHER:
+            {
+                Address addr = g_new(address, 1);
+                guint8 bytes[FT_ETHER_LEN];
+
+                item = proto_tree_add_item_ret_ether(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                    tvbr->offset, tvbr->len, encoding,
+                                                    bytes);
+                alloc_address_wmem(NULL, addr, AT_ETHER, sizeof(bytes), bytes);
+                pushAddress(L, addr);
+                lua_pushinteger(L, tvbr->offset + tvbr->len);
+            }
+            break;
+
         /* XXX: what about these? */
         case FT_NONE:
         case FT_PROTOCOL:
