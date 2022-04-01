@@ -30,6 +30,7 @@
 #include <epan/expert.h>
 #include <epan/wmem_scopes.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include "packet-dtls.h"
 #include "packet-coap.h"
 #include "packet-http.h"
@@ -458,7 +459,7 @@ dissect_coap_opt_uri_host(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_it
 	proto_tree_add_item_ret_string(subtree, hf, tvb, offset, opt_length, ENC_ASCII, pinfo->pool, &str);
 
 	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", str);
+	proto_item_append_text(head_item, ": %s", format_text_wsp(pinfo->pool, str, strlen(str)));
 
 	/* forming a uri-string
 	 *   If the 'uri host' looks an IPv6 address, assuming that the address has
@@ -488,7 +489,7 @@ dissect_coap_opt_uri_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_it
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", str);
+	proto_item_append_text(head_item, ": %s", format_text_wsp(pinfo->pool, str, strlen(str)));
 }
 
 static void
@@ -509,7 +510,7 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_i
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", str);
+	proto_item_append_text(head_item, ": %s", format_text_wsp(pinfo->pool, str, strlen(str)));
 }
 
 static void
@@ -526,7 +527,7 @@ dissect_coap_opt_location_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *he
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", str);
+	proto_item_append_text(head_item, ": %s", format_text_wsp(pinfo->pool, str, strlen(str)));
 }
 
 static void
@@ -543,7 +544,7 @@ dissect_coap_opt_location_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *h
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", str);
+	proto_item_append_text(head_item, ": %s", format_text_wsp(pinfo->pool, str, strlen(str)));
 }
 
 /* rfc8613 */
@@ -658,7 +659,7 @@ dissect_coap_opt_proxy_uri(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_i
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", str);
+	proto_item_append_text(head_item, ": %s", format_text_wsp(pinfo->pool, str, strlen(str)));
 }
 
 static void
@@ -675,7 +676,7 @@ dissect_coap_opt_proxy_scheme(tvbuff_t *tvb, packet_info *pinfo, proto_item *hea
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", str);
+	proto_item_append_text(head_item, ": %s", format_text_wsp(pinfo->pool, str, strlen(str)));
 }
 
 static void
@@ -1432,13 +1433,13 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				(coinfo->block_mflag || !mflag_is_used) ? "" : "End of ", coinfo->block_number);
 	}
 	if (wmem_strbuf_get_len(coinfo->uri_str_strbuf) > 0) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", wmem_strbuf_get_str(coinfo->uri_str_strbuf));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", format_text_wsp(pinfo->pool, wmem_strbuf_get_str(coinfo->uri_str_strbuf), wmem_strbuf_get_len(coinfo->uri_str_strbuf)));
 		/* Add a generated protocol item as well */
 		pi = proto_tree_add_string(coap_tree, dissect_coap_hf.hf.opt_uri_path_recon, tvb, 0, 0, wmem_strbuf_get_str(coinfo->uri_str_strbuf));
 		proto_item_set_generated(pi);
 	}
 	if (wmem_strbuf_get_len(coinfo->uri_query_strbuf) > 0)
-		col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(coinfo->uri_query_strbuf));
+		col_append_str(pinfo->cinfo, COL_INFO, format_text_wsp(pinfo->pool, wmem_strbuf_get_str(coinfo->uri_query_strbuf), wmem_strbuf_get_len(coinfo->uri_query_strbuf)));
 
 	if (coap_req_rsp != NULL) {
 		/* Print state tracking in the tree */
