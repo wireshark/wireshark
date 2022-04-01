@@ -149,6 +149,20 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 	return FALSE;
 }
 
+static gboolean
+node_is_constant(stnode_t *node)
+{
+	switch (stnode_type_id(node)) {
+		case STTYPE_CHARCONST:
+		case STTYPE_STRING:
+		case STTYPE_LITERAL:
+			return TRUE;
+		default:
+			break;
+	}
+	return FALSE;
+}
+
 /* Gets an fvalue from a string, and sets the error message on failure. */
 WS_RETNONNULL
 static fvalue_t*
@@ -999,30 +1013,37 @@ check_relation_LHS_BITWISE(dfwork_t *dfw, test_op_t st_op _U_,
 static void
 check_relation_LHS_ARITHMETIC(dfwork_t *dfw, test_op_t st_op _U_,
 		FtypeCanFunc can_func _U_, gboolean allow_partial_value,
-		stnode_t *st_node _U_,
-		stnode_t *st_arg1, stnode_t *st_arg2)
+		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*entity;
 	sttype_id_t		entity_type;
+	test_op_t		st_op_math;
 
 	LOG_NODE(st_node);
+
+	sttype_test_get(st_arg1, &st_op_math, &entity, NULL);
+	resolve_unparsed(dfw, entity);
+
+	/* Check if we have a unary minus with a constant. That's not valid
+	 * on the LHS. */
+	if (st_op_math == OP_UNARY_MINUS && node_is_constant(entity)) {
+		FAIL(dfw, "Left side of %s expression must be a field or function, not %s.",
+			stnode_todisplay(st_node), stnode_todisplay(entity));
+	}
+
+	check_arithmetic_operation(dfw, st_arg1, FT_NONE);
 
 	sttype_test_get(st_arg1, NULL, &entity, NULL);
 	entity_type = stnode_type_id(entity);
 
 	if (entity_type == STTYPE_FIELD || entity_type == STTYPE_REFERENCE) {
-		check_arithmetic_operation(dfw, st_arg1, FT_NONE);
-
 		check_relation_LHS_FIELD(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
 	}
 	else if (entity_type == STTYPE_FUNCTION) {
-		check_arithmetic_operation(dfw, st_arg1, FT_NONE);
-
 		check_relation_LHS_FUNCTION(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
 	}
 	else {
-		FAIL(dfw, "Left side of %s expression must be a field or function, not %s.",
-				stnode_todisplay(st_node), stnode_todisplay(entity));
+		ws_assert_not_reached();
 	}
 }
 
@@ -1347,6 +1368,10 @@ check_arithmetic_entity(dfwork_t *dfw, FtypeCanFunc can_func, test_op_t st_op,
 	sttype_id_t		type;
 	ftenum_t		ftype;
 
+	/* lhs_ftype variable determines the type for this entity. If LHS type
+	 * is none we must have been passed an entity with a definite type
+	 * (field, function, etc). */
+
 	resolve_unparsed(dfw, st_arg);
 	type = stnode_type_id(st_arg);
 
@@ -1440,8 +1465,8 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	}
 
 
-	ftype1 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg1, lhs_ftype);
-	ftype2 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg2, lhs_ftype);
+	ftype1 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg1, FT_NONE);
+	ftype2 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg2, ftype1);
 
 	if (!compatible_ftypes(ftype1, ftype2)) {
 		FAIL(dfw, "%s and %s are not type compatible.",
