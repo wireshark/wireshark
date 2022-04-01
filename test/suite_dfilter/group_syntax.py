@@ -182,7 +182,7 @@ class case_unary_minus(unittest.TestCase):
         checkDFilterCount(dfilter, 0)
 
     def test_unary_3(self, checkDFilterFail):
-        error = 'Left side of "==" expression must be a field or function'
+        error = 'Constant arithmetic expression on the LHS is invalid'
         dfilter = "-2 == tcp.dstport"
         checkDFilterFail(dfilter, error)
 
@@ -193,6 +193,15 @@ class case_arithmetic(unittest.TestCase):
     def test_add_1(self, checkDFilterCount):
         dfilter = "udp.dstport == udp.srcport + 1"
         checkDFilterCount(dfilter, 2)
+
+    def test_add_2(self, checkDFilterCount):
+        dfilter = "udp.dstport == 66 + 1"
+        checkDFilterCount(dfilter, 2)
+
+    def test_add_3(self, checkDFilterFail):
+        error = 'Constant arithmetic expression on the LHS is invalid'
+        dfilter = "2 + 3 == frame.number"
+        checkDFilterFail(dfilter, error)
 
     def test_sub_1(self, checkDFilterCount):
         dfilter = "udp.srcport == udp.dstport - 1"

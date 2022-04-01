@@ -1017,19 +1017,8 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, test_op_t st_op _U_,
 {
 	stnode_t		*entity;
 	sttype_id_t		entity_type;
-	test_op_t		st_op_math;
 
 	LOG_NODE(st_node);
-
-	sttype_test_get(st_arg1, &st_op_math, &entity, NULL);
-	resolve_unparsed(dfw, entity);
-
-	/* Check if we have a unary minus with a constant. That's not valid
-	 * on the LHS. */
-	if (st_op_math == OP_UNARY_MINUS && node_is_constant(entity)) {
-		FAIL(dfw, "Left side of %s expression must be a field or function, not %s.",
-			stnode_todisplay(st_node), stnode_todisplay(entity));
-	}
 
 	check_arithmetic_operation(dfw, st_arg1, FT_NONE);
 
@@ -1441,6 +1430,12 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	FtypeCanFunc 		can_func = NULL;
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
+	resolve_unparsed(dfw, st_arg1);
+
+	/* On the LHS we require a field-like value as the first term. */
+	if (lhs_ftype == FT_NONE && node_is_constant(st_arg1)) {
+		FAIL(dfw, "Constant arithmetic expression on the LHS is invalid.");
+	}
 
 	switch (st_op) {
 		case OP_UNARY_MINUS:
@@ -1465,7 +1460,7 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	}
 
 
-	ftype1 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg1, FT_NONE);
+	ftype1 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg1, lhs_ftype);
 	ftype2 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg2, ftype1);
 
 	if (!compatible_ftypes(ftype1, ftype2)) {
