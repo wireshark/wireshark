@@ -3941,10 +3941,11 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
    int value_offset;
    wmem_strbuf_t *strbuf;
    gboolean extended_logical = FALSE;
+   guint8 logical_seg_type = segment_type & CI_LOGICAL_SEG_TYPE_MASK;
 
    /* Extended Logical Format is slightly different than other logical formats. An extra byte is
       inserted after the segment type. */
-   if ((segment_type & CI_LOGICAL_SEG_TYPE_MASK) == CI_LOGICAL_SEG_EXT_LOGICAL)
+   if (logical_seg_type == CI_LOGICAL_SEG_EXT_LOGICAL)
    {
       extended_logical = TRUE;
 
@@ -3985,7 +3986,14 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
 
       if (vals == NULL)
       {
-         proto_item_append_text( epath_item, "%s: 0x%02X", segment_name,  temp_data);
+         if (logical_seg_type == CI_LOGICAL_SEG_ATTR_ID)
+         {
+            proto_item_append_text(epath_item, "%s: %d", segment_name, temp_data);
+         }
+         else
+         {
+            proto_item_append_text(epath_item, "%s: 0x%02X", segment_name, temp_data);
+         }
       }
       else
       {
@@ -4034,7 +4042,14 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
 
       if (vals == NULL)
       {
-         proto_item_append_text( epath_item, "%s: 0x%04X", segment_name,  temp_data);
+         if (logical_seg_type == CI_LOGICAL_SEG_ATTR_ID)
+         {
+            proto_item_append_text(epath_item, "%s: %d", segment_name, temp_data);
+         }
+         else
+         {
+            proto_item_append_text(epath_item, "%s: 0x%04X", segment_name, temp_data);
+         }
       }
       else
       {
@@ -4073,7 +4088,14 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
 
       if (vals == NULL)
       {
-         proto_item_append_text( epath_item, "%s: 0x%08X", segment_name,  temp_data);
+         if (logical_seg_type == CI_LOGICAL_SEG_ATTR_ID)
+         {
+            proto_item_append_text(epath_item, "%s: %d", segment_name, temp_data);
+         }
+         else
+         {
+            proto_item_append_text(epath_item, "%s: 0x%08X", segment_name, temp_data);
+         }
       }
       else
       {
