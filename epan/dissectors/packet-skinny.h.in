@@ -31,7 +31,7 @@
 # - python.xml.sax
 #
 cog.out('/*\n')
-cog.out(' * Generated Automatically Using (from wireshark base directory):\n')
+cog.out(' * Generated automatically Using (from wireshark base directory):\n')
 cog.out(' *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.h epan/dissectors/packet-skinny.h.in\n')
 cog.out(' */\n')
 /*]]]*/

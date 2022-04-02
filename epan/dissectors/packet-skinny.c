@@ -8459,87 +8459,87 @@ proto_register_skinny(void)
         NULL, HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit1,
       {
-        "Bit1", "skinny.Generic.Bitfield.Bit1", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+        "Bit1", "skinny.Generic.Bitfield.Bit1", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit10,
       {
-        "Bit10", "skinny.Generic.Bitfield.Bit10", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000200,
+        "Bit10", "skinny.Generic.Bitfield.Bit10", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0200,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit11,
       {
-        "Bit11", "skinny.Generic.Bitfield.Bit11", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000400,
+        "Bit11", "skinny.Generic.Bitfield.Bit11", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0400,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit12,
       {
-        "Bit12", "skinny.Generic.Bitfield.Bit12", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000800,
+        "Bit12", "skinny.Generic.Bitfield.Bit12", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0800,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit13,
       {
-        "Bit13", "skinny.Generic.Bitfield.Bit13", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00001000,
+        "Bit13", "skinny.Generic.Bitfield.Bit13", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x1000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit14,
       {
-        "Bit14", "skinny.Generic.Bitfield.Bit14", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00002000,
+        "Bit14", "skinny.Generic.Bitfield.Bit14", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x2000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit15,
       {
-        "Bit14", "skinny.Generic.Bitfield.Bit15", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00004000,
+        "Bit14", "skinny.Generic.Bitfield.Bit15", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x4000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit16,
       {
-        "Bit15", "skinny.Generic.Bitfield.Bit16", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00008000,
+        "Bit15", "skinny.Generic.Bitfield.Bit16", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x8000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit17,
       {
-        "Bit17", "skinny.Generic.Bitfield.Bit17", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00010000,
+        "Bit17", "skinny.Generic.Bitfield.Bit17", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x10000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit18,
       {
-        "Bit18", "skinny.Generic.Bitfield.Bit18", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00020000,
+        "Bit18", "skinny.Generic.Bitfield.Bit18", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x20000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit19,
       {
-        "Bit19", "skinny.Generic.Bitfield.Bit19", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00040000,
+        "Bit19", "skinny.Generic.Bitfield.Bit19", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x40000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit2,
       {
-        "Bit2", "skinny.Generic.Bitfield.Bit2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+        "Bit2", "skinny.Generic.Bitfield.Bit2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit20,
       {
-        "Bit20", "skinny.Generic.Bitfield.Bit20", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00080000,
+        "Bit20", "skinny.Generic.Bitfield.Bit20", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x80000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit21,
       {
-        "Bit21", "skinny.Generic.Bitfield.Bit21", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00100000,
+        "Bit21", "skinny.Generic.Bitfield.Bit21", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x100000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit22,
       {
-        "Bit22", "skinny.Generic.Bitfield.Bit22", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00200000,
+        "Bit22", "skinny.Generic.Bitfield.Bit22", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x200000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit23,
       {
-        "Bit23", "skinny.Generic.Bitfield.Bit23", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00400000,
+        "Bit23", "skinny.Generic.Bitfield.Bit23", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x400000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit24,
       {
-        "Bit24", "skinny.Generic.Bitfield.Bit24", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00800000,
+        "Bit24", "skinny.Generic.Bitfield.Bit24", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x800000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit25,
       {
-        "Bit25", "skinny.Generic.Bitfield.Bit25", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x01000000,
+        "Bit25", "skinny.Generic.Bitfield.Bit25", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x1000000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit26,
       {
-        "Bit26", "skinny.Generic.Bitfield.Bit26", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x02000000,
+        "Bit26", "skinny.Generic.Bitfield.Bit26", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x2000000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit27,
       {
-        "Bit27", "skinny.Generic.Bitfield.Bit27", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x04000000,
+        "Bit27", "skinny.Generic.Bitfield.Bit27", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x4000000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit28,
       {
-        "Bit28", "skinny.Generic.Bitfield.Bit28", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x08000000,
+        "Bit28", "skinny.Generic.Bitfield.Bit28", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x8000000,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit29,
       {
@@ -8563,27 +8563,27 @@ proto_register_skinny(void)
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit4,
       {
-        "Bit4", "skinny.Generic.Bitfield.Bit4", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
+        "Bit4", "skinny.Generic.Bitfield.Bit4", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit5,
       {
-        "Bit5", "skinny.Generic.Bitfield.Bit5", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000010,
+        "Bit5", "skinny.Generic.Bitfield.Bit5", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0010,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit6,
       {
-        "Bit6", "skinny.Generic.Bitfield.Bit6", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000020,
+        "Bit6", "skinny.Generic.Bitfield.Bit6", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0020,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit7,
       {
-        "Bit7", "skinny.Generic.Bitfield.Bit7", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
+        "Bit7", "skinny.Generic.Bitfield.Bit7", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit8,
       {
-        "Bit8", "skinny.Generic.Bitfield.Bit8", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000080,
+        "Bit8", "skinny.Generic.Bitfield.Bit8", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_Generic_Bitfield_Bit9,
       {
-        "Bit9", "skinny.Generic.Bitfield.Bit9", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000100,
+        "Bit9", "skinny.Generic.Bitfield.Bit9", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0100,
         "H263 Capability BitField", HFILL }},
     { &hf_skinny_MPI,
       {
@@ -8591,7 +8591,7 @@ proto_register_skinny(void)
         NULL, HFILL }},
     { &hf_skinny_OrigDialed,
       {
-        "Originally Dialed", "skinny.OrigDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+        "Originally Dialed", "skinny.OrigDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
         NULL, HFILL }},
     { &hf_skinny_PhoneFeatures_Abbreviated_Dial,
       {
@@ -8667,7 +8667,7 @@ proto_register_skinny(void)
         NULL, HFILL }},
     { &hf_skinny_RedirDialed,
       {
-        "Redirected Dialed", "skinny.RedirDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+        "Redirected Dialed", "skinny.RedirDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_BitsReserved,
       {
@@ -8675,115 +8675,115 @@ proto_register_skinny(void)
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_CalledParty,
       {
-        "CalledParty", "skinny.RestrictInformationType.CalledParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0000000c,
+        "CalledParty", "skinny.RestrictInformationType.CalledParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x000c,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_CalledPartyName,
       {
-        "CalledPartyName", "skinny.RestrictInformationType.CalledPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
+        "CalledPartyName", "skinny.RestrictInformationType.CalledPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0004,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_CalledPartyNumber,
       {
-        "CalledPartyNumber", "skinny.RestrictInformationType.CalledPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
+        "CalledPartyNumber", "skinny.RestrictInformationType.CalledPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_CallingParty,
       {
-        "CallingParty", "skinny.RestrictInformationType.CallingParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000003,
+        "CallingParty", "skinny.RestrictInformationType.CallingParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0003,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_CallingPartyName,
       {
-        "CallingPartyName", "skinny.RestrictInformationType.CallingPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+        "CallingPartyName", "skinny.RestrictInformationType.CallingPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_CallingPartyNumber,
       {
-        "CallingPartyNumber", "skinny.RestrictInformationType.CallingPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+        "CallingPartyNumber", "skinny.RestrictInformationType.CallingPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_LastRedirectParty,
       {
-        "LastRedirectParty", "skinny.RestrictInformationType.LastRedirectParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x000000c0,
+        "LastRedirectParty", "skinny.RestrictInformationType.LastRedirectParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00c0,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_LastRedirectPartyName,
       {
-        "LastRedirectPartyName", "skinny.RestrictInformationType.LastRedirectPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
+        "LastRedirectPartyName", "skinny.RestrictInformationType.LastRedirectPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_LastRedirectPartyNumber,
       {
-        "LastRedirectPartyNumber", "skinny.RestrictInformationType.LastRedirectPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000080,
+        "LastRedirectPartyNumber", "skinny.RestrictInformationType.LastRedirectPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_OriginalCalledParty,
       {
-        "OriginalCalledParty", "skinny.RestrictInformationType.OriginalCalledParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000030,
+        "OriginalCalledParty", "skinny.RestrictInformationType.OriginalCalledParty", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0030,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_OriginalCalledPartyName,
       {
-        "OriginalCalledPartyName", "skinny.RestrictInformationType.OriginalCalledPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000010,
+        "OriginalCalledPartyName", "skinny.RestrictInformationType.OriginalCalledPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0010,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_OriginalCalledPartyNumber,
       {
-        "OriginalCalledPartyNumber", "skinny.RestrictInformationType.OriginalCalledPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000020,
+        "OriginalCalledPartyNumber", "skinny.RestrictInformationType.OriginalCalledPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0020,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey1,
       {
-        "SoftKey1", "skinny.SoftKeyMask.SoftKey1", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+        "SoftKey1", "skinny.SoftKeyMask.SoftKey1", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey10,
       {
-        "SoftKey10", "skinny.SoftKeyMask.SoftKey10", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000200,
+        "SoftKey10", "skinny.SoftKeyMask.SoftKey10", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0200,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey11,
       {
-        "SoftKey11", "skinny.SoftKeyMask.SoftKey11", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000400,
+        "SoftKey11", "skinny.SoftKeyMask.SoftKey11", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0400,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey12,
       {
-        "SoftKey12", "skinny.SoftKeyMask.SoftKey12", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000800,
+        "SoftKey12", "skinny.SoftKeyMask.SoftKey12", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0800,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey13,
       {
-        "SoftKey13", "skinny.SoftKeyMask.SoftKey13", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00001000,
+        "SoftKey13", "skinny.SoftKeyMask.SoftKey13", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x1000,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey14,
       {
-        "SoftKey14", "skinny.SoftKeyMask.SoftKey14", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00002000,
+        "SoftKey14", "skinny.SoftKeyMask.SoftKey14", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x2000,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey15,
       {
-        "SoftKey15", "skinny.SoftKeyMask.SoftKey15", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00004000,
+        "SoftKey15", "skinny.SoftKeyMask.SoftKey15", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x4000,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey16,
       {
-        "SoftKey16", "skinny.SoftKeyMask.SoftKey16", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00008000,
+        "SoftKey16", "skinny.SoftKeyMask.SoftKey16", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x8000,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey2,
       {
-        "SoftKey2", "skinny.SoftKeyMask.SoftKey2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+        "SoftKey2", "skinny.SoftKeyMask.SoftKey2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey3,
       {
-        "SoftKey3", "skinny.SoftKeyMask.SoftKey3", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
+        "SoftKey3", "skinny.SoftKeyMask.SoftKey3", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0004,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey4,
       {
-        "SoftKey4", "skinny.SoftKeyMask.SoftKey4", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
+        "SoftKey4", "skinny.SoftKeyMask.SoftKey4", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey5,
       {
-        "SoftKey5", "skinny.SoftKeyMask.SoftKey5", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000010,
+        "SoftKey5", "skinny.SoftKeyMask.SoftKey5", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0010,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey6,
       {
-        "SoftKey6", "skinny.SoftKeyMask.SoftKey6", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000020,
+        "SoftKey6", "skinny.SoftKeyMask.SoftKey6", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0020,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey7,
       {
-        "SoftKey7", "skinny.SoftKeyMask.SoftKey7", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
+        "SoftKey7", "skinny.SoftKeyMask.SoftKey7", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey8,
       {
-        "SoftKey8", "skinny.SoftKeyMask.SoftKey8", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000080,
+        "SoftKey8", "skinny.SoftKeyMask.SoftKey8", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
         NULL, HFILL }},
     { &hf_skinny_SoftKeyMask_SoftKey9,
       {
-        "SoftKey9", "skinny.SoftKeyMask.SoftKey9", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000100,
+        "SoftKey9", "skinny.SoftKeyMask.SoftKey9", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0100,
         NULL, HFILL }},
     { &hf_skinny_active,
       {
