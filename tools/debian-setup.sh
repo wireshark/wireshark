@@ -87,6 +87,7 @@ ADDITIONAL_LIST="libnl-3-dev \
 	git \
 	ninja-build \
 	xsltproc \
+	ccache \
 	libspeexdsp-dev"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
