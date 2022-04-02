@@ -466,7 +466,7 @@ void InterfaceFrame::updateStatistics(void)
 
 #ifdef HAVE_LIBPCAP
 
-    for (int idx = 0; idx < proxy_model_.rowCount(); idx++)
+    for (int idx = 0; idx < source_model_.rowCount(); idx++)
     {
         QModelIndex selectIndex = info_model_.mapFromSource(proxy_model_.mapFromSource(source_model_.index(idx, 0)));
 
