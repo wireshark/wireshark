@@ -5382,7 +5382,7 @@ void proto_register_zbncp(void)
           0x20, NULL, HFILL}},
 
         {&hf_zbncp_data_tx_opt_send_route_record,
-         {"Send route record for this request", "zbncp.data.force_mesh_route", FT_BOOLEAN, 8, NULL,
+         {"Send route record for this request", "zbncp.data.send_route_record", FT_BOOLEAN, 8, NULL,
           0x40, NULL, HFILL}},
 
         {&hf_zbncp_data_lqi,
@@ -5631,19 +5631,19 @@ void proto_register_zbncp(void)
          {"Trace mask", "zbncp.data.trace_mask", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_trace_wireless_traf,
-         {"Wireless traffic", "zbncp.data.trace_mask", FT_UINT32, BASE_DEC, NULL, 0x1, NULL, HFILL}},
+         {"Wireless traffic", "zbncp.data.trace_wireless_traf", FT_UINT32, BASE_DEC, NULL, 0x1, NULL, HFILL}},
 
         {&hf_zbncp_data_trace_reserved,
-         {"Reserved", "zbncp.data.trace_mask", FT_UINT32, BASE_DEC, NULL, 0x2, NULL, HFILL}},
+         {"Reserved", "zbncp.data.trace_reserved", FT_UINT32, BASE_DEC, NULL, 0x2, NULL, HFILL}},
 
         {&hf_zbncp_data_trace_ncp_ll_proto,
-         {"NCP LL protocol", "zbncp.data.trace_mask", FT_UINT32, BASE_DEC, NULL, 0x4, NULL, HFILL}},
+         {"NCP LL protocol", "zbncp.data.trace_ncp_ll_proto", FT_UINT32, BASE_DEC, NULL, 0x4, NULL, HFILL}},
 
         {&hf_zbncp_data_trace_host_int_line,
-         {"HOST INT line", "zbncp.data.trace_mask", FT_UINT32, BASE_DEC, NULL, 0x8, NULL, HFILL}},
+         {"HOST INT line", "zbncp.data.trace_host_int_line", FT_UINT32, BASE_DEC, NULL, 0x8, NULL, HFILL}},
 
         {&hf_zbncp_data_trace_sleep_awake,
-         {"Sleep/awake", "zbncp.data.trace_mask", FT_UINT32, BASE_DEC, NULL, 0x10, NULL, HFILL}},
+         {"Sleep/awake", "zbncp.data.trace_sleep_awake", FT_UINT32, BASE_DEC, NULL, 0x10, NULL, HFILL}},
 
         {&hf_zbncp_data_keepalive_rec,
          {"Keepalive Received", "zbncp.data.keepalive_rec", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
