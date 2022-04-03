@@ -10,6 +10,8 @@
 
 #include <ftypes-int.h>
 #include <string.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/oids.h>
@@ -186,10 +188,26 @@ byte_array_from_literal(const char *s, gchar **err_msg)
 	 * than one byte, because then we'd have to know which endianness the
 	 * byte string should be in.
 	 */
-	if (strlen(s) == 4 && s[0] == '0' && s[1] == 'x')
+	if (strlen(s) == 4 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
 		s = s + 2;
 
 	bytes = g_byte_array_new();
+
+	/* Hack: If we have a binary number 0bXXXXXXXX use that as a byte array
+	 * of length one. This is ambiguous because it can also be
+	 * parsed (without separators) as a byte array of length 5:
+	 * 	0bXXXXXXXX = 0b:XX:XX:XX:XX = { 0x0b, 0xXX, 0xXX, 0xXX, 0xXX } */
+	if (strlen(s) == 10 && s[0] == '0' && (s[1] == 'b' || s[1] == 'B') &&
+						(s[2] == '0' || s[2] == '1')) {
+		errno = 0;
+		char *endptr;
+		long number = strtol(s + 2, &endptr, 2);
+		if (errno == 0 && *endptr == '\0' && number >= 0x0 && number <= 0xff) {
+			guint8 byte = (guint8)number;
+			g_byte_array_append(bytes, &byte, 1);
+			return bytes;
+		}
+	}
 
 	res = hex_str_to_bytes(s, bytes, FALSE);
 
