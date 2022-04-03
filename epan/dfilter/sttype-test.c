@@ -368,15 +368,6 @@ sttype_register_test(void)
 		test_dup,
 		test_tostr
 	};
-	/* XXX Bitwise ops are not "tests". */
-	static sttype_t bitwise_type = {
-		STTYPE_BITWISE,
-		"BITWISE",
-		test_new,
-		test_free,
-		test_dup,
-		test_tostr
-	};
 	static sttype_t arithmetic_type = {
 		STTYPE_ARITHMETIC,
 		"ARITHMETIC",
@@ -387,7 +378,6 @@ sttype_register_test(void)
 	};
 
 	sttype_register(&test_type);
-	sttype_register(&bitwise_type);
 	sttype_register(&arithmetic_type);
 }
 

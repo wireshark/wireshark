@@ -127,7 +127,7 @@ logical_test(T) ::= entity(E).
     sttype_test_set1_args(T, E);
 }
 
-logical_test(T) ::= bitwise_term(E).
+logical_test(T) ::= arithmetic_term(E).
 {
     T = new_test(dfw, TEST_OP_NOTZERO, NULL);
     sttype_test_set1_args(T, E);
@@ -179,9 +179,9 @@ entity(E) ::= REF_OPEN REFERENCE(F) REF_CLOSE.
 entity(E) ::= range(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
 
-bitwise_term(T) ::= entity(F) BITWISE_AND(B) entity(M).
+arithmetic_term(T) ::= entity(F) BITWISE_AND(B) entity(M).
 {
-    T = stnode_new(STTYPE_BITWISE, NULL, df_lval_value(B));
+    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(B));
     sttype_test_set2(T, OP_BITWISE_AND, F, M);
     df_lval_free(B, FALSE);
 }
@@ -233,7 +233,6 @@ arithmetic_term(T) ::= entity(E) PERCENT(M) entity(N).
 }
 
 term(T) ::= entity(E).          { T = E; }
-term(T) ::= bitwise_term(E).    { T = E; }
 term(T) ::= arithmetic_term(E). { T = E; }
 
 
