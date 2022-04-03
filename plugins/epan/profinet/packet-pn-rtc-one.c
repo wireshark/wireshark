@@ -64,7 +64,8 @@
 #include "packet-pn.h"
 
 
-#define F_MESSAGE_TRAILER_4BYTE  4      /* PROFIsafe: Defines the Amount of Bytes for CRC and Status-/Controlbyte */
+#define F_MESSAGE_TRAILER_4BYTE  4      /* PROFIsafe: Defines the Amount of Bytes for CRC and Status-/Controlbyte in PROFIsafe 2.4 */
+#define F_MESSAGE_TRAILER_5BYTE  5      /* PROFIsafe: Defines the Amount of Bytes for CRC and Status-/Controlbyte in PROFIsafe 2.6 */
 #define PN_INPUT_CR              1      /* PROFINET Input Connect Request value */
 #define PN_INPUT_DATADESCRITPION 1      /* PROFINET Input Data Description value */
 
@@ -381,6 +382,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     guint8  statusbyte;
     guint8  controlbyte;
+    guint8  safety_io_data_length;
 
     guint16 number_io_data_objects_input_cr;
     guint16 number_iocs_input_cr;
@@ -556,9 +558,15 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_f_dest_adr, tvb, 0, 0, io_data_object->f_dest_adr);
 
                             /* Get Safety IO Data */
-                            if ((io_data_object->length - F_MESSAGE_TRAILER_4BYTE) > 0) {
+                            if (io_data_object->f_crc_seed == FALSE) {
+                                safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_4BYTE;
+                            } else {
+                                safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_5BYTE;
+                            }
+
+                            if (safety_io_data_length > 0) {
                                 offset = dissect_pn_io_ps_uint(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_f_data,
-                                    (io_data_object->length - F_MESSAGE_TRAILER_4BYTE), &f_data);
+                                    safety_io_data_length, &f_data);
                             }
 
                             /* ---- Check for new PNIO data using togglebit ---- */
@@ -751,9 +759,15 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_f_dest_adr, tvb, 0, 0, io_data_object->f_dest_adr);
 
                             /* Get Safety IO Data */
-                            if ((io_data_object->length - F_MESSAGE_TRAILER_4BYTE) > 0) {
+                            if (io_data_object->f_crc_seed == FALSE) {
+                                safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_4BYTE;
+                            } else {
+                                safety_io_data_length = io_data_object->length - F_MESSAGE_TRAILER_5BYTE;
+                            }
+
+                            if (safety_io_data_length > 0) {
                                 offset = dissect_pn_io_ps_uint(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_f_data,
-                                    (io_data_object->length - F_MESSAGE_TRAILER_4BYTE), &f_data);
+                                    safety_io_data_length, &f_data);
                             }
 
                             /* ---- Check for new PNIO data using togglebit ---- */
