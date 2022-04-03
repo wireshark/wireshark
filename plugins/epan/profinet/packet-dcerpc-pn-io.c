@@ -8789,7 +8789,11 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         /* Set global Vairant for NumberOfIOCS */
         if (!PINFO_FD_VISITED(pinfo)) {
             if (station_info != NULL) {
-                station_info->iocsNr = u16NumberOfIOCS;
+                if (u16IOCRType == PN_INPUT_CR) {
+                    station_info->iocsNr_in = u16NumberOfIOCS;
+                } else {
+                    station_info->iocsNr_out = u16NumberOfIOCS;
+                }
             }
         }
 

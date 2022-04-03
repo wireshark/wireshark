@@ -39,7 +39,8 @@ typedef struct tagStationInfo {
     guint16   u16Device_id;
     /* frame structure */
     guint16   ioDataObjectNr;
-    guint16   iocsNr;
+    guint16   iocsNr_in;
+    guint16   iocsNr_out;
     /* GSDfile station information */
     gboolean  gsdFound;
     gboolean  gsdPathLength;
