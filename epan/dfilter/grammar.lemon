@@ -79,11 +79,11 @@ shifting 3 more symbols. */
 /* ----------------- The grammar -------------- */
 
 /* Associativity */
-%left TEST_AND.
 %left TEST_OR.
+%left TEST_AND.
+%right TEST_NOT.
 %nonassoc TEST_ALL_EQ TEST_ANY_EQ TEST_ALL_NE TEST_ANY_NE TEST_LT TEST_LE TEST_GT TEST_GE
             TEST_CONTAINS TEST_MATCHES TEST_BITWISE_AND.
-%right TEST_NOT.
 
 /* Top-level targets */
 sentence ::= expr(X).           { dfw->st_root = X; }

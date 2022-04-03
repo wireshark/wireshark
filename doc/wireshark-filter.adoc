@@ -429,14 +429,21 @@ syntactical elements in the filter language.
 
 Tests can be combined using logical expressions.
 These too are expressible in C-like syntax or with English-like
-abbreviations:
+abbreviations. The following table lists the logical operators from
+highest to lowest precedence:
 
-    and, &&   Logical AND
-    or,  ||   Logical OR
-    not, !    Logical NOT
+    not, !    Logical NOT   (right-associative)
+    and, &&   Logical AND   (left-associative)
+    or,  ||   Logical OR    (left-associative)
 
-Expressions can be grouped by parentheses as well.  The following are
-all valid display filter expressions:
+The evaluation is always performed left to right. Expressions can be grouped
+by parentheses as well. The expression "A and B or not C or D and not E or F"
+is read:
+
+    (A and B) or (not C) or (D and (not E)) or F
+
+It's usually better to be explicit about grouping using parenthesis.
+The following are all valid display filter expressions:
 
     tcp.port == 80 and ip.src == 192.168.2.1
     not llc
