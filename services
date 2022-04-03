@@ -687,7 +687,7 @@ netconfsoaphttp	832/tcp/udp	# NETCONF for SOAP over HTTPS
 netconfsoapbeep	833/tcp/udp	# NETCONF for SOAP over BEEP
 dhcp-failover2	847/tcp/udp	# dhcp-failover 2
 gdoi		848/tcp/udp	# GDOI
-domain-s	853/tcp/udp	# DNS query-response protocol run over TLS/DTLS
+domain-s	853/tcp/udp	# DNS query-response protocol run over TLS
 dlep		854/tcp/udp	# Dynamic Link Exchange Protocol (DLEP)
 iscsi		860/tcp/udp	# iSCSI
 owamp-control	861/tcp		# OWAMP-Control
@@ -5475,6 +5475,7 @@ sphinxapi	9312/tcp	# Sphinx search server
 secure-ts	9318/tcp/udp	# PKIX TimeStamp over TLS
 guibase		9321/tcp/udp
 gnmi-gnoi	9339/tcp	# gRPC Network Mgmt/Operations Interface
+gribi		9340/tcp	# gRPC Routing Information Base Interface
 mpidcmgr	9343/tcp/udp	# MpIdcMgr
 mphlpdmc	9344/tcp/udp	# Mphlpdmc
 rancher		9345/tcp	# Rancher Agent
