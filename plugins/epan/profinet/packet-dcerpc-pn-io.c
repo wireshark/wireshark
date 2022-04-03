@@ -8588,11 +8588,13 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     guint8      mac[6];
     guint16     u16NumberOfAPIs;
     guint32     u32Api;
-    guint16     u16NumberOfIODataObjects;
+    guint16     u16NumberOfIODataObjectsInAPI;
+    guint16     u16NumberOfIODataObjectsInCR = 0U;
     guint16     u16SlotNr;
     guint16     u16SubslotNr;
     guint16     u16IODataObjectFrameOffset;
-    guint16     u16NumberOfIOCS;
+    guint16     u16NumberOfIOCSInAPI;
+    guint16     u16NumberOfIOCSInCR = 0U;
     guint16     u16IOCSFrameOffset;
     proto_item *api_item;
     proto_tree *api_tree;
@@ -8628,7 +8630,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_lt, &u16LT);
 
-        offset = dissect_IOCRProperties(tvb, offset, pinfo, tree, drep);
+    offset = dissect_IOCRProperties(tvb, offset, pinfo, tree, drep);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_data_length, &u16DataLength);
@@ -8690,7 +8692,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_api, &u32Api);
         /* NumberOfIODataObjects */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep,
-                            hf_pn_io_number_of_io_data_objects, &u16NumberOfIODataObjects);
+                            hf_pn_io_number_of_io_data_objects, &u16NumberOfIODataObjectsInAPI);
 
         /* Set global Variant for Number of IO Data Objects */
         /* Notice: Handle Input & Output seperate!!! */
@@ -8719,12 +8721,12 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                 init_pnio_rtc1_station(station_info);
                 conversation_add_proto_data(conversation, current_aruuid, station_info);
             }
-            station_info->ioDataObjectNr += u16NumberOfIODataObjects;
+            u16NumberOfIODataObjectsInCR += u16NumberOfIODataObjectsInAPI;
 
             pn_find_dcp_station_info(station_info, conversation);
         }
 
-        u16Tmp = u16NumberOfIODataObjects;
+        u16Tmp = u16NumberOfIODataObjectsInAPI;
         while (u16Tmp--) {
             sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_data_object, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_data_object);
@@ -8784,20 +8786,14 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         /* NumberOfIOCS */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep,
-                            hf_pn_io_number_of_iocs, &u16NumberOfIOCS);
+                            hf_pn_io_number_of_iocs, &u16NumberOfIOCSInAPI);
 
         /* Set global Vairant for NumberOfIOCS */
         if (!PINFO_FD_VISITED(pinfo)) {
-            if (station_info != NULL) {
-                if (u16IOCRType == PN_INPUT_CR) {
-                    station_info->iocsNr_in = u16NumberOfIOCS;
-                } else {
-                    station_info->iocsNr_out = u16NumberOfIOCS;
-                }
-            }
+            u16NumberOfIOCSInCR += u16NumberOfIOCSInAPI;
         }
 
-        u16Tmp = u16NumberOfIOCS;
+        u16Tmp = u16NumberOfIOCSInAPI;
         while (u16Tmp--) {
             sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_cs, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_cs);
@@ -8848,9 +8844,22 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         }
 
         proto_item_append_text(api_item, ": 0x%x, NumberOfIODataObjects: %u NumberOfIOCS: %u",
-            u32Api, u16NumberOfIODataObjects, u16NumberOfIOCS);
+            u32Api, u16NumberOfIODataObjectsInAPI, u16NumberOfIOCSInAPI);
 
         proto_item_set_len(api_item, offset - u32ApiStart);
+    }
+
+    /* Update global object count  */
+    if (!PINFO_FD_VISITED(pinfo)) {
+        if (station_info != NULL) {
+            if (u16IOCRType == PN_INPUT_CR) {
+                station_info->iocsNr_in = u16NumberOfIOCSInCR;
+                station_info->ioDataObjectNr_in = u16NumberOfIODataObjectsInCR;
+            } else {
+                station_info->iocsNr_out = u16NumberOfIOCSInCR;
+                station_info->ioDataObjectNr_out = u16NumberOfIODataObjectsInCR;
+            }
+        }
     }
 
     if (ar != NULL) {
