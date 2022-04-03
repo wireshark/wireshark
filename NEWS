@@ -60,6 +60,9 @@ Wireshark 3.7.0 Release Notes
 
         • Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
 
+        • The operator "~=" is deprecated and will be removed in a
+       future version. Use "!==" with the same meaning instead.
+
         • Date and time can be given in UTC using ISO 8601 (with 'Z'
        timezone) or by appending the suffix "UTC" to the legacy formats.
        Otherwise local time is used.
@@ -75,14 +78,18 @@ Wireshark 3.7.0 Release Notes
 
         • Floats must be written with a leading and ending digit. For
        example the values ".7" and "7." are now invalid as floats. It
-       must be written "7.0" and "0.7" respectively.
-
-        • The operator "~=" is deprecated and will be removed in a
-       future version. Use "!==" with the same meaning instead.
+       must be written "0.7" and "7.0" respectively.
 
         • The "bitwise and" operator is now a first-class bit operator,
        not a boolean operator. In particular this means it is now
        possible to mask bits, e.g.: frame[0] & 0x0F == 3.
+
+        • Simple arithmetic expressions are supported in filter
+       expressions. It is now possible to use expressions such as
+       "tcp.dstport >= tcp.srcport + 1", or using field references to
+       the selected frame: frame.number > ${frame.number} - 5. Note that
+       the last example is only meaningful using the GUI because TShark
+       has no concept of selected frame.
 
      • text2pcap and "Import from Hex Dump":
 
@@ -138,6 +145,9 @@ Wireshark 3.7.0 Release Notes
      • Support to display JSON mapping for Protobuf message.
 
      • macOS debugging symbols are now shipped in separate packages.
+
+     • ZigBee ZCL Messaging: rename zbee_zcl_se.msg.msg_ctrl.depreciated
+       to zbee_zcl_se.msg.msg_ctrl.deprecated
 
   Removed Features and Support
 
@@ -208,7 +218,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-03-19 04:06:37 UTC
+  Last updated 2022-03-31 18:02:31 UTC
 
  References
 
