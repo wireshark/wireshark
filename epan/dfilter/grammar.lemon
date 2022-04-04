@@ -123,14 +123,12 @@ logical_test(T) ::= TEST_NOT(L) expr(E).
 
 logical_test(T) ::= entity(E).
 {
-    T = new_test(dfw, TEST_OP_EXISTS, NULL);
-    sttype_test_set1_args(T, E);
+    T = E;
 }
 
 logical_test(T) ::= arithmetic_term(E).
 {
-    T = new_test(dfw, TEST_OP_NOTZERO, NULL);
-    sttype_test_set1_args(T, E);
+    T = E;
 }
 
 

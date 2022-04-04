@@ -470,6 +470,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
+		case STTYPE_ARITHMETIC:
 			/* This is OK */
 			break;
 		case STTYPE_REFERENCE:
@@ -477,7 +478,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_UNPARSED:
 		case STTYPE_LITERAL:
 		case STTYPE_CHARCONST:
-		case STTYPE_ARITHMETIC:
 			FAIL(dfw, "%s is neither a field nor a protocol name.",
 					stnode_todisplay(st_arg1));
 			break;
@@ -1136,14 +1136,6 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			ws_assert_not_reached();
 			break;
 
-		case TEST_OP_EXISTS:
-			check_exists(dfw, st_arg1);
-			break;
-
-		case TEST_OP_NOTZERO:
-			check_arithmetic_operation(dfw, st_arg1, FT_NONE);
-			break;
-
 		case TEST_OP_NOT:
 			semcheck(dfw, st_arg1);
 			break;
@@ -1316,14 +1308,15 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
 	LOG_NODE(st_node);
 
-	/* The parser assures that the top-most syntax-tree
-	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			check_test(dfw, st_node);
 			break;
+		case STTYPE_ARITHMETIC:
+			check_arithmetic_operation(dfw, st_node, FT_NONE);
+			break;
 		default:
-			ws_assert_not_reached();
+			check_exists(dfw, st_node);
 	}
 }
 

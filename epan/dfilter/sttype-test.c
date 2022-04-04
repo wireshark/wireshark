@@ -70,9 +70,6 @@ test_todisplay(test_op_t op)
 	const char *s = "<notset>";
 
 	switch(op) {
-		case TEST_OP_EXISTS:
-			s = "<exists>";
-			break;
 		case TEST_OP_NOT:
 			s = "!";
 			break;
@@ -125,9 +122,6 @@ test_todisplay(test_op_t op)
 		case OP_MODULO:
 			s = "%";
 			break;
-		case TEST_OP_NOTZERO:
-			s = "<notzero>";
-			break;
 		case TEST_OP_CONTAINS:
 			s = "contains";
 			break;
@@ -150,9 +144,6 @@ test_todebug(test_op_t op)
 	const char *s = "<notset>";
 
 	switch(op) {
-		case TEST_OP_EXISTS:
-			s = "TEST_EXISTS";
-			break;
 		case TEST_OP_NOT:
 			s = "TEST_NOT";
 			break;
@@ -207,9 +198,6 @@ test_todebug(test_op_t op)
 		case OP_MODULO:
 			s = "OP_MODULO";
 			break;
-		case TEST_OP_NOTZERO:
-			s = "TEST_NOTZERO";
-			break;
 		case TEST_OP_CONTAINS:
 			s = "TEST_CONTAINS";
 			break;
@@ -246,9 +234,7 @@ num_operands(test_op_t op)
 	switch(op) {
 		case TEST_OP_UNINITIALIZED:
 			break;
-		case TEST_OP_EXISTS:
 		case TEST_OP_NOT:
-		case TEST_OP_NOTZERO:
 		case OP_UNARY_MINUS:
 			return 1;
 		case TEST_OP_AND:

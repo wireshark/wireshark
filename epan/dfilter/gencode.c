@@ -430,6 +430,47 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	return val;
 }
 
+static void
+gen_exists(dfwork_t *dfw, stnode_t *st_node)
+{
+	dfvm_insn_t *insn;
+	header_field_info *hfinfo;
+
+	hfinfo = stnode_data(st_node);
+
+	/* Rewind to find the first field of this name. */
+	while (hfinfo->same_name_prev_id != -1) {
+		hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
+	}
+	insn = dfvm_insn_new(CHECK_EXISTS);
+	insn->arg1 = dfvm_value_new_hfinfo(hfinfo);
+	dfw_append_insn(dfw, insn);
+
+	/* Record the FIELD_ID in hash of interesting fields. */
+	while (hfinfo) {
+		g_hash_table_insert(dfw->interesting_fields,
+			GINT_TO_POINTER(hfinfo->id),
+			GUINT_TO_POINTER(TRUE));
+		hfinfo = hfinfo->same_name_next;
+	}
+}
+
+static void
+gen_notzero(dfwork_t *dfw, stnode_t *st_node)
+{
+	dfvm_insn_t	*insn;
+	dfvm_value_t	*val1;
+	GSList		*jumps = NULL;
+
+	val1 = gen_arithmetic(dfw, st_node, &jumps);
+	insn = dfvm_insn_new(ALL_ZERO);
+	insn->arg1 = dfvm_value_ref(val1);
+	dfw_append_insn(dfw, insn);
+	insn = dfvm_insn_new(NOT);
+	dfw_append_insn(dfw, insn);
+	g_slist_foreach(jumps, fixup_jumps, dfw);
+	g_slist_free(jumps);
+}
 
 static void
 gen_test(dfwork_t *dfw, stnode_t *st_node)
@@ -437,49 +478,14 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 	test_op_t	st_op;
 	stnode_t	*st_arg1, *st_arg2;
 	dfvm_insn_t	*insn;
-	dfvm_value_t	*jmp, *val1;
-	GSList		*jumps = NULL;
+	dfvm_value_t	*jmp;
 
-	header_field_info	*hfinfo;
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
 
 	switch (st_op) {
 		case TEST_OP_UNINITIALIZED:
 			ws_assert_not_reached();
-			break;
-
-		case TEST_OP_EXISTS:
-			hfinfo = stnode_data(st_arg1);
-
-			/* Rewind to find the first field of this name. */
-			while (hfinfo->same_name_prev_id != -1) {
-				hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
-			}
-			insn = dfvm_insn_new(CHECK_EXISTS);
-			insn->arg1 = dfvm_value_new_hfinfo(hfinfo);
-			dfw_append_insn(dfw, insn);
-
-			/* Record the FIELD_ID in hash of interesting fields. */
-			while (hfinfo) {
-				g_hash_table_insert(dfw->interesting_fields,
-					GINT_TO_POINTER(hfinfo->id),
-					GUINT_TO_POINTER(TRUE));
-				hfinfo = hfinfo->same_name_next;
-			}
-
-			break;
-
-		case TEST_OP_NOTZERO:
-			val1 = gen_entity(dfw, st_arg1, &jumps);
-			insn = dfvm_insn_new(ALL_ZERO);
-			insn->arg1 = dfvm_value_ref(val1);
-			dfw_append_insn(dfw, insn);
-			insn = dfvm_insn_new(NOT);
-			dfw_append_insn(dfw, insn);
-			g_slist_foreach(jumps, fixup_jumps, dfw);
-			g_slist_free(jumps);
-			jumps = NULL;
 			break;
 
 		case TEST_OP_NOT:
@@ -574,6 +580,12 @@ gencode(dfwork_t *dfw, stnode_t *st_node)
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
 			gen_test(dfw, st_node);
+			break;
+		case STTYPE_FIELD:
+			gen_exists(dfw, st_node);
+			break;
+		case STTYPE_ARITHMETIC:
+			gen_notzero(dfw, st_node);
 			break;
 		default:
 			ws_assert_not_reached();
