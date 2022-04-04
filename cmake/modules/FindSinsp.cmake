@@ -55,6 +55,7 @@ find_path(JSON_INCLUDE_DIR
   NAMES json/json.h
   HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
   /usr/include
+  /usr/include/jsoncpp
   /usr/local/include
 )
 
