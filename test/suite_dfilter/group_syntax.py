@@ -262,3 +262,11 @@ class case_arithmetic(unittest.TestCase):
     def test_sub_4(self, checkDFilterCount):
         dfilter = "udp.length == ip.len - 20"
         checkDFilterCount(dfilter, 4)
+
+    def test_expr_1(self, checkDFilterCount):
+        dfilter = 'udp.port * { 10 / {5 - 4} } == udp.port * { {50 + 50} / 2 - 40 }'
+        checkDFilterCount(dfilter, 4)
+
+    def test_expr_2(self, checkDFilterCount):
+        dfilter = 'udp.dstport * { udp.srcport / {5 - 4} } == udp.srcport * { 2 * udp.dstport - 68 }'
+        checkDFilterCount(dfilter, 2)

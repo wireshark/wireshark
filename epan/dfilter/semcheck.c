@@ -43,7 +43,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node);
 
 static
 ftenum_t
-check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);
+check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);
 
 static fvalue_t *
 mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s);
@@ -525,7 +525,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			break;
 		case STTYPE_REFERENCE:
 		case STTYPE_STRING:
-		case STTYPE_UNPARSED:
 		case STTYPE_LITERAL:
 		case STTYPE_CHARCONST:
 			FAIL(dfw, "%s is neither a field nor a protocol name.",
@@ -548,7 +547,13 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			FAIL(dfw, "You cannot test whether a function is present.");
 			break;
 
-		default:
+		case STTYPE_SET:
+		case STTYPE_UNPARSED:
+		case STTYPE_UNINITIALIZED:
+		case STTYPE_NUM_TYPES:
+		case STTYPE_TEST:
+		case STTYPE_FVALUE:
+		case STTYPE_PCRE:
 			ws_assert_not_reached();
 	}
 }
@@ -759,7 +764,7 @@ again:
 		ws_assert(st_op == TEST_OP_MATCHES);
 	}
 	else if (type2 == STTYPE_ARITHMETIC) {
-		ftype2 = check_arithmetic_operation(dfw, st_arg2, ftype1);
+		ftype2 = check_arithmetic_expr(dfw, st_arg2, ftype1);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, "%s and %s are not of compatible types.",
@@ -854,7 +859,7 @@ again:
 		ws_assert(st_op == TEST_OP_MATCHES);
 	}
 	else if (type2 == STTYPE_ARITHMETIC) {
-		ftype2 = check_arithmetic_operation(dfw, st_arg2, FT_BYTES);
+		ftype2 = check_arithmetic_expr(dfw, st_arg2, FT_BYTES);
 
 		if (!compatible_ftypes(FT_BYTES, ftype2)) {
 			FAIL(dfw, "%s and %s are not of compatible types.",
@@ -972,7 +977,7 @@ again:
 		ws_assert(st_op == TEST_OP_MATCHES);
 	}
 	else if (type2 == STTYPE_ARITHMETIC) {
-		ftype2 = check_arithmetic_operation(dfw, st_arg2, ftype1);
+		ftype2 = check_arithmetic_expr(dfw, st_arg2, ftype1);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, "%s and %s are not of compatible types.",
@@ -999,7 +1004,7 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, test_op_t st_op _U_,
 
 	LOG_NODE(st_node);
 
-	check_arithmetic_operation(dfw, st_arg1, FT_NONE);
+	check_arithmetic_expr(dfw, st_arg1, FT_NONE);
 
 	sttype_test_get(st_arg1, NULL, &entity, NULL);
 	entity_type = stnode_type_id(entity);
@@ -1012,6 +1017,9 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, test_op_t st_op _U_,
 	}
 	else if (entity_type == STTYPE_RANGE) {
 		check_relation_LHS_RANGE(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
+	}
+	else if (entity_type == STTYPE_ARITHMETIC) {
+		check_relation_LHS_ARITHMETIC(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
 	}
 	else {
 		ws_assert_not_reached();
@@ -1230,11 +1238,12 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 }
 
 ftenum_t
-check_arithmetic_entity(dfwork_t *dfw, FtypeCanFunc can_func, test_op_t st_op,
-		stnode_t *st_node, stnode_t *st_arg, ftenum_t lhs_ftype)
+check_arithmetic_entity(dfwork_t *dfw, stnode_t *st_arg, ftenum_t lhs_ftype)
 {
 	sttype_id_t		type;
 	ftenum_t		ftype;
+
+	LOG_NODE(st_arg);
 
 	/* lhs_ftype variable determines the type for this entity. If LHS type
 	 * is none we must have been passed an entity with a definite type
@@ -1249,69 +1258,46 @@ check_arithmetic_entity(dfwork_t *dfw, FtypeCanFunc can_func, test_op_t st_op,
 		fvalue_t *fvalue = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_arg, FALSE, NULL);
 		stnode_replace(st_arg, STTYPE_FVALUE, fvalue);
 		ftype = fvalue_type_ftenum(fvalue);
-		if (!can_func(ftype)) {
-			FAIL(dfw, "%s (%s) is not a valid arithmetic operand for %s.",
-					stnode_todisplay(st_arg),
-					fvalue_type_name(fvalue),
-					stnode_todisplay(st_node));
-		}
-
-		if (st_op == OP_UNARY_MINUS) {
-			/* Pre-compute constant unary minus result */
-			char *err_msg;
-			fvalue_t *new_fv = fvalue_unary_minus(fvalue, &err_msg);
-			if (new_fv == NULL) {
-				dfilter_fail(dfw, "%s: %s", stnode_todisplay(st_arg), err_msg);
-				g_free(err_msg);
-				THROW(TypeError);
-			}
-			/* Replaces unary operator with result */
-			stnode_replace(st_node, STTYPE_FVALUE, new_fv);
-		}
 	}
 	else if (type == STTYPE_FIELD || type == STTYPE_REFERENCE) {
 		header_field_info *hfinfo = stnode_data(st_arg);
 		ftype = hfinfo->type;
-
-		if (!can_func(ftype)) {
-			FAIL(dfw, "%s (type=%s) is not a valid arithmetic operand for %s.",
-					hfinfo->abbrev, ftype_pretty_name(ftype),
-					stnode_todisplay(st_node));
-		}
 	}
 	else if (type == STTYPE_FUNCTION) {
 		check_function(dfw, st_arg);
 
 		df_func_def_t *funcdef = sttype_function_funcdef(st_arg);
 		ftype = funcdef->retval_ftype;
-
-		if (!can_func(ftype)) {
-			FAIL(dfw, "Function %s (type=%s) is not a valid arithmetic operand for %s.",
-					funcdef->name, ftype_pretty_name(ftype),
-					stnode_todisplay(st_node));
-		}
 	}
 	else if (type == STTYPE_RANGE) {
 		check_drange_sanity(dfw, st_arg);
 
 		ftype = FT_BYTES;
 	}
+	else if (type == STTYPE_FVALUE) {
+		ftype = fvalue_type_ftenum(stnode_data(st_arg));
+	}
 	else {
-		FAIL(dfw, "%s is not a valid arithmetic operand for %s.",
-				stnode_todisplay(st_arg),
-				stnode_todisplay(st_node));
+		FAIL(dfw, "%s is not a valid arithmetic operand",
+				stnode_todisplay(st_arg));
 	}
 
 	return ftype;
 }
 
 ftenum_t
-check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
+check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 {
 	test_op_t		st_op;
 	stnode_t		*st_arg1, *st_arg2;
 	ftenum_t		ftype1, ftype2;
 	FtypeCanFunc 		can_func = NULL;
+
+	LOG_NODE(st_node);
+
+	if (stnode_type_id(st_node) != STTYPE_ARITHMETIC) {
+		return check_arithmetic_entity(dfw, st_node, lhs_ftype);
+	}
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
 	resolve_unparsed(dfw, st_arg1);
@@ -1321,9 +1307,27 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 		FAIL(dfw, "Constant arithmetic expression on the LHS is invalid.");
 	}
 
+	if (st_op == OP_UNARY_MINUS) {
+		ftype1 = check_arithmetic_entity(dfw, st_arg1, lhs_ftype);
+		if (stnode_type_id(st_arg1) == STTYPE_FVALUE) {
+			/* Pre-compute constant unary minus result */
+			char *err_msg;
+			fvalue_t *new_fv = fvalue_unary_minus(stnode_data(st_arg1), &err_msg);
+			if (new_fv == NULL) {
+				dfilter_fail(dfw, "%s: %s", stnode_todisplay(st_arg1), err_msg);
+				g_free(err_msg);
+				THROW(TypeError);
+			}
+			/* Replaces unary operator with result */
+			stnode_replace(st_node, STTYPE_FVALUE, new_fv);
+		}
+		return ftype1;
+	}
+
+	ftype1 = check_arithmetic_expr(dfw, st_arg1, lhs_ftype);
+	ftype2 = check_arithmetic_expr(dfw, st_arg2, ftype1);
+
 	switch (st_op) {
-		case OP_UNARY_MINUS:
-			return check_arithmetic_entity(dfw, ftype_can_unary_minus, st_op, st_node, st_arg1, lhs_ftype);
 		case OP_ADD:
 			can_func = ftype_can_add;
 			break;
@@ -1346,14 +1350,20 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 			ws_assert_not_reached();
 	}
 
-
-	ftype1 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg1, lhs_ftype);
-	ftype2 = check_arithmetic_entity(dfw, can_func, st_op, st_node, st_arg2, ftype1);
+	if (!can_func(ftype1)) {
+		FAIL(dfw, "%s cannot %s.",
+			ftype_name(ftype1), stnode_todisplay(st_node));
+	}
+	if (!can_func(ftype2)) {
+		FAIL(dfw, "%s cannot %s.",
+			ftype_name(ftype2), stnode_todisplay(st_node));
+	}
 
 	if (!compatible_ftypes(ftype1, ftype2)) {
 		FAIL(dfw, "%s and %s are not type compatible.",
 			stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
 	}
+
 	return ftype1;
 }
 
@@ -1369,7 +1379,7 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 			check_test(dfw, st_node);
 			break;
 		case STTYPE_ARITHMETIC:
-			check_arithmetic_operation(dfw, st_node, FT_NONE);
+			check_arithmetic_expr(dfw, st_node, FT_NONE);
 			break;
 		default:
 			check_exists(dfw, st_node);

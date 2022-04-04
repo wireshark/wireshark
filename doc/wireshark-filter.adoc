@@ -399,8 +399,7 @@ have the same number of bytes as the slice itself, as in:
 
 === Arithmetic operators
 
-Simple arithmetic expressions are available. The following operators are
-supported:
+Arithmetic expressions are supported with the usual operators:
 
     +   Addition
     -   Subtraction
@@ -413,6 +412,17 @@ equal by one to the source port with the expression:
 
     udp.dstport >= udp.srcport + 1
 
+It is possible to group arithmetic expressions using curly brackets (parenthesis
+will not work for this):
+
+    tcp.dstport >= 4 * {tcp.srcport + 3}
+
+Do not confuse this usage of curly brackets with set membership.
+
+An unfortunate quirk in the filter syntax is that the subtraction operator
+must be preceded by a space character, so "A-B" must be written as "A -B"
+or "A - B".
+                                   
 === Protocol field references
 
 A variable using a sigil with the form ${some.proto.field} is called a field
