@@ -198,6 +198,10 @@ class case_arithmetic(unittest.TestCase):
         dfilter = "udp.dstport == 66 + 1"
         checkDFilterCount(dfilter, 2)
 
+    def test_add_3(self, checkDFilterCount):
+        dfilter = "udp.dstport == 66+1"
+        checkDFilterCount(dfilter, 2)
+
     def test_add_3(self, checkDFilterFail):
         error = 'Constant arithmetic expression on the LHS is invalid'
         dfilter = "2 + 3 == frame.number"

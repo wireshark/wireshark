@@ -98,7 +98,23 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 
 %}
 
-WORD_CHAR			[[:alnum:]_:/+-]
+WORD_CHAR	[[:alnum:]_]
+
+hex2		[[:xdigit:]]{2}
+MacAddress	{hex2}:{hex2}:{hex2}:{hex2}:{hex2}:{hex2}|{hex2}-{hex2}-{hex2}-{hex2}-{hex2}-{hex2}|{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}
+
+hex4		[[:xdigit:]]{4}
+QuadMacAddress	{hex4}\.{hex4}\.{hex4}
+
+dec-octet	[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]
+IPv4address	{dec-octet}\.{dec-octet}\.{dec-octet}\.{dec-octet}
+
+h16		[0-9A-Fa-f]{1,4}
+ls32		{h16}:{h16}|{IPv4address}
+IPv6address	({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|(({h16}:){0,1}{h16})?::({h16}:){3}{ls32}|(({h16}:){0,2}{h16})?::({h16}:){2}{ls32}|(({h16}:){0,3}{h16})?::{h16}:{ls32}|(({h16}:){0,4}{h16})?::{ls32}|(({h16}:){0,5}{h16})?::{h16}|(({h16}:){0,6}{h16})?::
+
+v4-cidr-prefix	\/[[:digit:]]{1,2}
+v6-cidr-prefix	\/[[:digit:]]{1,3}
 
 %x RANGE
 %x DQUOTE
@@ -347,23 +363,37 @@ WORD_CHAR			[[:alnum:]_:/+-]
 
 	/* None of the patterns below can match ".." anywhere in the token string. */
 
-:{WORD_CHAR}+(\.{WORD_CHAR}+)*		{
-	/* Literal. */
+{MacAddress}|{QuadMacAddress}		{
+	/* MAC Address literal or unparsed if using dots. */
+	return set_lval_str(TOKEN_UNPARSED, yytext);
+}
+
+{IPv4address}{v4-cidr-prefix}		{
+	/* IPv4 CIDR. */
+	return set_lval_str(TOKEN_LITERAL, yytext);
+}
+
+{IPv6address}{v6-cidr-prefix}		{
+	/* IPv6 CIDR. */
+	return set_lval_str(TOKEN_LITERAL, yytext);
+}
+
+[[:xdigit:]]+:[[:xdigit:]:]*		{
+	/* Bytes or address (IPv6, etc). */
 	return set_lval_str(TOKEN_LITERAL, yytext);
 }
 
 "<"[^>=]+">"			{
-	/* Literal. */
+	/* Literal in angle brackets. */
 	return set_lval_str(TOKEN_LITERAL, yytext);
 }
 
-\.{WORD_CHAR}+(\.{WORD_CHAR}+)*		{
-	/* Identifier */
-	return set_lval_str(TOKEN_IDENTIFIER, yytext);
-}
-
-[[:alnum:]_]{WORD_CHAR}*(\.{WORD_CHAR}+)*		{
-	/* Unparsed word token. */
+[:.]?{WORD_CHAR}+(\.{WORD_CHAR}+)*		{
+	/* Identifier or literal or unparsed. */
+	if (yytext[0] == '.')
+		return set_lval_str(TOKEN_IDENTIFIER, yytext);
+	if (yytext[0] == ':')
+		return set_lval_str(TOKEN_LITERAL, yytext);
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
