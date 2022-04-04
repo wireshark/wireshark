@@ -102,7 +102,7 @@ guint conv_vals_cnt = 0;
 guint conv_fld_cnt = 0;
 
 void
-register_conversation_filters_mappings()
+register_conversation_filters_mappings(void)
 {
     MAP_CONV_FLTS()
 }
