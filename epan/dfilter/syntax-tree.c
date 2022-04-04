@@ -266,11 +266,12 @@ _node_tostr(stnode_t *node, gboolean pretty)
 	if (pretty)
 		return s;
 
-	if (stnode_type_id(node) == STTYPE_TEST) {
+	if (stnode_type_id(node) == STTYPE_TEST ||
+		stnode_type_id(node) == STTYPE_ARITHMETIC) {
 		repr = s;
 	}
 	else {
-		repr = ws_strdup_printf("%s<%s>", stnode_type_name(node), s);
+		repr = ws_strdup_printf("%s(%s)", stnode_type_name(node), s);
 		g_free(s);
 	}
 
@@ -382,6 +383,7 @@ indent(wmem_strbuf_t *buf, int level)
 	for (int i = 0; i < level * 2; i++) {
 		wmem_strbuf_append_c(buf, ' ');
 	}
+	wmem_strbuf_append_printf(buf, "% 2d ", level);
 }
 
 static void
@@ -392,45 +394,54 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 	if (stnode_type_id(node) == STTYPE_TEST ||
 			stnode_type_id(node) == STTYPE_BITWISE ||
 			stnode_type_id(node) == STTYPE_ARITHMETIC) {
-		wmem_strbuf_append_printf(buf, "%s(", stnode_todebug(node));
+		wmem_strbuf_append_printf(buf, "%s:\n", stnode_todebug(node));
 		sttype_test_get(node, NULL, &left, &right);
 		if (left && right) {
-			wmem_strbuf_append_c(buf, '\n');
 			indent(buf, level + 1);
-			wmem_strbuf_append(buf, "LHS = ");
 			visit_tree(buf, left, level + 1);
 			wmem_strbuf_append_c(buf, '\n');
 			indent(buf, level + 1);
-			wmem_strbuf_append(buf, "RHS = ");
 			visit_tree(buf, right, level + 1);
-			wmem_strbuf_append(buf, "\n");
-			indent(buf, level);
 		}
 		else if (left) {
-			visit_tree(buf, left, level);
+			indent(buf, level + 1);
+			visit_tree(buf, left, level + 1);
 		}
 		else if (right) {
-			visit_tree(buf, right, level);
+			ws_assert_not_reached();
 		}
-		wmem_strbuf_append(buf, ")");
 	}
 	else {
 		wmem_strbuf_append(buf, stnode_todebug(node));
 	}
 }
 
+char *
+dump_syntax_tree_str(stnode_t *root)
+{
+	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
+	indent(buf, 0);
+	visit_tree(buf, root, 0);
+	return wmem_strbuf_finalize(buf);
+}
+
 void
-log_syntax_tree(enum ws_log_level level, stnode_t *root, const char *msg)
+log_syntax_tree(enum ws_log_level level, stnode_t *root, const char *msg, char **cache_ptr)
 {
 	if (!ws_log_msg_is_active(LOG_DOMAIN_DFILTER, level))
 		return;
 
-	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
+	char *str = dump_syntax_tree_str(root);
 
-	visit_tree(buf, root, 0);
 	ws_log_write_always_full(LOG_DOMAIN_DFILTER, level, NULL, -1, NULL,
-				"%s:\n%s", msg, wmem_strbuf_get_str(buf));
-	wmem_strbuf_destroy(buf);
+				"%s:\n%s", msg, str);
+
+	if (cache_ptr) {
+		*cache_ptr = str;
+	}
+	else {
+		g_free(str);
+	}
 }
 
 /*

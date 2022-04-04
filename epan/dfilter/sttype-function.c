@@ -60,7 +60,7 @@ function_tostr(const void *data, gboolean pretty)
 
 	ws_assert(def);
 
-	g_string_printf(repr, "%s(", def->name);
+	g_string_printf(repr, "%s: ", def->name);
 	while (params != NULL) {
 		ws_assert(params->data);
 		g_string_append(repr, stnode_tostr(params->data, pretty));
@@ -69,7 +69,6 @@ function_tostr(const void *data, gboolean pretty)
 			g_string_append(repr, ", ");
 		}
 	}
-	g_string_append_c(repr, ')');
 
 	return g_string_free(repr, FALSE);
 }

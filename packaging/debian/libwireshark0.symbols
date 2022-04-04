@@ -280,6 +280,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dfilter_load_field_references@Base 3.7.0
  dfilter_log_full@Base 3.7.0
  dfilter_macro_get_uat@Base 1.9.1
+ dfilter_syntax_tree@Base 3.7.0
+ dfilter_text@Base 3.7.0
  disable_name_resolution@Base 1.99.9
  display_epoch_time@Base 1.9.1
  display_signed_time@Base 1.9.1

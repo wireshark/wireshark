@@ -28,6 +28,7 @@ struct epan_dfilter {
 	GPtrArray	*deprecated;
 	char		*expanded_text;
 	GHashTable	*references;
+	char		*syntax_tree_str;
 };
 
 typedef struct {

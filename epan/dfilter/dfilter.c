@@ -208,6 +208,7 @@ dfilter_free(dfilter_t *df)
 	g_free(df->attempted_load);
 	g_free(df->free_registers);
 	g_free(df->expanded_text);
+	g_free(df->syntax_tree_str);
 	g_free(df);
 }
 
@@ -338,7 +339,8 @@ add_deprecated_token(dfwork_t *dfw, const char *token)
 
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			gchar **error_ret, const char *caller)
+			gchar **error_ret, const char *caller,
+			gboolean save_tree)
 {
 	gchar		*expanded_text;
 	int		token;
@@ -349,6 +351,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	YY_BUFFER_STATE in_buffer;
 	gboolean failure = FALSE;
 	unsigned token_count = 0;
+	char		*tree_str;
 
 	ws_assert(dfp);
 	*dfp = NULL;
@@ -462,14 +465,20 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		*dfp = NULL;
 	}
 	else {
-		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check");
+		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check", NULL);
 
 		/* Check semantics and do necessary type conversion*/
 		if (!dfw_semcheck(dfw)) {
 			goto FAILURE;
 		}
 
-		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree after successful semantic check");
+		/* Cache tree representation in tree_str. */
+		tree_str = NULL;
+		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree after successful semantic check", &tree_str);
+
+		if (save_tree && tree_str == NULL) {
+			tree_str = dump_syntax_tree_str(dfw->st_root);
+		}
 
 		/* Create bytecode */
 		dfw_gencode(dfw);
@@ -483,6 +492,17 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		dfilter->expanded_text = ws_strdup(expanded_text);
 		dfilter->references = dfw->references;
 		dfw->references = NULL;
+
+		if (save_tree) {
+			ws_assert(tree_str);
+			dfilter->syntax_tree_str = tree_str;
+			tree_str = NULL;
+		}
+		else {
+			dfilter->syntax_tree_str = NULL;
+			g_free(tree_str);
+			tree_str = NULL;
+		}
 
 		/* Initialize run-time space */
 		dfilter->num_registers = dfw->next_register;
@@ -582,6 +602,18 @@ dfilter_dump(dfilter_t *df)
 	}
 }
 
+const char *
+dfilter_text(dfilter_t *df)
+{
+	return df->expanded_text;
+}
+
+const char *
+dfilter_syntax_tree(dfilter_t *df)
+{
+	return df->syntax_tree_str;
+}
+
 void
 dfilter_log_full(const char *domain, enum ws_log_level level,
 			const char *file, long line, const char *func,
@@ -598,9 +630,9 @@ dfilter_log_full(const char *domain, enum ws_log_level level,
 
 	char *str = dfvm_dump_str(NULL, df, TRUE);
 	if (G_UNLIKELY(msg == NULL))
-		ws_log_write_always_full(domain, level, file, line, func, "\n%s", str);
+		ws_log_write_always_full(domain, level, file, line, func, "Filter:%s\n%s", dfilter_text(df), str);
 	else
-		ws_log_write_always_full(domain, level, file, line, func, "%s\n%s", msg, str);
+		ws_log_write_always_full(domain, level, file, line, func, "%s:\nFilter: %s\nInstructions:\n%s", msg, dfilter_text(df), str);
 	g_free(str);
 }
 

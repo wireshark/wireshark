@@ -49,10 +49,14 @@ dfilter_cleanup(void);
 WS_DLL_PUBLIC
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			gchar **err_msg, const char *caller);
+			gchar **err_msg, const char *caller,
+			gboolean save_tree);
 
 #define dfilter_compile(text, dfp, err_msg) \
-	dfilter_compile_real(text, dfp, err_msg, __func__)
+	dfilter_compile_real(text, dfp, err_msg, __func__, FALSE)
+
+#define dfilter_compile2(text, dfp, err_msg, save_tree) \
+	dfilter_compile_real(text, dfp, err_msg, __func__, save_tree)
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */
@@ -90,6 +94,16 @@ dfilter_deprecated_tokens(dfilter_t *df);
 WS_DLL_PUBLIC
 void
 dfilter_dump(dfilter_t *df);
+
+/* Text after macro expansion. */
+WS_DLL_PUBLIC
+const char *
+dfilter_text(dfilter_t *df);
+
+/* Text representation of syntax tree (if it was saved, NULL oterwise). */
+WS_DLL_PUBLIC
+const char *
+dfilter_syntax_tree(dfilter_t *df);
 
 /* Print bytecode of dfilter to log */
 WS_DLL_PUBLIC

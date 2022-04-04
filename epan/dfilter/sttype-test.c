@@ -187,25 +187,25 @@ test_todebug(test_op_t op)
 			s = "TEST_LE";
 			break;
 		case OP_BITWISE_AND:
-			s = "BITWISE_AND";
+			s = "OP_BITWISE_AND";
 			break;
 		case OP_UNARY_MINUS:
-			s = "UNARY_MINUS";
+			s = "OP_UNARY_MINUS";
 			break;
 		case OP_ADD:
-			s = "ADD";
+			s = "OP_ADD";
 			break;
 		case OP_SUBTRACT:
-			s = "SUBTRACT";
+			s = "OP_SUBTRACT";
 			break;
 		case OP_MULTIPLY:
-			s = "MULTIPLY";
+			s = "OP_MULTIPLY";
 			break;
 		case OP_DIVIDE:
-			s = "DIVIDE";
+			s = "OP_DIVIDE";
 			break;
 		case OP_MODULO:
-			s = "MODULO";
+			s = "OP_MODULO";
 			break;
 		case TEST_OP_NOTZERO:
 			s = "TEST_NOTZERO";
@@ -286,6 +286,7 @@ sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1)
 	ws_assert(num_operands(op) == 1);
 	test->op = op;
 	test->val1 = val1;
+	test->val2 = NULL;
 }
 
 void
@@ -310,6 +311,7 @@ sttype_test_set1_args(stnode_t *node, stnode_t *val1)
 
 	ws_assert(num_operands(test->op) == 1);
 	test->val1 = val1;
+	test->val2 = NULL;
 }
 
 void

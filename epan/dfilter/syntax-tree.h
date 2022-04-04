@@ -189,8 +189,11 @@ log_test_full(enum ws_log_level level,
 	} while (0)
 #endif
 
+char *
+dump_syntax_tree_str(stnode_t *root);
+
 void
-log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg);
+log_syntax_tree(enum ws_log_level, stnode_t *root, const char *msg, char **cache_ptr);
 
 #ifdef WS_DISABLE_DEBUG
 #define ws_assert_magic(obj, mnum) (void)0

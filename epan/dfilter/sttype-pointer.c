@@ -46,7 +46,7 @@ sttype_fvalue_tostr(const void *data, gboolean pretty)
 	if (pretty)
 		repr = g_strdup(s);
 	else
-		repr = ws_strdup_printf("%s[%s]", fvalue_type_name(fvalue), s);
+		repr = ws_strdup_printf("%s <%s>", s, fvalue_type_name(fvalue));
 	g_free(s);
 	return repr;
 }

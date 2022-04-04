@@ -131,7 +131,7 @@ main(int argc, char **argv)
     text = get_args_as_string(argc, argv, 1);
 
     /* Compile it */
-    if (!dfilter_compile(text, &df, &err_msg)) {
+    if (!dfilter_compile2(text, &df, &err_msg, TRUE)) {
         fprintf(stderr, "dftest: %s\n", err_msg);
         g_free(err_msg);
         epan_cleanup();
@@ -139,10 +139,14 @@ main(int argc, char **argv)
         exit(2);
     }
 
-    if (df == NULL)
+    if (df == NULL) {
         printf("Filter is empty\n");
-    else
+    }
+    else {
+        printf("Filter text:\n%s\n\n", dfilter_text(df));
+        printf("Syntax tree:\n%s\n\n", dfilter_syntax_tree(df));
         dfilter_dump(df);
+    }
 
     dfilter_free(df);
     epan_cleanup();
