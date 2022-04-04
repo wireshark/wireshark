@@ -32,7 +32,7 @@ register_plugin_files(plugin.c
 	${CODEC_SRC}
 )
 
-add_plugin_library(g711 codecs)
+add_wireshark_plugin_library(g711 codecs)
 
 target_include_directories(g711 PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
 

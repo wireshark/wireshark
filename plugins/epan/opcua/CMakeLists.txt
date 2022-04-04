@@ -48,7 +48,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SUPPORT_SRC}
 )
 
-add_plugin_library(opcua epan)
+add_wireshark_plugin_library(opcua epan)
 
 target_link_libraries(opcua epan)
 

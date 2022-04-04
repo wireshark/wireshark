@@ -28,7 +28,7 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	add_definitions(-DPLUGIN_VERSION=\"${PLUGIN_VERSION}\")
 endmacro()
 
-macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
+macro(ADD_WIRESHARK_PLUGIN_LIBRARY _plugin _subfolder)
 	add_library(${_plugin} MODULE
 		${PLUGIN_FILES}
 		${PLUGIN_RC_FILE}
@@ -53,8 +53,13 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 	add_dependencies(plugins ${_plugin})
 endmacro()
 
+macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
+	message(WARNING "${CMAKE_PARENT_LIST_FILE}: add_plugin_library is deprecated. Use add_wireshark_plugin_library instead.")
+	ADD_WIRESHARK_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
+endmacro()
+
 macro(ADD_LOGWOLF_PLUGIN_LIBRARY _plugin _subfolder)
-	ADD_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
+	ADD_WIRESHARK_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
 
 	set_target_properties(${_plugin} PROPERTIES
 		LIBRARY_OUTPUT_DIRECTORY ${LOGWOLF_PLUGIN_DIR}/${_subfolder}

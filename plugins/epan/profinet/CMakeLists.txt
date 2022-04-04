@@ -47,7 +47,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SUPPORT_SRC}
 )
 
-add_plugin_library(profinet epan)
+add_wireshark_plugin_library(profinet epan)
 
 target_link_libraries(profinet epan)
 

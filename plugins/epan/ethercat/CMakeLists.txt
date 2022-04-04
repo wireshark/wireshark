@@ -38,7 +38,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_plugin_library(ethercat epan)
+add_wireshark_plugin_library(ethercat epan)
 
 target_link_libraries(ethercat epan)
 

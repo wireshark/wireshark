@@ -32,7 +32,7 @@ register_plugin_files(plugin.c
 	${CODEC_SRC}
 )
 
-add_plugin_library(l16mono codecs)
+add_wireshark_plugin_library(l16mono codecs)
 
 target_include_directories(l16mono PRIVATE ${CMAKE_SOURCE_DIR}/codecs)
 

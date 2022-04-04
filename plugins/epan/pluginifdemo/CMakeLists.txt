@@ -50,7 +50,7 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_plugin_library(pluginifdemo epan)
+add_wireshark_plugin_library(pluginifdemo epan)
 
 target_link_libraries(pluginifdemo epan Qt5::Core Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia)
 
