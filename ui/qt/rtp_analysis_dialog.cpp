@@ -240,11 +240,12 @@ enum {
 };
 
 RtpAnalysisDialog *RtpAnalysisDialog::pinstance_{nullptr};
-std::mutex RtpAnalysisDialog::mutex_;
+std::mutex RtpAnalysisDialog::init_mutex_;
+std::mutex RtpAnalysisDialog::run_mutex_;
 
 RtpAnalysisDialog *RtpAnalysisDialog::openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(init_mutex_);
     if (pinstance_ == nullptr)
     {
         pinstance_ = new RtpAnalysisDialog(parent, cf);
@@ -316,13 +317,15 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
 RtpAnalysisDialog::~RtpAnalysisDialog()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    delete ui;
-    for(int i=0; i<tabs_.count(); i++) {
-        deleteTabInfo(tabs_[i]);
-        g_free(tabs_[i]);
+    std::lock_guard<std::mutex> lock(init_mutex_);
+    if (pinstance_ != nullptr) {
+        delete ui;
+        for(int i=0; i<tabs_.count(); i++) {
+            deleteTabInfo(tabs_[i]);
+            g_free(tabs_[i]);
+        }
+        pinstance_ = nullptr;
     }
-    pinstance_ = nullptr;
 }
 
 void RtpAnalysisDialog::deleteTabInfo(tab_info_t *tab_info)
@@ -1025,20 +1028,28 @@ void RtpAnalysisDialog::showStreamMenu(QPoint pos)
 
 void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    // Delete existing tabs (from last to first)
-    if (tabs_.count() > 0) {
-        for(int i = static_cast<int>(tabs_.count()); i>0; i--) {
-            closeTab(i-1);
+    std::unique_lock<std::mutex> lock(run_mutex_, std::try_to_lock);
+    if (lock.owns_lock()) {
+        // Delete existing tabs (from last to first)
+        if (tabs_.count() > 0) {
+            for(int i = static_cast<int>(tabs_.count()); i>0; i--) {
+                closeTab(i-1);
+            }
         }
+        addRtpStreamsPrivate(stream_ids);
+    } else {
+        ws_warning("replaceRtpStreams was called while other thread locked it. Current call is ignored, try it later.");
     }
-    addRtpStreamsPrivate(stream_ids);
 }
 
 void RtpAnalysisDialog::addRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    addRtpStreamsPrivate(stream_ids);
+    std::unique_lock<std::mutex> lock(run_mutex_, std::try_to_lock);
+    if (lock.owns_lock()) {
+        addRtpStreamsPrivate(stream_ids);
+    } else {
+        ws_warning("addRtpStreams was called while other thread locked it. Current call is ignored, try it later.");
+    }
 }
 
 void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_id_t *> stream_ids)
@@ -1089,20 +1100,24 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_id_t *> stream_id
 
 void RtpAnalysisDialog::removeRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    setUpdatesEnabled(false);
-    foreach(rtpstream_id_t *id, stream_ids) {
-        QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_id_to_hash(id));
-        for (int i = 0; i < tabs.size(); i++) {
-            tab_info_t *tab = tabs.at(i);
-            if (rtpstream_id_equal(&tab->stream.id, id, RTPSTREAM_ID_EQUAL_SSRC))  {
-                closeTab(static_cast<int>(tabs_.indexOf(tab)));
+    std::unique_lock<std::mutex> lock(run_mutex_, std::try_to_lock);
+    if (lock.owns_lock()) {
+        setUpdatesEnabled(false);
+        foreach(rtpstream_id_t *id, stream_ids) {
+            QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_id_to_hash(id));
+            for (int i = 0; i < tabs.size(); i++) {
+                tab_info_t *tab = tabs.at(i);
+                if (rtpstream_id_equal(&tab->stream.id, id, RTPSTREAM_ID_EQUAL_SSRC))  {
+                    closeTab(static_cast<int>(tabs_.indexOf(tab)));
+                }
             }
         }
-    }
-    setUpdatesEnabled(true);
+        setUpdatesEnabled(true);
 
-    updateGraph();
+        updateGraph();
+    } else {
+        ws_warning("removeRtpStreams was called while other thread locked it. Current call is ignored, try it later.");
+    }
 }
 
 tab_info_t *RtpAnalysisDialog::getTabInfoForCurrentTab()

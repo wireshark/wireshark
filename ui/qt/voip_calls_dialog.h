@@ -89,7 +89,7 @@ private:
     static VoipCallsDialog *pinstance_voip_;
     static VoipCallsDialog *pinstance_sip_;
     bool all_flows_;
-    static std::mutex mutex_;
+    static std::mutex init_mutex_;
 
     Ui::VoipCallsDialog *ui;
     VoipCallsInfoModel *call_infos_model_;

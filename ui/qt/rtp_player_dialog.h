@@ -202,7 +202,8 @@ private slots:
 #endif
 private:
     static RtpPlayerDialog *pinstance_;
-    static std::mutex mutex_;
+    static std::mutex init_mutex_;
+    static std::mutex run_mutex_;
 
 #ifdef QT_MULTIMEDIA_LIB
     Ui::RtpPlayerDialog *ui;

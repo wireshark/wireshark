@@ -44,11 +44,11 @@ enum { voip_calls_type_ = 1000 };
 
 VoipCallsDialog *VoipCallsDialog::pinstance_voip_{nullptr};
 VoipCallsDialog *VoipCallsDialog::pinstance_sip_{nullptr};
-std::mutex VoipCallsDialog::mutex_;
+std::mutex VoipCallsDialog::init_mutex_;
 
 VoipCallsDialog *VoipCallsDialog::openVoipCallsDialogVoip(QWidget &parent, CaptureFile &cf, QObject *packet_list)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(init_mutex_);
     if (pinstance_voip_ == nullptr)
     {
         pinstance_voip_ = new VoipCallsDialog(parent, cf, false);
@@ -60,7 +60,7 @@ VoipCallsDialog *VoipCallsDialog::openVoipCallsDialogVoip(QWidget &parent, Captu
 
 VoipCallsDialog *VoipCallsDialog::openVoipCallsDialogSip(QWidget &parent, CaptureFile &cf, QObject *packet_list)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(init_mutex_);
     if (pinstance_sip_ == nullptr)
     {
         pinstance_sip_ = new VoipCallsDialog(parent, cf, true);
@@ -195,24 +195,28 @@ bool VoipCallsDialog::eventFilter(QObject *, QEvent *event)
 
 VoipCallsDialog::~VoipCallsDialog()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    delete ui;
+    std::lock_guard<std::mutex> lock(init_mutex_);
+    if ((all_flows_ && (pinstance_sip_ != nullptr))
+        || (!all_flows_ && (pinstance_voip_ != nullptr))
+       ) {
+        delete ui;
 
-    voip_calls_reset_all_taps(&tapinfo_);
-    if (!voip_calls_tap_listeners_removed_) {
-        voip_calls_remove_all_tap_listeners(&tapinfo_);
-        voip_calls_tap_listeners_removed_ = true;
-    }
-    sequence_info_->unref();
-    g_queue_free(tapinfo_.callsinfos);
-    // We don't need to clear shown_callsinfos_ data, it was shared
-    // with tapinfo_.callsinfos and was cleared
-    // during voip_calls_reset_all_taps
-    g_queue_free(shown_callsinfos_);
-    if (all_flows_) {
-        pinstance_sip_ = nullptr;
-    } else {
-        pinstance_voip_ = nullptr;
+        voip_calls_reset_all_taps(&tapinfo_);
+        if (!voip_calls_tap_listeners_removed_) {
+            voip_calls_remove_all_tap_listeners(&tapinfo_);
+            voip_calls_tap_listeners_removed_ = true;
+        }
+        sequence_info_->unref();
+        g_queue_free(tapinfo_.callsinfos);
+        // We don't need to clear shown_callsinfos_ data, it was shared
+        // with tapinfo_.callsinfos and was cleared
+        // during voip_calls_reset_all_taps
+        g_queue_free(shown_callsinfos_);
+        if (all_flows_) {
+            pinstance_sip_ = nullptr;
+        } else {
+            pinstance_voip_ = nullptr;
+        }
     }
 }
 
