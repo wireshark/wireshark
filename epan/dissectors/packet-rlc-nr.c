@@ -493,8 +493,6 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             }
             p_pdcp_nr_info->bearerId = rlc_info->bearerId;
 
-            /* Assume no SDAP present */
-            p_pdcp_nr_info->sdap_header = 0;
             p_pdcp_nr_info->rohc.rohc_compression = FALSE;
             p_pdcp_nr_info->is_retx = FALSE;
             p_pdcp_nr_info->pdu_length = length;
