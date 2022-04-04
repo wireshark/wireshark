@@ -24,6 +24,9 @@ new_function(dfwork_t *dfw, df_lval_t *lval);
 static stnode_t *
 new_test(dfwork_t *dfw, test_op_t op, df_lval_t *lval);
 
+static stnode_t *
+new_math(dfwork_t *dfw, test_op_t op, df_lval_t *lval);
+
 /* End of C code */
 }
 
@@ -83,7 +86,10 @@ shifting 3 more symbols. */
 %left TEST_AND.
 %right TEST_NOT.
 %nonassoc TEST_ALL_EQ TEST_ANY_EQ TEST_ALL_NE TEST_ANY_NE TEST_LT TEST_LE TEST_GT TEST_GE
-            TEST_CONTAINS TEST_MATCHES TEST_BITWISE_AND.
+            TEST_CONTAINS TEST_MATCHES.
+%left BITWISE_AND.
+%left PLUS MINUS.
+%left STAR RSLASH PERCENT.
 
 /* Top-level targets */
 sentence ::= expr(X).           { dfw->st_root = X; }
@@ -97,6 +103,14 @@ expr(X) ::= logical_test(L).    { X = L; }
     new_test(dfwork_t *dfw _U_, test_op_t op, df_lval_t *lval)
     {
         stnode_t *node = stnode_new_test(op, df_lval_value(lval));
+        df_lval_free(lval, FALSE);
+        return node;
+    }
+
+    static stnode_t *
+    new_math(dfwork_t *dfw _U_, test_op_t op, df_lval_t *lval)
+    {
+        stnode_t *node = stnode_new_math(op, df_lval_value(lval));
         df_lval_free(lval, FALSE);
         return node;
     }
@@ -177,12 +191,12 @@ entity(E) ::= REF_OPEN REFERENCE(F) REF_CLOSE.
 entity(E) ::= range(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
 
-arithmetic_term(T) ::= entity(F) BITWISE_AND(B) entity(M).
-{
-    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(B));
-    sttype_test_set2(T, OP_BITWISE_AND, F, M);
-    df_lval_free(B, FALSE);
-}
+bin_op(O) ::= BITWISE_AND(L).    { O = new_math(dfw, OP_BITWISE_AND, L); }
+bin_op(O) ::= PLUS(L).           { O = new_math(dfw, OP_ADD, L); }
+bin_op(O) ::= MINUS(L).          { O = new_math(dfw, OP_SUBTRACT, L); }
+bin_op(O) ::= STAR(L).           { O = new_math(dfw, OP_MULTIPLY, L); }
+bin_op(O) ::= RSLASH(L).         { O = new_math(dfw, OP_DIVIDE, L); }
+bin_op(O) ::= PERCENT(L).        { O = new_math(dfw, OP_MODULO, L); }
 
 arithmetic_term(T) ::= PLUS entity(N).
 {
@@ -195,39 +209,10 @@ arithmetic_term(T) ::= MINUS entity(N).
     sttype_test_set1(T, OP_UNARY_MINUS, N);
 }
 
-arithmetic_term(T) ::= entity(E) PLUS(P) entity(N).
+arithmetic_term(T) ::= entity(F) bin_op(O) entity(M).
 {
-    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(P));
-    sttype_test_set2(T, OP_ADD, E, N);
-    df_lval_free(P, FALSE);
-}
-
-arithmetic_term(T) ::= entity(E) MINUS(M) entity(N).
-{
-    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(M));
-    sttype_test_set2(T, OP_SUBTRACT, E, N);
-    df_lval_free(M, FALSE);
-}
-
-arithmetic_term(T) ::= entity(E) STAR(P) entity(N).
-{
-    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(P));
-    sttype_test_set2(T, OP_MULTIPLY, E, N);
-    df_lval_free(P, FALSE);
-}
-
-arithmetic_term(T) ::= entity(E) RSLASH(M) entity(N).
-{
-    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(M));
-    sttype_test_set2(T, OP_DIVIDE, E, N);
-    df_lval_free(M, FALSE);
-}
-
-arithmetic_term(T) ::= entity(E) PERCENT(M) entity(N).
-{
-    T = stnode_new(STTYPE_ARITHMETIC, NULL, df_lval_value(M));
-    sttype_test_set2(T, OP_MODULO, E, N);
-    df_lval_free(M, FALSE);
+    T = O;
+    sttype_test_set2_args(T, F, M);
 }
 
 term(T) ::= entity(E).          { T = E; }

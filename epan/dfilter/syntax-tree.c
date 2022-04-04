@@ -161,6 +161,16 @@ stnode_new_test(test_op_t op, char *token)
 }
 
 stnode_t *
+stnode_new_math(test_op_t op, char *token)
+{
+	stnode_t *node;
+
+	node = stnode_new(STTYPE_ARITHMETIC, NULL, token);
+	sttype_test_set_op(node, op);
+	return node;
+}
+
+stnode_t *
 stnode_new_string(const char *str, char *token)
 {
 	return stnode_new(STTYPE_STRING, g_strdup(str), token);

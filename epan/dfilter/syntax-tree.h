@@ -113,6 +113,9 @@ stnode_t *
 stnode_new_test(test_op_t op, char *token);
 
 stnode_t *
+stnode_new_math(test_op_t op, char *token);
+
+stnode_t *
 stnode_new_string(const char *str, char *token);
 
 stnode_t *
