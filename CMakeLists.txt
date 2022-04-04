@@ -1303,7 +1303,7 @@ ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 
-if (NOT WIN32)
+if (BUILD_logwolf)
 	# libsinsp+libscap, required for falco-bridge
 	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP)
 endif()
