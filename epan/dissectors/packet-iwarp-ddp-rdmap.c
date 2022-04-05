@@ -374,8 +374,8 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 							ENC_BIG_ENDIAN);
 					offset += 1;
 					proto_tree_add_item(term_ctrl_field_tree,
-							hf_iwarp_rdma_term_errcode_rdma, tvb, offset, 1,
-							ENC_BIG_ENDIAN);
+							etype ? hf_iwarp_rdma_term_errcode_rdma : hf_iwarp_rdma_term_errcode,
+							tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 					break;
 				case IWARP_LAYER_DDP:
