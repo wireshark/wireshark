@@ -98,7 +98,7 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 
 %}
 
-WORD_CHAR	[[:alnum:]_]
+WORD_CHAR	[[:alnum:]_-]
 
 hex2		[[:xdigit:]]{2}
 MacAddress	{hex2}:{hex2}:{hex2}:{hex2}:{hex2}:{hex2}|{hex2}-{hex2}-{hex2}-{hex2}-{hex2}-{hex2}|{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}
@@ -388,7 +388,7 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	return set_lval_str(TOKEN_LITERAL, yytext);
 }
 
-[:.]?{WORD_CHAR}+(\.{WORD_CHAR}+)*		{
+[:.]?[[:alnum:]_]{WORD_CHAR}*(\.{WORD_CHAR}+)*		{
 	/* Identifier or literal or unparsed. */
 	if (yytext[0] == '.')
 		return set_lval_str(TOKEN_IDENTIFIER, yytext);
