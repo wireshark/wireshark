@@ -243,7 +243,7 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 			case MK_RANGE:
 				arg3 = insn->arg3;
 				wmem_strbuf_append_printf(buf, "%05d MK_RANGE\t\t%s[%s] -> %s\n",
-					id, arg1_str, arg2_str, arg3_str);
+					id, arg1_str, arg3_str, arg2_str);
 				break;
 
 			case ALL_EQ:
