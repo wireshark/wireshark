@@ -5244,10 +5244,9 @@ dissect_channel_scan_request(tvbuff_t *tvb, packet_info *pinfo _U_,
                     while (chan_num > 0) {
                         proto_tree_add_item(channels, hf_ieee1905_channel_scan_request_channel,
                                         tvb, offset, 1, ENC_NA);
+                        offset += 1;
                         chan_num--;
                     }
-
-                    offset += chan_num;
                 }
 
                 proto_item_set_len(ci, offset - oper_class_start_offset);
