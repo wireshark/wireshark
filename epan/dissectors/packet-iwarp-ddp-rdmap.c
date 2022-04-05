@@ -77,8 +77,9 @@ void proto_register_iwarp_ddp_rdmap(void);
 #define IWARP_TERM_RES 0x1FFF
 
 #define IWARP_LAYER_RDMA 0x00
-#define IWARP_LAYER_DDP 0x10
-#define IWARP_LAYER_LLP 0x20
+#define IWARP_LAYER_DDP  0x01
+#define IWARP_LAYER_LLP  0x02
+
 #define IWARP_ETYPE_DDP_TAGGED 0x01
 #define IWARP_ETYPE_DDP_UNTAGGED 0x02
 
@@ -366,7 +367,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			proto_tree_add_item(term_ctrl_field_tree, hf_iwarp_rdma_term_layer,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 
-			switch (layer) {
+			switch (layer >> 4) {
 				case IWARP_LAYER_RDMA:
 					proto_tree_add_item(term_ctrl_field_tree,
 							hf_iwarp_rdma_term_etype_rdma, tvb, offset, 1,
