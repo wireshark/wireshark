@@ -904,15 +904,15 @@ proto_register_iwarp_ddp_rdmap(void)
 				"Terminate Control Field: Header control bits", HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct_m, {
 				"M bit", "iwarp_rdma.term_hdrct_m",
-				FT_UINT8, BASE_HEX, NULL, IWARP_HDRCT_M,
+				FT_BOOLEAN, 8, TFS(&tfs_set_notset), IWARP_HDRCT_M,
 				"Header control bit m: DDP Segment Length valid", HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct_d, {
 				"D bit", "iwarp_rdma.hdrct_d",
-				FT_UINT8, BASE_HEX, NULL, IWARP_HDRCT_D,
+				FT_BOOLEAN, 8, TFS(&tfs_set_notset), IWARP_HDRCT_D,
 				"Header control bit d: DDP Header Included", HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct_r, {
 				"R bit", "iwarp_rdma.hdrct_r",
-				FT_UINT8, BASE_HEX, NULL, IWARP_HDRCT_R,
+				FT_BOOLEAN, 8, TFS(&tfs_set_notset), IWARP_HDRCT_R,
 				"Header control bit r: RDMAP Header Included", HFILL} },
 		{ &hf_iwarp_rdma_term_rsvd, {
 				"Reserved", "iwarp_rdma.term_rsvd",
