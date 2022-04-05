@@ -1880,8 +1880,8 @@ static const true_false_string cf_ess_flags = {
 
 
 static const true_false_string cf_privacy_flags = {
-  "AP/STA can support WEP",
-  "AP/STA cannot support WEP"
+  "Data confidentiality required",
+  "Data confidentiality not required"
 };
 
 static const true_false_string cf_ibss_flags = {
@@ -1922,30 +1922,6 @@ static const true_false_string mesh_config_cap_power_save_level_flags = {
 static const true_false_string ieee80211_qos_mesh_ps = {
   "deep sleep mode",
   "light sleep mode"
-};
-
-static const value_string sta_cf_pollable[] = {
-  {0x00, "Station is not CF-Pollable"},
-  {0x02, "Station is CF-Pollable, not requesting to be placed on the  CF-polling list"},
-  {0x01, "Station is CF-Pollable, requesting to be placed on the CF-polling list"},
-  {0x03, "Station is CF-Pollable, requesting never to be polled"},
-  {0x80, "QSTA requesting association in QBSS"},
-  {0x81, "Reserved"},
-  {0x82, "Reserved"},
-  {0x83, "Reserved"},
-  {0, NULL}
-};
-
-static const value_string ap_cf_pollable[] = {
-  {0x00, "No point coordinator at AP"},
-  {0x02, "Point coordinator at AP for delivery only (no polling)"},
-  {0x01, "Point coordinator at AP for delivery and polling"},
-  {0x03, "Reserved"},
-  {0x80, "QAP (HC) does not use CFP for delivery of unicast data type frames"},
-  {0x82, "QAP (HC) uses CFP for delivery, but does not send CF-Polls to non-QoS STAs"},
-  {0x81, "QAP (HC) uses CFP for delivery, and sends CF-Polls to non-QoS STAs"},
-  {0x83, "Reserved"},
-  {0, NULL}
 };
 
 #define AUTH_ALG_OPEN                   0
@@ -4529,19 +4505,20 @@ static int hf_ieee80211_ff_max_toa_err = -1;
 static int hf_ieee80211_ff_capture = -1;
 static int hf_ieee80211_ff_cf_ess = -1;
 static int hf_ieee80211_ff_cf_ibss = -1;
-static int hf_ieee80211_ff_cf_sta_poll = -1; /* CF pollable status for a STA            */
-static int hf_ieee80211_ff_cf_ap_poll = -1;  /* CF pollable status for an AP            */
+static int hf_ieee80211_ff_cf_reserved1 = -1;
+static int hf_ieee80211_ff_cf_reserved2 = -1;
 static int hf_ieee80211_ff_cf_privacy = -1;
 static int hf_ieee80211_ff_cf_preamble = -1;
-static int hf_ieee80211_ff_cf_pbcc = -1;
-static int hf_ieee80211_ff_cf_agility = -1;
-static int hf_ieee80211_ff_short_slot_time = -1;
-static int hf_ieee80211_ff_dsss_ofdm = -1;
+static int hf_ieee80211_ff_cf_reserved3 = -1;
+static int hf_ieee80211_ff_cf_reserved4 = -1;
 static int hf_ieee80211_ff_cf_spec_man = -1;
+static int hf_ieee80211_ff_cf_qos = -1;
+static int hf_ieee80211_ff_cf_short_slot_time = -1;
 static int hf_ieee80211_ff_cf_apsd = -1;
-static int hf_ieee80211_ff_radio_measurement = -1;
-static int hf_ieee80211_ff_cf_del_blk_ack = -1;
-static int hf_ieee80211_ff_cf_imm_blk_ack = -1;
+static int hf_ieee80211_ff_cf_radio_measurement = -1;
+static int hf_ieee80211_ff_cf_epd = -1;
+static int hf_ieee80211_ff_cf_reserved5 = -1;
+static int hf_ieee80211_ff_cf_reserved6 = -1;
 
 /* ************************************************************************* */
 /*                       A-MSDU fields                                       */
@@ -10850,39 +10827,23 @@ add_ff_dmg_params(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
 static guint
 add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  static int * const ieee80211_ap_fields[] = {
+  static int * const ieee80211_cap_info_fields[] = {
     &hf_ieee80211_ff_cf_ess,
     &hf_ieee80211_ff_cf_ibss,
-    &hf_ieee80211_ff_cf_ap_poll,
+    &hf_ieee80211_ff_cf_reserved1,
+    &hf_ieee80211_ff_cf_reserved2,
     &hf_ieee80211_ff_cf_privacy,
     &hf_ieee80211_ff_cf_preamble,
-    &hf_ieee80211_ff_cf_pbcc,
-    &hf_ieee80211_ff_cf_agility,
+    &hf_ieee80211_ff_cf_reserved3,
+    &hf_ieee80211_ff_cf_reserved4,
     &hf_ieee80211_ff_cf_spec_man,
-    &hf_ieee80211_ff_short_slot_time,
+    &hf_ieee80211_ff_cf_qos,
+    &hf_ieee80211_ff_cf_short_slot_time,
     &hf_ieee80211_ff_cf_apsd,
-    &hf_ieee80211_ff_radio_measurement,
-    &hf_ieee80211_ff_dsss_ofdm,
-    &hf_ieee80211_ff_cf_del_blk_ack,
-    &hf_ieee80211_ff_cf_imm_blk_ack,
-    NULL
-  };
-
-  static int * const ieee80211_sta_fields[] = {
-    &hf_ieee80211_ff_cf_ess,
-    &hf_ieee80211_ff_cf_ibss,
-    &hf_ieee80211_ff_cf_sta_poll,
-    &hf_ieee80211_ff_cf_privacy,
-    &hf_ieee80211_ff_cf_preamble,
-    &hf_ieee80211_ff_cf_pbcc,
-    &hf_ieee80211_ff_cf_agility,
-    &hf_ieee80211_ff_cf_spec_man,
-    &hf_ieee80211_ff_short_slot_time,
-    &hf_ieee80211_ff_cf_apsd,
-    &hf_ieee80211_ff_radio_measurement,
-    &hf_ieee80211_ff_dsss_ofdm,
-    &hf_ieee80211_ff_cf_del_blk_ack,
-    &hf_ieee80211_ff_cf_imm_blk_ack,
+    &hf_ieee80211_ff_cf_radio_measurement,
+    &hf_ieee80211_ff_cf_epd,
+    &hf_ieee80211_ff_cf_reserved5,
+    &hf_ieee80211_ff_cf_reserved6,
     NULL
   };
 
@@ -10898,20 +10859,15 @@ add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int off
                                    ENC_LITTLE_ENDIAN);
     cap_tree = proto_item_add_subtree(cap_item, ett_cap_tree);
     add_ff_dmg_params(cap_tree, tvb, pinfo, offset);
-   } else {
-      if ((tvb_get_letohs(tvb, offset) & 0x0001) != 0) {
-      /* This is an AP */
-      proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_capture,
-                                        ett_cap_tree, ieee80211_ap_fields,
-                                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  } else {
+    if ((tvb_get_letohs(tvb, offset) & 0x0001) != 0) {
       p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_AP_KEY, GINT_TO_POINTER(TRUE));
-      } else {
-        /* This is a STA */
-        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_capture,
-                                          ett_cap_tree, ieee80211_sta_fields,
-                                          ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-      }
-   }
+    }
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                      hf_ieee80211_ff_capture,
+                                      ett_cap_tree, ieee80211_cap_info_fields,
+                                      ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  }
   return 2;
 }
 
@@ -39728,42 +39684,43 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&cf_ibss_flags), 0x0002,
       "IBSS participation", HFILL }},
 
-    {&hf_ieee80211_ff_cf_sta_poll,
-     {"CFP participation capabilities", "wlan.fixed.capabilities.cfpoll.sta",
-      FT_UINT16, BASE_HEX, VALS(sta_cf_pollable), 0x020C,
-      "CF-Poll capabilities for a STA", HFILL }},
+    {&hf_ieee80211_ff_cf_reserved1,
+     {"Reserved", "wlan.fixed.capabilities.reserved1",
+      FT_UINT16, BASE_DEC, NULL, 0x0004, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_cf_ap_poll,
-     {"CFP participation capabilities", "wlan.fixed.capabilities.cfpoll.ap",
-      FT_UINT16, BASE_HEX, VALS(ap_cf_pollable), 0x020C,
-      "CF-Poll capabilities for an AP", HFILL }},
+    {&hf_ieee80211_ff_cf_reserved2,
+     {"Reserved", "wlan.fixed.capabilities.reserved2",
+      FT_UINT16, BASE_DEC, NULL, 0x0008, NULL, HFILL }},
 
     {&hf_ieee80211_ff_cf_privacy,
      {"Privacy", "wlan.fixed.capabilities.privacy",
       FT_BOOLEAN, 16, TFS(&cf_privacy_flags), 0x0010,
-      "WEP support", HFILL }},
+      "Data privacy", HFILL }},
 
     {&hf_ieee80211_ff_cf_preamble,
-     {"Short Preamble", "wlan.fixed.capabilities.preamble",
+     {"Short Preamble", "wlan.fixed.capabilities.short_preamble",
       FT_BOOLEAN, 16, TFS(&tfs_allowed_not_allowed), 0x0020,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_cf_pbcc,
-     {"PBCC", "wlan.fixed.capabilities.pbcc",
-      FT_BOOLEAN, 16, TFS(&tfs_allowed_not_allowed), 0x0040,
-      "PBCC Modulation", HFILL }},
+    {&hf_ieee80211_ff_cf_reserved3,
+     {"Reserved", "wlan.fixed.capabilities.reserved3",
+      FT_UINT16, BASE_DEC, NULL, 0x0040, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_cf_agility,
-     {"Channel Agility", "wlan.fixed.capabilities.agility",
-      FT_BOOLEAN, 16, TFS(&tfs_inuse_not_inuse), 0x0080,
-      NULL, HFILL }},
+    {&hf_ieee80211_ff_cf_reserved4,
+     {"Reserved", "wlan.fixed.capabilities.reserved4",
+      FT_UINT16, BASE_DEC, NULL, 0x0080, NULL, HFILL }},
 
     {&hf_ieee80211_ff_cf_spec_man,
      {"Spectrum Management", "wlan.fixed.capabilities.spec_man",
       FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x0100,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_short_slot_time,
+    {&hf_ieee80211_ff_cf_qos,
+     {"QoS", "wlan.fixed.capabilities.qos",
+      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x0200,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_cf_short_slot_time,
      {"Short Slot Time", "wlan.fixed.capabilities.short_slot_time",
       FT_BOOLEAN, 16, TFS(&tfs_inuse_not_inuse), 0x0400,
       NULL, HFILL }},
@@ -39773,25 +39730,23 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x0800,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_radio_measurement,
+    {&hf_ieee80211_ff_cf_radio_measurement,
      {"Radio Measurement", "wlan.fixed.capabilities.radio_measurement",
       FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x1000,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_dsss_ofdm,
-     {"DSSS-OFDM", "wlan.fixed.capabilities.dsss_ofdm",
-      FT_BOOLEAN, 16, TFS(&tfs_allowed_not_allowed), 0x2000,
-      "DSSS-OFDM Modulation", HFILL }},
-
-    {&hf_ieee80211_ff_cf_del_blk_ack,
-     {"Delayed Block Ack", "wlan.fixed.capabilities.del_blk_ack",
-      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x4000,
+    {&hf_ieee80211_ff_cf_epd,
+     {"EPD", "wlan.fixed.capabilities.epd",
+      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x2000,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_cf_imm_blk_ack,
-     {"Immediate Block Ack", "wlan.fixed.capabilities.imm_blk_ack",
-      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x8000,
-      NULL, HFILL }},
+    {&hf_ieee80211_ff_cf_reserved5,
+     {"Reserved", "wlan.fixed.capabilities.reserved5",
+      FT_UINT16, BASE_DEC, NULL, 0x4000, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_cf_reserved6,
+     {"Reserved", "wlan.fixed.capabilities.reserved6",
+      FT_UINT16, BASE_DEC, NULL, 0x8000, NULL, HFILL }},
 
     {&hf_ieee80211_ff_auth_seq,
      {"Authentication SEQ", "wlan.fixed.auth_seq",
