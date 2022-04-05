@@ -360,7 +360,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			layer = tvb_get_guint8(tvb, offset) & IWARP_LAYER;
 			etype = tvb_get_guint8(tvb, offset) & IWARP_ETYPE;
 
-			term_ctrl_field_subitem = proto_tree_add_item(rdma_tree,
+			term_ctrl_field_subitem = proto_tree_add_item(rdma_header_tree,
 					hf_iwarp_rdma_term_ctrl, tvb, offset, 3, ENC_NA);
 			term_ctrl_field_tree = proto_item_add_subtree(
 					term_ctrl_field_subitem, ett_iwarp_rdma);
