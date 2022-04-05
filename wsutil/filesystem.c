@@ -280,7 +280,7 @@ static void
 set_configuration_namespace(const char *namespace_name)
 {
 
-    if (namespace_name != CONFIGURATION_NAMESPACE_UNINITIALIZED) {
+    if (configuration_namespace != CONFIGURATION_NAMESPACE_UNINITIALIZED) {
         return;
     }
 
@@ -288,7 +288,7 @@ set_configuration_namespace(const char *namespace_name)
     {
         configuration_namespace = CONFIGURATION_NAMESPACE_WIRESHARK;
     }
-    else if (namespace_name && g_ascii_strcasecmp(namespace_name, "logwolf") == 0)
+    else if (g_ascii_strcasecmp(namespace_name, "logwolf") == 0)
     {
         configuration_namespace = CONFIGURATION_NAMESPACE_LOGWOLF;
     }
