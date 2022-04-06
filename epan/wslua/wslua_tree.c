@@ -270,10 +270,6 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             }
             break;
 
-        /* XXX: what about these? */
-        case FT_NONE:
-        case FT_PROTOCOL:
-        /* anything else just needs to be done the old fashioned way */
         default:
             item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, encoding);
             lua_pushnil(L);
@@ -314,10 +310,11 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 
      In Wireshark version 1.11.3, this function was changed to return more than
      just the new child <<lua_class_TreeItem,`TreeItem`>>. The child is the first return value, so that
-     function chaining will still work as before; but it now also returns the value
-     of the extracted field (i.e., a number, `UInt64`, `Address`, etc.). If the
-     value could not be extracted from the `TvbRange`, the child <<lua_class_TreeItem,`TreeItem`>> is still
-     returned, but the second returned value is `nil`.
+     function chaining will still work as before; but it now also returns more information.
+     The second return is the value of the extracted field (i.e., a number, `UInt64`, `Address`, etc.).
+     The third return is is the offset where data should be read next. This is useful when the length of the
+     field is not known in advance. The additional return values may be null if the field type
+     is not well supported in the Lua API.
 
      Another new feature added to this function in Wireshark version 1.11.3 is the
      ability to extract native number `ProtoField`++s++ from string encoding in the

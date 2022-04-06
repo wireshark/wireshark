@@ -9,14 +9,13 @@
         right after tree:add_packet_field() is called
 
     3. The returned value should match the value obtained from a Field object
-        right after tree:add() is called with the same input
+        right after tree:add() is called with the same input as tree:add_packet_field()
 
     4. The returned value should match the value obtained from the corresponding value function
         called on the input tvbrange
 
     There are some incompatibilties and limitations due to handling of encodings.
-    Incompatibilities are noted with the text INCOMPATIBILITY in a nearby comment
-    Skipped tests because of partially implementations are marked with SKIP comments
+    Incompatibilities are noted with the text INCOMPATIBILITY in a nearby comment.
 ]]
 
 local field_setup = require "field_setup"
@@ -893,14 +892,6 @@ function bytearray_tests(tree)
         and run_test_cases_all_tests(tree, "system_id", bytes_tests, tvbr_bytes, general_equality_test)
         and run_test_cases_all_tests(tree, "uint_bytes", varbytes_tests, nil, general_equality_test)
 end
-
---[[
- TODO
-"ipxnet",
-"framenum",
-"guid",
-"eui64",
-]]--
 
 function run_all_tests(tree)
     return true
