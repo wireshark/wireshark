@@ -158,6 +158,23 @@ class case_equality(unittest.TestCase):
         dfilter = "frame[0:10] contains :00-01-6c"
         checkDFilterCount(dfilter, 1)
 
+    def test_rhs_literal_bias_1(self, checkDFilterCount):
+        dfilter = 'frame[37] == fc'
+        checkDFilterCount(dfilter, 1)
+
+    def test_rhs_literal_bias_2(self, checkDFilterCount):
+        dfilter = 'frame[37] == :fc'
+        checkDFilterCount(dfilter, 1)
+
+    def test_rhs_literal_bias_3(self, checkDFilterCount):
+        dfilter = 'frame[37] == <fc>'
+        checkDFilterCount(dfilter, 1)
+
+    def test_rhs_literal_bias_4(self, checkDFilterCount):
+        # This is Fibre Channel on the RHS
+        dfilter = 'frame[37] == .fc'
+        checkDFilterCount(dfilter, 0)
+
 @fixtures.uses_fixtures
 class case_bitwise(unittest.TestCase):
     trace_file = "http.pcap"

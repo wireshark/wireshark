@@ -186,6 +186,56 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 	return fv;
 }
 
+static fvalue_t *
+dfilter_fvalue_from_unparsed(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
+		gboolean allow_partial_value, header_field_info *hfinfo_value_string)
+{
+	fvalue_t *fv;
+	const char *s = stnode_data(st);
+
+	/* Don't set the error message if it's already set. */
+	fv = fvalue_from_literal(ftype, s, allow_partial_value,
+		dfw->error_message == NULL ? &dfw->error_message : NULL);
+
+	if (fv != NULL) {
+		/* converted to fvalue successfully. */
+		return fv;
+	}
+
+	if (hfinfo_value_string) {
+		/* check value_string */
+		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, s);
+
+		if (fv != NULL) {
+			/*
+			 * Ignore previous errors if this can be mapped
+			 * to an item from value_string.
+			 */
+			g_free(dfw->error_message);
+			dfw->error_message = NULL;
+			return fv;
+		}
+	}
+
+	header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, s);
+
+	if (hfinfo == NULL) {
+		/* This node is neither a valid fvalue nor a valid field. */
+		/* The parse failed. Error message is already set. */
+		THROW(TypeError);
+	}
+
+	/* Successfully resolved to a field. */
+
+	/* Free the error message for the failed fvalue_from_literal() attempt. */
+	g_free(dfw->error_message);
+	dfw->error_message = NULL;
+
+	stnode_replace(st, STTYPE_FIELD, hfinfo);
+	/* Return NULL to signal we have a field. */
+	return NULL;
+}
+
 /* Gets an fvalue from a string, and sets the error message on failure. */
 WS_RETNONNULL
 static fvalue_t *
@@ -657,9 +707,11 @@ again:
 		}
 
 		if (type2 == STTYPE_UNPARSED) {
-			if (resolve_unparsed(dfw, st_arg2))
+			fvalue = dfilter_fvalue_from_unparsed(dfw, ftype1, st_arg2, allow_partial_value, hfinfo1);
+			if (fvalue == NULL) {
+				/* We have a protocol or protocol field. */
 				goto again;
-			fvalue = dfilter_fvalue_from_literal(dfw, ftype1, st_arg2, allow_partial_value, hfinfo1);
+			}
 		}
 		else if (type2 == STTYPE_STRING) {
 			fvalue = dfilter_fvalue_from_string(dfw, ftype1, st_arg2, hfinfo1);
@@ -763,9 +815,11 @@ again:
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		if (resolve_unparsed(dfw, st_arg2))
+		fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, st_arg2, allow_partial_value, NULL);
+		if (fvalue == NULL) {
+			/* We have a protocol or protocol field. */
 			goto again;
-		fvalue = dfilter_fvalue_from_literal(dfw, FT_BYTES, st_arg2, allow_partial_value, NULL);
+		}
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_LITERAL) {
@@ -868,9 +922,11 @@ again:
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		if (resolve_unparsed(dfw, st_arg2))
+		fvalue = dfilter_fvalue_from_unparsed(dfw, ftype1, st_arg2, allow_partial_value, NULL);
+		if (fvalue == NULL) {
+			/* We have a protocol or protocol field. */
 			goto again;
-		fvalue = dfilter_fvalue_from_literal(dfw, ftype1, st_arg2, allow_partial_value, NULL);
+		}
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_LITERAL) {
