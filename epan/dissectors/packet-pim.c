@@ -42,6 +42,7 @@ void proto_reg_handoff_pim(void);
 #define PIM_TYPE_STATE_REFRESH 9    /* State Refresh [RFC3973] */
 #define PIM_TYPE_DF_ELECT 10        /* DF Election [RFC5015] */
 #define PIM_TYPE_ECMP_REDIR 11      /* ECMP Redirect [RFC6754] */
+#define PIM_TYPE_PFM 12             /* PIM PFM [RFC8364] */
 
 /* PIM Message hello options */
 
@@ -69,6 +70,11 @@ void proto_reg_handoff_pim(void);
 #define PIM_HELLO_HIER_JP_ATTR 36   /* Hierarchical Join/Prune Attribute [RFC7887] */
 #define PIM_HELLO_ADDR_LST 65001    /* Address list, old implementation */
 #define PIM_HELLO_RPF_PROXY 65004   /* RPF Proxy Vector (Cisco proprietary) */
+
+/* PIM PFM message */
+
+#define PIM_PFM_GROUP_SOURCE 1 /* Source Group Holdtime [RFC8364] */
+
 
 /* PIM BIDIR DF election messages */
 
@@ -119,6 +125,7 @@ static const value_string pimtypevals[] = {
     { PIM_TYPE_STATE_REFRESH, "State-Refresh" },
     { PIM_TYPE_DF_ELECT, "DF election"},
     { PIM_TYPE_ECMP_REDIR, "ECMP redirect" },
+    { PIM_TYPE_PFM, "PFM source discovery"},
     { 0, NULL }
 };
 
@@ -157,6 +164,13 @@ static const value_string pim_opt_vals[] = {
     { PIM_HELLO_RPF_PROXY,       "RPF Proxy Vector (Cisco proprietary)" },
     { 0, NULL }
 };
+
+static const value_string pim_opt_vals1[] = {
+    { PIM_PFM_GROUP_SOURCE,          "Group Source Holdtime TLV" },
+    { 0, NULL }
+};
+
+
 
 static const value_string pim_addr_et_vals[] = {
     { PIM_ADDR_ET_NATIVE,    "Native"},
@@ -295,6 +309,10 @@ static int hf_pim_source_ja_length = -1;
 static int hf_pim_source_ja_value = -1;
 static int hf_pim_ttl = -1;
 static int hf_pim_interval = -1;
+static int hf_pim_srcount = -1;
+static int hf_pim_srcholdt = -1;
+static int hf_pim_transitivetype = -1;
+static int hf_pim_optiontype1 = -1;
 
 static gint ett_pim = -1;
 static gint ett_pim_opts = -1;
@@ -1608,8 +1626,68 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_item(pimopt_tree, hf_pim_bd_pass_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
         }
+        break;
     }
 
+    case PIM_TYPE_PFM:     /*pfm*/
+    {
+        int opt_count = 0;
+        int advance;
+
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
+                                    hf_pim_originator_ip4, hf_pim_originator_ip6, &advance))
+            break;
+        offset += advance;
+        while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            guint16 pfm, pfm_opt, opt_len;
+            proto_item *opt_item;
+            proto_tree *opt_tree;
+
+            opt_count++;
+            pfm = tvb_get_ntohs(tvb, offset);
+            opt_len = tvb_get_ntohs(tvb, offset + 2);
+            pfm_opt = pfm & 0x7FFF;
+            opt_tree = proto_tree_add_subtree_format(pimopt_tree, tvb, offset, 4 + opt_len,
+                                           ett_pim_opt, &opt_item, "Option %u: %s", pfm_opt,
+                                           val_to_str(pfm_opt, pim_opt_vals1, "Unknown: %u"));
+            proto_tree_add_item(opt_tree, hf_pim_transitivetype, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(opt_tree, hf_pim_optiontype1, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            offset += 4;
+            switch(pfm_opt){
+                case PIM_PFM_GROUP_SOURCE:
+                {
+                    if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, NULL, NULL,
+                                            hf_pim_group_ip4, hf_pim_group_ip6, &advance))
+                        break;
+                    offset += advance;
+                    guint16 src_count;
+                    src_count=tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item(pimopt_tree, hf_pim_srcount, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    proto_tree_add_item(pimopt_tree, hf_pim_srcholdt, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    while(src_count>0){
+                        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
+                                            hf_pim_source_ip4, hf_pim_source_ip6, &advance))
+                            goto breakbreak12;
+                        offset+=advance;
+                        src_count--;
+                    }
+                        break;
+                }
+                default:
+                    if (opt_len)
+                        proto_tree_add_item(opt_tree, hf_pim_optionvalue, tvb,
+                                            offset + 4, opt_len, ENC_NA);
+                    offset += (4+opt_len);
+                    break;
+            }
+        }
+        proto_item_append_text(tiopt, ": %u", opt_count);
+    breakbreak12:
+        break;
+    }
     default:
         break;
     }
@@ -1675,6 +1753,11 @@ proto_register_pim(void)
             { &hf_pim_optiontype,
               { "Type", "pim.optiontype",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_optiontype1,
+              { "Type", "pim.optiontype",
+                FT_UINT16, BASE_DEC, NULL, 0x7fff,
                 NULL, HFILL }
             },
             { &hf_pim_optionlength,
@@ -2167,6 +2250,21 @@ proto_register_pim(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_pim_srcount,
+              { "Source Count", "pim.srccount",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Number of sources.", HFILL }
+            },
+            { &hf_pim_srcholdt,
+              { "Source Holdtime", "pim.srcholdtime",
+                FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_infinity_t), 0x0,
+                "The amount of time a receiver must keep the source reachable, in seconds.", HFILL }
+            },
+            { &hf_pim_transitivetype,
+              { "Transitive Type", "pim.transitivetype",
+                FT_BOOLEAN, 8, NULL, 0x80,
+                "Set to 1 if this type is to be forwarded even if a router does not support it.", HFILL }
+            }
         };
 
     static gint *ett[] = {
