@@ -1924,9 +1924,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
             subtree_2 = proto_tree_add_subtree(subtree, tvb, off+temp_optlen, subopt_len, ett_dhcpv6_userclass_option, &ti, "User Class suboption");
             proto_tree_add_item(subtree_2, hf_option_userclass_length, tvb, off + temp_optlen, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree_2, hf_option_userclass_opaque_data, tvb, off + temp_optlen + 2, subopt_len - 2, ENC_NA);
+            proto_tree_add_item(subtree_2, hf_option_userclass_opaque_data, tvb, off + temp_optlen + 2, subopt_len, ENC_NA);
 
-            temp_optlen += subopt_len;
+            temp_optlen += subopt_len + 2;
         }
         break;
     }
