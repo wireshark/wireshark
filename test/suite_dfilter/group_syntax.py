@@ -15,6 +15,11 @@ class case_syntax(unittest.TestCase):
         dfilter = "frame"
         checkDFilterCount(dfilter, 1)
 
+    def test_exists_2(self, checkDFilterCount):
+        # Identifier using minus
+        dfilter = "mac-lte"
+        checkDFilterCount(dfilter, 0)
+
     def test_commute_1(self, checkDFilterCount):
         dfilter = "ip.proto == 6"
         checkDFilterCount(dfilter, 1)
