@@ -372,14 +372,7 @@ fvalue_from_literal(ftenum_t ftype, const char *s, gboolean allow_partial_value,
 
 	fv = fvalue_new(ftype);
 	if (fv->ftype->val_from_literal) {
-		if (*s == ':') {
-			ok = fv->ftype->val_from_literal(fv, s + 1, allow_partial_value, err_msg);
-			/* If not ok maybe leading colon is not special syntax but part of the value (e.g: IPv6),
-			 * try again in that case. */
-		}
-		if (!ok) {
-			ok = fv->ftype->val_from_literal(fv, s, allow_partial_value, err_msg);
-		}
+		ok = fv->ftype->val_from_literal(fv, s, allow_partial_value, err_msg);
 		if (ok) {
 			/* Success */
 			if (err_msg != NULL)

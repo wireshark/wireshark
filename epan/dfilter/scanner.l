@@ -378,8 +378,12 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
-[[:xdigit:]]+:[[:xdigit:]:]*		{
+:?[[:xdigit:]]+:[[:xdigit:]:]*		{
 	/* Bytes. */
+	if (yytext[0] == ':') {
+		/* Skip leading colon. */
+		return set_lval_str(TOKEN_LITERAL, yytext + 1);
+	}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
@@ -392,8 +396,10 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	/* Identifier or literal or unparsed. */
 	if (yytext[0] == '.')
 		return set_lval_str(TOKEN_IDENTIFIER, yytext);
-	if (yytext[0] == ':')
-		return set_lval_str(TOKEN_LITERAL, yytext);
+	if (yytext[0] == ':') {
+		/* Skip leading colon. */
+		return set_lval_str(TOKEN_LITERAL, yytext + 1);
+	}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
