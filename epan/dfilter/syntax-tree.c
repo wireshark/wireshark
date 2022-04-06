@@ -185,8 +185,7 @@ stnode_new_unparsed(const char *str, char *token)
 stnode_t *
 stnode_new_literal(const char *str, char *token)
 {
-	char *value = dfilter_literal_normalized(str);
-	return stnode_new(STTYPE_LITERAL, value, token);
+	return stnode_new(STTYPE_LITERAL, g_strdup(str), token);
 }
 
 stnode_t *

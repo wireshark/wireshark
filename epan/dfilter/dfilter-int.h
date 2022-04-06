@@ -123,9 +123,6 @@ DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 header_field_info *
 dfilter_resolve_unparsed(dfwork_t *dfw, const char *name);
 
-char *
-dfilter_literal_normalized(const char *token);
-
 const char *tokenstr(int token);
 
 #endif

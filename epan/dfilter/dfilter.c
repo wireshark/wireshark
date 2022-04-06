@@ -86,9 +86,6 @@ dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
 {
 	header_field_info *hfinfo;
 
-	if (*name == '.')
-		name += 1;
-
 	hfinfo = proto_registrar_get_byname(name);
 	if (hfinfo != NULL) {
 		/* It's a field name */
@@ -104,17 +101,6 @@ dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
 
 	/* It's not a field. */
 	return NULL;
-}
-
-char *
-dfilter_literal_normalized(const char *token)
-{
-	if (*token == '<') {
-		char *end = strchr(token, '>');
-		return g_strndup(token + 1, end - (token + 1));
-	}
-
-	return g_strdup(token);
 }
 
 /* Initialize the dfilter module */

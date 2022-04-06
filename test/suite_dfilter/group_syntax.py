@@ -137,6 +137,22 @@ class case_equality(unittest.TestCase):
         dfilter = "udp contains <ce:13>"
         checkDFilterCount(dfilter, 1)
 
+    def test_literal_3(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00:01:6c"
+        checkDFilterCount(dfilter, 1)
+
+    def test_literal_4(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00016c"
+        checkDFilterCount(dfilter, 1)
+
+    def test_literal_5(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00.01.6c"
+        checkDFilterCount(dfilter, 1)
+
+    def test_literal_6(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00-01-6c"
+        checkDFilterCount(dfilter, 1)
+
 @fixtures.uses_fixtures
 class case_bitwise(unittest.TestCase):
     trace_file = "http.pcap"

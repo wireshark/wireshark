@@ -364,7 +364,7 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	/* None of the patterns below can match ".." anywhere in the token string. */
 
 {MacAddress}|{QuadMacAddress}		{
-	/* MAC Address literal. */
+	/* MAC Address. */
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
@@ -378,27 +378,31 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
-:?[[:xdigit:]]+:[[:xdigit:]:]*		{
+[[:xdigit:]]+:[[:xdigit:]:]*		{
 	/* Bytes. */
-	if (yytext[0] == ':') {
-		/* Skip leading colon. */
-		return set_lval_str(TOKEN_LITERAL, yytext + 1);
-	}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
+}
+
+:[[:xdigit:]:-]+(\.[[:xdigit:]:-]+)*			{
+	/* Literal starting with colon. Bytes, integer or float. */
+	/* Skip leading colon. */
+	return set_lval_str(TOKEN_LITERAL, yytext + 1);
 }
 
 "<"[^>=]+">"			{
 	/* Literal in-between angle brackets (cannot be parsed as a protocol field). */
-	return set_lval_str(TOKEN_LITERAL, yytext);
+	/* Strip brackets. */
+	char *end = strchr(yytext, '>');
+	*end = '\0';
+	df_lval->value = g_strdup(yytext + 1);
+	return TOKEN_LITERAL;
 }
 
-[:.]?[[:alnum:]_]{WORD_CHAR}*(\.{WORD_CHAR}+)*		{
-	/* Identifier or literal or unparsed. */
-	if (yytext[0] == '.')
-		return set_lval_str(TOKEN_IDENTIFIER, yytext);
-	if (yytext[0] == ':') {
-		/* Skip leading colon. */
-		return set_lval_str(TOKEN_LITERAL, yytext + 1);
+\.?[[:alnum:]_]{WORD_CHAR}*(\.{WORD_CHAR}+)*		{
+	/* Identifier or unparsed. */
+	if (yytext[0] == '.') {
+		/* Skip leading dot. */
+		return set_lval_str(TOKEN_IDENTIFIER, yytext + 1);
 	}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
