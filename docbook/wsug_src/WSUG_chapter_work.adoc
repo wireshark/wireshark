@@ -876,10 +876,10 @@ LHS. So the expression `fc == fc` is parsed as
 "Byte array of protocol with name 'fc' equals byte array { 0xfc } of length 1".
 
 Sometimes this may not be the intended meaning and there is additional syntax
-to resolve the ambiguity. Lexical tokens prefixed with colon, or in-between angle
-brackets, are always and only treated as literal values. Tokens prefixed with a
-dot are always treated as a protocol name (the dot stands for the root of the
-protocol namespace and is optional).
+to resolve the ambiguity. Lexical tokens in-between angle brackets are always
+and only treated as literal values. Bytes arrays can also be prefixed with a
+colon. Tokens prefixed with a dot are always treated as a protocol name (the
+dot stands for the root of the protocol namespace and is optional).
 ----
 frame[10:] contains .fc or frame[10] == :fc and not frame contains <cafe.face>
 ----

@@ -182,6 +182,10 @@ byte_array_from_literal(const char *s, gchar **err_msg)
 	GByteArray	*bytes;
 	gboolean	res;
 
+	/* Skip leading colon if any. */
+	if (*s == ':')
+		s++;
+
 	/*
 	 * Special case where the byte string is specified using a one byte
 	 * hex literal. We can't allow this for byte strings that are longer

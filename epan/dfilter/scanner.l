@@ -116,6 +116,10 @@ IPv6address	({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|((
 v4-cidr-prefix	\/[[:digit:]]{1,2}
 v6-cidr-prefix	\/[[:digit:]]{1,3}
 
+colon-bytes	{hex2}(:{hex2})+
+dot-bytes	{hex2}(\.{hex2})+
+hyphen-bytes	{hex2}(-{hex2})+
+
 %x RANGE
 %x DQUOTE
 %x SQUOTE
@@ -378,15 +382,16 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
-[[:xdigit:]]+:[[:xdigit:]:]*		{
+:?({colon-bytes}|{dot-bytes}|{hyphen-bytes})	{
 	/* Bytes. */
+	if (yytext[0] == ':')
+		return set_lval_str(TOKEN_LITERAL, yytext); /* Keep leading colon. */
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 
-:[[:xdigit:]:-]+(\.[[:xdigit:]:-]+)*			{
-	/* Literal starting with colon. Bytes, integer or float. */
-	/* Skip leading colon. */
-	return set_lval_str(TOKEN_LITERAL, yytext + 1);
+:[[:xdigit:]]+		{
+	/* Numeric. */
+	return set_lval_str(TOKEN_LITERAL, yytext + 1); /* Skip leading colon. */
 }
 
 "<"[^>=]+">"			{
