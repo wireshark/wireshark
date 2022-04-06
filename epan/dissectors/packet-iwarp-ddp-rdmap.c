@@ -270,6 +270,9 @@ static const value_string mpa_errcode_names[] = {
 		{ 0x02, "MPA CRC Error" },
 		{ 0x03, "MPA Marker and ULPDU Length field mismatch" },
 		{ 0x04, "Invalid MPA Request Frame or MPA Response Frame" },
+		{ 0x05, "Local Catastrophic Error" },
+		{ 0x06, "Insufficient IRD Resources" },
+		{ 0x07, "No Matching RTR Option" },
 		{ 0, NULL }
 };
 
