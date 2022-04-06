@@ -105,4 +105,59 @@ class case_bytes_ipv6(unittest.TestCase):
 
     def test_slice_4(self, checkDFilterCount):
         dfilter = "ipv6.dst[15:1] == 00"
+
+    #
+    # Test some addresses are parsed correctly
+    #
+
+    def test_unspecified_1(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::"
+        checkDFilterCount(dfilter, 0)
+
+    def test_unspecified_2(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::/128"
+        checkDFilterCount(dfilter, 0)
+
+    def test_loopback_1(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::1"
+        checkDFilterCount(dfilter, 0)
+
+    def test_loopback_2(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::1/128"
+        checkDFilterCount(dfilter, 0)
+
+    def test_compress_1(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::2000"
+        checkDFilterCount(dfilter, 0)
+
+    def test_compress_2(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::2000/64"
+        checkDFilterCount(dfilter, 0)
+
+    def test_compress_3(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::1:2000"
+        checkDFilterCount(dfilter, 0)
+
+    def test_compress_4(self, checkDFilterCount):
+        dfilter = "ipv6.dst == 2000::"
+        checkDFilterCount(dfilter, 0)
+
+    def test_compress_5(self, checkDFilterCount):
+        dfilter = "ipv6.dst == 2000::/120"
+        checkDFilterCount(dfilter, 0)
+
+    def test_compress_6(self, checkDFilterCount):
+        dfilter = "ipv6.dst == 2000:1::"
+        checkDFilterCount(dfilter, 0)
+
+    def test_compress_7(self, checkDFilterCount):
+        dfilter = "ipv6.dst == 2000:1::2:0"
+        checkDFilterCount(dfilter, 0)
+
+    def test_mapped_ipv4_1(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::13.1.68.3"
+        checkDFilterCount(dfilter, 0)
+
+    def test_mapped_ipv4_2(self, checkDFilterCount):
+        dfilter = "ipv6.dst == ::FFFF:129.144.52.38"
         checkDFilterCount(dfilter, 0)
