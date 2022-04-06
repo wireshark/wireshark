@@ -616,9 +616,9 @@ dfilter_log_full(const char *domain, enum ws_log_level level,
 
 	char *str = dfvm_dump_str(NULL, df, TRUE);
 	if (G_UNLIKELY(msg == NULL))
-		ws_log_write_always_full(domain, level, file, line, func, "Filter:%s\n%s", dfilter_text(df), str);
+		ws_log_write_always_full(domain, level, file, line, func, "\nFilter:\n%s\n%s", dfilter_text(df), str);
 	else
-		ws_log_write_always_full(domain, level, file, line, func, "%s:\nFilter: %s\nInstructions:\n%s", msg, dfilter_text(df), str);
+		ws_log_write_always_full(domain, level, file, line, func, "%s:\nFilter:\n%s\n%s", msg, dfilter_text(df), str);
 	g_free(str);
 }
 
