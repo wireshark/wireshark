@@ -3116,6 +3116,12 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 			endif()"
 		)
 	endif()
+	if(BUILD_logwolf AND ENABLE_APPLICATION_BUNDLE)
+		add_custom_command(TARGET dumpcap POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				$<TARGET_FILE:dumpcap> run/Logwolf.app/Contents/MacOS/dumpcap
+		)
+	endif()
 elseif(BUILD_dumpcap AND ENABLE_PCAP)
 	message(WARNING "Dumpcap was requested but libpcap dependency is not available. "
 		"Wireshark will be built without packet capture capability.")
