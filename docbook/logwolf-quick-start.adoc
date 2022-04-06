@@ -55,3 +55,7 @@ mkdir run/plugins/3.7/falco
 (cd run/plugins/3.7/falco ; ln -sn /path/to/falcosecurity-plugins/plugins/cloudtrail/libcloudtrail.so )
 ----
 
+== Log Capture
+
+Log capture can be done https://www.wireshark.org/docs/man-pages/extcap.html[using external capture (extcap)] utilities.
+They must be placed in a directory named `extlog` instead of `extcap`.

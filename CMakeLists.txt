@@ -1510,9 +1510,11 @@ include( UseCheckAPI )
 # If you change the nesting level be sure to check also the INSTALL_RPATH
 # target property.
 if (WIN32)
-	set(EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "The extcap dir")
+	set(EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "External capture utilities path")
+	set(EXTLOG_INSTALL_LIBDIR "extlog" CACHE INTERNAL "External log utilities path")
 else ()
-	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The extcap dir")
+	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "External capture utilities path")
+	set(EXTLOG_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extlog" CACHE INTERNAL "External log utilities path")
 endif()
 
 if(APPLE)

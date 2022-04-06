@@ -1113,6 +1113,7 @@ static char *extcap_dir = NULL;
 
 static void init_extcap_dir(void) {
     const char *extcap_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("EXTCAP_DIR");
+    const char *extcap_dir_name = configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "extcap" : "extlog";
     if (g_getenv(extcap_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for extcap hooks
@@ -1130,7 +1131,7 @@ static void init_extcap_dir(void) {
          * on Windows, the data file directory is the directory
          * in which the Wireshark binary resides.
          */
-        extcap_dir = g_build_filename(get_datafile_dir(), "extcap", (gchar *)NULL);
+        extcap_dir = g_build_filename(get_datafile_dir(), extcap_dir_name, (gchar *)NULL);
     }
 #else
     else if (running_in_build_directory_flag) {
@@ -1140,7 +1141,7 @@ static void init_extcap_dir(void) {
          * the "extcap hooks" subdirectory of the directory where the program
          * we're running is (that's the build directory).
          */
-        extcap_dir = g_build_filename(get_progfile_dir(), "extcap", (gchar *)NULL);
+        extcap_dir = g_build_filename(get_progfile_dir(), extcap_dir_name, (gchar *)NULL);
     }
 #ifdef __APPLE__
     else if (appbundle_dir != NULL) {
@@ -1153,11 +1154,11 @@ static void init_extcap_dir(void) {
          * started with special privileges, so we need only check
          * it; we don't need to call started_with_special_privs().)
          */
-        extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (gchar *)NULL);
+        extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS", extcap_dir_name, (gchar *)NULL);
     }
 #endif
     else {
-        extcap_dir = g_strdup(EXTCAP_DIR);
+        extcap_dir = g_strdup(configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? EXTCAP_DIR : EXTLOG_DIR);
     }
 #endif
 }
