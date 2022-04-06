@@ -2550,37 +2550,32 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     case 0: /* 96 bits prefix length */
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 12);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 12, &prefix);
-                        opt_offset += 12;
                         break;
                     case 1: /* 64 bits prefix length */
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 8, &prefix);
-                        opt_offset += 8;
                         break;
                     case 2: /* 56 bits prefix length */
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 7);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 7, &prefix);
-                        opt_offset += 7;
                         break;
                     case 3: /* 48 bits prefix length */
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 6);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 6, &prefix);
-                        opt_offset += 6;
                         break;
                     case 4: /* 40 bits prefix length */
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 5);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 5, &prefix);
-                        opt_offset += 5;
                         break;
                     case 5: /* 32 bits prefix length */
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 4);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_pref64_prefix, tvb, opt_offset, 4, &prefix);
-                        opt_offset += 4;
                         break;
                     default:
                         expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length);
                         break;
                 }
+                opt_offset += 12;
             }
             break;
             default :
