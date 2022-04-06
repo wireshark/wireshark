@@ -74,7 +74,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
     str = range_str;
     if (*str == ':') {
         lower = 0;
-        str++;
+        /* Do not advance 'str' here. */
     }
     else {
         if (!drange_str_to_gint32(str, &lower, &endptr, err_ptr))
