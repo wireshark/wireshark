@@ -4361,6 +4361,17 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (length > plen)
             length = plen;
         next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
+        if (!(proto_desegment && pinfo->can_desegment)) {
+            if (plen > length) {
+                /* If we can't do reassembly but the PDU is split across
+                 * segment boundaries, mark the tvbuff as a fragment so
+                 * we throw FragmentBoundsError instead of malformed
+                 * errors.
+                 */
+                tvb_set_fragment(next_tvb);
+            }
+        }
+
 
         /*
          * Dissect the PDU.
