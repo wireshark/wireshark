@@ -77,10 +77,20 @@
  */
 DIAG_OFF_FLEX
 
-df_lval_t *df_lval;
+stnode_t *df_lval;
 
+static int set_lval_simple(int token, const char *token_value, sttype_id_t type_id);
 static int set_lval_str(int token, const char *token_value);
-#define simple(token) set_lval_str(token, yytext)
+
+static int set_lval_quoted_string(dfwork_t *dfw, int token, GString *quoted_string);
+static int set_lval_charconst(dfwork_t *dfw, int token, GString *quoted_string);
+static int set_lval_range_node(dfwork_t *dfw, int token, const char *token_value);
+static int set_lval_field(dfwork_t *dfw, int token, const char *token_value);
+
+#define simple(token)	set_lval_simple(token, yytext, STTYPE_UNINITIALIZED)
+#define test(token)	set_lval_simple(token, yytext, STTYPE_TEST)
+#define math(token)	set_lval_simple(token, yytext, STTYPE_ARITHMETIC)
+
 static gboolean append_escaped_char(dfwork_t *dfw, GString *str, char c);
 static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep);
 
@@ -98,7 +108,7 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 
 %}
 
-WORD_CHAR	[[:alnum:]_-]
+Identifier	[[:alnum:]_][[:alnum:]_-]*(\.[[:alnum:]_-]+)*
 
 hex2		[[:xdigit:]]{2}
 MacAddress	{hex2}:{hex2}:{hex2}:{hex2}:{hex2}:{hex2}|{hex2}-{hex2}-{hex2}-{hex2}-{hex2}-{hex2}|{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}
@@ -135,66 +145,47 @@ hyphen-bytes	{hex2}(-{hex2})+
 "{"		return simple(TOKEN_LBRACE);
 ".."		return simple(TOKEN_DOTDOT);
 "}"		return simple(TOKEN_RBRACE);
-"+"		return simple(TOKEN_PLUS);
-"-"		return simple(TOKEN_MINUS);
-"*"		return simple(TOKEN_STAR);
-"/"		return simple(TOKEN_RSLASH);
-"%"		return simple(TOKEN_PERCENT);
 
-"=="		return simple(TOKEN_TEST_ANY_EQ);
-"eq"		return simple(TOKEN_TEST_ANY_EQ);
-"any_eq"	return simple(TOKEN_TEST_ANY_EQ);
-"!="		return simple(TOKEN_TEST_ALL_NE);
-"ne"		return simple(TOKEN_TEST_ALL_NE);
-"all_ne"	return simple(TOKEN_TEST_ALL_NE);
-"==="		return simple(TOKEN_TEST_ALL_EQ);
-"all_eq"	return simple(TOKEN_TEST_ALL_EQ);
-"!=="		return simple(TOKEN_TEST_ANY_NE);
+"=="		return test(TOKEN_TEST_ANY_EQ);
+"eq"		return test(TOKEN_TEST_ANY_EQ);
+"any_eq"	return test(TOKEN_TEST_ANY_EQ);
+"!="		return test(TOKEN_TEST_ALL_NE);
+"ne"		return test(TOKEN_TEST_ALL_NE);
+"all_ne"	return test(TOKEN_TEST_ALL_NE);
+"==="		return test(TOKEN_TEST_ALL_EQ);
+"all_eq"	return test(TOKEN_TEST_ALL_EQ);
+"!=="		return test(TOKEN_TEST_ANY_NE);
 "~="		{
 	add_deprecated_token(yyextra->dfw, "The operator \"~=\" is deprecated, use \"!==\" instead.");
-	return simple(TOKEN_TEST_ANY_NE);
+	return test(TOKEN_TEST_ANY_NE);
 }
-"any_ne"	return simple(TOKEN_TEST_ANY_NE);
-">"		return simple(TOKEN_TEST_GT);
-"gt"		return simple(TOKEN_TEST_GT);
-">="		return simple(TOKEN_TEST_GE);
-"ge"		return simple(TOKEN_TEST_GE);
-"<"		return simple(TOKEN_TEST_LT);
-"lt"		return simple(TOKEN_TEST_LT);
-"<="		return simple(TOKEN_TEST_LE);
-"le"		return simple(TOKEN_TEST_LE);
-"contains"	return simple(TOKEN_TEST_CONTAINS);
-"~"		return simple(TOKEN_TEST_MATCHES);
-"matches"	return simple(TOKEN_TEST_MATCHES);
-"!"		return simple(TOKEN_TEST_NOT);
-"not"		return simple(TOKEN_TEST_NOT);
-"&&"		return simple(TOKEN_TEST_AND);
-"and"		return simple(TOKEN_TEST_AND);
-"||"		return simple(TOKEN_TEST_OR);
-"or"		return simple(TOKEN_TEST_OR);
-"in"		return simple(TOKEN_TEST_IN);
+"any_ne"	return test(TOKEN_TEST_ANY_NE);
+">"		return test(TOKEN_TEST_GT);
+"gt"		return test(TOKEN_TEST_GT);
+">="		return test(TOKEN_TEST_GE);
+"ge"		return test(TOKEN_TEST_GE);
+"<"		return test(TOKEN_TEST_LT);
+"lt"		return test(TOKEN_TEST_LT);
+"<="		return test(TOKEN_TEST_LE);
+"le"		return test(TOKEN_TEST_LE);
+"contains"	return test(TOKEN_TEST_CONTAINS);
+"~"		return test(TOKEN_TEST_MATCHES);
+"matches"	return test(TOKEN_TEST_MATCHES);
+"!"		return test(TOKEN_TEST_NOT);
+"not"		return test(TOKEN_TEST_NOT);
+"&&"		return test(TOKEN_TEST_AND);
+"and"		return test(TOKEN_TEST_AND);
+"||"		return test(TOKEN_TEST_OR);
+"or"		return test(TOKEN_TEST_OR);
+"in"		return test(TOKEN_TEST_IN);
 
-"&"		return simple(TOKEN_BITWISE_AND);
-"bitwise_and"	return simple(TOKEN_BITWISE_AND);
-
-"${"					{
-	BEGIN(REFERENCE);
-	return simple(TOKEN_REF_OPEN);
-}
-
-<REFERENCE>[^}]+		{
-	return set_lval_str(TOKEN_REFERENCE, yytext);
-}
-
-<REFERENCE>"}"				{
-	BEGIN(INITIAL);
-	return simple(TOKEN_REF_CLOSE);
-}
-
-<REFERENCE><<EOF>>				{
-	dfilter_fail(yyextra->dfw, "Right brace missing from field reference.");
-	return SCAN_FAILED;
-}
+"+"		return math(TOKEN_PLUS);
+"-"		return math(TOKEN_MINUS);
+"*"		return math(TOKEN_STAR);
+"/"		return math(TOKEN_RSLASH);
+"%"		return math(TOKEN_PERCENT);
+"&"		return math(TOKEN_BITWISE_AND);
+"bitwise_and"	return math(TOKEN_BITWISE_AND);
 
 "["				{
 	BEGIN(RANGE);
@@ -202,7 +193,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 }
 
 <RANGE>[^],]+			{
-	return set_lval_str(TOKEN_RANGE, yytext);
+	return set_lval_range_node(yyextra->dfw, TOKEN_RANGE_NODE, yytext);
 }
 
 <RANGE>","			{
@@ -257,7 +248,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 <DQUOTE>\042			{
 	/* end quote */
 	BEGIN(INITIAL);
-	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
+	set_lval_quoted_string(yyextra->dfw, TOKEN_STRING, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
 	return TOKEN_STRING;
 }
@@ -345,12 +336,8 @@ hyphen-bytes	{hex2}(-{hex2})+
 	/* end quote */
 	BEGIN(INITIAL);
 	g_string_append_c(yyextra->quoted_string, '\'');
-	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
+	set_lval_charconst(yyextra->dfw, TOKEN_CHARCONST, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
-
-	if (!parse_charconst(yyextra->dfw, df_lval->value, &df_lval->number)) {
-		return SCAN_FAILED;
-	}
 	return TOKEN_CHARCONST;
 }
 
@@ -399,17 +386,22 @@ hyphen-bytes	{hex2}(-{hex2})+
 	/* Strip brackets. */
 	char *end = strchr(yytext, '>');
 	*end = '\0';
-	df_lval->value = g_strdup(yytext + 1);
-	return TOKEN_LITERAL;
+	return set_lval_str(TOKEN_LITERAL, yytext + 1);
 }
 
-\.?[[:alnum:]_]{WORD_CHAR}*(\.{WORD_CHAR}+)*		{
+\.?{Identifier}			{
 	/* Identifier or unparsed. */
 	if (yytext[0] == '.') {
 		/* Skip leading dot. */
-		return set_lval_str(TOKEN_IDENTIFIER, yytext + 1);
+		return set_lval_field(yyextra->dfw, TOKEN_FIELD, yytext + 1);
 	}
 	return set_lval_str(TOKEN_UNPARSED, yytext);
+}
+
+"${"{Identifier}"}"		{
+	char *end = strchr(yytext, '}');
+	*end = '\0';
+	return set_lval_field(yyextra->dfw, TOKEN_REFERENCE, yytext + 2);
 }
 
 . {
@@ -430,9 +422,95 @@ hyphen-bytes	{hex2}(-{hex2})+
 DIAG_ON_FLEX
 
 static int
+set_lval_simple(int token, const char *token_value, sttype_id_t type_id)
+{
+	stnode_init(df_lval, type_id, NULL, g_strdup(token_value));
+	return token;
+}
+
+static int
 set_lval_str(int token, const char *token_value)
 {
-	df_lval->value = g_strdup(token_value);
+	sttype_id_t type_id;
+
+	switch (token) {
+		case TOKEN_LITERAL:
+			type_id = STTYPE_LITERAL;
+			break;
+		case TOKEN_UNPARSED:
+			type_id = STTYPE_UNPARSED;
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+	stnode_init(df_lval, type_id, g_strdup(token_value), g_strdup(token_value));
+	return token;
+}
+
+static int
+set_lval_quoted_string(dfwork_t *dfw _U_, int token, GString *quoted_string)
+{
+	ws_assert(token == TOKEN_STRING);
+
+	stnode_init(df_lval, STTYPE_STRING, g_string_free(quoted_string, FALSE), NULL);
+	return token;
+}
+
+static int
+set_lval_charconst(dfwork_t *dfw, int token, GString *quoted_string)
+{
+	ws_assert(token == TOKEN_CHARCONST);
+	unsigned long number;
+	gboolean ok;
+
+	ok = parse_charconst(dfw, quoted_string->str, &number);
+	g_string_free(quoted_string, TRUE);
+	if (!ok) {
+		return SCAN_FAILED;
+	}
+	stnode_init(df_lval, STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), NULL);
+	return token;
+}
+
+static int
+set_lval_field(dfwork_t *dfw, int token, const char *token_value)
+{
+	sttype_id_t type_id;
+	header_field_info *hfinfo;
+
+	switch (token) {
+		case TOKEN_FIELD:
+			type_id = STTYPE_FIELD;
+			break;
+		case TOKEN_REFERENCE:
+			type_id = STTYPE_REFERENCE;
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+
+	hfinfo = dfilter_resolve_unparsed(dfw, token_value);
+	if (hfinfo == NULL) {
+		dfilter_fail(dfw, "\"%s\" is not a valid protocol or protocol field.", token_value);
+	}
+	stnode_init(df_lval, type_id, hfinfo, g_strdup(token_value));
+	return token;
+}
+
+static int
+set_lval_range_node(dfwork_t *dfw, int token, const char *token_value)
+{
+	ws_assert(token == TOKEN_RANGE_NODE);
+	char *err = NULL;
+	drange_node *range;
+
+	range = drange_node_from_str(token_value, &err);
+	if (err != NULL) {
+		dfilter_fail(dfw, "%s", err);
+		g_free(err);
+		return SCAN_FAILED;
+	}
+	stnode_init(df_lval, STTYPE_RANGE_NODE, range, NULL);
 	return token;
 }
 

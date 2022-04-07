@@ -94,6 +94,21 @@ out:
 	return ws_strdup_printf("'\\x%02lx'", num);
 }
 
+static void
+range_node_free(void *data)
+{
+	/* If the data was not claimed with stnode_steal_data(), free it. */
+	if (data) {
+		drange_node_free(data);
+	}
+}
+
+static char *
+range_node_tostr(const void *data, gboolean pretty _U_)
+{
+	return drange_node_tostr(data);
+}
+
 void
 sttype_register_pointer(void)
 {
@@ -140,12 +155,21 @@ sttype_register_pointer(void)
 		NULL,
 		charconst_tostr
 	};
+	static sttype_t range_node_type = {
+		STTYPE_RANGE_NODE,
+		"RANGE_NODE",
+		NULL,
+		range_node_free,
+		NULL,
+		range_node_tostr
+	};
 
 	sttype_register(&field_type);
 	sttype_register(&reference_type);
 	sttype_register(&fvalue_type);
 	sttype_register(&pcre_type);
 	sttype_register(&charconst_type);
+	sttype_register(&range_node_type);
 }
 
 /*

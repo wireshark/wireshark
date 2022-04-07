@@ -90,6 +90,8 @@ void drange_append_drange_node(drange_t* dr, drange_node* drnode);
 void drange_prepend_drange_node(drange_t* dr, drange_node* drnode);
 void drange_foreach_drange_node(drange_t* dr, GFunc func, gpointer funcdata);
 
-char *drange_tostr(drange_t *dr);
+char *drange_node_tostr(const drange_node *rn);
+
+char *drange_tostr(const drange_t *dr);
 
 #endif /* ! __DRANGE_H__ */

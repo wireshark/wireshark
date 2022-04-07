@@ -262,6 +262,12 @@ stnode_steal_data(stnode_t *node)
 	return data;
 }
 
+const char *
+stnode_token(stnode_t *node)
+{
+	return node->repr_token;
+}
+
 static char *
 _node_tostr(stnode_t *node, gboolean pretty)
 {

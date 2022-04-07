@@ -30,6 +30,7 @@ typedef enum {
 	STTYPE_FIELD,
 	STTYPE_FVALUE,
 	STTYPE_RANGE,
+	STTYPE_RANGE_NODE,
 	STTYPE_FUNCTION,
 	STTYPE_SET,
 	STTYPE_PCRE,
@@ -153,6 +154,9 @@ stnode_data(stnode_t *node);
 
 gpointer
 stnode_steal_data(stnode_t *node);
+
+const char *
+stnode_token(stnode_t *node);
 
 const char *
 stnode_tostr(stnode_t *node, gboolean pretty);

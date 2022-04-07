@@ -30,7 +30,7 @@
 #define DFILTER_TOKEN_ID_OFFSET	1
 
 /* Scanner's lval */
-extern df_lval_t *df_lval;
+extern stnode_t *df_lval;
 
 /* Holds the singular instance of our Lemon parser object */
 static void*	ParserObj = NULL;
@@ -287,11 +287,11 @@ const char *tokenstr(int token)
 		case TOKEN_CHARCONST:	return "CHARCONST";
 		case TOKEN_UNPARSED:	return "UNPARSED";
 		case TOKEN_LITERAL:	return "LITERAL";
-		case TOKEN_IDENTIFIER:	return "IDENTIFIER";
+		case TOKEN_FIELD:	return "FIELD";
 		case TOKEN_LBRACKET:	return "LBRACKET";
 		case TOKEN_RBRACKET:	return "RBRACKET";
 		case TOKEN_COMMA:	return "COMMA";
-		case TOKEN_RANGE:	return "RANGE";
+		case TOKEN_RANGE_NODE:	return "RANGE_NODE";
 		case TOKEN_TEST_IN:	return "TEST_IN";
 		case TOKEN_LBRACE:	return "LBRACE";
 		case TOKEN_RBRACE:	return "RBRACE";
@@ -299,8 +299,6 @@ const char *tokenstr(int token)
 		case TOKEN_LPAREN:	return "LPAREN";
 		case TOKEN_RPAREN:	return "RPAREN";
 		case TOKEN_REFERENCE:	return "REFERENCE";
-		case TOKEN_REF_OPEN:	return "REF_OPEN";
-		case TOKEN_REF_CLOSE:	return "REF_CLOSE";
 	}
 	return "<unknown>";
 }
@@ -387,7 +385,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	df_set_extra(&state, scanner);
 
 	while (1) {
-		df_lval = df_lval_new();
+		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL, NULL);
 		token = df_lex(scanner);
 
 		/* Check for scanner failure */
@@ -403,7 +401,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 		ws_noisy("(%u) Token %d %s %s",
 				++token_count, token, tokenstr(token),
-				df_lval_value(df_lval));
+				stnode_token(df_lval));
 
 		/* Give the token to the parser */
 		Dfilter(ParserObj, token, df_lval, dfw);
@@ -420,7 +418,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	/* If we created a df_lval_t but didn't use it, free it; the
 	 * parser doesn't know about it and won't free it for us. */
 	if (df_lval) {
-		df_lval_free(df_lval, TRUE);
+		stnode_free(df_lval);
 		df_lval = NULL;
 	}
 

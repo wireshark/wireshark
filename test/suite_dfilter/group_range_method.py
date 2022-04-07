@@ -37,11 +37,11 @@ class case_range(unittest.TestCase):
 
     def test_slice_string_1(self, checkDFilterFail):
         dfilter = "frame == \"00\"[1]"
-        checkDFilterFail(dfilter, "Range is not supported for entity \"00\"")
+        checkDFilterFail(dfilter, "Range is not supported for entity")
 
     def test_slice_unparsed_1(self, checkDFilterFail):
         dfilter = "frame == b[1]"
-        checkDFilterFail(dfilter, "Range is not supported for entity \"b\"")
+        checkDFilterFail(dfilter, "Range is not supported for entity")
 
     def test_slice_func_1(self, checkDFilterSucceed):
         dfilter = "string(ipx.src.node)[3:2] == \"cc:dd\""
