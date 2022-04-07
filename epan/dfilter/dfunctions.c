@@ -19,8 +19,8 @@
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>
 
-#define FAIL(dfw, ...) \
-	dfilter_fail_throw(dfw, TypeError, __VA_ARGS__)
+#define FAIL(dfw, node, ...) \
+	dfilter_fail_throw(dfw, stnode_location(node), TypeError, __VA_ARGS__)
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
@@ -183,7 +183,7 @@ ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name,
             return;
         }
     }
-    FAIL(dfw, "Only string type fields can be used as parameter for %s()", func_name);
+    FAIL(dfw, st_node, "Only string type fields can be used as parameter for %s()", func_name);
 }
 
 static void
@@ -195,7 +195,7 @@ ul_semcheck_is_field(dfwork_t *dfw, const char *func_name,
     if (stnode_type_id(st_node) == STTYPE_FIELD)
         return;
 
-    FAIL(dfw, "Only fields can be used as parameter for %s()", func_name);
+    FAIL(dfw, st_node, "Only fields can be used as parameter for %s()", func_name);
 }
 
 static void
@@ -245,9 +245,9 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name,
             default:
                 break;
         }
-        FAIL(dfw, "String conversion for field \"%s\" is not supported", hfinfo->abbrev);
+        FAIL(dfw, st_node, "String conversion for field \"%s\" is not supported", hfinfo->abbrev);
     }
-    FAIL(dfw, "Only fields can be used as parameter for %s()", func_name);
+    FAIL(dfw, st_node, "Only fields can be used as parameter for %s()", func_name);
 }
 
 /* The table of all display-filter functions */

@@ -42,7 +42,8 @@ static void*	ParserObj = NULL;
 dfwork_t *global_dfw;
 
 void
-dfilter_vfail(dfwork_t *dfw, const char *format, va_list args)
+dfilter_vfail(dfwork_t *dfw, stloc_t *loc,
+				const char *format, va_list args)
 {
 	/* Flag a syntax error. This is currently only used in
 	 * the grammar parsing stage to terminate the parsing
@@ -54,27 +55,40 @@ dfilter_vfail(dfwork_t *dfw, const char *format, va_list args)
 		return;
 
 	dfw->error_message = ws_strdup_vprintf(format, args);
+	if (loc) {
+		dfw->err_loc = *loc;
+	}
 }
 
 void
-dfilter_fail(dfwork_t *dfw, const char *format, ...)
+dfilter_fail(dfwork_t *dfw, stloc_t *loc,
+				const char *format, ...)
 {
 	va_list	args;
 
 	va_start(args, format);
-	dfilter_vfail(dfw, format, args);
+	dfilter_vfail(dfw, loc, format, args);
 	va_end(args);
 }
 
 void
-dfilter_fail_throw(dfwork_t *dfw, long code, const char *format, ...)
+dfilter_fail_throw(dfwork_t *dfw, stloc_t *loc,
+				long code, const char *format, ...)
 {
 	va_list	args;
 
 	va_start(args, format);
-	dfilter_vfail(dfw, format, args);
+	dfilter_vfail(dfw, loc, format, args);
 	va_end(args);
 	THROW(code);
+}
+
+void
+dfw_set_error_location(dfwork_t *dfw, stloc_t *loc)
+{
+	/* Set new location. */
+	ws_assert(loc);
+	dfw->err_loc = *loc;
 }
 
 /*
@@ -254,6 +268,8 @@ dfwork_free(dfwork_t *dfw)
 	if (dfw->deprecated)
 		g_ptr_array_unref(dfw->deprecated);
 
+	g_free(dfw->expanded_text);
+
 	/*
 	 * We don't free the error message string; our caller will return
 	 * it to its caller.
@@ -321,12 +337,18 @@ add_deprecated_token(dfwork_t *dfw, const char *token)
 	g_ptr_array_add(deprecated, g_strdup(token));
 }
 
+char *
+dfilter_expand(const char *expr, char **err_ret)
+{
+	return dfilter_macro_apply(expr, err_ret);
+}
+
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			gchar **error_ret, const char *caller,
-			gboolean save_tree)
+			gchar **error_ret, dfilter_loc_t *loc_ptr,
+			const char *caller, gboolean save_tree,
+			gboolean apply_macros)
 {
-	gchar		*expanded_text;
 	int		token;
 	dfilter_t	*dfilter;
 	dfwork_t	*dfw;
@@ -364,28 +386,32 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 	dfw = dfwork_new();
 
-	expanded_text = dfilter_macro_apply(text, &dfw->error_message);
-	if (expanded_text == NULL) {
-		goto FAILURE;
+	if (apply_macros) {
+		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error_message);
+		if (dfw->expanded_text == NULL) {
+			goto FAILURE;
+		}
+		ws_noisy("Expanded text: %s", dfw->expanded_text);
 	}
-
-	ws_noisy("Expanded text: %s", expanded_text);
+	else {
+		dfw->expanded_text = g_strdup(text);
+		ws_noisy("Verbatim text: %s", dfw->expanded_text);
+	}
 
 	if (df_lex_init(&scanner) != 0) {
 		dfw->error_message = ws_strdup_printf("Can't initialize scanner: %s", g_strerror(errno));
 		goto FAILURE;
 	}
 
-	in_buffer = df__scan_string(expanded_text, scanner);
+	in_buffer = df__scan_string(dfw->expanded_text, scanner);
 
+	memset(&state, 0, sizeof(state));
 	state.dfw = dfw;
-	state.quoted_string = NULL;
-	state.raw_string = FALSE;
 
 	df_set_extra(&state, scanner);
 
 	while (1) {
-		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL, NULL);
+		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL, NULL, NULL);
 		token = df_lex(scanner);
 
 		/* Check for scanner failure */
@@ -473,7 +499,8 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		dfw->insns = NULL;
 		dfilter->interesting_fields = dfw_interesting_fields(dfw,
 			&dfilter->num_interesting_fields);
-		dfilter->expanded_text = ws_strdup(expanded_text);
+		dfilter->expanded_text = dfw->expanded_text;
+		dfw->expanded_text = NULL;
 		dfilter->references = dfw->references;
 		dfw->references = NULL;
 
@@ -504,7 +531,6 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
 	else
 		ws_debug("Compiled empty filter (successfully).");
-	wmem_free(NULL, expanded_text);
 	return TRUE;
 
 FAILURE:
@@ -521,11 +547,14 @@ FAILURE:
 		else {
 			g_free(dfw->error_message);
 		}
+		if (loc_ptr != NULL) {
+			loc_ptr->col_start = dfw->err_loc.col_start;
+			loc_ptr->col_len = dfw->err_loc.col_len;
+		}
 	}
 
 	global_dfw = NULL;
 	dfwork_free(dfw);
-	wmem_free(NULL, expanded_text);
 	*dfp = NULL;
 	return FALSE;
 }

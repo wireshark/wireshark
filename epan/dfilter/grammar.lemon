@@ -21,6 +21,8 @@
 static stnode_t *
 new_function(dfwork_t *dfw, stnode_t *node);
 
+#define FAIL(dfw, node, ...) dfilter_fail(dfw, stnode_location(node), __VA_ARGS__)
+
 /* End of C code */
 }
 
@@ -55,10 +57,10 @@ new_function(dfwork_t *dfw, stnode_t *node);
 any "error" symbols are shifted, if possible. */
 %syntax_error {
     if (!TOKEN) {
-        dfilter_fail(dfw, "Unexpected end of filter expression.");
+        dfilter_fail(dfw, NULL, "Unexpected end of filter expression.");
         return;
     }
-    dfilter_fail(dfw, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));
+    FAIL(dfw, TOKEN, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));
 }
 
 /* When a parse fails, mark an error. This occurs after
@@ -213,8 +215,8 @@ comparison_test(T) ::= arithmetic_expr(E) cmp_op(O) comparison_test(R).
     L = O;
     sttype_test_set2_args(L, E, stnode_dup(F));
 
-    T = stnode_new_test(TEST_OP_AND, NULL);
-    sttype_test_set2_args(T, L, R);
+    T = stnode_new(STTYPE_TEST, NULL, NULL, NULL);
+    sttype_test_set2(T, TEST_OP_AND, L, R);
 }
 
 relation_test(T) ::= comparison_test(C).    { T = C; }
@@ -246,7 +248,7 @@ relation_test(T) ::= entity(E) TEST_NOT(P) TEST_IN(O) set(S).
 
 set(S) ::= LBRACE set_list(L) RBRACE.
 {
-    S = stnode_new(STTYPE_SET, L, NULL);
+    S = stnode_new(STTYPE_SET, L, NULL, NULL);
 }
 
 set_list(L) ::= set_element(N).
@@ -291,7 +293,7 @@ set_element(N) ::= set_entity(X) DOTDOT set_entity(Y).
 
 range(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
-    R = stnode_new(STTYPE_RANGE, NULL, NULL);
+    R = stnode_new(STTYPE_RANGE, NULL, NULL, NULL);
     sttype_range_set(R, E, L);
 
     /* Delete the list, but not the drange_nodes that
@@ -321,7 +323,7 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
 
         df_func_def_t *def = df_func_lookup(name);
         if (!def) {
-            dfilter_fail(dfw, "Function '%s' does not exist", name);
+            FAIL(dfw, node, "Function '%s' does not exist", name);
         }
         stnode_replace(node, STTYPE_FUNCTION, def);
         return node;

@@ -79,6 +79,11 @@ typedef struct {
 	STTypeToStrFunc		func_tostr;
 } sttype_t;
 
+typedef struct {
+	int col_start;
+	size_t col_len;
+} stloc_t;
+
 /** Node (type instance) information */
 typedef struct {
 	uint32_t	magic;
@@ -87,6 +92,7 @@ typedef struct {
 	char 		*repr_token;
 	char 		*repr_display;
 	char 		*repr_debug;
+	stloc_t		location;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
@@ -108,25 +114,7 @@ void
 sttype_register(sttype_t *type);
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, char *token);
-
-stnode_t *
-stnode_new_test(test_op_t op, char *token);
-
-stnode_t *
-stnode_new_math(test_op_t op, char *token);
-
-stnode_t *
-stnode_new_string(const char *str, char *token);
-
-stnode_t *
-stnode_new_unparsed(const char *str, char *token);
-
-stnode_t *
-stnode_new_literal(const char *str, char *token);
-
-stnode_t *
-stnode_new_charconst(unsigned long number, char *token);
+stnode_new(sttype_id_t type_id, gpointer data, char *token, stloc_t *loc);
 
 stnode_t*
 stnode_dup(const stnode_t *org);
@@ -135,7 +123,7 @@ void
 stnode_clear(stnode_t *node);
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token);
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, stloc_t *loc);
 
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
@@ -157,6 +145,9 @@ stnode_steal_data(stnode_t *node);
 
 const char *
 stnode_token(stnode_t *node);
+
+stloc_t *
+stnode_location(stnode_t *node);
 
 const char *
 stnode_tostr(stnode_t *node, gboolean pretty);

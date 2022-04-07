@@ -32,6 +32,11 @@ dfilter_init(void);
 void
 dfilter_cleanup(void);
 
+/* Perform macro expansion. */
+WS_DLL_PUBLIC
+char *
+dfilter_expand(const char *expr, char **err_ret);
+
 /* Compiles a string to a dfilter_t.
  * On success, sets the dfilter* pointed to by dfp
  * to either a NULL pointer (if the filter is a null
@@ -46,17 +51,21 @@ dfilter_cleanup(void);
  *
  * Returns TRUE on success, FALSE on failure.
  */
+
+typedef struct _dfilter_loc {
+	int col_start;
+	size_t col_len;
+} dfilter_loc_t;
+
 WS_DLL_PUBLIC
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			gchar **err_msg, const char *caller,
-			gboolean save_tree);
+			gchar **err_msg, dfilter_loc_t *loc_ptr,
+			const char *caller, gboolean save_tree,
+			gboolean apply_macros);
 
 #define dfilter_compile(text, dfp, err_msg) \
-	dfilter_compile_real(text, dfp, err_msg, __func__, FALSE)
-
-#define dfilter_compile2(text, dfp, err_msg, save_tree) \
-	dfilter_compile_real(text, dfp, err_msg, __func__, save_tree)
+	dfilter_compile_real(text, dfp, err_msg, NULL, __func__, FALSE, TRUE)
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */

@@ -276,6 +276,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dfilter_compile_real@Base 3.7.0
  dfilter_deprecated_tokens@Base 1.9.1
  dfilter_dump@Base 1.9.1
+ dfilter_expand@Base 3.7.0
  dfilter_free@Base 1.9.1
  dfilter_load_field_references@Base 3.7.0
  dfilter_log_full@Base 3.7.0

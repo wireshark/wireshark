@@ -40,6 +40,23 @@
 static void dftest_cmdarg_err(const char *fmt, va_list ap);
 static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
 
+static void
+putloc(FILE *fp, int start, size_t len)
+{
+    if (start < 0)
+        return;
+
+    for (int i = 0; i < start; i++) {
+        fputc(' ', fp);
+    }
+    fputc('^', fp);
+
+    for (size_t l = len; l > 1; l--) {
+        fputc('~', fp);
+    }
+    fputc('\n', fp);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -57,8 +74,10 @@ main(int argc, char **argv)
         cfile_close_failure_message
     };
     char		*text;
+    char		*expanded_text;
     dfilter_t		*df;
     gchar		*err_msg;
+    dfilter_loc_t	err_loc;
 
     cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
 
@@ -130,27 +149,44 @@ main(int argc, char **argv)
     /* Get filter text */
     text = get_args_as_string(argc, argv, 1);
 
-    /* Compile it */
-    if (!dfilter_compile2(text, &df, &err_msg, TRUE)) {
+    /* Expand macros. */
+    expanded_text = dfilter_expand(text, &err_msg);
+    if (expanded_text == NULL) {
         fprintf(stderr, "dftest: %s\n", err_msg);
         g_free(err_msg);
-        epan_cleanup();
         g_free(text);
+        epan_cleanup();
+        exit(2);
+    }
+    g_free(text);
+    text = NULL;
+
+    printf("Filter: %s\n", expanded_text);
+
+    /* Compile it */
+    if (!dfilter_compile_real(expanded_text, &df, &err_msg, &err_loc,
+                                                "dftest", TRUE, FALSE)) {
+        fprintf(stderr, "dftest: %s\n", err_msg);
+        fprintf(stderr, "\t%s\n", expanded_text);
+        fputc('\t', stderr);
+        putloc(stderr, err_loc.col_start, err_loc.col_len);
+        g_free(err_msg);
+        g_free(expanded_text);
+        epan_cleanup();
         exit(2);
     }
 
     if (df == NULL) {
-        printf("Filter is empty\n");
+        printf("Filter is empty.\n");
     }
     else {
-        printf("Filter text:\n%s\n\n", dfilter_text(df));
-        printf("Syntax tree:\n%s\n\n", dfilter_syntax_tree(df));
+        printf("\nSyntax tree:\n%s\n\n", dfilter_syntax_tree(df));
         dfilter_dump(df);
     }
 
     dfilter_free(df);
     epan_cleanup();
-    g_free(text);
+    g_free(expanded_text);
     exit(0);
 }
 
