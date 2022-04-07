@@ -554,8 +554,8 @@ set(WIRESHARK_QT_UI
 
 if(HAVE_PCAP_REMOTE)
 	list(APPEND WIRESHARK_QT_UI
-		remote_capture_dialog.ui
-		remote_settings_dialog.ui
+		../qt/remote_capture_dialog.ui
+		../qt/remote_settings_dialog.ui
 	)
 endif()
 

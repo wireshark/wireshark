@@ -1738,6 +1738,7 @@ set(CFG_OUT_FILES
 	resources/libwireshark.rc
 	resources/libwiretap.rc
 	resources/libwsutil.rc
+	resources/logwolf.exe.manifest
 	resources/wireshark.exe.manifest
 	resources/wireshark.rc
 	wireshark.pc
