@@ -49,7 +49,7 @@ static dissector_handle_t non_ip_data_handle;
 static dissector_handle_t ethernet_handle;
 
 /* Forward declaration */
-static void disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+static void dissect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static void dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean second_header);
 
 static int hf_nas_eps_msg_emm_type = -1;
@@ -1507,7 +1507,7 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         } else {
             TRY {
                 /* Potential plain NAS message: let's try to decode it and catch exceptions */
-                disect_nas_eps_esm_msg(new_tvb, pinfo, sub_tree, 0/* offset */);
+                dissect_nas_eps_esm_msg(new_tvb, pinfo, sub_tree, 0/* offset */);
             } CATCH_BOUNDS_ERRORS {
                 /* Dissection exception: message was probably ciphered and heuristic was too weak */
                 show_exception(new_tvb, pinfo, sub_tree, EXCEPT_CODE, GET_MESSAGE);
@@ -1515,7 +1515,7 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         }
     } else {
         /* Plain NAS message */
-        disect_nas_eps_esm_msg(new_tvb, pinfo, sub_tree, 0/* offset */);
+        dissect_nas_eps_esm_msg(new_tvb, pinfo, sub_tree, 0/* offset */);
     }
 
     return(len);
@@ -6468,7 +6468,7 @@ static const value_string nas_eps_esm_bearer_id_vals[] = {
  * A plain NAS message is pased to this function
  */
 static void
-disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     const gchar *msg_str;
     guint32      len;
@@ -6636,7 +6636,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
             /* EPS session management messages.
              * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
              */
-            disect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree, offset);
+            dissect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree, offset);
             break;
         case 7:
             /* EPS mobility management messages.
@@ -6790,7 +6790,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             /* EPS session management messages.
              * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
              */
-            disect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree, offset);
+            dissect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree, offset);
             break;
         case 7:
             /* EPS mobility management messages.
