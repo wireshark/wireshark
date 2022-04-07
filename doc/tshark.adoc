@@ -350,10 +350,13 @@ selected. Column names may be used prefixed with "_ws.col."
 
 Example: *tshark -e frame.number -e ip.addr -e udp -e _ws.col.Info*
 
-Giving a protocol rather than a single field will print multiple items
-of data about the protocol as a single field.  Fields are separated by
-tab characters by default.  *-E* controls the format of the printed
-fields.
+Fields are separated by tab characters by default.  *-E* controls the
+format of the printed fields.
+Giving a protocol rather than a single field will print the protocol summary
+(subtree label) from the packet details as a single field.
+If the protocol summary contains only the protocol name
+(e.g. "Hypertext Transfer Protocol") then the protocol filter name ("http")
+will be printed.
 --
 
 -E  <field print option>::
