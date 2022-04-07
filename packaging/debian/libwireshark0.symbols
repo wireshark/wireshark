@@ -671,7 +671,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_conversation@Base 1.9.1
  find_conversation_by_id@Base 2.5.0
  find_conversation_pinfo@Base 2.5.0
- find_conversation_filter@Base 2.0.0
  find_depend_dissector_list@Base 2.1.0
  find_dissector@Base 1.9.1
  find_dissector_add_dependency@Base 2.1.0

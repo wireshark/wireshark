@@ -2258,7 +2258,7 @@ void WiresharkMainWindow::initConversationMenus()
             << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
             << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
 
-    for (GList *conv_filter_list_entry = conv_filter_list; conv_filter_list_entry; conv_filter_list_entry = gxx_list_next(conv_filter_list_entry)) {
+    for (GList *conv_filter_list_entry = packet_conv_filter_list; conv_filter_list_entry; conv_filter_list_entry = gxx_list_next(conv_filter_list_entry)) {
         // Main menu items
         conversation_filter_t* conv_filter = gxx_list_data(conversation_filter_t *, conv_filter_list_entry);
         ConversationAction *conv_action = new ConversationAction(main_ui_->menuConversationFilter, conv_filter);

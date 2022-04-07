@@ -17,10 +17,10 @@
 #include "conversation_filter.h"
 
 
-GList *conv_filter_list = NULL;
+GList *packet_conv_filter_list = NULL;
+GList *log_conv_filter_list = NULL;
 
-
-static void do_register_conversation_filter(const char *proto_name, const char *display_name,
+static void do_register_conversation_filter(GList **conv_filter_list, const char *proto_name, const char *display_name,
                                         is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
     conversation_filter_t *entry;
 
@@ -31,12 +31,13 @@ static void do_register_conversation_filter(const char *proto_name, const char *
     entry->is_filter_valid      = is_filter_valid;
     entry->build_filter_string  = build_filter_string;
 
-    conv_filter_list = g_list_append(conv_filter_list, entry);
+    *conv_filter_list = g_list_append(*conv_filter_list, entry);
 }
 
 void register_conversation_filter(const char *proto_name, const char *display_name,
                                   is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
-    do_register_conversation_filter(proto_name,
+    do_register_conversation_filter(&packet_conv_filter_list,
+                                        proto_name,
                                         display_name,
                                         is_filter_valid,
                                         build_filter_string);
@@ -44,13 +45,14 @@ void register_conversation_filter(const char *proto_name, const char *display_na
 
 void register_log_conversation_filter(const char *proto_name, const char *display_name,
                                   is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
-    do_register_conversation_filter(proto_name,
+    do_register_conversation_filter(&log_conv_filter_list,
+                                        proto_name,
                                         display_name,
                                         is_filter_valid,
                                         build_filter_string);
 }
 
-struct conversation_filter_s* find_conversation_filter(const char *name)
+static struct conversation_filter_s* find_conversation_filter(GList *conv_filter_list, const char *name)
 {
     GList *list_entry = conv_filter_list;
     conversation_filter_t* filter;
@@ -73,11 +75,13 @@ static void conversation_filter_free(gpointer p, gpointer user_data _U_)
 
 void conversation_filters_cleanup(void)
 {
-    g_list_foreach(conv_filter_list, conversation_filter_free, NULL);
-    g_list_free(conv_filter_list);
+    g_list_foreach(packet_conv_filter_list, conversation_filter_free, NULL);
+    g_list_free(packet_conv_filter_list);
+    g_list_foreach(log_conv_filter_list, conversation_filter_free, NULL);
+    g_list_free(log_conv_filter_list);
 }
 
-gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
+static gchar *conversation_filter_from_pinfo(GList *conv_filter_list, struct _packet_info *pinfo)
 {
     const char *layers[] = { "tcp", "udp", "ip", "ipv6", "eth" };
     conversation_filter_t *conv_filter;
@@ -85,7 +89,7 @@ gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
     size_t i;
 
     for (i = 0; i < G_N_ELEMENTS(layers); i++) {
-        conv_filter = find_conversation_filter(layers[i]);
+        conv_filter = find_conversation_filter(conv_filter_list, layers[i]);
         if (conv_filter && conv_filter->is_filter_valid(pinfo)) {
             if ((filter = conv_filter->build_filter_string(pinfo)) != NULL)
                 return filter;
@@ -93,6 +97,16 @@ gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
     }
 
     return NULL;
+}
+
+gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
+{
+    return conversation_filter_from_pinfo(packet_conv_filter_list, pinfo);
+}
+
+gchar *conversation_filter_from_log(struct _packet_info *pinfo)
+{
+    return conversation_filter_from_pinfo(log_conv_filter_list, pinfo);
 }
 
 /*

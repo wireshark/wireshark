@@ -3465,7 +3465,7 @@ void LogwolfMainWindow::goToConversationFrame(bool go_next) {
     /* Try to build a conversation
      * filter in the order TCP, UDP, IP, Ethernet and apply the
      * coloring */
-    filter = conversation_filter_from_packet(pi);
+    filter = conversation_filter_from_log(pi);
     if (filter == NULL) {
         mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to build conversation filter."));
         g_free(filter);
