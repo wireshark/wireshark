@@ -3069,8 +3069,8 @@ static const true_false_string twt_flow_type = {
 };
 
 static const value_string he_phy_device_class_vals[] = {
-  { 0, "Class A Device" },
-  { 1, "Class B Device" },
+  { 0, "Class B Device" },
+  { 1, "Class A Device" },
   { 0, NULL }
 };
 
