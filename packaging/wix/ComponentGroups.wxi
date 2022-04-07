@@ -260,6 +260,9 @@
         <Component Id="cmpBluetooth_colorfilters" Guid="*">
           <File Id="filBluetooth_colorfilters" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\colorfilters" />
         </Component>
+        <Component Id="cmpBluetooth_preferences" Guid="*">
+          <File Id="filBluetooth_preferences" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\preferences" />
+        </Component>
       </Directory>
       <Directory Id="dirClassic" Name="Classic">
         <Component Id="cmpClassic_colorfilters" Guid="*">
@@ -276,6 +279,7 @@
   <Fragment>
     <ComponentGroup Id="CG.Plugins.ConfigurationProfiles">
       <ComponentRef Id="cmpBluetooth_colorfilters" />
+      <ComponentRef Id="cmpBluetooth_preferences" />
       <ComponentRef Id="cmpClassic_colorfilters" />
       <ComponentRef Id="cmpNoReassembly_preferences" />
     </ComponentGroup>
