@@ -67,6 +67,7 @@ FeatureSetEntryIndex_PDU
 FreqBandList_PDU
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
+LocationMeasurementInfo_PDU
 MeasConfig_PDU
 MeasGapConfig_PDU
 MeasGapSharingConfig_PDU
@@ -132,6 +133,7 @@ FeatureSetEntryIndex
 FreqBandList
 HandoverCommand
 HandoverPreparationInformation
+LocationMeasurementInfo
 MeasConfig
 MeasGapConfig
 MeasGapSharingConfig

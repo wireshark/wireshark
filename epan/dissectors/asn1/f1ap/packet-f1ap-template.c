@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V16.8.0 (2021-12)
+ * References: 3GPP TS 38.473 V16.9.0 (2022-04)
  */
 
 #include "config.h"
@@ -126,6 +126,7 @@ static gint ett_f1ap_SL_ConfigDedicatedEUTRA_Info = -1;
 static gint ett_f1ap_TDD_UL_DLConfigCommonNR = -1;
 static gint ett_f1ap_UEAssistanceInformationEUTRA = -1;
 static gint ett_f1ap_PosAssistance_Information = -1;
+static gint ett_f1ap_LocationMeasurementInformation = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -732,6 +733,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_TDD_UL_DLConfigCommonNR,
     &ett_f1ap_UEAssistanceInformationEUTRA,
     &ett_f1ap_PosAssistance_Information,
+    &ett_f1ap_LocationMeasurementInformation,
 #include "packet-f1ap-ettarr.c"
   };
 

@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.8.0 (2021-12)
+-- 3GPP TS 38.473 V16.9.0 (2022-04)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -649,6 +649,11 @@ id-SCGIndicator										ProtocolIE-ID ::= 432
 id-EstimatedArrivalProbability						ProtocolIE-ID ::= 433
 id-TRPType											ProtocolIE-ID ::= 434
 id-SRSSpatialRelationPerSRSResource					ProtocolIE-ID ::= 435
+id-PDCPTerminatingNodeDLTNLAddrInfo					ProtocolIE-ID ::= 436
+id-ENBDLTNLAddress									ProtocolIE-ID ::= 437
+id-PosMeasurementPeriodicityExtended				ProtocolIE-ID ::= 438
+id-PRS-Resource-ID									ProtocolIE-ID ::= 439
+id-LocationMeasurementInformation					ProtocolIE-ID ::= 440
 
 
 END
