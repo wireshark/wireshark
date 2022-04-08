@@ -60,7 +60,8 @@ __infile__, optionally converts them in various ways and writes the
 resulting packets to the capture __outfile__ (or outfiles).
 
 By default, it reads all packets from the __infile__ and writes them to the
-__outfile__ in pcapng file format.
+__outfile__ in pcapng file format.  Use '-' for __infile__ or __outfile__
+to read from standard input or write to standard output, respectively.
 
 The *-A* and *-B* option allow you to limit the time range from which packets
 are read from the __infile__.
@@ -184,7 +185,7 @@ If a match is found, the current packet is skipped.
 
 The use of the option *-D 0* combined with the *-v* option is useful
 in that each packet's Packet number, Len and MD5 Hash will be printed
-to standard out.  This verbose output (specifically the MD5 hash strings)
+to standard error.  This verbose output (specifically the MD5 hash strings)
 can be useful in scripts to identify duplicate packets across trace
 files.
 
