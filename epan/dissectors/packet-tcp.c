@@ -3479,6 +3479,92 @@ missing_segments(packet_info *pinfo, struct tcp_multisegment_pdu *msp, guint32 s
 }
 #endif
 
+static struct tcp_multisegment_pdu*
+split_msp(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struct tcp_analysis *tcpd)
+{
+    fragment_head *fd_head;
+    guint32 first_frame = 0;
+    guint32 last_frame = 0;
+    const guint32 split_offset = pinfo->desegment_offset;
+
+    fd_head = fragment_get(&tcp_reassembly_table, pinfo, msp->first_frame, msp);
+    /* This is for splitting defragmented MSPs, so fd_head should exist
+     * and be defragmented. This also ensures that fd_i->tvb_data exists.
+     */
+    DISSECTOR_ASSERT(fd_head && fd_head->flags & FD_DEFRAGMENTED);
+
+    fragment_item *fd_i, *first_frag = NULL;
+
+    /* The fragment list is sorted in offset order, but not nec. frame order
+     * or end offset order due to out of order reassembly and possible overlap.
+     * fd_i->offset < split_offset - some bytes are before the split
+     * fd_i->offset + fd_i->len >= split_offset - some bytes are after split
+     * Look through all the fragments that have some data before the split point.
+     */
+    for (fd_i = fd_head->next; fd_i && (fd_i->offset < split_offset); fd_i = fd_i->next) {
+        if (last_frame < fd_i->frame) {
+            last_frame = fd_i->frame;
+        }
+        if (fd_i->offset + fd_i->len >= split_offset) {
+            if (first_frag == NULL) {
+                first_frag = fd_i;
+                first_frame = fd_i->frame;
+            } else if (fd_i->frame < first_frame) {
+                first_frame = fd_i->frame;
+            }
+        }
+    };
+
+    /* Now look through all the remaining fragments that only have bytes after
+     * the split.
+     */
+    for (; fd_i; fd_i = fd_i->next) {
+        guint32 frag_end = fd_i->offset + fd_i->len;
+        if (split_offset <= frag_end && fd_i->frame < first_frame) {
+            first_frame = fd_i->frame;
+        }
+    }
+
+    /* We only call this when the frame the fragments were reassembled in
+     * (which is the current frame) includes some data before the split
+     * point, so that it won't change and we can be consistent dissecting
+     * between passes. We also should have at least some data after the
+     * split point (because the subdissector claimed there was undissected
+     * data.)
+     */
+    DISSECTOR_ASSERT(fd_head->reassembled_in == last_frame);
+    DISSECTOR_ASSERT(first_frag != NULL);
+
+    guint32 new_seq = msp->seq + pinfo->desegment_offset;
+    struct tcp_multisegment_pdu *newmsp;
+    newmsp = pdu_store_sequencenumber_of_next_pdu(pinfo, new_seq,
+        new_seq+1, tcpd->fwd->multisegment_pdus);
+    newmsp->first_frame = first_frame;
+    newmsp->nxtpdu = msp->nxtpdu;
+
+    /* XXX: Could do the adding the new fragments in fragment_truncate */
+    for (fd_i = first_frag; fd_i; fd_i = fd_i->next) {
+        guint32 frag_offset = fd_i->offset;
+        guint32 frag_len = fd_i->len;
+        /* Check for some unusual out of order overlapping segment situations. */
+        if (split_offset <= frag_offset + frag_len) {
+            if (fd_i->offset < split_offset) {
+                frag_offset = split_offset;
+                frag_len -= (split_offset - fd_i->offset);
+            }
+            fragment_add_out_of_order(&tcp_reassembly_table, fd_head->tvb_data,
+                         frag_offset, pinfo, first_frame, newmsp,
+                         frag_offset - split_offset, frag_len, TRUE, fd_i->frame);
+        }
+    }
+
+    fragment_truncate(&tcp_reassembly_table, pinfo, msp->first_frame, msp, split_offset);
+    msp->nxtpdu = msp->seq + split_offset;
+
+    /* The newmsp nxtpdu will be adjusted after leaving this function. */
+    return newmsp;
+}
+
 typedef struct _ooo_segment_item {
     guint32 frame;
     guint32 seq;
@@ -3665,17 +3751,6 @@ again:
      * that are dissected on the second pass they will have different
      * layer numbers than in the first pass, which can disturb proto_data
      * lookup, reassembly, etc. (Bug 16109 describes this for TLS.)
-     *
-     * If out of order reassembly is enabled, the same problem as above
-     * occurs when an existing MSP with gaps can dissect at least one PDU
-     * (pinfo->desegment_offset > 0) but need more data for additional PDUs
-     * in the OOO MSP (pinfo->desegment_len > 0). Since MSP splitting is
-     * not supported, the earlier PDUs are processed by the subdissector
-     * twice on the first pass, and only in the later frame on subsequent
-     * passes, which affects layer numbers and various stored protocol
-     * data for both that subdissector and any other subdissectors in the
-     * frame. See test_tcp_out_of_order_twopass_with_bug() in
-     * test/suite_dissection.py
      */
 
     if (tcpd) {
@@ -4064,53 +4139,108 @@ again:
                  * being a new higher-level PDU that also
                  * needs desegmentation).
                  *
+                 * This can happen if a dissector asked for one
+                 * more segment (but didn't know exactly how much data)
+                 * or if segments were added out of order.
+                 *
+                 * We want to keep the same dissection and protocol layer
+                 * numbers on subsequent passes.
+                 *
                  * If "desegment_offset" is 0, then nothing in the reassembled
                  * TCP segments was dissected, so remove the data source.
+                 * XXX: We should also remove any layers that were added to
+                 * keep things consistent, because we won't call the
+                 * subdissector here on subsequent passes.
                  */
-                if (pinfo->desegment_offset == 0)
+                if (pinfo->desegment_offset == 0) {
                     remove_last_data_source(pinfo);
-                fragment_set_partial_reassembly(&tcp_reassembly_table,
-                                                pinfo, msp->first_frame, msp);
-
-                /* Update msp->nxtpdu to point to the new next
-                 * pdu boundary.
-                 */
-                if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
-                    /* We want reassembly of at least one
-                     * more segment so set the nxtpdu
-                     * boundary to one byte into the next
-                     * segment.
-                     * This means that the next segment
-                     * will complete reassembly even if it
-                     * is only one single byte in length.
-                     * If this is an OoO segment, then increment the MSP end.
-                     */
-                    msp->nxtpdu = MAX(seq + tvb_reported_length_remaining(tvb, offset), msp->nxtpdu) + 1;
-                    msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
-                } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
-                    tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
-                    /* This is not the first segment, and we thought the
-                     * reassembly would be done now, but now know we must
-                     * desgment until FIN. (E.g., HTTP Response with headers
-                     * split across segments, and no Content-Length or
-                     * Transfer-Encoding (RFC 7230, Section 3.3.3, case 7.)
-                     * For the same reasons as below when we encounter
-                     * DESEGMENT_UNTIL_FIN on the first segment, give
-                     * msp->nxtpdu a big (but not too big) offset so reassembly
-                     * will pick up the segments later.
-                     */
-                    msp->nxtpdu = msp->seq + 0x40000000;
+                    fragment_set_partial_reassembly(&tcp_reassembly_table,
+                                                    pinfo, msp->first_frame,
+                                                    msp);
                 } else {
-                    if (seq + last_fragment_len >= msp->nxtpdu) {
-                        /* This is the segment (overlapping) the end of the MSP. */
-                        msp->nxtpdu = seq + last_fragment_len + pinfo->desegment_len;
-                    } else {
-                        /* This is a segment before the end of the MSP, so it
-                         * must be an out-of-order segmented that completed the
-                         * MSP. The requested additional data is relative to
-                         * that end.
+                    /* If "desegment_offset" is not 0, then a PDU in the
+                     * reassembled segments was dissected, but some stuff
+                     * that was added previously is part of a later PDU.
+                     */
+                    if (LE_SEQ(msp->seq + pinfo->desegment_offset, seq)) {
+                        /* If we don't use anything from the current frame's
+                         * segment, then we can't split the msp. The frames of
+                         * the earlier PDU weren't reassembled until now, so
+                         * they need to point to a reassembled_in frame here
+                         * or later.
+                         *
+                         * Since this segment is the first of newly contiguous
+                         * segments, this means the subdissector is asking for
+                         * fewer bytes than it did before.
+                         * XXX: Report this as a dissector bug?
                          */
-                        msp->nxtpdu += pinfo->desegment_len;
+                        fragment_set_partial_reassembly(&tcp_reassembly_table,
+                                                        pinfo, msp->first_frame,
+                                                        msp);
+                    } else {
+                        /* If we did use bytes from the current segment, then
+                         * we want to split the MSP; the earlier part is
+                         * dissected in this frame on the first pass, so for
+                         * consistency we want to do so on future passes, but
+                         * the latter part we cannot dissect until later.
+                         * We only need to do this on the first pass; split_msp
+                         * truncates the msp so we don't get here a second
+                         * time.
+                         */
+                        /* nxtpdu adjustment for the new msp is the same. */
+                        if (!PINFO_FD_VISITED(pinfo)) {
+                            msp = split_msp(pinfo, msp, tcpd);
+                        }
+                        print_tcp_fragment_tree(ipfd_head, tree, tcp_tree, pinfo, next_tvb);
+                    }
+                }
+
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    /* Update msp->nxtpdu to point to the new next
+                     * pdu boundary.
+                     * We only do this on the first pass, though we shouldn't
+                     * get here on a second pass (since we truncated the msp.)
+                     */
+                    if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                        /* We want reassembly of at least one
+                         * more segment so set the nxtpdu
+                         * boundary to one byte into the next
+                         * segment.
+                         * This means that the next segment
+                         * will complete reassembly even if it
+                         * is only one single byte in length.
+                         * If this is an OoO segment, then increment
+                         * the MSP end.
+                         */
+                        msp->nxtpdu = MAX(seq + tvb_reported_length_remaining(tvb, offset), msp->nxtpdu) + 1;
+                        msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+                    } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                        tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+                        /* This is not the first segment, and we thought the
+                         * reassembly would be done now, but now know we must
+                         * desgment until FIN. (E.g., HTTP Response with headers
+                         * split across segments, and no Content-Length or
+                         * Transfer-Encoding (RFC 7230, Section 3.3.3, case 7.)
+                         * For the same reasons as below when we encounter
+                         * DESEGMENT_UNTIL_FIN on the first segment, give
+                         * msp->nxtpdu a big (but not too big) offset so
+                         * reassembly will pick up the segments later.
+                         */
+                        msp->nxtpdu = msp->seq + 0x40000000;
+                    } else {
+                        if (seq + last_fragment_len >= msp->nxtpdu) {
+                            /* This is the segment (overlapping) the end of
+                             * the MSP.
+                             */
+                            msp->nxtpdu = seq + last_fragment_len + pinfo->desegment_len;
+                        } else {
+                            /* This is a segment before the end of the MSP, so
+                             * it must be an out-of-order segment that completed
+                             * the MSP. The requested additional data is
+                             * relative to that end.
+                             */
+                            msp->nxtpdu += pinfo->desegment_len;
+                        }
                     }
                 }
 
@@ -4257,9 +4387,10 @@ again:
 
     if (!called_dissector || pinfo->desegment_len != 0) {
         if (ipfd_head != NULL && ipfd_head->reassembled_in != 0 &&
+            ipfd_head->reassembled_in != pinfo->num &&
             !(ipfd_head->flags & FD_PARTIAL_REASSEMBLY)) {
             /*
-             * We know what frame this PDU is reassembled in;
+             * We know what other frame this PDU is reassembled in;
              * let the user know.
              */
             item = proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in, tvb, 0,

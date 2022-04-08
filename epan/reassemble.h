@@ -398,6 +398,20 @@ fragment_reset_tot_len(reassembly_table *table, const packet_info *pinfo,
 		       const guint32 id, const void *data, const guint32 tot_len);
 
 /*
+ * Truncates the size of an already defragmented reassembly to tot_len,
+ * discarding past that point, including splitting any fragments in the
+ * middle as necessary. The specified length must be less than or equal
+ * to the reassembled length. (If it already matches the reassembled length,
+ * then nothing will be done.)
+ *
+ * Used for continuous streams like TCP, where the length of a segment cannot
+ * be determined without first reassembling and handing to a subdissector.
+ */
+void
+fragment_truncate(reassembly_table *table, const packet_info *pinfo,
+		       const guint32 id, const void *data, const guint32 tot_len);
+
+/*
  * Return the expected index for the last block (for fragment_add_seq functions)
  * or the expected number of bytes (for fragment_add functions).
  */

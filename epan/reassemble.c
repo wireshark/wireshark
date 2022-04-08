@@ -797,6 +797,85 @@ fragment_reset_tot_len(reassembly_table *table, const packet_info *pinfo,
 	fd_head->flags |= FD_DATALEN_SET;
 }
 
+void
+fragment_truncate(reassembly_table *table, const packet_info *pinfo,
+		       const guint32 id, const void *data, const guint32 tot_len)
+
+{
+	tvbuff_t      *old_tvb_data;
+	fragment_head *fd_head;
+
+	fd_head = lookup_fd_head(table, pinfo, id, data, NULL);
+	if (!fd_head)
+		return;
+
+	/* Caller must ensure that this function is only called when
+	 * we are defragmented. */
+	DISSECTOR_ASSERT(fd_head->flags & FD_DEFRAGMENTED);
+
+	/*
+	 * If FD_PARTIAL_REASSEMBLY is set, it would make the next fragment_add
+	 * call set the reassembled length based on the fragment offset and
+	 * length. As the length is known now, be sure to disable that magic.
+	 */
+	fd_head->flags &= ~FD_PARTIAL_REASSEMBLY;
+
+	/* If the length is already as expected, there is nothing else to do. */
+	if (tot_len == fd_head->datalen)
+		return;
+
+	DISSECTOR_ASSERT(fd_head->datalen > tot_len);
+
+	old_tvb_data=fd_head->tvb_data;
+	fd_head->tvb_data = tvb_clone_offset_len(old_tvb_data, 0, tot_len);
+	tvb_set_free_cb(fd_head->tvb_data, g_free);
+
+	if (old_tvb_data)
+		tvb_add_to_chain(fd_head->tvb_data, old_tvb_data);
+	fd_head->datalen = tot_len;
+
+	/* Keep the fragments before the split point, dividing any if
+	 * necessary.
+	 * XXX: In rare cases, there might be fragments marked as overlap that
+	 * have data both before and after the split point, and which only
+	 * overlap after the split point. In that case, after dividing the
+	 * fragments the first part no longer overlap.
+	 * However, at this point we can't test for overlap conflicts,
+	 * so we'll just leave the overlap flags as-is.
+	 */
+	fd_head->flags &= ~(FD_OVERLAP|FD_OVERLAPCONFLICT|FD_TOOLONGFRAGMENT|FD_MULTIPLETAILS);
+	fragment_item *fd_i, *prev_fd = fd_head;
+	for (fd_i = fd_head->next; fd_i && (fd_i->offset < tot_len); fd_i = fd_i->next) {
+		fd_i->flags &= ~(FD_TOOLONGFRAGMENT|FD_MULTIPLETAILS);
+		/* Check for the split point occuring in the middle of the
+		 * fragment. */
+                if (fd_i->offset + fd_i->len > tot_len) {
+			fd_i->len = tot_len - fd_i->offset;
+		}
+		fd_head->flags |= fd_i->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT);
+		prev_fd = fd_i;
+
+		/* Below should do nothing since this is already defragmented */
+		if (fd_i->flags & FD_SUBSET_TVB)
+			fd_i->flags &= ~FD_SUBSET_TVB;
+		else if (fd_i->tvb_data)
+			tvb_free(fd_i->tvb_data);
+
+		fd_i->tvb_data=NULL;
+	}
+
+	/* Remove all the other fragments, as they are past the split point. */
+        prev_fd->next = NULL;
+	fragment_item *tmp_fd;
+	for (; fd_i; fd_i = tmp_fd) {
+		tmp_fd=fd_i->next;
+
+		if (fd_i->tvb_data && !(fd_i->flags & FD_SUBSET_TVB))
+			tvb_free(fd_i->tvb_data);
+		g_slice_free(fragment_item, fd_i);
+	}
+}
+
 guint32
 fragment_get_tot_len(reassembly_table *table, const packet_info *pinfo,
 		     const guint32 id, const void *data)
@@ -811,7 +890,6 @@ fragment_get_tot_len(reassembly_table *table, const packet_info *pinfo,
 
 	return 0;
 }
-
 
 /* This function will set the partial reassembly flag for a fh.
    When this function is called, the fh MUST already exist, i.e.
