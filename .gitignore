@@ -152,7 +152,7 @@ compile_commands.json
 CMakeLists.txt.user*
 
 # Debian packaging
-debian/
+/debian/
 
 # Misc #
 ########
