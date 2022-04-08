@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.8.0 (2021-12)
+-- 3GPP TS 36.423 V16.9.0 (2022-04)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -233,7 +233,10 @@ IMPORTS
 	IntendedTDD-DL-ULConfiguration-NR,
 	UERadioCapability,
 	SFN-Offset,
-	IMSvoiceEPSfallbackfrom5G
+	IMSvoiceEPSfallbackfrom5G,
+	Global-RAN-NODE-ID,
+	DirectForwardingPathAvailability
+
 
 
 
@@ -589,6 +592,8 @@ FROM X2AP-Containers
 	id-SFN-Offset,
 	id-DirectForwardingPathAvailability,
 	id-sourceNG-RAN-node-id,
+	id-SourceDLForwardingIPAddress,
+	id-SourceNodeDLForwardingIPAddress,
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
@@ -692,11 +697,15 @@ E-RABs-ToBeSetup-Item ::= SEQUENCE {
 E-RABs-ToBeSetup-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-BearerType		CRITICALITY reject	EXTENSION BearerType		PRESENCE optional}|
 	{ ID id-DAPSRequestInfo		CRITICALITY ignore	EXTENSION DAPSRequestInfo			PRESENCE optional}|
-	{ ID id-Ethernet-Type	CRITICALITY ignore	EXTENSION Ethernet-Type		PRESENCE optional},
+	{ ID id-Ethernet-Type	CRITICALITY ignore	EXTENSION Ethernet-Type		PRESENCE optional}|
+	{ ID id-SourceDLForwardingIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
 MobilityInformation ::= BIT STRING (SIZE(32))
+
+SourceDLForwardingIPAddress ::= BIT STRING (SIZE(1..160, ...))
+
 
 UE-ContextReferenceAtSeNB ::= SEQUENCE {
 	source-GlobalSeNB-ID		GlobalENB-ID,
@@ -1708,7 +1717,8 @@ E-RABs-ToBeAdded-Item-SCG-BearerExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Correlation-ID				CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional}|
 	{ ID id-SIPTO-Correlation-ID		CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional}|
 	{ ID id-BearerType					CRITICALITY ignore	EXTENSION BearerType			PRESENCE optional}|
-	{ ID id-Ethernet-Type				CRITICALITY ignore	EXTENSION Ethernet-Type			PRESENCE optional},
+	{ ID id-Ethernet-Type				CRITICALITY ignore	EXTENSION Ethernet-Type			PRESENCE optional}|
+	{ ID id-SourceDLForwardingIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -1721,6 +1731,7 @@ E-RABs-ToBeAdded-Item-Split-Bearer ::= SEQUENCE {
 }
 
 E-RABs-ToBeAdded-Item-Split-BearerExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SourceDLForwardingIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -1772,6 +1783,8 @@ E-RABs-Admitted-ToBeAdded-Item-SCG-Bearer ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeAdded-Item-SCG-BearerExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SourceDLForwardingIPAddress				CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional}|
+	{ ID id-SourceNodeDLForwardingIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -1783,6 +1796,7 @@ E-RABs-Admitted-ToBeAdded-Item-Split-Bearer ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeAdded-Item-Split-BearerExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SourceDLForwardingIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -2676,7 +2690,8 @@ E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional}|
 	{ ID id-BearerType							CRITICALITY ignore	EXTENSION BearerType				PRESENCE optional}|
-	{ ID id-Ethernet-Type						CRITICALITY ignore	EXTENSION Ethernet-Type				PRESENCE optional},
+	{ ID id-Ethernet-Type						CRITICALITY ignore	EXTENSION Ethernet-Type				PRESENCE optional}|
+	{ ID id-SourceDLForwardingIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -2766,7 +2781,8 @@ E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPpresent ::= SEQUENCE {
 
 E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
-	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-SourceDLForwardingIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
