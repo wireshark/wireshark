@@ -1220,6 +1220,14 @@ id-PDUSessionExpectedUEActivityBehaviour          ProtocolIE-ID
 id-QoS-Mapping-Information                        ProtocolIE-ID
 id-AdditionLocationInformation                    ProtocolIE-ID
 id-dataForwardingInfoFromTargetE-UTRANnode        ProtocolIE-ID
+id-DirectForwardingPathAvailability               ProtocolIE-ID
+id-SourceNG-RAN-node-ID                           ProtocolIE-ID
+id-SourceDLForwardingIPAddress                    ProtocolIE-ID
+id-SourceNodeDLForwardingIPAddress                ProtocolIE-ID
+id-ExtendedReportIntervalMDT                      ProtocolIE-ID
+id-SecurityIndication                             ProtocolIE-ID
+id-RRCConnReestab-Indicator                       ProtocolIE-ID
+id-TargetNodeID                                   ProtocolIE-ID
 
 #.REGISTER
 
@@ -1402,6 +1410,8 @@ PagingeDRXInformation                             N xnap.ies id-PagingeDRXInform
 CHO-MRDC-EarlyDataForwarding                      N xnap.ies id-CHO-MRDC-EarlyDataForwarding
 SCGIndicator                                      N xnap.ies id-SCGIndicator
 UESpecificDRX                                     N xnap.ies id-UESpecificDRX
+DirectForwardingPathAvailability                  N xnap.ies id-DirectForwardingPathAvailability
+GlobalNG-RANNode-ID                               N xnap.ies id-SourceNG-RAN-node-ID
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -1482,6 +1492,12 @@ QoS-Mapping-Information                           N xnap.extension id-QoS-Mappin
 Cause                                             N xnap.extension id-Cause
 AdditionLocationInformation                       N xnap.extension id-AdditionLocationInformation
 DataForwardingInfoFromTargetE-UTRANnode           N xnap.extension id-dataForwardingInfoFromTargetE-UTRANnode
+TransportLayerAddress                             N xnap.extension id-SourceDLForwardingIPAddress
+TransportLayerAddress                             N xnap.extension id-SourceNodeDLForwardingIPAddress
+ExtendedReportIntervalMDT                         N xnap.extension id-ExtendedReportIntervalMDT
+SecurityIndication                                N xnap.extension id-SecurityIndication
+RRCConnReestab-Indicator                          N xnap.extension id-RRCConnReestab-Indicator
+GlobalNG-RANNode-ID                               N xnap.extension id-TargetNodeID
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation
