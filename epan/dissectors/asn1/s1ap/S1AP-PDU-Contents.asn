@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.8.0 (2021-12)
+-- 3GPP TS 36.413 V16.9.0 (2022-04)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -476,7 +476,8 @@ FROM S1AP-Containers
 	id-NotifySourceeNB,
 	id-eNB-EarlyStatusTransfer-TransparentContainer,
 	id-WUS-Assistance-Information,
-	id-NB-IoT-PagingDRX
+	id-NB-IoT-PagingDRX,
+	id-UERadioCapabilityForPaging-NR-Format
 
 
 

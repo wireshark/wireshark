@@ -1897,6 +1897,7 @@ id-NB-IoT-PagingDRX                                 ProtocolIE-ID
 id-TraceCollectionEntityURI                         ProtocolIE-ID
 id-EmergencyIndicator                               ProtocolIE-ID
 id-UERadioCapabilityForPaging-NR-Format             ProtocolIE-ID
+id-SourceTransportLayerAddress                      ProtocolIE-ID
 
 #.END
 
@@ -2217,6 +2218,7 @@ DAPSRequestInfo                         N s1ap.extension id-DAPSRequestInfo
 DAPSResponseInfoList                    N s1ap.extension id-DAPSResponseInfoList
 URI-Address                             N s1ap.extension id-TraceCollectionEntityURI
 EmergencyIndicator                      N s1ap.extension id-EmergencyIndicator
+TransportLayerAddress                   N s1ap.extension id-SourceTransportLayerAddress
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation
