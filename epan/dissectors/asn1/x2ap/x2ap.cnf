@@ -1983,7 +1983,7 @@ SFN-Offset							N x2ap.extension id-SFN-Offset
 IMSvoiceEPSfallbackfrom5G					N x2ap.extension id-IMSvoiceEPSfallbackfrom5G
 AdditionLocationInformation					N x2ap.extension id-AdditionLocationInformation
 TransportLayerAddress						N x2ap.extension id-SourceDLForwardingIPAddress
-TransportLayerAddress						N x2ap.extensionid-SourceNodeDLForwardingIPAddress
+TransportLayerAddress						N x2ap.extension id-SourceNodeDLForwardingIPAddress
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

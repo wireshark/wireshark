@@ -28190,6 +28190,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_IMSvoiceEPSfallbackfrom5G, create_dissector_handle(dissect_IMSvoiceEPSfallbackfrom5G_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_AdditionLocationInformation, create_dissector_handle(dissect_AdditionLocationInformation_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_SourceDLForwardingIPAddress, create_dissector_handle(dissect_TransportLayerAddress_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_SourceNodeDLForwardingIPAddress, create_dissector_handle(dissect_TransportLayerAddress_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));
