@@ -1412,6 +1412,7 @@ SCGIndicator                                      N xnap.ies id-SCGIndicator
 UESpecificDRX                                     N xnap.ies id-UESpecificDRX
 DirectForwardingPathAvailability                  N xnap.ies id-DirectForwardingPathAvailability
 GlobalNG-RANNode-ID                               N xnap.ies id-SourceNG-RAN-node-ID
+GlobalNG-RANNode-ID                               N xnap.ies id-TargetNodeID
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -1497,7 +1498,6 @@ TransportLayerAddress                             N xnap.extension id-SourceNode
 ExtendedReportIntervalMDT                         N xnap.extension id-ExtendedReportIntervalMDT
 SecurityIndication                                N xnap.extension id-SecurityIndication
 RRCConnReestab-Indicator                          N xnap.extension id-RRCConnReestab-Indicator
-GlobalNG-RANNode-ID                               N xnap.extension id-TargetNodeID
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

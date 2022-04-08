@@ -26614,6 +26614,7 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.ies", id_UESpecificDRX, create_dissector_handle(dissect_UESpecificDRX_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_DirectForwardingPathAvailability, create_dissector_handle(dissect_DirectForwardingPathAvailability_PDU, proto_xnap));
   dissector_add_uint("xnap.ies", id_SourceNG_RAN_node_ID, create_dissector_handle(dissect_GlobalNG_RANNode_ID_PDU, proto_xnap));
+  dissector_add_uint("xnap.ies", id_TargetNodeID, create_dissector_handle(dissect_GlobalNG_RANNode_ID_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_Additional_UL_NG_U_TNLatUPF_List, create_dissector_handle(dissect_Additional_UL_NG_U_TNLatUPF_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_SecondarydataForwardingInfoFromTarget_List, create_dissector_handle(dissect_SecondarydataForwardingInfoFromTarget_List_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_LastE_UTRANPLMNIdentity, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_xnap));
@@ -26697,7 +26698,6 @@ proto_reg_handoff_xnap(void)
   dissector_add_uint("xnap.extension", id_ExtendedReportIntervalMDT, create_dissector_handle(dissect_ExtendedReportIntervalMDT_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_SecurityIndication, create_dissector_handle(dissect_SecurityIndication_PDU, proto_xnap));
   dissector_add_uint("xnap.extension", id_RRCConnReestab_Indicator, create_dissector_handle(dissect_RRCConnReestab_Indicator_PDU, proto_xnap));
-  dissector_add_uint("xnap.extension", id_TargetNodeID, create_dissector_handle(dissect_GlobalNG_RANNode_ID_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_xnap));
   dissector_add_uint("xnap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_xnap));
