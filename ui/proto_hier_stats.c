@@ -68,9 +68,11 @@ find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
     /* Intialize counters */
     stats->hfinfo = needle_hfinfo;
     stats->num_pkts_total = 0;
+    stats->num_pdus_total = 0;
     stats->num_pkts_last = 0;
     stats->num_bytes_total = 0;
     stats->num_bytes_last = 0;
+    stats->last_pkt = 0;
 
     needle_stat_node = g_node_new(stats);
     g_node_append(parent_stat_node, needle_stat_node);
@@ -102,7 +104,17 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
         stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
 
         stats = STAT_NODE_STATS(stat_node);
-        stats->num_pkts_total++;
+        /* Only increment the total packet count once per packet for a given
+         * node, since there could be multiple PDUs in a frame.
+         * (All the other statistics should be incremented every time,
+         * including the count for how often a protocol was the last
+         * protocol in a packet.)
+         */
+        if (stats->last_pkt != ps->tot_packets) {
+            stats->num_pkts_total++;
+            stats->last_pkt = ps->tot_packets;
+        }
+        stats->num_pdus_total++;
         stats->num_bytes_total += finfo->length;
     }
 
@@ -190,7 +202,6 @@ ph_stats_new(capture_file *cf)
     ph_stats_t	*ps;
     guint32	framenum;
     frame_data	*frame;
-    guint	tot_packets, tot_bytes;
     progdlg_t	*progbar = NULL;
     gboolean	stop_flag;
     int		count;
@@ -224,9 +235,6 @@ ph_stats_new(capture_file *cf)
     progbar_val = 0.0f;
 
     stop_flag = FALSE;
-
-    tot_packets = 0;
-    tot_bytes = 0;
 
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
@@ -283,12 +291,19 @@ ph_stats_new(capture_file *cf)
         if (frame->passed_dfilter) {
 
             if (frame->has_ts) {
-                if (tot_packets == 0) {
+                if (ps->tot_packets == 0) {
                     double cur_time = nstime_to_sec(&frame->abs_ts);
                     ps->first_time = cur_time;
                     ps->last_time = cur_time;
                 }
             }
+
+            /* We throw away the statistics if we quit in the middle,
+             * so increment this first so that the count starts at 1
+             * when processing records, since we initialize the stat
+             * nodes' last_pkt to 0.
+             */
+            ps->tot_packets++;
 
             /* we don't care about colinfo */
             if (!process_record(cf, frame, NULL, &rec, &buf, ps)) {
@@ -301,8 +316,7 @@ ph_stats_new(capture_file *cf)
                 break;
             }
 
-            tot_packets++;
-            tot_bytes += frame->pkt_len;
+            ps->tot_bytes += frame->pkt_len;
         }
 
         count++;
@@ -325,9 +339,6 @@ ph_stats_new(capture_file *cf)
         ph_stats_free(ps);
         return NULL;
     }
-
-    ps->tot_packets = tot_packets;
-    ps->tot_bytes = tot_bytes;
 
     return ps;
 }

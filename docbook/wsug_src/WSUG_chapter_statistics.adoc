@@ -144,7 +144,7 @@ Percent Packets::
 The percentage of protocol packets relative to all packets in the capture.
 
 Packets::
-The total number of packets of this protocol.
+The total number of packets that contain this protocol.
 
 Percent Bytes::
 The percentage of protocol bytes relative to the total bytes in the capture.
@@ -164,19 +164,23 @@ The absolute number of bytes of this protocol where it was the highest protocol 
 End Bits/s::
 The bandwidth of this protocol relative to the capture time where was the highest protocol in the stack (last dissected).
 
-Packets usually contain multiple protocols. As a result, more than one protocol will
-be counted for each packet. Example: In the screenshot IP has 99.9% and TCP
-98.5% (which is together much more than 100%).
+PDUs::
+The total number of PDUs of this protocol.
+
+Packets usually contain multiple protocols. As a result, more than one protocol
+will be counted for each packet. Example: In the screenshot 100% of packets
+are IP and 99.3% are TCP (which is together much more than 100%).
 
 Protocol layers can consist of packets that won’t contain any higher layer
-protocol, so the sum of all higher layer packets may not sum up to the protocols
-packet count. Example: In the screenshot TCP has 98.5% but the sum of the
-subprotocols (TLS, HTTP, etc.) is much less. This can be caused by continuation
-frames, TCP protocol overhead, and other undissected data.
+protocol, so the sum of all higher layer packets may not sum to the protocol's
+packet count. This can be caused by segments and fragments reassembled in other
+frames, TCP protocol overhead, and other undissected data. Example: In the
+screenshot 99.3% of the packets are TCP but the sum of the subprotocols
+(TLS, HTTP, Git, etc.) is much less.
 
 A single packet can contain the same protocol more than once. In this case, the
-protocol is counted more than once. For example, ICMP replies and many tunneling
-protocols will carry more than one IP header.
+entry in the `PDUs` column will be greater than that of `Packets`. Example:
+In the screenshot there are many more TLS and Git PDUs than there are packets.
 
 [#ChStatConversations]
 

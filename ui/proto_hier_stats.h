@@ -24,9 +24,11 @@ extern "C" {
 typedef struct {
     header_field_info	*hfinfo;
     guint		num_pkts_total;
+    guint		num_pdus_total;
     guint		num_pkts_last;
     guint		num_bytes_total;
     guint		num_bytes_last;
+    guint		last_pkt;
 } ph_stats_node_t;
 
 
