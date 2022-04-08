@@ -678,12 +678,15 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     colorize_menu_.setObjectName(colorize_menu_name);
     ctx_menu->addMenu(&colorize_menu_);
 
+    QMenu * submenu;
     main_menu_item = window()->findChild<QMenu *>("menuSCTP");
-    QMenu * submenu = new QMenu(main_menu_item->title(), ctx_menu);
-    ctx_menu->addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
+    if (main_menu_item) {
+        submenu = new QMenu(main_menu_item->title(), ctx_menu);
+        ctx_menu->addMenu(submenu);
+        submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
+        submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
+        submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
+    }
 
     main_menu_item = window()->findChild<QMenu *>("menuFollow");
     submenu = new QMenu(main_menu_item->title(), ctx_menu);
