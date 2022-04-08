@@ -147,6 +147,7 @@ id-iAB-UPTNLAddressUpdate                 ProcedureCode
 id-CellTrafficTrace                       ProcedureCode
 id-earlyForwardingSNTransfer              ProcedureCode
 id-gNB-CU-CPMeasurementResultsInformation ProcedureCode
+id-iABPSKNotification                     ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                        ProtocolIE-ID
@@ -291,6 +292,9 @@ id-ignoreMappingRuleIndication                  ProtocolIE-ID
 id-DirectForwardingPathAvailability             ProtocolIE-ID
 id-EarlyDataForwardingIndicator                 ProtocolIE-ID
 id-QoSFlowsDRBRemapping                         ProtocolIE-ID
+id-DataForwardingSourceIPAddress                ProtocolIE-ID
+id-SecurityIndicationModify                     ProtocolIE-ID
+id-IAB-Donor-CU-UPPSKInfo                       ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -397,6 +401,7 @@ Extended-GNB-CU-CP-Name                      N e1ap.ies id-Extended-GNB-CU-CP-Na
 Extended-GNB-CU-UP-Name                      N e1ap.ies id-Extended-GNB-CU-UP-Name
 AdditionalHandoverInfo                       N e1ap.ies id-AdditionalHandoverInfo
 DirectForwardingPathAvailability             N e1ap.ies id-DirectForwardingPathAvailability
+IAB-Donor-CU-UPPSKInfo                       N e1ap.ies id-IAB-Donor-CU-UPPSKInfo
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
@@ -440,6 +445,8 @@ MaxCIDEHCDL                                  N e1ap.extension id-MaxCIDEHCDL
 IgnoreMappingRuleIndication                  N e1ap.extension id-ignoreMappingRuleIndication
 EarlyDataForwardingIndicator                 N e1ap.extension id-EarlyDataForwardingIndicator
 QoS-Flows-DRB-Remapping                      N e1ap.extension id-QoSFlowsDRBRemapping
+TransportLayerAddress                        N e1ap.extension id-DataForwardingSourceIPAddress
+SecurityIndication                           N e1ap.extension id-SecurityIndicationModify
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -517,6 +524,8 @@ IAB-UPTNLAddressUpdateFailure            N e1ap.proc.uout id-iAB-UPTNLAddressUpd
 CellTrafficTrace                         N e1ap.proc.imsg id-CellTrafficTrace
 
 EarlyForwardingSNTransfer                N e1ap.proc.imsg id-earlyForwardingSNTransfer
+
+IABPSKNotification                       N e1ap.proc.imsg id-iABPSKNotification
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -802,6 +811,8 @@ QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
 #.FN_HDR EarlyForwardingSNTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EarlyForwardingSNTransfer");
+#.FN_HDR EarlyForwardingSNTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABPSKNotification");
 #.END
 
 #

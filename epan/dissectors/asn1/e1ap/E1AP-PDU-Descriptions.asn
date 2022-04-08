@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.8.0 (2021-12)
+-- 3GPP TS 38.463 V16.9.0 (2022-04)
 -- **************************************************************
 --
 -- Elementary Procedure definitions
@@ -71,7 +71,8 @@ FROM E1AP-CommonDataTypes
 	IAB-UPTNLAddressUpdateFailure,
 	CellTrafficTrace,
 	EarlyForwardingSNTransfer,
-	GNB-CU-CPMeasurementResultsInformation
+	GNB-CU-CPMeasurementResultsInformation,
+	IABPSKNotification
 
 FROM E1AP-PDU-Contents
 	id-reset,
@@ -101,7 +102,8 @@ FROM E1AP-PDU-Contents
 	id-iAB-UPTNLAddressUpdate,
 	id-CellTrafficTrace,
 	id-earlyForwardingSNTransfer,
-	id-gNB-CU-CPMeasurementResultsInformation
+	id-gNB-CU-CPMeasurementResultsInformation,
+	id-iABPSKNotification
 
 FROM E1AP-Constants;
 
@@ -203,7 +205,8 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-2 E1AP-ELEMENTARY-PROCEDURE ::= {
 	cellTrafficTrace						|
 	resourceStatusReporting					|
 	earlyForwardingSNTransfer				|
-	gNB-CU-CPMeasurementResultsInformation,
+	gNB-CU-CPMeasurementResultsInformation	|
+	iABPSKNotification,
 	...
 }
 
@@ -399,6 +402,12 @@ earlyForwardingSNTransfer E1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		EarlyForwardingSNTransfer
 	PROCEDURE CODE			id-earlyForwardingSNTransfer
 	CRITICALITY				ignore
+}
+
+iABPSKNotification E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		IABPSKNotification
+	PROCEDURE CODE			id-iABPSKNotification
+	CRITICALITY				reject
 }
 
 END

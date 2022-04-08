@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.8.0 (2021-12)
+-- 3GPP TS 38.463 V16.9.0 (2022-04)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -115,7 +115,8 @@ IMPORTS
 	TransportLayerAddress,
 	AdditionalHandoverInfo,
 	Extended-NR-CGI-Support-List,
-	DirectForwardingPathAvailability
+	DirectForwardingPathAvailability,
+	IAB-Donor-CU-UPPSKInfo-Item
 
 
 FROM E1AP-IEs
@@ -235,13 +236,15 @@ FROM E1AP-Containers
 	id-AdditionalHandoverInfo,
 	id-Extended-NR-CGI-Support-List,
 	id-DirectForwardingPathAvailability,
+	id-IAB-Donor-CU-UPPSKInfo,
 
 	maxnoofErrors,
 	maxnoofSPLMNs,
 	maxnoofDRBs,
 	maxnoofTNLAssociations,
 	maxnoofIndividualE1ConnectionsToReset,
-	maxnoofTNLAddresses
+	maxnoofTNLAddresses,
+	maxnoofPSKs
 
 
 FROM E1AP-Constants;
@@ -1554,5 +1557,30 @@ EarlyForwardingSNTransferIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-DRBs-Subject-To-Early-Forwarding-List		CRITICALITY reject	 TYPE DRBs-Subject-To-Early-Forwarding-List		PRESENCE mandatory },
 	...
 }
+
+-- **************************************************************
+--
+-- IAB PSK NOTIFICATION
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- IAB PSK Notification
+--
+-- **************************************************************
+
+IABPSKNotification ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { IABPSKNotificationIEs } },
+	...
+}
+
+IABPSKNotificationIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory }|
+	{ ID id-IAB-Donor-CU-UPPSKInfo			CRITICALITY reject	TYPE IAB-Donor-CU-UPPSKInfo			PRESENCE mandatory },
+	...
+}
+
+IAB-Donor-CU-UPPSKInfo	::= SEQUENCE (SIZE(1.. maxnoofPSKs)) OF IAB-Donor-CU-UPPSKInfo-Item
 
 END
