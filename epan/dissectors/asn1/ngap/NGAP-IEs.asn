@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.8.0 (2021-12)
+-- 3GPP TS 38.413 V16.9.0 (2022-04)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -45,6 +45,7 @@ IMPORTS
 	id-EndpointIPAddressAndPort,
 	id-ExtendedPacketDelayBudget,
 	id-ExtendedRATRestrictionInformation,
+	id-ExtendedReportIntervalMDT,
 	id-ExtendedSliceSupportList,
 	id-ExtendedTAISliceSupportList,
 	id-ExtendedUEIdentityIndexValue,
@@ -96,6 +97,8 @@ IMPORTS
 	id-SgNB-UE-X2AP-ID,
 	id-S-NSSAI,
 	id-SONInformationReport,
+	id-SourceNodeID,
+	id-SourceTNLAddrInfo,
 	id-TNLAssociationTransportLayerAddressNGRAN,
 	id-TargetRNC-ID,
 	id-TraceCollectionEntityURI,
@@ -2478,6 +2481,7 @@ M1PeriodicReporting ::= SEQUENCE {
 }
 
 M1PeriodicReporting-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ID id-ExtendedReportIntervalMDT		CRITICALITY ignore	EXTENSION ExtendedReportIntervalMDT		PRESENCE optional},
 	...
 }
 
@@ -3901,7 +3905,8 @@ QosFlowInformationItem ::= SEQUENCE {
 }
 
 QosFlowInformationItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ID id-ULForwarding	CRITICALITY ignore	EXTENSION ULForwarding	PRESENCE optional},
+	{ID id-ULForwarding			CRITICALITY ignore	EXTENSION ULForwarding			PRESENCE optional}|
+	{ID id-SourceTNLAddrInfo	CRITICALITY ignore	EXTENSION TransportLayerAddress	PRESENCE optional},
 	...
 }
 
@@ -4193,7 +4198,11 @@ ReportAmountMDT ::= ENUMERATED {
 
 ReportIntervalMDT ::= ENUMERATED {
 	ms120, ms240, ms480, ms640, ms1024, ms2048, ms5120, ms10240, min1, min6, min12, min30, min60
-} 
+}
+
+ExtendedReportIntervalMDT ::= ENUMERATED {
+	ms20480, ms40960, ...
+}
 
 ResetType ::= CHOICE {
 	nG-Interface			ResetAll,
@@ -4522,8 +4531,18 @@ SourceNGRANNode-ToTargetNGRANNode-TransparentContainer ::= SEQUENCE {
 }
 
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-SgNB-UE-X2AP-ID	CRITICALITY ignore	EXTENSION SgNB-UE-X2AP-ID 												PRESENCE optional		}|
-	{ ID id-UEHistoryInformationFromTheUE		CRITICALITY ignore	EXTENSION UEHistoryInformationFromTheUE		PRESENCE optional		},
+	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY ignore	EXTENSION SgNB-UE-X2AP-ID 							PRESENCE optional		}|
+	{ ID id-UEHistoryInformationFromTheUE		CRITICALITY ignore	EXTENSION UEHistoryInformationFromTheUE		PRESENCE optional		}|
+	{ ID id-SourceNodeID						CRITICALITY ignore	EXTENSION SourceNodeID								PRESENCE optional		},
+	...
+}
+
+SourceNodeID ::= CHOICE {
+	sourceengNB-ID			GlobalGNB-ID,
+	choice-Extensions		ProtocolIE-SingleContainer { { SourceNodeID-ExtIEs} }
+}
+
+SourceNodeID-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -4731,7 +4750,8 @@ TargetNGRANNode-ToSourceNGRANNode-TransparentContainer ::= SEQUENCE {
 }
 
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-DAPSResponseInfoList						CRITICALITY ignore	EXTENSION DAPSResponseInfoList	PRESENCE optional },
+	{ ID id-DAPSResponseInfoList						CRITICALITY ignore	EXTENSION DAPSResponseInfoList							PRESENCE optional }|
+	{ ID id-DirectForwardingPathAvailability			CRITICALITY ignore	EXTENSION DirectForwardingPathAvailability			PRESENCE optional },
 	...
 }
 

@@ -1554,6 +1554,9 @@ id-ExtendedUEIdentityIndexValue                  ProtocolIE-ID
 id-PduSessionExpectedUEActivityBehaviour         ProtocolIE-ID
 id-MicoAllPLMN                                   ProtocolIE-ID
 id-QosFlowFailedToSetupList                      ProtocolIE-ID
+id-SourceTNLAddrInfo                             ProtocolIE-ID
+id-ExtendedReportIntervalMDT                     ProtocolIE-ID
+id-SourceNodeID                                  ProtocolIE-ID
 #.END
 
 
@@ -1851,6 +1854,9 @@ UERadioCapabilityForPaging                             N ngap.extension id-UERad
 ExpectedUEActivityBehaviour                            N ngap.extension id-PduSessionExpectedUEActivityBehaviour
 MicoAllPLMN                                            N ngap.extension id-MicoAllPLMN
 QosFlowListWithCause                                   N ngap.extension id-QosFlowFailedToSetupList
+TransportLayerAddress                                  N ngap.extension id-SourceTNLAddrInfo
+ExtendedReportIntervalMDT                              N ngap.extension id-ExtendedReportIntervalMDT
+SourceNodeID                                           N ngap.extension id-SourceNodeID
 
 #NGAP-ELEMENTARY-PROCEDURE
 

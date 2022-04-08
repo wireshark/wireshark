@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.8.0 (2021-12)
+-- 3GPP TS 38.413 V16.9.0 (2022-04)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -1377,7 +1377,8 @@ PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-PC5QoSParameters							CRITICALITY ignore	TYPE PC5QoSParameters									PRESENCE optional 	}|
 	{ ID id-CEmodeBrestricted							CRITICALITY ignore	TYPE CEmodeBrestricted								PRESENCE optional		}|
 	{ ID id-UE-UP-CIoT-Support							CRITICALITY ignore	TYPE UE-UP-CIoT-Support								PRESENCE optional		}|
-	{ ID id-UERadioCapabilityID							CRITICALITY reject	TYPE UERadioCapabilityID								PRESENCE optional		},
+	{ ID id-UERadioCapabilityID							CRITICALITY reject	TYPE UERadioCapabilityID								PRESENCE optional		}|
+	{ ID id-ManagementBasedMDTPLMNList					CRITICALITY ignore	TYPE MDTPLMNList										PRESENCE optional		},
 	...
 }
 
