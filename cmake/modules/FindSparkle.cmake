@@ -19,19 +19,18 @@ find_library(SPARKLE_LIBRARY NAMES Sparkle
   HINTS ${USR_LOCAL_HINT} ${HOMEBREW_HINT}
 )
 
-# https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPFrameworks/Concepts/FrameworkAnatomy.html
-find_file(_info_plist Info.plist
-  ${SPARKLE_LIBRARY}/Resources
-  ${SPARKLE_LIBRARY}/Versions/Current/Resources
-  ${SPARKLE_LIBRARY}/Versions/A/Resources
+# Sparkle doesn't appear to provide a version macro, and its Info.plist versions
+# are all over the place. Check for SPUStandardUpdaterController.h, which was
+# added in version 2.
+set(SPARKLE_VERSION 1)
+
+find_file(_spustandardupdatercontroller_h SPUStandardUpdaterController.h
+  ${SPARKLE_LIBRARY}/Headers
   NO_DEFAULT_PATH
 )
 
-if(_info_plist)
-  execute_process(COMMAND defaults read ${_info_plist} CFBundleVersion
-    OUTPUT_VARIABLE SPARKLE_VERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+if(_spustandardupdatercontroller_h)
+  set(SPARKLE_VERSION 2)
 endif()
 
 find_package_handle_standard_args(Sparkle
