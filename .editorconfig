@@ -50,7 +50,8 @@ indent_size = 2
 indent_style = space
 indent_size = 4
 
-# C/C++
+# C/C++/Objective C
+[*.{c,cpp,h,m}]
 [*.{c,cpp,h}]
 indent_style = space
 indent_size = 4
