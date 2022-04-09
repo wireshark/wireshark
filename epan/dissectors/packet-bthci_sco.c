@@ -82,6 +82,8 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_SCO");
+
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
             col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
