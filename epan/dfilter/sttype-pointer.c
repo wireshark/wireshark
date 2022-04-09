@@ -115,6 +115,7 @@ sttype_pointer_ftenum(stnode_t *node)
 {
 	switch (node->type->id) {
 		case STTYPE_FIELD:
+		case STTYPE_REFERENCE:
 			return ((header_field_info *)node->data)->type;
 		case STTYPE_FVALUE:
 			return fvalue_type_ftenum(node->data);

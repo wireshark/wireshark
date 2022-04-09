@@ -273,12 +273,7 @@ stnode_tostr(stnode_t *node, gboolean pretty)
 
 	if (pretty && node->repr_token != NULL) {
 		g_free(node->repr_display);
-		if (stnode_type_id(node) == STTYPE_CHARCONST) {
-			node->repr_display = g_strdup(node->repr_token);
-		}
-		else {
-			node->repr_display = ws_strdup_printf("\"%s\"", node->repr_token);
-		}
+		node->repr_display = g_strdup(node->repr_token);
 		return node->repr_display;
 	}
 

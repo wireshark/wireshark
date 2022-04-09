@@ -136,6 +136,7 @@ dot-bytes	{hex2}(\.{hex2})+
 hyphen-bytes	{hex2}(-{hex2})+
 
 %x RANGE
+%x LAYER
 %x DQUOTE
 %x SQUOTE
 %x REFERENCE
@@ -194,7 +195,24 @@ hyphen-bytes	{hex2}(-{hex2})+
 "&"		return math(TOKEN_BITWISE_AND);
 "bitwise_and"	return math(TOKEN_BITWISE_AND);
 
-"["				{
+"#"				{
+	BEGIN(LAYER);
+	return simple(TOKEN_HASH);
+}
+
+<LAYER>[[:digit:]]+		{
+	BEGIN(INITIAL);
+	update_location(yyextra, yytext);
+	return set_lval_simple(yyextra, TOKEN_INTEGER, yytext, STTYPE_UNINITIALIZED);
+}
+
+<LAYER>[^[:digit:][]			{
+	update_location(yyextra, yytext);
+	FAIL("Expected digit or \"[\", not \"%s\"", yytext);
+	return SCAN_FAILED;
+}
+
+<INITIAL,LAYER>"["		{
 	BEGIN(RANGE);
 	return simple(TOKEN_LBRACKET);
 }

@@ -19,6 +19,7 @@
 #include "sttype-test.h"
 #include "sttype-set.h"
 #include "sttype-function.h"
+#include "sttype-pointer.h"
 
 #include <epan/exceptions.h>
 #include <epan/packet.h>
@@ -506,6 +507,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 		case STTYPE_ARITHMETIC:
+		case STTYPE_LAYER:
 			/* This is OK */
 			break;
 		case STTYPE_REFERENCE:
@@ -545,6 +547,17 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 }
 
 static void
+check_exists_layer(dfwork_t *dfw, stnode_t *st_arg1)
+{
+	stnode_t *entity;
+
+	entity = sttype_range_entity(st_arg1);
+	dfw_resolve_unparsed(dfw, entity);
+	check_exists(dfw, entity);
+	/* Nothing to do here? */
+}
+
+static void
 check_slice_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 {
 	stnode_t		*entity1;
@@ -578,6 +591,52 @@ check_slice_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 	} else {
 		FAIL(dfw, entity1, "Range is not supported for entity %s",
 					stnode_todisplay(entity1));
+	}
+}
+
+static ftenum_t
+check_layer_sanity(dfwork_t *dfw, stnode_t *st)
+{
+	stnode_t		*entity1;
+	sttype_id_t		e_type;
+
+	LOG_NODE(st);
+
+	entity1 = sttype_range_entity(st);
+	ws_assert(entity1);
+	dfw_resolve_unparsed(dfw, entity1);
+	e_type = stnode_type_id(entity1);
+
+	if (e_type == STTYPE_FIELD) {
+		return sttype_pointer_ftenum(entity1);
+	}
+	else if (e_type == STTYPE_REFERENCE) {
+		/* TODO: Implement layers with references. */
+		FAIL(dfw, entity1, "The # operator is not valid with a reference");
+	}
+	else {
+		FAIL(dfw, entity1, "%s is not a valid field value", stnode_todisplay(entity1));
+	}
+}
+
+#define IS_FIELD_ENTITY(ft) \
+	((ft) == STTYPE_FIELD || \
+		(ft) == STTYPE_REFERENCE || \
+		(ft) == STTYPE_LAYER)
+
+static ftenum_t
+field_ftenum(stnode_t *st)
+{
+	sttype_id_t e_type;
+
+	e_type = stnode_type_id(st);
+	if (e_type == STTYPE_FIELD || e_type == STTYPE_REFERENCE)
+		return sttype_pointer_ftenum(st);
+	else if (e_type == STTYPE_LAYER) {
+		return sttype_pointer_ftenum(sttype_range_entity(st));
+	}
+	else {
+		ws_assert_not_reached();
 	}
 }
 
@@ -648,7 +707,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
-	header_field_info	*hfinfo1, *hfinfo2;
+	header_field_info	*hfinfo1;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 
@@ -657,6 +716,8 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 again:
 	type2 = stnode_type_id(st_arg2);
 
+	ws_assert(stnode_type_id(st_arg1) == STTYPE_FIELD ||
+			stnode_type_id(st_arg1) == STTYPE_REFERENCE);
 	hfinfo1 = stnode_data(st_arg1);
 	ftype1 = hfinfo1->type;
 
@@ -666,19 +727,18 @@ again:
 				stnode_todisplay(st_node));
 	}
 
-	if (type2 == STTYPE_FIELD || type2 == STTYPE_REFERENCE) {
-		hfinfo2 = stnode_data(st_arg2);
-		ftype2 = hfinfo2->type;
+	if (IS_FIELD_ENTITY(type2)) {
+		ftype2 = field_ftenum(st_arg2);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
-					hfinfo1->abbrev, hfinfo2->abbrev);
+					hfinfo1->abbrev, stnode_todisplay(st_arg2));
 		}
 		/* Do this check even though you'd think that if
 		 * they're compatible, then can_func() would pass. */
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
-					hfinfo2->abbrev, ftype_pretty_name(ftype2));
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
 	else if (type2 == STTYPE_STRING || type2 == STTYPE_LITERAL || type2 == STTYPE_UNPARSED) {
@@ -758,6 +818,21 @@ again:
 }
 
 static void
+check_relation_LHS_LAYER(dfwork_t *dfw, test_op_t st_op,
+		FtypeCanFunc can_func,
+		gboolean allow_partial_value,
+		stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	stnode_t		*entity;
+
+	check_layer_sanity(dfw, st_arg1);
+	entity = sttype_range_entity(st_arg1);
+	ws_assert(stnode_type_id(entity) == STTYPE_FIELD);
+	check_relation_LHS_FIELD(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
+}
+
+static void
 check_relation_LHS_SLICE(dfwork_t *dfw, test_op_t st_op,
 		FtypeCanFunc can_func _U_,
 		gboolean allow_partial_value,
@@ -765,7 +840,6 @@ check_relation_LHS_SLICE(dfwork_t *dfw, test_op_t st_op,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
-	header_field_info	*hfinfo2;
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 
@@ -776,14 +850,13 @@ check_relation_LHS_SLICE(dfwork_t *dfw, test_op_t st_op,
 again:
 	type2 = stnode_type_id(st_arg2);
 
-	if (type2 == STTYPE_FIELD || type2 == STTYPE_REFERENCE) {
-		hfinfo2 = stnode_data(st_arg2);
-		ftype2 = hfinfo2->type;
+	if (IS_FIELD_ENTITY(type2)) {
+		ftype2 = field_ftenum(st_arg2);
 
 		if (!is_bytes_type(ftype2)) {
 			if (!ftype_can_slice(ftype2)) {
 				FAIL(dfw, st_arg2, "\"%s\" is a %s and cannot be converted into a sequence of bytes.",
-						hfinfo2->abbrev,
+						stnode_todisplay(st_arg2),
 						ftype_pretty_name(ftype2));
 			}
 
@@ -858,7 +931,6 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
-	header_field_info	*hfinfo2;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 
@@ -875,19 +947,18 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 again:
 	type2 = stnode_type_id(st_arg2);
 
-	if (type2 == STTYPE_FIELD || type2 == STTYPE_REFERENCE) {
-		hfinfo2 = stnode_data(st_arg2);
-		ftype2 = hfinfo2->type;
+	if (IS_FIELD_ENTITY(type2)) {
+		ftype2 = field_ftenum(st_arg2);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "Function %s and %s are not of compatible types.",
-					sttype_function_name(st_arg2), hfinfo2->abbrev);
+					sttype_function_name(st_arg2), stnode_todisplay(st_arg2));
 		}
 		/* Do this check even though you'd think that if
 		 * they're compatible, then can_func() would pass. */
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
-					hfinfo2->abbrev, ftype_pretty_name(ftype2));
+					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
@@ -974,7 +1045,7 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, test_op_t st_op _U_,
 	sttype_test_get(st_arg1, NULL, &entity, NULL);
 	entity_type = stnode_type_id(entity);
 
-	if (entity_type == STTYPE_FIELD || entity_type == STTYPE_REFERENCE) {
+	if (IS_FIELD_ENTITY(entity_type)) {
 		check_relation_LHS_FIELD(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
 	}
 	else if (entity_type == STTYPE_FUNCTION) {
@@ -1007,6 +1078,10 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 			check_relation_LHS_FIELD(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
+		case STTYPE_LAYER:
+			check_relation_LHS_LAYER(dfw, st_op, can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
+			break;
 		case STTYPE_SLICE:
 			check_relation_LHS_SLICE(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
@@ -1020,7 +1095,7 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		default:
-			FAIL(dfw, st_arg1, "Left side of %s expression must be a field or function, not %s.",
+			FAIL(dfw, st_arg1, "Left side of \"%s\" expression must be a field or function, not %s.",
 					stnode_todisplay(st_node), stnode_todisplay(st_arg1));
 	}
 }
@@ -1343,6 +1418,9 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 			break;
 		case STTYPE_ARITHMETIC:
 			check_arithmetic_expr(dfw, st_node, FT_NONE);
+			break;
+		case STTYPE_LAYER:
+			check_exists_layer(dfw, st_node);
 			break;
 		default:
 			check_exists(dfw, st_node);

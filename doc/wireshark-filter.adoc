@@ -322,6 +322,24 @@ Slices can be combined. You can concatenate them using the comma operator:
 This concatenates offset 1, offsets 3-5, and offset 9 to the end of the ftp
 data.
 
+=== The layer operator
+
+A field can be restricted to a certain layer in the protocol stack using the
+layer operator (#), followed by a decimal number:
+
+    ip.addr#2 == 192.168.30.40
+
+matches only the inner (second) layer in the packet. Layers use simple stacking
+semantics and protocol layers are counted sequentially, so tcp#2 is the layer
+in the stack somewhere above tcp#1.
+
+For more complicates ranges the same syntax used with slices is valid:
+
+    tcp.port#[2-4]
+
+means layers number 2, 3 or 4 inclusive. The hash symbol is required to
+distinguish a layer range from a slice.
+
 === The membership operator
 
 A field may be checked for matches against a set of values simply with the

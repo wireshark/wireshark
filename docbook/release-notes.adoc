@@ -70,6 +70,8 @@ They previously shipped with Npcap 1.55.
 ** Adds new display filter functions max(), min() and abs().
 ** Functions can accept expressions as arguments, including other functions. Previously only protocol
    fields and slices were syntactically valid function arguments.
+** New syntax to match a specific layer in the protocol stack. For example ip.addr#2 == 1.1.1.1
+   matches only the inner layer in an IP-over-IP packet.
 
 * text2pcap and "Import from Hex Dump":
 ** text2pcap supports writing the output file in all the capture file formats

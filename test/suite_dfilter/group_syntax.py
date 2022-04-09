@@ -279,3 +279,36 @@ class case_field_reference(unittest.TestCase):
         dfilter = 'frame.number < ${frame.number}'
         # select frame 3, expect 2 frames out of 4.
         checkDFilterCountWithSelectedFrame(dfilter, 2, 3)
+
+@fixtures.uses_fixtures
+class case_field_reference(unittest.TestCase):
+    trace_file = "ipoipoip.pcap"
+
+    def test_layer_1(self, checkDFilterCount):
+        dfilter = 'ip.addr#2 == 4.4.4.4'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_2(self, checkDFilterCount):
+        dfilter = 'ip.addr#5'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_3(self, checkDFilterCount):
+        dfilter = 'ip.addr#6'
+        checkDFilterCount(dfilter, 0)
+
+    def test_layer_4(self, checkDFilterCount):
+        dfilter = 'ip.dst#[2-4] == 8.8.8.8'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_5(self, checkDFilterCount):
+        dfilter = 'ip.dst#[-1] == 8.8.8.8'
+        checkDFilterCount(dfilter, 0)
+
+    def test_layer_6(self, checkDFilterCount):
+        dfilter = 'ip.dst#[-1] == 9.9.9.9'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_7(self, checkDFilterCount):
+        dfilter = 'ip.dst#[-5] == 2.2.2.2'
+        checkDFilterCount(dfilter, 1)
+        
