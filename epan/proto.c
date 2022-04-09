@@ -6309,6 +6309,9 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	fi->appendix_start  = 0;
 	fi->appendix_length = 0;
 
+	fi->total_layer_num = tree->tree_data->pinfo->curr_layer_num;
+	fi->proto_layer_num = tree->tree_data->pinfo->curr_proto_layer_num;
+
 	return fi;
 }
 

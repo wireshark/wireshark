@@ -798,6 +798,8 @@ typedef struct field_info {
     item_label_t        *rep;             /**< string for GUI tree */
     tvbuff_t            *ds_tvb;          /**< data source tvbuff */
     fvalue_t             value;
+    int                 total_layer_num;        /**< Hierarchical layer number, for all protocols in the tree. */
+    int                 proto_layer_num;        /**< Protocol layer number, so 1st, 2nd, 3rd, ... for protocol X. */
 } field_info;
 
 

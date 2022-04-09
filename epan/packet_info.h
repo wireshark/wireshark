@@ -132,8 +132,10 @@ typedef struct _packet_info {
 
   GHashTable *private_table;    /**< a hash table passed from one dissector to another */
 
-  wmem_list_t *layers;      /**< layers of each protocol */
-  guint8 curr_layer_num;       /**< The current "depth" or layer number in the current frame */
+  wmem_list_t *layers;          /**< layers of each protocol */
+  wmem_map_t *proto_layers;     /** map of proto_id to curr_layer_num. */
+  guint8 curr_layer_num;        /**< The current "depth" or layer number in the current frame */
+  guint8 curr_proto_layer_num;  /**< The current "depth" or layer number for this dissector in the current frame */
   guint16 link_number;
 
   guint16 clnp_srcref;          /**< clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
