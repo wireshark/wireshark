@@ -66,6 +66,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint32                   k_adapter_id;
     guint32                   k_bd_addr_oui;
     guint32                   k_bd_addr_id;
+    guint16                   packet_status;
     remote_bdaddr_t          *remote_bdaddr;
     const gchar              *localhost_name;
     guint8                   *localhost_bdaddr;
@@ -101,6 +102,9 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_chandle, tvb,       offset, 2, ENC_LITTLE_ENDIAN);
     flags   = tvb_get_letohs(tvb, offset);
     offset += 2;
+
+    packet_status = (flags >> 12) & 0x03;
+    col_append_fstr(pinfo->cinfo, COL_INFO, "SCO - %s", val_to_str(packet_status, packet_status_vals, "%s"));
 
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
