@@ -1,10 +1,10 @@
-Editcap (Wireshark) 3.7.0 (v3.7.0rc0-1506-g9b49cbff2912)
+Editcap (Wireshark) 3.7.0 (v3.7.0rc0-1783-g4d9470e7dd9d)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
 Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]
 
-<infile> and <outfile> must both be present.
+<infile> and <outfile> must both be present; use '-' for stdin or stdout.
 A single packet or a range of packets can be selected.
 
 Packet selection:

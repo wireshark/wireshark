@@ -6293,1982 +6293,1982 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>MainWindow</name>
     <message>
         <source>Wireshark</source>
-        <translation>Wireshark</translation>
+        <translation type="vanished">Wireshark</translation>
     </message>
     <message>
         <source>Go to packet</source>
-        <translation>Pakete git</translation>
+        <translation type="vanished">Pakete git</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>İptal et</translation>
+        <translation type="vanished">İptal et</translation>
     </message>
     <message>
         <source>File Set</source>
-        <translation>Dosya Kümesi</translation>
+        <translation type="vanished">Dosya Kümesi</translation>
     </message>
     <message>
         <source>Export Packet Dissections</source>
-        <translation>Paket Diseksiyonlarını Dışa Aktar</translation>
+        <translation type="vanished">Paket Diseksiyonlarını Dışa Aktar</translation>
     </message>
     <message>
         <source>Export Objects</source>
-        <translation>Nesneleri Dışa Aktar</translation>
+        <translation type="vanished">Nesneleri Dışa Aktar</translation>
     </message>
     <message>
         <source>&amp;Zoom</source>
-        <translation>&amp;Yaklaş</translation>
+        <translation type="vanished">&amp;Yaklaş</translation>
     </message>
     <message>
         <source>&amp;Time Display Format</source>
-        <translation>&amp;Zaman Görüntüleme Biçimi</translation>
+        <translation type="vanished">&amp;Zaman Görüntüleme Biçimi</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopyala</translation>
+        <translation type="vanished">Kopyala</translation>
     </message>
     <message>
         <source>Manual pages</source>
-        <translation>Elle ayarlanmış sayfalar</translation>
+        <translation type="vanished">Elle ayarlanmış sayfalar</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation>Filtre Olarak Uygula</translation>
+        <translation type="vanished">Filtre Olarak Uygula</translation>
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation>Filtre Olarak Hazırla</translation>
+        <translation type="vanished">Filtre Olarak Hazırla</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation>SCTP</translation>
+        <translation type="vanished">SCTP</translation>
     </message>
     <message>
         <source>TCP Stream Graphs</source>
-        <translation>TCP Akış Grafikleri</translation>
+        <translation type="vanished">TCP Akış Grafikleri</translation>
     </message>
     <message>
         <source>BACnet</source>
-        <translation>BACnet</translation>
+        <translation type="vanished">BACnet</translation>
     </message>
     <message>
         <source>HTTP</source>
-        <translation>HTTP</translation>
+        <translation type="vanished">HTTP</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;DOSYA</translation>
+        <translation type="vanished">&amp;DOSYA</translation>
     </message>
     <message>
         <source>&amp;Capture</source>
-        <translation>&amp;Yakala</translation>
+        <translation type="vanished">&amp;Yakala</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Yardım</translation>
+        <translation type="vanished">&amp;Yardım</translation>
     </message>
     <message>
         <source>&amp;Go</source>
-        <translation>&amp;Git</translation>
+        <translation type="vanished">&amp;Git</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>&amp;Görünüm</translation>
+        <translation type="vanished">&amp;Görünüm</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation>&amp;Analiz</translation>
+        <translation type="vanished">&amp;Analiz</translation>
     </message>
     <message>
         <source>Follow</source>
-        <translation>Takip</translation>
+        <translation type="vanished">Takip</translation>
     </message>
     <message>
         <source>&amp;Statistics</source>
-        <translation>&amp;İstatistikler</translation>
+        <translation type="vanished">&amp;İstatistikler</translation>
     </message>
     <message>
         <source>29West</source>
-        <translation>29Batı</translation>
+        <translation type="vanished">29Batı</translation>
     </message>
     <message>
         <source>Topics</source>
-        <translation>Konular</translation>
+        <translation type="vanished">Konular</translation>
     </message>
     <message>
         <source>Queues</source>
-        <translation>Kuyruklar</translation>
+        <translation type="vanished">Kuyruklar</translation>
     </message>
     <message>
         <source>UIM</source>
-        <translation>UIM</translation>
+        <translation type="vanished">UIM</translation>
     </message>
     <message>
         <source>Telephon&amp;y</source>
-        <translation>Telefo&amp;n</translation>
+        <translation type="vanished">Telefo&amp;n</translation>
     </message>
     <message>
         <source>RTSP</source>
-        <translation>RTSP</translation>
+        <translation type="vanished">RTSP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation>&amp;Düzenle</translation>
+        <translation type="vanished">&amp;Düzenle</translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation>Paket Yorumları</translation>
+        <translation type="vanished">Paket Yorumları</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
-        <translation>Ana Araç Çubuğu</translation>
+        <translation type="vanished">Ana Araç Çubuğu</translation>
     </message>
     <message>
         <source>Display Filter Toolbar</source>
-        <translation>Filtre Araç Çubuğunu Görüntüle</translation>
+        <translation type="vanished">Filtre Araç Çubuğunu Görüntüle</translation>
     </message>
     <message>
         <source>Open a capture file</source>
-        <translation>Bir yakalama dosyası açın</translation>
+        <translation type="vanished">Bir yakalama dosyası açın</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
-        <translation>Wireshark&apos;tan çıkın</translation>
+        <translation type="vanished">Wireshark&apos;tan çıkın</translation>
     </message>
     <message>
         <source>&amp;Start</source>
-        <translation>&amp;Başlat</translation>
+        <translation type="vanished">&amp;Başlat</translation>
     </message>
     <message>
         <source>Start capturing packets</source>
-        <translation>Paketleri yakalamaya başlayın</translation>
+        <translation type="vanished">Paketleri yakalamaya başlayın</translation>
     </message>
     <message>
         <source>S&amp;top</source>
-        <translation>D&amp;urdur</translation>
+        <translation type="vanished">D&amp;urdur</translation>
     </message>
     <message>
         <source>Stop capturing packets</source>
-        <translation>Paketleri yakalamayı durdur</translation>
+        <translation type="vanished">Paketleri yakalamayı durdur</translation>
     </message>
     <message>
         <source>No files found</source>
-        <translation>Dosya bulunamadı</translation>
+        <translation type="vanished">Dosya bulunamadı</translation>
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation>&amp;İçerik</translation>
+        <translation type="vanished">&amp;İçerik</translation>
     </message>
     <message>
         <source>Wireshark Filter</source>
-        <translation>Wireshark Filtresi</translation>
+        <translation type="vanished">Wireshark Filtresi</translation>
     </message>
     <message>
         <source>TShark</source>
-        <translation>TShark</translation>
+        <translation type="vanished">TShark</translation>
     </message>
     <message>
         <source>Rawshark</source>
-        <translation>Rawshark</translation>
+        <translation type="vanished">Rawshark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
-        <translation>Dumpcap</translation>
+        <translation type="vanished">Dumpcap</translation>
     </message>
     <message>
         <source>Mergecap</source>
-        <translation>Mergecap</translation>
+        <translation type="vanished">Mergecap</translation>
     </message>
     <message>
         <source>Editcap</source>
-        <translation>Editcap</translation>
+        <translation type="vanished">Editcap</translation>
     </message>
     <message>
         <source>Text2pcap</source>
-        <translation>Text2pcap</translation>
+        <translation type="vanished">Text2pcap</translation>
     </message>
     <message>
         <source>Website</source>
-        <translation>İnternet Sitesi</translation>
+        <translation type="vanished">İnternet Sitesi</translation>
     </message>
     <message>
         <source>Downloads</source>
-        <translation>İndirilenler</translation>
+        <translation type="vanished">İndirilenler</translation>
     </message>
     <message>
         <source>Wiki</source>
-        <translation>Viki</translation>
+        <translation type="vanished">Viki</translation>
     </message>
     <message>
         <source>Sample Captures</source>
-        <translation>Örnek Yakalamalar</translation>
+        <translation type="vanished">Örnek Yakalamalar</translation>
     </message>
     <message>
         <source>&amp;About Wireshark</source>
-        <translation>&amp;Wireshark Hakkında</translation>
+        <translation type="vanished">&amp;Wireshark Hakkında</translation>
     </message>
     <message>
         <source>Ask (Q&amp;&amp;A)</source>
-        <translation>Sor (Soru-Cevap)</translation>
+        <translation type="vanished">Sor (Soru-Cevap)</translation>
     </message>
     <message>
         <source>Next Packet</source>
-        <translation>Sonraki Paket</translation>
+        <translation type="vanished">Sonraki Paket</translation>
     </message>
     <message>
         <source>Go to the next packet</source>
-        <translation>Sonraki pakete git</translation>
+        <translation type="vanished">Sonraki pakete git</translation>
     </message>
     <message>
         <source>Previous Packet</source>
-        <translation>Önceki Paket</translation>
+        <translation type="vanished">Önceki Paket</translation>
     </message>
     <message>
         <source>Go to the previous packet</source>
-        <translation>Önceki pakete git</translation>
+        <translation type="vanished">Önceki pakete git</translation>
     </message>
     <message>
         <source>First Packet</source>
-        <translation>İlk Paket</translation>
+        <translation type="vanished">İlk Paket</translation>
     </message>
     <message>
         <source>Go to the first packet</source>
-        <translation>İlk pakete git</translation>
+        <translation type="vanished">İlk pakete git</translation>
     </message>
     <message>
         <source>Last Packet</source>
-        <translation>Son Paket</translation>
+        <translation type="vanished">Son Paket</translation>
     </message>
     <message>
         <source>Go to the last packet</source>
-        <translation>Son pakete git</translation>
+        <translation type="vanished">Son pakete git</translation>
     </message>
     <message>
         <source>E&amp;xpand Subtrees</source>
-        <translation>Alt Ağaçları G&amp;enişlet</translation>
+        <translation type="vanished">Alt Ağaçları G&amp;enişlet</translation>
     </message>
     <message>
         <source>Expand the current packet detail</source>
-        <translation>Geçerli paket ayrıntısını genişlet</translation>
+        <translation type="vanished">Geçerli paket ayrıntısını genişlet</translation>
     </message>
     <message>
         <source>&amp;Expand All</source>
-        <translation>&amp;Tümünü Genişlet</translation>
+        <translation type="vanished">&amp;Tümünü Genişlet</translation>
     </message>
     <message>
         <source>Expand packet details</source>
-        <translation>Paket ayrıntılarını genişlet</translation>
+        <translation type="vanished">Paket ayrıntılarını genişlet</translation>
     </message>
     <message>
         <source>Collapse &amp;All</source>
-        <translation>Tümünü &amp;Daralt</translation>
+        <translation type="vanished">Tümünü &amp;Daralt</translation>
     </message>
     <message>
         <source>Collapse all packet details</source>
-        <translation>Tüm paket ayrıntılarını daralt</translation>
+        <translation type="vanished">Tüm paket ayrıntılarını daralt</translation>
     </message>
     <message>
         <source>Go to specified packet</source>
-        <translation>Belirtilen pakete git</translation>
+        <translation type="vanished">Belirtilen pakete git</translation>
     </message>
     <message>
         <source>Merge one or more files</source>
-        <translation>Bir veya daha fazla dosyayı birleştirme</translation>
+        <translation type="vanished">Bir veya daha fazla dosyayı birleştirme</translation>
     </message>
     <message>
         <source>Import a file</source>
-        <translation>Bir dosyayı içe aktar</translation>
+        <translation type="vanished">Bir dosyayı içe aktar</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation>&amp;Kaydet</translation>
+        <translation type="vanished">&amp;Kaydet</translation>
     </message>
     <message>
         <source>Save as a different file</source>
-        <translation>Farklı bir dosya olarak kaydet</translation>
+        <translation type="vanished">Farklı bir dosya olarak kaydet</translation>
     </message>
     <message>
         <source>Export specified packets</source>
-        <translation>Belirtilen paketleri dışa aktar</translation>
+        <translation type="vanished">Belirtilen paketleri dışa aktar</translation>
     </message>
     <message>
         <source>Export TLS Session Keys…</source>
-        <translation>TLS Oturum Anahtarlarını Dışa Aktar…</translation>
+        <translation type="vanished">TLS Oturum Anahtarlarını Dışa Aktar…</translation>
     </message>
     <message>
         <source>List Files</source>
-        <translation>Dosyaları Listele</translation>
+        <translation type="vanished">Dosyaları Listele</translation>
     </message>
     <message>
         <source>Next File</source>
-        <translation>Sonraki Dosya</translation>
+        <translation type="vanished">Sonraki Dosya</translation>
     </message>
     <message>
         <source>Previous File</source>
-        <translation>Önceki Dosya</translation>
+        <translation type="vanished">Önceki Dosya</translation>
     </message>
     <message>
         <source>&amp;Reload</source>
-        <translation>&amp;Tekrar yükle</translation>
+        <translation type="vanished">&amp;Tekrar yükle</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Seçenekler</translation>
+        <translation type="vanished">Seçenekler</translation>
     </message>
     <message>
         <source>Capture options</source>
-        <translation>Yakalama seçenekleri</translation>
+        <translation type="vanished">Yakalama seçenekleri</translation>
     </message>
     <message>
         <source>Capture filters</source>
-        <translation>Yakalama filtreleri</translation>
+        <translation type="vanished">Yakalama filtreleri</translation>
     </message>
     <message>
         <source>Refresh Interfaces</source>
-        <translation>Arayüzleri Yenile</translation>
+        <translation type="vanished">Arayüzleri Yenile</translation>
     </message>
     <message>
         <source>Refresh interfaces</source>
-        <translation>Arayüzleri yenile</translation>
+        <translation type="vanished">Arayüzleri yenile</translation>
     </message>
     <message>
         <source>&amp;Restart</source>
-        <translation>&amp;Yeniden Başlat</translation>
+        <translation type="vanished">&amp;Yeniden Başlat</translation>
     </message>
     <message>
         <source>Restart current capture</source>
-        <translation>Mevcut yakalamayı yeniden başlat</translation>
+        <translation type="vanished">Mevcut yakalamayı yeniden başlat</translation>
     </message>
     <message>
         <source>As &amp;CSV…</source>
-        <translation>&amp;CSV olarak…</translation>
+        <translation type="vanished">&amp;CSV olarak…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation>&quot;C&quot; &amp;Diziler olarak…</translation>
+        <translation type="vanished">&quot;C&quot; &amp;Diziler olarak…</translation>
     </message>
     <message>
         <source>As P&amp;SML XML…</source>
-        <translation>P&amp;SML XML olarak…</translation>
+        <translation type="vanished">P&amp;SML XML olarak…</translation>
     </message>
     <message>
         <source>As P&amp;DML XML…</source>
-        <translation>P&amp;DML XML olarak…</translation>
+        <translation type="vanished">P&amp;DML XML olarak…</translation>
     </message>
     <message>
         <source>As &amp;JSON…</source>
-        <translation>&amp;JSON olarak…</translation>
+        <translation type="vanished">&amp;JSON olarak…</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Açıklama</translation>
+        <translation type="vanished">Açıklama</translation>
     </message>
     <message>
         <source>Field Name</source>
-        <translation>Alan Adı</translation>
+        <translation type="vanished">Alan Adı</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Değer</translation>
+        <translation type="vanished">Değer</translation>
     </message>
     <message>
         <source>As Filter</source>
-        <translation>Filtre Olarak</translation>
+        <translation type="vanished">Filtre Olarak</translation>
     </message>
     <message>
         <source>Close this capture file</source>
-        <translation>Bu yakalama dosyasını kapat</translation>
+        <translation type="vanished">Bu yakalama dosyasını kapat</translation>
     </message>
     <message>
         <source>Packet:</source>
-        <translation>Paket:</translation>
+        <translation type="vanished">Paket:</translation>
     </message>
     <message>
         <source>Interface Toolbars</source>
-        <translation>Arayüz Araç Çubukları</translation>
+        <translation type="vanished">Arayüz Araç Çubukları</translation>
     </message>
     <message>
         <source>Colorize Conversation</source>
-        <translation>Konuşmayı Renklendir</translation>
+        <translation type="vanished">Konuşmayı Renklendir</translation>
     </message>
     <message>
         <source>Internals</source>
-        <translation>Dahili</translation>
+        <translation type="vanished">Dahili</translation>
     </message>
     <message>
         <source>Additional Toolbars</source>
-        <translation>Ek Araç Çubukları</translation>
+        <translation type="vanished">Ek Araç Çubukları</translation>
     </message>
     <message>
         <source>Conversation Filter</source>
-        <translation>Konuşma Filtresi</translation>
+        <translation type="vanished">Konuşma Filtresi</translation>
     </message>
     <message>
         <source>Reliable Server Pooling (RSerPool)</source>
-        <translation>Güvenilir Sunucu Havuzu (RSerPool)</translation>
+        <translation type="vanished">Güvenilir Sunucu Havuzu (RSerPool)</translation>
     </message>
     <message>
         <source>SOME/IP</source>
-        <translation>BAZI/IP</translation>
+        <translation type="vanished">BAZI/IP</translation>
     </message>
     <message>
         <source>Osmux</source>
-        <translation>Osmux</translation>
+        <translation type="vanished">Osmux</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
         <oldsource>Tools</oldsource>
-        <translation>&amp;Araçlar</translation>
+        <translation type="vanished">&amp;Araçlar</translation>
     </message>
     <message>
         <source>Wireless Toolbar</source>
-        <translation>Kablosuz Araç Çubuğu</translation>
+        <translation type="vanished">Kablosuz Araç Çubuğu</translation>
     </message>
     <message>
         <source>Help contents</source>
-        <translation>Yardım içeriği</translation>
+        <translation type="vanished">Yardım içeriği</translation>
     </message>
     <message>
         <source>FAQs</source>
-        <translation>SSS</translation>
+        <translation type="vanished">SSS</translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
-        <translation>Konuşmadaki Sonraki Paket</translation>
+        <translation type="vanished">Konuşmadaki Sonraki Paket</translation>
     </message>
     <message>
         <source>Go to the next packet in this conversation</source>
-        <translation>Bu görüşmede sonraki pakete git</translation>
+        <translation type="vanished">Bu görüşmede sonraki pakete git</translation>
     </message>
     <message>
         <source>Previous Packet in Conversation</source>
-        <translation>Görüşmede Önceki Paket</translation>
+        <translation type="vanished">Görüşmede Önceki Paket</translation>
     </message>
     <message>
         <source>Go to the previous packet in this conversation</source>
-        <translation>Bu görüşmede önceki pakete git</translation>
+        <translation type="vanished">Bu görüşmede önceki pakete git</translation>
     </message>
     <message>
         <source>Next Packet In History</source>
-        <translation>Geçmişteki Sonraki Paket</translation>
+        <translation type="vanished">Geçmişteki Sonraki Paket</translation>
     </message>
     <message>
         <source>Go to the next packet in your selection history</source>
-        <translation>Seçim geçmişinizde bir sonraki pakete gidin</translation>
+        <translation type="vanished">Seçim geçmişinizde bir sonraki pakete gidin</translation>
     </message>
     <message>
         <source>Previous Packet In History</source>
-        <translation>Geçmişteki Önceki Paket</translation>
+        <translation type="vanished">Geçmişteki Önceki Paket</translation>
     </message>
     <message>
         <source>Go to the previous packet in your selection history</source>
-        <translation>Seçim geçmişinizde önceki pakete gidin</translation>
+        <translation type="vanished">Seçim geçmişinizde önceki pakete gidin</translation>
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation>Alt Ağaçları Daralt</translation>
+        <translation type="vanished">Alt Ağaçları Daralt</translation>
     </message>
     <message>
         <source>Collapse the current packet detail</source>
-        <translation>Geçerli paket ayrıntısını daralt</translation>
+        <translation type="vanished">Geçerli paket ayrıntısını daralt</translation>
     </message>
     <message>
         <source>Go to Packet…</source>
-        <translation>Pakete Git…</translation>
+        <translation type="vanished">Pakete Git…</translation>
     </message>
     <message>
         <source>&amp;Merge…</source>
-        <translation>&amp;Birleştir…</translation>
+        <translation type="vanished">&amp;Birleştir…</translation>
     </message>
     <message>
         <source>&amp;Import from Hex Dump…</source>
-        <translation>&amp;Hex Dökümünden içe aktar…</translation>
+        <translation type="vanished">&amp;Hex Dökümünden içe aktar…</translation>
     </message>
     <message>
         <source>Save this capture file</source>
-        <translation>Bu yakalama dosyasını kaydet</translation>
+        <translation type="vanished">Bu yakalama dosyasını kaydet</translation>
     </message>
     <message>
         <source>Save &amp;As…</source>
-        <translation>Farklı &amp;Kaydet…</translation>
+        <translation type="vanished">Farklı &amp;Kaydet…</translation>
     </message>
     <message>
         <source>Export Specified Packets…</source>
-        <translation>Belirtilen Paketleri Dışa Aktar…</translation>
+        <translation type="vanished">Belirtilen Paketleri Dışa Aktar…</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
-        <translation>Paket &amp;Baytlarını Dışa Aktar…</translation>
+        <translation type="vanished">Paket &amp;Baytlarını Dışa Aktar…</translation>
     </message>
     <message>
         <source>&amp;Print…</source>
-        <translation>&amp;Yazdır…</translation>
+        <translation type="vanished">&amp;Yazdır…</translation>
     </message>
     <message>
         <source>Reload this file</source>
-        <translation>Bu dosyayı yeniden yükle</translation>
+        <translation type="vanished">Bu dosyayı yeniden yükle</translation>
     </message>
     <message>
         <source>Reload as File Format/Capture</source>
-        <translation>Dosya Biçimi/Yakalama Olarak Yeniden Yükle</translation>
+        <translation type="vanished">Dosya Biçimi/Yakalama Olarak Yeniden Yükle</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
-        <translation>Bu öğenin açıklamasını kopyala</translation>
+        <translation type="vanished">Bu öğenin açıklamasını kopyala</translation>
     </message>
     <message>
         <source>Copy this item&apos;s field name</source>
-        <translation>Bu öğenin alan adını kopyala</translation>
+        <translation type="vanished">Bu öğenin alan adını kopyala</translation>
     </message>
     <message>
         <source>Copy this item&apos;s value</source>
-        <translation>Bu öğenin değerini kopyala</translation>
+        <translation type="vanished">Bu öğenin değerini kopyala</translation>
     </message>
     <message>
         <source>Copy this item as a display filter</source>
-        <translation>Bu öğeyi bir ekran filtresi olarak kopyala</translation>
+        <translation type="vanished">Bu öğeyi bir ekran filtresi olarak kopyala</translation>
     </message>
     <message>
         <source>Apply as Column</source>
-        <translation>Sütun olarak uygula</translation>
+        <translation type="vanished">Sütun olarak uygula</translation>
     </message>
     <message>
         <source>Create a packet list column from the selected field.</source>
-        <translation>Seçili alandan bir paket listesi sütunu oluşturun.</translation>
+        <translation type="vanished">Seçili alandan bir paket listesi sütunu oluşturun.</translation>
     </message>
     <message>
         <source>Find a packet</source>
-        <translation>Bir paket bul</translation>
+        <translation type="vanished">Bir paket bul</translation>
     </message>
     <message>
         <source>Find the next packet</source>
-        <translation>Sonraki paketi bul</translation>
+        <translation type="vanished">Sonraki paketi bul</translation>
     </message>
     <message>
         <source>Find the previous packet</source>
-        <translation>Önceki paketi bul</translation>
+        <translation type="vanished">Önceki paketi bul</translation>
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet(s)</source>
         <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Paketi İşaretle/İşaretini Kaldır</translation>
+        <translation type="vanished">&amp;Paketi İşaretle/İşaretini Kaldır</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
-        <translation>Tüm Görüntülenenleri İşaretle</translation>
+        <translation type="vanished">Tüm Görüntülenenleri İşaretle</translation>
     </message>
     <message>
         <source>Mark all displayed packets</source>
-        <translation>Görüntülenen tüm paketleri işaretle</translation>
+        <translation type="vanished">Görüntülenen tüm paketleri işaretle</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
-        <translation>Görüntülenen tüm paketlerin işaretini kaldırın</translation>
+        <translation type="vanished">Görüntülenen tüm paketlerin işaretini kaldırın</translation>
     </message>
     <message>
         <source>Next Mark</source>
-        <translation>Sonraki İşaret</translation>
+        <translation type="vanished">Sonraki İşaret</translation>
     </message>
     <message>
         <source>Go to the next marked packet</source>
-        <translation>Sonraki işaretli pakete git</translation>
+        <translation type="vanished">Sonraki işaretli pakete git</translation>
     </message>
     <message>
         <source>Previous Mark</source>
-        <translation>Önceki İşaret</translation>
+        <translation type="vanished">Önceki İşaret</translation>
     </message>
     <message>
         <source>Go to the previous marked packet</source>
-        <translation>Önceki işaretli pakete git</translation>
+        <translation type="vanished">Önceki işaretli pakete git</translation>
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet(s)</source>
         <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
+        <translation type="vanished">&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
-        <translation>Tüm Görüntülenenleri Yoksay</translation>
+        <translation type="vanished">Tüm Görüntülenenleri Yoksay</translation>
     </message>
     <message>
         <source>Ignore all displayed packets</source>
-        <translation>Görüntülenen tüm paketleri yoksay</translation>
+        <translation type="vanished">Görüntülenen tüm paketleri yoksay</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
-        <translation>Zaman Referansını Ayarla/Ayarlamayı Kaldır</translation>
+        <translation type="vanished">Zaman Referansını Ayarla/Ayarlamayı Kaldır</translation>
     </message>
     <message>
         <source>Set or unset a time reference for this packet</source>
-        <translation>Bu paket için bir zaman referansı ayarlayın veya ayarlayın</translation>
+        <translation type="vanished">Bu paket için bir zaman referansı ayarlayın veya ayarlayın</translation>
     </message>
     <message>
         <source>Unset All Time References</source>
-        <translation>Tüm Zaman Referans Ayarlarını Kaldır</translation>
+        <translation type="vanished">Tüm Zaman Referans Ayarlarını Kaldır</translation>
     </message>
     <message>
         <source>Remove all time references</source>
-        <translation>Tüm zaman referanslarını kaldır</translation>
+        <translation type="vanished">Tüm zaman referanslarını kaldır</translation>
     </message>
     <message>
         <source>Next Time Reference</source>
-        <translation>Sonraki Zaman Referansı</translation>
+        <translation type="vanished">Sonraki Zaman Referansı</translation>
     </message>
     <message>
         <source>Go to the next time reference</source>
-        <translation>Sonraki zaman referansına git</translation>
+        <translation type="vanished">Sonraki zaman referansına git</translation>
     </message>
     <message>
         <source>Previous Time Reference</source>
-        <translation>Önceki Zaman Referansı</translation>
+        <translation type="vanished">Önceki Zaman Referansı</translation>
     </message>
     <message>
         <source>Go to the previous time reference</source>
-        <translation>Önceki zaman referansına git</translation>
+        <translation type="vanished">Önceki zaman referansına git</translation>
     </message>
     <message>
         <source>Shift or change packet timestamps</source>
-        <translation>Paket zaman damgalarını kaydırın veya değiştirin</translation>
+        <translation type="vanished">Paket zaman damgalarını kaydırın veya değiştirin</translation>
     </message>
     <message>
         <source>Delete All Packet Comments</source>
-        <translation>Tüm Paket Yorumlarını Sil</translation>
+        <translation type="vanished">Tüm Paket Yorumlarını Sil</translation>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
-        <translation>Yakalama dosyasındaki tüm paket yorumlarını kaldırın</translation>
+        <translation type="vanished">Yakalama dosyasındaki tüm paket yorumlarını kaldırın</translation>
     </message>
     <message>
         <source>&amp;Configuration Profiles…</source>
-        <translation>&amp;Yapılandırma Profilleri…</translation>
+        <translation type="vanished">&amp;Yapılandırma Profilleri…</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
-        <translation>Yapılandırma profilleri</translation>
+        <translation type="vanished">Yapılandırma profilleri</translation>
     </message>
     <message>
         <source>Manage your configuration profiles</source>
-        <translation>Yapılandırma profillerinizi yönetin</translation>
+        <translation type="vanished">Yapılandırma profillerinizi yönetin</translation>
     </message>
     <message>
         <source>Manage Wireshark&apos;s preferences</source>
-        <translation>Wireshark&apos;ın tercihlerini yönetin</translation>
+        <translation type="vanished">Wireshark&apos;ın tercihlerini yönetin</translation>
     </message>
     <message>
         <source>Capture File Properties</source>
-        <translation>Yakalama Dosyası Özellikleri</translation>
+        <translation type="vanished">Yakalama Dosyası Özellikleri</translation>
     </message>
     <message>
         <source>Capture file properties</source>
-        <translation>Yakalama dosyası özellikleri</translation>
+        <translation type="vanished">Yakalama dosyası özellikleri</translation>
     </message>
     <message>
         <source>&amp;Protocol Hierarchy</source>
-        <translation>&amp;Protokol Hiyerarşisi</translation>
+        <translation type="vanished">&amp;Protokol Hiyerarşisi</translation>
     </message>
     <message>
         <source>Show a summary of protocols present in the capture file.</source>
-        <translation>Yakalama dosyasında bulunan protokollerin bir özetini gösterin.</translation>
+        <translation type="vanished">Yakalama dosyasında bulunan protokollerin bir özetini gösterin.</translation>
     </message>
     <message>
         <source>Capinfos</source>
-        <translation>Başlık bilgileri</translation>
+        <translation type="vanished">Başlık bilgileri</translation>
     </message>
     <message>
         <source>Reordercap</source>
-        <translation>Başlığı Yeniden Sırala</translation>
+        <translation type="vanished">Başlığı Yeniden Sırala</translation>
     </message>
     <message>
         <source>Time Sequence (Stevens)</source>
-        <translation>Zaman Dizisi (Stevens)</translation>
+        <translation type="vanished">Zaman Dizisi (Stevens)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (Stevens)</source>
-        <translation>TCP zaman dizisi grafiği (Stevens)</translation>
+        <translation type="vanished">TCP zaman dizisi grafiği (Stevens)</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation>Verim</translation>
+        <translation type="vanished">Verim</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation>Gidiş-dönüş süresi</translation>
+        <translation type="vanished">Gidiş-dönüş süresi</translation>
     </message>
     <message>
         <source>TCP round trip time</source>
-        <translation>TCP gidiş dönüş süresi</translation>
+        <translation type="vanished">TCP gidiş dönüş süresi</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation>Pencere Ölçekleme</translation>
+        <translation type="vanished">Pencere Ölçekleme</translation>
     </message>
     <message>
         <source>TCP window scaling</source>
-        <translation>TCP pencere ölçeklendirme</translation>
+        <translation type="vanished">TCP pencere ölçeklendirme</translation>
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation>DCCP Akışı</translation>
+        <translation type="vanished">DCCP Akışı</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation>TLS Akışı</translation>
+        <translation type="vanished">TLS Akışı</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation>HTTP Akışı</translation>
+        <translation type="vanished">HTTP Akışı</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
-        <translation>HTTP/2 Akışı</translation>
+        <translation type="vanished">HTTP/2 Akışı</translation>
     </message>
     <message>
         <source>QUIC Stream</source>
-        <translation>QUIC Akışı</translation>
+        <translation type="vanished">QUIC Akışı</translation>
     </message>
     <message>
         <source>SIP Call</source>
-        <translation>SIP Çağrısı</translation>
+        <translation type="vanished">SIP Çağrısı</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
-        <translation>Zaman Sırası (tcptrace)</translation>
+        <translation type="vanished">Zaman Sırası (tcptrace)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (tcptrace)</source>
-        <translation>TCP zaman sırası grafiği (tcptrace)</translation>
+        <translation type="vanished">TCP zaman sırası grafiği (tcptrace)</translation>
     </message>
     <message>
         <source>Analyse this Association</source>
-        <translation>Bu Derneği analiz et</translation>
+        <translation type="vanished">Bu Derneği analiz et</translation>
     </message>
     <message>
         <source>Show All Associations</source>
-        <translation>Tüm İlişkilendirmeleri Göster</translation>
+        <translation type="vanished">Tüm İlişkilendirmeleri Göster</translation>
     </message>
     <message>
         <source>Flow Graph</source>
-        <translation>Akış Grafiği</translation>
+        <translation type="vanished">Akış Grafiği</translation>
     </message>
     <message>
         <source>Flow sequence diagram</source>
-        <translation>Akış sırası diyagramı</translation>
+        <translation type="vanished">Akış sırası diyagramı</translation>
     </message>
     <message>
         <source>ANCP</source>
-        <translation>ANCP</translation>
+        <translation type="vanished">ANCP</translation>
     </message>
     <message>
         <source>ANCP statistics</source>
-        <translation>ANCP istatistikleri</translation>
+        <translation type="vanished">ANCP istatistikleri</translation>
     </message>
     <message>
         <source>Packets sorted by Instance ID</source>
-        <translation>Örnek Kimliğine göre sıralanmış paketler</translation>
+        <translation type="vanished">Örnek Kimliğine göre sıralanmış paketler</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by instance ID</source>
-        <translation>Örnek kimliğine göre sıralanmış BACapp istatistikleri</translation>
+        <translation type="vanished">Örnek kimliğine göre sıralanmış BACapp istatistikleri</translation>
     </message>
     <message>
         <source>Packets sorted by IP</source>
-        <translation>IP&apos;ye göre sıralanmış paketler</translation>
+        <translation type="vanished">IP&apos;ye göre sıralanmış paketler</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by IP</source>
-        <translation>IP&apos;ye göre sıralanmış BACapp istatistikleri</translation>
+        <translation type="vanished">IP&apos;ye göre sıralanmış BACapp istatistikleri</translation>
     </message>
     <message>
         <source>Packets sorted by object type</source>
-        <translation>Nesne türüne göre sıralanmış paketler</translation>
+        <translation type="vanished">Nesne türüne göre sıralanmış paketler</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by object type</source>
-        <translation>Nesne türüne göre sıralanmış BACapp istatistikleri</translation>
+        <translation type="vanished">Nesne türüne göre sıralanmış BACapp istatistikleri</translation>
     </message>
     <message>
         <source>Packets sorted by service</source>
-        <translation>Servise göre sıralanmış paketler</translation>
+        <translation type="vanished">Servise göre sıralanmış paketler</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by service</source>
-        <translation>Hizmete göre sıralanmış BACapp istatistikleri</translation>
+        <translation type="vanished">Hizmete göre sıralanmış BACapp istatistikleri</translation>
     </message>
     <message>
         <source>Collectd</source>
-        <translation>Toplanan</translation>
+        <translation type="vanished">Toplanan</translation>
     </message>
     <message>
         <source>Collectd statistics</source>
-        <translation>Toplanan istatistikler</translation>
+        <translation type="vanished">Toplanan istatistikler</translation>
     </message>
     <message>
         <source>DNS</source>
-        <translation>DNS</translation>
+        <translation type="vanished">DNS</translation>
     </message>
     <message>
         <source>DNS statistics</source>
-        <translation>DNS istatistikleri</translation>
+        <translation type="vanished">DNS istatistikleri</translation>
     </message>
     <message>
         <source>HART-IP</source>
-        <translation>HART-IP</translation>
+        <translation type="vanished">HART-IP</translation>
     </message>
     <message>
         <source>HART-IP statistics</source>
-        <translation>HART-IP istatistikleri</translation>
+        <translation type="vanished">HART-IP istatistikleri</translation>
     </message>
     <message>
         <source>HPFEEDS</source>
-        <translation>HPFEEDS</translation>
+        <translation type="vanished">HPFEEDS</translation>
     </message>
     <message>
         <source>hpfeeds statistics</source>
-        <translation>hpfeeds istatistikleri</translation>
+        <translation type="vanished">hpfeeds istatistikleri</translation>
     </message>
     <message>
         <source>HTTP2</source>
-        <translation>HTTP2</translation>
+        <translation type="vanished">HTTP2</translation>
     </message>
     <message>
         <source>HTTP2 statistics</source>
-        <translation>HTTP2 istatistikleri</translation>
+        <translation type="vanished">HTTP2 istatistikleri</translation>
     </message>
     <message>
         <source>Packet Counter</source>
-        <translation>Paket Sayacı</translation>
+        <translation type="vanished">Paket Sayacı</translation>
     </message>
     <message>
         <source>HTTP packet counter</source>
-        <translation>HTTP paket sayacı</translation>
+        <translation type="vanished">HTTP paket sayacı</translation>
     </message>
     <message>
         <source>Requests</source>
-        <translation>İstekler</translation>
+        <translation type="vanished">İstekler</translation>
     </message>
     <message>
         <source>HTTP requests</source>
-        <translation>HTTP istekleri</translation>
+        <translation type="vanished">HTTP istekleri</translation>
     </message>
     <message>
         <source>Load Distribution</source>
-        <translation>Yük Dağılımı</translation>
+        <translation type="vanished">Yük Dağılımı</translation>
     </message>
     <message>
         <source>HTTP load distribution</source>
-        <translation>HTTP yük dağılımı</translation>
+        <translation type="vanished">HTTP yük dağılımı</translation>
     </message>
     <message>
         <source>Packet Lengths</source>
-        <translation>Paket Uzunlukları</translation>
+        <translation type="vanished">Paket Uzunlukları</translation>
     </message>
     <message>
         <source>Packet length statistics</source>
-        <translation>Paket uzunluğu istatistikleri</translation>
+        <translation type="vanished">Paket uzunluğu istatistikleri</translation>
     </message>
     <message>
         <source>Sametime</source>
-        <translation>Aynı zamanda</translation>
+        <translation type="vanished">Aynı zamanda</translation>
     </message>
     <message>
         <source>Sametime statistics</source>
-        <translation>Aynı Zaman istatistikleri</translation>
+        <translation type="vanished">Aynı Zaman istatistikleri</translation>
     </message>
     <message>
         <source>SOME/IP Messages</source>
-        <translation>BAZI/IP Mesajları</translation>
+        <translation type="vanished">BAZI/IP Mesajları</translation>
     </message>
     <message>
         <source>SOME/IP Message statistics</source>
-        <translation>BAZI/IP Mesaj istatistikleri</translation>
+        <translation type="vanished">BAZI/IP Mesaj istatistikleri</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries</source>
-        <translation>BAZI/IP-SD Girdileri</translation>
+        <translation type="vanished">BAZI/IP-SD Girdileri</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries statistics</source>
-        <translation>BAZI/IP-SD Girdi istatistikleri</translation>
+        <translation type="vanished">BAZI/IP-SD Girdi istatistikleri</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
-        <translation>&amp;ISUP Mesajları</translation>
+        <translation type="vanished">&amp;ISUP Mesajları</translation>
     </message>
     <message>
         <source>ISUP message statistics</source>
-        <translation>ISUP mesaj istatistikleri</translation>
+        <translation type="vanished">ISUP mesaj istatistikleri</translation>
     </message>
     <message>
         <source>Osmux packet counts</source>
-        <translation>Osmux paket sayısı</translation>
+        <translation type="vanished">Osmux paket sayısı</translation>
     </message>
     <message>
         <source>RTSP packet counts</source>
-        <translation>RTSP paket sayıları</translation>
+        <translation type="vanished">RTSP paket sayıları</translation>
     </message>
     <message>
         <source>SM&amp;PP Operations</source>
-        <translation>SM&amp;PP İşlemleri</translation>
+        <translation type="vanished">SM&amp;PP İşlemleri</translation>
     </message>
     <message>
         <source>SMPP operation statistics</source>
-        <translation>SMPP işlem istatistikleri</translation>
+        <translation type="vanished">SMPP işlem istatistikleri</translation>
     </message>
     <message>
         <source>&amp;UCP Messages</source>
-        <translation>&amp;UCP Mesajları</translation>
+        <translation type="vanished">&amp;UCP Mesajları</translation>
     </message>
     <message>
         <source>UCP message statistics</source>
-        <translation>UCP mesaj istatistikleri</translation>
+        <translation type="vanished">UCP mesaj istatistikleri</translation>
     </message>
     <message>
         <source>F1AP</source>
-        <translation>F1AP</translation>
+        <translation type="vanished">F1AP</translation>
     </message>
     <message>
         <source>F1AP Messages</source>
-        <translation>F1AP Mesajları</translation>
+        <translation type="vanished">F1AP Mesajları</translation>
     </message>
     <message>
         <source>NGAP</source>
-        <translation>NGAP</translation>
+        <translation type="vanished">NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation>NGAP Mesajları</translation>
+        <translation type="vanished">NGAP Mesajları</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
-        <translation>Paketlerin parçalanma şeklini değiştirin</translation>
+        <translation type="vanished">Paketlerin parçalanma şeklini değiştirin</translation>
     </message>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation>Lua Eklentilerini Yeniden Yükle</translation>
+        <translation type="vanished">Lua Eklentilerini Yeniden Yükle</translation>
     </message>
     <message>
         <source>Reload Lua plugins</source>
-        <translation>Lua eklentilerini yeniden yükle</translation>
+        <translation type="vanished">Lua eklentilerini yeniden yükle</translation>
     </message>
     <message>
         <source>Advertisements by Topic</source>
-        <translation>Konuya Göre Reklamlar</translation>
+        <translation type="vanished">Konuya Göre Reklamlar</translation>
     </message>
     <message>
         <source>Advertisements by Source</source>
-        <translation>Kaynağa Göre Reklamlar</translation>
+        <translation type="vanished">Kaynağa Göre Reklamlar</translation>
     </message>
     <message>
         <source>Advertisements by Transport</source>
-        <translation>Ulaşım Reklamları</translation>
+        <translation type="vanished">Ulaşım Reklamları</translation>
     </message>
     <message>
         <source>Queries by Topic</source>
-        <translation>Konuya Göre Sorgular</translation>
+        <translation type="vanished">Konuya Göre Sorgular</translation>
     </message>
     <message>
         <source>Queries by Receiver</source>
-        <translation>Alıcıya Göre Sorgular</translation>
+        <translation type="vanished">Alıcıya Göre Sorgular</translation>
     </message>
     <message>
         <source>Wildcard Queries by Pattern</source>
-        <translation>Desene Göre Joker Karakter Sorguları</translation>
+        <translation type="vanished">Desene Göre Joker Karakter Sorguları</translation>
     </message>
     <message>
         <source>Wildcard Queries by Receiver</source>
-        <translation>Alıcıya Göre Joker Karakter Sorguları</translation>
+        <translation type="vanished">Alıcıya Göre Joker Karakter Sorguları</translation>
     </message>
     <message>
         <source>Advertisements by Queue</source>
-        <translation>Sıraya Göre Reklamlar</translation>
+        <translation type="vanished">Sıraya Göre Reklamlar</translation>
     </message>
     <message>
         <source>Queries by Queue</source>
-        <translation>Kuyruğa Göre Sorgular</translation>
+        <translation type="vanished">Kuyruğa Göre Sorgular</translation>
     </message>
     <message>
         <source>Streams</source>
-        <translation>Canlı Yayınlar</translation>
+        <translation type="vanished">Canlı Yayınlar</translation>
     </message>
     <message>
         <source>LBT-RM</source>
-        <translation>LBT-RM</translation>
+        <translation type="vanished">LBT-RM</translation>
     </message>
     <message>
         <source>LBT-RU</source>
-        <translation>LBT-RU</translation>
+        <translation type="vanished">LBT-RU</translation>
     </message>
     <message>
         <source>Filter this Association</source>
-        <translation>Bu İlişkilendirmeyi Filtrele</translation>
+        <translation type="vanished">Bu İlişkilendirmeyi Filtrele</translation>
     </message>
     <message>
         <source>Strip Headers…</source>
-        <translation>Üst Bilgiler…</translation>
+        <translation type="vanished">Üst Bilgiler…</translation>
     </message>
     <message>
         <source>Strip headers and export higher level encapsulations to file</source>
-        <translation>Üstbilgileri çıkarın ve daha üst düzey kapsüllemeleri dosyaya dışa aktarın</translation>
+        <translation type="vanished">Üstbilgileri çıkarın ve daha üst düzey kapsüllemeleri dosyaya dışa aktarın</translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
-        <translation>&amp;G/Ç Grafikleri</translation>
+        <translation type="vanished">&amp;G/Ç Grafikleri</translation>
     </message>
     <message>
         <source>&amp;Conversations</source>
-        <translation>&amp;Konuşmalar</translation>
+        <translation type="vanished">&amp;Konuşmalar</translation>
     </message>
     <message>
         <source>&amp;Endpoints</source>
-        <translation>&amp;Uç Noktalar</translation>
+        <translation type="vanished">&amp;Uç Noktalar</translation>
     </message>
     <message>
         <source>Shrink the main window text</source>
-        <translation>Ana pencere metnini küçült</translation>
+        <translation type="vanished">Ana pencere metnini küçült</translation>
     </message>
     <message>
         <source>Return the main window text to its normal size</source>
-        <translation>Ana pencere metnini normal boyutuna döndür</translation>
+        <translation type="vanished">Ana pencere metnini normal boyutuna döndür</translation>
     </message>
     <message>
         <source>Reset Layout</source>
-        <translation>Düzeni Sıfırla</translation>
+        <translation type="vanished">Düzeni Sıfırla</translation>
     </message>
     <message>
         <source>Reset appearance layout to default size</source>
-        <translation>Görünüm düzenini varsayılan boyuta sıfırla</translation>
+        <translation type="vanished">Görünüm düzenini varsayılan boyuta sıfırla</translation>
     </message>
     <message>
         <source>Packet &amp;Diagram</source>
-        <translation>Paket &amp;Şeması</translation>
+        <translation type="vanished">Paket &amp;Şeması</translation>
     </message>
     <message>
         <source>Show or hide the packet diagram</source>
-        <translation>Paket diyagramını göster veya gizle</translation>
+        <translation type="vanished">Paket diyagramını göster veya gizle</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
-        <translation>Her konuşma karma tablosunu göster</translation>
+        <translation type="vanished">Her konuşma karma tablosunu göster</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
-        <translation>Her bir tespit edici tablosunu ve girişlerini göster</translation>
+        <translation type="vanished">Her bir tespit edici tablosunu ve girişlerini göster</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
-        <translation>Şu anda desteklenen protokolleri göster ve filtre alanlarını göster</translation>
+        <translation type="vanished">Şu anda desteklenen protokolleri göster ve filtre alanlarını göster</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
-        <translation>MAC İstatistikleri</translation>
+        <translation type="vanished">MAC İstatistikleri</translation>
     </message>
     <message>
         <source>LTE MAC statistics</source>
-        <translation>LTE MAC istatistikleri</translation>
+        <translation type="vanished">LTE MAC istatistikleri</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
-        <translation>RLC İstatistikleri</translation>
+        <translation type="vanished">RLC İstatistikleri</translation>
     </message>
     <message>
         <source>LTE RLC statistics</source>
-        <translation>LTE RLC istatistikleri</translation>
+        <translation type="vanished">LTE RLC istatistikleri</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
-        <translation>LTE RLC grafiği</translation>
+        <translation type="vanished">LTE RLC grafiği</translation>
     </message>
     <message>
         <source>MTP3 Summary</source>
-        <translation>MTP3 Özeti</translation>
+        <translation type="vanished">MTP3 Özeti</translation>
     </message>
     <message>
         <source>MTP3 summary statistics</source>
-        <translation>MTP3 özet istatistikleri</translation>
+        <translation type="vanished">MTP3 özet istatistikleri</translation>
     </message>
     <message>
         <source>Bluetooth Devices</source>
-        <translation>Bluetooth Cihazları</translation>
+        <translation type="vanished">Bluetooth Cihazları</translation>
     </message>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation>Bluetooth HCI Özeti</translation>
+        <translation type="vanished">Bluetooth HCI Özeti</translation>
     </message>
     <message>
         <source>Display Filter &amp;Expression…</source>
-        <translation>Filtre İfadesini &amp;Görüntüle…</translation>
+        <translation type="vanished">Filtre İfadesini &amp;Görüntüle…</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation>Filtre İfadesini Görüntüle…</translation>
+        <translation type="vanished">Filtre İfadesini Görüntüle…</translation>
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation>KAYIT_STAT_GRUBU_GSUNHAVUZU</translation>
+        <translation type="vanished">KAYIT_STAT_GRUBU_GSUNHAVUZU</translation>
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation>&quot;KAYIT_STAT_GRUBU_GSUNHAVUZU&quot; başlangıcı</translation>
+        <translation type="vanished">&quot;KAYIT_STAT_GRUBU_GSUNHAVUZU&quot; başlangıcı</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
-        <translation>Kayıtlı GSM istatistikleri yok</translation>
+        <translation type="vanished">Kayıtlı GSM istatistikleri yok</translation>
     </message>
     <message>
         <source>No LTE statistics registered</source>
-        <translation>Kayıtlı LTE istatistiği yok</translation>
+        <translation type="vanished">Kayıtlı LTE istatistiği yok</translation>
     </message>
     <message>
         <source>No MTP3 statistics registered</source>
-        <translation>Kayıtlı MTP3 istatistiği yok</translation>
+        <translation type="vanished">Kayıtlı MTP3 istatistiği yok</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
-        <translation>IAX2 Akış Analizi</translation>
+        <translation type="vanished">IAX2 Akış Analizi</translation>
     </message>
     <message>
         <source>Show Packet Bytes…</source>
-        <translation>Paket Baytlarını Göster…</translation>
+        <translation type="vanished">Paket Baytlarını Göster…</translation>
     </message>
     <message>
         <source>Go to &amp;Linked Packet</source>
-        <translation>Bağlantılı &amp;Pakete Git</translation>
+        <translation type="vanished">Bağlantılı &amp;Pakete Git</translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
-        <translation>UDP Çok Noktaya Yayın Akışları</translation>
+        <translation type="vanished">UDP Çok Noktaya Yayın Akışları</translation>
     </message>
     <message>
         <source>Show UTP multicast stream statistics.</source>
-        <translation>UTP çok noktaya yayın akışı istatistiklerini göster.</translation>
+        <translation type="vanished">UTP çok noktaya yayın akışı istatistiklerini göster.</translation>
     </message>
     <message>
         <source>WLAN Traffic</source>
-        <translation>WLAN Trafiği</translation>
+        <translation type="vanished">WLAN Trafiği</translation>
     </message>
     <message>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation>IEEE 802.11 kablosuz LAN istatistiklerini göster.</translation>
+        <translation type="vanished">IEEE 802.11 kablosuz LAN istatistiklerini göster.</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
-        <translation>Bir ekran filtresi düğmesi ekleyin.</translation>
+        <translation type="vanished">Bir ekran filtresi düğmesi ekleyin.</translation>
     </message>
     <message>
         <source>Firewall ACL Rules</source>
-        <translation>Güvenlik Duvarı ACL Kuralları</translation>
+        <translation type="vanished">Güvenlik Duvarı ACL Kuralları</translation>
     </message>
     <message>
         <source>Create firewall ACL rules</source>
-        <translation>Güvenlik duvarı ACL kuralları oluşturun</translation>
+        <translation type="vanished">Güvenlik duvarı ACL kuralları oluşturun</translation>
     </message>
     <message>
         <source>&amp;Full Screen</source>
-        <translation>&amp;Tam ekran</translation>
+        <translation type="vanished">&amp;Tam ekran</translation>
     </message>
     <message>
         <source>Credentials</source>
-        <translation>Kimlik bilgileri</translation>
+        <translation type="vanished">Kimlik bilgileri</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
-        <translation>&amp;Seçenekler…</translation>
+        <translation type="vanished">&amp;Seçenekler…</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
-        <translation>&amp;Kablosuz</translation>
+        <translation type="vanished">&amp;Kablosuz</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
-        <translation>Yakalama &amp;Filtreleri…</translation>
+        <translation type="vanished">Yakalama &amp;Filtreleri…</translation>
     </message>
     <message>
         <source>As Plain &amp;Text…</source>
-        <translation>Düz Metin &amp;Olarak…</translation>
+        <translation type="vanished">Düz Metin &amp;Olarak…</translation>
     </message>
     <message>
         <source>As Plain &amp;Text</source>
-        <translation>Düz Metin &amp;Olarak</translation>
+        <translation type="vanished">Düz Metin &amp;Olarak</translation>
     </message>
     <message>
         <source>As &amp;CSV</source>
-        <translation>&amp;CSV olarak</translation>
+        <translation type="vanished">&amp;CSV olarak</translation>
     </message>
     <message>
         <source>As &amp;YAML</source>
-        <translation>&amp;YAML olarak</translation>
+        <translation type="vanished">&amp;YAML olarak</translation>
     </message>
     <message>
         <source>All Visible Items</source>
-        <translation>Tüm Görünür Öğeler</translation>
+        <translation type="vanished">Tüm Görünür Öğeler</translation>
     </message>
     <message>
         <source>All Visible Selected Tree Items</source>
-        <translation>Tüm Görünür Seçilmiş Ağaç Öğeleri</translation>
+        <translation type="vanished">Tüm Görünür Seçilmiş Ağaç Öğeleri</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
-        <translation>Filtre Makrolarını &amp;Görüntüle…</translation>
+        <translation type="vanished">Filtre Makrolarını &amp;Görüntüle…</translation>
     </message>
     <message>
         <source>&amp;Find Packet…</source>
-        <translation>&amp;Paket Bul…</translation>
+        <translation type="vanished">&amp;Paket Bul…</translation>
     </message>
     <message>
         <source>Find Ne&amp;xt</source>
-        <translation>Sonrakini Bu&amp;l</translation>
+        <translation type="vanished">Sonrakini Bu&amp;l</translation>
     </message>
     <message>
         <source>Find Pre&amp;vious</source>
-        <translation>Öncekini Bu&amp;l</translation>
+        <translation type="vanished">Öncekini Bu&amp;l</translation>
     </message>
     <message>
         <source>Mark or unmark each selected packet</source>
-        <translation>Seçilen her paketi işaretleyin veya işaretini kaldırın</translation>
+        <translation type="vanished">Seçilen her paketi işaretleyin veya işaretini kaldırın</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
-        <translation>Seçilen her paketi yoksay veya yoksay</translation>
+        <translation type="vanished">Seçilen her paketi yoksay veya yoksay</translation>
     </message>
     <message>
         <source>U&amp;nignore All Displayed</source>
-        <translation>Tüm Görüntülenenleri Y&amp;oksay</translation>
+        <translation type="vanished">Tüm Görüntülenenleri Y&amp;oksay</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation>Görüntülenen tüm paketleri yoksay</translation>
+        <translation type="vanished">Görüntülenen tüm paketleri yoksay</translation>
     </message>
     <message>
         <source>Time Shift…</source>
-        <translation>Zaman Kaydırması…</translation>
+        <translation type="vanished">Zaman Kaydırması…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
-        <translation>&amp;Tercihler…</translation>
+        <translation type="vanished">&amp;Tercihler…</translation>
     </message>
     <message>
         <source>TCP throughput</source>
-        <translation>TCP verimi</translation>
+        <translation type="vanished">TCP verimi</translation>
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation>TCP Akışı</translation>
+        <translation type="vanished">TCP Akışı</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation>UDP Akışı</translation>
+        <translation type="vanished">UDP Akışı</translation>
     </message>
     <message>
         <source>Request Sequences</source>
-        <translation>İstek Dizileri</translation>
+        <translation type="vanished">İstek Dizileri</translation>
     </message>
     <message>
         <source>HTTP Request Sequences</source>
-        <translation>HTTP İstek Dizileri</translation>
+        <translation type="vanished">HTTP İstek Dizileri</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
-        <translation>Kodu &amp;Çöz…</translation>
+        <translation type="vanished">Kodu &amp;Çöz…</translation>
     </message>
     <message>
         <source>Export PDUs to File…</source>
-        <translation>PDU&apos;ları Dosyaya Aktar…</translation>
+        <translation type="vanished">PDU&apos;ları Dosyaya Aktar…</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
-        <translation>Ekran filtresi alanlarına dayalı grafikler oluşturun</translation>
+        <translation type="vanished">Ekran filtresi alanlarına dayalı grafikler oluşturun</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
-        <translation>&amp;Ana Araç Çubuğu</translation>
+        <translation type="vanished">&amp;Ana Araç Çubuğu</translation>
     </message>
     <message>
         <source>Show or hide the main toolbar</source>
-        <translation>Ana araç çubuğunu göster veya gizle</translation>
+        <translation type="vanished">Ana araç çubuğunu göster veya gizle</translation>
     </message>
     <message>
         <source>&amp;Filter Toolbar</source>
-        <translation>&amp;Araç Çubuğunu Filtrele</translation>
+        <translation type="vanished">&amp;Araç Çubuğunu Filtrele</translation>
     </message>
     <message>
         <source>Show or hide the display filter toolbar</source>
-        <translation>Ekran filtresi araç çubuğunu göster veya gizle</translation>
+        <translation type="vanished">Ekran filtresi araç çubuğunu göster veya gizle</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
-        <translation>Farklı protokol seviyelerinde konuşmalar</translation>
+        <translation type="vanished">Farklı protokol seviyelerinde konuşmalar</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
-        <translation>Farklı protokol seviyelerinde uç noktalar</translation>
+        <translation type="vanished">Farklı protokol seviyelerinde uç noktalar</translation>
     </message>
     <message>
         <source>Colorize Packet List</source>
-        <translation>Paket Listesini Renklendir</translation>
+        <translation type="vanished">Paket Listesini Renklendir</translation>
     </message>
     <message>
         <source>Draw packets using your coloring rules</source>
-        <translation>Renklendirme kurallarınızı kullanarak paketler çizin</translation>
+        <translation type="vanished">Renklendirme kurallarınızı kullanarak paketler çizin</translation>
     </message>
     <message>
         <source>&amp;Zoom In</source>
-        <translation>&amp;Yaklaştır</translation>
+        <translation type="vanished">&amp;Yaklaştır</translation>
     </message>
     <message>
         <source>Enlarge the main window text</source>
-        <translation>Ana pencere metnini büyüt</translation>
+        <translation type="vanished">Ana pencere metnini büyüt</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation>Uzaklaş</translation>
+        <translation type="vanished">Uzaklaş</translation>
     </message>
     <message>
         <source>Normal Size</source>
-        <translation>Normal Boyut</translation>
+        <translation type="vanished">Normal Boyut</translation>
     </message>
     <message>
         <source>Resize Columns</source>
-        <translation>Sütunları Yeniden Boyutlandır</translation>
+        <translation type="vanished">Sütunları Yeniden Boyutlandır</translation>
     </message>
     <message>
         <source>Resize packet list columns to fit contents</source>
-        <translation>İçeriğe sığdırmak için paket listesi sütunlarını yeniden boyutlandırın</translation>
+        <translation type="vanished">İçeriğe sığdırmak için paket listesi sütunlarını yeniden boyutlandırın</translation>
     </message>
     <message>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Günün Tarihi ve Saati (01-01-1970 01:02:03.123456)</translation>
+        <translation type="vanished">Günün Tarihi ve Saati (01-01-1970 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the date and time of day.</source>
-        <translation>Paket sürelerini günün tarihi ve saati olarak göster.</translation>
+        <translation type="vanished">Paket sürelerini günün tarihi ve saati olarak göster.</translation>
     </message>
     <message>
         <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Yıl, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
+        <translation type="vanished">Yıl, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation>Paket sürelerini yıl, yılın günü ve günün saati olarak gösterin.</translation>
+        <translation type="vanished">Paket sürelerini yıl, yılın günü ve günün saati olarak gösterin.</translation>
     </message>
     <message>
         <source>Time of Day (01:02:03.123456)</source>
-        <translation>Günün Saati (01:02:03.123456)</translation>
+        <translation type="vanished">Günün Saati (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Seconds Since 1970-01-01</source>
-        <translation>1970-01-01&apos;den Beri Saniye</translation>
+        <translation type="vanished">1970-01-01&apos;den Beri Saniye</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation>Paket sürelerini UNIX / POSIX döneminden (1970-01-01) bu yana saniye olarak göster.</translation>
+        <translation type="vanished">Paket sürelerini UNIX / POSIX döneminden (1970-01-01) bu yana saniye olarak göster.</translation>
     </message>
     <message>
         <source>Seconds Since Beginning of Capture</source>
-        <translation>Yakalama Başlangıcından Beri Saniyeler</translation>
+        <translation type="vanished">Yakalama Başlangıcından Beri Saniyeler</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>
-        <translation>Önceki Yakalanan Paketten Beri Saniye</translation>
+        <translation type="vanished">Önceki Yakalanan Paketten Beri Saniye</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation>Paket sürelerini, bir önceki yakalanan paketten bu yana geçen saniye olarak göster.</translation>
+        <translation type="vanished">Paket sürelerini, bir önceki yakalanan paketten bu yana geçen saniye olarak göster.</translation>
     </message>
     <message>
         <source>Seconds Since Previous Displayed Packet</source>
-        <translation>Önceki Görüntülenen Paketten Beri Saniye</translation>
+        <translation type="vanished">Önceki Görüntülenen Paketten Beri Saniye</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation>Paket sürelerini önceki görüntülenen paketten bu yana geçen saniye olarak göster.</translation>
+        <translation type="vanished">Paket sürelerini önceki görüntülenen paketten bu yana geçen saniye olarak göster.</translation>
     </message>
     <message>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>UTC Tarihi ve Günün Saati (1970-01-01 01:02:03.123456)</translation>
+        <translation type="vanished">UTC Tarihi ve Günün Saati (1970-01-01 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC date and time of day.</source>
-        <translation>Paket saatlerini UTC tarihi ve günün saati olarak göster.</translation>
+        <translation type="vanished">Paket saatlerini UTC tarihi ve günün saati olarak göster.</translation>
     </message>
     <message>
         <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>UTC Yılı, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
+        <translation type="vanished">UTC Yılı, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation>Paket sürelerini UTC yılı, yılın günü ve günün saati olarak gösterin.</translation>
+        <translation type="vanished">Paket sürelerini UTC yılı, yılın günü ve günün saati olarak gösterin.</translation>
     </message>
     <message>
         <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>UTC Günün Saati (01:02:03.123456)</translation>
+        <translation type="vanished">UTC Günün Saati (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>
-        <translation>Paket sürelerini günün UTC saati olarak göster.</translation>
+        <translation type="vanished">Paket sürelerini günün UTC saati olarak göster.</translation>
     </message>
     <message>
         <source>Automatic (from capture file)</source>
-        <translation>Otomatik (yakalama dosyasından)</translation>
+        <translation type="vanished">Otomatik (yakalama dosyasından)</translation>
     </message>
     <message>
         <source>Use the time precision indicated in the capture file.</source>
-        <translation>Yakalama dosyasında belirtilen zaman hassasiyetini kullanın.</translation>
+        <translation type="vanished">Yakalama dosyasında belirtilen zaman hassasiyetini kullanın.</translation>
     </message>
     <message>
         <source>Seconds</source>
-        <translation>Saniye</translation>
+        <translation type="vanished">Saniye</translation>
     </message>
     <message>
         <source>Tenths of a second</source>
-        <translation>Saniyenin onda biri</translation>
+        <translation type="vanished">Saniyenin onda biri</translation>
     </message>
     <message>
         <source>Hundredths of a second</source>
-        <translation>Saniyenin yüzde biri</translation>
+        <translation type="vanished">Saniyenin yüzde biri</translation>
     </message>
     <message>
         <source>Milliseconds</source>
-        <translation>Milisaniye</translation>
+        <translation type="vanished">Milisaniye</translation>
     </message>
     <message>
         <source>Microseconds</source>
-        <translation>Mikrosaniye</translation>
+        <translation type="vanished">Mikrosaniye</translation>
     </message>
     <message>
         <source>Nanoseconds</source>
-        <translation>Nanosaniye</translation>
+        <translation type="vanished">Nanosaniye</translation>
     </message>
     <message>
         <source>Display Seconds With Hours and Minutes</source>
-        <translation>Saniyeleri Saat ve Dakikalarla Göster</translation>
+        <translation type="vanished">Saniyeleri Saat ve Dakikalarla Göster</translation>
     </message>
     <message>
         <source>Display seconds with hours and minutes</source>
-        <translation>Saniyeyi saat ve dakika ile göster</translation>
+        <translation type="vanished">Saniyeyi saat ve dakika ile göster</translation>
     </message>
     <message>
         <source>Resolve &amp;Physical Addresses</source>
-        <translation>&amp;Fiziksel Adresleri Çözümle</translation>
+        <translation type="vanished">&amp;Fiziksel Adresleri Çözümle</translation>
     </message>
     <message>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation>Bilinen MAC adreslerinin adlarını göster. Aramalar yerel bir veritabanı kullanır.</translation>
+        <translation type="vanished">Bilinen MAC adreslerinin adlarını göster. Aramalar yerel bir veritabanı kullanır.</translation>
     </message>
     <message>
         <source>Resolve &amp;Network Addresses</source>
-        <translation>&amp;Ağ Adreslerini Çözümle</translation>
+        <translation type="vanished">&amp;Ağ Adreslerini Çözümle</translation>
     </message>
     <message>
         <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation>Bilinen IPv4, IPv6 ve IPX adreslerinin adlarını gösterin. Aramalar ağ trafiği oluşturabilir.</translation>
+        <translation type="vanished">Bilinen IPv4, IPv6 ve IPX adreslerinin adlarını gösterin. Aramalar ağ trafiği oluşturabilir.</translation>
     </message>
     <message>
         <source>Resolve &amp;Transport Addresses</source>
-        <translation>&amp;Taşıma Adreslerini Çözümle</translation>
+        <translation type="vanished">&amp;Taşıma Adreslerini Çözümle</translation>
     </message>
     <message>
         <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation>Bilinen TCP, UDP ve SCTP hizmetlerinin adlarını gösterin. Aramalar bazı sistemlerde trafik oluşturabilir.</translation>
+        <translation type="vanished">Bilinen TCP, UDP ve SCTP hizmetlerinin adlarını gösterin. Aramalar bazı sistemlerde trafik oluşturabilir.</translation>
     </message>
     <message>
         <source>Wire&amp;less Toolbar</source>
-        <translation>Kab&amp;losuz Araç çubuğu</translation>
+        <translation type="vanished">Kab&amp;losuz Araç çubuğu</translation>
     </message>
     <message>
         <source>Show or hide the wireless toolbar</source>
-        <translation>Kablosuz araç çubuğunu göster veya gizle</translation>
+        <translation type="vanished">Kablosuz araç çubuğunu göster veya gizle</translation>
     </message>
     <message>
         <source>&amp;Status Bar</source>
-        <translation>&amp;Durum Çubuğu</translation>
+        <translation type="vanished">&amp;Durum Çubuğu</translation>
     </message>
     <message>
         <source>Show or hide the status bar</source>
-        <translation>Durum çubuğunu göster veya gizle</translation>
+        <translation type="vanished">Durum çubuğunu göster veya gizle</translation>
     </message>
     <message>
         <source>Packet &amp;List</source>
-        <translation>Paket &amp;Listesi</translation>
+        <translation type="vanished">Paket &amp;Listesi</translation>
     </message>
     <message>
         <source>Show or hide the packet list</source>
-        <translation>Paket listesini göster veya gizle</translation>
+        <translation type="vanished">Paket listesini göster veya gizle</translation>
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation>Paket &amp;Ayrıntıları</translation>
+        <translation type="vanished">Paket &amp;Ayrıntıları</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
-        <translation>Paket ayrıntılarını göster veya gizle</translation>
+        <translation type="vanished">Paket ayrıntılarını göster veya gizle</translation>
     </message>
     <message>
         <source>Packet &amp;Bytes</source>
-        <translation>Paket &amp;Bayt</translation>
+        <translation type="vanished">Paket &amp;Bayt</translation>
     </message>
     <message>
         <source>Show or hide the packet bytes</source>
-        <translation>Paket baytlarını göster veya gizle</translation>
+        <translation type="vanished">Paket baytlarını göster veya gizle</translation>
     </message>
     <message>
         <source>&amp;Conversation Hash Tables</source>
-        <translation>&amp;Konuşma Hash Tabloları</translation>
+        <translation type="vanished">&amp;Konuşma Hash Tabloları</translation>
     </message>
     <message>
         <source>&amp;Dissector Tables</source>
-        <translation>&amp;Tespit edici Tabloları</translation>
+        <translation type="vanished">&amp;Tespit edici Tabloları</translation>
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
-        <translation>&amp;Desteklenen Protokoller</translation>
+        <translation type="vanished">&amp;Desteklenen Protokoller</translation>
     </message>
     <message>
         <source>MAP Summary</source>
-        <translation>HARİTA Özeti</translation>
+        <translation type="vanished">HARİTA Özeti</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
-        <translation>GSM MAP özet istatistikleri</translation>
+        <translation type="vanished">GSM MAP özet istatistikleri</translation>
     </message>
     <message>
         <source>RLC &amp;Graph</source>
-        <translation>RLC &amp;Grafiği</translation>
+        <translation type="vanished">RLC &amp;Grafiği</translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
-        <translation>&amp;Renklendirme Kuralları…</translation>
+        <translation type="vanished">&amp;Renklendirme Kuralları…</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
-        <translation>Bağlantılı Paketi Yeni Pencerede Göster</translation>
+        <translation type="vanished">Bağlantılı Paketi Yeni Pencerede Göster</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
-        <translation>Yeni Renklendirme Kuralı…</translation>
+        <translation type="vanished">Yeni Renklendirme Kuralı…</translation>
     </message>
     <message>
         <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
-        <translation>Seçilen akış için RTP Akış Analizi. Ters akış eklemek için de CTRL tuşuna basın.</translation>
+        <translation type="vanished">Seçilen akış için RTP Akış Analizi. Ters akış eklemek için de CTRL tuşuna basın.</translation>
     </message>
     <message>
         <source>RTP Player</source>
-        <translation>RTP Oynatıcı</translation>
+        <translation type="vanished">RTP Oynatıcı</translation>
     </message>
     <message>
         <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation>Seçilen akışı oynat. Ters akışı oynatmak için de CTRL tuşuna basın.</translation>
+        <translation type="vanished">Seçilen akışı oynat. Ters akışı oynatmak için de CTRL tuşuna basın.</translation>
     </message>
     <message>
         <source>IA&amp;X2 Stream Analysis</source>
-        <translation>IA&amp;X2 Akış Analizi</translation>
+        <translation type="vanished">IA&amp;X2 Akış Analizi</translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
-        <translation>Etkin Protokoller…</translation>
+        <translation type="vanished">Etkin Protokoller…</translation>
     </message>
     <message>
         <source>Wiki Protocol Page</source>
-        <translation>Wiki Protokol Sayfası</translation>
+        <translation type="vanished">Wiki Protokol Sayfası</translation>
     </message>
     <message>
         <source>Open the Wireshark wiki page for this protocol.</source>
-        <translation>Bu protokol için Wireshark wiki sayfasını açın.</translation>
+        <translation type="vanished">Bu protokol için Wireshark wiki sayfasını açın.</translation>
     </message>
     <message>
         <source>Filter Field Reference</source>
-        <translation>Filtre Alanı Referansı</translation>
+        <translation type="vanished">Filtre Alanı Referansı</translation>
     </message>
     <message>
         <source>Open the display filter reference page for this filter field.</source>
-        <translation>Bu filtre alanı için ekran filtresi referans sayfasını açın.</translation>
+        <translation type="vanished">Bu filtre alanı için ekran filtresi referans sayfasını açın.</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
-        <translation>Seçili alan tarafından başvurulan pakete gidin.</translation>
+        <translation type="vanished">Seçili alan tarafından başvurulan pakete gidin.</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
-        <translation>&amp;VoIP Aramaları</translation>
+        <translation type="vanished">&amp;VoIP Aramaları</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation>&amp;Son Kullanılanlardan Aç</translation>
+        <translation type="vanished">&amp;Son Kullanılanlardan Aç</translation>
     </message>
     <message>
         <source>Name Resol&amp;ution</source>
-        <translation>Ad Çözüm&amp;lemesi</translation>
+        <translation type="vanished">Ad Çözüm&amp;lemesi</translation>
     </message>
     <message>
         <source>Service &amp;Response Time</source>
-        <translation>Servis &amp;Yanıt Süresi</translation>
+        <translation type="vanished">Servis &amp;Yanıt Süresi</translation>
     </message>
     <message>
         <source>&amp;RTP</source>
-        <translation>&amp;RTP</translation>
+        <translation type="vanished">&amp;RTP</translation>
     </message>
     <message>
         <source>S&amp;CTP</source>
-        <translation>S&amp;CTP</translation>
+        <translation type="vanished">S&amp;CTP</translation>
     </message>
     <message>
         <source>&amp;ANSI</source>
-        <translation>&amp;ANSI</translation>
+        <translation type="vanished">&amp;ANSI</translation>
     </message>
     <message>
         <source>&amp;GSM</source>
-        <translation>&amp;GSM</translation>
+        <translation type="vanished">&amp;GSM</translation>
     </message>
     <message>
         <source>&amp;LTE</source>
-        <translation>&amp;LTE</translation>
+        <translation type="vanished">&amp;LTE</translation>
     </message>
     <message>
         <source>&amp;MTP3</source>
-        <translation>&amp;MTP3</translation>
+        <translation type="vanished">&amp;MTP3</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation>&amp;Aç</translation>
+        <translation type="vanished">&amp;Aç</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation>&amp;Çık</translation>
+        <translation type="vanished">&amp;Çık</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation>&amp;Kapat</translation>
+        <translation type="vanished">&amp;Kapat</translation>
     </message>
     <message>
         <source>Display &amp;Filters…</source>
-        <translation>Görüntüleme &amp;Filtreleri…</translation>
+        <translation type="vanished">Görüntüleme &amp;Filtreleri…</translation>
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
-        <translation>&amp;Tüm Görüntülenenlerin İşaretini Kaldır</translation>
+        <translation type="vanished">&amp;Tüm Görüntülenenlerin İşaretini Kaldır</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
-        <translation>Tüm VoIP Aramaları</translation>
+        <translation type="vanished">Tüm VoIP Aramaları</translation>
     </message>
     <message>
         <source>SIP &amp;Flows</source>
-        <translation>SIP &amp;Akışları</translation>
+        <translation type="vanished">SIP &amp;Akışları</translation>
     </message>
     <message>
         <source>SIP Flows</source>
-        <translation>SIP Akışları</translation>
+        <translation type="vanished">SIP Akışları</translation>
     </message>
     <message>
         <source>RTP Streams</source>
-        <translation>RTP Akışları</translation>
+        <translation type="vanished">RTP Akışları</translation>
     </message>
     <message>
         <source>Edit the packet list coloring rules.</source>
-        <translation>Paket listesi renklendirme kurallarını düzenleyin.</translation>
+        <translation type="vanished">Paket listesi renklendirme kurallarını düzenleyin.</translation>
     </message>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
         <oldsource>ATT Server Attributes</oldsource>
-        <translation>Bluetooth ATT Sunucusu Özellikleri</translation>
+        <translation type="vanished">Bluetooth ATT Sunucusu Özellikleri</translation>
     </message>
     <message>
         <source>Show Packet in New &amp;Window</source>
-        <translation>Paketi Yeni &amp;Pencerede Göster</translation>
+        <translation type="vanished">Paketi Yeni &amp;Pencerede Göster</translation>
     </message>
     <message>
         <source>Show this packet in a separate window.</source>
-        <translation>Bu paketi ayrı bir pencerede göster.</translation>
+        <translation type="vanished">Bu paketi ayrı bir pencerede göster.</translation>
     </message>
     <message>
         <source>Show the linked packet in a separate window.</source>
-        <translation>Bağlantılı paketi ayrı bir pencerede gösterin.</translation>
+        <translation type="vanished">Bağlantılı paketi ayrı bir pencerede gösterin.</translation>
     </message>
     <message>
         <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation>Can&amp;lı Yakalamada Otomatik Kaydırma</translation>
+        <translation type="vanished">Can&amp;lı Yakalamada Otomatik Kaydırma</translation>
     </message>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation>Canlı yakalama sırasında otomatik olarak son pakete ilerleyin.</translation>
+        <translation type="vanished">Canlı yakalama sırasında otomatik olarak son pakete ilerleyin.</translation>
     </message>
     <message>
         <source>Expert Information</source>
-        <translation>Uzman Bilgileri</translation>
+        <translation type="vanished">Uzman Bilgileri</translation>
     </message>
     <message>
         <source>Show expert notifications</source>
-        <translation>Uzman bildirimlerini göster</translation>
+        <translation type="vanished">Uzman bildirimlerini göster</translation>
     </message>
     <message>
         <source>Add an expression to the display filter.</source>
-        <translation>Görüntü filtresine bir ifade ekleyin.</translation>
+        <translation type="vanished">Görüntü filtresine bir ifade ekleyin.</translation>
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_UNSORTED</source>
-        <translation>KAYIT_STAT_GRUBU_SIRALANMAMIŞ</translation>
+        <translation type="vanished">KAYIT_STAT_GRUBU_SIRALANMAMIŞ</translation>
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
-        <translation>&quot;KAYIT_STAT_GRUBU_SIRALANMAMIŞ&quot; başlangıcı</translation>
+        <translation type="vanished">&quot;KAYIT_STAT_GRUBU_SIRALANMAMIŞ&quot; başlangıcı</translation>
     </message>
     <message>
         <source>No ANSI statistics registered</source>
         <oldsource>No tools registered</oldsource>
-        <translation>ANSI istatistiği kayıtlı değil</translation>
+        <translation type="vanished">ANSI istatistiği kayıtlı değil</translation>
     </message>
     <message>
         <source>Resolved Addresses</source>
-        <translation>Çözümlenen Adresler</translation>
+        <translation type="vanished">Çözümlenen Adresler</translation>
     </message>
     <message>
         <source>Show each table of resolved addresses as copyable text.</source>
-        <translation>Çözümlenen adreslerin her bir tablosunu kopyalanabilir metin olarak gösterin.</translation>
+        <translation type="vanished">Çözümlenen adreslerin her bir tablosunu kopyalanabilir metin olarak gösterin.</translation>
     </message>
     <message>
         <source>Color &amp;1</source>
-        <translation>Renk &amp;1</translation>
+        <translation type="vanished">Renk &amp;1</translation>
     </message>
     <message>
         <source>Mark the current conversation with its own color.</source>
         <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation>Mevcut konuşmayı kendi rengiyle işaretleyin.</translation>
+        <translation type="vanished">Mevcut konuşmayı kendi rengiyle işaretleyin.</translation>
     </message>
     <message>
         <source>Color &amp;2</source>
-        <translation>Renk &amp;2</translation>
+        <translation type="vanished">Renk &amp;2</translation>
     </message>
     <message>
         <source>Color &amp;3</source>
-        <translation>Renk &amp;3</translation>
+        <translation type="vanished">Renk &amp;3</translation>
     </message>
     <message>
         <source>Color &amp;4</source>
-        <translation>Renk &amp;4</translation>
+        <translation type="vanished">Renk &amp;4</translation>
     </message>
     <message>
         <source>Color &amp;5</source>
-        <translation>Renk &amp;5</translation>
+        <translation type="vanished">Renk &amp;5</translation>
     </message>
     <message>
         <source>Color &amp;6</source>
-        <translation>Renk &amp;6</translation>
+        <translation type="vanished">Renk &amp;6</translation>
     </message>
     <message>
         <source>Color &amp;7</source>
-        <translation>Renk &amp;7</translation>
+        <translation type="vanished">Renk &amp;7</translation>
     </message>
     <message>
         <source>Color &amp;8</source>
-        <translation>Renk &amp;8</translation>
+        <translation type="vanished">Renk &amp;8</translation>
     </message>
     <message>
         <source>Color &amp;9</source>
-        <translation>Renk &amp;9</translation>
+        <translation type="vanished">Renk &amp;9</translation>
     </message>
     <message>
         <source>Color 1&amp;0</source>
-        <translation>Renk 1&amp;0</translation>
+        <translation type="vanished">Renk 1&amp;0</translation>
     </message>
     <message>
         <source>Create a new coloring rule based on this field.</source>
         <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation>Bu alana dayalı yeni bir renklendirme kuralı oluşturun.</translation>
+        <translation type="vanished">Bu alana dayalı yeni bir renklendirme kuralı oluşturun.</translation>
     </message>
     <message>
         <source>Reset Colorization</source>
-        <translation>Renklendirmeyi Sıfırla</translation>
+        <translation type="vanished">Renklendirmeyi Sıfırla</translation>
     </message>
     <message>
         <source>Reset colorized conversations.</source>
-        <translation>Renklendirilmiş konuşmaları sıfırlayın.</translation>
+        <translation type="vanished">Renklendirilmiş konuşmaları sıfırlayın.</translation>
     </message>
     <message>
         <source>RTP Stream Analysis</source>
-        <translation>RTP Akış Analizi</translation>
+        <translation type="vanished">RTP Akış Analizi</translation>
     </message>
     <message>
         <source>Edit Resolved Name</source>
-        <translation>Çözümlenen Adı Düzenle</translation>
+        <translation type="vanished">Çözümlenen Adı Düzenle</translation>
     </message>
     <message>
         <source>Manually edit a name resolution entry.</source>
-        <translation>Bir ad çözümleme girişini el ile düzenleyin.</translation>
+        <translation type="vanished">Bir ad çözümleme girişini el ile düzenleyin.</translation>
     </message>
     <message>
         <source>Enable and disable specific protocols</source>
-        <translation>Belirli protokolleri etkinleştirin ve devre dışı bırakın</translation>
+        <translation type="vanished">Belirli protokolleri etkinleştirin ve devre dışı bırakın</translation>
     </message>
     <message>
         <source> before quitting</source>
-        <translation> bırakmadan önce</translation>
+        <translation type="vanished"> bırakmadan önce</translation>
     </message>
     <message>
         <source>Save packets before merging?</source>
-        <translation>Paketler birleştirmeden önce kaydedilsin mi?</translation>
+        <translation type="vanished">Paketler birleştirmeden önce kaydedilsin mi?</translation>
     </message>
     <message>
         <source>A temporary capture file can&apos;t be merged.</source>
-        <translation>Geçici bir yakalama dosyası birleştirilemez.</translation>
+        <translation type="vanished">Geçici bir yakalama dosyası birleştirilemez.</translation>
     </message>
     <message>
         <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation>Birleştirmeden önce &quot;%1&quot; içindeki değişiklikler kaydedilsin mi?</translation>
+        <translation type="vanished">Birleştirmeden önce &quot;%1&quot; içindeki değişiklikler kaydedilsin mi?</translation>
     </message>
     <message>
         <source>Changes must be saved before the files can be merged.</source>
-        <translation>Dosyalar birleştirilmeden önce değişiklikler kaydedilmelidir.</translation>
+        <translation type="vanished">Dosyalar birleştirilmeden önce değişiklikler kaydedilmelidir.</translation>
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation>Geçersiz Görüntü Filtresi</translation>
+        <translation type="vanished">Geçersiz Görüntü Filtresi</translation>
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <translation>Geçersiz Okuma Filtresi</translation>
+        <translation type="vanished">Geçersiz Okuma Filtresi</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
+        <translation type="vanished">%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
     </message>
     <message>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation> bir yakalamayı içe aktarmadan önce</translation>
+        <translation type="vanished"> bir yakalamayı içe aktarmadan önce</translation>
     </message>
     <message>
         <source>Unable to export to &quot;%1&quot;.</source>
-        <translation>&quot;%1&quot;e dışa aktarılamıyor.</translation>
+        <translation type="vanished">&quot;%1&quot;e dışa aktarılamıyor.</translation>
     </message>
     <message>
         <source>You cannot export packets to the current capture file.</source>
-        <translation>Paketleri geçerli yakalama dosyasına aktaramazsınız.</translation>
+        <translation type="vanished">Paketleri geçerli yakalama dosyasına aktaramazsınız.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
-        <translation>%1 yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
+        <translation type="vanished">%1 yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
     </message>
     <message>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation>Yakaladığınız paketleri kaydetmezseniz kaybolacaktır.</translation>
+        <translation type="vanished">Yakaladığınız paketleri kaydetmezseniz kaybolacaktır.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation>&quot;%1&quot;%2 yakalama dosyasında yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
+        <translation type="vanished">&quot;%1&quot;%2 yakalama dosyasında yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
     </message>
     <message>
         <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation>Kaydetmezseniz değişiklikleriniz kaybolacak.</translation>
+        <translation type="vanished">Kaydetmezseniz değişiklikleriniz kaybolacak.</translation>
     </message>
     <message>
         <source>Check for Updates…</source>
-        <translation>Güncellemeleri kontrol et…</translation>
+        <translation type="vanished">Güncellemeleri kontrol et…</translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
-        <translation>Yakalama sırasında dosyalar bırakılamıyor.</translation>
+        <translation type="vanished">Yakalama sırasında dosyalar bırakılamıyor.</translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>
-        <translation>Birleştirme iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
+        <translation type="vanished">Birleştirme iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation>Lütfen bunu https://gitlab.com/wireshark/wireshark/-/issues adresinde bir Wireshark sorunu olarak bildirin.</translation>
+        <translation type="vanished">Lütfen bunu https://gitlab.com/wireshark/wireshark/-/issues adresinde bir Wireshark sorunu olarak bildirin.</translation>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
-        <translation>Dışa aktarma iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
+        <translation type="vanished">Dışa aktarma iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation>Yakalamayı durdurmak ve yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
+        <translation type="vanished">Yakalamayı durdurmak ve yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
     </message>
     <message>
         <source>Do you want to save the captured packets%1?</source>
-        <translation>Yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
+        <translation type="vanished">Yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
     </message>
     <message>
         <source>Save before Continue</source>
-        <translation>Devam etmeden önce kaydet</translation>
+        <translation type="vanished">Devam etmeden önce kaydet</translation>
     </message>
     <message>
         <source>Stop and Save</source>
-        <translation>Durdur ve Kaydet</translation>
+        <translation type="vanished">Durdur ve Kaydet</translation>
     </message>
     <message>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
-        <translation>Kaydetmeden &amp;Durdurun ve Çıkın</translation>
+        <translation type="vanished">Kaydetmeden &amp;Durdurun ve Çıkın</translation>
     </message>
     <message>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
-        <translation>Kaydetmeden &amp;çık</translation>
+        <translation type="vanished">Kaydetmeden &amp;çık</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation>Wireshark&apos;ın bu sürümünde &quot;rtp.ssrc&quot; alanı yoktur.</translation>
+        <translation type="vanished">Wireshark&apos;ın bu sürümünde &quot;rtp.ssrc&quot; alanı yoktur.</translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation>Lütfen SSRC değerine sahip bir RTPv2 paketi seçin</translation>
+        <translation type="vanished">Lütfen SSRC değerine sahip bir RTPv2 paketi seçin</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation>SSRC değeri bulunamadı.</translation>
+        <translation type="vanished">SSRC değeri bulunamadı.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
-        <translation>Araç çubuğunu göster ya da gizle</translation>
+        <translation type="vanished">Araç çubuğunu göster ya da gizle</translation>
     </message>
     <message>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
-        <translation>Kaydetmeden &amp;devam et</translation>
+        <translation type="vanished">Kaydetmeden &amp;devam et</translation>
     </message>
     <message>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
-        <translation>Durdur ve Devam Et &amp;Kaydetmeden</translation>
+        <translation type="vanished">Durdur ve Devam Et &amp;Kaydetmeden</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation>Wireshark Ağ Çözümleyicisi</translation>
+        <translation type="vanished">Wireshark Ağ Çözümleyicisi</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation>%1&apos;den yakalama</translation>
+        <translation type="vanished">%1&apos;den yakalama</translation>
     </message>
     <message>
         <source> before opening another file</source>
-        <translation> başka bir dosyayı açmadan önce</translation>
+        <translation type="vanished"> başka bir dosyayı açmadan önce</translation>
     </message>
     <message>
         <source>Merging files.</source>
-        <translation>Dosyaları birleştirme.</translation>
+        <translation type="vanished">Dosyaları birleştirme.</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation>Menüyü Temizle</translation>
+        <translation type="vanished">Menüyü Temizle</translation>
     </message>
     <message>
         <source> before closing the file</source>
-        <translation> dosyayı kapatmadan önce</translation>
+        <translation type="vanished"> dosyayı kapatmadan önce</translation>
     </message>
     <message>
         <source>Export Selected Packet Bytes</source>
-        <translation>Seçili Paket Baytlarını Dışa Aktar</translation>
+        <translation type="vanished">Seçili Paket Baytlarını Dışa Aktar</translation>
     </message>
     <message>
         <source>No Keys</source>
-        <translation>Anahtar Yok</translation>
+        <translation type="vanished">Anahtar Yok</translation>
     </message>
     <message numerus="yes">
         <source>Export SSL Session Keys (%Ln key(s))</source>
@@ -8279,154 +8279,154 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation>Ham veriler (*.bin *.dat *.raw);;Tüm Dosyalar (</translation>
+        <translation type="vanished">Ham veriler (*.bin *.dat *.raw);;Tüm Dosyalar (</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation>Metin kopyalanamadı. Başka bir öğe deneyin.</translation>
+        <translation type="vanished">Metin kopyalanamadı. Başka bir öğe deneyin.</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all packet comments?</source>
-        <translation>Tüm paket yorumlarını kaldırmak istediğinizden emin misiniz?</translation>
+        <translation type="vanished">Tüm paket yorumlarını kaldırmak istediğinizden emin misiniz?</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
-        <translation>Görüşme filtresi oluşturulamıyor.</translation>
+        <translation type="vanished">Görüşme filtresi oluşturulamıyor.</translation>
     </message>
     <message>
         <source> before reloading the file</source>
-        <translation> dosyayı yeniden yüklemeden önce</translation>
+        <translation type="vanished"> dosyayı yeniden yüklemeden önce</translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
-        <translation>Bu görüşme için filtre derlenirken hata oluştu.</translation>
+        <translation type="vanished">Bu görüşme için filtre derlenirken hata oluştu.</translation>
     </message>
     <message>
         <source>No previous/next packet in conversation.</source>
-        <translation>Görüşmede önceki/sonraki paket yok.</translation>
+        <translation type="vanished">Görüşmede önceki/sonraki paket yok.</translation>
     </message>
     <message>
         <source>No interface selected.</source>
-        <translation>Arayüz seçilmedi.</translation>
+        <translation type="vanished">Arayüz seçilmedi.</translation>
     </message>
     <message>
         <source>Saving %1…</source>
-        <translation>%1 kaydediliyor…</translation>
+        <translation type="vanished">%1 kaydediliyor…</translation>
     </message>
     <message>
         <source>Configure all extcaps before start of capture.</source>
-        <translation>Yakalamaya başlamadan önce tüm dış harfleri yapılandırın.</translation>
+        <translation type="vanished">Yakalamaya başlamadan önce tüm dış harfleri yapılandırın.</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
-        <translation>Geçersiz yakalama filtresi.</translation>
+        <translation type="vanished">Geçersiz yakalama filtresi.</translation>
     </message>
     <message>
         <source>(empty comment)</source>
         <comment>placeholder for empty comment</comment>
-        <translation>(boş yorum)</translation>
+        <translation type="vanished">(boş yorum)</translation>
     </message>
     <message>
         <source>Add New Comment…</source>
-        <translation>Yeni Yorum Ekle…</translation>
+        <translation type="vanished">Yeni Yorum Ekle…</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
         <comment>edit packet comment</comment>
-        <translation>&quot;%1&quot;i düzenle</translation>
+        <translation type="vanished">&quot;%1&quot;i düzenle</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
         <comment>delete packet comment</comment>
-        <translation>&quot;%1&quot;i sil</translation>
+        <translation type="vanished">&quot;%1&quot;i sil</translation>
     </message>
     <message>
         <source>Delete packet comments</source>
-        <translation>Paket yorumlarını sil</translation>
+        <translation type="vanished">Paket yorumlarını sil</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%n paketinden() yorumları sil</numerusform>
         </translation>
     </message>
     <message>
         <source> before starting a new capture</source>
-        <translation> yeni bir yakalamaya başlamadan önce</translation>
+        <translation type="vanished"> yeni bir yakalamaya başlamadan önce</translation>
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation>Lua eklentilerini yeniden yüklemeden önce</translation>
+        <translation type="vanished">Lua eklentilerini yeniden yüklemeden önce</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
-        <translation>Wireshark başlatılırken lütfen bekleyin…</translation>
+        <translation type="vanished">Wireshark başlatılırken lütfen bekleyin…</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
-        <translation>Kaydedilecek TLS Oturum Anahtarı yok.</translation>
+        <translation type="vanished">Kaydedilecek TLS Oturum Anahtarı yok.</translation>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>TLS Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
         </translation>
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation>TLS Oturum Anahtarları (*.keys *.txt);;Tüm Dosyalar (</translation>
+        <translation type="vanished">TLS Oturum Anahtarları (*.keys *.txt);;Tüm Dosyalar (</translation>
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
-        <translation>Filtre mevcut değil. Başka bir %1 deneyin.</translation>
+        <translation type="vanished">Filtre mevcut değil. Başka bir %1 deneyin.</translation>
     </message>
     <message>
         <source>column</source>
-        <translation>sütun</translation>
+        <translation type="vanished">sütun</translation>
     </message>
     <message>
         <source>item</source>
-        <translation>öğe</translation>
+        <translation type="vanished">öğe</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists.</source>
-        <translation>&quot;%1&quot; sütunu zaten var.</translation>
+        <translation type="vanished">&quot;%1&quot; sütunu zaten var.</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation>&quot;%1&quot; sütunu zaten &quot;%2&quot; olarak var.</translation>
+        <translation type="vanished">&quot;%1&quot; sütunu zaten &quot;%2&quot; olarak var.</translation>
     </message>
     <message>
         <source>RTP packet search failed</source>
-        <translation>RTP paket araması başarısız oldu</translation>
+        <translation type="vanished">RTP paket araması başarısız oldu</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
-        <translation>Arayüz Seçilmedi.</translation>
+        <translation type="vanished">Arayüz Seçilmedi.</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
-        <translation> yakalamayı yeniden başlatmadan önce</translation>
+        <translation type="vanished"> yakalamayı yeniden başlatmadan önce</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
-        <translation>%1 için Wiki Sayfası</translation>
+        <translation type="vanished">%1 için Wiki Sayfası</translation>
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Wiki&apos;nin bakımı topluluk tarafından sağlanır.&lt;/p&gt;&lt;p&gt;Yüklemek üzere olduğunuz sayfa harika, eksik, yanlış veya hiç yok olabilir.&lt;/p&gt;&lt;p&gt;Wiki&apos;ye geçilsin mi?&lt;/P&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Wiki&apos;nin bakımı topluluk tarafından sağlanır.&lt;/p&gt;&lt;p&gt;Yüklemek üzere olduğunuz sayfa harika, eksik, yanlış veya hiç yok olabilir.&lt;/p&gt;&lt;p&gt;Wiki&apos;ye geçilsin mi?&lt;/P&gt;</translation>
     </message>
     <message>
         <source>Loading</source>
-        <translation>Yükleniyor</translation>
+        <translation type="vanished">Yükleniyor</translation>
     </message>
     <message>
         <source>Reloading</source>
-        <translation>Yeniden yükleniyor</translation>
+        <translation type="vanished">Yeniden yükleniyor</translation>
     </message>
     <message>
         <source>Rescanning</source>
-        <translation>Yeniden tarama</translation>
+        <translation type="vanished">Yeniden tarama</translation>
     </message>
 </context>
 <context>
@@ -14261,6 +14261,10 @@ a:hover {
         <translation>Klasörde Göster</translation>
     </message>
     <message>
+        <source>Welcome to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All interfaces shown</source>
         <translation>Gösterilen tüm arayüzler</translation>
     </message>
@@ -14386,6 +14390,2124 @@ a:hover {
     <message>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>&quot;%1&quot; öğesine dokunarak eklenemedi</translation>
+    </message>
+</context>
+<context>
+    <name>WiresharkMainWindow</name>
+    <message>
+        <source>Wireshark</source>
+        <translation type="unfinished">Wireshark</translation>
+    </message>
+    <message>
+        <source>Packet:</source>
+        <translation type="unfinished">Paket:</translation>
+    </message>
+    <message>
+        <source>Go to packet</source>
+        <translation type="unfinished">Pakete git</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">İptal et</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation type="unfinished">&amp;DOSYA</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished">&amp;Son Kullanılanlardan Aç</translation>
+    </message>
+    <message>
+        <source>File Set</source>
+        <translation type="unfinished">Dosya Kümesi</translation>
+    </message>
+    <message>
+        <source>Export Packet Dissections</source>
+        <translation type="unfinished">Paket Diseksiyonlarını Dışa Aktar</translation>
+    </message>
+    <message>
+        <source>Export Objects</source>
+        <translation type="unfinished">Nesneleri Dışa Aktar</translation>
+    </message>
+    <message>
+        <source>&amp;Capture</source>
+        <translation type="unfinished">&amp;Yakala</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation type="unfinished">&amp;Yardım</translation>
+    </message>
+    <message>
+        <source>Manual pages</source>
+        <translation type="unfinished">Elle ayarlanmış sayfalar</translation>
+    </message>
+    <message>
+        <source>&amp;Go</source>
+        <translation type="unfinished">&amp;Git</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation type="unfinished">&amp;Görünüm</translation>
+    </message>
+    <message>
+        <source>Interface Toolbars</source>
+        <translation type="unfinished">Arayüz Araç Çubukları</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom</source>
+        <translation type="unfinished">&amp;Yaklaş</translation>
+    </message>
+    <message>
+        <source>&amp;Time Display Format</source>
+        <translation type="unfinished">&amp;Zaman Görüntüleme Biçimi</translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished">Ad Çözüm&amp;lemesi</translation>
+    </message>
+    <message>
+        <source>Colorize Conversation</source>
+        <translation type="unfinished">Konuşmayı Renklendir</translation>
+    </message>
+    <message>
+        <source>Internals</source>
+        <translation type="unfinished">Dahili</translation>
+    </message>
+    <message>
+        <source>Additional Toolbars</source>
+        <translation type="unfinished">Ek Araç Çubukları</translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation type="unfinished">&amp;Analiz</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation type="unfinished">Filtre Olarak Uygula</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished">Filtre Olarak Hazırla</translation>
+    </message>
+    <message>
+        <source>SCTP</source>
+        <translation type="unfinished">SCTP</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation type="unfinished">Takip</translation>
+    </message>
+    <message>
+        <source>Conversation Filter</source>
+        <translation type="unfinished">Konuşma Filtresi</translation>
+    </message>
+    <message>
+        <source>&amp;Statistics</source>
+        <translation type="unfinished">&amp;İstatistikler</translation>
+    </message>
+    <message>
+        <source>TCP Stream Graphs</source>
+        <translation type="unfinished">TCP Akış Grafikleri</translation>
+    </message>
+    <message>
+        <source>BACnet</source>
+        <translation type="unfinished">BACnet</translation>
+    </message>
+    <message>
+        <source>HTTP</source>
+        <translation type="unfinished">HTTP</translation>
+    </message>
+    <message>
+        <source>29West</source>
+        <translation type="unfinished">29Batı</translation>
+    </message>
+    <message>
+        <source>Topics</source>
+        <translation type="unfinished">Konular</translation>
+    </message>
+    <message>
+        <source>Queues</source>
+        <translation type="unfinished">Kuyruklar</translation>
+    </message>
+    <message>
+        <source>UIM</source>
+        <translation type="unfinished">UIM</translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished">Servis &amp;Yanıt Süresi</translation>
+    </message>
+    <message>
+        <source>Reliable Server Pooling (RSerPool)</source>
+        <translation type="unfinished">Güvenilir Sunucu Havuzu (RSerPool)</translation>
+    </message>
+    <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished">BAZI/IP</translation>
+    </message>
+    <message>
+        <source>Telephon&amp;y</source>
+        <translation type="unfinished">Telefo&amp;n</translation>
+    </message>
+    <message>
+        <source>RTSP</source>
+        <translation type="unfinished">RTSP</translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished">&amp;RTP</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished">S&amp;CTP</translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished">&amp;ANSI</translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished">&amp;GSM</translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished">&amp;LTE</translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished">&amp;MTP3</translation>
+    </message>
+    <message>
+        <source>Osmux</source>
+        <translation type="unfinished">Osmux</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">&amp;Düzenle</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopyala</translation>
+    </message>
+    <message>
+        <source>Packet Comments</source>
+        <translation type="unfinished">Paket Yorumları</translation>
+    </message>
+    <message>
+        <source>&amp;Wireless</source>
+        <translation type="unfinished">&amp;Kablosuz</translation>
+    </message>
+    <message>
+        <source>&amp;Tools</source>
+        <translation type="unfinished">&amp;Araçlar</translation>
+    </message>
+    <message>
+        <source>Main Toolbar</source>
+        <translation type="unfinished">Ana Araç Çubuğu</translation>
+    </message>
+    <message>
+        <source>Display Filter Toolbar</source>
+        <translation type="unfinished">Filtre Araç Çubuğunu Görüntüle</translation>
+    </message>
+    <message>
+        <source>Wireless Toolbar</source>
+        <translation type="unfinished">Kablosuz Araç Çubuğu</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished">&amp;Aç</translation>
+    </message>
+    <message>
+        <source>Open a capture file</source>
+        <translation type="unfinished">Bir yakalama dosyası açın</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished">&amp;Çık</translation>
+    </message>
+    <message>
+        <source>Quit Wireshark</source>
+        <translation type="unfinished">Wireshark&apos;tan çıkın</translation>
+    </message>
+    <message>
+        <source>&amp;Start</source>
+        <translation type="unfinished">&amp;Başlat</translation>
+    </message>
+    <message>
+        <source>Start capturing packets</source>
+        <translation type="unfinished">Paketleri yakalamaya başlayın</translation>
+    </message>
+    <message>
+        <source>S&amp;top</source>
+        <translation type="unfinished">D&amp;urdur</translation>
+    </message>
+    <message>
+        <source>Stop capturing packets</source>
+        <translation type="unfinished">Paketleri yakalamayı durdur</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Kapat</translation>
+    </message>
+    <message>
+        <source>Close this capture file</source>
+        <translation type="unfinished">Bu yakalama dosyasını kapat</translation>
+    </message>
+    <message>
+        <source>No files found</source>
+        <translation type="unfinished">Dosya bulunamadı</translation>
+    </message>
+    <message>
+        <source>&amp;Contents</source>
+        <translation type="unfinished">&amp;İçerik</translation>
+    </message>
+    <message>
+        <source>Help contents</source>
+        <translation type="unfinished">Yardım içeriği</translation>
+    </message>
+    <message>
+        <source>Wireshark Filter</source>
+        <translation type="unfinished">Wireshark Filtresi</translation>
+    </message>
+    <message>
+        <source>TShark</source>
+        <translation type="unfinished">TShark</translation>
+    </message>
+    <message>
+        <source>Rawshark</source>
+        <translation type="unfinished">Rawshark</translation>
+    </message>
+    <message>
+        <source>Dumpcap</source>
+        <translation type="unfinished">Dumpcap</translation>
+    </message>
+    <message>
+        <source>Mergecap</source>
+        <translation type="unfinished">Mergecap</translation>
+    </message>
+    <message>
+        <source>Editcap</source>
+        <translation type="unfinished">Editcap</translation>
+    </message>
+    <message>
+        <source>Text2pcap</source>
+        <translation type="unfinished">Text2pcap</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation type="unfinished">İnternet Sitesi</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation type="unfinished">SSS</translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation type="unfinished">İndirilenler</translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation type="unfinished">Viki</translation>
+    </message>
+    <message>
+        <source>Sample Captures</source>
+        <translation type="unfinished">Örnek Yakalamalar</translation>
+    </message>
+    <message>
+        <source>&amp;About Wireshark</source>
+        <translation type="unfinished">&amp;Wireshark Hakkında</translation>
+    </message>
+    <message>
+        <source>Ask (Q&amp;&amp;A)</source>
+        <translation type="unfinished">Sor (Soru-Cevap)</translation>
+    </message>
+    <message>
+        <source>Next Packet</source>
+        <translation type="unfinished">Sonraki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the next packet</source>
+        <translation type="unfinished">Sonraki pakete git</translation>
+    </message>
+    <message>
+        <source>Previous Packet</source>
+        <translation type="unfinished">Önceki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet</source>
+        <translation type="unfinished">Önceki pakete git</translation>
+    </message>
+    <message>
+        <source>Next Packet in Conversation</source>
+        <translation type="unfinished">Konuşmadaki Sonraki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in this conversation</source>
+        <translation type="unfinished">Bu görüşmede sonraki pakete git</translation>
+    </message>
+    <message>
+        <source>Previous Packet in Conversation</source>
+        <translation type="unfinished">Görüşmede Önceki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in this conversation</source>
+        <translation type="unfinished">Bu görüşmede önceki pakete git</translation>
+    </message>
+    <message>
+        <source>Next Packet In History</source>
+        <translation type="unfinished">Geçmişteki Sonraki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in your selection history</source>
+        <translation type="unfinished">Seçim geçmişinizde bir sonraki pakete gidin</translation>
+    </message>
+    <message>
+        <source>Previous Packet In History</source>
+        <translation type="unfinished">Geçmişteki Önceki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in your selection history</source>
+        <translation type="unfinished">Seçim geçmişinizde önceki pakete gidin</translation>
+    </message>
+    <message>
+        <source>First Packet</source>
+        <translation type="unfinished">İlk Paket</translation>
+    </message>
+    <message>
+        <source>Go to the first packet</source>
+        <translation type="unfinished">İlk pakete git</translation>
+    </message>
+    <message>
+        <source>Last Packet</source>
+        <translation type="unfinished">Son Paket</translation>
+    </message>
+    <message>
+        <source>Go to the last packet</source>
+        <translation type="unfinished">Son pakete git</translation>
+    </message>
+    <message>
+        <source>E&amp;xpand Subtrees</source>
+        <translation type="unfinished">Alt Ağaçları G&amp;enişlet</translation>
+    </message>
+    <message>
+        <source>Expand the current packet detail</source>
+        <translation type="unfinished">Geçerli paket ayrıntısını genişlet</translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished">Alt Ağaçları Daralt</translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
+        <translation type="unfinished">Geçerli paket ayrıntısını daralt</translation>
+    </message>
+    <message>
+        <source>&amp;Expand All</source>
+        <translation type="unfinished">&amp;Tümünü Genişlet</translation>
+    </message>
+    <message>
+        <source>Expand packet details</source>
+        <translation type="unfinished">Paket ayrıntılarını genişlet</translation>
+    </message>
+    <message>
+        <source>Collapse &amp;All</source>
+        <translation type="unfinished">Tümünü &amp;Daralt</translation>
+    </message>
+    <message>
+        <source>Collapse all packet details</source>
+        <translation type="unfinished">Tüm paket ayrıntılarını daralt</translation>
+    </message>
+    <message>
+        <source>Go to Packet…</source>
+        <translation type="unfinished">Pakete Git…</translation>
+    </message>
+    <message>
+        <source>Go to specified packet</source>
+        <translation type="unfinished">Belirtilen pakete git</translation>
+    </message>
+    <message>
+        <source>&amp;Merge…</source>
+        <translation type="unfinished">&amp;Birleştir…</translation>
+    </message>
+    <message>
+        <source>Merge one or more files</source>
+        <translation type="unfinished">Bir veya daha fazla dosyayı birleştirme</translation>
+    </message>
+    <message>
+        <source>&amp;Import from Hex Dump…</source>
+        <translation type="unfinished">&amp;Hex Dökümünden içe aktar…</translation>
+    </message>
+    <message>
+        <source>Import a file</source>
+        <translation type="unfinished">Bir dosyayı içe aktar</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation type="unfinished">&amp;Kaydet</translation>
+    </message>
+    <message>
+        <source>Save this capture file</source>
+        <translation type="unfinished">Bu yakalama dosyasını kaydet</translation>
+    </message>
+    <message>
+        <source>Save &amp;As…</source>
+        <translation type="unfinished">Farklı &amp;Kaydet…</translation>
+    </message>
+    <message>
+        <source>Save as a different file</source>
+        <translation type="unfinished">Farklı bir dosya olarak kaydet</translation>
+    </message>
+    <message>
+        <source>Export Specified Packets…</source>
+        <translation type="unfinished">Belirtilen Paketleri Dışa Aktar…</translation>
+    </message>
+    <message>
+        <source>Export specified packets</source>
+        <translation type="unfinished">Belirtilen paketleri dışa aktar</translation>
+    </message>
+    <message>
+        <source>Export Packet &amp;Bytes…</source>
+        <translation type="unfinished">Paket &amp;Baytlarını Dışa Aktar…</translation>
+    </message>
+    <message>
+        <source>Export TLS Session Keys…</source>
+        <translation type="unfinished">TLS Oturum Anahtarlarını Dışa Aktar…</translation>
+    </message>
+    <message>
+        <source>&amp;Print…</source>
+        <translation type="unfinished">&amp;Yazdır…</translation>
+    </message>
+    <message>
+        <source>List Files</source>
+        <translation type="unfinished">Dosyaları Listele</translation>
+    </message>
+    <message>
+        <source>Next File</source>
+        <translation type="unfinished">Sonraki Dosya</translation>
+    </message>
+    <message>
+        <source>Previous File</source>
+        <translation type="unfinished">Önceki Dosya</translation>
+    </message>
+    <message>
+        <source>&amp;Reload</source>
+        <translation type="unfinished">&amp;Tekrar yükle</translation>
+    </message>
+    <message>
+        <source>Reload this file</source>
+        <translation type="unfinished">Bu dosyayı yeniden yükle</translation>
+    </message>
+    <message>
+        <source>Reload as File Format/Capture</source>
+        <translation type="unfinished">Dosya Biçimi/Yakalama Olarak Yeniden Yükle</translation>
+    </message>
+    <message>
+        <source>&amp;Options…</source>
+        <translation type="unfinished">&amp;Seçenekler…</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished">Seçenekler</translation>
+    </message>
+    <message>
+        <source>Capture options</source>
+        <translation type="unfinished">Yakalama seçenekleri</translation>
+    </message>
+    <message>
+        <source>Capture &amp;Filters…</source>
+        <translation type="unfinished">Yakalama &amp;Filtreleri…</translation>
+    </message>
+    <message>
+        <source>Capture filters</source>
+        <translation type="unfinished">Yakalama filtreleri</translation>
+    </message>
+    <message>
+        <source>Refresh Interfaces</source>
+        <translation type="unfinished">Arayüzleri Yenile</translation>
+    </message>
+    <message>
+        <source>Refresh interfaces</source>
+        <translation type="unfinished">Arayüzleri yenile</translation>
+    </message>
+    <message>
+        <source>&amp;Restart</source>
+        <translation type="unfinished">&amp;Yeniden Başlat</translation>
+    </message>
+    <message>
+        <source>Restart current capture</source>
+        <translation type="unfinished">Mevcut yakalamayı yeniden başlat</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text…</source>
+        <translation type="unfinished">Düz Metin &amp;Olarak…</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished">&amp;CSV olarak…</translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished">&quot;C&quot; &amp;Diziler olarak…</translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished">P&amp;SML XML olarak…</translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished">P&amp;DML XML olarak…</translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished">&amp;JSON olarak…</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s description</source>
+        <translation type="unfinished">Bu öğenin açıklamasını kopyala</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished">Düz Metin &amp;Olarak</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished">&amp;CSV olarak</translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished">&amp;YAML olarak</translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation type="unfinished">Tüm Görünür Öğeler</translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation type="unfinished">Tüm Görünür Seçilmiş Ağaç Öğeleri</translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation type="unfinished">Alan Adı</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s field name</source>
+        <translation type="unfinished">Bu öğenin alan adını kopyala</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Değer</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s value</source>
+        <translation type="unfinished">Bu öğenin değerini kopyala</translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation type="unfinished">Filtre Olarak</translation>
+    </message>
+    <message>
+        <source>Copy this item as a display filter</source>
+        <translation type="unfinished">Bu öğeyi bir ekran filtresi olarak kopyala</translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished">Görüntüleme &amp;Filtreleri…</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Macros…</source>
+        <translation type="unfinished">Filtre Makrolarını &amp;Görüntüle…</translation>
+    </message>
+    <message>
+        <source>Apply as Column</source>
+        <translation type="unfinished">Sütun olarak uygula</translation>
+    </message>
+    <message>
+        <source>Create a packet list column from the selected field.</source>
+        <translation type="unfinished">Seçili alandan bir paket listesi sütunu oluşturun.</translation>
+    </message>
+    <message>
+        <source>&amp;Find Packet…</source>
+        <translation type="unfinished">&amp;Paket Bul…</translation>
+    </message>
+    <message>
+        <source>Find a packet</source>
+        <translation type="unfinished">Bir paket bul</translation>
+    </message>
+    <message>
+        <source>Find Ne&amp;xt</source>
+        <translation type="unfinished">Sonrakini Bu&amp;l</translation>
+    </message>
+    <message>
+        <source>Find the next packet</source>
+        <translation type="unfinished">Sonraki paketi bul</translation>
+    </message>
+    <message>
+        <source>Find Pre&amp;vious</source>
+        <translation type="unfinished">Öncekini Bu&amp;l</translation>
+    </message>
+    <message>
+        <source>Find the previous packet</source>
+        <translation type="unfinished">Önceki paketi bul</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <translation type="unfinished">&amp;Paketi İşaretle/İşaretini Kaldır</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished">Seçilen her paketi işaretleyin veya işaretini kaldırın</translation>
+    </message>
+    <message>
+        <source>Mark All Displayed</source>
+        <translation type="unfinished">Tüm Görüntülenenleri İşaretle</translation>
+    </message>
+    <message>
+        <source>Mark all displayed packets</source>
+        <translation type="unfinished">Görüntülenen tüm paketleri işaretle</translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished">&amp;Tüm Görüntülenenlerin İşaretini Kaldır</translation>
+    </message>
+    <message>
+        <source>Unmark all displayed packets</source>
+        <translation type="unfinished">Görüntülenen tüm paketlerin işaretini kaldırın</translation>
+    </message>
+    <message>
+        <source>Next Mark</source>
+        <translation type="unfinished">Sonraki İşaret</translation>
+    </message>
+    <message>
+        <source>Go to the next marked packet</source>
+        <translation type="unfinished">Sonraki işaretli pakete git</translation>
+    </message>
+    <message>
+        <source>Previous Mark</source>
+        <translation type="unfinished">Önceki İşaret</translation>
+    </message>
+    <message>
+        <source>Go to the previous marked packet</source>
+        <translation type="unfinished">Önceki işaretli pakete git</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <translation type="unfinished">&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished">Seçilen her paketi yoksay veya yoksay</translation>
+    </message>
+    <message>
+        <source>Ignore All Displayed</source>
+        <translation type="unfinished">Tüm Görüntülenenleri Yoksay</translation>
+    </message>
+    <message>
+        <source>Ignore all displayed packets</source>
+        <translation type="unfinished">Görüntülenen tüm paketleri yoksay</translation>
+    </message>
+    <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation type="unfinished">Tüm Görüntülenenleri Y&amp;oksay</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation type="unfinished">Görüntülenen tüm paketleri yoksay</translation>
+    </message>
+    <message>
+        <source>Set/Unset Time Reference</source>
+        <translation type="unfinished">Zaman Referansını Ayarla/Ayarlamayı Kaldır</translation>
+    </message>
+    <message>
+        <source>Set or unset a time reference for this packet</source>
+        <translation type="unfinished">Bu paket için bir zaman referansı ayarlayın veya ayarlayın</translation>
+    </message>
+    <message>
+        <source>Unset All Time References</source>
+        <translation type="unfinished">Tüm Zaman Referans Ayarlarını Kaldır</translation>
+    </message>
+    <message>
+        <source>Remove all time references</source>
+        <translation type="unfinished">Tüm zaman referanslarını kaldır</translation>
+    </message>
+    <message>
+        <source>Next Time Reference</source>
+        <translation type="unfinished">Sonraki Zaman Referansı</translation>
+    </message>
+    <message>
+        <source>Go to the next time reference</source>
+        <translation type="unfinished">Sonraki zaman referansına git</translation>
+    </message>
+    <message>
+        <source>Previous Time Reference</source>
+        <translation type="unfinished">Önceki Zaman Referansı</translation>
+    </message>
+    <message>
+        <source>Go to the previous time reference</source>
+        <translation type="unfinished">Önceki zaman referansına git</translation>
+    </message>
+    <message>
+        <source>Time Shift…</source>
+        <translation type="unfinished">Zaman Kaydırması…</translation>
+    </message>
+    <message>
+        <source>Shift or change packet timestamps</source>
+        <translation type="unfinished">Paket zaman damgalarını kaydırın veya değiştirin</translation>
+    </message>
+    <message>
+        <source>Delete All Packet Comments</source>
+        <translation type="unfinished">Tüm Paket Yorumlarını Sil</translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished">Yakalama dosyasındaki tüm paket yorumlarını kaldırın</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation type="unfinished">&amp;Yapılandırma Profilleri…</translation>
+    </message>
+    <message>
+        <source>Configuration profiles</source>
+        <translation type="unfinished">Yapılandırma profilleri</translation>
+    </message>
+    <message>
+        <source>Manage your configuration profiles</source>
+        <translation type="unfinished">Yapılandırma profillerinizi yönetin</translation>
+    </message>
+    <message>
+        <source>&amp;Preferences…</source>
+        <translation type="unfinished">&amp;Tercihler…</translation>
+    </message>
+    <message>
+        <source>Manage Wireshark&apos;s preferences</source>
+        <translation type="unfinished">Wireshark&apos;ın tercihlerini yönetin</translation>
+    </message>
+    <message>
+        <source>Capture File Properties</source>
+        <translation type="unfinished">Yakalama Dosyası Özellikleri</translation>
+    </message>
+    <message>
+        <source>Capture file properties</source>
+        <translation type="unfinished">Yakalama dosyası özellikleri</translation>
+    </message>
+    <message>
+        <source>&amp;Protocol Hierarchy</source>
+        <translation type="unfinished">&amp;Protokol Hiyerarşisi</translation>
+    </message>
+    <message>
+        <source>Show a summary of protocols present in the capture file.</source>
+        <translation type="unfinished">Yakalama dosyasında bulunan protokollerin bir özetini gösterin.</translation>
+    </message>
+    <message>
+        <source>Capinfos</source>
+        <translation type="unfinished">Başlık bilgileri</translation>
+    </message>
+    <message>
+        <source>Reordercap</source>
+        <translation type="unfinished">Başlığı Yeniden Sırala</translation>
+    </message>
+    <message>
+        <source>Time Sequence (Stevens)</source>
+        <translation type="unfinished">Zaman Dizisi (Stevens)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (Stevens)</source>
+        <translation type="unfinished">TCP zaman dizisi grafiği (Stevens)</translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation type="unfinished">Verim</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation type="unfinished">TCP verimi</translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished">Gidiş-dönüş süresi</translation>
+    </message>
+    <message>
+        <source>TCP round trip time</source>
+        <translation type="unfinished">TCP gidiş dönüş süresi</translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation type="unfinished">Pencere Ölçekleme</translation>
+    </message>
+    <message>
+        <source>TCP window scaling</source>
+        <translation type="unfinished">TCP pencere ölçeklendirme</translation>
+    </message>
+    <message>
+        <source>TCP Stream</source>
+        <translation type="unfinished">TCP Akışı</translation>
+    </message>
+    <message>
+        <source>UDP Stream</source>
+        <translation type="unfinished">UDP Akışı</translation>
+    </message>
+    <message>
+        <source>DCCP Stream</source>
+        <translation type="unfinished">DCCP Akışı</translation>
+    </message>
+    <message>
+        <source>TLS Stream</source>
+        <translation type="unfinished">TLS Akışı</translation>
+    </message>
+    <message>
+        <source>HTTP Stream</source>
+        <translation type="unfinished">HTTP Akışı</translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation type="unfinished">HTTP/2 Akışı</translation>
+    </message>
+    <message>
+        <source>QUIC Stream</source>
+        <translation type="unfinished">QUIC Akışı</translation>
+    </message>
+    <message>
+        <source>SIP Call</source>
+        <translation type="unfinished">SIP Çağrısı</translation>
+    </message>
+    <message>
+        <source>Time Sequence (tcptrace)</source>
+        <translation type="unfinished">Zaman Sırası (tcptrace)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (tcptrace)</source>
+        <translation type="unfinished">TCP zaman sırası grafiği (tcptrace)</translation>
+    </message>
+    <message>
+        <source>Analyse this Association</source>
+        <translation type="unfinished">Bu Derneği analiz et</translation>
+    </message>
+    <message>
+        <source>Show All Associations</source>
+        <translation type="unfinished">Tüm İlişkilendirmeleri Göster</translation>
+    </message>
+    <message>
+        <source>Flow Graph</source>
+        <translation type="unfinished">Akış Grafiği</translation>
+    </message>
+    <message>
+        <source>Flow sequence diagram</source>
+        <translation type="unfinished">Akış sırası diyagramı</translation>
+    </message>
+    <message>
+        <source>ANCP</source>
+        <translation type="unfinished">ANCP</translation>
+    </message>
+    <message>
+        <source>ANCP statistics</source>
+        <translation type="unfinished">ANCP istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by Instance ID</source>
+        <translation type="unfinished">Örnek Kimliğine göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by instance ID</source>
+        <translation type="unfinished">Örnek kimliğine göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by IP</source>
+        <translation type="unfinished">IP&apos;ye göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by IP</source>
+        <translation type="unfinished">IP&apos;ye göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by object type</source>
+        <translation type="unfinished">Nesne türüne göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by object type</source>
+        <translation type="unfinished">Nesne türüne göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by service</source>
+        <translation type="unfinished">Servise göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by service</source>
+        <translation type="unfinished">Hizmete göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Collectd</source>
+        <translation type="unfinished">Toplanan</translation>
+    </message>
+    <message>
+        <source>Collectd statistics</source>
+        <translation type="unfinished">Toplanan istatistikler</translation>
+    </message>
+    <message>
+        <source>DNS</source>
+        <translation type="unfinished">DNS</translation>
+    </message>
+    <message>
+        <source>DNS statistics</source>
+        <translation type="unfinished">DNS istatistikleri</translation>
+    </message>
+    <message>
+        <source>HART-IP</source>
+        <translation type="unfinished">HART-IP</translation>
+    </message>
+    <message>
+        <source>HART-IP statistics</source>
+        <translation type="unfinished">HART-IP istatistikleri</translation>
+    </message>
+    <message>
+        <source>HPFEEDS</source>
+        <translation type="unfinished">HPFEEDS</translation>
+    </message>
+    <message>
+        <source>hpfeeds statistics</source>
+        <translation type="unfinished">hpfeeds istatistikleri</translation>
+    </message>
+    <message>
+        <source>HTTP2</source>
+        <translation type="unfinished">HTTP2</translation>
+    </message>
+    <message>
+        <source>HTTP2 statistics</source>
+        <translation type="unfinished">HTTP2 istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packet Counter</source>
+        <translation type="unfinished">Paket Sayacı</translation>
+    </message>
+    <message>
+        <source>HTTP packet counter</source>
+        <translation type="unfinished">HTTP paket sayacı</translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation type="unfinished">İstekler</translation>
+    </message>
+    <message>
+        <source>HTTP requests</source>
+        <translation type="unfinished">HTTP istekleri</translation>
+    </message>
+    <message>
+        <source>Load Distribution</source>
+        <translation type="unfinished">Yük Dağılımı</translation>
+    </message>
+    <message>
+        <source>HTTP load distribution</source>
+        <translation type="unfinished">HTTP yük dağılımı</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation type="unfinished">İstek Dizileri</translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
+        <translation type="unfinished">HTTP İstek Dizileri</translation>
+    </message>
+    <message>
+        <source>Packet Lengths</source>
+        <translation type="unfinished">Paket Uzunlukları</translation>
+    </message>
+    <message>
+        <source>Packet length statistics</source>
+        <translation type="unfinished">Paket uzunluğu istatistikleri</translation>
+    </message>
+    <message>
+        <source>Sametime</source>
+        <translation type="unfinished">Aynı zamanda</translation>
+    </message>
+    <message>
+        <source>Sametime statistics</source>
+        <translation type="unfinished">Aynı Zaman istatistikleri</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished">BAZI/IP Mesajları</translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished">BAZI/IP Mesaj istatistikleri</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished">BAZI/IP-SD Girdileri</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation type="unfinished">BAZI/IP-SD Girdi istatistikleri</translation>
+    </message>
+    <message>
+        <source>&amp;ISUP Messages</source>
+        <translation type="unfinished">&amp;ISUP Mesajları</translation>
+    </message>
+    <message>
+        <source>ISUP message statistics</source>
+        <translation type="unfinished">ISUP mesaj istatistikleri</translation>
+    </message>
+    <message>
+        <source>Osmux packet counts</source>
+        <translation type="unfinished">Osmux paket sayısı</translation>
+    </message>
+    <message>
+        <source>RTSP packet counts</source>
+        <translation type="unfinished">RTSP paket sayıları</translation>
+    </message>
+    <message>
+        <source>SM&amp;PP Operations</source>
+        <translation type="unfinished">SM&amp;PP İşlemleri</translation>
+    </message>
+    <message>
+        <source>SMPP operation statistics</source>
+        <translation type="unfinished">SMPP işlem istatistikleri</translation>
+    </message>
+    <message>
+        <source>&amp;UCP Messages</source>
+        <translation type="unfinished">&amp;UCP Mesajları</translation>
+    </message>
+    <message>
+        <source>UCP message statistics</source>
+        <translation type="unfinished">UCP mesaj istatistikleri</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation type="unfinished">F1AP</translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished">F1AP Mesajları</translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation type="unfinished">NGAP</translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation type="unfinished">NGAP Mesajları</translation>
+    </message>
+    <message>
+        <source>Decode &amp;As…</source>
+        <translation type="unfinished">Kodu &amp;Çöz…</translation>
+    </message>
+    <message>
+        <source>Change the way packets are dissected</source>
+        <translation type="unfinished">Paketlerin parçalanma şeklini değiştirin</translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation type="unfinished">Lua Eklentilerini Yeniden Yükle</translation>
+    </message>
+    <message>
+        <source>Reload Lua plugins</source>
+        <translation type="unfinished">Lua eklentilerini yeniden yükle</translation>
+    </message>
+    <message>
+        <source>Advertisements by Topic</source>
+        <translation type="unfinished">Konuya Göre Reklamlar</translation>
+    </message>
+    <message>
+        <source>Advertisements by Source</source>
+        <translation type="unfinished">Kaynağa Göre Reklamlar</translation>
+    </message>
+    <message>
+        <source>Advertisements by Transport</source>
+        <translation type="unfinished">Ulaşım Reklamları</translation>
+    </message>
+    <message>
+        <source>Queries by Topic</source>
+        <translation type="unfinished">Konuya Göre Sorgular</translation>
+    </message>
+    <message>
+        <source>Queries by Receiver</source>
+        <translation type="unfinished">Alıcıya Göre Sorgular</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Pattern</source>
+        <translation type="unfinished">Desene Göre Joker Karakter Sorguları</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Receiver</source>
+        <translation type="unfinished">Alıcıya Göre Joker Karakter Sorguları</translation>
+    </message>
+    <message>
+        <source>Advertisements by Queue</source>
+        <translation type="unfinished">Sıraya Göre Reklamlar</translation>
+    </message>
+    <message>
+        <source>Queries by Queue</source>
+        <translation type="unfinished">Kuyruğa Göre Sorgular</translation>
+    </message>
+    <message>
+        <source>Streams</source>
+        <translation type="unfinished">Canlı Yayınlar</translation>
+    </message>
+    <message>
+        <source>LBT-RM</source>
+        <translation type="unfinished">LBT-RM</translation>
+    </message>
+    <message>
+        <source>LBT-RU</source>
+        <translation type="unfinished">LBT-RU</translation>
+    </message>
+    <message>
+        <source>Filter this Association</source>
+        <translation type="unfinished">Bu İlişkilendirmeyi Filtrele</translation>
+    </message>
+    <message>
+        <source>Export PDUs to File…</source>
+        <translation type="unfinished">PDU&apos;ları Dosyaya Aktar…</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished">Üst Bilgiler…</translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished">Üstbilgileri çıkarın ve daha üst düzey kapsüllemeleri dosyaya dışa aktarın</translation>
+    </message>
+    <message>
+        <source>&amp;I/O Graphs</source>
+        <translation type="unfinished">&amp;G/Ç Grafikleri</translation>
+    </message>
+    <message>
+        <source>Create graphs based on display filter fields</source>
+        <translation type="unfinished">Ekran filtresi alanlarına dayalı grafikler oluşturun</translation>
+    </message>
+    <message>
+        <source>&amp;Main Toolbar</source>
+        <translation type="unfinished">&amp;Ana Araç Çubuğu</translation>
+    </message>
+    <message>
+        <source>Show or hide the main toolbar</source>
+        <translation type="unfinished">Ana araç çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>&amp;Filter Toolbar</source>
+        <translation type="unfinished">&amp;Araç Çubuğunu Filtrele</translation>
+    </message>
+    <message>
+        <source>Show or hide the display filter toolbar</source>
+        <translation type="unfinished">Ekran filtresi araç çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished">&amp;Konuşmalar</translation>
+    </message>
+    <message>
+        <source>Conversations at different protocol levels</source>
+        <translation type="unfinished">Farklı protokol seviyelerinde konuşmalar</translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished">&amp;Uç Noktalar</translation>
+    </message>
+    <message>
+        <source>Endpoints at different protocol levels</source>
+        <translation type="unfinished">Farklı protokol seviyelerinde uç noktalar</translation>
+    </message>
+    <message>
+        <source>Colorize Packet List</source>
+        <translation type="unfinished">Paket Listesini Renklendir</translation>
+    </message>
+    <message>
+        <source>Draw packets using your coloring rules</source>
+        <translation type="unfinished">Renklendirme kurallarınızı kullanarak paketler çizin</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom In</source>
+        <translation type="unfinished">&amp;Yaklaştır</translation>
+    </message>
+    <message>
+        <source>Enlarge the main window text</source>
+        <translation type="unfinished">Ana pencere metnini büyüt</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shrink the main window text</source>
+        <translation type="unfinished">Ana pencere metnini küçült</translation>
+    </message>
+    <message>
+        <source>Normal Size</source>
+        <translation type="unfinished">Normal Boyut</translation>
+    </message>
+    <message>
+        <source>Return the main window text to its normal size</source>
+        <translation type="unfinished">Ana pencere metnini normal boyutuna döndür</translation>
+    </message>
+    <message>
+        <source>Reset Layout</source>
+        <translation type="unfinished">Düzeni Sıfırla</translation>
+    </message>
+    <message>
+        <source>Reset appearance layout to default size</source>
+        <translation type="unfinished">Görünüm düzenini varsayılan boyuta sıfırla</translation>
+    </message>
+    <message>
+        <source>Resize Columns</source>
+        <translation type="unfinished">Sütunları Yeniden Boyutlandır</translation>
+    </message>
+    <message>
+        <source>Resize packet list columns to fit contents</source>
+        <translation type="unfinished">İçeriğe sığdırmak için paket listesi sütunlarını yeniden boyutlandırın</translation>
+    </message>
+    <message>
+        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation type="unfinished">Günün Tarihi ve Saati (01-01-1970 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the date and time of day.</source>
+        <translation type="unfinished">Paket sürelerini günün tarihi ve saati olarak göster.</translation>
+    </message>
+    <message>
+        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation type="unfinished">Yıl, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the year, day of the year and time of day.</source>
+        <translation type="unfinished">Paket sürelerini yıl, yılın günü ve günün saati olarak gösterin.</translation>
+    </message>
+    <message>
+        <source>Time of Day (01:02:03.123456)</source>
+        <translation type="unfinished">Günün Saati (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Seconds Since 1970-01-01</source>
+        <translation type="unfinished">1970-01-01&apos;den Beri Saniye</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
+        <translation type="unfinished">Paket sürelerini UNIX / POSIX döneminden (1970-01-01) bu yana saniye olarak göster.</translation>
+    </message>
+    <message>
+        <source>Seconds Since Beginning of Capture</source>
+        <translation type="unfinished">Yakalama Başlangıcından Beri Saniyeler</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Captured Packet</source>
+        <translation type="unfinished">Önceki Yakalanan Paketten Beri Saniye</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous captured packet.</source>
+        <translation type="unfinished">Paket sürelerini, bir önceki yakalanan paketten bu yana geçen saniye olarak göster.</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Displayed Packet</source>
+        <translation type="unfinished">Önceki Görüntülenen Paketten Beri Saniye</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous displayed packet.</source>
+        <translation type="unfinished">Paket sürelerini önceki görüntülenen paketten bu yana geçen saniye olarak göster.</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation type="unfinished">UTC Tarihi ve Günün Saati (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC date and time of day.</source>
+        <translation type="unfinished">Paket saatlerini UTC tarihi ve günün saati olarak göster.</translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation type="unfinished">UTC Yılı, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC year, day of the year and time of day.</source>
+        <translation type="unfinished">Paket sürelerini UTC yılı, yılın günü ve günün saati olarak gösterin.</translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456)</source>
+        <translation type="unfinished">UTC Günün Saati (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC time of day.</source>
+        <translation type="unfinished">Paket sürelerini günün UTC saati olarak göster.</translation>
+    </message>
+    <message>
+        <source>Automatic (from capture file)</source>
+        <translation type="unfinished">Otomatik (yakalama dosyasından)</translation>
+    </message>
+    <message>
+        <source>Use the time precision indicated in the capture file.</source>
+        <translation type="unfinished">Yakalama dosyasında belirtilen zaman hassasiyetini kullanın.</translation>
+    </message>
+    <message>
+        <source>Seconds</source>
+        <translation type="unfinished">Saniye</translation>
+    </message>
+    <message>
+        <source>Tenths of a second</source>
+        <translation type="unfinished">Saniyenin onda biri</translation>
+    </message>
+    <message>
+        <source>Hundredths of a second</source>
+        <translation type="unfinished">Saniyenin yüzde biri</translation>
+    </message>
+    <message>
+        <source>Milliseconds</source>
+        <translation type="unfinished">Milisaniye</translation>
+    </message>
+    <message>
+        <source>Microseconds</source>
+        <translation type="unfinished">Mikrosaniye</translation>
+    </message>
+    <message>
+        <source>Nanoseconds</source>
+        <translation type="unfinished">Nanosaniye</translation>
+    </message>
+    <message>
+        <source>Display Seconds With Hours and Minutes</source>
+        <translation type="unfinished">Saniyeleri Saat ve Dakikalarla Göster</translation>
+    </message>
+    <message>
+        <source>Display seconds with hours and minutes</source>
+        <translation type="unfinished">Saniyeyi saat ve dakika ile göster</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Physical Addresses</source>
+        <translation type="unfinished">&amp;Fiziksel Adresleri Çözümle</translation>
+    </message>
+    <message>
+        <source>Show names for known MAC addresses. Lookups use a local database.</source>
+        <translation type="unfinished">Bilinen MAC adreslerinin adlarını göster. Aramalar yerel bir veritabanı kullanır.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Network Addresses</source>
+        <translation type="unfinished">&amp;Ağ Adreslerini Çözümle</translation>
+    </message>
+    <message>
+        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
+        <translation type="unfinished">Bilinen IPv4, IPv6 ve IPX adreslerinin adlarını gösterin. Aramalar ağ trafiği oluşturabilir.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Transport Addresses</source>
+        <translation type="unfinished">&amp;Taşıma Adreslerini Çözümle</translation>
+    </message>
+    <message>
+        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
+        <translation type="unfinished">Bilinen TCP, UDP ve SCTP hizmetlerinin adlarını gösterin. Aramalar bazı sistemlerde trafik oluşturabilir.</translation>
+    </message>
+    <message>
+        <source>Wire&amp;less Toolbar</source>
+        <translation type="unfinished">Kab&amp;losuz Araç çubuğu</translation>
+    </message>
+    <message>
+        <source>Show or hide the wireless toolbar</source>
+        <translation type="unfinished">Kablosuz araç çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>&amp;Status Bar</source>
+        <translation type="unfinished">&amp;Durum Çubuğu</translation>
+    </message>
+    <message>
+        <source>Show or hide the status bar</source>
+        <translation type="unfinished">Durum çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Packet &amp;List</source>
+        <translation type="unfinished">Paket &amp;Listesi</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet list</source>
+        <translation type="unfinished">Paket listesini göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Details</source>
+        <translation type="unfinished">Paket &amp;Ayrıntıları</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet details</source>
+        <translation type="unfinished">Paket ayrıntılarını göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Bytes</source>
+        <translation type="unfinished">Paket &amp;Bayt</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet bytes</source>
+        <translation type="unfinished">Paket baytlarını göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished">Paket &amp;Şeması</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished">Paket diyagramını göster veya gizle</translation>
+    </message>
+    <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished">&amp;Konuşma Hash Tabloları</translation>
+    </message>
+    <message>
+        <source>Show each conversation hash table</source>
+        <translation type="unfinished">Her konuşma karma tablosunu göster</translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished">&amp;Tespit edici Tabloları</translation>
+    </message>
+    <message>
+        <source>Show each dissector table and its entries</source>
+        <translation type="unfinished">Her bir tespit edici tablosunu ve girişlerini göster</translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished">&amp;Desteklenen Protokoller</translation>
+    </message>
+    <message>
+        <source>Show the currently supported protocols and display filter fields</source>
+        <translation type="unfinished">Şu anda desteklenen protokolleri göster ve filtre alanlarını göster</translation>
+    </message>
+    <message>
+        <source>MAP Summary</source>
+        <translation type="unfinished">HARİTA Özeti</translation>
+    </message>
+    <message>
+        <source>GSM MAP summary statistics</source>
+        <translation type="unfinished">GSM MAP özet istatistikleri</translation>
+    </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation type="unfinished">MAC İstatistikleri</translation>
+    </message>
+    <message>
+        <source>LTE MAC statistics</source>
+        <translation type="unfinished">LTE MAC istatistikleri</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation type="unfinished">RLC İstatistikleri</translation>
+    </message>
+    <message>
+        <source>LTE RLC statistics</source>
+        <translation type="unfinished">LTE RLC istatistikleri</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation type="unfinished">RLC &amp;Grafiği</translation>
+    </message>
+    <message>
+        <source>LTE RLC graph</source>
+        <translation type="unfinished">LTE RLC grafiği</translation>
+    </message>
+    <message>
+        <source>MTP3 Summary</source>
+        <translation type="unfinished">MTP3 Özeti</translation>
+    </message>
+    <message>
+        <source>MTP3 summary statistics</source>
+        <translation type="unfinished">MTP3 özet istatistikleri</translation>
+    </message>
+    <message>
+        <source>&amp;VoIP Calls</source>
+        <translation type="unfinished">&amp;VoIP Aramaları</translation>
+    </message>
+    <message>
+        <source>All VoIP Calls</source>
+        <translation type="unfinished">Tüm VoIP Aramaları</translation>
+    </message>
+    <message>
+        <source>SIP &amp;Flows</source>
+        <translation type="unfinished">SIP &amp;Akışları</translation>
+    </message>
+    <message>
+        <source>SIP Flows</source>
+        <translation type="unfinished">SIP Akışları</translation>
+    </message>
+    <message>
+        <source>RTP Streams</source>
+        <translation type="unfinished">RTP Akışları</translation>
+    </message>
+    <message>
+        <source>&amp;Coloring Rules…</source>
+        <translation type="unfinished">&amp;Renklendirme Kuralları…</translation>
+    </message>
+    <message>
+        <source>Edit the packet list coloring rules.</source>
+        <translation type="unfinished">Paket listesi renklendirme kurallarını düzenleyin.</translation>
+    </message>
+    <message>
+        <source>Bluetooth ATT Server Attributes</source>
+        <translation type="unfinished">Bluetooth ATT Sunucusu Özellikleri</translation>
+    </message>
+    <message>
+        <source>Bluetooth Devices</source>
+        <translation type="unfinished">Bluetooth Cihazları</translation>
+    </message>
+    <message>
+        <source>Bluetooth HCI Summary</source>
+        <translation type="unfinished">Bluetooth HCI Özeti</translation>
+    </message>
+    <message>
+        <source>Show Packet in New &amp;Window</source>
+        <translation type="unfinished">Paketi Yeni &amp;Pencerede Göster</translation>
+    </message>
+    <message>
+        <source>Show this packet in a separate window.</source>
+        <translation type="unfinished">Bu paketi ayrı bir pencerede göster.</translation>
+    </message>
+    <message>
+        <source>Show Linked Packet in New Window</source>
+        <translation type="unfinished">Bağlantılı Paketi Yeni Pencerede Göster</translation>
+    </message>
+    <message>
+        <source>Show the linked packet in a separate window.</source>
+        <translation type="unfinished">Bağlantılı paketi ayrı bir pencerede gösterin.</translation>
+    </message>
+    <message>
+        <source>Auto Scroll in Li&amp;ve Capture</source>
+        <translation type="unfinished">Can&amp;lı Yakalamada Otomatik Kaydırma</translation>
+    </message>
+    <message>
+        <source>Automatically scroll to the last packet during a live capture.</source>
+        <translation type="unfinished">Canlı yakalama sırasında otomatik olarak son pakete ilerleyin.</translation>
+    </message>
+    <message>
+        <source>Expert Information</source>
+        <translation type="unfinished">Uzman Bilgileri</translation>
+    </message>
+    <message>
+        <source>Show expert notifications</source>
+        <translation type="unfinished">Uzman bildirimlerini göster</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation type="unfinished">Filtre İfadesini &amp;Görüntüle…</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished">Filtre İfadesini Görüntüle…</translation>
+    </message>
+    <message>
+        <source>Add an expression to the display filter.</source>
+        <translation type="unfinished">Görüntü filtresine bir ifade ekleyin.</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_UNSORTED</source>
+        <translation type="unfinished">KAYIT_STAT_GRUBU_SIRALANMAMIŞ</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
+        <translation type="unfinished">&quot;KAYIT_STAT_GRUBU_SIRALANMAMIŞ&quot; başlangıcı</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
+        <translation type="unfinished">KAYIT_STAT_GRUBU_GSUNHAVUZU</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
+        <translation type="unfinished">&quot;KAYIT_STAT_GRUBU_GSUNHAVUZU&quot; başlangıcı</translation>
+    </message>
+    <message>
+        <source>No ANSI statistics registered</source>
+        <translation type="unfinished">ANSI istatistiği kayıtlı değil</translation>
+    </message>
+    <message>
+        <source>No GSM statistics registered</source>
+        <translation type="unfinished">Kayıtlı GSM istatistikleri yok</translation>
+    </message>
+    <message>
+        <source>No LTE statistics registered</source>
+        <translation type="unfinished">Kayıtlı LTE istatistiği yok</translation>
+    </message>
+    <message>
+        <source>No MTP3 statistics registered</source>
+        <translation type="unfinished">Kayıtlı MTP3 istatistiği yok</translation>
+    </message>
+    <message>
+        <source>Resolved Addresses</source>
+        <translation type="unfinished">Çözümlenen Adresler</translation>
+    </message>
+    <message>
+        <source>Show each table of resolved addresses as copyable text.</source>
+        <translation type="unfinished">Çözümlenen adreslerin her bir tablosunu kopyalanabilir metin olarak gösterin.</translation>
+    </message>
+    <message>
+        <source>Color &amp;1</source>
+        <translation type="unfinished">Renk &amp;1</translation>
+    </message>
+    <message>
+        <source>Mark the current conversation with its own color.</source>
+        <translation type="unfinished">Mevcut konuşmayı kendi rengiyle işaretleyin.</translation>
+    </message>
+    <message>
+        <source>Color &amp;2</source>
+        <translation type="unfinished">Renk &amp;2</translation>
+    </message>
+    <message>
+        <source>Color &amp;3</source>
+        <translation type="unfinished">Renk &amp;3</translation>
+    </message>
+    <message>
+        <source>Color &amp;4</source>
+        <translation type="unfinished">Renk &amp;4</translation>
+    </message>
+    <message>
+        <source>Color &amp;5</source>
+        <translation type="unfinished">Renk &amp;5</translation>
+    </message>
+    <message>
+        <source>Color &amp;6</source>
+        <translation type="unfinished">Renk &amp;6</translation>
+    </message>
+    <message>
+        <source>Color &amp;7</source>
+        <translation type="unfinished">Renk &amp;7</translation>
+    </message>
+    <message>
+        <source>Color &amp;8</source>
+        <translation type="unfinished">Renk &amp;8</translation>
+    </message>
+    <message>
+        <source>Color &amp;9</source>
+        <translation type="unfinished">Renk &amp;9</translation>
+    </message>
+    <message>
+        <source>Color 1&amp;0</source>
+        <translation type="unfinished">Renk 1&amp;0</translation>
+    </message>
+    <message>
+        <source>New Coloring Rule…</source>
+        <translation type="unfinished">Yeni Renklendirme Kuralı…</translation>
+    </message>
+    <message>
+        <source>Create a new coloring rule based on this field.</source>
+        <translation type="unfinished">Bu alana dayalı yeni bir renklendirme kuralı oluşturun.</translation>
+    </message>
+    <message>
+        <source>Reset Colorization</source>
+        <translation type="unfinished">Renklendirmeyi Sıfırla</translation>
+    </message>
+    <message>
+        <source>Reset colorized conversations.</source>
+        <translation type="unfinished">Renklendirilmiş konuşmaları sıfırlayın.</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation type="unfinished">RTP Akış Analizi</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation type="unfinished">Seçilen akış için RTP Akış Analizi. Ters akış eklemek için de CTRL tuşuna basın.</translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation type="unfinished">RTP Oynatıcı</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation type="unfinished">Seçilen akışı oynat. Ters akışı oynatmak için de CTRL tuşuna basın.</translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished">IA&amp;X2 Akış Analizi</translation>
+    </message>
+    <message>
+        <source>IAX2 Stream Analysis</source>
+        <translation type="unfinished">IAX2 Akış Analizi</translation>
+    </message>
+    <message>
+        <source>Edit Resolved Name</source>
+        <translation type="unfinished">Çözümlenen Adı Düzenle</translation>
+    </message>
+    <message>
+        <source>Manually edit a name resolution entry.</source>
+        <translation type="unfinished">Bir ad çözümleme girişini el ile düzenleyin.</translation>
+    </message>
+    <message>
+        <source>Enabled Protocols…</source>
+        <translation type="unfinished">Etkin Protokoller…</translation>
+    </message>
+    <message>
+        <source>Enable and disable specific protocols</source>
+        <translation type="unfinished">Belirli protokolleri etkinleştirin ve devre dışı bırakın</translation>
+    </message>
+    <message>
+        <source>Show Packet Bytes…</source>
+        <translation type="unfinished">Paket Baytlarını Göster…</translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation type="unfinished">Wiki Protokol Sayfası</translation>
+    </message>
+    <message>
+        <source>Open the Wireshark wiki page for this protocol.</source>
+        <translation type="unfinished">Bu protokol için Wireshark wiki sayfasını açın.</translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation type="unfinished">Filtre Alanı Referansı</translation>
+    </message>
+    <message>
+        <source>Open the display filter reference page for this filter field.</source>
+        <translation type="unfinished">Bu filtre alanı için ekran filtresi referans sayfasını açın.</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation type="unfinished">Bağlantılı &amp;Pakete Git</translation>
+    </message>
+    <message>
+        <source>Go to the packet referenced by the selected field.</source>
+        <translation type="unfinished">Seçili alan tarafından başvurulan pakete gidin.</translation>
+    </message>
+    <message>
+        <source>UDP Multicast Streams</source>
+        <translation type="unfinished">UDP Çok Noktaya Yayın Akışları</translation>
+    </message>
+    <message>
+        <source>Show UTP multicast stream statistics.</source>
+        <translation type="unfinished">UTP çok noktaya yayın akışı istatistiklerini göster.</translation>
+    </message>
+    <message>
+        <source>WLAN Traffic</source>
+        <translation type="unfinished">WLAN Trafiği</translation>
+    </message>
+    <message>
+        <source>Show IEEE 802.11 wireless LAN statistics.</source>
+        <translation type="unfinished">IEEE 802.11 kablosuz LAN istatistiklerini göster.</translation>
+    </message>
+    <message>
+        <source>Add a display filter button.</source>
+        <translation type="unfinished">Bir ekran filtresi düğmesi ekleyin.</translation>
+    </message>
+    <message>
+        <source>Firewall ACL Rules</source>
+        <translation type="unfinished">Güvenlik Duvarı ACL Kuralları</translation>
+    </message>
+    <message>
+        <source>Create firewall ACL rules</source>
+        <translation type="unfinished">Güvenlik duvarı ACL kuralları oluşturun</translation>
+    </message>
+    <message>
+        <source>&amp;Full Screen</source>
+        <translation type="unfinished">&amp;Tam ekran</translation>
+    </message>
+    <message>
+        <source>Credentials</source>
+        <translation type="unfinished">Kimlik bilgileri</translation>
+    </message>
+    <message>
+        <source> before opening another file</source>
+        <translation type="unfinished"> başka bir dosyayı açmadan önce</translation>
+    </message>
+    <message>
+        <source>Invalid Display Filter</source>
+        <translation type="unfinished">Geçersiz Görüntü Filtresi</translation>
+    </message>
+    <message>
+        <source>Loading</source>
+        <translation type="unfinished">Yükleniyor</translation>
+    </message>
+    <message>
+        <source>Reloading</source>
+        <translation type="unfinished">Yeniden yükleniyor</translation>
+    </message>
+    <message>
+        <source>Rescanning</source>
+        <translation type="unfinished">Yeniden tarama</translation>
+    </message>
+    <message>
+        <source>Merging files.</source>
+        <translation type="unfinished">Dosyaları birleştirme.</translation>
+    </message>
+    <message>
+        <source>Saving %1…</source>
+        <translation type="unfinished">%1 kaydediliyor…</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation type="unfinished">%1: %2</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation type="unfinished">Arayüz seçilmedi.</translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation type="unfinished">Yakalamaya başlamadan önce tüm dış harfleri yapılandırın.</translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished">Geçersiz yakalama filtresi.</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation type="unfinished">Menüyü Temizle</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation type="unfinished">(boş yorum)</translation>
+    </message>
+    <message>
+        <source>Add New Comment…</source>
+        <translation type="unfinished">Yeni Yorum Ekle…</translation>
+    </message>
+    <message>
+        <source>Edit &quot;%1&quot;</source>
+        <comment>edit packet comment</comment>
+        <translation type="unfinished">&quot;%1&quot;i düzenle</translation>
+    </message>
+    <message>
+        <source>Delete &quot;%1&quot;</source>
+        <comment>delete packet comment</comment>
+        <translation type="unfinished">&quot;%1&quot;i sil</translation>
+    </message>
+    <message>
+        <source>Delete packet comments</source>
+        <translation type="unfinished">Paket yorumlarını sil</translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n paketinden() yorumları sil</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source> before starting a new capture</source>
+        <translation type="unfinished"> yeni bir yakalamaya başlamadan önce</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished">Lua eklentilerini yeniden yüklemeden önce</translation>
+    </message>
+    <message>
+        <source>Please wait while Wireshark is initializing…</source>
+        <translation type="unfinished">Wireshark başlatılırken lütfen bekleyin…</translation>
+    </message>
+    <message>
+        <source> before closing the file</source>
+        <translation type="unfinished"> dosyayı kapatmadan önce</translation>
+    </message>
+    <message>
+        <source>Export Selected Packet Bytes</source>
+        <translation type="unfinished">Seçili Paket Baytlarını Dışa Aktar</translation>
+    </message>
+    <message>
+        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
+        <translation type="unfinished">Ham veriler (*.bin *.dat *.raw);;Tüm Dosyalar (</translation>
+    </message>
+    <message>
+        <source>No Keys</source>
+        <translation type="unfinished">Anahtar Yok</translation>
+    </message>
+    <message>
+        <source>There are no TLS Session Keys to save.</source>
+        <translation type="unfinished">Kaydedilecek TLS Oturum Anahtarı yok.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export TLS Session Keys (%Ln key(s))</source>
+        <translation type="unfinished">
+            <numerusform>TLS Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished">TLS Oturum Anahtarları (*.keys *.txt);;Tüm Dosyalar (</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t copy text. Try another item.</source>
+        <translation type="unfinished">Metin kopyalanamadı. Başka bir öğe deneyin.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation type="unfinished">Tüm paket yorumlarını kaldırmak istediğinizden emin misiniz?</translation>
+    </message>
+    <message>
+        <source>Unable to build conversation filter.</source>
+        <translation type="unfinished">Görüşme filtresi oluşturulamıyor.</translation>
+    </message>
+    <message>
+        <source> before reloading the file</source>
+        <translation type="unfinished"> dosyayı yeniden yüklemeden önce</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished">Filtre mevcut değil. Başka bir %1 deneyin.</translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished">sütun</translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished">öğe</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished">&quot;%1&quot; sütunu zaten var.</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished">&quot;%1&quot; sütunu zaten &quot;%2&quot; olarak var.</translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation type="unfinished">RTP paket araması başarısız oldu</translation>
+    </message>
+    <message>
+        <source>Error compiling filter for this conversation.</source>
+        <translation type="unfinished">Bu görüşme için filtre derlenirken hata oluştu.</translation>
+    </message>
+    <message>
+        <source>No previous/next packet in conversation.</source>
+        <translation type="unfinished">Görüşmede önceki/sonraki paket yok.</translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation type="unfinished">Arayüz Seçilmedi.</translation>
+    </message>
+    <message>
+        <source> before restarting the capture</source>
+        <translation type="unfinished"> yakalamayı yeniden başlatmadan önce</translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation type="unfinished">%1 için Wiki Sayfası</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Wiki&apos;nin bakımı topluluk tarafından sağlanır.&lt;/p&gt;&lt;p&gt;Yüklemek üzere olduğunuz sayfa harika, eksik, yanlış veya hiç yok olabilir.&lt;/p&gt;&lt;p&gt;Wiki&apos;ye geçilsin mi?&lt;/P&gt;</translation>
+    </message>
+    <message>
+        <source>Check for Updates…</source>
+        <translation type="unfinished">Güncellemeleri kontrol et…</translation>
+    </message>
+    <message>
+        <source>Show or hide the toolbar</source>
+        <translation type="unfinished">Araç çubuğunu göster ya da gizle</translation>
+    </message>
+    <message>
+        <source> before quitting</source>
+        <translation type="unfinished"> bırakmadan önce</translation>
+    </message>
+    <message>
+        <source>Unable to drop files during capture.</source>
+        <translation type="unfinished">Yakalama sırasında dosyalar bırakılamıyor.</translation>
+    </message>
+    <message>
+        <source>Save packets before merging?</source>
+        <translation type="unfinished">Paketler birleştirmeden önce kaydedilsin mi?</translation>
+    </message>
+    <message>
+        <source>A temporary capture file can&apos;t be merged.</source>
+        <translation type="unfinished">Geçici bir yakalama dosyası birleştirilemez.</translation>
+    </message>
+    <message>
+        <source>Save changes in &quot;%1&quot; before merging?</source>
+        <translation type="unfinished">Birleştirmeden önce &quot;%1&quot; içindeki değişiklikler kaydedilsin mi?</translation>
+    </message>
+    <message>
+        <source>Changes must be saved before the files can be merged.</source>
+        <translation type="unfinished">Dosyalar birleştirilmeden önce değişiklikler kaydedilmelidir.</translation>
+    </message>
+    <message>
+        <source>Invalid Read Filter</source>
+        <translation type="unfinished">Geçersiz Okuma Filtresi</translation>
+    </message>
+    <message>
+        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
+        <translation type="unfinished">%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
+    </message>
+    <message>
+        <source> before importing a capture</source>
+        <translation type="unfinished"> bir yakalamayı içe aktarmadan önce</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by merge dialog.</source>
+        <translation type="unfinished">Birleştirme iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation type="unfinished">Lütfen bunu https://gitlab.com/wireshark/wireshark/-/issues adresinde bir Wireshark sorunu olarak bildirin.</translation>
+    </message>
+    <message>
+        <source>Unable to export to &quot;%1&quot;.</source>
+        <translation type="unfinished">&quot;%1&quot;e dışa aktarılamıyor.</translation>
+    </message>
+    <message>
+        <source>You cannot export packets to the current capture file.</source>
+        <translation type="unfinished">Paketleri geçerli yakalama dosyasına aktaramazsınız.</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by export dialog.</source>
+        <translation type="unfinished">Dışa aktarma iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
+    </message>
+    <message>
+        <source>Do you want to stop the capture and save the captured packets%1?</source>
+        <translation type="unfinished">Yakalamayı durdurmak ve yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Your captured packets will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished">Yakaladığınız paketleri kaydetmezseniz kaybolacaktır.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made%1?</source>
+        <translation type="unfinished">%1 yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished">Kaydetmezseniz değişiklikleriniz kaybolacak.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the captured packets%1?</source>
+        <translation type="unfinished">Yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
+        <translation type="unfinished">&quot;%1&quot;%2 yakalama dosyasında yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Save before Continue</source>
+        <translation type="unfinished">Devam etmeden önce kaydet</translation>
+    </message>
+    <message>
+        <source>Stop and Save</source>
+        <translation type="unfinished">Durdur ve Kaydet</translation>
+    </message>
+    <message>
+        <source>Stop and Quit &amp;without Saving</source>
+        <translation type="unfinished">Kaydetmeden &amp;Durdurun ve Çıkın</translation>
+    </message>
+    <message>
+        <source>Continue &amp;without Saving</source>
+        <translation type="unfinished">Kaydetmeden &amp;devam et</translation>
+    </message>
+    <message>
+        <source>Stop and Continue &amp;without Saving</source>
+        <translation type="unfinished">Durdur ve Devam Et &amp;Kaydetmeden</translation>
+    </message>
+    <message>
+        <source>Quit &amp;without Saving</source>
+        <translation type="unfinished">Kaydetmeden &amp;çık</translation>
+    </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished">Wireshark Ağ Çözümleyicisi</translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation type="unfinished">%1&apos;den yakalama</translation>
+    </message>
+    <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished">Wireshark&apos;ın bu sürümünde &quot;rtp.ssrc&quot; alanı yoktur.</translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished">Lütfen SSRC değerine sahip bir RTPv2 paketi seçin</translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation type="unfinished">SSRC değeri bulunamadı.</translation>
     </message>
 </context>
 <context>

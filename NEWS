@@ -84,12 +84,12 @@ Wireshark 3.7.0 Release Notes
        not a boolean operator. In particular this means it is now
        possible to mask bits, e.g.: frame[0] & 0x0F == 3.
 
-        • Simple arithmetic expressions are supported in filter
-       expressions. It is now possible to use expressions such as
-       "tcp.dstport >= tcp.srcport + 1", or using field references to
-       the selected frame: frame.number > ${frame.number} - 5. Note that
-       the last example is only meaningful using the GUI because TShark
-       has no concept of selected frame.
+        • Arithmetic is supported for numeric fields with the usual
+       operators: +, -, *, /, %. Arithmetic expressions must be grouped
+       using curly brackets (not parenthesis).
+
+        • Logical AND now has higher precedence than logical OR, in line
+       with most programming languages.
 
      • text2pcap and "Import from Hex Dump":
 
@@ -218,7 +218,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-03-31 18:02:31 UTC
+  Last updated 2022-04-04 15:52:11 UTC
 
  References
 
