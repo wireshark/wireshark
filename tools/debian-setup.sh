@@ -11,6 +11,8 @@
 # that way.
 #
 
+set -e -u -o pipefail
+
 if [ "$1" = "--help" ]
 then
 	printf "\\nUtility to setup a debian-based system for Wireshark Development.\\n"
@@ -33,6 +35,7 @@ fi
 ADDITIONAL=0
 DEBDEPS=0
 TESTDEPS=0
+OPTIONS=
 for arg; do
 	case $arg in
 		--install-optional)
@@ -113,7 +116,7 @@ TESTDEPS_LIST=
 # Adds package $2 to list variable $1 if the package is found.
 # If $3 is given, then this version requirement must be satisfied.
 add_package() {
-	local list="$1" pkgname="$2" versionreq="$3" version
+	local list="$1" pkgname="$2" versionreq="${3:-}" version
 
 	version=$(apt-cache show "$pkgname" 2>/dev/null |
 		awk '/^Version:/{ print $2; exit}')

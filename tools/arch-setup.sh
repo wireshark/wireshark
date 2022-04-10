@@ -34,6 +34,7 @@ fi
 ADDITIONAL=0
 TESTDEPS=0
 AUR=0
+OPTIONS=
 for arg; do
 	case $arg in
 		--install-optional)

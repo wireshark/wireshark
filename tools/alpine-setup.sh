@@ -29,6 +29,7 @@ then
 fi
 
 ADDITIONAL=0
+OPTIONS=
 for arg; do
 	case $arg in
 		--install-optional)

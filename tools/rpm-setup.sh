@@ -11,6 +11,8 @@
 # that way.
 #
 
+set -e -u -o pipefail
+
 if [ "$1" = "--help" ]
 then
 	echo "\nUtility to setup a rpm-based system for Wireshark Development.\n"
@@ -31,6 +33,7 @@ fi
 
 ADDITIONAL=0
 RPMDEPS=0
+OPTIONS=
 for arg; do
 	case $arg in
 		--install-optional)
