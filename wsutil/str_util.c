@@ -548,6 +548,26 @@ ws_strerrorname_r(int errnum, char *buf, size_t buf_size)
     return buf;
 }
 
+char *
+ws_strdup_error_offset(wmem_allocator_t *allocator, int offset, size_t len)
+{
+    if (offset < 0)
+        return NULL;
+
+    wmem_strbuf_t *buf = wmem_strbuf_sized_new(allocator, offset + len, 0);
+
+    for (int i = 0; i < offset; i++) {
+        wmem_strbuf_append_c(buf, ' ');
+    }
+    wmem_strbuf_append_c(buf, '^');
+
+    for (size_t l = len; l > 1; l--) {
+        wmem_strbuf_append_c(buf, '~');
+    }
+
+    return wmem_strbuf_finalize(buf);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

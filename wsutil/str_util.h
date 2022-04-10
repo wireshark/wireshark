@@ -218,6 +218,9 @@ gchar printable_char_or_period(gchar c);
 WS_DLL_PUBLIC WS_RETNONNULL
 const char *ws_strerrorname_r(int errnum, char *buf, size_t buf_size);
 
+WS_DLL_PUBLIC
+char *ws_strdup_error_offset(wmem_allocator_t *allocator, int offset, size_t len);
+
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 

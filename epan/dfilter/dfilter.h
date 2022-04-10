@@ -67,6 +67,9 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 #define dfilter_compile(text, dfp, err_msg) \
 	dfilter_compile_real(text, dfp, err_msg, NULL, __func__, FALSE, TRUE)
 
+#define dfilter_compile2(text, dfp, err_msg, loc_ptr) \
+	dfilter_compile_real(text, dfp, err_msg, loc_ptr, __func__, FALSE, TRUE)
+
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */
 WS_DLL_PUBLIC

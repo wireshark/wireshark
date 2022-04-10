@@ -722,7 +722,7 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
 int
 main(int argc, char *argv[])
 {
-    char                *err_msg;
+    char                *err_msg, *err_msg_cont;
     static const struct report_message_routines tshark_report_routines = {
         failure_message,
         failure_message,
@@ -777,6 +777,7 @@ main(int argc, char *argv[])
     gchar               *volatile dfilter = NULL;
     dfilter_t           *rfcode = NULL;
     dfilter_t           *dfcode = NULL;
+    dfilter_loc_t       df_loc;
     e_prefs             *prefs_p;
     gchar               *output_only = NULL;
     gchar               *volatile pdu_export_arg = NULL;
@@ -2013,9 +2014,12 @@ main(int argc, char *argv[])
 
     if (rfilter != NULL) {
         ws_debug("Compiling read filter: '%s'", rfilter);
-        if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
+        if (!dfilter_compile2(rfilter, &rfcode, &err_msg, &df_loc)) {
             cmdarg_err("%s", err_msg);
+            err_msg_cont = ws_strdup_error_offset(NULL, df_loc.col_start, df_loc.col_len);
+            cmdarg_err_cont("    %s\n    %s\n", rfilter, err_msg_cont);
             g_free(err_msg);
+            g_free(err_msg_cont);
             epan_cleanup();
             extcap_cleanup();
 
@@ -2040,9 +2044,12 @@ main(int argc, char *argv[])
 
     if (dfilter != NULL) {
         ws_debug("Compiling display filter: '%s'", dfilter);
-        if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
+        if (!dfilter_compile2(dfilter, &dfcode, &err_msg, &df_loc)) {
             cmdarg_err("%s", err_msg);
+            err_msg_cont = ws_strdup_error_offset(NULL, df_loc.col_start, df_loc.col_len);
+            cmdarg_err_cont("    %s\n    %s\n", dfilter, err_msg_cont);
             g_free(err_msg);
+            g_free(err_msg_cont);
             epan_cleanup();
             extcap_cleanup();
 
