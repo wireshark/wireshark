@@ -3350,6 +3350,10 @@ dissect_rdmnet_over_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static gboolean
 dissect_rdmnet_over_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+  if (!is_rdmnet_over_tcp(tvb)) {
+    return FALSE;
+  }
+
   dissect_rdmnet_over_tcp(tvb, pinfo, tree, data);
   return TRUE;
 }
