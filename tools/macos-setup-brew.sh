@@ -14,7 +14,7 @@ brew update
 
 # install some libs needed by Wireshark
 brew install opus c-ares glib libgcrypt gnutls lua@5.1 cmake python nghttp2 snappy lz4 libxml2 ninja \
-  libmaxminddb libsmi spandsp brotli minizip zstd libssh libilbc speexdsp gettext qt5 "$@"
+  libmaxminddb libsmi spandsp brotli minizip zstd libssh libilbc speexdsp gettext pcre2 qt5 "$@"
 
 # install custom tap of sparkle v1 as homebrew now uses sparkle v2 per default which is not compatible
 curl -o /tmp/sparkle.rb https://raw.githubusercontent.com/Homebrew/homebrew-cask/c6dfe6baf1639998ba1707f68668cf8fa97bac9d/Casks/sparkle.rb
