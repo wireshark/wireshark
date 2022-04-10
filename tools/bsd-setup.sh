@@ -30,6 +30,7 @@ then
 	exit 1
 fi
 
+OPTIONS=
 for op
 do
 	if [ "$op" = "--install-optional" ]
