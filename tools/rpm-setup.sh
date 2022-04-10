@@ -11,6 +11,8 @@
 # that way.
 #
 
+set -e -u -o pipefail
+
 if [ "$1" = "--help" ]
 then
 	echo "\nUtility to setup a rpm-based system for Wireshark Development.\n"
@@ -29,6 +31,7 @@ then
 fi
 
 ADDITIONAL=0
+OPTIONS=
 for op
 do
 	if [ "$op" = "--install-optional" ]
@@ -51,7 +54,7 @@ BASIC_LIST="cmake \
 	glib2-devel \
 	libpcap-devel \
 	zlib-devel \
-	libgcrypt-devel" 
+	libgcrypt-devel"
 
 ADDITIONAL_LIST="libcap-devel \
 	libssh-devel \
