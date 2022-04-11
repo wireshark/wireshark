@@ -163,11 +163,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  color_filters_used@Base 2.1.0
  color_filters_write@Base 2.1.0
  column_dump_column_formats@Base 1.12.0~rc1
- conv_filter_list@Base 2.0.0
  conversation_add_proto_data@Base 1.9.1
  conversation_create_endpoint@Base 2.5.0
  conversation_create_endpoint_by_id@Base 2.5.0
  conversation_delete_proto_data@Base 1.9.1
+ conversation_filter_from_log@Base 3.7.0
  conversation_filter_from_packet@Base 2.2.8
  conversation_get_dissector@Base 2.0.0
  conversation_get_endpoint_by_id@Base 2.5.0
@@ -960,6 +960,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  link_type_vals@Base 2.1.0
  list_stat_cmd_args@Base 1.9.1
  llc_add_oui@Base 1.9.1
+ log_conv_filter_list@Base 3.7.0
  make_printable_string@Base 1.9.1
  mark_frame_as_depended_upon@Base 1.9.1
  maxmind_db_get_paths@Base 2.5.1
@@ -1024,6 +1025,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  p_remove_proto_data@Base 1.12.0~rc1
  p_set_proto_data@Base 3.7.0
  p_set_proto_depth@Base 3.3.0
+ packet_conv_filter_list@Base 3.7.0
  parse_key_string@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
  plugin_if_get_capture_file@Base 3.3.0
