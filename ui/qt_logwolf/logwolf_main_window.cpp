@@ -2460,7 +2460,6 @@ void LogwolfMainWindow::setMenusForCaptureFile(bool force_disable)
     main_ui_->actionFileExportAsJSON->setEnabled(enable);
 
     main_ui_->actionFileExportPDU->setEnabled(enable);
-    main_ui_->actionFileExportTLSSessionKeys->setEnabled(enable);
 
     foreach(QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
         eo_action->setEnabled(enable);
@@ -2489,7 +2488,6 @@ void LogwolfMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->actionFileExportAsJSON->setEnabled(capture_in_progress);
 
     main_ui_->actionFileExportPDU->setEnabled(!capture_in_progress);
-    main_ui_->actionFileExportTLSSessionKeys->setEnabled(capture_in_progress);
 
     foreach(QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
         eo_action->setEnabled(capture_in_progress);
@@ -2642,8 +2640,8 @@ static QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
             << REGISTER_STAT_GROUP_GENERIC
             << REGISTER_STAT_GROUP_CONVERSATION_LIST
             << REGISTER_STAT_GROUP_ENDPOINT_LIST
-            << REGISTER_STAT_GROUP_RESPONSE_TIME
-            << REGISTER_STAT_GROUP_RSERPOOL
+//            << REGISTER_STAT_GROUP_RESPONSE_TIME
+//            << REGISTER_STAT_GROUP_RSERPOOL
             << REGISTER_TOOLS_GROUP_UNSORTED;
 
 void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
@@ -2656,12 +2654,12 @@ void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group
                             main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
                             action);
             break;
-        case REGISTER_STAT_GROUP_RESPONSE_TIME:
-            main_ui_->menuServiceResponseTime->addAction(action);
-            break;
-        case REGISTER_STAT_GROUP_RSERPOOL:
-            main_ui_->menuRSerPool->addAction(action);
-            break;
+//        case REGISTER_STAT_GROUP_RESPONSE_TIME:
+//            main_ui_->menuServiceResponseTime->addAction(action);
+//            break;
+//        case REGISTER_STAT_GROUP_RSERPOOL:
+//            main_ui_->menuRSerPool->addAction(action);
+//            break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
             // Allow the creation of submenus. Mimics the behavor of
@@ -2707,12 +2705,12 @@ void LogwolfMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_gr
         case REGISTER_STAT_GROUP_UNSORTED:
             main_ui_->menuStatistics->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_RESPONSE_TIME:
-            main_ui_->menuServiceResponseTime->removeAction(action);
-            break;
-        case REGISTER_STAT_GROUP_RSERPOOL:
-            main_ui_->menuRSerPool->removeAction(action);
-            break;
+//        case REGISTER_STAT_GROUP_RESPONSE_TIME:
+//            main_ui_->menuServiceResponseTime->removeAction(action);
+//            break;
+//        case REGISTER_STAT_GROUP_RSERPOOL:
+//            main_ui_->menuRSerPool->removeAction(action);
+//            break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
             // Allow removal of submenus.

@@ -112,35 +112,26 @@ DIAG_ON(frame-larger-than=)
 #include "file_set_dialog.h"
 #include "filter_action.h"
 #include "filter_dialog.h"
-#include "firewall_rules_dialog.h"
 #include "funnel_statistics.h"
 #include "interface_toolbar.h"
 #include "io_graph_dialog.h"
 #include <ui/qt/widgets/additional_toolbar.h>
-#include "lbm_stream_dialog.h"
-#include "lbm_lbtrm_transport_dialog.h"
-#include "lbm_lbtru_transport_dialog.h"
 #include "main_application.h"
-#include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
 #include "packet_diagram.h"
 #include "packet_dialog.h"
 #include "packet_list.h"
-#include "credentials_dialog.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
 #include "profile_dialog.h"
 #include "protocol_hierarchy_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "resolved_addresses_dialog.h"
-#include "rpc_service_response_time_dialog.h"
-//#include "sequence_dialog.h"
 #include "show_packet_bytes_dialog.h"
 #include "stats_tree_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
 #include "supported_protocols_dialog.h"
 #include "tap_parameter_dialog.h"
-#include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
 #include "uat_dialog.h"
 
@@ -1179,9 +1170,6 @@ void LogwolfMainWindow::setEditCommentsMenu()
 
 void LogwolfMainWindow::setMenusForSelectedPacket()
 {
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
-             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_exported_pdu = FALSE;
-
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
        avoiding needless looping through huge lists for marked, ignored,
@@ -1243,25 +1231,6 @@ void LogwolfMainWindow::setMenusForSelectedPacket()
         have_time_ref = capture_file_.capFile()->ref_time_count > 0;
         another_is_time_ref = have_time_ref && rows.count() <= 1 &&
                 !(capture_file_.capFile()->ref_time_count == 1 && frame_selected && current_frame->ref_time);
-
-        if (capture_file_.capFile()->edt && ! multi_selection)
-        {
-            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers,
-                                      &is_ip, &is_tcp, &is_udp, &is_sctp,
-                                      &is_tls, &is_rtp, &is_lte_rlc);
-            is_dccp = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "dccp");
-            is_http = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http");
-            is_http2 = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http2");
-            /* TODO: to follow a QUIC stream we need a *decrypted* QUIC connection, i.e. checking for "quic" in the protocol stack is not enough */
-            is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
-            is_exported_pdu = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "exported_pdu");
-            /* For Exported PDU there is a tag inserting IP addresses into the SRC and DST columns */
-            if (is_exported_pdu &&
-               (capture_file_.capFile()->edt->pi.net_src.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_src.type == AT_IPv6) &&
-               (capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv6)) {
-                is_ip = TRUE;
-            }
-        }
     }
 
     main_ui_->actionEditMarkPacket->setText(tr("&Mark/Unmark Packet(s)", "", static_cast<int>(selectedRows().count())));
@@ -1301,14 +1270,6 @@ void LogwolfMainWindow::setMenusForSelectedPacket()
     main_ui_->actionGoNextHistoryPacket->setEnabled(next_selection_history);
     main_ui_->actionGoPreviousHistoryPacket->setEnabled(previous_selection_history);
 
-    main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
-    main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
-    main_ui_->actionAnalyzeFollowDCCPStream->setEnabled(is_dccp);
-    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls && !is_quic);
-    main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
-    main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
-    main_ui_->actionAnalyzeFollowQUICStream->setEnabled(is_quic);
-
     foreach(QAction *cc_action, cc_actions) {
         cc_action->setEnabled(frame_selected);
     }
@@ -1317,21 +1278,14 @@ void LogwolfMainWindow::setMenusForSelectedPacket()
     main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
 
     main_ui_->actionViewShowPacketInNewWindow->setEnabled(frame_selected);
-    main_ui_->actionViewEditResolvedName->setEnabled(frame_selected && is_ip);
+//    main_ui_->actionViewEditResolvedName->setEnabled(frame_selected && is_ip);
 
     emit packetInfoChanged(capture_file_.packetInfo());
 
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name));
-
-    main_ui_->actionToolsFirewallAclRules->setEnabled(frame_selected);
-
-    main_ui_->actionStatisticsTcpStreamRoundTripTime->setEnabled(is_tcp);
-    main_ui_->actionStatisticsTcpStreamStevens->setEnabled(is_tcp);
-    main_ui_->actionStatisticsTcpStreamTcptrace->setEnabled(is_tcp);
-    main_ui_->actionStatisticsTcpStreamThroughput->setEnabled(is_tcp);
-    main_ui_->actionStatisticsTcpStreamWindowScaling->setEnabled(is_tcp);}
+}
 
 void LogwolfMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
 
@@ -1908,47 +1862,6 @@ void LogwolfMainWindow::on_actionFileExportPDU_triggered()
 
     exportpdu_dialog->raise();
     exportpdu_dialog->activateWindow();
-}
-
-void LogwolfMainWindow::on_actionFileExportTLSSessionKeys_triggered()
-{
-    QString file_name;
-    QString save_title;
-    int keylist_len;
-
-    keylist_len = ssl_session_key_count();
-    /* don't show up the dialog, if no data has to be saved */
-    if (keylist_len < 1) {
-        /* shouldn't happen as the menu item should have been greyed out */
-        QMessageBox::warning(
-                    this,
-                    tr("No Keys"),
-                    tr("There are no TLS Session Keys to save."),
-                    QMessageBox::Ok
-                    );
-        return;
-    }
-
-    save_title.append(mainApp->windowTitleString(tr("Export TLS Session Keys (%Ln key(s))", "", keylist_len)));
-    file_name = WiresharkFileDialog::getSaveFileName(this,
-                                            save_title,
-                                            mainApp->lastOpenDir().canonicalPath(),
-                                            tr("TLS Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")
-                                            );
-    if (file_name.length() > 0) {
-        gsize keylist_length;
-        gchar *keylist = ssl_export_sessions(&keylist_length);
-        write_file_binary_mode(qUtf8Printable(file_name), keylist, keylist_length);
-
-        /* Save the directory name for future file dialogs. */
-        mainApp->setLastOpenDirFromFilename(file_name);
-        g_free(keylist);
-    }
-}
-
-void LogwolfMainWindow::on_actionStatisticsHpfeeds_triggered()
-{
-    openStatisticsTreeDialog("hpfeeds");
 }
 
 void LogwolfMainWindow::on_actionFilePrint_triggered()
@@ -2948,41 +2861,6 @@ void LogwolfMainWindow::openFollowStreamDialogForType(follow_type_t type) {
     openFollowStreamDialog(type, 0, 0, false);
 }
 
-void LogwolfMainWindow::on_actionAnalyzeFollowTCPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_TCP);
-}
-
-void LogwolfMainWindow::on_actionAnalyzeFollowUDPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_UDP);
-}
-
-void LogwolfMainWindow::on_actionAnalyzeFollowDCCPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_DCCP);
-}
-
-void LogwolfMainWindow::on_actionAnalyzeFollowTLSStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_TLS);
-}
-
-void LogwolfMainWindow::on_actionAnalyzeFollowHTTPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_HTTP);
-}
-
-void LogwolfMainWindow::on_actionAnalyzeFollowHTTP2Stream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_HTTP2);
-}
-
-void LogwolfMainWindow::on_actionAnalyzeFollowQUICStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_QUIC);
-}
-
 // -z expert
 void LogwolfMainWindow::statCommandExpertInfo(const char *, void *)
 {
@@ -3016,178 +2894,12 @@ void LogwolfMainWindow::on_actionStatisticsFlowGraph_triggered()
 //    sequence_dialog->show();
 }
 
-void LogwolfMainWindow::openTcpStreamDialog(int graph_type)
-{
-    TCPStreamDialog *stream_dialog = new TCPStreamDialog(this, capture_file_.capFile(), (tcp_graph_type)graph_type);
-    connect(stream_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            stream_dialog, SLOT(setCaptureFile(capture_file*)));
-    if (stream_dialog->result() == QDialog::Accepted) {
-        stream_dialog->show();
-    }
-}
-
-void LogwolfMainWindow::on_actionStatisticsTcpStreamStevens_triggered()
-{
-    openTcpStreamDialog(GRAPH_TSEQ_STEVENS);
-}
-
-void LogwolfMainWindow::on_actionStatisticsTcpStreamTcptrace_triggered()
-{
-    openTcpStreamDialog(GRAPH_TSEQ_TCPTRACE);
-}
-
-void LogwolfMainWindow::on_actionStatisticsTcpStreamThroughput_triggered()
-{
-    openTcpStreamDialog(GRAPH_THROUGHPUT);
-}
-
-void LogwolfMainWindow::on_actionStatisticsTcpStreamRoundTripTime_triggered()
-{
-    openTcpStreamDialog(GRAPH_RTT);
-}
-
-void LogwolfMainWindow::on_actionStatisticsTcpStreamWindowScaling_triggered()
-{
-    openTcpStreamDialog(GRAPH_WSCALE);
-}
-
-// -z mcast,stat
-void LogwolfMainWindow::statCommandMulticastStatistics(const char *arg, void *)
-{
-    MulticastStatisticsDialog *mcast_stats_dlg = new MulticastStatisticsDialog(*this, capture_file_, arg);
-    connect(mcast_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    mcast_stats_dlg->show();
-}
-
-void LogwolfMainWindow::on_actionStatisticsUdpMulticastStreams_triggered()
-{
-    statCommandMulticastStatistics(NULL, NULL);
-}
-
 void LogwolfMainWindow::openStatisticsTreeDialog(const gchar *abbr)
 {
     StatsTreeDialog *st_dialog = new StatsTreeDialog(*this, capture_file_, abbr);
 //    connect(st_dialog, SIGNAL(goToPacket(int)),
 //            packet_list_, SLOT(goToPacket(int)));
     st_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered()
-{
-    openStatisticsTreeDialog("lbmr_topic_ads_topic");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestTopics_Advertisements_by_Source_triggered()
-{
-    openStatisticsTreeDialog("lbmr_topic_ads_source");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestTopics_Advertisements_by_Transport_triggered()
-{
-    openStatisticsTreeDialog("lbmr_topic_ads_transport");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestTopics_Queries_by_Topic_triggered()
-{
-    openStatisticsTreeDialog("lbmr_topic_queries_topic");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestTopics_Queries_by_Receiver_triggered()
-{
-    openStatisticsTreeDialog("lbmr_topic_queries_receiver");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestTopics_Wildcard_Queries_by_Pattern_triggered()
-{
-    openStatisticsTreeDialog("lbmr_topic_queries_pattern");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestTopics_Wildcard_Queries_by_Receiver_triggered()
-{
-    openStatisticsTreeDialog("lbmr_topic_queries_pattern_receiver");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestQueues_Advertisements_by_Queue_triggered()
-{
-    openStatisticsTreeDialog("lbmr_queue_ads_queue");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestQueues_Advertisements_by_Source_triggered()
-{
-    openStatisticsTreeDialog("lbmr_queue_ads_source");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestQueues_Queries_by_Queue_triggered()
-{
-    openStatisticsTreeDialog("lbmr_queue_queries_queue");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestQueues_Queries_by_Receiver_triggered()
-{
-    openStatisticsTreeDialog("lbmr_queue_queries_receiver");
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestUIM_Streams_triggered()
-{
-    LBMStreamDialog *stream_dialog = new LBMStreamDialog(this, capture_file_.capFile());
-//    connect(stream_dialog, SIGNAL(goToPacket(int)),
-//            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            stream_dialog, SLOT(setCaptureFile(capture_file*)));
-    stream_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionStatistics29WestLBTRM_triggered()
-{
-    LBMLBTRMTransportDialog * lbtrm_dialog = new LBMLBTRMTransportDialog(this, capture_file_.capFile());
-    connect(lbtrm_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            lbtrm_dialog, SLOT(setCaptureFile(capture_file*)));
-    lbtrm_dialog->show();
-}
-void LogwolfMainWindow::on_actionStatistics29WestLBTRU_triggered()
-{
-    LBMLBTRUTransportDialog * lbtru_dialog = new LBMLBTRUTransportDialog(this, capture_file_.capFile());
-    connect(lbtru_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            lbtru_dialog, SLOT(setCaptureFile(capture_file*)));
-    lbtru_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionStatisticsANCP_triggered()
-{
-    openStatisticsTreeDialog("ancp");
-}
-
-
-void LogwolfMainWindow::on_actionStatisticsBACappInstanceId_triggered()
-{
-    openStatisticsTreeDialog("bacapp_instanceid");
-}
-
-void LogwolfMainWindow::on_actionStatisticsBACappIP_triggered()
-{
-    openStatisticsTreeDialog("bacapp_ip");
-}
-
-void LogwolfMainWindow::on_actionStatisticsBACappObjectId_triggered()
-{
-    openStatisticsTreeDialog("bacapp_objectid");
-}
-
-void LogwolfMainWindow::on_actionStatisticsBACappService_triggered()
-{
-    openStatisticsTreeDialog("bacapp_service");
-}
-
-void LogwolfMainWindow::on_actionStatisticsCollectd_triggered()
-{
-    openStatisticsTreeDialog("collectd");
 }
 
 // -z conv,...
@@ -3198,8 +2910,6 @@ void LogwolfMainWindow::statCommandConversations(const char *arg, void *userdata
         this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t, guint, guint)),
         this, SLOT(openFollowStreamDialog(follow_type_t, guint, guint)));
-    connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
-        this, SLOT(openTcpStreamDialog(int)));
     conv_dialog->show();
 }
 
@@ -3216,39 +2926,12 @@ void LogwolfMainWindow::statCommandEndpoints(const char *arg, void *userdata)
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
             this, SLOT(openFollowStreamDialogForType(follow_type_t)));
-    connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
-            this, SLOT(openTcpStreamDialog(int)));
     endp_dialog->show();
 }
 
 void LogwolfMainWindow::on_actionStatisticsEndpoints_triggered()
 {
     statCommandEndpoints(NULL, NULL);
-}
-
-void LogwolfMainWindow::on_actionStatisticsHART_IP_triggered()
-{
-    openStatisticsTreeDialog("hart_ip");
-}
-
-void LogwolfMainWindow::on_actionStatisticsHTTPPacketCounter_triggered()
-{
-    openStatisticsTreeDialog("http");
-}
-
-void LogwolfMainWindow::on_actionStatisticsHTTPRequests_triggered()
-{
-    openStatisticsTreeDialog("http_req");
-}
-
-void LogwolfMainWindow::on_actionStatisticsHTTPLoadDistribution_triggered()
-{
-    openStatisticsTreeDialog("http_srv");
-}
-
-void LogwolfMainWindow::on_actionStatisticsHTTPRequestSequences_triggered()
-{
-    openStatisticsTreeDialog("http_seq");
 }
 
 void LogwolfMainWindow::on_actionStatisticsPacketLengths_triggered()
@@ -3275,16 +2958,6 @@ void LogwolfMainWindow::on_actionStatisticsIOGraph_triggered()
     statCommandIOGraph(NULL, NULL);
 }
 
-void LogwolfMainWindow::on_actionStatisticsSametime_triggered()
-{
-    openStatisticsTreeDialog("sametime");
-}
-
-void LogwolfMainWindow::on_actionStatisticsDNS_triggered()
-{
-    openStatisticsTreeDialog("dns");
-}
-
 void LogwolfMainWindow::actionStatisticsPlugin_triggered()
 {
     QAction* action = qobject_cast<QAction*>(sender());
@@ -3293,35 +2966,9 @@ void LogwolfMainWindow::actionStatisticsPlugin_triggered()
     }
 }
 
-void LogwolfMainWindow::on_actionStatisticsHTTP2_triggered()
-{
-    openStatisticsTreeDialog("http2");
-
-}
-
-void LogwolfMainWindow::on_actionStatisticsSOMEIPmessages_triggered()
-{
-    openStatisticsTreeDialog("someip_messages");
-}
-
-void LogwolfMainWindow::on_actionStatisticsSOMEIPSDentries_triggered()
-{
-    openStatisticsTreeDialog("someipsd_entries");
-}
-
 // Tools Menu
 
-void LogwolfMainWindow::on_actionToolsFirewallAclRules_triggered()
-{
-    FirewallRulesDialog *firewall_rules_dialog = new FirewallRulesDialog(*this, capture_file_);
-    firewall_rules_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionToolsCredentials_triggered()
-{
-    CredentialsDialog *credentials_dialog = new CredentialsDialog(*this, capture_file_, packet_list_);
-    credentials_dialog->show();
-}
+// XXX No log tools yet
 
 // Help Menu
 void LogwolfMainWindow::on_actionHelpContents_triggered() {

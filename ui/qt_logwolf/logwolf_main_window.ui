@@ -191,7 +191,6 @@
     <addaction name="menuFileExportPacketDissections"/>
     <addaction name="actionFileExportPacketBytes"/>
     <addaction name="actionFileExportPDU"/>
-    <addaction name="actionFileExportTLSSessionKeys"/>
     <addaction name="menuFileExportObjects"/>
     <addaction name="separator"/>
     <addaction name="actionFilePrint"/>
@@ -404,13 +403,6 @@
      <property name="title">
       <string>Follow</string>
      </property>
-     <addaction name="actionAnalyzeFollowTCPStream"/>
-     <addaction name="actionAnalyzeFollowUDPStream"/>
-     <addaction name="actionAnalyzeFollowDCCPStream"/>
-     <addaction name="actionAnalyzeFollowTLSStream"/>
-     <addaction name="actionAnalyzeFollowHTTPStream"/>
-     <addaction name="actionAnalyzeFollowHTTP2Stream"/>
-     <addaction name="actionAnalyzeFollowQUICStream"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -442,88 +434,6 @@
     <property name="title">
      <string>&amp;Statistics</string>
     </property>
-    <widget class="QMenu" name="menuTcpStreamGraphs">
-     <property name="title">
-      <string>TCP Stream Graphs</string>
-     </property>
-     <addaction name="actionStatisticsTcpStreamStevens"/>
-     <addaction name="actionStatisticsTcpStreamTcptrace"/>
-     <addaction name="actionStatisticsTcpStreamThroughput"/>
-     <addaction name="actionStatisticsTcpStreamRoundTripTime"/>
-     <addaction name="actionStatisticsTcpStreamWindowScaling"/>
-    </widget>
-    <widget class="QMenu" name="menuBACnet">
-     <property name="title">
-      <string>BACnet</string>
-     </property>
-     <addaction name="actionStatisticsBACappInstanceId"/>
-     <addaction name="actionStatisticsBACappIP"/>
-     <addaction name="actionStatisticsBACappObjectId"/>
-     <addaction name="actionStatisticsBACappService"/>
-    </widget>
-    <widget class="QMenu" name="menuHTTP">
-     <property name="title">
-      <string>HTTP</string>
-     </property>
-     <addaction name="actionStatisticsHTTPPacketCounter"/>
-     <addaction name="actionStatisticsHTTPRequests"/>
-     <addaction name="actionStatisticsHTTPLoadDistribution"/>
-     <addaction name="actionStatisticsHTTPRequestSequences"/>
-    </widget>
-    <widget class="QMenu" name="menu29West">
-     <property name="title">
-      <string>29West</string>
-     </property>
-     <widget class="QMenu" name="menu29WestTopics">
-      <property name="title">
-       <string>Topics</string>
-      </property>
-      <addaction name="actionStatistics29WestTopics_Advertisements_by_Topic"/>
-      <addaction name="actionStatistics29WestTopics_Advertisements_by_Source"/>
-      <addaction name="actionStatistics29WestTopics_Advertisements_by_Transport"/>
-      <addaction name="actionStatistics29WestTopics_Queries_by_Topic"/>
-      <addaction name="actionStatistics29WestTopics_Queries_by_Receiver"/>
-      <addaction name="actionStatistics29WestTopics_Wildcard_Queries_by_Pattern"/>
-      <addaction name="actionStatistics29WestTopics_Wildcard_Queries_by_Receiver"/>
-     </widget>
-     <widget class="QMenu" name="menu29WestQueues">
-      <property name="title">
-       <string>Queues</string>
-      </property>
-      <addaction name="actionStatistics29WestQueues_Advertisements_by_Queue"/>
-      <addaction name="actionStatistics29WestQueues_Advertisements_by_Source"/>
-      <addaction name="actionStatistics29WestQueues_Queries_by_Queue"/>
-      <addaction name="actionStatistics29WestQueues_Queries_by_Receiver"/>
-     </widget>
-     <widget class="QMenu" name="menu29WestUIM">
-      <property name="title">
-       <string>UIM</string>
-      </property>
-      <addaction name="actionStatistics29WestUIM_Streams"/>
-     </widget>
-     <addaction name="menu29WestTopics"/>
-     <addaction name="menu29WestQueues"/>
-     <addaction name="menu29WestUIM"/>
-     <addaction name="actionStatistics29WestLBTRM"/>
-     <addaction name="actionStatistics29WestLBTRU"/>
-    </widget>
-    <widget class="QMenu" name="menuServiceResponseTime">
-     <property name="title">
-      <string>Service &amp;Response Time</string>
-     </property>
-    </widget>
-    <widget class="QMenu" name="menuRSerPool">
-     <property name="title">
-      <string>Reliable Server Pooling (RSerPool)</string>
-     </property>
-    </widget>
-    <widget class="QMenu" name="menuSOMEIP">
-     <property name="title">
-      <string>SOME/IP</string>
-     </property>
-     <addaction name="actionStatisticsSOMEIPmessages"/>
-     <addaction name="actionStatisticsSOMEIPSDentries"/>
-    </widget>
     <addaction name="actionStatisticsCaptureFileProperties"/>
     <addaction name="actionStatisticsResolvedAddresses"/>
     <addaction name="actionStatisticsProtocolHierarchy"/>
@@ -531,25 +441,9 @@
     <addaction name="actionStatisticsEndpoints"/>
     <addaction name="actionStatisticsPacketLengths"/>
     <addaction name="actionStatisticsIOGraph"/>
-    <addaction name="menuServiceResponseTime"/>
     <addaction name="separator"/>
     <addaction name="actionStatistics_REGISTER_STAT_GROUP_UNSORTED"/>
-    <addaction name="menu29West"/>
-    <addaction name="actionStatisticsANCP"/>
-    <addaction name="menuBACnet"/>
-    <addaction name="actionStatisticsCollectd"/>
-    <addaction name="actionStatisticsDNS"/>
     <addaction name="actionStatisticsFlowGraph"/>
-    <addaction name="actionStatisticsHART_IP"/>
-    <addaction name="actionStatisticsHpfeeds"/>
-    <addaction name="menuHTTP"/>
-    <addaction name="actionStatisticsHTTP2"/>
-    <addaction name="actionStatisticsSametime"/>
-    <addaction name="menuTcpStreamGraphs"/>
-    <addaction name="actionStatisticsUdpMulticastStreams"/>
-    <addaction name="menuRSerPool"/>
-    <addaction name="actionStatistics_REGISTER_STAT_GROUP_RSERPOOL"/>
-    <addaction name="menuSOMEIP"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -608,8 +502,6 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionToolsFirewallAclRules"/>
-    <addaction name="actionToolsCredentials"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1090,11 +982,6 @@
     <string notr="true">Ctrl+Shift+X</string>
    </property>
   </action>
-  <action name="actionFileExportTLSSessionKeys">
-   <property name="text">
-    <string>Export TLS Session Keys…</string>
-   </property>
-  </action>
   <action name="actionFilePrint">
    <property name="text">
     <string>&amp;Print…</string>
@@ -1563,117 +1450,6 @@
     <string>Reordercap</string>
    </property>
   </action>
-  <action name="actionStatisticsTcpStreamStevens">
-   <property name="text">
-    <string>Time Sequence (Stevens)</string>
-   </property>
-   <property name="toolTip">
-    <string>TCP time sequence graph (Stevens)</string>
-   </property>
-  </action>
-  <action name="actionStatisticsTcpStreamThroughput">
-   <property name="text">
-    <string>Throughput</string>
-   </property>
-   <property name="toolTip">
-    <string>TCP throughput</string>
-   </property>
-  </action>
-  <action name="actionStatisticsTcpStreamRoundTripTime">
-   <property name="text">
-    <string>Round Trip Time</string>
-   </property>
-   <property name="toolTip">
-    <string>TCP round trip time</string>
-   </property>
-  </action>
-  <action name="actionStatisticsTcpStreamWindowScaling">
-   <property name="text">
-    <string>Window Scaling</string>
-   </property>
-   <property name="toolTip">
-    <string>TCP window scaling</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowTCPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>TCP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+T</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowUDPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>UDP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+U</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowDCCPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>DCCP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+E</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowTLSStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>TLS Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+S</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowHTTPStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>HTTP Stream</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+Shift+H</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowHTTP2Stream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>HTTP/2 Stream</string>
-   </property>
-  </action>
-  <action name="actionAnalyzeFollowQUICStream">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>QUIC Stream</string>
-   </property>
-  </action>
-  <action name="actionStatisticsTcpStreamTcptrace">
-   <property name="text">
-    <string>Time Sequence (tcptrace)</string>
-   </property>
-   <property name="toolTip">
-    <string>TCP time sequence graph (tcptrace)</string>
-   </property>
-  </action>
   <action name="actionStatisticsFlowGraph">
    <property name="text">
     <string>Flow Graph</string>
@@ -1682,148 +1458,12 @@
     <string>Flow sequence diagram</string>
    </property>
   </action>
-  <action name="actionStatisticsANCP">
-   <property name="text">
-    <string>ANCP</string>
-   </property>
-   <property name="toolTip">
-    <string>ANCP statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsBACappInstanceId">
-   <property name="text">
-    <string>Packets sorted by Instance ID</string>
-   </property>
-   <property name="toolTip">
-    <string>BACapp statistics sorted by instance ID</string>
-   </property>
-  </action>
-  <action name="actionStatisticsBACappIP">
-   <property name="text">
-    <string>Packets sorted by IP</string>
-   </property>
-   <property name="toolTip">
-    <string>BACapp statistics sorted by IP</string>
-   </property>
-  </action>
-  <action name="actionStatisticsBACappObjectId">
-   <property name="text">
-    <string>Packets sorted by object type</string>
-   </property>
-   <property name="toolTip">
-    <string>BACapp statistics sorted by object type</string>
-   </property>
-  </action>
-  <action name="actionStatisticsBACappService">
-   <property name="text">
-    <string>Packets sorted by service</string>
-   </property>
-   <property name="toolTip">
-    <string>BACapp statistics sorted by service</string>
-   </property>
-  </action>
-  <action name="actionStatisticsCollectd">
-   <property name="text">
-    <string>Collectd</string>
-   </property>
-   <property name="toolTip">
-    <string>Collectd statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsDNS">
-   <property name="text">
-    <string>DNS</string>
-   </property>
-   <property name="toolTip">
-    <string>DNS statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsHART_IP">
-   <property name="text">
-    <string>HART-IP</string>
-   </property>
-   <property name="toolTip">
-    <string>HART-IP statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsHpfeeds">
-   <property name="text">
-    <string>HPFEEDS</string>
-   </property>
-   <property name="toolTip">
-    <string>hpfeeds statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsHTTP2">
-   <property name="text">
-    <string>HTTP2</string>
-   </property>
-   <property name="toolTip">
-    <string>HTTP2 statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsHTTPPacketCounter">
-   <property name="text">
-    <string>Packet Counter</string>
-   </property>
-   <property name="toolTip">
-    <string>HTTP packet counter</string>
-   </property>
-  </action>
-  <action name="actionStatisticsHTTPRequests">
-   <property name="text">
-    <string>Requests</string>
-   </property>
-   <property name="toolTip">
-    <string>HTTP requests</string>
-   </property>
-  </action>
-  <action name="actionStatisticsHTTPLoadDistribution">
-   <property name="text">
-    <string>Load Distribution</string>
-   </property>
-   <property name="toolTip">
-    <string>HTTP load distribution</string>
-   </property>
-  </action>
-  <action name="actionStatisticsHTTPRequestSequences">
-   <property name="text">
-    <string>Request Sequences</string>
-   </property>
-   <property name="toolTip">
-    <string>HTTP Request Sequences</string>
-   </property>
-  </action>
   <action name="actionStatisticsPacketLengths">
    <property name="text">
     <string>Packet Lengths</string>
    </property>
    <property name="toolTip">
     <string>Packet length statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsSametime">
-   <property name="text">
-    <string>Sametime</string>
-   </property>
-   <property name="toolTip">
-    <string>Sametime statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsSOMEIPmessages">
-   <property name="text">
-    <string>SOME/IP Messages</string>
-   </property>
-   <property name="toolTip">
-    <string>SOME/IP Message statistics</string>
-   </property>
-  </action>
-  <action name="actionStatisticsSOMEIPSDentries">
-   <property name="text">
-    <string>SOME/IP-SD Entries</string>
-   </property>
-   <property name="toolTip">
-    <string>SOME/IP-SD Entries statistics</string>
    </property>
   </action>
   <action name="actionAnalyzeDecodeAs">
@@ -1846,81 +1486,6 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+L</string>
-   </property>
-  </action>
-  <action name="action29West">
-   <property name="text">
-    <string>29West</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestTopics_Advertisements_by_Topic">
-   <property name="text">
-    <string>Advertisements by Topic</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestTopics_Advertisements_by_Source">
-   <property name="text">
-    <string>Advertisements by Source</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestTopics_Advertisements_by_Transport">
-   <property name="text">
-    <string>Advertisements by Transport</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestTopics_Queries_by_Topic">
-   <property name="text">
-    <string>Queries by Topic</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestTopics_Queries_by_Receiver">
-   <property name="text">
-    <string>Queries by Receiver</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestTopics_Wildcard_Queries_by_Pattern">
-   <property name="text">
-    <string>Wildcard Queries by Pattern</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestTopics_Wildcard_Queries_by_Receiver">
-   <property name="text">
-    <string>Wildcard Queries by Receiver</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestQueues_Advertisements_by_Queue">
-   <property name="text">
-    <string>Advertisements by Queue</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestQueues_Advertisements_by_Source">
-   <property name="text">
-    <string>Advertisements by Source</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestQueues_Queries_by_Queue">
-   <property name="text">
-    <string>Queries by Queue</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestQueues_Queries_by_Receiver">
-   <property name="text">
-    <string>Queries by Receiver</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestUIM_Streams">
-   <property name="text">
-    <string>Streams</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestLBTRM">
-   <property name="text">
-    <string>LBT-RM</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestLBTRU">
-   <property name="text">
-    <string>LBT-RU</string>
    </property>
   </action>
   <action name="actionFileExportPDU">
@@ -2445,20 +2010,6 @@
     <enum>QAction::NoRole</enum>
    </property>
   </action>
-  <action name="actionStatistics_REGISTER_STAT_GROUP_RSERPOOL">
-   <property name="text">
-    <string>REGISTER_STAT_GROUP_RSERPOOL</string>
-   </property>
-   <property name="toolTip">
-    <string>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::NoRole</enum>
-   </property>
-  </action>
   <action name="actionStatisticsResolvedAddresses">
    <property name="text">
     <string>Resolved Addresses</string>
@@ -2644,25 +2195,9 @@
     <string>Go to the packet referenced by the selected field.</string>
    </property>
   </action>
-  <action name="actionStatisticsUdpMulticastStreams">
-   <property name="text">
-    <string>UDP Multicast Streams</string>
-   </property>
-   <property name="toolTip">
-    <string>Show UTP multicast stream statistics.</string>
-   </property>
-  </action>
   <action name="actionNewDisplayFilterExpression">
    <property name="toolTip">
     <string>Add a display filter button.</string>
-   </property>
-  </action>
-  <action name="actionToolsFirewallAclRules">
-   <property name="text">
-    <string>Firewall ACL Rules</string>
-   </property>
-   <property name="toolTip">
-    <string>Create firewall ACL rules</string>
    </property>
   </action>
   <action name="actionViewFullScreen">
@@ -2671,11 +2206,6 @@
    </property>
    <property name="text">
     <string>&amp;Full Screen</string>
-   </property>
-  </action>
-  <action name="actionToolsCredentials">
-   <property name="text">
-    <string>Credentials</string>
    </property>
   </action>
  </widget>

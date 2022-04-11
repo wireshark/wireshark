@@ -89,7 +89,6 @@ set(WIRESHARK_MODEL_HEADERS
 	../qt/models/coloring_rules_delegate.h
 	../qt/models/coloring_rules_model.h
 	../qt/models/column_list_model.h
-	../qt/models/credentials_model.h
 	../qt/models/decode_as_delegate.h
 	../qt/models/decode_as_model.h
 	../qt/models/dissector_tables_model.h
@@ -145,7 +144,6 @@ set(WIRESHARK_QT_HEADERS
 	../qt/conversation_colorize_action.h
 	../qt/conversation_dialog.h
 	../qt/conversation_hash_tables_dialog.h
-	../qt/credentials_dialog.h
 	../qt/decode_as_dialog.h
 	../qt/display_filter_expression_dialog.h
 	../qt/dissector_tables_dialog.h
@@ -165,7 +163,6 @@ set(WIRESHARK_QT_HEADERS
 	../qt/filter_dialog.h
 	../qt/filter_dialog.h
 	../qt/filter_expression_frame.h
-	../qt/firewall_rules_dialog.h
 	../qt/follow_stream_dialog.h
 	../qt/font_color_preferences_frame.h
 	../qt/funnel_statistics.h
@@ -184,7 +181,6 @@ set(WIRESHARK_QT_HEADERS
 	../qt/main_window.h
 	../qt/manage_interfaces_dialog.h
 	../qt/module_preferences_scroll_area.h
-	../qt/multicast_statistics_dialog.h
 	../qt/packet_comment_dialog.h
 	../qt/packet_diagram.h
 	../qt/packet_dialog.h
@@ -202,14 +198,11 @@ set(WIRESHARK_QT_HEADERS
 	../qt/recent_file_status.h
 	../qt/resolved_addresses_dialog.h
 	../qt/response_time_delay_dialog.h
-	../qt/rpc_service_response_time_dialog.h
 	../qt/rsa_keys_frame.h
-	../qt/scsi_service_response_time_dialog.h
 	../qt/search_frame.h
 	# XXX Depends on RTP Stream Dialog
 	# ../qt/sequence_diagram.h
 	# ../qt/sequence_dialog.h
-	../qt/service_response_time_dialog.h
 	../qt/show_packet_bytes_dialog.h
 	../qt/simple_statistics_dialog.h
 	../qt/stats_tree_dialog.h
@@ -315,7 +308,6 @@ set(WIRESHARK_MODEL_SRCS
 	../qt/models/coloring_rules_delegate.cpp
 	../qt/models/coloring_rules_model.cpp
 	../qt/models/column_list_model.cpp
-	../qt/models/credentials_model.cpp
 	../qt/models/decode_as_delegate.cpp
 	../qt/models/decode_as_model.cpp
 	../qt/models/dissector_tables_model.cpp
@@ -368,7 +360,6 @@ set(WIRESHARK_QT_SRC
 	../qt/conversation_colorize_action.cpp
 	../qt/conversation_dialog.cpp
 	../qt/conversation_hash_tables_dialog.cpp
-	../qt/credentials_dialog.cpp
 	../qt/decode_as_dialog.cpp
 	../qt/display_filter_expression_dialog.cpp
 	../qt/dissector_tables_dialog.cpp
@@ -386,7 +377,6 @@ set(WIRESHARK_QT_SRC
 	../qt/filter_action.cpp
 	../qt/filter_dialog.cpp
 	../qt/filter_expression_frame.cpp
-	../qt/firewall_rules_dialog.cpp
 	../qt/follow_stream_dialog.cpp
 	../qt/font_color_preferences_frame.cpp
 	../qt/funnel_string_dialog.cpp
@@ -397,9 +387,6 @@ set(WIRESHARK_QT_SRC
 	../qt/interface_toolbar_reader.cpp
 	../qt/interface_toolbar.cpp
 	../qt/layout_preferences_frame.cpp
-	../qt/lbm_lbtrm_transport_dialog.cpp
-	../qt/lbm_lbtru_transport_dialog.cpp
-	../qt/lbm_stream_dialog.cpp
 	../qt/main_application.cpp
 	../qt/main_status_bar.cpp
 	../qt/main_window_layout.cpp
@@ -424,14 +411,11 @@ set(WIRESHARK_QT_SRC
 	../qt/recent_file_status.cpp
 	../qt/resolved_addresses_dialog.cpp
 	../qt/response_time_delay_dialog.cpp
-	../qt/rpc_service_response_time_dialog.cpp
 	../qt/rsa_keys_frame.cpp
-	../qt/scsi_service_response_time_dialog.cpp
 	../qt/search_frame.cpp
 	# XXX Depends on RTP Stream Dialog
 	# ../qt/sequence_diagram.cpp
 	# ../qt/sequence_dialog.cpp
-	../qt/service_response_time_dialog.cpp
 	../qt/show_packet_bytes_dialog.cpp
 	../qt/simple_dialog.cpp
 	../qt/simple_statistics_dialog.cpp
@@ -471,7 +455,6 @@ set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/expert_info_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/funnel_statistics.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/io_graph_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/multicast_statistics_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/stats_tree_dialog.cpp
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
@@ -497,7 +480,6 @@ set(WIRESHARK_QT_UI
 	../qt/column_preferences_frame.ui
 	../qt/compiled_filter_output.ui
 	../qt/conversation_hash_tables_dialog.ui
-	../qt/credentials_dialog.ui
 	../qt/decode_as_dialog.ui
 	../qt/display_filter_expression_dialog.ui
 	../qt/dissector_tables_dialog.ui
@@ -509,7 +491,6 @@ set(WIRESHARK_QT_UI
 	../qt/file_set_dialog.ui
 	../qt/filter_dialog.ui
 	../qt/filter_expression_frame.ui
-	../qt/firewall_rules_dialog.ui
 	../qt/follow_stream_dialog.ui
 	../qt/font_color_preferences_frame.ui
 	../qt/funnel_string_dialog.ui
@@ -519,9 +500,6 @@ set(WIRESHARK_QT_UI
 	../qt/interface_toolbar.ui
 	../qt/io_graph_dialog.ui
 	../qt/layout_preferences_frame.ui
-	../qt/lbm_lbtrm_transport_dialog.ui
-	../qt/lbm_lbtru_transport_dialog.ui
-	../qt/lbm_stream_dialog.ui
 	../qt/main_window_preferences_frame.ui
 	../qt/manage_interfaces_dialog.ui
 	../qt/module_preferences_scroll_area.ui
