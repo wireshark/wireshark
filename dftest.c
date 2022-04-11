@@ -167,9 +167,11 @@ main(int argc, char **argv)
     if (!dfilter_compile_real(expanded_text, &df, &err_msg, &err_loc,
                                                 "dftest", TRUE, FALSE)) {
         fprintf(stderr, "dftest: %s\n", err_msg);
-        fprintf(stderr, "\t%s\n", expanded_text);
-        fputc('\t', stderr);
-        putloc(stderr, err_loc.col_start, err_loc.col_len);
+        if (err_loc.col_start >= 0) {
+            fprintf(stderr, "\t%s\n", expanded_text);
+            fputc('\t', stderr);
+            putloc(stderr, err_loc.col_start, err_loc.col_len);
+        }
         g_free(err_msg);
         g_free(expanded_text);
         epan_cleanup();

@@ -58,6 +58,10 @@ dfilter_vfail(dfwork_t *dfw, stloc_t *loc,
 	if (loc) {
 		dfw->err_loc = *loc;
 	}
+	else {
+		dfw->err_loc.col_start = -1;
+		dfw->err_loc.col_len = 0;
+	}
 }
 
 void

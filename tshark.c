@@ -606,6 +606,40 @@ gather_tshark_runtime_info(feature_list l)
     epan_gather_runtime_info(l);
 }
 
+static gboolean
+_compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
+{
+    gboolean ok;
+    dfilter_loc_t err_loc;
+    char *err_msg = NULL;
+    char *err_off;
+    char *expanded;
+
+    expanded = dfilter_expand(text, &err_msg);
+    if (expanded == NULL) {
+        cmdarg_err("%s", err_msg);
+        g_free(err_msg);
+        return FALSE;
+    }
+
+    ok = dfilter_compile_real(expanded, dfp, &err_msg, &err_loc, caller, FALSE, FALSE);
+    if (!ok ) {
+        cmdarg_err("%s", err_msg);
+        g_free(err_msg);
+        if (err_loc.col_start >= 0) {
+            err_off = ws_strdup_error_offset(NULL, err_loc.col_start, err_loc.col_len);
+            cmdarg_err_cont("    %s", expanded);
+            cmdarg_err_cont("    %s", err_off);
+            g_free(err_off);
+        }
+    }
+
+    g_free(expanded);
+    return ok;
+}
+
+#define compile_dfilter(text, dfp)      _compile_dfilter(text, dfp, __func__)
+
 static void
 about_folders(void)
 {
@@ -722,7 +756,7 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
 int
 main(int argc, char *argv[])
 {
-    char                *err_msg, *err_msg_cont;
+    char                *err_msg;
     static const struct report_message_routines tshark_report_routines = {
         failure_message,
         failure_message,
@@ -777,7 +811,6 @@ main(int argc, char *argv[])
     gchar               *volatile dfilter = NULL;
     dfilter_t           *rfcode = NULL;
     dfilter_t           *dfcode = NULL;
-    dfilter_loc_t       df_loc;
     e_prefs             *prefs_p;
     gchar               *output_only = NULL;
     gchar               *volatile pdu_export_arg = NULL;
@@ -2014,12 +2047,7 @@ main(int argc, char *argv[])
 
     if (rfilter != NULL) {
         ws_debug("Compiling read filter: '%s'", rfilter);
-        if (!dfilter_compile2(rfilter, &rfcode, &err_msg, &df_loc)) {
-            cmdarg_err("%s", err_msg);
-            err_msg_cont = ws_strdup_error_offset(NULL, df_loc.col_start, df_loc.col_len);
-            cmdarg_err_cont("    %s\n    %s\n", rfilter, err_msg_cont);
-            g_free(err_msg);
-            g_free(err_msg_cont);
+        if (!compile_dfilter(rfilter, &rfcode)) {
             epan_cleanup();
             extcap_cleanup();
 
@@ -2044,12 +2072,7 @@ main(int argc, char *argv[])
 
     if (dfilter != NULL) {
         ws_debug("Compiling display filter: '%s'", dfilter);
-        if (!dfilter_compile2(dfilter, &dfcode, &err_msg, &df_loc)) {
-            cmdarg_err("%s", err_msg);
-            err_msg_cont = ws_strdup_error_offset(NULL, df_loc.col_start, df_loc.col_len);
-            cmdarg_err_cont("    %s\n    %s\n", dfilter, err_msg_cont);
-            g_free(err_msg);
-            g_free(err_msg_cont);
+        if (!compile_dfilter(dfilter, &dfcode)) {
             epan_cleanup();
             extcap_cleanup();
 
