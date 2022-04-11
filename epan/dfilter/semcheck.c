@@ -516,14 +516,14 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 					stnode_todisplay(st_arg1));
 			break;
 
-		case STTYPE_RANGE:
+		case STTYPE_SLICE:
 			/*
 			 * XXX - why not?  Shouldn't "eth[3:2]" mean
 			 * "check whether the 'eth' field is present and
 			 * has at least 2 bytes starting at an offset of
 			 * 3"?
 			 */
-			FAIL(dfw, st_arg1, "You cannot test whether a range is present.");
+			FAIL(dfw, st_arg1, "You cannot test whether a slice is present.");
 			break;
 
 		case STTYPE_FUNCTION:
@@ -545,7 +545,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 }
 
 static void
-check_drange_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
+check_slice_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 {
 	stnode_t		*entity1;
 	header_field_info	*hfinfo1;
@@ -572,9 +572,9 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 			FAIL(dfw, entity1, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
 					sttype_function_name(entity1), ftype_pretty_name(ftype1));
 		}
-	} else if (stnode_type_id(entity1) == STTYPE_RANGE) {
+	} else if (stnode_type_id(entity1) == STTYPE_SLICE) {
 		/* Should this be rejected instead? */
-		check_drange_sanity(dfw, entity1, lhs_ftype);
+		check_slice_sanity(dfw, entity1, lhs_ftype);
 	} else {
 		FAIL(dfw, entity1, "Range is not supported for entity %s",
 					stnode_todisplay(entity1));
@@ -592,7 +592,7 @@ convert_to_bytes(stnode_t *arg)
 	drange_node_set_start_offset(rn, 0);
 	drange_node_set_to_the_end(rn);
 
-	stnode_replace(arg, STTYPE_RANGE, NULL);
+	stnode_replace(arg, STTYPE_SLICE, NULL);
 	sttype_range_set1(arg, entity1, rn);
 }
 
@@ -709,8 +709,8 @@ again:
 		fvalue = dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
-	else if (type2 == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg2, ftype1);
+	else if (type2 == STTYPE_SLICE) {
+		check_slice_sanity(dfw, st_arg2, ftype1);
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "\"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -758,7 +758,7 @@ again:
 }
 
 static void
-check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
+check_relation_LHS_SLICE(dfwork_t *dfw, test_op_t st_op,
 		FtypeCanFunc can_func _U_,
 		gboolean allow_partial_value,
 		stnode_t *st_node _U_,
@@ -771,7 +771,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 
 	LOG_NODE(st_node);
 
-	check_drange_sanity(dfw, st_arg1, FT_NONE);
+	check_slice_sanity(dfw, st_arg1, FT_NONE);
 
 again:
 	type2 = stnode_type_id(st_arg2);
@@ -811,8 +811,8 @@ again:
 		fvalue = dfilter_fvalue_from_charconst(dfw, FT_BYTES, st_arg2);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
-	else if (type2 == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg2, FT_BYTES);
+	else if (type2 == STTYPE_SLICE) {
+		check_slice_sanity(dfw, st_arg2, FT_BYTES);
 	}
 	else if (type2 == STTYPE_FUNCTION) {
 		ftype2 = check_function(dfw, st_arg2, FT_BYTES);
@@ -910,8 +910,8 @@ again:
 		fvalue = dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
-	else if (type2 == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg2, ftype1);
+	else if (type2 == STTYPE_SLICE) {
+		check_slice_sanity(dfw, st_arg2, ftype1);
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "Function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -980,8 +980,8 @@ check_relation_LHS_ARITHMETIC(dfwork_t *dfw, test_op_t st_op _U_,
 	else if (entity_type == STTYPE_FUNCTION) {
 		check_relation_LHS_FUNCTION(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
 	}
-	else if (entity_type == STTYPE_RANGE) {
-		check_relation_LHS_RANGE(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
+	else if (entity_type == STTYPE_SLICE) {
+		check_relation_LHS_SLICE(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
 	}
 	else if (entity_type == STTYPE_ARITHMETIC) {
 		check_relation_LHS_ARITHMETIC(dfw, st_op, can_func, allow_partial_value, st_node, entity, st_arg2);
@@ -1007,8 +1007,8 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 			check_relation_LHS_FIELD(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
-		case STTYPE_RANGE:
-			check_relation_LHS_RANGE(dfw, st_op, can_func,
+		case STTYPE_SLICE:
+			check_relation_LHS_SLICE(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_FUNCTION:
@@ -1043,8 +1043,8 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 			check_relation_LHS_FUNCTION(dfw, TEST_OP_CONTAINS, ftype_can_contains,
 							TRUE, st_node, st_arg1, st_arg2);
 			break;
-		case STTYPE_RANGE:
-			check_relation_LHS_RANGE(dfw, TEST_OP_CONTAINS, ftype_can_contains,
+		case STTYPE_SLICE:
+			check_relation_LHS_SLICE(dfw, TEST_OP_CONTAINS, ftype_can_contains,
 							TRUE, st_node, st_arg1, st_arg2);
 			break;
 		default:
@@ -1092,8 +1092,8 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 			check_relation_LHS_FUNCTION(dfw, TEST_OP_MATCHES, ftype_can_matches,
 							TRUE, st_node, st_arg1, st_arg2);
 			break;
-		case STTYPE_RANGE:
-			check_relation_LHS_RANGE(dfw, TEST_OP_MATCHES, ftype_can_matches,
+		case STTYPE_SLICE:
+			check_relation_LHS_SLICE(dfw, TEST_OP_MATCHES, ftype_can_matches,
 							TRUE, st_node, st_arg1, st_arg2);
 			break;
 		default:
@@ -1128,8 +1128,8 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 		node_left = nodelist->data;
 
 		/* Don't let a range on the RHS affect the LHS field. */
-		if (stnode_type_id(node_left) == STTYPE_RANGE) {
-			FAIL(dfw, node_left, "A range may not appear inside a set.");
+		if (stnode_type_id(node_left) == STTYPE_SLICE) {
+			FAIL(dfw, node_left, "A slice may not appear inside a set.");
 			break;
 		}
 
@@ -1231,8 +1231,8 @@ check_arithmetic_entity(dfwork_t *dfw, stnode_t *st_arg, ftenum_t lhs_ftype)
 	else if (type == STTYPE_FUNCTION) {
 		ftype = check_function(dfw, st_arg, lhs_ftype);
 	}
-	else if (type == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg, lhs_ftype);
+	else if (type == STTYPE_SLICE) {
+		check_slice_sanity(dfw, st_arg, lhs_ftype);
 
 		ftype = FT_BYTES;
 	}

@@ -140,16 +140,16 @@ sttype_range_drange(stnode_t *node)
 void
 sttype_register_range(void)
 {
-	static sttype_t range_type = {
-		STTYPE_RANGE,
-		"RANGE",
+	static sttype_t slice_type = {
+		STTYPE_SLICE,
+		"SLICE",
 		range_new,
 		range_free,
 		range_dup,
 		range_tostr
 	};
 
-	sttype_register(&range_type);
+	sttype_register(&slice_type);
 }
 
 /*

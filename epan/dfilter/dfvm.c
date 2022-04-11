@@ -41,7 +41,7 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case ALL_ZERO:		return "ALL_ZERO";
 		case ANY_CONTAINS:	return "ANY_CONTAINS";
 		case ANY_MATCHES:	return "ANY_MATCHES";
-		case MK_RANGE:		return "MK_RANGE";
+		case MK_SLICE:		return "MK_SLICE";
 		case MK_BITWISE_AND:	return "MK_BITWISE_AND";
 		case MK_MINUS:		return "MK_MINUS";
 		case DFVM_ADD:		return "DFVM_ADD";
@@ -332,8 +332,9 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				}
 				break;
 
-			case MK_RANGE:
-				wmem_strbuf_append_printf(buf, "%05d MK_RANGE\t\t%s[%s] -> %s\n",
+			case MK_SLICE:
+				arg3 = insn->arg3;
+				wmem_strbuf_append_printf(buf, "%05d MK_SLICE\t\t%s[%s] -> %s\n",
 					id, arg1_str, arg3_str, arg2_str);
 				break;
 
@@ -789,10 +790,10 @@ free_register_overhead(dfilter_t* df)
 }
 
 /* Takes the list of fvalue_t's in a register, uses fvalue_slice()
- * to make a new list of fvalue_t's (which are ranges, or byte-slices),
+ * to make a new list of fvalue_t's (which are byte-slices),
  * and puts the new list into a new register. */
 static void
-mk_range(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
+mk_slice(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
 						dfvm_value_t *drange_arg)
 {
 	GSList		*from_list, *to_list;
@@ -1101,8 +1102,8 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				stack_pop(df, arg1);
 				break;
 
-			case MK_RANGE:
-				mk_range(df, arg1, arg2, arg3);
+			case MK_SLICE:
+				mk_slice(df, arg1, arg2, arg3);
 				break;
 
 			case ALL_EQ:

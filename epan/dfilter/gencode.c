@@ -176,7 +176,7 @@ dfw_append_read_reference(dfwork_t *dfw, header_field_info *hfinfo)
 
 /* returns register number */
 static dfvm_value_t *
-dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
+dfw_append_mk_slice(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	stnode_t                *entity;
 	dfvm_insn_t		*insn;
@@ -184,7 +184,7 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 
 	entity = sttype_range_entity(node);
 
-	insn = dfvm_insn_new(MK_RANGE);
+	insn = dfvm_insn_new(MK_SLICE);
 	val1 = gen_entity(dfw, entity, jumps_ptr);
 	insn->arg1 = dfvm_value_ref(val1);
 	reg_val = dfvm_value_new_register(dfw->next_register++);
@@ -450,8 +450,8 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	else if (e_type == STTYPE_FVALUE) {
 		val = dfvm_value_new_fvalue(stnode_steal_data(st_arg));
 	}
-	else if (e_type == STTYPE_RANGE) {
-		val = dfw_append_mk_range(dfw, st_arg, jumps_ptr);
+	else if (e_type == STTYPE_SLICE) {
+		val = dfw_append_mk_slice(dfw, st_arg, jumps_ptr);
 	}
 	else if (e_type == STTYPE_FUNCTION) {
 		val = dfw_append_function(dfw, st_arg, jumps_ptr);

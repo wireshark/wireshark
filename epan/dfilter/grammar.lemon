@@ -122,7 +122,7 @@ atom(A) ::= FIELD(F).       { A = F; }
 atom(A) ::= REFERENCE(F).   { A = F; }
 
 entity(E) ::= atom(A).          { E = A; }
-entity(E) ::= range(R).         { E = R; }
+entity(E) ::= slice(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
 
 arithmetic_expr(T) ::= entity(N).
@@ -289,11 +289,11 @@ set_element(N) ::= set_entity(X) DOTDOT set_entity(Y).
     N = g_slist_append(N, Y);
 }
 
-/* Ranges */
+/* Slices */
 
-range(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
+slice(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
-    R = stnode_new(STTYPE_RANGE, NULL, NULL, NULL);
+    R = stnode_new(STTYPE_SLICE, NULL, NULL, NULL);
     sttype_range_set(R, E, L);
 
     /* Delete the list, but not the drange_nodes that
