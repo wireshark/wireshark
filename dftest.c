@@ -41,17 +41,14 @@ static void dftest_cmdarg_err(const char *fmt, va_list ap);
 static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
 
 static void
-putloc(FILE *fp, int start, size_t len)
+putloc(FILE *fp, dfilter_loc_t loc)
 {
-    if (start < 0)
-        return;
-
-    for (int i = 0; i < start; i++) {
+    for (long i = 0; i < loc.col_start; i++) {
         fputc(' ', fp);
     }
     fputc('^', fp);
 
-    for (size_t l = len; l > 1; l--) {
+    for (size_t l = loc.col_len; l > 1; l--) {
         fputc('~', fp);
     }
     fputc('\n', fp);
@@ -170,7 +167,7 @@ main(int argc, char **argv)
         if (err_loc.col_start >= 0) {
             fprintf(stderr, "\t%s\n", expanded_text);
             fputc('\t', stderr);
-            putloc(stderr, err_loc.col_start, err_loc.col_len);
+            putloc(stderr, err_loc);
         }
         g_free(err_msg);
         g_free(expanded_text);

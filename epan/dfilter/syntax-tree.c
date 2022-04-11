@@ -304,7 +304,7 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf, "magic=0x%"PRIx32", ", node->magic);
 	wmem_strbuf_append_printf(buf, "type=%s, ", stnode_type_name(node));
 	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todebug(node));
-	wmem_strbuf_append_printf(buf, "location=%d:%zu",
+	wmem_strbuf_append_printf(buf, "location=%ld:%zu",
 			node->location.col_start, node->location.col_len);
 	return wmem_strbuf_finalize(buf);
 }

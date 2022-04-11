@@ -53,7 +53,7 @@ dfilter_expand(const char *expr, char **err_ret);
  */
 
 typedef struct _dfilter_loc {
-	int col_start;
+	long col_start;
 	size_t col_len;
 } dfilter_loc_t;
 

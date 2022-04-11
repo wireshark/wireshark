@@ -549,7 +549,7 @@ ws_strerrorname_r(int errnum, char *buf, size_t buf_size)
 }
 
 char *
-ws_strdup_error_offset(wmem_allocator_t *allocator, int offset, size_t len)
+ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
 {
     if (offset < 0)
         return NULL;

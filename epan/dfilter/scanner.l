@@ -460,7 +460,7 @@ DIAG_ON_FLEX
 static void
 _update_location(df_scanner_state_t *state, size_t len)
 {
-	state->location.col_start += state->location.col_len;
+	state->location.col_start += (long)state->location.col_len;
 	state->location.col_len = len;
 }
 

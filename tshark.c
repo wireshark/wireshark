@@ -627,7 +627,7 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
         cmdarg_err("%s", err_msg);
         g_free(err_msg);
         if (err_loc.col_start >= 0) {
-            err_off = ws_strdup_error_offset(NULL, err_loc.col_start, err_loc.col_len);
+            err_off = ws_strdup_underline(NULL, err_loc.col_start, err_loc.col_len);
             cmdarg_err_cont("    %s", expanded);
             cmdarg_err_cont("    %s", err_off);
             g_free(err_off);

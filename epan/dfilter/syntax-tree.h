@@ -80,7 +80,7 @@ typedef struct {
 } sttype_t;
 
 typedef struct {
-	int col_start;
+	long col_start;
 	size_t col_len;
 } stloc_t;
 
