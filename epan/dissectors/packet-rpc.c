@@ -4337,7 +4337,7 @@ proto_register_rpc(void)
 	};
 
 	static stat_tap_table_ui rpc_prog_stat_table = {
-		REGISTER_STAT_GROUP_UNSORTED,
+		REGISTER_PACKET_STAT_GROUP_UNSORTED,
 		"ONC-RPC Programs",
 		"rpc",
 		"rpc,programs",

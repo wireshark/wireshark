@@ -804,7 +804,7 @@ proto_register_npm(void)
   };
 
   static stat_tap_table_ui npm_stat_table = {
-    REGISTER_STAT_GROUP_UNSORTED,
+    REGISTER_PACKET_STAT_GROUP_UNSORTED,
     "NetPerfMeter Statistics",
     "npm",
     "npm,stat",

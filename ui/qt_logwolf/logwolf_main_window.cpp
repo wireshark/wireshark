@@ -363,6 +363,10 @@ LogwolfMainWindow::LogwolfMainWindow(QWidget *parent) :
     update_action_ = new QAction(tr("Check for Updates…"), main_ui_->menuHelp);
 #endif
 
+    menu_groups_ = QList<register_stat_group_t>()
+            << REGISTER_LOG_ANALYZE_GROUP_UNSORTED
+            << REGISTER_LOG_STAT_GROUP_UNSORTED;
+
     setWindowIcon(mainApp->normalIcon());
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
@@ -2633,58 +2637,41 @@ void LogwolfMainWindow::setForCaptureInProgress(bool capture_in_progress, bool h
     }
 }
 
-static QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
-            << REGISTER_ANALYZE_GROUP_UNSORTED
-            << REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER
-            << REGISTER_STAT_GROUP_UNSORTED
-            << REGISTER_STAT_GROUP_GENERIC
-            << REGISTER_STAT_GROUP_CONVERSATION_LIST
-            << REGISTER_STAT_GROUP_ENDPOINT_LIST
-//            << REGISTER_STAT_GROUP_RESPONSE_TIME
-//            << REGISTER_STAT_GROUP_RSERPOOL
-            << REGISTER_TOOLS_GROUP_UNSORTED;
-
 void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
-        case REGISTER_ANALYZE_GROUP_UNSORTED:
-        case REGISTER_STAT_GROUP_UNSORTED:
+        case REGISTER_LOG_ANALYZE_GROUP_UNSORTED:
+        case REGISTER_LOG_STAT_GROUP_UNSORTED:
             main_ui_->menuStatistics->insertAction(
                             main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
                             action);
             break;
-//        case REGISTER_STAT_GROUP_RESPONSE_TIME:
-//            main_ui_->menuServiceResponseTime->addAction(action);
+//        case REGISTER_TOOLS_GROUP_UNSORTED:
+//        {
+//            // Allow the creation of submenus. Mimics the behavor of
+//            // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
+//            // and GtkUIManager.
+//            //
+//            // For now we limit the insanity to the "Tools" menu.
+//            QStringList menu_path = action->text().split('/');
+//            QMenu *cur_menu = main_ui_->menuTools;
+//            while (menu_path.length() > 1) {
+//                QString menu_title = menu_path.takeFirst();
+//                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+//                if (!submenu) {
+//                    submenu = cur_menu->addMenu(menu_title);
+//                    submenu->setObjectName(menu_title.toLower());
+//                }
+//                cur_menu = submenu;
+//            }
+//            action->setText(menu_path.last());
+//            cur_menu->addAction(action);
 //            break;
-//        case REGISTER_STAT_GROUP_RSERPOOL:
-//            main_ui_->menuRSerPool->addAction(action);
-//            break;
-        case REGISTER_TOOLS_GROUP_UNSORTED:
-        {
-            // Allow the creation of submenus. Mimics the behavor of
-            // ui/gtk/main_menubar.c:add_menu_item_to_main_menubar
-            // and GtkUIManager.
-            //
-            // For now we limit the insanity to the "Tools" menu.
-            QStringList menu_path = action->text().split('/');
-            QMenu *cur_menu = main_ui_->menuTools;
-            while (menu_path.length() > 1) {
-                QString menu_title = menu_path.takeFirst();
-                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-                if (!submenu) {
-                    submenu = cur_menu->addMenu(menu_title);
-                    submenu->setObjectName(menu_title.toLower());
-                }
-                cur_menu = submenu;
-            }
-            action->setText(menu_path.last());
-            cur_menu->addAction(action);
-            break;
-        }
+//        }
         default:
-//            qDebug() << "FIX: Add" << action->text() << "to the menu";
-            break;
+            // Skip packet items.
+            return;
         }
 
         // Connect each action type to its corresponding slot. We to
@@ -2697,34 +2684,29 @@ void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group
         }
     }
 }
+
 void LogwolfMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
-        case REGISTER_ANALYZE_GROUP_UNSORTED:
-        case REGISTER_STAT_GROUP_UNSORTED:
+        case REGISTER_LOG_ANALYZE_GROUP_UNSORTED:
+        case REGISTER_LOG_STAT_GROUP_UNSORTED:
             main_ui_->menuStatistics->removeAction(action);
             break;
-//        case REGISTER_STAT_GROUP_RESPONSE_TIME:
-//            main_ui_->menuServiceResponseTime->removeAction(action);
+//        case REGISTER_TOOLS_GROUP_UNSORTED:
+//        {
+//            // Allow removal of submenus.
+//            // For now we limit the insanity to the "Tools" menu.
+//            QStringList menu_path = action->text().split('/');
+//            QMenu *cur_menu = main_ui_->menuTools;
+//            while (menu_path.length() > 1) {
+//                QString menu_title = menu_path.takeFirst();
+//                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
+//                cur_menu = submenu;
+//            }
+//            cur_menu->removeAction(action);
 //            break;
-//        case REGISTER_STAT_GROUP_RSERPOOL:
-//            main_ui_->menuRSerPool->removeAction(action);
-//            break;
-        case REGISTER_TOOLS_GROUP_UNSORTED:
-        {
-            // Allow removal of submenus.
-            // For now we limit the insanity to the "Tools" menu.
-            QStringList menu_path = action->text().split('/');
-            QMenu *cur_menu = main_ui_->menuTools;
-            while (menu_path.length() > 1) {
-                QString menu_title = menu_path.takeFirst();
-                QMenu *submenu = cur_menu->findChild<QMenu *>(menu_title.toLower(), Qt::FindDirectChildrenOnly);
-                cur_menu = submenu;
-            }
-            cur_menu->removeAction(action);
-            break;
-        }
+//        }
         default:
 //            qDebug() << "FIX: Remove" << action->text() << "from the menu";
             break;
@@ -2735,7 +2717,7 @@ void LogwolfMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_gr
 void LogwolfMainWindow::addDynamicMenus()
 {
     // Fill in each menu
-    foreach(register_stat_group_t menu_group, menu_groups) {
+    foreach(register_stat_group_t menu_group, menu_groups_) {
         QList<QAction *>actions = mainApp->dynamicMenuGroupItems(menu_group);
         addMenuActions(actions, menu_group);
     }
@@ -2743,7 +2725,7 @@ void LogwolfMainWindow::addDynamicMenus()
 
 void LogwolfMainWindow::reloadDynamicMenus()
 {
-    foreach(register_stat_group_t menu_group, menu_groups) {
+    foreach(register_stat_group_t menu_group, menu_groups_) {
         QList<QAction *>actions = mainApp->removedMenuGroupItems(menu_group);
         removeMenuActions(actions, menu_group);
 

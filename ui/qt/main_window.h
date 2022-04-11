@@ -11,6 +11,7 @@
 #define MAINWINDOW_H
 
 #include <epan/prefs.h>
+#include <epan/stat_groups.h>
 
 #include "filter_action.h"
 
@@ -52,6 +53,7 @@ protected:
     void showWelcome();
     void showCapture();
 
+    QList<register_stat_group_t> menu_groups_;
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
     QStackedWidget *main_stack_;

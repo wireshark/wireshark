@@ -372,6 +372,23 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     main_ui_->menuView->removeAction(main_ui_->actionViewWirelessToolbar);
 #endif
 
+    menu_groups_ = QList<register_stat_group_t>()
+            << REGISTER_PACKET_ANALYZE_GROUP_UNSORTED
+            << REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER
+            << REGISTER_PACKET_STAT_GROUP_UNSORTED
+            << REGISTER_STAT_GROUP_GENERIC
+            << REGISTER_STAT_GROUP_CONVERSATION_LIST
+            << REGISTER_STAT_GROUP_ENDPOINT_LIST
+            << REGISTER_STAT_GROUP_RESPONSE_TIME
+            << REGISTER_STAT_GROUP_RSERPOOL
+            << REGISTER_STAT_GROUP_TELEPHONY
+            << REGISTER_STAT_GROUP_TELEPHONY_ANSI
+            << REGISTER_STAT_GROUP_TELEPHONY_GSM
+            << REGISTER_STAT_GROUP_TELEPHONY_LTE
+            << REGISTER_STAT_GROUP_TELEPHONY_MTP3
+            << REGISTER_STAT_GROUP_TELEPHONY_SCTP
+            << REGISTER_TOOLS_GROUP_UNSORTED;
+
     setWindowIcon(mainApp->normalIcon());
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
@@ -2662,29 +2679,12 @@ void WiresharkMainWindow::setForCaptureInProgress(bool capture_in_progress, bool
     }
 }
 
-static QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
-            << REGISTER_ANALYZE_GROUP_UNSORTED
-            << REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER
-            << REGISTER_STAT_GROUP_UNSORTED
-            << REGISTER_STAT_GROUP_GENERIC
-            << REGISTER_STAT_GROUP_CONVERSATION_LIST
-            << REGISTER_STAT_GROUP_ENDPOINT_LIST
-            << REGISTER_STAT_GROUP_RESPONSE_TIME
-            << REGISTER_STAT_GROUP_RSERPOOL
-            << REGISTER_STAT_GROUP_TELEPHONY
-            << REGISTER_STAT_GROUP_TELEPHONY_ANSI
-            << REGISTER_STAT_GROUP_TELEPHONY_GSM
-            << REGISTER_STAT_GROUP_TELEPHONY_LTE
-            << REGISTER_STAT_GROUP_TELEPHONY_MTP3
-            << REGISTER_STAT_GROUP_TELEPHONY_SCTP
-            << REGISTER_TOOLS_GROUP_UNSORTED;
-
 void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
-        case REGISTER_ANALYZE_GROUP_UNSORTED:
-        case REGISTER_STAT_GROUP_UNSORTED:
+        case REGISTER_PACKET_ANALYZE_GROUP_UNSORTED:
+        case REGISTER_PACKET_STAT_GROUP_UNSORTED:
             main_ui_->menuStatistics->insertAction(
                             main_ui_->actionStatistics_REGISTER_STAT_GROUP_UNSORTED,
                             action);
@@ -2733,8 +2733,8 @@ void WiresharkMainWindow::addMenuActions(QList<QAction *> &actions, int menu_gro
             break;
         }
         default:
-//            qDebug() << "FIX: Add" << action->text() << "to the menu";
-            break;
+            // Skip log items.
+            return;
         }
 
         // Connect each action type to its corresponding slot. We to
@@ -2751,8 +2751,8 @@ void WiresharkMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
-        case REGISTER_ANALYZE_GROUP_UNSORTED:
-        case REGISTER_STAT_GROUP_UNSORTED:
+        case REGISTER_PACKET_ANALYZE_GROUP_UNSORTED:
+        case REGISTER_PACKET_STAT_GROUP_UNSORTED:
             main_ui_->menuStatistics->removeAction(action);
             break;
         case REGISTER_STAT_GROUP_RESPONSE_TIME:
@@ -2808,7 +2808,7 @@ void WiresharkMainWindow::addDynamicMenus()
     mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY, main_ui_->actionTelephonySipFlows);
 
     // Fill in each menu
-    foreach(register_stat_group_t menu_group, menu_groups) {
+    foreach(register_stat_group_t menu_group, menu_groups_) {
         QList<QAction *>actions = mainApp->dynamicMenuGroupItems(menu_group);
         addMenuActions(actions, menu_group);
     }
@@ -2832,7 +2832,7 @@ void WiresharkMainWindow::addDynamicMenus()
 
 void WiresharkMainWindow::reloadDynamicMenus()
 {
-    foreach(register_stat_group_t menu_group, menu_groups) {
+    foreach(register_stat_group_t menu_group, menu_groups_) {
         QList<QAction *>actions = mainApp->removedMenuGroupItems(menu_group);
         removeMenuActions(actions, menu_group);
 

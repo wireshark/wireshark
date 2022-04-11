@@ -10183,7 +10183,7 @@ proto_register_dhcp(void)
 	};
 
 	static stat_tap_table_ui dhcp_stat_table = {
-		REGISTER_STAT_GROUP_UNSORTED,
+		REGISTER_PACKET_STAT_GROUP_UNSORTED,
 		"DHCP (BOOTP) Statistics",
 		"dhcp",
 		"dhcp,stat",
