@@ -8,17 +8,25 @@ import fixtures
 
 @fixtures.fixture
 def dfilter_cmd(cmd_tshark, capture_file, request):
-    def wrapped(dfilter):
-        return (
+    def wrapped(dfilter, frame_number=None):
+        cmd = [
             cmd_tshark,
             "-n",       # No name resolution
             "-r",       # Next arg is trace file to read
             capture_file(request.instance.trace_file),
+        ]
+        if frame_number:
+            cmd.extend([
+                "-2",       # two pass mode
+                "--selected-frame={}".format(frame_number)
+            ])
+        cmd.extend([
             "-Y",       # packet display filter (used to be -R)
             dfilter
-        )
+        ])
+        print(cmd)
+        return cmd
     return wrapped
-
 
 @fixtures.fixture(scope='session')
 def cmd_dftest(program):
@@ -30,6 +38,21 @@ def checkDFilterCount(dfilter_cmd, base_env):
     def checkDFilterCount_real(dfilter, expected_count):
         """Run a display filter and expect a certain number of packets."""
         output = subprocess.check_output(dfilter_cmd(dfilter),
+                                         universal_newlines=True,
+                                         stderr=subprocess.STDOUT,
+                                         env=base_env)
+
+        dfp_count = output.count("\n")
+        msg = "Expected %d, got: %s\noutput: %r" % \
+            (expected_count, dfp_count, output)
+        assert dfp_count == expected_count, msg
+    return checkDFilterCount_real
+
+@fixtures.fixture
+def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
+    def checkDFilterCount_real(dfilter, expected_count, selected_frame):
+        """Run a display filter and expect a certain number of packets."""
+        output = subprocess.check_output(dfilter_cmd(dfilter, frame_number=selected_frame),
                                          universal_newlines=True,
                                          stderr=subprocess.STDOUT,
                                          env=base_env)

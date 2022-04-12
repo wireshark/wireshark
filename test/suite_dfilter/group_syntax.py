@@ -270,3 +270,12 @@ class case_arithmetic(unittest.TestCase):
     def test_expr_2(self, checkDFilterCount):
         dfilter = 'udp.dstport * { udp.srcport / {5 - 4} } == udp.srcport * { 2 * udp.dstport - 68 }'
         checkDFilterCount(dfilter, 2)
+
+@fixtures.uses_fixtures
+class case_field_reference(unittest.TestCase):
+    trace_file = "dhcp.pcap"
+
+    def test_ref_1(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.number < ${frame.number}'
+        # select frame 3, expect 2 frames out of 4.
+        checkDFilterCountWithSelectedFrame(dfilter, 2, 3)
