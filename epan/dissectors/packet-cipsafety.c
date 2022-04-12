@@ -18,6 +18,7 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -279,8 +280,6 @@ static gint ett_svalidator_rrsc           = -1;
 static gint ett_svalidator_cmd_data       = -1;
 static gint ett_svalidator_type           = -1;
 
-static const unit_name_string units_safety_128us = { " (128 us increment)", " (128 us increments)" };
-
 static expert_field ei_cipsafety_tbd2_not_complemented = EI_INIT;
 static expert_field ei_cipsafety_tbd_not_copied = EI_INIT;
 static expert_field ei_cipsafety_run_idle_not_complemented = EI_INIT;
@@ -449,6 +448,12 @@ static const value_string cip_svalidator_type_conn_type_vals[] = {
 
    { 0,        NULL          }
 };
+
+void cip_safety_128us_fmt(gchar *s, guint32 value)
+{
+   // Each tick is 128us.
+   snprintf(s, ITEM_LABEL_LENGTH, "%d (%.3fms)", value, value * 0.128);
+}
 
 void
 dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi,
@@ -2760,7 +2765,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cip_svalidator_time_coord_msg_min_mult_item,
         { "Time Coord Msg Min Multiplier", "cipsafety.svalidator.time_coord_msg_min_mult.item",
-          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_safety_128us, 0, NULL, HFILL }
+          FT_UINT16, BASE_CUSTOM, CF_FUNC(cip_safety_128us_fmt), 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_network_time_multiplier_size,
         { "Network Time Expectation Multiplier Array Size", "cipsafety.svalidator.network_time_multiplier.size",
@@ -2768,7 +2773,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cip_svalidator_network_time_multiplier_item,
         { "Network Time Expectation Multiplier", "cipsafety.svalidator.network_time_multiplier.item",
-          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_safety_128us, 0, NULL, HFILL }
+          FT_UINT16, BASE_CUSTOM, CF_FUNC(cip_safety_128us_fmt), 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_timeout_multiplier_size,
         { "Timeout Multiplier Array Size", "cipsafety.svalidator.timeout_multiplier.size",
@@ -2804,7 +2809,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cip_svalidator_max_data_age,
         { "Max Data Age", "cipsafety.svalidator.max_data_age",
-          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_CUSTOM, CF_FUNC(cip_safety_128us_fmt), 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_error_code,
         { "Error Code", "cipsafety.svalidator.error_code",
