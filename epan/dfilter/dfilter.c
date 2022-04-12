@@ -113,7 +113,8 @@ dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
 	hfinfo = proto_registrar_get_byalias(name);
 	if (hfinfo != NULL) {
 		/* It's an aliased field name */
-		add_deprecated_token(dfw, name);
+		if (dfw)
+			add_deprecated_token(dfw, name);
 		return hfinfo;
 	}
 
