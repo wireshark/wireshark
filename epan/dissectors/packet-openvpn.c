@@ -48,12 +48,16 @@ void proto_reg_handoff_openvpn(void);
 #define P_CONTROL_HARD_RESET_SERVER_V2  8
 #define P_DATA_V2                       9
 #define P_CONTROL_HARD_RESET_CLIENT_V3  10
+#define P_CONTROL_WKC_V1                11
 
 static gint ett_openvpn = -1;
 static gint ett_openvpn_data = -1;
 static gint ett_openvpn_packetarray = -1;
 static gint ett_openvpn_type = -1;
+static gint ett_openvpn_wkc = -1;
 static gint hf_openvpn_data = -1;
+static gint hf_openvpn_wkc_data = -1;
+static gint hf_openvpn_wkc_length = -1;
 static gint hf_openvpn_fragment_bytes = -1;
 static gint hf_openvpn_hmac = -1;
 static gint hf_openvpn_keyid = -1;
@@ -79,6 +83,7 @@ static dissector_handle_t tls_handle;
 static gboolean pref_long_format       = TRUE;
 static gboolean pref_tls_auth          = FALSE;
 static gboolean pref_tls_auth_override = FALSE;
+static gboolean pref_tls_crypt_override = FALSE;
 static guint    tls_auth_hmac_size     = 20; /* Default SHA-1 160 Bits */
 
 static const value_string openvpn_message_types[] =
@@ -93,6 +98,7 @@ static const value_string openvpn_message_types[] =
   {   P_CONTROL_HARD_RESET_SERVER_V2,  "P_CONTROL_HARD_RESET_SERVER_V2" },
   {   P_DATA_V2,                       "P_DATA_V2" },
   {   P_CONTROL_HARD_RESET_CLIENT_V3,  "P_CONTROL_HARD_RESET_CLIENT_V3" },
+  {   P_CONTROL_WKC_V1,                "P_CONTROL_WKC_V1" },
   {   0, NULL }
 };
 
@@ -166,6 +172,7 @@ static int
 dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvpn_tree, proto_tree *parent_tree, gint offset)
 {
   gboolean       tls_auth;
+  gboolean       tls_crypt = FALSE;
   guint          openvpn_keyid;
   guint          openvpn_opcode;
   guint32        msg_mpid      = -1;
@@ -178,6 +185,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   fragment_head *frag_msg;
   tvbuff_t      *new_tvb;
   gboolean       save_fragmented;
+  gint           wkc_offset = -1;
 
   /* Clear out stuff in the info column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -215,8 +223,9 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 
     /* tls-auth detection (this can be overridden by preferences */
     openvpn_predict_tlsauth_arraylength = tvb_get_guint8(tvb, offset);
+
     /* if the first 4 bytes that would, if tls-auth is used, contain part of the hmac,
-       lack entropy, we asume no tls-auth is used */
+       lack entropy, we assume no tls-auth is used */
     if (pref_tls_auth_override == FALSE) {
       if ((openvpn_opcode != P_DATA_V1)
           && (openvpn_predict_tlsauth_arraylength > 0)
@@ -229,22 +238,35 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
       tls_auth = pref_tls_auth;
     }
 
+    if (openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1 || pref_tls_crypt_override == TRUE) {
+      /* these opcodes are always tls-crypt*/
+      tls_crypt = TRUE;
+      tls_auth = FALSE;
+    }
+
     if (tls_auth == TRUE) {
       proto_tree_add_item(openvpn_tree, hf_openvpn_hmac, tvb, offset, tls_auth_hmac_size, ENC_NA);
       offset += tls_auth_hmac_size;
+    }
 
+    if (tls_auth == TRUE || tls_crypt == TRUE) {
       if (tvb_reported_length_remaining(tvb, offset) >= 8) {
         proto_tree_add_item(openvpn_tree, hf_openvpn_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if (pref_long_format) {
+        if (pref_long_format || tls_crypt == TRUE) {
           proto_tree_add_item(openvpn_tree, hf_openvpn_net_time, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
         }
       }
+      if (tls_crypt == TRUE) {
+        /* tls-crypt uses HMAC-SHA256 */
+        proto_tree_add_item(openvpn_tree, hf_openvpn_hmac, tvb, offset, 32, ENC_NA);
+        offset += 32;
+      }
     }
 
-    if (tvb_reported_length_remaining(tvb, offset) >= 1) {
+    if (tvb_reported_length_remaining(tvb, offset) >= 1 && tls_crypt == FALSE) {
       /* read P_ACK packet-id array length */
       gint pid_arraylength = tvb_get_guint8(tvb, offset);
       gint i;
@@ -267,7 +289,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     }
 
     /* if we have a P_CONTROL packet */
-    if (openvpn_opcode != P_ACK_V1) {
+    if (openvpn_opcode != P_ACK_V1 && tls_crypt == FALSE) {
       /* read Message Packet-ID */
       if (tvb_reported_length_remaining(tvb, offset) >= 4) {
         msg_mpid = tvb_get_bits32(tvb, offset*8, 32, ENC_BIG_ENDIAN);
@@ -284,13 +306,36 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     return tvb_captured_length(tvb);
   }
 
+  gint data_len = msg_length_remaining;
+  gint wkc_len = -1;
+  if ((openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1)
+      &&  msg_length_remaining >= 2) {
+
+    wkc_len = tvb_get_ntohs(tvb, tvb_reported_length(tvb) - 2);
+    data_len = msg_length_remaining - wkc_len;
+  }
+
   if (openvpn_opcode != P_CONTROL_V1) {
     proto_tree *data_tree;
-    data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, -1,
+    data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, data_len,
                               ett_openvpn_data, NULL, "Data (%d bytes)",
-                              tvb_captured_length_remaining(tvb, offset));
+                              data_len);
 
-    proto_tree_add_item(data_tree, hf_openvpn_data, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(data_tree, hf_openvpn_data, tvb, offset, data_len, ENC_NA);
+
+    if (wkc_len > 0)
+    {
+      proto_tree *wkc_tree;
+      wkc_offset = tvb_reported_length(tvb) - wkc_len;
+
+      wkc_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, data_len,
+						ett_openvpn_wkc, NULL, "Wrapped client key (%d bytes)",
+						tvb_captured_length_remaining(tvb, wkc_offset));
+
+      proto_tree_add_item(wkc_tree, hf_openvpn_wkc_data, tvb, wkc_offset, wkc_len, ENC_NA);
+      proto_tree_add_item(wkc_tree, hf_openvpn_wkc_length, tvb,  tvb_reported_length(tvb) - 2, 2, ENC_BIG_ENDIAN);
+    }
+
     return tvb_captured_length(tvb);
   }
 
@@ -456,7 +501,7 @@ proto_register_openvpn(void)
       NULL, HFILL }
     },
     { &hf_openvpn_pid,
-      { "Packet-ID", "openvpn.pid",
+      { "Replay-Packet-ID", "openvpn.pid",
       FT_UINT32, BASE_DEC,
       NULL, 0x0,
       NULL, HFILL }
@@ -493,9 +538,21 @@ proto_register_openvpn(void)
     },
     { &hf_openvpn_data,
       { "Data", "openvpn.data",
-      FT_BYTES, BASE_NONE,
-      NULL, 0x0,
-      NULL, HFILL }
+        FT_BYTES, BASE_NONE,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_openvpn_wkc_data,
+      { "Wrapped client key", "openvpn.wkc",
+        FT_BYTES, BASE_NONE,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_openvpn_wkc_length,
+      { "Wrapped client key length", "openvpn.wkc_len",
+        FT_UINT16, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_openvpn_fragment_bytes,
       { "Fragment bytes", "openvpn.fragment_bytes",
@@ -570,6 +627,7 @@ proto_register_openvpn(void)
     &ett_openvpn,
     &ett_openvpn_type,
     &ett_openvpn_data,
+    &ett_openvpn_wkc,
     &ett_openvpn_packetarray,
     &ett_openvpn_fragment,
     &ett_openvpn_fragments
@@ -598,6 +656,12 @@ proto_register_openvpn(void)
                 "override tls-auth detection",
                 "If tls-auth detection fails, you can choose to override detection and set tls-auth yourself",
                 &pref_tls_auth_override);
+
+  prefs_register_bool_preference(openvpn_module,
+                "tls_crypt",
+                "assume tls-crypt",
+                "Assume the connection uses tls-crypt",
+                &pref_tls_crypt_override);
   prefs_register_bool_preference(openvpn_module,
                 "tls_auth",
                 "--tls-auth used?",
