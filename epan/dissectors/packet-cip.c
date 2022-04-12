@@ -5380,8 +5380,10 @@ void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pro
 
 } /* end of dissect_epath() */
 
+#define NUM_SECONDS_PER_DAY ((guint64)(60 * 60 * 24))
+
 /* Number of seconds between Jan 1, 1970 00:00:00 epoch and CIP's epoch time of Jan 1, 1972 00:00:00 */
-#define CIP_TIMEBASE 63072000
+#define CIP_TIMEBASE ((guint64)(NUM_SECONDS_PER_DAY * 365 * 2))
 
 void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime)
 {
@@ -5394,7 +5396,7 @@ void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int 
 
    if ((num_days_since_1972 != 0) || (num_ms_today != 0))
    {
-      computed_time.secs = CIP_TIMEBASE+(num_days_since_1972*60*60*24);
+      computed_time.secs = CIP_TIMEBASE + (guint64)num_days_since_1972 * NUM_SECONDS_PER_DAY;
       computed_time.secs += num_ms_today/1000;
       computed_time.nsecs = (num_ms_today%1000)*1000000;
    }
@@ -5405,6 +5407,24 @@ void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int 
    }
 
    proto_tree_add_time(tree, hf_datetime, tvb, offset, 6, &computed_time);
+}
+
+static int dissect_cip_date(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_date)
+{
+   char date_str[20];
+
+   guint16 num_days_since_1972 = tvb_get_letohs(tvb, offset);
+   /* Convert to nstime epoch */
+   time_t computed_time = CIP_TIMEBASE + (guint64)num_days_since_1972 * NUM_SECONDS_PER_DAY;
+   struct tm* date = gmtime(&computed_time);
+
+   if (date != NULL)
+      strftime(date_str, 20, "%Y-%m-%d", date);
+   else
+      (void) g_strlcpy(date_str, "Not representable", sizeof date_str);
+   proto_tree_add_uint_format_value(tree, hf_date, tvb, offset, 2, num_days_since_1972, "%s", date_str);
+
+   return 2;
 }
 
 // CIP Type - STIME (nanoseconds)
@@ -5518,9 +5538,6 @@ int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item
 {
    int i, temp_data, temp_time, hour, min, sec, ms,
       consumed = 0;
-   time_t computed_time;
-   struct tm* date;
-   char date_str[20];
 
    /* sanity check */
    if (((attr->datatype == cip_dissector_func) && (attr->pdissect == NULL)) ||
@@ -5599,19 +5616,8 @@ int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item
       consumed = dissect_cip_utime(tree, tvb, offset, *(attr->phf));
       break;
    case cip_date:
-   {
-      guint16 num_days_since_1972 = tvb_get_letohs(tvb, offset);
-      /* Convert to nstime epoch */
-      computed_time = CIP_TIMEBASE+(num_days_since_1972*60U*60U*24U);
-      date = gmtime(&computed_time);
-      if (date != NULL)
-          strftime(date_str, 20, "%Y-%m-%d", date);
-      else
-          (void) g_strlcpy(date_str, "Not representable", sizeof date_str);
-      proto_tree_add_uint_format_value(tree, *(attr->phf), tvb, offset, 2, num_days_since_1972, "%s", date_str);
-      consumed = 2;
+      consumed = dissect_cip_date(tree, tvb, offset, *(attr->phf));
       break;
-   }
    case cip_time_of_day:
       temp_time = temp_data = tvb_get_letohl( tvb, offset);
       hour = temp_time/(60*60*1000);
