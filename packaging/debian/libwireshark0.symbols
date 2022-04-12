@@ -31,6 +31,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  add_ipv6_name@Base 1.9.1
  add_itu_tcap_subdissector@Base 1.9.1
  add_new_data_source@Base 1.9.1
+ add_per_encoded_label@Base 3.7.0
  add_srt_table_data@Base 1.99.8
  address_to_bytes@Base 2.1.1
  address_to_display@Base 1.99.2

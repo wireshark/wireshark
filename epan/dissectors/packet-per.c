@@ -61,6 +61,7 @@ static int hf_per_internal_range = -1;
 static int hf_per_internal_num_bits = -1;
 static int hf_per_internal_min = -1;
 static int hf_per_internal_value = -1;
+static int hf_per_encoding_boiler_plate = -1;
 
 static gint ett_per_open_type = -1;
 static gint ett_per_containing = -1;
@@ -109,6 +110,15 @@ static const true_false_string tfs_small_number_bit = {
 	"The number is large, >63"
 };
 
+void
+add_per_encoded_label(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree)
+{
+	proto_item* ti;
+
+	ti = proto_tree_add_item(tree, hf_per_encoding_boiler_plate, tvb, 0, -1, ENC_NA);
+	proto_item_set_generated(ti);
+
+}
 
 #define BYTE_ALIGN_OFFSET(offset) if(offset&0x07){offset=(offset&0xfffffff8)+8;}
 
@@ -2850,6 +2860,11 @@ proto_register_per(void)
 		  { "Bits", "per.internal.value",
 		    FT_UINT64, BASE_DEC, NULL, 0,
 		    NULL, HFILL }},
+		{ &hf_per_encoding_boiler_plate,
+		  { "PER encoded protocol, to see PER internal fields set protocol PER preferences", "per.encoding_boiler_plate",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL } },
+
 	};
 
 	static gint *ett[] = {
