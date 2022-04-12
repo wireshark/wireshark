@@ -7728,7 +7728,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                          tcph->th_seq - msp->seq,
                                          tcph->th_seglen,
                                          FALSE );
-                if(ipfd_head) {
+                if(ipfd_head && ipfd_head->reassembled_in == pinfo->num && ipfd_head->reas_in_layer_num == pinfo->curr_layer_num) {
                     tvbuff_t *next_tvb;
 
                     /* create a new TVB structure for desegmented data
