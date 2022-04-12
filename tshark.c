@@ -49,6 +49,7 @@
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <ui/version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -136,6 +137,7 @@
 #define LONGOPT_EXPORT_TLS_SESSION_KEYS LONGOPT_BASE_APPLICATION+5
 #define LONGOPT_CAPTURE_COMMENT         LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_HEXDUMP                 LONGOPT_BASE_APPLICATION+7
+#define LONGOPT_SELECTED_FRAME          LONGOPT_BASE_APPLICATION+8
 
 capture_file cfile;
 
@@ -147,6 +149,8 @@ static frame_data prev_cap_frame;
 static gboolean perform_two_pass_analysis;
 static guint32 epan_auto_reset_count = 0;
 static gboolean epan_auto_reset = FALSE;
+
+static guint32 selected_frame_number = 0;
 
 /*
  * The way the packet decode is to be written.
@@ -783,6 +787,7 @@ main(int argc, char *argv[])
         {"elastic-mapping-filter", ws_required_argument, NULL, LONGOPT_ELASTIC_MAPPING_FILTER},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {"hexdump", ws_required_argument, NULL, LONGOPT_HEXDUMP},
+        {"selected-frame", ws_required_argument, NULL, LONGOPT_SELECTED_FRAME},
         {0, 0, 0, 0}
     };
     gboolean             arg_error = FALSE;
@@ -818,6 +823,7 @@ main(int argc, char *argv[])
     const gchar         *volatile tls_session_keys_file = NULL;
     exp_pdu_t            exp_pdu_tap_data;
     const gchar*         elastic_mapping_filter = NULL;
+    const char           *endptr;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1588,6 +1594,15 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 break;
+            case LONGOPT_SELECTED_FRAME:
+                /* Hidden option to mark a frame as "selected". Used for testing and debugging.
+                 * Only active in two-pass mode. */
+                if (!ws_strtou32(ws_optarg, &endptr, &selected_frame_number) || *endptr != '\0') {
+                    fprintf(stderr, "tshark: \"%s\" is not a valid frame number\n", ws_optarg);
+                    exit_status = INVALID_OPTION;
+                    goto clean_exit;
+                }
+            break;
             default:
             case '?':        /* Bad flag - print usage message */
                 switch(ws_optopt) {
@@ -3158,6 +3173,13 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
         if (edt && cf->dfcode) {
             if (dfilter_apply_edt(cf->dfcode, edt)) {
                 g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+            }
+
+            if (selected_frame_number != 0 && selected_frame_number == cf->count + 1) {
+                /* If we are doing dissection and we have a "selected frame"
+                 * then load that frame's references (if any) onto the compiled
+                 * display filter. Selected frame number is ordinal, count is cardinal. */
+                dfilter_load_field_references(cf->dfcode, edt->tree);
             }
         }
 
