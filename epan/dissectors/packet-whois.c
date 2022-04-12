@@ -29,6 +29,7 @@ static int hf_whois_answer_to = -1;
 static int hf_whois_response_time = -1;
 
 static expert_field ei_whois_nocrlf = EI_INIT;
+static expert_field ei_whois_encoding = EI_INIT;
 
 static gint ett_whois = -1;
 
@@ -126,11 +127,12 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /*
      * XXX - WHOIS, as RFC 3912 says, "has no mechanism for indicating
-     * the character set in use."  We assume ASCII; if somebody wants
-     * to support non-ASCII WHOIS requets or responses, they should
-     * add a preference to specify the character encoding.  These
-     * days, it'd probably be UTF-8, but there might be older servers
-     * using other character encodings.
+     * the character set in use."  We assume UTF-8, which is backwards
+     * compatible with ASCII; if somebody wants to support WHOIS requests
+     * or responses in other encodings, they should add a preference.
+     * (Show Packet Bytes works well enough for many use cases.)
+     * Some servers do use other character encodings;
+     * e.g., in 2022 RIPE still uses ISO-8859-1.
      */
     if (is_query) {
         expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_ASCII);
@@ -179,9 +181,10 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * Put this line.
              */
             proto_tree_add_item(whois_tree, hf_whois_answer, tvb, offset,
-                next_offset - offset, ENC_ASCII);
+                next_offset - offset, ENC_UTF_8);
             offset = next_offset;
         }
+        proto_tree_add_expert(whois_tree, pinfo, &ei_whois_encoding, tvb, 0, -1);
     }
 
     return tvb_captured_length(tvb);
@@ -225,6 +228,9 @@ proto_register_whois(void)
     static ei_register_info ei[] = {
         { &ei_whois_nocrlf,
             { "whois.nocrlf", PI_MALFORMED, PI_WARN, "Missing <CR><LF>", EXPFILL}
+        },
+        { &ei_whois_encoding,
+            { "whois.encoding", PI_ASSUMPTION, PI_CHAT, "WHOIS has no mechanism to indicate encoding (RFC 3912), assuming UTF-8", EXPFILL}
         }
     };
 
