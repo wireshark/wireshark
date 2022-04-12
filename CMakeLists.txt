@@ -1586,7 +1586,7 @@ if(BUILD_wireshark AND QT_FOUND)
 endif()
 
 if(BUILD_logwolf AND QT_FOUND)
-	add_subdirectory( ui/qt_logwolf )
+	add_subdirectory( ui/logwolf )
 endif()
 
 # Location of our plugins. PLUGIN_DIR should allow running
@@ -2459,7 +2459,7 @@ if(BUILD_logwolf AND QT_FOUND)
 	)
 	set(logwolf_FILES
 		$<TARGET_OBJECTS:capture_opts>
-		$<TARGET_OBJECTS:ui_qt_logwolf>
+		$<TARGET_OBJECTS:ui_logwolf>
 		$<TARGET_OBJECTS:shark_common>
 		${LOGWOLF_SRC}
 		${PLATFORM_UI_RC_FILES}

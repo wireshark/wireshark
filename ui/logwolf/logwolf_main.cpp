@@ -81,11 +81,11 @@
 #include "ui/qt/utils/color_utils.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
-#include "ui/qt_logwolf/logwolf_main_window.h"
+#include "ui/logwolf/logwolf_main_window.h"
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
-#include "ui/qt_logwolf/logwolf_application.h"
+#include "ui/logwolf/logwolf_application.h"
 
 #include "capture/capture-pcap-util.h"
 

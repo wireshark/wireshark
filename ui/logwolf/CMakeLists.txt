@@ -632,7 +632,7 @@ source_group("ui\\Models Source" FILES ${LOGWOLF_MODEL_SRCS})
 source_group("ui\\Manager Headers" FILES ${LOGWOLF_MANAGER_HEADERS})
 source_group("ui\\Manager Source" FILES ${LOGWOLF_MANAGER_SRCS})
 
-add_library(ui_qt_logwolf OBJECT
+add_library(ui_logwolf OBJECT
 	#Included so that Visual Studio can properly put header files in solution
 	${LOGWOLF_QT_HEADERS}
 	${LOGWOLF_WIDGET_HEADERS}
@@ -656,7 +656,7 @@ add_library(ui_qt_logwolf OBJECT
 	logwolf-tap-register.c
 )
 
-target_include_directories(ui_qt_logwolf
+target_include_directories(ui_logwolf
 	SYSTEM PRIVATE
 		# Include Qt before anything else, see the comment about
 		# QT_INCLUDE_DIRS in the top-level CMakeLists.txt
@@ -674,12 +674,12 @@ target_include_directories(ui_qt_logwolf
 		${CMAKE_CURRENT_SOURCE_DIR}/../qt
 )
 
-target_compile_definitions(ui_qt_logwolf
+target_compile_definitions(ui_logwolf
 	PUBLIC
 		${QT_COMPILE_DEFINITIONS}
 )
 
-set_target_properties(ui_qt_logwolf PROPERTIES
+set_target_properties(ui_logwolf PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
 	AUTOMOC ON
@@ -690,7 +690,7 @@ set_target_properties(ui_qt_logwolf PROPERTIES
 )
 
 if(MSVC)
-	set_target_properties(ui_qt_logwolf PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+	set_target_properties(ui_logwolf PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 endif()
 
 CHECKAPI(
