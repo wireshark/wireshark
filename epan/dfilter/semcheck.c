@@ -32,8 +32,7 @@
 #define FAIL(dfw, node, ...) \
 	do {								\
 		ws_noisy("Semantic check failed here.");		\
-		dfilter_fail_throw(dfw, stnode_location(node),		\
-					TypeError, __VA_ARGS__);	\
+		dfilter_fail_throw(dfw, stnode_location(node), __VA_ARGS__); \
 	} while (0)
 
 static void
@@ -160,7 +159,7 @@ node_is_constant(stnode_t *node)
 
 /* Gets an fvalue from a string, and sets the error message on failure. */
 WS_RETNONNULL
-static fvalue_t*
+fvalue_t*
 dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		gboolean allow_partial_value, header_field_info *hfinfo_value_string)
 {
@@ -190,7 +189,7 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 	return fv;
 }
 
-static fvalue_t *
+fvalue_t *
 dfilter_fvalue_from_unparsed(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		gboolean allow_partial_value, header_field_info *hfinfo_value_string)
 {
@@ -243,7 +242,7 @@ dfilter_fvalue_from_unparsed(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 
 /* Gets an fvalue from a string, and sets the error message on failure. */
 WS_RETNONNULL
-static fvalue_t *
+fvalue_t *
 dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		header_field_info *hfinfo_value_string)
 {
@@ -269,21 +268,6 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 	}
 
 	return fv;
-}
-
-static gboolean
-resolve_unparsed(dfwork_t *dfw, stnode_t *st)
-{
-	if (stnode_type_id(st) != STTYPE_UNPARSED)
-		return FALSE;
-
-	header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(st));
-	if (hfinfo != NULL) {
-		stnode_replace(st, STTYPE_FIELD, hfinfo);
-		return TRUE;
-	}
-	stnode_replace(st, STTYPE_LITERAL, g_strdup(stnode_data(st)));
-	return FALSE;
 }
 
 /* Creates a FT_UINT32 fvalue with a given value. */
@@ -524,7 +508,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 {
 	LOG_NODE(st_arg1);
 
-	resolve_unparsed(dfw, st_arg1);
+	dfw_resolve_unparsed(dfw, st_arg1);
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -578,7 +562,7 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 
 	entity1 = sttype_range_entity(st);
 	ws_assert(entity1);
-	resolve_unparsed(dfw, entity1);
+	dfw_resolve_unparsed(dfw, entity1);
 
 	if (stnode_type_id(entity1) == STTYPE_FIELD) {
 		hfinfo1 = stnode_data(entity1);
@@ -589,15 +573,13 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 					hfinfo1->abbrev, ftype_pretty_name(ftype1));
 		}
 	} else if (stnode_type_id(entity1) == STTYPE_FUNCTION) {
-		df_func_def_t *funcdef = sttype_function_funcdef(entity1);
-		ftype1 = funcdef->retval_ftype;
+		check_function(dfw, entity1);
+		ftype1 = sttype_function_retval_ftype(entity1);
 
 		if (!ftype_can_slice(ftype1)) {
 			FAIL(dfw, entity1, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
-					funcdef->name, ftype_pretty_name(ftype1));
+					sttype_function_name(entity1), ftype_pretty_name(ftype1));
 		}
-
-		check_function(dfw, entity1);
 	} else if (stnode_type_id(entity1) == STTYPE_RANGE) {
 		/* Should this be rejected instead? */
 		check_drange_sanity(dfw, entity1);
@@ -627,7 +609,6 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 {
 	df_func_def_t *funcdef;
 	GSList        *params;
-	guint          iparam;
 	guint          nparams;
 
 	LOG_NODE(st_node);
@@ -639,22 +620,17 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 	if (nparams < funcdef->min_nargs) {
 		FAIL(dfw, st_node, "Function %s needs at least %u arguments.",
 			funcdef->name, funcdef->min_nargs);
-	} else if (nparams > funcdef->max_nargs) {
+	} else if (funcdef->max_nargs > 0 && nparams > funcdef->max_nargs) {
 		FAIL(dfw, st_node, "Function %s can only accept %u arguments.",
 			funcdef->name, funcdef->max_nargs);
 	}
 
-	iparam = 0;
-	while (params) {
-		resolve_unparsed(dfw, params->data);
-		funcdef->semcheck_param_function(dfw, funcdef->name, iparam, params->data);
-		params = params->next;
-		iparam++;
-	}
+	funcdef->semcheck_param_function(dfw, funcdef->name, params,
+					stnode_location(st_node));
 }
 
 WS_RETNONNULL
-static fvalue_t *
+fvalue_t *
 dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 {
 	fvalue_t *fvalue;
@@ -681,7 +657,6 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 {
 	sttype_id_t		type2;
 	header_field_info	*hfinfo1, *hfinfo2;
-	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 
@@ -756,21 +731,19 @@ again:
 		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		funcdef = sttype_function_funcdef(st_arg2);
-		ftype2 = funcdef->retval_ftype;
+		check_function(dfw, st_arg2);
+		ftype2 = sttype_function_retval_ftype(st_arg2);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) and return value of %s() (type=%s) are not of compatible types.",
 					hfinfo1->abbrev, ftype_pretty_name(ftype1),
-					funcdef->name, ftype_pretty_name(ftype2));
+					sttype_function_name(st_arg2), ftype_pretty_name(ftype2));
 		}
 
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "return value of %s() (type=%s) cannot participate in specified comparison.",
-					funcdef->name, ftype_pretty_name(ftype2));
+					sttype_function_name(st_arg2), ftype_pretty_name(ftype2));
 		}
-
-		check_function(dfw, st_arg2);
 	}
 	else if (type2 == STTYPE_PCRE) {
 		ws_assert(st_op == TEST_OP_MATCHES);
@@ -851,21 +824,19 @@ again:
 		check_drange_sanity(dfw, st_arg2);
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		df_func_def_t *funcdef = sttype_function_funcdef(st_arg2);
-		ftype2  = funcdef->retval_ftype;
+		check_function(dfw, st_arg2);
+		ftype2 = sttype_function_retval_ftype(st_arg2);
 
 		if (!is_bytes_type(ftype2)) {
 			if (!ftype_can_slice(ftype2)) {
 				FAIL(dfw, st_arg2, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
-					funcdef->name,
+					sttype_function_name(st_arg2),
 					ftype_pretty_name(ftype2));
 			}
 
 			/* Convert function result to bytes */
 			convert_to_bytes(st_arg2);
 		}
-
-		check_function(dfw, st_arg2);
 	}
 	else if (type2 == STTYPE_PCRE) {
 		ws_assert(st_op == TEST_OP_MATCHES);
@@ -900,19 +871,15 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 	header_field_info	*hfinfo2;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
-	df_func_def_t		*funcdef;
-	df_func_def_t		*funcdef2;
-	/* GSList          *params; */
 
 	LOG_NODE(st_node);
 
 	check_function(dfw, st_arg1);
-	funcdef = sttype_function_funcdef(st_arg1);
-	ftype1 = funcdef->retval_ftype;
+	ftype1 = sttype_function_retval_ftype(st_arg1);
 
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "Function %s (type=%s) cannot participate in %s comparison.",
-				funcdef->name, ftype_pretty_name(ftype1),
+				sttype_function_name(st_arg1), ftype_pretty_name(ftype1),
 				stnode_todisplay(st_node));
 	}
 
@@ -925,7 +892,7 @@ again:
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "Function %s and %s are not of compatible types.",
-					funcdef->name, hfinfo2->abbrev);
+					sttype_function_name(st_arg2), hfinfo2->abbrev);
 		}
 		/* Do this check even though you'd think that if
 		 * they're compatible, then can_func() would pass. */
@@ -959,7 +926,7 @@ again:
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "Function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
-						funcdef->name,
+						sttype_function_name(st_arg1),
 						ftype_pretty_name(ftype1));
 			}
 
@@ -968,22 +935,20 @@ again:
 		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		funcdef2 = sttype_function_funcdef(st_arg2);
-		ftype2 = funcdef2->retval_ftype;
+		check_function(dfw, st_arg2);
+		ftype2 = sttype_function_retval_ftype(st_arg2);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "Return values of function %s (type=%s) and function %s (type=%s) are not of compatible types.",
-				     funcdef->name, ftype_pretty_name(ftype1), funcdef2->name, ftype_pretty_name(ftype2));
+				     sttype_function_name(st_arg1), ftype_pretty_name(ftype1), sttype_function_name(st_arg1), ftype_pretty_name(ftype2));
 		}
 
 		/* Do this check even though you'd think that if
 		 * they're compatible, then can_func() would pass. */
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "Return value of %s (type=%s) cannot participate in specified comparison.",
-				     funcdef2->name, ftype_pretty_name(ftype2));
+				     sttype_function_name(st_arg2), ftype_pretty_name(ftype2));
 		}
-
-		check_function(dfw, st_arg2);
 	}
 	else if (type2 == STTYPE_PCRE) {
 		ws_assert(st_op == TEST_OP_MATCHES);
@@ -1046,7 +1011,7 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 {
 	LOG_NODE(st_node);
 
-	resolve_unparsed(dfw, st_arg1);
+	dfw_resolve_unparsed(dfw, st_arg1);
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -1078,7 +1043,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 {
 	LOG_NODE(st_node);
 
-	resolve_unparsed(dfw, st_arg1);
+	dfw_resolve_unparsed(dfw, st_arg1);
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
@@ -1111,7 +1076,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 
 	LOG_NODE(st_node);
 
-	resolve_unparsed(dfw, st_arg1);
+	dfw_resolve_unparsed(dfw, st_arg1);
 
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
 		FAIL(dfw, st_arg2, "Matches requires a double quoted string on the right side.");
@@ -1158,7 +1123,7 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 
 	LOG_NODE(st_node);
 
-	resolve_unparsed(dfw, st_arg1);
+	dfw_resolve_unparsed(dfw, st_arg1);
 
 	if (stnode_type_id(st_arg1) != STTYPE_FIELD) {
 		FAIL(dfw, st_arg1, "Only a field may be tested for membership in a set.");
@@ -1261,7 +1226,7 @@ check_arithmetic_entity(dfwork_t *dfw, stnode_t *st_arg, ftenum_t lhs_ftype)
 	 * is none we must have been passed an entity with a definite type
 	 * (field, function, etc). */
 
-	resolve_unparsed(dfw, st_arg);
+	dfw_resolve_unparsed(dfw, st_arg);
 	type = stnode_type_id(st_arg);
 
 	if (type == STTYPE_LITERAL) {
@@ -1277,9 +1242,7 @@ check_arithmetic_entity(dfwork_t *dfw, stnode_t *st_arg, ftenum_t lhs_ftype)
 	}
 	else if (type == STTYPE_FUNCTION) {
 		check_function(dfw, st_arg);
-
-		df_func_def_t *funcdef = sttype_function_funcdef(st_arg);
-		ftype = funcdef->retval_ftype;
+		ftype = sttype_function_retval_ftype(st_arg);
 	}
 	else if (type == STTYPE_RANGE) {
 		check_drange_sanity(dfw, st_arg);
@@ -1312,7 +1275,7 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 	}
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
-	resolve_unparsed(dfw, st_arg1);
+	dfw_resolve_unparsed(dfw, st_arg1);
 
 	/* On the LHS we require a field-like value as the first term. */
 	if (lhs_ftype == FT_NONE && node_is_constant(st_arg1)) {

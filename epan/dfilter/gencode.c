@@ -38,12 +38,13 @@ dfw_append_insn(dfwork_t *dfw, dfvm_insn_t *insn)
 
 /* returns register number */
 static dfvm_value_t *
-dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
+dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo, gboolean reuse_register)
 {
 	dfvm_insn_t	*insn;
 	int		reg = -1;
 	dfvm_value_t	*reg_val, *val1;
 	gboolean	added_new_hfinfo = FALSE;
+	void *loaded_key;
 
 	/* Rewind to find the first field of this name. */
 	while (hfinfo->same_name_prev_id != -1) {
@@ -53,14 +54,21 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 	/* Keep track of which registers
 	 * were used for which hfinfo's so that we
 	 * can re-use registers. */
-	reg = GPOINTER_TO_INT(
-			g_hash_table_lookup(dfw->loaded_fields, hfinfo));
-	if (reg) {
-		/* Reg's are stored in has as reg+1, so
-		 * that the non-existence of a hfinfo in
-		 * the hash, or 0, can be differentiated from
-		 * a hfinfo being loaded into register #0. */
-		reg--;
+	loaded_key = g_hash_table_lookup(dfw->loaded_fields, hfinfo);
+	if (loaded_key != NULL) {
+		/* Already loaded at least once. */
+		if (reuse_register) {
+			/*
+			 * Reg's are stored in has as reg+1, so
+			 * that the non-existence of a hfinfo in
+			 * the hash, or 0, can be differentiated from
+			 * a hfinfo being loaded into register #0.
+			 */
+			reg = GPOINTER_TO_INT(loaded_key) - 1;
+		}
+		else {
+			reg = dfw->next_register++;
+		}
 	}
 	else {
 		reg = dfw->next_register++;
@@ -160,6 +168,23 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	return reg_val;
 }
 
+/* returns register number */
+static dfvm_value_t *
+dfw_append_put_fvalue(dfwork_t *dfw, fvalue_t *fv)
+{
+	dfvm_insn_t		*insn;
+	dfvm_value_t		*reg_val, *val1;
+
+	insn = dfvm_insn_new(PUT_FVALUE);
+	val1 = dfvm_value_new_fvalue(fv);
+	insn->arg1 = dfvm_value_ref(val1);
+	reg_val = dfvm_value_new_register(dfw->next_register++);
+	insn->arg2 = dfvm_value_ref(reg_val);
+	dfw_append_insn(dfw, insn);
+
+	return reg_val;
+}
+
 /* returns register number that the functions's result will be in. */
 static dfvm_value_t *
 dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
@@ -167,8 +192,10 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	GSList *params;
 	GSList *param_jumps = NULL;
 	dfvm_value_t *jmp;
-	dfvm_insn_t	*insn;
-	dfvm_value_t	*reg_val, *val1, *val3, *val4;
+	dfvm_insn_t	*insn, *insn_jump;
+	dfvm_value_t	*reg_val, *val1, *val3, *val4, *val_arg;
+	guint32		reg_first, more_args_count;
+	stnode_t	*arg;
 
 	/* Create the new DFVM instruction */
 	insn = dfvm_insn_new(CALL_FUNCTION);
@@ -176,26 +203,56 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	insn->arg1 = dfvm_value_ref(val1);
 	reg_val = dfvm_value_new_register(dfw->next_register++);
 	insn->arg2 = dfvm_value_ref(reg_val);
-	insn->arg3 = NULL;
-	insn->arg4 = NULL;
 
+	/* Create input arguments */
 	params = sttype_function_params(node);
-	if (params) {
-		val3 = gen_entity(dfw, params->data, &param_jumps);
-		insn->arg3 = dfvm_value_ref(val3);
+	ws_assert(params);
+	val3 = dfw_append_read_tree(dfw, stnode_steal_data(params->data), FALSE);
+	insn->arg3 = dfvm_value_ref(val3);
+	/* Add a jump if reading argument failed. */
+	insn_jump = dfvm_insn_new(IF_FALSE_GOTO);
+	jmp = dfvm_value_new(INSN_NUMBER);
+	insn_jump->arg1 = dfvm_value_ref(jmp);
+	dfw_append_insn(dfw, insn_jump);
+	param_jumps = g_slist_prepend(param_jumps, jmp);
+
+	params = params->next;
+	reg_first = val3->value.numeric;
+	more_args_count = 0;
+	while (params) {
+		arg = params->data;
+		switch (stnode_type_id(arg)) {
+			case STTYPE_FVALUE:
+				dfw_append_put_fvalue(dfw, stnode_steal_data(arg));
+				break;
+			case STTYPE_FIELD:
+				/* We cannot reuse registers here because the function calling
+				 * convention is to pass input arguments sequentially. */
+				val_arg = dfw_append_read_tree(dfw, stnode_data(arg), FALSE);
+				/* Assert the registers are numbered sequentially. */
+				ws_assert(val_arg->value.numeric == reg_first + more_args_count + 1);
+				/* Add a jump if reading argument failed. */
+				insn_jump = dfvm_insn_new(IF_FALSE_GOTO);
+				jmp = dfvm_value_new(INSN_NUMBER);
+				insn_jump->arg1 = dfvm_value_ref(jmp);
+				dfw_append_insn(dfw, insn_jump);
+				param_jumps = g_slist_prepend(param_jumps, jmp);
+				break;
+			default:
+				ws_assert_not_reached();
+		}
+		more_args_count++;
 		params = params->next;
 	}
-	if (params) {
-		val4 = gen_entity(dfw, params->data, &param_jumps);
-		insn->arg4 = dfvm_value_ref(val4);
-	}
-	ws_assert(!g_slist_next(params));
+	val4 = dfvm_value_new(INTEGER);
+	val4->value.numeric = more_args_count;
+	insn->arg4 = dfvm_value_ref(val4);
 
 	dfw_append_insn(dfw, insn);
 
 	/* If any of our parameters failed, send them to
 	 * our own failure instruction. This *has* to be done
-	 * after we caled dfw_append_insn above so that
+	 * after we called dfw_append_insn above so that
 	 * we know what the next DFVM insruction is, via
 	 * dfw->next_insn_id */
 	g_slist_foreach(param_jumps, fixup_jumps, dfw);
@@ -390,7 +447,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 
 	if (e_type == STTYPE_FIELD) {
 		hfinfo = stnode_data(st_arg);
-		val = dfw_append_read_tree(dfw, hfinfo);
+		val = dfw_append_read_tree(dfw, hfinfo, TRUE);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
 		jmp = dfvm_value_new(INSN_NUMBER);

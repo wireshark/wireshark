@@ -119,6 +119,33 @@ sttype_function_funcdef(stnode_t *node)
 	return stfuncrec->funcdef;
 }
 
+ftenum_t
+sttype_function_retval_ftype(stnode_t *node)
+{
+	function_t	*stfuncrec;
+
+	stfuncrec = stnode_data(node);
+	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);
+	if (stfuncrec->funcdef->retval_ftype != 0)
+		return stfuncrec->funcdef->retval_ftype;
+
+	if (stfuncrec->params) {
+		stnode_t *first_arg = stfuncrec->params->data;
+		return stnode_ftenum(first_arg);
+	}
+	return FT_NONE;
+}
+
+const char *
+sttype_function_name(stnode_t *node)
+{
+	function_t	*stfuncrec;
+
+	stfuncrec = stnode_data(node);
+	ws_assert_magic(stfuncrec, FUNCTION_MAGIC);
+	return stfuncrec->funcdef->name;
+}
+
 /* Get the parameters for a function stnode_t. */
 GSList*
 sttype_function_params(stnode_t *node)

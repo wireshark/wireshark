@@ -8,6 +8,7 @@
  */
 
 #include "config.h"
+#include "sttype-pointer.h"
 
 #include "ftypes/ftypes.h"
 #include "syntax-tree.h"
@@ -107,6 +108,20 @@ static char *
 range_node_tostr(const void *data, gboolean pretty _U_)
 {
 	return drange_node_tostr(data);
+}
+
+ftenum_t
+sttype_pointer_ftenum(stnode_t *node)
+{
+	switch (node->type->id) {
+		case STTYPE_FIELD:
+			return ((header_field_info *)node->data)->type;
+		case STTYPE_FVALUE:
+			return fvalue_type_ftenum(node->data);
+		default:
+			break;
+	}
+	return FT_NONE;
 }
 
 void

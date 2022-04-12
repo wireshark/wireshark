@@ -14,6 +14,9 @@
 #include <ftypes/ftypes.h>
 #include <wsutil/ws_assert.h>
 
+static void
+debug_register(GSList *reg, guint32 num);
+
 dfvm_insn_t*
 dfvm_insn_new(dfvm_opcode_t op)
 {
@@ -170,10 +173,13 @@ dfvm_value_tostr(dfvm_value_t *v)
 			s = ws_strdup(ws_regex_pattern(v->value.pcre));
 			break;
 		case REGISTER:
-			s = ws_strdup_printf("reg#%u", v->value.numeric);
+			s = ws_strdup_printf("reg#%"G_GUINT32_FORMAT, v->value.numeric);
 			break;
 		case FUNCTION_DEF:
 			s = ws_strdup(v->value.funcdef->name);
+			break;
+		case INTEGER:
+			s = ws_strdup_printf("%"G_GUINT32_FORMAT, v->value.numeric);
 			break;
 		default:
 			s = ws_strdup("FIXME");
@@ -226,14 +232,20 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 					id, arg1_str, arg2_str);
 				break;
 
+			case PUT_FVALUE:
+				wmem_strbuf_append_printf(buf, "%05d PUT_FVALUE\t%s -> %s\n",
+					id, arg1_str, arg2_str);
+				break;
+
 			case CALL_FUNCTION:
 				wmem_strbuf_append_printf(buf, "%05d CALL_FUNCTION\t%s(",
 					id, arg1_str);
 				if (arg3_str) {
 					wmem_strbuf_append_printf(buf, "%s", arg3_str);
 				}
-				if (arg4_str) {
-					wmem_strbuf_append_printf(buf, ", %s", arg4_str);
+				for (guint32 i = 1; i <= arg4->value.numeric; i++) {
+					wmem_strbuf_append_printf(buf, ", reg#%"G_GUINT32_FORMAT,
+									arg3->value.numeric + i);
 				}
 				wmem_strbuf_append_printf(buf, ") -> %s\n", arg2_str);
 				break;
@@ -697,28 +709,32 @@ mk_range(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
 	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
 }
 
+/*
+ * arg1: function def
+ * arg2: return register
+ * arg3: first input register
+ * arg4: number of input registers after first
+ */
 static gboolean
 call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 				dfvm_value_t *arg3, dfvm_value_t *arg4)
 {
 	df_func_def_t *funcdef;
-	GSList *param1 = NULL;
-	GSList *param2 = NULL;
 	GSList *retval = NULL;
 	gboolean accum;
+	guint32 reg_return, reg_first_arg, more_args_count;
 
 	funcdef = arg1->value.funcdef;
-	if (arg3) {
-		param1 = df->registers[arg3->value.numeric];
-	}
-	if (arg4) {
-		param2 = df->registers[arg4->value.numeric];
-	}
-	accum = funcdef->function(param1, param2, &retval);
+	reg_return = arg2->value.numeric;
+	reg_first_arg = arg3->value.numeric;
+	more_args_count = arg4->value.numeric;
 
-	df->registers[arg2->value.numeric] = retval;
+	accum = funcdef->function(&df->registers[reg_first_arg], 1 + more_args_count, &retval);
+
+	/* Write return registers. */
+	df->registers[reg_return] = retval;
 	// functions create a new value, so own it.
-	df->free_registers[arg2->value.numeric] = (GDestroyNotify)fvalue_free;
+	df->free_registers[reg_return] = (GDestroyNotify)fvalue_free;
 	return accum;
 }
 
@@ -731,6 +747,8 @@ static void debug_op_error(fvalue_t *v1, fvalue_t *v2, const char *op, const cha
 	g_free(s2);
 }
 
+/* Used for temporary debugging only, don't leave in production code (at
+ * a minimum WS_DEBUG_HERE must be replaced by another log level). */
 static void _U_
 debug_register(GSList *reg, guint32 num)
 {
@@ -748,7 +766,7 @@ debug_register(GSList *reg, guint32 num)
 		wmem_strbuf_append_c(buf, ' ');
 	}
 	wmem_strbuf_append_c(buf, '}');
-	ws_noisy("%s", wmem_strbuf_get_str(buf));
+	WS_DEBUG_HERE("%s", wmem_strbuf_get_str(buf));
 	wmem_strbuf_destroy(buf);
 }
 
@@ -865,6 +883,16 @@ mk_minus(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
 	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
 }
 
+static void
+put_fvalue(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
+{
+	fvalue_t *fv = arg1->value.fvalue;
+	df->registers[to_arg->value.numeric] = g_slist_append(NULL, fv);
+
+	/* Memory is owned by the dfvm_value_t. */
+	df->free_registers[to_arg->value.numeric] = NULL;
+}
+
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree)
 {
@@ -911,6 +939,10 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case READ_REFERENCE:
 				accum = read_reference(df, arg1, arg2);
+				break;
+
+			case PUT_FVALUE:
+				put_fvalue(df, arg1, arg2);
 				break;
 
 			case CALL_FUNCTION:

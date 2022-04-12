@@ -15,6 +15,8 @@
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>
 #include "sttype-test.h"
+#include "sttype-pointer.h"
+#include "sttype-function.h"
 #include "dfilter-int.h"
 
 /* Keep track of sttype_t's via their sttype_id_t number */
@@ -209,6 +211,22 @@ stnode_type_id(stnode_t *node)
 		return node->type->id;
 	else
 		return STTYPE_UNINITIALIZED;
+}
+
+ftenum_t
+stnode_ftenum(stnode_t *node)
+{
+	ws_assert_magic(node, STNODE_MAGIC);
+	switch (node->type->id) {
+		case STTYPE_FVALUE:
+		case STTYPE_FIELD:
+			return sttype_pointer_ftenum(node);
+		case STTYPE_FUNCTION:
+			return sttype_function_retval_ftype(node);
+		default:
+			break;
+	}
+	return FT_NONE;
 }
 
 gpointer

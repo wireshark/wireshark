@@ -80,7 +80,7 @@ dfilter_fail(dfwork_t *dfw, stloc_t *err_loc,
 WS_NORETURN
 void
 dfilter_fail_throw(dfwork_t *dfw, stloc_t *err_loc,
-			long code, const char *format, ...) G_GNUC_PRINTF(4, 5);
+			const char *format, ...) G_GNUC_PRINTF(3, 4);
 
 void
 dfw_set_error_location(dfwork_t *dfw, stloc_t *err_loc);
@@ -96,6 +96,24 @@ DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 
 header_field_info *
 dfilter_resolve_unparsed(dfwork_t *dfw, const char *name);
+
+gboolean
+dfw_resolve_unparsed(dfwork_t *dfw, stnode_t *st);
+
+fvalue_t *
+dfilter_fvalue_from_unparsed(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
+		gboolean allow_partial_value, header_field_info *hfinfo_value_string);
+
+WS_RETNONNULL fvalue_t*
+dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
+		gboolean allow_partial_value, header_field_info *hfinfo_value_string);
+
+WS_RETNONNULL fvalue_t *
+dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
+		header_field_info *hfinfo_value_string);
+
+WS_RETNONNULL fvalue_t *
+dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st);
 
 const char *tokenstr(int token);
 

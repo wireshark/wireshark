@@ -54,6 +54,7 @@ typedef enum {
 	RETURN,
 	READ_TREE,
 	READ_REFERENCE,
+	PUT_FVALUE,
 	ALL_EQ,
 	ANY_EQ,
 	ALL_NE,
