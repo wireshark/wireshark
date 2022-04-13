@@ -115,7 +115,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
             stats->last_pkt = ps->tot_packets;
         }
         stats->num_pdus_total++;
-        stats->num_bytes_total += finfo->length;
+        stats->num_bytes_total += finfo->length + finfo->appendix_length;
     }
 
     proto_sibling_node = ptree_node->next;
@@ -131,7 +131,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
         process_node(proto_sibling_node, stat_node, ps);
     } else {
         stats->num_pkts_last++;
-        stats->num_bytes_last += finfo->length;
+        stats->num_bytes_last += finfo->length + finfo->appendix_length;
     }
 }
 
