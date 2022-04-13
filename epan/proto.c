@@ -2237,6 +2237,26 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			}
 			break;
 
+		case ENC_TIME_USECS|ENC_BIG_ENDIAN:
+		case ENC_TIME_USECS|ENC_LITTLE_ENDIAN:
+			/*
+			* Microseconds, 1 to 8 bytes.
+			* For absolute times, it's microseconds since the
+			* UN*X epoch.
+			*/
+			if (length >= 1 && length <= 8) {
+				guint64 usecs;
+
+				usecs = get_uint64_value(tree, tvb, start, length, encoding);
+				time_stamp->secs  = (time_t)(usecs / 1000000);
+				time_stamp->nsecs = (int)(usecs % 1000000)*1000;
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "a time-in-microseconds time stamp", length, (length < 4));
+			}
+			break;
+
 		case ENC_TIME_NSECS|ENC_BIG_ENDIAN:
 		case ENC_TIME_NSECS|ENC_LITTLE_ENDIAN:
 			/*

@@ -1564,6 +1564,9 @@ encodings that are currently supported are:
     ENC_TIME_MSECS - 6 to 8 bytes, representing a value in milliseconds
         since the UN*X epoch.
 
+    ENC_TIME_USECS - 8 bytes, representing a value in microseconds since
+        the UN*X epoch.
+
     ENC_TIME_NSECS - 8 bytes, representing a value in nanoseconds since
         the UN*X epoch.
 
@@ -1577,7 +1580,7 @@ encodings that are currently supported are:
     ENC_TIME_MSEC_NTP - 4-8 bytes, representing a count of milliseconds since
         the NTP epoch.
 
-    ENC_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
+    ENC_TIME_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
         and the remaining 16 bits indicate the number of 1/65536's of a second
         since that second.
 
@@ -1600,6 +1603,8 @@ encodings that are currently supported are:
     ENC_TIME_SECS - 4 to 8 bytes, representing a value in seconds.
 
     ENC_TIME_MSECS - 6 to 8 bytes, representing a value in milliseconds.
+
+    ENC_TIME_USECS - 8 bytes, representing a value in microseconds.
 
     ENC_TIME_NSECS - 8 bytes, representing a value in nanoseconds.
 
