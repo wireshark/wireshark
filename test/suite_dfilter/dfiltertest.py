@@ -24,7 +24,6 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
             "-Y",       # packet display filter (used to be -R)
             dfilter
         ])
-        print(cmd)
         return cmd
     return wrapped
 
