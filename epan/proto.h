@@ -561,6 +561,9 @@ void proto_report_dissector_bug(const char *format, ...)
  *  ENC_TIME_MSECS - 6 to 8 bytes, representing a value in milliseconds.
  *  If the time is absolute, it's milliseconds since the UN*X epoch.
  *
+ *  ENC_TIME_USECS - 8 bytes, representing a value in microseconds.
+ *  If the time is absolute, it's microseconds since the UN*X epoch.
+ *
  *  ENC_TIME_SECS_NTP - 4 bytes, representing a count of seconds since
  *  the NTP epoch.
  *
@@ -571,7 +574,7 @@ void proto_report_dissector_bug(const char *format, ...)
  *  ENC_TIME_MSEC_NTP - 4-8 bytes, representing a count of milliseconds since
  *  the NTP epoch.
  *
- *  ENC_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
+ *  ENC_TIME_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
  *  and the remaining 16 bits indicate the number of 1/65536's of a second
  *  since that second.
  *
@@ -597,6 +600,8 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_MSEC_NTP            0x00000022
 #define ENC_TIME_MIP6                0x00000024
 #define ENC_TIME_CLASSIC_MAC_OS_SECS 0x00000026
+// reserved                          0x00000028
+#define ENC_TIME_USECS               0x00000030
 
 /*
  * For cases where a string encoding contains a timestamp, use one
