@@ -288,12 +288,12 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 %(DEFAULT_BODY)s
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
-    volatile struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+    guint32 handover_type = ngap_get_private_data(actx->pinfo)->handover_type_value;
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_SourceToTarget_TransparentContainer);
     TRY {
-        switch(ngap_data->handover_type_value) {
+        switch(handover_type) {
         case intra5gs:
         case eps_to_5gs:
             dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
@@ -1188,16 +1188,18 @@ QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
   }
 
 #.FN_BODY PDUSessionResourceSetupRequestTransfer
-volatile guint32 _offset;
+  volatile guint32 _offset;
+
   _offset = offset;
-        TRY {
-  _offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
-                                   ett_ngap_PDUSessionResourceSetupRequestTransfer, PDUSessionResourceSetupRequestTransfer_sequence);
-        }
-        CATCH_BOUNDS_ERRORS {
-          show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-        }
-        ENDTRY;
+  TRY {
+    _offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
+                                   ett_ngap_PDUSessionResourceSetupRequestTransfer,
+                                   PDUSessionResourceSetupRequestTransfer_sequence);
+  }
+  CATCH_BOUNDS_ERRORS {
+    show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+  }
+  ENDTRY;
   offset = _offset;
 
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
