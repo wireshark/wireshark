@@ -67,21 +67,39 @@ static void lua_menu_callback(gpointer data) {
 WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. Requires a GUI. */
 #define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. Use slashes to separate submenus. (e.g. menu:Lua Scripts[My Fancy Statistics]). (string) */
 #define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. The function must take no arguments and return nothing. */
-#define WSLUA_OPTARG_register_menu_GROUP 3 /* Where to place the item in the menu hierarchy. If omitted, defaults to MENU_STAT_GENERIC. One of:
-                                              * MENU_STAT_UNSORTED: menu:Statistics[]
-                                              * MENU_STAT_GENERIC: menu:Statistics[], first section
-                                              * MENU_STAT_CONVERSATION: menu:Statistics[Conversation List]
-                                              * MENU_STAT_ENDPOINT: menu:Statistics[Endpoint List]
-                                              * MENU_STAT_RESPONSE: menu:Statistics[Service Response Time]
-                                              * MENU_STAT_TELEPHONY: menu:Telephony[]
-                                              * MENU_STAT_TELEPHONY_ANSI: menu:Telephony[ANSI]
-                                              * MENU_STAT_TELEPHONY_GSM: menu:Telephony[GSM]
-                                              * MENU_STAT_TELEPHONY_LTE: menu:Telephony[LTE]
-                                              * MENU_STAT_TELEPHONY_MTP3: menu:Telephony[MTP3]
-                                              * MENU_STAT_TELEPHONY_SCTP: menu:Telephony[SCTP]
-                                              * MENU_ANALYZE: menu:Analyze[]
-                                              * MENU_ANALYZE_CONVERSATION: menu:Analyze[Conversation Filter]
-                                              * MENU_TOOLS_UNSORTED: menu:Tools[] */
+#define WSLUA_OPTARG_register_menu_GROUP 3 /*
+    Where to place the item in the menu hierarchy.
+    If omitted, defaults to MENU_STAT_GENERIC.
+    Valid packet (Wireshark) items are:
+    * MENU_PACKET_ANALYZE_UNSORTED: menu:Analyze[]
+    * MENU_PACKET_STAT_UNSORTED: menu:Statistics[]
+    * MENU_STAT_GENERIC: menu:Statistics[], first section
+    * MENU_STAT_CONVERSATION_LIST: menu:Statistics[Conversation List]
+    * MENU_STAT_ENDPOINT_LIST: menu:Statistics[Endpoint List]
+    * MENU_STAT_RESPONSE_TIME: menu:Statistics[Service Response Time]
+    * MENU_STAT_RSERPOOL = menu:Statistics[Reliable Server Pooling (RSerPool)]
+    * MENU_STAT_TELEPHONY: menu:Telephony[]
+    * MENU_STAT_TELEPHONY_ANSI: menu:Telephony[ANSI]
+    * MENU_STAT_TELEPHONY_GSM: menu:Telephony[GSM]
+    * MENU_STAT_TELEPHONY_LTE: menu:Telephony[LTE]
+    * MENU_STAT_TELEPHONY_MTP3: menu:Telephony[MTP3]
+    * MENU_STAT_TELEPHONY_SCTP: menu:Telephony[SCTP]
+    * MENU_ANALYZE: menu:Analyze[]
+    * MENU_ANALYZE_CONVERSATION: menu:Analyze[Conversation Filter]
+    * MENU_TOOLS_UNSORTED: menu:Tools[]
+
+    Valid log (Logwolf) items are:
+    * MENU_LOG_ANALYZE_UNSORTED: menu:Analyze[]
+    * MENU_LOG_STAT_UNSORTED = 16
+
+    The following are deprecated and shouldn't be used in new code:
+    * MENU_ANALYZE_UNSORTED, superseded by MENU_PACKET_ANALYZE_UNSORTED
+    * MENU_ANALYZE_CONVERSATION, superseded by MENU_ANALYZE_CONVERSATION_FILTER
+    * MENU_STAT_CONVERSATION, superseded by MENU_STAT_CONVERSATION_LIST
+    * MENU_STAT_ENDPOINT, superseded by MENU_STAT_ENDPOINT_LIST
+    * MENU_STAT_RESPONSE, superseded by MENU_STAT_RESPONSE_TIME
+    * MENU_STAT_UNSORTED, superseded by MENU_PACKET_STAT_UNSORTED
+ */
 
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
