@@ -68,6 +68,7 @@ They previously shipped with Npcap 1.55.
 ** Arithmetic is supported for numeric fields with the usual operators: +, -, *, /, %. Arithmetic expressions must be grouped using
    curly brackets (not parenthesis).
 ** Logical AND now has higher precedence than logical OR, in line with most programming languages.
+** Adds new display filter functions max() and min().
 
 * text2pcap and "Import from Hex Dump":
 ** text2pcap supports writing the output file in all the capture file formats

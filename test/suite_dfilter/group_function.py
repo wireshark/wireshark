@@ -41,3 +41,27 @@ class case_dfunction_string(unittest.TestCase):
         dfilter = "string(dhcp.option.value) == \"hostname\""
         error = 'String conversion for field "dhcp.option.value" is not supported'
         checkDFilterFail(dfilter, error)
+
+@fixtures.uses_fixtures
+class case_dfunction_maxmin(unittest.TestCase):
+    trace_file = "sip.pcapng"
+
+    def test_min_1(self, checkDFilterCount):
+        dfilter = 'min(udp.srcport, udp.dstport) == 5060'
+        checkDFilterCount(dfilter, 5)
+
+    def test_min_2(self, checkDFilterCount):
+        dfilter = 'min(udp.srcport, udp.dstport) == 5070'
+        checkDFilterCount(dfilter, 0)
+
+    def test_max_1(self, checkDFilterCount):
+        dfilter = 'max(udp.srcport, udp.dstport) == 5070'
+        checkDFilterCount(dfilter, 3)
+
+    def test_max_2(self, checkDFilterCount):
+        dfilter = 'max(udp.srcport, udp.dstport) == 5060'
+        checkDFilterCount(dfilter, 2)
+
+    def test_max_3(self, checkDFilterCount):
+        dfilter = 'max(udp.srcport, udp.dstport) < 5060'
+        checkDFilterCount(dfilter, 1)

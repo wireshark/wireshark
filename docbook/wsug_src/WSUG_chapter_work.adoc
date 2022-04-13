@@ -811,6 +811,8 @@ The display filter language has a number of functions to convert fields, see
 |len     |Returns the byte length of a string or bytes field.
 |count   |Returns the number of field occurrences in a frame.
 |string  |Converts a non-string field to a string.
+|max     |Return the maximum value for the arguments.
+|min     |Return the minimum value for the arguments.
 |===
 
 The `upper` and `lower` functions can used to force case-insensitive matches:
@@ -837,6 +839,13 @@ string(frame.number) matches "[13579]$"
 To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 ----
 string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
+----
+
+The functions max() and min() take any number of arguments of the same type
+and returns the largest/smallest respectively of the set.
+
+----
+max(tcp.srcport, tcp.dstport) <= 1024
 ----
 
 [#ChWorkBuildDisplayFilterTransitional]

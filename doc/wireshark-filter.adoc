@@ -128,6 +128,8 @@ The filter language has the following functions:
     len(field)          - returns the byte length of a string or bytes field
     count(field)        - returns the number of field occurrences in a frame
     string(field)       - converts a non-string field to string
+    max(f1,...,fn)      - return the maximum value
+    min(f1,...,fn)      - return the minimum value
 
 upper() and lower() are useful for performing case-insensitive string
 comparisons. For example:
@@ -143,6 +145,9 @@ byte fields. For example:
     string(frame.number) matches "[13579]$"
 
 gives you all the odd packets.
+
+max() and min() take any number of arguments and returns one value, respectively
+the largest/smallest. The arguments must all have the same type.
 
 === Protocol field types
 
