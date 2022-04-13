@@ -34,6 +34,9 @@ string_walk(GSList **args, guint32 arg_count, GSList **retval, gchar(*conv_func)
 
     ws_assert(arg_count == 1);
     arg1 = args[0];
+    if (arg1 == NULL)
+        return FALSE;
+
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
         /* XXX - it would be nice to handle FT_TVBUFF, too */
@@ -78,6 +81,9 @@ df_func_len(GSList **args, guint32 arg_count, GSList **retval)
 
     ws_assert(arg_count == 1);
     arg1 = args[0];
+    if (arg1 == NULL)
+        return FALSE;
+
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
         ft_len = fvalue_new(FT_UINT32);
@@ -99,8 +105,10 @@ df_func_count(GSList **args, guint32 arg_count, GSList **retval)
 
     ws_assert(arg_count == 1);
     arg1 = args[0];
-    num_items = (guint32)g_slist_length(arg1);
+    if (arg1 == NULL)
+        return FALSE;
 
+    num_items = (guint32)g_slist_length(arg1);
     ft_ret = fvalue_new(FT_UINT32);
     fvalue_set_uinteger(ft_ret, num_items);
     *retval = g_slist_prepend(*retval, ft_ret);
@@ -119,6 +127,8 @@ df_func_string(GSList **args, guint32 arg_count, GSList **retval)
 
     ws_assert(arg_count == 1);
     arg1 = args[0];
+    if (arg1 == NULL)
+        return FALSE;
 
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
@@ -191,6 +201,9 @@ df_func_compare(GSList **args, guint32 arg_count, GSList **retval,
             }
         }
     }
+
+    if (fv_ret == NULL)
+        return FALSE;
 
     *retval = g_slist_append(NULL, fvalue_dup(fv_ret));
 

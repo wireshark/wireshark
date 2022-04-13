@@ -190,9 +190,8 @@ static dfvm_value_t *
 dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 {
 	GSList *params;
-	GSList *param_jumps = NULL;
 	dfvm_value_t *jmp;
-	dfvm_insn_t	*insn, *insn_jump;
+	dfvm_insn_t	*insn;
 	dfvm_value_t	*reg_val, *val1, *val3, *val4, *val_arg;
 	guint32		reg_first, more_args_count;
 	stnode_t	*arg;
@@ -209,12 +208,6 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 	ws_assert(params);
 	val3 = dfw_append_read_tree(dfw, stnode_steal_data(params->data), FALSE);
 	insn->arg3 = dfvm_value_ref(val3);
-	/* Add a jump if reading argument failed. */
-	insn_jump = dfvm_insn_new(IF_FALSE_GOTO);
-	jmp = dfvm_value_new(INSN_NUMBER);
-	insn_jump->arg1 = dfvm_value_ref(jmp);
-	dfw_append_insn(dfw, insn_jump);
-	param_jumps = g_slist_prepend(param_jumps, jmp);
 
 	params = params->next;
 	reg_first = val3->value.numeric;
@@ -231,12 +224,6 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 				val_arg = dfw_append_read_tree(dfw, stnode_data(arg), FALSE);
 				/* Assert the registers are numbered sequentially. */
 				ws_assert(val_arg->value.numeric == reg_first + more_args_count + 1);
-				/* Add a jump if reading argument failed. */
-				insn_jump = dfvm_insn_new(IF_FALSE_GOTO);
-				jmp = dfvm_value_new(INSN_NUMBER);
-				insn_jump->arg1 = dfvm_value_ref(jmp);
-				dfw_append_insn(dfw, insn_jump);
-				param_jumps = g_slist_prepend(param_jumps, jmp);
 				break;
 			default:
 				ws_assert_not_reached();
@@ -250,14 +237,9 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 
 	dfw_append_insn(dfw, insn);
 
-	/* If any of our parameters failed, send them to
-	 * our own failure instruction. This *has* to be done
-	 * after we called dfw_append_insn above so that
-	 * we know what the next DFVM insruction is, via
-	 * dfw->next_insn_id */
-	g_slist_foreach(param_jumps, fixup_jumps, dfw);
-	g_slist_free(param_jumps);
-	param_jumps = NULL;
+	/* There is no jump if READ_TREE fails for a function parameter. It
+	 * is up to the function to return TRUE/FALSE for any combination
+	 * of (missing or not) arguments. */
 
 	/* We need another instruction to jump to another exit
 	 * place, if the call() of our function failed for some reaosn */
