@@ -171,6 +171,7 @@ ftype_register_ipv4(void)
 
 		is_zero,
 		NULL,
+		NULL,
 		slice,
 		bitwise_and,
 		NULL,				/* unary_minus */

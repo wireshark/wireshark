@@ -65,3 +65,11 @@ class case_dfunction_maxmin(unittest.TestCase):
     def test_max_3(self, checkDFilterCount):
         dfilter = 'max(udp.srcport, udp.dstport) < 5060'
         checkDFilterCount(dfilter, 1)
+
+@fixtures.uses_fixtures
+class case_dfunction_abs(unittest.TestCase):
+    trace_file = "dhcp.pcapng"
+
+    def test_function_abs_1(self, checkDFilterCount):
+        dfilter = 'udp.dstport == abs(-67)'
+        checkDFilterCount(dfilter, 2)

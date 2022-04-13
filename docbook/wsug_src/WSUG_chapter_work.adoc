@@ -813,6 +813,7 @@ The display filter language has a number of functions to convert fields, see
 |string  |Converts a non-string field to a string.
 |max     |Return the maximum value for the arguments.
 |min     |Return the minimum value for the arguments.
+|abs     |Return the absolute value for the argument.
 |===
 
 The `upper` and `lower` functions can used to force case-insensitive matches:

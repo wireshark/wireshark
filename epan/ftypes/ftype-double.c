@@ -116,6 +116,18 @@ cmp_order(const fvalue_t *a, const fvalue_t *b)
 	return 0;
 }
 
+static gboolean
+val_is_zero(const fvalue_t *fv_a)
+{
+	return fv_a->value.floating == 0;
+}
+
+static gboolean
+val_is_negative(const fvalue_t *fv_a)
+{
+	return fv_a->value.floating < 0;
+}
+
 void
 ftype_register_double(void)
 {
@@ -140,7 +152,8 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,				/* is_zero */
+		val_is_zero,			/* is_zero */
+		val_is_negative,		/* is_negative */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
@@ -172,7 +185,8 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,				/* is_zero */
+		val_is_zero,			/* is_zero */
+		val_is_negative,		/* is_negative */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */

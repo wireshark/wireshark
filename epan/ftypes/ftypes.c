@@ -290,6 +290,15 @@ ftype_can_is_zero(enum ftenum ftype)
 	return ft->is_zero ? TRUE : FALSE;
 }
 
+gboolean
+ftype_can_is_negative(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->is_negative ? TRUE : FALSE;
+}
+
 /* ---------------------------------------------------------- */
 
 /* Allocate and initialize an fvalue_t, given an ftype */
@@ -842,6 +851,12 @@ gboolean
 fvalue_is_zero(const fvalue_t *a)
 {
 	return a->ftype->is_zero(a);
+}
+
+gboolean
+fvalue_is_negative(const fvalue_t *a)
+{
+	return a->ftype->is_negative(a);
 }
 
 static fvalue_t *

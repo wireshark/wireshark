@@ -215,6 +215,10 @@ WS_DLL_PUBLIC
 gboolean
 ftype_can_is_zero(enum ftenum ftype);
 
+WS_DLL_PUBLIC
+gboolean
+ftype_can_is_negative(enum ftenum ftype);
+
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
@@ -379,6 +383,9 @@ fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
 gboolean
 fvalue_is_zero(const fvalue_t *a);
+
+gboolean
+fvalue_is_negative(const fvalue_t *a);
 
 guint
 fvalue_length(fvalue_t *fv);

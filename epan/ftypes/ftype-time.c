@@ -417,6 +417,12 @@ time_is_zero(const fvalue_t *fv)
 	return nstime_is_zero(&fv->value.time);
 }
 
+static gboolean
+time_is_negative(const fvalue_t *fv)
+{
+	return fv->value.time.secs < 0;
+}
+
 static enum ft_result
 time_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
 {
@@ -464,6 +470,7 @@ ftype_register_time(void)
 		NULL,				/* cmp_matches */
 
 		time_is_zero,			/* is_zero */
+		NULL,				/* is_negative */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
@@ -495,6 +502,7 @@ ftype_register_time(void)
 		NULL,				/* cmp_matches */
 
 		time_is_zero,			/* is_zero */
+		time_is_negative,		/* is_negative */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */

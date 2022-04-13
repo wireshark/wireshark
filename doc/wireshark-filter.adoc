@@ -130,6 +130,7 @@ The filter language has the following functions:
     string(field)       - converts a non-string field to string
     max(f1,...,fn)      - return the maximum value
     min(f1,...,fn)      - return the minimum value
+    abs(field)          - return the absolute value of numeric fields
 
 upper() and lower() are useful for performing case-insensitive string
 comparisons. For example:

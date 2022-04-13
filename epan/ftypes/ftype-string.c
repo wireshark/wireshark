@@ -190,6 +190,7 @@ ftype_register_string(void)
 		cmp_matches,
 
 		string_is_zero,			/* is_zero */
+		NULL,				/* is_negative */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -221,6 +222,7 @@ ftype_register_string(void)
 		cmp_matches,
 
 		string_is_zero,			/* is_zero */
+		NULL,				/* is_negative */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -252,6 +254,7 @@ ftype_register_string(void)
 		cmp_matches,
 
 		string_is_zero,			/* is_zero */
+		NULL,				/* is_negative */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -283,6 +286,7 @@ ftype_register_string(void)
 		cmp_matches,
 
 		string_is_zero,			/* is_zero */
+		NULL,				/* is_negative */
 		len,
 		slice,
 		NULL,				/* bitwise_and */
@@ -314,6 +318,7 @@ ftype_register_string(void)
 		cmp_matches,
 
 		string_is_zero,			/* is_zero */
+		NULL,				/* is_negative */
 		len,
 		slice,
 		NULL,				/* bitwise_and */

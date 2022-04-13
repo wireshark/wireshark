@@ -36,6 +36,7 @@ ftype_register_none(void)
 		NULL,				/* cmp_matches */
 
 		NULL,				/* is_zero */
+		NULL,				/* is_negative */
 		NULL,				/* len */
 		NULL,				/* slice */
 		NULL,				/* biwise_and */

@@ -224,6 +224,43 @@ df_func_min(GSList **args, guint32 arg_count, GSList **retval)
     return df_func_compare(args, arg_count, retval, fvalue_lt);
 }
 
+static gboolean
+df_func_abs(GSList **args, guint32 arg_count, GSList **retval)
+{
+    GSList   *arg1;
+    fvalue_t *fv_arg, *new_fv;
+    char     *err_msg = NULL;
+    GSList   *result = NULL;
+
+    ws_assert(arg_count == 1);
+    arg1 = args[0];
+    if (arg1 == NULL)
+        return FALSE;
+
+    while (arg1) {
+        fv_arg = arg1->data;
+        if (fvalue_is_negative(fv_arg)) {
+            new_fv = fvalue_unary_minus(fv_arg, &err_msg);
+            if (new_fv == NULL) {
+                ws_debug("abs: %s", err_msg);
+                g_free(err_msg);
+                err_msg = NULL;
+            }
+        }
+        else {
+            new_fv = fvalue_dup(fv_arg);
+        }
+        result = g_slist_prepend(result, new_fv);
+        arg1 = arg1->next;
+    }
+
+    if (g_slist_length(result) == 0)
+        return FALSE;
+
+    *retval = result;
+    return TRUE;
+}
+
 /* For upper() and lower() checks that the parameter passed to
  * it is an FT_STRING */
 static void
@@ -379,6 +416,35 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name,
     }
 }
 
+static void
+ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name,
+                        GSList *param_list, stloc_t *func_loc _U_)
+{
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *st_node;
+    ftenum_t ftype;
+    const header_field_info *hfinfo;
+
+    st_node = param_list->data;
+    dfw_resolve_unparsed(dfw, st_node);
+
+    switch (stnode_type_id(st_node)) {
+        case STTYPE_FIELD:
+        case STTYPE_REFERENCE:
+            hfinfo = stnode_data(st_node);
+            ftype = hfinfo->type;
+            break;
+        default:
+            FAIL(dfw, st_node, "Type %s is not valid for %s",
+                            stnode_type_name(st_node), func_name);
+    }
+
+    if (!ftype_can_is_negative(ftype)) {
+        FAIL(dfw, st_node, "'%s' is not a valid argument to '%s'()",
+                        stnode_todisplay(st_node), func_name);
+    }
+}
+
 /* The table of all display-filter functions */
 static df_func_def_t
 df_functions[] = {
@@ -387,8 +453,9 @@ df_functions[] = {
     { "len",    df_func_len,    FT_UINT32, 1, 1, ul_semcheck_is_field },
     { "count",  df_func_count,  FT_UINT32, 1, 1, ul_semcheck_is_field },
     { "string", df_func_string, FT_STRING, 1, 1, ul_semcheck_string_param },
-    { "max",    df_func_max,    /*Any*/ 0, 1, 0, ul_semcheck_compare },
-    { "min",    df_func_min,    /*Any*/ 0, 1, 0, ul_semcheck_compare },
+    { "max",    df_func_max,            0, 1, 0, ul_semcheck_compare },
+    { "min",    df_func_min,            0, 1, 0, ul_semcheck_compare },
+    { "abs",    df_func_abs,            0, 1, 1, ul_semcheck_absolute_value },
     { NULL, NULL, FT_NONE, 0, 0, NULL }
 };
 

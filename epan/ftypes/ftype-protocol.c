@@ -339,6 +339,7 @@ ftype_register_tvbuff(void)
 		cmp_matches,
 
 		is_zero,
+		NULL,
 		len,
 		slice,
 		NULL,

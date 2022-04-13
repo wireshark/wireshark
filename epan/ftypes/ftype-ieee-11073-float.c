@@ -919,6 +919,7 @@ Example: 114 is 0x0072
         NULL,                                 /* cmp_matches */
 
         sfloat_ieee_11073_is_zero,           /* is_zero */
+        NULL,                                /* is_negative */
         NULL,                                /* len */
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */
@@ -978,6 +979,7 @@ Example: 36.4 is 0xFF00016C
         NULL,                                /* cmp_matches */
 
         float_ieee_11073_is_zero,            /* is_zero */
+        NULL,                                /* is_negative */
         NULL,                                /* len */
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */
