@@ -1584,13 +1584,6 @@ encodings that are currently supported are:
     ENC_TIME_CLASSIC_MAC_OS_SECS - 4-8 bytes, representing a count of seconds
         since January 1, 1904, 00:00:00 UTC.
 
-    ENC_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
-        and the remaining 16 bits indicate the number of 1/65536's of a second
-        since that second.
-
-    ENC_TIME_CLASSIC_MAC_OS_SECS - 4-8 bytes, representing a count of seconds
-        since January 1, 1904, 00:00:00 UTC.
-
 For FT_RELATIVE_TIME fields, the encoding specifies the form in which
 the time stamp is specified, as well as its byte order. The time stamp
 encodings that are currently supported are:
