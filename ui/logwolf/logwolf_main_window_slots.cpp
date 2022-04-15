@@ -2493,7 +2493,7 @@ void LogwolfMainWindow::colorizeConversation(bool create_rule)
     if (capture_file_.capFile() && selectedRows().count() > 0) {
         packet_info *pi = capture_file_.packetInfo();
         guint8 cc_num = colorize_action->data().toUInt();
-        gchar *filter = conversation_filter_from_packet(pi);
+        gchar *filter = conversation_filter_from_log(pi);
         if (filter == NULL) {
             mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to build conversation filter."));
             return;

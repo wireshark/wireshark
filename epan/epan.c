@@ -302,6 +302,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		conversation_init();
 		capture_dissector_init();
 		reassembly_tables_init();
+        conversation_filters_init();
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);

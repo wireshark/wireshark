@@ -21,6 +21,9 @@ extern "C" {
 /** @file
  */
 
+/** Initialize internal structures */
+extern void conversation_filters_init(void);
+
 /** callback function definition: is a filter available for this packet? */
 typedef gboolean (*is_filter_valid_func)(struct _packet_info *pinfo);
 
@@ -35,8 +38,13 @@ WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const ch
 /** register a dissector filter for logs */
 WS_DLL_PUBLIC void register_log_conversation_filter(const char *proto_name, const char *display_name,
                                                       is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
+/**
+ * Prepend a protocol to the list of filterable protocols.
+ * @param A valid protocol name.
+ */
+WS_DLL_PUBLIC void add_conversation_filter_protocol(const char *proto_name);
 
-/* Cleanup internal structures */
+/** Cleanup internal structures */
 extern void conversation_filters_cleanup(void);
 
 /**

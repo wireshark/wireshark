@@ -123,7 +123,6 @@ static conv_fld_info conv_fld_infos[MAX_N_CONV_FILTERS];
 DECLARE_CONV_FLTS()
 static char conv_flt_vals[MAX_N_CONV_FILTERS][MAX_CONV_FILTER_STR_LEN];
 static guint conv_vals_cnt = 0;
-static guint conv_fld_cnt = 0;
 
 void
 register_conversation_filters_mappings(void)
@@ -161,6 +160,8 @@ configure_plugin(bridge_info* bi, char* config _U_)
         bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(guint32));
 
         uint32_t fld_cnt = 0;
+        size_t conv_fld_cnt = 0;
+
         for (uint32_t j = 0; j < tot_fields; j++)
         {
             bi->hf_ids[fld_cnt] = -1;
@@ -227,13 +228,16 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 conv_fld_infos[conv_fld_cnt].field_info = ri;
                 const char *source_name = get_sinsp_source_name(bi->ssi);
                 conv_fld_infos[conv_fld_cnt].proto_name = source_name;
+                // XXX We currently build a filter per field. Should we "and" them instead?
                 register_log_conversation_filter(source_name, finfo.hfinfo.name, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
                 conv_fld_cnt++;
             }
             fld_cnt++;
         }
         proto_register_field_array(proto_falco_bridge, bi->hf, fld_cnt);
-
+        if (conv_fld_cnt > 0) {
+            add_conversation_filter_protocol(get_sinsp_source_name(bi->ssi));
+        }
     }
 }
 

@@ -20,6 +20,19 @@
 GList *packet_conv_filter_list = NULL;
 GList *log_conv_filter_list = NULL;
 
+static GSList *conversation_proto_names = NULL;
+
+void conversation_filters_init(void)
+{
+    // add_conversation_filter_protocol prepends entries to the list. Add
+    // lower layers first so that upper-layer conversations take precedence.
+    add_conversation_filter_protocol("eth");
+    add_conversation_filter_protocol("ipv6");
+    add_conversation_filter_protocol("ip");
+    add_conversation_filter_protocol("udp");
+    add_conversation_filter_protocol("tcp");
+}
+
 static void do_register_conversation_filter(GList **conv_filter_list, const char *proto_name, const char *display_name,
                                         is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
     conversation_filter_t *entry;
@@ -52,6 +65,16 @@ void register_log_conversation_filter(const char *proto_name, const char *displa
                                         build_filter_string);
 }
 
+void add_conversation_filter_protocol(const char *proto_name)
+{
+    for (GSList *cur_entry = conversation_proto_names; cur_entry; cur_entry = g_slist_next(cur_entry)) {
+        if (strcmp(proto_name, cur_entry->data) == 0) {
+            return;
+        }
+    }
+    conversation_proto_names = g_slist_prepend(conversation_proto_names, (void *)proto_name);
+}
+
 static struct conversation_filter_s* find_conversation_filter(GList *conv_filter_list, const char *name)
 {
     GList *list_entry = conv_filter_list;
@@ -79,17 +102,17 @@ void conversation_filters_cleanup(void)
     g_list_free(packet_conv_filter_list);
     g_list_foreach(log_conv_filter_list, conversation_filter_free, NULL);
     g_list_free(log_conv_filter_list);
+
+    g_slist_free(conversation_proto_names);
 }
 
 static gchar *conversation_filter_from_pinfo(GList *conv_filter_list, struct _packet_info *pinfo)
 {
-    const char *layers[] = { "tcp", "udp", "ip", "ipv6", "eth" };
     conversation_filter_t *conv_filter;
     gchar *filter;
-    size_t i;
 
-    for (i = 0; i < G_N_ELEMENTS(layers); i++) {
-        conv_filter = find_conversation_filter(conv_filter_list, layers[i]);
+    for (GSList *cur_entry = conversation_proto_names; cur_entry; cur_entry = g_slist_next(cur_entry)) {
+        conv_filter = find_conversation_filter(conv_filter_list, (const char *) cur_entry->data);
         if (conv_filter && conv_filter->is_filter_valid(pinfo)) {
             if ((filter = conv_filter->build_filter_string(pinfo)) != NULL)
                 return filter;
