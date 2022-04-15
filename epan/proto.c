@@ -7914,6 +7914,29 @@ proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name)
 	return FALSE;
 }
 
+gchar *
+proto_list_layers(const packet_info *pinfo)
+{
+	wmem_strbuf_t *buf;
+	wmem_list_frame_t *layers = wmem_list_head(pinfo->layers);
+
+	buf = wmem_strbuf_sized_new(pinfo->pool, 128, 0);
+
+	/* Walk the list of layers in the packet and
+	   return a string of all entries. */
+	while (layers != NULL)
+	{
+		wmem_strbuf_append(buf, proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(layers))));
+
+		layers = wmem_list_frame_next(layers);
+		if (layers != NULL) {
+			wmem_strbuf_append_c(buf, ':');
+		}
+	}
+
+	return wmem_strbuf_finalize(buf);
+}
+
 gboolean
 proto_is_pino(const protocol_t *protocol)
 {

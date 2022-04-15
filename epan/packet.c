@@ -2957,6 +2957,10 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			}
 		}
 		if (len) {
+			if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
+				ws_debug("Frame: %d | Layers: %s | Dissector: %s\n", pinfo->num, proto_list_layers(pinfo), hdtbl_entry->short_name);
+			}
+
 			*heur_dtbl_entry = hdtbl_entry;
 
 			/* Bubble the matched entry to the top for faster search next time. */

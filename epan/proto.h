@@ -2674,6 +2674,12 @@ WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers,
  */
 WS_DLL_PUBLIC gboolean proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name);
 
+/** Create a string of all layers in the packet.
+ * @param pinfo Pointer to packet info
+ * @return string of layer names
+ */
+WS_DLL_PUBLIC gchar * proto_list_layers(const packet_info *pinfo);
+
 /** Mark protocol with the given item number as disabled by default.
  @param proto_id protocol id (0-indexed) */
 WS_DLL_PUBLIC void proto_disable_by_default(const int proto_id);
