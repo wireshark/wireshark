@@ -263,10 +263,10 @@ hyphen-bytes	{hex2}(-{hex2})+
 	BEGIN(INITIAL);
 	update_string_loc(yyextra, yytext);
 	g_string_append_c(yyextra->quoted_string, '"');
-	set_lval_quoted_string(yyextra, TOKEN_STRING, yyextra->quoted_string);
+	int token = set_lval_quoted_string(yyextra, TOKEN_STRING, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
 	yyextra->string_loc.col_start = -1;
-	return TOKEN_STRING;
+	return token;
 }
 
 <DQUOTE>\\[0-7]{1,3} {
@@ -361,10 +361,10 @@ hyphen-bytes	{hex2}(-{hex2})+
 	BEGIN(INITIAL);
 	update_string_loc(yyextra, yytext);
 	g_string_append_c(yyextra->quoted_string, '\'');
-	set_lval_charconst(yyextra, TOKEN_CHARCONST, yyextra->quoted_string);
+	int token = set_lval_charconst(yyextra, TOKEN_CHARCONST, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
 	yyextra->string_loc.col_start = -1;
-	return TOKEN_CHARCONST;
+	return token;
 }
 
 <SQUOTE>\\.				{
