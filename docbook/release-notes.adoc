@@ -69,6 +69,8 @@ They previously shipped with Npcap 1.55.
    curly brackets (not parenthesis).
 ** Logical AND now has higher precedence than logical OR, in line with most programming languages.
 ** Adds new display filter functions max(), min() and abs().
+** Functions can accept expressions as arguments, including other functions. Previously only protocol
+   fields and slices were syntactically valid function arguments.
 
 * text2pcap and "Import from Hex Dump":
 ** text2pcap supports writing the output file in all the capture file formats

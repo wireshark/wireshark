@@ -343,12 +343,12 @@ function(F) ::= UNPARSED(U) LPAREN RPAREN.
     F = new_function(dfw, U);
 }
 
-function_params(P) ::= entity(E).
+function_params(P) ::= arithmetic_expr(E).
 {
     P = g_slist_append(NULL, E);
 }
 
-function_params(P) ::= function_params(L) COMMA entity(E).
+function_params(P) ::= function_params(L) COMMA arithmetic_expr(E).
 {
     P = g_slist_append(L, E);
 }

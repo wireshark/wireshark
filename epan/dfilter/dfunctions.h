@@ -17,10 +17,10 @@
 /* Functions take any number of arguments and return 1. */
 
 /* The run-time logic of the dfilter function */
-typedef gboolean (*DFFuncType)(GSList **arg_list, guint32 arg_count, GSList **retval);
+typedef gboolean (*DFFuncType)(GSList *arg_list, guint32 arg_count, GSList **retval);
 
 /* The semantic check for the dfilter function */
-typedef void (*DFSemCheckType)(dfwork_t *dfw, const char *func_name,
+typedef ftenum_t (*DFSemCheckType)(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
                                 GSList *param_list, stloc_t *func_loc);
 
 /* This is a "function definition" record, holding everything
@@ -28,7 +28,6 @@ typedef void (*DFSemCheckType)(dfwork_t *dfw, const char *func_name,
 typedef struct {
     const char      *name;
     DFFuncType      function;
-    ftenum_t        retval_ftype; /* 0 means return value is the same as input argument(s) */
     guint           min_nargs;
     guint           max_nargs; /* 0 for no limit */
     DFSemCheckType  semcheck_param_function;

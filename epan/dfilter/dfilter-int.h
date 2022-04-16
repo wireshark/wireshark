@@ -29,6 +29,8 @@ struct epan_dfilter {
 	char		*expanded_text;
 	GHashTable	*references;
 	char		*syntax_tree_str;
+	/* Used to pass arguments to functions. List of Lists (list of registers). */
+	GSList		*function_stack;
 };
 
 typedef struct {

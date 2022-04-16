@@ -38,13 +38,6 @@
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node);
 
-static void
-check_function(dfwork_t *dfw, stnode_t *st_node);
-
-static
-ftenum_t
-check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype);
-
 static fvalue_t *
 mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s);
 
@@ -552,7 +545,7 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 }
 
 static void
-check_drange_sanity(dfwork_t *dfw, stnode_t *st)
+check_drange_sanity(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 {
 	stnode_t		*entity1;
 	header_field_info	*hfinfo1;
@@ -573,8 +566,7 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 					hfinfo1->abbrev, ftype_pretty_name(ftype1));
 		}
 	} else if (stnode_type_id(entity1) == STTYPE_FUNCTION) {
-		check_function(dfw, entity1);
-		ftype1 = sttype_function_retval_ftype(entity1);
+		ftype1 = check_function(dfw, entity1, lhs_ftype);
 
 		if (!ftype_can_slice(ftype1)) {
 			FAIL(dfw, entity1, "Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -582,7 +574,7 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 		}
 	} else if (stnode_type_id(entity1) == STTYPE_RANGE) {
 		/* Should this be rejected instead? */
-		check_drange_sanity(dfw, entity1);
+		check_drange_sanity(dfw, entity1, lhs_ftype);
 	} else {
 		FAIL(dfw, entity1, "Range is not supported for entity %s",
 					stnode_todisplay(entity1));
@@ -604,8 +596,8 @@ convert_to_bytes(stnode_t *arg)
 	sttype_range_set1(arg, entity1, rn);
 }
 
-static void
-check_function(dfwork_t *dfw, stnode_t *st_node)
+ftenum_t
+check_function(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 {
 	df_func_def_t *funcdef;
 	GSList        *params;
@@ -625,7 +617,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 			funcdef->name, funcdef->max_nargs);
 	}
 
-	funcdef->semcheck_param_function(dfw, funcdef->name, params,
+	return funcdef->semcheck_param_function(dfw, funcdef->name, lhs_ftype, params,
 					stnode_location(st_node));
 }
 
@@ -718,7 +710,7 @@ again:
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg2);
+		check_drange_sanity(dfw, st_arg2, ftype1);
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "\"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -731,8 +723,7 @@ again:
 		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		check_function(dfw, st_arg2);
-		ftype2 = sttype_function_retval_ftype(st_arg2);
+		ftype2 = check_function(dfw, st_arg2, ftype1);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) and return value of %s() (type=%s) are not of compatible types.",
@@ -780,7 +771,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 
 	LOG_NODE(st_node);
 
-	check_drange_sanity(dfw, st_arg1);
+	check_drange_sanity(dfw, st_arg1, FT_NONE);
 
 again:
 	type2 = stnode_type_id(st_arg2);
@@ -821,11 +812,10 @@ again:
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg2);
+		check_drange_sanity(dfw, st_arg2, FT_BYTES);
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		check_function(dfw, st_arg2);
-		ftype2 = sttype_function_retval_ftype(st_arg2);
+		ftype2 = check_function(dfw, st_arg2, FT_BYTES);
 
 		if (!is_bytes_type(ftype2)) {
 			if (!ftype_can_slice(ftype2)) {
@@ -874,8 +864,7 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 
 	LOG_NODE(st_node);
 
-	check_function(dfw, st_arg1);
-	ftype1 = sttype_function_retval_ftype(st_arg1);
+	ftype1 = check_function(dfw, st_arg1, FT_NONE);
 
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "Function %s (type=%s) cannot participate in %s comparison.",
@@ -922,7 +911,7 @@ again:
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg2);
+		check_drange_sanity(dfw, st_arg2, ftype1);
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				FAIL(dfw, st_arg1, "Function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -935,8 +924,7 @@ again:
 		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		check_function(dfw, st_arg2);
-		ftype2 = sttype_function_retval_ftype(st_arg2);
+		ftype2 = check_function(dfw, st_arg2, ftype1);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "Return values of function %s (type=%s) and function %s (type=%s) are not of compatible types.",
@@ -1241,11 +1229,10 @@ check_arithmetic_entity(dfwork_t *dfw, stnode_t *st_arg, ftenum_t lhs_ftype)
 		ftype = hfinfo->type;
 	}
 	else if (type == STTYPE_FUNCTION) {
-		check_function(dfw, st_arg);
-		ftype = sttype_function_retval_ftype(st_arg);
+		ftype = check_function(dfw, st_arg, lhs_ftype);
 	}
 	else if (type == STTYPE_RANGE) {
-		check_drange_sanity(dfw, st_arg);
+		check_drange_sanity(dfw, st_arg, lhs_ftype);
 
 		ftype = FT_BYTES;
 	}

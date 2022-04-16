@@ -138,9 +138,6 @@ stnode_type_name(stnode_t *node);
 sttype_id_t
 stnode_type_id(stnode_t *node);
 
-ftenum_t
-stnode_ftenum(stnode_t *node);
-
 gpointer
 stnode_data(stnode_t *node);
 

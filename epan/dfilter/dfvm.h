@@ -76,9 +76,14 @@ typedef enum {
 	DFVM_DIVIDE,
 	DFVM_MODULO,
 	CALL_FUNCTION,
+	STACK_PUSH,
+	STACK_POP,
 	ANY_IN_RANGE
 
 } dfvm_opcode_t;
+
+const char *
+dfvm_opcode_tostr(dfvm_opcode_t code);
 
 typedef struct {
 	int		id;
@@ -121,6 +126,9 @@ dfvm_value_new_funcdef(df_func_def_t *funcdef);
 
 dfvm_value_t*
 dfvm_value_new_pcre(ws_regex_t *re);
+
+dfvm_value_t*
+dfvm_value_new_guint(guint num);
 
 void
 dfvm_dump(FILE *f, dfilter_t *df);

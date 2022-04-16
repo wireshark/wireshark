@@ -17,6 +17,46 @@
 static void
 debug_register(GSList *reg, guint32 num);
 
+const char *
+dfvm_opcode_tostr(dfvm_opcode_t code)
+{
+	switch (code) {
+		case IF_TRUE_GOTO:	return "IF_TRUE_GOTO";
+		case IF_FALSE_GOTO:	return "IF_FALSE_GOTO";
+		case CHECK_EXISTS:	return "CHECK_EXISTS";
+		case NOT:		return "NOT";
+		case RETURN:		return "RETURN";
+		case READ_TREE:		return "READ_TREE";
+		case READ_REFERENCE:	return "READ_REFERENCE";
+		case PUT_FVALUE:	return "PUT_FVALUE";
+		case ALL_EQ:		return "ALL_EQ";
+		case ANY_EQ:		return "ANY_EQ";
+		case ALL_NE:		return "ALL_NE";
+		case ANY_NE:		return "ANY_NE";
+		case ANY_GT:		return "ANY_GT";
+		case ANY_GE:		return "ANY_GE";
+		case ANY_LT:		return "ANY_LT";
+		case ANY_LE:		return "ANY_LE";
+		case ANY_ZERO:		return "ANY_ZERO";
+		case ALL_ZERO:		return "ALL_ZERO";
+		case ANY_CONTAINS:	return "ANY_CONTAINS";
+		case ANY_MATCHES:	return "ANY_MATCHES";
+		case MK_RANGE:		return "MK_RANGE";
+		case MK_BITWISE_AND:	return "MK_BITWISE_AND";
+		case MK_MINUS:		return "MK_MINUS";
+		case DFVM_ADD:		return "DFVM_ADD";
+		case DFVM_SUBTRACT:	return "DFVM_SUBTRACT";
+		case DFVM_MULTIPLY:	return "DFVM_MULTIPLY";
+		case DFVM_DIVIDE:	return "DFVM_DIVIDE";
+		case DFVM_MODULO:	return "DFMV_MODULO";
+		case CALL_FUNCTION:	return "CALL_FUNCTION";
+		case STACK_PUSH:	return "STACK_PUSH";
+		case STACK_POP:		return "STACK_POP";
+		case ANY_IN_RANGE:	return "ANY_IN_RANGE";
+	}
+	return "(fix-opcode-string)";
+}
+
 dfvm_insn_t*
 dfvm_insn_new(dfvm_opcode_t op)
 {
@@ -148,6 +188,14 @@ dfvm_value_new_pcre(ws_regex_t *re)
 	return v;
 }
 
+dfvm_value_t*
+dfvm_value_new_guint(guint num)
+{
+	dfvm_value_t *v = dfvm_value_new(INTEGER);
+	v->value.numeric = num;
+	return v;
+}
+
 char *
 dfvm_value_tostr(dfvm_value_t *v)
 {
@@ -187,6 +235,23 @@ dfvm_value_tostr(dfvm_value_t *v)
 	return s;
 }
 
+static GSList *
+dump_str_stack_push(GSList *stack, const char *str)
+{
+	return g_slist_prepend(stack, g_strdup(str));
+}
+
+static GSList *
+dump_str_stack_pop(GSList *stack)
+{
+	char *str;
+
+	str = stack->data;
+	stack = g_slist_delete_link(stack, stack);
+	g_free(str);
+	return stack;
+}
+
 char *
 dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 {
@@ -198,6 +263,8 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 	GHashTableIter	ref_iter;
 	gpointer	key, value;
 	char		*str;
+	GSList		*stack_print = NULL, *l;
+	guint		i;
 
 	buf = wmem_strbuf_new(alloc, NULL);
 
@@ -240,14 +307,25 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 			case CALL_FUNCTION:
 				wmem_strbuf_append_printf(buf, "%05d CALL_FUNCTION\t%s(",
 					id, arg1_str);
-				if (arg3_str) {
-					wmem_strbuf_append_printf(buf, "%s", arg3_str);
-				}
-				for (guint32 i = 1; i <= arg4->value.numeric; i++) {
-					wmem_strbuf_append_printf(buf, ", reg#%"G_GUINT32_FORMAT,
-									arg3->value.numeric + i);
+				for (l = stack_print, i = 0; i < arg3->value.numeric; i++, l = l->next) {
+					if (l != stack_print) {
+						wmem_strbuf_append(buf, ", ");
+					}
+					wmem_strbuf_append(buf, l->data);
 				}
 				wmem_strbuf_append_printf(buf, ") -> %s\n", arg2_str);
+				break;
+
+			case STACK_PUSH:
+				wmem_strbuf_append_printf(buf, "%05d STACK_PUSH\t%s\n", id, arg1_str);
+				stack_print = dump_str_stack_push(stack_print, arg1_str);
+				break;
+
+			case STACK_POP:
+				wmem_strbuf_append_printf(buf, "%05d STACK_POP\t%s\n", id, arg1_str);
+				for (i = 0; i < arg1->value.numeric; i ++) {
+					stack_print = dump_str_stack_pop(stack_print);
+				}
 				break;
 
 			case MK_RANGE:
@@ -639,13 +717,8 @@ any_matches(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
 }
 
 static gboolean
-any_in_range(dfilter_t *df, dfvm_value_t *arg1,
-				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
+any_in_range_internal(GSList *list1, fvalue_t *low, fvalue_t *high)
 {
-	GSList *list1 = df->registers[arg1->value.numeric];
-	fvalue_t *low = arg_low->value.fvalue;
-	fvalue_t *high = arg_high->value.fvalue;
-
 	while (list1) {
 		if (fvalue_ge(list1->data, low) &&
 					fvalue_le(list1->data, high)) {
@@ -654,6 +727,39 @@ any_in_range(dfilter_t *df, dfvm_value_t *arg1,
 		list1 = g_slist_next(list1);
 	}
 	return FALSE;
+}
+
+static gboolean
+any_in_range(dfilter_t *df, dfvm_value_t *arg1,
+				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
+{
+	GSList *list1 = df->registers[arg1->value.numeric];
+	GSList *_low, *_high;
+	fvalue_t *low, *high;
+
+	if (arg_low->type == REGISTER) {
+		_low = df->registers[arg_low->value.numeric];
+		ws_assert(g_slist_length(_low) == 1);
+		low = _low->data;
+	}
+	else if (arg_low->type == FVALUE) {
+		low = arg_low->value.fvalue;
+	}
+	else {
+		ws_assert_not_reached();
+	}
+	if (arg_high->type == REGISTER) {
+		_high = df->registers[arg_high->value.numeric];
+		ws_assert(g_slist_length(_high) == 1);
+		high = _high->data;
+	}
+	else if (arg_high->type == FVALUE) {
+		high = arg_high->value.fvalue;
+	}
+	else {
+		ws_assert_not_reached();
+	}
+	return any_in_range_internal(list1, low, high);
 }
 
 /* Clear registers that were populated during evaluation.
@@ -716,19 +822,18 @@ mk_range(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
  */
 static gboolean
 call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
-				dfvm_value_t *arg3, dfvm_value_t *arg4)
+							dfvm_value_t *arg3)
 {
 	df_func_def_t *funcdef;
 	GSList *retval = NULL;
 	gboolean accum;
-	guint32 reg_return, reg_first_arg, more_args_count;
+	guint32 reg_return, arg_count;
 
 	funcdef = arg1->value.funcdef;
 	reg_return = arg2->value.numeric;
-	reg_first_arg = arg3->value.numeric;
-	more_args_count = arg4->value.numeric;
+	arg_count = arg3->value.numeric;
 
-	accum = funcdef->function(&df->registers[reg_first_arg], 1 + more_args_count, &retval);
+	accum = funcdef->function(df->function_stack, arg_count, &retval);
 
 	/* Write return registers. */
 	df->registers[reg_return] = retval;
@@ -892,6 +997,42 @@ put_fvalue(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
 	df->free_registers[to_arg->value.numeric] = NULL;
 }
 
+static void
+stack_push(dfilter_t *df, dfvm_value_t *arg1)
+{
+	GSList *arg;
+
+	if (arg1->type == FVALUE) {
+		arg = g_slist_prepend(NULL, arg1->value.fvalue);
+	}
+	else if (arg1->type == REGISTER) {
+		arg = g_slist_copy(df->registers[arg1->value.numeric]);
+	}
+	else {
+		ws_assert_not_reached();
+	}
+	df->function_stack = g_slist_prepend(df->function_stack, arg);
+}
+
+static void
+stack_pop(dfilter_t *df, dfvm_value_t *arg1)
+{
+	guint count;
+	GSList *reg;
+
+	count = arg1->value.numeric;
+
+	for (guint i = 0; i < count; i++) {
+		/* Free top of stack and register contained there. The register
+		 * contentes are not owned by us. */
+		reg = df->function_stack->data;
+		/* Free the list but not the data it contains. */
+		g_slist_free(reg);
+		/* remove top of stack */
+		df->function_stack = g_slist_delete_link(df->function_stack, df->function_stack);
+	}
+}
+
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree)
 {
@@ -901,7 +1042,6 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 	dfvm_value_t	*arg1;
 	dfvm_value_t	*arg2;
 	dfvm_value_t	*arg3 = NULL;
-	dfvm_value_t	*arg4 = NULL;
 	header_field_info	*hfinfo;
 
 	ws_assert(tree);
@@ -915,7 +1055,8 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 		arg1 = insn->arg1;
 		arg2 = insn->arg2;
 		arg3 = insn->arg3;
-		arg4 = insn->arg4;
+
+		ws_noisy("ID: %d; OP: %s", id, dfvm_opcode_tostr(insn->op));
 
 		switch (insn->op) {
 			case CHECK_EXISTS:
@@ -945,7 +1086,15 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case CALL_FUNCTION:
-				accum = call_function(df, arg1, arg2, arg3, arg4);
+				accum = call_function(df, arg1, arg2, arg3);
+				break;
+
+			case STACK_PUSH:
+				stack_push(df, arg1);
+				break;
+
+			case STACK_POP:
+				stack_pop(df, arg1);
 				break;
 
 			case MK_RANGE:

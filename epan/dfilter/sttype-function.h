@@ -21,8 +21,6 @@ sttype_function_set_params(stnode_t *node, GSList *params);
 /* Get the function-definition record for a function stnode_t. */
 df_func_def_t* sttype_function_funcdef(stnode_t *node);
 
-ftenum_t sttype_function_retval_ftype(stnode_t *node);
-
 const char *sttype_function_name(stnode_t *node);
 
 /* Get the parameters for a function stnode_t. */

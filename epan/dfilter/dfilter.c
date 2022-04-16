@@ -188,6 +188,8 @@ dfilter_new(GPtrArray *deprecated)
 	if (deprecated)
 		df->deprecated = g_ptr_array_ref(deprecated);
 
+	df->function_stack = NULL;
+
 	return df;
 }
 
@@ -222,6 +224,11 @@ dfilter_free(dfilter_t *df)
 
 	if (df->deprecated)
 		g_ptr_array_unref(df->deprecated);
+
+	if (df->function_stack != NULL) {
+		ws_critical("Function stack list should be NULL");
+		g_slist_free(df->function_stack);
+	}
 
 	g_free(df->registers);
 	g_free(df->attempted_load);

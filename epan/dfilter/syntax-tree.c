@@ -15,7 +15,6 @@
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>
 #include "sttype-test.h"
-#include "sttype-pointer.h"
 #include "sttype-function.h"
 #include "dfilter-int.h"
 
@@ -213,22 +212,6 @@ stnode_type_id(stnode_t *node)
 		return STTYPE_UNINITIALIZED;
 }
 
-ftenum_t
-stnode_ftenum(stnode_t *node)
-{
-	ws_assert_magic(node, STNODE_MAGIC);
-	switch (node->type->id) {
-		case STTYPE_FVALUE:
-		case STTYPE_FIELD:
-			return sttype_pointer_ftenum(node);
-		case STTYPE_FUNCTION:
-			return sttype_function_retval_ftype(node);
-		default:
-			break;
-	}
-	return FT_NONE;
-}
-
 gpointer
 stnode_data(stnode_t *node)
 {
@@ -397,6 +380,7 @@ static void
 visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 {
 	stnode_t *left, *right;
+	GSList *params;
 
 	if (stnode_type_id(node) == STTYPE_TEST ||
 			stnode_type_id(node) == STTYPE_ARITHMETIC) {
@@ -415,6 +399,18 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 		}
 		else if (right) {
 			ws_assert_not_reached();
+		}
+	}
+	else if (stnode_type_id(node) == STTYPE_FUNCTION) {
+		wmem_strbuf_append_printf(buf, "%s:\n", stnode_todebug(node));
+		params = sttype_function_params(node);
+		while (params) {
+			indent(buf, level + 1);
+			visit_tree(buf, params->data, level + 1);
+			if (params->next != NULL) {
+				wmem_strbuf_append_c(buf, '\n');
+			}
+			params = params->next;
 		}
 	}
 	else {
