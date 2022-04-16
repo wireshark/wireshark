@@ -621,6 +621,7 @@ static const value_string quic_v2_long_packet_type_vals[] = {
 #define FT_REMOVE_ADDRESS           0x45
 #define FT_UNIFLOWS                 0x46
 #define FT_DATAGRAM_LENGTH          0x31
+#define FT_IMMEDIATE_ACK            0xAC
 #define FT_ACK_FREQUENCY            0xAF
 #define FT_TIME_STAMP               0x02F5
 
@@ -655,6 +656,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x44, 0x44,   "ADD_ADDRESS" },
     { 0x45, 0x45,   "REMOVE_ADDRESS" },
     { 0x46, 0x46,   "UNIFLOWS" },
+    { 0xAC, 0xAC,   "IMMEDIATE_ACK" },
     { 0xaf, 0xaf,   "ACK_FREQUENCY" },
     { 0x02f5, 0x02f5, "TIME_STAMP" },
     { 0,    0,        NULL },
@@ -2137,6 +2139,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ft_tree, hf_quic_dg, tvb, offset, (guint32)length, ENC_NA);
             offset += (guint32)length;
         }
+        break;
+        case FT_IMMEDIATE_ACK:
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", IA");
         break;
         case FT_ACK_FREQUENCY:{
             gint32 length;
