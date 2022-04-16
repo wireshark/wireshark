@@ -185,7 +185,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_GREASE_QUIC_BIT                     0x2ab2 /* https://tools.ietf.org/html/draft-thomson-quic-bit-grease-00 */
 #define SSL_HND_QUIC_TP_ENABLE_TIME_STAMP                   0x7157 /* https://tools.ietf.org/html/draft-huitema-quic-ts-02 */
 #define SSL_HND_QUIC_TP_ENABLE_TIME_STAMP_V2                0x7158 /* https://tools.ietf.org/html/draft-huitema-quic-ts-03 */
-#define SSL_HND_QUIC_TP_MIN_ACK_DELAY                       0xde1a /* https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00 */
+#define SSL_HND_QUIC_TP_MIN_ACK_DELAY_OLD                   0xde1a /* https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00 */
 /* https://quiche.googlesource.com/quiche/+/refs/heads/master/quic/core/crypto/transport_parameters.cc */
 #define SSL_HND_QUIC_TP_GOOGLE_USER_AGENT                   0x3129
 #define SSL_HND_QUIC_TP_GOOGLE_KEY_UPDATE_NOT_YET_SUPPORTED 0x312B
@@ -197,6 +197,7 @@ typedef enum {
 /* https://github.com/facebookincubator/mvfst/blob/master/quic/QuicConstants.h */
 #define SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY        0xFF00
 #define SSL_HND_QUIC_TP_VERSION_INFORMATION                 0xFF73DB /* https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-06 */
+#define SSL_HND_QUIC_TP_MIN_ACK_DELAY                       0xFF03DE1A /* https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-01 */
 /*
  * Lookup tables
  */

@@ -2162,7 +2162,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP, "enable_time_stamp" },
     { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP_V2, "enable_time_stamp_v2" },
     { SSL_HND_QUIC_TP_VERSION_INFORMATION, "version_information" },
-    { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
+    { SSL_HND_QUIC_TP_MIN_ACK_DELAY_OLD, "min_ack_delay" },
     { SSL_HND_QUIC_TP_GOOGLE_USER_AGENT, "google_user_agent" },
     { SSL_HND_QUIC_TP_GOOGLE_KEY_UPDATE_NOT_YET_SUPPORTED, "google_key_update_not_yet_supported" },
     { SSL_HND_QUIC_TP_GOOGLE_QUIC_VERSION, "google_quic_version" },
@@ -2171,6 +2171,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_GOOGLE_QUIC_PARAMS, "google_quic_params" },
     { SSL_HND_QUIC_TP_GOOGLE_CONNECTION_OPTIONS, "google_connection_options" },
     { SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY, "facebook_partial_reliability" },
+    { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
     { 0, NULL }
 };
 
@@ -7947,7 +7948,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 }
                 offset += 1;
             break;
-            case SSL_HND_QUIC_TP_MIN_ACK_DELAY:
+            case SSL_HND_QUIC_TP_MIN_ACK_DELAY_OLD:
+            case SSL_HND_QUIC_TP_MIN_ACK_DELAY  :
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_min_ack_delay,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 proto_item_append_text(parameter_tree, " %" PRIu64, value);

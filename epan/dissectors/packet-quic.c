@@ -22,7 +22,7 @@
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
  * https://datatracker.ietf.org/doc/html/draft-ietf-quic-datagram-06
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
- * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
+ * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-01
  * https://tools.ietf.org/html/draft-deconinck-quic-multipath-06
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
 
@@ -162,8 +162,12 @@ static int hf_quic_cc_reason_phrase = -1;
 static int hf_quic_dg_length = -1;
 static int hf_quic_dg = -1;
 static int hf_quic_af_sequence_number = -1;
-static int hf_quic_af_packet_tolerance = -1;
-static int hf_quic_af_update_max_ack_delay = -1;
+static int hf_quic_af_ack_eliciting_threshold = -1;
+static int hf_quic_af_request_max_ack_delay = -1;
+static int hf_quic_af_last_byte = -1;
+static int hf_quic_af_reserved = -1;
+static int hf_quic_af_ignore_order = -1;
+static int hf_quic_af_ignore_ce = -1;
 static int hf_quic_ts = -1;
 static int hf_quic_reassembled_in = -1;
 static int hf_quic_reassembled_length = -1;
@@ -202,6 +206,7 @@ static expert_field ei_quic_bad_retry = EI_INIT;
 static expert_field ei_quic_coalesced_padding_data = EI_INIT;
 
 static gint ett_quic = -1;
+static gint ett_quic_af = -1;
 static gint ett_quic_short_header = -1;
 static gint ett_quic_connection_info = -1;
 static gint ett_quic_ft = -1;
@@ -2136,15 +2141,27 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_ACK_FREQUENCY:{
             gint32 length;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_FREQ");
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", AF");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_packet_tolerance, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_ack_eliciting_threshold, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_update_max_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_request_max_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
+
+
+            static int * const af_fields[] = {
+                &hf_quic_af_reserved,
+                &hf_quic_af_ignore_ce,
+                &hf_quic_af_ignore_order,
+                NULL
+            };
+
+            proto_tree_add_bitmask(ft_tree, tvb, offset, hf_quic_af_last_byte, ett_quic_af, af_fields, ENC_BIG_ENDIAN);
+            offset += 1;
+
         }
         break;
         case FT_TIME_STAMP:{
@@ -4613,18 +4630,40 @@ proto_register_quic(void)
         { &hf_quic_af_sequence_number,
             { "Sequence Number", "quic.af.sequence_number",
               FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Sequence number assigned to the ACK-FREQUENCY frame by the sender to allow receivers to ignore obsolete frames", HFILL }
+              "Sequence number assigned to the ACK_FREQUENCY frame by the sender to allow receivers to ignore obsolete frames", HFILL }
         },
-        { &hf_quic_af_packet_tolerance,
-            { "Packet Tolerance", "quic.af.packet_tolerance",
+        { &hf_quic_af_ack_eliciting_threshold,
+            { "Ack-Eliciting Threshold", "quic.af.ack_eliciting_threshold",
               FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Representing the maximum number of ack-eliciting packets after which the receiver sends an acknowledgement", HFILL }
+              "The maximum number of ack-eliciting packets the recipient of this frame can receive without sending an acknowledgment", HFILL }
         },
-        { &hf_quic_af_update_max_ack_delay,
-            { "Update Max Ack Delay", "quic.af.update_max_ack_delay",
+        { &hf_quic_af_request_max_ack_delay,
+            { "Request Max Ack Delay", "quic.af.request_max_ack_delay",
               FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Representing an update to the peer's 'max_ack_delay' transport parameter", HFILL }
+              "The value to which the endpoint requests the peer update its max_ack_delay", HFILL }
         },
+        { &hf_quic_af_last_byte,
+            { "Last Byte", "quic.af.last_byte",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_af_reserved,
+            { "Reserved", "quic.af.reserved",
+              FT_UINT8, BASE_DEC, NULL, 0xFC,
+              "This field has no meaning in this version of ACK_FREQUENCY", HFILL }
+        },
+        { &hf_quic_af_ignore_order,
+            { "Ignore Order", "quic.af.ignore_order",
+              FT_BOOLEAN, 8, NULL, 0x02,
+              "This field is set to true by an endpoint that does not wish to receive an immediate acknowledgement when the peer receives a packet out of order", HFILL }
+        },
+        { &hf_quic_af_ignore_ce,
+            { "Ignore CE", "quic.af.ignore_ce",
+              FT_BOOLEAN, 8, NULL, 0x01,
+              "This field is set to true by an endpoint that does not wish to receive an immediate acknowledgement when the peer receives CE-marked packets", HFILL }
+        },
+
+        /* TIME STAMP */
         { &hf_quic_ts,
             { "Time Stamp", "quic.ts",
               FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -4691,6 +4730,7 @@ proto_register_quic(void)
 
     static gint *ett[] = {
         &ett_quic,
+        &ett_quic_af,
         &ett_quic_short_header,
         &ett_quic_connection_info,
         &ett_quic_ft,
