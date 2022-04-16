@@ -106,6 +106,20 @@ val_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 	return FT_OK;
 }
 
+enum ft_result
+val_multiply(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.floating = a->value.floating * b->value.floating;
+	return FT_OK;
+}
+
+enum ft_result
+val_divide(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.floating = a->value.floating / b->value.floating;
+	return FT_OK;
+}
+
 static int
 cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
@@ -160,8 +174,8 @@ ftype_register_double(void)
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */
 		val_subtract,			/* subtract */
-		NULL,				/* multiply */
-		NULL,				/* divide */
+		val_multiply,			/* multiply */
+		val_divide,			/* divide */
 		NULL,				/* modulo */
 	};
 
@@ -193,8 +207,8 @@ ftype_register_double(void)
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */
 		val_subtract,			/* subtract */
-		NULL,				/* multiply */
-		NULL,				/* divide */
+		val_multiply,			/* multiply */
+		val_divide,			/* divide */
 		NULL,				/* modulo */
 	};
 
