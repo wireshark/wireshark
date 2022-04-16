@@ -130,7 +130,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file('wpa3-suiteb-192.pcapng.gz'),
                 '-Tfields',
-                '-e' 'wlan.rsn.ie.gtk.key',
+                '-e' 'wlan.rsn.ie.gtk_kde.gtk',
                 '-e' 'wlan.analysis.kck',
                 '-e' 'wlan.analysis.kek',
                 ))

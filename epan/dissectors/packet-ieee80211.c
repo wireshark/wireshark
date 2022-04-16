@@ -6094,19 +6094,56 @@ static int hf_ieee80211_vs_fortinet_data = -1;
 
 static int hf_ieee80211_rsn_ie_ptk_keyid = -1;
 
-static int hf_ieee80211_rsn_ie_gtk_keyid = -1;
-static int hf_ieee80211_rsn_ie_gtk_tx = -1;
-static int hf_ieee80211_rsn_ie_gtk_reserved1 = -1;
-static int hf_ieee80211_rsn_ie_gtk_reserved2 = -1;
-static int hf_ieee80211_rsn_ie_gtk_key = -1;
+static int hf_ieee80211_rsn_ie_gtk_kde_data_type = -1;
+static int hf_ieee80211_rsn_ie_gtk_kde_key_id = -1;
+static int hf_ieee80211_rsn_ie_gtk_kde_tx = -1;
+static int hf_ieee80211_rsn_ie_gtk_kde_reserved1 = -1;
+static int hf_ieee80211_rsn_ie_gtk_kde_reserved2 = -1;
+static int hf_ieee80211_rsn_ie_gtk_kde_gtk = -1;
+
+static int hf_ieee80211_rsn_ie_mac_address_kde_mac = -1;
 
 static int hf_ieee80211_rsn_ie_pmkid = -1;
 
-static int hf_ieee80211_rsn_ie_igtk_keyid = -1;
-static int hf_ieee80211_rsn_ie_igtk_ipn = -1;
-static int hf_ieee80211_rsn_ie_igtk_key = -1;
-
 static int hf_ieee80211_rsn_ie_unknown = -1;
+
+static int hf_ieee80211_rsn_ie_gtk_kde_nonce = -1;
+static int hf_ieee80211_rsn_ie_gtk_kde_lifetime = -1;
+static int hf_ieee80211_rsn_ie_error_kde_res = -1;
+static int hf_ieee80211_rsn_ie_error_kde_error_type = -1;
+static int hf_ieee80211_rsn_ie_igtk_kde_keyid = -1;
+static int hf_ieee80211_rsn_ie_igtk_kde_ipn = -1;
+static int hf_ieee80211_rsn_ie_igtk_kde_igtk = -1;
+static int hf_ieee80211_rsn_ie_oci_operating_class = -1;
+static int hf_ieee80211_rsn_ie_oci_primary_channel_number = -1;
+static int hf_ieee80211_rsn_ie_oci_frequency_segment_1 = -1;
+static int hf_ieee80211_rsn_ie_bigtk_key_id = -1;
+static int hf_ieee80211_rsn_ie_bigtk_bipn = -1;
+static int hf_ieee80211_rsn_ie_bigtk_bigtk = -1;
+static int hf_ieee80211_rsn_ie_mlo_link_info = -1;
+static int hf_ieee80211_rsn_ie_mlo_linkid = -1;
+static int hf_ieee80211_rsn_ie_mlo_rnse_present = -1;
+static int hf_ieee80211_rsn_ie_mlo_rnsxe_present = -1;
+static int hf_ieee80211_rsn_ie_mlo_reserved = -1;
+static int hf_ieee80211_rsn_ie_mlo_mac_addr = -1;
+static int hf_ieee80211_rsn_ie_mlo_gtk_kde_key_id = -1;
+static int hf_ieee80211_rsn_ie_mlo_gtk_kde_tx = -1;
+static int hf_ieee80211_rsn_ie_mlo_gtk_kde_reserved = -1;
+static int hf_ieee80211_rsn_ie_mlo_gtk_kde_linkid = -1;
+static int hf_ieee80211_rsn_ie_mlo_gtk_kde_pn = -1;
+static int hf_ieee80211_rsn_ie_mlo_gtk_kde_gtk = -1;
+
+static int hf_ieee80211_rsn_ie_mlo_igtk_kde_key_id = -1;
+static int hf_ieee80211_rsn_ie_mlo_igtk_kde_ipn = -1;
+static int hf_ieee80211_rsn_ie_mlo_igtk_kde_reserved = -1;
+static int hf_ieee80211_rsn_ie_mlo_igtk_kde_linkid = -1;
+static int hf_ieee80211_rsn_ie_mlo_igtk_kde_igtk = -1;
+
+static int hf_ieee80211_rsn_ie_mlo_bigtk_kde_key_id = -1;
+static int hf_ieee80211_rsn_ie_mlo_bigtk_kde_ipn = -1;
+static int hf_ieee80211_rsn_ie_mlo_bigtk_kde_reserved = -1;
+static int hf_ieee80211_rsn_ie_mlo_bigtk_kde_linkid = -1;
+static int hf_ieee80211_rsn_ie_mlo_bigtk_kde_bigtk = -1;
 
 static int hf_ieee80211_marvell_ie_type = -1;
 static int hf_ieee80211_marvell_ie_mesh_subtype = -1;
@@ -7317,6 +7354,8 @@ static gint ett_rsn_sub_akms_tree = -1;
 static gint ett_rsn_cap_tree = -1;
 static gint ett_rsn_pmkid_tree = -1;
 static gint ett_rsn_gmcs_tree = -1;
+
+static gint ett_kde_mlo_link_info = -1;
 
 static gint ett_wpa_mcs_tree = -1;
 static gint ett_wpa_ucs_tree = -1;
@@ -17230,50 +17269,144 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
   dissector_try_uint_new(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, item, FALSE, NULL);
 }
 
+static const range_string kde_selectors_rvals[] = {
+  { 0, 0, "Reserved" },
+  { 1, 1, "GTK KDE" },
+  { 2, 2, "Reserved" },
+  { 3, 3, "MAC address KDE" },
+  { 4, 4, "PMKID KDE" },
+  { 5, 5, "Reserved" },
+  { 6, 6, "Nonce KDE" },
+  { 7, 7, "Lifetime KDE" },
+  { 8, 8, "Error KDE" },
+  { 9, 9, "IGTK KDE" },
+  { 10, 10, "Key ID KDE" },
+  { 11, 11, "Multi-band GTK KDE" },
+  { 12, 12, "Multi-band Key ID KDE" },
+  { 13, 13, "OCI KDE" },
+  { 14, 14, "BIGTK KDE" },
+  { 15, 15, "Reserved" },
+  { 16, 16, "MLO GTK KDE" },
+  { 17, 17, "MLO IGTK KDE" },
+  { 18, 18, "MLO BIGTK KDE" },
+  { 19, 19, "MLO LINK KDE" },
+  { 20, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static const true_false_string tfs_rsn_gtk_kde_tx = {
+  "Temporal key used for both transmission and reception",
+  "Temporal key used only for reception"
+};
+
+static int * const mlo_kde_link_hdrs[] = {
+  &hf_ieee80211_rsn_ie_mlo_linkid,
+  &hf_ieee80211_rsn_ie_mlo_rnse_present,
+  &hf_ieee80211_rsn_ie_mlo_rnsxe_present,
+  &hf_ieee80211_rsn_ie_mlo_reserved,
+  NULL
+};
+
+static void
+dissect_rsn_ie_mlo_link(proto_item *item, proto_tree *tree, tvbuff_t *tvb,
+                        int offset, guint32 tag_len _U_, packet_info *pinfo)
+{
+  guint8 info = tvb_get_guint8(tvb, offset);
+
+  proto_tree_add_bitmask(tree, tvb, offset,
+                         hf_ieee80211_rsn_ie_mlo_link_info,
+                         ett_kde_mlo_link_info, mlo_kde_link_hdrs,
+                         ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_mac_addr, tvb, offset, 6,
+                      ENC_NA);
+  offset += 6;
+  if ((info & 0x10) == 0x10) { /* Add the RSNE if present */
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+
+  if ((info & 0x20) == 0x20) { /* Add the RSNXE if present */
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+
+  proto_item_append_text(item, ": MLO Link KDE");
+}
+
 static void
 dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
                       int offset, guint32 tag_len, packet_info *pinfo)
 {
+  guint8 data_type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_data_type, tvb,
+                      offset, 1, ENC_NA);
+  offset += 1;
 
-  switch(tvb_get_guint8(tvb, offset)){
+  switch(data_type) {
     case 1:
     {
       /* IEEE 802.11i / Key Data Encapsulation / Data Type=1 - GTK.
        * This is only used within EAPOL-Key frame Key Data. */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_key_id, tvb,
+                          offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_tx, tvb, offset,
+                          1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_reserved1, tvb,
+                          offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_keyid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_reserved1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_reserved2, tvb,
+                          offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_reserved2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      offset += 1;
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_key, tvb, offset, tag_len - 3, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_gtk, tvb, offset,
+                          tag_len - 3, ENC_NA);
       proto_item_append_text(item, ": RSN GTK");
       save_proto_data(tvb, pinfo, offset, tag_len - 3, GTK_KEY);
       save_proto_data_value(pinfo, tag_len - 3, GTK_LEN_KEY);
       break;
     }
+    case 3: /* MAC Address KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mac_address_kde_mac, tvb,
+                          offset, 6, ENC_NA);
+      proto_item_append_text(item, ": MAC Address KDE");
+      break;
     case 4:
     {
       /* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
        * This is only used within EAPOL-Key frame Key Data. */
-      offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_pmkid, tvb, offset, 16, ENC_NA);
       proto_item_append_text(item, ": RSN PMKID");
       break;
     }
-    case 9:
+    case 6:
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_nonce, tvb, offset,
+                          32, ENC_NA);
+      proto_item_append_text(item, ": NONCE KDE");
+      break;
+    case 7: /* Lifetime KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_kde_lifetime, tvb,
+                          offset, 4, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(item, ": Lifetime KDE");
+      break;
+    case 8: /* Error KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_error_kde_res, tvb, offset,
+                          2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_error_kde_error_type, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      proto_item_append_text(item, ": Error KDE");
+      offset += 2;
+       break;
+    case 9: /* IGTK KDE */
     {
       /* IEEE 802.11i / Key Data Encapsulation / Data Type=9 - IGTK.
        * This is only used within EAPOL-Key frame Key Data. */
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_keyid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_kde_keyid, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_ipn, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_kde_ipn, tvb, offset,
+                          6, ENC_LITTLE_ENDIAN);
       offset += 6;
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_key, tvb, offset, tag_len - 9, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_kde_igtk, tvb, offset,
+                          tag_len - 9, ENC_NA);
       proto_item_append_text(item, ": RSN IGTK");
       break;
     }
@@ -17281,13 +17414,101 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
     {
       /* IEEE 802.11 - 2016 / Key Data Encapsulation / Data Type=10 - KeyID
        * This is only used within EAPOL-Key frame Key Data when using Extended Key ID */
-      offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_ptk_keyid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       proto_item_append_text(item, ": RSN PTK");
       break;
     }
+    case 13: /* OCI KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_oci_operating_class, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_oci_primary_channel_number,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_oci_frequency_segment_1,
+                          tvb, offset, 1, ENC_NA);
+      proto_item_append_text(item, ": OCI KDE");
+      break;
+    case 14: /* BIGTK KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_bigtk_key_id, tvb, offset,
+                          2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_bigtk_bipn, tvb, offset,
+                          6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_bigtk_bigtk, tvb, offset,
+                          tag_len - 9, ENC_NA);
+      proto_item_append_text(item, ": BIGTK KDE");
+      break;
+    case 16: /* MLO GTK KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_key_id, tvb,
+                          offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_tx, tvb,
+                          offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_reserved, tvb,
+                          offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_linkid, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_pn, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_gtk, tvb,
+                          offset, tag_len - 7, ENC_NA);
+
+      proto_item_append_text(item, ": MLO GTK KDE");
+      break;
+    case 17: /* MLO IGTK KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_key_id, tvb,
+                          offset, 2, ENC_NA);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_ipn, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_reserved, tvb,
+                          offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_linkid, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_igtk, tvb,
+                          offset, tag_len - 9, ENC_NA);
+
+      proto_item_append_text(item, ": MLO IGTK KDE");
+      break;
+    case 18: /* MLO BIGTK KDE */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_key_id, tvb,
+                          offset, 2, ENC_NA);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_ipn, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_reserved, tvb,
+                          offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_linkid, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_bigtk, tvb,
+                          offset, tag_len - 9, ENC_NA);
+
+      proto_item_append_text(item, ": MLO BIGTK KDE");
+      break;
+    case 19: /*
+              * MLO Link KDE, contains  Link info, MAC Addr and possibly
+              * RSNE and RSNXE
+              */
+      dissect_rsn_ie_mlo_link(item, tree, tvb, offset, tag_len, pinfo);
+      break;
     default:
-      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_unknown, tvb, offset, tag_len, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_unknown, tvb, offset,
+                          tag_len - 1, ENC_NA);
       proto_item_append_text(item, ": RSN UNKNOWN");
       break;
   }
@@ -35421,7 +35642,10 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       The Secure Bit is incorrectly set on rekeys for Windows clients for Message 2 and the Nonce is non-zero
       in Message 4 in Bug 11994 (Apple?) */
       /* When using AES-SIV without plaintext (i.e. only for integrity), the ciphertext has length 16 */
-      if (((eapol_key_mic_len == 0) && (eapol_data_len > 16)) || ((eapol_key_mic_len > 0) && (eapol_data_len > 0))) {
+      /* With MLO message 4 will have 12 bytes of data */
+      if (((eapol_key_mic_len == 0) && (eapol_data_len > 16)) ||
+          ((eapol_key_mic_len > 0) && (eapol_data_len != 0) &&
+           (eapol_data_len != 12))) {
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
 
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
@@ -46737,50 +46961,183 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0x03,
       NULL, HFILL }},
 
-    {&hf_ieee80211_rsn_ie_gtk_key,
-     {"GTK", "wlan.rsn.ie.gtk.key",
-      FT_BYTES, BASE_NONE, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_rsn_ie_gtk_keyid,
-     {"KeyID", "wlan.rsn.ie.gtk.keyid",
-      FT_UINT8, BASE_DEC, NULL, 0x03,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_rsn_ie_gtk_tx,
-     {"Tx", "wlan.rsn.ie.gtk.tx",
-      FT_UINT8, BASE_DEC, NULL, 0x04,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_rsn_ie_gtk_reserved1,
-     {"Reserved", "wlan.rsn.ie.gtk.reserved1",
-      FT_UINT8, BASE_HEX, NULL, 0xF8,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_rsn_ie_gtk_reserved2,
-     {"Reserved", "wlan.rsn.ie.gtk.reserved2",
-      FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
     {&hf_ieee80211_rsn_ie_pmkid,
      {"PMKID", "wlan.rsn.ie.pmkid",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_rsn_ie_igtk_keyid,
-     {"KeyId", "wlan.rsn.ie.igtk.keyid",
+    {&hf_ieee80211_rsn_ie_gtk_kde_data_type,
+     {"Data Type", "wlan.rsn.ie.kde.data_type",
+      FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(kde_selectors_rvals),
+      0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_kde_key_id,
+     {"Key ID", "wlan.rsn.ie.gtk_kde.key_id",
+      FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_kde_tx,
+     {"Tx", "wlan.rsn.ie.gtk_kde.tx",
+      FT_BOOLEAN, 8, TFS(&tfs_rsn_gtk_kde_tx), 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_kde_reserved1,
+     {"Reserved", "wlan.rsn.ie.gtk_kde.res1",
+      FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_kde_reserved2,
+     {"Reserved", "wlan.rsn.ie.gtk_kde.res2",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_kde_gtk,
+     {"GTK", "wlan.rsn.ie.gtk_kde.gtk",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mac_address_kde_mac,
+     {"MAC Address", "wlan.rsn.ie.mac_address_kde.mac_address",
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_kde_nonce,
+     {"Key Nonce", "wlan.rsn.ie.key_nonce_kde.nonce",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_kde_lifetime,
+     {"Key Lifetime", "wlan.rsn.ie.key_lifetime_kde.lifetime",
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_error_kde_res,
+     {"Reserved", "wlan.rsn.ie.error_kde.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_error_kde_error_type,
+     {"Error Type", "wlan.rsn.ie.error_kde.error_type",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_igtk_kde_keyid,
+     {"KeyId", "wlan.rsn.ie.igtk.kde.keyid",
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_rsn_ie_igtk_ipn,
-     {"IPN", "wlan.rsn.ie.igtk.ipn",
+    {&hf_ieee80211_rsn_ie_igtk_kde_ipn,
+     {"IPN", "wlan.rsn.ie.igtk.kde.ipn",
       FT_UINT48, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_rsn_ie_igtk_key,
-     {"IGTK", "wlan.rsn.ie.igtk.key",
+    {&hf_ieee80211_rsn_ie_igtk_kde_igtk,
+     {"IGTK", "wlan.rsn.ie.igtk.kde.igtk",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_oci_operating_class,
+     {"Operating Class", "wlan.rsn.ie.oci_kde.operating_class",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_oci_primary_channel_number,
+     {"Primary Channel Number", "wlan.rsn.ie.oci_kde.primary_channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_oci_frequency_segment_1,
+     {"Frequency Segment 1 Channel Number",
+      "wlan.rsn.ie.oci_kde.frequency_segment_1_channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_bigtk_key_id,
+     {"Key ID", "wlan.rsn.ie.bigtk_kde.key_id",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_bigtk_bipn,
+     {"BIPN", "wlan.rsn.ie.bigtk_kde.bipn",
+      FT_UINT48, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_bigtk_bigtk,
+     {"Key ID", "wlan.rsn.ie.bigtk_kde.bigtk",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_link_info,
+     {"Link Information", "wlan.rsn.ie.mlo_link.link_info",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_linkid,
+     {"LinkID", "wlan.rsn.ie.mlo_link.link_info.linkid",
+      FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_rnse_present,
+     {"RSNEInfo", "wlan.rsn.ie.mlo_link.link_info.rsneinfo",
+      FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_rnsxe_present,
+     {"RSNXEInfo", "wlan.rsn.ie.mlo_link.link_info.rsnxeinfo",
+      FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_reserved,
+     {"Reserved", "wlan.rsn.ie.mlo_link.link_info.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_mac_addr,
+     {"MAC Address", "wlan.rsn.ie.mlo_link.mac_addr",
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_gtk_kde_key_id,
+     {"Key ID", "wlan.rsn.ie.mlo_gtk.key_id",
+      FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_gtk_kde_tx,
+     {"Tx", "wlan.rsn.ie.mlo_gtk.tx",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_gtk_kde_reserved,
+     {"Reserved", "wlan.rsn.ie.mlo_gtk.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_gtk_kde_linkid,
+     {"LinkID", "wlan.rsn.ie.mlo_gtk.linkid",
+      FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_gtk_kde_pn,
+     {"PN", "wlan.rsn.ie.mlo_gtk.pn",
+      FT_UINT48, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_gtk_kde_gtk,
+     {"GTK", "wlan.rsn.ie.mlo_gtk.gtk",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_igtk_kde_key_id,
+     {"Key ID", "wlan.rsn.ie.mlo_igtk.key_id",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_igtk_kde_ipn,
+     {"IPN", "wlan.rsn.ie.mlo_igtk.ipn",
+      FT_UINT48, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_igtk_kde_reserved,
+     {"Reserved", "wlan.rsn.ie.mlo_igtk.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_igtk_kde_linkid,
+     {"LinkID", "wlan.rsn.ie.mlo_igtk.linkid",
+      FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_igtk_kde_igtk,
+     {"IGTK", "wlan.rsn.ie.mlo_igtk.igtk",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_bigtk_kde_key_id,
+     {"Key ID", "wlan.rsn.ie.mlo_bigtk.key_id",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_bigtk_kde_ipn,
+     {"IPN", "wlan.rsn.ie.mlo_bigtk.ipn",
+      FT_UINT48, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_bigtk_kde_reserved,
+     {"Reserved", "wlan.rsn.ie.mlo_bigtk.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_bigtk_kde_linkid,
+     {"LinkID", "wlan.rsn.ie.mlo_bigtk.linkid",
+      FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_mlo_bigtk_kde_bigtk,
+     {"BIGTK", "wlan.rsn.ie.mlo_bigtk.bigtk",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_ie_unknown,
      {"RSN Unknown", "wlan.rsn.ie.unknown",
@@ -51031,6 +51388,8 @@ proto_register_ieee80211(void)
     &ett_rsn_cap_tree,
     &ett_rsn_pmkid_tree,
     &ett_rsn_gmcs_tree,
+
+    &ett_kde_mlo_link_info,
 
     &ett_wpa_mcs_tree,
     &ett_wpa_ucs_tree,
