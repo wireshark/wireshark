@@ -7615,6 +7615,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Конечные Бит/с</translation>
     </message>
     <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Совет.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -14297,15 +14301,6 @@ a:hover {
         <source>No Keys</source>
         <translation>Нет Ключей</translation>
     </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключ)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключи)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключи)</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Данные Raw (*.bin *.dat *.raw);;Все Файлы (</translation>
@@ -14375,10 +14370,10 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation>
-            <numerusform>Удалить комментарии из пакета %n</numerusform>
-            <numerusform>Удалить комментарии из пакета(ов) %n</numerusform>
-            <numerusform>Удалить комментарии из пакета(ов) %n</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -14399,10 +14394,10 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключ)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключи)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключи)</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

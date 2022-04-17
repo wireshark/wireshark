@@ -7564,6 +7564,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>終端ビット毎秒</translation>
     </message>
     <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -12125,7 +12129,7 @@ a:hover {
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 へようこそ</translation>
     </message>
     <message>
         <source>All interfaces shown</source>

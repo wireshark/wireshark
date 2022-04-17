@@ -7561,6 +7561,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bit/sn Bitiş</translation>
     </message>
     <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Bir ipucu.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -12122,7 +12126,7 @@ a:hover {
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 e Hoşgeldiniz</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -14310,7 +14314,7 @@ a:hover {
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
         <translation>
-            <numerusform>%n paketinden() yorumları sil</numerusform>
+            <numerusform>%n paket(inden) yorumları sil</numerusform>
         </translation>
     </message>
     <message>

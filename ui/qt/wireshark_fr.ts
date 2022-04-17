@@ -7583,6 +7583,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Octets/s de Fin</translation>
     </message>
     <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Un indice.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>

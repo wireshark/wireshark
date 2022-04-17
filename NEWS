@@ -91,6 +91,8 @@ Wireshark 3.7.0 Release Notes
         • Logical AND now has higher precedence than logical OR, in line
        with most programming languages.
 
+        • Adds new display filter functions max() and min().
+
      • text2pcap and "Import from Hex Dump":
 
         • text2pcap supports writing the output file in all the capture
@@ -218,7 +220,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-04-04 15:52:11 UTC
+  Last updated 2022-04-13 13:07:01 UTC
 
  References
 

@@ -7588,6 +7588,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Bits/s (bei denen das Protokoll die höchste Ebene hat)</translation>
     </message>
     <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Hinweis&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -14264,14 +14268,6 @@ text-decoration: underline;
     <message>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL Sitzungsschlüssel exportieren (%Ln Schlüssel)</numerusform>
-            <numerusform>SSL Sitzungsschlüssel exportieren (%Ln Schlüssel)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

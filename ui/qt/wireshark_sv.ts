@@ -7588,6 +7588,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Slutbit/s</translation>
     </message>
     <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Ett tips.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -14264,14 +14268,6 @@ a:hover {
     <message>
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

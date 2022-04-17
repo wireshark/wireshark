@@ -7588,6 +7588,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Bit/s finali</translation>
     </message>
     <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Un suggerimento.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -12148,7 +12152,7 @@ a:hover {
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Benvenuto in %1</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -14264,8 +14268,8 @@ a:hover {
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="vanished">
-            <numerusform>Esporta chiavi della sessione SSL (%Ln chiave)</numerusform>
-            <numerusform>Esporta chiavi della sessione SSL (%Ln chiavi)</numerusform>
+            <numerusform>Esporta chiavi di sessione SSL (%Ln chiave)</numerusform>
+            <numerusform>Esporta chiavi di sessione SSL (%Ln chiavi)</numerusform>
         </translation>
     </message>
     <message>
