@@ -19,9 +19,6 @@ import subprocess
 
 # TODO:
 # Attempt to check for allowed encoding types (most likely will be literal values |'d)?
-# Looking for missing items doesn't work well enough yet.  Could improve by:
-# - checking common prefix for all items in dissector (some are a mess..)
-# - look for static declaration of item in dissector file, add as property to Item
 
 
 # Try to exit soon after Ctrl-C is pressed.
@@ -91,8 +88,7 @@ class APICheck:
             contents = f.read()
             lines = contents.splitlines()
             total_lines = len(lines)
-            line_number = 1
-            for line in lines:
+            for line_number,line in enumerate(lines):
                 # Want to check this, and next few lines
                 to_check = lines[line_number-1] + '\n'
                 # Nothing to check if function name isn't in it
@@ -108,7 +104,6 @@ class APICheck:
                         self.calls.append(Call(m.group(2),
                                                line_number=line_number,
                                                length=(m.group(3) if (num_groups==3) else None)))
-                line_number += 1
 
 
 
@@ -190,8 +185,7 @@ class ProtoTreeAddItemCheck(APICheck):
             contents = f.read()
             lines = contents.splitlines()
             total_lines = len(lines)
-            line_number = 1
-            for line in lines:
+            for line_number,line in enumerate(lines):
                 # Want to check this, and next few lines
                 to_check = lines[line_number-1] + '\n'
                 # Nothing to check if function name isn't in itk)
@@ -203,7 +197,6 @@ class ProtoTreeAddItemCheck(APICheck):
                     m = self.p.search(to_check)
                     if m:
                         self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
-                line_number += 1
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
         # For now, only complaining if length if call is longer than the item type implies.
@@ -220,7 +213,6 @@ class ProtoTreeAddItemCheck(APICheck):
                         print('Warning:', self.file + ':' + str(call.line_number),
                               self.fun_name + ' called for', call.hf_name, ' - ',
                               'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
-
                         warnings_found += 1
             elif check_missing_items:
                 if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
@@ -286,6 +278,9 @@ class Item:
         self.label = label
 
         self.mask = mask
+
+        global warnings_found
+
         if check_mask or check_consecutive:
             self.set_mask_value()
 
@@ -294,10 +289,7 @@ class Item:
                 if label != Item.previousItem.label:
                     print('Warning: ' + filename + ': - filter "' + filter +
                           '" appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
-            if Item.previousItem and self.mask_value and (Item.previousItem.mask_value == self.mask_value):
-                if label != Item.previousItem.label:
-                    print('Warning: ' + filename + ': - mask ' + self.mask +
-                          ' appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
+                    warnings_found += 1
 
             Item.previousItem = self
 
@@ -306,12 +298,16 @@ class Item:
         if check_label:
             if label.startswith(' ') or label.endswith(' '):
                 print('Warning: ' + filename + ' filter "' + filter +  '" label' + label + '" begins or ends with a space')
+                warnings_found += 1
+
             if (label.count('(') != label.count(')') or
                 label.count('[') != label.count(']') or
                 label.count('{') != label.count('}')):
                 print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
+                warnings_found += 1
             if item_type != 'FT_NONE' and label.endswith(':'):
                 print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'ends with an unnecessary colon')
+                warnings_found += 1
 
         self.item_type = item_type
         self.type_modifier = type_modifier
@@ -391,6 +387,7 @@ class Item:
         while n <= 63:
             if self.check_bit(self.mask_value, n):
                 print('Warning:', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
+                warnings_found += 1
                 return
             n += 1
 
