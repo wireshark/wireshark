@@ -96,6 +96,7 @@ then
 	exit 1
 fi
 
+PM_OPT=
 case $PM in
 	zypper)
 		PM_OPT="--non-interactive"
