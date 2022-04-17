@@ -11,27 +11,24 @@
 # that way.
 #
 
-if [ "$1" = "--help" ]
-then
+set -e -u -o pipefail
+
+function print_usage() {
 	printf "\\nUtility to setup a alpine system for Wireshark Development.\\n"
 	printf "The basic usage installs the needed software\\n\\n"
 	printf "Usage: %s [--install-optional] [--install-deb-deps] [...other options...]\\n" "$0"
 	printf "\\t--install-optional: install optional software as well\\n"
 	printf "\\t[other]: other options are passed as-is to apt\\n"
-	exit 1
-fi
-
-# Check if the user is root
-if [ "$(id -u)" -ne 0 ]
-then
-	echo "You must be root."
-	exit 1
-fi
+}
 
 ADDITIONAL=0
 OPTIONS=
 for arg; do
 	case $arg in
+		--help)
+			print_usage
+			exit 0
+			;;
 		--install-optional)
 			ADDITIONAL=1
 			;;
@@ -40,6 +37,13 @@ for arg; do
 			;;
 	esac
 done
+
+# Check if the user is root
+if [ "$(id -u)" -ne 0 ]
+then
+	echo "You must be root."
+	exit 1
+fi
 
 BASIC_LIST="cmake \
 	ninja \
