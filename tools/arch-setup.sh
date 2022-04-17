@@ -11,6 +11,8 @@
 # that way.
 #
 
+set -e -u -o pipefail
+
 if [ "$1" = "--help" ]
 then
 	printf "\\nUtility to setup a pacman-based system for Wireshark development.\\n"
@@ -112,7 +114,7 @@ then
 fi
 
 # Partial upgrades are unsupported.
-pacman -Syu --needed $ACTUAL_LIST $OPTIONS || exit 2
+pacman --sync --refresh --needed $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ $ADDITIONAL -eq 0 ]
 then

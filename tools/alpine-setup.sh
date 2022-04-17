@@ -11,6 +11,8 @@
 # that way.
 #
 
+set -e -u -o pipefail
+
 if [ "$1" = "--help" ]
 then
 	printf "\\nUtility to setup a alpine system for Wireshark Development.\\n"
