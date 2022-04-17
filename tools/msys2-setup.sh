@@ -11,8 +11,7 @@
 # that way.
 #
 
-if [ "$1" = "--help" ]
-then
+function print_usage() {
 	printf "\\nUtility to setup an MSYS2 MinGW-w64 system for Wireshark development.\\n"
 	printf "The basic usage installs the needed software\\n\\n"
 	printf "Usage: %s [--install-optional] [...other options...]\\n" "$0"
@@ -21,8 +20,7 @@ then
 	printf "\\t--install-all: install everything\\n"
 	printf "\\t[other]: other options are passed as-is to pacman\\n"
 	printf "\\tPass --noconfirm to bypass any \"are you sure?\" messages.\\n"
-	exit 1
-fi
+}
 
 ADDITIONAL=0
 TESTDEPS=0
@@ -30,6 +28,10 @@ LUA=0
 OPTIONS=
 for arg; do
 	case $arg in
+		--help)
+			print_usage
+			exit 0
+			;;
 		--install-optional)
 			ADDITIONAL=1
 			;;

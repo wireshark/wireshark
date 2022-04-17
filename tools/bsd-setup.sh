@@ -13,22 +13,13 @@
 # that way.
 #
 
-if [ "$1" = "--help" ]
-then
+function print_usage() {
 	echo "\nUtility to setup a bsd-based system for Wireshark Development.\n"
 	echo "The basic usage installs the needed software\n\n"
 	echo "Usage: $0 [--install-optional] [...other options...]\n"
 	echo "\t--install-optional: install optional software as well"
 	echo "\t[other]: other options are passed as-is to pkg manager.\n"
-	exit 1
-fi
-
-# Check if the user is root
-if [ $(id -u) -ne 0 ]
-then
-	echo "You must be root."
-	exit 1
-fi
+}
 
 OPTIONS=
 for op
@@ -36,10 +27,21 @@ do
 	if [ "$op" = "--install-optional" ]
 	then
 		ADDITIONAL=1
+	elif [ "$op" = "--help" ]
+	then
+		print_usage
+		exit 0
 	else
 		OPTIONS="$OPTIONS $op"
 	fi
 done
+
+# Check if the user is root
+if [ $(id -u) -ne 0 ]
+then
+	echo "You must be root."
+	exit 1
+fi
 
 BASIC_LIST="\
 	cmake \
