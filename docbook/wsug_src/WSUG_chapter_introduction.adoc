@@ -300,7 +300,7 @@ So he started contributing dissectors and contributing patches.
 
 The list of people who have contributed to the project has become very long
 since then, and almost all of them started with a protocol that they needed that
-Wireshark or did not already handle. So they copied an existing dissector and
+Wireshark did not already handle. So they copied an existing dissector and
 contributed the code back to the team.
 
 In 2006 the project moved house and re-emerged under a new name: Wireshark.
