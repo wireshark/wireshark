@@ -96,7 +96,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
     /* If the field info isn't related to a protocol but to a field,
      * don't count them, as they don't belong to any protocol.
      * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
-    if (finfo->hfinfo->parent != -1) {
+    if (!proto_registrar_is_protocol(finfo->hfinfo->id)) {
         /* Skip this element, use parent status node */
         stat_node = parent_stat_node;
         stats = STAT_NODE_STATS(stat_node);
