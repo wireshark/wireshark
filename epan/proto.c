@@ -7111,6 +7111,13 @@ proto_item_set_len(proto_item *pi, const gint length)
 {
 	field_info *fi;
 
+	/* XXX: We actually want to set the length of non visible proto_items
+         * that are protocols, if we're not faking protocols, so that
+         * ui/proto_hier_stats can work correctly. (#17877) But we don't
+         * want to set the length of the protocol accidentally when intending
+         * to set the length of a faked child. However, we can't tell whether
+         * this is called by the original item or the child when faking items.
+         */
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
 	fi = PITEM_FINFO(pi);
@@ -7272,6 +7279,21 @@ proto_item_get_subtree(proto_item *pi) {
 
 proto_item *
 proto_item_get_parent(const proto_item *ti) {
+	/* XXX: If we're faking items, this will return the parent of the
+	 * faked item, which may not be the logical parent expected.
+	 * We have no way of knowing exactly which real item the fake
+	 * item refers to here (the original item or one of its children
+	 * using it as a fake), and thus whether the parent should be the
+	 * faked item itself or the faked item's parent.
+	 *
+	 * In that case, there's a good chance we end up returning the
+	 * root node of the protocol tree, which has "PNODE_FINFO()" null.
+	 *
+	 * If we later add items to _that_, they will not be faked even though
+	 * they _should_ be, hurting performance (#8069). Also protocol
+	 * hierarchy stats (which fakes everything but protocols) may
+	 * behave oddly if unexpected items are added under the root node.
+	 */
 	if (!ti)
 		return NULL;
 	return ti->parent;
@@ -7279,6 +7301,7 @@ proto_item_get_parent(const proto_item *ti) {
 
 proto_item *
 proto_item_get_parent_nth(proto_item *ti, int gen) {
+	/* XXX: Same issue as above, even more so. */
 	if (!ti)
 		return NULL;
 	while (gen--) {
@@ -7299,6 +7322,7 @@ proto_tree_get_parent(proto_tree *tree) {
 
 proto_tree *
 proto_tree_get_parent_tree(proto_tree *tree) {
+	/* XXX: Same issue as proto_item_get_parent */
 	if (!tree)
 		return NULL;
 
