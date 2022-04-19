@@ -14,7 +14,9 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-// NOTE: Wireshark 4.0 probably won’t support 32-bit Windows.
+NOTE: This is the last release branch that supports 32-bit Windows.
+Updates will no longer be available after May 22, 2024 on that platform.
+wsbuglink:17779[]
 
 // The Windows installers now ship with Npcap 1.31.
 // They previously shipped with Npcap 1.10.
