@@ -2699,6 +2699,16 @@ if(BUILD_logwolf AND QT_FOUND)
 	endif(QT_WINDEPLOYQT_EXECUTABLE)
 endif()
 
+if (BUILD_logwolf AND SINSP_FOUND)
+	file(MAKE_DIRECTORY ${LOGWOLF_PLUGIN_DIR}/falco)
+	add_custom_target(copy_falco_plugins)
+	add_custom_command(TARGET copy_falco_plugins
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${SINSP_PLUGINS} ${LOGWOLF_PLUGIN_DIR}/falco
+	)
+	add_dependencies(logwolf copy_falco_plugins)
+endif()
+
 # Common properties for CLI executables
 macro(set_extra_executable_properties _executable _folder)
 	set_target_properties(${_executable} PROPERTIES
