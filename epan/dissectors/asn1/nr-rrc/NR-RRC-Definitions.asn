@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.7.0 (2021-12)
+-- 3GPP TS 38.331 V16.8.0 (2022-03)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -8486,6 +8486,8 @@ BandCombinationList-v1640 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v1650 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1650
 
+BandCombinationList-v1680 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1680
+
 BandCombinationList-UplinkTxSwitch-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-r16
 
 BandCombinationList-UplinkTxSwitch-v1630 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1630
@@ -8569,6 +8571,10 @@ BandCombination-v1650 ::=          SEQUENCE {
     ca-ParametersNRDC-v1650             CA-ParametersNRDC-v1650                 OPTIONAL
 }
 
+BandCombination-v1680 ::=          SEQUENCE {
+    intrabandConcurrentOperationPowerClass-r16 SEQUENCE (SIZE (1..maxBandComb)) OF IntraBandPowerClass-r16     OPTIONAL
+}
+
 BandCombination-UplinkTxSwitch-r16 ::= SEQUENCE {
     bandCombination-r16                 BandCombination,
     bandCombination-v1540               BandCombination-v1540                      OPTIONAL,
@@ -8580,7 +8586,10 @@ BandCombination-UplinkTxSwitch-r16 ::= SEQUENCE {
     supportedBandPairListNR-r16         SEQUENCE (SIZE (1..maxULTxSwitchingBandPairs)) OF ULTxSwitchingBandPair-r16,
     uplinkTxSwitching-OptionSupport-r16 ENUMERATED {switchedUL, dualUL, both}      OPTIONAL,
     uplinkTxSwitching-PowerBoosting-r16 ENUMERATED {supported}                     OPTIONAL,
-    ...
+    ...,
+    [[
+    uplinkTxSwitching-PUSCH-TransCoherence-r16     ENUMERATED {nonCoherent, fullCoherent}   OPTIONAL
+    ]]
 }
 
 BandCombination-UplinkTxSwitch-v1630 ::=    SEQUENCE {
@@ -8643,6 +8652,8 @@ BandParameters-v1610 ::=         SEQUENCE {
 }
 
 ScalingFactorSidelink-r16 ::=       ENUMERATED {f0p4, f0p75, f0p8, f1}
+
+IntraBandPowerClass-r16 ::=         ENUMERATED {pc2, pc3, spare6, spare5, spare4, spare3, spare2, spare1}
 
 -- TAG-BANDCOMBINATIONLIST-STOP
 -- TAG-BANDCOMBINATIONLISTSIDELINKEUTRANR-START
@@ -10897,6 +10908,9 @@ RF-Parameters ::=                                   SEQUENCE {
     ]],
     [[
     supportedBandCombinationList-UplinkTxSwitch-v1670   BandCombinationList-UplinkTxSwitch-v1670    OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1680                  BandCombinationList-v1680                   OPTIONAL
     ]]
 }
 
@@ -11304,6 +11318,10 @@ BandSidelink-r16 ::=  SEQUENCE {
     sl-openLoopPC-RSRP-ReportSidelink-r16         ENUMERATED {supported}                            OPTIONAL,
     --13-1
     sl-Rx-256QAM-r16                              ENUMERATED {supported}                            OPTIONAL
+    ]],
+    [[
+    ue-PowerClassSidelink-r16                         ENUMERATED {pc2, pc3, spare6, spare5, spare4, spare3, spare2, spare1}
+                                                                                                                     OPTIONAL
     ]]
 }
 
@@ -13013,8 +13031,7 @@ maxNrofSRS-PosResourceSets-1-r16        INTEGER ::= 15      -- Maximum number of
 maxNrofSRS-Resources                    INTEGER ::= 64      -- Maximum number of SRS resources.
 maxNrofSRS-Resources-1                  INTEGER ::= 63      -- Maximum number of SRS resources minus 1.
 maxNrofSRS-PosResources-r16             INTEGER ::= 64      -- Maximum number of SRS Positioning resources.
-maxNrofSRS-PosResources-1-r16           INTEGER ::= 63      -- Maximum number of SRS Positioning resources in an SRS Positioning
-                                                            -- resource set minus 1.
+maxNrofSRS-PosResources-1-r16           INTEGER ::= 63      -- Maximum number of SRS Positioning resources minus 1.
 maxNrofSRS-ResourcesPerSet              INTEGER ::= 16      -- Maximum number of SRS resources in an SRS resource set
 maxNrofSRS-TriggerStates-1              INTEGER ::= 3       -- Maximum number of SRS trigger states minus 1, i.e., the largest code point.
 maxNrofSRS-TriggerStates-2              INTEGER ::= 2       -- Maximum number of SRS trigger states minus 2.
