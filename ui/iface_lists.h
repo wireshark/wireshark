@@ -25,9 +25,22 @@ extern "C" {
 extern void fill_in_local_interfaces(void(*update_cb)(void));
 
 /*
+ * Get the global interface list.  Generate it if we haven't
+ * done so already.
+ * @param allowed_types only fill in types provided by the list
+ */
+extern void fill_in_local_interfaces_filtered(GList * allowed_types, void(*update_cb)(void));
+
+/*
  * Update the global interface list.
  */
 extern void scan_local_interfaces(void (*update_cb)(void));
+
+/*
+ * Update the global interface list.
+ * @param allowed_types only fill in types provided by the list
+ */
+extern void scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void));
 
 /*
  * Hide the interfaces

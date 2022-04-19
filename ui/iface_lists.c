@@ -124,6 +124,17 @@ get_iface_display_name(const gchar *description, const if_info_t *if_info)
 void
 scan_local_interfaces(void (*update_cb)(void))
 {
+    scan_local_interfaces_filtered((GList *)0, update_cb);
+}
+
+/*
+ * Fetch the list of local interfaces with capture_interface_list()
+ * and set the list of "all interfaces" in *capture_opts to include
+ * those interfaces.
+ */
+void
+scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
+{
     GList             *if_entry, *lt_entry, *if_list;
     if_info_t         *if_info, temp;
     gchar             *descr;
@@ -202,6 +213,14 @@ scan_local_interfaces(void (*update_cb)(void))
         if (strstr(if_info->name, "rpcap:")) {
             continue;
         }
+        /* Filter out all interfaces, which are not allowed to be scanned */
+        if (allowed_types != NULL)
+        {
+            if(g_list_find(allowed_types, GUINT_TO_POINTER((guint) if_info->type)) == NULL) {
+                continue;
+            }
+        }
+
         device.name = g_strdup(if_info->name);
         device.friendly_name = g_strdup(if_info->friendly_name);
         device.vendor_description = g_strdup(if_info->vendor_description);
@@ -370,6 +389,12 @@ scan_local_interfaces(void (*update_cb)(void))
         found = FALSE;
         for (i = 0; i < (int)global_capture_opts.all_ifaces->len; i++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+
+            /* Filter out all interfaces, which are not allowed to be scanned */
+            if (allowed_types != NULL && g_list_find(allowed_types, GINT_TO_POINTER(interface_opts->if_type)) == NULL) {
+                continue;
+            }
+
             if (strcmp(device.name, interface_opts->name) == 0) {
                 found = TRUE;
                 break;
@@ -427,6 +452,17 @@ scan_local_interfaces(void (*update_cb)(void))
 void
 fill_in_local_interfaces(void(*update_cb)(void))
 {
+    fill_in_local_interfaces_filtered((GList *)0, update_cb);
+}
+
+/*
+ * Get the global interface list.  Generate it if we haven't done so
+ * already.  This can be quite time consuming the first time, so
+ * record how long it takes in the info log.
+ */
+void
+fill_in_local_interfaces_filtered(GList * filter_list, void(*update_cb)(void))
+{
     gint64 start_time;
     double elapsed;
     static gboolean initialized = FALSE;
@@ -437,7 +473,7 @@ fill_in_local_interfaces(void(*update_cb)(void))
 
     if (!initialized) {
         /* do the actual work */
-        scan_local_interfaces(update_cb);
+        scan_local_interfaces_filtered(filter_list, update_cb);
         initialized = TRUE;
     }
     /* log how long it took */

@@ -102,7 +102,9 @@ public:
 
     void allSystemsGo();
     void emitLocalInterfaceEvent(const char *ifname, int added, int up);
-    void refreshLocalInterfaces();
+
+    virtual void refreshLocalInterfaces();
+
     struct _e_prefs * readConfigurationFiles(bool reset);
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString filename, qint64 size, bool accessible);
