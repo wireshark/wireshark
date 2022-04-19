@@ -201,22 +201,6 @@ Source Package:
     paths:
       - wireshark-*.tar.*
 
-CentOS 7 RPM Package:
-  extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
-  script:
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake3 -GNinja ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja-build rpm-package
-CentOS 7 RPM Test:
-  extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
-  script:
-    - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
-    - tshark --version
-  needs: [ 'CentOS 7 RPM Package' ]
-
 # Job to generate packages for Debian stable
 Debian Stable APT Package:
   extends: .build-linux
@@ -369,47 +353,6 @@ Win64 Package:
       if (Test-Path env:S3_DESTINATION_WIN64) {
         foreach ($package in $packages) {
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN64/"
-        }
-      }
-    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
-
-Win32 Package:
-  extends: .build-windows
-  rules: !reference [.if-w-w-only-merged]
-  tags:
-    - wireshark-win32-package
-  before_script:
-    - $env:WIRESHARK_BASE_DIR = "C:\Development"
-    - $env:Configuration = "RelWithDebInfo"
-    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
-    - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019"
-    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsamd64_x86.bat`" && set > %temp%\vcvars.txt"
-    - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
-    - $env:Platform = "Win32"
-    - mkdir build
-    - cd build
-  script:
-    - perl ../tools/make-version.pl --set-release
-    - cmake -G "Visual Studio 17 2022" -A Win32 -DENABLE_LTO=off ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
-    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
-    - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
-    - msbuild /verbosity:minimal nsis_package.vcxproj
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\nsis
-    - msbuild /verbosity:minimal portableapps_package.vcxproj
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps
-    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-win??-*.exe packaging\portableapps\WiresharkPortable??_*.paf.exe
-    - msbuild /verbosity:minimal pdb_zip_package.vcxproj
-    - C:\gitlab-builds\bin\mse-scan.ps1
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-win??-*.zip"
-    - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
-    - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
-    - |
-      if (Test-Path env:S3_DESTINATION_WIN32) {
-        foreach ($package in $packages) {
-          aws s3 cp "$package" "$env:S3_DESTINATION_WIN32/"
         }
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
