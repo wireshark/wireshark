@@ -1151,7 +1151,7 @@ enip_conv_info_t* get_conversation_info_one_direction(packet_info* pinfo, addres
       copy_address_wmem(wmem_file_scope(), &connid_info->ipaddress, dst_address);
    }
 
-   address dest_address;
+   address dest_address = ADDRESS_INIT_NONE;
    if (connid_info->ipaddress.type == AT_IPv6)
    {
       dest_address.type = AT_IPv6;
