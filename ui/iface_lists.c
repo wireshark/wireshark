@@ -148,7 +148,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
     link_row          *link = NULL;
     data_link_info_t  *data_link_info;
     interface_t       device;
-    GString           *ip_str;
+    GString           *ip_str = NULL;
     interface_options *interface_opts;
     gboolean          found = FALSE;
     static gboolean   running = FALSE;
@@ -208,7 +208,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         memset(&device, 0, sizeof(device));
         if_info = (if_info_t *)if_entry->data;
-        ip_str = g_string_new("");
         ips = 0;
         if (strstr(if_info->name, "rpcap:")) {
             continue;
@@ -245,6 +244,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         device.type = if_info->type;
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
         caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, NULL, NULL, update_cb);
+        ip_str = g_string_new("");
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             temp_addr = g_new0(if_addr_t, 1);
             if (ips != 0) {
@@ -281,6 +281,9 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                 temp.addrs = g_slist_append(temp.addrs, temp_addr);
             }
         }
+        device.addresses = g_strdup(ip_str->str);
+        g_string_free(ip_str, TRUE);
+
 #ifdef HAVE_PCAP_REMOTE
         device.local = TRUE;
         device.remote_opts.src_type = CAPTURE_IFLOCAL;
@@ -332,7 +335,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
 #endif
             device.active_dlt = -1;
         }
-        device.addresses = g_strdup(ip_str->str);
+
         device.no_addresses = ips;
         device.local = TRUE;
         device.if_info = temp;
@@ -374,7 +377,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
             free_if_capabilities(caps);
         }
 
-        g_string_free(ip_str, TRUE);
         count++;
     }
     free_interface_list(if_list);
