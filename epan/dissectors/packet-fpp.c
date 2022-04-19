@@ -517,6 +517,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         /* will be used for seeding the crc calculation */
         if (!PINFO_FD_VISITED(pinfo)) {
             conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction, 0);
+            /* XXX Is this needed? */
             find_conversation_pinfo(pinfo, 0);
         }
     }
@@ -549,7 +550,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     if (pck_type == FPP_Packet_Init) {
         /* Add data to this new conversation during first iteration*/
-        if (!PINFO_FD_VISITED(pinfo)) {
+        if (conv && !PINFO_FD_VISITED(pinfo)) {
             ctx = wmem_new(wmem_file_scope(), struct _fpp_ctx_t);
             init_fpp_ctx(ctx, get_cont_by_start(smd2), crc);
             ctx->size = frag_size;
@@ -561,7 +562,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             end of continuation */
             drop_fragments(pinfo);
 
-            if (!PINFO_FD_VISITED(pinfo)) {
+            if (conv && !PINFO_FD_VISITED(pinfo)) {
                 drop_conversation(conv);
             }
 

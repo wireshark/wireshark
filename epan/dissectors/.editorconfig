@@ -746,10 +746,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[packet-fpp.[ch]]
-indent_style = tab
-indent_size = tab
-
 [packet-fr.[ch]]
 indent_size = 2
 
