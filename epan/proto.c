@@ -478,6 +478,8 @@ static const char *reserved_filter_names[] = {
 	"and",
 	"or",
 	"in",
+	"any",
+	"all",
 	NULL
 };
 

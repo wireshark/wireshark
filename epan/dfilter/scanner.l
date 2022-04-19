@@ -153,6 +153,8 @@ hyphen-bytes	{hex2}(-{hex2})+
 "{"		return simple(TOKEN_LBRACE);
 ".."		return simple(TOKEN_DOTDOT);
 "}"		return simple(TOKEN_RBRACE);
+"any"		return simple(TOKEN_ANY);
+"all"		return simple(TOKEN_ALL);
 
 "=="		return test(TOKEN_TEST_ANY_EQ);
 "eq"		return test(TOKEN_TEST_ANY_EQ);

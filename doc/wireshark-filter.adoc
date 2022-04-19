@@ -77,6 +77,16 @@ operators, their aliases and meaning:
         all_eq, ===   All fields must be equal
         any_ne, !==   Any fields must be not equal
 
+The operators "any" or "all" can be used with any comparison operator to make
+the test match any or all fields:
+
+    all tcp.port > 1024
+
+    any ip.addr != 1.1.1.1
+
+The "any" and "all" modifiers take precedence over comparison operators such
+as "===" and "any_eq".
+
 === Search and match operators
 
 Additional operators exist expressed only in English, not C-like syntax:

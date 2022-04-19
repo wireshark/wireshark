@@ -65,6 +65,12 @@ typedef enum {
 	TEST_OP_IN
 } test_op_t;
 
+typedef enum {
+	ST_MATCH_DEF,
+	ST_MATCH_ANY,
+	ST_MATCH_ALL,
+} test_match_t;
+
 typedef gpointer        (*STTypeNewFunc)(gpointer);
 typedef gpointer        (*STTypeDupFunc)(gconstpointer);
 typedef void            (*STTypeFreeFunc)(gpointer);

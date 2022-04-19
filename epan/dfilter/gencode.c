@@ -28,6 +28,61 @@ gencode(dfwork_t *dfw, stnode_t *st_node);
 static dfvm_value_t *
 gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr);
 
+static dfvm_opcode_t
+select_opcode(dfvm_opcode_t op, test_match_t how)
+{
+	if (how == ST_MATCH_DEF)
+		return op;
+
+	switch (op) {
+		case ALL_EQ:
+		case ALL_NE:
+		case ALL_GT:
+		case ALL_GE:
+		case ALL_LT:
+		case ALL_LE:
+		case ALL_ZERO:
+		case ALL_CONTAINS:
+		case ALL_MATCHES:
+		case ALL_IN_RANGE:
+			return how == ST_MATCH_ALL ? op : op + 1;
+		case ANY_EQ:
+		case ANY_NE:
+		case ANY_GT:
+		case ANY_GE:
+		case ANY_LT:
+		case ANY_LE:
+		case ANY_ZERO:
+		case ANY_CONTAINS:
+		case ANY_MATCHES:
+		case ANY_IN_RANGE:
+			return how == ST_MATCH_ANY ? op : op - 1;
+		case IF_TRUE_GOTO:
+		case IF_FALSE_GOTO:
+		case CHECK_EXISTS:
+		case CHECK_EXISTS_R:
+		case NOT:
+		case RETURN:
+		case READ_TREE:
+		case READ_TREE_R:
+		case READ_REFERENCE:
+		case PUT_FVALUE:
+		case MK_SLICE:
+		case MK_BITWISE_AND:
+		case MK_MINUS:
+		case DFVM_ADD:
+		case DFVM_SUBTRACT:
+		case DFVM_MULTIPLY:
+		case DFVM_DIVIDE:
+		case DFVM_MODULO:
+		case CALL_FUNCTION:
+		case STACK_PUSH:
+		case STACK_POP:
+			break;
+	}
+	ws_assert_not_reached();
+}
+
 static void
 dfw_append_insn(dfwork_t *dfw, dfvm_insn_t *insn)
 {
@@ -298,7 +353,8 @@ gen_relation_insn(dfwork_t *dfw, dfvm_opcode_t op,
 }
 
 static void
-gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_arg2)
+gen_relation(dfwork_t *dfw, dfvm_opcode_t op, test_match_t how,
+					stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	GSList		*jumps = NULL;
 	dfvm_value_t	*val1, *val2;
@@ -308,6 +364,7 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 	val2 = gen_entity(dfw, st_arg2, &jumps);
 
 	/* Then combine them in a DFVM insruction */
+	op = select_opcode(op, how);
 	gen_relation_insn(dfw, op, val1, val2, NULL, NULL);
 
 	/* If either of the relation arguments need an "exit" instruction
@@ -331,7 +388,8 @@ fixup_jumps(gpointer data, gpointer user_data)
 /* Generate the code for the in operator.  It behaves much like an OR-ed
  * series of == tests, but without the redundant existence checks. */
 static void
-gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
+gen_relation_in(dfwork_t *dfw, test_match_t how,
+				stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*jmp;
@@ -339,6 +397,7 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 	GSList		*node_jumps = NULL;
 	dfvm_value_t	*val1, *val2, *val3;
 	stnode_t	*node1, *node2;
+	dfvm_opcode_t	op;
 	GSList		*nodelist_head, *nodelist;
 
 	/* Create code for the LHS of the relation */
@@ -358,13 +417,15 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 			val3 = gen_entity(dfw, node2, &node_jumps);
 
 			/* Add test to see if the item is in range. */
-			gen_relation_insn(dfw, ANY_IN_RANGE, val1, val2, val3, NULL);
+			op = select_opcode(ANY_IN_RANGE, how);
+			gen_relation_insn(dfw, op, val1, val2, val3, NULL);
 		} else {
 			/* Normal element: add equality test. */
 			val2 = gen_entity(dfw, node1, &node_jumps);
 
 			/* Add test to see if the item matches */
-			gen_relation_insn(dfw, ANY_EQ, val1, val2, NULL, NULL);
+			op = select_opcode(ANY_EQ, how);
+			gen_relation_insn(dfw, op, val1, val2, NULL, NULL);
 		}
 
 		/* Exit as soon as we find a match */
@@ -560,12 +621,14 @@ static void
 gen_test(dfwork_t *dfw, stnode_t *st_node)
 {
 	test_op_t	st_op;
+	test_match_t	st_how;
 	stnode_t	*st_arg1, *st_arg2;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*jmp;
 
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
+	st_how = sttype_test_get_match(st_node);
 
 	switch (st_op) {
 		case TEST_OP_UNINITIALIZED:
@@ -603,47 +666,47 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			break;
 
 		case TEST_OP_ALL_EQ:
-			gen_relation(dfw, ALL_EQ, st_arg1, st_arg2);
+			gen_relation(dfw, ALL_EQ, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_ANY_EQ:
-			gen_relation(dfw, ANY_EQ, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_EQ, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_ALL_NE:
-			gen_relation(dfw, ALL_NE, st_arg1, st_arg2);
+			gen_relation(dfw, ALL_NE, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_ANY_NE:
-			gen_relation(dfw, ANY_NE, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_NE, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_GT:
-			gen_relation(dfw, ANY_GT, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_GT, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_GE:
-			gen_relation(dfw, ANY_GE, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_GE, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_LT:
-			gen_relation(dfw, ANY_LT, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_LT, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_LE:
-			gen_relation(dfw, ANY_LE, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_LE, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_CONTAINS:
-			gen_relation(dfw, ANY_CONTAINS, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_CONTAINS, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_MATCHES:
-			gen_relation(dfw, ANY_MATCHES, st_arg1, st_arg2);
+			gen_relation(dfw, ANY_MATCHES, st_how, st_arg1, st_arg2);
 			break;
 
 		case TEST_OP_IN:
-			gen_relation_in(dfw, st_arg1, st_arg2);
+			gen_relation_in(dfw, st_how, st_arg1, st_arg2);
 			break;
 
 		case OP_BITWISE_AND:

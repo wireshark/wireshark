@@ -32,4 +32,10 @@ sttype_test_get_op(stnode_t *node);
 void
 sttype_test_get(stnode_t *node, test_op_t *p_op, stnode_t **p_val1, stnode_t **p_val2);
 
+void
+sttype_test_set_match(stnode_t *node, test_match_t how);
+
+test_match_t
+sttype_test_get_match(stnode_t *node);
+
 #endif

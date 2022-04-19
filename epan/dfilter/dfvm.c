@@ -35,13 +35,19 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case ANY_EQ:		return "ANY_EQ";
 		case ALL_NE:		return "ALL_NE";
 		case ANY_NE:		return "ANY_NE";
+		case ALL_GT:		return "ALL_GT";
 		case ANY_GT:		return "ANY_GT";
+		case ALL_GE:		return "ALL_GE";
 		case ANY_GE:		return "ANY_GE";
+		case ALL_LT:		return "ALL_LT";
 		case ANY_LT:		return "ANY_LT";
+		case ALL_LE:		return "ALL_LE";
 		case ANY_LE:		return "ANY_LE";
-		case ANY_ZERO:		return "ANY_ZERO";
 		case ALL_ZERO:		return "ALL_ZERO";
+		case ANY_ZERO:		return "ANY_ZERO";
+		case ALL_CONTAINS:	return "ALL_CONTAINS";
 		case ANY_CONTAINS:	return "ANY_CONTAINS";
+		case ALL_MATCHES:	return "ALL_MATCHES";
 		case ANY_MATCHES:	return "ANY_MATCHES";
 		case MK_SLICE:		return "MK_SLICE";
 		case MK_BITWISE_AND:	return "MK_BITWISE_AND";
@@ -54,6 +60,7 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case CALL_FUNCTION:	return "CALL_FUNCTION";
 		case STACK_PUSH:	return "STACK_PUSH";
 		case STACK_POP:		return "STACK_POP";
+		case ALL_IN_RANGE:	return "ALL_IN_RANGE";
 		case ANY_IN_RANGE:	return "ANY_IN_RANGE";
 	}
 	return "(fix-opcode-string)";
@@ -370,24 +377,28 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 					id, arg1_str, arg2_str);
 				break;
 
+			case ALL_GT:
 			case ANY_GT:
-				wmem_strbuf_append_printf(buf, "%05d ANY_GT\t\t%s > %s\n",
-					id, arg1_str, arg2_str);
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s > %s\n",
+					id, dfvm_opcode_tostr(insn->op), arg1_str, arg2_str);
 				break;
 
+			case ALL_GE:
 			case ANY_GE:
-				wmem_strbuf_append_printf(buf, "%05d ANY_GE\t\t%s >= %s\n",
-					id, arg1_str, arg2_str);
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s >= %s\n",
+					id, dfvm_opcode_tostr(insn->op), arg1_str, arg2_str);
 				break;
 
+			case ALL_LT:
 			case ANY_LT:
-				wmem_strbuf_append_printf(buf, "%05d ANY_LT\t\t%s < %s\n",
-					id, arg1_str, arg2_str);
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s < %s\n",
+					id, dfvm_opcode_tostr(insn->op), arg1_str, arg2_str);
 				break;
 
+			case ALL_LE:
 			case ANY_LE:
-				wmem_strbuf_append_printf(buf, "%05d ANY_LE\t\t%s <= %s\n",
-					id, arg1_str, arg2_str);
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s <= %s\n",
+					id, dfvm_opcode_tostr(insn->op), arg1_str, arg2_str);
 				break;
 
 			case MK_BITWISE_AND:
@@ -395,14 +406,10 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
-			case ANY_ZERO:
-				wmem_strbuf_append_printf(buf, "%05d ANY_ZERO\t\t%s\n",
-					id, arg1_str);
-				break;
-
 			case ALL_ZERO:
-				wmem_strbuf_append_printf(buf, "%05d ALL_ZERO\t\t%s\n",
-					id, arg1_str);
+			case ANY_ZERO:
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s\n",
+					id, dfvm_opcode_tostr(insn->op), arg1_str);
 				break;
 
 			case DFVM_ADD:
@@ -430,19 +437,23 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
+			case ALL_CONTAINS:
 			case ANY_CONTAINS:
-				wmem_strbuf_append_printf(buf, "%05d ANY_CONTAINS\t%s contains %s\n",
-					id, arg1_str, arg2_str);
+				wmem_strbuf_append_printf(buf, "%05d %s\t%s contains %s\n",
+					id, dfvm_opcode_tostr(insn->op), arg1_str, arg2_str);
 				break;
 
+			case ALL_MATCHES:
 			case ANY_MATCHES:
-				wmem_strbuf_append_printf(buf, "%05d ANY_MATCHES\t%s matches %s\n",
-					id, arg1_str, arg2_str);
+				wmem_strbuf_append_printf(buf, "%05d %s\t%s matches %s\n",
+					id, dfvm_opcode_tostr(insn->op), arg1_str, arg2_str);
 				break;
 
+			case ALL_IN_RANGE:
 			case ANY_IN_RANGE:
-				wmem_strbuf_append_printf(buf, "%05d ANY_IN_RANGE\t%s in { %s .. %s }\n",
-					id, arg1_str, arg2_str, arg3_str);
+				wmem_strbuf_append_printf(buf, "%05d %s\t%s in { %s .. %s }\n",
+					id, dfvm_opcode_tostr(insn->op),
+					arg1_str, arg2_str, arg3_str);
 				break;
 
 			case MK_MINUS:
@@ -813,6 +824,21 @@ any_matches(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
 }
 
 static gboolean
+all_matches(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
+{
+	GSList *list1 = df->registers[arg1->value.numeric];
+	ws_regex_t *re = arg2->value.pcre;
+
+	while (list1) {
+		if (!fvalue_matches(list1->data, re)) {
+			return FALSE;
+		}
+		list1 = g_slist_next(list1);
+	}
+	return TRUE;
+}
+
+static gboolean
 any_in_range_internal(GSList *list1, fvalue_t *low, fvalue_t *high)
 {
 	while (list1) {
@@ -826,7 +852,20 @@ any_in_range_internal(GSList *list1, fvalue_t *low, fvalue_t *high)
 }
 
 static gboolean
-any_in_range(dfilter_t *df, dfvm_value_t *arg1,
+all_in_range_internal(GSList *list1, fvalue_t *low, fvalue_t *high)
+{
+	while (list1) {
+		if (!fvalue_ge(list1->data, low) ||
+					!fvalue_le(list1->data, high)) {
+			return FALSE;
+		}
+		list1 = g_slist_next(list1);
+	}
+	return TRUE;
+}
+
+static gboolean
+match_in_range(dfilter_t *df, enum match_how how, dfvm_value_t *arg1,
 				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
 {
 	GSList *list1 = df->registers[arg1->value.numeric];
@@ -855,7 +894,27 @@ any_in_range(dfilter_t *df, dfvm_value_t *arg1,
 	else {
 		ws_assert_not_reached();
 	}
-	return any_in_range_internal(list1, low, high);
+
+	if (how == MATCH_ALL)
+		return all_in_range_internal(list1, low, high);
+	else if (how == MATCH_ANY)
+		return any_in_range_internal(list1, low, high);
+	else
+		ws_assert_not_reached();
+}
+
+static gboolean
+any_in_range(dfilter_t *df, dfvm_value_t *arg1,
+				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
+{
+	return match_in_range(df, MATCH_ANY, arg1, arg_low, arg_high);
+}
+
+static gboolean
+all_in_range(dfilter_t *df, dfvm_value_t *arg1,
+				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
+{
+	return match_in_range(df, MATCH_ALL, arg1, arg_low, arg_high);
 }
 
 /* Clear registers that were populated during evaluation.
@@ -1246,16 +1305,32 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				accum = any_test(df, fvalue_ne, arg1, arg2);
 				break;
 
+			case ALL_GT:
+				accum = all_test(df, fvalue_gt, arg1, arg2);
+				break;
+
 			case ANY_GT:
 				accum = any_test(df, fvalue_gt, arg1, arg2);
+				break;
+
+			case ALL_GE:
+				accum = all_test(df, fvalue_ge, arg1, arg2);
 				break;
 
 			case ANY_GE:
 				accum = any_test(df, fvalue_ge, arg1, arg2);
 				break;
 
+			case ALL_LT:
+				accum = all_test(df, fvalue_lt, arg1, arg2);
+				break;
+
 			case ANY_LT:
 				accum = any_test(df, fvalue_lt, arg1, arg2);
+				break;
+
+			case ALL_LE:
+				accum = all_test(df, fvalue_le, arg1, arg2);
 				break;
 
 			case ANY_LE:
@@ -1286,20 +1361,32 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				mk_binary(df, fvalue_modulo, arg1, arg2, arg3);
 				break;
 
+			case ALL_ZERO:
+				accum = all_test_unary(df, fvalue_is_zero, arg1);
+				break;
+
 			case ANY_ZERO:
 				accum = any_test_unary(df, fvalue_is_zero, arg1);
 				break;
 
-			case ALL_ZERO:
-				accum = all_test_unary(df, fvalue_is_zero, arg1);
+			case ALL_CONTAINS:
+				accum = all_test(df, fvalue_contains, arg1, arg2);
 				break;
 
 			case ANY_CONTAINS:
 				accum = any_test(df, fvalue_contains, arg1, arg2);
 				break;
 
+			case ALL_MATCHES:
+				accum = all_matches(df, arg1, arg2);
+				break;
+
 			case ANY_MATCHES:
 				accum = any_matches(df, arg1, arg2);
+				break;
+
+			case ALL_IN_RANGE:
+				accum = all_in_range(df, arg1, arg2, arg3);
 				break;
 
 			case ANY_IN_RANGE:

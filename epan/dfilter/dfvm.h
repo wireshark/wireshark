@@ -61,13 +61,19 @@ typedef enum {
 	ANY_EQ,
 	ALL_NE,
 	ANY_NE,
+	ALL_GT,
 	ANY_GT,
+	ALL_GE,
 	ANY_GE,
+	ALL_LT,
 	ANY_LT,
+	ALL_LE,
 	ANY_LE,
-	ANY_ZERO,
 	ALL_ZERO,
+	ANY_ZERO,
+	ALL_CONTAINS,
 	ANY_CONTAINS,
+	ALL_MATCHES,
 	ANY_MATCHES,
 	MK_SLICE,
 	MK_BITWISE_AND,
@@ -80,8 +86,8 @@ typedef enum {
 	CALL_FUNCTION,
 	STACK_PUSH,
 	STACK_POP,
-	ANY_IN_RANGE
-
+	ALL_IN_RANGE,
+	ANY_IN_RANGE,
 } dfvm_opcode_t;
 
 const char *

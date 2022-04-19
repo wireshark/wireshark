@@ -311,4 +311,15 @@ class case_field_reference(unittest.TestCase):
     def test_layer_7(self, checkDFilterCount):
         dfilter = 'ip.dst#[-5] == 2.2.2.2'
         checkDFilterCount(dfilter, 1)
-        
+
+@fixtures.uses_fixtures
+class case_quantifiers(unittest.TestCase):
+    trace_file = "ipoipoip.pcap"
+
+    def test_any_1(self, checkDFilterCount):
+        dfilter = 'any ip.addr > 1.1.1.1'
+        checkDFilterCount(dfilter, 2)
+
+    def test_all_1(self, checkDFilterCount):
+        dfilter = 'all ip.addr > 1.1.1.1'
+        checkDFilterCount(dfilter, 1)

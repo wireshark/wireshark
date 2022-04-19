@@ -81,6 +81,7 @@ The following features are new (or have been significantly updated) since versio
 ** New display filter functions max(), min() and abs() have been added.
 ** Functions can accept expressions as arguments, including other functions.
    Previously only protocol fields and slices were syntactically valid function arguments.
+** Adds the universal quantifiers "any" and "all" to any relational operator: all tcp.port > 1024.
 
 * The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
 ** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.

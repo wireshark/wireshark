@@ -88,7 +88,7 @@ shifting 3 more symbols. */
 sentence ::= expr(X).           { dfw->st_root = X; }
 sentence ::= .                  { dfw->st_root = NULL; }
 
-expr(X) ::= relation_test(R).   { X = R; }
+expr(X) ::= relation(R).        { X = R; }
 expr(X) ::= arithmetic_expr(E). { X = E; }
 
 /* Logical tests */
@@ -263,6 +263,20 @@ relation_test(T) ::= entity(E) TEST_NOT(P) TEST_IN(O) set(S).
     T = P;
     sttype_test_set2(O, TEST_OP_IN, E, S);
     sttype_test_set1(T, TEST_OP_NOT, O);
+}
+
+relation(R) ::= relation_test(T).   { R = T; }
+
+relation(R) ::= ANY relation_test(T).
+{
+    R = T;
+    sttype_test_set_match(R, ST_MATCH_ANY);
+}
+
+relation(R) ::= ALL relation_test(T).
+{
+    R = T;
+    sttype_test_set_match(R, ST_MATCH_ALL);
 }
 
 set(S) ::= LBRACE set_list(L) RBRACE.

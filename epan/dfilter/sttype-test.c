@@ -13,6 +13,7 @@
 typedef struct {
 	guint32		magic;
 	test_op_t	op;
+	test_match_t	how;
 	stnode_t	*val1;
 	stnode_t	*val2;
 } test_t;
@@ -30,6 +31,7 @@ test_new(gpointer junk)
 
 	test->magic = TEST_MAGIC;
 	test->op = TEST_OP_UNINITIALIZED;
+	test->how = ST_MATCH_DEF;
 	test->val1 = NULL;
 	test->val2 = NULL;
 
@@ -43,7 +45,8 @@ test_dup(gconstpointer data)
 	test_t *test;
 
 	test = test_new(NULL);
-	test->op   = org->op;
+	test->op = org->op;
+	test->how = org->how;
 	test->val1 = stnode_dup(org->val1);
 	test->val2 = stnode_dup(org->val1);
 
@@ -212,6 +215,10 @@ test_todebug(const test_t *test)
 			break;
 	}
 
+	if (test->how == ST_MATCH_ALL)
+		return g_strdup_printf("ALL %s", s);
+	if (test->how == ST_MATCH_ANY)
+		return g_strdup_printf("ANY %s", s);
 	return g_strdup(s);
 }
 
@@ -339,6 +346,22 @@ sttype_test_get(stnode_t *node, test_op_t *p_op, stnode_t **p_val1, stnode_t **p
 		*p_val1 = test->val1;
 	if (p_val2)
 		*p_val2 = test->val2;
+}
+
+void
+sttype_test_set_match(stnode_t *node, test_match_t how)
+{
+	test_t *test = stnode_data(node);
+	ws_assert_magic(test, TEST_MAGIC);
+	test->how = how;
+}
+
+test_match_t
+sttype_test_get_match(stnode_t *node)
+{
+	test_t *test = stnode_data(node);
+	ws_assert_magic(test, TEST_MAGIC);
+	return test->how;
 }
 
 void
