@@ -42,13 +42,14 @@ enum nr_security_ciphering_algorithm_e { nea0, nea1, nea2, nea3, nea_disabled=99
 
 typedef struct pdcp_nr_security_info_t
 {
-    guint32                                configuration_frame;
+    guint32                                algorithm_configuration_frame;
     gboolean                               seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
+    gboolean                               dl_after_reest_request; /* i.e. waiting for DL after rrcReestablishmentRequest */
     enum nr_security_integrity_algorithm_e integrity;
     enum nr_security_ciphering_algorithm_e ciphering;
 
     /* Store previous settings so can revert if get SecurityModeFailure */
-    guint32                                previous_configuration_frame;
+    guint32                                previous_algorithm_configuration_frame;
     enum nr_security_integrity_algorithm_e previous_integrity;
     enum nr_security_ciphering_algorithm_e previous_ciphering;
 } pdcp_nr_security_info_t;
@@ -183,12 +184,15 @@ void set_pdcp_nr_security_algorithms(guint16 ueid, pdcp_nr_security_info_t *secu
 /* Function to indicate securityModeCommand did not complete */
 void set_pdcp_nr_security_algorithms_failed(guint16 ueid);
 
+/* Function to indicate rrcReestablishmentRequest.
+ * This results in the next DL SRB1 PDU not being decrypted */
+void set_pdcp_nr_rrc_reestablishment_request(guint16 ueid);
 
 /* Called by external dissectors */
-void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key);
-void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key);
-void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key);
-void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key);
+void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
+void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
+void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
+void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

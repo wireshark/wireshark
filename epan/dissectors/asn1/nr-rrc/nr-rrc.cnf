@@ -780,6 +780,16 @@ RAT-Type TYPE_PREFIX
 #.FN_HDR RRCReestablishmentRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reestablishment Request");
 
+  if (!PINFO_FD_VISITED(actx->pinfo)) {
+    /* Look for UE identifier */
+    mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+
+    if (p_mac_nr_info != NULL) {
+      /* Inform PDCP about the RRCreestablishmentRequest */
+      set_pdcp_nr_rrc_reestablishment_request(p_mac_nr_info->ueid);
+    }
+  }
+
 #.FN_HDR RRCSystemInfoRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC System Info Request");
 
@@ -2052,8 +2062,8 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   pdcp_nr_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
-  p_security_algorithms->configuration_frame = actx->pinfo->num;
-  p_security_algorithms->previous_configuration_frame = 0;
+  p_security_algorithms->algorithm_configuration_frame = actx->pinfo->num;
+  p_security_algorithms->previous_algorithm_configuration_frame = 0;
   p_security_algorithms->previous_integrity = nia0;
   p_security_algorithms->previous_ciphering = nea0;
 
