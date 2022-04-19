@@ -1296,6 +1296,9 @@ conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type
 void
 conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_data)
 {
+	if (conv == NULL) {
+		REPORT_DISSECTOR_BUG("%s: Can't add proto data to a NULL conversation.", proto_get_protocol_name(proto));
+	}
 	/* Add it to the list of items for this conversation. */
 	if (conv->data_list == NULL)
 		conv->data_list = wmem_tree_new(wmem_file_scope());
@@ -1306,9 +1309,13 @@ conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_d
 void *
 conversation_get_proto_data(const conversation_t *conv, const int proto)
 {
+	if (conv == NULL) {
+		REPORT_DISSECTOR_BUG("%s: Can't get proto from a NULL conversation.", proto_get_protocol_name(proto));
+	}
 	/* No tree created yet */
-	if (conv->data_list == NULL)
+	if (conv->data_list == NULL) {
 		return NULL;
+	}
 
 	return wmem_tree_lookup32(conv->data_list, proto);
 }
@@ -1316,6 +1323,9 @@ conversation_get_proto_data(const conversation_t *conv, const int proto)
 void
 conversation_delete_proto_data(conversation_t *conv, const int proto)
 {
+	if (conv == NULL) {
+		REPORT_DISSECTOR_BUG("%s: Can't delete a NULL conversation.", proto_get_protocol_name(proto));
+	}
 	if (conv->data_list != NULL)
 		wmem_tree_remove32(conv->data_list, proto);
 }

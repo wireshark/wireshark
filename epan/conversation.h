@@ -192,9 +192,25 @@ WS_DLL_PUBLIC conversation_t *find_or_create_conversation(packet_info *pinfo);
  */
 WS_DLL_PUBLIC conversation_t *find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id);
 
+/** Associate data with a conversation.
+ * @param conv Conversation. Must not be NULL.
+ * @param proto Protocol ID.
+ * @param proto_data Pointer to the data to associate.
+ */
 WS_DLL_PUBLIC void conversation_add_proto_data(conversation_t *conv, const int proto,
     void *proto_data);
+
+/** Fetch data associated with a conversation.
+ * @param conv Conversation. Must not be NULL.
+ * @param proto Protocol ID.
+ * @return The data previously set with conversation_add_proto_data, otherwise NULL.
+ */
 WS_DLL_PUBLIC void *conversation_get_proto_data(const conversation_t *conv, const int proto);
+
+/** Remove data associated with a conversation.
+ * @param conv Conversation. Must not be NULL.
+ * @param proto Protocol ID.
+ */
 WS_DLL_PUBLIC void conversation_delete_proto_data(conversation_t *conv, const int proto);
 
 WS_DLL_PUBLIC void conversation_set_dissector(conversation_t *conversation,
