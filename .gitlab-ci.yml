@@ -25,6 +25,8 @@ variables:
   CLANG_VERSION: 14
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
   CLICOLOR_FORCE: 1
+  # Skip irrelevant SAST scanners:
+  SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,spotbugs"
 
 # Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
 # - daily: Daily at 10:00 UTC
@@ -904,3 +906,7 @@ Valgrind Menagerie Fuzz:
     - cd ..
     - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
   needs: [ 'ASan randpkt Fuzz' ]
+
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
