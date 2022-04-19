@@ -520,24 +520,22 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             find_conversation_pinfo(pinfo, 0);
         }
     }
-    else if (pck_type == FPP_Packet_Cont) {
-        if (conv) {
-            ctx = (fpp_ctx_t *)conversation_get_proto_data(conv, proto_fpp);
-            if (ctx) {
-                if (!PINFO_FD_VISITED(pinfo)) {
-                    if ((ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
-                        prev_crc = ctx->crc;
-                    }
-                    /* create a copy of frame number and previous crc and store in crc_history */
-                    guint32 *copy_of_pinfo_num = wmem_new(wmem_epan_scope(), guint32);
-                    guint32 *copy_of_prev_crc = wmem_new(wmem_epan_scope(), guint32);
-                    *copy_of_pinfo_num = pinfo->num;
-                    *copy_of_prev_crc = prev_crc;
-                    wmem_map_insert(ctx->crc_history, copy_of_pinfo_num, copy_of_prev_crc);
+    else if (pck_type == FPP_Packet_Cont && conv) {
+        ctx = (fpp_ctx_t *)conversation_get_proto_data(conv, proto_fpp);
+        if (ctx) {
+            if (!PINFO_FD_VISITED(pinfo)) {
+                if ((ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
+                    prev_crc = ctx->crc;
                 }
-                else {
-                    prev_crc = *(guint32 *)wmem_map_lookup(ctx->crc_history, &pinfo->num);
-                }
+                /* create a copy of frame number and previous crc and store in crc_history */
+                guint32 *copy_of_pinfo_num = wmem_new(wmem_epan_scope(), guint32);
+                guint32 *copy_of_prev_crc = wmem_new(wmem_epan_scope(), guint32);
+                *copy_of_pinfo_num = pinfo->num;
+                *copy_of_prev_crc = prev_crc;
+                wmem_map_insert(ctx->crc_history, copy_of_pinfo_num, copy_of_prev_crc);
+            }
+            else {
+                prev_crc = *(guint32 *)wmem_map_lookup(ctx->crc_history, &pinfo->num);
             }
         }
     }
@@ -601,7 +599,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         if (crc_val == CRC_mCRC) {
             /* Continuation fragment */
             /* Update data of this conversation */
-            if (!PINFO_FD_VISITED(pinfo)) {
+            if (!PINFO_FD_VISITED(pinfo) && conv) {
                 ctx = (fpp_ctx_t*)conversation_get_proto_data(conv, proto_fpp);
                 if (ctx) {
                     fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
@@ -636,12 +634,14 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 2. check frame count and frag count values
                 After these steps check crc of entire reassembled frame
             */
-            ctx = (fpp_ctx_t*)conversation_get_proto_data(conv, proto_fpp);
-            if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
-                fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
-                if (!PINFO_FD_VISITED(pinfo)) {
-                    fpp_pdata->offset = ctx->size;
-                    p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
+            if (conv) {
+                ctx = (fpp_ctx_t*)conversation_get_proto_data(conv, proto_fpp);
+                if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
+                    fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        fpp_pdata->offset = ctx->size;
+                        p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
+                    }
                 }
             }
 
@@ -679,7 +679,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             }
         } else {
             /* Invalid packet */
-            if (!PINFO_FD_VISITED(pinfo)) {
+            if (!PINFO_FD_VISITED(pinfo) && conv) {
                 ctx = (fpp_ctx_t *)conversation_get_proto_data(conv, proto_fpp);
                 if (ctx) {
                     fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
