@@ -116,7 +116,7 @@ then
 fi
 
 # Partial upgrades are unsupported.
-pacman --sync --refresh --needed $ACTUAL_LIST $OPTIONS || exit 2
+pacman --sync --refresh --sysupgrade --needed $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ $ADDITIONAL -eq 0 ]
 then
