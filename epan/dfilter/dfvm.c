@@ -244,6 +244,10 @@ dump_str_stack_push(GSList *stack, const char *str)
 static GSList *
 dump_str_stack_pop(GSList *stack)
 {
+	if (!stack) {
+		return NULL;
+	}
+
 	char *str;
 
 	str = stack->data;
