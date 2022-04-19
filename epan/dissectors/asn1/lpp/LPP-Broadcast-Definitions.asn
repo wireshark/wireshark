@@ -1,4 +1,4 @@
--- ﻿3GPP TS 37.355 V16.7.0 (2021-12)
+-- 3GPP TS 37.355 V16.8.0 (2022-03)
 
 LPP-Broadcast-Definitions
 
@@ -11,7 +11,7 @@ IMPORTS
 	OTDOA-NeighbourCellInfoList,
 	NR-TRP-LocationInfo-r16,
 	NR-DL-PRS-BeamInfo-r16,
-	NR-RTD-Info-r16	
+	NR-RTD-Info-r16
 FROM LPP-PDU-Definitions;
 
 

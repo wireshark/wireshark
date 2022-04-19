@@ -58,6 +58,14 @@ sub extract_asn1 {
       $is_asn1 = 0;
     }
 
+    if(($file_name_found == 0) && ($line =~ m/^LPP-PDU-Definitions/)){
+      $output_file_name = "LPP-PDU-Definitions.asn";
+      print  "generating $output_file_name\n";
+      open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
+      $file_name_found = 1;
+      syswrite OUTPUT_FILE,"-- "."$version"."\n";
+    }
+
     if(($file_name_found == 0) && ($line =~ m/^LPP-Broadcast-Definitions/)){
       $output_file_name = "LPP-Broadcast-Definitions.asn";
       print  "generating $output_file_name\n";

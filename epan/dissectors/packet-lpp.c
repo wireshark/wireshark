@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 16.7.0 Release 16
+ * Ref 3GPP TS 37.355 version 16.8.0 Release 16
  * http://www.3gpp.org
  */
 
@@ -282,6 +282,19 @@ static int hf_lpp_ePDU_Identifier = -1;           /* EPDU_Identifier */
 static int hf_lpp_ePDU_Body = -1;                 /* EPDU_Body */
 static int hf_lpp_ePDU_ID = -1;                   /* EPDU_ID */
 static int hf_lpp_ePDU_Name = -1;                 /* EPDU_Name */
+static int hf_lpp_degreesLatitude_r16 = -1;       /* INTEGER_M2147483648_2147483647 */
+static int hf_lpp_degreesLongitude_r16 = -1;      /* INTEGER_M2147483648_2147483647 */
+static int hf_lpp_altitude_r16 = -1;              /* INTEGER_M64000_1280000 */
+static int hf_lpp_uncertaintySemiMajor_r16 = -1;  /* INTEGER_0_255 */
+static int hf_lpp_uncertaintySemiMinor_r16 = -1;  /* INTEGER_0_255 */
+static int hf_lpp_orientationMajorAxis_r16 = -1;  /* INTEGER_0_179 */
+static int hf_lpp_horizontalConfidence_r16 = -1;  /* INTEGER_0_100 */
+static int hf_lpp_uncertaintyAltitude_r16 = -1;   /* INTEGER_0_255 */
+static int hf_lpp_verticalConfidence_r16 = -1;    /* INTEGER_0_100 */
+static int hf_lpp_ha_HorizontalExtendedRangeUsed_r16 = -1;  /* BOOLEAN */
+static int hf_lpp_ha_VerticalExtendedRangeUsed_r16 = -1;  /* BOOLEAN */
+static int hf_lpp_confidence_r16 = -1;            /* INTEGER_0_100 */
+static int hf_lpp_ha_ExtendedUncertaintyRangeUsed_r16 = -1;  /* BOOLEAN */
 static int hf_lpp_degreesLatitude_r15 = -1;       /* INTEGER_M2147483648_2147483647 */
 static int hf_lpp_degreesLongitude_r15 = -1;      /* INTEGER_M2147483648_2147483647 */
 static int hf_lpp_uncertaintySemiMajor_r15 = -1;  /* INTEGER_0_255 */
@@ -309,6 +322,8 @@ static int hf_lpp_ellipsoidPointWithAltitudeAndUncertaintyEllipsoid = -1;  /* BO
 static int hf_lpp_ellipsoidArc = -1;              /* BOOLEAN */
 static int hf_lpp_highAccuracyEllipsoidPointWithUncertaintyEllipse_r15 = -1;  /* BOOLEAN */
 static int hf_lpp_highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15 = -1;  /* BOOLEAN */
+static int hf_lpp_ha_EllipsoidPointWithScalableUncertaintyEllipse_r16 = -1;  /* BOOLEAN */
+static int hf_lpp_ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16 = -1;  /* BOOLEAN */
 static int hf_lpp_mcc_r15 = -1;                   /* T_mcc_r15 */
 static int hf_lpp_mcc_r15_item = -1;              /* INTEGER_0_9 */
 static int hf_lpp_mnc_r15 = -1;                   /* T_mnc_r15 */
@@ -377,6 +392,8 @@ static int hf_lpp_ellipsoidPointWithAltitudeAndUncertaintyEllipsoid_01 = -1;  /*
 static int hf_lpp_ellipsoidArc_01 = -1;           /* EllipsoidArc */
 static int hf_lpp_highAccuracyEllipsoidPointWithUncertaintyEllipse_v1510 = -1;  /* HighAccuracyEllipsoidPointWithUncertaintyEllipse_r15 */
 static int hf_lpp_highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_v1510 = -1;  /* HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15 */
+static int hf_lpp_ha_EllipsoidPointWithScalableUncertaintyEllipse_v1680 = -1;  /* HA_EllipsoidPointWithScalableUncertaintyEllipse_r16 */
+static int hf_lpp_ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_v1680 = -1;  /* HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16 */
 static int hf_lpp_horizontalVelocity_01 = -1;     /* HorizontalVelocity */
 static int hf_lpp_horizontalWithVerticalVelocity_01 = -1;  /* HorizontalWithVerticalVelocity */
 static int hf_lpp_horizontalVelocityWithUncertainty_01 = -1;  /* HorizontalVelocityWithUncertainty */
@@ -634,9 +651,7 @@ static int hf_lpp_coarse_delta_Longitude_r16 = -1;  /* INTEGER_0_4095 */
 static int hf_lpp_delta_Height_r16 = -1;          /* INTEGER_M1024_1023 */
 static int hf_lpp_coarse_delta_Height_r16 = -1;   /* INTEGER_0_4095 */
 static int hf_lpp_horizontalUncertainty_r16 = -1;  /* INTEGER_0_255 */
-static int hf_lpp_horizontalConfidence_r16 = -1;  /* INTEGER_0_100 */
 static int hf_lpp_verticalUncertainty_r16 = -1;   /* INTEGER_0_255 */
-static int hf_lpp_verticalConfidence_r16 = -1;    /* INTEGER_0_100 */
 static int hf_lpp_otdoa_ReferenceCellInfo = -1;   /* OTDOA_ReferenceCellInfo */
 static int hf_lpp_otdoa_NeighbourCellInfo = -1;   /* OTDOA_NeighbourCellInfoList */
 static int hf_lpp_otdoa_Error = -1;               /* OTDOA_Error */
@@ -2445,6 +2460,8 @@ static gint ett_lpp_EllipsoidArc = -1;
 static gint ett_lpp_EPDU_Sequence = -1;
 static gint ett_lpp_EPDU = -1;
 static gint ett_lpp_EPDU_Identifier = -1;
+static gint ett_lpp_HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16 = -1;
+static gint ett_lpp_HA_EllipsoidPointWithScalableUncertaintyEllipse_r16 = -1;
 static gint ett_lpp_HighAccuracyEllipsoidPointWithUncertaintyEllipse_r15 = -1;
 static gint ett_lpp_HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15 = -1;
 static gint ett_lpp_HorizontalVelocity = -1;
@@ -6829,6 +6846,20 @@ dissect_lpp_LocationCoordinateTypes_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t LocationCoordinateTypes_eag_2_sequence[] = {
+  { &hf_lpp_ha_EllipsoidPointWithScalableUncertaintyEllipse_r16, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_BOOLEAN },
+  { &hf_lpp_ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_LocationCoordinateTypes_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, LocationCoordinateTypes_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t LocationCoordinateTypes_sequence[] = {
   { &hf_lpp_ellipsoidPoint  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
   { &hf_lpp_ellipsoidPointWithUncertaintyCircle, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
@@ -6838,6 +6869,7 @@ static const per_sequence_t LocationCoordinateTypes_sequence[] = {
   { &hf_lpp_ellipsoidPointWithAltitudeAndUncertaintyEllipsoid, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
   { &hf_lpp_ellipsoidArc    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_LocationCoordinateTypes_eag_1 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_LocationCoordinateTypes_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -22286,6 +22318,50 @@ dissect_lpp_HighAccuracyEllipsoidPointWithUncertaintyEllipse_r15(tvbuff_t *tvb _
 }
 
 
+static const per_sequence_t HA_EllipsoidPointWithScalableUncertaintyEllipse_r16_sequence[] = {
+  { &hf_lpp_degreesLatitude_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M2147483648_2147483647 },
+  { &hf_lpp_degreesLongitude_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M2147483648_2147483647 },
+  { &hf_lpp_uncertaintySemiMajor_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_255 },
+  { &hf_lpp_uncertaintySemiMinor_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_255 },
+  { &hf_lpp_orientationMajorAxis_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_179 },
+  { &hf_lpp_confidence_r16  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_100 },
+  { &hf_lpp_ha_ExtendedUncertaintyRangeUsed_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_HA_EllipsoidPointWithScalableUncertaintyEllipse_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_HA_EllipsoidPointWithScalableUncertaintyEllipse_r16, HA_EllipsoidPointWithScalableUncertaintyEllipse_r16_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16_sequence[] = {
+  { &hf_lpp_degreesLatitude_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M2147483648_2147483647 },
+  { &hf_lpp_degreesLongitude_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M2147483648_2147483647 },
+  { &hf_lpp_altitude_r16    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M64000_1280000 },
+  { &hf_lpp_uncertaintySemiMajor_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_255 },
+  { &hf_lpp_uncertaintySemiMinor_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_255 },
+  { &hf_lpp_orientationMajorAxis_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_179 },
+  { &hf_lpp_horizontalConfidence_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_100 },
+  { &hf_lpp_uncertaintyAltitude_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_255 },
+  { &hf_lpp_verticalConfidence_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_100 },
+  { &hf_lpp_ha_HorizontalExtendedRangeUsed_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
+  { &hf_lpp_ha_VerticalExtendedRangeUsed_r16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16, HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16_sequence);
+
+  return offset;
+}
+
+
 static const value_string lpp_LocationCoordinates_vals[] = {
   {   0, "ellipsoidPoint" },
   {   1, "ellipsoidPointWithUncertaintyCircle" },
@@ -22296,6 +22372,8 @@ static const value_string lpp_LocationCoordinates_vals[] = {
   {   6, "ellipsoidArc" },
   {   7, "highAccuracyEllipsoidPointWithUncertaintyEllipse-v1510" },
   {   8, "highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid-v1510" },
+  {   9, "ha-EllipsoidPointWithScalableUncertaintyEllipse-v1680" },
+  {  10, "ha-EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid-v1680" },
   { 0, NULL }
 };
 
@@ -22309,6 +22387,8 @@ static const per_choice_t LocationCoordinates_choice[] = {
   {   6, &hf_lpp_ellipsoidArc_01 , ASN1_EXTENSION_ROOT    , dissect_lpp_EllipsoidArc },
   {   7, &hf_lpp_highAccuracyEllipsoidPointWithUncertaintyEllipse_v1510, ASN1_NOT_EXTENSION_ROOT, dissect_lpp_HighAccuracyEllipsoidPointWithUncertaintyEllipse_r15 },
   {   8, &hf_lpp_highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_v1510, ASN1_NOT_EXTENSION_ROOT, dissect_lpp_HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15 },
+  {   9, &hf_lpp_ha_EllipsoidPointWithScalableUncertaintyEllipse_v1680, ASN1_NOT_EXTENSION_ROOT, dissect_lpp_HA_EllipsoidPointWithScalableUncertaintyEllipse_r16 },
+  {  10, &hf_lpp_ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_v1680, ASN1_NOT_EXTENSION_ROOT, dissect_lpp_HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16 },
   { 0, NULL, 0, NULL }
 };
 
@@ -27531,6 +27611,58 @@ void proto_register_lpp(void) {
       { "ePDU-Name", "lpp.ePDU_Name",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lpp_degreesLatitude_r16,
+      { "degreesLatitude-r16", "lpp.degreesLatitude_r16",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_lpp_degreesLongitude_r16,
+      { "degreesLongitude-r16", "lpp.degreesLongitude_r16",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_lpp_altitude_r16,
+      { "altitude-r16", "lpp.altitude_r16",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M64000_1280000", HFILL }},
+    { &hf_lpp_uncertaintySemiMajor_r16,
+      { "uncertaintySemiMajor-r16", "lpp.uncertaintySemiMajor_r16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_lpp_uncertaintySemiMinor_r16,
+      { "uncertaintySemiMinor-r16", "lpp.uncertaintySemiMinor_r16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_lpp_orientationMajorAxis_r16,
+      { "orientationMajorAxis-r16", "lpp.orientationMajorAxis_r16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_179", HFILL }},
+    { &hf_lpp_horizontalConfidence_r16,
+      { "horizontalConfidence-r16", "lpp.horizontalConfidence_r16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_100", HFILL }},
+    { &hf_lpp_uncertaintyAltitude_r16,
+      { "uncertaintyAltitude-r16", "lpp.uncertaintyAltitude_r16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_lpp_verticalConfidence_r16,
+      { "verticalConfidence-r16", "lpp.verticalConfidence_r16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_100", HFILL }},
+    { &hf_lpp_ha_HorizontalExtendedRangeUsed_r16,
+      { "ha-HorizontalExtendedRangeUsed-r16", "lpp.ha_HorizontalExtendedRangeUsed_r16",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_lpp_ha_VerticalExtendedRangeUsed_r16,
+      { "ha-VerticalExtendedRangeUsed-r16", "lpp.ha_VerticalExtendedRangeUsed_r16",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_lpp_confidence_r16,
+      { "confidence-r16", "lpp.confidence_r16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_100", HFILL }},
+    { &hf_lpp_ha_ExtendedUncertaintyRangeUsed_r16,
+      { "ha-ExtendedUncertaintyRangeUsed-r16", "lpp.ha_ExtendedUncertaintyRangeUsed_r16",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_lpp_degreesLatitude_r15,
       { "degreesLatitude-r15", "lpp.degreesLatitude_r15",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -27637,6 +27769,14 @@ void proto_register_lpp(void) {
         "BOOLEAN", HFILL }},
     { &hf_lpp_highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15,
       { "highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid-r15", "lpp.highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_lpp_ha_EllipsoidPointWithScalableUncertaintyEllipse_r16,
+      { "ha-EllipsoidPointWithScalableUncertaintyEllipse-r16", "lpp.ha_EllipsoidPointWithScalableUncertaintyEllipse_r16",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_lpp_ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16,
+      { "ha-EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid-r16", "lpp.ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_lpp_mcc_r15,
@@ -27911,6 +28051,14 @@ void proto_register_lpp(void) {
       { "highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid-v1510", "lpp.highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_v1510_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15", HFILL }},
+    { &hf_lpp_ha_EllipsoidPointWithScalableUncertaintyEllipse_v1680,
+      { "ha-EllipsoidPointWithScalableUncertaintyEllipse-v1680", "lpp.ha_EllipsoidPointWithScalableUncertaintyEllipse_v1680_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HA_EllipsoidPointWithScalableUncertaintyEllipse_r16", HFILL }},
+    { &hf_lpp_ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_v1680,
+      { "ha-EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid-v1680", "lpp.ha_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_v1680_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16", HFILL }},
     { &hf_lpp_horizontalVelocity_01,
       { "horizontalVelocity", "lpp.horizontalVelocity_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -28939,18 +29087,10 @@ void proto_register_lpp(void) {
       { "horizontalUncertainty-r16", "lpp.horizontalUncertainty_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
-    { &hf_lpp_horizontalConfidence_r16,
-      { "horizontalConfidence-r16", "lpp.horizontalConfidence_r16",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_100", HFILL }},
     { &hf_lpp_verticalUncertainty_r16,
       { "verticalUncertainty-r16", "lpp.verticalUncertainty_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
-    { &hf_lpp_verticalConfidence_r16,
-      { "verticalConfidence-r16", "lpp.verticalConfidence_r16",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_100", HFILL }},
     { &hf_lpp_otdoa_ReferenceCellInfo,
       { "otdoa-ReferenceCellInfo", "lpp.otdoa_ReferenceCellInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -35915,6 +36055,8 @@ void proto_register_lpp(void) {
     &ett_lpp_EPDU_Sequence,
     &ett_lpp_EPDU,
     &ett_lpp_EPDU_Identifier,
+    &ett_lpp_HA_EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid_r16,
+    &ett_lpp_HA_EllipsoidPointWithScalableUncertaintyEllipse_r16,
     &ett_lpp_HighAccuracyEllipsoidPointWithUncertaintyEllipse_r15,
     &ett_lpp_HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid_r15,
     &ett_lpp_HorizontalVelocity,
