@@ -17327,7 +17327,7 @@ dissect_rsn_ie_mlo_link(proto_item *item, proto_tree *tree, tvbuff_t *tvb,
   }
 
   if ((info & 0x20) == 0x20) { /* Add the RSNXE if present */
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
   }
 
   proto_item_append_text(item, ": MLO Link KDE");
@@ -17393,8 +17393,7 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_error_kde_error_type, tvb,
                           offset, 2, ENC_LITTLE_ENDIAN);
       proto_item_append_text(item, ": Error KDE");
-      offset += 2;
-       break;
+      break;
     case 9: /* IGTK KDE */
     {
       /* IEEE 802.11i / Key Data Encapsulation / Data Type=9 - IGTK.
