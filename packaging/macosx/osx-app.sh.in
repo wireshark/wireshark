@@ -117,7 +117,8 @@ if [ ! -d "$qt_frameworks_dir" ] ; then
 	exit 1
 fi
 
-sparkle_frameworks_dir="@SPARKLE_LIBRARIES@"
+sparkle_version="@SPARKLE_VERSION@"
+sparkle_frameworks_dir="@SPARKLE_LIBRARY@"
 
 #
 # Leave the Qt frameworks out of the special processing.
@@ -260,6 +261,10 @@ fi
 
 if [ -d "$sparkle_frameworks_dir" ] ; then
 	cp -R "$sparkle_frameworks_dir" "$pkglib" || exit 1
+	# We're not sandboxing.
+	if [ "$sparkle_version" == "2" ] ; then
+		rm -rf "$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.InstallerLauncher.xpc" || exit 1
+	fi
 fi
 
 # NOTE: we must rpathify *all* files, *including* Qt libraries etc.,
@@ -556,24 +561,46 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	# temporary adjustments only. Note that signing with the combination --deep
 	# --force will forcibly re-sign all code in a bundle."
 
-	# We need to force-sign Sparkle and its AutoUpdate.app.
-	# https://github.com/sparkle-project/Sparkle/issues/1441
-	# https://github.com/sparkle-project/Sparkle/issues/1266
-	# https://furbo.org/2019/08/16/catalina-app-notarization-and-sparkle/
-	# https://cutecoder.org/programming/enable-hardened-runtime-sparkle/
+	# We need to force-sign Sparkle and its Updater.app.
+	# https://sparkle-project.org/documentation/#4-distributing-your-app
+	# https://sparkle-project.org/documentation/sandboxing/#code-signing
 
-	echo "Signing Sparkle's AutoUpdate.app"
-	codesign \
-		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
-		--force \
-		--deep \
-		--timestamp \
-		--options runtime \
-		--verbose \
-		"$pkglib/Sparkle.framework/Versions/A/Resources/AutoUpdate.app"
+	if [ "$sparkle_version" == "2" ] ; then
+		echo "Signing Sparkle's assets"
+		codesign \
+			--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+			--force \
+			--options runtime \
+			--verbose \
+			"$pkglib/Sparkle.framework/Versions/B/AutoUpdate" \
+			"$pkglib/Sparkle.framework/Versions/B/Updater.app" \
+			"$pkglib/Sparkle.framework"
+		# We're not sandboxing.
+		# 	"$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.InstallerLauncher.xpc"
+		# codesign \
+		# 	--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		# 	--force \
+		# 	--options runtime \
+		# 	--entitlements "$sparkle_frameworks_dir/../Entitlements/org.sparkle-project.Downloader.entitlements" \
+		# 	--verbose \
+		# 	"$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.InstallerLauncher.xpc"
+	else
+		echo "Signing Sparkle's AutoUpdate.app"
+		codesign \
+			--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+			--force \
+			--timestamp \
+			--options runtime \
+			--verbose \
+			"$pkglib/Sparkle.framework/Versions/A/Resources/AutoUpdate.app"
+	fi
 
 	echo "Signing frameworks"
 	for framework in "$pkglib"/*.framework/Versions/* ; do
+		if [ -L "$framework" ] ; then
+			# Skip "Current"
+			continue
+		fi
 		codesign_file "$framework"
 	done
 
