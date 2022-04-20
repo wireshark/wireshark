@@ -201,7 +201,7 @@ while $endl; do
 	#    libbrotli, for some reason, doesn't have a path prefix in its
 	#    "install name" when built by tools/macos-setup.sh;
 	#
-	#    replace "@rpath/libbrotli" with "/usr/local/lib/libbrotli" so that
+	#    replace "@loader_path/libbrotli" with "/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering;
 	#
 	#    strip out system libraries, as we don't bundle them with
@@ -225,7 +225,7 @@ while $endl; do
 		| sed '1,$s;^	@rpath/libsnappy;	/usr/local/lib/libsnappy;' \
 		| sed '1,$s;^	@rpath/libssh;	/usr/local/lib/libssh;' \
 		| sed '1,$s;^	libbrotli;	/usr/local/lib/libbrotli;' \
-		| sed '1,$s;^	@rpath/libbrotli;	/usr/local/lib/libbrotli;' \
+		| sed '1,$s;^	@loader_path/libbrotli;	/usr/local/lib/libbrotli;' \
 		| grep -E -v "$exclude_prefixes" \
 		| sort \
 		| uniq \
@@ -265,10 +265,9 @@ fi
 
 if [ -d "$sparkle_frameworks_dir" ] ; then
 	cp -R "$sparkle_frameworks_dir" "$pkglib" || exit 1
-	# We're not sandboxing.
-	if [ "$sparkle_version" == "2" ] ; then
-		rm -rf "$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.InstallerLauncher.xpc" || exit 1
-	fi
+	# Remove these if we ever start sandboxing.
+	rm -f "$pkglib/Sparkle.framework/XPCServices" || exit 1
+	rm -rf "$pkglib/Sparkle.framework/Versions/B/XPCServices" || exit 1
 fi
 
 # NOTE: we must rpathify *all* files, *including* Qt libraries etc.,
@@ -536,7 +535,7 @@ codesign_file () {
 		--entitlements "@CMAKE_SOURCE_DIR@/packaging/macosx/entitlements.plist" \
 		--timestamp \
 		--verbose \
-		"$1"
+		"$1" || exit 1
 }
 
 # XXX We could do this via the productbuild calls in the {,un}install_*_pkg
@@ -576,11 +575,11 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 			--force \
 			--options runtime \
 			--verbose \
-			"$pkglib/Sparkle.framework/XPCServices/*.xpc" \
 			"$pkglib/Sparkle.framework/Versions/B/AutoUpdate" \
 			"$pkglib/Sparkle.framework/Versions/B/Updater.app" \
-			"$pkglib/Sparkle.framework"
-		# We're not sandboxing.
+			"$pkglib/Sparkle.framework" \
+			|| exit 1
+		# Uncomment if we ever start sandboxing.
 		# 	"$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.InstallerLauncher.xpc"
 		# codesign \
 		# 	--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
@@ -588,7 +587,8 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		# 	--options runtime \
 		# 	--entitlements "$sparkle_frameworks_dir/../Entitlements/org.sparkle-project.Downloader.entitlements" \
 		# 	--verbose \
-		# 	"$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.InstallerLauncher.xpc"
+		# 	"$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.Downloader.xpc" \
+		# 	|| exit 1
 	else
 		echo "Signing Sparkle's AutoUpdate.app"
 		codesign \
@@ -597,7 +597,8 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 			--timestamp \
 			--options runtime \
 			--verbose \
-			"$pkglib/Sparkle.framework/Versions/A/Resources/AutoUpdate.app"
+			"$pkglib/Sparkle.framework/Versions/A/Resources/AutoUpdate.app" \
+			|| exit 1
 	fi
 
 	echo "Signing frameworks"
