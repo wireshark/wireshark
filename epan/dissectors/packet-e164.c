@@ -462,6 +462,7 @@ static int proto_e164				= -1;
 static int hf_E164_calling_party_number		= -1;
 static int hf_E164_called_party_number		= -1;
 static int hf_E164_msisdn			= -1;
+static int hf_E164_isdn				= -1;
 static int hf_E164_identification_code		= -1;
 static int hf_E164_country_code			= -1;
 
@@ -832,6 +833,12 @@ dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e16
 	return dissect_e164(tvb, tree, offset, length, encoding, hf_E164_msisdn);
 }
 
+const gchar *
+dissect_e164_isdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
+{
+	return dissect_e164(tvb, tree, offset, length, encoding, hf_E164_isdn);
+}
+
 /*
  * Register the protocol with Wireshark.
  */
@@ -854,6 +861,11 @@ proto_register_e164(void)
 
 		{ &hf_E164_msisdn,
 		  { "E.164 number (MSISDN)", "e164.msisdn",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_E164_isdn,
+		  { "E.164 number (ISDN)", "e164.isdn",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
