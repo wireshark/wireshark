@@ -375,7 +375,9 @@ static void
 visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 {
 	stnode_t *left, *right;
+	stnode_t *lower, *upper;
 	GSList *params;
+	GSList *nodelist;
 
 	if (stnode_type_id(node) == STTYPE_TEST ||
 			stnode_type_id(node) == STTYPE_ARITHMETIC) {
@@ -394,6 +396,27 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 		}
 		else if (right) {
 			ws_assert_not_reached();
+		}
+	}
+	else if (stnode_type_id(node) == STTYPE_SET) {
+		nodelist = stnode_data(node);
+		wmem_strbuf_append_printf(buf, "SET(#%u):\n", g_slist_length(nodelist) / 2);
+		while (nodelist) {
+			indent(buf, level + 1);
+			lower = nodelist->data;
+			wmem_strbuf_append(buf, stnode_tostr(lower, FALSE));
+			/* Set elements are always in pairs; upper may be null. */
+			nodelist = g_slist_next(nodelist);
+			ws_assert(nodelist);
+			upper = nodelist->data;
+			if (upper != NULL) {
+				wmem_strbuf_append(buf, " .. ");
+				wmem_strbuf_append(buf, stnode_tostr(upper, FALSE));
+			}
+			nodelist = g_slist_next(nodelist);
+			if (nodelist != NULL) {
+				wmem_strbuf_append_c(buf, '\n');
+			}
 		}
 	}
 	else if (stnode_type_id(node) == STTYPE_FUNCTION) {
