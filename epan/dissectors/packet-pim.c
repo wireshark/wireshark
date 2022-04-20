@@ -313,6 +313,7 @@ static int hf_pim_srcount = -1;
 static int hf_pim_srcholdt = -1;
 static int hf_pim_transitivetype = -1;
 static int hf_pim_optiontype1 = -1;
+static int hf_pfm_no_forward_bit = -1;
 
 static gint ett_pim = -1;
 static gint ett_pim_opts = -1;
@@ -1098,6 +1099,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pim_tree, hf_pim_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (PIM_TYPE(pim_typever) == PIM_TYPE_PFM) {
+        proto_tree_add_item(pim_tree, hf_pfm_no_forward_bit, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    }
     if (PIM_TYPE(pim_typever) == PIM_TYPE_DF_ELECT) {
         proto_tree_add_item(pim_tree, hf_pim_df_elect_subtype, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pim_tree, hf_pim_df_elect_rsvd, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -2264,6 +2268,11 @@ proto_register_pim(void)
               { "Transitive Type", "pim.transitivetype",
                 FT_BOOLEAN, 8, NULL, 0x80,
                 "Set to 1 if this type is to be forwarded even if a router does not support it.", HFILL }
+            },
+            { &hf_pfm_no_forward_bit,
+              { "Pfm no forward bit", "pim.pfmnoforwardbit",
+                FT_BOOLEAN, 8, NULL, 0x80,
+                "When set, this bit means that the PFM message is not to be forwarded.", HFILL }
             }
         };
 
