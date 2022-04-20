@@ -10084,6 +10084,129 @@ addRANContParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     call_dissector(nrup_handle, next_tvb, pinfo, tree);
 }
 
+static void
+dissect_gtp_tpdu_by_handle(dissector_handle_t handle, tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset)
+{
+    tvbuff_t        *next_tvb;
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    call_dissector(handle, next_tvb, pinfo, tree);
+    col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+    col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+}
+
+static void
+dissect_gtp_tpdu_as_pdcp_lte_info(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hdr_t *gtp_hdr, int offset)
+{
+    /* Check if we have info to call the PDCP dissector */
+    struct pdcp_lte_info *p_pdcp_info;
+    uat_pdcp_lte_keys_record_t * found_record;
+    tvbuff_t *pdcp_lte_tvb;
+
+    if ((found_record = look_up_pdcp_lte_keys_record(pinfo, (guint32)gtp_hdr->teid))) {
+        /* Look for attached packet info! */
+        p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
+        /* If we don't have the data, add it */
+        if (p_pdcp_info == NULL) {
+            p_pdcp_info = wmem_new0(wmem_file_scope(), pdcp_lte_info);
+            /* Channel info is needed for RRC parsing */
+            /*p_pdcp_info->direction;*/
+            /*p_pdcp_info->ueid;*/
+            /*p_pdcp_info->channelType;*/
+            /*p_pdcp_info->channelId;*/
+            /*p_pdcp_info->BCCHTransport;*/
+
+            /* Details of PDCP header */
+            if (found_record->header_present == PDCP_LTE_HEADER_PRESENT) {
+                p_pdcp_info->no_header_pdu = FALSE;
+            } else {
+                p_pdcp_info->no_header_pdu = TRUE;
+            }
+            p_pdcp_info->plane = found_record->plane;
+            p_pdcp_info->seqnum_length = found_record->lte_sn_length;
+
+            /* RoHC settings */
+            p_pdcp_info->rohc.rohc_compression = found_record->rohc_compression;
+            p_pdcp_info->rohc.rohc_ip_version = 4; /* For now set it explicitly */
+            p_pdcp_info->rohc.cid_inclusion_info = FALSE;
+            p_pdcp_info->rohc.large_cid_present = FALSE;
+            p_pdcp_info->rohc.mode = MODE_NOT_SET;
+            p_pdcp_info->rohc.rnd = FALSE;
+            p_pdcp_info->rohc.udp_checksum_present = FALSE;
+            p_pdcp_info->rohc.profile = found_record->rohc_profile;
+
+            /* p_pdcp_info->is_retx;*/
+
+            /* Used by heuristic dissector only */
+            /*p_pdcp_info->pdu_length;*/
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0, p_pdcp_info);
+        }
+        pdcp_lte_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(pdcp_lte_handle, pdcp_lte_tvb, pinfo, tree);
+
+    } else {
+        proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtp_pdcp_no_conf, NULL, "[No PDCP-LTE Configuration data found]");
+        proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+    }
+}
+
+static void
+dissect_gtp_tpsu_as_pdcp_nr_info(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hdr_t *gtp_hdr, int offset)
+{
+    /*NR-U DUD or DDDS PDU
+    * This is NR-U DUD/DDDS PDU. It contains PDCP
+    * payload as per 3GPP TS 38.323
+    */
+    /* Check if we have info to call the PDCP dissector */
+    uat_pdcp_nr_keys_record_t* found_record;
+
+    if ((found_record = look_up_pdcp_nr_keys_record(pinfo, (guint32)gtp_hdr->teid))) {
+        tvbuff_t *pdcp_tvb;
+        struct pdcp_nr_info temp_data;
+
+        pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
+        /* Fill in pdcp_nr_info */
+
+        temp_data.direction = found_record->direction;
+        /*temp_data.ueid*/
+        /*temp_data.bearerType;*/
+        /*temp_data.bearerId;*/
+
+        /* Details of PDCP header */
+        temp_data.plane = found_record->plane;
+        temp_data.seqnum_length = found_record->pdcp_nr_sn_length;
+        /* PDCP_NR_(U|D)L_sdap_hdr_PRESENT bitmask */
+        if (found_record->sdap_header_present == PDCP_NR_SDAP_HEADER_PRESENT) {
+            if (temp_data.direction == PDCP_NR_DIRECTION_UPLINK) {
+                temp_data.sdap_header = PDCP_NR_UL_SDAP_HEADER_PRESENT;
+            } else {
+                temp_data.sdap_header = PDCP_NR_DL_SDAP_HEADER_PRESENT;
+            }
+        } else {
+            temp_data.sdap_header = 0;
+        }
+        temp_data.maci_present = found_record->mac_i_present;
+
+        /* RoHC settings */
+        temp_data.rohc.rohc_compression = found_record->rohc_compression;
+        temp_data.rohc.rohc_ip_version = 4; /* For now set it explicitly */
+        temp_data.rohc.cid_inclusion_info = FALSE;
+        temp_data.rohc.large_cid_present = FALSE;
+        temp_data.rohc.mode = MODE_NOT_SET;
+        temp_data.rohc.rnd = FALSE;
+        temp_data.rohc.udp_checksum_present = FALSE;
+        temp_data.rohc.profile = found_record->rohc_profile;
+
+        temp_data.is_retx = 0;
+
+        /* Used by heuristic dissector only */
+        temp_data.pdu_length = 0;
+
+        call_dissector_with_data(pdcp_nr_handle, pdcp_tvb, pinfo, tree, &temp_data);
+    } else {
+        proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtp_pdcp_no_conf, NULL, "[No PDCP-NR Configuration data found]");
+        proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+    }
+}
 
 static int
 dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
@@ -10102,7 +10225,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     guint            ext_hdr_length;
     guint16          ext_hdr_pdcpsn;
     gchar           *tid_str;
-    tvbuff_t        *next_tvb;
     guint8           sub_proto;
     guint8           acfield_len      = 0;
     gtp_msg_hash_t  *gcrp             = NULL;
@@ -10657,21 +10779,18 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 * 0x4f is excluded because PPP protocol type "IPv6 header compression"
                 * with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
 
-                next_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
+                dissect_gtp_tpdu_by_handle(ip_handle, tvb, pinfo, tree, offset);
 
             } else if ((sub_proto & 0xf0) == 0x60) {
                 /* this is most likely an IPv6 packet */
-                next_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+                dissect_gtp_tpdu_by_handle(ipv6_handle, tvb, pinfo, tree, offset);
             } else {
                 if (tvb_reported_length_remaining(tvb, offset)>14) {
                     guint16 eth_type;
                     eth_type = tvb_get_ntohs(tvb, offset+12);
                     if (eth_type == ETHERTYPE_ARP || eth_type == ETHERTYPE_IPv6 || eth_type == ETHERTYPE_IP) {
                         /* guess this is an ethernet PDU based on the eth type field */
-                        next_tvb = tvb_new_subset_remaining(tvb, offset);
-                        call_dissector(eth_handle, next_tvb, pinfo, tree);
+                        dissect_gtp_tpdu_by_handle(eth_handle, tvb, pinfo, tree, offset);
                     }
                 } else {
 #if 0
@@ -10691,145 +10810,29 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     call_dissector(ppp_handle, next_tvb, pinfo, tree);
 #endif
                     proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+
+                    col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+                    col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
                 }
             }
-            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
             break;
         case GTP_TPDU_AS_PDCP_LTE:
-            if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                /* Check if we have info to call the PDCP dissector */
-                struct pdcp_lte_info *p_pdcp_info;
-                uat_pdcp_lte_keys_record_t * found_record;
-                tvbuff_t *pdcp_lte_tvb;
-
-                if ((found_record = look_up_pdcp_lte_keys_record(pinfo, (guint32)gtp_hdr->teid))) {
-                    /* Look for attached packet info! */
-                    p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
-                    /* If we don't have the data, add it */
-                    if (p_pdcp_info == NULL) {
-                        p_pdcp_info = wmem_new0(wmem_file_scope(), pdcp_lte_info);
-                        /* Channel info is needed for RRC parsing */
-                        /*p_pdcp_info->direction;*/
-                        /*p_pdcp_info->ueid;*/
-                        /*p_pdcp_info->channelType;*/
-                        /*p_pdcp_info->channelId;*/
-                        /*p_pdcp_info->BCCHTransport;*/
-
-                        /* Details of PDCP header */
-                        if (found_record->header_present == PDCP_LTE_HEADER_PRESENT) {
-                            p_pdcp_info->no_header_pdu = FALSE;
-                        } else {
-                            p_pdcp_info->no_header_pdu = TRUE;
-                        }
-                        p_pdcp_info->plane = found_record->plane;
-                        p_pdcp_info->seqnum_length = found_record->lte_sn_length;
-
-                        /* RoHC settings */
-                        p_pdcp_info->rohc.rohc_compression = found_record->rohc_compression;
-                        p_pdcp_info->rohc.rohc_ip_version = 4; /* For now set it explicitly */
-                        p_pdcp_info->rohc.cid_inclusion_info = FALSE;
-                        p_pdcp_info->rohc.large_cid_present = FALSE;
-                        p_pdcp_info->rohc.mode = MODE_NOT_SET;
-                        p_pdcp_info->rohc.rnd = FALSE;
-                        p_pdcp_info->rohc.udp_checksum_present = FALSE;
-                        p_pdcp_info->rohc.profile = found_record->rohc_profile;
-
-                       /* p_pdcp_info->is_retx;*/
-
-                        /* Used by heuristic dissector only */
-                        /*p_pdcp_info->pdu_length;*/
-                        p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0, p_pdcp_info);
-                    }
-                    pdcp_lte_tvb = tvb_new_subset_remaining(tvb, offset);
-                    call_dissector(pdcp_lte_handle, pdcp_lte_tvb, pinfo, tree);
-
-                } else {
-                    proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtp_pdcp_no_conf, NULL, "[No PDCP-LTE Configuration data found]");
-                    proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
-                }
-            }
-
+            dissect_gtp_tpdu_as_pdcp_lte_info(tvb, pinfo, tree, gtp_hdr, offset);
             break;
         case GTP_TPDU_AS_PDCP_NR:
-            if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                /*NR-U DUD or DDDS PDU
-                * This is NR-U DUD/DDDS PDU. It contains PDCP
-                * payload as per 3GPP TS 38.323
-                */
-                /* Check if we have info to call the PDCP dissector */
-                uat_pdcp_nr_keys_record_t* found_record;
-
-                if ((found_record = look_up_pdcp_nr_keys_record(pinfo, (guint32)gtp_hdr->teid))) {
-                    tvbuff_t *pdcp_tvb;
-                    struct pdcp_nr_info temp_data;
-
-                    pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
-                    /* Fill in pdcp_nr_info */
-
-                    temp_data.direction = found_record->direction;
-                    /*temp_data.ueid*/
-                    /*temp_data.bearerType;*/
-                    /*temp_data.bearerId;*/
-
-                    /* Details of PDCP header */
-                    temp_data.plane = found_record->plane;
-                    temp_data.seqnum_length = found_record->pdcp_nr_sn_length;
-                    /* PDCP_NR_(U|D)L_sdap_hdr_PRESENT bitmask */
-                    if (found_record->sdap_header_present == PDCP_NR_SDAP_HEADER_PRESENT) {
-                        if (temp_data.direction == PDCP_NR_DIRECTION_UPLINK) {
-                            temp_data.sdap_header = PDCP_NR_UL_SDAP_HEADER_PRESENT;
-                        } else {
-                            temp_data.sdap_header = PDCP_NR_DL_SDAP_HEADER_PRESENT;
-                        }
-                    } else {
-                        temp_data.sdap_header = 0;
-                    }
-                    temp_data.maci_present = found_record->mac_i_present;
-
-                    /* RoHC settings */
-                    temp_data.rohc.rohc_compression = found_record->rohc_compression;
-                    temp_data.rohc.rohc_ip_version = 4; /* For now set it explicitly */
-                    temp_data.rohc.cid_inclusion_info = FALSE;
-                    temp_data.rohc.large_cid_present = FALSE;
-                    temp_data.rohc.mode = MODE_NOT_SET;
-                    temp_data.rohc.rnd = FALSE;
-                    temp_data.rohc.udp_checksum_present = FALSE;
-                    temp_data.rohc.profile = found_record->rohc_profile;
-
-                    temp_data.is_retx = 0;
-
-                    /* Used by heuristic dissector only */
-                    temp_data.pdu_length = 0;
-
-                    call_dissector_with_data(pdcp_nr_handle, pdcp_tvb, pinfo, tree, &temp_data);
-                } else {
-                    proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtp_pdcp_no_conf, NULL, "[No PDCP-NR Configuration data found]");
-                    proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
-                }
-            }
-
+            dissect_gtp_tpsu_as_pdcp_nr_info(tvb, pinfo, tree, gtp_hdr, offset);
             break;
         case GTP_TPDU_AS_SYNC:
-            next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-            call_dissector(sync_handle, next_tvb, pinfo, tree);
-            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            dissect_gtp_tpdu_by_handle(sync_handle, tvb, pinfo, tree, offset + acfield_len);
             break;
         case GTP_TPDU_AS_ETHERNET:
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(eth_handle, next_tvb, pinfo, tree);
-            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            dissect_gtp_tpdu_by_handle(eth_handle, tvb, pinfo, tree, offset);
             break;
         case GTP_TPDU_AS_CUSTOM:
             /* Call a custom dissector if available */
             if (gtp_tpdu_custom_handle ||
                  (gtp_tpdu_custom_handle = find_dissector("gtp_tpdu_custom"))) {
-                next_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector(gtp_tpdu_custom_handle, next_tvb, pinfo, tree);
-                col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-                col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+                dissect_gtp_tpdu_by_handle(gtp_tpdu_custom_handle, tvb, pinfo, tree, offset);
             } else {
                 proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
             }
