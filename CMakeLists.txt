@@ -1382,13 +1382,6 @@ if (QT_FOUND)
 	if (Qt${qtver}Widgets_VERSION VERSION_LESS 5.6)
 		message(FATAL_ERROR "Qt 5.6 or later is required.")
 	endif()
-	if (Qt${qtver}Widgets_VERSION VERSION_GREATER 5.6
-	    AND qtver MATCHES "5"
-	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
-		# Qt 5.7 and later require C++ 11.
-		set(CMAKE_CXX_STANDARD 11)
-		set(CMAKE_CXX_STANDARD_REQUIRED ON)
-	endif()
 	if(NOT DEFINED MOC_OPTIONS)
 		# Squelch moc verbose "nothing to do" output
 		set(MOC_OPTIONS -nn)
