@@ -19,10 +19,10 @@ shopt -s extglob
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
-# The minimum supported version of Qt is 5.6, so the minimum supported version
-# of macOS is OS X 10.8 (Mountain Lion), aka Darwin 12.0
-if [[ $DARWIN_MAJOR_VERSION -lt 12 ]]; then
-    echo "This script does not support any versions of macOS before Mountain Lion" 1>&2
+# The minimum supported version of Qt is 5.9, so the minimum supported version
+# of macOS is OS X 10.10 (Yosemite), aka Darwin 14.0
+if [[ $DARWIN_MAJOR_VERSION -lt 14 ]]; then
+    echo "This script does not support any versions of macOS before Yosemite" 1>&2
     exit 1
 fi
 
@@ -58,8 +58,8 @@ fi
 
 #
 # Some packages need xz to unpack their current source.
-# While tar, since macOS 10.9, can uncompress xz'ed tarballs,
-# it can't do so in older versions, and xz isn't provided with macOS.
+# XXX: tar, since macOS 10.9, can uncompress xz'ed tarballs,
+# so perhaps we could get rid of this now?
 #
 XZ_VERSION=5.2.5
 
@@ -78,19 +78,7 @@ PCRE_VERSION=8.45
 # CMake is required to do the build - and to build some of the
 # dependencies.
 #
-# 3.19.2 is the first version to support Apple Silicon, but the precompiled
-# binary on cmake.org is only a universal binary that requires macOS 10.0
-# (Yosemite) or newer.
-#
-# So on Mountain Lion and Mavericks we choose the last stable release that
-# works on them (3.18.6), and on Yosemite and later we choose the latest stable
-# version (currently 3.19.7).
-#
-if [[ $DARWIN_MAJOR_VERSION -gt 13 ]]; then
-    CMAKE_VERSION=${CMAKE_VERSION-3.21.4}
-else
-    CMAKE_VERSION=${CMAKE_VERSION-3.18.6}
-fi
+CMAKE_VERSION=${CMAKE_VERSION-3.21.4}
 
 #
 # Ninja isn't required, as make is provided with Xcode, but it is
@@ -135,7 +123,7 @@ PCRE2_VERSION=10.39
 # "QT_VERSION=5.10.1 ./macos-setup.sh"
 # will build and install with QT 5.10.1.
 #
-QT_VERSION=${QT_VERSION-5.12.10}
+QT_VERSION=${QT_VERSION-5.12.12}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
@@ -215,19 +203,7 @@ else
     #
     # No - install a Python package.
     #
-    # 3.7.6 is the final version of Python to have official packages for the
-    # 64-bit/32-bit variant that supports 10.6 (Snow Leopard) through 10.8
-    # (Mountain Lion), and 3.9.1 is the first version of Python to support
-    # macOS 11 Big Sur and Apple Silicon (Arm-based Macs).
-    #
-    # So on Mountain Lion, choose 3.7.6, otherwise get the latest stable
-    # version (3.9.5).
-    #
-    if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
-        PYTHON3_VERSION=3.9.5
-    else
-        PYTHON3_VERSION=3.7.6
-    fi
+    PYTHON3_VERSION=3.9.5
 fi
 BROTLI_VERSION=1.0.9
 # minizip
@@ -1113,12 +1089,8 @@ install_qt() {
         5)
             case $QT_MINOR_VERSION in
 
-            0|1|2|3|4|5)
+            0|1|2|3|4|5|6|7|8)
                 echo "Qt $QT_VERSION" is too old 1>&2
-                ;;
-
-            6|7|8)
-                QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
                 ;;
 
             9|10|11|12|13|14)
@@ -1176,11 +1148,11 @@ uninstall_qt() {
             5*)
                 case $installed_qt_minor_version in
 
-                0|1|2)
+                0|1|2|3|4|5)
                     echo "Qt $installed_qt_version" is too old 1>&2
                     ;;
 
-                3|4|5|6|7|8)
+                6|7|8)
                     installed_qt_volume=qt-opensource-mac-x64-clang-$installed_qt_version.dmg
                     ;;
 
@@ -2281,10 +2253,6 @@ install_python3() {
         else
             macver=11
         fi
-    elif [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
-        # The 64-bit installer requires 10.9 (Mavericks), use the 64-bit/32-bit
-        # variant for 10.8 (Mountain Lion).
-        macver=x10.6
     fi
     if [ "$PYTHON3_VERSION" -a ! -f python3-$PYTHON3_VERSION-done ] ; then
         echo "Downloading and installing python3:"
