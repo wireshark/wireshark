@@ -58,11 +58,7 @@ QWidget * ExtArgTimestamp::createEditor(QWidget * parent)
         text = storeValue.trimmed();
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     ts = QDateTime::fromSecsSinceEpoch(text.toInt());
-#else
-    ts = QDateTime::fromTime_t(text.toInt());
-#endif
     tsBox = new QDateTimeEdit(ts, parent);
     tsBox->setDisplayFormat(QLocale::system().dateTimeFormat());
     tsBox->setCalendarPopup(true);
@@ -84,11 +80,7 @@ void ExtArgTimestamp::onDateTimeChanged(QDateTime t)
 
 QString ExtArgTimestamp::defaultValue()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     return QString::number(QDateTime::currentDateTime().toSecsSinceEpoch());
-#else
-    return QString::number(QDateTime::currentDateTime().toTime_t());
-#endif
 }
 
 bool ExtArgTimestamp::isValid()
@@ -103,11 +95,7 @@ bool ExtArgTimestamp::isValid()
 
 QString ExtArgTimestamp::value()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     return QString::number(ts.toSecsSinceEpoch());
-#else
-    return QString::number(ts.toTime_t());
-#endif
 }
 
 QString ExtArgTimestamp::prefValue()
@@ -124,11 +112,7 @@ void ExtArgTimestamp::setDefaultValue()
 {
     QDateTime t;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     t = QDateTime::fromSecsSinceEpoch(defaultValue().toInt());
-#else
-    t = QDateTime::fromTime_t(defaultValue().toInt());
-#endif
     tsBox->setDateTime(t);
 }
 

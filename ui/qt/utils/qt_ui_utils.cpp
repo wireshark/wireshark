@@ -152,11 +152,7 @@ const QString file_size_to_qstring(const gint64 size)
 
 const QString time_t_to_qstring(time_t ti_time)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     QDateTime date_time = QDateTime::fromSecsSinceEpoch(qint64(ti_time));
-#else
-    QDateTime date_time = QDateTime::fromTime_t(uint(ti_time));
-#endif
     QString time_str = date_time.toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
     return time_str;
 }
