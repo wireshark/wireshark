@@ -201,6 +201,9 @@ while $endl; do
 	#    libbrotli, for some reason, doesn't have a path prefix in its
 	#    "install name" when built by tools/macos-setup.sh;
 	#
+	#    replace "@rpath/libbrotli" with "/usr/local/lib/libbrotli" so that
+	#    it isn't excluded from subsequent filtering;
+	#
 	#    strip out system libraries, as we don't bundle them with
 	#    Wireshark;
 	#
@@ -222,6 +225,7 @@ while $endl; do
 		| sed '1,$s;^	@rpath/libsnappy;	/usr/local/lib/libsnappy;' \
 		| sed '1,$s;^	@rpath/libssh;	/usr/local/lib/libssh;' \
 		| sed '1,$s;^	libbrotli;	/usr/local/lib/libbrotli;' \
+		| sed '1,$s;^	@rpath/libbrotli;	/usr/local/lib/libbrotli;' \
 		| grep -E -v "$exclude_prefixes" \
 		| sort \
 		| uniq \
@@ -572,6 +576,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 			--force \
 			--options runtime \
 			--verbose \
+			"$pkglib/Sparkle.framework/XPCServices/*.xpc" \
 			"$pkglib/Sparkle.framework/Versions/B/AutoUpdate" \
 			"$pkglib/Sparkle.framework/Versions/B/Updater.app" \
 			"$pkglib/Sparkle.framework"
