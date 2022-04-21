@@ -1905,7 +1905,6 @@ static ikev2_encr_alg_spec_t ikev2_encr_algs[] = {
   {IKEV2_ENCR_AES_CTR_192, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 0},
   {IKEV2_ENCR_AES_CTR_256, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 0},
 
-#ifdef HAVE_LIBGCRYPT_AEAD
   /* GCM algorithms: key length: aes-length + 4 bytes of IV (salt), iv - 8 bytes */
   {IKEV2_ENCR_AES_GCM_128_16, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 4, 16},
   {IKEV2_ENCR_AES_GCM_192_16, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_GCM, 4, 16},
@@ -1931,36 +1930,6 @@ static ikev2_encr_alg_spec_t ikev2_encr_algs[] = {
   {IKEV2_ENCR_AES_CCM_128_12, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CCM, 3, 12},
   {IKEV2_ENCR_AES_CCM_192_12, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CCM, 3, 12},
   {IKEV2_ENCR_AES_CCM_256_12, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CCM, 3, 12},
-#else
-  /* decrypt using plain ctr mode - special handling for GCM mode of counter initial value 2 inside dis_enc()*/
-  /* GCM algorithms: key length: aes-length + 4 bytes of IV (salt), iv - 8 bytes */
-  {IKEV2_ENCR_AES_GCM_128_16, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 4, 16},
-  {IKEV2_ENCR_AES_GCM_192_16, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 16},
-  {IKEV2_ENCR_AES_GCM_256_16, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 16},
-
-  {IKEV2_ENCR_AES_GCM_128_8, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 4, 8},
-  {IKEV2_ENCR_AES_GCM_192_8, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 8},
-  {IKEV2_ENCR_AES_GCM_256_8, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 8},
-
-  {IKEV2_ENCR_AES_GCM_128_12, 20, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 4, 12},
-  {IKEV2_ENCR_AES_GCM_192_12, 28, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 4, 12},
-  {IKEV2_ENCR_AES_GCM_256_12, 36, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 4, 12},
-
-  /* CCM algorithms: key length: aes-length + 3 bytes of salt, iv - 8 bytes.
-   * Special handling of setting first byte of iv to length of 14 - noncelen inside dis_enc() */
-  {IKEV2_ENCR_AES_CCM_128_16, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 3, 16},
-  {IKEV2_ENCR_AES_CCM_192_16, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 3, 16},
-  {IKEV2_ENCR_AES_CCM_256_16, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 3, 16},
-
-  {IKEV2_ENCR_AES_CCM_128_8, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 3, 8},
-  {IKEV2_ENCR_AES_CCM_192_8, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 3, 8},
-  {IKEV2_ENCR_AES_CCM_256_8, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 3, 8},
-
-  {IKEV2_ENCR_AES_CCM_128_12, 19, 1, 8, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 3, 12},
-  {IKEV2_ENCR_AES_CCM_192_12, 27, 1, 8, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR, 3, 12},
-  {IKEV2_ENCR_AES_CCM_256_12, 35, 1, 8, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 3, 12},
-
-#endif
 
   {0, 0, 0, 0, 0, 0, 0, 0}
 };
@@ -5847,10 +5816,8 @@ dissect_enc(tvbuff_t *tvb,
   tvbuff_t *decr_tvb = NULL;
   gint payloads_len;
   proto_tree *decr_tree = NULL, *decr_payloads_tree = NULL;
-#ifdef HAVE_LIBGCRYPT_AEAD
   guchar *aa_data = NULL, *icv_data = NULL;
   gint aad_len = 0;
-#endif
 
   if (decr_info) {
     /* Need decryption details to know field lengths. */
@@ -5915,7 +5882,6 @@ dissect_enc(tvbuff_t *tvb,
       /*
        * Recalculate ICD value if the specified authentication algorithm allows it.
        */
-#ifdef HAVE_LIBGCRYPT_AEAD
       if (icv_len) {
         /* For GCM/CCM algorithms ICD is computed during decryption.
           Must save offset and length of authenticated additional data (whole ISAKMP header
@@ -5924,7 +5890,6 @@ dissect_enc(tvbuff_t *tvb,
         aa_data = (guchar *)tvb_memdup(pinfo->pool, tvb, 0, aad_len);
         icv_data = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, icv_len);
       } else
-#endif
       if (key_info->auth_spec->gcry_alg) {
         proto_item_append_text(icd_item, " <%s>", val_to_str(key_info->auth_spec->number, vs_ikev2_auth_algs, "Unknown mac algo: %d"));
         err = gcry_md_open(&md_hd, key_info->auth_spec->gcry_alg, key_info->auth_spec->gcry_flag);
@@ -6036,7 +6001,6 @@ dissect_enc(tvbuff_t *tvb,
           key_info->encr_spec->gcry_alg, encr_iv_len, gcry_strerror(err));
       }
 
-#ifdef HAVE_LIBGCRYPT_AEAD
       if (key_info->encr_spec->gcry_mode == GCRY_CIPHER_MODE_CCM) {
         guint64 ccm_lengths[3];
         ccm_lengths[0] = encr_data_len;
@@ -6059,7 +6023,6 @@ dissect_enc(tvbuff_t *tvb,
             key_info->encr_spec->gcry_alg, gcry_strerror(err));
         }
       }
-#endif
 
       err = gcry_cipher_decrypt(cipher_hd, decr_data, decr_data_len, encr_data, encr_data_len);
       if (err) {
@@ -6068,7 +6031,6 @@ dissect_enc(tvbuff_t *tvb,
           key_info->encr_spec->gcry_alg, gcry_strerror(err));
       }
 
-#ifdef HAVE_LIBGCRYPT_AEAD
       if (icv_len) {
         /* gcry_cipher_checktag() doesn't work on 1.6.x version well - requires all of 16 bytes
          * of ICV, so it won't work with 12 and 8 bytes of ICV.
@@ -6113,7 +6075,6 @@ dissect_enc(tvbuff_t *tvb,
           expert_add_info(pinfo, icd_item, &ei_isakmp_ikev2_integrity_checksum);
         }
       }
-#endif
 
       gcry_cipher_close(cipher_hd);
     }

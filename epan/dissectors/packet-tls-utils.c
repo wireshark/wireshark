@@ -2883,20 +2883,10 @@ ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
     gint gcry_modes[] = {
         GCRY_CIPHER_MODE_STREAM,
         GCRY_CIPHER_MODE_CBC,
-#ifdef HAVE_LIBGCRYPT_AEAD
         GCRY_CIPHER_MODE_GCM,
         GCRY_CIPHER_MODE_CCM,
         GCRY_CIPHER_MODE_CCM,
-#else
-        GCRY_CIPHER_MODE_CTR,
-        GCRY_CIPHER_MODE_CTR,
-        GCRY_CIPHER_MODE_CTR,
-#endif
-#ifdef HAVE_LIBGCRYPT_CHACHA20_POLY1305
         GCRY_CIPHER_MODE_POLY1305,
-#else
-        -1,                         /* AEAD_CHACHA20_POLY1305 is unsupported. */
-#endif
     };
     gint err;
     if (algo == -1) {
@@ -4778,22 +4768,10 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 
 static gboolean
 tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
-#ifdef HAVE_LIBGCRYPT_AEAD
         guint8 ct, guint16 record_version,
-#else
-        guint8 ct _U_, guint16 record_version _U_,
-#endif
-        gboolean ignore_mac_failed
-#ifndef HAVE_LIBGCRYPT_AEAD
-        _U_
-#endif
-        ,
+        gboolean ignore_mac_failed,
         const guchar *in, guint16 inl,
-#ifdef HAVE_LIBGCRYPT_AEAD
         const guchar *cid, guint8 cidl,
-#else
-        const guchar *cid _U_, guint8 cidl _U_,
-#endif
         StringInfo *out_str, guint *outl)
 {
     /* RFC 5246 (TLS 1.2) 6.2.3.3 defines the TLSCipherText.fragment as:
@@ -4809,16 +4787,12 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     guint           ciphertext_len, auth_tag_len;
     guchar          nonce[12];
     const ssl_cipher_mode_t cipher_mode = decoder->cipher_suite->mode;
-#ifdef HAVE_LIBGCRYPT_AEAD
     const gboolean  is_cid = ct == SSL_ID_TLS12_CID && version == DTLSV1DOT2_VERSION;
     const guint8    draft_version = ssl->session.tls13_draft_version;
     const guchar   *auth_tag_wire;
     guchar          auth_tag_calc[16];
     guchar         *aad = NULL;
     guint           aad_len = 0;
-#else
-    guchar          nonce_with_counter[16] = { 0 };
-#endif
 
     switch (cipher_mode) {
     case MODE_GCM:
@@ -4855,9 +4829,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         ssl_debug_printf("%s Unexpected TLS version %#x\n", G_STRFUNC, version);
         return FALSE;
     }
-#ifdef HAVE_LIBGCRYPT_AEAD
     auth_tag_wire = ciphertext + ciphertext_len;
-#endif
 
     /*
      * Nonce construction is version-specific. Note that AEAD_CHACHA20_POLY1305
@@ -4869,25 +4841,6 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         memcpy(nonce, decoder->write_iv.data, IMPLICIT_NONCE_LEN);
         memcpy(nonce + IMPLICIT_NONCE_LEN, explicit_nonce, EXPLICIT_NONCE_LEN);
 
-#ifndef HAVE_LIBGCRYPT_AEAD
-        if (cipher_mode == MODE_GCM) {
-            /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
-             * at 1, and gets incremented before passing to the block cipher. */
-            memcpy(nonce_with_counter, nonce, IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN);
-            nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 2;
-        } else if (cipher_mode == MODE_CCM || cipher_mode == MODE_CCM_8) {
-            /* The nonce for CCM and GCM are the same, but the nonce is used as input
-             * in the CCM algorithm described in RFC 3610. The nonce generated here is
-             * the one from RFC 3610 sect 2.3. Encryption. */
-            /* Flags: (L-1) ; L = 16 - 1 - nonceSize */
-            nonce_with_counter[0] = 3 - 1;
-            memcpy(nonce_with_counter + 1, nonce, IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN);
-            /* struct { opaque salt[4]; opaque nonce_explicit[8] } CCMNonce (RFC 6655) */
-            nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 1;
-        } else {
-            ws_assert_not_reached();
-        }
-#endif
     } else if (version == TLSV1DOT3_VERSION || cipher_mode == MODE_POLY1305) {
         /*
          * Technically the nonce length must be at least 8 bytes, but for
@@ -4902,7 +4855,6 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     }
 
     /* Set nonce and additional authentication data */
-#ifdef HAVE_LIBGCRYPT_AEAD
     gcry_cipher_reset(decoder->evp);
     ssl_print_data("nonce", nonce, 12);
     err = gcry_cipher_setiv(decoder->evp, nonce, 12);
@@ -4975,13 +4927,6 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             return FALSE;
         }
     }
-#else
-    err = gcry_cipher_setctr(decoder->evp, nonce_with_counter, 16);
-    if (err) {
-        ssl_debug_printf("%s failed: failed to set CTR: %s\n", G_STRFUNC, gcry_strerror(err));
-        return FALSE;
-    }
-#endif
 
     /* Decrypt now that nonce and AAD are set. */
     err = gcry_cipher_decrypt(decoder->evp, out_str->data, out_str->data_len, ciphertext, ciphertext_len);
@@ -4991,7 +4936,6 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     }
 
     /* Check authentication tag for authenticity (replaces MAC) */
-#ifdef HAVE_LIBGCRYPT_AEAD
     err = gcry_cipher_gettag(decoder->evp, auth_tag_calc, auth_tag_len);
     if (err == 0 && !memcmp(auth_tag_calc, auth_tag_wire, auth_tag_len)) {
         ssl_print_data("auth_tag(OK)", auth_tag_calc, auth_tag_len);
@@ -5009,9 +4953,6 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             return FALSE;
         }
     }
-#else
-    ssl_debug_printf("Libgcrypt is older than 1.6, unable to verify auth tag!\n");
-#endif
 
     /*
      * Increment the (implicit) sequence number for TLS 1.2/1.3. This is done

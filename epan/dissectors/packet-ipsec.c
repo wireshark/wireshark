@@ -1765,12 +1765,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           esp_salt_len = 4;
           esp_encr_key_len -= esp_salt_len;
 
-#ifdef HAVE_LIBGCRYPT_AEAD
           crypt_mode_libgcrypt =
             (esp_encr_algo == IPSEC_ENCRYPT_AES_CTR) ? GCRY_CIPHER_MODE_CTR : GCRY_CIPHER_MODE_GCM;
-#else
-          crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CTR;
-#endif
           switch(esp_encr_key_len * 8)
           {
           case 128:
@@ -2020,7 +2016,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           }
 
 
-#ifdef HAVE_LIBGCRYPT_AEAD
           if (g_esp_enable_authentication_check && icv_type == ICV_TYPE_AEAD) {
             /* Allocate buffer for ICV  */
             esp_icv = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, esp_packet_len - esp_icv_len, esp_icv_len);
@@ -2033,7 +2028,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                    gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gcry_strerror(err));
             }
           }
-#endif
 
           if (!err)
           {
@@ -2052,7 +2046,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* Decryption has finished */
             decrypt_ok = TRUE;
 
-#ifdef HAVE_LIBGCRYPT_AEAD
             if (g_esp_enable_authentication_check && icv_type == ICV_TYPE_AEAD) {
               guchar *esp_icv_computed;
               gint tag_len;
@@ -2081,7 +2074,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 esp_icv_expected = bytes_to_str(wmem_packet_scope(), esp_icv_computed, esp_icv_len);
               }
             }
-#endif
           }
         }
       }

@@ -12,7 +12,7 @@
 
 #include "ws_symbol_export.h"
 
-#include <wsutil/wsgcrypt.h>	/* needed to define HAVE_LIBGCRYPT_AEAD */
+#include <wsutil/wsgcrypt.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,10 +53,8 @@ typedef struct quic_cid {
 
 /** Set/Get protocol-specific data for the QUIC STREAM. */
 
-#ifdef HAVE_LIBGCRYPT_AEAD
 void    quic_stream_add_proto_data(struct _packet_info *pinfo, quic_stream_info *stream_info, void *proto_data);
 void   *quic_stream_get_proto_data(struct _packet_info *pinfo, quic_stream_info *stream_info);
-#endif /* HAVE_LIBGCRYPT_AEAD */
 
 /** Returns the number of items for quic.connection.number. */
 WS_DLL_PUBLIC guint32 get_quic_connections_count(void);

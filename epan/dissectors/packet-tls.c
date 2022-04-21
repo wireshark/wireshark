@@ -1097,7 +1097,6 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
     return success;
 }
 
-#ifdef HAVE_LIBGCRYPT_AEAD
 /**
  * Try to guess the early data cipher using trial decryption.
  * Requires Libgcrypt 1.6 or newer for verifying that decryption is successful.
@@ -1172,7 +1171,6 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     }
     return success;
 }
-#endif
 
 static void
 process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1940,9 +1938,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         /* Try to decrypt TLS 1.3 early data first */
         if (session->version == TLSV1DOT3_VERSION && content_type == SSL_ID_APP_DATA &&
             ssl->has_early_data && !ssl_packet_from_server(session, ssl_associations, pinfo)) {
-#ifdef HAVE_LIBGCRYPT_AEAD
             decrypt_ok = decrypt_tls13_early_data(tvb, pinfo, offset, record_length, ssl, curr_layer_num_ssl);
-#endif
             if (!decrypt_ok) {
                 /* Either trial decryption failed (e.g. missing key) or end of
                  * early data is reached. Switch to HS secrets if available. */
@@ -3783,20 +3779,10 @@ tls_get_cipher_info(packet_info *pinfo, guint16 cipher_suite, int *cipher_algo, 
     static const gint gcry_modes[] = {
         GCRY_CIPHER_MODE_STREAM,
         GCRY_CIPHER_MODE_CBC,
-#ifdef HAVE_LIBGCRYPT_AEAD
         GCRY_CIPHER_MODE_GCM,
         GCRY_CIPHER_MODE_CCM,
         GCRY_CIPHER_MODE_CCM,
-#else
-        -1,                         /* Do not bother with fallback support. */
-        -1,
-        -1,
-#endif
-#ifdef HAVE_LIBGCRYPT_CHACHA20_POLY1305
         GCRY_CIPHER_MODE_POLY1305,
-#else
-        -1,                         /* AEAD_CHACHA20_POLY1305 is unsupported. */
-#endif
     };
     static const int gcry_mds[] = {
         GCRY_MD_MD5,
