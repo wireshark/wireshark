@@ -9,8 +9,8 @@
 
 include(FindPackageHandleStandardArgs)
 
-file(GLOB USR_LOCAL_HINT "/usr/local/Sparkle-[1-9]*/")
-file(GLOB HOMEBREW_HINT "/usr/local/Caskroom/sparkle/[1-9]*/")
+file(GLOB USR_LOCAL_HINT "/usr/local/Sparkle-[2-9]*/")
+file(GLOB HOMEBREW_HINT "/usr/local/Caskroom/sparkle/[2-9]*/")
 
 find_path(SPARKLE_INCLUDE_DIR Sparkle.h
   HINTS ${USR_LOCAL_HINT} ${HOMEBREW_HINT}
@@ -32,6 +32,8 @@ find_file(_spustandardupdatercontroller_h SPUStandardUpdaterController.h
 if(_spustandardupdatercontroller_h)
   set(SPARKLE_VERSION 2)
 endif()
+
+unset(_spustandardupdatercontroller_h CACHE)
 
 find_package_handle_standard_args(Sparkle
   REQUIRED_VARS SPARKLE_INCLUDE_DIR SPARKLE_LIBRARY

@@ -15,16 +15,10 @@
 
 #import <Sparkle.h>
 
-// XXX Is there a more reliable way to do this?
-#ifdef SPUUserUpdateState_h
-#define HAVE_SPARKLE_2
-#endif
-
 // https://sparkle-project.org/documentation/customization/
 // Sparkle stores its state in ~/Library/Preferences/org.wireshark.Wireshark.plist.
 // You can check its log output via `log stream | grep -i sparkle`.
 
-#ifdef HAVE_SPARKLE_2
 // The Sparkle 1 UI provided a sharedUpdater singleton, which is deprecated
 // in Sparkle 2:
 //   https://sparkle-project.org/documentation/upgrading/
@@ -47,28 +41,17 @@
 }
 
 @end
-#endif
 
 void sparkle_software_update_init(const char *url, bool enabled, int interval)
 {
-#ifdef HAVE_SPARKLE_2
     [[[SparkleBridge sharedStandardUpdaterController] updater] setAutomaticallyChecksForUpdates: enabled];
     [[[SparkleBridge sharedStandardUpdaterController] updater] setUpdateCheckInterval: interval];
     [[[SparkleBridge sharedStandardUpdaterController] updater] setFeedURL: [NSURL URLWithString: [[NSString alloc] initWithUTF8String: url] ]];
-#else
-    [[SUUpdater sharedUpdater] setAutomaticallyChecksForUpdates: enabled];
-    [[SUUpdater sharedUpdater] setUpdateCheckInterval: interval];
-    [[SUUpdater sharedUpdater] setFeedURL: [NSURL URLWithString: [[NSString alloc] initWithUTF8String: url] ]];
-#endif
 }
 
 void sparkle_software_update_check(void)
 {
-#ifdef HAVE_SPARKLE_2
     [[SparkleBridge sharedStandardUpdaterController] checkForUpdates: [[NSApplication sharedApplication] delegate]];
-#else
-    [[SUUpdater sharedUpdater] checkForUpdates: [[NSApplication sharedApplication] delegate]];
-#endif
 }
 
 // Sparkle requires NSApplicationWillTerminateNotification in order to
