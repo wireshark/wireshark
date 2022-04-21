@@ -180,9 +180,6 @@
 #include <ctype.h>
 
 #include <wsutil/wsgcrypt.h>
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-#define LIBGCRYPT_OK
-#endif
 
 #include <epan/packet.h>
 #include <epan/proto.h>
@@ -1938,7 +1935,6 @@ static const value_string sgmp_opcode_strings[] = {
 #if 0 /* TODO not used yet */
 static gboolean sgmp_validate_session_key(sgmp_packet_data *cmd_data, guint8 *confirmation, guint8 *kek, guint8 *key)
 {
-#ifdef LIBGCRYPT_OK
     gcry_mac_hd_t hmac;
     gcry_error_t result;
 
@@ -1952,9 +1948,6 @@ static gboolean sgmp_validate_session_key(sgmp_packet_data *cmd_data, guint8 *co
     gcry_mac_write(hmac, key, 32);
     result = gcry_mac_verify(hmac, confirmation, sizeof(confirmation));
     return result == 0;
-#else
-    return FALSE;
-#endif
 }
 #endif
 
@@ -9103,7 +9096,6 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return offset;
 }
 
-#ifdef LIBGCRYPT_OK
 static gboolean validate_session_key(tep_rekey_data *rekey, guint S_length, guint8 *S, guint8 *confirmation, guint8 *key)
 {
     guint8 pad[16];
@@ -9125,12 +9117,6 @@ static gboolean validate_session_key(tep_rekey_data *rekey, guint S_length, guin
     result = gcry_mac_verify(hmac, confirmation, 32);
     return result == 0;
 }
-#else
-static gboolean validate_session_key(tep_rekey_data *rekey _U_, guint S_length _U_, guint8 *S _U_, guint8 *confirmation _U_, guint8 *key _U_)
-{
-   return FALSE;
-}
-#endif
 
 static int dissect_tep_dsp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
@@ -11315,11 +11301,7 @@ static void dof_register_dpp_2(void)
         { &ei_dpp_default_flags, { "dof.dpp.v2.flags_included", PI_COMMENTS_GROUP, PI_NOTE, "Default flag value is included explicitly.", EXPFILL } },
         { &ei_dpp_explicit_sender_sid_included, { "dof.dpp.v2.sender_sid_included", PI_PROTOCOL, PI_NOTE, "Explicit SID could be optimized, same as sender.", EXPFILL } },
         { &ei_dpp_explicit_receiver_sid_included, { "dof.dpp.v2.receiver_sid_included", PI_PROTOCOL, PI_NOTE, "Explicit SID could be optimized, same as receiver.", EXPFILL } },
-#ifdef LIBGCRYPT_OK
         { &ei_dpp_no_security_context, { "dof.dpp.v2.no_context", PI_UNDECODED, PI_WARN, "No security context to enable packet decryption.", EXPFILL } },
-#else
-        { &ei_dpp_no_security_context, { "dof.dpp.v2.no_context", PI_UNDECODED, PI_WARN, "This version of wireshark was built without DOF decryption capability", EXPFILL } },
-#endif
     };
 
     static gint *sett[] =

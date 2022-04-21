@@ -155,8 +155,6 @@ static guint32 sequence_counter[E_BTMESH_PROXY_SIDE_LAST];
 static guint32 fragment_counter[E_BTMESH_PROXY_SIDE_LAST];
 static gboolean first_pass;
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-
 static gint
 dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -280,17 +278,6 @@ dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_
     }
     return offset;
 }
-
-#else /* GCRYPT_VERSION_NUMBER >= 0x010600 */
-
-static gint
-dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree_add_item(tree, hf_btmesh_proxy_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
-    return tvb_reported_length(tvb);
-}
-
-#endif/* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
 static gint
 dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *proxy_data)

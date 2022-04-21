@@ -13,11 +13,6 @@
 #include "curve25519.h"
 #include "ws_attributes.h"
 
-#if GCRYPT_VERSION_NUMBER >= 0x010700 /* 1.7.0 */
-#define HAVE_X25519
-#endif
-
-#ifdef HAVE_X25519
 static inline void
 copy_and_reverse(unsigned char *dest, const unsigned char *src, size_t n)
 {
@@ -105,17 +100,3 @@ crypto_scalarmult_curve25519_base(unsigned char *q, const unsigned char *n)
     gcry_mpi_release(mpi_basepoint_x);
     return r;
 }
-#else
-int
-crypto_scalarmult_curve25519(unsigned char *q _U_, const unsigned char *n _U_,
-                             const unsigned char *p _U_)
-{
-    return -1;
-}
-
-int
-crypto_scalarmult_curve25519_base(unsigned char *q _U_, const unsigned char *n _U_)
-{
-    return -1;
-}
-#endif /* HAVE_X25519 */

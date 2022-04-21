@@ -177,24 +177,12 @@ int Dot11DecryptCcmpDecrypt(
 	int tk_len,
 	int mic_len);
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 int Dot11DecryptGcmpDecrypt(
 	guint8 *m,
 	int mac_header_len,
 	int len,
 	guint8 *TK1,
 	int tk_len);
-#else
-static inline int Dot11DecryptGcmpDecrypt(
-	guint8 *m _U_,
-	int mac_header_len _U_,
-	int len _U_,
-	guint8 *TK1 _U_,
-	int tk_len _U_)
-{
-	return 1;
-}
-#endif
 
 INT Dot11DecryptTkipDecrypt(
 	UCHAR *tkip_mpdu,

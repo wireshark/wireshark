@@ -3920,7 +3920,6 @@ tls_get_alpn(packet_info *pinfo)
 }
 
 /* TLS Exporters {{{ */
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 /**
  * Computes the TLS 1.3 Exporter value (RFC 8446 Section 7.5).
  *
@@ -4009,7 +4008,6 @@ tls13_exporter(packet_info *pinfo, gboolean is_early,
 
     return tls13_exporter_common(hash_algo, secret, label, context, context_length, key_length, out);
 }
-#endif
 /* }}} */
 
 

@@ -1700,8 +1700,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 
 
 /* Try to calculate digest to compare with that found in frame. */
-#if defined(HAVE_SNOW3G) || GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */ || defined(HAVE_ZUC)
-/* We can calculate it for at least some integrity types */
 static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header,
                                 tvbuff_t *tvb, packet_info *pinfo, gint offset, gboolean *calculated)
 {
@@ -1753,7 +1751,6 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             }
 #endif
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
         case eia2:
             {
                 /* AES */
@@ -1813,7 +1810,6 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 *calculated = TRUE;
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
             }
-#endif
 #ifdef HAVE_ZUC
         case eia3:
             {
@@ -1846,22 +1842,6 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             return 0;
     }
 }
-#else /* defined(HAVE_SNOW3G) || GCRYPT_VERSION_NUMBER >= 0x010600 || defined(HAVE_ZUC) */
-/* We can't calculate it for any integrity types other than eia0 */
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header _U_,
-                                tvbuff_t *tvb _U_, packet_info *pinfo _U_, gint offset _U_, gboolean *calculated)
-{
-    *calculated = FALSE;
-
-    if (pdu_security_settings->integrity == eia0) {
-        /* Should be zero in this case */
-        *calculated = TRUE;
-    }
-
-    /* Otherwise, we can't calculate it */
-    return 0;
-}
-#endif /* defined(HAVE_SNOW3G) || GCRYPT_VERSION_NUMBER >= 0x010600 || defined(HAVE_ZUC) */
 
 /******************************/
 /* Main dissection function.  */

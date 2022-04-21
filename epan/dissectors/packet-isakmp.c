@@ -6084,6 +6084,9 @@ dissect_enc(tvbuff_t *tvb,
          * - in 1.6.x length must be equal of cipher block length. Aaargh... :-(
          * We use accepted for both versions length of block size for GCM (16 bytes).
          * For CCM length given must be the same as given to gcry_cipher_ctl(GCRYCTL_SET_CCM_LENGTHS)
+         *
+         * XXX: We now require libgcrypt 1.8.0, so presumably this could
+         * be updated?
          */
         guchar *tag;
         gint tag_len = icv_len;

@@ -30,7 +30,6 @@ gcry_error_t ws_hmac_buffer(int algo, void *digest, const void *buffer, size_t l
 	return GPG_ERR_NO_ERROR;
 }
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600
 gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t length, const void *key, size_t keylen)
 {
 	gcry_mac_hd_t cmac_handle;
@@ -48,12 +47,6 @@ gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t l
 	gcry_mac_close(cmac_handle);
 	return result;
 }
-#else
-gcry_error_t ws_cmac_buffer(int algo _U_, void *digest _U_, const void *buffer _U_, size_t length _U_, const void *key _U_, size_t keylen _U_)
-{
-	return GPG_ERR_UNSUPPORTED_ALGORITHM;
-}
-#endif
 
 void crypt_des_ecb(guint8 *output, const guint8 *buffer, const guint8 *key56)
 {
