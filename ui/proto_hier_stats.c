@@ -90,44 +90,42 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
 
     finfo = PNODE_FINFO(ptree_node);
     /* We don't fake protocol nodes we expect them to have a field_info.
-     * Dissection with faked proto tree? */
+     * Even with a faked proto tree, we don't fake nodes when PTREE_FINFO(tree)
+     * is NULL in order to avoid crashes here and elsewhere. (See epan/proto.c)
+     */
     ws_assert(finfo);
 
-    /* If the field info isn't related to a protocol but to a field,
-     * don't count them, as they don't belong to any protocol.
-     * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
-    if (!proto_registrar_is_protocol(finfo->hfinfo->id)) {
-        /* Skip this element, use parent status node */
-        stat_node = parent_stat_node;
-        stats = STAT_NODE_STATS(stat_node);
-    } else {
-        stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
+    stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
 
-        stats = STAT_NODE_STATS(stat_node);
-        /* Only increment the total packet count once per packet for a given
-         * node, since there could be multiple PDUs in a frame.
-         * (All the other statistics should be incremented every time,
-         * including the count for how often a protocol was the last
-         * protocol in a packet.)
-         */
-        if (stats->last_pkt != ps->tot_packets) {
-            stats->num_pkts_total++;
-            stats->last_pkt = ps->tot_packets;
-        }
-        stats->num_pdus_total++;
-        stats->num_bytes_total += finfo->length + finfo->appendix_length;
+    stats = STAT_NODE_STATS(stat_node);
+    /* Only increment the total packet count once per packet for a given
+     * node, since there could be multiple PDUs in a frame.
+     * (All the other statistics should be incremented every time,
+     * including the count for how often a protocol was the last
+     * protocol in a packet.)
+     */
+    if (stats->last_pkt != ps->tot_packets) {
+        stats->num_pkts_total++;
+        stats->last_pkt = ps->tot_packets;
     }
+    stats->num_pdus_total++;
+    stats->num_bytes_total += finfo->length + finfo->appendix_length;
 
     proto_sibling_node = ptree_node->next;
 
-    if (proto_sibling_node) {
-        /* If the name does not exist for this proto_sibling_node, then it is
-         * not a normal protocol in the top-level tree.  It was instead
-         * added as a normal tree such as IPv6's Hop-by-hop Option Header and
-         * should be skipped when creating the protocol hierarchy display. */
-        if(strlen(PNODE_FINFO(proto_sibling_node)->hfinfo->name) == 0 && ptree_node->next)
-            proto_sibling_node = proto_sibling_node->next;
+    /* Skip entries that are not protocols, e.g.
+     * toplevel tree item of desegmentation "[Reassembled TCP Segments]")
+     * XXX: We should probably skip PINOs with field_type FT_BYTES too.
+     *
+     * XXX: We look at siblings not children, and thus don't descend into
+     * the tree to pick up embedded protocols not added to the toplevel of
+     * the tree.
+     */
+    while (proto_sibling_node && !proto_registrar_is_protocol(PNODE_FINFO(proto_sibling_node)->hfinfo->id)) {
+        proto_sibling_node = proto_sibling_node->next;
+    }
 
+    if (proto_sibling_node) {
         process_node(proto_sibling_node, stat_node, ps);
     } else {
         stats->num_pkts_last++;
@@ -143,12 +141,12 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps)
     proto_node	*ptree_node;
 
     /*
-     * If our first item is a comment, skip over it. This keeps
-     * us from having a top-level "Packet comments" item that
-     * steals items from "Frame".
+     * Skip over non-protocols and comments. (Packet comments are a PINO
+     * with FT_PROTOCOL field type). This keeps us from having a top-level
+     * "Packet comments" item that steals items from "Frame".
      */
     ptree_node = ((proto_node *)protocol_tree)->first_child;
-    if (ptree_node && ptree_node->finfo->hfinfo->id == pc_proto_id) {
+    while (ptree_node && (ptree_node->finfo->hfinfo->id == pc_proto_id || !proto_registrar_is_protocol(ptree_node->finfo->hfinfo->id))) {
         ptree_node = ptree_node->next;
     }
 
