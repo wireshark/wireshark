@@ -497,8 +497,13 @@ typedef struct cip_connection_triad {
 typedef struct cip_safety_epath_info {
    gboolean safety_seg;
    enum cip_safety_format_type format;
-   guint16 running_rollover_value;  /* Keep track of the rollover value over the course of the connection */
-   guint16 running_timestamp_value; /* Keep track of the timestamp value over the course of the connection */
+
+   // These 3x variables are only used during a first pass calculation.
+   guint16 running_rollover_value;   /* Keep track of the rollover value over the course of the connection */
+   guint16 running_timestamp_value;  /* Keep track of the timestamp value over the course of the connection */
+   gboolean seen_non_zero_timestamp; /* True if we have seen a non-zero timestamp on this connection */
+
+   // The Target CIP Connection Triad from the Forward Open Response, Safety Application Reply Data.
    cip_connection_triad_t target_triad;
 } cip_safety_epath_info_t;
 
