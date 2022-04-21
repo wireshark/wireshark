@@ -41,6 +41,7 @@ enum InterfaceTreeColumns
     IFTREE_COL_PROMISCUOUSMODE,
     IFTREE_COL_TYPE,
     IFTREE_COL_STATS,
+    IFTREE_COL_ACTIVE,
     IFTREE_COL_SNAPLEN,
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     IFTREE_COL_BUFFERLEN,
@@ -85,13 +86,12 @@ public:
 
 public slots:
     void getPoints(int idx, PointList *pts);
-
-protected slots:
     void interfaceListChanged();
 
 private:
     QVariant toolTipForInterface(int idx) const;
     QMap<QString, PointList> points;
+    QMap<QString, bool> active;
 
 #ifdef HAVE_LIBPCAP
     if_stat_cache_t *stat_cache_;

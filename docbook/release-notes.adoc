@@ -109,6 +109,9 @@ They previously shipped with Npcap 1.55.
 
 * ZigBee ZCL Messaging: rename zbee_zcl_se.msg.msg_ctrl.depreciated to zbee_zcl_se.msg.msg_ctrl.deprecated
 
+* The interface list on the welcome page sorts active interfaces first and only displays the sparkline for active interfaces. 
+  Additionally, the interfaces can now be hidden/unhidden via the context menu in the interface list
+
 === Removed Features and Support
 
 * CMake: The options starting with DISABLE_something were renamed ENABLE_something for consistency.

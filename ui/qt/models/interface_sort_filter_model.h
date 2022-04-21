@@ -60,6 +60,7 @@ public:
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
     bool filterAcceptsColumn(int source_column, const QModelIndex & source_parent) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
 
 private:
     bool _filterHidden;

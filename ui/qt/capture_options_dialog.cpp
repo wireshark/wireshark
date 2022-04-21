@@ -793,7 +793,8 @@ void CaptureOptionsDialog::updateInterfaces()
 
             ti->setText(col_interface_, device->display_name);
             ti->setData(col_interface_, Qt::UserRole, QString(device->name));
-            ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(ti->points));
+            if (device->if_info.type != IF_EXTCAP)
+                ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(ti->points));
 
             if (device->no_addresses > 0) {
                 QString addr_str = tr("%1: %2").arg(device->no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device->addresses);

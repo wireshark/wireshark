@@ -369,3 +369,15 @@ QString InterfaceSortFilterModel::interfaceError()
 
     return result;
 }
+
+bool InterfaceSortFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    bool leftActive = source_left.sibling(source_left.row(), InterfaceTreeColumns::IFTREE_COL_ACTIVE).data(Qt::UserRole).toBool();
+    bool rightActive = source_right.sibling(source_right.row(), InterfaceTreeColumns::IFTREE_COL_ACTIVE).data(Qt::UserRole).toBool();
+
+    if (rightActive && ! leftActive)
+        return true;
+
+    return QSortFilterProxyModel::lessThan(source_left, source_right);
+}
+

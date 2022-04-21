@@ -30,6 +30,8 @@
 #include "extcap.h"
 
 #include <ui/recent.h>
+#include "capture_opts.h"
+#include "ui/capture_globals.h"
 #include <wsutil/utf8_entities.h>
 
 #include <QDesktopServices>
@@ -100,6 +102,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     info_model_.setColumn(static_cast<int>(columns.indexOf(IFTREE_COL_STATS)));
 
     ui->interfaceTree->setModel(&info_model_);
+    ui->interfaceTree->setSortingEnabled(true);
 
     ui->interfaceTree->setItemDelegateForColumn(proxy_model_.mapSourceToColumn(IFTREE_COL_STATS), new SparkLineDelegate(this));
 
@@ -247,6 +250,7 @@ void InterfaceFrame::interfaceListChanged()
 
 void InterfaceFrame::toggleHiddenInterfaces()
 {
+    source_model_.interfaceListChanged();
     proxy_model_.toggleFilterHidden();
 
     emit typeSelectionChanged();
@@ -475,7 +479,6 @@ void InterfaceFrame::updateStatistics(void)
         if (selectIndex.isValid())
             source_model_.updateStatistic(idx);
     }
-
 #endif
 }
 
@@ -509,6 +512,21 @@ void InterfaceFrame::showContextMenu(QPoint pos)
 
         startCapture(ifaces);
     });
+
+    ctx_menu.addSeparator();
+
+    QModelIndex actIndex = ui->interfaceTree->indexAt(pos);
+    QModelIndex realIndex = proxy_model_.mapToSource(info_model_.mapToSource(actIndex));
+    bool isHidden = realIndex.sibling(realIndex.row(), IFTREE_COL_HIDDEN).data(Qt::UserRole).toBool();
+    QAction * hideAction = ctx_menu.addAction(tr("Hide Interface"), this, [=] () {
+        /* Attention! Only realIndex.row is a 1:1 correlation to all_ifaces */
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, realIndex.row());
+        device->hidden = ! device->hidden;
+        mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
+    });
+    hideAction->setCheckable(true);
+    hideAction->setChecked(isHidden);
+
     ctx_menu.exec(ui->interfaceTree->mapToGlobal(pos));
 }
 
