@@ -34,6 +34,9 @@ public:
     int interfacesHidden();
     void toggleFilterHidden();
 
+    void setSortByActivity(bool sort);
+    bool sortByActivity() const;
+
 #ifdef HAVE_PCAP_REMOTE
     void setRemoteDisplay(bool remoteDisplay);
     bool remoteDisplay();
@@ -67,6 +70,7 @@ private:
     bool _filterTypes;
     bool _invertTypeFilter;
     bool _storeOnChange;
+    bool _sortByActivity;
 
 #ifdef HAVE_PCAP_REMOTE
     bool _remoteDisplay;

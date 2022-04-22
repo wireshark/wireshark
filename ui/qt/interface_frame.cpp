@@ -96,6 +96,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     columns.append(IFTREE_COL_STATS);
     proxy_model_.setColumns(columns);
     proxy_model_.setStoreOnChange(true);
+    proxy_model_.setSortByActivity(true);
     proxy_model_.setSourceModel(&source_model_);
 
     info_model_.setSourceModel(&proxy_model_);
