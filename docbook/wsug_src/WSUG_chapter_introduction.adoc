@@ -197,6 +197,7 @@ party libraries on which we depend or due to necessary features that are only
 present in newer versions of Windows such as hardened security or memory
 management.
 
+* Wireshark 3.6 was the last release branch to officially support 32-bit Windows.
 * Wireshark 3.2 was the last release branch to officially support Windows 7 and Windows Server 2008 R2.
 * Wireshark 2.2 was the last release branch to support Windows Vista and Windows Server 2008 sans R2
 * Wireshark 1.12 was the last release branch to support Windows Server 2003.

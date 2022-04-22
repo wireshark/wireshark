@@ -9,11 +9,8 @@
 This book tries to give you a guide to start your own experiments into
 the wonderful world of Wireshark development.
 
-Developers who are new to Wireshark often have a hard time getting
-their development environment up and running. This is
-especially true for Win32 developers, as a lot of the tools and methods
-used when building Wireshark are much more common in the UNIX world than
-on Win32.
+Developers who are new to Wireshark often have a hard time getting their development environment up and running.
+This is especially true for Windows developers, as a lot of the tools and methods used when building Wireshark are much more common in the UNIX world than on Windows.
 
 The first part of this book will describe how to set up the environment
 needed to develop Wireshark.

@@ -252,7 +252,7 @@ Running Wireshark this way can be helpful since debugging output will be display
 You can also change Wireshark’s behavior by setting various environment variables.
 See the {wireshark-man-page-url}wireshark.html#ENVIRONMENT-VARIABLES[ENVIRONMENT VARIABLES] section of the Wireshark man page for more details.
 
-[#ChSrcRunFirstTimeWin32]
+[#ChSrcRunFirstTimeWindows]
 ==== Windows Native
 
 By default the CMake-generated Visual {cpp} project places all of the files necessary to run Wireshark in the subdirectory `run\RelWithDebInfo`.
@@ -293,7 +293,7 @@ $ cmake .. -G Ninja -DENABLE_ASAN=1
 
 See https://developer-old.gnome.org/glib/stable/glib-running.html
 
-[#ChSrcWin32Debug]
+[#ChSrcWindowsDebug]
 ==== Windows Native
 
 You can debug using the Visual Studio Debugger or WinDbg.  See the section

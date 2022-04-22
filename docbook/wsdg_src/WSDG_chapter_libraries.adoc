@@ -8,54 +8,25 @@
 
 === Introduction
 
-Several libraries are needed to build and run Wireshark. Most of them
-are split into three packages:
+Like most applications, Wireshark depends on libraries provided by your operating system and by third parties, including the C runtime library, GLib, libpcap, and Qt.
+While running Wireshark only requires the libraries themselves, building it requires header files, import libraries, and related resources.
 
-. _Runtime_. System and third party libraries such as _vcruntime140.dll_
-and _glib-2.0-0.dll_.
+Binary libraries are available in different formats and are specific to the target operating system, platform, and compiler.
+They can be compiled by hand, but are most often installed as pre-built packages.
 
-. _Developer_. Documentation, header files, import libraries, and other
-files needed for compilation.
+On most Linux systems, the required binary and development libraries can be installed using your package manager.
+We provide setup scripts that will install the required packages for most distributions.
+See <<ChSetupUNIXBuildEnvironmentSetup>> for details.
 
-. _Source_. Library sources, which are usually not required to build
-Wireshark.
+On macOS, you can install pre-built packages using a third party package manager such as Homebrew or MacPorts.
+As with Linux, we provide `tools/macos-setup-brew.sh`, which will install the required Homebrew packages.
+We also provide `tools/macos-setup.sh`, which will download, build, and install required packages.
 
-[TIP]
-.Our libraries are freely available
-====
-All libraries required to build Wireshark on Windows are available for download at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[] and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
-See <<ChLibsSetup>> for an easier way to install them.
-====
-
-[#ChLibsFormat]
-
-=== Binary Library Formats
-
-Binary libraries are available in different formats, depending on the C
-compiler used to build it and of course the platform they were built for.
-
-
-[#ChLibsFormatUnix]
-
-[discrete]
-==== Unix
-
-If you have installed unix binary libraries on your system, they will
-match the C compiler. If not already installed, the libraries should be
-available as a package from the platform installer, or you can download
-and compile the source and then install the binaries.
-
-
-[#ChLibsFormatWin32]
-
-[discrete]
-==== Windows
-
-Most of the Win32 binary libraries you will find on the web are in this
-format. You will recognize MSVC libraries by the .lib/.dll file extension.
-
+Windows doesn't have a good library package manager at the present time, so we provide our own pre-built libraries.
+They can be installed using `tools/win-setup.ps1` and are automatically installed when you run CMake.
+With the exception of Qt, all libraries required to build Wireshark on Windows are available for download at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
+See <<ChLibsSetup>> for details.
 
 [#ChLibsSetup]
 
@@ -66,12 +37,9 @@ the CMake generation step, and subsequently as required when libraries are updat
 
 The libraries are downloaded into the directory indicated by the environment
 variable WIRESHARK_BASE_DIR, this must be set appropriately for your environment.
-The libraries are downloaded and extracted into WIRESHARK_BASE_DIR\wireshark-win32-libs
-and WIRESHARK_BASE_DIR\wireshark-win64-libs for 32 and 64 bit builds respectively.
+The libraries are downloaded and extracted into WIRESHARK_BASE_DIR\wireshark-win64-libs.
 
-You may also directly set the library directory with the environment variable
-WIRESHARK_LIB_DIR, but if you switch between 32 bit and 64 bit builds, the value of this
-must be set appropriately.
+You may also set the library directory to a custom value with the environment variable WIRESHARK_LIB_DIR, but you may run into problems if you switch between major versions or target platforms.
 
 [#ChLibsQt]
 
@@ -95,7 +63,7 @@ _qtmultimedia5-dev_, and possibly others.
 The Qt Project provides an installation tool for macOS, similar to Windows.
 It is available at https://www.qt.io/download-open-source/#section-2[].
 
-[#ChLibsWin32Qt]
+[#ChLibsWindowsQt]
 
 [discrete]
 ==== Windows
@@ -127,15 +95,13 @@ The GLib library is available for most Linux distributions and UNIX
 flavors. If it isn't already installed and isn't available as a package
 for your platform, you can get it at https://wiki.gnome.org/Projects/GLib[].
 
-[#ChLibsWin32GLib]
+[#ChLibsWindowsGLib]
 
 [discrete]
 ==== Windows
 
 GLib is part of our vcpkg-export bundles and is available at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsCares]
 
@@ -151,15 +117,13 @@ C-Ares is used for asynchronous DNS resolution and lets us resolve names with a 
 If this library isn't already installed or available as a package for your
 platform, you can get it at https://c-ares.org/[].
 
-[#ChLibsWin32Cares]
+[#ChLibsWindowsCares]
 
 [discrete]
 ==== Windows
 
 C-Ares is built using {vcpkg-main-url}[vcpkg] and is available at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsSMI]
 
@@ -176,7 +140,7 @@ If this library isn't already installed or available as a
 package for your platform, you can get it at
 https://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 
-[#ChLibsWin32SMI]
+[#ChLibsWindowsSMI]
 
 [discrete]
 ==== Windows
@@ -185,9 +149,7 @@ Wireshark uses the source libSMI distribution at
 https://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 LibSMI is cross-compiled using MinGW32.
 It’s stored in the libsmi zip archives at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsZlib]
 
@@ -211,15 +173,13 @@ This library is almost certain to be installed on your system. If it isn't or
 you don't want to use the default library you can download it from
 https://www.zlib.net/[].
 
-[#ChLibsWin32Zlib]
+[#ChLibsWindowsZlib]
 
 [discrete]
 ==== Windows
 
 zlib is part of our vcpkg-export bundles and is available at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsPcap]
 
@@ -275,15 +235,13 @@ If this library isn't already installed or available as a
 package for your platform, you can get it at
 https://gnutls.org/[].
 
-[#ChLibsWin32GNUTLS]
+[#ChLibsWindowsGNUTLS]
 
 [discrete]
 ==== Windows
 
 We provide packages cross-compiled using MinGW32 at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsGcrypt]
 
@@ -302,15 +260,13 @@ If this library isn't already installed or available as a
 package for your platform, you can get it at
 https://directory.fsf.org/wiki/Libgcrypt[].
 
-[#ChLibsWin32Gcrypt]
+[#ChLibsWindowsGcrypt]
 
 [discrete]
 ==== Windows
 
 We provide packages for Windows at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsKerberos]
 
@@ -328,15 +284,13 @@ If this library isn't already installed or available as a
 package for your platform, you can get it at
 https://web.mit.edu/Kerberos/dist/[].
 
-[#ChLibsWin32Kerberos]
+[#ChLibsWindowsKerberos]
 
 [discrete]
 ==== Windows
 
 We provide packages for Windows at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsLua]
 
@@ -353,15 +307,13 @@ If this library isn't already installed or available as a
 package for your platform, you can get it at
 https://www.lua.org/download.html[].
 
-[#ChLibsWin32Lua]
+[#ChLibsWindowsLua]
 
 [discrete]
 ==== Windows
 
 We provide copies of the official packages at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsMaxMindDB]
 
@@ -376,9 +328,7 @@ package for your platform, you can get it at
 https://github.com/maxmind/libmaxminddb[].
 
 We provide packages for Windows at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 [#ChLibsSparkle]
 
@@ -392,8 +342,6 @@ WinSparkle is an easy-to-use software update library for Windows developers.
 ==== Windows
 
 We provide copies of the WinSparkle package at
-https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
-and
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 
 // End of WSDG Chapter Libraries
