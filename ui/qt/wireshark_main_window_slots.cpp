@@ -4072,7 +4072,6 @@ void WiresharkMainWindow::on_actionCaptureOptions_triggered()
         connect(capture_options_dialog_, SIGNAL(showExtcapOptions(QString&, bool)),
                 this, SLOT(showExtcapOptionsDialog(QString&, bool)));
     }
-    capture_options_dialog_->setTab(0);
     capture_options_dialog_->updateInterfaces();
 
     if (capture_options_dialog_->isMinimized()) {

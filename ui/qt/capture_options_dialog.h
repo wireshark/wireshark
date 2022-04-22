@@ -60,7 +60,6 @@ public:
     explicit CaptureOptionsDialog(QWidget *parent = 0);
     ~CaptureOptionsDialog();
 
-    void setTab(int idx);
     void updateInterfaces();
 
 protected:
