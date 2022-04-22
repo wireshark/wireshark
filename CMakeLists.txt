@@ -1128,7 +1128,7 @@ endmacro()
 # The minimum package list
 find_package(Git)
 reset_find_package(GLIB2 GLIB2_MAIN_INCLUDE_DIR GLIB2_INTERNAL_INCLUDE_DIR)
-find_package(GLIB2 "2.38.0" REQUIRED)
+find_package(GLIB2 "2.50.0" REQUIRED)
 include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})
 reset_find_package(GMODULE2)
 find_package(GMODULE2)
