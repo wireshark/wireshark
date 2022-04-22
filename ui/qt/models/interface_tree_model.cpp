@@ -476,21 +476,6 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
 #endif
 }
 
-void InterfaceTreeModel::getPoints(int idx, PointList *pts)
-{
-#ifdef HAVE_LIBPCAP
-    if (! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx)
-        return;
-
-    interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
-    if (points.contains(device->name))
-        pts->append(points[device->name]);
-#else
-    Q_UNUSED(idx)
-    Q_UNUSED(pts)
-#endif
-}
-
 QItemSelection InterfaceTreeModel::selectedDevices()
 {
     QItemSelection mySelection;

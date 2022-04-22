@@ -85,7 +85,6 @@ public:
     static const QString DefaultNumericValue;
 
 public slots:
-    void getPoints(int idx, PointList *pts);
     void interfaceListChanged();
 
 private:

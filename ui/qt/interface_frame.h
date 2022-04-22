@@ -58,7 +58,6 @@ public slots:
 #ifdef HAVE_PCAP_REMOTE
     void toggleRemoteInterfaces();
 #endif
-    void getPoints(int idx, PointList *pts);
     void showRunOnFile();
     void showContextMenu(QPoint pos);
 

@@ -482,12 +482,6 @@ void InterfaceFrame::updateStatistics(void)
 #endif
 }
 
-/* Proxy Method so we do not need to expose the source model */
-void InterfaceFrame::getPoints(int idx, PointList * pts)
-{
-    source_model_.getPoints(idx, pts);
-}
-
 void InterfaceFrame::showRunOnFile(void)
 {
     ui->warningLabel->setText("Interfaces not loaded on startup (run on capture file). Go to Capture -> Refresh Interfaces to load.");
