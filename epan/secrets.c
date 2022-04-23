@@ -28,9 +28,6 @@
 # include <wsutil/report_message.h>
 # include <wsutil/file_util.h>
 # include <errno.h>
-# if GNUTLS_VERSION_NUMBER < 0x030401
-#   define GNUTLS_KEYID_USE_SHA1 0
-# endif
 #endif  /* HAVE_LIBGNUTLS */
 
 /** Maps guint32 secrets_type -> secrets_block_callback_t. */
