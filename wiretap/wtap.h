@@ -1338,6 +1338,7 @@ typedef struct {
 typedef struct {
     guint     rec_type;          /* what type of record is this? */
     guint32   presence_flags;    /* what stuff do we have? */
+    guint     section_number;    /* section, within file, containing this record */
     nstime_t  ts;                /* time stamp */
     int       tsprec;            /* WTAP_TSPREC_ value for this record */
     union {
@@ -1378,11 +1379,12 @@ typedef struct {
  * absent, use the file encapsulation - but it's not clear that's useful;
  * we currently do that in the module for the file format.
  *
- * Only WTAP_HAS_TS applies to all record types.
+ * Only WTAP_HAS_TS and WTAP_HAS_SECTION_NUMBER apply to all record types.
  */
-#define WTAP_HAS_TS            0x00000001  /**< time stamp */
-#define WTAP_HAS_CAP_LEN       0x00000002  /**< captured length separate from on-the-network length */
-#define WTAP_HAS_INTERFACE_ID  0x00000004  /**< interface ID */
+#define WTAP_HAS_TS             0x00000001  /**< time stamp */
+#define WTAP_HAS_CAP_LEN        0x00000002  /**< captured length separate from on-the-network length */
+#define WTAP_HAS_INTERFACE_ID   0x00000004  /**< interface ID */
+#define WTAP_HAS_SECTION_NUMBER 0x00000008  /**< section number */
 
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */

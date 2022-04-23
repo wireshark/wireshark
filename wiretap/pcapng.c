@@ -3710,6 +3710,10 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     /*ws_debug("Read length: %u Packet length: %u", bytes_read, rec->rec_header.packet_header.caplen);*/
     ws_debug("data_offset is finally %" PRId64, *data_offset);
 
+    /* Provide the section number */
+    rec->presence_flags |= WTAP_HAS_SECTION_NUMBER;
+    rec->section_number = pcapng->current_section_number;
+
     return TRUE;
 }
 
@@ -3781,6 +3785,11 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     }
 
     wtap_block_unref(wblock.block);
+
+    /* Provide the section number */
+    rec->presence_flags |= WTAP_HAS_SECTION_NUMBER;
+    rec->section_number = section_number;
+
     return TRUE;
 }
 
