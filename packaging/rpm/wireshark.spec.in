@@ -49,11 +49,7 @@ Packager:	Gerald Combs <gerald[AT]wireshark.org>
 
 BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%if 0%{?rhel} && ( 0%{?rhel} <= 7 )
-BuildRequires:	cmake3 >= 3.5
-%else
-BuildRequires:	cmake >= 3.5
-%endif
+BuildRequires:	cmake >= 3.10
 BuildRequires:  python3
 BuildRequires:	gcc
 BuildRequires:	perl
@@ -88,7 +84,7 @@ BuildRequires:  docbook-style-xsl
 %endif
 %endif
 
-BuildRequires:	glib2-devel >= 2.38.0
+BuildRequires:	glib2-devel >= 2.50.0
 BuildRequires:	libpcap-devel
 BuildRequires:	zlib-devel
 BuildRequires:	libgcrypt-devel
@@ -273,12 +269,7 @@ development of Wireshark scripts and plugins.
 # Fedora's new RPATH hardening means we need to enable $ORIGIN if the
 # prefix is anything other than /usr:
 # https://fedoraproject.org/wiki/Changes/Broken_RPATH_will_fail_rpmbuild
-%if 0%{?rhel} && ( 0%{?rhel} <= 7 )
-cmake3 \
-  -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
-%else
 %cmake \
-%endif
 %if 0%{?fedora} && ( "%{_prefix}" != "/usr" )
   -DENABLE_RPATH_ORIGIN=ON \
 %endif
