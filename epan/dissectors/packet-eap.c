@@ -660,6 +660,7 @@ static int hf_eap_tls_flag_s = -1;
 static int hf_eap_tls_flag_o = -1;
 static int hf_eap_tls_flags_version = -1;
 static int hf_eap_tls_len = -1;
+static int hf_eap_tls_outer_tlvs_len = -1;
 static int hf_eap_tls_fragment  = -1;
 static int hf_eap_tls_fragments = -1;
 static int hf_eap_tls_fragment_overlap = -1;
@@ -1913,6 +1914,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         gboolean more_fragments;
         gboolean has_length;
         gboolean is_start;
+        gboolean outer_tlvs = false;
+        gint outer_tlvs_length = 0;
         int      eap_tls_seq      = -1;
         guint32  eap_reass_cookie =  0;
         gboolean needs_reassembly =  FALSE;
@@ -1932,7 +1935,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         switch (eap_type) {
         case EAP_TYPE_TEAP:
-          proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_o, tvb, offset, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item_ret_boolean(eap_tls_flags_tree, hf_eap_tls_flag_o, tvb, offset, 1, ENC_BIG_ENDIAN, &outer_tlvs);
           /* FALLTHROUGH */
         case EAP_TYPE_TTLS:
         case EAP_TYPE_FAST:
@@ -1946,6 +1949,13 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /* Length field, 4 bytes, OPTIONAL. */
         if (has_length) {
           proto_tree_add_item(eap_tree, hf_eap_tls_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+          size   -= 4;
+          offset += 4;
+        }
+
+        /* Outer TLV Length field, 4 bytes, OPTIONAL. */
+        if (outer_tlvs) {
+          proto_tree_add_item_ret_uint(eap_tree, hf_eap_tls_outer_tlvs_len, tvb, offset, 4, ENC_BIG_ENDIAN, &outer_tlvs_length);
           size   -= 4;
           offset += 4;
         }
@@ -2175,6 +2185,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 tls_set_appdata_dissector(tls_handle, pinfo, peap_handle);
                 break;
               case EAP_TYPE_TEAP:
+                if (outer_tlvs) {	/* https://www.rfc-editor.org/rfc/rfc7170.html#section-4.1 */
+                  tvbuff_t *teap_tvb = tvb_new_subset_length(tvb, offset + size - outer_tlvs_length, outer_tlvs_length);
+                  call_dissector(teap_handle, teap_tvb, pinfo, eap_tree);
+                  if (size == outer_tlvs_length) goto skip_tls_dissector;
+                  next_tvb = tvb_new_subset_length(next_tvb, 0, size - outer_tlvs_length);
+                }
                 tls_set_appdata_dissector(tls_handle, pinfo, teap_handle);
                 break;
             }
@@ -2182,6 +2198,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           }
         }
       }
+skip_tls_dissector:
       break; /*  EAP_TYPE_TLS */
 
       /*********************************************************************
@@ -2550,6 +2567,11 @@ proto_register_eap(void)
 
     { &hf_eap_tls_len, {
       "EAP-TLS Length", "eap.tls.len",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_tls_outer_tlvs_len, {
+      "TEAP Outer TLVs Length", "eap.tls.len",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
