@@ -4738,6 +4738,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Start capture</source>
         <translation>Начать захват</translation>
     </message>
+    <message>
+        <source>Hide Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>

@@ -4721,6 +4721,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Start capture</source>
         <translation>Börja fångst</translation>
     </message>
+    <message>
+        <source>Hide Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>

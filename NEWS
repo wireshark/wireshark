@@ -10,9 +10,7 @@ Wireshark 3.7.0 Release Notes
 
  What’s New
 
-    • We no longer ship Windows Installer (.msi) packages for 32-bit
-      Windows. Issue 17779[1]
-
+   • Note We no longer ship packages for 32-bit Windows. Issue 17779[1]
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
 
@@ -91,7 +89,11 @@ Wireshark 3.7.0 Release Notes
         • Logical AND now has higher precedence than logical OR, in line
        with most programming languages.
 
-        • Adds new display filter functions max() and min().
+        • Adds new display filter functions max(), min() and abs().
+
+        • Functions can accept expressions as arguments, including other
+       functions. Previously only protocol fields and slices were
+       syntactically valid function arguments.
 
      • text2pcap and "Import from Hex Dump":
 
@@ -150,6 +152,11 @@ Wireshark 3.7.0 Release Notes
 
      • ZigBee ZCL Messaging: rename zbee_zcl_se.msg.msg_ctrl.depreciated
        to zbee_zcl_se.msg.msg_ctrl.deprecated
+
+     • The interface list on the welcome page sorts active interfaces
+       first and only displays the sparkline for active interfaces.
+       Additionally, the interfaces can now be hidden/unhidden via the
+       context menu in the interface list
 
   Removed Features and Support
 
@@ -220,7 +227,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-04-13 13:07:01 UTC
+  Last updated 2022-04-21 14:00:50 UTC
 
  References
 
