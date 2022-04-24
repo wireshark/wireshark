@@ -56,5 +56,6 @@ extern void cip_safety_128us_fmt(gchar *s, guint32 value);
 */
 extern const value_string cipsafety_snn_date_vals[8];
 extern attribute_info_t cip_safety_attribute_vals[51];
+extern const range_string safety_max_consumer_numbers[];
 
 #endif /* PACKET_CIPSAFETY_H */

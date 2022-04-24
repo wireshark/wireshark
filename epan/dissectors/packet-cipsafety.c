@@ -213,7 +213,7 @@ static int hf_cip_svalidator_state = -1;
 static int hf_cip_svalidator_type = -1;
 static int hf_cip_svalidator_type_pc = -1;
 static int hf_cip_svalidator_type_conn_type = -1;
-static int hf_cip_svalidator_ping_eri = -1;
+static int hf_cip_svalidator_ping_epi = -1;
 static int hf_cip_svalidator_time_coord_msg_min_mult_size = -1;
 static int hf_cip_svalidator_time_coord_msg_min_mult_item = -1;
 static int hf_cip_svalidator_network_time_multiplier_size = -1;
@@ -404,7 +404,7 @@ static const value_string cip_ssupervisor_device_status_type_vals[] = {
    { 0,        "Undefined" },
    { 1,        "Self-Testing"   },
    { 2,        "Idle"   },
-   { 3,        "Self-Testing Exception"   },
+   { 3,        "Self-Test Exception"   },
    { 4,        "Executing"   },
    { 5,        "Abort"   },
    { 6,        "Critical Fault"   },
@@ -446,6 +446,13 @@ static const value_string cip_svalidator_type_conn_type_vals[] = {
    { 2,        "Multi-cast"  },
 
    { 0,        NULL          }
+};
+
+const range_string safety_max_consumer_numbers[] = {
+   { 1, 1, "Single-cast" },
+   { 2, 15, "Multicast" },
+
+   { 0, 0, NULL }
 };
 
 void cip_safety_128us_fmt(gchar *s, guint32 value)
@@ -1507,8 +1514,6 @@ static void dissect_base_format_time_correction_message(proto_tree* tree, tvbuff
    proto_tree_add_item(tree, hf_cipsafety_time_correction, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_cipsafety_mcast_byte2, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
-
-   // TODO: Validate CRC S3.
 }
 
 // Extended Format Time Correction Message
@@ -2109,9 +2114,9 @@ attribute_info_t cip_safety_attribute_vals[] = {
    {0x39, FALSE, 22, -1, "Scheduled Maintenance Expiration Warning Enable", cip_bool, &hf_cip_ssupervisor_scheduled_maintenance_expiration_warning_enable, NULL},
    {0x39, FALSE, 23, -1, "Run Hours", cip_udint, &hf_cip_ssupervisor_run_hours, NULL},
    {0x39, FALSE, 24, -1, "Configuration Lock", cip_bool, &hf_cip_ssupervisor_configuration_lock, NULL},
-   {0x39, FALSE, 25, -1, "Configuration UNID", cip_dissector_func, NULL, dissect_s_supervisor_configuration_unid},
-   {0x39, FALSE, 26, -1, "Safety Configuration Identifier", cip_dissector_func, NULL, dissect_s_supervisor_safety_configuration_id},
-   {0x39, FALSE, 27, -1, "Target UNID", cip_dissector_func, NULL, dissect_s_supervisor_target_unid},
+   {0x39, FALSE, 25, -1, "Configuration UNID (CFUNID)", cip_dissector_func, NULL, dissect_s_supervisor_configuration_unid},
+   {0x39, FALSE, 26, -1, "Safety Configuration Identifier (SCID)", cip_dissector_func, NULL, dissect_s_supervisor_safety_configuration_id},
+   {0x39, FALSE, 27, -1, "Target UNID (TUNID)", cip_dissector_func, NULL, dissect_s_supervisor_target_unid},
    {0x39, FALSE, 28, -1, "Output Connection Point Owners", cip_dissector_func, NULL, dissect_s_supervisor_output_connection_point_owners},
    {0x39, FALSE, 29, -1, "Proposed TUNID", cip_dissector_func, NULL, dissect_s_supervisor_proposed_tunid},
    {0x39, FALSE, 99, -1, "Subclass", cip_uint, &hf_cip_ssupervisor_instance_subclass, NULL},
@@ -2120,7 +2125,7 @@ attribute_info_t cip_safety_attribute_vals[] = {
    {0x3A, TRUE, 8, -1, "Safety Connection Fault Count", cip_uint, &hf_cip_svalidator_sconn_fault_count, NULL},
    {0x3A, FALSE, 1, 0, "Safety Validator State", cip_usint, &hf_cip_svalidator_state, NULL},
    {0x3A, FALSE, 2, 1, "Safety Validator Type", cip_dissector_func, NULL, dissect_s_validator_type},
-   {0x3A, FALSE, 3, 2, "Ping Interval ERI Multiplier", cip_uint, &hf_cip_svalidator_ping_eri, NULL},
+   {0x3A, FALSE, 3, 2, "Ping Interval EPI Multiplier", cip_uint, &hf_cip_svalidator_ping_epi, NULL},
    {0x3A, FALSE, 4, 3, "Time Coord Msg Min Multiplier", cip_dissector_func, NULL, dissect_s_validator_time_coord_msg_min_mult},
    {0x3A, FALSE, 5, 4, "Network Time Expectation Multiplier", cip_dissector_func, NULL, dissect_s_validator_network_time_multiplier},
    {0x3A, FALSE, 6, 5, "Timeout Multiplier", cip_dissector_func, NULL, dissect_s_validator_timeout_multiplier},
@@ -2822,8 +2827,8 @@ proto_register_cipsafety(void)
         { "Safety Connection Type", "cipsafety.svalidator.type.conn_type",
           FT_UINT8, BASE_DEC, VALS(cip_svalidator_type_conn_type_vals), 0x7F, NULL, HFILL }
       },
-      { &hf_cip_svalidator_ping_eri,
-        { "Ping Interval EPI Multiplier", "cipsafety.svalidator.ping_eri",
+      { &hf_cip_svalidator_ping_epi,
+        { "Ping Interval EPI Multiplier", "cipsafety.svalidator.ping_epi",
           FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_time_coord_msg_min_mult_size,
@@ -2852,7 +2857,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cip_svalidator_max_consumer_num,
         { "Max Consumer Number", "cipsafety.svalidator.max_consumer_num",
-          FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(safety_max_consumer_numbers), 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_data_conn_inst,
         { "Data Connection Instance", "cipsafety.svalidator.data_conn_inst",
