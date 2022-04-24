@@ -358,13 +358,21 @@ cmake3 \
 # either macro, and thus presumably does in-source builds.)
 %{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
 
+# SUSE 15.1 moved to out of source builds but automatically enters the
+# builddir before building, but does not when entering %%install.
+# Fedora, RHEL, and later versions of SUSE do the opposite.
+
 %if 0%{?rhel} && ( 0%{?rhel} <= 7 ) || (0%{?suse_version} && 0%{?sle_version} <= 150100)
 %if %{with ninja}
 %ninja_build
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
 # %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
+%if (0%{?suse_version} && 0%{?sle_version} <= 150100)
+make %{?_smp_mflags}
+%else
 make %{?_smp_mflags} -C %{__cmake_builddir}
+%endif
 %endif
 %else
 %cmake_build
@@ -372,8 +380,8 @@ make %{?_smp_mflags} -C %{__cmake_builddir}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%if 0%{?suse_version} && 0%{?sle_version} <= 150100
-cd build
+%if (0%{?suse_version} && 0%{?sle_version} <= 150100) && %{with ninja}
+cd %{__cmake_builddir}
 %endif
 
 %if 0%{?rhel} && ( 0%{?rhel} <= 7 ) || (0%{?suse_version} && 0%{?sle_version} <= 150100)
@@ -392,10 +400,6 @@ make DESTDIR=$RPM_BUILD_ROOT install -C %{__cmake_builddir}
 %else
 make DESTDIR=$RPM_BUILD_ROOT install_guides -C %{__cmake_builddir}
 %endif
-%endif
-
-%if 0%{?suse_version} && 0%{?sle_version} <= 150100
-cd -
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where
