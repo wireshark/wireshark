@@ -1280,7 +1280,7 @@ ws_find_package(SNAPPY ENABLE_SNAPPY HAVE_SNAPPY)
 ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD "1.0.0")
 
 # Enhanced HTTP/2 dissection
-ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2)
+ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2 "1.11.0")
 
 # Embedded Lua interpreter
 ws_find_package(LUA ENABLE_LUA HAVE_LUA "5.1")
