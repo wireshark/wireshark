@@ -1901,28 +1901,30 @@ set(TSHARK_TAP_SRC
 
 )
 
+# Installed into ${DATAFILE_DIR}
 set(INSTALL_DIRS
+	resources/share/wireshark/profiles
 	resources/protocols/diameter
 	resources/protocols/dtds
-	profiles
 	resources/protocols/radius
 	resources/protocols/tpncp
 	resources/protocols/wimaxasncp
 )
 
+# Installed into ${DATAFILE_DIR}
 set(INSTALL_FILES
-	cfilters
-	colorfilters
-	dfilters
-	dfilter_macros
-	enterprises.tsv
-	ipmap.html
-	manuf
-	pdml2html.xsl
-	services
-	smi_modules
-	wka
 	docbook/ws.css
+	enterprises.tsv
+	manuf
+	resources/share/wireshark/cfilters
+	resources/share/wireshark/colorfilters
+	resources/share/wireshark/dfilter_macros
+	resources/share/wireshark/dfilters
+	resources/share/wireshark/ipmap.html
+	resources/share/wireshark/pdml2html.xsl
+	resources/share/wireshark/smi_modules
+	services
+	wka
 )
 
 if (ASCIIDOCTOR_FOUND)
@@ -2349,7 +2351,7 @@ add_custom_command(
 	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
-file(GLOB _profiles_src_files RELATIVE "${CMAKE_SOURCE_DIR}" profiles/*/*)
+file(GLOB _profiles_src_files RELATIVE "${CMAKE_SOURCE_DIR}" resources/share/wireshark/profiles/*/*)
 set (_profiles_data_files)
 foreach(_data_file ${_profiles_src_files})
 	list(APPEND _profiles_data_files "${DATAFILE_DIR}/${_data_file}")
@@ -2358,7 +2360,7 @@ endforeach()
 add_custom_command(
 	OUTPUT ${_profiles_data_files}
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${CMAKE_SOURCE_DIR}/profiles" "${DATAFILE_DIR}/profiles"
+		"${CMAKE_SOURCE_DIR}/resources/share/wireshark/profiles" "${DATAFILE_DIR}/profiles"
 )
 
 list(APPEND copy_data_files_depends
