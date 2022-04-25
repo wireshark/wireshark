@@ -5212,8 +5212,7 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
     return ssl_session;
 }
 
-/* Resets the decryption parameters for the next decoder. */
-static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gboolean is_client)
+void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gboolean is_client)
 {
     if (ssl) {
         /* Ensure that secrets are not restored using stale identifiers. Split
@@ -5227,6 +5226,13 @@ static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gbool
             ssl->master_secret.data_len = 0;
             ssl->client_random.data_len = 0;
             ssl->has_early_data = FALSE;
+            if (ssl->handshake_data.data_len > 0) {
+                // The EMS handshake hash starts with at the Client Hello,
+                // ensure that any messages before it are forgotten.
+                wmem_free(wmem_file_scope(), ssl->handshake_data.data);
+                ssl->handshake_data.data = NULL;
+                ssl->handshake_data.data_len = 0;
+            }
         } else {
             clear_flags |= SSL_SERVER_EXTENDED_MASTER_SECRET | SSL_NEW_SESSION_TICKET;
             ssl->server_random.data_len = 0;
@@ -7920,9 +7926,6 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree  *rnd_tree;
     proto_tree  *ti_rnd;
     guint8       draft_version = session->tls13_draft_version;
-
-    /* Prepare for renegotiation by resetting the state. */
-    ssl_reset_session(session, ssl, !from_server);
 
     if (ssl) {
         StringInfo *rnd;

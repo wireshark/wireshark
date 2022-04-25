@@ -585,6 +585,10 @@ SslDecryptSession *ssl_get_session_by_cid(tvbuff_t *tvb, guint32 offset);
 extern SslDecryptSession *
 ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle);
 
+/** Resets the decryption parameters for the next decoder. */
+extern void
+ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gboolean is_client);
+
 /** Set server address and port */
 extern void
 ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port);
