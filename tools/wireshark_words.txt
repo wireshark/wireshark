@@ -70,6 +70,7 @@ asciidoc
 ashrae
 asn1
 asn1cnf
+asn2deb
 asn2wrs
 assignor
 assoc
@@ -223,6 +224,7 @@ classmark
 classmark3
 clientkey
 clientout
+clopts
 cmake
 cmdcontrol
 cmstatus
@@ -358,6 +360,7 @@ deregister
 deregistered
 deregistering
 deregistration
+derivate
 des40
 descr
 descriptors
@@ -384,6 +387,7 @@ digitizer
 digium
 diplexer
 directionality
+disambiguate
 disambiguation
 dissection
 dissector
@@ -481,6 +485,7 @@ extattr
 extcap
 extensibility
 extensible
+extern
 exthdr
 extrainformation
 failover
@@ -548,6 +553,7 @@ gnodeb
 gnutls
 goaway
 google
+gpointer
 gprscdr
 gregex
 greyed
@@ -754,6 +760,7 @@ megabit
 megaco
 mellanox
 memcache
+memcpy
 menubar
 mergecap
 meshcop
@@ -776,6 +783,7 @@ misconfiguration
 misconfigured
 mitsubishi
 mkdir
+mmdbresolve
 mode01
 mode7
 modepage
@@ -793,6 +801,7 @@ msgid
 msgreq
 msgsend
 msisdn
+MSM7627A
 mtftp
 mtrace
 mudurl
@@ -821,6 +830,7 @@ multislot
 multistate
 mumbai
 mycapture
+mydns
 mysql
 nacks
 namelen
@@ -882,6 +892,8 @@ nssai
 nstime
 nstrace
 ntlmssp
+ntohl
+ntohs
 nullptr
 nvmeof
 nvram
@@ -900,6 +912,7 @@ ofpmp
 ofppf
 ofpxmt
 om2000
+omniidl
 onboarding
 onduration
 onoff
@@ -989,6 +1002,7 @@ prach
 preauth
 preconfiguration
 preconfigured
+predef
 preempting
 preemption
 prefname
@@ -1276,6 +1290,7 @@ stateful
 statfs
 statusbar
 stderr
+stdin
 stdout
 streamid
 stringz
@@ -1473,6 +1488,7 @@ unfragmented
 unframed
 ungrab
 unhandled
+unhidden
 unicast
 unicode
 unicom
@@ -1563,6 +1579,7 @@ v1530
 v1610
 validator
 varint
+vcpkg
 vcredist
 vcxproj
 verbosity

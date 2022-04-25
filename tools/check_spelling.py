@@ -129,14 +129,10 @@ class File:
 
         for idx in range(4, length+1):
             w = word[0:idx]
-            #print('considering', w)
             if not spell.unknown([w]):
-                #print('Recognised!')
                 if idx == len(word):
-                    #print('Was end of word, so TRUEE!!!!')
                     return True
                 else:
-                    #print('More to go..')
                     if self.checkMultiWordsRecursive(word[idx:]):
                         return True
 
@@ -147,7 +143,7 @@ class File:
         if m:
             if m.group(2).lower() in { "bit", "bits", "gb", "kbps", "gig", "mb", "th", "mhz", "v", "hz", "k",
                                        "mbps", "m", "g", "ms", "nd", "nds", "rd", "kb", "kbit",
-                                       "khz", "km", "ms", "usec", "sec", "gbe", "ns", "ksps", "qam" }:
+                                       "khz", "km", "ms", "usec", "sec", "gbe", "ns", "ksps", "qam", "mm" }:
                 return True
         return False
 
@@ -156,12 +152,9 @@ class File:
     def spellCheck(self):
 
         num_values = len(self.values)
-        this_value = 0
-        for v in self.values:
+        for value_index,v in enumerate(self.values):
             if should_exit:
                 exit(1)
-
-            this_value += 1
 
             # Ignore includes.
             if v.endswith('.h'):
@@ -226,7 +219,7 @@ class File:
                     continue
 
                 if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
-                    print(self.file, this_value, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
+                    print(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
                          ' -> ', '?')
                     # TODO: this can be interesting, but takes too long!
                     # bcolors.OKGREEN + spell.correction(word) + bcolors.ENDC
@@ -246,7 +239,7 @@ def removeContractions(code_string):
                      "shouldn’t", "didn’t", "wouldn’t", "aren’t", "there’s", "packet’s", "couldn’t", "world’s",
                      "needn’t", "graph’s", "table’s", "parent’s", "entity’s", "server’s", "node’s",
                      "querier’s", "sender’s", "receiver’s", "computer’s", "frame’s", "vendor’s", "system’s",
-                     "we’ll", "asciidoctor’s", "protocol’s", "microsoft’s" ]
+                     "we’ll", "asciidoctor’s", "protocol’s", "microsoft’s", "wasn’t" ]
     for c in contractions:
         code_string = code_string.replace(c, "")
         code_string = code_string.replace(c.capitalize(), "")
@@ -305,8 +298,7 @@ def findStrings(filename):
                 file.add(m.group(1))
         else:
             # A documentation file, so examine all words.
-            words = contents.split()
-            for w in words:
+            for w in contents.split():
                 file.add(w)
 
         return file
@@ -319,11 +311,10 @@ def isGeneratedFile(filename):
 
     # Open file
     f_read = open(os.path.join(filename), 'r')
-    lines_tested = 0
-    for line in f_read:
+    for line_no,line in enumerate(f_read):
         # The comment to say that its generated is near the top, so give up once
         # get a few lines down.
-        if lines_tested > 10:
+        if line_no > 10:
             f_read.close()
             return False
         if (line.find('Generated automatically') != -1 or
@@ -337,7 +328,6 @@ def isGeneratedFile(filename):
 
             f_read.close()
             return True
-        lines_tested = lines_tested + 1
 
     # OK, looks like a hand-written file!
     f_read.close()
@@ -462,10 +452,11 @@ else:
 
 # Now check the chosen files.
 for f in files:
-    # Jump out if control-C has been pressed.
+    # Check this file.
+    checkFile(f)
+    # But get out if control-C has been pressed.
     if should_exit:
         exit(1)
-    checkFile(f)
 
 
 
