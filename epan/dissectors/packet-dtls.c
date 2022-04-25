@@ -1355,6 +1355,11 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           sub_tvb = tvb_new_subset_length(tvb, offset, fragment_length);
         }
 
+        if ((msg_type == SSL_HND_CLIENT_HELLO || msg_type == SSL_HND_SERVER_HELLO)) {
+            /* Prepare for renegotiation by resetting the state. */
+            ssl_reset_session(session, ssl, msg_type == SSL_HND_CLIENT_HELLO);
+        }
+
         /*
          * Add handshake message (including type, length, etc.) to hash (for
          * Extended Master Secret). The computation must however happen as if
