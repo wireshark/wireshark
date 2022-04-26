@@ -40,7 +40,7 @@ WS_DLL_PUBLIC void register_log_conversation_filter(const char *proto_name, cons
                                                       is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
 /**
  * Prepend a protocol to the list of filterable protocols.
- * @param A valid protocol name.
+ * @param proto_name A valid protocol name.
  */
 WS_DLL_PUBLIC void add_conversation_filter_protocol(const char *proto_name);
 
