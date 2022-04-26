@@ -9625,13 +9625,6 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
             ver_id = ver_id -1;
         /* XXX We don't handle ASCCI version */
 
-        /* Assume the Release Identifier Extension is present iff the Release
-         * Identifier is 0 or 15, as it was introduced in Rel 15 of TS 32.295.
-         *
-         * XXX: If a CDR encoded with a release < 15 is transfered with GTP'
-         * Release >= 15, we would need a preference to force the presence
-         * of the Release Identifier Extension field.
-         */
         ver_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, (rel_id_zero || rel_id == 15) ? 3 : 2, ett_gtp_cdr_ver, NULL,
                                 "Data record format version: AppId %u Rel %u.%u.0", app_id,rel_id,ver_id);
         proto_tree_add_item(ver_tree, hf_gtp_cdr_app, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -9640,14 +9633,15 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
         proto_tree_add_item(ver_tree, hf_gtp_cdr_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         if(rel_id_zero) {
+            /* The Release Identifier indicates the TS release up to and including 15.
+             * The Release Identifier Extension indicates TS releases above 15,
+             * in this case the Release Identifier has a value of '0' (decimal).
+             */
             fmt_item = proto_tree_add_item(ver_tree, hf_gtp_cdr_rel_ext, tvb, offset, 1, ENC_NA);
+            offset++;
             if(rel_id < 16) {
                 expert_add_info(pinfo, fmt_item, &ei_gtp_cdr_rel_ext_invalid);
             }
-            offset++;
-        } else if (rel_id == 15) {
-            proto_tree_add_item(ver_tree, hf_gtp_cdr_rel_ext, tvb, offset, 1, ENC_NA);
-            offset++;
         }
         for(i = 0; i < no; ++i) {
             cdr_length = tvb_get_ntohs(tvb, offset);
