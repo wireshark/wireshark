@@ -39,30 +39,27 @@ if test -n "${1-}"; then
     VERSION="$1"
 fi
 
-if [ -f "${DESTDIR}/wireshark-$VERSION.tar.xz" ] ; then
-    echo "${DESTDIR}/wireshark-$VERSION.tar.xz exists."
-    exit 0
+TARBALL="${DESTDIR}/wireshark-${VERSION}.tar.xz"
+
+COMMIT="${CI_COMMIT_SHA:-HEAD}"
+
+STASH_ID=$(git stash create)
+if [[ -n "$STASH_ID" ]] ; then
+    COMMIT="$STASH_ID"
 fi
 
-COMMIT="HEAD"
-if [ -n "${CI_COMMIT_SHA-}" ] ; then
-    COMMIT=$CI_COMMIT_SHA
+if [ -f "$TARBALL" ] ; then
+    if TARBALL_ID=$(git get-tar-commit-id < <(xzcat "$TARBALL")) && COMMIT_ID=$(git rev-parse --verify "$COMMIT") ; then
+        if [[ $TARBALL_ID == "$COMMIT_ID" ]] ; then
+            echo "$TARBALL commit ID matches $COMMIT."
+            exit 0
+        fi
+    fi
 fi
 
-STASH_POP=false
-if ! git diff-index "$COMMIT" ; then
-    git stash --keep-index
-    COMMIT="stash@{0}"
-    STASH_POP=true
-fi
-
-echo "Creating ${DESTDIR}/wireshark-$VERSION.tar.xz from $COMMIT"
+echo "Creating $TARBALL from $COMMIT"
 
 XZ_OPTS=
 echo . | xz --threads=0 > /dev/null 2>&1 && XZ_OPTS=--threads=0
 
-git archive --prefix="wireshark-${VERSION}/" "$COMMIT" | xz $XZ_OPTS > "${DESTDIR}/wireshark-${VERSION}.tar.xz"
-
-if $STASH_POP ; then
-    git stash pop
-fi
+git archive --prefix="wireshark-${VERSION}/" "$COMMIT" | xz $XZ_OPTS > "$TARBALL"
