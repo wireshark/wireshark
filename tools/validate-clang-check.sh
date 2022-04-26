@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright 2018, Alexis La Goutte (See AUTHORS file)
 #
 # Verifies last commit with clang-check (like scan-build) for Petri Dish
@@ -28,24 +28,21 @@ done
 for FILE in $COMMIT_FILES; do
     # Skip some special cases
     FILE_BASENAME="$( basename "$FILE" )"
+    # If we don't have a build rule for this file, it's probably because we're missing
+    # necessary includes.
+    for BUILD_RULE_FILE in compile_commands.json build.ninja ; do
+        if [[ -f $BUILD_RULE_FILE ]] && ! grep "/$FILE_BASENAME\." $BUILD_RULE_FILE &> /dev/null ; then
+            echo "Don't know how to build $FILE_BASENAME. Skipping."
+            continue 2
+        fi
+    done
     # iLBC: the file is not even compiled when ilbc is not installed
-    if test \( "$FILE_BASENAME" = "iLBCdecode.c" -o \
-               "$FILE_BASENAME" = "packet-PROTOABBREV.c" \)
+    if test "$FILE_BASENAME" = "iLBCdecode.c"
     then
         continue
     fi
     # This is a template file, not a final '.c' file.
     if echo "$FILE_BASENAME" | grep -Eq "packet-.*-template.c"
-    then
-        continue
-    fi
-    # extcap/{etwdump.c,etl.c,etw_message.c}: those compile, and are compiled,
-    # only on Windows
-    # The same applies to capture-wpcap.c
-    if test \( "$FILE_BASENAME" = "etwdump.c" -o \
-               "$FILE_BASENAME" = "etl.c" -o \
-               "$FILE_BASENAME" = "etw_message.c" -o \
-               "$FILE_BASENAME" = "capture-wpcap.c" \)
     then
         continue
     fi
