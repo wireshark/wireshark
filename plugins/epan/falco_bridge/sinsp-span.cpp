@@ -17,6 +17,12 @@
 
 #include <glib.h>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4100)
+#pragma warning(disable:4267)
+#endif
+
 // epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
 // handle libsinsp calls here.
 
@@ -197,3 +203,7 @@ bool extract_sisnp_source_fields(sinsp_source_info_t *ssi, uint32_t evt_num, uin
     }
     return status;
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

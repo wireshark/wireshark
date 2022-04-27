@@ -2700,11 +2700,10 @@ if(BUILD_logwolf AND QT_FOUND)
 endif()
 
 if (BUILD_logwolf AND SINSP_FOUND)
-	file(MAKE_DIRECTORY ${LOGWOLF_PLUGIN_DIR}/falco)
 	add_custom_target(copy_falco_plugins)
 	add_custom_command(TARGET copy_falco_plugins
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${SINSP_PLUGINS} ${LOGWOLF_PLUGIN_DIR}/falco
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${LOGWOLF_PLUGIN_DIR}/falco
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SINSP_PLUGINS} ${LOGWOLF_PLUGIN_DIR}/falco
 	)
 	add_dependencies(logwolf copy_falco_plugins)
 endif()
