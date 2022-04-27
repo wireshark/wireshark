@@ -1,0 +1,31 @@
+# ============================================================================
+# NSIS configuration definitions. Generated from wireshark-config.nsh.in.
+# ============================================================================
+
+# Do not prefix comments with ";". They will be removed by CMake.
+
+# MUST match "<Product ... Name=" in wix/Wireshark.wxs.
+#define PROGRAM_NAME "@PROGRAM_NAME@"
+#define TOP_SRC_DIR "@TOP_SRC_DIR@"
+#define WIRESHARK_TARGET_PLATFORM @WIRESHARK_TARGET_PLATFORM@
+#define TARGET_MACHINE @TARGET_MACHINE@
+#define EXTRA_INSTALLER_DIR "@EXTRA_INSTALLER_DIR@"
+#define NPCAP_PACKAGE_VERSION @NPCAP_PACKAGE_VERSION@
+#define USBPCAP_PACKAGE_VERSION @USBPCAP_PACKAGE_VERSION@
+#define VERSION @VERSION@
+#define VERSION_MAJOR @VERSION_MAJOR@
+#define VERSION_MINOR @VERSION_MINOR@
+#define PRODUCT_VERSION @PRODUCT_VERSION@
+
+#define VCREDIST_DIR "@VCREDIST_DIR@"
+#define VCREDIST_EXE "@VCREDIST_EXE@"
+
+# Optional components
+
+#cmakedefine MMDBRESOLVE_EXE @MMDBRESOLVE_EXE@
+
+#cmakedefine DOCBOOK_DIR "@DOCBOOK_DIR@"
+
+#cmakedefine SMI_DIR "@SMI_DIR@"
+
+#cmakedefine QT_DIR "@QT_DIR@"

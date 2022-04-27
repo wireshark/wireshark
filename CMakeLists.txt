@@ -30,8 +30,10 @@ endif()
 
 if(WIN32)
 	set(_project_name Wireshark)
+	set(_log_project_name Logwolf)
 else()
 	set(_project_name wireshark)
+	set(_log_project_name logwolf)
 endif()
 
 project(${_project_name} C CXX)
@@ -49,6 +51,11 @@ if(DEFINED ENV{WIRESHARK_VERSION_EXTRA})
 endif()
 
 set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
+
+set(LOG_PROJECT_NAME ${_log_project_name})
+set(LOG_PROJECT_MAJOR_VERSION 0)
+set(LOG_PROJECT_MINOR_VERSION 8)
+set(LOG_PROJECT_VERSION "${LOG_PROJECT_MAJOR_VERSION}.${LOG_PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
 
 include( CMakeOptions.txt )
 

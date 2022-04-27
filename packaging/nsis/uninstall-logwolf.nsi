@@ -1,20 +1,19 @@
 ;
-; uninstall-wireshark.nsi
+; uninstall-logwolf.nsi
 ;
 
 ; Create an installer that only writes an uninstaller.
 ; https://nsis.sourceforge.io/Signing_an_Uninstaller
 
-!include "wireshark-common.nsh"
+!include "logwolf-common.nsh"
 !include 'LogicLib.nsh'
 !include x64.nsh
 !include "StrFunc.nsh"
-${UnStrRep}
 
 SetCompress off
-OutFile "${STAGING_DIR}\uninstall_wireshark_installer.exe"
+OutFile "${STAGING_DIR}\uninstall_logwolf_installer.exe"
 
-InstType "un.Default (keep Personal Settings and Npcap)"
+; InstType "un.Default (keep Personal Settings and Npcap)"
 InstType "un.All (remove all)"
 
 ; Uninstaller icon
@@ -70,10 +69,10 @@ Function un.Disassociate
   Pop $EXTENSION
   ${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
     ReadRegStr $R0 HKCR $EXTENSION ""
-    StrCmp $R0 ${WIRESHARK_ASSOC} un.Disassociate.doDeregister
+    StrCmp $R0 ${LOGWOLF_ASSOC} un.Disassociate.doDeregister
     Goto un.Disassociate.end
 un.Disassociate.doDeregister:
-    ; The extension is associated with Wireshark so, we must destroy this!
+    ; The extension is associated with Logwolf so, we must destroy this!
     DeleteRegKey HKCR $EXTENSION
     DetailPrint "Deregistered file type: $EXTENSION"
 un.Disassociate.end:
@@ -89,32 +88,6 @@ SectionEnd
 !define EXECUTABLE_MARKER "EXECUTABLE_MARKER"
 Var EXECUTABLE
 
-Section /o "Un.USBPcap" un.SecUSBPcap
-;-------------------------------------------
-SectionIn 2
-${If} ${RunningX64}
-    ${DisableX64FSRedirection}
-    SetRegView 64
-${EndIf}
-ReadRegStr $1 HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\USBPcap" "UninstallString"
-${If} ${RunningX64}
-    ${EnableX64FSRedirection}
-    SetRegView 32
-${EndIf}
-${If} $1 != ""
-    ${UnStrRep} $2 '$1' '\Uninstall.exe' ''
-    ${UnStrRep} $3 '$2' '"' ''
-    ExecWait '$1 _?=$3' $0
-    DetailPrint "USBPcap uninstaller returned $0"
-    ${If} $0 == "0"
-        Delete "$3\Uninstall.exe"
-        Delete "$INSTDIR\extcap\USBPcapCMD.exe"
-    ${EndIf}
-${EndIf}
-ClearErrors
-SectionEnd
-
-
 Section "Uninstall" un.SecUinstall
 ;-------------------------------------------
 ;
@@ -123,27 +96,18 @@ Section "Uninstall" un.SecUinstall
 SectionIn 1 2
 SetShellVarContext all
 
-!insertmacro IsWiresharkRunning
+!insertmacro IsLogwolfRunning
 
 Push "${EXECUTABLE_MARKER}"
 Push "${PROGRAM_NAME}"
-Push "androiddump"
 Push "capinfos"
 Push "captype"
-Push "ciscodump"
 Push "dftest"
 Push "dumpcap"
 Push "editcap"
 Push "mergecap"
-Push "randpkt"
-Push "randpktdump"
-Push "rawshark"
 Push "reordercap"
-Push "sshdump"
 Push "text2pcap"
-Push "tshark"
-Push "udpdump"
-Push "wifidump"
 
 !ifdef MMDBRESOLVE_EXE
 Push "mmdbresolve"
@@ -152,7 +116,7 @@ Push "mmdbresolve"
 Pop $EXECUTABLE
 ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
 
-  ; IsWiresharkRunning should make sure everything is closed down so we *shouldn't* run
+  ; IsLogwolfRunning should make sure everything is closed down so we *shouldn't* run
   ; into any problems here.
   Delete "$INSTDIR\$EXECUTABLE.exe"
   IfErrors 0 deletionSuccess
@@ -171,9 +135,9 @@ DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App P
 
 Call un.Disassociate
 
-DeleteRegKey HKCR ${WIRESHARK_ASSOC}
-DeleteRegKey HKCR "${WIRESHARK_ASSOC}\Shell\open\command"
-DeleteRegKey HKCR "${WIRESHARK_ASSOC}\DefaultIcon"
+DeleteRegKey HKCR ${LOGWOLF_ASSOC}
+DeleteRegKey HKCR "${LOGWOLF_ASSOC}\Shell\open\command"
+DeleteRegKey HKCR "${LOGWOLF_ASSOC}\DefaultIcon"
 
 Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\*.exe"
@@ -185,12 +149,6 @@ Delete "$INSTDIR\COPYING*"
 Delete "$INSTDIR\audio\*.*"
 Delete "$INSTDIR\bearer\*.*"
 Delete "$INSTDIR\diameter\*.*"
-Delete "$INSTDIR\extcap\androiddump.*"
-Delete "$INSTDIR\extcap\randpktdump.*"
-Delete "$INSTDIR\extcap\sshdump.*"
-Delete "$INSTDIR\extcap\ciscodump.*"
-Delete "$INSTDIR\extcap\udpdump.*"
-Delete "$INSTDIR\extcap\wifidump.*"
 Delete "$INSTDIR\help\*.*"
 Delete "$INSTDIR\iconengines\*.*"
 Delete "$INSTDIR\imageformats\*.*"
@@ -209,10 +167,6 @@ Delete "$INSTDIR\translations\*.*"
 Delete "$INSTDIR\ui\*.*"
 Delete "$INSTDIR\wimaxasncp\*.*"
 Delete "$INSTDIR\ws.css"
-; previous versions installed these files
-Delete "$INSTDIR\*.manifest"
-; previous versions installed this file
-Delete "$INSTDIR\AUTHORS-SHORT-FORMAT"
 Delete "$INSTDIR\README*"
 Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
@@ -220,7 +174,6 @@ Delete "$INSTDIR\wka"
 Delete "$INSTDIR\services"
 Delete "$INSTDIR\pdml2html.xsl"
 Delete "$INSTDIR\pcrepattern.3.txt"
-Delete "$INSTDIR\user-guide.chm"
 Delete "$INSTDIR\example_snmp_users_file"
 Delete "$INSTDIR\ipmap.html"
 Delete "$INSTDIR\radius\*.*"
@@ -240,7 +193,7 @@ RMDir "$INSTDIR\styles\translations"
 RMDir "$INSTDIR\styles"
 RMDir "$SMPROGRAMS\${PROGRAM_NAME}"
 RMDir "$INSTDIR\help"
-RMDir /r "$INSTDIR\Wireshark User's Guide"
+;RMDir /r "$INSTDIR\Wireshark User's Guide"
 RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
 RMDir "$INSTDIR\snmp"
@@ -294,22 +247,6 @@ RMDir "$APPDATA\${PROGRAM_NAME}"
 DeleteRegKey HKCU "Software\${PROGRAM_NAME}"
 SectionEnd
 
-;VAR un.NPCAP_UNINSTALL
-
-Section /o "Un.Npcap" un.SecNpcap
-;-------------------------------------------
-SectionIn 2
-ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "UninstallString"
-;IfErrors un.lbl_npcap_notinstalled ;if RegKey is unavailable, Npcap is not installed
-${If} $1 != ""
-  ;MessageBox MB_OK "Npcap $1" /SD IDOK
-  ExecWait '$1' $0
-  DetailPrint "Npcap uninstaller returned $0"
-  ;SetRebootFlag true
-${EndIf}
-;un.lbl_npcap_notinstalled:
-SectionEnd
-
 Section "-Un.Finally"
 ;-------------------------------------------
 SectionIn 1 2
@@ -318,7 +255,7 @@ SectionIn 1 2
 
 ; this test must be done after all other things uninstalled (e.g. Global Settings)
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
-    MessageBox MB_OK "Unable to remove $INSTDIR." /SD IDOK IDOK 0 ; skipped if dir doesn't exist
+  MessageBox MB_OK "Unable to remove $INSTDIR." /SD IDOK IDOK 0 ; skipped if dir doesn't exist
 NoFinalErrorMsg:
 SectionEnd
 
@@ -328,6 +265,4 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecNpcap} "Call Npcap's uninstall program."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUSBPcap} "Call USBPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
