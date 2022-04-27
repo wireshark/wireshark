@@ -940,9 +940,12 @@ to build the Debian Package.
 
 ==== Red Hat: .rpm Packages
 
-You can build an RPM package using the `rpm-package` target. The package
-version is derived from the current git HEAD, so you must build from a
-git checkout.
+You can build an RPM package using the `rpm-package` target. If you
+are building from a git checkout, the package version is derived from
+the current git HEAD. If you are building from source extracted from a
+tarball created with `git archive` (such as those downloaded from
+http://www.wireshark.org/download.html), you must place the original
+tarball into your build directory.
 
 The package is built using https://rpm.org/[rpmbuild], which comes as
 standard on many flavours of Linux, including Red Hat, Fedora, and

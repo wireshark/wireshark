@@ -41,6 +41,37 @@ fi
 
 TARBALL="${DESTDIR}/wireshark-${VERSION}.tar.xz"
 
+# A tarball produced by 'git archive' will have the $Format string
+# substituted due to the use of 'export-subst' in .gitattributes.
+# shellcheck disable=SC2016
+COMMIT='$Format:%H$'
+
+if [[ $COMMIT != \$F* ]] ; then
+    # This file was extracted from a tarball produced by git archive
+    # and so we are not in a git repository.
+    if [[ -f "$TARBALL" ]] ; then
+        # git get-tar-commit-id works outside a git repo, as it
+        # only reads the first 1024 bytes of the tar extended header.
+        if [[ $(git get-tar-commit-id < <(xzcat "$TARBALL")) == "$COMMIT" ]] ; then
+            echo "$TARBALL commit ID matches $COMMIT."
+        else
+            # Allow people to make changes to a downloaded source tarball
+            # and re-tar it?
+            echo "WARNING: $TARBALL is not the original git archive."
+        fi
+        exit 0
+    fi
+
+    echo ""
+    echo "The build system cannot produce a source tarball outside of a git repository."
+    echo "If you are trying to build an RPM package from source extracted from a tarball,"
+    echo "copy it (i.e., wireshark-${VERSION}.tar.xz) to"
+    echo "$DESTDIR"
+    echo "and run the build command again."
+
+    exit 1
+fi
+
 COMMIT="${CI_COMMIT_SHA:-HEAD}"
 
 STASH_ID=$(git stash create)
