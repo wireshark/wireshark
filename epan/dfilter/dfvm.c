@@ -556,7 +556,7 @@ filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range)
 	int length; /* maximum proto layer number. The numbers are sequential. */
 	field_info *last_finfo, *finfo;
 	int cookie = -1;
-	gboolean cookie_matches;
+	gboolean cookie_matches = false;
 	int layer;
 
 	g_ptr_array_sort(finfos, compare_finfo_layer);
