@@ -350,6 +350,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_dcom_this@Base 1.9.1
  dissect_dsp_AccessPointInformation@Base 1.9.1
  dissect_e164_cc@Base 1.9.1
+ dissect_e164_isdn@Base 3.7.0
  dissect_e164_msisdn@Base 1.99.0
  dissect_e212_imsi@Base 1.99.0
  dissect_e212_mcc_mnc@Base 1.9.1
