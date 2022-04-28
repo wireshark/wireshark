@@ -168,7 +168,7 @@ recommended to use keyfiles with a SSH agent.
 --sshkey=<SSH private key path>::
 +
 --
-The path to a private key for authentication.
+The path to a private key for authentication. NOTE: Only OPENSSH key/value pair format is supported.
 --
 
 --remote-interface=<remote interface>::
@@ -242,7 +242,7 @@ To see interface configuration options:
     arg {number=4}{call=--sshkey}{display=Path to SSH private key}{type=fileselect}
         {tooltip=The path on the local filesystem of the private ssh key}{group=Authentication}
     arg {number=5}{call=--sshkey-passphrase}{display=SSH key passphrase}{type=password}
-        {tooltip=Passphrase to unlock the SSH private key}{group=Authentication}
+        {tooltip=Passphrase to unlock the SSH private key}{group=Authentication (OPENSSH format)}
     arg {number=6}{call=--proxycommand}{display=ProxyCommand}{type=string}
         {tooltip=The command to use as proxy for the SSH connection}{group=Authentication}
     arg {number=7}{call=--remote-interface}{display=Remote interface}{type=string}
