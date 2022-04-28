@@ -26,7 +26,7 @@ variables:
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
   CLICOLOR_FORCE: 1
   # Skip irrelevant SAST scanners:
-  SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,semgrep,spotbugs"
+  SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
 
 # Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
 # - daily: Daily at 10:00 UTC
