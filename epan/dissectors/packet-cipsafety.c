@@ -302,6 +302,7 @@ static expert_field ei_mal_ssupervisor_cp_owners = EI_INIT;
 static expert_field ei_mal_ssupervisor_cp_owners_entry = EI_INIT;
 static expert_field ei_mal_ssupervisor_cp_owners_app_path_size = EI_INIT;
 static expert_field ei_mal_ssupervisor_proposed_tunid = EI_INIT;
+static expert_field ei_info_ssupervisor_tunid_cancel = EI_INIT;
 
 static expert_field ei_mal_svalidator_type = EI_INIT;
 static expert_field ei_mal_svalidator_time_coord_msg_min_mult = EI_INIT;
@@ -528,6 +529,17 @@ static void dissect_safety_supervisor_safety_reset(proto_tree* cmd_data_tree, tv
    }
 }
 
+static void detect_cancel_propose_apply_operation(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_item* item)
+{
+   // Check for all FFs.
+   guint64 part1 = tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN);
+   guint16 part2 = tvb_get_guint16(tvb, offset + 8, ENC_LITTLE_ENDIAN);
+   if (part1 == 0xFFFFFFFFFFFFFFFF && part2 == 0xFFFF)
+   {
+      expert_add_info(pinfo, item, &ei_info_ssupervisor_tunid_cancel);
+   }
+}
+
 /************************************************
  *
  * Dissector for CIP Safety Supervisor Object
@@ -710,6 +722,8 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
                          hf_cip_ssupervisor_propose_tunid_tunid_nodeid,
                          ett_ssupervisor_propose_tunid,
                          ett_ssupervisor_propose_tunid_snn);
+
+            detect_cancel_propose_apply_operation(tvb, offset + 2 + req_path_size, pinfo, pi);
             break;
          case SC_SSUPER_APPLY_TUNID:
             pi = proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_apply_tunid_tunid,
@@ -721,6 +735,8 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
                          hf_cip_ssupervisor_apply_tunid_tunid_nodeid,
                          ett_ssupervisor_apply_tunid,
                          ett_ssupervisor_apply_tunid_snn);
+
+            detect_cancel_propose_apply_operation(tvb, offset + 2 + req_path_size, pinfo, pi);
             break;
          default:
             proto_tree_add_item(cmd_data_tree, hf_cip_data,
@@ -2978,6 +2994,8 @@ proto_register_cipsafety(void)
                         "Malformed Safety Supervisor Output Connection Point Owners (EPATH)", EXPFILL }},
       { &ei_mal_ssupervisor_proposed_tunid, { "cipsafety.ssupervisor.malformed.proposed_tunid", PI_MALFORMED, PI_ERROR,
                         "Malformed Safety Supervisor Proposed TUNID", EXPFILL }},
+      { &ei_info_ssupervisor_tunid_cancel, { "cipsafety.ssupervisor.info.cancel_propose_apply", PI_PROTOCOL, PI_WARN,
+                        "Cancel Proposed/Apply Operation", EXPFILL } },
    };
 
    static ei_register_info ei_svalidator[] = {
