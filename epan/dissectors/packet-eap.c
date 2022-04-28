@@ -1725,6 +1725,11 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   proto_tree     *eap_tree;
   proto_tree     *eap_tls_flags_tree;
   proto_item     *eap_type_item;
+  static address null_address = ADDRESS_INIT_NONE;
+  static guint8 pae_group_address_mac_addr[6] = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x03 };
+  static address pae_group_address = ADDRESS_INIT(AT_ETHER, sizeof(pae_group_address_mac_addr), pae_group_address_mac_addr);
+  packet_info    pinfo_eapol;
+  packet_info    *pinfo_conv;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1754,15 +1759,38 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * EAP-Request/Identity message which cannot be found in the middle of the
    * session. Use it as a signal to start a new conversation. This ensures that
    * the TLS dissector associates new TLS messages with a unique TLS session.
+   *
+   * For EAPOL frames we need to massage the source/destination addresses into
+   * something stable for the TLS decoder as wireshark typically thinks there
+   * are three conversations occurring when there is only one:
+   *  * src ether = server mac -> dst ether = PAE multicast group address
+   *  * src ether = server mac -> dst ether = client mac
+   *  * src ether = client mac -> dst ether = PAE multicast group address
+   * We set the port so the TLS decoder can figure out which side is the server
    */
+  if (pinfo->src.type == AT_ETHER) {
+    memcpy(&pinfo_eapol, pinfo, sizeof(packet_info));
+    pinfo_conv = &pinfo_eapol;
+    if (eap_code == EAP_REQUEST) {	/* server -> client */
+      copy_address(&pinfo_conv->src, &null_address);
+      copy_address(&pinfo_conv->dst, &pae_group_address);
+      pinfo_eapol.srcport = 443;
+    } else {				/* client -> server */
+      copy_address(&pinfo_conv->src, &pae_group_address);
+      copy_address(&pinfo_conv->dst, &null_address);
+      pinfo_eapol.destport = 443;
+    }
+  } else {
+    pinfo_conv = pinfo;
+  }
   if (!proto_is_frame_protocol(pinfo->layers, "tls")) {
-    if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
-      conversation = find_conversation_pinfo(pinfo, 0);
+    if (PINFO_FD_VISITED(pinfo_conv) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
+      conversation = find_conversation_pinfo(pinfo_conv, 0);
     }
     if (conversation == NULL) {
-      conversation = conversation_new(pinfo->num, &pinfo->src,
-                                      &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
-                                      pinfo->srcport, pinfo->destport, 0);
+      conversation = conversation_new(pinfo_conv->num, &pinfo_conv->src,
+				      &pinfo_conv->dst, conversation_pt_to_endpoint_type(pinfo_conv->ptype),
+				      pinfo_conv->srcport, pinfo_conv->destport, 0);
     }
 
     /*
@@ -2178,23 +2206,23 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           if (next_tvb) {
             switch (eap_type) {
               case EAP_TYPE_TTLS:
-                tls_set_appdata_dissector(tls_handle, pinfo, diameter_avps_handle);
+                tls_set_appdata_dissector(tls_handle, pinfo_conv, diameter_avps_handle);
                 break;
               case EAP_TYPE_PEAP:
                 p_add_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB, tvb);
-                tls_set_appdata_dissector(tls_handle, pinfo, peap_handle);
+                tls_set_appdata_dissector(tls_handle, pinfo_conv, peap_handle);
                 break;
               case EAP_TYPE_TEAP:
                 if (outer_tlvs) {	/* https://www.rfc-editor.org/rfc/rfc7170.html#section-4.1 */
                   tvbuff_t *teap_tvb = tvb_new_subset_length(tvb, offset + size - outer_tlvs_length, outer_tlvs_length);
-                  call_dissector(teap_handle, teap_tvb, pinfo, eap_tree);
+                  call_dissector(teap_handle, teap_tvb, pinfo_conv, eap_tree);
                   if (size == outer_tlvs_length) goto skip_tls_dissector;
                   next_tvb = tvb_new_subset_length(next_tvb, 0, size - outer_tlvs_length);
                 }
-                tls_set_appdata_dissector(tls_handle, pinfo, teap_handle);
+                tls_set_appdata_dissector(tls_handle, pinfo_conv, teap_handle);
                 break;
             }
-            call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
+            call_dissector(tls_handle, next_tvb, pinfo_conv, eap_tree);
           }
         }
       }
