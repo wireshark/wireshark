@@ -1,13 +1,12 @@
 
 Note: We *probably* don't support HP-UX any more, at least not in the
-sense that you can run `configure; make` or `cmake ... ; make` and
-expect everything to work out of the box. At the time of this writing
-(August 2017) the most recent version of Wireshark available at the
-HP-UX Porting and Archive Centre is 1.10.5 and the most recently
-reported HP-UX bug (#6550) was from 2012. The Porting and Archive Centre
-provides libraries required to build TShark, and while the GTK+ packages
-are current (2.24.31) they are 32-bit only. Recent Qt packages are not
-provided.
+sense that you can run `cmake ... ; make` and expect everything to work
+out of the box. At the time of this writing (August 2017) the most recent
+version of Wireshark available at the HP-UX Porting and Archive Centre is
+1.10.5 and the most recently reported HP-UX bug (#6550) was from 2012. The
+Porting and Archive Centre provides libraries required to build TShark,
+and while the GTK+ packages are current (2.24.31) they are 32-bit only.
+Recent Qt packages are not provided.
 
 Contents:
 
@@ -49,7 +48,7 @@ By default, HP's C compiler doesn't support "long long int" to provide
 64-bit integral data types on 32-bit platforms; the "-Ae" flag must be
 supplied to enable extensions such as that.
 
-Wireshark's "configure" script automatically includes that flag if it
+Wireshark's CMake script automatically includes that flag if it
 detects that the native compiler is being used on HP-UX; however, the
 configure scripts for GTK+ and GLib don't do so, which means that 64-bit
 integer support won't be enabled.
