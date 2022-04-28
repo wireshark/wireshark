@@ -674,14 +674,16 @@ write_recent(void)
     }
     g_free(rf_path);
 
-    fputs("# Common recent settings file for Wireshark " VERSION ".\n"
+    fprintf(rf, "# Common recent settings file for %s " VERSION ".\n"
             "#\n"
-            "# This file is regenerated each time Wireshark is quit\n"
+            "# This file is regenerated each time %s is quit\n"
             "# and when changing configuration profile.\n"
             "# So be careful, if you want to make manual changes here.\n"
             "\n"
             "######## Recent capture files (latest last), cannot be altered through command line ########\n"
-            "\n", rf);
+            "\n",
+            get_configuration_namespace(), get_configuration_namespace());
+
 
     menu_recent_file_write_all(rf);
 
@@ -816,12 +818,13 @@ write_profile_recent(void)
     }
     g_free(rf_path);
 
-    fputs("# Recent settings file for Wireshark " VERSION ".\n"
+    fprintf(rf, "# Recent settings file for %s " VERSION ".\n"
             "#\n"
-            "# This file is regenerated each time Wireshark is quit\n"
+            "# This file is regenerated each time %s is quit\n"
             "# and when changing configuration profile.\n"
             "# So be careful, if you want to make manual changes here.\n"
-            "\n", rf);
+            "\n",
+            get_configuration_namespace(), get_configuration_namespace());
 
     write_recent_boolean(rf, "Main Toolbar show (hide)",
             RECENT_KEY_MAIN_TOOLBAR_SHOW,

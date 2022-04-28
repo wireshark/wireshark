@@ -412,11 +412,12 @@ save_decode_as_entries(gchar** err)
         return -1;
     }
 
-    fputs("# \"Decode As\" entries file for Wireshark " VERSION ".\n"
+    fprintf(da_file, "# \"Decode As\" entries file for %s " VERSION ".\n"
         "#\n"
         "# This file is regenerated each time \"Decode As\" preferences\n"
-        "# are saved within Wireshark. Making manual changes should be safe,\n"
-        "# however.\n", da_file);
+        "# are saved within %s. Making manual changes should be safe,\n"
+        "# however.\n",
+        get_configuration_namespace(), get_configuration_namespace());
 
     dissector_all_tables_foreach_changed(decode_as_write_entry, &decode_as_rows_list);
 

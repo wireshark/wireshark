@@ -82,6 +82,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  free_features@Base 3.7.0
  free_progdirs@Base 2.3.0
  get_basename@Base 1.12.0~rc1
+ get_configuration_namespace@Base 3.7.0
  get_copyright_info@Base 1.99.0
  get_cur_groupname@Base 1.10.0
  get_cur_username@Base 1.10.0

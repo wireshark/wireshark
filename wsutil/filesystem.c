@@ -54,6 +54,8 @@
 /*
  * Application configuration namespace. Used to construct configuration
  * paths and environment variables.
+ * XXX We might want to use the term "application flavor" instead, with
+ * "packet" and "log" flavors.
  */
 enum configuration_namespace_e {
     CONFIGURATION_NAMESPACE_UNINITIALIZED,
@@ -62,6 +64,7 @@ enum configuration_namespace_e {
 };
 enum configuration_namespace_e configuration_namespace = CONFIGURATION_NAMESPACE_UNINITIALIZED;
 
+#define CONFIGURATION_NAMESPACE_PROPER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Logwolf")
 #define CONFIGURATION_NAMESPACE_LOWER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "wireshark" : "logwolf")
 #define CONFIGURATION_ENVIRONMENT_VARIABLE(suffix) (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "WIRESHARK_" suffix : "LOGWOLF_" suffix)
 
@@ -297,8 +300,13 @@ set_configuration_namespace(const char *namespace_name)
         ws_error("Unknown configuration namespace %s", namespace_name);
     }
 
-    ws_debug("Using configuration namespace %s.",
-             configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Logwolf");
+    ws_debug("Using configuration namespace %s.", CONFIGURATION_NAMESPACE_PROPER);
+}
+
+const char *
+get_configuration_namespace(void)
+{
+    return CONFIGURATION_NAMESPACE_PROPER;
 }
 
 #ifndef _WIN32
@@ -1330,7 +1338,7 @@ get_persconffile_dir_no_profile(void)
      * is an inaccessible network drive.
      */
     env = g_getenv("APPDATA");
-    const char *persconf_namespace = configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Logwolf";
+    const char *persconf_namespace = CONFIGURATION_NAMESPACE_PROPER;
     if (env != NULL) {
         /*
          * Concatenate %APPDATA% with "\Wireshark" or "\Logwolf".
