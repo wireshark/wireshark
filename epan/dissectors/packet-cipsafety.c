@@ -2152,18 +2152,18 @@ attribute_info_t cip_safety_attribute_vals[] = {
    {0x3A, FALSE, 11, 10, "CCO Binding", cip_uint, &hf_cip_svalidator_cco_binding, NULL},
    {0x3A, FALSE, 12, 11, "Max Data Age", cip_uint, &hf_cip_svalidator_max_data_age, NULL},
    {0x3A, FALSE, 13, 12, "Application Data Path", cip_dissector_func, NULL, dissect_s_validator_app_data_path},
-   /* TODO: GAA code can't get to "Error Code", because dissect_s_validator_app_data_path() will use
-      all remaining bytes. Waiting on clarification in a future spec update. */
+   /* Note: Get Attributes All can't get to "Error Code", because dissect_s_validator_app_data_path() will use
+      all remaining bytes. */
    {0x3A, FALSE, 14, 13, "Error Code", cip_uint, &hf_cip_svalidator_error_code, NULL},
    {0x3A, FALSE, 15, -1, "Producer/Consumer Fault Counters", cip_dissector_func, NULL, dissect_s_validator_prod_cons_fault_count},
 
-   /* Sercos III Link */
+   /* SERCOS III Link */
    {0x4C, FALSE, 1, -1, "Safety Network Number", cip_dissector_func, NULL, dissect_sercosiii_safety_network_number},
-   {0x4C, FALSE, 2, -1, "Communication Cycle Time", cip_dint, &hf_cip_sercosiii_link_communication_cycle_time, NULL},
+   {0x4C, FALSE, 2, -1, "Communication Cycle Time", cip_udint, &hf_cip_sercosiii_link_communication_cycle_time, NULL},
    {0x4C, FALSE, 3, -1, "Interface Status", cip_word, &hf_cip_sercosiii_link_interface_status, NULL},
-   {0x4C, FALSE, 4, -1, "Error counter MST-P/S", cip_int, &hf_cip_sercosiii_link_error_count_mstps, NULL},
+   {0x4C, FALSE, 4, -1, "Error counter MST-P/S", cip_uint, &hf_cip_sercosiii_link_error_count_mstps, NULL},
    {0x4C, FALSE, 5, -1, "Error counter Port1 and Port2", cip_dissector_func, NULL, dissect_sercosiii_link_error_count_p1p2},
-   {0x4C, FALSE, 6, -1, "SERCOS address", cip_int, &hf_cip_sercosiii_link_sercos_address, NULL},
+   {0x4C, FALSE, 6, -1, "SERCOS address", cip_uint, &hf_cip_sercosiii_link_sercos_address, NULL},
 };
 
 /*
@@ -2358,27 +2358,27 @@ proto_register_cipsafety(void)
       },
       { &hf_cip_sercosiii_link_communication_cycle_time,
         { "Communication Cycle Time", "cipsafety.sercosiii_link.communication_cycle_time",
-          FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_sercosiii_link_interface_status,
-        { "Communication Cycle Time", "cipsafety.sercosiii_link.interface_status",
+        { "Interface Status", "cipsafety.sercosiii_link.interface_status",
           FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_sercosiii_link_error_count_mstps,
         { "Error Counter MST-P/S", "cipsafety.sercosiii_link.error_count_mstps",
-          FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_sercosiii_link_error_count_p1,
         { "Error Count Port 1", "cipsafety.sercosiii_link.error_count_p1",
-          FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_sercosiii_link_error_count_p2,
         { "Error Count Port 2", "cipsafety.sercosiii_link.error_count_p2",
-          FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_sercosiii_link_sercos_address,
         { "SERCOS Address", "cipsafety.sercosiii_link.sercos_address",
-          FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
    };
 
