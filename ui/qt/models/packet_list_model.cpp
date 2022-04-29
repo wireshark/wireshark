@@ -366,12 +366,13 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
 
     busy_timer_.start();
     sort_column_is_numeric_ = isNumericColumn(sort_column_);
-    std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
+    QVector<PacketListRecord *> sorted_visible_rows_ = visible_rows_;
+    std::sort(sorted_visible_rows_.begin(), sorted_visible_rows_.end(), recordLessThan);
 
     beginResetModel();
     visible_rows_.resize(0);
     number_to_row_.fill(0);
-    foreach (PacketListRecord *record, physical_rows_) {
+    foreach (PacketListRecord *record, sorted_visible_rows_) {
         frame_data *fdata = record->frameData();
 
         if (fdata->passed_dfilter || fdata->ref_time) {
