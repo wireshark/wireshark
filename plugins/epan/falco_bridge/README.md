@@ -8,7 +8,7 @@ It requires [libsinsp and libscap](https://github.com/falcosecurity/libs/).
 1. Download and compile [libsinsp and libscap](https://github.com/falcosecurity/libs/).
    You will probably want to pass `-DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF` to cmake.
 
-1. Configure Wireshark with `cmake ... -DSINSP_INCLUDEDIR=/path/to/falcosecurity-libs -DSINSP_LIBDIR=/path/to/falcosecurity-libs/-DSINSP_PLUGINDIR=/path/to/falcosecurity-plugins/ build ...`
+1. Configure Wireshark with `cmake ... -DSINSP_INCLUDEDIR=/path/to/falcosecurity-libs -DSINSP_LIBDIR=/path/to/falcosecurity-libs/ -DSINSP_PLUGINDIR=/path/to/falcosecurity-plugins/ build ...`
 
 ## Quick Start
 

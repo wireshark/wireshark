@@ -55,6 +55,11 @@ typedef struct bridge_info {
     int proto;
     hf_register_info* hf;
     int* hf_ids;
+    hf_register_info* hf_v4;
+    int *hf_v4_ids;
+    hf_register_info* hf_v6;
+    int *hf_v6_ids;
+    int* hf_id_to_addr_id; // Maps an hf offset to an hf_v[46] offset
     uint32_t visible_fields;
     uint32_t* field_flags;
     int* field_ids;
@@ -69,6 +74,7 @@ typedef struct conv_fld_info {
 static int proto_falco_bridge = -1;
 static gint ett_falco_bridge = -1;
 static gint ett_sinsp_span = -1;
+static gint ett_address = -1;
 static dissector_table_t ptype_dissector_table;
 
 static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
@@ -131,6 +137,17 @@ register_conversation_filters_mappings(void)
     MAP_CONV_FLTS()
 }
 
+// Returns true if the field might contain an IPv4 or IPv6 address.
+// XXX This should probably be a preference.
+static bool is_addr_field(const char *abbrev) {
+    if (strstr(abbrev, ".srcip")) { // ct.srcip
+        return true;
+    } else if (strstr(abbrev, ".client.ip")) { // okta.client.ip
+        return true;
+    }
+    return false;
+}
+
 void
 configure_plugin(bridge_info* bi, char* config _U_)
 {
@@ -141,6 +158,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
 
     uint32_t tot_fields = get_sinsp_source_nfields(bi->ssi);
     bi->visible_fields = 0;
+    uint32_t addr_fields = 0;
     sinsp_field_info_t sfi;
     for (uint32_t j = 0; j < tot_fields; j++) {
         get_sinsp_source_field_info(bi->ssi, j, &sfi);
@@ -151,6 +169,9 @@ configure_plugin(bridge_info* bi, char* config _U_)
              */
             continue;
         }
+        if (sfi.type == SFT_STRINGZ && is_addr_field(sfi.abbrev)) {
+            addr_fields++;
+        }
         bi->visible_fields++;
     }
 
@@ -160,8 +181,17 @@ configure_plugin(bridge_info* bi, char* config _U_)
         bi->field_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
         bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(guint32));
 
+        if (addr_fields) {
+            bi->hf_id_to_addr_id = (int *)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
+            bi->hf_v4 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
+            bi->hf_v4_ids = (int*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(int));
+            bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
+            bi->hf_v6_ids = (int*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(int));
+        }
+
         uint32_t fld_cnt = 0;
         size_t conv_fld_cnt = 0;
+        uint32_t addr_fld_cnt = 0;
 
         for (uint32_t j = 0; j < tot_fields; j++)
         {
@@ -202,7 +232,6 @@ configure_plugin(bridge_info* bi, char* config _U_)
                         get_sinsp_source_name(bi->ssi),
                         sfi.abbrev);
                 }
-
                 break;
             default:
                 THROW_FORMATTED(DissectorError, "error in plugin %s: type of field %s is not supported",
@@ -224,6 +253,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
             if (sfi.is_info) {
                 bi->field_flags[fld_cnt] |= BFF_INFO;
             }
+
             if (sfi.is_conversation) {
                 bi->field_flags[fld_cnt] |= BFF_CONVERSATION;
                 conv_fld_infos[conv_fld_cnt].field_info = ri;
@@ -233,9 +263,48 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 register_log_conversation_filter(source_name, finfo.hfinfo.name, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
                 conv_fld_cnt++;
             }
+
+            if (sfi.type == SFT_STRINGZ && is_addr_field(sfi.abbrev)) {
+                bi->hf_id_to_addr_id[fld_cnt] = addr_fld_cnt;
+                bi->hf_ids[addr_fld_cnt] = -1;
+
+                hf_register_info* ri_v4 = bi->hf_v4 + addr_fld_cnt;
+                hf_register_info finfo_v4 = {
+                    bi->hf_v4_ids + addr_fld_cnt,
+                    {
+                        wmem_strdup_printf(wmem_epan_scope(), "%s (IPv4)", sfi.display),
+                        wmem_strdup_printf(wmem_epan_scope(), "%s.v4", sfi.abbrev),
+                        FT_IPv4, BASE_NONE,
+                        NULL, 0x0,
+                        wmem_strdup_printf(wmem_epan_scope(), "%s (IPv4)", sfi.description), HFILL
+                    }
+                };
+                *ri_v4 = finfo_v4;
+
+                hf_register_info* ri_v6 = bi->hf_v6 + addr_fld_cnt;
+                hf_register_info finfo_v6 = {
+                    bi->hf_v6_ids + addr_fld_cnt,
+                    {
+                        wmem_strdup_printf(wmem_epan_scope(), "%s (IPv6)", sfi.display),
+                        wmem_strdup_printf(wmem_epan_scope(), "%s.v6", sfi.abbrev),
+                        FT_IPv4, BASE_NONE,
+                        NULL, 0x0,
+                        wmem_strdup_printf(wmem_epan_scope(), "%s (IPv6)", sfi.description), HFILL
+                    }
+                };
+                *ri_v6 = finfo_v6;
+
+                addr_fld_cnt++;
+            } else {
+                bi->hf_id_to_addr_id[fld_cnt] = -1;
+            }
             fld_cnt++;
         }
         proto_register_field_array(proto_falco_bridge, bi->hf, fld_cnt);
+        if (addr_fld_cnt) {
+            proto_register_field_array(proto_falco_bridge, bi->hf_v4, addr_fld_cnt);
+            proto_register_field_array(proto_falco_bridge, bi->hf_v6, addr_fld_cnt);
+        }
         if (conv_fld_cnt > 0) {
             add_conversation_filter_protocol(get_sinsp_source_name(bi->ssi));
         }
@@ -323,7 +392,7 @@ proto_register_falcoplugin(void)
         ws_dir_close(dir);
     }
 
-    bridges = g_new(bridge_info, nbridges);
+    bridges = g_new0(bridge_info, nbridges);
     nbridges = 0;
 
     if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
@@ -342,6 +411,7 @@ proto_register_falcoplugin(void)
     static gint *ett[] = {
         &ett_falco_bridge,
         &ett_sinsp_span,
+        &ett_address,
     };
 
     proto_register_field_array(proto_falco_bridge, hf, array_length(hf));
@@ -461,6 +531,26 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
             if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
                 conv_vals_cnt++;
+            }
+
+            int addr_fld_idx = bi->hf_id_to_addr_id[fld_idx];
+            if (addr_fld_idx >= 0) {
+                ws_in4_addr v4_addr;
+                ws_in6_addr v6_addr;
+                proto_tree *addr_tree;
+                proto_item *addr_item = NULL;
+                if (ws_inet_pton4(sfe->res_str, &v4_addr)) {
+                    addr_tree = proto_item_add_subtree(pi, ett_address);
+                    addr_item = proto_tree_add_ipv4(addr_tree, bi->hf_v4_ids[addr_fld_idx], tvb, 0, 0, v4_addr);
+                    set_address(&pinfo->net_src, AT_IPv4, sizeof(ws_in4_addr), &v4_addr);
+                } else if (ws_inet_pton6(sfe->res_str, &v6_addr)) {
+                    addr_tree = proto_item_add_subtree(pi, ett_address);
+                    addr_item = proto_tree_add_ipv6(addr_tree, bi->hf_v6_ids[addr_fld_idx], tvb, 0, 0, &v6_addr);
+                    set_address(&pinfo->net_src, AT_IPv6, sizeof(ws_in6_addr), &v6_addr);
+                }
+                if (addr_item) {
+                    proto_item_set_generated(addr_item);
+                }
             }
         }
         else if (sfe->type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
