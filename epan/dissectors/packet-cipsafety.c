@@ -280,8 +280,8 @@ static gint ett_svalidator_rrsc           = -1;
 static gint ett_svalidator_cmd_data       = -1;
 static gint ett_svalidator_type           = -1;
 
-static expert_field ei_cipsafety_tbd2_not_complemented = EI_INIT;
-static expert_field ei_cipsafety_tbd_not_copied = EI_INIT;
+static expert_field ei_cipsafety_tbd_not_complemented = EI_INIT;
+static expert_field ei_cipsafety_tbd2_not_copied = EI_INIT;
 static expert_field ei_cipsafety_run_idle_not_complemented = EI_INIT;
 static expert_field ei_mal_io = EI_INIT;
 static expert_field ei_mal_sercosiii_link_error_count_p1p2 = EI_INIT;
@@ -1464,11 +1464,11 @@ dissect_mode_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
    /* verify Mode Byte bits */
    /* TBD */
    if ((((mode_byte & 0x20) >> 5) & 0x01) == (((mode_byte & 0x04) >> 2) & 0x01))
-      expert_add_info(pinfo, tbd_item, &ei_cipsafety_tbd2_not_complemented);
+      expert_add_info(pinfo, tbd_item, &ei_cipsafety_tbd_not_complemented);
 
    /* TBD 2 */
    if ((((mode_byte & 0x40) >> 6) & 0x01) != (((mode_byte & 0x08) >> 3) & 0x01))
-      expert_add_info(pinfo, tbd2_item, &ei_cipsafety_tbd_not_copied);
+      expert_add_info(pinfo, tbd2_item, &ei_cipsafety_tbd2_not_copied);
 
    /* Run/Idle */
    if ((((mode_byte & 0x80) >> 7) & 0x01) == (((mode_byte & 0x10) >> 4) & 0x01))
@@ -2944,8 +2944,8 @@ proto_register_cipsafety(void)
    };
 
    static ei_register_info ei[] = {
-      { &ei_cipsafety_tbd2_not_complemented, { "cipsafety.tbd2_not_complemented", PI_PROTOCOL, PI_WARN, "TBD_2_bit not complemented", EXPFILL }},
-      { &ei_cipsafety_tbd_not_copied, { "cipsafety.tbd_not_copied", PI_PROTOCOL, PI_WARN, "TBD bit not copied", EXPFILL }},
+      { &ei_cipsafety_tbd_not_complemented, { "cipsafety.tbd_not_complemented", PI_PROTOCOL, PI_WARN, "TBD bit not complemented", EXPFILL }},
+      { &ei_cipsafety_tbd2_not_copied, { "cipsafety.tbd2_not_copied", PI_PROTOCOL, PI_WARN, "TBD2 bit not copied", EXPFILL }},
       { &ei_cipsafety_run_idle_not_complemented, { "cipsafety.run_idle_not_complemented", PI_PROTOCOL, PI_WARN, "Run/Idle bit not complemented", EXPFILL }},
       { &ei_mal_io, { "cipsafety.malformed.io", PI_MALFORMED, PI_ERROR, "Malformed CIP Safety I/O packet", EXPFILL }},
       { &ei_mal_sercosiii_link_error_count_p1p2, { "cipsafety.malformed.sercosiii_link.error_count_p1p2", PI_MALFORMED, PI_ERROR, "Malformed SERCOS III Attribute 5", EXPFILL }},
