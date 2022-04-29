@@ -2944,17 +2944,17 @@ proto_register_cipsafety(void)
    };
 
    static ei_register_info ei[] = {
-      { &ei_cipsafety_tbd_not_complemented, { "cipsafety.tbd_not_complemented", PI_PROTOCOL, PI_WARN, "TBD bit not complemented", EXPFILL }},
-      { &ei_cipsafety_tbd2_not_copied, { "cipsafety.tbd2_not_copied", PI_PROTOCOL, PI_WARN, "TBD2 bit not copied", EXPFILL }},
-      { &ei_cipsafety_run_idle_not_complemented, { "cipsafety.run_idle_not_complemented", PI_PROTOCOL, PI_WARN, "Run/Idle bit not complemented", EXPFILL }},
+      { &ei_cipsafety_tbd_not_complemented, { "cipsafety.tbd_not_complemented", PI_PROTOCOL, PI_ERROR, "TBD bit not complemented", EXPFILL }},
+      { &ei_cipsafety_tbd2_not_copied, { "cipsafety.tbd2_not_copied", PI_PROTOCOL, PI_ERROR, "TBD2 bit not copied", EXPFILL }},
+      { &ei_cipsafety_run_idle_not_complemented, { "cipsafety.run_idle_not_complemented", PI_PROTOCOL, PI_ERROR, "Run/Idle bit not complemented", EXPFILL }},
       { &ei_mal_io, { "cipsafety.malformed.io", PI_MALFORMED, PI_ERROR, "Malformed CIP Safety I/O packet", EXPFILL }},
       { &ei_mal_sercosiii_link_error_count_p1p2, { "cipsafety.malformed.sercosiii_link.error_count_p1p2", PI_MALFORMED, PI_ERROR, "Malformed SERCOS III Attribute 5", EXPFILL }},
-      { &ei_cipsafety_not_complement_data, { "cipsafety.not_complement_data", PI_PROTOCOL, PI_WARN, "Data not complemented", EXPFILL }},
-      { &ei_cipsafety_crc_s1, { "cipsafety.crc_s1.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S1 incorrect", EXPFILL }},
-      { &ei_cipsafety_crc_s2, { "cipsafety.crc_s2.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S2 incorrect", EXPFILL }},
-      { &ei_cipsafety_crc_s3, { "cipsafety.crc_s3.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S3 incorrect", EXPFILL }},
-      { &ei_cipsafety_complement_crc_s3, { "cipsafety.complement_crc_s3.incorrect", PI_PROTOCOL, PI_WARN, "Complement CRC-S3 incorrect", EXPFILL }},
-      { &ei_cipsafety_crc_s5, { "cipsafety.crc_s5.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S5 incorrect", EXPFILL }},
+      { &ei_cipsafety_not_complement_data, { "cipsafety.not_complement_data", PI_PROTOCOL, PI_ERROR, "Data not complemented", EXPFILL }},
+      { &ei_cipsafety_crc_s1, { "cipsafety.crc_s1.incorrect", PI_PROTOCOL, PI_ERROR, "CRC-S1 incorrect", EXPFILL }},
+      { &ei_cipsafety_crc_s2, { "cipsafety.crc_s2.incorrect", PI_PROTOCOL, PI_ERROR, "CRC-S2 incorrect", EXPFILL }},
+      { &ei_cipsafety_crc_s3, { "cipsafety.crc_s3.incorrect", PI_PROTOCOL, PI_ERROR, "CRC-S3 incorrect", EXPFILL }},
+      { &ei_cipsafety_complement_crc_s3, { "cipsafety.complement_crc_s3.incorrect", PI_PROTOCOL, PI_ERROR, "Complement CRC-S3 incorrect", EXPFILL }},
+      { &ei_cipsafety_crc_s5, { "cipsafety.crc_s5.incorrect", PI_PROTOCOL, PI_ERROR, "CRC-S5 incorrect", EXPFILL }},
       };
 
    static ei_register_info ei_ssupervisor[] = {
