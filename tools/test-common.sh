@@ -162,6 +162,8 @@ function ws_exit_error() {
         lsb_release -a 2> /dev/null
         printf "\\n"
 
+        printf "Date and time: %s\\n" "$( date --utc )"
+
     } > "$TMP_DIR/${ERR_FILE}.header"
 
     # Trim the stderr output if needed
