@@ -7,9 +7,11 @@
 
  What’s New
 
-  Note This is the last release branch that supports 32-bit Windows.
-  Updates will no longer be available after May 22, 2024 on that
-  platform. Issue 17779[1] Bug Fixes
+ Note: This is the last release branch that supports 32-bit Windows.
+ Updates will no longer be available after May 22, 2024 on that
+ platform. Issue 17779[1]
+
+  Bug Fixes
 
    The following bugs have been fixed:
 
@@ -45,9 +47,9 @@
 
   Wireshark and TShark look in several different locations for
   preference files, plugins, SNMP MIBS, and RADIUS dictionaries. These
-  locations vary from platform to platform. You can use Help › About
-  Wireshark › Folders or tshark -G folders to find the default locations
-  on your system.
+  locations vary from platform to platform. You can use "Help › About
+  Wireshark › Folders" or `tshark -G folders` to find the default
+  locations on your system.
 
  Getting Help
 
