@@ -10,6 +10,7 @@
 #include "conversation_dialog.h"
 
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 #include <epan/dissectors/packet-tcp.h>
 
 #include "ui/recent.h"
@@ -528,17 +529,42 @@ public:
         conv_item_t *conv_item = &g_array_index(conv_array_, conv_item_t, conv_idx_);
         conv_item_t *other_item = &g_array_index(other_row->conv_array_, conv_item_t, other_row->conv_idx_);
 
+        bool resolve_names = false;
+        if (resolve_names_ptr_ && *resolve_names_ptr_) resolve_names = true;
+
         int sort_col = treeWidget()->sortColumn();
         double conv_duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
         double other_duration = nstime_to_sec(&other_item->stop_time) - nstime_to_sec(&other_item->start_time);
 
         switch(sort_col) {
         case CONV_COLUMN_SRC_ADDR:
-            return cmp_address(&conv_item->src_address, &other_item->src_address) < 0 ? true : false;
+            if (resolve_names) {
+                char* addr_str = address_to_display(NULL, &conv_item->src_address);
+                char* otheraddr_str = address_to_display(NULL, &other_item->src_address);
+                bool ret;
+
+                ret = g_ascii_strcasecmp(addr_str, otheraddr_str) < 0 ? true : false;
+                wmem_free(NULL, otheraddr_str);
+                wmem_free(NULL, addr_str);
+                return ret;
+	    } else {
+                return cmp_address(&conv_item->src_address, &other_item->src_address) < 0 ? true : false;
+            }
         case CONV_COLUMN_SRC_PORT:
             return conv_item->src_port < other_item->src_port;
         case CONV_COLUMN_DST_ADDR:
-            return cmp_address(&conv_item->dst_address, &other_item->dst_address) < 0 ? true : false;
+            if (resolve_names) {
+                char* addr_str = address_to_display(NULL, &conv_item->dst_address);
+                char* otheraddr_str = address_to_display(NULL, &other_item->dst_address);
+                bool ret;
+
+                ret = g_ascii_strcasecmp(addr_str, otheraddr_str) < 0 ? true : false;
+                wmem_free(NULL, otheraddr_str);
+                wmem_free(NULL, addr_str);
+                return ret;
+	    } else {
+                return cmp_address(&conv_item->dst_address, &other_item->dst_address) < 0 ? true : false;
+            }
         case CONV_COLUMN_DST_PORT:
             return conv_item->dst_port < other_item->dst_port;
         case CONV_COLUMN_PACKETS:
