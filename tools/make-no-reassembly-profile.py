@@ -22,7 +22,7 @@ def main():
     args = parser.parse_args()
 
     this_dir = os.path.dirname(__file__)
-    profile_path = os.path.join(this_dir, '..', 'profiles', 'No Reassembly', 'preferences')
+    profile_path = os.path.join(this_dir, '..', 'resources', 'share', 'wireshark', 'profiles', 'No Reassembly', 'preferences')
 
     tshark_path = os.path.join(args.program_path, 'tshark')
     if not os.path.isfile(tshark_path):
