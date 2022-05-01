@@ -4706,7 +4706,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hide Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Arayüzü Gizle</translation>
     </message>
 </context>
 <context>

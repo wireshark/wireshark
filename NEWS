@@ -10,7 +10,8 @@ Wireshark 3.7.0 Release Notes
 
  What’s New
 
-   • Note We no longer ship packages for 32-bit Windows. Issue 17779[1]
+ Note: We no longer ship packages for 32-bit Windows. Issue 17779[1]
+
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
 
@@ -94,6 +95,10 @@ Wireshark 3.7.0 Release Notes
         • Functions can accept expressions as arguments, including other
        functions. Previously only protocol fields and slices were
        syntactically valid function arguments.
+
+        • New syntax to match a specific layer in the protocol stack.
+       For example ip.addr#2 == 1.1.1.1 matches only the inner layer in
+       an IP-over-IP packet.
 
      • text2pcap and "Import from Hex Dump":
 
@@ -227,7 +232,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-04-21 14:00:50 UTC
+  Last updated 2022-04-09 22:03:40 UTC
 
  References
 
