@@ -151,9 +151,12 @@ function ws_exit_error() {
             printf "Valgrind error count: %s\\n" "$VG_ERR_CNT"
         fi
 
+        printf "Date and time: %s\\n" "$( date --utc )"
+
+        SINCE_HOURS=48
         if [ -d "${GIT_DIR:-.git}" ] ; then
-                printf "\\nLatest (but not necessarily the problem) commit:\\n"
-                git log --max-count=1 --oneline
+                printf "\\nCommits in the last %s hours:\\n" $SINCE_HOURS
+                git --no-pager log --oneline --no-decorate --since=${SINCE_HOURS}hours
                 printf "\\n"
         fi
 
@@ -161,8 +164,6 @@ function ws_exit_error() {
         uname -srvm
         lsb_release -a 2> /dev/null
         printf "\\n"
-
-        printf "Date and time: %s\\n" "$( date --utc )"
 
     } > "$TMP_DIR/${ERR_FILE}.header"
 
