@@ -14,9 +14,13 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-NOTE: This is the last release branch that supports 32-bit Windows.
-Updates will no longer be available after May 22, 2024 on that platform.
+NOTE: This is the last release branch with support for 32-bit Windows.
+Updates will no longer be available after May 22, 2024 for that platform.
 wsbuglink:17779[]
+
+The Windows installers are now built with Visual Studio 2022.
+
+RPM packaging has been improved.
 
 // The Windows installers now ship with Npcap 1.31.
 // They previously shipped with Npcap 1.10.
@@ -48,6 +52,24 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
+* Build failure with GCC 7.5, Linux wsbuglink:17911[].
+
+* RDP dissected as SSL wsbuglink:17952[].
+
+* IPFIX/cflow dissector asserts when varlen field length is zero wsbuglink:18010[].
+
+* 802.11ax HE PHY "Device Class" dissected incorrectly wsbuglink:18030[].
+
+* DHCPv6 Option 15 User-Class incorrectly parsed in Wireshark wsbuglink:18032[].
+
+* ICMPv6 dissector: PREF64 option parsing only works for prefix length 96 wsbuglink:18033[].
+
+* Switch macOS updater to Sparkle 2 wsbuglink:18035[].
+
+* CQL timestamp dissector displays the wrong timestamp wsbuglink:18038[].
+
+* Unable to dissect 802.11ax Target Wake Time (TWT) packets wsbuglink:18050[].
+
 === New and Updated Features
 
 
@@ -65,6 +87,14 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+CQL
+DHCPv6
+ICMPv6
+IEEE 802.11
+NetFlow/IPFIX
+NAS-5GS
+RDP
+UDS
 --
 
 === New and Updated Capture File Support
