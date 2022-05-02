@@ -169,7 +169,7 @@ trap trap_abrt ABRT
 PASS=0
 while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; do
     PASS=$(( PASS+1 ))
-    echo "Starting pass $PASS:"
+    echo "Pass $PASS:"
     RUN=0
 
     for CF in "$@" ; do
@@ -211,6 +211,7 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
             fi
         fi
 
+        SECONDS=0
         RUNNER_PIDS=
         RUNNER_ERR_FILES=
         for ARGS in "${RUNNER_ARGS[@]}" ; do
@@ -291,7 +292,7 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
             fi
         done
 
-        echo " OK"
+        printf " OK (%s seconds)\\n" $SECONDS
         rm -f "$TMP_DIR/$TMP_FILE" "$TMP_DIR/$ERR_FILE"
     done
 done
