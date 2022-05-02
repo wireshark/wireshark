@@ -44,6 +44,20 @@ The following bugs have been fixed:
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* RDP dissected as SSL wsbuglink:17952[].
+
+* Interface statistics are not updated if some interfaces are hidden wsbuglink:18023[].
+
+* 802.11ax HE PHY "Device Class" dissected incorrectly wsbuglink:18030[].
+
+* ICMPv6 dissector: PREF64 option parsing only works for prefix length 96 wsbuglink:18033[].
+
+* Switch macOS updater to Sparkle 2 wsbuglink:18035[].
+
+* CQL timestamp dissector displays the wrong timestamp wsbuglink:18038[].
+
+* Unable to dissect 802.11ax Target Wake Time (TWT) packets wsbuglink:18050[].
+
 === New and Updated Features
 
 // === Removed Features and Support
@@ -66,6 +80,11 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+CQL
+DHCPv6
+ICMPv6
+IEEE 802.11
+RDP
 --
 
 === New and Updated Capture File Support
