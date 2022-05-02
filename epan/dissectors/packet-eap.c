@@ -1772,12 +1772,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     memcpy(&pinfo_eapol, pinfo, sizeof(packet_info));
     pinfo_conv = &pinfo_eapol;
     if (eap_code == EAP_REQUEST) {	/* server -> client */
-      copy_address(&pinfo_conv->src, &null_address);
-      copy_address(&pinfo_conv->dst, &pae_group_address);
+      copy_address_shallow(&pinfo_conv->src, &null_address);
+      copy_address_shallow(&pinfo_conv->dst, &pae_group_address);
       pinfo_eapol.srcport = 443;
     } else {				/* client -> server */
-      copy_address(&pinfo_conv->src, &pae_group_address);
-      copy_address(&pinfo_conv->dst, &null_address);
+      copy_address_shallow(&pinfo_conv->src, &pae_group_address);
+      copy_address_shallow(&pinfo_conv->dst, &null_address);
       pinfo_eapol.destport = 443;
     }
   } else {
