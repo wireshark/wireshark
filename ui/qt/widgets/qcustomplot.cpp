@@ -21224,7 +21224,7 @@ void QCPGraph::drawLegendIcon(QCPPainter *painter, const QRectF &rect) const
 void QCPGraph::getLines(QVector<QPointF> *lines, const QCPDataRange &dataRange) const
 {
   if (!lines) return;
-  QCPGraphDataContainer::const_iterator begin = 0, end = 0;
+  QCPGraphDataContainer::const_iterator begin, end;
   getVisibleDataBounds(begin, end, dataRange);
   if (begin == end)
   {
@@ -21269,7 +21269,7 @@ void QCPGraph::getScatters(QVector<QPointF> *scatters, const QCPDataRange &dataR
   QCPAxis *valueAxis = mValueAxis.data();
   if (!keyAxis || !valueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; scatters->clear(); return; }
 
-  QCPGraphDataContainer::const_iterator begin = 0, end = 0;
+  QCPGraphDataContainer::const_iterator begin, end;
   getVisibleDataBounds(begin, end, dataRange);
   if (begin == end)
   {
@@ -35318,7 +35318,7 @@ void QCPPolarGraph::getVisibleDataBounds(QCPGraphDataContainer::const_iterator &
 void QCPPolarGraph::getLines(QVector<QPointF> *lines, const QCPDataRange &dataRange) const
 {
   if (!lines) return;
-  QCPGraphDataContainer::const_iterator begin = 0, end = 0;
+  QCPGraphDataContainer::const_iterator begin, end;
   getVisibleDataBounds(begin, end, dataRange);
   if (begin == end)
   {
@@ -35344,7 +35344,7 @@ void QCPPolarGraph::getScatters(QVector<QPointF> *scatters, const QCPDataRange &
   if (!keyAxis || !valueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return; }
 
   if (!scatters) return;
-  QCPGraphDataContainer::const_iterator begin = 0, end = 0;
+  QCPGraphDataContainer::const_iterator begin, end;
   getVisibleDataBounds(begin, end, dataRange);
   if (begin == end)
   {
