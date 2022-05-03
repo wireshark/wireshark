@@ -1118,7 +1118,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                 proto_tree_add_item_ret_uint(sc_tree, hf_catapult_dct2000_ciphering_algorithm,
                                              tvb, offset++, 1, ENC_BIG_ENDIAN, &cipher_algorithm);
 
-                /* Ciphering key (optional */
+                /* Ciphering key (optional) */
                 if (len > 3) {
                     /* Skip tag and length */
                     offset += 2;
@@ -1131,7 +1131,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                             set_pdcp_nr_rrc_ciphering_key(ueid, key, pinfo->num);
                         }
                         else {
-                            set_pdcp_lte_rrc_ciphering_key(ueid, key);
+                            set_pdcp_lte_rrc_ciphering_key(ueid, key, pinfo->num);
                         }
                     }
                     offset += 16;
@@ -1165,7 +1165,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                         set_pdcp_nr_rrc_integrity_key(ueid, key, pinfo->num);
                     }
                     else {
-                        set_pdcp_lte_rrc_integrity_key(ueid, key);
+                        set_pdcp_lte_rrc_integrity_key(ueid, key, pinfo->num);
                     }
                 }
                 offset += 16;

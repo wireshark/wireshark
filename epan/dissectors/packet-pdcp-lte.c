@@ -312,75 +312,115 @@ UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcIntegrityKeyString,  uat_ue_keys_reco
 
 /* Also supporting a hash table with entries from these functions */
 
-/* Table from ueid -> uat_ue_keys_record_t* */
+/* Table from ueid -> ue_key_entries_t* */
 static wmem_map_t *pdcp_security_key_hash = NULL;
 
+typedef enum {
+    rrc_cipher,
+    rrc_integrity,
+    up_cipher,
+} ue_key_type_t;
 
-void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key)
+typedef struct {
+    ue_key_type_t key_type;
+    gchar         *keyString;
+    guint8        binaryKey[16];
+    gboolean      keyOK;
+    guint32       setup_frame;
+} key_entry_t;
+
+/* List of key entries for an individual UE */
+typedef struct {
+    #define MAX_KEY_ENTRIES_PER_UE 32
+    guint       num_entries_set;
+    key_entry_t entries[MAX_KEY_ENTRIES_PER_UE];
+} ue_key_entries_t;
+
+
+
+void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key, guint32 frame_num)
 {
     char *err = NULL;
 
     /* Get or create struct for this UE */
-    uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
-                                                                              GUINT_TO_POINTER((guint)ueid));
-    if (key_record == NULL) {
+    ue_key_entries_t *key_entries = (ue_key_entries_t*)wmem_map_lookup(pdcp_security_key_hash,
+                                                                       GUINT_TO_POINTER((guint)ueid));
+    if (key_entries == NULL) {
         /* Create and add to table */
-        key_record = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
-        key_record->ueid = ueid;
-        wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
+        key_entries = wmem_new0(wmem_file_scope(), ue_key_entries_t);
+        wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_entries);
     }
 
-    /* Check and convert RRC key */
-    key_record->rrcCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK, &err);
+    if (key_entries->num_entries_set == MAX_KEY_ENTRIES_PER_UE) {
+        /* No more room.. */
+        return;
+    }
+
+    key_entry_t *new_key_entry = &key_entries->entries[key_entries->num_entries_set++];
+    new_key_entry->key_type = rrc_cipher;
+    new_key_entry->keyString = g_strdup(key);
+    new_key_entry->setup_frame = frame_num;
+    update_key_from_string(new_key_entry->keyString, new_key_entry->binaryKey, &new_key_entry->keyOK, &err);
     if (err) {
         report_failure("%s: (RRC Ciphering Key)", err);
         g_free(err);
     }
 }
 
-void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key)
+void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key, guint32 frame_num)
 {
     char *err = NULL;
 
     /* Get or create struct for this UE */
-    uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
-                                                                              GUINT_TO_POINTER((guint)ueid));
-    if (key_record == NULL) {
+    ue_key_entries_t *key_entries = (ue_key_entries_t*)wmem_map_lookup(pdcp_security_key_hash,
+                                                                       GUINT_TO_POINTER((guint)ueid));
+    if (key_entries == NULL) {
         /* Create and add to table */
-        key_record = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
-        key_record->ueid = ueid;
-        wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
+        key_entries = wmem_new0(wmem_file_scope(), ue_key_entries_t);
+        wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_entries);
     }
 
-    /* Check and convert RRC integrity key */
-    key_record->rrcIntegrityKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK, &err);
+    if (key_entries->num_entries_set == MAX_KEY_ENTRIES_PER_UE) {
+        /* No more room.. */
+        return;
+    }
+
+    key_entry_t *new_key_entry = &key_entries->entries[key_entries->num_entries_set++];
+    new_key_entry->key_type = rrc_integrity;
+    new_key_entry->keyString = g_strdup(key);
+    new_key_entry->setup_frame = frame_num;
+    update_key_from_string(new_key_entry->keyString, new_key_entry->binaryKey, &new_key_entry->keyOK, &err);
     if (err) {
-        report_failure("%s: (RRC Integrity Key)", err);
+        report_failure("%s: (RRC Ciphering Key)", err);
         g_free(err);
     }
 }
 
-void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key)
+void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_num)
 {
     char *err = NULL;
 
     /* Get or create struct for this UE */
-    uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
-                                                                              GUINT_TO_POINTER((guint)ueid));
-    if (key_record == NULL) {
+    ue_key_entries_t *key_entries = (ue_key_entries_t*)wmem_map_lookup(pdcp_security_key_hash,
+                                                                       GUINT_TO_POINTER((guint)ueid));
+    if (key_entries == NULL) {
         /* Create and add to table */
-        key_record = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
-        key_record->ueid = ueid;
-        wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
+        key_entries = wmem_new0(wmem_file_scope(), ue_key_entries_t);
+        wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_entries);
     }
 
-    /* Check and convert UP key */
-    key_record->upCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK, &err);
+    if (key_entries->num_entries_set == MAX_KEY_ENTRIES_PER_UE) {
+        /* No more room.. */
+        return;
+    }
+
+    key_entry_t *new_key_entry = &key_entries->entries[key_entries->num_entries_set++];
+    new_key_entry->key_type = up_cipher;
+    new_key_entry->keyString = g_strdup(key);
+    new_key_entry->setup_frame = frame_num;
+    update_key_from_string(new_key_entry->keyString, new_key_entry->binaryKey, &new_key_entry->keyOK, &err);
     if (err) {
-        report_failure("%s: (UserPlane Ciphering Key)", err);
+        report_failure("%s: (RRC Ciphering Key)", err);
         g_free(err);
     }
 }
@@ -653,16 +693,60 @@ typedef struct pdu_security_settings_t
 } pdu_security_settings_t;
 
 
-static uat_ue_keys_record_t* look_up_keys_record(guint16 ueid)
+static uat_ue_keys_record_t* look_up_keys_record(guint16 ueid, guint32 frame_num,
+                                                 guint32 *config_frame_rrc_cipher,
+                                                 guint32 *config_frame_rrc_integrity,
+                                                 guint32 *config_frame_up_cipher)
 {
     unsigned int record_id;
 
-    /* Try hash table first (among entries added by set_pdcp_lte_xxx_key() functions) */
-    uat_ue_keys_record_t* key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
-                                                                              GUINT_TO_POINTER((guint)ueid));
+    /* Try hash table first (among entries added by set_pdcp_nr_xxx_key() functions) */
+    ue_key_entries_t* key_record = (ue_key_entries_t*)wmem_map_lookup(pdcp_security_key_hash,
+                                                                      GUINT_TO_POINTER((guint)ueid));
     if (key_record != NULL) {
-        return key_record;
+        /* Will build up and return usual type */
+        uat_ue_keys_record_t *keys = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
+
+        /* Fill in details */
+        keys->ueid = ueid;
+        /* Walk entries backwards (want last entry before frame_num) */
+        for (gint e=key_record->num_entries_set; e>0; e--) {
+            key_entry_t *entry = &key_record->entries[e-1];
+
+            if (frame_num > entry->setup_frame) {
+                /* This frame is after corresponding setup, so can adopt if don't have one */
+                switch (entry->key_type) {
+                    case rrc_cipher:
+                        if (!keys->rrcCipherKeyOK) {
+                            keys->rrcCipherKeyString = entry->keyString;
+                            memcpy(keys->rrcCipherBinaryKey, entry->binaryKey, 16);
+                            keys->rrcCipherKeyOK = entry->keyOK;
+                            *config_frame_rrc_cipher = entry->setup_frame;
+                        }
+                        break;
+                    case rrc_integrity:
+                        if (!keys->rrcIntegrityKeyOK) {
+                            keys->rrcIntegrityKeyString = entry->keyString;
+                            memcpy(keys->rrcIntegrityBinaryKey, entry->binaryKey, 16);
+                            keys->rrcIntegrityKeyOK = entry->keyOK;
+                            *config_frame_rrc_integrity = entry->setup_frame;
+                        }
+                        break;
+                    case up_cipher:
+                        if (!keys->upCipherKeyOK) {
+                            keys->upCipherKeyString = entry->keyString;
+                            memcpy(keys->upCipherBinaryKey, entry->binaryKey, 16);
+                            keys->upCipherKeyOK = entry->keyOK;
+                            *config_frame_up_cipher = entry->setup_frame;
+                        }
+                        break;
+                }
+            }
+        }
+        /* Return this struct (even if doesn't have all/any keys set..) */
+        return keys;
     }
+
 
     /* Else look up UAT entries. N.B. linear search... */
     for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
@@ -786,7 +870,11 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 pdu_security->count = count;
 
                 /* KEY.  Look this UE up among UEs that have keys configured */
-                keys_record = look_up_keys_record(p_pdcp_lte_info->ueid);
+                guint32 config_frame_rrc_cipher=0, config_frame_rrc_integrity=0,
+                        config_frame_up_cipher=0;
+                keys_record = look_up_keys_record(p_pdcp_lte_info->ueid, pinfo->num,
+                                                  &config_frame_rrc_cipher, &config_frame_rrc_integrity,
+                                                  &config_frame_up_cipher);
                 if (keys_record != NULL) {
                     if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
                         /* Get RRC ciphering key */
