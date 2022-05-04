@@ -11,6 +11,25 @@
 
    The following bugs have been fixed:
 
+     • RDP dissected as SSL. Issue 17952[1].
+
+     • Interface statistics are not updated if some interfaces are
+       hidden. Issue 18023[2].
+
+     • 802.11ax HE PHY "Device Class" dissected incorrectly. Issue
+       18030[3].
+
+     • ICMPv6 dissector: PREF64 option parsing only works for prefix
+       length 96. Issue 18033[4].
+
+     • Switch macOS updater to Sparkle 2. Issue 18035[5].
+
+     • CQL timestamp dissector displays the wrong timestamp. Issue
+       18038[6].
+
+     • Unable to dissect 802.11ax Target Wake Time (TWT) packets. Issue
+       18050[7].
+
   New and Updated Features
 
   New Protocol Support
@@ -18,6 +37,8 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   CQL, DHCPv6, ICMPv6, IEEE 802.11, and RDP
 
   New and Updated Capture File Support
 
@@ -33,7 +54,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[8] on the Wireshark web site.
 
  File Locations
 
@@ -47,22 +68,29 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[9] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[10].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[11].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[12].
 
-  Last updated 2022-03-23 18:15:38 UTC
+  Last updated 2022-05-04 16:31:51 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/17952
+   2. https://gitlab.com/wireshark/wireshark/-/issues/18023
+   3. https://gitlab.com/wireshark/wireshark/-/issues/18030
+   4. https://gitlab.com/wireshark/wireshark/-/issues/18033
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18035
+   6. https://gitlab.com/wireshark/wireshark/-/issues/18038
+   7. https://gitlab.com/wireshark/wireshark/-/issues/18050
+   8. https://www.wireshark.org/download.html#thirdparty
+   9. https://ask.wireshark.org/
+  10. https://www.wireshark.org/lists/
+  11. https://gitlab.com/wireshark/wireshark/-/issues
+  12. https://www.wireshark.org/faq.html

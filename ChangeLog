@@ -1,0 +1,299 @@
+commit a7524e14b7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 2 15:21:02 2022 -0700
+
+    Prep for 3.4.14.
+
+commit 0e73feb8c5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 1 16:39:09 2022 +0000
+
+    [Automatic update for 2022-05-01]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 91b6809147
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Apr 24 11:20:01 2022 +0200
+
+    802.11: fix TWT Setup dissection
+
+    Duplicate Dialog Token field
+
+    Fix #18050
+
+    (cherry picked from commit 19dc602fe324169c011ca4df6959b395a90ac3ad)
+
+commit 4cb00d3138
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 24 16:37:55 2022 +0000
+
+    [Automatic update for 2022-04-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 11865ba3ba
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Apr 21 10:11:08 2022 -0700
+
+    macOS: Require Sparkle 2.
+
+    Remove our Sparkle 1 code. Fixes #18035.
+
+    (cherry picked from commit 4bb16383a3f514cff9cc7cac650a1d0c441466de)
+
+    Conflicts:
+            CMakeLists.txt
+
+commit df752dd53b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 19 10:13:42 2022 -0700
+
+    epan: Add a null conversation checks.
+
+    Check for null conversations in conversation_add_proto_data,
+    conversation_get_proto_data, and conversation_delete_proto_data.
+    Document them as well. Ping #18043.
+
+    (cherry picked from commit 88f07ff5d131c6973d09d87d4e3950338b03e89c)
+
+commit 75e7c6f4d5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 20 14:16:03 2022 -0700
+
+    macOS: Even more Sparkle 2 signing fixes.
+
+    Sparkle's XPC services are only needed if we're sandboxing, so remove
+    them.
+
+    [skip ci]
+
+    (cherry picked from commit c2fd505516c3284ba483ac1b8fc820751a09127e)
+
+commit 041b754fa0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 20 12:40:05 2022 -0700
+
+    macOS: More Sparkle 2 signing fixes.
+
+    Sign our XPCs. Add another Brotli fixup.
+
+    (cherry picked from commit d024502c8bc00336bddacd300199750a5d6e8aab)
+
+commit 0f0230bbc6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 20 10:28:08 2022 -0700
+
+    macOS: Update our app bundle for Sparkle 2.
+
+    Update our application bundle script to handle Sparkle 2 and its assets.
+
+    (cherry picked from commit 486fd46fe992f2d504b4bd62d4bf705286ff0504)
+
+commit 4b4aa48a44
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Apr 9 14:14:04 2022 -0700
+
+    macOS: Add support for Sparkle 2.
+
+    Sparkle 2 deprecated the sharedUpdater singleton, so create our own
+    which uses Sparkle 2's updated API. Ping #18035.
+
+    Update our CMake version check.
+
+    (cherry picked from commit fea6591b0c84660f46c06029e664e2a9af18fe87)
+
+    Conflicts:
+            .editorconfig
+            CMakeLists.txt
+
+commit 700510f192
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 17 10:37:10 2022 -0700
+
+    Tools: Set a variable in rpm-setup.sh.
+
+    [skip ci]
+
+    (cherry picked from commit 05c86efcf62317df4ebeace3bcd2d1ae2a242678)
+
+commit 987a6f5ce1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 17 16:35:17 2022 +0000
+
+    [Automatic update for 2022-04-17]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a58bb3f2d6
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Thu Apr 14 11:34:02 2022 -0500
+
+    CQL: format timestamp as microseconds (ENC_TIME_USECS)
+
+    Closes #18038
+
+    (cherry picked from commit 98793186b900b16240498a471d12075b608326bb)
+
+commit c41cbf18d7
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Tue Apr 12 20:51:36 2022 -0500
+
+    epan: add ENC_TIME_USECS timestamp encoding
+
+    Needed to format timestamp in #18038 - packet-cql.c
+    Mirrors changes made in !1924 - Add ENC_TIME_NSECS timestamp encoding
+    Documentation in README.dissector, proto.c, proto.h - could use
+    refresh in a different merge request.
+
+    (backported from commit 4e0cd3dbd24e572b6219965dc2508b615a9d447d)
+
+commit 060772f578
+Author: Nicolás Alvarez <nicolas.alvarez@gmail.com>
+Date:   Wed Feb 3 21:15:20 2021 -0300
+
+    Minor changes to ENC_TIME documentation
+
+    - Fix duplicate "are are".
+    - Fix NTP epoch year in ENC_TIME_NTP docs (572b80d2 fixed it in the README
+      but not in proto.h).
+    - Remove completely redundant "(ie. )" clauses.
+
+    (cherry picked from commit 981e662a0aadab563617095eccef491bb43bef71)
+
+commit 90963725ec
+Author: Nicolás Alvarez <nicolas.alvarez@gmail.com>
+Date:   Wed Feb 3 17:40:16 2021 -0300
+
+    Update documentation for ENC_TIME_* constants
+
+    ENC_TIME_MIP6 and ENC_TIME_CLASSIC_MAC_OS_SECS were added recently by
+    factoring them out of specific dissectors, but they weren't documented.
+    I added documentation, based on comments in the dissector code they came
+    from.
+
+    (cherry picked from commit 0e86ea6c57c56b26f4a526884fef035e150b4c0f)
+
+commit cb64cfca37
+Author: Richard Sharpe <realrichardsharpe@gmail.com>
+Date:   Wed Apr 6 18:31:50 2022 -0700
+
+    ieee80211: Correct the dissection of the 802.11ax Capabilities device class.
+
+    The numbers were reversed.
+
+    Closes #18030
+
+    (cherry picked from commit 34f8420d1e20b49c8fd0db28b14427cbd2eab273)
+
+commit ff81b864c9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 10 15:40:36 2022 -0700
+
+    Tools: Make the Debian and RPM setup scripts more strict.
+
+    We use debian-setup.sh and rpm-setup.sh to build the containers in
+    https://gitlab.com/wireshark/wireshark-containers/. Make sure they fail
+    with a nonzero exit status, otherwise we might end up with an invalid
+    container image.
+
+    Make sure OPTIONS is defined in all of the setup scripts that use it.
+
+    (cherry picked from commit bd6ee4479f17db1b75a8ebb200104082dfc2d01f)
+
+    Conflicts:
+            tools/arch-setup.sh
+            tools/msys2-setup.sh
+            tools/rpm-setup.sh
+
+commit 11e090a0ae
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 12 12:00:42 2022 -0800
+
+    macOS: Require Sparkle 1 for now.
+
+    The Sparkle project recently released Sparkle 2.0.0, which deprecates
+    the version 1 API. Add version discovery to FindSparkle.cmake and
+    require version 1 until we add support for the new API. Ping #17861.
+
+    (cherry picked from commit a6e24a623416ca08fc8c3bb339b4f275a6aa9c3d)
+
+    Conflicts:
+            CMakeLists.txt
+
+commit 7896b434a3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 10 16:39:27 2022 +0000
+
+    [Automatic update for 2022-04-10]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d306c52129
+Author: Thomas Jansen <mithi@mithi.net>
+Date:   Wed Apr 6 16:54:00 2022 +0200
+
+    icmpv6: Fix dissection of PREF64 option for shorter prefixes
+
+    RFC 8781 shows in section 4 that the prefix field of the PREF64 option
+    header is always 96 bits (or 12 bytes), regardless of the prefix length
+    code that only specifies which parts of the prefix are significant. The
+    option itself thus always has a fixed length. Even if they are not used
+    in the significant part of the prefix itself, the unused bits are still
+    part of the prefix field of the PREF64 option and the offset must be
+    adapted accordingly.
+
+    The previous implementation would fail to correctly parse any PREF64
+    option with a PLC other than 0 (i.e. the full 96 bits) due to the unused
+    remaining bits in the option not being consumed.
+
+    Closes #18033.
+
+    (cherry picked from commit aac695d62ed62b8618201c95551006c90bcc253c)
+
+commit 904bbad041
+Author: Jiří Engelthaler <engycz@gmail.com>
+Date:   Sat Apr 2 16:43:15 2022 +0000
+
+    Qt: Fix interface statistics update if some interfaces are hidden
+
+    Closes issue #18023
+
+    (cherry picked from commit 248f11dd1b15bd7322a7fb3e66238eb538c8a9e2)
+
+commit 9707717914
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 1 18:24:18 2022 -0400
+
+    rdp: Register RDP as a TLS subdissector for port 3389 directly
+
+    ssl_dissector_add registers TLS as the dissector for TCP for the given
+    port. We can't use it, since on port 3389 TPKT (for RDP) can be over TLS
+    or directly over TCP, depending on the RDP security settings.
+    Fix #17952.
+
+    (cherry picked from commit 6dfd96f6feda59853f1b6b8b5cfe12a26e8664af)
+
+commit a334df549b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 3 16:37:57 2022 +0000
+
+    [Automatic update for 2022-04-03]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 75fe9aa7a6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 27 16:35:36 2022 +0000
+
+    [Automatic update for 2022-03-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 543704160a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 23 11:15:38 2022 -0700
+
+    Version: 3.4.13 → 3.4.14.
+
+    [skip ci]
