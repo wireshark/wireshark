@@ -499,6 +499,9 @@ static const struct {
 	/* Auerswald log file captured from any supported Auerswald device */
 	{ 296,		WTAP_ENCAP_AUERSWALD_LOG },
 
+	/* Ultra-wideband (UWB) controller interface protocol (UCI) */
+	{ 299,		WTAP_ENCAP_FIRA_UCI },
+
 	/*
 	 * To repeat:
 	 *

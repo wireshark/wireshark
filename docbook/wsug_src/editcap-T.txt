@@ -178,6 +178,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     tr - Token Ring
     tr-nettl - Token Ring with nettl headers
     tzsp - Tazmen sniffer protocol
+    uci - FiRa UWB Controller Interface protocol
     unknown - Unknown
     unknown-nettl - Unknown link-layer type with nettl headers
     usb-20 - USB 2.0/1.1/1.0 packets

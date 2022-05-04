@@ -83,6 +83,9 @@ in configured MaxMind databases (and geolocation lookup can be enabled with
 *-Ng*.) This is most relevant for tshark, where geolocation lookups are
 synchronous.
 
+* Implement built-in dissector for FiRa UWB Controller Interface (UCI) protocol.
+Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
@@ -119,6 +122,7 @@ DECT NWK protocol layer (DECT-NWK)
 Low Level Signalling (ATSC3 LLS)
 Train Real-Time Data Protocol (TRDP)
 Windows Delivery Optimization (MS-DO)
+FiRa UWB Controller Interface (UCI)
 --
 
 === Updated Protocol Support
