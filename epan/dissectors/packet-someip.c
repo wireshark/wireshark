@@ -132,9 +132,12 @@ static dissector_handle_t someip_handle_tcp = NULL;
 /* header field */
 static int hf_someip_messageid                                          = -1;
 static int hf_someip_serviceid                                          = -1;
+static int hf_someip_servicename                                        = -1;
 static int hf_someip_methodid                                           = -1;
+static int hf_someip_methodname                                         = -1;
 static int hf_someip_length                                             = -1;
 static int hf_someip_clientid                                           = -1;
+static int hf_someip_clientname                                         = -1;
 static int hf_someip_sessionid                                          = -1;
 static int hf_someip_protover                                           = -1;
 static int hf_someip_interface_ver                                      = -1;
@@ -3482,6 +3485,9 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     service_description = someip_lookup_service_name(someip_serviceid);
     if (service_description != NULL) {
         proto_item_append_text(ti, " (%s)", service_description);
+        ti = proto_tree_add_string(someip_tree, hf_someip_servicename, tvb, offset, 2, service_description);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
     }
     offset += 2;
 
@@ -3490,6 +3496,9 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     method_description = someip_lookup_method_name(someip_serviceid, someip_methodid);
     if (method_description != NULL) {
         proto_item_append_text(ti, " (%s)", method_description);
+        ti = proto_tree_add_string(someip_tree, hf_someip_methodname , tvb, offset, 2, method_description);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
     }
     offset += 2;
 
@@ -3527,6 +3536,9 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     client_description = someip_lookup_client_name(someip_serviceid, someip_clientid);
     if (client_description != NULL) {
         proto_item_append_text(ti, " (%s)", client_description);
+        ti = proto_tree_add_string(someip_tree, hf_someip_clientname, tvb, offset, 2, client_description);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
     }
     offset += 2;
 
@@ -3711,9 +3723,15 @@ proto_register_someip(void) {
         { &hf_someip_serviceid,
             { "Service ID", "someip.serviceid",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_someip_servicename,
+            { "Service Name", "someip.servicename",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_methodid,
             { "Method ID", "someip.methodid",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_someip_methodname,
+            { "Method Name", "someip.methodname",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_messageid,
             { "Message ID", "someip.messageid",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -3723,6 +3741,9 @@ proto_register_someip(void) {
         { &hf_someip_clientid,
             { "Client ID", "someip.clientid",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_someip_clientname,
+            { "Client Name", "someip.clientname",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_someip_sessionid,
             { "Session ID", "someip.sessionid",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
