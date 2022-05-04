@@ -183,6 +183,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
 
         if (addr_fields) {
             bi->hf_id_to_addr_id = (int *)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
+            memset(bi->hf_id_to_addr_id, -1, bi->visible_fields);
             bi->hf_v4 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
             bi->hf_v4_ids = (int*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(int));
             bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
@@ -295,8 +296,6 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 *ri_v6 = finfo_v6;
 
                 addr_fld_cnt++;
-            } else {
-                bi->hf_id_to_addr_id[fld_cnt] = -1;
             }
             fld_cnt++;
         }
@@ -316,8 +315,6 @@ import_plugin(char* fname)
 {
     nbridges++;
     bridge_info* bi = &bridges[nbridges - 1];
-
-    sinsp_span = create_sinsp_span();
 
     char *err_str = create_sinsp_source(sinsp_span, fname, &(bi->ssi));
     if (err_str) {
@@ -391,6 +388,8 @@ proto_register_falcoplugin(void)
         }
         ws_dir_close(dir);
     }
+
+    sinsp_span = create_sinsp_span();
 
     bridges = g_new0(bridge_info, nbridges);
     nbridges = 0;
