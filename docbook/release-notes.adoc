@@ -52,23 +52,23 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
-* Build failure with GCC 7.5, Linux wsbuglink:17911[].
+* Build failure with GCC 7.5, Linux. wsbuglink:17911[].
 
-* RDP dissected as SSL wsbuglink:17952[].
+* RDP dissected as SSL. wsbuglink:17952[].
 
-* IPFIX/cflow dissector asserts when varlen field length is zero wsbuglink:18010[].
+* IPFIX/cflow dissector asserts when varlen field length is zero. wsbuglink:18010[].
 
-* 802.11ax HE PHY "Device Class" dissected incorrectly wsbuglink:18030[].
+* 802.11ax HE PHY "Device Class" dissected incorrectly. wsbuglink:18030[].
 
-* DHCPv6 Option 15 User-Class incorrectly parsed in Wireshark wsbuglink:18032[].
+* DHCPv6 Option 15 User-Class incorrectly parsed in Wireshark. wsbuglink:18032[].
 
-* ICMPv6 dissector: PREF64 option parsing only works for prefix length 96 wsbuglink:18033[].
+* ICMPv6 dissector: PREF64 option parsing only works for prefix length 96. wsbuglink:18033[].
 
-* Switch macOS updater to Sparkle 2 wsbuglink:18035[].
+* Switch macOS updater to Sparkle 2. wsbuglink:18035[].
 
-* CQL timestamp dissector displays the wrong timestamp wsbuglink:18038[].
+* CQL timestamp dissector displays the wrong timestamp. wsbuglink:18038[].
 
-* Unable to dissect 802.11ax Target Wake Time (TWT) packets wsbuglink:18050[].
+* Unable to dissect 802.11ax Target Wake Time (TWT) packets. wsbuglink:18050[].
 
 === New and Updated Features
 

@@ -1,0 +1,575 @@
+commit f2f3cb5351
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 2 15:20:14 2022 -0700
+
+    Prep for 3.6.4.
+
+commit 9850dbe9b8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 1 16:39:18 2022 +0000
+
+    [Automatic update for 2022-05-01]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 554d784760
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 29 06:38:01 2022 -0400
+
+    doc: Update minimum version of Qt for 3.6 branch
+
+commit 46c29f31a1
+Author: Jim Young <jim.young.ws@gmail.com>
+Date:   Sun Feb 6 10:17:25 2022 +0000
+
+    Docs: Accurately describe our minimum GLib and where to get it
+
+    (cherry picked from commit 42106c9688a41f2bb8a1ff4171a1e67525e5eb29)
+
+commit 8a23e98f0c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Apr 28 07:46:56 2022 -0400
+
+    docs: Remove references to configure
+
+    Remove some leftover references to configure in the INSTALL file
+    and README.* files in root directory.
+
+    (cherry picked from commit 1e0f5799527a4772d1d0b62ae395de23c0a88c15)
+
+commit 6f02c8259c
+Author: Joakim Karlsson <oakimk@gmail.com>
+Date:   Tue Apr 26 13:06:53 2022 +0200
+
+    NAS-5GS: correction of Configuration update command, IE 5GS registration result
+
+    (cherry picked from commit 74fd19fb10da923f675ca1c1bbfa9aa1f83843b9)
+
+commit ae9bd163c5
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Apr 24 11:20:01 2022 +0200
+
+    802.11: fix TWT Setup dissection
+
+    Duplicate Dialog Token field
+
+    Fix #18050
+
+    (cherry picked from commit 19dc602fe324169c011ca4df6959b395a90ac3ad)
+
+commit 6114ebfd41
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 24 12:20:33 2022 -0400
+
+    rpm: Specfile cleanup
+
+    Fix some deprecated and obsolete syntax from the rpm specfile that
+    modern distributions complain about:
+    Don't specify the BuildRoot
+    Don't have a %clean section
+    Don't remove the BuildRoot at the start of %install
+    Don't repeat Name in summary
+    Version the Obsoletes
+    Have a %build section
+    Escape macros in changelog
+    Remove comment about user setting _smp_mflags since rpm does that
+    automatically better now
+    Be consistent about spaces and tabs (tabs are used)
+
+    (cherry picked from commit 858a670d3414cf408f94f26d49f11ca579407cd2)
+
+commit cf58e4aa79
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Apr 24 16:43:17 2022 -0400
+
+    rpm: Fix SUSE 15.1 builddir issue on make
+
+    SUSE 15.1 moved to out of source builds, and sets a builddir
+    appropriately, but it makes some decisions about automatically
+    entering the build dir when building or installing that are
+    handled by the distribution's various Make and Ninja macros
+    differently than other distributions and later SUSE releases.
+    Work around it, so that both ninja and make builds work on
+    SUSE 15.1 (both OpenSUSE and SLES)
+
+    Related to #17910
+
+    (cherry picked from commit 7ec3e841baab95aad8b383e3da066e562a9c49ed)
+
+commit 00773134e5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 17 09:55:13 2022 -0500
+
+    rpm: RHEL 8 update macros
+
+    RHEL 8 and derivatives have supported the various CMake macros since
+    8.4 (June 2021, see https://access.redhat.com/errata/RHEA-2021:1747)
+    Use them there as well, so that we have a unified spec file for all
+    recent distributions (with the older RHEL/CentOS 7 and SLES 12 being
+    the only exceptions.)
+
+    (cherry picked from commit 92c8c2f7a09c68489f5c2272f8f6bb9ab0b0aed9)
+
+commit 8b9c8ff000
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 24 10:25:36 2022 -0700
+
+    Tools: Handle table rows and admonition titles in html2text.
+
+    (cherry picked from commit 968f40d373128d9cb34a5b711e6444f59d485786)
+
+commit fd33d9abdd
+Author: Moshe Kaplan <me@moshekaplan.com>
+Date:   Sun Dec 19 21:40:23 2021 -0500
+
+    Corrects repeated words throughout the code.
+
+    Repeated words were found with:
+    egrep "(\b[a-zA-Z]+) +\1\b" . -Ir
+    and then manually reviewed.
+    Non-displayed strings (e.g., in comments)
+    were also corrected, to ease future review.
+
+    (Partial cherry-pick of 69d54d6f8e668b6018375121ea2afb99f3dd0177)
+
+commit 3a3f6b063a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Oct 8 15:29:42 2021 -0700
+
+    Tools: Quote some elements in html2text.
+
+    Quote <code> spans with backticks and <span class=menuseq> spans with
+    double quotes.
+
+    (cherry picked from commit 51e1381b235b3fad563f5ec7467ea4e001f2605b)
+
+    Conflicts:
+            NEWS
+
+commit 89a2279bb4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 17 08:01:46 2022 -0500
+
+    rpm: expand comment
+
+    Be a bit more precise about what's wrong with bindir on SUSE
+    (when prefix is /usr/local or anything else.)
+
+    (cherry picked from commit 65e3c4fbe2634d15354d25b0e5b1aa5e880e6950)
+
+commit b876325cea
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 17 00:35:50 2022 -0500
+
+    rpm: Fix up paths
+
+    Fedora and SUSE 15 use out of source builds by default, but store
+    the build directory in differently named macros. Define one macro
+    for the build directory that has the appropriate value (which will
+    be "." for any distribution that doesn't have either macro, and
+    thus presumably does in-source builds.) This fixes building and
+    installing the guides with any of the supported distributions.
+
+    Also, since RHEL/CentOS 7 doesn't have a special CMake macro, it
+    needs to set the install prefix when calling cmake.
+
+    Also, fix a comment warning by escaping the percent sign.
+
+    (cherry picked from commit 1d0fb38d387ba3705088396994485d7cb9779e14)
+
+commit bdbbbf59ca
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jan 16 01:54:26 2022 -0500
+
+    rpm packaging: Add build requirements for the guides
+
+    The HTML guides require xsltproc and the docbook xsl stylesheets
+    in order to be generated.
+
+    (cherry picked from commit 800524131f869984eca1c8940d4825e68f23cfdd)
+
+commit 0670475098
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 5 10:21:23 2022 -0500
+
+    packaging: Bump RPM glib2 version to 2.38
+
+    We require glib2 version 2.38 now, increase the version requirement
+    in the RPM spec file to match.
+
+    (cherry picked from commit 4b5d54f5ea60cb72e03cce64836c8f08862721d4)
+
+commit bf22d091e8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 5 00:19:44 2022 -0500
+
+    packaging: Remove unnecessary Requires
+
+    Automatic dependency generation has been around since RPM 4.0 (September
+    2000). The BuildRequires are sufficient for all of these; the automatic
+    dependences for the .so files works and are superior as they are versioned.
+
+    Red Hat and SUSE both recommend using automatic dependencies and
+    avoiding unnecessary Requires in spec files:
+    https://docs.fedoraproject.org/en-US/packaging-guidelines/#_explicit_requires
+    https://en.opensuse.org/openSUSE:Package_dependencies
+
+    (based on commit 2cb8f347212a26df7531d2c202fc4489facf4591 with slight
+    differences since 3.6 does not require pcre2)
+
+commit 5541b21328
+Author: Paul Koning <paul_koning@dell.com>
+Date:   Wed Jan 26 16:24:03 2022 -0500
+
+    Fix Linux build issue
+
+    This fixes an error due to memcpy not being declared.  Closes #17911.
+
+    (cherry picked from commit 6231bdc716412037366028cc8ca27fb5aa2bea7c)
+
+commit 3c28c12f0a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 7 00:28:55 2022 -0500
+
+    packaging: Let SUSE build with /usr prefix
+
+    There's a couple places where /usr/local is hardcoded in the
+    spec file that need to be replaced with %{_prefix} in order for
+    RPMs to build correctly on OpenSUSE with prefixes other than
+    /usr/local
+
+    (cherry picked from commit 7027242c27b5846d8b7d78f156ae6772d24ec21e)
+
+commit b77a2ece87
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 24 16:45:51 2022 +0000
+
+    [Automatic update for 2022-04-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 829c90c46d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Apr 21 10:11:08 2022 -0700
+
+    macOS: Require Sparkle 2.
+
+    Remove our Sparkle 1 code. Fixes #18035.
+
+    (cherry picked from commit 4bb16383a3f514cff9cc7cac650a1d0c441466de)
+
+    Conflicts:
+            CMakeLists.txt
+
+commit ee01c136c9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 19 10:13:42 2022 -0700
+
+    epan: Add a null conversation checks.
+
+    Check for null conversations in conversation_add_proto_data,
+    conversation_get_proto_data, and conversation_delete_proto_data.
+    Document them as well. Ping #18043.
+
+    (cherry picked from commit 88f07ff5d131c6973d09d87d4e3950338b03e89c)
+
+commit 67840adaa5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 20 14:16:03 2022 -0700
+
+    macOS: Even more Sparkle 2 signing fixes.
+
+    Sparkle's XPC services are only needed if we're sandboxing, so remove
+    them.
+
+    [skip ci]
+
+    (cherry picked from commit c2fd505516c3284ba483ac1b8fc820751a09127e)
+
+commit 1cb40e14a4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 20 12:40:05 2022 -0700
+
+    macOS: More Sparkle 2 signing fixes.
+
+    Sign our XPCs. Add another Brotli fixup.
+
+    (cherry picked from commit d024502c8bc00336bddacd300199750a5d6e8aab)
+
+commit de1ca27071
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 20 10:28:08 2022 -0700
+
+    macOS: Update our app bundle for Sparkle 2.
+
+    Update our application bundle script to handle Sparkle 2 and its assets.
+
+    (cherry picked from commit 486fd46fe992f2d504b4bd62d4bf705286ff0504)
+
+commit 139cf86e92
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jan 15 18:24:55 2022 -0800
+
+    CMake+packaging: Updates for Visual Studio 2022
+
+    Update the NSIS and WiX CMakeLists for Visual Studio 2022.
+
+    (cherry picked from commit 816f858361b57e671c8fd6113890009037135e3f)
+
+commit 12d78af110
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 19 11:32:30 2022 -0700
+
+    Release notes: Add a note about 32-bit Windows.
+
+commit 798eddc83a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jan 15 16:00:51 2022 -0800
+
+    GitLab CI: Migrate to Visual Studio 2022.
+
+    Migrate the Windows builds to Visual Studio 2022.
+
+    (cherry picked from commit 5f19c5b6efb2a74a7738131c99e2c54e6cc3cbe0)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 8c11c9c3a7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Apr 9 14:14:04 2022 -0700
+
+    macOS: Add support for Sparkle 2.
+
+    Sparkle 2 deprecated the sharedUpdater singleton, so create our own
+    which uses Sparkle 2's updated API. Ping #18035.
+
+    Update our CMake version check.
+
+    (cherry picked from commit fea6591b0c84660f46c06029e664e2a9af18fe87)
+
+    Conflicts:
+            CMakeLists.txt
+
+commit b98c7d2936
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 17 11:07:45 2022 -0700
+
+    GitLab CI: Switch to clang 14.
+
+    (cherry picked from commit bc29ce61d5ff01002b0bb368a0a1a650ec5c69c8)
+
+commit c0cb72f169
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 17 10:37:10 2022 -0700
+
+    Tools: Set a variable in rpm-setup.sh.
+
+    [skip ci]
+
+    (cherry picked from commit 05c86efcf62317df4ebeace3bcd2d1ae2a242678)
+
+commit 9a7cedc3e5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 17 16:38:50 2022 +0000
+
+    [Automatic update for 2022-04-17]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 36bcbdfb9b
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Thu Apr 14 11:34:02 2022 -0500
+
+    CQL: format timestamp as microseconds (ENC_TIME_USECS)
+
+    Closes #18038
+
+    (cherry picked from commit 98793186b900b16240498a471d12075b608326bb)
+
+commit ccd8290109
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Tue Apr 12 20:51:36 2022 -0500
+
+    epan: add ENC_TIME_USECS timestamp encoding
+
+    Needed to format timestamp in #18038 - packet-cql.c
+    Mirrors changes made in !1924 - Add ENC_TIME_NSECS timestamp encoding
+    Documentation in README.dissector, proto.c, proto.h - could use
+    refresh in a different merge request.
+
+    (cherry picked from commit 4e0cd3dbd24e572b6219965dc2508b615a9d447d)
+
+commit 9e96cea899
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Apr 14 14:08:21 2022 -0700
+
+    Revert "Update documentation for ENC_TIME_* constants"
+
+    This reverts commit 1be58cc3236813ff8b996ad64f1b13ae4976965c.
+
+    That was already in the 3.6 branch.
+
+commit 1be58cc323
+Author: Nicolás Alvarez <nicolas.alvarez@gmail.com>
+Date:   Wed Feb 3 17:40:16 2021 -0300
+
+    Update documentation for ENC_TIME_* constants
+
+    ENC_TIME_MIP6 and ENC_TIME_CLASSIC_MAC_OS_SECS were added recently by
+    factoring them out of specific dissectors, but they weren't documented.
+    I added documentation, based on comments in the dissector code they came
+    from.
+
+    (cherry picked from commit 0e86ea6c57c56b26f4a526884fef035e150b4c0f)
+
+commit e2130c7ca8
+Author: Richard Sharpe <realrichardsharpe@gmail.com>
+Date:   Wed Apr 6 18:31:50 2022 -0700
+
+    ieee80211: Correct the dissection of the 802.11ax Capabilities device class.
+
+    The numbers were reversed.
+
+    Closes #18030
+
+    (cherry picked from commit 34f8420d1e20b49c8fd0db28b14427cbd2eab273)
+
+commit 791af969f8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 10 15:40:36 2022 -0700
+
+    Tools: Make the Debian and RPM setup scripts more strict.
+
+    We use debian-setup.sh and rpm-setup.sh to build the containers in
+    https://gitlab.com/wireshark/wireshark-containers/. Make sure they fail
+    with a nonzero exit status, otherwise we might end up with an invalid
+    container image.
+
+    Make sure OPTIONS is defined in all of the setup scripts that use it.
+
+    (cherry picked from commit bd6ee4479f17db1b75a8ebb200104082dfc2d01f)
+
+    Conflicts:
+            tools/arch-setup.sh
+            tools/msys2-setup.sh
+
+commit 5b8115aeb6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 12 12:00:42 2022 -0800
+
+    macOS: Require Sparkle 1 for now.
+
+    The Sparkle project recently released Sparkle 2.0.0, which deprecates
+    the version 1 API. Add version discovery to FindSparkle.cmake and
+    require version 1 until we add support for the new API. Ping #17861.
+
+    (cherry picked from commit a6e24a623416ca08fc8c3bb339b4f275a6aa9c3d)
+
+    Conflicts:
+            CMakeLists.txt
+
+commit ac57ca5ccc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 10 16:40:51 2022 +0000
+
+    [Automatic update for 2022-04-10]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a09665abd4
+Author: Thomas Jansen <mithi@mithi.net>
+Date:   Wed Apr 6 16:54:00 2022 +0200
+
+    icmpv6: Fix dissection of PREF64 option for shorter prefixes
+
+    RFC 8781 shows in section 4 that the prefix field of the PREF64 option
+    header is always 96 bits (or 12 bytes), regardless of the prefix length
+    code that only specifies which parts of the prefix are significant. The
+    option itself thus always has a fixed length. Even if they are not used
+    in the significant part of the prefix itself, the unused bits are still
+    part of the prefix field of the PREF64 option and the offset must be
+    adapted accordingly.
+
+    The previous implementation would fail to correctly parse any PREF64
+    option with a PLC other than 0 (i.e. the full 96 bits) due to the unused
+    remaining bits in the option not being consumed.
+
+    Closes #18033.
+
+    (cherry picked from commit aac695d62ed62b8618201c95551006c90bcc253c)
+
+commit f129419baa
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Apr 6 19:18:36 2022 +0200
+
+    DHCPv6: Fix interpretation of user class data length fields
+
+    Closes #18032
+
+    (cherry picked from commit 8d646c16574fd0fd9a8bb7a4b451e9c60944a6ec)
+
+commit 9d56509b83
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 3 16:41:05 2022 +0000
+
+    [Automatic update for 2022-04-03]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit ca43442535
+Author: Jiří Engelthaler <Jiri.Engelthaler@zat.cz>
+Date:   Fri Apr 1 22:45:46 2022 +0200
+
+    Fix interface statistics update if some interfaces are hidden
+
+    Closing #18023
+
+    (cherry picked from commit 798a18644dc8ef6d6fa749eb306354c203fab8c1)
+
+commit cba1259de2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Apr 1 18:24:18 2022 -0400
+
+    rdp: Register RDP as a TLS subdissector for port 3389 directly
+
+    ssl_dissector_add registers TLS as the dissector for TCP for the given
+    port. We can't use it, since on port 3389 TPKT (for RDP) can be over TLS
+    or directly over TCP, depending on the RDP security settings.
+    Fix #17952.
+
+    (cherry picked from commit 6dfd96f6feda59853f1b6b8b5cfe12a26e8664af)
+
+commit fbfb911ea3
+Author: Fabian Viöl <Fabian.Vioel@webfleet.com>
+Date:   Mon Mar 28 09:13:57 2022 +0200
+
+    uds: Don't append parameter record if not available
+
+    (cherry picked from commit b55e012524b81d09fb23c5a6ffb1271408b8402c)
+
+commit c044721602
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 27 16:40:01 2022 +0000
+
+    [Automatic update for 2022-03-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0ef4884c4f
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Mar 26 15:24:37 2022 +0100
+
+    netflow: handle zero length varlen fields
+
+    Closes #18010
+
+    (cherry picked from commit 118e45d853636f4c5709319574ed408b69c81d78)
+
+commit 5fdd80fd37
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 23 11:14:55 2022 -0700
+
+    Version: 3.6.3 → 3.6.4.
+
+    [skip ci]
