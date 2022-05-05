@@ -2427,7 +2427,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                             ws_buffer_free(&nrb_rec);
                             return FALSE;      /* fail */
                         }
-                        pn->add_new_ipv4(v4_addr, namep);
+                        pn->add_new_ipv4(v4_addr, namep, FALSE);
                     }
                 }
 
@@ -2488,7 +2488,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                             return FALSE;      /* fail */
                         }
                         pn->add_new_ipv6(ws_buffer_start_ptr(&nrb_rec),
-                                         namep);
+                                         namep, FALSE);
                     }
                 }
 

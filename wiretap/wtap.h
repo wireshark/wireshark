@@ -1750,11 +1750,11 @@ void wtap_cleareof(wtap *wth);
  * Set callback functions to add new hostnames. Currently pcapng-only.
  * MUST match add_ipv4_name and add_ipv6_name in addr_resolv.c.
  */
-typedef void (*wtap_new_ipv4_callback_t) (const guint addr, const gchar *name);
+typedef void (*wtap_new_ipv4_callback_t) (const guint addr, const gchar *name, const gboolean static_entry);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
 
-typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name);
+typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name, const gboolean static_entry);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 

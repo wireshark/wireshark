@@ -190,7 +190,7 @@ static int CaptureInfo_set_hosts(lua_State* L) {
             }
             name = luaL_checklstring(L,-1,&name_len);
 
-            wth->add_new_ipv4(v4_addr, name);
+            wth->add_new_ipv4(v4_addr, name, FALSE);
 
             /* removes 'value'; keeps 'key' for next iteration */
             lua_pop(L, 1);
@@ -233,7 +233,7 @@ static int CaptureInfo_set_hosts(lua_State* L) {
             }
             name = luaL_checklstring(L,-1,&name_len);
 
-            wth->add_new_ipv6((const void *)(&v6_addr), name);
+            wth->add_new_ipv6((const void *)(&v6_addr), name, FALSE);
 
             /* removes 'value'; keeps 'key' for next iteration */
             lua_pop(L, 1);

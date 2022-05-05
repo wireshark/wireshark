@@ -2101,7 +2101,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           !PINFO_FD_VISITED(pinfo)) {
         guint32 addr_int;
         tvb_memcpy(tvb, &addr_int, cur_offset, sizeof(addr_int));
-        add_ipv4_name(addr_int, name);
+        add_ipv4_name(addr_int, name, FALSE);
       }
     }
     break;
@@ -2636,7 +2636,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           !PINFO_FD_VISITED(pinfo)) {
         ws_in6_addr  addr_in6;
         tvb_memcpy(tvb, &addr_in6, cur_offset, sizeof(addr_in6));
-        add_ipv6_name(&addr_in6, name);
+        add_ipv6_name(&addr_in6, name, FALSE);
       }
     }
     break;

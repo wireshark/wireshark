@@ -430,10 +430,10 @@ c_ares_ghba_sync_cb(void *arg, int status, int timeouts _U_, struct hostent *he)
         for (p = he->h_addr_list; *p != NULL; p++) {
             switch(sdd->family) {
                 case AF_INET:
-                    add_ipv4_name(sdd->addr.ip4, he->h_name);
+                    add_ipv4_name(sdd->addr.ip4, he->h_name, FALSE);
                     break;
                 case AF_INET6:
-                    add_ipv6_name(&sdd->addr.ip6, he->h_name);
+                    add_ipv6_name(&sdd->addr.ip6, he->h_name, FALSE);
                     break;
                 default:
                     /* Throw an exception? */
@@ -1069,10 +1069,10 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
         for (p = he->h_addr_list; *p != NULL; p++) {
             switch(caqm->family) {
                 case AF_INET:
-                    add_ipv4_name(caqm->addr.ip4, he->h_name);
+                    add_ipv4_name(caqm->addr.ip4, he->h_name, FALSE);
                     break;
                 case AF_INET6:
-                    add_ipv6_name(&caqm->addr.ip6, he->h_name);
+                    add_ipv6_name(&caqm->addr.ip6, he->h_name, FALSE);
                     break;
                 default:
                     /* Throw an exception? */
@@ -2337,9 +2337,9 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
         entry_found = TRUE;
         if (store_entries) {
             if (is_ipv6) {
-                add_ipv6_name(&host_addr.ip6_addr, cp);
+                add_ipv6_name(&host_addr.ip6_addr, cp, TRUE);
             } else {
-                add_ipv4_name(host_addr.ip4_addr, cp);
+                add_ipv4_name(host_addr.ip4_addr, cp, TRUE);
             }
         }
     }
@@ -3048,7 +3048,7 @@ get_hostname6(const ws_in6_addr *addr)
 
 /* -------------------------- */
 void
-add_ipv4_name(const guint addr, const gchar *name)
+add_ipv4_name(const guint addr, const gchar *name, gboolean static_entry)
 {
     hashipv4_t *tp;
 
@@ -3065,16 +3065,18 @@ add_ipv4_name(const guint addr, const gchar *name)
         wmem_map_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
     }
 
-    if (g_ascii_strcasecmp(tp->name, name)) {
+    if (g_ascii_strcasecmp(tp->name, name) && (static_entry || !(tp->flags & STATIC_HOSTNAME))) {
         (void) g_strlcpy(tp->name, name, MAXNAMELEN);
         new_resolved_objects = TRUE;
+        if (static_entry)
+            tp->flags |= STATIC_HOSTNAME;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
 } /* add_ipv4_name */
 
 /* -------------------------- */
 void
-add_ipv6_name(const ws_in6_addr *addrp, const gchar *name)
+add_ipv6_name(const ws_in6_addr *addrp, const gchar *name, const gboolean static_entry)
 {
     hashipv6_t *tp;
 
@@ -3095,9 +3097,11 @@ add_ipv6_name(const ws_in6_addr *addrp, const gchar *name)
         wmem_map_insert(ipv6_hash_table, addr_key, tp);
     }
 
-    if (g_ascii_strcasecmp(tp->name, name)) {
+    if (g_ascii_strcasecmp(tp->name, name) && (static_entry || !(tp->flags & STATIC_HOSTNAME))) {
         (void) g_strlcpy(tp->name, name, MAXNAMELEN);
         new_resolved_objects = TRUE;
+        if (static_entry)
+            tp->flags |= STATIC_HOSTNAME;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
 } /* add_ipv6_name */
@@ -3106,14 +3110,14 @@ static void
 add_manually_resolved_ipv4(gpointer key, gpointer value, gpointer user_data _U_)
 {
     resolved_name_t *resolved_ipv4_entry = (resolved_name_t*)value;
-    add_ipv4_name(GPOINTER_TO_UINT(key), resolved_ipv4_entry->name);
+    add_ipv4_name(GPOINTER_TO_UINT(key), resolved_ipv4_entry->name, TRUE);
 }
 
 static void
 add_manually_resolved_ipv6(gpointer key, gpointer value, gpointer user_data _U_)
 {
     resolved_name_t *resolved_ipv6_entry = (resolved_name_t*)value;
-    add_ipv6_name((ws_in6_addr*)key, resolved_ipv6_entry->name);
+    add_ipv6_name((ws_in6_addr*)key, resolved_ipv6_entry->name, TRUE);
 }
 
 static void

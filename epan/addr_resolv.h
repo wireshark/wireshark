@@ -86,6 +86,7 @@ typedef struct _resolved_name {
 #define TRIED_RESOLVE_ADDRESS    (1U<<0)  /* XXX - what does this bit *really* mean? */
 #define NAME_RESOLVED            (1U<<1)  /* the name field contains a host name, not a printable address */
 #define RESOLVED_ADDRESS_USED    (1U<<2)  /* a get_hostname* call returned the host name */
+#define STATIC_HOSTNAME          (1U<<3)  /* do not update entries from hosts file with DNS responses */
 
 #define TRIED_OR_RESOLVED_MASK   (TRIED_RESOLVE_ADDRESS | NAME_RESOLVED)
 #define USED_AND_RESOLVED_MASK   (NAME_RESOLVED | RESOLVED_ADDRESS_USED)
@@ -271,10 +272,10 @@ WS_DLL_PUBLIC char* get_hash_manuf_resolved_name(hashmanuf_t* manuf);
 
 
 /* adds a hostname/IPv4 in the hash table */
-WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name);
+WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name, const gboolean static_entry);
 
 /* adds a hostname/IPv6 in the hash table */
-WS_DLL_PUBLIC void add_ipv6_name(const ws_in6_addr *addr, const gchar *name);
+WS_DLL_PUBLIC void add_ipv6_name(const ws_in6_addr *addr, const gchar *name, const gboolean static_entry);
 
 /** Add an additional "hosts" file for IPv4 and IPv6 name resolution.
  *
