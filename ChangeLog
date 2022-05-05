@@ -1,0 +1,30 @@
+commit f5eeca610d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 18 17:09:11 2022 -0800
+
+    NSIS: Use the correct Visual C++ Redistributable file name.
+
+    Make sure the file we attempt to execute is the one we include with
+    our installer. Fixes #17893.
+
+    (cherry picked from commit 91463dde4df1a57e2447c1d75016cd3ef9d21712)
+
+commit dbe500b929
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Nov 25 10:47:22 2021 -0800
+
+    NSIS: Remove some confusing error message text.
+
+    If the Visual C++ Redistributable installation fails, don't point users
+    to KB2999226. It applied to Windows 8.1 and earlier, and is more likely
+    to cause confusion than help fix the problem. Ping #17748.
+
+    (cherry picked from commit 5e345d390b15831004bd2776cf1795189daade42)
+
+commit cab79c979e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 4 12:33:31 2022 -0700
+
+    Version: 3.6.4 → 3.6.5
+
+    [skip ci]

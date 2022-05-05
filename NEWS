@@ -1,4 +1,4 @@
- Wireshark 3.6.4 Release Notes
+ Wireshark 3.6.5 Release Notes
 
  What is Wireshark?
 
@@ -11,37 +11,10 @@
  Updates will no longer be available after May 22, 2024 for that
  platform. Issue 17779[1]
 
-  The Windows installers are now built with Visual Studio 2022.
-
-  RPM packaging has been improved.
-
   Bug Fixes
 
-   The following bugs have been fixed:
-
-     • Build failure with GCC 7.5, Linux. Issue 17911[2].
-
-     • RDP dissected as SSL. Issue 17952[3].
-
-     • IPFIX/cflow dissector asserts when varlen field length is zero.
-       Issue 18010[4].
-
-     • 802.11ax HE PHY "Device Class" dissected incorrectly. Issue
-       18030[5].
-
-     • DHCPv6 Option 15 User-Class incorrectly parsed in Wireshark.
-       Issue 18032[6].
-
-     • ICMPv6 dissector: PREF64 option parsing only works for prefix
-       length 96. Issue 18033[7].
-
-     • Switch macOS updater to Sparkle 2. Issue 18035[8].
-
-     • CQL timestamp dissector displays the wrong timestamp. Issue
-       18038[9].
-
-     • Unable to dissect 802.11ax Target Wake Time (TWT) packets. Issue
-       18050[10].
+   This release fixes an installation issue on Windows which was
+   introduced in the 3.6.4 release. Issue 18077[2].
 
   New and Updated Features
 
@@ -50,9 +23,6 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   CQL, DHCPv6, ICMPv6, IEEE 802.11, NAS-5GS, NetFlow/IPFIX, RDP, and
-   UDS
 
   New and Updated Capture File Support
 
@@ -72,7 +42,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[11] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -87,32 +57,24 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[12] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[13].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the issue tracker[14].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[15].
+  A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-05-04 16:32:25 UTC
+  Last updated 2022-05-05 00:57:58 UTC
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://gitlab.com/wireshark/wireshark/-/issues/17911
-   3. https://gitlab.com/wireshark/wireshark/-/issues/17952
-   4. https://gitlab.com/wireshark/wireshark/-/issues/18010
-   5. https://gitlab.com/wireshark/wireshark/-/issues/18030
-   6. https://gitlab.com/wireshark/wireshark/-/issues/18032
-   7. https://gitlab.com/wireshark/wireshark/-/issues/18033
-   8. https://gitlab.com/wireshark/wireshark/-/issues/18035
-   9. https://gitlab.com/wireshark/wireshark/-/issues/18038
-  10. https://gitlab.com/wireshark/wireshark/-/issues/18050
-  11. https://www.wireshark.org/download.html
-  12. https://ask.wireshark.org/
-  13. https://www.wireshark.org/lists/
-  14. https://gitlab.com/wireshark/wireshark/-/issues
-  15. https://www.wireshark.org/faq.html
+   2. https://gitlab.com/wireshark/wireshark/-/issues/18077
+   3. https://www.wireshark.org/download.html
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://www.wireshark.org/faq.html
