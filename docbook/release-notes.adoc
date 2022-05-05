@@ -41,14 +41,12 @@ wsbuglink:17779[]
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-?
 
-// The following bugs have been fixed:
+The following bugs have been fixed:
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
-
-This release fixes an installation issue on Windows which was introduced in the 3.6.4 release. wsbuglink:18077[].
 
 === New and Updated Features
 
