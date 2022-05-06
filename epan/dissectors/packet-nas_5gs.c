@@ -1,5 +1,5 @@
 /* packet-nas_5gs.c
- * Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
+ * Routines for Non-Access-Stratum (NAS) protocol for 5G System (5GS) dissection
  *
  * Copyright 2018-2020, Anders Broman <anders.broman@ericsson.com>
  *
@@ -8959,6 +8959,39 @@ dissect_nas_5gs_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     return tvb_reported_length(tvb);
 }
 
+/* Heuristic dissector looks for "nas-5gs" string at packet start */
+static gboolean dissect_nas_5gs_heur(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree, void *data _U_)
+{
+    gint offset = 0;
+    tvbuff_t *nas_tvb;
+
+    /* Needs to be at least as long as:
+       - the signature string
+       - at least one byte of NAS PDU payload */
+    if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(PFNAME)+1)) {
+        return FALSE;
+    }
+
+    /* OK, compare with signature string */
+    if (tvb_strneql(tvb, offset, PFNAME, strlen(PFNAME)) != 0) {
+        return FALSE;
+    }
+    offset += (gint)strlen(PFNAME);
+
+    /* Clear protocol name */
+    col_clear(pinfo->cinfo, COL_PROTOCOL);
+
+    /* Clear info column */
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    /* Create tvb that starts at actual NAS PDU */
+    nas_tvb = tvb_new_subset_remaining(tvb, offset);
+    dissect_nas_5gs(nas_tvb, pinfo, tree, NULL);
+
+    return TRUE;
+}
+
 void
 proto_register_nas_5gs(void)
 {
@@ -11690,6 +11723,7 @@ proto_reg_handoff_nas_5gs(void)
     static gint initialized = FALSE;
 
     if (!initialized) {
+        heur_dissector_add("udp", dissect_nas_5gs_heur, "NAS-5GS over UDP", "nas_5gs_udp", proto_nas_5gs, HEURISTIC_DISABLE);
         eap_handle = find_dissector("eap");
         nas_eps_handle = find_dissector("nas-eps");
         nas_eps_plain_handle = find_dissector("nas-eps_plain");
