@@ -4098,9 +4098,9 @@ mbim_dissect_signal_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         offset += 4;
         proto_tree_add_item_ret_uint(tree, hf_mbim_signal_state_info_rsrp_snr_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &rsrp_snr_size);
         if (rsrp_snr_offset && rsrp_snr_size) {
-            offset += 4;
-            proto_tree_add_item_ret_uint(tree, hf_mbim_signal_state_info_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
             offset = base_offset + rsrp_snr_offset;
+            proto_tree_add_item_ret_uint(tree, hf_mbim_signal_state_info_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
+            offset += 4;
             for (i = 0; i < elem_count; i++) {
                 offset += signal_state_elem_size * i;
                 subtree = proto_tree_add_subtree_format(tree, tvb, offset, signal_state_elem_size, ett_mbim_pair_list, NULL, "RSRP SNR Info #%u", i + 1);
