@@ -1860,7 +1860,8 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     guint32           pid;
     const gchar      *str;
 
-    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_usbll, &item, "USB Packet");
+    item = proto_tree_add_item(parent_tree, proto_usbll, tvb, offset, -1, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_usbll);
 
     item = proto_tree_add_item_ret_uint(tree, hf_usbll_pid, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pid);
     offset++;
