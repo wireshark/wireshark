@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2022-05-01)
+# (last updated 2022-05-07)
 
 0	Reserved
 1	NxNetworks
@@ -3446,7 +3446,7 @@
 3442	Advantech Inc.
 3443	United Healthcare
 3444	egnite GmbH
-3445	Radiant Communications Corp.
+3445	Radiant communications Corp.
 3446	Ridge Technologies Dave
 3447	JGI, Inc.
 3448	Rivkin Science & Technology, Inc.
@@ -6803,7 +6803,7 @@
 6818	Tripwire, Inc.
 6819	Musicfans, Inc.
 6820	Menta Software
-6821	IMT Lille Douai	# formerly TELECOM Lille
+6821	IMT Nord Europe
 6822	University of Cambridge, Card Office
 6823	Distributed Object Technologies, Inc.
 6824	List & Niemann
@@ -42975,7 +42975,7 @@
 43153	Gerriko S-E-T Technology Solutions Ltd.
 43154	NexLabs Pte Ltd
 43155	ION Trading Srl
-43156	WEY Elektronik AG
+43156	WEY Group AG
 43157	Tatung Technology Inc.
 43158	Skytech.lt
 43159	Hartley Consultants Limited
@@ -58609,3 +58609,31 @@
 58817	CertCloud Pte. Ltd.
 58818	ITPRO
 58819	Panabit Software Co.,LTD.
+58820	Stadtwerke SH GmbH & Co. KG
+58821	Crea Inc
+58822	Suzhou Huaqi Intelligent Technology Co. LTD
+58823	深圳联合测试 (Shenzhen Joint Test)
+58824	Versity Tech
+58825	analiti LLC
+58826	Diamondback Energy
+58827	Securenetology
+58828	Rotex 1820
+58829	D1GITAL.ORG PROSTA SPÓŁKA AKCYJNA
+58830	Computer Research Association, Southern University of Science and Technology
+58831	Nozomi Networks
+58832	Assmann Electronic GmbH
+58833	Elemy LLC
+58834	Kiel.social
+58835	Mariner
+58836	TG Systems
+58837	MRM Health NV
+58838	China Greatwall Technology Group Co., Ltd.
+58839	MicroNOC Inc.
+58840	California Department of Transportation
+58841	Financial Statement Services Inc
+58842	NORTH CANTON PODIATRY INC
+58843	Digital Research Alliance of Canada
+58844	Alpha ESS Co., Ltd.
+58845	Heldele GmbH
+58846	Advertising Specialty Institute
+58847	Energys

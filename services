@@ -5083,7 +5083,7 @@ imqtunnels	7674/tcp/udp	# iMQ SSL tunnel
 imqtunnel	7675/tcp/udp	# iMQ Tunnel
 imqbrokerd	7676/tcp/udp	# iMQ Broker Rendezvous
 sun-user-https	7677/tcp/udp	# Sun App Server - HTTPS
-pando-pub	7680/tcp/udp	# Pando Media Public Distribution
+ms-do		7680/tcp/udp	# Microsoft Delivery Optimization Peer-to-Peer
 dmt		7683/tcp	# Cleondris DMT
 bolt		7687/tcp	# Bolt database connection
 collaber	7689/tcp/udp	# Collaber Network Service
@@ -5252,7 +5252,7 @@ hncp-dtls-port	8232/udp	# HNCP over DTLS
 synapse-nhttps	8243/tcp/udp	# Synapse Non Blocking HTTPS
 espeasy-p2p	8266/udp	# ESPeasy peer-2-peer communication
 robot-remote	8270/tcp	# Robot Framework Remote Library Interface
-pando-sec	8276/tcp/udp	# Pando Media Controlled Distribution
+ms-mcc		8276/tcp/udp	# Microsoft Connected Cache
 synapse-nhttp	8280/tcp/udp	# Synapse Non Blocking HTTP
 libelle		8282/tcp	# Libelle EnterpriseBus
 libelle-disc	8282/udp	# Libelle EnterpriseBus discovery

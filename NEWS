@@ -1,4 +1,4 @@
- Wireshark 3.6.5 Release Notes
+ Wireshark 3.6.6 Release Notes
 
  What is Wireshark?
 
@@ -13,8 +13,7 @@
 
   Bug Fixes
 
-   This release fixes an installation issue on Windows which was
-   introduced in the 3.6.4 release. Issue 18077[2].
+   The following bugs have been fixed:
 
   New and Updated Features
 
@@ -42,7 +41,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -57,24 +56,23 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-05-05 00:57:58 UTC
+  Last updated 2022-05-05 02:23:26 UTC
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://gitlab.com/wireshark/wireshark/-/issues/18077
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://www.wireshark.org/faq.html
