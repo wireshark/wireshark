@@ -1743,10 +1743,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   /*
    * Find a conversation to which we belong; create one if we don't find it.
    *
-   * If this is an EAP-Message (RFC 2869) encapsulated in Tunneled TLS EAP
-   * (EAP-TTLS), then we should not attempt to create a conversation to detect
-   * retransmitted messages, try TLS reassembly and so on.
-   *
    * EAP runs over RADIUS (which runs over UDP), EAPOL (802.1X Authentication)
    * or other transports. In case of RADIUS, a single "session" may consist
    * of two UDP associations (one for authorization, one for accounting) which
@@ -1774,50 +1770,62 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (eap_code == EAP_REQUEST) {	/* server -> client */
       copy_address_shallow(&pinfo_conv->src, &null_address);
       copy_address_shallow(&pinfo_conv->dst, &pae_group_address);
-      pinfo_eapol.srcport = 443;
+      pinfo_conv->srcport = 443;
     } else {				/* client -> server */
       copy_address_shallow(&pinfo_conv->src, &pae_group_address);
       copy_address_shallow(&pinfo_conv->dst, &null_address);
-      pinfo_eapol.destport = 443;
+      pinfo_conv->destport = 443;
     }
   } else {
     pinfo_conv = pinfo;
   }
-  if (!proto_is_frame_protocol(pinfo->layers, "tls")) {
-    if (PINFO_FD_VISITED(pinfo_conv) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
-      conversation = find_conversation_pinfo(pinfo_conv, 0);
-    }
-    if (conversation == NULL) {
-      conversation = conversation_new(pinfo_conv->num, &pinfo_conv->src,
-				      &pinfo_conv->dst, conversation_pt_to_endpoint_type(pinfo_conv->ptype),
-				      pinfo_conv->srcport, pinfo_conv->destport, 0);
-    }
 
-    /*
-     * Get the state information for the conversation; attach some if
-     * we don't find it.
-     */
-    conversation_state = (conv_state_t *)conversation_get_proto_data(conversation, proto_eap);
-    if (conversation_state == NULL) {
-      /*
-       * Attach state information to the conversation.
-       */
-      conversation_state = wmem_new(wmem_file_scope(), conv_state_t);
-      conversation_state->eap_tls_seq      = -1;
-      conversation_state->eap_reass_cookie =  0;
-      conversation_state->leap_state       = -1;
-      conversation_state->last_eap_id_req  = -1;
-      conversation_state->last_eap_id_resp = -1;
-      conversation_add_proto_data(conversation, proto_eap, conversation_state);
-    }
-
-    /*
-     * Set this now, so that it gets remembered even if we throw an exception
-     * later.
-     */
-    if (eap_code == EAP_FAILURE)
-      conversation_state->leap_state = -1;
+  /*
+   * To support tunneled EAP-TLS (e.g. {TTLS,PEAP,TEAP,...}/EAP-TLS) we
+   * group our TLS frames by the depth they are found at and use this
+   * as offsets for p_get_proto_data/p_add_proto_data and as done for
+   * EAPOL above we massage the client port using this too
+   */
+  guint32 tls_group = pinfo_conv->curr_proto_layer_num << 16;
+  if (eap_code == EAP_REQUEST) {	/* server -> client */
+    pinfo_conv->destport |= tls_group;
+  } else {				/* client -> server */
+    pinfo_conv->srcport |= tls_group;
   }
+
+  if (PINFO_FD_VISITED(pinfo_conv) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
+    conversation = find_conversation_pinfo(pinfo_conv, 0);
+  }
+  if (conversation == NULL) {
+    conversation = conversation_new(pinfo_conv->num, &pinfo_conv->src,
+		      &pinfo_conv->dst, conversation_pt_to_endpoint_type(pinfo_conv->ptype),
+		      pinfo_conv->srcport, pinfo_conv->destport, 0);
+  }
+
+  /*
+   * Get the state information for the conversation; attach some if
+   * we don't find it.
+   */
+  conversation_state = (conv_state_t *)conversation_get_proto_data(conversation, proto_eap);
+  if (conversation_state == NULL) {
+    /*
+     * Attach state information to the conversation.
+     */
+    conversation_state = wmem_new(wmem_file_scope(), conv_state_t);
+    conversation_state->eap_tls_seq      = -1;
+    conversation_state->eap_reass_cookie =  0;
+    conversation_state->leap_state       = -1;
+    conversation_state->last_eap_id_req  = -1;
+    conversation_state->last_eap_id_resp = -1;
+    conversation_add_proto_data(conversation, proto_eap, conversation_state);
+  }
+
+  /*
+   * Set this now, so that it gets remembered even if we throw an exception
+   * later.
+   */
+  if (eap_code == EAP_FAILURE)
+    conversation_state->leap_state = -1;
 
   eap_len = tvb_get_ntohs(tvb, 2);
   len     = eap_len;
@@ -1847,10 +1855,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         *last_eap_id = eap_identifier;
         if (is_duplicate_id) {
           // Use a dummy value to remember that this packet is a duplicate.
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID, GINT_TO_POINTER(1));
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID | tls_group, GINT_TO_POINTER(1));
         }
       } else {
-        is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID);
+        is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID | tls_group);
       }
       if (is_duplicate_id) {
         expert_add_info(pinfo, ti_id, &ei_eap_retransmission);
@@ -2064,7 +2072,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             first pass through the capture.
           */
           /* See if we have a remembered defragmentation EAP ID. */
-          packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE);
+          packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group);
           if (packet_state == NULL) {
             /*
              * We haven't - does this message require reassembly?
@@ -2127,7 +2135,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  */
                 packet_state = wmem_new(wmem_file_scope(), frame_state_t);
                 packet_state->info = eap_reass_cookie;
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE, packet_state);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group, packet_state);
               }
             }
           } else {
@@ -2209,7 +2217,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 tls_set_appdata_dissector(tls_handle, pinfo_conv, diameter_avps_handle);
                 break;
               case EAP_TYPE_PEAP:
-                p_add_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB, tvb);
+                p_add_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB | tls_group, tvb);
                 tls_set_appdata_dissector(tls_handle, pinfo_conv, peap_handle);
                 break;
               case EAP_TYPE_TEAP:
@@ -2264,7 +2272,7 @@ skip_tls_dissector:
          * If so, should we stop here to avoid modifying conversation_state? */
 
         /* See if we've already remembered the state. */
-        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE);
+        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group);
         if (packet_state == NULL) {
           /*
            * We haven't - compute the state based on the current
@@ -2285,7 +2293,7 @@ skip_tls_dissector:
            */
           packet_state = wmem_new(wmem_file_scope(), frame_state_t);
           packet_state->info = leap_state;
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE, packet_state);
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group, packet_state);
 
           /*
            * Update the conversation's state.
