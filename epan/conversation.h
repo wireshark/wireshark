@@ -51,37 +51,37 @@ extern "C" {
 
 /* Types of port numbers Wireshark knows about. */
 typedef enum {
-	ENDPOINT_NONE,			/* no endpoint */
-	ENDPOINT_SCTP,			/* SCTP */
-	ENDPOINT_TCP,			/* TCP */
-	ENDPOINT_UDP,			/* UDP */
-	ENDPOINT_DCCP,			/* DCCP */
-	ENDPOINT_IPX,			/* IPX sockets */
-	ENDPOINT_NCP,			/* NCP connection */
-	ENDPOINT_EXCHG,			/* Fibre Channel exchange */
-	ENDPOINT_DDP,			/* DDP AppleTalk connection */
-	ENDPOINT_SBCCS,			/* FICON */
-	ENDPOINT_IDP,			/* XNS IDP sockets */
-	ENDPOINT_TIPC,			/* TIPC PORT */
-	ENDPOINT_USB,			/* USB endpoint 0xffff means the host */
-	ENDPOINT_I2C,
-	ENDPOINT_IBQP,			/* Infiniband QP number */
-	ENDPOINT_BLUETOOTH,
-	ENDPOINT_TDMOP,
-	ENDPOINT_DVBCI,
-	ENDPOINT_ISO14443,
-	ENDPOINT_ISDN,			/* ISDN channel number */
-	ENDPOINT_H223,			/* H.223 logical channel number */
-	ENDPOINT_X25,			/* X.25 logical channel number */
-	ENDPOINT_IAX2,			/* IAX2 call id */
-	ENDPOINT_DLCI,			/* Frame Relay DLCI */
-	ENDPOINT_ISUP,			/* ISDN User Part CIC */
-	ENDPOINT_BICC,			/* BICC Circuit identifier */
-	ENDPOINT_GSMTAP,
-	ENDPOINT_IUUP,
-	ENDPOINT_DVBBBF,                /* DVB Base Band Frame ISI/PLP_ID */
-	ENDPOINT_IWARP_MPA,		/* iWarp MPA */
-	ENDPOINT_BT_UTP,                /* BitTorrent uTP Connection ID */
+    ENDPOINT_NONE,			/* no endpoint */
+    ENDPOINT_SCTP,			/* SCTP */
+    ENDPOINT_TCP,			/* TCP */
+    ENDPOINT_UDP,			/* UDP */
+    ENDPOINT_DCCP,			/* DCCP */
+    ENDPOINT_IPX,			/* IPX sockets */
+    ENDPOINT_NCP,			/* NCP connection */
+    ENDPOINT_EXCHG,			/* Fibre Channel exchange */
+    ENDPOINT_DDP,			/* DDP AppleTalk connection */
+    ENDPOINT_SBCCS,			/* FICON */
+    ENDPOINT_IDP,			/* XNS IDP sockets */
+    ENDPOINT_TIPC,			/* TIPC PORT */
+    ENDPOINT_USB,			/* USB endpoint 0xffff means the host */
+    ENDPOINT_I2C,
+    ENDPOINT_IBQP,			/* Infiniband QP number */
+    ENDPOINT_BLUETOOTH,
+    ENDPOINT_TDMOP,
+    ENDPOINT_DVBCI,
+    ENDPOINT_ISO14443,
+    ENDPOINT_ISDN,			/* ISDN channel number */
+    ENDPOINT_H223,			/* H.223 logical channel number */
+    ENDPOINT_X25,			/* X.25 logical channel number */
+    ENDPOINT_IAX2,			/* IAX2 call id */
+    ENDPOINT_DLCI,			/* Frame Relay DLCI */
+    ENDPOINT_ISUP,			/* ISDN User Part CIC */
+    ENDPOINT_BICC,			/* BICC Circuit identifier */
+    ENDPOINT_GSMTAP,
+    ENDPOINT_IUUP,
+    ENDPOINT_DVBBBF,        /* DVB Base Band Frame ISI/PLP_ID */
+    ENDPOINT_IWARP_MPA,		/* iWarp MPA */
+    ENDPOINT_BT_UTP,        /* BitTorrent uTP Connection ID */
 
 } endpoint_type;
 
@@ -92,17 +92,17 @@ struct conversation_key;
 typedef struct conversation_key* conversation_key_t;
 
 typedef struct conversation {
-	struct conversation *next;	/** pointer to next conversation on hash chain */
-	struct conversation *last;	/** pointer to the last conversation on hash chain */
-	struct conversation *latest_found; /** pointer to the last conversation on hash chain */
-	guint32	conv_index;		/** unique ID for conversation */
-	guint32 setup_frame;		/** frame number that setup this conversation */
-					/* Assume that setup_frame is also the lowest frame number for now. */
-	guint32 last_frame;		/** highest frame number in this conversation */
-	wmem_tree_t *data_list;		/** list of data associated with conversation */
-	wmem_tree_t *dissector_tree;	/** tree containing protocol dissector client associated with conversation */
-	guint	options;		/** wildcard flags */
-	conversation_key_t key_ptr;	/** pointer to the key for this conversation */
+    struct conversation *next;	/** pointer to next conversation on hash chain */
+    struct conversation *last;	/** pointer to the last conversation on hash chain */
+    struct conversation *latest_found; /** pointer to the last conversation on hash chain */
+    guint32	conv_index;		/** unique ID for conversation */
+    guint32 setup_frame;		/** frame number that setup this conversation */
+    /* Assume that setup_frame is also the lowest frame number for now. */
+    guint32 last_frame;		/** highest frame number in this conversation */
+    wmem_tree_t *data_list;		/** list of data associated with conversation */
+    wmem_tree_t *dissector_tree;	/** tree containing protocol dissector client associated with conversation */
+    guint	options;		/** wildcard flags */
+    conversation_key_t key_ptr;	/** pointer to the key for this conversation */
 } conversation_t;
 
 
@@ -202,8 +202,7 @@ WS_DLL_PUBLIC conversation_t *find_or_create_conversation_by_id(packet_info *pin
  * @param proto Protocol ID.
  * @param proto_data Pointer to the data to associate.
  */
-WS_DLL_PUBLIC void conversation_add_proto_data(conversation_t *conv, const int proto,
-    void *proto_data);
+WS_DLL_PUBLIC void conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_data);
 
 /** Fetch data associated with a conversation.
  * @param conv Conversation. Must not be NULL.
@@ -218,14 +217,12 @@ WS_DLL_PUBLIC void *conversation_get_proto_data(const conversation_t *conv, cons
  */
 WS_DLL_PUBLIC void conversation_delete_proto_data(conversation_t *conv, const int proto);
 
-WS_DLL_PUBLIC void conversation_set_dissector(conversation_t *conversation,
-    const dissector_handle_t handle);
+WS_DLL_PUBLIC void conversation_set_dissector(conversation_t *conversation, const dissector_handle_t handle);
 
 WS_DLL_PUBLIC void conversation_set_dissector_from_frame_number(conversation_t *conversation,
     const guint32 starting_frame_num, const dissector_handle_t handle);
 
-WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation,
-    const guint32 frame_num);
+WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation, const guint32 frame_num);
 
 WS_DLL_PUBLIC void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
     endpoint_type etype, guint32 port1, guint32	port2, const guint options);
@@ -246,47 +243,37 @@ WS_DLL_PUBLIC guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo
  * Our caller is responsible to call the data dissector explicitly in case
  * this function returns FALSE.
  */
-WS_DLL_PUBLIC gboolean
-try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
+WS_DLL_PUBLIC gboolean try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data, const guint options);
 
-WS_DLL_PUBLIC gboolean
-try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
+WS_DLL_PUBLIC gboolean try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data);
 
 /* These routines are used to set undefined values for a conversation */
 
-WS_DLL_PUBLIC
-void conversation_set_port2(conversation_t *conv, const guint32 port);
-WS_DLL_PUBLIC
-void conversation_set_addr2(conversation_t *conv, const address *addr);
+WS_DLL_PUBLIC void conversation_set_port2(conversation_t *conv, const guint32 port);
 
-WS_DLL_PUBLIC
-wmem_map_t *get_conversation_hashtable_exact(void);
+WS_DLL_PUBLIC void conversation_set_addr2(conversation_t *conv, const address *addr);
 
-WS_DLL_PUBLIC
-wmem_map_t *get_conversation_hashtable_no_addr2(void);
+WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtable_exact(void);
 
-WS_DLL_PUBLIC
-wmem_map_t * get_conversation_hashtable_no_port2(void);
+WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtable_no_addr2(void);
 
-WS_DLL_PUBLIC
-wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
+WS_DLL_PUBLIC wmem_map_t * get_conversation_hashtable_no_port2(void);
+
+WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
 
 /* Temporary function to handle port_type to endpoint_type conversion
    For now it's a 1-1 mapping, but the intention is to remove
    many of the port_type instances in favor of endpoint_type
-*/
-WS_DLL_PUBLIC
-endpoint_type conversation_pt_to_endpoint_type(port_type pt);
+ */
+WS_DLL_PUBLIC endpoint_type conversation_pt_to_endpoint_type(port_type pt);
 
-WS_DLL_PUBLIC guint
-conversation_hash_exact(gconstpointer v);
+WS_DLL_PUBLIC guint conversation_hash_exact(gconstpointer v);
 
 /* Provide a wmem_alloced (NULL scope) hash string using HTML tags */
-WS_DLL_PUBLIC gchar*
-conversation_get_html_hash(const conversation_key_t key);
+WS_DLL_PUBLIC gchar *conversation_get_html_hash(const conversation_key_t key);
 
 #ifdef __cplusplus
 }
