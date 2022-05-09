@@ -4795,9 +4795,10 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             /* Vendor opcode */
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor_opcode, tvb, offset, 1, ENC_NA);
             vendor = tvb_get_guint16(tvb, offset + 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
             dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(vendor));
+            col_set_str(pinfo->cinfo, COL_INFO, "Access Message - Vendor Opcode");
             offset+=3;
         } else {
         /* Two octet opcode */
@@ -7805,6 +7806,7 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
                             col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
                         } else {
+                            col_clear(pinfo->cinfo, COL_INFO);
                             col_append_fstr(pinfo->cinfo, COL_INFO,"Control Message (fragment %u)", sego);
                         }
                     }
@@ -7812,6 +7814,9 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
         } else {
             if (opcode == 0) {
+                col_clear(pinfo->cinfo, COL_INFO);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                    val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Control Message Unknown"));
                 /* OBO 1 */
                 proto_tree_add_item(sub_tree, hf_btmesh_obo, tvb, offset, 2, ENC_BIG_ENDIAN);
                 /* SeqZero 13 */
@@ -7909,7 +7914,8 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, dec_ctx);
                             col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
                         } else {
-                            col_append_fstr(pinfo->cinfo, COL_INFO,"Access Message (fragment %u)", sego);
+                            col_clear(pinfo->cinfo, COL_INFO);
+                            col_append_fstr(pinfo->cinfo, COL_INFO, "Access Message (fragment %u)", sego);
                         }
                     }
                 }
@@ -8039,7 +8045,6 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     network_decryption_ctx_t *dec_ctx;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     item = proto_tree_add_item(tree, proto_btmesh, tvb, offset, -1, ENC_NA);
     netw_tree = proto_item_add_subtree(item, ett_btmesh);
@@ -8814,8 +8819,8 @@ proto_register_btmesh(void)
                 NULL, HFILL }
         },
         { &hf_btmesh_model_layer_vendor,
-            { "Opcode", "btmesh.model.vendor",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+            { "Company ID", "btmesh.model.vendor",
+                FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
                 NULL, HFILL }
         },
         { &hf_btmesh_model_layer_opcode,

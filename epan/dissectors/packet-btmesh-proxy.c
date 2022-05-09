@@ -227,7 +227,7 @@ dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_
         decry_off += 1;
 
         /* Parameters */
-        switch(opcode) {
+        switch (opcode) {
           case PROXY_SET_FILTER_TYPE:
               proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_filter_type, de_cry_tvb, decry_off, 1, ENC_BIG_ENDIAN, &filter_type);
               if (filter_type > 1) {
@@ -297,9 +297,11 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     DISSECTOR_ASSERT(proxy_ctx->proxy_side < E_BTMESH_PROXY_SIDE_LAST);
 
     if (pinfo->fd->visited && first_pass) {
-      first_pass=FALSE;
-      sequence_counter[proxy_ctx->proxy_side] = 0;
-      fragment_counter[proxy_ctx->proxy_side] = 0;
+        first_pass=FALSE;
+        for (int i=0; i< E_BTMESH_PROXY_SIDE_LAST; i++ ){
+            sequence_counter[i] = 0;
+            fragment_counter[i] = 0;
+        }
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh Proxy");
@@ -315,35 +317,32 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     offset += 1;
     guint32 length = tvb_reported_length(tvb) - offset;
 
-    gboolean packetReassembledOrComplete = FALSE;
-    gboolean packetComplete = FALSE;
+    gboolean packet_reassembled = FALSE;
+    gboolean packet_completed = FALSE;
 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(proxy_type, btmesh_proxy_type, "Unknown Proxy PDU"));
 
     switch (proxy_sar){
         case PROXY_COMPLETE_MESSAGE:
-            packetReassembledOrComplete = TRUE;
-            packetComplete = TRUE;
+            packet_completed = TRUE;
             next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_captured_length(tvb) - offset);
             col_append_str(pinfo->cinfo, COL_INFO," (Complete)");
 
         break;
         case PROXY_FIRST_SEGMENT:
             proto_tree_add_item(sub_tree, hf_btmesh_proxy_data_fragment, tvb, offset, length, ENC_NA);
+            sequence_counter[proxy_ctx->proxy_side]++;
             if (!pinfo->fd->visited) {
-              sequence_counter[proxy_ctx->proxy_side]++;
-              fragment_counter[proxy_ctx->proxy_side]=0;
+                fragment_counter[proxy_ctx->proxy_side]=0;
 
-              fd_head = fragment_add_seq(&proxy_reassembly_table,
-                tvb, offset, pinfo,
-                sequence_counter[proxy_ctx->proxy_side], NULL,
-                fragment_counter[proxy_ctx->proxy_side],
-                tvb_captured_length_remaining(tvb, offset),
-                TRUE, 0);
+                fragment_add_seq(&proxy_reassembly_table,
+                    tvb, offset, pinfo,
+                    sequence_counter[proxy_ctx->proxy_side], NULL,
+                    fragment_counter[proxy_ctx->proxy_side],
+                    tvb_captured_length_remaining(tvb, offset),
+                    TRUE, 0);
 
-              fragment_counter[proxy_ctx->proxy_side]++;
-            } else {
-              sequence_counter[proxy_ctx->proxy_side]++;
+                fragment_counter[proxy_ctx->proxy_side]++;
             }
             col_append_str(pinfo->cinfo, COL_INFO," (First Segment)");
 
@@ -351,13 +350,13 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         case PROXY_CONTINUATION_SEGMENT:
             proto_tree_add_item(sub_tree, hf_btmesh_proxy_data_fragment, tvb, offset, length, ENC_NA);
             if (!pinfo->fd->visited) {
-              fd_head = fragment_add_seq(&proxy_reassembly_table,
-                tvb, offset, pinfo,
-                sequence_counter[proxy_ctx->proxy_side], NULL,
-                fragment_counter[proxy_ctx->proxy_side],
-                tvb_captured_length_remaining(tvb, offset),
-                TRUE, 0);
-              fragment_counter[proxy_ctx->proxy_side]++;
+                fragment_add_seq(&proxy_reassembly_table,
+                    tvb, offset, pinfo,
+                    sequence_counter[proxy_ctx->proxy_side], NULL,
+                    fragment_counter[proxy_ctx->proxy_side],
+                    tvb_captured_length_remaining(tvb, offset),
+                    TRUE, 0);
+                fragment_counter[proxy_ctx->proxy_side]++;
             }
             col_append_str(pinfo->cinfo, COL_INFO," (Continuation Segment)");
 
@@ -366,110 +365,108 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             proto_tree_add_item(sub_tree, hf_btmesh_proxy_data_fragment, tvb, offset, length, ENC_NA);
             if (!pinfo->fd->visited) {
-              fragment_add_seq(&proxy_reassembly_table,
-                tvb, offset, pinfo,
-                sequence_counter[proxy_ctx->proxy_side], NULL,
-                fragment_counter[proxy_ctx->proxy_side],
-                tvb_captured_length_remaining(tvb, offset),
-                FALSE, 0);
+                fragment_add_seq(&proxy_reassembly_table,
+                    tvb, offset, pinfo,
+                    sequence_counter[proxy_ctx->proxy_side], NULL,
+                    fragment_counter[proxy_ctx->proxy_side],
+                    tvb_captured_length_remaining(tvb, offset),
+                    FALSE, 0);
+                fragment_counter[proxy_ctx->proxy_side]++;
 
-              fragment_counter[proxy_ctx->proxy_side]++;
-
-              //add mapping "pinfo->num" -> "sequence_counter"
-              storage = wmem_alloc0(pool, sizeof(sequence_counter[proxy_ctx->proxy_side]));
-              *((guint32 *)storage) = sequence_counter[proxy_ctx->proxy_side];
-              wmem_tree_insert32(connection_info_tree, pinfo->num, storage);
-
-              fd_head = fragment_get(&proxy_reassembly_table, pinfo, sequence_counter[proxy_ctx->proxy_side], NULL);
-
+                //add mapping "pinfo->num" -> "sequence_counter"
+                storage = wmem_alloc0(pool, sizeof(sequence_counter[proxy_ctx->proxy_side]));
+                *((guint32 *)storage) = sequence_counter[proxy_ctx->proxy_side];
+                wmem_tree_insert32(connection_info_tree, pinfo->num, storage);
            }
-           packetReassembledOrComplete = TRUE;
+           packet_reassembled = TRUE;
            col_append_str(pinfo->cinfo, COL_INFO," (Last Segment)");
 
         break;
         //No default since this is 2 bit value
     }
 
-    if (packetReassembledOrComplete && pinfo->fd->visited) {
-      if (next_tvb == NULL) {
-          sequence_counter_ptr = (guint32 *)wmem_tree_lookup32(connection_info_tree, pinfo->num);
+    if (packet_reassembled || packet_completed) {
+        if (next_tvb == NULL) {
+            sequence_counter_ptr = (guint32 *)wmem_tree_lookup32(connection_info_tree, pinfo->num);
 
-        if (sequence_counter_ptr != NULL) {
-          fd_head = fragment_get(&proxy_reassembly_table, pinfo, *sequence_counter_ptr, NULL);
+            if (sequence_counter_ptr != NULL) {
+                fd_head = fragment_get(&proxy_reassembly_table, pinfo, *sequence_counter_ptr, NULL);
+
+                if (fd_head) {
+                    next_tvb = process_reassembled_data(tvb, offset, pinfo,
+                        "Reassembled Message", fd_head, &btmesh_proxy_frag_items,
+                        NULL, sub_tree);
+                    col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+                }
+            }
         }
 
-        if (fd_head) {
-            next_tvb = process_reassembled_data(tvb, offset, pinfo,
-              "Reassembled Message", fd_head, &btmesh_proxy_frag_items,
-              NULL, sub_tree);
-            col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+        if (next_tvb) {
+            offset = 0;
+            tr_ctx.transport = E_BTMESH_TR_PROXY;
+            if (packet_completed) {
+                tr_ctx.fragmented = FALSE;
+            } else {
+                tr_ctx.fragmented = TRUE;
+            }
+            tr_ctx.segment_index = 0;
+
+            switch (proxy_type) {
+                case PROXY_PDU_NETWORK:
+                    if (btmesh_handle) {
+                        call_dissector(btmesh_handle, next_tvb, pinfo, proto_tree_get_root(tree));
+                    } else {
+                        proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
+                    }
+
+                break;
+                case PROXY_PDU_MESH_BEACON:
+                    if (btmesh_beacon_handle) {
+                        call_dissector_with_data(btmesh_beacon_handle, next_tvb, pinfo, proto_tree_get_root(tree), &tr_ctx);
+                    } else {
+                        proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
+                    }
+
+                break;
+                case PROXY_PDU_CONFIGURATION:
+                    dissect_btmesh_proxy_configuration_msg(next_tvb, pinfo, sub_tree, NULL);
+
+                break;
+                case PROXY_PDU_PROVISIONING:
+                    if (btmesh_provisioning_handle) {
+                        call_dissector_with_data(btmesh_provisioning_handle, next_tvb, pinfo, proto_tree_get_root(tree), &tr_ctx);
+                    } else {
+                        proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
+                    }
+
+                break;
+                default:
+                    proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
+                break;
+            }
         }
-      }
+    }
 
-    if (next_tvb){
-        offset = 0;
-        tr_ctx.transport = E_BTMESH_TR_PROXY;
-        if (packetComplete) {
-            tr_ctx.fragmented = FALSE;
-        } else {
-            tr_ctx.fragmented = TRUE;
-        }
-        tr_ctx.segment_index = 0;
-
-        switch(proxy_type) {
-          case PROXY_PDU_NETWORK:
-              if (btmesh_handle) {
-                  call_dissector(btmesh_handle, next_tvb, pinfo, proto_tree_get_root(tree));
-              } else {
-                  proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
-              }
-
-          break;
-          case PROXY_PDU_MESH_BEACON:
-              if (btmesh_beacon_handle) {
-                  call_dissector_with_data(btmesh_beacon_handle, next_tvb, pinfo, proto_tree_get_root(tree), &tr_ctx);
-              } else {
-                  proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
-              }
-
-          break;
-          case PROXY_PDU_CONFIGURATION:
-              dissect_btmesh_proxy_configuration_msg(next_tvb, pinfo, sub_tree, NULL);
-
-          break;
-          case PROXY_PDU_PROVISIONING:
-              if (btmesh_provisioning_handle) {
-                  call_dissector_with_data(btmesh_provisioning_handle, next_tvb, pinfo, proto_tree_get_root(tree), &tr_ctx);
-              } else {
-                  proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
-              }
-
-          break;
-          //Default is not needed
-          }
-      }
-  }
-
-  return tvb_reported_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static void
 proxy_init_routine(void)
 {
-  reassembly_table_register(&proxy_reassembly_table, &addresses_reassembly_table_functions);
-  for (int i=0; i< E_BTMESH_PROXY_SIDE_LAST; i++ ){
-    sequence_counter[i] = 0;
-    fragment_counter[i] = 0;
-  }
-  first_pass = TRUE;
-  pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
+    reassembly_table_register(&proxy_reassembly_table, &addresses_reassembly_table_functions);
+    for (int i=0; i< E_BTMESH_PROXY_SIDE_LAST; i++ ){
+        sequence_counter[i] = 0;
+        fragment_counter[i] = 0;
+    }
+    first_pass = TRUE;
+    pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 }
 
 static void
 proxy_cleanup_dissector(void)
 {
-  wmem_destroy_allocator(pool);
-  pool = NULL;
+    wmem_destroy_allocator(pool);
+    pool = NULL;
 }
 
 void
