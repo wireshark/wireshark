@@ -719,7 +719,7 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
 			offset += 32;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
-			offset += 16; /* reserved */
+			/* offset += 16; */ /* reserved */
 		}
 	}
 }
@@ -884,7 +884,7 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
 			offset += 32;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
-			offset += 16; /* reserved */
+			/* offset += 16; */ /* reserved */
 		}
 	}
 }
