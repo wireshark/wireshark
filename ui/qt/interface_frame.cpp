@@ -149,7 +149,7 @@ QMenu * InterfaceFrame::getSelectionMenu()
     {
         QAction * toggleRemoteAction = new QAction(tr("Remote interfaces"), this);
         toggleRemoteAction->setCheckable(true);
-        toggleRemoteAction->setChecked(! proxy_model_.remoteDisplay());
+        toggleRemoteAction->setChecked(proxy_model_.remoteDisplay());
         connect(toggleRemoteAction, SIGNAL(triggered()), this, SLOT(toggleRemoteInterfaces()));
         contextMenu->addAction(toggleRemoteAction);
     }
