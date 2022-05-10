@@ -107,7 +107,10 @@ copied to the merged output file.
 
 *all*: IDBs are merged only if all input files have the same number
 of IDBs, and each IDB matches their respective entry in the
-other files. This is the default mode.
+other files. (Only the IDBs that occur at the beginning of the files,
+before any packet blocks, are compared. IDBs that occur later in the
+files are merged with duplicates iff the initial IDBs were merged.)
+This is the default mode.
 
 *any*: Any and all duplicate IDBs are merged into one IDB, regardless
 of what file they are in.
