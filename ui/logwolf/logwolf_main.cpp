@@ -81,13 +81,11 @@
 #include "ui/qt/utils/color_utils.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
-#include "ui/qt_logwolf/logwolf_main_window.h"
-#include "ui/qt/response_time_delay_dialog.h"
-#include "ui/qt/service_response_time_dialog.h"
+#include "ui/logwolf/logwolf_main_window.h"
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
-#include "ui/qt_logwolf/logwolf_application.h"
+#include "ui/logwolf/logwolf_application.h"
 
 #include "capture/capture-pcap-util.h"
 
@@ -778,8 +776,8 @@ int main(int argc, char *qt_argv[])
 
     conversation_table_set_gui_info(init_conversation_table);
     hostlist_table_set_gui_info(init_endpoint_table);
-    srt_table_iterate_tables(register_service_response_tables, NULL);
-    rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
+//    srt_table_iterate_tables(register_service_response_tables, NULL);
+//    rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
     stat_tap_iterate_tables(register_simple_stat_tables, NULL);
 
     if (ex_opt_count("read_format") > 0) {
@@ -819,8 +817,13 @@ int main(int argc, char *qt_argv[])
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
-    if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load)
-        fill_in_local_interfaces(main_window_update);
+    if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load) {
+        /* Allow only extcap interfaces to be found */
+        GList * filter_list = NULL;
+        filter_list = g_list_append(filter_list, GUINT_TO_POINTER((guint) IF_EXTCAP));
+        fill_in_local_interfaces_filtered(filter_list, main_window_update);
+        g_list_free(filter_list);
+    }
 
     if  (global_commandline_info.list_link_layer_types)
         caps_queries |= CAPS_QUERY_LINK_TYPES;

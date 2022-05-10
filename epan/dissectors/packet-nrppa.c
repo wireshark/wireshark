@@ -1479,6 +1479,7 @@ dissect_nrppa_NRPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 #line 63 "./asn1/nrppa/nrppa.cnf"
 
   proto_tree_add_item(tree, proto_nrppa, tvb, 0, -1, ENC_NA);
+  add_per_encoded_label(tvb, actx->pinfo, tree);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "NRPPa");
 
@@ -4174,7 +4175,7 @@ dissect_nrppa_DLPRSResourceCoordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_nrppa_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "./asn1/nrppa/nrppa.cnf"
+#line 73 "./asn1/nrppa/nrppa.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        3, 3, FALSE, &parameter_tvb);

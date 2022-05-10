@@ -1849,7 +1849,7 @@ dissect_ber_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree,
     gint64   val;
     guint32  i;
     gboolean used_too_many_bytes = FALSE;
-    guint8 first;
+    guint8 first = 0;
 #ifdef DEBUG_BER
 {
 const char *name;
@@ -1881,27 +1881,27 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
       len = remaining>0 ? remaining : 0;
     }
 
-    first = tvb_get_guint8(tvb, offset);
-    /* we can't handle integers > 64 bits */
-    /* take into account the use case of a 64bits unsigned integer: you will have a 9th byte set to 0 */
-    if ((len > 9) || ((len == 9) && (first != 0))) {
-        if (hf_id >= 0) {
-            header_field_info *hfinfo = proto_registrar_get_nth(hf_id);
-
-            /* use the original field only if it is suitable for bytes */
-            if (hfinfo->type != FT_BYTES)
-                hf_id = hf_ber_64bit_uint_as_bytes;
-
-            proto_tree_add_bytes_format(tree, hf_id, tvb, offset, len, NULL,
-                "%s: 0x%s", hfinfo->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
-        }
-
-        offset += len;
-        return offset;
-    }
-
-    val=0;
+    val = 0;
     if (len > 0) {
+
+        first = tvb_get_guint8(tvb, offset);
+        /* we can't handle integers > 64 bits */
+        /* take into account the use case of a 64bits unsigned integer: you will have a 9th byte set to 0 */
+        if ((len > 9) || ((len == 9) && (first != 0))) {
+            if (hf_id >= 0) {
+                header_field_info *hfinfo = proto_registrar_get_nth(hf_id);
+
+                /* use the original field only if it is suitable for bytes */
+                if (hfinfo->type != FT_BYTES)
+                    hf_id = hf_ber_64bit_uint_as_bytes;
+
+                proto_tree_add_bytes_format(tree, hf_id, tvb, offset, len, NULL,
+                                            "%s: 0x%s", hfinfo->name, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
+            }
+
+            offset += len;
+            return offset;
+        }
         /* extend sign bit for signed fields */
         enum ftenum type  = FT_INT32; /* Default to signed, is this correct? */
         if (hf_id >= 0) {
@@ -1927,15 +1927,14 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
 
     if (hf_id >= 0) {
         /*  */
+        header_field_info* hfi;
+
+        hfi = proto_registrar_get_nth(hf_id);
         if ((len < 1) || (len > 9) || ((len == 9) && (first != 0))) {
           proto_tree_add_expert_format(
               tree, actx->pinfo, &ei_ber_error_length, tvb, offset-len, len,
-              "BER Error: Can't handle integer length: %u",
-              len);
+              "BER Error: %s: length of item (%u) is not valid", hfi->name, len);
         } else {
-            header_field_info* hfi;
-
-            hfi = proto_registrar_get_nth(hf_id);
             switch (hfi->type) {
             case FT_UINT8:
             case FT_UINT16:
@@ -2043,20 +2042,34 @@ dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
         offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
         /*if (ber_class != BER_CLASS_UNI)*/
     } else {
-        /* nothing to do here, yet */
+        gint32 remaining = tvb_reported_length_remaining(tvb, offset);
+        len = remaining > 0 ? remaining : 0;
     }
 
-    val = tvb_get_guint8(tvb, offset);
-    offset += 1;
+    if (len == 1)
+    {
+        val = tvb_get_guint8(tvb, offset);
+        offset += 1;
 
-    actx->created_item = NULL;
+        actx->created_item = NULL;
 
-    if (hf_id >= 0) {
-        hfi = proto_registrar_get_nth(hf_id);
-        if (hfi->type == FT_BOOLEAN)
-            actx->created_item = proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
-        else
-            actx->created_item = proto_tree_add_uint(tree, hf_id, tvb, offset-1, 1, val ? 1 : 0);
+        if (hf_id >= 0) {
+            hfi = proto_registrar_get_nth(hf_id);
+            if (hfi->type == FT_BOOLEAN)
+                actx->created_item = proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
+            else
+                actx->created_item = proto_tree_add_uint(tree, hf_id, tvb, offset-1, 1, val ? 1 : 0);
+        }
+    } else {
+        val = 0;
+        actx->created_item = NULL;
+
+        if (hf_id >= 0) {
+            hfi = proto_registrar_get_nth(hf_id);
+            proto_tree_add_expert_format(
+                    tree, actx->pinfo, &ei_ber_error_length, tvb, offset, len,
+                    "BER Error: %s: length of item (%u) is not valid", hfi->name, len);
+        }
     }
 
     if (value) {

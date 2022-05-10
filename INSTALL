@@ -1,11 +1,12 @@
-See also https://gitlab.com/wireshark/wireshark/-/wikis/Development.
+See also https://gitlab.com/wireshark/wireshark/-/wikis/Development
+and the Developer's Guide located at https://www.wireshark.org/docs/
+and in the docbook/ subdirectory.
 
 Installation
 ============
 
-These are installation instructions for Unix and Unix-like systems
-that can run the "configure" script in this same directory. These
-are not the installation instructions for Windows systems; see
+These are installation instructions for Unix and Unix-like systems.
+These are not the installation instructions for Windows systems; see
 README.windows for those instructions.
 
 0. This is software.  Beware.
@@ -14,9 +15,9 @@ README.windows for those instructions.
    development packages installed. Try running
    'pkg-config glib-2.0 --modversion' to see if you have GLib 2.x
    installed.  Then try running 'pkg-config Qt5Widgets --modversion'
-   to see if you have Qt installed. Wireshark requires Qt 5.3 or later,
+   to see if you have Qt installed. Wireshark requires Qt 5.9 or later,
    but the most recent LTS release is strongly recommended. It needs
-   version 2.38.0 or above of GLib.  If you need to install or
+   version 2.50.0 or above of GLib.  If you need to install or
    re-install GLIB, you can find the packages at:
 
         https://download.gnome.org/sources/glib/
@@ -146,7 +147,7 @@ README.windows for those instructions.
         use -DENABLE_PCAP=OFF to avoid using libpcap.
 
     -DENABLE_ZLIB=OFF
-        By default, if 'configure' finds zlib (a.k.a, libz), the
+        By default, if 'cmake' finds zlib (a.k.a, libz), the
         wiretap library will be built so that it can read compressed
         capture files. If you have zlib but do not wish to build
         it into the wiretap library, used by Wireshark, TShark, and
@@ -154,7 +155,7 @@ README.windows for those instructions.
         this switch.
 
     -DENABLE_BROTLI=OFF
-        By default, if 'configure' finds brotli, the wiretap library
+        By default, if 'cmake' finds brotli, the wiretap library
         will be built so that it can read brotli compressed capture
         files. If you have brotli but do not wish to build it into
         the wiretap library, used by Wireshark, TShark, and the
@@ -194,7 +195,7 @@ README.windows for those instructions.
         dpkg-buildpackage -us -uc -rfakeroot
 
    in the source directory right after extracting of checking out
-   Wireshark's source code. (You don't have to run configure/make/etc.
+   Wireshark's source code. (You don't have to run CMake/make/Ninja/etc.
    prior to running dpkg-buildpackage)
 
 

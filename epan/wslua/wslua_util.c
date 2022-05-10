@@ -520,7 +520,7 @@ WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
     sc->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_remove(L,1);
 
-    ui_info.group = REGISTER_STAT_GROUP_UNSORTED;  /* XXX - need group for CLI-only? */
+    ui_info.group = REGISTER_PACKET_STAT_GROUP_UNSORTED; /* XXX - need an argument? */
     ui_info.title = NULL;
     ui_info.cli_string = arg;
     ui_info.tap_init_cb = statcmd_init;

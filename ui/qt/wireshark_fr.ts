@@ -4721,6 +4721,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>Start capture</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Hide Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
@@ -6311,2143 +6315,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
 </context>
 <context>
-    <name>MainWindow</name>
-    <message>
-        <source>Wireshark</source>
-        <translation>Wireshark</translation>
-    </message>
-    <message>
-        <source>Go to packet</source>
-        <translation>Aller au paquet</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>File Set</source>
-        <translation>Fichier</translation>
-    </message>
-    <message>
-        <source>Export Packet Dissections</source>
-        <translation>Exporter analyse des paquets</translation>
-    </message>
-    <message>
-        <source>Export Objects</source>
-        <translation>Exporter Objets</translation>
-    </message>
-    <message>
-        <source>&amp;Zoom</source>
-        <translation>&amp;Zoom</translation>
-    </message>
-    <message>
-        <source>&amp;Time Display Format</source>
-        <translation>&amp;Format d&apos;Affichage de l&apos;Heure</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Copier</translation>
-    </message>
-    <message>
-        <source>Manual pages</source>
-        <translation>Page du manuel</translation>
-    </message>
-    <message>
-        <source>Apply as Filter</source>
-        <translation>Appliquer comme un Filtre</translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SCTP</source>
-        <translation>SCTP</translation>
-    </message>
-    <message>
-        <source>TCP Stream Graphs</source>
-        <translation>Graphique des flux TCP</translation>
-    </message>
-    <message>
-        <source>BACnet</source>
-        <translation>BACnet</translation>
-    </message>
-    <message>
-        <source>HTTP</source>
-        <translation>HTTP</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Fichier</translation>
-    </message>
-    <message>
-        <source>&amp;Capture</source>
-        <translation>&amp;Capture</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Aide</translation>
-    </message>
-    <message>
-        <source>&amp;Go</source>
-        <translation>&amp;Aller</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation>&amp;Vue</translation>
-    </message>
-    <message>
-        <source>&amp;Analyze</source>
-        <translation>&amp;Analyser</translation>
-    </message>
-    <message>
-        <source>Follow</source>
-        <translation>Suivre</translation>
-    </message>
-    <message>
-        <source>&amp;Statistics</source>
-        <translation>&amp;Statistiques</translation>
-    </message>
-    <message>
-        <source>29West</source>
-        <translation>29West</translation>
-    </message>
-    <message>
-        <source>Topics</source>
-        <translation>Sujets</translation>
-    </message>
-    <message>
-        <source>Queues</source>
-        <translation>Queues</translation>
-    </message>
-    <message>
-        <source>UIM</source>
-        <translation>UIM</translation>
-    </message>
-    <message>
-        <source>Telephon&amp;y</source>
-        <translation>Telephon&amp;ie</translation>
-    </message>
-    <message>
-        <source>RTSP</source>
-        <translation>RTSP</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>&amp;Editer</translation>
-    </message>
-    <message>
-        <source>Packet Comments</source>
-        <translation type="unfinished">Commentaires du Paquet</translation>
-    </message>
-    <message>
-        <source>Main Toolbar</source>
-        <translation>Barre d&apos;outils principale</translation>
-    </message>
-    <message>
-        <source>Display Filter Toolbar</source>
-        <translation>Barre de filtrage d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>Open a capture file</source>
-        <translation>Ouvrir un fichier de capture</translation>
-    </message>
-    <message>
-        <source>Quit Wireshark</source>
-        <translation>Quitter Wireshark</translation>
-    </message>
-    <message>
-        <source>&amp;Start</source>
-        <translation>&amp;Démarrer</translation>
-    </message>
-    <message>
-        <source>Start capturing packets</source>
-        <translation>Démarrer la capture de paquet</translation>
-    </message>
-    <message>
-        <source>S&amp;top</source>
-        <translation>Arrê&amp;ter</translation>
-    </message>
-    <message>
-        <source>Stop capturing packets</source>
-        <translation>Arrêter la capturer de paquet</translation>
-    </message>
-    <message>
-        <source>No files found</source>
-        <translation>Pas de fichier trouvé</translation>
-    </message>
-    <message>
-        <source>&amp;Contents</source>
-        <translation>&amp;Aide</translation>
-    </message>
-    <message>
-        <source>Wireshark Filter</source>
-        <translation>Filtre Wireshark</translation>
-    </message>
-    <message>
-        <source>TShark</source>
-        <translation>TShark</translation>
-    </message>
-    <message>
-        <source>Rawshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dumpcap</source>
-        <translation>Dumpcap</translation>
-    </message>
-    <message>
-        <source>Mergecap</source>
-        <translation>Mergecap</translation>
-    </message>
-    <message>
-        <source>Editcap</source>
-        <translation>Editcap</translation>
-    </message>
-    <message>
-        <source>Text2pcap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>Site Web</translation>
-    </message>
-    <message>
-        <source>Downloads</source>
-        <translation>Téléchargements</translation>
-    </message>
-    <message>
-        <source>Wiki</source>
-        <translation>Wiki</translation>
-    </message>
-    <message>
-        <source>Sample Captures</source>
-        <translation>Captures d&apos;Exemple</translation>
-    </message>
-    <message>
-        <source>&amp;About Wireshark</source>
-        <translation>&amp;A Propos de Wireshark</translation>
-    </message>
-    <message>
-        <source>Ask (Q&amp;&amp;A)</source>
-        <translation>Questions (Q&amp;&amp;A)</translation>
-    </message>
-    <message>
-        <source>Next Packet</source>
-        <translation>Paquet suivant</translation>
-    </message>
-    <message>
-        <source>Go to the next packet</source>
-        <translation>ALler au paquet suviant</translation>
-    </message>
-    <message>
-        <source>Previous Packet</source>
-        <translation>Paquet précédent</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet</source>
-        <translation>Aller au paquet précédent</translation>
-    </message>
-    <message>
-        <source>First Packet</source>
-        <translation>Premier paquet</translation>
-    </message>
-    <message>
-        <source>Go to the first packet</source>
-        <translation>Aller au premier paquet</translation>
-    </message>
-    <message>
-        <source>Last Packet</source>
-        <translation>Dernier paquet</translation>
-    </message>
-    <message>
-        <source>Go to the last packet</source>
-        <translation>Aller au dernier paquet</translation>
-    </message>
-    <message>
-        <source>E&amp;xpand Subtrees</source>
-        <translation>E&amp;tendre les sous menus</translation>
-    </message>
-    <message>
-        <source>Expand the current packet detail</source>
-        <translation>Etendre les détails du paquet en cours</translation>
-    </message>
-    <message>
-        <source>&amp;Expand All</source>
-        <translation>&amp;Etendre tout</translation>
-    </message>
-    <message>
-        <source>Expand packet details</source>
-        <translation>Etendre les détails du paquet</translation>
-    </message>
-    <message>
-        <source>Collapse &amp;All</source>
-        <translation>Reduire &amp;Tout</translation>
-    </message>
-    <message>
-        <source>Collapse all packet details</source>
-        <translation>Reduire les détails de tous les paquets</translation>
-    </message>
-    <message>
-        <source>Go to specified packet</source>
-        <translation>Aller au paquet</translation>
-    </message>
-    <message>
-        <source>Merge one or more files</source>
-        <translation>Fusionner un ou plusieurs fichiers</translation>
-    </message>
-    <message>
-        <source>Import a file</source>
-        <translation>Importer un fichier</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Sauvegarder</translation>
-    </message>
-    <message>
-        <source>Save as a different file</source>
-        <translation>Sauvegarder dans un fichier différent</translation>
-    </message>
-    <message>
-        <source>Export specified packets</source>
-        <translation>Exporter les paquets specifiés</translation>
-    </message>
-    <message>
-        <source>Export TLS Session Keys…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>List Files</source>
-        <translation>Liste des fichiers</translation>
-    </message>
-    <message>
-        <source>Next File</source>
-        <translation>Fichier suivant</translation>
-    </message>
-    <message>
-        <source>Previous File</source>
-        <translation>Ficher précedent</translation>
-    </message>
-    <message>
-        <source>&amp;Reload</source>
-        <translation>&amp;Recharger</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Options</translation>
-    </message>
-    <message>
-        <source>Capture options</source>
-        <translation>Options de capture</translation>
-    </message>
-    <message>
-        <source>Capture filters</source>
-        <translation>Filtres de Capture</translation>
-    </message>
-    <message>
-        <source>Refresh Interfaces</source>
-        <translation>Actualiser les interfaces</translation>
-    </message>
-    <message>
-        <source>Refresh interfaces</source>
-        <translation>Actualiser les interfaces</translation>
-    </message>
-    <message>
-        <source>&amp;Restart</source>
-        <translation>&amp;Redémarrer</translation>
-    </message>
-    <message>
-        <source>Restart current capture</source>
-        <translation>Redémarrer la capture en cours</translation>
-    </message>
-    <message>
-        <source>As &amp;CSV…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As P&amp;SML XML…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As P&amp;DML XML…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As &amp;JSON…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation>Description</translation>
-    </message>
-    <message>
-        <source>Field Name</source>
-        <translation>Nom du champs</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Valeur</translation>
-    </message>
-    <message>
-        <source>As Filter</source>
-        <translation>Comme un Filtre</translation>
-    </message>
-    <message>
-        <source>Close this capture file</source>
-        <translation>Fermer ce fichier de capture</translation>
-    </message>
-    <message>
-        <source>Packet:</source>
-        <translation>Paquets :</translation>
-    </message>
-    <message>
-        <source>Interface Toolbars</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Colorize Conversation</source>
-        <translation>Colorier la Conversation</translation>
-    </message>
-    <message>
-        <source>Internals</source>
-        <translation>Internes</translation>
-    </message>
-    <message>
-        <source>Additional Toolbars</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation>Filtre de Conversation</translation>
-    </message>
-    <message>
-        <source>Reliable Server Pooling (RSerPool)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Osmux</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Tools</source>
-        <oldsource>Tools</oldsource>
-        <translation>&amp;Outils</translation>
-    </message>
-    <message>
-        <source>Wireless Toolbar</source>
-        <translation>Barre d&apos;outils Wireless</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation>Contenu de l&apos;aide</translation>
-    </message>
-    <message>
-        <source>FAQs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Next Packet in Conversation</source>
-        <translation>Paquet Suivant dans la Conversation</translation>
-    </message>
-    <message>
-        <source>Go to the next packet in this conversation</source>
-        <translation>Aller au paquet suivant de cette conversation</translation>
-    </message>
-    <message>
-        <source>Previous Packet in Conversation</source>
-        <translation>Paquet Précédent dans la Conversation</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in this conversation</source>
-        <translation>Aller au paquet précédent de cette conversation</translation>
-    </message>
-    <message>
-        <source>Next Packet In History</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to the next packet in your selection history</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Previous Packet In History</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in your selection history</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Collapse Subtrees</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Collapse the current packet detail</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to Packet…</source>
-        <translation>Aller au Paquet...</translation>
-    </message>
-    <message>
-        <source>&amp;Merge…</source>
-        <translation>&amp;Fusionner...</translation>
-    </message>
-    <message>
-        <source>&amp;Import from Hex Dump…</source>
-        <translation>&amp;Importer depuis Dump Hex...</translation>
-    </message>
-    <message>
-        <source>Save this capture file</source>
-        <translation>Sauvegarder ce fichier de capture</translation>
-    </message>
-    <message>
-        <source>Save &amp;As…</source>
-        <translation>Sauvegarder &amp;Sous</translation>
-    </message>
-    <message>
-        <source>Export Specified Packets…</source>
-        <translation>Exporter Paquets Spécifiques...</translation>
-    </message>
-    <message>
-        <source>Export Packet &amp;Bytes…</source>
-        <translation>Exporter Paquets &amp;Octets...</translation>
-    </message>
-    <message>
-        <source>&amp;Print…</source>
-        <translation>&amp;Imprimer...</translation>
-    </message>
-    <message>
-        <source>Reload this file</source>
-        <translation>Recharger ce fichier</translation>
-    </message>
-    <message>
-        <source>Reload as File Format/Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s description</source>
-        <translation>Copier la description de cet élément</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s field name</source>
-        <translation>Copier le nom de cet élément</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s value</source>
-        <translation>Copier la valeur de cet élément</translation>
-    </message>
-    <message>
-        <source>Copy this item as a display filter</source>
-        <translation>Copier cet élément comme un filtre d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>Apply as Column</source>
-        <translation>Appliquer en Colonne</translation>
-    </message>
-    <message>
-        <source>Create a packet list column from the selected field.</source>
-        <translation>Crée une colonne de liste de paquets d&apos;après le champ sélectionné.</translation>
-    </message>
-    <message>
-        <source>Find a packet</source>
-        <translation>Trouver un paquet</translation>
-    </message>
-    <message>
-        <source>Find the next packet</source>
-        <translation>Trouver le paquet suivant</translation>
-    </message>
-    <message>
-        <source>Find the previous packet</source>
-        <translation>Trouver le paquet précédent</translation>
-    </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mark All Displayed</source>
-        <translation>Marquer tout comme Affichées</translation>
-    </message>
-    <message>
-        <source>Mark all displayed packets</source>
-        <translation>Marquer tous les paquets affichés</translation>
-    </message>
-    <message>
-        <source>Unmark all displayed packets</source>
-        <translation>Démarquer tous paquets affichés</translation>
-    </message>
-    <message>
-        <source>Next Mark</source>
-        <translation>Marque suivante</translation>
-    </message>
-    <message>
-        <source>Go to the next marked packet</source>
-        <translation>Aller au prochain paquet marqués</translation>
-    </message>
-    <message>
-        <source>Previous Mark</source>
-        <translation>Marque Précédente</translation>
-    </message>
-    <message>
-        <source>Go to the previous marked packet</source>
-        <translation>Aller au paquet précédent marqué</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ignore All Displayed</source>
-        <translation>Ignorer tous les affichés</translation>
-    </message>
-    <message>
-        <source>Ignore all displayed packets</source>
-        <translation>Ignorer tous les paquets affichés</translation>
-    </message>
-    <message>
-        <source>Set/Unset Time Reference</source>
-        <translation>Fixer/Defixer le Temps de Réference</translation>
-    </message>
-    <message>
-        <source>Set or unset a time reference for this packet</source>
-        <translation>Fixer ou défixer le temps de réference de ce paquet</translation>
-    </message>
-    <message>
-        <source>Unset All Time References</source>
-        <translation>Défixer tous les Temps de Réferences</translation>
-    </message>
-    <message>
-        <source>Remove all time references</source>
-        <translation>Supprimer tous les temps de réferences</translation>
-    </message>
-    <message>
-        <source>Next Time Reference</source>
-        <translation>Prochain Temps de Réference</translation>
-    </message>
-    <message>
-        <source>Go to the next time reference</source>
-        <translation>Aller au prochain temps de réference</translation>
-    </message>
-    <message>
-        <source>Previous Time Reference</source>
-        <translation>Précédent Temps de réference</translation>
-    </message>
-    <message>
-        <source>Go to the previous time reference</source>
-        <translation>Aller au précédent temps de réference</translation>
-    </message>
-    <message>
-        <source>Shift or change packet timestamps</source>
-        <translation>Décalager ou changer le temps des paquets</translation>
-    </message>
-    <message>
-        <source>Delete All Packet Comments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove all packet comments in the capture file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Configuration Profiles…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Configuration profiles</source>
-        <translation>Profils de configuration</translation>
-    </message>
-    <message>
-        <source>Manage your configuration profiles</source>
-        <translation>Gerer mes profils de configuration</translation>
-    </message>
-    <message>
-        <source>Manage Wireshark&apos;s preferences</source>
-        <translation>Gerer les préferences de Wireshark</translation>
-    </message>
-    <message>
-        <source>Capture File Properties</source>
-        <translation>Propriétés du fichier de capture</translation>
-    </message>
-    <message>
-        <source>Capture file properties</source>
-        <translation>Propriétés du fichier de capture</translation>
-    </message>
-    <message>
-        <source>&amp;Protocol Hierarchy</source>
-        <translation>&amp;Hiérarchie des Protocoles</translation>
-    </message>
-    <message>
-        <source>Show a summary of protocols present in the capture file.</source>
-        <translation>Montre un résumé des protocoles présents dans le fichier de capture</translation>
-    </message>
-    <message>
-        <source>Capinfos</source>
-        <translation>Capinfos</translation>
-    </message>
-    <message>
-        <source>Reordercap</source>
-        <translation>Réoragnisercap</translation>
-    </message>
-    <message>
-        <source>Time Sequence (Stevens)</source>
-        <translation>Séquence de temps (Stevens)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (Stevens)</source>
-        <translation>Diagramme de séquence de temps de TCP (Stevens)</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation>Débit</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation>Temps d&apos;Aller-Retour</translation>
-    </message>
-    <message>
-        <source>TCP round trip time</source>
-        <translation>Temps d&apos;aller-retour TCP</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation>Mise à l&apos;échelle Fenêtre</translation>
-    </message>
-    <message>
-        <source>TCP window scaling</source>
-        <translation>Mise à l&apos;échelle de la fenêtre TCP</translation>
-    </message>
-    <message>
-        <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TLS Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SIP Call</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Time Sequence (tcptrace)</source>
-        <translation>Séquence de temps (tcptrace)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (tcptrace)</source>
-        <translation>Diagramme de séquence de temps de TCP (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Analyse this Association</source>
-        <translation>Analyser cette association</translation>
-    </message>
-    <message>
-        <source>Show All Associations</source>
-        <translation>Afficher toutes les association</translation>
-    </message>
-    <message>
-        <source>Flow Graph</source>
-        <translation>Graphique des flux</translation>
-    </message>
-    <message>
-        <source>Flow sequence diagram</source>
-        <translation>Diagramme de séquence des flux</translation>
-    </message>
-    <message>
-        <source>ANCP</source>
-        <translation>ANCP</translation>
-    </message>
-    <message>
-        <source>ANCP statistics</source>
-        <translation>statistiques ANCP</translation>
-    </message>
-    <message>
-        <source>Packets sorted by Instance ID</source>
-        <translation>Paquets triés par Instance ID</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by instance ID</source>
-        <translation>Statistiques BACAPP triés par instance ID</translation>
-    </message>
-    <message>
-        <source>Packets sorted by IP</source>
-        <translation>Paquets triés par IP</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by IP</source>
-        <translation>Statistiques BACapp triés par IP </translation>
-    </message>
-    <message>
-        <source>Packets sorted by object type</source>
-        <translation>Paquets triés par object type</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by object type</source>
-        <translation>Statistiques BACap triés par objet type</translation>
-    </message>
-    <message>
-        <source>Packets sorted by service</source>
-        <translation>Paquets triés par service</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by service</source>
-        <translation>Statistiques BACapp triés par service</translation>
-    </message>
-    <message>
-        <source>Collectd</source>
-        <translation>Collectd</translation>
-    </message>
-    <message>
-        <source>Collectd statistics</source>
-        <translation>Statistiques Collectd</translation>
-    </message>
-    <message>
-        <source>DNS</source>
-        <translation>DNS</translation>
-    </message>
-    <message>
-        <source>DNS statistics</source>
-        <translation>Statistiques DNS</translation>
-    </message>
-    <message>
-        <source>HART-IP</source>
-        <translation>HART-IP</translation>
-    </message>
-    <message>
-        <source>HART-IP statistics</source>
-        <translation>Statistiques HART-IP</translation>
-    </message>
-    <message>
-        <source>HPFEEDS</source>
-        <translation>HPFEEDS</translation>
-    </message>
-    <message>
-        <source>hpfeeds statistics</source>
-        <translation>statistiques hpfeeds</translation>
-    </message>
-    <message>
-        <source>HTTP2</source>
-        <translation>HTTP2</translation>
-    </message>
-    <message>
-        <source>HTTP2 statistics</source>
-        <translation>Statistiques HTTP2</translation>
-    </message>
-    <message>
-        <source>Packet Counter</source>
-        <translation>Compteur de paquet</translation>
-    </message>
-    <message>
-        <source>HTTP packet counter</source>
-        <translation>Compteur de paquet HTTP</translation>
-    </message>
-    <message>
-        <source>Requests</source>
-        <translation>Requetes</translation>
-    </message>
-    <message>
-        <source>HTTP requests</source>
-        <translation>Requetes HTTP</translation>
-    </message>
-    <message>
-        <source>Load Distribution</source>
-        <translation>Répartiton de charge</translation>
-    </message>
-    <message>
-        <source>HTTP load distribution</source>
-        <translation>Répartition de charge HTTP</translation>
-    </message>
-    <message>
-        <source>Packet Lengths</source>
-        <translation>Longueur de Paquet</translation>
-    </message>
-    <message>
-        <source>Packet length statistics</source>
-        <translation>Statistiques de longueur de paquet</translation>
-    </message>
-    <message>
-        <source>Sametime</source>
-        <translation>Sametime</translation>
-    </message>
-    <message>
-        <source>Sametime statistics</source>
-        <translation>Statistiques Sametime</translation>
-    </message>
-    <message>
-        <source>SOME/IP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP Message statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ISUP Messages</source>
-        <translation>Messages &amp;ISUP</translation>
-    </message>
-    <message>
-        <source>ISUP message statistics</source>
-        <translation>Statistiques de message ISUP</translation>
-    </message>
-    <message>
-        <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RTSP packet counts</source>
-        <translation>Compteur de paquet RTSP</translation>
-    </message>
-    <message>
-        <source>SM&amp;PP Operations</source>
-        <translation>Opérations SM&amp;PP</translation>
-    </message>
-    <message>
-        <source>SMPP operation statistics</source>
-        <translation>Statistiques des opérations SMPP</translation>
-    </message>
-    <message>
-        <source>&amp;UCP Messages</source>
-        <translation>Messages &amp;UCP</translation>
-    </message>
-    <message>
-        <source>UCP message statistics</source>
-        <translation>statistiques des messages UCP</translation>
-    </message>
-    <message>
-        <source>F1AP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>F1AP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>NGAP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change the way packets are dissected</source>
-        <translation>Modifier la manière dont les paquets sont analysés</translation>
-    </message>
-    <message>
-        <source>Reload Lua Plugins</source>
-        <translation>Recharger Plugins Lua</translation>
-    </message>
-    <message>
-        <source>Reload Lua plugins</source>
-        <translation>Recharger plugins Lua</translation>
-    </message>
-    <message>
-        <source>Advertisements by Topic</source>
-        <translation>Annonces par Sujet</translation>
-    </message>
-    <message>
-        <source>Advertisements by Source</source>
-        <translation>Annonces par Source</translation>
-    </message>
-    <message>
-        <source>Advertisements by Transport</source>
-        <translation>Annonces par Transport</translation>
-    </message>
-    <message>
-        <source>Queries by Topic</source>
-        <translation>Requêtes par élément</translation>
-    </message>
-    <message>
-        <source>Queries by Receiver</source>
-        <translation>Requêtes par Récepteur</translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Receiver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advertisements by Queue</source>
-        <translation>Annonces par Queue</translation>
-    </message>
-    <message>
-        <source>Queries by Queue</source>
-        <translation>Requêtes par Queue</translation>
-    </message>
-    <message>
-        <source>Streams</source>
-        <translation>Flux</translation>
-    </message>
-    <message>
-        <source>LBT-RM</source>
-        <translation>LBT-RM</translation>
-    </message>
-    <message>
-        <source>LBT-RU</source>
-        <translation>LBT-RU</translation>
-    </message>
-    <message>
-        <source>Filter this Association</source>
-        <translation>Filtrer cette association</translation>
-    </message>
-    <message>
-        <source>Strip Headers…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Strip headers and export higher level encapsulations to file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Conversations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Endpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Shrink the main window text</source>
-        <translation>Rétrécir le texte de la fenêtre principale</translation>
-    </message>
-    <message>
-        <source>Return the main window text to its normal size</source>
-        <translation>Ramener le texte de la fenêtre principale à sa taille normale</translation>
-    </message>
-    <message>
-        <source>Reset Layout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset appearance layout to default size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packet &amp;Diagram</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show or hide the packet diagram</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show each conversation hash table</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show each dissector table and its entries</source>
-        <translation>Montrer chaque table de dissecteur et ses entrées</translation>
-    </message>
-    <message>
-        <source>Show the currently supported protocols and display filter fields</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MAC Statistics</source>
-        <translation>Statistiques MAC</translation>
-    </message>
-    <message>
-        <source>LTE MAC statistics</source>
-        <translation>Statistiques LTE MAC</translation>
-    </message>
-    <message>
-        <source>RLC Statistics</source>
-        <translation>Statistiques RLC</translation>
-    </message>
-    <message>
-        <source>LTE RLC statistics</source>
-        <translation>Statistiques LTE RLC</translation>
-    </message>
-    <message>
-        <source>LTE RLC graph</source>
-        <translation>Graphique LTE RLC</translation>
-    </message>
-    <message>
-        <source>MTP3 Summary</source>
-        <translation>Résumé MTP3</translation>
-    </message>
-    <message>
-        <source>MTP3 summary statistics</source>
-        <translation>Résumé des statistiques MTP3</translation>
-    </message>
-    <message>
-        <source>Bluetooth Devices</source>
-        <translation>Équipements Bluetooth</translation>
-    </message>
-    <message>
-        <source>Bluetooth HCI Summary</source>
-        <translation>Résumé Bluetooth HCI </translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Expression…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No GSM statistics registered</source>
-        <translation>Aucune statistique GSM enregistrée</translation>
-    </message>
-    <message>
-        <source>No LTE statistics registered</source>
-        <translation>Aucune statistique LTE enregistrée</translation>
-    </message>
-    <message>
-        <source>No MTP3 statistics registered</source>
-        <translation>Aucune statistique MTP3 enregistrée</translation>
-    </message>
-    <message>
-        <source>IAX2 Stream Analysis</source>
-        <translation>Analyse Flux IAX2</translation>
-    </message>
-    <message>
-        <source>Show Packet Bytes…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to &amp;Linked Packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UDP Multicast Streams</source>
-        <translation>Flux Multicast UDP</translation>
-    </message>
-    <message>
-        <source>Show UTP multicast stream statistics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>WLAN Traffic</source>
-        <translation>Trafic WLAN</translation>
-    </message>
-    <message>
-        <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add a display filter button.</source>
-        <translation>Ajouter un bouton filtre d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Create firewall ACL rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Full Screen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Credentials</source>
-        <translation type="unfinished">Identifiants</translation>
-    </message>
-    <message>
-        <source>&amp;Options…</source>
-        <translation>&amp;Options...</translation>
-    </message>
-    <message>
-        <source>&amp;Wireless</source>
-        <translation>&amp;Wireless</translation>
-    </message>
-    <message>
-        <source>Capture &amp;Filters…</source>
-        <translation>&amp;Filtres de Capture...</translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As &amp;CSV</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>As &amp;YAML</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Visible Items</source>
-        <translation>Tous les Éléments Visibles</translation>
-    </message>
-    <message>
-        <source>All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Macros…</source>
-        <translation>Afficher les Filtres &amp;Macros...</translation>
-    </message>
-    <message>
-        <source>&amp;Find Packet…</source>
-        <translation>&amp;Trouver un Paquet...</translation>
-    </message>
-    <message>
-        <source>Find Ne&amp;xt</source>
-        <translation>Trouver Suiva&amp;nt</translation>
-    </message>
-    <message>
-        <source>Find Pre&amp;vious</source>
-        <translation>Trouver Pré&amp;cédent</translation>
-    </message>
-    <message>
-        <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>U&amp;nignore All Displayed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Time Shift…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Preferences…</source>
-        <translation>&amp;Préférences...</translation>
-    </message>
-    <message>
-        <source>TCP throughput</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TCP Stream</source>
-        <translation>Flux TCP</translation>
-    </message>
-    <message>
-        <source>UDP Stream</source>
-        <translation>Flux UDP</translation>
-    </message>
-    <message>
-        <source>Request Sequences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP Request Sequences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Decode &amp;As…</source>
-        <translation>Décoder &amp;Comme...</translation>
-    </message>
-    <message>
-        <source>Export PDUs to File…</source>
-        <translation>Exporter PDU vers un Fichier...</translation>
-    </message>
-    <message>
-        <source>Create graphs based on display filter fields</source>
-        <translation>Créer des graphiques basés sur des filtres d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>&amp;Main Toolbar</source>
-        <translation>&amp;Barre d&apos;Outils Principale</translation>
-    </message>
-    <message>
-        <source>Show or hide the main toolbar</source>
-        <translation>Afficher ou masquer la barre d&apos;outils principale</translation>
-    </message>
-    <message>
-        <source>&amp;Filter Toolbar</source>
-        <translation>&amp;Barre d&apos;outils Filtre</translation>
-    </message>
-    <message>
-        <source>Show or hide the display filter toolbar</source>
-        <translation>Afficher/Masquer la barre d&apos;outils filtre d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>Conversations at different protocol levels</source>
-        <translation>Conversations à différents niveaux de protocole</translation>
-    </message>
-    <message>
-        <source>Endpoints at different protocol levels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Colorize Packet List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Draw packets using your coloring rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Zoom In</source>
-        <translation>Zoom Avant</translation>
-    </message>
-    <message>
-        <source>Enlarge the main window text</source>
-        <translation>Agrandir le texte de la fenêtre principale</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Zoom arrière</translation>
-    </message>
-    <message>
-        <source>Normal Size</source>
-        <translation>Taille Normale</translation>
-    </message>
-    <message>
-        <source>Resize Columns</source>
-        <translation>Redimensionner les Colonnes</translation>
-    </message>
-    <message>
-        <source>Resize packet list columns to fit contents</source>
-        <translation>Ajuster les colonnes de la liste des paquets au contenu</translation>
-    </message>
-    <message>
-        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Date et Heure du Jour (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the date and time of day.</source>
-        <translation>Voir les temps paquets comme la date et l&apos;heure du jour.</translation>
-    </message>
-    <message>
-        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Année, Jour de l&apos;Année, et Heure du Jour (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation>Afficher les temps paquets avec l&apos;année, le jour de l&apos;année et l&apos;heure du jour.</translation>
-    </message>
-    <message>
-        <source>Time of Day (01:02:03.123456)</source>
-        <translation>Heure du Jour (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Seconds Since 1970-01-01</source>
-        <translation>Secondes depuis 01-01-1970</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation>Afficher les temps paquets en secondes depuis UNIX / POSIX epoch (1970-01-01).</translation>
-    </message>
-    <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Secondes Depuis le Début de la Capture</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Captured Packet</source>
-        <translation>Secondes Depuis le Paquet Capturé Précédent</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation>Afficher les temps paquets en secondes depuis le précédent paquet capturé.</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Displayed Packet</source>
-        <translation>Secondes Depuis le Paquet Affiché Précédent</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation>Afficher les temps paquets en secondes depuis le précédent paquet affiché.</translation>
-    </message>
-    <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Date et Heure du jour UTC (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC date and time of day.</source>
-        <translation>Voir les paquets avec la date et l&apos;heure du jour UTC.</translation>
-    </message>
-    <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Année UTC, Jour de l&apos;Année, et Heure du Jour (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation>Afficher les temps paquets avec l&apos;Année UTC, jour de l&apos;année et heure du jour.</translation>
-    </message>
-    <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>Heure du Jour UTC (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC time of day.</source>
-        <translation>Afficher les paquets avec l&apos;heure du jour UTC.</translation>
-    </message>
-    <message>
-        <source>Automatic (from capture file)</source>
-        <translation>Automatique (du fichier de capture)</translation>
-    </message>
-    <message>
-        <source>Use the time precision indicated in the capture file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Seconds</source>
-        <translation>Secondes</translation>
-    </message>
-    <message>
-        <source>Tenths of a second</source>
-        <translation>Dixièmes de secondes</translation>
-    </message>
-    <message>
-        <source>Hundredths of a second</source>
-        <translation>Centièmes de secondes</translation>
-    </message>
-    <message>
-        <source>Milliseconds</source>
-        <translation>Millisecondes</translation>
-    </message>
-    <message>
-        <source>Microseconds</source>
-        <translation>Microsecondes</translation>
-    </message>
-    <message>
-        <source>Nanoseconds</source>
-        <translation>Nanosecondes</translation>
-    </message>
-    <message>
-        <source>Display Seconds With Hours and Minutes</source>
-        <translation>Afficher les Secondes Avec les Heures et Minutes </translation>
-    </message>
-    <message>
-        <source>Display seconds with hours and minutes</source>
-        <translation>Afficher les secondes avec les heures et minutes</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Physical Addresses</source>
-        <translation>Résoudre &amp;Adresse Physique</translation>
-    </message>
-    <message>
-        <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Network Addresses</source>
-        <translation>Résoudre &amp;Adresse Réseau</translation>
-    </message>
-    <message>
-        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Transport Addresses</source>
-        <translation>Résoudre &amp;Adresse Transport</translation>
-    </message>
-    <message>
-        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wire&amp;less Toolbar</source>
-        <translation>Barre d&apos;Outils Wireless</translation>
-    </message>
-    <message>
-        <source>Show or hide the wireless toolbar</source>
-        <translation>Afficher/Masquer la barre d&apos;outils Wireless</translation>
-    </message>
-    <message>
-        <source>&amp;Status Bar</source>
-        <translation>&amp;Barre de Statut</translation>
-    </message>
-    <message>
-        <source>Show or hide the status bar</source>
-        <translation>Afficher ou masquer la barre de statut</translation>
-    </message>
-    <message>
-        <source>Packet &amp;List</source>
-        <translation>Paquets &amp;List</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet list</source>
-        <translation>Afficher ou masquer la liste de paquet</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Details</source>
-        <translation>Paquet &amp;Détails</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet details</source>
-        <translation>Afficher ou masquer les détails des paquets</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Bytes</source>
-        <translation>Paquets &amp;Octets</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Dissector Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Supported Protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MAP Summary</source>
-        <translation>Résumé MAP</translation>
-    </message>
-    <message>
-        <source>GSM MAP summary statistics</source>
-        <translation>Résumé des statistiques GSM MAP</translation>
-    </message>
-    <message>
-        <source>RLC &amp;Graph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Coloring Rules…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Linked Packet in New Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Coloring Rule…</source>
-        <oldsource>New Conversation Rule…</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RTP Player</source>
-        <translation type="unfinished">Player RTP</translation>
-    </message>
-    <message>
-        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IA&amp;X2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enabled Protocols…</source>
-        <oldsource>Enable Protocols…</oldsource>
-        <translation>Protocoles activés...</translation>
-    </message>
-    <message>
-        <source>Wiki Protocol Page</source>
-        <translation>Page Wiki </translation>
-    </message>
-    <message>
-        <source>Open the Wireshark wiki page for this protocol.</source>
-        <translation>Ouvrir la page wiki Wireshark pour ce protocole.</translation>
-    </message>
-    <message>
-        <source>Filter Field Reference</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open the display filter reference page for this filter field.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to the packet referenced by the selected field.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;VoIP Calls</source>
-        <translation>&amp;Appels VoIP</translation>
-    </message>
-    <message>
-        <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name Resol&amp;ution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Service &amp;Response Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;RTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>S&amp;CTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ANSI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;GSM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;LTE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;MTP3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display &amp;Filters…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All VoIP Calls</source>
-        <translation>Tous les Appels VoIP</translation>
-    </message>
-    <message>
-        <source>SIP &amp;Flows</source>
-        <translation>SIP &amp;Flux</translation>
-    </message>
-    <message>
-        <source>SIP Flows</source>
-        <translation>Flux SIP</translation>
-    </message>
-    <message>
-        <source>RTP Streams</source>
-        <translation>Flux RTP</translation>
-    </message>
-    <message>
-        <source>Edit the packet list coloring rules.</source>
-        <translation>Editer les règles de coloriage de la liste des paquets.</translation>
-    </message>
-    <message>
-        <source>Bluetooth ATT Server Attributes</source>
-        <oldsource>ATT Server Attributes</oldsource>
-        <translation>Attributs Server Bluetooth ATT</translation>
-    </message>
-    <message>
-        <source>Show Packet in New &amp;Window</source>
-        <translation>Affiche Paquet dans Nouvelle &amp;Fenêtre</translation>
-    </message>
-    <message>
-        <source>Show this packet in a separate window.</source>
-        <translation>Affiche ce paquet dans une fenêtre séparée.</translation>
-    </message>
-    <message>
-        <source>Show the linked packet in a separate window.</source>
-        <translation>Affiche le paquet lié dans une fenêtre séparée.</translation>
-    </message>
-    <message>
-        <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation>Défilement Auto en Capture &amp;Vivante</translation>
-    </message>
-    <message>
-        <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation>Défiler automatiquement jusqu&apos;au dernier paquet durant une capture en temps réel.</translation>
-    </message>
-    <message>
-        <source>Expert Information</source>
-        <translation>Information Expert</translation>
-    </message>
-    <message>
-        <source>Show expert notifications</source>
-        <translation>Afficher notifications expert</translation>
-    </message>
-    <message>
-        <source>Add an expression to the display filter.</source>
-        <translation>Ajoute une expression au filtre d&apos;affichage.</translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_UNSORTED</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No ANSI statistics registered</source>
-        <oldsource>No tools registered</oldsource>
-        <translation>Aucune statistique ANSI enregistrée</translation>
-    </message>
-    <message>
-        <source>Resolved Addresses</source>
-        <translation>Adresses résolues</translation>
-    </message>
-    <message>
-        <source>Show each table of resolved addresses as copyable text.</source>
-        <translation>Affiche chaque table d&apos;adresses résolues en texte copiable.</translation>
-    </message>
-    <message>
-        <source>Color &amp;1</source>
-        <translation>Couleur &amp;1</translation>
-    </message>
-    <message>
-        <source>Mark the current conversation with its own color.</source>
-        <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation>Marquer la conversation courante avec sa propre couleur.</translation>
-    </message>
-    <message>
-        <source>Color &amp;2</source>
-        <translation>Couleur &amp;2</translation>
-    </message>
-    <message>
-        <source>Color &amp;3</source>
-        <translation>Couleur &amp;3</translation>
-    </message>
-    <message>
-        <source>Color &amp;4</source>
-        <translation>Color &amp;5</translation>
-    </message>
-    <message>
-        <source>Color &amp;5</source>
-        <translation>Color &amp;6</translation>
-    </message>
-    <message>
-        <source>Color &amp;6</source>
-        <translation>Color &amp;</translation>
-    </message>
-    <message>
-        <source>Color &amp;7</source>
-        <translation>Color &amp;7</translation>
-    </message>
-    <message>
-        <source>Color &amp;8</source>
-        <translation>Color &amp;8</translation>
-    </message>
-    <message>
-        <source>Color &amp;9</source>
-        <translation>Couleur &amp;9</translation>
-    </message>
-    <message>
-        <source>Color 1&amp;0</source>
-        <translation>Couleur 1&amp;0</translation>
-    </message>
-    <message>
-        <source>Create a new coloring rule based on this field.</source>
-        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Colorization</source>
-        <translation>Rétablit Coloriage</translation>
-    </message>
-    <message>
-        <source>Reset colorized conversations.</source>
-        <translation>Rétablit conversations coloriées.</translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis</source>
-        <translation>Analyse flux RTP</translation>
-    </message>
-    <message>
-        <source>Edit Resolved Name</source>
-        <translation>Editer Nom Résolu</translation>
-    </message>
-    <message>
-        <source>Manually edit a name resolution entry.</source>
-        <translation>Edite manuellement une entrée de résolution de nom.</translation>
-    </message>
-    <message>
-        <source>Enable and disable specific protocols</source>
-        <translation>Active et désactive des protocoles spécifiques</translation>
-    </message>
-    <message>
-        <source> before quitting</source>
-        <translation>avant de quitter</translation>
-    </message>
-    <message>
-        <source>Save packets before merging?</source>
-        <translation>Sauvegarder les paquets avant la fusion?</translation>
-    </message>
-    <message>
-        <source>A temporary capture file can&apos;t be merged.</source>
-        <translation>une capture temporaire ne peut pas etre fusionner.</translation>
-    </message>
-    <message>
-        <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation>Sauvegarder les changements dans &quot;%1&quot; avant la fusion?</translation>
-    </message>
-    <message>
-        <source>Changes must be saved before the files can be merged.</source>
-        <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
-    </message>
-    <message>
-        <source>Invalid Display Filter</source>
-        <translation>Filtre d&apos;affichage invalide</translation>
-    </message>
-    <message>
-        <source>Invalid Read Filter</source>
-        <translation>Filtre de Lecture Invalide</translation>
-    </message>
-    <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>L&apos;expression de filtre %1 n&apos;est pas un filtre de lecture valide. (%2).</translation>
-    </message>
-    <message>
-        <source> before importing a capture</source>
-        <oldsource> before importing a new capture</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to export to &quot;%1&quot;.</source>
-        <translation>Impossible d&apos;exporter dans &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>You cannot export packets to the current capture file.</source>
-        <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made%1?</source>
-        <oldsource>Do you want to save the captured packets</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
-    </message>
-    <message>
-        <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
-    </message>
-    <message>
-        <source>Check for Updates…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to drop files during capture.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by merge dialog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished">Veuillez signaler cela comme un problème Wireshark à l&apos;adresse https://gitlab.com/wireshark/wireshark/-/issues.</translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by export dialog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save before Continue</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop and Save</source>
-        <translation>Arrêter et Sauvegarder</translation>
-    </message>
-    <message>
-        <source>Stop and Quit &amp;without Saving</source>
-        <oldsource>Stop and Quit without Saving</oldsource>
-        <translation>Arrêter et Quitter sans Sauvegarder</translation>
-    </message>
-    <message>
-        <source>Quit &amp;without Saving</source>
-        <oldsource>Quit without Saving</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSRC value not found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show or hide the toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Continue &amp;without Saving</source>
-        <oldsource>Continue without Saving</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop and Continue &amp;without Saving</source>
-        <oldsource>Stop and Continue without Saving</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The Wireshark Network Analyzer</source>
-        <translation>L&apos;analyseur de réseau Wireshark</translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation>Capture en cours de %1</translation>
-    </message>
-    <message>
-        <source> before opening another file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Merging files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1: %2</source>
-        <translation>%1 : %2</translation>
-    </message>
-    <message>
-        <source>Clear Menu</source>
-        <translation>Effacer les fichiers récemment ouverts</translation>
-    </message>
-    <message>
-        <source> before closing the file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export Selected Packet Bytes</source>
-        <translation>Exporter Octets de Paquets Sélectionnés</translation>
-    </message>
-    <message>
-        <source>No Keys</source>
-        <translation>Aucune clés</translation>
-    </message>
-    <message>
-        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation>Impossible de copier le texte. Essayer un autre item.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all packet comments?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to build conversation filter.</source>
-        <translation>Impossible de construire un filtre de conversation.</translation>
-    </message>
-    <message>
-        <source> before reloading the file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error compiling filter for this conversation.</source>
-        <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
-    </message>
-    <message>
-        <source>No previous/next packet in conversation.</source>
-        <translation>Aucun paquet précédent/suivant dans la conversation</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(empty comment)</source>
-        <comment>placeholder for empty comment</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add New Comment…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit &quot;%1&quot;</source>
-        <comment>edit packet comment</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete &quot;%1&quot;</source>
-        <comment>delete packet comment</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete packet comments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <source> before starting a new capture</source>
-        <translation>avant de commencer une nouvelle capture</translation>
-    </message>
-    <message>
-        <source> before reloading Lua plugins</source>
-        <translation> avant de recharger les plugins Lua</translation>
-    </message>
-    <message>
-        <source>Please wait while Wireshark is initializing…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There are no TLS Session Keys to save.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RTP packet search failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Interface Selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> before restarting the capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wiki Page for %1</source>
-        <translation>Page Wiki pour %1</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
-&lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
-&lt;p&gt;Poursuivre vers le wiki?&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Loading</source>
-        <translation>Chargement</translation>
-    </message>
-    <message>
-        <source>Reloading</source>
-        <translation>Rechargement</translation>
-    </message>
-    <message>
-        <source>Rescanning</source>
-        <translation>Rebalayage</translation>
-    </message>
-</context>
-<context>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -9718,6 +7585,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>End Bits/s</source>
         <translation>Octets/s de Fin</translation>
+    </message>
+    <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -14258,6 +12129,10 @@ a:hover {
         <translation>Afficher dans le Dossier</translation>
     </message>
     <message>
+        <source>Welcome to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All interfaces shown</source>
         <translation>Toutes les interfaces affichées</translation>
     </message>
@@ -14384,6 +12259,2143 @@ a:hover {
     <message>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>Échec d&apos;attache au tap &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>WiresharkMainWindow</name>
+    <message>
+        <source>Wireshark</source>
+        <translation>Wireshark</translation>
+    </message>
+    <message>
+        <source>Go to packet</source>
+        <translation>Aller au paquet</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>File Set</source>
+        <translation>Fichier</translation>
+    </message>
+    <message>
+        <source>Export Packet Dissections</source>
+        <translation>Exporter analyse des paquets</translation>
+    </message>
+    <message>
+        <source>Export Objects</source>
+        <translation>Exporter Objets</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom</source>
+        <translation>&amp;Zoom</translation>
+    </message>
+    <message>
+        <source>&amp;Time Display Format</source>
+        <translation>&amp;Format d&apos;Affichage de l&apos;Heure</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Copier</translation>
+    </message>
+    <message>
+        <source>Manual pages</source>
+        <translation>Page du manuel</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation>Appliquer comme un Filtre</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP</source>
+        <translation>SCTP</translation>
+    </message>
+    <message>
+        <source>TCP Stream Graphs</source>
+        <translation>Graphique des flux TCP</translation>
+    </message>
+    <message>
+        <source>BACnet</source>
+        <translation>BACnet</translation>
+    </message>
+    <message>
+        <source>HTTP</source>
+        <translation>HTTP</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Fichier</translation>
+    </message>
+    <message>
+        <source>&amp;Capture</source>
+        <translation>&amp;Capture</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Aide</translation>
+    </message>
+    <message>
+        <source>&amp;Go</source>
+        <translation>&amp;Aller</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Vue</translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation>&amp;Analyser</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation>Suivre</translation>
+    </message>
+    <message>
+        <source>&amp;Statistics</source>
+        <translation>&amp;Statistiques</translation>
+    </message>
+    <message>
+        <source>29West</source>
+        <translation>29West</translation>
+    </message>
+    <message>
+        <source>Topics</source>
+        <translation>Sujets</translation>
+    </message>
+    <message>
+        <source>Queues</source>
+        <translation>Queues</translation>
+    </message>
+    <message>
+        <source>UIM</source>
+        <translation>UIM</translation>
+    </message>
+    <message>
+        <source>Telephon&amp;y</source>
+        <translation>Telephon&amp;ie</translation>
+    </message>
+    <message>
+        <source>RTSP</source>
+        <translation>RTSP</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Editer</translation>
+    </message>
+    <message>
+        <source>Packet Comments</source>
+        <translation type="unfinished">Commentaires du Paquet</translation>
+    </message>
+    <message>
+        <source>Main Toolbar</source>
+        <translation>Barre d&apos;outils principale</translation>
+    </message>
+    <message>
+        <source>Display Filter Toolbar</source>
+        <translation>Barre de filtrage d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Open a capture file</source>
+        <translation>Ouvrir un fichier de capture</translation>
+    </message>
+    <message>
+        <source>Quit Wireshark</source>
+        <translation>Quitter Wireshark</translation>
+    </message>
+    <message>
+        <source>&amp;Start</source>
+        <translation>&amp;Démarrer</translation>
+    </message>
+    <message>
+        <source>Start capturing packets</source>
+        <translation>Démarrer la capture de paquet</translation>
+    </message>
+    <message>
+        <source>S&amp;top</source>
+        <translation>Arrê&amp;ter</translation>
+    </message>
+    <message>
+        <source>Stop capturing packets</source>
+        <translation>Arrêter la capturer de paquet</translation>
+    </message>
+    <message>
+        <source>No files found</source>
+        <translation>Pas de fichier trouvé</translation>
+    </message>
+    <message>
+        <source>&amp;Contents</source>
+        <translation>&amp;Aide</translation>
+    </message>
+    <message>
+        <source>Wireshark Filter</source>
+        <translation>Filtre Wireshark</translation>
+    </message>
+    <message>
+        <source>TShark</source>
+        <translation>TShark</translation>
+    </message>
+    <message>
+        <source>Rawshark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dumpcap</source>
+        <translation>Dumpcap</translation>
+    </message>
+    <message>
+        <source>Mergecap</source>
+        <translation>Mergecap</translation>
+    </message>
+    <message>
+        <source>Editcap</source>
+        <translation>Editcap</translation>
+    </message>
+    <message>
+        <source>Text2pcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>Site Web</translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation>Téléchargements</translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation>Wiki</translation>
+    </message>
+    <message>
+        <source>Sample Captures</source>
+        <translation>Captures d&apos;Exemple</translation>
+    </message>
+    <message>
+        <source>&amp;About Wireshark</source>
+        <translation>&amp;A Propos de Wireshark</translation>
+    </message>
+    <message>
+        <source>Ask (Q&amp;&amp;A)</source>
+        <translation>Questions (Q&amp;&amp;A)</translation>
+    </message>
+    <message>
+        <source>Next Packet</source>
+        <translation>Paquet suivant</translation>
+    </message>
+    <message>
+        <source>Go to the next packet</source>
+        <translation>ALler au paquet suviant</translation>
+    </message>
+    <message>
+        <source>Previous Packet</source>
+        <translation>Paquet précédent</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet</source>
+        <translation>Aller au paquet précédent</translation>
+    </message>
+    <message>
+        <source>First Packet</source>
+        <translation>Premier paquet</translation>
+    </message>
+    <message>
+        <source>Go to the first packet</source>
+        <translation>Aller au premier paquet</translation>
+    </message>
+    <message>
+        <source>Last Packet</source>
+        <translation>Dernier paquet</translation>
+    </message>
+    <message>
+        <source>Go to the last packet</source>
+        <translation>Aller au dernier paquet</translation>
+    </message>
+    <message>
+        <source>E&amp;xpand Subtrees</source>
+        <translation>E&amp;tendre les sous menus</translation>
+    </message>
+    <message>
+        <source>Expand the current packet detail</source>
+        <translation>Etendre les détails du paquet en cours</translation>
+    </message>
+    <message>
+        <source>&amp;Expand All</source>
+        <translation>&amp;Etendre tout</translation>
+    </message>
+    <message>
+        <source>Expand packet details</source>
+        <translation>Etendre les détails du paquet</translation>
+    </message>
+    <message>
+        <source>Collapse &amp;All</source>
+        <translation>Reduire &amp;Tout</translation>
+    </message>
+    <message>
+        <source>Collapse all packet details</source>
+        <translation>Reduire les détails de tous les paquets</translation>
+    </message>
+    <message>
+        <source>Go to specified packet</source>
+        <translation>Aller au paquet</translation>
+    </message>
+    <message>
+        <source>Merge one or more files</source>
+        <translation>Fusionner un ou plusieurs fichiers</translation>
+    </message>
+    <message>
+        <source>Import a file</source>
+        <translation>Importer un fichier</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Sauvegarder</translation>
+    </message>
+    <message>
+        <source>Save as a different file</source>
+        <translation>Sauvegarder dans un fichier différent</translation>
+    </message>
+    <message>
+        <source>Export specified packets</source>
+        <translation>Exporter les paquets specifiés</translation>
+    </message>
+    <message>
+        <source>Export TLS Session Keys…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List Files</source>
+        <translation>Liste des fichiers</translation>
+    </message>
+    <message>
+        <source>Next File</source>
+        <translation>Fichier suivant</translation>
+    </message>
+    <message>
+        <source>Previous File</source>
+        <translation>Ficher précedent</translation>
+    </message>
+    <message>
+        <source>&amp;Reload</source>
+        <translation>&amp;Recharger</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Options</translation>
+    </message>
+    <message>
+        <source>Capture options</source>
+        <translation>Options de capture</translation>
+    </message>
+    <message>
+        <source>Capture filters</source>
+        <translation>Filtres de Capture</translation>
+    </message>
+    <message>
+        <source>Refresh Interfaces</source>
+        <translation>Actualiser les interfaces</translation>
+    </message>
+    <message>
+        <source>Refresh interfaces</source>
+        <translation>Actualiser les interfaces</translation>
+    </message>
+    <message>
+        <source>&amp;Restart</source>
+        <translation>&amp;Redémarrer</translation>
+    </message>
+    <message>
+        <source>Restart current capture</source>
+        <translation>Redémarrer la capture en cours</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Description</translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation>Nom du champs</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Valeur</translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation>Comme un Filtre</translation>
+    </message>
+    <message>
+        <source>Close this capture file</source>
+        <translation>Fermer ce fichier de capture</translation>
+    </message>
+    <message>
+        <source>Packet:</source>
+        <translation>Paquets :</translation>
+    </message>
+    <message>
+        <source>Interface Toolbars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colorize Conversation</source>
+        <translation>Colorier la Conversation</translation>
+    </message>
+    <message>
+        <source>Internals</source>
+        <translation>Internes</translation>
+    </message>
+    <message>
+        <source>Additional Toolbars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Conversation Filter</source>
+        <translation>Filtre de Conversation</translation>
+    </message>
+    <message>
+        <source>Reliable Server Pooling (RSerPool)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osmux</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Tools</source>
+        <oldsource>Tools</oldsource>
+        <translation>&amp;Outils</translation>
+    </message>
+    <message>
+        <source>Wireless Toolbar</source>
+        <translation>Barre d&apos;outils Wireless</translation>
+    </message>
+    <message>
+        <source>Help contents</source>
+        <translation>Contenu de l&apos;aide</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next Packet in Conversation</source>
+        <translation>Paquet Suivant dans la Conversation</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in this conversation</source>
+        <translation>Aller au paquet suivant de cette conversation</translation>
+    </message>
+    <message>
+        <source>Previous Packet in Conversation</source>
+        <translation>Paquet Précédent dans la Conversation</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in this conversation</source>
+        <translation>Aller au paquet précédent de cette conversation</translation>
+    </message>
+    <message>
+        <source>Next Packet In History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the next packet in your selection history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous Packet In History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in your selection history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to Packet…</source>
+        <translation>Aller au Paquet...</translation>
+    </message>
+    <message>
+        <source>&amp;Merge…</source>
+        <translation>&amp;Fusionner...</translation>
+    </message>
+    <message>
+        <source>&amp;Import from Hex Dump…</source>
+        <translation>&amp;Importer depuis Dump Hex...</translation>
+    </message>
+    <message>
+        <source>Save this capture file</source>
+        <translation>Sauvegarder ce fichier de capture</translation>
+    </message>
+    <message>
+        <source>Save &amp;As…</source>
+        <translation>Sauvegarder &amp;Sous</translation>
+    </message>
+    <message>
+        <source>Export Specified Packets…</source>
+        <translation>Exporter Paquets Spécifiques...</translation>
+    </message>
+    <message>
+        <source>Export Packet &amp;Bytes…</source>
+        <translation>Exporter Paquets &amp;Octets...</translation>
+    </message>
+    <message>
+        <source>&amp;Print…</source>
+        <translation>&amp;Imprimer...</translation>
+    </message>
+    <message>
+        <source>Reload this file</source>
+        <translation>Recharger ce fichier</translation>
+    </message>
+    <message>
+        <source>Reload as File Format/Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s description</source>
+        <translation>Copier la description de cet élément</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s field name</source>
+        <translation>Copier le nom de cet élément</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s value</source>
+        <translation>Copier la valeur de cet élément</translation>
+    </message>
+    <message>
+        <source>Copy this item as a display filter</source>
+        <translation>Copier cet élément comme un filtre d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Apply as Column</source>
+        <translation>Appliquer en Colonne</translation>
+    </message>
+    <message>
+        <source>Create a packet list column from the selected field.</source>
+        <translation>Crée une colonne de liste de paquets d&apos;après le champ sélectionné.</translation>
+    </message>
+    <message>
+        <source>Find a packet</source>
+        <translation>Trouver un paquet</translation>
+    </message>
+    <message>
+        <source>Find the next packet</source>
+        <translation>Trouver le paquet suivant</translation>
+    </message>
+    <message>
+        <source>Find the previous packet</source>
+        <translation>Trouver le paquet précédent</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark All Displayed</source>
+        <translation>Marquer tout comme Affichées</translation>
+    </message>
+    <message>
+        <source>Mark all displayed packets</source>
+        <translation>Marquer tous les paquets affichés</translation>
+    </message>
+    <message>
+        <source>Unmark all displayed packets</source>
+        <translation>Démarquer tous paquets affichés</translation>
+    </message>
+    <message>
+        <source>Next Mark</source>
+        <translation>Marque suivante</translation>
+    </message>
+    <message>
+        <source>Go to the next marked packet</source>
+        <translation>Aller au prochain paquet marqués</translation>
+    </message>
+    <message>
+        <source>Previous Mark</source>
+        <translation>Marque Précédente</translation>
+    </message>
+    <message>
+        <source>Go to the previous marked packet</source>
+        <translation>Aller au paquet précédent marqué</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore All Displayed</source>
+        <translation>Ignorer tous les affichés</translation>
+    </message>
+    <message>
+        <source>Ignore all displayed packets</source>
+        <translation>Ignorer tous les paquets affichés</translation>
+    </message>
+    <message>
+        <source>Set/Unset Time Reference</source>
+        <translation>Fixer/Defixer le Temps de Réference</translation>
+    </message>
+    <message>
+        <source>Set or unset a time reference for this packet</source>
+        <translation>Fixer ou défixer le temps de réference de ce paquet</translation>
+    </message>
+    <message>
+        <source>Unset All Time References</source>
+        <translation>Défixer tous les Temps de Réferences</translation>
+    </message>
+    <message>
+        <source>Remove all time references</source>
+        <translation>Supprimer tous les temps de réferences</translation>
+    </message>
+    <message>
+        <source>Next Time Reference</source>
+        <translation>Prochain Temps de Réference</translation>
+    </message>
+    <message>
+        <source>Go to the next time reference</source>
+        <translation>Aller au prochain temps de réference</translation>
+    </message>
+    <message>
+        <source>Previous Time Reference</source>
+        <translation>Précédent Temps de réference</translation>
+    </message>
+    <message>
+        <source>Go to the previous time reference</source>
+        <translation>Aller au précédent temps de réference</translation>
+    </message>
+    <message>
+        <source>Shift or change packet timestamps</source>
+        <translation>Décalager ou changer le temps des paquets</translation>
+    </message>
+    <message>
+        <source>Delete All Packet Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configuration profiles</source>
+        <translation>Profils de configuration</translation>
+    </message>
+    <message>
+        <source>Manage your configuration profiles</source>
+        <translation>Gerer mes profils de configuration</translation>
+    </message>
+    <message>
+        <source>Manage Wireshark&apos;s preferences</source>
+        <translation>Gerer les préferences de Wireshark</translation>
+    </message>
+    <message>
+        <source>Capture File Properties</source>
+        <translation>Propriétés du fichier de capture</translation>
+    </message>
+    <message>
+        <source>Capture file properties</source>
+        <translation>Propriétés du fichier de capture</translation>
+    </message>
+    <message>
+        <source>&amp;Protocol Hierarchy</source>
+        <translation>&amp;Hiérarchie des Protocoles</translation>
+    </message>
+    <message>
+        <source>Show a summary of protocols present in the capture file.</source>
+        <translation>Montre un résumé des protocoles présents dans le fichier de capture</translation>
+    </message>
+    <message>
+        <source>Capinfos</source>
+        <translation>Capinfos</translation>
+    </message>
+    <message>
+        <source>Reordercap</source>
+        <translation>Réoragnisercap</translation>
+    </message>
+    <message>
+        <source>Time Sequence (Stevens)</source>
+        <translation>Séquence de temps (Stevens)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (Stevens)</source>
+        <translation>Diagramme de séquence de temps de TCP (Stevens)</translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation>Débit</translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation>Temps d&apos;Aller-Retour</translation>
+    </message>
+    <message>
+        <source>TCP round trip time</source>
+        <translation>Temps d&apos;aller-retour TCP</translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation>Mise à l&apos;échelle Fenêtre</translation>
+    </message>
+    <message>
+        <source>TCP window scaling</source>
+        <translation>Mise à l&apos;échelle de la fenêtre TCP</translation>
+    </message>
+    <message>
+        <source>DCCP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TLS Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QUIC Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SIP Call</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Sequence (tcptrace)</source>
+        <translation>Séquence de temps (tcptrace)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (tcptrace)</source>
+        <translation>Diagramme de séquence de temps de TCP (tcptrace)</translation>
+    </message>
+    <message>
+        <source>Analyse this Association</source>
+        <translation>Analyser cette association</translation>
+    </message>
+    <message>
+        <source>Show All Associations</source>
+        <translation>Afficher toutes les association</translation>
+    </message>
+    <message>
+        <source>Flow Graph</source>
+        <translation>Graphique des flux</translation>
+    </message>
+    <message>
+        <source>Flow sequence diagram</source>
+        <translation>Diagramme de séquence des flux</translation>
+    </message>
+    <message>
+        <source>ANCP</source>
+        <translation>ANCP</translation>
+    </message>
+    <message>
+        <source>ANCP statistics</source>
+        <translation>statistiques ANCP</translation>
+    </message>
+    <message>
+        <source>Packets sorted by Instance ID</source>
+        <translation>Paquets triés par Instance ID</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by instance ID</source>
+        <translation>Statistiques BACAPP triés par instance ID</translation>
+    </message>
+    <message>
+        <source>Packets sorted by IP</source>
+        <translation>Paquets triés par IP</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by IP</source>
+        <translation>Statistiques BACapp triés par IP </translation>
+    </message>
+    <message>
+        <source>Packets sorted by object type</source>
+        <translation>Paquets triés par object type</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by object type</source>
+        <translation>Statistiques BACap triés par objet type</translation>
+    </message>
+    <message>
+        <source>Packets sorted by service</source>
+        <translation>Paquets triés par service</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by service</source>
+        <translation>Statistiques BACapp triés par service</translation>
+    </message>
+    <message>
+        <source>Collectd</source>
+        <translation>Collectd</translation>
+    </message>
+    <message>
+        <source>Collectd statistics</source>
+        <translation>Statistiques Collectd</translation>
+    </message>
+    <message>
+        <source>DNS</source>
+        <translation>DNS</translation>
+    </message>
+    <message>
+        <source>DNS statistics</source>
+        <translation>Statistiques DNS</translation>
+    </message>
+    <message>
+        <source>HART-IP</source>
+        <translation>HART-IP</translation>
+    </message>
+    <message>
+        <source>HART-IP statistics</source>
+        <translation>Statistiques HART-IP</translation>
+    </message>
+    <message>
+        <source>HPFEEDS</source>
+        <translation>HPFEEDS</translation>
+    </message>
+    <message>
+        <source>hpfeeds statistics</source>
+        <translation>statistiques hpfeeds</translation>
+    </message>
+    <message>
+        <source>HTTP2</source>
+        <translation>HTTP2</translation>
+    </message>
+    <message>
+        <source>HTTP2 statistics</source>
+        <translation>Statistiques HTTP2</translation>
+    </message>
+    <message>
+        <source>Packet Counter</source>
+        <translation>Compteur de paquet</translation>
+    </message>
+    <message>
+        <source>HTTP packet counter</source>
+        <translation>Compteur de paquet HTTP</translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation>Requetes</translation>
+    </message>
+    <message>
+        <source>HTTP requests</source>
+        <translation>Requetes HTTP</translation>
+    </message>
+    <message>
+        <source>Load Distribution</source>
+        <translation>Répartiton de charge</translation>
+    </message>
+    <message>
+        <source>HTTP load distribution</source>
+        <translation>Répartition de charge HTTP</translation>
+    </message>
+    <message>
+        <source>Packet Lengths</source>
+        <translation>Longueur de Paquet</translation>
+    </message>
+    <message>
+        <source>Packet length statistics</source>
+        <translation>Statistiques de longueur de paquet</translation>
+    </message>
+    <message>
+        <source>Sametime</source>
+        <translation>Sametime</translation>
+    </message>
+    <message>
+        <source>Sametime statistics</source>
+        <translation>Statistiques Sametime</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ISUP Messages</source>
+        <translation>Messages &amp;ISUP</translation>
+    </message>
+    <message>
+        <source>ISUP message statistics</source>
+        <translation>Statistiques de message ISUP</translation>
+    </message>
+    <message>
+        <source>Osmux packet counts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTSP packet counts</source>
+        <translation>Compteur de paquet RTSP</translation>
+    </message>
+    <message>
+        <source>SM&amp;PP Operations</source>
+        <translation>Opérations SM&amp;PP</translation>
+    </message>
+    <message>
+        <source>SMPP operation statistics</source>
+        <translation>Statistiques des opérations SMPP</translation>
+    </message>
+    <message>
+        <source>&amp;UCP Messages</source>
+        <translation>Messages &amp;UCP</translation>
+    </message>
+    <message>
+        <source>UCP message statistics</source>
+        <translation>statistiques des messages UCP</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change the way packets are dissected</source>
+        <translation>Modifier la manière dont les paquets sont analysés</translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation>Recharger Plugins Lua</translation>
+    </message>
+    <message>
+        <source>Reload Lua plugins</source>
+        <translation>Recharger plugins Lua</translation>
+    </message>
+    <message>
+        <source>Advertisements by Topic</source>
+        <translation>Annonces par Sujet</translation>
+    </message>
+    <message>
+        <source>Advertisements by Source</source>
+        <translation>Annonces par Source</translation>
+    </message>
+    <message>
+        <source>Advertisements by Transport</source>
+        <translation>Annonces par Transport</translation>
+    </message>
+    <message>
+        <source>Queries by Topic</source>
+        <translation>Requêtes par élément</translation>
+    </message>
+    <message>
+        <source>Queries by Receiver</source>
+        <translation>Requêtes par Récepteur</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advertisements by Queue</source>
+        <translation>Annonces par Queue</translation>
+    </message>
+    <message>
+        <source>Queries by Queue</source>
+        <translation>Requêtes par Queue</translation>
+    </message>
+    <message>
+        <source>Streams</source>
+        <translation>Flux</translation>
+    </message>
+    <message>
+        <source>LBT-RM</source>
+        <translation>LBT-RM</translation>
+    </message>
+    <message>
+        <source>LBT-RU</source>
+        <translation>LBT-RU</translation>
+    </message>
+    <message>
+        <source>Filter this Association</source>
+        <translation>Filtrer cette association</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;I/O Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shrink the main window text</source>
+        <translation>Rétrécir le texte de la fenêtre principale</translation>
+    </message>
+    <message>
+        <source>Return the main window text to its normal size</source>
+        <translation>Ramener le texte de la fenêtre principale à sa taille normale</translation>
+    </message>
+    <message>
+        <source>Reset Layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset appearance layout to default size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show each conversation hash table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show each dissector table and its entries</source>
+        <translation>Montrer chaque table de dissecteur et ses entrées</translation>
+    </message>
+    <message>
+        <source>Show the currently supported protocols and display filter fields</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation>Statistiques MAC</translation>
+    </message>
+    <message>
+        <source>LTE MAC statistics</source>
+        <translation>Statistiques LTE MAC</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation>Statistiques RLC</translation>
+    </message>
+    <message>
+        <source>LTE RLC statistics</source>
+        <translation>Statistiques LTE RLC</translation>
+    </message>
+    <message>
+        <source>LTE RLC graph</source>
+        <translation>Graphique LTE RLC</translation>
+    </message>
+    <message>
+        <source>MTP3 Summary</source>
+        <translation>Résumé MTP3</translation>
+    </message>
+    <message>
+        <source>MTP3 summary statistics</source>
+        <translation>Résumé des statistiques MTP3</translation>
+    </message>
+    <message>
+        <source>Bluetooth Devices</source>
+        <translation>Équipements Bluetooth</translation>
+    </message>
+    <message>
+        <source>Bluetooth HCI Summary</source>
+        <translation>Résumé Bluetooth HCI </translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No GSM statistics registered</source>
+        <translation>Aucune statistique GSM enregistrée</translation>
+    </message>
+    <message>
+        <source>No LTE statistics registered</source>
+        <translation>Aucune statistique LTE enregistrée</translation>
+    </message>
+    <message>
+        <source>No MTP3 statistics registered</source>
+        <translation>Aucune statistique MTP3 enregistrée</translation>
+    </message>
+    <message>
+        <source>IAX2 Stream Analysis</source>
+        <translation>Analyse Flux IAX2</translation>
+    </message>
+    <message>
+        <source>Show Packet Bytes…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UDP Multicast Streams</source>
+        <translation>Flux Multicast UDP</translation>
+    </message>
+    <message>
+        <source>Show UTP multicast stream statistics.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>WLAN Traffic</source>
+        <translation>Trafic WLAN</translation>
+    </message>
+    <message>
+        <source>Show IEEE 802.11 wireless LAN statistics.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add a display filter button.</source>
+        <translation>Ajouter un bouton filtre d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Firewall ACL Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create firewall ACL rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Full Screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Credentials</source>
+        <translation type="unfinished">Identifiants</translation>
+    </message>
+    <message>
+        <source>&amp;Options…</source>
+        <translation>&amp;Options...</translation>
+    </message>
+    <message>
+        <source>&amp;Wireless</source>
+        <translation>&amp;Wireless</translation>
+    </message>
+    <message>
+        <source>Capture &amp;Filters…</source>
+        <translation>&amp;Filtres de Capture...</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation>Tous les Éléments Visibles</translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Macros…</source>
+        <translation>Afficher les Filtres &amp;Macros...</translation>
+    </message>
+    <message>
+        <source>&amp;Find Packet…</source>
+        <translation>&amp;Trouver un Paquet...</translation>
+    </message>
+    <message>
+        <source>Find Ne&amp;xt</source>
+        <translation>Trouver Suiva&amp;nt</translation>
+    </message>
+    <message>
+        <source>Find Pre&amp;vious</source>
+        <translation>Trouver Pré&amp;cédent</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Shift…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Preferences…</source>
+        <translation>&amp;Préférences...</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Stream</source>
+        <translation>Flux TCP</translation>
+    </message>
+    <message>
+        <source>UDP Stream</source>
+        <translation>Flux UDP</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decode &amp;As…</source>
+        <translation>Décoder &amp;Comme...</translation>
+    </message>
+    <message>
+        <source>Export PDUs to File…</source>
+        <translation>Exporter PDU vers un Fichier...</translation>
+    </message>
+    <message>
+        <source>Create graphs based on display filter fields</source>
+        <translation>Créer des graphiques basés sur des filtres d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>&amp;Main Toolbar</source>
+        <translation>&amp;Barre d&apos;Outils Principale</translation>
+    </message>
+    <message>
+        <source>Show or hide the main toolbar</source>
+        <translation>Afficher ou masquer la barre d&apos;outils principale</translation>
+    </message>
+    <message>
+        <source>&amp;Filter Toolbar</source>
+        <translation>&amp;Barre d&apos;outils Filtre</translation>
+    </message>
+    <message>
+        <source>Show or hide the display filter toolbar</source>
+        <translation>Afficher/Masquer la barre d&apos;outils filtre d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Conversations at different protocol levels</source>
+        <translation>Conversations à différents niveaux de protocole</translation>
+    </message>
+    <message>
+        <source>Endpoints at different protocol levels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colorize Packet List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw packets using your coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Zoom In</source>
+        <translation>Zoom Avant</translation>
+    </message>
+    <message>
+        <source>Enlarge the main window text</source>
+        <translation>Agrandir le texte de la fenêtre principale</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Zoom arrière</translation>
+    </message>
+    <message>
+        <source>Normal Size</source>
+        <translation>Taille Normale</translation>
+    </message>
+    <message>
+        <source>Resize Columns</source>
+        <translation>Redimensionner les Colonnes</translation>
+    </message>
+    <message>
+        <source>Resize packet list columns to fit contents</source>
+        <translation>Ajuster les colonnes de la liste des paquets au contenu</translation>
+    </message>
+    <message>
+        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>Date et Heure du Jour (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the date and time of day.</source>
+        <translation>Voir les temps paquets comme la date et l&apos;heure du jour.</translation>
+    </message>
+    <message>
+        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>Année, Jour de l&apos;Année, et Heure du Jour (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the year, day of the year and time of day.</source>
+        <translation>Afficher les temps paquets avec l&apos;année, le jour de l&apos;année et l&apos;heure du jour.</translation>
+    </message>
+    <message>
+        <source>Time of Day (01:02:03.123456)</source>
+        <translation>Heure du Jour (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Seconds Since 1970-01-01</source>
+        <translation>Secondes depuis 01-01-1970</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
+        <translation>Afficher les temps paquets en secondes depuis UNIX / POSIX epoch (1970-01-01).</translation>
+    </message>
+    <message>
+        <source>Seconds Since Beginning of Capture</source>
+        <translation>Secondes Depuis le Début de la Capture</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Captured Packet</source>
+        <translation>Secondes Depuis le Paquet Capturé Précédent</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous captured packet.</source>
+        <translation>Afficher les temps paquets en secondes depuis le précédent paquet capturé.</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Displayed Packet</source>
+        <translation>Secondes Depuis le Paquet Affiché Précédent</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous displayed packet.</source>
+        <translation>Afficher les temps paquets en secondes depuis le précédent paquet affiché.</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>Date et Heure du jour UTC (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC date and time of day.</source>
+        <translation>Voir les paquets avec la date et l&apos;heure du jour UTC.</translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>Année UTC, Jour de l&apos;Année, et Heure du Jour (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC year, day of the year and time of day.</source>
+        <translation>Afficher les temps paquets avec l&apos;Année UTC, jour de l&apos;année et heure du jour.</translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456)</source>
+        <translation>Heure du Jour UTC (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC time of day.</source>
+        <translation>Afficher les paquets avec l&apos;heure du jour UTC.</translation>
+    </message>
+    <message>
+        <source>Automatic (from capture file)</source>
+        <translation>Automatique (du fichier de capture)</translation>
+    </message>
+    <message>
+        <source>Use the time precision indicated in the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Seconds</source>
+        <translation>Secondes</translation>
+    </message>
+    <message>
+        <source>Tenths of a second</source>
+        <translation>Dixièmes de secondes</translation>
+    </message>
+    <message>
+        <source>Hundredths of a second</source>
+        <translation>Centièmes de secondes</translation>
+    </message>
+    <message>
+        <source>Milliseconds</source>
+        <translation>Millisecondes</translation>
+    </message>
+    <message>
+        <source>Microseconds</source>
+        <translation>Microsecondes</translation>
+    </message>
+    <message>
+        <source>Nanoseconds</source>
+        <translation>Nanosecondes</translation>
+    </message>
+    <message>
+        <source>Display Seconds With Hours and Minutes</source>
+        <translation>Afficher les Secondes Avec les Heures et Minutes </translation>
+    </message>
+    <message>
+        <source>Display seconds with hours and minutes</source>
+        <translation>Afficher les secondes avec les heures et minutes</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Physical Addresses</source>
+        <translation>Résoudre &amp;Adresse Physique</translation>
+    </message>
+    <message>
+        <source>Show names for known MAC addresses. Lookups use a local database.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Network Addresses</source>
+        <translation>Résoudre &amp;Adresse Réseau</translation>
+    </message>
+    <message>
+        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Transport Addresses</source>
+        <translation>Résoudre &amp;Adresse Transport</translation>
+    </message>
+    <message>
+        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wire&amp;less Toolbar</source>
+        <translation>Barre d&apos;Outils Wireless</translation>
+    </message>
+    <message>
+        <source>Show or hide the wireless toolbar</source>
+        <translation>Afficher/Masquer la barre d&apos;outils Wireless</translation>
+    </message>
+    <message>
+        <source>&amp;Status Bar</source>
+        <translation>&amp;Barre de Statut</translation>
+    </message>
+    <message>
+        <source>Show or hide the status bar</source>
+        <translation>Afficher ou masquer la barre de statut</translation>
+    </message>
+    <message>
+        <source>Packet &amp;List</source>
+        <translation>Paquets &amp;List</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet list</source>
+        <translation>Afficher ou masquer la liste de paquet</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Details</source>
+        <translation>Paquet &amp;Détails</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet details</source>
+        <translation>Afficher ou masquer les détails des paquets</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Bytes</source>
+        <translation>Paquets &amp;Octets</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MAP Summary</source>
+        <translation>Résumé MAP</translation>
+    </message>
+    <message>
+        <source>GSM MAP summary statistics</source>
+        <translation>Résumé des statistiques GSM MAP</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Coloring Rules…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Linked Packet in New Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Coloring Rule…</source>
+        <oldsource>New Conversation Rule…</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation type="unfinished">Player RTP</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled Protocols…</source>
+        <oldsource>Enable Protocols…</oldsource>
+        <translation>Protocoles activés...</translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation>Page Wiki </translation>
+    </message>
+    <message>
+        <source>Open the Wireshark wiki page for this protocol.</source>
+        <translation>Ouvrir la page wiki Wireshark pour ce protocole.</translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the display filter reference page for this filter field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the packet referenced by the selected field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;VoIP Calls</source>
+        <translation>&amp;Appels VoIP</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All VoIP Calls</source>
+        <translation>Tous les Appels VoIP</translation>
+    </message>
+    <message>
+        <source>SIP &amp;Flows</source>
+        <translation>SIP &amp;Flux</translation>
+    </message>
+    <message>
+        <source>SIP Flows</source>
+        <translation>Flux SIP</translation>
+    </message>
+    <message>
+        <source>RTP Streams</source>
+        <translation>Flux RTP</translation>
+    </message>
+    <message>
+        <source>Edit the packet list coloring rules.</source>
+        <translation>Editer les règles de coloriage de la liste des paquets.</translation>
+    </message>
+    <message>
+        <source>Bluetooth ATT Server Attributes</source>
+        <oldsource>ATT Server Attributes</oldsource>
+        <translation>Attributs Server Bluetooth ATT</translation>
+    </message>
+    <message>
+        <source>Show Packet in New &amp;Window</source>
+        <translation>Affiche Paquet dans Nouvelle &amp;Fenêtre</translation>
+    </message>
+    <message>
+        <source>Show this packet in a separate window.</source>
+        <translation>Affiche ce paquet dans une fenêtre séparée.</translation>
+    </message>
+    <message>
+        <source>Show the linked packet in a separate window.</source>
+        <translation>Affiche le paquet lié dans une fenêtre séparée.</translation>
+    </message>
+    <message>
+        <source>Auto Scroll in Li&amp;ve Capture</source>
+        <translation>Défilement Auto en Capture &amp;Vivante</translation>
+    </message>
+    <message>
+        <source>Automatically scroll to the last packet during a live capture.</source>
+        <translation>Défiler automatiquement jusqu&apos;au dernier paquet durant une capture en temps réel.</translation>
+    </message>
+    <message>
+        <source>Expert Information</source>
+        <translation>Information Expert</translation>
+    </message>
+    <message>
+        <source>Show expert notifications</source>
+        <translation>Afficher notifications expert</translation>
+    </message>
+    <message>
+        <source>Add an expression to the display filter.</source>
+        <translation>Ajoute une expression au filtre d&apos;affichage.</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_UNSORTED</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No ANSI statistics registered</source>
+        <oldsource>No tools registered</oldsource>
+        <translation>Aucune statistique ANSI enregistrée</translation>
+    </message>
+    <message>
+        <source>Resolved Addresses</source>
+        <translation>Adresses résolues</translation>
+    </message>
+    <message>
+        <source>Show each table of resolved addresses as copyable text.</source>
+        <translation>Affiche chaque table d&apos;adresses résolues en texte copiable.</translation>
+    </message>
+    <message>
+        <source>Color &amp;1</source>
+        <translation>Couleur &amp;1</translation>
+    </message>
+    <message>
+        <source>Mark the current conversation with its own color.</source>
+        <oldsource>Mark the current coversation with its own color.</oldsource>
+        <translation>Marquer la conversation courante avec sa propre couleur.</translation>
+    </message>
+    <message>
+        <source>Color &amp;2</source>
+        <translation>Couleur &amp;2</translation>
+    </message>
+    <message>
+        <source>Color &amp;3</source>
+        <translation>Couleur &amp;3</translation>
+    </message>
+    <message>
+        <source>Color &amp;4</source>
+        <translation>Color &amp;5</translation>
+    </message>
+    <message>
+        <source>Color &amp;5</source>
+        <translation>Color &amp;6</translation>
+    </message>
+    <message>
+        <source>Color &amp;6</source>
+        <translation>Color &amp;</translation>
+    </message>
+    <message>
+        <source>Color &amp;7</source>
+        <translation>Color &amp;7</translation>
+    </message>
+    <message>
+        <source>Color &amp;8</source>
+        <translation>Color &amp;8</translation>
+    </message>
+    <message>
+        <source>Color &amp;9</source>
+        <translation>Couleur &amp;9</translation>
+    </message>
+    <message>
+        <source>Color 1&amp;0</source>
+        <translation>Couleur 1&amp;0</translation>
+    </message>
+    <message>
+        <source>Create a new coloring rule based on this field.</source>
+        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Colorization</source>
+        <translation>Rétablit Coloriage</translation>
+    </message>
+    <message>
+        <source>Reset colorized conversations.</source>
+        <translation>Rétablit conversations coloriées.</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>Analyse flux RTP</translation>
+    </message>
+    <message>
+        <source>Edit Resolved Name</source>
+        <translation>Editer Nom Résolu</translation>
+    </message>
+    <message>
+        <source>Manually edit a name resolution entry.</source>
+        <translation>Edite manuellement une entrée de résolution de nom.</translation>
+    </message>
+    <message>
+        <source>Enable and disable specific protocols</source>
+        <translation>Active et désactive des protocoles spécifiques</translation>
+    </message>
+    <message>
+        <source> before quitting</source>
+        <translation>avant de quitter</translation>
+    </message>
+    <message>
+        <source>Save packets before merging?</source>
+        <translation>Sauvegarder les paquets avant la fusion?</translation>
+    </message>
+    <message>
+        <source>A temporary capture file can&apos;t be merged.</source>
+        <translation>une capture temporaire ne peut pas etre fusionner.</translation>
+    </message>
+    <message>
+        <source>Save changes in &quot;%1&quot; before merging?</source>
+        <translation>Sauvegarder les changements dans &quot;%1&quot; avant la fusion?</translation>
+    </message>
+    <message>
+        <source>Changes must be saved before the files can be merged.</source>
+        <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
+    </message>
+    <message>
+        <source>Invalid Display Filter</source>
+        <translation>Filtre d&apos;affichage invalide</translation>
+    </message>
+    <message>
+        <source>Invalid Read Filter</source>
+        <translation>Filtre de Lecture Invalide</translation>
+    </message>
+    <message>
+        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
+        <translation>L&apos;expression de filtre %1 n&apos;est pas un filtre de lecture valide. (%2).</translation>
+    </message>
+    <message>
+        <source> before importing a capture</source>
+        <oldsource> before importing a new capture</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export to &quot;%1&quot;.</source>
+        <translation>Impossible d&apos;exporter dans &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>You cannot export packets to the current capture file.</source>
+        <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made%1?</source>
+        <oldsource>Do you want to save the captured packets</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your captured packets will be lost if you don&apos;t save them.</source>
+        <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
+        <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
+    </message>
+    <message>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
+    </message>
+    <message>
+        <source>Check for Updates…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to drop files during capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by merge dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation type="unfinished">Veuillez signaler cela comme un problème Wireshark à l&apos;adresse https://gitlab.com/wireshark/wireshark/-/issues.</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by export dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to stop the capture and save the captured packets%1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to save the captured packets%1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save before Continue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop and Save</source>
+        <translation>Arrêter et Sauvegarder</translation>
+    </message>
+    <message>
+        <source>Stop and Quit &amp;without Saving</source>
+        <oldsource>Stop and Quit without Saving</oldsource>
+        <translation>Arrêter et Quitter sans Sauvegarder</translation>
+    </message>
+    <message>
+        <source>Quit &amp;without Saving</source>
+        <oldsource>Quit without Saving</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show or hide the toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Continue &amp;without Saving</source>
+        <oldsource>Continue without Saving</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop and Continue &amp;without Saving</source>
+        <oldsource>Stop and Continue without Saving</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation>L&apos;analyseur de réseau Wireshark</translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation>Capture en cours de %1</translation>
+    </message>
+    <message>
+        <source> before opening another file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merging files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1 : %2</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation>Effacer les fichiers récemment ouverts</translation>
+    </message>
+    <message>
+        <source> before closing the file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Selected Packet Bytes</source>
+        <translation>Exporter Octets de Paquets Sélectionnés</translation>
+    </message>
+    <message>
+        <source>No Keys</source>
+        <translation>Aucune clés</translation>
+    </message>
+    <message>
+        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t copy text. Try another item.</source>
+        <translation>Impossible de copier le texte. Essayer un autre item.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to build conversation filter.</source>
+        <translation>Impossible de construire un filtre de conversation.</translation>
+    </message>
+    <message>
+        <source> before reloading the file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error compiling filter for this conversation.</source>
+        <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
+    </message>
+    <message>
+        <source>No previous/next packet in conversation.</source>
+        <translation>Aucun paquet précédent/suivant dans la conversation</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving %1…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add New Comment…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit &quot;%1&quot;</source>
+        <comment>edit packet comment</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete &quot;%1&quot;</source>
+        <comment>delete packet comment</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete packet comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source> before starting a new capture</source>
+        <translation>avant de commencer une nouvelle capture</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation> avant de recharger les plugins Lua</translation>
+    </message>
+    <message>
+        <source>Please wait while Wireshark is initializing…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no TLS Session Keys to save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Export TLS Session Keys (%Ln key(s))</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> before restarting the capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation>Page Wiki pour %1</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
+&lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
+&lt;p&gt;Poursuivre vers le wiki?&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Loading</source>
+        <translation>Chargement</translation>
+    </message>
+    <message>
+        <source>Reloading</source>
+        <translation>Rechargement</translation>
+    </message>
+    <message>
+        <source>Rescanning</source>
+        <translation>Rebalayage</translation>
     </message>
 </context>
 <context>

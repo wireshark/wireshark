@@ -134,11 +134,12 @@ public:
 };
 
 RtpPlayerDialog *RtpPlayerDialog::pinstance_{nullptr};
-std::mutex RtpPlayerDialog::mutex_;
+std::mutex RtpPlayerDialog::init_mutex_;
+std::mutex RtpPlayerDialog::run_mutex_;
 
 RtpPlayerDialog *RtpPlayerDialog::openRtpPlayerDialog(QWidget &parent, CaptureFile &cf, QObject *packet_list, bool capture_running)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(init_mutex_);
     if (pinstance_ == nullptr)
     {
         pinstance_ = new RtpPlayerDialog(parent, cf, capture_running);
@@ -377,16 +378,18 @@ QToolButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
 #ifdef QT_MULTIMEDIA_LIB
 RtpPlayerDialog::~RtpPlayerDialog()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    cleanupMarkerStream();
-    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
-        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        if (audio_stream)
-            delete audio_stream;
+    std::lock_guard<std::mutex> lock(init_mutex_);
+    if (pinstance_ != nullptr) {
+        cleanupMarkerStream();
+        for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+            QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+            RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+            if (audio_stream)
+                delete audio_stream;
+        }
+        delete ui;
+        pinstance_ = nullptr;
     }
-    delete ui;
-    pinstance_ = nullptr;
 }
 
 void RtpPlayerDialog::accept()
@@ -773,75 +776,87 @@ void RtpPlayerDialog::unlockUI()
 
 void RtpPlayerDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    lockUI();
+    std::unique_lock<std::mutex> lock(run_mutex_, std::try_to_lock);
+    if (lock.owns_lock()) {
+        lockUI();
 
-    // Delete all existing rows
-    if (last_ti_) {
-        highlightItem(last_ti_, false);
-        last_ti_ = NULL;
-    }
+        // Delete all existing rows
+        if (last_ti_) {
+            highlightItem(last_ti_, false);
+            last_ti_ = NULL;
+        }
 
-    for (int row = ui->streamTreeWidget->topLevelItemCount() - 1; row >= 0; row--) {
-        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        removeRow(ti);
-    }
+        for (int row = ui->streamTreeWidget->topLevelItemCount() - 1; row >= 0; row--) {
+            QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+            removeRow(ti);
+        }
 
-    // Add all new streams
-    for (int i=0; i < stream_ids.size(); i++) {
-        addSingleRtpStream(stream_ids[i]);
-    }
-    setMarkers();
+        // Add all new streams
+        for (int i=0; i < stream_ids.size(); i++) {
+            addSingleRtpStream(stream_ids[i]);
+        }
+        setMarkers();
 
-    unlockUI();
+        unlockUI();
 #ifdef QT_MULTIMEDIA_LIB
-    QTimer::singleShot(0, this, SLOT(retapPackets()));
+        QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif
+    } else {
+        ws_warning("replaceRtpStreams was called while other thread locked it. Current call is ignored, try it later.");
+    }
 }
 
 void RtpPlayerDialog::addRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    lockUI();
+    std::unique_lock<std::mutex> lock(run_mutex_, std::try_to_lock);
+    if (lock.owns_lock()) {
+        lockUI();
 
-    int tli_count = ui->streamTreeWidget->topLevelItemCount();
+        int tli_count = ui->streamTreeWidget->topLevelItemCount();
 
-    // Add new streams
-    for (int i=0; i < stream_ids.size(); i++) {
-        addSingleRtpStream(stream_ids[i]);
-    }
+        // Add new streams
+        for (int i=0; i < stream_ids.size(); i++) {
+            addSingleRtpStream(stream_ids[i]);
+        }
 
-    if (tli_count == 0) {
-        setMarkers();
-    }
+        if (tli_count == 0) {
+            setMarkers();
+        }
 
-    unlockUI();
+        unlockUI();
 #ifdef QT_MULTIMEDIA_LIB
-    QTimer::singleShot(0, this, SLOT(retapPackets()));
+        QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif
+    } else {
+        ws_warning("addRtpStreams was called while other thread locked it. Current call is ignored, try it later.");
+    }
 }
 
 void RtpPlayerDialog::removeRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    lockUI();
-    int tli_count = ui->streamTreeWidget->topLevelItemCount();
+    std::unique_lock<std::mutex> lock(run_mutex_, std::try_to_lock);
+    if (lock.owns_lock()) {
+        lockUI();
+        int tli_count = ui->streamTreeWidget->topLevelItemCount();
 
-    for (int i=0; i < stream_ids.size(); i++) {
-        for (int row = 0; row < tli_count; row++) {
-            QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-            RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-            if (row_stream->isMatch(stream_ids[i])) {
-                removeRow(ti);
-                tli_count--;
-                break;
+        for (int i=0; i < stream_ids.size(); i++) {
+            for (int row = 0; row < tli_count; row++) {
+                QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+                RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+                if (row_stream->isMatch(stream_ids[i])) {
+                    removeRow(ti);
+                    tli_count--;
+                    break;
+                }
             }
         }
-    }
-    updateGraphs();
+        updateGraphs();
 
-    updateWidgets();
-    unlockUI();
+        updateWidgets();
+        unlockUI();
+    } else {
+        ws_warning("removeRtpStreams was called while other thread locked it. Current call is ignored, try it later.");
+    }
 }
 
 void RtpPlayerDialog::setMarkers()

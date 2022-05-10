@@ -592,6 +592,11 @@ id-SCGIndicator                                      ProtocolIE-ID
 id-EstimatedArrivalProbability                       ProtocolIE-ID
 id-TRPType                                           ProtocolIE-ID
 id-SRSSpatialRelationPerSRSResource                  ProtocolIE-ID
+id-PDCPTerminatingNodeDLTNLAddrInfo                  ProtocolIE-ID
+id-ENBDLTNLAddress                                   ProtocolIE-ID
+id-PosMeasurementPeriodicityExtended                 ProtocolIE-ID
+id-PRS-Resource-ID                                   ProtocolIE-ID
+id-LocationMeasurementInformation                    ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -926,6 +931,7 @@ Extended-GNB-CU-Name                              N f1ap.ies id-Extended-GNB-CU-
 F1CTransferPath                                   N f1ap.ies id-F1CTransferPath
 SCGIndicator                                      N f1ap.ies id-SCGIndicator
 TRPType                                           N f1ap.ies id-TRPType
+MeasurementPeriodicityExtended                    N f1ap.ies id-PosMeasurementPeriodicityExtended
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1020,6 +1026,10 @@ TransmissionStopIndicator                         N f1ap.extension id-Transmissi
 SrsFrequency                                      N f1ap.extension id-SrsFrequency
 CHO-Probability                                   N f1ap.extension id-EstimatedArrivalProbability
 SpatialRelationPerSRSResource                     N f1ap.extension id-SRSSpatialRelationPerSRSResource
+TransportLayerAddress                             N f1ap.extension id-PDCPTerminatingNodeDLTNLAddrInfo
+TransportLayerAddress                             N f1ap.extension id-ENBDLTNLAddress
+PRS-Resource-ID                                   N f1ap.extension id-PRS-Resource-ID
+LocationMeasurementInformation                    N f1ap.extension id-LocationMeasurementInformation
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -1979,6 +1989,14 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_PosAssistance_Information);
     dissect_nrppa_Assistance_Information_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LocationMeasurementInformation VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_LocationMeasurementInformation);
+    dissect_nr_rrc_LocationMeasurementInfo_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_HDR Reset

@@ -1,9 +1,6 @@
--- ﻿3GPP TS 37.355 V16.7.0 (2021-12)
+-- 3GPP TS 37.355 V16.8.0 (2022-03)
 
-LPP-PDU-Definitions {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
-eps-Access (21) modules (3) lpp (7) version1 (1) lpp-PDU-Definitions (1) }
-
+LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
@@ -81,9 +78,9 @@ RequestCapabilities-r9-IEs ::= SEQUENCE {
 	]],
 	[[	nr-ECID-RequestCapabilities-r16	NR-ECID-RequestCapabilities-r16		OPTIONAL,	-- Need ON
 		nr-Multi-RTT-RequestCapabilities-r16
-										NR-Multi-RTT-RequestCapabilities-r16	
+										NR-Multi-RTT-RequestCapabilities-r16
 																			OPTIONAL,	-- Need ON
-		nr-DL-AoD-RequestCapabilities-r16	
+		nr-DL-AoD-RequestCapabilities-r16
 										NR-DL-AoD-RequestCapabilities-r16	OPTIONAL,	-- Need ON
 		nr-DL-TDOA-RequestCapabilities-r16
 										NR-DL-TDOA-RequestCapabilities-r16	OPTIONAL,	-- Need ON
@@ -115,7 +112,7 @@ ProvideCapabilities-r9-IEs ::= SEQUENCE {
 		bt-ProvideCapabilities-r13		BT-ProvideCapabilities-r13				OPTIONAL
 	]],
 	[[	nr-ECID-ProvideCapabilities-r16	NR-ECID-ProvideCapabilities-r16			OPTIONAL,
-		nr-Multi-RTT-ProvideCapabilities-r16	
+		nr-Multi-RTT-ProvideCapabilities-r16
 										NR-Multi-RTT-ProvideCapabilities-r16	OPTIONAL,
 		nr-DL-AoD-ProvideCapabilities-r16
 										NR-DL-AoD-ProvideCapabilities-r16		OPTIONAL,
@@ -259,7 +256,7 @@ ProvideLocationInformation-r9-IEs ::= SEQUENCE {
 									NR-ECID-ProvideLocationInformation-r16		OPTIONAL,
 		nr-Multi-RTT-ProvideLocationInformation-r16
 									NR-Multi-RTT-ProvideLocationInformation-r16 OPTIONAL,
-		nr-DL-AoD-ProvideLocationInformation-r16	
+		nr-DL-AoD-ProvideLocationInformation-r16
 									NR-DL-AoD-ProvideLocationInformation-r16	OPTIONAL,
 		nr-DL-TDOA-ProvideLocationInformation-r16
 									NR-DL-TDOA-ProvideLocationInformation-r16	OPTIONAL
@@ -448,6 +445,30 @@ EPDU-Body ::= OCTET STRING
 FreqBandIndicatorNR-r16 ::= INTEGER (1..1024)
 
 
+HA-EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid-r16 ::= SEQUENCE {
+	degreesLatitude-r16							INTEGER(-2147483648..2147483647),
+	degreesLongitude-r16						INTEGER(-2147483648..2147483647),
+	altitude-r16								INTEGER(-64000..1280000),
+	uncertaintySemiMajor-r16					INTEGER (0..255),
+	uncertaintySemiMinor-r16					INTEGER (0..255),
+	orientationMajorAxis-r16					INTEGER (0..179),
+	horizontalConfidence-r16					INTEGER (0..100),
+	uncertaintyAltitude-r16						INTEGER (0..255),
+	verticalConfidence-r16						INTEGER (0..100),
+	ha-HorizontalExtendedRangeUsed-r16			BOOLEAN,
+	ha-VerticalExtendedRangeUsed-r16			BOOLEAN
+}
+
+HA-EllipsoidPointWithScalableUncertaintyEllipse-r16 ::= SEQUENCE {
+	degreesLatitude-r16							INTEGER(-2147483648..2147483647),
+	degreesLongitude-r16						INTEGER(-2147483648..2147483647),
+	uncertaintySemiMajor-r16					INTEGER (0..255),
+	uncertaintySemiMinor-r16					INTEGER (0..255),
+	orientationMajorAxis-r16					INTEGER (0..179),
+	confidence-r16								INTEGER (0..100),
+	ha-ExtendedUncertaintyRangeUsed-r16			BOOLEAN
+}
+
 HighAccuracyEllipsoidPointWithUncertaintyEllipse-r15 ::= SEQUENCE {
 	degreesLatitude-r15				INTEGER(-2147483648..2147483647),
 	degreesLongitude-r15			INTEGER(-2147483648..2147483647),
@@ -515,6 +536,12 @@ LocationCoordinateTypes ::= SEQUENCE {
 		highAccuracyEllipsoidPointWithUncertaintyEllipse-r15
 															BOOLEAN		OPTIONAL, -- Need ON
 		highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid-r15
+															BOOLEAN		OPTIONAL  -- Need ON
+	]],
+	[[
+		ha-EllipsoidPointWithScalableUncertaintyEllipse-r16
+															BOOLEAN		OPTIONAL, -- Need ON
+		ha-EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid-r16
 															BOOLEAN		OPTIONAL  -- Need ON
 	]]
 }
@@ -679,7 +706,7 @@ QoS ::= SEQUENCE {
 	verticalCoordinateRequest	BOOLEAN,
 	verticalAccuracy			VerticalAccuracy		OPTIONAL,	-- Need ON
 	responseTime				ResponseTime			OPTIONAL,	-- Need ON
-	velocityRequest				BOOLEAN,				
+	velocityRequest				BOOLEAN,
 	...,
 	[[	responseTimeNB-r14		ResponseTimeNB-r14		OPTIONAL	-- Need ON
 	]],
@@ -714,7 +741,7 @@ VerticalAccuracyExt-r15 ::= SEQUENCE {
 
 ResponseTime ::= SEQUENCE {
 	time								INTEGER (1..128),
-	...,	
+	...,
 	[[	responseTimeEarlyFix-r12		INTEGER (1..128)		OPTIONAL		-- Need ON
 	]],
 	[[	unit-r15				ENUMERATED { ten-seconds, ... }	OPTIONAL		-- Need ON
@@ -770,7 +797,10 @@ LocationCoordinates ::= CHOICE {
 	highAccuracyEllipsoidPointWithUncertaintyEllipse-v1510
 								HighAccuracyEllipsoidPointWithUncertaintyEllipse-r15,
 	highAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid-v1510
-								HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid-r15
+								HighAccuracyEllipsoidPointWithAltitudeAndUncertaintyEllipsoid-r15,
+	ha-EllipsoidPointWithScalableUncertaintyEllipse-v1680																				HA-EllipsoidPointWithScalableUncertaintyEllipse-r16,
+	ha-EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid-v1680
+								HA-EllipsoidPointWithAltitudeAndScalableUncertaintyEllipsoid-r16
 }
 
 Velocity ::= CHOICE {
@@ -873,7 +903,7 @@ NR-DL-PRS-AssistanceData-r16 ::= SEQUENCE {
 }
 
 NR-DL-PRS-AssistanceDataPerFreq-r16 ::= SEQUENCE {
-	nr-DL-PRS-PositioningFrequencyLayer-r16	
+	nr-DL-PRS-PositioningFrequencyLayer-r16
 										NR-DL-PRS-PositioningFrequencyLayer-r16,
 	nr-DL-PRS-AssistanceDataPerFreq-r16 SEQUENCE (SIZE (1..nrMaxTRPsPerFreq-r16)) OF
 														NR-DL-PRS-AssistanceDataPerTRP-r16,
@@ -892,7 +922,7 @@ NR-DL-PRS-AssistanceDataPerTRP-r16 ::= SEQUENCE {
 	nr-DL-PRS-Info-r16				NR-DL-PRS-Info-r16,
 	...,
 	[[
-		prs-OnlyTP-r16				ENUMERATED { true }		OPTIONAL	-- Need ON	
+		prs-OnlyTP-r16				ENUMERATED { true }		OPTIONAL	-- Need ON
 	]]
 }
 
@@ -924,7 +954,7 @@ NR-DL-PRS-BeamInfoPerTRP-r16 ::= SEQUENCE {
 	nr-CellGlobalID-r16					NCGI-r15				OPTIONAL,	-- Need ON
 	nr-ARFCN-r16						ARFCN-ValueNR-r15		OPTIONAL,	-- Need ON
 	associated-DL-PRS-ID-r16			INTEGER (0..255)		OPTIONAL,	-- Need OP
-	lcs-GCS-TranslationParameter-r16	LCS-GCS-TranslationParameter-r16	
+	lcs-GCS-TranslationParameter-r16	LCS-GCS-TranslationParameter-r16
 																OPTIONAL,	-- Need OP
 	dl-PRS-BeamInfoSet-r16				DL-PRS-BeamInfoSet-r16	OPTIONAL,	-- Need OP
 	...
@@ -972,7 +1002,7 @@ NR-DL-PRS-ResourceSet-r16 ::= SEQUENCE {
 	dl-PRS-NumSymbols-r16				ENUMERATED {n2, n4, n6, n12, ...},
 	dl-PRS-MutingOption1-r16			DL-PRS-MutingOption1-r16			OPTIONAL,	-- Need OP
 	dl-PRS-MutingOption2-r16			DL-PRS-MutingOption2-r16			OPTIONAL,	-- Need OP
-	dl-PRS-ResourcePower-r16			INTEGER (-60..50),	
+	dl-PRS-ResourcePower-r16			INTEGER (-60..50),
 	dl-PRS-ResourceList-r16				SEQUENCE (SIZE (1..nrMaxResourcesPerSet-r16)) OF
 																	NR-DL-PRS-Resource-r16,
 	...
@@ -1134,7 +1164,7 @@ PRS-ProcessingCapabilityPerBand-r16 ::= SEQUENCE {
 		durationOfPRS-ProcessingSymbols-r16	ENUMERATED {nDot125, nDot25, nDot5, n1,
 															 n2, n4, n6, n8, n12, n16, n20, n25,
 															 n30, n32, n35, n40, n45, n50},
-		durationOfPRS-ProcessingSymbolsInEveryTms-r16	
+		durationOfPRS-ProcessingSymbolsInEveryTms-r16
 												ENUMERATED {n8, n16, n20, n30, n40, n80,
 															 n160,n320, n640, n1280},
 		...
@@ -1172,7 +1202,7 @@ NR-DL-PRS-ResourceID-r16 ::= INTEGER (0..nrMaxNumDL-PRS-ResourcesPerSet-1-r16)
 
 
 NR-DL-PRS-ResourcesCapability-r16 ::= SEQUENCE {
-	maxNrOfDL-PRS-ResourceSetPerTrpPerFrequencyLayer-r16	
+	maxNrOfDL-PRS-ResourceSetPerTrpPerFrequencyLayer-r16
 												INTEGER (1..2),
 	maxNrOfTRP-AcrossFreqs-r16					ENUMERATED { n4, n6, n12, n16, n32,
 															 n64, n128, n256, ...},
@@ -1186,7 +1216,7 @@ NR-DL-PRS-ResourcesCapability-r16 ::= SEQUENCE {
 DL-PRS-ResourcesCapabilityPerBand-r16 ::= SEQUENCE {
 	freqBandIndicatorNR-r16						FreqBandIndicatorNR-r16,
 	maxNrOfDL-PRS-ResourcesPerResourceSet-r16	ENUMERATED { n1, n2, n4, n8, n16, n32, n64, ...},
-	maxNrOfDL-PRS-ResourcesPerPositioningFrequencylayer-r16	
+	maxNrOfDL-PRS-ResourcesPerPositioningFrequencylayer-r16
 												ENUMERATED { n6, n24, n32, n64, n96, n128,
 															 n256, n512, n1024, ...},
 	...
@@ -1198,7 +1228,7 @@ DL-PRS-ResourcesBandCombinationList-r16 ::=	SEQUENCE (SIZE (1..maxBandComb-r16))
 DL-PRS-ResourcesBandCombination-r16 ::=	SEQUENCE {
 	bandList-r16							SEQUENCE (SIZE (1..maxSimultaneousBands-r16)) OF
 															FreqBandIndicatorNR-r16,
-	maxNrOfDL-PRS-ResourcesAcrossAllFL-TRP-ResourceSet-r16	
+	maxNrOfDL-PRS-ResourcesAcrossAllFL-TRP-ResourceSet-r16
 											CHOICE {
 		fr1-Only-r16							ENUMERATED {n6, n24, n64, n128, n192,
 															 n256, n512, n1024, n2048},
@@ -1374,9 +1404,9 @@ NR-UL-SRS-Capability-r16 ::= SEQUENCE {
 													SRS-CapabilityPerBand-r16,
 	srs-PosResourceConfigCA-BandList-r16		SEQUENCE (SIZE (1..nrMaxConfiguredBands-r16)) OF
 													SRS-PosResourcesPerBand-r16			OPTIONAL,
-	maxNumberSRS-PosPathLossEstimateAllServingCells-r16	
+	maxNumberSRS-PosPathLossEstimateAllServingCells-r16
 												ENUMERATED {n1, n4, n8, n16}			OPTIONAL,
-	maxNumberSRS-PosSpatialRelationsAllServingCells-r16	
+	maxNumberSRS-PosSpatialRelationsAllServingCells-r16
 												ENUMERATED {n0, n1, n2, n4, n8, n16}	OPTIONAL,
 	...
 }
@@ -1489,13 +1519,13 @@ OTDOA-ReferenceCellInfo ::= SEQUENCE {
 	[[ earfcnRef-v9a0			ARFCN-ValueEUTRA-v9a0		OPTIONAL		-- Cond NotSameAsServ2
 	]],
 	[[	tpId-r14				INTEGER (0..4095)			OPTIONAL,		-- Need ON
-		cpLengthCRS-r14			ENUMERATED { normal, extended, ... }	
+		cpLengthCRS-r14			ENUMERATED { normal, extended, ... }
 															OPTIONAL,		-- Cond CRS
 		sameMBSFNconfigRef-r14	BOOLEAN						OPTIONAL,		-- Need ON
 		dlBandwidth-r14			ENUMERATED {n6, n15, n25, n50, n75, n100}
 															OPTIONAL,		-- Cond NotSameAsServ3
 		addPRSconfigRef-r14		SEQUENCE (SIZE (1..maxAddPRSconfig-r14)) OF PRS-Info
-															OPTIONAL		-- Need ON	
+															OPTIONAL		-- Need ON
 	]],
 	[[
 		nr-LTE-SFN-Offset-r15	INTEGER (0..1023)			OPTIONAL		-- Cond NR
@@ -1569,7 +1599,7 @@ OTDOA-NeighbourCellInfoElement ::= SEQUENCE {
 	]],
 	[[	tpId-r14					INTEGER (0..4095)		OPTIONAL,		-- Need ON
 		prs-only-tp-r14				ENUMERATED { true }		OPTIONAL,		-- Cond TBS
-		cpLengthCRS-r14				ENUMERATED { normal, extended, ... }	
+		cpLengthCRS-r14				ENUMERATED { normal, extended, ... }
 															OPTIONAL,		-- Cond CRS
 		sameMBSFNconfigNeighbour-r14	BOOLEAN				OPTIONAL,		-- Need ON
 		dlBandwidth-r14				ENUMERATED {n6, n15, n25, n50, n75, n100}
@@ -1619,7 +1649,7 @@ NPRS-Info-r14 ::= SEQUENCE {
 	partA-r14					SEQUENCE {
 		nprsBitmap-r14			CHOICE {
 			subframePattern10-r14	BIT STRING (SIZE (10)),
-			subframePattern40-r14 	BIT STRING (SIZE (40))	
+			subframePattern40-r14 	BIT STRING (SIZE (40))
 		},
 		nprs-MutingInfoA-r14	CHOICE {
 			po2-r14					BIT STRING (SIZE(2)),
@@ -1654,7 +1684,7 @@ NPRS-Info-r14 ::= SEQUENCE {
 		nprsBitmap-r15			CHOICE {
 			subframePattern10-TDD-r15	BIT STRING (SIZE (8)),
 			subframePattern40-TDD-r15 	BIT STRING (SIZE (32)),
-			...	
+			...
 		},
 		nprs-MutingInfoA-r15	CHOICE {
 			po2-r15					BIT STRING (SIZE(2)),
@@ -1681,7 +1711,7 @@ OTDOA-NeighbourCellInfoNB-r14 ::= SEQUENCE {
 	earfcn-r14						ARFCN-ValueEUTRA-r14	OPTIONAL,		-- Cond Inband
 	eutra-NumCRS-Ports-r14			ENUMERATED {ports-1-or-2, ports-4, ...}
 															OPTIONAL, 		-- Cond NotsameAsRef2
-	otdoa-SIB1-NB-repetitions-r14	ENUMERATED { r4, r8, r16 }	
+	otdoa-SIB1-NB-repetitions-r14	ENUMERATED { r4, r8, r16 }
 															OPTIONAL,		-- Cond	NotSameAsRef3
 	nprsInfo-r14					PRS-Info-NB-r14			OPTIONAL,		-- Cond NotsameAsRef4
 	nprs-slotNumberOffset-r14		INTEGER (0..19)			OPTIONAL,		-- Cond NotsameAsRef5
@@ -1736,7 +1766,7 @@ OTDOA-SignalMeasurementInformation ::= SEQUENCE {
 	]],
 	[[ tpIdRef-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer0
 		prsIdRef-r14		INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer1
-		additionalPathsRef-r14	
+		additionalPathsRef-r14
 							AdditionalPathList-r14	OPTIONAL,
 		nprsIdRef-r14		INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer2
 		carrierFreqOffsetNB-Ref-r14
@@ -1762,7 +1792,7 @@ NeighbourMeasurementElement ::= SEQUENCE {
 	[[ tpIdNeighbour-r14	INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer0
 		prsIdNeighbour-r14	INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer1
 		delta-rstd-r14		INTEGER (0..5)			OPTIONAL,
-		additionalPathsNeighbour-r14	
+		additionalPathsNeighbour-r14
 							AdditionalPathList-r14	OPTIONAL,
 		nprsIdNeighbour-r14	INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer2
 		carrierFreqOffsetNB-Neighbour-r14
@@ -1810,7 +1840,7 @@ NeighbourMeasurementElement-NB-r14 ::= SEQUENCE {
 	tpIdNeighbour-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer0
 	prsIdNeighbour-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer1
 	delta-rstd-r14				INTEGER (0..5)			OPTIONAL,
-	additionalPathsNeighbour-r14	
+	additionalPathsNeighbour-r14
 								AdditionalPathList-r14	OPTIONAL,
 	nprsIdNeighbour-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer2
 	carrierFreqOffsetNB-Neighbour-r14
@@ -1944,7 +1974,7 @@ GNSS-CommonAssistData ::= SEQUENCE {
 	[[
 		gnss-RTK-ReferenceStationInfo-r15
 									GNSS-RTK-ReferenceStationInfo-r15	OPTIONAL,	-- Need ON
-		gnss-RTK-CommonObservationInfo-r15	
+		gnss-RTK-CommonObservationInfo-r15
 									GNSS-RTK-CommonObservationInfo-r15	OPTIONAL,	-- Cond RTK
 		gnss-RTK-AuxiliaryStationData-r15
 									GNSS-RTK-AuxiliaryStationData-r15	OPTIONAL	-- Need ON
@@ -1972,7 +2002,7 @@ GNSS-GenericAssistDataElement ::= SEQUENCE {
 	gnss-AuxiliaryInformation		GNSS-AuxiliaryInformation		OPTIONAL,	-- Need ON
 	...,
 	[[
-		bds-DifferentialCorrections-r12	
+		bds-DifferentialCorrections-r12
 									BDS-DifferentialCorrections-r12	OPTIONAL,	-- Cond	GNSS-ID-BDS
 		bds-GridModel-r12			BDS-GridModelParameter-r12		OPTIONAL	-- Cond	GNSS-ID-BDS
 	]],
@@ -1993,9 +2023,9 @@ GNSS-GenericAssistDataElement ::= SEQUENCE {
 	[[
 		gnss-SSR-URA-r16					GNSS-SSR-URA-r16		OPTIONAL,	-- Need ON
 		gnss-SSR-PhaseBias-r16				GNSS-SSR-PhaseBias-r16	OPTIONAL,	-- Need ON
-		gnss-SSR-STEC-Correction-r16		GNSS-SSR-STEC-Correction-r16	
+		gnss-SSR-STEC-Correction-r16		GNSS-SSR-STEC-Correction-r16
 																	OPTIONAL,	-- Need ON
-		gnss-SSR-GriddedCorrection-r16		GNSS-SSR-GriddedCorrection-r16	
+		gnss-SSR-GriddedCorrection-r16		GNSS-SSR-GriddedCorrection-r16
 																	OPTIONAL,	-- Need ON
 		navic-DifferentialCorrections-r16	NavIC-DifferentialCorrections-r16
 																OPTIONAL,	-- Cond	GNSS-ID-NavIC
@@ -2035,7 +2065,7 @@ GNSS-ReferenceTime ::= SEQUENCE {
 	...
 }
 
-GNSS-ReferenceTimeForOneCell ::= SEQUENCE {	
+GNSS-ReferenceTimeForOneCell ::= SEQUENCE {
 	networkTime				NetworkTime,
 	referenceTimeUnc			INTEGER (0..127),
 	bsAlign						ENUMERATED {true}	OPTIONAL,
@@ -2342,11 +2372,11 @@ DGNSS-SatList ::= SEQUENCE (SIZE (1..64)) OF DGNSS-CorrectionsElement
 DGNSS-CorrectionsElement ::= SEQUENCE {
 	svID				SV-ID,
 	iod				BIT STRING (SIZE(11)),
-	udre				INTEGER (0..3),		
+	udre				INTEGER (0..3),
 	pseudoRangeCor		INTEGER (-2047..2047),
 	rangeRateCor		INTEGER (-127..127),
 	udreGrowthRate		INTEGER (0..7)			OPTIONAL,	-- Need ON
-	udreValidityTime	INTEGER (0..7)			OPTIONAL,	-- Need ON	
+	udreValidityTime	INTEGER (0..7)			OPTIONAL,	-- Need ON
 	...
 }
 
@@ -2361,8 +2391,8 @@ GNSS-NavModelSatelliteList ::= SEQUENCE (SIZE(1..64)) OF GNSS-NavModelSatelliteE
 
 GNSS-NavModelSatelliteElement ::= SEQUENCE {
 	svID				SV-ID,
-	svHealth			BIT STRING (SIZE(8)),	
-	iod					BIT STRING (SIZE(11)),	
+	svHealth			BIT STRING (SIZE(8)),
+	iod					BIT STRING (SIZE(11)),
 	gnss-ClockModel		GNSS-ClockModel,
 	gnss-OrbitModel		GNSS-OrbitModel,
 	...,
@@ -2463,7 +2493,7 @@ BDS-ClockModel-r12 ::= SEQUENCE {
 	bdsA2-r12			INTEGER (-1024..1023),
 	bdsTgd1-r12			INTEGER (-512..511),
 	...,
-	[[ bdsTgd2-r16		INTEGER (-512..511)			OPTIONAL
+	[[ bdsTgd2-r16		INTEGER (-512..511)			OPTIONAL		-- Need ON
 	]]
 }
 
@@ -2678,7 +2708,7 @@ GNSS-RealTimeIntegrity ::= SEQUENCE {
 GNSS-BadSignalList ::= SEQUENCE (SIZE(1..64)) OF BadSignalElement
 
 BadSignalElement ::= SEQUENCE {
-	badSVID			SV-ID,						
+	badSVID			SV-ID,
 	badSignalID		GNSS-SignalIDs	OPTIONAL,	-- Need OP
 	...
 }
@@ -2726,7 +2756,7 @@ GNSS-AcquisitionAssistElement ::= SEQUENCE {
 	intCodePhase				INTEGER (0..127),
 	codePhaseSearchWindow		INTEGER (0..31),
 	azimuth						INTEGER (0..511),
-	elevation					INTEGER (0..127),		
+	elevation					INTEGER (0..127),
 	...,
 	codePhase1023				BOOLEAN				OPTIONAL,	-- Need OP
 	dopplerUncertaintyExt-r10	ENUMERATED {	d60,
@@ -2883,7 +2913,7 @@ AlmanacBDS-AlmanacSet-r12 ::= SEQUENCE {
 
 AlmanacNavIC-AlmanacSet-r16	 ::= SEQUENCE {
 	svID-r16					SV-ID,
-	navic-AlmToa-r16			INTEGER (0..65535)			OPTIONAL,	-- Cond NotSameForAllSV		
+	navic-AlmToa-r16			INTEGER (0..65535)			OPTIONAL,	-- Cond NotSameForAllSV
 	navic-AlmE-r16				INTEGER (0..65535),
 	navic-AlmOMEGADOT-r16		INTEGER (-32768..32767),
 	navic-AlmSqrtA-r16			INTEGER (0..16777215),
@@ -2994,7 +3024,7 @@ GNSS-ID-GLONASS-SatElement ::= SEQUENCE {
 	signalsAvailable	GNSS-SignalIDs,
 	channelNumber		INTEGER (-7..13)		OPTIONAL,		-- Cond FDMA
 	...
-}	
+}
 
 GNSS-ID-BDS-r16 ::= SEQUENCE	(SIZE(1..64)) OF GNSS-ID-BDS-SatElement-r16
 
@@ -3106,7 +3136,7 @@ RTK-CorrectionDifferencesList-r15 ::= SEQUENCE (SIZE (1..32)) OF
 RTK-CorrectionDifferencesElement-r15 ::= SEQUENCE {
 	epochTime-r15							GNSS-SystemTime,
 	auxiliary-referenceStationID-r15		GNSS-ReferenceStationID-r15,
-	geometric-ionospheric-corrections-differences-r15	
+	geometric-ionospheric-corrections-differences-r15
 											Geometric-Ionospheric-Corrections-Differences-r15,
 	...
 }
@@ -3433,17 +3463,17 @@ A-GNSS-RequestAssistanceData ::= SEQUENCE {
 
 
 GNSS-CommonAssistDataReq ::= SEQUENCE {
-	gnss-ReferenceTimeReq				GNSS-ReferenceTimeReq				
+	gnss-ReferenceTimeReq				GNSS-ReferenceTimeReq
 																OPTIONAL, -- Cond RefTimeReq
-	gnss-ReferenceLocationReq			GNSS-ReferenceLocationReq			
+	gnss-ReferenceLocationReq			GNSS-ReferenceLocationReq
 																OPTIONAL, -- Cond RefLocReq
-	gnss-IonosphericModelReq			GNSS-IonosphericModelReq				
+	gnss-IonosphericModelReq			GNSS-IonosphericModelReq
 																OPTIONAL, -- Cond IonoModReq
-	gnss-EarthOrientationParametersReq	GNSS-EarthOrientationParametersReq	
+	gnss-EarthOrientationParametersReq	GNSS-EarthOrientationParametersReq
 																OPTIONAL, -- Cond EOPReq
 	...,
 	[[
-		gnss-RTK-ReferenceStationInfoReq-r15	
+		gnss-RTK-ReferenceStationInfoReq-r15
 										GNSS-RTK-ReferenceStationInfoReq-r15
 																OPTIONAL, -- Cond ARPReq
 		gnss-RTK-AuxiliaryStationDataReq-r15
@@ -3474,7 +3504,7 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 	gnss-AuxiliaryInformationReq	GNSS-AuxiliaryInformationReq	OPTIONAL, -- Cond AuxInfoReq
 	...,
 	[[
-		bds-DifferentialCorrectionsReq-r12	
+		bds-DifferentialCorrectionsReq-r12
 									BDS-DifferentialCorrectionsReq-r12
 																	OPTIONAL,	-- Cond DBDS-Req
 		bds-GridModelReq-r12		BDS-GridModelReq-r12			OPTIONAL	-- Cond BDS-GridModReq
@@ -3482,7 +3512,7 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 	[[
 		gnss-RTK-ObservationsReq-r15
 									GNSS-RTK-ObservationsReq-r15	OPTIONAL,	-- Cond RTK-OSR-Req
-		glo-RTK-BiasInformationReq-r15	
+		glo-RTK-BiasInformationReq-r15
 									GLO-RTK-BiasInformationReq-r15	OPTIONAL,	-- Cond GLO-CPB-Req
 		gnss-RTK-MAC-CorrectionDifferencesReq-r15
 									GNSS-RTK-MAC-CorrectionDifferencesReq-r15
@@ -3505,7 +3535,7 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 									GNSS-SSR-STEC-CorrectionReq-r16	OPTIONAL,	-- Cond STEC-Req
 		gnss-SSR-GriddedCorrectionReq-r16	GNSS-SSR-GriddedCorrectionReq-r16
 																	OPTIONAL,	-- Cond Grid-Req
-		navic-DifferentialCorrectionsReq-r16	
+		navic-DifferentialCorrectionsReq-r16
 									NavIC-DifferentialCorrectionsReq-r16
 																OPTIONAL,	-- Cond DNavIC-Req
 		navic-GridModelReq-r16		NavIC-GridModelReq-r16		OPTIONAL	-- Cond NavIC-GridModReq
@@ -3530,14 +3560,14 @@ GNSS-PeriodicAssistDataReq-r15 ::= SEQUENCE {
 	gnss-SSR-PeriodicURA-Req-r16			GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pURA
 	gnss-SSR-PeriodicPhaseBiasReq-r16		GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pPB
 	gnss-SSR-PeriodicSTEC-CorrectionReq-r16	GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pSTEC
-	gnss-SSR-PeriodicGriddedCorrectionReq-r16	
+	gnss-SSR-PeriodicGriddedCorrectionReq-r16
 											GNSS-PeriodicControlParam-r15	OPTIONAL  -- Cond pGrid
 	]]
 }
 
 
 GNSS-ReferenceTimeReq ::= SEQUENCE {
-	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,			
+	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,
 	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
 	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
 	...
@@ -3622,14 +3652,14 @@ SatListRelatedDataElement ::= SEQUENCE {
 	svID				SV-ID,
 	iod				BIT STRING (SIZE(11)),
 	clockModelID		INTEGER (1..8)			OPTIONAL,
-orbitModelID		INTEGER (1..8)			OPTIONAL,			
+orbitModelID		INTEGER (1..8)			OPTIONAL,
 	...
 }
 
 ReqNavListInfo ::=	SEQUENCE {
 	svReqList				BIT STRING (SIZE (64)),
 	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
-	orbitModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,	
+	orbitModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
 	addNavparamReq			BOOLEAN				OPTIONAL,	-- Cond orbitModelID-2
 	...
 }
@@ -3806,8 +3836,8 @@ GNSS-SignalMeasurementInformation ::= SEQUENCE {
 
 MeasurementReferenceTime ::= SEQUENCE {
 	gnss-TOD-msec		INTEGER (0..3599999),
-	gnss-TOD-frac		INTEGER (0..3999)			OPTIONAL,		
-	gnss-TOD-unc		INTEGER (0..127)			OPTIONAL,		
+	gnss-TOD-frac		INTEGER (0..3999)			OPTIONAL,
+	gnss-TOD-unc		INTEGER (0..127)			OPTIONAL,
 	gnss-TimeID			GNSS-ID,
 	networkTime			CHOICE {
 		eUTRA	SEQUENCE {
@@ -3859,7 +3889,7 @@ MeasurementReferenceTime ::= SEQUENCE {
 				nr-sfn-r15			BIT STRING (SIZE (10)),
 				...
 				}
-		}		OPTIONAL,												
+		}		OPTIONAL,
 	...
 }
 
@@ -3887,10 +3917,10 @@ GNSS-SatMeasElement ::= SEQUENCE {
 	svID				SV-ID,
 	cNo					INTEGER (0..63),
 	mpathDet			ENUMERATED {notMeasured (0), low (1), medium (2), high (3), ...},
-	carrierQualityInd	INTEGER (0..3)				OPTIONAL,	
+	carrierQualityInd	INTEGER (0..3)				OPTIONAL,
 	codePhase			INTEGER (0..2097151),
 	integerCodePhase	INTEGER (0..127)			OPTIONAL,
-	codePhaseRMSError	INTEGER (0..63),						
+	codePhaseRMSError	INTEGER (0..63),
 	doppler				INTEGER (-32768..32767)	OPTIONAL,
 	adr					INTEGER (0..33554431)		OPTIONAL,
 	...,
@@ -3905,7 +3935,7 @@ GNSS-SatMeasElement ::= SEQUENCE {
 
 GNSS-LocationInformation ::= SEQUENCE {
 	measurementReferenceTime		MeasurementReferenceTime,
-	agnss-List						GNSS-ID-Bitmap,					
+	agnss-List						GNSS-ID-Bitmap,
 	...
 }
 
@@ -3917,7 +3947,7 @@ A-GNSS-RequestLocationInformation ::= SEQUENCE {
 
 
 GNSS-PositioningInstructions ::= SEQUENCE {
-	gnss-Methods				GNSS-ID-Bitmap,	
+	gnss-Methods				GNSS-ID-Bitmap,
 	fineTimeAssistanceMeasReq	BOOLEAN,
 	adrMeasReq					BOOLEAN,
 	multiFreqMeasReq			BOOLEAN,
@@ -3937,7 +3967,7 @@ A-GNSS-ProvideCapabilities ::= SEQUENCE {
 	...,
 	[[ periodicalReportingNotSupported-r14
 								PositioningModes				OPTIONAL,
-		idleStateForMeasurements-r14		
+		idleStateForMeasurements-r14
 								ENUMERATED { required }			OPTIONAL
 	]],
 	[[ periodicAssistanceData-r15
@@ -3976,17 +4006,17 @@ AssistanceDataSupportList ::= SEQUENCE {
 
 
 GNSS-CommonAssistanceDataSupport ::= SEQUENCE {
-	gnss-ReferenceTimeSupport				GNSS-ReferenceTimeSupport				
+	gnss-ReferenceTimeSupport				GNSS-ReferenceTimeSupport
 																OPTIONAL, -- Cond RefTimeSup
-	gnss-ReferenceLocationSupport			GNSS-ReferenceLocationSupport			
+	gnss-ReferenceLocationSupport			GNSS-ReferenceLocationSupport
 																OPTIONAL, -- Cond RefLocSup
-	gnss-IonosphericModelSupport			GNSS-IonosphericModelSupport				
+	gnss-IonosphericModelSupport			GNSS-IonosphericModelSupport
 																OPTIONAL, -- Cond IonoModSup
-	gnss-EarthOrientationParametersSupport	GNSS-EarthOrientationParametersSupport	
+	gnss-EarthOrientationParametersSupport	GNSS-EarthOrientationParametersSupport
 																OPTIONAL, -- Cond EOPSup
 	...,
 	[[
-		gnss-RTK-ReferenceStationInfoSupport-r15	
+		gnss-RTK-ReferenceStationInfoSupport-r15
 											GNSS-RTK-ReferenceStationInfoSupport-r15
 																OPTIONAL, -- Cond ARPSup
 		gnss-RTK-AuxiliaryStationDataSupport-r15
@@ -4067,8 +4097,8 @@ GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 		gnss-RTK-ObservationsSupport-r15
 										GNSS-RTK-ObservationsSupport-r15
 																	OPTIONAL,	-- Cond RTK-OSR-Sup
-		glo-RTK-BiasInformationSupport-r15	
-										GLO-RTK-BiasInformationSupport-r15	
+		glo-RTK-BiasInformationSupport-r15
+										GLO-RTK-BiasInformationSupport-r15
 																	OPTIONAL,	-- Cond GLO-CPB-Sup
 		gnss-RTK-MAC-CorrectionDifferencesSupport-r15
 										GNSS-RTK-MAC-CorrectionDifferencesSupport-r15
@@ -4089,7 +4119,7 @@ GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 	]],
 	[[
 		gnss-SSR-URA-Support-r16		GNSS-SSR-URA-Support-r16	OPTIONAL,	-- Cond URA-Sup
-		gnss-SSR-PhaseBiasSupport-r16	GNSS-SSR-PhaseBiasSupport-r16		
+		gnss-SSR-PhaseBiasSupport-r16	GNSS-SSR-PhaseBiasSupport-r16
 																	OPTIONAL,	-- Cond PB-Sup
 		gnss-SSR-STEC-CorrectionSupport-r16
 										GNSS-SSR-STEC-CorrectionSupport-r16
@@ -4287,7 +4317,7 @@ A-GNSS-Error ::= CHOICE {
 
 
 GNSS-LocationServerErrorCauses ::= SEQUENCE {
-	cause		ENUMERATED	{	
+	cause		ENUMERATED	{
 					undefined,
 					undeliveredAssistanceDataIsNotSupportedByServer,
 					undeliveredAssistanceDataIsSupportedButCurrentlyNotAvailableByServer,								undeliveredAssistanceDataIsPartlyNotSupportedAndPartlyNotAvailableByServer,
@@ -4328,7 +4358,7 @@ GNSS-ID ::= SEQUENCE {
 
 
 GNSS-ID-Bitmap ::= SEQUENCE {
-	gnss-ids			BIT STRING {	gps			(0),	
+	gnss-ids			BIT STRING {	gps			(0),
 										sbas		(1),
 										qzss		(2),
 										galileo		(3),
@@ -4408,7 +4438,7 @@ SBAS-ID ::= SEQUENCE {
 
 
 SBAS-IDs ::= SEQUENCE {
-	sbas-IDs		BIT STRING {	waas		(0),	
+	sbas-IDs		BIT STRING {	waas		(0),
 									egnos		(1),
 									msas		(2),
 									gagan		(3)	} (SIZE (1..8)),
@@ -4499,7 +4529,7 @@ ECID-Error ::= CHOICE {
 
 
 ECID-LocationServerErrorCauses ::= SEQUENCE {
-	cause		ENUMERATED	{	undefined,								
+	cause		ENUMERATED	{	undefined,
 								...
 							},
 	...
@@ -4898,7 +4928,7 @@ WLAN-RTT-r13 ::= SEQUENCE {
 
 
 WLAN-RequestLocationInformation-r13 ::= SEQUENCE {
-	requestedMeasurements-r13	BIT STRING {	
+	requestedMeasurements-r13	BIT STRING {
 											rssi		(0),
 											rtt			(1)} (SIZE(1..8)),
 	...,
@@ -4911,11 +4941,11 @@ WLAN-ProvideCapabilities-r13 ::= SEQUENCE {
 	wlan-Modes-r13			BIT STRING	{	standalone		(0),
 											ue-assisted		(1),
 											ue-based		(2)}	(SIZE (1..8)),
-	wlan-MeasSupported-r13	BIT STRING	{	
+	wlan-MeasSupported-r13	BIT STRING	{
 											rssi-r13		(0),
 											rtt-r13			(1)}	(SIZE(1..8)),
 	...	,
-	[[	wlan-AP-AD-Supported-r14	
+	[[	wlan-AP-AD-Supported-r14
 							BIT STRING {	ap-identifier	(0),
 											ap-location		(1)}	(SIZE (1..8))
 																					OPTIONAL,
@@ -4939,7 +4969,7 @@ WLAN-Error-r13 ::= CHOICE {
 
 
 WLAN-LocationServerErrorCauses-r13 ::= SEQUENCE {
-	cause-r13								ENUMERATED	{undefined,	
+	cause-r13								ENUMERATED	{undefined,
 														...,
 														requestedADNotAvailable-v1420,
 														notAllrequestedADAvailable-v1420
@@ -5049,7 +5079,7 @@ WLAN-RequestAssistanceData-r14 ::= SEQUENCE {
 BT-ProvideLocationInformation-r13 ::= SEQUENCE {
 	bt-MeasurementInformation-r13		BT-MeasurementInformation-r13	OPTIONAL,
 	bt-Error-r13						BT-Error-r13					OPTIONAL,
-	...	
+	...
 }
 
 
@@ -5070,7 +5100,7 @@ BT-MeasurementElement-r13 ::= SEQUENCE {
 
 
 BT-RequestLocationInformation-r13 ::= SEQUENCE {
-	requestedMeasurements-r13	BIT STRING {	
+	requestedMeasurements-r13	BIT STRING {
 											rssi		(0)} (SIZE(1..8)),
 	...
 }
@@ -5084,7 +5114,7 @@ BT-ProvideCapabilities-r13 ::= SEQUENCE {
 	[[
 	idleStateForMeasurements-r14
 							ENUMERATED {	required	}							OPTIONAL,
-	periodicalReportingSupported-r14	
+	periodicalReportingSupported-r14
 							PositioningModes										OPTIONAL
 	]]
 }
@@ -5181,7 +5211,7 @@ ResultsPerCSI-RS-Index-r16 ::= SEQUENCE {
 NR-ECID-RequestLocationInformation-r16 ::= SEQUENCE {
 	requestedMeasurements-r16		BIT STRING {	ssrsrpReq		(0),
 													ssrsrqReq		(1),
-													csirsrpReq		(2),				
+													csirsrpReq		(2),
 													csirsrqReq		(3)} (SIZE(1..8)),
 	...
 }
@@ -5252,7 +5282,7 @@ NR-DL-TDOA-RequestAssistanceData-r16 ::= SEQUENCE {
 
 
 NR-DL-TDOA-ProvideLocationInformation-r16 ::= SEQUENCE {
-	nr-DL-TDOA-SignalMeasurementInformation-r16	
+	nr-DL-TDOA-SignalMeasurementInformation-r16
 											NR-DL-TDOA-SignalMeasurementInformation-r16
 																			OPTIONAL,
 	nr-dl-tdoa-LocationInformation-r16		NR-DL-TDOA-LocationInformation-r16

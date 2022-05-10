@@ -75,6 +75,7 @@ static int hf_frame_drop_count = -1;
 static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
 static int hf_frame_color_filter_text = -1;
+static int hf_frame_section_number = -1;
 static int hf_frame_interface_id = -1;
 static int hf_frame_interface_name = -1;
 static int hf_frame_interface_description = -1;
@@ -662,6 +663,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
+
+		if (pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER &&
+		   (proto_field_is_referenced(tree, hf_frame_section_number))) {
+			/* Show it as 1-origin */
+			proto_tree_add_uint(fh_tree, hf_frame_section_number, tvb,
+					    0, 0, pinfo->rec->section_number + 1);
+		}
 
 		if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID &&
 		   (proto_field_is_referenced(tree, hf_frame_interface_id) || proto_field_is_referenced(tree, hf_frame_interface_name) || proto_field_is_referenced(tree, hf_frame_interface_description))) {
@@ -1271,6 +1279,11 @@ proto_register_frame(void)
 		  { "Coloring Rule String", "frame.coloring_rule.string",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "The frame matched this coloring rule string", HFILL }},
+
+		{ &hf_frame_section_number,
+		  { "Section number", "frame.section_number",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "The number of the file section this frame is in", HFILL }},
 
 		{ &hf_frame_interface_id,
 		  { "Interface id", "frame.interface_id",

@@ -83,11 +83,6 @@ void proto_reg_handoff_ssh(void);
 
 /* proto data */
 
-#if GCRYPT_VERSION_NUMBER >= 0x010700 /* 1.7.0 */
-#define SSH_DECRYPTION_SUPPORTED
-#endif
-
-#ifdef SSH_DECRYPTION_SUPPORTED
 typedef struct {
     guint8  *data;
     guint   length;
@@ -114,7 +109,6 @@ typedef struct {
     gboolean from_server;
     ssh_message_info_t * messages;
 } ssh_packet_info_t;
-#endif
 
 typedef struct _ssh_channel_info_t {
     guint  client_channel_number;
@@ -152,12 +146,10 @@ struct ssh_peer_data {
 
     gint    length_is_plaintext;
 
-#ifdef SSH_DECRYPTION_SUPPORTED
     // see libgcrypt source, gcrypt.h:gcry_cipher_algos
     guint            cipher_id;
     // chacha20 needs two cipher handles
     gcry_cipher_hd_t cipher, cipher_2;
-#endif
     guint            sequence_number;
     guint32          seq_num_kex_init;
 // union ??? -- begin
@@ -173,9 +165,7 @@ struct ssh_peer_data {
     guint32          seq_num_dh_rep;
 // union ??? -- end
     guint32          seq_num_new_key;
-#ifdef SSH_DECRYPTION_SUPPORTED
     ssh_bignum      *bn_cookie;
-#endif
     struct ssh_flow_data * global_data;
 };
 
@@ -192,7 +182,6 @@ struct ssh_flow_data {
 #define SERVER_PEER_DATA 1
     struct ssh_peer_data peer_data[2];
 
-#ifdef SSH_DECRYPTION_SUPPORTED
     gchar           *session_id;
     guint           session_id_length;
     ssh_bignum      *kex_e;
@@ -206,13 +195,10 @@ struct ssh_flow_data {
     wmem_array_t    *kex_shared_secret;
     gboolean        do_decrypt;
     ssh_bignum      new_keys[6];
-#endif
     ssh_channel_info_t *channel_info;
 };
 
-#ifdef SSH_DECRYPTION_SUPPORTED
 static GHashTable * ssh_master_key_map = NULL;
-#endif
 
 static int proto_ssh = -1;
 
@@ -391,12 +377,10 @@ static gboolean ssh_desegment = TRUE;
 static dissector_handle_t ssh_handle;
 static dissector_handle_t sftp_handle=NULL;
 
-#ifdef SSH_DECRYPTION_SUPPORTED
 static const char   *pref_keylog_file;
 static FILE         *ssh_keylog_file;
 
 #define SSH_DECRYPT_DEBUG
-#endif
 
 #ifdef SSH_DECRYPT_DEBUG
 static const gchar *ssh_debug_file_name     = NULL;
@@ -569,7 +553,6 @@ static void ssh_choose_algo(gchar *client, gchar *server, gchar **result);
 static void ssh_set_mac_length(struct ssh_peer_data *peer_data);
 static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data);
 
-#ifdef SSH_DECRYPTION_SUPPORTED
 static void ssh_keylog_read_file(void);
 static void ssh_keylog_process_line(const char *line);
 static void ssh_keylog_process_lines(const guint8 *data, guint datalen);
@@ -629,8 +612,6 @@ static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint 
 
 #define SSH_DEBUG_USE_STDERR "-"
 
-#endif /* SSH_DECRYPTION_SUPPORTED */
-
 #ifdef SSH_DECRYPT_DEBUG
 static void
 ssh_debug_printf(const gchar* fmt,...) G_GNUC_PRINTF(1,2);
@@ -680,7 +661,6 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         global_data->kex_specific_dissector = ssh_dissect_kex_dh;
         global_data->peer_data[CLIENT_PEER_DATA].mac_length = -1;
         global_data->peer_data[SERVER_PEER_DATA].mac_length = -1;
-#ifdef SSH_DECRYPTION_SUPPORTED
         global_data->peer_data[CLIENT_PEER_DATA].sequence_number = 0;
         global_data->peer_data[SERVER_PEER_DATA].sequence_number = 0;
         global_data->peer_data[CLIENT_PEER_DATA].seq_num_kex_init = 0;
@@ -715,7 +695,6 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         global_data->kex_server_host_key_blob = wmem_array_new(wmem_file_scope(), 1);
         global_data->kex_shared_secret = wmem_array_new(wmem_file_scope(), 1);
         global_data->do_decrypt      = TRUE;
-#endif
 
         conversation_add_proto_data(conversation, proto_ssh, global_data);
     }
@@ -854,13 +833,11 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
                 offset, ssh2_tree, is_response,
                 need_desegmentation);
 
-#ifdef SSH_DECRYPTION_SUPPORTED
             if (!*need_desegmentation) {
                 ssh_increment_message_number(pinfo, global_data, is_response);
             }else{
                 break;
             }
-#endif
         } else {
             if(!*need_desegmentation){
                 offset = ssh_try_dissect_encrypted_packet(tvb, pinfo,
@@ -1041,13 +1018,8 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     proto_tree_add_uint(tree, hf_ssh_hostkey_length, tvb, last_offset, 4, key_len);
 
     // server host key (K_S / Q)
-#ifdef SSH_DECRYPTION_SUPPORTED
     gchar *data = (gchar *)tvb_memdup(wmem_packet_scope(), tvb, last_offset + 4, key_len);
     ssh_hash_buffer_put_string(global_data->kex_server_host_key_blob, data, key_len);
-#else
-    // ignore unused parameter complaint
-    (void)global_data;
-#endif
 
     last_offset += 4;
     proto_tree_add_uint(tree, hf_ssh_hostkey_type_length, tvb, last_offset, 4, type_len);
@@ -1239,13 +1211,11 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
             if ((peer_data->frame_key_start == 0) || (peer_data->frame_key_start == pinfo->num)) {
                 if (!PINFO_FD_VISITED(pinfo)) {
                     peer_data->frame_key_start = pinfo->num;
-#ifdef SSH_DECRYPTION_SUPPORTED
                     if(global_data->peer_data[is_response].seq_num_kex_init == 0){
                         global_data->peer_data[is_response].seq_num_kex_init = global_data->peer_data[is_response].sequence_number;
                         global_data->peer_data[is_response].sequence_number++;
                         ssh_debug_printf("%s->sequence_number{SSH_MSG_KEXINIT=%d}++ > %d\n", is_response?"server":"client", global_data->peer_data[is_response].seq_num_kex_init, global_data->peer_data[is_response].sequence_number);
                     }
-#endif
                 }
             }
             seq_num = global_data->peer_data[is_response].seq_num_kex_init;
@@ -1258,13 +1228,11 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                                 global_data->peer_data[SERVER_PEER_DATA].enc_proposals[is_response],
                                 &peer_data->enc);
 
-#ifdef SSH_DECRYPTION_SUPPORTED
                 if(global_data->peer_data[is_response].seq_num_new_key == 0){
                     global_data->peer_data[is_response].seq_num_new_key = global_data->peer_data[is_response].sequence_number;
                     global_data->peer_data[is_response].sequence_number++;
                     ssh_debug_printf("%s->sequence_number{SSH_MSG_NEWKEYS=%d}++ > %d\n", is_response?"server":"client", global_data->peer_data[is_response].seq_num_new_key, global_data->peer_data[is_response].sequence_number);
                 }
-#endif
 
                 /* some ciphers have their own MAC so the "negotiated" one is meaningless */
                 if(peer_data->enc && (0 == strcmp(peer_data->enc, "aes128-gcm@openssh.com") ||
@@ -1289,7 +1257,6 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                                 &peer_data->comp);
 
                 // the client sent SSH_MSG_NEWKEYS
-#ifdef SSH_DECRYPTION_SUPPORTED
                 if (!is_response) {
                     ssh_decryption_set_cipher_id(&global_data->peer_data[CLIENT_PEER_DATA]);
                     ssh_debug_printf("Activating new keys for CLIENT => SERVER\n");
@@ -1299,7 +1266,6 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                     ssh_debug_printf("Activating new keys for SERVER => CLIENT\n");
                     ssh_decryption_setup_cipher(&global_data->peer_data[SERVER_PEER_DATA], &global_data->new_keys[1], &global_data->new_keys[3]);
                 }
-#endif
             }
             seq_num = global_data->peer_data[is_response].seq_num_new_key;
 
@@ -1334,13 +1300,11 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 
     switch (msg_code) {
     case SSH_MSG_KEXDH_INIT:
-#ifdef SSH_DECRYPTION_SUPPORTED
         // e (client ephemeral key public part)
         if (!ssh_read_e(tvb, offset, global_data)) {
             proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
-#endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_e);
         if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini == 0){
@@ -1355,14 +1319,12 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
         offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key",
                 ett_key_exchange_host_key, global_data);
 
-#ifdef SSH_DECRYPTION_SUPPORTED
         // f (server ephemeral key public part), K_S (host key)
         if (!ssh_read_f(tvb, offset, global_data)) {
             proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
         ssh_keylog_hash_write_secret(global_data);
-#endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
         offset += ssh_tree_add_hostsignature(tvb, pinfo, offset, tree, "KEX host signature",
@@ -1464,7 +1426,6 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
 
     switch (msg_code) {
     case SSH_MSG_KEX_ECDH_INIT:
-#ifdef SSH_DECRYPTION_SUPPORTED
         if (!ssh_read_e(tvb, offset, global_data)) {
             proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
@@ -1478,10 +1439,6 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
             }
         }
         *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_ini;
-#else
-    // ignore unused parameter complaint
-        (void)seq_num;
-#endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_c, hf_ssh_ecdh_q_c_length);
         break;
@@ -1490,7 +1447,6 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
         offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key",
                 ett_key_exchange_host_key, global_data);
 
-#ifdef SSH_DECRYPTION_SUPPORTED
         if (!ssh_read_f(tvb, offset, global_data)){
             proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
@@ -1503,7 +1459,6 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
             ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_ECDH_REPLY=%d}++ > %d\n", SERVER_PEER_DATA?"server":"client", global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep, global_data->peer_data[SERVER_PEER_DATA].sequence_number);
         }
         *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep;
-#endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_s, hf_ssh_ecdh_q_s_length);
         offset += ssh_tree_add_hostsignature(tvb, pinfo, offset, tree, "KEX host signature",
@@ -1518,13 +1473,11 @@ static int
 ssh_try_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_tree *tree)
 {
-#ifdef SSH_DECRYPTION_SUPPORTED
     gboolean can_decrypt = peer_data->cipher != NULL;
 
     if (can_decrypt) {
         return ssh_decrypt_packet(tvb, pinfo, peer_data, offset, tree);
     }
-#endif
 
     return ssh_dissect_encrypted_packet(tvb, pinfo, peer_data, offset, tree);
 }
@@ -1634,7 +1587,6 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 
     // V_C / V_S (client and server identification strings) RFC4253 4.2
     // format: SSH-protoversion-softwareversion SP comments [CR LF not incl.]
-#ifdef SSH_DECRYPTION_SUPPORTED
     if (!PINFO_FD_VISITED(pinfo)) {
         gchar *data = (gchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, protolen);
         if(!is_response){
@@ -1643,7 +1595,6 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
             ssh_hash_buffer_put_string(global_data->kex_server_version, data, protolen);
         }
     }
-#endif
 
     proto_tree_add_item(tree, hf_ssh_protocol,
                     tvb, offset, protolen, ENC_ASCII);
@@ -1760,11 +1711,7 @@ ssh_choose_algo(gchar *client, gchar *server, gchar **result)
 }
 
 static int
-#ifdef SSH_DECRYPTION_SUPPORTED
 ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo, int offset,
-#else
-ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
-#endif
         proto_tree *tree, int is_response, struct ssh_flow_data *global_data)
 {
     int start_offset = offset;
@@ -1778,11 +1725,9 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
     key_init_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_init, &tf, "Algorithms");
-#ifdef SSH_DECRYPTION_SUPPORTED
     if (!PINFO_FD_VISITED(pinfo)) {
         peer_data->bn_cookie = ssh_kex_make_bignum(tvb_get_ptr(tvb, offset, 16), 16);
     }
-#endif
     proto_tree_add_item(key_init_tree, hf_ssh_cookie,
                     tvb, offset, 16, ENC_NA);
     offset += 16;
@@ -1871,7 +1816,6 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
         proto_item_set_len(tf, payload_length);
     }
 
-#ifdef SSH_DECRYPTION_SUPPORTED
     // I_C / I_S (client and server SSH_MSG_KEXINIT payload) RFC4253 4.2
     if (!PINFO_FD_VISITED(pinfo)) {
         gchar *data = (gchar *)wmem_alloc(wmem_packet_scope(), payload_length + 1);
@@ -1883,7 +1827,6 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
             ssh_hash_buffer_put_string(global_data->kex_client_key_exchange_init, data, payload_length + 1);
         }
     }
-#endif
 
     return offset;
 }
@@ -1905,7 +1848,6 @@ ssh_dissect_proposal(tvbuff_t *tvb, int offset, proto_tree *tree,
     return offset;
 }
 
-#ifdef SSH_DECRYPTION_SUPPORTED
 static void
 ssh_keylog_read_file(void)
 {
@@ -3346,8 +3288,6 @@ ssh_hash  (gconstpointer v)
 }
 /* Functions for SSH random hashtables. }}} */
 
-#endif /* SSH_DECRYPTION_SUPPORTED */
-
 void
 proto_register_ssh(void)
 {
@@ -4062,7 +4002,6 @@ proto_register_ssh(void)
                        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                        &ssh_desegment);
 
-#ifdef SSH_DECRYPTION_SUPPORTED
     ssh_master_key_map = g_hash_table_new(ssh_hash, ssh_equal);
     prefs_register_filename_preference(ssh_module, "keylog_file", "Key log filename",
             "The path to the file which contains a list of key exchange secrets in the following format:\n"
@@ -4075,7 +4014,6 @@ proto_register_ssh(void)
         &ssh_debug_file_name, TRUE);
 
     secrets_register_type(SECRETS_TYPE_SSH, ssh_secrets_block_callback);
-#endif
 
     ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
 }

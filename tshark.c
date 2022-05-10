@@ -49,6 +49,7 @@
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <ui/version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -136,6 +137,7 @@
 #define LONGOPT_EXPORT_TLS_SESSION_KEYS LONGOPT_BASE_APPLICATION+5
 #define LONGOPT_CAPTURE_COMMENT         LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_HEXDUMP                 LONGOPT_BASE_APPLICATION+7
+#define LONGOPT_SELECTED_FRAME          LONGOPT_BASE_APPLICATION+8
 
 capture_file cfile;
 
@@ -147,6 +149,8 @@ static frame_data prev_cap_frame;
 static gboolean perform_two_pass_analysis;
 static guint32 epan_auto_reset_count = 0;
 static gboolean epan_auto_reset = FALSE;
+
+static guint32 selected_frame_number = 0;
 
 /*
  * The way the packet decode is to be written.
@@ -606,6 +610,40 @@ gather_tshark_runtime_info(feature_list l)
     epan_gather_runtime_info(l);
 }
 
+static gboolean
+_compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
+{
+    gboolean ok;
+    dfilter_loc_t err_loc;
+    char *err_msg = NULL;
+    char *err_off;
+    char *expanded;
+
+    expanded = dfilter_expand(text, &err_msg);
+    if (expanded == NULL) {
+        cmdarg_err("%s", err_msg);
+        g_free(err_msg);
+        return FALSE;
+    }
+
+    ok = dfilter_compile_real(expanded, dfp, &err_msg, &err_loc, caller, FALSE, FALSE);
+    if (!ok ) {
+        cmdarg_err("%s", err_msg);
+        g_free(err_msg);
+        if (err_loc.col_start >= 0) {
+            err_off = ws_strdup_underline(NULL, err_loc.col_start, err_loc.col_len);
+            cmdarg_err_cont("    %s", expanded);
+            cmdarg_err_cont("    %s", err_off);
+            g_free(err_off);
+        }
+    }
+
+    g_free(expanded);
+    return ok;
+}
+
+#define compile_dfilter(text, dfp)      _compile_dfilter(text, dfp, __func__)
+
 static void
 about_folders(void)
 {
@@ -749,6 +787,7 @@ main(int argc, char *argv[])
         {"elastic-mapping-filter", ws_required_argument, NULL, LONGOPT_ELASTIC_MAPPING_FILTER},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {"hexdump", ws_required_argument, NULL, LONGOPT_HEXDUMP},
+        {"selected-frame", ws_required_argument, NULL, LONGOPT_SELECTED_FRAME},
         {0, 0, 0, 0}
     };
     gboolean             arg_error = FALSE;
@@ -784,6 +823,7 @@ main(int argc, char *argv[])
     const gchar         *volatile tls_session_keys_file = NULL;
     exp_pdu_t            exp_pdu_tap_data;
     const gchar*         elastic_mapping_filter = NULL;
+    const char           *endptr;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1554,6 +1594,15 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 break;
+            case LONGOPT_SELECTED_FRAME:
+                /* Hidden option to mark a frame as "selected". Used for testing and debugging.
+                 * Only active in two-pass mode. */
+                if (!ws_strtou32(ws_optarg, &endptr, &selected_frame_number) || *endptr != '\0') {
+                    fprintf(stderr, "tshark: \"%s\" is not a valid frame number\n", ws_optarg);
+                    exit_status = INVALID_OPTION;
+                    goto clean_exit;
+                }
+            break;
             default:
             case '?':        /* Bad flag - print usage message */
                 switch(ws_optopt) {
@@ -2013,9 +2062,7 @@ main(int argc, char *argv[])
 
     if (rfilter != NULL) {
         ws_debug("Compiling read filter: '%s'", rfilter);
-        if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
-            cmdarg_err("%s", err_msg);
-            g_free(err_msg);
+        if (!compile_dfilter(rfilter, &rfcode)) {
             epan_cleanup();
             extcap_cleanup();
 
@@ -2040,9 +2087,7 @@ main(int argc, char *argv[])
 
     if (dfilter != NULL) {
         ws_debug("Compiling display filter: '%s'", dfilter);
-        if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
-            cmdarg_err("%s", err_msg);
-            g_free(err_msg);
+        if (!compile_dfilter(dfilter, &dfcode)) {
             epan_cleanup();
             extcap_cleanup();
 
@@ -3128,6 +3173,13 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
         if (edt && cf->dfcode) {
             if (dfilter_apply_edt(cf->dfcode, edt)) {
                 g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+            }
+
+            if (selected_frame_number != 0 && selected_frame_number == cf->count + 1) {
+                /* If we are doing dissection and we have a "selected frame"
+                 * then load that frame's references (if any) onto the compiled
+                 * display filter. Selected frame number is ordinal, count is cardinal. */
+                dfilter_load_field_references(cf->dfcode, edt->tree);
             }
         }
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.8.0 (2021-12)
+-- 3GPP TS 36.423 V16.9.0 (2022-04)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -569,5 +569,7 @@ id-IMSvoiceEPSfallbackfrom5G												ProtocolIE-ID ::= 408
 id-AdditionLocationInformation												ProtocolIE-ID ::= 409
 id-DirectForwardingPathAvailability											ProtocolIE-ID ::= 410
 id-sourceNG-RAN-node-id														ProtocolIE-ID ::= 411
+id-SourceDLForwardingIPAddress												ProtocolIE-ID ::= 412
+id-SourceNodeDLForwardingIPAddress											ProtocolIE-ID ::= 413
 
 END

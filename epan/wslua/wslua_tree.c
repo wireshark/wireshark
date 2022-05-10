@@ -76,7 +76,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
                      const ftenum_t type, const guint encoding, gint *ret_err)
 {
     gint err = 0;
-    proto_item* item = NULL;
+    proto_item *volatile item = NULL;
     gint endoff = 0;
 
     switch(type) {

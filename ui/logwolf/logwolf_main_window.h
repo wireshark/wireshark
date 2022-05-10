@@ -434,7 +434,6 @@ private slots:
     void on_actionFilePrint_triggered();
 
     void on_actionFileExportPDU_triggered();
-    void on_actionFileExportTLSSessionKeys_triggered();
 
     void actionEditCopyTriggered(LogwolfMainWindow::CopySelected selection_type);
     void on_actionCopyAllVisibleItems_triggered();
@@ -533,13 +532,6 @@ private slots:
 
     void openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num, bool use_stream_index = true);
     void openFollowStreamDialogForType(follow_type_t type);
-    void on_actionAnalyzeFollowTCPStream_triggered();
-    void on_actionAnalyzeFollowUDPStream_triggered();
-    void on_actionAnalyzeFollowDCCPStream_triggered();
-    void on_actionAnalyzeFollowTLSStream_triggered();
-    void on_actionAnalyzeFollowHTTPStream_triggered();
-    void on_actionAnalyzeFollowHTTP2Stream_triggered();
-    void on_actionAnalyzeFollowQUICStream_triggered();
 
     void statCommandExpertInfo(const char *, void *);
     void on_actionAnalyzeExpertInfo_triggered();
@@ -578,58 +570,16 @@ private slots:
     void on_actionStatisticsResolvedAddresses_triggered();
     void on_actionStatisticsProtocolHierarchy_triggered();
     void on_actionStatisticsFlowGraph_triggered();
-    void openTcpStreamDialog(int graph_type);
-    void on_actionStatisticsTcpStreamStevens_triggered();
-    void on_actionStatisticsTcpStreamTcptrace_triggered();
-    void on_actionStatisticsTcpStreamThroughput_triggered();
-    void on_actionStatisticsTcpStreamRoundTripTime_triggered();
-    void on_actionStatisticsTcpStreamWindowScaling_triggered();
-    void statCommandMulticastStatistics(const char *arg, void *);
-    void on_actionStatisticsUdpMulticastStreams_triggered();
 
     void openStatisticsTreeDialog(const gchar *abbr);
-    void on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered();
-    void on_actionStatistics29WestTopics_Advertisements_by_Source_triggered();
-    void on_actionStatistics29WestTopics_Advertisements_by_Transport_triggered();
-    void on_actionStatistics29WestTopics_Queries_by_Topic_triggered();
-    void on_actionStatistics29WestTopics_Queries_by_Receiver_triggered();
-    void on_actionStatistics29WestTopics_Wildcard_Queries_by_Pattern_triggered();
-    void on_actionStatistics29WestTopics_Wildcard_Queries_by_Receiver_triggered();
-    void on_actionStatistics29WestQueues_Advertisements_by_Queue_triggered();
-    void on_actionStatistics29WestQueues_Advertisements_by_Source_triggered();
-    void on_actionStatistics29WestQueues_Queries_by_Queue_triggered();
-    void on_actionStatistics29WestQueues_Queries_by_Receiver_triggered();
-    void on_actionStatistics29WestUIM_Streams_triggered();
-    void on_actionStatistics29WestLBTRM_triggered();
-    void on_actionStatistics29WestLBTRU_triggered();
-    void on_actionStatisticsANCP_triggered();
-    void on_actionStatisticsBACappInstanceId_triggered();
-    void on_actionStatisticsBACappIP_triggered();
-    void on_actionStatisticsBACappObjectId_triggered();
-    void on_actionStatisticsBACappService_triggered();
-    void on_actionStatisticsCollectd_triggered();
     void statCommandConversations(const char *arg = NULL, void *userdata = NULL);
     void on_actionStatisticsConversations_triggered();
     void statCommandEndpoints(const char *arg = NULL, void *userdata = NULL);
     void on_actionStatisticsEndpoints_triggered();
-    void on_actionStatisticsHART_IP_triggered();
-    void on_actionStatisticsHTTPPacketCounter_triggered();
-    void on_actionStatisticsHTTPRequests_triggered();
-    void on_actionStatisticsHTTPLoadDistribution_triggered();
-    void on_actionStatisticsHTTPRequestSequences_triggered();
     void on_actionStatisticsPacketLengths_triggered();
     void statCommandIOGraph(const char *, void *);
     void on_actionStatisticsIOGraph_triggered();
-    void on_actionStatisticsSametime_triggered();
-    void on_actionStatisticsDNS_triggered();
     void actionStatisticsPlugin_triggered();
-    void on_actionStatisticsHpfeeds_triggered();
-    void on_actionStatisticsHTTP2_triggered();
-    void on_actionStatisticsSOMEIPmessages_triggered();
-    void on_actionStatisticsSOMEIPSDentries_triggered();
-
-    void on_actionToolsFirewallAclRules_triggered();
-    void on_actionToolsCredentials_triggered();
 
     void externalMenuItem_triggered();
 

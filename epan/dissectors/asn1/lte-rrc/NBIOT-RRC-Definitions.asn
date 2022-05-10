@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.7.0 (2021-12)
+-- 3GPP TS 36.331 V16.8.0 (2022-03)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1447,6 +1447,8 @@ UL-ConfigCommon-NB-r14 ::=			SEQUENCE {
 	nprach-ParametersList-r14			NPRACH-ParametersList-NB-r14	OPTIONAL, -- Need OR
 	...,
 	[[	nprach-ParametersListEDT-r15	NPRACH-ParametersList-NB-r14	OPTIONAL -- Cond EDT
+	]],
+	[[	rsrp-ThresholdsPrachInfoList-r16	RSRP-ThresholdsNPRACH-InfoList-NB-r13	OPTIONAL -- Need OR
 	]]
 }
 
@@ -2041,7 +2043,7 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 PUR-Config-NB-r16	::=				SEQUENCE {
 	pur-ConfigID-r16					PUR-ConfigID-NB-r16				OPTIONAL,	--Need OR
 	pur-TimeAlignmentTimer-r16			INTEGER (1..8)				OPTIONAL,	--Need OR
-	pur-NRSRP-ChangeThreshold-r16		CHOICE {release NULL, setup PUR-NRSRP-ChangeThreshold-r16}
+	pur-NRSRP-ChangeThreshold-r16		CHOICE {release NULL, setup PUR-NRSRP-ChangeThreshold-NB-r16}
 																		OPTIONAL,	--Need ON
 	pur-ImplicitReleaseAfter-r16		ENUMERATED {n2, n4, n8, spare}	OPTIONAL,	--Need OR
 	pur-RNTI-r16						C-RNTI							OPTIONAL,	--Need ON
@@ -2080,7 +2082,7 @@ PUR-Config-NB-r16	::=				SEQUENCE {
 	]]
 }
 
-PUR-NRSRP-ChangeThreshold-r16 ::=	SEQUENCE {
+PUR-NRSRP-ChangeThreshold-NB-r16 ::=	SEQUENCE {
 	increaseThresh-r16						NRSRP-ChangeThresh-NB-r16,
 	decreaseThresh-r16						NRSRP-ChangeThresh-NB-r16	OPTIONAL	--Need OP
 }

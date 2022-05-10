@@ -14,6 +14,8 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 
+#include "packet-tcp.h"
+
 void proto_register_finger(void);
 void proto_reg_handoff_finger(void);
 
@@ -38,7 +40,7 @@ typedef struct _finger_transaction_t {
 
 static int
 dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    void *data _U_)
+    void *data)
 {
     proto_item           *ti, *expert_ti;
     proto_tree           *finger_tree;
@@ -46,6 +48,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     finger_transaction_t *finger_trans;
     gboolean              is_query;
     guint                 len;
+    struct tcpinfo       *tcpinfo = (struct tcpinfo*)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FINGER");
 
@@ -76,7 +79,11 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     finger_trans->req_frame = pinfo->num;
                     finger_trans->req_time = pinfo->abs_ts;
                 }
-            } else {
+            } else if (!(tcpinfo && (IS_TH_FIN(tcpinfo->flags) || tcpinfo->is_reassembled))) {
+                /* If this is the FIN (or already desegmented, as with an out
+                 * of order segment received after FIN) go ahead and dissect
+                 * on the first pass.
+                 */
                 pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
                 pinfo->desegment_offset = 0;
                 return -1;

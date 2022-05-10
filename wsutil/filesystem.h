@@ -39,6 +39,12 @@ extern "C" {
  */
 WS_DLL_PUBLIC char *configuration_init(const char *arg0, const char *namespace_name);
 
+/**
+ * Get the configuration namespace name.
+ * @return The namespace name. One of "Wireshark" or "Logwolf".
+ */
+WS_DLL_PUBLIC const char *get_configuration_namespace(void);
+
 /*
  * Get the directory in which the program resides.
  */

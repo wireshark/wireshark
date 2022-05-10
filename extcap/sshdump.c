@@ -295,7 +295,7 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=password}{tooltip=The SSH password, used when other methods (SSH agent "
 		"or key files) are unavailable.}{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
-		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}"
+		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key (OPENSSH format)}"
 		"{mustexist=true}{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--sshkey-passphrase}{display=SSH key passphrase}"
 		"{type=password}{tooltip=Passphrase to unlock the SSH private key}{group=Authentication}\n",
@@ -412,7 +412,7 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--remote-port <port>", "the remote SSH port");
 	extcap_help_add_option(extcap_conf, "--remote-username <username>", "the remote SSH username");
 	extcap_help_add_option(extcap_conf, "--remote-password <password>", "the remote SSH password. If not specified, ssh-agent and ssh-key are used");
-	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key");
+	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key (OPENSSH format)");
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
 	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy for the ssh connection");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface");

@@ -36,6 +36,7 @@ WS_DLL_PUBLIC const value_string eap_code_vals[];
 #define EAP_TYPE_AKA        23
 #define EAP_TYPE_PEAP       25
 #define EAP_TYPE_MSCHAPV2   26
+#define EAP_TYPE_MSAUTH_TLV 33
 #define EAP_TYPE_FAST       43
 #define EAP_TYPE_PAX        46
 #define EAP_TYPE_PSK        47
@@ -73,6 +74,12 @@ WS_DLL_PUBLIC const value_string eap_aka_subtype_vals[];
 #define MS_CHAP_V2_CHANGE_PASSWORD 7
 
 WS_DLL_PUBLIC const value_string eap_ms_chap_v2_opcode_vals[];
+
+typedef enum {
+  PROTO_DATA_EAP_DUPLICATE_ID,
+  PROTO_DATA_EAP_FRAME_STATE,
+  PROTO_DATA_EAP_TVB,
+} proto_data_eap;
 
 typedef struct _eap_vendor_context {
   guint32   vendor_type;

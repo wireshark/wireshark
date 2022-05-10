@@ -77,12 +77,27 @@
  */
 DIAG_OFF_FLEX
 
-df_lval_t *df_lval;
+stnode_t *df_lval;
 
-static int set_lval_str(int token, const char *token_value);
-#define simple(token) set_lval_str(token, yytext)
-static gboolean append_escaped_char(dfwork_t *dfw, GString *str, char c);
-static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep);
+static int set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id);
+static int set_lval_str(df_scanner_state_t *state, int token, const char *token_value);
+
+static int set_lval_quoted_string(df_scanner_state_t *state, int token, GString *quoted_string);
+static int set_lval_charconst(df_scanner_state_t *state, int token, GString *quoted_string);
+static int set_lval_range_node(df_scanner_state_t *state, int token, const char *token_value);
+static int set_lval_field(df_scanner_state_t *state, int token, const char *token_value);
+
+#define simple(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_UNINITIALIZED))
+#define test(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_TEST))
+#define math(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_ARITHMETIC))
+
+static gboolean append_escaped_char(df_scanner_state_t *state, GString *str, char c);
+static gboolean parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep);
+
+static void update_location(df_scanner_state_t *state, const char *text);
+static void update_string_loc(df_scanner_state_t *state, const char *text);
+
+#define FAIL(...) dfilter_fail(yyextra->dfw, &yyextra->location, __VA_ARGS__)
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -98,7 +113,7 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 
 %}
 
-WORD_CHAR	[[:alnum:]_-]
+Identifier	[[:alnum:]_][[:alnum:]_-]*(\.[[:alnum:]_-]+)*
 
 hex2		[[:xdigit:]]{2}
 MacAddress	{hex2}:{hex2}:{hex2}:{hex2}:{hex2}:{hex2}|{hex2}-{hex2}-{hex2}-{hex2}-{hex2}-{hex2}|{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}\.{hex2}
@@ -116,14 +131,21 @@ IPv6address	({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|((
 v4-cidr-prefix	\/[[:digit:]]{1,2}
 v6-cidr-prefix	\/[[:digit:]]{1,3}
 
+colon-bytes	{hex2}(:{hex2})+
+dot-bytes	{hex2}(\.{hex2})+
+hyphen-bytes	{hex2}(-{hex2})+
+
 %x RANGE
+%x LAYER
 %x DQUOTE
 %x SQUOTE
 %x REFERENCE
 
 %%
 
-[[:blank:]\n]+
+[[:blank:]\n]+	{
+	update_location(yyextra, yytext);
+}
 
 "("		return simple(TOKEN_LPAREN);
 ")"		return simple(TOKEN_RPAREN);
@@ -131,74 +153,73 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 "{"		return simple(TOKEN_LBRACE);
 ".."		return simple(TOKEN_DOTDOT);
 "}"		return simple(TOKEN_RBRACE);
-"+"		return simple(TOKEN_PLUS);
-"-"		return simple(TOKEN_MINUS);
-"*"		return simple(TOKEN_STAR);
-"/"		return simple(TOKEN_RSLASH);
-"%"		return simple(TOKEN_PERCENT);
 
-"=="		return simple(TOKEN_TEST_ANY_EQ);
-"eq"		return simple(TOKEN_TEST_ANY_EQ);
-"any_eq"	return simple(TOKEN_TEST_ANY_EQ);
-"!="		return simple(TOKEN_TEST_ALL_NE);
-"ne"		return simple(TOKEN_TEST_ALL_NE);
-"all_ne"	return simple(TOKEN_TEST_ALL_NE);
-"==="		return simple(TOKEN_TEST_ALL_EQ);
-"all_eq"	return simple(TOKEN_TEST_ALL_EQ);
-"!=="		return simple(TOKEN_TEST_ANY_NE);
+"=="		return test(TOKEN_TEST_ANY_EQ);
+"eq"		return test(TOKEN_TEST_ANY_EQ);
+"any_eq"	return test(TOKEN_TEST_ANY_EQ);
+"!="		return test(TOKEN_TEST_ALL_NE);
+"ne"		return test(TOKEN_TEST_ALL_NE);
+"all_ne"	return test(TOKEN_TEST_ALL_NE);
+"==="		return test(TOKEN_TEST_ALL_EQ);
+"all_eq"	return test(TOKEN_TEST_ALL_EQ);
+"!=="		return test(TOKEN_TEST_ANY_NE);
 "~="		{
 	add_deprecated_token(yyextra->dfw, "The operator \"~=\" is deprecated, use \"!==\" instead.");
-	return simple(TOKEN_TEST_ANY_NE);
+	return test(TOKEN_TEST_ANY_NE);
 }
-"any_ne"	return simple(TOKEN_TEST_ANY_NE);
-">"		return simple(TOKEN_TEST_GT);
-"gt"		return simple(TOKEN_TEST_GT);
-">="		return simple(TOKEN_TEST_GE);
-"ge"		return simple(TOKEN_TEST_GE);
-"<"		return simple(TOKEN_TEST_LT);
-"lt"		return simple(TOKEN_TEST_LT);
-"<="		return simple(TOKEN_TEST_LE);
-"le"		return simple(TOKEN_TEST_LE);
-"contains"	return simple(TOKEN_TEST_CONTAINS);
-"~"		return simple(TOKEN_TEST_MATCHES);
-"matches"	return simple(TOKEN_TEST_MATCHES);
-"!"		return simple(TOKEN_TEST_NOT);
-"not"		return simple(TOKEN_TEST_NOT);
-"&&"		return simple(TOKEN_TEST_AND);
-"and"		return simple(TOKEN_TEST_AND);
-"||"		return simple(TOKEN_TEST_OR);
-"or"		return simple(TOKEN_TEST_OR);
-"in"		return simple(TOKEN_TEST_IN);
+"any_ne"	return test(TOKEN_TEST_ANY_NE);
+">"		return test(TOKEN_TEST_GT);
+"gt"		return test(TOKEN_TEST_GT);
+">="		return test(TOKEN_TEST_GE);
+"ge"		return test(TOKEN_TEST_GE);
+"<"		return test(TOKEN_TEST_LT);
+"lt"		return test(TOKEN_TEST_LT);
+"<="		return test(TOKEN_TEST_LE);
+"le"		return test(TOKEN_TEST_LE);
+"contains"	return test(TOKEN_TEST_CONTAINS);
+"~"		return test(TOKEN_TEST_MATCHES);
+"matches"	return test(TOKEN_TEST_MATCHES);
+"!"		return test(TOKEN_TEST_NOT);
+"not"		return test(TOKEN_TEST_NOT);
+"&&"		return test(TOKEN_TEST_AND);
+"and"		return test(TOKEN_TEST_AND);
+"||"		return test(TOKEN_TEST_OR);
+"or"		return test(TOKEN_TEST_OR);
+"in"		return test(TOKEN_TEST_IN);
 
-"&"		return simple(TOKEN_BITWISE_AND);
-"bitwise_and"	return simple(TOKEN_BITWISE_AND);
+"+"		return math(TOKEN_PLUS);
+"-"		return math(TOKEN_MINUS);
+"*"		return math(TOKEN_STAR);
+"/"		return math(TOKEN_RSLASH);
+"%"		return math(TOKEN_PERCENT);
+"&"		return math(TOKEN_BITWISE_AND);
+"bitwise_and"	return math(TOKEN_BITWISE_AND);
 
-"${"					{
-	BEGIN(REFERENCE);
-	return simple(TOKEN_REF_OPEN);
+"#"				{
+	BEGIN(LAYER);
+	return simple(TOKEN_HASH);
 }
 
-<REFERENCE>[^}]+		{
-	return set_lval_str(TOKEN_REFERENCE, yytext);
-}
-
-<REFERENCE>"}"				{
+<LAYER>[[:digit:]]+		{
 	BEGIN(INITIAL);
-	return simple(TOKEN_REF_CLOSE);
+	update_location(yyextra, yytext);
+	return set_lval_simple(yyextra, TOKEN_INTEGER, yytext, STTYPE_UNINITIALIZED);
 }
 
-<REFERENCE><<EOF>>				{
-	dfilter_fail(yyextra->dfw, "Right brace missing from field reference.");
+<LAYER>[^[:digit:][]			{
+	update_location(yyextra, yytext);
+	FAIL("Expected digit or \"[\", not \"%s\"", yytext);
 	return SCAN_FAILED;
 }
 
-"["				{
+<INITIAL,LAYER>"["		{
 	BEGIN(RANGE);
 	return simple(TOKEN_LBRACKET);
 }
 
 <RANGE>[^],]+			{
-	return set_lval_str(TOKEN_RANGE, yytext);
+	update_location(yyextra, yytext);
+	return set_lval_range_node(yyextra, TOKEN_RANGE_NODE, yytext);
 }
 
 <RANGE>","			{
@@ -211,7 +232,8 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 }
 
 <RANGE><<EOF>>				{
-	dfilter_fail(yyextra->dfw, "The right bracket was missing from a slice.");
+	update_location(yyextra, yytext);
+	FAIL("The right bracket was missing from a slice.");
 	return SCAN_FAILED;
 }
 
@@ -223,7 +245,10 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	 * See: https://westes.github.io/flex/manual/Start-Conditions.html
 	 */
 	BEGIN(DQUOTE);
-	yyextra->quoted_string = g_string_new("");
+	update_location(yyextra, yytext);
+	yyextra->string_loc = yyextra->location;
+
+	yyextra->quoted_string = g_string_new("\"");
 
 	if (yytext[0] == 'r' || yytext[0] == 'R') {
 		/*
@@ -244,22 +269,27 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 
 <DQUOTE><<EOF>>				{
 	/* unterminated string */
+	update_string_loc(yyextra, yytext);
 	g_string_free(yyextra->quoted_string, TRUE);
 	yyextra->quoted_string = NULL;
-	dfilter_fail(yyextra->dfw, "The final quote was missing from a quoted string.");
+	FAIL("The final quote was missing from a quoted string.");
 	return SCAN_FAILED;
 }
 
 <DQUOTE>\042			{
 	/* end quote */
 	BEGIN(INITIAL);
-	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
+	update_string_loc(yyextra, yytext);
+	g_string_append_c(yyextra->quoted_string, '"');
+	int token = set_lval_quoted_string(yyextra, TOKEN_STRING, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
-	return TOKEN_STRING;
+	yyextra->string_loc.col_start = -1;
+	return token;
 }
 
 <DQUOTE>\\[0-7]{1,3} {
 	/* octal sequence */
+	update_string_loc(yyextra, yytext);
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);
 	}
@@ -269,13 +299,13 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 		if (result == 0) {
 			g_string_free(yyextra->quoted_string, TRUE);
 			yyextra->quoted_string = NULL;
-			dfilter_fail(yyextra->dfw, "%s (NUL byte) cannot be used with a regular string.", yytext);
+			FAIL("%s (NUL byte) cannot be used with a regular string.", yytext);
 			return SCAN_FAILED;
 		}
 		if (result > 0xff) {
 			g_string_free(yyextra->quoted_string, TRUE);
 			yyextra->quoted_string = NULL;
-			dfilter_fail(yyextra->dfw, "%s is larger than 255.", yytext);
+			FAIL("%s is larger than 255.", yytext);
 			return SCAN_FAILED;
 		}
 		g_string_append_c(yyextra->quoted_string, (gchar) result);
@@ -288,6 +318,7 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	 * C standard does not place a limit on the number of hex
 	 * digits after \x... but we do. \xNN can have 1 or two Ns, not more.
 	 */
+	update_string_loc(yyextra, yytext);
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);
 	}
@@ -297,7 +328,7 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 		if (result == 0) {
 			g_string_free(yyextra->quoted_string, TRUE);
 			yyextra->quoted_string = NULL;
-			dfilter_fail(yyextra->dfw, "%s (NUL byte) cannot be used with a regular string.", yytext);
+			FAIL("%s (NUL byte) cannot be used with a regular string.", yytext);
 			return SCAN_FAILED;
 		}
 		g_string_append_c(yyextra->quoted_string, (gchar) result);
@@ -307,10 +338,11 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 
 <DQUOTE>\\.				{
 	/* escaped character */
+	update_string_loc(yyextra, yytext);
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);
 	}
-	else if (!append_escaped_char(yyextra->dfw, yyextra->quoted_string, yytext[1])) {
+	else if (!append_escaped_char(yyextra, yyextra->quoted_string, yytext[1])) {
 		g_string_free(yyextra->quoted_string, TRUE);
 		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
@@ -319,6 +351,7 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 
 <DQUOTE>[^\\\042]+			{
 	/* non-escaped string */
+	update_string_loc(yyextra, yytext);
 	g_string_append(yyextra->quoted_string, yytext);
 }
 
@@ -326,37 +359,41 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 \047				{
 	/* start quote of a quoted character value */
 	BEGIN(SQUOTE);
+	update_location(yyextra, yytext);
+	yyextra->string_loc = yyextra->location;
+
 	yyextra->quoted_string = g_string_new("'");
 }
 
 <SQUOTE><<EOF>>				{
 	/* unterminated character value */
+	update_string_loc(yyextra, yytext);
 	g_string_free(yyextra->quoted_string, TRUE);
 	yyextra->quoted_string = NULL;
-	dfilter_fail(yyextra->dfw, "The final quote was missing from a character constant.");
+	FAIL("The final quote was missing from a character constant.");
 	return SCAN_FAILED;
 }
 
 <SQUOTE>\047			{
 	/* end quote */
 	BEGIN(INITIAL);
+	update_string_loc(yyextra, yytext);
 	g_string_append_c(yyextra->quoted_string, '\'');
-	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
+	int token = set_lval_charconst(yyextra, TOKEN_CHARCONST, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
-
-	if (!parse_charconst(yyextra->dfw, df_lval->value, &df_lval->number)) {
-		return SCAN_FAILED;
-	}
-	return TOKEN_CHARCONST;
+	yyextra->string_loc.col_start = -1;
+	return token;
 }
 
 <SQUOTE>\\.				{
 	/* escaped character */
+	update_string_loc(yyextra, yytext);
 	g_string_append(yyextra->quoted_string, yytext);
 }
 
 <SQUOTE>[^\\\047]+			{
 	/* non-escaped string */
+	update_string_loc(yyextra, yytext);
 	g_string_append(yyextra->quoted_string, yytext);
 }
 
@@ -364,45 +401,69 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
 	/* None of the patterns below can match ".." anywhere in the token string. */
 
 {MacAddress}|{QuadMacAddress}		{
-	/* MAC Address literal or unparsed if using dots. */
-	return set_lval_str(TOKEN_UNPARSED, yytext);
+	/* MAC Address. */
+	update_location(yyextra, yytext);
+	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
 }
 
-{IPv4address}{v4-cidr-prefix}		{
-	/* IPv4 CIDR. */
-	return set_lval_str(TOKEN_LITERAL, yytext);
+{IPv4address}{v4-cidr-prefix}?		{
+	/* IPv4 with or without prefix. */
+	update_location(yyextra, yytext);
+	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
 }
 
-{IPv6address}{v6-cidr-prefix}		{
-	/* IPv6 CIDR. */
-	return set_lval_str(TOKEN_LITERAL, yytext);
+{IPv6address}{v6-cidr-prefix}?		{
+	/* IPv6 with or without prefix. */
+	update_location(yyextra, yytext);
+	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
 }
 
-[[:xdigit:]]+:[[:xdigit:]:]*		{
-	/* Bytes or address (IPv6, etc). */
-	return set_lval_str(TOKEN_LITERAL, yytext);
+:?({colon-bytes}|{dot-bytes}|{hyphen-bytes})	{
+	/* Bytes. */
+	update_location(yyextra, yytext);
+	if (yytext[0] == ':')
+		return set_lval_str(yyextra, TOKEN_LITERAL, yytext); /* Keep leading colon. */
+	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
+}
+
+:[[:xdigit:]]+		{
+	/* Numeric. */
+	update_location(yyextra, yytext);
+	return set_lval_str(yyextra, TOKEN_LITERAL, yytext + 1); /* Skip leading colon. */
 }
 
 "<"[^>=]+">"			{
-	/* Literal in angle brackets. */
-	return set_lval_str(TOKEN_LITERAL, yytext);
+	/* Literal in-between angle brackets (cannot be parsed as a protocol field). */
+	/* Strip brackets. */
+	update_location(yyextra, yytext);
+	char *end = strchr(yytext, '>');
+	*end = '\0';
+	return set_lval_str(yyextra, TOKEN_LITERAL, yytext + 1);
 }
 
-[:.]?[[:alnum:]_]{WORD_CHAR}*(\.{WORD_CHAR}+)*		{
-	/* Identifier or literal or unparsed. */
-	if (yytext[0] == '.')
-		return set_lval_str(TOKEN_IDENTIFIER, yytext);
-	if (yytext[0] == ':')
-		return set_lval_str(TOKEN_LITERAL, yytext);
-	return set_lval_str(TOKEN_UNPARSED, yytext);
+\.?{Identifier}			{
+	/* Identifier or unparsed. */
+	update_location(yyextra, yytext);
+	if (yytext[0] == '.') {
+		/* Skip leading dot. */
+		return set_lval_field(yyextra, TOKEN_FIELD, yytext + 1);
+	}
+	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
+}
+
+"${"{Identifier}"}"		{
+	char *end = strchr(yytext, '}');
+	*end = '\0';
+	return set_lval_field(yyextra, TOKEN_REFERENCE, yytext + 2);
 }
 
 . {
 	/* Default */
+	update_location(yyextra, yytext);
 	if (isprint_string(yytext))
-		dfilter_fail(yyextra->dfw, "\"%s\" was unexpected in this context.", yytext);
+		FAIL("\"%s\" was unexpected in this context.", yytext);
 	else
-		dfilter_fail(yyextra->dfw, "Non-printable ASCII characters may only appear inside double-quotes.");
+		FAIL("Non-printable ASCII characters may only appear inside double-quotes.");
 	return SCAN_FAILED;
 }
 
@@ -414,15 +475,127 @@ v6-cidr-prefix	\/[[:digit:]]{1,3}
  */
 DIAG_ON_FLEX
 
-static int
-set_lval_str(int token, const char *token_value)
+static void
+_update_location(df_scanner_state_t *state, size_t len)
 {
-	df_lval->value = g_strdup(token_value);
+	state->location.col_start += (long)state->location.col_len;
+	state->location.col_len = len;
+}
+
+static void
+update_location(df_scanner_state_t *state, const char *text)
+{
+	_update_location(state, strlen(text));
+}
+
+static void
+update_string_loc(df_scanner_state_t *state, const char *text)
+{
+	size_t len = strlen(text);
+	state->string_loc.col_len += len;
+	_update_location(state, len);
+}
+
+static int
+set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id)
+{
+	stnode_init(df_lval, type_id, NULL, g_strdup(token_value), &state->location);
+	return token;
+}
+
+static int
+set_lval_str(df_scanner_state_t *state, int token, const char *token_value)
+{
+	sttype_id_t type_id;
+
+	switch (token) {
+		case TOKEN_LITERAL:
+			type_id = STTYPE_LITERAL;
+			break;
+		case TOKEN_UNPARSED:
+			type_id = STTYPE_UNPARSED;
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+	stnode_init(df_lval, type_id, g_strdup(token_value), g_strdup(token_value), &state->location);
+	return token;
+}
+
+static int
+set_lval_quoted_string(df_scanner_state_t *state, int token, GString *quoted_string)
+{
+	ws_assert(token == TOKEN_STRING);
+	char *token_value = g_string_free(quoted_string, FALSE);
+
+	/* Strip start and end quote. */
+	char *data = g_strndup(token_value + 1, strlen(token_value + 1) - 1);
+
+	stnode_init(df_lval, STTYPE_STRING, data, token_value, &state->string_loc);
+	return token;
+}
+
+static int
+set_lval_charconst(df_scanner_state_t *state, int token, GString *quoted_string)
+{
+	ws_assert(token == TOKEN_CHARCONST);
+	unsigned long number;
+	gboolean ok;
+
+	char *token_value = g_string_free(quoted_string, FALSE);
+	ok = parse_charconst(state, token_value, &number);
+	if (!ok) {
+		g_free(token_value);
+		return SCAN_FAILED;
+	}
+	stnode_init(df_lval, STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, &state->string_loc);
+	return token;
+}
+
+static int
+set_lval_field(df_scanner_state_t *state, int token, const char *token_value)
+{
+	sttype_id_t type_id;
+	header_field_info *hfinfo;
+
+	switch (token) {
+		case TOKEN_FIELD:
+			type_id = STTYPE_FIELD;
+			break;
+		case TOKEN_REFERENCE:
+			type_id = STTYPE_REFERENCE;
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+
+	hfinfo = dfilter_resolve_unparsed(state->dfw, token_value);
+	if (hfinfo == NULL) {
+		dfilter_fail(state->dfw, &state->location, "\"%s\" is not a valid protocol or protocol field.", token_value);
+	}
+	stnode_init(df_lval, type_id, hfinfo, g_strdup(token_value), &state->location);
+	return token;
+}
+
+static int
+set_lval_range_node(df_scanner_state_t *state, int token, const char *token_value)
+{
+	ws_assert(token == TOKEN_RANGE_NODE);
+	char *err = NULL;
+	drange_node *range;
+
+	range = drange_node_from_str(token_value, &err);
+	if (err != NULL) {
+		dfilter_fail(state->dfw, &state->location, "%s", err);
+		g_free(err);
+		return SCAN_FAILED;
+	}
+	stnode_init(df_lval, STTYPE_RANGE_NODE, range, g_strdup(token_value), &state->location);
 	return token;
 }
 
 static gboolean
-append_escaped_char(dfwork_t *dfw, GString *str, char c)
+append_escaped_char(df_scanner_state_t *state, GString *str, char c)
 {
 	switch (c) {
 		case 'a':
@@ -451,7 +624,8 @@ append_escaped_char(dfwork_t *dfw, GString *str, char c)
 		case '\"':
 			break;
 		default:
-			dfilter_fail(dfw, "\\%c is not a valid character escape sequence", c);
+			dfilter_fail(state->dfw, &state->location,
+					"\\%c is not a valid character escape sequence", c);
 			return FALSE;
 	}
 
@@ -460,14 +634,14 @@ append_escaped_char(dfwork_t *dfw, GString *str, char c)
 }
 
 static gboolean
-parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
+parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 {
 	const char *cp;
 	unsigned long value;
 
 	cp = s + 1;	/* skip the leading ' */
 	if (*cp == '\'') {
-		dfilter_fail(dfw, "Empty character constant.");
+		dfilter_fail(state->dfw, &state->string_loc, "Empty character constant.");
 		return FALSE;
 	}
 
@@ -483,7 +657,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 		switch (*cp) {
 
 		case '\0':
-			dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+			dfilter_fail(state->dfw, &state->string_loc, "%s isn't a valid character constant.", s);
 			return FALSE;
 
 		case 'a':
@@ -535,7 +709,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 			else if (*cp >= 'a' && *cp <= 'f')
 				value = 10 + (*cp - 'a');
 			else {
-				dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+				dfilter_fail(state->dfw, &state->string_loc, "%s isn't a valid character constant.", s);
 				return FALSE;
 			}
 			cp++;
@@ -548,7 +722,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 				else if (*cp >= 'a' && *cp <= 'f')
 					value |= 10 + (*cp - 'a');
 				else {
-					dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+					dfilter_fail(state->dfw, &state->string_loc, "%s isn't a valid character constant.", s);
 					return FALSE;
 				}
 			}
@@ -559,7 +733,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 			if (*cp >= '0' && *cp <= '7')
 				value = *cp - '0';
 			else {
-				dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+				dfilter_fail(state->dfw, &state->string_loc, "%s isn't a valid character constant.", s);
 				return FALSE;
 			}
 			if (*(cp + 1) != '\'') {
@@ -568,7 +742,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 				if (*cp >= '0' && *cp <= '7')
 					value |= *cp - '0';
 				else {
-					dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+					dfilter_fail(state->dfw, &state->string_loc, "%s isn't a valid character constant.", s);
 					return FALSE;
 				}
 				if (*(cp + 1) != '\'') {
@@ -577,26 +751,26 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 					if (*cp >= '0' && *cp <= '7')
 						value |= *cp - '0';
 					else {
-						dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+						dfilter_fail(state->dfw, &state->string_loc, "%s isn't a valid character constant.", s);
 						return FALSE;
 					}
 				}
 			}
 			if (value > 0xFF) {
-				dfilter_fail(dfw, "%s is too large to be a valid character constant.", s);
+				dfilter_fail(state->dfw, &state->string_loc, "%s is too large to be a valid character constant.", s);
 				return FALSE;
 			}
 		}
 	} else {
 		value = *cp;
 		if (!g_ascii_isprint(value)) {
-			dfilter_fail(dfw, "Non-printable value '0x%02lx' in character constant.", value);
+			dfilter_fail(state->dfw, &state->string_loc, "Non-printable value '0x%02lx' in character constant.", value);
 			return FALSE;
 		}
 	}
 	cp++;
 	if ((*cp != '\'') || (*(cp + 1) != '\0')){
-		dfilter_fail(dfw, "%s is too long to be a valid character constant.", s);
+		dfilter_fail(state->dfw, &state->string_loc, "%s is too long to be a valid character constant.", s);
 		return FALSE;
 	}
 

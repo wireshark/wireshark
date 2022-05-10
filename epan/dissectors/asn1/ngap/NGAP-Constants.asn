@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.8.0 (2021-12)
+-- 3GPP TS 38.413 V16.9.0 (2022-04)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -466,5 +466,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-PduSessionExpectedUEActivityBehaviour					ProtocolIE-ID ::= 281
 	id-MicoAllPLMN											ProtocolIE-ID ::= 282
 	id-QosFlowFailedToSetupList								ProtocolIE-ID ::= 283
+	id-SourceTNLAddrInfo										ProtocolIE-ID ::= 284
+	id-ExtendedReportIntervalMDT							ProtocolIE-ID ::= 285
+	id-SourceNodeID											ProtocolIE-ID ::= 286
 
 END

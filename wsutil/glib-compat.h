@@ -1,7 +1,7 @@
 /** @file
 *
 * Definitions to provide some functions that are not present in older
-* GLIB versions (down to 2.22)
+* GLIB versions we support (currently down to 2.50)
 *
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>

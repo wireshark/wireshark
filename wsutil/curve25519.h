@@ -10,10 +10,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/*
- * Callers MUST check GCRYPT_VERSION_NUMBER >= 0x010700 before using this API.
- */
-
 #ifndef __CURVE25519_H__
 #define __CURVE25519_H__
 

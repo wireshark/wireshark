@@ -1006,8 +1006,8 @@ pane) in a more detailed form.
 image::wsug_graphics/ws-details-pane.png[{screenshot-attrs}]
 
 This pane shows the protocols and protocol fields of the packet selected in the
-“Packet List” pane. The protocols and fields of the packet shown in a tree
-which can be expanded and collapsed.
+“Packet List” pane. The protocol summary lines (subtree labels) and fields of the
+packet are shown in a tree which can be expanded and collapsed.
 
 There is a context menu (right mouse click) available. See details in
 <<ChWorkPacketDetailsPanePopUpMenu>>.

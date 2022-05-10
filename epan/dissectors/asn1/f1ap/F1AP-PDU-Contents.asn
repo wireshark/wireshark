@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.8.0 (2021-12)
+-- 3GPP TS 38.473 V16.9.0 (2022-04)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -263,7 +263,8 @@ IMPORTS
 	Extended-GNB-DU-Name,
 	F1CTransferPath,
 	SCGIndicator,
-	SpatialRelationPerSRSResource
+	SpatialRelationPerSRSResource,
+	MeasurementPeriodicityExtended
 
 
 
@@ -612,6 +613,7 @@ FROM F1AP-Containers
 	id-F1CTransferPath,
 	id-SCGIndicator,
 	id-SRSSpatialRelationPerSRSResource,
+	id-PosMeasurementPeriodicityExtended,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -3100,7 +3102,10 @@ PositioningMeasurementRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-SRSConfiguration						CRITICALITY ignore	TYPE SRSConfiguration								PRESENCE optional}|
 	{ ID id-MeasurementBeamInfoRequest				CRITICALITY ignore	TYPE MeasurementBeamInfoRequest	PRESENCE optional	}|
 	{ ID id-SystemFrameNumber						CRITICALITY ignore	TYPE SystemFrameNumber		PRESENCE optional}|
-	{ ID id-SlotNumber								CRITICALITY ignore	TYPE SlotNumber				PRESENCE optional},
+	{ ID id-SlotNumber								CRITICALITY ignore	TYPE SlotNumber				PRESENCE optional}|
+	{ ID id-PosMeasurementPeriodicityExtended		CRITICALITY reject	TYPE MeasurementPeriodicityExtended			PRESENCE conditional }
+	-- The IE shall be present the MeasurementPeriodicity IE is set to the value "extended"
+,
 	...
 } 
 

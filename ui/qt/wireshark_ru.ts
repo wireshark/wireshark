@@ -4738,6 +4738,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Start capture</source>
         <translation>Начать захват</translation>
     </message>
+    <message>
+        <source>Hide Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
@@ -6332,2152 +6336,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>MainWindow</name>
-    <message>
-        <source>Wireshark</source>
-        <translation>Wireshark</translation>
-    </message>
-    <message>
-        <source>Go to packet</source>
-        <translation>Перейти к пакету</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отменить</translation>
-    </message>
-    <message>
-        <source>File Set</source>
-        <translation>Набор Файлов</translation>
-    </message>
-    <message>
-        <source>Export Packet Dissections</source>
-        <translation>Экспорт Результатов Анализа Пакетов</translation>
-    </message>
-    <message>
-        <source>Export Objects</source>
-        <translation>Экспортировать Объекты</translation>
-    </message>
-    <message>
-        <source>&amp;Zoom</source>
-        <translation>&amp;Масштаб</translation>
-    </message>
-    <message>
-        <source>&amp;Time Display Format</source>
-        <translation>&amp;Формат Отображения Времени</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Копировать</translation>
-    </message>
-    <message>
-        <source>Manual pages</source>
-        <translation>Страницы документации</translation>
-    </message>
-    <message>
-        <source>Apply as Filter</source>
-        <translation>Применить как Фильтр</translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
-        <translation>Подготовить в Виде Фильтра</translation>
-    </message>
-    <message>
-        <source>SCTP</source>
-        <translation>SCTP</translation>
-    </message>
-    <message>
-        <source>TCP Stream Graphs</source>
-        <translation>Графики Потока TCP</translation>
-    </message>
-    <message>
-        <source>BACnet</source>
-        <translation>BACnet</translation>
-    </message>
-    <message>
-        <source>HTTP</source>
-        <translation>HTTP</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Файл</translation>
-    </message>
-    <message>
-        <source>&amp;Capture</source>
-        <translation>&amp;Захват</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Помощь</translation>
-    </message>
-    <message>
-        <source>&amp;Go</source>
-        <translation>&amp;Запуск</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation>&amp;Просмотр</translation>
-    </message>
-    <message>
-        <source>&amp;Analyze</source>
-        <translation>&amp;Анализ</translation>
-    </message>
-    <message>
-        <source>Follow</source>
-        <translation>Следовать</translation>
-    </message>
-    <message>
-        <source>&amp;Statistics</source>
-        <translation>&amp;Статистика</translation>
-    </message>
-    <message>
-        <source>29West</source>
-        <translation>29West</translation>
-    </message>
-    <message>
-        <source>Topics</source>
-        <translation>Темы</translation>
-    </message>
-    <message>
-        <source>Queues</source>
-        <translation>Очереди</translation>
-    </message>
-    <message>
-        <source>UIM</source>
-        <translation>UIM</translation>
-    </message>
-    <message>
-        <source>Telephon&amp;y</source>
-        <translation>Телефони&amp;я</translation>
-    </message>
-    <message>
-        <source>RTSP</source>
-        <translation>RTSP</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>&amp;Редактирование</translation>
-    </message>
-    <message>
-        <source>Packet Comments</source>
-        <translation>Комментарии к Пакету</translation>
-    </message>
-    <message>
-        <source>Main Toolbar</source>
-        <translation>Главная Панель Инструментов</translation>
-    </message>
-    <message>
-        <source>Display Filter Toolbar</source>
-        <translation>Панель Инструментов Дисплейного Фильтра</translation>
-    </message>
-    <message>
-        <source>Open a capture file</source>
-        <translation>Открыть файл с захваченными данными</translation>
-    </message>
-    <message>
-        <source>Quit Wireshark</source>
-        <translation>Выйти из Wireshark</translation>
-    </message>
-    <message>
-        <source>&amp;Start</source>
-        <translation>&amp;Старт</translation>
-    </message>
-    <message>
-        <source>Start capturing packets</source>
-        <translation>Начать захват пакетов</translation>
-    </message>
-    <message>
-        <source>S&amp;top</source>
-        <translation>С&amp;топ</translation>
-    </message>
-    <message>
-        <source>Stop capturing packets</source>
-        <translation>Остановить захват пакетов</translation>
-    </message>
-    <message>
-        <source>No files found</source>
-        <translation>Файлы не найдены</translation>
-    </message>
-    <message>
-        <source>&amp;Contents</source>
-        <translation>&amp;Содержание</translation>
-    </message>
-    <message>
-        <source>Wireshark Filter</source>
-        <translation>Фильтр Wireshark</translation>
-    </message>
-    <message>
-        <source>TShark</source>
-        <translation>TShark</translation>
-    </message>
-    <message>
-        <source>Rawshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dumpcap</source>
-        <translation>Dumpcap</translation>
-    </message>
-    <message>
-        <source>Mergecap</source>
-        <translation>Mergecap</translation>
-    </message>
-    <message>
-        <source>Editcap</source>
-        <translation>Editcap</translation>
-    </message>
-    <message>
-        <source>Text2pcap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>Веб-сайт</translation>
-    </message>
-    <message>
-        <source>Downloads</source>
-        <translation>Загрузки</translation>
-    </message>
-    <message>
-        <source>Wiki</source>
-        <translation>Вики</translation>
-    </message>
-    <message>
-        <source>Sample Captures</source>
-        <translation>Образцы Захватов</translation>
-    </message>
-    <message>
-        <source>&amp;About Wireshark</source>
-        <translation>&amp;О Wireshark</translation>
-    </message>
-    <message>
-        <source>Ask (Q&amp;&amp;A)</source>
-        <translation>Спросить (В&amp;&amp;О)</translation>
-    </message>
-    <message>
-        <source>Next Packet</source>
-        <translation>Следующий Пакет</translation>
-    </message>
-    <message>
-        <source>Go to the next packet</source>
-        <translation>Перейти к следующему пакету</translation>
-    </message>
-    <message>
-        <source>Previous Packet</source>
-        <translation>Предыдущий Пакет</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet</source>
-        <translation>Перейти к предыдущему пакету</translation>
-    </message>
-    <message>
-        <source>First Packet</source>
-        <translation>Первый Пакет</translation>
-    </message>
-    <message>
-        <source>Go to the first packet</source>
-        <translation>Перейти к первому пакету</translation>
-    </message>
-    <message>
-        <source>Last Packet</source>
-        <translation>Последний Пакет</translation>
-    </message>
-    <message>
-        <source>Go to the last packet</source>
-        <translation>Перейти к последнему пакету</translation>
-    </message>
-    <message>
-        <source>E&amp;xpand Subtrees</source>
-        <translation>Р&amp;азвернуть Подчинённые Деревья</translation>
-    </message>
-    <message>
-        <source>Expand the current packet detail</source>
-        <translation>Развернуть подробное описание текущего пакета</translation>
-    </message>
-    <message>
-        <source>&amp;Expand All</source>
-        <translation>&amp;Развернуть Всё</translation>
-    </message>
-    <message>
-        <source>Expand packet details</source>
-        <translation>Развернуть подробное описание пакета</translation>
-    </message>
-    <message>
-        <source>Collapse &amp;All</source>
-        <translation>Свернуть &amp;Всё</translation>
-    </message>
-    <message>
-        <source>Collapse all packet details</source>
-        <translation>Свернуть подробное описание всех пакетов</translation>
-    </message>
-    <message>
-        <source>Go to specified packet</source>
-        <translation>Перейти к указанному пакету</translation>
-    </message>
-    <message>
-        <source>Merge one or more files</source>
-        <translation>Объединить один или больше файлов</translation>
-    </message>
-    <message>
-        <source>Import a file</source>
-        <translation>Импорт файла</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Сохранить</translation>
-    </message>
-    <message>
-        <source>Save as a different file</source>
-        <translation>Сохранить как другой файл</translation>
-    </message>
-    <message>
-        <source>Export specified packets</source>
-        <translation>Экспортировать указанные пакеты</translation>
-    </message>
-    <message>
-        <source>Export TLS Session Keys…</source>
-        <translation>Экспортировать Ключи Сессии TLS…</translation>
-    </message>
-    <message>
-        <source>List Files</source>
-        <translation>Список Файлов</translation>
-    </message>
-    <message>
-        <source>Next File</source>
-        <translation>Следующий Файл</translation>
-    </message>
-    <message>
-        <source>Previous File</source>
-        <translation>Предыдущий Файл</translation>
-    </message>
-    <message>
-        <source>&amp;Reload</source>
-        <translation>&amp;Перезагрузить</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Опции</translation>
-    </message>
-    <message>
-        <source>Capture options</source>
-        <translation>Опции захвата</translation>
-    </message>
-    <message>
-        <source>Capture filters</source>
-        <translation>Фильтры захвата</translation>
-    </message>
-    <message>
-        <source>Refresh Interfaces</source>
-        <translation>Обновить Интерфейсы</translation>
-    </message>
-    <message>
-        <source>Refresh interfaces</source>
-        <translation>Обновить интерфейсы</translation>
-    </message>
-    <message>
-        <source>&amp;Restart</source>
-        <translation>&amp;Перезапуск</translation>
-    </message>
-    <message>
-        <source>Restart current capture</source>
-        <translation>Перезапустить текущий захват</translation>
-    </message>
-    <message>
-        <source>As &amp;CSV…</source>
-        <translation>Как &amp;CSV…</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation>Как &amp;Массивы &quot;C&quot;…</translation>
-    </message>
-    <message>
-        <source>As P&amp;SML XML…</source>
-        <translation>Как P&amp;SML XML…</translation>
-    </message>
-    <message>
-        <source>As P&amp;DML XML…</source>
-        <translation>Как P&amp;DML XML…</translation>
-    </message>
-    <message>
-        <source>As &amp;JSON…</source>
-        <translation>Как &amp;JSON…</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation>Описание</translation>
-    </message>
-    <message>
-        <source>Field Name</source>
-        <translation>Имя Поля</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
-    </message>
-    <message>
-        <source>As Filter</source>
-        <translation>Как Фильтр</translation>
-    </message>
-    <message>
-        <source>Close this capture file</source>
-        <translation>Закрыть этот файл захвата</translation>
-    </message>
-    <message>
-        <source>Packet:</source>
-        <translation>Пакет:</translation>
-    </message>
-    <message>
-        <source>Interface Toolbars</source>
-        <translation>Панели Инструментов Интерфейсов</translation>
-    </message>
-    <message>
-        <source>Colorize Conversation</source>
-        <translation>Выделить Диалог Цветом</translation>
-    </message>
-    <message>
-        <source>Internals</source>
-        <translation>Внутренняя организация</translation>
-    </message>
-    <message>
-        <source>Additional Toolbars</source>
-        <translation>Дополнительные Панели Инструментов</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation>Фильтр Диалога</translation>
-    </message>
-    <message>
-        <source>Reliable Server Pooling (RSerPool)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Osmux</source>
-        <translation>Osmux</translation>
-    </message>
-    <message>
-        <source>&amp;Tools</source>
-        <oldsource>Tools</oldsource>
-        <translation>&amp;Инструменты</translation>
-    </message>
-    <message>
-        <source>Wireless Toolbar</source>
-        <translation>Панель Инструментов Wireless</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation>Содержание системы помощи</translation>
-    </message>
-    <message>
-        <source>FAQs</source>
-        <translation>ЧАВО</translation>
-    </message>
-    <message>
-        <source>Next Packet in Conversation</source>
-        <translation>Следующий Пакет в Диалоге</translation>
-    </message>
-    <message>
-        <source>Go to the next packet in this conversation</source>
-        <translation>Перейти к следующему пакету в этом диалоге</translation>
-    </message>
-    <message>
-        <source>Previous Packet in Conversation</source>
-        <translation>Предыдущий Пакет в Диалоге</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in this conversation</source>
-        <translation>Перейти к предыдущему пакету в этом диалоге</translation>
-    </message>
-    <message>
-        <source>Next Packet In History</source>
-        <translation>Следующий Пакет в History</translation>
-    </message>
-    <message>
-        <source>Go to the next packet in your selection history</source>
-        <translation>Перейти к следующему пакету в Вашей истории выбора</translation>
-    </message>
-    <message>
-        <source>Previous Packet In History</source>
-        <translation>Предыдущий Пакет в History</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in your selection history</source>
-        <translation>Перейти к предыдущему пакету в Вашей истории выбора</translation>
-    </message>
-    <message>
-        <source>Collapse Subtrees</source>
-        <translation>Свернуть Подчинённые Деревья</translation>
-    </message>
-    <message>
-        <source>Collapse the current packet detail</source>
-        <translation>Свернуть подробное описание текущего пакета</translation>
-    </message>
-    <message>
-        <source>Go to Packet…</source>
-        <translation>Перейти к Пакету…</translation>
-    </message>
-    <message>
-        <source>&amp;Merge…</source>
-        <translation>&amp;Объединить…</translation>
-    </message>
-    <message>
-        <source>&amp;Import from Hex Dump…</source>
-        <translation>&amp;Импортировать из Шестнадцатеричного Дампа…</translation>
-    </message>
-    <message>
-        <source>Save this capture file</source>
-        <translation>Сохранить этот файл захвата</translation>
-    </message>
-    <message>
-        <source>Save &amp;As…</source>
-        <translation>Сохранить &amp;Как…</translation>
-    </message>
-    <message>
-        <source>Export Specified Packets…</source>
-        <translation>Экспортировать Указанные Пакеты…</translation>
-    </message>
-    <message>
-        <source>Export Packet &amp;Bytes…</source>
-        <translation>Экспортировать &amp;Байты Пакета…</translation>
-    </message>
-    <message>
-        <source>&amp;Print…</source>
-        <translation>&amp;Печать…</translation>
-    </message>
-    <message>
-        <source>Reload this file</source>
-        <translation>Загрузить этот файл повторно</translation>
-    </message>
-    <message>
-        <source>Reload as File Format/Capture</source>
-        <translation>Загрузить повторно как Файл Формата/Захвата</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s description</source>
-        <translation>Копировать описание этого пункта</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s field name</source>
-        <translation>Копировать имя поля этого пункта</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s value</source>
-        <translation>Копировать значение этого пункта</translation>
-    </message>
-    <message>
-        <source>Copy this item as a display filter</source>
-        <translation>Копировать этот пункт в качестве дисплейного фильтра</translation>
-    </message>
-    <message>
-        <source>Apply as Column</source>
-        <translation>Применить как Столбец</translation>
-    </message>
-    <message>
-        <source>Create a packet list column from the selected field.</source>
-        <translation>Создать столбец списка пакетов из выбранного поля.</translation>
-    </message>
-    <message>
-        <source>Find a packet</source>
-        <translation>Найти пакет</translation>
-    </message>
-    <message>
-        <source>Find the next packet</source>
-        <translation>Найти следующий пакет</translation>
-    </message>
-    <message>
-        <source>Find the previous packet</source>
-        <translation>Найти предыдущий пакет</translation>
-    </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Выполнить/Отменить Пометку Пакета</translation>
-    </message>
-    <message>
-        <source>Mark All Displayed</source>
-        <translation>Пометить Всё Отображённое</translation>
-    </message>
-    <message>
-        <source>Mark all displayed packets</source>
-        <translation>Пометить все отображённые пакеты</translation>
-    </message>
-    <message>
-        <source>Unmark all displayed packets</source>
-        <translation>Отменить пометку всех отображённых пакетов</translation>
-    </message>
-    <message>
-        <source>Next Mark</source>
-        <translation>Следующая Пометка</translation>
-    </message>
-    <message>
-        <source>Go to the next marked packet</source>
-        <translation>Перейти к следующему помеченному пакету</translation>
-    </message>
-    <message>
-        <source>Previous Mark</source>
-        <translation>Предыдущая Пометка</translation>
-    </message>
-    <message>
-        <source>Go to the previous marked packet</source>
-        <translation>Перейти к предыдущему помеченному пакету</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Игнорировать/Отменить Игнорирование Пакета</translation>
-    </message>
-    <message>
-        <source>Ignore All Displayed</source>
-        <translation>Игнорировать Все Показанные</translation>
-    </message>
-    <message>
-        <source>Ignore all displayed packets</source>
-        <translation>Игнорировать все показанные пакеты</translation>
-    </message>
-    <message>
-        <source>Set/Unset Time Reference</source>
-        <translation>Установить/Отменить Привязку По Времени</translation>
-    </message>
-    <message>
-        <source>Set or unset a time reference for this packet</source>
-        <translation>Установить или отменить привязку по времени для этого пакета</translation>
-    </message>
-    <message>
-        <source>Unset All Time References</source>
-        <translation>Отменить Все Привязки по Времени</translation>
-    </message>
-    <message>
-        <source>Remove all time references</source>
-        <translation>Убрать все привязки по времени</translation>
-    </message>
-    <message>
-        <source>Next Time Reference</source>
-        <translation>Следующая Привязка по Времени</translation>
-    </message>
-    <message>
-        <source>Go to the next time reference</source>
-        <translation>Перейти к следующей привязке по времени</translation>
-    </message>
-    <message>
-        <source>Previous Time Reference</source>
-        <translation>Предыдущая Привязка по Времени</translation>
-    </message>
-    <message>
-        <source>Go to the previous time reference</source>
-        <translation>Перейти к предыдущей привязке по времени</translation>
-    </message>
-    <message>
-        <source>Shift or change packet timestamps</source>
-        <translation>Сдвинуть или  изменить временные маркеры пакета</translation>
-    </message>
-    <message>
-        <source>Delete All Packet Comments</source>
-        <translation>Удалить Все Комментарии к Пакету</translation>
-    </message>
-    <message>
-        <source>Remove all packet comments in the capture file</source>
-        <translation>Удалить все комментарии к пакетам в файле захвата</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration Profiles…</source>
-        <translation>&amp;Конфигурационные Профили…</translation>
-    </message>
-    <message>
-        <source>Configuration profiles</source>
-        <translation>Конфигурационные профили</translation>
-    </message>
-    <message>
-        <source>Manage your configuration profiles</source>
-        <translation>Управлять Вашими конфигурационными профилями</translation>
-    </message>
-    <message>
-        <source>Manage Wireshark&apos;s preferences</source>
-        <translation>Управлять параметрами Wireshark</translation>
-    </message>
-    <message>
-        <source>Capture File Properties</source>
-        <translation>Свойства Файла Захвата</translation>
-    </message>
-    <message>
-        <source>Capture file properties</source>
-        <translation>Свойства файла захвата</translation>
-    </message>
-    <message>
-        <source>&amp;Protocol Hierarchy</source>
-        <translation>&amp;Иерархия Протоколов</translation>
-    </message>
-    <message>
-        <source>Show a summary of protocols present in the capture file.</source>
-        <translation>Показать общую информацию о протоколах, имеющихся в файле захвата.</translation>
-    </message>
-    <message>
-        <source>Capinfos</source>
-        <translation>Capinfos</translation>
-    </message>
-    <message>
-        <source>Reordercap</source>
-        <translation>Reordercap</translation>
-    </message>
-    <message>
-        <source>Time Sequence (Stevens)</source>
-        <translation>Временная Последовательность (Stevens)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (Stevens)</source>
-        <translation>График временной последовательности TCP (Stevens)</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation>Пропускная способность</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation>Время Передачи От Отправителя К Получателю И Обратно</translation>
-    </message>
-    <message>
-        <source>TCP round trip time</source>
-        <translation>Время Передачи От Отправителя К Получателю И Обратно Протокола TCP</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation>Масштабирование Окна</translation>
-    </message>
-    <message>
-        <source>TCP window scaling</source>
-        <translation>Масштабирование Окна TCP</translation>
-    </message>
-    <message>
-        <source>DCCP Stream</source>
-        <translation>Поток DCCP</translation>
-    </message>
-    <message>
-        <source>TLS Stream</source>
-        <translation>Поток TLS</translation>
-    </message>
-    <message>
-        <source>HTTP Stream</source>
-        <translation>Поток HTTP</translation>
-    </message>
-    <message>
-        <source>HTTP/2 Stream</source>
-        <translation>Поток HTTP/2</translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation>Поток QUIC</translation>
-    </message>
-    <message>
-        <source>SIP Call</source>
-        <translation>SIP-звонок</translation>
-    </message>
-    <message>
-        <source>Time Sequence (tcptrace)</source>
-        <translation>Временная Последовательность (tcptrace)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (tcptrace)</source>
-        <translation>График временной последовательности TCP (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Analyse this Association</source>
-        <translation>Анализировать эту Ассоциацию</translation>
-    </message>
-    <message>
-        <source>Show All Associations</source>
-        <translation>Показать Все Ассоциации</translation>
-    </message>
-    <message>
-        <source>Flow Graph</source>
-        <translation>График Потока</translation>
-    </message>
-    <message>
-        <source>Flow sequence diagram</source>
-        <translation>Диаграмма последовательности потоков</translation>
-    </message>
-    <message>
-        <source>ANCP</source>
-        <translation>ANCP</translation>
-    </message>
-    <message>
-        <source>ANCP statistics</source>
-        <translation>Статистика ANCP</translation>
-    </message>
-    <message>
-        <source>Packets sorted by Instance ID</source>
-        <translation>Пакеты, отсортированные по ID экземпляра</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by instance ID</source>
-        <translation>Статистические данные BACapp, отсортированные по ID экземпляра</translation>
-    </message>
-    <message>
-        <source>Packets sorted by IP</source>
-        <translation>Пакеты, отсортированные по IP-адресу</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by IP</source>
-        <translation>Статистические данные BACapp, отсортированные по IP</translation>
-    </message>
-    <message>
-        <source>Packets sorted by object type</source>
-        <translation>Пакеты, отсортированные по типу объекта</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by object type</source>
-        <translation>Статистические данные BACapp, отсортированные по типу объекта</translation>
-    </message>
-    <message>
-        <source>Packets sorted by service</source>
-        <translation>Пакеты, отсортированные по типу службы</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by service</source>
-        <translation>Статистические данные BACapp, отсортированные по типу службы</translation>
-    </message>
-    <message>
-        <source>Collectd</source>
-        <translation>Collectd</translation>
-    </message>
-    <message>
-        <source>Collectd statistics</source>
-        <translation>Статистика Collectd</translation>
-    </message>
-    <message>
-        <source>DNS</source>
-        <translation>DNS</translation>
-    </message>
-    <message>
-        <source>DNS statistics</source>
-        <translation>Статистика DNS</translation>
-    </message>
-    <message>
-        <source>HART-IP</source>
-        <translation>HART-IP</translation>
-    </message>
-    <message>
-        <source>HART-IP statistics</source>
-        <translation>Статистика HART-IP</translation>
-    </message>
-    <message>
-        <source>HPFEEDS</source>
-        <translation>HPFEEDS</translation>
-    </message>
-    <message>
-        <source>hpfeeds statistics</source>
-        <translation>Статистика hpfeeds</translation>
-    </message>
-    <message>
-        <source>HTTP2</source>
-        <translation>HTTP2</translation>
-    </message>
-    <message>
-        <source>HTTP2 statistics</source>
-        <translation>Статистика HTTP2</translation>
-    </message>
-    <message>
-        <source>Packet Counter</source>
-        <translation>Счётчик Пакетов</translation>
-    </message>
-    <message>
-        <source>HTTP packet counter</source>
-        <translation>Счётчик пакетов HTTP</translation>
-    </message>
-    <message>
-        <source>Requests</source>
-        <translation>Запросы</translation>
-    </message>
-    <message>
-        <source>HTTP requests</source>
-        <translation>Запросы HTTP</translation>
-    </message>
-    <message>
-        <source>Load Distribution</source>
-        <translation>Распределение Нагрузки</translation>
-    </message>
-    <message>
-        <source>HTTP load distribution</source>
-        <translation>Распределение Нагрузки HTTP</translation>
-    </message>
-    <message>
-        <source>Packet Lengths</source>
-        <translation>Длина Пакетов</translation>
-    </message>
-    <message>
-        <source>Packet length statistics</source>
-        <translation>Статистика о длине пакетов</translation>
-    </message>
-    <message>
-        <source>Sametime</source>
-        <translation>Sametime</translation>
-    </message>
-    <message>
-        <source>Sametime statistics</source>
-        <translation>Статистика Sametime</translation>
-    </message>
-    <message>
-        <source>SOME/IP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP Message statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ISUP Messages</source>
-        <translation>Сообщения &amp;ISUP</translation>
-    </message>
-    <message>
-        <source>ISUP message statistics</source>
-        <translation>Статистика сообщений ISUP</translation>
-    </message>
-    <message>
-        <source>Osmux packet counts</source>
-        <translation>Подсчёт пакетов Osmux</translation>
-    </message>
-    <message>
-        <source>RTSP packet counts</source>
-        <translation>Подсчёт пакетов RTSP</translation>
-    </message>
-    <message>
-        <source>SM&amp;PP Operations</source>
-        <translation>Операции SM&amp;PP</translation>
-    </message>
-    <message>
-        <source>SMPP operation statistics</source>
-        <translation>Статистика операций SMPP</translation>
-    </message>
-    <message>
-        <source>&amp;UCP Messages</source>
-        <translation>Сообщения &amp;UCP</translation>
-    </message>
-    <message>
-        <source>UCP message statistics</source>
-        <translation>Статистика сообщений UCP</translation>
-    </message>
-    <message>
-        <source>F1AP</source>
-        <translation>F1AP</translation>
-    </message>
-    <message>
-        <source>F1AP Messages</source>
-        <translation>Сообщения F1AP</translation>
-    </message>
-    <message>
-        <source>NGAP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change the way packets are dissected</source>
-        <translation>Выбрать способ, по которому проанализированы пакеты </translation>
-    </message>
-    <message>
-        <source>Reload Lua Plugins</source>
-        <translation>Загрузить Плагины Lua повторно</translation>
-    </message>
-    <message>
-        <source>Reload Lua plugins</source>
-        <translation>Загрузить плагины Lua повторно</translation>
-    </message>
-    <message>
-        <source>Advertisements by Topic</source>
-        <translation>Сортировка Извещений по Теме</translation>
-    </message>
-    <message>
-        <source>Advertisements by Source</source>
-        <translation>Сортировка Извещений по Источнику</translation>
-    </message>
-    <message>
-        <source>Advertisements by Transport</source>
-        <translation>Сортировка Извещений по Транспорту</translation>
-    </message>
-    <message>
-        <source>Queries by Topic</source>
-        <translation>Запросы по Теме</translation>
-    </message>
-    <message>
-        <source>Queries by Receiver</source>
-        <translation>Запросы по Получателю</translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Pattern</source>
-        <translation>Шаблонные Запросы по Шаблону</translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Receiver</source>
-        <translation>Шаблонные Запросы по Получателю</translation>
-    </message>
-    <message>
-        <source>Advertisements by Queue</source>
-        <translation>Сортировка Извещений по Очереди</translation>
-    </message>
-    <message>
-        <source>Queries by Queue</source>
-        <translation>Запросы по Очереди</translation>
-    </message>
-    <message>
-        <source>Streams</source>
-        <translation>Потоки</translation>
-    </message>
-    <message>
-        <source>LBT-RM</source>
-        <translation>LBT-RM</translation>
-    </message>
-    <message>
-        <source>LBT-RU</source>
-        <translation>LBT-RU</translation>
-    </message>
-    <message>
-        <source>Filter this Association</source>
-        <translation>Фильтровать эту Ассоциацию</translation>
-    </message>
-    <message>
-        <source>Strip Headers…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Strip headers and export higher level encapsulations to file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <translation>&amp;Графики Ввода/Вывода</translation>
-    </message>
-    <message>
-        <source>&amp;Conversations</source>
-        <translation>&amp;Диалоги</translation>
-    </message>
-    <message>
-        <source>&amp;Endpoints</source>
-        <translation>&amp;Конечные точки</translation>
-    </message>
-    <message>
-        <source>Shrink the main window text</source>
-        <translation>Ужать текст главного окна</translation>
-    </message>
-    <message>
-        <source>Return the main window text to its normal size</source>
-        <translation>Вернуть текст главного окна к его нормальному размеру</translation>
-    </message>
-    <message>
-        <source>Reset Layout</source>
-        <translation>Сбросить Разметку</translation>
-    </message>
-    <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>Сбросить внешний вид разметки до размера по умолчанию</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Diagram</source>
-        <translation>Диаграмма пакета</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet diagram</source>
-        <translation>Показать или скрыть пакет</translation>
-    </message>
-    <message>
-        <source>Show each conversation hash table</source>
-        <translation>Показать каждую хэш-таблицу диалога</translation>
-    </message>
-    <message>
-        <source>Show each dissector table and its entries</source>
-        <translation>Показать каждую таблицу диссекторов и её записи</translation>
-    </message>
-    <message>
-        <source>Show the currently supported protocols and display filter fields</source>
-        <translation>Показать поддерживаемые в настоящее время протоколы и поля дисплейного фильтра</translation>
-    </message>
-    <message>
-        <source>MAC Statistics</source>
-        <translation>Статистика MAC</translation>
-    </message>
-    <message>
-        <source>LTE MAC statistics</source>
-        <translation>Статистика LTE MAC</translation>
-    </message>
-    <message>
-        <source>RLC Statistics</source>
-        <translation>Статистика RLC</translation>
-    </message>
-    <message>
-        <source>LTE RLC statistics</source>
-        <translation>Статистика LTE RLC</translation>
-    </message>
-    <message>
-        <source>LTE RLC graph</source>
-        <translation>График LTE RLC</translation>
-    </message>
-    <message>
-        <source>MTP3 Summary</source>
-        <translation>Сводка MTP3</translation>
-    </message>
-    <message>
-        <source>MTP3 summary statistics</source>
-        <translation>Сводка статистики MTP3</translation>
-    </message>
-    <message>
-        <source>Bluetooth Devices</source>
-        <translation>Устройства Bluetooth</translation>
-    </message>
-    <message>
-        <source>Bluetooth HCI Summary</source>
-        <translation>Общие сведения о Bluetooth HCI</translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Expression…</source>
-        <translation>Показать Дисплейный &amp;Фильтр…</translation>
-    </message>
-    <message>
-        <source>Display Filter Expression…</source>
-        <translation>Показать Дисплейный Фильтр…</translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation>REGISTER_STAT_GROUP_RSERPOOL</translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No GSM statistics registered</source>
-        <translation>Нет зарегистрированной статистики GSM</translation>
-    </message>
-    <message>
-        <source>No LTE statistics registered</source>
-        <translation>Нет зарегистрированной статистики LTE</translation>
-    </message>
-    <message>
-        <source>No MTP3 statistics registered</source>
-        <translation>Нет зарегистрированной статистики MTP3</translation>
-    </message>
-    <message>
-        <source>IAX2 Stream Analysis</source>
-        <translation>Анализ потока IAX2</translation>
-    </message>
-    <message>
-        <source>Show Packet Bytes…</source>
-        <translation>Показать Байты Пакета…</translation>
-    </message>
-    <message>
-        <source>Go to &amp;Linked Packet</source>
-        <translation>Перейти к &amp;Связанному Пакету</translation>
-    </message>
-    <message>
-        <source>UDP Multicast Streams</source>
-        <translation>Потоки UDP Multicast</translation>
-    </message>
-    <message>
-        <source>Show UTP multicast stream statistics.</source>
-        <translation>Показать статистику потока UTP multicast.</translation>
-    </message>
-    <message>
-        <source>WLAN Traffic</source>
-        <translation>Трафик WLAN</translation>
-    </message>
-    <message>
-        <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation>Показать статистику беспроводной локальной сети IEEE 802.11.</translation>
-    </message>
-    <message>
-        <source>Add a display filter button.</source>
-        <translation>Добавить кнопку дисплейного фильтра.</translation>
-    </message>
-    <message>
-        <source>Firewall ACL Rules</source>
-        <translation>ACL-правила Межсетевого Экрана</translation>
-    </message>
-    <message>
-        <source>Create firewall ACL rules</source>
-        <translation>Создать ACL-правила Межсетевого Экрана</translation>
-    </message>
-    <message>
-        <source>&amp;Full Screen</source>
-        <translation>&amp;Полный Экран</translation>
-    </message>
-    <message>
-        <source>Credentials</source>
-        <translation>Учетные данные</translation>
-    </message>
-    <message>
-        <source>&amp;Options…</source>
-        <translation>&amp;Опции…</translation>
-    </message>
-    <message>
-        <source>&amp;Wireless</source>
-        <translation>&amp;Беспроводной</translation>
-    </message>
-    <message>
-        <source>Capture &amp;Filters…</source>
-        <translation>Фильтры &amp;Захвата…</translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text…</source>
-        <translation>Как Обычный &amp;Текст…</translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text</source>
-        <translation>Как Обычный &amp;Текст</translation>
-    </message>
-    <message>
-        <source>As &amp;CSV</source>
-        <translation>Как &amp;CSV</translation>
-    </message>
-    <message>
-        <source>As &amp;YAML</source>
-        <translation>Как &amp;YAML</translation>
-    </message>
-    <message>
-        <source>All Visible Items</source>
-        <translation>Все Видимые Пункты</translation>
-    </message>
-    <message>
-        <source>All Visible Selected Tree Items</source>
-        <translation>Все Видимые Пункты Выбранного Дерева</translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Macros…</source>
-        <translation>&amp;Макросы Дисплейного Фильтра…</translation>
-    </message>
-    <message>
-        <source>&amp;Find Packet…</source>
-        <translation>&amp;Найти Пакет…</translation>
-    </message>
-    <message>
-        <source>Find Ne&amp;xt</source>
-        <translation>Найти Сл&amp;едующий</translation>
-    </message>
-    <message>
-        <source>Find Pre&amp;vious</source>
-        <translation>Найти Пр&amp;едыдущий</translation>
-    </message>
-    <message>
-        <source>Mark or unmark each selected packet</source>
-        <translation>Пометить / отменить пометку всех выбранных пакетов</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore each selected packet</source>
-        <translation>Игнорировать / перестать игнорировать все выбранные пакеты</translation>
-    </message>
-    <message>
-        <source>U&amp;nignore All Displayed</source>
-        <translation>Н&amp;е Игнорировать Все Показанные</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation>Перестать игнорировать все отображенные пакеты</translation>
-    </message>
-    <message>
-        <source>Time Shift…</source>
-        <translation>Временной Сдвиг…</translation>
-    </message>
-    <message>
-        <source>&amp;Preferences…</source>
-        <translation>&amp;Параметры…</translation>
-    </message>
-    <message>
-        <source>TCP throughput</source>
-        <translation>Пропускная способность TCP</translation>
-    </message>
-    <message>
-        <source>TCP Stream</source>
-        <translation>Поток TCP</translation>
-    </message>
-    <message>
-        <source>UDP Stream</source>
-        <translation>Поток UDP</translation>
-    </message>
-    <message>
-        <source>Request Sequences</source>
-        <translation>Запросить Последовательности</translation>
-    </message>
-    <message>
-        <source>HTTP Request Sequences</source>
-        <translation>Запросить Последовательности HTTP</translation>
-    </message>
-    <message>
-        <source>Decode &amp;As…</source>
-        <translation>Декодировать &amp;Как…</translation>
-    </message>
-    <message>
-        <source>Export PDUs to File…</source>
-        <translation>Экспортировать PDUхи в Файл…</translation>
-    </message>
-    <message>
-        <source>Create graphs based on display filter fields</source>
-        <translation>Создать графики на базе полей дисплейного фильтра</translation>
-    </message>
-    <message>
-        <source>&amp;Main Toolbar</source>
-        <translation>&amp;Главная Панель Инструментов</translation>
-    </message>
-    <message>
-        <source>Show or hide the main toolbar</source>
-        <translation>Показать или скрыть главную панель инструментов</translation>
-    </message>
-    <message>
-        <source>&amp;Filter Toolbar</source>
-        <translation>Панель Инструментов &amp;Фильтр</translation>
-    </message>
-    <message>
-        <source>Show or hide the display filter toolbar</source>
-        <translation>Показать или скрыть панель инструментов дисплейного фильтра</translation>
-    </message>
-    <message>
-        <source>Conversations at different protocol levels</source>
-        <translation>Диалоги на различных уровнях протоколов</translation>
-    </message>
-    <message>
-        <source>Endpoints at different protocol levels</source>
-        <translation>Конечные точки на различных уровнях протоколов</translation>
-    </message>
-    <message>
-        <source>Colorize Packet List</source>
-        <translation>Выделить Цветом Список Пакетов</translation>
-    </message>
-    <message>
-        <source>Draw packets using your coloring rules</source>
-        <translation>Выводить пакеты на экран, используя цветовые правила</translation>
-    </message>
-    <message>
-        <source>&amp;Zoom In</source>
-        <translation>&amp;Увеличить Масштаб</translation>
-    </message>
-    <message>
-        <source>Enlarge the main window text</source>
-        <translation>Увеличить текст главного окна</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Уменьшить Масштаб</translation>
-    </message>
-    <message>
-        <source>Normal Size</source>
-        <translation>Обычный Размер</translation>
-    </message>
-    <message>
-        <source>Resize Columns</source>
-        <translation>Изменить Размер Столбцов</translation>
-    </message>
-    <message>
-        <source>Resize packet list columns to fit contents</source>
-        <translation>Изменить размер столбцов списка пакетов для полного размещения содержимого</translation>
-    </message>
-    <message>
-        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Дата и Время Дня (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the date and time of day.</source>
-        <translation>Показывать временные характеристики пакетов как дату и время дня.</translation>
-    </message>
-    <message>
-        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Год, День Года и Время Дня (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation>Показывать временные характеристики пакетов как год, день года и время дня.</translation>
-    </message>
-    <message>
-        <source>Time of Day (01:02:03.123456)</source>
-        <translation>Время Дня (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Seconds Since 1970-01-01</source>
-        <translation>Число Секунд, Начиная С 1970-01-01</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation>Показывать временные характеристики пакетов как секунды с момента внедрения стандарта UNIX / POSIX (1970-01-01).</translation>
-    </message>
-    <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Секунд С Момента Начала Захвата</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Captured Packet</source>
-        <translation>Секунд После Предыдущего Захваченного Пакета</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation>Показывать временные характеристики пакетов как секунды с момента Захвата Предыдущего Пакета.</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Displayed Packet</source>
-        <translation>Секунд После Предыдущего Показанного Пакета</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation>Показывать временные характеристики пакетов как секунды с момента показа предыдущего пакета.</translation>
-    </message>
-    <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Дата и Время Дня UTC (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC date and time of day.</source>
-        <translation>Показывать временные характеристики пакетов как дату и время дня в формате UTC.</translation>
-    </message>
-    <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Год, День Года и Время Дня (1970/001 01:02:03.123456) в формате UTC</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation>Показывать временные характеристики пакетов как год, день года и время дня в формате UTC.</translation>
-    </message>
-    <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>Время Дня UTC (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC time of day.</source>
-        <translation>Показывать временные характеристики пакетов как время дня в формате UTC.</translation>
-    </message>
-    <message>
-        <source>Automatic (from capture file)</source>
-        <translation>Автоматически (из файла захвата)</translation>
-    </message>
-    <message>
-        <source>Use the time precision indicated in the capture file.</source>
-        <translation>Использовать точность записи времени, показанную в файле захвата. </translation>
-    </message>
-    <message>
-        <source>Seconds</source>
-        <translation>Секунды</translation>
-    </message>
-    <message>
-        <source>Tenths of a second</source>
-        <translation>Десятки секунд</translation>
-    </message>
-    <message>
-        <source>Hundredths of a second</source>
-        <translation>Сотни секунд</translation>
-    </message>
-    <message>
-        <source>Milliseconds</source>
-        <translation>Миллисекунды</translation>
-    </message>
-    <message>
-        <source>Microseconds</source>
-        <translation>Микросекунды</translation>
-    </message>
-    <message>
-        <source>Nanoseconds</source>
-        <translation>Наносекунды</translation>
-    </message>
-    <message>
-        <source>Display Seconds With Hours and Minutes</source>
-        <translation>Показывать Секунды Вместе С Часами и Минутами</translation>
-    </message>
-    <message>
-        <source>Display seconds with hours and minutes</source>
-        <translation>Показывать секунды вместе с часами и минутами</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Physical Addresses</source>
-        <translation>Разрешить &amp;Физические Адреса</translation>
-    </message>
-    <message>
-        <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation>Показать имена для известных MAC-адресов. При поиске используется локальная база данных.</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Network Addresses</source>
-        <translation>Разрешить &amp;Сетевые Адреса</translation>
-    </message>
-    <message>
-        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation>Показать имена для известных адресов IPv4, IPv6 и IPX. При поиске может генерироваться сетевой трафик.</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Transport Addresses</source>
-        <translation>Разрешить &amp;Транспортные Адреса</translation>
-    </message>
-    <message>
-        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation>Показать имена для известных служб TCP, UDP и SCTP. При поиске в некоторых системах может генерироваться трафик.</translation>
-    </message>
-    <message>
-        <source>Wire&amp;less Toolbar</source>
-        <translation>Панель Инструментов Wire&amp;less</translation>
-    </message>
-    <message>
-        <source>Show or hide the wireless toolbar</source>
-        <translation>Показать или скрыть панель инструментов wireless</translation>
-    </message>
-    <message>
-        <source>&amp;Status Bar</source>
-        <translation>&amp;Строка Статуса</translation>
-    </message>
-    <message>
-        <source>Show or hide the status bar</source>
-        <translation>Показать или скрыть строку статуса</translation>
-    </message>
-    <message>
-        <source>Packet &amp;List</source>
-        <translation>&amp;Список Пакетов</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet list</source>
-        <translation>Показать или скрыть список пакетов</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Details</source>
-        <translation>Дополнительная &amp;Информация о пакете</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet details</source>
-        <translation>Показать или скрыть дополнительную информацию о пакете</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Bytes</source>
-        <translation>&amp;Байты Пакета</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet bytes</source>
-        <translation>Показать или скрыть байты пакета</translation>
-    </message>
-    <message>
-        <source>&amp;Conversation Hash Tables</source>
-        <translation>&amp;Хэш-таблицы Диалогов</translation>
-    </message>
-    <message>
-        <source>&amp;Dissector Tables</source>
-        <translation>&amp;Таблицы Диссекторов</translation>
-    </message>
-    <message>
-        <source>&amp;Supported Protocols</source>
-        <translation>&amp;Поддерживаемые Протоколы</translation>
-    </message>
-    <message>
-        <source>MAP Summary</source>
-        <translation>Сводка MAP</translation>
-    </message>
-    <message>
-        <source>GSM MAP summary statistics</source>
-        <translation>Сводка статистики GSM MAP</translation>
-    </message>
-    <message>
-        <source>RLC &amp;Graph</source>
-        <translation>RLC &amp;График </translation>
-    </message>
-    <message>
-        <source>&amp;Coloring Rules…</source>
-        <translation>&amp;Цветовые Правила…</translation>
-    </message>
-    <message>
-        <source>Show Linked Packet in New Window</source>
-        <translation>Показать Связанный Пакет в Новом Окне</translation>
-    </message>
-    <message>
-        <source>New Coloring Rule…</source>
-        <oldsource>New Conversation Rule…</oldsource>
-        <translation>Новое Цветовое Правило…</translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RTP Player</source>
-        <translation>RTP-плейер</translation>
-    </message>
-    <message>
-        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IA&amp;X2 Stream Analysis</source>
-        <translation>Анализ потока IA&amp;X2</translation>
-    </message>
-    <message>
-        <source>Enabled Protocols…</source>
-        <oldsource>Enable Protocols…</oldsource>
-        <translation>Разрешённые Протоколы…</translation>
-    </message>
-    <message>
-        <source>Wiki Protocol Page</source>
-        <translation>Wiki-страница Протокола</translation>
-    </message>
-    <message>
-        <source>Open the Wireshark wiki page for this protocol.</source>
-        <translation>Открыть Wireshark вики-страницу для этого протокола.</translation>
-    </message>
-    <message>
-        <source>Filter Field Reference</source>
-        <translation>Справка по Полю Фильтра</translation>
-    </message>
-    <message>
-        <source>Open the display filter reference page for this filter field.</source>
-        <translation>Открыть справочную страницу дисплейного фильтра для этого поля фильтра.</translation>
-    </message>
-    <message>
-        <source>Go to the packet referenced by the selected field.</source>
-        <translation>Перейти к пакету по ссылке из выбранного поля. </translation>
-    </message>
-    <message>
-        <source>&amp;VoIP Calls</source>
-        <translation>Вызовы &amp;VoIP</translation>
-    </message>
-    <message>
-        <source>Open &amp;Recent</source>
-        <translation>Открыть &amp;Недавние</translation>
-    </message>
-    <message>
-        <source>Name Resol&amp;ution</source>
-        <translation>Разрешение И&amp;мён</translation>
-    </message>
-    <message>
-        <source>Service &amp;Response Time</source>
-        <translation>Время &amp;Ответа Сервиса</translation>
-    </message>
-    <message>
-        <source>&amp;RTP</source>
-        <translation>&amp;RTP</translation>
-    </message>
-    <message>
-        <source>S&amp;CTP</source>
-        <translation>S&amp;CTP</translation>
-    </message>
-    <message>
-        <source>&amp;ANSI</source>
-        <translation>&amp;ANSI</translation>
-    </message>
-    <message>
-        <source>&amp;GSM</source>
-        <translation>&amp;GSM</translation>
-    </message>
-    <message>
-        <source>&amp;LTE</source>
-        <translation>&amp;LTE</translation>
-    </message>
-    <message>
-        <source>&amp;MTP3</source>
-        <translation>&amp;MTP3</translation>
-    </message>
-    <message>
-        <source>&amp;Open</source>
-        <translation>&amp;Открыть</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation>&amp;Выход</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Закрыть</translation>
-    </message>
-    <message>
-        <source>Display &amp;Filters…</source>
-        <translation>Дисплейные &amp;Фильтры…</translation>
-    </message>
-    <message>
-        <source>&amp;Unmark All Displayed</source>
-        <translation>&amp;Отменить пометку Всего Отображённого</translation>
-    </message>
-    <message>
-        <source>All VoIP Calls</source>
-        <translation>Все Вызовы VoIP</translation>
-    </message>
-    <message>
-        <source>SIP &amp;Flows</source>
-        <translation>&amp;Потоки SIP</translation>
-    </message>
-    <message>
-        <source>SIP Flows</source>
-        <translation>Потоки SIP</translation>
-    </message>
-    <message>
-        <source>RTP Streams</source>
-        <translation>Потоки RTP</translation>
-    </message>
-    <message>
-        <source>Edit the packet list coloring rules.</source>
-        <translation>Редактировать цветовые правила списка пакетов.</translation>
-    </message>
-    <message>
-        <source>Bluetooth ATT Server Attributes</source>
-        <oldsource>ATT Server Attributes</oldsource>
-        <translation>Атрибуты сервера Bluetooth ATT</translation>
-    </message>
-    <message>
-        <source>Show Packet in New &amp;Window</source>
-        <translation>Показать Пакет в Новом &amp;Окне</translation>
-    </message>
-    <message>
-        <source>Show this packet in a separate window.</source>
-        <translation>Показать этот пакет в отдельном окне.</translation>
-    </message>
-    <message>
-        <source>Show the linked packet in a separate window.</source>
-        <translation>Показать связанный пакет в отдельном окне.</translation>
-    </message>
-    <message>
-        <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation>Автоматическая Прокрутка при Захвате в &amp;Реальном Времени</translation>
-    </message>
-    <message>
-        <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation>Автоматическая прокрутка к последнему пакету при захвате в реальном времени.</translation>
-    </message>
-    <message>
-        <source>Expert Information</source>
-        <translation>Информация Эксперта</translation>
-    </message>
-    <message>
-        <source>Show expert notifications</source>
-        <translation>Показать замечания эксперта</translation>
-    </message>
-    <message>
-        <source>Add an expression to the display filter.</source>
-        <translation>Добавить выражение к дисплейному фильтру.</translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_UNSORTED</source>
-        <translation>REGISTER_STAT_GROUP_UNSORTED</translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
-        <translation>Старт &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</translation>
-    </message>
-    <message>
-        <source>No ANSI statistics registered</source>
-        <oldsource>No tools registered</oldsource>
-        <translation>Нет зарегистрированной статистики ANSI</translation>
-    </message>
-    <message>
-        <source>Resolved Addresses</source>
-        <translation>Разрешенные Адреса</translation>
-    </message>
-    <message>
-        <source>Show each table of resolved addresses as copyable text.</source>
-        <translation>Показывать каждую таблицу разрешённых адресов как текст, который можно копировать.</translation>
-    </message>
-    <message>
-        <source>Color &amp;1</source>
-        <translation>Цвет &amp;1</translation>
-    </message>
-    <message>
-        <source>Mark the current conversation with its own color.</source>
-        <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation>Пометить текущий разговор его собственным цветом.</translation>
-    </message>
-    <message>
-        <source>Color &amp;2</source>
-        <translation>Цвет &amp;2</translation>
-    </message>
-    <message>
-        <source>Color &amp;3</source>
-        <translation>Цвет &amp;3</translation>
-    </message>
-    <message>
-        <source>Color &amp;4</source>
-        <translation>Цвет &amp;4</translation>
-    </message>
-    <message>
-        <source>Color &amp;5</source>
-        <translation>Цвет &amp;5</translation>
-    </message>
-    <message>
-        <source>Color &amp;6</source>
-        <translation>Цвет &amp;6</translation>
-    </message>
-    <message>
-        <source>Color &amp;7</source>
-        <translation>Цвет &amp;7</translation>
-    </message>
-    <message>
-        <source>Color &amp;8</source>
-        <translation>Цвет &amp;8</translation>
-    </message>
-    <message>
-        <source>Color &amp;9</source>
-        <translation>Цвет &amp;9</translation>
-    </message>
-    <message>
-        <source>Color 1&amp;0</source>
-        <translation>Цвет 1&amp;0</translation>
-    </message>
-    <message>
-        <source>Create a new coloring rule based on this field.</source>
-        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation>Создать новое цветовое правило на базе этого поля.</translation>
-    </message>
-    <message>
-        <source>Reset Colorization</source>
-        <translation>Сбросить Цветовое Выделение</translation>
-    </message>
-    <message>
-        <source>Reset colorized conversations.</source>
-        <translation>Сбросить разговоры, выделенные цветом.</translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis</source>
-        <translation>Анализ Потока RTP</translation>
-    </message>
-    <message>
-        <source>Edit Resolved Name</source>
-        <translation>Редактировать Разрешённое Имя</translation>
-    </message>
-    <message>
-        <source>Manually edit a name resolution entry.</source>
-        <translation>Редактировать вручную запись разрешения имён.</translation>
-    </message>
-    <message>
-        <source>Enable and disable specific protocols</source>
-        <translation>Разрешить и запретить указанные протоколы</translation>
-    </message>
-    <message>
-        <source> before quitting</source>
-        <translation>перед выходом</translation>
-    </message>
-    <message>
-        <source>Save packets before merging?</source>
-        <translation>Сохранить пакеты перед слиянием?</translation>
-    </message>
-    <message>
-        <source>A temporary capture file can&apos;t be merged.</source>
-        <translation>Временный файл захвата не может быть присоединён.</translation>
-    </message>
-    <message>
-        <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation>Сохранить изменения в &quot;%1&quot; перед слиянием?</translation>
-    </message>
-    <message>
-        <source>Changes must be saved before the files can be merged.</source>
-        <translation>Изменения должны быть сохранены перед объединением файлов.</translation>
-    </message>
-    <message>
-        <source>Invalid Display Filter</source>
-        <translation>Неверный Дисплейный Фильтр</translation>
-    </message>
-    <message>
-        <source>Invalid Read Filter</source>
-        <translation>Неверный Фильтр Чтения</translation>
-    </message>
-    <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>Выражение фильтра %1 не является правильным фильтром чтения. (%2).</translation>
-    </message>
-    <message>
-        <source> before importing a capture</source>
-        <oldsource> before importing a new capture</oldsource>
-        <translation>перед импортированием захваченных данных</translation>
-    </message>
-    <message>
-        <source>Unable to export to &quot;%1&quot;.</source>
-        <translation>Невозможно экспортировать в &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>You cannot export packets to the current capture file.</source>
-        <translation>Вы не можете экспортировать пакеты в текущий файл захвата.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made%1?</source>
-        <oldsource>Do you want to save the captured packets</oldsource>
-        <translation>Хотите сохранить изменения, которые Вы сделали %1?</translation>
-    </message>
-    <message>
-        <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation>Захваченные Вами пакеты будут потеряны, если их не сохранить.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation>Хотите сохранить изменения, которые Вы сделали, в файл захвата &quot;%1&quot;%2?</translation>
-    </message>
-    <message>
-        <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation>Сделанные изменения будут потеряны, если Вы их не сохраните.</translation>
-    </message>
-    <message>
-        <source>Check for Updates…</source>
-        <translation>Проверить Обновления…</translation>
-    </message>
-    <message>
-        <source>Unable to drop files during capture.</source>
-        <translation>Невозможно перебросить файлы во время захвата.</translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by merge dialog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation>Пожалуйста, зарепортите этот баг https://gitlab.com/wireshark/wireshark/-/issues</translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by export dialog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation>Хотите остановить захват и сохранить захваченные пакеты %1?</translation>
-    </message>
-    <message>
-        <source>Do you want to save the captured packets%1?</source>
-        <translation>Хотите сохранить захваченные пакеты %1?</translation>
-    </message>
-    <message>
-        <source>Save before Continue</source>
-        <translation>Сохранить перед Продолжением</translation>
-    </message>
-    <message>
-        <source>Stop and Save</source>
-        <translation>Остановить и Сохранить</translation>
-    </message>
-    <message>
-        <source>Stop and Quit &amp;without Saving</source>
-        <oldsource>Stop and Quit without Saving</oldsource>
-        <translation>Остановить и Выйти &amp;без Сохранения</translation>
-    </message>
-    <message>
-        <source>Quit &amp;without Saving</source>
-        <oldsource>Quit without Saving</oldsource>
-        <translation>Выйти &amp;без Сохранения</translation>
-    </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSRC value not found.</source>
-        <translation>Величина SSRC не найдена.</translation>
-    </message>
-    <message>
-        <source>Show or hide the toolbar</source>
-        <translation>Показать или скрыть панель инструментов</translation>
-    </message>
-    <message>
-        <source>Continue &amp;without Saving</source>
-        <oldsource>Continue without Saving</oldsource>
-        <translation>Продолжить &amp;без Сохранения</translation>
-    </message>
-    <message>
-        <source>Stop and Continue &amp;without Saving</source>
-        <oldsource>Stop and Continue without Saving</oldsource>
-        <translation>Остановить и Продолжить &amp;без Сохранения</translation>
-    </message>
-    <message>
-        <source>The Wireshark Network Analyzer</source>
-        <translation>Сетевой анализатор Wireshark</translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation>Захват из %1</translation>
-    </message>
-    <message>
-        <source> before opening another file</source>
-        <translation>перед открытием другого файла</translation>
-    </message>
-    <message>
-        <source>Merging files.</source>
-        <translation>Объединение файлов.</translation>
-    </message>
-    <message>
-        <source>%1: %2</source>
-        <translation>%1: %2</translation>
-    </message>
-    <message>
-        <source>Clear Menu</source>
-        <translation>Очистить меню</translation>
-    </message>
-    <message>
-        <source> before closing the file</source>
-        <translation>перед закрытием файла</translation>
-    </message>
-    <message>
-        <source>Export Selected Packet Bytes</source>
-        <translation>Экспортировать Выбранные Байты Пакета</translation>
-    </message>
-    <message>
-        <source>No Keys</source>
-        <translation>Нет Ключей</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключ)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключи)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключи)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation>Данные Raw (*.bin *.dat *.raw);;Все Файлы (</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation>Невозможно скопировать текст. Попробуйте другой пункт.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all packet comments?</source>
-        <translation>Вы уверены, что хотите удалить все комментарии к пакету?</translation>
-    </message>
-    <message>
-        <source>Unable to build conversation filter.</source>
-        <translation>Нельзя построить фильтр разговора.</translation>
-    </message>
-    <message>
-        <source> before reloading the file</source>
-        <translation>перед повторной загрузкой файла</translation>
-    </message>
-    <message>
-        <source>Error compiling filter for this conversation.</source>
-        <translation>Ошибка компиляции фильтра для этого разговора.</translation>
-    </message>
-    <message>
-        <source>No previous/next packet in conversation.</source>
-        <translation>Нет предыдущего/следующего пакета в разговоре.</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation>Нет выделенных интерфейсов.</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <translation>Сохранение %1…</translation>
-    </message>
-    <message>
-        <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <translation>Неправильный фильтр захвата.</translation>
-    </message>
-    <message>
-        <source>(empty comment)</source>
-        <comment>placeholder for empty comment</comment>
-        <translation>(пустой комментарий)</translation>
-    </message>
-    <message>
-        <source>Add New Comment…</source>
-        <translation>Добавить Новый Комментарий…</translation>
-    </message>
-    <message>
-        <source>Edit &quot;%1&quot;</source>
-        <comment>edit packet comment</comment>
-        <translation>Редактировать &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete &quot;%1&quot;</source>
-        <comment>delete packet comment</comment>
-        <translation>Удалить &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Delete packet comments</source>
-        <translation>Удалить комментарии к пакету</translation>
-    </message>
-    <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
-            <numerusform>Удалить комментарии из пакета %n</numerusform>
-            <numerusform>Удалить комментарии из пакета(ов) %n</numerusform>
-            <numerusform>Удалить комментарии из пакета(ов) %n</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source> before starting a new capture</source>
-        <translation>перед стартом нового захвата</translation>
-    </message>
-    <message>
-        <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please wait while Wireshark is initializing…</source>
-        <translation>Пожалуйста, подождите, пока Wireshark инициализируется…</translation>
-    </message>
-    <message>
-        <source>There are no TLS Session Keys to save.</source>
-        <translation>Нет Ключей Сессии TLS для сохранения.</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключ)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключи)</numerusform>
-            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключи)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation>Ключи Сессии TLS (*.keys *.txt);;Все Файлы (</translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation>Нет доступных фильтров. Попробуйте %1.</translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation>столбец</translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation>объект</translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation>Столбец &quot;%1&quot; уже существует.</translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation>Столбец &quot;%1&quot; уже существует как &quot;%2&quot;.</translation>
-    </message>
-    <message>
-        <source>RTP packet search failed</source>
-        <translation>Неудачный поиск пакета RTP</translation>
-    </message>
-    <message>
-        <source>No Interface Selected.</source>
-        <translation>Нет Выделенных Интерфейсов</translation>
-    </message>
-    <message>
-        <source> before restarting the capture</source>
-        <translation>перед повторным запуском захвата</translation>
-    </message>
-    <message>
-        <source>Wiki Page for %1</source>
-        <translation>Страница Wiki для %1</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Wireshark Wiki поддерживается сообществом.&lt;/p&gt;&lt;p&gt;Страница, которую Вы пытаетесь загрузить, может быть качественной, незаконченной, ошибочной или несуществующей.&lt;/p&gt;&lt;p&gt;Продолжить работу с wiki?&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Loading</source>
-        <translation>Загрузка</translation>
-    </message>
-    <message>
-        <source>Reloading</source>
-        <translation>Перезагрузка</translation>
-    </message>
-    <message>
-        <source>Rescanning</source>
-        <translation>Повторное сканирование</translation>
-    </message>
-</context>
-<context>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -9759,6 +7617,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>End Bits/s</source>
         <translation>Конечные Бит/с</translation>
+    </message>
+    <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -14329,6 +12191,10 @@ a:hover {
         <translation>Показать в Папке</translation>
     </message>
     <message>
+        <source>Welcome to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All interfaces shown</source>
         <translation>Все интерфейсы показаны</translation>
     </message>
@@ -14456,6 +12322,2143 @@ a:hover {
     <message>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>Сбой при подключении к перехватчику данных &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>WiresharkMainWindow</name>
+    <message>
+        <source>Wireshark</source>
+        <translation>Wireshark</translation>
+    </message>
+    <message>
+        <source>Go to packet</source>
+        <translation>Перейти к пакету</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отменить</translation>
+    </message>
+    <message>
+        <source>File Set</source>
+        <translation>Набор Файлов</translation>
+    </message>
+    <message>
+        <source>Export Packet Dissections</source>
+        <translation>Экспорт Результатов Анализа Пакетов</translation>
+    </message>
+    <message>
+        <source>Export Objects</source>
+        <translation>Экспортировать Объекты</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom</source>
+        <translation>&amp;Масштаб</translation>
+    </message>
+    <message>
+        <source>&amp;Time Display Format</source>
+        <translation>&amp;Формат Отображения Времени</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Копировать</translation>
+    </message>
+    <message>
+        <source>Manual pages</source>
+        <translation>Страницы документации</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation>Применить как Фильтр</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation>Подготовить в Виде Фильтра</translation>
+    </message>
+    <message>
+        <source>SCTP</source>
+        <translation>SCTP</translation>
+    </message>
+    <message>
+        <source>TCP Stream Graphs</source>
+        <translation>Графики Потока TCP</translation>
+    </message>
+    <message>
+        <source>BACnet</source>
+        <translation>BACnet</translation>
+    </message>
+    <message>
+        <source>HTTP</source>
+        <translation>HTTP</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Файл</translation>
+    </message>
+    <message>
+        <source>&amp;Capture</source>
+        <translation>&amp;Захват</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Помощь</translation>
+    </message>
+    <message>
+        <source>&amp;Go</source>
+        <translation>&amp;Запуск</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Просмотр</translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation>&amp;Анализ</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation>Следовать</translation>
+    </message>
+    <message>
+        <source>&amp;Statistics</source>
+        <translation>&amp;Статистика</translation>
+    </message>
+    <message>
+        <source>29West</source>
+        <translation>29West</translation>
+    </message>
+    <message>
+        <source>Topics</source>
+        <translation>Темы</translation>
+    </message>
+    <message>
+        <source>Queues</source>
+        <translation>Очереди</translation>
+    </message>
+    <message>
+        <source>UIM</source>
+        <translation>UIM</translation>
+    </message>
+    <message>
+        <source>Telephon&amp;y</source>
+        <translation>Телефони&amp;я</translation>
+    </message>
+    <message>
+        <source>RTSP</source>
+        <translation>RTSP</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Редактирование</translation>
+    </message>
+    <message>
+        <source>Packet Comments</source>
+        <translation>Комментарии к Пакету</translation>
+    </message>
+    <message>
+        <source>Main Toolbar</source>
+        <translation>Главная Панель Инструментов</translation>
+    </message>
+    <message>
+        <source>Display Filter Toolbar</source>
+        <translation>Панель Инструментов Дисплейного Фильтра</translation>
+    </message>
+    <message>
+        <source>Open a capture file</source>
+        <translation>Открыть файл с захваченными данными</translation>
+    </message>
+    <message>
+        <source>Quit Wireshark</source>
+        <translation>Выйти из Wireshark</translation>
+    </message>
+    <message>
+        <source>&amp;Start</source>
+        <translation>&amp;Старт</translation>
+    </message>
+    <message>
+        <source>Start capturing packets</source>
+        <translation>Начать захват пакетов</translation>
+    </message>
+    <message>
+        <source>S&amp;top</source>
+        <translation>С&amp;топ</translation>
+    </message>
+    <message>
+        <source>Stop capturing packets</source>
+        <translation>Остановить захват пакетов</translation>
+    </message>
+    <message>
+        <source>No files found</source>
+        <translation>Файлы не найдены</translation>
+    </message>
+    <message>
+        <source>&amp;Contents</source>
+        <translation>&amp;Содержание</translation>
+    </message>
+    <message>
+        <source>Wireshark Filter</source>
+        <translation>Фильтр Wireshark</translation>
+    </message>
+    <message>
+        <source>TShark</source>
+        <translation>TShark</translation>
+    </message>
+    <message>
+        <source>Rawshark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dumpcap</source>
+        <translation>Dumpcap</translation>
+    </message>
+    <message>
+        <source>Mergecap</source>
+        <translation>Mergecap</translation>
+    </message>
+    <message>
+        <source>Editcap</source>
+        <translation>Editcap</translation>
+    </message>
+    <message>
+        <source>Text2pcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>Веб-сайт</translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation>Загрузки</translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation>Вики</translation>
+    </message>
+    <message>
+        <source>Sample Captures</source>
+        <translation>Образцы Захватов</translation>
+    </message>
+    <message>
+        <source>&amp;About Wireshark</source>
+        <translation>&amp;О Wireshark</translation>
+    </message>
+    <message>
+        <source>Ask (Q&amp;&amp;A)</source>
+        <translation>Спросить (В&amp;&amp;О)</translation>
+    </message>
+    <message>
+        <source>Next Packet</source>
+        <translation>Следующий Пакет</translation>
+    </message>
+    <message>
+        <source>Go to the next packet</source>
+        <translation>Перейти к следующему пакету</translation>
+    </message>
+    <message>
+        <source>Previous Packet</source>
+        <translation>Предыдущий Пакет</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet</source>
+        <translation>Перейти к предыдущему пакету</translation>
+    </message>
+    <message>
+        <source>First Packet</source>
+        <translation>Первый Пакет</translation>
+    </message>
+    <message>
+        <source>Go to the first packet</source>
+        <translation>Перейти к первому пакету</translation>
+    </message>
+    <message>
+        <source>Last Packet</source>
+        <translation>Последний Пакет</translation>
+    </message>
+    <message>
+        <source>Go to the last packet</source>
+        <translation>Перейти к последнему пакету</translation>
+    </message>
+    <message>
+        <source>E&amp;xpand Subtrees</source>
+        <translation>Р&amp;азвернуть Подчинённые Деревья</translation>
+    </message>
+    <message>
+        <source>Expand the current packet detail</source>
+        <translation>Развернуть подробное описание текущего пакета</translation>
+    </message>
+    <message>
+        <source>&amp;Expand All</source>
+        <translation>&amp;Развернуть Всё</translation>
+    </message>
+    <message>
+        <source>Expand packet details</source>
+        <translation>Развернуть подробное описание пакета</translation>
+    </message>
+    <message>
+        <source>Collapse &amp;All</source>
+        <translation>Свернуть &amp;Всё</translation>
+    </message>
+    <message>
+        <source>Collapse all packet details</source>
+        <translation>Свернуть подробное описание всех пакетов</translation>
+    </message>
+    <message>
+        <source>Go to specified packet</source>
+        <translation>Перейти к указанному пакету</translation>
+    </message>
+    <message>
+        <source>Merge one or more files</source>
+        <translation>Объединить один или больше файлов</translation>
+    </message>
+    <message>
+        <source>Import a file</source>
+        <translation>Импорт файла</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Сохранить</translation>
+    </message>
+    <message>
+        <source>Save as a different file</source>
+        <translation>Сохранить как другой файл</translation>
+    </message>
+    <message>
+        <source>Export specified packets</source>
+        <translation>Экспортировать указанные пакеты</translation>
+    </message>
+    <message>
+        <source>Export TLS Session Keys…</source>
+        <translation>Экспортировать Ключи Сессии TLS…</translation>
+    </message>
+    <message>
+        <source>List Files</source>
+        <translation>Список Файлов</translation>
+    </message>
+    <message>
+        <source>Next File</source>
+        <translation>Следующий Файл</translation>
+    </message>
+    <message>
+        <source>Previous File</source>
+        <translation>Предыдущий Файл</translation>
+    </message>
+    <message>
+        <source>&amp;Reload</source>
+        <translation>&amp;Перезагрузить</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Опции</translation>
+    </message>
+    <message>
+        <source>Capture options</source>
+        <translation>Опции захвата</translation>
+    </message>
+    <message>
+        <source>Capture filters</source>
+        <translation>Фильтры захвата</translation>
+    </message>
+    <message>
+        <source>Refresh Interfaces</source>
+        <translation>Обновить Интерфейсы</translation>
+    </message>
+    <message>
+        <source>Refresh interfaces</source>
+        <translation>Обновить интерфейсы</translation>
+    </message>
+    <message>
+        <source>&amp;Restart</source>
+        <translation>&amp;Перезапуск</translation>
+    </message>
+    <message>
+        <source>Restart current capture</source>
+        <translation>Перезапустить текущий захват</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV…</source>
+        <translation>Как &amp;CSV…</translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation>Как &amp;Массивы &quot;C&quot;…</translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation>Как P&amp;SML XML…</translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation>Как P&amp;DML XML…</translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation>Как &amp;JSON…</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Описание</translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation>Имя Поля</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation>Как Фильтр</translation>
+    </message>
+    <message>
+        <source>Close this capture file</source>
+        <translation>Закрыть этот файл захвата</translation>
+    </message>
+    <message>
+        <source>Packet:</source>
+        <translation>Пакет:</translation>
+    </message>
+    <message>
+        <source>Interface Toolbars</source>
+        <translation>Панели Инструментов Интерфейсов</translation>
+    </message>
+    <message>
+        <source>Colorize Conversation</source>
+        <translation>Выделить Диалог Цветом</translation>
+    </message>
+    <message>
+        <source>Internals</source>
+        <translation>Внутренняя организация</translation>
+    </message>
+    <message>
+        <source>Additional Toolbars</source>
+        <translation>Дополнительные Панели Инструментов</translation>
+    </message>
+    <message>
+        <source>Conversation Filter</source>
+        <translation>Фильтр Диалога</translation>
+    </message>
+    <message>
+        <source>Reliable Server Pooling (RSerPool)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osmux</source>
+        <translation>Osmux</translation>
+    </message>
+    <message>
+        <source>&amp;Tools</source>
+        <oldsource>Tools</oldsource>
+        <translation>&amp;Инструменты</translation>
+    </message>
+    <message>
+        <source>Wireless Toolbar</source>
+        <translation>Панель Инструментов Wireless</translation>
+    </message>
+    <message>
+        <source>Help contents</source>
+        <translation>Содержание системы помощи</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation>ЧАВО</translation>
+    </message>
+    <message>
+        <source>Next Packet in Conversation</source>
+        <translation>Следующий Пакет в Диалоге</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in this conversation</source>
+        <translation>Перейти к следующему пакету в этом диалоге</translation>
+    </message>
+    <message>
+        <source>Previous Packet in Conversation</source>
+        <translation>Предыдущий Пакет в Диалоге</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in this conversation</source>
+        <translation>Перейти к предыдущему пакету в этом диалоге</translation>
+    </message>
+    <message>
+        <source>Next Packet In History</source>
+        <translation>Следующий Пакет в History</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in your selection history</source>
+        <translation>Перейти к следующему пакету в Вашей истории выбора</translation>
+    </message>
+    <message>
+        <source>Previous Packet In History</source>
+        <translation>Предыдущий Пакет в History</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in your selection history</source>
+        <translation>Перейти к предыдущему пакету в Вашей истории выбора</translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation>Свернуть Подчинённые Деревья</translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
+        <translation>Свернуть подробное описание текущего пакета</translation>
+    </message>
+    <message>
+        <source>Go to Packet…</source>
+        <translation>Перейти к Пакету…</translation>
+    </message>
+    <message>
+        <source>&amp;Merge…</source>
+        <translation>&amp;Объединить…</translation>
+    </message>
+    <message>
+        <source>&amp;Import from Hex Dump…</source>
+        <translation>&amp;Импортировать из Шестнадцатеричного Дампа…</translation>
+    </message>
+    <message>
+        <source>Save this capture file</source>
+        <translation>Сохранить этот файл захвата</translation>
+    </message>
+    <message>
+        <source>Save &amp;As…</source>
+        <translation>Сохранить &amp;Как…</translation>
+    </message>
+    <message>
+        <source>Export Specified Packets…</source>
+        <translation>Экспортировать Указанные Пакеты…</translation>
+    </message>
+    <message>
+        <source>Export Packet &amp;Bytes…</source>
+        <translation>Экспортировать &amp;Байты Пакета…</translation>
+    </message>
+    <message>
+        <source>&amp;Print…</source>
+        <translation>&amp;Печать…</translation>
+    </message>
+    <message>
+        <source>Reload this file</source>
+        <translation>Загрузить этот файл повторно</translation>
+    </message>
+    <message>
+        <source>Reload as File Format/Capture</source>
+        <translation>Загрузить повторно как Файл Формата/Захвата</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s description</source>
+        <translation>Копировать описание этого пункта</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s field name</source>
+        <translation>Копировать имя поля этого пункта</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s value</source>
+        <translation>Копировать значение этого пункта</translation>
+    </message>
+    <message>
+        <source>Copy this item as a display filter</source>
+        <translation>Копировать этот пункт в качестве дисплейного фильтра</translation>
+    </message>
+    <message>
+        <source>Apply as Column</source>
+        <translation>Применить как Столбец</translation>
+    </message>
+    <message>
+        <source>Create a packet list column from the selected field.</source>
+        <translation>Создать столбец списка пакетов из выбранного поля.</translation>
+    </message>
+    <message>
+        <source>Find a packet</source>
+        <translation>Найти пакет</translation>
+    </message>
+    <message>
+        <source>Find the next packet</source>
+        <translation>Найти следующий пакет</translation>
+    </message>
+    <message>
+        <source>Find the previous packet</source>
+        <translation>Найти предыдущий пакет</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation>&amp;Выполнить/Отменить Пометку Пакета</translation>
+    </message>
+    <message>
+        <source>Mark All Displayed</source>
+        <translation>Пометить Всё Отображённое</translation>
+    </message>
+    <message>
+        <source>Mark all displayed packets</source>
+        <translation>Пометить все отображённые пакеты</translation>
+    </message>
+    <message>
+        <source>Unmark all displayed packets</source>
+        <translation>Отменить пометку всех отображённых пакетов</translation>
+    </message>
+    <message>
+        <source>Next Mark</source>
+        <translation>Следующая Пометка</translation>
+    </message>
+    <message>
+        <source>Go to the next marked packet</source>
+        <translation>Перейти к следующему помеченному пакету</translation>
+    </message>
+    <message>
+        <source>Previous Mark</source>
+        <translation>Предыдущая Пометка</translation>
+    </message>
+    <message>
+        <source>Go to the previous marked packet</source>
+        <translation>Перейти к предыдущему помеченному пакету</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation>&amp;Игнорировать/Отменить Игнорирование Пакета</translation>
+    </message>
+    <message>
+        <source>Ignore All Displayed</source>
+        <translation>Игнорировать Все Показанные</translation>
+    </message>
+    <message>
+        <source>Ignore all displayed packets</source>
+        <translation>Игнорировать все показанные пакеты</translation>
+    </message>
+    <message>
+        <source>Set/Unset Time Reference</source>
+        <translation>Установить/Отменить Привязку По Времени</translation>
+    </message>
+    <message>
+        <source>Set or unset a time reference for this packet</source>
+        <translation>Установить или отменить привязку по времени для этого пакета</translation>
+    </message>
+    <message>
+        <source>Unset All Time References</source>
+        <translation>Отменить Все Привязки по Времени</translation>
+    </message>
+    <message>
+        <source>Remove all time references</source>
+        <translation>Убрать все привязки по времени</translation>
+    </message>
+    <message>
+        <source>Next Time Reference</source>
+        <translation>Следующая Привязка по Времени</translation>
+    </message>
+    <message>
+        <source>Go to the next time reference</source>
+        <translation>Перейти к следующей привязке по времени</translation>
+    </message>
+    <message>
+        <source>Previous Time Reference</source>
+        <translation>Предыдущая Привязка по Времени</translation>
+    </message>
+    <message>
+        <source>Go to the previous time reference</source>
+        <translation>Перейти к предыдущей привязке по времени</translation>
+    </message>
+    <message>
+        <source>Shift or change packet timestamps</source>
+        <translation>Сдвинуть или  изменить временные маркеры пакета</translation>
+    </message>
+    <message>
+        <source>Delete All Packet Comments</source>
+        <translation>Удалить Все Комментарии к Пакету</translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation>Удалить все комментарии к пакетам в файле захвата</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation>&amp;Конфигурационные Профили…</translation>
+    </message>
+    <message>
+        <source>Configuration profiles</source>
+        <translation>Конфигурационные профили</translation>
+    </message>
+    <message>
+        <source>Manage your configuration profiles</source>
+        <translation>Управлять Вашими конфигурационными профилями</translation>
+    </message>
+    <message>
+        <source>Manage Wireshark&apos;s preferences</source>
+        <translation>Управлять параметрами Wireshark</translation>
+    </message>
+    <message>
+        <source>Capture File Properties</source>
+        <translation>Свойства Файла Захвата</translation>
+    </message>
+    <message>
+        <source>Capture file properties</source>
+        <translation>Свойства файла захвата</translation>
+    </message>
+    <message>
+        <source>&amp;Protocol Hierarchy</source>
+        <translation>&amp;Иерархия Протоколов</translation>
+    </message>
+    <message>
+        <source>Show a summary of protocols present in the capture file.</source>
+        <translation>Показать общую информацию о протоколах, имеющихся в файле захвата.</translation>
+    </message>
+    <message>
+        <source>Capinfos</source>
+        <translation>Capinfos</translation>
+    </message>
+    <message>
+        <source>Reordercap</source>
+        <translation>Reordercap</translation>
+    </message>
+    <message>
+        <source>Time Sequence (Stevens)</source>
+        <translation>Временная Последовательность (Stevens)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (Stevens)</source>
+        <translation>График временной последовательности TCP (Stevens)</translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation>Пропускная способность</translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation>Время Передачи От Отправителя К Получателю И Обратно</translation>
+    </message>
+    <message>
+        <source>TCP round trip time</source>
+        <translation>Время Передачи От Отправителя К Получателю И Обратно Протокола TCP</translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation>Масштабирование Окна</translation>
+    </message>
+    <message>
+        <source>TCP window scaling</source>
+        <translation>Масштабирование Окна TCP</translation>
+    </message>
+    <message>
+        <source>DCCP Stream</source>
+        <translation>Поток DCCP</translation>
+    </message>
+    <message>
+        <source>TLS Stream</source>
+        <translation>Поток TLS</translation>
+    </message>
+    <message>
+        <source>HTTP Stream</source>
+        <translation>Поток HTTP</translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation>Поток HTTP/2</translation>
+    </message>
+    <message>
+        <source>QUIC Stream</source>
+        <translation>Поток QUIC</translation>
+    </message>
+    <message>
+        <source>SIP Call</source>
+        <translation>SIP-звонок</translation>
+    </message>
+    <message>
+        <source>Time Sequence (tcptrace)</source>
+        <translation>Временная Последовательность (tcptrace)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (tcptrace)</source>
+        <translation>График временной последовательности TCP (tcptrace)</translation>
+    </message>
+    <message>
+        <source>Analyse this Association</source>
+        <translation>Анализировать эту Ассоциацию</translation>
+    </message>
+    <message>
+        <source>Show All Associations</source>
+        <translation>Показать Все Ассоциации</translation>
+    </message>
+    <message>
+        <source>Flow Graph</source>
+        <translation>График Потока</translation>
+    </message>
+    <message>
+        <source>Flow sequence diagram</source>
+        <translation>Диаграмма последовательности потоков</translation>
+    </message>
+    <message>
+        <source>ANCP</source>
+        <translation>ANCP</translation>
+    </message>
+    <message>
+        <source>ANCP statistics</source>
+        <translation>Статистика ANCP</translation>
+    </message>
+    <message>
+        <source>Packets sorted by Instance ID</source>
+        <translation>Пакеты, отсортированные по ID экземпляра</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by instance ID</source>
+        <translation>Статистические данные BACapp, отсортированные по ID экземпляра</translation>
+    </message>
+    <message>
+        <source>Packets sorted by IP</source>
+        <translation>Пакеты, отсортированные по IP-адресу</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by IP</source>
+        <translation>Статистические данные BACapp, отсортированные по IP</translation>
+    </message>
+    <message>
+        <source>Packets sorted by object type</source>
+        <translation>Пакеты, отсортированные по типу объекта</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by object type</source>
+        <translation>Статистические данные BACapp, отсортированные по типу объекта</translation>
+    </message>
+    <message>
+        <source>Packets sorted by service</source>
+        <translation>Пакеты, отсортированные по типу службы</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by service</source>
+        <translation>Статистические данные BACapp, отсортированные по типу службы</translation>
+    </message>
+    <message>
+        <source>Collectd</source>
+        <translation>Collectd</translation>
+    </message>
+    <message>
+        <source>Collectd statistics</source>
+        <translation>Статистика Collectd</translation>
+    </message>
+    <message>
+        <source>DNS</source>
+        <translation>DNS</translation>
+    </message>
+    <message>
+        <source>DNS statistics</source>
+        <translation>Статистика DNS</translation>
+    </message>
+    <message>
+        <source>HART-IP</source>
+        <translation>HART-IP</translation>
+    </message>
+    <message>
+        <source>HART-IP statistics</source>
+        <translation>Статистика HART-IP</translation>
+    </message>
+    <message>
+        <source>HPFEEDS</source>
+        <translation>HPFEEDS</translation>
+    </message>
+    <message>
+        <source>hpfeeds statistics</source>
+        <translation>Статистика hpfeeds</translation>
+    </message>
+    <message>
+        <source>HTTP2</source>
+        <translation>HTTP2</translation>
+    </message>
+    <message>
+        <source>HTTP2 statistics</source>
+        <translation>Статистика HTTP2</translation>
+    </message>
+    <message>
+        <source>Packet Counter</source>
+        <translation>Счётчик Пакетов</translation>
+    </message>
+    <message>
+        <source>HTTP packet counter</source>
+        <translation>Счётчик пакетов HTTP</translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation>Запросы</translation>
+    </message>
+    <message>
+        <source>HTTP requests</source>
+        <translation>Запросы HTTP</translation>
+    </message>
+    <message>
+        <source>Load Distribution</source>
+        <translation>Распределение Нагрузки</translation>
+    </message>
+    <message>
+        <source>HTTP load distribution</source>
+        <translation>Распределение Нагрузки HTTP</translation>
+    </message>
+    <message>
+        <source>Packet Lengths</source>
+        <translation>Длина Пакетов</translation>
+    </message>
+    <message>
+        <source>Packet length statistics</source>
+        <translation>Статистика о длине пакетов</translation>
+    </message>
+    <message>
+        <source>Sametime</source>
+        <translation>Sametime</translation>
+    </message>
+    <message>
+        <source>Sametime statistics</source>
+        <translation>Статистика Sametime</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ISUP Messages</source>
+        <translation>Сообщения &amp;ISUP</translation>
+    </message>
+    <message>
+        <source>ISUP message statistics</source>
+        <translation>Статистика сообщений ISUP</translation>
+    </message>
+    <message>
+        <source>Osmux packet counts</source>
+        <translation>Подсчёт пакетов Osmux</translation>
+    </message>
+    <message>
+        <source>RTSP packet counts</source>
+        <translation>Подсчёт пакетов RTSP</translation>
+    </message>
+    <message>
+        <source>SM&amp;PP Operations</source>
+        <translation>Операции SM&amp;PP</translation>
+    </message>
+    <message>
+        <source>SMPP operation statistics</source>
+        <translation>Статистика операций SMPP</translation>
+    </message>
+    <message>
+        <source>&amp;UCP Messages</source>
+        <translation>Сообщения &amp;UCP</translation>
+    </message>
+    <message>
+        <source>UCP message statistics</source>
+        <translation>Статистика сообщений UCP</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation>F1AP</translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation>Сообщения F1AP</translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change the way packets are dissected</source>
+        <translation>Выбрать способ, по которому проанализированы пакеты </translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation>Загрузить Плагины Lua повторно</translation>
+    </message>
+    <message>
+        <source>Reload Lua plugins</source>
+        <translation>Загрузить плагины Lua повторно</translation>
+    </message>
+    <message>
+        <source>Advertisements by Topic</source>
+        <translation>Сортировка Извещений по Теме</translation>
+    </message>
+    <message>
+        <source>Advertisements by Source</source>
+        <translation>Сортировка Извещений по Источнику</translation>
+    </message>
+    <message>
+        <source>Advertisements by Transport</source>
+        <translation>Сортировка Извещений по Транспорту</translation>
+    </message>
+    <message>
+        <source>Queries by Topic</source>
+        <translation>Запросы по Теме</translation>
+    </message>
+    <message>
+        <source>Queries by Receiver</source>
+        <translation>Запросы по Получателю</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Pattern</source>
+        <translation>Шаблонные Запросы по Шаблону</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Receiver</source>
+        <translation>Шаблонные Запросы по Получателю</translation>
+    </message>
+    <message>
+        <source>Advertisements by Queue</source>
+        <translation>Сортировка Извещений по Очереди</translation>
+    </message>
+    <message>
+        <source>Queries by Queue</source>
+        <translation>Запросы по Очереди</translation>
+    </message>
+    <message>
+        <source>Streams</source>
+        <translation>Потоки</translation>
+    </message>
+    <message>
+        <source>LBT-RM</source>
+        <translation>LBT-RM</translation>
+    </message>
+    <message>
+        <source>LBT-RU</source>
+        <translation>LBT-RU</translation>
+    </message>
+    <message>
+        <source>Filter this Association</source>
+        <translation>Фильтровать эту Ассоциацию</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;I/O Graphs</source>
+        <translation>&amp;Графики Ввода/Вывода</translation>
+    </message>
+    <message>
+        <source>&amp;Conversations</source>
+        <translation>&amp;Диалоги</translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation>&amp;Конечные точки</translation>
+    </message>
+    <message>
+        <source>Shrink the main window text</source>
+        <translation>Ужать текст главного окна</translation>
+    </message>
+    <message>
+        <source>Return the main window text to its normal size</source>
+        <translation>Вернуть текст главного окна к его нормальному размеру</translation>
+    </message>
+    <message>
+        <source>Reset Layout</source>
+        <translation>Сбросить Разметку</translation>
+    </message>
+    <message>
+        <source>Reset appearance layout to default size</source>
+        <translation>Сбросить внешний вид разметки до размера по умолчанию</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Diagram</source>
+        <translation>Диаграмма пакета</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation>Показать или скрыть пакет</translation>
+    </message>
+    <message>
+        <source>Show each conversation hash table</source>
+        <translation>Показать каждую хэш-таблицу диалога</translation>
+    </message>
+    <message>
+        <source>Show each dissector table and its entries</source>
+        <translation>Показать каждую таблицу диссекторов и её записи</translation>
+    </message>
+    <message>
+        <source>Show the currently supported protocols and display filter fields</source>
+        <translation>Показать поддерживаемые в настоящее время протоколы и поля дисплейного фильтра</translation>
+    </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation>Статистика MAC</translation>
+    </message>
+    <message>
+        <source>LTE MAC statistics</source>
+        <translation>Статистика LTE MAC</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation>Статистика RLC</translation>
+    </message>
+    <message>
+        <source>LTE RLC statistics</source>
+        <translation>Статистика LTE RLC</translation>
+    </message>
+    <message>
+        <source>LTE RLC graph</source>
+        <translation>График LTE RLC</translation>
+    </message>
+    <message>
+        <source>MTP3 Summary</source>
+        <translation>Сводка MTP3</translation>
+    </message>
+    <message>
+        <source>MTP3 summary statistics</source>
+        <translation>Сводка статистики MTP3</translation>
+    </message>
+    <message>
+        <source>Bluetooth Devices</source>
+        <translation>Устройства Bluetooth</translation>
+    </message>
+    <message>
+        <source>Bluetooth HCI Summary</source>
+        <translation>Общие сведения о Bluetooth HCI</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation>Показать Дисплейный &amp;Фильтр…</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation>Показать Дисплейный Фильтр…</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
+        <translation>REGISTER_STAT_GROUP_RSERPOOL</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No GSM statistics registered</source>
+        <translation>Нет зарегистрированной статистики GSM</translation>
+    </message>
+    <message>
+        <source>No LTE statistics registered</source>
+        <translation>Нет зарегистрированной статистики LTE</translation>
+    </message>
+    <message>
+        <source>No MTP3 statistics registered</source>
+        <translation>Нет зарегистрированной статистики MTP3</translation>
+    </message>
+    <message>
+        <source>IAX2 Stream Analysis</source>
+        <translation>Анализ потока IAX2</translation>
+    </message>
+    <message>
+        <source>Show Packet Bytes…</source>
+        <translation>Показать Байты Пакета…</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation>Перейти к &amp;Связанному Пакету</translation>
+    </message>
+    <message>
+        <source>UDP Multicast Streams</source>
+        <translation>Потоки UDP Multicast</translation>
+    </message>
+    <message>
+        <source>Show UTP multicast stream statistics.</source>
+        <translation>Показать статистику потока UTP multicast.</translation>
+    </message>
+    <message>
+        <source>WLAN Traffic</source>
+        <translation>Трафик WLAN</translation>
+    </message>
+    <message>
+        <source>Show IEEE 802.11 wireless LAN statistics.</source>
+        <translation>Показать статистику беспроводной локальной сети IEEE 802.11.</translation>
+    </message>
+    <message>
+        <source>Add a display filter button.</source>
+        <translation>Добавить кнопку дисплейного фильтра.</translation>
+    </message>
+    <message>
+        <source>Firewall ACL Rules</source>
+        <translation>ACL-правила Межсетевого Экрана</translation>
+    </message>
+    <message>
+        <source>Create firewall ACL rules</source>
+        <translation>Создать ACL-правила Межсетевого Экрана</translation>
+    </message>
+    <message>
+        <source>&amp;Full Screen</source>
+        <translation>&amp;Полный Экран</translation>
+    </message>
+    <message>
+        <source>Credentials</source>
+        <translation>Учетные данные</translation>
+    </message>
+    <message>
+        <source>&amp;Options…</source>
+        <translation>&amp;Опции…</translation>
+    </message>
+    <message>
+        <source>&amp;Wireless</source>
+        <translation>&amp;Беспроводной</translation>
+    </message>
+    <message>
+        <source>Capture &amp;Filters…</source>
+        <translation>Фильтры &amp;Захвата…</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text…</source>
+        <translation>Как Обычный &amp;Текст…</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text</source>
+        <translation>Как Обычный &amp;Текст</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation>Как &amp;CSV</translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation>Как &amp;YAML</translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation>Все Видимые Пункты</translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation>Все Видимые Пункты Выбранного Дерева</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Macros…</source>
+        <translation>&amp;Макросы Дисплейного Фильтра…</translation>
+    </message>
+    <message>
+        <source>&amp;Find Packet…</source>
+        <translation>&amp;Найти Пакет…</translation>
+    </message>
+    <message>
+        <source>Find Ne&amp;xt</source>
+        <translation>Найти Сл&amp;едующий</translation>
+    </message>
+    <message>
+        <source>Find Pre&amp;vious</source>
+        <translation>Найти Пр&amp;едыдущий</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation>Пометить / отменить пометку всех выбранных пакетов</translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation>Игнорировать / перестать игнорировать все выбранные пакеты</translation>
+    </message>
+    <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>Н&amp;е Игнорировать Все Показанные</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>Перестать игнорировать все отображенные пакеты</translation>
+    </message>
+    <message>
+        <source>Time Shift…</source>
+        <translation>Временной Сдвиг…</translation>
+    </message>
+    <message>
+        <source>&amp;Preferences…</source>
+        <translation>&amp;Параметры…</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation>Пропускная способность TCP</translation>
+    </message>
+    <message>
+        <source>TCP Stream</source>
+        <translation>Поток TCP</translation>
+    </message>
+    <message>
+        <source>UDP Stream</source>
+        <translation>Поток UDP</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation>Запросить Последовательности</translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
+        <translation>Запросить Последовательности HTTP</translation>
+    </message>
+    <message>
+        <source>Decode &amp;As…</source>
+        <translation>Декодировать &amp;Как…</translation>
+    </message>
+    <message>
+        <source>Export PDUs to File…</source>
+        <translation>Экспортировать PDUхи в Файл…</translation>
+    </message>
+    <message>
+        <source>Create graphs based on display filter fields</source>
+        <translation>Создать графики на базе полей дисплейного фильтра</translation>
+    </message>
+    <message>
+        <source>&amp;Main Toolbar</source>
+        <translation>&amp;Главная Панель Инструментов</translation>
+    </message>
+    <message>
+        <source>Show or hide the main toolbar</source>
+        <translation>Показать или скрыть главную панель инструментов</translation>
+    </message>
+    <message>
+        <source>&amp;Filter Toolbar</source>
+        <translation>Панель Инструментов &amp;Фильтр</translation>
+    </message>
+    <message>
+        <source>Show or hide the display filter toolbar</source>
+        <translation>Показать или скрыть панель инструментов дисплейного фильтра</translation>
+    </message>
+    <message>
+        <source>Conversations at different protocol levels</source>
+        <translation>Диалоги на различных уровнях протоколов</translation>
+    </message>
+    <message>
+        <source>Endpoints at different protocol levels</source>
+        <translation>Конечные точки на различных уровнях протоколов</translation>
+    </message>
+    <message>
+        <source>Colorize Packet List</source>
+        <translation>Выделить Цветом Список Пакетов</translation>
+    </message>
+    <message>
+        <source>Draw packets using your coloring rules</source>
+        <translation>Выводить пакеты на экран, используя цветовые правила</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom In</source>
+        <translation>&amp;Увеличить Масштаб</translation>
+    </message>
+    <message>
+        <source>Enlarge the main window text</source>
+        <translation>Увеличить текст главного окна</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Уменьшить Масштаб</translation>
+    </message>
+    <message>
+        <source>Normal Size</source>
+        <translation>Обычный Размер</translation>
+    </message>
+    <message>
+        <source>Resize Columns</source>
+        <translation>Изменить Размер Столбцов</translation>
+    </message>
+    <message>
+        <source>Resize packet list columns to fit contents</source>
+        <translation>Изменить размер столбцов списка пакетов для полного размещения содержимого</translation>
+    </message>
+    <message>
+        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>Дата и Время Дня (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the date and time of day.</source>
+        <translation>Показывать временные характеристики пакетов как дату и время дня.</translation>
+    </message>
+    <message>
+        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>Год, День Года и Время Дня (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the year, day of the year and time of day.</source>
+        <translation>Показывать временные характеристики пакетов как год, день года и время дня.</translation>
+    </message>
+    <message>
+        <source>Time of Day (01:02:03.123456)</source>
+        <translation>Время Дня (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Seconds Since 1970-01-01</source>
+        <translation>Число Секунд, Начиная С 1970-01-01</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
+        <translation>Показывать временные характеристики пакетов как секунды с момента внедрения стандарта UNIX / POSIX (1970-01-01).</translation>
+    </message>
+    <message>
+        <source>Seconds Since Beginning of Capture</source>
+        <translation>Секунд С Момента Начала Захвата</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Captured Packet</source>
+        <translation>Секунд После Предыдущего Захваченного Пакета</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous captured packet.</source>
+        <translation>Показывать временные характеристики пакетов как секунды с момента Захвата Предыдущего Пакета.</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Displayed Packet</source>
+        <translation>Секунд После Предыдущего Показанного Пакета</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous displayed packet.</source>
+        <translation>Показывать временные характеристики пакетов как секунды с момента показа предыдущего пакета.</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>Дата и Время Дня UTC (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC date and time of day.</source>
+        <translation>Показывать временные характеристики пакетов как дату и время дня в формате UTC.</translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>Год, День Года и Время Дня (1970/001 01:02:03.123456) в формате UTC</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC year, day of the year and time of day.</source>
+        <translation>Показывать временные характеристики пакетов как год, день года и время дня в формате UTC.</translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456)</source>
+        <translation>Время Дня UTC (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC time of day.</source>
+        <translation>Показывать временные характеристики пакетов как время дня в формате UTC.</translation>
+    </message>
+    <message>
+        <source>Automatic (from capture file)</source>
+        <translation>Автоматически (из файла захвата)</translation>
+    </message>
+    <message>
+        <source>Use the time precision indicated in the capture file.</source>
+        <translation>Использовать точность записи времени, показанную в файле захвата. </translation>
+    </message>
+    <message>
+        <source>Seconds</source>
+        <translation>Секунды</translation>
+    </message>
+    <message>
+        <source>Tenths of a second</source>
+        <translation>Десятки секунд</translation>
+    </message>
+    <message>
+        <source>Hundredths of a second</source>
+        <translation>Сотни секунд</translation>
+    </message>
+    <message>
+        <source>Milliseconds</source>
+        <translation>Миллисекунды</translation>
+    </message>
+    <message>
+        <source>Microseconds</source>
+        <translation>Микросекунды</translation>
+    </message>
+    <message>
+        <source>Nanoseconds</source>
+        <translation>Наносекунды</translation>
+    </message>
+    <message>
+        <source>Display Seconds With Hours and Minutes</source>
+        <translation>Показывать Секунды Вместе С Часами и Минутами</translation>
+    </message>
+    <message>
+        <source>Display seconds with hours and minutes</source>
+        <translation>Показывать секунды вместе с часами и минутами</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Physical Addresses</source>
+        <translation>Разрешить &amp;Физические Адреса</translation>
+    </message>
+    <message>
+        <source>Show names for known MAC addresses. Lookups use a local database.</source>
+        <translation>Показать имена для известных MAC-адресов. При поиске используется локальная база данных.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Network Addresses</source>
+        <translation>Разрешить &amp;Сетевые Адреса</translation>
+    </message>
+    <message>
+        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
+        <translation>Показать имена для известных адресов IPv4, IPv6 и IPX. При поиске может генерироваться сетевой трафик.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Transport Addresses</source>
+        <translation>Разрешить &amp;Транспортные Адреса</translation>
+    </message>
+    <message>
+        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
+        <translation>Показать имена для известных служб TCP, UDP и SCTP. При поиске в некоторых системах может генерироваться трафик.</translation>
+    </message>
+    <message>
+        <source>Wire&amp;less Toolbar</source>
+        <translation>Панель Инструментов Wire&amp;less</translation>
+    </message>
+    <message>
+        <source>Show or hide the wireless toolbar</source>
+        <translation>Показать или скрыть панель инструментов wireless</translation>
+    </message>
+    <message>
+        <source>&amp;Status Bar</source>
+        <translation>&amp;Строка Статуса</translation>
+    </message>
+    <message>
+        <source>Show or hide the status bar</source>
+        <translation>Показать или скрыть строку статуса</translation>
+    </message>
+    <message>
+        <source>Packet &amp;List</source>
+        <translation>&amp;Список Пакетов</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet list</source>
+        <translation>Показать или скрыть список пакетов</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Details</source>
+        <translation>Дополнительная &amp;Информация о пакете</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet details</source>
+        <translation>Показать или скрыть дополнительную информацию о пакете</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Bytes</source>
+        <translation>&amp;Байты Пакета</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet bytes</source>
+        <translation>Показать или скрыть байты пакета</translation>
+    </message>
+    <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation>&amp;Хэш-таблицы Диалогов</translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation>&amp;Таблицы Диссекторов</translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation>&amp;Поддерживаемые Протоколы</translation>
+    </message>
+    <message>
+        <source>MAP Summary</source>
+        <translation>Сводка MAP</translation>
+    </message>
+    <message>
+        <source>GSM MAP summary statistics</source>
+        <translation>Сводка статистики GSM MAP</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation>RLC &amp;График </translation>
+    </message>
+    <message>
+        <source>&amp;Coloring Rules…</source>
+        <translation>&amp;Цветовые Правила…</translation>
+    </message>
+    <message>
+        <source>Show Linked Packet in New Window</source>
+        <translation>Показать Связанный Пакет в Новом Окне</translation>
+    </message>
+    <message>
+        <source>New Coloring Rule…</source>
+        <oldsource>New Conversation Rule…</oldsource>
+        <translation>Новое Цветовое Правило…</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation>RTP-плейер</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation>Анализ потока IA&amp;X2</translation>
+    </message>
+    <message>
+        <source>Enabled Protocols…</source>
+        <oldsource>Enable Protocols…</oldsource>
+        <translation>Разрешённые Протоколы…</translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation>Wiki-страница Протокола</translation>
+    </message>
+    <message>
+        <source>Open the Wireshark wiki page for this protocol.</source>
+        <translation>Открыть Wireshark вики-страницу для этого протокола.</translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation>Справка по Полю Фильтра</translation>
+    </message>
+    <message>
+        <source>Open the display filter reference page for this filter field.</source>
+        <translation>Открыть справочную страницу дисплейного фильтра для этого поля фильтра.</translation>
+    </message>
+    <message>
+        <source>Go to the packet referenced by the selected field.</source>
+        <translation>Перейти к пакету по ссылке из выбранного поля. </translation>
+    </message>
+    <message>
+        <source>&amp;VoIP Calls</source>
+        <translation>Вызовы &amp;VoIP</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation>Открыть &amp;Недавние</translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation>Разрешение И&amp;мён</translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation>Время &amp;Ответа Сервиса</translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation>&amp;RTP</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation>S&amp;CTP</translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation>&amp;ANSI</translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation>&amp;GSM</translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation>&amp;LTE</translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation>&amp;MTP3</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Открыть</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation>&amp;Выход</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>&amp;Закрыть</translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation>Дисплейные &amp;Фильтры…</translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation>&amp;Отменить пометку Всего Отображённого</translation>
+    </message>
+    <message>
+        <source>All VoIP Calls</source>
+        <translation>Все Вызовы VoIP</translation>
+    </message>
+    <message>
+        <source>SIP &amp;Flows</source>
+        <translation>&amp;Потоки SIP</translation>
+    </message>
+    <message>
+        <source>SIP Flows</source>
+        <translation>Потоки SIP</translation>
+    </message>
+    <message>
+        <source>RTP Streams</source>
+        <translation>Потоки RTP</translation>
+    </message>
+    <message>
+        <source>Edit the packet list coloring rules.</source>
+        <translation>Редактировать цветовые правила списка пакетов.</translation>
+    </message>
+    <message>
+        <source>Bluetooth ATT Server Attributes</source>
+        <oldsource>ATT Server Attributes</oldsource>
+        <translation>Атрибуты сервера Bluetooth ATT</translation>
+    </message>
+    <message>
+        <source>Show Packet in New &amp;Window</source>
+        <translation>Показать Пакет в Новом &amp;Окне</translation>
+    </message>
+    <message>
+        <source>Show this packet in a separate window.</source>
+        <translation>Показать этот пакет в отдельном окне.</translation>
+    </message>
+    <message>
+        <source>Show the linked packet in a separate window.</source>
+        <translation>Показать связанный пакет в отдельном окне.</translation>
+    </message>
+    <message>
+        <source>Auto Scroll in Li&amp;ve Capture</source>
+        <translation>Автоматическая Прокрутка при Захвате в &amp;Реальном Времени</translation>
+    </message>
+    <message>
+        <source>Automatically scroll to the last packet during a live capture.</source>
+        <translation>Автоматическая прокрутка к последнему пакету при захвате в реальном времени.</translation>
+    </message>
+    <message>
+        <source>Expert Information</source>
+        <translation>Информация Эксперта</translation>
+    </message>
+    <message>
+        <source>Show expert notifications</source>
+        <translation>Показать замечания эксперта</translation>
+    </message>
+    <message>
+        <source>Add an expression to the display filter.</source>
+        <translation>Добавить выражение к дисплейному фильтру.</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_UNSORTED</source>
+        <translation>REGISTER_STAT_GROUP_UNSORTED</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
+        <translation>Старт &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</translation>
+    </message>
+    <message>
+        <source>No ANSI statistics registered</source>
+        <oldsource>No tools registered</oldsource>
+        <translation>Нет зарегистрированной статистики ANSI</translation>
+    </message>
+    <message>
+        <source>Resolved Addresses</source>
+        <translation>Разрешенные Адреса</translation>
+    </message>
+    <message>
+        <source>Show each table of resolved addresses as copyable text.</source>
+        <translation>Показывать каждую таблицу разрешённых адресов как текст, который можно копировать.</translation>
+    </message>
+    <message>
+        <source>Color &amp;1</source>
+        <translation>Цвет &amp;1</translation>
+    </message>
+    <message>
+        <source>Mark the current conversation with its own color.</source>
+        <oldsource>Mark the current coversation with its own color.</oldsource>
+        <translation>Пометить текущий разговор его собственным цветом.</translation>
+    </message>
+    <message>
+        <source>Color &amp;2</source>
+        <translation>Цвет &amp;2</translation>
+    </message>
+    <message>
+        <source>Color &amp;3</source>
+        <translation>Цвет &amp;3</translation>
+    </message>
+    <message>
+        <source>Color &amp;4</source>
+        <translation>Цвет &amp;4</translation>
+    </message>
+    <message>
+        <source>Color &amp;5</source>
+        <translation>Цвет &amp;5</translation>
+    </message>
+    <message>
+        <source>Color &amp;6</source>
+        <translation>Цвет &amp;6</translation>
+    </message>
+    <message>
+        <source>Color &amp;7</source>
+        <translation>Цвет &amp;7</translation>
+    </message>
+    <message>
+        <source>Color &amp;8</source>
+        <translation>Цвет &amp;8</translation>
+    </message>
+    <message>
+        <source>Color &amp;9</source>
+        <translation>Цвет &amp;9</translation>
+    </message>
+    <message>
+        <source>Color 1&amp;0</source>
+        <translation>Цвет 1&amp;0</translation>
+    </message>
+    <message>
+        <source>Create a new coloring rule based on this field.</source>
+        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
+        <translation>Создать новое цветовое правило на базе этого поля.</translation>
+    </message>
+    <message>
+        <source>Reset Colorization</source>
+        <translation>Сбросить Цветовое Выделение</translation>
+    </message>
+    <message>
+        <source>Reset colorized conversations.</source>
+        <translation>Сбросить разговоры, выделенные цветом.</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>Анализ Потока RTP</translation>
+    </message>
+    <message>
+        <source>Edit Resolved Name</source>
+        <translation>Редактировать Разрешённое Имя</translation>
+    </message>
+    <message>
+        <source>Manually edit a name resolution entry.</source>
+        <translation>Редактировать вручную запись разрешения имён.</translation>
+    </message>
+    <message>
+        <source>Enable and disable specific protocols</source>
+        <translation>Разрешить и запретить указанные протоколы</translation>
+    </message>
+    <message>
+        <source> before quitting</source>
+        <translation>перед выходом</translation>
+    </message>
+    <message>
+        <source>Save packets before merging?</source>
+        <translation>Сохранить пакеты перед слиянием?</translation>
+    </message>
+    <message>
+        <source>A temporary capture file can&apos;t be merged.</source>
+        <translation>Временный файл захвата не может быть присоединён.</translation>
+    </message>
+    <message>
+        <source>Save changes in &quot;%1&quot; before merging?</source>
+        <translation>Сохранить изменения в &quot;%1&quot; перед слиянием?</translation>
+    </message>
+    <message>
+        <source>Changes must be saved before the files can be merged.</source>
+        <translation>Изменения должны быть сохранены перед объединением файлов.</translation>
+    </message>
+    <message>
+        <source>Invalid Display Filter</source>
+        <translation>Неверный Дисплейный Фильтр</translation>
+    </message>
+    <message>
+        <source>Invalid Read Filter</source>
+        <translation>Неверный Фильтр Чтения</translation>
+    </message>
+    <message>
+        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
+        <translation>Выражение фильтра %1 не является правильным фильтром чтения. (%2).</translation>
+    </message>
+    <message>
+        <source> before importing a capture</source>
+        <oldsource> before importing a new capture</oldsource>
+        <translation>перед импортированием захваченных данных</translation>
+    </message>
+    <message>
+        <source>Unable to export to &quot;%1&quot;.</source>
+        <translation>Невозможно экспортировать в &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>You cannot export packets to the current capture file.</source>
+        <translation>Вы не можете экспортировать пакеты в текущий файл захвата.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made%1?</source>
+        <oldsource>Do you want to save the captured packets</oldsource>
+        <translation>Хотите сохранить изменения, которые Вы сделали %1?</translation>
+    </message>
+    <message>
+        <source>Your captured packets will be lost if you don&apos;t save them.</source>
+        <translation>Захваченные Вами пакеты будут потеряны, если их не сохранить.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
+        <translation>Хотите сохранить изменения, которые Вы сделали, в файл захвата &quot;%1&quot;%2?</translation>
+    </message>
+    <message>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation>Сделанные изменения будут потеряны, если Вы их не сохраните.</translation>
+    </message>
+    <message>
+        <source>Check for Updates…</source>
+        <translation>Проверить Обновления…</translation>
+    </message>
+    <message>
+        <source>Unable to drop files during capture.</source>
+        <translation>Невозможно перебросить файлы во время захвата.</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by merge dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation>Пожалуйста, зарепортите этот баг https://gitlab.com/wireshark/wireshark/-/issues</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by export dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to stop the capture and save the captured packets%1?</source>
+        <translation>Хотите остановить захват и сохранить захваченные пакеты %1?</translation>
+    </message>
+    <message>
+        <source>Do you want to save the captured packets%1?</source>
+        <translation>Хотите сохранить захваченные пакеты %1?</translation>
+    </message>
+    <message>
+        <source>Save before Continue</source>
+        <translation>Сохранить перед Продолжением</translation>
+    </message>
+    <message>
+        <source>Stop and Save</source>
+        <translation>Остановить и Сохранить</translation>
+    </message>
+    <message>
+        <source>Stop and Quit &amp;without Saving</source>
+        <oldsource>Stop and Quit without Saving</oldsource>
+        <translation>Остановить и Выйти &amp;без Сохранения</translation>
+    </message>
+    <message>
+        <source>Quit &amp;without Saving</source>
+        <oldsource>Quit without Saving</oldsource>
+        <translation>Выйти &amp;без Сохранения</translation>
+    </message>
+    <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation>Величина SSRC не найдена.</translation>
+    </message>
+    <message>
+        <source>Show or hide the toolbar</source>
+        <translation>Показать или скрыть панель инструментов</translation>
+    </message>
+    <message>
+        <source>Continue &amp;without Saving</source>
+        <oldsource>Continue without Saving</oldsource>
+        <translation>Продолжить &amp;без Сохранения</translation>
+    </message>
+    <message>
+        <source>Stop and Continue &amp;without Saving</source>
+        <oldsource>Stop and Continue without Saving</oldsource>
+        <translation>Остановить и Продолжить &amp;без Сохранения</translation>
+    </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation>Сетевой анализатор Wireshark</translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation>Захват из %1</translation>
+    </message>
+    <message>
+        <source> before opening another file</source>
+        <translation>перед открытием другого файла</translation>
+    </message>
+    <message>
+        <source>Merging files.</source>
+        <translation>Объединение файлов.</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation>Очистить меню</translation>
+    </message>
+    <message>
+        <source> before closing the file</source>
+        <translation>перед закрытием файла</translation>
+    </message>
+    <message>
+        <source>Export Selected Packet Bytes</source>
+        <translation>Экспортировать Выбранные Байты Пакета</translation>
+    </message>
+    <message>
+        <source>No Keys</source>
+        <translation>Нет Ключей</translation>
+    </message>
+    <message>
+        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
+        <translation>Данные Raw (*.bin *.dat *.raw);;Все Файлы (</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t copy text. Try another item.</source>
+        <translation>Невозможно скопировать текст. Попробуйте другой пункт.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation>Вы уверены, что хотите удалить все комментарии к пакету?</translation>
+    </message>
+    <message>
+        <source>Unable to build conversation filter.</source>
+        <translation>Нельзя построить фильтр разговора.</translation>
+    </message>
+    <message>
+        <source> before reloading the file</source>
+        <translation>перед повторной загрузкой файла</translation>
+    </message>
+    <message>
+        <source>Error compiling filter for this conversation.</source>
+        <translation>Ошибка компиляции фильтра для этого разговора.</translation>
+    </message>
+    <message>
+        <source>No previous/next packet in conversation.</source>
+        <translation>Нет предыдущего/следующего пакета в разговоре.</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation>Нет выделенных интерфейсов.</translation>
+    </message>
+    <message>
+        <source>Saving %1…</source>
+        <translation>Сохранение %1…</translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation>Неправильный фильтр захвата.</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation>(пустой комментарий)</translation>
+    </message>
+    <message>
+        <source>Add New Comment…</source>
+        <translation>Добавить Новый Комментарий…</translation>
+    </message>
+    <message>
+        <source>Edit &quot;%1&quot;</source>
+        <comment>edit packet comment</comment>
+        <translation>Редактировать &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Delete &quot;%1&quot;</source>
+        <comment>delete packet comment</comment>
+        <translation>Удалить &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Delete packet comments</source>
+        <translation>Удалить комментарии к пакету</translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source> before starting a new capture</source>
+        <translation>перед стартом нового захвата</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please wait while Wireshark is initializing…</source>
+        <translation>Пожалуйста, подождите, пока Wireshark инициализируется…</translation>
+    </message>
+    <message>
+        <source>There are no TLS Session Keys to save.</source>
+        <translation>Нет Ключей Сессии TLS для сохранения.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export TLS Session Keys (%Ln key(s))</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation>Ключи Сессии TLS (*.keys *.txt);;Все Файлы (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation>Нет доступных фильтров. Попробуйте %1.</translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation>столбец</translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation>объект</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation>Столбец &quot;%1&quot; уже существует.</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation>Столбец &quot;%1&quot; уже существует как &quot;%2&quot;.</translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation>Неудачный поиск пакета RTP</translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation>Нет Выделенных Интерфейсов</translation>
+    </message>
+    <message>
+        <source> before restarting the capture</source>
+        <translation>перед повторным запуском захвата</translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation>Страница Wiki для %1</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Wireshark Wiki поддерживается сообществом.&lt;/p&gt;&lt;p&gt;Страница, которую Вы пытаетесь загрузить, может быть качественной, незаконченной, ошибочной или несуществующей.&lt;/p&gt;&lt;p&gt;Продолжить работу с wiki?&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Loading</source>
+        <translation>Загрузка</translation>
+    </message>
+    <message>
+        <source>Reloading</source>
+        <translation>Перезагрузка</translation>
+    </message>
+    <message>
+        <source>Rescanning</source>
+        <translation>Повторное сканирование</translation>
     </message>
 </context>
 <context>

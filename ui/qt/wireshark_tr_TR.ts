@@ -4704,6 +4704,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Start capture</source>
         <translation>Yakalamayı başlat</translation>
     </message>
+    <message>
+        <source>Hide Interface</source>
+        <translation>Arayüzü Gizle</translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
@@ -6290,2146 +6294,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>MainWindow</name>
-    <message>
-        <source>Wireshark</source>
-        <translation>Wireshark</translation>
-    </message>
-    <message>
-        <source>Go to packet</source>
-        <translation>Pakete git</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>İptal et</translation>
-    </message>
-    <message>
-        <source>File Set</source>
-        <translation>Dosya Kümesi</translation>
-    </message>
-    <message>
-        <source>Export Packet Dissections</source>
-        <translation>Paket Diseksiyonlarını Dışa Aktar</translation>
-    </message>
-    <message>
-        <source>Export Objects</source>
-        <translation>Nesneleri Dışa Aktar</translation>
-    </message>
-    <message>
-        <source>&amp;Zoom</source>
-        <translation>&amp;Yaklaş</translation>
-    </message>
-    <message>
-        <source>&amp;Time Display Format</source>
-        <translation>&amp;Zaman Görüntüleme Biçimi</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopyala</translation>
-    </message>
-    <message>
-        <source>Manual pages</source>
-        <translation>Elle ayarlanmış sayfalar</translation>
-    </message>
-    <message>
-        <source>Apply as Filter</source>
-        <translation>Filtre Olarak Uygula</translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
-        <translation>Filtre Olarak Hazırla</translation>
-    </message>
-    <message>
-        <source>SCTP</source>
-        <translation>SCTP</translation>
-    </message>
-    <message>
-        <source>TCP Stream Graphs</source>
-        <translation>TCP Akış Grafikleri</translation>
-    </message>
-    <message>
-        <source>BACnet</source>
-        <translation>BACnet</translation>
-    </message>
-    <message>
-        <source>HTTP</source>
-        <translation>HTTP</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;DOSYA</translation>
-    </message>
-    <message>
-        <source>&amp;Capture</source>
-        <translation>&amp;Yakala</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Yardım</translation>
-    </message>
-    <message>
-        <source>&amp;Go</source>
-        <translation>&amp;Git</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation>&amp;Görünüm</translation>
-    </message>
-    <message>
-        <source>&amp;Analyze</source>
-        <translation>&amp;Analiz</translation>
-    </message>
-    <message>
-        <source>Follow</source>
-        <translation>Takip</translation>
-    </message>
-    <message>
-        <source>&amp;Statistics</source>
-        <translation>&amp;İstatistikler</translation>
-    </message>
-    <message>
-        <source>29West</source>
-        <translation>29Batı</translation>
-    </message>
-    <message>
-        <source>Topics</source>
-        <translation>Konular</translation>
-    </message>
-    <message>
-        <source>Queues</source>
-        <translation>Kuyruklar</translation>
-    </message>
-    <message>
-        <source>UIM</source>
-        <translation>UIM</translation>
-    </message>
-    <message>
-        <source>Telephon&amp;y</source>
-        <translation>Telefo&amp;n</translation>
-    </message>
-    <message>
-        <source>RTSP</source>
-        <translation>RTSP</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>&amp;Düzenle</translation>
-    </message>
-    <message>
-        <source>Packet Comments</source>
-        <translation>Paket Yorumları</translation>
-    </message>
-    <message>
-        <source>Main Toolbar</source>
-        <translation>Ana Araç Çubuğu</translation>
-    </message>
-    <message>
-        <source>Display Filter Toolbar</source>
-        <translation>Filtre Araç Çubuğunu Görüntüle</translation>
-    </message>
-    <message>
-        <source>Open a capture file</source>
-        <translation>Bir yakalama dosyası açın</translation>
-    </message>
-    <message>
-        <source>Quit Wireshark</source>
-        <translation>Wireshark&apos;tan çıkın</translation>
-    </message>
-    <message>
-        <source>&amp;Start</source>
-        <translation>&amp;Başlat</translation>
-    </message>
-    <message>
-        <source>Start capturing packets</source>
-        <translation>Paketleri yakalamaya başlayın</translation>
-    </message>
-    <message>
-        <source>S&amp;top</source>
-        <translation>D&amp;urdur</translation>
-    </message>
-    <message>
-        <source>Stop capturing packets</source>
-        <translation>Paketleri yakalamayı durdur</translation>
-    </message>
-    <message>
-        <source>No files found</source>
-        <translation>Dosya bulunamadı</translation>
-    </message>
-    <message>
-        <source>&amp;Contents</source>
-        <translation>&amp;İçerik</translation>
-    </message>
-    <message>
-        <source>Wireshark Filter</source>
-        <translation>Wireshark Filtresi</translation>
-    </message>
-    <message>
-        <source>TShark</source>
-        <translation>TShark</translation>
-    </message>
-    <message>
-        <source>Rawshark</source>
-        <translation>Rawshark</translation>
-    </message>
-    <message>
-        <source>Dumpcap</source>
-        <translation>Dumpcap</translation>
-    </message>
-    <message>
-        <source>Mergecap</source>
-        <translation>Mergecap</translation>
-    </message>
-    <message>
-        <source>Editcap</source>
-        <translation>Editcap</translation>
-    </message>
-    <message>
-        <source>Text2pcap</source>
-        <translation>Text2pcap</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>İnternet Sitesi</translation>
-    </message>
-    <message>
-        <source>Downloads</source>
-        <translation>İndirilenler</translation>
-    </message>
-    <message>
-        <source>Wiki</source>
-        <translation>Viki</translation>
-    </message>
-    <message>
-        <source>Sample Captures</source>
-        <translation>Örnek Yakalamalar</translation>
-    </message>
-    <message>
-        <source>&amp;About Wireshark</source>
-        <translation>&amp;Wireshark Hakkında</translation>
-    </message>
-    <message>
-        <source>Ask (Q&amp;&amp;A)</source>
-        <translation>Sor (Soru-Cevap)</translation>
-    </message>
-    <message>
-        <source>Next Packet</source>
-        <translation>Sonraki Paket</translation>
-    </message>
-    <message>
-        <source>Go to the next packet</source>
-        <translation>Sonraki pakete git</translation>
-    </message>
-    <message>
-        <source>Previous Packet</source>
-        <translation>Önceki Paket</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet</source>
-        <translation>Önceki pakete git</translation>
-    </message>
-    <message>
-        <source>First Packet</source>
-        <translation>İlk Paket</translation>
-    </message>
-    <message>
-        <source>Go to the first packet</source>
-        <translation>İlk pakete git</translation>
-    </message>
-    <message>
-        <source>Last Packet</source>
-        <translation>Son Paket</translation>
-    </message>
-    <message>
-        <source>Go to the last packet</source>
-        <translation>Son pakete git</translation>
-    </message>
-    <message>
-        <source>E&amp;xpand Subtrees</source>
-        <translation>Alt Ağaçları G&amp;enişlet</translation>
-    </message>
-    <message>
-        <source>Expand the current packet detail</source>
-        <translation>Geçerli paket ayrıntısını genişlet</translation>
-    </message>
-    <message>
-        <source>&amp;Expand All</source>
-        <translation>&amp;Tümünü Genişlet</translation>
-    </message>
-    <message>
-        <source>Expand packet details</source>
-        <translation>Paket ayrıntılarını genişlet</translation>
-    </message>
-    <message>
-        <source>Collapse &amp;All</source>
-        <translation>Tümünü &amp;Daralt</translation>
-    </message>
-    <message>
-        <source>Collapse all packet details</source>
-        <translation>Tüm paket ayrıntılarını daralt</translation>
-    </message>
-    <message>
-        <source>Go to specified packet</source>
-        <translation>Belirtilen pakete git</translation>
-    </message>
-    <message>
-        <source>Merge one or more files</source>
-        <translation>Bir veya daha fazla dosyayı birleştirme</translation>
-    </message>
-    <message>
-        <source>Import a file</source>
-        <translation>Bir dosyayı içe aktar</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Kaydet</translation>
-    </message>
-    <message>
-        <source>Save as a different file</source>
-        <translation>Farklı bir dosya olarak kaydet</translation>
-    </message>
-    <message>
-        <source>Export specified packets</source>
-        <translation>Belirtilen paketleri dışa aktar</translation>
-    </message>
-    <message>
-        <source>Export TLS Session Keys…</source>
-        <translation>TLS Oturum Anahtarlarını Dışa Aktar…</translation>
-    </message>
-    <message>
-        <source>List Files</source>
-        <translation>Dosyaları Listele</translation>
-    </message>
-    <message>
-        <source>Next File</source>
-        <translation>Sonraki Dosya</translation>
-    </message>
-    <message>
-        <source>Previous File</source>
-        <translation>Önceki Dosya</translation>
-    </message>
-    <message>
-        <source>&amp;Reload</source>
-        <translation>&amp;Tekrar yükle</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Seçenekler</translation>
-    </message>
-    <message>
-        <source>Capture options</source>
-        <translation>Yakalama seçenekleri</translation>
-    </message>
-    <message>
-        <source>Capture filters</source>
-        <translation>Yakalama filtreleri</translation>
-    </message>
-    <message>
-        <source>Refresh Interfaces</source>
-        <translation>Arayüzleri Yenile</translation>
-    </message>
-    <message>
-        <source>Refresh interfaces</source>
-        <translation>Arayüzleri yenile</translation>
-    </message>
-    <message>
-        <source>&amp;Restart</source>
-        <translation>&amp;Yeniden Başlat</translation>
-    </message>
-    <message>
-        <source>Restart current capture</source>
-        <translation>Mevcut yakalamayı yeniden başlat</translation>
-    </message>
-    <message>
-        <source>As &amp;CSV…</source>
-        <translation>&amp;CSV olarak…</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation>&quot;C&quot; &amp;Diziler olarak…</translation>
-    </message>
-    <message>
-        <source>As P&amp;SML XML…</source>
-        <translation>P&amp;SML XML olarak…</translation>
-    </message>
-    <message>
-        <source>As P&amp;DML XML…</source>
-        <translation>P&amp;DML XML olarak…</translation>
-    </message>
-    <message>
-        <source>As &amp;JSON…</source>
-        <translation>&amp;JSON olarak…</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation>Açıklama</translation>
-    </message>
-    <message>
-        <source>Field Name</source>
-        <translation>Alan Adı</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Değer</translation>
-    </message>
-    <message>
-        <source>As Filter</source>
-        <translation>Filtre Olarak</translation>
-    </message>
-    <message>
-        <source>Close this capture file</source>
-        <translation>Bu yakalama dosyasını kapat</translation>
-    </message>
-    <message>
-        <source>Packet:</source>
-        <translation>Paket:</translation>
-    </message>
-    <message>
-        <source>Interface Toolbars</source>
-        <translation>Arayüz Araç Çubukları</translation>
-    </message>
-    <message>
-        <source>Colorize Conversation</source>
-        <translation>Konuşmayı Renklendir</translation>
-    </message>
-    <message>
-        <source>Internals</source>
-        <translation>Dahili</translation>
-    </message>
-    <message>
-        <source>Additional Toolbars</source>
-        <translation>Ek Araç Çubukları</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation>Konuşma Filtresi</translation>
-    </message>
-    <message>
-        <source>Reliable Server Pooling (RSerPool)</source>
-        <translation>Güvenilir Sunucu Havuzu (RSerPool)</translation>
-    </message>
-    <message>
-        <source>SOME/IP</source>
-        <translation>BAZI/IP</translation>
-    </message>
-    <message>
-        <source>Osmux</source>
-        <translation>Osmux</translation>
-    </message>
-    <message>
-        <source>&amp;Tools</source>
-        <oldsource>Tools</oldsource>
-        <translation>&amp;Araçlar</translation>
-    </message>
-    <message>
-        <source>Wireless Toolbar</source>
-        <translation>Kablosuz Araç Çubuğu</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation>Yardım içeriği</translation>
-    </message>
-    <message>
-        <source>FAQs</source>
-        <translation>SSS</translation>
-    </message>
-    <message>
-        <source>Next Packet in Conversation</source>
-        <translation>Konuşmadaki Sonraki Paket</translation>
-    </message>
-    <message>
-        <source>Go to the next packet in this conversation</source>
-        <translation>Bu görüşmede sonraki pakete git</translation>
-    </message>
-    <message>
-        <source>Previous Packet in Conversation</source>
-        <translation>Görüşmede Önceki Paket</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in this conversation</source>
-        <translation>Bu görüşmede önceki pakete git</translation>
-    </message>
-    <message>
-        <source>Next Packet In History</source>
-        <translation>Geçmişteki Sonraki Paket</translation>
-    </message>
-    <message>
-        <source>Go to the next packet in your selection history</source>
-        <translation>Seçim geçmişinizde bir sonraki pakete gidin</translation>
-    </message>
-    <message>
-        <source>Previous Packet In History</source>
-        <translation>Geçmişteki Önceki Paket</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in your selection history</source>
-        <translation>Seçim geçmişinizde önceki pakete gidin</translation>
-    </message>
-    <message>
-        <source>Collapse Subtrees</source>
-        <translation>Alt Ağaçları Daralt</translation>
-    </message>
-    <message>
-        <source>Collapse the current packet detail</source>
-        <translation>Geçerli paket ayrıntısını daralt</translation>
-    </message>
-    <message>
-        <source>Go to Packet…</source>
-        <translation>Pakete Git…</translation>
-    </message>
-    <message>
-        <source>&amp;Merge…</source>
-        <translation>&amp;Birleştir…</translation>
-    </message>
-    <message>
-        <source>&amp;Import from Hex Dump…</source>
-        <translation>&amp;Hex Dökümünden içe aktar…</translation>
-    </message>
-    <message>
-        <source>Save this capture file</source>
-        <translation>Bu yakalama dosyasını kaydet</translation>
-    </message>
-    <message>
-        <source>Save &amp;As…</source>
-        <translation>Farklı &amp;Kaydet…</translation>
-    </message>
-    <message>
-        <source>Export Specified Packets…</source>
-        <translation>Belirtilen Paketleri Dışa Aktar…</translation>
-    </message>
-    <message>
-        <source>Export Packet &amp;Bytes…</source>
-        <translation>Paket &amp;Baytlarını Dışa Aktar…</translation>
-    </message>
-    <message>
-        <source>&amp;Print…</source>
-        <translation>&amp;Yazdır…</translation>
-    </message>
-    <message>
-        <source>Reload this file</source>
-        <translation>Bu dosyayı yeniden yükle</translation>
-    </message>
-    <message>
-        <source>Reload as File Format/Capture</source>
-        <translation>Dosya Biçimi/Yakalama Olarak Yeniden Yükle</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s description</source>
-        <translation>Bu öğenin açıklamasını kopyala</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s field name</source>
-        <translation>Bu öğenin alan adını kopyala</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s value</source>
-        <translation>Bu öğenin değerini kopyala</translation>
-    </message>
-    <message>
-        <source>Copy this item as a display filter</source>
-        <translation>Bu öğeyi bir ekran filtresi olarak kopyala</translation>
-    </message>
-    <message>
-        <source>Apply as Column</source>
-        <translation>Sütun olarak uygula</translation>
-    </message>
-    <message>
-        <source>Create a packet list column from the selected field.</source>
-        <translation>Seçili alandan bir paket listesi sütunu oluşturun.</translation>
-    </message>
-    <message>
-        <source>Find a packet</source>
-        <translation>Bir paket bul</translation>
-    </message>
-    <message>
-        <source>Find the next packet</source>
-        <translation>Sonraki paketi bul</translation>
-    </message>
-    <message>
-        <source>Find the previous packet</source>
-        <translation>Önceki paketi bul</translation>
-    </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Paketi İşaretle/İşaretini Kaldır</translation>
-    </message>
-    <message>
-        <source>Mark All Displayed</source>
-        <translation>Tüm Görüntülenenleri İşaretle</translation>
-    </message>
-    <message>
-        <source>Mark all displayed packets</source>
-        <translation>Görüntülenen tüm paketleri işaretle</translation>
-    </message>
-    <message>
-        <source>Unmark all displayed packets</source>
-        <translation>Görüntülenen tüm paketlerin işaretini kaldırın</translation>
-    </message>
-    <message>
-        <source>Next Mark</source>
-        <translation>Sonraki İşaret</translation>
-    </message>
-    <message>
-        <source>Go to the next marked packet</source>
-        <translation>Sonraki işaretli pakete git</translation>
-    </message>
-    <message>
-        <source>Previous Mark</source>
-        <translation>Önceki İşaret</translation>
-    </message>
-    <message>
-        <source>Go to the previous marked packet</source>
-        <translation>Önceki işaretli pakete git</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
-    </message>
-    <message>
-        <source>Ignore All Displayed</source>
-        <translation>Tüm Görüntülenenleri Yoksay</translation>
-    </message>
-    <message>
-        <source>Ignore all displayed packets</source>
-        <translation>Görüntülenen tüm paketleri yoksay</translation>
-    </message>
-    <message>
-        <source>Set/Unset Time Reference</source>
-        <translation>Zaman Referansını Ayarla/Ayarlamayı Kaldır</translation>
-    </message>
-    <message>
-        <source>Set or unset a time reference for this packet</source>
-        <translation>Bu paket için bir zaman referansı ayarlayın veya ayarlayın</translation>
-    </message>
-    <message>
-        <source>Unset All Time References</source>
-        <translation>Tüm Zaman Referans Ayarlarını Kaldır</translation>
-    </message>
-    <message>
-        <source>Remove all time references</source>
-        <translation>Tüm zaman referanslarını kaldır</translation>
-    </message>
-    <message>
-        <source>Next Time Reference</source>
-        <translation>Sonraki Zaman Referansı</translation>
-    </message>
-    <message>
-        <source>Go to the next time reference</source>
-        <translation>Sonraki zaman referansına git</translation>
-    </message>
-    <message>
-        <source>Previous Time Reference</source>
-        <translation>Önceki Zaman Referansı</translation>
-    </message>
-    <message>
-        <source>Go to the previous time reference</source>
-        <translation>Önceki zaman referansına git</translation>
-    </message>
-    <message>
-        <source>Shift or change packet timestamps</source>
-        <translation>Paket zaman damgalarını kaydırın veya değiştirin</translation>
-    </message>
-    <message>
-        <source>Delete All Packet Comments</source>
-        <translation>Tüm Paket Yorumlarını Sil</translation>
-    </message>
-    <message>
-        <source>Remove all packet comments in the capture file</source>
-        <translation>Yakalama dosyasındaki tüm paket yorumlarını kaldırın</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration Profiles…</source>
-        <translation>&amp;Yapılandırma Profilleri…</translation>
-    </message>
-    <message>
-        <source>Configuration profiles</source>
-        <translation>Yapılandırma profilleri</translation>
-    </message>
-    <message>
-        <source>Manage your configuration profiles</source>
-        <translation>Yapılandırma profillerinizi yönetin</translation>
-    </message>
-    <message>
-        <source>Manage Wireshark&apos;s preferences</source>
-        <translation>Wireshark&apos;ın tercihlerini yönetin</translation>
-    </message>
-    <message>
-        <source>Capture File Properties</source>
-        <translation>Yakalama Dosyası Özellikleri</translation>
-    </message>
-    <message>
-        <source>Capture file properties</source>
-        <translation>Yakalama dosyası özellikleri</translation>
-    </message>
-    <message>
-        <source>&amp;Protocol Hierarchy</source>
-        <translation>&amp;Protokol Hiyerarşisi</translation>
-    </message>
-    <message>
-        <source>Show a summary of protocols present in the capture file.</source>
-        <translation>Yakalama dosyasında bulunan protokollerin bir özetini gösterin.</translation>
-    </message>
-    <message>
-        <source>Capinfos</source>
-        <translation>Başlık bilgileri</translation>
-    </message>
-    <message>
-        <source>Reordercap</source>
-        <translation>Başlığı Yeniden Sırala</translation>
-    </message>
-    <message>
-        <source>Time Sequence (Stevens)</source>
-        <translation>Zaman Dizisi (Stevens)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (Stevens)</source>
-        <translation>TCP zaman dizisi grafiği (Stevens)</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation>Verim</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation>Gidiş-dönüş süresi</translation>
-    </message>
-    <message>
-        <source>TCP round trip time</source>
-        <translation>TCP gidiş dönüş süresi</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation>Pencere Ölçekleme</translation>
-    </message>
-    <message>
-        <source>TCP window scaling</source>
-        <translation>TCP pencere ölçeklendirme</translation>
-    </message>
-    <message>
-        <source>DCCP Stream</source>
-        <translation>DCCP Akışı</translation>
-    </message>
-    <message>
-        <source>TLS Stream</source>
-        <translation>TLS Akışı</translation>
-    </message>
-    <message>
-        <source>HTTP Stream</source>
-        <translation>HTTP Akışı</translation>
-    </message>
-    <message>
-        <source>HTTP/2 Stream</source>
-        <translation>HTTP/2 Akışı</translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation>QUIC Akışı</translation>
-    </message>
-    <message>
-        <source>SIP Call</source>
-        <translation>SIP Çağrısı</translation>
-    </message>
-    <message>
-        <source>Time Sequence (tcptrace)</source>
-        <translation>Zaman Sırası (tcptrace)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (tcptrace)</source>
-        <translation>TCP zaman sırası grafiği (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Analyse this Association</source>
-        <translation>Bu Derneği analiz et</translation>
-    </message>
-    <message>
-        <source>Show All Associations</source>
-        <translation>Tüm İlişkilendirmeleri Göster</translation>
-    </message>
-    <message>
-        <source>Flow Graph</source>
-        <translation>Akış Grafiği</translation>
-    </message>
-    <message>
-        <source>Flow sequence diagram</source>
-        <translation>Akış sırası diyagramı</translation>
-    </message>
-    <message>
-        <source>ANCP</source>
-        <translation>ANCP</translation>
-    </message>
-    <message>
-        <source>ANCP statistics</source>
-        <translation>ANCP istatistikleri</translation>
-    </message>
-    <message>
-        <source>Packets sorted by Instance ID</source>
-        <translation>Örnek Kimliğine göre sıralanmış paketler</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by instance ID</source>
-        <translation>Örnek kimliğine göre sıralanmış BACapp istatistikleri</translation>
-    </message>
-    <message>
-        <source>Packets sorted by IP</source>
-        <translation>IP&apos;ye göre sıralanmış paketler</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by IP</source>
-        <translation>IP&apos;ye göre sıralanmış BACapp istatistikleri</translation>
-    </message>
-    <message>
-        <source>Packets sorted by object type</source>
-        <translation>Nesne türüne göre sıralanmış paketler</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by object type</source>
-        <translation>Nesne türüne göre sıralanmış BACapp istatistikleri</translation>
-    </message>
-    <message>
-        <source>Packets sorted by service</source>
-        <translation>Servise göre sıralanmış paketler</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by service</source>
-        <translation>Hizmete göre sıralanmış BACapp istatistikleri</translation>
-    </message>
-    <message>
-        <source>Collectd</source>
-        <translation>Toplanan</translation>
-    </message>
-    <message>
-        <source>Collectd statistics</source>
-        <translation>Toplanan istatistikler</translation>
-    </message>
-    <message>
-        <source>DNS</source>
-        <translation>DNS</translation>
-    </message>
-    <message>
-        <source>DNS statistics</source>
-        <translation>DNS istatistikleri</translation>
-    </message>
-    <message>
-        <source>HART-IP</source>
-        <translation>HART-IP</translation>
-    </message>
-    <message>
-        <source>HART-IP statistics</source>
-        <translation>HART-IP istatistikleri</translation>
-    </message>
-    <message>
-        <source>HPFEEDS</source>
-        <translation>HPFEEDS</translation>
-    </message>
-    <message>
-        <source>hpfeeds statistics</source>
-        <translation>hpfeeds istatistikleri</translation>
-    </message>
-    <message>
-        <source>HTTP2</source>
-        <translation>HTTP2</translation>
-    </message>
-    <message>
-        <source>HTTP2 statistics</source>
-        <translation>HTTP2 istatistikleri</translation>
-    </message>
-    <message>
-        <source>Packet Counter</source>
-        <translation>Paket Sayacı</translation>
-    </message>
-    <message>
-        <source>HTTP packet counter</source>
-        <translation>HTTP paket sayacı</translation>
-    </message>
-    <message>
-        <source>Requests</source>
-        <translation>İstekler</translation>
-    </message>
-    <message>
-        <source>HTTP requests</source>
-        <translation>HTTP istekleri</translation>
-    </message>
-    <message>
-        <source>Load Distribution</source>
-        <translation>Yük Dağılımı</translation>
-    </message>
-    <message>
-        <source>HTTP load distribution</source>
-        <translation>HTTP yük dağılımı</translation>
-    </message>
-    <message>
-        <source>Packet Lengths</source>
-        <translation>Paket Uzunlukları</translation>
-    </message>
-    <message>
-        <source>Packet length statistics</source>
-        <translation>Paket uzunluğu istatistikleri</translation>
-    </message>
-    <message>
-        <source>Sametime</source>
-        <translation>Aynı zamanda</translation>
-    </message>
-    <message>
-        <source>Sametime statistics</source>
-        <translation>Aynı Zaman istatistikleri</translation>
-    </message>
-    <message>
-        <source>SOME/IP Messages</source>
-        <translation>BAZI/IP Mesajları</translation>
-    </message>
-    <message>
-        <source>SOME/IP Message statistics</source>
-        <translation>BAZI/IP Mesaj istatistikleri</translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries</source>
-        <translation>BAZI/IP-SD Girdileri</translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries statistics</source>
-        <translation>BAZI/IP-SD Girdi istatistikleri</translation>
-    </message>
-    <message>
-        <source>&amp;ISUP Messages</source>
-        <translation>&amp;ISUP Mesajları</translation>
-    </message>
-    <message>
-        <source>ISUP message statistics</source>
-        <translation>ISUP mesaj istatistikleri</translation>
-    </message>
-    <message>
-        <source>Osmux packet counts</source>
-        <translation>Osmux paket sayısı</translation>
-    </message>
-    <message>
-        <source>RTSP packet counts</source>
-        <translation>RTSP paket sayıları</translation>
-    </message>
-    <message>
-        <source>SM&amp;PP Operations</source>
-        <translation>SM&amp;PP İşlemleri</translation>
-    </message>
-    <message>
-        <source>SMPP operation statistics</source>
-        <translation>SMPP işlem istatistikleri</translation>
-    </message>
-    <message>
-        <source>&amp;UCP Messages</source>
-        <translation>&amp;UCP Mesajları</translation>
-    </message>
-    <message>
-        <source>UCP message statistics</source>
-        <translation>UCP mesaj istatistikleri</translation>
-    </message>
-    <message>
-        <source>F1AP</source>
-        <translation>F1AP</translation>
-    </message>
-    <message>
-        <source>F1AP Messages</source>
-        <translation>F1AP Mesajları</translation>
-    </message>
-    <message>
-        <source>NGAP</source>
-        <translation>NGAP</translation>
-    </message>
-    <message>
-        <source>NGAP Messages</source>
-        <translation>NGAP Mesajları</translation>
-    </message>
-    <message>
-        <source>Change the way packets are dissected</source>
-        <translation>Paketlerin parçalanma şeklini değiştirin</translation>
-    </message>
-    <message>
-        <source>Reload Lua Plugins</source>
-        <translation>Lua Eklentilerini Yeniden Yükle</translation>
-    </message>
-    <message>
-        <source>Reload Lua plugins</source>
-        <translation>Lua eklentilerini yeniden yükle</translation>
-    </message>
-    <message>
-        <source>Advertisements by Topic</source>
-        <translation>Konuya Göre Reklamlar</translation>
-    </message>
-    <message>
-        <source>Advertisements by Source</source>
-        <translation>Kaynağa Göre Reklamlar</translation>
-    </message>
-    <message>
-        <source>Advertisements by Transport</source>
-        <translation>Ulaşım Reklamları</translation>
-    </message>
-    <message>
-        <source>Queries by Topic</source>
-        <translation>Konuya Göre Sorgular</translation>
-    </message>
-    <message>
-        <source>Queries by Receiver</source>
-        <translation>Alıcıya Göre Sorgular</translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Pattern</source>
-        <translation>Desene Göre Joker Karakter Sorguları</translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Receiver</source>
-        <translation>Alıcıya Göre Joker Karakter Sorguları</translation>
-    </message>
-    <message>
-        <source>Advertisements by Queue</source>
-        <translation>Sıraya Göre Reklamlar</translation>
-    </message>
-    <message>
-        <source>Queries by Queue</source>
-        <translation>Kuyruğa Göre Sorgular</translation>
-    </message>
-    <message>
-        <source>Streams</source>
-        <translation>Canlı Yayınlar</translation>
-    </message>
-    <message>
-        <source>LBT-RM</source>
-        <translation>LBT-RM</translation>
-    </message>
-    <message>
-        <source>LBT-RU</source>
-        <translation>LBT-RU</translation>
-    </message>
-    <message>
-        <source>Filter this Association</source>
-        <translation>Bu İlişkilendirmeyi Filtrele</translation>
-    </message>
-    <message>
-        <source>Strip Headers…</source>
-        <translation>Üst Bilgiler…</translation>
-    </message>
-    <message>
-        <source>Strip headers and export higher level encapsulations to file</source>
-        <translation>Üstbilgileri çıkarın ve daha üst düzey kapsüllemeleri dosyaya dışa aktarın</translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <translation>&amp;G/Ç Grafikleri</translation>
-    </message>
-    <message>
-        <source>&amp;Conversations</source>
-        <translation>&amp;Konuşmalar</translation>
-    </message>
-    <message>
-        <source>&amp;Endpoints</source>
-        <translation>&amp;Uç Noktalar</translation>
-    </message>
-    <message>
-        <source>Shrink the main window text</source>
-        <translation>Ana pencere metnini küçült</translation>
-    </message>
-    <message>
-        <source>Return the main window text to its normal size</source>
-        <translation>Ana pencere metnini normal boyutuna döndür</translation>
-    </message>
-    <message>
-        <source>Reset Layout</source>
-        <translation>Düzeni Sıfırla</translation>
-    </message>
-    <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>Görünüm düzenini varsayılan boyuta sıfırla</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Diagram</source>
-        <translation>Paket &amp;Şeması</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet diagram</source>
-        <translation>Paket diyagramını göster veya gizle</translation>
-    </message>
-    <message>
-        <source>Show each conversation hash table</source>
-        <translation>Her konuşma karma tablosunu göster</translation>
-    </message>
-    <message>
-        <source>Show each dissector table and its entries</source>
-        <translation>Her bir tespit edici tablosunu ve girişlerini göster</translation>
-    </message>
-    <message>
-        <source>Show the currently supported protocols and display filter fields</source>
-        <translation>Şu anda desteklenen protokolleri göster ve filtre alanlarını göster</translation>
-    </message>
-    <message>
-        <source>MAC Statistics</source>
-        <translation>MAC İstatistikleri</translation>
-    </message>
-    <message>
-        <source>LTE MAC statistics</source>
-        <translation>LTE MAC istatistikleri</translation>
-    </message>
-    <message>
-        <source>RLC Statistics</source>
-        <translation>RLC İstatistikleri</translation>
-    </message>
-    <message>
-        <source>LTE RLC statistics</source>
-        <translation>LTE RLC istatistikleri</translation>
-    </message>
-    <message>
-        <source>LTE RLC graph</source>
-        <translation>LTE RLC grafiği</translation>
-    </message>
-    <message>
-        <source>MTP3 Summary</source>
-        <translation>MTP3 Özeti</translation>
-    </message>
-    <message>
-        <source>MTP3 summary statistics</source>
-        <translation>MTP3 özet istatistikleri</translation>
-    </message>
-    <message>
-        <source>Bluetooth Devices</source>
-        <translation>Bluetooth Cihazları</translation>
-    </message>
-    <message>
-        <source>Bluetooth HCI Summary</source>
-        <translation>Bluetooth HCI Özeti</translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Expression…</source>
-        <translation>Filtre İfadesini &amp;Görüntüle…</translation>
-    </message>
-    <message>
-        <source>Display Filter Expression…</source>
-        <translation>Filtre İfadesini Görüntüle…</translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation>KAYIT_STAT_GRUBU_GSUNHAVUZU</translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation>&quot;KAYIT_STAT_GRUBU_GSUNHAVUZU&quot; başlangıcı</translation>
-    </message>
-    <message>
-        <source>No GSM statistics registered</source>
-        <translation>Kayıtlı GSM istatistikleri yok</translation>
-    </message>
-    <message>
-        <source>No LTE statistics registered</source>
-        <translation>Kayıtlı LTE istatistiği yok</translation>
-    </message>
-    <message>
-        <source>No MTP3 statistics registered</source>
-        <translation>Kayıtlı MTP3 istatistiği yok</translation>
-    </message>
-    <message>
-        <source>IAX2 Stream Analysis</source>
-        <translation>IAX2 Akış Analizi</translation>
-    </message>
-    <message>
-        <source>Show Packet Bytes…</source>
-        <translation>Paket Baytlarını Göster…</translation>
-    </message>
-    <message>
-        <source>Go to &amp;Linked Packet</source>
-        <translation>Bağlantılı &amp;Pakete Git</translation>
-    </message>
-    <message>
-        <source>UDP Multicast Streams</source>
-        <translation>UDP Çok Noktaya Yayın Akışları</translation>
-    </message>
-    <message>
-        <source>Show UTP multicast stream statistics.</source>
-        <translation>UTP çok noktaya yayın akışı istatistiklerini göster.</translation>
-    </message>
-    <message>
-        <source>WLAN Traffic</source>
-        <translation>WLAN Trafiği</translation>
-    </message>
-    <message>
-        <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation>IEEE 802.11 kablosuz LAN istatistiklerini göster.</translation>
-    </message>
-    <message>
-        <source>Add a display filter button.</source>
-        <translation>Bir ekran filtresi düğmesi ekleyin.</translation>
-    </message>
-    <message>
-        <source>Firewall ACL Rules</source>
-        <translation>Güvenlik Duvarı ACL Kuralları</translation>
-    </message>
-    <message>
-        <source>Create firewall ACL rules</source>
-        <translation>Güvenlik duvarı ACL kuralları oluşturun</translation>
-    </message>
-    <message>
-        <source>&amp;Full Screen</source>
-        <translation>&amp;Tam ekran</translation>
-    </message>
-    <message>
-        <source>Credentials</source>
-        <translation>Kimlik bilgileri</translation>
-    </message>
-    <message>
-        <source>&amp;Options…</source>
-        <translation>&amp;Seçenekler…</translation>
-    </message>
-    <message>
-        <source>&amp;Wireless</source>
-        <translation>&amp;Kablosuz</translation>
-    </message>
-    <message>
-        <source>Capture &amp;Filters…</source>
-        <translation>Yakalama &amp;Filtreleri…</translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text…</source>
-        <translation>Düz Metin &amp;Olarak…</translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text</source>
-        <translation>Düz Metin &amp;Olarak</translation>
-    </message>
-    <message>
-        <source>As &amp;CSV</source>
-        <translation>&amp;CSV olarak</translation>
-    </message>
-    <message>
-        <source>As &amp;YAML</source>
-        <translation>&amp;YAML olarak</translation>
-    </message>
-    <message>
-        <source>All Visible Items</source>
-        <translation>Tüm Görünür Öğeler</translation>
-    </message>
-    <message>
-        <source>All Visible Selected Tree Items</source>
-        <translation>Tüm Görünür Seçilmiş Ağaç Öğeleri</translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Macros…</source>
-        <translation>Filtre Makrolarını &amp;Görüntüle…</translation>
-    </message>
-    <message>
-        <source>&amp;Find Packet…</source>
-        <translation>&amp;Paket Bul…</translation>
-    </message>
-    <message>
-        <source>Find Ne&amp;xt</source>
-        <translation>Sonrakini Bu&amp;l</translation>
-    </message>
-    <message>
-        <source>Find Pre&amp;vious</source>
-        <translation>Öncekini Bu&amp;l</translation>
-    </message>
-    <message>
-        <source>Mark or unmark each selected packet</source>
-        <translation>Seçilen her paketi işaretleyin veya işaretini kaldırın</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore each selected packet</source>
-        <translation>Seçilen her paketi yoksay veya yoksay</translation>
-    </message>
-    <message>
-        <source>U&amp;nignore All Displayed</source>
-        <translation>Tüm Görüntülenenleri Y&amp;oksay</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation>Görüntülenen tüm paketleri yoksay</translation>
-    </message>
-    <message>
-        <source>Time Shift…</source>
-        <translation>Zaman Kaydırması…</translation>
-    </message>
-    <message>
-        <source>&amp;Preferences…</source>
-        <translation>&amp;Tercihler…</translation>
-    </message>
-    <message>
-        <source>TCP throughput</source>
-        <translation>TCP verimi</translation>
-    </message>
-    <message>
-        <source>TCP Stream</source>
-        <translation>TCP Akışı</translation>
-    </message>
-    <message>
-        <source>UDP Stream</source>
-        <translation>UDP Akışı</translation>
-    </message>
-    <message>
-        <source>Request Sequences</source>
-        <translation>İstek Dizileri</translation>
-    </message>
-    <message>
-        <source>HTTP Request Sequences</source>
-        <translation>HTTP İstek Dizileri</translation>
-    </message>
-    <message>
-        <source>Decode &amp;As…</source>
-        <translation>Kodu &amp;Çöz…</translation>
-    </message>
-    <message>
-        <source>Export PDUs to File…</source>
-        <translation>PDU&apos;ları Dosyaya Aktar…</translation>
-    </message>
-    <message>
-        <source>Create graphs based on display filter fields</source>
-        <translation>Ekran filtresi alanlarına dayalı grafikler oluşturun</translation>
-    </message>
-    <message>
-        <source>&amp;Main Toolbar</source>
-        <translation>&amp;Ana Araç Çubuğu</translation>
-    </message>
-    <message>
-        <source>Show or hide the main toolbar</source>
-        <translation>Ana araç çubuğunu göster veya gizle</translation>
-    </message>
-    <message>
-        <source>&amp;Filter Toolbar</source>
-        <translation>&amp;Araç Çubuğunu Filtrele</translation>
-    </message>
-    <message>
-        <source>Show or hide the display filter toolbar</source>
-        <translation>Ekran filtresi araç çubuğunu göster veya gizle</translation>
-    </message>
-    <message>
-        <source>Conversations at different protocol levels</source>
-        <translation>Farklı protokol seviyelerinde konuşmalar</translation>
-    </message>
-    <message>
-        <source>Endpoints at different protocol levels</source>
-        <translation>Farklı protokol seviyelerinde uç noktalar</translation>
-    </message>
-    <message>
-        <source>Colorize Packet List</source>
-        <translation>Paket Listesini Renklendir</translation>
-    </message>
-    <message>
-        <source>Draw packets using your coloring rules</source>
-        <translation>Renklendirme kurallarınızı kullanarak paketler çizin</translation>
-    </message>
-    <message>
-        <source>&amp;Zoom In</source>
-        <translation>&amp;Yaklaştır</translation>
-    </message>
-    <message>
-        <source>Enlarge the main window text</source>
-        <translation>Ana pencere metnini büyüt</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Uzaklaş</translation>
-    </message>
-    <message>
-        <source>Normal Size</source>
-        <translation>Normal Boyut</translation>
-    </message>
-    <message>
-        <source>Resize Columns</source>
-        <translation>Sütunları Yeniden Boyutlandır</translation>
-    </message>
-    <message>
-        <source>Resize packet list columns to fit contents</source>
-        <translation>İçeriğe sığdırmak için paket listesi sütunlarını yeniden boyutlandırın</translation>
-    </message>
-    <message>
-        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Günün Tarihi ve Saati (01-01-1970 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the date and time of day.</source>
-        <translation>Paket sürelerini günün tarihi ve saati olarak göster.</translation>
-    </message>
-    <message>
-        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>Yıl, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation>Paket sürelerini yıl, yılın günü ve günün saati olarak gösterin.</translation>
-    </message>
-    <message>
-        <source>Time of Day (01:02:03.123456)</source>
-        <translation>Günün Saati (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Seconds Since 1970-01-01</source>
-        <translation>1970-01-01&apos;den Beri Saniye</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation>Paket sürelerini UNIX / POSIX döneminden (1970-01-01) bu yana saniye olarak göster.</translation>
-    </message>
-    <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Yakalama Başlangıcından Beri Saniyeler</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Captured Packet</source>
-        <translation>Önceki Yakalanan Paketten Beri Saniye</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation>Paket sürelerini, bir önceki yakalanan paketten bu yana geçen saniye olarak göster.</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Displayed Packet</source>
-        <translation>Önceki Görüntülenen Paketten Beri Saniye</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation>Paket sürelerini önceki görüntülenen paketten bu yana geçen saniye olarak göster.</translation>
-    </message>
-    <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>UTC Tarihi ve Günün Saati (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC date and time of day.</source>
-        <translation>Paket saatlerini UTC tarihi ve günün saati olarak göster.</translation>
-    </message>
-    <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>UTC Yılı, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation>Paket sürelerini UTC yılı, yılın günü ve günün saati olarak gösterin.</translation>
-    </message>
-    <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>UTC Günün Saati (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC time of day.</source>
-        <translation>Paket sürelerini günün UTC saati olarak göster.</translation>
-    </message>
-    <message>
-        <source>Automatic (from capture file)</source>
-        <translation>Otomatik (yakalama dosyasından)</translation>
-    </message>
-    <message>
-        <source>Use the time precision indicated in the capture file.</source>
-        <translation>Yakalama dosyasında belirtilen zaman hassasiyetini kullanın.</translation>
-    </message>
-    <message>
-        <source>Seconds</source>
-        <translation>Saniye</translation>
-    </message>
-    <message>
-        <source>Tenths of a second</source>
-        <translation>Saniyenin onda biri</translation>
-    </message>
-    <message>
-        <source>Hundredths of a second</source>
-        <translation>Saniyenin yüzde biri</translation>
-    </message>
-    <message>
-        <source>Milliseconds</source>
-        <translation>Milisaniye</translation>
-    </message>
-    <message>
-        <source>Microseconds</source>
-        <translation>Mikrosaniye</translation>
-    </message>
-    <message>
-        <source>Nanoseconds</source>
-        <translation>Nanosaniye</translation>
-    </message>
-    <message>
-        <source>Display Seconds With Hours and Minutes</source>
-        <translation>Saniyeleri Saat ve Dakikalarla Göster</translation>
-    </message>
-    <message>
-        <source>Display seconds with hours and minutes</source>
-        <translation>Saniyeyi saat ve dakika ile göster</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Physical Addresses</source>
-        <translation>&amp;Fiziksel Adresleri Çözümle</translation>
-    </message>
-    <message>
-        <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation>Bilinen MAC adreslerinin adlarını göster. Aramalar yerel bir veritabanı kullanır.</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Network Addresses</source>
-        <translation>&amp;Ağ Adreslerini Çözümle</translation>
-    </message>
-    <message>
-        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation>Bilinen IPv4, IPv6 ve IPX adreslerinin adlarını gösterin. Aramalar ağ trafiği oluşturabilir.</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Transport Addresses</source>
-        <translation>&amp;Taşıma Adreslerini Çözümle</translation>
-    </message>
-    <message>
-        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation>Bilinen TCP, UDP ve SCTP hizmetlerinin adlarını gösterin. Aramalar bazı sistemlerde trafik oluşturabilir.</translation>
-    </message>
-    <message>
-        <source>Wire&amp;less Toolbar</source>
-        <translation>Kab&amp;losuz Araç çubuğu</translation>
-    </message>
-    <message>
-        <source>Show or hide the wireless toolbar</source>
-        <translation>Kablosuz araç çubuğunu göster veya gizle</translation>
-    </message>
-    <message>
-        <source>&amp;Status Bar</source>
-        <translation>&amp;Durum Çubuğu</translation>
-    </message>
-    <message>
-        <source>Show or hide the status bar</source>
-        <translation>Durum çubuğunu göster veya gizle</translation>
-    </message>
-    <message>
-        <source>Packet &amp;List</source>
-        <translation>Paket &amp;Listesi</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet list</source>
-        <translation>Paket listesini göster veya gizle</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Details</source>
-        <translation>Paket &amp;Ayrıntıları</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet details</source>
-        <translation>Paket ayrıntılarını göster veya gizle</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Bytes</source>
-        <translation>Paket &amp;Bayt</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet bytes</source>
-        <translation>Paket baytlarını göster veya gizle</translation>
-    </message>
-    <message>
-        <source>&amp;Conversation Hash Tables</source>
-        <translation>&amp;Konuşma Hash Tabloları</translation>
-    </message>
-    <message>
-        <source>&amp;Dissector Tables</source>
-        <translation>&amp;Tespit edici Tabloları</translation>
-    </message>
-    <message>
-        <source>&amp;Supported Protocols</source>
-        <translation>&amp;Desteklenen Protokoller</translation>
-    </message>
-    <message>
-        <source>MAP Summary</source>
-        <translation>HARİTA Özeti</translation>
-    </message>
-    <message>
-        <source>GSM MAP summary statistics</source>
-        <translation>GSM MAP özet istatistikleri</translation>
-    </message>
-    <message>
-        <source>RLC &amp;Graph</source>
-        <translation>RLC &amp;Grafiği</translation>
-    </message>
-    <message>
-        <source>&amp;Coloring Rules…</source>
-        <translation>&amp;Renklendirme Kuralları…</translation>
-    </message>
-    <message>
-        <source>Show Linked Packet in New Window</source>
-        <translation>Bağlantılı Paketi Yeni Pencerede Göster</translation>
-    </message>
-    <message>
-        <source>New Coloring Rule…</source>
-        <oldsource>New Conversation Rule…</oldsource>
-        <translation>Yeni Renklendirme Kuralı…</translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
-        <translation>Seçilen akış için RTP Akış Analizi. Ters akış eklemek için de CTRL tuşuna basın.</translation>
-    </message>
-    <message>
-        <source>RTP Player</source>
-        <translation>RTP Oynatıcı</translation>
-    </message>
-    <message>
-        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation>Seçilen akışı oynat. Ters akışı oynatmak için de CTRL tuşuna basın.</translation>
-    </message>
-    <message>
-        <source>IA&amp;X2 Stream Analysis</source>
-        <translation>IA&amp;X2 Akış Analizi</translation>
-    </message>
-    <message>
-        <source>Enabled Protocols…</source>
-        <oldsource>Enable Protocols…</oldsource>
-        <translation>Etkin Protokoller…</translation>
-    </message>
-    <message>
-        <source>Wiki Protocol Page</source>
-        <translation>Wiki Protokol Sayfası</translation>
-    </message>
-    <message>
-        <source>Open the Wireshark wiki page for this protocol.</source>
-        <translation>Bu protokol için Wireshark wiki sayfasını açın.</translation>
-    </message>
-    <message>
-        <source>Filter Field Reference</source>
-        <translation>Filtre Alanı Referansı</translation>
-    </message>
-    <message>
-        <source>Open the display filter reference page for this filter field.</source>
-        <translation>Bu filtre alanı için ekran filtresi referans sayfasını açın.</translation>
-    </message>
-    <message>
-        <source>Go to the packet referenced by the selected field.</source>
-        <translation>Seçili alan tarafından başvurulan pakete gidin.</translation>
-    </message>
-    <message>
-        <source>&amp;VoIP Calls</source>
-        <translation>&amp;VoIP Aramaları</translation>
-    </message>
-    <message>
-        <source>Open &amp;Recent</source>
-        <translation>&amp;Son Kullanılanlardan Aç</translation>
-    </message>
-    <message>
-        <source>Name Resol&amp;ution</source>
-        <translation>Ad Çözüm&amp;lemesi</translation>
-    </message>
-    <message>
-        <source>Service &amp;Response Time</source>
-        <translation>Servis &amp;Yanıt Süresi</translation>
-    </message>
-    <message>
-        <source>&amp;RTP</source>
-        <translation>&amp;RTP</translation>
-    </message>
-    <message>
-        <source>S&amp;CTP</source>
-        <translation>S&amp;CTP</translation>
-    </message>
-    <message>
-        <source>&amp;ANSI</source>
-        <translation>&amp;ANSI</translation>
-    </message>
-    <message>
-        <source>&amp;GSM</source>
-        <translation>&amp;GSM</translation>
-    </message>
-    <message>
-        <source>&amp;LTE</source>
-        <translation>&amp;LTE</translation>
-    </message>
-    <message>
-        <source>&amp;MTP3</source>
-        <translation>&amp;MTP3</translation>
-    </message>
-    <message>
-        <source>&amp;Open</source>
-        <translation>&amp;Aç</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation>&amp;Çık</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Kapat</translation>
-    </message>
-    <message>
-        <source>Display &amp;Filters…</source>
-        <translation>Görüntüleme &amp;Filtreleri…</translation>
-    </message>
-    <message>
-        <source>&amp;Unmark All Displayed</source>
-        <translation>&amp;Tüm Görüntülenenlerin İşaretini Kaldır</translation>
-    </message>
-    <message>
-        <source>All VoIP Calls</source>
-        <translation>Tüm VoIP Aramaları</translation>
-    </message>
-    <message>
-        <source>SIP &amp;Flows</source>
-        <translation>SIP &amp;Akışları</translation>
-    </message>
-    <message>
-        <source>SIP Flows</source>
-        <translation>SIP Akışları</translation>
-    </message>
-    <message>
-        <source>RTP Streams</source>
-        <translation>RTP Akışları</translation>
-    </message>
-    <message>
-        <source>Edit the packet list coloring rules.</source>
-        <translation>Paket listesi renklendirme kurallarını düzenleyin.</translation>
-    </message>
-    <message>
-        <source>Bluetooth ATT Server Attributes</source>
-        <oldsource>ATT Server Attributes</oldsource>
-        <translation>Bluetooth ATT Sunucusu Özellikleri</translation>
-    </message>
-    <message>
-        <source>Show Packet in New &amp;Window</source>
-        <translation>Paketi Yeni &amp;Pencerede Göster</translation>
-    </message>
-    <message>
-        <source>Show this packet in a separate window.</source>
-        <translation>Bu paketi ayrı bir pencerede göster.</translation>
-    </message>
-    <message>
-        <source>Show the linked packet in a separate window.</source>
-        <translation>Bağlantılı paketi ayrı bir pencerede gösterin.</translation>
-    </message>
-    <message>
-        <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation>Can&amp;lı Yakalamada Otomatik Kaydırma</translation>
-    </message>
-    <message>
-        <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation>Canlı yakalama sırasında otomatik olarak son pakete ilerleyin.</translation>
-    </message>
-    <message>
-        <source>Expert Information</source>
-        <translation>Uzman Bilgileri</translation>
-    </message>
-    <message>
-        <source>Show expert notifications</source>
-        <translation>Uzman bildirimlerini göster</translation>
-    </message>
-    <message>
-        <source>Add an expression to the display filter.</source>
-        <translation>Görüntü filtresine bir ifade ekleyin.</translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_UNSORTED</source>
-        <translation>KAYIT_STAT_GRUBU_SIRALANMAMIŞ</translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
-        <translation>&quot;KAYIT_STAT_GRUBU_SIRALANMAMIŞ&quot; başlangıcı</translation>
-    </message>
-    <message>
-        <source>No ANSI statistics registered</source>
-        <oldsource>No tools registered</oldsource>
-        <translation>ANSI istatistiği kayıtlı değil</translation>
-    </message>
-    <message>
-        <source>Resolved Addresses</source>
-        <translation>Çözümlenen Adresler</translation>
-    </message>
-    <message>
-        <source>Show each table of resolved addresses as copyable text.</source>
-        <translation>Çözümlenen adreslerin her bir tablosunu kopyalanabilir metin olarak gösterin.</translation>
-    </message>
-    <message>
-        <source>Color &amp;1</source>
-        <translation>Renk &amp;1</translation>
-    </message>
-    <message>
-        <source>Mark the current conversation with its own color.</source>
-        <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation>Mevcut konuşmayı kendi rengiyle işaretleyin.</translation>
-    </message>
-    <message>
-        <source>Color &amp;2</source>
-        <translation>Renk &amp;2</translation>
-    </message>
-    <message>
-        <source>Color &amp;3</source>
-        <translation>Renk &amp;3</translation>
-    </message>
-    <message>
-        <source>Color &amp;4</source>
-        <translation>Renk &amp;4</translation>
-    </message>
-    <message>
-        <source>Color &amp;5</source>
-        <translation>Renk &amp;5</translation>
-    </message>
-    <message>
-        <source>Color &amp;6</source>
-        <translation>Renk &amp;6</translation>
-    </message>
-    <message>
-        <source>Color &amp;7</source>
-        <translation>Renk &amp;7</translation>
-    </message>
-    <message>
-        <source>Color &amp;8</source>
-        <translation>Renk &amp;8</translation>
-    </message>
-    <message>
-        <source>Color &amp;9</source>
-        <translation>Renk &amp;9</translation>
-    </message>
-    <message>
-        <source>Color 1&amp;0</source>
-        <translation>Renk 1&amp;0</translation>
-    </message>
-    <message>
-        <source>Create a new coloring rule based on this field.</source>
-        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation>Bu alana dayalı yeni bir renklendirme kuralı oluşturun.</translation>
-    </message>
-    <message>
-        <source>Reset Colorization</source>
-        <translation>Renklendirmeyi Sıfırla</translation>
-    </message>
-    <message>
-        <source>Reset colorized conversations.</source>
-        <translation>Renklendirilmiş konuşmaları sıfırlayın.</translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis</source>
-        <translation>RTP Akış Analizi</translation>
-    </message>
-    <message>
-        <source>Edit Resolved Name</source>
-        <translation>Çözümlenen Adı Düzenle</translation>
-    </message>
-    <message>
-        <source>Manually edit a name resolution entry.</source>
-        <translation>Bir ad çözümleme girişini el ile düzenleyin.</translation>
-    </message>
-    <message>
-        <source>Enable and disable specific protocols</source>
-        <translation>Belirli protokolleri etkinleştirin ve devre dışı bırakın</translation>
-    </message>
-    <message>
-        <source> before quitting</source>
-        <translation> bırakmadan önce</translation>
-    </message>
-    <message>
-        <source>Save packets before merging?</source>
-        <translation>Paketler birleştirmeden önce kaydedilsin mi?</translation>
-    </message>
-    <message>
-        <source>A temporary capture file can&apos;t be merged.</source>
-        <translation>Geçici bir yakalama dosyası birleştirilemez.</translation>
-    </message>
-    <message>
-        <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation>Birleştirmeden önce &quot;%1&quot; içindeki değişiklikler kaydedilsin mi?</translation>
-    </message>
-    <message>
-        <source>Changes must be saved before the files can be merged.</source>
-        <translation>Dosyalar birleştirilmeden önce değişiklikler kaydedilmelidir.</translation>
-    </message>
-    <message>
-        <source>Invalid Display Filter</source>
-        <translation>Geçersiz Görüntü Filtresi</translation>
-    </message>
-    <message>
-        <source>Invalid Read Filter</source>
-        <translation>Geçersiz Okuma Filtresi</translation>
-    </message>
-    <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
-    </message>
-    <message>
-        <source> before importing a capture</source>
-        <oldsource> before importing a new capture</oldsource>
-        <translation> bir yakalamayı içe aktarmadan önce</translation>
-    </message>
-    <message>
-        <source>Unable to export to &quot;%1&quot;.</source>
-        <translation>&quot;%1&quot;e dışa aktarılamıyor.</translation>
-    </message>
-    <message>
-        <source>You cannot export packets to the current capture file.</source>
-        <translation>Paketleri geçerli yakalama dosyasına aktaramazsınız.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made%1?</source>
-        <oldsource>Do you want to save the captured packets</oldsource>
-        <translation>%1 yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
-    </message>
-    <message>
-        <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation>Yakaladığınız paketleri kaydetmezseniz kaybolacaktır.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation>&quot;%1&quot;%2 yakalama dosyasında yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
-    </message>
-    <message>
-        <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation>Kaydetmezseniz değişiklikleriniz kaybolacak.</translation>
-    </message>
-    <message>
-        <source>Check for Updates…</source>
-        <translation>Güncellemeleri kontrol et…</translation>
-    </message>
-    <message>
-        <source>Unable to drop files during capture.</source>
-        <translation>Yakalama sırasında dosyalar bırakılamıyor.</translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by merge dialog.</source>
-        <translation>Birleştirme iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
-    </message>
-    <message>
-        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation>Lütfen bunu https://gitlab.com/wireshark/wireshark/-/issues adresinde bir Wireshark sorunu olarak bildirin.</translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by export dialog.</source>
-        <translation>Dışa aktarma iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation>Yakalamayı durdurmak ve yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
-    </message>
-    <message>
-        <source>Do you want to save the captured packets%1?</source>
-        <translation>Yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
-    </message>
-    <message>
-        <source>Save before Continue</source>
-        <translation>Devam etmeden önce kaydet</translation>
-    </message>
-    <message>
-        <source>Stop and Save</source>
-        <translation>Durdur ve Kaydet</translation>
-    </message>
-    <message>
-        <source>Stop and Quit &amp;without Saving</source>
-        <oldsource>Stop and Quit without Saving</oldsource>
-        <translation>Kaydetmeden &amp;Durdurun ve Çıkın</translation>
-    </message>
-    <message>
-        <source>Quit &amp;without Saving</source>
-        <oldsource>Quit without Saving</oldsource>
-        <translation>Kaydetmeden &amp;çık</translation>
-    </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation>Wireshark&apos;ın bu sürümünde &quot;rtp.ssrc&quot; alanı yoktur.</translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation>Lütfen SSRC değerine sahip bir RTPv2 paketi seçin</translation>
-    </message>
-    <message>
-        <source>SSRC value not found.</source>
-        <translation>SSRC değeri bulunamadı.</translation>
-    </message>
-    <message>
-        <source>Show or hide the toolbar</source>
-        <translation>Araç çubuğunu göster ya da gizle</translation>
-    </message>
-    <message>
-        <source>Continue &amp;without Saving</source>
-        <oldsource>Continue without Saving</oldsource>
-        <translation>Kaydetmeden &amp;devam et</translation>
-    </message>
-    <message>
-        <source>Stop and Continue &amp;without Saving</source>
-        <oldsource>Stop and Continue without Saving</oldsource>
-        <translation>Durdur ve Devam Et &amp;Kaydetmeden</translation>
-    </message>
-    <message>
-        <source>The Wireshark Network Analyzer</source>
-        <translation>Wireshark Ağ Çözümleyicisi</translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation>%1&apos;den yakalama</translation>
-    </message>
-    <message>
-        <source> before opening another file</source>
-        <translation> başka bir dosyayı açmadan önce</translation>
-    </message>
-    <message>
-        <source>Merging files.</source>
-        <translation>Dosyaları birleştirme.</translation>
-    </message>
-    <message>
-        <source>%1: %2</source>
-        <translation>%1: %2</translation>
-    </message>
-    <message>
-        <source>Clear Menu</source>
-        <translation>Menüyü Temizle</translation>
-    </message>
-    <message>
-        <source> before closing the file</source>
-        <translation> dosyayı kapatmadan önce</translation>
-    </message>
-    <message>
-        <source>Export Selected Packet Bytes</source>
-        <translation>Seçili Paket Baytlarını Dışa Aktar</translation>
-    </message>
-    <message>
-        <source>No Keys</source>
-        <translation>Anahtar Yok</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation>Ham veriler (*.bin *.dat *.raw);;Tüm Dosyalar (</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation>Metin kopyalanamadı. Başka bir öğe deneyin.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all packet comments?</source>
-        <translation>Tüm paket yorumlarını kaldırmak istediğinizden emin misiniz?</translation>
-    </message>
-    <message>
-        <source>Unable to build conversation filter.</source>
-        <translation>Görüşme filtresi oluşturulamıyor.</translation>
-    </message>
-    <message>
-        <source> before reloading the file</source>
-        <translation> dosyayı yeniden yüklemeden önce</translation>
-    </message>
-    <message>
-        <source>Error compiling filter for this conversation.</source>
-        <translation>Bu görüşme için filtre derlenirken hata oluştu.</translation>
-    </message>
-    <message>
-        <source>No previous/next packet in conversation.</source>
-        <translation>Görüşmede önceki/sonraki paket yok.</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation>Arayüz seçilmedi.</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <translation>%1 kaydediliyor…</translation>
-    </message>
-    <message>
-        <source>Configure all extcaps before start of capture.</source>
-        <translation>Yakalamaya başlamadan önce tüm dış harfleri yapılandırın.</translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <translation>Geçersiz yakalama filtresi.</translation>
-    </message>
-    <message>
-        <source>(empty comment)</source>
-        <comment>placeholder for empty comment</comment>
-        <translation>(boş yorum)</translation>
-    </message>
-    <message>
-        <source>Add New Comment…</source>
-        <translation>Yeni Yorum Ekle…</translation>
-    </message>
-    <message>
-        <source>Edit &quot;%1&quot;</source>
-        <comment>edit packet comment</comment>
-        <translation>&quot;%1&quot;i düzenle</translation>
-    </message>
-    <message>
-        <source>Delete &quot;%1&quot;</source>
-        <comment>delete packet comment</comment>
-        <translation>&quot;%1&quot;i sil</translation>
-    </message>
-    <message>
-        <source>Delete packet comments</source>
-        <translation>Paket yorumlarını sil</translation>
-    </message>
-    <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
-            <numerusform>%n paketinden() yorumları sil</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source> before starting a new capture</source>
-        <translation> yeni bir yakalamaya başlamadan önce</translation>
-    </message>
-    <message>
-        <source> before reloading Lua plugins</source>
-        <translation>Lua eklentilerini yeniden yüklemeden önce</translation>
-    </message>
-    <message>
-        <source>Please wait while Wireshark is initializing…</source>
-        <translation>Wireshark başlatılırken lütfen bekleyin…</translation>
-    </message>
-    <message>
-        <source>There are no TLS Session Keys to save.</source>
-        <translation>Kaydedilecek TLS Oturum Anahtarı yok.</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>TLS Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation>TLS Oturum Anahtarları (*.keys *.txt);;Tüm Dosyalar (</translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation>Filtre mevcut değil. Başka bir %1 deneyin.</translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation>sütun</translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation>öğe</translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation>&quot;%1&quot; sütunu zaten var.</translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation>&quot;%1&quot; sütunu zaten &quot;%2&quot; olarak var.</translation>
-    </message>
-    <message>
-        <source>RTP packet search failed</source>
-        <translation>RTP paket araması başarısız oldu</translation>
-    </message>
-    <message>
-        <source>No Interface Selected.</source>
-        <translation>Arayüz Seçilmedi.</translation>
-    </message>
-    <message>
-        <source> before restarting the capture</source>
-        <translation> yakalamayı yeniden başlatmadan önce</translation>
-    </message>
-    <message>
-        <source>Wiki Page for %1</source>
-        <translation>%1 için Wiki Sayfası</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Wiki&apos;nin bakımı topluluk tarafından sağlanır.&lt;/p&gt;&lt;p&gt;Yüklemek üzere olduğunuz sayfa harika, eksik, yanlış veya hiç yok olabilir.&lt;/p&gt;&lt;p&gt;Wiki&apos;ye geçilsin mi?&lt;/P&gt;</translation>
-    </message>
-    <message>
-        <source>Loading</source>
-        <translation>Yükleniyor</translation>
-    </message>
-    <message>
-        <source>Reloading</source>
-        <translation>Yeniden yükleniyor</translation>
-    </message>
-    <message>
-        <source>Rescanning</source>
-        <translation>Yeniden tarama</translation>
-    </message>
-</context>
-<context>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -9699,6 +7563,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>End Bits/s</source>
         <translation>Bit/sn Bitiş</translation>
+    </message>
+    <message>
+        <source>PDUs</source>
+        <translation>PDUs</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -14261,6 +12129,10 @@ a:hover {
         <translation>Klasörde Göster</translation>
     </message>
     <message>
+        <source>Welcome to %1</source>
+        <translation>%1 e Hoşgeldiniz</translation>
+    </message>
+    <message>
         <source>All interfaces shown</source>
         <translation>Gösterilen tüm arayüzler</translation>
     </message>
@@ -14386,6 +12258,2146 @@ a:hover {
     <message>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>&quot;%1&quot; öğesine dokunarak eklenemedi</translation>
+    </message>
+</context>
+<context>
+    <name>WiresharkMainWindow</name>
+    <message>
+        <source>Wireshark</source>
+        <translation>Wireshark</translation>
+    </message>
+    <message>
+        <source>Go to packet</source>
+        <translation>Pakete git</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>İptal et</translation>
+    </message>
+    <message>
+        <source>File Set</source>
+        <translation>Dosya Kümesi</translation>
+    </message>
+    <message>
+        <source>Export Packet Dissections</source>
+        <translation>Paket Diseksiyonlarını Dışa Aktar</translation>
+    </message>
+    <message>
+        <source>Export Objects</source>
+        <translation>Nesneleri Dışa Aktar</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom</source>
+        <translation>&amp;Yaklaş</translation>
+    </message>
+    <message>
+        <source>&amp;Time Display Format</source>
+        <translation>&amp;Zaman Görüntüleme Biçimi</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopyala</translation>
+    </message>
+    <message>
+        <source>Manual pages</source>
+        <translation>Elle ayarlanmış sayfalar</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation>Filtre Olarak Uygula</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation>Filtre Olarak Hazırla</translation>
+    </message>
+    <message>
+        <source>SCTP</source>
+        <translation>SCTP</translation>
+    </message>
+    <message>
+        <source>TCP Stream Graphs</source>
+        <translation>TCP Akış Grafikleri</translation>
+    </message>
+    <message>
+        <source>BACnet</source>
+        <translation>BACnet</translation>
+    </message>
+    <message>
+        <source>HTTP</source>
+        <translation>HTTP</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;DOSYA</translation>
+    </message>
+    <message>
+        <source>&amp;Capture</source>
+        <translation>&amp;Yakala</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Yardım</translation>
+    </message>
+    <message>
+        <source>&amp;Go</source>
+        <translation>&amp;Git</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Görünüm</translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation>&amp;Analiz</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation>Takip</translation>
+    </message>
+    <message>
+        <source>&amp;Statistics</source>
+        <translation>&amp;İstatistikler</translation>
+    </message>
+    <message>
+        <source>29West</source>
+        <translation>29Batı</translation>
+    </message>
+    <message>
+        <source>Topics</source>
+        <translation>Konular</translation>
+    </message>
+    <message>
+        <source>Queues</source>
+        <translation>Kuyruklar</translation>
+    </message>
+    <message>
+        <source>UIM</source>
+        <translation>UIM</translation>
+    </message>
+    <message>
+        <source>Telephon&amp;y</source>
+        <translation>Telefo&amp;n</translation>
+    </message>
+    <message>
+        <source>RTSP</source>
+        <translation>RTSP</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Düzenle</translation>
+    </message>
+    <message>
+        <source>Packet Comments</source>
+        <translation>Paket Yorumları</translation>
+    </message>
+    <message>
+        <source>Main Toolbar</source>
+        <translation>Ana Araç Çubuğu</translation>
+    </message>
+    <message>
+        <source>Display Filter Toolbar</source>
+        <translation>Filtre Araç Çubuğunu Görüntüle</translation>
+    </message>
+    <message>
+        <source>Open a capture file</source>
+        <translation>Bir yakalama dosyası açın</translation>
+    </message>
+    <message>
+        <source>Quit Wireshark</source>
+        <translation>Wireshark&apos;tan çıkın</translation>
+    </message>
+    <message>
+        <source>&amp;Start</source>
+        <translation>&amp;Başlat</translation>
+    </message>
+    <message>
+        <source>Start capturing packets</source>
+        <translation>Paketleri yakalamaya başlayın</translation>
+    </message>
+    <message>
+        <source>S&amp;top</source>
+        <translation>D&amp;urdur</translation>
+    </message>
+    <message>
+        <source>Stop capturing packets</source>
+        <translation>Paketleri yakalamayı durdur</translation>
+    </message>
+    <message>
+        <source>No files found</source>
+        <translation>Dosya bulunamadı</translation>
+    </message>
+    <message>
+        <source>&amp;Contents</source>
+        <translation>&amp;İçerik</translation>
+    </message>
+    <message>
+        <source>Wireshark Filter</source>
+        <translation>Wireshark Filtresi</translation>
+    </message>
+    <message>
+        <source>TShark</source>
+        <translation>TShark</translation>
+    </message>
+    <message>
+        <source>Rawshark</source>
+        <translation>Rawshark</translation>
+    </message>
+    <message>
+        <source>Dumpcap</source>
+        <translation>Dumpcap</translation>
+    </message>
+    <message>
+        <source>Mergecap</source>
+        <translation>Mergecap</translation>
+    </message>
+    <message>
+        <source>Editcap</source>
+        <translation>Editcap</translation>
+    </message>
+    <message>
+        <source>Text2pcap</source>
+        <translation>Text2pcap</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>İnternet Sitesi</translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation>İndirilenler</translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation>Viki</translation>
+    </message>
+    <message>
+        <source>Sample Captures</source>
+        <translation>Örnek Yakalamalar</translation>
+    </message>
+    <message>
+        <source>&amp;About Wireshark</source>
+        <translation>&amp;Wireshark Hakkında</translation>
+    </message>
+    <message>
+        <source>Ask (Q&amp;&amp;A)</source>
+        <translation>Sor (Soru-Cevap)</translation>
+    </message>
+    <message>
+        <source>Next Packet</source>
+        <translation>Sonraki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the next packet</source>
+        <translation>Sonraki pakete git</translation>
+    </message>
+    <message>
+        <source>Previous Packet</source>
+        <translation>Önceki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet</source>
+        <translation>Önceki pakete git</translation>
+    </message>
+    <message>
+        <source>First Packet</source>
+        <translation>İlk Paket</translation>
+    </message>
+    <message>
+        <source>Go to the first packet</source>
+        <translation>İlk pakete git</translation>
+    </message>
+    <message>
+        <source>Last Packet</source>
+        <translation>Son Paket</translation>
+    </message>
+    <message>
+        <source>Go to the last packet</source>
+        <translation>Son pakete git</translation>
+    </message>
+    <message>
+        <source>E&amp;xpand Subtrees</source>
+        <translation>Alt Ağaçları G&amp;enişlet</translation>
+    </message>
+    <message>
+        <source>Expand the current packet detail</source>
+        <translation>Geçerli paket ayrıntısını genişlet</translation>
+    </message>
+    <message>
+        <source>&amp;Expand All</source>
+        <translation>&amp;Tümünü Genişlet</translation>
+    </message>
+    <message>
+        <source>Expand packet details</source>
+        <translation>Paket ayrıntılarını genişlet</translation>
+    </message>
+    <message>
+        <source>Collapse &amp;All</source>
+        <translation>Tümünü &amp;Daralt</translation>
+    </message>
+    <message>
+        <source>Collapse all packet details</source>
+        <translation>Tüm paket ayrıntılarını daralt</translation>
+    </message>
+    <message>
+        <source>Go to specified packet</source>
+        <translation>Belirtilen pakete git</translation>
+    </message>
+    <message>
+        <source>Merge one or more files</source>
+        <translation>Bir veya daha fazla dosyayı birleştirme</translation>
+    </message>
+    <message>
+        <source>Import a file</source>
+        <translation>Bir dosyayı içe aktar</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Kaydet</translation>
+    </message>
+    <message>
+        <source>Save as a different file</source>
+        <translation>Farklı bir dosya olarak kaydet</translation>
+    </message>
+    <message>
+        <source>Export specified packets</source>
+        <translation>Belirtilen paketleri dışa aktar</translation>
+    </message>
+    <message>
+        <source>Export TLS Session Keys…</source>
+        <translation>TLS Oturum Anahtarlarını Dışa Aktar…</translation>
+    </message>
+    <message>
+        <source>List Files</source>
+        <translation>Dosyaları Listele</translation>
+    </message>
+    <message>
+        <source>Next File</source>
+        <translation>Sonraki Dosya</translation>
+    </message>
+    <message>
+        <source>Previous File</source>
+        <translation>Önceki Dosya</translation>
+    </message>
+    <message>
+        <source>&amp;Reload</source>
+        <translation>&amp;Tekrar yükle</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Seçenekler</translation>
+    </message>
+    <message>
+        <source>Capture options</source>
+        <translation>Yakalama seçenekleri</translation>
+    </message>
+    <message>
+        <source>Capture filters</source>
+        <translation>Yakalama filtreleri</translation>
+    </message>
+    <message>
+        <source>Refresh Interfaces</source>
+        <translation>Arayüzleri Yenile</translation>
+    </message>
+    <message>
+        <source>Refresh interfaces</source>
+        <translation>Arayüzleri yenile</translation>
+    </message>
+    <message>
+        <source>&amp;Restart</source>
+        <translation>&amp;Yeniden Başlat</translation>
+    </message>
+    <message>
+        <source>Restart current capture</source>
+        <translation>Mevcut yakalamayı yeniden başlat</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV…</source>
+        <translation>&amp;CSV olarak…</translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation>&quot;C&quot; &amp;Diziler olarak…</translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation>P&amp;SML XML olarak…</translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation>P&amp;DML XML olarak…</translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation>&amp;JSON olarak…</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Açıklama</translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation>Alan Adı</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Değer</translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation>Filtre Olarak</translation>
+    </message>
+    <message>
+        <source>Close this capture file</source>
+        <translation>Bu yakalama dosyasını kapat</translation>
+    </message>
+    <message>
+        <source>Packet:</source>
+        <translation>Paket:</translation>
+    </message>
+    <message>
+        <source>Interface Toolbars</source>
+        <translation>Arayüz Araç Çubukları</translation>
+    </message>
+    <message>
+        <source>Colorize Conversation</source>
+        <translation>Konuşmayı Renklendir</translation>
+    </message>
+    <message>
+        <source>Internals</source>
+        <translation>Dahili</translation>
+    </message>
+    <message>
+        <source>Additional Toolbars</source>
+        <translation>Ek Araç Çubukları</translation>
+    </message>
+    <message>
+        <source>Conversation Filter</source>
+        <translation>Konuşma Filtresi</translation>
+    </message>
+    <message>
+        <source>Reliable Server Pooling (RSerPool)</source>
+        <translation>Güvenilir Sunucu Havuzu (RSerPool)</translation>
+    </message>
+    <message>
+        <source>SOME/IP</source>
+        <translation>BAZI/IP</translation>
+    </message>
+    <message>
+        <source>Osmux</source>
+        <translation>Osmux</translation>
+    </message>
+    <message>
+        <source>&amp;Tools</source>
+        <oldsource>Tools</oldsource>
+        <translation>&amp;Araçlar</translation>
+    </message>
+    <message>
+        <source>Wireless Toolbar</source>
+        <translation>Kablosuz Araç Çubuğu</translation>
+    </message>
+    <message>
+        <source>Help contents</source>
+        <translation>Yardım içeriği</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation>SSS</translation>
+    </message>
+    <message>
+        <source>Next Packet in Conversation</source>
+        <translation>Konuşmadaki Sonraki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in this conversation</source>
+        <translation>Bu görüşmede sonraki pakete git</translation>
+    </message>
+    <message>
+        <source>Previous Packet in Conversation</source>
+        <translation>Görüşmede Önceki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in this conversation</source>
+        <translation>Bu görüşmede önceki pakete git</translation>
+    </message>
+    <message>
+        <source>Next Packet In History</source>
+        <translation>Geçmişteki Sonraki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in your selection history</source>
+        <translation>Seçim geçmişinizde bir sonraki pakete gidin</translation>
+    </message>
+    <message>
+        <source>Previous Packet In History</source>
+        <translation>Geçmişteki Önceki Paket</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in your selection history</source>
+        <translation>Seçim geçmişinizde önceki pakete gidin</translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation>Alt Ağaçları Daralt</translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
+        <translation>Geçerli paket ayrıntısını daralt</translation>
+    </message>
+    <message>
+        <source>Go to Packet…</source>
+        <translation>Pakete Git…</translation>
+    </message>
+    <message>
+        <source>&amp;Merge…</source>
+        <translation>&amp;Birleştir…</translation>
+    </message>
+    <message>
+        <source>&amp;Import from Hex Dump…</source>
+        <translation>&amp;Hex Dökümünden içe aktar…</translation>
+    </message>
+    <message>
+        <source>Save this capture file</source>
+        <translation>Bu yakalama dosyasını kaydet</translation>
+    </message>
+    <message>
+        <source>Save &amp;As…</source>
+        <translation>Farklı &amp;Kaydet…</translation>
+    </message>
+    <message>
+        <source>Export Specified Packets…</source>
+        <translation>Belirtilen Paketleri Dışa Aktar…</translation>
+    </message>
+    <message>
+        <source>Export Packet &amp;Bytes…</source>
+        <translation>Paket &amp;Baytlarını Dışa Aktar…</translation>
+    </message>
+    <message>
+        <source>&amp;Print…</source>
+        <translation>&amp;Yazdır…</translation>
+    </message>
+    <message>
+        <source>Reload this file</source>
+        <translation>Bu dosyayı yeniden yükle</translation>
+    </message>
+    <message>
+        <source>Reload as File Format/Capture</source>
+        <translation>Dosya Biçimi/Yakalama Olarak Yeniden Yükle</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s description</source>
+        <translation>Bu öğenin açıklamasını kopyala</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s field name</source>
+        <translation>Bu öğenin alan adını kopyala</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s value</source>
+        <translation>Bu öğenin değerini kopyala</translation>
+    </message>
+    <message>
+        <source>Copy this item as a display filter</source>
+        <translation>Bu öğeyi bir ekran filtresi olarak kopyala</translation>
+    </message>
+    <message>
+        <source>Apply as Column</source>
+        <translation>Sütun olarak uygula</translation>
+    </message>
+    <message>
+        <source>Create a packet list column from the selected field.</source>
+        <translation>Seçili alandan bir paket listesi sütunu oluşturun.</translation>
+    </message>
+    <message>
+        <source>Find a packet</source>
+        <translation>Bir paket bul</translation>
+    </message>
+    <message>
+        <source>Find the next packet</source>
+        <translation>Sonraki paketi bul</translation>
+    </message>
+    <message>
+        <source>Find the previous packet</source>
+        <translation>Önceki paketi bul</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation>&amp;Paketi İşaretle/İşaretini Kaldır</translation>
+    </message>
+    <message>
+        <source>Mark All Displayed</source>
+        <translation>Tüm Görüntülenenleri İşaretle</translation>
+    </message>
+    <message>
+        <source>Mark all displayed packets</source>
+        <translation>Görüntülenen tüm paketleri işaretle</translation>
+    </message>
+    <message>
+        <source>Unmark all displayed packets</source>
+        <translation>Görüntülenen tüm paketlerin işaretini kaldırın</translation>
+    </message>
+    <message>
+        <source>Next Mark</source>
+        <translation>Sonraki İşaret</translation>
+    </message>
+    <message>
+        <source>Go to the next marked packet</source>
+        <translation>Sonraki işaretli pakete git</translation>
+    </message>
+    <message>
+        <source>Previous Mark</source>
+        <translation>Önceki İşaret</translation>
+    </message>
+    <message>
+        <source>Go to the previous marked packet</source>
+        <translation>Önceki işaretli pakete git</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation>&amp;Paketi Yoksay/Yoksaymaktan vazgeç</translation>
+    </message>
+    <message>
+        <source>Ignore All Displayed</source>
+        <translation>Tüm Görüntülenenleri Yoksay</translation>
+    </message>
+    <message>
+        <source>Ignore all displayed packets</source>
+        <translation>Görüntülenen tüm paketleri yoksay</translation>
+    </message>
+    <message>
+        <source>Set/Unset Time Reference</source>
+        <translation>Zaman Referansını Ayarla/Ayarlamayı Kaldır</translation>
+    </message>
+    <message>
+        <source>Set or unset a time reference for this packet</source>
+        <translation>Bu paket için bir zaman referansı ayarlayın veya ayarlayın</translation>
+    </message>
+    <message>
+        <source>Unset All Time References</source>
+        <translation>Tüm Zaman Referans Ayarlarını Kaldır</translation>
+    </message>
+    <message>
+        <source>Remove all time references</source>
+        <translation>Tüm zaman referanslarını kaldır</translation>
+    </message>
+    <message>
+        <source>Next Time Reference</source>
+        <translation>Sonraki Zaman Referansı</translation>
+    </message>
+    <message>
+        <source>Go to the next time reference</source>
+        <translation>Sonraki zaman referansına git</translation>
+    </message>
+    <message>
+        <source>Previous Time Reference</source>
+        <translation>Önceki Zaman Referansı</translation>
+    </message>
+    <message>
+        <source>Go to the previous time reference</source>
+        <translation>Önceki zaman referansına git</translation>
+    </message>
+    <message>
+        <source>Shift or change packet timestamps</source>
+        <translation>Paket zaman damgalarını kaydırın veya değiştirin</translation>
+    </message>
+    <message>
+        <source>Delete All Packet Comments</source>
+        <translation>Tüm Paket Yorumlarını Sil</translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation>Yakalama dosyasındaki tüm paket yorumlarını kaldırın</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation>&amp;Yapılandırma Profilleri…</translation>
+    </message>
+    <message>
+        <source>Configuration profiles</source>
+        <translation>Yapılandırma profilleri</translation>
+    </message>
+    <message>
+        <source>Manage your configuration profiles</source>
+        <translation>Yapılandırma profillerinizi yönetin</translation>
+    </message>
+    <message>
+        <source>Manage Wireshark&apos;s preferences</source>
+        <translation>Wireshark&apos;ın tercihlerini yönetin</translation>
+    </message>
+    <message>
+        <source>Capture File Properties</source>
+        <translation>Yakalama Dosyası Özellikleri</translation>
+    </message>
+    <message>
+        <source>Capture file properties</source>
+        <translation>Yakalama dosyası özellikleri</translation>
+    </message>
+    <message>
+        <source>&amp;Protocol Hierarchy</source>
+        <translation>&amp;Protokol Hiyerarşisi</translation>
+    </message>
+    <message>
+        <source>Show a summary of protocols present in the capture file.</source>
+        <translation>Yakalama dosyasında bulunan protokollerin bir özetini gösterin.</translation>
+    </message>
+    <message>
+        <source>Capinfos</source>
+        <translation>Başlık bilgileri</translation>
+    </message>
+    <message>
+        <source>Reordercap</source>
+        <translation>Başlığı Yeniden Sırala</translation>
+    </message>
+    <message>
+        <source>Time Sequence (Stevens)</source>
+        <translation>Zaman Dizisi (Stevens)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (Stevens)</source>
+        <translation>TCP zaman dizisi grafiği (Stevens)</translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation>Verim</translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation>Gidiş-dönüş süresi</translation>
+    </message>
+    <message>
+        <source>TCP round trip time</source>
+        <translation>TCP gidiş dönüş süresi</translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation>Pencere Ölçekleme</translation>
+    </message>
+    <message>
+        <source>TCP window scaling</source>
+        <translation>TCP pencere ölçeklendirme</translation>
+    </message>
+    <message>
+        <source>DCCP Stream</source>
+        <translation>DCCP Akışı</translation>
+    </message>
+    <message>
+        <source>TLS Stream</source>
+        <translation>TLS Akışı</translation>
+    </message>
+    <message>
+        <source>HTTP Stream</source>
+        <translation>HTTP Akışı</translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation>HTTP/2 Akışı</translation>
+    </message>
+    <message>
+        <source>QUIC Stream</source>
+        <translation>QUIC Akışı</translation>
+    </message>
+    <message>
+        <source>SIP Call</source>
+        <translation>SIP Çağrısı</translation>
+    </message>
+    <message>
+        <source>Time Sequence (tcptrace)</source>
+        <translation>Zaman Sırası (tcptrace)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (tcptrace)</source>
+        <translation>TCP zaman sırası grafiği (tcptrace)</translation>
+    </message>
+    <message>
+        <source>Analyse this Association</source>
+        <translation>Bu Derneği analiz et</translation>
+    </message>
+    <message>
+        <source>Show All Associations</source>
+        <translation>Tüm İlişkilendirmeleri Göster</translation>
+    </message>
+    <message>
+        <source>Flow Graph</source>
+        <translation>Akış Grafiği</translation>
+    </message>
+    <message>
+        <source>Flow sequence diagram</source>
+        <translation>Akış sırası diyagramı</translation>
+    </message>
+    <message>
+        <source>ANCP</source>
+        <translation>ANCP</translation>
+    </message>
+    <message>
+        <source>ANCP statistics</source>
+        <translation>ANCP istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by Instance ID</source>
+        <translation>Örnek Kimliğine göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by instance ID</source>
+        <translation>Örnek kimliğine göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by IP</source>
+        <translation>IP&apos;ye göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by IP</source>
+        <translation>IP&apos;ye göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by object type</source>
+        <translation>Nesne türüne göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by object type</source>
+        <translation>Nesne türüne göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packets sorted by service</source>
+        <translation>Servise göre sıralanmış paketler</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by service</source>
+        <translation>Hizmete göre sıralanmış BACapp istatistikleri</translation>
+    </message>
+    <message>
+        <source>Collectd</source>
+        <translation>Toplanan</translation>
+    </message>
+    <message>
+        <source>Collectd statistics</source>
+        <translation>Toplanan istatistikler</translation>
+    </message>
+    <message>
+        <source>DNS</source>
+        <translation>DNS</translation>
+    </message>
+    <message>
+        <source>DNS statistics</source>
+        <translation>DNS istatistikleri</translation>
+    </message>
+    <message>
+        <source>HART-IP</source>
+        <translation>HART-IP</translation>
+    </message>
+    <message>
+        <source>HART-IP statistics</source>
+        <translation>HART-IP istatistikleri</translation>
+    </message>
+    <message>
+        <source>HPFEEDS</source>
+        <translation>HPFEEDS</translation>
+    </message>
+    <message>
+        <source>hpfeeds statistics</source>
+        <translation>hpfeeds istatistikleri</translation>
+    </message>
+    <message>
+        <source>HTTP2</source>
+        <translation>HTTP2</translation>
+    </message>
+    <message>
+        <source>HTTP2 statistics</source>
+        <translation>HTTP2 istatistikleri</translation>
+    </message>
+    <message>
+        <source>Packet Counter</source>
+        <translation>Paket Sayacı</translation>
+    </message>
+    <message>
+        <source>HTTP packet counter</source>
+        <translation>HTTP paket sayacı</translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation>İstekler</translation>
+    </message>
+    <message>
+        <source>HTTP requests</source>
+        <translation>HTTP istekleri</translation>
+    </message>
+    <message>
+        <source>Load Distribution</source>
+        <translation>Yük Dağılımı</translation>
+    </message>
+    <message>
+        <source>HTTP load distribution</source>
+        <translation>HTTP yük dağılımı</translation>
+    </message>
+    <message>
+        <source>Packet Lengths</source>
+        <translation>Paket Uzunlukları</translation>
+    </message>
+    <message>
+        <source>Packet length statistics</source>
+        <translation>Paket uzunluğu istatistikleri</translation>
+    </message>
+    <message>
+        <source>Sametime</source>
+        <translation>Aynı zamanda</translation>
+    </message>
+    <message>
+        <source>Sametime statistics</source>
+        <translation>Aynı Zaman istatistikleri</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation>BAZI/IP Mesajları</translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation>BAZI/IP Mesaj istatistikleri</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation>BAZI/IP-SD Girdileri</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation>BAZI/IP-SD Girdi istatistikleri</translation>
+    </message>
+    <message>
+        <source>&amp;ISUP Messages</source>
+        <translation>&amp;ISUP Mesajları</translation>
+    </message>
+    <message>
+        <source>ISUP message statistics</source>
+        <translation>ISUP mesaj istatistikleri</translation>
+    </message>
+    <message>
+        <source>Osmux packet counts</source>
+        <translation>Osmux paket sayısı</translation>
+    </message>
+    <message>
+        <source>RTSP packet counts</source>
+        <translation>RTSP paket sayıları</translation>
+    </message>
+    <message>
+        <source>SM&amp;PP Operations</source>
+        <translation>SM&amp;PP İşlemleri</translation>
+    </message>
+    <message>
+        <source>SMPP operation statistics</source>
+        <translation>SMPP işlem istatistikleri</translation>
+    </message>
+    <message>
+        <source>&amp;UCP Messages</source>
+        <translation>&amp;UCP Mesajları</translation>
+    </message>
+    <message>
+        <source>UCP message statistics</source>
+        <translation>UCP mesaj istatistikleri</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation>F1AP</translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation>F1AP Mesajları</translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation>NGAP</translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation>NGAP Mesajları</translation>
+    </message>
+    <message>
+        <source>Change the way packets are dissected</source>
+        <translation>Paketlerin parçalanma şeklini değiştirin</translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation>Lua Eklentilerini Yeniden Yükle</translation>
+    </message>
+    <message>
+        <source>Reload Lua plugins</source>
+        <translation>Lua eklentilerini yeniden yükle</translation>
+    </message>
+    <message>
+        <source>Advertisements by Topic</source>
+        <translation>Konuya Göre Reklamlar</translation>
+    </message>
+    <message>
+        <source>Advertisements by Source</source>
+        <translation>Kaynağa Göre Reklamlar</translation>
+    </message>
+    <message>
+        <source>Advertisements by Transport</source>
+        <translation>Ulaşım Reklamları</translation>
+    </message>
+    <message>
+        <source>Queries by Topic</source>
+        <translation>Konuya Göre Sorgular</translation>
+    </message>
+    <message>
+        <source>Queries by Receiver</source>
+        <translation>Alıcıya Göre Sorgular</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Pattern</source>
+        <translation>Desene Göre Joker Karakter Sorguları</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Receiver</source>
+        <translation>Alıcıya Göre Joker Karakter Sorguları</translation>
+    </message>
+    <message>
+        <source>Advertisements by Queue</source>
+        <translation>Sıraya Göre Reklamlar</translation>
+    </message>
+    <message>
+        <source>Queries by Queue</source>
+        <translation>Kuyruğa Göre Sorgular</translation>
+    </message>
+    <message>
+        <source>Streams</source>
+        <translation>Canlı Yayınlar</translation>
+    </message>
+    <message>
+        <source>LBT-RM</source>
+        <translation>LBT-RM</translation>
+    </message>
+    <message>
+        <source>LBT-RU</source>
+        <translation>LBT-RU</translation>
+    </message>
+    <message>
+        <source>Filter this Association</source>
+        <translation>Bu İlişkilendirmeyi Filtrele</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation>Üst Bilgiler…</translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation>Üstbilgileri çıkarın ve daha üst düzey kapsüllemeleri dosyaya dışa aktarın</translation>
+    </message>
+    <message>
+        <source>&amp;I/O Graphs</source>
+        <translation>&amp;G/Ç Grafikleri</translation>
+    </message>
+    <message>
+        <source>&amp;Conversations</source>
+        <translation>&amp;Konuşmalar</translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation>&amp;Uç Noktalar</translation>
+    </message>
+    <message>
+        <source>Shrink the main window text</source>
+        <translation>Ana pencere metnini küçült</translation>
+    </message>
+    <message>
+        <source>Return the main window text to its normal size</source>
+        <translation>Ana pencere metnini normal boyutuna döndür</translation>
+    </message>
+    <message>
+        <source>Reset Layout</source>
+        <translation>Düzeni Sıfırla</translation>
+    </message>
+    <message>
+        <source>Reset appearance layout to default size</source>
+        <translation>Görünüm düzenini varsayılan boyuta sıfırla</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Diagram</source>
+        <translation>Paket &amp;Şeması</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation>Paket diyagramını göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Show each conversation hash table</source>
+        <translation>Her konuşma karma tablosunu göster</translation>
+    </message>
+    <message>
+        <source>Show each dissector table and its entries</source>
+        <translation>Her bir tespit edici tablosunu ve girişlerini göster</translation>
+    </message>
+    <message>
+        <source>Show the currently supported protocols and display filter fields</source>
+        <translation>Şu anda desteklenen protokolleri göster ve filtre alanlarını göster</translation>
+    </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation>MAC İstatistikleri</translation>
+    </message>
+    <message>
+        <source>LTE MAC statistics</source>
+        <translation>LTE MAC istatistikleri</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation>RLC İstatistikleri</translation>
+    </message>
+    <message>
+        <source>LTE RLC statistics</source>
+        <translation>LTE RLC istatistikleri</translation>
+    </message>
+    <message>
+        <source>LTE RLC graph</source>
+        <translation>LTE RLC grafiği</translation>
+    </message>
+    <message>
+        <source>MTP3 Summary</source>
+        <translation>MTP3 Özeti</translation>
+    </message>
+    <message>
+        <source>MTP3 summary statistics</source>
+        <translation>MTP3 özet istatistikleri</translation>
+    </message>
+    <message>
+        <source>Bluetooth Devices</source>
+        <translation>Bluetooth Cihazları</translation>
+    </message>
+    <message>
+        <source>Bluetooth HCI Summary</source>
+        <translation>Bluetooth HCI Özeti</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation>Filtre İfadesini &amp;Görüntüle…</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation>Filtre İfadesini Görüntüle…</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
+        <translation>KAYIT_STAT_GRUBU_GSUNHAVUZU</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
+        <translation>&quot;KAYIT_STAT_GRUBU_GSUNHAVUZU&quot; başlangıcı</translation>
+    </message>
+    <message>
+        <source>No GSM statistics registered</source>
+        <translation>Kayıtlı GSM istatistikleri yok</translation>
+    </message>
+    <message>
+        <source>No LTE statistics registered</source>
+        <translation>Kayıtlı LTE istatistiği yok</translation>
+    </message>
+    <message>
+        <source>No MTP3 statistics registered</source>
+        <translation>Kayıtlı MTP3 istatistiği yok</translation>
+    </message>
+    <message>
+        <source>IAX2 Stream Analysis</source>
+        <translation>IAX2 Akış Analizi</translation>
+    </message>
+    <message>
+        <source>Show Packet Bytes…</source>
+        <translation>Paket Baytlarını Göster…</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation>Bağlantılı &amp;Pakete Git</translation>
+    </message>
+    <message>
+        <source>UDP Multicast Streams</source>
+        <translation>UDP Çok Noktaya Yayın Akışları</translation>
+    </message>
+    <message>
+        <source>Show UTP multicast stream statistics.</source>
+        <translation>UTP çok noktaya yayın akışı istatistiklerini göster.</translation>
+    </message>
+    <message>
+        <source>WLAN Traffic</source>
+        <translation>WLAN Trafiği</translation>
+    </message>
+    <message>
+        <source>Show IEEE 802.11 wireless LAN statistics.</source>
+        <translation>IEEE 802.11 kablosuz LAN istatistiklerini göster.</translation>
+    </message>
+    <message>
+        <source>Add a display filter button.</source>
+        <translation>Bir ekran filtresi düğmesi ekleyin.</translation>
+    </message>
+    <message>
+        <source>Firewall ACL Rules</source>
+        <translation>Güvenlik Duvarı ACL Kuralları</translation>
+    </message>
+    <message>
+        <source>Create firewall ACL rules</source>
+        <translation>Güvenlik duvarı ACL kuralları oluşturun</translation>
+    </message>
+    <message>
+        <source>&amp;Full Screen</source>
+        <translation>&amp;Tam ekran</translation>
+    </message>
+    <message>
+        <source>Credentials</source>
+        <translation>Kimlik bilgileri</translation>
+    </message>
+    <message>
+        <source>&amp;Options…</source>
+        <translation>&amp;Seçenekler…</translation>
+    </message>
+    <message>
+        <source>&amp;Wireless</source>
+        <translation>&amp;Kablosuz</translation>
+    </message>
+    <message>
+        <source>Capture &amp;Filters…</source>
+        <translation>Yakalama &amp;Filtreleri…</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text…</source>
+        <translation>Düz Metin &amp;Olarak…</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text</source>
+        <translation>Düz Metin &amp;Olarak</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation>&amp;CSV olarak</translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation>&amp;YAML olarak</translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation>Tüm Görünür Öğeler</translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation>Tüm Görünür Seçilmiş Ağaç Öğeleri</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Macros…</source>
+        <translation>Filtre Makrolarını &amp;Görüntüle…</translation>
+    </message>
+    <message>
+        <source>&amp;Find Packet…</source>
+        <translation>&amp;Paket Bul…</translation>
+    </message>
+    <message>
+        <source>Find Ne&amp;xt</source>
+        <translation>Sonrakini Bu&amp;l</translation>
+    </message>
+    <message>
+        <source>Find Pre&amp;vious</source>
+        <translation>Öncekini Bu&amp;l</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation>Seçilen her paketi işaretleyin veya işaretini kaldırın</translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation>Seçilen her paketi yoksay veya yoksay</translation>
+    </message>
+    <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>Tüm Görüntülenenleri Y&amp;oksay</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>Görüntülenen tüm paketleri yoksay</translation>
+    </message>
+    <message>
+        <source>Time Shift…</source>
+        <translation>Zaman Kaydırması…</translation>
+    </message>
+    <message>
+        <source>&amp;Preferences…</source>
+        <translation>&amp;Tercihler…</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation>TCP verimi</translation>
+    </message>
+    <message>
+        <source>TCP Stream</source>
+        <translation>TCP Akışı</translation>
+    </message>
+    <message>
+        <source>UDP Stream</source>
+        <translation>UDP Akışı</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation>İstek Dizileri</translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
+        <translation>HTTP İstek Dizileri</translation>
+    </message>
+    <message>
+        <source>Decode &amp;As…</source>
+        <translation>Kodu &amp;Çöz…</translation>
+    </message>
+    <message>
+        <source>Export PDUs to File…</source>
+        <translation>PDU&apos;ları Dosyaya Aktar…</translation>
+    </message>
+    <message>
+        <source>Create graphs based on display filter fields</source>
+        <translation>Ekran filtresi alanlarına dayalı grafikler oluşturun</translation>
+    </message>
+    <message>
+        <source>&amp;Main Toolbar</source>
+        <translation>&amp;Ana Araç Çubuğu</translation>
+    </message>
+    <message>
+        <source>Show or hide the main toolbar</source>
+        <translation>Ana araç çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>&amp;Filter Toolbar</source>
+        <translation>&amp;Araç Çubuğunu Filtrele</translation>
+    </message>
+    <message>
+        <source>Show or hide the display filter toolbar</source>
+        <translation>Ekran filtresi araç çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Conversations at different protocol levels</source>
+        <translation>Farklı protokol seviyelerinde konuşmalar</translation>
+    </message>
+    <message>
+        <source>Endpoints at different protocol levels</source>
+        <translation>Farklı protokol seviyelerinde uç noktalar</translation>
+    </message>
+    <message>
+        <source>Colorize Packet List</source>
+        <translation>Paket Listesini Renklendir</translation>
+    </message>
+    <message>
+        <source>Draw packets using your coloring rules</source>
+        <translation>Renklendirme kurallarınızı kullanarak paketler çizin</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom In</source>
+        <translation>&amp;Yaklaştır</translation>
+    </message>
+    <message>
+        <source>Enlarge the main window text</source>
+        <translation>Ana pencere metnini büyüt</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Uzaklaş</translation>
+    </message>
+    <message>
+        <source>Normal Size</source>
+        <translation>Normal Boyut</translation>
+    </message>
+    <message>
+        <source>Resize Columns</source>
+        <translation>Sütunları Yeniden Boyutlandır</translation>
+    </message>
+    <message>
+        <source>Resize packet list columns to fit contents</source>
+        <translation>İçeriğe sığdırmak için paket listesi sütunlarını yeniden boyutlandırın</translation>
+    </message>
+    <message>
+        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>Günün Tarihi ve Saati (01-01-1970 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the date and time of day.</source>
+        <translation>Paket sürelerini günün tarihi ve saati olarak göster.</translation>
+    </message>
+    <message>
+        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>Yıl, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the year, day of the year and time of day.</source>
+        <translation>Paket sürelerini yıl, yılın günü ve günün saati olarak gösterin.</translation>
+    </message>
+    <message>
+        <source>Time of Day (01:02:03.123456)</source>
+        <translation>Günün Saati (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Seconds Since 1970-01-01</source>
+        <translation>1970-01-01&apos;den Beri Saniye</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
+        <translation>Paket sürelerini UNIX / POSIX döneminden (1970-01-01) bu yana saniye olarak göster.</translation>
+    </message>
+    <message>
+        <source>Seconds Since Beginning of Capture</source>
+        <translation>Yakalama Başlangıcından Beri Saniyeler</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Captured Packet</source>
+        <translation>Önceki Yakalanan Paketten Beri Saniye</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous captured packet.</source>
+        <translation>Paket sürelerini, bir önceki yakalanan paketten bu yana geçen saniye olarak göster.</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Displayed Packet</source>
+        <translation>Önceki Görüntülenen Paketten Beri Saniye</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous displayed packet.</source>
+        <translation>Paket sürelerini önceki görüntülenen paketten bu yana geçen saniye olarak göster.</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>UTC Tarihi ve Günün Saati (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC date and time of day.</source>
+        <translation>Paket saatlerini UTC tarihi ve günün saati olarak göster.</translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>UTC Yılı, Yılın Günü ve Günün Saati (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC year, day of the year and time of day.</source>
+        <translation>Paket sürelerini UTC yılı, yılın günü ve günün saati olarak gösterin.</translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456)</source>
+        <translation>UTC Günün Saati (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC time of day.</source>
+        <translation>Paket sürelerini günün UTC saati olarak göster.</translation>
+    </message>
+    <message>
+        <source>Automatic (from capture file)</source>
+        <translation>Otomatik (yakalama dosyasından)</translation>
+    </message>
+    <message>
+        <source>Use the time precision indicated in the capture file.</source>
+        <translation>Yakalama dosyasında belirtilen zaman hassasiyetini kullanın.</translation>
+    </message>
+    <message>
+        <source>Seconds</source>
+        <translation>Saniye</translation>
+    </message>
+    <message>
+        <source>Tenths of a second</source>
+        <translation>Saniyenin onda biri</translation>
+    </message>
+    <message>
+        <source>Hundredths of a second</source>
+        <translation>Saniyenin yüzde biri</translation>
+    </message>
+    <message>
+        <source>Milliseconds</source>
+        <translation>Milisaniye</translation>
+    </message>
+    <message>
+        <source>Microseconds</source>
+        <translation>Mikrosaniye</translation>
+    </message>
+    <message>
+        <source>Nanoseconds</source>
+        <translation>Nanosaniye</translation>
+    </message>
+    <message>
+        <source>Display Seconds With Hours and Minutes</source>
+        <translation>Saniyeleri Saat ve Dakikalarla Göster</translation>
+    </message>
+    <message>
+        <source>Display seconds with hours and minutes</source>
+        <translation>Saniyeyi saat ve dakika ile göster</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Physical Addresses</source>
+        <translation>&amp;Fiziksel Adresleri Çözümle</translation>
+    </message>
+    <message>
+        <source>Show names for known MAC addresses. Lookups use a local database.</source>
+        <translation>Bilinen MAC adreslerinin adlarını göster. Aramalar yerel bir veritabanı kullanır.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Network Addresses</source>
+        <translation>&amp;Ağ Adreslerini Çözümle</translation>
+    </message>
+    <message>
+        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
+        <translation>Bilinen IPv4, IPv6 ve IPX adreslerinin adlarını gösterin. Aramalar ağ trafiği oluşturabilir.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Transport Addresses</source>
+        <translation>&amp;Taşıma Adreslerini Çözümle</translation>
+    </message>
+    <message>
+        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
+        <translation>Bilinen TCP, UDP ve SCTP hizmetlerinin adlarını gösterin. Aramalar bazı sistemlerde trafik oluşturabilir.</translation>
+    </message>
+    <message>
+        <source>Wire&amp;less Toolbar</source>
+        <translation>Kab&amp;losuz Araç çubuğu</translation>
+    </message>
+    <message>
+        <source>Show or hide the wireless toolbar</source>
+        <translation>Kablosuz araç çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>&amp;Status Bar</source>
+        <translation>&amp;Durum Çubuğu</translation>
+    </message>
+    <message>
+        <source>Show or hide the status bar</source>
+        <translation>Durum çubuğunu göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Packet &amp;List</source>
+        <translation>Paket &amp;Listesi</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet list</source>
+        <translation>Paket listesini göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Details</source>
+        <translation>Paket &amp;Ayrıntıları</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet details</source>
+        <translation>Paket ayrıntılarını göster veya gizle</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Bytes</source>
+        <translation>Paket &amp;Bayt</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet bytes</source>
+        <translation>Paket baytlarını göster veya gizle</translation>
+    </message>
+    <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation>&amp;Konuşma Hash Tabloları</translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation>&amp;Tespit edici Tabloları</translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation>&amp;Desteklenen Protokoller</translation>
+    </message>
+    <message>
+        <source>MAP Summary</source>
+        <translation>HARİTA Özeti</translation>
+    </message>
+    <message>
+        <source>GSM MAP summary statistics</source>
+        <translation>GSM MAP özet istatistikleri</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation>RLC &amp;Grafiği</translation>
+    </message>
+    <message>
+        <source>&amp;Coloring Rules…</source>
+        <translation>&amp;Renklendirme Kuralları…</translation>
+    </message>
+    <message>
+        <source>Show Linked Packet in New Window</source>
+        <translation>Bağlantılı Paketi Yeni Pencerede Göster</translation>
+    </message>
+    <message>
+        <source>New Coloring Rule…</source>
+        <oldsource>New Conversation Rule…</oldsource>
+        <translation>Yeni Renklendirme Kuralı…</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation>Seçilen akış için RTP Akış Analizi. Ters akış eklemek için de CTRL tuşuna basın.</translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation>RTP Oynatıcı</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation>Seçilen akışı oynat. Ters akışı oynatmak için de CTRL tuşuna basın.</translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation>IA&amp;X2 Akış Analizi</translation>
+    </message>
+    <message>
+        <source>Enabled Protocols…</source>
+        <oldsource>Enable Protocols…</oldsource>
+        <translation>Etkin Protokoller…</translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation>Wiki Protokol Sayfası</translation>
+    </message>
+    <message>
+        <source>Open the Wireshark wiki page for this protocol.</source>
+        <translation>Bu protokol için Wireshark wiki sayfasını açın.</translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation>Filtre Alanı Referansı</translation>
+    </message>
+    <message>
+        <source>Open the display filter reference page for this filter field.</source>
+        <translation>Bu filtre alanı için ekran filtresi referans sayfasını açın.</translation>
+    </message>
+    <message>
+        <source>Go to the packet referenced by the selected field.</source>
+        <translation>Seçili alan tarafından başvurulan pakete gidin.</translation>
+    </message>
+    <message>
+        <source>&amp;VoIP Calls</source>
+        <translation>&amp;VoIP Aramaları</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation>&amp;Son Kullanılanlardan Aç</translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation>Ad Çözüm&amp;lemesi</translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation>Servis &amp;Yanıt Süresi</translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation>&amp;RTP</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation>S&amp;CTP</translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation>&amp;ANSI</translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation>&amp;GSM</translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation>&amp;LTE</translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation>&amp;MTP3</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Aç</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation>&amp;Çık</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>&amp;Kapat</translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation>Görüntüleme &amp;Filtreleri…</translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation>&amp;Tüm Görüntülenenlerin İşaretini Kaldır</translation>
+    </message>
+    <message>
+        <source>All VoIP Calls</source>
+        <translation>Tüm VoIP Aramaları</translation>
+    </message>
+    <message>
+        <source>SIP &amp;Flows</source>
+        <translation>SIP &amp;Akışları</translation>
+    </message>
+    <message>
+        <source>SIP Flows</source>
+        <translation>SIP Akışları</translation>
+    </message>
+    <message>
+        <source>RTP Streams</source>
+        <translation>RTP Akışları</translation>
+    </message>
+    <message>
+        <source>Edit the packet list coloring rules.</source>
+        <translation>Paket listesi renklendirme kurallarını düzenleyin.</translation>
+    </message>
+    <message>
+        <source>Bluetooth ATT Server Attributes</source>
+        <oldsource>ATT Server Attributes</oldsource>
+        <translation>Bluetooth ATT Sunucusu Özellikleri</translation>
+    </message>
+    <message>
+        <source>Show Packet in New &amp;Window</source>
+        <translation>Paketi Yeni &amp;Pencerede Göster</translation>
+    </message>
+    <message>
+        <source>Show this packet in a separate window.</source>
+        <translation>Bu paketi ayrı bir pencerede göster.</translation>
+    </message>
+    <message>
+        <source>Show the linked packet in a separate window.</source>
+        <translation>Bağlantılı paketi ayrı bir pencerede gösterin.</translation>
+    </message>
+    <message>
+        <source>Auto Scroll in Li&amp;ve Capture</source>
+        <translation>Can&amp;lı Yakalamada Otomatik Kaydırma</translation>
+    </message>
+    <message>
+        <source>Automatically scroll to the last packet during a live capture.</source>
+        <translation>Canlı yakalama sırasında otomatik olarak son pakete ilerleyin.</translation>
+    </message>
+    <message>
+        <source>Expert Information</source>
+        <translation>Uzman Bilgileri</translation>
+    </message>
+    <message>
+        <source>Show expert notifications</source>
+        <translation>Uzman bildirimlerini göster</translation>
+    </message>
+    <message>
+        <source>Add an expression to the display filter.</source>
+        <translation>Görüntü filtresine bir ifade ekleyin.</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_UNSORTED</source>
+        <translation>KAYIT_STAT_GRUBU_SIRALANMAMIŞ</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
+        <translation>&quot;KAYIT_STAT_GRUBU_SIRALANMAMIŞ&quot; başlangıcı</translation>
+    </message>
+    <message>
+        <source>No ANSI statistics registered</source>
+        <oldsource>No tools registered</oldsource>
+        <translation>ANSI istatistiği kayıtlı değil</translation>
+    </message>
+    <message>
+        <source>Resolved Addresses</source>
+        <translation>Çözümlenen Adresler</translation>
+    </message>
+    <message>
+        <source>Show each table of resolved addresses as copyable text.</source>
+        <translation>Çözümlenen adreslerin her bir tablosunu kopyalanabilir metin olarak gösterin.</translation>
+    </message>
+    <message>
+        <source>Color &amp;1</source>
+        <translation>Renk &amp;1</translation>
+    </message>
+    <message>
+        <source>Mark the current conversation with its own color.</source>
+        <oldsource>Mark the current coversation with its own color.</oldsource>
+        <translation>Mevcut konuşmayı kendi rengiyle işaretleyin.</translation>
+    </message>
+    <message>
+        <source>Color &amp;2</source>
+        <translation>Renk &amp;2</translation>
+    </message>
+    <message>
+        <source>Color &amp;3</source>
+        <translation>Renk &amp;3</translation>
+    </message>
+    <message>
+        <source>Color &amp;4</source>
+        <translation>Renk &amp;4</translation>
+    </message>
+    <message>
+        <source>Color &amp;5</source>
+        <translation>Renk &amp;5</translation>
+    </message>
+    <message>
+        <source>Color &amp;6</source>
+        <translation>Renk &amp;6</translation>
+    </message>
+    <message>
+        <source>Color &amp;7</source>
+        <translation>Renk &amp;7</translation>
+    </message>
+    <message>
+        <source>Color &amp;8</source>
+        <translation>Renk &amp;8</translation>
+    </message>
+    <message>
+        <source>Color &amp;9</source>
+        <translation>Renk &amp;9</translation>
+    </message>
+    <message>
+        <source>Color 1&amp;0</source>
+        <translation>Renk 1&amp;0</translation>
+    </message>
+    <message>
+        <source>Create a new coloring rule based on this field.</source>
+        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
+        <translation>Bu alana dayalı yeni bir renklendirme kuralı oluşturun.</translation>
+    </message>
+    <message>
+        <source>Reset Colorization</source>
+        <translation>Renklendirmeyi Sıfırla</translation>
+    </message>
+    <message>
+        <source>Reset colorized conversations.</source>
+        <translation>Renklendirilmiş konuşmaları sıfırlayın.</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>RTP Akış Analizi</translation>
+    </message>
+    <message>
+        <source>Edit Resolved Name</source>
+        <translation>Çözümlenen Adı Düzenle</translation>
+    </message>
+    <message>
+        <source>Manually edit a name resolution entry.</source>
+        <translation>Bir ad çözümleme girişini el ile düzenleyin.</translation>
+    </message>
+    <message>
+        <source>Enable and disable specific protocols</source>
+        <translation>Belirli protokolleri etkinleştirin ve devre dışı bırakın</translation>
+    </message>
+    <message>
+        <source> before quitting</source>
+        <translation> bırakmadan önce</translation>
+    </message>
+    <message>
+        <source>Save packets before merging?</source>
+        <translation>Paketler birleştirmeden önce kaydedilsin mi?</translation>
+    </message>
+    <message>
+        <source>A temporary capture file can&apos;t be merged.</source>
+        <translation>Geçici bir yakalama dosyası birleştirilemez.</translation>
+    </message>
+    <message>
+        <source>Save changes in &quot;%1&quot; before merging?</source>
+        <translation>Birleştirmeden önce &quot;%1&quot; içindeki değişiklikler kaydedilsin mi?</translation>
+    </message>
+    <message>
+        <source>Changes must be saved before the files can be merged.</source>
+        <translation>Dosyalar birleştirilmeden önce değişiklikler kaydedilmelidir.</translation>
+    </message>
+    <message>
+        <source>Invalid Display Filter</source>
+        <translation>Geçersiz Görüntü Filtresi</translation>
+    </message>
+    <message>
+        <source>Invalid Read Filter</source>
+        <translation>Geçersiz Okuma Filtresi</translation>
+    </message>
+    <message>
+        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
+        <translation>%1 filtre ifadesi geçerli bir okuma filtresi değil. (%2).</translation>
+    </message>
+    <message>
+        <source> before importing a capture</source>
+        <oldsource> before importing a new capture</oldsource>
+        <translation> bir yakalamayı içe aktarmadan önce</translation>
+    </message>
+    <message>
+        <source>Unable to export to &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot;e dışa aktarılamıyor.</translation>
+    </message>
+    <message>
+        <source>You cannot export packets to the current capture file.</source>
+        <translation>Paketleri geçerli yakalama dosyasına aktaramazsınız.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made%1?</source>
+        <oldsource>Do you want to save the captured packets</oldsource>
+        <translation>%1 yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Your captured packets will be lost if you don&apos;t save them.</source>
+        <translation>Yakaladığınız paketleri kaydetmezseniz kaybolacaktır.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
+        <translation>&quot;%1&quot;%2 yakalama dosyasında yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation>Kaydetmezseniz değişiklikleriniz kaybolacak.</translation>
+    </message>
+    <message>
+        <source>Check for Updates…</source>
+        <translation>Güncellemeleri kontrol et…</translation>
+    </message>
+    <message>
+        <source>Unable to drop files during capture.</source>
+        <translation>Yakalama sırasında dosyalar bırakılamıyor.</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by merge dialog.</source>
+        <translation>Birleştirme iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation>Lütfen bunu https://gitlab.com/wireshark/wireshark/-/issues adresinde bir Wireshark sorunu olarak bildirin.</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by export dialog.</source>
+        <translation>Dışa aktarma iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
+    </message>
+    <message>
+        <source>Do you want to stop the capture and save the captured packets%1?</source>
+        <translation>Yakalamayı durdurmak ve yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Do you want to save the captured packets%1?</source>
+        <translation>Yakalanan paketleri %1 kaydetmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Save before Continue</source>
+        <translation>Devam etmeden önce kaydet</translation>
+    </message>
+    <message>
+        <source>Stop and Save</source>
+        <translation>Durdur ve Kaydet</translation>
+    </message>
+    <message>
+        <source>Stop and Quit &amp;without Saving</source>
+        <oldsource>Stop and Quit without Saving</oldsource>
+        <translation>Kaydetmeden &amp;Durdurun ve Çıkın</translation>
+    </message>
+    <message>
+        <source>Quit &amp;without Saving</source>
+        <oldsource>Quit without Saving</oldsource>
+        <translation>Kaydetmeden &amp;çık</translation>
+    </message>
+    <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation>Wireshark&apos;ın bu sürümünde &quot;rtp.ssrc&quot; alanı yoktur.</translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation>Lütfen SSRC değerine sahip bir RTPv2 paketi seçin</translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation>SSRC değeri bulunamadı.</translation>
+    </message>
+    <message>
+        <source>Show or hide the toolbar</source>
+        <translation>Araç çubuğunu göster ya da gizle</translation>
+    </message>
+    <message>
+        <source>Continue &amp;without Saving</source>
+        <oldsource>Continue without Saving</oldsource>
+        <translation>Kaydetmeden &amp;devam et</translation>
+    </message>
+    <message>
+        <source>Stop and Continue &amp;without Saving</source>
+        <oldsource>Stop and Continue without Saving</oldsource>
+        <translation>Durdur ve Devam Et &amp;Kaydetmeden</translation>
+    </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation>Wireshark Ağ Çözümleyicisi</translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation>%1&apos;den yakalama</translation>
+    </message>
+    <message>
+        <source> before opening another file</source>
+        <translation> başka bir dosyayı açmadan önce</translation>
+    </message>
+    <message>
+        <source>Merging files.</source>
+        <translation>Dosyaları birleştirme.</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation>Menüyü Temizle</translation>
+    </message>
+    <message>
+        <source> before closing the file</source>
+        <translation> dosyayı kapatmadan önce</translation>
+    </message>
+    <message>
+        <source>Export Selected Packet Bytes</source>
+        <translation>Seçili Paket Baytlarını Dışa Aktar</translation>
+    </message>
+    <message>
+        <source>No Keys</source>
+        <translation>Anahtar Yok</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>SSL Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
+        <translation>Ham veriler (*.bin *.dat *.raw);;Tüm Dosyalar (</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t copy text. Try another item.</source>
+        <translation>Metin kopyalanamadı. Başka bir öğe deneyin.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation>Tüm paket yorumlarını kaldırmak istediğinizden emin misiniz?</translation>
+    </message>
+    <message>
+        <source>Unable to build conversation filter.</source>
+        <translation>Görüşme filtresi oluşturulamıyor.</translation>
+    </message>
+    <message>
+        <source> before reloading the file</source>
+        <translation> dosyayı yeniden yüklemeden önce</translation>
+    </message>
+    <message>
+        <source>Error compiling filter for this conversation.</source>
+        <translation>Bu görüşme için filtre derlenirken hata oluştu.</translation>
+    </message>
+    <message>
+        <source>No previous/next packet in conversation.</source>
+        <translation>Görüşmede önceki/sonraki paket yok.</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation>Arayüz seçilmedi.</translation>
+    </message>
+    <message>
+        <source>Saving %1…</source>
+        <translation>%1 kaydediliyor…</translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation>Yakalamaya başlamadan önce tüm dış harfleri yapılandırın.</translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation>Geçersiz yakalama filtresi.</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation>(boş yorum)</translation>
+    </message>
+    <message>
+        <source>Add New Comment…</source>
+        <translation>Yeni Yorum Ekle…</translation>
+    </message>
+    <message>
+        <source>Edit &quot;%1&quot;</source>
+        <comment>edit packet comment</comment>
+        <translation>&quot;%1&quot;i düzenle</translation>
+    </message>
+    <message>
+        <source>Delete &quot;%1&quot;</source>
+        <comment>delete packet comment</comment>
+        <translation>&quot;%1&quot;i sil</translation>
+    </message>
+    <message>
+        <source>Delete packet comments</source>
+        <translation>Paket yorumlarını sil</translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation>
+            <numerusform>%n paket(inden) yorumları sil</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source> before starting a new capture</source>
+        <translation> yeni bir yakalamaya başlamadan önce</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation>Lua eklentilerini yeniden yüklemeden önce</translation>
+    </message>
+    <message>
+        <source>Please wait while Wireshark is initializing…</source>
+        <translation>Wireshark başlatılırken lütfen bekleyin…</translation>
+    </message>
+    <message>
+        <source>There are no TLS Session Keys to save.</source>
+        <translation>Kaydedilecek TLS Oturum Anahtarı yok.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export TLS Session Keys (%Ln key(s))</source>
+        <translation>
+            <numerusform>TLS Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation>TLS Oturum Anahtarları (*.keys *.txt);;Tüm Dosyalar (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation>Filtre mevcut değil. Başka bir %1 deneyin.</translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation>sütun</translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation>öğe</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation>&quot;%1&quot; sütunu zaten var.</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation>&quot;%1&quot; sütunu zaten &quot;%2&quot; olarak var.</translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation>RTP paket araması başarısız oldu</translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation>Arayüz Seçilmedi.</translation>
+    </message>
+    <message>
+        <source> before restarting the capture</source>
+        <translation> yakalamayı yeniden başlatmadan önce</translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation>%1 için Wiki Sayfası</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Wiki&apos;nin bakımı topluluk tarafından sağlanır.&lt;/p&gt;&lt;p&gt;Yüklemek üzere olduğunuz sayfa harika, eksik, yanlış veya hiç yok olabilir.&lt;/p&gt;&lt;p&gt;Wiki&apos;ye geçilsin mi?&lt;/P&gt;</translation>
+    </message>
+    <message>
+        <source>Loading</source>
+        <translation>Yükleniyor</translation>
+    </message>
+    <message>
+        <source>Reloading</source>
+        <translation>Yeniden yükleniyor</translation>
+    </message>
+    <message>
+        <source>Rescanning</source>
+        <translation>Yeniden tarama</translation>
     </message>
 </context>
 <context>

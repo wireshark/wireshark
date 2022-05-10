@@ -570,11 +570,7 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
                 '-Y', 'http',
             ] + extraArgs)
         self.assertEqual(self.countOutput('HTTP'), 5)
-        # TODO PDU /1 (segments in frames 1, 2, 4) should be reassembled in
-        # frame 4, but it is currently done in frame 6 because the current
-        # implementation reassembles only contiguous segments and PDU /2 has
-        # segments in frames 6, 3, 7.
-        self.assertTrue(self.grepOutput(r'^\s*6\s.*PUT /1 HTTP/1.1'))
+        self.assertTrue(self.grepOutput(r'^\s*4\s.*PUT /1 HTTP/1.1'))
         self.assertTrue(self.grepOutput(r'^\s*7\s.*GET /2 HTTP/1.1'))
         self.assertTrue(self.grepOutput(r'^\s*10\s.*PUT /3 HTTP/1.1'))
         self.assertTrue(self.grepOutput(r'^\s*11\s.*PUT /4 HTTP/1.1'))
@@ -596,8 +592,8 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
                 '-Y', 'http',
                 '-2',
             ))
-        self.assertEqual(self.countOutput('HTTP'), 3)
-        self.assertTrue(self.grepOutput(r'^\s*7\s.*PUT /1 HTTP/1.1'))
+        self.assertEqual(self.countOutput('HTTP'), 4)
+        self.assertTrue(self.grepOutput(r'^\s*4\s.*PUT /1 HTTP/1.1'))
         self.assertTrue(self.grepOutput(r'^\s*7\s.*GET /2 HTTP/1.1'))
         # TODO ideally this should not be concatenated.
         # Normally a multi-segment PDU (MSP) covers only a single PDU, but OoO

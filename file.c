@@ -1685,7 +1685,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
     if (dfcode != NULL) {
         dfilter_log_full(LOG_DOMAIN_DFILTER, LOG_LEVEL_DEBUG, NULL, -1, NULL,
-                        dfcode, "Rescanning packets with display filter:");
+                        dfcode, "Rescanning packets with display filter");
     }
 
     /* Get the union of the flags for all tap listeners. */

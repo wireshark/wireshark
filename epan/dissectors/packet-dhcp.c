@@ -7288,6 +7288,7 @@ static void dhcp_stat_init(stat_tap_table_ui* new_stat)
 	table = stat_tap_init_table(table_name, num_fields, 0, NULL);
 	stat_tap_add_table(new_stat, table);
 
+	memset(items, 0x0, sizeof(items));
 	/* Add a row for each value type */
 	while (opt53_text[i].strptr)
 	{
@@ -10183,7 +10184,7 @@ proto_register_dhcp(void)
 	};
 
 	static stat_tap_table_ui dhcp_stat_table = {
-		REGISTER_STAT_GROUP_UNSORTED,
+		REGISTER_PACKET_STAT_GROUP_UNSORTED,
 		"DHCP (BOOTP) Statistics",
 		"dhcp",
 		"dhcp,stat",

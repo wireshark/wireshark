@@ -1,5 +1,5 @@
 /* packet-nas_5gs.c
- * Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
+ * Routines for Non-Access-Stratum (NAS) protocol for 5G System (5GS) dissection
  *
  * Copyright 2018-2020, Anders Broman <anders.broman@ericsson.com>
  *
@@ -6379,7 +6379,7 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* A-    UE radio capability ID deletion indication    UE radio capability ID deletion indication 9.11.3.69    O    TV    1 */
     ELEM_OPT_TV_SHORT(0xA0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID_DEL_IND, NULL);
     /* 44    5GS registration result    5GS registration result 9.11.3.6    O    TLV    3 */
-    ELEM_OPT_TLV(0x1B, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_RES, NULL);
+    ELEM_OPT_TLV(0x44, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_RES, NULL);
     /* 1B    Truncated 5G-S-TMSI configuration    Truncated 5G-S-TMSI configuration 9.11.3.70    O    TLV    3 */
     ELEM_OPT_TLV(0x1B, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_TRUNCATED_5G_S_TMSI_CONF, NULL);
     /* C-    Additional configuration indication    Additional configuration indication 9.11.3.74    O    TV    1 */
@@ -8957,6 +8957,39 @@ dissect_nas_5gs_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_nas_5gs_tcp_len,
                      dissect_nas_5gs_tcp_pdu, data);
     return tvb_reported_length(tvb);
+}
+
+/* Heuristic dissector looks for "nas-5gs" string at packet start */
+static gboolean dissect_nas_5gs_heur(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree, void *data _U_)
+{
+    gint offset = 0;
+    tvbuff_t *nas_tvb;
+
+    /* Needs to be at least as long as:
+       - the signature string
+       - at least one byte of NAS PDU payload */
+    if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(PFNAME)+1)) {
+        return FALSE;
+    }
+
+    /* OK, compare with signature string */
+    if (tvb_strneql(tvb, offset, PFNAME, strlen(PFNAME)) != 0) {
+        return FALSE;
+    }
+    offset += (gint)strlen(PFNAME);
+
+    /* Clear protocol name */
+    col_clear(pinfo->cinfo, COL_PROTOCOL);
+
+    /* Clear info column */
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    /* Create tvb that starts at actual NAS PDU */
+    nas_tvb = tvb_new_subset_remaining(tvb, offset);
+    dissect_nas_5gs(nas_tvb, pinfo, tree, NULL);
+
+    return TRUE;
 }
 
 void
@@ -11690,6 +11723,7 @@ proto_reg_handoff_nas_5gs(void)
     static gint initialized = FALSE;
 
     if (!initialized) {
+        heur_dissector_add("udp", dissect_nas_5gs_heur, "NAS-5GS over UDP", "nas_5gs_udp", proto_nas_5gs, HEURISTIC_DISABLE);
         eap_handle = find_dissector("eap");
         nas_eps_handle = find_dissector("nas-eps");
         nas_eps_plain_handle = find_dissector("nas-eps_plain");

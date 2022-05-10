@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2022-04-02)
+# (last updated 2022-05-07)
 
 0	Reserved
 1	NxNetworks
@@ -3446,7 +3446,7 @@
 3442	Advantech Inc.
 3443	United Healthcare
 3444	egnite GmbH
-3445	Radiant Communications Corp.
+3445	Radiant communications Corp.
 3446	Ridge Technologies Dave
 3447	JGI, Inc.
 3448	Rivkin Science & Technology, Inc.
@@ -6803,7 +6803,7 @@
 6818	Tripwire, Inc.
 6819	Musicfans, Inc.
 6820	Menta Software
-6821	IMT Lille Douai	# formerly TELECOM Lille
+6821	IMT Nord Europe
 6822	University of Cambridge, Card Office
 6823	Distributed Object Technologies, Inc.
 6824	List & Niemann
@@ -12560,7 +12560,7 @@
 12691	Terilogy Co., Ltd.
 12692	Think4You IT Services GmbH
 12693	Ti.KOM Tirol Kommunikation
-12694	UNIVERSITÉ DE MARNE-LA-VALLÉE
+12694	UNIVERSITE PARIS-EST MARNE-LA-VALLEE
 12695	VS Vision Systems
 12696	Xavier College
 12697	YoungHome.Com, Inc
@@ -23758,7 +23758,7 @@
 23913	Belle Bonfils Memorial Blood Center
 23914	pedro armelim unipessoal lda.
 23915	SuperGeo Tech. Inc.
-23916	Appear TV AS
+23916	Appear AS
 23917	Under Dusken
 23918	JPBerlin
 23919	Corporación Tedexis C.A.
@@ -35602,7 +35602,7 @@
 35771	Hightech Payment Systems
 35772	n@work Internet Informationssysteme GmbH
 35773	Arcturus Networks Inc.
-35774	Universal Electric Corporation
+35774	Starline Holdings
 35775	Rachitskiy Research and Development LLC
 35776	BlueNote Communications SA
 35777	Unique Solutions SA
@@ -42424,7 +42424,7 @@
 42602	Performr B.V.
 42603	Vorston
 42604	Springfield Technical Community College
-42605	PLC International Inc
+42605	PLC Power LLC
 42606	Urban-Software.de
 42607	Brekford International
 42608	Alan Seedhouse
@@ -42975,7 +42975,7 @@
 43153	Gerriko S-E-T Technology Solutions Ltd.
 43154	NexLabs Pte Ltd
 43155	ION Trading Srl
-43156	WEY Elektronik AG
+43156	WEY Group AG
 43157	Tatung Technology Inc.
 43158	Skytech.lt
 43159	Hartley Consultants Limited
@@ -49195,7 +49195,7 @@
 49377	556075-2825
 49378	People Come First Informatikai Szakertok Egyesulete
 49379	RGB Spectrum
-49380	The Fastest Dog, Inc.
+49380	Fastest Dog Services, Inc.
 49381	University of Wollongong
 49382	SAIC
 49383	Riverscape Software
@@ -56585,7 +56585,7 @@
 56789	Hengyang Rich Power Co.,Ltd
 56790	Bradley-Bourbonnais Community High School
 56791	RES PUBLICA Consulting Group
-56792	ONE O ONE DOT SYSTEMS
+56792	101 Systems
 56793	Ferdinand Kittinger GmbH
 56794	Research Data and Communication Technologies
 56795	cre.ative IT
@@ -57022,7 +57022,7 @@
 57226	Bentley University
 57227	Peoples Bancorp
 57228	Wojskowa Akademia Techniczna im. Jarosława Dąbrowskiego
-57229	GreenPole Power Solutions
+57229	GreenPole Power Solutions India Private Limited
 57230	Baran Elektronik Sistemleri San.Tic.Ltd.Şti
 57231	amazingcat LLC
 57232	GDIT
@@ -58205,7 +58205,7 @@
 58412	Ringtail Security
 58413	ip-studio
 58414	ioTec Solutions
-58415	Candy Horses LLC
+58415	JSC YIT Saint-Petersburg
 58416	Paragon Application Systems, Inc.
 58417	NAWC-WD
 58418	Addon Networks
@@ -58474,9 +58474,166 @@
 58681	Integrale IT
 58682	Fisher Titus Medical Center
 58683	LACO Technologies Inc.
-58684	Neurozen Co.
+58684	Neurozen Inc.
 58685	Refulgent
 58686	PPL Electric Utilities
 58687	PPL Electric Utilities
 58688	Österreichisches Rotes Kreuz Landesverband Salzburg
 58689	IT-Reset
+58690	MONDO POWER PTY LTD
+58691	b-plus GmbH
+58692	ABYSS s.r.o.
+58693	Stiegelmeyer GmbH & Co. KG
+58694	Synthetic Sistemas Ltda
+58695	Ultimate Visual Solutions Limited
+58696	David Timber's Private Infrastructures
+58697	共同カイテック株式会社 (Kyodo Kaitech Co., Ltd.)
+58698	Bogon Flux Metrology
+58699	Security101
+58700	Institute for Social Policy & Research Development Pvt. Ltd
+58701	floLIVE
+58702	NOUVEAL
+58703	Peter Palfi
+58704	Hill
+58705	PQD
+58706	DiCon Fiberoptics, Inc.
+58707	Hangzhou Eagle Cloud Security Technology Inc
+58708	Relaycorp, Inc.
+58709	ESSILORLUXOTTICA
+58710	IgniSign
+58711	Candy Horses LLC
+58712	Martin Winter
+58713	SANEF
+58714	NC Systems GmbH
+58715	Nebraska Legislature
+58716	Kooima Company
+58717	ActiveDirectoryKC.NET
+58718	Boariu Technology SRL
+58719	Stadtwerke Haldensleben GmbH
+58720	Orthopedic and Sports Medicine Specialist of Green Bay, SC
+58721	it-economics GmbH
+58722	Maximilian Kapra
+58723	TrusAuth Inc
+58724	Monban Project
+58726	CIS
+58727	Traverse Technologies Australia Pty Ltd
+58728	Mellon
+58729	Pangealand SL
+58730	XH Smart Tech
+58731	RABHU PROJECTS
+58732	BASS GmbH
+58733	Hunan GCE Technology Co.,Ltd
+58734	Wireless-CAT LLC
+58735	DIEFFENBACHER GMBH Maschinen- und Anlagenbau
+58736	Seplat Energy
+58737	Greenfire Resources Operating Corporation
+58738	haoyufumaoyi
+58739	BHL Building Health Lab UG
+58740	Softwerke Magdeburg e.V.
+58741	The General Authority for State Registration of Mongolia
+58742	ETHIAS
+58743	SIA "TELESTRIDER"
+58744	zerotrustlab
+58745	VASSILI LEONOV LML
+58746	AMC Engineers
+58747	Stricker Dienstleistungs GmbH
+58748	SwarmFarm Robotics Pty Ltd
+58749	贵州还破云科技有限公司 (Guizhou Huanpoyun Technology Co., Ltd.)
+58750	Haproxy Technologies, LLC
+58751	TallPine Technologies, Inc.
+58752	KCF Technologies, Inc.
+58753	CERTISURE CERTIFICATION
+58754	Communications & Power Industries, LLC
+58755	Hut 8
+58756	Civil Aviation Authority of New Zealand
+58757	Capx Nederland B.V.
+58758	Tecalis Software S.L.
+58759	nodusTech
+58760	nodusGroup, Inc.
+58761	TAIWAN MOBILE CO., LTD.
+58762	Tech for the People Inc
+58763	Beijing Tianchuang KaiRui science and Technology Co., LTD
+58764	Jim Goodall
+58765	Nanometrics
+58766	Advisicon, Inc.
+58767	Aguas da Regiao de Maputo, SA
+58768	Affiliated Podiatrists of South Jersey, Ltd.
+58769	Votez Cthulhu
+58770	kplola
+58771	Widenorth AS
+58772	OpenFIPS201
+58773	IONOTRONICS Corporation
+58774	GMTO Corp
+58775	Shengzhen Enatel Electronics Co.,Ltd
+58776	Lomax A/S
+58777	PzBrig 12
+58778	One D. Piece
+58779	BofA TI
+58780	Magenta Living
+58781	DMESG Solucoes em TI
+58782	Minglink Technology(Shenzhen) Co.,Ltd
+58783	JSC Nefteavtomatika
+58784	Arjun
+58785	Billon Digital Services sp. z o.o.
+58786	Marine Biological Laboratory
+58787	Amulet Hotkey
+58788	LUMEO RHIS
+58789	MMRMSolutions
+58790	LifeScape
+58791	Drehertec Soluções Eletronicas LTDA ME
+58792	MedCrypt, Inc.
+58793	IDEC Technical Services Ltd.
+58794	CNIT
+58795	Beijing SmartAll Technology Co., Ltd.
+58796	Beijing  WoLink Information Technology Co., LTD
+58797	MetaTransform AB
+58798	Anton Häring KG
+58799	Diakonie Michaelshoven e.V.
+58800	Solutions 4 Media d.o.o.
+58801	KAO USA Inc.
+58802	IT Consulting Walonka
+58803	Foot and Ankle Center Of SJ
+58804	Cimetrix
+58805	Saipher ATC
+58806	Servus Credit Union Ltd.
+58807	Allied Associates International, Inc
+58808	Jungmann Systemtechnik GmbH & Co. KG
+58809	Quectel Wireless Solutions Co., Ltd.
+58810	EIR
+58811	Glacier Pediatrics, LLC
+58812	Nexustorage
+58813	Crisaleo Limited
+58814	Free SENEGAL
+58815	Tehnika Pty Ltd
+58816	EZ-NET Ubiquitous Co.,Ltd
+58817	CertCloud Pte. Ltd.
+58818	ITPRO
+58819	Panabit Software Co.,LTD.
+58820	Stadtwerke SH GmbH & Co. KG
+58821	Crea Inc
+58822	Suzhou Huaqi Intelligent Technology Co. LTD
+58823	深圳联合测试 (Shenzhen Joint Test)
+58824	Versity Tech
+58825	analiti LLC
+58826	Diamondback Energy
+58827	Securenetology
+58828	Rotex 1820
+58829	D1GITAL.ORG PROSTA SPÓŁKA AKCYJNA
+58830	Computer Research Association, Southern University of Science and Technology
+58831	Nozomi Networks
+58832	Assmann Electronic GmbH
+58833	Elemy LLC
+58834	Kiel.social
+58835	Mariner
+58836	TG Systems
+58837	MRM Health NV
+58838	China Greatwall Technology Group Co., Ltd.
+58839	MicroNOC Inc.
+58840	California Department of Transportation
+58841	Financial Statement Services Inc
+58842	NORTH CANTON PODIATRY INC
+58843	Digital Research Alliance of Canada
+58844	Alpha ESS Co., Ltd.
+58845	Heldele GmbH
+58846	Advertising Specialty Institute
+58847	Energys

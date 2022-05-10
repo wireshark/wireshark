@@ -290,6 +290,15 @@ ftype_can_is_zero(enum ftenum ftype)
 	return ft->is_zero ? TRUE : FALSE;
 }
 
+gboolean
+ftype_can_is_negative(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->is_negative ? TRUE : FALSE;
+}
+
 /* ---------------------------------------------------------- */
 
 /* Allocate and initialize an fvalue_t, given an ftype */
@@ -372,14 +381,7 @@ fvalue_from_literal(ftenum_t ftype, const char *s, gboolean allow_partial_value,
 
 	fv = fvalue_new(ftype);
 	if (fv->ftype->val_from_literal) {
-		if (*s == ':') {
-			ok = fv->ftype->val_from_literal(fv, s + 1, allow_partial_value, err_msg);
-			/* If not ok maybe leading colon is not special syntax but part of the value (e.g: IPv6),
-			 * try again in that case. */
-		}
-		if (!ok) {
-			ok = fv->ftype->val_from_literal(fv, s, allow_partial_value, err_msg);
-		}
+		ok = fv->ftype->val_from_literal(fv, s, allow_partial_value, err_msg);
 		if (ok) {
 			/* Success */
 			if (err_msg != NULL)
@@ -849,6 +851,12 @@ gboolean
 fvalue_is_zero(const fvalue_t *a)
 {
 	return a->ftype->is_zero(a);
+}
+
+gboolean
+fvalue_is_negative(const fvalue_t *a)
+{
+	return a->ftype->is_negative(a);
 }
 
 static fvalue_t *

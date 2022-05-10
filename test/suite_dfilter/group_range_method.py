@@ -37,12 +37,40 @@ class case_range(unittest.TestCase):
 
     def test_slice_string_1(self, checkDFilterFail):
         dfilter = "frame == \"00\"[1]"
-        checkDFilterFail(dfilter, "Range is not supported for entity \"00\"")
+        checkDFilterFail(dfilter, "Range is not supported for entity")
 
     def test_slice_unparsed_1(self, checkDFilterFail):
         dfilter = "frame == b[1]"
-        checkDFilterFail(dfilter, "Range is not supported for entity \"b\"")
+        checkDFilterFail(dfilter, "Range is not supported for entity")
 
     def test_slice_func_1(self, checkDFilterSucceed):
         dfilter = "string(ipx.src.node)[3:2] == \"cc:dd\""
+        checkDFilterSucceed(dfilter)
+
+    # [i:j]    i = start_offset, j = length
+    # [i-j]    i = start_offset, j = end_offset, inclusive.
+    # [i]      i = start_offset, length = 1
+    # [:j]     start_offset = 0, length = j
+    # [i:]     start_offset = i, end_offset = end_of_field
+
+    def test_slice_range_1(self, checkDFilterSucceed):
+        # :5 is a length
+        dfilter = "frame[5:5] == 11:22:33:44:55"
+        checkDFilterSucceed(dfilter)
+
+    def test_slice_range_2(self, checkDFilterSucceed):
+        # end offset is inclusive
+        dfilter = "frame[5-10] == 11:22:33:44:55:66"
+        checkDFilterSucceed(dfilter)
+
+    def test_slice_range_3(self, checkDFilterSucceed):
+        dfilter = "frame[5] == 11"
+        checkDFilterSucceed(dfilter)
+
+    def test_slice_range_4(self, checkDFilterSucceed):
+        dfilter = "frame[:20] contains be:ef"
+        checkDFilterSucceed(dfilter)
+
+    def test_slice_range_5(self, checkDFilterSucceed):
+        dfilter = "frame[20:] contains :12345678"
         checkDFilterSucceed(dfilter)

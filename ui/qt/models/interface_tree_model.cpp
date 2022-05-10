@@ -227,8 +227,13 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
         {
             if (col == IFTREE_COL_STATS)
             {
-                if (points.contains(device->name))
+                if ((active.contains(device->name) && active[device->name]) && points.contains(device->name))
                     return QVariant::fromValue(points[device->name]);
+            }
+            else if (col == IFTREE_COL_ACTIVE)
+            {
+                if (active.contains(device->name))
+                    return QVariant::fromValue(active[device->name]);
             }
             else if (col == IFTREE_COL_HIDDEN)
             {
@@ -354,6 +359,7 @@ void InterfaceTreeModel::interfaceListChanged()
     emit beginResetModel();
 
     points.clear();
+    active.clear();
 
     emit endResetModel();
 }
@@ -439,9 +445,13 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
 
     struct pcap_stat stats;
     unsigned diff = 0;
+    bool isActive = false;
 
     if (capture_stats(stat_cache_, device->name, &stats))
     {
+        if ( (int) stats.ps_recv > 0 )
+            isActive = true;
+
         if ((int)(stats.ps_recv - device->last_packets) >= 0)
         {
             diff = stats.ps_recv - device->last_packets;
@@ -451,24 +461,18 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
     }
 
     points[device->name].append(diff);
+
+    if (active[device->name] != isActive)
+    {
+        emit beginResetModel();
+        active[device->name] = isActive;
+        emit endResetModel();
+    }
+
     emit dataChanged(index(idx, IFTREE_COL_STATS), index(idx, IFTREE_COL_STATS));
+
 #else
     Q_UNUSED(idx)
-#endif
-}
-
-void InterfaceTreeModel::getPoints(int idx, PointList *pts)
-{
-#ifdef HAVE_LIBPCAP
-    if (! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx)
-        return;
-
-    interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
-    if (points.contains(device->name))
-        pts->append(points[device->name]);
-#else
-    Q_UNUSED(idx)
-    Q_UNUSED(pts)
 #endif
 }
 

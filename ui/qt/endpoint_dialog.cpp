@@ -12,6 +12,7 @@
 #include <epan/maxmind_db.h>
 
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 #include "ui/recent.h"
 #include "ui/traffic_table_ui.h"
@@ -434,11 +435,25 @@ public:
         hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
         hostlist_talker_t *other_item = &g_array_index(other_row->conv_array_, hostlist_talker_t, other_row->conv_idx_);
 
+        bool resolve_names = false;
+        if (resolve_names_ptr_ && *resolve_names_ptr_) resolve_names = true;
+
         int sort_col = treeWidget()->sortColumn();
 
         switch(sort_col) {
         case ENDP_COLUMN_ADDR:
-            return cmp_address(&endp_item->myaddress, &other_item->myaddress) < 0 ? true : false;
+            if (resolve_names) {
+                char* addr_str = address_to_display(NULL, &endp_item->myaddress);
+                char* otheraddr_str = address_to_display(NULL, &other_item->myaddress);
+                bool ret;
+
+                ret = g_ascii_strcasecmp(addr_str, otheraddr_str) < 0 ? true : false;
+                wmem_free(NULL, otheraddr_str);
+                wmem_free(NULL, addr_str);
+                return ret;
+	    } else {
+                return cmp_address(&endp_item->myaddress, &other_item->myaddress) < 0 ? true : false;
+            }
         case ENDP_COLUMN_PORT:
             return endp_item->port < other_item->port;
         case ENDP_COLUMN_PACKETS:

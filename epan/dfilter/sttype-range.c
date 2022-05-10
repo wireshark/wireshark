@@ -73,7 +73,7 @@ range_free(gpointer value)
 }
 
 static char *
-range_tostr(const void *data, gboolean pretty)
+slice_tostr(const void *data, gboolean pretty)
 {
 	const range_t *range = data;
 	ws_assert_magic(range, RANGE_MAGIC);
@@ -82,6 +82,23 @@ range_tostr(const void *data, gboolean pretty)
 
 	drange_str = drange_tostr(range->drange);
 	repr = ws_strdup_printf("%s[%s]",
+			stnode_tostr(range->entity, pretty),
+			drange_str);
+	g_free(drange_str);
+
+	return repr;
+}
+
+static char *
+layer_tostr(const void *data, gboolean pretty)
+{
+	const range_t *range = data;
+	ws_assert_magic(range, RANGE_MAGIC);
+
+	char *repr, *drange_str;
+
+	drange_str = drange_tostr(range->drange);
+	repr = ws_strdup_printf("%s#[%s]",
 			stnode_tostr(range->entity, pretty),
 			drange_str);
 	g_free(drange_str);
@@ -100,6 +117,18 @@ sttype_range_remove_drange(stnode_t *node)
 	range->drange = NULL;
 }
 
+drange_t *
+sttype_range_drange_steal(stnode_t *node)
+{
+	range_t		*range;
+	drange_t	*dr;
+
+	range = stnode_data(node);
+	ws_assert_magic(range, RANGE_MAGIC);
+	dr = range->drange;
+	range->drange = NULL;
+	return dr;
+}
 
 /* Set a range */
 void
@@ -121,6 +150,17 @@ sttype_range_set1(stnode_t *node, stnode_t *entity, drange_node *rn)
 	sttype_range_set(node, entity, g_slist_append(NULL, rn));
 }
 
+char *
+sttype_range_set_number(stnode_t *node, stnode_t *entity, const char *number_str)
+{
+	char *err_msg = NULL;
+	drange_node *rn = drange_node_from_str(number_str, &err_msg);
+	if (err_msg != NULL)
+		return err_msg;
+	sttype_range_set1(node, entity, rn);
+	return NULL;
+}
+
 stnode_t *
 sttype_range_entity(stnode_t *node)
 {
@@ -140,16 +180,25 @@ sttype_range_drange(stnode_t *node)
 void
 sttype_register_range(void)
 {
-	static sttype_t range_type = {
-		STTYPE_RANGE,
-		"RANGE",
+	static sttype_t slice_type = {
+		STTYPE_SLICE,
+		"SLICE",
 		range_new,
 		range_free,
 		range_dup,
-		range_tostr
+		slice_tostr
+	};
+	static sttype_t layer_type = {
+		STTYPE_LAYER,
+		"LAYER",
+		range_new,
+		range_free,
+		range_dup,
+		layer_tostr
 	};
 
-	sttype_register(&range_type);
+	sttype_register(&slice_type);
+	sttype_register(&layer_type);
 }
 
 /*

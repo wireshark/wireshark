@@ -2,7 +2,8 @@
  * SMC dissector for wireshark
  * By Joe Fowler <fowlerja@us.ibm.com>
  * By Guvenc Gulce <guvenc@linux.ibm.com>
- * (c) Copyright IBM Corporation 2014,2020
+ * By Karsten Graul <kgraul@linux.ibm.com>
+ * (c) Copyright IBM Corporation 2014,2022
  * LICENSE: GNU General Public License, version 2, or (at your option) any
  * version. http://opensource.org/licenses/gpl-2.0.php
  *
@@ -65,6 +66,9 @@
 #define SMCD_CLC_ID 0xe2d4c3c4 /*EBCDIC 'SMCD' */
 #define SMC_CLC_V1    0x10
 #define SMC_CLC_SMC_R 0x01
+#define SMC_MAX_QP_NUM		6
+#define SMCD_MAX_BUFSIZE_NUM	6
+#define SMCR_MAX_BUFSIZE_NUM	5
 
 #define LLC_FLAG_RESP 0x80
 #define RMBE_CTRL 0xfe
@@ -91,11 +95,22 @@ typedef enum {
 	SMC_CLC_OS_UNKOWN = 15,
 } clc_os_message;
 
+typedef enum {
+	SMC_CLC_LG_INDIRECT = 0,
+	SMC_CLC_LG_DIRECT = 1,
+} clc_v2_lg_message;
+
 static const value_string smc_clc_os_message_txt[] = {
 	{ SMC_CLC_OS_ZOS,      "z/OS" },
 	{ SMC_CLC_OS_LINUX,    "Linux" },
 	{ SMC_CLC_OS_AIX,      "AIX" },
 	{ SMC_CLC_OS_UNKOWN,   "Unknown" },
+	{ 0, NULL }
+};
+
+static const value_string smc_clc_v2_lg_message_txt[] = {
+	{ SMC_CLC_LG_INDIRECT,      "V2_INDIRECT" },
+	{ SMC_CLC_LG_DIRECT,        "V2_DIRECT" },
 	{ 0, NULL }
 };
 
@@ -109,19 +124,19 @@ static const value_string smc_clc_type_message_txt[] = {
 
 
 static const value_string smcv2_clc_col_info_message_txt[] = {
-	{ SMC_CLC_SMCR,     "[SMC-R-Proposal]" },
+	{ SMC_CLC_SMCR,     "[SMC-Rv2-Proposal]" },
 	{ SMC_CLC_SMCD,     "[SMC-Dv2-Proposal]"   },
 	{ SMC_CLC_NONE,     "[NONE]"  },
-	{ SMC_CLC_BOTH,     "[SMC-Dv2/SMC-R-Proposal]"  },
+	{ SMC_CLC_BOTH,     "[SMC-Dv2/SMC-Rv2-Proposal]"  },
 	{ 0, NULL }
 };
 
 static const value_string smc_clc_col_info_message_txt[] = {
-        { SMC_CLC_SMCR,     "[SMC-R-Proposal]" },
-        { SMC_CLC_SMCD,     "[SMC-D-Proposal]"   },
-        { SMC_CLC_NONE,     "[NONE]"  },
-        { SMC_CLC_BOTH,     "[SMC-D/SMC-R-Proposal]"  },
-        { 0, NULL }
+	{ SMC_CLC_SMCR,     "[SMC-R-Proposal]" },
+	{ SMC_CLC_SMCD,     "[SMC-D-Proposal]"   },
+	{ SMC_CLC_NONE,     "[NONE]"  },
+	{ SMC_CLC_BOTH,     "[SMC-D/SMC-R-Proposal]"  },
+	{ 0, NULL }
 };
 
 static const value_string smcr_clc_message_txt[] = {
@@ -141,6 +156,15 @@ typedef enum {
 	LLC_CONFIRM_RKEY_CONT           = 0x08,
 	LLC_DELETE_RKEY                 = 0x09,
 	LLC_TEST_LINK                   = 0x07,
+	/* SMC-Rv2 LLC message types */
+	LLC_CONFIRM_LINK_V2             = 0x21,
+	LLC_ADD_LINK_V2                 = 0x22,
+	LLC_DEL_LINK_V2                 = 0x24,
+	LLC_REQUEST_ADD_LINK_V2         = 0x25,
+	LLC_CONFIRM_RKEY_V2             = 0x26,
+	LLC_TEST_LINK_V2                = 0x27,
+	LLC_DELETE_RKEY_V2              = 0x29,
+	/* Common message types */
 	LLC_OPT_MSG_CTRL                = 0x80,
 	LLC_NWM_DATA                    = 0x8A,
 	LLC_RMBE_CTRL                   = 0xFE
@@ -155,6 +179,15 @@ static const value_string smcr_llc_message_txt[] = {
 	{ LLC_CONFIRM_RKEY_CONT,       "Confirm Rkey Continuous"   },
 	{ LLC_DELETE_RKEY,             "Delete Rkey"  },
 	{ LLC_TEST_LINK,               "Test Link"  },
+	/* SMC-Rv2 LLC message types */
+	{ LLC_CONFIRM_LINK_V2,         "Confirm Link (v2)" },
+	{ LLC_ADD_LINK_V2,             "Add Link (v2)" },
+	{ LLC_DEL_LINK_V2,             "Delete Link (v2)" },
+	{ LLC_REQUEST_ADD_LINK_V2,     "Request Add Link (v2)" },
+	{ LLC_CONFIRM_RKEY_V2,         "Confirm Rkey (v2)" },
+	{ LLC_TEST_LINK_V2,            "Test Link (v2)" },
+	{ LLC_DELETE_RKEY_V2,          "Delete Rkey (v2)" },
+	/* Common message types */
 	{ LLC_OPT_MSG_CTRL,            "OPT Message Control"   },
 	{ LLC_NWM_DATA,                "NWM Data"  },
 	{ RMBE_CTRL,                   "CDC Message"  },
@@ -178,16 +211,22 @@ static int hf_smc_length = -1;
 static int hf_smc_proposal_smc_chid = -1;
 static int hf_smc_proposal_flags = -1;
 static int hf_smc_proposal_eid = -1;
+static int hf_smc_proposal_eid_count = -1;
 static int hf_smc_proposal_system_eid = -1;
 static int hf_smc_proposal_ext_flags = -1;
 static int hf_smc_proposal_client_peer_id = -1;
+static int hf_smc_proposal_ism_gid_count = -1;
 static int hf_smc_proposal_ism_gid = -1;
 static int hf_smc_proposal_client_preferred_gid = -1;
 static int hf_smc_proposal_client_preferred_mac = -1;
+static int hf_smc_proposal_smcv1_subnet_ext_offset = -1;
+static int hf_smc_proposal_smcv2_ext_offset = -1;
 static int hf_smc_proposal_outgoing_interface_subnet_mask = -1;
+static int hf_smc_proposal_smcdv2_ext_offset = -1;
 static int hf_smc_proposal_rocev2_gid_ipv4_addr = -1;
 static int hf_smc_proposal_rocev2_gid_ipv6_addr = -1;
 static int hf_smc_proposal_outgoing_subnet_mask_signifcant_bits = -1;
+static int hf_smc_proposal_ipv6_prefix_count = -1;
 static int hf_smc_proposal_ipv6_prefix = -1;
 static int hf_smc_proposal_ipv6_prefix_length = -1;
 
@@ -196,12 +235,15 @@ static int hf_smc_reserved = -1;
 /* SMC-R Accept */
 static int ett_accept_flag = -1;
 static int ett_accept_flag2 = -1;
+static int ett_smcr_accept_fce_flag1 = -1;
+static int hf_accept_v2_lg_type = -1;
 static int hf_accept_smc_version = -1;
 static int hf_accept_first_contact = -1;
 static int hf_accept_rmb_buffer_size = -1;
 static int hf_accept_qp_mtu_value = -1;
 static int hf_smcr_accept_flags = -1;
 static int hf_smcr_accept_flags2 = -1;
+static int hf_smcr_accept_fce_flags = -1;
 static int hf_smcr_accept_server_peer_id = -1;
 static int hf_smcr_accept_server_preferred_gid = -1;
 static int hf_smcr_accept_server_preferred_mac = -1;
@@ -233,7 +275,7 @@ static int hf_confirm_qp_mtu_value = -1;
 /* SMC-D Accept */
 static int hf_accept_smc_type = -1;
 static int ett_smcd_accept_flag = -1;
-static int ett_smcd_accept_fce_flag = -1;
+static int ett_smc_accept_fce_flag = -1;
 static int ett_smcd_accept_flag2 = -1;
 static int hf_smcd_accept_smc_version = -1;
 static int hf_accept_os_type = -1;
@@ -241,26 +283,26 @@ static int hf_accept_smc_version_release_number = -1;
 static int hf_smcd_accept_first_contact = -1;
 static int hf_accept_dmb_buffer_size = -1;
 static int hf_smcd_accept_flags = -1;
-static int hf_smcd_accept_fce_flags = -1;
+static int hf_smc_accept_fce_flags = -1;
 static int hf_smcd_accept_flags2 = -1;
 static int hf_smcd_accept_server_peer_id = -1;
 static int hf_smcd_accept_dmbe_conn_index = -1;
 static int hf_smcd_accept_dmb_token = -1;
 static int hf_smcd_accept_server_link_id = -1;
 static int hf_smcd_accept_smc_chid = -1;
-static int hf_smcd_accept_eid = -1;
-static int hf_smcd_accept_peer_name = -1;
+static int hf_smc_accept_eid = -1;
+static int hf_smc_accept_peer_name = -1;
 
 /* SMC-D Confirm */
 static int hf_confirm_smc_type = -1;
 static int ett_smcd_confirm_flag = -1;
-static int ett_smcd_confirm_fce_flag = -1;
+static int ett_smc_confirm_fce_flag = -1;
 static int ett_smcd_confirm_flag2 = -1;
 static int hf_smcd_confirm_smc_version = -1;
 static int hf_confirm_os_type = -1;
 static int hf_smcd_confirm_flags = -1;
 static int hf_smcd_confirm_flags2 = -1;
-static int hf_smcd_confirm_first_contact = -1;
+static int hf_smc_confirm_first_contact = -1;
 static int hf_smcd_confirm_client_peer_id = -1;
 static int hf_smcd_confirm_dmb_token = -1;
 static int hf_smcd_confirm_dmbe_conn_index = -1;
@@ -268,8 +310,10 @@ static int hf_smcd_confirm_client_link_id = -1;
 static int hf_confirm_smc_version_release_number = -1;
 static int hf_smcd_confirm_dmb_buffer_size = -1;
 static int hf_smcd_confirm_smc_chid = -1;
-static int hf_smcd_confirm_eid = -1;
-static int hf_smcd_confirm_peer_name = -1;
+static int hf_smc_confirm_eid = -1;
+static int hf_smc_confirm_peer_name = -1;
+static int hf_smc_confirm_gid_lst_len = -1;
+static int hf_smc_confirm_gid_list_entry = -1;
 
 /* SMC-R Decline */
 static int ett_decline_flag = -1;
@@ -296,9 +340,11 @@ static int hf_smcr_confirm_link_response = -1;
 /* SMC-R Add Link */
 static int ett_add_link_flag = -1;
 static int ett_add_link_flag2 = -1;
+static int ett_add_link_flag3 = -1;
 static int hf_smcr_add_link_flags = -1;
 static int hf_smcr_add_link_response = -1;
 static int hf_smcr_add_link_response_rejected = -1;
+static int hf_smcr_add_link_reject_reason = -1;
 static int hf_smcr_add_link_mac = -1;
 static int hf_smcr_add_link_gid = -1;
 static int hf_smcr_add_link_qp_number = -1;
@@ -306,6 +352,13 @@ static int hf_smcr_add_link_number = -1;
 static int hf_smcr_add_link_initial_psn = -1;
 static int hf_smcr_add_link_flags2 = -1;
 static int hf_smcr_add_link_qp_mtu_value = -1;
+static int hf_smcr_add_link_client_target_gid = -1;
+static int hf_smcr_add_link_rkey_count = -1;
+static int hf_smcr_add_link_rkey = -1;
+static int hf_smcr_add_link_rkey2 = -1;
+static int hf_smcr_add_link_virt_addr = -1;
+static int hf_smcr_add_link_flags3 = -1;
+static int hf_smcr_add_link_flag3_direct_link = -1;
 
 /* SMC-R Add Link Continue*/
 static int ett_add_link_cont_flag = -1;
@@ -319,6 +372,15 @@ static int hf_smcr_add_link_cont_p1_virt_addr = -1;
 static int hf_smcr_add_link_cont_p2_rkey = -1;
 static int hf_smcr_add_link_cont_p2_rkey2 = -1;
 static int hf_smcr_add_link_cont_p2_virt_addr = -1;
+
+/* SMC-Rv2 Request Add Link */
+static int ett_request_add_link_flag = -1;
+static int hf_smcr_request_add_link_flags = -1;
+static int hf_smcr_request_add_link_response = -1;
+static int hf_smcr_request_add_link_response_rejected = -1;
+static int hf_smcr_request_add_link_reject_reason = -1;
+static int hf_smc_request_add_link_gid_lst_len = -1;
+static int hf_smc_request_add_link_gid_list_entry = -1;
 
 /* SMC-R Delete Link */
 static int ett_delete_link_flag = -1;
@@ -347,6 +409,8 @@ static int hf_smcr_delete_rkey_response = -1;
 static int hf_smcr_delete_rkey_negative_response = -1;
 static int hf_smcr_delete_rkey_mask = -1;
 static int hf_smcr_delete_rkey_deleted = -1;
+static int hf_smcr_delete_rkey_count = -1;
+static int hf_smcr_delete_rkey_invalid_count = -1;
 
 /* SMC-R Test Link */
 static int ett_test_link_flag = -1;
@@ -378,23 +442,41 @@ void proto_reg_handoff_smcr(void);
 static dissector_handle_t smc_tcp_handle;
 
 static void
+disect_smc_uncompress_size(proto_item* ti, guint size, guint max_valid)
+{
+	if (size <= max_valid) {
+		proto_item_append_text(ti, " (Size: %dk)", 1 << (size + 4)); /* uncompressed size */
+	} else {
+		proto_item_append_text(ti, " (Size: invalid)");
+	}
+}
+
+static void
+disect_smcr_translate_qp_mtu(proto_item* ti, guint qp_num)
+{
+	if (qp_num > 0 && qp_num < SMC_MAX_QP_NUM) {
+		proto_item_append_text(ti, " (MTU: %d)", 1 << (7 + qp_num)); /* translated MTU size (1-5) */
+	} else {
+		proto_item_append_text(ti, " (MTU: invalid)");
+	}
+}
+
+static void
 disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 {
-	guint offset, suboffset;
-	guint16 mask_offset, v2_ext_offset;
+	guint offset;
+	guint16 ip_subnet_ext_offset = 0, v2_ext_offset;
 	guint16 v2_ext_pos = 0, smcd_v2_ext_offset = 0;
 	guint16 smcd_v2_ext_pos = 0;
 	guint8 ipv6_prefix_count, smc_version;
 	guint8 smc_type, num_of_gids = 0, num_of_eids = 0;
 	guint8 smc_type_v1 = 0, smc_type_v2 = 0;
-	bool is_smc_v2, is_smcdv1, is_smcdv2;
+	bool is_smc_v2, is_smcdv1, is_smcdv2 = false, is_smcrv1, is_smcrv2 = false;
 	proto_item *proposal_flag_item;
 	proto_tree *proposal_flag_tree;
 
-
 	offset = CLC_MSG_START_OFFSET;
-	proto_tree_add_item(tree, hf_smc_length, tvb, offset,
-		LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_smc_length, tvb, offset, LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += LENGTH_BYTE_LEN;
 	proposal_flag_item = proto_tree_add_item(tree, hf_smc_proposal_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proposal_flag_tree = proto_item_add_subtree(proposal_flag_item, ett_proposal_flag);
@@ -406,82 +488,108 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 	smc_type_v2 = ((smc_type >> 2) & 0x03);
 	smc_type_v1 = (smc_type & 0x03);
 	is_smcdv1 = ((smc_type_v1 == SMC_CLC_SMCD) || (smc_type_v1 == SMC_CLC_BOTH));
-	is_smcdv2 = ((smc_type_v2 == SMC_CLC_SMCD) || (smc_type_v2 == SMC_CLC_BOTH));
+	is_smcrv1 = ((smc_type_v1 == SMC_CLC_SMCR) || (smc_type_v1 == SMC_CLC_BOTH));
+	if (is_smc_v2) {
+		is_smcdv2 = ((smc_type_v2 == SMC_CLC_SMCD) || (smc_type_v2 == SMC_CLC_BOTH));
+		is_smcrv2 = ((smc_type_v2 == SMC_CLC_SMCR) || (smc_type_v2 == SMC_CLC_BOTH));
+	}
 
-	if (is_smc_v2)
+	if (is_smc_v2) {
 		proto_tree_add_item(proposal_flag_tree, hf_proposal_smc_v2_type, tvb,
-				offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-
+			offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	}
 	proto_tree_add_item(proposal_flag_tree, hf_proposal_smc_type, tvb,
 			offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-
 	offset += FLAG_BYTE_LEN;
-	proto_tree_add_item(tree, hf_smc_proposal_client_peer_id, tvb, offset,
-			    PEERID_LEN, ENC_BIG_ENDIAN);
-	offset += PEERID_LEN;
-	proto_tree_add_item(tree, hf_smc_proposal_client_preferred_gid, tvb,
-			    offset, GID_LEN, ENC_NA);
-	offset += GID_LEN;
-	proto_tree_add_item(tree, hf_smc_proposal_client_preferred_mac, tvb,
-			    offset, MAC_ADDR_LEN, ENC_NA);
-	offset += MAC_ADDR_LEN;
-	mask_offset = tvb_get_ntohs(tvb, offset);
-
-	if (mask_offset != 0) {
-		suboffset = offset;
-		proto_tree_add_item(tree, hf_smc_reserved, tvb,
-					suboffset, TWO_BYTE_RESERVED, ENC_NA);
-		suboffset += TWO_BYTE_RESERVED;
-		if (is_smcdv1 || is_smcdv2) {
-			proto_tree_add_item(tree, hf_smc_proposal_ism_gid, tvb,
-					suboffset, ISM_GID_LEN, ENC_NA);
-		}
-		suboffset += ISM_GID_LEN;
-		if (is_smc_v2) {
-			if (is_smcdv2) {
-				proto_tree_add_item(tree, hf_smc_proposal_smc_chid, tvb, suboffset,
-						LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
-			}
-			suboffset += LENGTH_BYTE_LEN;
-			proto_tree_add_item(tree, hf_smc_reserved, tvb,
-						suboffset, TWO_BYTE_RESERVED, ENC_NA);
-			v2_ext_offset = tvb_get_ntohs(tvb, suboffset);
-			v2_ext_pos = suboffset + TWO_BYTE_RESERVED + v2_ext_offset;
-		}
+	if (is_smcrv1 || is_smcrv2) {
+		proto_tree_add_item(tree, hf_smc_proposal_client_peer_id, tvb, offset,
+			PEERID_LEN, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, PEERID_LEN, ENC_NA);
 	}
-	offset += TWO_BYTE_RESERVED + mask_offset;
+	offset += PEERID_LEN;
+	if (is_smcrv1) {
+		proto_tree_add_item(tree, hf_smc_proposal_client_preferred_gid, tvb,
+			offset, GID_LEN, ENC_NA);
+		offset += GID_LEN;
+		proto_tree_add_item(tree, hf_smc_proposal_client_preferred_mac, tvb,
+			offset, MAC_ADDR_LEN, ENC_NA);
+		offset += MAC_ADDR_LEN;
+	} else {
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, GID_LEN + MAC_ADDR_LEN, ENC_NA);
+		offset += GID_LEN + MAC_ADDR_LEN;
+	}
+	if (is_smcrv1 || is_smcdv1) {
+		ip_subnet_ext_offset = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(tree, hf_smc_proposal_smcv1_subnet_ext_offset, tvb,
+			offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+	} else {
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 2, ENC_NA);
+		offset += 2;
+	}
+	if (is_smcdv1 || is_smcdv2) {
+		proto_tree_add_item(tree, hf_smc_proposal_ism_gid, tvb,
+			offset, ISM_GID_LEN, ENC_NA);
+	}
+	offset += ISM_GID_LEN;
+	if (is_smcdv2) {
+		proto_tree_add_item(tree, hf_smc_proposal_smc_chid, tvb, offset,
+			LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, LENGTH_BYTE_LEN, ENC_NA);
+	}
+	offset += LENGTH_BYTE_LEN;
+	if (is_smc_v2) {
+		v2_ext_offset = tvb_get_ntohs(tvb, offset);
+		v2_ext_pos = offset + 2 + v2_ext_offset;
+		proto_tree_add_item(tree, hf_smc_proposal_smcv2_ext_offset, tvb,
+			offset, 2, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 2, ENC_NA);
+	}
+	offset += 2;
 
-	proto_tree_add_item(tree, hf_smc_proposal_outgoing_interface_subnet_mask, tvb,
-		offset, IPV4_SUBNET_MASK_LEN, ENC_BIG_ENDIAN);
-	offset += IPV4_SUBNET_MASK_LEN;
-	proto_tree_add_item(tree, hf_smc_proposal_outgoing_subnet_mask_signifcant_bits, tvb,
-		offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
-	proto_tree_add_item(tree, hf_smc_reserved, tvb,
-				offset, TWO_BYTE_RESERVED, ENC_NA);
-	offset += TWO_BYTE_RESERVED;
-	ipv6_prefix_count = tvb_get_guint8(tvb, offset);
-	offset += 1;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 28, ENC_NA);
+	offset += 28; /* reserved */
 
-	while (ipv6_prefix_count != 0) {
-		proto_tree_add_item(tree, hf_smc_proposal_ipv6_prefix, tvb,
-			offset, IPV6_PREFIX_LEN, ENC_NA);
-		offset += IPV6_PREFIX_LEN;
-		proto_tree_add_item(tree, hf_smc_proposal_ipv6_prefix_length, tvb,
+	if (ip_subnet_ext_offset) {
+		proto_tree_add_item(tree, hf_smc_proposal_outgoing_interface_subnet_mask, tvb,
+			offset, IPV4_SUBNET_MASK_LEN, ENC_BIG_ENDIAN);
+		offset += IPV4_SUBNET_MASK_LEN;
+		proto_tree_add_item(tree, hf_smc_proposal_outgoing_subnet_mask_signifcant_bits, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		ipv6_prefix_count--;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+		offset += TWO_BYTE_RESERVED; /* reserved */
+		ipv6_prefix_count = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_smc_proposal_ipv6_prefix_count, tvb,
+			offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		while (ipv6_prefix_count != 0) {
+			proto_tree_add_item(tree, hf_smc_proposal_ipv6_prefix, tvb,
+				offset, IPV6_PREFIX_LEN, ENC_NA);
+			offset += IPV6_PREFIX_LEN;
+			proto_tree_add_item(tree, hf_smc_proposal_ipv6_prefix_length, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			ipv6_prefix_count--;
+		}
 	}
 
 	if (v2_ext_pos >= offset) {
 		offset = v2_ext_pos;
 		num_of_eids = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_smc_proposal_eid_count, tvb,
+			offset, 1, ENC_BIG_ENDIAN);
 		offset += FLAG_BYTE_LEN;
 		num_of_gids = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_smc_proposal_ism_gid_count, tvb,
+			offset, 1, ENC_BIG_ENDIAN);
 		offset += FLAG_BYTE_LEN;
-		proto_tree_add_item(tree, hf_smc_reserved, tvb,
-					offset, 1, ENC_NA);
-		offset += 1;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
+		offset += ONE_BYTE_RESERVED; /* reserved */
 		proposal_flag_item = proto_tree_add_item(tree, hf_smc_proposal_ext_flags, tvb,
 							offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 		proposal_flag_tree = proto_item_add_subtree(proposal_flag_item, ett_proposal_ext_flag2);
@@ -490,27 +598,30 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 		proto_tree_add_item(proposal_flag_tree, hf_proposal_smc_version_seid, tvb,
 				offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += FLAG_BYTE_LEN;
-		proto_tree_add_item(tree, hf_smc_reserved, tvb,
-					offset, 2, ENC_NA);
-		offset += 2;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+		offset += TWO_BYTE_RESERVED; /* reserved */
 		smcd_v2_ext_offset = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(tree, hf_smc_proposal_smcdv2_ext_offset, tvb,
+			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		smcd_v2_ext_pos = offset + smcd_v2_ext_offset;
-
-		if (is_ipv6) {
-			proto_tree_add_item(tree, hf_smc_proposal_rocev2_gid_ipv6_addr, tvb,
-				offset, GID_LEN, ENC_NA);
+		if (is_smcrv2) {
+			if (is_ipv6) {
+				proto_tree_add_item(tree, hf_smc_proposal_rocev2_gid_ipv6_addr, tvb,
+					offset, GID_LEN, ENC_NA);
+				offset += GID_LEN;
+			} else {
+				proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 12, ENC_NA);
+				offset += 12; /* reserved */
+				proto_tree_add_item(tree, hf_smc_proposal_rocev2_gid_ipv4_addr, tvb,
+					offset, IPV4_SUBNET_MASK_LEN, ENC_BIG_ENDIAN);
+				offset += IPV4_SUBNET_MASK_LEN;
+			}
+		} else {
 			offset += GID_LEN;
 		}
-		else {
-			offset += 12;
-			proto_tree_add_item(tree, hf_smc_proposal_rocev2_gid_ipv4_addr, tvb,
-				offset, IPV4_SUBNET_MASK_LEN, ENC_BIG_ENDIAN);
-			offset += IPV4_SUBNET_MASK_LEN;
-		}
-		proto_tree_add_item(tree, hf_smc_reserved, tvb,
-					offset, 16, ENC_NA);
-		offset += 16;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
+		offset += 16; /* reserved */
 		while (num_of_eids != 0) {
 			proto_tree_add_item(tree, hf_smc_proposal_eid, tvb,
 					offset, EID_LEN, ENC_ASCII | ENC_NA);
@@ -522,9 +633,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 			proto_tree_add_item(tree, hf_smc_proposal_system_eid, tvb,
 					offset, EID_LEN, ENC_ASCII | ENC_NA);
 			offset += EID_LEN;
-			proto_tree_add_item(tree, hf_smc_reserved, tvb,
-						offset, 16, ENC_NA);
-			offset += 16;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
+			offset += 16; /* reserved */
 			while (num_of_gids != 0) {
 				proto_tree_add_item(tree, hf_smc_proposal_ism_gid, tvb,
 					offset, ISM_GID_LEN, ENC_NA);
@@ -535,18 +645,18 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 				num_of_gids--;
 			}
 		}
-
 	}
 }
 
 static void
 disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 {
-	guint offset;
+	guint offset, dmbe_size;
 	proto_item* accept_flag_item;
 	proto_tree* accept_flag_tree;
 	proto_item* accept_flag2_item;
 	proto_tree* accept_flag2_tree;
+	proto_item* ti;
 	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
@@ -577,38 +687,39 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 
 	accept_flag2_item = proto_tree_add_item(tree, hf_smcd_accept_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	accept_flag2_tree = proto_item_add_subtree(accept_flag2_item, ett_smcd_accept_flag2);
-	proto_tree_add_item(accept_flag2_tree, hf_accept_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	dmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
 	offset += FLAG_BYTE_LEN;
-	offset += TWO_BYTE_RESERVED;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+	offset += TWO_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcd_accept_server_link_id, tvb,
 		offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += ALERT_TOKEN_LEN;
 
 	if (smc_version >= SMC_V2) {
-		proto_tree_add_item(tree, hf_smcd_accept_smc_chid, tvb, offset,
-			LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_smcd_accept_smc_chid, tvb, offset, LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += LENGTH_BYTE_LEN;
 
-		proto_tree_add_item(tree, hf_smcd_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
 		offset += 32;
-		proto_tree_add_item(tree, hf_smc_reserved, tvb,
-					offset, 8, ENC_NA);
-		offset += 8;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+		offset += 8; /* reserved */
 
 		if (first_contact) {
-			proto_tree_add_item(tree, hf_smc_reserved, tvb,
-						offset, ONE_BYTE_RESERVED, ENC_NA);
-			offset += ONE_BYTE_RESERVED;
-			accept_flag_item = proto_tree_add_item(tree, hf_smcd_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smcd_accept_fce_flag);
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
+			offset += ONE_BYTE_RESERVED; /* reserved */
+			accept_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smc_accept_fce_flag);
 			proto_tree_add_item(accept_flag_tree, hf_accept_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			proto_tree_add_item(accept_flag_tree, hf_accept_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			offset += FLAG_BYTE_LEN;
-			proto_tree_add_item(tree, hf_smc_reserved, tvb,
-						offset, TWO_BYTE_RESERVED, ENC_NA);
-			offset += TWO_BYTE_RESERVED;
-			proto_tree_add_item(tree, hf_smcd_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
-			/* offset += 32; */
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+			offset += TWO_BYTE_RESERVED; /* reserved */
+			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			offset += 32;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
+			offset += 16; /* reserved */
 		}
 	}
 }
@@ -616,11 +727,12 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 static void
 disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 {
-	guint offset;
+	guint offset, dmbe_size;
 	proto_item* confirm_flag_item;
 	proto_tree* confirm_flag_tree;
 	proto_item* confirm_flag2_item;
 	proto_tree* confirm_flag2_tree;
+	proto_item* ti;
 	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
@@ -630,7 +742,7 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 	confirm_flag_item = proto_tree_add_item(tree, hf_smcd_confirm_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smcd_confirm_flag);
 	proto_tree_add_item(confirm_flag_tree, hf_smcd_confirm_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-	proto_tree_add_item(confirm_flag_tree, hf_smcd_confirm_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(confirm_flag_tree, hf_smc_confirm_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	smc_version = tvb_get_guint8(tvb, offset);
 	first_contact = tvb_get_guint8(tvb, offset);
@@ -651,11 +763,12 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 
 	confirm_flag2_item = proto_tree_add_item(tree, hf_smcd_confirm_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_smcd_confirm_flag2);
-	proto_tree_add_item(confirm_flag2_tree, hf_smcd_confirm_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(confirm_flag2_tree, hf_smcd_confirm_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	dmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
 	offset += FLAG_BYTE_LEN;
-	proto_tree_add_item(tree, hf_smc_reserved, tvb,
-				offset, ONE_BYTE_RESERVED, ENC_NA);
-	offset += TWO_BYTE_RESERVED;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+	offset += TWO_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcd_confirm_client_link_id, tvb,
 		offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += ALERT_TOKEN_LEN;
@@ -665,39 +778,36 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 			LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += LENGTH_BYTE_LEN;
 
-		proto_tree_add_item(tree, hf_smcd_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
 		offset += 32;
-		proto_tree_add_item(tree, hf_smc_reserved, tvb,
-					offset, 8, ENC_NA);
-		offset += 8;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+		offset += 8; /* reserved */
 
 		if (first_contact) {
-			proto_tree_add_item(tree, hf_smc_reserved, tvb,
-						offset, ONE_BYTE_RESERVED, ENC_NA);
-			offset += ONE_BYTE_RESERVED;
-			confirm_flag_item = proto_tree_add_item(tree, hf_smcd_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smcd_confirm_fce_flag);
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
+			offset += ONE_BYTE_RESERVED; /* reserved */
+			confirm_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smc_confirm_fce_flag);
 			proto_tree_add_item(confirm_flag_tree, hf_confirm_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			offset += FLAG_BYTE_LEN;
-			proto_tree_add_item(tree, hf_smc_reserved, tvb,
-						offset, TWO_BYTE_RESERVED, ENC_NA);
-			offset += TWO_BYTE_RESERVED;
-			proto_tree_add_item(tree, hf_smcd_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
-			/* offset += 32; */
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+			offset += TWO_BYTE_RESERVED; /* reserved */
+			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
 		}
 	}
 }
 
-
 static void
 disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint offset;
+	guint offset, qp_num, rmbe_size;
 	proto_item *accept_flag_item;
 	proto_tree *accept_flag_tree;
 	proto_item *accept_flag2_item;
 	proto_tree *accept_flag2_tree;
+	proto_item *ti;
+	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
 	proto_tree_add_item(tree, hf_smc_length, tvb, offset,
@@ -707,6 +817,10 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_accept_flag);
 	proto_tree_add_item(accept_flag_tree, hf_accept_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(accept_flag_tree, hf_accept_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	smc_version = tvb_get_guint8(tvb, offset);
+	first_contact = tvb_get_guint8(tvb, offset);
+	smc_version = ((smc_version >> 4) & 0x0F);
+	first_contact = ((first_contact >> 3) & 0x01);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smcr_accept_server_peer_id, tvb, offset,
 			PEERID_LEN, ENC_BIG_ENDIAN);
@@ -727,34 +841,65 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 			offset, CONN_INDEX_LEN, ENC_BIG_ENDIAN);
 	offset += CONN_INDEX_LEN;
 	proto_tree_add_item(tree, hf_smcr_accept_server_rmb_element_alert_token, tvb,
-			    offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
+				offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += ALERT_TOKEN_LEN;
 	accept_flag2_item = proto_tree_add_item(tree, hf_smcr_accept_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	accept_flag2_tree = proto_item_add_subtree(accept_flag2_item, ett_accept_flag2);
-	proto_tree_add_item(accept_flag2_tree, hf_accept_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-	proto_tree_add_item(accept_flag2_tree, hf_accept_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	rmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
+	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	qp_num = tvb_get_gint8(tvb, offset) & 0x0F;
+	disect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += FLAG_BYTE_LEN;
-	proto_tree_add_item(tree, hf_smc_reserved, tvb,
-				offset, ONE_BYTE_RESERVED, ENC_NA);
-	offset += ONE_BYTE_RESERVED;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
+	offset += ONE_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcr_accept_server_rmb_virtual_address, tvb,
 			offset, VIRTUAL_ADDR_LEN, ENC_BIG_ENDIAN);
 	offset += VIRTUAL_ADDR_LEN;
-	proto_tree_add_item(tree, hf_smc_reserved, tvb,
-				offset, ONE_BYTE_RESERVED, ENC_NA);
-	offset += ONE_BYTE_RESERVED;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
+	offset += ONE_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcr_accept_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
+	offset += PSN_LEN;
+
+	if (smc_version >= SMC_V2) {
+		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		offset += 32;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+		offset += 8; /* reserved */
+
+		if (first_contact) {
+			accept_flag_item = proto_tree_add_item(tree, hf_smcr_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smcr_accept_fce_flag1);
+			proto_tree_add_item(accept_flag_tree, hf_accept_v2_lg_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			accept_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smc_accept_fce_flag);
+			proto_tree_add_item(accept_flag_tree, hf_accept_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			proto_tree_add_item(accept_flag_tree, hf_accept_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+			offset += TWO_BYTE_RESERVED; /* reserved */
+			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			offset += 32;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
+			offset += 16; /* reserved */
+		}
+	}
 }
 
 static void
 disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint offset;
+	guint offset, qp_num, rmbe_size;
 	proto_item *confirm_flag_item;
 	proto_tree *confirm_flag_tree;
 	proto_item *confirm_flag2_item;
 	proto_tree *confirm_flag2_tree;
+	proto_item *ti;
+	guint8 smc_version, first_contact = 0;
+	guint8 gid_list_len;
 
 	offset = CLC_MSG_START_OFFSET;
 	proto_tree_add_item(tree, hf_smc_length, tvb, offset,
@@ -763,6 +908,12 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	confirm_flag_item = proto_tree_add_item(tree, hf_smcr_confirm_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_confirm_flag);
 	proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(confirm_flag_tree, hf_smc_confirm_first_contact, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	smc_version = tvb_get_guint8(tvb, offset);
+	first_contact = tvb_get_guint8(tvb, offset);
+	smc_version = ((smc_version >> 4) & 0x0F);
+	first_contact = ((first_contact >> 3) & 0x01);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smcr_confirm_client_peer_id, tvb, offset,
 			PEERID_LEN, ENC_BIG_ENDIAN);
@@ -787,34 +938,73 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	offset += ALERT_TOKEN_LEN;
 	confirm_flag2_item = proto_tree_add_item(tree, hf_smcr_confirm_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_confirm_flag2);
-	proto_tree_add_item(confirm_flag2_tree, hf_confirm_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-	proto_tree_add_item(confirm_flag2_tree, hf_confirm_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(confirm_flag2_tree, hf_confirm_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	rmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
+	ti = proto_tree_add_item(confirm_flag2_tree, hf_confirm_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	qp_num = tvb_get_gint8(tvb, offset) & 0x0F;
+	disect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += FLAG_BYTE_LEN;
-	proto_tree_add_item(tree, hf_smc_reserved, tvb,
-			offset, ONE_BYTE_RESERVED, ENC_NA);
-	offset += ONE_BYTE_RESERVED;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
+	offset += ONE_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcr_confirm_client_rmb_virtual_address, tvb,
 			offset, VIRTUAL_ADDR_LEN, ENC_BIG_ENDIAN);
 	offset += VIRTUAL_ADDR_LEN;
-	proto_tree_add_item(tree, hf_smc_reserved, tvb,
-			offset, ONE_BYTE_RESERVED, ENC_NA);
-	offset += ONE_BYTE_RESERVED;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
+	offset += ONE_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcr_confirm_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
+
+	if (smc_version >= SMC_V2) {
+		offset += PSN_LEN;
+		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		offset += 32;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+		offset += 8; /* reserved */
+
+		if (first_contact) {
+			confirm_flag_item = proto_tree_add_item(tree, hf_smcr_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smcr_accept_fce_flag1);
+			proto_tree_add_item(confirm_flag_tree, hf_accept_v2_lg_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			confirm_flag_item = proto_tree_add_item(tree, hf_smc_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smc_confirm_fce_flag);
+			proto_tree_add_item(confirm_flag_tree, hf_confirm_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+			offset += FLAG_BYTE_LEN;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+			offset += TWO_BYTE_RESERVED; /* reserved */
+			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			offset += 32;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
+			offset += 16; /* reserved */
+			gid_list_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(tree, hf_smc_confirm_gid_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 3, ENC_NA);
+			offset += 3; /* reserved */
+			while (gid_list_len > 0) {
+				proto_tree_add_item(tree, hf_smc_confirm_gid_list_entry, tvb, offset, GID_LEN, ENC_NA);
+				offset += GID_LEN;
+				gid_list_len--;
+			}
+		}
+	}
 }
 
 static void
-disect_smcr_decline(tvbuff_t *tvb, proto_tree *tree)
+disect_smc_decline(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item* decline_flag_item;
 	proto_tree* decline_flag_tree;
 	proto_item* decline_flag2_item;
 	proto_tree* decline_flag2_tree;
-	guint offset, smc_version;
+	guint offset, smc_version, smc_length, num_of_diag;
 
 	offset = CLC_MSG_START_OFFSET;
 	proto_tree_add_item(tree, hf_smc_length, tvb, offset,
 		LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
+	smc_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 	offset += LENGTH_BYTE_LEN;
 
 	decline_flag_item = proto_tree_add_item(tree, hf_smc_decline_flags, tvb, offset,
@@ -840,6 +1030,15 @@ disect_smcr_decline(tvbuff_t *tvb, proto_tree *tree)
 		decline_flag2_tree = proto_item_add_subtree(decline_flag2_item, ett_decline_flag2);
 		proto_tree_add_item(decline_flag2_tree, hf_decline_os_type, tvb, offset,
 			FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+		offset += FLAG_BYTE_LEN;
+		offset += 3;
+		if (smc_length >= offset + 16) {
+			for (num_of_diag = 0; num_of_diag < 4; num_of_diag++) {
+				proto_tree_add_item(tree, hf_smc_decline_diag_info, tvb, offset,
+							DIAG_INFO_LEN, ENC_BIG_ENDIAN);
+				offset += DIAG_INFO_LEN;
+			}
+		}
 	}
 }
 
@@ -876,26 +1075,32 @@ disect_smcr_confirm_link(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree)
+disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 {
-	guint offset;
+	guint offset, rkey_count, qp_num;
 	proto_item *add_link_flag_item;
 	proto_tree *add_link_flag_tree;
 	proto_item *add_link_flag2_item;
 	proto_tree *add_link_flag2_tree;
+	proto_item *add_link_flag3_item;
+	proto_tree *add_link_flag3_tree;
+	proto_item *ti;
+	bool is_response = tvb_get_guint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP;
 
 	offset = LLC_MSG_START_OFFSET;
 	add_link_flag_item = proto_tree_add_item(tree, hf_smcr_add_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	add_link_flag_tree = proto_item_add_subtree(add_link_flag_item, ett_add_link_flag);
 	proto_tree_add_item(add_link_flag_tree, hf_smcr_add_link_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(add_link_flag_tree, hf_smcr_add_link_response_rejected, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	if (is_smc_v2 && is_response) {
+		proto_tree_add_item(add_link_flag_tree, hf_smcr_add_link_reject_reason, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	}
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smcr_add_link_mac, tvb,
 			offset, MAC_ADDR_LEN, ENC_NA);
 	offset += MAC_ADDR_LEN;
-	proto_tree_add_item(tree, hf_smc_reserved, tvb,
-			offset, TWO_BYTE_RESERVED, ENC_NA);
-	offset += TWO_BYTE_RESERVED;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
+	offset += TWO_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcr_add_link_gid, tvb,
 			offset, GID_LEN, ENC_NA);
 	offset += GID_LEN;
@@ -907,10 +1112,40 @@ disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree)
 	offset += 1;
 	add_link_flag2_item = proto_tree_add_item(tree, hf_smcr_add_link_flags2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	add_link_flag2_tree = proto_item_add_subtree(add_link_flag2_item, ett_add_link_flag2);
-	proto_tree_add_item(add_link_flag2_tree, hf_smcr_add_link_qp_mtu_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(add_link_flag2_tree, hf_smcr_add_link_qp_mtu_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+	qp_num = tvb_get_gint8(tvb, offset) & 0x0F;
+	disect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += 1;
 	proto_tree_add_item(tree, hf_smcr_add_link_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
+	offset += PSN_LEN;
+	if (!is_smc_v2 || is_response)
+		return;
+
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+	offset += 8; /* reserved */
+	add_link_flag3_item = proto_tree_add_item(tree, hf_smcr_add_link_flags3, tvb, offset, 1, ENC_BIG_ENDIAN);
+	add_link_flag3_tree = proto_item_add_subtree(add_link_flag3_item, ett_add_link_flag3);
+	proto_tree_add_item(add_link_flag3_tree, hf_smcr_add_link_flag3_direct_link, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 1, ENC_NA);
+	offset += 1; /* reserved */
+	proto_tree_add_item(tree, hf_smcr_add_link_client_target_gid, tvb, offset, GID_LEN, ENC_NA);
+	offset += GID_LEN;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
+	offset += 8; /* reserved */
+	proto_tree_add_item(tree, hf_smcr_add_link_rkey_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+	rkey_count = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+	offset += 2;
+	while (rkey_count > 0) {
+		proto_tree_add_item(tree, hf_smcr_add_link_rkey, tvb, offset, RKEY_LEN, ENC_BIG_ENDIAN);
+		offset += RKEY_LEN;
+		proto_tree_add_item(tree, hf_smcr_add_link_rkey2, tvb, offset, RKEY_LEN, ENC_BIG_ENDIAN);
+		offset += RKEY_LEN;
+		proto_tree_add_item(tree, hf_smcr_add_link_virt_addr, tvb, offset, VIRTUAL_ADDR_LEN, ENC_BIG_ENDIAN);
+		offset += VIRTUAL_ADDR_LEN;
+		rkey_count--;
+	}
 }
 
 static void
@@ -955,6 +1190,37 @@ disect_smcr_add_continuation(tvbuff_t *tvb, proto_tree *tree)
 			proto_tree_add_item(tree, hf_smcr_add_link_cont_p2_virt_addr, tvb,
 					offset, VIRTUAL_ADDR_LEN, ENC_BIG_ENDIAN);
 		}
+	}
+}
+
+static void
+disect_smcr_request_add_link(tvbuff_t* tvb, proto_tree* tree)
+{
+	bool is_response = tvb_get_guint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP;
+	proto_item* add_link_flag_item;
+	proto_tree* add_link_flag_tree;
+	guint offset, gid_list_len;
+
+	offset = LLC_MSG_START_OFFSET;
+	add_link_flag_item = proto_tree_add_item(tree, hf_smcr_request_add_link_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	add_link_flag_tree = proto_item_add_subtree(add_link_flag_item, ett_request_add_link_flag);
+	proto_tree_add_item(add_link_flag_tree, hf_smcr_request_add_link_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(add_link_flag_tree, hf_smcr_request_add_link_response_rejected, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	if (is_response) {
+		proto_tree_add_item(add_link_flag_tree, hf_smcr_request_add_link_reject_reason, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	}
+	offset += FLAG_BYTE_LEN;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 20, ENC_NA);
+	offset += 20; /* reserved */
+	gid_list_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_smc_request_add_link_gid_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 3, ENC_NA);
+	offset += 3; /* reserved */
+	while (gid_list_len > 0) {
+		proto_tree_add_item(tree, hf_smc_request_add_link_gid_list_entry, tvb, offset, GID_LEN, ENC_NA);
+		offset += GID_LEN;
+		gid_list_len--;
 	}
 }
 
@@ -1061,7 +1327,7 @@ disect_smcr_confirm_rkey_cont(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-disect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree)
+disect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 {
 	guint offset;
 	guint8 count;
@@ -1073,15 +1339,30 @@ disect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree)
 	delete_rkey_flag_tree = proto_item_add_subtree(delete_rkey_flag_item, ett_delete_rkey_flag);
 	proto_tree_add_item(delete_rkey_flag_tree, hf_smcr_delete_rkey_response, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(delete_rkey_flag_tree, hf_smcr_delete_rkey_negative_response,
-			tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+				tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
-	proto_tree_add_item(tree, hf_smcr_delete_rkey_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
+	count = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_smcr_delete_rkey_count, tvb, offset, 1, ENC_NA);
 	offset += 1;
-
-	for (count=0; count < 8; count++) {
+	if (!is_smc_v2) {
+		proto_tree_add_item(tree, hf_smcr_delete_rkey_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
+	} else {
+		bool is_response = tvb_get_guint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP;
+		if (is_response) {
+			proto_tree_add_item(tree, hf_smcr_delete_rkey_invalid_count, tvb, offset, 1, ENC_NA);
+			count = tvb_get_guint8(tvb, offset);
+			if (count > 8)
+				count = 8; /* show a maximum of 8 invalid rkeys in response */
+		}
+	}
+	offset += 1;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 2, ENC_NA);
+	offset += 2; /* reserved */
+	while (count > 0) {
 		proto_tree_add_item(tree, hf_smcr_delete_rkey_deleted, tvb,
 				offset, RKEY_LEN, ENC_BIG_ENDIAN);
 		offset += RKEY_LEN;
+		count--;
 	}
 }
 
@@ -1113,13 +1394,13 @@ disect_smcr_rmbe_ctrl(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_alert_token, tvb, offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += ALERT_TOKEN_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
-	offset += TWO_BYTE_RESERVED;
+	offset += TWO_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_prod_wrap_seqno, tvb, offset, SEQNO_LEN, ENC_BIG_ENDIAN);
 	offset += SEQNO_LEN;
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_peer_prod_curs, tvb, offset, CURSOR_LEN, ENC_BIG_ENDIAN);
 	offset += CURSOR_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
-	offset += TWO_BYTE_RESERVED;
+	offset += TWO_BYTE_RESERVED; /* reserved */
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_cons_wrap_seqno, tvb, offset, SEQNO_LEN, ENC_BIG_ENDIAN);
 	offset += SEQNO_LEN;
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_peer_cons_curs, tvb, offset, CURSOR_LEN, ENC_BIG_ENDIAN);
@@ -1217,9 +1498,15 @@ dissect_smc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	} else if ((smc_v2_type == SMC_CLC_SMCR) && ((clc_msgid == SMC_CLC_ACCEPT) ||
 		   (clc_msgid == SMC_CLC_CONFIRMATION))) {
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "[SMC-R-%s],",
-			val_to_str_const((guint32)clc_msgid,
-				smcr_clc_message_txt, "Unknown Command"));
+		if (is_smc_v2)
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[SMC-Rv2-%s],",
+					val_to_str_const((guint32)clc_msgid,
+							smcr_clc_message_txt, "Unknown Command"));
+		else
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[SMC-R-%s],",
+					val_to_str_const((guint32)clc_msgid,
+					smcr_clc_message_txt, "Unknown Command"));
+
 		col_append_fstr(pinfo->cinfo, COL_INFO, " QP=0x%06x",
 				tvb_get_ntoh24(tvb, ACCEPT_CONFIRM_QP_OFFSET));
 	}
@@ -1247,7 +1534,7 @@ dissect_smc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	if (!tree)
-	    return tvb_reported_length(tvb);
+		return tvb_reported_length(tvb);
 
 	ti = proto_tree_add_item(tree, proto_smc, tvb, 0, msg_len, ENC_NA);
 	smc_tree = proto_item_add_subtree(ti, ett_smcr);
@@ -1270,7 +1557,7 @@ dissect_smc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				disect_smcr_confirm(tvb, smc_tree);
 			break;
 		case SMC_CLC_DECLINE:
-			disect_smcr_decline(tvb, smc_tree);
+			disect_smc_decline(tvb, smc_tree);
 			break;
 		default:
 			/* Unknown Command */
@@ -1286,11 +1573,22 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	llc_message llc_msgid;
 	proto_item *ti;
 	proto_tree *smcr_tree;
+	int smc_version;
+	bool is_smc_v2;
 
-	msg_len = tvb_get_guint8(tvb, LLC_LEN_OFFSET);
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMC-R");
 	llc_msgid = (llc_message) tvb_get_guint8(tvb, LLC_CMD_OFFSET);
-	col_append_str(pinfo->cinfo, COL_INFO, "[SMC-R] ");
+	smc_version = ((llc_msgid >> 4) & 0x0F);
+	is_smc_v2 = (smc_version == SMC_V2);
+
+	if (!is_smc_v2) {
+		msg_len = tvb_get_guint8(tvb, LLC_LEN_OFFSET);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMC-R");
+		col_append_str(pinfo->cinfo, COL_INFO, "[SMC-R] ");
+	} else {
+		msg_len = tvb_get_guint16(tvb, LLC_LEN_OFFSET, ENC_BIG_ENDIAN);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMC-Rv2");
+		col_append_str(pinfo->cinfo, COL_INFO, "[SMC-Rv2] ");
+	}
 	col_append_str(pinfo->cinfo, COL_INFO,
 			val_to_str_const((guint32)llc_msgid,
 			smcr_llc_message_txt, "Unknown Command"));
@@ -1301,16 +1599,22 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	ti = proto_tree_add_item(tree, proto_smc, tvb, 0, msg_len, ENC_NA);
 	smcr_tree = proto_item_add_subtree(ti, ett_smcr);
-	proto_tree_add_item(smcr_tree, hf_smcr_llc_msg, tvb, 0, 1,
-			ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(smcr_tree, hf_smcr_llc_msg, tvb, 0, 1, ENC_BIG_ENDIAN);
+	if ((llc_msgid != RMBE_CTRL) &&
+		(tvb_get_guint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP))
+			proto_item_append_text(ti, " (Resp)");
+
+	proto_tree_add_item(smcr_tree, hf_smc_length, tvb, LLC_LEN_OFFSET, (!is_smc_v2?1:2), ENC_BIG_ENDIAN);
 
 	switch (llc_msgid) {
 		case LLC_CONFIRM_LINK:
+		case LLC_CONFIRM_LINK_V2:
 			disect_smcr_confirm_link(tvb, smcr_tree);
 			break;
 
 		case LLC_ADD_LINK:
-			disect_smcr_add_link(tvb, smcr_tree);
+		case LLC_ADD_LINK_V2:
+			disect_smcr_add_link(tvb, smcr_tree, is_smc_v2);
 			break;
 
 		case LLC_ADD_LINK_CONT:
@@ -1318,10 +1622,12 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			break;
 
 		case LLC_DEL_LINK:
+		case LLC_DEL_LINK_V2:
 			disect_smcr_delete_link(tvb, smcr_tree);
 			break;
 
 		case LLC_CONFIRM_RKEY:
+		case LLC_CONFIRM_RKEY_V2:
 			disect_smcr_confirm_rkey(tvb, smcr_tree);
 			break;
 
@@ -1330,11 +1636,17 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			break;
 
 		case LLC_DELETE_RKEY:
-			disect_smcr_delete_rkey(tvb, smcr_tree);
+		case LLC_DELETE_RKEY_V2:
+			disect_smcr_delete_rkey(tvb, smcr_tree, is_smc_v2);
 			break;
 
 		case LLC_TEST_LINK:
+		case LLC_TEST_LINK_V2:
 			disect_smcr_test_link(tvb, smcr_tree);
+			break;
+
+		case LLC_REQUEST_ADD_LINK_V2:
+			disect_smcr_request_add_link(tvb, smcr_tree);
 			break;
 
 		case RMBE_CTRL:
@@ -1389,6 +1701,7 @@ dissect_smcr_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint16 msg_len;
 	llc_message msg_byte0;
 	guint8 msg_byte1;
+	int v1_check = TRUE, v2_check = TRUE;
 
 	if (tvb_captured_length_remaining(tvb, SMCR_MSG_BYTE_0) < 2)  /* need at least 2 bytes */
 		return FALSE;
@@ -1405,9 +1718,21 @@ dissect_smcr_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		(((msg_byte0 >= LLC_CONFIRM_LINK) &&
 		(msg_byte0 <= LLC_DELETE_RKEY)) ||
 		(msg_byte0 == LLC_RMBE_CTRL))))
+		v1_check = FALSE;
+	if (!(((msg_byte0 >= LLC_CONFIRM_LINK_V2) &&
+	       (msg_byte0 <= LLC_ADD_LINK_V2)) ||
+	      ((msg_byte0 >= LLC_DEL_LINK_V2) &&
+	       (msg_byte0 <= LLC_TEST_LINK_V2)) ||
+	      (msg_byte0 == LLC_DELETE_RKEY_V2)))
+		v2_check = FALSE;
+
+	if ((!v1_check && !v2_check) || (v1_check && v2_check))
 		return FALSE;
 
-	msg_len = tvb_get_guint8(tvb, LLC_LEN_OFFSET);
+	if (v1_check)
+		msg_len = tvb_get_guint8(tvb, LLC_LEN_OFFSET);
+	else
+		msg_len = tvb_get_guint16(tvb, LLC_LEN_OFFSET, ENC_BIG_ENDIAN);
 	if (msg_len != tvb_reported_length_remaining(tvb, LLC_CMD_OFFSET))
 		return FALSE;
 
@@ -1427,7 +1752,7 @@ proto_register_smcr(void)
 
 		{ &hf_smcr_llc_msg, {
 		"LLC Message", "smc.llc_msg",
-		FT_UINT8, BASE_DEC, VALS(smcr_llc_message_txt), 0x0,
+		FT_UINT8, BASE_HEX, VALS(smcr_llc_message_txt), 0x0,
 		NULL, HFILL}},
 
 		{ &hf_proposal_smc_version_release_number, {
@@ -1463,7 +1788,7 @@ proto_register_smcr(void)
 		0x0C, NULL, HFILL}},
 
 		{ &hf_smc_proposal_smc_chid, {
-		"ISM CHID", "smc.proposal.smc.chid",
+		"ISMv2 CHID", "smc.proposal.smc.chid",
 		FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL}},
 
 		{ &hf_smc_length, {
@@ -1554,6 +1879,10 @@ proto_register_smcr(void)
 		"Sender (Client) Peer ID", "smc.proposal.sender.client.peer.id",
 		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
+		{ &hf_smc_proposal_ism_gid_count, {
+		"ISMv2 GID Count", "smc.proposal.ismv2_gid_count",
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
+
 		{ &hf_smc_proposal_ism_gid, {
 		"ISM GID", "smc.proposal.ism.gid",
 		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
@@ -1580,6 +1909,18 @@ proto_register_smcr(void)
 		"smc.accept.server.preferred.mac",
 		FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
+		{ &hf_smc_proposal_smcv1_subnet_ext_offset, {
+		"SMCv1 IP Subnet Extension Offset","smc.proposal.smcv1_subnet_ext_offset",
+		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smc_proposal_smcv2_ext_offset, {
+		"SMCv2 Extension Offset","smc.proposal.smcv2_ext_offset",
+		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smc_proposal_smcdv2_ext_offset, {
+		"SMC-Dv2 Extension Offset","smc.proposal.smcdv2_ext_offset",
+		FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+
 		{ &hf_smc_proposal_rocev2_gid_ipv6_addr, {
 		"RoCEv2 GID IPv6 Address",
 		"smc.proposal.rocev2.gid.ipv6",
@@ -1600,6 +1941,10 @@ proto_register_smcr(void)
 		"smc.outgoing.interface.subnet.mask.number.of.significant.bits",
 		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
+		{ &hf_smc_proposal_ipv6_prefix_count, {
+		"IPv6 Prefix Count","smc.proposal.ipv6.prefix.count",
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
+
 		{ &hf_smc_proposal_ipv6_prefix, {
 		"IPv6 Prefix Value","smc.proposal.ipv6.prefix.value",
 		FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -1619,7 +1964,7 @@ proto_register_smcr(void)
 		{ &hf_smcr_accept_server_tcp_conn_index, {
 		"Server TCP Connection Index",
 		"smc.accept.server.tcp.conn.index",
-		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_accept_server_rmb_element_alert_token, {
 		"Server RMB Element Alert Token",
@@ -1659,7 +2004,7 @@ proto_register_smcr(void)
 		{ &hf_smcr_confirm_client_tcp_conn_index, {
 		"Client TCP Connection Index",
 		"smc.confirm.client.tcp.conn.index",
-		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_confirm_client_rmb_element_alert_token, {
 		"Client RMB Element Alert Token",
@@ -1752,13 +2097,48 @@ proto_register_smcr(void)
 		"Add Link Rejected", "smc.add.link.response.rejected",
 		FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}},
 
+		{ &hf_smcr_add_link_reject_reason, {
+		"Reject Reason", "smc.add.link.response.reject_reason",
+		FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL}},
+
 		{ &hf_smcr_add_link_flags2, {
 		"Flags", "smc.add.link.flags2",
 		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_smcr_add_link_qp_mtu_value, {
-		"QP MTU Value", "smc.add.link.qp.mtu.value",
-		FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL}},
+		"QP MTU Value (enumerated value)", "smc.add.link.qp.mtu.value",
+		FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL}},
+
+		{ &hf_smcr_add_link_flags3, {
+		"V2 Flags", "smc.add.link.flags3",
+		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_smcr_add_link_flag3_direct_link, {
+		"Direct link attachment to peer", "smc.add.link.direct_link",
+		FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}},
+
+		{ &hf_smcr_add_link_client_target_gid, {
+		"Client Target GID", "smc.add.link.client_target_gid",
+		FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+		{ &hf_smcr_add_link_rkey_count, {
+		"Number of Rkeys", "smc.add.link.rkey_count",
+		FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+		{ &hf_smcr_add_link_rkey, {
+		"RMB RToken Pair - Rkey as known on this SMC Link",
+		"smc.add.link.rmb.RTok.Rkey1",
+		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+		{ &hf_smcr_add_link_rkey2, {
+		"RMB RToken Pair - Equivalent Rkey for the new SMC Link",
+		"smc.add.link.rmb.RTok.Rkey2",
+		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+		{ &hf_smcr_add_link_virt_addr, {
+		"RMB RToken Pair - Virtual Address for the new SMC Link",
+		"smc.add.link.rmb.RTok.virt",
+		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_add_link_cont_flags, {
 		"Flags", "smc.add.link.cont.flags",
@@ -1774,7 +2154,7 @@ proto_register_smcr(void)
 
 		{ &hf_smcr_add_link_cont_number_of_rkeys, {
 		"Number of Rkeys", "smc.add.link.cont.rkey.number",
-		FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL}},
+		FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL}},
 
 		{ &hf_smcr_add_link_cont_p1_rkey, {
 		"RMB RToken Pair 1 - Rkey as known on this SMC Link",
@@ -1805,6 +2185,30 @@ proto_register_smcr(void)
 		"RMB RToken Pair 2 Virtual Address for the new SMC Link",
 		"smc.add.link.cont.rmb.RTok1.virt",
 		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+		{ &hf_smcr_request_add_link_flags, {
+		"Flags", "smc.add.link.flags",
+		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smcr_request_add_link_response, {
+		"Request Add Link Response", "smc.request.add.link.response",
+		FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL} },
+
+		{ &hf_smcr_request_add_link_response_rejected, {
+		"Request Add Link Rejected", "smc.request.add.link.response.rejected",
+		FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL} },
+
+		{ &hf_smcr_request_add_link_reject_reason, {
+		"Reject Reason", "smc.request.add.link.response.reject_reason",
+		FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL} },
+
+		{ &hf_smc_request_add_link_gid_lst_len, {
+		"GID List Entry Count", "smc.request.add.link.gid.list.entry_count",
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smc_request_add_link_gid_list_entry, {
+		"RoCEv2 GID List Entry", "smc.request.add.link.gid.list.entry",
+		FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
 		{ &hf_smcr_delete_link_flags, {
 		"Flags", "smc.delete.link.flags",
@@ -1849,7 +2253,7 @@ proto_register_smcr(void)
 
 		{ &hf_smcr_confirm_rkey_number, {
 		"Number of other QP", "smc.confirm.rkey.number.qp",
-		FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL}},
+		FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL}},
 
 		{ &hf_smcr_confirm_rkey_new_rkey, {
 		"New Rkey for this link","smc.confirm.rkey.new.rkey",
@@ -1884,6 +2288,14 @@ proto_register_smcr(void)
 		"RMB Rkey to be deleted", "smc.delete.rkey.deleted",
 		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
+		{ &hf_smcr_delete_rkey_count, {
+		"Rkey Count", "smc.delete.rkey.count",
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+		{ &hf_smcr_delete_rkey_invalid_count, {
+		"Invalid Rkey Count", "smc.delete.rkey.count.invalid",
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
 		{ &hf_smcr_test_link_flags, {
 		"Flags", "smc.test.link.flags",
 		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
@@ -1899,6 +2311,10 @@ proto_register_smcr(void)
 		{ &hf_smcr_rmbe_ctrl_alert_token, {
 		"Alert Token", "smc.rmbe.ctrl.alert.token",
 		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+		{ &hf_smc_proposal_eid_count, {
+		"EID Count", "smc.proposal.eid.count",
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
 
 		{ &hf_smc_proposal_eid, {
 		"EID", "smc.proposal.eid",
@@ -1970,27 +2386,35 @@ proto_register_smcr(void)
 		"Peer Abnormal Close", "smc.rmbe.ctrl.peer.abnormal.close",
 		FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}},
 
-		{ &hf_smcd_accept_eid, {
-		"EID", "smc.accept.eid",
+		{ &hf_smc_accept_eid, {
+		"Negotiated EID", "smc.accept.eid",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_confirm_eid, {
-		"EID", "smc.confirm.eid",
+		{ &hf_smc_confirm_eid, {
+		"Negotiated EID", "smc.confirm.eid",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_accept_peer_name, {
+		{ &hf_smc_accept_peer_name, {
 		"Peer Host Name", "smc.accept.peer.host.name",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_confirm_peer_name, {
+		{ &hf_smc_confirm_peer_name, {
 		"Peer Host Name", "smc.confirm.peer.host.name",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smc_confirm_gid_lst_len, {
+		"GID List Entry Count", "smc.confirm.gid.list.entry_count",
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smc_confirm_gid_list_entry, {
+		"RoCEv2 GID List Entry", "smc.confirm.gid.list.entry",
+		FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL} },
 
 		{ &hf_smcd_accept_first_contact, {
 		"First Contact", "smc.accept.first.contact",
 		FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL} },
 
-		{ &hf_smcd_confirm_first_contact, {
+		{ &hf_smc_confirm_first_contact, {
 		"First Contact", "smc.confirm.first.contact",
 		FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL} },
 
@@ -2005,6 +2429,10 @@ proto_register_smcr(void)
 		{ &hf_accept_os_type, {
 		"OS Type", "smc.accept.os.type",
 		FT_UINT8, BASE_DEC, VALS(smc_clc_os_message_txt), 0xF0, NULL, HFILL} },
+
+		{ &hf_accept_v2_lg_type, {
+		"V2 LG Type", "smc.accept.v2_lg.type",
+		FT_UINT8, BASE_DEC, VALS(smc_clc_v2_lg_message_txt), 0x80, NULL, HFILL} },
 
 		{ &hf_confirm_os_type, {
 		"OS Type", "smc.confirm.os.type",
@@ -2029,11 +2457,11 @@ proto_register_smcr(void)
 		FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL} },
 
 		{ &hf_smcd_accept_smc_chid, {
-		"ISM CHID", "smc.accept.smc.chid",
+		"ISMv2 CHID", "smc.accept.smc.chid",
 		FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL} },
 
 		{ &hf_smcd_confirm_smc_chid, {
-		"ISM CHID", "smc.confirm.smc.chid",
+		"ISMv2 CHID", "smc.confirm.smc.chid",
 		FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL} },
 
 		{ &hf_smcd_accept_server_peer_id, {
@@ -2047,7 +2475,7 @@ proto_register_smcr(void)
 		{ &hf_smcd_accept_dmbe_conn_index, {
 		"DMBE Connection Index",
 		"smc.accept.dmbe.conn.index",
-		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
 
 		{ &hf_smcd_accept_server_link_id, {
 		"Server Link ID",
@@ -2057,7 +2485,7 @@ proto_register_smcr(void)
 		{ &hf_smcd_confirm_dmbe_conn_index, {
 		"DMBE Connection Index",
 		"smc.confirm.dmbe.conn.index",
-		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+		FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
 
 		{ &hf_smcd_confirm_client_link_id, {
 		"Client Link ID",
@@ -2080,8 +2508,12 @@ proto_register_smcr(void)
 		"DMBE Size", "smc.confirm.dmbe.size",
 		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
 
-		{ &hf_smcd_accept_fce_flags, {
+		{ &hf_smc_accept_fce_flags, {
 		"Flags", "smc.accept.fce.flags",
+		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smcr_accept_fce_flags, {
+		"Flags", "smc.accept.fce1.flags",
 		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
 
 		{ &hf_smc_reserved, {
@@ -2096,11 +2528,12 @@ proto_register_smcr(void)
 		&ett_proposal_ext_flag2,
 		&ett_accept_flag,
 		&ett_accept_flag2,
+		&ett_smcr_accept_fce_flag1,
 		&ett_smcd_accept_flag,
 		&ett_smcd_accept_flag2,
-		&ett_smcd_accept_fce_flag,
+		&ett_smc_accept_fce_flag,
 		&ett_smcd_confirm_flag,
-		&ett_smcd_confirm_fce_flag,
+		&ett_smc_confirm_fce_flag,
 		&ett_smcd_confirm_flag2,
 		&ett_confirm_flag,
 		&ett_confirm_flag2,
@@ -2109,7 +2542,9 @@ proto_register_smcr(void)
 		&ett_decline_flag2,
 		&ett_add_link_flag,
 		&ett_add_link_flag2,
+		&ett_add_link_flag3,
 		&ett_add_link_cont_flag,
+		&ett_request_add_link_flag,
 		&ett_delete_link_flag,
 		&ett_confirm_rkey_flag,
 		&ett_delete_rkey_flag,
@@ -2119,7 +2554,7 @@ proto_register_smcr(void)
 	};
 
 	proto_smc = proto_register_protocol("Shared Memory Communications",
-	    "SMC", "smc");
+		"SMC", "smc");
 
 	proto_register_field_array(proto_smc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

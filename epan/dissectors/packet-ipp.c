@@ -744,8 +744,8 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
                          */
                         attr_tree = add_octetstring_tree(as_tree, tvb, offset, name_length, name, value_length, tag);
                     }
-                    if (tag == TAG_ENDCOLLECTION && attr_tree &&  attr_tree->parent)
-                        attr_tree = attr_tree->parent;
+                    if (tag == TAG_ENDCOLLECTION)
+                        attr_tree = proto_tree_get_parent_tree(attr_tree);
                     else
                         attr_tree = add_octetstring_value(tag_desc, attr_tree, tvb, offset, name_length, name, value_length, tag);
                     break;

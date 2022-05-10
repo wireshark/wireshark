@@ -84,8 +84,8 @@ are processed there and the main application class (`WiresharkApplication`)
 instance is created there along with the main window.
 
 The main window along with the rest of the application resides in _ui/qt_. Due
-to its size the main window code is split into two modules, _main_window.cpp_
-and _main_window_slots.cpp_.
+to its size the main window code is split into several modules, _main_window.cpp_,
+_wireshark_main_window.cpp_ and _wireshark_main_window_slots.cpp_.
 
 Most of the modules in _ui/qt_ are dialogs. Although we follow Qt naming
 conventions for class names, we follow our own conventions by separating file
@@ -188,7 +188,7 @@ usually available as `tr()`.
 However, please avoid using `tr()` for static strings and define them in _*.ui_
 files instead. `tr()` on manually created objects like `QMenu` are not
 automatically retranslated and must instead be manually translated using
-`changeEvent()` and `retranslateUi()`. See _ui/qt/main_window.cpp_ for an example
+`changeEvent()` and `retranslateUi()`. See _ui/qt/wireshark_main_window.cpp_ for an example
 of this.
 
 NOTE: If your object life is short and your components are (re)created
@@ -301,7 +301,7 @@ a mobile frontend (not yet, at least) but there is still useful
 information here.
 
 * GNOME Human Interface Guidelines:
-https://developer.gnome.org/hig/stable/[]
+https://developer.gnome.org/hig/[]
 
 * KDE Human Interface Guidelines:
 https://hig.kde.org[]

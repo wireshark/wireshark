@@ -11,28 +11,26 @@
 # that way.
 #
 
-if [ "$1" = "--help" ]
-then
+set -e -u -o pipefail
+
+function print_usage() {
 	echo "\nUtility to setup a rpm-based system for Wireshark Development.\n"
 	echo "The basic usage installs the needed software\n\n"
 	echo "Usage: $0 [--install-optional] [...other options...]\n"
 	echo "\t--install-optional: install optional software as well"
 	echo "\t--install-rpm-deps: install packages required to build the .rpm file\\n"
 	echo "\t[other]: other options are passed as-is to the packet manager\n"
-	exit 1
-fi
-
-# Check if the user is root
-if [ $(id -u) -ne 0 ]
-then
-	echo "You must be root."
-	exit 1
-fi
+}
 
 ADDITIONAL=0
 RPMDEPS=0
+OPTIONS=
 for arg; do
 	case $arg in
+		--help)
+			print_usage
+			exit 0
+			;;
 		--install-optional)
 			ADDITIONAL=1
 			;;
@@ -44,6 +42,13 @@ for arg; do
 			;;
 	esac
 done
+
+# Check if the user is root
+if [ $(id -u) -ne 0 ]
+then
+	echo "You must be root."
+	exit 1
+fi
 
 BASIC_LIST="cmake \
 	gcc \
@@ -93,6 +98,7 @@ then
 	exit 1
 fi
 
+PM_OPT=
 case $PM in
 	zypper)
 		PM_OPT="--non-interactive"

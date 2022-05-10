@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 16.7.0 Release 16
+ * Ref 3GPP TS 37.355 version 16.8.0 Release 16
  * http://www.3gpp.org
  */
 

@@ -3,8 +3,9 @@
 # Find libsinsp and libscap includes and libraries
 # Adapted from FindZSTD.cmake.
 #
-#  SINSP_INCLUDE_DIRS - where to find sinsp.h, scap.h, etc.
+#  SINSP_INCLUDE_DIRS - Where to find sinsp.h, scap.h, etc.
 #  SINSP_LIBRARIES    - List of libraries when using libsinsp.
+#  SINSP_PLUGINS      - List of plugins.
 #  SINSP_FOUND        - True if libsinsp found.
 #  SINSP_DLL_DIR      - (Windows) Path to the libsinsp and libscap DLLs
 #  SINSP_DLL          - (Windows) Name of the libsinsp and libscap DLLs
@@ -33,10 +34,18 @@ find_path(SCAP_INCLUDE_DIR
   /usr/local/include
 )
 
+find_path(SINSP_PLUGIN_DIR
+  NAMES registry.yaml
+  HINTS "${SINSP_PLUGINDIR}"
+)
+
+# https://github.com/falcosecurity/libs doesn't yet have any official releases
+# or tags. Add RelWithDebInfo to our sinsp and scap path suffixes so that we
+# can find what we need in a local build.
 find_library(SINSP_LIBRARY
   NAMES sinsp
   HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib"
-  PATH_SUFFIXES libsinsp
+  PATH_SUFFIXES libsinsp libsinsp/RelWithDebInfo
   PATHS
   /usr/lib
   /usr/local/lib
@@ -45,7 +54,7 @@ find_library(SINSP_LIBRARY
 find_library(SCAP_LIBRARY
   NAMES scap
   HINTS "${SINSP_LIBDIR}" "${SINSP_HINTS}/lib"
-  PATH_SUFFIXES libscap
+  PATH_SUFFIXES libscap libscap/RelWithDebInfo
   PATHS
   /usr/lib
   /usr/local/lib
@@ -54,6 +63,7 @@ find_library(SCAP_LIBRARY
 find_path(JSON_INCLUDE_DIR
   NAMES json/json.h
   HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
+  PATH_SUFFIXES userspace/libsinsp/third-party/jsoncpp
   /usr/include
   /usr/include/jsoncpp
   /usr/local/include
@@ -97,17 +107,31 @@ find_library(TBB_LIBRARY
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Sinsp
-    REQUIRED_VARS
-        SINSP_LIBRARY SINSP_INCLUDE_DIR
-	SCAP_LIBRARY SCAP_INCLUDE_DIR
-	JSONCPP_LIBRARY JSON_INCLUDE_DIR
-	TBB_LIBRARY TBB_INCLUDE_DIR
+  REQUIRED_VARS
+    SINSP_LIBRARY SINSP_INCLUDE_DIR
+    SCAP_LIBRARY SCAP_INCLUDE_DIR
+    JSON_INCLUDE_DIR
+    SINSP_PLUGIN_DIR
 #     VERSION_VAR     SINSP_VERSION
 )
 
 if( SINSP_FOUND )
-  set( SINSP_INCLUDE_DIRS ${SINSP_INCLUDE_DIR} ${SCAP_INCLUDE_DIR} ${JSON_INCLUDE_DIR} ${TBB_INCLUDE_DIR} )
-  set( SINSP_LIBRARIES ${SINSP_LIBRARY} ${SCAP_LIBRARY} ${JSONCPP_LIBRARY} ${TBB_LIBRARY} )
+  set(SINSP_INCLUDE_DIRS ${SINSP_INCLUDE_DIR} ${SCAP_INCLUDE_DIR} ${JSON_INCLUDE_DIR})
+  if(TBB_INCLUDE_DIR)
+    list(APPEND SINSP_INCLUDE_DIRS ${TBB_INCLUDE_DIR})
+  endif()
+  set(SINSP_LIBRARIES ${SINSP_LIBRARY} ${SCAP_LIBRARY})
+  if (JSONCPP_LIBRARY)
+    list(APPEND SINSP_LIBRARIES ${JSONCPP_LIBRARY})
+  endif()
+  if (TBB_LIBRARY)
+    list(APPEND SINSP_LIBRARIES ${TBB_LIBRARY})
+  endif()
+  if (WIN32)
+    set(SINSP_PLUGINS ${SINSP_PLUGIN_DIR}/plugins/cloudtrail/cloudtrail.dll)
+  else()
+    set(SINSP_PLUGINS ${SINSP_PLUGIN_DIR}/plugins/cloudtrail/libcloudtrail.so)
+  endif()
 #   if (WIN32)
 #     set ( SINSP_DLL_DIR "${SINSP_HINTS}/bin"
 #       CACHE PATH "Path to sinsp DLL"
@@ -124,6 +148,7 @@ if( SINSP_FOUND )
 else()
   set( SINSP_INCLUDE_DIRS )
   set( SINSP_LIBRARIES )
+  set( SINSP_PLUGINS )
 endif()
 
-mark_as_advanced( SINSP_LIBRARIES SINSP_INCLUDE_DIRS )
+mark_as_advanced( SINSP_LIBRARIES SINSP_INCLUDE_DIRS SINSP_PLUGINS )

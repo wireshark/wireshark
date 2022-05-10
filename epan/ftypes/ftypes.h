@@ -215,6 +215,10 @@ WS_DLL_PUBLIC
 gboolean
 ftype_can_is_zero(enum ftenum ftype);
 
+WS_DLL_PUBLIC
+gboolean
+ftype_can_is_negative(enum ftenum ftype);
+
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
@@ -291,7 +295,7 @@ WS_DLL_PUBLIC char *
 fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 #define fvalue_to_debug_repr(scope, fv) \
-	fvalue_to_string_repr(NULL, fv, FTREPR_DFILTER, 0)
+	fvalue_to_string_repr(scope, fv, FTREPR_DFILTER, 0)
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);
@@ -379,6 +383,9 @@ fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
 gboolean
 fvalue_is_zero(const fvalue_t *a);
+
+gboolean
+fvalue_is_negative(const fvalue_t *a);
 
 guint
 fvalue_length(fvalue_t *fv);

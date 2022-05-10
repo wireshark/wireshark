@@ -47,6 +47,9 @@ class TextHTMLParser(HTMLParser):
         # Quoting
         self.need_quote = False
         self.quote_stack = []
+        # Suffixes
+        self.need_suffix = False
+        self.suffix_stack = []
         # track list items
         self.list_item_prefix = None
         self.ordered_list_index = None
@@ -126,9 +129,16 @@ class TextHTMLParser(HTMLParser):
             try:
                 el_class = [attr[1] for attr in attrs if attr[0] == 'class'][0]
                 if 'menuseq' in el_class:
-                    sys.stderr.write('menuseq\n')
                     self.need_quote = True
                     self.quote_stack.append('"')
+            except IndexError:
+                pass
+        if tag == 'div':
+            try:
+                el_class = [attr[1] for attr in attrs if attr[0] == 'class'][0]
+                if 'title' in el_class.split(' '):
+                    self.need_suffix = True
+                    self.suffix_stack.append(':')
             except IndexError:
                 pass
         if tag in self.ignore_tags:
@@ -138,6 +148,9 @@ class TextHTMLParser(HTMLParser):
         quote = ''
         if self.need_quote:
             quote = self.quote_stack[-1]
+        suffix = ''
+        if self.need_suffix:
+            suffix = self.suffix_stack.pop()
         if self.ignore_level > 0:
             return
         elif self.skip_wrap:
@@ -156,13 +169,14 @@ class TextHTMLParser(HTMLParser):
                 self.need_space = True
             if self.need_space and data.strip() and self.text_block:
                 block = ' ' + quote
-            block += ' '.join(data.split())
+            block += ' '.join(data.split()) + suffix
             self.need_space = data[-1:].isspace()
         self.text_block += block
         self.need_quote = False
+        self.need_suffix = False
 
     def handle_endtag(self, tag):
-        block_elements = 'p li ul pre ol h1 h2 h3 h4 h5 h6'
+        block_elements = 'p li ul pre ol h1 h2 h3 h4 h5 h6 tr'
         #block_elements += ' dl dd dt'
         if tag in block_elements.split():
             self._commit_block()

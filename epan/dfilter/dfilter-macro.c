@@ -9,6 +9,7 @@
 
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
 #ifdef DUMP_DFILTER_MACRO
 #include <stdio.h>
@@ -93,6 +94,37 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 	return ret;
 }
 
+/* Start points to the first character after "${" */
+static gboolean start_is_field_reference(const char *start)
+{
+	const char *end;
+	char saved_c;
+	const header_field_info *hfinfo;
+
+	end = strchr(start, '}');
+	if (end == NULL)
+		return FALSE;
+
+	saved_c = *end;
+	/* This violates constness but we will restore the original string. */
+	*(char *)end = '\0';
+	/* Search for name in registered fields. */
+	hfinfo = dfilter_resolve_unparsed(NULL, start);
+	/* Restore mangled string. */
+	*(char *)end = saved_c;
+
+	if (hfinfo == NULL)
+		return FALSE;
+
+	if (hfinfo->type == FT_PROTOCOL || hfinfo->type == FT_NONE) {
+		/* Ignore these? */
+		return FALSE;
+	}
+
+	/* It's a field reference so ignore it as a macro. */
+	ws_noisy("Ignore field reference ${%s}", start);
+	return TRUE;
+}
 
 static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar** error) {
 	enum { OUTSIDE, STARTING, NAME, ARGS } state = OUTSIDE;
@@ -147,22 +179,14 @@ static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar*
 			} case STARTING: {
 				switch (c) {
 					case '{': {
-						/* If the name has a dot it's a field reference,
-						 * and conversely if it doesn't have a dot it's a macro. */
-						const char *sep = r;
-						char cc;
-						while ((cc = *sep++) != '\0') {
-							if (cc == '.' || cc == ':' || cc == '}') {
-								break;
-							}
-						}
-						if (cc == '.') {
-							/* Field reference, preserve */
+						if (start_is_field_reference(r)) {
+							/* We have a field reference, preserve the name with ${} and bail. */
 							g_string_append(out,"${");
 							state = OUTSIDE;
 							break;
 						}
 
+						/* We have a macro, continue. */
 						args = g_ptr_array_new();
 						arg = g_string_sized_new(32);
 						name = g_string_sized_new(32);

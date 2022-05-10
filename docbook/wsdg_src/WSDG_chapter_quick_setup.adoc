@@ -562,10 +562,10 @@ Create (if required) and change to the appropriate build directory.
 ----
 to create and jump into the build directory.
 
-The build directory can be deleted at any time and the build files regenerated as detailed in <<ChWin32Generate>>.
+The build directory can be deleted at any time and the build files regenerated as detailed in <<ChWindowsGenerate>>.
 --
 
-[#ChWin32Generate]
+[#ChWindowsGenerate]
 
 ==== Generate the build files
 
@@ -582,22 +582,15 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
-> : or
 > cmake -G "Visual Studio 17 2022" -A x64 ..\wireshark
+> : or
+> cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
 ----
 
 Adjusting the path to the Wireshark source tree as required.
 To use a different generator modify the `-G` parameter.
 `cmake -G` lists all the CMake supported generators, but only Visual Studio is supported for Wireshark builds.
-
-To build a 32-bit / x86 version, specify “Win32” as the architecture:
-
-----
-> cmake -G "Visual Studio 16 2019" -A Win32 ..\wireshark
-> : or
-> cmake -G "Visual Studio 17 2022" -A Win32 ..\wireshark
-----
+32-bit builds are no longer supported.
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
 as required, then test each library for usability before generating the build files.
@@ -613,7 +606,7 @@ If you get any other output, there is an issue in your environment that must be 
 Check the parameters passed to CMake, especially the `-G` option and the path to the Wireshark sources and
 the environment variables `WIRESHARK_BASE_DIR` and `CMAKE_PREFIX_PATH`.
 
-[#ChWin32Build]
+[#ChWindowsBuild]
 
 ==== Build Wireshark
 
@@ -688,6 +681,5 @@ Run
 > packaging\nsis\wireshark-win64-{wireshark-version}-myprotocol123.exe
 ----
 
-to test your new installer. It’s a good idea to test on a different
-machine than the developer machine. Note that if you've built an x86
-version, the installer name will contain “win32”.
+to test your new installer.
+It’s a good idea to test on a different machine than the developer machine.

@@ -10,8 +10,7 @@ Wireshark 3.7.0 Release Notes
 
  What’s New
 
-    • We no longer ship Windows Installer (.msi) packages for 32-bit
-      Windows. Issue 17779[1]
+ Note: We no longer ship packages for 32-bit Windows. Issue 17779[1]
 
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
@@ -84,12 +83,22 @@ Wireshark 3.7.0 Release Notes
        not a boolean operator. In particular this means it is now
        possible to mask bits, e.g.: frame[0] & 0x0F == 3.
 
-        • Simple arithmetic expressions are supported in filter
-       expressions. It is now possible to use expressions such as
-       "tcp.dstport >= tcp.srcport + 1", or using field references to
-       the selected frame: frame.number > ${frame.number} - 5. Note that
-       the last example is only meaningful using the GUI because TShark
-       has no concept of selected frame.
+        • Arithmetic is supported for numeric fields with the usual
+       operators: +, -, *, /, %. Arithmetic expressions must be grouped
+       using curly brackets (not parenthesis).
+
+        • Logical AND now has higher precedence than logical OR, in line
+       with most programming languages.
+
+        • Adds new display filter functions max(), min() and abs().
+
+        • Functions can accept expressions as arguments, including other
+       functions. Previously only protocol fields and slices were
+       syntactically valid function arguments.
+
+        • New syntax to match a specific layer in the protocol stack.
+       For example ip.addr#2 == 1.1.1.1 matches only the inner layer in
+       an IP-over-IP packet.
 
      • text2pcap and "Import from Hex Dump":
 
@@ -149,7 +158,14 @@ Wireshark 3.7.0 Release Notes
      • ZigBee ZCL Messaging: rename zbee_zcl_se.msg.msg_ctrl.depreciated
        to zbee_zcl_se.msg.msg_ctrl.deprecated
 
-  Removed Features and Support
+     • The interface list on the welcome page sorts active interfaces
+       first and only displays the sparkline for active interfaces.
+       Additionally, the interfaces can now be hidden/unhidden via the
+       context menu in the interface list
+
+     • ETW reader now supports to display IP packets from an event trace
+       logfile or an event trace live session === Removed Features and
+       Support
 
      • CMake: The options starting with DISABLE_something were renamed
        ENABLE_something for consistency. For example DISABLE_WERROR=On
@@ -218,7 +234,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-03-31 18:02:31 UTC
+  Last updated 2022-01-13 18:54:01 UTC
 
  References
 

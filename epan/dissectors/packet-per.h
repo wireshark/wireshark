@@ -119,5 +119,5 @@ extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn
 
 WS_DLL_PUBLIC int call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, asn1_ctx_t *actx, int hf_index);
 WS_DLL_PUBLIC void register_per_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
-
+WS_DLL_PUBLIC void add_per_encoded_label(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree);
 #endif  /* __PACKET_PER_H__ */

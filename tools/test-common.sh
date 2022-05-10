@@ -132,28 +132,39 @@ function ws_exit_error() {
 
     # Fill in build information
     {
-        echo -e "Branch: $(git rev-parse --abbrev-ref HEAD)\n"
-        echo -e "Input file: $CF\n"
-        echo -e "Build host information:"
-        uname -srvm
-        lsb_release -a 2> /dev/null
-
         if [ -n "$CI_COMMIT_BRANCH" ] ; then
-            echo -e "\nBranch: $CI_COMMIT_BRANCH"
+            printf "Branch: %s\\n" "$CI_COMMIT_BRANCH"
+        else
+            printf "Branch: %s\\n" "$(git rev-parse --abbrev-ref HEAD)"
         fi
+
+        printf "Input file: %s\\n" "$CF"
 
         if [ -n "$CI_JOB_NAME" ] ; then
-            echo -e "\nCI job name: $CI_JOB_NAME, ID: $CI_JOB_ID"
+            printf "CI job name: %s, ID: %s\\n" "$CI_JOB_NAME" "$CI_JOB_ID"
+            printf "CI job URL: %s\\n" "$CI_JOB_URL"
         fi
 
-        echo -e "\nReturn value: " $RETVAL
-        echo -e "\nDissector bug: " $DISSECTOR_BUG
-        echo -e "\nValgrind error count: " $VG_ERR_CNT
+        printf "Return value: %s\\n" "$RETVAL"
+        printf "Dissector bug: %s\\n" "$DISSECTOR_BUG"
+        if [ "$VALGRIND" -eq 1 ] ; then
+            printf "Valgrind error count: %s\\n" "$VG_ERR_CNT"
+        fi
 
+        printf "Date and time: %s\\n" "$( date --utc )"
+
+        SINCE_HOURS=48
         if [ -d "${GIT_DIR:-.git}" ] ; then
-                echo -e "\nLatest (but not necessarily the problem) commit:"
-                git log --max-count=1 --oneline
+                printf "\\nCommits in the last %s hours:\\n" $SINCE_HOURS
+                git --no-pager log --oneline --no-decorate --since=${SINCE_HOURS}hours
+                printf "\\n"
         fi
+
+        printf "Build host information:\\n"
+        uname -srvm
+        lsb_release -a 2> /dev/null
+        printf "\\n"
+
     } > "$TMP_DIR/${ERR_FILE}.header"
 
     # Trim the stderr output if needed

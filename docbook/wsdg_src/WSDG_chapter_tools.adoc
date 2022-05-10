@@ -98,7 +98,7 @@ $ cmake -G Ninja ../wireshark
 $ ninja (or cmake --build .)
 ----
 
-Using CMake on Windows is described further in <<ChWin32Generate>>.
+Using CMake on Windows is described further in <<ChWindowsGenerate>>.
 
 Along with specifying a generator with the `-G` flag you can set variables
 using the `-D` flag. Useful variables and generators include the following:

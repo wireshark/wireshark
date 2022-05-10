@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.7.0 (2021-12)
+-- 3GPP TS 36.331 V16.8.0 (2022-03)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -344,7 +344,7 @@ DLDedicatedMessageSegment-r16-IEs ::=	SEQUENCE {
 	segmentNumber-r16						INTEGER (0..4),
 	rrc-MessageSegmentContainer-r16			OCTET STRING,
 	rrc-MessageSegmentType-r16				ENUMERATED {notLastSegment, lastSegment},
-	lateNonCriticalExtensions				OCTET STRING					OPTIONAL,
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
 	nonCriticalExtension					SEQUENCE {}						OPTIONAL
 }
 
@@ -2542,7 +2542,7 @@ SCPTMConfiguration-BR-r14 ::=	SEQUENCE {
 SCPTMConfiguration-BR-v1610 ::=	SEQUENCE {
 	sc-MTCH-InfoList-MultiTB-r16	SC-MTCH-InfoList-BR-r14,
 	multiTB-Gap-r16					ENUMERATED {sf2, sf4, sf8, sf16, sf32, sf64, sf128, spare}
-																		OPTIONAL,	-- Need OR,
+																		OPTIONAL,	-- Need OR
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
@@ -3788,7 +3788,7 @@ MobilityHistoryReport-r12 ::=	VisitedCellInfoList-r12
 
 FlightPathInfoReport-r15 ::=		SEQUENCE {
 	flightPath-r15	SEQUENCE (SIZE (1..maxWayPoint-r15)) OF WayPointLocation-r15	OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+	dummy							SEQUENCE {}							OPTIONAL
 }
 
 WayPointLocation-r15 ::=			SEQUENCE {

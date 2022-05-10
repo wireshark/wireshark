@@ -41,23 +41,26 @@ extern "C" {
  * If you do, legacy scripts will break. (which is why the perl script regex isn't better)
  */
 
-/** The group this stat should be registered in. */
-typedef enum {
-    REGISTER_ANALYZE_GROUP_UNSORTED,            /* unsorted analyze stuff */
-    REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /* conversation filters. Unused? */
-    REGISTER_STAT_GROUP_UNSORTED,               /* unsorted statistic function */
-    REGISTER_STAT_GROUP_GENERIC,                /* generic statistic function, not specific to a protocol */
-    REGISTER_STAT_GROUP_CONVERSATION_LIST,      /* member of the conversation list */
-    REGISTER_STAT_GROUP_ENDPOINT_LIST,          /* member of the endpoint list */
-    REGISTER_STAT_GROUP_RESPONSE_TIME,          /* member of the service response time list */
-    REGISTER_STAT_GROUP_RSERPOOL,               /* member of the RSerPool list */
-    REGISTER_STAT_GROUP_TELEPHONY,              /* telephony specific */
-    REGISTER_STAT_GROUP_TELEPHONY_ANSI,         /* name says it all */
-    REGISTER_STAT_GROUP_TELEPHONY_GSM,          /* GSM (and UMTS?) */
-    REGISTER_STAT_GROUP_TELEPHONY_LTE,          /* name says it all */
-    REGISTER_STAT_GROUP_TELEPHONY_MTP3,         /* name says it all */
-    REGISTER_STAT_GROUP_TELEPHONY_SCTP,         /* name says it all */
-    REGISTER_TOOLS_GROUP_UNSORTED               /* unsorted tools */
+/*! Statistics groups. Used for UI menu layout. */
+/* This is parsed by make-init-lua.pl, so we can't do anything fancy here. */
+typedef enum register_stat_group_e {
+    REGISTER_PACKET_ANALYZE_GROUP_UNSORTED,     /*!< Unsorted packet analysis */
+    REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /*!< Conversation filters. Unused? */
+    REGISTER_PACKET_STAT_GROUP_UNSORTED,        /*!< Unsorted packet statistics */
+    REGISTER_STAT_GROUP_GENERIC,                /*!< Generic statistics, not specific to a protocol */
+    REGISTER_STAT_GROUP_CONVERSATION_LIST,      /*!< Member of the conversation list */
+    REGISTER_STAT_GROUP_ENDPOINT_LIST,          /*!< Member of the endpoint list */
+    REGISTER_STAT_GROUP_RESPONSE_TIME,          /*!< Member of the service response time list */
+    REGISTER_STAT_GROUP_RSERPOOL,               /*!< Member of the RSerPool list */
+    REGISTER_STAT_GROUP_TELEPHONY,              /*!< Telephony specific */
+    REGISTER_STAT_GROUP_TELEPHONY_ANSI,         /*!< Name says it all */
+    REGISTER_STAT_GROUP_TELEPHONY_GSM,          /*!< GSM (and UMTS?) */
+    REGISTER_STAT_GROUP_TELEPHONY_LTE,          /*!< Name says it all */
+    REGISTER_STAT_GROUP_TELEPHONY_MTP3,         /*!< Name says it all */
+    REGISTER_STAT_GROUP_TELEPHONY_SCTP,         /*!< Name says it all */
+    REGISTER_TOOLS_GROUP_UNSORTED,              /*!< Unsorted tools */
+    REGISTER_LOG_ANALYZE_GROUP_UNSORTED,        /*!< Unsorted log analysis */
+    REGISTER_LOG_STAT_GROUP_UNSORTED,           /*!< Unsorted log statistics */
 } register_stat_group_t;
 
 /** Format types for "Save As..." */

@@ -1078,6 +1078,7 @@ Section "Configuration Profiles" SecProfiles
 ; This should be a function or macro
 SetOutPath '$INSTDIR\profiles\Bluetooth'
 File "${STAGING_DIR}\profiles\Bluetooth\colorfilters"
+File "${STAGING_DIR}\profiles\Bluetooth\preferences"
 SetOutPath '$INSTDIR\profiles\Classic'
 File "${STAGING_DIR}\profiles\Classic\colorfilters"
 SetOutPath '$INSTDIR\profiles\No Reassembly'

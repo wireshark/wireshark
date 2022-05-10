@@ -1740,7 +1740,6 @@ static int hf_bt_characteristic_percentage_8 = -1;
 static int hf_bt_characteristic_time_millisecond_24 = -1;
 static int hf_bt_characteristic_time_second_16 = -1;
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 static const
 bt_property_raw_value_entry_t sensor_column_status_hfs = {
     .hf_raw_value_a = &hf_btmesh_sensor_column_status_raw_value_a,
@@ -1796,7 +1795,6 @@ bt_property_columns_raw_value_t sensor_series_get_hfs = {
     .hf_raw_value_a1 = &hf_btmesh_sensor_series_get_raw_value_a1,
     .hf_raw_value_a2 = &hf_btmesh_sensor_series_get_raw_value_a2
 };
-#endif
 
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
@@ -2414,8 +2412,6 @@ static const value_string btmesh_defined_or_dash_vals[] = {
     { 0, NULL }
 };
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-
 static int * const config_composition_data_status_features_headers[] = {
     &hf_btmesh_config_composition_data_status_features_relay,
     &hf_btmesh_config_composition_data_status_features_proxy,
@@ -2480,8 +2476,6 @@ static const fragment_items btmesh_segmented_control_frag_items = {
     NULL,
     "fragments"
 };
-
-#endif
 
 static const value_string btmesh_status_code_vals[] = {
     { 0x00, "Success" },
@@ -2785,7 +2779,6 @@ static const value_string btmesh_properties_vals[] = {
     { PROPERTY_OUTPUT_CURRENT_PERCENT                                  , "Output Current Percent"                                   },
     { 0, NULL }
 };
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
 static const btmesh_property_t btmesh_properties[] = {
     { PHONY_PROPERTY_PERCENTAGE_CHANGE_16                              , PHONY_CHARACTERISTIC_PERCENTAGE_CHANGE_16                },
@@ -3072,7 +3065,6 @@ static const bt_gatt_characteristic_t bt_gatt_characteristics[] = {
     { CHARACTERISTIC_WIND_CHILL                               , 1, NULL                                      , DISSECTOR_SIMPLE },
     { 0, 0, NULL, 0},
 };
-#endif /* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
 /* Upper Transport Message reassembly */
 
@@ -3180,7 +3172,6 @@ upper_transport_init_routine(void)
 }
 
 /* A BT Mesh dissector is not realy useful without decryption as all packets are encrypted. Just leave a stub dissector outside of */
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
 /* BT Mesh s1 function */
 static gboolean
@@ -3629,8 +3620,6 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
     de_obf_tvb = tvb_new_child_real_data(tvb, plaintextnetworkheader, 6, 6);
     return de_obf_tvb;
 }
-
-#endif /* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
 static const gchar *period_interval_unit[] = {"ms", "s", "s", "min"};
 static const guint32 period_interval_multiplier[] = {100, 1, 10, 10};
@@ -4395,8 +4384,6 @@ format_time_second_16(gchar *buf, guint32 value) {
     }
 }
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-
 static guint16
 find_characteristic_id(guint16 property_id)
 {
@@ -4808,9 +4795,10 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             /* Vendor opcode */
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor_opcode, tvb, offset, 1, ENC_NA);
             vendor = tvb_get_guint16(tvb, offset + 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
             dissector_try_uint_new(btmesh_model_vendor_dissector_table, vendor, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(vendor));
+            col_set_str(pinfo->cinfo, COL_INFO, "Access Message - Vendor Opcode");
             offset+=3;
         } else {
         /* Two octet opcode */
@@ -7818,6 +7806,7 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
                             col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
                         } else {
+                            col_clear(pinfo->cinfo, COL_INFO);
                             col_append_fstr(pinfo->cinfo, COL_INFO,"Control Message (fragment %u)", sego);
                         }
                     }
@@ -7825,6 +7814,9 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
         } else {
             if (opcode == 0) {
+                col_clear(pinfo->cinfo, COL_INFO);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                    val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Control Message Unknown"));
                 /* OBO 1 */
                 proto_tree_add_item(sub_tree, hf_btmesh_obo, tvb, offset, 2, ENC_BIG_ENDIAN);
                 /* SeqZero 13 */
@@ -7922,7 +7914,8 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, dec_ctx);
                             col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
                         } else {
-                            col_append_fstr(pinfo->cinfo, COL_INFO,"Access Message (fragment %u)", sego);
+                            col_clear(pinfo->cinfo, COL_INFO);
+                            col_append_fstr(pinfo->cinfo, COL_INFO, "Access Message (fragment %u)", sego);
                         }
                     }
                 }
@@ -8052,7 +8045,6 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     network_decryption_ctx_t *dec_ctx;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     item = proto_tree_add_item(tree, proto_btmesh, tvb, offset, -1, ENC_NA);
     netw_tree = proto_item_add_subtree(item, ett_btmesh);
@@ -8122,56 +8114,6 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     return offset;
 }
-
-#else /* GCRYPT_VERSION_NUMBER >= 0x010600 */
-
-static gboolean
-create_master_security_keys(uat_btmesh_record_t * net_key_set _U_)
-{
-    return FALSE;
-}
-
-static gboolean
-k4(uat_btmesh_record_t *key_set _U_)
-{
-    return FALSE;
-}
-
-static gboolean
-label_uuid_hash(uat_btmesh_label_uuid_record_t *label_uuid_record _U_)
-{
-    return FALSE;
-}
-
-/* Stub dissector if decryption not available on build system */
-static gint
-dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-    proto_item *item;
-    proto_tree *sub_tree;
-    int offset = 0;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh");
-    col_clear(pinfo->cinfo, COL_INFO);
-
-    item = proto_tree_add_item(tree, proto_btmesh, tvb, offset, -1, ENC_NA);
-    sub_tree = proto_item_add_subtree(item, ett_btmesh);
-
-    /* First byte in plaintext */
-    /* IVI 1 bit Least significant bit of IV Index */
-    proto_tree_add_item(sub_tree, hf_btmesh_ivi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_btmesh_nid, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-
-    proto_tree_add_item(sub_tree, hf_btmesh_obfuscated, tvb, offset, 6, ENC_NA);
-    offset += 6;
-
-    proto_tree_add_item(sub_tree, hf_btmesh_encrypted, tvb, offset, -1, ENC_NA);
-
-    return tvb_reported_length(tvb);
-}
-
-#endif /* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
 static gint
 compute_ascii_key(guchar **ascii_key, const gchar *key, const gchar *key_name, guint expected_octets, char **err)
@@ -8877,8 +8819,8 @@ proto_register_btmesh(void)
                 NULL, HFILL }
         },
         { &hf_btmesh_model_layer_vendor,
-            { "Opcode", "btmesh.model.vendor",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+            { "Company ID", "btmesh.model.vendor",
+                FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
                 NULL, HFILL }
         },
         { &hf_btmesh_model_layer_opcode,

@@ -734,18 +734,8 @@ void ws_log_init(const char *progname,
 
     current_log_level = DEFAULT_LOG_LEVEL;
 
-#if GLIB_CHECK_VERSION(2,50,0)
     stdout_color_enabled = g_log_writer_supports_color(fileno(stdout));
     stderr_color_enabled = g_log_writer_supports_color(fileno(stderr));
-#elif !defined(_WIN32)
-    /* We assume every non-Windows console supports color. */
-    stdout_color_enabled = (isatty(fileno(stdout)) == 1);
-    stderr_color_enabled = (isatty(fileno(stderr)) == 1);
-#else
-     /* Our Windows build version of GLib is pretty recent, we are probably
-      * fine here, unless we want to do better than GLib. */
-    stdout_color_enabled = stderr_color_enabled = false;
-#endif
 
     /* Set the GLib log handler for the default domain. */
     g_log_set_handler(NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,

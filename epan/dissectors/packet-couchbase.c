@@ -491,6 +491,7 @@ static int hf_extras_start_seqno = -1;
 static int hf_extras_end_seqno = -1;
 static int hf_extras_high_completed_seqno = -1;
 static int hf_extras_max_visible_seqno = -1;
+static int hf_extras_timestamp = -1;
 static int hf_extras_marker_version = -1;
 static int hf_extras_vbucket_uuid = -1;
 static int hf_extras_snap_start_seqno = -1;
@@ -2651,20 +2652,39 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_item(tree, hf_get_errmap_version, tvb, offset, value_len, ENC_BIG_ENDIAN);
       }
     } else if (request && opcode == CLIENT_OPCODE_DCP_SNAPSHOT_MARKER) {
-      if (value_len != 36) {
-        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 36");
-        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
-      } else {
+        if (value_len < 20) {
+            expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be at least 20");
+            ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+        }
+
         proto_tree_add_item(tree, hf_extras_start_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         proto_tree_add_item(tree, hf_extras_end_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         proto_tree_add_bitmask(tree, tvb, offset, hf_extras_flags, ett_extras_flags, snapshot_marker_flags, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(tree, hf_extras_max_visible_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
-        proto_tree_add_item(tree, hf_extras_high_completed_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
-      }
+
+        if (value_len > 20) {
+            if (value_len < 36) {
+                expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be at least 36");
+                ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+            }
+
+            proto_tree_add_item(tree, hf_extras_max_visible_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+            offset += 8;
+            proto_tree_add_item(tree, hf_extras_high_completed_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+            offset += 8;
+
+            if (value_len > 36) {
+                if (value_len != 44) {
+                    expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 44");
+                    ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+                }
+
+                proto_tree_add_item(tree, hf_extras_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+            }
+        }
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
 #ifdef HAVE_SNAPPY
@@ -3743,6 +3763,7 @@ proto_register_couchbase(void)
     { &hf_extras_end_seqno, { "End Sequence Number", "couchbase.extras.end_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_high_completed_seqno, { "High Completed Sequence Number", "couchbase.extras.high_completed_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_max_visible_seqno, { "Max Visible Seqno", "couchbase.extras.max_visible_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_timestamp, { "PiTR timestamp", "couchbase.extras.timestamp", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_marker_version, { "Snapshot Marker Version", "couchbase.extras.marker_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_vbucket_uuid, { "VBucket UUID", "couchbase.extras.vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_snap_start_seqno, { "Snapshot Start Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },

@@ -461,7 +461,8 @@ static const value_string E164_International_Networks_883_vals[] = {
 static int proto_e164				= -1;
 static int hf_E164_calling_party_number		= -1;
 static int hf_E164_called_party_number		= -1;
-static int hf_E164_number			= -1;
+static int hf_E164_msisdn			= -1;
+static int hf_E164_isdn				= -1;
 static int hf_E164_identification_code		= -1;
 static int hf_E164_country_code			= -1;
 
@@ -491,7 +492,7 @@ dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e16
 	}
 
 	if (e164_info.nature_of_address == E164_NA_INTERNATIONAL_NUMBER) {
-		pi = proto_tree_add_string(tree, hf_E164_number, tvb, offset, length, e164_info.E164_number_str);
+		pi = proto_tree_add_string(tree, hf_E164_msisdn, tvb, offset, length, e164_info.E164_number_str);
 		proto_item_set_hidden(pi);
 	}
 }
@@ -797,13 +798,13 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 
 }
 
-const gchar *
-dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
+static const gchar *
+dissect_e164(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding, int name_type)
 {
 	proto_item *pi;
 	proto_tree *subtree;
 	guint       str_encoding;
-	char       *msisdn_str;
+	char       *number_str;
 
 	switch (encoding) {
 	case E164_ENC_UTF8:
@@ -817,13 +818,25 @@ dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e16
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	pi = proto_tree_add_item_ret_display_string(tree, hf_E164_number, tvb, offset, length, str_encoding, wmem_packet_scope(), &msisdn_str);
+	pi = proto_tree_add_item_ret_display_string(tree, name_type, tvb, offset, length, str_encoding, wmem_packet_scope(), &number_str);
 
 	subtree = proto_item_add_subtree(pi, ett_e164_msisdn);
 
 	dissect_e164_cc(tvb, subtree, offset, encoding);
 
-	return msisdn_str;
+	return number_str;
+}
+
+const gchar *
+dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
+{
+	return dissect_e164(tvb, tree, offset, length, encoding, hf_E164_msisdn);
+}
+
+const gchar *
+dissect_e164_isdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
+{
+	return dissect_e164(tvb, tree, offset, length, encoding, hf_E164_isdn);
 }
 
 /*
@@ -846,8 +859,13 @@ proto_register_e164(void)
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{ &hf_E164_number,
+		{ &hf_E164_msisdn,
 		  { "E.164 number (MSISDN)", "e164.msisdn",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_E164_isdn,
+		  { "E.164 number (ISDN)", "e164.isdn",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 

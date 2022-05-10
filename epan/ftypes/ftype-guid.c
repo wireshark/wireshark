@@ -121,6 +121,7 @@ ftype_register_guid(void)
         NULL,
         NULL,
         NULL,
+        NULL,
         NULL,                /* unary_minus */
         NULL,                /* add */
         NULL,                /* subtract */

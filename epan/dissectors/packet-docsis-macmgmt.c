@@ -3391,7 +3391,7 @@ dissect_rngrsp_transmit_equalization_encodings_ofdma(tvbuff_t * tvb, proto_tree 
 }
 
 static void
-dissect_rngrsp_commanded_power(tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 len)
+dissect_rngrsp_commanded_power(tvbuff_t * tvb, proto_tree * tree, guint start, guint16 len)
 {
   guint16 pos;
   guint16 i;

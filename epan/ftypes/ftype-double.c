@@ -106,6 +106,20 @@ val_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 	return FT_OK;
 }
 
+enum ft_result
+val_multiply(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.floating = a->value.floating * b->value.floating;
+	return FT_OK;
+}
+
+enum ft_result
+val_divide(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.floating = a->value.floating / b->value.floating;
+	return FT_OK;
+}
+
 static int
 cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
@@ -114,6 +128,18 @@ cmp_order(const fvalue_t *a, const fvalue_t *b)
 	if (a->value.floating > b->value.floating)
 		return 1;
 	return 0;
+}
+
+static gboolean
+val_is_zero(const fvalue_t *fv_a)
+{
+	return fv_a->value.floating == 0;
+}
+
+static gboolean
+val_is_negative(const fvalue_t *fv_a)
+{
+	return fv_a->value.floating < 0;
 }
 
 void
@@ -140,15 +166,16 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,				/* is_zero */
+		val_is_zero,			/* is_zero */
+		val_is_negative,		/* is_negative */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */
 		val_subtract,			/* subtract */
-		NULL,				/* multiply */
-		NULL,				/* divide */
+		val_multiply,			/* multiply */
+		val_divide,			/* divide */
 		NULL,				/* modulo */
 	};
 
@@ -172,15 +199,16 @@ ftype_register_double(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,				/* is_zero */
+		val_is_zero,			/* is_zero */
+		val_is_negative,		/* is_negative */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
 		val_unary_minus,		/* unary_minus */
 		val_add,			/* add */
 		val_subtract,			/* subtract */
-		NULL,				/* multiply */
-		NULL,				/* divide */
+		val_multiply,			/* multiply */
+		val_divide,			/* divide */
 		NULL,				/* modulo */
 	};
 

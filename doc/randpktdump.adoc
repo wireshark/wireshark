@@ -163,7 +163,7 @@ To capture:
 
     randpktdump --extcap-interface=randpkt --fifo=/tmp/randpkt.pcapng --capture
 
-NOTE: To stop capturing CTRL+C/kill/terminate application.
+NOTE: To stop capturing CTRL+C/kill/terminate the application.
 
 == SEE ALSO
 

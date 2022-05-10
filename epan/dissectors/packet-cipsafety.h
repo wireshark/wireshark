@@ -49,11 +49,13 @@ typedef struct cip_safety_info {
 extern void dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi, const char* snn_name, int hf_snn_timestamp,
              int hf_snn_date, int hf_snn_time, int hf_macid, gint ett, gint ett_snn);
 extern void dissect_cipsafety_snn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int hf_real_datetime, int hf_date, int hf_time);
+extern void cip_safety_128us_fmt(gchar *s, guint32 value);
 
 /*
 ** Exported variables
 */
 extern const value_string cipsafety_snn_date_vals[8];
 extern attribute_info_t cip_safety_attribute_vals[51];
+extern const range_string safety_max_consumer_numbers[];
 
 #endif /* PACKET_CIPSAFETY_H */

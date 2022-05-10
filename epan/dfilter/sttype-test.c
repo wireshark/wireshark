@@ -64,12 +64,12 @@ test_free(gpointer value)
 	g_free(test);
 }
 
-static const char *
-test_todisplay(test_op_t op)
+static char *
+test_todisplay(const test_t *test)
 {
 	const char *s = "<notset>";
 
-	switch(op) {
+	switch(test->op) {
 		case TEST_OP_NOT:
 			s = "!";
 			break;
@@ -135,15 +135,15 @@ test_todisplay(test_op_t op)
 			s = "<uninitialized>";
 			break;
 	}
-	return s;
+	return g_strdup(s);
 }
 
-static const char *
-test_todebug(test_op_t op)
+static char *
+test_todebug(const test_t *test)
 {
 	const char *s = "<notset>";
 
-	switch(op) {
+	switch(test->op) {
 		case TEST_OP_NOT:
 			s = "TEST_NOT";
 			break;
@@ -211,7 +211,8 @@ test_todebug(test_op_t op)
 			s = "<uninitialized>";
 			break;
 	}
-	return s;
+
+	return g_strdup(s);
 }
 
 static char *
@@ -219,13 +220,10 @@ test_tostr(const void *value, gboolean pretty)
 {
 	const test_t *test = value;
 	ws_assert_magic(test, TEST_MAGIC);
-	const char *s;
 
 	if (pretty)
-		s = test_todisplay(test->op);
-	else
-		s = test_todebug(test->op);
-	return g_strdup(s);
+		return test_todisplay(test);
+	return test_todebug(test);
 }
 
 static int

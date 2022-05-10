@@ -736,7 +736,7 @@ print_usage(FILE *output)
     fprintf(output, "\n");
     fprintf(output, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
     fprintf(output, "\n");
-    fprintf(output, "<infile> and <outfile> must both be present.\n");
+    fprintf(output, "<infile> and <outfile> must both be present; use '-' for stdin or stdout.\n");
     fprintf(output, "A single packet or a range of packets can be selected.\n");
     fprintf(output, "\n");
     fprintf(output, "Packet selection:\n");

@@ -6182,7 +6182,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     evt_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(bthci_evt_tree, " - %s", val_to_str_ext_const(evt_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x"));
+    proto_item_append_text(bthci_evt_tree, " - %s", val_to_str_ext(evt_code, &bthci_evt_evt_code_vals_ext,  "Unknown 0x%02x"));
     offset += 1;
 
     if (have_tap_listener(bluetooth_hci_summary_tap)) {
@@ -6209,7 +6209,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT");
 
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(evt_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext(evt_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%02x"));
 
     if (param_length > 0) {
         switch(evt_code) {

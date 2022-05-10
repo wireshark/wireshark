@@ -61,6 +61,7 @@ ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
+SourceDLForwardingIPAddress
 #.END
 
 #.FN_BODY ProtocolIE-ID  VAL_PTR = &x2ap_data->protocol_ie_id
@@ -1572,6 +1573,8 @@ id-IMSvoiceEPSfallbackfrom5G					ProtocolIE-ID
 id-AdditionLocationInformation					ProtocolIE-ID
 id-DirectForwardingPathAvailability				ProtocolIE-ID
 id-sourceNG-RAN-node-id						ProtocolIE-ID
+id-SourceDLForwardingIPAddress					ProtocolIE-ID
+id-SourceNodeDLForwardingIPAddress				ProtocolIE-ID
 
 #.REGISTER
 
@@ -1979,6 +1982,8 @@ URI-Address							N x2ap.extension id-TraceCollectionEntityURI
 SFN-Offset							N x2ap.extension id-SFN-Offset
 IMSvoiceEPSfallbackfrom5G					N x2ap.extension id-IMSvoiceEPSfallbackfrom5G
 AdditionLocationInformation					N x2ap.extension id-AdditionLocationInformation
+TransportLayerAddress						N x2ap.extension id-SourceDLForwardingIPAddress
+TransportLayerAddress						N x2ap.extension id-SourceNodeDLForwardingIPAddress
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

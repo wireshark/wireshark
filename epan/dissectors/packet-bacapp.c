@@ -9009,7 +9009,9 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         lastoffset = offset;
         fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         if (tag_is_closing(tag_info)) { /* closing tag, but not for me */
-            if (depth <= 0) return offset;
+            if (depth <= 0) {
+                goto cleanup;
+            }
         }
 
         do_default_handling = FALSE;
@@ -9756,6 +9758,8 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         }
         if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
+
+cleanup:
     recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
     p_set_proto_depth(pinfo, proto_bacapp, recursion_depth - 1);
     return offset;
@@ -16368,9 +16372,6 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     bacinfo.invoke_id = NULL;
     bacinfo.instance_ident = NULL;
     bacinfo.object_ident = NULL;
-
-    /* Recursion depth */
-    p_add_proto_data(pinfo->pool, pinfo, proto_bacapp, 0, GUINT_TO_POINTER(0));
 
     switch (bacapp_type) {
     case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST:

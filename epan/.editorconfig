@@ -25,10 +25,6 @@ indent_size = 2
 [column.[ch]]
 indent_size = 2
 
-[conversation.[ch]]
-indent_style = tab
-indent_size = tab
-
 [crc32-tvb.[ch]]
 indent_style = tab
 indent_size = tab

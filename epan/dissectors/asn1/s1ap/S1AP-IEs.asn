@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.8.0 (2021-12)
+-- 3GPP TS 36.413 V16.9.0 (2022-04)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -84,6 +84,7 @@ IMPORTS
 	id-Bearers-SubjectToEarlyStatusTransfer-Item,
 	id-TraceCollectionEntityURI,
 	id-EmergencyIndicator,
+	id-SourceTransportLayerAddress,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -1080,7 +1081,8 @@ E-RABInformationListItem ::= SEQUENCE {
 }
 
 E-RABInformationListItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-DAPSRequestInfo						CRITICALITY ignore	EXTENSION DAPSRequestInfo	PRESENCE optional },
+	{ ID id-DAPSRequestInfo						CRITICALITY ignore	EXTENSION DAPSRequestInfo	PRESENCE optional }|
+	{ ID id-SourceTransportLayerAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress				PRESENCE optional},
 	...
 }
 

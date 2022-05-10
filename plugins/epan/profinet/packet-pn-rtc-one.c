@@ -462,15 +462,15 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
             if (addresses_equal(&(pinfo->src), conversation_key_addr1(conversation->key_ptr)) && addresses_equal(&(pinfo->dst), conversation_key_addr2(conversation->key_ptr))) {
                 inputFlag = TRUE;
                 outputFlag = FALSE;
-                number_io_data_objects_input_cr = station_info->ioDataObjectNr;
-                number_iocs_input_cr = station_info->iocsNr;
+                number_io_data_objects_input_cr = station_info->ioDataObjectNr_in;
+                number_iocs_input_cr = station_info->iocsNr_in;
             }
 
             if (addresses_equal(&(pinfo->dst), conversation_key_addr1(conversation->key_ptr)) && addresses_equal(&(pinfo->src), conversation_key_addr2(conversation->key_ptr))) {
                 outputFlag = TRUE;
                 inputFlag = FALSE;
-                number_io_data_objects_output_cr = station_info->ioDataObjectNr;
-                number_iocs_output_cr = station_info->iocsNr;
+                number_io_data_objects_output_cr = station_info->ioDataObjectNr_out;
+                number_iocs_output_cr = station_info->iocsNr_out;
             }
         }
     }

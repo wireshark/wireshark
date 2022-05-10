@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.8.0 (2021-12)
+-- 3GPP TS 38.473 V16.9.0 (2022-04)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -109,6 +109,10 @@ IMPORTS
 	id-EstimatedArrivalProbability,
 	id-TRPType,
 	id-SRSSpatialRelationPerSRSResource,
+	id-PDCPTerminatingNodeDLTNLAddrInfo,
+	id-ENBDLTNLAddress,
+	id-PRS-Resource-ID,
+	id-LocationMeasurementInformation,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -1127,7 +1131,8 @@ CUtoDURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MeasurementTimingConfiguration	CRITICALITY ignore	EXTENSION MeasurementTimingConfiguration		PRESENCE optional }|
 	{ ID id-UEAssistanceInformation			CRITICALITY ignore	EXTENSION UEAssistanceInformation					PRESENCE optional }|
 	{ ID id-CG-Config						CRITICALITY ignore	EXTENSION CG-Config									PRESENCE optional }|
-	{ ID id-UEAssistanceInformationEUTRA	CRITICALITY ignore	EXTENSION UEAssistanceInformationEUTRA			PRESENCE optional },
+	{ ID id-UEAssistanceInformationEUTRA	CRITICALITY ignore	EXTENSION UEAssistanceInformationEUTRA			PRESENCE optional }|
+	{ ID id-LocationMeasurementInformation	CRITICALITY ignore	EXTENSION LocationMeasurementInformation			PRESENCE optional },
 	...
 }
 
@@ -1864,6 +1869,7 @@ EUTRANQoS	::= SEQUENCE {
 }
 
 EUTRANQoS-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-ENBDLTNLAddress		CRITICALITY ignore	EXTENSION TransportLayerAddress	PRESENCE optional	},
 	...
 }
 
@@ -2577,6 +2583,8 @@ LMF-MeasurementID ::= INTEGER (1.. 65536, ...)
 
 LMF-UE-MeasurementID ::= INTEGER (1.. 256, ...)
 
+LocationMeasurementInformation ::= OCTET STRING
+
 LocationUncertainty ::= SEQUENCE {
 	horizontalUncertainty		INTEGER (0..255),
 	horizontalConfidence		INTEGER (0..100),
@@ -3224,8 +3232,10 @@ PosBroadcast ::= ENUMERATED {
 PositioningBroadcastCells ::= SEQUENCE (SIZE (1..maxnoBcastCell)) OF NRCGI
 
 MeasurementPeriodicity ::= ENUMERATED
-{ms120, ms240, ms480, ms640, ms1024, ms2048, ms5120, ms10240, min1, min6, min12, min30, ..., ms20480, ms40960}
+{ms120, ms240, ms480, ms640, ms1024, ms2048, ms5120, ms10240, min1, min6, min12, min30, ..., ms20480, ms40960, extended }
 
+
+MeasurementPeriodicityExtended ::= ENUMERATED {ms160, ms320, ms1280, ms2560, ms61440, ms81920,	ms368640, ms737280, ms1843200,	...}
 
 PosMeasurementQuantities ::= SEQUENCE (SIZE(1.. maxnoofPosMeas)) OF PosMeasurementQuantities-Item
 
@@ -3425,6 +3435,7 @@ PRSAngleItem ::= SEQUENCE {
 }
 
 PRSAngleItem-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PRS-Resource-ID		CRITICALITY ignore EXTENSION PRS-Resource-ID		PRESENCE optional },
 	...
 }
 
@@ -3584,7 +3595,8 @@ QoSFlowLevelQoSParameters	::= SEQUENCE {
 QoSFlowLevelQoSParameters-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-PDUSessionID								CRITICALITY ignore	EXTENSION PDUSessionID			PRESENCE optional}|
 	{ ID id-ULPDUSessionAggregateMaximumBitRate			CRITICALITY ignore	EXTENSION BitRate					PRESENCE optional}|
-	{ ID id-QosMonitoringRequest						CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional},
+	{ ID id-QosMonitoringRequest						CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional}|
+	{ ID id-PDCPTerminatingNodeDLTNLAddrInfo		CRITICALITY ignore	EXTENSION TransportLayerAddress	PRESENCE optional	},
 	...
 }
 

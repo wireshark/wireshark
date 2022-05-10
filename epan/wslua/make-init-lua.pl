@@ -220,12 +220,13 @@ $menu_groups .= "-- menu groups for register_menu\n";
 my $menu_i = 0;
 
 open STAT_GROUPS, "< $WSROOT/epan/stat_groups.h" or die "cannot open '$WSROOT/epan/stat_groups.h':  $!";
-my $foundit = 0;
+my $in_stat_group_enum = 0;
 while(<STAT_GROUPS>) {
     # need to skip matching words in comments, and get to the enum
-    if (/^typedef enum \{/) { $foundit = 1; }
+    if (/^typedef enum register_stat_group_e \{/) { $in_stat_group_enum = 1; }
+    if (/^\} register_stat_group_t\;/) { $in_stat_group_enum = 0; }
     # the problem here is we need to pick carefully, so we don't break existing scripts
-    if ($foundit && /REGISTER_([A-Z]+)_GROUP_(CONVERSATION|RESPONSE|ENDPOINT|[A-Z0-9_]+)/) {
+    if ($in_stat_group_enum && /REGISTER_([A-Z0-9_]+)_GROUP_([A-Z0-9_]+),? /) {
         $menu_groups .= "MENU_$1_$2 = $menu_i\n";
         $menu_groups =~ s/_NONE//;
         $menu_i++;
@@ -233,6 +234,15 @@ while(<STAT_GROUPS>) {
 }
 close STAT_GROUPS;
 
+$menu_groups .= <<'FIN';
+-- Old / deprecated menu groups. These shoudn't be used in new code.
+MENU_ANALYZE_UNSORTED = MENU_PACKET_ANALYZE_UNSORTED
+MENU_ANALYZE_CONVERSATION = MENU_ANALYZE_CONVERSATION_FILTER
+MENU_STAT_CONVERSATION = MENU_STAT_CONVERSATION_LIST
+MENU_STAT_ENDPOINT = MENU_STAT_ENDPOINT_LIST
+MENU_STAT_RESPONSE = MENU_STAT_RESPONSE_TIME
+MENU_STAT_UNSORTED = MENU_PACKET_STAT_UNSORTED
+FIN
 
 $bases_table .= "}\n";
 $encodings .= "\n";

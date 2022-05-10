@@ -15,6 +15,11 @@ class case_syntax(unittest.TestCase):
         dfilter = "frame"
         checkDFilterCount(dfilter, 1)
 
+    def test_exists_2(self, checkDFilterCount):
+        # Identifier using minus
+        dfilter = "mac-lte"
+        checkDFilterCount(dfilter, 0)
+
     def test_commute_1(self, checkDFilterCount):
         dfilter = "ip.proto == 6"
         checkDFilterCount(dfilter, 1)
@@ -137,6 +142,39 @@ class case_equality(unittest.TestCase):
         dfilter = "udp contains <ce:13>"
         checkDFilterCount(dfilter, 1)
 
+    def test_literal_3(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00:01:6c"
+        checkDFilterCount(dfilter, 1)
+
+    def test_literal_4(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00016c"
+        checkDFilterCount(dfilter, 1)
+
+    def test_literal_5(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00.01.6c"
+        checkDFilterCount(dfilter, 1)
+
+    def test_literal_6(self, checkDFilterCount):
+        dfilter = "frame[0:10] contains :00-01-6c"
+        checkDFilterCount(dfilter, 1)
+
+    def test_rhs_literal_bias_1(self, checkDFilterCount):
+        dfilter = 'frame[37] == fc'
+        checkDFilterCount(dfilter, 1)
+
+    def test_rhs_literal_bias_2(self, checkDFilterCount):
+        dfilter = 'frame[37] == :fc'
+        checkDFilterCount(dfilter, 1)
+
+    def test_rhs_literal_bias_3(self, checkDFilterCount):
+        dfilter = 'frame[37] == <fc>'
+        checkDFilterCount(dfilter, 1)
+
+    def test_rhs_literal_bias_4(self, checkDFilterCount):
+        # This is Fibre Channel on the RHS
+        dfilter = 'frame[37] == .fc'
+        checkDFilterCount(dfilter, 0)
+
 @fixtures.uses_fixtures
 class case_bitwise(unittest.TestCase):
     trace_file = "http.pcap"
@@ -224,3 +262,53 @@ class case_arithmetic(unittest.TestCase):
     def test_sub_4(self, checkDFilterCount):
         dfilter = "udp.length == ip.len - 20"
         checkDFilterCount(dfilter, 4)
+
+    def test_expr_1(self, checkDFilterCount):
+        dfilter = 'udp.port * { 10 / {5 - 4} } == udp.port * { {50 + 50} / 2 - 40 }'
+        checkDFilterCount(dfilter, 4)
+
+    def test_expr_2(self, checkDFilterCount):
+        dfilter = 'udp.dstport * { udp.srcport / {5 - 4} } == udp.srcport * { 2 * udp.dstport - 68 }'
+        checkDFilterCount(dfilter, 2)
+
+@fixtures.uses_fixtures
+class case_field_reference(unittest.TestCase):
+    trace_file = "dhcp.pcap"
+
+    def test_ref_1(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.number < ${frame.number}'
+        # select frame 3, expect 2 frames out of 4.
+        checkDFilterCountWithSelectedFrame(dfilter, 2, 3)
+
+@fixtures.uses_fixtures
+class case_field_reference(unittest.TestCase):
+    trace_file = "ipoipoip.pcap"
+
+    def test_layer_1(self, checkDFilterCount):
+        dfilter = 'ip.addr#2 == 4.4.4.4'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_2(self, checkDFilterCount):
+        dfilter = 'ip.addr#5'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_3(self, checkDFilterCount):
+        dfilter = 'ip.addr#6'
+        checkDFilterCount(dfilter, 0)
+
+    def test_layer_4(self, checkDFilterCount):
+        dfilter = 'ip.dst#[2-4] == 8.8.8.8'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_5(self, checkDFilterCount):
+        dfilter = 'ip.dst#[-1] == 8.8.8.8'
+        checkDFilterCount(dfilter, 0)
+
+    def test_layer_6(self, checkDFilterCount):
+        dfilter = 'ip.dst#[-1] == 9.9.9.9'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_7(self, checkDFilterCount):
+        dfilter = 'ip.dst#[-5] == 2.2.2.2'
+        checkDFilterCount(dfilter, 1)
+        

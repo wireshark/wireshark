@@ -17,6 +17,11 @@ set(DISSECTOR_SRC
 	sinsp-span.cpp
 )
 
+set(DISSECTOR_HEADERS
+	conversation-macros.h
+	sinsp-span.h
+)
+
 set(PLUGIN_FILES
 	plugin.c
 	${DISSECTOR_SRC}
@@ -52,7 +57,6 @@ target_link_libraries(falco-bridge
 
 install_plugin(falco-bridge epan)
 
-file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 CHECKAPI(
 	NAME
 	  falco-bridge

@@ -112,11 +112,7 @@ void ShowPacketBytesDialog::addCodecs(const QMap<QString, QTextCodec *> &codecMa
     // Make the combobox respect max visible items?
     //ui->cbShowAs->setStyleSheet("QComboBox { combobox-popup: 0;}");
     ui->cbShowAs->insertSeparator(ui->cbShowAs->count());
-#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     for (const auto &codec : qAsConst(codecMap)) {
-#else
-    foreach (const QTextCodec *codec, codecMap) {
-#endif
         // This is already placed in the menu and handled separately
         if (codec->name() != "US-ASCII" && codec->name() != "UTF-8")
             ui->cbShowAs->addItem(tr(codec->name()), ShowAsCodec);

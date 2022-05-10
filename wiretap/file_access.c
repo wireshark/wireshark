@@ -354,7 +354,7 @@ wtap_get_all_capture_file_extensions_list(void)
  * to the following files so that the various desktop environments will
  * know that Wireshark can open the file:
  *	1) resources/freedesktop/org.wireshark.Wireshark-mime.xml (for freedesktop.org environments)
- *	2) packaging/macosx/Info.plist.in (for macOS)
+ *	2) packaging/macosx/WiresharkInfo.plist.in (for macOS)
  *	3) packaging/nsis/AdditionalTasksPage.ini, packaging/nsis/common.nsh,
  *	   and packaging/wix/ComponentGroups.wxi (for Windows)
  *
@@ -437,6 +437,7 @@ static const struct open_info open_info_base[] = {
 	{ "Candump log",                            OPEN_INFO_HEURISTIC, candump_open,             NULL,       NULL, NULL },
 	{ "Busmaster log",                          OPEN_INFO_HEURISTIC, busmaster_open,           NULL,       NULL, NULL },
 	{ "Ericsson eNode-B raw log",               OPEN_INFO_MAGIC,     eri_enb_log_open,         NULL,       NULL, NULL },
+	{ "Systemd Journal",                        OPEN_INFO_HEURISTIC, systemd_journal_open,     "log;jnl;journal",      NULL, NULL },
 
 	/* ASCII trace files from Telnet sessions. */
 	{ "Lucent/Ascend access server trace",      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
@@ -446,7 +447,6 @@ static const struct open_info open_info_base[] = {
 	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
 	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
-	{ "Systemd Journal",                        OPEN_INFO_HEURISTIC, systemd_journal_open,     "log;jnl;journal",      NULL, NULL },
 	{ "3gpp phone log",                         OPEN_INFO_MAGIC,     log3gpp_open,             "log",      NULL, NULL },
 	{ "MP4 media file",                         OPEN_INFO_MAGIC,     mp4_open,                 "mp4",      NULL, NULL },
 

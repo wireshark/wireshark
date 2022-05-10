@@ -60,7 +60,6 @@ public:
     explicit CaptureOptionsDialog(QWidget *parent = 0);
     ~CaptureOptionsDialog();
 
-    void setTab(int idx);
     void updateInterfaces();
 
 protected:
@@ -97,7 +96,6 @@ private slots:
 signals:
     void startCapture();
     void stopCapture();
-    void getPoints(int row, PointList *pts);
     void setSelectedInterfaces();
     void setFilterValid(bool valid, const QString capture_filter);
     void interfacesChanged();

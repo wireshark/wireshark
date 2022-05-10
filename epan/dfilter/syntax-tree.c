@@ -15,6 +15,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>
 #include "sttype-test.h"
+#include "sttype-function.h"
 #include "dfilter-int.h"
 
 /* Keep track of sttype_t's via their sttype_id_t number */
@@ -95,10 +96,12 @@ stnode_clear(stnode_t *node)
 	node->repr_debug = NULL;
 	g_free(node->repr_token);
 	node->repr_token = NULL;
+	node->location.col_start = -1;
+	node->location.col_len = 0;
 }
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token)
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, stloc_t *loc)
 {
 	sttype_t	*type;
 
@@ -108,6 +111,13 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token)
 	node->repr_display = NULL;
 	node->repr_debug = NULL;
 	node->repr_token = token;
+	if (loc) {
+		node->location = *loc;
+	}
+	else {
+		node->location.col_start = -1;
+		node->location.col_len = 0;
+	}
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -131,68 +141,23 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token)
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 {
-	char *repr_token = g_strdup(node->repr_token);
+	char *token = g_strdup(node->repr_token);
+	stloc_t loc = node->location;
 	stnode_clear(node);
-	stnode_init(node, type_id, data, NULL);
-	node->repr_token = repr_token;
+	stnode_init(node, type_id, data, token, &loc);
 }
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, char *token)
+stnode_new(sttype_id_t type_id, gpointer data, char *token, stloc_t *loc)
 {
 	stnode_t	*node;
 
 	node = g_new0(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
 
-	stnode_init(node, type_id, data, token);
+	stnode_init(node, type_id, data, token, loc);
 
 	return node;
-}
-
-stnode_t *
-stnode_new_test(test_op_t op, char *token)
-{
-	stnode_t *node;
-
-	node = stnode_new(STTYPE_TEST, NULL, token);
-	sttype_test_set_op(node, op);
-	return node;
-}
-
-stnode_t *
-stnode_new_math(test_op_t op, char *token)
-{
-	stnode_t *node;
-
-	node = stnode_new(STTYPE_ARITHMETIC, NULL, token);
-	sttype_test_set_op(node, op);
-	return node;
-}
-
-stnode_t *
-stnode_new_string(const char *str, char *token)
-{
-	return stnode_new(STTYPE_STRING, g_strdup(str), token);
-}
-
-stnode_t *
-stnode_new_unparsed(const char *str, char *token)
-{
-	return stnode_new(STTYPE_UNPARSED, g_strdup(str), token);
-}
-
-stnode_t *
-stnode_new_literal(const char *str, char *token)
-{
-	char *value = dfilter_literal_normalized(str);
-	return stnode_new(STTYPE_LITERAL, value, token);
-}
-
-stnode_t *
-stnode_new_charconst(unsigned long number, char *token)
-{
-	return stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token);
 }
 
 stnode_t*
@@ -206,6 +171,7 @@ stnode_dup(const stnode_t *node)
 	new->repr_display = NULL;
 	new->repr_debug = NULL;
 	new->repr_token = g_strdup(node->repr_token);
+	new->location = node->location;
 
 	new->type = node->type;
 	if (node->type == NULL)
@@ -263,6 +229,18 @@ stnode_steal_data(stnode_t *node)
 	return data;
 }
 
+const char *
+stnode_token(stnode_t *node)
+{
+	return node->repr_token;
+}
+
+stloc_t *
+stnode_location(stnode_t *node)
+{
+	return &node->location;
+}
+
 static char *
 _node_tostr(stnode_t *node, gboolean pretty)
 {
@@ -295,12 +273,7 @@ stnode_tostr(stnode_t *node, gboolean pretty)
 
 	if (pretty && node->repr_token != NULL) {
 		g_free(node->repr_display);
-		if (stnode_type_id(node) == STTYPE_CHARCONST) {
-			node->repr_display = g_strdup(node->repr_token);
-		}
-		else {
-			node->repr_display = ws_strdup_printf("\"%s\"", node->repr_token);
-		}
+		node->repr_display = g_strdup(node->repr_token);
 		return node->repr_display;
 	}
 
@@ -327,6 +300,8 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf, "magic=0x%"PRIx32", ", node->magic);
 	wmem_strbuf_append_printf(buf, "type=%s, ", stnode_type_name(node));
 	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todebug(node));
+	wmem_strbuf_append_printf(buf, "location=%ld:%zu",
+			node->location.col_start, node->location.col_len);
 	return wmem_strbuf_finalize(buf);
 }
 
@@ -400,6 +375,7 @@ static void
 visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 {
 	stnode_t *left, *right;
+	GSList *params;
 
 	if (stnode_type_id(node) == STTYPE_TEST ||
 			stnode_type_id(node) == STTYPE_ARITHMETIC) {
@@ -418,6 +394,18 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 		}
 		else if (right) {
 			ws_assert_not_reached();
+		}
+	}
+	else if (stnode_type_id(node) == STTYPE_FUNCTION) {
+		wmem_strbuf_append_printf(buf, "%s:\n", stnode_todebug(node));
+		params = sttype_function_params(node);
+		while (params) {
+			indent(buf, level + 1);
+			visit_tree(buf, params->data, level + 1);
+			if (params->next != NULL) {
+				wmem_strbuf_append_c(buf, '\n');
+			}
+			params = params->next;
 		}
 	}
 	else {

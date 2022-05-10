@@ -1406,7 +1406,7 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
             have_subtree = true;
         }
 
-        if (fi && fi->ds_tvb) {
+        if (fi && fi->ds_tvb && (fi->length > 0)) {
             have_packet_bytes = true;
         }
     }
@@ -1689,13 +1689,15 @@ void WiresharkMainWindow::initViewColorizeMenu()
 
 void WiresharkMainWindow::addStatsPluginsToMenu() {
     GList          *cfg_list = stats_tree_get_cfg_list();
-    GList          *iter = g_list_first(cfg_list);
     QAction        *stats_tree_action;
     QMenu          *parent_menu;
     bool            first_item = true;
 
-    while (iter) {
+    for (GList *iter = g_list_first(cfg_list); iter; iter = gxx_list_next(iter)) {
         stats_tree_cfg *cfg = gxx_list_data(stats_tree_cfg *, iter);
+        if (!menu_groups_.contains(cfg->stat_group)) {
+            continue;
+        }
         if (cfg->plugin) {
             if (first_item) {
                 main_ui_->menuStatistics->addSeparator();
@@ -1722,7 +1724,6 @@ void WiresharkMainWindow::addStatsPluginsToMenu() {
             parent_menu->addAction(stats_tree_action);
             connect(stats_tree_action, SIGNAL(triggered()), this, SLOT(actionStatisticsPlugin_triggered()));
         }
-        iter = gxx_list_next(iter);
     }
     g_list_free(cfg_list);
 }
@@ -4053,8 +4054,6 @@ void WiresharkMainWindow::on_actionCaptureOptions_triggered()
         connect(capture_options_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
         connect(capture_options_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
 
-        connect(capture_options_dialog_, SIGNAL(getPoints(int, PointList*)),
-                this->welcome_page_->getInterfaceFrame(), SLOT(getPoints(int, PointList*)));
         connect(capture_options_dialog_, SIGNAL(interfacesChanged()),
                 this->welcome_page_, SLOT(interfaceSelected()));
         connect(capture_options_dialog_, SIGNAL(interfacesChanged()),
@@ -4073,7 +4072,6 @@ void WiresharkMainWindow::on_actionCaptureOptions_triggered()
         connect(capture_options_dialog_, SIGNAL(showExtcapOptions(QString&, bool)),
                 this, SLOT(showExtcapOptionsDialog(QString&, bool)));
     }
-    capture_options_dialog_->setTab(0);
     capture_options_dialog_->updateInterfaces();
 
     if (capture_options_dialog_->isMinimized()) {

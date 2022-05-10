@@ -127,7 +127,8 @@ private slots:
 
 private:
     static RtpAnalysisDialog *pinstance_;
-    static std::mutex mutex_;
+    static std::mutex init_mutex_;
+    static std::mutex run_mutex_;
 
     Ui::RtpAnalysisDialog *ui;
     enum StreamDirection { dir_all_, dir_one_ };

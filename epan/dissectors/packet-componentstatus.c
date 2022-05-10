@@ -328,6 +328,7 @@ static void componentstatusprotocol_stat_init(stat_tap_table_ui* new_stat)
   table = stat_tap_init_table(table_name, num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
 
+  memset(items, 0x0, sizeof(items));
   /* Add a row for each value type */
   while (message_type_values[i].strptr) {
     items[MESSAGE_TYPE_COLUMN].type                = TABLE_ITEM_STRING;

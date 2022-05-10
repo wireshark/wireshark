@@ -4721,6 +4721,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Start capture</source>
         <translation>Börja fångst</translation>
     </message>
+    <message>
+        <source>Hide Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
@@ -6311,2149 +6315,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
-    <name>MainWindow</name>
-    <message>
-        <source>Wireshark</source>
-        <translation>Wireshark</translation>
-    </message>
-    <message>
-        <source>Go to packet</source>
-        <translation>Gå till paket</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>File Set</source>
-        <translation>Filuppsättning</translation>
-    </message>
-    <message>
-        <source>Export Packet Dissections</source>
-        <translation>Exportera paket dissekeringar</translation>
-    </message>
-    <message>
-        <source>Export Objects</source>
-        <translation>Exportera objekt</translation>
-    </message>
-    <message>
-        <source>&amp;Zoom</source>
-        <translation>&amp;Zooma</translation>
-    </message>
-    <message>
-        <source>&amp;Time Display Format</source>
-        <translation>&amp;Tidsvisningsformat</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopiera</translation>
-    </message>
-    <message>
-        <source>Manual pages</source>
-        <translation>Manualsidor</translation>
-    </message>
-    <message>
-        <source>Apply as Filter</source>
-        <translation>Använd som ett filter</translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
-        <translation>Förbered som filter</translation>
-    </message>
-    <message>
-        <source>SCTP</source>
-        <translation>SCTP</translation>
-    </message>
-    <message>
-        <source>TCP Stream Graphs</source>
-        <translation>TCP-strömgrafer</translation>
-    </message>
-    <message>
-        <source>BACnet</source>
-        <translation>BACnet</translation>
-    </message>
-    <message>
-        <source>HTTP</source>
-        <translation>HTTP</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Arkiv</translation>
-    </message>
-    <message>
-        <source>&amp;Capture</source>
-        <translation>&amp;Fånga</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Hjälp</translation>
-    </message>
-    <message>
-        <source>&amp;Go</source>
-        <translation>&amp;Kör</translation>
-    </message>
-    <message>
-        <source>&amp;View</source>
-        <translation>&amp;Visa</translation>
-    </message>
-    <message>
-        <source>&amp;Analyze</source>
-        <translation>A&amp;nalysera</translation>
-    </message>
-    <message>
-        <source>Follow</source>
-        <translation>Följ</translation>
-    </message>
-    <message>
-        <source>&amp;Statistics</source>
-        <translation>&amp;Statistik</translation>
-    </message>
-    <message>
-        <source>29West</source>
-        <translation>29West</translation>
-    </message>
-    <message>
-        <source>Topics</source>
-        <translation>Ämnen</translation>
-    </message>
-    <message>
-        <source>Queues</source>
-        <translation>Köer</translation>
-    </message>
-    <message>
-        <source>UIM</source>
-        <translation>UIM</translation>
-    </message>
-    <message>
-        <source>Telephon&amp;y</source>
-        <translation>Telefon&amp;i</translation>
-    </message>
-    <message>
-        <source>RTSP</source>
-        <translation>RTSP</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>&amp;Redigera</translation>
-    </message>
-    <message>
-        <source>Packet Comments</source>
-        <translation>Paketkommentarer</translation>
-    </message>
-    <message>
-        <source>Main Toolbar</source>
-        <translation>Huvudverktygsrad</translation>
-    </message>
-    <message>
-        <source>Display Filter Toolbar</source>
-        <translation>Visningsfilterverktygsrad</translation>
-    </message>
-    <message>
-        <source>Open a capture file</source>
-        <translation>Öppna en fångstfil</translation>
-    </message>
-    <message>
-        <source>Quit Wireshark</source>
-        <translation>Avsluta Wireshark</translation>
-    </message>
-    <message>
-        <source>&amp;Start</source>
-        <translation>&amp;Starta</translation>
-    </message>
-    <message>
-        <source>Start capturing packets</source>
-        <translation>Börja fånga paket</translation>
-    </message>
-    <message>
-        <source>S&amp;top</source>
-        <translation>St&amp;opp</translation>
-    </message>
-    <message>
-        <source>Stop capturing packets</source>
-        <translation>Sluta fånga paket</translation>
-    </message>
-    <message>
-        <source>No files found</source>
-        <translation>Inga filer hittades</translation>
-    </message>
-    <message>
-        <source>&amp;Contents</source>
-        <translation>&amp;Innehåll</translation>
-    </message>
-    <message>
-        <source>Wireshark Filter</source>
-        <translation>Wireshark-filter</translation>
-    </message>
-    <message>
-        <source>TShark</source>
-        <translation>TShark</translation>
-    </message>
-    <message>
-        <source>Rawshark</source>
-        <translation>Rawshark</translation>
-    </message>
-    <message>
-        <source>Dumpcap</source>
-        <translation>Dumpcap</translation>
-    </message>
-    <message>
-        <source>Mergecap</source>
-        <translation>Mergecap</translation>
-    </message>
-    <message>
-        <source>Editcap</source>
-        <translation>Editcap</translation>
-    </message>
-    <message>
-        <source>Text2pcap</source>
-        <translation>Text2pcap</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>Webbsida</translation>
-    </message>
-    <message>
-        <source>Downloads</source>
-        <translation>Hämtningar</translation>
-    </message>
-    <message>
-        <source>Wiki</source>
-        <translation>Wiki</translation>
-    </message>
-    <message>
-        <source>Sample Captures</source>
-        <translation>Exempel på fångster</translation>
-    </message>
-    <message>
-        <source>&amp;About Wireshark</source>
-        <translation>&amp;Om Wireshark</translation>
-    </message>
-    <message>
-        <source>Ask (Q&amp;&amp;A)</source>
-        <translation>Fråga (F&amp;&amp;S)</translation>
-    </message>
-    <message>
-        <source>Next Packet</source>
-        <translation>Nästa paket</translation>
-    </message>
-    <message>
-        <source>Go to the next packet</source>
-        <translation>Gå till nästa paket</translation>
-    </message>
-    <message>
-        <source>Previous Packet</source>
-        <translation>Föregående paket</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet</source>
-        <translation>Gå till föregående paket</translation>
-    </message>
-    <message>
-        <source>First Packet</source>
-        <translation>Första paket</translation>
-    </message>
-    <message>
-        <source>Go to the first packet</source>
-        <translation>Gå till det första paketet</translation>
-    </message>
-    <message>
-        <source>Last Packet</source>
-        <translation>Sista paket</translation>
-    </message>
-    <message>
-        <source>Go to the last packet</source>
-        <translation>Gå till det sista paketet</translation>
-    </message>
-    <message>
-        <source>E&amp;xpand Subtrees</source>
-        <translation>E&amp;xpandera underträd</translation>
-    </message>
-    <message>
-        <source>Expand the current packet detail</source>
-        <translation>Expandera det aktuella paketets detaljer</translation>
-    </message>
-    <message>
-        <source>&amp;Expand All</source>
-        <translation>&amp;Expandera alla</translation>
-    </message>
-    <message>
-        <source>Expand packet details</source>
-        <translation>Expandera paketdetaljer</translation>
-    </message>
-    <message>
-        <source>Collapse &amp;All</source>
-        <translation>Fäll ihop &amp;alla</translation>
-    </message>
-    <message>
-        <source>Collapse all packet details</source>
-        <translation>Fäll ihop alla paketdetaljer</translation>
-    </message>
-    <message>
-        <source>Go to specified packet</source>
-        <translation>Gå till det angivna paketet</translation>
-    </message>
-    <message>
-        <source>Merge one or more files</source>
-        <translation>Slå samman en eller fler filer</translation>
-    </message>
-    <message>
-        <source>Import a file</source>
-        <translation>Importera en fil</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Spara</translation>
-    </message>
-    <message>
-        <source>Save as a different file</source>
-        <translation>Spara som en annan fil</translation>
-    </message>
-    <message>
-        <source>Export specified packets</source>
-        <translation>Exportera angivna paket</translation>
-    </message>
-    <message>
-        <source>Export TLS Session Keys…</source>
-        <translation>Exportera TLS-sessionsnycklar …</translation>
-    </message>
-    <message>
-        <source>List Files</source>
-        <translation>Lista filer</translation>
-    </message>
-    <message>
-        <source>Next File</source>
-        <translation>Nästa fil</translation>
-    </message>
-    <message>
-        <source>Previous File</source>
-        <translation>Föregående fil</translation>
-    </message>
-    <message>
-        <source>&amp;Reload</source>
-        <translation>L&amp;äs om</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Alternativ</translation>
-    </message>
-    <message>
-        <source>Capture options</source>
-        <translation>Fångstalternativ</translation>
-    </message>
-    <message>
-        <source>Capture filters</source>
-        <translation>Fångstfilter</translation>
-    </message>
-    <message>
-        <source>Refresh Interfaces</source>
-        <translation>Uppdatera gränssnitten</translation>
-    </message>
-    <message>
-        <source>Refresh interfaces</source>
-        <translation>Uppdatera gränssnitten</translation>
-    </message>
-    <message>
-        <source>&amp;Restart</source>
-        <translation>Sta&amp;rta om</translation>
-    </message>
-    <message>
-        <source>Restart current capture</source>
-        <translation>Starta om den aktuella fångsten</translation>
-    </message>
-    <message>
-        <source>As &amp;CSV…</source>
-        <translation>Som &amp;CSV …</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation>Som ”C”-&amp;vektorer …</translation>
-    </message>
-    <message>
-        <source>As P&amp;SML XML…</source>
-        <translation>Som P&amp;SML XML …</translation>
-    </message>
-    <message>
-        <source>As P&amp;DML XML…</source>
-        <translation>Som P&amp;DML XML …</translation>
-    </message>
-    <message>
-        <source>As &amp;JSON…</source>
-        <translation>Som &amp;JSON …</translation>
-    </message>
-    <message>
-        <source>Description</source>
-        <translation>Beskrivning</translation>
-    </message>
-    <message>
-        <source>Field Name</source>
-        <translation>Fältnamn</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
-        <source>As Filter</source>
-        <translation>Som filter</translation>
-    </message>
-    <message>
-        <source>Close this capture file</source>
-        <translation>Stäng denna fångstfil</translation>
-    </message>
-    <message>
-        <source>Packet:</source>
-        <translation>Paket:</translation>
-    </message>
-    <message>
-        <source>Interface Toolbars</source>
-        <translation>Gränssnittsverktygsrader</translation>
-    </message>
-    <message>
-        <source>Colorize Conversation</source>
-        <translation>Färglägg konversationen</translation>
-    </message>
-    <message>
-        <source>Internals</source>
-        <translation>Internt</translation>
-    </message>
-    <message>
-        <source>Additional Toolbars</source>
-        <translation>Ytterligare verktygsrader</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation>Konversationsfilter</translation>
-    </message>
-    <message>
-        <source>Reliable Server Pooling (RSerPool)</source>
-        <translation>Pålitlig server-poolning (RSerPool)</translation>
-    </message>
-    <message>
-        <source>SOME/IP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Osmux</source>
-        <translation>Osmux</translation>
-    </message>
-    <message>
-        <source>&amp;Tools</source>
-        <oldsource>Tools</oldsource>
-        <translation>&amp;Verktyg</translation>
-    </message>
-    <message>
-        <source>Wireless Toolbar</source>
-        <translation>Verktygsrad för trådlöst</translation>
-    </message>
-    <message>
-        <source>Help contents</source>
-        <translation>Hjälpinnehåll</translation>
-    </message>
-    <message>
-        <source>FAQs</source>
-        <translation>Frågor och svar</translation>
-    </message>
-    <message>
-        <source>Next Packet in Conversation</source>
-        <translation>Nästa paket i konversationen</translation>
-    </message>
-    <message>
-        <source>Go to the next packet in this conversation</source>
-        <translation>Gå till nästa paket i denna konversation</translation>
-    </message>
-    <message>
-        <source>Previous Packet in Conversation</source>
-        <translation>Föregående paket i konversationen</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in this conversation</source>
-        <translation>Gå till föregående paket i denna konversation</translation>
-    </message>
-    <message>
-        <source>Next Packet In History</source>
-        <translation>Nästa paket i historiken</translation>
-    </message>
-    <message>
-        <source>Go to the next packet in your selection history</source>
-        <translation>Gå till nästa paket i din valhistorik</translation>
-    </message>
-    <message>
-        <source>Previous Packet In History</source>
-        <translation>Föregående paket i historien</translation>
-    </message>
-    <message>
-        <source>Go to the previous packet in your selection history</source>
-        <translation>Gå till föregående paket i din valhistorik</translation>
-    </message>
-    <message>
-        <source>Collapse Subtrees</source>
-        <translation>Fäll ihop underträd</translation>
-    </message>
-    <message>
-        <source>Collapse the current packet detail</source>
-        <translation>Fäll ihop de aktuella paketdetaljerna</translation>
-    </message>
-    <message>
-        <source>Go to Packet…</source>
-        <translation>Gå till paket …</translation>
-    </message>
-    <message>
-        <source>&amp;Merge…</source>
-        <translation>&amp;Slå samman …</translation>
-    </message>
-    <message>
-        <source>&amp;Import from Hex Dump…</source>
-        <translation>&amp;Importera ifrån hexdump …</translation>
-    </message>
-    <message>
-        <source>Save this capture file</source>
-        <translation>Spara denna fångstfil</translation>
-    </message>
-    <message>
-        <source>Save &amp;As…</source>
-        <translation>Spara s&amp;om …</translation>
-    </message>
-    <message>
-        <source>Export Specified Packets…</source>
-        <translation>Exportera angivna paket …</translation>
-    </message>
-    <message>
-        <source>Export Packet &amp;Bytes…</source>
-        <translation>Exportera paket&amp;byte …</translation>
-    </message>
-    <message>
-        <source>&amp;Print…</source>
-        <translation>&amp;Skriv ut …</translation>
-    </message>
-    <message>
-        <source>Reload this file</source>
-        <translation>Läs om denna fil</translation>
-    </message>
-    <message>
-        <source>Reload as File Format/Capture</source>
-        <translation>Läs om som filformat/-fångst</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s description</source>
-        <translation>Kopiera detta objekts beskrivning</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s field name</source>
-        <translation>Kopiera detta objekts fältnamn</translation>
-    </message>
-    <message>
-        <source>Copy this item&apos;s value</source>
-        <translation>Kopiera detta objekts värde</translation>
-    </message>
-    <message>
-        <source>Copy this item as a display filter</source>
-        <translation>Kopiera detta objekt som ett visningsfilter</translation>
-    </message>
-    <message>
-        <source>Apply as Column</source>
-        <translation>Använd som kolumn</translation>
-    </message>
-    <message>
-        <source>Create a packet list column from the selected field.</source>
-        <translation>Skapa en paketlistekolumn från det valda fältet.</translation>
-    </message>
-    <message>
-        <source>Find a packet</source>
-        <translation>Sök efter ett paket</translation>
-    </message>
-    <message>
-        <source>Find the next packet</source>
-        <translation>Sök efter nästa paket</translation>
-    </message>
-    <message>
-        <source>Find the previous packet</source>
-        <translation>Sök efter föregående paket</translation>
-    </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation>&amp;Markera/avmarkera paket</translation>
-    </message>
-    <message>
-        <source>Mark All Displayed</source>
-        <translation>Markera alla visade</translation>
-    </message>
-    <message>
-        <source>Mark all displayed packets</source>
-        <translation>Markera alla visade paket</translation>
-    </message>
-    <message>
-        <source>Unmark all displayed packets</source>
-        <translation>Avmarkera alla visade paket</translation>
-    </message>
-    <message>
-        <source>Next Mark</source>
-        <translation>Nästa märke</translation>
-    </message>
-    <message>
-        <source>Go to the next marked packet</source>
-        <translation>Gå till nästa märkta paket</translation>
-    </message>
-    <message>
-        <source>Previous Mark</source>
-        <translation>Föregående märke</translation>
-    </message>
-    <message>
-        <source>Go to the previous marked packet</source>
-        <translation>Gå till föregående märkta paket</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation>&amp;Ignorera/avignorera paket</translation>
-    </message>
-    <message>
-        <source>Ignore All Displayed</source>
-        <translation>Ignorera alla visade</translation>
-    </message>
-    <message>
-        <source>Ignore all displayed packets</source>
-        <translation>Ignorera alla visade paket</translation>
-    </message>
-    <message>
-        <source>Set/Unset Time Reference</source>
-        <translation>Ange/ta bort tidsreferens</translation>
-    </message>
-    <message>
-        <source>Set or unset a time reference for this packet</source>
-        <translation>Ange eller ta bort en tidsreferens för detta paket</translation>
-    </message>
-    <message>
-        <source>Unset All Time References</source>
-        <translation>Ta bort alla tidsreferenser</translation>
-    </message>
-    <message>
-        <source>Remove all time references</source>
-        <translation>Ta bort alla tidsreferenser</translation>
-    </message>
-    <message>
-        <source>Next Time Reference</source>
-        <translation>Nästa tidsreferens</translation>
-    </message>
-    <message>
-        <source>Go to the next time reference</source>
-        <translation>Gå till nästa tidsreferens</translation>
-    </message>
-    <message>
-        <source>Previous Time Reference</source>
-        <translation>Föregående tidsreferens</translation>
-    </message>
-    <message>
-        <source>Go to the previous time reference</source>
-        <translation>Gå till föregående tidsreferens</translation>
-    </message>
-    <message>
-        <source>Shift or change packet timestamps</source>
-        <translation>Skifta eller ändra pakettidsstämplar</translation>
-    </message>
-    <message>
-        <source>Delete All Packet Comments</source>
-        <translation>Ta bort alla paketkommentarer</translation>
-    </message>
-    <message>
-        <source>Remove all packet comments in the capture file</source>
-        <translation>Ta bort alla paketkommentarer i fångstfilen</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration Profiles…</source>
-        <translation>&amp;Konfigurationsprofiler …</translation>
-    </message>
-    <message>
-        <source>Configuration profiles</source>
-        <translation>Konfigurationsprofiler</translation>
-    </message>
-    <message>
-        <source>Manage your configuration profiles</source>
-        <translation>Hantera dina konfigurationsprofiler</translation>
-    </message>
-    <message>
-        <source>Manage Wireshark&apos;s preferences</source>
-        <translation>Hantera Wiresharks inställningar</translation>
-    </message>
-    <message>
-        <source>Capture File Properties</source>
-        <translation>Fångstfilegenskaper</translation>
-    </message>
-    <message>
-        <source>Capture file properties</source>
-        <translation>Fångstfilegenskaper</translation>
-    </message>
-    <message>
-        <source>&amp;Protocol Hierarchy</source>
-        <translation>&amp;Protokollhierarki</translation>
-    </message>
-    <message>
-        <source>Show a summary of protocols present in the capture file.</source>
-        <translation>Visa en sammanfattning av protokoll som finns i fångstfilen.</translation>
-    </message>
-    <message>
-        <source>Capinfos</source>
-        <translation>Capinfos</translation>
-    </message>
-    <message>
-        <source>Reordercap</source>
-        <translation>Reordercap</translation>
-    </message>
-    <message>
-        <source>Time Sequence (Stevens)</source>
-        <translation>Tidssekvenser (Stevens)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (Stevens)</source>
-        <translation>TCP-tidssekvensgraf (Stevens)</translation>
-    </message>
-    <message>
-        <source>Throughput</source>
-        <translation>Genomströmning</translation>
-    </message>
-    <message>
-        <source>Round Trip Time</source>
-        <translation>Rundturstid</translation>
-    </message>
-    <message>
-        <source>TCP round trip time</source>
-        <translation>TCP-rundturstid</translation>
-    </message>
-    <message>
-        <source>Window Scaling</source>
-        <translation>Fönsterskalning</translation>
-    </message>
-    <message>
-        <source>TCP window scaling</source>
-        <translation>TCP-fönsterskalning</translation>
-    </message>
-    <message>
-        <source>DCCP Stream</source>
-        <translation>DCCP-ström</translation>
-    </message>
-    <message>
-        <source>TLS Stream</source>
-        <translation>TLS-ström</translation>
-    </message>
-    <message>
-        <source>HTTP Stream</source>
-        <translation>HTTP-ström</translation>
-    </message>
-    <message>
-        <source>HTTP/2 Stream</source>
-        <translation>HTTP/2-ström</translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation>QUIC-ström</translation>
-    </message>
-    <message>
-        <source>SIP Call</source>
-        <translation>SIP-anrop</translation>
-    </message>
-    <message>
-        <source>Time Sequence (tcptrace)</source>
-        <translation>Tidssekvens (tcptrace)</translation>
-    </message>
-    <message>
-        <source>TCP time sequence graph (tcptrace)</source>
-        <translation>TCP-tidssekvensgraf (tcptrace)</translation>
-    </message>
-    <message>
-        <source>Analyse this Association</source>
-        <translation>Analysera denna association</translation>
-    </message>
-    <message>
-        <source>Show All Associations</source>
-        <translation>Visa alla associationer</translation>
-    </message>
-    <message>
-        <source>Flow Graph</source>
-        <translation>Flödesgraf</translation>
-    </message>
-    <message>
-        <source>Flow sequence diagram</source>
-        <translation>Flödessekvensdiagram</translation>
-    </message>
-    <message>
-        <source>ANCP</source>
-        <translation>ANCP</translation>
-    </message>
-    <message>
-        <source>ANCP statistics</source>
-        <translation>ANCP-statistik</translation>
-    </message>
-    <message>
-        <source>Packets sorted by Instance ID</source>
-        <translation>Paket sorterade efter instans-ID</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by instance ID</source>
-        <translation>BACapp-statistik sorterad efter instans-ID</translation>
-    </message>
-    <message>
-        <source>Packets sorted by IP</source>
-        <translation>Paket sorterade efter IP</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by IP</source>
-        <translation>BACapp-statistik sorterad efter IP</translation>
-    </message>
-    <message>
-        <source>Packets sorted by object type</source>
-        <translation>Paket sorterade efter objekttyp</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by object type</source>
-        <translation>BACapp-statistik sorterad efter objekttyp</translation>
-    </message>
-    <message>
-        <source>Packets sorted by service</source>
-        <translation>Paket sorterade efter tjänst</translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by service</source>
-        <translation>BACapp-statistik sorterad efter tjänst</translation>
-    </message>
-    <message>
-        <source>Collectd</source>
-        <translation>Collectd</translation>
-    </message>
-    <message>
-        <source>Collectd statistics</source>
-        <translation>Collectd-statistik</translation>
-    </message>
-    <message>
-        <source>DNS</source>
-        <translation>DNS</translation>
-    </message>
-    <message>
-        <source>DNS statistics</source>
-        <translation>DNS-statistik</translation>
-    </message>
-    <message>
-        <source>HART-IP</source>
-        <translation>HART-IP</translation>
-    </message>
-    <message>
-        <source>HART-IP statistics</source>
-        <translation>HART-IP-statistik</translation>
-    </message>
-    <message>
-        <source>HPFEEDS</source>
-        <translation>HPFEEDS</translation>
-    </message>
-    <message>
-        <source>hpfeeds statistics</source>
-        <translation>hpfeeds-statistik</translation>
-    </message>
-    <message>
-        <source>HTTP2</source>
-        <translation>HTTP2</translation>
-    </message>
-    <message>
-        <source>HTTP2 statistics</source>
-        <translation>HTTP2-statistik</translation>
-    </message>
-    <message>
-        <source>Packet Counter</source>
-        <translation>Paketräknare</translation>
-    </message>
-    <message>
-        <source>HTTP packet counter</source>
-        <translation>HTTP-paketräknare</translation>
-    </message>
-    <message>
-        <source>Requests</source>
-        <translation>Begäranden</translation>
-    </message>
-    <message>
-        <source>HTTP requests</source>
-        <translation>HTTP-begäranden</translation>
-    </message>
-    <message>
-        <source>Load Distribution</source>
-        <translation>Lastfördelning</translation>
-    </message>
-    <message>
-        <source>HTTP load distribution</source>
-        <translation>HTTP-lastfördelning</translation>
-    </message>
-    <message>
-        <source>Packet Lengths</source>
-        <translation>Paketlängder</translation>
-    </message>
-    <message>
-        <source>Packet length statistics</source>
-        <translation>Paketlängdsstatistik</translation>
-    </message>
-    <message>
-        <source>Sametime</source>
-        <translation>Sametime</translation>
-    </message>
-    <message>
-        <source>Sametime statistics</source>
-        <translation>Sametime-statistik</translation>
-    </message>
-    <message>
-        <source>SOME/IP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP Message statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ISUP Messages</source>
-        <translation>&amp;ISUP-meddelanden</translation>
-    </message>
-    <message>
-        <source>ISUP message statistics</source>
-        <translation>ISUP-meddelandestatistik</translation>
-    </message>
-    <message>
-        <source>Osmux packet counts</source>
-        <translation>Osmux-paketräknare</translation>
-    </message>
-    <message>
-        <source>RTSP packet counts</source>
-        <translation>RTSP-paketräknare</translation>
-    </message>
-    <message>
-        <source>SM&amp;PP Operations</source>
-        <translation>SM&amp;PP-åtgärder</translation>
-    </message>
-    <message>
-        <source>SMPP operation statistics</source>
-        <translation>SMPP-åtgärdsstatistik</translation>
-    </message>
-    <message>
-        <source>&amp;UCP Messages</source>
-        <translation>&amp;UCP-meddelanden</translation>
-    </message>
-    <message>
-        <source>UCP message statistics</source>
-        <translation>UCP-meddelandestatistik</translation>
-    </message>
-    <message>
-        <source>F1AP</source>
-        <translation>F1AP</translation>
-    </message>
-    <message>
-        <source>F1AP Messages</source>
-        <translation>F1AP-meddelanden</translation>
-    </message>
-    <message>
-        <source>NGAP</source>
-        <translation>NGAP</translation>
-    </message>
-    <message>
-        <source>NGAP Messages</source>
-        <translation>NGAP-meddelanden</translation>
-    </message>
-    <message>
-        <source>Change the way packets are dissected</source>
-        <translation>Ändra det sätt på vilket paket dissekeras</translation>
-    </message>
-    <message>
-        <source>Reload Lua Plugins</source>
-        <translation>Läs om Lua-insticksmoduler</translation>
-    </message>
-    <message>
-        <source>Reload Lua plugins</source>
-        <translation>Läs om Lua-insticksmoduler</translation>
-    </message>
-    <message>
-        <source>Advertisements by Topic</source>
-        <translation>Annonser efter ämne</translation>
-    </message>
-    <message>
-        <source>Advertisements by Source</source>
-        <translation>Annonser efter källa</translation>
-    </message>
-    <message>
-        <source>Advertisements by Transport</source>
-        <translation>Annonser efter transport</translation>
-    </message>
-    <message>
-        <source>Queries by Topic</source>
-        <translation>Frågor efter ämne</translation>
-    </message>
-    <message>
-        <source>Queries by Receiver</source>
-        <translation>Frågor efter mottagare</translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Pattern</source>
-        <translation>Jokerfrågor efter mönster</translation>
-    </message>
-    <message>
-        <source>Wildcard Queries by Receiver</source>
-        <translation>Jokerfrågor efter mottagare</translation>
-    </message>
-    <message>
-        <source>Advertisements by Queue</source>
-        <translation>Annonser efter kö</translation>
-    </message>
-    <message>
-        <source>Queries by Queue</source>
-        <translation>Frågor efter kö</translation>
-    </message>
-    <message>
-        <source>Streams</source>
-        <translation>Strömmar</translation>
-    </message>
-    <message>
-        <source>LBT-RM</source>
-        <translation>LBT-RM</translation>
-    </message>
-    <message>
-        <source>LBT-RU</source>
-        <translation>LBT-RU</translation>
-    </message>
-    <message>
-        <source>Filter this Association</source>
-        <translation>Filtrera denna association</translation>
-    </message>
-    <message>
-        <source>Strip Headers…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Strip headers and export higher level encapsulations to file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;I/O Graphs</source>
-        <translation>&amp;I/O-grafer</translation>
-    </message>
-    <message>
-        <source>&amp;Conversations</source>
-        <translation>&amp;Konversationer</translation>
-    </message>
-    <message>
-        <source>&amp;Endpoints</source>
-        <translation>&amp;Ändpunkter</translation>
-    </message>
-    <message>
-        <source>Shrink the main window text</source>
-        <translation>Krymp huvudfönstrets text</translation>
-    </message>
-    <message>
-        <source>Return the main window text to its normal size</source>
-        <translation>Återställ huvudfönstret till sin normalstorlek</translation>
-    </message>
-    <message>
-        <source>Reset Layout</source>
-        <translation>Återställ layouten</translation>
-    </message>
-    <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>Återställ utseendelayouten till sin standardstorlek</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Diagram</source>
-        <translation>Paket&amp;diagram</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet diagram</source>
-        <translation>Visa eller dölj paketduagrannet</translation>
-    </message>
-    <message>
-        <source>Show each conversation hash table</source>
-        <translation>Visa varje konversations hashtabell</translation>
-    </message>
-    <message>
-        <source>Show each dissector table and its entries</source>
-        <translation>Visa varje dissekeringstabell och dess poster</translation>
-    </message>
-    <message>
-        <source>Show the currently supported protocols and display filter fields</source>
-        <translation>Visa de protokoll och visningsfilterfält som stödjs</translation>
-    </message>
-    <message>
-        <source>MAC Statistics</source>
-        <translation>MAC-statistik</translation>
-    </message>
-    <message>
-        <source>LTE MAC statistics</source>
-        <translation>LTE MAC-statistik</translation>
-    </message>
-    <message>
-        <source>RLC Statistics</source>
-        <translation>RLC-statistik</translation>
-    </message>
-    <message>
-        <source>LTE RLC statistics</source>
-        <translation>LTE RLC-statistik</translation>
-    </message>
-    <message>
-        <source>LTE RLC graph</source>
-        <translation>LTE RLC-graf</translation>
-    </message>
-    <message>
-        <source>MTP3 Summary</source>
-        <translation>MTP3-sammanfattning</translation>
-    </message>
-    <message>
-        <source>MTP3 summary statistics</source>
-        <translation>MTP3 sammanfattande statistik</translation>
-    </message>
-    <message>
-        <source>Bluetooth Devices</source>
-        <translation>Blåtandsenheter</translation>
-    </message>
-    <message>
-        <source>Bluetooth HCI Summary</source>
-        <translation>Blåtands HCI-sammanfattning</translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Expression…</source>
-        <translation>Visningsfilter&amp;uttryck …</translation>
-    </message>
-    <message>
-        <source>Display Filter Expression…</source>
-        <translation>Visningsfilteruttryck …</translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation>REGISTER_STAT_GROUP_RSERPOOL</translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation>Start på &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</translation>
-    </message>
-    <message>
-        <source>No GSM statistics registered</source>
-        <translation>Ingen GSM-statistik registrerad</translation>
-    </message>
-    <message>
-        <source>No LTE statistics registered</source>
-        <translation>Ingen LTE-statistik registrerad</translation>
-    </message>
-    <message>
-        <source>No MTP3 statistics registered</source>
-        <translation>Ingen MTP3-statistik registrerad</translation>
-    </message>
-    <message>
-        <source>IAX2 Stream Analysis</source>
-        <translation>IAX2-strömanalys</translation>
-    </message>
-    <message>
-        <source>Show Packet Bytes…</source>
-        <translation>Visa paketbyte …</translation>
-    </message>
-    <message>
-        <source>Go to &amp;Linked Packet</source>
-        <translation>Gå till &amp;länkade paket</translation>
-    </message>
-    <message>
-        <source>UDP Multicast Streams</source>
-        <translation>UDP multicast-strömmar</translation>
-    </message>
-    <message>
-        <source>Show UTP multicast stream statistics.</source>
-        <translation>Visa statistik över UTP-multicast-strömmar.</translation>
-    </message>
-    <message>
-        <source>WLAN Traffic</source>
-        <translation>WLAN-trafik</translation>
-    </message>
-    <message>
-        <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation>Visa statistik över IEEE 802.11 trådlöst LAN.</translation>
-    </message>
-    <message>
-        <source>Add a display filter button.</source>
-        <translation>Lägg till en visningsfilterknapp.</translation>
-    </message>
-    <message>
-        <source>Firewall ACL Rules</source>
-        <translation>Brandväggens ACL-regler</translation>
-    </message>
-    <message>
-        <source>Create firewall ACL rules</source>
-        <translation>Skapa ACL-regler för brandvägg</translation>
-    </message>
-    <message>
-        <source>&amp;Full Screen</source>
-        <translation>&amp;Helskärm</translation>
-    </message>
-    <message>
-        <source>Credentials</source>
-        <translation>Kreditiv</translation>
-    </message>
-    <message>
-        <source>&amp;Options…</source>
-        <translation>&amp;Alternativ …</translation>
-    </message>
-    <message>
-        <source>&amp;Wireless</source>
-        <translation>&amp;Trådlöst</translation>
-    </message>
-    <message>
-        <source>Capture &amp;Filters…</source>
-        <translation>&amp;Fångstfilter …</translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text…</source>
-        <translation>Som vanlig &amp;text …</translation>
-    </message>
-    <message>
-        <source>As Plain &amp;Text</source>
-        <translation>Som vanlig &amp;text</translation>
-    </message>
-    <message>
-        <source>As &amp;CSV</source>
-        <translation>Som &amp;CSV</translation>
-    </message>
-    <message>
-        <source>As &amp;YAML</source>
-        <translation>Som &amp;YAML</translation>
-    </message>
-    <message>
-        <source>All Visible Items</source>
-        <translation>Alla synliga objekt</translation>
-    </message>
-    <message>
-        <source>All Visible Selected Tree Items</source>
-        <translation>Alla synliga valda trädobjekt</translation>
-    </message>
-    <message>
-        <source>Display Filter &amp;Macros…</source>
-        <translation>Visningsfilter&amp;makron …</translation>
-    </message>
-    <message>
-        <source>&amp;Find Packet…</source>
-        <translation>&amp;Sök paket …</translation>
-    </message>
-    <message>
-        <source>Find Ne&amp;xt</source>
-        <translation>Sök n&amp;ästa</translation>
-    </message>
-    <message>
-        <source>Find Pre&amp;vious</source>
-        <translation>Sök f&amp;öregående</translation>
-    </message>
-    <message>
-        <source>Mark or unmark each selected packet</source>
-        <translation>Markera eller avmarkera varje valt paket</translation>
-    </message>
-    <message>
-        <source>Ignore or unignore each selected packet</source>
-        <translation>Ignorera eller avignorera varje valt paket</translation>
-    </message>
-    <message>
-        <source>U&amp;nignore All Displayed</source>
-        <translation>Avig&amp;norera alla visade</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation>Avignorera alla visade paket</translation>
-    </message>
-    <message>
-        <source>Time Shift…</source>
-        <translation>Tidsförskjutning …</translation>
-    </message>
-    <message>
-        <source>&amp;Preferences…</source>
-        <translation>&amp;Inställningar …</translation>
-    </message>
-    <message>
-        <source>TCP throughput</source>
-        <translation>TCP-genomströmning</translation>
-    </message>
-    <message>
-        <source>TCP Stream</source>
-        <translation>TCP-ström</translation>
-    </message>
-    <message>
-        <source>UDP Stream</source>
-        <translation>UDP-ström</translation>
-    </message>
-    <message>
-        <source>Request Sequences</source>
-        <translation>Begärandesekvenser</translation>
-    </message>
-    <message>
-        <source>HTTP Request Sequences</source>
-        <translation>HTTP-begärandesekvenser</translation>
-    </message>
-    <message>
-        <source>Decode &amp;As…</source>
-        <translation>Avkoda &amp;som …</translation>
-    </message>
-    <message>
-        <source>Export PDUs to File…</source>
-        <translation>Exportera PDU:er till fil …</translation>
-    </message>
-    <message>
-        <source>Create graphs based on display filter fields</source>
-        <translation>Skapa grafer baserat på visningsfilterfält</translation>
-    </message>
-    <message>
-        <source>&amp;Main Toolbar</source>
-        <translation>&amp;Huvudverktygsrad</translation>
-    </message>
-    <message>
-        <source>Show or hide the main toolbar</source>
-        <translation>Visa eller dölj huvudverktygsraden</translation>
-    </message>
-    <message>
-        <source>&amp;Filter Toolbar</source>
-        <translation>&amp;Filterverktygsrad</translation>
-    </message>
-    <message>
-        <source>Show or hide the display filter toolbar</source>
-        <translation>Visa eller dölj filterverktygsraden</translation>
-    </message>
-    <message>
-        <source>Conversations at different protocol levels</source>
-        <translation>Konversationer på olika protokollnivåer</translation>
-    </message>
-    <message>
-        <source>Endpoints at different protocol levels</source>
-        <translation>Ändpunkter på olika protokollnivåer</translation>
-    </message>
-    <message>
-        <source>Colorize Packet List</source>
-        <translation>Färglägg paketlistan</translation>
-    </message>
-    <message>
-        <source>Draw packets using your coloring rules</source>
-        <translation>Skriv ut paket och använd dina färgläggningsregler</translation>
-    </message>
-    <message>
-        <source>&amp;Zoom In</source>
-        <translation>&amp;Zooma in</translation>
-    </message>
-    <message>
-        <source>Enlarge the main window text</source>
-        <translation>Förstora huvudfönstrets text</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Zooma ut</translation>
-    </message>
-    <message>
-        <source>Normal Size</source>
-        <translation>Normal storlek</translation>
-    </message>
-    <message>
-        <source>Resize Columns</source>
-        <translation>Ändra storlek på kolumner</translation>
-    </message>
-    <message>
-        <source>Resize packet list columns to fit contents</source>
-        <translation>Ändra storleken på kolumner med paketlistor för att passa med innehållet</translation>
-    </message>
-    <message>
-        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>Datum och tid på dagen (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the date and time of day.</source>
-        <translation>Visa pakettider som datum och tid på dagen.</translation>
-    </message>
-    <message>
-        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>År, dag på året, och tid på dagen (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation>Visa pakettider som år, dag på året och tid på dagen.</translation>
-    </message>
-    <message>
-        <source>Time of Day (01:02:03.123456)</source>
-        <translation>Tid på dagen (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Seconds Since 1970-01-01</source>
-        <translation>Sekunder sedan 1970-01-01</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation>Visa pakettider som antal sekunder sedan UNIX-/POSIX-epoken (1970-01-01).</translation>
-    </message>
-    <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Sekunder sedan början på fångsten</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Captured Packet</source>
-        <translation>Sekunder sedan föregående fångade paket</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation>Visa pakettider som antalet sekunder sedan föregående fångade paket.</translation>
-    </message>
-    <message>
-        <source>Seconds Since Previous Displayed Packet</source>
-        <translation>Sekunder sedan föregående visade paket</translation>
-    </message>
-    <message>
-        <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation>Visa pakettider som antalet sekunder sedan föregående visade paket.</translation>
-    </message>
-    <message>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>UTC-datum och tid på dagen (1970-01-01 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC date and time of day.</source>
-        <translation>Visa pakettider som UTC-datumet och tiden på dagen.</translation>
-    </message>
-    <message>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>UTC-år, dag på året, och tid på dagen (1970/001 01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation>Visa pakettider som UTC-år, dag på året och tid på dagen.</translation>
-    </message>
-    <message>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation>UTC-tid på dagen (01:02:03.123456)</translation>
-    </message>
-    <message>
-        <source>Show packet times as the UTC time of day.</source>
-        <translation>Visa pakettider som UTC-tiden på dagen.</translation>
-    </message>
-    <message>
-        <source>Automatic (from capture file)</source>
-        <translation>Automatiskt (från fångstfilen)</translation>
-    </message>
-    <message>
-        <source>Use the time precision indicated in the capture file.</source>
-        <translation>Använd tidsprecisionen som indikeras i fångstfilen.</translation>
-    </message>
-    <message>
-        <source>Seconds</source>
-        <translation>Sekunder</translation>
-    </message>
-    <message>
-        <source>Tenths of a second</source>
-        <translation>Tiondelar av en sekund</translation>
-    </message>
-    <message>
-        <source>Hundredths of a second</source>
-        <translation>Hundradelar av en sekund</translation>
-    </message>
-    <message>
-        <source>Milliseconds</source>
-        <translation>Millisekunder</translation>
-    </message>
-    <message>
-        <source>Microseconds</source>
-        <translation>Mikrosekunder</translation>
-    </message>
-    <message>
-        <source>Nanoseconds</source>
-        <translation>Nanosekunder</translation>
-    </message>
-    <message>
-        <source>Display Seconds With Hours and Minutes</source>
-        <translation>Visa sekunder med timmar och minuter</translation>
-    </message>
-    <message>
-        <source>Display seconds with hours and minutes</source>
-        <translation>Visa sekunder med timmar och minuter</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Physical Addresses</source>
-        <translation>Slå upp &amp;fysiska adresser</translation>
-    </message>
-    <message>
-        <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation>Visa namn för kända MAC-adresser.  Uppslagningar använder en lokal databas.</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Network Addresses</source>
-        <translation>Slå upp &amp;nätverksadresser</translation>
-    </message>
-    <message>
-        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation>Visa namn på kända IPv4-, IPv6- och IPX-adresser.  Uppslagningar kan generera nätverkstrafik.</translation>
-    </message>
-    <message>
-        <source>Resolve &amp;Transport Addresses</source>
-        <translation>Slå upp &amp;transportadresser</translation>
-    </message>
-    <message>
-        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation>Visa namn på kända TCP-, UDP- och SCTP-tjänster.  Uppslagningar kan generera trafik på några system.</translation>
-    </message>
-    <message>
-        <source>Wire&amp;less Toolbar</source>
-        <translation>Tråd&amp;lös verktygsrad</translation>
-    </message>
-    <message>
-        <source>Show or hide the wireless toolbar</source>
-        <translation>Visa eller dölj den trådlösa verktygsraden</translation>
-    </message>
-    <message>
-        <source>&amp;Status Bar</source>
-        <translation>&amp;Statusrad</translation>
-    </message>
-    <message>
-        <source>Show or hide the status bar</source>
-        <translation>Visa eller dölj statusraden</translation>
-    </message>
-    <message>
-        <source>Packet &amp;List</source>
-        <translation>Paket&amp;lista</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet list</source>
-        <translation>Visa eller dölj paketlistan</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Details</source>
-        <translation>Paket&amp;detaljer</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet details</source>
-        <translation>Visa eller dölj paketdetaljerna</translation>
-    </message>
-    <message>
-        <source>Packet &amp;Bytes</source>
-        <translation>Paket&amp;byte</translation>
-    </message>
-    <message>
-        <source>Show or hide the packet bytes</source>
-        <translation>Visa eller dölj paketbyte</translation>
-    </message>
-    <message>
-        <source>&amp;Conversation Hash Tables</source>
-        <translation>&amp;Konversationshashtabeller</translation>
-    </message>
-    <message>
-        <source>&amp;Dissector Tables</source>
-        <translation>&amp;Dissekeringstabeller</translation>
-    </message>
-    <message>
-        <source>&amp;Supported Protocols</source>
-        <translation>Protokoll som &amp;stödjs</translation>
-    </message>
-    <message>
-        <source>MAP Summary</source>
-        <translation>MAP-sammanfattning</translation>
-    </message>
-    <message>
-        <source>GSM MAP summary statistics</source>
-        <translation>GSM MAP-sammanfattande statistik</translation>
-    </message>
-    <message>
-        <source>RLC &amp;Graph</source>
-        <translation>RLC-&amp;graf</translation>
-    </message>
-    <message>
-        <source>&amp;Coloring Rules…</source>
-        <translation>&amp;Färgläggningsregler …</translation>
-    </message>
-    <message>
-        <source>Show Linked Packet in New Window</source>
-        <translation>Visa länkade paket i ett nytt fönster</translation>
-    </message>
-    <message>
-        <source>New Coloring Rule…</source>
-        <oldsource>New Conversation Rule…</oldsource>
-        <translation>Ny färgläggningsregel …</translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
-        <translation>RTP-strömanalys för den valda strömmen. Tryck CTRL-tangenten för att lägga till den omvända strömmen också.</translation>
-    </message>
-    <message>
-        <source>RTP Player</source>
-        <translation>RTP-spelare</translation>
-    </message>
-    <message>
-        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation>Spela den valda strömmen. Tryck CTRL-tangenten för att spela den omvända strömmen också.</translation>
-    </message>
-    <message>
-        <source>IA&amp;X2 Stream Analysis</source>
-        <translation>IA&amp;X2-strömanalys</translation>
-    </message>
-    <message>
-        <source>Enabled Protocols…</source>
-        <oldsource>Enable Protocols…</oldsource>
-        <translation>Aktiverade protokoll …</translation>
-    </message>
-    <message>
-        <source>Wiki Protocol Page</source>
-        <translation>Wiki-protokollsida</translation>
-    </message>
-    <message>
-        <source>Open the Wireshark wiki page for this protocol.</source>
-        <translation>Öppna Wireshark-wiki-sidan för detta protokoll.</translation>
-    </message>
-    <message>
-        <source>Filter Field Reference</source>
-        <translation>Filterfältreferens</translation>
-    </message>
-    <message>
-        <source>Open the display filter reference page for this filter field.</source>
-        <translation>Öppna visningsfiltrets referenssida för detta filterfält.</translation>
-    </message>
-    <message>
-        <source>Go to the packet referenced by the selected field.</source>
-        <translation>Gå till paketet refererat av det valda fältet.</translation>
-    </message>
-    <message>
-        <source>&amp;VoIP Calls</source>
-        <translation>&amp;VoIP-anrop</translation>
-    </message>
-    <message>
-        <source>Open &amp;Recent</source>
-        <translation>Öppna &amp;senaste</translation>
-    </message>
-    <message>
-        <source>Name Resol&amp;ution</source>
-        <translation>Namn&amp;uppslagning</translation>
-    </message>
-    <message>
-        <source>Service &amp;Response Time</source>
-        <translation>Tjänste&amp;svarstid</translation>
-    </message>
-    <message>
-        <source>&amp;RTP</source>
-        <translation>&amp;RTP</translation>
-    </message>
-    <message>
-        <source>S&amp;CTP</source>
-        <translation>S&amp;CTP</translation>
-    </message>
-    <message>
-        <source>&amp;ANSI</source>
-        <translation>&amp;ANSI</translation>
-    </message>
-    <message>
-        <source>&amp;GSM</source>
-        <translation>&amp;GSM</translation>
-    </message>
-    <message>
-        <source>&amp;LTE</source>
-        <translation>&amp;LTE</translation>
-    </message>
-    <message>
-        <source>&amp;MTP3</source>
-        <translation>&amp;MTP3</translation>
-    </message>
-    <message>
-        <source>&amp;Open</source>
-        <translation>&amp;Öppna</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation>&amp;Avsluta</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Stäng</translation>
-    </message>
-    <message>
-        <source>Display &amp;Filters…</source>
-        <translation>Visnings&amp;filter …</translation>
-    </message>
-    <message>
-        <source>&amp;Unmark All Displayed</source>
-        <translation>&amp;Avmarkera alla visade</translation>
-    </message>
-    <message>
-        <source>All VoIP Calls</source>
-        <translation>Alla VoIP-anrop</translation>
-    </message>
-    <message>
-        <source>SIP &amp;Flows</source>
-        <translation>SIP-&amp;flöden</translation>
-    </message>
-    <message>
-        <source>SIP Flows</source>
-        <translation>SIP-flöden</translation>
-    </message>
-    <message>
-        <source>RTP Streams</source>
-        <translation>RTP-strömmar</translation>
-    </message>
-    <message>
-        <source>Edit the packet list coloring rules.</source>
-        <translation>Redigera färgläggningsreglerna för paketlistan.</translation>
-    </message>
-    <message>
-        <source>Bluetooth ATT Server Attributes</source>
-        <oldsource>ATT Server Attributes</oldsource>
-        <translation>Blåtands-ATT-serverattribut</translation>
-    </message>
-    <message>
-        <source>Show Packet in New &amp;Window</source>
-        <translation>Visa paket i ett nytt &amp;fönster</translation>
-    </message>
-    <message>
-        <source>Show this packet in a separate window.</source>
-        <translation>Visa detta paket i ett separat fönster.</translation>
-    </message>
-    <message>
-        <source>Show the linked packet in a separate window.</source>
-        <translation>Visa det länkade paketet i ett separat fönster.</translation>
-    </message>
-    <message>
-        <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation>Rulla automatiskt i li&amp;ve-fångst</translation>
-    </message>
-    <message>
-        <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation>Rulla automatiskt till det sista paketet under en live-fångst.</translation>
-    </message>
-    <message>
-        <source>Expert Information</source>
-        <translation>Expertinformation</translation>
-    </message>
-    <message>
-        <source>Show expert notifications</source>
-        <translation>Visa expertnotifieringar</translation>
-    </message>
-    <message>
-        <source>Add an expression to the display filter.</source>
-        <translation>Lägg till ett uttryck till visningsfiltret.</translation>
-    </message>
-    <message>
-        <source>REGISTER_STAT_GROUP_UNSORTED</source>
-        <translation>REGISTER_STAT_GROUP_UNSORTED</translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
-        <translation>Start på ”REGISTER_STAT_GROUP_UNSORTED”</translation>
-    </message>
-    <message>
-        <source>No ANSI statistics registered</source>
-        <oldsource>No tools registered</oldsource>
-        <translation>Ingen ANSI-statistik registrerad</translation>
-    </message>
-    <message>
-        <source>Resolved Addresses</source>
-        <translation>Uppslagna adresser</translation>
-    </message>
-    <message>
-        <source>Show each table of resolved addresses as copyable text.</source>
-        <translation>Visa varje tabell över uppslagna adresser som kopierbar text.</translation>
-    </message>
-    <message>
-        <source>Color &amp;1</source>
-        <translation>Färg &amp;1</translation>
-    </message>
-    <message>
-        <source>Mark the current conversation with its own color.</source>
-        <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation>Markera den aktuella konversationen med sin egen färg.</translation>
-    </message>
-    <message>
-        <source>Color &amp;2</source>
-        <translation>Färg &amp;2</translation>
-    </message>
-    <message>
-        <source>Color &amp;3</source>
-        <translation>Färg &amp;3</translation>
-    </message>
-    <message>
-        <source>Color &amp;4</source>
-        <translation>Färg &amp;4</translation>
-    </message>
-    <message>
-        <source>Color &amp;5</source>
-        <translation>Färg &amp;5</translation>
-    </message>
-    <message>
-        <source>Color &amp;6</source>
-        <translation>Färg &amp;6</translation>
-    </message>
-    <message>
-        <source>Color &amp;7</source>
-        <translation>Färg &amp;7</translation>
-    </message>
-    <message>
-        <source>Color &amp;8</source>
-        <translation>Färg &amp;8</translation>
-    </message>
-    <message>
-        <source>Color &amp;9</source>
-        <translation>Färg &amp;9</translation>
-    </message>
-    <message>
-        <source>Color 1&amp;0</source>
-        <translation>Färg 1&amp;0</translation>
-    </message>
-    <message>
-        <source>Create a new coloring rule based on this field.</source>
-        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation>Skapa en ny färgläggningsregel baserat på detta fält.</translation>
-    </message>
-    <message>
-        <source>Reset Colorization</source>
-        <translation>Återställ färgläggningen</translation>
-    </message>
-    <message>
-        <source>Reset colorized conversations.</source>
-        <translation>Återställ färglagda konversationer.</translation>
-    </message>
-    <message>
-        <source>RTP Stream Analysis</source>
-        <translation>RTP-strömanalys</translation>
-    </message>
-    <message>
-        <source>Edit Resolved Name</source>
-        <translation>Redigera uppslagna namn</translation>
-    </message>
-    <message>
-        <source>Manually edit a name resolution entry.</source>
-        <translation>Redigera manuellt en namnuppslagningspost.</translation>
-    </message>
-    <message>
-        <source>Enable and disable specific protocols</source>
-        <translation>Aktivera och avaktivera specifika protokoll</translation>
-    </message>
-    <message>
-        <source> before quitting</source>
-        <translation> före avslut</translation>
-    </message>
-    <message>
-        <source>Save packets before merging?</source>
-        <translation>Spara paket före sammanslagning?</translation>
-    </message>
-    <message>
-        <source>A temporary capture file can&apos;t be merged.</source>
-        <translation>En temporär fångstfil kan inte slås samman.</translation>
-    </message>
-    <message>
-        <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation>Spara ändringar i ”%1” före sammanslagning?</translation>
-    </message>
-    <message>
-        <source>Changes must be saved before the files can be merged.</source>
-        <translation>Ändringar måste sparas före filerna kan slås samman.</translation>
-    </message>
-    <message>
-        <source>Invalid Display Filter</source>
-        <translation>Felaktigt visningsfilter</translation>
-    </message>
-    <message>
-        <source>Invalid Read Filter</source>
-        <translation>Felaktigt läsningsfilter</translation>
-    </message>
-    <message>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation>Filteruttrycket %1 är inte ett giltigt läsningsfilter. (%2).</translation>
-    </message>
-    <message>
-        <source> before importing a capture</source>
-        <oldsource> before importing a new capture</oldsource>
-        <translation> före import av en fångst</translation>
-    </message>
-    <message>
-        <source>Unable to export to &quot;%1&quot;.</source>
-        <translation>Kan inte exportera till ”%1”.</translation>
-    </message>
-    <message>
-        <source>You cannot export packets to the current capture file.</source>
-        <translation>Du kan inte exportera paket till den nuvarande fångstfilen.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made%1?</source>
-        <oldsource>Do you want to save the captured packets</oldsource>
-        <translation>Vill du spara ändringarna du gjort%1?</translation>
-    </message>
-    <message>
-        <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation>Dina fångade paket kommer gå förlorade om du inte sparar dem.</translation>
-    </message>
-    <message>
-        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation>Vill du spara ändringarna du gjort till fångstfilen ”%1”%2?</translation>
-    </message>
-    <message>
-        <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation>Dina ändringar kommer gå förlorade om du inte sparar dem.</translation>
-    </message>
-    <message>
-        <source>Check for Updates…</source>
-        <translation>Leta efter uppdateringar …</translation>
-    </message>
-    <message>
-        <source>Unable to drop files during capture.</source>
-        <translation>Kan inte släppa filer under fångsten.</translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by merge dialog.</source>
-        <translation>Okänd filtyp returnerad av sammanslagningsdialogen.</translation>
-    </message>
-    <message>
-        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation>Rapportera gärna detta som ett problem med Wireshark på https://gitlab.com/wireshark/wireshark/-/issues.</translation>
-    </message>
-    <message>
-        <source>Unknown file type returned by export dialog.</source>
-        <translation>Okänd filtyp returnerad av exportdialogen.</translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation>Vill du sluta fångsten och spara de fångade paketen%1?</translation>
-    </message>
-    <message>
-        <source>Do you want to save the captured packets%1?</source>
-        <translation>Vill du sparade de fångade paketen%1?</translation>
-    </message>
-    <message>
-        <source>Save before Continue</source>
-        <translation>Spara före fortsättningen</translation>
-    </message>
-    <message>
-        <source>Stop and Save</source>
-        <translation>Stoppa och spara</translation>
-    </message>
-    <message>
-        <source>Stop and Quit &amp;without Saving</source>
-        <oldsource>Stop and Quit without Saving</oldsource>
-        <translation>Stoppa och avsluta &amp;utan att spara</translation>
-    </message>
-    <message>
-        <source>Quit &amp;without Saving</source>
-        <oldsource>Quit without Saving</oldsource>
-        <translation>Avsluta &amp;utan att spara</translation>
-    </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation>Det finns inget &quot;rtp.ssrc&quot;-fält i denna version av Wireshark.</translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation>Välj ett RTPv2-paket med ett SSRC-värde</translation>
-    </message>
-    <message>
-        <source>SSRC value not found.</source>
-        <translation>SSRC-värdet finns inte.</translation>
-    </message>
-    <message>
-        <source>Show or hide the toolbar</source>
-        <translation>Visa eller dölj verktygsraden</translation>
-    </message>
-    <message>
-        <source>Continue &amp;without Saving</source>
-        <oldsource>Continue without Saving</oldsource>
-        <translation>Fortsätt &amp;utan att spara</translation>
-    </message>
-    <message>
-        <source>Stop and Continue &amp;without Saving</source>
-        <oldsource>Stop and Continue without Saving</oldsource>
-        <translation>Stoppa och fortsätt &amp;utan att spara</translation>
-    </message>
-    <message>
-        <source>The Wireshark Network Analyzer</source>
-        <translation>Nätverksanalysatorn Wireshark</translation>
-    </message>
-    <message>
-        <source>Capturing from %1</source>
-        <translation>Fångst från %1</translation>
-    </message>
-    <message>
-        <source> before opening another file</source>
-        <translation> före en annan fil öppnas</translation>
-    </message>
-    <message>
-        <source>Merging files.</source>
-        <translation>Slår samman filer.</translation>
-    </message>
-    <message>
-        <source>%1: %2</source>
-        <translation>%1: %2</translation>
-    </message>
-    <message>
-        <source>Clear Menu</source>
-        <translation>Töm menyn</translation>
-    </message>
-    <message>
-        <source> before closing the file</source>
-        <translation> före filen stängs</translation>
-    </message>
-    <message>
-        <source>Export Selected Packet Bytes</source>
-        <translation>Exportera valda paketbyte</translation>
-    </message>
-    <message>
-        <source>No Keys</source>
-        <translation>Inga nycklar</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation>Rå data (*.bin *.dat *.raw);;Alla filer (</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation>Kunde inte kopiera texten.  Försök med ett annat objekt.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all packet comments?</source>
-        <translation>Är du säker på att du vill ta bort alla paketkommentarer?</translation>
-    </message>
-    <message>
-        <source>Unable to build conversation filter.</source>
-        <translation>Kan inte bygga ett konversationsfilter.</translation>
-    </message>
-    <message>
-        <source> before reloading the file</source>
-        <translation> före filen läses om</translation>
-    </message>
-    <message>
-        <source>Error compiling filter for this conversation.</source>
-        <translation>Fel vid kompilering av filter för denna konversation.</translation>
-    </message>
-    <message>
-        <source>No previous/next packet in conversation.</source>
-        <translation>Inget föregående/nästa paket i konversationen.</translation>
-    </message>
-    <message>
-        <source>No interface selected.</source>
-        <translation>Inget gränssnitt valt.</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <translation>Sparar %1 …</translation>
-    </message>
-    <message>
-        <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid capture filter.</source>
-        <translation>Felaktigt fångstfilter.</translation>
-    </message>
-    <message>
-        <source>(empty comment)</source>
-        <comment>placeholder for empty comment</comment>
-        <translation>(tom kommentar)</translation>
-    </message>
-    <message>
-        <source>Add New Comment…</source>
-        <translation>Lägg till en ny kommentar …</translation>
-    </message>
-    <message>
-        <source>Edit &quot;%1&quot;</source>
-        <comment>edit packet comment</comment>
-        <translation>Redigera ”%1”</translation>
-    </message>
-    <message>
-        <source>Delete &quot;%1&quot;</source>
-        <comment>delete packet comment</comment>
-        <translation>Ta bort ”%1”</translation>
-    </message>
-    <message>
-        <source>Delete packet comments</source>
-        <translation>Ta bort paketkommentarer</translation>
-    </message>
-    <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
-            <numerusform>Ta bort kommentarer från %n paket</numerusform>
-            <numerusform>Ta bort kommentarer från %n paket</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source> before starting a new capture</source>
-        <translation> före en ny fångst startas</translation>
-    </message>
-    <message>
-        <source> before reloading Lua plugins</source>
-        <translation>före Lua-insticksmodulen laddas om</translation>
-    </message>
-    <message>
-        <source>Please wait while Wireshark is initializing…</source>
-        <translation>Vänta medan Wireshark initieras …</translation>
-    </message>
-    <message>
-        <source>There are no TLS Session Keys to save.</source>
-        <translation>Det finns inga TLS-sessionsnycklar att spara.</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>Exportera TLS-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera TLS-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation>TLS-sessionsnycklar (*.keys *.txt);;Alla filer (</translation>
-    </message>
-    <message>
-        <source>No filter available. Try another %1.</source>
-        <translation>Inget filter tillgängligt.  Försök med ett annat %1.</translation>
-    </message>
-    <message>
-        <source>column</source>
-        <translation>kolumn</translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation>post</translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists.</source>
-        <translation>Kolumnen ”%1” finns redan.</translation>
-    </message>
-    <message>
-        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation>Kolumnen ”%1” finns redan som ”%2”.</translation>
-    </message>
-    <message>
-        <source>RTP packet search failed</source>
-        <translation>RTP-paketsökningen misslyckades</translation>
-    </message>
-    <message>
-        <source>No Interface Selected.</source>
-        <translation>Inget gränssnitt valt.</translation>
-    </message>
-    <message>
-        <source> before restarting the capture</source>
-        <translation> före omstart av fångsten</translation>
-    </message>
-    <message>
-        <source>Wiki Page for %1</source>
-        <translation>Wiki-sida för %1</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Wireshark-wikin underhålls av gemenskapen.&lt;/p&gt;&lt;p&gt;Sidan du står i begrepp att läsa in kan vara underbar, ofullständig, felaktig, eller saknas.&lt;/p&gt;&lt;p&gt;Gå vidare till wikin?&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Loading</source>
-        <translation>Läser in</translation>
-    </message>
-    <message>
-        <source>Reloading</source>
-        <translation>Läser om</translation>
-    </message>
-    <message>
-        <source>Rescanning</source>
-        <translation>Söker om</translation>
-    </message>
-</context>
-<context>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -9729,6 +7590,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>End Bits/s</source>
         <translation>Slutbit/s</translation>
+    </message>
+    <message>
+        <source>PDUs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -14295,6 +12160,10 @@ a:hover {
         <translation>Visa i mappen</translation>
     </message>
     <message>
+        <source>Welcome to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All interfaces shown</source>
         <translation>Alla gränssnitt visade</translation>
     </message>
@@ -14421,6 +12290,2141 @@ a:hover {
     <message>
         <source>Failed to attach to tap &quot;%1&quot;</source>
         <translation>Misslyckades att koppla till uttaget ”%1”</translation>
+    </message>
+</context>
+<context>
+    <name>WiresharkMainWindow</name>
+    <message>
+        <source>Wireshark</source>
+        <translation>Wireshark</translation>
+    </message>
+    <message>
+        <source>Go to packet</source>
+        <translation>Gå till paket</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>File Set</source>
+        <translation>Filuppsättning</translation>
+    </message>
+    <message>
+        <source>Export Packet Dissections</source>
+        <translation>Exportera paket dissekeringar</translation>
+    </message>
+    <message>
+        <source>Export Objects</source>
+        <translation>Exportera objekt</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom</source>
+        <translation>&amp;Zooma</translation>
+    </message>
+    <message>
+        <source>&amp;Time Display Format</source>
+        <translation>&amp;Tidsvisningsformat</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Manual pages</source>
+        <translation>Manualsidor</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation>Använd som ett filter</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation>Förbered som filter</translation>
+    </message>
+    <message>
+        <source>SCTP</source>
+        <translation>SCTP</translation>
+    </message>
+    <message>
+        <source>TCP Stream Graphs</source>
+        <translation>TCP-strömgrafer</translation>
+    </message>
+    <message>
+        <source>BACnet</source>
+        <translation>BACnet</translation>
+    </message>
+    <message>
+        <source>HTTP</source>
+        <translation>HTTP</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Arkiv</translation>
+    </message>
+    <message>
+        <source>&amp;Capture</source>
+        <translation>&amp;Fånga</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Hjälp</translation>
+    </message>
+    <message>
+        <source>&amp;Go</source>
+        <translation>&amp;Kör</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Visa</translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation>A&amp;nalysera</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation>Följ</translation>
+    </message>
+    <message>
+        <source>&amp;Statistics</source>
+        <translation>&amp;Statistik</translation>
+    </message>
+    <message>
+        <source>29West</source>
+        <translation>29West</translation>
+    </message>
+    <message>
+        <source>Topics</source>
+        <translation>Ämnen</translation>
+    </message>
+    <message>
+        <source>Queues</source>
+        <translation>Köer</translation>
+    </message>
+    <message>
+        <source>UIM</source>
+        <translation>UIM</translation>
+    </message>
+    <message>
+        <source>Telephon&amp;y</source>
+        <translation>Telefon&amp;i</translation>
+    </message>
+    <message>
+        <source>RTSP</source>
+        <translation>RTSP</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Redigera</translation>
+    </message>
+    <message>
+        <source>Packet Comments</source>
+        <translation>Paketkommentarer</translation>
+    </message>
+    <message>
+        <source>Main Toolbar</source>
+        <translation>Huvudverktygsrad</translation>
+    </message>
+    <message>
+        <source>Display Filter Toolbar</source>
+        <translation>Visningsfilterverktygsrad</translation>
+    </message>
+    <message>
+        <source>Open a capture file</source>
+        <translation>Öppna en fångstfil</translation>
+    </message>
+    <message>
+        <source>Quit Wireshark</source>
+        <translation>Avsluta Wireshark</translation>
+    </message>
+    <message>
+        <source>&amp;Start</source>
+        <translation>&amp;Starta</translation>
+    </message>
+    <message>
+        <source>Start capturing packets</source>
+        <translation>Börja fånga paket</translation>
+    </message>
+    <message>
+        <source>S&amp;top</source>
+        <translation>St&amp;opp</translation>
+    </message>
+    <message>
+        <source>Stop capturing packets</source>
+        <translation>Sluta fånga paket</translation>
+    </message>
+    <message>
+        <source>No files found</source>
+        <translation>Inga filer hittades</translation>
+    </message>
+    <message>
+        <source>&amp;Contents</source>
+        <translation>&amp;Innehåll</translation>
+    </message>
+    <message>
+        <source>Wireshark Filter</source>
+        <translation>Wireshark-filter</translation>
+    </message>
+    <message>
+        <source>TShark</source>
+        <translation>TShark</translation>
+    </message>
+    <message>
+        <source>Rawshark</source>
+        <translation>Rawshark</translation>
+    </message>
+    <message>
+        <source>Dumpcap</source>
+        <translation>Dumpcap</translation>
+    </message>
+    <message>
+        <source>Mergecap</source>
+        <translation>Mergecap</translation>
+    </message>
+    <message>
+        <source>Editcap</source>
+        <translation>Editcap</translation>
+    </message>
+    <message>
+        <source>Text2pcap</source>
+        <translation>Text2pcap</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>Webbsida</translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation>Hämtningar</translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation>Wiki</translation>
+    </message>
+    <message>
+        <source>Sample Captures</source>
+        <translation>Exempel på fångster</translation>
+    </message>
+    <message>
+        <source>&amp;About Wireshark</source>
+        <translation>&amp;Om Wireshark</translation>
+    </message>
+    <message>
+        <source>Ask (Q&amp;&amp;A)</source>
+        <translation>Fråga (F&amp;&amp;S)</translation>
+    </message>
+    <message>
+        <source>Next Packet</source>
+        <translation>Nästa paket</translation>
+    </message>
+    <message>
+        <source>Go to the next packet</source>
+        <translation>Gå till nästa paket</translation>
+    </message>
+    <message>
+        <source>Previous Packet</source>
+        <translation>Föregående paket</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet</source>
+        <translation>Gå till föregående paket</translation>
+    </message>
+    <message>
+        <source>First Packet</source>
+        <translation>Första paket</translation>
+    </message>
+    <message>
+        <source>Go to the first packet</source>
+        <translation>Gå till det första paketet</translation>
+    </message>
+    <message>
+        <source>Last Packet</source>
+        <translation>Sista paket</translation>
+    </message>
+    <message>
+        <source>Go to the last packet</source>
+        <translation>Gå till det sista paketet</translation>
+    </message>
+    <message>
+        <source>E&amp;xpand Subtrees</source>
+        <translation>E&amp;xpandera underträd</translation>
+    </message>
+    <message>
+        <source>Expand the current packet detail</source>
+        <translation>Expandera det aktuella paketets detaljer</translation>
+    </message>
+    <message>
+        <source>&amp;Expand All</source>
+        <translation>&amp;Expandera alla</translation>
+    </message>
+    <message>
+        <source>Expand packet details</source>
+        <translation>Expandera paketdetaljer</translation>
+    </message>
+    <message>
+        <source>Collapse &amp;All</source>
+        <translation>Fäll ihop &amp;alla</translation>
+    </message>
+    <message>
+        <source>Collapse all packet details</source>
+        <translation>Fäll ihop alla paketdetaljer</translation>
+    </message>
+    <message>
+        <source>Go to specified packet</source>
+        <translation>Gå till det angivna paketet</translation>
+    </message>
+    <message>
+        <source>Merge one or more files</source>
+        <translation>Slå samman en eller fler filer</translation>
+    </message>
+    <message>
+        <source>Import a file</source>
+        <translation>Importera en fil</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <translation>&amp;Spara</translation>
+    </message>
+    <message>
+        <source>Save as a different file</source>
+        <translation>Spara som en annan fil</translation>
+    </message>
+    <message>
+        <source>Export specified packets</source>
+        <translation>Exportera angivna paket</translation>
+    </message>
+    <message>
+        <source>Export TLS Session Keys…</source>
+        <translation>Exportera TLS-sessionsnycklar …</translation>
+    </message>
+    <message>
+        <source>List Files</source>
+        <translation>Lista filer</translation>
+    </message>
+    <message>
+        <source>Next File</source>
+        <translation>Nästa fil</translation>
+    </message>
+    <message>
+        <source>Previous File</source>
+        <translation>Föregående fil</translation>
+    </message>
+    <message>
+        <source>&amp;Reload</source>
+        <translation>L&amp;äs om</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Alternativ</translation>
+    </message>
+    <message>
+        <source>Capture options</source>
+        <translation>Fångstalternativ</translation>
+    </message>
+    <message>
+        <source>Capture filters</source>
+        <translation>Fångstfilter</translation>
+    </message>
+    <message>
+        <source>Refresh Interfaces</source>
+        <translation>Uppdatera gränssnitten</translation>
+    </message>
+    <message>
+        <source>Refresh interfaces</source>
+        <translation>Uppdatera gränssnitten</translation>
+    </message>
+    <message>
+        <source>&amp;Restart</source>
+        <translation>Sta&amp;rta om</translation>
+    </message>
+    <message>
+        <source>Restart current capture</source>
+        <translation>Starta om den aktuella fångsten</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV…</source>
+        <translation>Som &amp;CSV …</translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation>Som ”C”-&amp;vektorer …</translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation>Som P&amp;SML XML …</translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation>Som P&amp;DML XML …</translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation>Som &amp;JSON …</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Beskrivning</translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation>Fältnamn</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Värde</translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation>Som filter</translation>
+    </message>
+    <message>
+        <source>Close this capture file</source>
+        <translation>Stäng denna fångstfil</translation>
+    </message>
+    <message>
+        <source>Packet:</source>
+        <translation>Paket:</translation>
+    </message>
+    <message>
+        <source>Interface Toolbars</source>
+        <translation>Gränssnittsverktygsrader</translation>
+    </message>
+    <message>
+        <source>Colorize Conversation</source>
+        <translation>Färglägg konversationen</translation>
+    </message>
+    <message>
+        <source>Internals</source>
+        <translation>Internt</translation>
+    </message>
+    <message>
+        <source>Additional Toolbars</source>
+        <translation>Ytterligare verktygsrader</translation>
+    </message>
+    <message>
+        <source>Conversation Filter</source>
+        <translation>Konversationsfilter</translation>
+    </message>
+    <message>
+        <source>Reliable Server Pooling (RSerPool)</source>
+        <translation>Pålitlig server-poolning (RSerPool)</translation>
+    </message>
+    <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Osmux</source>
+        <translation>Osmux</translation>
+    </message>
+    <message>
+        <source>&amp;Tools</source>
+        <oldsource>Tools</oldsource>
+        <translation>&amp;Verktyg</translation>
+    </message>
+    <message>
+        <source>Wireless Toolbar</source>
+        <translation>Verktygsrad för trådlöst</translation>
+    </message>
+    <message>
+        <source>Help contents</source>
+        <translation>Hjälpinnehåll</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation>Frågor och svar</translation>
+    </message>
+    <message>
+        <source>Next Packet in Conversation</source>
+        <translation>Nästa paket i konversationen</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in this conversation</source>
+        <translation>Gå till nästa paket i denna konversation</translation>
+    </message>
+    <message>
+        <source>Previous Packet in Conversation</source>
+        <translation>Föregående paket i konversationen</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in this conversation</source>
+        <translation>Gå till föregående paket i denna konversation</translation>
+    </message>
+    <message>
+        <source>Next Packet In History</source>
+        <translation>Nästa paket i historiken</translation>
+    </message>
+    <message>
+        <source>Go to the next packet in your selection history</source>
+        <translation>Gå till nästa paket i din valhistorik</translation>
+    </message>
+    <message>
+        <source>Previous Packet In History</source>
+        <translation>Föregående paket i historien</translation>
+    </message>
+    <message>
+        <source>Go to the previous packet in your selection history</source>
+        <translation>Gå till föregående paket i din valhistorik</translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation>Fäll ihop underträd</translation>
+    </message>
+    <message>
+        <source>Collapse the current packet detail</source>
+        <translation>Fäll ihop de aktuella paketdetaljerna</translation>
+    </message>
+    <message>
+        <source>Go to Packet…</source>
+        <translation>Gå till paket …</translation>
+    </message>
+    <message>
+        <source>&amp;Merge…</source>
+        <translation>&amp;Slå samman …</translation>
+    </message>
+    <message>
+        <source>&amp;Import from Hex Dump…</source>
+        <translation>&amp;Importera ifrån hexdump …</translation>
+    </message>
+    <message>
+        <source>Save this capture file</source>
+        <translation>Spara denna fångstfil</translation>
+    </message>
+    <message>
+        <source>Save &amp;As…</source>
+        <translation>Spara s&amp;om …</translation>
+    </message>
+    <message>
+        <source>Export Specified Packets…</source>
+        <translation>Exportera angivna paket …</translation>
+    </message>
+    <message>
+        <source>Export Packet &amp;Bytes…</source>
+        <translation>Exportera paket&amp;byte …</translation>
+    </message>
+    <message>
+        <source>&amp;Print…</source>
+        <translation>&amp;Skriv ut …</translation>
+    </message>
+    <message>
+        <source>Reload this file</source>
+        <translation>Läs om denna fil</translation>
+    </message>
+    <message>
+        <source>Reload as File Format/Capture</source>
+        <translation>Läs om som filformat/-fångst</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s description</source>
+        <translation>Kopiera detta objekts beskrivning</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s field name</source>
+        <translation>Kopiera detta objekts fältnamn</translation>
+    </message>
+    <message>
+        <source>Copy this item&apos;s value</source>
+        <translation>Kopiera detta objekts värde</translation>
+    </message>
+    <message>
+        <source>Copy this item as a display filter</source>
+        <translation>Kopiera detta objekt som ett visningsfilter</translation>
+    </message>
+    <message>
+        <source>Apply as Column</source>
+        <translation>Använd som kolumn</translation>
+    </message>
+    <message>
+        <source>Create a packet list column from the selected field.</source>
+        <translation>Skapa en paketlistekolumn från det valda fältet.</translation>
+    </message>
+    <message>
+        <source>Find a packet</source>
+        <translation>Sök efter ett paket</translation>
+    </message>
+    <message>
+        <source>Find the next packet</source>
+        <translation>Sök efter nästa paket</translation>
+    </message>
+    <message>
+        <source>Find the previous packet</source>
+        <translation>Sök efter föregående paket</translation>
+    </message>
+    <message>
+        <source>&amp;Mark/Unmark Packet(s)</source>
+        <oldsource>&amp;Mark/Unmark Packet</oldsource>
+        <translation>&amp;Markera/avmarkera paket</translation>
+    </message>
+    <message>
+        <source>Mark All Displayed</source>
+        <translation>Markera alla visade</translation>
+    </message>
+    <message>
+        <source>Mark all displayed packets</source>
+        <translation>Markera alla visade paket</translation>
+    </message>
+    <message>
+        <source>Unmark all displayed packets</source>
+        <translation>Avmarkera alla visade paket</translation>
+    </message>
+    <message>
+        <source>Next Mark</source>
+        <translation>Nästa märke</translation>
+    </message>
+    <message>
+        <source>Go to the next marked packet</source>
+        <translation>Gå till nästa märkta paket</translation>
+    </message>
+    <message>
+        <source>Previous Mark</source>
+        <translation>Föregående märke</translation>
+    </message>
+    <message>
+        <source>Go to the previous marked packet</source>
+        <translation>Gå till föregående märkta paket</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore/Unignore Packet(s)</source>
+        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
+        <translation>&amp;Ignorera/avignorera paket</translation>
+    </message>
+    <message>
+        <source>Ignore All Displayed</source>
+        <translation>Ignorera alla visade</translation>
+    </message>
+    <message>
+        <source>Ignore all displayed packets</source>
+        <translation>Ignorera alla visade paket</translation>
+    </message>
+    <message>
+        <source>Set/Unset Time Reference</source>
+        <translation>Ange/ta bort tidsreferens</translation>
+    </message>
+    <message>
+        <source>Set or unset a time reference for this packet</source>
+        <translation>Ange eller ta bort en tidsreferens för detta paket</translation>
+    </message>
+    <message>
+        <source>Unset All Time References</source>
+        <translation>Ta bort alla tidsreferenser</translation>
+    </message>
+    <message>
+        <source>Remove all time references</source>
+        <translation>Ta bort alla tidsreferenser</translation>
+    </message>
+    <message>
+        <source>Next Time Reference</source>
+        <translation>Nästa tidsreferens</translation>
+    </message>
+    <message>
+        <source>Go to the next time reference</source>
+        <translation>Gå till nästa tidsreferens</translation>
+    </message>
+    <message>
+        <source>Previous Time Reference</source>
+        <translation>Föregående tidsreferens</translation>
+    </message>
+    <message>
+        <source>Go to the previous time reference</source>
+        <translation>Gå till föregående tidsreferens</translation>
+    </message>
+    <message>
+        <source>Shift or change packet timestamps</source>
+        <translation>Skifta eller ändra pakettidsstämplar</translation>
+    </message>
+    <message>
+        <source>Delete All Packet Comments</source>
+        <translation>Ta bort alla paketkommentarer</translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation>Ta bort alla paketkommentarer i fångstfilen</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation>&amp;Konfigurationsprofiler …</translation>
+    </message>
+    <message>
+        <source>Configuration profiles</source>
+        <translation>Konfigurationsprofiler</translation>
+    </message>
+    <message>
+        <source>Manage your configuration profiles</source>
+        <translation>Hantera dina konfigurationsprofiler</translation>
+    </message>
+    <message>
+        <source>Manage Wireshark&apos;s preferences</source>
+        <translation>Hantera Wiresharks inställningar</translation>
+    </message>
+    <message>
+        <source>Capture File Properties</source>
+        <translation>Fångstfilegenskaper</translation>
+    </message>
+    <message>
+        <source>Capture file properties</source>
+        <translation>Fångstfilegenskaper</translation>
+    </message>
+    <message>
+        <source>&amp;Protocol Hierarchy</source>
+        <translation>&amp;Protokollhierarki</translation>
+    </message>
+    <message>
+        <source>Show a summary of protocols present in the capture file.</source>
+        <translation>Visa en sammanfattning av protokoll som finns i fångstfilen.</translation>
+    </message>
+    <message>
+        <source>Capinfos</source>
+        <translation>Capinfos</translation>
+    </message>
+    <message>
+        <source>Reordercap</source>
+        <translation>Reordercap</translation>
+    </message>
+    <message>
+        <source>Time Sequence (Stevens)</source>
+        <translation>Tidssekvenser (Stevens)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (Stevens)</source>
+        <translation>TCP-tidssekvensgraf (Stevens)</translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation>Genomströmning</translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation>Rundturstid</translation>
+    </message>
+    <message>
+        <source>TCP round trip time</source>
+        <translation>TCP-rundturstid</translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation>Fönsterskalning</translation>
+    </message>
+    <message>
+        <source>TCP window scaling</source>
+        <translation>TCP-fönsterskalning</translation>
+    </message>
+    <message>
+        <source>DCCP Stream</source>
+        <translation>DCCP-ström</translation>
+    </message>
+    <message>
+        <source>TLS Stream</source>
+        <translation>TLS-ström</translation>
+    </message>
+    <message>
+        <source>HTTP Stream</source>
+        <translation>HTTP-ström</translation>
+    </message>
+    <message>
+        <source>HTTP/2 Stream</source>
+        <translation>HTTP/2-ström</translation>
+    </message>
+    <message>
+        <source>QUIC Stream</source>
+        <translation>QUIC-ström</translation>
+    </message>
+    <message>
+        <source>SIP Call</source>
+        <translation>SIP-anrop</translation>
+    </message>
+    <message>
+        <source>Time Sequence (tcptrace)</source>
+        <translation>Tidssekvens (tcptrace)</translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (tcptrace)</source>
+        <translation>TCP-tidssekvensgraf (tcptrace)</translation>
+    </message>
+    <message>
+        <source>Analyse this Association</source>
+        <translation>Analysera denna association</translation>
+    </message>
+    <message>
+        <source>Show All Associations</source>
+        <translation>Visa alla associationer</translation>
+    </message>
+    <message>
+        <source>Flow Graph</source>
+        <translation>Flödesgraf</translation>
+    </message>
+    <message>
+        <source>Flow sequence diagram</source>
+        <translation>Flödessekvensdiagram</translation>
+    </message>
+    <message>
+        <source>ANCP</source>
+        <translation>ANCP</translation>
+    </message>
+    <message>
+        <source>ANCP statistics</source>
+        <translation>ANCP-statistik</translation>
+    </message>
+    <message>
+        <source>Packets sorted by Instance ID</source>
+        <translation>Paket sorterade efter instans-ID</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by instance ID</source>
+        <translation>BACapp-statistik sorterad efter instans-ID</translation>
+    </message>
+    <message>
+        <source>Packets sorted by IP</source>
+        <translation>Paket sorterade efter IP</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by IP</source>
+        <translation>BACapp-statistik sorterad efter IP</translation>
+    </message>
+    <message>
+        <source>Packets sorted by object type</source>
+        <translation>Paket sorterade efter objekttyp</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by object type</source>
+        <translation>BACapp-statistik sorterad efter objekttyp</translation>
+    </message>
+    <message>
+        <source>Packets sorted by service</source>
+        <translation>Paket sorterade efter tjänst</translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by service</source>
+        <translation>BACapp-statistik sorterad efter tjänst</translation>
+    </message>
+    <message>
+        <source>Collectd</source>
+        <translation>Collectd</translation>
+    </message>
+    <message>
+        <source>Collectd statistics</source>
+        <translation>Collectd-statistik</translation>
+    </message>
+    <message>
+        <source>DNS</source>
+        <translation>DNS</translation>
+    </message>
+    <message>
+        <source>DNS statistics</source>
+        <translation>DNS-statistik</translation>
+    </message>
+    <message>
+        <source>HART-IP</source>
+        <translation>HART-IP</translation>
+    </message>
+    <message>
+        <source>HART-IP statistics</source>
+        <translation>HART-IP-statistik</translation>
+    </message>
+    <message>
+        <source>HPFEEDS</source>
+        <translation>HPFEEDS</translation>
+    </message>
+    <message>
+        <source>hpfeeds statistics</source>
+        <translation>hpfeeds-statistik</translation>
+    </message>
+    <message>
+        <source>HTTP2</source>
+        <translation>HTTP2</translation>
+    </message>
+    <message>
+        <source>HTTP2 statistics</source>
+        <translation>HTTP2-statistik</translation>
+    </message>
+    <message>
+        <source>Packet Counter</source>
+        <translation>Paketräknare</translation>
+    </message>
+    <message>
+        <source>HTTP packet counter</source>
+        <translation>HTTP-paketräknare</translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation>Begäranden</translation>
+    </message>
+    <message>
+        <source>HTTP requests</source>
+        <translation>HTTP-begäranden</translation>
+    </message>
+    <message>
+        <source>Load Distribution</source>
+        <translation>Lastfördelning</translation>
+    </message>
+    <message>
+        <source>HTTP load distribution</source>
+        <translation>HTTP-lastfördelning</translation>
+    </message>
+    <message>
+        <source>Packet Lengths</source>
+        <translation>Paketlängder</translation>
+    </message>
+    <message>
+        <source>Packet length statistics</source>
+        <translation>Paketlängdsstatistik</translation>
+    </message>
+    <message>
+        <source>Sametime</source>
+        <translation>Sametime</translation>
+    </message>
+    <message>
+        <source>Sametime statistics</source>
+        <translation>Sametime-statistik</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ISUP Messages</source>
+        <translation>&amp;ISUP-meddelanden</translation>
+    </message>
+    <message>
+        <source>ISUP message statistics</source>
+        <translation>ISUP-meddelandestatistik</translation>
+    </message>
+    <message>
+        <source>Osmux packet counts</source>
+        <translation>Osmux-paketräknare</translation>
+    </message>
+    <message>
+        <source>RTSP packet counts</source>
+        <translation>RTSP-paketräknare</translation>
+    </message>
+    <message>
+        <source>SM&amp;PP Operations</source>
+        <translation>SM&amp;PP-åtgärder</translation>
+    </message>
+    <message>
+        <source>SMPP operation statistics</source>
+        <translation>SMPP-åtgärdsstatistik</translation>
+    </message>
+    <message>
+        <source>&amp;UCP Messages</source>
+        <translation>&amp;UCP-meddelanden</translation>
+    </message>
+    <message>
+        <source>UCP message statistics</source>
+        <translation>UCP-meddelandestatistik</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation>F1AP</translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation>F1AP-meddelanden</translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation>NGAP</translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation>NGAP-meddelanden</translation>
+    </message>
+    <message>
+        <source>Change the way packets are dissected</source>
+        <translation>Ändra det sätt på vilket paket dissekeras</translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation>Läs om Lua-insticksmoduler</translation>
+    </message>
+    <message>
+        <source>Reload Lua plugins</source>
+        <translation>Läs om Lua-insticksmoduler</translation>
+    </message>
+    <message>
+        <source>Advertisements by Topic</source>
+        <translation>Annonser efter ämne</translation>
+    </message>
+    <message>
+        <source>Advertisements by Source</source>
+        <translation>Annonser efter källa</translation>
+    </message>
+    <message>
+        <source>Advertisements by Transport</source>
+        <translation>Annonser efter transport</translation>
+    </message>
+    <message>
+        <source>Queries by Topic</source>
+        <translation>Frågor efter ämne</translation>
+    </message>
+    <message>
+        <source>Queries by Receiver</source>
+        <translation>Frågor efter mottagare</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Pattern</source>
+        <translation>Jokerfrågor efter mönster</translation>
+    </message>
+    <message>
+        <source>Wildcard Queries by Receiver</source>
+        <translation>Jokerfrågor efter mottagare</translation>
+    </message>
+    <message>
+        <source>Advertisements by Queue</source>
+        <translation>Annonser efter kö</translation>
+    </message>
+    <message>
+        <source>Queries by Queue</source>
+        <translation>Frågor efter kö</translation>
+    </message>
+    <message>
+        <source>Streams</source>
+        <translation>Strömmar</translation>
+    </message>
+    <message>
+        <source>LBT-RM</source>
+        <translation>LBT-RM</translation>
+    </message>
+    <message>
+        <source>LBT-RU</source>
+        <translation>LBT-RU</translation>
+    </message>
+    <message>
+        <source>Filter this Association</source>
+        <translation>Filtrera denna association</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;I/O Graphs</source>
+        <translation>&amp;I/O-grafer</translation>
+    </message>
+    <message>
+        <source>&amp;Conversations</source>
+        <translation>&amp;Konversationer</translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation>&amp;Ändpunkter</translation>
+    </message>
+    <message>
+        <source>Shrink the main window text</source>
+        <translation>Krymp huvudfönstrets text</translation>
+    </message>
+    <message>
+        <source>Return the main window text to its normal size</source>
+        <translation>Återställ huvudfönstret till sin normalstorlek</translation>
+    </message>
+    <message>
+        <source>Reset Layout</source>
+        <translation>Återställ layouten</translation>
+    </message>
+    <message>
+        <source>Reset appearance layout to default size</source>
+        <translation>Återställ utseendelayouten till sin standardstorlek</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Diagram</source>
+        <translation>Paket&amp;diagram</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet diagram</source>
+        <translation>Visa eller dölj paketduagrannet</translation>
+    </message>
+    <message>
+        <source>Show each conversation hash table</source>
+        <translation>Visa varje konversations hashtabell</translation>
+    </message>
+    <message>
+        <source>Show each dissector table and its entries</source>
+        <translation>Visa varje dissekeringstabell och dess poster</translation>
+    </message>
+    <message>
+        <source>Show the currently supported protocols and display filter fields</source>
+        <translation>Visa de protokoll och visningsfilterfält som stödjs</translation>
+    </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation>MAC-statistik</translation>
+    </message>
+    <message>
+        <source>LTE MAC statistics</source>
+        <translation>LTE MAC-statistik</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation>RLC-statistik</translation>
+    </message>
+    <message>
+        <source>LTE RLC statistics</source>
+        <translation>LTE RLC-statistik</translation>
+    </message>
+    <message>
+        <source>LTE RLC graph</source>
+        <translation>LTE RLC-graf</translation>
+    </message>
+    <message>
+        <source>MTP3 Summary</source>
+        <translation>MTP3-sammanfattning</translation>
+    </message>
+    <message>
+        <source>MTP3 summary statistics</source>
+        <translation>MTP3 sammanfattande statistik</translation>
+    </message>
+    <message>
+        <source>Bluetooth Devices</source>
+        <translation>Blåtandsenheter</translation>
+    </message>
+    <message>
+        <source>Bluetooth HCI Summary</source>
+        <translation>Blåtands HCI-sammanfattning</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Expression…</source>
+        <translation>Visningsfilter&amp;uttryck …</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation>Visningsfilteruttryck …</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
+        <translation>REGISTER_STAT_GROUP_RSERPOOL</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
+        <translation>Start på &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</translation>
+    </message>
+    <message>
+        <source>No GSM statistics registered</source>
+        <translation>Ingen GSM-statistik registrerad</translation>
+    </message>
+    <message>
+        <source>No LTE statistics registered</source>
+        <translation>Ingen LTE-statistik registrerad</translation>
+    </message>
+    <message>
+        <source>No MTP3 statistics registered</source>
+        <translation>Ingen MTP3-statistik registrerad</translation>
+    </message>
+    <message>
+        <source>IAX2 Stream Analysis</source>
+        <translation>IAX2-strömanalys</translation>
+    </message>
+    <message>
+        <source>Show Packet Bytes…</source>
+        <translation>Visa paketbyte …</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation>Gå till &amp;länkade paket</translation>
+    </message>
+    <message>
+        <source>UDP Multicast Streams</source>
+        <translation>UDP multicast-strömmar</translation>
+    </message>
+    <message>
+        <source>Show UTP multicast stream statistics.</source>
+        <translation>Visa statistik över UTP-multicast-strömmar.</translation>
+    </message>
+    <message>
+        <source>WLAN Traffic</source>
+        <translation>WLAN-trafik</translation>
+    </message>
+    <message>
+        <source>Show IEEE 802.11 wireless LAN statistics.</source>
+        <translation>Visa statistik över IEEE 802.11 trådlöst LAN.</translation>
+    </message>
+    <message>
+        <source>Add a display filter button.</source>
+        <translation>Lägg till en visningsfilterknapp.</translation>
+    </message>
+    <message>
+        <source>Firewall ACL Rules</source>
+        <translation>Brandväggens ACL-regler</translation>
+    </message>
+    <message>
+        <source>Create firewall ACL rules</source>
+        <translation>Skapa ACL-regler för brandvägg</translation>
+    </message>
+    <message>
+        <source>&amp;Full Screen</source>
+        <translation>&amp;Helskärm</translation>
+    </message>
+    <message>
+        <source>Credentials</source>
+        <translation>Kreditiv</translation>
+    </message>
+    <message>
+        <source>&amp;Options…</source>
+        <translation>&amp;Alternativ …</translation>
+    </message>
+    <message>
+        <source>&amp;Wireless</source>
+        <translation>&amp;Trådlöst</translation>
+    </message>
+    <message>
+        <source>Capture &amp;Filters…</source>
+        <translation>&amp;Fångstfilter …</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text…</source>
+        <translation>Som vanlig &amp;text …</translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text</source>
+        <translation>Som vanlig &amp;text</translation>
+    </message>
+    <message>
+        <source>As &amp;CSV</source>
+        <translation>Som &amp;CSV</translation>
+    </message>
+    <message>
+        <source>As &amp;YAML</source>
+        <translation>Som &amp;YAML</translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation>Alla synliga objekt</translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation>Alla synliga valda trädobjekt</translation>
+    </message>
+    <message>
+        <source>Display Filter &amp;Macros…</source>
+        <translation>Visningsfilter&amp;makron …</translation>
+    </message>
+    <message>
+        <source>&amp;Find Packet…</source>
+        <translation>&amp;Sök paket …</translation>
+    </message>
+    <message>
+        <source>Find Ne&amp;xt</source>
+        <translation>Sök n&amp;ästa</translation>
+    </message>
+    <message>
+        <source>Find Pre&amp;vious</source>
+        <translation>Sök f&amp;öregående</translation>
+    </message>
+    <message>
+        <source>Mark or unmark each selected packet</source>
+        <translation>Markera eller avmarkera varje valt paket</translation>
+    </message>
+    <message>
+        <source>Ignore or unignore each selected packet</source>
+        <translation>Ignorera eller avignorera varje valt paket</translation>
+    </message>
+    <message>
+        <source>U&amp;nignore All Displayed</source>
+        <translation>Avig&amp;norera alla visade</translation>
+    </message>
+    <message>
+        <source>Unignore all displayed packets</source>
+        <translation>Avignorera alla visade paket</translation>
+    </message>
+    <message>
+        <source>Time Shift…</source>
+        <translation>Tidsförskjutning …</translation>
+    </message>
+    <message>
+        <source>&amp;Preferences…</source>
+        <translation>&amp;Inställningar …</translation>
+    </message>
+    <message>
+        <source>TCP throughput</source>
+        <translation>TCP-genomströmning</translation>
+    </message>
+    <message>
+        <source>TCP Stream</source>
+        <translation>TCP-ström</translation>
+    </message>
+    <message>
+        <source>UDP Stream</source>
+        <translation>UDP-ström</translation>
+    </message>
+    <message>
+        <source>Request Sequences</source>
+        <translation>Begärandesekvenser</translation>
+    </message>
+    <message>
+        <source>HTTP Request Sequences</source>
+        <translation>HTTP-begärandesekvenser</translation>
+    </message>
+    <message>
+        <source>Decode &amp;As…</source>
+        <translation>Avkoda &amp;som …</translation>
+    </message>
+    <message>
+        <source>Export PDUs to File…</source>
+        <translation>Exportera PDU:er till fil …</translation>
+    </message>
+    <message>
+        <source>Create graphs based on display filter fields</source>
+        <translation>Skapa grafer baserat på visningsfilterfält</translation>
+    </message>
+    <message>
+        <source>&amp;Main Toolbar</source>
+        <translation>&amp;Huvudverktygsrad</translation>
+    </message>
+    <message>
+        <source>Show or hide the main toolbar</source>
+        <translation>Visa eller dölj huvudverktygsraden</translation>
+    </message>
+    <message>
+        <source>&amp;Filter Toolbar</source>
+        <translation>&amp;Filterverktygsrad</translation>
+    </message>
+    <message>
+        <source>Show or hide the display filter toolbar</source>
+        <translation>Visa eller dölj filterverktygsraden</translation>
+    </message>
+    <message>
+        <source>Conversations at different protocol levels</source>
+        <translation>Konversationer på olika protokollnivåer</translation>
+    </message>
+    <message>
+        <source>Endpoints at different protocol levels</source>
+        <translation>Ändpunkter på olika protokollnivåer</translation>
+    </message>
+    <message>
+        <source>Colorize Packet List</source>
+        <translation>Färglägg paketlistan</translation>
+    </message>
+    <message>
+        <source>Draw packets using your coloring rules</source>
+        <translation>Skriv ut paket och använd dina färgläggningsregler</translation>
+    </message>
+    <message>
+        <source>&amp;Zoom In</source>
+        <translation>&amp;Zooma in</translation>
+    </message>
+    <message>
+        <source>Enlarge the main window text</source>
+        <translation>Förstora huvudfönstrets text</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Zooma ut</translation>
+    </message>
+    <message>
+        <source>Normal Size</source>
+        <translation>Normal storlek</translation>
+    </message>
+    <message>
+        <source>Resize Columns</source>
+        <translation>Ändra storlek på kolumner</translation>
+    </message>
+    <message>
+        <source>Resize packet list columns to fit contents</source>
+        <translation>Ändra storleken på kolumner med paketlistor för att passa med innehållet</translation>
+    </message>
+    <message>
+        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>Datum och tid på dagen (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the date and time of day.</source>
+        <translation>Visa pakettider som datum och tid på dagen.</translation>
+    </message>
+    <message>
+        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>År, dag på året, och tid på dagen (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the year, day of the year and time of day.</source>
+        <translation>Visa pakettider som år, dag på året och tid på dagen.</translation>
+    </message>
+    <message>
+        <source>Time of Day (01:02:03.123456)</source>
+        <translation>Tid på dagen (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Seconds Since 1970-01-01</source>
+        <translation>Sekunder sedan 1970-01-01</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
+        <translation>Visa pakettider som antal sekunder sedan UNIX-/POSIX-epoken (1970-01-01).</translation>
+    </message>
+    <message>
+        <source>Seconds Since Beginning of Capture</source>
+        <translation>Sekunder sedan början på fångsten</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Captured Packet</source>
+        <translation>Sekunder sedan föregående fångade paket</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous captured packet.</source>
+        <translation>Visa pakettider som antalet sekunder sedan föregående fångade paket.</translation>
+    </message>
+    <message>
+        <source>Seconds Since Previous Displayed Packet</source>
+        <translation>Sekunder sedan föregående visade paket</translation>
+    </message>
+    <message>
+        <source>Show packet times as the seconds since the previous displayed packet.</source>
+        <translation>Visa pakettider som antalet sekunder sedan föregående visade paket.</translation>
+    </message>
+    <message>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation>UTC-datum och tid på dagen (1970-01-01 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC date and time of day.</source>
+        <translation>Visa pakettider som UTC-datumet och tiden på dagen.</translation>
+    </message>
+    <message>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation>UTC-år, dag på året, och tid på dagen (1970/001 01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC year, day of the year and time of day.</source>
+        <translation>Visa pakettider som UTC-år, dag på året och tid på dagen.</translation>
+    </message>
+    <message>
+        <source>UTC Time of Day (01:02:03.123456)</source>
+        <translation>UTC-tid på dagen (01:02:03.123456)</translation>
+    </message>
+    <message>
+        <source>Show packet times as the UTC time of day.</source>
+        <translation>Visa pakettider som UTC-tiden på dagen.</translation>
+    </message>
+    <message>
+        <source>Automatic (from capture file)</source>
+        <translation>Automatiskt (från fångstfilen)</translation>
+    </message>
+    <message>
+        <source>Use the time precision indicated in the capture file.</source>
+        <translation>Använd tidsprecisionen som indikeras i fångstfilen.</translation>
+    </message>
+    <message>
+        <source>Seconds</source>
+        <translation>Sekunder</translation>
+    </message>
+    <message>
+        <source>Tenths of a second</source>
+        <translation>Tiondelar av en sekund</translation>
+    </message>
+    <message>
+        <source>Hundredths of a second</source>
+        <translation>Hundradelar av en sekund</translation>
+    </message>
+    <message>
+        <source>Milliseconds</source>
+        <translation>Millisekunder</translation>
+    </message>
+    <message>
+        <source>Microseconds</source>
+        <translation>Mikrosekunder</translation>
+    </message>
+    <message>
+        <source>Nanoseconds</source>
+        <translation>Nanosekunder</translation>
+    </message>
+    <message>
+        <source>Display Seconds With Hours and Minutes</source>
+        <translation>Visa sekunder med timmar och minuter</translation>
+    </message>
+    <message>
+        <source>Display seconds with hours and minutes</source>
+        <translation>Visa sekunder med timmar och minuter</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Physical Addresses</source>
+        <translation>Slå upp &amp;fysiska adresser</translation>
+    </message>
+    <message>
+        <source>Show names for known MAC addresses. Lookups use a local database.</source>
+        <translation>Visa namn för kända MAC-adresser.  Uppslagningar använder en lokal databas.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Network Addresses</source>
+        <translation>Slå upp &amp;nätverksadresser</translation>
+    </message>
+    <message>
+        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
+        <translation>Visa namn på kända IPv4-, IPv6- och IPX-adresser.  Uppslagningar kan generera nätverkstrafik.</translation>
+    </message>
+    <message>
+        <source>Resolve &amp;Transport Addresses</source>
+        <translation>Slå upp &amp;transportadresser</translation>
+    </message>
+    <message>
+        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
+        <translation>Visa namn på kända TCP-, UDP- och SCTP-tjänster.  Uppslagningar kan generera trafik på några system.</translation>
+    </message>
+    <message>
+        <source>Wire&amp;less Toolbar</source>
+        <translation>Tråd&amp;lös verktygsrad</translation>
+    </message>
+    <message>
+        <source>Show or hide the wireless toolbar</source>
+        <translation>Visa eller dölj den trådlösa verktygsraden</translation>
+    </message>
+    <message>
+        <source>&amp;Status Bar</source>
+        <translation>&amp;Statusrad</translation>
+    </message>
+    <message>
+        <source>Show or hide the status bar</source>
+        <translation>Visa eller dölj statusraden</translation>
+    </message>
+    <message>
+        <source>Packet &amp;List</source>
+        <translation>Paket&amp;lista</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet list</source>
+        <translation>Visa eller dölj paketlistan</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Details</source>
+        <translation>Paket&amp;detaljer</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet details</source>
+        <translation>Visa eller dölj paketdetaljerna</translation>
+    </message>
+    <message>
+        <source>Packet &amp;Bytes</source>
+        <translation>Paket&amp;byte</translation>
+    </message>
+    <message>
+        <source>Show or hide the packet bytes</source>
+        <translation>Visa eller dölj paketbyte</translation>
+    </message>
+    <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation>&amp;Konversationshashtabeller</translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation>&amp;Dissekeringstabeller</translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation>Protokoll som &amp;stödjs</translation>
+    </message>
+    <message>
+        <source>MAP Summary</source>
+        <translation>MAP-sammanfattning</translation>
+    </message>
+    <message>
+        <source>GSM MAP summary statistics</source>
+        <translation>GSM MAP-sammanfattande statistik</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation>RLC-&amp;graf</translation>
+    </message>
+    <message>
+        <source>&amp;Coloring Rules…</source>
+        <translation>&amp;Färgläggningsregler …</translation>
+    </message>
+    <message>
+        <source>Show Linked Packet in New Window</source>
+        <translation>Visa länkade paket i ett nytt fönster</translation>
+    </message>
+    <message>
+        <source>New Coloring Rule…</source>
+        <oldsource>New Conversation Rule…</oldsource>
+        <translation>Ny färgläggningsregel …</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation>RTP-strömanalys för den valda strömmen. Tryck CTRL-tangenten för att lägga till den omvända strömmen också.</translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation>RTP-spelare</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation>Spela den valda strömmen. Tryck CTRL-tangenten för att spela den omvända strömmen också.</translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation>IA&amp;X2-strömanalys</translation>
+    </message>
+    <message>
+        <source>Enabled Protocols…</source>
+        <oldsource>Enable Protocols…</oldsource>
+        <translation>Aktiverade protokoll …</translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation>Wiki-protokollsida</translation>
+    </message>
+    <message>
+        <source>Open the Wireshark wiki page for this protocol.</source>
+        <translation>Öppna Wireshark-wiki-sidan för detta protokoll.</translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation>Filterfältreferens</translation>
+    </message>
+    <message>
+        <source>Open the display filter reference page for this filter field.</source>
+        <translation>Öppna visningsfiltrets referenssida för detta filterfält.</translation>
+    </message>
+    <message>
+        <source>Go to the packet referenced by the selected field.</source>
+        <translation>Gå till paketet refererat av det valda fältet.</translation>
+    </message>
+    <message>
+        <source>&amp;VoIP Calls</source>
+        <translation>&amp;VoIP-anrop</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation>Öppna &amp;senaste</translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation>Namn&amp;uppslagning</translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation>Tjänste&amp;svarstid</translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation>&amp;RTP</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation>S&amp;CTP</translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation>&amp;ANSI</translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation>&amp;GSM</translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation>&amp;LTE</translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation>&amp;MTP3</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Öppna</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation>&amp;Avsluta</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>&amp;Stäng</translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation>Visnings&amp;filter …</translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation>&amp;Avmarkera alla visade</translation>
+    </message>
+    <message>
+        <source>All VoIP Calls</source>
+        <translation>Alla VoIP-anrop</translation>
+    </message>
+    <message>
+        <source>SIP &amp;Flows</source>
+        <translation>SIP-&amp;flöden</translation>
+    </message>
+    <message>
+        <source>SIP Flows</source>
+        <translation>SIP-flöden</translation>
+    </message>
+    <message>
+        <source>RTP Streams</source>
+        <translation>RTP-strömmar</translation>
+    </message>
+    <message>
+        <source>Edit the packet list coloring rules.</source>
+        <translation>Redigera färgläggningsreglerna för paketlistan.</translation>
+    </message>
+    <message>
+        <source>Bluetooth ATT Server Attributes</source>
+        <oldsource>ATT Server Attributes</oldsource>
+        <translation>Blåtands-ATT-serverattribut</translation>
+    </message>
+    <message>
+        <source>Show Packet in New &amp;Window</source>
+        <translation>Visa paket i ett nytt &amp;fönster</translation>
+    </message>
+    <message>
+        <source>Show this packet in a separate window.</source>
+        <translation>Visa detta paket i ett separat fönster.</translation>
+    </message>
+    <message>
+        <source>Show the linked packet in a separate window.</source>
+        <translation>Visa det länkade paketet i ett separat fönster.</translation>
+    </message>
+    <message>
+        <source>Auto Scroll in Li&amp;ve Capture</source>
+        <translation>Rulla automatiskt i li&amp;ve-fångst</translation>
+    </message>
+    <message>
+        <source>Automatically scroll to the last packet during a live capture.</source>
+        <translation>Rulla automatiskt till det sista paketet under en live-fångst.</translation>
+    </message>
+    <message>
+        <source>Expert Information</source>
+        <translation>Expertinformation</translation>
+    </message>
+    <message>
+        <source>Show expert notifications</source>
+        <translation>Visa expertnotifieringar</translation>
+    </message>
+    <message>
+        <source>Add an expression to the display filter.</source>
+        <translation>Lägg till ett uttryck till visningsfiltret.</translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_UNSORTED</source>
+        <translation>REGISTER_STAT_GROUP_UNSORTED</translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
+        <translation>Start på ”REGISTER_STAT_GROUP_UNSORTED”</translation>
+    </message>
+    <message>
+        <source>No ANSI statistics registered</source>
+        <oldsource>No tools registered</oldsource>
+        <translation>Ingen ANSI-statistik registrerad</translation>
+    </message>
+    <message>
+        <source>Resolved Addresses</source>
+        <translation>Uppslagna adresser</translation>
+    </message>
+    <message>
+        <source>Show each table of resolved addresses as copyable text.</source>
+        <translation>Visa varje tabell över uppslagna adresser som kopierbar text.</translation>
+    </message>
+    <message>
+        <source>Color &amp;1</source>
+        <translation>Färg &amp;1</translation>
+    </message>
+    <message>
+        <source>Mark the current conversation with its own color.</source>
+        <oldsource>Mark the current coversation with its own color.</oldsource>
+        <translation>Markera den aktuella konversationen med sin egen färg.</translation>
+    </message>
+    <message>
+        <source>Color &amp;2</source>
+        <translation>Färg &amp;2</translation>
+    </message>
+    <message>
+        <source>Color &amp;3</source>
+        <translation>Färg &amp;3</translation>
+    </message>
+    <message>
+        <source>Color &amp;4</source>
+        <translation>Färg &amp;4</translation>
+    </message>
+    <message>
+        <source>Color &amp;5</source>
+        <translation>Färg &amp;5</translation>
+    </message>
+    <message>
+        <source>Color &amp;6</source>
+        <translation>Färg &amp;6</translation>
+    </message>
+    <message>
+        <source>Color &amp;7</source>
+        <translation>Färg &amp;7</translation>
+    </message>
+    <message>
+        <source>Color &amp;8</source>
+        <translation>Färg &amp;8</translation>
+    </message>
+    <message>
+        <source>Color &amp;9</source>
+        <translation>Färg &amp;9</translation>
+    </message>
+    <message>
+        <source>Color 1&amp;0</source>
+        <translation>Färg 1&amp;0</translation>
+    </message>
+    <message>
+        <source>Create a new coloring rule based on this field.</source>
+        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
+        <translation>Skapa en ny färgläggningsregel baserat på detta fält.</translation>
+    </message>
+    <message>
+        <source>Reset Colorization</source>
+        <translation>Återställ färgläggningen</translation>
+    </message>
+    <message>
+        <source>Reset colorized conversations.</source>
+        <translation>Återställ färglagda konversationer.</translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>RTP-strömanalys</translation>
+    </message>
+    <message>
+        <source>Edit Resolved Name</source>
+        <translation>Redigera uppslagna namn</translation>
+    </message>
+    <message>
+        <source>Manually edit a name resolution entry.</source>
+        <translation>Redigera manuellt en namnuppslagningspost.</translation>
+    </message>
+    <message>
+        <source>Enable and disable specific protocols</source>
+        <translation>Aktivera och avaktivera specifika protokoll</translation>
+    </message>
+    <message>
+        <source> before quitting</source>
+        <translation> före avslut</translation>
+    </message>
+    <message>
+        <source>Save packets before merging?</source>
+        <translation>Spara paket före sammanslagning?</translation>
+    </message>
+    <message>
+        <source>A temporary capture file can&apos;t be merged.</source>
+        <translation>En temporär fångstfil kan inte slås samman.</translation>
+    </message>
+    <message>
+        <source>Save changes in &quot;%1&quot; before merging?</source>
+        <translation>Spara ändringar i ”%1” före sammanslagning?</translation>
+    </message>
+    <message>
+        <source>Changes must be saved before the files can be merged.</source>
+        <translation>Ändringar måste sparas före filerna kan slås samman.</translation>
+    </message>
+    <message>
+        <source>Invalid Display Filter</source>
+        <translation>Felaktigt visningsfilter</translation>
+    </message>
+    <message>
+        <source>Invalid Read Filter</source>
+        <translation>Felaktigt läsningsfilter</translation>
+    </message>
+    <message>
+        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
+        <translation>Filteruttrycket %1 är inte ett giltigt läsningsfilter. (%2).</translation>
+    </message>
+    <message>
+        <source> before importing a capture</source>
+        <oldsource> before importing a new capture</oldsource>
+        <translation> före import av en fångst</translation>
+    </message>
+    <message>
+        <source>Unable to export to &quot;%1&quot;.</source>
+        <translation>Kan inte exportera till ”%1”.</translation>
+    </message>
+    <message>
+        <source>You cannot export packets to the current capture file.</source>
+        <translation>Du kan inte exportera paket till den nuvarande fångstfilen.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made%1?</source>
+        <oldsource>Do you want to save the captured packets</oldsource>
+        <translation>Vill du spara ändringarna du gjort%1?</translation>
+    </message>
+    <message>
+        <source>Your captured packets will be lost if you don&apos;t save them.</source>
+        <translation>Dina fångade paket kommer gå förlorade om du inte sparar dem.</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
+        <translation>Vill du spara ändringarna du gjort till fångstfilen ”%1”%2?</translation>
+    </message>
+    <message>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation>Dina ändringar kommer gå förlorade om du inte sparar dem.</translation>
+    </message>
+    <message>
+        <source>Check for Updates…</source>
+        <translation>Leta efter uppdateringar …</translation>
+    </message>
+    <message>
+        <source>Unable to drop files during capture.</source>
+        <translation>Kan inte släppa filer under fångsten.</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by merge dialog.</source>
+        <translation>Okänd filtyp returnerad av sammanslagningsdialogen.</translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation>Rapportera gärna detta som ett problem med Wireshark på https://gitlab.com/wireshark/wireshark/-/issues.</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by export dialog.</source>
+        <translation>Okänd filtyp returnerad av exportdialogen.</translation>
+    </message>
+    <message>
+        <source>Do you want to stop the capture and save the captured packets%1?</source>
+        <translation>Vill du sluta fångsten och spara de fångade paketen%1?</translation>
+    </message>
+    <message>
+        <source>Do you want to save the captured packets%1?</source>
+        <translation>Vill du sparade de fångade paketen%1?</translation>
+    </message>
+    <message>
+        <source>Save before Continue</source>
+        <translation>Spara före fortsättningen</translation>
+    </message>
+    <message>
+        <source>Stop and Save</source>
+        <translation>Stoppa och spara</translation>
+    </message>
+    <message>
+        <source>Stop and Quit &amp;without Saving</source>
+        <oldsource>Stop and Quit without Saving</oldsource>
+        <translation>Stoppa och avsluta &amp;utan att spara</translation>
+    </message>
+    <message>
+        <source>Quit &amp;without Saving</source>
+        <oldsource>Quit without Saving</oldsource>
+        <translation>Avsluta &amp;utan att spara</translation>
+    </message>
+    <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation>Det finns inget &quot;rtp.ssrc&quot;-fält i denna version av Wireshark.</translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation>Välj ett RTPv2-paket med ett SSRC-värde</translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation>SSRC-värdet finns inte.</translation>
+    </message>
+    <message>
+        <source>Show or hide the toolbar</source>
+        <translation>Visa eller dölj verktygsraden</translation>
+    </message>
+    <message>
+        <source>Continue &amp;without Saving</source>
+        <oldsource>Continue without Saving</oldsource>
+        <translation>Fortsätt &amp;utan att spara</translation>
+    </message>
+    <message>
+        <source>Stop and Continue &amp;without Saving</source>
+        <oldsource>Stop and Continue without Saving</oldsource>
+        <translation>Stoppa och fortsätt &amp;utan att spara</translation>
+    </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation>Nätverksanalysatorn Wireshark</translation>
+    </message>
+    <message>
+        <source>Capturing from %1</source>
+        <translation>Fångst från %1</translation>
+    </message>
+    <message>
+        <source> before opening another file</source>
+        <translation> före en annan fil öppnas</translation>
+    </message>
+    <message>
+        <source>Merging files.</source>
+        <translation>Slår samman filer.</translation>
+    </message>
+    <message>
+        <source>%1: %2</source>
+        <translation>%1: %2</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation>Töm menyn</translation>
+    </message>
+    <message>
+        <source> before closing the file</source>
+        <translation> före filen stängs</translation>
+    </message>
+    <message>
+        <source>Export Selected Packet Bytes</source>
+        <translation>Exportera valda paketbyte</translation>
+    </message>
+    <message>
+        <source>No Keys</source>
+        <translation>Inga nycklar</translation>
+    </message>
+    <message>
+        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
+        <translation>Rå data (*.bin *.dat *.raw);;Alla filer (</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t copy text. Try another item.</source>
+        <translation>Kunde inte kopiera texten.  Försök med ett annat objekt.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation>Är du säker på att du vill ta bort alla paketkommentarer?</translation>
+    </message>
+    <message>
+        <source>Unable to build conversation filter.</source>
+        <translation>Kan inte bygga ett konversationsfilter.</translation>
+    </message>
+    <message>
+        <source> before reloading the file</source>
+        <translation> före filen läses om</translation>
+    </message>
+    <message>
+        <source>Error compiling filter for this conversation.</source>
+        <translation>Fel vid kompilering av filter för denna konversation.</translation>
+    </message>
+    <message>
+        <source>No previous/next packet in conversation.</source>
+        <translation>Inget föregående/nästa paket i konversationen.</translation>
+    </message>
+    <message>
+        <source>No interface selected.</source>
+        <translation>Inget gränssnitt valt.</translation>
+    </message>
+    <message>
+        <source>Saving %1…</source>
+        <translation>Sparar %1 …</translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid capture filter.</source>
+        <translation>Felaktigt fångstfilter.</translation>
+    </message>
+    <message>
+        <source>(empty comment)</source>
+        <comment>placeholder for empty comment</comment>
+        <translation>(tom kommentar)</translation>
+    </message>
+    <message>
+        <source>Add New Comment…</source>
+        <translation>Lägg till en ny kommentar …</translation>
+    </message>
+    <message>
+        <source>Edit &quot;%1&quot;</source>
+        <comment>edit packet comment</comment>
+        <translation>Redigera ”%1”</translation>
+    </message>
+    <message>
+        <source>Delete &quot;%1&quot;</source>
+        <comment>delete packet comment</comment>
+        <translation>Ta bort ”%1”</translation>
+    </message>
+    <message>
+        <source>Delete packet comments</source>
+        <translation>Ta bort paketkommentarer</translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation>
+            <numerusform>Ta bort kommentarer från %n paket</numerusform>
+            <numerusform>Ta bort kommentarer från %n paket</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source> before starting a new capture</source>
+        <translation> före en ny fångst startas</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation>före Lua-insticksmodulen laddas om</translation>
+    </message>
+    <message>
+        <source>Please wait while Wireshark is initializing…</source>
+        <translation>Vänta medan Wireshark initieras …</translation>
+    </message>
+    <message>
+        <source>There are no TLS Session Keys to save.</source>
+        <translation>Det finns inga TLS-sessionsnycklar att spara.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export TLS Session Keys (%Ln key(s))</source>
+        <translation>
+            <numerusform>Exportera TLS-sessionsnycklar (%Ln nyckel)</numerusform>
+            <numerusform>Exportera TLS-sessionsnycklar (%Ln nycklar)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation>TLS-sessionsnycklar (*.keys *.txt);;Alla filer (</translation>
+    </message>
+    <message>
+        <source>No filter available. Try another %1.</source>
+        <translation>Inget filter tillgängligt.  Försök med ett annat %1.</translation>
+    </message>
+    <message>
+        <source>column</source>
+        <translation>kolumn</translation>
+    </message>
+    <message>
+        <source>item</source>
+        <translation>post</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists.</source>
+        <translation>Kolumnen ”%1” finns redan.</translation>
+    </message>
+    <message>
+        <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation>Kolumnen ”%1” finns redan som ”%2”.</translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation>RTP-paketsökningen misslyckades</translation>
+    </message>
+    <message>
+        <source>No Interface Selected.</source>
+        <translation>Inget gränssnitt valt.</translation>
+    </message>
+    <message>
+        <source> before restarting the capture</source>
+        <translation> före omstart av fångsten</translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation>Wiki-sida för %1</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Wireshark-wikin underhålls av gemenskapen.&lt;/p&gt;&lt;p&gt;Sidan du står i begrepp att läsa in kan vara underbar, ofullständig, felaktig, eller saknas.&lt;/p&gt;&lt;p&gt;Gå vidare till wikin?&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Loading</source>
+        <translation>Läser in</translation>
+    </message>
+    <message>
+        <source>Reloading</source>
+        <translation>Läser om</translation>
+    </message>
+    <message>
+        <source>Rescanning</source>
+        <translation>Söker om</translation>
     </message>
 </context>
 <context>

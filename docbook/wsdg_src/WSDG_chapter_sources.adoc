@@ -252,7 +252,7 @@ Running Wireshark this way can be helpful since debugging output will be display
 You can also change Wireshark’s behavior by setting various environment variables.
 See the {wireshark-man-page-url}wireshark.html#ENVIRONMENT-VARIABLES[ENVIRONMENT VARIABLES] section of the Wireshark man page for more details.
 
-[#ChSrcRunFirstTimeWin32]
+[#ChSrcRunFirstTimeWindows]
 ==== Windows Native
 
 By default the CMake-generated Visual {cpp} project places all of the files necessary to run Wireshark in the subdirectory `run\RelWithDebInfo`.
@@ -293,7 +293,7 @@ $ cmake .. -G Ninja -DENABLE_ASAN=1
 
 See https://developer-old.gnome.org/glib/stable/glib-running.html
 
-[#ChSrcWin32Debug]
+[#ChSrcWindowsDebug]
 ==== Windows Native
 
 You can debug using the Visual Studio Debugger or WinDbg.  See the section
@@ -940,9 +940,12 @@ to build the Debian Package.
 
 ==== Red Hat: .rpm Packages
 
-You can build an RPM package using the `rpm-package` target. The package
-version is derived from the current git HEAD, so you must build from a
-git checkout.
+You can build an RPM package using the `rpm-package` target. If you
+are building from a git checkout, the package version is derived from
+the current git HEAD. If you are building from source extracted from a
+tarball created with `git archive` (such as those downloaded from
+http://www.wireshark.org/download.html), you must place the original
+tarball into your build directory.
 
 The package is built using https://rpm.org/[rpmbuild], which comes as
 standard on many flavours of Linux, including Red Hat, Fedora, and

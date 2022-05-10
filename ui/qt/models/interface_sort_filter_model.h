@@ -34,6 +34,9 @@ public:
     int interfacesHidden();
     void toggleFilterHidden();
 
+    void setSortByActivity(bool sort);
+    bool sortByActivity() const;
+
 #ifdef HAVE_PCAP_REMOTE
     void setRemoteDisplay(bool remoteDisplay);
     bool remoteDisplay();
@@ -60,12 +63,14 @@ public:
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
     bool filterAcceptsColumn(int source_column, const QModelIndex & source_parent) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
 
 private:
     bool _filterHidden;
     bool _filterTypes;
     bool _invertTypeFilter;
     bool _storeOnChange;
+    bool _sortByActivity;
 
 #ifdef HAVE_PCAP_REMOTE
     bool _remoteDisplay;

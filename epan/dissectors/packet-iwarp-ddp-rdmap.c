@@ -77,8 +77,9 @@ void proto_register_iwarp_ddp_rdmap(void);
 #define IWARP_TERM_RES 0x1FFF
 
 #define IWARP_LAYER_RDMA 0x00
-#define IWARP_LAYER_DDP 0x10
-#define IWARP_LAYER_LLP 0x20
+#define IWARP_LAYER_DDP  0x01
+#define IWARP_LAYER_LLP  0x02
+
 #define IWARP_ETYPE_DDP_TAGGED 0x01
 #define IWARP_ETYPE_DDP_UNTAGGED 0x02
 
@@ -259,6 +260,22 @@ static const value_string ddp_errcode_untagged_names[] = {
 		{ 0, NULL }
 };
 
+static const value_string mpa_etype_names[] = {
+		{ 0x00, "MPA Error" },
+		{ 0, NULL }
+};
+
+static const value_string mpa_errcode_names[] = {
+		{ 0x01, "TCP connection closed, terminated or lost" },
+		{ 0x02, "MPA CRC Error" },
+		{ 0x03, "MPA Marker and ULPDU Length field mismatch" },
+		{ 0x04, "Invalid MPA Request Frame or MPA Response Frame" },
+		{ 0x05, "Local Catastrophic Error" },
+		{ 0x06, "Insufficient IRD Resources" },
+		{ 0x07, "No Matching RTR Option" },
+		{ 0, NULL }
+};
+
 static const value_string rdma_atomic_opcode_names[] = {
 		{ 0x00, "FetchAdd" },
 		{ 0x02, "CmpSwap" },
@@ -359,22 +376,22 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			layer = tvb_get_guint8(tvb, offset) & IWARP_LAYER;
 			etype = tvb_get_guint8(tvb, offset) & IWARP_ETYPE;
 
-			term_ctrl_field_subitem = proto_tree_add_item(rdma_tree,
+			term_ctrl_field_subitem = proto_tree_add_item(rdma_header_tree,
 					hf_iwarp_rdma_term_ctrl, tvb, offset, 3, ENC_NA);
 			term_ctrl_field_tree = proto_item_add_subtree(
 					term_ctrl_field_subitem, ett_iwarp_rdma);
 			proto_tree_add_item(term_ctrl_field_tree, hf_iwarp_rdma_term_layer,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 
-			switch (layer) {
+			switch (layer >> 4) {
 				case IWARP_LAYER_RDMA:
 					proto_tree_add_item(term_ctrl_field_tree,
 							hf_iwarp_rdma_term_etype_rdma, tvb, offset, 1,
 							ENC_BIG_ENDIAN);
 					offset += 1;
 					proto_tree_add_item(term_ctrl_field_tree,
-							hf_iwarp_rdma_term_errcode_rdma, tvb, offset, 1,
-							ENC_BIG_ENDIAN);
+							etype ? hf_iwarp_rdma_term_errcode_rdma : hf_iwarp_rdma_term_errcode,
+							tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 					break;
 				case IWARP_LAYER_DDP:
@@ -409,8 +426,8 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 							ENC_BIG_ENDIAN);
 					offset += 1;
 					proto_tree_add_item(term_ctrl_field_tree,
-							hf_iwarp_rdma_term_errcode_llp, tvb, offset, 1,
-							ENC_BIG_ENDIAN);
+							etype ? hf_iwarp_rdma_term_errcode : hf_iwarp_rdma_term_errcode_llp,
+							tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 					break;
 				default:
@@ -868,7 +885,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				"Terminate Control Field: Error Type", HFILL} },
 		{ &hf_iwarp_rdma_term_etype_llp, {
 				"Error Types for LLP layer", "iwarp_rdma.term_etype_llp",
-				FT_UINT8, BASE_HEX, NULL, IWARP_ETYPE,
+				FT_UINT8, BASE_HEX, VALS(mpa_etype_names), IWARP_ETYPE,
 				"Terminate Control Field: Error Type", HFILL} },
 		{ &hf_iwarp_rdma_term_etype, {
 				"Error Types", "iwarp_rdma.term_etype",
@@ -894,7 +911,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				"Terminate Control Field: Error Code", HFILL} },
 		{ &hf_iwarp_rdma_term_errcode_llp, {
 				"Error Code for LLP layer", "iwarp_rdma.term_errcode_llp",
-				FT_UINT8, BASE_HEX, NULL, 0x0,
+				FT_UINT8, BASE_HEX, VALS(mpa_errcode_names), 0x0,
 				"Terminate Control Field: Lower Layer Protocol Error Code",
 				HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct, {
@@ -903,15 +920,15 @@ proto_register_iwarp_ddp_rdmap(void)
 				"Terminate Control Field: Header control bits", HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct_m, {
 				"M bit", "iwarp_rdma.term_hdrct_m",
-				FT_UINT8, BASE_HEX, NULL, IWARP_HDRCT_M,
+				FT_BOOLEAN, 8, TFS(&tfs_set_notset), IWARP_HDRCT_M,
 				"Header control bit m: DDP Segment Length valid", HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct_d, {
 				"D bit", "iwarp_rdma.hdrct_d",
-				FT_UINT8, BASE_HEX, NULL, IWARP_HDRCT_D,
+				FT_BOOLEAN, 8, TFS(&tfs_set_notset), IWARP_HDRCT_D,
 				"Header control bit d: DDP Header Included", HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct_r, {
 				"R bit", "iwarp_rdma.hdrct_r",
-				FT_UINT8, BASE_HEX, NULL, IWARP_HDRCT_R,
+				FT_BOOLEAN, 8, TFS(&tfs_set_notset), IWARP_HDRCT_R,
 				"Header control bit r: RDMAP Header Included", HFILL} },
 		{ &hf_iwarp_rdma_term_rsvd, {
 				"Reserved", "iwarp_rdma.term_rsvd",

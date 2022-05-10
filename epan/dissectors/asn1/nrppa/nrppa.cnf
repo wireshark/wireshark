@@ -62,6 +62,7 @@ ProtocolExtensionField/id ext_id
 #.FN_HDR NRPPA-PDU
 
   proto_tree_add_item(tree, proto_nrppa, tvb, 0, -1, ENC_NA);
+  add_per_encoded_label(tvb, actx->pinfo, tree);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "NRPPa");
 #.END

@@ -6,3 +6,4 @@
 .gitignore                  export-ignore
 .gitreview                  export-ignore
 tools/make-version.pl       export-subst
+packaging/source/git-export-release.sh.in export-subst

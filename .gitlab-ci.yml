@@ -22,9 +22,11 @@ variables:
   GIT_FETCH_EXTRA_FLAGS: "--depth=5000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
   # Preferred version of clang available on wireshark-ubuntu-dev
-  CLANG_VERSION: 12
+  CLANG_VERSION: 14
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
   CLICOLOR_FORCE: 1
+  # Skip irrelevant SAST scanners:
+  SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
 
 # Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
 # - daily: Daily at 10:00 UTC
@@ -199,22 +201,6 @@ Source Package:
     paths:
       - wireshark-*.tar.*
 
-CentOS 7 RPM Package:
-  extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
-  script:
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake3 -GNinja ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja-build rpm-package
-CentOS 7 RPM Test:
-  extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
-  script:
-    - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
-    - tshark --version
-  needs: [ 'CentOS 7 RPM Package' ]
-
 # Job to generate packages for Debian stable
 Debian Stable APT Package:
   extends: .build-linux
@@ -367,47 +353,6 @@ Win64 Package:
       if (Test-Path env:S3_DESTINATION_WIN64) {
         foreach ($package in $packages) {
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN64/"
-        }
-      }
-    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
-
-Win32 Package:
-  extends: .build-windows
-  rules: !reference [.if-w-w-only-merged]
-  tags:
-    - wireshark-win32-package
-  before_script:
-    - $env:WIRESHARK_BASE_DIR = "C:\Development"
-    - $env:Configuration = "RelWithDebInfo"
-    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
-    - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019"
-    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsamd64_x86.bat`" && set > %temp%\vcvars.txt"
-    - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
-    - $env:Platform = "Win32"
-    - mkdir build
-    - cd build
-  script:
-    - perl ../tools/make-version.pl --set-release
-    - cmake -G "Visual Studio 17 2022" -A Win32 -DENABLE_LTO=off ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
-    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
-    - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
-    - msbuild /verbosity:minimal nsis_package.vcxproj
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\nsis
-    - msbuild /verbosity:minimal portableapps_package.vcxproj
-    - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps
-    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-win??-*.exe packaging\portableapps\WiresharkPortable??_*.paf.exe
-    - msbuild /verbosity:minimal pdb_zip_package.vcxproj
-    - C:\gitlab-builds\bin\mse-scan.ps1
-    - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-win??-*.zip"
-    - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
-    - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
-    - |
-      if (Test-Path env:S3_DESTINATION_WIN32) {
-        foreach ($package in $packages) {
-          aws s3 cp "$package" "$env:S3_DESTINATION_WIN32/"
         }
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
@@ -578,12 +523,12 @@ Code Checks + Clang Warnings:
     - ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS | tee cppcheck/cppcheck_report.txt
     - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS -x > cppcheck/cppcheck_report.xml ; fi
     - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then cppcheck-htmlreport --file cppcheck/cppcheck_report.xml  --report-dir cppcheck ; fi
-    - ./tools/check_typed_item_calls.py --commits $NUM_COMMITS | tee item_calls_check.txt
+    - ./tools/check_typed_item_calls.py --consecutive --label --mask --commits $NUM_COMMITS | tee item_calls_check.txt
     - ./tools/check_tfs.py --commits $NUM_COMMITS | tee tfs_check.txt
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # We don't have an "All options" job, so build fuzzshark here.
-    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DBUILD_fuzzshark=ON -DENABLE_CCACHE=ON -G Ninja ..
+    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DBUILD_fuzzshark=ON -DBUILD_logwolf=ON -DENABLE_CCACHE=ON -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - mkdir ../html
     - script --command ninja --flush --quiet --return ../tmp_clang_report.txt
@@ -904,3 +849,7 @@ Valgrind Menagerie Fuzz:
     - cd ..
     - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
   needs: [ 'ASan randpkt Fuzz' ]
+
+
+include:
+  - template: Security/SAST.gitlab-ci.yml

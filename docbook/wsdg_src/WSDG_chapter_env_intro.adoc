@@ -85,6 +85,8 @@ Note that in this documentation and elsewhere we tend to use the terms “Win32�
 “Win64” refers to the Windows API on 64-bit platforms.
 Wireshark runs on and can be compiled on the following Windows versions:
 
+* Windows 11 / Windows Server 2022
+
 * Windows 10 / Windows Server 2016 / Windows Server 2019
 
 * Windows 8.1 / Windows Server 2012 R2
@@ -265,8 +267,6 @@ GitLab’s CI marks successful jobs with a green checkmark and failed jobs with 
 Jobs provide a link to the corresponding console logfile which provides additional information.
 
 Release packages are built on the following platforms:
-
-* Windows Server 2019 x86-64 (Win32, little endian, Visual Studio 2019)
 
 * Windows Server 2019 x86-64 (Win64, little endian, Visual Studio 2019)
 
@@ -513,8 +513,6 @@ to your bug report.
 ==== Reporting Crashes on Windows platforms
 
 You can download Windows debugging symbol files (.pdb) from the following locations:
-
-* 32-bit Windows: https://www.wireshark.org/download/win32/all-versions/
 
 * 64-bit Windows: https://www.wireshark.org/download/win64/all-versions/
 

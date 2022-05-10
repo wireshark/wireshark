@@ -14,27 +14,22 @@
 #include <ftypes/ftypes.h>
 #include "syntax-tree.h"
 
+/* Functions take any number of arguments and return 1. */
+
 /* The run-time logic of the dfilter function */
-typedef gboolean (*DFFuncType)(GSList *arg1list, GSList *arg2list, GSList **retval);
+typedef gboolean (*DFFuncType)(GSList *arg_list, guint32 arg_count, GSList **retval);
 
 /* The semantic check for the dfilter function */
-typedef void (*DFSemCheckType)(dfwork_t *dfw, const char *func_name,
-                                int param_num, stnode_t *st_node);
-
-/* If a function needs more args than this, increase
- * this macro and add more arg members to the dfvm_insn_t
- * struct in dfvm.h, and add some logic to dfw_append_function()
- * and dfvm_apply() */
-#define DFUNCTION_MAX_NARGS 2
+typedef ftenum_t (*DFSemCheckType)(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
+                                GSList *param_list, stloc_t *func_loc);
 
 /* This is a "function definition" record, holding everything
  * we need to know about a function */
 typedef struct {
     const char      *name;
     DFFuncType      function;
-    ftenum_t        retval_ftype;
     guint           min_nargs;
-    guint           max_nargs;
+    guint           max_nargs; /* 0 for no limit */
     DFSemCheckType  semcheck_param_function;
 } df_func_def_t;
 

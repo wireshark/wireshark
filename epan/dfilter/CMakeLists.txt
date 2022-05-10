@@ -23,6 +23,7 @@ set(DFILTER_HEADER_FILES
 	gencode.h
 	semcheck.h
 	sttype-function.h
+	sttype-pointer.h
 	sttype-range.h
 	sttype-set.h
 	sttype-test.h

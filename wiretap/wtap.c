@@ -1524,6 +1524,13 @@ wtap_init_rec(wtap *wth, wtap_rec *rec)
 	rec->tsprec = wth->file_tsprec;
 	rec->block = NULL;
 	rec->block_was_modified = FALSE;
+
+	/*
+	 * Assume the file has only one section; the module for the
+	 * file type needs to indicate the section number if there's
+	 * more than one section.
+	 */
+	rec->section_number = 0;
 }
 
 gboolean

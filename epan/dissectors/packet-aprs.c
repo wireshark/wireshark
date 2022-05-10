@@ -518,7 +518,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	int	    new_offset;
 	int	    data_len;
 	char    *info_buffer;
-	char    latitude[7] = { '?', '?', '?', '?', '.', '?', '?' };
+	char    latitude[8] = { '?', '?', '?', '?', '.', '?', '?', 0x0 };
 	int	    msg_a;
 	int	    msg_b;
 	int	    msg_c;

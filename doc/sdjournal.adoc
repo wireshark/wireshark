@@ -135,7 +135,7 @@ To capture all entries since the system was booted:
 
     sdjournal --extcap-interface=sdjournal --fifo=/tmp/sdjournal.pcap --capture --start-from +0
 
-NOTE: To stop capturing CTRL+C/kill/terminate application.
+NOTE: To stop capturing CTRL+C/kill/terminate the application.
 
 == SEE ALSO
 

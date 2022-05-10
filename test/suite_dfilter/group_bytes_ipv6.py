@@ -105,4 +105,71 @@ class case_bytes_ipv6(unittest.TestCase):
 
     def test_slice_4(self, checkDFilterCount):
         dfilter = "ipv6.dst[15:1] == 00"
-        checkDFilterCount(dfilter, 0)
+
+    #
+    # Test some addresses are parsed correctly
+    #
+
+    def test_unspecified_1(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::"
+        checkDFilterSucceed(dfilter)
+
+    def test_unspecified_2(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::/128"
+        checkDFilterSucceed(dfilter)
+
+    def test_loopback_1(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::1"
+        checkDFilterSucceed(dfilter)
+
+    def test_loopback_2(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::1/128"
+        checkDFilterSucceed(dfilter)
+
+    def test_compress_1(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::2000"
+        checkDFilterSucceed(dfilter)
+
+    def test_compress_2(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::2000/64"
+        checkDFilterSucceed(dfilter)
+
+    def test_compress_3(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::1:2000"
+        checkDFilterSucceed(dfilter)
+
+    def test_compress_4(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == 2000::"
+        checkDFilterSucceed(dfilter)
+
+    def test_compress_5(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == 2000::/120"
+        checkDFilterSucceed(dfilter)
+
+    def test_compress_6(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == 2000:1::"
+        checkDFilterSucceed(dfilter)
+
+    def test_ula_1(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == fd93:c15b:7ae0:2e41:0000:0000:0000:0000"
+        checkDFilterSucceed(dfilter)
+
+    def test_ula_2(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == fd93:c15b:7ae0:2e41:ffff:ffff:ffff:ffff"
+        checkDFilterSucceed(dfilter)
+
+    def test_ula_3(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == fd93:c15b:7ae0:2e41:3f32:35c9:40aa:1243"
+        checkDFilterSucceed(dfilter)
+
+    def test_ula_4(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == fd93:c15b:7ae0:2e41::2:1"
+        checkDFilterSucceed(dfilter)
+
+    def test_mapped_ipv4_1(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::13.1.68.3"
+        checkDFilterSucceed(dfilter)
+
+    def test_mapped_ipv4_2(self, checkDFilterSucceed):
+        dfilter = "ipv6.dst == ::FFFF:129.144.52.38"
+        checkDFilterSucceed(dfilter)

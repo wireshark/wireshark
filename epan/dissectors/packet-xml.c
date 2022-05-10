@@ -173,7 +173,33 @@ static const gchar *default_media_types[] = {
     "application/vnd.3gpp.cw+xml",
     "application/vnd.3gpp.iut+xml",             /*3GPP TS 24.337*/
     "application/vnc.3gpp.iut-config+xml",      /*3GPP TS 24.337*/
-    "application/vnd.3gpp.mcptt-info+xml",
+    "application/vnd.3gpp.mcptt-info+xml",                 /*3GPP TS 24.379 version 17.6.0*/
+    "application/vnd.3gpp.mcptt-mbms-usage-info+xml",      /*3GPP TS 24.379 version 17.6.0*/
+    "application/vnd.3gpp.mcptt-location-info+xml",        /*3GPP TS 24.379 version 17.6.0*/
+    "application/vnd.3gpp.mcptt-affiliation-command+xml",  /*3GPP TS 24.379 version 17.6.0*/
+    "application/vnd.3gpp.mcptt-floor-request+xml",        /*3GPP TS 24.379 version 17.6.0*/
+    "application/vnd.3gpp.mcptt-signed+xml",               /*3GPP TS 24.379 version 17.6.0*/
+    "application/vnd.3gpp.mcptt-regroup+xml",              /*3GPP TS 24.379 version 17.6.0*/
+    "application/vnd.3gpp.mcdata-info+xml",                /*3GPP TS 24.282 version 17.6.2*/
+    "application/vnd.3gpp.mcdata-mbms-usage-info+xml",     /*3GPP TS 24.282 version 17.6.2*/
+    "application/vnd.3gpp.mcdata-location-info+xml",       /*3GPP TS 24.282 version 17.6.2*/
+    "application/vnd.3gpp.mcdata-affiliation-command+xml", /*3GPP TS 24.282 version 17.6.2*/
+    "application/vnd.3gpp.mcdata-regroup+xml",             /*3GPP TS 24.282 version 17.6.2*/
+    "application/vnd.3gpp.mcvideo-info+xml",               /*3GPP TS 24.281 version 17.6.0*/
+    "application/vnd.3gpp.mcvideo-mbms-usage-info+xml",    /*3GPP TS 24.281 version 17.6.0*/
+    "application/vnd.3gpp.mcvideo-location-info+xml",      /*3GPP TS 24.281 version 17.6.0*/
+    "application/vnd.3gpp.mcvideo-affiliation-command+xml",/*3GPP TS 24.281 version 17.6.0*/
+    "application/vnd.3gpp.transmission-request+xml",       /*3GPP TS 24.281 version 17.6.0*/
+    "application/vnd.3gpp.mcptt-ue-init-config+xml",       /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcptt-ue-config+xml",            /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcptt-user-profile+xml",         /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcptt-service-config+xml",       /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcdata-service-config+xml",      /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcvideo-service-config+xml",     /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcvideo-ue-config+xml",          /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcvideo-user-profile+xml",       /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcdata-ue-config+xml",           /*3GPP TS 24.484 version 17.5.0*/
+    "application/vnd.3gpp.mcdata-user-profile+xml",        /*3GPP TS 24.484 version 17.5.0*/
     "application/vnd.3gpp.mid-call+xml",
     "application/vnd.3gpp-prose-pc3ch+xml",
     "application/vnd.3gpp-prose+xml",

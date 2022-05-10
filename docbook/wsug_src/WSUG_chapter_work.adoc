@@ -811,6 +811,9 @@ The display filter language has a number of functions to convert fields, see
 |len     |Returns the byte length of a string or bytes field.
 |count   |Returns the number of field occurrences in a frame.
 |string  |Converts a non-string field to a string.
+|max     |Return the maximum value for the arguments.
+|min     |Return the minimum value for the arguments.
+|abs     |Return the absolute value for the argument.
 |===
 
 The `upper` and `lower` functions can used to force case-insensitive matches:
@@ -837,6 +840,13 @@ string(frame.number) matches "[13579]$"
 To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 ----
 string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
+----
+
+The functions max() and min() take any number of arguments of the same type
+and returns the largest/smallest respectively of the set.
+
+----
+max(tcp.srcport, tcp.dstport) <= 1024
 ----
 
 [#ChWorkBuildDisplayFilterTransitional]
@@ -876,10 +886,10 @@ LHS. So the expression `fc == fc` is parsed as
 "Byte array of protocol with name 'fc' equals byte array { 0xfc } of length 1".
 
 Sometimes this may not be the intended meaning and there is additional syntax
-to resolve the ambiguity. Lexical tokens prefixed with colon, or in-between angle
-brackets, are always and only treated as literal values. Tokens prefixed with a
-dot are always treated as a protocol name (the dot stands for the root of the
-protocol namespace and is optional).
+to resolve the ambiguity. Lexical tokens in-between angle brackets are always
+and only treated as literal values. Bytes arrays can also be prefixed with a
+colon. Tokens prefixed with a dot are always treated as a protocol name (the
+dot stands for the root of the protocol namespace and is optional).
 ----
 frame[10:] contains .fc or frame[10] == :fc and not frame contains <cafe.face>
 ----

@@ -1845,48 +1845,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>CredentialsDialog</name>
-    <message>
-        <source>Wireshark - Credentials</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Credentials</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CredentialsModel</name>
-    <message>
-        <source>Click to select the packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Click to select the packet with username</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Username not available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packet No.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Additional Info</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
@@ -2899,73 +2857,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Regular Expression Find</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>FirewallRulesDialog</name>
-    <message>
-        <source>Create rules for</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Inbound</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deny</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv4 source address.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv4 destination address.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Source port.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Destination port.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv4 source address and port.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv4 destination address and port.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MAC source address.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MAC destination address.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Text file (*.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to save %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6230,22 +6121,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SCTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TCP Stream Graphs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BACnet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>900000000</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6279,10 +6154,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>29West</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6486,10 +6357,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export TLS Session Keys…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>List Files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6595,10 +6462,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Conversation Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reliable Server Pooling (RSerPool)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6893,34 +6756,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TCP window scaling</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TLS Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QUIC Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SIP Call</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Time Sequence (tcptrace)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6945,19 +6780,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>ANCP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ANCP statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packets sorted by Instance ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by instance ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6965,15 +6788,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>BACapp statistics sorted by IP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packets sorted by object type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BACapp statistics sorted by object type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6981,55 +6796,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>BACapp statistics sorted by service</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Collectd</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Collectd statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DNS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DNS statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HART-IP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HART-IP statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HPFEEDS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>hpfeeds statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP2 statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packet Counter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP packet counter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7037,15 +6804,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>HTTP requests</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Load Distribution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP load distribution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7054,66 +6813,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet length statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sametime</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sametime statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ISUP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ISUP message statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RTSP packet counts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SM&amp;PP Operations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SMPP operation statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;UCP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UCP message statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>F1AP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>F1AP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>NGAP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change the way packets are dissected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7269,14 +6968,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No GSM statistics registered</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7301,39 +6992,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>UDP Multicast Streams</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show UTP multicast stream statistics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>WLAN Traffic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add a display filter button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Create firewall ACL rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Full Screen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Credentials</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7426,10 +7089,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Request Sequences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>HTTP Request Sequences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8227,21 +7886,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>There are no TLS Session Keys to save.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation type="unfinished">
-            <numerusform>Export TLS Session Keys (%Ln key)</numerusform>
-            <numerusform>Export TLS Session Keys (%Ln keys)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No filter available. Try another %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8572,107 +8216,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>MulticastStatisticsDialog</name>
-    <message>
-        <source>UDP Multicast Streams</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Source Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Source Port</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Destination Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Destination Port</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets/s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Avg BW (bps)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Max BW (bps)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Max Burst</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Burst Alarms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Max Buffers (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Buffer Alarms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Burst measurement interval (ms):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Burst alarm threshold (packets):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Buffer alarm threshold (B):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stream empty speed (Kb/s):</source>
-        <oldsource>Stream empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Total empty speed (Kb/s):</source>
-        <oldsource>Total empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The burst interval must be between 1 and 1000. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The burst alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The buffer alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The stream empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The total empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PacketCommentDialog</name>
     <message>
         <source>Edit Packet Comment</source>
@@ -8984,22 +8527,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PortsModel</name>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>tcp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>udp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>sctp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>dccp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10331,29 +9858,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Repeated Responses</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RpcServiceResponseTimeDialog</name>
-    <message>
-        <source>&lt;small&gt;&lt;i&gt;Select a program and version and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Program:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DCE-RPC Service Response Times</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ONC-RPC Service Response Times</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

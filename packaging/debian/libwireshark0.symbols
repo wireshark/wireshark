@@ -22,6 +22,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  abs_time_secs_to_str_ex@Base 3.7.0
  abs_time_to_str_ex@Base 3.7.0
  add_ber_encoded_label@Base 3.7.0
+ add_conversation_filter_protocol@Base 3.7.0
  add_conversation_table_data@Base 2.5.0
  add_conversation_table_data_with_conv_id@Base 2.5.0
  add_hostlist_table_data@Base 2.5.0
@@ -31,6 +32,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  add_ipv6_name@Base 1.9.1
  add_itu_tcap_subdissector@Base 1.9.1
  add_new_data_source@Base 1.9.1
+ add_per_encoded_label@Base 3.7.0
  add_srt_table_data@Base 1.99.8
  address_to_bytes@Base 2.1.1
  address_to_display@Base 1.99.2
@@ -163,11 +165,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  color_filters_used@Base 2.1.0
  color_filters_write@Base 2.1.0
  column_dump_column_formats@Base 1.12.0~rc1
- conv_filter_list@Base 2.0.0
  conversation_add_proto_data@Base 1.9.1
  conversation_create_endpoint@Base 2.5.0
  conversation_create_endpoint_by_id@Base 2.5.0
  conversation_delete_proto_data@Base 1.9.1
+ conversation_filter_from_log@Base 3.7.0
  conversation_filter_from_packet@Base 2.2.8
  conversation_get_dissector@Base 2.0.0
  conversation_get_endpoint_by_id@Base 2.5.0
@@ -276,6 +278,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dfilter_compile_real@Base 3.7.0
  dfilter_deprecated_tokens@Base 1.9.1
  dfilter_dump@Base 1.9.1
+ dfilter_expand@Base 3.7.0
  dfilter_free@Base 1.9.1
  dfilter_load_field_references@Base 3.7.0
  dfilter_log_full@Base 3.7.0
@@ -347,6 +350,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_dcom_this@Base 1.9.1
  dissect_dsp_AccessPointInformation@Base 1.9.1
  dissect_e164_cc@Base 1.9.1
+ dissect_e164_isdn@Base 3.7.0
  dissect_e164_msisdn@Base 1.99.0
  dissect_e212_imsi@Base 1.99.0
  dissect_e212_mcc_mnc@Base 1.9.1
@@ -670,7 +674,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_conversation@Base 1.9.1
  find_conversation_by_id@Base 2.5.0
  find_conversation_pinfo@Base 2.5.0
- find_conversation_filter@Base 2.0.0
  find_depend_dissector_list@Base 2.1.0
  find_dissector@Base 1.9.1
  find_dissector_add_dependency@Base 2.1.0
@@ -695,6 +698,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fragment_add@Base 1.9.1
  fragment_add_check@Base 1.9.1
  fragment_add_multiple_ok@Base 1.9.1
+ fragment_add_out_of_order@Base 3.7.0
  fragment_add_seq@Base 1.9.1
  fragment_add_seq_802_11@Base 1.9.1
  fragment_add_seq_check@Base 1.9.1
@@ -728,6 +732,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ftype_can_cmp@Base 3.7.0
  ftype_can_contains@Base 1.9.1
  ftype_can_eq@Base 1.9.1
+ ftype_can_is_negative@Base 3.7.0
  ftype_can_is_zero@Base 3.7.0
  ftype_can_matches@Base 1.9.1
  ftype_can_slice@Base 1.9.1
@@ -959,6 +964,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  link_type_vals@Base 2.1.0
  list_stat_cmd_args@Base 1.9.1
  llc_add_oui@Base 1.9.1
+ log_conv_filter_list@Base 3.7.0
  make_printable_string@Base 1.9.1
  mark_frame_as_depended_upon@Base 1.9.1
  maxmind_db_get_paths@Base 2.5.1
@@ -1023,6 +1029,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  p_remove_proto_data@Base 1.12.0~rc1
  p_set_proto_data@Base 3.7.0
  p_set_proto_depth@Base 3.3.0
+ packet_conv_filter_list@Base 3.7.0
  parse_key_string@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
  plugin_if_get_capture_file@Base 3.3.0

@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.8.0 (2021-12)
+-- 3GPP TS 36.423 V16.9.0 (2022-04)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -1890,7 +1890,7 @@ NRNeighbour-Information ::= SEQUENCE (SIZE (1.. maxofNRNeighbours))OF SEQUENCE {
 }
 
 NRNeighbour-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ID id-CSI-RSTransmissionIndication		CRITICALITY ignore	EXTENSION EARFCNExtension	PRESENCE optional},
+	{ID id-CSI-RSTransmissionIndication		CRITICALITY ignore	EXTENSION CSI-RSTransmissionIndication	PRESENCE optional},
 	...
 }
 

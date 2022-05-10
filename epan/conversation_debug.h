@@ -26,17 +26,17 @@ extern int _debug_conversation_indent; /* the instance is in conversation.c */
 #define DENDENT() _debug_conversation_indent -= 4
 
 #define DPRINT(arg) \
-          g_printerr("%*.*s%s: ", \
-                     _debug_conversation_indent,_debug_conversation_indent," ", \
-                     G_STRLOC); \
-          g_printerr arg; \
-          g_printerr("\n")
+    g_printerr("%*.*s%s: ", \
+            _debug_conversation_indent,_debug_conversation_indent," ", \
+            G_STRLOC); \
+g_printerr arg; \
+g_printerr("\n")
 
 #define DPRINT2(arg) \
-          g_printerr("%*.*s", \
-                     _debug_conversation_indent,_debug_conversation_indent," "); \
-          g_printerr arg; \
-          g_printerr("\n")
+    g_printerr("%*.*s", \
+            _debug_conversation_indent,_debug_conversation_indent," "); \
+    g_printerr arg; \
+    g_printerr("\n")
 
 #define DINSTR(arg) arg
 

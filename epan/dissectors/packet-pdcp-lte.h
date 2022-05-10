@@ -181,9 +181,9 @@ void set_pdcp_lte_security_algorithms_failed(guint16 ueid);
 
 
 /* Called by external dissectors */
-void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key);
-void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key);
-void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key);
+void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
+void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
+void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

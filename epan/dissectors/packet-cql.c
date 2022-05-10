@@ -448,7 +448,7 @@ dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, gint offset
 	}
 
 	if (flags & CQL_QUERY_FLAG_DEFAULT_TIMESTAMP) {
-		proto_tree_add_item(cql_subtree, hf_cql_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+		proto_tree_add_item(cql_subtree, hf_cql_timestamp, tvb, offset, 8, ENC_TIME_USECS|ENC_BIG_ENDIAN);
 		offset += 8;
 	}
 

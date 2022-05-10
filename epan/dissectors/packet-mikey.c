@@ -1838,6 +1838,7 @@ proto_reg_handoff_mikey(void)
 	dissector_add_string("key_mgmt", "mikey", mikey_handle);
 	dissector_add_uint_with_preference("tcp.port", PORT_MIKEY, mikey_handle);
 	dissector_add_uint_with_preference("udp.port", PORT_MIKEY, mikey_handle);
+	dissector_add_string("media_type", "application/mikey", mikey_handle);
 }
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

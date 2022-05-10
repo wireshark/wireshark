@@ -49,8 +49,8 @@ CHANGE_OFFSET=0
 MAX_LEAK=$(( 1024 * 100 ))
 
 # Our maximum run time.
-START_SECONDS=$SECONDS
-MAX_SECONDS=$(( START_SECONDS + 86400 ))
+RUN_START_SECONDS=$SECONDS
+RUN_MAX_SECONDS=$(( RUN_START_SECONDS + 86400 ))
 
 # To do: add options for file names and limits
 while getopts "2b:C:d:e:agp:P:o:t:" OPTCHAR ; do
@@ -65,7 +65,7 @@ while getopts "2b:C:d:e:agp:P:o:t:" OPTCHAR ; do
         p) MAX_PASSES=$OPTARG ;;
         P) MIN_PLUGINS=$OPTARG ;;
         o) CHANGE_OFFSET=$OPTARG ;;
-        t) MAX_SECONDS=$(( START_SECONDS + OPTARG )) ;;
+        t) RUN_MAX_SECONDS=$(( RUN_START_SECONDS + OPTARG )) ;;
         *) printf "Unknown option %s" "$OPTCHAR"
     esac
 done
@@ -169,7 +169,7 @@ trap trap_abrt ABRT
 PASS=0
 while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; do
     PASS=$(( PASS+1 ))
-    echo "Starting pass $PASS:"
+    echo "Pass $PASS:"
     RUN=0
 
     for CF in "$@" ; do
@@ -211,6 +211,7 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
             fi
         fi
 
+        FILE_START_SECONDS=$SECONDS
         RUNNER_PIDS=
         RUNNER_ERR_FILES=
         for ARGS in "${RUNNER_ARGS[@]}" ; do
@@ -249,8 +250,8 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
             RUNNER_PIDS="$RUNNER_PIDS $RUNNER_PID"
             RUNNER_ERR_FILES="$RUNNER_ERR_FILES $TMP_DIR/$ERR_FILE.$RUNNER_PID"
 
-            if [ $SECONDS -ge $MAX_SECONDS ] ; then
-                printf "\nStopping after %d seconds.\n" $(( SECONDS - START_SECONDS ))
+            if [ $SECONDS -ge $RUN_MAX_SECONDS ] ; then
+                printf "\nStopping after %d seconds.\n" $(( SECONDS - RUN_START_SECONDS ))
                 DONE=true
             fi
         done
@@ -291,7 +292,7 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
             fi
         done
 
-        echo " OK"
+        printf " OK (%s seconds)\\n" $(( SECONDS - FILE_START_SECONDS ))
         rm -f "$TMP_DIR/$TMP_FILE" "$TMP_DIR/$ERR_FILE"
     done
 done

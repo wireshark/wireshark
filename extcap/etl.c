@@ -34,7 +34,10 @@
 
 extern int g_include_undecidable_event;
 
+//Microsoft-Windows-Wmbclass-Opn
 const GUID mbb_provider = { 0xA42FE227, 0xA7BF, 0x4483, {0xA5, 0x02, 0x6B, 0xCD, 0xA4, 0x28, 0xCD, 0x96} };
+// Microsoft-Windows-NDIS-PacketCapture
+const GUID ndis_capture_provider = { 0x2ed6006e, 0x4729, 0x4609, 0xb4, 0x23, 0x3e, 0xe7, 0xbc, 0xd6, 0x78, 0xef };
 
 EXTERN_C const GUID DECLSPEC_SELECTANY EventTraceGuid = { 0x68fdd900, 0x4a3e, 0x11d1, {0x84, 0xf4, 0x00, 0x00, 0xf8, 0x04, 0x64, 0xe3} };
 EXTERN_C const GUID DECLSPEC_SELECTANY ImageIdGuid = { 0xb3e675d7, 0x2554, 0x4f18, { 0x83, 0xb, 0x27, 0x62, 0x73, 0x25, 0x60, 0xde } };
@@ -69,8 +72,8 @@ typedef struct _PROVIDER_FILTER {
     UCHAR Level;
 } PROVIDER_FILTER;
 
-static gchar g_err_info[FILENAME_MAX] = { 0 };
-static int g_err = ERROR_SUCCESS;
+char g_err_info[FILENAME_MAX] = { 0 };
+int g_err = ERROR_SUCCESS;
 static wtap_dumper* g_pdh = NULL;
 extern ULONGLONG g_num_events;
 static PROVIDER_FILTER g_provider_filters[32] = { 0 };
@@ -78,9 +81,10 @@ static BOOL g_is_live_session = FALSE;
 
 static void WINAPI event_callback(PEVENT_RECORD ev);
 void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
+void etw_dump_write_ndiscap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
-void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, ULONG total_packet_length, BOOLEAN is_inbound);
+void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG original_packet_length, unsigned int interface_id, BOOLEAN is_inbound, ULARGE_INTEGER timestamp, int pkt_encap, char* comment, unsigned short comment_length);
 wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, gchar** err_info);
 
 DWORD GetPropertyValue(WCHAR* ProviderId, EVT_PUBLISHER_METADATA_PROPERTY_ID PropertyId, PEVT_VARIANT* Value)
@@ -307,7 +311,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 &super_trace_properties.prop);
             if (*err != ERROR_SUCCESS)
             {
-                *err_info = ws_strdup_printf("StartTrace failed with %u", *err);
+                *err_info = ws_strdup_printf("StartTrace failed with 0x%x", *err);
                 returnVal = WTAP_OPEN_ERROR;
                 break;
             }
@@ -330,7 +334,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     NULL);
                 if (*err != ERROR_SUCCESS)
                 {
-                    *err_info = ws_strdup_printf("EnableTraceEx failed with %u", *err);
+                    *err_info = ws_strdup_printf("EnableTraceEx failed with 0x%x", *err);
                     returnVal = WTAP_OPEN_ERROR;
                     break;
                 }
@@ -340,7 +344,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         trace_handle = OpenTrace(&log_file);
         if (trace_handle == INVALID_PROCESSTRACE_HANDLE) {
             *err = GetLastError();
-            *err_info = ws_strdup_printf("OpenTrace failed with %u", err);
+            *err_info = ws_strdup_printf("OpenTrace failed with 0x%x", *err);
             returnVal = WTAP_OPEN_NOT_MINE;
             break;
         }
@@ -355,7 +359,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         *err = ProcessTrace(&trace_handle, 1, 0, 0);
         if (*err != ERROR_SUCCESS) {
             returnVal = WTAP_OPEN_ERROR;
-            *err_info = ws_strdup_printf("ProcessTrace failed with %u", err);
+            *err_info = ws_strdup_printf("ProcessTrace failed with 0x%x", *err);
             break;
         }
 
@@ -450,13 +454,10 @@ static void WINAPI event_callback(PEVENT_RECORD ev)
     {
         etw_dump_write_opn_event(ev, timestamp);
     }
-    /* TODO:: You can write events from other providers that needs specific sub dissector */
-#if 0
-    else if (IsEqualGUID(&ev->EventHeader.ProviderId, &ndis_packcapture_provider))
+    else if (IsEqualGUID(&ev->EventHeader.ProviderId, &ndis_capture_provider))
     {
-        etw_dump_write_packet_event(ev, timestamp);
+        etw_dump_write_ndiscap_event(ev, timestamp);
     }
-#endif
     /* Write any event form other providers other than above */
     else
     {
@@ -579,7 +580,33 @@ ULONG wtap_etl_record_buffer_init(WTAP_ETL_RECORD** out_etl_record, PEVENT_RECOR
     return total_packet_length;
 }
 
-void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, ULONG total_packet_length, BOOLEAN is_inbound)
+void wtap_etl_add_interface(int pkt_encap, char* interface_name, unsigned short interface_name_length, char* interface_desc, unsigned short interface_desc_length)
+{
+    wtap_block_t idb_data;
+    wtapng_if_descr_mandatory_t* descr_mand;
+    gchar* err_info;
+    int err;
+
+    idb_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+    descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb_data);
+    descr_mand->wtap_encap = pkt_encap;
+    descr_mand->tsprecision = WTAP_TSPREC_USEC;
+    /* Timestamp for each pcapng packet is usec units, so time_units_per_second need be set to 10^6 */
+    descr_mand->time_units_per_second = G_USEC_PER_SEC;
+    if (interface_name_length) {
+        wtap_block_add_string_option(idb_data, OPT_IDB_NAME, interface_name, interface_name_length);
+    }
+    if (interface_desc_length) {
+        wtap_block_add_string_option(idb_data, OPT_IDB_DESCRIPTION, interface_desc, interface_desc_length);
+    }
+    if(!wtap_dump_add_idb(g_pdh, idb_data, &err, &err_info)) {
+        g_err = err;
+        sprintf_s(g_err_info, sizeof(g_err_info), "wtap_dump failed, %s", err_info);
+        g_free(err_info);
+    }
+}
+
+void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG original_packet_length, unsigned int interface_id, BOOLEAN is_inbound, ULARGE_INTEGER timestamp, int pkt_encap, char* comment, unsigned short comment_length)
 {
     gchar* err_info;
     int err;
@@ -587,10 +614,15 @@ void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, UL
 
     wtap_rec_init(&rec);
     rec.rec_header.packet_header.caplen = total_packet_length;
-    rec.rec_header.packet_header.len = total_packet_length;
-    rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETW;
+    rec.rec_header.packet_header.len = original_packet_length;
+    rec.rec_header.packet_header.pkt_encap = pkt_encap;
+    rec.rec_header.packet_header.interface_id = interface_id;
+    rec.presence_flags = WTAP_HAS_INTERFACE_ID;
     rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
     wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, is_inbound ? PACK_FLAGS_DIRECTION_INBOUND : PACK_FLAGS_DIRECTION_OUTBOUND);
+    if (comment_length) {
+        wtap_block_add_string_option(rec.block, OPT_COMMENT, comment, comment_length);
+    }
     /* Convert usec of the timestamp into nstime_t */
     rec.ts.secs = (time_t)(timestamp.QuadPart / G_USEC_PER_SEC);
     rec.ts.nsecs = (int)(((timestamp.QuadPart % G_USEC_PER_SEC) * G_NSEC_PER_SEC) / G_USEC_PER_SEC);
@@ -605,7 +637,7 @@ void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, UL
     /* Only flush when live session */
     if (g_is_live_session && !wtap_dump_flush(g_pdh, &err)) {
         g_err = err;
-        sprintf_s(g_err_info, sizeof(g_err_info), "wtap_dump failed, %d", err);
+        sprintf_s(g_err_info, sizeof(g_err_info), "wtap_dump failed, 0x%x", err);
     }
     wtap_rec_cleanup(&rec);
 }
@@ -618,7 +650,7 @@ void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
     /* 0x80000000 mask the function to host message */
     is_inbound = ((*(INT32*)(ev->UserData)) & 0x80000000) ? TRUE : FALSE;
     total_packet_length = wtap_etl_record_buffer_init(&etl_record, ev, TRUE, NULL, NULL);
-    wtap_etl_rec_dump(timestamp, etl_record, total_packet_length, is_inbound);
+    wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, is_inbound, timestamp, WTAP_ENCAP_ETW, NULL, 0);
     g_free(etl_record);
 }
 
@@ -627,7 +659,7 @@ void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
     WTAP_ETL_RECORD* etl_record = NULL;
     ULONG total_packet_length = 0;
     total_packet_length = wtap_etl_record_buffer_init(&etl_record, ev, FALSE, NULL, NULL);
-    wtap_etl_rec_dump(timestamp, etl_record, total_packet_length, FALSE);
+    wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, FALSE, timestamp, WTAP_ENCAP_ETW, NULL, 0);
     g_free(etl_record);
 }
 
@@ -715,7 +747,7 @@ void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
         format_message(formatMessage, prop_arr, dwTopLevelPropertyCount, wszMessageBuffer, sizeof(wszMessageBuffer));
 
         total_packet_length = wtap_etl_record_buffer_init(&etl_record, ev, FALSE, wszMessageBuffer, (WCHAR*)ADD_OFFSET_TO_POINTER(pInfo, pInfo->ProviderNameOffset));
-        wtap_etl_rec_dump(timestamp, etl_record, total_packet_length, FALSE);
+        wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, FALSE, timestamp, WTAP_ENCAP_ETW, NULL, 0);
         g_free(etl_record);
 
         is_message_dumped = TRUE;

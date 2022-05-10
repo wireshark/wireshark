@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.8.0 (2021-12)
+-- 3GPP TS 38.423 V16.9.0 (2022-04)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -399,5 +399,13 @@ id-PDUSessionExpectedUEActivityBehaviour															ProtocolIE-ID ::= 249
 id-QoS-Mapping-Information																			ProtocolIE-ID ::= 250
 id-AdditionLocationInformation																		ProtocolIE-ID ::= 251
 id-dataForwardingInfoFromTargetE-UTRANnode															ProtocolIE-ID ::= 252
+id-DirectForwardingPathAvailability																	ProtocolIE-ID ::= 253
+id-SourceNG-RAN-node-ID																				ProtocolIE-ID ::= 254
+id-SourceDLForwardingIPAddress																		ProtocolIE-ID ::= 255
+id-SourceNodeDLForwardingIPAddress																	ProtocolIE-ID ::= 256
+id-ExtendedReportIntervalMDT																			ProtocolIE-ID ::= 257
+id-SecurityIndication																				ProtocolIE-ID ::= 258
+id-RRCConnReestab-Indicator																			ProtocolIE-ID ::= 259
+id-TargetNodeID																						ProtocolIE-ID ::= 260
 
 END

@@ -2024,6 +2024,18 @@ dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     return 4;
 }
 
+/* AVP Code: 1474 GMLC-NUMBER */
+static int
+dissect_diameter_3gpp_isdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    dissect_e164_isdn(tvb, tree, offset, length, E164_ENC_BCD);
+
+    return length;
+}
+
 /* AVP Code: 1490 IDR-Flags */
 static int
 dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
@@ -3008,6 +3020,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1443 NOR-Flags */
     dissector_add_uint("diameter.3gpp", 1443, create_dissector_handle(dissect_diameter_3gpp_nor_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1474 GMLC-Number */
+    dissector_add_uint("diameter.3gpp", 1474, create_dissector_handle(dissect_diameter_3gpp_isdn, proto_diameter_3gpp));
 
     /* AVP Code: 1490 IDR-Flags */
     dissector_add_uint("diameter.3gpp", 1490, create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));

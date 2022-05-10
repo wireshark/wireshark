@@ -5937,6 +5937,7 @@ dissect_cac_termination(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree_add_item(tree, hf_ieee1905_cac_termination_radio_count, tvb,
                         offset, 1, ENC_NA);
+    offset += 1;
 
     if (radio_count > 0) {
         proto_tree *radio_list = NULL;
@@ -5964,9 +5965,6 @@ dissect_cac_termination(tvbuff_t *tvb, packet_info *pinfo _U_,
             proto_tree_add_item(radio, hf_ieee1905_cac_terminate_channel, tvb,
                                 offset, 1, ENC_NA);
             offset += 1;
-
-            proto_tree_add_item(radio, hf_ieee1905_cac_terminate_action, tvb,
-                                offset, 1, ENC_NA);
 
             radio_num += 1;
         }

@@ -17,30 +17,14 @@
 
 #include <wireshark.h>
 
+/* XXX: Turning off warnings here may not be necessary now that libgcrypt
+ * 1.8.0 is the minimum version.
+ */
 DIAG_OFF(deprecated-declarations)
 
 #include <gcrypt.h>
 
 DIAG_ON(deprecated-declarations)
-
-/*
- * Define HAVE_LIBGCRYPT_AEAD here, because it's used in several source
- * files.
- */
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
-/* Whether to provide support for authentication in addition to decryption. */
-#define HAVE_LIBGCRYPT_AEAD
-#endif
-
-/*
- * Define some other "do we have?" items as well.
- */
-#if GCRYPT_VERSION_NUMBER >= 0x010700 /* 1.7.0 */
-/* Whether ChaCh20 PNE can be supported. */
-#define HAVE_LIBGCRYPT_CHACHA20
-/* Whether AEAD_CHACHA20_POLY1305 can be supported. */
-#define HAVE_LIBGCRYPT_CHACHA20_POLY1305
-#endif
 
 #define HASH_MD5_LENGTH      16
 #define HASH_SHA1_LENGTH     20

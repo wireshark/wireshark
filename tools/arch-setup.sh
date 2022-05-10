@@ -11,8 +11,9 @@
 # that way.
 #
 
-if [ "$1" = "--help" ]
-then
+set -e -u -o pipefail
+
+function print_usage() {
 	printf "\\nUtility to setup a pacman-based system for Wireshark development.\\n"
 	printf "The basic usage installs the needed software\\n\\n"
 	printf "Usage: %s [--install-optional] [...other options...]\\n" "$0"
@@ -21,21 +22,18 @@ then
 	printf "\\t--install-all: install everything\\n"
 	printf "\\t[other]: other options are passed as-is to pacman\\n"
 	printf "\\tPass --noconfirm to bypass any \"are you sure?\" messages.\\n"
-	exit 1
-fi
-
-# Check if the user is root
-if [ "$(id -u)" -ne 0 ]
-then
-	echo "You must be root."
-	exit 1
-fi
+}
 
 ADDITIONAL=0
 TESTDEPS=0
 AUR=0
+OPTIONS=
 for arg; do
 	case $arg in
+		--help)
+			print_usage
+			exit 0
+			;;
 		--install-optional)
 			ADDITIONAL=1
 			;;
@@ -52,6 +50,13 @@ for arg; do
 			;;
 	esac
 done
+
+# Check if the user is root
+if [ "$(id -u)" -ne 0 ]
+then
+	echo "You must be root."
+	exit 1
+fi
 
 BASIC_LIST="base-devel \
 	bcg729 \
@@ -111,7 +116,7 @@ then
 fi
 
 # Partial upgrades are unsupported.
-pacman -Syu --needed $ACTUAL_LIST $OPTIONS || exit 2
+pacman --sync --refresh --sysupgrade --needed $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ $ADDITIONAL -eq 0 ]
 then

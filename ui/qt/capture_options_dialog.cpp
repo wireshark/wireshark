@@ -236,7 +236,14 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(ui->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*)));
     connect(ui->tempDirBrowseButton, SIGNAL(clicked()), this, SLOT(tempDirBrowseButtonClicked()));
 
+    ui->tabWidget->setCurrentIndex(0);
+
     updateWidgets();
+}
+
+CaptureOptionsDialog::~CaptureOptionsDialog()
+{
+    delete ui;
 }
 
 /* Update global device selections based on the TreeWidget selection. */
@@ -338,16 +345,6 @@ void CaptureOptionsDialog::updateWidgets()
 
     ui->compileBPF->setEnabled(can_capture);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(can_capture);
-}
-
-CaptureOptionsDialog::~CaptureOptionsDialog()
-{
-    delete ui;
-}
-
-void CaptureOptionsDialog::setTab(int idx)
-{
-    ui->tabWidget->setCurrentIndex(idx);
 }
 
 void CaptureOptionsDialog::on_capturePromModeCheckBox_toggled(bool checked)
@@ -793,7 +790,8 @@ void CaptureOptionsDialog::updateInterfaces()
 
             ti->setText(col_interface_, device->display_name);
             ti->setData(col_interface_, Qt::UserRole, QString(device->name));
-            ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(ti->points));
+            if (device->if_info.type != IF_EXTCAP)
+                ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(ti->points));
 
             if (device->no_addresses > 0) {
                 QString addr_str = tr("%1: %2").arg(device->no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device->addresses);

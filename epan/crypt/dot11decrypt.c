@@ -200,13 +200,11 @@ static INT Dot11DecryptRsnaMicCheck(
     int akm)
     ;
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600
 static gint
 Dot11DecryptFtMicCheck(
     const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed,
     const guint8 *kck,
     size_t kck_len);
-#endif
 
 static PDOT11DECRYPT_SEC_ASSOCIATION
 Dot11DecryptGetSa(
@@ -1814,7 +1812,6 @@ Dot11DecryptRsna4WHandshake(
 }
 
 /* Refer to IEEE 802.11-2016 Chapeter 13.8 FT authentication sequence */
-#if GCRYPT_VERSION_NUMBER >= 0x010600
 gint
 Dot11DecryptScanFtAssocForKeys(
     const PDOT11DECRYPT_CONTEXT ctx,
@@ -1974,18 +1971,6 @@ Dot11DecryptScanFtAssocForKeys(
     Dot11DecryptCopyKey(sa, used_key);
     return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
 }
-#else
-gint
-Dot11DecryptScanFtAssocForKeys(
-    const PDOT11DECRYPT_CONTEXT ctx _U_,
-    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed _U_,
-    guint8 *decrypted_gtk _U_, size_t *decrypted_len _U_,
-    DOT11DECRYPT_KEY_ITEM* used_item _U_)
-{
-    ws_info("Skipped Dot11DecryptScanFtAssocForKeys, libgcrypt >= 1.6");
-    return DOT11DECRYPT_RET_UNSUCCESS;
-}
-#endif
 
 /* From IEEE 802.11-2016 Table 12-8 Integrity and key-wrap algorithms */
 static int
@@ -1998,7 +1983,6 @@ Dot11DecryptGetIntegrityAlgoFromAkm(int akm, int *algo, gboolean *hmac)
             *algo = GCRY_MD_SHA1;
             *hmac = TRUE;
             break;
-#if GCRYPT_VERSION_NUMBER >= 0x010600
         case 3:
         case 4:
         case 5:
@@ -2010,7 +1994,6 @@ Dot11DecryptGetIntegrityAlgoFromAkm(int akm, int *algo, gboolean *hmac)
             *algo = GCRY_MAC_CMAC_AES;
             *hmac = FALSE;
             break;
-#endif
         case 11:
         case 18:
             *algo = GCRY_MD_SHA256;
@@ -2105,7 +2088,6 @@ Dot11DecryptRsnaMicCheck(
  * — FTE, with the MIC field of the FTE set to 0
  * — Contents of the RIC-Response (if present)
  */
-#if GCRYPT_VERSION_NUMBER >= 0x010600
 static gint
 Dot11DecryptFtMicCheck(
     const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed,
@@ -2182,7 +2164,6 @@ Dot11DecryptFtMicCheck(
     gcry_mac_close(handle);
     return DOT11DECRYPT_RET_SUCCESS;
 }
-#endif
 
 static INT
 Dot11DecryptValidateKey(
@@ -2986,36 +2967,22 @@ static INT
 Dot11DecryptTDLSDeriveKey(
     PDOT11DECRYPT_SEC_ASSOCIATION sa,
     const guint8 *data,
-#if GCRYPT_VERSION_NUMBER >= 0x010600
     guint offset_rsne,
-#else
-    guint offset_rsne _U_,
-#endif
     guint offset_fte,
-#if GCRYPT_VERSION_NUMBER >= 0x010600
     guint offset_timeout,
-#else
-    guint offset_timeout _U_,
-#endif
     guint offset_link,
-#if GCRYPT_VERSION_NUMBER >= 0x010600
     guint8 action)
-#else
-    guint8 action _U_)
-#endif
 {
 
     gcry_md_hd_t sha256_handle;
     gcry_md_hd_t hmac_handle;
     const guint8 *snonce, *anonce, *initiator, *responder, *bssid;
     guint8 key_input[32];
-#if GCRYPT_VERSION_NUMBER >= 0x010600
     guint8 mic[16], seq_num = action + 1;
     guint8 zeros[16] = { 0 };
     gcry_mac_hd_t cmac_handle;
     size_t cmac_len = 16;
     size_t cmac_write_len;
-#endif
 
     /* Get key input */
     anonce = &data[offset_fte + 20];
@@ -3060,7 +3027,6 @@ Dot11DecryptTDLSDeriveKey(
     gcry_md_close(hmac_handle);
 
     /* Check MIC */
-#if GCRYPT_VERSION_NUMBER >= 0x010600
     if (gcry_mac_open(&cmac_handle, GCRY_MAC_CMAC_AES, 0, NULL)) {
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
@@ -3094,10 +3060,6 @@ Dot11DecryptTDLSDeriveKey(
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
     gcry_mac_close(cmac_handle);
-#else
-    ws_info("MIC verification failed, need libgcrypt >= 1.6");
-    return DOT11DECRYPT_RET_UNSUCCESS;
-#endif
     /* TODO support other akm and ciphers? */
     sa->wpa.akm = 2;
     sa->wpa.cipher = 4;

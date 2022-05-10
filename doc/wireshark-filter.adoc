@@ -128,6 +128,9 @@ The filter language has the following functions:
     len(field)          - returns the byte length of a string or bytes field
     count(field)        - returns the number of field occurrences in a frame
     string(field)       - converts a non-string field to string
+    max(f1,...,fn)      - return the maximum value
+    min(f1,...,fn)      - return the minimum value
+    abs(field)          - return the absolute value of numeric fields
 
 upper() and lower() are useful for performing case-insensitive string
 comparisons. For example:
@@ -143,6 +146,9 @@ byte fields. For example:
     string(frame.number) matches "[13579]$"
 
 gives you all the odd packets.
+
+max() and min() take any number of arguments and returns one value, respectively
+the largest/smallest. The arguments must all have the same type.
 
 === Protocol field types
 
@@ -316,6 +322,24 @@ Slices can be combined. You can concatenate them using the comma operator:
 This concatenates offset 1, offsets 3-5, and offset 9 to the end of the ftp
 data.
 
+=== The layer operator
+
+A field can be restricted to a certain layer in the protocol stack using the
+layer operator (#), followed by a decimal number:
+
+    ip.addr#2 == 192.168.30.40
+
+matches only the inner (second) layer in the packet. Layers use simple stacking
+semantics and protocol layers are counted sequentially, so tcp#2 is the layer
+in the stack somewhere above tcp#1.
+
+For more complicates ranges the same syntax used with slices is valid:
+
+    tcp.port#[2-4]
+
+means layers number 2, 3 or 4 inclusive. The hash symbol is required to
+distinguish a layer range from a slice.
+
 === The membership operator
 
 A field may be checked for matches against a set of values simply with the
@@ -399,8 +423,7 @@ have the same number of bytes as the slice itself, as in:
 
 === Arithmetic operators
 
-Simple arithmetic expressions are available. The following operators are
-supported:
+Arithmetic expressions are supported with the usual operators:
 
     +   Addition
     -   Subtraction
@@ -413,6 +436,17 @@ equal by one to the source port with the expression:
 
     udp.dstport >= udp.srcport + 1
 
+It is possible to group arithmetic expressions using curly brackets (parenthesis
+will not work for this):
+
+    tcp.dstport >= 4 * {tcp.srcport + 3}
+
+Do not confuse this usage of curly brackets with set membership.
+
+An unfortunate quirk in the filter syntax is that the subtraction operator
+must be preceded by a space character, so "A-B" must be written as "A -B"
+or "A - B".
+                                   
 === Protocol field references
 
 A variable using a sigil with the form ${some.proto.field} is called a field

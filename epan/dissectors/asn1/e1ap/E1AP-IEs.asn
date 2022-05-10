@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.8.0 (2021-12)
+-- 3GPP TS 38.463 V16.9.0 (2022-04)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -55,6 +55,8 @@ IMPORTS
 	id-ignoreMappingRuleIndication,
 	id-EarlyDataForwardingIndicator,
 	id-QoSFlowsDRBRemapping,
+	id-SecurityIndicationModify,
+	id-DataForwardingSourceIPAddress,
 	maxnoofQoSParaSets,
 	maxnoofErrors,
 	maxnoofSliceItems,
@@ -686,6 +688,7 @@ DRB-Setup-Item-EUTRAN	::=	SEQUENCE {
 }
 
 DRB-Setup-Item-EUTRAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-DataForwardingSourceIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -909,6 +912,7 @@ DRB-To-Setup-Item-EUTRAN	::=	SEQUENCE {
 }
 
 DRB-To-Setup-Item-EUTRAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-DataForwardingSourceIPAddress			CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -1376,6 +1380,20 @@ measurementsToActivate		MeasurementsToActivate,
 ImmediateMDT-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+IAB-Donor-CU-UPPSKInfo-Item ::= SEQUENCE {
+	iAB-donor-CU-UPPSK			IAB-donor-CU-UPPSK,
+	iAB-donor-CU-UPIPAddress		TransportLayerAddress,
+	iAB-DUIPAddress				TransportLayerAddress,
+	iE-Extensions	ProtocolExtensionContainer { { IAB-donor-CU-UPPSKInfoItemExtIEs } }	OPTIONAL,
+	...
+}
+
+IAB-donor-CU-UPPSKInfoItemExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+IAB-donor-CU-UPPSK	::= OCTET STRING
 
 -- J
 
@@ -1922,11 +1940,12 @@ PDU-Session-Resource-To-Modify-Item	::=	SEQUENCE {
 }
 
 PDU-Session-Resource-To-Modify-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-SNSSAI		CRITICALITY reject	EXTENSION SNSSAI		PRESENCE optional}|
-	{ ID id-CommonNetworkInstance						CRITICALITY ignore	EXTENSION CommonNetworkInstance								PRESENCE optional	}|
-	{ID id-redundant-nG-UL-UP-TNL-Information		CRITICALITY ignore	EXTENSION 	UP-TNL-Information			PRESENCE optional	}|
-	{ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	EXTENSION 	CommonNetworkInstance		PRESENCE optional	}|
-	{ID id-DataForwardingtoE-UTRANInformationList				CRITICALITY ignore	EXTENSION 	DataForwardingtoE-UTRANInformationList		PRESENCE optional	},
+	{ID id-SNSSAI										CRITICALITY reject	EXTENSION 	SNSSAI												PRESENCE optional}|
+	{ID id-CommonNetworkInstance						CRITICALITY ignore	EXTENSION 	CommonNetworkInstance							PRESENCE optional	}|
+	{ID id-redundant-nG-UL-UP-TNL-Information			CRITICALITY ignore	EXTENSION 	UP-TNL-Information								PRESENCE optional	}|
+	{ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	EXTENSION 	CommonNetworkInstance							PRESENCE optional	}|
+	{ID id-DataForwardingtoE-UTRANInformationList		CRITICALITY ignore	EXTENSION 	DataForwardingtoE-UTRANInformationList	PRESENCE optional	}|
+	{ID id-SecurityIndicationModify						CRITICALITY ignore	EXTENSION 	SecurityIndication								PRESENCE optional	},
 	...
 }
 
@@ -2064,7 +2083,8 @@ QoS-Flow-Item	::=	SEQUENCE {
 }
 
 QoS-Flow-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-QoSFlowMappingIndication		CRITICALITY ignore	EXTENSION QoS-Flow-Mapping-Indication		PRESENCE optional},
+	{ID id-QoSFlowMappingIndication			CRITICALITY ignore	EXTENSION QoS-Flow-Mapping-Indication		PRESENCE optional}|
+	{ID id-DataForwardingSourceIPAddress	CRITICALITY ignore	EXTENSION TransportLayerAddress					PRESENCE optional},
 	...
 }
 
@@ -2143,7 +2163,8 @@ QoSFlowLevelQoSParameters-ExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-QoSMonitoringRequest				CRITICALITY ignore	EXTENSION QosMonitoringRequest					PRESENCE optional}|
 	{ID id-MCG-OfferedGBRQoSFlowInfo		CRITICALITY ignore	EXTENSION GBR-QoSFlowInformation				PRESENCE optional}|
 	{ID id-QosMonitoringReportingFrequency	CRITICALITY ignore	EXTENSION QosMonitoringReportingFrequency	PRESENCE optional}|
-	{ID id-QoSMonitoringDisabled			CRITICALITY ignore	EXTENSION QosMonitoringDisabled					PRESENCE optional},
+	{ID id-QoSMonitoringDisabled			CRITICALITY ignore	EXTENSION QosMonitoringDisabled					PRESENCE optional}|
+	{ID id-DataForwardingSourceIPAddress	CRITICALITY ignore	EXTENSION TransportLayerAddress					PRESENCE optional},
 	...
 }
 

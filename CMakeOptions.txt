@@ -66,9 +66,7 @@ else()
 	option(ENABLE_COMPILER_COLOR_DIAGNOSTICS "Always enable the compiler's color diagnostic output" OFF)
 endif()
 
-if(CMAKE_VERSION VERSION_GREATER "3.8.99")
-	option(ENABLE_LTO "Use Link Time Optimization (release configuration only)" OFF)
-endif()
+option(ENABLE_LTO "Use Link Time Optimization (release configuration only)" OFF)
 
 if(WIN32)
 	option(ENABLE_VLD "Enable Visual Leak Detect in Debug configuration" OFF)

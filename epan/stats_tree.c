@@ -293,7 +293,7 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
     g_hash_table_insert(registry,cfg->abbr,cfg);
 }
 
-/* register a new stats_tree with default group REGISTER_STAT_GROUP_UNSORTED */
+/* register a new stats_tree with default group REGISTER_PACKET_STAT_GROUP_UNSORTED */
 extern void
 stats_tree_register(const char *tapname, const char *abbr, const char *name,
             guint flags,
@@ -303,10 +303,10 @@ stats_tree_register(const char *tapname, const char *abbr, const char *name,
     stats_tree_register_with_group(tapname, abbr, name,
             flags,
             packet, init,
-            cleanup, REGISTER_STAT_GROUP_UNSORTED);
+            cleanup, REGISTER_PACKET_STAT_GROUP_UNSORTED);
 }
 
-/* register a new stat_tree with default group REGISTER_STAT_GROUP_UNSORTED from a plugin */
+/* register a new stat_tree with default group REGISTER_PACKET_STAT_GROUP_UNSORTED from a plugin */
 extern void
 stats_tree_register_plugin(const char *tapname, const char *abbr, const char *name,
             guint flags,

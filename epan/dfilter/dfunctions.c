@@ -12,6 +12,8 @@
 
 #include "dfilter-int.h"
 #include "dfunctions.h"
+#include "sttype-pointer.h"
+#include "semcheck.h"
 
 #include <string.h>
 
@@ -19,19 +21,23 @@
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>
 
-#define FAIL(dfw, ...) \
-	dfilter_fail_throw(dfw, TypeError, __VA_ARGS__)
+#define FAIL(dfw, node, ...) \
+	dfilter_fail_throw(dfw, stnode_location(node), __VA_ARGS__)
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
-string_walk(GSList* arg1list, GSList **retval, gchar(*conv_func)(gchar))
+string_walk(GSList *args, guint32 arg_count, GSList **retval, gchar(*conv_func)(gchar))
 {
     GSList      *arg1;
     fvalue_t    *arg_fvalue;
     fvalue_t    *new_ft_string;
     char *s, *c;
 
-    arg1 = arg1list;
+    ws_assert(arg_count == 1);
+    arg1 = args->data;
+    if (arg1 == NULL)
+        return FALSE;
+
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
         /* XXX - it would be nice to handle FT_TVBUFF, too */
@@ -54,27 +60,31 @@ string_walk(GSList* arg1list, GSList **retval, gchar(*conv_func)(gchar))
 
 /* dfilter function: lower() */
 static gboolean
-df_func_lower(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
+df_func_lower(GSList *args, guint32 arg_count, GSList **retval)
 {
-    return string_walk(arg1list, retval, g_ascii_tolower);
+    return string_walk(args, arg_count, retval, g_ascii_tolower);
 }
 
 /* dfilter function: upper() */
 static gboolean
-df_func_upper(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
+df_func_upper(GSList *args, guint32 arg_count, GSList **retval)
 {
-    return string_walk(arg1list, retval, g_ascii_toupper);
+    return string_walk(args, arg_count, retval, g_ascii_toupper);
 }
 
 /* dfilter function: len() */
 static gboolean
-df_func_len(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
+df_func_len(GSList *args, guint32 arg_count, GSList **retval)
 {
     GSList      *arg1;
     fvalue_t    *arg_fvalue;
     fvalue_t    *ft_len;
 
-    arg1 = arg1list;
+    ws_assert(arg_count == 1);
+    arg1 = args->data;
+    if (arg1 == NULL)
+        return FALSE;
+
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
         ft_len = fvalue_new(FT_UINT32);
@@ -88,13 +98,18 @@ df_func_len(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
 
 /* dfilter function: count() */
 static gboolean
-df_func_count(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
+df_func_count(GSList *args, guint32 arg_count, GSList **retval)
 {
+    GSList   *arg1;
     fvalue_t *ft_ret;
     guint32   num_items;
 
-    num_items = (guint32)g_slist_length(arg1list);
+    ws_assert(arg_count == 1);
+    arg1 = args->data;
+    if (arg1 == NULL)
+        return FALSE;
 
+    num_items = (guint32)g_slist_length(arg1);
     ft_ret = fvalue_new(FT_UINT32);
     fvalue_set_uinteger(ft_ret, num_items);
     *retval = g_slist_prepend(*retval, ft_ret);
@@ -104,12 +119,17 @@ df_func_count(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
 
 /* dfilter function: string() */
 static gboolean
-df_func_string(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
+df_func_string(GSList *args, guint32 arg_count, GSList **retval)
 {
-    GSList   *arg1 = arg1list;
+    GSList   *arg1;
     fvalue_t *arg_fvalue;
     fvalue_t *new_ft_string;
     char     *s;
+
+    ws_assert(arg_count == 1);
+    arg1 = args->data;
+    if (arg1 == NULL)
+        return FALSE;
 
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
@@ -167,44 +187,128 @@ df_func_string(GSList* arg1list, GSList *arg2junk _U_, GSList **retval)
     return TRUE;
 }
 
+static gboolean
+df_func_compare(GSList *args, guint32 arg_count, GSList **retval,
+                    gboolean (*fv_cmp)(const fvalue_t *a, const fvalue_t *b))
+{
+    fvalue_t *fv_ret = NULL;
+    GSList   *l1, *l2;
+    guint32 i;
+
+    for (l1 = args, i = 0; i < arg_count; l1 = l1->next, i++) {
+        for (l2 = l1->data; l2 != NULL; l2 = l2->next) {
+            if (fv_ret == NULL || fv_cmp(l2->data, fv_ret)) {
+                fv_ret = l2->data;
+            }
+        }
+    }
+
+    if (fv_ret == NULL)
+        return FALSE;
+
+    *retval = g_slist_append(NULL, fvalue_dup(fv_ret));
+
+    return TRUE;
+}
+
+/* Find maximum value. */
+static gboolean
+df_func_max(GSList *args, guint32 arg_count, GSList **retval)
+{
+    return df_func_compare(args, arg_count, retval, fvalue_gt);
+}
+
+/* Find minimum value. */
+static gboolean
+df_func_min(GSList *args, guint32 arg_count, GSList **retval)
+{
+    return df_func_compare(args, arg_count, retval, fvalue_lt);
+}
+
+static gboolean
+df_func_abs(GSList *args, guint32 arg_count, GSList **retval)
+{
+    GSList   *arg1;
+    fvalue_t *fv_arg, *new_fv;
+    char     *err_msg = NULL;
+    GSList   *result = NULL;
+
+    ws_assert(arg_count == 1);
+    arg1 = args->data;
+    if (arg1 == NULL)
+        return FALSE;
+
+    while (arg1) {
+        fv_arg = arg1->data;
+        if (fvalue_is_negative(fv_arg)) {
+            new_fv = fvalue_unary_minus(fv_arg, &err_msg);
+            if (new_fv == NULL) {
+                ws_debug("abs: %s", err_msg);
+                g_free(err_msg);
+                err_msg = NULL;
+            }
+        }
+        else {
+            new_fv = fvalue_dup(fv_arg);
+        }
+        result = g_slist_prepend(result, new_fv);
+        arg1 = arg1->next;
+    }
+
+    if (g_slist_length(result) == 0)
+        return FALSE;
+
+    *retval = result;
+    return TRUE;
+}
+
 /* For upper() and lower() checks that the parameter passed to
  * it is an FT_STRING */
-static void
-ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name,
-                            int param_num, stnode_t *st_node)
+static ftenum_t
+ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U_,
+                            GSList *param_list, stloc_t *func_loc _U_)
 {
     header_field_info *hfinfo;
 
-    ws_assert(param_num == 0);
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *st_node = param_list->data;
+
+    dfw_resolve_unparsed(dfw, st_node);
 
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
         hfinfo = stnode_data(st_node);
         if (IS_FT_STRING(hfinfo->type)) {
-            return;
+            return FT_STRING;
         }
     }
-    FAIL(dfw, "Only string type fields can be used as parameter for %s()", func_name);
+    FAIL(dfw, st_node, "Only string type fields can be used as parameter for %s()", func_name);
 }
 
-static void
-ul_semcheck_is_field(dfwork_t *dfw, const char *func_name,
-                            int param_num, stnode_t *st_node)
+static ftenum_t
+ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U_,
+                            GSList *param_list, stloc_t *func_loc _U_)
 {
-    ws_assert(param_num == 0);
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *st_node = param_list->data;
+
+    dfw_resolve_unparsed(dfw, st_node);
 
     if (stnode_type_id(st_node) == STTYPE_FIELD)
-        return;
+        return FT_UINT32;
 
-    FAIL(dfw, "Only fields can be used as parameter for %s()", func_name);
+    FAIL(dfw, st_node, "Only fields can be used as parameter for %s()", func_name);
 }
 
-static void
-ul_semcheck_string_param(dfwork_t *dfw, const char *func_name,
-                            int param_num, stnode_t *st_node)
+static ftenum_t
+ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U_,
+                            GSList *param_list, stloc_t *func_loc _U_)
 {
     header_field_info *hfinfo;
 
-    ws_assert(param_num == 0);
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *st_node = param_list->data;
+
+    dfw_resolve_unparsed(dfw, st_node);
 
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
         hfinfo = stnode_data(st_node);
@@ -241,24 +345,136 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name,
             case FT_FCWWN:
             case FT_IEEE_11073_SFLOAT:
             case FT_IEEE_11073_FLOAT:
-                return;
+                return FT_STRING;
             default:
                 break;
         }
-        FAIL(dfw, "String conversion for field \"%s\" is not supported", hfinfo->abbrev);
+        FAIL(dfw, st_node, "String conversion for field \"%s\" is not supported", hfinfo->abbrev);
     }
-    FAIL(dfw, "Only fields can be used as parameter for %s()", func_name);
+    FAIL(dfw, st_node, "Only fields can be used as parameter for %s()", func_name);
+}
+
+/* Check arguments are all the same type and they can be compared. */
+static ftenum_t
+ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
+                        GSList *param_list, stloc_t *func_loc _U_)
+{
+    stnode_t *arg;
+    ftenum_t ftype, ft_arg;
+    GSList *l;
+    fvalue_t *fv;
+
+    arg = param_list->data;
+    dfw_resolve_unparsed(dfw, arg);
+
+    if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
+        ftype = check_arithmetic_expr(dfw, arg, lhs_ftype);
+    }
+    else if (stnode_type_id(arg) == STTYPE_LITERAL && lhs_ftype != FT_NONE) {
+        fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, arg, FALSE, NULL);
+        stnode_replace(arg, STTYPE_FVALUE, fv);
+        ftype = fvalue_type_ftenum(fv);
+    }
+    else if (stnode_type_id(arg) == STTYPE_FUNCTION) {
+        ftype = check_function(dfw, arg, lhs_ftype);
+    }
+    else {
+        ftype = sttype_pointer_ftenum(arg);
+    }
+
+    if (ftype == FT_NONE) {
+        FAIL(dfw, arg, "Argument '%s' (FT_NONE) is not valid for %s()",
+                                stnode_todisplay(arg), func_name);
+    }
+
+    for (l = param_list->next; l != NULL; l = l->next) {
+        arg = l->data;
+        dfw_resolve_unparsed(dfw, arg);
+
+        if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
+            ft_arg = check_arithmetic_expr(dfw, arg, ftype);
+        }
+        else if (stnode_type_id(arg) == STTYPE_LITERAL && ftype != FT_NONE) {
+            fv = dfilter_fvalue_from_literal(dfw, ftype, arg, FALSE, NULL);
+            stnode_replace(arg, STTYPE_FVALUE, fv);
+            ft_arg = fvalue_type_ftenum(fv);
+        }
+        else if (stnode_type_id(arg) == STTYPE_FUNCTION) {
+            ft_arg = check_function(dfw, arg, ftype);
+        }
+        else {
+            ft_arg = sttype_pointer_ftenum(arg);
+        }
+
+        if (ft_arg == FT_NONE) {
+            FAIL(dfw, arg, "Argument '%s' (FT_NONE) is not valid for %s()",
+                                    stnode_todisplay(arg), func_name);
+        }
+        if (ftype == FT_NONE) {
+            ftype = ft_arg;
+        }
+        if (ft_arg != ftype) {
+            FAIL(dfw, arg, "Arguments to '%s' must have the same type (expected %s, got %s)",
+                                        func_name, ftype_name(ftype), ftype_name(ft_arg));
+        }
+        if (!ftype_can_cmp(ft_arg)) {
+            FAIL(dfw, arg, "Argument '%s' to '%s' cannot be ordered",
+                                    stnode_todisplay(arg), func_name);
+        }
+    }
+    return ftype;
+}
+
+static ftenum_t
+ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
+                        GSList *param_list, stloc_t *func_loc _U_)
+{
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *st_node;
+    ftenum_t ftype;
+    fvalue_t *fv;
+
+    st_node = param_list->data;
+    dfw_resolve_unparsed(dfw, st_node);
+
+    if (stnode_type_id(st_node) == STTYPE_ARITHMETIC) {
+        ftype = check_arithmetic_expr(dfw, st_node, lhs_ftype);
+    }
+    else if (stnode_type_id(st_node) == STTYPE_LITERAL && lhs_ftype != FT_NONE) {
+        fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, FALSE, NULL);
+        stnode_replace(st_node, STTYPE_FVALUE, fv);
+        ftype = fvalue_type_ftenum(fv);
+    }
+    else if (stnode_type_id(st_node) == STTYPE_FUNCTION) {
+        ftype = check_function(dfw, st_node, lhs_ftype);
+    }
+    else {
+        ftype = sttype_pointer_ftenum(st_node);
+    }
+
+    if (ftype == FT_NONE) {
+        FAIL(dfw, st_node, "Type %s is not valid for %s",
+                        stnode_type_name(st_node), func_name);
+    }
+    if (!ftype_can_is_negative(ftype)) {
+        FAIL(dfw, st_node, "'%s' is not a valid argument to '%s'()",
+                        stnode_todisplay(st_node), func_name);
+    }
+    return ftype;
 }
 
 /* The table of all display-filter functions */
 static df_func_def_t
 df_functions[] = {
-    { "lower",  df_func_lower,  FT_STRING, 1, 1, ul_semcheck_is_field_string },
-    { "upper",  df_func_upper,  FT_STRING, 1, 1, ul_semcheck_is_field_string },
-    { "len",    df_func_len,    FT_UINT32, 1, 1, ul_semcheck_is_field },
-    { "count",  df_func_count,  FT_UINT32, 1, 1, ul_semcheck_is_field },
-    { "string", df_func_string, FT_STRING, 1, 1, ul_semcheck_string_param },
-    { NULL, NULL, FT_NONE, 0, 0, NULL }
+    { "lower",  df_func_lower,  1, 1, ul_semcheck_is_field_string },
+    { "upper",  df_func_upper,  1, 1, ul_semcheck_is_field_string },
+    { "len",    df_func_len,    1, 1, ul_semcheck_is_field },
+    { "count",  df_func_count,  1, 1, ul_semcheck_is_field },
+    { "string", df_func_string, 1, 1, ul_semcheck_string_param },
+    { "max",    df_func_max,    1, 0, ul_semcheck_compare },
+    { "min",    df_func_min,    1, 0, ul_semcheck_compare },
+    { "abs",    df_func_abs,    1, 1, ul_semcheck_absolute_value },
+    { NULL, NULL, 0, 0, NULL }
 };
 
 /* Lookup a display filter function record by name */
