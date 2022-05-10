@@ -153,6 +153,9 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     proxyModel->setColumns(columns);
     proxyModel->setSourceModel(sourceModel);
     proxyModel->setFilterHidden(false);
+#ifdef HAVE_PCAP_REMOTE
+    proxyModel->setRemoteDisplay(false);
+#endif
     proxyModel->setFilterByType(false);
 
     ui->localView->setModel(proxyModel);
@@ -165,6 +168,9 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     pipeProxyModel->setColumns(columns);
     pipeProxyModel->setSourceModel(sourceModel);
     pipeProxyModel->setFilterHidden(true);
+#ifdef HAVE_PCAP_REMOTE
+    pipeProxyModel->setRemoteDisplay(false);
+#endif
     pipeProxyModel->setFilterByType(true, true);
     pipeProxyModel->setInterfaceTypeVisible(IF_PIPE, false);
     ui->pipeView->setModel(pipeProxyModel);
