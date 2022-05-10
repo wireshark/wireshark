@@ -791,6 +791,31 @@ static header_parameter_t via_parameters_hf_array[] =
     {"oc-algo",       &hf_sip_via_oc_algo}
 };
 
+typedef enum {
+    MECH_PARA_STRING = 0,
+    MECH_PARA_UINT = 1,
+} mech_parameter_type_t;
+
+/* Track associations between parameter name and hf item for security mechanism*/
+typedef struct {
+    const char  *param_name;
+    const gint  para_type;
+    const gint  *hf_item;
+} mech_parameter_t;
+
+static mech_parameter_t sec_mechanism_parameters_hf_array[] =
+{
+    {"alg",     MECH_PARA_STRING,    &hf_sip_sec_mechanism_alg},
+    {"ealg",    MECH_PARA_STRING,    &hf_sip_sec_mechanism_ealg},
+    {"prot",    MECH_PARA_STRING,    &hf_sip_sec_mechanism_prot},
+    {"spi-c",   MECH_PARA_UINT,      &hf_sip_sec_mechanism_spi_c},
+    {"spi-s",   MECH_PARA_UINT,      &hf_sip_sec_mechanism_spi_s},
+    {"port1",   MECH_PARA_UINT,      &hf_sip_sec_mechanism_port1},
+    {"port-c",  MECH_PARA_UINT,      &hf_sip_sec_mechanism_port_c},
+    {"port2",   MECH_PARA_UINT,      &hf_sip_sec_mechanism_port2},
+    {"port-s",  MECH_PARA_UINT,      &hf_sip_sec_mechanism_port_s},
+    {NULL, 0, 0}
+};
 
 typedef struct {
     gint *hf_sip_display;
@@ -2408,9 +2433,6 @@ static void
 dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint start_offset, gint line_end_offset){
 
     gint  current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
-    guint32 spi_c;
-    guint32 spi_s;
-    guint16 port;
 
     /* skip Spaces and Tabs */
     start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -2437,7 +2459,7 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
 
     while(current_offset < line_end_offset){
         gchar *param_name = NULL, *value = NULL;
-
+        guint8 hf_index = 0;
         /* skip Spaces and Tabs */
         current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
 
@@ -2461,82 +2483,38 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
         }
 
 
-
-        /* Protection algorithm to be used */
-        if (g_ascii_strcasecmp(param_name, "alg") == 0){
-            proto_tree_add_item(tree, hf_sip_sec_mechanism_alg, tvb,
-                                equals_offset+1, semi_colon_offset-equals_offset-1,
-                                ENC_UTF_8);
-
-        }else if (g_ascii_strcasecmp(param_name, "ealg") == 0){
-            proto_tree_add_item(tree, hf_sip_sec_mechanism_ealg, tvb,
-                                equals_offset+1, semi_colon_offset-equals_offset-1,
-                                ENC_UTF_8);
-
-        }else if (g_ascii_strcasecmp(param_name, "prot") == 0){
-            proto_tree_add_item(tree, hf_sip_sec_mechanism_prot, tvb,
-                                equals_offset+1, semi_colon_offset-equals_offset-1,
-                                ENC_UTF_8);
-
-        }else if (g_ascii_strcasecmp(param_name, "spi-c") == 0){
-            if (!value) {
-                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
-                                        tvb, current_offset, -1);
-            } else {
-                spi_c = (guint32)strtoul(value, NULL, 10);
-                proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_c, tvb,
-                                    equals_offset+1, semi_colon_offset-equals_offset-1, spi_c);
+        while (sec_mechanism_parameters_hf_array[hf_index].param_name) {
+            /* Protection algorithm to be used */
+            if (g_ascii_strcasecmp(param_name, sec_mechanism_parameters_hf_array[hf_index].param_name) == 0) {
+                switch (sec_mechanism_parameters_hf_array[hf_index].para_type) {
+                    case MECH_PARA_STRING:
+                        proto_tree_add_item(tree, *sec_mechanism_parameters_hf_array[hf_index].hf_item, tvb,
+                                            equals_offset+1, semi_colon_offset-equals_offset-1,
+                                            ENC_UTF_8);
+                        break;
+                    case MECH_PARA_UINT:
+                        if (!value) {
+                            proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
+                                                  tvb, current_offset, -1);
+                        } else {
+                            guint32 semi_para;
+                            semi_para = (guint32)strtoul(value, NULL, 10);
+                            proto_tree_add_uint(tree, *sec_mechanism_parameters_hf_array[hf_index].hf_item, tvb,
+                                                equals_offset+1, semi_colon_offset-equals_offset-1, semi_para);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
             }
-        }else if (g_ascii_strcasecmp(param_name, "spi-s") == 0){
-            if (!value) {
-                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
-                                        tvb, current_offset, -1);
-            } else {
-                spi_s = (guint32)strtoul(value, NULL, 10);
-                proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_s, tvb,
-                                    equals_offset+1, semi_colon_offset-equals_offset-1, spi_s);
-            }
-        }else if (g_ascii_strcasecmp(param_name, "port1") == 0){
-            if (!value) {
-                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
-                                        tvb, current_offset, -1);
-            } else {
-                port = (guint16)strtoul(value, NULL, 10);
-                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port1, tvb,
-                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
-            }
-        }else if (g_ascii_strcasecmp(param_name, "port-c") == 0){
-            if (!value) {
-                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
-                                        tvb, current_offset, -1);
-            } else {
-                port = (guint32)strtoul(value, NULL, 10);
-                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port_c, tvb,
-                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
-            }
-        }else if (g_ascii_strcasecmp(param_name, "port2") == 0){
-            if (!value) {
-                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
-                                        tvb, current_offset, -1);
-            } else {
-                port = (guint32)strtoul(value, NULL, 10);
-                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port2, tvb,
-                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
-            }
-        }else if (g_ascii_strcasecmp(param_name, "port-s") == 0){
-            if (!value) {
-                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
-                                        tvb, current_offset, -1);
-            } else {
-                port = (guint32)strtoul(value, NULL, 10);
-                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port_s, tvb,
-                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
-            }
+            hf_index++;
         }
 
-        else{
+        if (!sec_mechanism_parameters_hf_array[hf_index].param_name) {
             proto_tree_add_format_text(tree, tvb, current_offset, length);
         }
+
         current_offset = semi_colon_offset+1;
     }
 
