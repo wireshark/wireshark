@@ -66,8 +66,6 @@ private slots:
     void on_delPipe_clicked();
 #endif
 
-    void onSelectionChanged(const QItemSelection &sel, const QItemSelection &desel);
-
 #ifdef HAVE_PCAP_REMOTE
     void on_addRemote_clicked();
     void on_delRemote_clicked();

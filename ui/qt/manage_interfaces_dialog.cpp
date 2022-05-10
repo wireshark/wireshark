@@ -173,9 +173,9 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     ui->pipeView->setItemDelegateForColumn(
             pipeProxyModel->mapSourceToColumn(IFTREE_COL_PIPE_PATH), new PathChooserDelegate()
             );
-    connect(ui->pipeView->selectionModel(),
-            SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
-            SLOT(onSelectionChanged(const QItemSelection &, const QItemSelection &)));
+     connect(ui->pipeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](const QItemSelection &sel, const QItemSelection &) {
+        ui->delPipe->setEnabled(sel.count() > 0);
+    });
 
 #if defined(HAVE_PCAP_REMOTE)
     // The default indentation (20) means our checkboxes are shifted too far on Windows.
@@ -206,11 +206,6 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 ManageInterfacesDialog::~ManageInterfacesDialog()
 {
     delete ui;
-}
-
-void ManageInterfacesDialog::onSelectionChanged(const QItemSelection &sel, const QItemSelection &)
-{
-    ui->delPipe->setEnabled(sel.count() > 0);
 }
 
 void ManageInterfacesDialog::updateWidgets()
@@ -563,26 +558,37 @@ void ManageInterfacesDialog::showRemoteInterfaces()
 {
     guint i;
     interface_t *device;
+    QTreeWidgetItem * item = nullptr;
 
     // We assume that remote interfaces are grouped by host.
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        QTreeWidgetItem * child = nullptr;
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!device->local) {
 
-            QList<QTreeWidgetItem*> items = ui->remoteList->findItems(QString(device->name), Qt::MatchCaseSensitive | Qt::MatchFixedString, col_r_host_dev_);
-
             // check if the QTreeWidgetItem for that interface already exists
-            if (items.count() == 0) {
-                items = ui->remoteList->findItems(QString(device->remote_opts.remote_host_opts.remote_host),
-                    Qt::MatchCaseSensitive | Qt::MatchFixedString, col_r_host_dev_);
+            QList<QTreeWidgetItem*> items = ui->remoteList->findItems(QString(device->name), Qt::MatchCaseSensitive | Qt::MatchFixedString, col_r_host_dev_);
+            if (items.count() > 0)
+               continue;
 
-                if (items.count() == 0) {
-                    // get or create the QTreeWidgetItem for the host
-                    QTreeWidgetItem* item = items.at(0);
-                    QTreeWidgetItem* child = new QTreeWidgetItem(item);
-                    child->setCheckState(col_r_show_, device->hidden ? Qt::Unchecked : Qt::Checked);
-                    child->setText(col_r_host_dev_, QString(device->name));
-                }
+            // create or find the QTreeWidgetItem for the remote host configuration
+            QString parentName = QString(device->remote_opts.remote_host_opts.remote_host);
+            items = ui->remoteList->findItems(parentName, Qt::MatchCaseSensitive | Qt::MatchFixedString, col_r_host_dev_);
+            if (items.count() == 0) {
+                item = new QTreeWidgetItem(ui->remoteList);
+                item->setText(col_r_host_dev_, parentName);
+                item->setExpanded(true);
+            }
+            else {
+                item = items.at(0);
+            }
+
+            items = ui->remoteList->findItems(QString(device->name), Qt::MatchCaseSensitive | Qt::MatchFixedString | Qt::MatchRecursive, col_r_host_dev_);
+            if (items.count() == 0)
+            {
+                child = new QTreeWidgetItem(item);
+                child->setCheckState(col_r_show_, device->hidden ? Qt::Unchecked : Qt::Checked);
+                child->setText(col_r_host_dev_, QString(device->name));
             }
         }
     }
