@@ -1096,8 +1096,8 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                                      tvb, offset++, 1, ENC_BIG_ENDIAN, &downlink_sec_mode);
 
         if (len > 2) {
-            tag = tvb_get_guint8(tvb, offset++);  /* Should be 0x21 */
-            len = tvb_get_guint8(tvb, offset++);
+            offset++;  /* tag Should be 0x21 */
+            offset++; /* len */
 
             tag = tvb_get_guint8(tvb, offset++);
             if (tag == 0x25) {
@@ -3073,7 +3073,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                         0, tvb_reported_length(raw_traffic_tvb), ENC_NA);
 
                     /* Call the dissector! */
-                    sub_dissector_result = call_dissector_only(eth_handle, raw_traffic_tvb, pinfo, tree, NULL);
+                   call_dissector_only(eth_handle, raw_traffic_tvb, pinfo, tree, NULL);
                 }
 
                 return tvb_captured_length(tvb);
