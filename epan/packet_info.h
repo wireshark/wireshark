@@ -16,6 +16,7 @@
 #include "address.h"
 
 struct endpoint;
+struct conversation_element;
 
 /** @file
  * Dissected packet data and metadata.
@@ -72,6 +73,7 @@ typedef struct _packet_info {
   const char *match_string;         /**< matched string for calling subdissector from table */
   gboolean use_endpoint;            /**< TRUE if endpoint member should be used for conversations */
   struct endpoint* conv_endpoint;   /**< Data that can be used for conversations */
+  struct conversation_element *conv_elements; /**< Conversation identifier; alternative to conv_endpoint */
   guint16 can_desegment;            /**< >0 if this segment could be desegmented.
                                          A dissector that can offer this API (e.g.
                                          TCP) sets can_desegment=2, then

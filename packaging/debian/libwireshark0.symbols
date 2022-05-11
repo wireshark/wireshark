@@ -182,6 +182,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  conversation_key_port2@Base 2.5.0
  conversation_new@Base 1.9.1
  conversation_new_by_id@Base 2.5.0
+ conversation_new_full@Base 3.7.1
  conversation_pt_to_endpoint_type@Base 2.5.0
  conversation_set_dissector@Base 1.9.1
  conversation_set_dissector_from_frame_number@Base 2.0.0
@@ -673,6 +674,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_capture_dissector@Base 2.3.0
  find_conversation@Base 1.9.1
  find_conversation_by_id@Base 2.5.0
+ find_conversation_full@Base 3.7.1
  find_conversation_pinfo@Base 2.5.0
  find_depend_dissector_list@Base 2.1.0
  find_dissector@Base 1.9.1

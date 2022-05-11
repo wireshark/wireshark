@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/proto_data.h>
+#include <epan/conversation.h>
 #include <epan/conversation_filter.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
@@ -183,7 +184,6 @@ configure_plugin(bridge_info* bi, char* config _U_)
 
         if (addr_fields) {
             bi->hf_id_to_addr_id = (int *)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
-            memset(bi->hf_id_to_addr_id, -1, bi->visible_fields);
             bi->hf_v4 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
             bi->hf_v4_ids = (int*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(int));
             bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), addr_fields * sizeof(hf_register_info));
@@ -295,8 +295,9 @@ configure_plugin(bridge_info* bi, char* config _U_)
                     }
                 };
                 *ri_v6 = finfo_v6;
-
                 addr_fld_cnt++;
+            } else {
+                bi->hf_id_to_addr_id[fld_cnt] = -1;
             }
             fld_cnt++;
         }
@@ -482,6 +483,7 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     bridge_info* bi = p_get_proto_data(pinfo->pool, pinfo, proto_falco_bridge, PROTO_DATA_BRIDGE_HANDLE);
     guint plen = tvb_captured_length(tvb);
     const char *source_name = get_sinsp_source_name(bi->ssi);
+    wmem_array_t *conversation_elements = wmem_array_new(pinfo->pool, sizeof(conversation_element_t));
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, source_name);
     /* Clear out stuff in the info column */
@@ -508,9 +510,14 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
         sinsp_field_extract_t *sfe = &sinsp_fields[fld_idx];
         header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
+        conversation_element_t conv_el = {0};
 
         if (!sfe->is_present) {
             continue;
+        }
+
+        if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
+            conv_vals_cnt++;
         }
 
         if (sfe->type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
@@ -528,10 +535,6 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
                                  pinfo,
                                  proto_falco_bridge,
                                  PROTO_DATA_CONVINFO_USER_BASE + conv_vals_cnt, cvalptr);
-            }
-
-            if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
-                conv_vals_cnt++;
             }
 
             int addr_fld_idx = bi->hf_id_to_addr_id[fld_idx];
@@ -552,19 +555,48 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
                 if (addr_item) {
                     proto_item_set_generated(addr_item);
                 }
+                if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
+                    conv_el.type = CE_ADDRESS;
+                    copy_address(&conv_el.addr_val, &pinfo->net_src);
+                }
+            } else {
+                if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
+                    conv_el.type = CE_STRING;
+                    conv_el.str_val = wmem_strdup(pinfo->pool, sfe->res_str);
+                }
             }
         }
         else if (sfe->type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
             proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res_u64);
+            if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
+                conv_el.type = CE_UINT64;
+                conv_el.uint64_val = sfe->res_u64;
+            }
         }
         else {
             REPORT_DISSECTOR_BUG("Field %s has an unrecognized or mismatched type %u != %u",
                 hfinfo->abbrev, sfe->type, hfinfo->type);
         }
+        if (conv_el.type != CE_ENDPOINT) {
+            wmem_array_append_one(conversation_elements, conv_el);
+        }
     }
 
     if (!rc) {
         REPORT_DISSECTOR_BUG("Falco plugin %s extract error", get_sinsp_source_name(bi->ssi));
+    }
+
+    unsigned num_conv_els = wmem_array_get_count(conversation_elements);
+    if (num_conv_els > 0) {
+        conversation_element_t conv_el;
+        conv_el.type = CE_ENDPOINT;
+        conv_el.endpoint_type_val = ENDPOINT_LOG;
+        wmem_array_append_one(conversation_elements, conv_el);
+        pinfo->conv_elements = (conversation_element_t *) wmem_array_get_raw(conversation_elements);
+        conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+        if (!conv) {
+            conversation_new_full(pinfo->fd->num, pinfo->conv_elements);
+        }
     }
 
     return plen;

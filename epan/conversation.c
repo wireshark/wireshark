@@ -11,10 +11,16 @@
 #include "config.h"
 
 #include <string.h>
+
 #include <glib.h>
+
 #include "packet.h"
 #include "to_str.h"
 #include "conversation.h"
+
+// To do:
+// - Switch the "id" routines (conversation_new_by_id, etc) to elements.
+// - Switch the rest of the routines to elements.
 
 /* define DEBUG_CONVERSATION for pretty debug printing */
 /* #define DEBUG_CONVERSATION */
@@ -34,7 +40,7 @@ struct endpoint {
 };
 
 struct conversation_key {
-    struct conversation_key *next;
+    // XXX Replace these with conversation_element_t's.
     address	addr1;
     address	addr2;
     endpoint_type etype;
@@ -45,7 +51,7 @@ struct conversation_key {
 /*
  * Hash table for conversations with no wildcards.
  */
-static wmem_map_t *conversation_hashtable_exact = NULL;
+static wmem_map_t *conversation_hashtable_exact_addr_port = NULL;
 
 /*
  * Hash table for conversations with one wildcard address.
@@ -62,6 +68,10 @@ static wmem_map_t *conversation_hashtable_no_port2 = NULL;
  */
 static wmem_map_t *conversation_hashtable_no_addr2_or_port2 = NULL;
 
+/*
+ * Hash table of hash tables for conversations identified by element lists.
+ */
+static wmem_map_t *conversation_hashtable_element_list = NULL;
 
 static guint32 new_index;
 
@@ -443,6 +453,111 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
     return 0;
 }
 
+/*
+ * Compute the hash value for two given element lists if the match
+ * is to be exact.
+ */
+/* https://web.archive.org/web/20070615045827/http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
+ * (formerly at http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing)
+ * One-at-a-Time hash
+ */
+guint
+conversation_hash_element_list(gconstpointer v)
+{
+    const conversation_element_t *element = (const conversation_element_t*)v;
+    guint hash_val = 0;
+
+    for (;;) {
+        // XXX We could use a hash_arbitrary_bytes routine. Abuse add_address_to_hash in the mean time.
+        address tmp_addr;
+        switch (element->type) {
+        case CE_ADDRESS:
+            hash_val = add_address_to_hash(hash_val, &element->addr_val);
+            break;
+        case CE_STRING:
+            tmp_addr.len = (int) strlen(element->str_val);
+            tmp_addr.data = element->str_val;
+            hash_val = add_address_to_hash(hash_val, &tmp_addr);
+            break;
+        case CE_UINT:
+            tmp_addr.len = (int) sizeof(element->uint_val);
+            tmp_addr.data = &element->uint_val;
+            hash_val = add_address_to_hash(hash_val, &tmp_addr);
+            break;
+        case CE_UINT64:
+            tmp_addr.len = (int) sizeof(element->uint64_val);
+            tmp_addr.data = &element->uint64_val;
+            hash_val = add_address_to_hash(hash_val, &tmp_addr);
+            break;
+        case CE_ENDPOINT:
+            tmp_addr.len = (int) sizeof(element->endpoint_type_val);
+            tmp_addr.data = &element->endpoint_type_val;
+            hash_val = add_address_to_hash(hash_val, &tmp_addr);
+            goto done;
+            break;
+        }
+        element++;
+    }
+
+done:
+    hash_val += ( hash_val << 3 );
+    hash_val ^= ( hash_val >> 11 );
+    hash_val += ( hash_val << 15 );
+
+    return hash_val;
+}
+
+/*
+ * Compare two conversation keys for an exact match.
+ */
+static gboolean
+conversation_match_element_list(gconstpointer v1, gconstpointer v2)
+{
+    const conversation_element_t *element1 = (const conversation_element_t*)v1;
+    const conversation_element_t *element2 = (const conversation_element_t*)v2;
+
+    for (;;) {
+        if (element1->type != element2->type) {
+            return FALSE;
+        }
+
+        switch (element1->type) {
+        case CE_ADDRESS:
+            if (!addresses_equal(&element1->addr_val, &element2->addr_val)) {
+                return FALSE;
+            }
+            break;
+        case CE_STRING:
+            if (strcmp(element1->str_val, element2->str_val)) {
+                return FALSE;
+            }
+            break;
+        case CE_UINT:
+            if (element1->uint_val != element2->uint_val) {
+                return FALSE;
+            }
+            break;
+        case CE_UINT64:
+            if (element1->uint64_val != element2->uint64_val) {
+                return FALSE;
+            }
+            break;
+        case CE_ENDPOINT:
+            if (element1->endpoint_type_val != element2->endpoint_type_val) {
+                return FALSE;
+            }
+            goto done;
+            break;
+        }
+        element1++;
+        element2++;
+    }
+
+    done:
+    // Everything matched so far.
+    return TRUE;
+}
+
 /**
  * Create a new hash tables for conversations.
  */
@@ -457,7 +572,7 @@ conversation_init(void)
      * pointed to by conversation data structures that were freed
      * above.
      */
-    conversation_hashtable_exact =
+    conversation_hashtable_exact_addr_port =
         wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), conversation_hash_exact,
                 conversation_match_exact);
     conversation_hashtable_no_addr2 =
@@ -470,6 +585,8 @@ conversation_init(void)
         wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), conversation_hash_no_addr2_or_port2,
                 conversation_match_no_addr2_or_port2);
 
+    conversation_hashtable_element_list =
+        wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 }
 
 /**
@@ -501,6 +618,7 @@ conversation_insert_into_hashtable(wmem_map_t *hashtable, conversation_t *conv)
         /* New entry */
         conv->next = NULL;
         conv->last = conv;
+
         wmem_map_insert(hashtable, conv->key_ptr, conv);
         DPRINT(("created a new conversation chain"));
     }
@@ -600,6 +718,117 @@ conversation_remove_from_hashtable(wmem_map_t *hashtable, conversation_t *conv)
         if (chain_head->latest_found == conv)
             chain_head->latest_found = prev;
     }
+}
+
+/* Element count including the terminating CE_ENDPOINT */
+#define MAX_CONVERSATION_ELEMENTS 10 // Arbitrary.
+static size_t conversation_element_count(conversation_element_t *elements) {
+    size_t count = 0;
+    while (elements[count].type != CE_ENDPOINT) {
+        count++;
+        DISSECTOR_ASSERT(count < MAX_CONVERSATION_ELEMENTS);
+    }
+    count++;
+    // Keying on the endpoint type alone isn't very useful.
+    DISSECTOR_ASSERT(count > 1);
+    return count;
+}
+
+/* Create a string based on element types. Must be g_freed. */
+static char* conversation_element_list_name(conversation_element_t *elements) {
+    const char *type_names[] = {
+        "endpoint",
+        "address",
+        "string",
+        "uint",
+        "uint64",
+    };
+    char *sep = "";
+    GString *conv_hash_group = g_string_new("");
+    size_t element_count = conversation_element_count(elements);
+    for (size_t i = 0; i < element_count; i++) {
+        conversation_element_t *cur_el = &elements[i];
+        g_string_append_printf(conv_hash_group, "%s%s", sep, type_names[cur_el->type]);
+        sep = ",";
+    }
+    return g_string_free(conv_hash_group, FALSE);
+}
+
+#if 0 // debugging
+static char* conversation_element_list_values(conversation_element_t *elements) {
+    const char *type_names[] = {
+        "endpoint",
+        "address",
+        "string",
+        "uint",
+        "uint64",
+    };
+    char *sep = "";
+    GString *value_str = g_string_new("");
+    size_t element_count = conversation_element_count(elements);
+    for (size_t i = 0; i < element_count; i++) {
+        conversation_element_t *cur_el = &elements[i];
+        g_string_append_printf(value_str, "%s%s=", sep, type_names[cur_el->type]);
+        sep = ",";
+        switch (cur_el->type) {
+        case CE_ADDRESS:
+        {
+            char *as = address_to_str(NULL, &cur_el->addr_val);
+            g_string_append(value_str, as);
+            g_free(as);
+        }
+            break;
+        case CE_ENDPOINT:
+            g_string_append_printf(value_str, "%d", cur_el->endpoint_type_val);
+            break;
+        case CE_STRING:
+            g_string_append(value_str, cur_el->str_val);
+            break;
+        case CE_UINT:
+            g_string_append_printf(value_str, "%u", cur_el->uint_val);
+            break;
+        case CE_UINT64:
+            g_string_append_printf(value_str, "%" G_GUINT64_FORMAT, cur_el->uint64_val);
+            break;
+        }
+    }
+    return g_string_free(value_str, FALSE);
+}
+#endif
+
+conversation_t *conversation_new_full(const guint32 setup_frame, conversation_element_t *elements)
+{
+    DISSECTOR_ASSERT(elements);
+
+    char *el_list_map_key = conversation_element_list_name(elements);
+    wmem_map_t *el_list_map = (wmem_map_t *) wmem_map_lookup(conversation_hashtable_element_list, el_list_map_key);
+    if (!el_list_map) {
+        el_list_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), conversation_hash_element_list,
+                conversation_match_element_list);
+        wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_file_scope(), el_list_map_key), el_list_map);
+    }
+    g_free(el_list_map_key);
+
+    size_t element_count = conversation_element_count(elements);
+    conversation_element_t *conv_key = wmem_memdup(wmem_file_scope(), elements, sizeof(conversation_element_t) * element_count);
+    for (size_t i = 0; i < element_count; i++) {
+        if (conv_key[i].type == CE_ADDRESS) {
+            copy_address_wmem(wmem_file_scope(), &conv_key[i].addr_val, &elements[i].addr_val);
+        } else if (conv_key[i].type == CE_STRING) {
+            conv_key[i].str_val = wmem_strdup(wmem_file_scope(), elements[i].str_val);
+        }
+    }
+
+    conversation_t *conversation = wmem_new0(wmem_file_scope(), conversation_t);
+    conversation->conv_index = new_index;
+    conversation->setup_frame = conversation->last_frame = setup_frame;
+
+    new_index++;
+
+    // XXX Overloading conversation_key_t this way is terrible and we shouldn't do it.
+    conversation->key_ptr = (conversation_key_t) conv_key;
+    conversation_insert_into_hashtable(el_list_map, conversation);
+    return conversation;
 }
 
 /*
@@ -721,11 +950,11 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
         if (options & (NO_PORT2|NO_PORT2_FORCE)) {
             hashtable = conversation_hashtable_no_port2;
         } else {
-            hashtable = conversation_hashtable_exact;
+            hashtable = conversation_hashtable_exact_addr_port;
         }
     }
 
-    new_key = wmem_new(wmem_file_scope(), struct conversation_key);
+    new_key = wmem_new0(wmem_file_scope(), struct conversation_key);
     if (addr1 != NULL) {
         copy_address_wmem(wmem_file_scope(), &new_key->addr1, addr1);
     } else {
@@ -797,7 +1026,7 @@ conversation_set_port2(conversation_t *conv, const guint32 port)
     if (conv->options & NO_ADDR2) {
         conversation_insert_into_hashtable(conversation_hashtable_no_addr2, conv);
     } else {
-        conversation_insert_into_hashtable(conversation_hashtable_exact, conv);
+        conversation_insert_into_hashtable(conversation_hashtable_exact_addr_port, conv);
     }
     DENDENT();
 }
@@ -834,9 +1063,46 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
     if (conv->options & NO_PORT2) {
         conversation_insert_into_hashtable(conversation_hashtable_no_port2, conv);
     } else {
-        conversation_insert_into_hashtable(conversation_hashtable_exact, conv);
+        conversation_insert_into_hashtable(conversation_hashtable_exact_addr_port, conv);
     }
     DENDENT();
+}
+
+conversation_t *find_conversation_full(const guint32 frame_num, conversation_element_t *elements)
+{
+    char *el_list_map_key = conversation_element_list_name(elements);
+    wmem_map_t *el_list_map = (wmem_map_t *) wmem_map_lookup(conversation_hashtable_element_list, el_list_map_key);
+    g_free(el_list_map_key);
+    if (!el_list_map) {
+        return NULL;
+    }
+
+    conversation_t* convo=NULL;
+    conversation_t* match=NULL;
+    conversation_t* chain_head=NULL;
+    chain_head = (conversation_t *)wmem_map_lookup(el_list_map, elements);
+
+    if (chain_head && (chain_head->setup_frame <= frame_num)) {
+        match = chain_head;
+
+        if (chain_head->last && (chain_head->last->setup_frame <= frame_num))
+            return chain_head->last;
+
+        if (chain_head->latest_found && (chain_head->latest_found->setup_frame <= frame_num))
+            match = chain_head->latest_found;
+
+        for (convo = match; convo && convo->setup_frame <= frame_num; convo = convo->next) {
+            if (convo->setup_frame > match->setup_frame) {
+                match = convo;
+            }
+        }
+    }
+
+    if (match) {
+        chain_head->latest_found = match;
+    }
+
+    return match;
 }
 
 /*
@@ -875,10 +1141,10 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
     if (chain_head && (chain_head->setup_frame <= frame_num)) {
         match = chain_head;
 
-        if ((chain_head->last)&&(chain_head->last->setup_frame<=frame_num))
+        if (chain_head->last && (chain_head->last->setup_frame <= frame_num))
             return chain_head->last;
 
-        if ((chain_head->latest_found)&&(chain_head->latest_found->setup_frame<=frame_num))
+        if (chain_head->latest_found && (chain_head->latest_found->setup_frame <= frame_num))
             match = chain_head->latest_found;
 
         for (convo = match; convo && convo->setup_frame <= frame_num; convo = convo->next) {
@@ -893,7 +1159,6 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
 
     return match;
 }
-
 
 /*
  * Given two address/port pairs for a packet, search for a conversation
@@ -950,7 +1215,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
         DPRINT(("trying exact match: %s:%d -> %s:%d",
                     addr_a_str, port_a, addr_b_str, port_b));
         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_exact,
+            conversation_lookup_hashtable(conversation_hashtable_exact_addr_port,
                     frame_num, addr_a, addr_b, etype,
                     port_a, port_b);
         /* Didn't work, try the other direction */
@@ -958,7 +1223,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying exact match: %s:%d -> %s:%d",
                         addr_b_str, port_b, addr_a_str, port_a));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_exact,
+                conversation_lookup_hashtable(conversation_hashtable_exact_addr_port,
                         frame_num, addr_b, addr_a, etype,
                         port_b, port_a);
         }
@@ -969,7 +1234,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying exact match: %s:%d -> %s:%d",
                         addr_b_str, port_a, addr_a_str, port_b));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_exact,
+                conversation_lookup_hashtable(conversation_hashtable_exact_addr_port,
                         frame_num, addr_b, addr_a, etype,
                         port_a, port_b);
         }
@@ -1480,6 +1745,14 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
                 conv->last_frame = pinfo->num;
             }
         }
+    } else if (pinfo->conv_elements) {
+        if ((conv = find_conversation_full(pinfo->num, pinfo->conv_elements)) != NULL) {
+            DPRINT(("found previous conversation elements for frame #%u (last_frame=%d)",
+                        pinfo->num, conv->last_frame));
+            if (pinfo->num > conv->last_frame) {
+                conv->last_frame = pinfo->num;
+            }
+        }
     } else {
         if ((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                         conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
@@ -1584,7 +1857,7 @@ conversation_get_endpoint_by_id(struct _packet_info *pinfo, endpoint_type etype,
 wmem_map_t *
 get_conversation_hashtable_exact(void)
 {
-    return conversation_hashtable_exact;
+    return conversation_hashtable_exact_addr_port;
 }
 
 wmem_map_t *

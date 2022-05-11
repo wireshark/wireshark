@@ -2434,11 +2434,11 @@ ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
 
 2.2.1 Conversation Routines
 
-There are seven routines that you will use to work with a conversation:
-conversation_new, find_conversation, find_or_create_conversation,
+There are nine routines that you will use to work with a conversation:
+conversation_new, conversation_new_full, find_conversation,
+find_conversation_full, find_or_create_conversation,
 conversation_add_proto_data, conversation_get_proto_data,
 conversation_delete_proto_data, and conversation_set_dissector.
-
 
 2.2.1.1 The conversation_init function.
 
@@ -2475,7 +2475,7 @@ Where:
     guint32 setup_frame = The lowest numbered frame for this conversation
     address* addr1      = first data packet address
     address* addr2      = second data packet address
-    port_type ptype     = port type, this is defined in packet.h
+    endpoint_type etype = endpoint type, defined in conversation.h
     guint32 port1       = first data packet port
     guint32 port2       = second data packet port
     guint options       = conversation options, NO_ADDR2 and/or NO_PORT2
@@ -2500,7 +2500,25 @@ packet indicates that, later in the capture, a conversation will be
 created using certain addresses and ports, in the case where the packet
 doesn't specify the addresses and ports of both sides.
 
-2.2.1.3 The find_conversation function.
+2.2.1.3 The conversation_new_full function.
+
+This routine will create a new conversation based upon an arbritrary
+lists of elements. Elements can be addresses, strings, unsigned
+integers, or unsigned 64-bit integers. Unlike conversation_new, element
+lists are matched strictly; wildcards aren't (yet) supported.
+
+The conversation_new_full prototype:
+    conversation_t *conversation_new(const guint32 setup_frame,
+        conversation_element_t *elements);
+
+Where:
+    guint32 setup_frame              = The lowest numbered frame for
+        this conversation
+    conversation_element_t *elements = An array of data types and
+        values which identify this conversation. The array MUST be
+        terminated with a CE_ENDPOINT element.
+
+2.2.1.4 The find_conversation function.
 
 Call this routine to look up a conversation. If no conversation is found,
 the routine will return a NULL value.
@@ -2549,7 +2567,24 @@ NO_ADDR_B|NO_PORT_B, the "addr_b" address will be treated as matching
 any "wildcarded" address and the "port_b" port will be treated as
 matching any "wildcarded" port.
 
-2.2.1.4 The find_conversation_pinfo function.
+2.2.1.5 The find_conversation_full function.
+
+Call this routine to look up a conversation based on an element list. If
+no conversation is found, the routine will return a NULL value.
+
+The find_conversation_full prototype:
+
+    conversation_t *find_conversation_full(guint32 frame_num,
+        conversation_element_t *elements);
+
+Where:
+    guint32 setup_frame              = The lowest numbered frame for
+        this conversation
+    conversation_element_t *elements = An array of data types and
+        values which identify this conversation. The array MUST be
+        terminated with a CE_ENDPOINT element.
+
+2.2.1.6 The find_conversation_pinfo function.
 
 This convenience function will find an existing conversation (by calling
 find_conversation())
@@ -2563,9 +2598,11 @@ Where:
     const guint options = conversation options, NO_ADDR_B and/or NO_PORT_B
 
 The frame number and the addresses necessary for find_conversation() are
-taken from the pinfo structure (as is commonly done).
+taken from the addresses and ports in the pinfo structure,
+pinfo->conv_endpoint if pinfo->use_endpoint is set, or
+pinfo->conv_elements if it is set.
 
-2.2.1.5 The find_or_create_conversation function.
+2.2.1.7 The find_or_create_conversation function.
 
 This convenience function will find an existing conversation (by calling
 find_conversation()) and, if a conversation does not already exist, create a
@@ -2582,8 +2619,7 @@ The frame number and the addresses necessary for find_conversation() and
 conversation_new() are taken from the pinfo structure (as is commonly done)
 and no 'options' are used.
 
-
-2.2.1.6 The conversation_add_proto_data function.
+2.2.1.8 The conversation_add_proto_data function.
 
 Once you have created a conversation with conversation_new, you can
 associate data with it using this function.
@@ -2609,7 +2645,7 @@ Using the protocol number allows several dissectors to
 associate data with a given conversation.
 
 
-2.2.1.7 The conversation_get_proto_data function.
+2.2.1.9 The conversation_get_proto_data function.
 
 After you have located a conversation with find_conversation, you can use
 this function to retrieve any data associated with it.
@@ -2628,7 +2664,7 @@ typically in the proto_register_XXXX portion of a dissector. The function
 returns a pointer to the data requested, or NULL if no data was found.
 
 
-2.2.1.8 The conversation_delete_proto_data function.
+2.2.1.10 The conversation_delete_proto_data function.
 
 After you are finished with a conversation, you can remove your association
 with this function. Please note that ONLY the conversation entry is
@@ -2647,7 +2683,7 @@ Where:
 is a unique protocol number created with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.
 
-2.2.1.9 The conversation_set_dissector function
+2.2.1.11 The conversation_set_dissector function
 
 This function sets the protocol dissector to be invoked whenever
 conversation parameters (addresses, port_types, ports, etc) are matched
