@@ -244,7 +244,7 @@ void FilterListModel::saveList()
         QString line = QString("\"%1\"").arg(index(row, ColumnName).data().toString().trimmed());
         line.append(QString(" %1").arg(index(row, ColumnExpression).data().toString()));
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         out << line << Qt::endl;
 #else
         out << line << endl;
