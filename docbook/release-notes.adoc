@@ -16,7 +16,9 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-NOTE: We no longer ship packages for 32-bit Windows. wsbuglink:17779[]
+NOTE: We do not ship official 32-bit Windows packages for this branch.
+If you need to use Wireshark on that platform, please install the latest 3.6 release.
+wsbuglink:17779[]
 
 * The PCRE2 library (https://www.pcre.org/) is now a required dependency to build Wireshark.
 
@@ -39,94 +41,96 @@ See the “New and Updated Features” section below for more details.
 The following features are new (or have been significantly updated) since version 3.6.0:
 
 * The Windows installers now ship with Npcap 1.60.
-They previously shipped with Npcap 1.55.
+  They previously shipped with Npcap 1.55.
 
-* Display filter syntax:
-** Set elements must be separated using a comma, e.g: {1, 2, "foo"}. Using only whitespace as separator was deprecated in 3.6 and is now a syntax error.
-** Adds support for some additional character escape sequences in double quoted strings.
-   Besides octal and hex byte specification the following C escape sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v.
+* The display filter syntax has been updated and enhanced:
+** A syntax to match a specific layer in the protocol stack has been added.
+   For example “ip.addr#2 == 1.1.1.1” matches only the inner layer in an IP-over-IP packet.
+** Set elements must be separated using a comma, e.g: {1, 2, "foo"}.
+   Using only whitespace as a separator was deprecated in 3.6 and is now a syntax error.
+** Support for some additional character escape sequences in double quoted strings has been added.
+   Along with octal (\<number>) and hex (\x<number>) encoding, the following C escape sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v.
    Previously they were only supported with character constants.
-** Unrecognized escape sequences are now treated as a syntax error. Previously they were treated as a literal character.
+** Unrecognized escape sequences are now treated as a syntax error.
+   Previously they were treated as a literal character.
    In addition to the sequences indicated above, backslash, single quotation and double quotation mark are also valid sequences: \\, \', \".
-** The display filter engine now uses PCRE2 instead of GRegex (GLib bindings to the older end-of-life PCRE library).
-   PCRE2 is compatible with PCRE so the user-visible changes should be minimal.
+** The display filter engine now uses PCRE2 instead of GRegex (GLib’s bindings to the older and end-of-life PCRE library).
+   PCRE2 is compatible with PCRE so any user-visible changes should be minimal.
    Some exotic patterns may now be invalid and require rewriting.
-** Adds a new strict equality operator "===" or "all_eq". The expression "a === b" is true if and only if all a's are equal to b.
+** A new strict equality operator "===" or "all_eq" has been added.
+   The expression "a === b" is true if and only if all a’s are equal to b.
    The negation of "===" can now be written as "!==" (any_ne).
-** Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
-** The operator "~=" is deprecated and will be removed in a future version. Use "!==" with the same meaning instead.
-** Date and time can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
+** The aliases "any_eq" for "==" and "all_ne" for "!=" have been added.
+** The operator "~=" is deprecated and will be removed in a future version.
+   Use "!==", which has the same meaning instead.
+** Dates and times can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
    Otherwise local time is used.
 ** Integer literal constants may be written in binary (in addition to decimal/octal/hexadecimal) using the prefix "0b" or "0B".
-** New syntax to disambiguate literals from identifiers. Every value with a leading dot is a protocol or protocol field.
-   Every value with a leading colon or in between angle brackets is a literal value. See the User Guide for details.
-** Floats must be written with a leading and ending digit. For example the values ".7" and "7." are now invalid as floats.
-   It must be written "0.7" and "7.0" respectively.
-** The "bitwise and" operator is now a first-class bit operator, not a boolean operator. In particular this means
-   it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
-** Arithmetic is supported for numeric fields with the usual operators: +, -, *, /, %. Arithmetic expressions must be grouped using
-   curly brackets (not parenthesis).
+** A new syntax to disambiguate literals from identifiers has been added.
+   Every value with a leading dot is a protocol or protocol field.
+   Every value with a leading colon or in between angle brackets is a literal value.
+   See the https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html#_some_protocol_names_can_be_ambiguous[User’s Guide] for details.
+** Floats must be written with a leading and ending digit.
+   For example the values ".7" and "7." are now invalid as floats.
+   They must be written "0.7" and "7.0" respectively.
+** The "bitwise and" operator is now a first-class bit operator, not a boolean operator.
+   In particular this means it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
+** Arithmetic is supported for numeric fields with the usual operators “+”, “-”, “*”, “/”, and “%”.
+   Arithmetic expressions must be grouped using curly brackets (not parenthesis).
 ** Logical AND now has higher precedence than logical OR, in line with most programming languages.
-** Adds new display filter functions max(), min() and abs().
-** Functions can accept expressions as arguments, including other functions. Previously only protocol
-   fields and slices were syntactically valid function arguments.
-** New syntax to match a specific layer in the protocol stack. For example ip.addr#2 == 1.1.1.1
-   matches only the inner layer in an IP-over-IP packet.
+** New display filter functions max(), min() and abs() have been added.
+** Functions can accept expressions as arguments, including other functions.
+   Previously only protocol fields and slices were syntactically valid function arguments.
 
-* text2pcap and "Import from Hex Dump":
-** text2pcap supports writing the output file in all the capture file formats
-   that wiretap library supports, using the same "-F" option as editcap,
-   mergecap, and tshark.
-** text2pcap supports selecting the encapsulation type of the output file
-   format using the wiretap library short names with an "-E" option, similiar
-   to the "-T" option of editcap.
-** text2pcap has been updated to use the new logging output options and the
-  "-d" flag has been removed. The "debug" log level corresponds to the old
-  "-d" flag, and the "noisy" log level corresponds to using "-d" multiple times.
-** text2pcap and Import from Hex Dump support writing fake IP headers (and fake
-   TCP, UDP, and SCTP headers) to files with Raw IP, Raw IPv4, and Raw IPv6
-   encapsulations, in addition to Ethernet encapsulation as previously.
-** text2pcap supports scanning the input file using a custom regular expression,
-   as supported in Import from Hex Dump in Wireshark 3.6.x.
-** In general, text2pcap and wireshark's Import from Hex Dump have feature
-   parity.
+* The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
+** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.
+** `text2pcap` supports selecting the encapsulation type of the output file format using the wiretap library short names with an `-E` option, similiar to the `-T` option of `editcap`.
+** `text2pcap` has been updated to use the new logging output options and the `-d` flag has been removed.
+    The "debug" log level corresponds to the old `-d` flag, and the "noisy" log level corresponds to using `-d` multiple times.
+** `text2pcap` and “Import from Hex Dump” support writing fake IP, TCP, UDP, and SCTP headers to files with Raw IP, Raw IPv4, and Raw IPv6 encapsulations, in addition to Ethernet encapsulation available in previous versions.
+** `text2pcap` supports scanning the input file using a custom regular expression, as supported in “Import from Hex Dump” in Wireshark 3.6.x.
+** In general, `text2pcap` and wireshark's “Import from Hex Dump” have feature parity.
 
-* HTTP2 dissector now supports using fake headers to parse the DATAs of streams captured without first HEADERS frames of a long-lived stream (like
-  gRPC streaming call which allows sending many request or response messages in one HTTP2 stream). User can specify fake headers according to the
-  server port, stream id and direction of the long-lived stream that we start capturing packets after it is established.
+* The HTTP2 dissector now supports using fake headers to parse the DATAs of streams captured without first HEADERS frames of a long-lived stream (such as a gRPC streaming call which allows sending many request or response messages in one HTTP2 stream).
+ Users can specify fake headers using an existing stream’s server port, stream id and direction.
 
-* Mesh Connex (MCX) support in existing 802.11 packets.
+* The IEEE 802.11 dissector supports Mesh Connex (MCX).
 
-* Capture Options dialog contains same configuration icon as Welcome Screen. It is possible to configure interface there.
+* The “Capture Options” dialog contains the same configuration icon as Welcome Screen.
+  It is now possible to configure interfaces there.
 
-* Extcap dialog remembers password items during runtime therefore it is possible to run extcap multiple times in row. Passwords are never stored to disk.
+* The “Extcap” dialog remembers password items during runtime, which makes it possible to run extcaps multiple times in row.
+  Passwords are never stored on disk.
 
-* It is possible to set extcap passwords on cli for tshark and other cli tools.
+* It is possible to set extcap passwords in `tshark` and other CLI tools.
 
-* Extcap configuration dialog now supports and remembers empty strings. There are new buttons to reset a value back to default value.
+* The extcap configuration dialog now supports and remembers empty strings.
+  There are new buttons to reset values back to their defaults.
 
-* Support to display JSON mapping for Protobuf message.
+* Support to display JSON mapping for Protobuf message has been added.
 
-* macOS debugging symbols are now shipped in separate packages.
+* macOS debugging symbols are now shipped in separate packages, similar to Windows packages.
 
-* ZigBee ZCL Messaging: rename zbee_zcl_se.msg.msg_ctrl.depreciated to zbee_zcl_se.msg.msg_ctrl.deprecated
+* In the ZigBee ZCL Messaging dissector the zbee_zcl_se.msg.msg_ctrl.depreciated field has been renamed to zbee_zcl_se.msg.msg_ctrl.deprecated
 
-* The interface list on the welcome page sorts active interfaces first and only displays the sparkline for active interfaces. 
-  Additionally, the interfaces can now be hidden/unhidden via the context menu in the interface list
+* The interface list on the welcome page sorts active interfaces first and only displays sparklines for active interfaces.
+  Additionally, the interfaces can now be hidden and shown via the context menu in the interface list
 
-* ETW reader now supports to display IP packets from an event trace logfile or an event trace live session
+* The Event Tracing for Windows (ETW) file reader now supports display IP packets from an event trace logfile or an event trace live session.
+
 === Removed Features and Support
 
-* CMake: The options starting with DISABLE_something were renamed ENABLE_something for consistency.
-  For example DISABLE_WERROR=On became ENABLE_WERROR=Off. The defaults are unchanged.
+* The CMake options starting with DISABLE_something were renamed ENABLE_something for consistency.
+  For example DISABLE_WERROR=On became ENABLE_WERROR=Off.
+  The default values are unchanged.
 
 // === Removed Dissectors
 
-=== New File Format Decoding Support
+// === New File Format Decoding Support
 
-[commaize]
---
---
+// [commaize]
+// --
+// --
 
 === New Protocol Support
 
@@ -176,7 +180,8 @@ Too many protocols have been updated to list here.
 
 === Major API Changes
 
-* proto.h: The field display types "STR_ASCII" and "STR_UNICODE" were removed. Use "BASE_NONE" instead.
+* proto.h: The field display types "STR_ASCII" and "STR_UNICODE" have been removed.
+Use "BASE_NONE" instead.
 
 == Getting Wireshark
 
