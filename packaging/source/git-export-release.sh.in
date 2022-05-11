@@ -74,12 +74,13 @@ fi
 
 COMMIT="${CI_COMMIT_SHA:-HEAD}"
 
-STASH_ID=$(git stash create)
+STASH_ID=$(git stash create || echo "")
 if [[ -n "$STASH_ID" ]] ; then
     COMMIT="$STASH_ID"
 fi
 
 if [ -f "$TARBALL" ] ; then
+    printf "Found %s\\n" "$TARBALL"
     if TARBALL_ID=$(git get-tar-commit-id < <(xzcat "$TARBALL")) && COMMIT_ID=$(git rev-parse --verify "$COMMIT") ; then
         if [[ $TARBALL_ID == "$COMMIT_ID" ]] ; then
             echo "$TARBALL commit ID matches $COMMIT."
