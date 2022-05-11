@@ -1483,13 +1483,23 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     int         sub_dissected        = 0, flag_is_ms = 0, new_off = 0;
 
-    static int * const bb_header_bitfields[] = {
+    static int * const bb_header_bitfields_low_ro[] = {
         &hf_dvb_s2_bb_matype1_gs,
         &hf_dvb_s2_bb_matype1_mis,
         &hf_dvb_s2_bb_matype1_acm,
         &hf_dvb_s2_bb_matype1_issyi,
         &hf_dvb_s2_bb_matype1_npd,
         &hf_dvb_s2_bb_matype1_low_ro,
+        NULL
+    };
+
+    static int * const bb_header_bitfields_high_ro[] = {
+        &hf_dvb_s2_bb_matype1_gs,
+        &hf_dvb_s2_bb_matype1_mis,
+        &hf_dvb_s2_bb_matype1_acm,
+        &hf_dvb_s2_bb_matype1_issyi,
+        &hf_dvb_s2_bb_matype1_npd,
+        &hf_dvb_s2_bb_matype1_high_ro,
         NULL
     };
 
@@ -1506,8 +1516,6 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (BIT_IS_CLEAR(matype1, DVB_S2_BB_MIS_POS))
         flag_is_ms = 1;
 
-    proto_tree_add_bitmask_with_flags(dvb_s2_bb_tree, tvb, DVB_S2_BB_OFFS_MATYPE1, hf_dvb_s2_bb_matype1,
-        ett_dvb_s2_bb_matype1, bb_header_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
     issyi = (matype1 & DVB_S2_BB_ISSYI_MASK) >> DVB_S2_BB_ISSYI_POS;
     npd = (matype1 & DVB_S2_BB_NPD_MASK) >> DVB_S2_BB_NPD_POS;
 
@@ -1518,11 +1526,11 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         _use_low_rolloff_value = 1;
     }
     if (_use_low_rolloff_value) {
-        proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_matype1_low_ro, tvb,
-                           DVB_S2_BB_OFFS_MATYPE1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(dvb_s2_bb_tree, tvb, DVB_S2_BB_OFFS_MATYPE1, hf_dvb_s2_bb_matype1,
+        ett_dvb_s2_bb_matype1, bb_header_bitfields_low_ro, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
     } else {
-        proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_matype1_high_ro, tvb,
-                           DVB_S2_BB_OFFS_MATYPE1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(dvb_s2_bb_tree, tvb, DVB_S2_BB_OFFS_MATYPE1, hf_dvb_s2_bb_matype1,
+        ett_dvb_s2_bb_matype1, bb_header_bitfields_high_ro, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
     }
 
     input8 = tvb_get_guint8(tvb, DVB_S2_BB_OFFS_MATYPE2);
