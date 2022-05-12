@@ -212,11 +212,12 @@ $ mergecap -w outfile.pcapng dhcp-capture.pcapng imap-1.pcapng
 === __text2pcap__: Converting ASCII hexdumps to network captures
 
 There may be some occasions when you wish to convert a hex dump of some network
-traffic into a libpcap file.
+traffic into a capture file.
 
 `text2pcap` is a program that reads in an ASCII hex dump and writes the data
-described into a pcap or pcapng capture file. `text2pcap` can read hexdumps with
-multiple packets in them, and build a capture file of multiple packets.
+described into any capture file format supported by libwiretap. `text2pcap` can
+read hexdumps with multiple packets in them, and build a capture file of
+multiple packets.
 `text2pcap` is also capable of generating dummy Ethernet, IP, UDP, TCP or SCTP
 headers, in order to build fully processable packet dumps from hexdumps of
 application-level data only.

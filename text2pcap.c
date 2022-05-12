@@ -210,7 +210,7 @@ print_usage (FILE *output)
             "                         (def: 16: hexadecimal) No effect in hexdump mode.\n"
             "\n"
             "Output:\n"
-            "  -F <capture type>      set the output file type; default is pcap.\n"
+            "  -F <capture type>      set the output file type; default is pcapng.\n"
             "                         an empty \"-F\" option will list the file types.\n"
             "  -E <encap type>        set the output file encapsulation type; default is\n"
             "                         ether (Ethernet). An empty \"-E\" option will list\n"
@@ -221,7 +221,6 @@ print_usage (FILE *output)
             "                         numbers.\n"
             "                         Example: -l 7 for ARCNet packets.\n"
             "  -m <max-packet>        max packet length in output; default is %d\n"
-            "  -n                     use pcapng instead of pcap as output format.\n"
             "  -N <intf-name>         assign name to the interface in the pcapng file.\n"
             "\n"
             "Prepend dummy header:\n"
@@ -395,7 +394,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
             break;
         case 'm': max_offset = (guint32)strtol(ws_optarg, NULL, 0); break;
-        case 'n': file_type_subtype = wtap_pcapng_file_type_subtype(); break;
+        case 'n': cmdarg_err("'-n' is deprecated; the output format already defaults to pcapng."); break;
         case 'N': interface_name = ws_optarg; break;
         case 'b':
         {
@@ -858,7 +857,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     params->encap = wtap_encap_type;
     params->snaplen = max_offset;
     if (file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
-        file_type_subtype = wtap_pcap_file_type_subtype();
+        file_type_subtype = wtap_pcapng_file_type_subtype();
     }
     /* Request nanosecond precision. Most file formats only support one time
      * precision and ignore this parameter (and the related options in the
