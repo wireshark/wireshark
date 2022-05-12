@@ -18,8 +18,8 @@ NOTE: This is the last release branch with support for 32-bit Windows.
 Updates will no longer be available after May 22, 2024 for that platform.
 wsbuglink:17779[]
 
-// The Windows installers now ship with Npcap 1.31.
-// They previously shipped with Npcap 1.10.
+The Windows installers now ship with Npcap 1.60.
+They previously shipped with Npcap 1.55.
 
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
