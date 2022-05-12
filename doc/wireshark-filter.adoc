@@ -124,7 +124,7 @@ You can force case sensitivity using
 
     wsp.header.user_agent matches "(?-i)cldc"
 
-This is an example of PCRE's *(?*option*)* construct. *(?-i)* performs a
+This is an example of PCRE's *(?*+option+*)* construct. *(?-i)* performs a
 case-sensitive pattern match but other options can be specified as well. More
 information can be found in the
 pcrepattern(3)|https://www.pcre.org/original/doc/html/pcrepattern.html man page.

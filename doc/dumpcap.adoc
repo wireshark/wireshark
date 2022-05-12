@@ -265,7 +265,7 @@ there are no non-loopback interfaces. If there are no interfaces at all,
 
 Pipe names should be either the name of a FIFO (named pipe) or "-" to
 read data from the standard input.  On Windows systems, pipe names must be
-of the form "\\pipe\.\*pipename*".  Data read from pipes must be in
+of the form +"\\.\pipe\+*pipename*".  Data read from pipes must be in
 standard pcapng or pcap format. Pcapng data must have the same
 endianness as the capturing host.
 

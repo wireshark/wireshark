@@ -416,7 +416,7 @@ there are no non-loopback interfaces.  If there are no interfaces at all,
 
 Pipe names should be either the name of a FIFO (named pipe) or "-" to
 read data from the standard input.  On Windows systems, pipe names must be
-of the form "\\pipe\.\*pipename*".  Data read from pipes must be in
+of the form +"\\.\pipe\+*pipename*".  Data read from pipes must be in
 standard pcapng or pcap format. Pcapng data must have the same
 endianness as the capturing host.
 
@@ -548,7 +548,7 @@ Since *Ethereal* 0.10.12, the recent settings replaces the formerly used
 -B, -P and -T flags to manipulate the GUI dimensions.
 
 If __prefname__ is "uat", you can override settings in various user access
-tables using the form uat*:*__uat filename__:__uat record__.  __uat filename__
+tables using the form "uat:__uat filename__:__uat record__".  __uat filename__
 must be the name of a UAT file, e.g. __user_dlts__.  __uat_record__ must be in
 the form of a valid record for that file, including quotes.  For instance, to
 specify a user DLT from the command line, you would use
