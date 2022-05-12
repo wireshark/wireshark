@@ -2618,7 +2618,7 @@ static int
 mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			proto_tree *tree, mysql_conn_data_t *conn_data)
 {
-	guint64 lenstr;
+	guint64 lenstr = 0;
 	guint64 affected_rows;
 	guint64 insert_id;
 	int fle;
