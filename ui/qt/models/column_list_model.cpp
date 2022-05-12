@@ -384,9 +384,9 @@ bool ColumnListModel::dropMimeData(const QMimeData *data,
     if (moveTo >= store_.count())
         moveTo = static_cast<int>(store_.count()) - 1;
 
-    emit beginResetModel();
+    beginResetModel();
     store_.move(moveFrom, moveTo);
-    emit endResetModel();
+    endResetModel();
 
     return true;
 }
@@ -466,7 +466,7 @@ void ColumnListModel::saveColumns()
 
 void ColumnListModel::addEntry()
 {
-    emit beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
     ListElement elem;
     elem.nr = rowCount();
     elem.title = tr("New Column");
@@ -475,19 +475,19 @@ void ColumnListModel::addEntry()
     elem.occurrence = 0;
     elem.customFields = QString();
     store_ << elem;
-    emit endInsertRows();
+    endInsertRows();
 }
 
 void ColumnListModel::deleteEntry(int row)
 {
-    emit beginRemoveRows(QModelIndex(), row, row);
+    beginRemoveRows(QModelIndex(), row, row);
     store_.removeAt(row);
-    emit endRemoveRows();
+    endRemoveRows();
 }
 
 void ColumnListModel::reset()
 {
-    emit beginResetModel();
+    beginResetModel();
     populate();
-    emit endResetModel();
+    endResetModel();
 }

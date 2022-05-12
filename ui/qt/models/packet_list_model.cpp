@@ -162,13 +162,13 @@ guint PacketListModel::recreateVisibleRows()
 }
 
 void PacketListModel::clear() {
-    emit beginResetModel();
+    beginResetModel();
     qDeleteAll(physical_rows_);
     physical_rows_.resize(0);
     visible_rows_.resize(0);
     new_visible_rows_.resize(0);
     number_to_row_.resize(0);
-    emit endResetModel();
+    endResetModel();
     max_row_height_ = 0;
     max_line_count_ = 1;
     idle_dissection_row_ = 0;
@@ -177,7 +177,7 @@ void PacketListModel::clear() {
 void PacketListModel::invalidateAllColumnStrings()
 {
     PacketListRecord::invalidateAllRecords();
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
             QVector<int>() << Qt::DisplayRole);
 }
 
@@ -194,7 +194,7 @@ void PacketListModel::resetColumns()
 void PacketListModel::resetColorized()
 {
     PacketListRecord::resetColorization();
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
             QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
 }
 
@@ -222,7 +222,7 @@ void PacketListModel::toggleFrameMark(const QModelIndexList &indeces)
         else
             cf_mark_frame(cap_file_, fdata);
 
-        dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
+        emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
                 QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
     }
 }
@@ -264,7 +264,7 @@ void PacketListModel::toggleFrameIgnore(const QModelIndexList &indeces)
         else
             cf_ignore_frame(cap_file_, fdata);
 
-        dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
+        emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
                 QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
     }
 }
@@ -365,7 +365,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     sort_column_is_numeric_ = isNumericColumn(sort_column_);
     std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
 
-    emit beginResetModel();
+    beginResetModel();
     visible_rows_.resize(0);
     number_to_row_.fill(0);
     foreach (PacketListRecord *record, physical_rows_) {
@@ -379,7 +379,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
             number_to_row_[fdata->num] = static_cast<int>(visible_rows_.count());
         }
     }
-    emit endResetModel();
+    endResetModel();
 
     if (!col_title.isEmpty()) {
         mainApp->popStatus(MainApplication::BusyStatus);

@@ -105,13 +105,13 @@ ExpertInfoModel::~ExpertInfoModel()
 
 void ExpertInfoModel::clear()
 {
-    emit beginResetModel();
+    beginResetModel();
 
     eventCounts_.clear();
     delete root_;
     root_ = createRootItem();
 
-    emit endResetModel();
+    endResetModel();
 }
 
 ExpertPacketItem* ExpertInfoModel::createRootItem()
@@ -305,9 +305,9 @@ QVariant ExpertInfoModel::data(const QModelIndex &index, int role) const
 //GUI helpers
 void ExpertInfoModel::setGroupBySummary(bool group_by_summary)
 {
-    emit beginResetModel();
+    beginResetModel();
     group_by_summary_ = group_by_summary;
-    emit endResetModel();
+    endResetModel();
 }
 
 int ExpertInfoModel::rowCount(const QModelIndex &parent) const
@@ -420,6 +420,6 @@ void ExpertInfoModel::tapDraw(void *eid_ptr)
     if (!model)
         return;
 
-    emit model->beginResetModel();
-    emit model->endResetModel();
+    model->beginResetModel();
+    model->endResetModel();
 }

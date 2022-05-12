@@ -588,12 +588,12 @@ QString DecodeAsModel::entryString(const gchar *table_name, gconstpointer value)
 void DecodeAsModel::fillTable()
 {
     decode_as_items_.clear();
-    emit beginResetModel();
+    beginResetModel();
 
     dissector_all_tables_foreach_changed(buildChangedList, this);
     decode_dcerpc_add_show_list(buildDceRpcChangedList, this);
 
-    emit endResetModel();
+    endResetModel();
 }
 
 void DecodeAsModel::setDissectorHandle(const QModelIndex &index, dissector_handle_t  dissector_handle)

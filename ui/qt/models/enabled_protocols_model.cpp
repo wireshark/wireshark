@@ -289,7 +289,7 @@ void EnabledProtocolsModel::populate()
     void *cookie;
     protocol_t *protocol;
 
-    emit beginResetModel();
+    beginResetModel();
 
     // Iterate over all the protocols
     for (int i = proto_get_first_protocol(&cookie); i != -1; i = proto_get_next_protocol(&cookie))
@@ -304,7 +304,7 @@ void EnabledProtocolsModel::populate()
         }
     }
 
-    emit endResetModel();
+    endResetModel();
 }
 
 void EnabledProtocolsModel::applyChanges(bool writeChanges)
@@ -482,7 +482,7 @@ void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::Enab
         return;
 
     if (! parent.isValid())
-        emit beginResetModel();
+        beginResetModel();
 
     for (int row = 0; row < rowCount(parent); row++)
     {
@@ -511,5 +511,5 @@ void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::Enab
 
 
     if (! parent.isValid())
-        emit endResetModel();
+        endResetModel();
 }

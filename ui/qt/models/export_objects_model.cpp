@@ -200,9 +200,9 @@ void ExportObjectModel::resetObjects()
 {
     export_object_gui_reset_cb reset_cb = get_eo_reset_func(eo_);
 
-    emit beginResetModel();
+    beginResetModel();
     objects_.clear();
-    emit endResetModel();
+    endResetModel();
 
     if (reset_cb)
         reset_cb();

@@ -295,7 +295,7 @@ static void gatherHeurTableNames(const char *table_name, heur_dissector_list *li
 
 void DissectorTablesModel::populate()
 {
-    emit beginResetModel();
+    beginResetModel();
 
     struct tables_root tables;
 
@@ -313,7 +313,7 @@ void DissectorTablesModel::populate()
 
     dissector_all_heur_tables_foreach_table(gatherHeurTableNames, heuristic_table, NULL);
 
-    emit endResetModel();
+    endResetModel();
 }
 
 

@@ -159,7 +159,7 @@ void SupportedProtocolsModel::populate()
     void *proto_cookie;
     void *field_cookie;
 
-    emit beginResetModel();
+    beginResetModel();
 
     SupportedProtocolsItem *protoItem, *fieldItem;
     protocol_t *protocol;
@@ -182,7 +182,7 @@ void SupportedProtocolsModel::populate()
         }
     }
 
-    emit endResetModel();
+    endResetModel();
 }
 
 

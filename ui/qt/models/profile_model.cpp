@@ -142,7 +142,7 @@ ProfileModel::ProfileModel(QObject * parent) :
 
 void ProfileModel::loadProfiles()
 {
-    emit beginResetModel();
+    beginResetModel();
 
     bool refresh = profiles_.count() > 0;
 
@@ -158,7 +158,7 @@ void ProfileModel::loadProfiles()
         fl_entry = gxx_list_next(fl_entry);
     }
 
-    emit endResetModel();
+    endResetModel();
 }
 
 GList * ProfileModel::entry(profile_def *ref) const
