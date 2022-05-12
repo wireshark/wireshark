@@ -36,20 +36,8 @@ The general steps are the following:
 
 === Obtaining the source and binary distributions
 
-You can obtain both source and binary distributions from the Wireshark
-web site: {wireshark-download-url}. Select the download link and then
-select the desired binary or source package.
-
-[NOTE]
-.Download all required files
-====
-If you are building Wireshark from source you will
-likely need to download several other dependencies.
-This is covered in detail below.
-
-// Make a ref
-====
-
+You can obtain both source and binary distributions from the Wireshark {wireshark-main-url}[main page] or the download page at {wireshark-download-url}.
+Select the package most appropriate for your system.
 
 //
 // Windows
@@ -59,10 +47,12 @@ This is covered in detail below.
 
 === Installing Wireshark under Windows
 
-Windows installer names contain the platform and version. For example,
-Wireshark-win64-{wireshark-version}.exe installs Wireshark {wireshark-version}
-for 64-bit Windows. The Wireshark installer includes Npcap which is required
-for packet capture.
+The official Windows packages can be downloaded from the Wireshark {wireshark-main-url}[main page] or the {wireshark-download-url}[download page].
+Installer names contain the platform and version.
+For example, Wireshark-win64-{wireshark-version}.exe installs Wireshark {wireshark-version} for 64-bit Windows.
+The Wireshark installer includes Npcap which is required for packet capture.
+Windows packages automatically update.
+See <<ChBuildInstallUpdatingWireshark>> for details.
 
 Simply download the Wireshark installer from {wireshark-download-url} and execute it.
 Official packages are signed by *Sysdig, Inc.*.
@@ -200,21 +190,6 @@ If you prefer to install Npcap manually or want to use a different version than 
 one included in the Wireshark installer, you can download Npcap from
 the main Npcap site at {npcap-main-url}.
 
-[#ChBuildInstallWinWiresharkUpdate]
-
-==== Update Wireshark
-
-The official Wireshark Windows package will check for new versions and notify
-you when they are available. If you have the _Check for updates_ preference
-disabled or if you run Wireshark in an isolated environment you should subscribe
-to the _wireshark-announce_ mailing list to be notified of new versions.
-See <<ChIntroMailingLists>> for details on subscribing to this list.
-
-New versions of Wireshark are usually released every four to six weeks. Updating
-Wireshark is done the same way as installing it. Simply download and start the
-installer exe. A reboot is usually not required and all your personal settings
-remain unchanged.
-
 [#ChBuildInstallNpcapUpdate]
 
 ==== Update Npcap
@@ -269,8 +244,12 @@ documentation.
 
 === Installing Wireshark under macOS
 
-The official macOS packages are distributed as disk images (.dmg) containing the application bundle.
+The official macOS packages can be downloaded from the Wireshark {wireshark-main-url}[main page] or the {wireshark-download-url}[download page].
+Packages are distributed as disk images (.dmg) containing the application bundle.
+Package names contain the platform and version.
 To install Wireshark simply open the disk image and drag _Wireshark_ to your _/Applications_ folder.
+macOS packages automatically update.
+See <<ChBuildInstallUpdatingWireshark>> for details.
 
 In order to capture packets, you must install the “ChmodBPF” launch daemon.
 You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg or from Wireshark itself by opening menu:Wireshark[About Wireshark] selecting the “Folders” tab, and double-clicking “macOS Extras”.
@@ -368,5 +347,24 @@ compiler and many supporting libraries. For more information, see the Developer�
 
 * {wireshark-developers-guide-url}ChapterSetup#ChSetupUNIX
 
-// End of WSUG Chapter 2
+[#ChBuildInstallUpdatingWireshark]
+
+=== Updating Wireshark
+
+By default, Wireshark on Windows and macOS will check for new versions and notify you when they are available.
+If you have the _Check for updates_ preference disabled or if you run Wireshark in an isolated environment you should subscribe to the _wireshark-announce_ mailing list to be notified of new versions.
+See <<ChIntroMailingLists>> for details on subscribing to this list.
+
+New versions of Wireshark are usually released every four to six weeks.
+Updating Wireshark is done the same way as installing it.
+Simply download and run the installer on Windows, or download and drag the application on macOS.
+A reboot is usually not required and all your personal settings will remain unchanged.
+
+We offer two update channels, _Stable_ and _Development_.
+The Stable channel is the default, and only installs packages from stable (even-numbered) release branches.
+The Development channel installs development and release candidate packages when they are available, and stable releases otherwise.
+To configure your release channel, go to menu:Preferences[Advanced] and search for “update.channel”.
+See <<ChCustPreferencesSection>> for details.
+
+// End of WSUG ChapterBuildInstall
 
