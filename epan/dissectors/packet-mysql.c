@@ -2680,7 +2680,7 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	} else {
 		/* optional: message string */
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			if(lenstr > tvb_reported_length_remaining(tvb, offset))
+			if(lenstr > (gint64)tvb_reported_length_remaining(tvb, offset))
 				lenstr = tvb_reported_length_remaining(tvb, offset);
 			proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII);
 			offset += (int)lenstr;
