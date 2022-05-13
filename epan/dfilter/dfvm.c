@@ -551,6 +551,9 @@ drange_contains_layer(drange_t *dr, int num, int length)
 		else if (rn->ending == DRANGE_NODE_END_T_TO_THE_END) {
 			upper = INT_MAX;
 		}
+		else {
+			ws_assert_not_reached();
+		}
 
 		if (num >= lower && num <= upper) {  /* inclusive */
 			return TRUE;
