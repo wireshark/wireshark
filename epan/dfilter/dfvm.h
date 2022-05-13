@@ -99,7 +99,6 @@ typedef struct {
 	dfvm_value_t	*arg1;
 	dfvm_value_t	*arg2;
 	dfvm_value_t	*arg3;
-	dfvm_value_t	*arg4;
 } dfvm_insn_t;
 
 dfvm_insn_t*

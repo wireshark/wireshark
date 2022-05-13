@@ -76,7 +76,6 @@ dfvm_insn_new(dfvm_opcode_t op)
 	insn->arg1 = NULL;
 	insn->arg2 = NULL;
 	insn->arg3 = NULL;
-	insn->arg4 = NULL;
 	return insn;
 }
 
@@ -130,9 +129,6 @@ dfvm_insn_free(dfvm_insn_t *insn)
 	}
 	if (insn->arg3) {
 		dfvm_value_unref(insn->arg3);
-	}
-	if (insn->arg4) {
-		dfvm_value_unref(insn->arg4);
 	}
 	g_free(insn);
 }
@@ -270,8 +266,8 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 {
 	int		id, length;
 	dfvm_insn_t	*insn;
-	dfvm_value_t	*arg1, *arg2, *arg3, *arg4;
-	char 		*arg1_str, *arg2_str, *arg3_str, *arg4_str;
+	dfvm_value_t	*arg1, *arg2, *arg3;
+	char 		*arg1_str, *arg2_str, *arg3_str;
 	wmem_strbuf_t	*buf;
 	GHashTableIter	ref_iter;
 	gpointer	key, value;
@@ -290,11 +286,9 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 		arg1 = insn->arg1;
 		arg2 = insn->arg2;
 		arg3 = insn->arg3;
-		arg4 = insn->arg4;
 		arg1_str = dfvm_value_tostr(arg1);
 		arg2_str = dfvm_value_tostr(arg2);
 		arg3_str = dfvm_value_tostr(arg3);
-		arg4_str = dfvm_value_tostr(arg4);
 
 		switch (insn->op) {
 			case CHECK_EXISTS:
@@ -483,7 +477,6 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 		g_free(arg1_str);
 		g_free(arg2_str);
 		g_free(arg3_str);
-		g_free(arg4_str);
 	}
 
 	if (print_references && g_hash_table_size(df->references) > 0) {

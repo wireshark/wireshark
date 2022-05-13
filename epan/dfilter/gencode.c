@@ -340,7 +340,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 static void
 gen_relation_insn(dfwork_t *dfw, dfvm_opcode_t op,
 			dfvm_value_t *arg1, dfvm_value_t *arg2,
-			dfvm_value_t *arg3, dfvm_value_t *arg4)
+			dfvm_value_t *arg3)
 {
 	dfvm_insn_t	*insn;
 
@@ -348,7 +348,6 @@ gen_relation_insn(dfwork_t *dfw, dfvm_opcode_t op,
 	insn->arg1 = dfvm_value_ref(arg1);
 	insn->arg2 = dfvm_value_ref(arg2);
 	insn->arg3 = dfvm_value_ref(arg3);
-	insn->arg4 = dfvm_value_ref(arg4);
 	dfw_append_insn(dfw, insn);
 }
 
@@ -365,7 +364,7 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, test_match_t how,
 
 	/* Then combine them in a DFVM insruction */
 	op = select_opcode(op, how);
-	gen_relation_insn(dfw, op, val1, val2, NULL, NULL);
+	gen_relation_insn(dfw, op, val1, val2, NULL);
 
 	/* If either of the relation arguments need an "exit" instruction
 	 * to jump to (on failure), mark them */
@@ -418,14 +417,14 @@ gen_relation_in(dfwork_t *dfw, test_match_t how,
 
 			/* Add test to see if the item is in range. */
 			op = select_opcode(ANY_IN_RANGE, how);
-			gen_relation_insn(dfw, op, val1, val2, val3, NULL);
+			gen_relation_insn(dfw, op, val1, val2, val3);
 		} else {
 			/* Normal element: add equality test. */
 			val2 = gen_entity(dfw, node1, &node_jumps);
 
 			/* Add test to see if the item matches */
 			op = select_opcode(ANY_EQ, how);
-			gen_relation_insn(dfw, op, val1, val2, NULL, NULL);
+			gen_relation_insn(dfw, op, val1, val2, NULL);
 		}
 
 		/* Exit as soon as we find a match */
@@ -491,13 +490,13 @@ gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	if (right == NULL) {
 		/* Generate unary DFVM instruction. */
 		reg_val = dfvm_value_new_register(dfw->next_register++);
-		gen_relation_insn(dfw, op, val1, reg_val, NULL, NULL);
+		gen_relation_insn(dfw, op, val1, reg_val, NULL);
 		return reg_val;
 	}
 
 	val2 = gen_entity(dfw, right, jumps_ptr);
 	reg_val = dfvm_value_new_register(dfw->next_register++);
-	gen_relation_insn(dfw, op, val1, val2, reg_val, NULL);
+	gen_relation_insn(dfw, op, val1, val2, reg_val);
 	return reg_val;
 }
 
