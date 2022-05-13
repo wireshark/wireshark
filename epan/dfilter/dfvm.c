@@ -972,12 +972,6 @@ mk_slice(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
 	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
 }
 
-/*
- * arg1: function def
- * arg2: return register
- * arg3: first input register
- * arg4: number of input registers after first
- */
 static gboolean
 call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 							dfvm_value_t *arg3)
