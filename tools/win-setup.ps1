@@ -27,7 +27,7 @@ Specifies the destination directory for the text files. The path must
 contain the pattern "wireshark-*-libs".
 
 .PARAMETER Platform
-Target platform. One of "win64" or "win32".
+Target platform. Must be "win64".
 
 .INPUTS
 -Destination Destination directory.
@@ -49,7 +49,7 @@ Param(
     $Destination,
 
     [Parameter(Mandatory=$true, Position=1)]
-    [ValidateSet("win32", "win64")]
+    [ValidateSet("win64")]
     [String]
     $Platform
 )
@@ -61,7 +61,6 @@ Param(
 $ErrorActionPreference = "Stop"
 
 $Win64CurrentTag = "2021-12-09"
-$Win32CurrentTag = "2021-12-09"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -91,44 +90,12 @@ $Win64Archives = @{
     "zstd-1.4.0-win64ws.zip" = "154199227bdfdfa608972bcdcea38e20768937085e5a59a8fa06c72d07b00d6b";
 }
 
-$Win32Archives = @{
-    "AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
-    "bcg729-1.0.4-win32ws.zip" = "b785ec78dec6bca8252130eb884bfa28c1140001dd7369a535579176de9e4271";
-    "brotli-1.0.9-1-win32ws.zip" = "37ce13b3d41f025b8f6ca962e7fbacca6421d9b3b58f2ebaa81b1262d0a972ba";
-    "c-ares-1.17.2-1-win32ws.zip" = "ce901f69b46697a52bf239a5a77d6d389c06d637ad2d1bebfaf1333fc4f89e46";
-    "gnutls-3.6.3-1-win32ws.zip" = "42d8313ffb888f525d6c39330c39bcc2182e68ee8433a09dd85e1f1e1474f592";
-    "krb5-1.17-1-win32ws.zip" = "f90cac08355ccfe624652d3e05f8e2e077b8830382315d4ea0a6fa52af08260b";
-    "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
-    "libilbc-2.0.2-3-win32ws.zip" = "b87967b5e46cd96d178bc3b3dbba5a75c069ef28ab8a86838c9d004690703997";
-    "libmaxminddb-1.4.3-1-win32ws.zip" = "956f33daa63ce671df4c3e9210308f105e193e7a62c2d947f786d441758ed5e4";
-    "libpcap-1.10.1-1-win32ws.zip" = "145060e567d19b599e2e91e6c3e8023c3d2219acde4bf8bd45ec12e951d57909";
-    "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
-    "libssh-0.9.5-win32ws.zip" = "0cbdc1b9a65c38e601fda6df3fcdd76f8a0b83e98fa5c836764e1592d8a79194";
-    "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
-    "lz4-1.9.3-1-win32ws.zip" = "4b74f9f41a1d364909d9815500dcd10931aa4fbed7fcc39503dfa84c9fcd58d3";
-    "minizip-1.2.11-4-win32ws.zip" = "41e113930902c2519c4644e8307a0cc51c5855e001e1e69768c48deb376142d0";
-    "nghttp2-1.44.0-1-win32ws.zip" = "3a19e076523ef263f6900749f345725b4e8bf2c4027e0f349404ad81c4613bde";
-    "opus-1.3.1-3-win32ws.zip" = "9700b14c8945fcfed2188b806a2ee7e8628922c22569a4c5183075f3dc133177";
-    "pcre2-10.39-1-win32ws.zip" = "6ad963036bd913fba680e867bbcf8bf9c2995c80dd0401bfa6bb35328c640c70";
-    "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
-    "snappy-1.1.9-1-win32ws.zip" = "28bae646f1dff80ceb1b1756b1fdec0ebc47580a412a8a4980f3d61c63cb0858";
-    "spandsp-0.0.6-2-win32ws.zip" = "31a4b5ca228c719ab4190e1b46801f1483efb8756f1e33d10ecc915244612fca";
-    "vcpkg-export-20210609-1-win32ws.zip" = "da544758352e31aed6cf9e62a6670df218b3d369cd113a462e94010b0ef8e472";
-    "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
-    "zstd-1.4.0-win32ws.zip" = "9141716d4d749e67dad40d4aab6bbb3206085bf68e5acb03baf1e5667aa0b6f5";
-}
-
 # Subdirectory to extract an archive to
 $ArchivesSubDirectory = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
 }
 
 # Plain file downloads
-
-$Win32Files = @{
-    "npcap-1.60.exe" = "87d3624772b8272767a3a4ffcceecc3052489cd09e494a6c352dce5e5efa4070";
-    "USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
-}
 
 $Win64Files = @{
     "npcap-1.60.exe" = "87d3624772b8272767a3a4ffcceecc3052489cd09e494a6c352dce5e5efa4070";
@@ -138,12 +105,6 @@ $Win64Files = @{
 $Archives = $Win64Archives;
 $Files = $Win64Files;
 $CurrentTag = $Win64CurrentTag;
-
-if ($Platform -eq "win32") {
-    $Archives = $Win32Archives;
-    $Files = $Win32Files;
-    $CurrentTag = $Win32CurrentTag;
-}
 
 $CleanupItems = @(
     "bcg729-1.0.4-win??ws"
