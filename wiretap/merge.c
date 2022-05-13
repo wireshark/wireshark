@@ -985,7 +985,8 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
 }
 
 static merge_result
-merge_files_common(const gchar* out_filename, /* normal output mode */
+merge_files_common(const gchar* out_filename, /* filename in normal output mode,
+                   optional tempdir in tempfile mode (NULL for OS default) */
                    gchar **out_filenamep, const char *pfx, /* tempfile mode  */
                    const int file_type, const char *const *in_filenames,
                    const guint in_file_count, const gboolean do_append,
@@ -1065,13 +1066,13 @@ merge_files_common(const gchar* out_filename, /* normal output mode */
         dsb_combined = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
         params.dsbs_growing = dsb_combined;
     }
-    if (out_filename && !out_filenamep) {
-        pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED,
-                             &params, err, err_info);
-    } else if (out_filename && out_filenamep) {
+    if (out_filenamep) {
         pdh = wtap_dump_open_tempfile(out_filename, out_filenamep, pfx, file_type,
                                       WTAP_UNCOMPRESSED, &params, err,
                                       err_info);
+    } else if (out_filename) {
+        pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED,
+                             &params, err, err_info);
     } else {
         pdh = wtap_dump_open_stdout(file_type, WTAP_UNCOMPRESSED, &params, err,
                                     err_info);
