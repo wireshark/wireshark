@@ -198,7 +198,7 @@ static void
 prepare_ldss_transfer_conv(ldss_broadcast_t *broadcast)
 {
 	if (!find_conversation(broadcast->num, &broadcast->broadcaster->addr, &broadcast->broadcaster->addr,
-						ENDPOINT_TCP, broadcast->broadcaster->port, broadcast->broadcaster->port, NO_ADDR2|NO_PORT2)) {
+						ENDPOINT_TCP, broadcast->broadcaster->port, broadcast->broadcaster->port, NO_ADDR_B|NO_PORT_B)) {
 		conversation_t *transfer_conv;
 		ldss_transfer_info_t *transfer_info;
 

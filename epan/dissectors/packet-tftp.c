@@ -921,7 +921,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (!PINFO_FD_VISITED(pinfo)) {
       /* During first pass, look for conversation based upon client port */
       conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
-                                       pinfo->destport, 0, NO_PORT2);
+                                       pinfo->destport, 0, NO_PORT_B);
       if (conversation != NULL) {
         /* Set other side of conversation (server port) */
         if (pinfo->destport == conversation_key_port1(conversation->key_ptr))

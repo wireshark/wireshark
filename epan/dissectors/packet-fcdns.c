@@ -1473,7 +1473,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if ((opcode != FCCT_MSG_ACC) && (opcode != FCCT_MSG_RJT)) {
         conversation = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
                                           conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
-                                          fchdr->rxid, NO_PORT2);
+                                          fchdr->rxid, NO_PORT_B);
         if (!conversation) {
             conversation = conversation_new (pinfo->num, &pinfo->src, &pinfo->dst,
                                              conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
@@ -1507,7 +1507,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         /* Opcode is ACC or RJT */
         conversation = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
                                           conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
-                                          fchdr->rxid, NO_PORT2);
+                                          fchdr->rxid, NO_PORT_B);
         isreq = 0;
         if (!conversation) {
             if (opcode == FCCT_MSG_ACC) {
