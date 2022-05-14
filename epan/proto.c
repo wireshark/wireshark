@@ -11765,7 +11765,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 						hf->name, lbl);
 				first = FALSE;
 			}
-			else if (hf->strings) {
+			else if ((hf->strings) &&(!(hf->display & BASE_UNIT_STRING))) {
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 						hf->name, hf_try_val64_to_str_const(tmpval, hf, "Unknown"));
 				first = FALSE;
@@ -11779,7 +11779,11 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 				}
 
 				out = hfinfo_number_value_format64(hf, buf, tmpval);
-				proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->display & BASE_UNIT_STRING) {
+					proto_item_append_text(item, "%s: %s%s", hf->name, out, unit_name_string_get_value64(tmpval, (const unit_name_string*)hf->strings));
+				} else {
+					proto_item_append_text(item, "%s: %s", hf->name, out);
+				}
 				first = FALSE;
 			}
 
@@ -11803,7 +11807,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 						hf->name, lbl);
 				first = FALSE;
 			}
-			else if (hf->strings) {
+			else if ((hf->strings) &&(!(hf->display & BASE_UNIT_STRING))) {
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 						hf->name, hf_try_val64_to_str_const((gint64) tmpval, hf, "Unknown"));
 				first = FALSE;
@@ -11817,7 +11821,11 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 				}
 
 				out = hfinfo_number_value_format64(hf, buf, (gint64) tmpval);
-				proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->display & BASE_UNIT_STRING) {
+					proto_item_append_text(item, "%s: %s%s", hf->name, out, unit_name_string_get_value64(tmpval, (const unit_name_string*)hf->strings));
+				} else {
+					proto_item_append_text(item, "%s: %s", hf->name, out);
+				}
 				first = FALSE;
 			}
 
