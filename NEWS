@@ -11,6 +11,9 @@
  Updates will no longer be available after May 22, 2024 for that
  platform. Issue 17779[1]
 
+  The Windows installers now ship with Npcap 1.60. They previously
+  shipped with Npcap 1.55.
+
   Bug Fixes
 
    The following bugs have been fixed:
@@ -66,7 +69,7 @@
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-05-05 02:23:26 UTC
+  Last updated 2022-05-12 00:51:18 UTC
 
  References
 

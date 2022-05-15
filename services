@@ -5795,6 +5795,7 @@ amt-soap-https	16993/tcp/udp	# Intel(R) AMT SOAP/HTTPS
 amt-redir-tcp	16994/tcp/udp	# Intel(R) AMT Redirection/TCP
 amt-redir-tls	16995/tcp/udp	# Intel(R) AMT Redirection/TLS
 isode-dua	17007/tcp/udp
+ncpu		17010/tcp	# Plan 9 cpu port
 vestasdlp	17184/tcp	# Vestas Data Layer Protocol
 soundsvirtual	17185/tcp/udp	# Sounds Virtual
 chipper		17219/tcp/udp	# Chipper
