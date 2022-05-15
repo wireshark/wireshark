@@ -11638,6 +11638,14 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		}
 		tmpval = (value & hf->bitmask) >> hfinfo_bitshift(hf);
 
+		/* XXX: README.developer and the comments have always defined
+		 * BMT_NO_INT as "only boolean flags are added to the title /
+		 * don't add non-boolean (integral) fields", but the
+		 * implementation has always added BASE_CUSTOM and fields with
+		 * value_strings, though not fields with unit_strings.
+		 * Possibly this is because some dissectors use a FT_UINT8
+		 * with a value_string for fields that should be a FT_BOOLEAN.
+		 */
 		switch (hf->type) {
 		case FT_CHAR:
 			if (hf->display == BASE_CUSTOM) {
@@ -11684,24 +11692,28 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 						hf->name, lbl);
 				first = FALSE;
 			}
-			else if ((hf->strings) &&(!(hf->display & BASE_UNIT_STRING))) {
+			else if ((hf->strings) &&(!(hf->display & (BASE_UNIT_STRING|BASE_SPECIAL_VALS)))) {
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 										hf->name, hf_try_val_to_str_const((guint32) tmpval, hf, "Unknown"));
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
 				char buf[32];
-				const char *out;
+				const char *out = NULL;
 
 				if (!first) {
 					proto_item_append_text(item, ", ");
 				}
 
-				out = hfinfo_number_value_format(hf, buf, (guint32) tmpval);
-				if (hf->display & BASE_UNIT_STRING) {
-					proto_item_append_text(item, "%s: %s%s", hf->name, out, unit_name_string_get_value((guint32) tmpval, (const unit_name_string*)hf->strings));
-				} else {
-					proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->strings && hf->display & BASE_SPECIAL_VALS) {
+					out = hf_try_val_to_str((guint32) tmpval, hf);
+				}
+				if (out == NULL) {
+					out = hfinfo_number_value_format(hf, buf, (guint32) tmpval);
+				}
+				proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->strings && hf->display & BASE_UNIT_STRING) {
+					proto_item_append_text(item, "%s", unit_name_string_get_value((guint32) tmpval, (const unit_name_string*)hf->strings));
 				}
 				first = FALSE;
 			}
@@ -11727,24 +11739,28 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 						hf->name, lbl);
 				first = FALSE;
 			}
-			else if ((hf->strings) &&(!(hf->display & BASE_UNIT_STRING))) {
+			else if ((hf->strings) &&(!(hf->display & (BASE_UNIT_STRING|BASE_SPECIAL_VALS)))) {
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 						hf->name, hf_try_val_to_str_const((gint32) integer32, hf, "Unknown"));
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
 				char buf[32];
-				const char *out;
+				const char *out = NULL;
 
 				if (!first) {
 					proto_item_append_text(item, ", ");
 				}
 
-				out = hfinfo_number_value_format(hf, buf, (gint32) integer32);
+				if (hf->strings && hf->display & BASE_SPECIAL_VALS) {
+					out = hf_try_val_to_str((gint32) integer32, hf);
+				}
+				if (out == NULL) {
+					out = hfinfo_number_value_format(hf, buf, (gint32) integer32);
+				}
+				proto_item_append_text(item, "%s: %s", hf->name, out);
 				if (hf->display & BASE_UNIT_STRING) {
-					proto_item_append_text(item, "%s: %s%s", hf->name, out, unit_name_string_get_value((guint32) tmpval, (const unit_name_string*)hf->strings));
-				} else {
-					proto_item_append_text(item, "%s: %s", hf->name, out);
+					proto_item_append_text(item, "%s", unit_name_string_get_value((guint32) tmpval, (const unit_name_string*)hf->strings));
 				}
 				first = FALSE;
 			}
@@ -11765,24 +11781,28 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 						hf->name, lbl);
 				first = FALSE;
 			}
-			else if ((hf->strings) &&(!(hf->display & BASE_UNIT_STRING))) {
+			else if ((hf->strings) &&(!(hf->display & (BASE_UNIT_STRING|BASE_SPECIAL_VALS)))) {
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 						hf->name, hf_try_val64_to_str_const(tmpval, hf, "Unknown"));
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
 				char buf[48];
-				const char *out;
+				const char *out = NULL;
 
 				if (!first) {
 					proto_item_append_text(item, ", ");
 				}
 
-				out = hfinfo_number_value_format64(hf, buf, tmpval);
-				if (hf->display & BASE_UNIT_STRING) {
-					proto_item_append_text(item, "%s: %s%s", hf->name, out, unit_name_string_get_value64(tmpval, (const unit_name_string*)hf->strings));
-				} else {
-					proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->strings && hf->display & BASE_SPECIAL_VALS) {
+					out = hf_try_val64_to_str(tmpval, hf);
+				}
+				if (out == NULL) {
+					out = hfinfo_number_value_format64(hf, buf, tmpval);
+				}
+				proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->strings && hf->display & BASE_UNIT_STRING) {
+					proto_item_append_text(item, "%s", unit_name_string_get_value64(tmpval, (const unit_name_string*)hf->strings));
 				}
 				first = FALSE;
 			}
@@ -11807,24 +11827,28 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 						hf->name, lbl);
 				first = FALSE;
 			}
-			else if ((hf->strings) &&(!(hf->display & BASE_UNIT_STRING))) {
+			else if ((hf->strings) &&(!(hf->display & (BASE_UNIT_STRING|BASE_SPECIAL_VALS)))) {
 				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 						hf->name, hf_try_val64_to_str_const((gint64) tmpval, hf, "Unknown"));
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
 				char buf[48];
-				const char *out;
+				const char *out = NULL;
 
 				if (!first) {
 					proto_item_append_text(item, ", ");
 				}
 
-				out = hfinfo_number_value_format64(hf, buf, (gint64) tmpval);
-				if (hf->display & BASE_UNIT_STRING) {
-					proto_item_append_text(item, "%s: %s%s", hf->name, out, unit_name_string_get_value64(tmpval, (const unit_name_string*)hf->strings));
-				} else {
-					proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->strings && hf->display & BASE_SPECIAL_VALS) {
+					out = hf_try_val64_to_str((gint64) tmpval, hf);
+				}
+				if (out == NULL) {
+					out = hfinfo_number_value_format64(hf, buf, (gint64) tmpval);
+				}
+				proto_item_append_text(item, "%s: %s", hf->name, out);
+				if (hf->strings && hf->display & BASE_UNIT_STRING) {
+					proto_item_append_text(item, "%s", unit_name_string_get_value64(tmpval, (const unit_name_string*)hf->strings));
 				}
 				first = FALSE;
 			}
