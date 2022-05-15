@@ -74,6 +74,7 @@ typedef struct tagIocsObject {
 typedef struct tagIoDataObject {
     guint16     slotNr;
     guint16     subSlotNr;
+    guint32     api;
     guint32     moduleIdentNr;
     guint32     subModuleIdentNr;
     guint16     frameOffset;

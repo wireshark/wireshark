@@ -82,6 +82,27 @@ void proto_reg_handoff_pn_io(void);
 #define PN_INPUT_CR              1      /* PROFINET Input Connect Request value */
 #define PN_INPUT_DATADESCRITPION 1      /* PROFINET Input Data Description value */
 
+#define PA_PROFILE_API 0x9700u
+#define PA_PROFILE_DAP_MASK 0xFFFF0000u
+#define PA_PROFILE_DAP_IDENT 0x00FD0000u
+
+#define PA_PROFILE_BLOCK_DAP 0u
+#define PA_PROFILE_BLOCK_PB 1u
+#define PA_PROFILE_BLOCK_FB 2u
+#define PA_PROFILE_BLOCK_TB 3u
+
+#define PA_PROFILE_TB_PARENT_PRESSURE 1u
+#define PA_PROFILE_TB_PARENT_TEMPERATURE 2u
+#define PA_PROFILE_TB_PARENT_FLOW 3u
+#define PA_PROFILE_TB_PARENT_LEVEL 1u
+#define PA_PROFILE_TB_PARENT_ACTUATOR 1u
+#define PA_PROFILE_TB_PARENT_DISCRETE_IO 1u
+#define PA_PROFILE_TB_PARENT_LIQUID_ANALYZER 1u
+#define PA_PROFILE_TB_PARENT_GAS_ANALYZER 1u
+#define PA_PROFILE_TB_PARENT_ENUMERATED_IO 1u
+#define PA_PROFILE_TB_PARENT_BINARY_IO 1u
+
+
 
 static int proto_pn_io = -1;
 static int proto_pn_io_device = -1;
@@ -3109,6 +3130,227 @@ static const value_string pn_io_tsn_port_capabilities_queue_masking_vals[] = {
     { 0x01, "Queue Masking is supported at this port" },
     { 0, NULL }
 };
+
+/* Format of submodule ident number as per PA Profile 4.02 specification:
+   [VariantOfSubmodule, Block_object, Parent_Class, Class] */
+static const value_string pn_io_pa_profile_block_object_vals[] = {
+    { 0, "DAP" },
+    { 1, "PB" },
+    { 2, "FB" },
+    { 3, "TB" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_dap_submodule_vals[] = {
+    { 1, "DAP" },
+    { 2, "Device Management" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_physical_block_parent_class_vals[] = {
+    { 1, "Transmitter" },
+    { 2, "Actuator" },
+    { 3, "Discrete I/O" },
+    { 4, "Controller" },
+    { 5, "Analyzer" },
+    { 6, "Lab Device" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_function_block_class_vals[] = {
+    { 1, "Input" },
+    { 2, "Output" },
+    { 3, "Further Inputs" },
+    { 4, "Further Outputs" },
+    { 128, "Manuf. specific Input" },
+    { 129, "Manuf. specific Output" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_function_block_parent_class_vals[] = {
+    {0, "Analog Temperature" },
+    {1, "Analog Temperature Difference"},
+    {2, "Analog Average Temperature"},
+    {3, "Analog Electronics Temperature"},
+    {4, "Analog Transmitter Temperature"},
+    {5, "Analog Sensor Temperature"},
+    {6, "Analog Frame Temperature"},
+    {7, "Analog Auxiliary Temperature"},
+    {8, "Analog Energy Supply Temperature"},
+    {9, "Analog Energy Return Temperature"},
+    {20, "Analog Pressure"},
+    {21, "Analog Absolute Pressure"},
+    {22, "Analog Gauge Pressure"},
+    {23, "Analog Differential Pressure"},
+    {30, "Analog Level"},
+    {31, "Analog Distance"},
+    {32, "Analog Interface Level"},
+    {33, "Analog Interface Distance"},
+    {40, "Analog Volume"},
+    {41, "Analog Ullage"},
+    {42, "Analog Interface Volume"},
+    {43, "Analog Standard Volume"},
+    {44, "Analog Fraction Substance 1 Volume"},
+    {45, "Analog Fraction Substance 2 Volume"},
+    {46, "Analog Fraction Substance 1 Std Volume"},
+    {47, "Analog Fraction Substance 2 Std Volume"},
+    {50, "Analog Mass"},
+    {51, "Analog Net Mass"},
+    {52, "Analog Fraction Substance 1 Mass"},
+    {53, "Analog Fraction Substance 2 Mass"},
+    {60, "Analog Volume Flow"},
+    {61, "Analog Standard Volume Flow"},
+    {62, "Analog Fraction Substance 1 Volume Flow"},
+    {63, "Analog Fraction Substance 2 Volume Flow"},
+    {70, "Analog Mass Flow"},
+    {71, "Analog Fraction Substance 1 Mass Flow"},
+    {72, "Analog Fraction Substance 2 Mass Flow"},
+    {80, "Analog Density"},
+    {81, "Analog Standard Density"},
+    {82, "Analog Analog Api Gravity"},
+    {83, "Analog Standard Api Gravity"},
+    {84, "Analog Specific Gravity"},
+    {85, "Analog Standard Specific Gravity"},
+    {90, "Analog Flow Velocity"},
+    {91, "Analog Sound Velocity"},
+    {92, "Analog Rate Of Change"},
+    {100, "Analog Kinematic Viscosity"},
+    {101, "Analog Dynamic Viscosity"},
+    {110, "Analog Energy"},
+    {111, "Analog Power"},
+    {120, "Analog Vortex Frequency"},
+    {130, "Analog Concentration"},
+    {131, "Analog Energy Efficiency Rating"},
+    {132, "Analog Coefficient Of Performance"},
+    {133, "Analog Fraction Substance 1%"},
+    {134, "Analog Fraction Substance 2%"},
+    {140, "Analog pH"},
+    {141, "Analog Conductivity"},
+    {142, "Analog Resistivity"},
+    {143, "Analog Gas Concentration"},
+    {149, "Flexible AI"},
+    {150, "Totalizer"},
+    {160, "Actuator"},
+    {170, "Discrete"},
+    {180, "Enumerated"},
+    {190, "Binary(8 Bit)"},
+    {191, "Binary(16 Bit)"},
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_parent_class_vals[] = {
+    { 1, "Pressure" },
+    { 2, "Temperature" },
+    { 3, "Flow" },
+    { 4, "Level" },
+    { 5, "Actuator" },
+    { 6, "Discrete I/O" },
+    { 7, "Liquid analyzer" },
+    { 8, "Gas analyzer" },
+    { 10, "Enumerated I/O" },
+    { 11, "Binary I/O" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_pressure_class_vals[] = {
+    { 1, "Pressure" },
+    { 2, "Pressure + level" },
+    { 3, "Pressure + flow" },
+    { 4, "Pressure + level + flow" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_temperature_class_vals[] = {
+    { 1, "Thermocouple (TC)" },
+    { 2, "Resistance thermometer (RTD)" },
+    { 3, "Pyrometer" },
+    { 16, "TC + DC U (DC Voltage)" },
+    { 17, "RTD + R (R-Resistance)" },
+    { 18, "TC+RTD+r+DC U" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_flow_class_vals[] = {
+    { 1, "Electromagnetic" },
+    { 2, "Vortex" },
+    { 3, "Coriolis" },
+    { 4, "Thermal mass" },
+    { 5, "Ultrasonic" },
+    { 6, "Variable area" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_level_class_vals[] = {
+    { 1, "Hydrostatic" },
+    { 2, "Ultrasonic" },
+    { 3, "Radiometric" },
+    { 4, "Capacitance" },
+    { 5, "Displacer" },
+    { 6, "Float" },
+    { 7, "Radar" },
+    { 8, "Buoyancy" },
+    { 9, "Air bubble system" },
+    { 10, "Gravimetric" },
+    { 11, "Optical" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_actuator_class_vals[] = {
+    { 1, "Electric" },
+    { 2, "Electro-pneumatic" },
+    { 3, "Electro-hydraulic" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_discrete_io_class_vals[] = {
+    { 1, "Input" },
+    { 2, "Output" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_liquid_analyzer_class_vals[] = {
+    { 1, "pH" },
+    { 2, "Conductivity" },
+    { 3, "Oxygen" },
+    { 4, "Chlorine" },
+    { 5, "Resistivity" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_gas_analyzer_class_vals[] = {
+    { 1, "Standard" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_enumerated_io_class_vals[] = {
+    { 1, "Input" },
+    { 2, "Output" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_pa_profile_transducer_block_binary_io_class_vals[] = {
+    { 2, "8 Bit output" },
+    { 3, "8 Bit input" },
+    { 4, "16 Bit output" },
+    { 5, "16 Bit input" },
+    { 0, NULL }
+};
+
+static const value_string* pn_io_pa_profile_transducer_block_class_vals[] = {
+    NULL,
+    pn_io_pa_profile_transducer_block_pressure_class_vals,
+    pn_io_pa_profile_transducer_block_temperature_class_vals,
+    pn_io_pa_profile_transducer_block_flow_class_vals,
+    pn_io_pa_profile_transducer_block_level_class_vals,
+    pn_io_pa_profile_transducer_block_actuator_class_vals,
+    pn_io_pa_profile_transducer_block_discrete_io_class_vals,
+    pn_io_pa_profile_transducer_block_liquid_analyzer_class_vals,
+    pn_io_pa_profile_transducer_block_gas_analyzer_class_vals,
+    NULL,
+    pn_io_pa_profile_transducer_block_enumerated_io_class_vals,
+    pn_io_pa_profile_transducer_block_binary_io_class_vals
+};
+
 
 static int
 dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -10713,6 +10955,100 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+resolve_pa_profile_submodule_name(ioDataObject *io_data_object)
+{
+    const uint32_t u32SubmoduleIdentNumber = io_data_object->subModuleIdentNr;
+    /* split components of submodule ident number */
+    const uint8_t variant = (u32SubmoduleIdentNumber >> 24u) & 0xFFu;
+    const uint8_t block_object = (u32SubmoduleIdentNumber >> 16u) & 0xFFu;
+    const uint8_t parent_class = (u32SubmoduleIdentNumber >> 8u) & 0xFFu;
+    const uint8_t class = (u32SubmoduleIdentNumber) & 0xFFu;
+
+    const gchar* parent_class_name = NULL;
+    const gchar* class_name        = NULL;
+
+    const gchar* block_object_name = try_val_to_str(block_object, pn_io_pa_profile_block_object_vals);
+
+    if (block_object_name != NULL)
+    {
+        switch (block_object)
+        {
+        case PA_PROFILE_BLOCK_DAP:
+            if (parent_class == 0u)
+            {
+                class_name = try_val_to_str(class, pn_io_pa_profile_dap_submodule_vals);
+                if (class_name != NULL)
+                {
+                    (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - %s", block_object_name, class_name);
+                }
+            }
+            else
+            {
+                /* we have an interface or a port */
+                if (class == 0u)
+                {
+                    (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "Interface %d", parent_class);
+                }
+                else
+                {
+                    (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "Port %d Interface %d", class, parent_class);
+                }
+            }
+            break;
+
+        case PA_PROFILE_BLOCK_PB:
+            parent_class_name = try_val_to_str(parent_class, pn_io_pa_profile_physical_block_parent_class_vals);
+            if (parent_class_name != NULL)
+            {
+                (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - %s", block_object_name, parent_class_name);
+            }
+            else
+            {
+                (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - Unknown", block_object_name);
+            }
+            break;
+
+        case PA_PROFILE_BLOCK_FB:
+            parent_class_name = try_val_to_str(parent_class, pn_io_pa_profile_function_block_parent_class_vals);
+            class_name = try_val_to_str(class, pn_io_pa_profile_function_block_class_vals);
+            if ((parent_class_name != NULL) && (class_name != NULL))
+            {
+                (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - %s %s", block_object_name, parent_class_name, class_name);
+            }
+            else
+            {
+                (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - Unknown", block_object_name);
+            }
+            break;
+
+        case PA_PROFILE_BLOCK_TB:
+            parent_class_name = try_val_to_str(parent_class, pn_io_pa_profile_transducer_block_parent_class_vals);
+            if (parent_class_name != NULL)
+            {
+                class_name = try_val_to_str(class, pn_io_pa_profile_transducer_block_class_vals[parent_class]);
+                (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - %s (%s)", block_object_name, parent_class_name, class_name);
+            }
+            else
+            {
+                (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - Unknown", block_object_name);
+            }
+            break;
+        }
+
+        if (variant != 0u)
+        {
+            g_strlcat (io_data_object->moduleNameStr, " (VARIANT)", MAX_NAMELENGTH);
+        }
+
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 /* dissect the ExpectedSubmoduleBlockReq */
 static int
 dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
@@ -10966,11 +11302,28 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                             hf_pn_io_submodule_properties_type, &u16SubmoduleProperties);
 
+            io_data_object->api = u32Api;
             io_data_object->slotNr = u16SlotNr;
             io_data_object->subSlotNr = u16SubslotNr;
             io_data_object->moduleIdentNr = u32ModuleIdentNumber;
             io_data_object->subModuleIdentNr = u32SubmoduleIdentNumber;
             io_data_object->discardIOXS = u16SubmoduleProperties & 0x0020;
+
+            /* Before searching the GSD, check if we have a PA Profile 4.02 submodule. If yes
+               then the submodule's name is defined in the specification and can be resolved
+               without the GSD.
+               We still read the GSD afterwards, in case the user wants to override the specification's
+               names with a GSD.
+               Most PA Profile submodules are located in API 0x9700, but the DAP and the interfaces/ports
+               are located in API 0 per PROFINET specification, so we need to filter also on the DAP module
+               ident number.
+            */
+            if ((io_data_object->api == PA_PROFILE_API) ||
+                ((io_data_object->moduleIdentNr & PA_PROFILE_DAP_MASK) == PA_PROFILE_DAP_IDENT))
+            {
+                resolve_pa_profile_submodule_name(io_data_object);
+            }
+
 
             /* Search the moduleID and subModuleID, find if PROFIsafe and also search for F-Par. Indexnumber
              * ---------------------------------------------------------------------------------------------
