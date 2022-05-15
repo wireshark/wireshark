@@ -1,4 +1,4 @@
-Wireshark 3.7.0 Release Notes
+Wireshark 3.7.1 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 4.0.
@@ -10,9 +10,9 @@ Wireshark 3.7.0 Release Notes
 
  What’s New
 
- Note: We do not ship official packages for 32-bit Windows for this
- branch. If you need to use Wireshark on that platform, please use the
- 3.6 branch. Issue 17779[1]
+ Note: We do not ship official 32-bit Windows packages for this branch.
+ If you need to use Wireshark on that platform, please install the
+ latest 3.6 release. Issue 17779[1]
 
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
@@ -107,12 +107,22 @@ Wireshark 3.7.0 Release Notes
        functions. Previously only protocol fields and slices were
        syntactically valid function arguments.
 
+        • Adds the universal quantifiers "any" and "all" to any
+       relational operator: all tcp.port > 1024.
+
      • The `text2pcap` command and the “Import from Hex Dump” feature
        have been updated and enhanced:
 
         • `text2pcap` supports writing the output file in all the
        capture file formats that wiretap library supports, using the
        same `-F` option as `editcap`, `mergecap`, and `tshark`.
+
+        • Consistent with the other command line tools like `editcap`,
+       `mergecap`, `tshark`, and the "Import from Hex Dump" option
+       within Wireshark, the default capture file format for `text2pcap`
+       is now pcapng. The `-n` flag to select pcapng (instead of the
+       previous default, pcap) has been has been deprecated and will be
+       removed in a future release.
 
         • `text2pcap` supports selecting the encapsulation type of the
        output file format using the wiretap library short names with an
@@ -245,7 +255,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-05-11 17:15:23 UTC
+  Last updated 2022-05-12 02:13:42 UTC
 
  References
 
