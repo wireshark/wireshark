@@ -150,6 +150,9 @@ extern int dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo,
 extern int dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, const char *text);
 
+extern int dissect_pn_pa_profile_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                    proto_tree *tree, guint32 length, const char *text);
+
 extern int dissect_blocks(tvbuff_t *tvb, int offset,
                     packet_info *pinfo, proto_tree *tree, guint8 *drep);
 

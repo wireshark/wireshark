@@ -69,6 +69,7 @@
 #define PN_INPUT_CR              1      /* PROFINET Input Connect Request value */
 #define PN_INPUT_DATADESCRITPION 1      /* PROFINET Input Data Description value */
 
+#define PA_PROFILE_API 0x9700u
 
 static int proto_pn_io_rtc1 = -1;
 
@@ -122,9 +123,22 @@ static int hf_pn_io_ps_cb_toggelBitChange_subslot_nr = -1;
 static int hf_pn_io_ps_f_dest_adr = -1;
 static int hf_pn_io_ps_f_data = -1;
 
+/* PA Profile 4.02 */
+static int hf_pn_pa_profile_status = -1;
+static int hf_pn_pa_profile_status_quality = -1;
+static int hf_pn_pa_profile_status_substatus_bad = -1;
+static int hf_pn_pa_profile_status_substatus_uncertain = -1;
+static int hf_pn_pa_profile_status_substatus_good = -1;
+static int hf_pn_pa_profile_status_update_event = -1;
+static int hf_pn_pa_profile_status_simulate = -1;
+static int hf_pn_pa_profile_value_8bit = -1;
+static int hf_pn_pa_profile_value_16bit = -1;
+static int hf_pn_pa_profile_value_float = -1;
+
 static gint ett_pn_io_rtc = -1;
 static gint ett_pn_io_ioxs = -1;
 static gint ett_pn_io_io_data_object = -1;
+static gint ett_pn_pa_profile_status = -1;
 
 static expert_field ei_pn_io_too_many_data_objects = EI_INIT;
 
@@ -145,6 +159,53 @@ static const value_string pn_io_ioxs_instance[] = {
 static const value_string pn_io_ioxs_datastate[] = {
     { 0x00 /*  0*/, "Bad" },
     { 0x01 /*  1*/, "Good" },
+    { 0, NULL }
+};
+
+static const value_string pn_pa_profile_status_quality[] = {
+    { 0x00 /*  0*/, "BAD" },
+    { 0x01 /*  1*/, "UNCERTAIN" },
+    { 0x02 /*  2*/, "GOOD" },
+    { 0, NULL }
+};
+
+static const value_string pn_pa_profile_status_substatus_bad[] = {
+    { 0x0, "Non specific" },
+    { 0x2, "Not connected" },
+    { 0x8, "Passivated" },
+    { 0x9, "Maintenance alarm, more diagnosis" },
+    { 0xA, "Process related, no maintenance" },
+    { 0xF, "Function check, value not usable" },
+    { 0, NULL }
+};
+
+static const value_string pn_pa_profile_status_substatus_uncertain[] = {
+    { 0x2, "Substitute set" },
+    { 0x3, "Initial value" },
+    { 0xA, "Maintenance demanded" },
+    { 0xE, "Process related, no maintenance" },
+    { 0, NULL }
+};
+
+static const value_string pn_pa_profile_status_substatus_good[] = {
+    { 0x0, "Good" },
+    { 0x7, "Local override" },
+    { 0x8, "Initial fail safe" },
+    { 0x9, "Maintenance required" },
+    { 0xA, "Maintenance demanded" },
+    { 0xF, "Function check" },
+    { 0, NULL }
+};
+
+static const value_string pn_pa_profile_status_update_event[] = {
+    { 0x0, "No event" },
+    { 0x1, "Update event" },
+    { 0, NULL }
+};
+
+static const value_string pn_pa_profile_status_simulate[] = {
+    { 0x0, "Simulation off" },
+    { 0x1, "Simulation active" },
     { 0, NULL }
 };
 
@@ -181,6 +242,17 @@ static int * const ioxs_fields[] = {
     NULL
 };
 
+/*
+static int * const pa_profile_status_fields[] = {
+    &hf_pn_pa_profile_status_quality,
+    &hf_pn_pa_profile_status_substatus_bad,
+    &hf_pn_pa_profile_status_substatus_uncertain,
+    &hf_pn_pa_profile_status_substatus_good,
+    &hf_pn_pa_profile_status_update_event,
+    &hf_pn_pa_profile_status_simulate,
+    NULL
+};
+*/
 
 /* Dissector for PROFIsafe Status Byte */
 static int
@@ -594,7 +666,14 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
                         else {
                             /* Module is not PROFIsafe supported */
-                            offset = dissect_pn_user_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->length, "IO Data");
+                            if (io_data_object->api == PA_PROFILE_API)
+                            {
+                                offset = dissect_pn_pa_profile_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->length, "IO Data");
+                            }
+                            else
+                            {
+                                offset = dissect_pn_user_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->length, "IO Data");
+                            }
                         }
 
                         if (io_data_object->discardIOXS == FALSE) {
@@ -794,7 +873,14 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                         }    /* End of PROFIsafe Module Handling */
                         else {
                             /* Module is not PROFIsafe supported */
-                            offset = dissect_pn_user_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->length, "IO Data");
+                            if (io_data_object->api == PA_PROFILE_API)
+                            {
+                                offset = dissect_pn_pa_profile_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->length, "IO Data");
+                            }
+                            else
+                            {
+                                offset = dissect_pn_user_data(tvb, offset, pinfo, IODataObject_tree, io_data_object->length, "IO Data");
+                            }
                         }
 
                         if (io_data_object->discardIOXS == FALSE) {
@@ -880,6 +966,89 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+
+/* dissect the PA Profile status field */
+static int
+dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo _U_, proto_tree *tree, int hfindex)
+{
+
+    if (tree) {
+        guint8      u8status;
+        guint8      quality;
+        proto_item *status_item;
+        proto_tree *status_tree;
+        const gchar* quality_name = NULL;
+
+        u8status = tvb_get_guint8(tvb, offset);
+        quality = (u8status >> 6u) & 0x3u;
+
+        /* add ioxs subtree */
+        status_item = proto_tree_add_uint(tree, hfindex, tvb, offset, 1, u8status);
+
+        quality_name = try_val_to_str(quality, pn_pa_profile_status_quality);
+
+        proto_item_append_text(status_item,
+                               " (%s)",
+                               (quality_name != NULL) ? quality_name : "invalid");
+
+        status_tree = proto_item_add_subtree(status_item, ett_pn_pa_profile_status);
+
+        proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_quality,      tvb, offset, 1, u8status);
+        switch(quality)
+        {
+            case 0:
+                proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_substatus_bad, tvb, offset, 1, u8status);
+                break;
+            case 1:
+                proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_substatus_uncertain, tvb, offset, 1, u8status);
+                break;
+            case 2:
+                proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_substatus_good, tvb, offset, 1, u8status);
+                break;
+            default:
+                break;
+        }
+        proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_update_event, tvb, offset, 1, u8status);
+        proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_simulate,     tvb, offset, 1, u8status);
+    }
+
+    return offset + 1;
+}
+
+int
+dissect_pn_pa_profile_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                          proto_tree *tree, guint32 length, const char *text)
+{
+    (void)text;
+    /*
+        All PA Profile submodules carry an 8-bit "status" plus the real data, which
+        currently is a float, an 8-bit integer or a 16-bit integer.
+        So we will have either 2, 3 or 5 bytes.
+    */
+    if (length == 2u)
+    {
+        proto_tree_add_item(tree, hf_pn_pa_profile_value_8bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+        dissect_pn_pa_profile_status(tvb, offset+1, pinfo, tree, hf_pn_pa_profile_status);
+    }
+    else if (length == 3u)
+    {
+        proto_tree_add_item(tree, hf_pn_pa_profile_value_16bit, tvb, offset, 2, ENC_BIG_ENDIAN);
+        dissect_pn_pa_profile_status(tvb, offset+2, pinfo, tree, hf_pn_pa_profile_status);
+    }
+    else if (length == 5u)
+    {
+        proto_tree_add_item(tree, hf_pn_pa_profile_value_float, tvb, offset, 4, ENC_BIG_ENDIAN);
+        dissect_pn_pa_profile_status(tvb, offset+4, pinfo, tree, hf_pn_pa_profile_status);
+    }
+    else
+    {
+        /* Delegate to standard user data if unknown */
+        (void)dissect_pn_user_data(tvb, offset, pinfo, tree, length, "IO Data");
+    }
+
+    return offset + length;
+}
 
 void
 init_pn_io_rtc1(int proto)
@@ -1099,12 +1268,63 @@ init_pn_io_rtc1(int proto)
             FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pn_pa_profile_status,
+            { "Status", "pn_io.pa.status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_status_quality,
+            { "Quality", "pn_io.pa.status.quality",
+            FT_UINT8, BASE_HEX, VALS(pn_pa_profile_status_quality), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_status_substatus_bad,
+            { "Substatus", "pn_io.pa.status.substatus",
+            FT_UINT8, BASE_HEX, VALS(pn_pa_profile_status_substatus_bad), 0x3C,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_status_substatus_uncertain,
+            { "Substatus", "pn_io.pa.status.substatus",
+            FT_UINT8, BASE_HEX, VALS(pn_pa_profile_status_substatus_uncertain), 0x3C,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_status_substatus_good,
+            { "Substatus", "pn_io.pa.status.substatus",
+            FT_UINT8, BASE_HEX, VALS(pn_pa_profile_status_substatus_good), 0x3C,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_status_update_event,
+            { "Update Event", "pn_io.pa.status.update",
+            FT_UINT8, BASE_HEX, VALS(pn_pa_profile_status_update_event), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_status_simulate,
+            { "Simulate", "pn_io.pa.status.simulate",
+            FT_UINT8, BASE_HEX, VALS(pn_pa_profile_status_simulate), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_value_8bit,
+            { "Value", "pn_io.pa.value",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_value_16bit,
+            { "Value", "pn_io.pa.value",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pn_pa_profile_value_float,
+            { "Value", "pn_io.pa.value",
+            FT_FLOAT, BASE_FLOAT, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
         &ett_pn_io_rtc,
         &ett_pn_io_ioxs,
-        &ett_pn_io_io_data_object
+        &ett_pn_io_io_data_object,
+        &ett_pn_pa_profile_status
     };
 
     static ei_register_info ei[] = {

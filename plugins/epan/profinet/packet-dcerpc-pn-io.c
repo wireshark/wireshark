@@ -3160,8 +3160,8 @@ static const value_string pn_io_pa_profile_physical_block_parent_class_vals[] = 
 static const value_string pn_io_pa_profile_function_block_class_vals[] = {
     { 1, "Input" },
     { 2, "Output" },
-    { 3, "Further Inputs" },
-    { 4, "Further Outputs" },
+    { 3, "Further Input" },
+    { 4, "Further Output" },
     { 128, "Manuf. specific Input" },
     { 129, "Manuf. specific Output" },
     { 0, NULL }
@@ -10935,6 +10935,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
                 if (io_data_object->slotNr == tmp_io_data_object->slotNr && io_data_object->subSlotNr == tmp_io_data_object->subSlotNr) {
                     /* Write additional data from dissect_ExpectedSubmoduleBlockReq_block() to corresponding io_data_object */
+                    io_data_object->api = tmp_io_data_object->api;
                     io_data_object->moduleIdentNr = tmp_io_data_object->moduleIdentNr;
                     io_data_object->subModuleIdentNr = tmp_io_data_object->subModuleIdentNr;
                     io_data_object->length = u16SubmoduleDataLength;
@@ -11010,8 +11011,16 @@ resolve_pa_profile_submodule_name(ioDataObject *io_data_object)
             break;
 
         case PA_PROFILE_BLOCK_FB:
-            parent_class_name = try_val_to_str(parent_class, pn_io_pa_profile_function_block_parent_class_vals);
             class_name = try_val_to_str(class, pn_io_pa_profile_function_block_class_vals);
+            if (class <= 2u)
+            {
+                parent_class_name = try_val_to_str(parent_class, pn_io_pa_profile_function_block_parent_class_vals);
+            }
+            else
+            {
+                parent_class_name = (class <= 4u) ? "Analog" : "";
+            }
+
             if ((parent_class_name != NULL) && (class_name != NULL))
             {
                 (void)snprintf(io_data_object->moduleNameStr, MAX_NAMELENGTH, "%s - %s %s", block_object_name, parent_class_name, class_name);
