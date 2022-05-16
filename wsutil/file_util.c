@@ -51,6 +51,7 @@
 #include <glib.h>
 
 #include <windows.h>
+#include <winsock2.h>
 #include <errno.h>
 #include <wchar.h>
 #include <tchar.h>
@@ -666,6 +667,21 @@ void close_app_running_mutex() {
         CloseHandle(global_running_mutex);
         global_running_mutex = NULL;
     }
+}
+
+int ws_close_if_possible(int fd) {
+    fd_set rfds;
+    struct timeval tv = { 0, 1 };
+    int retval;
+
+    FD_ZERO(&rfds);
+    FD_SET(fd, &rfds);
+
+    retval = select(1, &rfds, NULL, NULL, &tv);
+    if (retval > -1)
+        return _close(fd);
+
+    return -1;
 }
 
 /*
