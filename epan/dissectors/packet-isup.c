@@ -3420,7 +3420,7 @@ dissect_isup_transmission_medium_requirement_parameter(tvbuff_t *parameter_tvb, 
 
 static char *
 dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_item *item,
-                           const char *param_name, gint hf_number, gint hf_odd_digit, gint hf_even_digit,
+                           gint hf_number, gint hf_odd_digit, gint hf_even_digit,
                            gboolean even_indicator, e164_number_type_t number_type, guint nature_of_address)
 {
   gint           i = 0;
@@ -3436,7 +3436,7 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto
   reported_length = tvb_reported_length_remaining(tvb, offset);
   if (reported_length == 0) {
     expert_add_info(pinfo, item, &ei_isup_empty_number);
-    proto_item_append_text(item, "%s: (empty)", param_name);
+    proto_item_append_text(item, ": (empty)");
     return NULL;
   }
 
@@ -3511,7 +3511,7 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto
     dissect_e164_number(tvb, digits_tree, 2, (offset - 2), e164_info);
   }
 
-  proto_item_append_text(item, "%s: %s", param_name, number);
+  proto_item_append_text(item, ": %s", number);
 
   return number;
 }
@@ -3545,7 +3545,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, packet_info 
   offset = 2;
 
   tap_called_number = dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Called Party Number", hf_isup_called, hf_isup_called_party_odd_address_signal_digit,
+                             hf_isup_called, hf_isup_called_party_odd_address_signal_digit,
                              hf_isup_called_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              number_plan == 1 ? CALLED_PARTY_NUMBER : NONE,
                              (indicators1 & 0x7f));
@@ -3565,7 +3565,7 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, packet_info *p
   offset = 1;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Subsequent Number", hf_isup_subsequent_number, hf_isup_called_party_odd_address_signal_digit,
+                             hf_isup_subsequent_number, hf_isup_called_party_odd_address_signal_digit,
                              hf_isup_called_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -5408,7 +5408,7 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, packet_info
   offset = 2;
 
   tap_calling_number = dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Calling Party Number", hf_isup_calling, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_calling, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              number_plan == 1 ? CALLING_PARTY_NUMBER : NONE,
                              (indicators1 & 0x7f));
@@ -5439,7 +5439,7 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, packet_in
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Original Called Number", hf_isup_original_called_number,
+                             hf_isup_original_called_number,
                              hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit,
                              ((indicators1 & 0x80) == 0), NONE, 0);
@@ -5469,7 +5469,7 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, packet_info *
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Redirecting Number", hf_isup_redirecting, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_redirecting, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -5499,7 +5499,7 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, packet_info *
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Redirection Number", hf_isup_redirection_number, hf_isup_called_party_odd_address_signal_digit,
+                             hf_isup_redirection_number, hf_isup_called_party_odd_address_signal_digit,
                              hf_isup_called_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -5624,7 +5624,7 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, packet_info *pi
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Connected Number", hf_isup_connected_number, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_connected_number, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -5649,7 +5649,7 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, packet
   offset = 1;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Transit network selection", hf_isup_transit_network_selection, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_transit_network_selection, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -6313,7 +6313,7 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, packet_info *pin
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Location number", hf_isup_location_number, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_location_number, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -6392,7 +6392,7 @@ dissect_isup_call_transfer_number_parameter(tvbuff_t *parameter_tvb, packet_info
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Call Transfer Number", hf_isup_call_transfer_number, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_call_transfer_number, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -6536,7 +6536,7 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, packet_info *pi
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Called IN Number", hf_isup_called_in_number, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_called_in_number, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -6735,7 +6735,7 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
   offset = 3;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Generic Number", hf_isup_generic_number, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_generic_number, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 
@@ -6760,7 +6760,7 @@ dissect_isup_jurisdiction_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
   offset = 0;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Jurisdiction", hf_isup_jurisdiction, hf_isup_called_party_odd_address_signal_digit,
+                             hf_isup_jurisdiction, hf_isup_called_party_odd_address_signal_digit,
                              hf_isup_called_party_even_address_signal_digit, (tvb_reported_length(parameter_tvb) > 0),
                              NONE, 0);
 }
@@ -6822,7 +6822,7 @@ dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo
   offset = 2;
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
-                             "Charge Number", hf_isup_charge_number, hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_charge_number, hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit, ((indicators1 & 0x80) == 0),
                              NONE, 0);
 }
@@ -8053,7 +8053,6 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                                            ett_isup_parameter, &parameter_item,
                                            "Parameter: (t=%u, l=%u)",
                                            parameter_type, parameter_length);
-      proto_item_append_text(parameter_tree, " %s", val_to_str_ext(parameter_type, &ansi_isup_parameter_type_value_ext, "Unknown"));
       /* Handle national extensions here */
       switch (itu_isup_variant) {
         case ISUP_JAPAN_VARIANT:
