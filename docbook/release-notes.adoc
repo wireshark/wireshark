@@ -38,10 +38,18 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
+The following features are new (or have been significantly updated) since version 3.7.0:
+
+* The Windows installers now ship with Qt 6.2.3.
+  They previously shipped with Qt 6.2.4.
+
 The following features are new (or have been significantly updated) since version 3.6.0:
 
 * The Windows installers now ship with Npcap 1.60.
   They previously shipped with Npcap 1.55.
+
+* The Windows installers now ship with Qt 6.2.4.
+They previously shipped with Qt 5.12.2.
 
 * The display filter syntax has been updated and enhanced:
 ** A syntax to match a specific layer in the protocol stack has been added.
