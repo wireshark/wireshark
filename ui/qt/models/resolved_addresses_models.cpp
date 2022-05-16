@@ -30,34 +30,31 @@ serv_port_hash_to_qstringlist(gpointer key, gpointer value, gpointer member_ptr)
         QStringList entries;
 
         entries << serv_port->tcp_name;
-        entries << QString("%1").arg(port);
+        entries << QString::number(port);
         entries << "tcp";
         model->appendRow(entries);
     }
     if (serv_port->udp_name) {
         QStringList entries;
 
-    	entries = QStringList();
         entries << serv_port->udp_name;
-        entries << QString("%1").arg(port);
+        entries << QString::number(port);
         entries << "udp";
         model->appendRow(entries);
     }
     if (serv_port->sctp_name) {
         QStringList entries;
 
-    	entries = QStringList();
         entries << serv_port->sctp_name;
-        entries << QString("%1").arg(port);
+        entries << QString::number(port);
         entries << "sctp";
         model->appendRow(entries);
     }
     if (serv_port->dccp_name) {
         QStringList entries;
 
-    	entries = QStringList();
         entries << serv_port->dccp_name;
-        entries << QString("%1").arg(port);
+        entries << QString::number(port);
         entries << "dccp";
         model->appendRow(entries);
     }
@@ -91,9 +88,7 @@ eth_hash_to_qstringlist(gpointer, gpointer value, gpointer sl_ptr)
     QStringList *string_list = (QStringList *) sl_ptr;
     hashether_t* tp = (hashether_t*)value;
 
-    QString entry = QString("%1 %2")
-            .arg(get_hash_ether_hexaddr(tp))
-            .arg(get_hash_ether_resolved_name(tp));
+    QString entry = QString(get_hash_ether_hexaddr(tp)) + QString(" ") + get_hash_ether_resolved_name(tp);
 
    *string_list << entry;
 }

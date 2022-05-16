@@ -70,6 +70,7 @@ public:
     void setFilterType(AStringListListFilterType type, int column = -1);
 
     void setColumnToFilter(int);
+    void setColumnsToFilter(QList<int>);
     void clearColumnsToFilter();
 
     void clearHiddenColumns();

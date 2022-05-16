@@ -206,6 +206,21 @@ void AStringListListSortFilterProxyModel::setColumnToFilter(int column)
     }
 }
 
+void AStringListListSortFilterProxyModel::setColumnsToFilter(QList<int> columns)
+{
+    bool hasBeenAdded = false;
+
+    foreach (int column, columns) {
+        if (column < columnCount() && ! columnsToFilter_.contains(column)) {
+            columnsToFilter_.append(column);
+            hasBeenAdded = true;
+        }
+    }
+
+    if (hasBeenAdded)
+        invalidateFilter();
+}
+
 void AStringListListSortFilterProxyModel::clearColumnsToFilter()
 {
     columnsToFilter_.clear();
