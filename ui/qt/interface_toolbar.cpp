@@ -803,7 +803,8 @@ void InterfaceToolbar::stopCapture()
 
         if (interface_[ifname].out_fd != -1)
         {
-            ws_close (interface_[ifname].out_fd);
+            ws_close_if_possible (interface_[ifname].out_fd);
+
             interface_[ifname].out_fd = -1;
         }
 

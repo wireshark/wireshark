@@ -161,6 +161,10 @@ WS_DLL_PUBLIC void create_app_running_mutex(void);
  */
 WS_DLL_PUBLIC void close_app_running_mutex(void);
 
+/** Close a file descriptor if it is not open
+ */
+WS_DLL_PUBLIC int ws_close_if_possible(int fd);
+
 #else	/* _WIN32 */
 
 /*
@@ -188,6 +192,9 @@ WS_DLL_PUBLIC void close_app_running_mutex(void);
 #else
 #define ws_close   close
 #endif
+
+#define ws_close_if_possible ws_close
+
 #define ws_dup     dup
 #ifdef HAVE_FSEEKO
 #define ws_fseek64 fseeko	/* AC_SYS_LARGEFILE should make off_t 64-bit */
