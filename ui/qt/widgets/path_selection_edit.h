@@ -36,9 +36,8 @@ protected slots:
     void browseForPath();
 
 private:
-    QString _path;
-
     QString _title;
+    QString _path;
     bool _selectFile;
 
     QLineEdit * _edit;

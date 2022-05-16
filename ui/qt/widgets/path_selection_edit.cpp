@@ -22,11 +22,12 @@
 #include <QLineEdit>
 
 PathSelectionEdit::PathSelectionEdit(QString title, QString path, bool selectFile, QWidget *parent) : 
-    _title(title),
-    _path(path),
-    _selectFile(selectFile),
     QWidget(parent)
 {
+    _title = title;
+    _path = path;
+    _selectFile = selectFile;
+
     _edit = new QLineEdit(this);
     _edit->setText(_path);
     connect(_edit, &QLineEdit::textChanged, this, &PathSelectionEdit::setPath);
