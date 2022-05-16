@@ -36,6 +36,11 @@ for FILE in $COMMIT_FILES; do
             continue 2
         fi
     done
+    # wsutil/file_util.c is Windows-only.
+    if test "$FILE_BASENAME" = "file_util.c"
+    then
+        continue
+    fi
     # iLBC: the file is not even compiled when ilbc is not installed
     if test "$FILE_BASENAME" = "iLBCdecode.c"
     then
