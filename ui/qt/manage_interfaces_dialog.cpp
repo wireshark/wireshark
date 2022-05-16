@@ -37,7 +37,7 @@
 
 #include "ui/capture_ui_utils.h"
 
-#include <ui/qt/models/path_chooser_delegate.h>
+#include <ui/qt/models/path_selection_delegate.h>
 
 #include <QCheckBox>
 #include <QHBoxLayout>
@@ -49,7 +49,7 @@
 // To do:
 // - Check the validity of pipes and remote interfaces and provide feedback
 //   via hintLabel.
-// - We might want to move PathChooserDelegate to its own module and use it in
+// - We might want to move PathSelectionDelegate to its own module and use it in
 //   other parts of the application such as the general preferences and UATs.
 //   Qt Creator has a much more elaborate version from which we might want
 //   to draw inspiration.
@@ -176,9 +176,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     ui->pipeView->setModel(pipeProxyModel);
     ui->delPipe->setEnabled(pipeProxyModel->rowCount() > 0);
 
-    ui->pipeView->setItemDelegateForColumn(
-            pipeProxyModel->mapSourceToColumn(IFTREE_COL_PIPE_PATH), new PathChooserDelegate()
-            );
+    ui->pipeView->setItemDelegateForColumn(pipeProxyModel->mapSourceToColumn(IFTREE_COL_PIPE_PATH), new PathSelectionDelegate());
      connect(ui->pipeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](const QItemSelection &sel, const QItemSelection &) {
         ui->delPipe->setEnabled(sel.count() > 0);
     });

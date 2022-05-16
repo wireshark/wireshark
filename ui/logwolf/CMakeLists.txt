@@ -40,6 +40,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/label_stack.h
 	../qt/widgets/overlay_scroll_bar.h
 	../qt/widgets/packet_list_header.h
+	../qt/widgets/path_selection_edit.h
 	../qt/widgets/pref_module_view.h
 	../qt/widgets/profile_tree_view.h
 	../qt/widgets/range_syntax_lineedit.h
@@ -105,7 +106,7 @@ set(WIRESHARK_MODEL_HEADERS
 	../qt/models/numeric_value_chooser_delegate.h
 	../qt/models/packet_list_model.h
 	../qt/models/packet_list_record.h
-	../qt/models/path_chooser_delegate.h
+	../qt/models/path_selection_delegate.h
 	../qt/models/percent_bar_delegate.h
 	../qt/models/pref_delegate.h
 	../qt/models/pref_models.h
@@ -262,6 +263,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/label_stack.cpp
 	../qt/widgets/overlay_scroll_bar.cpp
 	../qt/widgets/packet_list_header.cpp
+	../qt/widgets/path_selection_edit.cpp
 	../qt/widgets/pref_module_view.cpp
 	../qt/widgets/profile_tree_view.cpp
 	../qt/widgets/range_syntax_lineedit.cpp
@@ -324,7 +326,7 @@ set(WIRESHARK_MODEL_SRCS
 	../qt/models/numeric_value_chooser_delegate.cpp
 	../qt/models/packet_list_model.cpp
 	../qt/models/packet_list_record.cpp
-	../qt/models/path_chooser_delegate.cpp
+	../qt/models/path_selection_delegate.cpp
 	../qt/models/percent_bar_delegate.cpp
 	../qt/models/pref_delegate.cpp
 	../qt/models/pref_models.cpp

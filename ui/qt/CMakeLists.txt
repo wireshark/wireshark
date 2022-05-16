@@ -40,6 +40,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/label_stack.h
 	widgets/overlay_scroll_bar.h
 	widgets/packet_list_header.h
+	widgets/path_selection_edit.h
 	widgets/pref_module_view.h
 	widgets/profile_tree_view.h
 	widgets/range_syntax_lineedit.h
@@ -103,7 +104,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/numeric_value_chooser_delegate.h
 	models/packet_list_model.h
 	models/packet_list_record.h
-	models/path_chooser_delegate.h
+	models/path_selection_delegate.h
 	models/percent_bar_delegate.h
 	models/pref_delegate.h
 	models/pref_models.h
@@ -287,6 +288,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/label_stack.cpp
 	widgets/overlay_scroll_bar.cpp
 	widgets/packet_list_header.cpp
+	widgets/path_selection_edit.cpp
 	widgets/pref_module_view.cpp
 	widgets/profile_tree_view.cpp
 	widgets/range_syntax_lineedit.cpp
@@ -347,7 +349,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/numeric_value_chooser_delegate.cpp
 	models/packet_list_model.cpp
 	models/packet_list_record.cpp
-	models/path_chooser_delegate.cpp
+	models/path_selection_delegate.cpp
 	models/percent_bar_delegate.cpp
 	models/pref_delegate.cpp
 	models/pref_models.cpp
