@@ -1073,7 +1073,7 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
 
     For example, this command yields the same results as the table above (and with all foregrounds set to black):
     ----
-    wireshark -o gui.colorized_frame.bg:ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0 -o gui.colorized_frame.fg:000000,000000,000000,000000,000000,000000,000000,000000
+    wireshark -o gui.colorized_frame.bg:ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0 -o gui.colorized_frame.fg:000000,000000,000000,000000,000000,000000,000000,000000,000000,000000
     ----
     */
 #define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* The https://gitlab.com/wireshark/wireshark/-/wikis/DisplayFilters[display filter] for selecting packets to be colorized
