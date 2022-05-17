@@ -3038,6 +3038,7 @@ found_trailer:
 #define F5TLS_RANDOM_LEN      32
 #define F5TLS_HASH_LEN        64
 #define F5TLS_ZEROS_LEN      256
+#define F5TLS_T2V1_LEN       393
 
 typedef struct _F5TLS_ELEMENT {
     guchar *data; /* Pointer to a string of bytes wmem_file_scope allocated as needed. */
@@ -3216,7 +3217,7 @@ f5eth_add_tls_element(
 } /* f5eth_add_tls_element() */
 
 /*----------------------------------------------------------------------*/
-/** TLS <= 1.2 trailer
+/** TLS <= 1.2 trailer - Type 0
  *
  * @param tvb    The tvbuff containing the DPT TLV block (header and data).
  * @param pinfo  The pinfo structure for the frame.
@@ -3294,7 +3295,7 @@ dissect_dpt_trailer_tls_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 } /* dissect_dpt_trailer_tls_type0() */
 
 /*----------------------------------------------------------------------*/
-/** TLS 1.3 trailer
+/** TLS 1.3 trailer - Type 2
  *
  * @param tvb    The tvbuff containing the DPT TLV block (header and data).
  * @param pinfo  The pinfo structure for the frame.
@@ -3341,6 +3342,8 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             if (ver == 1) {
                 proto_tree_add_item(tree, hf_f5tls_early_traffic_sec, tvb, o, secret_len, ENC_NA);
                 o += F5TLS_HASH_LEN;
+            } else if (ver == 0 && len == F5TLS_T2V1_LEN) {
+                o += F5TLS_HASH_LEN;
             }
             proto_tree_add_item(tree, hf_f5tls_clnt_hs_sec, tvb, o, secret_len, ENC_NA);
             o += F5TLS_HASH_LEN;
@@ -3378,6 +3381,8 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             if (ver == 1) {
                 ets_changed =
                     f5eth_add_tls_element(&conv_data->erly_traf_sec, pinfo, tvb, o, secret_len);
+                o += F5TLS_HASH_LEN;
+            } else if (ver == 0 && len == F5TLS_T2V1_LEN) {
                 o += F5TLS_HASH_LEN;
             }
             chs_changed =
@@ -3449,7 +3454,7 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 } /* dissect_dpt_trailer_tls_type2() */
 
 /*----------------------------------------------------------------------*/
-/** TLS extended trailer
+/** TLS extended trailer - Types 1 and 3
  *
  *  Render as <DATA> - No dissection
  *
