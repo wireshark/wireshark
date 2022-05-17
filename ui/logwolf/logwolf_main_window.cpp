@@ -2036,6 +2036,13 @@ void LogwolfMainWindow::findTextCodecs() {
     QRegularExpressionMatch match;
     for (int mib : mibs) {
         QTextCodec *codec = QTextCodec::codecForMib(mib);
+        // QTextCodec::availableMibs() returns a list of hard-coded MIB
+        // numbers, it doesn't check if they are really available. ICU data may
+        // not have been compiled with support for all encodings.
+        if (!codec) {
+            continue;
+        }
+
         QString key = codec->name().toUpper();
         char rank;
 
