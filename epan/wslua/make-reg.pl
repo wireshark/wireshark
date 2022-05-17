@@ -80,7 +80,7 @@ for (@classes) {
 	print C "\twslua_reg_module(L, \"${_}\", ${_}_register);\n";
 }
 print C "\twslua_reg_module(L, \"bit\", luaopen_bit);\n";
-print C "\twslua_reg_module(L, \"GRegex\", luaopen_rex_glib);\n";
+#print C "\twslua_reg_module(L, \"GRegex\", luaopen_rex_glib);\n";
 print C "}\n\n";
 
 

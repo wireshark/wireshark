@@ -298,20 +298,6 @@
             ["__typeof"] = "FrameInfoConst"
         }
     },
-    ["GRegex"] = {
-        ["_VERSION"] = "Lrexlib 2.7.2 (for GLib Regex)",
-        ["__typeof"] = "GRegex",
-        ["compile_flags"] = '<function 135>',
-        ["find"] = '<function 136>',
-        ["flags"] = '<function 137>',
-        ["gmatch"] = '<function 138>',
-        ["gsub"] = '<function 139>',
-        ["match"] = '<function 140>',
-        ["match_flags"] = '<function 141>',
-        ["new"] = '<function 142>',
-        ["split"] = '<function 143>',
-        ["version"] = '<function 144>'
-    },
     ["GUI_ENABLED"] = false,
     ["H225_ALERTING"] = 3,
     ["H225_CALL_PROCEDING"] = 1,

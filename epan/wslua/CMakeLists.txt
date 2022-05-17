@@ -8,9 +8,6 @@
 #
 
 set(WSLUA_MODULES
-	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib.c
-	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib.c
-	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib_f.c
 	${CMAKE_CURRENT_SOURCE_DIR}/lua_bitop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_address.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_byte_array.c
