@@ -525,6 +525,7 @@ void PacketDiagram::resetScene(bool reset_root)
     if (scene()) {
         delete scene();
     }
+    viewport()->update();
     QGraphicsScene *new_scene = new QGraphicsScene();
     setScene(new_scene);
     connect(new_scene, &QGraphicsScene::selectionChanged, this, &PacketDiagram::sceneSelectionChanged);
@@ -753,6 +754,8 @@ void PacketDiagram::showFieldsToggled(bool checked)
 {
     layout_->setShowFields(checked);
     setRootNode(root_node_);
+    /* Viewport needs to be update to avoid residues being shown */
+    viewport()->update();
 }
 
 // XXX - We have similar code in tcp_stream_dialog and io_graph_dialog. Should this be a common routine?
