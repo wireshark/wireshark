@@ -15,8 +15,8 @@
 #include <epan/to_str.h>
 
 #include "ui/recent.h"
-#include "ui/traffic_table_ui.h"
 
+#include "wsutil/filesystem.h"
 #include "wsutil/file_util.h"
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
@@ -34,6 +34,47 @@
 #include <QPushButton>
 #include <QUrl>
 #include <QTemporaryFile>
+
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QTextStream>
+
+typedef enum
+{
+    ENDP_COLUMN_ADDR,
+    ENDP_COLUMN_PORT,
+    ENDP_COLUMN_PACKETS,
+    ENDP_COLUMN_BYTES,
+    ENDP_COLUMN_PKT_AB,
+    ENDP_COLUMN_BYTES_AB,
+    ENDP_COLUMN_PKT_BA,
+    ENDP_COLUMN_BYTES_BA,
+    ENDP_NUM_COLUMNS,
+    ENDP_COLUMN_GEO_COUNTRY = ENDP_NUM_COLUMNS,
+    ENDP_COLUMN_GEO_CITY,
+    ENDP_COLUMN_GEO_AS_NUM,
+    ENDP_COLUMN_GEO_AS_ORG,
+    ENDP_NUM_GEO_COLUMNS
+} endpoint_column_type_e;
+
+static char const *endp_column_titles[ENDP_NUM_GEO_COLUMNS] = {
+    "Address",
+    "Port",
+    "Packets",
+    "Bytes",
+    "Tx Packets",
+    "Tx Bytes",
+    "Rx Packets",
+    "Rx Bytes",
+    "Country",
+    "City",
+    "AS Number",
+    "AS Organization"
+};
+
+static char const *endp_conn_title = "Connection";
 
 static const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
@@ -180,6 +221,137 @@ void EndpointDialog::tabChanged()
     map_bt_->setEnabled(cur_tree && cur_tree->hasGeoIPData());
 }
 
+bool
+EndpointDialog::writeEndpointGeoipMap(QFile * fp, bool json_only, hostlist_talker_t *const *hosts)
+{
+    QTextStream out(fp);
+
+    if (!json_only) {
+        QFile ipmap(get_datafile_path("ipmap.html"));
+
+        if (!ipmap.open(QIODevice::ReadOnly)) {
+            QMessageBox::warning(this, tr("Map file error"), tr("Could not open base file %1 for reading: %2")
+                .arg(get_datafile_path("ipmap.html"))
+                .arg(g_strerror(errno))
+            );
+            return false;
+        }
+
+        /* Copy ipmap.html to map file. */
+        QTextStream in(&ipmap);
+        QString line;
+        while (in.readLineInto(&line)) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+            out << line << Qt::endl;
+#else
+            out << line << endl;
+#endif            
+        }
+
+        out << QString("<script id=\"ipmap-data\" type=\"application/json\">\n");
+    }
+
+    /*
+     * Writes a feature for each resolved address, the output will look like:
+     *  {
+     *    "type": "FeatureCollection",
+     *    "features": [
+     *      {
+     *        "type": "Feature",
+     *        "geometry": {
+     *          "type": "Point",
+     *          "coordinates": [ -97.821999, 37.750999 ]
+     *        },
+     *        "properties": {
+     *          "ip": "8.8.4.4",
+     *          "autonomous_system_number": 15169,
+     *          "autonomous_system_organization": "Google LLC",
+     *          "city": "(omitted, but key is shown for documentation reasons)",
+     *          "country": "United States",
+     *          "radius": 1000,
+     *          "packets": 1,
+     *          "bytes": 1543
+     *        }
+     *      }
+     *    ]
+     *  }
+     */
+
+    QJsonObject root;
+    root["type"] = "FeatureCollection";
+    QJsonArray features;
+
+    /* Append map data. */
+    size_t count = 0;
+    const hostlist_talker_t *host;
+    for (hostlist_talker_t *const *iter = hosts; (host = *iter) != NULL; ++iter) {
+        QJsonObject arrEntry;
+
+        char addr[WS_INET6_ADDRSTRLEN];
+        const mmdb_lookup_t *result = NULL;
+        if (host->myaddress.type == AT_IPv4) {
+            const ws_in4_addr *ip4 = (const ws_in4_addr *)host->myaddress.data;
+            result = maxmind_db_lookup_ipv4(ip4);
+            ws_inet_ntop4(ip4, addr, sizeof(addr));
+        } else if (host->myaddress.type == AT_IPv6) {
+            const ws_in6_addr *ip6 = (const ws_in6_addr *)host->myaddress.data;
+            result = maxmind_db_lookup_ipv6(ip6);
+            ws_inet_ntop6(ip6, addr, sizeof(addr));
+        }
+        if (!maxmind_db_has_coords(result)) {
+            // result could be NULL if the caller did not trigger a lookup
+            // before. result->found could be FALSE if no MMDB entry exists.
+            continue;
+        }
+
+        ++count;
+        arrEntry["type"] = "Feature";
+        QJsonObject geometry;
+        geometry["type"] = "Point";
+        QJsonArray coordinates;
+        coordinates.append(QJsonValue(result->longitude));
+        coordinates.append(QJsonValue(result->latitude));
+        geometry["coordinates"] = coordinates;
+        arrEntry["geometry"] = geometry;
+
+        QJsonObject property;
+        property["ip"] = addr;
+        if (result->as_number && result->as_org) {
+            property["autonomous_system_number"] = QJsonValue((int)(result->as_number));
+            property["autonomous_system_organization"] = QJsonValue(result->as_org);
+        }
+
+        if (result->city)
+            property["city"] = result->city;
+        if (result->country)
+            property["country"] = result->country;
+        if (result->accuracy)
+            property["radius"] = QJsonValue(result->accuracy);
+
+        property["packets"] = QJsonValue((qint64)(host->rx_frames + host->tx_frames));
+        property["bytes"] = QJsonValue((qint64)(host->rx_bytes + host->tx_bytes));
+        arrEntry["properties"] = property;
+        features.append(arrEntry);
+    }
+    root["features"] = features;
+    QJsonDocument doc;
+    doc.setObject(root);
+
+    out << doc.toJson();
+
+    if (!json_only) 
+        out << QString("</script>\n");
+
+    if (count == 0) {
+        QMessageBox::warning(this, tr("Map file error"), tr("No endpoints available to map"));
+        return false;
+    }
+
+    out.flush();
+
+    return true;
+}
+
 QUrl EndpointDialog::createMap(bool json_only)
 {
     EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->currentWidget());
@@ -214,49 +386,12 @@ QUrl EndpointDialog::createMap(bool json_only)
         return QUrl();
     }
 
-    //
-    // XXX - At least with Qt 5.12 retrieving the name only works when
-    // it has been retrieved at least once when the file is open.
-    //
-    QString tempfilename = tf.fileName();
-    int fd = tf.handle();
-    //
-    // XXX - QFileDevice.handle() can return -1, but can QTemporaryFile.handle()
-    // do so if QTemporaryFile.open() has succeeded?
-    //
-    if (fd == -1) {
-        QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
+    if (!writeEndpointGeoipMap(&tf, json_only, hosts)) {
         g_free(hosts);
-        return QUrl();
-    }
-    // duplicate file descriptor as it is not allowed to perform a fclose before closing QFile
-    int duped_fd = ws_dup(fd);
-    if (duped_fd == -1) {
-        QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
-        g_free(hosts);
-        return QUrl();
-    }
-    FILE* fp = ws_fdopen(duped_fd, "wb");
-    if (fp == NULL) {
-        QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
-        g_free(hosts);
-        ws_close(duped_fd);
-        return QUrl();
-    }
-
-    gchar *err_str;
-    if (!write_endpoint_geoip_map(fp, json_only, hosts, &err_str)) {
-        QMessageBox::warning(this, tr("Map file error"), err_str);
-        g_free(err_str);
-        g_free(hosts);
-        fclose(fp);
+        tf.close();
         return QUrl();
     }
     g_free(hosts);
-    if (fclose(fp) == EOF) {
-        QMessageBox::warning(this, tr("Map file error"), g_strerror(errno));
-        return QUrl();
-    }
 
     tf.setAutoRemove(false);
     return QUrl::fromLocalFile(tf.fileName());

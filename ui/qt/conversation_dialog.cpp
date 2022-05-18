@@ -15,7 +15,6 @@
 
 #include "ui/recent.h"
 #include "ui/tap-tcp-stream.h"
-#include "ui/traffic_table_ui.h"
 
 #include "wsutil/str_util.h"
 
@@ -51,6 +50,46 @@
 // - Show Absolute time in conversation tables https://gitlab.com/wireshark/wireshark/-/issues/11618
 // - The value of 'Rel start' and 'Duration' in "Conversations" no need too precise https://gitlab.com/wireshark/wireshark/-/issues/12803
 
+
+typedef enum {
+    CONV_COLUMN_SRC_ADDR,
+    CONV_COLUMN_SRC_PORT,
+    CONV_COLUMN_DST_ADDR,
+    CONV_COLUMN_DST_PORT,
+    CONV_COLUMN_PACKETS,
+    CONV_COLUMN_BYTES,
+    CONV_COLUMN_PKT_AB,
+    CONV_COLUMN_BYTES_AB,
+    CONV_COLUMN_PKT_BA,
+    CONV_COLUMN_BYTES_BA,
+    CONV_COLUMN_START,
+    CONV_COLUMN_DURATION,
+    CONV_COLUMN_BPS_AB,
+    CONV_COLUMN_BPS_BA,
+    CONV_NUM_COLUMNS,
+    CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
+} conversation_column_type_e;
+
+static char const *conv_column_titles[CONV_NUM_COLUMNS] = {
+    "Address A",
+    "Port A",
+    "Address B",
+    "Port B",
+    "Packets",
+    "Bytes",
+    "Packets A " UTF8_RIGHTWARDS_ARROW " B",
+    "Bytes A " UTF8_RIGHTWARDS_ARROW " B",
+    "Packets B " UTF8_RIGHTWARDS_ARROW " A",
+    "Bytes B " UTF8_RIGHTWARDS_ARROW " A",
+    "Rel Start",
+    "Duration",
+    "Bits/s A " UTF8_RIGHTWARDS_ARROW " B",
+    "Bits/s B " UTF8_RIGHTWARDS_ARROW " A"
+};
+
+static char const *conv_conn_a_title = "Connection A";
+static char const *conv_conn_b_title = "Connection B";
+static char const *conv_abs_start_title = "Abs Start";
 
 static const QString table_name_ = QObject::tr("Conversation");
 ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :

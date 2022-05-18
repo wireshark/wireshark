@@ -52,7 +52,6 @@ set(NONGENERATED_UI_SRC
 	text_import.c
 	text_import_regex.c
 	time_shift.c
-	traffic_table_ui.c
 	util.c
 	voip_calls.c
 )
