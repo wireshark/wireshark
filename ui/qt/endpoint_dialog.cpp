@@ -59,23 +59,6 @@ typedef enum
     ENDP_NUM_GEO_COLUMNS
 } endpoint_column_type_e;
 
-static char const *endp_column_titles[ENDP_NUM_GEO_COLUMNS] = {
-    "Address",
-    "Port",
-    "Packets",
-    "Bytes",
-    "Tx Packets",
-    "Tx Bytes",
-    "Rx Packets",
-    "Rx Bytes",
-    "Country",
-    "City",
-    "AS Number",
-    "AS Organization"
-};
-
-static char const *endp_conn_title = "Connection";
-
 static const QString table_name_ = QObject::tr("Endpoint");
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
@@ -655,7 +638,7 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
     if (get_conversation_hide_ports(table_)) {
         hideColumn(ENDP_COLUMN_PORT);
     } else if (proto_filter_name == "ncp") {
-        headerItem()->setText(ENDP_COLUMN_PORT, endp_conn_title);
+        headerItem()->setText(ENDP_COLUMN_PORT, tr("Connection"));
     }
 
     int column_count = ENDP_NUM_COLUMNS;
@@ -663,7 +646,7 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
         column_count = ENDP_NUM_GEO_COLUMNS;
     }
     for (int col = 0; col < column_count; col++) {
-        headerItem()->setText(col, endp_column_titles[col]);
+        headerItem()->setText(col, columnTitle(col));
     }
 
 
@@ -732,6 +715,38 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
 EndpointTreeWidget::~EndpointTreeWidget()
 {
     reset_hostlist_table_data(&hash_);
+}
+
+QString EndpointTreeWidget::columnTitle(int col)
+{
+    switch (col) {
+        case 0:
+            return tr("Address"); break;
+        case 1:
+            return tr("Port"); break;
+        case 2:
+            return tr("Packets"); break;
+        case 3:
+            return tr("Bytes"); break;
+        case 4:
+            return tr("Tx Packets"); break;
+        case 5:
+            return tr("Tx Bytes"); break;
+        case 6:
+            return tr("Rx Packets"); break;
+        case 7:
+            return tr("Rx Bytes"); break;
+        case 8:
+            return tr("Country"); break;
+        case 9:
+            return tr("City"); break;
+        case 10:
+            return tr("AS Number"); break;
+        case 11:
+            return tr("AS Organization"); break;
+    }
+
+    return QString();
 }
 
 void EndpointTreeWidget::tapReset(void *conv_hash_ptr)

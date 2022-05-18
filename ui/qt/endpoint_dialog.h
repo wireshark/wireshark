@@ -36,6 +36,8 @@ signals:
 private:
     void updateItems();
 
+    QString columnTitle(int nr);
+
 #ifdef HAVE_MAXMINDDB
     bool has_geoip_data_;
 #endif

@@ -33,6 +33,8 @@ private:
     double min_rel_start_time_; // seconds
     double max_rel_stop_time_; // seconds
 
+    QString columnTitle(int nr);
+
 private slots:
     void filterActionTriggered();
 };
