@@ -98,6 +98,21 @@ static const blocktype_limit blocktype_limits[] = {
     {BP_BLOCKTYPE_INVALID, 0},
 };
 
+/// Dissection order by block type
+static int blocktype_order(const bp_block_canonical_t *block) {
+    if (block->type_code) {
+        switch (*(block->type_code)) {
+            case BP_BLOCKTYPE_BCB:
+                return -2;
+            case BP_BLOCKTYPE_BIB:
+                return -1;
+            default:
+                return 0;
+        }
+    }
+    return 0;
+}
+
 static const val64_string admin_type_vals[] = {
     {BP_ADMINTYPE_BUNDLE_STATUS, "Bundle Status Report"},
     {0, NULL},
@@ -1280,6 +1295,23 @@ static void show_status_subj_ref(gpointer key, gpointer val _U_, gpointer data) 
     }
 }
 
+/// Stable sort, preserving relative order of same priority
+int block_dissect_sort(gconstpointer a, gconstpointer b) {
+    DISSECTOR_ASSERT(a && b);
+    const bp_block_canonical_t *aobj = *(bp_block_canonical_t **)a;
+    const bp_block_canonical_t *bobj = *(bp_block_canonical_t **)b;
+    const int aord = blocktype_order(aobj);
+    const int bord = blocktype_order(bobj);
+    if (aord < bord) {
+        return -1;
+    }
+    else if (aord > bord) {
+        return 1;
+    }
+
+    return g_int_equal(&(aobj->blk_ix), &(bobj->blk_ix));
+}
+
 /// Top-level protocol dissector
 static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     {
@@ -1380,31 +1412,51 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         block_ix++;
     }
 
-    // Handle block-type-specific data after all blocks are present
+    // Block ordering requirements
     for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
             it = wmem_list_frame_next(it)) {
         bp_block_canonical_t *block = wmem_list_frame_data(it);
-
-        // Payload block requirements
         if (block->type_code && (*(block->type_code) == BP_BLOCKTYPE_PAYLOAD)) {
             // must be last block (i.e. next is NULL)
             if (wmem_list_frame_next(it)) {
                 expert_add_info(pinfo, block->item_block, &ei_block_payload_index);
             }
         }
+    }
 
-        if (block->data) {
-            // sub-dissect after all is read
-            dissector_handle_t data_dissect = NULL;
-            if (block->type_code) {
-                data_dissect = dissector_get_custom_table_handle(block_dissectors, block->type_code);
-            }
+    // Handle block-type-specific data after all blocks are present
+    wmem_array_t *sorted = wmem_array_sized_new(
+        wmem_packet_scope(),  sizeof(bp_block_canonical_t*),
+        wmem_list_count(bundle->blocks)
+    );
+    guint ix = 0;
+    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
+            it = wmem_list_frame_next(it), ++ix) {
+        bp_block_canonical_t *block = wmem_list_frame_data(it);
+        wmem_array_append_one(sorted, block);
+    }
+    wmem_array_sort(sorted, block_dissect_sort);
 
-            bp_dissector_data_t dissect_data;
-            dissect_data.bundle = bundle;
-            dissect_data.block = block;
-            dissect_carried_data(data_dissect, &dissect_data, block->data, pinfo, block->tree_data, FALSE);
+    // Dissect in sorted order
+    for (ix = 0; ix < wmem_array_get_count(sorted); ++ix) {
+        bp_block_canonical_t *block = *(bp_block_canonical_t **)wmem_array_index(sorted, ix);
+
+        // Ignore when data is absent or is a
+        // confidentiality target (i.e. ciphertext)
+        if (!(block->data) || (wmem_map_size(block->sec.data_c) > 0)) {
+            continue;
         }
+
+        // sub-dissect after all is read
+        dissector_handle_t data_dissect = NULL;
+        if (block->type_code) {
+            data_dissect = dissector_get_custom_table_handle(block_dissectors, block->type_code);
+        }
+
+        bp_dissector_data_t dissect_data;
+        dissect_data.bundle = bundle;
+        dissect_data.block = block;
+        dissect_carried_data(data_dissect, &dissect_data, block->data, pinfo, block->tree_data, FALSE);
     }
 
     // Block-data-derived markings
@@ -1415,16 +1467,32 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         apply_bpsec_mark(&(block->sec), pinfo, block->item_block);
     }
 
-    proto_item_append_text(item_bundle, ", Blocks: %" PRIu64, block_ix);
     if (bundle->primary) {
-        const bp_block_primary_t *block = bundle->primary;
-        proto_item_append_text(item_bundle, ", Dst: %s", block->dst_eid ? block->dst_eid->uri : NULL);
-        proto_item_append_text(item_bundle, ", Src: %s", block->src_nodeid ? block->src_nodeid->uri : NULL);
+        const bp_block_primary_t *primary = bundle->primary;
+
+        // identify bundle regardless of payload decoding
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s %s %s",
+                            primary->src_nodeid->uri,
+                            UTF8_RIGHTWARDS_ARROW,
+                            primary->dst_eid->uri);
+
+        const gboolean is_fragment = primary->flags & BP_BUNDLE_IS_FRAGMENT;
+        const gboolean is_admin = primary->flags & BP_BUNDLE_PAYLOAD_ADMIN;
+        if (is_admin) {
+            proto_item_append_text(item_bundle, ", ADMIN");
+        }
+        if (is_fragment) {
+            proto_item_append_text(item_bundle, ", FRAGMENT");
+        }
+        proto_item_append_text(item_bundle, ", Blocks: %" PRIu64, block_ix);
+        proto_item_append_text(item_bundle, ", Dst: %s", primary->dst_eid ? primary->dst_eid->uri : NULL);
+        proto_item_append_text(item_bundle, ", Src: %s", primary->src_nodeid ? primary->src_nodeid->uri : NULL);
         if (bundle->ident && (bundle->ident->ts)) {
             proto_item_append_text(item_bundle, ", Time: %" PRIu64, bundle->ident->ts->abstime.dtntime);
             proto_item_append_text(item_bundle, ", Seq: %" PRIu64, bundle->ident->ts->seqno);
         }
     }
+
     {
         // Keep bundle metadata around for the whole file
         bp_bundle_t *found = wmem_map_lookup(bp_history->bundles, bundle->ident);
@@ -1676,20 +1744,8 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     const gboolean is_fragment = bundle->primary->flags & BP_BUNDLE_IS_FRAGMENT;
     const gboolean is_admin = bundle->primary->flags & BP_BUNDLE_PAYLOAD_ADMIN;
-    if (is_admin) {
-        proto_item_append_text(item_bundle, ", ADMIN");
-    }
-    if (is_fragment) {
-        proto_item_append_text(item_bundle, ", FRAGMENT");
-    }
     const guint payload_len = tvb_reported_length(tvb);
     proto_item_append_text(item_bundle, ", Payload-Size: %d", payload_len);
-
-    // identify bundle regardless of payload decoding
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s %s %s",
-                        bundle->primary->src_nodeid->uri,
-                        UTF8_RIGHTWARDS_ARROW,
-                        bundle->primary->dst_eid->uri);
 
     // Set if the payload is fully defragmented
     tvbuff_t *tvb_payload = NULL;
@@ -1765,11 +1821,6 @@ static int dissect_block_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         col_append_str(pinfo->cinfo, COL_INFO, col_suffix);
     }
     if (!tvb_payload) {
-        return payload_len;
-    }
-
-    // confidentiality target (i.e. ciphertext)
-    if (wmem_map_size(context->block->sec.data_c) > 0) {
         return payload_len;
     }
 
