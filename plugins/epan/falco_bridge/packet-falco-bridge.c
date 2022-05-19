@@ -267,8 +267,8 @@ configure_plugin(bridge_info* bi, char* config _U_)
 
             if (sfi.type == SFT_STRINGZ && is_addr_field(sfi.abbrev)) {
                 bi->hf_id_to_addr_id[fld_cnt] = addr_fld_cnt;
-                bi->hf_ids[addr_fld_cnt] = -1;
 
+                bi->hf_v4_ids[addr_fld_cnt] = -1;
                 hf_register_info* ri_v4 = bi->hf_v4 + addr_fld_cnt;
                 hf_register_info finfo_v4 = {
                     bi->hf_v4_ids + addr_fld_cnt,
@@ -282,6 +282,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 };
                 *ri_v4 = finfo_v4;
 
+                bi->hf_v6_ids[addr_fld_cnt] = -1;
                 hf_register_info* ri_v6 = bi->hf_v6 + addr_fld_cnt;
                 hf_register_info finfo_v6 = {
                     bi->hf_v6_ids + addr_fld_cnt,
