@@ -115,14 +115,14 @@ const char *get_sinsp_source_description(sinsp_source_info_t *ssi)
     return ssi->description;
 }
 
-uint32_t get_sinsp_source_nfields(sinsp_source_info_t *ssi)
+size_t get_sinsp_source_nfields(sinsp_source_info_t *ssi)
 {
-    return ssi->source->nfields();
+    return ssi->source->fields().size();
 }
 
-bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, unsigned field_num, sinsp_field_info_t *field)
+bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sinsp_field_info_t *field)
 {
-    if (field_num >= ssi->source->nfields()) {
+    if (field_num >= ssi->source->fields().size()) {
         return false;
     }
 

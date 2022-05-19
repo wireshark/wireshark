@@ -69,8 +69,8 @@ bool init_sinsp_source(sinsp_source_info_t *ssi, const char *config);
 const char *get_sinsp_source_last_error(sinsp_source_info_t *ssi);
 const char *get_sinsp_source_name(sinsp_source_info_t *ssi);
 const char* get_sinsp_source_description(sinsp_source_info_t *ssi);
-uint32_t get_sinsp_source_nfields(sinsp_source_info_t *ssi);
-bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, unsigned field_num, sinsp_field_info_t *field);
+size_t get_sinsp_source_nfields(sinsp_source_info_t *ssi);
+bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sinsp_field_info_t *field);
 bool extract_sisnp_source_fields(sinsp_source_info_t *ssi, uint32_t evt_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
 
 
