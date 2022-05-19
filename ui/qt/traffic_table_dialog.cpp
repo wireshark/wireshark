@@ -48,7 +48,6 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height() * 3 / 4);
 
-    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(table_name));
     ui->absoluteTimeCheckBox->hide();
     setWindowSubtitle(QString("%1s").arg(table_name));
 
@@ -63,7 +62,10 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     connect(ca, SIGNAL(triggered()), this, SLOT(copyAsYaml()));
     copy_bt_->setMenu(copy_menu);
 
+    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(table_name));
     ui->enabledTypesPushButton->setMenu(&traffic_type_menu_);
+    ui->horizontalLayout->removeWidget(ui->enabledTypesPushButton);
+    ui->trafficTableTabWidget->setCornerWidget(ui->enabledTypesPushButton);
     ui->trafficTableTabWidget->setFocus();
 
     if (cf.timestampPrecision() == WTAP_TSPREC_NSEC) {
