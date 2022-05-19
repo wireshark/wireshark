@@ -338,6 +338,7 @@ TrafficTableTreeWidget::TrafficTableTreeWidget(QWidget *parent, register_ct_t *t
     resolve_names_(false)
 {
     setRootIsDecorated(false);
+    setAlternatingRowColors(true);
     sortByColumn(0, Qt::AscendingOrder);
 
     connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateItemsForSettingChange()));
@@ -364,6 +365,7 @@ QList<QVariant> TrafficTableTreeWidget::rowData(int row) const
             }
         }
     }
+
     return row_data;
 }
 

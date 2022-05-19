@@ -728,6 +728,13 @@ ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, register_ct_t* t
         connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
     }
 
+    ctx_menu_.addSeparator();
+    QAction * act = ctx_menu_.addAction(tr("Resize all columns to content"));
+    connect(act, &QAction::triggered, [this]() {
+        for (int col = 0; col < this->columnCount(); col++)
+            this->resizeColumnToContents(col);
+    });
+
     updateItems();
 }
 
