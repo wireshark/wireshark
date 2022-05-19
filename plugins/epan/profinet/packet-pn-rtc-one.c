@@ -983,7 +983,7 @@ dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
         u8status = tvb_get_guint8(tvb, offset);
         quality = (u8status >> 6u) & 0x3u;
 
-        /* add ioxs subtree */
+        /* add status subtree */
         status_item = proto_tree_add_uint(tree, hfindex, tvb, offset, 1, u8status);
 
         quality_name = try_val_to_str(quality, pn_pa_profile_status_quality);
@@ -994,23 +994,24 @@ dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
 
         status_tree = proto_item_add_subtree(status_item, ett_pn_pa_profile_status);
 
-        proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_quality,      tvb, offset, 1, u8status);
+        proto_tree_add_item(status_tree, hf_pn_pa_profile_status_quality, tvb, offset, 1, ENC_NA);
+
         switch(quality)
         {
             case 0:
-                proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_substatus_bad, tvb, offset, 1, u8status);
+                proto_tree_add_item(status_tree, hf_pn_pa_profile_status_substatus_bad, tvb, offset, 1, ENC_NA);
                 break;
             case 1:
-                proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_substatus_uncertain, tvb, offset, 1, u8status);
+                proto_tree_add_item(status_tree, hf_pn_pa_profile_status_substatus_uncertain, tvb, offset, 1, ENC_NA);
                 break;
             case 2:
-                proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_substatus_good, tvb, offset, 1, u8status);
+                proto_tree_add_item(status_tree, hf_pn_pa_profile_status_substatus_good, tvb, offset, 1, ENC_NA);
                 break;
             default:
                 break;
         }
-        proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_update_event, tvb, offset, 1, u8status);
-        proto_tree_add_uint(status_tree, hf_pn_pa_profile_status_simulate,     tvb, offset, 1, u8status);
+        proto_tree_add_item(status_tree, hf_pn_pa_profile_status_update_event, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(status_tree, hf_pn_pa_profile_status_simulate,     tvb, offset, 1, ENC_NA);
     }
 
     return offset + 1;
