@@ -98,41 +98,31 @@ const QList<int> TrafficTableDialog::defaultProtos() const
                         << proto_get_id_by_filter_name("udp");
 }
 
-class fillTypeMenuData
+static gboolean iterateProtocols(const void *key, void *value, void *userdata)
 {
-public:
-    fillTypeMenuData(TrafficTableDialog* dialog, QList<int> &enabled_protos)
-    : dialog_(dialog),
-    enabled_protos_(enabled_protos)
-    {
-    }
-
-    TrafficTableDialog* dialog_;
-    QList<int> &enabled_protos_;
-};
-
-gboolean TrafficTableDialog::fillTypeMenuFunc(const void *key, void *value, void *userdata)
-{
+    QMap<int, QString> *protocols = (QMap<int, QString> *)userdata;
     register_ct_t* ct = (register_ct_t*)value;
     const QString title = (const gchar*)key;
-    fillTypeMenuData* data = (fillTypeMenuData*)userdata;
     int proto_id = get_conversation_proto_id(ct);
-
-    QAction *endp_action = new QAction(title, data->dialog_);
-    endp_action->setData(QVariant::fromValue(proto_id));
-    endp_action->setCheckable(true);
-    endp_action->setChecked(data->enabled_protos_.contains(proto_id));
-    data->dialog_->connect(endp_action, SIGNAL(triggered()), data->dialog_, SLOT(toggleTable()));
-    data->dialog_->traffic_type_menu_.addAction(endp_action);
+    protocols->insert(proto_id, title);
 
     return FALSE;
 }
 
 void TrafficTableDialog::fillTypeMenu(QList<int> &enabled_protos)
 {
-    fillTypeMenuData data(this, enabled_protos);
+    QMap<int, QString> protocols;
+    conversation_table_iterate_tables(iterateProtocols, &protocols);
 
-    conversation_table_iterate_tables(fillTypeMenuFunc, &data);
+    foreach (int proto_id, protocols.keys())
+    {
+        QAction * endPoint = new QAction(protocols[proto_id], this);
+        endPoint->setData(QVariant::fromValue(proto_id));
+        endPoint->setCheckable(true);
+        endPoint->setChecked(enabled_protos.contains(proto_id));
+        connect(endPoint, &QAction::triggered, this, &TrafficTableDialog::toggleTable);
+        traffic_type_menu_.addAction(endPoint);
+    }
 }
 
 void TrafficTableDialog::addProgressFrame(QObject *parent)
