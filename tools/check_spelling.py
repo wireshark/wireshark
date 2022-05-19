@@ -309,6 +309,10 @@ def isGeneratedFile(filename):
     if not filename.endswith('.c'):
         return False
 
+    # This file is generated, but notice is further in than want to check for all files
+    if filename.endswith('pci-ids.c'):
+        return True
+
     # Open file
     f_read = open(os.path.join(filename), 'r')
     for line_no,line in enumerate(f_read):
