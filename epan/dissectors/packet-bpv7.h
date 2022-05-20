@@ -1,7 +1,7 @@
 /* packet-bpv7.h
  * Definitions for Bundle Protocol Version 7 dissection.
  * References:
- *     BPv7: https://datatracker.ietf.org/doc/html/draft-ietf-dtn-bpbis-31
+ *     RFC 9171: https://www.rfc-editor.org/rfc/rfc9171.html
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *
@@ -38,7 +38,7 @@ extern "C" {
  */
 
 /** Bundle CRC types.
- * Section 4.1.1.
+ * RFC 9171 Section 4.2.1.
  */
 typedef enum {
     /// no CRC is present.
@@ -50,7 +50,7 @@ typedef enum {
 } BundleCrcType;
 
 /** Bundle processing control flags.
- * Section 4.1.3.
+ * RFC 9171 Section 4.2.3.
  */
 typedef enum {
     /// bundle deletion status reports are requested.
@@ -74,7 +74,7 @@ typedef enum {
 } BundleProcessingFlag;
 
 /** Block processing control flags.
- * Section 4.1.4.
+ * RFC 9171 Section 4.2.4.
  */
 typedef enum {
     /// block must be removed from bundle if it can't be processed.
@@ -88,7 +88,7 @@ typedef enum {
 } BlockProcessingFlag;
 
 /** Standard block type codes.
- * Section 4.2.3 and Section 4.3.
+ * RFC 9171 Section 4.3.2 and Section 4.4.
  */
 typedef enum {
     BP_BLOCKTYPE_INVALID = 0,
@@ -107,7 +107,7 @@ typedef enum {
 } BlockTypeCode;
 
 /** Administrative record type codes.
- * Section 6.1.
+ * RFC 9171 Section 6.1.
  */
 typedef enum {
     /// Bundle status report

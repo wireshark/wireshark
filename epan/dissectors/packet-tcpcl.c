@@ -1,7 +1,7 @@
 /* packet-tcpcl.c
  * References:
  *     RFC 7242: https://tools.ietf.org/html/rfc7242
- *     TCPCLv4: https://www.ietf.org/archive/id/draft-ietf-dtn-tcpclv4-28.html
+ *     RFC 9174: https://www.rfc-editor.org/rfc/rfc9174.html
  *
  * TCPCLv4 portions copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  * Copyright 2006-2007 The MITRE Corporation.

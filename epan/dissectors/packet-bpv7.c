@@ -1,7 +1,7 @@
 /* packet-bpv7.c
  * Routines for Bundle Protocol Version 7 dissection
  * References:
- *     BPv7: https://datatracker.ietf.org/doc/html/draft-ietf-dtn-bpbis-31
+ *     RFC 9171: https://www.rfc-editor.org/rfc/rfc9171.html
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *

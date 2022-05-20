@@ -1,7 +1,8 @@
 /* packet-sec.c
  * Routines for Bundle Protocol Version 7 Security (BPSec) dissection
  * References:
- *     BPSec: https://datatracker.ietf.org/doc/html/draft-ietf-dtn-bpsec-27
+ *     RFC 9172: https://www.rfc-editor.org/rfc/rfc9172.html
+ *     RFC 9173: https://www.rfc-editor.org/rfc/rfc9173.html
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *

@@ -1,7 +1,7 @@
 /* packet-bpv7.h
  * Definitions for Bundle Protocol Version 7 Security (BPSec) dissection
  * References:
- *     BPSec: https://datatracker.ietf.org/doc/html/draft-ietf-dtn-bpsec-27
+ *     RFC 9172: https://www.rfc-editor.org/rfc/rfc9172.html
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *
@@ -32,10 +32,10 @@ extern "C" {
  */
 
 /** Abstract Security Block Security Context Flags.
- * Section 3.6.
+ * RFC 9172 Section 3.6.
  */
 typedef enum {
-    /// Security Parameters present
+    /// Security Context Parameters present
     BPSEC_ASB_HAS_PARAMS = 0x01,
 } BpsecAsbFlag;
 
