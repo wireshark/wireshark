@@ -506,7 +506,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_uint(fr_tree, hf_fr_dlci, tvb, 0, offset, addr);
     }
 
-    conversation_create_endpoint_by_id(pinfo, ENDPOINT_DLCI, addr, 0);
+    conversation_create_endpoint_by_id(pinfo, ENDPOINT_DLCI, addr);
     col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", addr);
   }
 

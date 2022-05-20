@@ -1621,9 +1621,9 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         virtual_id = isi;
         pinfo->p2p_dir = P2P_DIR_SENT;
     }
-    subcircuit = find_conversation_by_id(pinfo->num, ENDPOINT_DVBBBF, virtual_id, 0);
+    subcircuit = find_conversation_by_id(pinfo->num, ENDPOINT_DVBBBF, virtual_id);
     if (subcircuit == NULL) {
-        subcircuit = conversation_new_by_id(pinfo->num, ENDPOINT_DVBBBF, virtual_id, 0);
+        subcircuit = conversation_new_by_id(pinfo->num, ENDPOINT_DVBBBF, virtual_id);
     }
 
     /* conversation_create_endpoint() could be useful for the subdissectors

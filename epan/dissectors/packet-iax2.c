@@ -815,7 +815,7 @@ static conversation_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item 
   }
 
   conv = conversation_new_by_id(framenum, ENDPOINT_IAX2,
-                    circuit_id, 0);
+                    circuit_id);
 
   conversation_add_proto_data(conv, proto_iax2, iax_call);
 
@@ -867,7 +867,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
   iax_call_data *iax_call;
   gboolean       reversed = FALSE;
 
-  dst_conv = find_conversation_by_id(framenum, ENDPOINT_IAX2, dst_circuit_id, 0);
+  dst_conv = find_conversation_by_id(framenum, ENDPOINT_IAX2, dst_circuit_id);
 
   if (!dst_conv) {
 #ifdef DEBUG_HASHING
@@ -997,7 +997,7 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
      * packet.
      */
 
-    src_conv = find_conversation_by_id(pinfo->num, ENDPOINT_IAX2, src_circuit_id, 0);
+    src_conv = find_conversation_by_id(pinfo->num, ENDPOINT_IAX2, src_circuit_id);
 
     if (src_conv) {
       iax_call = (iax_call_data *)conversation_get_proto_data(src_conv, proto_iax2);

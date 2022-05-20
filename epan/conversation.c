@@ -49,6 +49,11 @@ struct conversation_key {
 };
 
 /*
+ * Hash table of hash tables for conversations identified by element lists.
+ */
+static wmem_map_t *conversation_hashtable_element_list = NULL;
+
+/*
  * Hash table for conversations with no wildcards.
  */
 static wmem_map_t *conversation_hashtable_exact_addr_port = NULL;
@@ -69,9 +74,9 @@ static wmem_map_t *conversation_hashtable_no_port2 = NULL;
 static wmem_map_t *conversation_hashtable_no_addr2_or_port2 = NULL;
 
 /*
- * Hash table of hash tables for conversations identified by element lists.
+ * Hash table for conversations with a single unsigned ID number.
  */
-static wmem_map_t *conversation_hashtable_element_list = NULL;
+static wmem_map_t *conversation_hashtable_id = NULL;
 
 static guint32 new_index;
 
@@ -80,6 +85,8 @@ static guint32 new_index;
  */
 static address null_address_ = ADDRESS_INIT_NONE;
 
+
+static char* conversation_element_list_name(conversation_element_t *elements);
 
 static conversation_t *conversation_lookup_hashtable(wmem_map_t *conversation_hashtable, const guint32 frame_num, conversation_key_t conv_key);
 
@@ -590,6 +597,17 @@ conversation_init(void)
 
     conversation_hashtable_element_list =
         wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+
+    conversation_element_t id_elements[2] = {0};
+    id_elements[0].type = CE_UINT64;
+    id_elements[1].type = CE_ENDPOINT;
+    char *id_map_key = conversation_element_list_name(id_elements);
+    conversation_hashtable_id = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                       conversation_hash_element_list,
+                                                       conversation_match_element_list);
+    wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), id_map_key),
+                    conversation_hashtable_id);
+    g_free(id_map_key);
 }
 
 /**
@@ -994,10 +1012,25 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 }
 
 conversation_t *
-conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint32 id, const guint options)
+conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint64 id)
 {
-    /* Force the lack of an address or port 2 */
-    return conversation_new(setup_frame, NULL, NULL, etype, id, 0, options | NO_ADDR2 | NO_PORT2);
+    conversation_element_t elements[2];
+    elements[0].type = CE_UINT64;
+    elements[0].uint64_val = id;
+    elements[1].type = CE_ENDPOINT;
+    elements[1].endpoint_type_val = etype;
+
+    conversation_t *conversation = wmem_new0(wmem_file_scope(), conversation_t);
+    conversation->conv_index = new_index;
+    conversation->setup_frame = conversation->last_frame = setup_frame;
+
+    new_index++;
+
+    // XXX Overloading conversation_key_t this way is terrible and we shouldn't do it.
+    conversation->key_ptr = (conversation_key_t) elements;
+    conversation_insert_into_hashtable(conversation_hashtable_id, conversation);
+
+    return conversation;
 }
 
 /*
@@ -1540,10 +1573,15 @@ end:
 }
 
 conversation_t *
-find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id, const guint options)
+find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint64 id)
 {
-    /* Force the lack of a address or port B */
-    return find_conversation(frame, &null_address_, &null_address_, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
+    conversation_element_t elements[2];
+    elements[0].type = CE_UINT64;
+    elements[0].uint64_val = id;
+    elements[1].type = CE_ENDPOINT;
+    elements[1].endpoint_type_val = etype;
+
+    return conversation_lookup_hashtable(conversation_hashtable_id, frame, (conversation_key_t)elements);
 }
 
 void
@@ -1674,12 +1712,12 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const e
 }
 
 gboolean
-try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
+try_conversation_dissector_by_id(const endpoint_type etype, const guint64 id, tvbuff_t *tvb,
         packet_info *pinfo, proto_tree *tree, void* data)
 {
     conversation_t *conversation;
 
-    conversation = find_conversation_by_id(pinfo->num, etype, id, 0);
+    conversation = find_conversation_by_id(pinfo->num, etype, id);
 
     if (conversation != NULL) {
         int ret;
@@ -1781,17 +1819,17 @@ find_or_create_conversation(packet_info *pinfo)
 }
 
 conversation_t *
-find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id)
+find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint64 id)
 {
     conversation_t *conv=NULL;
 
     /* Have we seen this conversation before? */
-    if ((conv = find_conversation_by_id(pinfo->num, etype, id, 0)) == NULL) {
+    if ((conv = find_conversation_by_id(pinfo->num, etype, id)) == NULL) {
         /* No, this is a new conversation. */
         DPRINT(("did not find previous conversation for frame #%u",
                     pinfo->num));
         DINDENT();
-        conv = conversation_new_by_id(pinfo->num, etype, id, 0);
+        conv = conversation_new_by_id(pinfo->num, etype, id);
         DENDENT();
     }
 
@@ -1819,10 +1857,10 @@ conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address
 
 void
 conversation_create_endpoint_by_id(struct _packet_info *pinfo,
-        endpoint_type etype, guint32 id, const guint options)
+        endpoint_type etype, guint32 id)
 {
     /* Force the lack of a address or port B */
-    conversation_create_endpoint(pinfo, &null_address_, &null_address_, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
+    conversation_create_endpoint(pinfo, &null_address_, &null_address_, etype, id, 0, 0);
 }
 
 guint32

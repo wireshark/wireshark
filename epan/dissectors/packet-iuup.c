@@ -619,7 +619,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
 
         phdr &= 0x7fff;
 
-        conversation_create_endpoint_by_id(pinfo, ENDPOINT_IUUP, phdr, 0);
+        conversation_create_endpoint_by_id(pinfo, ENDPOINT_IUUP, phdr);
 
         tvb = tvb_new_subset_length(tvb_in,2,len);
     }

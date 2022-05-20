@@ -186,7 +186,7 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_full(const guint32 
 WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
     const endpoint_type etype, const guint32 port1, const guint32 port2, const guint options);
 
-WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint32 id, const guint options);
+WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint64 id);
 
 /**
  * Search for a conversation based on the structure and values of an element list.
@@ -244,7 +244,7 @@ WS_DLL_PUBLIC conversation_t *find_conversation_full(const guint32 frame_num, co
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const endpoint_type etype, const guint32 port_a, const guint32 port_b, const guint options);
 
-WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id, const guint options);
+WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint64 id);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
@@ -267,7 +267,7 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *find_or_create_conversation(packet_i
  *  conversation is not found, calls conversation_new_by_id().
  *  The frame number is taken from pinfo.
  */
-WS_DLL_PUBLIC WS_RETNONNULL conversation_t *find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id);
+WS_DLL_PUBLIC WS_RETNONNULL conversation_t *find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint64 id);
 
 /** Associate data with a conversation.
  * @param conv Conversation. Must not be NULL.
@@ -300,7 +300,7 @@ WS_DLL_PUBLIC void conversation_create_endpoint(struct _packet_info *pinfo, addr
     endpoint_type etype, guint32 port1, guint32	port2, const guint options);
 
 WS_DLL_PUBLIC void conversation_create_endpoint_by_id(struct _packet_info *pinfo,
-    endpoint_type etype, guint32 id, const guint options);
+    endpoint_type etype, guint32 id);
 
 WS_DLL_PUBLIC guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo,
     endpoint_type etype, const guint options);
@@ -319,7 +319,7 @@ WS_DLL_PUBLIC gboolean try_conversation_dissector(const address *addr_a, const a
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data, const guint options);
 
-WS_DLL_PUBLIC gboolean try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
+WS_DLL_PUBLIC gboolean try_conversation_dissector_by_id(const endpoint_type etype, const guint64 id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data);
 
 /* These routines are used to set undefined values for a conversation */

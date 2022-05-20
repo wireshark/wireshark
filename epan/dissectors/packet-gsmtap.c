@@ -853,7 +853,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	/* Try to build an identifier of different 'streams' */
 	/* (AFCN _cant_ be used because of hopping */
-	conversation_create_endpoint_by_id(pinfo, ENDPOINT_GSMTAP, (timeslot << 3) | subslot, 0);
+	conversation_create_endpoint_by_id(pinfo, ENDPOINT_GSMTAP, (timeslot << 3) | subslot);
 
 	if (tree) {
 		guint8 channel;

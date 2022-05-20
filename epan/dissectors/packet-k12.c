@@ -211,7 +211,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree, void* data _U_)
 			     * XXX: this is prone to collisions!
 			     * we need an uniform way to manage circuits between dissectors
 			     */
-		conversation_create_endpoint_by_id(pinfo, ENDPOINT_NONE, g_str_hash(circuit_str), 0);
+		conversation_create_endpoint_by_id(pinfo, ENDPOINT_NONE, g_str_hash(circuit_str));
 
 		proto_tree_add_uint(k12_tree, hf_k12_atm_vp, tvb, 0, 0,
 				    pinfo->pseudo_header->k12.input_info.atm.vp);

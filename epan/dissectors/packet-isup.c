@@ -10403,7 +10403,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         isup_tree = proto_item_add_subtree(ti, ett_isup);
         proto_tree_add_uint(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic);
       }
-      conversation_create_endpoint_by_id(pinfo, ENDPOINT_ISUP, cic, 0);
+      conversation_create_endpoint_by_id(pinfo, ENDPOINT_ISUP, cic);
       message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
       dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT, cic);
       break;
@@ -10452,7 +10452,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         isup_tree = proto_item_add_subtree(ti, ett_isup);
         proto_tree_add_uint(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic);
       }
-      conversation_create_endpoint_by_id(pinfo, ENDPOINT_ISUP, cic, 0);
+      conversation_create_endpoint_by_id(pinfo, ENDPOINT_ISUP, cic);
       message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
       dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant, cic);
   }
@@ -10506,7 +10506,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   bicc_cic = tvb_get_letohl(tvb, BICC_CIC_OFFSET);
 
-  conversation_create_endpoint_by_id(pinfo, ENDPOINT_BICC, bicc_cic, 0);
+  conversation_create_endpoint_by_id(pinfo, ENDPOINT_BICC, bicc_cic);
 
   col_clear(pinfo->cinfo, COL_INFO);
   if (isup_show_cic_in_info) {

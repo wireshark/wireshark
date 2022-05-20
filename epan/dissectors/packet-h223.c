@@ -395,10 +395,10 @@ init_logical_channel( guint32 start_frame, h223_call_info* call_info, int vc, in
     guint32 circuit_id = circuit_chain_lookup(call_info, vc);
     conversation_t *subcircuit;
     h223_vc_info *vc_info;
-    subcircuit = find_conversation_by_id( start_frame, ENDPOINT_H223, circuit_id, 0);
+    subcircuit = find_conversation_by_id( start_frame, ENDPOINT_H223, circuit_id);
 
     if( subcircuit == NULL ) {
-        subcircuit = conversation_new_by_id( start_frame, ENDPOINT_H223, circuit_id, 0 );
+        subcircuit = conversation_new_by_id( start_frame, ENDPOINT_H223, circuit_id);
 #ifdef DEBUG_H223
         ws_debug("%d: Created new circuit %d for call %p VC %d", start_frame, circuit_id, call_info, vc);
 #endif
@@ -444,7 +444,7 @@ find_or_create_call_info_circ(packet_info * pinfo, endpoint_type etype, guint32 
     conversation_t *circ = NULL;
 
     if(etype != ENDPOINT_NONE)
-        circ = find_conversation_by_id( pinfo->num, etype, circuit_id, 0);
+        circ = find_conversation_by_id( pinfo->num, etype, circuit_id);
     if(circ == NULL)
         return NULL;
 
@@ -727,9 +727,9 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
     TRY {
         /* update the circuit details before passing to a subdissector */
         guint32 circuit_id = circuit_chain_lookup(call_info, vc);
-        conversation_create_endpoint_by_id(pinfo, ENDPOINT_H223, circuit_id, 0);
+        conversation_create_endpoint_by_id(pinfo, ENDPOINT_H223, circuit_id);
 
-        conversation_t *subcircuit = find_conversation_by_id(pinfo->num, ENDPOINT_H223, circuit_id, 0);
+        conversation_t *subcircuit = find_conversation_by_id(pinfo->num, ENDPOINT_H223, circuit_id);
         proto_tree *vc_tree;
         proto_item *vc_item;
         h223_vc_info *vc_info = NULL;
@@ -793,7 +793,7 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 
     /* restore the original circuit details for future PDUs */
     FINALLY {
-        conversation_create_endpoint_by_id(pinfo, orig_etype, orig_circuit, 0);
+        conversation_create_endpoint_by_id(pinfo, orig_etype, orig_circuit);
     }
     ENDTRY;
 }

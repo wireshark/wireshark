@@ -191,9 +191,9 @@ vjc_find_conversation(packet_info *pinfo, guint32 vjc_cnum, gboolean create)
             return conv;
     }
 
-    conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, vjc_cnum, 0);
+    conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, vjc_cnum);
     if (!conv && create) {
-        conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, vjc_cnum, 0);
+        conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, vjc_cnum);
     }
 
     return conv;
