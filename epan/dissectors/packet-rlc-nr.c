@@ -964,6 +964,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
             } else {
                 nack_count += nack_range-1;
             }
+            proto_item_append_text(nack_range_ti, " (SNs %" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT " missing)", nack_sn, nack_sn+nack_range-1);
 
             write_pdu_label_and_info(top_ti, NULL, pinfo," NACK range=%u", nack_range);
         }
