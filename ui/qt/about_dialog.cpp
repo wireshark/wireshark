@@ -461,8 +461,18 @@ void AboutDialog::updateWiresharkText()
     /* Save the info for the clipboard copy */
     clipboardInfo = "";
     clipboardInfo += vcs_version_info_str + "\n\n";
+    /* XXX: GCC 12.1 has a bogus stringop-overread warning using the Qt
+     * conversions from QByteArray to QString at -O2 and higher due to
+     * computing a branch that will never be taken.
+     */
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_OFF(stringop-overread)
+#endif
     clipboardInfo += gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info)) + "\n";
     clipboardInfo += gstring_free_to_qbytearray(get_runtime_version_info(gather_wireshark_runtime_info));
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_ON(stringop-overread)
+#endif
 }
 
 void AboutDialog::on_copyToClipboard_clicked()

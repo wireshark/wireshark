@@ -950,7 +950,17 @@ void WiresharkMainWindow::startCapture(QStringList interfaces _U_) {
                     /* Not the first selected interface; is its capture filter
                        the same as the one the other interfaces we've looked
                        at have? */
+                    /* XXX: GCC 12.1 has a bogus warning at -O2 and higher
+                     * even though the isEmpty() check guarantees that
+                     * filter_ba.constData() is never NULL or empty.
+                     */
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_OFF(stringop-overread)
+#endif
                     if (strcmp(interface_opts->cfilter, filter_ba.constData()) != 0) {
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_ON(stringop-overread)
+#endif
                         /* No, so not all selected interfaces have the same capture
                            filter. */
                         filter_ba.clear();

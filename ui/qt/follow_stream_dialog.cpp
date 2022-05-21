@@ -891,7 +891,17 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
             int len = current_pos + base64_raw_len < nchars ? base64_raw_len : (int) nchars - current_pos;
             QByteArray base64_data(&buffer[current_pos], len);
 
+            /* XXX: GCC 12.1 has a bogus stringop-overread warning using the Qt
+             * conversions from QByteArray to QString at -O2 and higher due to
+             * computing a branch that will never be taken.
+             */
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_OFF(stringop-overread)
+#endif
             yaml_text += "      " + base64_data.toBase64() + "\n";
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_ON(stringop-overread)
+#endif
 
             current_pos += len;
             (*global_pos) += len;
