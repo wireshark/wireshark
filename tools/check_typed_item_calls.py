@@ -314,7 +314,7 @@ class Item:
 
         # Optionally check that mask bits are contiguous
         if check_mask:
-            if not mask in { 'NULL', '0x0', '0', '0x00'}:
+            if self.mask_read and not mask in { 'NULL', '0x0', '0', '0x00'}:
                 self.check_contiguous_bits(mask)
                 #self.check_mask_too_long(mask)
                 self.check_num_digits(mask)
@@ -323,6 +323,13 @@ class Item:
 
     def set_mask_value(self):
         try:
+            self.mask_read = True
+            if any(not c in '0123456789abcdefABCDEFxX' for c in self.mask):
+                self.mask_read = False
+                self.mask_value = 0
+                return
+
+
             # Read according to the appropriate base.
             if self.mask.startswith('0x'):
                 self.mask_value = int(self.mask, 16)
@@ -331,6 +338,7 @@ class Item:
             else:
                 self.mask_value = int(self.mask, 10)
         except:
+            self.mask_read = False
             self.mask_value = 0
 
 
