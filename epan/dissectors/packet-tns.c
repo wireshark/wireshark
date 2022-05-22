@@ -178,6 +178,7 @@ static int hf_tns_data_flag_sntt;
 static int hf_tns_data_id;
 static int hf_tns_data_length;
 static int hf_tns_data_oci_id;
+static int hf_tns_data_tseq;
 static int hf_tns_data_piggyback_id;
 static int hf_tns_data_unused;
 
@@ -736,6 +737,8 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		case SQLNET_USER_OCI_FUNC:
 			proto_tree_add_item(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
+			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
 			break;
 
 		case SQLNET_RETURN_OPI_PARAM:
@@ -944,6 +947,8 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 		case SQLNET_PIGGYBACK_FUNC:
 			proto_tree_add_item(data_tree, hf_tns_data_piggyback_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 
@@ -1729,6 +1734,10 @@ void proto_register_tns(void)
 		{ &hf_tns_data_oci_id, {
 			"Call ID", "tns.data_oci.id", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
 			&tns_data_oci_subfuncs_ext, 0x00, NULL, HFILL }},
+
+		{ &hf_tns_data_tseq, {
+			"TSeq", "tns.data_tseq", FT_UINT8, BASE_HEX,
+			NULL, 0x00, NULL, HFILL }},
 
 		{ &hf_tns_data_piggyback_id, {
 			/* Also Call ID.
