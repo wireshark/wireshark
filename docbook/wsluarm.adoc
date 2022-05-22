@@ -247,3 +247,13 @@ include::{build_dir}/wsluarm_src/wslua_wtap.adoc[]
 include::{build_dir}/wsluarm_src/wslua_util.adoc[]
 include::{build_dir}/wsluarm_src/wslua_int64.adoc[]
 include::{build_dir}/wsluarm_src/wslua_struct.adoc[]
+
+[#lua_module_PCRE2]
+
+=== PCRE2 Regular Expressions
+
+Lua has its own native _pattern_ syntax in the string library, but sometimes a
+real regex engine is more useful. Wireshark comes with Perl Compatible Regular
+Expressions version 2 (PCRE2). This engine is exposed into Wireshark’s Lua engine through the
+well-known Lrexlib library. The module is loaded in the global environment using
+the "rex_pcre2" table. The manual is available at https://rrthomas.github.io/lrexlib/manual.html.

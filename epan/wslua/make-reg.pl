@@ -80,7 +80,10 @@ for (@classes) {
 	print C "\twslua_reg_module(L, \"${_}\", ${_}_register);\n";
 }
 print C "\twslua_reg_module(L, \"bit\", luaopen_bit);\n";
-#print C "\twslua_reg_module(L, \"GRegex\", luaopen_rex_glib);\n";
+#print C "\twslua_reg_module(L, \"rex_pcre2\", luaopen_rex_pcre2);\n";
+print C "\tlua_pushcfunction(L, luaopen_rex_pcre2);\n";
+print C "\tlua_call(L, 0, 1);\n";
+print C "\tlua_setglobal(L, \"rex_pcre2\");\n";
 print C "}\n\n";
 
 

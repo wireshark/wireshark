@@ -806,7 +806,7 @@ extern char* wslua_get_actual_filename(const char* fname);
 
 extern int wslua_bin2hex(lua_State* L, const guint8* data, const guint len, const gboolean lowercase, const gchar* sep);
 extern int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* sep);
-//extern int luaopen_rex_glib(lua_State *L);
+extern int luaopen_rex_pcre2(lua_State *L);
 
 extern const gchar* get_current_plugin_version(void);
 extern void clear_current_plugin_version(void);

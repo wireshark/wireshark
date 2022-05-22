@@ -907,6 +907,9 @@
     ["report_failure"] = '<function 471>',
     ["require"] = '<function 472>',
     ["retap_packets"] = '<function 473>',
+    ["rex_pcre2"] = {
+        ["_VERSION"] = "Lrexlib 2.9.1 (for PCRE2)"
+    },
     ["run_user_scripts_when_superuser"] = '<filtered>',
     ["running_superuser"] = '<filtered>',
     ["select"] = '<function 474>',

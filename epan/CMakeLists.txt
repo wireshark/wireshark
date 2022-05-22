@@ -344,6 +344,7 @@ target_link_libraries(epan
 		${WIN_WS2_32_LIBRARY}
 		${ZLIB_LIBRARIES}
 		${ZSTD_LIBRARIES}
+		$<$<BOOL:${LUA_FOUND}>:lrexlib>
 )
 
 target_include_directories(epan
