@@ -1069,7 +1069,7 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
 
             /* Standard USB Endpoint Descriptor */
             dissect_usb_endpoint_descriptor(pinfo, tree, tvb, loop_offset,
-                    &usb_conv_info, &last_ep_type);
+                    &usb_conv_info, &last_ep_type, USB_SPEED_UNKNOWN);
             loop_offset += USB_DT_EP_SIZE;
 
             /* If there are more descriptors to read */

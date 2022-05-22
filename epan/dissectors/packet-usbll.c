@@ -108,6 +108,16 @@ static reassembly_table usbll_reassembly_table;
 
 static wmem_map_t *transfer_info;
 
+static const enum_val_t dissect_unknown_speed_as[] = {
+    { "unk",  "Unknown",    USB_SPEED_UNKNOWN },
+    { "low",  "Low-Speed",  USB_SPEED_LOW },
+    { "full", "Full-Speed", USB_SPEED_FULL },
+    { "high", "High-Speed", USB_SPEED_HIGH },
+    { NULL, NULL, 0 }
+};
+
+static gint global_dissect_unknown_speed_as = USB_SPEED_UNKNOWN;
+
 /* USB packet ID is 4-bit. It is send in octet alongside complemented form.
  * The list of PIDs is available in Universal Serial Bus Specification Revision 2.0,
  * Table 8-1. PID Types
@@ -348,6 +358,7 @@ typedef struct usbll_transaction_info {
     guint8 pid;
     guint8 address;
     guint8 endpoint;
+    usb_speed_t speed;
     struct usbll_transaction_info *split_start;
     struct usbll_transaction_info *split_complete;
 } usbll_transaction_info_t;
@@ -780,6 +791,48 @@ static gboolean usbll_is_data_from_host(usbll_state_t state)
         case STATE_CSPLIT_ISOCHRONOUS_IN_DATA0:
         case STATE_CSPLIT_ISOCHRONOUS_IN_MDATA:
             return FALSE;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+    }
+}
+
+static usb_speed_t usbll_get_data_transaction_speed(usbll_data_t *data)
+{
+    switch (data->transaction_state)
+    {
+        case STATE_IN_DATA0:
+        case STATE_IN_DATA1:
+        case STATE_IN_HS_ISOCHRONOUS_DATA2:
+        case STATE_OUT_DATA0:
+        case STATE_OUT_DATA1:
+        case STATE_OUT_HS_ISOCHRONOUS_DATA2:
+        case STATE_OUT_HS_ISOCHRONOUS_MDATA:
+        case STATE_SETUP_DATA0:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            return data->transaction->speed;
+        case STATE_SSPLIT_CONTROL_SETUP_DATA0:
+        case STATE_SSPLIT_CONTROL_OUT_DATA0:
+        case STATE_SSPLIT_CONTROL_OUT_DATA1:
+        case STATE_SSPLIT_BULK_OUT_DATA0:
+        case STATE_SSPLIT_BULK_OUT_DATA1:
+        case STATE_SSPLIT_INTERRUPT_OUT_DATA0:
+        case STATE_SSPLIT_INTERRUPT_OUT_DATA1:
+        case STATE_SSPLIT_ISOCHRONOUS_OUT_DATA0:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            DISSECTOR_ASSERT(data->transaction->split_start != NULL);
+            return data->transaction->split_start->speed;
+        case STATE_CSPLIT_CONTROL_IN_DATA0:
+        case STATE_CSPLIT_CONTROL_IN_DATA1:
+        case STATE_CSPLIT_BULK_IN_DATA0:
+        case STATE_CSPLIT_BULK_IN_DATA1:
+        case STATE_CSPLIT_INTERRUPT_IN_MDATA:
+        case STATE_CSPLIT_INTERRUPT_IN_DATA0:
+        case STATE_CSPLIT_INTERRUPT_IN_DATA1:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_DATA0:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_MDATA:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            DISSECTOR_ASSERT(data->transaction->split_complete != NULL);
+            return data->transaction->split_complete->speed;
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
     }
@@ -1235,7 +1288,7 @@ dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 
 static gint
 dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
-                    guint8 pid, usbll_data_t *data)
+                    guint8 pid, usbll_data_t *data, usb_speed_t speed)
 {
     guint8           device_address;
     guint8           endpoint;
@@ -1287,6 +1340,7 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
                 transaction->pid = pid;
                 transaction->address = device_address;
                 transaction->endpoint = endpoint;
+                transaction->speed = speed;
             }
 
             transaction->split_complete = data->prev->transaction;
@@ -1298,6 +1352,7 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
             transaction->pid = pid;
             transaction->address = device_address;
             transaction->endpoint = endpoint;
+            transaction->speed = speed;
         }
 
         if (usbll_is_split_start_token(data->transaction_state))
@@ -1492,7 +1547,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
             }
         }
     }
-    else if (!PINFO_FD_VISITED(pinfo))
+    else if ((!PINFO_FD_VISITED(pinfo)) && (data->transaction_state != STATE_INVALID))
     {
         usbll_endpoint_info_t *ep_info;
         gboolean               from_host;
@@ -1541,9 +1596,13 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                         if ((ep_info->data == USBLL_TRANSFER_GET_DEVICE_DESCRIPTOR) && (data_size >= 8))
                         {
                             usbll_endpoint_info_t *ep_out;
+                            usb_speed_t            speed;
+                            guint16                max_packet_size;
                             ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, TRUE);
-                            ep_info->max_packet_size = tvb_get_guint8(tvb, data_offset + 7);
-                            ep_out->max_packet_size = ep_info->max_packet_size;
+                            max_packet_size = tvb_get_guint8(tvb, data_offset + 7);
+                            speed = usbll_get_data_transaction_speed(data);
+                            max_packet_size = sanitize_usb_max_packet_size(ENDPOINT_TYPE_CONTROL, speed, max_packet_size);
+                            ep_info->max_packet_size = ep_out->max_packet_size = max_packet_size;
                         }
                     }
                     transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
@@ -1673,6 +1732,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
             pseudo_urb.device_address = data->transaction->address;
             pseudo_urb.endpoint = data->transaction->endpoint;
             pseudo_urb.bus_id = 0;
+            pseudo_urb.speed = usbll_get_data_transaction_speed(data);
             dissect_usb_common(transfer_tvb, pinfo, proto_tree_get_parent_tree(tree),
                                USB_HEADER_PSEUDO_URB, &pseudo_urb);
         }
@@ -1749,6 +1809,10 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         transaction->pid = pid;
         transaction->address = hub_address;
         transaction->endpoint = hub_port;
+        if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS)
+            transaction->speed = USB_SPEED_FULL;
+        else
+            transaction->speed = (tmp & SPLIT_BIT_SPEED) ? USB_SPEED_LOW : USB_SPEED_FULL;
 
         data->transaction = transaction;
         if (tmp & SPLIT_BIT_START_COMPLETE)
@@ -1852,7 +1916,7 @@ usbll_cleanup_data(void)
 }
 
 static int
-dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, usb_speed_t speed)
 {
     proto_item       *item;
     proto_tree       *tree;
@@ -1887,7 +1951,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         case USB_PID_TOKEN_OUT:
         case USB_PID_TOKEN_IN:
         case USB_PID_SPECIAL_PING:
-            offset = dissect_usbll_token(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
+            offset = dissect_usbll_token(tvb, pinfo, tree, offset, pid, usbll_data_ptr, speed);
             break;
 
         case USB_PID_DATA_DATA0:
@@ -1933,9 +1997,16 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     return offset;
 }
 
+static int
+dissect_usbll_unknown_speed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+{
+    return dissect_usbll_packet(tvb, pinfo, parent_tree, global_dissect_unknown_speed_as);
+}
+
 void
 proto_register_usbll(void)
 {
+    module_t         *usbll_module;
     expert_module_t  *expert_module;
 
     static hf_register_info hf[] = {
@@ -2099,7 +2170,14 @@ proto_register_usbll(void)
     expert_module = expert_register_protocol(proto_usbll);
     expert_register_field_array(expert_module, ei, array_length(ei));
 
-    register_dissector("usbll", dissect_usbll_packet, proto_usbll);
+    usbll_module = prefs_register_protocol(proto_usbll, NULL);
+
+    prefs_register_enum_preference(usbll_module, "global_pref_dissect_unknown_speed_as",
+        "Decode unknown speed packets as",
+        "Use specified speed if speed is not indicated in capture",
+        &global_dissect_unknown_speed_as, dissect_unknown_speed_as, FALSE);
+
+    register_dissector("usbll", dissect_usbll_unknown_speed, proto_usbll);
     register_cleanup_routine(usbll_cleanup_data);
 
     usbll_address_type = address_type_dissector_register("AT_USBLL", "USBLL Address",
@@ -2112,7 +2190,7 @@ proto_register_usbll(void)
 void
 proto_reg_handoff_usbll(void)
 {
-    usbll_handle = create_dissector_handle(dissect_usbll_packet, proto_usbll);
+    usbll_handle = create_dissector_handle(dissect_usbll_unknown_speed, proto_usbll);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0, usbll_handle);
 }
 

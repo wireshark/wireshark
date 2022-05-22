@@ -89,12 +89,12 @@ static gint ett_usbip_dev = -1;
 static gint ett_usbip_intf = -1;
 
 enum usb_device_speed {
-        USB_SPEED_UNKNOWN = 0,                  /* enumerating */
-        USB_SPEED_LOW,                          /* usb 1.0 */
-        USB_SPEED_FULL,                         /* usb 1.1 */
-        USB_SPEED_HIGH,                         /* usb 2.0 */
-        USB_SPEED_WIRELESS,                     /* wireless (usb 2.5) */
-        USB_SPEED_SUPER,                        /* usb 3.0 */
+        USBIP_SPEED_UNKNOWN = 0,                  /* enumerating */
+        USBIP_SPEED_LOW,                          /* usb 1.0 */
+        USBIP_SPEED_FULL,                         /* usb 1.1 */
+        USBIP_SPEED_HIGH,                         /* usb 2.0 */
+        USBIP_SPEED_WIRELESS,                     /* wireless (usb 2.5) */
+        USBIP_SPEED_SUPER,                        /* usb 3.0 */
 };
 
 #define USBIP_SUPPORTED_VERSION 0x111
@@ -137,12 +137,12 @@ static const value_string usbip_urb_vals[] = {
 };
 
 static const value_string usbip_speed_vals[] = {
-    {USB_SPEED_UNKNOWN,  "Speed Unknown"                                   },
-    {USB_SPEED_LOW,      "Low Speed"                                       },
-    {USB_SPEED_FULL,     "Full Speed"                                      },
-    {USB_SPEED_HIGH,     "High Speed"                                      },
-    {USB_SPEED_WIRELESS, "Wireless Speed"                                  },
-    {USB_SPEED_SUPER,    "Super Speed"                                     },
+    {USBIP_SPEED_UNKNOWN,  "Speed Unknown"                                   },
+    {USBIP_SPEED_LOW,      "Low Speed"                                       },
+    {USBIP_SPEED_FULL,     "Full Speed"                                      },
+    {USBIP_SPEED_HIGH,     "High Speed"                                      },
+    {USBIP_SPEED_WIRELESS, "Wireless Speed"                                  },
+    {USBIP_SPEED_SUPER,    "Super Speed"                                     },
     {0,                  NULL                                              }
 };
 

@@ -374,6 +374,9 @@ static expert_field ei_usb_invalid_setup = EI_INIT;
 static expert_field ei_usb_ss_ep_companion_before_ep = EI_INIT;
 static expert_field ei_usb_usbpcap_unknown_urb = EI_INIT;
 static expert_field ei_usb_bad_length = EI_INIT;
+static expert_field ei_usb_invalid_max_packet_size = EI_INIT;
+static expert_field ei_usb_invalid_max_packet_size0 = EI_INIT;
+static expert_field ei_usb_invalid_endpoint_type = EI_INIT;
 
 static expert_field ei_usbport_invalid_path_depth = EI_INIT;
 
@@ -437,6 +440,14 @@ typedef struct {
     guint64 usb_id;
     guint8 setup_data[8];
 } usbpcap_setup_data_t;
+
+static const value_string usb_speed_vals[] = {
+    {USB_SPEED_UNKNOWN, "Unknown Speed"},
+    {USB_SPEED_LOW,     "Low-Speed"},
+    {USB_SPEED_FULL,    "Full-Speed"},
+    {USB_SPEED_HIGH,    "High-Speed"},
+    {0, NULL}
+};
 
 /* http://www.usb.org/developers/docs/USB_LANGIDs.pdf */
 static const value_string usb_langid_vals[] = {
@@ -1754,6 +1765,7 @@ static void clear_usb_conv_tmp_data(usb_conv_info_t *usb_conv_info)
     usb_conv_info->is_request = FALSE;
     usb_conv_info->is_setup = FALSE;
     usb_conv_info->setup_requesttype = 0;
+    usb_conv_info->speed = USB_SPEED_UNKNOWN;
 
     /* when we parse the configuration, interface and endpoint
        descriptors, we store the current interface class in endpoint 0's
@@ -2021,9 +2033,34 @@ proto_item * dissect_usb_descriptor_header(proto_tree *tree,
     return length_item;
 }
 
+static void
+dissect_max_packet_size0(packet_info *pinfo, proto_tree *tree,
+                         tvbuff_t *tvb, int offset,
+                         usb_conv_info_t *usb_conv_info, gboolean other_speed)
+{
+    proto_item  *item;
+    guint32      max_packet_size;
+    unsigned int sanitized_max_packet_size;
+    usb_speed_t  speed = usb_conv_info->speed;
+
+    item = proto_tree_add_item_ret_uint(tree, hf_usb_bMaxPacketSize0, tvb, offset, 1, ENC_LITTLE_ENDIAN, &max_packet_size);
+    if (other_speed) {
+        if (speed == USB_SPEED_FULL)
+            speed = USB_SPEED_HIGH;
+        else if (speed == USB_SPEED_HIGH)
+            speed = USB_SPEED_FULL;
+    }
+    sanitized_max_packet_size = sanitize_usb_max_packet_size(ENDPOINT_TYPE_CONTROL, speed, max_packet_size);
+    if (sanitized_max_packet_size != max_packet_size) {
+        expert_add_info_format(pinfo, item, &ei_usb_invalid_max_packet_size0,
+            "%s endpoint zero max packet size cannot be %u, using %d instead.",
+            try_val_to_str(speed, usb_speed_vals), max_packet_size, sanitized_max_packet_size);
+    }
+}
+
 /* 9.6.2 */
 static int
-dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
+dissect_usb_device_qualifier_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                         tvbuff_t *tvb, int offset,
                                         usb_conv_info_t  *usb_conv_info)
 {
@@ -2088,7 +2125,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
     }
 
     /* bMaxPacketSize0 */
-    proto_tree_add_item(tree, hf_usb_bMaxPacketSize0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    dissect_max_packet_size0(pinfo, tree, tvb, offset, usb_conv_info, TRUE);
     offset += 1;
 
     /* bNumConfigurations */
@@ -2146,7 +2183,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     offset += 1;
 
     /* bMaxPacketSize0 */
-    proto_tree_add_item(tree, hf_usb_bMaxPacketSize0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    dissect_max_packet_size0(pinfo, tree, tvb, offset, usb_conv_info, FALSE);
     offset += 1;
 
     /* if request was only for the first 8 bytes */
@@ -2479,16 +2516,91 @@ void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_item_append_text(endpoint_item, "  Endpoint:%d", endpoint);
 }
 
+unsigned int
+sanitize_usb_max_packet_size(guint8 ep_type, usb_speed_t speed,
+                             unsigned int max_packet_size)
+{
+    unsigned int sanitized = max_packet_size;
+    switch (speed) {
+    case USB_SPEED_LOW:
+        switch (ep_type) {
+            case ENDPOINT_TYPE_CONTROL:
+                /* 8 is the only allowed value */
+                sanitized = 8;
+                break;
+            case ENDPOINT_TYPE_INTERRUPT:
+                if (max_packet_size > 8)
+                    sanitized = 8;
+                break;
+            default:
+                /* Not allowed */
+                break;
+        }
+        break;
+    case USB_SPEED_FULL:
+        switch (ep_type) {
+        case ENDPOINT_TYPE_CONTROL:
+        case ENDPOINT_TYPE_BULK:
+            /* Allowed values are: 8, 16, 32 and 64 */
+            if (max_packet_size > 32)
+                sanitized = 64;
+            else if (max_packet_size > 16)
+                sanitized = 32;
+            else if (max_packet_size > 8)
+                sanitized = 16;
+            else
+                sanitized = 8;
+            break;
+        case ENDPOINT_TYPE_INTERRUPT:
+            if (max_packet_size > 64)
+                sanitized = 64;
+            break;
+        case ENDPOINT_TYPE_ISOCHRONOUS:
+            if (max_packet_size > 1023)
+                sanitized = 1023;
+            break;
+        default:
+            break;
+        }
+        break;
+    case USB_SPEED_HIGH:
+        switch (ep_type) {
+        case ENDPOINT_TYPE_CONTROL:
+            /* 64 is the only allowed value */
+            sanitized = 64;
+            break;
+        case ENDPOINT_TYPE_BULK:
+            /* 512 is the only allowed value */
+            sanitized = 512;
+            break;
+        case ENDPOINT_TYPE_INTERRUPT:
+        case ENDPOINT_TYPE_ISOCHRONOUS:
+            if (max_packet_size > 1024)
+                sanitized = 1024;
+            break;
+        default:
+            break;
+        }
+        break;
+    case USB_SPEED_UNKNOWN:
+    default:
+        break;
+    }
+
+    return sanitized;
+}
+
 int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                 tvbuff_t *tvb, int offset,
                                 usb_conv_info_t  *usb_conv_info,
-                                guint8 *out_ep_type)
+                                guint8 *out_ep_type, usb_speed_t speed)
 {
     proto_item       *item;
     proto_tree       *tree;
     proto_item       *ep_attrib_item;
     proto_tree       *ep_attrib_tree;
+    proto_item       *ep_type_item;
     proto_item       *ep_pktsize_item;
     proto_tree       *ep_pktsize_tree;
     int               old_offset     = offset;
@@ -2496,6 +2608,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     guint8            ep_type;
     guint8            len;
     guint32           max_packet_size;
+    unsigned int      sanitized_max_packet_size;
     usb_trans_info_t *usb_trans_info = NULL;
     conversation_t   *conversation   = NULL;
 
@@ -2551,10 +2664,15 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     ep_attrib_item = proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ep_attrib_tree = proto_item_add_subtree(ep_attrib_item, ett_endpoint_bmAttributes);
 
-    proto_tree_add_item(ep_attrib_tree, hf_usb_bEndpointAttributeTransfer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    ep_type_item = proto_tree_add_item(ep_attrib_tree, hf_usb_bEndpointAttributeTransfer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     if (ep_type==USB_EP_ISOCHRONOUS) {
         proto_tree_add_item(ep_attrib_tree, hf_usb_bEndpointAttributeSynchonisation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ep_attrib_tree, hf_usb_bEndpointAttributeBehaviour, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+
+    /* At Low-Speed, only control and interrupt transfers are allowed */
+    if ((speed == USB_SPEED_LOW) && !((ep_type == USB_EP_CONTROL) || (ep_type == USB_EP_INTERRUPT))) {
+        expert_add_info(pinfo, ep_type_item, &ei_usb_invalid_endpoint_type);
     }
     offset += 1;
 
@@ -2565,6 +2683,14 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         proto_tree_add_item(ep_pktsize_tree, hf_usb_wMaxPacketSize_slots, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     }
     proto_tree_add_item_ret_uint(ep_pktsize_tree, hf_usb_wMaxPacketSize_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &max_packet_size);
+    sanitized_max_packet_size = sanitize_usb_max_packet_size(ep_type, speed, max_packet_size);
+    if (sanitized_max_packet_size != max_packet_size) {
+        expert_add_info_format(pinfo, ep_pktsize_item, &ei_usb_invalid_max_packet_size,
+            "%s %s endpoint max packet size cannot be %u, using %d instead.",
+            try_val_to_str(speed, usb_speed_vals), try_val_to_str(ep_type, usb_bmAttributes_transfer_vals),
+            max_packet_size, sanitized_max_packet_size);
+        max_packet_size = sanitized_max_packet_size;
+    }
     offset+=2;
 
     if (conversation) {
@@ -2757,7 +2883,7 @@ static const true_false_string tfs_remotewakeup = {
 static int
 dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                      tvbuff_t *tvb, int offset,
-                                     usb_conv_info_t  *usb_conv_info)
+                                     usb_conv_info_t  *usb_conv_info, usb_speed_t speed)
 {
     proto_item *item;
     proto_tree *tree;
@@ -2854,7 +2980,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             offset = dissect_usb_interface_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info);
             break;
         case USB_DT_ENDPOINT:
-            offset = dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info, &last_ep_type);
+            offset = dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info, &last_ep_type, speed);
             break;
         case USB_DT_INTERFACE_ASSOCIATION:
             offset = dissect_usb_interface_assn_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info);
@@ -2921,8 +3047,10 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
                                           usb_conv_info_t  *usb_conv_info)
 {
     usb_trans_info_t *usb_trans_info;
+    usb_speed_t       speed;
 
     usb_trans_info = usb_conv_info->usb_trans_info;
+    speed = usb_conv_info->speed;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
         val_to_str_ext(usb_trans_info->u.get_descriptor.type, &std_descriptor_type_vals_ext, "Unknown type %u"));
@@ -2936,9 +3064,15 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
         case USB_DT_DEVICE:
             offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
             break;
-        case USB_DT_CONFIG:
         case USB_DT_OTHER_SPEED_CONFIG:
-            offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
+            /* USB 2.0 Specification: 9.2.6.6 Speed Dependent Descriptors */
+            if (speed == USB_SPEED_FULL)
+                speed = USB_SPEED_HIGH;
+            else if (speed == USB_SPEED_HIGH)
+                speed = USB_SPEED_FULL;
+            /* fall-through */
+        case USB_DT_CONFIG:
+            offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_conv_info, speed);
             break;
         case USB_DT_STRING:
             offset = dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
@@ -5145,6 +5279,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         usb_conv_info->direction = pseudo_urb->from_host ? P2P_DIR_SENT : P2P_DIR_RECV;
         usb_conv_info->is_setup = pseudo_urb->from_host && (pseudo_urb->transfer_type == URB_CONTROL);
         usb_conv_info->is_request = pseudo_urb->from_host;
+        usb_conv_info->speed = pseudo_urb->speed;
         usb_id = 0;
         break;
 
@@ -6784,6 +6919,9 @@ proto_register_usb(void)
         { &ei_usb_ss_ep_companion_before_ep, { "usb.bmAttributes.invalid_order", PI_MALFORMED, PI_ERROR, "SuperSpeed Endpoint Companion must come after Endpoint Descriptor", EXPFILL }},
         { &ei_usb_usbpcap_unknown_urb, { "usb.usbpcap.unknown_urb", PI_MALFORMED, PI_ERROR, "USBPcap did not recognize URB Function code (report to desowin.org/USBPcap)", EXPFILL }},
         { &ei_usb_bad_length, { "usb.bad_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+        { &ei_usb_invalid_max_packet_size, { "usb.wMaxPacketSize.invalid", PI_PROTOCOL, PI_WARN, "Invalid Max Packet Size", EXPFILL }},
+        { &ei_usb_invalid_max_packet_size0, { "usb.bMaxPacketSize0.invalid", PI_PROTOCOL, PI_WARN, "Invalid Max Packet Size", EXPFILL }},
+        { &ei_usb_invalid_endpoint_type, { "usb.bmAttributes.transfer.invalid", PI_PROTOCOL, PI_WARN, "Transfer type not allowed at Low-Speed", EXPFILL }},
     };
     static ei_register_info ei_usbport[] = {
         { &ei_usbport_invalid_path_depth, { "usbport.path_depth.invalid", PI_PROTOCOL, PI_WARN, "Invalid path depth", EXPFILL }},
