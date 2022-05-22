@@ -8938,13 +8938,20 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
 </context>
 <context>
-    <name>PathChooserDelegate</name>
+    <name>PathSelectionDelegate</name>
+    <message>
+        <source>Open a pipe</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open Pipe</source>
+        <source>Select a path</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -8970,11 +8970,29 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation>Bläddra</translation>
+        <translation type="vanished">Bläddra</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation>Öppna rör</translation>
+        <translation type="vanished">Öppna rör</translation>
+    </message>
+</context>
+<context>
+    <name>PathSelectionDelegate</name>
+    <message>
+        <source>Open a pipe</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PathSelectionEdit</name>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Bläddra</translation>
+    </message>
+    <message>
+        <source>Select a path</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

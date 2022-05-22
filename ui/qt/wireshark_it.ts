@@ -9015,11 +9015,29 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation>Sfoglia</translation>
+        <translation type="vanished">Sfoglia</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation>Apri pipe</translation>
+        <translation type="vanished">Apri pipe</translation>
+    </message>
+</context>
+<context>
+    <name>PathSelectionDelegate</name>
+    <message>
+        <source>Open a pipe</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PathSelectionEdit</name>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Sfoglia</translation>
+    </message>
+    <message>
+        <source>Select a path</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
