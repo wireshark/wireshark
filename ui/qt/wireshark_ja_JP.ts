@@ -1837,6 +1837,77 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>ConversationTreeWidget</name>
+    <message>
+        <source>Connection A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize all columns to content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets A </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes A </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rel Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">時間</translation>
+    </message>
+    <message>
+        <source>Bits/s A </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bits/s B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abs Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
@@ -2338,6 +2409,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>地図ファイルエラー</translation>
     </message>
     <message>
+        <source>Could not open base file %1 for reading: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No endpoints available to map</source>
         <translation>地図に利用できる終端がありません</translation>
     </message>
@@ -2352,6 +2427,65 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Failed to save map file %1.</source>
         <translation>地図ファイル %1 を保存できませんでした</translation>
+    </message>
+</context>
+<context>
+    <name>EndpointTreeWidget</name>
+    <message>
+        <source>Connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize all columns to content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation type="unfinished">アドレス</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished">ポート</translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tx Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tx Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rx Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rx Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>AS Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>AS Organization</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6970,11 +7104,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation>参照</translation>
+        <translation type="vanished">参照</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation>パイプを開く</translation>
+        <translation type="vanished">パイプを開く</translation>
+    </message>
+</context>
+<context>
+    <name>PathSelectionDelegate</name>
+    <message>
+        <source>Open a pipe</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PathSelectionEdit</name>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">参照</translation>
+    </message>
+    <message>
+        <source>Select a path</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

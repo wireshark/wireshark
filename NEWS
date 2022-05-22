@@ -26,10 +26,19 @@ Wireshark 3.7.1 Release Notes
   New and Updated Features
 
    The following features are new (or have been significantly updated)
+   since version 3.7.0:
+
+     • The Windows installers now ship with Qt 6.2.3. They previously
+       shipped with Qt 6.2.4.
+
+   The following features are new (or have been significantly updated)
    since version 3.6.0:
 
      • The Windows installers now ship with Npcap 1.60. They previously
        shipped with Npcap 1.55.
+
+     • The Windows installers now ship with Qt 6.2.4. They previously
+       shipped with Qt 5.12.2.
 
      • The display filter syntax has been updated and enhanced:
 
@@ -255,7 +264,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-05-12 02:13:42 UTC
+  Last updated 2022-05-16 16:41:16 UTC
 
  References
 
