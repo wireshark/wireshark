@@ -3341,7 +3341,7 @@ proto_register_thrift(void)
                 NULL, HFILL }
         },
         { &hf_thrift_string,
-            { "String", "thrift.binary",
+            { "String", "thrift.string",
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 "Binary field interpreted as a string.", HFILL }
         },

@@ -5463,7 +5463,7 @@ proto_register_usb_hid(void)
                 TFS(&tfs_mainitem_bit7), 1<<7, NULL, HFILL }},
 
         { &hf_usb_hid_mainitem_bit7_input,
-            { "[Reserved]", "usbhid.item.main.volatile", FT_BOOLEAN, 9,
+            { "[Reserved]", "usbhid.item.main.reserved", FT_BOOLEAN, 9,
                 NULL, 1<<7, NULL, HFILL }},
 
         { &hf_usb_hid_mainitem_bit8,

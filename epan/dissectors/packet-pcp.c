@@ -2309,7 +2309,7 @@ void proto_register_pcp(void)
         },
         { &hf_pcp_pmid_type,
           { "Type", "pcp.pmid.type",
-            FT_INT8, BASE_DEC,
+            FT_INT32, BASE_DEC,
             VALS(packettypenames_pm_types), 0x0,
             NULL, HFILL
           }

@@ -736,7 +736,7 @@ proto_register_usb_hub(void)
 		  NULL, HFILL }},
 
 		{ &hf_usb_hub_port,
-		{ "Port", "usbhub.setup.Port", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Port", "usbhub.setup.Port", FT_UINT16, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL }},
 
 		{ &hf_usb_hub_port_status,

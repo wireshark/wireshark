@@ -2887,7 +2887,7 @@ proto_register_sna(void)
 
 		{ &hf_sna_nlp_opti_0f_bits,
 		  { "Client Bits", "sna.nlp.thdr.optional.0f.bits",
-		    FT_UINT8, BASE_HEX, VALS(sna_nlp_opti_0f_bits_vals),
+		    FT_UINT16, BASE_HEX, VALS(sna_nlp_opti_0f_bits_vals),
 		    0x0, NULL, HFILL }},
 
 		{ &hf_sna_nlp_opti_10_tcid,

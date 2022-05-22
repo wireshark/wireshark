@@ -1353,7 +1353,7 @@ proto_register_scte35(void)
              NULL, 0xFFF0, NULL, HFILL}},
         {&hf_splice_command_length,
          {"Command Length", "scte35.splice_command_length", FT_UINT16, BASE_DEC,
-             NULL, 0xFFF, NULL, HFILL}},
+             NULL, 0x0FFF, NULL, HFILL}},
         {&hf_splice_command_type,
          {"Command Type", "scte35.splice_command_type", FT_UINT8,
              BASE_HEX | BASE_RANGE_STRING, RVALS(rv_splice_command_type),

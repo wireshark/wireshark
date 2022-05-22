@@ -5426,7 +5426,7 @@ proto_register_usb(void)
             NULL, HFILL }},
 
         { &hf_usb_mode,
-          { "Mode of transfer", "usb.address",
+          { "Mode of transfer", "usb.transfer_mode",
             FT_UINT8, BASE_DEC, VALS(usb_freebsd_transfer_mode_vals), 0x0,
             NULL, HFILL }},
 

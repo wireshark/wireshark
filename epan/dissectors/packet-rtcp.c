@@ -5220,7 +5220,7 @@ proto_register_rtcp(void)
             {
                 "Priority",
                 "rtcp.app.poc1.priority",
-                FT_UINT8,
+                FT_UINT16,
                 BASE_DEC,
                 VALS(rtcp_app_poc1_qsresp_priority_vals),
                 0x0,

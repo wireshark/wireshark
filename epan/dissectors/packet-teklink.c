@@ -533,10 +533,10 @@ proto_register_teklink(void)
 				"Signal Polarity", "teklink.signal.polarity", FT_UINT32, BASE_HEX,
 				VALS(teklink_vtc_sigpol), 0, NULL, HFILL }},
 		{ &hf_teklink_vtc_clkmode, {
-				"Clock Mode", "teklink.clock.polarity", FT_UINT32, BASE_HEX,
+				"Clock Mode", "teklink.clock.mode", FT_UINT32, BASE_HEX,
 				VALS(teklink_vtc_clkmode), 0, NULL, HFILL }},
 		{ &hf_teklink_vtc_clkedge, {
-				"Clock Edge", "teklink.clock.polarity", FT_UINT32, BASE_HEX,
+				"Clock Edge", "teklink.clock.clkedge", FT_UINT32, BASE_HEX,
 				VALS(teklink_vtc_clkedge), 0, NULL, HFILL }},
 		{ &hf_teklink_vtc_clksource, {
 				"Clock Source", "teklink.clock.source", FT_UINT32, BASE_HEX,

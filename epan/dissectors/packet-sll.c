@@ -562,7 +562,7 @@ proto_register_sll(void)
 		},
 		{ &hf_sll_ifindex,
 			{ "Interface index", "sll.ifindex",
-			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 	};
