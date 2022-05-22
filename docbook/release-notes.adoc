@@ -90,6 +90,9 @@ They previously shipped with Qt 5.12.2.
 ** Functions can accept expressions as arguments, including other functions.
    Previously only protocol fields and slices were syntactically valid function arguments.
 ** Adds the universal quantifiers "any" and "all" to any relational operator: all tcp.port > 1024.
+** It is now possible to index protocol fields from the end using negative indexes. For example the
+   following expression tests the last two bytes of the TCP protocol field: tcp[-2:] == AA:BB.
+   This was a longstanding bug that has been fixed in this release.
 
 * The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
 ** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.

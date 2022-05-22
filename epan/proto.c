@@ -269,7 +269,7 @@ static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
 static void
-proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data);
+proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data, int length);
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
@@ -2603,7 +2603,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_PROTOCOL:
-			proto_tree_set_protocol_tvb(new_fi, tvb, new_fi->hfinfo->name);
+			proto_tree_set_protocol_tvb(new_fi, tvb, new_fi->hfinfo->name, length);
 			break;
 
 		case FT_BYTES:
@@ -4333,9 +4333,9 @@ ptvcursor_advance(ptvcursor_t* ptvc, gint length)
 
 
 static void
-proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data)
+proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data, int length)
 {
-	fvalue_set_protocol(&fi->value, tvb, field_data);
+	fvalue_set_protocol(&fi->value, tvb, field_data, length);
 }
 
 /* Add a FT_PROTOCOL to a proto_tree */
@@ -4364,7 +4364,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	va_start(ap, format);
 	protocol_rep = ws_strdup_vprintf(format, ap);
-	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), protocol_tvb, protocol_rep);
+	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), protocol_tvb, protocol_rep, length);
 	g_free(protocol_rep);
 	va_end(ap);
 
@@ -7101,6 +7101,11 @@ finfo_set_len(field_info *fi, const gint length)
 		fi->length = length_remaining;
 	else
 		fi->length = length;
+
+	/* If we have an FT_PROTOCOL we need to set the length of the fvalue tvbuff as well. */
+	if (fvalue_type_ftenum(&fi->value) == FT_PROTOCOL) {
+		fvalue_set_protocol(&fi->value, NULL, NULL, fi->length);
+	}
 
 	/*
 	 * You cannot just make the "len" field of a GByteArray

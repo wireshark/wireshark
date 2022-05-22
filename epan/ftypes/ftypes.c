@@ -636,11 +636,11 @@ fvalue_set_string(fvalue_t *fv, const gchar *value)
 }
 
 void
-fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name)
+fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name, int length)
 {
 	ws_assert(fv->ftype->ftype == FT_PROTOCOL);
 	ws_assert(fv->ftype->set_value.set_value_protocol);
-	fv->ftype->set_value.set_value_protocol(fv, value, name);
+	fv->ftype->set_value.set_value_protocol(fv, value, name, length);
 }
 
 void

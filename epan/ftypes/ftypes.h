@@ -232,6 +232,7 @@ ftype_can_is_negative(enum ftenum ftype);
 typedef struct _protocol_value_t
 {
 	tvbuff_t	*tvb;
+	int		length;
 	gchar		*proto_string;
 	gboolean	tvb_is_private;
 } protocol_value_t;
@@ -319,7 +320,7 @@ void
 fvalue_set_string(fvalue_t *fv, const gchar *value);
 
 void
-fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name);
+fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name, int length);
 
 void
 fvalue_set_uinteger(fvalue_t *fv, guint32 value);

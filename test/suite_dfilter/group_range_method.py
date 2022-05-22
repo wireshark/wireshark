@@ -15,9 +15,13 @@ class case_range(unittest.TestCase):
         dfilter = "ipx.src.node[1] == aa"
         checkDFilterCount(dfilter, 1)
 
-    def test_slice_1_neg(self, checkDFilterCount):
+    def test_slice_2_pos(self, checkDFilterCount):
         dfilter = "ipx.src.node[1] == bb"
         checkDFilterCount(dfilter, 0)
+
+    def test_slice_1_neg(self, checkDFilterCount):
+        dfilter = "ipx[-2:] == 04:53"
+        checkDFilterCount(dfilter, 1)
 
     def test_slice_1_hex_pos(self, checkDFilterCount):
         dfilter = "ipx.src.node[1] == 0xaa"
