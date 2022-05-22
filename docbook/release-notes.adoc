@@ -24,6 +24,8 @@ wsbuglink:17779[]
 
 * You must now have a compiler with C11 support in order to build Wireshark.
 
+* Display filter syntax is now more powerful with several new extensions.
+
 Many improvements have been made.
 See the “New and Updated Features” section below for more details.
 
@@ -54,6 +56,29 @@ They previously shipped with Qt 5.12.2.
 * The display filter syntax has been updated and enhanced:
 ** A syntax to match a specific layer in the protocol stack has been added.
    For example “ip.addr#2 == 1.1.1.1” matches only the inner layer in an IP-over-IP packet.
+** Universal quantifiers "any" and "all" have been added to any relational operator.
+   For example the expression "all tcp.port > 1024" is true if and only if all tcp.port fields match the condition.
+   Previously only the default behaviour to return true if any one field matches was supported.
+** Field references, of the form ${some.field}, are now part of the syntax of display filters. Previously they were implemented as macros.
+   The new implementation is more efficient and allows matching multiple values, like any other protocol field.
+** Arithmetic is supported for numeric fields with the usual operators “+”, “-”, “*”, “/”, and “%”.
+   Arithmetic expressions must be grouped using curly brackets (not parenthesis).
+** New display filter functions max(), min() and abs() have been added.
+** Functions can accept expressions as arguments, including other functions.
+   Previously only protocol fields and slices were syntactically valid function arguments.
+** A new syntax to disambiguate literals from identifiers has been added.
+   Every value with a leading dot is a protocol or protocol field.
+   Every value in between angle brackets is a literal value.
+   See the https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html#_some_protocol_names_can_be_ambiguous[User’s Guide] for details.
+** The "bitwise and" operator is now a first-class bit operator, not a boolean operator.
+   In particular this means it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
+** Dates and times can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
+   Otherwise local time is used.
+** Integer literal constants may be written in binary (in addition to decimal/octal/hexadecimal) using the prefix "0b" or "0B".
+** Logical AND now has higher precedence than logical OR, in line with most programming languages.
+** It is now possible to index protocol fields from the end using negative indexes. For example the
+   following expression tests the last two bytes of the TCP protocol field: tcp[-2:] == AA:BB.
+   This was a longstanding bug that has been fixed in this release.
 ** Set elements must be separated using a comma, e.g: {1, 2, "foo"}.
    Using only whitespace as a separator was deprecated in 3.6 and is now a syntax error.
 ** Support for some additional character escape sequences in double quoted strings has been added.
@@ -62,37 +87,18 @@ They previously shipped with Qt 5.12.2.
 ** Unrecognized escape sequences are now treated as a syntax error.
    Previously they were treated as a literal character.
    In addition to the sequences indicated above, backslash, single quotation and double quotation mark are also valid sequences: \\, \', \".
-** The display filter engine now uses PCRE2 instead of GRegex (GLib’s bindings to the older and end-of-life PCRE library).
-   PCRE2 is compatible with PCRE so any user-visible changes should be minimal.
-   Some exotic patterns may now be invalid and require rewriting.
 ** A new strict equality operator "===" or "all_eq" has been added.
    The expression "a === b" is true if and only if all a’s are equal to b.
    The negation of "===" can now be written as "!==" (any_ne).
 ** The aliases "any_eq" for "==" and "all_ne" for "!=" have been added.
 ** The operator "~=" is deprecated and will be removed in a future version.
    Use "!==", which has the same meaning instead.
-** Dates and times can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
-   Otherwise local time is used.
-** Integer literal constants may be written in binary (in addition to decimal/octal/hexadecimal) using the prefix "0b" or "0B".
-** A new syntax to disambiguate literals from identifiers has been added.
-   Every value with a leading dot is a protocol or protocol field.
-   Every value with a leading colon or in between angle brackets is a literal value.
-   See the https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html#_some_protocol_names_can_be_ambiguous[User’s Guide] for details.
 ** Floats must be written with a leading and ending digit.
    For example the values ".7" and "7." are now invalid as floats.
    They must be written "0.7" and "7.0" respectively.
-** The "bitwise and" operator is now a first-class bit operator, not a boolean operator.
-   In particular this means it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
-** Arithmetic is supported for numeric fields with the usual operators “+”, “-”, “*”, “/”, and “%”.
-   Arithmetic expressions must be grouped using curly brackets (not parenthesis).
-** Logical AND now has higher precedence than logical OR, in line with most programming languages.
-** New display filter functions max(), min() and abs() have been added.
-** Functions can accept expressions as arguments, including other functions.
-   Previously only protocol fields and slices were syntactically valid function arguments.
-** Adds the universal quantifiers "any" and "all" to any relational operator: all tcp.port > 1024.
-** It is now possible to index protocol fields from the end using negative indexes. For example the
-   following expression tests the last two bytes of the TCP protocol field: tcp[-2:] == AA:BB.
-   This was a longstanding bug that has been fixed in this release.
+** The display filter engine now uses PCRE2 instead of GRegex (GLib’s bindings to the older and end-of-life PCRE library).
+   PCRE2 is compatible with PCRE so any user-visible changes should be minimal.
+   Some exotic patterns may now be invalid and require rewriting.
 
 * The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
 ** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.
