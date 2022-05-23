@@ -224,15 +224,16 @@ static void
 slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
 	const guint8* data;
+	volatile guint len = length;
 
 	if (fv->value.protocol.tvb) {
-		if (fv->value.protocol.length >= 0 && (guint)fv->value.protocol.length < length) {
-			length = (guint)fv->value.protocol.length;
+		if (fv->value.protocol.length >= 0 && (guint)fv->value.protocol.length < len) {
+			len = fv->value.protocol.length;
 		}
 
 		TRY {
-			data = tvb_get_ptr(fv->value.protocol.tvb, offset, length);
-			g_byte_array_append(bytes, data, length);
+			data = tvb_get_ptr(fv->value.protocol.tvb, offset, len);
+			g_byte_array_append(bytes, data, len);
 		}
 		CATCH_ALL {
 			/* nothing */
@@ -245,8 +246,18 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 static int
 _tvbcmp(const protocol_value_t *a, const protocol_value_t *b)
 {
-	guint	a_len = a->length < 0 ? tvb_captured_length(a->tvb) : a->length;
-	guint	b_len = b->length < 0 ? tvb_captured_length(b->tvb) : b->length;
+	guint	a_len;
+	guint	b_len;
+
+	if (a->length < 0)
+		a_len = tvb_captured_length(a->tvb);
+	else
+		a_len = a->length;
+
+	if (b->length < 0)
+		b_len = tvb_captured_length(b->tvb);
+	else
+		b_len = b->length;
 
 	if (a_len != b_len)
 		return a_len < b_len ? -1 : 1;
