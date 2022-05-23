@@ -123,7 +123,8 @@ static int ett_pdcp_security = -1;
 static expert_field ei_pdcp_nr_sequence_analysis_wrong_sequence_number = EI_INIT;
 static expert_field ei_pdcp_nr_reserved_bits_not_zero = EI_INIT;
 static expert_field ei_pdcp_nr_sequence_analysis_sn_repeated = EI_INIT;
-static expert_field ei_pdcp_nr_sequence_analysis_sn_missing = EI_INIT;
+static expert_field ei_pdcp_nr_sequence_analysis_sn_missing_ul = EI_INIT;
+static expert_field ei_pdcp_nr_sequence_analysis_sn_missing_dl = EI_INIT;
 static expert_field ei_pdcp_nr_digest_wrong = EI_INIT;
 static expert_field ei_pdcp_nr_unknown_udp_framing_tag = EI_INIT;
 static expert_field ei_pdcp_nr_missing_udp_framing_tag = EI_INIT;
@@ -200,7 +201,7 @@ static gboolean check_valid_key_string(const char* raw_string, char* checked_str
     if (length < 32) {
         if (length > 0) {
             *error = ws_strdup_printf("PDCP NR: Invalid key string (%s) - should include 32 ASCII hex characters (16 bytes) but only %u chars given",
-                                     raw_string, length);
+                                      raw_string, length);
         }
         return FALSE;
     }
@@ -869,7 +870,10 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
                                         tvb, 0, 0, TRUE);
             proto_item_set_generated(ti);
             if (p->lastSN != p->firstSN) {
-                expert_add_info_format(pinfo, ti, &ei_pdcp_nr_sequence_analysis_sn_missing,
+                expert_add_info_format(pinfo, ti,
+                                       (p_pdcp_nr_info == PDCP_NR_DIRECTION_UPLINK) ?
+                                           &ei_pdcp_nr_sequence_analysis_sn_missing_ul :
+                                           &ei_pdcp_nr_sequence_analysis_sn_missing_dl,
                                        "PDCP SNs (%u to %u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN, p->lastSN,
                                        val_to_str_const(p_pdcp_nr_info->direction, direction_vals, "Unknown"),
@@ -880,7 +884,10 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
                                        p->firstSN, p->lastSN);
             }
             else {
-                expert_add_info_format(pinfo, ti, &ei_pdcp_nr_sequence_analysis_sn_missing,
+                expert_add_info_format(pinfo, ti,
+                                       (p_pdcp_nr_info == PDCP_NR_DIRECTION_UPLINK) ?
+                                           &ei_pdcp_nr_sequence_analysis_sn_missing_ul :
+                                           &ei_pdcp_nr_sequence_analysis_sn_missing_dl,
                                        "PDCP SN (%u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN,
                                        val_to_str_const(p_pdcp_nr_info->direction, direction_vals, "Unknown"),
@@ -2963,7 +2970,8 @@ void proto_register_pdcp_nr(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_pdcp_nr_sequence_analysis_sn_missing, { "pdcp-nr.sequence-analysis.sn-missing", PI_SEQUENCE, PI_WARN, "PDCP SN missing", EXPFILL }},
+        { &ei_pdcp_nr_sequence_analysis_sn_missing_ul, { "pdcp-nr.sequence-analysis.sn-missing-ul", PI_SEQUENCE, PI_WARN, "UL PDCP SNs missing", EXPFILL }},
+        { &ei_pdcp_nr_sequence_analysis_sn_missing_dl, { "pdcp-nr.sequence-analysis.sn-missing-dl", PI_SEQUENCE, PI_WARN, "DL PDCP SNs missing", EXPFILL }},
         { &ei_pdcp_nr_sequence_analysis_sn_repeated, { "pdcp-nr.sequence-analysis.sn-repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
         { &ei_pdcp_nr_sequence_analysis_wrong_sequence_number, { "pdcp-nr.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
         { &ei_pdcp_nr_reserved_bits_not_zero, { "pdcp-nr.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
