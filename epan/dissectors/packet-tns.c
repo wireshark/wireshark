@@ -544,6 +544,38 @@ static int get_strtype_custom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return ret;
 }
 
+static int get_sb4_custom(tvbuff_t *tvb, int offset, int *result)
+{
+	uint8_t first_byte = tvb_get_uint8(tvb, offset); // Contains length of a value
+	switch(first_byte)
+	{
+		case 0:
+			*result = 0;
+			break;
+		case 1:
+			*result = tvb_get_uint8(tvb, offset+1);
+			break;
+		case 2:
+			*result = tvb_get_ntohs(tvb, offset+1);
+			break;
+		case 3:
+			*result = tvb_get_ntoh24(tvb, offset+1);
+			break;
+		case 4:
+			*result = tvb_get_ntohl(tvb, offset+1);
+			break;
+		default:
+			/* The width byte comes straight off the wire, so a value
+			 * outside 0..4 is malformed input rather than a bug in the
+			 * dissector - asserting here would blame Wireshark for a
+			 * packet somebody else wrote. Yield zero and step over just
+			 * the width byte. */
+			*result = 0;
+			return 1;
+	}
+	return first_byte + 1;
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -735,12 +767,20 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		}
 
 		case SQLNET_USER_OCI_FUNC:
-			proto_tree_add_item(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+		{
+			guint32 oci_id = 0;
+			proto_tree_add_item_ret_uint(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN, &oci_id);
 			offset += 1;
 			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
+			if((oci_id == 115) || (oci_id == 118)){
+				proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, 1, ENC_NA);
+				offset += 1;
+				int user_len = 0;
+				offset += get_sb4_custom(tvb, offset, &user_len);
+			}
 			break;
-
+		}
 		case SQLNET_RETURN_OPI_PARAM:
 		{
 			uint8_t skip = 0, opi = 0;
