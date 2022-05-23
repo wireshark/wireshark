@@ -107,6 +107,8 @@ using the `-D` flag. Useful variables and generators include the following:
 Each command line utility has its own BUILD_xxx flag as well. For
 example, you can use -DBUILD_mmdbresolve=OFF to disable mmdbresolve.
 
+-DENABLE_CCACHE=ON:: Build using the ccache compiler cache.
+
 -DENABLE_CAP=OFF:: Disable the POSIX capabilities check
 
 -DCMAKE_BUILD_TYPE=Debug:: Enable debugging symbols
@@ -126,6 +128,10 @@ For example, if you’re building for macOS 10.12 you’ll need to install https
 You can list all build variables (with help) by running `cmake -LH [options]
 ../<Name_of_WS_source_dir>`. This lists the cache of build variables
 after the cmake run. To only view the current cache, add option `-N`.
+
+You prepopulate variables using CMake's https://cmake.org/cmake/help/latest/manual/cmake.1.html#options[`-C` command line option] or by adding a file named `CMakeListsCustom.txt` to the top-level source directory.
+In either case you must set each variable using CMake's “set” command.
+For example `set(ENABLE_CCACHE ON)` will enable ccache.
 
 After running cmake, you can always run `make help` to see a list of all possible make targets.
 

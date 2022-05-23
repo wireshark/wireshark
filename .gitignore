@@ -60,6 +60,7 @@ wireshark-tap-register.c
 /*build*/
 CMakeCache.txt
 CMakeFiles
+CMakeListsCustom.txt
 cmake_install.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
