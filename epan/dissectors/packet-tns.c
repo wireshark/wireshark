@@ -182,6 +182,8 @@ static int hf_tns_data_tseq;
 static int hf_tns_data_piggyback_id;
 static int hf_tns_data_unused;
 
+static int hf_tns_cursor;
+
 static int hf_tns_data_opi_version2_banner_len;
 static int hf_tns_data_opi_version2_banner;
 static int hf_tns_data_opi_version2_vsnum;
@@ -225,6 +227,7 @@ static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
+static expert_field ei_tns_data_piggyback_cursors;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 
@@ -986,12 +989,34 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		}
 
 		case SQLNET_PIGGYBACK_FUNC:
+		{
+			int cursors_len = 0;
+			int cursors_start;
 			proto_tree_add_item(data_tree, hf_tns_data_piggyback_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
+			cursors_start = offset;
+			offset += get_sb4_custom(tvb, offset, &cursors_len);
+			/* The count comes off the wire and every cursor takes at
+			 * least one byte, so a count larger than the data left
+			 * cannot be real. Say so and stop, rather than looping on
+			 * a number somebody else chose. */
+			if ( cursors_len < 0 ||
+			     (unsigned)cursors_len > tvb_reported_length_remaining(tvb, offset) )
+			{
+				proto_tree_add_expert(data_tree, pinfo, &ei_tns_data_piggyback_cursors,
+					tvb, cursors_start, offset - cursors_start);
+				break;
+			}
+			for(int i = 0; i < cursors_len; i++) {
+				int cursor = 0;
+				int new_offset = get_sb4_custom(tvb, offset, &cursor);
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, offset, new_offset - offset, cursor);
+				offset = new_offset;
+			}
 			break;
-
+		}
 		case SQLNET_SNS:
 		{
 			proto_tree_add_item(data_tree, hf_tns_data_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1790,6 +1815,10 @@ void proto_register_tns(void)
 			"Unused", "tns.data.unused", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_cursor, {
+			"Cursor", "tns.data.cursor", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_tns_data_setp_acc_version, {
 			"Accepted Version", "tns.data_setp_req.acc_vers", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -1877,6 +1906,7 @@ void proto_register_tns(void)
 	static ei_register_info ei[] = {
 		{ &ei_tns_connect_data_next_packet, { "tns.connect_data.next_packet", PI_REQUEST_CODE, PI_CHAT, "Long Connect Data (> 221 bytes) carried in subsequent Data packet", EXPFILL }},
 		{ &ei_tns_data_descriptor_size_mismatch, { "tns.data_descriptor.size_mismatch", PI_PROTOCOL, PI_WARN, "Data size from summing row sizes differs from size in descriptor", EXPFILL }},
+		{ &ei_tns_data_piggyback_cursors, { "tns.data.piggyback.cursors.invalid", PI_MALFORMED, PI_ERROR, "Cursor count is larger than the data left in the packet", EXPFILL }},
 	};
 
 	module_t *tns_module;

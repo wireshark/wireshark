@@ -1296,6 +1296,19 @@ class TestDissectTns:
     that previously tripped buffer-overrun / wrong-state bugs in the OPI
     parameter-value path.'''
 
+    def test_tns_malformed_piggyback(self, cmd_tshark, capture_file, test_env):
+        '''A cursor count or an integer width chosen by the sender is malformed
+        input, not a dissector bug.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_malformed.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-V',
+        ), encoding='utf-8', env=test_env)
+        # A count larger than the packet is reported against the count itself
+        assert grep_output(stdout, 'Cursor count is larger than the data left')
+        # and neither frame may be blamed on the dissector
+        assert not grep_output(stdout, 'Dissector bug')
+
     def test_tns_bad(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_bad.pcap'),
