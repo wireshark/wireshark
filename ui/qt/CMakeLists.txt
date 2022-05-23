@@ -657,7 +657,10 @@ if(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.9")
 	# version 3. See https://gitlab.com/wireshark/wireshark/-/issues/18100.
 	# Use the number of dashes for each argument as documented at
 	# https://doc.qt.io/qt-6/rcc.html.
-	set(CMAKE_AUTORCC_OPTIONS --format-version 1 -compress-algo zlib)
+	set(CMAKE_AUTORCC_OPTIONS --format-version 1)
+	if(QT${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "5.13")
+		list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
+	endif()
 endif()
 
 if (USE_qt6)
