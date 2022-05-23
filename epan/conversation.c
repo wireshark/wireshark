@@ -81,6 +81,9 @@ static guint32 new_index;
 static address null_address_ = ADDRESS_INIT_NONE;
 
 
+static conversation_t *conversation_lookup_hashtable(wmem_map_t *conversation_hashtable, const guint32 frame_num, conversation_key_t conv_key);
+
+
 /*
  * Creates a new conversation with known endpoints based on a conversation
  * created with the CONVERSATION_TEMPLATE option while keeping the
@@ -1068,19 +1071,12 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
     DENDENT();
 }
 
-conversation_t *find_conversation_full(const guint32 frame_num, conversation_element_t *elements)
+static conversation_t *conversation_lookup_hashtable(wmem_map_t *conversation_hashtable, const guint32 frame_num, conversation_key_t conv_key)
 {
-    char *el_list_map_key = conversation_element_list_name(elements);
-    wmem_map_t *el_list_map = (wmem_map_t *) wmem_map_lookup(conversation_hashtable_element_list, el_list_map_key);
-    g_free(el_list_map_key);
-    if (!el_list_map) {
-        return NULL;
-    }
-
-    conversation_t* convo=NULL;
-    conversation_t* match=NULL;
-    conversation_t* chain_head=NULL;
-    chain_head = (conversation_t *)wmem_map_lookup(el_list_map, elements);
+    conversation_t* convo = NULL;
+    conversation_t* match = NULL;
+    conversation_t* chain_head = NULL;
+    chain_head = (conversation_t *)wmem_map_lookup(conversation_hashtable, conv_key);
 
     if (chain_head && (chain_head->setup_frame <= frame_num)) {
         match = chain_head;
@@ -1105,17 +1101,26 @@ conversation_t *find_conversation_full(const guint32 frame_num, conversation_ele
     return match;
 }
 
+conversation_t *find_conversation_full(const guint32 frame_num, conversation_element_t *elements)
+{
+    char *el_list_map_key = conversation_element_list_name(elements);
+    wmem_map_t *el_list_map = (wmem_map_t *) wmem_map_lookup(conversation_hashtable_element_list, el_list_map_key);
+    g_free(el_list_map_key);
+    if (!el_list_map) {
+        return NULL;
+    }
+
+    return conversation_lookup_hashtable(el_list_map, frame_num, (conversation_key_t)elements);
+}
+
 /*
  * Search a particular hash table for a conversation with the specified
  * {addr1, port1, addr2, port2} and set up before frame_num.
  */
 static conversation_t *
-conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, const address *addr1, const address *addr2,
+conversation_lookup_addr_port(wmem_map_t *hashtable, const guint32 frame_num, const address *addr1, const address *addr2,
         const endpoint_type etype, const guint32 port1, const guint32 port2)
 {
-    conversation_t* convo=NULL;
-    conversation_t* match=NULL;
-    conversation_t* chain_head=NULL;
     struct conversation_key key;
 
     /*
@@ -1136,28 +1141,7 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
     key.port1 = port1;
     key.port2 = port2;
 
-    chain_head = (conversation_t *)wmem_map_lookup(hashtable, &key);
-
-    if (chain_head && (chain_head->setup_frame <= frame_num)) {
-        match = chain_head;
-
-        if (chain_head->last && (chain_head->last->setup_frame <= frame_num))
-            return chain_head->last;
-
-        if (chain_head->latest_found && (chain_head->latest_found->setup_frame <= frame_num))
-            match = chain_head->latest_found;
-
-        for (convo = match; convo && convo->setup_frame <= frame_num; convo = convo->next) {
-            if (convo->setup_frame > match->setup_frame) {
-                match = convo;
-            }
-        }
-    }
-
-    if (match)
-        chain_head->latest_found = match;
-
-    return match;
+    return conversation_lookup_hashtable(hashtable, frame_num, &key);
 }
 
 /*
@@ -1215,7 +1199,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
         DPRINT(("trying exact match: %s:%d -> %s:%d",
                     addr_a_str, port_a, addr_b_str, port_b));
         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_exact_addr_port,
+            conversation_lookup_addr_port(conversation_hashtable_exact_addr_port,
                     frame_num, addr_a, addr_b, etype,
                     port_a, port_b);
         /* Didn't work, try the other direction */
@@ -1223,7 +1207,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying exact match: %s:%d -> %s:%d",
                         addr_b_str, port_b, addr_a_str, port_a));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_exact_addr_port,
+                conversation_lookup_addr_port(conversation_hashtable_exact_addr_port,
                         frame_num, addr_b, addr_a, etype,
                         port_b, port_a);
         }
@@ -1234,7 +1218,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying exact match: %s:%d -> %s:%d",
                         addr_b_str, port_a, addr_a_str, port_b));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_exact_addr_port,
+                conversation_lookup_addr_port(conversation_hashtable_exact_addr_port,
                         frame_num, addr_b, addr_a, etype,
                         port_a, port_b);
         }
@@ -1260,7 +1244,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
         DPRINT(("trying wildcarded match: %s:%d -> *:%d",
                     addr_a_str, port_a, port_b));
         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+            conversation_lookup_addr_port(conversation_hashtable_no_addr2,
                     frame_num, addr_a, addr_b, etype, port_a, port_b);
         if ((conversation == NULL) && (addr_a->type == AT_FC)) {
             /* In Fibre channel, OXID & RXID are never swapped as
@@ -1269,7 +1253,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying wildcarded match: %s:%d -> *:%d",
                         addr_b_str, port_a, port_b));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+                conversation_lookup_addr_port(conversation_hashtable_no_addr2,
                         frame_num, addr_b, addr_a, etype,
                         port_a, port_b);
         }
@@ -1315,7 +1299,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying wildcarded match: %s:%d -> *:%d",
                         addr_b_str, port_b, port_a));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+                conversation_lookup_addr_port(conversation_hashtable_no_addr2,
                         frame_num, addr_b, addr_a, etype, port_b, port_a);
             if (conversation != NULL) {
                 /*
@@ -1360,7 +1344,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
         DPRINT(("trying wildcarded match: %s:%d -> %s:*",
                     addr_a_str, port_a, addr_b_str));
         conversation =
-            conversation_lookup_hashtable(conversation_hashtable_no_port2,
+            conversation_lookup_addr_port(conversation_hashtable_no_port2,
                     frame_num, addr_a, addr_b, etype, port_a, port_b);
         if ((conversation == NULL) && (addr_a->type == AT_FC)) {
             /* In Fibre channel, OXID & RXID are never swapped as
@@ -1368,7 +1352,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
              */
             DPRINT(("trying wildcarded match: %s:%d -> %s:*", addr_b_str, port_a, addr_a_str));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_no_port2,
+                conversation_lookup_addr_port(conversation_hashtable_no_port2,
                         frame_num, addr_b, addr_a, etype, port_a, port_b);
         }
         if (conversation != NULL) {
@@ -1413,7 +1397,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying wildcarded match: %s:%d -> %s:*",
                         addr_b_str, port_b, addr_a_str));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_no_port2,
+                conversation_lookup_addr_port(conversation_hashtable_no_port2,
                         frame_num, addr_b, addr_a, etype, port_b, port_a);
             if (conversation != NULL) {
                 /*
@@ -1452,7 +1436,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
      */
     DPRINT(("trying wildcarded match: %s:%d -> *:*", addr_a_str, port_a));
     conversation =
-        conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+        conversation_lookup_addr_port(conversation_hashtable_no_addr2_or_port2,
                 frame_num, addr_a, addr_b, etype, port_a, port_b);
     if (conversation != NULL) {
         /*
@@ -1507,13 +1491,13 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
             DPRINT(("trying wildcarded match: %s:%d -> *:*",
                         addr_b_str, port_a));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+                conversation_lookup_addr_port(conversation_hashtable_no_addr2_or_port2,
                         frame_num, addr_b, addr_a, etype, port_a, port_b);
         } else {
             DPRINT(("trying wildcarded match: %s:%d -> *:*",
                         addr_b_str, port_b));
             conversation =
-                conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+                conversation_lookup_addr_port(conversation_hashtable_no_addr2_or_port2,
                         frame_num, addr_b, addr_a, etype, port_b, port_a);
         }
         if (conversation != NULL) {
