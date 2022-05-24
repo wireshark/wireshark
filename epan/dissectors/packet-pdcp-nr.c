@@ -870,8 +870,9 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
                                         tvb, 0, 0, TRUE);
             proto_item_set_generated(ti);
             if (p->lastSN != p->firstSN) {
+                /* Range missing */
                 expert_add_info_format(pinfo, ti,
-                                       (p_pdcp_nr_info == PDCP_NR_DIRECTION_UPLINK) ?
+                                       (p_pdcp_nr_info->direction == PDCP_NR_DIRECTION_UPLINK) ?
                                            &ei_pdcp_nr_sequence_analysis_sn_missing_ul :
                                            &ei_pdcp_nr_sequence_analysis_sn_missing_dl,
                                        "PDCP SNs (%u to %u) missing for %s on UE %u (%s-%u)",
@@ -884,8 +885,9 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
                                        p->firstSN, p->lastSN);
             }
             else {
+                /* Single SN missing */
                 expert_add_info_format(pinfo, ti,
-                                       (p_pdcp_nr_info == PDCP_NR_DIRECTION_UPLINK) ?
+                                       (p_pdcp_nr_info->direction == PDCP_NR_DIRECTION_UPLINK) ?
                                            &ei_pdcp_nr_sequence_analysis_sn_missing_ul :
                                            &ei_pdcp_nr_sequence_analysis_sn_missing_dl,
                                        "PDCP SN (%u) missing for %s on UE %u (%s-%u)",
