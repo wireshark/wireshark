@@ -598,9 +598,10 @@ conversation_init(void)
     conversation_hashtable_element_list =
         wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 
-    conversation_element_t id_elements[2] = {0};
-    id_elements[0].type = CE_UINT64;
-    id_elements[1].type = CE_ENDPOINT;
+    conversation_element_t id_elements[2] = {
+        { CE_UINT, .uint_val = 0 },
+        { CE_ENDPOINT, .endpoint_type_val = ENDPOINT_NONE }
+    };
     char *id_map_key = conversation_element_list_name(id_elements);
     conversation_hashtable_id = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                        conversation_hash_element_list,
@@ -1012,13 +1013,12 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 }
 
 conversation_t *
-conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint64 id)
+conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint32 id)
 {
-    conversation_element_t elements[2];
-    elements[0].type = CE_UINT64;
-    elements[0].uint64_val = id;
-    elements[1].type = CE_ENDPOINT;
-    elements[1].endpoint_type_val = etype;
+    conversation_element_t elements[2] = {
+        { CE_UINT, .uint_val = id },
+        { CE_ENDPOINT, .endpoint_type_val = etype }
+    };
 
     conversation_t *conversation = wmem_new0(wmem_file_scope(), conversation_t);
     conversation->conv_index = new_index;
@@ -1573,13 +1573,12 @@ end:
 }
 
 conversation_t *
-find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint64 id)
+find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id)
 {
-    conversation_element_t elements[2];
-    elements[0].type = CE_UINT64;
-    elements[0].uint64_val = id;
-    elements[1].type = CE_ENDPOINT;
-    elements[1].endpoint_type_val = etype;
+    conversation_element_t elements[2] = {
+        { CE_UINT, .uint_val = id },
+        { CE_ENDPOINT, .endpoint_type_val = etype }
+    };
 
     return conversation_lookup_hashtable(conversation_hashtable_id, frame, (conversation_key_t)elements);
 }
@@ -1712,7 +1711,7 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const e
 }
 
 gboolean
-try_conversation_dissector_by_id(const endpoint_type etype, const guint64 id, tvbuff_t *tvb,
+try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
         packet_info *pinfo, proto_tree *tree, void* data)
 {
     conversation_t *conversation;
@@ -1819,7 +1818,7 @@ find_or_create_conversation(packet_info *pinfo)
 }
 
 conversation_t *
-find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint64 id)
+find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id)
 {
     conversation_t *conv=NULL;
 
