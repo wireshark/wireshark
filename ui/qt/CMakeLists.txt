@@ -49,6 +49,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/stock_icon_tool_button.h
 	widgets/syntax_line_edit.h
 	widgets/tabnav_tree_view.h
+	widgets/traffic_tab.h
 	widgets/wireless_timeline.h
 	widgets/wireshark_file_dialog.h
 )
@@ -83,6 +84,7 @@ set(WIRESHARK_UTILS_HEADERS
 
 set(WIRESHARK_MODEL_HEADERS
 	models/astringlist_list_model.h
+	models/atap_data_model.h
 	models/cache_proxy_model.h
 	models/coloring_rules_delegate.h
 	models/coloring_rules_model.h
@@ -297,6 +299,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/stock_icon_tool_button.cpp
 	widgets/syntax_line_edit.cpp
 	widgets/tabnav_tree_view.cpp
+	widgets/traffic_tab.cpp
 	widgets/wireless_timeline.cpp
 	widgets/wireshark_file_dialog.cpp
 )
@@ -328,6 +331,7 @@ set(WIRESHARK_UTILS_SRCS
 
 set(WIRESHARK_MODEL_SRCS
 	models/astringlist_list_model.cpp
+	models/atap_data_model.cpp
 	models/cache_proxy_model.cpp
 	models/coloring_rules_delegate.cpp
 	models/coloring_rules_model.cpp

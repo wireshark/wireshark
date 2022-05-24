@@ -12,10 +12,10 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTabWidget" name="trafficTableTabWidget"/>
+    <widget class="TrafficTab" name="trafficTab"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,1,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,1">
      <item>
       <widget class="QCheckBox" name="nameResolutionCheckBox">
        <property name="toolTip">
@@ -85,13 +85,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QPushButton" name="enabledTypesPushButton">
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
@@ -106,6 +99,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TrafficTab</class>
+   <extends>QTabWidget</extends>
+   <header>ui/qt/widgets/traffic_tab.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

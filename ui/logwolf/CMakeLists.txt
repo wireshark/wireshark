@@ -49,6 +49,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/syntax_line_edit.h
 	../qt/widgets/wireless_timeline.h # Required by PacketListModel
 	../qt/widgets/tabnav_tree_view.h
+	../qt/widgets/traffic_tab.h
 	../qt/widgets/wireshark_file_dialog.h
 )
 
@@ -86,6 +87,7 @@ set (LOGWOLF_UTILS_HEADERS ${WIRESHARK_UTILS_HEADERS})
 
 set(WIRESHARK_MODEL_HEADERS
 	../qt/models/astringlist_list_model.h
+	../qt/models/atap_data_model.h
 	../qt/models/cache_proxy_model.h
 	../qt/models/coloring_rules_delegate.h
 	../qt/models/coloring_rules_model.h
@@ -272,6 +274,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/syntax_line_edit.cpp
 	../qt/widgets/wireless_timeline.cpp # Required by PacketListModel
 	../qt/widgets/tabnav_tree_view.cpp
+	../qt/widgets/traffic_tab.cpp
 	../qt/widgets/wireshark_file_dialog.cpp
 )
 
@@ -306,6 +309,7 @@ set (LOGWOLF_UTILS_SRCS ${WIRESHARK_UTILS_SRCS})
 
 set(WIRESHARK_MODEL_SRCS
 	../qt/models/astringlist_list_model.cpp
+	../qt/models/atap_data_model.cpp
 	../qt/models/cache_proxy_model.cpp
 	../qt/models/coloring_rules_delegate.cpp
 	../qt/models/coloring_rules_model.cpp

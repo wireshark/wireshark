@@ -36,6 +36,14 @@
 struct timeline_span {
     int start;
     int width;
+
+    double startTime;
+    double stopTime;
+    double minRelTime;
+    double maxRelTime;
+
+    int colStart;
+    int colDuration;
 };
 
 Q_DECLARE_METATYPE(timeline_span)
@@ -48,10 +56,14 @@ public:
     // Make sure QStyledItemDelegate::paint doesn't draw any text.
     virtual QString displayText(const QVariant &, const QLocale &) const { return QString(); }
 
+    void setDataRole(int role);
+
 protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
 private:
+
+    int _dataRole;
 };
 
 #endif // TIMELINE_DELEGATE_H

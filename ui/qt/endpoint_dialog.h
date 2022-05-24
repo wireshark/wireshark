@@ -14,38 +14,7 @@
 
 #include "traffic_table_dialog.h"
 
-class EndpointTreeWidget : public TrafficTableTreeWidget
-{
-    Q_OBJECT
-public:
-    explicit EndpointTreeWidget(QWidget *parent, register_ct_t* table);
-    ~EndpointTreeWidget();
-
-#ifdef HAVE_MAXMINDDB
-    bool hasGeoIPData() const { return has_geoip_data_; }
-#endif
-
-    static void tapReset(void *conv_hash_ptr);
-    static void tapDraw(void *conv_hash_ptr);
-
-#ifdef HAVE_MAXMINDDB
-signals:
-    void geoIPStatusChanged();
-#endif
-
-private:
-    void updateItems();
-
-    QString columnTitle(int nr);
-
-#ifdef HAVE_MAXMINDDB
-    bool has_geoip_data_;
-#endif
-    address_type table_address_type_;
-
-private slots:
-    void filterActionTriggered();
-};
+#include <ui/qt/models/atap_data_model.h>
 
 class EndpointDialog : public TrafficTableDialog
 {
@@ -69,19 +38,15 @@ protected:
 
 private:
 #ifdef HAVE_MAXMINDDB
-    QPushButton *map_bt_;
-
-    QUrl createMap(bool json_only);
-    bool writeEndpointGeoipMap(QFile * fp, bool json_only, hostlist_talker_t *const *hosts);
+    QPushButton * map_bt_;
 #endif
-    bool addTrafficTable(register_ct_t* table);
 
 private slots:
 #ifdef HAVE_MAXMINDDB
-    void tabChanged();
     void openMap();
     void saveMap();
 #endif
+    void tabChanged(int idx);
     void on_buttonBox_helpRequested();
 };
 
