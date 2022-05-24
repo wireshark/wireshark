@@ -73,6 +73,7 @@ static dissector_handle_t sigcomp_handle;
 static dissector_handle_t sip_diag_handle;
 static dissector_handle_t sip_uri_userinfo_handle;
 static dissector_handle_t sip_via_branch_handle;
+static dissector_handle_t sip_via_be_route_handle;
 /* Dissector to dissect the text part of an reason code */
 static dissector_handle_t sip_reason_code_handle;
 
@@ -208,6 +209,7 @@ static gint hf_sip_via_oc_algo            = -1;
 static gint hf_sip_via_oc_validity        = -1;
 static gint hf_sip_via_oc_seq             = -1;
 static gint hf_sip_oc_seq_timestamp       = -1;
+static gint hf_sip_via_be_route           = -1;
 
 static gint hf_sip_rack_rseq_no           = -1;
 static gint hf_sip_rack_cseq_no           = -1;
@@ -278,8 +280,9 @@ static gint ett_sip_ppi_uri               = -1;
 static gint ett_sip_tc_uri                = -1;
 static gint ett_sip_session_id            = -1;
 static gint ett_sip_p_access_net_info     = -1;
-static gint ett_sip_p_charging_vector      = -1;
+static gint ett_sip_p_charging_vector     = -1;
 static gint ett_sip_feature_caps          = -1;
+static gint ett_sip_via_be_route          = -1;
 
 static expert_field ei_sip_unrecognized_header = EI_INIT;
 static expert_field ei_sip_header_no_colon = EI_INIT;
@@ -788,7 +791,8 @@ static header_parameter_t via_parameters_hf_array[] =
     {"oc",            &hf_sip_via_oc},
     {"oc-validity",   &hf_sip_via_oc_validity },
     {"oc-seq",        &hf_sip_via_oc_seq},
-    {"oc-algo",       &hf_sip_via_oc_algo}
+    {"oc-algo",       &hf_sip_via_oc_algo},
+    {"be-route",      &hf_sip_via_be_route}
 };
 
 typedef enum {
@@ -2838,7 +2842,8 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                 {
                     if (equals_found)
                     {
-                        proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
+                        proto_item* via_parameter_item;
+                        via_parameter_item = proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
                             parameter_name_end + 1, current_offset - parameter_name_end - 1,
                             ENC_UTF_8 | ENC_NA);
 
@@ -2875,6 +2880,10 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                                     parameter_name_end + 1, current_offset - parameter_name_end - 1, &ts);
                                 proto_item_set_generated(ti);
                             }
+                        } else if (g_ascii_strcasecmp(param_name, "be-route") == 0) {
+                            tvbuff_t* next_tvb;
+                            next_tvb = tvb_new_subset_length_caplen(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
+                            call_dissector(sip_via_be_route_handle, next_tvb, pinfo, proto_item_add_subtree(via_parameter_item, ett_sip_via_be_route));
                         }
                     }
                     else
@@ -7321,6 +7330,11 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_sip_via_be_route,
+        { "be-route",  "sip.Via.be_route",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_sip_p_acc_net_i_acc_type,
            { "access-type", "sip.P-Access-Network-Info.access-type",
              FT_STRING, BASE_NONE, NULL, 0x0,
@@ -7526,7 +7540,8 @@ void proto_register_sip(void)
         &ett_sip_session_id,
         &ett_sip_p_access_net_info,
         &ett_sip_p_charging_vector,
-        &ett_sip_feature_caps
+        &ett_sip_feature_caps,
+        &ett_sip_via_be_route
     };
     static gint *ett_raw[] = {
         &ett_raw_text,
@@ -7754,6 +7769,7 @@ proto_reg_handoff_sip(void)
         sip_diag_handle = find_dissector("sip.diagnostic");
         sip_uri_userinfo_handle = find_dissector("sip.uri_userinfo");
         sip_via_branch_handle = find_dissector("sip.via_branch");
+        sip_via_be_route_handle = find_dissector("sip.via_be_route");
         /* Check for a dissector to parse Reason Code texts */
         sip_reason_code_handle = find_dissector("sip.reason_code");
         /* SIP content type and internet media type used by other dissectors are the same */
