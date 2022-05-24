@@ -52,7 +52,7 @@ static calc_type_ent_t calc_type_table[] = {
 typedef struct _io_stat_t {
     guint64 interval;     /* The user-specified time interval (us) */
     guint invl_prec;      /* Decimal precision of the time interval (1=10s, 2=100s etc) */
-    int num_cols;         /* The number of columns of stats in the table */
+    unsigned int num_cols;         /* The number of columns of stats in the table */
     struct _io_stat_item_t *items;  /* Each item is a single cell in the table */
     time_t start_time;    /* Time of first frame matching the filter */
     const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
@@ -510,10 +510,10 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     return TAP_PACKET_REDRAW;
 }
 
-static int
-magnitude (guint64 val, int max_w)
+static unsigned int
+magnitude (guint64 val, unsigned int max_w)
 {
-    int i, mag = 0;
+    unsigned int i, mag = 0;
 
     for (i=0; i<max_w; i++) {
         mag++;
@@ -555,11 +555,11 @@ iostat_draw(void *arg)
 {
     guint32 num;
     guint64 interval, duration, t, invl_end, dv;
-    int i, j, k, num_cols, num_rows, dur_secs_orig, dur_nsecs_orig, dur_secs, dur_nsecs, dur_mag,
+    unsigned int i, j, k, num_cols, num_rows, dur_secs_orig, dur_nsecs_orig, dur_secs, dur_nsecs, dur_mag,
         invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, numpad = 1, namelen, len_filt, type,
         maxfltr_w, ftype;
-    int fr_mag;    /* The magnitude of the max frame number in this column */
-    int val_mag;   /* The magnitude of the max value in this column */
+    unsigned int fr_mag;    /* The magnitude of the max frame number in this column */
+    unsigned int val_mag;   /* The magnitude of the max value in this column */
     char *spaces, *spaces_s, *filler_s = NULL, **fmts, *fmt = NULL;
     const char *filter;
     static gchar dur_mag_s[3], invl_prec_s[3], fr_mag_s[3], val_mag_s[3], *invl_fmt, *full_fmt;
@@ -593,9 +593,9 @@ iostat_draw(void *arg)
     }
 
     /* Calc the capture duration's magnitude (dur_mag) */
-    dur_secs  = (int)(duration/G_GUINT64_CONSTANT(1000000));
+    dur_secs  = (unsigned int)(duration/G_GUINT64_CONSTANT(1000000));
     dur_secs_orig = dur_secs;
-    dur_nsecs = (int)(duration%G_GUINT64_CONSTANT(1000000));
+    dur_nsecs = (unsigned int)(duration%G_GUINT64_CONSTANT(1000000));
     dur_nsecs_orig = dur_nsecs;
     dur_mag = magnitude((guint64)dur_secs, 5);
     snprintf(dur_mag_s, 3, "%u", dur_mag);
@@ -628,8 +628,8 @@ iostat_draw(void *arg)
     if ((duration%dv) > 5*(dv/10)) {
         duration += 5*(dv/10);
         duration = (duration/dv) * dv;
-        dur_secs  = (int)(duration/G_GUINT64_CONSTANT(1000000));
-        dur_nsecs = (int)(duration%G_GUINT64_CONSTANT(1000000));
+        dur_secs  = (unsigned int)(duration/G_GUINT64_CONSTANT(1000000));
+        dur_nsecs = (unsigned int)(duration%G_GUINT64_CONSTANT(1000000));
         /*
          * Recalc dur_mag in case rounding has increased its magnitude */
         dur_mag  = magnitude((guint64)dur_secs, 5);
@@ -669,7 +669,7 @@ iostat_draw(void *arg)
         if (type == CALC_TYPE_FRAMES_AND_BYTES) {
             namelen = 5;
         } else {
-            namelen = (int) strlen(calc_type_table[type].func_name);
+            namelen = (unsigned int)strlen(calc_type_table[type].func_name);
         }
         if (type == CALC_TYPE_FRAMES
          || type == CALC_TYPE_FRAMES_AND_BYTES) {
@@ -766,7 +766,7 @@ iostat_draw(void *arg)
     maxfltr_w = 0;
     for (j=0; j<num_cols; j++) {
         if (iot->filters[j]) {
-            k = (int) (strlen(iot->filters[j]) + 11);
+            k = (unsigned int) (strlen(iot->filters[j]) + 11);
             maxfltr_w = MAX(maxfltr_w, k);
         } else {
             maxfltr_w = MAX(maxfltr_w, 26);
@@ -838,7 +838,7 @@ iostat_draw(void *arg)
             printf("Frames and bytes%s|\n", spaces_s);
         } else {
             filter = iot->filters[j];
-            len_filt = (int) strlen(filter);
+            len_filt = (unsigned int) strlen(filter);
 
             /* If the width of the widest filter exceeds the width of the stat table, borderlen has
             *  been set to 102 bytes above and filters wider than 102 will wrap at 91 bytes. */
@@ -853,7 +853,7 @@ iostat_draw(void *arg)
                 gchar *sfilter1, *sfilter2;
                 const gchar *pos;
                 gsize len;
-                int next_start, max_w = borderlen-11;
+                unsigned int next_start, max_w = borderlen-11;
 
                 do {
                     if (len_filt > max_w) {
@@ -865,10 +865,10 @@ iostat_draw(void *arg)
                         pos = g_strrstr(sfilter1, " ");
                         if (pos) {
                             len = (gsize)(pos-sfilter1);
-                            next_start = (int) len+1;
+                            next_start = (unsigned int) len+1;
                         } else {
                             len = (gsize) strlen(sfilter1);
-                            next_start = (int)len;
+                            next_start = (unsigned int)len;
                         }
                         sfilter2 = g_strndup(sfilter1, len);
                         printf("%s%s|\n", sfilter2, &spaces[len+10]);
@@ -877,9 +877,9 @@ iostat_draw(void *arg)
 
                         printf("|        ");
                         filter = &filter[next_start];
-                        len_filt = (int) strlen(filter);
+                        len_filt = (unsigned int) strlen(filter);
                     } else {
-                        printf("%s%s|\n", filter, &spaces[((int)strlen(filter))+10]);
+                        printf("%s%s|\n", filter, &spaces[strlen(filter)+10]);
                         break;
                     }
                 } while (1);
@@ -970,7 +970,7 @@ iostat_draw(void *arg)
     if (interval == 0 || duration == 0) {
         num_rows = 0;
     } else {
-        num_rows = (int)(duration/interval) + ((int)(duration%interval) > 0 ? 1 : 0);
+        num_rows = (unsigned int)(duration/interval) + ((unsigned int)(duration%interval) > 0 ? 1 : 0);
     }
 
     /* Load item_in_column with the first item in each column */
@@ -1224,7 +1224,7 @@ iostat_draw(void *arg)
 
 
 static void
-register_io_tap(io_stat_t *io, int i, const char *filter)
+register_io_tap(io_stat_t *io, unsigned int i, const char *filter)
 {
     GString *error_string;
     const char *flt;
@@ -1389,7 +1389,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
 {
     gdouble interval_float;
     guint32 idx = 0;
-    int i;
+    unsigned int i;
     io_stat_t *io;
     const gchar *filters, *str, *pos;
 
