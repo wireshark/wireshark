@@ -85,7 +85,7 @@ $Win64Archives = @{
     "spandsp/spandsp-0.0.6-2-win64ws.zip" = "2eb8278633037f60f44815ea1606486ab5dcdf3bddc500b20c9fe356856236b2";
     "vcpkg-export/vcpkg-export-20210609-1-win64ws.zip" = "2207112ecae2d93e64405cb33e625d37c85f9b9db90b440a4d0f0362346564e4";
     "WinSparkle/WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
-    "zstd/zstd-1.4.0-win64ws.zip" = "154199227bdfdfa608972bcdcea38e20768937085e5a59a8fa06c72d07b00d6b";
+    "zstd/zstd-1.5.2-1-win64ws.zip" = "d920afe636951cfcf144824d9c075d1f2c13387f4739152fe185fd9c09fc58f2";
 }
 
 # Subdirectory to extract an archive to
