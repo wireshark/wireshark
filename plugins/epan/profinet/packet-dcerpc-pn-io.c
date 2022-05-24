@@ -13813,6 +13813,8 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
     case(0x80B0):   /* CombinedObjectContainer*/
     case(0x80CF):   /* RS_AdjustObserver */
+    case(0xaff1):   /* I&M1 */
+    case(0xaff2):   /* I&M2 */
     case(0xaff3):   /* I&M3 */
     case(0xe050):   /* FastStartUp data for one AR */
     case(0xe061):   /* RS_AckEvent (using RecordDataWrite service) */
