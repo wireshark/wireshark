@@ -26,6 +26,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <wireshark.h>
+
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -235,7 +237,7 @@ void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
       bufferZ_addlstring (BufRep, p, q - p);
     if (q < end) {
       if (++q < end) {  /* skip % */
-        if (isdigit (*q)) {
+        if (g_ascii_isdigit (*q)) {
           int num;
           *dbuf = *q;
           num = strtol (dbuf, NULL, 10);

@@ -30,6 +30,9 @@
 DIAG_OFF_CLANG(shorten-64-to-32)
 DIAG_OFF_CLANG(comma)
 
+#define malloc_free free
+#define rex_atoi atoi
+
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
@@ -200,7 +203,7 @@ static void **check_chartables (lua_State *L, int pos) {
 static int chartables_gc (lua_State *L) {
   void **ud = check_chartables (L, 1);
   if (*ud) {
-    free (*ud); //### free() should be called only if pcre2_maketables was called with NULL argument
+    malloc_free (*ud); //### free() should be called only if pcre2_maketables was called with NULL argument
     *ud = NULL;
   }
   return 0;
@@ -241,7 +244,7 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPcre2 **pud) {
 
   if (argC->locale) {
     char old_locale[256];
-    strcpy (old_locale, setlocale (LC_CTYPE, NULL));  /* store the locale */
+    g_strlcpy (old_locale, setlocale (LC_CTYPE, NULL), sizeof(old_locale));  /* store the locale */
     if (NULL == setlocale (LC_CTYPE, argC->locale))   /* set new locale */
       return luaL_error (L, "cannot set locale");
     ud->tables = pcre2_maketables (NULL); /* make tables with new locale */ //### argument NULL
@@ -495,7 +498,7 @@ static const luaL_Reg r_functions[] = {
 REX_API int REX_OPENLIB (lua_State *L) {
   char buf_ver[64];
   pcre2_config(PCRE2_CONFIG_VERSION, buf_ver);
-  if (PCRE2_MAJOR > atoi (buf_ver)) {
+  if (PCRE2_MAJOR > rex_atoi (buf_ver)) {
     return luaL_error (L, "%s requires at least version %d of PCRE2 library",
       REX_LIBNAME, (int)PCRE2_MAJOR);
   }
