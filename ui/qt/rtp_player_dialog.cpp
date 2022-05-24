@@ -39,7 +39,13 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAudio>
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+#include <QAudioDevice>
+#include <QAudioSink>
+#include <QMediaDevices>
+#else
 #include <QAudioDeviceInfo>
+#endif
 #include <QFrame>
 #include <QMenu>
 #include <QVBoxLayout>
@@ -216,6 +222,11 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     drawStartPlayMarker();
     start_marker_pos_->setVisible(true);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    notify_timer_.setInterval(100); // ~15 fps
+    connect(&notify_timer_, &QTimer::timeout, this, &RtpPlayerDialog::outputNotify);
+#endif
+
     datetime_ticker_->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
 
     ui->audioPlot->xAxis->setNumberFormat("gb");
@@ -264,12 +275,21 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 
     // Ordered, unique device names starting with the system default
     QMap<QString, bool> out_device_map; // true == default device
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    out_device_map.insert(QMediaDevices::defaultAudioOutput().description(), true);
+    foreach (QAudioDevice out_device, QMediaDevices::audioOutputs()) {
+        if (!out_device_map.contains(out_device.description())) {
+            out_device_map.insert(out_device.description(), false);
+        }
+    }
+#else
     out_device_map.insert(QAudioDeviceInfo::defaultOutputDevice().deviceName(), true);
     foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
         if (!out_device_map.contains(out_device.deviceName())) {
             out_device_map.insert(out_device.deviceName(), false);
         }
     }
+#endif
 
     ui->outputDeviceComboBox->blockSignals(true);
     foreach (QString out_name, out_device_map.keys()) {
@@ -460,7 +480,11 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
     mainApp->processEvents();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QAudioDevice cur_out_device = getCurrentDeviceInfo();
+#else
     QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
+#endif
     int row_count = ui->streamTreeWidget->topLevelItemCount();
 
     // Reset stream values
@@ -1000,7 +1024,7 @@ void RtpPlayerDialog::updateWidgets()
     bool enable_stop = false;
     bool enable_timing = true;
     int count = ui->streamTreeWidget->topLevelItemCount();
-    int selected = ui->streamTreeWidget->selectedItems().count();
+    qsizetype selected = ui->streamTreeWidget->selectedItems().count();
 
     if (count < 1) {
         enable_play = false;
@@ -1177,7 +1201,7 @@ void RtpPlayerDialog::updateHintLabel()
     QString hint = "<small><i>";
     double start_pos = getStartPlayMarker();
     int row_count = ui->streamTreeWidget->topLevelItemCount();
-    int selected = ui->streamTreeWidget->selectedItems().count();
+    qsizetype selected = ui->streamTreeWidget->selectedItems().count();
     int not_muted = 0;
 
     hint += tr("%1 streams").arg(row_count);
@@ -1368,7 +1392,11 @@ void RtpPlayerDialog::on_playButton_clicked()
         start_time = start_marker_time_play_ - first_stream_rel_start_time_;
     }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QAudioDevice cur_out_device = getCurrentDeviceInfo();
+#else
     QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
+#endif
     playing_streams_.clear();
     int row_count = ui->streamTreeWidget->topLevelItemCount();
     for (int row = 0; row < row_count; row++) {
@@ -1397,6 +1425,29 @@ void RtpPlayerDialog::on_playButton_clicked()
     updateWidgets();
 }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+QAudioDevice RtpPlayerDialog::getCurrentDeviceInfo()
+{
+    QAudioDevice cur_out_device = QMediaDevices::defaultAudioOutput();
+    QString cur_out_name = currentOutputDeviceName();
+    foreach (QAudioDevice out_device, QMediaDevices::audioOutputs()) {
+        if (cur_out_name == out_device.description()) {
+            cur_out_device = out_device;
+        }
+    }
+
+    return cur_out_device;
+}
+
+void RtpPlayerDialog::sinkStateChanged()
+{
+    if (marker_stream_->state() == QAudio::ActiveState) {
+        notify_timer_.start();
+    } else {
+        notify_timer_.stop();
+    }
+}
+#else
 QAudioDeviceInfo RtpPlayerDialog::getCurrentDeviceInfo()
 {
     QAudioDeviceInfo cur_out_device = QAudioDeviceInfo::defaultOutputDevice();
@@ -1409,7 +1460,31 @@ QAudioDeviceInfo RtpPlayerDialog::getCurrentDeviceInfo()
 
     return cur_out_device;
 }
+#endif
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+QAudioSink *RtpPlayerDialog::getSilenceAudioOutput()
+{
+    QAudioDevice cur_out_device = getCurrentDeviceInfo();
+
+    QAudioFormat format;
+    if (marker_stream_requested_out_rate_ > 0) {
+        format.setSampleRate(marker_stream_requested_out_rate_);
+    } else {
+        format.setSampleRate(8000);
+    }
+    // Must match rtp_media.h.
+    format.setSampleFormat(QAudioFormat::Int16);
+    format.setChannelCount(1);
+    if (!cur_out_device.isFormatSupported(format)) {
+        format = cur_out_device.preferredFormat();
+    }
+
+    QAudioSink *sink = new QAudioSink(cur_out_device, format, this);
+    connect(sink, &QAudioSink::stateChanged, this, &RtpPlayerDialog::sinkStateChanged);
+    return sink;
+}
+#else
 QAudioOutput *RtpPlayerDialog::getSilenceAudioOutput()
 {
     QAudioOutput *o;
@@ -1431,10 +1506,11 @@ QAudioOutput *RtpPlayerDialog::getSilenceAudioOutput()
 
     o = new QAudioOutput(cur_out_device, format, this);
     o->setNotifyInterval(100); // ~15 fps
-    connect(o, SIGNAL(notify()), this, SLOT(outputNotify()));
+    connect(o, &QAudioOutput::notify, this, &RtpPlayerDialog::outputNotify);
 
     return o;
 }
+#endif
 
 void RtpPlayerDialog::outputNotify()
 {
@@ -1591,7 +1667,7 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
         }
     }
 
-    int selected = ui->streamTreeWidget->selectedItems().count();
+    qsizetype selected = ui->streamTreeWidget->selectedItems().count();
     if (selected == 0) {
         analyze_btn_->setEnabled(false);
         prepare_btn_->setEnabled(false);
@@ -1682,7 +1758,7 @@ void RtpPlayerDialog::on_actionRemoveStream_triggered()
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
     block_redraw_ = true;
-    for(int i = items.count() - 1; i>=0; i-- ) {
+    for(int i = static_cast<int>(items.count()) - 1; i>=0; i-- ) {
         removeRow(items[i]);
     }
     block_redraw_ = false;
@@ -1859,9 +1935,22 @@ void RtpPlayerDialog::fillAudioRateMenu()
     ui->outputAudioRate->blockSignals(true);
     ui->outputAudioRate->clear();
     ui->outputAudioRate->addItem(tr("Automatic"));
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    // XXX QAudioDevice doesn't provide supportedSampleRates(). Fake it with
+    // what's available.
+    QAudioDevice cur_out_device = getCurrentDeviceInfo();
+    QSet<int>sample_rates;
+    sample_rates.insert(cur_out_device.minimumSampleRate());
+    sample_rates.insert(cur_out_device.preferredFormat().sampleRate());
+    sample_rates.insert(cur_out_device.maximumSampleRate());
+    for (auto rate : sample_rates) {
+        ui->outputAudioRate->addItem(QString::number(rate));
+    }
+#else
     foreach (int rate, getCurrentDeviceInfo().supportedSampleRates()) {
         ui->outputAudioRate->addItem(QString::number(rate));
     }
+#endif
     ui->outputAudioRate->blockSignals(false);
 }
 
@@ -2017,12 +2106,19 @@ void RtpPlayerDialog::formatAudioRouting(QTreeWidgetItem *ti, AudioRouting audio
 
 bool RtpPlayerDialog::isStereoAvailable()
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QAudioDevice cur_out_device = getCurrentDeviceInfo();
+    if (cur_out_device.maximumChannelCount() > 1) {
+        return true;
+    }
+#else
     QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
     foreach(int count, cur_out_device.supportedChannelCounts()) {
-        if (count>1) {
+        if (count > 1) {
             return true;
         }
     }
+#endif
 
     return false;
 }
@@ -2075,7 +2171,7 @@ void RtpPlayerDialog::on_actionStop_triggered()
     }
 }
 
-qint64 RtpPlayerDialog::saveAudioHeaderAU(QFile *save_file, int channels, unsigned audio_rate)
+qint64 RtpPlayerDialog::saveAudioHeaderAU(QFile *save_file, quint32 channels, unsigned audio_rate)
 {
     uint8_t pd[4];
     int64_t nchars;
@@ -2131,7 +2227,7 @@ qint64 RtpPlayerDialog::saveAudioHeaderAU(QFile *save_file, int channels, unsign
     return save_file->pos();
 }
 
-qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, int channels, unsigned audio_rate, qint64 samples)
+qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, unsigned audio_rate, qint64 samples)
 {
     uint8_t pd[4];
     int64_t nchars;
@@ -2464,12 +2560,12 @@ void RtpPlayerDialog::saveAudio(save_mode_t save_mode)
     } else {
         switch (format) {
             case save_audio_au:
-                if (-1 == saveAudioHeaderAU(&file, streams.count(), save_audio_rate)) {
+                if (-1 == saveAudioHeaderAU(&file, static_cast<quint32>(streams.count()), save_audio_rate)) {
                    QMessageBox::warning(this, tr("Error"), tr("Can't write header of AU file"));
                    return;
                 }
                 if (lead_silence_samples > 0) {
-                    if (!writeAudioSilenceSamples(&file, lead_silence_samples, streams.count())) {
+                    if (!writeAudioSilenceSamples(&file, lead_silence_samples, static_cast<int>(streams.count()))) {
                         QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
                     }
                 }
@@ -2478,12 +2574,12 @@ void RtpPlayerDialog::saveAudio(save_mode_t save_mode)
                 }
                 break;
             case save_audio_wav:
-                if (-1 == saveAudioHeaderWAV(&file, streams.count(), save_audio_rate, (maxSample - startSample) + lead_silence_samples)) {
+                if (-1 == saveAudioHeaderWAV(&file, static_cast<quint32>(streams.count()), save_audio_rate, (maxSample - startSample) + lead_silence_samples)) {
                    QMessageBox::warning(this, tr("Error"), tr("Can't write header of WAV file"));
                    return;
                 }
                 if (lead_silence_samples > 0) {
-                    if (!writeAudioSilenceSamples(&file, lead_silence_samples, streams.count())) {
+                    if (!writeAudioSilenceSamples(&file, lead_silence_samples, static_cast<int>(streams.count()))) {
                         QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
                     }
                 }

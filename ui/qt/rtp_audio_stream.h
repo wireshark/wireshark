@@ -32,7 +32,11 @@
 #include <QAudioOutput>
 
 class QAudioFormat;
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+class QAudioSink;
+#else
 class QAudioOutput;
+#endif
 class QIODevice;
 
 
@@ -51,7 +55,11 @@ public:
     void reset(double global_start_time);
     AudioRouting getAudioRouting();
     void setAudioRouting(AudioRouting audio_routing);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    void decode(QAudioDevice out_device);
+#else
     void decode(QAudioDeviceInfo out_device);
+#endif
 
     double startRelTime() const { return start_rel_time_; }
     double stopRelTime() const { return stop_rel_time_; }
@@ -78,7 +86,7 @@ public:
      * @return A set of timestamps suitable for passing to QCPGraph::setData.
      */
     const QVector<double> outOfSequenceTimestamps(bool relative = true);
-    int outOfSequence() { return out_of_seq_timestamps_.size(); }
+    int outOfSequence() { return static_cast<int>(out_of_seq_timestamps_.size()); }
     /**
      * @brief Return a list of out-of-sequence samples. Y value is constant.
      * @param y_offset Y axis offset to be used for stacking graphs.
@@ -91,7 +99,7 @@ public:
      * @return A set of timestamps suitable for passing to QCPGraph::setData.
      */
     const QVector<double> jitterDroppedTimestamps(bool relative = true);
-    int jitterDropped() { return jitter_drop_timestamps_.size(); }
+    int jitterDropped() { return static_cast<int>(jitter_drop_timestamps_.size()); }
     /**
      * @brief Return a list of jitter dropped samples. Y value is constant.
      * @param y_offset Y axis offset to be used for stacking graphs.
@@ -104,7 +112,7 @@ public:
      * @return A set of timestamps suitable for passing to QCPGraph::setData.
      */
     const QVector<double> wrongTimestampTimestamps(bool relative = true);
-    int wrongTimestamps() { return wrong_timestamp_timestamps_.size(); }
+    int wrongTimestamps() { return static_cast<int>(wrong_timestamp_timestamps_.size()); }
     /**
      * @brief Return a list of wrong timestamp samples. Y value is constant.
      * @param y_offset Y axis offset to be used for stacking graphs.
@@ -117,7 +125,7 @@ public:
      * @return A set of timestamps suitable for passing to QCPGraph::setData.
      */
     const QVector<double> insertedSilenceTimestamps(bool relative = true);
-    int insertedSilences() { return silence_timestamps_.size(); }
+    int insertedSilences() { return static_cast<int>(silence_timestamps_.size()); }
     /**
      * @brief Return a list of wrong timestamp samples. Y value is constant.
      * @param y_offset Y axis offset to be used for stacking graphs.
@@ -135,7 +143,11 @@ public:
     void setJitterBufferSize(int jitter_buffer_size) { jitter_buffer_size_ = jitter_buffer_size; }
     void setTimingMode(TimingMode timing_mode) { timing_mode_ = timing_mode; }
     void setStartPlayTime(double start_play_time) { start_play_time_ = start_play_time; }
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    bool prepareForPlay(QAudioDevice out_device);
+#else
     bool prepareForPlay(QAudioDeviceInfo out_device);
+#endif
     void startPlaying();
     void pausePlaying();
     void stopPlaying();
@@ -185,7 +197,6 @@ private:
     QSet<QString> payload_names_;
     struct SpeexResamplerState_ *audio_resampler_;
     struct SpeexResamplerState_ *visual_resampler_;
-    QAudioOutput *audio_output_;
     QMap<double, quint32> packet_timestamps_;
     QVector<qint16> visual_samples_;
     QVector<double> out_of_seq_timestamps_;
@@ -203,9 +214,16 @@ private:
     const QString formatDescription(const QAudioFormat & format);
     QString currentOutputDevice();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QAudioSink *audio_output_;
+    void decodeAudio(QAudioDevice out_device);
+    quint32 calculateAudioOutRate(QAudioDevice out_device, unsigned int sample_rate, unsigned int requested_out_rate);
+#else
+    QAudioOutput *audio_output_;
     void decodeAudio(QAudioDeviceInfo out_device);
-    void decodeVisual();
     quint32 calculateAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate, unsigned int requested_out_rate);
+#endif
+    void decodeVisual();
     SAMPLE *resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, qint64 requested_size);
 
 private slots:

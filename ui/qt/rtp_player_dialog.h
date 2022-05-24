@@ -28,7 +28,11 @@
 #include <ui/qt/widgets/qcustomplot.h>
 
 #ifdef QT_MULTIMEDIA_LIB
-#include <QAudioDeviceInfo>
+# if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+# include <QAudioDevice>
+# else
+# include <QAudioDeviceInfo>
+# endif
 #endif
 
 namespace Ui {
@@ -199,6 +203,10 @@ private slots:
     void on_actionPrepareFilter_triggered();
     void on_actionReadCapture_triggered();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    void sinkStateChanged();
+#endif
+
 #endif
 private:
     static RtpPlayerDialog *pinstance_;
@@ -222,7 +230,12 @@ private:
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
     bool stereo_available_;
     QList<RtpAudioStream *> playing_streams_;
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QAudioSink *marker_stream_;
+    QTimer notify_timer_;
+#else
     QAudioOutput *marker_stream_;
+#endif
     quint32 marker_stream_requested_out_rate_;
     QTreeWidgetItem *last_ti_;
     bool listener_removed_;
@@ -258,8 +271,13 @@ private:
     void updateStartStopTime(rtpstream_info_t *rtpstream, bool is_first);
     void formatAudioRouting(QTreeWidgetItem *ti, AudioRouting audio_routing);
     bool isStereoAvailable();
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QAudioSink *getSilenceAudioOutput();
+    QAudioDevice getCurrentDeviceInfo();
+#else
     QAudioOutput *getSilenceAudioOutput();
     QAudioDeviceInfo getCurrentDeviceInfo();
+#endif
     QTreeWidgetItem *findItemByCoords(QPoint point);
     QTreeWidgetItem *findItem(QCPAbstractPlottable *plottable);
     void handleItemHighlight(QTreeWidgetItem *ti, bool scroll);
@@ -271,8 +289,8 @@ private:
     void fillAudioRateMenu();
     void cleanupMarkerStream();
 
-    qint64 saveAudioHeaderAU(QFile *save_file, int channels, unsigned audio_rate);
-    qint64 saveAudioHeaderWAV(QFile *save_file, int channels, unsigned audio_rate, qint64 samples);
+    qint64 saveAudioHeaderAU(QFile *save_file, quint32 channels, unsigned audio_rate);
+    qint64 saveAudioHeaderWAV(QFile *save_file, quint32 channels, unsigned audio_rate, qint64 samples);
     bool writeAudioSilenceSamples(QFile *out_file, qint64 samples, int stream_count);
     bool writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes);
     save_audio_t selectFileAudioFormatAndName(QString *file_path);

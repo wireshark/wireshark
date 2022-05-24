@@ -1210,11 +1210,12 @@ if(BUILD_wireshark OR BUILD_logray)
 		Qt${qtver}Core
 		Qt${qtver}Gui
 		Qt${qtver}LinguistTools
-		# Our code currently does not compile with Qt6Multimedia
-		# Qt${qtver}Multimedia
 		Qt${qtver}PrintSupport
 		Qt${qtver}Widgets
 		Qt${qtver}Concurrent
+	)
+	set(QT_OPTIONAL_PACKAGELIST
+		Qt${qtver}Multimedia
 	)
 	if(USE_qt6)
 		set(CMAKE_CXX_STANDARD 17)
@@ -1226,13 +1227,18 @@ if(BUILD_wireshark OR BUILD_logray)
 		endif()
 		list(APPEND QT_PACKAGELIST Qt6Core5Compat)
 	else()
-		list(APPEND QT_PACKAGELIST Qt5Multimedia)
 		if(WIN32)
 			list(APPEND QT_PACKAGELIST Qt5WinExtras)
 		endif()
 	endif()
 	foreach(_qt_package IN LISTS QT_PACKAGELIST)
 		find_package(${_qt_package} REQUIRED ${QT_FIND_PACKAGE_OPTIONS})
+		list(APPEND QT_LIBRARIES ${${_qt_package}_LIBRARIES})
+		list(APPEND QT_INCLUDE_DIRS ${${_qt_package}_INCLUDE_DIRS})
+		list(APPEND QT_COMPILE_DEFINITIONS ${${_qt_package}_COMPILE_DEFINITIONS})
+	endforeach()
+	foreach(_qt_package IN LISTS QT_OPTIONAL_PACKAGELIST)
+		find_package(${_qt_package} ${QT_FIND_PACKAGE_OPTIONS})
 		list(APPEND QT_LIBRARIES ${${_qt_package}_LIBRARIES})
 		list(APPEND QT_INCLUDE_DIRS ${${_qt_package}_INCLUDE_DIRS})
 		list(APPEND QT_COMPILE_DEFINITIONS ${${_qt_package}_COMPILE_DEFINITIONS})
