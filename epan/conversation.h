@@ -336,6 +336,14 @@ WS_DLL_PUBLIC wmem_map_t * get_conversation_hashtable_no_port2(void);
 
 WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
 
+/**
+ * @brief Get a hash table of conversation hash table.
+ *
+ * @return A wmem_map_t * of (const char *: wmem_map_t *).
+ * Each value is a wmem_map_t * of (const conversation_element_t *: void *).
+ */
+WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtables(void);
+
 /* Temporary function to handle port_type to endpoint_type conversion
    For now it's a 1-1 mapping, but the intention is to remove
    many of the port_type instances in favor of endpoint_type

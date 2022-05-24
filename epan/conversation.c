@@ -1913,6 +1913,12 @@ get_conversation_hashtable_no_addr2_or_port2(void)
     return conversation_hashtable_no_addr2_or_port2;
 }
 
+wmem_map_t *
+get_conversation_hashtables(void)
+{
+    return conversation_hashtable_element_list;
+}
+
 address*
 conversation_key_addr1(const conversation_key_t key)
 {
