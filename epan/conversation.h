@@ -91,10 +91,32 @@ typedef enum {
 } endpoint_type;
 
 /**
- * Key used for identifying a conversation.
+ * Conversation element type.
  */
-struct conversation_key;
-typedef struct conversation_key* conversation_key_t;
+typedef enum {
+    CE_ENDPOINT,
+    CE_ADDRESS,
+    CE_PORT,
+    CE_STRING,
+    CE_UINT,
+    CE_UINT64,
+} conversation_element_type;
+
+/**
+ * Elements used to identify conversations for *_full routines and pinfo->conv_elements.
+ * Arrays must be terminated with an element .type set to CE_ENDPOINT.
+ */
+typedef struct conversation_element {
+    conversation_element_type type;
+    union {
+        endpoint_type endpoint_type_val;
+        address addr_val;
+        unsigned int port_val;
+        const char *str_val;
+        unsigned int uint_val;
+        uint64_t uint64_val;
+    };
+} conversation_element_t;
 
 /**
  * Data structure representing a conversation.
@@ -110,17 +132,16 @@ typedef struct conversation {
     wmem_tree_t *data_list;		/** list of data associated with conversation */
     wmem_tree_t *dissector_tree;	/** tree containing protocol dissector client associated with conversation */
     guint	options;		/** wildcard flags */
-    conversation_key_t key_ptr;	/** pointer to the key for this conversation */
+    conversation_element_t *key_ptr;	/** Keys are conversation element arrays terminated with a CE_ENDPOINT */
 } conversation_t;
-
 
 struct endpoint;
 typedef struct endpoint* endpoint_t;
 
-WS_DLL_PUBLIC address* conversation_key_addr1(const conversation_key_t key);
-WS_DLL_PUBLIC address* conversation_key_addr2(const conversation_key_t key);
-WS_DLL_PUBLIC guint32 conversation_key_port1(const conversation_key_t key);
-WS_DLL_PUBLIC guint32 conversation_key_port2(const conversation_key_t key);
+WS_DLL_PUBLIC const address* conversation_key_addr1(const conversation_element_t *key);
+WS_DLL_PUBLIC guint32 conversation_key_port1(const conversation_element_t *key);
+WS_DLL_PUBLIC const address* conversation_key_addr2(const conversation_element_t *key);
+WS_DLL_PUBLIC guint32 conversation_key_port2(const conversation_element_t *key);
 
 /**
  * Create a new hash tables for conversations.
@@ -131,32 +152,6 @@ extern void conversation_init(void);
  * Initialize some variables every time a file is loaded or re-loaded.
  */
 extern void conversation_epan_reset(void);
-
-/**
- * Conversation element type.
- */
-typedef enum {
-    CE_ENDPOINT,
-    CE_ADDRESS,
-    CE_STRING,
-    CE_UINT,
-    CE_UINT64,
-} conversation_element_type;
-
-/**
- * Elements used to identify conversations for *_full routines and pinfo->conv_elements.
- * Arrays must be terminated with an element .type set to CE_ENDPOINT.
- */
-typedef struct conversation_element {
-    conversation_element_type type;
-    union {
-        endpoint_type endpoint_type_val;
-        address addr_val;
-        const char *str_val;
-        unsigned int uint_val;
-        uint64_t uint64_val;
-    };
-} conversation_element_t;
 
 /**
  * Create a new conversation identified by a list of elements.
@@ -297,12 +292,36 @@ WS_DLL_PUBLIC void conversation_set_dissector_from_frame_number(conversation_t *
 
 WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation, const guint32 frame_num);
 
+/**
+ * Save address+port information in the current packet info which can be matched by
+ * find_conversation_pinfo. Supports wildcarding.
+ * @param pinfo Packet info.
+ * @param addr1 The first address in the identifying tuple.
+ * @param addr2 The second address in the identifying tuple.
+ * @param etype The endpoint type.
+ * @param port1 The first port in the identifying tuple.
+ * @param port2 The second port in the identifying tuple.
+ */
 WS_DLL_PUBLIC void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
     endpoint_type etype, guint32 port1, guint32	port2);
 
+/**
+ * Save ID information in the current packet info which can be matched by
+ * conversation_get_endpoint_by_id. Does not support wildcarding.
+ * @param pinfo Packet info.
+ * @param etype The endpoint type.
+ * @param id A unique ID.
+ */
 WS_DLL_PUBLIC void conversation_create_endpoint_by_id(struct _packet_info *pinfo,
     endpoint_type etype, guint32 id);
 
+/**
+ * @brief conversation_get_endpoint_by_id
+ * @param pinfo Packet info.
+ * @param etype The endpoint type.
+ * @param options USE_LAST_ENDPOINT or 0.
+ * @return The endpoint ID if successful, or 0 on failure.
+ */
 WS_DLL_PUBLIC guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo,
     endpoint_type etype, const guint options);
 
@@ -325,17 +344,19 @@ WS_DLL_PUBLIC gboolean try_conversation_dissector_by_id(const endpoint_type etyp
 
 /* These routines are used to set undefined values for a conversation */
 
+/**
+ * Set the second port in a conversation created with conversation_new.
+ * @param conv Conversation. Must be created with conversation_new.
+ * @param port The second port to set.
+ */
 WS_DLL_PUBLIC void conversation_set_port2(conversation_t *conv, const guint32 port);
 
+/**
+ * Set the second address in a conversation created with conversation_new.
+ * @param conv Conversation. Must be created with conversation_new.
+ * @param port The second address to set.
+ */
 WS_DLL_PUBLIC void conversation_set_addr2(conversation_t *conv, const address *addr);
-
-WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtable_exact(void);
-
-WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtable_no_addr2(void);
-
-WS_DLL_PUBLIC wmem_map_t * get_conversation_hashtable_no_port2(void);
-
-WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
 
 /**
  * @brief Get a hash table of conversation hash table.
@@ -352,9 +373,6 @@ WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtables(void);
 WS_DLL_PUBLIC endpoint_type conversation_pt_to_endpoint_type(port_type pt);
 
 WS_DLL_PUBLIC guint conversation_hash_exact(gconstpointer v);
-
-/* Provide a wmem_alloced (NULL scope) hash string using HTML tags */
-WS_DLL_PUBLIC gchar *conversation_get_html_hash(const conversation_key_t key);
 
 #ifdef __cplusplus
 }
