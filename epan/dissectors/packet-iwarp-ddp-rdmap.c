@@ -333,7 +333,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 	guint8 layer, etype, hdrct;
 
 	if (info->opcode == RDMA_READ_REQUEST) {
-		info->read_request = (rdmap_request_t *)wmem_alloc(wmem_packet_scope(), sizeof(rdmap_request_t));
+		info->read_request = wmem_new(wmem_packet_scope(), rdmap_request_t);
 
 		rdma_header_subitem = proto_tree_add_item(rdma_tree,
 				hf_iwarp_rdma_rr_header, tvb, offset, -1, ENC_NA);
