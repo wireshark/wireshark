@@ -16,6 +16,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/reassemble.h>
+#include <epan/conversation.h>
+#include <epan/proto_data.h>
 
 #include "packet-iwarp-ddp-rdmap.h"
 
@@ -180,6 +183,18 @@ static gint hf_iwarp_rdma_atomic_compare_mask = -1;
 static gint hf_iwarp_rdma_atomic_original_request_identifier = -1;
 static gint hf_iwarp_rdma_atomic_original_remote_data_value = -1;
 
+static gint hf_iwarp_rdma_send_fragments = -1;
+static gint hf_iwarp_rdma_send_fragment = -1;
+static gint hf_iwarp_rdma_send_fragment_overlap = -1;
+static gint hf_iwarp_rdma_send_fragment_overlap_conflict = -1;
+static gint hf_iwarp_rdma_send_fragment_multiple_tails = -1;
+static gint hf_iwarp_rdma_send_fragment_too_long_fragment = -1;
+static gint hf_iwarp_rdma_send_fragment_error = -1;
+static gint hf_iwarp_rdma_send_fragment_count = -1;
+static gint hf_iwarp_rdma_send_reassembled_in = -1;
+static gint hf_iwarp_rdma_send_reassembled_length = -1;
+static gint hf_iwarp_rdma_send_reassembled_data = -1;
+
 /* initialize the subtree pointers */
 static gint ett_iwarp_rdma = -1;
 
@@ -188,6 +203,26 @@ static gint ett_iwarp_rdma_rr_header = -1;
 static gint ett_iwarp_rdma_terminate_header = -1;
 static gint ett_iwarp_rdma_term_ctrl = -1;
 static gint ett_iwarp_rdma_term_hdrct = -1;
+
+static gint ett_iwarp_rdma_send_fragment = -1;
+static gint ett_iwarp_rdma_send_fragments = -1;
+
+static const fragment_items iwarp_rdma_send_frag_items = {
+	&ett_iwarp_rdma_send_fragment,
+	&ett_iwarp_rdma_send_fragments,
+	&hf_iwarp_rdma_send_fragments,
+	&hf_iwarp_rdma_send_fragment,
+	&hf_iwarp_rdma_send_fragment_overlap,
+	&hf_iwarp_rdma_send_fragment_overlap_conflict,
+	&hf_iwarp_rdma_send_fragment_multiple_tails,
+	&hf_iwarp_rdma_send_fragment_too_long_fragment,
+	&hf_iwarp_rdma_send_fragment_error,
+	&hf_iwarp_rdma_send_fragment_count,
+	&hf_iwarp_rdma_send_reassembled_in,
+	&hf_iwarp_rdma_send_reassembled_length,
+	&hf_iwarp_rdma_send_reassembled_data,
+	"iWarp RDMA Send fragments"
+};
 
 static const value_string rdmap_messages[] = {
 		{ RDMA_WRITE,		   "Write" },
@@ -285,16 +320,100 @@ static const value_string rdma_atomic_opcode_names[] = {
 
 static heur_dissector_list_t rdmap_heur_subdissector_list;
 
+static gboolean iwarp_rdma_send_reassemble = TRUE;
+static reassembly_table iwarp_rdma_send_reassembly_table;
+
 static void
 dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
 		      proto_tree *tree, rdmap_info_t *info)
 {
+	gboolean save_fragmented = pinfo->fragmented;
+	int save_visited = pinfo->fd->visited;
+	conversation_t *conversation = NULL;
+	fragment_head *fd_head = NULL;
+	gboolean more_frags = FALSE;
+	gboolean fd_head_not_cached = FALSE;
 	heur_dtbl_entry_t *hdtbl_entry;
 
+	switch (info->opcode) {
+	case RDMA_SEND:
+	case RDMA_SEND_INVALIDATE:
+	case RDMA_SEND_SE:
+	case RDMA_SEND_SE_INVALIDATE:
+		if (iwarp_rdma_send_reassemble) {
+			break;
+		}
+		/* FALLTHRU */
+	default:
+		goto dissect_payload;
+	}
+
+	conversation = find_or_create_conversation(pinfo);
+
+	if (!info->last_flag) {
+		more_frags = TRUE;
+	}
+
+	fd_head = (fragment_head *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iwarp_ddp_rdmap, 0);
+	if (fd_head == NULL) {
+		fd_head_not_cached = TRUE;
+
+		pinfo->fd->visited = 0;
+		fd_head = fragment_add_seq_next(&iwarp_rdma_send_reassembly_table,
+						tvb, 0, pinfo,
+						conversation->conv_index,
+						NULL, tvb_captured_length(tvb),
+						more_frags);
+	}
+
+	if (fd_head == NULL) {
+		/*
+		 * We really want the fd_head and pass it to
+		 * process_reassembled_data()
+		 *
+		 * So that individual fragments gets the
+		 * reassembled in field.
+		 */
+		fd_head = fragment_get_reassembled_id(&iwarp_rdma_send_reassembly_table,
+						      pinfo,
+						      conversation->conv_index);
+	}
+
+	if (fd_head == NULL) {
+		/*
+		 * we need more data...
+		 */
+		goto done;
+	}
+
+	if (fd_head_not_cached) {
+		p_add_proto_data(wmem_file_scope(), pinfo,
+				 proto_iwarp_ddp_rdmap, 0, fd_head);
+	}
+
+	tvb = process_reassembled_data(tvb, 0, pinfo,
+				       "Reassembled SMB Direct",
+				       fd_head,
+				       &iwarp_rdma_send_frag_items,
+				       NULL, /* update_col_info*/
+				       tree);
+	if (tvb == NULL) {
+		/*
+		 * we need more data...
+		 */
+		goto done;
+	}
+
+dissect_payload:
+	pinfo->fragmented = FALSE;
 	if (!dissector_try_heuristic(rdmap_heur_subdissector_list,
 					tvb, pinfo, tree, &hdtbl_entry, info)) {
 		call_data_dissector(tvb, pinfo, tree);
 	}
+done:
+	pinfo->fragmented = save_fragmented;
+	pinfo->fd->visited = save_visited;
+	return;
 }
 
 /* update packet list pane in the GUI */
@@ -1000,6 +1119,51 @@ proto_register_iwarp_ddp_rdmap(void)
 				"Original Request Identifier", "iwarp_rdma.atomic.original_remote_data_value",
 				FT_UINT64, BASE_DEC, NULL, 0x0,
 				NULL, HFILL} },
+
+		{ &hf_iwarp_rdma_send_fragments, {
+				"Reassembled SMB Direct Fragments", "iwarp_rdma.send.fragments",
+				FT_NONE, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_fragment, {
+				"iWarp RDMA Send Fragment", "iwarp_rdma.send.fragment",
+				FT_FRAMENUM, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_fragment_overlap, {
+				"Fragment overlap", "iwarp_rdma.send.fragment.overlap",
+				FT_BOOLEAN, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_fragment_overlap_conflict, {
+				"Conflicting data in fragment overlap", "iwarp_rdma.send.fragment.overlap.conflict",
+				FT_BOOLEAN, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_fragment_multiple_tails, {
+				"Multiple tail fragments found", "iwarp_rdma.send.fragment.multipletails",
+				FT_BOOLEAN, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_fragment_too_long_fragment, {
+				"Fragment too long", "iwarp_rdma.send.fragment.toolongfragment",
+				FT_BOOLEAN, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_fragment_error, {
+				"Defragmentation error", "iwarp_rdma.send.fragment.error",
+				FT_FRAMENUM, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_fragment_count, {
+				"Fragment count", "iwarp_rdma.send.fragment.count",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_reassembled_in, {
+				"Reassembled PDU in frame", "iwarp_rdma.send.reassembled_in",
+				FT_FRAMENUM, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_reassembled_length, {
+				"Reassembled iWarp RDMA Send length", "iwarp_rdma.send.reassembled.length",
+				FT_UINT32, BASE_DEC, NULL, 0,
+				NULL, HFILL} },
+		{ &hf_iwarp_rdma_send_reassembled_data, {
+				"Reassembled iWarp RDMA Send data", "iwarp_rdma.send.reassembled.data",
+				FT_BYTES, BASE_NONE, NULL, 0,
+				NULL, HFILL} },
 	};
 
 	/* setup protocol subtree array */
@@ -1021,8 +1185,12 @@ proto_register_iwarp_ddp_rdmap(void)
 		&ett_iwarp_rdma_rr_header,
 		&ett_iwarp_rdma_terminate_header,
 		&ett_iwarp_rdma_term_ctrl,
-		&ett_iwarp_rdma_term_hdrct
+		&ett_iwarp_rdma_term_hdrct,
+
+		&ett_iwarp_rdma_send_fragment,
+		&ett_iwarp_rdma_send_fragments,
 	};
+	module_t *iwarp_dep_rdmap_module;
 
 	/* register the protocol name and description */
 	proto_iwarp_ddp_rdmap = proto_register_protocol(
@@ -1038,6 +1206,15 @@ proto_register_iwarp_ddp_rdmap(void)
 
 	register_dissector("iwarp_ddp_rdmap", dissect_iwarp_ddp_rdmap,
 			proto_iwarp_ddp_rdmap);
+
+	iwarp_dep_rdmap_module = prefs_register_protocol(proto_iwarp_ddp_rdmap, NULL);
+	prefs_register_bool_preference(iwarp_dep_rdmap_module,
+				       "reassemble_iwarp_rdma_send",
+				       "Reassemble iWarp RDMA Send fragments",
+				       "Whether the iWarp RDMA dissector should reassemble Send fragmented payloads",
+				       &iwarp_rdma_send_reassemble);
+	reassembly_table_register(&iwarp_rdma_send_reassembly_table,
+	    &addresses_ports_reassembly_table_functions);
 }
 
 /*
