@@ -3308,6 +3308,36 @@ print_tcp_fragment_tree(fragment_head *ipfd_head, proto_tree *tree, proto_tree *
  * However, frames can have multiple PDUs with certain encapsulations like
  * GSE or MPE over DVB BaseBand Frames.
  */
+
+typedef struct _tcp_endpoint {
+
+    address src_addr;
+    address dst_addr;
+    port_type ptype;
+    guint32 src_port;
+    guint32 dst_port;
+} tcp_endpoint_t;
+
+static void
+save_endpoint(packet_info *pinfo, tcp_endpoint_t *a)
+{
+    copy_address_shallow(&a->src_addr, &pinfo->src);
+    copy_address_shallow(&a->dst_addr, &pinfo->dst);
+    a->ptype = pinfo->ptype;
+    a->src_port = pinfo->srcport;
+    a->dst_port = pinfo->destport;
+}
+
+static void
+restore_endpoint(packet_info *pinfo, tcp_endpoint_t *a)
+{
+    copy_address_shallow(&pinfo->src, &a->src_addr);
+    copy_address_shallow(&pinfo->dst, &a->dst_addr);
+    pinfo->ptype = a->ptype;
+    pinfo->srcport = a->src_port;
+    pinfo->destport = a->dst_port;
+}
+
 typedef struct _tcp_segment_key {
         address src_addr;
         address dst_addr;
@@ -3676,6 +3706,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
     int last_fragment_len;
     gboolean must_desegment;
     gboolean called_dissector;
+    gboolean has_gap;
     int another_pdu_follows;
     int deseg_offset;
     guint32 deseg_seq;
@@ -3685,11 +3716,17 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
     gboolean cleared_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
     const gboolean reassemble_ooo = tcp_analyze_seq && tcp_desegment && tcp_reassemble_out_of_order;
 
+    tcp_endpoint_t orig_endpoint, new_endpoint;
+
+    save_endpoint(pinfo, &orig_endpoint);
+    save_endpoint(pinfo, &new_endpoint);
+
 again:
     ipfd_head = NULL;
     last_fragment_len = 0;
     must_desegment = FALSE;
     called_dissector = FALSE;
+    has_gap = FALSE;
     another_pdu_follows = 0;
     msp = NULL;
 
@@ -3832,7 +3869,7 @@ again:
             proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
                 nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
                 plurality(nbytes, "", "s"));
-            return;
+            goto clean_exit;
         }
 
         /* The above code only finds retransmission if the PDU boundaries and the seq coincide I think
@@ -3854,7 +3891,7 @@ again:
              * See issue 10289
              */
             if((tcpd->ta->flags&TCP_A_SPURIOUS_RETRANSMISSION) == TCP_A_SPURIOUS_RETRANSMISSION) {
-                return;
+                goto clean_exit;
             }
             if((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION) {
                 const char* str = "Retransmitted ";
@@ -3862,7 +3899,7 @@ again:
                 proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
                     nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
                     plurality(nbytes, "", "s"));
-                return;
+                goto clean_exit;
             }
         }
         /* Else, find the most previous PDU starting before this sequence number */
@@ -3870,8 +3907,6 @@ again:
             msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
         }
     }
-
-    gboolean has_gap = FALSE;
 
     if (reassemble_ooo && tcpd && !(tcpd->fwd->flags & TCP_FLOW_REASSEMBLE_UNTIL_FIN)) {
         if (!PINFO_FD_VISITED(pinfo)) {
@@ -4050,6 +4085,20 @@ again:
 
         process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
                             sport, dport, 0, 0, FALSE, tcpd, tcpinfo);
+
+        /* Unless it failed to dissect any data at all, the subdissector
+         * might have changed the addresses and/or ports. Save them, and
+         * set them back to the original values temporarily so that the
+         * fragment functions work correctly (including in any later PDU.)
+         *
+         * (If we didn't dissect any data, the subdissector *shouldn't*
+         * have changed the addresses or ports, so don't save them, but
+         * restore them just in case.)
+         */
+        if (!(pinfo->desegment_len && pinfo->desegment_offset == 0)) {
+            save_endpoint(pinfo, &new_endpoint);
+        }
+        restore_endpoint(pinfo, &orig_endpoint);
         called_dissector = TRUE;
 
         /* Did the subdissector ask us to desegment some more data
@@ -4113,6 +4162,20 @@ again:
             /* call subdissector */
             process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, sport,
                                 dport, 0, 0, FALSE, tcpd, tcpinfo);
+
+            /* Unless it failed to dissect any data at all, the subdissector
+             * might have changed the addresses and/or ports. Save them, and
+             * set them back to the original values temporarily so that the
+             * fragment functions work correctly (including in any later PDU.)
+             *
+             * (If we didn't dissect any data, the subdissector *shouldn't*
+             * have changed the addresses or ports, so don't save them, but
+             * restore them just in case.)
+             */
+            if (!(pinfo->desegment_len && pinfo->desegment_offset == 0)) {
+                save_endpoint(pinfo, &new_endpoint);
+            }
+            restore_endpoint(pinfo, &orig_endpoint);
             called_dissector = TRUE;
 
             /*
@@ -4402,6 +4465,12 @@ again:
             col_set_writable(pinfo->cinfo, COL_PROTOCOL, TRUE);
         }
     }
+
+clean_exit:
+    /* Restore the addresses and ports to whatever they were after
+     * the last segment that successfully dissected some data, if any.
+     */
+    restore_endpoint(pinfo, &new_endpoint);
 }
 
 void
@@ -4420,6 +4489,10 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char *saved_proto;
     guint8 curr_layer_num;
     wmem_list_frame_t *frame;
+
+    tcp_endpoint_t orig_endpoint;
+
+    save_endpoint(pinfo, &orig_endpoint);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /*
@@ -4591,6 +4664,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * data.
          */
         saved_proto = pinfo->current_proto;
+        restore_endpoint(pinfo, &orig_endpoint);
         TRY {
             (*dissect_pdu)(next_tvb, pinfo, tree, dissector_data);
         }
