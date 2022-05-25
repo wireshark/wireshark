@@ -360,7 +360,7 @@ uat_pkcs11_libs_load_all(void)
     for (guint i = 0; i < uat_num_pkcs11_libs; i++) {
         const pkcs11_lib_record_t *rec = &uat_pkcs11_libs[i];
         const char *libname = rec->library_path;
-#ifdef WIN32
+#ifdef _MSC_VER
         // Work around a bug in p11-kit < 0.23.16 on Windows
         HMODULE provider_lib = LoadLibraryA(libname);
         if (! provider_lib || ! GetProcAddress(provider_lib, "C_GetFunctionList")) {
@@ -369,7 +369,7 @@ uat_pkcs11_libs_load_all(void)
 #endif
         /* Note: should return success for already loaded libraries.  */
         ret = gnutls_pkcs11_add_provider(libname, NULL);
-#ifdef WIN32
+#ifdef _MSC_VER
         }
         if (provider_lib) {
             FreeLibrary(provider_lib);
