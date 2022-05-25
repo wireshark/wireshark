@@ -995,9 +995,6 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 
     conversation->conv_index = new_index;
     conversation->setup_frame = conversation->last_frame = setup_frame;
-    conversation->data_list = NULL;
-
-    conversation->dissector_tree = wmem_tree_new(wmem_file_scope());
 
     /* set the options and key pointer */
     conversation->options = options;
@@ -1624,6 +1621,9 @@ void
 conversation_set_dissector_from_frame_number(conversation_t *conversation,
         const guint32 starting_frame_num, const dissector_handle_t handle)
 {
+    if (!conversation->dissector_tree) {
+        conversation->dissector_tree = wmem_tree_new(wmem_file_scope());
+    }
     wmem_tree_insert32(conversation->dissector_tree, starting_frame_num, (void *)handle);
 }
 
@@ -1636,6 +1636,9 @@ conversation_set_dissector(conversation_t *conversation, const dissector_handle_
 dissector_handle_t
 conversation_get_dissector(conversation_t *conversation, const guint32 frame_num)
 {
+    if (!conversation->dissector_tree) {
+        return NULL;
+    }
     return (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, frame_num);
 }
 
@@ -1643,11 +1646,16 @@ static gboolean
 try_conversation_call_dissector_helper(conversation_t *conversation, gboolean* dissector_success,
         tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    if (!conversation->dissector_tree) {
+        return FALSE;
+    }
+
     int ret;
     dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(
             conversation->dissector_tree, pinfo->num);
-    if (handle == NULL)
+    if (handle == NULL) {
         return FALSE;
+    }
 
     ret = call_dissector_only(handle, tvb, pinfo, tree, data);
 
@@ -1719,11 +1727,17 @@ try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tv
     conversation = find_conversation_by_id(pinfo->num, etype, id);
 
     if (conversation != NULL) {
-        int ret;
-
-        dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
-        if (handle == NULL)
+        if (!conversation->dissector_tree) {
             return FALSE;
+        }
+
+        int ret;
+        dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
+
+        if (handle == NULL) {
+            return FALSE;
+        }
+
         ret = call_dissector_only(handle, tvb, pinfo, tree, data);
         if (!ret) {
             /* this packet was rejected by the dissector
