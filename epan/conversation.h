@@ -233,11 +233,11 @@ WS_DLL_PUBLIC conversation_t *find_conversation_full(const guint32 frame_num, co
  *	otherwise, we found no matching conversation, and return NULL.
  *
  * @param frame_num Frame number. Must be greater than or equal to the conversation's initial frame number.
- * @param addr1 The first address in the identifying tuple.
- * @param addr2 The second address in the identifying tuple.
+ * @param addr_a The first address in the identifying tuple.
+ * @param addr_b The second address in the identifying tuple.
  * @param etype The endpoint type.
- * @param port1 The first port in the identifying tuple.
- * @param port2 The second port in the identifying tuple.
+ * @param port_a The first port in the identifying tuple.
+ * @param port_b The second port in the identifying tuple.
  * @param options Wildcard options as described above.
  * @return The matching conversation if found, otherwise NULL.
  */
