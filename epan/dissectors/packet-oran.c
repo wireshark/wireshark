@@ -767,6 +767,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         switch (sectionType) {
             case SEC_C_NORMAL:            /* Section Type "1" */
             case SEC_C_PRACH:             /* Section Type "3" */
+            case SEC_C_UE_SCHED:          /* Section Type "5" */
                 proto_tree_add_item_ret_boolean(oran_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
                 break;
             default:
