@@ -4312,6 +4312,7 @@ proto_register_eobi(void)
     proto_register_field_array(proto_eobi, hf, array_length(hf));
     static gint * const ett[] = { &ett_eobi[0], &ett_eobi[1], &ett_eobi[2], &ett_eobi[3], &ett_eobi[4], &ett_eobi[5], &ett_eobi[6], &ett_eobi_dscp };
     proto_register_subtree_array(ett, array_length(ett));
+    proto_disable_by_default(proto_eobi);
 }
 
 void

@@ -953,6 +953,8 @@ proto_register_{proto}(void)
         file=o)
     gen_subtree_array(st, proto, o)
     print('    proto_register_subtree_array(ett, array_length(ett));', file=o)
+    if proto.startswith('eobi'):
+        print(f'    proto_disable_by_default(proto_{proto});', file=o)
     print('}\n', file=o)
 
 
