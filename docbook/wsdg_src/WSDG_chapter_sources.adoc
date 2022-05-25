@@ -1011,12 +1011,12 @@ In your build directory, type:
 
 [source,sh]
 ----
-ninja dmg_package
+ninja wireshark_dmg logwolf_dmg # (Modify as needed)
 # ...or, if you're using GNU make...
-make dmg_package
+make wireshark_dmg logwolf_dmg # (Modify as needed)
 ----
 
-to build the macOS Package.
+to build the macOS Packages.
 
 [#ChSrcNSIS]
 

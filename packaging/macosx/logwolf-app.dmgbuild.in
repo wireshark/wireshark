@@ -18,24 +18,24 @@ import os.path
 
 # .. Useful stuff ..............................................................
 
-ws_version = '@VERSION@'
-ws_volname = 'Wireshark ' + ws_version
-ws_srcdir = '@CMAKE_SOURCE_DIR@'
-ws_bindir = '@CMAKE_BINARY_DIR@'
-ws_app = 'Wireshark.app'
-ws_readme = 'Read me first.html'
-ws_install_chmodbpf = 'Install ChmodBPF.pkg'
-ws_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
-ws_install_path_helper = 'Add Wireshark to the system path.pkg'
-ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
+lw_version = '@VERSION@'
+lw_volname = 'Logwolf ' + lw_version
+lw_srcdir = '@CMAKE_SOURCE_DIR@'
+lw_bindir = '@CMAKE_BINARY_DIR@'
+lw_app = 'Logwolf.app'
+lw_readme = 'Read me first.html'
+lw_install_chmodbpf = 'Install ChmodBPF.pkg'
+lw_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
+lw_install_path_helper = 'Add Logwolf to the system path.pkg'
+lw_uninstall_path_helper = 'Remove Logwolf from the system path.pkg'
 
 # .. Basics ....................................................................
 
 # Uncomment to override the output filename
-# filename = ws_volname + ' Intel 64.dmg'
+# filename = lw_volname + ' Intel 64.dmg'
 
 # Uncomment to override the output volume name
-# volume_name = 'Wireshark ' + ws_version
+# volume_name = 'Logwolf ' + lw_version
 
 # From the hdiutil man page:
 # UDZO - UDIF zlib-compressed image
@@ -43,23 +43,6 @@ ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
 # ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
 # ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
 # Volume format (see hdiutil create -help)
-#
-# A test with the following bundles resulted in the following .dmg sizes,
-# measured with `du -sm`:
-# 182     Wireshark.app
-# 267     Wireshark.dSYM
-#
-# UDBZ
-# 51      Wireshark 3.7.0 Intel 64.dmg
-# 81      Wireshark dSYM 3.7.0 Intel 64.dmg
-#
-# ULFO
-# 51      Wireshark 3.7.0 Intel 64.dmg
-# 81      Wireshark dSYM 3.7.0 Intel 64.dmg
-#
-# ULMO
-# 40      Wireshark 3.7.0 Intel 64.dmg
-# 50      Wireshark dSYM 3.7.0 Intel 64.dmg
 
 format = defines.get('format', 'UDBZ')
 
@@ -71,17 +54,17 @@ size = None
 
 # Files to include
 files = [
-    os.path.join(ws_bindir, 'run', ws_app),
-    os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_readme),
+    os.path.join(lw_bindir, 'run', lw_app),
+    os.path.join(lw_bindir, 'packaging', 'macosx', 'logwolf', lw_readme),
 ]
 
 # Symlinks to create
 symlinks = {
     'Applications': '/Applications',
-    ws_install_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_chmodbpf),
-    ws_uninstall_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_chmodbpf),
-    ws_install_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_path_helper),
-    ws_uninstall_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_path_helper),
+    lw_install_chmodbpf: os.path.join(lw_app, 'Contents', 'Resources', 'Extras', lw_install_chmodbpf),
+    lw_uninstall_chmodbpf: os.path.join(lw_app, 'Contents', 'Resources', 'Extras', lw_uninstall_chmodbpf),
+    lw_install_path_helper: os.path.join(lw_app, 'Contents', 'Resources', 'Extras', lw_install_path_helper),
+    lw_uninstall_path_helper: os.path.join(lw_app, 'Contents', 'Resources', 'Extras', lw_uninstall_path_helper),
     }
 
 # Volume icon
@@ -90,18 +73,18 @@ symlinks = {
 # image, *or* you can define badge_icon, in which case the icon file you specify
 # will be used to badge the system's Removable Disk icon
 #
-badge_icon = os.path.join(ws_srcdir, 'packaging', 'macosx', 'wsiconvol.icns')
+badge_icon = os.path.join(lw_srcdir, 'packaging', 'macosx', 'wsiconvol.icns')
 #badge_icon = icon_from_app(application)
 
 # Where to put the icons
 icon_locations = {
-    ws_app:                     ( 80,  64),
+    lw_app:                     ( 80,  64),
     'Applications':             (240,  64),
-    ws_readme:                  (160, 170),
-    ws_install_chmodbpf:        ( 80, 276),
-    ws_uninstall_chmodbpf:      (250, 276),
-    ws_install_path_helper:     ( 80, 382),
-    ws_uninstall_path_helper:   (250, 382),
+    lw_readme:                  (160, 170),
+    lw_install_chmodbpf:        ( 80, 276),
+    lw_uninstall_chmodbpf:      (250, 276),
+    lw_install_path_helper:     ( 80, 382),
+    lw_uninstall_path_helper:   (250, 382),
     }
 
 # .. Window configuration ......................................................
@@ -126,7 +109,7 @@ icon_locations = {
 #
 # Other color components may be expressed either in the range 0 to 1, or
 # as percentages (e.g. 60% is equivalent to 0.6).
-background = os.path.join(ws_srcdir, 'packaging', 'macosx', 'dmg_background.png')
+background = os.path.join(lw_srcdir, 'packaging', 'macosx', 'dmg_background.png')
 
 show_status_bar = False
 show_tab_view = False

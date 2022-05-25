@@ -50,7 +50,7 @@ size = None
 # Files to include
 files = [
     os.path.join(ws_bindir, 'run', ws_app_dsym),
-    os.path.join(ws_bindir, 'packaging', 'macosx', ws_readme_dsym),
+    os.path.join(ws_bindir, 'packaging', 'macosx', 'wireshark', ws_readme_dsym),
 ]
 
 # Symlinks to create

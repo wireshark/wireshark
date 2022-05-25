@@ -161,12 +161,11 @@ To create a source code tarball, build the `dist` target.
 
 To create an installable package after successfully building Wireshark:
 
-* to build a Debian package, build the `deb-package` target;
-* to build an RPM package, build the `rpm-package` target;
-* to build an https://appimage.org[AppImage] package, build the
+* To build a Debian package, build the `deb-package` target;
+* To build an RPM package, build the `rpm-package` target;
+* To build an https://appimage.org[AppImage] package, build the
 `appimage` target;
-* to build a macOS dmg package containing am application bundle, build
-the `dmg_package` target.
+* To build a macOS dmg package containing an application bundle, build the `wireshark_dmg` or `logwolf_dmg` targets.
 
 ==== Troubleshooting during the build and install on Unix
 

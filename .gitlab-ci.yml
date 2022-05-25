@@ -374,7 +374,7 @@ macOS Arm Package:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - package-prep
-    - ninja dmg_package
+    - ninja wireshark_dmg
     - cd run
     - notarize-build
     - stat -f "%N %z bytes" Wireshark*Arm*.dmg
@@ -408,7 +408,7 @@ macOS Intel Package:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - package-prep
-    - ninja dmg_package
+    - ninja wireshark_dmg
     - cd run
     - notarize-build
     - stat -f "%N %z bytes" Wireshark*Intel*.dmg
