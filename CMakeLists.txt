@@ -181,12 +181,13 @@ and CPU target ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}"
 		# Download third-party libraries
 		file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
 		file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
+		file (TO_NATIVE_PATH ${CMAKE_COMMAND} _win_cmake_command)
 
 		# Is it possible to have a one-time, non-cached option in CMake? If
 		# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
 		# win-setup.ps1.
 		execute_process(
-			COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM}
+			COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} -CMakeExecutable "\"${_win_cmake_command}\""
 			RESULT_VARIABLE _win_setup_failed
 			ERROR_VARIABLE _win_setup_error_output
 		)

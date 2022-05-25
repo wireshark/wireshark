@@ -29,9 +29,13 @@ contain the pattern "wireshark-*-libs".
 .PARAMETER Platform
 Target platform. Must be "win64".
 
+.PARAMETER CMakeExecutable
+Specifies the path to the CMake executable, which is used to extract archives.
+
 .INPUTS
 -Destination Destination directory.
 -Platform Target platform.
+-CMakeExecutable Path to CMake.
 
 .OUTPUTS
 A set of libraries required to compile Wireshark on Windows, along with
@@ -51,7 +55,12 @@ Param(
     [Parameter(Mandatory=$true, Position=1)]
     [ValidateSet("win64")]
     [String]
-    $Platform
+    $Platform,
+
+    [Parameter(Mandatory=$false, Position=3)]
+    [ValidateScript({$_ | Test-Path -Type leaf })]
+    [String]
+    $CMakeExecutable = "CMake"
 )
 
 # Variables
@@ -220,7 +229,7 @@ function DownloadArchive($fileName, $fileHash, $subDir) {
     $activity = "Extracting into $($archiveDir)"
     Write-Progress -Activity "$activity" -Status "Extracting $archiveFile using CMake ..."
     Push-Location "$archiveDir"
-    & cmake -E tar xf "$archiveFile" 2>&1 | Set-Variable -Name CMakeOut
+    & "$CMakeExecutable" -E tar xf "$archiveFile" 2>&1 | Set-Variable -Name CMakeOut
     $cmStatus = $LASTEXITCODE
     Pop-Location
     Write-Progress -Activity "$activity" -Status "Done" -Completed
