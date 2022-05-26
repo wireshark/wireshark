@@ -1059,6 +1059,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 guint32 numPortc;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPortc,
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &numPortc);
+                offset++;
 
                 /* TODO: any generated fields or expert info should be added, due to enties in table 5-35 ? */
 
@@ -1093,17 +1094,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     {
                         /* Beam listing vector case */
                         /* Work out how many port beam entries there is room for */
-                        /* TODO: should this be numPortc instead??? */
-                        guint num_beam_or_ueid_entries = ((extlen*4)-3) / 2;
-                        proto_item_append_text(extension_ti, " (%u entries)", num_beam_or_ueid_entries);
-                        for (guint entry=2; entry < num_beam_or_ueid_entries; entry++) {
+                        /* Using numPortC as visible in issue 18116 */
+                        proto_item_append_text(extension_ti, " (%u entries) ", numPortc);
+                        for (n=0; n < numPortc; n++) {
                             /* TODO: Single reserved bit */
 
                             /* port beam ID (or UEID) */
                             guint32 id;
                             proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(oran_tree, hf_oran_beamId,
                                                                                          tvb, offset, 2, ENC_BIG_ENDIAN, &id);
-                            proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", entry, id);
+                            proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
                             offset += 2;
 
                             proto_item_append_text(extension_ti, "%u ", id);
