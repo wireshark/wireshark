@@ -966,8 +966,11 @@ typedef struct enip_conn_key {
    guint32 T2OConnID;
 } enip_conn_key_t;
 
+// This is a per list of CIP connection IDs per conversation_t.
 typedef struct _enip_conv_info_t {
+   // Connection ID --> cip_conn_info_t
    wmem_tree_t *O2TConnIDs;
+   // Connection ID --> cip_conn_info_t
    wmem_tree_t *T2OConnIDs;
 } enip_conv_info_t;
 

@@ -16,6 +16,8 @@
 #ifndef PACKET_ENIP_H
 #define PACKET_ENIP_H
 
+#include "packet-cip.h"  // For structs used in this file.
+
 /* Offsets of fields within the DLR Common Frame Header */
 #define DLR_CFH_SUB_TYPE       0
 #define DLR_CFH_PROTO_VERSION  1
@@ -91,6 +93,7 @@ typedef struct {
    cip_req_info_t* cip_info;
 } enip_request_info_t;
 
+// This represents the data direction for connected data.
 enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
 
 typedef struct cip_io_data_input {
