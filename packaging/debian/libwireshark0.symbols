@@ -807,6 +807,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_conversation_hashtable_no_addr2@Base 1.12.0~rc1
  get_conversation_hashtable_no_addr2_or_port2@Base 1.12.0~rc1
  get_conversation_hashtable_no_port2@Base 1.12.0~rc1
+ get_conversation_hashtables@Base 3.7.1
  get_conversation_hide_ports@Base 1.99.0
  get_conversation_packet_func@Base 1.99.0
  get_conversation_port@Base 1.99.0
