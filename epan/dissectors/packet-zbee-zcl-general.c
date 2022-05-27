@@ -16397,7 +16397,7 @@ proto_register_zbee_zcl_touchlink(void)
             { "Command", "zbee_zcl_general.touchlink.rx_cmd_id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_rx_cmd_names),
             0x00, NULL, HFILL } },
         { &hf_zbee_zcl_touchlink_tx_cmd_id,
-            { "Command", "zbee_zcl_general.touchlink.tx_cmd_d", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_tx_cmd_names),
+            { "Command", "zbee_zcl_general.touchlink.tx_cmd_id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_tx_cmd_names),
             0x00, NULL, HFILL } },
         { &hf_zbee_zcl_touchlink_transaction_id,
             { "Transaction ID", "zbee_zcl_general.touchlink.transaction_id", FT_UINT32, BASE_HEX, NULL,
