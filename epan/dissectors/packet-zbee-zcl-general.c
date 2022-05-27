@@ -15841,6 +15841,7 @@ proto_reg_handoff_zbee_zcl_gp(void)
 #define ZBEE_ZCL_TOUCHLINK_INFO_ASSIGNMENT      0x02
 #define ZBEE_ZCL_TOUCHLINK_INFO_INITIATOR       0x10
 #define ZBEE_ZCL_TOUCHLINK_INFO_UNDEFINED       0x20
+#define ZBEE_ZCL_TOUCHLINK_INFO_PROFILE_INTEROP 0x80
 
 /*Touchlink Key Indicies*/
 #define ZBEE_ZCL_TOUCHLINK_KEYID_DEVELOPMENT    0
@@ -15870,6 +15871,7 @@ static int hf_zbee_zcl_touchlink_info_factory = -1;
 static int hf_zbee_zcl_touchlink_info_assignment = -1;
 static int hf_zbee_zcl_touchlink_info_initiator = -1;
 static int hf_zbee_zcl_touchlink_info_undefined = -1;
+static int hf_zbee_zcl_touchlink_info_profile_introp = -1;
 static int hf_zbee_zcl_touchlink_start_index = -1;
 static int hf_zbee_zcl_touchlink_ident_duration = -1;
 
@@ -15953,6 +15955,12 @@ static const value_string zbee_zcl_touchlink_status_names[] = {
     { 0, NULL }
 };
 
+static const value_string zbee_zcl_touchlink_profile_interop_names[] = {
+    { 0, "ZLL" },
+    { 1, "Zigbee 3.0" },
+    { 0, NULL }
+};
+
 static const value_string zbee_zcl_touchlink_keyid_names[] = {
     { ZBEE_ZCL_TOUCHLINK_KEYID_DEVELOPMENT, "Development Key" },
     { ZBEE_ZCL_TOUCHLINK_KEYID_MASTER, "Master Key" },
@@ -15986,6 +15994,7 @@ dissect_zcl_touchlink_scan_request(tvbuff_t *tvb, proto_tree *tree, guint *offse
         &hf_zbee_zcl_touchlink_info_assignment,
         &hf_zbee_zcl_touchlink_info_initiator,
         &hf_zbee_zcl_touchlink_info_undefined,
+        &hf_zbee_zcl_touchlink_info_profile_introp,
         NULL
     };
     proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_zbee, ett_zbee_zcl_touchlink_zbee, zbee_info_flags, ENC_LITTLE_ENDIAN);
@@ -16128,6 +16137,7 @@ dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, guint *offs
         &hf_zbee_zcl_touchlink_info_assignment,
         &hf_zbee_zcl_touchlink_info_initiator,
         &hf_zbee_zcl_touchlink_info_undefined,
+        &hf_zbee_zcl_touchlink_info_profile_introp,
         NULL
     };
     static int * const zll_keybit_flags[] = {
@@ -16436,6 +16446,10 @@ proto_register_zbee_zcl_touchlink(void)
         { &hf_zbee_zcl_touchlink_info_undefined,
             { "Undefined", "zbee_zcl_general.touchlink.info.undefined", FT_BOOLEAN, 8, NULL,
             ZBEE_ZCL_TOUCHLINK_INFO_UNDEFINED, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_info_profile_introp,
+            { "Profile Interop", "zbee_zcl_general.touchlink.info.profile.interop", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_profile_interop_names),
+            ZBEE_ZCL_TOUCHLINK_INFO_PROFILE_INTEROP, NULL, HFILL } },
 
         /* Touchlink Key Information Bitmask */
         { &hf_zbee_zcl_touchlink_key_bitmask,
