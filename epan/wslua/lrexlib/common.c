@@ -27,6 +27,7 @@
  */
 
 #include <wireshark.h>
+DIAG_OFF_CLANG(shorten-64-to-32)
 
 #include <stdlib.h>
 #include <ctype.h>
