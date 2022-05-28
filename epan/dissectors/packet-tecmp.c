@@ -131,7 +131,7 @@ static int hf_tecmp_payload_data_flags_unit = -1;
 static int hf_tecmp_payload_data_flags_threshold_u = -1;
 static int hf_tecmp_payload_data_flags_threshold_o = -1;
 
-const unit_name_string tecmp_units_amp_hour = { "Ah", NULL };
+static const unit_name_string tecmp_units_amp_hour = { "Ah", NULL };
 
 #define TECMP_DATAFLAGS_FACTOR_MASK         0x0180
 #define TECMP_DATAFLAGS_FACTOR_SHIFT        7
