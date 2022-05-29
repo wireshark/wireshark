@@ -4103,13 +4103,10 @@ again:
 
         /* Did the subdissector ask us to desegment some more data
          * before it could handle the packet?
-         * If so we have to create some structures in our table but
-         * this is something we only do the first time we see this
-         * packet.
+         * If so we'll have to handle that later.
          */
         if(pinfo->desegment_len) {
-            if (!PINFO_FD_VISITED(pinfo))
-                must_desegment = TRUE;
+            must_desegment = TRUE;
 
             /*
              * Set "deseg_offset" to the offset in "tvb"
@@ -4331,15 +4328,6 @@ again:
     }
 
     if (must_desegment) {
-        /* If the dissector requested "reassemble until FIN"
-         * just set this flag for the flow and let reassembly
-         * proceed at normal.  We will check/pick up these
-         * reassembled PDUs later down in dissect_tcp() when checking
-         * for the FIN flag.
-         */
-        if (tcpd && pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
-            tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
-        }
         /*
          * The sequence number at which the stuff to be desegmented
          * starts is the sequence number of the byte at an offset
@@ -4352,43 +4340,64 @@ again:
          */
         deseg_seq = seq + (deseg_offset - offset);
 
-        if (tcpd && ((nxtseq - deseg_seq) <= 1024*1024)
-            && (!PINFO_FD_VISITED(pinfo))) {
-            if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
-                /* The subdissector asked to reassemble using the
-                 * entire next segment.
-                 * Just ask reassembly for one more byte
-                 * but set this msp flag so we can pick it up
-                 * above.
-                 */
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
-                    nxtseq+1, tcpd->fwd->multisegment_pdus);
-                msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
-            } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
-                /*
-                 * The subdissector asked to reassemble at the end of the
-                 * connection. That will be done in dissect_tcp, but here we
-                 * have to ask reassembly to collect all future segments.
-                 * Note that TCP_FLOW_REASSEMBLE_UNTIL_FIN was set before, this
-                 * ensures that OoO detection is skipped.
-                 * The exact nxtpdu offset does not matter, but it should be
-                 * smaller than half of the maximum 32-bit unsigned integer to
-                 * allow detection of sequence number wraparound, and larger
-                 * than the largest possible stream size. Hopefully 1GiB
-                 * (0x40000000 bytes) should be enough.
-                 */
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
-                    nxtseq+0x40000000, tcpd->fwd->multisegment_pdus);
-            } else {
-                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
-                    deseg_seq, nxtseq+pinfo->desegment_len, tcpd->fwd->multisegment_pdus);
+        /* We have to create some structures in our table but
+         * this is something we only do the first time we see this
+         * packet. */
+        if (!PINFO_FD_VISITED(pinfo)) {
+            /* If the dissector requested "reassemble until FIN"
+             * just set this flag for the flow and let reassembly
+             * proceed at normal.  We will check/pick up these
+             * reassembled PDUs later down in dissect_tcp() when checking
+             * for the FIN flag.
+             */
+            if (tcpd && pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
             }
+            if (tcpd && ((nxtseq - deseg_seq) <= 1024*1024)) {
+                if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+                    /* The subdissector asked to reassemble using the
+                     * entire next segment.
+                     * Just ask reassembly for one more byte
+                     * but set this msp flag so we can pick it up
+                     * above.
+                     */
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
+                        nxtseq+1, tcpd->fwd->multisegment_pdus);
+                    msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+                } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                    /*
+                     * The subdissector asked to reassemble at the end of the
+                     * connection. That will be done in dissect_tcp, but here we
+                     * have to ask reassembly to collect all future segments.
+                     * Note that TCP_FLOW_REASSEMBLE_UNTIL_FIN was set before,
+                     * this ensures that OoO detection is skipped.
+                     * The exact nxtpdu offset does not matter, but it should be
+                     * smaller than half of the maximum 32-bit unsigned integer
+                     * to allow detection of sequence number wraparound, and
+                     * larger than the largest possible stream size. Hopefully
+                     * 1GiB (0x40000000 bytes) should be enough.
+                     */
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo, deseg_seq,
+                        nxtseq+0x40000000, tcpd->fwd->multisegment_pdus);
+                } else {
+                    msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                        deseg_seq, nxtseq+pinfo->desegment_len, tcpd->fwd->multisegment_pdus);
+                }
 
-            /* add this segment as the first one for this new pdu */
-            fragment_add(&tcp_reassembly_table, tvb, deseg_offset,
-                         pinfo, msp->first_frame, msp,
-                         0, nxtseq - deseg_seq,
-                         LT_SEQ(nxtseq, msp->nxtpdu));
+                /* add this segment as the first one for this new pdu */
+                fragment_add(&tcp_reassembly_table, tvb, deseg_offset,
+                             pinfo, msp->first_frame, msp,
+                             0, nxtseq - deseg_seq,
+                             LT_SEQ(nxtseq, msp->nxtpdu));
+            }
+        } else {
+            /* If this is not the first time we have seen the packet, then
+             * the MSP should already be created. Retrieve it to see if we
+             * know what later frame the PDU is reassembled in.
+             */
+            if (tcpd && (msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(tcpd->fwd->multisegment_pdus, deseg_seq))) {
+                    ipfd_head = fragment_get(&tcp_reassembly_table, pinfo, msp->first_frame, msp);
+            }
         }
     }
 
