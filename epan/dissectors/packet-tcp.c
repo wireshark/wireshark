@@ -3714,6 +3714,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
     proto_item *item;
     struct tcp_multisegment_pdu *msp;
     gboolean cleared_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
+    gboolean first_pdu = TRUE;
     const gboolean reassemble_ooo = tcp_analyze_seq && tcp_desegment && tcp_reassemble_out_of_order;
 
     tcp_endpoint_t orig_endpoint, new_endpoint;
@@ -3844,7 +3845,9 @@ again:
 
             if (msp->first_frame == pinfo->num || msp->first_frame_with_seq == pinfo->num) {
                 str = "";
-                col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
+                if (first_pdu) {
+                    col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
+                }
             } else {
                 str = "Retransmitted ";
                 is_retransmission = TRUE;
@@ -4432,7 +4435,9 @@ again:
              * Just mark this as TCP.
              */
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
-            col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
+            if (first_pdu) {
+                col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
+            }
         }
 
         /*
@@ -4463,6 +4468,7 @@ again:
         col_set_fence(pinfo->cinfo, COL_INFO);
         cleared_writable |= col_get_writable(pinfo->cinfo, COL_PROTOCOL);
         col_set_writable(pinfo->cinfo, COL_PROTOCOL, FALSE);
+        first_pdu = FALSE;
         offset += another_pdu_follows;
         seq += another_pdu_follows;
         goto again;
