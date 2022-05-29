@@ -9012,17 +9012,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Öffnen</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">Öffne Pipe</translation>
-    </message>
-</context>
-<context>
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
@@ -9033,7 +9022,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select a path</source>

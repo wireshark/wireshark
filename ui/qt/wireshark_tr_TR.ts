@@ -8988,32 +8988,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Göz At</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">Boru Aç</translation>
-    </message>
-</context>
-<context>
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Boru aç</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Göz At</translation>
+        <translation>Gözat</translation>
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir yol seçin</translation>
     </message>
 </context>
 <context>
