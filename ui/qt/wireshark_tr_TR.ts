@@ -1841,71 +1841,71 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ConversationTreeWidget</name>
     <message>
         <source>Connection A</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı A</translation>
     </message>
     <message>
         <source>Connection B</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı B</translation>
     </message>
     <message>
         <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
     </message>
     <message>
         <source>Address A</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres A</translation>
     </message>
     <message>
         <source>Port A</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı noktası A</translation>
     </message>
     <message>
         <source>Address B</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres B</translation>
     </message>
     <message>
         <source>Port B</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı noktası B</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paketler</translation>
+        <translation>Paketler</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bayt</translation>
+        <translation>Bayt</translation>
     </message>
     <message>
         <source>Packets A </source>
-        <translation type="unfinished"></translation>
+        <translation>Paketler A</translation>
     </message>
     <message>
         <source>Bytes A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bayt A</translation>
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>Paketler B</translation>
     </message>
     <message>
         <source>Rel Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Rel Başlangıç</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Süre</translation>
+        <translation>Süre</translation>
     </message>
     <message>
         <source>Bits/s A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bit/s A </translation>
     </message>
     <message>
         <source>Bits/s B </source>
-        <translation type="unfinished"></translation>
+        <translation>Bit/s B </translation>
     </message>
     <message>
         <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Abs Başlangıç</translation>
     </message>
 </context>
 <context>
@@ -2411,7 +2411,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 temel dosyası şu okuma için açılamadı: %2</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
@@ -2434,59 +2434,59 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>EndpointTreeWidget</name>
     <message>
         <source>Connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlantı</translation>
     </message>
     <message>
         <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adres</translation>
+        <translation>Adres</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished">Bağlantı Noktası</translation>
+        <translation>Bağlantı noktası</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paketler</translation>
+        <translation>Paketler</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bayt</translation>
+        <translation>Bayt</translation>
     </message>
     <message>
         <source>Tx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tx Paketleri</translation>
     </message>
     <message>
         <source>Tx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tx Baytları</translation>
     </message>
     <message>
         <source>Rx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Rx Paketleri</translation>
     </message>
     <message>
         <source>Rx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Rx Baytları</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Ülke</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Şehir</translation>
     </message>
     <message>
         <source>AS Number</source>
-        <translation type="unfinished"></translation>
+        <translation>AS Numarası</translation>
     </message>
     <message>
         <source>AS Organization</source>
-        <translation type="unfinished"></translation>
+        <translation>AS Organizasyonu</translation>
     </message>
 </context>
 <context>
@@ -7098,32 +7098,21 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Göz At</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">Boru Aç</translation>
-    </message>
-</context>
-<context>
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Boru aç</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Göz At</translation>
+        <translation>Gözat</translation>
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir yol seçin</translation>
     </message>
 </context>
 <context>

@@ -1848,71 +1848,71 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>ConversationTreeWidget</name>
     <message>
         <source>Connection A</source>
-        <translation type="unfinished"></translation>
+        <translation>Connessione A</translation>
     </message>
     <message>
         <source>Connection B</source>
-        <translation type="unfinished"></translation>
+        <translation>Connessione B</translation>
     </message>
     <message>
         <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Ridimensiona tutte le colonne al contenuto</translation>
     </message>
     <message>
         <source>Address A</source>
-        <translation type="unfinished"></translation>
+        <translation>Indirizzo A</translation>
     </message>
     <message>
         <source>Port A</source>
-        <translation type="unfinished"></translation>
+        <translation>Porta A</translation>
     </message>
     <message>
         <source>Address B</source>
-        <translation type="unfinished"></translation>
+        <translation>Indirizzo B</translation>
     </message>
     <message>
         <source>Port B</source>
-        <translation type="unfinished"></translation>
+        <translation>Porta B</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Pacchetti</translation>
+        <translation>Pacchetti</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Packets A </source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetti A</translation>
     </message>
     <message>
         <source>Bytes A </source>
-        <translation type="unfinished"></translation>
+        <translation>Byte A</translation>
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetti B</translation>
     </message>
     <message>
         <source>Rel Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inizio Rel</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Durata</translation>
+        <translation>Durata</translation>
     </message>
     <message>
         <source>Bits/s A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bit/s A</translation>
     </message>
     <message>
         <source>Bits/s B </source>
-        <translation type="unfinished"></translation>
+        <translation>Bit/s B</translation>
     </message>
     <message>
         <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inizio Abs</translation>
     </message>
 </context>
 <context>
@@ -2418,7 +2418,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aprire il file di base %1 in lettura: %2</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
@@ -2441,59 +2441,59 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>EndpointTreeWidget</name>
     <message>
         <source>Connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Connessione</translation>
     </message>
     <message>
         <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Ridimensiona tutte le colonne al contenuto</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Indirizzo</translation>
+        <translation>Indirizzo</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished">Porta</translation>
+        <translation>Porta</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Pacchetti</translation>
+        <translation>Pacchetti</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Tx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetti trasmessi</translation>
     </message>
     <message>
         <source>Tx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte trasmessi</translation>
     </message>
     <message>
         <source>Rx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetti ricevuti</translation>
     </message>
     <message>
         <source>Rx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte ricevuti</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazione</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Città</translation>
     </message>
     <message>
         <source>AS Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Numero AS</translation>
     </message>
     <message>
         <source>AS Organization</source>
-        <translation type="unfinished"></translation>
+        <translation>Organizzazione AS</translation>
     </message>
 </context>
 <context>
@@ -7119,32 +7119,21 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Sfoglia</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">Apri pipe</translation>
-    </message>
-</context>
-<context>
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri una pipe</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Sfoglia</translation>
+        <translation>Sfoglia</translation>
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un percorso</translation>
     </message>
 </context>
 <context>

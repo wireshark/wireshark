@@ -10475,6 +10475,7 @@ static const value_string usb_products_vals[] = {
     { 0x054c05b3, "Sony Sony Tablet S" },
     { 0x054c05b4, "Sony Sony Tablet S1" },
     { 0x054c05c4, "DualShock 4 [CUH-ZCT1x]" },
+    { 0x054c05f7, "Sony HDR-PJ710V" },
     { 0x054c0603, "Sony HDR-PJ260VE" },
     { 0x054c061c, "Sony DSC-HX20V" },
     { 0x054c061f, "Sony DSC-HX200V" },

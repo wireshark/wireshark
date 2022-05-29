@@ -7119,17 +7119,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
 </context>
 <context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Bläddra</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">Öppna rör</translation>
-    </message>
-</context>
-<context>
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
@@ -7140,7 +7129,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Bläddra</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select a path</source>
