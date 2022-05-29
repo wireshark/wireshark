@@ -4921,6 +4921,7 @@ swispol		6966/tcp/udp
 acmsoda		6969/tcp/udp
 conductor	6970/tcp	# Conductor test coordination protocol
 conductor-mpx	6970/sctp	# conductor for multiplex
+qolyester	6980/udp	# QoS-extended OLSR protocol
 MobilitySrv	6997/tcp/udp	# Mobility XE Protocol
 iatp-highpri	6998/tcp/udp	# IATP-highPri
 iatp-normalpri	6999/tcp/udp	# IATP-normalPri
