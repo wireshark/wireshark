@@ -297,7 +297,7 @@ WS_DLL_PUBLIC void conversation_set_dissector_from_frame_number(conversation_t *
 WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation, const guint32 frame_num);
 
 WS_DLL_PUBLIC void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
-    endpoint_type etype, guint32 port1, guint32	port2, const guint options);
+    endpoint_type etype, guint32 port1, guint32	port2);
 
 WS_DLL_PUBLIC void conversation_create_endpoint_by_id(struct _packet_info *pinfo,
     endpoint_type etype, guint32 id);

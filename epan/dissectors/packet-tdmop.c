@@ -104,7 +104,7 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     offset += 1;
 
     /*conversation*/
-    conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_TDMOP, srcch, dstch, 0);
+    conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_TDMOP, srcch, dstch);
 
     /*flags*/
     proto_tree_add_item(tdmop_tree, hf_tdmop_Flags, tvb, offset, 1, ENC_NA);

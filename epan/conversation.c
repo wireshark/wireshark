@@ -1846,7 +1846,7 @@ find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype,
 
 void
 conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
-        endpoint_type etype, guint32 port1, guint32	port2, const guint options)
+        endpoint_type etype, guint32 port1, guint32	port2)
 {
     pinfo->conv_endpoint = wmem_new0(pinfo->pool, struct endpoint);
     pinfo->use_endpoint = TRUE;
@@ -1860,7 +1860,6 @@ conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address
     pinfo->conv_endpoint->etype = etype;
     pinfo->conv_endpoint->port1 = port1;
     pinfo->conv_endpoint->port2 = port2;
-    pinfo->conv_endpoint->options = options;
 }
 
 void
@@ -1868,7 +1867,7 @@ conversation_create_endpoint_by_id(struct _packet_info *pinfo,
         endpoint_type etype, guint32 id)
 {
     /* Force the lack of a address or port B */
-    conversation_create_endpoint(pinfo, &null_address_, &null_address_, etype, id, 0, 0);
+    conversation_create_endpoint(pinfo, &null_address_, &null_address_, etype, id, 0);
 }
 
 guint32
