@@ -1237,6 +1237,10 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
 		*err = errno;
 		return FALSE;
 	}
+	if (strcmp(filename, wth->pathname) != 0) {
+		g_free(wth->pathname);
+		wth->pathname = g_strdup(filename);
+	}
 	return TRUE;
 }
 

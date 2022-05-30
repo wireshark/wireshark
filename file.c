@@ -4961,15 +4961,13 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
 
             case SAVE_WITH_COPY:
                 /* We just copied the file, so all the information other than
-                   the wtap structure, the filename, and the "is temporary"
+                   the file descriptors, the filename, and the "is temporary"
                    status applies to the new file; just update that. */
-                wtap_close(cf->provider.wth);
-                /* Although we're just "copying" and then opening the copy, it will
-                   try all open_routine readers to open the copy, so we need to
-                   reset the cfile's open_type. */
-                cf->open_type = WTAP_TYPE_AUTO;
-                cf->provider.wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
-                if (cf->provider.wth == NULL) {
+                wtap_fdclose(cf->provider.wth);
+                /* Attempt to reopen the random file descriptor using the
+                   new file's filename.  (At this point, the sequential
+                   file descriptor is closed.) */
+                if (!wtap_fdreopen(cf->provider.wth, fname, &err)) {
                     cfile_open_failure_alert_box(fname, err, err_info);
                     cf_close(cf);
                 } else {
