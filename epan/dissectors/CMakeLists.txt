@@ -431,6 +431,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-isup.h
 	packet-its.h
 	packet-iwarp-ddp-rdmap.h
+	packet-json.h
 	packet-juniper.h
 	packet-jxta.h
 	packet-kerberos.h
@@ -1344,6 +1345,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-jdwp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-jmirror.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-jpeg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-json_3gpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-json.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-juniper.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-jxta.c
