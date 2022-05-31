@@ -488,6 +488,11 @@ static const struct {
 	/* Serial NCP (Network Co-Processor) protocol for Zigbee stack ZBOSS */
 	{ 292,		WTAP_ENCAP_ZBNCP },
 
+	/* USB 2.0/1.1/1.0 packets captured on Low/Full/High speed link */
+	{ 293,		WTAP_ENCAP_USB_2_0_LOW_SPEED },
+	{ 294,		WTAP_ENCAP_USB_2_0_FULL_SPEED },
+	{ 295,		WTAP_ENCAP_USB_2_0_HIGH_SPEED },
+
 	/*
 	 * To repeat:
 	 *

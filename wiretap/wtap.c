@@ -1180,6 +1180,14 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_ZBNCP */
 	{ "zbncp", "ZBOSS NCP" },
 
+	/* WTAP_ENCAP_USB_2_0_LOW_SPEED */
+	{ "usb-20-low", "Low-Speed USB 2.0/1.1/1.0 packets" },
+
+	/* WTAP_ENCAP_USB_2_0_FULL_SPEED */
+	{ "usb-20-full", "Full-Speed USB 2.0/1.1/1.0 packets" },
+
+	/* WTAP_ENCAP_USB_2_0_HIGH_SPEED */
+	{ "usb-20-high", "High-Speed USB 2.0 packets" },
 };
 
 WS_DLL_LOCAL

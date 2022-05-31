@@ -102,8 +102,6 @@ static expert_field ei_invalid_setup_data = EI_INIT;
 
 static int usbll_address_type = -1;
 
-static dissector_handle_t usbll_handle;
-
 static reassembly_table usbll_reassembly_table;
 
 static wmem_map_t *transfer_info;
@@ -2003,6 +2001,24 @@ dissect_usbll_unknown_speed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
     return dissect_usbll_packet(tvb, pinfo, parent_tree, global_dissect_unknown_speed_as);
 }
 
+static int
+dissect_usbll_low_speed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+{
+    return dissect_usbll_packet(tvb, pinfo, parent_tree, USB_SPEED_LOW);
+}
+
+static int
+dissect_usbll_full_speed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+{
+    return dissect_usbll_packet(tvb, pinfo, parent_tree, USB_SPEED_FULL);
+}
+
+static int
+dissect_usbll_high_speed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+{
+    return dissect_usbll_packet(tvb, pinfo, parent_tree, USB_SPEED_HIGH);
+}
+
 void
 proto_register_usbll(void)
 {
@@ -2190,8 +2206,15 @@ proto_register_usbll(void)
 void
 proto_reg_handoff_usbll(void)
 {
-    usbll_handle = create_dissector_handle(dissect_usbll_unknown_speed, proto_usbll);
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0, usbll_handle);
+    dissector_handle_t unknown_speed_handle = create_dissector_handle(dissect_usbll_unknown_speed, proto_usbll);
+    dissector_handle_t low_speed_handle = create_dissector_handle(dissect_usbll_low_speed, proto_usbll);
+    dissector_handle_t full_speed_handle = create_dissector_handle(dissect_usbll_full_speed, proto_usbll);
+    dissector_handle_t high_speed_handle = create_dissector_handle(dissect_usbll_high_speed, proto_usbll);
+
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0, unknown_speed_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0_LOW_SPEED, low_speed_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0_FULL_SPEED, full_speed_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_2_0_HIGH_SPEED, high_speed_handle);
 }
 
 /*
