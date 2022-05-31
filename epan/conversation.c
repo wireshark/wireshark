@@ -824,7 +824,6 @@ conversation_t *conversation_new_full(const guint32 setup_frame, conversation_el
                 conversation_match_element_list);
         wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_file_scope(), el_list_map_key), el_list_map);
     }
-    g_free(el_list_map_key);
 
     size_t element_count = conversation_element_count(elements);
     conversation_element_t *conv_key = wmem_memdup(wmem_file_scope(), elements, sizeof(conversation_element_t) * element_count);
