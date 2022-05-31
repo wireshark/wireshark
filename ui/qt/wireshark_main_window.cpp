@@ -1255,13 +1255,13 @@ void WiresharkMainWindow::mergeCaptureFile()
     }
 
     for (;;) {
-        CaptureFileDialog merge_dlg(this, capture_file_.capFile(), read_filter);
+        CaptureFileDialog merge_dlg(this, capture_file_.capFile());
         int file_type;
         cf_status_t  merge_status;
         char        *in_filenames[2];
         char        *tmpname;
 
-        if (merge_dlg.merge(file_name)) {
+        if (merge_dlg.merge(file_name, read_filter)) {
             gchar *err_msg;
 
             if (!dfilter_compile(qUtf8Printable(read_filter), &rfcode, &err_msg)) {

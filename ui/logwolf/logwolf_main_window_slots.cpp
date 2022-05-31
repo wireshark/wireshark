@@ -172,9 +172,9 @@ bool LogwolfMainWindow::openCaptureFile(QString cf_path, QString read_filter, un
     for (;;) {
 
         if (cf_path.isEmpty()) {
-            CaptureFileDialog open_dlg(this, capture_file_.capFile(), read_filter);
+            CaptureFileDialog open_dlg(this, capture_file_.capFile());
 
-            if (open_dlg.open(file_name, type)) {
+            if (open_dlg.open(file_name, type, read_filter)) {
                 cf_path = file_name;
             } else {
                 ret = false;

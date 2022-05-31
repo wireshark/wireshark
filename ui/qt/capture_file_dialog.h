@@ -60,7 +60,7 @@ class CaptureFileDialog : public WiresharkFileDialog
 
     Q_OBJECT
 public:
-    explicit CaptureFileDialog(QWidget *parent = NULL, capture_file *cf = NULL, QString &display_filter = *new QString());
+    explicit CaptureFileDialog(QWidget *parent = NULL, capture_file *cf = NULL);
     static check_savability_t checkSaveAsWithComments(QWidget *
 #if defined(Q_OS_WIN)
             parent
@@ -73,12 +73,11 @@ public:
 
 private:
     capture_file *cap_file_;
-    QString &display_filter_;
 
 #if !defined(Q_OS_WIN)
     void addMergeControls(QVBoxLayout &v_box);
     void addFormatTypeSelector(QVBoxLayout &v_box);
-    void addDisplayFilterEdit();
+    void addDisplayFilterEdit(QString &display_filter);
     void addPreview(QVBoxLayout &v_box);
     QString fileExtensionType(int et, bool extension_globs = true);
     QString fileType(int ft, QStringList &suffixes);
@@ -131,10 +130,10 @@ public slots:
     void accept() Q_DECL_OVERRIDE;
 #endif
     int exec() Q_DECL_OVERRIDE;
-    int open(QString &file_name, unsigned int &type);
+    int open(QString &file_name, unsigned int &type, QString &display_filter);
     check_savability_t saveAs(QString &file_name, bool must_support_comments);
     check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange = QString());
-    int merge(QString &file_name);
+    int merge(QString &file_name, QString &display_filter);
 
 private slots:
 #if !defined(Q_OS_WIN)
