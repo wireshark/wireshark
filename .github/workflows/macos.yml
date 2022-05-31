@@ -44,7 +44,7 @@ jobs:
         run: pytest
         working-directory: build
       - name: Build dmg
-        run: ninja dmg_package
+        run: ninja wireshark_dmg
         working-directory: build
       - name: Upload dmg packages
         uses: actions/upload-artifact@v2
