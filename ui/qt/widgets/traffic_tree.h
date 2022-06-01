@@ -53,6 +53,7 @@ signals:
 
 public slots:
     void tapListenerEnabled(bool enable);
+    void disableTap();
 
 private:
     bool _tapEnabled;

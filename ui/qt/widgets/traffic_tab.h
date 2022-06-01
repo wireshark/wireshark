@@ -16,6 +16,7 @@
 
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/filter_action.h>
+#include <ui/qt/widgets/detachable_tabwidget.h>
 
 #include <QTabWidget>
 #include <QTreeView>
@@ -69,12 +70,11 @@ Q_DECLARE_METATYPE(TabData)
  * removing the need of the dialog to know how data is being stored or
  * generated.
  */
-class TrafficTab : public QTabWidget
+class TrafficTab : public DetachableTabWidget
 {
     Q_OBJECT
 
 public:
-
     TrafficTab(QWidget *parent = nullptr);
     virtual ~TrafficTab();
 
@@ -204,12 +204,18 @@ signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void tabDataChanged(int idx);
     void retapRequired();
+    void disablingTaps();
+
+protected slots:
+
+    virtual void detachTab(int idx, QPoint pos) override;
+    virtual void attachTab(QWidget * content, QString name) override;
 
 private:
-    QString _tableName;
     int _cliId;
     QVector<int> _protocols;
     QMap<int, QString> _allTaps;
+    QMap<int, QAction *> _protocolButtons;
     QMap<int, int> _tabs;
     GList ** _recentList;
     ATapModelCallback _createModel;
@@ -221,7 +227,7 @@ private:
     void updateTabs();
     QTreeView * createTree(int protoId);
     ATapDataModel * modelForTabIndex(int tabIdx = -1);
-
+    ATapDataModel * modelForWidget(QWidget * widget);
 
 #ifdef HAVE_MAXMINDDB
     bool writeGeoIPMapFile(QFile * fp, bool json_only, ATapDataModel * dataModel);

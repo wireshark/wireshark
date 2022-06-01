@@ -24,6 +24,7 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/traffic_tab.h>
 #include <ui/qt/widgets/traffic_tree.h>
+#include <ui/qt/widgets/detachable_tabwidget.h>
 
 #include <QVector>
 #include <QStringList>
@@ -77,23 +78,24 @@ static gboolean iterateProtocols(const void *key, void *value, void *userdata)
 }
 
 TrafficTab::TrafficTab(QWidget * parent) :
-    QTabWidget(parent)
+    DetachableTabWidget(parent)
 {
     _createModel = nullptr;
     _disableTaps = false;
     _nameResolution = false;
-    _tableName = QString();
     _cliId = 0;
     _recentList = nullptr;
+    setTabBasename(QString());
+
 }
 
 TrafficTab::~TrafficTab()
 {
     prefs_clear_string_list(*_recentList);
     *_recentList = NULL;
+    _protocolButtons.clear();
 
-    QList<int> protocols = _tabs.keys();
-    foreach (int protoId, protocols)
+    foreach (int protoId, _tabs.keys())
     {
         char *title = g_strdup(proto_get_protocol_short_name(find_protocol_by_id(protoId)));
         *_recentList = g_list_append(*_recentList, title);
@@ -102,7 +104,7 @@ TrafficTab::~TrafficTab()
 
 void TrafficTab::setProtocolInfo(QString tableName, int cliId, GList ** recentList, ATapModelCallback createModel)
 {
-    _tableName = tableName;
+    setTabBasename(tableName);
     _cliId = cliId;
     _recentList = recentList;
     if (createModel)
@@ -145,6 +147,7 @@ void TrafficTab::setProtocolInfo(QString tableName, int cliId, GList ** recentLi
         endPoint->setCheckable(true);
         endPoint->setChecked(_protocols.contains(protoId));
         connect(endPoint, &QAction::triggered, this, &TrafficTab::toggleTab);
+        _protocolButtons.insert(protoId, endPoint);
         cornerMenu->addAction(endPoint);
     }
     cornerButton->setMenu(cornerMenu);
@@ -199,8 +202,8 @@ void TrafficTab::setDelegate(int column, ATapCreateDelegate createDelegate)
 
 QTreeView * TrafficTab::createTree(int protoId)
 {
-    TrafficTree * tree = new TrafficTree(_tableName, this);
-
+    TrafficTree * tree = new TrafficTree(tabBasename(), this);
+    
     if (_createModel) {
         ATapDataModel * model = _createModel(protoId, "");
         connect(model, &ATapDataModel::tapListenerChanged, tree, &TrafficTree::tapListenerEnabled);
@@ -269,15 +272,31 @@ void TrafficTab::disableTap()
 
     _disableTaps = true;
     cornerWidget()->setEnabled(false);
+    emit disablingTaps();
 }
 
 void TrafficTab::updateTabs()
 {
     QList<int> keys = _tabs.keys();
+    QList<int> allProtocols = _allTaps.keys();
 
-    /* Adding new Tabs */
+    /* Adding new Tabs, and keeping the same order they are in the drop-down menu */
     foreach (int proto, _protocols) {
         if (!keys.contains(proto)) {
+
+            int insertIndex = -1;
+            auto bIdx = allProtocols.indexOf(proto);
+            int idx = 0;
+            while (insertIndex < 0 && idx < keys.count())
+            {
+                auto aIdx = allProtocols.indexOf(keys[idx]);
+                if (aIdx < 0) /* Key not in all protocols. This would be a fluke */
+                    break;
+                if (aIdx > bIdx) /* Should never be equal, as proto is not yet in keys */
+                    insertIndex = _tabs[keys[idx]];
+                idx++;
+            }
+
             QTreeView * tree = createTree(proto);
             QString tableName = proto_get_protocol_short_name(find_protocol_by_id(proto));
             TabData tabData(tableName, proto);
@@ -286,23 +305,29 @@ void TrafficTab::updateTabs()
             if (tree->model()->rowCount() > 0)
                 tableName += QString(" %1 %2").arg(UTF8_MIDDLE_DOT).arg(tree->model()->rowCount());
 
-            int tabId = addTab(tree, tableName);
+            int tabId = insertTab(insertIndex, tree, tableName);
+            _protocolButtons[proto]->setChecked(true);
             tabBar()->setTabData(tabId, storage);
         }
     }
 
-    /* Removing tabs no longer required */
+    /* Removing tabs no longer required. First filter the key array, for all tabs which
+     * are still being displayed */
     foreach(int key, keys)
     {
-        if ( _protocols.contains(key))
+        if ( _protocols.contains(key)) {
+            _protocolButtons[key]->setChecked(true);
             keys.removeAll(key);
+        }
     }
-
-    /* Counting down, otherwise removing a tab will shift the indeces */
+    /* Removal step 2, now actually remove all elements. Counting down, otherwise removing
+     * a tab will shift the indeces */
     for(int idx = count(); idx > 0; idx--) {
         TabData tabData = qvariant_cast<TabData>(tabBar()->tabData(idx - 1));
-        if (keys.contains(tabData.protoId()))
+        if (keys.contains(tabData.protoId())) {
             removeTab(idx - 1);
+            _protocolButtons[tabData.protoId()]->setChecked(false);
+        }
     }
 
     /* We reset the correct tab idxs. That operations is costly, but it is only
@@ -384,8 +409,13 @@ ATapDataModel * TrafficTab::modelForTabIndex(int tabIdx)
     if (tabIdx == -1)
         tabIdx = currentIndex();
 
-    if (qobject_cast<QTreeView *>(widget(tabIdx))) {
-        QTreeView * tree = qobject_cast<QTreeView *>(widget(tabIdx));
+    return modelForWidget(widget(tabIdx));
+}
+
+ATapDataModel * TrafficTab::modelForWidget(QWidget * searchWidget)
+{
+    if (qobject_cast<QTreeView *>(searchWidget)) {
+        QTreeView * tree = qobject_cast<QTreeView *>(searchWidget);
         if (qobject_cast<QSortFilterProxyModel *>(tree->model())) {
             QSortFilterProxyModel * qsfpm = qobject_cast<QSortFilterProxyModel *>(tree->model());
             if (qobject_cast<ATapDataModel *>(qsfpm->sourceModel())) {
@@ -599,3 +629,35 @@ QUrl TrafficTab::createGeoIPMap(bool json_only, int tabIdx)
     return QUrl::fromLocalFile(tf.fileName());
 }
 #endif
+
+void TrafficTab::detachTab(int tabIdx, QPoint pos) {
+    ATapDataModel * model = modelForTabIndex(tabIdx);
+    if (!model)
+        return;
+
+    int protocol = model->protoId();
+    _protocols.removeAll(protocol);
+
+    TrafficTree * tree = qobject_cast<TrafficTree *>(widget(tabIdx));
+    if (!tree)
+        return;
+
+    connect(this, &TrafficTab::disablingTaps ,tree , &TrafficTree::disableTap);
+    DetachableTabWidget::detachTab(tabIdx, pos);
+
+    updateTabs();
+}
+
+void TrafficTab::attachTab(QWidget * content, QString name) 
+{
+    ATapDataModel * model = modelForWidget(content);
+    if (!model) {
+        attachTab(content, name);
+        return;
+    }
+
+    int protocol = model->protoId();
+    _protocols.append(protocol);
+
+    updateTabs();
+}

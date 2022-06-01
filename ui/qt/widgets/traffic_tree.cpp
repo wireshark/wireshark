@@ -269,3 +269,10 @@ void TrafficTree::copyToClipboard(eTrafficTreeClipboard type)
     mainApp->clipboard()->setText(stream.readAll());
 }
 
+void TrafficTree::disableTap()
+{
+    ATapDataModel * model = dataModel();
+    if (!model)
+        return;
+    model->disableTap();
+}

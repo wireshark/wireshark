@@ -23,6 +23,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/capture_filter_edit.h
 	../qt/widgets/clickable_label.h
 	../qt/widgets/copy_from_profile_button.h
+	../qt/widgets/detachable_tabwidget.h
 	../qt/widgets/display_filter_combo.h
 	../qt/widgets/display_filter_edit.h
 	../qt/widgets/dissector_tables_view.h
@@ -249,6 +250,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/capture_filter_edit.cpp
 	../qt/widgets/clickable_label.cpp
 	../qt/widgets/copy_from_profile_button.cpp
+	../qt/widgets/detachable_tabwidget.cpp
 	../qt/widgets/display_filter_combo.cpp
 	../qt/widgets/display_filter_edit.cpp
 	../qt/widgets/dissector_tables_view.cpp
