@@ -26,10 +26,11 @@ get_cpu_info(GString *str)
     char CPUBrandString[0x40];
     unsigned nExIds;
 
-    /* https://docs.microsoft.com/en-us/cpp/intrinsics/cpuid-cpuidex */
-
-    /* Calling __cpuid with 0x80000000 as the InfoType argument */
-    /* gets the number of valid extended IDs. */
+    /*
+     * Calling ws_cpuid with 0x80000000 as the selector argument, i.e.
+     * executing a cpuid instruction with EAX equal to 0x80000000 and
+     * ECX equal to 0, gets the number of valid extended IDs.
+     */
     if (!ws_cpuid(CPUInfo, 0x80000000))
         return;
 

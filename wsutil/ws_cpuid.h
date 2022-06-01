@@ -9,10 +9,25 @@
  */
 
 /*
- * Get CPU info on platforms where the cpuid instruction can be used skip 32 bit versions for GCC
+ * Get CPU info on platforms where the x86 cpuid instruction can be used.
+ *
+ * Skip 32-bit versions for GCC and Clang, as older IA-32 processors don't
+ * have cpuid.
+ *
  * Intel has documented the CPUID instruction in the "Intel(r) 64 and IA-32
- * Architectures Developer's Manual" at http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
- * the ws_cpuid() routine will return 0 if cpuinfo isn't available.
+ * Architectures Developer's Manual" at
+ *
+ * https://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
+ *
+ * The ws_cpuid() routine will return 0 if cpuinfo isn't available, including
+ * on non-x86 platforms and on 32-bit x86 platforms with GCC and Clang, as
+ * well as non-MSVC and non-GCC-or-Clang platforms.
+ *
+ * The "selector" argument to ws_cpuid() is the "initial EAX value" for the
+ * instruction.  The initial ECX value is 0.
+ *
+ * The "CPUInfo" argument points to 4 32-bit values into which the
+ * resulting values of EAX, EBX, ECX, and EDX are store, in order.
  */
 
 #include "ws_attributes.h"
@@ -32,6 +47,8 @@
 static gboolean
 ws_cpuid(guint32 *CPUInfo, guint32 selector)
 {
+	/* https://docs.microsoft.com/en-us/cpp/intrinsics/cpuid-cpuidex */
+
 	CPUInfo[0] = CPUInfo[1] = CPUInfo[2] = CPUInfo[3] = 0;
 	__cpuid((int *) CPUInfo, selector);
 	/* XXX, how to check if it's supported on MSVC? just in case clear all flags above */
