@@ -18,6 +18,17 @@
 #include "ws_attributes.h"
 
 #if defined(_MSC_VER)     /* MSVC */
+
+/*
+ * XXX - do the same IA-32 (which doesn't have CPUID prior to some versions
+ * of the 80486 and all versions of the 80586^Woriginal Pentium) vs.
+ * x86-64 (which always has CPUID) stuff that we do with GCC/Clang?
+ *
+ * You will probably not be happy running current versions of Wireshark
+ * on an 80386 or 80486 machine, and we're dropping support for IA-32
+ * on Windows anyway, so the answer is probably "no".
+ */
+#if defined(_M_IX86) || defined(_M_X64)
 static gboolean
 ws_cpuid(guint32 *CPUInfo, guint32 selector)
 {
@@ -26,6 +37,14 @@ ws_cpuid(guint32 *CPUInfo, guint32 selector)
 	/* XXX, how to check if it's supported on MSVC? just in case clear all flags above */
 	return TRUE;
 }
+#else /* not x86 */
+static gboolean
+ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
+{
+	/* Not x86, so no cpuid instruction */
+	return FALSE;
+}
+#endif
 
 #elif defined(__GNUC__)  /* GCC/clang */
 
