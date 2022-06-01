@@ -240,6 +240,9 @@ private:
     bool _disableTaps;
     bool _nameResolution;
 
+    int _exportRole;
+    bool _saveRaw;
+
     void updateTabs();
     QTreeView * createTree(int protoId);
     ATapDataModel * modelForTabIndex(int tabIdx = -1);
@@ -264,6 +267,7 @@ private slots:
     void customContextMenuRequested(const QPoint &pos);
     void filterActionTriggered();
     void clipboardAction();
+    void toggleSaveRaw();
 
     void modelReset();
 

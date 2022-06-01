@@ -38,6 +38,7 @@ public:
 
     enum {
         DISPLAY_FILTER = Qt::UserRole,
+        UNFORMATTED_DISPLAYDATA,
 #ifdef HAVE_MAXMINDDB
         GEODATA_AVAILABLE,
         GEODATA_LOOKUPTABLE,

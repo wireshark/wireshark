@@ -82,6 +82,8 @@ TrafficTab::TrafficTab(QWidget * parent) :
     _nameResolution = false;
     _tableName = QString();
     _cliId = 0;
+    _saveRaw = true;
+    _exportRole = ATapDataModel::UNFORMATTED_DISPLAYDATA;
 }
 
 TrafficTab::~TrafficTab()
@@ -556,7 +558,22 @@ QMenu * TrafficTab::createCopyMenu(QWidget *parent)
     ca->setProperty("copy_as", TrafficTab::CLIPBOARD_JSON);
     connect(ca, &QAction::triggered, this, &TrafficTab::clipboardAction);
 
+    copy_menu->addSeparator();
+    ca = copy_menu->addAction(tr("Save data as raw"));
+    ca->setToolTip(tr("Disable data formatting for export/clipboard and save as raw data"));
+    ca->setCheckable(true);
+    ca->setChecked(_exportRole == ATapDataModel::UNFORMATTED_DISPLAYDATA);
+    connect(ca, &QAction::triggered, this, &TrafficTab::toggleSaveRaw);
+
     return copy_menu;
+}
+
+void TrafficTab::toggleSaveRaw()
+{
+    if (_exportRole == ATapDataModel::UNFORMATTED_DISPLAYDATA)
+        _exportRole = Qt::DisplayRole;
+    else
+        _exportRole = ATapDataModel::UNFORMATTED_DISPLAYDATA;
 }
 
 void TrafficTab::clipboardAction()
@@ -588,7 +605,7 @@ void TrafficTab::copyToClipboard(eTrafficTabClipboard type, int tabIdx)
             QStringList rdsl;
             for (int col = 0; col < model->columnCount(); col++) {
                 QModelIndex idx = model->index(row, col);
-                QVariant v = model->data(idx, Qt::DisplayRole);
+                QVariant v = model->data(idx, _exportRole);
                 if (!v.isValid()) {
                     rdsl << "\"\"";
                 } else if (v.userType() == QMetaType::QString) {
@@ -605,7 +622,7 @@ void TrafficTab::copyToClipboard(eTrafficTabClipboard type, int tabIdx)
             stream << "-" << '\n';
             for (int col = 0; col < model->columnCount(); col++) {
                 QModelIndex idx = model->index(row, col);
-                QVariant v = model->data(idx, Qt::DisplayRole);
+                QVariant v = model->data(idx, _exportRole);
                 stream << " - " << v.toString() << '\n';
             }
         }
@@ -620,7 +637,7 @@ void TrafficTab::copyToClipboard(eTrafficTabClipboard type, int tabIdx)
             QJsonObject rowData;
             foreach(int col, headers.keys()) {
                 QModelIndex idx = model->index(row, col);
-                rowData.insert(headers[col], model->data(idx, Qt::DisplayRole).toString());
+                rowData.insert(headers[col], model->data(idx, _exportRole).toString());
             }
             records.push_back(rowData);
         }

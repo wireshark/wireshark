@@ -394,7 +394,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
     }
 #endif
 
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole || role == ATapDataModel::UNFORMATTED_DISPLAYDATA) {
 
         int column = idx.column();
         if (portsAreHidden() && idx.column() >= ENDP_COLUMN_PORT)
@@ -420,15 +420,16 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         case ENDP_COLUMN_PACKETS:
             return (qlonglong)(item->tx_frames + item->rx_frames);
         case ENDP_COLUMN_BYTES:
-            return formatString((qlonglong)(item->tx_bytes + item->rx_bytes));
+            return role == Qt::DisplayRole ? formatString((qlonglong)(item->tx_bytes + item->rx_bytes)) :
+                QVariant((qlonglong)(item->tx_bytes + item->rx_bytes));
         case ENDP_COLUMN_PKT_AB:
             return (qlonglong)item->tx_frames;
         case ENDP_COLUMN_BYTES_AB:
-            return formatString((qlonglong)item->tx_bytes);
+            return role == Qt::DisplayRole ? formatString((qlonglong)item->tx_bytes) : QVariant((qlonglong)item->tx_bytes);
         case ENDP_COLUMN_PKT_BA:
             return (qlonglong)item->rx_frames;
         case ENDP_COLUMN_BYTES_BA:
-            return formatString((qlonglong)item->rx_bytes);
+            return role == Qt::DisplayRole ? formatString((qlonglong)item->rx_bytes) : QVariant((qlonglong)item->rx_bytes);
         case ENDP_COLUMN_GEO_COUNTRY:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->country) {
                 return QVariant(mmdb_lookup->country);
@@ -595,7 +596,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         bpsCalculated = true;
     }
 
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole || role == ATapDataModel::UNFORMATTED_DISPLAYDATA) {
         switch(column) {
         case CONV_COLUMN_SRC_ADDR:
             {
@@ -632,15 +633,16 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         case CONV_COLUMN_PACKETS:
             return QString("%L1").arg(conv_item->tx_frames + conv_item->rx_frames);
         case CONV_COLUMN_BYTES:
-            return formatString((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes);
+            return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes) :
+                QVariant((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes);
         case CONV_COLUMN_PKT_AB:
             return QString("%L1").arg(conv_item->tx_frames);
         case CONV_COLUMN_BYTES_AB:
-            return formatString((qlonglong)conv_item->tx_bytes);
+            return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes) : QVariant((qlonglong)conv_item->tx_bytes);
         case CONV_COLUMN_PKT_BA:
             return QString("%L1").arg(conv_item->rx_frames);
         case CONV_COLUMN_BYTES_BA:
-            return formatString((qlonglong)conv_item->rx_bytes);
+            return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->rx_bytes) : QVariant((qlonglong)conv_item->rx_bytes);
         case CONV_COLUMN_START:
         {
             int width = _nanoseconds ? 9 : 6;
@@ -662,9 +664,9 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return QString::number(duration, 'f', width);
         }
         case CONV_COLUMN_BPS_AB:
-            return bpsCalculated ? formatString(bps_ab) : QVariant();
+            return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ab) : QVariant((qlonglong)bps_ab)): QVariant();
         case CONV_COLUMN_BPS_BA:
-            return bpsCalculated ? formatString(bps_ba) : QVariant();
+            return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ba) : QVariant((qlonglong)bps_ba)): QVariant();
         }
     } else if (role == Qt::ToolTipRole) {
         if (column == CONV_COLUMN_START || column == CONV_COLUMN_DURATION)
