@@ -4657,6 +4657,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
 #endif
       goto fail;
     }
+    g_free(fname_new);
   }
 
   /* If this was a temporary file, and we didn't do the save by doing
