@@ -1579,13 +1579,6 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 	 */
 	if (rec->rec_type == REC_TYPE_PACKET) {
 		/*
-		 * It makes no sense for the captured data length
-		 * to be bigger than the actual data length.
-		 */
-		if (rec->rec_header.packet_header.caplen > rec->rec_header.packet_header.len)
-			rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len;
-
-		/*
 		 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
 		 * probably means the file has that encapsulation type
 		 * but the read routine didn't set this packet's
@@ -1741,13 +1734,6 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 	 * Is this a packet record?
 	 */
 	if (rec->rec_type == REC_TYPE_PACKET) {
-		/*
-		 * It makes no sense for the captured data length
-		 * to be bigger than the actual data length.
-		 */
-		if (rec->rec_header.packet_header.caplen > rec->rec_header.packet_header.len)
-			rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len;
-
 		/*
 		 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
 		 * probably means the file has that encapsulation type
