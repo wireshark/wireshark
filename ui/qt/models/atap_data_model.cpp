@@ -561,7 +561,6 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
 }
 
 static const double min_bw_calc_duration_ = 5 / 1000.0; // seconds
-static const char *bps_na_ = UTF8_EM_DASH;
 
 QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
 {
