@@ -16,7 +16,6 @@ The following must be installed in order to build Wireshark:
 
 * a C compiler and a C++ compiler;
 * the Flex lexical analyzer;
-* either Bison or Berkeley YACC;
 * Perl;
 * Python 3;
 * CMake;
@@ -441,9 +440,10 @@ path and that xsltproc uses the DocBook catalog.
 
 ==== Install winflexbison
 
-Get the winFlexBison installer from https://sourceforge.net/projects/winflexbison/
-and install into the default location. Ensure the directory containing win_flex.exe
-and win_bison.exe is on your path.
+Get the winFlexBison installer from
+https://sourceforge.net/projects/winflexbison/
+and install into the default location.
+Ensure the directory containing win_flex.exe is on your path.
 
 Alternatively you can install Winflexbison using Chocolatey:
 
