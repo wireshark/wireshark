@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <glib.h>
+
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
@@ -104,9 +106,9 @@ bool ATapDataModel::enableTap()
         &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
     if (errorString && errorString->len > 0) {
         _disableTap = true;
-        g_string_free(errorString, TRUE);
         return false;
     }
+    g_string_free(errorString, TRUE);
 
     return true;
 }
@@ -265,7 +267,14 @@ void ATapDataModel::setFilter(QString filter)
         return;
 
     _filter = filter;
-    set_tap_dfilter(&hash_, !filter.isEmpty() ? filter.toUtf8().constData() : nullptr);
+    GString * errorString = set_tap_dfilter(&hash_, !filter.isEmpty() ? filter.toUtf8().constData() : nullptr);
+    if (errorString && errorString->len > 0) {
+        /* If this fails, chances are that the main system failed as well. Silently exiting as the
+         * user cannot react to it */
+        disableTap();
+    }
+
+    g_string_free(errorString, TRUE);
 }
 
 ATapDataModel::dataModelType ATapDataModel::modelType() const
@@ -359,6 +368,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         mmdb_lookup = maxmind_db_lookup_ipv6(ip6);
         ws_inet_ntop6(ip6, addr, sizeof(addr));
     }
+    QString ipAddress(addr);
 #endif
 
     if (role == Qt::DisplayRole || role == ATapDataModel::UNFORMATTED_DISPLAYDATA) {
@@ -383,7 +393,6 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             } else {
                 return quint32(item->port);
             }
-            return QVariant();
         case ENDP_COLUMN_PACKETS:
             return (qlonglong)(item->tx_frames + item->rx_frames);
         case ENDP_COLUMN_BYTES:
@@ -433,7 +442,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
     } else if (role == ATapDataModel::GEODATA_LOOKUPTABLE) {
         return VariantPointer<const mmdb_lookup_t>::asQVariant(mmdb_lookup);
     } else if (role == ATapDataModel::GEODATA_ADDRESS) {
-        return QString(addr);
+        return ipAddress;
     }
 #endif
 
@@ -554,8 +563,6 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
 
     // Column text cooked representation.
     conv_item_t *conv_item = (conv_item_t *)&g_array_index(storage_, conv_item_t,idx.row());
-    if (!conv_item)
-        return QVariant();
 
     double duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
     double bps_ab = 0, bps_ba = 0;

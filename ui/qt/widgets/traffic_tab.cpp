@@ -85,6 +85,7 @@ TrafficTab::TrafficTab(QWidget * parent) :
     _cliId = 0;
     _saveRaw = true;
     _exportRole = ATapDataModel::UNFORMATTED_DISPLAYDATA;
+    _recentList = nullptr;
 }
 
 TrafficTab::~TrafficTab()
