@@ -117,7 +117,8 @@ WS_DLL_PUBLIC
 void epan_cleanup(void);
 
 typedef struct {
-	void (*init)(void);
+	void (*init)(void);		/* Called before proto_init() */
+	void (*post_init)(void);	/* Called at the end of epan_init() */
 	void (*dissect_init)(epan_dissect_t *);
 	void (*dissect_cleanup)(epan_dissect_t *);
 	void (*cleanup)(void);

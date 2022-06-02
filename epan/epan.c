@@ -178,6 +178,12 @@ epan_plugin_init(gpointer data, gpointer user_data _U_)
 }
 
 static void
+epan_plugin_post_init(gpointer data, gpointer user_data _U_)
+{
+	((epan_plugin *)data)->post_init();
+}
+
+static void
 epan_plugin_dissect_init(gpointer data, gpointer user_data)
 {
 	((epan_plugin *)data)->dissect_init((epan_dissect_t *)user_data);
@@ -315,6 +321,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 #ifdef HAVE_LUA
 		wslua_init(cb, client_data);
 #endif
+		g_slist_foreach(epan_plugins, epan_plugin_post_init, NULL);
 	}
 	CATCH(DissectorError) {
 		/*
