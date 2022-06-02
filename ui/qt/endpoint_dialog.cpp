@@ -122,6 +122,8 @@ void EndpointDialog::tabChanged(int idx)
         bool geoIp = trafficTab()->hasGeoIPData(idx);
         map_bt_->setEnabled(geoIp);
     }
+#else
+    Q_UNUSED(idx);
 #endif
 }
 

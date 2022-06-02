@@ -66,6 +66,7 @@ QString ATapDataModel::tap() const
     return proto_get_protocol_filter_name(_protoId);
 }
 
+#ifdef HAVE_MAXMINDDB
 bool ATapDataModel::hasGeoIPData()
 {
     QString key = QString("geoip_found_%1").arg(_protoId);
@@ -87,6 +88,7 @@ bool ATapDataModel::hasGeoIPData()
 
     return _lookUp.value(key, false).toBool();
 }
+#endif
 
 bool ATapDataModel::enableTap()
 {
@@ -380,9 +382,9 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
 
     // Column text cooked representation.
     hostlist_talker_t *item = &g_array_index(storage_, hostlist_talker_t, idx.row());
-    char addr[WS_INET6_ADDRSTRLEN];
     const mmdb_lookup_t *mmdb_lookup = nullptr;
 #ifdef HAVE_MAXMINDDB
+    char addr[WS_INET6_ADDRSTRLEN];
     if (item->myaddress.type == AT_IPv4) {
         const ws_in4_addr * ip4 = (const ws_in4_addr *) item->myaddress.data;
         mmdb_lookup = maxmind_db_lookup_ipv4(ip4);
