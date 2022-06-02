@@ -330,41 +330,6 @@ QVariant EndpointDataModel::headerData(int section, Qt::Orientation orientation,
         if (section == ENDP_COLUMN_ADDR)
             return Qt::AlignLeft;
         return Qt::AlignRight;
-#if 0
-    } else if (role == Qt::SizeHintRole) {
-        QFontMetrics fm = mainApp->mainWindow()->fontMetrics();
-        QSize size = QAbstractListModel::headerData(section, orientation, role).toSize();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
-    #define FONT_WIDTH_FUNC horizontalAdvance
-#else
-    #define FONT_WIDTH_FUNC width
-#endif
-        switch (column) {
-        case ENDP_COLUMN_ADDR:
-            size.setWidth(fm.FONT_WIDTH_FUNC("000.000.000.000"));
-            return size;
-            break;
-        case ENDP_COLUMN_PORT:
-            size.setWidth(fm.FONT_WIDTH_FUNC("000000"));
-            return size;
-            break;
-        case ENDP_COLUMN_PACKETS:
-        case ENDP_COLUMN_PKT_AB:
-        case ENDP_COLUMN_PKT_BA:
-            size.setWidth(fm.FONT_WIDTH_FUNC("00,000"));
-            return size;
-            break;
-        case ENDP_COLUMN_BYTES:
-        case ENDP_COLUMN_BYTES_AB:
-        case ENDP_COLUMN_BYTES_BA:
-            size.setWidth(fm.FONT_WIDTH_FUNC("000,000"));
-            return size;
-            break;
-        default:
-            size.setWidth(fm.FONT_WIDTH_FUNC("000000000000000")); // Geolocation
-            return size;
-        }
-#endif
     }
 
     return QVariant();
@@ -436,18 +401,22 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->country) {
                 return QVariant(mmdb_lookup->country);
             }
+            return QVariant();
         case ENDP_COLUMN_GEO_CITY:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->city) {
                 return QVariant(mmdb_lookup->city);
             }
+            return QVariant();
         case ENDP_COLUMN_GEO_AS_NUM:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->as_number) {
                 return QVariant(mmdb_lookup->as_number);
             }
+            return QVariant();
         case ENDP_COLUMN_GEO_AS_ORG:
             if (mmdb_lookup && mmdb_lookup->found && mmdb_lookup->as_org) {
                 return QVariant(mmdb_lookup->as_org);
             }
+            return QVariant();
         default:
             return QVariant();
         }

@@ -142,7 +142,7 @@ public:
     /**
      * @brief Use nanosecond timestamps if requested
      *
-     * @param useNSTime use nanosecond timestamps if required and requested
+     * @param nanoseconds use nanosecond timestamps if required and requested
      */
     void useNanosecondTimestamps(bool nanoseconds);
 

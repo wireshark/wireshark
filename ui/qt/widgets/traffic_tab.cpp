@@ -42,6 +42,7 @@
 #include <QMessageBox>
 #include <QUrl>
 #include <QTemporaryFile>
+#include <QHBoxLayout>
 
 TabData::TabData() :
     _name(QString()),
@@ -118,7 +119,16 @@ void TrafficTab::setProtocolInfo(QString tableName, GList ** recentList, ATapMod
             _protocols << proto_get_id_by_filter_name(name.toStdString().c_str());
     }
 
+    QWidget * container = new QWidget(this);
+    container->setFixedHeight(tabBar()->height());
+    container->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+
+    QHBoxLayout * layout = new QHBoxLayout(container);
+    layout->setContentsMargins(1, 0, 1, 0);
+   
     QPushButton * cornerButton = new QPushButton(tr("%1 Types").arg(tableName));
+    cornerButton->setFixedHeight(tabBar()->height());
+    cornerButton->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     QMenu * cornerMenu = new QMenu();
     conversation_table_iterate_tables(iterateProtocols, &_allTaps);
     foreach (int protoId, _allTaps.keys())
@@ -131,7 +141,9 @@ void TrafficTab::setProtocolInfo(QString tableName, GList ** recentList, ATapMod
         cornerMenu->addAction(endPoint);
     }
     cornerButton->setMenu(cornerMenu);
-    setCornerWidget(cornerButton);
+
+    layout->addWidget(cornerButton);
+    setCornerWidget(container, Qt::TopRightCorner);
 
     updateTabs();
 }
