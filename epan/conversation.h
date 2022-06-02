@@ -47,8 +47,9 @@ extern "C" {
  * Flags to pass to "find_conversation()" to indicate that the address B
  * and/or port B search arguments are wildcards.
  */
-#define NO_ADDR_B 0x01
-#define NO_PORT_B 0x02
+#define NO_MASK_B 0xFFFF0000
+#define NO_ADDR_B 0x00010000
+#define NO_PORT_B 0x00020000
 
 /** Flags to handle endpoints */
 #define USE_LAST_ENDPOINT 0x08		/**< Use last endpoint created, regardless of type */

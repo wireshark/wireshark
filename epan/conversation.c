@@ -36,7 +36,6 @@ struct endpoint {
     endpoint_type etype;
     guint32 port1;
     guint32 port2;
-    guint options;
 };
 
 struct conversation_key {
@@ -866,6 +865,10 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
     wmem_map_t* hashtable;
     conversation_t *conversation=NULL;
     conversation_key_t new_key;
+    /*
+     * Verify that the correct options are used, if any.
+     */
+    DISSECTOR_ASSERT_HINT(!(options & NO_MASK_B), "Use NO_ADDR2 and/or NO_PORT2 or NO_PORT2_FORCE as option");
 
 #ifdef DEBUG_CONVERSATION
     gchar *addr1_str, *addr2_str;
@@ -1213,6 +1216,10 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
     DINSTR(gchar *addr_a_str = address_to_str(NULL, addr_a));
     DINSTR(gchar *addr_b_str = address_to_str(NULL, addr_b));
     /*
+     * Verify that the correct options are used, if any.
+     */
+    DISSECTOR_ASSERT_HINT((options == 0) || (options & NO_MASK_B), "Use NO_ADDR_B and/or NO_PORT_B as option");
+    /*
      * First try an exact match, if we have two addresses and ports.
      */
     if (!(options & (NO_ADDR_B|NO_PORT_B))) {
@@ -1294,7 +1301,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
              * address, unless the CONVERSATION_TEMPLATE option is set.)
              */
             DPRINT(("wildcarded dest address match found"));
-            if (!(conversation->options & NO_ADDR_B) && etype != ENDPOINT_UDP)
+            if (!(conversation->options & NO_ADDR2) && etype != ENDPOINT_UDP)
             {
                 if (!(conversation->options & CONVERSATION_TEMPLATE))
                 {
@@ -1392,7 +1399,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
              * unless the CONVERSATION_TEMPLATE option is set.)
              */
             DPRINT(("match found"));
-            if (!(conversation->options & NO_PORT_B) && etype != ENDPOINT_UDP)
+            if (!(conversation->options & NO_PORT2) && etype != ENDPOINT_UDP)
             {
                 if (!(conversation->options & CONVERSATION_TEMPLATE))
                 {
@@ -1481,9 +1488,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
         {
             if (!(conversation->options & CONVERSATION_TEMPLATE))
             {
-                if (!(conversation->options & NO_ADDR_B))
+                if (!(conversation->options & NO_ADDR2))
                     conversation_set_addr2(conversation, addr_b);
-                if (!(conversation->options & NO_PORT_B))
+                if (!(conversation->options & NO_PORT2))
                     conversation_set_port2(conversation, port_b);
             }
             else
@@ -1677,8 +1684,12 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const e
     conversation_t *conversation;
     gboolean dissector_success;
 
-    /* Try each mode based on option flags */
+    /*
+     * Verify that the correct options are used, if any.
+     */
+    DISSECTOR_ASSERT_HINT((options == 0) || (options & NO_MASK_B), "Use NO_ADDR_B and/or NO_PORT_B as option");
 
+    /* Try each mode based on option flags */
     conversation = find_conversation(pinfo->num, addr_a, addr_b, etype, port_a, port_b, 0);
     if (conversation != NULL) {
         if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
@@ -1767,7 +1778,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
         DISSECTOR_ASSERT(pinfo->conv_endpoint);
         if ((conv = find_conversation(pinfo->num, &pinfo->conv_endpoint->addr1, &pinfo->conv_endpoint->addr2,
                         pinfo->conv_endpoint->etype, pinfo->conv_endpoint->port1,
-                        pinfo->conv_endpoint->port2, pinfo->conv_endpoint->options)) != NULL) {
+                        pinfo->conv_endpoint->port2, 0)) != NULL) {
             DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
                         pinfo->num, conv->last_frame));
             if (pinfo->num > conv->last_frame) {
@@ -1845,7 +1856,7 @@ find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype,
 
 void
 conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
-        endpoint_type etype, guint32 port1, guint32	port2)
+        endpoint_type etype, guint32 port1, guint32 port2)
 {
     pinfo->conv_endpoint = wmem_new0(pinfo->pool, struct endpoint);
     pinfo->use_endpoint = TRUE;
