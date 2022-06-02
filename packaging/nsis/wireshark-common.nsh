@@ -32,7 +32,7 @@ Name "${DISPLAY_NAME}"
 !define PROGRAM_FULL_NAME "The ${PROGRAM_NAME} Network Protocol Analyzer"
 !define PROGRAM_NAME_PATH "${PROGRAM_NAME}.exe"
 
-!define UNINSTALLER_NAME "uninstall.exe"
+!define UNINSTALLER_NAME "uninstall-wireshark.exe"
 
 VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
 VIAddVersionKey "Comments" "It's a great product with a great story to tell. I'm pumped!"

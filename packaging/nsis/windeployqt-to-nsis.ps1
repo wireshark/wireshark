@@ -41,7 +41,7 @@ Assume debug binaries.
 List of NSIS commands required to package supporting DLLs.
 
 .EXAMPLE
-C:\PS> .\windeployqt-to-nsis.ps1 windeployqt.exe ..\..\staging\wireshark.exe qt-dll-manifest.nsh [-DebugConfig]
+C:\PS> .\windeployqt-to-nsis.ps1 windeployqt.exe ..\..\staging\wireshark.exe wireshark-qt-manifest.nsh [-DebugConfig]
 #>
 
 Param(
@@ -49,7 +49,7 @@ Param(
     [String] $Executable,
 
     [Parameter(Position=1)]
-    [String] $FilePath = "qt-dll-manifest.nsh",
+    [String] $FilePath = "wireshark-qt-manifest.nsh",
 
     [Parameter(Mandatory=$false)]
     [Switch] $DebugConfig

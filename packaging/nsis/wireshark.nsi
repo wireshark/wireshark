@@ -10,7 +10,7 @@
 SetCompressor /SOLID lzma
 SetCompressorDictSize 64 ; MB
 
-!include "common.nsh"
+!include "wireshark-common.nsh"
 !include 'LogicLib.nsh'
 !include "StrFunc.nsh"
 !include "WordFunc.nsh"
@@ -515,7 +515,7 @@ File "${STAGING_DIR}\libwiretap.dll"
 File "${STAGING_DIR}\libwireshark.dll"
 File "${STAGING_DIR}\libwsutil.dll"
 
-!include all-manifest.nsh
+!include wireshark-manifest.nsh
 
 File "${STAGING_DIR}\COPYING.txt"
 File "${STAGING_DIR}\NEWS.txt"
@@ -983,7 +983,7 @@ File "${QT_DIR}\${PROGRAM_NAME_PATH}"
 ; Write an entry for ShellExecute
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "" '$INSTDIR\${PROGRAM_NAME_PATH}'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "Path" '$INSTDIR'
-!include qt-dll-manifest.nsh
+!include wireshark-qt-manifest.nsh
 
 ${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
 SetOutPath $INSTDIR

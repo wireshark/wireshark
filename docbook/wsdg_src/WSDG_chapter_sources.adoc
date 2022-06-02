@@ -1022,18 +1022,16 @@ to build the macOS Packages.
 
 ==== Windows: NSIS .exe Installer
 
-The _Nullsoft Install System_ is a free installer generator for Windows
-systems. Instructions on installing it can be found in <<ChToolsNSIS>>.
-NSIS is script based. You can find the main Wireshark installer
-generation script at _packaging/nsis/wireshark.nsi_.
+The _Nullsoft Install System_ is a free installer generator for Windows systems.
+Instructions on installing it can be found in <<ChToolsNSIS>>.
+NSIS is script based. You can find the main Wireshark installer generation script at _packaging/nsis/wireshark.nsi_.
 
-When building with CMake you must first build the _nsis_package_prep_ target,
-followed by the _nsis_package_ target, e.g.
+When building with CMake you must first build the _wireshark_nsis_prep_ target, followed by the _wireshark_nsis_ target, e.g.
 
 [source,cmd]
 ----
-> msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
-> msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
 ----
 
 Splitting the packaging projects in this way allows for code signing.
@@ -1064,13 +1062,13 @@ will place it in `C:\PortableApps`. Add the following apps:
 - PortableApps.com Launcher
 - PortableApps.com AppCompactor
 
-When building with CMake you must first build the _nsis_package_prep_ target
+When building with CMake you must first build the _wireshark_nsis_prep_ target
 (which takes care of general packaging dependencies), followed by the
 _portableapps_package_ target, e.g.
 
 [source,cmd]
 ----
-> msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis_prep.vcxproj
 > msbuild /m /p:Configuration=RelWithDebInfo portableapps_package.vcxproj
 ----
 

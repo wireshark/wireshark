@@ -44,8 +44,8 @@ before_build:
   - cmake -E time cmake -DCMAKE_SYSTEM_VERSION=10.0.20348.0 -G "%CMAKE_GENERATOR%" ..
 
 after_build:
-  - msbuild /m nsis_package_prep.vcxproj
-  - msbuild /m nsis_package.vcxproj
+  - msbuild /m wireshark_nsis_prep.vcxproj
+  - msbuild /m wireshark_nsis.vcxproj
   # Publish installers only for development branches to avoid exceeding the
   # artifact storage limit of 50 GB.
   - ps: |

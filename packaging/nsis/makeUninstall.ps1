@@ -15,24 +15,24 @@
 
 <#
 .SYNOPSIS
-Runs the uninstaller_installer without invoking UAC.
+Runs the uninstall_<application>_installer without invoking UAC.
 
 .DESCRIPTION
-This script runs the uninstaller_installer that creates uninstall.exe
-but without invoking a UAC elevation prompt that is required by the
-uninstaller
+This script runs the uninstall_<application>_installer that creates an
+uninstall exe but without invoking a UAC elevation prompt that is required
+by the uninstaller
 
 .PARAMETER Executable
-The path to the uninstaller_installer.exe
+The path to the uninstall_<application>_installer.exe
 
 .INPUTS
 -Executable Path to the uninstaller installer.
 
 .OUTPUTS
-An unsigned uninstall.exe for signing
+An unsigned uninstall-<application>.exe for signing
 
 .EXAMPLE
-C:\PS> .\makeUninstall.ps1 run\RelWithDebInfo\uninstall_installer.exe
+C:\PS> .\makeUninstall.ps1 run\RelWithDebInfo\uninstall_wireshark_installer.exe
 #>
 
 Param(

@@ -667,12 +667,12 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 Run
 
 ----
-> msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
-> msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
 ----
 
-to build a Wireshark installer. If you sign your executables you should do
-so between the “nsis_package_prep” and “nsis_package” steps.
+to build a Wireshark installer.
+If you sign your executables you should do so between the “wireshark_nsis_prep” and “wireshark_nsis” steps.
 
 Run
 

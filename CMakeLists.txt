@@ -3131,8 +3131,8 @@ if (WIN32)
 
 	if(MAKENSIS_EXECUTABLE)
 		add_subdirectory( packaging/nsis EXCLUDE_FROM_ALL )
-		ADD_NSIS_UNINSTALLER_TARGET()
-		ADD_NSIS_PACKAGE_TARGET()
+		ADD_NSIS_UNINSTALLER_TARGETS()
+		ADD_NSIS_PACKAGE_TARGETS()
 	endif()
 
 	find_package( WiX )
@@ -3339,7 +3339,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 
 	ADD_CUSTOM_TARGET( wireshark_dmg
 		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
-		# Unlike nsis_package_prep + nsis_package, we can add a direct
+		# Unlike wireshark_nsis_prep + wireshark_nsis, we can add a direct
 		# dependency here.
 		DEPENDS wireshark_dmg_prep
 		# We create Wireshark.app in "run". Do our work there.
@@ -3393,7 +3393,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_logwolf)
 
 	# ADD_CUSTOM_TARGET( logwolf_dmg
 	# 	COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
-	# 	# Unlike nsis_package_prep + nsis_package, we can add a direct
+	# 	# Unlike wireshark_nsis_prep + wireshark_nsis, we can add a direct
 	# 	# dependency here.
 	# 	DEPENDS wireshark_dmg_prep
 	# 	# We create Wireshark.app in "run". Do our work there.

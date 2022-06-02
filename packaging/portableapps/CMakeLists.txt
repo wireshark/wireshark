@@ -79,7 +79,8 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 	add_dependencies(portableapps_runtime portableapps_app_dir)
 
 	# Build the PortableApps package.
-	# nsis_package_prep must be built prior to this.
+	# wireshark_nsis_prep must be built prior to this.
+	# XXX Rename this to wireshark_portableapps
 	set (_portableapps_package ${CMAKE_BINARY_DIR}/packaging/portableapps/${PORTABLEAPPS_NAME}_${VERSION}.paf.exe)
 	add_custom_target(portableapps_package
 		DEPENDS

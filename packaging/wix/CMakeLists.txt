@@ -317,6 +317,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# Build WiX package dependencies. We build the package in
 		# two stages so that wix_package below doesn't trigger any
 		# dependencies that might clobber any signed executables.
+		# XXX Rename this to wireshark_wix_prep
 		add_custom_target(wix_package_prep
 			DEPENDS
 				${WIX_FILES}
@@ -332,6 +333,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# Dump the installer into
 		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/wix
 		# Note that executables and DLLs *must* be built separately
+		# XXX Rename this to wireshark_wix
 		add_custom_target(wix_package
 			COMMAND ${WIX_CANDLE_EXECUTABLE} ${WIX_CANDLE_DEFINES}
 				$<$<CONFIG:Debug>:-dBUNDLE_DEBUG_DLLS>

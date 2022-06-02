@@ -334,10 +334,10 @@ Win64 Package:
     - cmake -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=ON -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wix_package_prep.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
-    - msbuild /verbosity:minimal nsis_package.vcxproj
+    - msbuild /verbosity:minimal wireshark_nsis.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\nsis
     - msbuild /verbosity:minimal wix_package.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix
