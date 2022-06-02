@@ -29,6 +29,14 @@
 #include <wireshark.h>
 DIAG_OFF_CLANG(shorten-64-to-32)
 DIAG_OFF_CLANG(comma)
+#ifdef _MSC_VER
+/* disable: " warning C4244: '=': conversion from 'lua _Integer' to 'int',
+ * possible loss of data" */
+#pragma warning(disable:4244)
+/* warning C4267: '+=': conversion from 'size_t' to 'int',
+ * possible loss of data */
+#pragma warning(disable:4267)
+#endif
 
 #define malloc_free free
 #define rex_atoi atoi
