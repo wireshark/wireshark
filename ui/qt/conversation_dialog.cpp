@@ -92,14 +92,12 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     TrafficTableDialog(parent, cf, filter, table_name_),
     tcp_graph_requested_(false)
 {
-    trafficTab()->setProtocolInfo(tr("Conversation"), &(recent.conversation_tabs), &createModel);
-    trafficTab()->setFirstTab(cli_proto_id);
+    trafficTab()->setProtocolInfo(tr("Conversation"), cli_proto_id, &(recent.conversation_tabs), &createModel);
     trafficTab()->setDelegate(CONV_COLUMN_START, &createDelegate);
     trafficTab()->setDelegate(CONV_COLUMN_DURATION, &createDelegate);
     connect(trafficTab(), &TrafficTab::filterAction, this, &ConversationDialog::filterAction);
     connect(trafficTab()->tabBar(), &QTabBar::currentChanged, this, &ConversationDialog::tabChanged);
     connect(trafficTab(), &TrafficTab::tabDataChanged, this, &ConversationDialog::tabChanged);
-    connect(absoluteTimeCheckBox(), &QCheckBox::toggled, trafficTab(), &TrafficTab::useAbsoluteTime);
 
     follow_bt_ = buttonBox()->addButton(tr("Follow Stream…"), QDialogButtonBox::ActionRole);
     follow_bt_->setToolTip(tr("Follow a TCP or UDP stream."));
@@ -122,12 +120,7 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     }
 
     updateWidgets();
-
-    cap_file_.delayedRetapPackets();
 }
-
-ConversationDialog::~ConversationDialog()
-{}
 
 void ConversationDialog::captureFileClosing()
 {

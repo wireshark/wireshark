@@ -28,7 +28,6 @@ public:
      * @param filter Display filter to apply.
      */
     explicit EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id = -1, const char *filter = NULL);
-    ~EndpointDialog();
 
 signals:
 

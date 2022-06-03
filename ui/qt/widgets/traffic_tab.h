@@ -96,19 +96,13 @@ public:
      * without having to removing the predefined object during setup of the UI.
      *
      * @param tableName The name for the table. Used for the protocol selection button
+     * @param cliId a protocol id for the first tab
      * @param recentList The list to store the selected protocols in
      * @param createModel A callback, which will create the correct model for the trees
      *
      * @see ATapModelCallback
      */
-    void setProtocolInfo(QString tableName, GList ** recentList, ATapModelCallback createModel);
-
-    /**
-     * @brief Ensure, that the given protocol id is the first tab set
-     *
-     * @param cliId a protocol id for the first tab
-     */
-    void setFirstTab(int cliId);
+    void setProtocolInfo(QString tableName, int cliId, GList ** recentList, ATapModelCallback createModel);
 
     /**
      * @brief Set the Delegate object for a specific column
@@ -226,6 +220,7 @@ public slots:
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void tabDataChanged(int index);
+    void retapRequired();
 
 private:
     QString _tableName;

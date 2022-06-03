@@ -101,9 +101,10 @@ TrafficTab::~TrafficTab()
     }
 }
 
-void TrafficTab::setProtocolInfo(QString tableName, GList ** recentList, ATapModelCallback createModel)
+void TrafficTab::setProtocolInfo(QString tableName, int cliId, GList ** recentList, ATapModelCallback createModel)
 {
     _tableName = tableName;
+    _cliId = cliId;
     _recentList = recentList;
     if (createModel)
         _createModel = createModel;
@@ -118,6 +119,12 @@ void TrafficTab::setProtocolInfo(QString tableName, GList ** recentList, ATapMod
         QStringList protoNames = QStringList() << "eth" << "ip" << "ipv6" << "tcp" << "udp";
         foreach(QString name, protoNames)
             _protocols << proto_get_id_by_filter_name(name.toStdString().c_str());
+    }
+
+    // Bring the command-line specified type to the front.
+    if ((_cliId > 0) && (get_conversation_by_proto_id(_cliId))) {
+        _protocols.removeAll(_cliId);
+        _protocols.prepend(_cliId);
     }
 
     QWidget * container = new QWidget(this);
@@ -160,19 +167,6 @@ void TrafficTab::toggleTab(bool checked)
         _protocols.removeAll(protocol);
     else if (checked && ! _protocols.contains(protocol))
         _protocols.append(protocol);
-
-    updateTabs();
-}
-
-void TrafficTab::setFirstTab(int cliId)
-{
-    _cliId = cliId;
-
-    // Bring the command-line specified type to the front.
-    if ((_cliId > 0) && (get_conversation_by_proto_id(_cliId))) {
-        _protocols.removeAll(_cliId);
-        _protocols.prepend(_cliId);
-    }
 
     updateTabs();
 }
@@ -328,6 +322,8 @@ void TrafficTab::updateTabs()
         TabData tabData = qvariant_cast<TabData>(tabBar()->tabData(idx));
         _tabs.insert(tabData.protoId(), idx);
     }
+
+    emit retapRequired();
 }
 
 void TrafficTab::doCurrentIndexChange(const QModelIndex & cur, const QModelIndex &)

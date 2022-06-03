@@ -25,7 +25,6 @@ public:
      * @param filter Display filter to apply.
      */
     explicit ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id = -1, const char *filter = NULL);
-    ~ConversationDialog();
 
 protected:
     void captureFileClosing();

@@ -66,10 +66,8 @@ static ATapDataModel * createModel(int protoId, QString filter)
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
-    trafficTab()->setProtocolInfo(tr("Endpoints"), &(recent.endpoint_tabs), &createModel);
-    trafficTab()->setFirstTab(cli_proto_id);
+    trafficTab()->setProtocolInfo(tr("Endpoints"), cli_proto_id, &(recent.endpoint_tabs), &createModel);
     connect(trafficTab(), &TrafficTab::filterAction, this, &EndpointDialog::filterAction);
-
     connect(trafficTab(), &TrafficTab::tabDataChanged, this, &EndpointDialog::tabChanged);
     connect(trafficTab(), &TrafficTab::currentChanged, this, &EndpointDialog::tabChanged);
 
@@ -93,12 +91,6 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
     }
 
     updateWidgets();
-
-    cap_file_.delayedRetapPackets();
-}
-
-EndpointDialog::~EndpointDialog()
-{
 }
 
 void EndpointDialog::captureFileClosing()

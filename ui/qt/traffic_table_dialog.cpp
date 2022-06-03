@@ -63,6 +63,9 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(currentTabChanged()));
     connect(ui->trafficTab, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged()));
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)), this, SLOT(captureEvent(CaptureEvent)));
+
+    connect(ui->absoluteTimeCheckBox, &QCheckBox::toggled, trafficTab(), &TrafficTab::useAbsoluteTime);
+    connect(trafficTab(), &TrafficTab::retapRequired, &cap_file_, &CaptureFile::delayedRetapPackets);
 }
 
 TrafficTableDialog::~TrafficTableDialog()

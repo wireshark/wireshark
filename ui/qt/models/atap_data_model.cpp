@@ -108,7 +108,9 @@ bool ATapDataModel::enableTap()
         _disableTap = true;
         return false;
     }
-    g_string_free(errorString, TRUE);
+
+    if (errorString)
+        g_string_free(errorString, TRUE);
 
     return true;
 }
@@ -274,7 +276,8 @@ void ATapDataModel::setFilter(QString filter)
         disableTap();
     }
 
-    g_string_free(errorString, TRUE);
+    if (errorString)
+        g_string_free(errorString, TRUE);
 }
 
 ATapDataModel::dataModelType ATapDataModel::modelType() const
