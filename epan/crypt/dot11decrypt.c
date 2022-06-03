@@ -1531,7 +1531,7 @@ Dot11DecryptDerivePmkFromMsk(const guint8 *msk, guint8 msk_len, int akm,
     } else {
         *pmk_len = 256 / 8;
     }
-    if (msk_len + *pmk_len < msk_len) {
+    if ((guint8)(msk_len + *pmk_len) < msk_len) {
         *pmk_len = 0;
         return;
     }
