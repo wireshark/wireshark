@@ -58,28 +58,28 @@ XPStyle on
 !define SHCNF_IDLIST 0
 
 !macro UpdateIcons
-    Push $R0
-    Push $R1
-    Push $R2
+  Push $R0
+  Push $R1
+  Push $R2
 
-    !define UPDATEICONS_UNIQUE ${__LINE__}
+  !define UPDATEICONS_UNIQUE ${__LINE__}
 
-    IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.ok_shell32_${UPDATEICONS_UNIQUE} UpdateIcons.error_shell32_${UPDATEICONS_UNIQUE}
+  IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.ok_shell32_${UPDATEICONS_UNIQUE} UpdateIcons.error_shell32_${UPDATEICONS_UNIQUE}
 UpdateIcons.ok_shell32_${UPDATEICONS_UNIQUE}:
-    System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (${SHCNE_ASSOCCHANGED}, ${SHCNF_IDLIST}, 0, 0)'
-    Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
+  System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (${SHCNE_ASSOCCHANGED}, ${SHCNF_IDLIST}, 0, 0)'
+  Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 
 UpdateIcons.error_shell32_${UPDATEICONS_UNIQUE}:
-    MessageBox MB_OK|MB_ICONSTOP  \
-        "Can't find 'shell32.dll' library. Impossible to update icons" \
-        /SD IDOK
-    Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
+  MessageBox MB_OK|MB_ICONSTOP  \
+    "Can't find 'shell32.dll' library. Impossible to update icons" \
+    /SD IDOK
+  Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 
 UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
-    !undef UPDATEICONS_UNIQUE
-    Pop $R2
-    Pop $R1
-    Pop $R0
+  !undef UPDATEICONS_UNIQUE
+  Pop $R2
+  Pop $R1
+  Pop $R0
 
 ; Force the icon cache to refresh
 ; https://superuser.com/questions/499078/refresh-icon-cache-without-rebooting
@@ -100,35 +100,35 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 !define FILE_EXTENSION_MARKER "FILE_EXTENSION_MARKER"
 
 !macro PushFileExtensions
-    Push "${FILE_EXTENSION_MARKER}"
-    Push ".wpz"
-    Push ".wpc"
-    Push ".vwr"
-    Push ".trc"
-    Push ".trace"
-    Push ".tr1"
-    Push ".tpc"
-    Push ".syc"
-    Push ".snoop"
-    Push ".rf5"
-    Push ".pkt"
-    Push ".pklg"
-    Push ".pcapng"
-    Push ".pcap"
-    Push ".out"
-    Push ".ntar"
-    Push ".mplog"
-    Push ".lcap"
-    Push ".ipfix"
-    Push ".fdc"
-    Push ".erf"
-    Push ".enc"
-    Push ".cap"
-    Push ".bfr"
-    Push ".atc"
-    Push ".apc"
-    Push ".acp"
-    Push ".5vw"
+  Push "${FILE_EXTENSION_MARKER}"
+  Push ".wpz"
+  Push ".wpc"
+  Push ".vwr"
+  Push ".trc"
+  Push ".trace"
+  Push ".tr1"
+  Push ".tpc"
+  Push ".syc"
+  Push ".snoop"
+  Push ".rf5"
+  Push ".pkt"
+  Push ".pklg"
+  Push ".pcapng"
+  Push ".pcap"
+  Push ".out"
+  Push ".ntar"
+  Push ".mplog"
+  Push ".lcap"
+  Push ".ipfix"
+  Push ".fdc"
+  Push ".erf"
+  Push ".enc"
+  Push ".cap"
+  Push ".bfr"
+  Push ".atc"
+  Push ".apc"
+  Push ".acp"
+  Push ".5vw"
 !macroend
 
 !macro IsWiresharkRunning
@@ -136,37 +136,24 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 ; https://nsis.sourceforge.io/Check_whether_your_application_is_running
 ${Do}
 
-    System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "Global\${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
-        IntCmp $R0 0 checkRunningSession
-        System::Call 'kernel32::CloseHandle(i $R0)'
-        Goto isRunning
+  System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "Global\${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
+    IntCmp $R0 0 checkRunningSession
+    System::Call 'kernel32::CloseHandle(i $R0)'
+    Goto isRunning
 
 checkRunningSession:
-    System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
-        IntCmp $R0 0 notRunning
-        System::Call 'kernel32::CloseHandle(i $R0)'
+  System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
+    IntCmp $R0 0 notRunning
+    System::Call 'kernel32::CloseHandle(i $R0)'
 
 isRunning:
-    ; You'd better go catch it.
-    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PROGRAM_NAME} or one of its associated programs is running.$\r$\nPlease close it first." /SD IDCANCEL IDRETRY continueChecking
-    Quit
+  ; You'd better go catch it.
+  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PROGRAM_NAME} or one of its associated programs is running.$\r$\nPlease close it first." /SD IDCANCEL IDRETRY continueChecking
+  Quit
 
 notRunning:
-    ${ExitDo}
+  ${ExitDo}
 
 continueChecking:
 ${Loop}
 !macroend
-
-;
-; Editor modelines  -  https://www.wireshark.org/tools/modelines.html
-;
-; Local variables:
-; c-basic-offset: 4
-; tab-width: 8
-; indent-tabs-mode: nil
-; End:
-;
-; vi: set shiftwidth=4 tabstop=8 expandtab:
-; :indentSize=4:tabSize=8:noTabs=true:
-;

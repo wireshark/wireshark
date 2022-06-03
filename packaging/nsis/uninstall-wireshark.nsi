@@ -64,23 +64,23 @@ FunctionEnd
 
 Var EXTENSION
 Function un.Disassociate
-    Push $R0
+  Push $R0
 !insertmacro PushFileExtensions
 
-    Pop $EXTENSION
-    ${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
-        ReadRegStr $R0 HKCR $EXTENSION ""
-        StrCmp $R0 ${WIRESHARK_ASSOC} un.Disassociate.doDeregister
-        Goto un.Disassociate.end
+  Pop $EXTENSION
+  ${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
+    ReadRegStr $R0 HKCR $EXTENSION ""
+    StrCmp $R0 ${WIRESHARK_ASSOC} un.Disassociate.doDeregister
+    Goto un.Disassociate.end
 un.Disassociate.doDeregister:
-        ; The extension is associated with Wireshark so, we must destroy this!
-        DeleteRegKey HKCR $EXTENSION
-        DetailPrint "Deregistered file type: $EXTENSION"
+    ; The extension is associated with Wireshark so, we must destroy this!
+    DeleteRegKey HKCR $EXTENSION
+    DetailPrint "Deregistered file type: $EXTENSION"
 un.Disassociate.end:
-        Pop $EXTENSION
-    ${Loop}
+    Pop $EXTENSION
+  ${Loop}
 
-    Pop $R0
+  Pop $R0
 FunctionEnd
 
 Section "-Required"
@@ -152,15 +152,15 @@ Push "mmdbresolve"
 Pop $EXECUTABLE
 ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
 
-    ; IsWiresharkRunning should make sure everything is closed down so we *shouldn't* run
-    ; into any problems here.
-    Delete "$INSTDIR\$EXECUTABLE.exe"
-    IfErrors 0 deletionSuccess
-        MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" /SD IDOK IDOK 0
-        Abort "$EXECUTABLE.exe could not be removed. Aborting the uninstall process."
+  ; IsWiresharkRunning should make sure everything is closed down so we *shouldn't* run
+  ; into any problems here.
+  Delete "$INSTDIR\$EXECUTABLE.exe"
+  IfErrors 0 deletionSuccess
+    MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" /SD IDOK IDOK 0
+    Abort "$EXECUTABLE.exe could not be removed. Aborting the uninstall process."
 
 deletionSuccess:
-    Pop $EXECUTABLE
+  Pop $EXECUTABLE
 
 ${Loop}
 
@@ -306,10 +306,10 @@ SectionIn 2
 ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "UninstallString"
 ;IfErrors un.lbl_npcap_notinstalled ;if RegKey is unavailable, Npcap is not installed
 ${If} $1 != ""
-    ;MessageBox MB_OK "Npcap $1" /SD IDOK
-    ExecWait '$1' $0
-    DetailPrint "Npcap uninstaller returned $0"
-    ;SetRebootFlag true
+  ;MessageBox MB_OK "Npcap $1" /SD IDOK
+  ExecWait '$1' $0
+  DetailPrint "Npcap uninstaller returned $0"
+  ;SetRebootFlag true
 ${EndIf}
 ;un.lbl_npcap_notinstalled:
 SectionEnd
@@ -327,24 +327,11 @@ NoFinalErrorMsg:
 SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecNpcap} "Call Npcap's uninstall program."
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUSBPcap} "Call USBPcap's uninstall program."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecNpcap} "Call Npcap's uninstall program."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUSBPcap} "Call USBPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
-
-;
-; Editor modelines  -  https://www.wireshark.org/tools/modelines.html
-;
-; Local variables:
-; c-basic-offset: 4
-; tab-width: 8
-; indent-tabs-mode: nil
-; End:
-;
-; vi: set shiftwidth=4 tabstop=8 expandtab:
-; :indentSize=4:tabSize=8:noTabs=true:
-;
