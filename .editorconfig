@@ -18,6 +18,9 @@ insert_final_newline = true
 # CMake
 [{CMake*,*.cmake,*.cmake.in}]
 indent_style = tab
+[CMake*.json]
+indent_style = space
+indent_size = 2
 
 # Makefiles. Although we dropped Autotools we still have a few lying around.
 [Makefile*]
