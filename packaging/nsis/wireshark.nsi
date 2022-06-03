@@ -201,11 +201,7 @@ ComponentText "The following components are available for installation."
 DirText "Choose a directory in which to install ${PROGRAM_NAME}."
 
 ; The default installation directory
-!if ${WIRESHARK_TARGET_PLATFORM} == "win64"
-  InstallDir $PROGRAMFILES64\${PROGRAM_NAME}
-!else
-  InstallDir $PROGRAMFILES\${PROGRAM_NAME}
-!endif
+InstallDir $PROGRAMFILES64\${PROGRAM_NAME}
 
 ; See if this is an upgrade; if so, use the old InstallDir as default
 InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} "InstallDir"
@@ -276,12 +272,8 @@ Function .onInit
   !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
     ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
     ${IfNot} ${RunningX64}
-      MessageBox MB_OK "This version of Wireshark only runs on x64 machines.$\nTry installing the 32-bit version instead." /SD IDOK
+      MessageBox MB_OK "Wireshark only runs on x64 machines.$\nTry installing a 32-bit version (3.6 or earlier) instead." /SD IDOK
       Abort
-    ${EndIf}
-  !else
-    ${If} ${RunningX64}
-      MessageBox MB_OK "You are installing a 32-bit version of Wireshark on a 64-bit machine.$\nWe recommend installing the 64-bit version instead." /SD IDOK
     ${EndIf}
   !endif
 
