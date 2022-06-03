@@ -129,9 +129,30 @@ You can list all build variables (with help) by running `cmake -LH [options]
 ../<Name_of_WS_source_dir>`. This lists the cache of build variables
 after the cmake run. To only view the current cache, add option `-N`.
 
-You prepopulate variables using CMake's https://cmake.org/cmake/help/latest/manual/cmake.1.html#options[`-C` command line option] or by adding a file named `CMakeListsCustom.txt` to the top-level source directory.
-In either case you must set each variable using CMake's “set” command.
-For example `set(ENABLE_CCACHE ON)` will enable ccache.
+Depending on your needs, it might be useful to save your CMake configuration options in a file outside your build directory.
+CMake supports this via its https://cmake.org/cmake/help/v3.23/manual/cmake-presets.7.html[presets] option.
+For example, adding the follwing to `CMakeUserPresets.json` would let you build using Ninja in the `build` directory, enable ccache, and set a custom Qt directory by running `cmake --preset mydev`:
+
+[source,json]
+----
+{
+  "version: 4,
+  "configurePresets": [
+    {
+      "name": "mydev",
+      "displayName": "Local development",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "ENABLE_CCACHE": "ON",
+      },
+      "environment": {
+        "CMAKE_PREFIX_PATH": "/usr/local/Qt6"
+      }
+    }
+  ]
+}
+----
 
 After running cmake, you can always run `make help` to see a list of all possible make targets.
 
