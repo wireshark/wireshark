@@ -187,6 +187,9 @@ public:
     bool hasGeoIPData();
 #endif
 
+signals:
+    void tapListenerChanged(bool enable);
+
 protected:
 
     static void tapReset(void *tapdata);

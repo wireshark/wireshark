@@ -83,6 +83,7 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
     connect(action, &QAction::triggered, this, &EndpointDialog::saveMap);
     map_bt_->setMenu(map_menu_);
 #endif
+
     addProgressFrame(&parent);
 
     QPushButton *close_bt = buttonBox()->button(QDialogButtonBox::Close);
@@ -96,14 +97,8 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
 void EndpointDialog::captureFileClosing()
 {
     trafficTab()->disableTap();
-
-    TrafficTableDialog::captureFileClosing();
-}
-
-void EndpointDialog::captureFileClosed()
-{
     displayFilterCheckBox()->setEnabled(false);
-    TrafficTableDialog::captureFileClosed();
+    TrafficTableDialog::captureFileClosing();
 }
 
 void EndpointDialog::tabChanged(int idx)

@@ -125,15 +125,10 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
 void ConversationDialog::captureFileClosing()
 {
     trafficTab()->disableTap();
-    TrafficTableDialog::captureFileClosing();
-}
-
-void ConversationDialog::captureFileClosed()
-{
     displayFilterCheckBox()->setEnabled(false);
     follow_bt_->setEnabled(false);
     graph_bt_->setEnabled(false);
-    TrafficTableDialog::captureFileClosed();
+    TrafficTableDialog::captureFileClosing();
 }
 
 void ConversationDialog::followStream()

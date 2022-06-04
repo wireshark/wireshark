@@ -30,6 +30,10 @@ wsbuglink:17779[]
   Code using the Lua GRegex module will have to be updated to use lrexlib-pcre2 instead.
   In most cases the API should be compatible and the conversion just requires a module name change.
 
+* The Conversation and Endpoint dialogs have been redesigned with the following improvements:
+ - The context menu now includes the option to resize all columns, as well as copying elements
+ - Data may be exported as Json
+
 Many improvements have been made.
 See the “New and Updated Features” section below for more details.
 

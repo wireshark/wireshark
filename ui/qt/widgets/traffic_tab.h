@@ -75,16 +75,6 @@ class TrafficTab : public QTabWidget
 
 public:
 
-    /**
-     * @brief Type for the selection of export
-     * @see copyToClipboard
-     */
-    typedef enum {
-        CLIPBOARD_CSV,  /* export as CSV */
-        CLIPBOARD_YAML, /* export as YAML */
-        CLIPBOARD_JSON  /* export as JSON */
-    } eTrafficTabClipboard;
-
     TrafficTab(QWidget *parent = nullptr);
     virtual ~TrafficTab();
 
@@ -114,13 +104,6 @@ public:
      * @see ATapCreateDelegate
      */
     void setDelegate(int column, ATapCreateDelegate createDelegate);
-
-    /**
-     * @brief Returns a list of all selected protocols in the traffic tab
-     *
-     * @return QVector<int> a list containing all protocols currently being displayed
-     */
-    QVector<int> selectedProtocols() const;
 
     /**
      * @brief Set the filter or remove it by providing an empty filter
@@ -219,7 +202,7 @@ public slots:
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
-    void tabDataChanged(int index);
+    void tabDataChanged(int idx);
     void retapRequired();
 
 private:
@@ -235,23 +218,10 @@ private:
     bool _disableTaps;
     bool _nameResolution;
 
-    int _exportRole;
-    bool _saveRaw;
-
     void updateTabs();
     QTreeView * createTree(int protoId);
     ATapDataModel * modelForTabIndex(int tabIdx = -1);
 
-    /**
-     * @brief Copy the content of the tab to the clipboard as CSV or YAML
-     *
-     * @param type Either CSV or YAML has to be selected, defaults to CSV
-     * @param idx the index of the page. If it is out of bounds or < 0, the current index is being used
-     * @see eTrafficTabClipboard
-     */
-    void copyToClipboard(eTrafficTabClipboard type, int idx = -1);
-
-    QMenu * createActionSubMenu(FilterAction::Action cur_action, QModelIndex idx, bool isConversation);
 
 #ifdef HAVE_MAXMINDDB
     bool writeGeoIPMapFile(QFile * fp, bool json_only, ATapDataModel * dataModel);
@@ -259,10 +229,6 @@ private:
 
 private slots:
     void toggleTab(bool checked = false);
-    void customContextMenuRequested(const QPoint &pos);
-    void filterActionTriggered();
-    void clipboardAction();
-    void toggleSaveRaw();
 
     void modelReset();
 

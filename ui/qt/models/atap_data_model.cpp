@@ -106,11 +106,14 @@ bool ATapDataModel::enableTap()
         &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
     if (errorString && errorString->len > 0) {
         _disableTap = true;
+        emit tapListenerChanged(false);
         return false;
     }
 
     if (errorString)
         g_string_free(errorString, TRUE);
+
+    emit tapListenerChanged(true);
 
     return true;
 }
@@ -121,6 +124,7 @@ void ATapDataModel::disableTap()
     if (!_disableTap)
         remove_tap_listener(hash());
     _disableTap = true;
+    emit tapListenerChanged(false);
 }
 
 int ATapDataModel::rowCount(const QModelIndex &) const

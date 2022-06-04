@@ -28,7 +28,6 @@ public:
 
 protected:
     void captureFileClosing();
-    void captureFileClosed();
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);

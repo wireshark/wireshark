@@ -50,6 +50,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/syntax_line_edit.h
 	widgets/tabnav_tree_view.h
 	widgets/traffic_tab.h
+	widgets/traffic_tree.h
 	widgets/wireless_timeline.h
 	widgets/wireshark_file_dialog.h
 )
@@ -300,6 +301,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/syntax_line_edit.cpp
 	widgets/tabnav_tree_view.cpp
 	widgets/traffic_tab.cpp
+	widgets/traffic_tree.cpp
 	widgets/wireless_timeline.cpp
 	widgets/wireshark_file_dialog.cpp
 )

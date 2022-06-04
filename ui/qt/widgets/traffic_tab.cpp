@@ -18,11 +18,12 @@
 
 #include "ui/recent.h"
 
-#include <ui/qt/widgets/traffic_tab.h>
-#include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/main_application.h>
-#include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/filter_action.h>
+#include <ui/qt/models/atap_data_model.h>
+#include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/widgets/traffic_tab.h>
+#include <ui/qt/widgets/traffic_tree.h>
 
 #include <QVector>
 #include <QStringList>
@@ -83,8 +84,6 @@ TrafficTab::TrafficTab(QWidget * parent) :
     _nameResolution = false;
     _tableName = QString();
     _cliId = 0;
-    _saveRaw = true;
-    _exportRole = ATapDataModel::UNFORMATTED_DISPLAYDATA;
     _recentList = nullptr;
 }
 
@@ -93,7 +92,7 @@ TrafficTab::~TrafficTab()
     prefs_clear_string_list(*_recentList);
     *_recentList = NULL;
 
-    QVector<int> protocols = selectedProtocols();
+    QList<int> protocols = _tabs.keys();
     foreach (int protoId, protocols)
     {
         char *title = g_strdup(proto_get_protocol_short_name(find_protocol_by_id(protoId)));
@@ -200,13 +199,13 @@ void TrafficTab::setDelegate(int column, ATapCreateDelegate createDelegate)
 
 QTreeView * TrafficTab::createTree(int protoId)
 {
-    QTreeView * tree = new QTreeView(this);
+    TrafficTree * tree = new TrafficTree(_tableName, this);
+
     if (_createModel) {
         ATapDataModel * model = _createModel(protoId, "");
+        connect(model, &ATapDataModel::tapListenerChanged, tree, &TrafficTree::tapListenerEnabled);
+    
         model->enableTap();
-        tree->setAlternatingRowColors(true);
-        tree->setRootIsDecorated(false);
-        tree->setSortingEnabled(true);
 
         foreach(int col, _createDelegates.keys())
         {
@@ -217,8 +216,6 @@ QTreeView * TrafficTab::createTree(int protoId)
             }
         }
 
-        tree->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(tree, &QTreeView::customContextMenuRequested, this, &TrafficTab::customContextMenuRequested);
         QSortFilterProxyModel * proxyModel = new QSortFilterProxyModel();
         proxyModel->setSourceModel(model);
         tree->setModel(proxyModel);
@@ -239,12 +236,6 @@ QTreeView * TrafficTab::createTree(int protoId)
     }
 
     return tree;
-}
-
-QVector<int> TrafficTab::selectedProtocols() const
-{
-    QVector<int> result = QVector<int>::fromList(_tabs.keys());
-    return result;
 }
 
 void TrafficTab::useAbsoluteTime(bool absolute)
@@ -447,216 +438,13 @@ bool TrafficTab::hasNameResolution(int tabIdx)
     return dataModel->allowsNameResolution();
 }
 
-static QMap<FilterAction::ActionDirection, int> fad_to_cd_;
-
-static void initDirection()
-{
-    if (fad_to_cd_.count() == 0) {
-        fad_to_cd_[FilterAction::ActionDirectionAToFromB] = CONV_DIR_A_TO_FROM_B;
-        fad_to_cd_[FilterAction::ActionDirectionAToB] = CONV_DIR_A_TO_B;
-        fad_to_cd_[FilterAction::ActionDirectionAFromB] = CONV_DIR_A_FROM_B;
-        fad_to_cd_[FilterAction::ActionDirectionAToFromAny] = CONV_DIR_A_TO_FROM_ANY;
-        fad_to_cd_[FilterAction::ActionDirectionAToAny] = CONV_DIR_A_TO_ANY;
-        fad_to_cd_[FilterAction::ActionDirectionAFromAny] = CONV_DIR_A_FROM_ANY;
-        fad_to_cd_[FilterAction::ActionDirectionAnyToFromB] = CONV_DIR_ANY_TO_FROM_B;
-        fad_to_cd_[FilterAction::ActionDirectionAnyToB] = CONV_DIR_ANY_TO_B;
-        fad_to_cd_[FilterAction::ActionDirectionAnyFromB] = CONV_DIR_ANY_FROM_B;
-    }
-}
-
-QMenu * TrafficTab::createActionSubMenu(FilterAction::Action cur_action, QModelIndex idx, bool isConversation)
-{
-    initDirection();
-
-    conv_item_t * conv_item = nullptr;
-    if (isConversation)
-    {
-        ConversationDataModel * model = qobject_cast<ConversationDataModel *>(modelForTabIndex());
-        if (model)
-            conv_item = model->itemForRow(idx.row());
-    }
-
-    QMenu * subMenu = new QMenu(FilterAction::actionName(cur_action));
-    subMenu->setEnabled(!_disableTaps);
-    foreach (FilterAction::ActionType at, FilterAction::actionTypes()) {
-        if (isConversation && conv_item) {
-            QMenu *subsubmenu = subMenu->addMenu(FilterAction::actionTypeName(at));
-            subsubmenu->setEnabled(!_disableTaps);
-            foreach (FilterAction::ActionDirection ad, FilterAction::actionDirections()) {
-                FilterAction *fa = new FilterAction(subsubmenu, cur_action, at, ad);
-                fa->setEnabled(!_disableTaps);
-                QString filter = get_conversation_filter(conv_item, (conv_direction_e) fad_to_cd_[fa->actionDirection()]);
-                fa->setProperty("filter", filter);
-                subsubmenu->addAction(fa);
-                connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
-            }
-        } else {
-            FilterAction *fa = new FilterAction(subMenu, cur_action, at);
-            fa->setEnabled(!_disableTaps);
-            fa->setProperty("filter", idx.data(ATapDataModel::DISPLAY_FILTER));
-            subMenu->addAction(fa);
-
-            connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
-        }
-    }
-
-    return subMenu;
-}
-
-void TrafficTab::customContextMenuRequested(const QPoint &pos)
-{
-    if (! qobject_cast<QTreeView *>(sender()))
-        return;
-
-    QTreeView * tree = qobject_cast<QTreeView *>(sender());
-    QModelIndex idx = tree->indexAt(pos);
-
-    QMenu ctxMenu;
-
-    bool isConv = false;
-    QSortFilterProxyModel * proxy = qobject_cast<QSortFilterProxyModel *>(tree->model());
-    if (proxy) {
-        ConversationDataModel * model = qobject_cast<ConversationDataModel *>(proxy->sourceModel());
-        if (model)
-            isConv = true;
-    }
-
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionApply, idx, isConv));
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionPrepare, idx, isConv));
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionFind, idx, isConv));
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionColorize, idx, isConv));
-
-    ctxMenu.addSeparator();
-    ctxMenu.addMenu(createCopyMenu());
-
-    ctxMenu.addSeparator();
-    QAction * act = ctxMenu.addAction(tr("Resize all columns to content"));
-    connect(act, &QAction::triggered, [tree]() {
-        for (int col = 0; col < tree->model()->columnCount(); col++)
-            tree->resizeColumnToContents(col);
-    });
-
-    ctxMenu.exec(tree->mapToGlobal(pos));
-}
-
-void TrafficTab::filterActionTriggered()
-{
-    FilterAction *fa = qobject_cast<FilterAction *>(sender());
-    if (!fa)
-        return;
-
-    QString filter = fa->property("filter").toString();
-    if (filter.length() > 0)
-        emit filterAction(filter, fa->action(), fa->actionType());
-}
-
 QMenu * TrafficTab::createCopyMenu(QWidget *parent)
 {
-    QMenu *copy_menu = new QMenu(tr("Copy %1 table").arg(_tableName), parent);
-    QAction *ca;
-    ca = copy_menu->addAction(tr("as CSV"));
-    ca->setToolTip(tr("Copy all values of this page to the clipboard in CSV (Comma Separated Values) format."));
-    ca->setProperty("copy_as", TrafficTab::CLIPBOARD_CSV);
-    connect(ca, &QAction::triggered, this, &TrafficTab::clipboardAction);
-    ca = copy_menu->addAction(tr("as YAML"));
-    ca->setToolTip(tr("Copy all values of this page to the clipboard in the YAML data serialization format."));
-    ca->setProperty("copy_as", TrafficTab::CLIPBOARD_YAML);
-    connect(ca, &QAction::triggered, this, &TrafficTab::clipboardAction);
-    ca = copy_menu->addAction(tr("as Json"));
-    ca->setToolTip(tr("Copy all values of this page to the clipboard in the Json data serialization format."));
-    ca->setProperty("copy_as", TrafficTab::CLIPBOARD_JSON);
-    connect(ca, &QAction::triggered, this, &TrafficTab::clipboardAction);
+    TrafficTree * tree = qobject_cast<TrafficTree *>(currentWidget());
+    if ( ! tree)
+        return nullptr;
 
-    copy_menu->addSeparator();
-    ca = copy_menu->addAction(tr("Save data as raw"));
-    ca->setToolTip(tr("Disable data formatting for export/clipboard and save as raw data"));
-    ca->setCheckable(true);
-    ca->setChecked(_exportRole == ATapDataModel::UNFORMATTED_DISPLAYDATA);
-    connect(ca, &QAction::triggered, this, &TrafficTab::toggleSaveRaw);
-
-    return copy_menu;
-}
-
-void TrafficTab::toggleSaveRaw()
-{
-    if (_exportRole == ATapDataModel::UNFORMATTED_DISPLAYDATA)
-        _exportRole = Qt::DisplayRole;
-    else
-        _exportRole = ATapDataModel::UNFORMATTED_DISPLAYDATA;
-}
-
-void TrafficTab::clipboardAction()
-{
-    QAction * ca = qobject_cast<QAction *>(sender());
-    if (ca && ca->property("copy_as").isValid())
-        copyToClipboard((eTrafficTabClipboard)ca->property("copy_as").toInt());
-}
-
-void TrafficTab::copyToClipboard(eTrafficTabClipboard type, int tabIdx)
-{
-    int idx = tabIdx < 0 || tabIdx >= count() ? currentIndex() : tabIdx;
-
-    QSortFilterProxyModel * model = nullptr;
-    if (qobject_cast<QTreeView *>(widget(idx))) {
-        QTreeView * tree = qobject_cast<QTreeView *>(widget(idx));
-        if (qobject_cast<QSortFilterProxyModel *>(tree->model())) {
-            model = qobject_cast<QSortFilterProxyModel *>(tree->model());
-        }
-    }
-    if (!model)
-        return;
-
-    QString clipText;
-    QTextStream stream(&clipText, QIODevice::Text);
-
-    if (type == CLIPBOARD_CSV) {
-        for (int row = 0; row < model->rowCount(); row++) {
-            QStringList rdsl;
-            for (int col = 0; col < model->columnCount(); col++) {
-                QModelIndex idx = model->index(row, col);
-                QVariant v = model->data(idx, _exportRole);
-                if (!v.isValid()) {
-                    rdsl << "\"\"";
-                } else if (v.userType() == QMetaType::QString) {
-                    rdsl << QString("\"%1\"").arg(v.toString());
-                } else {
-                    rdsl << v.toString();
-                }
-            }
-            stream << rdsl.join(",") << '\n';
-        }
-    } else if (type == CLIPBOARD_YAML) {
-        stream << "---" << '\n';
-        for (int row = 0; row < model->rowCount(); row++) {
-            stream << "-" << '\n';
-            for (int col = 0; col < model->columnCount(); col++) {
-                QModelIndex idx = model->index(row, col);
-                QVariant v = model->data(idx, _exportRole);
-                stream << " - " << v.toString() << '\n';
-            }
-        }
-    } else if (type == CLIPBOARD_JSON) {
-        QMap<int, QString> headers;
-        for (int cnt = 0; cnt < model->columnCount(); cnt++)
-            headers.insert(cnt, model->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString());
-
-        QJsonArray records;
-
-        for (int row = 0; row < model->rowCount(); row++) {
-            QJsonObject rowData;
-            foreach(int col, headers.keys()) {
-                QModelIndex idx = model->index(row, col);
-                rowData.insert(headers[col], model->data(idx, _exportRole).toString());
-            }
-            records.push_back(rowData);
-        }
-
-        QJsonDocument json;
-        json.setArray(records);
-        stream << json.toJson();
-    }
-
-    mainApp->clipboard()->setText(stream.readAll());
+    return tree->createCopyMenu(parent);
 }
 
 #ifdef HAVE_MAXMINDDB
@@ -790,7 +578,7 @@ QUrl TrafficTab::createGeoIPMap(bool json_only, int tabIdx)
 {
     int tab = tabIdx == -1 || tabIdx >= count() ? currentIndex() : tabIdx;
     ATapDataModel * dataModel = modelForTabIndex(tab);
-    if (! dataModel || ! hasGeoIPData(tabIdx)) {
+    if (! (dataModel && dataModel->hasGeoIPData())) {
         QMessageBox::warning(this, tr("Map file error"), tr("No endpoints available to map"));
         return QUrl();
     }
