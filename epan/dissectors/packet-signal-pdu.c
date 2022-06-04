@@ -810,6 +810,18 @@ free_spdu_signal_list_cb(void *r) {
         g_free(rec->filter_string);
         rec->filter_string = NULL;
     }
+    if (rec->data_type) {
+        g_free(rec->data_type);
+        rec->data_type = NULL;
+    }
+    if (rec->scaler) {
+        g_free(rec->scaler);
+        rec->scaler = NULL;
+    }
+    if (rec->offset) {
+        g_free(rec->offset);
+        rec->offset = NULL;
+    }
 }
 
 static void
