@@ -4681,7 +4681,7 @@ add_body_fields(guint32 opcode,
             break;
 
         case SMSG_AUTH_RESPONSE:
-            ptvcursor_add(ptv, hf_woww_result, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_result, 1, ENC_NA);
             // There might more fields depending on the value in login_result.
             // Not implemented currently because they aren't that important.
             break;
@@ -5048,7 +5048,7 @@ proto_register_woww(void)
         },
         { &hf_woww_result,
           { "Result", "woww.result",
-            FT_UINT32, BASE_HEX, VALS(account_result_strings), 0,
+            FT_UINT8, BASE_HEX, VALS(account_result_strings), 0,
             NULL, HFILL }
         },
         { &hf_woww_amount_of_characters,
