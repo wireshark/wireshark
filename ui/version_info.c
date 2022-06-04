@@ -188,12 +188,21 @@ get_compiled_version_info(gather_feature_func gather_compile)
 
 	l = g_list_reverse(l);
 	g_list_foreach(l, feature_to_gstring, str);
+
+#ifdef HAVE_PLUGINS
+	g_string_append(str, ", with binary plugins");
+#else
+	g_string_append(str, ", without binary plugins");
+#endif
+
 #ifdef WS_DISABLE_DEBUG
 	g_string_append(str, ", release build");
 #endif
+
 #ifdef WS_DISABLE_ASSERT
 	g_string_append(str, ", without assertions");
 #endif
+
 	g_string_append(str, ".");
 	end_string(str);
 	free_features(&l);
@@ -453,27 +462,25 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	if (gather_runtime != NULL) {
 		gather_runtime(&l);
 	}
+
+	l = g_list_reverse(l);
+	g_list_foreach(l, feature_to_gstring, str);
+
 	/*
 	 * Display LC_CTYPE as a relevant, portable and sort of representative
 	 * locale configuration without being exceedingly verbose and including
 	 * the whole shebang of categories using LC_ALL.
 	 */
 	if ((lc = setlocale(LC_CTYPE, NULL)) != NULL) {
-		with_feature(&l, "LC_TYPE=%s", lc);
+		g_string_append_printf(str, ", with LC_TYPE=%s", lc);
 	}
+
 #ifdef HAVE_PLUGINS
 	if (g_module_supported()) {
-		with_feature(&l, "binary plugins (%d loaded)", plugins_get_count());
+		g_string_append(str, ", binary plugins supported");
 	}
-	else {
-		without_feature(&l, "binary plugins (not supported by the platform)");
-	}
-#else
-	without_feature(&l, "binary plugins");
 #endif
 
-	l = g_list_reverse(l);
-	g_list_foreach(l, feature_to_gstring, str);
 	g_string_append_c(str, '.');
 	end_string(str);
 	free_features(&l);

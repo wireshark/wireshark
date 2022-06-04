@@ -182,7 +182,7 @@ def features(cmd_tshark, make_env):
         have_gnutls='with GnuTLS' in tshark_v,
         have_pkcs11='and PKCS #11 support' in tshark_v,
         have_brotli='with brotli' in tshark_v,
-        have_plugins='with binary plugins' in tshark_v,
+        have_plugins='binary plugins supported' in tshark_v,
     )
 
 
