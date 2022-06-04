@@ -957,13 +957,12 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
-    if (cap_file_.capFile()->edt == NULL)
-    {
-        QMessageBox::warning(this, tr("Error following stream."), tr("Capture file invalid."));
-        return false;
-    }
-
     if (!use_stream_index) {
+        if (cap_file_.capFile()->edt == NULL)
+        {
+            QMessageBox::warning(this, tr("Error following stream."), tr("Capture file invalid."));
+            return false;
+        }
         is_follower = proto_is_frame_protocol(cap_file_.capFile()->edt->pi.layers, proto_get_protocol_filter_name(get_follow_proto_id(follower_)));
         if (!is_follower) {
             QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a %1 packet selected.").arg
