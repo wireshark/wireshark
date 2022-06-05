@@ -1206,7 +1206,7 @@ The available presentation formats are:
 * menu:Time of Day: 01:02:03.123456[] The absolute time of the day when the packet
   was captured.
 
-* menu:Seconds Since Beginning of Capture: 123.123456[] The time relative to the
+* menu:Seconds Since First Captured Packet: 123.123456[] The time relative to the
   start of the capture file or the first “Time Reference” before this packet
   (see <<ChWorkTimeReferencePacketSection>>).
 
@@ -1249,7 +1249,7 @@ The time references will not be saved permanently and will be lost when you
 close the capture file.
 
 Time referencing will only be useful if the time display format is set to
-“Seconds Since Beginning of Capture”. If one of the other time display formats
+“Seconds Since First Captured Packet”. If one of the other time display formats
 are used, time referencing will have no effect (and will make no sense either).
 
 To work with time references, choose one of the menu:Time Reference[] items in

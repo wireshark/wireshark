@@ -213,7 +213,7 @@ the specific protocol layer (MAC layer for the selected Ethernet endpoints
 page). _Limit to display filter_ will only show conversations matching the
 current display filter. _Absolute start time_ switches the start time column
 between relative (“Rel Start”) and absolute (“Abs Start”) times. Relative start
-times match the “Seconds Since Beginning of Capture” time display format in the
+times match the “Seconds Since First Captured Packet” time display format in the
 packet list and absolute start times match the “Time of Day” display format.
 
 The btn:[Copy] button will copy the list values to the clipboard in CSV

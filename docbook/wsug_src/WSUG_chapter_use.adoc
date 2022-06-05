@@ -411,13 +411,13 @@ image::wsug_graphics/ws-view-menu.png[{screenshot-attrs}]
 |menu:Packet Diagram[]  ||This menu item hides or shows the packet diagram pane. See <<ChUsePacketDiagramPaneSection>>.
 |menu:Time Display Format[Date and Time of Day: 1970-01-01 01:02:03.123456]|| Selecting this tells Wireshark to display the time stamps in date and time of day format, see <<ChWorkTimeFormatsSection>>.
 
-The fields “Time of Day”, “Date and Time of Day”, “Seconds Since Beginning of
-Capture”, “Seconds Since Previous Captured Packet” and “Seconds Since Previous
-Displayed Packet” are mutually exclusive.
+The fields “Time of Day”, “Date and Time of Day”, “Seconds Since First
+Captured Packet”, “Seconds Since Previous Captured Packet” and “Seconds
+Since Previous Displayed Packet” are mutually exclusive.
 
 |menu:Time Display Format[Time of Day: 01:02:03.123456]||Selecting this tells Wireshark to display time stamps in time of day format, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[Seconds Since Epoch (1970-01-01): 1234567890.123456]||Selecting this tells Wireshark to display time stamps in seconds since 1970-01-01 00:00:00, see <<ChWorkTimeFormatsSection>>.
-|menu:Time Display Format[Seconds Since Beginning of Capture: 123.123456]||Selecting this tells Wireshark to display time stamps in seconds since beginning of capture format, see <<ChWorkTimeFormatsSection>>.
+|menu:Time Display Format[Seconds Since First Captured Packet: 123.123456]||Selecting this tells Wireshark to display time stamps in seconds since first captured packet format, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[Seconds Since Previous Captured Packet: 1.123456]||Selecting this tells Wireshark to display time stamps in seconds since previous captured packet format, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[Seconds Since Previous Displayed Packet: 1.123456]||Selecting this tells Wireshark to display time stamps in seconds since previous displayed packet format, see <<ChWorkTimeFormatsSection>>.
 |menu:Time Display Format[Automatic (File Format Precision)]||Selecting this tells Wireshark to display time stamps with the precision given by the capture file format used, see <<ChWorkTimeFormatsSection>>.

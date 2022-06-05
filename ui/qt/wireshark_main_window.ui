@@ -296,7 +296,7 @@
      <addaction name="actionViewTimeDisplayFormatDateYDOYandTimeOfDay"/>
      <addaction name="actionViewTimeDisplayFormatTimeOfDay"/>
      <addaction name="actionViewTimeDisplayFormatSecondsSinceEpoch"/>
-     <addaction name="actionViewTimeDisplayFormatSecondsSinceBeginningOfCapture"/>
+     <addaction name="actionViewTimeDisplayFormatSecondsSinceFirstCapturedPacket"/>
      <addaction name="actionViewTimeDisplayFormatSecondsSincePreviousCapturedPacket"/>
      <addaction name="actionViewTimeDisplayFormatSecondsSincePreviousDisplayedPacket"/>
      <addaction name="actionViewTimeDisplayFormatUTCDateYMDandTimeOfDay"/>
@@ -2301,12 +2301,12 @@
     <string notr="true">Ctrl+Alt+3</string>
    </property>
   </action>
-  <action name="actionViewTimeDisplayFormatSecondsSinceBeginningOfCapture">
+  <action name="actionViewTimeDisplayFormatSecondsSinceFirstCapturedPacket">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Seconds Since Beginning of Capture</string>
+    <string>Seconds Since First Captured Packet</string>
    </property>
    <property name="toolTip">
     <string>Show packet times as the date and time of day.</string>
