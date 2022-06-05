@@ -1808,7 +1808,70 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>ConversationDataModel</name>
+    <message>
+        <source>Address A</source>
+        <translation type="unfinished">Adres A</translation>
+    </message>
+    <message>
+        <source>Port A</source>
+        <translation type="unfinished">Bağlantı noktası A</translation>
+    </message>
+    <message>
+        <source>Address B</source>
+        <translation type="unfinished">Adres B</translation>
+    </message>
+    <message>
+        <source>Port B</source>
+        <translation type="unfinished">Bağlantı noktası B</translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished">Paketler</translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished">Bayt</translation>
+    </message>
+    <message>
+        <source>Packets A </source>
+        <translation type="unfinished">Paketler A</translation>
+    </message>
+    <message>
+        <source>Bytes A </source>
+        <translation type="unfinished">Bayt A</translation>
+    </message>
+    <message>
+        <source>Packets B </source>
+        <translation type="unfinished">Paketler B</translation>
+    </message>
+    <message>
+        <source>Abs Start</source>
+        <translation type="unfinished">Abs Başlangıç</translation>
+    </message>
+    <message>
+        <source>Rel Start</source>
+        <translation type="unfinished">Rel Başlangıç</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Süre</translation>
+    </message>
+    <message>
+        <source>Bits/s A </source>
+        <translation type="unfinished">Bit/s A </translation>
+    </message>
+    <message>
+        <source>Bits/s B </source>
+        <translation type="unfinished">Bit/s B </translation>
+    </message>
+</context>
+<context>
     <name>ConversationDialog</name>
+    <message>
+        <source>Conversation</source>
+        <translation type="unfinished">Konuşma</translation>
+    </message>
     <message>
         <source>Follow Stream…</source>
         <translation>Akışı takip edin…</translation>
@@ -1841,71 +1904,71 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ConversationTreeWidget</name>
     <message>
         <source>Connection A</source>
-        <translation>Bağlantı A</translation>
+        <translation type="vanished">Bağlantı A</translation>
     </message>
     <message>
         <source>Connection B</source>
-        <translation>Bağlantı B</translation>
+        <translation type="vanished">Bağlantı B</translation>
     </message>
     <message>
         <source>Resize all columns to content</source>
-        <translation>Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
+        <translation type="vanished">Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
     </message>
     <message>
         <source>Address A</source>
-        <translation>Adres A</translation>
+        <translation type="vanished">Adres A</translation>
     </message>
     <message>
         <source>Port A</source>
-        <translation>Bağlantı noktası A</translation>
+        <translation type="vanished">Bağlantı noktası A</translation>
     </message>
     <message>
         <source>Address B</source>
-        <translation>Adres B</translation>
+        <translation type="vanished">Adres B</translation>
     </message>
     <message>
         <source>Port B</source>
-        <translation>Bağlantı noktası B</translation>
+        <translation type="vanished">Bağlantı noktası B</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paketler</translation>
+        <translation type="vanished">Paketler</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bayt</translation>
+        <translation type="vanished">Bayt</translation>
     </message>
     <message>
         <source>Packets A </source>
-        <translation>Paketler A</translation>
+        <translation type="vanished">Paketler A</translation>
     </message>
     <message>
         <source>Bytes A </source>
-        <translation>Bayt A</translation>
+        <translation type="vanished">Bayt A</translation>
     </message>
     <message>
         <source>Packets B </source>
-        <translation>Paketler B</translation>
+        <translation type="vanished">Paketler B</translation>
     </message>
     <message>
         <source>Rel Start</source>
-        <translation>Rel Başlangıç</translation>
+        <translation type="vanished">Rel Başlangıç</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation>Süre</translation>
+        <translation type="vanished">Süre</translation>
     </message>
     <message>
         <source>Bits/s A </source>
-        <translation>Bit/s A </translation>
+        <translation type="vanished">Bit/s A </translation>
     </message>
     <message>
         <source>Bits/s B </source>
-        <translation>Bit/s B </translation>
+        <translation type="vanished">Bit/s B </translation>
     </message>
     <message>
         <source>Abs Start</source>
-        <translation>Abs Başlangıç</translation>
+        <translation type="vanished">Abs Başlangıç</translation>
     </message>
 </context>
 <context>
@@ -2388,7 +2451,62 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>EndpointDataModel</name>
+    <message>
+        <source>Address</source>
+        <translation type="unfinished">Adres</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished">Paketler</translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished">Bayt</translation>
+    </message>
+    <message>
+        <source>Tx Packets</source>
+        <translation type="unfinished">Tx Paketleri</translation>
+    </message>
+    <message>
+        <source>Tx Bytes</source>
+        <translation type="unfinished">Tx Baytları</translation>
+    </message>
+    <message>
+        <source>Rx Packets</source>
+        <translation type="unfinished">Rx Paketleri</translation>
+    </message>
+    <message>
+        <source>Rx Bytes</source>
+        <translation type="unfinished">Rx Baytları</translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation type="unfinished">Ülke</translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation type="unfinished">Şehir</translation>
+    </message>
+    <message>
+        <source>AS Number</source>
+        <translation type="unfinished">AS Numarası</translation>
+    </message>
+    <message>
+        <source>AS Organization</source>
+        <translation type="unfinished">AS Organizasyonu</translation>
+    </message>
+</context>
+<context>
     <name>EndpointDialog</name>
+    <message>
+        <source>Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Map</source>
         <translation>Harita</translation>
@@ -2411,15 +2529,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Could not open base file %1 for reading: %2</source>
-        <translation>%1 temel dosyası şu okuma için açılamadı: %2</translation>
+        <translation type="vanished">%1 temel dosyası şu okuma için açılamadı: %2</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation>Haritalanacak uç nokta yok</translation>
+        <translation type="vanished">Haritalanacak uç nokta yok</translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation>Geçici dosya oluşturulamıyor</translation>
+        <translation type="vanished">Geçici dosya oluşturulamıyor</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
@@ -2434,59 +2552,59 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>EndpointTreeWidget</name>
     <message>
         <source>Connection</source>
-        <translation>Bağlantı</translation>
+        <translation type="vanished">Bağlantı</translation>
     </message>
     <message>
         <source>Resize all columns to content</source>
-        <translation>Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
+        <translation type="vanished">Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adres</translation>
+        <translation type="vanished">Adres</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Bağlantı noktası</translation>
+        <translation type="vanished">Bağlantı noktası</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>Paketler</translation>
+        <translation type="vanished">Paketler</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bayt</translation>
+        <translation type="vanished">Bayt</translation>
     </message>
     <message>
         <source>Tx Packets</source>
-        <translation>Tx Paketleri</translation>
+        <translation type="vanished">Tx Paketleri</translation>
     </message>
     <message>
         <source>Tx Bytes</source>
-        <translation>Tx Baytları</translation>
+        <translation type="vanished">Tx Baytları</translation>
     </message>
     <message>
         <source>Rx Packets</source>
-        <translation>Rx Paketleri</translation>
+        <translation type="vanished">Rx Paketleri</translation>
     </message>
     <message>
         <source>Rx Bytes</source>
-        <translation>Rx Baytları</translation>
+        <translation type="vanished">Rx Baytları</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Ülke</translation>
+        <translation type="vanished">Ülke</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Şehir</translation>
+        <translation type="vanished">Şehir</translation>
     </message>
     <message>
         <source>AS Number</source>
-        <translation>AS Numarası</translation>
+        <translation type="vanished">AS Numarası</translation>
     </message>
     <message>
         <source>AS Organization</source>
-        <translation>AS Organizasyonu</translation>
+        <translation type="vanished">AS Organizasyonu</translation>
     </message>
 </context>
 <context>
@@ -11823,6 +11941,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>TrafficTab</name>
+    <message>
+        <source>%1 Types</source>
+        <translation type="unfinished">%1 Türler</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished">Harita dosyası hatası</translation>
+    </message>
+    <message>
+        <source>Could not open base file %1 for reading: %2</source>
+        <translation type="unfinished">%1 temel dosyası şu okuma için açılamadı: %2</translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished">Haritalanacak uç nokta yok</translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished">Geçici dosya oluşturulamıyor</translation>
+    </message>
+</context>
+<context>
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11850,11 +11991,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Konuşma türleri ekleyin ve kaldırın.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Konuşma türleri ekleyin ve kaldırın.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%1 Types</source>
-        <translation>%1 Türler</translation>
+        <translation type="vanished">%1 Türler</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11862,23 +12003,66 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>as CSV</source>
-        <translation>CSV olarak</translation>
+        <translation type="vanished">CSV olarak</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation>Bu sayfanın tüm değerlerini CSV (Virgülle Ayrılmış Değerler) formatında panoya kopyalayın.</translation>
+        <translation type="vanished">Bu sayfanın tüm değerlerini CSV (Virgülle Ayrılmış Değerler) formatında panoya kopyalayın.</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation>YAML olarak</translation>
+        <translation type="vanished">YAML olarak</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation>Bu sayfanın tüm değerlerini YAML veri serileştirme biçiminde panoya kopyalayın.</translation>
+        <translation type="vanished">Bu sayfanın tüm değerlerini YAML veri serileştirme biçiminde panoya kopyalayın.</translation>
     </message>
     <message>
         <source>Unknown</source>
         <translation>Bilinmiyor</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTree</name>
+    <message>
+        <source>Resize all columns to content</source>
+        <translation type="unfinished">Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
+    </message>
+    <message>
+        <source>Copy %1 table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished">CSV olarak</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
+        <translation type="unfinished">Bu sayfanın tüm değerlerini CSV (Virgülle Ayrılmış Değerler) formatında panoya kopyalayın.</translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation type="unfinished">YAML olarak</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
+        <translation type="unfinished">Bu sayfanın tüm değerlerini YAML veri serileştirme biçiminde panoya kopyalayın.</translation>
+    </message>
+    <message>
+        <source>as Json</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save data as raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable data formatting for export/clipboard and save as raw data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

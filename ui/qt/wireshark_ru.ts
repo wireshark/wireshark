@@ -1822,49 +1822,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ConversationDialog</name>
-    <message>
-        <source>Follow Stream…</source>
-        <translation>Отслеживание Потока…</translation>
-    </message>
-    <message>
-        <source>Follow a TCP or UDP stream.</source>
-        <translation>Отслеживание потока TCP или UDP.</translation>
-    </message>
-    <message>
-        <source>Graph…</source>
-        <translation>График…</translation>
-    </message>
-    <message>
-        <source>Graph a TCP conversation.</source>
-        <translation>График диалога TCP.</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationHashTablesDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Диалог</translation>
-    </message>
-    <message>
-        <source>Conversation Hash Tables</source>
-        <translation>Хэш-таблицы Диалогов</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationTreeWidget</name>
-    <message>
-        <source>Connection A</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
         <translation type="unfinished"></translation>
@@ -1902,6 +1860,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Abs Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Rel Start</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1917,9 +1879,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>ConversationDialog</name>
     <message>
-        <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <source>Conversation</source>
+        <translation type="unfinished">Диалог</translation>
+    </message>
+    <message>
+        <source>Follow Stream…</source>
+        <translation>Отслеживание Потока…</translation>
+    </message>
+    <message>
+        <source>Follow a TCP or UDP stream.</source>
+        <translation>Отслеживание потока TCP или UDP.</translation>
+    </message>
+    <message>
+        <source>Graph…</source>
+        <translation>График…</translation>
+    </message>
+    <message>
+        <source>Graph a TCP conversation.</source>
+        <translation>График диалога TCP.</translation>
+    </message>
+</context>
+<context>
+    <name>ConversationHashTablesDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Диалог</translation>
+    </message>
+    <message>
+        <source>Conversation Hash Tables</source>
+        <translation>Хэш-таблицы Диалогов</translation>
     </message>
 </context>
 <context>
@@ -2402,58 +2394,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation>Карта</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>Вывести конечные точки IPv4 или IPv6 на карте.</translation>
-    </message>
-    <message>
-        <source>Open in browser</source>
-        <translation>Открыть в браузере</translation>
-    </message>
-    <message>
-        <source>Save As…</source>
-        <translation>Сохранить Как…</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation>Ошибка файла карты</translation>
-    </message>
-    <message>
-        <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation>Нет доступных конечных точек для размещения на карте</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation>Невозможно создать временный файл</translation>
-    </message>
-    <message>
-        <source>Save Endpoints Map</source>
-        <translation>Сохранить Карту Конечных Точек</translation>
-    </message>
-    <message>
-        <source>Failed to save map file %1.</source>
-        <translation>Не удалось сохранить файл карты %1.</translation>
-    </message>
-</context>
-<context>
-    <name>EndpointTreeWidget</name>
-    <message>
-        <source>Connection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
         <translation type="unfinished">Адрес</translation>
@@ -2501,6 +2442,49 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>AS Organization</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Карта</translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation>Вывести конечные точки IPv4 или IPv6 на карте.</translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation>Открыть в браузере</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Сохранить Как…</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation>Ошибка файла карты</translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="vanished">Нет доступных конечных точек для размещения на карте</translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="vanished">Невозможно создать временный файл</translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation>Сохранить Карту Конечных Точек</translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation>Не удалось сохранить файл карты %1.</translation>
     </message>
 </context>
 <context>
@@ -11885,6 +11869,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>TrafficTab</name>
+    <message>
+        <source>%1 Types</source>
+        <translation type="unfinished">%1 Типы</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished">Ошибка файла карты</translation>
+    </message>
+    <message>
+        <source>Could not open base file %1 for reading: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished">Нет доступных конечных точек для размещения на карте</translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished">Невозможно создать временный файл</translation>
+    </message>
+</context>
+<context>
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11912,11 +11919,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Добавить и удалить типы разговоров.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Добавить и удалить типы разговоров.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%1 Types</source>
-        <translation>%1 Типы</translation>
+        <translation type="vanished">%1 Типы</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11924,23 +11931,66 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>as CSV</source>
-        <translation>как CSV</translation>
+        <translation type="vanished">как CSV</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation>Копировать все значения этой страницы в буфер в формате CSV (Comma Separated Values).</translation>
+        <translation type="vanished">Копировать все значения этой страницы в буфер в формате CSV (Comma Separated Values).</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation>как YAML</translation>
+        <translation type="vanished">как YAML</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation>Копировать все значения этой страницы в буфер в формате хранения данных в последовательной форме YAML.</translation>
+        <translation type="vanished">Копировать все значения этой страницы в буфер в формате хранения данных в последовательной форме YAML.</translation>
     </message>
     <message>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTree</name>
+    <message>
+        <source>Resize all columns to content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy %1 table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished">как CSV</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
+        <translation type="unfinished">Копировать все значения этой страницы в буфер в формате CSV (Comma Separated Values).</translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation type="unfinished">как YAML</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
+        <translation type="unfinished">Копировать все значения этой страницы в буфер в формате хранения данных в последовательной форме YAML.</translation>
+    </message>
+    <message>
+        <source>as Json</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save data as raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable data formatting for export/clipboard and save as raw data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

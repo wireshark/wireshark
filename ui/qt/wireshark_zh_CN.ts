@@ -1806,49 +1806,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ConversationDialog</name>
-    <message>
-        <source>Follow Stream…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Follow a TCP or UDP stream.</source>
-        <translation>追踪 TCP 或 UDP 流。</translation>
-    </message>
-    <message>
-        <source>Graph…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Graph a TCP conversation.</source>
-        <translation>绘制 TCP 对话图形。</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationHashTablesDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Conversation Hash Tables</source>
-        <translation>对话哈希表</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationTreeWidget</name>
-    <message>
-        <source>Connection A</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
         <translation type="unfinished"></translation>
@@ -1886,6 +1844,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Abs Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Rel Start</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1901,9 +1863,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>ConversationDialog</name>
     <message>
-        <source>Abs Start</source>
+        <source>Conversation</source>
+        <translation type="unfinished">对话</translation>
+    </message>
+    <message>
+        <source>Follow Stream…</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow a TCP or UDP stream.</source>
+        <translation>追踪 TCP 或 UDP 流。</translation>
+    </message>
+    <message>
+        <source>Graph…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graph a TCP conversation.</source>
+        <translation>绘制 TCP 对话图形。</translation>
+    </message>
+</context>
+<context>
+    <name>ConversationHashTablesDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>对话框</translation>
+    </message>
+    <message>
+        <source>Conversation Hash Tables</source>
+        <translation>对话哈希表</translation>
     </message>
 </context>
 <context>
@@ -2384,58 +2376,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open in browser</source>
-        <translation>在浏览器中打开</translation>
-    </message>
-    <message>
-        <source>Save As…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save Endpoints Map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to save map file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>EndpointTreeWidget</name>
-    <message>
-        <source>Connection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
         <translation type="unfinished">地址</translation>
@@ -2482,6 +2423,41 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>AS Organization</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation>在浏览器中打开</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -11808,6 +11784,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>TrafficTab</name>
+    <message>
+        <source>%1 Types</source>
+        <translation type="unfinished">%1 类型</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not open base file %1 for reading: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11835,11 +11834,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;添加、删除对话类型。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;添加、删除对话类型。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%1 Types</source>
-        <translation>%1 类型</translation>
+        <translation type="vanished">%1 类型</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11847,23 +11846,66 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>as CSV</source>
-        <translation>作为 CSV</translation>
+        <translation type="vanished">作为 CSV</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation>复制此页的所有值到剪贴板，使用 CSV（逗号分隔值）格式。</translation>
+        <translation type="vanished">复制此页的所有值到剪贴板，使用 CSV（逗号分隔值）格式。</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation>作为YAML</translation>
+        <translation type="vanished">作为YAML</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation>复制此页的所有值到剪贴板，使用 YAML 数据串行格式。</translation>
+        <translation type="vanished">复制此页的所有值到剪贴板，使用 YAML 数据串行格式。</translation>
     </message>
     <message>
         <source>Unknown</source>
         <translation>未知</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTree</name>
+    <message>
+        <source>Resize all columns to content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy %1 table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished">作为 CSV</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
+        <translation type="unfinished">复制此页的所有值到剪贴板，使用 CSV（逗号分隔值）格式。</translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation type="unfinished">作为YAML</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
+        <translation type="unfinished">复制此页的所有值到剪贴板，使用 YAML 数据串行格式。</translation>
+    </message>
+    <message>
+        <source>as Json</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save data as raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable data formatting for export/clipboard and save as raw data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

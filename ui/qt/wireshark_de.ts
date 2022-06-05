@@ -1815,49 +1815,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
-    <name>ConversationDialog</name>
-    <message>
-        <source>Follow Stream…</source>
-        <translation>Stream folgen…</translation>
-    </message>
-    <message>
-        <source>Follow a TCP or UDP stream.</source>
-        <translation>TCP oder UDP Stream folgen.</translation>
-    </message>
-    <message>
-        <source>Graph…</source>
-        <translation>Graph…</translation>
-    </message>
-    <message>
-        <source>Graph a TCP conversation.</source>
-        <translation>TCP Verbindung als Graph anzeigen.</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationHashTablesDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Conversation Hash Tables</source>
-        <translation>Verbindungshashtabelle</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationTreeWidget</name>
-    <message>
-        <source>Connection A</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
         <translation type="unfinished"></translation>
@@ -1895,6 +1853,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Abs Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Rel Start</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1910,9 +1872,39 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>ConversationDialog</name>
     <message>
-        <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <source>Conversation</source>
+        <translation type="unfinished">Verbindungen</translation>
+    </message>
+    <message>
+        <source>Follow Stream…</source>
+        <translation>Stream folgen…</translation>
+    </message>
+    <message>
+        <source>Follow a TCP or UDP stream.</source>
+        <translation>TCP oder UDP Stream folgen.</translation>
+    </message>
+    <message>
+        <source>Graph…</source>
+        <translation>Graph…</translation>
+    </message>
+    <message>
+        <source>Graph a TCP conversation.</source>
+        <translation>TCP Verbindung als Graph anzeigen.</translation>
+    </message>
+</context>
+<context>
+    <name>ConversationHashTablesDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Conversation Hash Tables</source>
+        <translation>Verbindungshashtabelle</translation>
     </message>
 </context>
 <context>
@@ -2395,58 +2387,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation>Karte</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>IPv4 und IPv6 Endpunkte auf einer Karte anzeigen.</translation>
-    </message>
-    <message>
-        <source>Open in browser</source>
-        <translation>Im Browser öffnen</translation>
-    </message>
-    <message>
-        <source>Save As…</source>
-        <translation>Speichern als…</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation>Fehler bei der Kartendatei</translation>
-    </message>
-    <message>
-        <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation>Keine Geräte gefunden</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation>Fehler beim Erstellen der temporären Datei</translation>
-    </message>
-    <message>
-        <source>Save Endpoints Map</source>
-        <translation>Endpunktekarte speichern</translation>
-    </message>
-    <message>
-        <source>Failed to save map file %1.</source>
-        <translation>Fehler beim Speichern der Kartendatei %1.</translation>
-    </message>
-</context>
-<context>
-    <name>EndpointTreeWidget</name>
-    <message>
-        <source>Connection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
         <translation type="unfinished">Adresse</translation>
@@ -2494,6 +2435,49 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>AS Organization</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>Karte</translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation>IPv4 und IPv6 Endpunkte auf einer Karte anzeigen.</translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation>Im Browser öffnen</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Speichern als…</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation>Fehler bei der Kartendatei</translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="vanished">Keine Geräte gefunden</translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="vanished">Fehler beim Erstellen der temporären Datei</translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation>Endpunktekarte speichern</translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation>Fehler beim Speichern der Kartendatei %1.</translation>
     </message>
 </context>
 <context>
@@ -11854,6 +11838,29 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
+    <name>TrafficTab</name>
+    <message>
+        <source>%1 Types</source>
+        <translation type="unfinished">%1 Typen</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished">Fehler bei der Kartendatei</translation>
+    </message>
+    <message>
+        <source>Could not open base file %1 for reading: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished">Keine Geräte gefunden</translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished">Fehler beim Erstellen der temporären Datei</translation>
+    </message>
+</context>
+<context>
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11881,11 +11888,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Verbindungstypen hinzufügen oder entfernen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Verbindungstypen hinzufügen oder entfernen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%1 Types</source>
-        <translation>%1 Typen</translation>
+        <translation type="vanished">%1 Typen</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11893,23 +11900,66 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>as CSV</source>
-        <translation>als CSV</translation>
+        <translation type="vanished">als CSV</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation>Alle Werte dieser Seite im CSV-Format (Comma Separated Values) in die Zwischenablage kopieren.</translation>
+        <translation type="vanished">Alle Werte dieser Seite im CSV-Format (Comma Separated Values) in die Zwischenablage kopieren.</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation>als YAML</translation>
+        <translation type="vanished">als YAML</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation>Alle Werte dieser Seite im YAML-Format in die Zwischenablage kopieren.</translation>
+        <translation type="vanished">Alle Werte dieser Seite im YAML-Format in die Zwischenablage kopieren.</translation>
     </message>
     <message>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTree</name>
+    <message>
+        <source>Resize all columns to content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy %1 table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished">als CSV</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
+        <translation type="unfinished">Alle Werte dieser Seite im CSV-Format (Comma Separated Values) in die Zwischenablage kopieren.</translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation type="unfinished">als YAML</translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
+        <translation type="unfinished">Alle Werte dieser Seite im YAML-Format in die Zwischenablage kopieren.</translation>
+    </message>
+    <message>
+        <source>as Json</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save data as raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable data formatting for export/clipboard and save as raw data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14345,12 +14395,12 @@ text-decoration: underline;
     <message>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
-        <translation>Stoppen und beenden &amp;ohne zu speichern</translation>
+        <translation>Stoppen und beenden &amp;ohne zu Speichern</translation>
     </message>
     <message>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
-        <translation>&amp;Ohne speichern beenden</translation>
+        <translation>&amp;Ohne Speichern beenden</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>

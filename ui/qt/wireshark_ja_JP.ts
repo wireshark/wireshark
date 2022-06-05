@@ -1807,49 +1807,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>ConversationDialog</name>
-    <message>
-        <source>Follow Stream…</source>
-        <translation>ストリームを追跡…</translation>
-    </message>
-    <message>
-        <source>Follow a TCP or UDP stream.</source>
-        <translation>TCPかUDPストリームを追跡</translation>
-    </message>
-    <message>
-        <source>Graph…</source>
-        <translation>グラフ…</translation>
-    </message>
-    <message>
-        <source>Graph a TCP conversation.</source>
-        <translation>TCP対話をグラフ化します</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationHashTablesDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Conversation Hash Tables</source>
-        <translation>対話ハッシュ表</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationTreeWidget</name>
-    <message>
-        <source>Connection A</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
         <translation type="unfinished"></translation>
@@ -1887,6 +1845,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Abs Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Rel Start</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1902,9 +1864,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>ConversationDialog</name>
     <message>
-        <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <source>Conversation</source>
+        <translation type="unfinished">対話</translation>
+    </message>
+    <message>
+        <source>Follow Stream…</source>
+        <translation>ストリームを追跡…</translation>
+    </message>
+    <message>
+        <source>Follow a TCP or UDP stream.</source>
+        <translation>TCPかUDPストリームを追跡</translation>
+    </message>
+    <message>
+        <source>Graph…</source>
+        <translation>グラフ…</translation>
+    </message>
+    <message>
+        <source>Graph a TCP conversation.</source>
+        <translation>TCP対話をグラフ化します</translation>
+    </message>
+</context>
+<context>
+    <name>ConversationHashTablesDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>ダイアログ</translation>
+    </message>
+    <message>
+        <source>Conversation Hash Tables</source>
+        <translation>対話ハッシュ表</translation>
     </message>
 </context>
 <context>
@@ -2387,58 +2379,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>EndpointDialog</name>
-    <message>
-        <source>Map</source>
-        <translation>地図</translation>
-    </message>
-    <message>
-        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation>IPv4またはIPv6の端末を地図に描画</translation>
-    </message>
-    <message>
-        <source>Open in browser</source>
-        <translation>ブラウザで開く</translation>
-    </message>
-    <message>
-        <source>Save As…</source>
-        <translation>...として保存</translation>
-    </message>
-    <message>
-        <source>Map file error</source>
-        <translation>地図ファイルエラー</translation>
-    </message>
-    <message>
-        <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation>地図に利用できる終端がありません</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation>一時ファイルを作成できません</translation>
-    </message>
-    <message>
-        <source>Save Endpoints Map</source>
-        <translation>端末の地図を保存します</translation>
-    </message>
-    <message>
-        <source>Failed to save map file %1.</source>
-        <translation>地図ファイル %1 を保存できませんでした</translation>
-    </message>
-</context>
-<context>
-    <name>EndpointTreeWidget</name>
-    <message>
-        <source>Connection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
         <translation type="unfinished">アドレス</translation>
@@ -2486,6 +2427,49 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>AS Organization</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map</source>
+        <translation>地図</translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation>IPv4またはIPv6の端末を地図に描画</translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation>ブラウザで開く</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>...として保存</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation>地図ファイルエラー</translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="vanished">地図に利用できる終端がありません</translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="vanished">一時ファイルを作成できません</translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation>端末の地図を保存します</translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation>地図ファイル %1 を保存できませんでした</translation>
     </message>
 </context>
 <context>
@@ -11826,6 +11810,29 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>TrafficTab</name>
+    <message>
+        <source>%1 Types</source>
+        <translation type="unfinished">%1 タイプ</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished">地図ファイルエラー</translation>
+    </message>
+    <message>
+        <source>Could not open base file %1 for reading: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished">地図に利用できる終端がありません</translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished">一時ファイルを作成できません</translation>
+    </message>
+</context>
+<context>
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11853,11 +11860,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;対話タイプを追加または削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;対話タイプを追加または削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%1 Types</source>
-        <translation>%1 タイプ</translation>
+        <translation type="vanished">%1 タイプ</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11865,23 +11872,66 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>as CSV</source>
-        <translation>CSV形式として</translation>
+        <translation type="vanished">CSV形式として</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation>このページのすべての値をクリップボードにCSV(カンマ区切りテキスト)形式でコピー</translation>
+        <translation type="vanished">このページのすべての値をクリップボードにCSV(カンマ区切りテキスト)形式でコピー</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation>YAML形式として</translation>
+        <translation type="vanished">YAML形式として</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation>このページのすべての値をクリップボードにYAMLデータシリアル化形式でコピーします</translation>
+        <translation type="vanished">このページのすべての値をクリップボードにYAMLデータシリアル化形式でコピーします</translation>
     </message>
     <message>
         <source>Unknown</source>
         <translation>不明</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTree</name>
+    <message>
+        <source>Resize all columns to content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy %1 table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
+        <translation type="unfinished">このページのすべての値をクリップボードにCSV(カンマ区切りテキスト)形式でコピー</translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
+        <translation type="unfinished">このページのすべての値をクリップボードにYAMLデータシリアル化形式でコピーします</translation>
+    </message>
+    <message>
+        <source>as Json</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save data as raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable data formatting for export/clipboard and save as raw data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

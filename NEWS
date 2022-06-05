@@ -29,6 +29,19 @@ Wireshark 3.7.1 Release Notes
       most cases the API should be compatible and the conversion just
       requires a module name change.
 
+    • The Conversation and Endpoint dialogs have been redesigned with
+      the following improvements:
+
+       • The context menu now includes the option to resize all columns,
+      as well as copying elements
+
+       • Data may be exported as Json
+
+       • Tabs may be detached and reattached from the dialog
+
+       • Adding/Removing tabs will keep them in the same order all the
+      time
+
   Many improvements have been made. See the “New and Updated Features”
   section below for more details.
 
@@ -285,7 +298,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-05-22 23:30:37 UTC
+  Last updated 2022-06-01 14:28:13 UTC
 
  References
 
