@@ -1192,7 +1192,7 @@ nvme_add_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 off, guint32 frame_num)
     wmem_tree_key_t cmd_key[2];
 
     nvme_build_done_frame_key(cmd_key, NULL, &frame_num);
-    wmem_tree_insert32_array(q_ctx->data_offsets, cmd_key, (void*)(guint64)off);
+    wmem_tree_insert32_array(q_ctx->data_offsets, cmd_key, GUINT_TO_POINTER(off));
 }
 
 guint32
@@ -1201,7 +1201,7 @@ nvme_lookup_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 frame_num)
     wmem_tree_key_t cmd_key[2];
 
     nvme_build_done_frame_key(cmd_key, NULL, &frame_num);
-    return (guint32)(guint64)wmem_tree_lookup32_array(q_ctx->data_offsets, cmd_key);
+    return GPOINTER_TO_UINT(wmem_tree_lookup32_array(q_ctx->data_offsets, cmd_key));
 }
 
 void
