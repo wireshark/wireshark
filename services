@@ -4386,6 +4386,7 @@ eenet		5234/tcp/udp	# EEnet communications
 galaxy-network	5235/tcp/udp	# Galaxy Network Service
 padl2sim	5236/tcp/udp
 mnet-discovery	5237/tcp/udp	# m-net discovery
+attune		5242/tcp	# ATTUne API
 downtools	5245/tcp	# DownTools Control Protocol
 downtools-disc	5245/udp	# DownTools Discovery Protocol
 capwap-control	5246/udp	# CAPWAP Control Protocol
@@ -4644,6 +4645,13 @@ ppsuitemsg	5863/tcp/udp	# PlanetPress Suite Messeng
 diameters	5868/tcp/sctp	# Diameter over TLS/TCP
 jute		5883/tcp	# Javascript Unit Test Environment
 rfb		5900/tcp/udp	# Remote Framebuffer
+ff-ice		5903/tcp/udp/sctp	# Flight & Flow Info for Collaborative Env
+ag-swim		5904/tcp/udp/sctp	# Air-Ground SWIM
+asmgcs		5905/tcp/udp/sctp	# Adv Surface Mvmnt and Guidance Cont Sys
+rpas-c2		5906/tcp/udp/sctp	# Remotely Piloted Vehicle C&C
+dsd		5907/tcp/udp/sctp	# Distress and Safety Data App
+ipsma		5908/tcp/udp/sctp	# IPS Management Application
+agma		5909/tcp/udp/sctp	# Air-ground media advisory
 cm		5910/tcp/udp/sctp	# Context Management
 cpdlc		5911/tcp/udp/sctp	# Controller Pilot Data Link Communication
 fis		5912/tcp/udp/sctp	# Flight Information Services
