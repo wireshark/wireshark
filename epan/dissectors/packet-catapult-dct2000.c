@@ -3009,12 +3009,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* e.g. NRPDCP: RRCPRIM:ueId=   1;setThreadAuthKey: RRC id=1 alg 2 key: 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 */
                 if (strstr(string, "setThreadAuthKey:")) {
                     guint ue_id, id, alg;
-                    if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u; RRC setThreadAuthKey: id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
+                    if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadAuthKey: RRC id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
                         char *key = g_strdup(strstr(string, "key: ")+5);
                         set_pdcp_nr_rrc_integrity_key(ue_id, key, pinfo->num);
                         g_free(key);
                     }
-                    else if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u; UP setThreadAuthKey: id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
+                    else if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadAuthKey: UP id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
                         char *key = g_strdup(strstr(string, "key: ")+5);
                         set_pdcp_nr_up_integrity_key(ue_id, key, pinfo->num);
                         g_free(key);
@@ -3022,12 +3022,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 }
                 else if (strstr(string, "setThreadCryptKey:")) {
                     guint ue_id, id, alg;
-                    if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u; RRC setThreadCryptKey: id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
+                    if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadCryptKey: RRC id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
                         char *key = g_strdup(strstr(string, "key: ")+5);
                         set_pdcp_nr_rrc_ciphering_key(ue_id, key, pinfo->num);
                         g_free(key);
                     }
-                    else if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u; UP setThreadCryptKey: id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
+                    else if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadCryptKey: UP id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
                         char *key = g_strdup(strstr(string, "key: ")+5);
                         set_pdcp_nr_up_ciphering_key(ue_id, key, pinfo->num);
                         g_free(key);
