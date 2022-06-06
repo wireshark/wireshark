@@ -375,8 +375,6 @@ WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtables(void);
  */
 WS_DLL_PUBLIC endpoint_type conversation_pt_to_endpoint_type(port_type pt);
 
-WS_DLL_PUBLIC guint conversation_hash_exact(gconstpointer v);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

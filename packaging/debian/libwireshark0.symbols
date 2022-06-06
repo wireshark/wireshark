@@ -173,9 +173,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  conversation_filter_from_packet@Base 2.2.8
  conversation_get_dissector@Base 2.0.0
  conversation_get_endpoint_by_id@Base 2.5.0
- conversation_get_html_hash@Base 2.5.0
  conversation_get_proto_data@Base 1.9.1
- conversation_hash_exact@Base 2.5.0
  conversation_key_addr1@Base 2.5.0
  conversation_key_addr2@Base 2.5.0
  conversation_key_port1@Base 2.5.0
@@ -803,10 +801,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_conversation_address@Base 1.99.0
  get_conversation_by_proto_id@Base 1.99.0
  get_conversation_filter@Base 1.99.0
- get_conversation_hashtable_exact@Base 1.12.0~rc1
- get_conversation_hashtable_no_addr2@Base 1.12.0~rc1
- get_conversation_hashtable_no_addr2_or_port2@Base 1.12.0~rc1
- get_conversation_hashtable_no_port2@Base 1.12.0~rc1
  get_conversation_hashtables@Base 3.7.1
  get_conversation_hide_ports@Base 1.99.0
  get_conversation_packet_func@Base 1.99.0
