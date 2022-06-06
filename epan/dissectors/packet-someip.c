@@ -49,6 +49,7 @@
 #define SOMEIP_NAME                             "SOME/IP"
 #define SOMEIP_NAME_LONG                        "SOME/IP Protocol"
 #define SOMEIP_NAME_FILTER                      "someip"
+#define SOMEIP_NAME_PREFIX                      "someip.payload"
 
 #define SOMEIP_NAME_LONG_MULTIPLE               "SOME/IP Protocol (Multiple Payloads)"
 #define SOMEIP_NAME_LONG_BROKEN                 "SOME/IP: Incomplete headers!"
@@ -893,11 +894,6 @@ someip_payload_free_key(gpointer key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
-static void
-someip_payload_free_generic_data(gpointer data) {
-    wmem_free(wmem_epan_scope(), (void *)data);
-}
-
 static gint64
 someip_parameter_key(guint16 serviceid, guint16 methodid, guint8 version, guint8 msgtype) {
     gint64 tmp1;
@@ -1081,7 +1077,27 @@ static void
 free_someip_parameter_list_cb(void *r) {
     someip_parameter_list_uat_t *rec = (someip_parameter_list_uat_t *)r;
 
-    if (rec->name) g_free(rec->name);
+    if (rec->name) {
+        g_free(rec->name);
+        rec->name = NULL;
+    }
+
+    if (rec->filter_string) {
+        g_free(rec->filter_string);
+        rec->filter_string = NULL;
+    }
+}
+
+static void
+free_someip_parameter_list(gpointer data) {
+    someip_parameter_list_t *list = (someip_parameter_list_t *)data;
+
+    if (list->items != NULL) {
+        wmem_free(wmem_epan_scope(), (void *)(list->items));
+        list->items = NULL;
+    }
+
+    wmem_free(wmem_epan_scope(), (void *)data);
 }
 
 static void
@@ -1113,9 +1129,7 @@ post_update_someip_parameter_list_read_in_data(someip_parameter_list_uat_t *data
             list->wtlv_encoding = data[i].wtlv_encoding;
             list->num_of_items  = data[i].num_of_params;
 
-            items = (someip_payload_parameter_item_t *)wmem_alloc_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_params);
-            memset(items, 0, sizeof(someip_payload_parameter_item_t) * data[i].num_of_params);
-
+            items = (someip_payload_parameter_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_params);
             list->items = items;
 
             /* create new entry ... */
@@ -1147,7 +1161,7 @@ post_update_someip_parameter_list_cb(void) {
         data_someip_parameter_list = NULL;
     }
 
-    data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &someip_payload_free_generic_data);
+    data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_list);
     post_update_someip_parameter_list_read_in_data(someip_parameter_list, someip_parameter_list_num, data_someip_parameter_list);
     update_dynamic_hf_entries_someip_parameter_list();
 }
@@ -1213,8 +1227,27 @@ update_someip_parameter_enum(void *r, char **err) {
 static void
 free_someip_parameter_enum_cb(void*r) {
     someip_parameter_enum_uat_t *rec = (someip_parameter_enum_uat_t *)r;
-    if (rec->name) g_free(rec->name);
-    if (rec->value_name) g_free(rec->value_name);
+    if (rec->name) {
+        g_free(rec->name);
+        rec->name = NULL;
+    }
+
+    if (rec->value_name) {
+        g_free(rec->value_name);
+        rec->value_name = NULL;
+    }
+}
+
+static void
+free_someip_parameter_enum(gpointer data) {
+    someip_payload_parameter_enum_t *list = (someip_payload_parameter_enum_t *)data;
+
+    if (list->items != NULL) {
+        wmem_free(wmem_epan_scope(), (void *)(list->items));
+        list->items = NULL;
+    }
+
+    wmem_free(wmem_epan_scope(), (void *)data);
 }
 
 static void
@@ -1245,8 +1278,7 @@ post_update_someip_parameter_enum_read_in_data(someip_parameter_enum_uat_t *data
             list->id_ref       = data[i].id_ref;
             list->num_of_items = data[i].num_of_items;
 
-            list->items = (someip_payload_parameter_enum_item_t *)wmem_alloc_array(wmem_epan_scope(), someip_payload_parameter_enum_item_t, list->num_of_items);
-            memset(list->items, 0, sizeof(someip_payload_parameter_enum_item_t) * list->num_of_items);
+            list->items = (someip_payload_parameter_enum_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_enum_item_t, list->num_of_items);
 
             /* create new entry ... */
             g_hash_table_insert(ht, key, list);
@@ -1281,7 +1313,7 @@ post_update_someip_parameter_enum_cb(void) {
         data_someip_parameter_enums = NULL;
     }
 
-    data_someip_parameter_enums = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &someip_payload_free_generic_data);
+    data_someip_parameter_enums = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_enum);
     post_update_someip_parameter_enum_read_in_data(someip_parameter_enums, someip_parameter_enums_num, data_someip_parameter_enums);
 }
 
@@ -1361,6 +1393,22 @@ free_someip_parameter_array_cb(void*r) {
     someip_parameter_array_uat_t *rec = (someip_parameter_array_uat_t *)r;
 
     if (rec->name) g_free(rec->name);
+    rec->name = NULL;
+
+    if (rec->filter_string) g_free(rec->filter_string);
+    rec->filter_string = NULL;
+}
+
+static void
+free_someip_parameter_array(gpointer data) {
+    someip_parameter_array_t *list = (someip_parameter_array_t *)data;
+
+    if (list->dims != NULL) {
+        wmem_free(wmem_epan_scope(), (void *)(list->dims));
+        list->dims = NULL;
+    }
+
+    wmem_free(wmem_epan_scope(), (void *)data);
 }
 
 static void
@@ -1391,9 +1439,7 @@ post_update_someip_parameter_array_read_in_data(someip_parameter_array_uat_t *da
             list->num_of_dims   = data[i].num_of_dims;
             list->filter_string = data[i].filter_string;
 
-            items = (someip_parameter_array_dim_t *)wmem_alloc_array(wmem_epan_scope(), someip_parameter_array_dim_t, data[i].num_of_dims);
-            memset(items, 0, sizeof(someip_parameter_array_dim_t) * data[i].num_of_dims);
-
+            items = (someip_parameter_array_dim_t *)wmem_alloc0_array(wmem_epan_scope(), someip_parameter_array_dim_t, data[i].num_of_dims);
             list->dims = items;
 
             /* create new entry ... */
@@ -1422,7 +1468,7 @@ post_update_someip_parameter_array_cb(void) {
         data_someip_parameter_arrays = NULL;
     }
 
-    data_someip_parameter_arrays = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &someip_payload_free_generic_data);
+    data_someip_parameter_arrays = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_array);
     post_update_someip_parameter_array_read_in_data(someip_parameter_arrays, someip_parameter_arrays_num, data_someip_parameter_arrays);
     update_dynamic_hf_entries_someip_parameter_arrays();
 }
@@ -1513,11 +1559,29 @@ update_someip_parameter_struct(void *r, char **err) {
 }
 
 static void
-free_someip_parameter_struct_cb(void*r) {
+free_someip_parameter_struct_cb(void *r) {
     someip_parameter_struct_uat_t *rec = (someip_parameter_struct_uat_t *)r;
 
     if (rec->struct_name) g_free(rec->struct_name);
+    rec->struct_name = NULL;
+
     if (rec->name) g_free(rec->name);
+    rec->name = NULL;
+
+    if (rec->filter_string) g_free(rec->filter_string);
+    rec->filter_string = NULL;
+}
+
+static void
+free_someip_parameter_struct(gpointer data) {
+    someip_payload_parameter_struct_t *list = (someip_payload_parameter_struct_t *)data;
+
+    if (list->items != NULL) {
+        wmem_free(wmem_epan_scope(), (void *)(list->items));
+        list->items = NULL;
+    }
+
+    wmem_free(wmem_epan_scope(), (void *)data);
 }
 
 static void
@@ -1538,7 +1602,6 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
 
         list = (someip_payload_parameter_struct_t *)g_hash_table_lookup(ht, key);
         if (list == NULL) {
-
             list = wmem_new(wmem_epan_scope(), someip_payload_parameter_struct_t);
             INIT_SOMEIP_PAYLOAD_PARAMETER_STRUCT(list)
 
@@ -1549,9 +1612,7 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
             list->wtlv_encoding    = data[i].wtlv_encoding;
             list->num_of_items     = data[i].num_of_items;
 
-            items = (someip_payload_parameter_item_t *)wmem_alloc_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_items);
-            memset(items, 0, sizeof(someip_payload_parameter_item_t) * data[i].num_of_items);
-
+            items = (someip_payload_parameter_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_items);
             list->items = items;
 
             /* create new entry ... */
@@ -1581,7 +1642,7 @@ post_update_someip_parameter_struct_cb(void) {
         data_someip_parameter_structs = NULL;
     }
 
-    data_someip_parameter_structs = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &someip_payload_free_generic_data);
+    data_someip_parameter_structs = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_struct);
     post_update_someip_parameter_struct_read_in_data(someip_parameter_structs, someip_parameter_structs_num, data_someip_parameter_structs);
     update_dynamic_hf_entries_someip_parameter_structs();
 }
@@ -1665,8 +1726,32 @@ static void
 free_someip_parameter_union_cb(void*r) {
     someip_parameter_union_uat_t *rec = (someip_parameter_union_uat_t *)r;
 
-    if (rec->name) g_free(rec->name);
-    if (rec->type_name) g_free(rec->type_name);
+    if (rec->name) {
+        g_free(rec->name);
+        rec->name = NULL;
+    }
+
+    if (rec->type_name) {
+        g_free(rec->type_name);
+        rec->type_name = NULL;
+    }
+
+    if (rec->filter_string) {
+        g_free(rec->filter_string);
+        rec->filter_string = NULL;
+    }
+}
+
+static void
+free_someip_parameter_union(gpointer data) {
+    someip_parameter_union_t *list = (someip_parameter_union_t *)data;
+
+    if (list->items != NULL) {
+        wmem_free(wmem_epan_scope(), (void *)(list->items));
+        list->items = NULL;
+    }
+
+    wmem_free(wmem_epan_scope(), (void *)data);
 }
 
 static void
@@ -1697,8 +1782,7 @@ post_update_someip_parameter_union_read_in_data(someip_parameter_union_uat_t *da
             list->pad_to           = data[i].pad_to;
             list->num_of_items     = data[i].num_of_items;
 
-            list->items = (someip_parameter_union_item_t *)wmem_alloc_array(wmem_epan_scope(), someip_parameter_union_item_t, list->num_of_items);
-            memset(list->items, 0, sizeof(someip_parameter_union_item_t) * list->num_of_items);
+            list->items = (someip_parameter_union_item_t *)wmem_alloc0_array(wmem_epan_scope(), someip_parameter_union_item_t, list->num_of_items);
 
             /* create new entry ... */
             g_hash_table_insert(ht, key, list);
@@ -1735,7 +1819,7 @@ post_update_someip_parameter_union_cb(void) {
         data_someip_parameter_unions = NULL;
     }
 
-    data_someip_parameter_unions = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &someip_payload_free_generic_data);
+    data_someip_parameter_unions = g_hash_table_new_full(g_int64_hash, g_int64_equal, &someip_payload_free_key, &free_someip_parameter_union);
     post_update_someip_parameter_union_read_in_data(someip_parameter_unions, someip_parameter_unions_num, data_someip_parameter_unions);
     update_dynamic_hf_entries_someip_parameter_unions();
 }
@@ -1793,8 +1877,15 @@ static void
 free_someip_parameter_base_type_list_cb(void*r) {
     someip_parameter_base_type_list_uat_t *rec = (someip_parameter_base_type_list_uat_t *)r;
 
-    if (rec->name) g_free(rec->name);
-    if (rec->data_type) g_free(rec->data_type);
+    if (rec->name) {
+        g_free(rec->name);
+        rec->name = NULL;
+    }
+
+    if (rec->data_type) {
+        g_free(rec->data_type);
+        rec->data_type = NULL;
+    }
 }
 
 static void
@@ -1892,8 +1983,15 @@ static void
 free_someip_parameter_string_list_cb(void*r) {
     someip_parameter_string_uat_t *rec = (someip_parameter_string_uat_t *)r;
 
-    if (rec->name) g_free(rec->name);
-    if (rec->encoding) g_free(rec->encoding);
+    if (rec->name) {
+        g_free(rec->name);
+        rec->name = NULL;
+    }
+
+    if (rec->encoding) {
+        g_free(rec->encoding);
+        rec->encoding = NULL;
+    }
 }
 
 static void
@@ -1962,7 +2060,11 @@ update_someip_parameter_typedef_list(void *r, char **err) {
 static void
 free_someip_parameter_typedef_list_cb(void*r) {
     someip_parameter_typedef_uat_t *rec = (someip_parameter_typedef_uat_t *)r;
-    if (rec->name) g_free(rec->name);
+
+    if (rec->name) {
+        g_free(rec->name);
+        rec->name = NULL;
+    }
 }
 
 static void
@@ -2002,6 +2104,7 @@ deregister_dynamic_hf_data(hf_register_info **hf_array, guint *hf_size) {
             if ((*hf_array)[i].p_id != NULL) {
                 proto_deregister_field(proto_someip, *((*hf_array)[i].p_id));
                 g_free((*hf_array)[i].p_id);
+                (*hf_array)[i].p_id = NULL;
             }
         }
         proto_add_deregistered_data(*hf_array);
@@ -2120,7 +2223,7 @@ get_param_attributes(guint8 data_type, guint32 id_ref) {
 }
 
 static gint*
-update_dynamic_hf_entry(hf_register_info *hf_array, int pos, guint32 data_type, guint id_ref, char *param_name, char *abbrev) {
+update_dynamic_hf_entry(hf_register_info *hf_array, int pos, guint32 data_type, guint id_ref, char *param_name, char *filter_string) {
     param_return_attributes_t   attribs;
     gint                       *hf_id;
 
@@ -2143,7 +2246,7 @@ update_dynamic_hf_entry(hf_register_info *hf_array, int pos, guint32 data_type, 
         hf_array[pos].hfinfo.name = ws_strdup_printf("%s [%s]", param_name, attribs.base_type_name);
     }
 
-    hf_array[pos].hfinfo.abbrev = abbrev;
+    hf_array[pos].hfinfo.abbrev = ws_strdup_printf("%s.%s", SOMEIP_NAME_PREFIX, filter_string);;
     hf_array[pos].hfinfo.type = attribs.type;
     hf_array[pos].hfinfo.display = attribs.display_base;
 
@@ -2158,54 +2261,14 @@ update_dynamic_param_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
     someip_parameter_list_t    *list = (someip_parameter_list_t *)value;
     guint                       i = 0;
 
-    if (*pos >= dynamic_hf_param_size) {
-        return;
-    }
-
     for (i = 0; i < list->num_of_items ; i++) {
+        if (*pos >= dynamic_hf_param_size) {
+            return;
+        }
+
         someip_payload_parameter_item_t *item = &(list->items[i]);
 
-        gboolean service_name_needs_free = FALSE;
-        gboolean method_name_needs_free  = FALSE;
-
-        guchar c;
-        char *service_name = someip_lookup_service_name(list->service_id);
-        char *method_name = someip_lookup_method_name(list->service_id, list->method_id);
-
-        if (service_name != NULL) {
-            c = proto_check_field_name(service_name);
-            if (c) {
-                service_name = NULL;
-            }
-        }
-
-        if (service_name == NULL) {
-            service_name_needs_free = TRUE;
-            service_name = ws_strdup_printf("0x%04x", list->service_id);
-        }
-
-        if (method_name != NULL) {
-            c = proto_check_field_name(method_name);
-            if (c) {
-                method_name = NULL;
-            }
-        }
-
-        if (method_name == NULL) {
-            method_name_needs_free = TRUE;
-            method_name = ws_strdup_printf("0x%04x", list->method_id);
-        }
-
-        char *abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
-        item->hf_id = update_dynamic_hf_entry(dynamic_hf_param, *pos, item->data_type, item->id_ref, item->name, abbrev);
-
-        if (service_name_needs_free) {
-            g_free(service_name);
-        }
-
-        if (method_name_needs_free) {
-            g_free(method_name);
-        }
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_param, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
 
         if (item->hf_id != NULL) {
             (*pos)++;
@@ -2217,14 +2280,12 @@ static void
 update_dynamic_array_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
     guint32                    *pos = (guint32 *)data;
     someip_parameter_array_t   *item = (someip_parameter_array_t *)value;
-    char                       *abbrev = NULL;
 
     if (*pos >= dynamic_hf_array_size) {
         return;
     }
 
-    abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
-    item->hf_id = update_dynamic_hf_entry(dynamic_hf_array, *pos, item->data_type, item->id_ref, item->name, abbrev);
+    item->hf_id = update_dynamic_hf_entry(dynamic_hf_array, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
 
     if (item->hf_id != NULL) {
         (*pos)++;
@@ -2237,15 +2298,13 @@ update_dynamic_struct_hf_entry(gpointer key _U_, gpointer value, gpointer data) 
     someip_payload_parameter_struct_t  *list = (someip_payload_parameter_struct_t *)value;
     guint                               i = 0;
 
-    if (*pos >= dynamic_hf_struct_size) {
-        return;
-    }
-
     for (i = 0; i < list->num_of_items; i++) {
+        if (*pos >= dynamic_hf_struct_size) {
+            return;
+        }
         someip_payload_parameter_item_t *item = &(list->items[i]);
 
-        char *abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
-        item->hf_id = update_dynamic_hf_entry(dynamic_hf_struct, *pos, item->data_type, item->id_ref, item->name, abbrev);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_struct, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
 
         if (item->hf_id != NULL) {
             (*pos)++;
@@ -2259,15 +2318,14 @@ update_dynamic_union_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
     someip_parameter_union_t   *list = (someip_parameter_union_t *)value;
     guint                       i = 0;
 
-    if (*pos >= dynamic_hf_union_size) {
-        return;
-    }
-
     for (i = 0; i < list->num_of_items; i++) {
+        if (*pos >= dynamic_hf_union_size) {
+            return;
+        }
+
         someip_parameter_union_item_t *item = &(list->items[i]);
 
-        char *abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
-        item->hf_id = update_dynamic_hf_entry(dynamic_hf_union, *pos, item->data_type, item->id_ref, item->name, abbrev);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_union, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
 
         if (item->hf_id != NULL) {
             (*pos)++;
@@ -2307,6 +2365,7 @@ update_dynamic_hf_entries_someip_parameter_structs(void) {
         proto_register_field_array(proto_someip, dynamic_hf_struct, pos);
     }
 }
+
 static void
 update_dynamic_hf_entries_someip_parameter_unions(void) {
     if (data_someip_parameter_unions != NULL) {
