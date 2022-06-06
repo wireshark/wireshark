@@ -638,6 +638,10 @@ add_conversation_table_data_with_conv_id(
         new_conv_item.tx_frames = 0;
         new_conv_item.rx_bytes = 0;
         new_conv_item.tx_bytes = 0;
+        new_conv_item.rx_frames_total = 0;
+        new_conv_item.tx_frames_total = 0;
+        new_conv_item.rx_bytes_total = 0;
+        new_conv_item.tx_bytes_total = 0;
 
         if (ts) {
             memcpy(&new_conv_item.start_time, ts, sizeof(new_conv_item.start_time));
@@ -782,6 +786,10 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
         host.tx_frames=0;
         host.rx_bytes=0;
         host.tx_bytes=0;
+        host.rx_frames_total=0;
+        host.tx_frames_total=0;
+        host.rx_bytes_total=0;
+        host.tx_bytes_total=0;
         host.modified = TRUE;
         host.filtered = TRUE;
 

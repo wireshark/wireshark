@@ -111,10 +111,10 @@ typedef struct _conversation_item_t {
     guint64             rx_bytes;       /**< number of received bytes */
     guint64             tx_bytes;       /**< number of transmitted bytes */
 
-    guint64             rx_frames_total;      /**< number of received packets */
-    guint64             tx_frames_total;      /**< number of transmitted packets */
-    guint64             rx_bytes_total;       /**< number of received bytes */
-    guint64             tx_bytes_total;       /**< number of transmitted bytes */
+    guint64             rx_frames_total;      /**< number of received packets total */
+    guint64             tx_frames_total;      /**< number of transmitted packets total */
+    guint64             rx_bytes_total;       /**< number of received bytes total */
+    guint64             tx_bytes_total;       /**< number of transmitted bytes total */
 
     nstime_t            start_time;     /**< relative start time for the conversation */
     nstime_t            stop_time;      /**< relative stop time for the conversation */
@@ -135,10 +135,10 @@ typedef struct _hostlist_talker_t {
     guint64 rx_bytes;       /**< number of received bytes */
     guint64 tx_bytes;       /**< number of transmitted bytes */
 
-    guint64 rx_frames_total;      /**< number of received packets */
-    guint64 tx_frames_total;      /**< number of transmitted packets */
-    guint64 rx_bytes_total;       /**< number of received bytes */
-    guint64 tx_bytes_total;       /**< number of transmitted bytes */
+    guint64 rx_frames_total;      /**< number of received packets total */
+    guint64 tx_frames_total;      /**< number of transmitted packets total */
+    guint64 rx_bytes_total;       /**< number of received bytes total */
+    guint64 tx_bytes_total;       /**< number of transmitted bytes total */
 
     gboolean modified;      /**< new to redraw the row */
     gboolean filtered;      /**< the entry contains only filtered data */

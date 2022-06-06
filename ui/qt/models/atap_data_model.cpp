@@ -30,10 +30,13 @@
 #include <QWidget>
 #include <QDateTime>
 
+static QString formatString(qlonglong value)
+{
+    return gchar_free_to_qstring(format_size(value, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
+}
+
 ATapDataModel::ATapDataModel(dataModelType type, int protoId, QString filter, QObject *parent):
-    QAbstractListModel(parent),
-    _protoId(protoId),
-    _filter(filter)
+    QAbstractListModel(parent)
 {
     hash_.conv_array = nullptr;
     hash_.hashtable = nullptr;
@@ -43,6 +46,9 @@ ATapDataModel::ATapDataModel(dataModelType type, int protoId, QString filter, QO
     _resolveNames = false;
     _absoluteTime = false;
     _nanoseconds = false;
+
+    _protoId = protoId;
+    _filter = filter;
 
     _minRelStartTime = 0;
     _maxRelStopTime = 0;
@@ -102,8 +108,8 @@ bool ATapDataModel::enableTap()
 
     /* The errorString is ignored. If this is not working, there is nothing really the user may do about
      * it, so the error is only interesting to the developer.*/
-    GString * errorString = register_tap_listener(tap().toUtf8().constData(), hash(), _filter.toUtf8().constData(), 0,
-        &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
+    GString * errorString = register_tap_listener(tap().toUtf8().constData(), hash(), _filter.toUtf8().constData(), 
+        TL_IGNORE_DISPLAY_FILTER, &ATapDataModel::tapReset, conversationPacketHandler(), &ATapDataModel::tapDraw, nullptr);
     if (errorString && errorString->len > 0) {
         _disableTap = true;
         emit tapListenerChanged(false);
@@ -209,7 +215,7 @@ void ATapDataModel::updateData(GArray * newData)
     endResetModel();
 
     if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
-        ((ConversationDataModel *)(this))->updateData();
+        ((ConversationDataModel *)(this))->doDataUpdate();
 }
 
 bool ATapDataModel::resolveNames() const
@@ -273,7 +279,7 @@ void ATapDataModel::setFilter(QString filter)
         return;
 
     _filter = filter;
-    GString * errorString = set_tap_dfilter(&hash_, !filter.isEmpty() ? filter.toUtf8().constData() : nullptr);
+    GString * errorString = set_tap_dfilter(&hash_, !_filter.isEmpty() ? _filter.toUtf8().constData() : nullptr);
     if (errorString && errorString->len > 0) {
         /* If this fails, chances are that the main system failed as well. Silently exiting as the
          * user cannot react to it */
@@ -282,6 +288,11 @@ void ATapDataModel::setFilter(QString filter)
 
     if (errorString)
         g_string_free(errorString, TRUE);
+}
+
+QString ATapDataModel::filter() const
+{
+    return _filter;
 }
 
 ATapDataModel::dataModelType ATapDataModel::modelType() const
@@ -294,6 +305,12 @@ bool ATapDataModel::portsAreHidden() const
     return (get_conversation_hide_ports(registerTable()));
 }
 
+bool ATapDataModel::showTotalColumn() const
+{
+    /* Implemented to ensure future changes may be done more easily */
+    return _filter.length() > 0;
+}
+
 EndpointDataModel::EndpointDataModel(int protoId, QString filter, QObject *parent) :
     ATapDataModel(ATapDataModel::DATAMODEL_ENDPOINT, protoId, filter, parent)
 {}
@@ -303,6 +320,8 @@ int EndpointDataModel::columnCount(const QModelIndex &) const
     int columnMax = ENDP_NUM_COLUMNS;
     if (portsAreHidden())
         columnMax--;
+    if (showTotalColumn())
+        columnMax += 2;
     return columnMax;
 }
 
@@ -314,6 +333,14 @@ QVariant EndpointDataModel::headerData(int section, Qt::Orientation orientation,
     int column = section;
     if (portsAreHidden() && section >= ENDP_COLUMN_PORT)
         column += 1;
+
+    if (showTotalColumn())
+    {
+        if (column == ENDP_COLUMN_PKT_AB || column == ENDP_COLUMN_BYTES_AB)
+            column += 8;
+        else if (column > ENDP_COLUMN_BYTES_AB)
+            column -= 2;
+    }
 
     if (role == Qt::DisplayRole) {
         switch (column) {
@@ -341,6 +368,10 @@ QVariant EndpointDataModel::headerData(int section, Qt::Orientation orientation,
                 return tr("AS Number"); break;
             case 11:
                 return tr("AS Organization"); break;
+            case 12:
+                return tr("Total Packets"); break;
+            case 13:
+                return tr("Percent filtered"); break;
         }
     } else if (role == Qt::TextAlignmentRole) {
         if (section == ENDP_COLUMN_ADDR)
@@ -349,11 +380,6 @@ QVariant EndpointDataModel::headerData(int section, Qt::Orientation orientation,
     }
 
     return QVariant();
-}
-
-static QString formatString(qlonglong value)
-{
-    return gchar_free_to_qstring(format_size(value, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
 }
 
 QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
@@ -378,12 +404,18 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
     QString ipAddress(addr);
 #endif
 
+    int column = idx.column();
+    if (portsAreHidden() && idx.column() >= ENDP_COLUMN_PORT)
+        column += 1;
+
+    if (showTotalColumn()) {
+        if (column == ENDP_COLUMN_PKT_AB || column == ENDP_COLUMN_BYTES_AB)
+            column += 8;
+        else if (column > ENDP_COLUMN_BYTES_AB)
+            column -= 2;
+    }
+
     if (role == Qt::DisplayRole || role == ATapDataModel::UNFORMATTED_DISPLAYDATA) {
-
-        int column = idx.column();
-        if (portsAreHidden() && idx.column() >= ENDP_COLUMN_PORT)
-            column += 1;
-
         switch (column) {
         case ENDP_COLUMN_ADDR: {
             char* addr_str = get_conversation_address(NULL, &item->myaddress, _resolveNames);
@@ -401,7 +433,10 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
                 return quint32(item->port);
             }
         case ENDP_COLUMN_PACKETS:
-            return (qlonglong)(item->tx_frames + item->rx_frames);
+        {
+            qlonglong packets = (qlonglong)(item->tx_frames + item->rx_frames);
+            return packets;
+        }
         case ENDP_COLUMN_BYTES:
             return role == Qt::DisplayRole ? formatString((qlonglong)(item->tx_bytes + item->rx_bytes)) :
                 QVariant((qlonglong)(item->tx_bytes + item->rx_bytes));
@@ -433,6 +468,22 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
                 return QVariant(mmdb_lookup->as_org);
             }
             return QVariant();
+        case 12:
+        {
+            if (showTotalColumn())
+                return (qlonglong)(item->tx_frames_total + item->rx_frames_total);
+            return QVariant();
+        }
+        case 13:
+        {
+            if (showTotalColumn()) {
+                qlonglong totalPackets = (qlonglong)(item->tx_frames_total + item->rx_frames_total);
+                qlonglong packets = (qlonglong)(item->tx_frames + item->rx_frames);
+                double percent = totalPackets == 0 ? 0 : packets * 100 / totalPackets;
+                return QString::number(percent, 'f', 2) + "%";
+            }
+            return QVariant();
+        }
         default:
             return QVariant();
         }
@@ -442,6 +493,8 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         return Qt::AlignRight;
     } else if (role == ATapDataModel::DISPLAY_FILTER) {
         return QString(get_hostlist_filter(item));
+    } else if (role == ATapDataModel::ROW_IS_FILTERED) {
+        return (bool)item->filtered && showTotalColumn();
     }
 #ifdef HAVE_MAXMINDDB
     else if (role == ATapDataModel::GEODATA_AVAILABLE) {
@@ -460,7 +513,7 @@ ConversationDataModel::ConversationDataModel(int protoId, QString filter, QObjec
     ATapDataModel(ATapDataModel::DATAMODEL_CONVERSATION, protoId, filter, parent)
 {}
 
-void ConversationDataModel::updateData()
+void ConversationDataModel::doDataUpdate()
 {
     _minRelStartTime = 0;
     _maxRelStopTime = 0;
@@ -490,6 +543,8 @@ int ConversationDataModel::columnCount(const QModelIndex &) const
     int columnMax = CONV_NUM_COLUMNS;
     if (portsAreHidden())
         columnMax -= 2;
+    if (showTotalColumn())
+        columnMax += 2;
     return columnMax;
 }
 
@@ -505,6 +560,13 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
             column++;
         if (column > CONV_COLUMN_DST_ADDR)
             column++;
+    }
+    if (showTotalColumn())
+    {
+        if (column == CONV_COLUMN_PKT_AB || column == CONV_COLUMN_BYTES_AB)
+            column += 8;
+        else if (column > CONV_COLUMN_BYTES_AB)
+            column -= 2;
     }
 
     if (role == Qt::DisplayRole) {
@@ -537,6 +599,10 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
             return tr("Bits/s A " UTF8_RIGHTWARDS_ARROW " B"); break;
         case 13:
             return tr("Bits/s B " UTF8_RIGHTWARDS_ARROW " A"); break;
+        case 14:
+            return tr("Total Packets"); break;
+        case 15:
+            return tr("Percent filtered"); break;
         }
     } else if (role == Qt::TextAlignmentRole) {
         if (column == CONV_COLUMN_SRC_ADDR || column == CONV_COLUMN_DST_ADDR)
@@ -580,6 +646,12 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         bpsCalculated = true;
     }
 
+    if (showTotalColumn()) {
+        if (column == CONV_COLUMN_PKT_AB || column == CONV_COLUMN_BYTES_AB)
+            column += 8;
+        else if (column > CONV_COLUMN_BYTES_AB)
+            column -= 2;
+    }
     if (role == Qt::DisplayRole || role == ATapDataModel::UNFORMATTED_DISPLAYDATA) {
         switch(column) {
         case CONV_COLUMN_SRC_ADDR:
@@ -651,6 +723,22 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ab) : QVariant((qlonglong)bps_ab)): QVariant();
         case CONV_COLUMN_BPS_BA:
             return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ba) : QVariant((qlonglong)bps_ba)): QVariant();
+        case 14:
+        {
+            if (showTotalColumn())
+                return (qlonglong)(conv_item->tx_frames_total + conv_item->rx_frames_total);
+            return (qlonglong) 0;
+        }
+        case 15:
+        {
+            if (showTotalColumn()) {
+                qlonglong totalPackets = (qlonglong)(conv_item->tx_frames_total + conv_item->rx_frames_total);
+                qlonglong packets = (qlonglong)(conv_item->tx_frames + conv_item->rx_frames);
+                double percent = totalPackets == 0 ? 0 : packets * 100 / totalPackets;
+                return QString::number(percent, 'f', 2) + "%";
+            }
+            return (qlonglong) 0;
+        }
         }
     } else if (role == Qt::ToolTipRole) {
         if (column == CONV_COLUMN_START || column == CONV_COLUMN_DURATION)
@@ -675,6 +763,8 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         return (int)(conv_item->etype);
     } else if (role == ATapDataModel::CONVERSATION_ID) {
         return (int)(conv_item->conv_id);
+    } else if (role == ATapDataModel::ROW_IS_FILTERED) {
+        return (bool)conv_item->filtered && showTotalColumn();
     }
 
     return QVariant();

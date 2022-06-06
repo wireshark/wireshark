@@ -23,6 +23,7 @@
 #include <QFile>
 #include <QUrl>
 #include <QAbstractItemDelegate>
+#include <QSortFilterProxyModel>
 
 /**
  * @brief Callback for creating an ATapDataModel
@@ -61,6 +62,17 @@ private:
 };
 
 Q_DECLARE_METATYPE(TabData)
+
+class TrafficDataFilterProxy : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    TrafficDataFilterProxy(QObject *parent = nullptr);
+
+protected:
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+
+};
 
 /**
  * @brief A QTabWidget class, providing tap information

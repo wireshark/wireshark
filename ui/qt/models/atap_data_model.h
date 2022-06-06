@@ -46,7 +46,8 @@ public:
 #endif
         TIMELINE_DATA,
         ENDPOINT_DATATYPE,
-        CONVERSATION_ID
+        CONVERSATION_ID,
+        ROW_IS_FILTERED
     };
 
     typedef enum {
@@ -105,6 +106,13 @@ public:
      * @param filter the filter for the tap
      */
     void setFilter(QString filter);
+
+    /**
+     * @brief Return a filter set for the model
+     *
+     * @return QString the filter string for the model
+     */
+    QString filter() const;
 
     /**
      * @brief Is the model set to resolve names in address and ports columns
@@ -203,8 +211,8 @@ protected:
     void updateData(GArray * data);
 
     dataModelType _type;
-
     GArray * storage_;
+    QString _filter;
 
     bool _absoluteTime;
     bool _nanoseconds;
@@ -216,9 +224,10 @@ protected:
 
     register_ct_t* registerTable() const;
 
+    bool showTotalColumn() const;
+
 private:
     int _protoId;
-    QString _filter;
 
     QMap<QString, QVariant> _lookUp;
 
@@ -286,7 +295,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
 
-    void updateData();
+    void doDataUpdate();
 
     conv_item_t * itemForRow(int row);
 
