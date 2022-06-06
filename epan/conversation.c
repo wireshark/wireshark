@@ -1135,6 +1135,14 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 {
     conversation_t *conversation;
 
+    if (!addr_a) {
+        addr_a = &null_address_;
+    }
+
+    if (!addr_b) {
+        addr_b = &null_address_;
+    }
+
     DINSTR(gchar *addr_a_str = address_to_str(NULL, addr_a));
     DINSTR(gchar *addr_b_str = address_to_str(NULL, addr_b));
     /*

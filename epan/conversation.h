@@ -167,7 +167,8 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_full(const guint32 
  *
  * The options field is used to specify whether the address 2 value
  * and/or port 2 value are not given and any value is acceptable
- * when searching for this conversation.
+ * when searching for this conversation. Null address values will
+ * be replaced with empty (AT_NONE) addresses.
  *
  * @param setup_frame The first frame in the conversation.
  * @param addr1 The first address in the identifying tuple.
@@ -227,6 +228,8 @@ WS_DLL_PUBLIC conversation_t *find_conversation_full(const guint32 frame_num, co
  *	a pointer to the matched conversation;
  *
  *	otherwise, we found no matching conversation, and return NULL.
+ *
+ * Null address values will be replaced with empty (AT_NONE) addresses.
  *
  * @param frame_num Frame number. Must be greater than or equal to the conversation's initial frame number.
  * @param addr_a The first address in the identifying tuple.
