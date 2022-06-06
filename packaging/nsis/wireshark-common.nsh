@@ -18,7 +18,7 @@ ManifestDPIAware true
 !addincludedir ${NSIS_INCLUDE_DIR}
 !endif
 
-!include "config.nsh"
+!include "wireshark-config.nsh"
 
 !if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 !define BITS 32
