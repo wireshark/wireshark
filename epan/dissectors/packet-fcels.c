@@ -1808,7 +1808,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     conversation_t *conversation;
     fcels_conv_data_t *cdata;
     fcels_conv_key_t ckey, *req_key;
-    guint options;
+    guint find_options, new_options;
     address dstaddr;
     guint8 addrdata[3];
     fc_hdr *fchdr;
@@ -1846,23 +1846,26 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             srcfc = (const guint8 *)pinfo->src.data;
             if (srcfc[2]) {
                 /* If it is a loop port, we'll need to remember the ALPA */
-                options = NO_PORT2;
+                find_options = NO_PORT_B;
+                new_options = NO_PORT2;
             }
             else {
-                options = NO_PORT2 | NO_ADDR2;
+                find_options = NO_PORT_B | NO_ADDR_B;
+                new_options = NO_PORT2 | NO_ADDR2;
             }
         }
         else {
-            options = NO_PORT2;
+            find_options = NO_PORT_B;
+            new_options = NO_PORT2;
         }
         conversation = find_conversation (pinfo->num, &pinfo->dst, &pinfo->src,
                                           conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
-                                          fchdr->rxid, options);
+                                          fchdr->rxid, find_options);
 
         if (!conversation) {
             conversation = conversation_new (pinfo->num, &pinfo->dst, &pinfo->src,
                                              conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
-                                             fchdr->rxid, options);
+                                             fchdr->rxid, new_options);
         }
 
         ckey.conv_idx = conversation->conv_index;
@@ -1889,10 +1892,10 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     else {
         isreq = FC_ELS_RPLY;
 
-        options = NO_PORT2;
+        find_options = NO_PORT_B;
         conversation = find_conversation (pinfo->num, &pinfo->dst, &pinfo->src,
                                           conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
-                                          fchdr->rxid, options);
+                                          fchdr->rxid, find_options);
         if (!conversation) {
             /* FLOGI has two ways to save state: without the src and using just
              * the port (ALPA) part of the address. Try both.
@@ -1914,15 +1917,15 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             set_address (&dstaddr, AT_FC, 3, addrdata);
             conversation = find_conversation (pinfo->num, &dstaddr, &pinfo->src,
                                               conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
-                                              fchdr->rxid, options);
+                                              fchdr->rxid, find_options);
         }
 
         if (!conversation) {
             /* Finally check for FLOGI with both NO_PORT2 and NO_ADDR2 set */
-            options = NO_ADDR2 | NO_PORT2;
+            find_options = NO_ADDR2 | NO_PORT2;
             conversation = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
                                               conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
-                                              fchdr->rxid, options);
+                                              fchdr->rxid, find_options);
             if (!conversation) {
                 if (tree && (opcode == FC_ELS_ACC)) {
                     /* No record of what this accept is for. Can't decode */
@@ -1940,7 +1943,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             cdata = (fcels_conv_data_t *)wmem_map_lookup (fcels_req_hash, &ckey);
 
             if (cdata != NULL) {
-                if ((options & NO_ADDR2) && (cdata->opcode != FC_ELS_FLOGI)) {
+                if ((find_options & NO_ADDR_B) && (cdata->opcode != FC_ELS_FLOGI)) {
                     /* only FLOGI can have this special check */
                     if (tree && (opcode == FC_ELS_ACC)) {
                         /* No record of what this accept is for. Can't decode */
