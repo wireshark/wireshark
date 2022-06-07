@@ -20,12 +20,34 @@ import sys
 import argparse
 from pyclibrary import CParser
 
+default_infiles = [
+    "epan/address.h",
+    "epan/ipproto.h",
+    "epan/proto.h",
+    "epan/ftypes/ftypes.h",
+]
+
+default_outfile = "epan/introspection-enums.c"
+
 argp = argparse.ArgumentParser()
 argp.add_argument("-o", "--outfile")
 argp.add_argument("infiles", nargs="*")
 args = argp.parse_args()
 
-parser = CParser(args.infiles)
+if args.infiles:
+    infiles = args.infiles
+else:
+    infiles = default_infiles
+
+if args.outfile:
+    outfile = args.outfile
+else:
+    outfile = default_outfile
+
+print("input: {}".format(infiles))
+print("output: {}".format(outfile))
+
+parser = CParser(infiles)
 
 source = """\
 /*
@@ -46,7 +68,7 @@ source = """\
  */
 """ % (os.path.basename(sys.argv[0]))
 
-for f in args.infiles:
+for f in infiles:
     source += '#include <{}>\n'.format(f)
 
 source += """
@@ -69,12 +91,9 @@ source += """\
 """
 
 try:
-    if args.outfile:
-        fh = open(args.outfile, 'w')
-    else:
-        fh = sys.stdout
+    fh = open(outfile, 'w')
 except OSError:
-    sys.exit('Unable to write ' + args.outfile + '.\n')
+    sys.exit('Unable to write ' + outfile + '.\n')
 
 fh.write(source)
 fh.close()

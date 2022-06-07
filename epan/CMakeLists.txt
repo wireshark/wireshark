@@ -429,20 +429,11 @@ set_target_properties(wscbor_test PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD True
 )
 
-set(ENUM_FILES
-	epan/address.h
-	epan/ipproto.h
-	epan/proto.h
-	epan/ftypes/ftypes.h
-)
-
 # This tries to parse C headers using Python to extract enums for
 # introspection. It is slow and has some particular dependencies.
 # It's also not foolproof. It should not be part of the ALL target.
 add_custom_target(gen-enums
 	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-enums.py
-		--outfile ${CMAKE_CURRENT_SOURCE_DIR}/introspection-enums.c
-		${ENUM_FILES}
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
