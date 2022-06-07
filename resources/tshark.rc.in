@@ -22,12 +22,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "The Wireshark developer community\0"
             VALUE "FileDescription", "TShark\0"
-            VALUE "FileVersion", "@VERSION@\0"
-            VALUE "InternalName", "TShark @VERSION@\0"
+            VALUE "FileVersion", "@PROJECT_VERSION@\0"
+            VALUE "InternalName", "TShark @PROJECT_VERSION@\0"
             VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "TShark.exe\0"
             VALUE "ProductName", "TShark\0"
-            VALUE "ProductVersion", "@VERSION@\0"
+            VALUE "ProductVersion", "@PROJECT_VERSION@\0"
         END
     END
     BLOCK "VarFileInfo"

@@ -6,7 +6,7 @@ set -e
 
 # Defaults
 dmgbuild="@DMGBUILD_EXECUTABLE@"
-version="@VERSION@"
+version="@PROJECT_VERSION@"
 app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-app.dmgbuild"
 dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-dsym.dmgbuild"
 architecture=""

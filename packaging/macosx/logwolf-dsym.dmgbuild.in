@@ -18,7 +18,7 @@ import os.path
 
 # .. Useful stuff ..............................................................
 
-lw_version = '@VERSION@'
+lw_version = '@LOG_PROJECT_VERSION@'
 lw_volname = 'Logwolf Debugging Symbols' + lw_version
 lw_srcdir = '@CMAKE_SOURCE_DIR@'
 lw_bindir = '@CMAKE_BINARY_DIR@'

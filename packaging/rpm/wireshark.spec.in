@@ -43,7 +43,7 @@
 # are set.
 %global use_wireshark_group 1
 
-%global package_version @VERSION@
+%global package_version @PROJECT_VERSION@
 
 
 Summary:	The world's foremost protocol analyzer

@@ -7,7 +7,7 @@ plugindir=@plugindir@
 
 Name: Wireshark
 Description: Network Packet Dissection Library
-Version: @VERSION@
+Version: @PROJECT_VERSION@
 
 Requires: glib-2.0, gmodule-2.0, gthread-2.0
 Libs: -L${libdir} -lwireshark -lwsutil

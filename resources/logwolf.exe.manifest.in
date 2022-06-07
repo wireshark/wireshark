@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <assemblyIdentity
-    version="@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_MICRO@.0"
+    version="@LOG_PROJECT_VERSION_MAJOR@.@LOG_PROJECT_VERSION_MINOR@.@LOG_PROJECT_VERSION_MICRO@.0"
     processorArchitecture="@WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE@"
     name="WiresharkDevelopmentTeam.Logwolf"
     type="win32"

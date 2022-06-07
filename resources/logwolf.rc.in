@@ -5,8 +5,8 @@ LOGWOLF_ICON1 ICON "@ICON_PATH@wireshark.ico"
 LOGWOLF_ICON2 ICON "@ICON_PATH@wiresharkdoc.ico"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION @RC_VERSION@
- PRODUCTVERSION @RC_VERSION@
+ FILEVERSION @LOG_RC_VERSION@
+ PRODUCTVERSION @LOG_RC_VERSION@
  FILEFLAGSMASK 0x0L
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "The Wireshark developer community, https://www.wireshark.org/\0"
             VALUE "FileDescription", "Logwolf\0"
-            VALUE "FileVersion", "@VERSION@\0"
-            VALUE "InternalName", "Logwolf @VERSION@\0"
+            VALUE "FileVersion", "@LOG_PROJECT_VERSION@\0"
+            VALUE "InternalName", "Logwolf @LOG_PROJECT_VERSION@\0"
             VALUE "LegalCopyright", "Copyright © 2022 Loris Degioanni <loris@sysdig.com>, Gerald Combs <gerald@wireshark.org> and others\0"
             VALUE "OriginalFilename", "Logwolf.exe\0"
             VALUE "ProductName", "Logwolf\0"
-            VALUE "ProductVersion", "@VERSION@\0"
+            VALUE "ProductVersion", "@LOG_PROJECT_VERSION@\0"
         END
     END
     BLOCK "VarFileInfo"

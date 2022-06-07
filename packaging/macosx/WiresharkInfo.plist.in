@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Wireshark</string>
 	<key>CFBundleGetInfoString</key>
-	<string>@VERSION@, Copyright 1998-2022 Wireshark Development Team</string>
+	<string>@PROJECT_VERSION@, Copyright 1998-2022 Wireshark Development Team</string>
 	<key>CFBundleIconFile</key>
 	<string>Wireshark.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -224,11 +224,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@VERSION@</string>
+	<string>@PROJECT_VERSION@</string>
 	<key>CFBundleSignature</key>
 	<string>Wshk</string>
 	<key>CFBundleVersion</key>
-	<string>@VERSION@</string>
+	<string>@PROJECT_VERSION@</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright 1998-2022 Wireshark Developers, GNU General Public License.</string>
 	<key>NSPrincipalClass</key>

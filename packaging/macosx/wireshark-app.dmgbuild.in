@@ -18,7 +18,7 @@ import os.path
 
 # .. Useful stuff ..............................................................
 
-ws_version = '@VERSION@'
+ws_version = '@PROJECT_VERSION@'
 ws_volname = 'Wireshark ' + ws_version
 ws_srcdir = '@CMAKE_SOURCE_DIR@'
 ws_bindir = '@CMAKE_BINARY_DIR@'

@@ -34,12 +34,12 @@ shift $(( OPTIND - 1 ))
 # The remaining parameter, if set, is a package version such as 3.4.5
 # or 3.4.5-67-gabcd4321
 # By default the version from make-version.pl + CMake is used.
-VERSION=@VERSION@
+PROJECT_VERSION=@PROJECT_VERSION@
 if test -n "${1-}"; then
-    VERSION="$1"
+    PROJECT_VERSION="$1"
 fi
 
-TARBALL="${DESTDIR}/wireshark-${VERSION}.tar.xz"
+TARBALL="${DESTDIR}/wireshark-${PROJECT_VERSION}.tar.xz"
 
 # A tarball produced by 'git archive' will have the $Format string
 # substituted due to the use of 'export-subst' in .gitattributes.
@@ -65,7 +65,7 @@ if [[ $COMMIT != \$F* ]] ; then
     echo ""
     echo "The build system cannot produce a source tarball outside of a git repository."
     echo "If you are trying to build an RPM package from source extracted from a tarball,"
-    echo "copy it (i.e., wireshark-${VERSION}.tar.xz) to"
+    echo "copy it (i.e., wireshark-${PROJECT_VERSION}.tar.xz) to"
     echo "$DESTDIR"
     echo "and run the build command again."
 
@@ -94,4 +94,4 @@ echo "Creating $TARBALL from $COMMIT"
 XZ_OPTS=
 echo . | xz --threads=0 > /dev/null 2>&1 && XZ_OPTS=--threads=0
 
-git archive --prefix="wireshark-${VERSION}/" "$COMMIT" | xz $XZ_OPTS > "$TARBALL"
+git archive --prefix="wireshark-${PROJECT_VERSION}/" "$COMMIT" | xz $XZ_OPTS > "$TARBALL"

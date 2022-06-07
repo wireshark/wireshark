@@ -20,12 +20,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "The Wireshark developer community, https://www.wireshark.org/\0"
             VALUE "FileDescription", "Wireshark utility library\0"
-            VALUE "FileVersion", "@VERSION@\0"
-            VALUE "InternalName", "libwsutil @VERSION@\0"
+            VALUE "FileVersion", "@PROJECT_VERSION@\0"
+            VALUE "InternalName", "libwsutil @PROJECT_VERSION@\0"
             VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "libwsutil.dll\0"
             VALUE "ProductName", "Wireshark\0"
-            VALUE "ProductVersion", "@VERSION@\0"
+            VALUE "ProductVersion", "@PROJECT_VERSION@\0"
         END
     END
     BLOCK "VarFileInfo"
