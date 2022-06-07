@@ -4147,7 +4147,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         if (p_conv == NULL) {
             conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                 conversation_pt_to_endpoint_type(pinfo->ptype),
-                pinfo->destport, pinfo->srcport, NO_ADDR_B);
+                pinfo->destport, pinfo->srcport, NO_ADDR2);
         }
         return FALSE;
     }
@@ -5812,7 +5812,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         /* Try to find a partial match with just the source/destination included */
         p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                    conversation_pt_to_endpoint_type(pinfo->ptype),
-                                   pinfo->destport, pinfo->srcport, NO_ADDR2);
+                                   pinfo->destport, pinfo->srcport, NO_ADDR_B);
         if (p_conv) {
             p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
         }
