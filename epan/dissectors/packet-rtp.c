@@ -1292,7 +1292,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     /* Create a conversation in case none exists so as to allow reassembly code to work */
     if (!find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src, conversation_pt_to_endpoint_type(pinfo->ptype),
-                           pinfo->destport, pinfo->srcport, NO_ADDR2)) {
+                           pinfo->destport, pinfo->srcport, NO_ADDR_B)) {
         conversation_t *p_conv;
         struct _rtp_conversation_info *p_conv_data;
         p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src, conversation_pt_to_endpoint_type(pinfo->ptype),
