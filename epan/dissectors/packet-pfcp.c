@@ -1054,6 +1054,12 @@ static int hf_pfcp_travelping_error_message_str = -1;
 static int hf_pfcp_travelping_file_name = -1;
 static int hf_pfcp_travelping_file_name_str = -1;
 static int hf_pfcp_travelping_line_number = -1;
+static int hf_pfcp_travelping_ipfix_policy = -1;
+static int hf_pfcp_travelping_ipfix_policy_str = -1;
+static int hf_pfcp_travelping_trace_parent = -1;
+static int hf_pfcp_travelping_trace_parent_str = -1;
+static int hf_pfcp_travelping_trace_state = -1;
+static int hf_pfcp_travelping_trace_state_str = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -1149,6 +1155,7 @@ static int ett_pfcp_vendor_specific_node_report_type = -1;
 static int ett_pfcp_enterprise_travelping_packet_measurement = -1;
 static int ett_pfcp_enterprise_travelping_error_report = -1;
 static int ett_pfcp_enterprise_travelping_created_nat_binding = -1;
+static int ett_pfcp_enterprise_travelping_trace_info = -1;
 
 static int ett_pfcp_bbf_ppp_protocol_flags = -1;
 static int ett_pfcp_bbf_l2tp_endp_flags = -1;
@@ -11136,6 +11143,7 @@ dissect_pfcp_enterprise_bbf_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static void dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args);
 static void dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args);
+static void dissect_pfcp_enterprise_travelping_trace_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args);
 
 /* Enterprise IE decoding Travelping */
 #define PFCP_IE_ENTERPRISE_TRAVELPING_PACKET_MEASUREMENT  1
@@ -11148,6 +11156,10 @@ static void dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb
 #define PFCP_IE_ENTERPRISE_TRAVELPING_FILE_NAME         8
 #define PFCP_IE_ENTERPRISE_TRAVELPING_LINE_NUMBER       9
 #define PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING 10
+#define PFCP_IE_ENTERPRISE_TRAVELPING_IPFIX_POLICY      11
+#define PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_INFO        12
+#define PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_PARENT      13
+#define PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_STATE       14
 
 static const value_string pfcp_ie_enterprise_travelping_type[] = {
     { PFCP_IE_ENTERPRISE_TRAVELPING_PACKET_MEASUREMENT, "Packet Measurement"},
@@ -11159,7 +11171,10 @@ static const value_string pfcp_ie_enterprise_travelping_type[] = {
     { PFCP_IE_ENTERPRISE_TRAVELPING_ERROR_MESSAGE,      "Error Message"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_FILE_NAME,          "File Name"},
     { PFCP_IE_ENTERPRISE_TRAVELPING_LINE_NUMBER,        "Line Number"},
-    { PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING, "Created NAT Binding"},
+    { PFCP_IE_ENTERPRISE_TRAVELPING_IPFIX_POLICY,       "IPFIX Policy"},
+    { PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_INFO,         "Trace Information"},
+    { PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_PARENT,       "Trace Parent"},
+    { PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_STATE,        "Trace State"},
     { 0, NULL }
 };
 
@@ -11314,6 +11329,54 @@ dissect_pfcp_enterprise_travelping_line_number(tvbuff_t *tvb, packet_info *pinfo
     }
 }
 
+static void
+dissect_pfcp_enterprise_travelping_ipfix_policy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    /* Octet 7 to (n+4) Travelping IPFIX Policy */
+    if (tvb_ascii_isprint(tvb, 0, length))
+    {
+        const guint8* string_value;
+        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_ipfix_policy_str, tvb, 0, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
+        proto_item_append_text(item, "%s", string_value);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_pfcp_travelping_ipfix_policy, tvb, 0, length, ENC_NA);
+    }
+}
+
+static void
+dissect_pfcp_enterprise_travelping_trace_parent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    /* Octet 7 to (n+4) Travelping Trace Parent */
+    if (tvb_ascii_isprint(tvb, 0, length))
+    {
+        const guint8* string_value;
+        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_trace_parent_str, tvb, 0, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
+        proto_item_append_text(item, "%s", string_value);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_pfcp_travelping_trace_parent, tvb, 0, length, ENC_NA);
+    }
+}
+
+static void
+dissect_pfcp_enterprise_travelping_trace_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    /* Octet 7 to (n+4) Travelping Trace State */
+    if (tvb_ascii_isprint(tvb, 0, length))
+    {
+        const guint8* string_value;
+        proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_trace_state_str, tvb, 0, length, ENC_ASCII | ENC_NA, pinfo->pool, &string_value);
+        proto_item_append_text(item, "%s", string_value);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_pfcp_travelping_trace_state, tvb, 0, length, ENC_NA);
+    }
+}
+
 static const pfcp_ie_t pfcp_enterprise_travelping_ies[] = {
 /*      0 */    { dissect_pfcp_reserved },
 /*      1 */    { dissect_pfcp_enterprise_travelping_packet_measurement },
@@ -11326,6 +11389,10 @@ static const pfcp_ie_t pfcp_enterprise_travelping_ies[] = {
 /*      8 */    { dissect_pfcp_enterprise_travelping_file_name },
 /*      9 */    { dissect_pfcp_enterprise_travelping_line_number },
 /*     10 */    { dissect_pfcp_enterprise_travelping_created_nat_binding },
+/*     11 */    { dissect_pfcp_enterprise_travelping_ipfix_policy },
+/*     12 */    { dissect_pfcp_enterprise_travelping_trace_info },
+/*     13 */    { dissect_pfcp_enterprise_travelping_trace_parent },
+/*     14 */    { dissect_pfcp_enterprise_travelping_trace_state },
     { NULL },                                                        /* End of List */
 };
 
@@ -11343,6 +11410,12 @@ static void
 dissect_pfcp_enterprise_travelping_created_nat_binding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_elem[PFCP_IE_ENTERPRISE_TRAVELPING_CREATED_NAT_BINDING], args);
+}
+
+static void
+dissect_pfcp_enterprise_travelping_trace_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_elem[PFCP_IE_ENTERPRISE_TRAVELPING_TRACE_INFO], args);
 }
 
 static int
@@ -15735,10 +15808,40 @@ proto_register_pfcp(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_travelping_ipfix_policy,
+        { "IPFIX Policy", "pfcp.travelping.ipfix_policy",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_ipfix_policy_str,
+        { "IPFIX Policy", "pfcp.travelping.ipfix_policy_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_trace_parent,
+        { "Trace Parent", "pfcp.travelping.trace_parent",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_trace_parent_str,
+        { "Trace Parent", "pfcp.travelping.trace_parent_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_trace_state,
+        { "Trace State", "pfcp.travelping.trace_state",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_trace_state_str,
+        { "Trace State", "pfcp.travelping.trace_state_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    98
+#define NUM_INDIVIDUAL_ELEMS_PFCP    99
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1) +
         (NUM_PFCP_ENTERPRISE_BBF_IES - 1) +
@@ -15839,12 +15942,13 @@ proto_register_pfcp(void)
     ett[90] = &ett_pfcp_enterprise_travelping_packet_measurement;
     ett[91] = &ett_pfcp_enterprise_travelping_error_report;
     ett[92] = &ett_pfcp_enterprise_travelping_created_nat_binding;
+    ett[93] = &ett_pfcp_enterprise_travelping_trace_info;
     /* BBF */
-    ett[93] = &ett_pfcp_bbf_ppp_protocol_flags;
-    ett[94] = &ett_pfcp_bbf_l2tp_endp_flags;
-    ett[95] = &ett_pfcp_bbf_l2tp_type_flags;
-    ett[96] = &ett_pfcp_bbf_ppp_lcp_connectivity;
-    ett[97] = &ett_pfcp_bbf_l2tp_tunnel;
+    ett[94] = &ett_pfcp_bbf_ppp_protocol_flags;
+    ett[95] = &ett_pfcp_bbf_l2tp_endp_flags;
+    ett[96] = &ett_pfcp_bbf_l2tp_type_flags;
+    ett[97] = &ett_pfcp_bbf_ppp_lcp_connectivity;
+    ett[98] = &ett_pfcp_bbf_l2tp_tunnel;
 
     static ei_register_info ei[] = {
         { &ei_pfcp_ie_reserved,{ "pfcp.ie_id_reserved", PI_PROTOCOL, PI_ERROR, "Reserved IE value used", EXPFILL } },
