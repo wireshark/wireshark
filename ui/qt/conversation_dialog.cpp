@@ -95,6 +95,8 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     trafficTab()->setProtocolInfo(tr("Conversation"), cli_proto_id, &(recent.conversation_tabs), &createModel);
     trafficTab()->setDelegate(CONV_COLUMN_START, &createDelegate);
     trafficTab()->setDelegate(CONV_COLUMN_DURATION, &createDelegate);
+    trafficTab()->setFilter(cf.displayFilter());
+    displayFilterCheckBox()->setChecked(true);
     connect(trafficTab(), &TrafficTab::filterAction, this, &ConversationDialog::filterAction);
     connect(trafficTab()->tabBar(), &QTabBar::currentChanged, this, &ConversationDialog::tabChanged);
     connect(trafficTab(), &TrafficTab::tabDataChanged, this, &ConversationDialog::tabChanged);

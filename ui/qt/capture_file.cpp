@@ -234,6 +234,13 @@ void CaptureFile::stopLoading()
     setCaptureStopFlag(true);
 }
 
+QString CaptureFile::displayFilter() const
+{
+    if (isValid())
+        return QString(cap_file_->dfilter);
+    return QString();
+}
+
 capture_file *CaptureFile::globalCapFile()
 {
     return &cfile;

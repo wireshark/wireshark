@@ -117,6 +117,10 @@ public:
      */
     void reload();
 
+    /** Return any set display filter
+     */
+    QString displayFilter() const;
+
     // XXX This shouldn't be needed.
     static capture_file *globalCapFile();
 

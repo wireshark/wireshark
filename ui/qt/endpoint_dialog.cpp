@@ -67,6 +67,8 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
     trafficTab()->setProtocolInfo(tr("Endpoints"), cli_proto_id, &(recent.endpoint_tabs), &createModel);
+    trafficTab()->setFilter(cf.displayFilter());
+    displayFilterCheckBox()->setChecked(true);
     connect(trafficTab(), &TrafficTab::filterAction, this, &EndpointDialog::filterAction);
     connect(trafficTab(), &TrafficTab::tabDataChanged, this, &EndpointDialog::tabChanged);
     connect(trafficTab(), &TrafficTab::currentChanged, this, &EndpointDialog::tabChanged);
