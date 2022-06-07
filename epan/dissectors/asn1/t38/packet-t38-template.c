@@ -414,7 +414,7 @@ init_t38_info_conv(packet_info *pinfo)
 	/* create a conv if it doen't exist */
 	if (!p_conv) {
 		p_conv = conversation_new(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
-			      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, NO_ADDR_B | NO_PORT_B);
+			      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, NO_ADDR2 | NO_PORT2);
 
 		/* Set dissector */
 		conversation_set_dissector(p_conv, t38_udp_handle);
