@@ -1424,7 +1424,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
          * first packet in the conversation).
          * (Neither "addr_a" nor "port_a" take part in this lookup.)
          */
-        if ((addr_a != NULL) && (addr_a->type == AT_FC)) {
+        if (addr_a->type == AT_FC) {
             DPRINT(("trying wildcarded match: %s:%d -> *:*",
                         addr_b_str, port_a));
             conversation = conversation_lookup_no_addr2_or_port2(frame_num, addr_b, port_a, etype);
