@@ -109,7 +109,7 @@ The "contains" operator cannot be used on atomic fields,
 such as numbers or IP addresses.
 
 The "matches" or "~" operator allows a filter to apply to a specified
-Perl-compatible regular expression (PCRE).  The regular expression must
+Perl-compatible regular expression (PCRE2).  The regular expression must
 be a double quoted string.  The left hand side of the "matches" operator
 must be a string, which can be a non-stringlike field implicitly or
 explicitly converted to a string.  Matches are case-insensitive by default.
@@ -124,10 +124,10 @@ You can force case sensitivity using
 
     wsp.header.user_agent matches "(?-i)cldc"
 
-This is an example of PCRE's *(?*+option+*)* construct. *(?-i)* performs a
+This is an example of PCRE2's *(?*+option+*)* construct. *(?-i)* performs a
 case-sensitive pattern match but other options can be specified as well. More
 information can be found in the
-pcrepattern(3)|https://www.pcre.org/original/doc/html/pcrepattern.html man page.
+pcre2pattern(3)|https://www.pcre.org/current/doc/html/pcre2pattern.html man page.
 
 === Functions
 
