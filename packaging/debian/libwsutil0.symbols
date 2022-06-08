@@ -428,6 +428,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_pipe_spawn_sync@Base 2.5.1
  ws_read_string_from_pipe@Base 2.5.0
  ws_regex_compile@Base 3.7.0
+ ws_regex_compile_ex@Base 3.7.0
  ws_regex_free@Base 3.7.0
  ws_regex_matches@Base 3.7.0
  ws_regex_matches_length@Base 3.7.0

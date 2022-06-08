@@ -1148,7 +1148,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	patt = stnode_data(st_arg2);
 	ws_debug("Compile regex pattern: %s", patt);
 
-	pcre = ws_regex_compile(patt, &errmsg);
+	pcre = ws_regex_compile_ex(patt, &errmsg, WS_REGEX_CASELESS|WS_REGEX_NEVER_UTF);
 	if (errmsg) {
 		dfilter_fail(dfw, NULL, "Regex compilation error: %s.", errmsg);
 		g_free(errmsg);

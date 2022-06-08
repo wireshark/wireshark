@@ -43,16 +43,22 @@ get_error_msg(int errorcode)
 
 
 static pcre2_code *
-compile_pcre2(const char *patt, char **errmsg)
+compile_pcre2(const char *patt, char **errmsg, unsigned flags)
 {
     pcre2_code *code;
     int errorcode;
     PCRE2_SIZE erroroffset;
+    uint32_t options = 0;
+
+    if (flags & WS_REGEX_NEVER_UTF)
+        options |= PCRE2_NEVER_UTF;
+    if (flags & WS_REGEX_CASELESS)
+        options |= PCRE2_CASELESS;
 
     /* By default UTF-8 is off. */
     code = pcre2_compile_8((PCRE2_SPTR)patt,
                 PCRE2_ZERO_TERMINATED,
-                PCRE2_NEVER_UTF,
+                options,
                 &errorcode,
                 &erroroffset,
                 NULL);
@@ -69,9 +75,15 @@ compile_pcre2(const char *patt, char **errmsg)
 ws_regex_t *
 ws_regex_compile(const char *patt, char **errmsg)
 {
+    return ws_regex_compile_ex(patt, errmsg, 0);
+}
+
+ws_regex_t *
+ws_regex_compile_ex(const char *patt, char **errmsg, unsigned flags)
+{
     ws_return_val_if_null(patt, NULL);
 
-    pcre2_code *code = compile_pcre2(patt, errmsg);
+    pcre2_code *code = compile_pcre2(patt, errmsg, flags);
     if (code == NULL)
         return NULL;
 
