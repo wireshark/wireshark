@@ -547,7 +547,7 @@ The *xref:wireshark-filter.html[wireshark-filter](4)* manpage is part of the *Wi
 The latest version of *Wireshark* can be found at
 https://www.wireshark.org.
 
-Regular expressions in the "matches" operator are provided by GRegex in GLib.
+Regular expressions in the "matches" operator are provided by the PCRE2 library.
 See https://www.pcre.org/ for more information.
 
 This manpage does not describe the capture filter syntax, which is
