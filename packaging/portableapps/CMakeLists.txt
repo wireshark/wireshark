@@ -15,12 +15,10 @@
 # packages. We don't do that because a) we're large and b) we build
 # our 32-bit and 64-bit packages independently in separate pipelines.
 
-if(WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
-	set(PORTABLEAPPS_BITS 32)
-elseif(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
+if(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
 	set(PORTABLEAPPS_BITS 64)
 else()
-		message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
+	message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
 endif()
 set(PORTABLEAPPS_BITS ${PORTABLEAPPS_BITS} PARENT_SCOPE)
 
@@ -43,51 +41,51 @@ set(PORTABLEAPPS_DIRS
 
 macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 	# Copy our binaries, libraries, and data files to the PortableApps build directory.
-	set(_portableapps_app_dir "${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/${CMAKE_PROJECT_NAME}")
-	file(TO_NATIVE_PATH "${_portableapps_app_dir}" _portableapps_app_dir_native)
+	set(_wireshark_portableapps_app_dir "${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/${CMAKE_PROJECT_NAME}")
+	file(TO_NATIVE_PATH "${_wireshark_portableapps_app_dir}" _wireshark_portableapps_app_dir_native)
 	file(TO_NATIVE_PATH "${DATAFILE_DIR}" _datafile_dir_native)
 	file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}/packaging/portableapps/xcopy-deploy-exclude.txt" _xcopy_deploy_exclude)
 
-	add_custom_target(portableapps_app_dir
+	add_custom_target(wireshark_portableapps_app_dir
 		# We "Deploy using XCopy," which is described at
 		# https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2008/ms235291(v=vs.90)
 		# We also assume that the project has been built at this point.
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${_portableapps_app_dir}
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${_portableapps_app_dir}
-		COMMAND xcopy ${_datafile_dir_native} ${_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude}
+		COMMAND ${CMAKE_COMMAND} -E remove_directory ${_wireshark_portableapps_app_dir}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_wireshark_portableapps_app_dir}
+		COMMAND xcopy ${_datafile_dir_native} ${_wireshark_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude}
 	)
 
-	set_target_properties(portableapps_app_dir PROPERTIES
+	set_target_properties(wireshark_portableapps_app_dir PROPERTIES
 		FOLDER "Packaging"
 		EXCLUDE_FROM_DEFAULT_BUILD True
 	)
 
 	if(MSVCR_DLL)
-		add_custom_target(portableapps_runtime
-			COMMAND xcopy "${MSVCR_DLL}" ${_portableapps_app_dir_native} /D /I /Y
+		add_custom_target(wireshark_portableapps_runtime
+			COMMAND xcopy "${MSVCR_DLL}" ${_wireshark_portableapps_app_dir_native} /D /I /Y
 		)
 	else(MSVCR_DLL)
-		add_custom_target(portableapps_runtime
+		add_custom_target(wireshark_portableapps_runtime
 			COMMAND ${CMAKE_COMMAND} -E echo "C Runtime MUST be installed on target system."
 		)
 	endif(MSVCR_DLL)
 
-	set_target_properties(portableapps_runtime PROPERTIES
+	set_target_properties(wireshark_portableapps_runtime PROPERTIES
 		FOLDER "Packaging"
 		EXCLUDE_FROM_DEFAULT_BUILD True
 	)
-	add_dependencies(portableapps_runtime portableapps_app_dir)
+	add_dependencies(wireshark_portableapps_runtime wireshark_portableapps_app_dir)
 
 	# Build the PortableApps package.
 	# wireshark_nsis_prep must be built prior to this.
 	# XXX Rename this to wireshark_portableapps
 	set (_portableapps_package ${CMAKE_BINARY_DIR}/packaging/portableapps/${PORTABLEAPPS_NAME}_${VERSION}.paf.exe)
-	add_custom_target(portableapps_package
+	add_custom_target(wireshark_portableapps
 		DEPENDS
-			portableapps_runtime
+			wireshark_portableapps_runtime
 			${_portableapps_package}
 	)
-	set_target_properties(portableapps_package PROPERTIES
+	set_target_properties(wireshark_portableapps PROPERTIES
 		FOLDER "Packaging"
 		EXCLUDE_FROM_DEFAULT_BUILD True
 	)

@@ -17,8 +17,8 @@ modifying a file (custom_mibs.txt, etc) for inclusion
 
 . To build the WiX installer run:
 ----
-> msbuild /m /p:Configuration=RelWithDebInfo wix_package_prep.vcxproj
-> msbuild /m /p:Configuration=RelWithDebInfo wix_package.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wireshark_wix_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wireshark_wix.vcxproj
 ----
 
 == Known Issues
