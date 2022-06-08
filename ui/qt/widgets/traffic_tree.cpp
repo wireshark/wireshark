@@ -27,7 +27,6 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/traffic_tree.h>
 
-#include <QVector>
 #include <QStringList>
 #include <QTreeView>
 #include <QList>
@@ -53,7 +52,7 @@ TrafficTree::TrafficTree(QString baseName, QWidget *parent) :
     setRootIsDecorated(false);
     setSortingEnabled(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
-    
+
     connect(this, &QTreeView::customContextMenuRequested, this, &TrafficTree::customContextMenu);
 }
 

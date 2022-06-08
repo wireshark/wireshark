@@ -52,6 +52,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/tabnav_tree_view.h
 	widgets/traffic_tab.h
 	widgets/traffic_tree.h
+	widgets/traffic_types_list.h
 	widgets/wireless_timeline.h
 	widgets/wireshark_file_dialog.h
 )
@@ -304,6 +305,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/tabnav_tree_view.cpp
 	widgets/traffic_tab.cpp
 	widgets/traffic_tree.cpp
+	widgets/traffic_types_list.cpp
 	widgets/wireless_timeline.cpp
 	widgets/wireshark_file_dialog.cpp
 )

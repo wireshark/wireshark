@@ -26,6 +26,7 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <ui/qt/widgets/traffic_tab.h>
+#include <ui/qt/widgets/traffic_types_list.h>
 #include "main_application.h"
 
 #include <QCheckBox>
@@ -66,7 +67,9 @@ static ATapDataModel * createModel(int protoId, QString filter)
 EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf) :
     TrafficTableDialog(parent, cf, table_name_)
 {
-    trafficTab()->setProtocolInfo(tr("Endpoints"), &(recent.endpoint_tabs), &createModel);
+    trafficList()->setProtocolInfo(table_name_, &(recent.endpoint_tabs));
+
+    trafficTab()->setProtocolInfo(table_name_, trafficList()->protocols(), trafficList()->selectedProtocols(), &createModel);
     trafficTab()->setFilter(cf.displayFilter());
     displayFilterCheckBox()->setChecked(cf.displayFilter().length() > 0);
     connect(trafficTab(), &TrafficTab::filterAction, this, &EndpointDialog::filterAction);
@@ -85,13 +88,6 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf) :
     connect(action, &QAction::triggered, this, &EndpointDialog::saveMap);
     map_bt_->setMenu(map_menu_);
 #endif
-
-    addProgressFrame(&parent);
-
-    QPushButton *close_bt = buttonBox()->button(QDialogButtonBox::Close);
-    if (close_bt) {
-        close_bt->setDefault(true);
-    }
 
     updateWidgets();
 }

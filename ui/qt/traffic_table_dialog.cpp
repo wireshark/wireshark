@@ -19,6 +19,7 @@
 #include "main_application.h"
 
 #include <ui/qt/widgets/traffic_tab.h>
+#include <ui/qt/widgets/traffic_types_list.h>
 
 #include <QCheckBox>
 #include <QClipboard>
@@ -51,20 +52,28 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
 
     ui->absoluteTimeCheckBox->hide();
     setWindowSubtitle(QString("%1s").arg(table_name));
+    ui->grpSettings->setTitle(QString("%1 Settings").arg(table_name));
 
-    copy_bt_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    copy_bt_ = buttonBox()->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     copy_bt_->setMenu(ui->trafficTab->createCopyMenu(copy_bt_));
 
     ui->trafficTab->setFocus();
-
     ui->trafficTab->useNanosecondTimestamps(cf.timestampPrecision() == WTAP_TSPREC_NSEC);
+    connect(ui->trafficList, &TrafficTypesList::protocolsChanged, ui->trafficTab, &TrafficTab::setOpenTabs);
+    connect(ui->trafficTab, &TrafficTab::tabsChanged, ui->trafficList, &TrafficTypesList::selectProtocols);
 
     connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(currentTabChanged()));
     connect(ui->trafficTab, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged()));
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)), this, SLOT(captureEvent(CaptureEvent)));
 
-    connect(ui->absoluteTimeCheckBox, &QCheckBox::toggled, trafficTab(), &TrafficTab::useAbsoluteTime);
-    connect(trafficTab(), &TrafficTab::retapRequired, &cap_file_, &CaptureFile::delayedRetapPackets);
+    connect(ui->absoluteTimeCheckBox, &QCheckBox::toggled, ui->trafficTab, &TrafficTab::useAbsoluteTime);
+    connect(ui->trafficTab, &TrafficTab::retapRequired, &cap_file_, &CaptureFile::delayedRetapPackets);
+
+    QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
+    if (close_bt)
+        close_bt->setDefault(true);
+
+    addProgressFrame(&parent);
 }
 
 TrafficTableDialog::~TrafficTableDialog()
@@ -79,7 +88,7 @@ void TrafficTableDialog::addProgressFrame(QObject *parent)
 
 QDialogButtonBox *TrafficTableDialog::buttonBox() const
 {
-    return ui->buttonBox;
+    return ui->btnBoxSettings;
 }
 
 QCheckBox *TrafficTableDialog::displayFilterCheckBox() const
@@ -97,9 +106,15 @@ TrafficTab *TrafficTableDialog::trafficTab() const
     return ui->trafficTab;
 }
 
+TrafficTypesList *TrafficTableDialog::trafficList() const
+{
+    return ui->trafficList;
+}
+
 void TrafficTableDialog::currentTabChanged()
 {
     bool has_resolution = ui->trafficTab->hasNameResolution();
+    copy_bt_->setMenu(ui->trafficTab->createCopyMenu(copy_bt_));
 
     ui->nameResolutionCheckBox->setEnabled(has_resolution);
     if (! has_resolution) {

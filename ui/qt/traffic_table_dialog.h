@@ -31,6 +31,7 @@ class QPushButton;
 class QTabWidget;
 class QTreeWidget;
 class TrafficTab;
+class TrafficTypesList;
 
 namespace Ui {
 class TrafficTableDialog;
@@ -69,6 +70,7 @@ protected:
     QCheckBox *displayFilterCheckBox() const;
     QCheckBox *absoluteTimeCheckBox() const;
     TrafficTab *trafficTab() const;
+    TrafficTypesList *trafficList() const;
 
 protected slots:
     virtual void currentTabChanged();

@@ -52,6 +52,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/tabnav_tree_view.h
 	../qt/widgets/traffic_tab.h
 	../qt/widgets/traffic_tree.h
+	../qt/widgets/traffic_types_list.h
 	../qt/widgets/wireshark_file_dialog.h
 )
 
@@ -279,6 +280,7 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/tabnav_tree_view.cpp
 	../qt/widgets/traffic_tab.cpp
 	../qt/widgets/traffic_tree.cpp
+	../qt/widgets/traffic_types_list.cpp
 	../qt/widgets/wireshark_file_dialog.cpp
 )
 

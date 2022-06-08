@@ -22,6 +22,7 @@
 #include <ui/qt/models/timeline_delegate.h>
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/widgets/traffic_tab.h>
+#include <ui/qt/widgets/traffic_types_list.h>
 #include "main_application.h"
 
 #include <QCheckBox>
@@ -92,7 +93,9 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
     TrafficTableDialog(parent, cf, table_name_),
     tcp_graph_requested_(false)
 {
-    trafficTab()->setProtocolInfo(tr("Conversation"), &(recent.conversation_tabs), &createModel);
+    trafficList()->setProtocolInfo(table_name_, &(recent.conversation_tabs));
+
+    trafficTab()->setProtocolInfo(table_name_, trafficList()->protocols(), trafficList()->selectedProtocols(), &createModel);
     trafficTab()->setDelegate(CONV_COLUMN_START, &createDelegate);
     trafficTab()->setDelegate(CONV_COLUMN_DURATION, &createDelegate);
     trafficTab()->setFilter(cf.displayFilter());
@@ -113,13 +116,6 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(displayFilterSuccess(bool)));
 
     absoluteTimeCheckBox()->show();
-
-    addProgressFrame(&parent);
-
-    QPushButton *close_bt = buttonBox()->button(QDialogButtonBox::Close);
-    if (close_bt) {
-        close_bt->setDefault(true);
-    }
 
     updateWidgets();
 }

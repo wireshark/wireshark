@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-#include <ui/recent.h>
-
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/widgets/detachable_tabwidget.h>
@@ -99,12 +97,13 @@ public:
      * without having to removing the predefined object during setup of the UI.
      *
      * @param tableName The name for the table. Used for the protocol selection button
-     * @param recentList The list to store the selected protocols in
+     * @param allProtocols a list of all possible protocols. It's order will set the tab oder
+     * @param openTabs a list of protocol ids to open at start of dialog
      * @param createModel A callback, which will create the correct model for the trees
      *
      * @see ATapModelCallback
      */
-    void setProtocolInfo(QString tableName, GList ** recentList, ATapModelCallback createModel);
+    void setProtocolInfo(QString tableName, QList<int> allProtocols, QList<int> openTabs, ATapModelCallback createModel);
 
     /**
      * @brief Set the Delegate object for a specific column
@@ -212,11 +211,14 @@ public slots:
      */
     void useAbsoluteTime(bool absolute);
 
+    void setOpenTabs(QList<int> protocols);
+
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void tabDataChanged(int idx);
     void retapRequired();
     void disablingTaps();
+    void tabsChanged(QList<int> protocols);
 
 protected slots:
 
@@ -224,29 +226,26 @@ protected slots:
     virtual void attachTab(QWidget * content, QString name) override;
 
 private:
-    QVector<int> _protocols;
-    QMap<int, QString> _allTaps;
-    QMap<int, QAction *> _protocolButtons;
+    QList<int> _allProtocols;
     QMap<int, int> _tabs;
-    GList ** _recentList;
     ATapModelCallback _createModel;
     QMap<int, ATapCreateDelegate> _createDelegates;
 
     bool _disableTaps;
     bool _nameResolution;
 
-    void updateTabs();
     QTreeView * createTree(int protoId);
     ATapDataModel * modelForTabIndex(int tabIdx = -1);
     ATapDataModel * modelForWidget(QWidget * widget);
+
+    void insertProtoTab(int protoId, bool emitSignals = true);
+    void removeProtoTab(int protoId, bool emitSignals = true);
 
 #ifdef HAVE_MAXMINDDB
     bool writeGeoIPMapFile(QFile * fp, bool json_only, ATapDataModel * dataModel);
 #endif
 
 private slots:
-    void toggleTab(bool checked = false);
-
     void modelReset();
 
     void doCurrentIndexChange(const QModelIndex & cur, const QModelIndex & prev);

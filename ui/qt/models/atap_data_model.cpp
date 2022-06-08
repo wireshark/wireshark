@@ -76,24 +76,20 @@ QString ATapDataModel::tap() const
 #ifdef HAVE_MAXMINDDB
 bool ATapDataModel::hasGeoIPData()
 {
-    QString key = QString("geoip_found_%1").arg(_protoId);
-    if (! _lookUp.keys().contains(key)) {
-        bool coordsFound = false;
-        int row = 0;
-        int count = rowCount(QModelIndex());
-        while (!coordsFound && row < count)
-        {
-            QModelIndex idx = index(row, 0);
-            if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
-                coordsFound = qobject_cast<EndpointDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
-            else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
-                coordsFound = qobject_cast<ConversationDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
-            row++;
-        }
-        _lookUp.insert(key, coordsFound);
+    bool coordsFound = false;
+    int row = 0;
+    int count = rowCount();
+    while (!coordsFound && row < count)
+    {
+        QModelIndex idx = index(row, 0);
+        if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
+            coordsFound = qobject_cast<EndpointDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
+        else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
+            coordsFound = qobject_cast<ConversationDataModel *>(this)->data(idx, ATapDataModel::GEODATA_AVAILABLE).toBool();
+        row++;
     }
 
-    return _lookUp.value(key, false).toBool();
+    return coordsFound;
 }
 #endif
 
@@ -190,7 +186,6 @@ void ATapDataModel::resetData()
         return;
 
     beginResetModel();
-    _lookUp.clear();
     storage_ = nullptr;
     if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
         reset_hostlist_table_data(&hash_);
@@ -209,7 +204,6 @@ void ATapDataModel::updateData(GArray * newData)
         return;
 
     beginResetModel();
-    _lookUp.clear();
     storage_ = newData;
     endResetModel();
 
@@ -510,15 +504,15 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         if (column == EndpointDataModel::ENDP_COLUMN_ADDR)
             return (int)item->myaddress.type;
         return (int) AT_NONE;
-    } else if (role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
+    } else if (role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_LIST) {
         if (column == EndpointDataModel::ENDP_COLUMN_ADDR) {
             if (role == ATapDataModel::DATA_IPV4_INTEGER && item->myaddress.type == AT_IPv4) {
                 const ws_in4_addr * ip4 = (const ws_in4_addr *) item->myaddress.data;
                 return (quint32) GUINT32_TO_BE(*ip4);
             }
-            else if (role == ATapDataModel::DATA_IPV6_VECTOR && item->myaddress.type == AT_IPv6) {
+            else if (role == ATapDataModel::DATA_IPV6_LIST && item->myaddress.type == AT_IPv6) {
                 const ws_in6_addr * ip6 = (const ws_in6_addr *) item->myaddress.data;
-                QVector<quint8> result;
+                QList<quint8> result;
                 result.reserve(16);
                 std::copy(ip6->bytes + 0, ip6->bytes + 16, std::back_inserter(result));
                 return QVariant::fromValue(result);
@@ -538,7 +532,7 @@ void ConversationDataModel::doDataUpdate()
     _minRelStartTime = 0;
     _maxRelStopTime = 0;
 
-    for (int row = 0; row < rowCount(QModelIndex()); row ++) {
+    for (int row = 0; row < rowCount(); row ++) {
         conv_item_t *conv_item = &g_array_index(storage_, conv_item_t, row);
 
         if (row == 0) {
@@ -801,16 +795,16 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return (int)tst_address.type;
         }
         return (int) AT_NONE;
-    } else if (role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
+    } else if (role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_LIST) {
         if (column == ConversationDataModel::CONV_COLUMN_SRC_ADDR || column == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
             address tst_address = column == ConversationDataModel::CONV_COLUMN_SRC_ADDR ? conv_item->src_address : conv_item->dst_address;
             if (role == ATapDataModel::DATA_IPV4_INTEGER && tst_address.type == AT_IPv4) {
                 const ws_in4_addr * ip4 = (const ws_in4_addr *) tst_address.data;
                 return (quint32) GUINT32_TO_BE(*ip4);
             }
-            else if (role == ATapDataModel::DATA_IPV6_VECTOR && tst_address.type == AT_IPv6) {
+            else if (role == ATapDataModel::DATA_IPV6_LIST && tst_address.type == AT_IPv6) {
                 const ws_in6_addr * ip6 = (const ws_in6_addr *) tst_address.data;
-                QVector<quint8> result;
+                QList<quint8> result;
                 result.reserve(16);
                 std::copy(ip6->bytes + 0, ip6->bytes + 16, std::back_inserter(result));
                 return QVariant::fromValue(result);
@@ -823,7 +817,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
 
 conv_item_t * ConversationDataModel::itemForRow(int row)
 {
-    if (row < 0 || row >= rowCount(QModelIndex()))
+    if (row < 0 || row >= rowCount())
         return nullptr;
     return (conv_item_t *)&g_array_index(storage_, conv_item_t, row);
 }
