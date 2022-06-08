@@ -841,8 +841,8 @@ WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLUpdateInfo" "https://www.
 
 WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "NoModify" 1
 WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "NoRepair" 1
-WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "VersionMajor" ${VERSION_MAJOR}
-WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "VersionMinor" ${VERSION_MINOR}
+WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "VersionMajor" ${MAJOR_VERSION}
+WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "VersionMinor" ${MINOR_VERSION}
 
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "UninstallString" '"$INSTDIR\${UNINSTALLER_NAME}"'
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "QuietUninstallString" '"$INSTDIR\${UNINSTALLER_NAME}" /S'
@@ -913,23 +913,23 @@ SectionGroup "Plugins & Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan'
-File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\falco-bridge.dll"
-SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\falco'
-File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\falco\cloudtrail.dll"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\falco-bridge.dll"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\falco'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\falco\cloudtrail.dll"
 !include "custom_plugins.txt"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan'
-File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\stats_tree.dll"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
 SectionEnd
 
 Section "Mate - Meta Analysis and Tracing Engine" SecMate
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan'
-File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\mate.dll"
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
 SectionEnd
 
 Section "Configuration Profiles" SecProfiles
