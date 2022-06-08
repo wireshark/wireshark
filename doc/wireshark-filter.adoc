@@ -339,11 +339,11 @@ layer operator (#), followed by a decimal number:
 
     ip.addr#2 == 192.168.30.40
 
-matches only the inner (second) layer in the packet. Layers use simple stacking
-semantics and protocol layers are counted sequentially, so tcp#2 is the layer
-in the stack somewhere above tcp#1.
+matches only the inner (second) layer in the packet.
+Layers use simple stacking semantics and protocol layers are counted sequentially starting from 1.
+For example, in a packet that contains two IPv4 headers, the outer (first) source address can be matched with "ip.src#1" and the inner (second) source address can be matched with "ip.src#2".
 
-For more complicates ranges the same syntax used with slices is valid:
+For more complicated ranges the same syntax used with slices is valid:
 
     tcp.port#[2-4]
 
@@ -456,7 +456,7 @@ Do not confuse this usage of curly brackets with set membership.
 An unfortunate quirk in the filter syntax is that the subtraction operator
 must be preceded by a space character, so "A-B" must be written as "A -B"
 or "A - B".
-                                   
+
 === Protocol field references
 
 A variable using a sigil with the form ${some.proto.field} is called a field
