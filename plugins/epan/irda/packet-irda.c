@@ -1229,7 +1229,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     }
     else
     {
-        conv = conversation_new(pinfo->num, &destaddr, &srcaddr, ENDPOINT_NONE, dlsap, 0, NO_PORT_B);
+        conv = conversation_new(pinfo->num, &destaddr, &srcaddr, ENDPOINT_NONE, dlsap, 0, NO_PORT2);
         lmp_conv = wmem_new(wmem_file_scope(), lmp_conversation_t);
         conversation_add_proto_data(conv, proto_irlmp, (void*)lmp_conv);
     }
