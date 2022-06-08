@@ -1720,7 +1720,6 @@ set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(CFG_OUT_FILES
 	doxygen.cfg
-	packaging/macosx/LogwolfInfo.plist
 	packaging/macosx/osx-app.sh
 	packaging/macosx/osx-dmg.sh
 	packaging/macosx/wireshark-app.dmgbuild
@@ -1731,11 +1730,20 @@ set(CFG_OUT_FILES
 	resources/libwireshark.rc
 	resources/libwiretap.rc
 	resources/libwsutil.rc
-	resources/logwolf.exe.manifest
 	resources/wireshark.exe.manifest
 	resources/wireshark.rc
 	wireshark.pc
 )
+
+if(BUILD_logwolf)
+	list(APPEND CFG_OUT_FILES
+		packaging/macosx/LogwolfInfo.plist
+		packaging/macosx/logwolf-app.dmgbuild
+		packaging/macosx/logwolf-dsym.dmgbuild
+		resources/logwolf.exe.manifest
+	)
+endif()
+
 foreach( _cfg_file ${CFG_OUT_FILES} )
 	configure_file( ${CMAKE_SOURCE_DIR}/${_cfg_file}.in ${CMAKE_BINARY_DIR}/${_cfg_file} @ONLY )
 endforeach()
@@ -3394,14 +3402,14 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_logwolf)
 	add_custom_target(logwolf_dmg_readmes DEPENDS ${_logwolf_read_me_first} ${_logwolf_dsym_installation} )
 	add_dependencies(logwolf_dmg_prep logwolf_dmg_readmes)
 
-	# ADD_CUSTOM_TARGET( logwolf_dmg
-	# 	COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
-	# 	# Unlike wireshark_nsis_prep + wireshark_nsis, we can add a direct
-	# 	# dependency here.
-	# 	DEPENDS wireshark_dmg_prep
-	# 	# We create Wireshark.app in "run". Do our work there.
-	# 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
-	# )
+	ADD_CUSTOM_TARGET( logwolf_dmg
+		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh --app-name Logwolf
+		# Unlike wireshark_nsis_prep + wireshark_nsis, we can add a direct
+		# dependency here.
+		DEPENDS logwolf_dmg_prep
+		# We create Wireshark.app in "run". Do our work there.
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
+	)
 
 endif()
 

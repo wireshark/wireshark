@@ -5,8 +5,10 @@
 set -e
 
 # Defaults
+app_name="Wireshark"
 dmgbuild="@DMGBUILD_EXECUTABLE@"
 version="@PROJECT_VERSION@"
+log_version="@LOG_PROJECT_VERSION@"
 app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-app.dmgbuild"
 dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-dsym.dmgbuild"
 architecture=""
@@ -35,20 +37,14 @@ if [ ! -x "$dmgbuild" ] ; then
 	exit 1
 fi
 
-if lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch arm64 ; then
-	architecture="Arm 64"
-elif lipo Wireshark.app/Contents/MacOS/Wireshark -verify_arch x86_64 ; then
-	architecture="Intel 64"
-else
-	echo "Error: Wireshark.app missing or has unknown architecture."
-	lipo Wireshark.app/Contents/MacOS/Wireshark -detailed_info
-	exit 1
-fi
-
 # Parse command line arguments
 while [ "$1" != "" ]
 do
 	case $1 in
+		-a|--app-name)
+			shift 1
+			app_name="$1"
+			;;
 		-h|--help)
 			help
 			exit 0 ;;
@@ -59,10 +55,26 @@ do
 	shift 1
 done
 
-app_vol_name="Wireshark ${version}"
+if lipo "$app_name.app/Contents/MacOS/$app_name" -verify_arch arm64 ; then
+	architecture="Arm 64"
+elif lipo "$app_name.app/Contents/MacOS/$app_name" -verify_arch x86_64 ; then
+	architecture="Intel 64"
+else
+	echo "Error: $app_name.app missing or has unknown architecture."
+	lipo "$app_name.app/Contents/MacOS/$app_name" -detailed_info
+	exit 1
+fi
+
+if [[ $app_name = Log* ]] ; then
+	version=$log_version
+	app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/logwolf-app.dmgbuild"
+	dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/logwolf-dsym.dmgbuild"
+fi
+
+app_vol_name="$app_name ${version}"
 app_img_name="$app_vol_name $architecture.dmg"
 
-printf "\nCreating application disk image\n"
+printf "\nCreating application disk image %s\n" "$app_img_name"
 
 "$dmgbuild" \
 	--no-hidpi \
@@ -70,10 +82,10 @@ printf "\nCreating application disk image\n"
 	"$app_vol_name" \
 	"$app_img_name" || exit 1
 
-dsym_vol_name="Wireshark dSYM ${version}"
+dsym_vol_name="$app_name dSYM ${version}"
 dsym_img_name="$dsym_vol_name $architecture.dmg"
 
-printf "\nCreating debugging symbols disk image\n"
+printf "\nCreating debugging symbols disk image %s\n" "$dsym_img_name"
 
 "$dmgbuild" \
 	--no-hidpi \
