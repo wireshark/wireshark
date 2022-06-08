@@ -243,7 +243,7 @@ Fedora RPM Package:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake3 -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja rpm-package
+    - ninja wireshark_rpm
 # Fedora RPM Test:
 #   extends: .test-rpm
 #   image: fedora
@@ -259,7 +259,7 @@ openSUSE 15.3 RPM Package:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja rpm-package
+    - ninja wireshark_rpm
 openSUSE 15.3 RPM Test:
   extends: .test-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
@@ -275,7 +275,7 @@ Rocky Linux 8 RPM Package:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja-build rpm-package
+    - ninja-build wireshark_rpm
 Rocky Linux 8 RPM Test:
   extends: .test-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-8-dev

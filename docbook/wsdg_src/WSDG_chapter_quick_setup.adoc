@@ -156,15 +156,24 @@ the file _docbook/README.adoc_ in the Wireshark sources.
 
 ==== Optional: Create an installable or source code package
 
-To create a source code tarball, build the `dist` target.
+You can create packages using the following build targets and commands:
 
-To create an installable package after successfully building Wireshark:
+Source code tarball::
+  Build the `dist` target.
 
-* To build a Debian package, build the `deb-package` target;
-* To build an RPM package, build the `rpm-package` target;
-* To build an https://appimage.org[AppImage] package, build the
-`appimage` target;
-* To build a macOS dmg package containing an application bundle, build the `wireshark_dmg` or `logwolf_dmg` targets.
+deb (Debian) package::
+  Create a symlink in the top-level source directory to _packaging/debian_, then run `dpkg-buildpackage`.
+
+RPM package::
+  Build the `wireshark_rpm` target.
+
+https://appimage.org[AppImage] package::
+  Build the `wireshark_appimage` target.
+
+macOS .dmg package containing an application bundle::
+  Build the `wireshark_dmg` or `logwolf_dmg` targets.
+
+Installable packages typically require building Wireshark first.
 
 ==== Troubleshooting during the build and install on Unix
 

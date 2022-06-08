@@ -179,11 +179,11 @@ README.windows for those instructions.
 11./a. Run 'make install'.  If you're running a system that supports
    the RPM packaging systems you can run
 
-        make rpm-package
+        make wireshark_rpm
 
    or
 
-        ninja rpm-package
+        ninja wireshark_rpm
 
    to make an installable package for your system. The installation path
    defaults to /usr/local, so you'll probably want to pass

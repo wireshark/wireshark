@@ -940,7 +940,7 @@ to build the Debian Package.
 
 ==== Red Hat: .rpm Packages
 
-You can build an RPM package using the `rpm-package` target. If you
+You can build an RPM package using the `wireshark_rpm` target. If you
 are building from a git checkout, the package version is derived from
 the current git HEAD. If you are building from source extracted from a
 tarball created with `git archive` (such as those downloaded from
@@ -972,9 +972,9 @@ In your build directory, type:
 
 [source,sh]
 ----
-ninja rpm-package
+ninja wireshark_rpm
 # ...or, if you're using GNU make...
-make rpm-package
+make wireshark_rpm
 ----
 
 to build the binary and source RPMs. When it is finished there will be a
