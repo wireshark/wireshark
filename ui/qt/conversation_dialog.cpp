@@ -88,11 +88,11 @@ static QAbstractItemDelegate * createDelegate(QWidget * parent)
     return delegate;
 }
 
-ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
-    TrafficTableDialog(parent, cf, filter, table_name_),
+ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
+    TrafficTableDialog(parent, cf, table_name_),
     tcp_graph_requested_(false)
 {
-    trafficTab()->setProtocolInfo(tr("Conversation"), cli_proto_id, &(recent.conversation_tabs), &createModel);
+    trafficTab()->setProtocolInfo(tr("Conversation"), &(recent.conversation_tabs), &createModel);
     trafficTab()->setDelegate(CONV_COLUMN_START, &createDelegate);
     trafficTab()->setDelegate(CONV_COLUMN_DURATION, &createDelegate);
     trafficTab()->setFilter(cf.displayFilter());

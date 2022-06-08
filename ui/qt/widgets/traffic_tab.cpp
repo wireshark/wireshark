@@ -83,7 +83,6 @@ TrafficTab::TrafficTab(QWidget * parent) :
     _createModel = nullptr;
     _disableTaps = false;
     _nameResolution = false;
-    _cliId = 0;
     _recentList = nullptr;
     setTabBasename(QString());
 
@@ -102,10 +101,9 @@ TrafficTab::~TrafficTab()
     }
 }
 
-void TrafficTab::setProtocolInfo(QString tableName, int cliId, GList ** recentList, ATapModelCallback createModel)
+void TrafficTab::setProtocolInfo(QString tableName, GList ** recentList, ATapModelCallback createModel)
 {
     setTabBasename(tableName);
-    _cliId = cliId;
     _recentList = recentList;
     if (createModel)
         _createModel = createModel;
@@ -122,19 +120,13 @@ void TrafficTab::setProtocolInfo(QString tableName, int cliId, GList ** recentLi
             _protocols << proto_get_id_by_filter_name(name.toStdString().c_str());
     }
 
-    // Bring the command-line specified type to the front.
-    if ((_cliId > 0) && (get_conversation_by_proto_id(_cliId))) {
-        _protocols.removeAll(_cliId);
-        _protocols.prepend(_cliId);
-    }
-
     QWidget * container = new QWidget(this);
     container->setFixedHeight(tabBar()->height());
     container->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
 
     QHBoxLayout * layout = new QHBoxLayout(container);
     layout->setContentsMargins(1, 0, 1, 0);
-   
+
     QPushButton * cornerButton = new QPushButton(tr("%1 Types").arg(tableName));
     cornerButton->setFixedHeight(tabBar()->height());
     cornerButton->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -203,11 +195,11 @@ void TrafficTab::setDelegate(int column, ATapCreateDelegate createDelegate)
 QTreeView * TrafficTab::createTree(int protoId)
 {
     TrafficTree * tree = new TrafficTree(tabBasename(), this);
-    
+
     if (_createModel) {
         ATapDataModel * model = _createModel(protoId, "");
         connect(model, &ATapDataModel::tapListenerChanged, tree, &TrafficTree::tapListenerEnabled);
-    
+
         model->enableTap();
 
         foreach(int col, _createDelegates.keys())
@@ -648,7 +640,7 @@ void TrafficTab::detachTab(int tabIdx, QPoint pos) {
     updateTabs();
 }
 
-void TrafficTab::attachTab(QWidget * content, QString name) 
+void TrafficTab::attachTab(QWidget * content, QString name)
 {
     ATapDataModel * model = modelForWidget(content);
     if (!model) {

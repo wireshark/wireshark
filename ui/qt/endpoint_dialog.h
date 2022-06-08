@@ -24,10 +24,8 @@ public:
      *
      * @param parent Parent widget.
      * @param cf Capture file. No statistics will be calculated if this is NULL.
-     * @param cli_proto_id If valid, add this protocol and bring it to the front.
-     * @param filter Display filter to apply.
      */
-    explicit EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id = -1, const char *filter = NULL);
+    explicit EndpointDialog(QWidget &parent, CaptureFile &cf);
 
 signals:
 

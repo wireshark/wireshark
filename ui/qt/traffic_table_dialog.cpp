@@ -42,10 +42,9 @@
 // - Columns don't resize correctly.
 // - Closing the capture file clears conversation data.
 
-TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const char *filter, const QString &table_name) :
+TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const QString &table_name) :
     WiresharkDialog(parent, cf),
-    ui(new Ui::TrafficTableDialog),
-    filter_(filter)
+    ui(new Ui::TrafficTableDialog)
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height() * 3 / 4);
@@ -122,8 +121,6 @@ void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
 
     if (checked)
         trafficTab()->setFilter(cap_file_.capFile()->dfilter);
-    else if (!filter_.isEmpty())
-        trafficTab()->setFilter(filter_);
     else
         trafficTab()->setFilter(QString());
 

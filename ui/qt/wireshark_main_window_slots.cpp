@@ -3353,10 +3353,9 @@ void WiresharkMainWindow::on_actionStatisticsCollectd_triggered()
     openStatisticsTreeDialog("collectd");
 }
 
-// -z conv,...
-void WiresharkMainWindow::statCommandConversations(const char *arg, void *userdata)
+void WiresharkMainWindow::on_actionStatisticsConversations_triggered()
 {
-    ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
+    ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
     connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
         this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t, guint, guint)),
@@ -3366,15 +3365,9 @@ void WiresharkMainWindow::statCommandConversations(const char *arg, void *userda
     conv_dialog->show();
 }
 
-void WiresharkMainWindow::on_actionStatisticsConversations_triggered()
+void WiresharkMainWindow::on_actionStatisticsEndpoints_triggered()
 {
-    statCommandConversations(NULL, NULL);
-}
-
-// -z endpoints,...
-void WiresharkMainWindow::statCommandEndpoints(const char *arg, void *userdata)
-{
-    EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
+    EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
     connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
@@ -3382,11 +3375,6 @@ void WiresharkMainWindow::statCommandEndpoints(const char *arg, void *userdata)
     connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
             this, SLOT(openTcpStreamDialog(int)));
     endp_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionStatisticsEndpoints_triggered()
-{
-    statCommandEndpoints(NULL, NULL);
 }
 
 void WiresharkMainWindow::on_actionStatisticsHART_IP_triggered()
@@ -3419,8 +3407,7 @@ void WiresharkMainWindow::on_actionStatisticsPacketLengths_triggered()
     openStatisticsTreeDialog("plen");
 }
 
-// -z io,stat
-void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
+void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
 {
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     QString displayFilter;
@@ -3431,11 +3418,6 @@ void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
-{
-    statCommandIOGraph(NULL, NULL);
 }
 
 void WiresharkMainWindow::on_actionStatisticsSametime_triggered()

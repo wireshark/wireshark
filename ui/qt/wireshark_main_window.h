@@ -640,9 +640,7 @@ private slots:
     void on_actionStatisticsBACappObjectId_triggered();
     void on_actionStatisticsBACappService_triggered();
     void on_actionStatisticsCollectd_triggered();
-    void statCommandConversations(const char *arg = NULL, void *userdata = NULL);
     void on_actionStatisticsConversations_triggered();
-    void statCommandEndpoints(const char *arg = NULL, void *userdata = NULL);
     void on_actionStatisticsEndpoints_triggered();
     void on_actionStatisticsHART_IP_triggered();
     void on_actionStatisticsHTTPPacketCounter_triggered();
@@ -650,7 +648,6 @@ private slots:
     void on_actionStatisticsHTTPLoadDistribution_triggered();
     void on_actionStatisticsHTTPRequestSequences_triggered();
     void on_actionStatisticsPacketLengths_triggered();
-    void statCommandIOGraph(const char *, void *);
     void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
     void on_actionStatisticsDNS_triggered();

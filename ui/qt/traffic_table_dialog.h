@@ -45,10 +45,9 @@ public:
      *
      * @param parent Parent widget.
      * @param cf Capture file. No statistics will be calculated if this is NULL.
-     * @param filter Display filter to apply.
      * @param table_name If valid, add this protocol and bring it to the front.
      */
-    explicit TrafficTableDialog(QWidget &parent, CaptureFile &cf, const char *filter = NULL, const QString &table_name = tr("Unknown"));
+    explicit TrafficTableDialog(QWidget &parent, CaptureFile &cf, const QString &table_name = tr("Unknown"));
     ~TrafficTableDialog();
 
 public slots:
@@ -61,7 +60,6 @@ signals:
 protected:
     Ui::TrafficTableDialog *ui;
 
-    QString filter_;
     QPushButton *copy_bt_;
 
     void addProgressFrame(QObject *parent);

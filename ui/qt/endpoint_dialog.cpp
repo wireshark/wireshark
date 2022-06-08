@@ -63,10 +63,10 @@ static ATapDataModel * createModel(int protoId, QString filter)
     return new EndpointDataModel(protoId, filter);
 }
 
-EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
-    TrafficTableDialog(parent, cf, filter, table_name_)
+EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf) :
+    TrafficTableDialog(parent, cf, table_name_)
 {
-    trafficTab()->setProtocolInfo(tr("Endpoints"), cli_proto_id, &(recent.endpoint_tabs), &createModel);
+    trafficTab()->setProtocolInfo(tr("Endpoints"), &(recent.endpoint_tabs), &createModel);
     trafficTab()->setFilter(cf.displayFilter());
     displayFilterCheckBox()->setChecked(cf.displayFilter().length() > 0);
     connect(trafficTab(), &TrafficTab::filterAction, this, &EndpointDialog::filterAction);

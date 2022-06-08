@@ -24,7 +24,7 @@ public:
      * @param cli_proto_id If valid, add this protocol and bring it to the front.
      * @param filter Display filter to apply.
      */
-    explicit ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id = -1, const char *filter = NULL);
+    explicit ConversationDialog(QWidget &parent, CaptureFile &cf);
 
 protected:
     void captureFileClosing();
