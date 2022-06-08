@@ -30,9 +30,7 @@ protected:
     void captureFileClosing();
 
 signals:
-    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num);
-    void openTcpStreamGraph(int graph_type);
 
 private:
     QPushButton *follow_bt_;
