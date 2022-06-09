@@ -51,9 +51,8 @@ my $searchReplaceEncNAHRef =
     "1"                  => "ENC_NA",
     "ENC_LITTLE_ENDIAN"  => "ENC_NA",
     "ENC_BIG_ENDIAN"     => "ENC_NA",
-# Could be ENC_ASCII or ENC_NA by type?
-#    "ENC_ASCII|ENC_NA"   => "ENC_ASCII",
-#    "ENC_ASCII|ENC_NA"   => "ENC_NA"
+    "ENC_ASCII|ENC_NA"   => "ENC_NA",
+    "ENC_ASCII | ENC_NA" => "ENC_NA"
    };
 
 # ---------------------------------------------------------------------
