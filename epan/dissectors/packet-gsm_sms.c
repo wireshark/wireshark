@@ -230,6 +230,8 @@ static int hf_gsm_sms_dis_field_addr_length = -1;
 static int hf_gsm_sms_dis_iei_uds_position = -1;
 static int hf_gsm_sms_dis_iei_tf_length = -1;
 static int hf_gsm_sms_dis_iei_pa_animation_number = -1;
+static int hf_gsm_sms_dis_iei_lang_single_shift = -1;
+static int hf_gsm_sms_dis_iei_lang_locking_shift = -1;
 static gint hf_gsm_sms_dis_field_udh_gsm_mask00 = -1;
 static gint hf_gsm_sms_dis_field_udh_gsm_mask01 = -1;
 static gint hf_gsm_sms_dis_field_udh_gsm_mask03 = -1;
@@ -1756,13 +1758,66 @@ dis_iei_upi(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset,
     offset++;
 }
 
+/* TS 123.038 V17.0.0 (2022-04), Table 6.2.1.4.1 */
+static const value_string lang_single_shift_vals[] = {
+    { 0x01, "Turkish" },
+    { 0x02, "Spanish" },
+    { 0x03, "Portuguese" },
+    { 0x04, "Bengali" },
+    { 0x05, "Gujarati" },
+    { 0x06, "Hindi" },
+    { 0x07, "Kannada" },
+    { 0x08, "Malayalam" },
+    { 0x09, "Oriya" },
+    { 0x0A, "Punjabi" },
+    { 0x0B, "Tamil" },
+    { 0x0C, "Telugu" },
+    { 0x0D, "Urdu" },
+    { 0, NULL }
+};
+
+/* 9.2.3.24.15 */
+static void
+dis_iei_lang_ss(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, guint8 length, gsm_sms_udh_fields_t *p_udh_fields _U_)
+{
+    EXACT_DATA_CHECK(length, 1);
+
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_lang_single_shift, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
+
+/* TS 123.038 V17.0.0 (2022-04), Table 6.2.1.4.1 */
+static const value_string lang_locking_shift_vals[] = {
+    { 0x01, "Turkish" },
+//  { 0x02, "Spanish" }, Not defined, fallback to GSM 7 bit alphabet
+    { 0x03, "Portuguese" },
+    { 0x04, "Bengali" },
+    { 0x05, "Gujarati" },
+    { 0x06, "Hindi" },
+    { 0x07, "Kannada" },
+    { 0x08, "Malayalam" },
+    { 0x09, "Oriya" },
+    { 0x0A, "Punjabi" },
+    { 0x0B, "Tamil" },
+    { 0x0C, "Telugu" },
+    { 0x0D, "Urdu" },
+    { 0, NULL }
+};
+
+/* 9.2.3.24.16 */
+static void
+dis_iei_lang_ls(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset, guint8 length, gsm_sms_udh_fields_t *p_udh_fields _U_)
+{
+    EXACT_DATA_CHECK(length, 1);
+
+    proto_tree_add_item(tree, hf_gsm_sms_dis_iei_lang_locking_shift, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
 
 /*
  * 9.2.3.24 TP-User Data (TP-UD)
  * Information Element Identifier octet
  */
 
-/* TS 123 040 V9.3.0 (2010-10) */
+/* TS 123 040 V17.2.0 (2022-05) */
 static const range_string gsm_sms_tp_ud_ie_id_rvals[] = {
     { 0x00, 0x00,  "Concatenated short messages, 8-bit reference number (SMS Control)" },
     { 0x01, 0x01,  "Special SMS Message Indication (SMS Control)" },
@@ -1795,10 +1850,14 @@ static const range_string gsm_sms_tp_ud_ie_id_rvals[] = {
     { 0x20, 0x20,  "RFC 822 E-Mail Header (SMS Control)" },
     { 0x21, 0x21,  "Hyperlink format element (SMS Control)" },
     { 0x22, 0x22,  "Reply Address Element (SMS Control)" },
+    { 0x23, 0x23,  "Enhanced Voice Mail Information (SMS Control)" },
+    { 0x24, 0x24,  "National Language Single Shift (SMS Control)" },
+    { 0x25, 0x25,  "National Language Locking Shift (SMS Control)" },
+    { 0x26, 0x6F,  "Reserved for future use N/A" },
     { 0x70, 0x7F,  "(U)SIM Toolkit Security Headers (SMS Control)" },
     { 0x80, 0x9F,  "SME to SME specific use (SMS Control)" },
     { 0xA0, 0xBF,  "Reserved for future use N/A" },
-    { 0xC0, 0xDF,  "SME to SME specific use (SMS Control)" },
+    { 0xC0, 0xDF,  "SC specific use (SMS Control)" },
     { 0xE0, 0xFF,  "Reserved for future use N/A" },
     { 0x00, 0x00,  NULL },
 };
@@ -1870,6 +1929,12 @@ dis_field_ud_iei(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 of
                 break;
             case 0x13:
                 iei_fcn = dis_iei_upi;
+                break;
+            case 0x24:
+                iei_fcn = dis_iei_lang_ss;
+                break;
+            case 0x25:
+                iei_fcn = dis_iei_lang_ls;
                 break;
         }
 
@@ -3501,6 +3566,8 @@ proto_register_gsm_sms(void)
       { &hf_gsm_sms_dis_iei_vp_vertical_dimension, { "Vertical dimension", "gsm_sms.dis_iei_vp.vertical_dimension", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_sms_dis_iei_vp_variable_picture, { "Variable Picture", "gsm_sms.dis_iei_vp.variable_picture", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_sms_dis_iei_upi_num_corresponding_objects, { "Number of corresponding objects", "gsm_sms.dis_iei_upi.num_corresponding_objects", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_sms_dis_iei_lang_single_shift, { "Language (Single Shift)", "gsm_sms.dis_iei_lang.single_shift", FT_UINT8, BASE_DEC, VALS(lang_single_shift_vals), 0x0, NULL, HFILL }},
+      { &hf_gsm_sms_dis_iei_lang_locking_shift, { "Language (Locking Shift)", "gsm_sms.dis_iei_lang.locking_shift", FT_UINT8, BASE_DEC, VALS(lang_locking_shift_vals), 0x0, NULL, HFILL }},
       { &hf_gsm_sms_dis_field_ud_iei_length, { "Length", "gsm_sms.dis_field_ud_iei.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_sms_ie_data, { "IE Data", "gsm_sms.ie_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_sms_dis_field_udh_user_data_header_length, { "User Data Header Length", "gsm_sms.dis_field_udh.user_data_header_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
