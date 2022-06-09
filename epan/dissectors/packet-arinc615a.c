@@ -108,6 +108,7 @@ static void dissect_a615a_LCL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
     guint32 th_count, pn_count;
     proto_item *pi;
 
+    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_number_target_hardware, 2, ENC_BIG_ENDIAN, &th_count);
 
     for (unsigned i = 0; i < th_count; ++i) {
@@ -131,14 +132,22 @@ static void dissect_a615a_LUS(ptvcursor_t *ptvc, packet_info *pinfo)
 {
     guint32 status, file_count;
     const guint8 *ratio;
+    const guint8 *protocol_version = NULL;
     proto_item *pi;
 
+    ptvcursor_add_ret_string(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA,
+                            pinfo->pool, &protocol_version);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_operation_status, 2, ENC_BIG_ENDIAN, &status);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s",
                     val_to_str(status, a615a_operation_status_codes, "Unknown (0x%04x)"));
     ptvcursor_add(ptvc, hf_a615a_status_description, 1, ENC_ASCII | ENC_BIG_ENDIAN);
     ptvcursor_add(ptvc, hf_a615a_counter, 2, ENC_BIG_ENDIAN);
-    ptvcursor_add(ptvc, hf_a615a_exception_timer, 2, ENC_BIG_ENDIAN);
+
+    if(protocol_version && strcmp((const char*)protocol_version, "A1"))
+    {
+        ptvcursor_add(ptvc, hf_a615a_exception_timer, 2, ENC_BIG_ENDIAN);
+    }
+
     ptvcursor_add(ptvc, hf_a615a_estimated_time, 2, ENC_BIG_ENDIAN);
     ptvcursor_add_ret_string(ptvc, hf_a615a_load_ratio, 3, ENC_ASCII | ENC_NA, pinfo->pool,
                              &ratio);
@@ -162,6 +171,7 @@ static void dissect_a615a_LCS(ptvcursor_t *ptvc, packet_info *pinfo)
 {
     guint32 status;
 
+    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add(ptvc, hf_a615a_counter, 2, ENC_BIG_ENDIAN);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_operation_status, 2, ENC_BIG_ENDIAN, &status);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s",
@@ -175,6 +185,7 @@ static void dissect_a615a_LUI_LCI_LND_LNO(ptvcursor_t *ptvc, packet_info *pinfo)
 {
     guint32 status;
 
+    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_operation_status, 2, ENC_BIG_ENDIAN, &status);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s",
                     val_to_str(status, a615a_operation_status_codes, "Unknown (0x%04x)"));
@@ -186,6 +197,7 @@ static void dissect_a615a_LUR(ptvcursor_t *ptvc, packet_info *pinfo _U_)
     guint32 file_count;
     proto_item *pi;
 
+    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);
     for (unsigned i = 0; i < file_count; ++i) {
         pi = ptvcursor_add(ptvc, hf_a615a_file_name, 1, ENC_ASCII | ENC_BIG_ENDIAN);
@@ -200,6 +212,7 @@ static void dissect_a615a_LNL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
     guint32 file_count;
     proto_item *pi;
 
+    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);
     for (unsigned i = 0; i < file_count; ++i) {
         pi = ptvcursor_add(ptvc, hf_a615a_file_name, 1, ENC_ASCII | ENC_BIG_ENDIAN);
@@ -213,6 +226,7 @@ static void dissect_a615a_LNR(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
     guint32 file_count;
 
+    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);
     for (unsigned i = 0; i < file_count; ++i) {
         ptvcursor_add(ptvc, hf_a615a_file_name, 1, ENC_ASCII | ENC_BIG_ENDIAN);
@@ -224,13 +238,21 @@ static void dissect_a615a_LNS(ptvcursor_t *ptvc, packet_info *pinfo)
 {
     guint32 status, file_count;
     proto_item *pi;
+    const guint8 *protocol_version = NULL;
 
+    ptvcursor_add_ret_string(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA,
+                            pinfo->pool, &protocol_version);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_operation_status, 2, ENC_BIG_ENDIAN, &status);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s",
                     val_to_str(status, a615a_operation_status_codes, "Unknown (0x%04x)"));
     ptvcursor_add(ptvc, hf_a615a_status_description, 1, ENC_ASCII | ENC_BIG_ENDIAN);
     ptvcursor_add(ptvc, hf_a615a_counter, 2, ENC_BIG_ENDIAN);
-    ptvcursor_add(ptvc, hf_a615a_exception_timer, 2, ENC_BIG_ENDIAN);
+
+    if (protocol_version && strcmp((const char*)protocol_version, "A1"))
+    {
+        ptvcursor_add(ptvc, hf_a615a_exception_timer, 2, ENC_BIG_ENDIAN);
+    }
+
     ptvcursor_add(ptvc, hf_a615a_estimated_time, 2, ENC_BIG_ENDIAN);
     ptvcursor_add(ptvc, hf_a615a_load_ratio, 3, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);
@@ -248,6 +270,7 @@ static void dissect_a615a_LNA(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
     guint32 file_count;
 
+    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
     ptvcursor_add_ret_uint(ptvc, hf_a615a_file_count, 2, ENC_BIG_ENDIAN, &file_count);
     for (unsigned i = 0; i < file_count; ++i) {
         ptvcursor_add(ptvc, hf_a615a_file_name, 1, ENC_ASCII | ENC_BIG_ENDIAN);
@@ -265,7 +288,6 @@ static void dissect_a615a_protocol_file(tvbuff_t *tvb, packet_info *pinfo, proto
 
     ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, a615a_tree, tvb, 0);
     ptvcursor_add(ptvc, hf_a615a_file_length, 4, ENC_BIG_ENDIAN);
-    ptvcursor_add(ptvc, hf_a615a_protocol_version, 2, ENC_ASCII | ENC_NA);
 
     switch (suffix) {
         case LUI:
