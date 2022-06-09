@@ -214,18 +214,13 @@ static int hf_smpp_broadcast_service_group            = -1;
 /*
  * Data Coding Scheme section
  */
-static int hf_smpp_dcs                                = -1;
 static int hf_smpp_dcs_sms_coding_group               = -1;
-static int hf_smpp_dcs_text_compression               = -1;
-static int hf_smpp_dcs_class_present                  = -1;
 static int hf_smpp_dcs_reserved                       = -1;
 static int hf_smpp_dcs_charset                        = -1;
 static int hf_smpp_dcs_class                          = -1;
-static int hf_smpp_dcs_cbs_coding_group               = -1;
-static int hf_smpp_dcs_cbs_language                   = -1;
-static int hf_smpp_dcs_wap_charset                    = -1;
-static int hf_smpp_dcs_wap_class                      = -1;
-static int hf_smpp_dcs_cbs_class                      = -1;
+static int hf_smpp_dcs_wait_ind                       = -1;
+static int hf_smpp_dcs_reserved2                      = -1;
+static int hf_smpp_dcs_wait_type                      = -1;
 
 /*
  * Huawei SMPP+ extensions
@@ -249,23 +244,29 @@ static gint ett_dlist_resp      = -1;
 static gint ett_opt_params      = -1;
 static gint ett_opt_param       = -1;
 static gint ett_dcs             = -1;
-static gint ett_dcs_gsm_sms     = -1;
-static gint ett_dcs_gsm_cbs     = -1;
 
 static dissector_handle_t smpp_handle;
 
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_over_tcp = TRUE;
+static gboolean smpp_gsm7_unpacked = TRUE;
 
 typedef enum {
-  DECODE_AS_DEFAULT    = 0,
-  DECODE_AS_ASCII      = 1,
-  DECODE_AS_ISO_8859_1 = 3,
-  DECODE_AS_ISO_8859_5 = 6,
-  DECODE_AS_ISO_8859_8 = 7,
-  DECODE_AS_UCS2       = 8,
-  DO_NOT_DECODE        = G_MAXUINT,
+  DECODE_AS_DEFAULT    =   0,
+  DECODE_AS_ASCII      =   1,
+  DECODE_AS_OCTET      =   2, /* 8-bit binary */
+  DECODE_AS_ISO_8859_1 =   3,
+  DECODE_AS_ISO_8859_5 =   6,
+  DECODE_AS_ISO_8859_8 =   7,
+  DECODE_AS_UCS2       =   8,
+  DECODE_AS_KSC5601    =  14, /* Korean, EUC-KR as in ANSI 637 */
+  DECODE_AS_GSM7       = 241, /* One of many GSM DCS values that means GSM7 */
 } SMPP_DCS_Type;
+
+/* ENC_NA is the same as ENC_ASCII, so use an artifical value to mean
+ * "treat this as 8-bit binary / FT_BYTES, not a string."
+ */
+#define DO_NOT_DECODE G_MAXUINT
 
 /* Default preference whether to decode the SMS over SMPP when DCS = 0 */
 static gint smpp_decode_dcs_0_sms = DO_NOT_DECODE;
@@ -588,25 +589,25 @@ static const value_string vals_replace_if_present_flag[] = {
     {  0, NULL }
 };
 
-static const value_string vals_data_coding[] = {
-    {   0, "SMSC default alphabet" },
-    {   1, "IA5 (CCITT T.50)/ASCII (ANSI X3.4)" },
-    {   2, "Octet unspecified (8-bit binary)" },
-    {   3, "Latin 1 (ISO-8859-1)" },
-    {   4, "Octet unspecified (8-bit binary)" },
-    {   5, "JIS (X 0208-1990)" },
-    {   6, "Cyrillic (ISO-8859-5)" },
-    {   7, "Latin/Hebrew (ISO-8859-8)" },
-    {   8, "UCS2 (ISO/IEC-10646)" },
-    {   9, "Pictogram encoding" },
-    {  10, "ISO-2022-JP (Music codes)" },
-    {  11, "reserved" },
-    {  12, "reserved" },
-    {  13, "Extended Kanji JIS(X 0212-1990)" },
-    {  14, "KS C 5601" },
-    {  15, "reserved" },
-/*! \TODO Rest to be defined (bitmask?) according GSM 03.38 */
-    {  0, NULL }
+static const range_string rvals_data_coding[] = {
+    {    0,    0, "SMSC default alphabet" },
+    {    1,    1, "IA5 (CCITT T.50)/ASCII (ANSI X3.4)" },
+    {    2,    2, "Octet unspecified (8-bit binary)" },
+    {    3,    3, "Latin 1 (ISO-8859-1)" },
+    {    4,    4, "Octet unspecified (8-bit binary)" },
+    {    5,    5, "JIS (X 0208-1990)" },
+    {    6,    6, "Cyrillic (ISO-8859-5)" },
+    {    7,    7, "Latin/Hebrew (ISO-8859-8)" },
+    {    8,    8, "UCS2 (ISO/IEC-10646)" },
+    {    9,    9, "Pictogram Encoding" },
+    {   10,   10, "ISO-2022-JP (Music codes)" },
+    {   11,   12, "Reserved" },
+    {   13,   13, "Extended Kanji JIS (X 0212-1990)" },
+    {   14,   14, "KS C 5601" },
+    {   15, 0xBF, "Reserved" },
+    { 0xC0, 0xEF, "GSM MWI control - see [GSM 03.38]" },
+    { 0xF0, 0xFF, "GSM message class control - see [GSM 03.38]" },
+    {    0,    0, NULL }
 };
 
 static const value_string vals_message_state[] = {
@@ -801,8 +802,10 @@ static const value_string vals_its_session_ind[] = {
     {  0, NULL }
 };
 
-/* Data Coding Scheme: see 3GPP TS 23.040 and 3GPP TS 23.038 */
+/* Data Coding Scheme: see 3GPP TS 23.040 and 3GPP TS 23.038.
+ * Note values below 0x0C are not used in SMPP. */
 static const value_string vals_dcs_sms_coding_group[] = {
+#if 0
     { 0x00, "SMS DCS: General Data Coding indication - Uncompressed text, no message class" },
     { 0x01, "SMS DCS: General Data Coding indication - Uncompressed text" },
     { 0x02, "SMS DCS: General Data Coding indication - Compressed text, no message class" },
@@ -815,6 +818,7 @@ static const value_string vals_dcs_sms_coding_group[] = {
     { 0x09, "SMS DCS: Reserved" },
     { 0x0A, "SMS DCS: Reserved" },
     { 0x0B, "SMS DCS: Reserved" },
+#endif
     { 0x0C, "SMS DCS: Message Waiting Indication - Discard Message" },
     { 0x0D, "SMS DCS: Message Waiting Indication - Store Message (GSM 7-bit default alphabet)" },
     { 0x0E, "SMS DCS: Message Waiting Indication - Store Message (UCS-2 character set)" },
@@ -822,21 +826,9 @@ static const value_string vals_dcs_sms_coding_group[] = {
     { 0x00, NULL }
 };
 
-static const true_false_string tfs_dcs_text_compression = {
-    "Compressed text",
-    "Uncompressed text"
-};
-
-static const true_false_string tfs_dcs_class_present = {
-    "Message class is present",
-    "No message class"
-};
-
 static const value_string vals_dcs_charset[] = {
     { 0x00, "GSM 7-bit default alphabet" },
     { 0x01, "8-bit data" },
-    { 0x02, "UCS-2 (16-bit) data" },
-    { 0x03, "Reserved" },
     { 0x00, NULL }
 };
 
@@ -845,77 +837,6 @@ static const value_string vals_dcs_class[] = {
     { 0x01, "Class 1 - ME specific" },
     { 0x02, "Class 2 - (U)SIM specific" },
     { 0x03, "Class 3 - TE specific" },
-    { 0x00, NULL }
-};
-
-static const value_string vals_dcs_cbs_coding_group[] = {
-    { 0x00, "CBS DCS: Language using the GSM 7-bit default alphabet" },
-    { 0x01, "CBS DCS: Language indication at beginning of message" },
-    { 0x02, "CBS DCS: Language using the GSM 7-bit default alphabet" },
-    { 0x03, "CBS DCS: Reserved" },
-    { 0x04, "CBS DCS: General Data Coding indication - Uncompressed text, no message class" },
-    { 0x05, "CBS DCS: General Data Coding indication - Uncompressed text" },
-    { 0x06, "CBS DCS: General Data Coding indication - Compressed text, no message class" },
-    { 0x07, "CBS DCS: General Data Coding indication - Compressed text" },
-    { 0x08, "CBS DCS: Reserved" },
-    { 0x09, "CBS DCS: Message with User Data Header structure" },
-    { 0x0A, "CBS DCS: Reserved" },
-    { 0x0B, "CBS DCS: Reserved" },
-    { 0x0C, "CBS DCS: Reserved" },
-    { 0x0D, "CBS DCS: Reserved" },
-    { 0x0E, "CBS DCS: Defined by the WAP Forum" },
-    { 0x0F, "SMS DCS: Data coding / message class" },
-    { 0x00, NULL }
-};
-
-static const value_string vals_dcs_cbs_language[] = {
-    { 0x00, "German" },
-    { 0x01, "English" },
-    { 0x02, "Italian" },
-    { 0x03, "French" },
-    { 0x04, "Spanish" },
-    { 0x05, "Dutch" },
-    { 0x06, "Swedish" },
-    { 0x07, "Danish" },
-    { 0x08, "Portuguese" },
-    { 0x09, "Finnish" },
-    { 0x0A, "Norwegian" },
-    { 0x0B, "Greek" },
-    { 0x0C, "Turkish" },
-    { 0x0D, "Hungarian" },
-    { 0x0E, "Polish" },
-    { 0x0F, "Language not specified" },
-    { 0x10, "GSM 7-bit default alphabet - message preceded by language indication" },
-    { 0x11, "UCS-2 (16-bit) - message preceded by language indication" },
-    { 0x20, "Czech" },
-    { 0x21, "Hebrew" },
-    { 0x22, "Arabic" },
-    { 0x23, "Russian" },
-    { 0x24, "Icelandic" },
-    { 0x00, NULL }
-};
-
-static const value_string vals_dcs_cbs_class[] = {
-    { 0x00, "No message class" },
-    { 0x01, "Class 1 - User defined" },
-    { 0x02, "Class 2 - User defined" },
-    { 0x03, "Class 3 - TE specific" },
-    { 0x00, NULL }
-};
-
-static const value_string vals_dcs_wap_class[] = {
-    { 0x00, "No message class" },
-    { 0x01, "Class 1 - ME specific" },
-    { 0x02, "Class 2 - (U)SIM specific" },
-    { 0x03, "Class 3 - TE specific" },
-    { 0x00, NULL }
-};
-
-static const value_string vals_dcs_wap_charset[] = {
-    { 0x00, "Reserved" },
-    { 0x01, "8-bit data" },
-    { 0x02, "Reserved" },
-    { 0x03, "Reserved" },
     { 0x00, NULL }
 };
 
@@ -1784,105 +1705,50 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
 {
     guint32     val;
     int         off     = *offset;
-    proto_tree *subtree, *code_tree;
+    proto_tree *subtree;
     proto_item *pi;
 
-    pi = proto_tree_add_item_ret_uint(tree, hf_smpp_data_coding, tvb, off, 1, ENC_NA, &val);
-    *dataCoding = val;
-    subtree = proto_item_add_subtree(pi, ett_dcs);
     /* SMPP Data Coding Scheme */
-    proto_tree_add_uint(subtree, hf_smpp_dcs, tvb, off, 1, val);
+    pi = proto_tree_add_item_ret_uint(tree, hf_smpp_data_coding, tvb, off, 1, ENC_NA, &val);
 
     if (val & 0xC0) {
 
         /* GSM SMS Data Coding Scheme */
-        code_tree = proto_tree_add_subtree(subtree, tvb, off, 1, ett_dcs_gsm_sms, NULL, "GSM SMS Data Coding");
-        proto_tree_add_uint(code_tree, hf_smpp_dcs_sms_coding_group, tvb, off, 1, val);
+        subtree = proto_item_add_subtree(pi, ett_dcs);
 
-        if ((val & 0x80) == 0x80) {
-            /* Reserved */
-        } else if ((val & 0xF0) == 0xF0) {
+        if ((val & 0xF0) == 0xF0) {
             static int * const gsm_msg_control_fields[] = {
+                &hf_smpp_dcs_sms_coding_group,
                 &hf_smpp_dcs_reserved,
                 &hf_smpp_dcs_charset,
                 &hf_smpp_dcs_class,
                 NULL
             };
 
-            proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_msg_control_fields, val);
-        } else if (val & 0x10) {
-            static int * const gsm_mwi_control_class_fields[] = {
-                &hf_smpp_dcs_text_compression,
-                &hf_smpp_dcs_class_present,
-                &hf_smpp_dcs_charset,
-                &hf_smpp_dcs_class,
-                NULL
-            };
-
-            proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_mwi_control_class_fields, val);
+            proto_tree_add_bitmask_list(subtree, tvb, off, 1, gsm_msg_control_fields, ENC_NA);
+            if ((val & 0x04) == 0x04) {
+                *dataCoding = DECODE_AS_OCTET;
+            } else {
+                *dataCoding = DECODE_AS_GSM7;
+            }
         } else {
             static int * const gsm_mwi_control_fields[] = {
-                &hf_smpp_dcs_text_compression,
-                &hf_smpp_dcs_class_present,
-                &hf_smpp_dcs_charset,
+                &hf_smpp_dcs_sms_coding_group,
+                &hf_smpp_dcs_wait_ind,
+                &hf_smpp_dcs_reserved2,
+                &hf_smpp_dcs_wait_type,
                 NULL
             };
 
-            proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_mwi_control_fields, val);
-        }
-        /* Cell Broadcast Service (CBS) Data Coding Scheme */
-        code_tree = proto_tree_add_subtree(subtree, tvb, off, 1, ett_dcs_gsm_cbs, NULL, "GSM CBS Data Coding");
-        proto_tree_add_uint(code_tree, hf_smpp_dcs_cbs_coding_group, tvb, off, 1, val);
-
-        if (val < 0x40) { /* Language specified */
-            proto_tree_add_uint(code_tree, hf_smpp_dcs_cbs_language, tvb, off, 1, val);
-        } else if ((val & 0x40) == 0x40) { /* General Data Coding indication */
-            if (val & 0x10) {
-                static int * const gsm_cbs_gen_class_fields[] = {
-                    &hf_smpp_dcs_text_compression,
-                    &hf_smpp_dcs_class_present,
-                    &hf_smpp_dcs_charset,
-                    &hf_smpp_dcs_class,
-                    NULL
-                };
-                proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_gen_class_fields, val);
-
+            proto_tree_add_bitmask_list(subtree, tvb, off, 1, gsm_mwi_control_fields, ENC_NA);
+            if ((val & 0xF0) == 0xE0) {
+                *dataCoding = DECODE_AS_UCS2;
             } else {
-                static int * const gsm_cbs_gen_fields[] = {
-                    &hf_smpp_dcs_text_compression,
-                    &hf_smpp_dcs_class_present,
-                    &hf_smpp_dcs_charset,
-                    NULL
-                };
-
-                proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_gen_fields, val);
+                *dataCoding = DECODE_AS_GSM7;
             }
-        } else if ((val & 0x20) == 0x20) { /* Message with UDH structure */
-            static int * const gsm_cbs_udh_fields[] = {
-                &hf_smpp_dcs_charset,
-                &hf_smpp_dcs_class,
-                NULL
-            };
-
-            proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_udh_fields, val);
-        } else if ((val & 0xF0) == 0xE0) { /* WAP Forum */
-            static int * const gsm_cbs_wap_fields[] = {
-                &hf_smpp_dcs_wap_charset,
-                &hf_smpp_dcs_wap_class,
-                NULL
-            };
-
-            proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_wap_fields, val);
-        } else if ((val & 0xF0) == 0xF0) { /* Data coding / message handling */
-            static int * const gsm_cbs_dcs_fields[] = {
-                &hf_smpp_dcs_reserved,
-                &hf_smpp_dcs_charset,
-                &hf_smpp_dcs_cbs_class,
-                NULL
-            };
-
-            proto_tree_add_bitmask_list_value(code_tree, tvb, off, 1, gsm_cbs_dcs_fields, val);
         }
+    } else {
+        *dataCoding = val;
     }
     (*offset)++;
 }
@@ -1899,19 +1765,29 @@ smpp_handle_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int length, guint8 
         encoding = smpp_decode_dcs_0_sms;
         break;
     case DECODE_AS_ASCII:
-        encoding = ENC_ASCII|ENC_NA;
+        encoding = ENC_ASCII;
+        break;
+    case DECODE_AS_OCTET:
+        encoding = DO_NOT_DECODE;
         break;
     case DECODE_AS_ISO_8859_1:
-        encoding = ENC_ISO_8859_1|ENC_NA;
+        encoding = ENC_ISO_8859_1;
         break;
     case DECODE_AS_ISO_8859_5:
-        encoding = ENC_ISO_8859_5|ENC_NA;
+        encoding = ENC_ISO_8859_5;
         break;
     case DECODE_AS_ISO_8859_8:
-        encoding = ENC_ISO_8859_8|ENC_NA;
+        encoding = ENC_ISO_8859_8;
         break;
     case DECODE_AS_UCS2:
         encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
+        break;
+    case DECODE_AS_KSC5601:
+        encoding = ENC_EUC_KR;
+        break;
+    case DECODE_AS_GSM7:
+        encoding = smpp_gsm7_unpacked ? ENC_3GPP_TS_23_038_7BITS_UNPACKED :
+            ENC_3GPP_TS_23_038_7BITS_PACKED;
         break;
     default:
         /* XXX: Support decoding unknown values according to the pref? */
@@ -2957,7 +2833,7 @@ proto_register_smpp(void)
         },
         {   &hf_smpp_data_coding,
             {   "Data coding", "smpp.data_coding",
-                FT_UINT8, BASE_HEX, NULL, 0x00,
+                FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(rvals_data_coding), 0x00,
                 "Defines the encoding scheme of the message.",
                 HFILL
             }
@@ -3464,80 +3340,50 @@ proto_register_smpp(void)
         /*
          * Data Coding Scheme
          */
-        {       &hf_smpp_dcs,
-                { "SMPP Data Coding Scheme", "smpp.dcs",
-                FT_UINT8, BASE_HEX, VALS(vals_data_coding), 0x00,
-                "Data Coding Scheme according to SMPP.",
+        {   &hf_smpp_dcs_sms_coding_group,
+            {   "DCS Coding Group for SMS", "smpp.dcs.sms_coding_group",
+                FT_UINT8, BASE_HEX, VALS(vals_dcs_sms_coding_group), 0xF0,
+                "Data Coding Scheme coding group for GSM Short Message Service.",
                 HFILL
             }
         },
-        {       &hf_smpp_dcs_sms_coding_group,
-                {       "DCS Coding Group for SMS", "smpp.dcs.sms_coding_group",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_sms_coding_group), 0xF0,
-                        "Data Coding Scheme coding group for GSM Short Message Service.",
-                        HFILL
-                }
+        {   &hf_smpp_dcs_reserved,
+            {   "Reserved (should be zero)", "smpp.dcs.reserved",
+                FT_UINT8, BASE_DEC, NULL, 0x08,
+                NULL, HFILL
+            }
         },
-        {       &hf_smpp_dcs_text_compression,
-                {       "DCS Text compression", "smpp.dcs.text_compression",
-                        FT_BOOLEAN, 8, TFS(&tfs_dcs_text_compression), 0x20,
-                        "Indicates if text compression is used.", HFILL
-                }
+        {   &hf_smpp_dcs_charset,
+            {   "DCS Character set", "smpp.dcs.charset",
+                FT_UINT8, BASE_HEX, VALS(vals_dcs_charset), 0x04,
+                "Specifies the character set used in the message.", HFILL
+            }
         },
-        {       &hf_smpp_dcs_class_present,
-                {       "DCS Class present", "smpp.dcs.class_present",
-                        FT_BOOLEAN, 8, TFS(&tfs_dcs_class_present), 0x10,
-                        "Indicates if the message class is present (defined).", HFILL
-                }
+        {   &hf_smpp_dcs_class,
+            {   "DCS Message class", "smpp.dcs.class",
+                FT_UINT8, BASE_HEX, VALS(vals_dcs_class), 0x03,
+                "Specifies the message class.", HFILL
+            }
         },
-        {       &hf_smpp_dcs_reserved,
-                {       "Reserved (should be zero)", "smpp.dcs.reserved",
-                        FT_UINT8, BASE_DEC, NULL, 0x08,
-                        NULL, HFILL
-                }
+        {   &hf_smpp_dcs_wait_ind,
+            {   "Indication", "smpp.dcs.wait_ind",
+                FT_UINT8, BASE_HEX, VALS(vals_msg_wait_ind), 0x08,
+                "Indicates to the handset that a message is waiting.",
+                HFILL
+            }
         },
-        {       &hf_smpp_dcs_charset,
-                {       "DCS Character set", "smpp.dcs.charset",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_charset), 0x0C,
-                        "Specifies the character set used in the message.", HFILL
-                }
+        {   &hf_smpp_dcs_reserved2,
+            {   "Reserved (should be zero)", "smpp.dcs.reserved",
+                FT_UINT8, BASE_DEC, NULL, 0x04,
+                NULL, HFILL
+            }
         },
-        {       &hf_smpp_dcs_class,
-                {       "DCS Message class", "smpp.dcs.class",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_class), 0x03,
-                        "Specifies the message class.", HFILL
-                }
-        },
-        {       &hf_smpp_dcs_cbs_coding_group,
-                {       "DCS Coding Group for CBS", "smpp.dcs.cbs_coding_group",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_cbs_coding_group), 0xF0,
-                        "Data Coding Scheme coding group for GSM Cell Broadcast Service.",
-                        HFILL
-                }
-        },
-        {       &hf_smpp_dcs_cbs_language,
-                {       "DCS CBS Message language", "smpp.dcs.cbs_language",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_cbs_language), 0x3F,
-                        "Language of the GSM Cell Broadcast Service message.", HFILL
-                }
-        },
-        {       &hf_smpp_dcs_cbs_class,
-                {       "DCS CBS Message class", "smpp.dcs.cbs_class",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_cbs_class), 0x03,
-                        "Specifies the message class for GSM Cell Broadcast Service, for the Data coding / message handling code group.", HFILL
-                }
-        },
-        {       &hf_smpp_dcs_wap_charset,
-                {       "DCS Message coding", "smpp.dcs.wap_coding",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_wap_charset), 0x0C,
-                        "Specifies the used message encoding, as specified by the WAP Forum (WAP over GSM USSD).", HFILL
-                }
-        },
-        {       &hf_smpp_dcs_wap_class,
-                {       "DCS CBS Message class", "smpp.dcs.wap_class",
-                        FT_UINT8, BASE_HEX, VALS(vals_dcs_wap_class), 0x03,
-                        "Specifies the message class for GSM Cell Broadcast Service, as specified by the WAP Forum (WAP over GSM USSD).", HFILL
-                }
+        {   &hf_smpp_dcs_wait_type,
+            {   "Type", "smpp.dcs.wait_type",
+                FT_UINT8, BASE_HEX, VALS(vals_msg_wait_type), 0x03,
+                "Indicates type of message that is waiting.",
+                HFILL
+            }
         },
         /* Changes in SMPP 5.0 */
         {       &hf_smpp_congestion_state,
@@ -3761,20 +3607,19 @@ proto_register_smpp(void)
         &ett_opt_params,
         &ett_opt_param,
         &ett_dcs,
-        &ett_dcs_gsm_sms,
-        &ett_dcs_gsm_cbs,
     };
 
     /* Encoding used to decode the SMS over SMPP when DCS is 0 */
     static const enum_val_t smpp_dcs_0_sms_decode_options[] = {
         { "none",        "None",       DO_NOT_DECODE },
-        { "ascii",       "ASCII",      ENC_ASCII|ENC_NA },
-        { "gsm7",        "GSM 7-bit",  ENC_3GPP_TS_23_038_7BITS_UNPACKED|ENC_NA},
-        { "gsm7-packed", "GSM 7-bit (packed)", ENC_3GPP_TS_23_038_7BITS_PACKED|ENC_NA},
-        { "iso-8859-1",  "ISO-8859-1", ENC_ISO_8859_1|ENC_NA },
-        { "iso-8859-5",  "ISO-8859-5", ENC_ISO_8859_5|ENC_NA },
-        { "iso-8859-8",  "ISO-8859-8", ENC_ISO_8859_8|ENC_NA },
+        { "ascii",       "ASCII",      ENC_ASCII },
+        { "gsm7",        "GSM 7-bit",  ENC_3GPP_TS_23_038_7BITS_UNPACKED },
+        { "gsm7-packed", "GSM 7-bit (packed)", ENC_3GPP_TS_23_038_7BITS_PACKED },
+        { "iso-8859-1",  "ISO-8859-1", ENC_ISO_8859_1 },
+        { "iso-8859-5",  "ISO-8859-5", ENC_ISO_8859_5 },
+        { "iso-8859-8",  "ISO-8859-8", ENC_ISO_8859_8 },
         { "ucs2",        "UCS2",       ENC_UCS_2|ENC_BIG_ENDIAN },
+        { "ks-c-5601",   "KS C 5601 (Korean)", ENC_EUC_KR },
         { NULL, NULL, 0 }
     };
 
@@ -3802,9 +3647,15 @@ proto_register_smpp(void)
             "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
             &reassemble_over_tcp);
     prefs_register_enum_preference(smpp_module, "decode_sms_over_smpp",
-                         "Decode DCS 0 SMS as",
-                         "Whether to decode the SMS contents when DCS is equal to 0 (zero).",
-                         &smpp_decode_dcs_0_sms, smpp_dcs_0_sms_decode_options, FALSE);
+            "Decode DCS 0 SMS as",
+            "Whether to decode the SMS contents when DCS is equal to 0 (zero).",
+            &smpp_decode_dcs_0_sms, smpp_dcs_0_sms_decode_options, FALSE);
+    prefs_register_bool_preference(smpp_module, "gsm7_unpacked",
+            "GSM 7-bit alphabet unpacked",
+            "When the DCS indicates that the encoding is the GSM 7-bit "
+            "alphabet, whether to decode it as unpacked (one character "
+            "per octet) instead of packed.",
+            &smpp_gsm7_unpacked);
 }
 
 void
