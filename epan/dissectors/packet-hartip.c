@@ -336,7 +336,7 @@ hartip_stats_tree_init(stats_tree* st)
 
 static tap_packet_status
 hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
-                         epan_dissect_t* edt _U_, const void* p)
+                         epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
   const hartip_tap_info *tapinfo = (const hartip_tap_info *)p;
   const gchar           *message_type_node_str, *message_id_node_str;

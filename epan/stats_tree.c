@@ -376,7 +376,7 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
 
 /* will be the tap packet cb */
 extern tap_packet_status
-stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *pri)
+stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *pri, tap_flags_t flags)
 {
     stats_tree *st = (stats_tree *)p;
 
@@ -386,7 +386,7 @@ stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *
     st->elapsed = st->now - st->start;
 
     if (st->cfg->packet)
-        return st->cfg->packet(st,pinfo,edt,pri);
+        return st->cfg->packet(st,pinfo,edt,pri, flags);
     else
         return TAP_PACKET_DONT_REDRAW;
 }

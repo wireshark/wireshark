@@ -212,7 +212,7 @@ static void hpfeeds_stats_tree_init(stats_tree* st)
     channels_list = wmem_list_new(wmem_epan_scope());
 }
 
-static tap_packet_status hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+static tap_packet_status hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     const struct HpfeedsTap *pi = (const struct HpfeedsTap *)p;
     wmem_list_frame_t* head = wmem_list_head(channels_list);

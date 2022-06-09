@@ -2412,7 +2412,7 @@ http2_follow_index_filter(guint stream, guint sub_stream)
 }
 
 static tap_packet_status
-follow_http2_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+follow_http2_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags)
 {
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     const http2_follow_tap_data_t *follow_data = (const http2_follow_tap_data_t *)data;
@@ -2422,7 +2422,7 @@ follow_http2_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
         return TAP_PACKET_DONT_REDRAW;
     }
 
-    return follow_tvb_tap_listener(tapdata, pinfo, NULL, follow_data->tvb);
+    return follow_tvb_tap_listener(tapdata, pinfo, NULL, follow_data->tvb, flags);
 }
 
 static guint8
@@ -4543,7 +4543,7 @@ static void http2_stats_tree_init(stats_tree* st)
 
 }
 
-static tap_packet_status http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+static tap_packet_status http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     const struct HTTP2Tap *pi = (const struct HTTP2Tap *)p;
     tick_stat_node(st, st_str_http2, 0, FALSE);

@@ -543,7 +543,7 @@ snmpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 
 /* This is called only if request and response was matched -> no need to return anything than TAP_PACKET_REDRAW */
 static tap_packet_status
-snmpstat_packet(void *psnmp, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
+snmpstat_packet(void *psnmp, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi, tap_flags_t flags _U_)
 {
 	guint i = 0;
 	srt_stat_table *snmp_srt_table;

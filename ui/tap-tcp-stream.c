@@ -36,7 +36,7 @@ typedef struct _tcp_scan_t {
 
 
 static tap_packet_status
-tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     tcp_scan_t   *ts = (tcp_scan_t *)pct;
     struct tcp_graph *tg  = ts->tg;
@@ -209,7 +209,7 @@ typedef struct _th_t {
 } th_t;
 
 static tap_packet_status
-tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
+tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     int       n;
     gboolean  is_unique = TRUE;

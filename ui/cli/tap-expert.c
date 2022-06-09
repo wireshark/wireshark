@@ -73,7 +73,7 @@ expert_stat_reset(void *tapdata)
 /* Process stat struct for an expert frame */
 static tap_packet_status
 expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
-                   const void *pointer)
+                   const void *pointer, tap_flags_t flags _U_)
 {
     const expert_info_t *ei   = (const expert_info_t *)pointer;
     expert_tapdata_t    *data = (expert_tapdata_t *)tapdata;

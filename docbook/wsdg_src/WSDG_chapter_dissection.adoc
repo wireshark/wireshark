@@ -285,7 +285,7 @@ Selecting this label will highlight the remaining contents of the packet.
 
 Now let’s go to the next step and add some protocol dissection. To do this
 we'll need to construct tables to define which fields will be present in the
-packet and to store the opened/closed state of the subtree. We'll 
+packet and to store the opened/closed state of the subtree. We'll
 add these statically allocated arrays to the beginning of the file
 and name them
 `hf_register_info` ('hf' is short for 'header field') and `ett`.
@@ -1279,7 +1279,7 @@ different packet types.
 .Generating the stats
 [source,c]
 ----
-static tap_packet_status foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p)
+static tap_packet_status foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p, tap_flags_t flags)
 {
     struct FooTap *pi = (struct FooTap *)p;
     tick_stat_node(st, st_str_packets, 0, FALSE);

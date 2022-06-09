@@ -177,7 +177,7 @@ WS_DLL_PUBLIC tap_packet_cb get_follow_tap_handler(register_follow_t* follower);
  * Used by TCP, UDP and HTTP followers
  */
 WS_DLL_PUBLIC tap_packet_status
-follow_tvb_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data);
+follow_tvb_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags);
 
 /** Interator to walk all registered followers and execute func
  *

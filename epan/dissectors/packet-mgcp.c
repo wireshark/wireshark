@@ -323,7 +323,7 @@ static const value_string mgcp_message_type[] = {
 };
 
 static tap_packet_status
-mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
+mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi, tap_flags_t flags _U_)
 {
 	rtd_data_t* rtd_data = (rtd_data_t*)pms;
 	rtd_stat_table* ms = &rtd_data->stat_table;

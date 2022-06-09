@@ -65,7 +65,7 @@ private:
     QMenu        context_menu_;
 
     static void     tapReset(void *tapinfo_ptr);
-    static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data);
+    static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data, tap_flags_t flags);
 
 private slots:
     void on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int);

@@ -1205,7 +1205,7 @@ typedef enum _ras_category {
 #define NUM_RAS_STATS 7
 
 static tap_packet_status
-h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
+h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi, tap_flags_t flags _U_)
 {
   rtd_data_t* rtd_data = (rtd_data_t*)phs;
   rtd_stat_table* rs = &rtd_data->stat_table;
@@ -8258,7 +8258,7 @@ static void h225_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *hpi_ptr)
+h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *hpi_ptr, tap_flags_t flags _U_)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
   const h225_packet_info *hpi = (const h225_packet_info *)hpi_ptr;

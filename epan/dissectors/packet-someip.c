@@ -2354,7 +2354,7 @@ someip_messages_stats_tree_init(stats_tree *st) {
 }
 
 static tap_packet_status
-someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p) {
+someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p, tap_flags_t flags _U_) {
     static gchar tmp_srv_str[128];
     static gchar tmp_meth_str[128];
     static gchar tmp_addr_str[128];

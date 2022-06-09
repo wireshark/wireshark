@@ -6063,7 +6063,7 @@ typedef struct
 } lbm_uim_stream_info_t;
 
 static tap_packet_status
-lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *uim_info)
+lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *uim_info, tap_flags_t flags _U_)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
     const lbm_uim_stream_info_t* stream_info = (const lbm_uim_stream_info_t *)uim_info;

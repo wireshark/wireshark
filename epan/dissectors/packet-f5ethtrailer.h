@@ -171,7 +171,8 @@ static tap_packet_status f5fileinfo_tap_pkt(
     void *tapdata,
     packet_info *pinfo _U_,
     epan_dissect_t *edt _U_,
-    const void *data
+    const void *data,
+    tap_flags_t flags _U_
 ) {
     struct f5fileinfo_tap_data *s;
     struct f5fileinfo_tap_data *fromtap;

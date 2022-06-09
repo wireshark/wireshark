@@ -517,7 +517,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
 /****************************************************************************/
 /* whenever a rtp event packet is seen by the tap listener */
 static tap_packet_status
-rtp_event_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtp_event_info)
+rtp_event_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtp_event_info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t         *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_event_);
     const struct _rtp_event_info *pi      = (const struct _rtp_event_info *)rtp_event_info;
@@ -606,7 +606,7 @@ rtp_reset(void *tap_offset_ptr)
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
 static tap_packet_status
-rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void const *rtp_info_ptr)
+rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void const *rtp_info_ptr, tap_flags_t flags)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     rtpstream_info_t    *tmp_listinfo;
@@ -627,7 +627,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     }
 
     if (tapinfo->tap_packet) {
-        tapinfo->tap_packet(tapinfo, pinfo, edt, rtp_info_ptr);
+        tapinfo->tap_packet(tapinfo, pinfo, edt, rtp_info_ptr, flags);
     }
 
     /* check whether we already have a RTP stream with this setup frame and ssrc in the list */
@@ -921,7 +921,7 @@ remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a T38 packet is seen by the tap listener */
 static tap_packet_status
-t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *t38_info_ptr)
+t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *t38_info_ptr, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo               = tap_id_to_base(tap_offset_ptr, tap_id_offset_t38_);
 
@@ -1134,7 +1134,7 @@ free_sip_info(gpointer p) {
 /****************************************************************************/
 /* whenever a SIP packet is seen by the tap listener */
 static tap_packet_status
-sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt , const void *SIPinfo)
+sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt , const void *SIPinfo, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo     = tap_id_to_base(tap_offset_ptr, tap_id_offset_sip_);
     /* we just take note of the ISUP data here; when we receive the MTP3 part everything will
@@ -1361,7 +1361,7 @@ remove_tap_listener_sip_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a isup_ packet is seen by the tap listener */
 static tap_packet_status
-isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *isup_info)
+isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *isup_info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo     = tap_id_to_base(tap_offset_ptr, tap_id_offset_isup_);
     voip_calls_info_t    *tmp_listinfo;
@@ -1571,7 +1571,7 @@ remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a mtp3_ packet is seen by the tap listener */
 static tap_packet_status
-mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info)
+mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_mtp3_);
     const mtp3_tap_rec_t *pi      = (const mtp3_tap_rec_t *)mtp3_info;
@@ -1592,7 +1592,7 @@ mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
 }
 
 static tap_packet_status
-m3ua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info)
+m3ua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_m3ua_);
     const mtp3_tap_rec_t *pi = (const mtp3_tap_rec_t *)mtp3_info;
@@ -1670,7 +1670,7 @@ static const e_guid_t guid_allzero = {0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 /****************************************************************************/
 /* whenever a q931_ packet is seen by the tap listener */
 static tap_packet_status
-q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *q931_info)
+q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *q931_info, tap_flags_t flags _U_)
 {
     GList                     *list,*list2;
     voip_calls_tapinfo_t      *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_q931_);
@@ -2014,7 +2014,7 @@ free_h225_info(gpointer p) {
 /****************************************************************************/
 /* whenever a H225 packet is seen by the tap listener */
 static tap_packet_status
-h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H225info)
+h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H225info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo      = tap_id_to_base(tap_offset_ptr, tap_id_offset_h225_);
     voip_calls_info_t    *tmp_listinfo;
@@ -2328,7 +2328,7 @@ h245_add_label(voip_calls_tapinfo_t *tapinfo, guint32 new_frame_num, const gchar
 /****************************************************************************/
 /* whenever a H245dg packet is seen by the tap listener (when H245 tunneling is ON) */
 static tap_packet_status
-h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H245info)
+h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H245info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_h245dg_);
     voip_calls_info_t    *tmp_listinfo;
@@ -2452,7 +2452,7 @@ remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a SDP packet is seen by the tap listener */
 static tap_packet_status
-sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo)
+sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t  *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sdp_);
     const sdp_packet_info *pi      = (const sdp_packet_info *)SDPinfo;
@@ -2637,7 +2637,7 @@ mgcp_dialed_digits(gchar *signalStr, gchar **dialedDigits)
 /****************************************************************************/
 /* whenever a MGCP packet is seen by the tap listener */
 static tap_packet_status
-mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *MGCPinfo)
+mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *MGCPinfo, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo      = tap_id_to_base(tap_offset_ptr, tap_id_offset_mgcp_);
     voip_calls_info_t    *tmp_listinfo;
@@ -2914,7 +2914,7 @@ remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base)
 
 /* whenever a ACTRACE packet is seen by the tap listener */
 static tap_packet_status
-actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *ACTRACEinfo)
+actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *ACTRACEinfo, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t     *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_actrace_);
     const actrace_info_t     *pi        = (const actrace_info_t *)ACTRACEinfo;
@@ -3147,7 +3147,7 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
 }
 
 static tap_packet_status
-h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
 
     /* if display filtering activated and packet do not match, ignore it */
@@ -3169,7 +3169,7 @@ h248_calls_draw(void *tap_offset_ptr)
 }
 
 static tap_packet_status
-megaco_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+megaco_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_megaco_);
 
     /* if display filtering activated and packet do not match, ignore it */
@@ -3348,7 +3348,7 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
 }
 
 static tap_packet_status
-sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
     /* if display filtering activated and packet do not match, ignore it */
@@ -3371,7 +3371,7 @@ sccp_calls_draw(void *tap_offset_ptr)
 }
 
 static tap_packet_status
-sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sua_);
 
     /* if display filtering activated and packet do not match, ignore it */
@@ -3439,7 +3439,7 @@ remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 
 static tap_packet_status
-unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *unistim_info)
+unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *unistim_info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo          = tap_id_to_base(tap_offset_ptr, tap_id_offset_unistim_);
     voip_calls_info_t    *tmp_listinfo;
@@ -3973,7 +3973,7 @@ static const voip_call_state skinny_tap_voip_state[] = {
 };
 
 static tap_packet_status
-skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *skinny_info)
+skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *skinny_info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_skinny_);
     GList* list;
@@ -4136,7 +4136,7 @@ static void free_iax2_info(gpointer p) {
 /****************************************************************************/
 /* whenever a IAX2 packet is seen by the tap listener */
 static tap_packet_status
-iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *iax2_info)
+iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *iax2_info, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_iax2_);
     GList*                list;
@@ -4275,7 +4275,7 @@ remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 
 /* voip_calls_packet and voip_calls_init_tap appear to be dead code. We don't have a "voip" tap. */
 static tap_packet_status
-voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *VoIPinfo)
+voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *VoIPinfo, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_voip_);
     voip_calls_info_t    *callsinfo = NULL;
@@ -4396,7 +4396,7 @@ remove_tap_listener_voip_calls(voip_calls_tapinfo_t *tap_id_base)
 /* whenever a prot_ packet is seen by the tap listener */
 #if 0
 static tap_packet_status
-prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info _U_)
+prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info _U_, tap_flags_t flags _U_)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_prot_);
 

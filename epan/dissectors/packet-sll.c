@@ -137,7 +137,7 @@ static ct_dissector_info_t sll_ct_dissector_info = {&sll_conv_get_filter_type};
 static address no_dst = {AT_NONE, 0, NULL, NULL};
 
 static tap_packet_status
-sll_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+sll_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
 	conv_hash_t *hash = (conv_hash_t*) pct;
 	const sll_tap_data *tap_data = (const sll_tap_data*)vip;
@@ -167,7 +167,7 @@ static const char* sll_host_get_filter_type(hostlist_talker_t* host, conv_filter
 static hostlist_dissector_info_t sll_host_dissector_info = {&sll_host_get_filter_type};
 
 static tap_packet_status
-sll_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+sll_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
 	conv_hash_t *hash = (conv_hash_t*) pit;
 	const sll_tap_data *tap_data = (const sll_tap_data*)vip;

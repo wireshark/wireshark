@@ -478,7 +478,7 @@ ncpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 }
 
 static tap_packet_status
-ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
 {
     guint i = 0;
     srt_stat_table *ncp_srt_table;
@@ -756,7 +756,7 @@ static const char* ncp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_t
 static ct_dissector_info_t ncp_ct_dissector_info = {&ncp_conv_get_filter_type};
 
 static tap_packet_status
-ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
@@ -778,7 +778,7 @@ static const char* ncp_host_get_filter_type(hostlist_talker_t* host _U_, conv_fi
 static hostlist_dissector_info_t ncp_host_dissector_info = {&ncp_host_get_filter_type};
 
 static tap_packet_status
-ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     /*const ncp_common_header *ncphdr=vip;*/

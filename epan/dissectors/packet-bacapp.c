@@ -6744,7 +6744,7 @@ bacapp_get_address_label(const char *tag, address *addr)
 }
 
 static tap_packet_status
-bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     int    packets_for_this_dst;
     int    packets_for_this_src;
@@ -6798,7 +6798,7 @@ bacapp_service_stats_tree_init(stats_tree* st)
 }
 
 static tap_packet_status
-bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     int    servicetype;
     int    src, dst;
@@ -6840,7 +6840,7 @@ bacapp_objectid_stats_tree_init(stats_tree* st)
 }
 
 static tap_packet_status
-bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     int    servicetype;
     int    src, dst;
@@ -6881,7 +6881,7 @@ bacapp_instanceid_stats_tree_init(stats_tree* st)
 }
 
 static tap_packet_status
-bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     int    servicetype;
     int    src, dst;

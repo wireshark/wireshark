@@ -150,7 +150,7 @@ sipstat_reset(void *psp  )
 
 /* Main entry point to SIP tap */
 static tap_packet_status
-sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
+sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
 {
 	const sip_info_value_t *value = (const sip_info_value_t *)pri;
 	sipstat_t *sp = (sipstat_t *)psp;

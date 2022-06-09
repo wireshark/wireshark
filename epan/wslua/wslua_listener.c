@@ -67,7 +67,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 }
 
 
-static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
+static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags _U_) {
     Listener tap = (Listener)tapdata;
     tap_packet_status retval = TAP_PACKET_DONT_REDRAW;
     TreeItem lua_tree_tap;

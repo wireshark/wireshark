@@ -178,7 +178,7 @@ WS_DLL_PUBLIC void stats_tree_presentation(void (*registry_iterator)(gpointer,gp
 WS_DLL_PUBLIC stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter);
 
 /** callback for taps */
-WS_DLL_PUBLIC tap_packet_status stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
+WS_DLL_PUBLIC tap_packet_status stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *, tap_flags_t flags);
 
 /** callback for reset */
 WS_DLL_PUBLIC void stats_tree_reset(void *p_st);

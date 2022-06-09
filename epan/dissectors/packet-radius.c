@@ -307,7 +307,7 @@ static const value_string radius_message_code[] = {
 };
 
 static tap_packet_status
-radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
+radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
 {
 	rtd_data_t *rtd_data = (rtd_data_t *)prs;
 	rtd_stat_table *rs = &rtd_data->stat_table;

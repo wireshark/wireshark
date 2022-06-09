@@ -1314,7 +1314,7 @@ camelstat_init(struct register_srt* srt _U_, GArray* srt_array)
 }
 
 static tap_packet_status
-camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
+camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi, tap_flags_t flags _U_)
 {
   guint idx = 0;
   srt_stat_table *camel_srt_table;
@@ -8225,7 +8225,7 @@ static void camel_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *csi_ptr)
+camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *csi_ptr, tap_flags_t flags _U_)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
   const struct camelsrt_info_t *csi = (const struct camelsrt_info_t *) csi_ptr;

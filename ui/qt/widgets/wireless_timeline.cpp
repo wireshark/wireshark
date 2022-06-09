@@ -371,7 +371,7 @@ void WirelessTimeline::tap_timeline_reset(void* tapdata)
     timeline->radio_packet_list = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
-tap_packet_status WirelessTimeline::tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt _U_, const void *data)
+tap_packet_status WirelessTimeline::tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt _U_, const void *data, tap_flags_t)
 {
     WirelessTimeline* timeline = (WirelessTimeline*)tapdata;
     const struct wlan_radio *wlan_radio_info = (const struct wlan_radio *)data;

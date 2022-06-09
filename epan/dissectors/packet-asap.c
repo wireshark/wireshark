@@ -707,7 +707,7 @@ static void asap_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* data)
+asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* data, tap_flags_t flags _U_)
 {
   stat_data_t*              stat_data = (stat_data_t*)tapdata;
   const asap_tap_rec_t*     tap_rec   = (const asap_tap_rec_t*)data;

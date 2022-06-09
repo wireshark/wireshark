@@ -395,7 +395,7 @@ void ExpertInfoModel::tapReset(void *eid_ptr)
     model->clear();
 }
 
-tap_packet_status ExpertInfoModel::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data)
+tap_packet_status ExpertInfoModel::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data, tap_flags_t)
 {
     ExpertInfoModel *model = static_cast<ExpertInfoModel*>(eid_ptr);
     const expert_info_t *expert_info = (const expert_info_t *) data;

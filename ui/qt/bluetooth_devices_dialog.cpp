@@ -44,12 +44,12 @@ static const int column_number_is_local_adapter = 8;
 
 
 static tap_packet_status
-bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
+bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data, tap_flags_t flags)
 {
     bluetooth_devices_tapinfo_t *tapinfo = (bluetooth_devices_tapinfo_t *) tapinfo_ptr;
 
     if (tapinfo->tap_packet)
-        tapinfo->tap_packet(tapinfo, pinfo, edt, data);
+        tapinfo->tap_packet(tapinfo, pinfo, edt, data, flags);
 
     return TAP_PACKET_REDRAW;
 }
@@ -253,7 +253,7 @@ void BluetoothDevicesDialog::tapReset(void *tapinfo_ptr)
     bluetooth_devices_dialog->ui->tableTreeWidget->clear();
 }
 
-tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data, tap_flags_t)
 {
     bluetooth_devices_tapinfo_t  *tapinfo    = static_cast<bluetooth_devices_tapinfo_t *>(tapinfo_ptr);
     BluetoothDevicesDialog       *dialog     = static_cast<BluetoothDevicesDialog *>(tapinfo->ui);

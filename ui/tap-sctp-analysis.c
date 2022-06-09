@@ -321,7 +321,7 @@ add_address(address *vadd, sctp_assoc_info_t *info, guint16 direction)
 }
 
 static tap_packet_status
-packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     const struct _sctp_info *sctp_info = (const struct _sctp_info *)data;
     guint32 chunk_number = 0, tsnumber, framenumber;

@@ -271,7 +271,7 @@ static const char* udp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 static ct_dissector_info_t udp_ct_dissector_info = {&udp_conv_get_filter_type};
 
 static tap_packet_status
-udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     const e_udphdr *udphdr=(const e_udphdr *)vip;
@@ -328,7 +328,7 @@ static const char* udp_host_get_filter_type(hostlist_talker_t* host, conv_filter
 static hostlist_dissector_info_t udp_host_dissector_info = {&udp_host_get_filter_type};
 
 static tap_packet_status
-udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     const e_udphdr *udphdr=(const e_udphdr *)vip;

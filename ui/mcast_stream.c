@@ -132,7 +132,7 @@ mcaststream_draw(void *ti_ptr)
 /****************************************************************************/
 /* whenever a udp packet is seen by the tap listener */
 static tap_packet_status
-mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_)
+mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_, tap_flags_t flags _U_)
 {
     mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)arg;
     mcast_stream_info_t tmp_strinfo;
@@ -247,7 +247,7 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
     /* increment the packets counter for this stream and calculate average pps */
     ++(strinfo->npackets);
-    
+
     if (deltatime > 0) {
         strinfo->apackets = strinfo->npackets / deltatime;
         strinfo->average_bw = ((double)(strinfo->total_bytes*8) / deltatime);

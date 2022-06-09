@@ -117,7 +117,7 @@ index2pdut(gint pdut)
 	return 0;
 }
 static tap_packet_status
-wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
+wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
 {
 	wspstat_t *sp = (wspstat_t *)psp;
 	const wsp_info_value_t *value = (const wsp_info_value_t *)pri;

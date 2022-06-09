@@ -562,7 +562,7 @@ void WlanStatisticsDialog::tapReset(void *ws_dlg_ptr)
     ws_dlg->packet_count_ = 0;
 }
 
-tap_packet_status WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info *, epan_dissect *, const void *wlan_hdr_ptr)
+tap_packet_status WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info *, epan_dissect *, const void *wlan_hdr_ptr, tap_flags_t)
 {
     WlanStatisticsDialog *ws_dlg = static_cast<WlanStatisticsDialog *>(ws_dlg_ptr);
     const wlan_hdr_t *wlan_hdr  = (const wlan_hdr_t *)wlan_hdr_ptr;

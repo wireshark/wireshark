@@ -333,7 +333,7 @@ megacostat_filtercheck(const char *opt_arg _U_, const char **filter _U_, char** 
 }
 
 static tap_packet_status
-megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
+megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi, tap_flags_t flags _U_)
 {
     rtd_data_t* rtd_data = (rtd_data_t*)pms;
     rtd_stat_table* ms = &rtd_data->stat_table;

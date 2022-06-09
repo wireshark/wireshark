@@ -181,7 +181,7 @@ rtsp_stats_tree_init(stats_tree* st)
 
 /* RTSP/Packet Counter stats packet function */
 static tap_packet_status
-rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
     const rtsp_info_value_t *v = (const rtsp_info_value_t *)p;
     guint         i = v->response_code;

@@ -50,7 +50,8 @@ gsm_a_stat_packet(
     void                        *tapdata,
     packet_info                 *pinfo _U_,
     epan_dissect_t              *edt _U_,
-    const void                  *data)
+    const void                  *data,
+    tap_flags_t flags  _U_)
 {
     gsm_a_stat_t                *stat_p = (gsm_a_stat_t *)tapdata;
     const gsm_a_tap_rec_t       *tap_p = (const gsm_a_tap_rec_t *)data;

@@ -780,7 +780,7 @@ static const char* sctp_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 static ct_dissector_info_t sctp_ct_dissector_info = {&sctp_conv_get_filter_type};
 
 static tap_packet_status
-sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
   conv_hash_t *hash = (conv_hash_t*) pct;
   const struct _sctp_info *sctphdr=(const struct _sctp_info *)vip;
@@ -834,7 +834,7 @@ static const char* sctp_host_get_filter_type(hostlist_talker_t* host, conv_filte
 static hostlist_dissector_info_t sctp_host_dissector_info = {&sctp_host_get_filter_type};
 
 static tap_packet_status
-sctp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+sctp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
   conv_hash_t *hash = (conv_hash_t*) pit;
   const struct _sctp_info *sctphdr=(const struct _sctp_info *)vip;

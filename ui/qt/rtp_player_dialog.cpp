@@ -1295,7 +1295,7 @@ void RtpPlayerDialog::setPlaybackError(const QString playback_error)
     updateHintLabel();
 }
 
-tap_packet_status RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
+tap_packet_status RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr, tap_flags_t)
 {
     RtpPlayerDialog *rtp_player_dialog = dynamic_cast<RtpPlayerDialog *>((RtpPlayerDialog*)tapinfo_ptr);
     if (!rtp_player_dialog) return TAP_PACKET_DONT_REDRAW;

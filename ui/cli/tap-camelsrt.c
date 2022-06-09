@@ -53,7 +53,7 @@ static void camelsrt_reset(void *phs)
 static tap_packet_status camelsrt_packet(void *phs,
                                          packet_info *pinfo _U_,
                                          epan_dissect_t *edt _U_,
-                                         const void *phi)
+                                         const void *phi, tap_flags_t flags _U_)
 {
   struct camelsrt_t *hs = (struct camelsrt_t *)phs;
   const struct camelsrt_info_t * pi = (const struct camelsrt_info_t *)phi;

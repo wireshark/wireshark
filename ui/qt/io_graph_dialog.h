@@ -97,7 +97,7 @@ signals:
 private:
     // Callbacks for register_tap_listener
     static void tapReset(void *iog_ptr);
-    static tap_packet_status tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data);
+    static tap_packet_status tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags);
     static void tapDraw(void *iog_ptr);
 
     void calculateScaledValueUnit();

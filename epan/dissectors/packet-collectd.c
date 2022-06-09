@@ -213,7 +213,7 @@ collectd_stats_tree_init (stats_tree *st)
 
 static tap_packet_status
 collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
-			    epan_dissect_t *edt _U_, const void *user_data)
+			    epan_dissect_t *edt _U_, const void *user_data, tap_flags_t flags _U_)
 {
 	const tap_data_t *td;
 	string_counter_t *sc;

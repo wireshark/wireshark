@@ -3999,7 +3999,7 @@ quic_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src
 }
 
 static tap_packet_status
-follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags)
 {
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     const quic_follow_tap_data_t *follow_data = (const quic_follow_tap_data_t *)data;
@@ -4009,7 +4009,7 @@ follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt 
         return TAP_PACKET_DONT_REDRAW;
     }
 
-    return follow_tvb_tap_listener(tapdata, pinfo, NULL, follow_data->tvb);
+    return follow_tvb_tap_listener(tapdata, pinfo, NULL, follow_data->tvb, flags);
 }
 
 guint32 get_quic_connections_count(void)

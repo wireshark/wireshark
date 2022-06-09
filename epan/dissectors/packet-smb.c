@@ -926,7 +926,7 @@ smbstat_init(struct register_srt* srt _U_, GArray* srt_array)
 }
 
 static tap_packet_status
-smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
 {
 	guint i = 0;
 	srt_stat_table *smb_srt_table;
@@ -1218,7 +1218,7 @@ find_incoming_file(GSList *GSL_active_files_p, active_file *incoming_file)
 }
 
 static tap_packet_status
-smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
 	export_object_list_t   *object_list = (export_object_list_t *)tapdata;
 	const smb_eo_t         *eo_info     = (const smb_eo_t *)data;

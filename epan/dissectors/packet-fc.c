@@ -195,7 +195,7 @@ static const char* fc_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 static ct_dissector_info_t fc_ct_dissector_info = {&fc_conv_get_filter_type};
 
 static tap_packet_status
-fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     const fc_hdr *fchdr=(const fc_hdr *)vip;
@@ -216,7 +216,7 @@ static const char* fc_host_get_filter_type(hostlist_talker_t* host, conv_filter_
 static hostlist_dissector_info_t fc_host_dissector_info = {&fc_host_get_filter_type};
 
 static tap_packet_status
-fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     const fc_hdr *fchdr=(const fc_hdr *)vip;
@@ -248,7 +248,7 @@ fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
 }
 
 static tap_packet_status
-fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
 {
     guint i = 0;
     srt_stat_table *fc_srt_table;

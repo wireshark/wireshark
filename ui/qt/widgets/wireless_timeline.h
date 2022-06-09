@@ -73,7 +73,7 @@ public slots:
 
 protected:
     static void tap_timeline_reset(void* tapdata);
-    static tap_packet_status tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt, const void *data);
+    static tap_packet_status tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt, const void *data, tap_flags_t flags);
 
     struct wlan_radio* get_wlan_radio(guint32 packet_num);
 

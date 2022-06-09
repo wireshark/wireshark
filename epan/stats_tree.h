@@ -49,7 +49,8 @@ typedef struct _stats_tree stats_tree;
 typedef tap_packet_status (*stat_tree_packet_cb)(stats_tree*,
                                                  packet_info *,
                                                  epan_dissect_t *,
-                                                 const void *);
+                                                 const void *,
+                                                 tap_flags_t flags);
 
 /* stats_tree initialization callback */
 typedef void  (*stat_tree_init_cb)(stats_tree *);

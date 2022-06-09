@@ -2112,7 +2112,7 @@ static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 static ct_dissector_info_t rsvp_ct_dissector_info = {&rsvp_conv_get_filter_type};
 
 static tap_packet_status
-rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     const rsvp_conversation_info *rsvph = (const rsvp_conversation_info *)vip;
@@ -2134,7 +2134,7 @@ static const char* rsvp_host_get_filter_type(hostlist_talker_t* host, conv_filte
 static hostlist_dissector_info_t rsvp_host_dissector_info = {&rsvp_host_get_filter_type};
 
 static tap_packet_status
-rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     const rsvp_conversation_info *rsvph = (const rsvp_conversation_info *)vip;

@@ -1742,7 +1742,7 @@ void LBMLBTRUTransportDialog::resetTap(void * tap_data)
     info->clearMaps();
 }
 
-tap_packet_status LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * tap_info)
+tap_packet_status LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * tap_info, tap_flags_t)
 {
     if (pinfo->fd->passed_dfilter == 1)
     {

@@ -365,7 +365,7 @@ static void rtp_write_sample(rtpdump_info_t* rtpdump_info, FILE* file)
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
+tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2, tap_flags_t flags _U_)
 {
     rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)arg;
     const struct _rtp_info *rtpinfo = (const struct _rtp_info *)arg2;

@@ -1875,7 +1875,7 @@ static const char* usb_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 static ct_dissector_info_t usb_ct_dissector_info = {&usb_conv_get_filter_type};
 
 static tap_packet_status
-usb_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+usb_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &usb_ct_dissector_info, ENDPOINT_NONE);
@@ -1900,7 +1900,7 @@ usb_col_filter_str(const address* addr _U_, gboolean is_src)
 static hostlist_dissector_info_t usb_host_dissector_info = {&usb_host_get_filter_type};
 
 static tap_packet_status
-usb_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+usb_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
 

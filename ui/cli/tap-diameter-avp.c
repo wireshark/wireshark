@@ -113,7 +113,7 @@ diam_tree_to_csv(proto_node *node, gpointer data)
 }
 
 static tap_packet_status
-diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pdi)
+diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pdi, tap_flags_t flags _U_)
 {
 	tap_packet_status ret = TAP_PACKET_DONT_REDRAW;
 	double resp_time = 0.;

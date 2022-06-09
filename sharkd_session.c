@@ -1711,7 +1711,7 @@ sharkd_session_process_tap_expert_cb(void *tapdata)
 }
 
 static tap_packet_status
-sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
+sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer, tap_flags_t flags _U_)
 {
     struct sharkd_expert_tap *etd = (struct sharkd_expert_tap *) tapdata;
     const expert_info_t *ei       = (const expert_info_t *) pointer;
@@ -1936,7 +1936,7 @@ sharkd_session_process_tap_rtp_free_cb(void *tapdata)
 }
 
 static tap_packet_status
-sharkd_session_packet_tap_rtp_analyse_cb(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pointer)
+sharkd_session_packet_tap_rtp_analyse_cb(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pointer, tap_flags_t flags _U_)
 {
     struct sharkd_analyse_rtp *rtp_req = (struct sharkd_analyse_rtp *) tapdata;
     const struct _rtp_info *rtp_info = (const struct _rtp_info *) pointer;
@@ -3594,7 +3594,7 @@ struct sharkd_iograph
 };
 
 static tap_packet_status
-sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
+sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_, tap_flags_t flags _U_)
 {
     struct sharkd_iograph *graph = (struct sharkd_iograph *) g;
     int idx;
@@ -4797,7 +4797,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
 }
 
 static tap_packet_status
-sharkd_session_packet_download_tap_rtp_cb(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+sharkd_session_packet_download_tap_rtp_cb(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     const struct _rtp_info *rtp_info = (const struct _rtp_info *) data;
     struct sharkd_download_rtp *req_rtp = (struct sharkd_download_rtp *) tapdata;

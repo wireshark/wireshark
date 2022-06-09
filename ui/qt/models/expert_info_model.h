@@ -112,7 +112,7 @@ public:
 
     // Callbacks for register_tap_listener
     static void tapReset(void *eid_ptr);
-    static tap_packet_status tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data);
+    static tap_packet_status tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data, tap_flags_t flags);
     static void tapDraw(void *eid_ptr);
 
 private:

@@ -695,7 +695,7 @@ f5eth_tmmdist_stats_tree_init(stats_tree *st)
  */
 static tap_packet_status
 f5eth_tmmdist_stats_tree_packet(
-    stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+    stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     const f5eth_tap_data_t *tdata = (const f5eth_tap_data_t *)data;
     guint32 pkt_len;
@@ -813,7 +813,7 @@ f5eth_virtdist_stats_tree_init(stats_tree *st)
  */
 static tap_packet_status
 f5eth_virtdist_stats_tree_packet(
-    stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+    stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     const f5eth_tap_data_t *tdata = (const f5eth_tap_data_t *)data;
     guint32 pkt_len;
@@ -1392,7 +1392,7 @@ render_analysis(
  * @return tap_packet_status
  */
 static tap_packet_status
-ip_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+ip_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     struct f5eth_analysis_data_t *ad;
     const ws_ip4 *iph;
@@ -1436,7 +1436,7 @@ ip_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const
  * @return tap_packet_status
  */
 static tap_packet_status
-ipv6_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+ipv6_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     struct f5eth_analysis_data_t *ad;
     const struct ws_ip6_hdr *ipv6h;
@@ -1483,7 +1483,7 @@ ipv6_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
  * @return tap_packet_status
  */
 static tap_packet_status
-tcp_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+tcp_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     struct f5eth_analysis_data_t *ad;
     const tcp_info_t *tcph;

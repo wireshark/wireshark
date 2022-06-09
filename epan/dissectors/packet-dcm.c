@@ -429,7 +429,7 @@ typedef struct _dicom_eo_t {
 
 static tap_packet_status
 dcm_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-                const void *data)
+                const void *data, tap_flags_t flags _U_)
 {
     export_object_list_t *object_list = (export_object_list_t *)tapdata;
     const dicom_eo_t *eo_info = (const dicom_eo_t *)data;

@@ -93,7 +93,7 @@ alloc_sctp_ep(const struct _sctp_info *si)
 
 
 static tap_packet_status
-sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
+sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi, tap_flags_t flags _U_)
 {
 
 	sctpstat_t *hs = (sctpstat_t *)phs;

@@ -843,7 +843,7 @@ static const char* tcp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 static ct_dissector_info_t tcp_ct_dissector_info = {&tcp_conv_get_filter_type};
 
 static tap_packet_status
-tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
@@ -855,7 +855,7 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 }
 
 static tap_packet_status
-mptcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+mptcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     const struct tcp_analysis *tcpd=(const struct tcp_analysis *)vip;
@@ -910,7 +910,7 @@ static const char* tcp_host_get_filter_type(hostlist_talker_t* host, conv_filter
 static hostlist_dissector_info_t tcp_host_dissector_info = {&tcp_host_get_filter_type};
 
 static tap_packet_status
-tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
@@ -956,7 +956,7 @@ tcp_build_filter(packet_info *pinfo)
 /* whenever a TCP packet is seen by the tap listener */
 /* Add a new tcp frame into the graph */
 static tap_packet_status
-tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
+tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info, tap_flags_t tapflags _U_)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
     const struct tcpheader *tcph = (const struct tcpheader *)tcp_info;
@@ -1171,7 +1171,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
 
 static tap_packet_status
 follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
-                      epan_dissect_t *edt _U_, const void *data)
+                      epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;

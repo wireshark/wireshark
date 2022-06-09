@@ -359,7 +359,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 					/* So call the per-packet routine. */
 					tap_packet_status status;
 
-					status = tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data);
+					status = tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data, tl->flags);
 
 					switch (status) {
 

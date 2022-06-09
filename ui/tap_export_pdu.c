@@ -24,7 +24,7 @@
 
 /* Main entry point to the tap */
 static tap_packet_status
-export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
+export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags _U_)
 {
     const exp_pdu_data_t *exp_pdu_data = (const exp_pdu_data_t *)data;
     exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)tapdata;

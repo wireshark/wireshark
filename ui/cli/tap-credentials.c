@@ -42,7 +42,7 @@ static tap_credential_t* tap_credential_clone(tap_credential_t* auth)
     return clone;
 }
 
-static tap_packet_status credentials_packet(void *p _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
+static tap_packet_status credentials_packet(void *p _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
 {
     tap_credential_t* clone = tap_credential_clone((tap_credential_t*)pri);
     wmem_array_append(credentials, (void*)clone, 1);

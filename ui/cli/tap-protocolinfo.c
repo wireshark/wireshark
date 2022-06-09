@@ -32,7 +32,7 @@ typedef struct _pci_t {
 
 
 static tap_packet_status
-protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
+protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_, tap_flags_t flags _U_)
 {
 	pci_t *rs = (pci_t *)prs;
 	GPtrArray *gp;

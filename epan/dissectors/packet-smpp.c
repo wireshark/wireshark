@@ -1064,7 +1064,8 @@ static tap_packet_status
 smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                            packet_info *pinfo _U_,
                            epan_dissect_t *edt _U_,
-                           const void *p) /* Used for getting SMPP command_id values */
+                           const void *p,
+                           tap_flags_t flags _U_) /* Used for getting SMPP command_id values */
 {
     const smpp_tap_rec_t* tap_rec = (const smpp_tap_rec_t*)p;
 

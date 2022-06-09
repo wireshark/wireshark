@@ -367,7 +367,7 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array)
 }
 
 static tap_packet_status
-rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
+rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
 {
 	srt_stat_table *rpc_srt_table;
 	srt_data_t *data = (srt_data_t *)pss;
@@ -3943,7 +3943,7 @@ static void rpc_prog_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rciv_ptr)
+rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rciv_ptr, tap_flags_t flags _U_)
 {
 	stat_data_t* stat_data = (stat_data_t*)tapdata;
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)rciv_ptr;

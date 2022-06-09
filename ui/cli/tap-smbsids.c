@@ -28,7 +28,7 @@
 void register_tap_listener_smbsids(void);
 
 static tap_packet_status
-smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *psi _U_)
+smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *psi _U_, tap_flags_t flags _U_)
 {
 	return TAP_PACKET_REDRAW;
 }

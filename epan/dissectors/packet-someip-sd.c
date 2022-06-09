@@ -909,7 +909,7 @@ stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, gchar *ret
 }
 
 static tap_packet_status
-someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p) {
+someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p, tap_flags_t flags _U_) {
     DISSECTOR_ASSERT(p);
     const someip_sd_entries_tap_t *data = (const someip_sd_entries_tap_t *)p;
     static gchar tmp_addr_str[256];

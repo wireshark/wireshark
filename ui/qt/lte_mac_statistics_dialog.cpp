@@ -719,7 +719,7 @@ void LteMacStatisticsDialog::tapReset(void *ws_dlg_ptr)
 //---------------------------------------------------------------------------------------
 // Process tap info from a new packet.
 // Returns TAP_PACKET_REDRAW if a redraw is needed, TAP_PACKET_DONT_REDRAW otherwise.
-tap_packet_status LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *mac_lte_tap_info_ptr)
+tap_packet_status LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *mac_lte_tap_info_ptr, tap_flags_t)
 {
     // Look up dialog and tap info.
     LteMacStatisticsDialog *ws_dlg = static_cast<LteMacStatisticsDialog *>(ws_dlg_ptr);

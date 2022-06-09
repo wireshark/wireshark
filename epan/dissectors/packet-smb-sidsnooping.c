@@ -68,7 +68,7 @@ add_sid_name_mapping(const char *sid, const char *name)
  * level  1 : user displayinfo 1
  */
 static tap_packet_status
-samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, const void *pri)
+samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, const void *pri, tap_flags_t flags _U_)
 {
 	const dcerpc_info *ri=(const dcerpc_info *)pri;
 	void *old_ctx=NULL;
@@ -190,7 +190,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
  * level 12 : DNS_DOMAIN_INFO     lsa.domain_sid -> lsa.domain
  */
 static tap_packet_status
-lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *edt, const void *pri _U_)
+lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *edt, const void *pri _U_, tap_flags_t flags _U_)
 {
 	GPtrArray *gp;
 	field_info *fi;

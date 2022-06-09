@@ -106,7 +106,7 @@ static gint compare_doubles(gconstpointer a, gconstpointer b)
  *  TAP_PACKET_REDRAW: state has changed, call (*draw) sometime later
  */
 static tap_packet_status
-icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
+icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     icmpstat_t *icmpstat = (icmpstat_t *)tapdata;
     const icmp_transaction_t *trans = (const icmp_transaction_t *)data;

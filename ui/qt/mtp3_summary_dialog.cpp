@@ -305,7 +305,8 @@ mtp3_summary_packet(
     void            *tapdata,
     packet_info     *,
     epan_dissect_t  *,
-    const void      *data)
+    const void      *data,
+    tap_flags_t)
 {
     mtp3_stat_t           (*stat_p)[MTP3_MAX_NUM_OPC_DPC] = (mtp3_stat_t(*)[MTP3_MAX_NUM_OPC_DPC])tapdata;
     const mtp3_tap_rec_t  *data_p = (const mtp3_tap_rec_t *)data;

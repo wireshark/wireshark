@@ -209,7 +209,7 @@ static void update_ueid_rnti_counts(guint16 rnti, guint16 ueid, mac_lte_stat_t *
 /* Process stat struct for a MAC LTE frame */
 static tap_packet_status
 mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
-                    const void *phi)
+                    const void *phi, tap_flags_t flags _U_)
 {
     /* Get reference to stat window instance */
     mac_lte_stat_t *hs = (mac_lte_stat_t *)phs;

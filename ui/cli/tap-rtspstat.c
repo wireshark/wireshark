@@ -129,7 +129,7 @@ rtspstat_reset(void *psp  )
 }
 
 static tap_packet_status
-rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
+rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
 {
 	const rtsp_info_value_t *value = (const rtsp_info_value_t *)pri;
 	rtspstat_t *sp = (rtspstat_t *) psp;

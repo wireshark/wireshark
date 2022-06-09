@@ -383,7 +383,7 @@ static void osmux_stats_tree_init(stats_tree *st)
 }
 
 static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
-        packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_)
+        packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_, tap_flags_t flags _U_)
 {
     gchar* stream_name;
     gchar* ft_name;

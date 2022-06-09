@@ -47,7 +47,7 @@ static rpc_program_t *prog_list = NULL;
 static int already_enabled = 0;
 
 static tap_packet_status
-rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
+rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
 {
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)pri;
 	nstime_t delta;

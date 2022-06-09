@@ -80,7 +80,7 @@ typedef struct _io_stat_item_t {
 static guint64 last_relative_time;
 
 static tap_packet_status
-iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
+iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_, tap_flags_t flags _U_)
 {
     io_stat_t *parent;
     io_stat_item_t *mit;

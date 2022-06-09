@@ -5642,7 +5642,7 @@ static void wsp_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-wsp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *wiv_ptr)
+wsp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *wiv_ptr, tap_flags_t flags _U_)
 {
     stat_data_t* stat_data = (stat_data_t*)tapdata;
     const wsp_info_value_t *value = (const wsp_info_value_t *)wiv_ptr;

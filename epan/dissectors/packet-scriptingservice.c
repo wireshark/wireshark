@@ -266,7 +266,7 @@ static void ssprotocol_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-ssprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* data)
+ssprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* data, tap_flags_t flags _U_)
 {
   stat_data_t*                stat_data = (stat_data_t*)tapdata;
   const tap_ssprotocol_rec_t* tap_rec   = (const tap_ssprotocol_rec_t*)data;

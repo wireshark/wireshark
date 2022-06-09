@@ -156,7 +156,7 @@ typedef struct _imf_eo_t {
 } imf_eo_t;
 
 static tap_packet_status
-imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
   export_object_list_t *object_list = (export_object_list_t *)tapdata;
   const imf_eo_t *eo_info = (const imf_eo_t *)data;
