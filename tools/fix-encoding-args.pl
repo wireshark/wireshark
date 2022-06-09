@@ -93,15 +93,12 @@ my @types_STRING =
     "ENC_BIG_ENDIAN"               => "ENC_ASCII",
     "ENC_NA"                       => "ENC_ASCII",
 
-    "ENC_ASCII|ENC_NA"             => "ENC_ASCII",
     "ENC_ASCII|ENC_LITTLE_ENDIAN"  => "ENC_ASCII",
     "ENC_ASCII|ENC_BIG_ENDIAN"     => "ENC_ASCII",
 
-    "ENC_UTF_8|ENC_NA"             => "ENC_UTF_8",
     "ENC_UTF_8|ENC_LITTLE_ENDIAN"  => "ENC_UTF_8",
     "ENC_UTF_8|ENC_BIG_ENDIAN"     => "ENC_UTF_8",
 
-    "ENC_EBCDIC|ENC_NA"            => "ENC_EBCDIC",
     "ENC_EBCDIC|ENC_LITTLE_ENDIAN" => "ENC_EBCDIC",
     "ENC_EBCDIC|ENC_BIG_ENDIAN"    => "ENC_EBCDIC",
    }
