@@ -17,6 +17,8 @@
 
 #include <config.h>
 
+#include <stdlib.h> /* For bsearch() */
+
 #include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
 
 /* Prototypes */
