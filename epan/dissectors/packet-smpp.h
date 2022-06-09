@@ -29,7 +29,7 @@
 /*
  * Export dissection of some parameters
  */
-void smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding);
+void smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint *encoding);
 
 
 /* Tap Record */
