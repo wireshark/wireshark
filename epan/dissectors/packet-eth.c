@@ -156,9 +156,10 @@ static const char* eth_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 static ct_dissector_info_t eth_ct_dissector_info = {&eth_conv_get_filter_type};
 
 static tap_packet_status
-eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
+eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
   conv_hash_t *hash = (conv_hash_t*) pct;
+  hash->flags = flags;
   const eth_hdr *ehdr=(const eth_hdr *)vip;
 
   add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &eth_ct_dissector_info, ENDPOINT_NONE);
@@ -177,9 +178,10 @@ static const char* eth_host_get_filter_type(hostlist_talker_t* host, conv_filter
 static hostlist_dissector_info_t eth_host_dissector_info = {&eth_host_get_filter_type};
 
 static tap_packet_status
-eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
+eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
   conv_hash_t *hash = (conv_hash_t*) pit;
+  hash->flags = flags;
   const eth_hdr *ehdr=(const eth_hdr *)vip;
 
   /* Take two "add" passes per packet, adding for each direction, ensures that all

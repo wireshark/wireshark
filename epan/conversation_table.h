@@ -54,6 +54,7 @@ typedef struct _conversation_hash_t {
     GHashTable  *hashtable;       /**< conversations hash table */
     GArray      *conv_array;      /**< array of conversation values */
     void        *user_data;       /**< "GUI" specifics (if necessary) */
+    guint       flags;            /**< flags given to the tap packet */
 } conv_hash_t;
 
 /** Key for hash lookups */
@@ -110,9 +111,16 @@ typedef struct _conversation_item_t {
     guint64             rx_bytes;       /**< number of received bytes */
     guint64             tx_bytes;       /**< number of transmitted bytes */
 
+    guint64             rx_frames_total;      /**< number of received packets */
+    guint64             tx_frames_total;      /**< number of transmitted packets */
+    guint64             rx_bytes_total;       /**< number of received bytes */
+    guint64             tx_bytes_total;       /**< number of transmitted bytes */
+
     nstime_t            start_time;     /**< relative start time for the conversation */
     nstime_t            stop_time;      /**< relative stop time for the conversation */
     nstime_t            start_abs_time; /**< absolute start time for the conversation */
+
+    gboolean filtered;                  /**< the entry contains only filtered data */
 } conv_item_t;
 
 /** Hostlist information */
@@ -127,7 +135,13 @@ typedef struct _hostlist_talker_t {
     guint64 rx_bytes;       /**< number of received bytes */
     guint64 tx_bytes;       /**< number of transmitted bytes */
 
+    guint64 rx_frames_total;      /**< number of received packets */
+    guint64 tx_frames_total;      /**< number of transmitted packets */
+    guint64 rx_bytes_total;       /**< number of received bytes */
+    guint64 tx_bytes_total;       /**< number of transmitted bytes */
+
     gboolean modified;      /**< new to redraw the row */
+    gboolean filtered;      /**< the entry contains only filtered data */
 
 } hostlist_talker_t;
 

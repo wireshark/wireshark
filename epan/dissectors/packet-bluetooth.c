@@ -4429,9 +4429,10 @@ static hostlist_dissector_info_t  bluetooth_dissector_info = {&bluetooth_get_fil
 
 static tap_packet_status
 bluetooth_conversation_packet(void *pct, packet_info *pinfo,
-        epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags _U_)
+        epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
+    hash->flags = flags;
     add_conversation_table_data(hash, &pinfo->dl_src, &pinfo->dl_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
             &bluetooth_ct_dissector_info, ENDPOINT_NONE);
@@ -4442,9 +4443,10 @@ bluetooth_conversation_packet(void *pct, packet_info *pinfo,
 
 static tap_packet_status
 bluetooth_hostlist_packet(void *pit, packet_info *pinfo,
-        epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags _U_)
+        epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
+    hash->flags = flags;
 
     add_hostlist_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);

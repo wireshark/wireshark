@@ -505,9 +505,10 @@ static const char* ip_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 static ct_dissector_info_t ip_ct_dissector_info = {&ip_conv_get_filter_type};
 
 static tap_packet_status
-ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
+ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
+    hash->flags = flags;
     const ws_ip4 *iph=(const ws_ip4 *)vip;
 
     add_conversation_table_data(hash, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ip_ct_dissector_info, ENDPOINT_NONE);
@@ -526,9 +527,10 @@ static const char* ip_host_get_filter_type(hostlist_talker_t* host, conv_filter_
 static hostlist_dissector_info_t ip_host_dissector_info = {&ip_host_get_filter_type};
 
 static tap_packet_status
-ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
+ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
+    hash->flags = flags;
     const ws_ip4 *iph=(const ws_ip4 *)vip;
 
     /* Take two "add" passes per packet, adding for each direction, ensures that all

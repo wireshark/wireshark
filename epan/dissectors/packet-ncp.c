@@ -756,9 +756,11 @@ static const char* ncp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_t
 static ct_dissector_info_t ncp_ct_dissector_info = {&ncp_conv_get_filter_type};
 
 static tap_packet_status
-ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
+ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
+    hash->flags = flags;
+
     const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
     guint32 connection;
 
@@ -778,9 +780,11 @@ static const char* ncp_host_get_filter_type(hostlist_talker_t* host _U_, conv_fi
 static hostlist_dissector_info_t ncp_host_dissector_info = {&ncp_host_get_filter_type};
 
 static tap_packet_status
-ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags _U_)
+ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
+    hash->flags = flags;
+
     /*const ncp_common_header *ncphdr=vip;*/
 
     /* Take two "add" passes per packet, adding for each direction, ensures that all

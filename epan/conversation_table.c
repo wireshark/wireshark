@@ -662,19 +662,35 @@ add_conversation_table_data_with_conv_id(
         g_hash_table_insert(ch->hashtable, new_key, GUINT_TO_POINTER(conversation_idx));
 
         /* update the conversation struct */
-        conv_item->tx_frames += num_frames;
-        conv_item->tx_bytes += num_bytes;
+        conv_item->tx_frames_total += num_frames;
+        conv_item->tx_bytes_total += num_bytes;
+        conv_item->filtered = TRUE;
+        if (! (ch->flags & TL_DISPLAY_FILTER_IGNORED)) {
+            conv_item->tx_frames += num_frames;
+            conv_item->tx_bytes += num_bytes;
+            conv_item->filtered = FALSE;
+        }
     } else {
         /*
          * update an existing conversation
          * update the conversation struct
          */
         if (is_fwd_direction) {
-            conv_item->tx_frames += num_frames;
-            conv_item->tx_bytes += num_bytes;
+            conv_item->tx_frames_total += num_frames;
+            conv_item->tx_bytes_total += num_bytes;
         } else {
-            conv_item->rx_frames += num_frames;
-            conv_item->rx_bytes += num_bytes;
+            conv_item->rx_frames_total += num_frames;
+            conv_item->rx_bytes_total += num_bytes;
+        }
+        if (! (ch->flags & TL_DISPLAY_FILTER_IGNORED)) {
+            if( is_fwd_direction ){
+                conv_item->tx_frames += num_frames;
+                conv_item->tx_bytes += num_bytes;
+            } else {
+                conv_item->rx_frames += num_frames;
+                conv_item->rx_bytes += num_bytes;
+            }
+            conv_item->filtered = FALSE;
         }
     }
 
@@ -767,6 +783,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
         host.rx_bytes=0;
         host.tx_bytes=0;
         host.modified = TRUE;
+        host.filtered = TRUE;
 
         g_array_append_val(ch->conv_array, host);
         talker_idx= ch->conv_array->len - 1;
@@ -783,12 +800,23 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
     talker->modified = TRUE;
 
     /* update the talker struct */
+    if (! (ch->flags & TL_DISPLAY_FILTER_IGNORED)) {
+        if( sender ){
+            talker->tx_frames+=num_frames;
+            talker->tx_bytes+=num_bytes;
+        } else {
+            talker->rx_frames+=num_frames;
+            talker->rx_bytes+=num_bytes;
+        }
+        talker->filtered = FALSE;
+    }
+    /* update the talker struct for total values */
     if( sender ){
-        talker->tx_frames+=num_frames;
-        talker->tx_bytes+=num_bytes;
+        talker->tx_frames_total+=num_frames;
+        talker->tx_bytes_total+=num_bytes;
     } else {
-        talker->rx_frames+=num_frames;
-        talker->rx_bytes+=num_bytes;
+        talker->rx_frames_total+=num_frames;
+        talker->rx_bytes_total+=num_bytes;
     }
 }
 

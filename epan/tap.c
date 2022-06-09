@@ -348,18 +348,22 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 					/* If we have a filter, see if the
 					 * packet passes.
 					 */
+					guint flags = tl->flags;
 					if(tl->code){
 						if (!dfilter_apply_edt(tl->code, edt)){
 							/* The packet didn't
 							 * pass the filter. */
-							continue;
+							if (tl->flags & TL_IGNORE_DISPLAY_FILTER)
+								flags |= TL_DISPLAY_FILTER_IGNORED;
+							else
+								continue;
 						}
 					}
 
 					/* So call the per-packet routine. */
 					tap_packet_status status;
 
-					status = tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data, tl->flags);
+					status = tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data, flags);
 
 					switch (status) {
 

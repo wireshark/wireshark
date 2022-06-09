@@ -137,9 +137,11 @@ static ct_dissector_info_t sll_ct_dissector_info = {&sll_conv_get_filter_type};
 static address no_dst = {AT_NONE, 0, NULL, NULL};
 
 static tap_packet_status
-sll_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
+sll_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
 	conv_hash_t *hash = (conv_hash_t*) pct;
+    hash->flags = flags;
+
 	const sll_tap_data *tap_data = (const sll_tap_data*)vip;
 
 	add_conversation_table_data(hash, &tap_data->src_address, &no_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &sll_ct_dissector_info, ENDPOINT_NONE);
@@ -167,9 +169,11 @@ static const char* sll_host_get_filter_type(hostlist_talker_t* host, conv_filter
 static hostlist_dissector_info_t sll_host_dissector_info = {&sll_host_get_filter_type};
 
 static tap_packet_status
-sll_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
+sll_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
 	conv_hash_t *hash = (conv_hash_t*) pit;
+    hash->flags = flags;
+
 	const sll_tap_data *tap_data = (const sll_tap_data*)vip;
 
 	add_hostlist_table_data(hash, &tap_data->src_address, 0, TRUE, 1, pinfo->fd->pkt_len, &sll_host_dissector_info, ENDPOINT_NONE);
