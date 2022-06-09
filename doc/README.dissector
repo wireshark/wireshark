@@ -1491,7 +1491,8 @@ encoded. For FT_UINT_STRING fields, the byte order of the count must be
 specified; for UCS-2 and UTF-16, the byte order of the encoding must be
 specified (for counted UCS-2 and UTF-16 strings, the byte order of the
 count and the 16-bit values in the string must be the same). In other
-cases, ENC_NA should be used. The character encodings that are
+cases the string encoding has no endianness or the endianness is implicitly
+specified and nothing should be used. The character encodings that are
 currently supported are:
 
     ENC_ASCII - ASCII (currently treated as UTF-8; in the future,
@@ -3343,8 +3344,7 @@ static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         len += 1; /* Add one for the '\0' */
 
         if (tree) {
-            proto_tree_add_item(tree, hf_cstring, tvb, offset, len,
-                ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_cstring, tvb, offset, len, ENC_ASCII);
         }
         offset += (guint)len;
     }
