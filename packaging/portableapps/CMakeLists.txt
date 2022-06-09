@@ -79,7 +79,7 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 	# Build the PortableApps package.
 	# wireshark_nsis_prep must be built prior to this.
 	# XXX Rename this to wireshark_portableapps
-	set (_portableapps_package ${CMAKE_BINARY_DIR}/packaging/portableapps/${PORTABLEAPPS_NAME}_${VERSION}.paf.exe)
+	set (_portableapps_package ${CMAKE_BINARY_DIR}/packaging/portableapps/${PORTABLEAPPS_NAME}_${PROJECT_VERSION}.paf.exe)
 	add_custom_target(wireshark_portableapps
 		DEPENDS
 			wireshark_portableapps_runtime
@@ -90,7 +90,7 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 		EXCLUDE_FROM_DEFAULT_BUILD True
 	)
 
-	set(PORTABLEAPPS_PACKAGE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}.0")
+	set(PORTABLEAPPS_PACKAGE_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.0")
 	configure_file(
 		${CMAKE_SOURCE_DIR}/packaging/portableapps/appinfo.tmpl
 		${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/AppInfo/appinfo.ini
