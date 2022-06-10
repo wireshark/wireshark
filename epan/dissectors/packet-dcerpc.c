@@ -4450,7 +4450,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
        then exit
     */
     if (pinfo->fd->visited) {
-        fd_head = fragment_get_reassembled(&dcerpc_co_reassembly_table, frame);
+        fd_head = fragment_get_reassembled_id(&dcerpc_co_reassembly_table, pinfo, frame);
         goto end_cn_stub;
     }
 

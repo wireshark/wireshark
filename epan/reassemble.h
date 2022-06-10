@@ -440,10 +440,6 @@ fragment_get(reassembly_table *table, const packet_info *pinfo,
 	     const guint32 id, const void *data);
 
 /* The same for the reassemble table */
-/* id *must* be the frame number for this to work! */
-WS_DLL_PUBLIC fragment_head *
-fragment_get_reassembled(reassembly_table *table, const guint32 id);
-
 WS_DLL_PUBLIC fragment_head *
 fragment_get_reassembled_id(reassembly_table *table, const packet_info *pinfo,
 			    const guint32 id);

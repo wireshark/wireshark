@@ -631,21 +631,6 @@ fragment_get(reassembly_table *table, const packet_info *pinfo,
 	return lookup_fd_head(table, pinfo, id, data, NULL);
 }
 
-/* id *must* be the frame number for this to work! */
-fragment_head *
-fragment_get_reassembled(reassembly_table *table, const guint32 id)
-{
-	fragment_head *fd_head;
-	reassembled_key key;
-
-	/* create key to search hash with */
-	key.frame = id;
-	key.id = id;
-	fd_head = (fragment_head *)g_hash_table_lookup(table->reassembled_table, &key);
-
-	return fd_head;
-}
-
 fragment_head *
 fragment_get_reassembled_id(reassembly_table *table, const packet_info *pinfo,
 			    const guint32 id)

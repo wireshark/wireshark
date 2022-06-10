@@ -710,7 +710,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fragment_delete@Base 1.9.1
  fragment_end_seq_next@Base 1.9.1
  fragment_get@Base 1.9.1
- fragment_get_reassembled@Base 1.9.1
  fragment_get_reassembled_id@Base 1.9.1
  fragment_get_tot_len@Base 1.9.1
  fragment_set_partial_reassembly@Base 1.9.1
