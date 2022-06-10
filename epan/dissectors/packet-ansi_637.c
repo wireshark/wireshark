@@ -945,7 +945,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
     case 0x04:
         encoding_bit_len = 16;
-        cset = OTHER;
+        cset = UCS2;
         break;
 
     case 0x09:
@@ -1038,10 +1038,6 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         {
             switch (cset)
             {
-            case GSM_7BITS:
-            case OTHER:
-                break;
-
             case ASCII_7BITS:
                 if (fill_bits > unused_bits)
                 {
@@ -1063,6 +1059,9 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                     offset += 1;
                     unused_bits = 8;
                 }
+                break;
+
+            default:
                 break;
             }
         } else if (encoding_bit_len == 16) {
@@ -1472,7 +1471,7 @@ tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         case 0x04:
             encoding_bit_len = 16;
-            cset = OTHER;
+            cset = UCS2;
             break;
 
         case 0x09:

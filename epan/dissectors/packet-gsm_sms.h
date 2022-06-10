@@ -13,7 +13,9 @@
 enum character_set {
     OTHER,
     GSM_7BITS,
-    ASCII_7BITS
+    ASCII_7BITS,
+    GSM_7BITS_UNPACKED,
+    UCS2
 };
 
 /*

@@ -810,7 +810,7 @@ static const true_false_string tfs_message_class_defined = { "Defined below", "R
 
 static void
 dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
-    gboolean *seven_bit, gboolean *eight_bit, gboolean *ucs2, gboolean *compressed)
+    enum character_set *cset, gboolean *compressed)
 {
     proto_item  *item;
     proto_tree  *subtree;
@@ -818,9 +818,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     gboolean     default_3_bits;
     gboolean     default_data;
 
-    *seven_bit  = FALSE;
-    *eight_bit  = FALSE;
-    *ucs2       = FALSE;
+    *cset       = OTHER;
     *compressed = FALSE;
 
     item = proto_tree_add_item(tree, hf_gsm_sms_tp_dcs, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -836,7 +834,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     {
         proto_tree_add_item(subtree, hf_gsm_sms_gsm_7_bit_default_alphabet, tvb, offset, 1, ENC_NA);
 
-        *seven_bit = TRUE;
+        *cset      = GSM_7BITS;
         return;
     }
 
@@ -855,6 +853,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         break;
 
     case 2:
+        /* Reserved coding groups */
         return;
 
     case 3:
@@ -862,15 +861,15 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         {
         case 0x00:
             default_3_bits = TRUE;
-            *seven_bit = TRUE;
+            *cset      = GSM_7BITS;
             break;
         case 0x01:
             default_3_bits = TRUE;
-            *seven_bit = TRUE;
+            *cset      = GSM_7BITS;
             break;
         case 0x02:
             default_3_bits = TRUE;
-            *ucs2 = TRUE;
+            *cset      = UCS2;
             break;
         case 0x03:
             default_data = TRUE;
@@ -888,15 +887,16 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         switch ((oct & 0x0c) >> 2)
         {
         case 0x00:
-            *seven_bit = TRUE;
+            *cset      = GSM_7BITS;
             break;
         case 0x01:
-            *eight_bit = TRUE;
+            *cset      = OTHER;
             break;
         case 0x02:
-            *ucs2 = TRUE;
+            *cset      = UCS2;
             break;
         case 0x03:
+            /* Reserved */
             break;
         }
 
@@ -911,7 +911,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     }
     else if (default_data)
     {
-        *seven_bit = !(*eight_bit = (oct & 0x04) ? TRUE : FALSE);
+        *cset      = (oct & 0x04) ? OTHER : GSM_7BITS;
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_reserved08, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_coding, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_class, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2000,7 +2000,7 @@ dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offs
     *offset += oct;
     *length -= oct;
 
-    if (cset != OTHER)
+    if (cset == GSM_7BITS || cset == ASCII_7BITS)
     {
         /* step over fill bits ? */
 
@@ -2030,8 +2030,8 @@ dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offs
 #define SMS_MAX_MESSAGE_SIZE 160
 static void
 dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset,
-             guint32 length, gboolean udhi, guint8 udl, gboolean seven_bit,
-             gboolean eight_bit, gboolean ucs2, gboolean compressed, gsm_sms_data_t *data)
+             guint32 length, gboolean udhi, guint8 udl, enum character_set cset,
+             gboolean compressed, gsm_sms_data_t *data)
 {
     proto_tree        *subtree;
     tvbuff_t          *sm_tvb = NULL;
@@ -2105,20 +2105,14 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                             offset, length,
                             ett_ud, NULL, "TP-User-Data");
 
+    if (data && data->stk_packing_required)
+    {
+        cset = GSM_7BITS_UNPACKED;
+    }
+
     if (udhi)
     {
-        enum character_set cset;
-
-        if (data && data->stk_packing_required)
-        {
-            cset = OTHER;
-        }
-        else
-        {
-            cset = (seven_bit && !compressed) ? GSM_7BITS : OTHER;
-        }
-
-        dis_field_udh(tvb, pinfo, subtree, &offset, &length, &udl, cset, &fill_bits, &udh_fields);
+        dis_field_udh(tvb, pinfo, subtree, &offset, &length, &udl, compressed ? OTHER : cset, &fill_bits, &udh_fields);
     }
 
     if (udh_fields.frags > 1)
@@ -2183,7 +2177,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     }
     else
     {
-        if (data && data->stk_packing_required)
+        if (cset == GSM_7BITS_UNPACKED)
         {
             /*
              * STK requires SMS packing by the terminal; this means
@@ -2224,7 +2218,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 }
             }
         }
-        else if (seven_bit)
+        else if (cset == GSM_7BITS)
         {
             if(!(reassembled && pinfo->num == reassembled_in))
             {
@@ -2259,7 +2253,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 }
             }
         }
-        else if (eight_bit)
+        else if (cset == OTHER)
         {
             if (!is_fragmented || (reassembled && pinfo->num == reassembled_in)) {
                 if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_src, sm_tvb, pinfo, subtree))
@@ -2273,7 +2267,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 proto_tree_add_item(subtree, hf_gsm_sms_body, tvb, offset, length, ENC_NA);
             }
         }
-        else if (ucs2)
+        else if (cset == UCS2)
         {
             {
                 guint rep_len = tvb_reported_length(sm_tvb);
@@ -2347,15 +2341,13 @@ dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static void
 dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gsm_sms_data_t *data)
 {
-    guint32        saved_offset;
-    guint32        length;
-    guint8         oct;
-    guint8         udl;
-    gboolean       seven_bit;
-    gboolean       eight_bit;
-    gboolean       ucs2;
-    gboolean       compressed;
-    gboolean       udhi;
+    guint32             saved_offset;
+    guint32             length;
+    guint8              oct;
+    guint8              udl;
+    enum character_set  cset;
+    gboolean            compressed;
+    gboolean            udhi;
 
     saved_offset = offset;
     length = tvb_reported_length_remaining(tvb, offset);
@@ -2381,7 +2373,7 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+    dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
 
     offset++;
     dis_field_scts(tvb, pinfo, tree, &offset);
@@ -2396,7 +2388,7 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
         offset++;
 
         dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
-            seven_bit, eight_bit, ucs2, compressed, data);
+            cset, compressed, data);
     }
 }
 
@@ -2407,16 +2399,14 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 static void
 dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gsm_sms_data_t *data)
 {
-    guint32        saved_offset;
-    guint32        length;
-    guint8         oct;
-    guint8         pi;
-    guint8         udl;
-    gboolean       seven_bit = FALSE;
-    gboolean       eight_bit = FALSE;
-    gboolean       ucs2 = FALSE;
-    gboolean       compressed = FALSE;
-    gboolean       udhi;
+    guint32             saved_offset;
+    guint32             length;
+    guint8              oct;
+    guint8              pi;
+    guint8              udl;
+    enum character_set  cset = OTHER;
+    gboolean            compressed = FALSE;
+    gboolean            udhi;
 
 
     udl = 0;
@@ -2487,7 +2477,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         offset++;
         oct = tvb_get_guint8(tvb, offset);
 
-        dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+        dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
     }
 
     if (pi & 0x04)
@@ -2511,7 +2501,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         offset++;
 
         dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
-            seven_bit, eight_bit, ucs2, compressed, data);
+            cset, compressed, data);
     }
 }
 
@@ -2522,16 +2512,14 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 static void
 dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gsm_sms_data_t *data)
 {
-    guint32        saved_offset;
-    guint32        length;
-    guint8         oct;
-    guint8         vp_form;
-    guint8         udl;
-    gboolean       seven_bit;
-    gboolean       eight_bit;
-    gboolean       ucs2;
-    gboolean       compressed;
-    gboolean       udhi;
+    guint32             saved_offset;
+    guint32             length;
+    guint8              oct;
+    guint8              vp_form;
+    guint8              udl;
+    enum character_set  cset;
+    gboolean            compressed;
+    gboolean            udhi;
 
 
     saved_offset = offset;
@@ -2563,7 +2551,7 @@ dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+    dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
 
     offset++;
     dis_field_vp(tvb, pinfo, tree, &offset, vp_form);
@@ -2578,7 +2566,7 @@ dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
         offset++;
 
         dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
-            seven_bit, eight_bit, ucs2, compressed, data);
+            cset, compressed, data);
     }
 }
 
@@ -2589,16 +2577,14 @@ dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 static void
 dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gsm_sms_data_t *data)
 {
-    guint32        saved_offset;
-    guint32        length;
-    guint8         oct;
-    guint8         pi;
-    guint8         udl;
-    gboolean       seven_bit = FALSE;
-    gboolean       eight_bit = FALSE;
-    gboolean       ucs2 = FALSE;
-    gboolean       compressed = FALSE;
-    gboolean       udhi;
+    guint32             saved_offset;
+    guint32             length;
+    guint8              oct;
+    guint8              pi;
+    guint8              udl;
+    enum character_set  cset = OTHER;
+    gboolean            compressed = FALSE;
+    gboolean            udhi;
 
 
     udl = 0;
@@ -2661,7 +2647,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
         oct = tvb_get_guint8(tvb, offset);
 
-        dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+        dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
         offset++;
     }
 
@@ -2684,7 +2670,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     if (udl > 0)
     {
         dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
-            seven_bit, eight_bit, ucs2, compressed, data);
+            cset, compressed, data);
     }
 }
 
@@ -2695,16 +2681,14 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 static void
 dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gsm_sms_data_t *data)
 {
-    guint32        saved_offset;
-    guint32        length;
-    guint8         oct;
-    guint8         pi;
-    guint8         udl;
-    gboolean       seven_bit = FALSE;
-    gboolean       eight_bit = FALSE;
-    gboolean       ucs2 = FALSE;
-    gboolean       compressed = FALSE;
-    gboolean       udhi;
+    guint32             saved_offset;
+    guint32             length;
+    guint8              oct;
+    guint8              pi;
+    guint8              udl;
+    enum character_set  cset = OTHER;
+    gboolean            compressed = FALSE;
+    gboolean            udhi;
 
 
     udl = 0;
@@ -2776,7 +2760,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         }
 
         oct = tvb_get_guint8(tvb, offset);
-        dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+        dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
         offset++;
     }
 
@@ -2799,7 +2783,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     if (udl > 0)
     {
         dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
-            seven_bit, eight_bit, ucs2, compressed, data);
+            cset, compressed, data);
     }
 }
 
