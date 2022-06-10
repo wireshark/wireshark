@@ -668,6 +668,17 @@ static int hf_mbim_thermal_state_info_hyst_value = -1;
 static int hf_mbim_thermal_state_info_sampling_period = -1;
 static int hf_mbim_sar_config_sar_status = -1;
 static int hf_mbim_sar_config_level = -1;
+static int hf_mbim_ms_sar_config_sar_mode = -1;
+static int hf_mbim_ms_sar_config_sar_backoff_status = -1;
+static int hf_mbim_ms_sar_config_sar_wifi_Integration = -1;
+static int hf_mbim_ms_sar_config_element_count = -1;
+static int hf_mbim_ms_sar_config_element_offset = -1;
+static int hf_mbim_ms_sar_config_element_size = -1;
+static int hf_mbim_ms_sar_config_state_sar_antenna_index = -1;
+static int hf_mbim_ms_sar_config_state_sar_backoff_index = -1;
+static int hf_mbim_ms_transmission_status_channel_notification = -1;
+static int hf_mbim_ms_transmission_status_transmission_status = -1;
+static int hf_mbim_ms_transmission_status_hysteresis_timer = -1;
 static int hf_mbim_adpclk_activate_state = -1;
 static int hf_mbim_adpclk_freq_info_elem_count = -1;
 static int hf_mbim_adpclk_freq_info_adpclk_freq_value_offset = -1;
@@ -2713,6 +2724,18 @@ static const value_string mbim_thermal_config_enable_vals[] = {
 static const value_string mbim_sar_status_vals[] = {
     { 0, "Disabled"},
     { 1, "Enabled"},
+    { 0, NULL}
+};
+
+static const value_string mbim_ms_sar_config_sar_mode_vals[] = {
+    { 0, "Device"},
+    { 1, "OS"},
+    { 0, NULL}
+};
+
+static const value_string mbim_ms_sar_config_sar_wifi_integration_vals[] = {
+    { 0, "Not Integrated"},
+    { 1, "Integrated"},
     { 0, NULL}
 };
 
@@ -5611,6 +5634,68 @@ mbim_dissect_sar_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
+mbim_dissect_ms_sar_config_state(tvbuff_t* tvb, proto_tree* tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_mbim_ms_sar_config_state_sar_antenna_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_sar_config_state_sar_backoff_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+}
+
+static void
+mbim_dissect_ms_sar_config(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gboolean is_response)
+{
+    proto_tree* subtree;
+    guint32 i, elem_count;
+    wmem_array_t* pair_list;
+    struct mbim_pair_list pair_list_item, * p_pair_list_item;
+    gint base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_ms_sar_config_sar_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_sar_config_sar_backoff_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (is_response) {
+        proto_tree_add_item(tree, hf_mbim_ms_sar_config_sar_wifi_Integration, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_sar_config_element_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
+    offset += 4;
+    if (elem_count) {
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8 * elem_count, ett_mbim_pair_list, NULL, "SAR Config State List");
+        for (i = 0; i < elem_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_sar_config_element_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_sar_config_element_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+        for (i = 0; i < elem_count; i++) {
+            p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+            if (p_pair_list_item->offset && p_pair_list_item->size) {
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + p_pair_list_item->offset, p_pair_list_item->size,
+                    ett_mbim_pair_list, NULL, "SAR Config State #%u", i + 1);
+                mbim_dissect_ms_sar_config_state(tvb, subtree, base_offset + p_pair_list_item->offset);
+            }
+        }
+    }
+}
+
+static void
+mbim_dissect_ms_transmission_status(tvbuff_t* tvb, proto_tree* tree, gint offset, gboolean is_response)
+{
+    proto_tree_add_item(tree, hf_mbim_ms_transmission_status_channel_notification, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (is_response) {
+        proto_tree_add_item(tree, hf_mbim_ms_transmission_status_transmission_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+    proto_tree_add_item(tree, hf_mbim_ms_transmission_status_hysteresis_timer, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+}
+
+
+static void
 mbim_dissect_adpclk_freq_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, guint32 buffer_len)
 {
     proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_center_freq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -8109,8 +8194,18 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     case UUID_MS_SARCONTROL:
                         switch (cid) {
                             case MBIM_CID_MS_SAR_CONFIG:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_sar_config(frag_tvb, pinfo, subtree, offset, FALSE);
+                                }
+                                else if (info_buff_len) {
+                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                }
+                                break;
                             case MBIM_CID_MS_TRANSMISSION_STATUS:
-                                if (info_buff_len) {
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_transmission_status(frag_tvb, subtree, offset, FALSE);
+                                }
+                                else if (info_buff_len) {
                                     proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
                                 }
                                 break;
@@ -9062,8 +9157,10 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     case UUID_MS_SARCONTROL:
                         switch (cid) {
                             case MBIM_CID_MS_SAR_CONFIG:
+                                mbim_dissect_ms_sar_config(frag_tvb, pinfo, subtree, offset, TRUE);
+                                break;
                             case MBIM_CID_MS_TRANSMISSION_STATUS:
-                                proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                mbim_dissect_ms_transmission_status(frag_tvb, subtree, offset, TRUE);
                                 break;
                             default:
                                 proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
@@ -12645,6 +12742,61 @@ proto_register_mbim(void)
         { &hf_mbim_sar_config_level,
             { "Level", "mbim.control.sar_config.level",
                FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_sar_mode,
+            { "SAR Mode", "mbim.control.ms_sar_config.sar_mode",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_sar_config_sar_mode_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_sar_backoff_status,
+            { "SAR Backoff Status", "mbim.control.ms_sar_config.sar_backoff_status",
+               FT_BOOLEAN, BASE_DEC, TFS(&tfs_enabled_disabled), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_sar_wifi_Integration,
+            { "SAR Wifi Integration", "mbim.control.ms_sar_config.sar_wifi_integration",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_sar_config_sar_wifi_integration_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_element_count,
+            { "Element Count", "mbim.control.ms_sar_config.element_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_element_offset,
+            { "Element Offset", "mbim.control.ms_sar_config.element_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_element_size,
+            { "Element Size", "mbim.control.ms_sar_config.element_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_state_sar_antenna_index,
+            { "SAR Antenna Index", "mbim.control.ms_sar_config.sar_antenna_index",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_sar_config_state_sar_backoff_index,
+            { "SAR Backoff Index", "mbim.control.ms_sar_config.sar_backoff_index",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_transmission_status_channel_notification,
+            { "Transmission Channel Notification", "mbim.control.ms_transmission_status.channel_notification",
+               FT_BOOLEAN, BASE_DEC, TFS(&tfs_enabled_disabled), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_transmission_status_transmission_status,
+            { "Transmission Status", "mbim.control.ms_transmission_status.transmission_status",
+               FT_BOOLEAN, BASE_DEC, TFS(&tfs_active_inactive), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_transmission_status_hysteresis_timer,
+            { "Hysteresis Timer", "mbim.control.ms_transmission_status.hysteresis_timer",
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
               NULL, HFILL }
         },
         { &hf_mbim_adpclk_activate_state,
