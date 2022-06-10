@@ -23,6 +23,9 @@ wsbuglink:17779[]
 * The display filter syntax is now more powerful with many new extensions.
   See below for details.
 
+* The tap registration system has been updated and the list of arguments for tap_packet_cb has
+  changed. All taps registered through register_tap_listener have to be updated.
+
 * The Conversation and Endpoint dialogs have been redesigned with the following improvements:
  - The context menu now includes the option to resize all columns, as well as copying elements
  - Data may be exported as Json
