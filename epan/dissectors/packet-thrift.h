@@ -36,6 +36,7 @@ typedef enum {
     DE_THRIFT_T_MAP,
     DE_THRIFT_T_SET,
     DE_THRIFT_T_LIST,
+    DE_THRIFT_T_UUID,
 } thrift_type_enum_t;
 
 typedef enum {
@@ -74,7 +75,7 @@ typedef struct _thrift_option_data_t {
     thrift_method_type_enum_t mtype;    /* Method type necessary to know how to decode the message. */
     thrift_protocol_enum_t tprotocol;   /* Type and version of Thrift TProtocol.
                                          * Framed?((Strict? Binary)|Compact) */
-    gint64 reply_field_id;              /* First (and theoritically only) field id of the current REPLY.
+    gint64 reply_field_id;              /* First (and theoretically only) field id of the current REPLY.
                                          * This is useful for the sub-dissectors to handle exceptions. */
     gint64 previous_field_id;           /* Last field id that was present in the current struct.
                                          * Set by dissect_thrift_t_struct after the field has been
@@ -137,6 +138,7 @@ WS_DLL_PUBLIC int dissect_thrift_t_i16       (tvbuff_t* tvb, packet_info* pinfo,
 WS_DLL_PUBLIC int dissect_thrift_t_i32       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_i64       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_double    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_uuid      (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_binary    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_string    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
 WS_DLL_PUBLIC int dissect_thrift_t_string_enc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, guint encoding);

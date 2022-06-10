@@ -478,6 +478,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_thrift_t_string_enc@Base 3.5.0
  dissect_thrift_t_stop@Base 2.5.0
  dissect_thrift_t_struct@Base 2.5.0
+ dissect_thrift_t_uuid@Base 3.7.1
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
  dissect_xdlc_control@Base 1.9.1
