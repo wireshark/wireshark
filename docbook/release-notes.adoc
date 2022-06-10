@@ -35,6 +35,8 @@ wsbuglink:17779[]
  - Data may be exported as Json
  - Tabs may be detached and reattached from the dialog
  - Adding/Removing tabs will keep them in the same order all the time
+ - If a filter is applied, two columns are shown in either dialog detailing the difference between
+   unmatched and matched packets
 
 Many improvements have been made.
 See the “New and Updated Features” section below for more details.
