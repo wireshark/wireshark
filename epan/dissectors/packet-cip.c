@@ -4833,6 +4833,40 @@ static int dissect_segment_ansi_extended_symbol(packet_info* pinfo, tvbuff_t* tv
    return 2 + seg_size;
 }
 
+// offset - Starts with the 'Key Data' section of the Electronic Key Segment Format.
+int dissect_electronic_key_format(tvbuff_t* tvb, int offset, proto_tree* tree, gboolean generate, guint8 key_format)
+{
+   int key_len;
+   if (key_format == CI_E_KEY_FORMAT_VAL)
+   {
+      key_len = 8;
+   }
+   else  // CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL
+   {
+      key_len = 12;
+   }
+
+   if (generate)
+   {
+      dissect_deviceid(tvb, offset, tree,
+         hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
+         hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, TRUE);
+   }
+   else
+   {
+      dissect_deviceid(tvb, offset, tree,
+         hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
+         hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, FALSE);
+
+      if (key_format == CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL)
+      {
+         proto_tree_add_item(tree, hf_cip_ekey_serial_number, tvb, offset + 8, 4, ENC_LITTLE_ENDIAN);
+      }
+   }
+
+   return key_len;
+}
+
 static int dissect_segment_logical_special(packet_info* pinfo, tvbuff_t* tvb, int offset,
    gboolean generate, proto_tree* path_seg_tree,
    proto_item* path_seg_item, proto_item* epath_item)
@@ -4847,40 +4881,20 @@ static int dissect_segment_logical_special(packet_info* pinfo, tvbuff_t* tvb, in
       guint8 key_format = tvb_get_guint8(tvb, offset + 1);
       if (key_format == CI_E_KEY_FORMAT_VAL || key_format == CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL)
       {
-         if (key_format == CI_E_KEY_FORMAT_VAL)
-         {
-            segment_len = 10;
-         }
-         else  // CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL
-         {
-            segment_len = 14;
-         }
-
          if (generate)
          {
             proto_item* it = proto_tree_add_uint(path_seg_tree, hf_cip_ekey_format, tvb, 0, 0, key_format);
             proto_item_set_generated(it);
-
-            dissect_deviceid(tvb, offset + 2, path_seg_tree,
-               hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
-               hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, TRUE);
          }
          else
          {
             proto_tree_add_item(path_seg_tree, hf_cip_ekey_format, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-
-            /* dissect the device ID */
-            dissect_deviceid(tvb, offset + 2, path_seg_tree,
-               hf_cip_ekey_vendor, hf_cip_ekey_devtype, hf_cip_ekey_prodcode,
-               hf_cip_ekey_compatibility, hf_cip_ekey_comp_bit, hf_cip_ekey_majorrev, hf_cip_ekey_minorrev, FALSE);
-
-            if (key_format == CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL)
-            {
-               proto_tree_add_item(path_seg_tree, hf_cip_ekey_serial_number, tvb, offset + 12, 4, ENC_LITTLE_ENDIAN);
-            }
-
-            proto_item_set_len(path_seg_item, segment_len);
          }
+         segment_len = 2;
+
+         segment_len += dissect_electronic_key_format(tvb, offset + 2, path_seg_tree, generate, key_format);
+
+         proto_item_set_len(path_seg_item, segment_len);
 
          /* Add "summary" information to parent item */
          guint16 vendor_id = tvb_get_letohs(tvb, offset + 2);

@@ -39,6 +39,7 @@
 #include <epan/wmem_scopes.h>
 #include <epan/oui.h>
 
+#include "packet-enip.h"
 
 #define DEFAULT_COLUMN_INFO            1
 #define PROFINET_SPECIAL_COLUMN_INFO   2
@@ -4515,6 +4516,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_ONOS:
 		subTypeStr = val_to_str(subType, onos_subtypes, "Unknown subtype (0x%x)");
 		break;
+	case OUI_ODVA:
+		subTypeStr = val_to_str(subType, lldp_cip_subtypes, "Unknown subtype (0x%x)");
+		break;
 	default:
 		subTypeStr = wmem_strdup_printf(pinfo->pool, "Unknown (%d)",subType);
 		break;
@@ -4577,6 +4581,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	case OUI_ONOS:
 		dissect_onos_tlv(vendor_tvb, pinfo, org_tlv_tree);
+		break;
+	case OUI_ODVA:
+		dissect_lldp_cip_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	default:
 		dissect_oui_default_tlv(vendor_tvb, pinfo, org_tlv_tree);

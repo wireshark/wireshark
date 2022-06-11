@@ -109,6 +109,9 @@ void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tr
 void enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* triad);
 void enip_mark_connection_triad(packet_info *pinfo, const cip_connection_triad_t* triad);
 
+extern int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern const value_string lldp_cip_subtypes[];
+
 extern attribute_info_t enip_attribute_vals[106];
 
 #endif /* PACKET_ENIP_H */

@@ -4,7 +4,7 @@
  *
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
- *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.27
+ *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.30
  *    CIP Volume 8: CIP Security, Edition 1.13
  *
  * Copyright 2003-2004
@@ -368,6 +368,8 @@ static int hf_eip_cert_capflags_reserved = -1;
 static int hf_eip_cert_capability_flags = -1;
 static int hf_eip_cert_num_certs = -1;
 static int hf_eip_cert_cert_name = -1;
+static int hf_lldp_subtype = -1;
+static int hf_lldp_mac_address = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enip = -1;
@@ -4670,6 +4672,16 @@ proto_register_enip(void)
         { "Certificate name", "cip.eip_cert.cert_name",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
+
+      { &hf_lldp_subtype,
+        { "ODVA LLDP Subtype", "cip.lldp.subtype",
+          FT_UINT8, BASE_DEC, VALS(lldp_cip_subtypes), 0,
+          NULL, HFILL }
+		},
+      { &hf_lldp_mac_address,
+        { "MAC Address", "cip.lldp.mac_address",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
    };
 
    /* Setup protocol subtree array */
@@ -5020,6 +5032,53 @@ proto_register_enip(void)
    subdissector_decode_as_io_table = register_decode_as_next_proto(proto_enip, "cip.io", "CIP I/O Payload", enip_prompt);
 } /* end of proto_register_enip() */
 
+const value_string lldp_cip_subtypes[] = {
+   { 1, "CIP Identification" },
+   { 2, "CIP MAC Address" },
+   { 3, "CIP Interface Label" },
+   { 4, "Position ID" },
+   { 5, "T1S PHY Data" },
+   { 6, "Commission Request" },
+   { 7, "Commission Response" },
+   { 8, "Discover Topology Response" },
+
+	{ 0, NULL }
+};
+
+int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+   int total_len = tvb_reported_length_remaining(tvb, 0);
+   int offset = 0;
+   guint32 subtype;
+	proto_tree_add_item_ret_uint(tree, hf_lldp_subtype, tvb, offset, 1, ENC_BIG_ENDIAN, &subtype);
+   offset++;
+
+   switch (subtype)
+   {
+      case 1:
+      {
+         dissect_electronic_key_format(tvb, offset, tree, FALSE, CI_E_SERIAL_NUMBER_KEY_FORMAT_VAL);
+         break;
+      }
+
+      case 2:
+         proto_tree_add_item(tree, hf_lldp_mac_address, tvb, offset, 6, ENC_NA);
+         break;
+
+      case 3:
+      {
+         // The string is all the data, minus Subtype (1 byte).
+         int string_len = total_len - 1;
+         proto_tree_add_item(tree, hf_elink_interface_label, tvb, offset, string_len, ENC_ASCII | ENC_NA);
+         break;
+      }
+
+      default:
+         break;
+   }
+
+   return tvb_reported_length(tvb);
+}
 
 void
 proto_reg_handoff_enip(void)
