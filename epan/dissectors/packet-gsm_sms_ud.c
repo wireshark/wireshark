@@ -49,6 +49,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include "packet-gsm_sms.h"
+#include "packet-smpp.h"
 
 void proto_register_gsm_sms_ud(void);
 void proto_reg_handoff_gsm_sms_ud(void);
@@ -121,7 +122,7 @@ static dissector_handle_t wsp_handle;
  * Call WSP dissector if port matches WSP traffic.
  */
 static void
-parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo, gsm_sms_udh_fields_t *udh_fields)
+parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo, smpp_data_t *smpp_data)
 {
     tvbuff_t      *sm_tvb                    = NULL;
     proto_tree    *top_tree;
@@ -136,16 +137,25 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
     gboolean       reassembled               = FALSE;
     guint32        reassembled_in            = 0;
 
+    gsm_sms_udh_fields_t *udh_fields = NULL;
+    if (smpp_data) {
+        udh_fields = smpp_data->udh_fields;
+    }
+
     top_tree = proto_tree_get_parent_tree(sm_tree);
 
     if (!udh_fields) {
         udh_fields = wmem_new0(pinfo->pool, gsm_sms_udh_fields_t);
+    }
+
+    if (smpp_data && smpp_data->udhi) {
         /* XXX: We don't handle different encodings in this dissector yet,
          * so just treat everything as 8-bit binary encoding. */
         guint8 fill_bits = 0;
         guint8 udl = sm_len;
         dis_field_udh(tvb, pinfo, sm_tree, &i, &sm_len, &udl, OTHER, &fill_bits, udh_fields);
     }
+
     if (tvb_reported_length_remaining(tvb, i) <= 0)
         return; /* No more data */
 
@@ -248,15 +258,15 @@ dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 {
     proto_item *ti;
     proto_tree *subtree;
-    gsm_sms_udh_fields_t *p_udh_fields = NULL;
+    smpp_data_t *smpp_data = NULL;
 
     if (data) {
-       p_udh_fields = (gsm_sms_udh_fields_t*)data;
+        smpp_data = (smpp_data_t*)data;
     }
 
     ti      = proto_tree_add_item(tree, proto_gsm_sms_ud, tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_gsm_sms);
-    parse_gsm_sms_ud_message(subtree, tvb, pinfo, p_udh_fields);
+    parse_gsm_sms_ud_message(subtree, tvb, pinfo, smpp_data);
     return tvb_captured_length(tvb);
 }
 

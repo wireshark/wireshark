@@ -26,6 +26,14 @@
 #ifndef __PACKET_SMPP_H_
 #define __PACKET_SMPP_H_
 
+#include "packet-gsm_sms.h"
+
+typedef struct _smpp_data_t {
+        gboolean udhi;
+        guint encoding;
+        gsm_sms_udh_fields_t *udh_fields;
+} smpp_data_t;
+
 /*
  * Export dissection of some parameters
  */
