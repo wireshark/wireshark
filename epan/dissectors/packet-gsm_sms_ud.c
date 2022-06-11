@@ -48,6 +48,7 @@
 
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include "packet-gsm_sms.h"
 
 void proto_register_gsm_sms_ud(void);
 void proto_reg_handoff_gsm_sms_ud(void);
@@ -68,24 +69,8 @@ static int hf_gsm_sms_ud_fragment_count = -1;
 static int hf_gsm_sms_ud_reassembled_in = -1;
 static int hf_gsm_sms_ud_reassembled_length = -1;
 static int hf_gsm_sms_ud_short_msg = -1;
-/*
- * User Data Header section
- */
-static int hf_gsm_sms_udh_length = -1;
-static int hf_gsm_sms_udh_iei = -1;
-/* static int hf_gsm_sms_udh_multiple_messages = -1; */
-static int hf_gsm_sms_udh_multiple_messages_msg_id = -1;
-static int hf_gsm_sms_udh_multiple_messages_msg_parts = -1;
-static int hf_gsm_sms_udh_multiple_messages_msg_part = -1;
-/* static int hf_gsm_sms_udh_ports = -1; */
-static int hf_gsm_sms_udh_ports_src = -1;
-static int hf_gsm_sms_udh_ports_dst = -1;
-static int hf_gsm_sms_udh_national_single_shift = -1;
-static int hf_gsm_sms_udh_national_locking_shift = -1;
 
 static gint ett_gsm_sms = -1;
-static gint ett_udh = -1;
-static gint ett_udh_ie = -1;
 static gint ett_gsm_sms_ud_fragment = -1;
 static gint ett_gsm_sms_ud_fragments = -1;
 
@@ -130,256 +115,43 @@ static gboolean prevent_subdissectors_changing_columns = FALSE;
 
 static dissector_handle_t wsp_handle;
 
-/*
- * Value-arrays for field-contents
- */
-/* 3GPP TS 23.040 V12.2.0 (2014-10) */
-static const value_string vals_udh_iei[] = {
-    { 0x00, "SMS - Concatenated short messages, 8-bit reference number" },
-    { 0x01, "SMS - Special SMS Message Indication" },
-    { 0x02, "Reserved" },
-    { 0x03, "Value not used to avoid misinterpretation as <LF> character" },
-    { 0x04, "SMS - Application port addressing scheme, 8 bit address" },
-    { 0x05, "SMS - Application port addressing scheme, 16 bit address" },
-    { 0x06, "SMS - SMSC Control Parameters" },
-    { 0x07, "SMS - UDH Source Indicator" },
-    { 0x08, "SMS - Concatenated short message, 16-bit reference number" },
-    { 0x09, "SMS - Wireless Control Message Protocol" },
-    { 0x0A, "EMS - Text Formatting" },
-    { 0x0B, "EMS - Predefined Sound" },
-    { 0x0C, "EMS - User Defined Sound (iMelody max 128 bytes)" },
-    { 0x0D, "EMS - Predefined Animation" },
-    { 0x0E, "EMS - Large Animation (16*16 times 4 = 32*4 =128 bytes)" },
-    { 0x0F, "EMS - Small Animation (8*8 times 4 = 8*4 =32 bytes)" },
-    { 0x10, "EMS - Large Picture (32*32 = 128 bytes)" },
-    { 0x11, "EMS - Small Picture (16*16 = 32 bytes)" },
-    { 0x12, "EMS - Variable Picture" },
-    { 0x13, "EMS - User prompt indicator" },
-    { 0x14, "EMS - Extended Object" },
-    { 0x15, "EMS - Reused Extended Object" },
-    { 0x16, "EMS - Compression Control" },
-    { 0x17, "EMS - Object Distribution Indicator" },
-    { 0x18, "EMS - Standard WVG object" },
-    { 0x19, "EMS - Character Size WVG object" },
-    { 0x1A, "EMS - Extended Object Data Request Command" },
-    { 0x20, "SMS - RFC 822 E-Mail Header" },
-    { 0x21, "SMS - Hyperlink format element" },
-    { 0x22, "SMS - Reply Address Element" },
-    { 0x23, "SMS - Enhanced Voice Mail Information" },
-    { 0x24, "SMS - National Language Single Shift" },
-    { 0x25, "SMS - National Language Locking Shift" },
-    { 0x00, NULL }
-};
-
-/* 3GPP TS 23.038 V12.0.0 (2014-10) */
-static const value_string vals_udh_national_languages_single_shift[] = {
-    { 0x01, "Turkish" },
-    { 0x02, "Spanish" },
-    { 0x03, "Portuguese" },
-    { 0x04, "Bengali" },
-    { 0x05, "Gujarati" },
-    { 0x06, "Hindi" },
-    { 0x07, "Kannada" },
-    { 0x08, "Malayalam" },
-    { 0x09, "Oriya" },
-    { 0x0A, "Punjabi" },
-    { 0x0B, "Tamil" },
-    { 0x0C, "Telugu" },
-    { 0x0D, "Urdu" },
-    { 0x00, NULL }
-};
-
-static const value_string vals_udh_national_languages_locking_shift[] = {
-    { 0x01, "Turkish" },
-    { 0x03, "Portuguese" },
-    { 0x04, "Bengali" },
-    { 0x05, "Gujarati" },
-    { 0x06, "Hindi" },
-    { 0x07, "Kannada" },
-    { 0x08, "Malayalam" },
-    { 0x09, "Oriya" },
-    { 0x0A, "Punjabi" },
-    { 0x0B, "Tamil" },
-    { 0x0C, "Telugu" },
-    { 0x0D, "Urdu" },
-    { 0x00, NULL }
-};
-
-/* Parse Short Message, only if UDH present
- * (otherwise this function is not called).
+/* Parse Short Message. This function is only called from the SMPP
+ * dissector if the UDH present, or if the UDH fields were obtained
+ * elsewhere in SMPP TLVs.
  * Call WSP dissector if port matches WSP traffic.
  */
 static void
-parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *top_tree)
+parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo, gsm_sms_udh_fields_t *udh_fields)
 {
     tvbuff_t      *sm_tvb                    = NULL;
-    proto_item    *ti;
-    proto_tree    *subtree, *tree;
-    guint8         udh_len, udh, len;
+    proto_tree    *top_tree;
     guint          sm_len                    = tvb_reported_length(tvb);
-    guint          sm_data_len;
     guint32        i                         = 0;
     /* Multiple Messages UDH */
     gboolean       is_fragmented             = FALSE;
     fragment_head *fd_sm                     = NULL;
-    guint16        sm_id                     = 0;
-    guint16        frags                     = 0;
-    guint16        frag                      = 0;
     gboolean       save_fragmented           = FALSE;
     gboolean       try_gsm_sms_ud_reassemble = FALSE;
     /* SMS Message reassembly */
     gboolean       reassembled               = FALSE;
     guint32        reassembled_in            = 0;
-    /* Port Number UDH */
-    guint16        p_src                     = 0;
-    guint16        p_dst                     = 0;
-    gboolean       ports_available           = FALSE;
 
-    udh_len = tvb_get_guint8(tvb, i++);
-    ti   = proto_tree_add_uint(sm_tree, hf_gsm_sms_udh_length, tvb, 0, 1, udh_len);
-    tree = proto_item_add_subtree(ti, ett_udh);
-    while (i < udh_len) {
-        udh = tvb_get_guint8(tvb, i++);
-        len = tvb_get_guint8(tvb, i++);
-        subtree = proto_tree_add_uint(tree, hf_gsm_sms_udh_iei,
-                tvb, i-2, 2+len, udh);
-        switch (udh) {
-            case 0x00: /* Multiple messages - 8-bit message ID */
-                if (len == 3) {
-                    sm_id = tvb_get_guint8(tvb, i++);
-                    frags = tvb_get_guint8(tvb, i++);
-                    frag  = tvb_get_guint8(tvb, i++);
-                    if (frags > 1)
-                        is_fragmented = TRUE;
-                    proto_item_append_text(subtree,
-                            ": message %u, part %u of %u", sm_id, frag, frags);
-                    subtree = proto_item_add_subtree(subtree,
-                            ett_udh_ie);
-                    proto_tree_add_uint(subtree,
-                            hf_gsm_sms_udh_multiple_messages_msg_id,
-                            tvb, i-3, 1, sm_id);
-                    proto_tree_add_uint(subtree,
-                            hf_gsm_sms_udh_multiple_messages_msg_parts,
-                            tvb, i-2, 1, frags);
-                    proto_tree_add_uint(subtree,
-                            hf_gsm_sms_udh_multiple_messages_msg_part,
-                            tvb, i-1, 1, frag);
-                } else {
-                    proto_item_append_text(subtree, " - Invalid format!");
-                    i += len;
-                }
-                break;
+    top_tree = proto_tree_get_parent_tree(sm_tree);
 
-            case 0x08: /* Multiple messages - 16-bit message ID */
-                if (len == 4) {
-                    sm_id = tvb_get_ntohs(tvb, i); i += 2;
-                    frags = tvb_get_guint8(tvb, i++);
-                    frag  = tvb_get_guint8(tvb, i++);
-                    if (frags > 1)
-                        is_fragmented = TRUE;
-                    proto_item_append_text(subtree,
-                            ": message %u, part %u of %u", sm_id, frag, frags);
-                    subtree = proto_item_add_subtree(subtree,
-                            ett_udh_ie);
-                    proto_tree_add_uint(subtree,
-                            hf_gsm_sms_udh_multiple_messages_msg_id,
-                            tvb, i-4, 2, sm_id);
-                    proto_tree_add_uint(subtree,
-                            hf_gsm_sms_udh_multiple_messages_msg_parts,
-                            tvb, i-2, 1, frags);
-                    proto_tree_add_uint(subtree,
-                            hf_gsm_sms_udh_multiple_messages_msg_part,
-                            tvb, i-1, 1, frag);
-                } else {
-                    proto_item_append_text(subtree, " - Invalid format!");
-                    i += len;
-                }
-                break;
-
-            case 0x04: /* Port Number UDH - 8-bit address */
-                if (len == 2) { /* Port fields */
-                    p_dst = tvb_get_guint8(tvb, i++);
-                    p_src = tvb_get_guint8(tvb, i++);
-                    proto_item_append_text(subtree,
-                            ": source port %u, destination port %u",
-                            p_src, p_dst);
-                    subtree = proto_item_add_subtree(subtree, ett_udh_ie);
-                    proto_tree_add_uint(subtree, hf_gsm_sms_udh_ports_dst,
-                            tvb, i-2, 1, p_dst);
-                    proto_tree_add_uint(subtree, hf_gsm_sms_udh_ports_src,
-                            tvb, i-1, 1, p_src);
-                    ports_available = TRUE;
-                } else {
-                    proto_item_append_text(subtree, " - Invalid format!");
-                    i += len;
-                }
-                break;
-
-            case 0x05: /* Port Number UDH - 16-bit address */
-                if (len == 4) { /* Port fields */
-                    p_dst = tvb_get_ntohs(tvb, i); i += 2;
-                    p_src = tvb_get_ntohs(tvb, i); i += 2;
-                    proto_item_append_text(subtree,
-                            ": source port %u, destination port %u",
-                            p_src, p_dst);
-                    subtree = proto_item_add_subtree(subtree, ett_udh_ie);
-                    proto_tree_add_uint(subtree, hf_gsm_sms_udh_ports_dst,
-                            tvb, i-4, 2, p_dst);
-                    proto_tree_add_uint(subtree, hf_gsm_sms_udh_ports_src,
-                            tvb, i-2, 2, p_src);
-                    ports_available = TRUE;
-                } else {
-                    proto_item_append_text(subtree, " - Invalid format!");
-                    i += len;
-                }
-                break;
-
-            case 0x24: /* National Language Single Shift */
-                if (len == 1) {
-                    subtree = proto_item_add_subtree(subtree, ett_udh_ie);
-                    proto_tree_add_item(subtree,
-                            hf_gsm_sms_udh_national_single_shift,
-                            tvb, i++, 1, ENC_BIG_ENDIAN);
-                } else {
-                    proto_item_append_text(subtree, " - Invalid format!");
-                    i += len;
-                }
-                break;
-
-            case 0x25: /* National Language Locking Shift */
-                if (len == 1) {
-                    subtree = proto_item_add_subtree(subtree, ett_udh_ie);
-                    proto_tree_add_item(subtree,
-                            hf_gsm_sms_udh_national_locking_shift,
-                            tvb, i++, 1, ENC_BIG_ENDIAN);
-                } else {
-                    proto_item_append_text(subtree, " - Invalid format!");
-                    i += len;
-                }
-                break;
-
-            default:
-                i += len;
-                break;
-        }
+    if (!udh_fields) {
+        udh_fields = wmem_new0(pinfo->pool, gsm_sms_udh_fields_t);
+        /* XXX: We don't handle different encodings in this dissector yet,
+         * so just treat everything as 8-bit binary encoding. */
+        guint8 fill_bits = 0;
+        guint8 udl = sm_len;
+        dis_field_udh(tvb, pinfo, sm_tree, &i, &sm_len, &udl, OTHER, &fill_bits, udh_fields);
     }
     if (tvb_reported_length_remaining(tvb, i) <= 0)
         return; /* No more data */
 
-    /*
-     * XXX - where does the "1" come from?  If it weren't there,
-     * "sm_data_len" would, I think, be the same as
-     * "tvb_reported_length_remaining(tvb, i)".
-     *
-     * I think that the above check ensures that "sm_len" won't
-     * be less than or equal to "udh_len", so it ensures that
-     * "sm_len" won't be less than "1 + udh_len", so we don't
-     * have to worry about "sm_data_len" being negative.
-     */
-    sm_data_len = sm_len - (1 + udh_len);
-    if (sm_data_len == 0)
-        return; /* no more data */
+    if (udh_fields->frags > 1) {
+        is_fragmented = TRUE;
+    }
 
     /*
      * Try reassembling the packets.
@@ -389,19 +161,19 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
      * of 0?
      * What if the fragment count is 0?  Should we flag that as well?
      */
-    if (is_fragmented && frag != 0 && frags != 0 &&
-        tvb_bytes_exist(tvb, i, sm_data_len)) {
+    if (is_fragmented && udh_fields->frag != 0 && udh_fields->frags != 0 &&
+        tvb_bytes_exist(tvb, i, sm_len)) {
         try_gsm_sms_ud_reassemble = TRUE;
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
         fd_sm = fragment_add_seq_check(&sm_reassembly_table,
                 tvb, i,
                 pinfo,
-                sm_id,                /* guint32 ID for fragments belonging together */
+                udh_fields->sm_id,    /* guint32 ID for fragments belonging together */
                 NULL,
-                frag-1,               /* guint32 fragment sequence number */
-                sm_data_len,          /* guint32 fragment length */
-                (frag != frags));     /* More fragments? */
+                udh_fields->frag-1,   /* guint32 fragment sequence number */
+                sm_len,               /* guint32 fragment length */
+                (udh_fields->frag != udh_fields->frags));     /* More fragments? */
         if (fd_sm) {
             reassembled    = TRUE;
             reassembled_in = fd_sm->reassembled_in;
@@ -415,7 +187,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
         } else {
             /* Not last packet of reassembled Short Message */
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                    " (Short Message fragment %u of %u)", frag, frags);
+                    " (Short Message fragment %u of %u)", udh_fields->frag, udh_fields->frags);
         }
     } /* Else: not fragmented */
 
@@ -424,13 +196,13 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
     /* Try calling a subdissector */
     if (sm_tvb) {
         if ((reassembled && pinfo->num == reassembled_in)
-            || frag==0 || (frag==1 && try_dissect_1st_frag)) {
+            || udh_fields->frag==0 || (udh_fields->frag==1 && try_dissect_1st_frag)) {
             /* Try calling a subdissector only if:
              *  - the Short Message is reassembled in this very packet,
              *  - the Short Message consists of only one "fragment",
              *  - the preference "Always Try Dissection for 1st SM fragment"
              *    is switched on, and this is the SM's 1st fragment. */
-            if (ports_available) {
+            if (udh_fields->port_src || udh_fields->port_dst) {
                 gboolean disallow_write = FALSE; /* TRUE if we changed writability
                                     of the columns of the summary */
                 if (prevent_subdissectors_changing_columns && col_get_writable(pinfo->cinfo, -1)) {
@@ -441,9 +213,9 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
                 if (port_number_udh_means_wsp) {
                     call_dissector(wsp_handle, sm_tvb, pinfo, top_tree);
                 } else {
-                    if (! dissector_try_uint(gsm_sms_dissector_table, p_src,
+                    if (! dissector_try_uint(gsm_sms_dissector_table, udh_fields->port_src,
                                 sm_tvb, pinfo, top_tree)) {
-                        if (! dissector_try_uint(gsm_sms_dissector_table, p_dst,
+                        if (! dissector_try_uint(gsm_sms_dissector_table, udh_fields->port_dst,
                                     sm_tvb, pinfo, top_tree)) {
                             if (sm_tree) { /* Only display if needed */
                                 proto_tree_add_item(sm_tree, hf_gsm_sms_ud_short_msg, sm_tvb, 0, -1, ENC_NA);
@@ -462,7 +234,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
              * or it is reassembled in another packet */
             proto_tree_add_bytes_format(sm_tree, hf_gsm_sms_ud_short_msg, sm_tvb, 0, -1,
                     NULL, "Unreassembled Short Message fragment %u of %u",
-                    frag, frags);
+                    udh_fields->frag, udh_fields->frags);
         }
     }
 
@@ -472,14 +244,19 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item *ti;
     proto_tree *subtree;
+    gsm_sms_udh_fields_t *p_udh_fields = NULL;
+
+    if (data) {
+       p_udh_fields = (gsm_sms_udh_fields_t*)data;
+    }
 
     ti      = proto_tree_add_item(tree, proto_gsm_sms_ud, tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_gsm_sms);
-    parse_gsm_sms_ud_message(subtree, tvb, pinfo, tree);
+    parse_gsm_sms_ud_message(subtree, tvb, pinfo, p_udh_fields);
     return tvb_captured_length(tvb);
 }
 
@@ -491,92 +268,6 @@ proto_register_gsm_sms_ud(void)
 
     /* Setup list of header fields  */
     static hf_register_info hf[] = {
-        /*
-         * User Data Header
-         */
-        {   &hf_gsm_sms_udh_iei,
-            {   "IE Id", "gsm_sms_ud.udh.iei",
-                FT_UINT8, BASE_HEX, VALS(vals_udh_iei), 0x00,
-                "Name of the User Data Header Information Element.",
-                HFILL
-            }
-        },
-        {   &hf_gsm_sms_udh_length,
-            {   "UDH Length", "gsm_sms_ud.udh.len",
-                FT_UINT8, BASE_DEC, NULL, 0x00,
-                "Length of the User Data Header (bytes)",
-                HFILL
-            }
-        },
-#if 0
-        {   &hf_gsm_sms_udh_multiple_messages,
-            {   "Multiple messages UDH", "gsm_sms_ud.udh.mm",
-                FT_NONE, BASE_NONE, NULL, 0x00,
-                "Multiple messages User Data Header",
-                HFILL
-            }
-        },
-#endif
-        {   &hf_gsm_sms_udh_multiple_messages_msg_id,
-            {   "Message identifier", "gsm_sms_ud.udh.mm.msg_id",
-                FT_UINT16, BASE_DEC, NULL, 0x00,
-                "Identification of the message",
-                HFILL
-            }
-        },
-        {   &hf_gsm_sms_udh_multiple_messages_msg_parts,
-            {   "Message parts", "gsm_sms_ud.udh.mm.msg_parts",
-                FT_UINT8, BASE_DEC, NULL, 0x00,
-                "Total number of message parts (fragments)",
-                HFILL
-            }
-        },
-        {   &hf_gsm_sms_udh_multiple_messages_msg_part,
-            {   "Message part number", "gsm_sms_ud.udh.mm.msg_part",
-                FT_UINT8, BASE_DEC, NULL, 0x00,
-                "Message part (fragment) sequence number",
-                HFILL
-            }
-        },
-#if 0
-        {   &hf_gsm_sms_udh_ports,
-            {   "Port number UDH", "gsm_sms_ud.udh.ports",
-                FT_NONE, BASE_NONE, NULL, 0x00,
-                "Port number User Data Header",
-                HFILL
-            }
-        },
-#endif
-        {   &hf_gsm_sms_udh_ports_src,
-            {   "Source port", "gsm_sms_ud.udh.ports.src",
-                FT_UINT8, BASE_DEC, NULL, 0x00,
-                NULL,
-                HFILL
-            }
-        },
-        {   &hf_gsm_sms_udh_ports_dst,
-            {   "Destination port", "gsm_sms_ud.udh.ports.dst",
-                FT_UINT8, BASE_DEC, NULL, 0x00,
-                NULL,
-                HFILL
-            }
-        },
-        {   &hf_gsm_sms_udh_national_single_shift,
-            {   "Language", "gsm_sms_ud.udh.national.single_shift",
-                FT_UINT8, BASE_DEC,
-                VALS(vals_udh_national_languages_single_shift), 0x00,
-                NULL,
-                HFILL
-            }
-        },
-        {   &hf_gsm_sms_udh_national_locking_shift,
-            {   "Language", "gsm_sms_ud.udh.national.locking_shift",
-                FT_UINT8, BASE_DEC,
-                VALS(vals_udh_national_languages_locking_shift), 0x00,
-                NULL,
-                HFILL
-            }
-        },
         /*
          * Short Message fragment reassembly
          */
@@ -665,8 +356,6 @@ proto_register_gsm_sms_ud(void)
 
     static gint *ett[] = {
     &ett_gsm_sms,
-    &ett_udh,
-    &ett_udh_ie,
     &ett_gsm_sms_ud_fragment,
     &ett_gsm_sms_ud_fragments,
     };
