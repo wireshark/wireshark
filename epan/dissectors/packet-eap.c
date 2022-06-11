@@ -181,6 +181,7 @@ static expert_field ei_eap_ms_chap_v2_length = EI_INIT;
 static expert_field ei_eap_mitm_attacks = EI_INIT;
 static expert_field ei_eap_md5_value_size_overflow = EI_INIT;
 static expert_field ei_eap_dictionary_attacks = EI_INIT;
+static expert_field ei_eap_identity_nonascii = EI_INIT;
 static expert_field ei_eap_identity_invalid = EI_INIT;
 static expert_field ei_eap_retransmission = EI_INIT;
 static expert_field ei_eap_bad_length = EI_INIT;
@@ -901,6 +902,14 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
 
   /* Check for Encrypted IMSI - NULL prefix byte */
   if (tvb_get_guint8(tvb, offset) == 0x00) {
+    /* Check if identity string complies with ASCII character set.  Encrypted IMSI
+     * identities use Base64 encoding and should therefore be ASCII-compliant.
+    */
+    if (tvb_ascii_isprint(tvb, offset + 1, size - 1) == FALSE) {
+      item = proto_tree_add_item(tree, hf_eap_identity, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
+      expert_add_info(pinfo, item, &ei_eap_identity_nonascii);
+      goto end;
+    }
     identity = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, size - 1, ENC_ASCII);
     /* Encrypted IMSIs must be delimited twice:
      * (1) Once to tokenize the 3GPP realm from the Certificate Serial Number
@@ -910,6 +919,12 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     tokens = g_strsplit_set(identity, ",", -1);
     enc_imsi = TRUE;
   } else {
+    /* Check if identity string complies with ASCII character set */
+    if (tvb_ascii_isprint(tvb, offset, size) == FALSE) {
+      item = proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII || ENC_NA);
+      expert_add_info(pinfo, item, &ei_eap_identity_nonascii);
+      goto end;
+    }
     /* All other identities may be delimited with the '@' character */
     identity = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
     tokens = g_strsplit_set(identity, "@", -1);
@@ -920,8 +935,9 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
 
   /* Check for valid EAP Identity strings based on tokens and 3GPP-format */
   if (enc_imsi) {
-    if (ntokens < 2 || g_ascii_strncasecmp(tokens[1], "Certificate", 11)) {
+    if (ntokens < 2 || g_ascii_strncasecmp(tokens[1], "CertificateSerialNumber", 23)) {
       ret = FALSE;
+      proto_tree_add_item(tree, hf_eap_identity, tvb, offset + 1, size - 1, ENC_ASCII);
       goto end;
     }
   } else {
@@ -962,7 +978,10 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   switch(eap_identity_prefix) {
     case 0x00: /* Encrypted IMSI */
       proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]), ENC_ASCII || ENC_NA);
+      /* Account for wide characters that increase the byte count
+       * despite the character count (i.e., strlen() fails to return
+       * the proper character count, leading to offset errors. */
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]), ENC_ASCII);
       break;
     case '0': /* EAP-AKA Permanent */
     case '1': /* EAP-SIM Permanent */
@@ -1020,6 +1039,19 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
 
     while (realm_tokens[nrealm_tokens])
       nrealm_tokens++;
+
+    /* The realm string must have the form of
+       wlan.mnc<mnc>.mcc<mcc>.3gppnetwork.org
+       If not, we don't have a proper realm.
+    */
+    if (nrealm_tokens != 5 || g_ascii_strncasecmp(realm_tokens[0], "wlan", 4) ||
+        g_ascii_strncasecmp(realm_tokens[1], "mnc", 3) ||
+        g_ascii_strncasecmp(realm_tokens[2], "mcc", 3) ||
+        g_ascii_strncasecmp(realm_tokens[3], "3gppnetwork", 11) ||
+        g_ascii_strncasecmp(realm_tokens[4], "org", 3)) {
+      ret = FALSE;
+      goto end;
+    }
 
     /* EAP identities do not always equate to IMSIs.  We should
      * still add the MCC and MNC values for non-permanent EAP
@@ -3276,6 +3308,7 @@ proto_register_eap(void)
      { &ei_eap_dictionary_attacks, { "eap.dictionary_attacks", PI_SECURITY, PI_WARN,
                                "Vulnerable to dictionary attacks. If possible, change EAP type."
                                " See http://www.cisco.com/warp/public/cc/pd/witc/ao350ap/prodlit/2331_pp.pdf", EXPFILL }},
+     { &ei_eap_identity_nonascii, { "eap.identity.nonascii", PI_PROTOCOL, PI_WARN, "Non-ASCII characters within identity", EXPFILL }},
      { &ei_eap_identity_invalid, { "eap.identity.invalid", PI_PROTOCOL, PI_WARN, "Invalid identity code", EXPFILL }},
      { &ei_eap_retransmission, { "eap.retransmission", PI_SEQUENCE, PI_NOTE, "This packet is a retransmission", EXPFILL }},
      { &ei_eap_bad_length, { "eap.bad_length", PI_PROTOCOL, PI_WARN, "Bad length (too small or too large)", EXPFILL }},
