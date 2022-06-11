@@ -10,6 +10,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifndef __PACKET_GSM_SMS_H_
+#define __PACKET_GSM_SMS_H_
+
 enum character_set {
     OTHER,
     GSM_7BITS,
@@ -40,3 +43,5 @@ void dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32
 typedef struct _gsm_sms_data_t {
     gboolean stk_packing_required;
 } gsm_sms_data_t;
+
+#endif
