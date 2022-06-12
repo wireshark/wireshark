@@ -15,7 +15,6 @@
 #include <epan/maxmind_db.h>
 #include <epan/addr_resolv.h>
 
-#include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/nstime.h>
 
@@ -32,7 +31,7 @@
 
 static QString formatString(qlonglong value)
 {
-    return gchar_free_to_qstring(format_size(value, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
+    return QLocale::system().formattedDataSize(value, QLocale::DataSizeSIFormat);
 }
 
 ATapDataModel::ATapDataModel(dataModelType type, int protoId, QString filter, QObject *parent):
@@ -435,17 +434,17 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         case ENDP_COLUMN_PACKETS:
         {
             qlonglong packets = (qlonglong)(item->tx_frames + item->rx_frames);
-            return packets;
+            return role == Qt::DisplayRole ? formatString(packets) : (QVariant)packets;
         }
         case ENDP_COLUMN_BYTES:
             return role == Qt::DisplayRole ? formatString((qlonglong)(item->tx_bytes + item->rx_bytes)) :
                 QVariant((qlonglong)(item->tx_bytes + item->rx_bytes));
         case ENDP_COLUMN_PKT_AB:
-            return (qlonglong)item->tx_frames;
+            return role == Qt::DisplayRole ? formatString((qlonglong)item->tx_frames) : QVariant((qlonglong) item->tx_frames);
         case ENDP_COLUMN_BYTES_AB:
             return role == Qt::DisplayRole ? formatString((qlonglong)item->tx_bytes) : QVariant((qlonglong)item->tx_bytes);
         case ENDP_COLUMN_PKT_BA:
-            return (qlonglong)item->rx_frames;
+            return role == Qt::DisplayRole ? formatString((qlonglong)item->rx_frames) : QVariant((qlonglong) item->rx_frames);
         case ENDP_COLUMN_BYTES_BA:
             return role == Qt::DisplayRole ? formatString((qlonglong)item->rx_bytes) : QVariant((qlonglong)item->rx_bytes);
         case ENDP_COLUMN_GEO_COUNTRY:
@@ -470,19 +469,21 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             return QVariant();
         case 12:
         {
+            qlonglong packets = 0;
             if (showTotalColumn())
-                return (qlonglong)(item->tx_frames_total + item->rx_frames_total);
-            return QVariant();
+                packets = item->tx_frames_total + item->rx_frames_total;
+            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
         }
         case 13:
         {
+            double percent = 0;
             if (showTotalColumn()) {
                 qlonglong totalPackets = (qlonglong)(item->tx_frames_total + item->rx_frames_total);
                 qlonglong packets = (qlonglong)(item->tx_frames + item->rx_frames);
-                double percent = totalPackets == 0 ? 0 : packets * 100 / totalPackets;
+                percent = totalPackets == 0 ? 0 : (double) packets * 100 / (double) totalPackets;
                 return QString::number(percent, 'f', 2) + "%";
             }
-            return QVariant();
+            return role == Qt::DisplayRole ? QString::number(percent, 'f', 2) + "%" : (QVariant)percent;
         }
         default:
             return QVariant();
@@ -687,16 +688,25 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
                 return quint32(conv_item->dst_port);
             }
         case CONV_COLUMN_PACKETS:
-            return QString("%L1").arg(conv_item->tx_frames + conv_item->rx_frames);
+        {
+            qlonglong packets = conv_item->tx_frames + conv_item->rx_frames;
+            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+        }
         case CONV_COLUMN_BYTES:
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes) :
                 QVariant((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes);
         case CONV_COLUMN_PKT_AB:
-            return QString("%L1").arg(conv_item->tx_frames);
+        {
+            qlonglong packets = conv_item->tx_frames;
+            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+        }
         case CONV_COLUMN_BYTES_AB:
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes) : QVariant((qlonglong)conv_item->tx_bytes);
         case CONV_COLUMN_PKT_BA:
-            return QString("%L1").arg(conv_item->rx_frames);
+        {
+            qlonglong packets = conv_item->rx_frames;
+            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
+        }
         case CONV_COLUMN_BYTES_BA:
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->rx_bytes) : QVariant((qlonglong)conv_item->rx_bytes);
         case CONV_COLUMN_START:
@@ -706,18 +716,17 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             if (_absoluteTime) {
                 nstime_t *abs_time = &conv_item->start_abs_time;
                 QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_time));
-                return QString("%1.%2")
-                        // Mimic column-utils:set_abs_time as best we can
-                        .arg(abs_dt.toString("hh:mm:ss"))
-                        .arg(_nanoseconds ? abs_time->nsecs : abs_time->nsecs / 1000, width, 10, QChar('0'));
+                return role == Qt::DisplayRole ? abs_dt.toString("hh:mm:ss.zzzz") : (QVariant)abs_dt;
             } else {
-                return QString::number(nstime_to_sec(&conv_item->start_time), 'f', width);
+                return role == Qt::DisplayRole ? 
+                    QString::number(nstime_to_sec(&conv_item->start_time), 'f', width) :
+                    (QVariant)((double) nstime_to_sec(&conv_item->start_time));
             }
         }
         case CONV_COLUMN_DURATION:
         {
             int width = _nanoseconds ? 6 : 4;
-            return QString::number(duration, 'f', width);
+            return role == Qt::DisplayRole ? QString::number(duration, 'f', width) : (QVariant)duration;
         }
         case CONV_COLUMN_BPS_AB:
             return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ab) : QVariant((qlonglong)bps_ab)): QVariant();
@@ -725,19 +734,21 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return bpsCalculated ? (role == Qt::DisplayRole ? formatString(bps_ba) : QVariant((qlonglong)bps_ba)): QVariant();
         case 14:
         {
+            qlonglong packets = 0;
             if (showTotalColumn())
-                return (qlonglong)(conv_item->tx_frames_total + conv_item->rx_frames_total);
-            return (qlonglong) 0;
+                packets = conv_item->tx_frames_total + conv_item->rx_frames_total;
+                
+            return role == Qt::DisplayRole ? QString("%L1").arg(packets) : (QVariant)packets;
         }
         case 15:
         {
+            double percent = 0;
             if (showTotalColumn()) {
                 qlonglong totalPackets = (qlonglong)(conv_item->tx_frames_total + conv_item->rx_frames_total);
                 qlonglong packets = (qlonglong)(conv_item->tx_frames + conv_item->rx_frames);
-                double percent = totalPackets == 0 ? 0 : packets * 100 / totalPackets;
-                return QString::number(percent, 'f', 2) + "%";
+                percent = totalPackets == 0 ? 0 : (double) packets * 100 / (double) totalPackets;
             }
-            return (qlonglong) 0;
+            return role == Qt::DisplayRole ? QString::number(percent, 'f', 2) + "%" : (QVariant)percent;
         }
         }
     } else if (role == Qt::ToolTipRole) {

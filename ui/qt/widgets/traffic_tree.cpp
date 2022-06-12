@@ -15,9 +15,11 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/str_util.h>
 
 #include "ui/recent.h"
 
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/main_application.h>
 #include <ui/qt/main_window.h>
 #include <ui/qt/filter_action.h>

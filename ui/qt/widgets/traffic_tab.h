@@ -71,6 +71,7 @@ public:
 
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
 
 };
 

@@ -357,7 +357,7 @@ WS_DLL_PUBLIC void conversation_set_port2(conversation_t *conv, const guint32 po
 /**
  * Set the second address in a conversation created with conversation_new.
  * @param conv Conversation. Must be created with conversation_new.
- * @param port The second address to set.
+ * @param addr The second address to set.
  */
 WS_DLL_PUBLIC void conversation_set_addr2(conversation_t *conv, const address *addr);
 

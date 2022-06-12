@@ -45,6 +45,7 @@
 #include <QUrl>
 #include <QTemporaryFile>
 #include <QHBoxLayout>
+#include <QRegularExpressionMatch>
 
 TabData::TabData() :
     _name(QString()),
@@ -81,6 +82,54 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
     }
 
     return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}
+
+bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    if (! source_left.isValid() || ! qobject_cast<const ATapDataModel *>(source_left.model()))
+        return false;
+    if (! source_right.isValid() || ! qobject_cast<const ATapDataModel *>(source_right.model()))
+        return false;
+
+    QVariant datA = source_left.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
+    QVariant datB = source_right.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
+
+    QString strA = datA.toString().toLower();
+    QString strB = datB.toString().toLower();
+
+    QRegularExpression re = QRegularExpression(QString("[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}"));
+    QRegularExpressionMatch match = re.match(strA);
+    if (match.hasMatch())
+        return strA < strB;
+
+    QRegularExpression reIp("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
+    match = reIp.match(strA);
+    QRegularExpressionMatch matchB = reIp.match(strB);
+    QStringList listA = strA.split('.');
+    QStringList listB = strB.split('.');
+    if (match.hasMatch() && listA.count() == 4 && ! matchB.hasMatch())
+        return true;
+    else if (match.hasMatch() && listA.count() == 4 && matchB.hasMatch() && listB.count() == 4 ) {
+        quint32 ipA = (listA.at(0).toInt() << 24) + (listA.at(1).toInt() << 16) + (listA.at(2).toInt() << 8) + listA.at(3).toInt();
+        quint32 ipB = (listB.at(0).toInt() << 24) + (listB.at(1).toInt() << 16) + (listB.at(2).toInt() << 8) + listB.at(3).toInt();
+        return ipA < ipB;
+    }
+
+    QString iPv6Pattern("(([\\da-f]{1,4}:){7,7}[\\da-f]{1,4}|([\\da-f]{1,4}:){1,7}:|([\\da-f]{1,4}:){1,6}:[\\da-f]{1,4}|"
+        "([\\da-f]{1,4}:){1,5}(:[\\da-f]{1,4}){1,2}|([\\da-f]{1,4}:){1,4}(:[\\da-f]{1,4}){1,3}|([\\da-f]{1,4}:){1,3}(:"
+        "[\\da-f]{1,4}){1,4}|([\\da-f]{1,4}:){1,2}(:[\\da-f]{1,4}){1,5}|[\\da-f]{1,4}:((:[\\da-f]{1,4}){1,6})|:((:[\\da"
+        "-f]{1,4}){1,7}|:)|fe80:(:[\\da-f]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}"
+        "\\d){0,1}\\d)\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}\\d){0,1}\\d)|([\\da-f]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}\\d){0,1}"
+        "\\d)\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}\\d){0,1}\\d))");
+    QRegularExpression reIPv6(iPv6Pattern);
+    match = reIPv6.match(strA);
+    if (match.hasMatch())
+        return strA < strB;
+
+    if (datA.canConvert<double>() && datB.canConvert<double>())
+        return datA.toDouble() < datB.toDouble();
+
+    return QSortFilterProxyModel::lessThan(source_left, source_right);
 }
 
 
