@@ -1884,8 +1884,24 @@ smpp_handle_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const char 
     }
 
     if (smpp_data->encoding != DO_NOT_DECODE) {
-        proto_tree_add_item(tree, hf_smpp_short_message, tvb,
-                udh_offset, length-udh_offset, encoding);
+        if (smpp_data->encoding == ENC_3GPP_TS_23_038_7BITS_PACKED && smpp_data->udhi) {
+            /* SMPP only has the number of octets of the payload, but when
+             * packed 7-bit GSM alphabet is used with a UDH, there are fill
+             * bits after the UDH to align the SM start with a septet boundary.
+             * Calculate the fill bits after the UDH as well as the number of
+             * septets that could fit in the bytes. (In certain circumstances
+             * there are two possible numbers of septets that would require
+             * a certain number of octets. This is part of why packet 7-bit
+             * GSM alphabet is not usually used in SMPP, but there are reports
+             * of some servers out there.)
+             */
+            guint8 fill_bits = 6 - ((udh_offset - 1) * 8) % 7;
+            int septets = ((length - udh_offset) * 8 - fill_bits) / 7;
+            proto_tree_add_ts_23_038_7bits_packed_item(tree, hf_smpp_short_message, tvb, udh_offset * 8 + fill_bits, septets);
+        } else {
+            proto_tree_add_item(tree, hf_smpp_short_message, tvb,
+                    udh_offset, length-udh_offset, encoding);
+        }
     }
 }
 
