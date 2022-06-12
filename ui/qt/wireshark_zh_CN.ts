@@ -1863,6 +1863,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDialog</name>
@@ -2423,6 +2431,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>AS Organization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -11787,7 +11803,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished">%1 类型</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11833,32 +11849,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>绝对开始时间</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;添加、删除对话类型。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>%1 Types</source>
-        <translation type="vanished">%1 类型</translation>
-    </message>
-    <message>
         <source>Copy</source>
         <translation>复制</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="vanished">作为 CSV</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="vanished">复制此页的所有值到剪贴板，使用 CSV（逗号分隔值）格式。</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="vanished">作为YAML</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="vanished">复制此页的所有值到剪贴板，使用 YAML 数据串行格式。</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11881,7 +11873,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished">复制此页的所有值到剪贴板，使用 CSV（逗号分隔值）格式。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as YAML</source>
@@ -11889,7 +11881,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished">复制此页的所有值到剪贴板，使用 YAML 数据串行格式。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as Json</source>
@@ -13772,8 +13764,9 @@ a:hover {
         <translation>使用自 UNIX / POSIX 时间戳 (1970-01-01) 以来的秒数来显示分组时间。</translation>
     </message>
     <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>自捕获开始经过的秒数</translation>
+        <source>Seconds Since First Captured Packet</source>
+        <oldsource>Seconds Since Beginning of Capture</oldsource>
+        <translation type="unfinished">自捕获开始经过的秒数</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

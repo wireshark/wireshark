@@ -14,20 +14,12 @@ Wireshark 3.7.1 Release Notes
  If you need to use Wireshark on that platform, please install the
  latest 3.6 release. Issue 17779[1]
 
-    • The PCRE2 library (https://www.pcre.org/) is now a required
-      dependency to build Wireshark.
+    • The display filter syntax is now more powerful with many new
+      extensions. See below for details.
 
-    • You must now have a compiler with C11 support in order to build
-      Wireshark.
-
-    • Display filter syntax is now more powerful with several new
-      extensions.
-
-    • The Wireshark Lua API now uses the lrexlib bindings to PCRE2
-      (https://github.com/rrthomas/lrexlib). Code using the Lua GRegex
-      module will have to be updated to use lrexlib-pcre2 instead. In
-      most cases the API should be compatible and the conversion just
-      requires a module name change.
+    • The tap registration system has been updated and the list of
+      arguments for tap_packet_cb has changed. All taps registered
+      through register_tap_listener have to be updated.
 
     • The Conversation and Endpoint dialogs have been redesigned with
       the following improvements:
@@ -42,8 +34,23 @@ Wireshark 3.7.1 Release Notes
        • Adding/Removing tabs will keep them in the same order all the
       time
 
-  Many improvements have been made. See the “New and Updated Features”
-  section below for more details.
+       • If a filter is applied, two columns are shown in either dialog
+      detailing the difference between unmatched and matched packets
+
+    • The PCRE2 library (https://www.pcre.org/) is now a required
+      dependency to build Wireshark.
+
+    • The Wireshark Lua API now uses the lrexlib bindings to PCRE2
+      (https://github.com/rrthomas/lrexlib). Code using the Lua GRegex
+      module will have to be updated to use lrexlib-pcre2 instead. In
+      most cases the API should be compatible and the conversion just
+      requires a module name change.
+
+    • You must now have a compiler with C11 support in order to build
+      Wireshark.
+
+  Many other improvements have been made. See the “New and Updated
+  Features” section below for more details.
 
   New and Updated Features
 
@@ -65,8 +72,9 @@ Wireshark 3.7.1 Release Notes
      • The display filter syntax has been updated and enhanced:
 
         • A syntax to match a specific layer in the protocol stack has
-       been added. For example “ip.addr#2 == 1.1.1.1” matches only the
-       inner layer in an IP-over-IP packet.
+       been added. For example in an IP-over-IP packet “ip.addr#1 ==
+       1.1.1.1” matches the outer layer addresses and “ip.addr#2 ==
+       1.1.1.2” matches the inner layer addresses.
 
         • Universal quantifiers "any" and "all" have been added to any
        relational operator. For example the expression "all tcp.port ›
@@ -298,7 +306,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-06-01 14:28:13 UTC
+  Last updated 2022-06-10 19:05:47 UTC
 
  References
 

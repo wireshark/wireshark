@@ -3006,6 +3006,7 @@ cytel-lm	3297/tcp/udp	# Cytel License Manager
 deskview	3298/tcp/udp	# DeskView
 pdrncs		3299/tcp/udp
 ceph		3300/tcp	# Ceph monitor
+tarantool	3301/tcp/udp	# Tarantool in-memory computing platform
 mcs-fastmail	3302/tcp/udp	# MCS Fastmail
 opsession-clnt	3303/tcp/udp	# OP Session Client
 opsession-srvr	3304/tcp/udp	# OP Session Server
@@ -4387,6 +4388,7 @@ galaxy-network	5235/tcp/udp	# Galaxy Network Service
 padl2sim	5236/tcp/udp
 mnet-discovery	5237/tcp/udp	# m-net discovery
 attune		5242/tcp	# ATTUne API
+xycstatus	5243/tcp	# xyClient Status API and rendevous point
 downtools	5245/tcp	# DownTools Control Protocol
 downtools-disc	5245/udp	# DownTools Discovery Protocol
 capwap-control	5246/udp	# CAPWAP Control Protocol
@@ -4638,6 +4640,7 @@ spdp		5794/udp	# Simple Peered Discovery Protocol
 enlabel-dpl	5798/tcp	# Proprietary Website deployment service
 icmpd		5813/tcp/udp	# ICMPD
 spt-automation	5814/tcp/udp	# Support Automation
+autopassdaemon	5820/tcp	# AutoPass licensing
 shiprush-d-ch	5841/tcp	# Z-firm ShipRush interface for web access and bidirectional data
 reversion	5842/tcp	# Reversion Backup/Restore
 wherehoo	5859/tcp/udp	# WHEREHOO

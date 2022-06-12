@@ -1876,6 +1876,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDialog</name>
@@ -2438,6 +2446,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>AS Organization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -11840,7 +11856,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished">%1 Typy</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11886,32 +11902,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Absolutny czas startu</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dodaj lub usuń typ konwersacji.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>%1 Types</source>
-        <translation type="vanished">%1 Typy</translation>
-    </message>
-    <message>
         <source>Copy</source>
         <translation>Kopiuj</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="vanished">jako CSV</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="vanished">Kopiuj wszystkie wartości z tej strony w CSV do schowka.</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="vanished">jako YAML</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="vanished">Kopiuj wszystkie wartości z tej strony w formacie serializacji YAML do schowka.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11934,7 +11926,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished">Kopiuj wszystkie wartości z tej strony w CSV do schowka.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as YAML</source>
@@ -11942,7 +11934,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished">Kopiuj wszystkie wartości z tej strony w formacie serializacji YAML do schowka.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as Json</source>
@@ -13827,8 +13819,9 @@ a:hover {
         <translation>Jako czas pakietów pokazuj sekundy od ery UNIX/POSIX (1970-01-01).</translation>
     </message>
     <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Sekundy od początku przechwytywania</translation>
+        <source>Seconds Since First Captured Packet</source>
+        <oldsource>Seconds Since Beginning of Capture</oldsource>
+        <translation type="unfinished">Sekundy od początku przechwytywania</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

@@ -1879,6 +1879,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDialog</name>
@@ -2443,6 +2451,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>AS Organization</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EndpointDialog</name>
@@ -2469,14 +2485,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Map file error</source>
         <translation>Ошибка файла карты</translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation type="vanished">Нет доступных конечных точек для размещения на карте</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation type="vanished">Невозможно создать временный файл</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
@@ -11872,7 +11880,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished">%1 Типы</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11884,11 +11892,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished">Нет доступных конечных точек для размещения на карте</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished">Невозможно создать временный файл</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11918,32 +11926,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Абсолютное время старта</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Добавить и удалить типы разговоров.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>%1 Types</source>
-        <translation type="vanished">%1 Типы</translation>
-    </message>
-    <message>
         <source>Copy</source>
         <translation>Копировать</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="vanished">как CSV</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="vanished">Копировать все значения этой страницы в буфер в формате CSV (Comma Separated Values).</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="vanished">как YAML</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="vanished">Копировать все значения этой страницы в буфер в формате хранения данных в последовательной форме YAML.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11966,7 +11950,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished">Копировать все значения этой страницы в буфер в формате CSV (Comma Separated Values).</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as YAML</source>
@@ -11974,7 +11958,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished">Копировать все значения этой страницы в буфер в формате хранения данных в последовательной форме YAML.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as Json</source>
@@ -13889,8 +13873,9 @@ a:hover {
         <translation>Показывать временные характеристики пакетов как секунды с момента внедрения стандарта UNIX / POSIX (1970-01-01).</translation>
     </message>
     <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Секунд С Момента Начала Захвата</translation>
+        <source>Seconds Since First Captured Packet</source>
+        <oldsource>Seconds Since Beginning of Capture</oldsource>
+        <translation type="unfinished">Секунд С Момента Начала Захвата</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

@@ -1872,6 +1872,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDialog</name>
@@ -2436,6 +2444,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>AS Organization</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EndpointDialog</name>
@@ -2462,14 +2478,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Map file error</source>
         <translation>Kartfilsfel</translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation type="vanished">Inga ändpunkter tillgängliga att kartlägga</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation type="vanished">Kan inte skapa en temporärfil</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
@@ -11841,7 +11849,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished">%1 typer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11853,11 +11861,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished">Inga ändpunkter tillgängliga att kartlägga</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished">Kan inte skapa en temporärfil</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11887,32 +11895,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Absolut starttid</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lägg till och ta bort konversationstyper.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>%1 Types</source>
-        <translation type="vanished">%1 typer</translation>
-    </message>
-    <message>
         <source>Copy</source>
         <translation>Kopiera</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="vanished">som CSV</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="vanished">Kopiera alla värden på denna sida till urklipp i CSV-format (kommaseparerade värden).</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="vanished">som YAML</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="vanished">Kopiera alla värden på denna sida till urklipp i dataserialiseringsformatet YAML.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11935,7 +11919,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished">Kopiera alla värden på denna sida till urklipp i CSV-format (kommaseparerade värden).</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as YAML</source>
@@ -11943,7 +11927,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished">Kopiera alla värden på denna sida till urklipp i dataserialiseringsformatet YAML.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as Json</source>
@@ -13857,8 +13841,9 @@ a:hover {
         <translation>Visa pakettider som antal sekunder sedan UNIX-/POSIX-epoken (1970-01-01).</translation>
     </message>
     <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Sekunder sedan början på fångsten</translation>
+        <source>Seconds Since First Captured Packet</source>
+        <oldsource>Seconds Since Beginning of Capture</oldsource>
+        <translation type="unfinished">Sekunder sedan början på fångsten</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

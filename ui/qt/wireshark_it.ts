@@ -1818,66 +1818,74 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
-        <translation type="unfinished">Indirizzo A</translation>
+        <translation>Indirizzo A</translation>
     </message>
     <message>
         <source>Port A</source>
-        <translation type="unfinished">Porta A</translation>
+        <translation>Porta A</translation>
     </message>
     <message>
         <source>Address B</source>
-        <translation type="unfinished">Indirizzo B</translation>
+        <translation>Indirizzo B</translation>
     </message>
     <message>
         <source>Port B</source>
-        <translation type="unfinished">Porta B</translation>
+        <translation>Porta B</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Pacchetti</translation>
+        <translation>Pacchetti</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Packets A </source>
-        <translation type="unfinished">Pacchetti A</translation>
+        <translation>Pacchetti A</translation>
     </message>
     <message>
         <source>Bytes A </source>
-        <translation type="unfinished">Byte A</translation>
+        <translation>Byte A</translation>
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished">Pacchetti B</translation>
+        <translation>Pacchetti B</translation>
     </message>
     <message>
         <source>Abs Start</source>
-        <translation type="unfinished">Inizio Abs</translation>
+        <translation>Inizio Abs</translation>
     </message>
     <message>
         <source>Rel Start</source>
-        <translation type="unfinished">Inizio Rel</translation>
+        <translation>Inizio Rel</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Durata</translation>
+        <translation>Durata</translation>
     </message>
     <message>
         <source>Bits/s A </source>
-        <translation type="unfinished">Bit/s A</translation>
+        <translation>Bit/s A</translation>
     </message>
     <message>
         <source>Bits/s B </source>
-        <translation type="unfinished">Bit/s B</translation>
+        <translation>Bit/s B</translation>
+    </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
     <message>
         <source>Conversation</source>
-        <translation type="unfinished">Conversazione</translation>
+        <translation>Conversazione</translation>
     </message>
     <message>
         <source>Follow Stream…</source>
@@ -1905,77 +1913,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Conversation Hash Tables</source>
         <translation>Tabella hash di conversazione</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationTreeWidget</name>
-    <message>
-        <source>Connection A</source>
-        <translation type="vanished">Connessione A</translation>
-    </message>
-    <message>
-        <source>Connection B</source>
-        <translation type="vanished">Connessione B</translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="vanished">Ridimensiona tutte le colonne al contenuto</translation>
-    </message>
-    <message>
-        <source>Address A</source>
-        <translation type="vanished">Indirizzo A</translation>
-    </message>
-    <message>
-        <source>Port A</source>
-        <translation type="vanished">Porta A</translation>
-    </message>
-    <message>
-        <source>Address B</source>
-        <translation type="vanished">Indirizzo B</translation>
-    </message>
-    <message>
-        <source>Port B</source>
-        <translation type="vanished">Porta B</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">Pacchetti</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Byte</translation>
-    </message>
-    <message>
-        <source>Packets A </source>
-        <translation type="vanished">Pacchetti A</translation>
-    </message>
-    <message>
-        <source>Bytes A </source>
-        <translation type="vanished">Byte A</translation>
-    </message>
-    <message>
-        <source>Packets B </source>
-        <translation type="vanished">Pacchetti B</translation>
-    </message>
-    <message>
-        <source>Rel Start</source>
-        <translation type="vanished">Inizio Rel</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="vanished">Durata</translation>
-    </message>
-    <message>
-        <source>Bits/s A </source>
-        <translation type="vanished">Bit/s A</translation>
-    </message>
-    <message>
-        <source>Bits/s B </source>
-        <translation type="vanished">Bit/s B</translation>
-    </message>
-    <message>
-        <source>Abs Start</source>
-        <translation type="vanished">Inizio Abs</translation>
     </message>
 </context>
 <context>
@@ -2461,58 +2398,66 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Indirizzo</translation>
+        <translation>Indirizzo</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished">Porta</translation>
+        <translation>Porta</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Pacchetti</translation>
+        <translation>Pacchetti</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Tx Packets</source>
-        <translation type="unfinished">Pacchetti trasmessi</translation>
+        <translation>Pacchetti trasmessi</translation>
     </message>
     <message>
         <source>Tx Bytes</source>
-        <translation type="unfinished">Byte trasmessi</translation>
+        <translation>Byte trasmessi</translation>
     </message>
     <message>
         <source>Rx Packets</source>
-        <translation type="unfinished">Pacchetti ricevuti</translation>
+        <translation>Pacchetti ricevuti</translation>
     </message>
     <message>
         <source>Rx Bytes</source>
-        <translation type="unfinished">Byte ricevuti</translation>
+        <translation>Byte ricevuti</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished">Nazione</translation>
+        <translation>Nazione</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished">Città</translation>
+        <translation>Città</translation>
     </message>
     <message>
         <source>AS Number</source>
-        <translation type="unfinished">Numero AS</translation>
+        <translation>Numero AS</translation>
     </message>
     <message>
         <source>AS Organization</source>
-        <translation type="unfinished">Organizzazione AS</translation>
+        <translation>Organizzazione AS</translation>
+    </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
     <message>
         <source>Endpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminatori</translation>
     </message>
     <message>
         <source>Map</source>
@@ -2535,83 +2480,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Errore nel file di mappa</translation>
     </message>
     <message>
-        <source>Could not open base file %1 for reading: %2</source>
-        <translation type="vanished">Impossibile aprire il file di base %1 in lettura: %2</translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation type="vanished">Nessun terminatore disponibile per la mappa</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation type="vanished">Impossibile creare il file temporaneo</translation>
-    </message>
-    <message>
         <source>Save Endpoints Map</source>
         <translation>Salva mappa dei terminatori</translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
         <translation>Impossibile salvare il file di mappa %1.</translation>
-    </message>
-</context>
-<context>
-    <name>EndpointTreeWidget</name>
-    <message>
-        <source>Connection</source>
-        <translation type="vanished">Connessione</translation>
-    </message>
-    <message>
-        <source>Resize all columns to content</source>
-        <translation type="vanished">Ridimensiona tutte le colonne al contenuto</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">Indirizzo</translation>
-    </message>
-    <message>
-        <source>Port</source>
-        <translation type="vanished">Porta</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">Pacchetti</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Byte</translation>
-    </message>
-    <message>
-        <source>Tx Packets</source>
-        <translation type="vanished">Pacchetti trasmessi</translation>
-    </message>
-    <message>
-        <source>Tx Bytes</source>
-        <translation type="vanished">Byte trasmessi</translation>
-    </message>
-    <message>
-        <source>Rx Packets</source>
-        <translation type="vanished">Pacchetti ricevuti</translation>
-    </message>
-    <message>
-        <source>Rx Bytes</source>
-        <translation type="vanished">Byte ricevuti</translation>
-    </message>
-    <message>
-        <source>Country</source>
-        <translation type="vanished">Nazione</translation>
-    </message>
-    <message>
-        <source>City</source>
-        <translation type="vanished">Città</translation>
-    </message>
-    <message>
-        <source>AS Number</source>
-        <translation type="vanished">Numero AS</translation>
-    </message>
-    <message>
-        <source>AS Organization</source>
-        <translation type="vanished">Organizzazione AS</translation>
     </message>
 </context>
 <context>
@@ -11970,23 +11844,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished">Tipi di %1</translation>
+        <translation>Tipi di %1</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation type="unfinished">Errore nel file di mappa</translation>
+        <translation>Errore nel file di mappa</translation>
     </message>
     <message>
         <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished">Impossibile aprire il file di base %1 in lettura: %2</translation>
+        <translation>Impossibile aprire il file di base %1 in lettura: %2</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished">Nessun terminatore disponibile per la mappa</translation>
+        <translation>Nessun terminatore disponibile per la mappa</translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished">Impossibile creare il file temporaneo</translation>
+        <translation>Impossibile creare il file temporaneo</translation>
     </message>
 </context>
 <context>
@@ -12016,32 +11890,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ora iniziale assoluta</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aggiungi e rimuovi i tipi di conversazione.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>%1 Types</source>
-        <translation type="vanished">Tipi di %1</translation>
-    </message>
-    <message>
         <source>Copy</source>
         <translation>Copia</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="vanished">come CSV</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="vanished">Copia tutti i valori di questa pagina negli appunti nel formato CSV (valori separati da virgole).</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="vanished">come YAML</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="vanished">Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati YAML.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -12052,43 +11902,43 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>TrafficTree</name>
     <message>
         <source>Resize all columns to content</source>
-        <translation type="unfinished">Ridimensiona tutte le colonne al contenuto</translation>
+        <translation>Ridimensiona tutte le colonne al contenuto</translation>
     </message>
     <message>
         <source>Copy %1 table</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la tabella %1</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished">come CSV</translation>
+        <translation>come CSV</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished">Copia tutti i valori di questa pagina negli appunti nel formato CSV (valori separati da virgole).</translation>
+        <translation>Copia tutti i valori di questa pagina negli appunti nel formato CSV (valori separati da virgole).</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished">come YAML</translation>
+        <translation>come YAML</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished">Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati YAML.</translation>
+        <translation>Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati YAML.</translation>
     </message>
     <message>
         <source>as Json</source>
-        <translation type="unfinished"></translation>
+        <translation>come Json</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati Json.</translation>
     </message>
     <message>
         <source>Save data as raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva come dati grezzi</translation>
     </message>
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
-        <translation type="unfinished"></translation>
+        <translation>Disabilita la formattazione dei dati per l&apos;esportazione/appunti e salva come dati grezzi</translation>
     </message>
 </context>
 <context>
@@ -13986,8 +13836,9 @@ a:hover {
         <translation>Mostra gli orari del pacchetto come secondi dalla epoch UNIX/POSIX (1970-01-01).</translation>
     </message>
     <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Secondi dall&apos;inizio della cattura</translation>
+        <source>Seconds Since First Captured Packet</source>
+        <oldsource>Seconds Since Beginning of Capture</oldsource>
+        <translation type="unfinished">Secondi dall&apos;inizio della cattura</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

@@ -1872,6 +1872,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDialog</name>
@@ -2434,6 +2442,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <source>AS Organization</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EndpointDialog</name>
@@ -2460,14 +2476,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Map file error</source>
         <translation>Erreur du fichier de cartographie</translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation type="vanished">Aucun point de terminaison disponible pour la cartographie</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation type="vanished">Impossible de créer un fichier temporaire</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
@@ -11810,7 +11818,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished">%1 Types</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11822,11 +11830,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished">Aucun point de terminaison disponible pour la cartographie</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished">Impossible de créer un fichier temporaire</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11856,32 +11864,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ajoute et supprime des types de conversation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>%1 Types</source>
-        <translation type="vanished">%1 Types</translation>
-    </message>
-    <message>
         <source>Copy</source>
         <translation>Copier</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="vanished">en CSV</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="vanished">Copier au format CSV (Comma Separated Values) toutes les valeurs de cette page dans le presse-papier.</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="vanished">en YAML</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="vanished">Copier au format de sérialisation de données YAML toutes les valeurs de cette page dans le presse-papier.</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11904,7 +11888,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished">Copier au format CSV (Comma Separated Values) toutes les valeurs de cette page dans le presse-papier.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as YAML</source>
@@ -11912,7 +11896,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished">Copier au format de sérialisation de données YAML toutes les valeurs de cette page dans le presse-papier.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as Json</source>
@@ -13826,8 +13810,9 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis UNIX / POSIX epoch (1970-01-01).</translation>
     </message>
     <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>Secondes Depuis le Début de la Capture</translation>
+        <source>Seconds Since First Captured Packet</source>
+        <oldsource>Seconds Since Beginning of Capture</oldsource>
+        <translation type="unfinished">Secondes Depuis le Début de la Capture</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

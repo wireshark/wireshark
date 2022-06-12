@@ -1864,6 +1864,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bits/s B </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDialog</name>
@@ -2428,6 +2436,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>AS Organization</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Total Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent filtered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EndpointDialog</name>
@@ -2454,14 +2470,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Map file error</source>
         <translation>地図ファイルエラー</translation>
-    </message>
-    <message>
-        <source>No endpoints available to map</source>
-        <translation type="vanished">地図に利用できる終端がありません</translation>
-    </message>
-    <message>
-        <source>Unable to create temporary file</source>
-        <translation type="vanished">一時ファイルを作成できません</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
@@ -11813,7 +11821,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished">%1 タイプ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11825,11 +11833,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished">地図に利用できる終端がありません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished">一時ファイルを作成できません</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11859,32 +11867,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>絶対的開始時間</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;対話タイプを追加または削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>%1 Types</source>
-        <translation type="vanished">%1 タイプ</translation>
-    </message>
-    <message>
         <source>Copy</source>
         <translation>コピー</translation>
-    </message>
-    <message>
-        <source>as CSV</source>
-        <translation type="vanished">CSV形式として</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="vanished">このページのすべての値をクリップボードにCSV(カンマ区切りテキスト)形式でコピー</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
-        <translation type="vanished">YAML形式として</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="vanished">このページのすべての値をクリップボードにYAMLデータシリアル化形式でコピーします</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11903,19 +11887,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">CSVとして</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished">このページのすべての値をクリップボードにCSV(カンマ区切りテキスト)形式でコピー</translation>
-    </message>
-    <message>
-        <source>as YAML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>as YAML</source>
+        <translation type="unfinished">YAMLとして</translation>
+    </message>
+    <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished">このページのすべての値をクリップボードにYAMLデータシリアル化形式でコピーします</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as Json</source>
@@ -13828,8 +13812,9 @@ a:hover {
         <translation>パケットの時間をUNIX/POSIX起源(1970-01-01)以来の秒数で表示します</translation>
     </message>
     <message>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation>キャプチャ開始からの秒数</translation>
+        <source>Seconds Since First Captured Packet</source>
+        <oldsource>Seconds Since Beginning of Capture</oldsource>
+        <translation type="unfinished">キャプチャ開始からの秒数</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>
