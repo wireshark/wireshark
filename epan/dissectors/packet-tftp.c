@@ -759,7 +759,7 @@ tftp_info_for_conversation(conversation_t *conversation)
 }
 
 static gboolean
-is_valid_requerest_body(tvbuff_t *tvb)
+is_valid_request_body(tvbuff_t *tvb)
 {
   gint offset = 2;
   guint zeros_counter = 0;
@@ -788,14 +788,14 @@ is_valid_requerest_body(tvbuff_t *tvb)
 }
 
 static gboolean
-is_valid_requerest(tvbuff_t *tvb)
+is_valid_request(tvbuff_t *tvb)
 {
   if (tvb_captured_length(tvb) < MIN_HDR_LEN)
     return FALSE;
   guint16 opcode = tvb_get_ntohs(tvb, 0);
   if ((opcode != TFTP_RRQ) && (opcode != TFTP_WRQ))
     return FALSE;
-  return is_valid_requerest_body(tvb);
+  return is_valid_request_body(tvb);
 }
 
 static conversation_t* create_tftp_conversation(packet_info *pinfo)
@@ -820,7 +820,7 @@ static conversation_t* create_tftp_conversation(packet_info *pinfo)
 static gboolean
 dissect_tftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (is_valid_requerest_body(tvb)) {
+  if (is_valid_request_body(tvb)) {
     conversation_t* conversation = create_tftp_conversation(pinfo);
     dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
     return TRUE;
@@ -850,7 +850,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     case TFTP_RRQ:
     case TFTP_WRQ:
       /* These 2 opcodes have a NULL-terminated source file name after opcode. Verify */
-      if (!is_valid_requerest_body(tvb))
+      if (!is_valid_request_body(tvb))
         return FALSE;
      /* Intentionally dropping through here... */
     case TFTP_DATA:
@@ -910,7 +910,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    */
   if ((value_is_in_range(global_tftp_port_range, pinfo->destport) ||
        (pinfo->match_uint == pinfo->destport)) &&
-      is_valid_requerest(tvb))
+      is_valid_request(tvb))
   {
     conversation = create_tftp_conversation(pinfo);
   }
