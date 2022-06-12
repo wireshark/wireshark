@@ -31,11 +31,10 @@ class ExpertInfoDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit ExpertInfoDialog(QWidget &parent, CaptureFile& capture_file);
+    explicit ExpertInfoDialog(QWidget &parent, CaptureFile& capture_file, QString displayFilter);
     ~ExpertInfoDialog();
 
     void clearAllData();
-    void setDisplayFilter(const QString &display_filter = QString());
 
     ExpertInfoTreeView* getExpertInfoView();
 

@@ -33,12 +33,12 @@
 //   down to one item, make sure it uses a single (or a few) base color(s), and generate
 //   icons on the fly.
 
-ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
+ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, QString displayFilter) :
     WiresharkDialog(parent, capture_file),
     ui(new Ui::ExpertInfoDialog),
     expert_info_model_(new ExpertInfoModel(capture_file)),
     proxyModel_(new ExpertInfoProxyModel(this)),
-    display_filter_(QString())
+    display_filter_(displayFilter)
 {
     ui->setupUi(this);
 
@@ -105,7 +105,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
 
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
             this, SLOT(captureEvent(CaptureEvent)));
-    setDisplayFilter();
+
+    updateWidgets();
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 }
 
@@ -119,12 +120,6 @@ ExpertInfoDialog::~ExpertInfoDialog()
 void ExpertInfoDialog::clearAllData()
 {
     expert_info_model_->clear();
-}
-
-void ExpertInfoDialog::setDisplayFilter(const QString &display_filter)
-{
-    display_filter_ = display_filter;
-    updateWidgets();
 }
 
 ExpertInfoTreeView* ExpertInfoDialog::getExpertInfoView()
@@ -174,6 +169,7 @@ void ExpertInfoDialog::captureEvent(CaptureEvent e)
 void ExpertInfoDialog::updateWidgets()
 {
     ui->limitCheckBox->setEnabled(! file_closed_ && ! display_filter_.isEmpty());
+    ui->limitCheckBox->setChecked(! display_filter_.isEmpty());
 
     ui->actionShowError->setEnabled(expert_info_model_->numEvents(ExpertInfoModel::severityError) > 0);
     ui->actionShowWarning->setEnabled(expert_info_model_->numEvents(ExpertInfoModel::severityWarn) > 0);

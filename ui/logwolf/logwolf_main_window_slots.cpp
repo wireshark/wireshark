@@ -2865,10 +2865,8 @@ void LogwolfMainWindow::openFollowStreamDialogForType(follow_type_t type) {
 // -z expert
 void LogwolfMainWindow::statCommandExpertInfo(const char *, void *)
 {
-    ExpertInfoDialog *expert_dialog = new ExpertInfoDialog(*this, capture_file_);
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
-
-    expert_dialog->setDisplayFilter(df_edit->text());
+    ExpertInfoDialog *expert_dialog = new ExpertInfoDialog(*this, capture_file_, df_edit->text());
 
     connect(expert_dialog->getExpertInfoView(), SIGNAL(goToPacket(int, int)),
             packet_list_, SLOT(goToPacket(int, int)));
