@@ -1133,8 +1133,13 @@ pass the string 'bar' to the second lua script, namely 'other.lua'.
 
 *read_format*:__file_format__ tells *TShark* to use the given file format to
 read in the file (the file given in the *-r* command option). Providing no
-__file_format__ argument, or an invalid one, will produce a file of available
-file formats to use.
+__file_format__ argument, or an invalid one, will produce a list of available
+file formats to use. For example,
+
+  tshark -r rtcp_broken.pcapng -X read_format:"MIME Files Format" -V
+
+will display the internal file structure  and allow access to the
+`file-pcapng` fields.
 --
 
 -y|--linktype  <capture link type>::
@@ -1171,7 +1176,7 @@ is one) will be checked against this filter.
 +
 --
 Automatically reset internal session when reached to specified number of packets.
-for example,
+For example,
 
     tshark -M 100000
 
