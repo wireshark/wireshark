@@ -49,6 +49,9 @@ wsbuglink:17779[]
 
 * You must now have a compiler with C11 support in order to build Wireshark.
 
+* The ip.flags field is now only the three high bits, not the full byte. Display filters or
+  Coloring rules using the field will need to be adjusted.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 

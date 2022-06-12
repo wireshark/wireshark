@@ -49,6 +49,10 @@ Wireshark 3.7.1 Release Notes
     • You must now have a compiler with C11 support in order to build
       Wireshark.
 
+    • The ip.flags field is now only the three high bits, not the full
+      byte. Display filters or Coloring rules using the field will need
+      to be adjusted.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -306,7 +310,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-06-10 19:05:47 UTC
+  Last updated 2022-06-12 16:30:07 UTC
 
  References
 

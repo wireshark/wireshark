@@ -2612,7 +2612,7 @@ proto_register_ip(void)
 
     { &hf_ip_flags,
       { "Flags", "ip.flags", FT_UINT8, BASE_HEX,
-        NULL, 0x0, "Flags (3 bits)", HFILL }},
+        NULL, 0xE0, "Flags (3 bits)", HFILL }},
 
     { &hf_ip_flags_sf,
       { "Security flag", "ip.flags.sf", FT_BOOLEAN, 8,
