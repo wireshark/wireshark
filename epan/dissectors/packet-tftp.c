@@ -918,26 +918,41 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (conversation == NULL)
   {
     /* Not the initial read or write request */
-    if (!PINFO_FD_VISITED(pinfo)) {
-      /* During first pass, look for conversation based upon client port */
-      conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
-                                       pinfo->destport, 0, NO_PORT_B);
-      if (conversation != NULL) {
-        /* Set other side of conversation (server port) */
-        if (pinfo->destport == conversation_key_port1(conversation->key_ptr))
-          conversation_set_port2(conversation, pinfo->srcport);
-        else
-          /* Direction of conv match must have been wrong - ignore! */
-          return 0;
-      }
-    }
-    if (conversation == NULL) {
+    /* Look for wildcarded conversation based upon client port */
+    if ((conversation = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
+                                     pinfo->destport, 0, NO_PORT_B)) && conversation_get_dissector(conversation, pinfo->num) == tftp_handle) {
+#if 0
+      /* XXX: While setting the wildcarded port makes sense, if we do that,
+       * it's more complicated to find the correct conversation if ports are
+       * reused. (find_conversation with full information prefers any exact
+       * match, even with an earlier setup frame, to any wildcarded match.)
+       * We would want to find the most recent conversations with one wildcard
+       * and with both ports, and take the latest of those.
+       */
+      /* Set other side of conversation (server port) */
+      if (pinfo->destport == conversation_key_port1(conversation->key_ptr))
+        conversation_set_port2(conversation, pinfo->srcport);
+#endif
+    } else if ((conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
+                                     pinfo->srcport, 0, NO_PORT_B)) && conversation_get_dissector(conversation, pinfo->num) == tftp_handle) {
+
+    } else {
+      /* How did we get here? We must have matched one of the TFTP ports
+       * and missed the WRQ/RRQ. While it is contrary to the spirit of
+       * RFC 1350 for the server not to change ports, there appear to be
+       * such servers out there (issue #18122), and since the default port
+       * is IANA assigned it doesn't do harm to process it. Note that in
+       * that case the conversation won't have the tftp dissector set. */
       conversation = find_conversation_pinfo(pinfo, 0);
-      if (conversation == NULL || conversation_get_dissector(conversation, pinfo->num) != tftp_handle)
+      if (conversation == NULL) {
         return 0;
+      }
     }
   }
 
+  if (pinfo->num > conversation->last_frame) {
+    conversation->last_frame = pinfo->num;
+  }
   dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
   return tvb_captured_length(tvb);
 }
