@@ -49,7 +49,7 @@ Here are some common pitfalls:
 * You need to capture at the right place in the network to see the traffic you
   want to see.
 
-If you have any problems setting up your capture environment you should have a
+If you have any problems setting up your capture environment, you should have a
 look at the guide mentioned above.
 
 [#ChCapCapturingSection]
