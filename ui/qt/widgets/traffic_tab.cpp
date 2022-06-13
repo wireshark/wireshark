@@ -98,62 +98,74 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
     QVariant datA = source_left.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
     QVariant datB = source_right.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
 
-    int addressTypeA = model->data(source_left, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
-    int addressTypeB = model->data(source_right, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
-    if ((addressTypeA != 0 || addressTypeB != 0) && addressTypeA != addressTypeB) {
-        return addressTypeA < addressTypeB;
-    } else if (addressTypeA == addressTypeB) {
+    bool is_address = false;
+    if (qobject_cast<EndpointDataModel *>(model) && source_left.column() == EndpointDataModel::ENDP_COLUMN_ADDR &&
+        source_left.column() == source_right.column()) {
+        is_address = true;
+    } else if (qobject_cast<ConversationDataModel *>(model) && (source_left.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR ||
+        source_left.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR) && source_left.column() == source_right.column()) {
+        is_address = true;
+    }
+
+    if (is_address) {
         bool result = false;
         bool identical = false;
-
-        if (addressTypeA == AT_IPv4) {
-            quint32 valA = model->data(source_left, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
-            quint32 valB = model->data(source_right, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
-
-            result = valA < valB;
-            identical = valA == valB;
-        } else {
-            result = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) < 0;
-            identical = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) == 0;
-        }
-
-        int portColumn = EndpointDataModel::ENDP_COLUMN_PORT;
-        if (identical && qobject_cast<ConversationDataModel *>(model)) {
-            QModelIndex tstA, tstB;
-            if (source_left.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR) {
-                portColumn = ConversationDataModel::CONV_COLUMN_SRC_PORT;
-                int col = ConversationDataModel::CONV_COLUMN_DST_ADDR;
-                if (model->portsAreHidden())
-                    col -= 1;
-                tstA = model->index(source_left.row(), col);
-                tstB = model->index(source_right.row(), col);
-            } else if (source_left.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
-                portColumn = ConversationDataModel::CONV_COLUMN_DST_PORT;
-                int col = ConversationDataModel::CONV_COLUMN_SRC_ADDR;
-                if (model->portsAreHidden())
-                    col -= 1;
-                tstA = model->index(source_left.row(), col);
-                tstB = model->index(source_right.row(), col);
-            }
+        int addressTypeA = model->data(source_left, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
+        int addressTypeB = model->data(source_right, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
+        if (addressTypeA != 0 && addressTypeB != 0 && addressTypeA != addressTypeB) {
+            result = addressTypeA < addressTypeB;
+        } else if (addressTypeA != 0 && addressTypeA == addressTypeB) {
 
             if (addressTypeA == AT_IPv4) {
-                quint32 valX = model->data(tstA, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
-                quint32 valY = model->data(tstB, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                quint32 valA = model->data(source_left, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                quint32 valB = model->data(source_right, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
 
-                result = valX < valY;
-                identical = valX == valY;
+                result = valA < valB;
+                identical = valA == valB;
             } else {
-                result = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) < 0;
-                identical = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) == 0;
+                result = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) < 0;
+                identical = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) == 0;
+            }
+
+            int portColumn = EndpointDataModel::ENDP_COLUMN_PORT;
+            if (identical && qobject_cast<ConversationDataModel *>(model)) {
+                QModelIndex tstA, tstB;
+                if (source_left.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR) {
+                    portColumn = ConversationDataModel::CONV_COLUMN_SRC_PORT;
+                    int col = ConversationDataModel::CONV_COLUMN_DST_ADDR;
+                    if (model->portsAreHidden())
+                        col -= 1;
+                    tstA = model->index(source_left.row(), col);
+                    tstB = model->index(source_right.row(), col);
+                } else if (source_left.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
+                    portColumn = ConversationDataModel::CONV_COLUMN_DST_PORT;
+                    int col = ConversationDataModel::CONV_COLUMN_SRC_ADDR;
+                    if (model->portsAreHidden())
+                        col -= 1;
+                    tstA = model->index(source_left.row(), col);
+                    tstB = model->index(source_right.row(), col);
+                }
+
+                if (addressTypeA == AT_IPv4) {
+                    quint32 valX = model->data(tstA, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                    quint32 valY = model->data(tstB, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+
+                    result = valX < valY;
+                    identical = valX == valY;
+                } else {
+                    result = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) < 0;
+                    identical = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) == 0;
+                }
+            }
+
+            if (! result && identical && ! model->portsAreHidden()) {
+                int portA = model->data(model->index(source_left.row(), portColumn)).toInt();
+                int portB = model->data(model->index(source_right.row(), portColumn)).toInt();
+                return portA < portB;
             }
         }
 
-        if (! result && identical && ! model->portsAreHidden()) {
-            int portA = model->data(model->index(source_left.row(), portColumn)).toInt();
-            int portB = model->data(model->index(source_right.row(), portColumn)).toInt();
-            return portA < portB;
-        } else
-            return result;
+        return result;
     }
 
     if (datA.canConvert<double>() && datB.canConvert<double>())

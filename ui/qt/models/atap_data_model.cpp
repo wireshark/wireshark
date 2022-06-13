@@ -506,11 +506,13 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         return ipAddress;
     }
 #endif
-    else if (role == ATapDataModel::DATA_ADDRESS_TYPE || ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
+    else if (role == ATapDataModel::DATA_ADDRESS_TYPE) {
+        if (column == EndpointDataModel::ENDP_COLUMN_ADDR)
+            return (int)item->myaddress.type;
+        return (int) AT_NONE;
+    } else if (role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
         if (column == EndpointDataModel::ENDP_COLUMN_ADDR) {
-            if (role == ATapDataModel::DATA_ADDRESS_TYPE)
-                return (int)item->myaddress.type;
-            else if (role == ATapDataModel::DATA_IPV4_INTEGER && item->myaddress.type == AT_IPv4) {
+            if (role == ATapDataModel::DATA_IPV4_INTEGER && item->myaddress.type == AT_IPv4) {
                 const ws_in4_addr * ip4 = (const ws_in4_addr *) item->myaddress.data;
                 return (quint32) GUINT32_TO_BE(*ip4);
             }
@@ -793,13 +795,16 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         return (int)(conv_item->conv_id);
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {
         return (bool)conv_item->filtered && showTotalColumn();
-    }
-    else if (role == ATapDataModel::DATA_ADDRESS_TYPE || role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
+    } else if (role == ATapDataModel::DATA_ADDRESS_TYPE) {
         if (column == ConversationDataModel::CONV_COLUMN_SRC_ADDR || column == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
             address tst_address = column == ConversationDataModel::CONV_COLUMN_SRC_ADDR ? conv_item->src_address : conv_item->dst_address;
-            if (role == ATapDataModel::DATA_ADDRESS_TYPE)
-                return (int)tst_address.type;
-            else if (role == ATapDataModel::DATA_IPV4_INTEGER && tst_address.type == AT_IPv4) {
+            return (int)tst_address.type;
+        }
+        return (int) AT_NONE;
+    } else if (role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
+        if (column == ConversationDataModel::CONV_COLUMN_SRC_ADDR || column == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
+            address tst_address = column == ConversationDataModel::CONV_COLUMN_SRC_ADDR ? conv_item->src_address : conv_item->dst_address;
+            if (role == ATapDataModel::DATA_IPV4_INTEGER && tst_address.type == AT_IPv4) {
                 const ws_in4_addr * ip4 = (const ws_in4_addr *) tst_address.data;
                 return (quint32) GUINT32_TO_BE(*ip4);
             }
