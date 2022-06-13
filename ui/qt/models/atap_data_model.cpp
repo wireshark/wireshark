@@ -497,21 +497,6 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {
         return (bool)item->filtered && showTotalColumn();
     }
-    else if (column == EndpointDataModel::ENDP_COLUMN_ADDR) {
-        if (role == ATapDataModel::DATA_ADDRESS_TYPE)
-            return (int)item->myaddress.type;
-        else if (role == ATapDataModel::DATA_IPV4_INTEGER && item->myaddress.type == AT_IPv4) {
-            const ws_in4_addr * ip4 = (const ws_in4_addr *) item->myaddress.data;
-            return (quint32) GUINT32_TO_BE(*ip4);
-        }
-        else if (role == ATapDataModel::DATA_IPV6_VECTOR && item->myaddress.type == AT_IPv6) {
-            const ws_in6_addr * ip6 = (const ws_in6_addr *) item->myaddress.data;
-            QVector<quint8> result;
-            result.reserve(16);
-            std::copy(ip6->bytes + 0, ip6->bytes + 16, std::back_inserter(result));
-            return QVariant::fromValue(result);
-        }
-    }
 #ifdef HAVE_MAXMINDDB
     else if (role == ATapDataModel::GEODATA_AVAILABLE) {
         return (bool)(mmdb_lookup && maxmind_db_has_coords(mmdb_lookup));
@@ -521,6 +506,23 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         return ipAddress;
     }
 #endif
+    else if (role == ATapDataModel::DATA_ADDRESS_TYPE || ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
+        if (column == EndpointDataModel::ENDP_COLUMN_ADDR) {
+            if (role == ATapDataModel::DATA_ADDRESS_TYPE)
+                return (int)item->myaddress.type;
+            else if (role == ATapDataModel::DATA_IPV4_INTEGER && item->myaddress.type == AT_IPv4) {
+                const ws_in4_addr * ip4 = (const ws_in4_addr *) item->myaddress.data;
+                return (quint32) GUINT32_TO_BE(*ip4);
+            }
+            else if (role == ATapDataModel::DATA_IPV6_VECTOR && item->myaddress.type == AT_IPv6) {
+                const ws_in6_addr * ip6 = (const ws_in6_addr *) item->myaddress.data;
+                QVector<quint8> result;
+                result.reserve(16);
+                std::copy(ip6->bytes + 0, ip6->bytes + 16, std::back_inserter(result));
+                return QVariant::fromValue(result);
+            }
+        }
+    }
 
     return QVariant();
 }
@@ -792,20 +794,22 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {
         return (bool)conv_item->filtered && showTotalColumn();
     }
-    else if (column == ConversationDataModel::CONV_COLUMN_SRC_ADDR || column == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
-        address tst_address = column == ConversationDataModel::CONV_COLUMN_SRC_ADDR ? conv_item->src_address : conv_item->dst_address;
-        if (role == ATapDataModel::DATA_ADDRESS_TYPE)
-            return (int)tst_address.type;
-        else if (role == ATapDataModel::DATA_IPV4_INTEGER && tst_address.type == AT_IPv4) {
-            const ws_in4_addr * ip4 = (const ws_in4_addr *) tst_address.data;
-            return (quint32) GUINT32_TO_BE(*ip4);
-        }
-        else if (role == ATapDataModel::DATA_IPV6_VECTOR && tst_address.type == AT_IPv6) {
-            const ws_in6_addr * ip6 = (const ws_in6_addr *) tst_address.data;
-            QVector<quint8> result;
-            result.reserve(16);
-            std::copy(ip6->bytes + 0, ip6->bytes + 16, std::back_inserter(result));
-            return QVariant::fromValue(result);
+    else if (role == ATapDataModel::DATA_ADDRESS_TYPE || role == ATapDataModel::DATA_IPV4_INTEGER || role == ATapDataModel::DATA_IPV6_VECTOR) {
+        if (column == ConversationDataModel::CONV_COLUMN_SRC_ADDR || column == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
+            address tst_address = column == ConversationDataModel::CONV_COLUMN_SRC_ADDR ? conv_item->src_address : conv_item->dst_address;
+            if (role == ATapDataModel::DATA_ADDRESS_TYPE)
+                return (int)tst_address.type;
+            else if (role == ATapDataModel::DATA_IPV4_INTEGER && tst_address.type == AT_IPv4) {
+                const ws_in4_addr * ip4 = (const ws_in4_addr *) tst_address.data;
+                return (quint32) GUINT32_TO_BE(*ip4);
+            }
+            else if (role == ATapDataModel::DATA_IPV6_VECTOR && tst_address.type == AT_IPv6) {
+                const ws_in6_addr * ip6 = (const ws_in6_addr *) tst_address.data;
+                QVector<quint8> result;
+                result.reserve(16);
+                std::copy(ip6->bytes + 0, ip6->bytes + 16, std::back_inserter(result));
+                return QVariant::fromValue(result);
+            }
         }
     }
 
