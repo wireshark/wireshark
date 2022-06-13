@@ -47,7 +47,10 @@ public:
         TIMELINE_DATA,
         ENDPOINT_DATATYPE,
         CONVERSATION_ID,
-        ROW_IS_FILTERED
+        ROW_IS_FILTERED,
+        DATA_ADDRESS_TYPE,
+        DATA_IPV4_INTEGER,
+        DATA_IPV6_VECTOR,
     };
 
     typedef enum {

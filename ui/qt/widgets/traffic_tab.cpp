@@ -45,7 +45,6 @@
 #include <QUrl>
 #include <QTemporaryFile>
 #include <QHBoxLayout>
-#include <QRegularExpressionMatch>
 
 TabData::TabData() :
     _name(QString()),
@@ -91,40 +90,71 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
     if (! source_right.isValid() || ! qobject_cast<const ATapDataModel *>(source_right.model()))
         return false;
 
+    ATapDataModel * model = qobject_cast<ATapDataModel *>(sourceModel());
+
+    if (! model || source_left.model() != model || source_right.model() != model)
+        return false;
+
     QVariant datA = source_left.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
     QVariant datB = source_right.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
 
-    QString strA = datA.toString().toLower();
-    QString strB = datB.toString().toLower();
+    int addressTypeA = model->data(source_left, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
+    int addressTypeB = model->data(source_right, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
+    if ((addressTypeA != 0 || addressTypeB != 0) && addressTypeA != addressTypeB) {
+        return addressTypeA < addressTypeB;
+    } else if (addressTypeA == addressTypeB) {
+        bool result = false;
+        bool identical = false;
 
-    QRegularExpression re = QRegularExpression(QString("[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}:[a-f\\d]{2}"));
-    QRegularExpressionMatch match = re.match(strA);
-    if (match.hasMatch())
-        return strA < strB;
+        if (addressTypeA == AT_IPv4) {
+            quint32 valA = model->data(source_left, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+            quint32 valB = model->data(source_right, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
 
-    QRegularExpression reIp("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
-    match = reIp.match(strA);
-    QRegularExpressionMatch matchB = reIp.match(strB);
-    QStringList listA = strA.split('.');
-    QStringList listB = strB.split('.');
-    if (match.hasMatch() && listA.count() == 4 && ! matchB.hasMatch())
-        return true;
-    else if (match.hasMatch() && listA.count() == 4 && matchB.hasMatch() && listB.count() == 4 ) {
-        quint32 ipA = (listA.at(0).toInt() << 24) + (listA.at(1).toInt() << 16) + (listA.at(2).toInt() << 8) + listA.at(3).toInt();
-        quint32 ipB = (listB.at(0).toInt() << 24) + (listB.at(1).toInt() << 16) + (listB.at(2).toInt() << 8) + listB.at(3).toInt();
-        return ipA < ipB;
+            result = valA < valB;
+            identical = valA == valB;
+        } else {
+            result = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) < 0;
+            identical = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) == 0;
+        }
+
+        int portColumn = EndpointDataModel::ENDP_COLUMN_PORT;
+        if (identical && qobject_cast<ConversationDataModel *>(model)) {
+            QModelIndex tstA, tstB;
+            if (source_left.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR) {
+                portColumn = ConversationDataModel::CONV_COLUMN_SRC_PORT;
+                int col = ConversationDataModel::CONV_COLUMN_DST_ADDR;
+                if (model->portsAreHidden())
+                    col -= 1;
+                tstA = model->index(source_left.row(), col);
+                tstB = model->index(source_right.row(), col);
+            } else if (source_left.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
+                portColumn = ConversationDataModel::CONV_COLUMN_DST_PORT;
+                int col = ConversationDataModel::CONV_COLUMN_SRC_ADDR;
+                if (model->portsAreHidden())
+                    col -= 1;
+                tstA = model->index(source_left.row(), col);
+                tstB = model->index(source_right.row(), col);
+            }
+
+            if (addressTypeA == AT_IPv4) {
+                quint32 valX = model->data(tstA, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                quint32 valY = model->data(tstB, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+
+                result = valX < valY;
+                identical = valX == valY;
+            } else {
+                result = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) < 0;
+                identical = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) == 0;
+            }
+        }
+
+        if (! result && identical && ! model->portsAreHidden()) {
+            int portA = model->data(model->index(source_left.row(), portColumn)).toInt();
+            int portB = model->data(model->index(source_right.row(), portColumn)).toInt();
+            return portA < portB;
+        } else
+            return result;
     }
-
-    QString iPv6Pattern("(([\\da-f]{1,4}:){7,7}[\\da-f]{1,4}|([\\da-f]{1,4}:){1,7}:|([\\da-f]{1,4}:){1,6}:[\\da-f]{1,4}|"
-        "([\\da-f]{1,4}:){1,5}(:[\\da-f]{1,4}){1,2}|([\\da-f]{1,4}:){1,4}(:[\\da-f]{1,4}){1,3}|([\\da-f]{1,4}:){1,3}(:"
-        "[\\da-f]{1,4}){1,4}|([\\da-f]{1,4}:){1,2}(:[\\da-f]{1,4}){1,5}|[\\da-f]{1,4}:((:[\\da-f]{1,4}){1,6})|:((:[\\da"
-        "-f]{1,4}){1,7}|:)|fe80:(:[\\da-f]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}"
-        "\\d){0,1}\\d)\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}\\d){0,1}\\d)|([\\da-f]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}\\d){0,1}"
-        "\\d)\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}\\d){0,1}\\d))");
-    QRegularExpression reIPv6(iPv6Pattern);
-    match = reIPv6.match(strA);
-    if (match.hasMatch())
-        return strA < strB;
 
     if (datA.canConvert<double>() && datB.canConvert<double>())
         return datA.toDouble() < datB.toDouble();

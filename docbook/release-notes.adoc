@@ -33,6 +33,10 @@ wsbuglink:17779[]
  - Adding/Removing tabs will keep them in the same order all the time
  - If a filter is applied, two columns are shown in either dialog detailing the difference between
    unmatched and matched packets
+ - Columns are now sorted via secondary properties if an identical entry is found.
+   - Conversations will be sorted via second address and first port number
+   - Endpoints will be sorted via port numbers
+   - IPv6 addresses are sorted correctly after IPv4 addresses
 
 * The PCRE2 library (https://www.pcre.org/) is now a required dependency to build Wireshark.
 
