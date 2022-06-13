@@ -2212,7 +2212,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
                     if (p_frag_params) {
                         proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
-                                            p_frag_params->length, ENC_ASCII);
+                                            p_frag_params->length, ENC_3GPP_TS_23_038_7BITS_UNPACKED);
                         total_sms_len += p_frag_params->length;
                     }
                 }
