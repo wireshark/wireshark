@@ -2610,9 +2610,19 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_part_type_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fld_len);
                 offset += 1;
                 rem_len -= 1;
+                int part_type_padding = (4 - (fld_len % 4));
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_participant_type, tvb, offset, fld_len, ENC_UTF_8 | ENC_NA);
                 offset += fld_len;
                 rem_len -= fld_len;
+                if(part_type_padding > 0){
+                    guint32 data;
+                    proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_app_data_padding, tvb, offset, part_type_padding, ENC_BIG_ENDIAN, &data);
+                    if (data != 0) {
+                        proto_tree_add_expert(sub_tree, pinfo, &ei_rtcp_appl_non_zero_pad, tvb, offset, part_type_padding);
+                    }
+                    offset += part_type_padding;
+                    rem_len -= part_type_padding;
+                }
                 if (rem_len > 0) {
                     num_ref = 1;
                     /* Floor Participant Reference */
