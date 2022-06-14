@@ -87,7 +87,7 @@ TrafficTypesModel::TrafficTypesModel(GList ** recentList, QObject *parent) :
 
 int TrafficTypesModel::rowCount(const QModelIndex &) const
 {
-    return _allTaps.count();
+    return (int) _allTaps.count();
 }
 
 int TrafficTypesModel::columnCount(const QModelIndex &) const

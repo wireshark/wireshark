@@ -337,7 +337,7 @@ void TrafficTab::insertProtoTab(int protoId, bool emitSignals)
         return;
 
     QList<int> lFull = _allProtocols;
-    int idx = lFull.indexOf(protoId);
+    int idx = (int) lFull.indexOf(protoId);
     if (idx < 0)
         return;
 
@@ -346,7 +346,7 @@ void TrafficTab::insertProtoTab(int protoId, bool emitSignals)
     if (part.count() > 0) {
         for (int cnt = idx - 1; cnt >= 0; cnt--) {
             if (lUsed.contains(part[cnt]) && part[cnt] != protoId) {
-                insertAt = lUsed.indexOf(part[cnt]) + 1;
+                insertAt = (int) lUsed.indexOf(part[cnt]) + 1;
                 break;
             }
         }
