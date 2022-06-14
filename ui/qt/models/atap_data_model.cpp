@@ -364,7 +364,7 @@ QVariant EndpointDataModel::headerData(int section, Qt::Orientation orientation,
             case 12:
                 return tr("Total Packets"); break;
             case 13:
-                return tr("Percent filtered"); break;
+                return tr("Percent Filtered"); break;
         }
     } else if (role == Qt::TextAlignmentRole) {
         if (section == ENDP_COLUMN_ADDR)
@@ -616,7 +616,7 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
         case 14:
             return tr("Total Packets"); break;
         case 15:
-            return tr("Percent filtered"); break;
+            return tr("Percent Filtered"); break;
         }
     } else if (role == Qt::TextAlignmentRole) {
         if (column == CONV_COLUMN_SRC_ADDR || column == CONV_COLUMN_DST_ADDR)

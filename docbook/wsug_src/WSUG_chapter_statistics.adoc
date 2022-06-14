@@ -201,7 +201,7 @@ addresses, packet counters, and byte counters the conversation window adds four
 columns: the start time of the conversation (“Rel Start”) or (“Abs Start”),
 the duration of the conversation in seconds, and the average bits (not bytes)
 per second in each direction. A timeline graph is also drawn across the
-“Rel Start” / “Abs Start” and “Duration” columns.
+“Rel Start” / “Abs Start” and “Duration” columns. Additionally
 
 .The “Conversations” window
 image::wsug_graphics/ws-stats-conversations.png[{screenshot-attrs}]
@@ -216,10 +216,19 @@ between relative (“Rel Start”) and absolute (“Abs Start”) times. Relativ
 times match the “Seconds Since First Captured Packet” time display format in the
 packet list and absolute start times match the “Time of Day” display format.
 
+If a display filter had been applied before the dialog is opened, _Limit to 
+display filter_ will be set automatically. Additionally, after a display filter
+had been applied, two columns ("Total Packets") and ("Percent Filtered") show
+the number of unfiltered total packets and the percentage of packets in this filter
+display. 
+
 The btn:[Copy] button will copy the list values to the clipboard in CSV
-(Comma Separated Values) or YAML format. The btn:[Follow Stream...] button
-will show the stream contents as described in <<ChAdvFollowStream>> dialog. The
-btn:[Graph...] button will show a graph as described in <<ChStatIOGraphs>>.
+(Comma Separated Values), YAML format or JSON format. The numbers are generally
+exported without special formatting, but this can be enabled if needed.
+
+The btn:[Follow Stream...] button will show the stream contents as described
+in <<ChAdvFollowStream>> dialog. The btn:[Graph...] button will show a graph
+as described in <<ChStatIOGraphs>>.
 
 btn:[Conversation Types] lets you choose which traffic type tabs are shown.
 See <<ChStatEndpoints>> for a list of endpoint types. The enabled types
@@ -321,9 +330,16 @@ conversations matching the current display filter. Note that in this
 example we have MaxMind DB configured which gives us extra geographic
 columns. See <<ChMaxMindDbPaths>> for more information.
 
+If a display filter had been applied before the dialog is opened, _Limit to 
+display filter_ will be set automatically. Additionally, after a display filter
+had been applied, two columns ("Total Packets") and ("Percent Filtered") show
+the number of unfiltered total packets and the percentage of packets in this filter
+display. 
+
 The btn:[Copy] button will copy the list values to the clipboard in CSV
-(Comma Separated Values) or YAML format. The btn:[Map] button will show the
-endpoints mapped in your web browser.
+(Comma Separated Values), YAML format or JSON format. The numbers are generally
+exported without special formatting, but this can be enabled if needed. 
+The btn:[Map] button will show the endpoints mapped in your web browser.
 
 btn:[Endpoint Types] lets you choose which traffic type tabs are shown. See
 <<ChStatEndpoints>> above for a list of endpoint types. The enabled
