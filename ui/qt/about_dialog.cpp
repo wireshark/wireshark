@@ -92,7 +92,8 @@ AStringListListModel(parent)
         if (line.contains("Acknowledgements")) {
             readAck = true;
             continue;
-        } else {
+        }
+        else if (!readAck) {
             QRegularExpressionMatch match = rx.match(line);
             if (match.hasMatch())
                 appendRow(QStringList() << match.captured(1).trimmed() << match.captured(2).trimmed());
