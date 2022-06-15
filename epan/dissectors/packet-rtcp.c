@@ -988,6 +988,9 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     unsigned int first_byte;
     unsigned int packet_type;
 
+    if (tvb_captured_length(tvb) < 2)
+        return FALSE;
+
     /* Look at first byte */
     first_byte = tvb_get_guint8(tvb, offset);
 
