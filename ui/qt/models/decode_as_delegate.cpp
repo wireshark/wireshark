@@ -109,8 +109,7 @@ bool DecodeAsDelegate::isSelectorCombo(DecodeAsItem* item) const
         decode_as_t *entry = (decode_as_t *) cur->data;
         if ((g_strcmp0(proto_name, entry->name) == 0) &&
             (g_strcmp0(item->tableName_, entry->table_name) == 0) &&
-            (cap_file_ && cap_file_->edt) &&
-            (entry->num_items > 1)) {
+            (cap_file_ && cap_file_->edt)) {
                 return true;
         }
     }
@@ -191,6 +190,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
                 }
                 proto_name = proto.proto_name;
                 //XXX - break?  Or do we always want the last layer of tunnelled protocols?
+                //XXX - Or do we want to add *all* the values from all the layers where the protocol appears to the combobox?
             }
         }
 
@@ -199,40 +199,36 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
             if ((g_strcmp0(proto_name, entry->name) == 0) &&
                 (g_strcmp0(item->tableName_, entry->table_name) == 0)) {
                 if (edt_present) {
-                    if (entry->num_items > 1)
-                    {
-                        //only create a combobox if there is a choice of values, otherwise it looks funny
-                        cb_editor = new QComboBox(parentWidget);
+                    //create a combobox to add the entries from the packet
+                    cb_editor = new QComboBox(parentWidget);
 
-                        //Don't limit user to just what's in combo box
-                        cb_editor->setEditable(true);
+                    //Don't limit user to just what's in combo box
+                    cb_editor->setEditable(true);
 
-                        cb_editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+                    cb_editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-                        //add the current value of the column
-                        const QString& current_value = index.model()->data(index, Qt::EditRole).toString();
-                        if (!current_value.isEmpty())
-                            cb_editor->addItem(current_value);
+                    //add the current value of the column
+                    const QString& current_value = index.model()->data(index, Qt::EditRole).toString();
+                    if (!current_value.isEmpty())
+                        cb_editor->addItem(current_value);
 
-                        //get the value(s) from the packet
-                        for (uint ni = 0; ni < entry->num_items; ni++) {
-                            if (entry->values[ni].num_values == 1) { // Skip over multi-value ("both") entries
-                                QString entryStr = DecodeAsModel::entryString(entry->table_name,
-                                                                        entry->values[ni].build_values[0](&cap_file_->edt->pi));
-                                //don't duplicate entries
-                                if (cb_editor->findText(entryStr) < 0)
-                                    cb_editor->addItem(entryStr);
-                            }
+                    //get the value(s) from the packet
+                    for (uint ni = 0; ni < entry->num_items; ni++) {
+                        if (entry->values[ni].num_values == 1) { // Skip over multi-value ("both") entries
+                            QString entryStr = DecodeAsModel::entryString(entry->table_name,
+                                                                    entry->values[ni].build_values[0](&cap_file_->edt->pi));
+                            //don't duplicate entries
+                            if (cb_editor->findText(entryStr) < 0)
+                                cb_editor->addItem(entryStr);
                         }
-                        cb_editor->setCurrentIndex(entry->default_index_value);
-
-                        //Make sure the combo box is at least as wide as the column
-                        QTreeView* parentTree = (QTreeView*)parent();
-                        int protoColWidth = parentTree->columnWidth(index.column());
-                        if (protoColWidth > cb_editor->size().width())
-                            cb_editor->setFixedWidth(protoColWidth);
-
                     }
+                    cb_editor->setCurrentIndex(entry->default_index_value);
+
+                    //Make sure the combo box is at least as wide as the column
+                    QTreeView* parentTree = (QTreeView*)parent();
+                    int protoColWidth = parentTree->columnWidth(index.column());
+                    if (protoColWidth > cb_editor->size().width())
+                        cb_editor->setFixedWidth(protoColWidth);
                 }
                 break;
             }
