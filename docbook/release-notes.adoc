@@ -48,16 +48,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
-* TLS: RSA decryption fails with Extended Master Secret and renegotiation wsbuglink:18059[].
-
-* "dfilter" file on Windows adds carriage returns, and requires line feeds wsbuglink:18082[].
-
-* Npcap bundled version needs a bump to v1.60 for Windows 11 compatibility wsbuglink:18084[].
-
-* "Browse" button in Prefs/Name Resolution/MaxMind crashes Wireshark on macOS wsbuglink:18088[].
-
-* TFTP: some packets are not recognized as TFTP packets with 3.6.5 wsbuglink:18122[].
-
 === New and Updated Features
 
 
@@ -75,14 +65,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
-DTLS
-F5 Ethernet Trailer
-F5 Capture Information
-FlexRay
-MBIM
-TFTP
-TLS
-ZigBee ZCL
 --
 
 === New and Updated Capture File Support
