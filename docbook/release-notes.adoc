@@ -198,10 +198,13 @@ Generic Data Transfer Protocol (GDT)
 Host IP Configuration Protocol (HICP)
 Mesh Connex (MCX)
 Microsoft Cluster Remote Control Protocol (RCP)
+Protected Extensible Authentication Protocol (PEAP)
 Realtek
 REdis Serialization Protocol v2 (RESP)
+Roon Discovery (RoonDisco)
 Secure File Transfer Protocol (sftp)
 Secure Host IP Configuration Protocol (SHICP)
+SSH File Transfer Protocol (SFTP)
 USB Attached SCSI (UASP)
 ZBOSS NCP
 gRPC Web (gRPC-Web)
