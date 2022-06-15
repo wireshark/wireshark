@@ -3746,6 +3746,10 @@ Martin Mayer		<martin.mayer[AT]m2-it-solutions.de> {
 	Allied Telesis Loop Detection Frames (LDF) dissector
 }
 
+Mattia Cazzola		<mattiac[AT]alinet.it> {
+	Provided a patch to the hex dump display routine.
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -4006,8 +4010,6 @@ Triton Circonflexe	<triton+enuiqr[AT]kumal.info>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his dumpit() hex-dump routine to be used.
 
-Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the hex dump display routine.
-
 We use the exception module from Kazlib, a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library. The Kazlib home page can be found at http://www.kylheku.com/~kaz/kazlib.html
 
 We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org
@@ -4023,3 +4025,7 @@ Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission to use QCusto
 Some icons made by Freepik, http://www.freepik.com from https://www.flaticon.com
 
 Insecure.Com LLC ("The Nmap Project") has granted the Wireshark Foundation permission to distribute Npcap with our Windows installers.
+
+We use the overflow-safe math functions from the portable snippets repository (https://github.com/nemequ/portable-snippets).
+
+We use the Lrexlib Lua library, specifically the PCRE2 flavour, to provide a regular expression API for Lua. The Lrexlib repository is hosted at https://github.com/rrthomas/lrexlib.
