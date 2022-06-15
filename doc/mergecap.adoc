@@ -15,13 +15,19 @@ mergecap - Merges two or more capture files into one
 *mergecap*
 [ *-a* ]
 [ *-F* <__file format__> ]
-[ *-h* ]
 [ *-I* <__IDB merge mode__> ]
 [ *-s* <__snaplen__> ]
-[ *-v* ]
 [ *-V* ]
 *-w* <__outfile__>|-
 <__infile__> [<__infile__> __...__]
+
+[manarg]
+*mergecap*
+*-h|--help*
+
+[manarg]
+*mergecap*
+*-v|--version*
 
 == DESCRIPTION
 
@@ -84,7 +90,7 @@ the file in several formats; *mergecap -F* provides a list of the
 available output formats.  By default this is the *pcapng* format.
 --
 
--h::
+-h|--help::
 +
 --
 Prints the version and options and exits.
@@ -134,16 +140,16 @@ making them incapable of handling gigabit Ethernet captures if jumbo
 frames were used).
 --
 
--v::
+-v|--version::
 +
 --
-Causes *mergecap* to print a number of messages while it's working.
+Print the version and exit.
 --
 
 -V::
 +
 --
-Print the version and exit.
+Causes *mergecap* to print a number of messages while it's working.
 --
 
 -w  <outfile>|-::

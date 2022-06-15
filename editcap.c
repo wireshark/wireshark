@@ -754,14 +754,14 @@ print_usage(FILE *output)
     fprintf(output, "  -d                     remove packet if duplicate (window == %d).\n", DEFAULT_DUP_DEPTH);
     fprintf(output, "  -D <dup window>        remove packet if duplicate; configurable <dup window>.\n");
     fprintf(output, "                         Valid <dup window> values are 0 to %d.\n", MAX_DUP_DEPTH);
-    fprintf(output, "                         NOTE: A <dup window> of 0 with -v (verbose option) is\n");
+    fprintf(output, "                         NOTE: A <dup window> of 0 with -V (verbose option) is\n");
     fprintf(output, "                         useful to print MD5 hashes.\n");
     fprintf(output, "  -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR\n");
     fprintf(output, "                         LESS THAN <dup time window> prior to current packet.\n");
     fprintf(output, "                         A <dup time window> is specified in relative seconds\n");
     fprintf(output, "                         (e.g. 0.000001).\n");
     fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
-    fprintf(output, "           other editcap options except -v may not always work as expected.\n");
+    fprintf(output, "           other editcap options except -V may not always work as expected.\n");
     fprintf(output, "           Specifically the -r, -t or -S options will very likely NOT have the\n");
     fprintf(output, "           desired effect if combined with the -d, -D or -w.\n");
     fprintf(output, "  --skip-radiotap-header skip radiotap header when checking for packet duplicates.\n");
@@ -836,12 +836,12 @@ print_usage(FILE *output)
     fprintf(output, "                         command line.\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
-    fprintf(output, "  -h                     display this help and exit.\n");
-    fprintf(output, "  -v                     verbose output.\n");
-    fprintf(output, "                         If -v is used with any of the 'Duplicate Packet\n");
+    fprintf(output, "  -h, --help             display this help and exit.\n");
+    fprintf(output, "  -V                     verbose output.\n");
+    fprintf(output, "                         If -V is used with any of the 'Duplicate Packet\n");
     fprintf(output, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
     fprintf(output, "                         and MD5 hashes are printed to standard-error.\n");
-    fprintf(output, "  -V, --version          print version information and exit.\n");
+    fprintf(output, "  -v, --version          print version information and exit.\n");
 }
 
 struct string_elem {
@@ -1135,7 +1135,7 @@ main(int argc, char *argv[])
         {"inject-secrets", ws_required_argument, NULL, LONGOPT_INJECT_SECRETS},
         {"discard-all-secrets", ws_no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
         {"help", ws_no_argument, NULL, 'h'},
-        {"version", ws_no_argument, NULL, 'V'},
+        {"version", ws_no_argument, NULL, 'v'},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {"discard-capture-comment", ws_no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {0, 0, 0, 0 }
@@ -1498,16 +1498,16 @@ main(int argc, char *argv[])
             }
             break;
 
-        case 'v':
+        case 'V':
             if (verbose) {
-                cmdarg_err("-v was specified twice");
+                cmdarg_err("-V was specified twice");
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
             verbose = TRUE;
             break;
 
-        case 'V':
+        case 'v':
             show_version();
             goto clean_exit;
             break;

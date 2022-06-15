@@ -20,7 +20,6 @@ editcap - Edit and/or translate the format of capture files
 [ *-C* [offset:]<choplen> ]
 [ *-E* <error probability> ]
 [ *-F* <file format> ]
-[ *-h* ]
 [ *-i* <seconds per file> ]
 [ *-o* <change offset> ]
 [ *-L* ]
@@ -29,7 +28,7 @@ editcap - Edit and/or translate the format of capture files
 [ *-S* <strict time adjustment> ]
 [ *-t* <time adjustment> ]
 [ *-T* <encapsulation type> ]
-[ *-v* ]
+[ *-V* ]
 [ *--inject-secrets* <secrets type>,<file> ]
 [ *--discard-all-secrets* ]
 [ *--capture-comment* <comment> ]
@@ -43,7 +42,7 @@ __outfile__
 *-d*
 *-D* <dup window>
 *-w* <dup time window>
-[ *-v* ]
+[ *-V* ]
 [ *-I* <bytes to ignore> ]
 [ *--skip-radiotap-header* ]
 __infile__
@@ -51,7 +50,11 @@ __outfile__
 
 [manarg]
 *editcap*
-[ *-V* ]
+*-h|--help*
+
+[manarg]
+*editcap*
+*-v|--version*
 
 == DESCRIPTION
 
@@ -183,7 +186,7 @@ Attempts to remove duplicate packets.  The length and MD5 hash of the
 current packet are compared to the previous <dup window> - 1 packets.
 If a match is found, the current packet is skipped.
 
-The use of the option *-D 0* combined with the *-v* option is useful
+The use of the option *-D 0* combined with the *-V* option is useful
 in that each packet's Packet number, Len and MD5 Hash will be printed
 to standard error.  This verbose output (specifically the MD5 hash strings)
 can be useful in scripts to identify duplicate packets across trace
@@ -215,7 +218,7 @@ provides a list of the available output formats. The default
 is the *pcapng* format.
 --
 
--h::
+-h|--help::
 +
 --
 Prints the version and options and exits.
@@ -378,20 +381,20 @@ capture to an FDDI capture if an Ethernet capture is read and '*-T
 packet, you will need od(1)/xref:text2pcap.html[text2pcap](1).
 --
 
--v::
+-v|--version::
 +
 --
-Causes *editcap* to print verbose messages while it's working.
-
-Use of *-v* with the de-duplication switches of *-d*, *-D* or *-w*
-will cause all MD5 hashes to be printed whether the packet is skipped
-or not.
+Print the version and exit.
 --
 
 -V::
 +
 --
-Print the version and exit.
+Causes *editcap* to print verbose messages while it's working.
+
+Use of *-V* with the de-duplication switches of *-d*, *-D* or *-w*
+will cause all MD5 hashes to be printed whether the packet is skipped
+or not.
 --
 
 -w  <dup time window>::
@@ -516,11 +519,11 @@ To remove duplicate packets seen __equal to or less than__ 1/10th of a second:
 To display the MD5 hash for all of the packets (and NOT generate any
 real output file):
 
-    editcap -v -D 0 capture.pcapng /dev/null
+    editcap -V -D 0 capture.pcapng /dev/null
 
 or on Windows systems
 
-    editcap -v -D 0 capture.pcapng NUL
+    editcap -V -D 0 capture.pcapng NUL
 
 To advance the timestamps of each packet forward by 3.0827 seconds:
 

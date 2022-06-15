@@ -37,6 +37,24 @@ Wireshark 3.7.1 Release Notes
        • If a filter is applied, two columns are shown in either dialog
       detailing the difference between unmatched and matched packets
 
+       • Columns are now sorted via secondary properties if an identical
+      entry is found.
+
+       • Conversations will be sorted via second address and first port
+      number
+
+       • Endpoints will be sorted via port numbers
+
+       • IPv6 addresses are sorted correctly after IPv4 addresses
+
+       • The dialog elements have been moved to make it easier to handle
+      for new users.
+
+       • Selection of tap elements is done via list
+
+       • All configurations and options are done via a left side button
+      row
+
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
 
@@ -52,6 +70,10 @@ Wireshark 3.7.1 Release Notes
     • The ip.flags field is now only the three high bits, not the full
       byte. Display filters or Coloring rules using the field will need
       to be adjusted.
+
+    • The 'v' (lower case) and 'V' (upper case) switches have been
+      swapped for editcap and mergecap to match the other command line
+      utilities.
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
@@ -310,7 +332,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-06-12 16:30:07 UTC
+  Last updated 2022-06-15 01:39:18 UTC
 
  References
 

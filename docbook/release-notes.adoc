@@ -52,6 +52,9 @@ wsbuglink:17779[]
 * The ip.flags field is now only the three high bits, not the full byte. Display filters or
   Coloring rules using the field will need to be adjusted.
 
+* The 'v' (lower case) and 'V' (upper case) switches have been swapped for editcap and mergecap to
+  match the other command line utilities.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
