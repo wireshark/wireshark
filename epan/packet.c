@@ -2307,6 +2307,12 @@ dissector_table_allow_decode_as(dissector_table_t dissector_table)
 	dissector_table->supports_decode_as = TRUE;
 }
 
+gboolean
+dissector_table_supports_decode_as(dissector_table_t dissector_table)
+{
+	return dissector_table->supports_decode_as;
+}
+
 static gint
 uuid_equal(gconstpointer k1, gconstpointer k2)
 {

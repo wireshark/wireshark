@@ -436,6 +436,10 @@ WS_DLL_PUBLIC ftenum_t dissector_table_get_type(dissector_table_t dissector_tabl
  */
 WS_DLL_PUBLIC void dissector_table_allow_decode_as(dissector_table_t dissector_table);
 
+/** Returns TRUE if dissector table allows "Decode As"
+ */
+WS_DLL_PUBLIC gboolean dissector_table_supports_decode_as(dissector_table_t dissector_table);
+
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and
    return TRUE, or don't recognize it and return FALSE) to be called

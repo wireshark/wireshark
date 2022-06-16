@@ -195,12 +195,25 @@ proto_register_data(void)
 	proto_set_cant_toggle(proto_data);
 }
 
+static void
+add_foreach_decode_as(const gchar *table_name, const gchar *ui_name _U_, gpointer user_data)
+{
+        dissector_handle_t handle = (dissector_handle_t) user_data;
+        dissector_table_t dissector_table = find_dissector_table(table_name);
+
+
+        if (dissector_table_supports_decode_as(dissector_table))
+                dissector_add_for_decode_as(table_name, handle);
+}
+
 void
 proto_reg_handoff_data(void)
 {
 	dissector_add_string("media_type", "application/octet-stream", data_handle);
 	ssl_dissector_add(0, data_handle);
 	dtls_dissector_add(0, data_handle);
+
+	dissector_all_tables_foreach_table(add_foreach_decode_as, (gpointer)data_handle, NULL);
 }
 
 /*

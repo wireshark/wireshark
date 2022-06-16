@@ -528,6 +528,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_table_get_dissector_handle@Base 2.3.0
  dissector_table_get_dissector_handles@Base 1.12.0~rc1
  dissector_table_get_type@Base 1.12.0~rc1
+ dissector_table_supports_decode_as@Base 3.7.2
  dissector_try_guid@Base 2.1.0
  dissector_try_guid_new@Base 2.1.0
  dissector_try_heuristic@Base 1.9.1
