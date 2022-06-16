@@ -3024,19 +3024,20 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_ctrlstat_wraccess,
            {"Write access", "ecat.reg.ctrlstat.wraccess",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x1000, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0001, NULL, HFILL }
          },
+         /* Next 4 bits reserved */
          { &hf_ecat_reg_ctrlstat_eepromemul,
            {"EEPROM emulation", "ecat.reg.ctrlstat.eepromemul",
-           FT_BOOLEAN, 16, TFS(&tfs_esc_reg_502_5), 0x2000, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_esc_reg_502_5), 0x0020, NULL, HFILL }
          },
          { &hf_ecat_reg_ctrlstat_8bacc,
            {"8 byte access", "ecat.reg.ctrlstat.8bacc",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x4000, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0040, NULL, HFILL }
          },
          { &hf_ecat_reg_ctrlstat_2bacc,
            {"2 byte address", "ecat.reg.ctrlstat.2bacc",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x8000, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0080, NULL, HFILL }
          },
          { &hf_ecat_reg_ctrlstat_rdacc,
            {"Read access", "ecat.reg.ctrlstat.rdacc",
@@ -3056,19 +3057,19 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_ctrlstat_lderr,
            {"Load error", "ecat.reg.ctrlstat.lderr",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0010, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x1000, NULL, HFILL }
          },
          { &hf_ecat_reg_ctrlstat_cmderr,
            {"Cmd error", "ecat.reg.ctrlstat.cmderr",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0020, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x2000, NULL, HFILL }
          },
          { &hf_ecat_reg_ctrlstat_wrerr,
            {"Write error", "ecat.reg.ctrlstat.wrerr",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0040, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x4000, NULL, HFILL }
          },
          { &hf_ecat_reg_ctrlstat_busy,
            {"Busy", "ecat.reg.ctrlstat.busy",
-           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x0080, NULL, HFILL }
+           FT_BOOLEAN, 16, TFS(&tfs_local_true_false), 0x8000, NULL, HFILL }
          },
          { &hf_ecat_reg_addrl,
            {"EEPROM Address Lo (0x504)", "ecat.reg.addrl",
