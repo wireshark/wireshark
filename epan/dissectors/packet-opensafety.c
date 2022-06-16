@@ -33,6 +33,7 @@
 #include <epan/reassemble.h>
 #include <epan/strutil.h>
 #include <epan/tap.h>
+#include <epan/conversation_table.h>
 
 #include <wsutil/crc8.h>
 #include <wsutil/crc16.h>
@@ -1946,6 +1947,90 @@ dissect_opensafety_message(opensafety_packet_info *packet,
     return TRUE;
 }
 
+static const char* opensafety_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_ADDRESS) {
+        if (conv->src_address.type == AT_NUMERIC)
+            return "opensafety.msg.sender";
+    }
+
+    if (filter == CONV_FT_DST_ADDRESS) {
+        if (conv->dst_address.type == AT_NUMERIC)
+            return "opensafety.msg.receiver";
+    }
+
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (conv->src_address.type == AT_NUMERIC && conv->dst_address.type == AT_NUMERIC)
+            return "opensafety.msg.node";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t opensafety_ct_dissector_info = {&opensafety_conv_get_filter_type};
+
+static const char* opensafety_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+    if (host->myaddress.type == AT_NUMERIC) {
+        if (filter == CONV_FT_ANY_ADDRESS)
+            return "opensafety.msg.node";
+        else if (filter == CONV_FT_SRC_ADDRESS)
+            return "opensafety.msg.sender";
+        else if (filter == CONV_FT_DST_ADDRESS)
+            return "opensafety.msg.receiver";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t  opensafety_dissector_info = {&opensafety_get_filter_type};
+
+static tap_packet_status
+opensafety_conversation_packet(void *pct, packet_info *pinfo,
+        epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
+{
+    address *src = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
+    address *dst = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    opensafety_packet_info * osinfo = (opensafety_packet_info *)vip;
+    guint16 receiver = osinfo->receiver;
+    if (osinfo->msg_type == OPENSAFETY_SPDO_MESSAGE_TYPE)
+        receiver = 0x3FF;
+
+    hash->flags = flags;
+
+    alloc_address_wmem(pinfo->pool, src, AT_NUMERIC, (int) sizeof(guint16), &osinfo->sender);
+    alloc_address_wmem(pinfo->pool, dst, AT_NUMERIC, (int) sizeof(guint16), &receiver);
+
+    add_conversation_table_data(hash, src, dst, 0, 0, 1, osinfo->msg_len, &pinfo->rel_ts, &pinfo->abs_ts,
+            &opensafety_ct_dissector_info, ENDPOINT_NONE);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static tap_packet_status
+opensafety_hostlist_packet(void *pit, packet_info *pinfo,
+        epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
+{
+    address *src = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
+    address *dst = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    opensafety_packet_info * osinfo = (opensafety_packet_info *)vip;
+    guint16 receiver = osinfo->receiver;
+    if (osinfo->msg_type == OPENSAFETY_SPDO_MESSAGE_TYPE)
+        receiver = 0x3FF;
+
+    hash->flags = flags;
+
+    alloc_address_wmem(pinfo->pool, src, AT_NUMERIC, (int) sizeof(guint16), &osinfo->sender);
+    alloc_address_wmem(pinfo->pool, dst, AT_NUMERIC, (int) sizeof(guint16), &receiver);
+
+    add_hostlist_table_data(hash, src, 0, TRUE,  1, osinfo->msg_len, &opensafety_dissector_info, ENDPOINT_NONE);
+    add_hostlist_table_data(hash, dst, 0, FALSE, 1, osinfo->msg_len, &opensafety_dissector_info, ENDPOINT_NONE);
+
+    return TAP_PACKET_REDRAW;
+}
+
 static gboolean
 opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_handle,
                              gboolean b_frame2First, gboolean do_byte_swap, guint8 force_nr_in_package,
@@ -2997,6 +3082,8 @@ proto_register_opensafety(void)
             register_dissector("opensafety_udptransport", dissect_opensafety_udpdata, proto_oss_udp_transport );
     opensafety_mbtcp_handle = register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
     opensafety_pnio_handle = register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
+
+    register_conversation_table(proto_opensafety, TRUE, opensafety_conversation_packet, opensafety_hostlist_packet);
 }
 
 void
