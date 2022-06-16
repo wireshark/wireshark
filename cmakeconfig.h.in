@@ -10,11 +10,14 @@
 
 #define VERSION_EXTRA "$ENV{WIRESHARK_VERSION_EXTRA}"
 
-/* Version number of package */
+/* Version number of Wireshark and associated utilities */
 #define VERSION "${PROJECT_VERSION}${VERSION_EXTRA}"
 #define VERSION_MAJOR ${PROJECT_MAJOR_VERSION}
 #define VERSION_MINOR ${PROJECT_MINOR_VERSION}
 #define VERSION_MICRO ${PROJECT_PATCH_VERSION}
+
+/* Version number of Logwolf and associated utilities */
+#define LOG_VERSION "${LOG_PROJECT_VERSION}${VERSION_EXTRA}"
 
 #define PLUGIN_PATH_ID "${PLUGIN_PATH_ID}"
 #define VERSION_FLAVOR "${VERSION_FLAVOR}"

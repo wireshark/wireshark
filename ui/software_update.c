@@ -13,12 +13,13 @@
 #include "software_update.h"
 #include "language.h"
 #include "../epan/prefs.h"
+#include "../wsutil/filesystem.h"
 
 /*
  * Version 0 of the update URI path has the following elements:
  * - The update path prefix (fixed, "update")
  * - The schema version (fixed, 0)
- * - The application name (fixed, "Wireshark")
+ * - The application name (variable, "Wireshark" or "Logwolf")
  * - The application version ("<major>.<minor>.<micro>")
  * - The operating system (variable, one of "Windows" or "macOS")
  * - The architecture name (variable, one of "x86", "x86-64", or "arm64")
@@ -34,7 +35,6 @@
 #ifdef HAVE_SOFTWARE_UPDATE
 #define SU_SCHEMA_PREFIX "update"
 #define SU_SCHEMA_VERSION 0
-#define SU_APPLICATION "Wireshark"
 #define SU_LOCALE "en-US"
 #endif /* HAVE_SOFTWARE_UPDATE */
 
@@ -66,6 +66,12 @@
 static char *get_appcast_update_url(software_update_channel_e chan) {
     GString *update_url_str = g_string_new("");;
     const char *chan_name;
+    const char *su_application = get_configuration_namespace();
+    const char *su_version = VERSION;
+
+    if (g_str_has_prefix(su_application, "Log")) {
+        su_version = LOG_VERSION;
+    }
 
     switch (chan) {
         case UPDATE_CHANNEL_DEVELOPMENT:
@@ -78,8 +84,8 @@ static char *get_appcast_update_url(software_update_channel_e chan) {
     g_string_printf(update_url_str, "https://www.wireshark.org/%s/%u/%s/%s/%s/%s/en-US/%s.xml",
                     SU_SCHEMA_PREFIX,
                     SU_SCHEMA_VERSION,
-                    SU_APPLICATION,
-                    VERSION,
+                    su_application,
+                    su_version,
                     SU_OSNAME,
                     SU_ARCH,
                     chan_name);
