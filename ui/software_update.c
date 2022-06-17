@@ -69,7 +69,7 @@ static char *get_appcast_update_url(software_update_channel_e chan) {
     const char *su_application = get_configuration_namespace();
     const char *su_version = VERSION;
 
-    if (g_str_has_prefix(su_application, "Log")) {
+    if (!is_packet_configuration_namespace()) {
         su_version = LOG_VERSION;
     }
 

@@ -1570,6 +1570,24 @@ endif()
 
 set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
 
+if(ENABLE_APPLICATION_BUNDLE)
+	if(CMAKE_CFG_INTDIR STREQUAL ".")
+		set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/Logray.app/Contents/Resources/share/logray")
+	else()
+		# Xcode
+		set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Logray.app/Contents/Resources/share/logray")
+	endif()
+	set(LOG_DATAFILE_DIR ${_log_datafile_dir} CACHE INTERNAL "Build time log analysis data file location.")
+# XXX We need to update wsutil/filesystem.c and packaging/nsis/*logray* to match.
+# elseif(NOT CMAKE_CFG_INTDIR STREQUAL ".")
+# 	# Visual Studio, Xcode, etc.
+# 	set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/share/logray")
+# else()
+# 	# Makefile, Ninja, etc.
+# 	set(_log_datafile_dir "${CMAKE_BINARY_DIR}/run/share/logray")
+endif()
+
+
 # wsutil must be added after DATAFILE_DIR is set such that filesystem.c can
 # learn about the directory location.
 add_subdirectory( wsutil )
@@ -1946,6 +1964,13 @@ set(INSTALL_FILES
 	wka
 )
 
+if (BUILD_logray)
+	set(LOG_INSTALL_FILES
+		resources/share/logray/colorfilters
+		resources/share/logray/dfilter_buttons
+	)
+endif()
+
 if (ASCIIDOCTOR_FOUND)
 	list(APPEND INSTALL_FILES
 		${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
@@ -2231,6 +2256,23 @@ foreach(_install_file ${INSTALL_FILES})
 	)
 	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
+
+if (BUILD_logray AND ENABLE_APPLICATION_BUNDLE)
+	foreach(_install_file ${LOG_INSTALL_FILES})
+		get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
+		get_filename_component(_install_basename "${_install_file}" NAME)
+		set(_output_file "${LOG_DATAFILE_DIR}/${_install_basename}")
+		add_custom_command(OUTPUT "${_output_file}"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${_install_file_src}"
+				"${_output_file}"
+			DEPENDS
+				docs
+				"${_install_file}"
+		)
+		list(APPEND copy_data_files_depends "${_output_file}")
+	endforeach()
+endif()
 
 # Install Lua files in staging directory such that Lua can used when Wireshark
 # is ran from the build directory. For install targets, see

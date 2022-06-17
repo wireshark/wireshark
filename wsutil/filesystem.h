@@ -45,6 +45,13 @@ WS_DLL_PUBLIC char *configuration_init(const char *arg0, const char *namespace_n
  */
 WS_DLL_PUBLIC const char *get_configuration_namespace(void);
 
+/**
+ * Check to see if the configuration namespace is for packet analysis
+ * (Wireshark) or log analysis (Logray).
+ * @return true if the configuration namespace is for packets.
+ */
+WS_DLL_PUBLIC bool is_packet_configuration_namespace(void);
+
 /*
  * Get the directory in which the program resides.
  */

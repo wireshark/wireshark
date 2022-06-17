@@ -309,6 +309,11 @@ get_configuration_namespace(void)
     return CONFIGURATION_NAMESPACE_PROPER;
 }
 
+bool is_packet_configuration_namespace(void)
+{
+    return configuration_namespace != CONFIGURATION_NAMESPACE_LOGRAY;
+}
+
 #ifndef _WIN32
 /*
  * Get the pathname of the executable using various platform-

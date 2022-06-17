@@ -1094,8 +1094,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     } else if (strcmp(key, RECENT_KEY_PACKET_LIST_COLORIZE) == 0) {
         parse_recent_boolean(value, &recent.packet_list_colorize);
     } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
-        recent.gui_time_format =
-            (ts_type)str_to_val(value, ts_type_values, TS_RELATIVE);
+        recent.gui_time_format = (ts_type)str_to_val(value, ts_type_values,
+            is_packet_configuration_namespace() ? TS_RELATIVE : TS_ABSOLUTE);
     } else if (strcmp(key, RECENT_GUI_TIME_PRECISION) == 0) {
         recent.gui_time_precision =
             (ts_precision)str_to_val(value, ts_precision_values, TS_PREC_AUTO);
