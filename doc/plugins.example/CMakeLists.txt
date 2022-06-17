@@ -52,8 +52,8 @@ install(TARGETS hello
 # This custom target installs the plugin to the plugin dir in WiresharkConfig.cmake.
 # It does not use CMAKE_INSTALL_PREFIX.
 add_custom_target(copy_plugin
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hello> ${Wireshark_PLUGIN_INSTALL_DIR}
-	COMMENT "Installing plugin to: ${Wireshark_PLUGIN_INSTALL_DIR}"
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hello> "${Wireshark_PLUGIN_INSTALL_DIR}/epan"
+	COMMENT "Installing plugin to: ${Wireshark_PLUGIN_INSTALL_DIR}/epan"
 )
 
 string(TOLOWER "${PROJECT_NAME}-${PROJECT_VERSION}" _pkgname)
