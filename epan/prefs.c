@@ -2426,7 +2426,7 @@ gui_layout_callback(void)
         prefs.gui_layout_type >= layout_type_max) {
       /* XXX - report an error?  It's not a syntax error - we'd need to
          add a way of reporting a *semantic* error. */
-      prefs.gui_layout_type = layout_type_5;
+      prefs.gui_layout_type = layout_type_2;
     }
 }
 
@@ -4163,7 +4163,7 @@ pre_init_prefs(void)
     g_free(prefs.gui_start_title);
     prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
     prefs.gui_version_placement      = version_both;
-    prefs.gui_layout_type            = layout_type_5;
+    prefs.gui_layout_type            = layout_type_2;
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
     prefs.gui_layout_content_3       = layout_pane_content_pbytes;
