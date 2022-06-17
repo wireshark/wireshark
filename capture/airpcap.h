@@ -275,7 +275,7 @@ typedef struct _AirpcapChannelInfo
     AirpcapChannelInfo, *PAirpcapChannelInfo;
 
 
-/**@}*/
+/*@}*/
 
 /** @defgroup airpcapfuncs AirPcap functions
  *  @{
@@ -895,9 +895,9 @@ gboolean AirpcapConvertFrequencyToChannel(guint Frequency, guint * PChannel, PAi
 gboolean AirpcapConvertChannelToFrequency(guint Channel, guint * PFrequency);
 
 
-#endif /* __AIRPCAP_DRIVER__ */
+/*@}*/
 
-/**@}*/
+#endif /* __AIRPCAP_DRIVER__ */
 
 #ifdef __cplusplus
 }
