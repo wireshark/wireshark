@@ -55,6 +55,9 @@ wsbuglink:17779[]
 * The 'v' (lower case) and 'V' (upper case) switches have been swapped for editcap and mergecap to
   match the other command line utilities.
 
+* New address type AT_NUMERIC allows simple numeric addresses for protocols which do not have
+  a more common-style address approach, analog to AT_STRINGZ.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
