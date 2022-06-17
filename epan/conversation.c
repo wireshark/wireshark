@@ -1784,14 +1784,12 @@ conversation_create_endpoint_by_id(struct _packet_info *pinfo, endpoint_type ety
     pinfo->conv_elements[1].uint_val = id;
     pinfo->conv_elements[1].type = CE_ENDPOINT;
     pinfo->conv_elements[1].endpoint_type_val = etype;
-
-    pinfo->use_endpoint = TRUE;
 }
 
 guint32
 conversation_get_endpoint_by_id(struct _packet_info *pinfo, endpoint_type etype, const guint options)
 {
-    if (pinfo->conv_endpoint == NULL) {
+    if (pinfo->conv_elements == NULL) {
         return 0;
     }
 
