@@ -35,14 +35,6 @@
 #include <QToolButton>
 #include <QTreeView>
 
-// To do:
-// - Add "copy" items to the menu.
-
-// Bugs:
-// - Tabs and menu items don't always end up in the same order.
-// - Columns don't resize correctly.
-// - Closing the capture file clears conversation data.
-
 TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const QString &table_name) :
     WiresharkDialog(parent, cf),
     ui(new Ui::TrafficTableDialog)

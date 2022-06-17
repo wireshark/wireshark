@@ -19,6 +19,7 @@
 #include <QMap>
 #include <QList>
 #include <QString>
+#include <QSortFilterProxyModel>
 
 class TrafficTypesRowData
 {
@@ -36,6 +37,7 @@ private:
     QString _name;
     bool _checked;
 };
+
 
 class TrafficTypesModel : public QAbstractListModel
 {
@@ -77,6 +79,18 @@ private:
     GList ** _recentList;
 
 };
+
+
+class TrafficListSortModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    TrafficListSortModel(QObject * parent = nullptr);
+
+protected:
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+};
+
 
 class TrafficTypesList : public QTreeView
 {
