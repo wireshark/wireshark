@@ -42,6 +42,7 @@ typedef enum {
     AT_IB,                 /* Infiniband GID/LID */
     AT_AX25,               /* AX.25 */
     AT_VINES,              /* Banyan Vines address */
+    AT_NUMERIC,            /* Numeric address type */
 
     AT_END_OF_LIST         /* Must be last in list */
 } address_type;

@@ -519,6 +519,25 @@ static int vines_len(void)
 }
 
 /******************************************************************************
+ * AT_NUMERIC
+ ******************************************************************************/
+
+static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+	const guint32 *addr_data = (const guint32 *)addr->data;
+
+    memset(buf, '\0', 14);
+    snprintf(buf, 14, "%d", *addr_data);
+
+	return (int)strlen(buf);
+}
+
+static int numeric_addr_str_len(const address* addr _U_)
+{
+	return 14;
+}
+
+/******************************************************************************
  * END OF PROVIDED ADDRESS TYPES
  ******************************************************************************/
 
@@ -682,6 +701,19 @@ void address_types_initialize(void)
         NULL,              /* addr_name_res_len */
     };
 
+    static address_type_t numeric_address = {
+        AT_NUMERIC,          /* addr_type */
+        "AT_NUMERIC",        /* name */
+        "Simple numeric address",   /* pretty_name */
+        numeric_addr_to_str, /* addr_to_str */
+        numeric_addr_str_len, /* addr_str_len */
+        NULL,              /* addr_to_byte */
+        NULL,              /* addr_col_filter */
+        NULL,              /* addr_fixed_len */
+        NULL,              /* addr_name_res_str */
+        NULL,              /* addr_name_res_len */
+    };
+
     num_dissector_addr_type = 0;
 
     /* Initialize the type array.  This is mostly for handling
@@ -700,6 +732,7 @@ void address_types_initialize(void)
     address_type_register(AT_IB, &ib_address );
     address_type_register(AT_AX25, &ax25_address );
     address_type_register(AT_VINES, &vines_address );
+    address_type_register(AT_NUMERIC, &numeric_address );
 }
 
 /* Given an address type id, return an address_type_t* */

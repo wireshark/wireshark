@@ -119,6 +119,11 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
 
                 result = valA < valB;
                 identical = valA == valB;
+            } else if (addressTypeA == AT_NUMERIC) {
+                quint32 valA = datA.toInt();
+                quint32 valB = datB.toInt();
+                result = valA < valB;
+                identical = valA == valB;
             } else {
                 result = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) < 0;
                 identical = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) == 0;
