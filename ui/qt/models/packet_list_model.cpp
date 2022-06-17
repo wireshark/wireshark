@@ -699,7 +699,7 @@ void PacketListModel::dissectIdle(bool reset)
     }
 
     if (idle_dissection_row_ < physical_rows_.count()) {
-        QTimer::singleShot(idle_dissection_interval_, this, SLOT(dissectIdle()));
+        QTimer::singleShot(0, this, SLOT(dissectIdle()));
     } else {
         idle_dissection_timer_->invalidate();
     }
