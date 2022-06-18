@@ -3614,8 +3614,8 @@ typedef enum
     DE_BSSGP_CAUSE,                                             /* 11.3.8   0x07 Cause */
     DE_BSSGP_CELL_ID,                                           /* 11.3.9   0x08 Cell Identifier */
     DE_BSSGP_CHLN_NEEDED,                                       /* 11.3.10  0x09 Channel needed */
-    DE_BBSGP_DRX_PARAM,                                         /* 11.3.11  0x0a DRX Parameters GSM_A_PDU_TYPE_GM, DE_DRX_PARAM */
-    DE_BBSGP_EMLPP_PRIO,                                        /* 11.3.12  0x0b eMLPP-Priority GSM_A_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO*/
+    DE_BSSGP_DRX_PARAM,                                         /* 11.3.11  0x0a DRX Parameters GSM_A_PDU_TYPE_GM, DE_DRX_PARAM */
+    DE_BSSGP_EMLPP_PRIO,                                        /* 11.3.12  0x0b eMLPP-Priority GSM_A_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO*/
     DE_BSSGP_FLUSH_ACTION,                                      /* 11.3.13  0x0c Flush Action */
     DE_BSSGP_IMSI,                                              /* 11.3.14  0x0d IMSI */
     DE_BSSGP_LLC_PDU,                                           /* 11.3.15  0x0e LLC-PDU */
@@ -3633,7 +3633,7 @@ typedef enum
     DE_BSSGP_RA_CAP_UPD_CAUSE,                                  /* 11.3.30  0x1a RA-Cap-UPD-Cause */
     DE_BSSGP_RAI,                                               /* 11.3.31  0x1b Routeing Area GSM_A_PDU_TYPE_GM, DE_RAI*/
     DE_BSSGP_R_DEFAULT_MS,                                      /* 11.3.32  0x1c R_default_MS */
-    DE_BBSGP_SUSPEND_REF_NO,                                    /* 11.3.33  0x1d Suspend Reference Number */
+    DE_BSSGP_SUSPEND_REF_NO,                                    /* 11.3.33  0x1d Suspend Reference Number */
     DE_BSSGP_TAG,                                               /* 11.3.34  0x1e Tag */
     DE_BSSGP_TLLI,                                              /* 11.3.35  0x1f Temporary logical link Identity (TLLI) GSM_A_PDU_TYPE_RR, DE_RR_TLLI*/
     DE_BSSGP_TMSI_PTMSI,                                        /* 11.3.36  0x20 Temporary Mobile Subscriber Identity (TMSI) GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI*/
@@ -3700,7 +3700,7 @@ typedef enum
     DE_BSSGP_SIPSI_CONTAINER,                                   /* 11.3.95b SI/PSI Container */
     DE_BSSGP_ACTIVE_PFCS_LIST,                                  /* 11.3.95c Active PFCs List */
     DE_BSSGP_VELOCITY_DATA,                                     /* 11.3.96  Velocity Data */
-    DE_BBSGP_DTM_HO_CMD,                                        /* 11.3.97  DTM Handover Command */
+    DE_BSSGP_DTM_HO_CMD,                                        /* 11.3.97  DTM Handover Command */
     DE_BSSGP_CS_INDICATION,                                     /* 11.3.98  CS Indication */
     DE_BSSGP_FLOW_CONTROL_GRAN,                                 /* 11.3.102 Flow Control Granularity */
     DE_BSSGP_ENB_ID,                                            /* 11.3.103     eNB Identifier */
@@ -3746,8 +3746,8 @@ static const value_string bssgp_elem_strings[] = {
     { DE_BSSGP_CAUSE,                                "Cause" },                                              /* 11.3.8   Cause */
     { DE_BSSGP_CELL_ID,                              "Cell Identifier" },                                    /* 11.3.9   Cell Identifier */
     { DE_BSSGP_CHLN_NEEDED,                          "Channel needed" },                                     /* 11.3.10  Channel needed */
-    { DE_BBSGP_DRX_PARAM,                            "DRX Parameters" },                                     /* 11.3.11  DRX Parameters */
-    { DE_BBSGP_EMLPP_PRIO,                           "eMLPP-Priority" },                                     /* 11.3.12  eMLPP-Priority */
+    { DE_BSSGP_DRX_PARAM,                            "DRX Parameters" },                                     /* 11.3.11  DRX Parameters */
+    { DE_BSSGP_EMLPP_PRIO,                           "eMLPP-Priority" },                                     /* 11.3.12  eMLPP-Priority */
     { DE_BSSGP_FLUSH_ACTION,                         "Flush Action" },                                       /* 11.3.13  Flush Action */
     { DE_BSSGP_IMSI,                                 "IMSI" },                                               /* 11.3.14  IMSI */
     { DE_BSSGP_LLC_PDU,                              "LLC-PDU" },                                            /* 11.3.15  LLC-PDU */
@@ -3765,7 +3765,7 @@ static const value_string bssgp_elem_strings[] = {
     { DE_BSSGP_RA_CAP_UPD_CAUSE,                     "RA-Cap-UPD-Cause" },                                   /* 11.3.30  RA-Cap-UPD-Cause */
     { DE_BSSGP_RAI,                                  "Routeing Area" },                                      /* 11.3.31  Routeing Area */
     { DE_BSSGP_R_DEFAULT_MS,                         "R_default_MS" },                                       /* 11.3.32  R_default_MS */
-    { DE_BBSGP_SUSPEND_REF_NO,                       "Suspend Reference Number" },                           /* 11.3.33  Suspend Reference Number */
+    { DE_BSSGP_SUSPEND_REF_NO,                       "Suspend Reference Number" },                           /* 11.3.33  Suspend Reference Number */
     { DE_BSSGP_TAG,                                  "Tag" },                                                /* 11.3.34  Tag */
     { DE_BSSGP_TLLI,                                 "Temporary logical link Identity (TLLI)" },             /* 11.3.35  Temporary logical link Identity (TLLI) GSM_A_PDU_TYPE_RR, DE_RR_TLLI*/
     { DE_BSSGP_TMSI_PTMSI,                           "Temporary Mobile Subscriber Identity (TMSI)" },        /* 11.3.36  Temporary Mobile Subscriber Identity (TMSI)GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI */
@@ -3862,7 +3862,7 @@ static const value_string bssgp_elem_strings[] = {
     { DE_BSSGP_SIPSI_CONTAINER,                      "SI/PSI Container" },                                   /* 11.3.95b SI/PSI Container */
     { DE_BSSGP_ACTIVE_PFCS_LIST,                     "Active PFCs List" },                                   /* 11.3.95c Active PFCs List */
     { DE_BSSGP_VELOCITY_DATA,                        "Velocity Data" },                                      /* 11.3.96  Velocity Data */
-    { DE_BBSGP_DTM_HO_CMD,                           "DTM Handover Command" },                               /* 11.3.97  DTM Handover Command */
+    { DE_BSSGP_DTM_HO_CMD,                           "DTM Handover Command" },                               /* 11.3.97  DTM Handover Command */
     { DE_BSSGP_CS_INDICATION,                        "CS Indication" },                                      /* 11.3.98  CS Indication */
     /* 11.3.99  Requested GANSS Assistance Data 0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA*/
     /* 11.3.100 GANSS Location Type 0x7c, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_LOC_TYP*/
@@ -4236,7 +4236,7 @@ de_bssgp_target_BSS_to_source_BSS_transp_cont(tvbuff_t *tvb, proto_tree *tree, p
     /* SI/PSI Container SI/PSI Container/11.3.95b O (Note 1) TLV 3-? */
     ELEM_IN_ELEM_OPT_TELV(0x76, BSSGP_PDU_TYPE, DE_BSSGP_SIPSI_CONTAINER, NULL);
     /* DTM Handover Command DTM Handover Command/11.3.97 O (Note 2) TLV 22-? */
-    ELEM_IN_ELEM_OPT_TELV(0x79, BSSGP_PDU_TYPE, DE_BBSGP_DTM_HO_CMD, NULL);
+    ELEM_IN_ELEM_OPT_TELV(0x79, BSSGP_PDU_TYPE, DE_BSSGP_DTM_HO_CMD, NULL);
 
     return(curr_offset-offset);
 }
@@ -4689,7 +4689,7 @@ bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* Routeing Area Routeing Area/11.3.31 M TLV 8 */
     ELEM_MAND_TELV(0x1b,GSM_A_PDU_TYPE_GM, DE_RAI, NULL, ei_bssgp_missing_mandatory_element);
     /* Suspend Reference Number Suspend Reference Number/11.3.33 M TLV 3 */
-    ELEM_MAND_TELV(0x1d,BSSGP_PDU_TYPE, DE_BBSGP_SUSPEND_REF_NO, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_MAND_TELV(0x1d,BSSGP_PDU_TYPE, DE_BSSGP_SUSPEND_REF_NO, NULL, ei_bssgp_missing_mandatory_element);
 
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
@@ -4743,7 +4743,7 @@ bssgp_resume(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     /* Routeing Area Routeing Area/11.3.31 M TLV 8 */
     ELEM_MAND_TELV(0x1b,GSM_A_PDU_TYPE_GM, DE_RAI, NULL, ei_bssgp_missing_mandatory_element);
     /* Suspend Reference Number Suspend Reference Number/11.3.33 M TLV 3 */
-    ELEM_MAND_TELV(0x1d,BSSGP_PDU_TYPE, DE_BBSGP_SUSPEND_REF_NO, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_MAND_TELV(0x1d,BSSGP_PDU_TYPE, DE_BSSGP_SUSPEND_REF_NO, NULL, ei_bssgp_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
