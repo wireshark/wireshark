@@ -1339,7 +1339,7 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
                 json_dumper_value_anyf(pdata->dumper, "false");
             break;
         case FT_ABSOLUTE_TIME:
-            t = (const nstime_t *)fvalue_get(&fi->value);
+            t = fvalue_get_time(&fi->value);
 #ifdef _WIN32
             /*
              * Do not use gmtime_s(), as it will call and
@@ -2683,7 +2683,7 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
         case FT_BYTES:
             {
                 gchar *ret;
-                guint8 *bytes = (guint8 *)fvalue_get(&fi->value);
+                const guint8 *bytes = fvalue_get_bytes(&fi->value);
                 if (bytes) {
                     dfilter_string = (gchar *)wmem_alloc(NULL, 3*fvalue_length(&fi->value));
                     switch (fi->hfinfo->display) {

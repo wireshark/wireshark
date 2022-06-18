@@ -42,7 +42,7 @@ string_walk(GSList *args, guint32 arg_count, GSList **retval, gchar(*conv_func)(
         arg_fvalue = (fvalue_t *)arg1->data;
         /* XXX - it would be nice to handle FT_TVBUFF, too */
         if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
-            s = (char *)wmem_strdup(NULL, (gchar *)fvalue_get(arg_fvalue));
+            s = wmem_strdup(NULL, fvalue_get_string(arg_fvalue));
             for (c = s; *c; c++) {
                     *c = conv_func(*c);
             }

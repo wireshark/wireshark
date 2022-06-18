@@ -21,7 +21,7 @@ guid_fvalue_set_guid(fvalue_t *fv, const e_guid_t *value)
     fv->value.guid = *value;
 }
 
-static gpointer
+static const e_guid_t *
 value_get(fvalue_t *fv)
 {
     return &(fv->value.guid);
@@ -111,7 +111,7 @@ ftype_register_guid(void)
         guid_to_repr,        /* val_to_string_repr */
 
         { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */
-        { .get_value_ptr = value_get },             /* union get_value */
+        { .get_value_guid = value_get },             /* union get_value */
 
         cmp_order,
         NULL,

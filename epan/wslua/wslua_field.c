@@ -144,7 +144,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_ABSOLUTE_TIME:
         case FT_RELATIVE_TIME: {
                 NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
-                *nstime = *(NSTime)fvalue_get(&(fi->ws_fi->value));
+                *nstime = *fvalue_get_time(&(fi->ws_fi->value));
                 pushNSTime(L,nstime);
                 return 1;
             }
@@ -177,7 +177,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_OID:
             {
                 ByteArray ba = g_byte_array_new();
-                g_byte_array_append(ba, (const guint8 *) fvalue_get(&fi->ws_fi->value),
+                g_byte_array_append(ba, fvalue_get_bytes(&fi->ws_fi->value),
                                     fvalue_length(&fi->ws_fi->value));
                 pushByteArray(L,ba);
                 return 1;
@@ -185,7 +185,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_PROTOCOL:
             {
                 ByteArray ba = g_byte_array_new();
-                tvbuff_t* tvb = (tvbuff_t *) fvalue_get(&fi->ws_fi->value);
+                tvbuff_t* tvb = fvalue_get_protocol(&fi->ws_fi->value);
                 guint8* raw;
                 if (tvb != NULL) {
                     raw = (guint8 *)tvb_memdup(NULL, tvb, 0, tvb_captured_length(tvb));

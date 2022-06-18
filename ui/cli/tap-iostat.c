@@ -86,7 +86,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     io_stat_item_t *mit;
     io_stat_item_t *it;
     guint64 relative_time, rt;
-    nstime_t *new_time;
+    const nstime_t *new_time;
     GPtrArray *gp;
     guint i;
     int ftype;
@@ -187,7 +187,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     it->counter  +=  val;
                     break;
@@ -261,7 +261,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     }
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     if ((it->frames == 1 && i == 0) || (val < it->counter)) {
                         it->counter = val;
@@ -331,7 +331,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                         it->double_counter = double_val;
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     if (val > it->counter)
                         it->counter = val;
@@ -391,7 +391,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_RELATIVE_TIME:
-                    new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
                     val = ((guint64)new_time->secs * NANOSECS_PER_SEC) + (guint64)new_time->nsecs;
                     it->counter += val;
                     break;
@@ -420,7 +420,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 int tival;
                 io_stat_item_t *pit;
 
-                new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                new_time = fvalue_get_time(&((field_info *)gp->pdata[i])->value);
                 val = ((guint64)new_time->secs*G_GUINT64_CONSTANT(1000000)) + (guint64)(new_time->nsecs/1000);
                 tival = (int)(val % parent->interval);
                 it->counter += tival;

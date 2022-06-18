@@ -57,7 +57,7 @@ string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int 
 }
 
 
-static gpointer
+static const char *
 value_get(fvalue_t *fv)
 {
 	return fv->value.string;
@@ -183,7 +183,7 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
-		{ .get_value_ptr = value_get },	/* union get_value */
+		{ .get_value_string = value_get },	/* union get_value */
 
 		cmp_order,
 		cmp_contains,
@@ -215,7 +215,7 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
-		{ .get_value_ptr = value_get },	/* union get_value */
+		{ .get_value_string = value_get },	/* union get_value */
 
 		cmp_order,
 		cmp_contains,			/* cmp_contains */
@@ -247,7 +247,7 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
-		{ .get_value_ptr = value_get },	/* union get_value */
+		{ .get_value_string = value_get },	/* union get_value */
 
 		cmp_order,
 		cmp_contains,			/* cmp_contains */
@@ -279,7 +279,7 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
-		{ .get_value_ptr = value_get },	/* union get_value */
+		{ .get_value_string = value_get },	/* union get_value */
 
 		cmp_order,
 		cmp_contains,			/* cmp_contains */
@@ -311,7 +311,7 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
-		{ .get_value_ptr = value_get },	/* union get_value */
+		{ .get_value_string = value_get },	/* union get_value */
 
 		cmp_order,
 		cmp_contains,			/* cmp_contains */

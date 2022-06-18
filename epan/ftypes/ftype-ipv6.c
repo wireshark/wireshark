@@ -85,7 +85,7 @@ ipv6_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, in
 	return ip6_to_str(scope, &(fv->value.ipv6.addr));
 }
 
-static gpointer
+static const guint8 *
 value_get(fvalue_t *fv)
 {
 	return fv->value.ipv6.addr.bytes;
@@ -186,7 +186,7 @@ ftype_register_ipv6(void)
 		ipv6_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */
-		{ .get_value_ptr = value_get },		/* union get_value */
+		{ .get_value_bytes = value_get },	/* union get_value */
 
 		cmp_order,
 		NULL, 				/* XXX, cmp_contains, needed? ipv4 doesn't support it */

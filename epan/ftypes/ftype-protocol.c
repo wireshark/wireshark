@@ -190,7 +190,7 @@ val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int
 	return buf;
 }
 
-static gpointer
+static tvbuff_t *
 value_get(fvalue_t *fv)
 {
 	if (fv->value.protocol.length < 0)
@@ -365,7 +365,7 @@ ftype_register_tvbuff(void)
 		val_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_protocol = value_set },	/* union set_value */
-		{ .get_value_ptr = value_get },		/* union get_value */
+		{ .get_value_protocol = value_get },	/* union get_value */
 
 		cmp_order,
 		cmp_contains,

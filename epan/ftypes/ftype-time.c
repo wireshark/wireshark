@@ -332,7 +332,7 @@ time_fvalue_set(fvalue_t *fv, const nstime_t *value)
 	fv->value.time = *value;
 }
 
-static gpointer
+static const nstime_t *
 value_get(fvalue_t *fv)
 {
 	return &(fv->value.time);
@@ -463,7 +463,7 @@ ftype_register_time(void)
 		absolute_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
-		{ .get_value_ptr = value_get },		/* union get_value */
+		{ .get_value_time = value_get },	/* union get_value */
 
 		cmp_order,
 		NULL,				/* cmp_contains */
@@ -495,7 +495,7 @@ ftype_register_time(void)
 		relative_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
-		{ .get_value_ptr = value_get },		/* union get_value */
+		{ .get_value_time = value_get },	/* union get_value */
 
 		cmp_order,
 		NULL,				/* cmp_contains */

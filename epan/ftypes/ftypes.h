@@ -338,8 +338,24 @@ void
 fvalue_set_floating(fvalue_t *fv, gdouble value);
 
 WS_DLL_PUBLIC
-gpointer
-fvalue_get(fvalue_t *fv);
+const guint8 *
+fvalue_get_bytes(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+const e_guid_t *
+fvalue_get_guid(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+const nstime_t *
+fvalue_get_time(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+const char *
+fvalue_get_string(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+tvbuff_t *
+fvalue_get_protocol(fvalue_t *fv);
 
 WS_DLL_PUBLIC guint32
 fvalue_get_uinteger(fvalue_t *fv);

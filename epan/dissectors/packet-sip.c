@@ -6051,7 +6051,7 @@ static gchar *sip_follow_conv_filter(epan_dissect_t *edt, packet_info *pinfo _U_
         int hfid = proto_registrar_get_id_byname("sip.Call-ID");
         GPtrArray *gp = proto_find_first_finfo(edt->tree, hfid);
         if (gp != NULL && gp->len != 0) {
-            filter = ws_strdup_printf("sip.Call-ID == \"%s\"", (gchar *)fvalue_get(&((field_info *)gp->pdata[0])->value));
+            filter = ws_strdup_printf("sip.Call-ID == \"%s\"", fvalue_get_string(&((field_info *)gp->pdata[0])->value));
         }
         g_ptr_array_free(gp, TRUE);
     } else {

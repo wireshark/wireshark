@@ -48,7 +48,11 @@ typedef void (*FvalueSetUnsignedInteger64Func)(fvalue_t*, guint64);
 typedef void (*FvalueSetSignedInteger64Func)(fvalue_t*, gint64);
 typedef void (*FvalueSetFloatingFunc)(fvalue_t*, gdouble);
 
-typedef gpointer (*FvalueGetFunc)(fvalue_t*);
+typedef const guint8 *(*FvalueGetBytesFunc)(fvalue_t*);
+typedef const e_guid_t *(*FvalueGetGuidFunc)(fvalue_t*);
+typedef const nstime_t *(*FvalueGetTimeFunc)(fvalue_t*);
+typedef const gchar *(*FvalueGetStringFunc)(fvalue_t*);
+typedef tvbuff_t *(*FvalueGetProtocolFunc)(fvalue_t*);
 typedef guint32 (*FvalueGetUnsignedIntegerFunc)(fvalue_t*);
 typedef gint32  (*FvalueGetSignedIntegerFunc)(fvalue_t*);
 typedef guint64 (*FvalueGetUnsignedInteger64Func)(fvalue_t*);
@@ -79,26 +83,30 @@ struct _ftype_t {
 	FvalueToStringRepr	val_to_string_repr;
 
 	union {
-		FvalueSetByteArrayFunc	set_value_byte_array;
-		FvalueSetBytesFunc	set_value_bytes;
-		FvalueSetGuidFunc	set_value_guid;
-		FvalueSetTimeFunc	set_value_time;
-		FvalueSetStringFunc	set_value_string;
-		FvalueSetProtocolFunc	set_value_protocol;
+		FvalueSetByteArrayFunc		set_value_byte_array;
+		FvalueSetBytesFunc		set_value_bytes;
+		FvalueSetGuidFunc		set_value_guid;
+		FvalueSetTimeFunc		set_value_time;
+		FvalueSetStringFunc		set_value_string;
+		FvalueSetProtocolFunc		set_value_protocol;
 		FvalueSetUnsignedIntegerFunc	set_value_uinteger;
 		FvalueSetSignedIntegerFunc	set_value_sinteger;
 		FvalueSetUnsignedInteger64Func	set_value_uinteger64;
 		FvalueSetSignedInteger64Func	set_value_sinteger64;
-		FvalueSetFloatingFunc	set_value_floating;
+		FvalueSetFloatingFunc		set_value_floating;
 	} set_value;
 
 	union {
-		FvalueGetFunc		get_value_ptr;
+		FvalueGetBytesFunc		get_value_bytes;
+		FvalueGetGuidFunc		get_value_guid;
+		FvalueGetTimeFunc		get_value_time;
+		FvalueGetStringFunc		get_value_string;
+		FvalueGetProtocolFunc		get_value_protocol;
 		FvalueGetUnsignedIntegerFunc	get_value_uinteger;
 		FvalueGetSignedIntegerFunc	get_value_sinteger;
 		FvalueGetUnsignedInteger64Func	get_value_uinteger64;
 		FvalueGetSignedInteger64Func	get_value_sinteger64;
-		FvalueGetFloatingFunc	get_value_floating;
+		FvalueGetFloatingFunc		get_value_floating;
 	} get_value;
 
 	FvalueCmp		cmp_order;
