@@ -10,37 +10,15 @@
  */
 
 #include "config.h"
-
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <glib.h>
-
-#include "wmem-int.h"
-#include "wmem_core.h"
 #include "wmem_strbuf.h"
 
+#include <stdio.h>
+#include <errno.h>
+
+#include "wmem-int.h"
+#include "wmem_strutl.h"
+
 #define DEFAULT_MINIMUM_LEN 16
-
-/* Holds a wmem-allocated string-buffer.
- *  len is the length of the string (not counting the null-terminator) and
- *      should be the same as strlen(str) unless the string contains embedded
- *      nulls.
- *  alloc_len is the length of the raw buffer pointed to by str, regardless of
- *      what string is actually being stored (i.e. the buffer contents)
- *  max_len is the maximum permitted alloc_len (NOT the maximum permitted len,
- *      which must be one shorter than alloc_len to permit null-termination).
- *      When max_len is 0 (the default), no maximum is enforced.
- */
-struct _wmem_strbuf_t {
-    wmem_allocator_t *allocator;
-
-    gchar *str;
-
-    gsize len;
-    gsize alloc_len;
-    gsize max_len;
-};
 
 /* _ROOM accounts for the null-terminator, _RAW_ROOM does not.
  * Some functions need one, some functions need the other. */
@@ -69,12 +47,11 @@ wmem_strbuf_sized_new(wmem_allocator_t *allocator,
 }
 
 wmem_strbuf_t *
-wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
+wmem_strbuf_new_len(wmem_allocator_t *allocator, const gchar *str, size_t len)
 {
     wmem_strbuf_t *strbuf;
-    gsize          len, alloc_len;
+    gsize          alloc_len;
 
-    len       = str ? strlen(str) : 0;
     alloc_len = DEFAULT_MINIMUM_LEN;
 
     /* +1 for the null-terminator */
@@ -85,11 +62,31 @@ wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
     strbuf = wmem_strbuf_sized_new(allocator, alloc_len, 0);
 
     if (str && len > 0) {
-        (void) g_strlcpy(strbuf->str, str, alloc_len);
+        ASSERT(strbuf->alloc_len >= len + 1);
+        memcpy(strbuf->str, str, len);
+        strbuf->str[len] = '\0';
         strbuf->len = len;
     }
 
     return strbuf;
+}
+
+wmem_strbuf_t *
+wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
+{
+    return wmem_strbuf_new_len(allocator, str, str ? strlen(str) : 0);
+}
+
+wmem_strbuf_t *
+wmem_strbuf_dup(wmem_allocator_t *allocator, const wmem_strbuf_t *src)
+{
+    wmem_strbuf_t *new;
+
+    new = wmem_strbuf_sized_new(allocator, src->alloc_len, src->max_len);
+    new->len = src->len;
+    memcpy(new->str, src->str, new->len);
+    new->str[new->len] = '\0';
+    return new;
 }
 
 /* grows the allocated size of the wmem_strbuf_t. If max_len is set, then
@@ -267,15 +264,44 @@ wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const gsize len)
 }
 
 const gchar *
-wmem_strbuf_get_str(wmem_strbuf_t *strbuf)
+wmem_strbuf_get_str(const wmem_strbuf_t *strbuf)
 {
     return strbuf->str;
 }
 
 gsize
-wmem_strbuf_get_len(wmem_strbuf_t *strbuf)
+wmem_strbuf_get_len(const wmem_strbuf_t *strbuf)
 {
     return strbuf->len;
+}
+
+static inline int
+_memcmp_len(const void *s1, size_t s1_len, const void *s2, size_t s2_len)
+{
+    size_t len;
+    int cmp;
+
+    len = MIN(s1_len, s2_len);
+    if ((cmp = memcmp(s1, s2, len)) != 0)
+        return cmp;
+    if (s1_len < s2_len)
+        return -1;
+    if (s1_len > s2_len)
+        return 1;
+    return 0;
+}
+
+WS_DLL_PUBLIC
+int
+wmem_strbuf_strcmp(const wmem_strbuf_t *sb1, const wmem_strbuf_t *sb2)
+{
+    return _memcmp_len(sb1->str, sb1->len, sb2->str, sb2->len);
+}
+
+const char *
+wmem_strbuf_strstr(const wmem_strbuf_t *haystack, const wmem_strbuf_t *needle)
+{
+    return ws_memmem(haystack->str, haystack->len, needle->str, needle->len);
 }
 
 /* Truncates the allocated memory down to the minimal amount, frees the header
@@ -285,9 +311,10 @@ wmem_strbuf_get_len(wmem_strbuf_t *strbuf)
 char *
 wmem_strbuf_finalize(wmem_strbuf_t *strbuf)
 {
-    char *ret;
+    if (strbuf == NULL)
+        return NULL;
 
-    ret = (char *)wmem_realloc(strbuf->allocator, strbuf->str, strbuf->len+1);
+    char *ret = (char *)wmem_realloc(strbuf->allocator, strbuf->str, strbuf->len+1);
 
     wmem_free(strbuf->allocator, strbuf);
 
@@ -297,10 +324,11 @@ wmem_strbuf_finalize(wmem_strbuf_t *strbuf)
 void
 wmem_strbuf_destroy(wmem_strbuf_t *strbuf)
 {
-    wmem_allocator_t *allocator = strbuf->allocator;
+    if (strbuf == NULL)
+        return;
 
-    wmem_free(allocator, strbuf->str);
-    wmem_free(allocator, strbuf);
+    wmem_free(strbuf->allocator, strbuf->str);
+    wmem_free(strbuf->allocator, strbuf);
 }
 
 /*

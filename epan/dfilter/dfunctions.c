@@ -31,7 +31,8 @@ string_walk(GSList *args, guint32 arg_count, GSList **retval, gchar(*conv_func)(
     GSList      *arg1;
     fvalue_t    *arg_fvalue;
     fvalue_t    *new_ft_string;
-    char *s, *c;
+    const wmem_strbuf_t *src;
+    wmem_strbuf_t       *dst;
 
     ws_assert(arg_count == 1);
     arg1 = args->data;
@@ -42,14 +43,14 @@ string_walk(GSList *args, guint32 arg_count, GSList **retval, gchar(*conv_func)(
         arg_fvalue = (fvalue_t *)arg1->data;
         /* XXX - it would be nice to handle FT_TVBUFF, too */
         if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
-            s = wmem_strdup(NULL, fvalue_get_string(arg_fvalue));
-            for (c = s; *c; c++) {
-                    *c = conv_func(*c);
+            src = fvalue_get_strbuf(arg_fvalue);
+            dst = wmem_strbuf_sized_new(NULL, src->len, 0);
+            for (size_t i = 0; i < src->len; i++) {
+                    wmem_strbuf_append_c(dst, conv_func(src->str[i]));
             }
 
             new_ft_string = fvalue_new(FT_STRING);
-            fvalue_set_string(new_ft_string, s);
-            wmem_free(NULL, s);
+            fvalue_set_strbuf(new_ft_string, dst);
             *retval = g_slist_prepend(*retval, new_ft_string);
         }
         arg1 = arg1->next;

@@ -1089,7 +1089,7 @@ static const char *get_user_comment_string(proto_tree *tree)
             for (i=0; i< items->len; i++) {
                 field_info *field = (field_info *)g_ptr_array_index(items,i);
                 if (strcmp(field->hfinfo->abbrev, "frame.comment") == 0) {
-                    value = field->value.value.string;
+                    value = fvalue_get_string(&field->value);
                     break;
                 }
                 /* This is the only item that can come before "frame.comment", so otherwise break out */

@@ -30,7 +30,26 @@ extern "C" {
  *    @{
  */
 
-struct _wmem_strbuf_t;
+/* Holds a wmem-allocated string-buffer.
+ *  len is the length of the string (not counting the null-terminator) and
+ *      should be the same as strlen(str) unless the string contains embedded
+ *      nulls.
+ *  alloc_len is the length of the raw buffer pointed to by str, regardless of
+ *      what string is actually being stored (i.e. the buffer contents)
+ *  max_len is the maximum permitted alloc_len (NOT the maximum permitted len,
+ *      which must be one shorter than alloc_len to permit null-termination).
+ *      When max_len is 0 (the default), no maximum is enforced.
+ */
+struct _wmem_strbuf_t {
+    /* read-only fields */
+    wmem_allocator_t *allocator;
+    gchar *str;
+    gsize len;
+
+    /* private fields */
+    gsize alloc_len;
+    gsize max_len;
+};
 
 typedef struct _wmem_strbuf_t wmem_strbuf_t;
 
@@ -46,6 +65,16 @@ G_GNUC_MALLOC;
 WS_DLL_PUBLIC
 wmem_strbuf_t *
 wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
+G_GNUC_MALLOC;
+
+WS_DLL_PUBLIC
+wmem_strbuf_t *
+wmem_strbuf_new_len(wmem_allocator_t *allocator, const gchar *str, size_t len)
+G_GNUC_MALLOC;
+
+WS_DLL_PUBLIC
+wmem_strbuf_t *
+wmem_strbuf_dup(wmem_allocator_t *allocator, const wmem_strbuf_t *strbuf)
 G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
@@ -82,11 +111,19 @@ wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const gsize len);
 
 WS_DLL_PUBLIC
 const gchar *
-wmem_strbuf_get_str(wmem_strbuf_t *strbuf);
+wmem_strbuf_get_str(const wmem_strbuf_t *strbuf);
 
 WS_DLL_PUBLIC
 gsize
-wmem_strbuf_get_len(wmem_strbuf_t *strbuf);
+wmem_strbuf_get_len(const wmem_strbuf_t *strbuf);
+
+WS_DLL_PUBLIC
+int
+wmem_strbuf_strcmp(const wmem_strbuf_t *sb1, const wmem_strbuf_t *sb2);
+
+WS_DLL_PUBLIC
+const char *
+wmem_strbuf_strstr(const wmem_strbuf_t *haystack, const wmem_strbuf_t *needle);
 
 /** Truncates the allocated memory down to the minimal amount, frees the header
  *  structure, and returns a non-const pointer to the raw string. The

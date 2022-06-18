@@ -178,7 +178,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		(void) g_strlcpy(sid_name_str, sid, 256);
 		sid_name_str[len++]='-';
 		snprintf(sid_name_str+len, 256-len, "%d",fi_rid->value.value.sinteger);
-		add_sid_name_mapping(sid_name_str, fi_name->value.value.string);
+		add_sid_name_mapping(sid_name_str, fvalue_get_string(&fi_name->value));
 	}
 	return TAP_PACKET_REDRAW;
 }
@@ -194,8 +194,8 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 {
 	GPtrArray *gp;
 	field_info *fi;
-	char *domain;
-	char *sid;
+	const char *domain;
+	const char *sid;
 	int info_level;
 
 	gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_info_level);
@@ -214,14 +214,14 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 			return TAP_PACKET_DONT_REDRAW;
 		}
 		fi=(field_info *)gp->pdata[0];
-		domain=fi->value.value.string;
+		domain=fvalue_get_string(&fi->value);
 
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_nt_domain_sid);
 		if(!gp || gp->len!=1){
 			return TAP_PACKET_DONT_REDRAW;
 		}
 		fi=(field_info *)gp->pdata[0];
-		sid=fi->value.value.string;
+		sid=fvalue_get_string(&fi->value);
 
 		add_sid_name_mapping(sid, domain);
 		break;

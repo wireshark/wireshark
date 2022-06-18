@@ -11,6 +11,7 @@
 #include "regex.h"
 
 #include <wsutil/ws_return.h>
+#include <wsutil/str_util.h>
 #include <pcre2.h>
 
 
@@ -43,12 +44,18 @@ get_error_msg(int errorcode)
 
 
 static pcre2_code *
-compile_pcre2(const char *patt, char **errmsg, unsigned flags)
+compile_pcre2(const char *patt, ssize_t size, char **errmsg, unsigned flags)
 {
     pcre2_code *code;
     int errorcode;
+    PCRE2_SIZE length;
     PCRE2_SIZE erroroffset;
     uint32_t options = 0;
+
+    if (size < 0)
+        length = PCRE2_ZERO_TERMINATED;
+    else
+        length = (PCRE2_SIZE)size;
 
     if (flags & WS_REGEX_NEVER_UTF)
         options |= PCRE2_NEVER_UTF;
@@ -57,7 +64,7 @@ compile_pcre2(const char *patt, char **errmsg, unsigned flags)
 
     /* By default UTF-8 is off. */
     code = pcre2_compile_8((PCRE2_SPTR)patt,
-                PCRE2_ZERO_TERMINATED,
+                length,
                 options,
                 &errorcode,
                 &erroroffset,
@@ -73,24 +80,25 @@ compile_pcre2(const char *patt, char **errmsg, unsigned flags)
 
 
 ws_regex_t *
-ws_regex_compile(const char *patt, char **errmsg)
-{
-    return ws_regex_compile_ex(patt, errmsg, 0);
-}
-
-ws_regex_t *
-ws_regex_compile_ex(const char *patt, char **errmsg, unsigned flags)
+ws_regex_compile_ex(const char *patt, ssize_t size, char **errmsg, unsigned flags)
 {
     ws_return_val_if_null(patt, NULL);
 
-    pcre2_code *code = compile_pcre2(patt, errmsg, flags);
+    pcre2_code *code = compile_pcre2(patt, size, errmsg, flags);
     if (code == NULL)
         return NULL;
 
     ws_regex_t *re = g_new(ws_regex_t, 1);
     re->code = code;
-    re->pattern = g_strdup(patt);
+    re->pattern = ws_escape_string_len(NULL, patt, size, false);
     return re;
+}
+
+
+ws_regex_t *
+ws_regex_compile(const char *patt, char **errmsg)
+{
+    return ws_regex_compile_ex(patt, -1, errmsg, 0);
 }
 
 

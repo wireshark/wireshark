@@ -86,7 +86,7 @@ class case_membership(unittest.TestCase):
 
     def test_membership_11_bad_rhs_string(self, checkDFilterFail):
         dfilter = 'frame.number in {1, "foo"}'
-        error = '"foo" cannot be converted to Unsigned integer, 4 bytes.'
+        error = 'Unsigned integer (4 bytes) cannot be converted from a string'
         checkDFilterFail(dfilter, error)
 
     def test_membership_12_value_string(self, checkDFilterCount):

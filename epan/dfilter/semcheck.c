@@ -241,12 +241,12 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		header_field_info *hfinfo_value_string)
 {
 	fvalue_t *fv;
-	const char *s = stnode_data(st);
+	const GString *gs = stnode_string(st);
 
-	fv = fvalue_from_string(ftype, s,
+	fv = fvalue_from_string(ftype, gs->str, gs->len,
 	    dfw->error_message == NULL ? &dfw->error_message : NULL);
 	if (fv == NULL && hfinfo_value_string) {
-		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, s);
+		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, gs->str);
 		/*
 		 * Ignore previous errors if this can be mapped
 		 * to an item from value_string.
@@ -1135,7 +1135,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 {
 	ws_regex_t *pcre;
 	char *errmsg = NULL;
-	const char *patt;
+	GString *patt;
 
 	LOG_NODE(st_node);
 
@@ -1145,10 +1145,10 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 		FAIL(dfw, st_arg2, "Matches requires a double quoted string on the right side.");
 	}
 
-	patt = stnode_data(st_arg2);
-	ws_debug("Compile regex pattern: %s", patt);
+	patt = stnode_string(st_arg2);
+	ws_debug("Compile regex pattern: %s", stnode_token(st_arg2));
 
-	pcre = ws_regex_compile_ex(patt, &errmsg, WS_REGEX_CASELESS|WS_REGEX_NEVER_UTF);
+	pcre = ws_regex_compile_ex(patt->str, patt->len, &errmsg, WS_REGEX_CASELESS|WS_REGEX_NEVER_UTF);
 	if (errmsg) {
 		dfilter_fail(dfw, NULL, "Regex compilation error: %s.", errmsg);
 		g_free(errmsg);

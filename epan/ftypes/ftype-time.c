@@ -186,7 +186,7 @@ parse_month_name(const char *s, int *tm_mon)
 #define EXAMPLE "Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\""
 
 static gboolean
-absolute_val_from_string(fvalue_t *fv, const char *s, char **err_msg_ptr)
+absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err_msg_ptr)
 {
 	struct tm tm;
 	const char *curptr = NULL;
@@ -310,7 +310,7 @@ fail:
 static gboolean
 absolute_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-	return absolute_val_from_string(fv, s, err_msg);
+	return absolute_val_from_string(fv, s, 0, err_msg);
 }
 
 static void

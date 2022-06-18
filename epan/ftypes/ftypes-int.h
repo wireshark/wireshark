@@ -32,7 +32,7 @@ typedef void (*FvalueCopyFunc)(fvalue_t*, const fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
 typedef gboolean (*FvalueFromLiteral)(fvalue_t*, const char*, gboolean, gchar **);
-typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, gchar **);
+typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, size_t, gchar **);
 typedef gboolean (*FvalueFromCharConst)(fvalue_t*, unsigned long, gchar **);
 typedef char *(*FvalueToStringRepr)(wmem_allocator_t *, const fvalue_t*, ftrepr_t, int field_display);
 
@@ -40,7 +40,7 @@ typedef void (*FvalueSetByteArrayFunc)(fvalue_t*, GByteArray *);
 typedef void (*FvalueSetBytesFunc)(fvalue_t*, const guint8 *);
 typedef void (*FvalueSetGuidFunc)(fvalue_t*, const e_guid_t *);
 typedef void (*FvalueSetTimeFunc)(fvalue_t*, const nstime_t *);
-typedef void (*FvalueSetStringFunc)(fvalue_t*, const gchar *value);
+typedef void (*FvalueSetStrbufFunc)(fvalue_t*, wmem_strbuf_t *);
 typedef void (*FvalueSetProtocolFunc)(fvalue_t*, tvbuff_t *value, const gchar *name, int length);
 typedef void (*FvalueSetUnsignedIntegerFunc)(fvalue_t*, guint32);
 typedef void (*FvalueSetSignedIntegerFunc)(fvalue_t*, gint32);
@@ -51,7 +51,7 @@ typedef void (*FvalueSetFloatingFunc)(fvalue_t*, gdouble);
 typedef const guint8 *(*FvalueGetBytesFunc)(fvalue_t*);
 typedef const e_guid_t *(*FvalueGetGuidFunc)(fvalue_t*);
 typedef const nstime_t *(*FvalueGetTimeFunc)(fvalue_t*);
-typedef const gchar *(*FvalueGetStringFunc)(fvalue_t*);
+typedef const wmem_strbuf_t *(*FvalueGetStrbufFunc)(fvalue_t*);
 typedef tvbuff_t *(*FvalueGetProtocolFunc)(fvalue_t*);
 typedef guint32 (*FvalueGetUnsignedIntegerFunc)(fvalue_t*);
 typedef gint32  (*FvalueGetSignedIntegerFunc)(fvalue_t*);
@@ -87,7 +87,7 @@ struct _ftype_t {
 		FvalueSetBytesFunc		set_value_bytes;
 		FvalueSetGuidFunc		set_value_guid;
 		FvalueSetTimeFunc		set_value_time;
-		FvalueSetStringFunc		set_value_string;
+		FvalueSetStrbufFunc		set_value_strbuf;
 		FvalueSetProtocolFunc		set_value_protocol;
 		FvalueSetUnsignedIntegerFunc	set_value_uinteger;
 		FvalueSetSignedIntegerFunc	set_value_sinteger;
@@ -100,7 +100,7 @@ struct _ftype_t {
 		FvalueGetBytesFunc		get_value_bytes;
 		FvalueGetGuidFunc		get_value_guid;
 		FvalueGetTimeFunc		get_value_time;
-		FvalueGetStringFunc		get_value_string;
+		FvalueGetStrbufFunc		get_value_strbuf;
 		FvalueGetProtocolFunc		get_value_protocol;
 		FvalueGetUnsignedIntegerFunc	get_value_uinteger;
 		FvalueGetSignedIntegerFunc	get_value_sinteger;

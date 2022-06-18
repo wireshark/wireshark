@@ -253,8 +253,7 @@ typedef struct _fvalue_t {
 		guint64			uinteger64;
 		gint64			sinteger64;
 		gdouble			floating;
-		gchar			*string;
-		guchar			*ustring;
+		wmem_strbuf_t		*strbuf;
 		GByteArray		*bytes;
 		ipv4_addr_and_mask	ipv4;
 		ipv6_addr_and_prefix	ipv6;
@@ -285,8 +284,9 @@ WS_DLL_PUBLIC
 fvalue_t*
 fvalue_from_literal(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg);
 
+/* String *MUST* be null-terminated. Length is optional (pass zero) and does not include the null terminator. */
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg);
+fvalue_from_string(ftenum_t ftype, const char *s, size_t len, gchar **err_msg);
 
 fvalue_t*
 fvalue_from_charconst(ftenum_t ftype, unsigned long number, gchar **err_msg);
@@ -327,6 +327,9 @@ void
 fvalue_set_string(fvalue_t *fv, const gchar *value);
 
 void
+fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value);
+
+void
 fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name, int length);
 
 void
@@ -359,6 +362,10 @@ fvalue_get_time(fvalue_t *fv);
 WS_DLL_PUBLIC
 const char *
 fvalue_get_string(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+const wmem_strbuf_t *
+fvalue_get_strbuf(fvalue_t *fv);
 
 WS_DLL_PUBLIC
 tvbuff_t *

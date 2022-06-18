@@ -250,7 +250,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 	update_location(yyextra, yytext);
 	yyextra->string_loc = yyextra->location;
 
-	yyextra->quoted_string = g_string_new("\"");
+	yyextra->quoted_string = g_string_new(NULL);
 
 	if (yytext[0] == 'r' || yytext[0] == 'R') {
 		/*
@@ -282,7 +282,6 @@ hyphen-bytes	{hex2}(-{hex2})+
 	/* end quote */
 	BEGIN(INITIAL);
 	update_string_loc(yyextra, yytext);
-	g_string_append_c(yyextra->quoted_string, '"');
 	int token = set_lval_quoted_string(yyextra, TOKEN_STRING, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
 	yyextra->string_loc.col_start = -1;
@@ -298,12 +297,6 @@ hyphen-bytes	{hex2}(-{hex2})+
 	else {
 		unsigned long result;
 		result = strtoul(yytext + 1, NULL, 8);
-		if (result == 0) {
-			g_string_free(yyextra->quoted_string, TRUE);
-			yyextra->quoted_string = NULL;
-			FAIL("%s (NUL byte) cannot be used with a regular string.", yytext);
-			return SCAN_FAILED;
-		}
 		if (result > 0xff) {
 			g_string_free(yyextra->quoted_string, TRUE);
 			yyextra->quoted_string = NULL;
@@ -327,12 +320,6 @@ hyphen-bytes	{hex2}(-{hex2})+
 	else {
 		unsigned long result;
 		result = strtoul(yytext + 2, NULL, 16);
-		if (result == 0) {
-			g_string_free(yyextra->quoted_string, TRUE);
-			yyextra->quoted_string = NULL;
-			FAIL("%s (NUL byte) cannot be used with a regular string.", yytext);
-			return SCAN_FAILED;
-		}
 		g_string_append_c(yyextra->quoted_string, (gchar) result);
 	}
 }
@@ -528,12 +515,9 @@ static int
 set_lval_quoted_string(df_scanner_state_t *state, int token, GString *quoted_string)
 {
 	ws_assert(token == TOKEN_STRING);
-	char *token_value = g_string_free(quoted_string, FALSE);
+	char *token_value = ws_escape_string_len(NULL, quoted_string->str, quoted_string->len, true);
 
-	/* Strip start and end quote. */
-	char *data = g_strndup(token_value + 1, strlen(token_value + 1) - 1);
-
-	stnode_init(df_lval, STTYPE_STRING, data, token_value, &state->string_loc);
+	stnode_init(df_lval, STTYPE_STRING, quoted_string, token_value, &state->string_loc);
 	return token;
 }
 

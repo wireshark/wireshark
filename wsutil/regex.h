@@ -28,7 +28,7 @@ ws_regex_compile(const char *patt, char **errmsg);
 #define WS_REGEX_NEVER_UTF      (1U << 1)
 
 WS_DLL_PUBLIC ws_regex_t *
-ws_regex_compile_ex(const char *patt, char **errmsg, unsigned flags);
+ws_regex_compile_ex(const char *patt, ssize_t size, char **errmsg, unsigned flags);
 
 /** Matches a null-terminated subject string. */
 WS_DLL_PUBLIC bool

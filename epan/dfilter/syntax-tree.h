@@ -148,6 +148,9 @@ stnode_type_id(stnode_t *node);
 gpointer
 stnode_data(stnode_t *node);
 
+GString *
+stnode_string(stnode_t *node);
+
 gpointer
 stnode_steal_data(stnode_t *node);
 

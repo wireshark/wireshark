@@ -57,6 +57,21 @@ G_GNUC_MALLOC;
 
 #define ws_strdup_vprintf(fmt, ap) wmem_strdup_vprintf(NULL, fmt, ap)
 
+/**
+ * Return the first occurrence of needle in haystack.
+ *
+ * @param haystack The data to search
+ * @param haystack_len The length of the search data
+ * @param needle The string to look for
+ * @param needle_len The length of the search string
+ * @return A pointer to the first occurrence of "needle" in
+ *         "haystack".  If "needle" isn't found or is NULL, or if
+ *         "needle_len" is 0, NULL is returned.
+ */
+WS_DLL_PUBLIC
+const guint8 *ws_memmem(const void *haystack, size_t haystack_len,
+                        const void *needle, size_t needle_len);
+
 /**   @}
  *  @} */
 

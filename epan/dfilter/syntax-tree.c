@@ -219,6 +219,13 @@ stnode_data(stnode_t *node)
 	return node->data;
 }
 
+GString *
+stnode_string(stnode_t *node)
+{
+	ws_assert(stnode_type_id(node) == STTYPE_STRING);
+	return stnode_data(node);
+}
+
 gpointer
 stnode_steal_data(stnode_t *node)
 {
