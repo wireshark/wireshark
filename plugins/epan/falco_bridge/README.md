@@ -36,7 +36,7 @@ They depend on the following libraries:
 - zlib: zlib
 
 Wireshark is released under the GPL version 2 (GPL-2.0-or-later). It and the Apache-2.0 license are compatible via the "any later version" provision in the GPL version 2.
-As discussed at https://www.wireshark.org/lists/wireshark-dev/202203/msg00020.html, combining Wireshark and libsinsp+libscap should be OK, but that in effect invokes the GPLv2's "any later version" provision, making the Wireshark portion of the cominbined work GPLv3+.
+As discussed at https://www.wireshark.org/lists/wireshark-dev/202203/msg00020.html, combining Wireshark and libsinsp+libscap should be OK, but that in effect invokes the GPLv2's "any later version" provision, making the Wireshark portion of the combined work GPLv3+.
 
 Debian would appear to concur: https://lists.debian.org/debian-legal/2014/08/msg00102.html.
 

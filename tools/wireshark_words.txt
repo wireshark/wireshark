@@ -578,6 +578,7 @@ hfarr
 hfill,
 HI2Operations
 hnbap
+homedir
 homeplug
 hopcount
 hostname
@@ -655,6 +656,7 @@ iotecha
 ipaccess
 ipaddr
 ipaddress
+ipconfig
 ipfix
 ipprim
 ipsec
@@ -694,6 +696,7 @@ keylog
 keymap
 keypress
 keyring
+keyset
 keytab
 knxip
 l2cap
@@ -735,6 +738,7 @@ luminaire
 luminance
 macaddr
 macaddress
+macosx
 macsec
 mailto
 malloc
@@ -919,6 +923,7 @@ onoff
 ontime
 opcode
 opcodes
+opcua
 openssh
 openssl
 openstreetmap
@@ -1018,6 +1023,7 @@ privkey
 procid
 profidrive
 profinet
+promisc
 promiscsniff
 promiscuously
 propertykey
@@ -1190,8 +1196,10 @@ rnsap
 roamer
 routable
 rpcap
+rpmbuild
 rsocket
 rsrvd
+rtitcp
 rtpmidi
 rtpmux
 ruleset
@@ -1203,6 +1211,7 @@ sanicap
 sanitize
 satisfiable
 scalability
+scaleout
 scaler
 scannable
 scdma
@@ -1225,6 +1234,7 @@ sequenceno
 sercos
 serialize
 serialized
+servlet
 sessionid
 sessionkey
 setattr
@@ -1420,6 +1430,7 @@ tunneled
 tunneling
 tuple
 tuples
+tvbparse
 tvbuff
 twamp
 twopc

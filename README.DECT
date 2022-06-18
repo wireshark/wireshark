@@ -20,7 +20,7 @@ To nicely view DECT pcap files in wireshark, set up a custom layout:
 
 Edit->Preferences...
   User Interface
-    Colums
+    Columns
 
       No.      | Number
       Protocol | Protocol

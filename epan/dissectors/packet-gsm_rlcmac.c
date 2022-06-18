@@ -12337,7 +12337,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_egprs_timeslotlinkquality_measurements_type2_exist,
-      { "Exist_EGPRS_TimeslotLinkQualityMeasurements_type2",        "gsm_rlcmac.ul.prr_exist_egprs_temeslotquality_meas_type2",
+      { "Exist_EGPRS_TimeslotLinkQualityMeasurements_type2",        "gsm_rlcmac.ul.prr_exist_egprs_timeslotquality_meas_type2",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

@@ -640,7 +640,7 @@ static const value_string pn_io_error_code2_pnio_253[] = {
     { 38, "IOCARSR, RDHT expired" },
     { 39, "IOCARSR, Pdev, parameterization impossible" },
     { 40, "Remote application ready timeout expired" },
-    { 41, "IOCARSR, Redundant interface list or access to the peripherals impossibe" },
+    { 41, "IOCARSR, Redundant interface list or access to the peripherals impossible" },
     { 42, "IOCARSR, MTOT expired" },
     { 43, "IOCARSR, AR protocol violation" },
     { 44, "PDEV, plug port without CombinedObjectContainer" },

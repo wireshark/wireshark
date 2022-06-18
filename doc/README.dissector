@@ -2503,7 +2503,7 @@ doesn't specify the addresses and ports of both sides.
 
 2.2.1.3 The conversation_new_full function.
 
-This routine will create a new conversation based upon an arbritrary
+This routine will create a new conversation based upon an arbitrary
 lists of elements. Elements can be addresses, strings, unsigned
 integers, or unsigned 64-bit integers. Unlike conversation_new, element
 lists are matched strictly; wildcards aren't (yet) supported.

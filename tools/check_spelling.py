@@ -340,7 +340,9 @@ def isGeneratedFile(filename):
 
 def isAppropriateFile(filename):
     file, extension = os.path.splitext(filename)
-    return extension in { '.adoc', '.c', '.cpp', '.pod', '.nsi'} or file.endswith('README')
+    if filename.find('CMake') != -1:
+        return False
+    return extension in { '.adoc', '.c', '.cpp', '.pod', '.nsi', '.txt'} or file.endswith('README')
 
 
 def findFilesInFolder(folder, recursive=True):
