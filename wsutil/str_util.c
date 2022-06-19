@@ -461,77 +461,105 @@ printable_char_or_period(gchar c)
     return g_ascii_isprint(c) ? c : '.';
 }
 
-static inline char
-escape_char(char c)
+/*
+ * This is used by the display filter engine and must be compatible
+ * with display filter syntax.
+ */
+static inline bool
+escape_char(char c, char *p)
 {
+    int r = -1;
+    ws_assert(p);
+
     /*
      * Backslashes and double-quotes must
      * be escaped. Whitespace is also escaped.
      */
     switch (c) {
-        case '\a': return 'a';
-        case '\b': return 'b';
-        case '\f': return 'f';
-        case '\n': return 'n';
-        case '\r': return 'r';
-        case '\t': return 't';
-        case '\v': return 'v';
-        case '"':
-        case '\\':
-            return c;
+        case '\a': r = 'a'; break;
+        case '\b': r = 'b'; break;
+        case '\f': r = 'f'; break;
+        case '\n': r = 'n'; break;
+        case '\r': r = 'r'; break;
+        case '\t': r = 't'; break;
+        case '\v': r = 'v'; break;
+        case '"':  r = '"'; break;
+        case '\\': r = '\\'; break;
+        case '\0': r = '0'; break;
     }
-    return 0;
+
+    if (r != -1) {
+        *p = r;
+        return true;
+    }
+    return false;
 }
 
-static size_t
-escape_string_len(const char *string, bool add_quotes)
+static inline bool
+escape_null(char c, char *p)
 {
-    const char *p;
-    gchar c;
-    size_t repr_len;
-
-    repr_len = 0;
-    for (p = string; (c = *p) != '\0'; p++) {
-        if (escape_char(c) != 0) {
-            repr_len += 2;
-        }
-        else {
-            repr_len++;
-        }
+    ws_assert(p);
+    if (c == '\0') {
+        *p = '0';
+        return true;
     }
-    if (add_quotes)
-        repr_len += 2; /* string plus leading and trailing quotes */
-    return repr_len;
+    return false;
 }
 
-/*
- * This is used by the display filter engine and must be compatible
- * with display filter syntax.
- */
-char *
-ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes)
+static char *
+escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
+                    bool (*escape_func)(char c, char *p), bool add_quotes)
 {
-    const char *p;
     char c, r;
-    char *buf, *bufp;
+    wmem_strbuf_t *buf;
+    size_t alloc_size;
+    ssize_t i;
 
-    bufp = buf = wmem_alloc(alloc, escape_string_len(string, add_quotes) + 1);
+    if (len < 0)
+        len = strlen(string);
+
+    alloc_size = len;
     if (add_quotes)
-        *bufp++ = '"';
-    for (p = string; (c = *p) != '\0'; p++) {
-        if ((r = escape_char(c)) != 0) {
-            *bufp++ = '\\';
-            *bufp++ = r;
+        alloc_size += 2;
+
+    buf = wmem_strbuf_sized_new(alloc, alloc_size, 0);
+
+    if (add_quotes)
+        wmem_strbuf_append_c(buf, '"');
+
+    for (i = 0; i < len; i++) {
+        c = string[i];
+        if ((escape_func(c, &r))) {
+            wmem_strbuf_append_c(buf, '\\');
+            wmem_strbuf_append_c(buf, r);
         }
         else {
             /* Other UTF-8 bytes are passed through. */
-            *bufp++ = c;
+            wmem_strbuf_append_c(buf, c);
         }
     }
+
     if (add_quotes)
-        *bufp++ = '"';
-    *bufp = '\0';
-    return buf;
+        wmem_strbuf_append_c(buf, '"');
+
+    return wmem_strbuf_finalize(buf);
+}
+
+char *
+ws_escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len, bool add_quotes)
+{
+    return escape_string_len(alloc, string, len, escape_char, add_quotes);
+}
+
+char *
+ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes)
+{
+    return escape_string_len(alloc, string, -1, escape_char, add_quotes);
+}
+
+char *ws_escape_null(wmem_allocator_t *alloc, const char *string, size_t len, bool add_quotes)
+{
+    return escape_string_len(alloc, string, len, escape_null, add_quotes);
 }
 
 const char *

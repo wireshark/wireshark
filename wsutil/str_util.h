@@ -181,6 +181,13 @@ WS_DLL_PUBLIC
 char *ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes);
 
 WS_DLL_PUBLIC
+char *ws_escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len, bool add_quotes);
+
+/* Replace null bytes with "\0". */
+WS_DLL_PUBLIC
+char *ws_escape_null(wmem_allocator_t *alloc, const char *string, size_t len, bool add_quotes);
+
+WS_DLL_PUBLIC
 int ws_xton(char ch);
 
 typedef enum {

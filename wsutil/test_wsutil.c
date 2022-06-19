@@ -94,12 +94,17 @@ static void test_escape_string(void)
 {
     char *buf;
 
-    buf = ws_escape_string(NULL, "quoted \"\\\" backslash", TRUE);
+    buf = ws_escape_string(NULL, "quoted \"\\\" backslash", true);
     g_assert_cmpstr(buf, ==, "\"quoted \\\"\\\\\\\" backslash\"");
     wmem_free(NULL, buf);
 
-    buf = ws_escape_string(NULL, "whitespace \t \n \r \f \v", TRUE);
+    buf = ws_escape_string(NULL, "whitespace \t \n \r \f \v", true);
     g_assert_cmpstr(buf, ==, "\"whitespace \\t \\n \\r \\f \\v""\"");
+    wmem_free(NULL, buf);
+
+    const char s1[] = { 'a', 'b', 'c', '\0', 'e', 'f', 'g'};
+    buf = ws_escape_null(NULL, s1, sizeof(s1), true);
+    g_assert_cmpstr(buf, ==, "\"abc\\0efg\"");
     wmem_free(NULL, buf);
 }
 
