@@ -40,6 +40,7 @@ wsbuglink:17779[]
  - The dialog elements have been moved to make it easier to handle for new users.
    - Selection of tap elements is done via list
    - All configurations and options are done via a left side button row
+ - Columns for the Conversations and Endpoint dialogs can be hidden by context menu
 
 * The PCRE2 library (https://www.pcre.org/) is now a required dependency to build Wireshark.
 
@@ -76,6 +77,8 @@ The following features are new (or have been significantly updated) since versio
 
 * The Windows installers now ship with Qt 6.2.3.
   They previously shipped with Qt 6.2.4.
+
+* The Conversation and Endpoint dialogs have been reworked extensively
 
 The following features are new (or have been significantly updated) since version 3.6.0:
 

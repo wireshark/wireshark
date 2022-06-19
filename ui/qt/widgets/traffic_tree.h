@@ -12,6 +12,8 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include <ui/recent.h>
 
 #include <ui/qt/models/atap_data_model.h>
@@ -19,6 +21,29 @@
 
 #include <QTreeView>
 #include <QMenu>
+#include <QHeaderView>
+
+class TrafficTreeHeaderView : public QHeaderView
+{
+    Q_OBJECT
+public:
+    TrafficTreeHeaderView(GList ** recentColumnList, QWidget * parent = nullptr);
+    ~TrafficTreeHeaderView();
+
+    void applyRecent();
+
+signals:
+    void columnsHaveChanged(QList<int> visible);
+
+private:
+    GList ** _recentColumnList;
+
+private slots:
+    void headerContextMenu(const QPoint &pos);
+    void columnTriggered(bool checked = false);
+
+};
+
 
 class TrafficTree : public QTreeView
 {
@@ -35,7 +60,7 @@ public:
         CLIPBOARD_JSON  /* export as JSON */
     } eTrafficTreeClipboard;
 
-    TrafficTree(QString baseName, QWidget *parent = nullptr);
+    TrafficTree(QString baseName, GList ** recentColumnList, QWidget *parent = nullptr);
 
     /**
      * @brief Create a menu containing clipboard copy entries for this tab
@@ -48,12 +73,16 @@ public:
      */
     QMenu * createCopyMenu(QWidget * parent = nullptr);
 
+    void applyRecentColumns();
+
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
+    void columnsHaveChanged(QList<int> columns);
 
 public slots:
     void tapListenerEnabled(bool enable);
     void disableTap();
+    void columnsChanged(QList<int> columns);
 
 private:
     bool _tapEnabled;
@@ -61,10 +90,14 @@ private:
     bool _saveRaw;
     QString _baseName;
 
+    TrafficTreeHeaderView * _header;
+
     ATapDataModel * dataModel();
 
     QMenu * createActionSubMenu(FilterAction::Action cur_action, QModelIndex idx, bool isConversation);
     void copyToClipboard(eTrafficTreeClipboard type);
+
+    friend class TrafficTreeHeaderView;
 
 private slots:
     void customContextMenu(const QPoint &pos);
@@ -72,7 +105,6 @@ private slots:
     void clipboardAction();
     void resizeAction();
     void toggleSaveRawAction();
-
 };
 
 #endif // TRAFFIC_TREE_H

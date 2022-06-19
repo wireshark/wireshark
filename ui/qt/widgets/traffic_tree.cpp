@@ -25,6 +25,7 @@
 #include <ui/qt/filter_action.h>
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/widgets/traffic_tab.h>
 #include <ui/qt/widgets/traffic_tree.h>
 
 #include <QStringList>
@@ -39,20 +40,120 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QHeaderView>
 
-TrafficTree::TrafficTree(QString baseName, QWidget *parent) :
+TrafficTreeHeaderView::TrafficTreeHeaderView(GList ** recentColumnList, QWidget * parent):
+    QHeaderView(Qt::Horizontal, parent)
+{
+    _recentColumnList = recentColumnList;
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this, &QHeaderView::customContextMenuRequested, this, &TrafficTreeHeaderView::headerContextMenu);
+}
+
+TrafficTreeHeaderView::~TrafficTreeHeaderView()
+{}
+
+void TrafficTreeHeaderView::headerContextMenu(const QPoint &pos)
+{
+    TrafficTree * tree = qobject_cast<TrafficTree *>(parent());
+    if (!tree)
+        return;
+
+    TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(tree->model());
+    if (sender() != this || ! proxy)
+        return;
+
+    QMenu ctxMenu;
+
+    for (int col = 0; col < tree->dataModel()->columnCount(); col++)
+    {
+        QString name = tree->dataModel()->headerData(col).toString();
+        QAction * action = new QAction(name);
+        action->setCheckable(true);
+        action->setChecked(proxy->columnVisible(col));
+        action->setProperty("col_nr", col);
+        ctxMenu.addAction(action);
+
+        connect(action, &QAction::triggered, this, &TrafficTreeHeaderView::columnTriggered);
+    }
+
+    ctxMenu.exec(mapToGlobal(pos));
+}
+
+void TrafficTreeHeaderView::applyRecent()
+{
+    TrafficTree * tree = qobject_cast<TrafficTree *>(parent());
+    if (!tree)
+        return;
+
+    QList<int> columns;
+    for (GList * endTab = *_recentColumnList; endTab; endTab = endTab->next) {
+        QString colStr = QString((const char *)endTab->data);
+        bool ok = false;
+        int col = colStr.toInt(&ok);
+        if (ok)
+            columns << col;
+    }
+
+    if (columns.count() > 0) {
+        TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(tree->model());
+        for (int col = 0; col < tree->dataModel()->columnCount(); col++) {
+            proxy->setColumnVisibility(col, columns.contains(col));
+        }
+    }
+}
+
+void TrafficTreeHeaderView::columnTriggered(bool checked)
+{
+    TrafficTree * tree = qobject_cast<TrafficTree *>(parent());
+    if (!tree)
+        return;
+
+    TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(tree->model());
+    QAction * entry = qobject_cast<QAction *>(sender());
+    if (! proxy || ! entry || ! entry->property("col_nr").isValid())
+        return;
+
+    int col = entry->property("col_nr").toInt();
+    proxy->setColumnVisibility(col, checked);
+
+    prefs_clear_string_list(*_recentColumnList);
+    *_recentColumnList = NULL;
+
+    QList<int> visible;
+
+    for (int col = 0; col < tree->dataModel()->columnCount(); col++) {
+        if (proxy->columnVisible(col)) {
+            visible << col;
+            gchar *nr = qstring_strdup(QString::number(col));
+            *_recentColumnList = g_list_append(*_recentColumnList, nr);
+        }
+    }
+
+    emit columnsHaveChanged(visible);
+}
+
+
+TrafficTree::TrafficTree(QString baseName, GList ** recentColumnList, QWidget *parent) :
     QTreeView(parent)
 {
     _tapEnabled = true;
     _saveRaw = true;
     _baseName = baseName;
     _exportRole = ATapDataModel::UNFORMATTED_DISPLAYDATA;
+    _header = nullptr;
 
     setAlternatingRowColors(true);
     setRootIsDecorated(false);
     setSortingEnabled(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
 
+    _header = new TrafficTreeHeaderView(recentColumnList);
+    setHeader(_header);
+
+    connect(_header, &TrafficTreeHeaderView::columnsHaveChanged, this, &TrafficTree::columnsHaveChanged);
     connect(this, &QTreeView::customContextMenuRequested, this, &TrafficTree::customContextMenu);
 }
 
@@ -276,4 +377,23 @@ void TrafficTree::disableTap()
     if (!model)
         return;
     model->disableTap();
+}
+
+void TrafficTree::applyRecentColumns()
+{
+    if (_header)
+        _header->applyRecent();
+}
+
+void TrafficTree::columnsChanged(QList<int> columns)
+{
+    TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(model());
+    if (!proxy)
+        return;
+
+    for (int col = 0; col < dataModel()->columnCount(); col++) {
+        proxy->setColumnVisibility(col, columns.contains(col));
+    }
+
+    resizeAction();
 }

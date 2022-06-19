@@ -12,9 +12,12 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/widgets/detachable_tabwidget.h>
+#include <ui/qt/widgets/traffic_types_list.h>
 
 #include <QTabWidget>
 #include <QTreeView>
@@ -67,9 +70,16 @@ class TrafficDataFilterProxy : public QSortFilterProxyModel
 public:
     TrafficDataFilterProxy(QObject *parent = nullptr);
 
+    void setColumnVisibility(int column, bool visible);
+    bool columnVisible(int column) const;
+
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
     virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+
+private:
+    QList<int> hideColumns_;
 
 };
 
@@ -97,13 +107,13 @@ public:
      * without having to removing the predefined object during setup of the UI.
      *
      * @param tableName The name for the table. Used for the protocol selection button
-     * @param allProtocols a list of all possible protocols. It's order will set the tab oder
-     * @param openTabs a list of protocol ids to open at start of dialog
+     * @param trafficList an element of traffictypeslist, which handles all profile selections
+     * @param recentColumnList a list of columns to be displayed for this traffic type
      * @param createModel A callback, which will create the correct model for the trees
      *
      * @see ATapModelCallback
      */
-    void setProtocolInfo(QString tableName, QList<int> allProtocols, QList<int> openTabs, ATapModelCallback createModel);
+    void setProtocolInfo(QString tableName, TrafficTypesList * trafficList, GList ** recentColumnList, ATapModelCallback createModel);
 
     /**
      * @brief Set the Delegate object for a specific column
@@ -219,6 +229,7 @@ signals:
     void retapRequired();
     void disablingTaps();
     void tabsChanged(QList<int> protocols);
+    void columnsHaveChanged(QList<int> columns);
 
 protected slots:
 
@@ -230,6 +241,7 @@ private:
     QMap<int, int> _tabs;
     ATapModelCallback _createModel;
     QMap<int, ATapCreateDelegate> _createDelegates;
+    GList ** _recentColumnList;
 
     bool _disableTaps;
     bool _nameResolution;

@@ -95,7 +95,7 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf) :
 {
     trafficList()->setProtocolInfo(table_name_, &(recent.conversation_tabs));
 
-    trafficTab()->setProtocolInfo(table_name_, trafficList()->protocols(), trafficList()->selectedProtocols(), &createModel);
+    trafficTab()->setProtocolInfo(table_name_, trafficList(), &(recent.conversation_tabs_columns), &createModel);
     trafficTab()->setDelegate(CONV_COLUMN_START, &createDelegate);
     trafficTab()->setDelegate(CONV_COLUMN_DURATION, &createDelegate);
     trafficTab()->setFilter(cf.displayFilter());
