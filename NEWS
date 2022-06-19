@@ -1,4 +1,4 @@
- Wireshark 3.6.6 Release Notes
+ Wireshark 3.6.7 Release Notes
 
  What is Wireshark?
 
@@ -18,21 +18,6 @@
 
    The following bugs have been fixed:
 
-     • TLS: RSA decryption fails with Extended Master Secret and
-       renegotiation Issue 18059[2].
-
-     • "dfilter" file on Windows adds carriage returns, and requires
-       line feeds Issue 18082[3].
-
-     • Npcap bundled version needs a bump to v1.60 for Windows 11
-       compatibility Issue 18084[4].
-
-     • "Browse" button in Prefs/Name Resolution/MaxMind crashes
-       Wireshark on macOS Issue 18088[5].
-
-     • TFTP: some packets are not recognized as TFTP packets with 3.6.5
-       Issue 18122[6].
-
   New and Updated Features
 
   New Protocol Support
@@ -40,9 +25,6 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   DTLS, F5 Capture Information, F5 Ethernet Trailer, FlexRay, MBIM,
-   TFTP, TLS, and ZigBee ZCL
 
   New and Updated Capture File Support
 
@@ -62,7 +44,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[7] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -77,28 +59,23 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[8] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[9].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[10].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[11].
+  A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-06-15 16:14:54 UTC
+  Last updated 2022-06-15 18:19:15 UTC
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://gitlab.com/wireshark/wireshark/-/issues/18059
-   3. https://gitlab.com/wireshark/wireshark/-/issues/18082
-   4. https://gitlab.com/wireshark/wireshark/-/issues/18084
-   5. https://gitlab.com/wireshark/wireshark/-/issues/18088
-   6. https://gitlab.com/wireshark/wireshark/-/issues/18122
-   7. https://www.wireshark.org/download.html
-   8. https://ask.wireshark.org/
-   9. https://www.wireshark.org/lists/
-  10. https://gitlab.com/wireshark/wireshark/-/issues
-  11. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://www.wireshark.org/faq.html
