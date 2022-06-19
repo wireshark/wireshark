@@ -84,7 +84,7 @@ public:
     int rowCount(const QModelIndex &idx = QModelIndex()) const;
 
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const = 0;
+    virtual QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const = 0;
     virtual QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const = 0;
 
     /**
@@ -261,7 +261,7 @@ public:
     explicit EndpointDataModel(int protoId, QString filter, QObject *parent = nullptr);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
 
 };
@@ -293,7 +293,7 @@ public:
     explicit ConversationDataModel(int protoId, QString filter, QObject *parent = nullptr);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
 
     void doDataUpdate();

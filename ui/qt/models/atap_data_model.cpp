@@ -602,7 +602,7 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
         case 7:
             return tr("Bytes A " UTF8_RIGHTWARDS_ARROW " B"); break;
         case 8:
-            return tr("Packets B " UTF8_RIGHTWARDS_ARROW " A"); break;
+            return tr("Packets A " UTF8_RIGHTWARDS_ARROW " B"); break;
         case 9:
             return tr("Packets B " UTF8_RIGHTWARDS_ARROW " A"); break;
         case 10:
