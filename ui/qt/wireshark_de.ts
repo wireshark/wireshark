@@ -1877,16 +1877,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
-    <message>
-        <source>Conversation</source>
-        <translation type="unfinished">Verbindungen</translation>
-    </message>
     <message>
         <source>Follow Stream…</source>
         <translation>Stream folgen…</translation>
@@ -2449,16 +2445,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
-    <message>
-        <source>Endpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Map</source>
         <translation>Karte</translation>
@@ -4849,7 +4841,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Hide Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstelle verbergen</translation>
     </message>
 </context>
 <context>
@@ -7726,7 +7718,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation>PDUs</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -11848,10 +11840,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>TrafficTab</name>
     <message>
-        <source>%1 Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map file error</source>
         <translation type="unfinished">Fehler bei der Kartendatei</translation>
     </message>
@@ -11889,6 +11877,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Absolute Zeit in der Spalte Startzeit anzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">Gruppierungsbox</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -11944,6 +11936,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTypesModel</name>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">Protokoll</translation>
     </message>
 </context>
 <context>
@@ -12336,7 +12335,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Willkommen zu %1</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -13517,6 +13516,10 @@ text-decoration: underline;
         <translation>Anzeige auf Ausgangsgröße zurücksetzen</translation>
     </message>
     <message>
+        <source>Seconds Since First Captured Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>Paket&amp;diagramm</translation>
     </message>
@@ -13839,11 +13842,6 @@ text-decoration: underline;
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
         <translation>Zeit des Pakets in Sekunden seit der UNIX / POSIX Epoche (1970-01-01) anzeigen.</translation>
-    </message>
-    <message>
-        <source>Seconds Since First Captured Packet</source>
-        <oldsource>Seconds Since Beginning of Capture</oldsource>
-        <translation type="unfinished">Sekunden seit dem Start der Aufnahme</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>
@@ -14448,6 +14446,14 @@ text-decoration: underline;
     <message>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>SSL Session Keys exportieren (%Ln Key)</numerusform>
+            <numerusform>SSL Session Key exportieren (%Ln Keys)</numerusform>
+        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

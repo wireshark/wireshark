@@ -1874,18 +1874,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Total Packets</source>
+        <translation>Pacchetti totali</translation>
+    </message>
+    <message>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Percent filtered</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Percentuale filtrati</translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
     <message>
         <source>Conversation</source>
-        <translation>Conversazione</translation>
+        <translation type="vanished">Conversazione</translation>
     </message>
     <message>
         <source>Follow Stream…</source>
@@ -2446,18 +2450,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Total Packets</source>
+        <translation>Pacchetti totali</translation>
+    </message>
+    <message>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Percent filtered</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Percentuale fitrati</translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
     <message>
         <source>Endpoints</source>
-        <translation>Terminatori</translation>
+        <translation type="vanished">Terminatori</translation>
     </message>
     <message>
         <source>Map</source>
@@ -11844,7 +11852,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation>Tipi di %1</translation>
+        <translation type="vanished">Tipi di %1</translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11884,6 +11892,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra gli orari assoluti nella colonna ora iniziale.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">CasellaGruppo</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -11939,6 +11951,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
         <translation>Disabilita la formattazione dei dati per l&apos;esportazione/appunti e salva come dati grezzi</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTypesModel</name>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">Protocollo</translation>
     </message>
 </context>
 <context>
@@ -13512,6 +13531,10 @@ a:hover {
         <translation>Ripristina la disposizione dell&apos;aspetto alla dimensione predefinita</translation>
     </message>
     <message>
+        <source>Seconds Since First Captured Packet</source>
+        <translation>Secondi dal primo pacchetto catturato</translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>&amp;Diagramma del pacchetto</translation>
     </message>
@@ -13834,11 +13857,6 @@ a:hover {
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
         <translation>Mostra gli orari del pacchetto come secondi dalla epoch UNIX/POSIX (1970-01-01).</translation>
-    </message>
-    <message>
-        <source>Seconds Since First Captured Packet</source>
-        <oldsource>Seconds Since Beginning of Capture</oldsource>
-        <translation type="unfinished">Secondi dall&apos;inizio della cattura</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

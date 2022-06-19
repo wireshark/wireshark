@@ -1852,16 +1852,12 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
-    <message>
-        <source>Conversation</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Follow Stream…</source>
         <translation>Seguir secuencia…</translation>
@@ -2424,16 +2420,12 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
-    <message>
-        <source>Endpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Map</source>
         <translation>Mapa</translation>
@@ -11709,10 +11701,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
 <context>
     <name>TrafficTab</name>
     <message>
-        <source>%1 Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map file error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11750,6 +11738,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Muestra tiempos absolutos en la columna de hora de inicio.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">GroupBox</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -11805,6 +11797,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTypesModel</name>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">Protocolo</translation>
     </message>
 </context>
 <context>
@@ -13378,6 +13377,10 @@ text-decoration: none;
         <translation>Restablece el diseño de apariencia al tamaño por defecto</translation>
     </message>
     <message>
+        <source>Seconds Since First Captured Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>&amp;Diagrama de paquete</translation>
     </message>
@@ -13700,11 +13703,6 @@ text-decoration: none;
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
         <translation>Muestra la fecha de los paquetes como los segundos desde la etapa de UNIX / POSIX (1970-01-01).</translation>
-    </message>
-    <message>
-        <source>Seconds Since First Captured Packet</source>
-        <oldsource>Seconds Since Beginning of Capture</oldsource>
-        <translation type="unfinished">Segundos desde inicio de captura</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

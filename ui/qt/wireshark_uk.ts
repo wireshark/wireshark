@@ -1857,16 +1857,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
-    <message>
-        <source>Conversation</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Follow Stream…</source>
         <translation type="unfinished"></translation>
@@ -2427,16 +2423,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
-    <message>
-        <source>Endpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Map</source>
         <translation type="unfinished"></translation>
@@ -11718,10 +11710,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>TrafficTab</name>
     <message>
-        <source>%1 Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map file error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11758,6 +11746,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11814,6 +11806,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTypesModel</name>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">Протокол</translation>
     </message>
 </context>
 <context>
@@ -13358,6 +13357,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Seconds Since First Captured Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13680,11 +13683,6 @@ a:hover {
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
         <translation>Представити час пакетів у вигляді секунд, що минули з початку епохи UNIX / POSIX (1970-01-01).</translation>
-    </message>
-    <message>
-        <source>Seconds Since First Captured Packet</source>
-        <oldsource>Seconds Since Beginning of Capture</oldsource>
-        <translation type="unfinished">Секунди Від Початку Захоплення</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

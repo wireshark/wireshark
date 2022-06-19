@@ -1869,16 +1869,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
-    <message>
-        <source>Conversation</source>
-        <translation type="unfinished">対話</translation>
-    </message>
     <message>
         <source>Follow Stream…</source>
         <translation>ストリームを追跡…</translation>
@@ -2441,16 +2437,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
-    <message>
-        <source>Endpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Map</source>
         <translation>地図</translation>
@@ -11820,10 +11812,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>TrafficTab</name>
     <message>
-        <source>%1 Types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map file error</source>
         <translation type="unfinished">地図ファイルエラー</translation>
     </message>
@@ -11861,6 +11849,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;開始時間列に絶対的な時間を表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">グループボックス</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -11916,6 +11908,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTypesModel</name>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">プロトコル</translation>
     </message>
 </context>
 <context>
@@ -13488,6 +13487,10 @@ a:hover {
         <translation>外観のレイアウトをデフォルトのサイズにリセットします</translation>
     </message>
     <message>
+        <source>Seconds Since First Captured Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>パケット &amp;ダイアグラム</translation>
     </message>
@@ -13810,11 +13813,6 @@ a:hover {
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
         <translation>パケットの時間をUNIX/POSIX起源(1970-01-01)以来の秒数で表示します</translation>
-    </message>
-    <message>
-        <source>Seconds Since First Captured Packet</source>
-        <oldsource>Seconds Since Beginning of Capture</oldsource>
-        <translation type="unfinished">キャプチャ開始からの秒数</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

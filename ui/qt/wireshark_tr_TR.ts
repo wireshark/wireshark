@@ -1870,7 +1870,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1878,7 +1878,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ConversationDialog</name>
     <message>
         <source>Conversation</source>
-        <translation>Konuşma</translation>
+        <translation type="vanished">Konuşma</translation>
     </message>
     <message>
         <source>Follow Stream…</source>
@@ -2442,7 +2442,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Percent filtered</source>
+        <source>Percent Filtered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2450,7 +2450,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>EndpointDialog</name>
     <message>
         <source>Endpoints</source>
-        <translation>Uç noktalar</translation>
+        <translation type="vanished">Uç noktalar</translation>
     </message>
     <message>
         <source>Map</source>
@@ -11818,7 +11818,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>TrafficTab</name>
     <message>
         <source>%1 Types</source>
-        <translation>%1 Türler</translation>
+        <translation type="vanished">%1 Türler</translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -11858,6 +11858,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Başlangıç zamanı sütununda mutlak zamanları göster.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">GrupKutusu</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -11913,6 +11917,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
         <translation>Dışa aktarma/pano için veri biçimlendirmesini devre dışı bırakın ve ham veri olarak kaydedin</translation>
+    </message>
+</context>
+<context>
+    <name>TrafficTypesModel</name>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">İletişim Kuralı</translation>
     </message>
 </context>
 <context>
@@ -13485,6 +13496,10 @@ a:hover {
         <translation>Görünüm düzenini varsayılan boyuta sıfırla</translation>
     </message>
     <message>
+        <source>Seconds Since First Captured Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet &amp;Diagram</source>
         <translation>Paket &amp;Şeması</translation>
     </message>
@@ -13807,11 +13822,6 @@ a:hover {
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
         <translation>Paket sürelerini UNIX / POSIX döneminden (1970-01-01) bu yana saniye olarak göster.</translation>
-    </message>
-    <message>
-        <source>Seconds Since First Captured Packet</source>
-        <oldsource>Seconds Since Beginning of Capture</oldsource>
-        <translation type="unfinished">Yakalama Başlangıcından Beri Saniyeler</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>

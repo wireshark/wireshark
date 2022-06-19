@@ -55,6 +55,9 @@ Wireshark 3.7.1 Release Notes
        • All configurations and options are done via a left side button
       row
 
+       • Columns for the Conversations and Endpoint dialogs can be
+      hidden by context menu
+
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
 
@@ -75,6 +78,10 @@ Wireshark 3.7.1 Release Notes
       swapped for editcap and mergecap to match the other command line
       utilities.
 
+    • New address type AT_NUMERIC allows simple numeric addresses for
+      protocols which do not have a more common-style address approach,
+      analog to AT_STRINGZ.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -85,6 +92,9 @@ Wireshark 3.7.1 Release Notes
 
      • The Windows installers now ship with Qt 6.2.3. They previously
        shipped with Qt 6.2.4.
+
+     • The Conversation and Endpoint dialogs have been reworked
+       extensively
 
    The following features are new (or have been significantly updated)
    since version 3.6.0:
@@ -222,6 +232,9 @@ Wireshark 3.7.1 Release Notes
         • In general, `text2pcap` and wireshark’s “Import from Hex Dump”
        have feature parity.
 
+     • The default main window layout has been changed so that the
+       packet detail and bytes are side by side.
+
      • The HTTP2 dissector now supports using fake headers to parse the
        DATAs of streams captured without first HEADERS frames of a
        long-lived stream (such as a gRPC streaming call which allows
@@ -282,9 +295,11 @@ Wireshark 3.7.1 Release Notes
    Register Access Protocol (5co-legacy), Generic Data Transfer Protocol
    (GDT), gRPC Web (gRPC-Web), Host IP Configuration Protocol (HICP),
    Mesh Connex (MCX), Microsoft Cluster Remote Control Protocol (RCP),
-   Realtek, REdis Serialization Protocol v2 (RESP), Secure File Transfer
-   Protocol (sftp), Secure Host IP Configuration Protocol (SHICP), USB
-   Attached SCSI (UASP), and ZBOSS NCP
+   Protected Extensible Authentication Protocol (PEAP), Realtek, REdis
+   Serialization Protocol v2 (RESP), Roon Discovery (RoonDisco), Secure
+   File Transfer Protocol (sftp), Secure Host IP Configuration Protocol
+   (SHICP), SSH File Transfer Protocol (SFTP), USB Attached SCSI (UASP),
+   and ZBOSS NCP
 
   Updated Protocol Support
 
@@ -332,7 +347,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-06-15 01:39:18 UTC
+  Last updated 2022-06-19 09:18:16 UTC
 
  References
 

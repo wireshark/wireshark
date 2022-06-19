@@ -1,4 +1,4 @@
-Editcap (Wireshark) 3.7.1 (v3.7.1rc0-27-gf2fb1662b23b)
+Editcap (Wireshark) 3.7.1 (v3.7.1rc0-256-g2b4878d452a5)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -22,14 +22,14 @@ Duplicate packet removal:
   -d                     remove packet if duplicate (window == 5).
   -D <dup window>        remove packet if duplicate; configurable <dup window>.
                          Valid <dup window> values are 0 to 1000000.
-                         NOTE: A <dup window> of 0 with -v (verbose option) is
+                         NOTE: A <dup window> of 0 with -V (verbose option) is
                          useful to print MD5 hashes.
   -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR
                          LESS THAN <dup time window> prior to current packet.
                          A <dup time window> is specified in relative seconds
                          (e.g. 0.000001).
            NOTE: The use of the 'Duplicate packet removal' options with
-           other editcap options except -v may not always work as expected.
+           other editcap options except -V may not always work as expected.
            Specifically the -r, -t or -S options will very likely NOT have the
            desired effect if combined with the -d, -D or -w.
   --skip-radiotap-header skip radiotap header when checking for packet duplicates.
@@ -104,9 +104,9 @@ Output File(s):
                          command line.
 
 Miscellaneous:
-  -h                     display this help and exit.
-  -v                     verbose output.
-                         If -v is used with any of the 'Duplicate Packet
+  -h, --help             display this help and exit.
+  -V                     verbose output.
+                         If -V is used with any of the 'Duplicate Packet
                          Removal' options (-d, -D or -w) then Packet lengths
                          and MD5 hashes are printed to standard-error.
-  -V, --version          print version information and exit.
+  -v, --version          print version information and exit.
