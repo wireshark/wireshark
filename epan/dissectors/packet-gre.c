@@ -119,6 +119,7 @@ const value_string gre_typevals[] = {
     { ETHERTYPE_CDMA2000_A10_UBS,"CDMA2000 A10 Unstructured byte stream" },
     { ETHERTYPE_3GPP2,     "CDMA2000 A10 3GPP2 Packet" },
     { ETHERTYPE_CMD,       "CiscoMetaData" },
+    { GRE_GREBONDING,      "Huawei GRE bonding" },
     { GRE_ARUBA_8200,      "ARUBA WLAN" },
     { GRE_ARUBA_8210,      "ARUBA WLAN" },
     { GRE_ARUBA_8220,      "ARUBA WLAN" },

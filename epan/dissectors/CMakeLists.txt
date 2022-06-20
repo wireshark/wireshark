@@ -1149,6 +1149,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gprs-llc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gprscdr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gre.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-grebonding.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-grpc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_a_bssmap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_a_common.c
