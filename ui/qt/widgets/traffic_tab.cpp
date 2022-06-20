@@ -136,15 +136,11 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
                 if (source_left.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR) {
                     portColumn = ConversationDataModel::CONV_COLUMN_SRC_PORT;
                     int col = ConversationDataModel::CONV_COLUMN_DST_ADDR;
-                    if (model->portsAreHidden())
-                        col -= 1;
                     tstA = model->index(source_left.row(), col);
                     tstB = model->index(source_right.row(), col);
                 } else if (source_left.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
                     portColumn = ConversationDataModel::CONV_COLUMN_DST_PORT;
                     int col = ConversationDataModel::CONV_COLUMN_SRC_ADDR;
-                    if (model->portsAreHidden())
-                        col -= 1;
                     tstA = model->index(source_left.row(), col);
                     tstB = model->index(source_right.row(), col);
                 }
@@ -179,7 +175,29 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
 
 bool TrafficDataFilterProxy::filterAcceptsColumn(int source_column, const QModelIndex &) const
 {
-    return (!hideColumns_.contains(source_column));
+    if (hideColumns_.contains(source_column))
+        return false;
+
+    ATapDataModel * model = qobject_cast<ATapDataModel *>(sourceModel());
+    if (model) {
+        if (model->portsAreHidden()) {
+            if (qobject_cast<EndpointDataModel *>(model) && source_column == EndpointDataModel::ENDP_COLUMN_PORT)
+                return false;
+            if (qobject_cast<ConversationDataModel *>(model) &&
+                (source_column == ConversationDataModel::CONV_COLUMN_SRC_PORT || source_column == ConversationDataModel::CONV_COLUMN_DST_PORT))
+                return false;
+        }
+        if (! model->showTotalColumn()) {
+            if (qobject_cast<EndpointDataModel *>(model) &&
+                (source_column == EndpointDataModel::ENDP_COLUMN_PACKETS_TOTAL || source_column == EndpointDataModel::ENDP_COLUMN_BYTES_TOTAL))
+                return false;
+            if (qobject_cast<ConversationDataModel *>(model) &&
+                (source_column == ConversationDataModel::CONV_COLUMN_PACKETS_TOTAL || source_column == ConversationDataModel::CONV_COLUMN_BYTES_TOTAL))
+                return false;
+        }
+    }
+
+    return true;
 }
 
 void TrafficDataFilterProxy::setColumnVisibility(int column, bool visible)
