@@ -120,6 +120,7 @@ They previously shipped with Qt 5.12.2.
 ** Support for some additional character escape sequences in double quoted strings has been added.
    Along with octal (\<number>) and hex (\x<number>) encoding, the following C escape sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v.
    Previously they were only supported with character constants.
+** Unicode universal character names are now supported with the escape sequences \uNNNN or \UNNNNNNNN, where N is an hexadecimal digit.
 ** Unrecognized escape sequences are now treated as a syntax error.
    Previously they were treated as a literal character.
    In addition to the sequences indicated above, backslash, single quotation and double quotation mark are also valid sequences: \\, \', \".

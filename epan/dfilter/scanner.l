@@ -92,6 +92,7 @@ static int set_lval_field(df_scanner_state_t *state, int token, const char *toke
 #define math(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_ARITHMETIC))
 
 static gboolean append_escaped_char(df_scanner_state_t *state, GString *str, char c);
+static gboolean append_universal_character_name(df_scanner_state_t *state, GString *str, const char *ucn);
 static gboolean parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep);
 
 static void update_location(df_scanner_state_t *state, const char *text);
@@ -321,6 +322,32 @@ hyphen-bytes	{hex2}(-{hex2})+
 		unsigned long result;
 		result = strtoul(yytext + 2, NULL, 16);
 		g_string_append_c(yyextra->quoted_string, (gchar) result);
+	}
+}
+
+<DQUOTE>\\u[[:xdigit:]]{0,4} {
+	/* universal character name */
+	update_string_loc(yyextra, yytext);
+	if (yyextra->raw_string) {
+		g_string_append(yyextra->quoted_string, yytext);
+	}
+	else if (!append_universal_character_name(yyextra, yyextra->quoted_string, yytext)) {
+		g_string_free(yyextra->quoted_string, TRUE);
+		yyextra->quoted_string = NULL;
+		return SCAN_FAILED;
+	}
+}
+
+<DQUOTE>\\U[[:xdigit:]]{0,8} {
+	/* universal character name */
+	update_string_loc(yyextra, yytext);
+	if (yyextra->raw_string) {
+		g_string_append(yyextra->quoted_string, yytext);
+	}
+	else if (!append_universal_character_name(yyextra, yyextra->quoted_string, yytext)) {
+		g_string_free(yyextra->quoted_string, TRUE);
+		yyextra->quoted_string = NULL;
+		return SCAN_FAILED;
 	}
 }
 
@@ -620,10 +647,81 @@ append_escaped_char(df_scanner_state_t *state, GString *str, char c)
 }
 
 static gboolean
+parse_universal_character_name(df_scanner_state_t *state _U_, const char *str, char **ret_endptr, gunichar *valuep)
+{
+	guint64 val;
+	char *endptr;
+	int ndigits;
+
+	if (str[0] != '\\')
+		return FALSE;
+
+	if (str[1] == 'u')
+		ndigits = 4;
+	else if (str[1] == 'U')
+		ndigits = 8;
+	else
+		return FALSE;
+
+	for (int i = 2; i < ndigits + 2; i++) {
+		if (!g_ascii_isxdigit(str[i])) {
+			return FALSE;
+		}
+	}
+
+	errno = 0;
+	val = g_ascii_strtoull(str + 2, &endptr, 16); /* skip leading 'u' or 'U' */
+
+	if (errno != 0 || endptr == str || val > G_MAXUINT32) {
+		return FALSE;
+	}
+
+	/*
+	 * Ref: https://en.cppreference.com/w/c/language/escape
+	 * Range of universal character names
+	 *
+	 * If a universal character name corresponds to a code point that is
+	 * not 0x24 ($), 0x40 (@), nor 0x60 (`) and less than 0xA0, or a
+	 * surrogate code point (the range 0xD800-0xDFFF, inclusive), or
+	 * greater than 0x10FFFF, i.e. not a Unicode code point (since C23),
+	 * the program is ill-formed. In other words, members of basic source
+	 * character set and control characters (in ranges 0x0-0x1F and
+	 * 0x7F-0x9F) cannot be expressed in universal character names.
+	 */
+	if (val < 0xA0 && val != 0x24 && val != 0x40 && val != 0x60)
+		return FALSE;
+	else if (val >= 0xD800 && val <= 0xDFFF)
+		return FALSE;
+	else if (val > 0x10FFFF)
+		return FALSE;
+
+	*valuep = (gunichar)val;
+	if (ret_endptr)
+		*ret_endptr = endptr;
+	return TRUE;
+}
+
+static gboolean
+append_universal_character_name(df_scanner_state_t *state, GString *str, const char *ucn)
+{
+	gunichar val;
+
+	if (!parse_universal_character_name(state, ucn, NULL, &val)) {
+		dfilter_fail(state->dfw, &state->location, "%s is not a valid universal character name", ucn);
+		return FALSE;
+	}
+
+	g_string_append_unichar(str, val);
+	return TRUE;
+}
+
+static gboolean
 parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 {
 	const char *cp;
 	unsigned long value;
+	gunichar unival;
+	char *endptr;
 
 	cp = s + 1;	/* skip the leading ' */
 	if (*cp == '\'') {
@@ -648,14 +746,17 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 
 		case 'a':
 			value = '\a';
+			cp++;
 			break;
 
 		case 'b':
 			value = '\b';
+			cp++;
 			break;
 
 		case 'f':
 			value = '\f';
+			cp++;
 			break;
 
 		case 'n':
@@ -664,26 +765,32 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 
 		case 'r':
 			value = '\r';
+			cp++;
 			break;
 
 		case 't':
 			value = '\t';
+			cp++;
 			break;
 
 		case 'v':
 			value = '\v';
+			cp++;
 			break;
 
 		case '\'':
 			value = '\'';
+			cp++;
 			break;
 
 		case '\\':
 			value = '\\';
+			cp++;
 			break;
 
 		case '"':
 			value = '"';
+			cp++;
 			break;
 
 		case 'x':
@@ -712,6 +819,17 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 					return FALSE;
 				}
 			}
+			cp++;
+			break;
+
+		case 'u':
+		case 'U':
+			if (!parse_universal_character_name(state, s+1, &endptr, &unival)) {
+				dfilter_fail(state->dfw, &state->string_loc, "%s is not a valid universal character name", s);
+				return FALSE;
+			}
+			value = (unsigned long)unival;
+			cp = endptr;
 			break;
 
 		default:
@@ -746,15 +864,16 @@ parse_charconst(df_scanner_state_t *state, const char *s, unsigned long *valuep)
 				dfilter_fail(state->dfw, &state->string_loc, "%s is too large to be a valid character constant.", s);
 				return FALSE;
 			}
+			cp++;
 		}
 	} else {
-		value = *cp;
+		value = *cp++;
 		if (!g_ascii_isprint(value)) {
 			dfilter_fail(state->dfw, &state->string_loc, "Non-printable value '0x%02lx' in character constant.", value);
 			return FALSE;
 		}
 	}
-	cp++;
+
 	if ((*cp != '\'') || (*(cp + 1) != '\0')){
 		dfilter_fail(state->dfw, &state->string_loc, "%s is too long to be a valid character constant.", s);
 		return FALSE;
