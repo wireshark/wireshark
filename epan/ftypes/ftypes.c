@@ -629,8 +629,7 @@ fvalue_set_time(fvalue_t *fv, const nstime_t *value)
 void
 fvalue_set_string(fvalue_t *fv, const gchar *value)
 {
-	ws_assert(IS_FT_STRING(fv->ftype->ftype) ||
-			fv->ftype->ftype == FT_UINT_STRING);
+	ws_assert(IS_FT_STRING(fv->ftype->ftype));
 	ws_assert(fv->ftype->set_value.set_value_string);
 	fv->ftype->set_value.set_value_string(fv, value);
 }
@@ -740,8 +739,7 @@ fvalue_get_time(fvalue_t *fv)
 const char *
 fvalue_get_string(fvalue_t *fv)
 {
-	ws_assert(IS_FT_STRING(fv->ftype->ftype) ||
-			fv->ftype->ftype == FT_UINT_STRING);
+	ws_assert(IS_FT_STRING(fv->ftype->ftype));
 	ws_assert(fv->ftype->get_value.get_value_string);
 	return fv->ftype->get_value.get_value_string(fv);
 }
