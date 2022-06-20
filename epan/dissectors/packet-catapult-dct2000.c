@@ -3106,13 +3106,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                  (strcmp(protocol_name, "rrc_r12_lte") == 0) ||
                  (strcmp(protocol_name, "rrc_r13_lte") == 0) ||
                  (strcmp(protocol_name, "rrc_r15_lte") == 0) ||
+                 (strcmp(protocol_name, "rrc_r16_lte") == 0) ||
                  (strcmp(protocol_name, "rrcpdcpprim_r15_lte") == 0))) {
 
                 dissect_rrc_lte_nr(tvb, offset, pinfo, tree, LTE);
                 return tvb_captured_length(tvb);
             }
-            else if (strcmp(protocol_name, "rrc_r15_5g") == 0) {
-
+            else if ((strcmp(protocol_name, "rrc_r15_5g") == 0) ||
+                     (strcmp(protocol_name, "rrc_r16_5g") == 0)) {
                 dissect_rrc_lte_nr(tvb, offset, pinfo, tree, NR);
                 return tvb_captured_length(tvb);
             }
