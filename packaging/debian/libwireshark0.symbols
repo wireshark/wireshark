@@ -745,10 +745,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  funnel_reload_menus@Base 1.99.9
  funnel_set_funnel_ops@Base 1.9.1
  fvalue_from_literal@Base 3.7.0
- fvalue_get@Base 1.9.1
+ fvalue_get_bytes@Base 3.7.1rc0-265-ge42a4de47c6d
  fvalue_get_floating@Base 1.9.1
+ fvalue_get_guid@Base 3.7.1rc0-265-ge42a4de47c6d
+ fvalue_get_protocol@Base 3.7.1rc0-265-ge42a4de47c6d
  fvalue_get_sinteger64@Base 1.99.3
  fvalue_get_sinteger@Base 1.9.1
+ fvalue_get_string@Base 3.7.1rc0-265-ge42a4de47c6d
+ fvalue_get_time@Base 3.7.1rc0-265-ge42a4de47c6d
  fvalue_get_uinteger64@Base 1.99.3
  fvalue_get_uinteger@Base 1.9.1
  fvalue_to_string_repr@Base 1.9.1
