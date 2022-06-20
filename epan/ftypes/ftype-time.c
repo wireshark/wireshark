@@ -285,7 +285,7 @@ done:
 		 * backward, so that there are two different times that
 		 * it could be)?
 		 */
-		err_msg = ws_strdup("\"%s\" cannot be converted to a valid calendar time.");
+		err_msg = ws_strdup_printf("\"%s\" cannot be converted to a valid calendar time.", s);
 		goto fail;
 	}
 
