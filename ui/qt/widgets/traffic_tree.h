@@ -23,6 +23,30 @@
 #include <QMenu>
 #include <QHeaderView>
 
+#include <QWidgetAction>
+#include <QLineEdit>
+#include <QActionGroup>
+
+class MenuEditAction : public QWidgetAction
+{
+    Q_OBJECT
+public:
+    MenuEditAction(QString text, QString hintText, QObject * parent = nullptr);
+
+    QString text() const;
+
+protected:
+    virtual QWidget * createWidget(QWidget *parent);
+private:
+    QString _hintText;
+    QString _text;
+    QLineEdit * _lineEdit;
+
+private slots:
+    void triggerEntry();
+};
+
+
 class TrafficTreeHeaderView : public QHeaderView
 {
     Q_OBJECT
@@ -34,13 +58,53 @@ public:
 
 signals:
     void columnsHaveChanged(QList<int> visible);
-
+    void filterOnColumn(int column, int filterOn, QString filterText);
 private:
     GList ** _recentColumnList;
+    QActionGroup * _actions;
+    QString _filterText;
 
 private slots:
     void headerContextMenu(const QPoint &pos);
     void columnTriggered(bool checked = false);
+    void menuActionTriggered(QAction *);
+    void filterColumn(bool checked = false);
+
+};
+
+
+class TrafficDataFilterProxy : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+
+    enum {
+        TRAFFIC_DATA_LESS,
+        TRAFFIC_DATA_GREATER,
+        TRAFFIC_DATA_EQUAL,
+    };
+
+    TrafficDataFilterProxy(QObject *parent = nullptr);
+
+    void setColumnVisibility(int column, bool visible);
+    bool columnVisible(int column) const;
+
+public slots:
+    void filterForColumn(int column, int filterOn, QString filterText);
+
+protected:
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+
+private:
+    QList<int> hideColumns_;
+
+    int _filterColumn;
+    int _filterOn;
+    QString _filterText;
+
+    int mapToSourceColumn(int proxyColumn) const;
 
 };
 
@@ -74,6 +138,8 @@ public:
     QMenu * createCopyMenu(QWidget * parent = nullptr);
 
     void applyRecentColumns();
+
+    virtual void setModel(QAbstractItemModel *model) override;
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);

@@ -41,6 +41,37 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QHeaderView>
+#include <QWidgetAction>
+#include <QLineEdit>
+#include <QActionGroup>
+
+MenuEditAction::MenuEditAction(QString text, QString hintText, QObject * parent) :
+    QWidgetAction(parent),
+    _hintText(hintText),
+    _text(text),
+    _lineEdit(nullptr)
+{}
+
+QWidget * MenuEditAction::createWidget(QWidget *parent) {
+    _lineEdit = new QLineEdit(parent);
+    _lineEdit->setAlignment(Qt::AlignRight);
+    _lineEdit->setText(_text);
+    _lineEdit->setPlaceholderText(_hintText);
+    connect(_lineEdit, &QLineEdit::returnPressed, this, &MenuEditAction::triggerEntry);
+    return _lineEdit;
+}
+
+void MenuEditAction::triggerEntry() {
+    if (_lineEdit)
+        _text = _lineEdit->text();
+
+    emit trigger();
+}
+
+QString MenuEditAction::text() const {
+    return _text;
+}
+
 
 TrafficTreeHeaderView::TrafficTreeHeaderView(GList ** recentColumnList, QWidget * parent):
     QHeaderView(Qt::Horizontal, parent)
@@ -48,6 +79,19 @@ TrafficTreeHeaderView::TrafficTreeHeaderView(GList ** recentColumnList, QWidget 
     _recentColumnList = recentColumnList;
 
     setContextMenuPolicy(Qt::CustomContextMenu);
+
+    _actions = new QActionGroup(this);
+
+    QAction * filterAction = _actions->addAction(tr("Less than"));
+    filterAction->setCheckable(true);
+    filterAction->setChecked(true);
+    filterAction->setProperty("filter_action", (int)TrafficDataFilterProxy::TRAFFIC_DATA_LESS);
+    filterAction = _actions->addAction(tr("Greater than"));
+    filterAction->setCheckable(true);
+    filterAction->setProperty("filter_action", (int)TrafficDataFilterProxy::TRAFFIC_DATA_GREATER);
+    filterAction = _actions->addAction(tr("Equal"));
+    filterAction->setCheckable(true);
+    filterAction->setProperty("filter_action", (int)TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL);
 
     connect(this, &QHeaderView::customContextMenuRequested, this, &TrafficTreeHeaderView::headerContextMenu);
 }
@@ -68,6 +112,9 @@ void TrafficTreeHeaderView::headerContextMenu(const QPoint &pos)
     QMenu * ctxMenu = new QMenu(this);
     ctxMenu->setAttribute(Qt::WA_DeleteOnClose);
 
+    QAction * headerAction = ctxMenu->addAction(tr("Columns to display"));
+    headerAction->setEnabled(false);
+
     for (int col = 0; col < tree->dataModel()->columnCount(); col++)
     {
         QString name = tree->dataModel()->headerData(col).toString();
@@ -79,6 +126,33 @@ void TrafficTreeHeaderView::headerContextMenu(const QPoint &pos)
 
         connect(action, &QAction::triggered, this, &TrafficTreeHeaderView::columnTriggered);
     }
+
+    ctxMenu->addSeparator();
+
+    int column = logicalIndexAt(pos);
+
+    bool is_address = false;
+    QModelIndex sourceIdx = proxy->mapToSource(proxy->index(0, column));
+    if (qobject_cast<EndpointDataModel *>(proxy->sourceModel()) && sourceIdx.column() == EndpointDataModel::ENDP_COLUMN_ADDR) {
+        is_address = true;
+    } else if (qobject_cast<ConversationDataModel *>(proxy->sourceModel()) && (sourceIdx.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR ||
+        sourceIdx.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR)) {
+        is_address = true;
+    }
+
+    if (! is_address) {
+        QString columnText = model()->headerData(column, Qt::Horizontal).toString();
+        QAction * filterAction = ctxMenu->addAction(tr("Filter %1 by").arg(columnText));
+        filterAction->setEnabled(false);
+        ctxMenu->addActions(_actions->actions());
+
+        MenuEditAction * editAction = new MenuEditAction(_filterText, tr("Enter filter value"));
+        editAction->setProperty("column", column);
+        ctxMenu->addAction(editAction);
+        connect(editAction, &MenuEditAction::triggered, this, &TrafficTreeHeaderView::filterColumn);
+    }
+
+    connect(ctxMenu, &QMenu::triggered, this, &TrafficTreeHeaderView::menuActionTriggered);
 
     ctxMenu->popup(mapToGlobal(pos));
 }
@@ -136,6 +210,272 @@ void TrafficTreeHeaderView::columnTriggered(bool checked)
     emit columnsHaveChanged(visible);
 }
 
+void TrafficTreeHeaderView::menuActionTriggered(QAction * act)
+{
+    if (_actions && _actions->actions().contains(act)) {
+        QMenu * menu = qobject_cast<QMenu *>(sender());
+        if (menu) {
+            MenuEditAction * menuAction = nullptr;
+            foreach(QAction * _act, menu->actions()) {
+                if (qobject_cast<MenuEditAction *>(_act)) {
+                    menuAction = qobject_cast<MenuEditAction *>(_act);
+                    break;
+                }
+            }
+
+            int column = menuAction ? menuAction->property("column").toInt() : -1;
+            if (column >= 0) {
+                _filterText = menuAction->text().trimmed();
+                if (_filterText.length() == 0)
+                    column = -1;
+                int filterOn = act->property("filter_action").toInt();
+
+                emit filterOnColumn(column, filterOn, _filterText);
+            }
+        }
+    }
+}
+
+void TrafficTreeHeaderView::filterColumn(bool)
+{
+    MenuEditAction * menuAction = qobject_cast<MenuEditAction *>(sender());
+    if (!menuAction)
+        return;
+
+    int filterOn = TrafficDataFilterProxy::TRAFFIC_DATA_LESS;
+    foreach(QAction * act, _actions->actions()) {
+        if (act->isChecked() && act->property("filter_action").isValid()) {
+            filterOn = act->property("filter_action").toInt();
+            break;
+        }
+    }
+
+    int column = menuAction->property("column").toInt();
+    _filterText = menuAction->text().trimmed();
+    if (_filterText.length() == 0)
+        column = -1;
+
+    emit filterOnColumn(column, filterOn, _filterText);
+}
+
+
+TrafficDataFilterProxy::TrafficDataFilterProxy(QObject *parent) :
+    QSortFilterProxyModel(parent),
+    _filterColumn(-1)
+{}
+
+void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString filterText)
+{
+    if (filterOn < 0 || filterOn > TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
+        column = -1;
+
+    _filterColumn = column;
+    _filterOn = filterOn;
+    _filterText = filterText;
+    invalidateFilter();
+}
+
+int TrafficDataFilterProxy::mapToSourceColumn(int proxyColumn) const
+{
+    ATapDataModel * model = qobject_cast<ATapDataModel *>(sourceModel());
+    int column = proxyColumn;
+    if (model) {
+
+        if (qobject_cast<EndpointDataModel *>(model))
+        {
+            if (model->portsAreHidden() && column > EndpointDataModel::ENDP_COLUMN_ADDR)
+                column++;
+            if (! model->showTotalColumn()) {
+                if (column > EndpointDataModel::ENDP_COLUMN_BYTES)
+                    column+=2;
+            }
+        } else if (qobject_cast<ConversationDataModel *>(model)) {
+            if (model->portsAreHidden()) {
+                if (column > ConversationDataModel::CONV_COLUMN_SRC_ADDR)
+                    column++;
+                if (column > ConversationDataModel::CONV_COLUMN_DST_ADDR)
+                    column++;
+            }
+            ConversationDataModel * convModel = qobject_cast<ConversationDataModel *>(model);
+            if (convModel->showConversationId() && column > ConversationDataModel::CONV_COLUMN_BYTES)
+                column++;
+            if (! model->showTotalColumn()) {
+                if (column > ConversationDataModel::CONV_COLUMN_BYTES)
+                    column+=2;
+            }
+        }
+    }
+
+    return column;
+}
+
+bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    ATapDataModel * dataModel = qobject_cast<ATapDataModel *>(sourceModel());
+    if (dataModel) {
+        bool isFiltered = dataModel->data(dataModel->index(source_row, 0), ATapDataModel::ROW_IS_FILTERED).toBool();
+        if (isFiltered && dataModel->filter().length() > 0)
+            return false;
+
+        int sourceColumn = mapToSourceColumn(_filterColumn);
+        QModelIndex srcIdx = dataModel->index(source_row, sourceColumn);
+        if (srcIdx.isValid()) {
+            QVariant data = srcIdx.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
+
+            bool filtered = false;
+            if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
+                filtered = data.toLongLong() < _filterText.toLongLong();
+            else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
+                filtered = data.toLongLong() > _filterText.toLongLong();
+            else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL) {
+                filtered = data.toLongLong() == _filterText.toLongLong();
+            }
+
+            if (!filtered)
+                return false;
+        }
+    }
+
+    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}
+
+bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    if (! source_left.isValid() || ! qobject_cast<const ATapDataModel *>(source_left.model()))
+        return false;
+    if (! source_right.isValid() || ! qobject_cast<const ATapDataModel *>(source_right.model()))
+        return false;
+
+    ATapDataModel * model = qobject_cast<ATapDataModel *>(sourceModel());
+
+    if (! model || source_left.model() != model || source_right.model() != model)
+        return false;
+
+    QVariant datA = source_left.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
+    QVariant datB = source_right.data(ATapDataModel::UNFORMATTED_DISPLAYDATA);
+
+    bool is_address = false;
+    if (qobject_cast<EndpointDataModel *>(model) && source_left.column() == EndpointDataModel::ENDP_COLUMN_ADDR &&
+        source_left.column() == source_right.column()) {
+        is_address = true;
+    } else if (qobject_cast<ConversationDataModel *>(model) && (source_left.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR ||
+        source_left.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR) && source_left.column() == source_right.column()) {
+        is_address = true;
+    }
+
+    if (is_address) {
+        bool result = false;
+        bool identical = false;
+        int addressTypeA = model->data(source_left, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
+        int addressTypeB = model->data(source_right, ATapDataModel::DATA_ADDRESS_TYPE).toInt();
+        if (addressTypeA != 0 && addressTypeB != 0 && addressTypeA != addressTypeB) {
+            result = addressTypeA < addressTypeB;
+        } else if (addressTypeA != 0 && addressTypeA == addressTypeB) {
+
+            if (addressTypeA == AT_IPv4) {
+                quint32 valA = model->data(source_left, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                quint32 valB = model->data(source_right, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+
+                result = valA < valB;
+                identical = valA == valB;
+            } else if (addressTypeA == AT_NUMERIC) {
+                quint32 valA = datA.toInt();
+                quint32 valB = datB.toInt();
+                result = valA < valB;
+                identical = valA == valB;
+            } else {
+                result = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) < 0;
+                identical = QString::compare(datA.toString(), datB.toString(), Qt::CaseInsensitive) == 0;
+            }
+
+            int portColumn = EndpointDataModel::ENDP_COLUMN_PORT;
+            if (identical && qobject_cast<ConversationDataModel *>(model)) {
+                QModelIndex tstA, tstB;
+                if (source_left.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR) {
+                    portColumn = ConversationDataModel::CONV_COLUMN_SRC_PORT;
+                    int col = ConversationDataModel::CONV_COLUMN_DST_ADDR;
+                    tstA = model->index(source_left.row(), col);
+                    tstB = model->index(source_right.row(), col);
+                } else if (source_left.column() == ConversationDataModel::CONV_COLUMN_DST_ADDR) {
+                    portColumn = ConversationDataModel::CONV_COLUMN_DST_PORT;
+                    int col = ConversationDataModel::CONV_COLUMN_SRC_ADDR;
+                    tstA = model->index(source_left.row(), col);
+                    tstB = model->index(source_right.row(), col);
+                }
+
+                if (addressTypeA == AT_IPv4) {
+                    quint32 valX = model->data(tstA, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+                    quint32 valY = model->data(tstB, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
+
+                    result = valX < valY;
+                    identical = valX == valY;
+                } else {
+                    result = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) < 0;
+                    identical = QString::compare(model->data(tstA).toString().toLower(), model->data(tstB).toString(), Qt::CaseInsensitive) == 0;
+                }
+            }
+
+            if (! result && identical && ! model->portsAreHidden()) {
+                int portA = model->data(model->index(source_left.row(), portColumn)).toInt();
+                int portB = model->data(model->index(source_right.row(), portColumn)).toInt();
+                return portA < portB;
+            }
+        }
+
+        return result;
+    }
+
+    if (datA.canConvert<double>() && datB.canConvert<double>())
+        return datA.toDouble() < datB.toDouble();
+
+    return QSortFilterProxyModel::lessThan(source_left, source_right);
+}
+
+bool TrafficDataFilterProxy::filterAcceptsColumn(int source_column, const QModelIndex &) const
+{
+    if (hideColumns_.contains(source_column))
+        return false;
+
+    ATapDataModel * model = qobject_cast<ATapDataModel *>(sourceModel());
+    if (model) {
+        if (model->portsAreHidden()) {
+            if (qobject_cast<EndpointDataModel *>(model) && source_column == EndpointDataModel::ENDP_COLUMN_PORT)
+                return false;
+            if (qobject_cast<ConversationDataModel *>(model) &&
+                (source_column == ConversationDataModel::CONV_COLUMN_SRC_PORT || source_column == ConversationDataModel::CONV_COLUMN_DST_PORT))
+                return false;
+        }
+        if (! model->showTotalColumn()) {
+            if (qobject_cast<EndpointDataModel *>(model) &&
+                (source_column == EndpointDataModel::ENDP_COLUMN_PACKETS_TOTAL || source_column == EndpointDataModel::ENDP_COLUMN_BYTES_TOTAL))
+                return false;
+            if (qobject_cast<ConversationDataModel *>(model) &&
+                (source_column == ConversationDataModel::CONV_COLUMN_PACKETS_TOTAL || source_column == ConversationDataModel::CONV_COLUMN_BYTES_TOTAL))
+                return false;
+        }
+        if (qobject_cast<ConversationDataModel *>(model)) {
+            ConversationDataModel * convModel = qobject_cast<ConversationDataModel *>(model);
+            if (source_column == ConversationDataModel::CONV_COLUMN_CONV_ID && ! convModel->showConversationId())
+                return false;
+        }
+    }
+
+    return true;
+}
+
+void TrafficDataFilterProxy::setColumnVisibility(int column, bool visible)
+{
+    hideColumns_.removeAll(column);
+    if (!visible)
+        hideColumns_.append(column);
+    invalidateFilter();
+}
+
+bool TrafficDataFilterProxy::columnVisible(int column) const
+{
+    return ! hideColumns_.contains(column);
+}
+
 
 TrafficTree::TrafficTree(QString baseName, GList ** recentColumnList, QWidget *parent) :
     QTreeView(parent)
@@ -156,6 +496,18 @@ TrafficTree::TrafficTree(QString baseName, GList ** recentColumnList, QWidget *p
 
     connect(_header, &TrafficTreeHeaderView::columnsHaveChanged, this, &TrafficTree::columnsHaveChanged);
     connect(this, &QTreeView::customContextMenuRequested, this, &TrafficTree::customContextMenu);
+}
+
+void TrafficTree::setModel(QAbstractItemModel * model)
+{
+    if (model) {
+        TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(model);
+        if (proxy) {
+            connect(_header, &TrafficTreeHeaderView::filterOnColumn, proxy, &TrafficDataFilterProxy::filterForColumn);
+        }
+    }
+
+    QTreeView::setModel(model);
 }
 
 void TrafficTree::tapListenerEnabled(bool enable)

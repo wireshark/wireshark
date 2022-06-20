@@ -64,25 +64,6 @@ private:
 
 Q_DECLARE_METATYPE(TabData)
 
-class TrafficDataFilterProxy : public QSortFilterProxyModel
-{
-    Q_OBJECT
-public:
-    TrafficDataFilterProxy(QObject *parent = nullptr);
-
-    void setColumnVisibility(int column, bool visible);
-    bool columnVisible(int column) const;
-
-protected:
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-    virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
-    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
-
-private:
-    QList<int> hideColumns_;
-
-};
-
 /**
  * @brief A QTabWidget class, providing tap information
  *
