@@ -272,8 +272,8 @@ QMenu * TrafficTree::createCopyMenu(QWidget *parent)
     ca->setToolTip(tr("Copy all values of this page to the clipboard in the YAML data serialization format."));
     ca->setProperty("copy_as", TrafficTree::CLIPBOARD_YAML);
     connect(ca, &QAction::triggered, this, &TrafficTree::clipboardAction);
-    ca = copy_menu->addAction(tr("as Json"));
-    ca->setToolTip(tr("Copy all values of this page to the clipboard in the Json data serialization format."));
+    ca = copy_menu->addAction(tr("as JSON"));
+    ca->setToolTip(tr("Copy all values of this page to the clipboard in the JSON data serialization format."));
     ca->setProperty("copy_as", TrafficTree::CLIPBOARD_JSON);
     connect(ca, &QAction::triggered, this, &TrafficTree::clipboardAction);
 

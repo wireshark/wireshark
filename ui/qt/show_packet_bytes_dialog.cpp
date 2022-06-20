@@ -74,7 +74,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("Hex Dump"), ShowAsHexDump);
     ui->cbShowAs->addItem(tr("HTML"), ShowAsHTML);
     ui->cbShowAs->addItem(tr("Image"), ShowAsImage);
-    ui->cbShowAs->addItem(tr("Json"), ShowAsJson);
+    ui->cbShowAs->addItem(tr("JSON"), ShowAsJson);
     ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
     ui->cbShowAs->addItem(tr("Rust Array"), ShowAsRustArray);
     // UTF-8 is guaranteed to exist as a QTextCodec

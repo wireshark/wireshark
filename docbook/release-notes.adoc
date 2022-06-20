@@ -28,7 +28,7 @@ wsbuglink:17779[]
 
 * The Conversation and Endpoint dialogs have been redesigned with the following improvements:
  - The context menu now includes the option to resize all columns, as well as copying elements
- - Data may be exported as Json
+ - Data may be exported as JSON
  - Tabs may be detached and reattached from the dialog
  - Adding/Removing tabs will keep them in the same order all the time
  - If a filter is applied, two columns are shown in either dialog detailing the difference between

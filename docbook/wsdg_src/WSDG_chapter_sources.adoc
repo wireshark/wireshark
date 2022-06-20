@@ -1091,7 +1091,7 @@ Wireshark uses various mime-types for dragging dropping as well as file formats.
 This chapter gives an overview over all the mimetypes being used, as well as the
 data format in which data has to be provided for each individual mimetype.
 
-If not otherwise stated, the data is encoded as a Json Object.
+If not otherwise stated, the data is encoded as a JSON Object.
 
 ==== Display Filter
 
