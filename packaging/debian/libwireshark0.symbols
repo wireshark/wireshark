@@ -752,6 +752,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fvalue_get_sinteger64@Base 1.99.3
  fvalue_get_sinteger@Base 1.9.1
  fvalue_get_string@Base 3.7.1rc0-265-ge42a4de47c6d
+ fvalue_get_strbuf@Base 3.7.1rc0-272-gfe25d701baa2
  fvalue_get_time@Base 3.7.1rc0-265-ge42a4de47c6d
  fvalue_get_uinteger64@Base 1.99.3
  fvalue_get_uinteger@Base 1.9.1

@@ -315,11 +315,15 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_strbuf_append_unichar@Base 3.5.0
  wmem_strbuf_append_vprintf@Base 3.5.0
  wmem_strbuf_destroy@Base 3.5.0
+ wmem_strbuf_dup@Base 3.7.1rc0-272-gfe25d701baa2
  wmem_strbuf_finalize@Base 3.5.0
  wmem_strbuf_get_len@Base 3.5.0
  wmem_strbuf_get_str@Base 3.5.0
  wmem_strbuf_new@Base 3.5.0
+ wmem_strbuf_new_len@Base 3.7.1rc0-272-gfe25d701baa2
  wmem_strbuf_sized_new@Base 3.5.0
+ wmem_strbuf_strcmp@Base 3.7.1rc0-272-gfe25d701baa2
+ wmem_strbuf_strstr@Base 3.7.1rc0-272-gfe25d701baa2
  wmem_strbuf_truncate@Base 3.5.0
  wmem_strconcat@Base 3.5.0
  wmem_strdup@Base 3.5.0
@@ -368,7 +372,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_cleanup_sockets@Base 3.1.0
  ws_clock_get_realtime@Base 3.7.0
  ws_cmac_buffer@Base 3.1.0
+ ws_escape_null@Base 3.7.1rc0-272-gfe25d701baa2
  ws_escape_string@Base 3.7.0
+ ws_escape_string_len@Base 3.7.1rc0-272-gfe25d701baa2
  ws_getopt@Base 3.5.1
  ws_getopt_long@Base 3.5.1
  ws_getopt_long_only@Base 3.5.1
