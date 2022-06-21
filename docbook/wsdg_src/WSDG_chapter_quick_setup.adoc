@@ -657,7 +657,7 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 To build the Wireshark User's Guide and the Wireshark Developer's Guide,
 build the `all_guides` target, e.g.  `msbuild all_guides.vcxproj`.
 Detailed information to build these guides can be found in the file
-_docbook\README.md_ in the Wireshark sources.
+_docbook\README.adoc_ in the Wireshark sources.
 
 ==== Optional: Create a Wireshark Installer
 
