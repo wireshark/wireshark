@@ -167,7 +167,6 @@ Each protocol field is typed. The types are:
     ASN.1 object identifier
     Boolean
     Character string
-    Compiled Perl-Compatible Regular Expression (GRegex) object
     Date and time
     Ethernet or other MAC address
     EUI64 address
@@ -187,7 +186,7 @@ Each protocol field is typed. The types are:
     1-byte ASCII character
 
 An integer may be expressed in decimal, octal, hexadecimal or binary notation,
-or as a C-style character constant.  The following six display filters
+or as a C-style character constant.  The following seven display filters
 are equivalent:
 
     frame.len > 10
@@ -199,16 +198,18 @@ are equivalent:
     frame.len > '\012'
 
 Boolean values are either true or false.  In a display filter expression
-testing the value of a Boolean field, "true" is expressed as 1 or any
-other non-zero value, and "false" is expressed as zero.  For example, a
-token-ring packet's source route field is Boolean.  To find any
-source-routed packets, a display filter would be:
+testing the value of a Boolean field, true is expressed as the word "true"
+(without quotes) or any non-zero number.  False is expressed as "false" or zero.
+For example, a token-ring packet's source route field is Boolean.  To find any
+source-routed packets, a display filter would be any of the following:
 
     tr.sr == 1
+    tr.sr == true
 
 Non source-routed packets can be found with:
 
     tr.sr == 0
+    tr.sr == false
 
 Ethernet addresses and byte arrays are represented by hex
 digits.  The hex digits may be separated by colons, periods, or hyphens:
@@ -249,7 +250,7 @@ not valid (yet).
 Transaction and other IDs are often represented by unsigned 16 or 32 bit integers
 and formatted as a hexadecimal string with "0x" prefix:
 
-	(dhcp.id == 0xfe089c15) || (ip.id == 0x0373)
+    (dhcp.id == 0xfe089c15) || (ip.id == 0x0373)
 
 Strings are enclosed in double quotes:
 
@@ -281,6 +282,35 @@ as
 String literals prefixed with 'r' are called "raw strings". Such strings treat
 backslash as a literal character. Double quotes may still be escaped with
 backslash but note that backslashes are always preserved in the result.
+
+The following table lists all escape sequences supported with strings
+and character constants:
+
+    \'          single quote
+    \"          double quote
+    \\          backslash
+    \a          audible bell
+    \b          backspace
+    \f          form feed
+    \n          line feed
+    \r          carriage return
+    \t          horizontal tab
+    \v          vertical tab
+    \NNN        arbitrary octal value
+    \xNN        arbitrary hexadecimal value
+    \uNNNN      Unicode codepoint U+NNNN
+    \UNNNNNNNN  Unicode codepoint U+NNNNNNNN
+
+Date and time values can be given in ISO 8601 format or using a legacy
+month-year-time format:
+
+    "2020-07-04T12:34:56"
+    "Sep 26, 2004 23:18:04.954975"
+
+The 'T' separator in ISO 8601 can be omitted. ISO 8601 supports timezone
+designators as UTC or an offset from UTC. Legacy formats can append the
+value "UTC" at the end to specify time in Coordinated Universal Time.
+Otherwise date and time values are interpreted as local time.
 
 === The slice operator
 
