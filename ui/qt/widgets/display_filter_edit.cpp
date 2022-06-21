@@ -296,7 +296,7 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
         else
             xpos = bookmark_button_->size().width();
 
-        painter.drawLine(xpos, cr.top(), xpos, cr.bottom());
+        painter.drawLine(xpos, cr.top(), xpos, cr.bottom() + 1);
     }
 }
 

@@ -255,7 +255,7 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
         painter.setPen(divider_color);
         QRect cr = contentsRect();
         QSize bksz = bookmark_button_->size();
-        painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom());
+        painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom() + 1);
     }
 }
 
