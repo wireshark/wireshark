@@ -200,19 +200,12 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     set_action_shortcuts_visible_in_context_menu(graph_ctx_menu_->actions());
 
     ui->streamTreeWidget->setMouseTracking(true);
-    connect(ui->streamTreeWidget, SIGNAL(itemEntered(QTreeWidgetItem *, int)),
-            this, SLOT(itemEntered(QTreeWidgetItem *, int)));
+    connect(ui->streamTreeWidget, &QTreeWidget::itemEntered, this, &RtpPlayerDialog::itemEntered);
 
-    connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
-            this, SLOT(mouseMovePlot(QMouseEvent*)));
-    connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
-            this, SLOT(mouseMovePlot(QMouseEvent*)));
-    connect(ui->audioPlot, SIGNAL(mousePress(QMouseEvent*)),
-            this, SLOT(graphClicked(QMouseEvent*)));
-    connect(ui->audioPlot, SIGNAL(mouseDoubleClick(QMouseEvent*)),
-            this, SLOT(graphDoubleClicked(QMouseEvent*)));
-    connect(ui->audioPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,int,QMouseEvent*)),
-            this, SLOT(plotClicked(QCPAbstractPlottable*,int,QMouseEvent*)));
+    connect(ui->audioPlot, &QCustomPlot::mouseMove, this, &RtpPlayerDialog::mouseMovePlot);
+    connect(ui->audioPlot, &QCustomPlot::mousePress, this, &RtpPlayerDialog::graphClicked);
+    connect(ui->audioPlot, &QCustomPlot::mouseDoubleClick, this, &RtpPlayerDialog::graphDoubleClicked);
+    connect(ui->audioPlot, &QCustomPlot::plottableClick, this, &RtpPlayerDialog::plotClicked);
 
     cur_play_pos_ = new QCPItemStraightLine(ui->audioPlot);
     cur_play_pos_->setVisible(false);
@@ -244,14 +237,14 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     read_btn_ = ui->buttonBox->addButton(ui->actionReadCapture->text(), QDialogButtonBox::ActionRole);
     read_btn_->setToolTip(ui->actionReadCapture->toolTip());
     read_btn_->setEnabled(false);
-    connect(read_btn_, SIGNAL(pressed()), this, SLOT(on_actionReadCapture_triggered()));
+    connect(read_btn_, &QPushButton::pressed, this, &RtpPlayerDialog::on_actionReadCapture_triggered);
 
     inaudible_btn_ = new QToolButton();
     ui->buttonBox->addButton(inaudible_btn_, QDialogButtonBox::ActionRole);
     inaudible_btn_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     inaudible_btn_->setPopupMode(QToolButton::MenuButtonPopup);
 
-    connect(ui->actionInaudibleButton, SIGNAL(triggered()), this, SLOT(on_actionSelectInaudible_triggered()));
+    connect(ui->actionInaudibleButton, &QAction::triggered, this, &RtpPlayerDialog::on_actionSelectInaudible_triggered);
     inaudible_btn_->setDefaultAction(ui->actionInaudibleButton);
     // Overrides text striping of shortcut undercode in QAction
     inaudible_btn_->setText(ui->actionInaudibleButton->text());
@@ -262,7 +255,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 
     prepare_btn_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
     prepare_btn_->setToolTip(ui->actionPrepareFilter->toolTip());
-    connect(prepare_btn_, SIGNAL(pressed()), this, SLOT(on_actionPrepareFilter_triggered()));
+    connect(prepare_btn_, &QPushButton::pressed, this, &RtpPlayerDialog::on_actionPrepareFilter_triggered);
 
     export_btn_ = ui->buttonBox->addButton(ui->actionExportButton->text(), QDialogButtonBox::ActionRole);
     export_btn_->setToolTip(ui->actionExportButton->toolTip());
@@ -322,8 +315,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     list_ctx_menu_->addAction(ui->actionGoToSetupPacketTree);
     set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
-            this, SLOT(captureEvent(CaptureEvent)));
+    connect(&cap_file_, &CaptureFile::captureEvent, this, &RtpPlayerDialog::captureEvent);
     connect(this, SIGNAL(updateFilter(QString, bool)),
             &parent, SLOT(filterPackets(QString, bool)));
     connect(this, SIGNAL(rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
@@ -747,8 +739,8 @@ void RtpPlayerDialog::addSingleRtpStream(rtpstream_id_t *id)
             ti->setForeground(col, fgBrush);
         }
 
-        connect(audio_stream, SIGNAL(finishedPlaying(RtpAudioStream *, QAudio::Error)), this, SLOT(playFinished(RtpAudioStream *, QAudio::Error)));
-        connect(audio_stream, SIGNAL(playbackError(QString)), this, SLOT(setPlaybackError(QString)));
+        connect(audio_stream, &RtpAudioStream::finishedPlaying, this, &RtpPlayerDialog::playFinished);
+        connect(audio_stream, &RtpAudioStream::playbackError, this, &RtpPlayerDialog::setPlaybackError);
     } catch (...) {
         qWarning() << "Stream ignored, try to add fewer streams to playlist";
     }
@@ -1882,7 +1874,7 @@ void RtpPlayerDialog::cleanupMarkerStream()
     }
 }
 
-void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString &)
+void RtpPlayerDialog::on_outputDeviceComboBox_currentTextChanged(const QString &)
 {
     lockUI();
     stereo_available_ = isStereoAvailable();
@@ -1902,7 +1894,7 @@ void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString 
     unlockUI();
 }
 
-void RtpPlayerDialog::on_outputAudioRate_currentIndexChanged(const QString & rate_string)
+void RtpPlayerDialog::on_outputAudioRate_currentTextChanged(const QString & rate_string)
 {
     lockUI();
     // Any unconvertable string is converted to 0 => used as Automatic rate
