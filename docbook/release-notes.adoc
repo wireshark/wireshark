@@ -41,6 +41,7 @@ wsbuglink:17779[]
    - Selection of tap elements is done via list
    - All configurations and options are done via a left side button row
  - Columns for the Conversations and Endpoint dialogs can be hidden by context menu
+ - TCP/UDP conversations now include the stream id and allows filtering on it
 
 * The PCRE2 library (https://www.pcre.org/) is now a required dependency to build Wireshark.
 

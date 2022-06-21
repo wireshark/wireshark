@@ -56,6 +56,7 @@ public:
         ActionDirectionAnyFromB
     };
 
+    explicit FilterAction(QObject *parent, Action action, ActionType type, QString actionName);
     explicit FilterAction(QObject *parent, Action action, ActionType type, ActionDirection direction);
     explicit FilterAction(QObject *parent, Action action, ActionType type);
     explicit FilterAction(QObject *parent, Action action);
@@ -84,6 +85,8 @@ private:
     Action action_;
     ActionType type_;
     ActionDirection direction_;
+
+    QString actionName_;
 
 private slots:
     void groupTriggered(QAction *);

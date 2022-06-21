@@ -15,6 +15,15 @@
 #include <QClipboard>
 #include <QMenu>
 
+FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type, QString actionName) :
+    QAction(parent),
+    action_(action),
+    type_(type),
+    actionName_(actionName)
+{
+    setText(actionName);
+}
+
 FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type, FilterAction::ActionDirection direction) :
     QAction(parent),
     action_(action),

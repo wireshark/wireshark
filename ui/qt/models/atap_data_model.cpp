@@ -548,6 +548,8 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
             return tr("Packets"); break;
         case CONV_COLUMN_BYTES:
             return tr("Bytes"); break;
+        case CONV_COLUMN_CONV_ID:
+            return tr("Stream ID"); break;
         case CONV_COLUMN_PACKETS_TOTAL:
             return tr("Total Packets"); break;
         case CONV_COLUMN_BYTES_TOTAL:
@@ -639,6 +641,8 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
         case CONV_COLUMN_BYTES:
             return role == Qt::DisplayRole ? formatString((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes) :
                 QVariant((qlonglong)conv_item->tx_bytes + conv_item->rx_bytes);
+        case CONV_COLUMN_CONV_ID:
+            return (int) conv_item->conv_id;
         case CONV_COLUMN_PACKETS_TOTAL:
         {
             qlonglong packets = 0;
@@ -751,4 +755,15 @@ conv_item_t * ConversationDataModel::itemForRow(int row)
     if (row < 0 || row >= rowCount())
         return nullptr;
     return (conv_item_t *)&g_array_index(storage_, conv_item_t, row);
+}
+
+bool ConversationDataModel::showConversationId() const
+{
+    if (!storage_)
+        return false;
+
+    conv_item_t *conv_item = (conv_item_t *)&g_array_index(storage_, conv_item_t, 0);
+    if (conv_item && (conv_item->etype == ENDPOINT_TCP || conv_item->etype == ENDPOINT_UDP))
+        return true;
+    return false;
 }

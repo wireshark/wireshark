@@ -286,6 +286,7 @@ public:
         CONV_COLUMN_DST_PORT,
         CONV_COLUMN_PACKETS,
         CONV_COLUMN_BYTES,
+        CONV_COLUMN_CONV_ID,
         CONV_COLUMN_PACKETS_TOTAL,
         CONV_COLUMN_BYTES_TOTAL,
         CONV_COLUMN_PKT_AB,
@@ -309,6 +310,14 @@ public:
     void doDataUpdate();
 
     conv_item_t * itemForRow(int row);
+
+    /**
+     * @brief Show the conversation id if available
+     *
+     * @return true a conversation id exists
+     * @return false none available
+     */
+    bool showConversationId() const;
 
 };
 

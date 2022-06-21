@@ -195,6 +195,11 @@ bool TrafficDataFilterProxy::filterAcceptsColumn(int source_column, const QModel
                 (source_column == ConversationDataModel::CONV_COLUMN_PACKETS_TOTAL || source_column == ConversationDataModel::CONV_COLUMN_BYTES_TOTAL))
                 return false;
         }
+        if (qobject_cast<ConversationDataModel *>(model)) {
+            ConversationDataModel * convModel = qobject_cast<ConversationDataModel *>(model);
+            if (source_column == ConversationDataModel::CONV_COLUMN_CONV_ID && ! convModel->showConversationId())
+                return false;
+        }
     }
 
     return true;
