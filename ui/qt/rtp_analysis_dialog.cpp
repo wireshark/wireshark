@@ -732,7 +732,7 @@ void RtpAnalysisDialog::resetStatistics()
 
 void RtpAnalysisDialog::addPacket(tab_info_t *tab, packet_info *pinfo, const _rtp_info *rtpinfo)
 {
-    rtppacket_analyse(&tab->stream.rtp_stats, pinfo, rtpinfo);
+    rtpstream_info_analyse_process(&tab->stream, pinfo, rtpinfo);
     new RtpAnalysisTreeWidgetItem(tab->tree_widget, &tab->stream.rtp_stats, pinfo, rtpinfo);
     tab->time_vals->append(tab->stream.rtp_stats.time / 1000);
     tab->jitter_vals->append(tab->stream.rtp_stats.jitter);
