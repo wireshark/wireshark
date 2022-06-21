@@ -618,7 +618,7 @@ ftype_register_bytes(void)
 	static ftype_t bytes_type = {
 		FT_BYTES,			/* ftype */
 		"FT_BYTES",			/* name */
-		"Sequence of bytes",		/* pretty_name */
+		"Byte sequence",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */
@@ -651,7 +651,7 @@ ftype_register_bytes(void)
 	static ftype_t uint_bytes_type = {
 		FT_UINT_BYTES,		/* ftype */
 		"FT_UINT_BYTES",		/* name */
-		"Sequence of bytes",		/* pretty_name */
+		"Byte sequence",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_copy,		/* copy_value */

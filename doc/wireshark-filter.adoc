@@ -163,27 +163,32 @@ the largest/smallest. The arguments must all have the same type.
 === Protocol field types
 
 Each protocol field is typed. The types are:
+// `tshark -G ftypes | sed -e 's/.*\t/    /' | sort -f -u`, then fix up by hand
 
-    ASN.1 object identifier
+    ASN.1 object identifier, plain or relative
+    AX.25 address
     Boolean
+    Byte sequence
     Character string
+    Character, 1 byte
     Date and time
     Ethernet or other MAC address
     EUI64 address
-    Floating point (double-precision)
-    Floating point (single-precision)
+    Fibre Channel WWN
+    Floating point, single or double precision
     Frame number
     Globally Unique Identifier
+    IEEE-11073 floating point, 16 or 32 bits
     IPv4 address
     IPv6 address
     IPX network number
     Label
+    OSI System-ID
     Protocol
-    Sequence of bytes
     Signed integer, 1, 2, 3, 4, or 8 bytes
     Time offset
     Unsigned integer, 1, 2, 3, 4, or 8 bytes
-    1-byte ASCII character
+    VINES address
 
 An integer may be expressed in decimal, octal, hexadecimal or binary notation,
 or as a C-style character constant.  The following seven display filters

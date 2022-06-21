@@ -900,7 +900,7 @@ Example: 114 is 0x0072
     static ftype_t sfloat_type = {
         FT_IEEE_11073_SFLOAT,                 /* ftype */
         "FT_IEEE_11073_SFLOAT",               /* name */
-        "IEEE-11073 Floating point (16-bit)", /* pretty_name */
+        "IEEE-11073 floating point (16-bit)", /* pretty_name */
         2,                                    /* wire_size */
 
         sfloat_ieee_11073_fvalue_new,         /* new_value */
