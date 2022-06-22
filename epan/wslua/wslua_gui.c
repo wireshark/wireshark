@@ -749,7 +749,7 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window. 
     text = ops->get_text(tw->ws_tw);
 
     lua_pushstring(L,text);
-    WSLUA_RETURN(1); /* The `TextWindow`'s text. */
+    WSLUA_RETURN(1); /* The `TextWindow`++'++s text. */
 }
 
 WSLUA_METHOD TextWindow_close(lua_State* L) { /* Close the window. */

@@ -27,7 +27,7 @@ WSLUA_CLASS_DEFINE(FrameInfo,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
     functions (e.g., `read`, `seek_read`, etc.).
 
     This object represents frame data and meta-data (data about the frame/packet)
-    for a given `read`/`seek_read`/`write`'s frame.
+    for a given `read`/`seek_read`/`write`++'++s frame.
 
     This object's fields are written-to/set when used by read function callbacks, and
     read-from/get when used by file write function callbacks.  In other words, when

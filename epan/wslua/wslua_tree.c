@@ -164,9 +164,9 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
      returned, but the second returned value is `nil`.
 
      Another new feature added to this function in Wireshark version 1.11.3 is the
-     ability to extract native number `ProtoField`s from string encoding in the
+     ability to extract native number `ProtoField`++s++ from string encoding in the
      `TvbRange`, for ASCII-based and similar string encodings. For example, a
-     <<lua_class_ProtoField,`ProtoField`>> of as `ftypes.UINT32` type can be extracted from a `TvbRange`
+     <<lua_class_ProtoField,`ProtoField`>> of type `ftypes.UINT32` can be extracted from a `TvbRange`
      containing the ASCII string "123", and it will correctly decode the ASCII to
      the number `123`, both in the tree as well as for the second return value of
      this function. To do so, you must set the `encoding` argument of this function

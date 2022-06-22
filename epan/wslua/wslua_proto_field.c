@@ -1027,7 +1027,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int64 Creates a <<lua_class_ProtoField,`ProtoField`>> of a signed 64-bit integer. */
 /* WSLUA_ARG_Protofield_int64_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_int64_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_int64_BASE One of `base.DEC`, `base.UNIT_STRING`, or`base.RANGE_STRING`. */
+/* WSLUA_OPTARG_Protofield_int64_BASE One of `base.DEC`, `base.UNIT_STRING`, or `base.RANGE_STRING`. */
 /* WSLUA_OPTARG_Protofield_int64_VALUESTRING A table containing the text that corresponds to the values, or a table containing tables of range string values that correspond to the values ({min, max, "string"}) if the base is `base.RANGE_STRING`, or a table containing unit name for the values if base is `base.UNIT_STRING`. */
 /* WSLUA_OPTARG_Protofield_int64_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_Protofield_int64_DESC Description of the field. */

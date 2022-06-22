@@ -420,7 +420,7 @@ WSLUA_ATTRIBUTE_STRING_GETTER(Proto,name);
 /* WSLUA_ATTRIBUTE Proto_description RO The description given to this dissector. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Proto,description,desc);
 
-/* WSLUA_ATTRIBUTE Proto_fields RW The `ProtoField`s Lua table of this dissector. */
+/* WSLUA_ATTRIBUTE Proto_fields RW The `ProtoField`++'++s Lua table of this dissector. */
 static int Proto_get_fields(lua_State* L) {
     Proto proto = checkProto(L,1);
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
