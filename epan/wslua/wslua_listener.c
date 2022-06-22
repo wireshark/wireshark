@@ -324,7 +324,7 @@ WSLUA_METAMETHOD Listener__tostring(lua_State* L) {
     /* Generates a string of debug info for the tap `Listener`. */
     Listener tap = checkListener(L,1);
 
-    lua_pushfstring(L,"Listener(%s) filter: %s",tap->name, tap->filter ? tap->filter : "NONE");
+    lua_pushfstring(L,"Listener(%s) filter: %s  tapinfo: %s",tap->name, tap->filter ? tap->filter : "NONE", tap->extractor ? "YES": "NO");
 
     return 1;
 }
@@ -345,7 +345,9 @@ WSLUA_METAMETHOD Listener__tostring(lua_State* L) {
 
     [NOTE]
     ====
-    `tapinfo` is a table of info based on the `Listener`'s type, or nil.
+    `tapinfo` is a table of info based on the `Listener` type, or nil.
+
+    See _epan/wslua/taps_ for `tapinfo` structure definitions.
     ====
 */
 WSLUA_ATTRIBUTE_FUNC_SETTER(Listener,packet);
