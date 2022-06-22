@@ -759,7 +759,7 @@ conv_item_t * ConversationDataModel::itemForRow(int row)
 
 bool ConversationDataModel::showConversationId(int row) const
 {
-    if (!storage_ || row >= storage_->len)
+    if (!storage_ || row >= (int) storage_->len)
         return false;
 
     conv_item_t *conv_item = (conv_item_t *)&g_array_index(storage_, conv_item_t, row);
