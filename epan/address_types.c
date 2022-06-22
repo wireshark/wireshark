@@ -19,6 +19,7 @@
 #include "wsutil/str_util.h"
 #include "wsutil/inet_addr.h"
 #include <wsutil/ws_assert.h>
+#include <wsutil/pint.h>
 
 struct _address_type_t {
     int                     addr_type; /* From address_type enumeration or registered value */
@@ -522,19 +523,44 @@ static int vines_len(void)
  * AT_NUMERIC
  ******************************************************************************/
 
-static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
-{
-	const guint32 *addr_data = (const guint32 *)addr->data;
-
-    memset(buf, '\0', 14);
-    snprintf(buf, 14, "%d", *addr_data);
-
-	return (int)strlen(buf);
-}
+/* G_MAXUINT64 is defined as 0xffffffffffffffffU which in itself represents
+ * 18,446,744,073,709,551,615 as decimal, which has 20 characters. Adding 21
+ * as for null-byte termination.
+ * All values are derived from the counterparts defined in glib/basic-types */
+const size_t MAX_UINT64_WIDTH = 21;
+const size_t MAX_UINT32_WIDTH = 11;
+const size_t MAX_UINT16_WIDTH = 6;
+const size_t MAX_UINT8_WIDTH = 4;
 
 static int numeric_addr_str_len(const address* addr _U_)
 {
-	return 14;
+    if (addr->len == (int) sizeof(guint64)) {
+        return (int) MAX_UINT64_WIDTH;
+    } else if (addr->len == (int) sizeof(guint32)) {
+        return (int) MAX_UINT32_WIDTH;
+    } else if (addr->len == (int) sizeof(guint16)) {
+        return (int) MAX_UINT16_WIDTH;
+    }
+
+    return (int) MAX_UINT8_WIDTH;
+}
+
+static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+    int len = numeric_addr_str_len(addr);
+
+    memset(buf, '\0', len);
+    if (addr->len == (int) sizeof(guint64)) {
+        snprintf(buf, len, "%"PRIu64, pletoh64(addr->data));
+    } else if (addr->len == (int) sizeof(guint32)) {
+        snprintf(buf, len, "%u", pletoh32(addr->data));
+    } else if (addr->len == (int) sizeof(guint16)) {
+        snprintf(buf, len, "%u", pletoh16(addr->data));
+    } else {
+        snprintf(buf, len, "%u", *((guint8*) (addr->data)));
+    }
+
+	return len;
 }
 
 /******************************************************************************
