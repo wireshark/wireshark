@@ -82,9 +82,9 @@ static int hf_payload_unparsed                              = -1;
 
 static gint ett_spdu_payload                                = -1;
 static gint ett_spdu_signal                                 = -1;
-static gboolean spdu_deserializer_activated                = TRUE;
-static gboolean spdu_deserializer_show_hidden              = FALSE;
-static gboolean spdu_deserializer_hide_raw_values          = TRUE;
+static gboolean spdu_deserializer_activated                 = TRUE;
+static gboolean spdu_deserializer_show_hidden               = FALSE;
+static gboolean spdu_deserializer_hide_raw_values           = TRUE;
 
 /*** expert info items ***/
 static expert_field ef_spdu_payload_truncated               = EI_INIT;
@@ -106,17 +106,24 @@ static GHashTable *data_spdu_ipdum_mappings                 = NULL;
 static GHashTable *data_spdu_dlt_mappings                   = NULL;
 static GHashTable *data_spdu_uds_mappings                   = NULL;
 
-static hf_register_info *dynamic_hf                         = NULL;
-static guint dynamic_hf_size                                = 0;
+static hf_register_info *dynamic_hf_base_raw                = NULL;
+static hf_register_info *dynamic_hf_agg_sum                 = NULL;
+static hf_register_info *dynamic_hf_agg_avg                 = NULL;
+static hf_register_info *dynamic_hf_agg_int                 = NULL;
+static guint dynamic_hf_number_of_entries                   = 0;
+static guint dynamic_hf_base_raw_number                     = 0;
+static guint dynamic_hf_agg_sum_number                      = 0;
+static guint dynamic_hf_agg_avg_number                      = 0;
+static guint dynamic_hf_agg_int_number                      = 0;
 
 #define HF_TYPE_BASE                                        0
 #define HF_TYPE_RAW                                         1
 #define HF_TYPE_AGG_SUM                                     2
 #define HF_TYPE_AGG_AVG                                     3
 #define HF_TYPE_AGG_INT                                     4
-/* HF_TYPE_COUNT must be the largest value + 1 */
-#define HF_TYPE_COUNT                                       (HF_TYPE_AGG_INT + 1)
 #define HF_TYPE_NONE                                        0xffff
+
+#define HF_TYPE_COUNT_BASE_RAW_TABLE                        2
 
 
 /***********************************************
@@ -825,8 +832,14 @@ free_spdu_signal_list_cb(void *r) {
 }
 
 static void
-deregister_user_data(void)
-{
+deregister_user_data_hfarray(hf_register_info **hf_array, guint *number_of_entries) {
+    if (hf_array == NULL || number_of_entries == NULL) {
+        return;
+    }
+
+    guint dynamic_hf_size = *number_of_entries;
+    hf_register_info *dynamic_hf = *hf_array;
+
     if (dynamic_hf != NULL) {
         /* Unregister all fields */
         for (guint i = 0; i < dynamic_hf_size; i++) {
@@ -837,25 +850,31 @@ deregister_user_data(void)
                 g_free(dynamic_hf[i].p_id);
                 dynamic_hf[i].p_id = NULL;
 
-                /* workaround since the proto.c proto_free_field_strings seems to crash us... */
+                /* workaround since the proto.c proto_free_field_strings would double free this... */
                 dynamic_hf[i].hfinfo.strings = NULL;
             }
         }
 
         proto_add_deregistered_data(dynamic_hf);
-        dynamic_hf = NULL;
-        dynamic_hf_size = 0;
+        *hf_array = NULL;
+        *number_of_entries = 0;
     }
+}
+
+static void
+deregister_user_data(void)
+{
+    deregister_user_data_hfarray(&dynamic_hf_base_raw, &dynamic_hf_base_raw_number);
+    deregister_user_data_hfarray(&dynamic_hf_agg_sum, &dynamic_hf_agg_sum_number);
+    deregister_user_data_hfarray(&dynamic_hf_agg_avg, &dynamic_hf_agg_avg_number);
+    deregister_user_data_hfarray(&dynamic_hf_agg_int, &dynamic_hf_agg_int_number);
+    dynamic_hf_number_of_entries = 0;
 }
 
 static spdu_signal_value_name_t *get_signal_value_name_config(guint32 id, guint16 pos);
 
 static gint*
-create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_string, spdu_dt_t data_type, gboolean scale_or_offset, guint32 hf_type) {
-    if (i >= dynamic_hf_size) {
-        return NULL;
-    }
-
+create_hf_entry(hf_register_info *dynamic_hf, guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_string, spdu_dt_t data_type, gboolean scale_or_offset, guint32 hf_type) {
     val64_string *vs = NULL;
 
     gint *hf_id = g_new(gint, 1);
@@ -965,9 +984,19 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
     }
 
     if (data_num) {
-        /* lets create DYNAMIC_HFS_PER_ARRAY x hf_ids per entry (1x effective, 1x raw, 1x aggregated sum, ...) */
-        dynamic_hf = g_new0(hf_register_info, HF_TYPE_COUNT * data_num);
-        dynamic_hf_size = HF_TYPE_COUNT * data_num;
+        dynamic_hf_number_of_entries = data_num;
+        /* lets create the dynamic_hf array (base + raw) */
+        dynamic_hf_base_raw = g_new0(hf_register_info, 2 * dynamic_hf_number_of_entries);
+        dynamic_hf_base_raw_number = 2 * dynamic_hf_number_of_entries;
+
+        /* lets create the other dynamic_hf arrays */
+        dynamic_hf_agg_sum = g_new0(hf_register_info, dynamic_hf_number_of_entries);
+        dynamic_hf_agg_sum_number = 0;
+        dynamic_hf_agg_avg = g_new0(hf_register_info, dynamic_hf_number_of_entries);
+        dynamic_hf_agg_avg_number = 0;
+        dynamic_hf_agg_int = g_new0(hf_register_info, dynamic_hf_number_of_entries);
+        dynamic_hf_agg_int_number = 0;
+
 
         guint i = 0;
         for (i = 0; i < data_num; i++) {
@@ -1054,15 +1083,32 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
                 /* if one signal needs aggregation, the messages needs to know */
                 list->aggregation |= item->aggregate_sum | item->aggregate_avg | item->aggregate_int;
 
-                item->hf_id_effective = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_BASE,    data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_BASE);
-                item->hf_id_raw       = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_RAW,     data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_RAW);
-                item->hf_id_agg_sum   = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_AGG_SUM, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, data[i].aggregate_sum ? HF_TYPE_AGG_SUM : HF_TYPE_NONE);
-                item->hf_id_agg_avg   = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_AGG_AVG, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, data[i].aggregate_avg ? HF_TYPE_AGG_AVG : HF_TYPE_NONE);
-                item->hf_id_agg_int   = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_AGG_INT, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, data[i].aggregate_int ? HF_TYPE_AGG_INT : HF_TYPE_NONE);
+                item->hf_id_effective = create_hf_entry(dynamic_hf_base_raw, HF_TYPE_COUNT_BASE_RAW_TABLE * i + HF_TYPE_BASE, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_BASE);
+                item->hf_id_raw       = create_hf_entry(dynamic_hf_base_raw, HF_TYPE_COUNT_BASE_RAW_TABLE * i + HF_TYPE_RAW, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_RAW);
+                if (data[i].aggregate_sum) {
+                    item->hf_id_agg_sum = create_hf_entry(dynamic_hf_agg_sum, dynamic_hf_agg_sum_number++, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_AGG_SUM);
+                }
+                if (data[i].aggregate_avg) {
+                    item->hf_id_agg_avg = create_hf_entry(dynamic_hf_agg_avg, dynamic_hf_agg_avg_number++, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_AGG_AVG);
+                }
+                if (data[i].aggregate_int) {
+                    item->hf_id_agg_int = create_hf_entry(dynamic_hf_agg_int, dynamic_hf_agg_int_number++, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_AGG_INT);
+                }
             }
         }
 
-        proto_register_field_array(proto_signal_pdu, dynamic_hf, dynamic_hf_size);
+        if (dynamic_hf_base_raw_number) {
+            proto_register_field_array(proto_signal_pdu, dynamic_hf_base_raw, dynamic_hf_base_raw_number);
+        }
+        if (dynamic_hf_agg_sum_number) {
+            proto_register_field_array(proto_signal_pdu, dynamic_hf_agg_sum, dynamic_hf_agg_sum_number);
+        }
+        if (dynamic_hf_agg_avg_number) {
+            proto_register_field_array(proto_signal_pdu, dynamic_hf_agg_avg, dynamic_hf_agg_avg_number);
+        }
+        if (dynamic_hf_agg_int_number) {
+            proto_register_field_array(proto_signal_pdu, dynamic_hf_agg_int, dynamic_hf_agg_int_number);
+        }
     }
 }
 
