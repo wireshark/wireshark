@@ -225,7 +225,7 @@ QMenu * TrafficTree::createActionSubMenu(FilterAction::Action cur_action, QModel
         ConversationDataModel * model = qobject_cast<ConversationDataModel *>(dataModel());
         if (model) {
             conv_item = model->itemForRow(idx.row());
-            hasConvId = true;
+            hasConvId = model->showConversationId(idx.row());
         }
     }
 

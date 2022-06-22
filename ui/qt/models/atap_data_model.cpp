@@ -757,12 +757,12 @@ conv_item_t * ConversationDataModel::itemForRow(int row)
     return (conv_item_t *)&g_array_index(storage_, conv_item_t, row);
 }
 
-bool ConversationDataModel::showConversationId() const
+bool ConversationDataModel::showConversationId(int row) const
 {
-    if (!storage_)
+    if (!storage_ || row >= storage_->len)
         return false;
 
-    conv_item_t *conv_item = (conv_item_t *)&g_array_index(storage_, conv_item_t, 0);
+    conv_item_t *conv_item = (conv_item_t *)&g_array_index(storage_, conv_item_t, row);
     if (conv_item && (conv_item->etype == ENDPOINT_TCP || conv_item->etype == ENDPOINT_UDP))
         return true;
     return false;

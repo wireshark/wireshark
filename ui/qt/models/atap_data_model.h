@@ -317,7 +317,7 @@ public:
      * @return true a conversation id exists
      * @return false none available
      */
-    bool showConversationId() const;
+    bool showConversationId(int row) const;
 
 };
 
