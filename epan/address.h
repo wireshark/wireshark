@@ -30,10 +30,8 @@ extern "C" {
  * from address_types.h
  *
  * AT_NUMERIC - a numeric address type can consist of a guint8, guint16, guint32 or guint64
- * little-endian value. If no correct length is provided, to avoid data bleed, a guint8 is
- * assumed. If the value represented is originating from a big-endian system, it is the
- * responsibility of the dissector to do the proper conversion. Only representation (aka
- * conversion of value to string) is implemented for this type.
+ * value. If no correct length is provided, to avoid data bleed, a guint8 is
+ * assumed. Only representation (aka conversion of value to string) is implemented for this type.
  */
 typedef enum {
     AT_NONE,               /* no link-layer address */

@@ -532,7 +532,7 @@ const size_t MAX_UINT32_WIDTH = 11;
 const size_t MAX_UINT16_WIDTH = 6;
 const size_t MAX_UINT8_WIDTH = 4;
 
-static int numeric_addr_str_len(const address* addr _U_)
+static int numeric_addr_str_len(const address* addr)
 {
     if (addr->len == (int) sizeof(guint64)) {
         return (int) MAX_UINT64_WIDTH;
@@ -545,22 +545,21 @@ static int numeric_addr_str_len(const address* addr _U_)
     return (int) MAX_UINT8_WIDTH;
 }
 
-static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int numeric_addr_to_str(const address* addr, gchar *buf, int buf_len)
 {
-    int len = numeric_addr_str_len(addr);
+    int ret;
 
-    memset(buf, '\0', len);
     if (addr->len == (int) sizeof(guint64)) {
-        snprintf(buf, len, "%"PRIu64, pletoh64(addr->data));
+        ret = snprintf(buf, buf_len, "%"PRIu64, *(guint64 *)addr->data);
     } else if (addr->len == (int) sizeof(guint32)) {
-        snprintf(buf, len, "%u", pletoh32(addr->data));
+        ret = snprintf(buf, buf_len, "%"PRIu32, *(guint32 *)addr->data);
     } else if (addr->len == (int) sizeof(guint16)) {
-        snprintf(buf, len, "%u", pletoh16(addr->data));
+        ret = snprintf(buf, buf_len, "%"PRIu16, *(guint16 *)addr->data);
     } else {
-        snprintf(buf, len, "%u", *((guint8*) (addr->data)));
+        ret = snprintf(buf, buf_len, "%"PRIu8,  *(guint8 *)addr->data);
     }
 
-	return len;
+    return ret + 1;
 }
 
 /******************************************************************************
