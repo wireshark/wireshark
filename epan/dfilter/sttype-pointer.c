@@ -53,14 +53,6 @@ sttype_fvalue_tostr(const void *data, gboolean pretty)
 }
 
 static char *
-field_tostr(const void *data, gboolean pretty _U_)
-{
-	const header_field_info *hfinfo = data;
-
-	return ws_strdup_printf("%s <%s>", hfinfo->abbrev, ftype_name(hfinfo->type));
-}
-
-static char *
 pcre_tostr(const void *data, gboolean pretty _U_)
 {
 	return g_strdup(ws_regex_pattern(data));
@@ -128,25 +120,6 @@ sttype_pointer_ftenum(stnode_t *node)
 void
 sttype_register_pointer(void)
 {
-	static sttype_t field_type = {
-		STTYPE_FIELD,
-		"FIELD",
-		NULL,
-		NULL,
-		NULL,
-		field_tostr
-	};
-	/* A field reference is a *constant* prototocol field value read directly
-	 * from the currently selected frame in the protocol tree when a filter is
-	 * applied to it. */
-	static sttype_t reference_type = {
-		STTYPE_REFERENCE,
-		"REFERENCE",
-		NULL,
-		NULL,
-		NULL,
-		field_tostr
-	};
 	static sttype_t fvalue_type = {
 		STTYPE_FVALUE,
 		"FVALUE",
@@ -180,8 +153,6 @@ sttype_register_pointer(void)
 		range_node_tostr
 	};
 
-	sttype_register(&field_type);
-	sttype_register(&reference_type);
 	sttype_register(&fvalue_type);
 	sttype_register(&pcre_type);
 	sttype_register(&charconst_type);

@@ -238,13 +238,10 @@ dfilter_free(dfilter_t *df)
 	g_free(df);
 }
 
-static void free_reference(gpointer data)
+static void free_refs_array(gpointer data)
 {
-	/* List data must be freed. */
-	GSList **fvalues_ptr = data;
-	if (*fvalues_ptr)
-		g_slist_free_full(*fvalues_ptr, (GDestroyNotify)fvalue_free);
-	g_free(fvalues_ptr);
+	/* Array data must be freed. */
+	(void)g_ptr_array_free(data, TRUE);
 }
 
 
@@ -255,7 +252,7 @@ dfwork_new(void)
 
 	dfw->references =
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
-				NULL, free_reference);
+				NULL, (GDestroyNotify)free_refs_array);
 
 	dfw->loaded_references =
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
@@ -340,7 +337,7 @@ const char *tokenstr(int token)
 		case TOKEN_DOTDOT:	return "DOTDOT";
 		case TOKEN_LPAREN:	return "LPAREN";
 		case TOKEN_RPAREN:	return "RPAREN";
-		case TOKEN_REFERENCE:	return "REFERENCE";
+		case TOKEN_DOLLAR:	return "DOLLAR";
 	}
 	return "<unknown>";
 }
@@ -675,6 +672,14 @@ dfilter_log_full(const char *domain, enum ws_log_level level,
 	g_free(str);
 }
 
+static int
+compare_ref_layer(gconstpointer _a, gconstpointer _b)
+{
+	const df_reference_t *a = *(const df_reference_t **)_a;
+	const df_reference_t *b = *(const df_reference_t **)_b;
+	return a->proto_layer_num - b->proto_layer_num;
+}
+
 void
 dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 {
@@ -682,7 +687,7 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 	GPtrArray *finfos;
 	field_info *finfo;
 	header_field_info *hfinfo;
-	GSList **fvalues_ptr;
+	GPtrArray *refs;
 	int i, len;
 
 	if (g_hash_table_size(df->references) == 0) {
@@ -691,10 +696,9 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 	}
 
 	g_hash_table_iter_init( &iter, df->references);
-	while (g_hash_table_iter_next (&iter, (void **)&hfinfo, (void **)&fvalues_ptr)) {
-		/* If we have a previous list free it and the data too */
-		g_slist_free_full(*fvalues_ptr, (GDestroyNotify)fvalue_free);
-		*fvalues_ptr = NULL;
+	while (g_hash_table_iter_next (&iter, (void **)&hfinfo, (void **)&refs)) {
+		/* If we have a previous array free the data */
+		g_ptr_array_set_size(refs, 0);
 
 		while (hfinfo) {
 			finfos = proto_find_finfo(tree, hfinfo->id);
@@ -706,13 +710,31 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 			len = finfos->len;
 			for (i = 0; i < len; i++) {
 				finfo = g_ptr_array_index(finfos, i);
-				*fvalues_ptr = g_slist_prepend(*fvalues_ptr,
-						fvalue_dup(&finfo->value));
+				g_ptr_array_add(refs, reference_new(finfo));
 			}
 
 			hfinfo = hfinfo->same_name_next;
 		}
+
+		g_ptr_array_sort(refs, compare_ref_layer);
 	}
+}
+
+df_reference_t *
+reference_new(const field_info *finfo)
+{
+	df_reference_t *ref = g_new(df_reference_t, 1);
+	ref->hfinfo = finfo->hfinfo;
+	ref->value = fvalue_dup(&finfo->value);
+	ref->proto_layer_num = finfo->proto_layer_num;
+	return ref;
+}
+
+void
+reference_free(df_reference_t *ref)
+{
+	fvalue_free(ref->value);
+	g_free(ref);
 }
 
 /*

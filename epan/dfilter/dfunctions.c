@@ -12,7 +12,7 @@
 
 #include "dfilter-int.h"
 #include "dfunctions.h"
-#include "sttype-pointer.h"
+#include "sttype-field.h"
 #include "semcheck.h"
 
 #include <string.h>
@@ -277,7 +277,7 @@ ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t lhs_f
     dfw_resolve_unparsed(dfw, st_node);
 
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
-        hfinfo = stnode_data(st_node);
+        hfinfo = sttype_field_hfinfo(st_node);
         if (IS_FT_STRING(hfinfo->type)) {
             return FT_STRING;
         }
@@ -312,7 +312,7 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftyp
     dfw_resolve_unparsed(dfw, st_node);
 
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
-        hfinfo = stnode_data(st_node);
+        hfinfo = sttype_field_hfinfo(st_node);
         switch (hfinfo->type) {
             case FT_UINT8:
             case FT_UINT16:
@@ -380,7 +380,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
         ftype = check_function(dfw, arg, lhs_ftype);
     }
     else {
-        ftype = sttype_pointer_ftenum(arg);
+        ftype = sttype_field_ftenum(arg);
     }
 
     if (ftype == FT_NONE) {
@@ -404,7 +404,7 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
             ft_arg = check_function(dfw, arg, ftype);
         }
         else {
-            ft_arg = sttype_pointer_ftenum(arg);
+            ft_arg = sttype_field_ftenum(arg);
         }
 
         if (ft_arg == FT_NONE) {
@@ -450,7 +450,7 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
         ftype = check_function(dfw, st_node, lhs_ftype);
     }
     else {
-        ftype = sttype_pointer_ftenum(st_node);
+        ftype = sttype_field_ftenum(st_node);
     }
 
     if (ftype == FT_NONE) {

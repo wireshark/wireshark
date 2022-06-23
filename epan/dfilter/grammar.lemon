@@ -6,7 +6,8 @@
 
 #include "dfilter-int.h"
 #include "syntax-tree.h"
-#include "sttype-range.h"
+#include "sttype-field.h"
+#include "sttype-slice.h"
 #include "sttype-test.h"
 #include "sttype-function.h"
 #include "sttype-set.h"
@@ -43,6 +44,9 @@ new_function(dfwork_t *dfw, stnode_t *node);
 
 %type           range_node_list {GSList*}
 %destructor     range_node_list {drange_node_free_list($$);}
+
+%type           layer           {GSList*}
+%destructor     layer           {drange_node_free_list($$);}
 
 %type           function_params {GSList*}
 %destructor     function_params {st_funcparams_free($$);}
@@ -118,31 +122,71 @@ atom(A) ::= STRING(S).      { A = S; }
 atom(A) ::= CHARCONST(N).   { A = N; }
 atom(A) ::= UNPARSED(S).    { A = S; }
 atom(A) ::= LITERAL(S).     { A = S; }
-atom(A) ::= FIELD(F).       { A = F; }
-atom(A) ::= REFERENCE(F).   { A = F; }
 
-layer(R) ::= atom(F) HASH LBRACKET range_node_list(L) RBRACKET.
+layer(R) ::= HASH LBRACKET range_node_list(L) RBRACKET.
 {
-    R = stnode_new(STTYPE_LAYER, NULL, NULL, NULL);
-    sttype_range_set(R, F, L);
-    g_slist_free(L);
+    R = L;
 }
 
-layer(R) ::= atom(F) HASH INTEGER(N).
+layer(R) ::= HASH INTEGER(N).
 {
-    R = stnode_new(STTYPE_LAYER, NULL, NULL, stnode_location(F));
-    char *err_msg = sttype_range_set_number(R, F, stnode_token(N));
+    char *err_msg = NULL;
+    drange_node *range = drange_node_from_str(stnode_token(N), &err_msg);
     if (err_msg != NULL) {
         FAIL(dfw, N, "%s", err_msg);
         g_free(err_msg);
     }
     stnode_free(N);
+    R = g_slist_append(NULL, range);
+}
+
+field(R) ::= FIELD(F).
+{
+    R = F;
+}
+
+field(R) ::= FIELD(F) layer(L).
+{
+    R = F;
+    sttype_field_set_range(R, L);
+    g_slist_free(L);
+}
+
+field(R) ::= UNPARSED(U) layer(L).
+{
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(U));
+    if (hfinfo == NULL) {
+        FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
+    }
+    R = stnode_new(STTYPE_FIELD, hfinfo, NULL, stnode_location(U));
+    stnode_free(U);
+    sttype_field_set_range(R, L);
+    g_slist_free(L);
+}
+
+reference(R) ::= DOLLAR LBRACE field(F) RBRACE.
+{
+    /* convert field to reference */
+    R = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(F), NULL, stnode_location(F));
+    sttype_field_set_drange(R, sttype_field_drange_steal(F));
+    stnode_free(F);
+}
+
+reference(R) ::= DOLLAR LBRACE UNPARSED(U) RBRACE.
+{
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(U));
+    if (hfinfo == NULL) {
+        FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
+    }
+    R = stnode_new(STTYPE_REFERENCE, hfinfo, NULL, stnode_location(U));
+    stnode_free(U);
 }
 
 entity(E) ::= atom(A).          { E = A; }
 entity(E) ::= slice(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
-entity(E) ::= layer(L).         { E = L; }
+entity(E) ::= field(F).         { E = F; }
+entity(E) ::= reference(R).     { E = R; }
 
 arithmetic_expr(T) ::= entity(N).
 {
@@ -327,7 +371,7 @@ set_element(N) ::= set_entity(X) DOTDOT set_entity(Y).
 slice(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
     R = stnode_new(STTYPE_SLICE, NULL, NULL, NULL);
-    sttype_range_set(R, E, L);
+    sttype_slice_set(R, E, L);
 
     /* Delete the list, but not the drange_nodes that
      * the list contains. */

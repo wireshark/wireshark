@@ -96,7 +96,8 @@ They previously shipped with Qt 5.12.2.
    For example the expression "all tcp.port > 1024" is true if and only if all tcp.port fields match the condition.
    Previously only the default behaviour to return true if any one field matches was supported.
 ** Field references, of the form ${some.field}, are now part of the syntax of display filters. Previously they were implemented as macros.
-   The new implementation is more efficient and allows matching multiple values, like any other protocol field.
+   The new implementation is more efficient and has the same properties as protocol fields, like matching on multiple values
+   using quantifiers and support for layer filtering.
 ** Arithmetic is supported for numeric fields with the usual operators “+”, “-”, “*”, “/”, and “%”.
    Arithmetic expressions must be grouped using curly brackets (not parenthesis).
 ** New display filter functions max(), min() and abs() have been added.

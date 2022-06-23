@@ -31,7 +31,6 @@ typedef enum {
 	STTYPE_FIELD,
 	STTYPE_FVALUE,
 	STTYPE_SLICE,
-	STTYPE_LAYER,
 	STTYPE_RANGE_NODE,
 	STTYPE_FUNCTION,
 	STTYPE_SET,
@@ -104,11 +103,11 @@ typedef struct {
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
+void sttype_register_field(void);
 void sttype_register_function(void);
-void sttype_register_integer(void);
 void sttype_register_pointer(void);
-void sttype_register_range(void);
 void sttype_register_set(void);
+void sttype_register_slice(void);
 void sttype_register_string(void);
 void sttype_register_test(void);
 

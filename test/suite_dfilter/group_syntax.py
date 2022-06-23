@@ -282,12 +282,17 @@ class case_arithmetic(unittest.TestCase):
 
 @fixtures.uses_fixtures
 class case_field_reference(unittest.TestCase):
-    trace_file = "dhcp.pcap"
+    trace_file = "ipoipoip.pcap"
 
     def test_ref_1(self, checkDFilterCountWithSelectedFrame):
         dfilter = 'frame.number < ${frame.number}'
-        # select frame 3, expect 2 frames out of 4.
-        checkDFilterCountWithSelectedFrame(dfilter, 2, 3)
+        # select frame 2, expect 1 frames out of 2.
+        checkDFilterCountWithSelectedFrame(dfilter, 1, 2)
+
+    def test_ref_2(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'ip.src#3 == ${ip.src#4}'
+        # select frame 1, expect 1 frames out of 2.
+        checkDFilterCountWithSelectedFrame(dfilter, 1, 1)
 
 @fixtures.uses_fixtures
 class case_field_reference(unittest.TestCase):

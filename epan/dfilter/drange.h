@@ -70,7 +70,7 @@ void drange_node_set_end_offset(drange_node* drnode, gint offset);
 void drange_node_set_to_the_end(drange_node* drnode);
 
 /* drange constructor */
-drange_t * drange_new(void);
+drange_t * drange_new(drange_node* drnode);
 drange_t * drange_new_from_list(GSList *list);
 drange_t * drange_dup(drange_t *org);
 

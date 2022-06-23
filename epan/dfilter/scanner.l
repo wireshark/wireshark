@@ -154,6 +154,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 "{"		return simple(TOKEN_LBRACE);
 ".."		return simple(TOKEN_DOTDOT);
 "}"		return simple(TOKEN_RBRACE);
+"$"		return simple(TOKEN_DOLLAR);
 "any"		return simple(TOKEN_ANY);
 "all"		return simple(TOKEN_ALL);
 
@@ -467,12 +468,6 @@ hyphen-bytes	{hex2}(-{hex2})+
 	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
 }
 
-"${"{Identifier}"}"		{
-	char *end = strchr(yytext, '}');
-	*end = '\0';
-	return set_lval_field(yyextra, TOKEN_REFERENCE, yytext + 2);
-}
-
 . {
 	/* Default */
 	update_location(yyextra, yytext);
@@ -574,9 +569,6 @@ set_lval_field(df_scanner_state_t *state, int token, const char *token_value)
 	switch (token) {
 		case TOKEN_FIELD:
 			type_id = STTYPE_FIELD;
-			break;
-		case TOKEN_REFERENCE:
-			type_id = STTYPE_REFERENCE;
 			break;
 		default:
 			ws_assert_not_reached();

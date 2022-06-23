@@ -243,7 +243,7 @@ drange_node_set_to_the_end(drange_node* drnode)
 
 /* drange constructor */
 drange_t *
-drange_new(void)
+drange_new(drange_node* drnode)
 {
     drange_t * new_drange;
     new_drange = g_new(drange_t,1);
@@ -252,6 +252,10 @@ drange_new(void)
     new_drange->total_length = 0;
     new_drange->min_start_offset = G_MAXINT;
     new_drange->max_start_offset = G_MININT;
+
+    if (drnode)
+            drange_append_drange_node(new_drange, drnode);
+
     return new_drange;
 }
 
@@ -269,7 +273,7 @@ drange_new_from_list(GSList *list)
 {
     drange_t    *new_drange;
 
-    new_drange = drange_new();
+    new_drange = drange_new(NULL);
     g_slist_foreach(list, drange_append_wrapper, new_drange);
     return new_drange;
 }
@@ -283,7 +287,7 @@ drange_dup(drange_t *org)
     if (!org)
         return NULL;
 
-    new_drange = drange_new();
+    new_drange = drange_new(NULL);
     for (p = org->range_list; p; p = p->next) {
         drange_node *drnode = (drange_node *)p->data;
         drange_append_drange_node(new_drange, drange_node_dup(drnode));

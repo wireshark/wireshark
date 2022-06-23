@@ -101,7 +101,9 @@ static gboolean start_is_field_reference(const char *start)
 	char saved_c;
 	const header_field_info *hfinfo;
 
-	end = strchr(start, '}');
+	end = strchr(start, '#');
+	if (end == NULL)
+		end = strchr(start, '}');
 	if (end == NULL)
 		return FALSE;
 

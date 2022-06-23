@@ -16,6 +16,12 @@
 #include <epan/proto.h>
 #include <stdio.h>
 
+typedef struct {
+	const header_field_info *hfinfo;
+	fvalue_t *value;
+	int proto_layer_num;
+} df_reference_t;
+
 /* Passed back to user */
 struct epan_dfilter {
 	GPtrArray	*insns;
@@ -44,7 +50,7 @@ typedef struct {
 	int		next_insn_id;
 	int		next_register;
 	GPtrArray	*deprecated;
-	GHashTable	*references; /* hfinfo -> pointer to GSList of fvalues */
+	GHashTable	*references; /* hfinfo -> pointer to array of references */
 	GHashTable	*loaded_references;
 	char		*expanded_text;
 	stloc_t		err_loc;
@@ -118,5 +124,11 @@ WS_RETNONNULL fvalue_t *
 dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st);
 
 const char *tokenstr(int token);
+
+df_reference_t *
+reference_new(const field_info *finfo);
+
+void
+reference_free(df_reference_t *ref);
 
 #endif

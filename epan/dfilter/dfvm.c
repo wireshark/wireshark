@@ -30,6 +30,7 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case READ_TREE:		return "READ_TREE";
 		case READ_TREE_R:	return "READ_TREE_R";
 		case READ_REFERENCE:	return "READ_REFERENCE";
+		case READ_REFERENCE_R:	return "READ_REFERENCE_R";
 		case PUT_FVALUE:	return "PUT_FVALUE";
 		case ALL_EQ:		return "ALL_EQ";
 		case ANY_EQ:		return "ANY_EQ";
@@ -299,7 +300,7 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				break;
 
 			case CHECK_EXISTS_R:
-				wmem_strbuf_append_printf(buf, "%05d CHECK_EXISTS\t%s#[%s]\n",
+				wmem_strbuf_append_printf(buf, "%05d CHECK_EXISTS_R\t%s #[%s]\n",
 					id, arg1_str, arg2_str);
 				break;
 
@@ -309,13 +310,18 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				break;
 
 			case READ_TREE_R:
-				wmem_strbuf_append_printf(buf, "%05d READ_TREE\t\t%s#[%s] -> %s\n",
+				wmem_strbuf_append_printf(buf, "%05d READ_TREE_R\t%s #[%s] -> %s\n",
 					id, arg1_str, arg3_str, arg2_str);
 				break;
 
 			case READ_REFERENCE:
 				wmem_strbuf_append_printf(buf, "%05d READ_REFERENCE\t${%s} -> %s\n",
 					id, arg1_str, arg2_str);
+				break;
+
+			case READ_REFERENCE_R:
+				wmem_strbuf_append_printf(buf, "%05d READ_REFERENCE_R\t${%s} #[%s] -> %s\n",
+					id, arg1_str, arg3_str, arg2_str);
 				break;
 
 			case PUT_FVALUE:
@@ -485,20 +491,18 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 		g_hash_table_iter_init(&ref_iter, df->references);
 		while (g_hash_table_iter_next(&ref_iter, &key, &value)) {
 			const char *abbrev = ((header_field_info *)key)->abbrev;
-			GSList *fvalues = *(GSList **)value;
+			GPtrArray *refs_array = value;
+			df_reference_t *ref;
 
 			wmem_strbuf_append_printf(buf, "${%s} = {", abbrev);
-
-			if (fvalues != NULL) {
-				str = fvalue_to_debug_repr(NULL, fvalues->data);
-				wmem_strbuf_append_printf(buf, "%s <%s>", str, fvalue_type_name(fvalues->data));
-				g_free(str);
-
-				for (fvalues = fvalues->next; fvalues != NULL; fvalues = fvalues->next) {
-					str = fvalue_to_debug_repr(NULL, fvalues->data);
-					wmem_strbuf_append_printf(buf, ", %s <%s>", str, fvalue_type_name(fvalues->data));
-					g_free(str);
+			for (i = 0; i < refs_array->len; i++) {
+				if (i != 0) {
+					wmem_strbuf_append(buf, ", ");
 				}
+				ref = refs_array->pdata[i];
+				str = fvalue_to_debug_repr(NULL, ref->value);
+				wmem_strbuf_append_printf(buf, "%s <%s>", str, fvalue_type_name(ref->value));
+				g_free(str);
 			}
 			wmem_strbuf_append(buf, "}\n");
 		}
@@ -653,13 +657,57 @@ read_tree(dfilter_t *df, proto_tree *tree,
 	return TRUE;
 }
 
-static gboolean
-read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
+GSList *
+filter_refs_fvalues(GPtrArray *refs_array, drange_t *range)
 {
-	GSList		**fvalues_ptr;
+	int length; /* maximum proto layer number. The numbers are sequential. */
+	df_reference_t *last_ref, *ref;
+	int cookie = -1;
+	gboolean cookie_matches = false;
+	int layer;
+	GSList *fvalues = NULL;
+
+	/* refs array is sorted. */
+	last_ref = refs_array->pdata[refs_array->len - 1];
+	length = last_ref->proto_layer_num;
+
+	for (guint i = 0; i < refs_array->len; i++) {
+		if (range == NULL) {
+			fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
+			continue;
+		}
+
+		ref = refs_array->pdata[i];
+		layer = ref->proto_layer_num;
+		if (cookie == layer) {
+			if (cookie_matches) {
+				fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
+			}
+		}
+		else {
+			cookie = layer;
+			cookie_matches = drange_contains_layer(range, layer, length);
+			if (cookie_matches) {
+				fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
+			}
+		}
+	}
+	return fvalues;
+}
+
+static gboolean
+read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
+				dfvm_value_t *arg3)
+{
+	GPtrArray	*refs;
+	drange_t	*range = NULL;
 
 	header_field_info *hfinfo = arg1->value.hfinfo;
 	int reg = arg2->value.numeric;
+
+	if (arg3) {
+		range = arg3->value.drange;
+	}
 
 	/* Already loaded in this run of the dfilter? */
 	if (df->attempted_load[reg]) {
@@ -673,16 +721,16 @@ read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
 
 	df->attempted_load[reg] = TRUE;
 
-	fvalues_ptr = g_hash_table_lookup(df->references, hfinfo);
-	if (*fvalues_ptr == NULL) {
+	refs = g_hash_table_lookup(df->references, hfinfo);
+	if (refs == NULL || refs->len == 0) {
 		df->registers[reg] = NULL;
 		return FALSE;
 	}
 
 	/* Shallow copy */
-	df->registers[reg] = g_slist_copy(*fvalues_ptr);
-	/* These values are referenced only, do not try to free it later. */
-	df->free_registers[reg] = NULL;
+	df->registers[reg] = filter_refs_fvalues(refs, range);
+	/* Creates new value so own it. */
+	df->free_registers[reg] = (GDestroyNotify)fvalue_free;
 	return TRUE;
 }
 
@@ -1011,9 +1059,11 @@ debug_register(GSList *reg, guint32 num)
 	wmem_strbuf_append_printf(buf, "Reg#%"G_GUINT32_FORMAT" = { ", num);
 	for (l = reg; l != NULL; l = l->next) {
 		s = fvalue_to_debug_repr(NULL, l->data);
-		wmem_strbuf_append(buf, s);
+		wmem_strbuf_append_printf(buf, "%s <%s>", s, fvalue_type_name(l->data));
 		g_free(s);
-		wmem_strbuf_append_c(buf, ' ');
+		if (l->next != NULL) {
+			wmem_strbuf_append(buf, ", ");
+		}
 	}
 	wmem_strbuf_append_c(buf, '}');
 	WS_DEBUG_HERE("%s", wmem_strbuf_get_str(buf));
@@ -1257,7 +1307,11 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case READ_REFERENCE:
-				accum = read_reference(df, arg1, arg2);
+				accum = read_reference(df, arg1, arg2, NULL);
+				break;
+
+			case READ_REFERENCE_R:
+				accum = read_reference(df, arg1, arg2, arg3);
 				break;
 
 			case PUT_FVALUE:
