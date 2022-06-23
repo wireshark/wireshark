@@ -72,6 +72,7 @@
 #define OSS_SLIM_FRAME2_WITH_CRC8           0x06   /*  6 */
 #define OSS_SLIM_FRAME2_WITH_CRC16          0x07   /*  7 */
 #define OSS_MINIMUM_LENGTH                  0x0b   /* 11 */
+#define OSS_BROADCAST_ADDRESS               0x3ff
 
 #define OPENSAFETY_SPDO_CONNECTION_VALID  0x04
 
@@ -1995,7 +1996,7 @@ opensafety_conversation_packet(void *pct, packet_info *pinfo,
     opensafety_packet_info * osinfo = (opensafety_packet_info *)vip;
     guint16 receiver = osinfo->receiver;
     if (osinfo->msg_type == OPENSAFETY_SPDO_MESSAGE_TYPE)
-        receiver = 0x3FF;
+        receiver = OSS_BROADCAST_ADDRESS;
 
     hash->flags = flags;
 
@@ -2018,7 +2019,7 @@ opensafety_hostlist_packet(void *pit, packet_info *pinfo,
     opensafety_packet_info * osinfo = (opensafety_packet_info *)vip;
     guint16 receiver = osinfo->receiver;
     if (osinfo->msg_type == OPENSAFETY_SPDO_MESSAGE_TYPE)
-        receiver = 0x3FF;
+        receiver = OSS_BROADCAST_ADDRESS;
 
     hash->flags = flags;
 
