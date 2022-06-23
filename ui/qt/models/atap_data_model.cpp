@@ -480,7 +480,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         if (idx.column() == EndpointDataModel::ENDP_COLUMN_ADDR) {
             if (role == ATapDataModel::DATA_IPV4_INTEGER && item->myaddress.type == AT_IPv4) {
                 const ws_in4_addr * ip4 = (const ws_in4_addr *) item->myaddress.data;
-                return (quint32) GUINT32_TO_BE(*ip4);
+                return (quint32) GUINT32_FROM_BE(*ip4);
             }
             else if (role == ATapDataModel::DATA_IPV6_LIST && item->myaddress.type == AT_IPv6) {
                 const ws_in6_addr * ip6 = (const ws_in6_addr *) item->myaddress.data;
@@ -735,7 +735,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             address tst_address = idx.column() == ConversationDataModel::CONV_COLUMN_SRC_ADDR ? conv_item->src_address : conv_item->dst_address;
             if (role == ATapDataModel::DATA_IPV4_INTEGER && tst_address.type == AT_IPv4) {
                 const ws_in4_addr * ip4 = (const ws_in4_addr *) tst_address.data;
-                return (quint32) GUINT32_TO_BE(*ip4);
+                return (quint32) GUINT32_FROM_BE(*ip4);
             }
             else if (role == ATapDataModel::DATA_IPV6_LIST && tst_address.type == AT_IPv6) {
                 const ws_in6_addr * ip6 = (const ws_in6_addr *) tst_address.data;
