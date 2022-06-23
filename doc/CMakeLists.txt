@@ -11,12 +11,12 @@ find_package( Asciidoctor 1.5 )
 
 add_custom_command(
 	OUTPUT AUTHORS-SHORT
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/make-authors-short.pl
+	COMMAND ${PYTHON_EXECUTABLE}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-authors-short.py
 		< ${CMAKE_SOURCE_DIR}/AUTHORS
 		> ${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
 	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/make-authors-short.pl
+		${CMAKE_CURRENT_SOURCE_DIR}/make-authors-short.py
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
