@@ -3899,7 +3899,7 @@ if (GIT_EXECUTABLE)
 	# Update AUTHORS file with entries from git shortlog
 	add_custom_target(
 		gen-authors
-		COMMAND ${PERL_EXECUTABLE} tools/generate_authors.pl AUTHORS.src > AUTHORS
+		COMMAND ${PYTHON_EXECUTABLE} tools/generate_authors.py AUTHORS.src > AUTHORS
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 else (GIT_EXECUTABLE)
