@@ -572,15 +572,69 @@ doip_prototree_add_with_resolv(proto_tree* doip_tree, int hfindex, int hfindex_n
     return ti;
 }
 
+/*
+ * UAT DoIP Payload Types
+ */
+#define DATAFILE_DOIP_PAYLOAD_TYPES "DoIP_payload_types"
+
+static GHashTable *data_doip_payload_types = NULL;
+static generic_one_id_string_t* doip_payload_types = NULL;
+static guint doip_payload_type_count = 0;
+
+UAT_HEX_CB_DEF(doip_payload_types, id, generic_one_id_string_t)
+UAT_CSTRING_CB_DEF(doip_payload_types, name, generic_one_id_string_t)
+
+static void
+post_update_doip_payload_types(void) {
+    /* destroy old hash table, if it exists */
+    if (data_doip_payload_types) {
+        g_hash_table_destroy(data_doip_payload_types);
+        data_doip_payload_types = NULL;
+    }
+
+    /* create new hash table */
+    data_doip_payload_types = g_hash_table_new_full(g_int_hash, g_int_equal, &doip_uat_free_key, &simple_free);
+    post_update_one_id_string_template_cb(doip_payload_types, doip_payload_type_count, data_doip_payload_types);
+}
+
+static const gchar*
+resolve_doip_payload_type(guint16 payload_type, gboolean is_col)
+{
+    const gchar *tmp = ht_lookup_name(data_doip_payload_types, payload_type);
+
+    /* lets look at the static values, if nothing is configured */
+    if (tmp == NULL) {
+        tmp = try_val_to_str(payload_type, doip_payloads);
+    }
+
+    /* no configured or standardized name known */
+    if (tmp != NULL) {
+        if (is_col) {
+            return tmp;
+        } else {
+            return wmem_strdup_printf(wmem_packet_scope(), "%s (0x%04x)", tmp, payload_type);
+        }
+    }
+
+    /* just give back unknown */
+    if (is_col) {
+        return wmem_strdup_printf(wmem_packet_scope(), "0x%04x Unknown Payload", payload_type);
+    } else {
+        return wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%04x)", payload_type);
+    }
+}
 
 static void
 add_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *doip_tree)
 {
     guint32 len;
+    guint32 payload_type;
+
     proto_tree *subtree = proto_tree_add_subtree(doip_tree, tvb, DOIP_VERSION_OFFSET, DOIP_HEADER_LEN, ett_header, NULL, "Header");
     proto_tree_add_item(subtree, hf_doip_version, tvb, DOIP_VERSION_OFFSET, DOIP_VERSION_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_doip_inv_version, tvb, DOIP_INV_VERSION_OFFSET, DOIP_INV_VERSION_LEN, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_doip_type, tvb, DOIP_TYPE_OFFSET, DOIP_TYPE_LEN, ENC_BIG_ENDIAN);
+    payload_type = tvb_get_guint16(tvb, DOIP_TYPE_OFFSET, ENC_BIG_ENDIAN);
+    proto_tree_add_uint_format(subtree, hf_doip_type, tvb, DOIP_TYPE_OFFSET, DOIP_TYPE_LEN, payload_type, "Type: %s", resolve_doip_payload_type(payload_type, false));
     proto_tree_add_item_ret_uint(subtree, hf_doip_length, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN, ENC_BIG_ENDIAN, &len);
 
     if (tvb_captured_length(tvb) < len) {
@@ -752,7 +806,7 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         version == ISO13400_2019 ||
         (version == DEFAULT_VALUE && (payload_type >= DOIP_VEHICLE_IDENTIFICATION_REQ && payload_type <= DOIP_VEHICLE_IDENTIFICATION_REQ_EID))
         ) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(payload_type, doip_payloads, "0x%04x Unknown payload"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", resolve_doip_payload_type(payload_type, true));
     } else {
         col_set_str(pinfo->cinfo, COL_INFO, "Invalid DoIP version");
         return;
@@ -889,6 +943,7 @@ proto_register_doip(void)
     module_t        *doip_module = NULL;
     expert_module_t *expert_module_doip = NULL;
     uat_t           *doip_diag_addr_uat = NULL;
+    uat_t           *doip_payload_type_uat = NULL;
 
     static hf_register_info hf[] = {
         /* Header */
@@ -1189,10 +1244,16 @@ proto_register_doip(void)
         &ett_address
     };
 
-    /* UATs definition */
+    /* UAT definitions */
     static uat_field_t doip_diag_addr_uat_fields[] = {
         UAT_FLD_HEX(doip_diag_addresses, id, "Diagnostic Address", "Diagnostic Address (hex uint16 without leading 0x)"),
         UAT_FLD_CSTRING(doip_diag_addresses, name, "Name", "Name of the ECU (string)"),
+        UAT_END_FIELDS
+    };
+
+    static uat_field_t doip_payload_type_uat_fields[] = {
+        UAT_FLD_HEX(doip_payload_types, id, "Payload Type", "Payload Type (hex uint16 without leading 0x)"),
+        UAT_FLD_CSTRING(doip_payload_types, name, "Name", "Name of the Payload Type (string)"),
         UAT_END_FIELDS
     };
 
@@ -1227,6 +1288,25 @@ proto_register_doip(void)
 
     prefs_register_uat_preference(doip_module, "_udf_doip_diag_addresses", "Diagnostics Addresses",
         "A table to define names of Diagnostics Addresses.", doip_diag_addr_uat);
+
+    doip_payload_type_uat = uat_new("Payload Types",
+        sizeof(generic_one_id_string_t),        /* record size           */
+        DATAFILE_DOIP_PAYLOAD_TYPES,            /* filename              */
+        TRUE,                                   /* from profile          */
+        (void**)&doip_payload_types,            /* data_ptr              */
+        &doip_payload_type_count,               /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                 /* but not fields        */
+        NULL,                                   /* help                  */
+        copy_generic_one_id_string_cb,          /* copy callback         */
+        update_generic_one_identifier_16bit,    /* update callback       */
+        free_generic_one_id_string_cb,          /* free callback         */
+        post_update_doip_payload_types,         /* post update callback  */
+        NULL,                                   /* reset callback        */
+        doip_payload_type_uat_fields            /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(doip_module, "_udf_doip_payload_types", "Payload Types",
+        "A table to define names of Payload Types.", doip_payload_type_uat);
 
     prefs_register_bool_preference(doip_module, "hide_address_name_entries",
         "Hide Address Name Entries",
