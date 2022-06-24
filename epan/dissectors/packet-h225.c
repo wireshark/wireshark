@@ -8044,10 +8044,9 @@ static void h225_stat_init(stat_tap_table_ui* new_stat)
     return;
   }
 
+  memset(items, 0x0, sizeof(items));
   table = stat_tap_init_table(table_name, num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
-
-  memset(items, 0x0, sizeof(items));
 
   items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
   items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
@@ -11503,7 +11502,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 827 "./asn1/h225/packet-h225-template.c"
+#line 828 "./asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11753,7 +11752,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 833 "./asn1/h225/packet-h225-template.c"
+#line 834 "./asn1/h225/packet-h225-template.c"
   };
 
   static tap_param h225_stat_params[] = {
