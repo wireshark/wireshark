@@ -1794,11 +1794,13 @@ static gint ett_ptp_v2_majorsdoid = -1;
 static expert_field ei_ptp_v2_msg_len_too_large = EI_INIT;
 static expert_field ei_ptp_v2_msg_len_too_small = EI_INIT;
 static expert_field ei_ptp_v2_sync_no_followup  = EI_INIT;
+static expert_field ei_ptp_v2_sync_no_fup_tlv   = EI_INIT;
 static expert_field ei_ptp_v2_followup_no_sync  = EI_INIT;
 static expert_field ei_ptp_v2_pdreq_no_pdresp   = EI_INIT;
 static expert_field ei_ptp_v2_pdresp_no_pdreq   = EI_INIT;
-static expert_field ei_ptp_v2_pdfup_no_pdresp   = EI_INIT;
 static expert_field ei_ptp_v2_pdresp_no_pdfup   = EI_INIT;
+static expert_field ei_ptp_v2_pdresp_twostep    = EI_INIT;
+static expert_field ei_ptp_v2_pdfup_no_pdresp   = EI_INIT;
 
 /* END Definitions and fields for PTPv2 dissection. */
 
@@ -1877,7 +1879,7 @@ typedef struct ptp_frame_info {
 #define PTP_FRAME_INFO_SYNC_SEEN(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_SYNC_MESSAGE && (fi)->sync.sync_frame_num != 0)
 #define PTP_FRAME_INFO_SYNC_COMPLETE(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_SYNC_MESSAGE && (fi)->sync.sync_frame_num != 0 && (fi)->sync.fup_frame_num != 0)
 #define PTP_FRAME_INFO_PDELAY_REQ_SEEN(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_PEER_DELAY_REQ_MESSAGE && (fi)->pdelay.pdelay_req_frame_num != 0)
-#define PTP_FRAME_INFO_PDELAY_COMPLETE(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_PEER_DELAY_REQ_MESSAGE && (fi)->pdelay.pdelay_req_frame_num != 0 && (fi)->pdelay.pdelay_res_frame_num != 0 && (fi)->pdelay.pdelay_fup_frame_num != 0 && (fi)->pdelay.pdelay_res_two_step)
+#define PTP_FRAME_INFO_PDELAY_COMPLETE(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_PEER_DELAY_REQ_MESSAGE && (fi)->pdelay.pdelay_req_frame_num != 0 && (fi)->pdelay.pdelay_res_frame_num != 0 && (fi)->pdelay.pdelay_fup_frame_num != 0)
 
 typedef struct ptp_clock_info {
     wmem_map_t *frames;
@@ -2858,6 +2860,15 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 frame_info->sync.sync_two_step = (ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK;
                 frame_info->sync.sync_ts = pinfo->abs_ts;
                 frame_info->sync.sync_frame_num = pinfo->num;
+
+                if (!frame_info->sync.sync_two_step) {
+                    /* In 1-step mode, the sync carries the followup information, so we set fup to sync */
+                    frame_info->sync.fup_frame_num = pinfo->num;
+                    frame_info->sync.timestamp_s = tvb_get_guint48(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, ENC_BIG_ENDIAN);
+                    frame_info->sync.timestamp_ns = tvb_get_guint32(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, ENC_BIG_ENDIAN);
+                    frame_info->sync.correction_ns = ptp_v2_correction >> 16;
+                    frame_info->sync.correction_subns = ptp_v2_correction % 16;
+                }
                 break;
             case PTP_V2_FOLLOWUP_MESSAGE:
                 frame_info = create_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
@@ -3559,10 +3570,14 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                 if (is_802_1as && ((ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) != PTP_V2_FLAGS_TWO_STEP_BITMASK)) {
                     /* IEEE 802.1AS-2020 11.4.3 */
-                    dissect_follow_up_tlv(tvb, ptp_tree);
+                    if (msg_len >= 76) {
+                        dissect_follow_up_tlv(tvb, ptp_tree);
+                    } else {
+                        expert_add_info(pinfo, ti_root, &ei_ptp_v2_sync_no_fup_tlv);
+                    }
                 }
 
-                if (ptp_analyze_messages && (ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK) {
+                if (ptp_analyze_messages) {
                     ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                     if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
                         if (frame_info->sync.syncInterval_valid) {
@@ -3571,9 +3586,28 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                             proto_item_set_generated(ti);
                         }
 
-                        ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_sync_to_followup, tvb, 0, 0, frame_info->sync.fup_frame_num);
-                        proto_item_set_generated(ti);
-                    } else {
+                        if ((ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK) {
+                            ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_sync_to_followup, tvb, 0, 0, frame_info->sync.fup_frame_num);
+                            proto_item_set_generated(ti);
+                        } else {
+                            if (frame_info->sync.calculated_timestamp_valid) {
+                                ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_timestamp, tvb, 0, 0, nstime_to_sec(&(frame_info->sync.calculated_timestamp)));
+                                proto_item_set_generated(ti);
+                                proto_tree *ts_tree = proto_item_add_subtree(ti, ett_ptp_analysis_timestamp);
+                                ti = proto_tree_add_uint64(ts_tree, hf_ptp_v2_analysis_sync_timestamp_seconds, tvb, 0, 0, frame_info->sync.calculated_timestamp.secs);
+                                proto_item_set_generated(ti);
+                                ti = proto_tree_add_uint(ts_tree, hf_ptp_v2_analysis_sync_timestamp_nanoseconds, tvb, 0, 0, frame_info->sync.calculated_timestamp.nsecs);
+                                proto_item_set_generated(ti);
+                            }
+
+                            if (frame_info->sync.syncRateRatio_valid) {
+                                ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio, tvb, 0, 0, frame_info->sync.syncRateRatio);
+                                proto_item_set_generated(ti);
+                                ti = proto_tree_add_int(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio_ppm, tvb, 0, 0, frame_info->sync.syncRateRatio_ppm);
+                                proto_item_set_generated(ti);
+                            }
+                        }
+                    } else if ((ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK) {
                         /* No FollowUp found! */
                         expert_add_info(pinfo, ti_root, &ei_ptp_v2_sync_no_followup);
                     }
@@ -3727,6 +3761,11 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                         } else {
                             /* No Follow Up found! */
                             expert_add_info(pinfo, ti_root, &ei_ptp_v2_pdresp_no_pdfup);
+                        }
+                        if (PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) && frame_info->pdelay.pdelay_res_two_step == false) {
+                            /* Two step false but follow up received! */
+                            /* According to 802.1AS-2011/2022 2-step must be true on pDelay Req */
+                            expert_add_info(pinfo, ti_root, &ei_ptp_v2_pdresp_twostep);
                         }
                     }
                 }
@@ -7494,11 +7533,13 @@ proto_register_ptp(void)
     static ei_register_info ei[] = {
         { &ei_ptp_v2_msg_len_too_large, { "ptp.v2.msg_len_too_large", PI_MALFORMED, PI_ERROR, "Message length goes past the end of the packet", EXPFILL }},
         { &ei_ptp_v2_msg_len_too_small, { "ptp.v2.msg_len_too_small", PI_MALFORMED, PI_ERROR, "Message length too short to include the message length field", EXPFILL }},
-        { &ei_ptp_v2_sync_no_followup,  { "ptp.v2.sync_no_fup", PI_PROTOCOL, PI_WARN, "No Follow Up for this 2-Step Sync", EXPFILL }},
+        { &ei_ptp_v2_sync_no_followup,  { "ptp.v2.sync_no_fup", PI_PROTOCOL, PI_WARN, "No Follow Up for this Two Step Sync", EXPFILL }},
+        { &ei_ptp_v2_sync_no_fup_tlv,   { "ptp.v2.sync_no_fup_tlv", PI_PROTOCOL, PI_WARN, "No Follow Up TLV for this gPTP One Step Sync", EXPFILL }},
         { &ei_ptp_v2_followup_no_sync,  { "ptp.v2.fup_without_sync", PI_PROTOCOL, PI_WARN, "No Sync for this Follow Up", EXPFILL }},
         { &ei_ptp_v2_pdreq_no_pdresp,   { "ptp.v2.pdelay_req_without_resp", PI_PROTOCOL, PI_WARN, "No Response for this Peer Delay Request", EXPFILL }},
         { &ei_ptp_v2_pdresp_no_pdreq,   { "ptp.v2.pdelay_resp_without_req", PI_PROTOCOL, PI_WARN, "No Request for this Peer Delay Response", EXPFILL }},
         { &ei_ptp_v2_pdresp_no_pdfup,   { "ptp.v2.pdelay_resp_without_fup", PI_PROTOCOL, PI_WARN, "No Follow Up for this Peer Delay Response", EXPFILL }},
+        { &ei_ptp_v2_pdresp_twostep,    { "ptp.v2.pdelay_resp_two_step_false", PI_PROTOCOL, PI_WARN, "Peer Delay Response with Two Step Flag set to false but Follow Up", EXPFILL }},
         { &ei_ptp_v2_pdfup_no_pdresp,   { "ptp.v2.pdelay_fup_without_resp", PI_PROTOCOL, PI_WARN, "No Response for this Peer Delay Follow Up", EXPFILL }},
     };
 
