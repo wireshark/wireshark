@@ -57,7 +57,7 @@ field_tostr(const void *data, gboolean pretty _U_)
 {
 	const header_field_info *hfinfo = data;
 
-	return g_strdup(hfinfo->abbrev);
+	return ws_strdup_printf("%s <%s>", hfinfo->abbrev, ftype_name(hfinfo->type));
 }
 
 static char *

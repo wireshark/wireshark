@@ -211,7 +211,9 @@ dfvm_value_tostr(dfvm_value_t *v)
 
 	switch (v->type) {
 		case HFINFO:
-			s = ws_strdup(v->value.hfinfo->abbrev);
+			s = ws_strdup_printf("%s <%s>",
+					v->value.hfinfo->abbrev,
+					ftype_name(v->value.hfinfo->type));
 			break;
 		case FVALUE:
 			aux = fvalue_to_debug_repr(NULL, v->value.fvalue);
