@@ -1157,9 +1157,9 @@ if(CMAKE_VERSION VERSION_LESS "3.12")
 	# - PATH contains python3.6, but not python3 (3.4). Affects RHEL7+EPEL.
 	# - Path contains C:\Python27 but not C:\Python37 (which is installed,
 	#   but not present in PATH).
-	find_package(PythonInterp 3.4 REQUIRED)
+	find_package(PythonInterp 3.6 REQUIRED)
 else()
-	find_package(Python3 3.4 REQUIRED)
+	find_package(Python3 3.6 REQUIRED)
 	# Several files (including LocatePythonModule) still use the old name
 	# from FindPythonInterp, let's stick to it for now.
 	set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
