@@ -1586,7 +1586,7 @@ proto_register_tecmp_payload(void) {
             { "Interface ID", "tecmp.payload.interface_id",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_interface_name,
-            { "ChannInterfaceel Name", "tecmp.payload.interface_name",
+            { "Interface Name", "tecmp.payload.interface_name",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_timestamp,
             { "Timestamp", "tecmp.payload.timestamp",
