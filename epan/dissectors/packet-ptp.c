@@ -1813,7 +1813,7 @@ static expert_field ei_ptp_v2_pdfup_no_pdresp   = EI_INIT;
  */
 
 /* Config for Analysis features */
-static gboolean ptp_analyze_messages = FALSE;
+static gboolean ptp_analyze_messages = TRUE;
 
 /* Definitions for Analysis features */
 typedef struct ptp_frame_info_sync {
