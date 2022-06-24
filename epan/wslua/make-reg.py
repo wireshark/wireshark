@@ -92,7 +92,7 @@ def main():
     lua_functions = []
     lua_internal_functions = []
     for filename in parsed_args.files:
-        with open(filename) as fh:
+        with open(filename, encoding='utf-8') as fh:
             class_matches, function_matches, internal_function_matches = parse_file(fh.read())
         lua_classes += class_matches
         lua_functions += function_matches
@@ -101,10 +101,10 @@ def main():
     declare_wslua_h_content = generate_declare_wslua_h(lua_classes, lua_functions, lua_internal_functions)
     register_wslua_c_content = generate_register_wslua_c(lua_classes, lua_functions, lua_internal_functions)
 
-    with open('register_wslua.c', 'w') as fh:
+    with open('register_wslua.c', mode='w', encoding='utf-8') as fh:
         fh.write(register_wslua_c_content)
 
-    with open('declare_wslua.h', 'w') as fh:
+    with open('declare_wslua.h', mode='w', encoding='utf-8') as fh:
         fh.write(declare_wslua_h_content)
 
 

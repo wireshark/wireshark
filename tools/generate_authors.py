@@ -16,8 +16,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import argparse
+import io
 import re
 import subprocess
+import sys
 
 
 def get_git_authors():
@@ -28,7 +30,7 @@ def get_git_authors():
     GIT_LINE_REGEX = r"^\s*\d+\s+([^<]*)\s*<([^>]*)>"
     cmd = "git --no-pager shortlog --email --summary HEAD".split(' ')
     # check_output is used for Python 3.4 compatability
-    git_cmd_output = subprocess.check_output(cmd, universal_newlines=True)
+    git_cmd_output = subprocess.check_output(cmd, universal_newlines=True, encoding='utf-8')
 
     git_authors = []
     for line in git_cmd_output.splitlines():
@@ -107,11 +109,13 @@ def generate_git_contributors_text(contributors_emails, git_authors_emails):
 
 
 def main():
+    stdoutu8 = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
     parser = argparse.ArgumentParser(description="Generate the AUTHORS file combining existing AUTHORS file with git commit log.")
     parser.add_argument("authors", metavar='authors', nargs=1, help="path to AUTHORS file")
     parsed_args = parser.parse_args()
 
-    with open(parsed_args.authors[0]) as fh:
+    with open(parsed_args.authors[0], encoding='utf-8') as fh:
         author_content = fh.read()
 
     # Collect the listed contributors emails so that we don't duplicate them
@@ -127,7 +131,7 @@ def main():
     acknowledgements = author_content[acknowledgements_start:]
     git_contributor_header = '\n\n\n= From git log =\n\n'
     output = before_acknowledgements + git_contributor_header + git_contributors_text + '\n' + acknowledgements
-    print(output)
+    stdoutu8.write(output)
 
 
 if __name__ == '__main__':
