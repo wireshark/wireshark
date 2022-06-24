@@ -454,6 +454,8 @@ static int hf_dns_caa_unknown = -1;
 static int hf_dns_caa_tag_length = -1;
 static int hf_dns_caa_tag = -1;
 static int hf_dns_caa_value = -1;
+static int hf_dns_extraneous_data = -1;
+static int hf_dns_extraneous_length = -1;
 
 static int hf_dns_wins_local_flag = -1;
 static int hf_dns_wins_lookup_timeout = -1;
@@ -495,6 +497,7 @@ static gint ett_dns_csdync_flags = -1;
 static gint ett_dns_dso = -1;
 static gint ett_dns_dso_tlv = -1;
 static gint ett_dns_svcb = -1;
+static gint ett_dns_extraneous = -1;
 
 static expert_field ei_dns_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
@@ -504,6 +507,7 @@ static expert_field ei_dns_undecoded_option = EI_INIT;
 static expert_field ei_dns_key_id_buffer_too_short = EI_INIT;
 static expert_field ei_dns_retransmit_request = EI_INIT;
 static expert_field ei_dns_retransmit_response = EI_INIT;
+static expert_field ei_dns_extraneous_data = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -4393,7 +4397,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (add > 0) {
-    dissect_answer_records(tvb, cur_off, dns_data_offset, add, dns_tree, "Additional records",
+    cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add, dns_tree, "Additional records",
                                       pinfo, is_mdns);
   }
 
@@ -4440,6 +4444,24 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_generated(it);
       }
     }
+  }
+
+  /* Do we have any extraneous data? */
+  gint extraneous_length = tvb_reported_length_remaining(tvb, cur_off);
+  if(extraneous_length > 0) {
+    proto_tree *ext_tree;
+    proto_item *it;
+
+    ext_tree = proto_tree_add_subtree_format(dns_tree, tvb, cur_off, extraneous_length,
+                                             ett_dns_extraneous, &it, "Extraneous Data (%d bytes)", extraneous_length);
+
+    it = proto_tree_add_item(ext_tree, hf_dns_extraneous_data, tvb, cur_off, extraneous_length, ENC_NA);
+
+    it = proto_tree_add_int(ext_tree, hf_dns_extraneous_length, tvb, 0, 0, extraneous_length);
+    proto_item_set_generated(it);
+
+    it = proto_tree_add_expert(ext_tree, pinfo, &ei_dns_extraneous_data, tvb, cur_off, extraneous_length);
+    proto_item_set_hidden(it);
   }
 
   /* Collect stats */
@@ -6292,6 +6314,16 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_dns_extraneous_data,
+      { "Extraneous Data Bytes", "dns.extraneous.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_extraneous_length,
+      { "Extraneous Data Length", "dns.extraneous.length",
+        FT_INT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_dns_wins_local_flag,
       { "Local Flag", "dns.wins.local_flag",
         FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x1,
@@ -6389,6 +6421,7 @@ proto_register_dns(void)
     { &ei_dns_key_id_buffer_too_short, { "dns.key_id_buffer_too_short", PI_PROTOCOL, PI_WARN, "Buffer too short to compute a key id", EXPFILL }},
     { &ei_dns_retransmit_request, { "dns.retransmit_request", PI_PROTOCOL, PI_WARN, "DNS query retransmission", EXPFILL }},
     { &ei_dns_retransmit_response, { "dns.retransmit_response", PI_PROTOCOL, PI_WARN, "DNS response retransmission", EXPFILL }},
+    { &ei_dns_extraneous_data, { "dns.extraneous", PI_UNDECODED, PI_NOTE, "Extraneous data", EXPFILL }},
   };
 
   static gint *ett[] = {
@@ -6409,6 +6442,7 @@ proto_register_dns(void)
     &ett_dns_dso,
     &ett_dns_dso_tlv,
     &ett_dns_svcb,
+    &ett_dns_extraneous,
   };
 
   module_t *dns_module;
