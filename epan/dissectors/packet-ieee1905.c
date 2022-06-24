@@ -131,6 +131,8 @@ static int hf_ieee1905_ipv4_addr_count = -1;
 static int hf_ieee1905_addr_type = -1;
 static int hf_ieee1905_ipv4_addr = -1;
 static int hf_ieee1905_dhcp_server = -1;
+static int hf_ieee1905_ipv6_mac_address = -1;
+static int hf_ieee1905_ipv6_linklocal = -1;
 static int hf_ieee1905_ipv6_type_count = -1;
 static int hf_ieee1905_ipv6_addr_count = -1;
 static int hf_ieee1905_ipv6_addr_type = -1;
@@ -2308,9 +2310,14 @@ dissect_ipv6_type(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         &ipi, "IPv6 type %u info",
                                         entry_index);
 
-        proto_tree_add_item(ipv6_tree, hf_ieee1905_mac_address, tvb,
+        proto_tree_add_item(ipv6_tree, hf_ieee1905_ipv6_mac_address, tvb,
                             offset, 6, ENC_NA);
         offset += 6;
+
+        proto_tree_add_item(ipv6_tree, hf_ieee1905_ipv6_linklocal, tvb,
+                            offset, 16, ENC_NA);
+
+        offset += 16;
 
         addr_count = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(ipv6_tree, hf_ieee1905_ipv6_addr_count,
@@ -8836,8 +8843,16 @@ proto_register_ieee1905(void)
           { "Count of IPv6 entries", "ieee1905.ipv6_type.count",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_ipv6_linklocal,
+          { "Link local address", "ieee1905.ipv6_type.link_local",
+            FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_ipv6_mac_address,
+          { "MAC address", "ieee1905.ipv6_type.mac_address",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
         { &hf_ieee1905_ipv6_addr_count,
-          { "IPv4 address count", "ieee1905.ipv6_type.addr_count",
+          { "IPv6 address count", "ieee1905.ipv6_type.addr_count",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ipv6_addr_type,
