@@ -92,13 +92,13 @@ add_custom_command(
 		${CMAKE_BINARY_DIR}/epan/wslua/declare_wslua.h
 		${CMAKE_BINARY_DIR}/epan/wslua/register_wslua.c
 	COMMAND
-		${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+		${PYTHON_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.py
 		${WSLUA_MODULES}
 	WORKING_DIRECTORY
 		${CMAKE_BINARY_DIR}/epan/wslua
 	DEPENDS
-		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.py
 		${WSLUA_MODULES}
 		# ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
 )

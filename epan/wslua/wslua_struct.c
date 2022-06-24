@@ -145,7 +145,7 @@
  */
 
 
-/* The following line is here so that make-reg.pl does the right thing.  This 'Struct' class
+/* The following line is here so that make-reg.py does the right thing.  This 'Struct' class
   isn't really a class, so it doesn't have the checkStruct/pushStruct/etc. functions
   the following macro would generate; but it does need to be registered and such, so...
   WSLUA_CLASS_DEFINE_BASE(Struct,NOP,0);
