@@ -124,6 +124,7 @@ static int hf_http_prev_request_in = -1;
 static int hf_http_prev_response_in = -1;
 static int hf_http_time = -1;
 static int hf_http_chunk_size = -1;
+static int hf_http_chunk_data = -1;
 static int hf_http_chunk_boundary = -1;
 static int hf_http_chunked_trailer_part = -1;
 static int hf_http_file_data = -1;
@@ -2166,7 +2167,6 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	while (datalen > 0) {
 		proto_item *chunk_ti = NULL, *chuck_size_item;
 		proto_tree *chunk_subtree = NULL;
-		tvbuff_t *data_tvb = NULL; /*  */
 		gchar *c = NULL;
 		guint8 *raw_data;
 		gint raw_len = 0;
@@ -2262,15 +2262,12 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			proto_item_set_len(chuck_size_item, chunk_offset - offset);
 
 			/*
-			 * XXX - just add the chunk's data as an item?
-			 *
-			 * Using the data dissector means that, in
+			 * Adding the chunk as FT_BYTES means that, in
 			 * TShark, you get the entire chunk dumped
 			 * out in hex, in addition to whatever
 			 * dissection is done on the reassembled data.
 			 */
-			data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
-			call_data_dissector(data_tvb, pinfo, chunk_subtree);
+			proto_tree_add_item(chunk_subtree, hf_http_chunk_data, tvb, chunk_offset, chunk_size, ENC_NA);
 
 			proto_tree_add_item(chunk_subtree, hf_http_chunked_boundary, tvb,
 								chunk_offset + chunk_size, 2, ENC_NA);
@@ -2338,13 +2335,15 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					 "HTTP chunked response");
 
 	/* Dechunk the "chunked response" to a new memory buffer */
+	/* XXX: Composite tvbuffers do work now, so we should probably
+         * use that to avoid the memcpys unless necessary.
+         */
 	orig_datalen      = datalen;
 	raw_data	      = (guint8 *)wmem_alloc(pinfo->pool, datalen);
 	raw_len		      = 0;
 	chunked_data_size = 0;
 
 	while (datalen > 0) {
-		tvbuff_t *data_tvb;
 		guint32	  chunk_size;
 		gint	  chunk_offset;
 		guint8	 *chunk_string;
@@ -2416,16 +2415,12 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			/* last-chunk does not have chunk-data CRLF. */
 			if (chunk_size > 0) {
 				/*
-				 * XXX - just add the chunk's data as an item?
-				 *
-				 * Using the data dissector means that, in
+				 * Adding the chunk as FT_BYTES means that, in
 				 * TShark, you get the entire chunk dumped
 				 * out in hex, in addition to whatever
 				 * dissection is done on the reassembled data.
 				 */
-				data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
-				call_data_dissector(data_tvb, pinfo, chunk_subtree);
-
+				proto_tree_add_item(chunk_subtree, hf_http_chunk_data, tvb, chunk_offset, chunk_size, ENC_NA);
 				proto_tree_add_item(chunk_subtree, hf_http_chunk_boundary, tvb,
 									chunk_offset + chunk_size, 2, ENC_NA);
 			}
@@ -4157,6 +4152,10 @@ proto_register_http(void)
 	    { &hf_http_chunk_size,
 	      { "Chunk size", "http.chunk_size",
 		FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0,
+		NULL, HFILL }},
+	    { &hf_http_chunk_data,
+	      { "Chunk data", "http.chunk_data",
+		FT_BYTES, BASE_NONE, NULL, 0,
 		NULL, HFILL }},
 	    { &hf_http_file_data,
 	      { "File Data", "http.file_data",
