@@ -380,13 +380,25 @@ slice(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 
 range_node_list(L) ::= RANGE_NODE(N).
 {
-    L = g_slist_append(NULL, stnode_steal_data(N));
+    char *err_msg = NULL;
+    drange_node *rn = drange_node_from_str(stnode_token(N), &err_msg);
+    if (err_msg != NULL) {
+        FAIL(dfw, N, "%s", err_msg);
+        g_free(err_msg);
+    }
+    L = g_slist_append(NULL, rn);
     stnode_free(N);
 }
 
 range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
 {
-    L = g_slist_append(P, stnode_steal_data(N));
+    char *err_msg = NULL;
+    drange_node *rn = drange_node_from_str(stnode_token(N), &err_msg);
+    if (err_msg != NULL) {
+        FAIL(dfw, N, "%s", err_msg);
+        g_free(err_msg);
+    }
+    L = g_slist_append(P, rn);
     stnode_free(N);
 }
 

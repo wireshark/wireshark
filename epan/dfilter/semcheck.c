@@ -541,7 +541,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_TEST:
 		case STTYPE_FVALUE:
 		case STTYPE_PCRE:
-		case STTYPE_RANGE_NODE:
 			ws_assert_not_reached();
 	}
 }
