@@ -139,6 +139,7 @@ They previously shipped with Qt 5.12.2.
 ** Literal strings can handle embedded null bytes (the value '\0') correctly. This includes regular expression patterns.
    For example the double-quoted string "\0 is a null byte" is a legal literal value.
    This may be useful to match byte patterns but note that in general protocol fields with a string type still cannot contain embedded null bytes.
+** Booleans can be written as True/TRUE or False/FALSE. Previously they could only be written as 1 or 0.
 
 * The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
 ** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.

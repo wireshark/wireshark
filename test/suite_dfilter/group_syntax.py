@@ -112,8 +112,12 @@ class case_syntax(unittest.TestCase):
         checkDFilterCount(dfilter, 1)
 
     def test_bool_2(self, checkDFilterCount):
-        dfilter = "tcp.flags.push == true"
+        dfilter = "tcp.flags.push == True"
         checkDFilterCount(dfilter, 1)
+
+    def test_bool_2(self, checkDFilterCount):
+        dfilter = "tcp.flags.push == FALSE"
+        checkDFilterCount(dfilter, 0)
 
 @fixtures.uses_fixtures
 class case_equality(unittest.TestCase):

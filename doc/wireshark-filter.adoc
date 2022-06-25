@@ -203,18 +203,21 @@ are equivalent:
     frame.len > '\012'
 
 Boolean values are either true or false.  In a display filter expression
-testing the value of a Boolean field, true is expressed as the word "true"
-(without quotes) or any non-zero number.  False is expressed as "false" or zero.
-For example, a token-ring packet's source route field is Boolean.  To find any
-source-routed packets, a display filter would be any of the following:
+testing the value of a Boolean field, true is expressed as the word "True"
+or "TRUE" (without quotes) or any non-zero number.  False is expressed as
+"False" or "FALSE" or the number zero. For example, a token-ring packet's
+source route field is Boolean.  To find any source-routed packets, a display
+filter would be any of the following:
 
     tr.sr == 1
-    tr.sr == true
+    tr.sr == True
+    tr.sr == TRUE
 
 Non source-routed packets can be found with:
 
     tr.sr == 0
-    tr.sr == false
+    tr.sr == False
+    tr.sr == FALSE
 
 Ethernet addresses and byte arrays are represented by hex
 digits.  The hex digits may be separated by colons, periods, or hyphens:

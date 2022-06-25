@@ -589,12 +589,12 @@ Signed integer::
   decimal, octal, hexadecimal or binary.
 
 Boolean::
-  Can be 1 or "true", 0 or "false" (without quotes).
+  Can be 1 or "True" or "TRUE", 0 or "False" or "FALSE" (without quotes).
 +
-A Boolean field is present whether its value is true or false. For example,
+A Boolean field is present regardless if its value is true or false. For example,
 `tcp.flags.syn` is present in all TCP packets containing the flag, whether
 the SYN flag is 0 or 1. To only match TCP packets with the SYN flag set, you need
-to use `tcp.flags.syn == 1` or `tcp.flags.syn == true`.
+to use `tcp.flags.syn == 1` or `tcp.flags.syn == True`.
 
 Ethernet address::
   6 bytes separated by a colon (:), dot (.), or dash (-) with one or two bytes between separators:

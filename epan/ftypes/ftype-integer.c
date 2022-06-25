@@ -1065,11 +1065,11 @@ uint64_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 static gboolean
 boolean_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	if (g_ascii_strcasecmp(s, "true") == 0) {
+	if (strcmp(s, "True") == 0 || strcmp(s, "TRUE") == 0) {
 		fv->value.uinteger64 = 1;
 		return TRUE;
 	}
-	if (g_ascii_strcasecmp(s, "false") == 0) {
+	if (strcmp(s, "False") == 0 || strcmp(s, "FALSE") == 0) {
 		fv->value.uinteger64 = 0;
 		return TRUE;
 	}
