@@ -102,7 +102,7 @@ stnode_clear(stnode_t *node)
 }
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, stloc_t *loc)
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token, const stloc_t *loc)
 {
 	sttype_t	*type;
 
@@ -149,7 +149,7 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 }
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, char *token, stloc_t *loc)
+stnode_new(sttype_id_t type_id, gpointer data, char *token, const stloc_t *loc)
 {
 	stnode_t	*node;
 

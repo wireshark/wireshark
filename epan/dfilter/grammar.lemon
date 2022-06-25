@@ -120,7 +120,6 @@ expr(X) ::= LPAREN expr(Y) RPAREN.  { X = Y; }
 /* Entities, or things that can be compared/tested/checked */
 atom(A) ::= STRING(S).      { A = S; }
 atom(A) ::= CHARCONST(N).   { A = N; }
-atom(A) ::= UNPARSED(S).    { A = S; }
 atom(A) ::= LITERAL(S).     { A = S; }
 
 layer(R) ::= HASH LBRACKET range_node_list(L) RBRACKET.
@@ -154,7 +153,7 @@ field(R) ::= FIELD(F) layer(L).
 
 field(R) ::= UNPARSED(U) layer(L).
 {
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(U));
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_token(U));
     if (hfinfo == NULL) {
         FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
     }
@@ -174,7 +173,7 @@ reference(R) ::= DOLLAR LBRACE field(F) RBRACE.
 
 reference(R) ::= DOLLAR LBRACE UNPARSED(U) RBRACE.
 {
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(U));
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_token(U));
     if (hfinfo == NULL) {
         FAIL(dfw, U, "%s is not a valid field", stnode_token(U));
     }
@@ -187,6 +186,19 @@ entity(E) ::= slice(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
 entity(E) ::= field(F).         { E = F; }
 entity(E) ::= reference(R).     { E = R; }
+entity(E) ::= UNPARSED(U).
+{
+    const char *token = stnode_token(U);
+    const stloc_t *loc = stnode_location(U);
+    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, token);
+    if (hfinfo != NULL) {
+        E = stnode_new(STTYPE_FIELD, hfinfo, g_strdup(token), loc);
+    }
+    else {
+        E = stnode_new(STTYPE_LITERAL, g_strdup(token), g_strdup(token), loc);
+    }
+    stnode_free(U);
+}
 
 arithmetic_expr(T) ::= entity(N).
 {
@@ -338,20 +350,20 @@ set_list(L) ::= set_list(P) COMMA set_element(N).
     L = g_slist_concat(P, N);
 }
 
-set_entity(N) ::= atom(X).
+set_entity(N) ::= entity(E).
 {
-    N = X;
+    N = E;
 }
 
-set_entity(N) ::= MINUS(M) atom(X).
+set_entity(N) ::= MINUS(M) entity(E).
 {
     N = M;
-    sttype_test_set1(N, OP_UNARY_MINUS, X);
+    sttype_test_set1(N, OP_UNARY_MINUS, E);
 }
 
-set_entity(N) ::= PLUS atom(X).
+set_entity(N) ::= PLUS entity(E).
 {
-    N = X;
+    N = E;
 }
 
 set_element(N) ::= set_entity(X).
@@ -408,7 +420,7 @@ range_node_list(L) ::= range_node_list(P) COMMA RANGE_NODE(N).
     static stnode_t *
     new_function(dfwork_t *dfw, stnode_t *node)
     {
-        const char *name = stnode_data(node);
+        const char *name = stnode_token(node);
 
         df_func_def_t *def = df_func_lookup(name);
         if (!def) {

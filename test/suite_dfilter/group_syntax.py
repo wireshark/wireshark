@@ -167,20 +167,23 @@ class case_equality(unittest.TestCase):
         dfilter = "frame[0:10] contains :00-01-6c"
         checkDFilterCount(dfilter, 1)
 
-    def test_rhs_literal_bias_1(self, checkDFilterCount):
+    def test_rhs_bias_1(self, checkDFilterCount):
+        # Protocol "Fibre Channel" on the RHS
         dfilter = 'frame[37] == fc'
-        checkDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 0)
 
-    def test_rhs_literal_bias_2(self, checkDFilterCount):
+    def test_rhs_bias_2(self, checkDFilterCount):
+        # Byte 0xFC on the RHS
         dfilter = 'frame[37] == :fc'
         checkDFilterCount(dfilter, 1)
 
     def test_rhs_literal_bias_3(self, checkDFilterCount):
+        # Byte 0xFC on the RHS
         dfilter = 'frame[37] == <fc>'
         checkDFilterCount(dfilter, 1)
 
     def test_rhs_literal_bias_4(self, checkDFilterCount):
-        # This is Fibre Channel on the RHS
+        # Protocol "Fibre Channel" on the RHS
         dfilter = 'frame[37] == .fc'
         checkDFilterCount(dfilter, 0)
 

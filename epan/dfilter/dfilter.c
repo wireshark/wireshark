@@ -94,10 +94,6 @@ dfw_set_error_location(dfwork_t *dfw, stloc_t *loc)
 	dfw->err_loc = *loc;
 }
 
-/*
- * Tries to convert an STTYPE_UNPARSED to a STTYPE_FIELD. If it's not registered as
- * a field pass UNPARSED to the semantic check.
- */
 header_field_info *
 dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
 {
@@ -119,21 +115,6 @@ dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
 
 	/* It's not a field. */
 	return NULL;
-}
-
-gboolean
-dfw_resolve_unparsed(dfwork_t *dfw, stnode_t *st)
-{
-	if (stnode_type_id(st) != STTYPE_UNPARSED)
-		return FALSE;
-
-	header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, stnode_data(st));
-	if (hfinfo != NULL) {
-		stnode_replace(st, STTYPE_FIELD, hfinfo);
-		return TRUE;
-	}
-	stnode_replace(st, STTYPE_LITERAL, g_strdup(stnode_data(st)));
-	return FALSE;
 }
 
 /* Initialize the dfilter module */

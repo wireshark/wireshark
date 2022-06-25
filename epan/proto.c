@@ -7425,10 +7425,36 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start,
 static void
 check_protocol_filter_name_or_fail(const char *filter_name)
 {
+	/* Require at least two characters. */
+	if (filter_name[0] == '\0' || filter_name[1] == '\0') {
+		REPORT_DISSECTOR_BUG("Protocol filter name \"%s\" cannot have length less than two.", filter_name);
+	}
+
 	if (proto_check_field_name(filter_name) != '\0') {
 		REPORT_DISSECTOR_BUG("Protocol filter name \"%s\" has one or more invalid characters."
 			" Allowed are letters, digits, '-', '_' and non-repeating '.'."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
+	}
+
+	/* Check that it doesn't match some very common numeric forms. */
+	if (filter_name[0] == '0' &&
+				(filter_name[1] == 'x' || filter_name[1] == 'X' ||
+				filter_name[1] == 'b' || filter_name[1] == 'B')) {
+		REPORT_DISSECTOR_BUG("Protocol filter name \"%s\" cannot start with \"%c%c\".",
+						filter_name, filter_name[0], filter_name[1]);
+	}
+
+	/* Check that it doesn't have all decimal digits. */
+	bool all_digits = true;
+	for (const char *s = filter_name; *s != '\0'; s++) {
+		if (!g_ascii_isdigit(*s)) {
+			all_digits = false;
+			break;
+		}
+	}
+	if (all_digits) {
+		REPORT_DISSECTOR_BUG("Protocol filter name \"%s\" cannot be composed of all decimal digits.",
+						filter_name);
 	}
 
 	/* Check for reserved keywords. */

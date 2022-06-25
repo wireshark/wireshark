@@ -419,19 +419,19 @@ hyphen-bytes	{hex2}(-{hex2})+
 {MacAddress}|{QuadMacAddress}		{
 	/* MAC Address. */
 	update_location(yyextra, yytext);
-	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
+	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
 }
 
 {IPv4address}{v4-cidr-prefix}?		{
 	/* IPv4 with or without prefix. */
 	update_location(yyextra, yytext);
-	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
+	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
 }
 
 {IPv6address}{v6-cidr-prefix}?		{
 	/* IPv6 with or without prefix. */
 	update_location(yyextra, yytext);
-	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
+	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
 }
 
 :?({colon-bytes}|{dot-bytes}|{hyphen-bytes})	{
@@ -439,7 +439,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 	update_location(yyextra, yytext);
 	if (yytext[0] == ':')
 		return set_lval_str(yyextra, TOKEN_LITERAL, yytext); /* Keep leading colon. */
-	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
+	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
 }
 
 :[[:xdigit:]]+		{
@@ -464,7 +464,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 		/* Skip leading dot. */
 		return set_lval_field(yyextra, TOKEN_FIELD, yytext + 1);
 	}
-	return set_lval_str(yyextra, TOKEN_UNPARSED, yytext);
+	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
 }
 
 . {
@@ -521,9 +521,6 @@ set_lval_str(df_scanner_state_t *state, int token, const char *token_value)
 	switch (token) {
 		case TOKEN_LITERAL:
 			type_id = STTYPE_LITERAL;
-			break;
-		case TOKEN_UNPARSED:
-			type_id = STTYPE_UNPARSED;
 			break;
 		default:
 			ws_assert_not_reached();

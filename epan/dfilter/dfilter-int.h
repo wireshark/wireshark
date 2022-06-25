@@ -105,13 +105,6 @@ DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
 header_field_info *
 dfilter_resolve_unparsed(dfwork_t *dfw, const char *name);
 
-gboolean
-dfw_resolve_unparsed(dfwork_t *dfw, stnode_t *st);
-
-fvalue_t *
-dfilter_fvalue_from_unparsed(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
-		gboolean allow_partial_value, header_field_info *hfinfo_value_string);
-
 WS_RETNONNULL fvalue_t*
 dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		gboolean allow_partial_value, header_field_info *hfinfo_value_string);

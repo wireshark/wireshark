@@ -869,36 +869,36 @@ to “dhcp.type” but Wireshark will show the warning “"bootp" is deprecated�
 when you use it. Support for the deprecated fields may be removed in the future.
 
 ==== Some protocol names can be ambiguous
-In some uncommon cases relational display filter expressions (equal, less than, etc.)
+In some particular cases relational expressions (equal, less than, etc.)
 can be ambiguous. The filter name of a protocol or protocol field can contain
 any letter and digit in any order, possibly separated by dots. That can be
 indistinguishable from a literal value (usually numerical values in hexadecimal).
 For example the semantic value of `fc` can be the protocol Fibre Channel or the
-number 0xfc in hexadecimal. The 0x prefix is optional for literal values and
-furthermore "0xfc" would be a syntactically valid filter name for a protocol.
+number 0xFC in hexadecimal because the 0x prefix is optional for hexadecimal numbers.
 
-Wireshark will use a heuristic for parsing those expressions. A value on the
-right hand side of the expression is treated as literal value first. If that
-fails it is treated as a protocol or protocol field (if one exists with that
-name). If that fails it is a syntactical error. On the left hand side values
-are always treated as protocol fields. Literal values are not considered on the
-LHS. So the expression `fc == fc` is parsed as
-"Byte array of protocol with name 'fc' equals byte array { 0xfc } of length 1".
+Any value that matches a registered protocol or protocol field filter name is
+interpreted semantically as such. If it doesn't match a protocol name the normal
+rules for parsing literal values apply.
 
-Sometimes this may not be the intended meaning and there is additional syntax
-to resolve the ambiguity. Lexical tokens in-between angle brackets are always
-and only treated as literal values. Bytes arrays can also be prefixed with a
-colon. Tokens prefixed with a dot are always treated as a protocol name (the
-dot stands for the root of the protocol namespace and is optional).
+So in the case of 'fc' the lexical token is interpreted as "Fibre Channel" and
+not 0xFC. In the case of 'fd' it would be interpreted as 0xFD because it is a
+well-formed hexadecimal literal value (according to the rules of display filter
+language syntax) and there is no protocol registered with the filter name 'fd'.
+
+How ambiguous values are interpreted may change in the future. To avoid this
+problem and resolve the ambiguity there is additional syntax available.
+Values in-between angle brackets are always and only treated as literal
+values. Bytes arrays and numeric values can also be prefixed with a colon to
+force interpretation as a literal value. Values prefixed with a dot are always
+treated as a protocol name. The dot stands for the root of the protocol namespace
+and is optional)
 ----
 frame[10:] contains .fc or frame[10] == :fc and not frame contains <cafe.face>
 ----
-The most common use case for a display filter relational expression is to compare
-a field with a constant value on the right hand side and in that case the heuristic
-method used will parse the expression correctly. In the not-so-common case, or
-if you are writing a script, or you think your expression may not be giving the
-expected results it is advisable to use the explicit syntax to resolve any
-possible ambiguity in the meaning of filter expression.
+If you are writing a script, or you think your expression may not be giving the
+expected results because of the syntactical ambiguity of some filter expression
+it is advisable to use the explicit syntax to indicate the correct meaning for
+that expression.
 
 [#ChWorkFilterAddExpressionSection]
 

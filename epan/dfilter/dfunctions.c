@@ -274,8 +274,6 @@ ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name, ftenum_t lhs_f
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *st_node = param_list->data;
 
-    dfw_resolve_unparsed(dfw, st_node);
-
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
         hfinfo = sttype_field_hfinfo(st_node);
         if (IS_FT_STRING(hfinfo->type)) {
@@ -292,8 +290,6 @@ ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *st_node = param_list->data;
 
-    dfw_resolve_unparsed(dfw, st_node);
-
     if (stnode_type_id(st_node) == STTYPE_FIELD)
         return FT_UINT32;
 
@@ -308,8 +304,6 @@ ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftyp
 
     ws_assert(g_slist_length(param_list) == 1);
     stnode_t *st_node = param_list->data;
-
-    dfw_resolve_unparsed(dfw, st_node);
 
     if (stnode_type_id(st_node) == STTYPE_FIELD) {
         hfinfo = sttype_field_hfinfo(st_node);
@@ -366,7 +360,6 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
     fvalue_t *fv;
 
     arg = param_list->data;
-    dfw_resolve_unparsed(dfw, arg);
 
     if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
         ftype = check_arithmetic_expr(dfw, arg, lhs_ftype);
@@ -390,7 +383,6 @@ ul_semcheck_compare(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
 
     for (l = param_list->next; l != NULL; l = l->next) {
         arg = l->data;
-        dfw_resolve_unparsed(dfw, arg);
 
         if (stnode_type_id(arg) == STTYPE_ARITHMETIC) {
             ft_arg = check_arithmetic_expr(dfw, arg, ftype);
@@ -436,7 +428,6 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
     fvalue_t *fv;
 
     st_node = param_list->data;
-    dfw_resolve_unparsed(dfw, st_node);
 
     if (stnode_type_id(st_node) == STTYPE_ARITHMETIC) {
         ftype = check_arithmetic_expr(dfw, st_node, lhs_ftype);

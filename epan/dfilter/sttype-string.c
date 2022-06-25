@@ -61,15 +61,6 @@ sttype_register_string(void)
 		gstring_tostr
 	};
 
-	static sttype_t unparsed_type = {
-		STTYPE_UNPARSED,
-		"UNPARSED",
-		NULL,
-		string_free,
-		string_dup,
-		string_tostr
-	};
-
 	static sttype_t literal_type = {
 		STTYPE_LITERAL,
 		"LITERAL",
@@ -80,7 +71,6 @@ sttype_register_string(void)
 	};
 
 	sttype_register(&string_type);
-	sttype_register(&unparsed_type);
 	sttype_register(&literal_type);
 }
 
