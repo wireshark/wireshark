@@ -362,7 +362,7 @@ void proto_report_dissector_bug(const char *format, ...)
  * bit, required for FT_UINT_STRING and for UCS-2 and UTF-16 strings)
  * and the bottom bit (which we ignore for now so that programs that
  * pass TRUE for the encoding just do ASCII).  (The encodings are given
- * directly as even numbers in hex, so that make-init-lua.pl can just
+ * directly as even numbers in hex, so that make-init-lua.py can just
  * turn them into numbers for use in init.lua.)
  *
  * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
@@ -655,7 +655,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define FIELD_DISPLAY_E_MASK 0xFF
 
 /*
- * Note that this enum values are parsed in make-init-lua.pl so make sure
+ * Note that this enum values are parsed in make-init-lua.py so make sure
  * any changes here still makes valid entries in init.lua.
  * XXX The script requires the equals sign.
  */
@@ -896,7 +896,7 @@ typedef proto_node proto_item;
  * the bottom up.
  */
 
-/* do not modify the PI_SEVERITY_MASK name - it's used by make-init-lua.pl */
+/* do not modify the PI_SEVERITY_MASK name - it's used by make-init-lua.py */
 /* expert severities */
 #define PI_SEVERITY_MASK        0x00F00000  /**< mask usually for internal use only! */
 /** Packet comment */
@@ -910,7 +910,7 @@ typedef proto_node proto_item;
 /** Serious problems, e.g. a malformed packet */
 #define PI_ERROR                0x00800000
 
-/* do not modify the PI_GROUP_MASK name - it's used by make-init-lua.pl */
+/* do not modify the PI_GROUP_MASK name - it's used by make-init-lua.py */
 /* expert "event groups" */
 #define PI_GROUP_MASK           0xFF000000  /**< mask usually for internal use only! */
 /** The protocol field has a bad checksum, usually uses PI_WARN severity */

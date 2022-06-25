@@ -26,7 +26,7 @@ extern "C" {
  * XXX - stats should be able to register additional menu groups, although
  * the question then would be "in what order should they appear in the menu?"
  *
- * NOTE: the enum below is parsed by epan/wslua/make-init-lua.pl in order
+ * NOTE: the enum below is parsed by epan/wslua/make-init-lua.py in order
  * to generate usable values for Lua scripts to use, so they can add to
  * the menus in the GUI. The perl script's regex is such that the following
  * prefixes must only appear once in this list:
@@ -42,7 +42,7 @@ extern "C" {
  */
 
 /*! Statistics groups. Used for UI menu layout. */
-/* This is parsed by make-init-lua.pl, so we can't do anything fancy here. */
+/* This is parsed by make-init-lua.py, so we can't do anything fancy here. */
 typedef enum register_stat_group_e {
     REGISTER_PACKET_ANALYZE_GROUP_UNSORTED,     /*!< Unsorted packet analysis */
     REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /*!< Conversation filters. Unused? */

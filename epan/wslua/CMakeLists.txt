@@ -104,13 +104,12 @@ add_custom_command(
 
 add_custom_command(
 	OUTPUT init.lua
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
-		${CMAKE_SOURCE_DIR}
+	COMMAND ${PYTHON_EXECUTABLE}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.py
 		${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
-		> init.lua
+		init.lua
 	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
+		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.py
 		${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
 		${CMAKE_SOURCE_DIR}/epan/ftypes/ftypes.h
 		${CMAKE_SOURCE_DIR}/wiretap/wtap.h
