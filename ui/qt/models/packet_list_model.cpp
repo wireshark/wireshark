@@ -347,6 +347,9 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     if (!cap_file_ || visible_rows_.count() < 1) return;
     if (column < 0) return;
 
+    if (physical_rows_.count() < 1)
+        return;
+
     sort_column_ = column;
     text_sort_column_ = PacketListRecord::textColumn(column);
     sort_order_ = order;
