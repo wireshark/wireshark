@@ -190,7 +190,7 @@ probably isn't.  There is even a third model in use: pre-loading the member
 fields of the class table with the values, instead of waiting for the Lua
 script to access a particular one to retrieve it; for example the Listener tap
 extractors table is pre-populated (see files 'wslua_listener.c' and 'taps'
-which through the make-taps.pl perl script creates 'taps_wslua.c'). The
+which through the make-taps.py Python3 script creates 'taps_wslua.c'). The
 downside of that approach is the performance impact, filling fields the Lua
 script may never access.  Lastly, the Field, FieldInfo, and Tvb's ByteArray
 type each provide a __call metamethod as an accessor - I strongly suggest you
@@ -258,15 +258,14 @@ The Listener object is one of the more complicated ones.  When the Lua script
 creates a Listener (using Listener.new()), the code creates and returns a tap
 object.  The type of tap is based on the passed-in argument to Listener.new(),
 and it creates a Lua table of the tap member variables.  That happens in
-taps_wslua.c, which is an auto-generated file from make-taps.pl.  That Perl
-script reads from a file called 'taps', which identifies every struct name
-(and associated enum name) that should be exposed as a tap type.  The Perl
+taps_wslua.c, which is an auto-generated file from make-taps.py.  That Python3
+script reads from a file called 'taps.ini', which identifies every struct name
+(and associated enum name) that should be exposed as a tap type.  The Python3
 script then generates the taps_wslua.c to push those whenever the Listener
 calls for a tap; and it also generates a taps.tx file documenting them all.
 So to add a new type, add the info to the taps file (or uncomment an existing
 one), and make sure every member of the tap struct you're exposing is of a
-type that make-taps.pl has in its Perl %types and %comments associative
-arrays.
+type that make-taps.py has in its Python "types" and "comments" dictionaries.
 
 Note on Lua versions:
 
