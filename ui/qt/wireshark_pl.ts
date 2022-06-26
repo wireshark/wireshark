@@ -1845,6 +1845,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Stream ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets A </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1853,7 +1857,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Packets B </source>
+        <source>Bytes B </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10953,7 +10957,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Obraz</translation>
     </message>
     <message>
-        <source>Json</source>
+        <source>JSON</source>
+        <oldsource>Json</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11909,6 +11914,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Filter on stream id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy %1 table</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11929,11 +11938,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>as Json</source>
+        <source>as JSON</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
+        <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

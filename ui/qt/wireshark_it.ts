@@ -1841,6 +1841,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Byte</translation>
     </message>
     <message>
+        <source>Stream ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets A </source>
         <translation>Pacchetti A</translation>
     </message>
@@ -1849,8 +1853,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Byte A</translation>
     </message>
     <message>
+        <source>Bytes B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets B </source>
-        <translation>Pacchetti B</translation>
+        <translation type="vanished">Pacchetti B</translation>
     </message>
     <message>
         <source>Abs Start</source>
@@ -1878,19 +1886,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Percent filtered</source>
-        <translation type="vanished">Percentuale filtrati</translation>
+        <translation>Percentuale filtrati</translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
-    <message>
-        <source>Conversation</source>
-        <translation type="vanished">Conversazione</translation>
-    </message>
     <message>
         <source>Follow Stream…</source>
         <translation>Segui il flusso...</translation>
@@ -2454,19 +2454,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Percent filtered</source>
-        <translation type="vanished">Percentuale fitrati</translation>
+        <translation>Percentuale filtrati</translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
-    <message>
-        <source>Endpoints</source>
-        <translation type="vanished">Terminatori</translation>
-    </message>
     <message>
         <source>Map</source>
         <translation>Mappa</translation>
@@ -10958,8 +10950,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Immagine</translation>
     </message>
     <message>
-        <source>Json</source>
-        <translation>Json</translation>
+        <source>JSON</source>
+        <oldsource>Json</oldsource>
+        <translation type="unfinished">Json</translation>
     </message>
     <message>
         <source>Raw</source>
@@ -11851,10 +11844,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>TrafficTab</name>
     <message>
-        <source>%1 Types</source>
-        <translation type="vanished">Tipi di %1</translation>
-    </message>
-    <message>
         <source>Map file error</source>
         <translation>Errore nel file di mappa</translation>
     </message>
@@ -11895,7 +11884,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished">CasellaGruppo</translation>
+        <translation>CasellaGruppo</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -11915,6 +11904,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Resize all columns to content</source>
         <translation>Ridimensiona tutte le colonne al contenuto</translation>
+    </message>
+    <message>
+        <source>Filter on stream id</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy %1 table</source>
@@ -11937,12 +11930,20 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati YAML.</translation>
     </message>
     <message>
+        <source>as JSON</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>as Json</source>
-        <translation>come Json</translation>
+        <translation type="vanished">come Json</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
-        <translation>Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati Json.</translation>
+        <translation type="vanished">Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati Json.</translation>
     </message>
     <message>
         <source>Save data as raw</source>
@@ -11957,7 +11958,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>TrafficTypesModel</name>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">Protocollo</translation>
+        <translation>Protocollo</translation>
     </message>
 </context>
 <context>

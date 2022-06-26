@@ -1834,6 +1834,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bayt</translation>
     </message>
     <message>
+        <source>Stream ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets A </source>
         <translation>Paketler A</translation>
     </message>
@@ -1842,8 +1846,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bayt A</translation>
     </message>
     <message>
+        <source>Bytes B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets B </source>
-        <translation>Paketler B</translation>
+        <translation type="vanished">Paketler B</translation>
     </message>
     <message>
         <source>Abs Start</source>
@@ -1876,10 +1884,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>ConversationDialog</name>
-    <message>
-        <source>Conversation</source>
-        <translation type="vanished">Konuşma</translation>
-    </message>
     <message>
         <source>Follow Stream…</source>
         <translation>Akışı takip edin…</translation>
@@ -2448,10 +2452,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 </context>
 <context>
     <name>EndpointDialog</name>
-    <message>
-        <source>Endpoints</source>
-        <translation type="vanished">Uç noktalar</translation>
-    </message>
     <message>
         <source>Map</source>
         <translation>Harita</translation>
@@ -10920,8 +10920,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Görüntü</translation>
     </message>
     <message>
-        <source>Json</source>
-        <translation>Json</translation>
+        <source>JSON</source>
+        <oldsource>Json</oldsource>
+        <translation type="unfinished">Json</translation>
     </message>
     <message>
         <source>Raw</source>
@@ -11817,10 +11818,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>TrafficTab</name>
     <message>
-        <source>%1 Types</source>
-        <translation type="vanished">%1 Türler</translation>
-    </message>
-    <message>
         <source>Map file error</source>
         <translation>Harita dosyası hatası</translation>
     </message>
@@ -11883,6 +11880,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Tüm sütunları içeriğe göre yeniden boyutlandır</translation>
     </message>
     <message>
+        <source>Filter on stream id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy %1 table</source>
         <translation>%1 tablosunu kopyala</translation>
     </message>
@@ -11903,12 +11904,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bu sayfanın tüm değerlerini YAML veri serileştirme biçiminde panoya kopyalayın.</translation>
     </message>
     <message>
+        <source>as JSON</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>as Json</source>
-        <translation>Json olarak</translation>
+        <translation type="vanished">Json olarak</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
-        <translation>Bu sayfanın tüm değerlerini Json veri serileştirme biçiminde panoya kopyalayın.</translation>
+        <translation type="vanished">Bu sayfanın tüm değerlerini Json veri serileştirme biçiminde panoya kopyalayın.</translation>
     </message>
     <message>
         <source>Save data as raw</source>

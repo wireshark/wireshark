@@ -37,6 +37,7 @@ static ws_enum_t all_enums[] = {
     ENUM(AT_IPv4),
     ENUM(AT_IPv6),
     ENUM(AT_NONE),
+    ENUM(AT_NUMERIC),
     ENUM(AT_STRINGZ),
     ENUM(AT_VINES),
     ENUM(BASE_ALLOW_ZERO),

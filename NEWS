@@ -27,7 +27,7 @@ Wireshark 3.7.1 Release Notes
        • The context menu now includes the option to resize all columns,
       as well as copying elements
 
-       • Data may be exported as Json
+       • Data may be exported as JSON
 
        • Tabs may be detached and reattached from the dialog
 
@@ -57,6 +57,9 @@ Wireshark 3.7.1 Release Notes
 
        • Columns for the Conversations and Endpoint dialogs can be
       hidden by context menu
+
+       • TCP/UDP conversations now include the stream id and allows
+      filtering on it
 
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
@@ -120,8 +123,9 @@ Wireshark 3.7.1 Release Notes
 
         • Field references, of the form ${some.field}, are now part of
        the syntax of display filters. Previously they were implemented
-       as macros. The new implementation is more efficient and allows
-       matching multiple values, like any other protocol field.
+       as macros. The new implementation is more efficient and has the
+       same properties as protocol fields, like matching on multiple
+       values using quantifiers and support for layer filtering.
 
         • Arithmetic is supported for numeric fields with the usual
        operators “+”, “-”, “*”, “/”, and “%”. Arithmetic expressions
@@ -170,6 +174,10 @@ Wireshark 3.7.1 Release Notes
        \n, \r, \t, \v. Previously they were only supported with
        character constants.
 
+        • Unicode universal character names are now supported with the
+       escape sequences \uNNNN or \UNNNNNNNN, where N is an hexadecimal
+       digit.
+
         • Unrecognized escape sequences are now treated as a syntax
        error. Previously they were treated as a literal character. In
        addition to the sequences indicated above, backslash, single
@@ -196,6 +204,16 @@ Wireshark 3.7.1 Release Notes
        PCRE2 is compatible with PCRE so any user-visible changes should
        be minimal. Some exotic patterns may now be invalid and require
        rewriting.
+
+        • Literal strings can handle embedded null bytes (the value
+       '\0') correctly. This includes regular expression patterns. For
+       example the double-quoted string "\0 is a null byte" is a legal
+       literal value. This may be useful to match byte patterns but note
+       that in general protocol fields with a string type still cannot
+       contain embedded null bytes.
+
+        • Booleans can be written as True/TRUE or False/FALSE.
+       Previously they could only be written as 1 or 0.
 
      • The `text2pcap` command and the “Import from Hex Dump” feature
        have been updated and enhanced:
@@ -347,7 +365,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-06-19 09:18:16 UTC
+  Last updated 2022-06-23 23:07:42 UTC
 
  References
 
