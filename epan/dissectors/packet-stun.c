@@ -194,6 +194,7 @@ static int hf_stun_att_bandwidth = -1;
 static int hf_stun_att_lifetime = -1;
 static int hf_stun_att_channelnum = -1;
 static int hf_stun_att_ms_version = -1;
+static int hf_stun_att_ms_version_ice = -1;
 static int hf_stun_att_ms_connection_id = -1;
 static int hf_stun_att_ms_sequence_number = -1;
 static int hf_stun_att_ms_stream_type = -1;
@@ -622,6 +623,12 @@ static const value_string ms_version_vals[] = {
     {0x00000005, "MULTIPLEXED TURN over UDP only"},
     {0x00000006, "MULTIPLEXED TURN over UDP and TCP"},
     {0x00, NULL}
+};
+
+static const range_string ms_version_ice_rvals[] = {
+    {0x00000000, 0x00000002, "Supports only RFC3489bis-02 message formats"},
+    {0x00000003, 0xFFFFFFFF, "Supports RFC5389 message formats"},
+    {0x00, 0x00, NULL}
 };
 
 static const value_string ms_stream_type_vals[] = {
@@ -1549,9 +1556,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 break;
 
             case MS_VERSION:
-            case MS_IMPLEMENTATION_VER:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_version, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(att_tree, ": %s", val_to_str(tvb_get_ntohl(tvb, offset), ms_version_vals, "Unknown (0x%u)"));
+                break;
+            case MS_IMPLEMENTATION_VER:
+                proto_tree_add_item(att_tree, hf_stun_att_ms_version_ice, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(att_tree, ": %s", rval_to_str(tvb_get_ntohl(tvb, offset), ms_version_ice_rvals, "Unknown (0x%u)"));
                 break;
             case MS_SEQUENCE_NUMBER:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_connection_id, tvb, offset, 20, ENC_NA);
@@ -1995,6 +2005,11 @@ proto_register_stun(void)
         { &hf_stun_att_ms_version,
           { "MS Version", "stun.att.ms.version", FT_UINT32,
             BASE_DEC, VALS(ms_version_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_ms_version_ice,
+          { "MS ICE Version", "stun.att.ms.version.ice", FT_UINT32,
+            BASE_DEC|BASE_RANGE_STRING, RVALS(ms_version_ice_rvals),
+            0x0, NULL, HFILL}
          },
         { &hf_stun_att_ms_connection_id,
           { "Connection ID", "stun.att.ms.connection_id", FT_BYTES,
