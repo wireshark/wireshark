@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2014 Roland Knall <rknall [AT] gmail.com>
 #
