@@ -27,7 +27,7 @@ set(DFILTER_HEADER_FILES
 	sttype-pointer.h
 	sttype-set.h
 	sttype-slice.h
-	sttype-test.h
+	sttype-op.h
 	syntax-tree.h
 )
 
@@ -45,7 +45,7 @@ set(DFILTER_NONGENERATED_FILES
 	sttype-set.c
 	sttype-slice.c
 	sttype-string.c
-	sttype-test.c
+	sttype-op.c
 	syntax-tree.c
 )
 source_group(dfilter FILES ${DFILTER_NONGENERATED_FILES})

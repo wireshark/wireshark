@@ -14,7 +14,7 @@
 #include "syntax-tree.h"
 #include "sttype-field.h"
 #include "sttype-slice.h"
-#include "sttype-test.h"
+#include "sttype-op.h"
 #include "sttype-set.h"
 #include "sttype-function.h"
 #include "ftypes/ftypes.h"
@@ -30,9 +30,9 @@ static dfvm_value_t *
 gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr);
 
 static dfvm_opcode_t
-select_opcode(dfvm_opcode_t op, test_match_t how)
+select_opcode(dfvm_opcode_t op, stmatch_t how)
 {
-	if (how == ST_MATCH_DEF)
+	if (how == STNODE_MATCH_DEF)
 		return op;
 
 	switch (op) {
@@ -46,7 +46,7 @@ select_opcode(dfvm_opcode_t op, test_match_t how)
 		case ALL_CONTAINS:
 		case ALL_MATCHES:
 		case ALL_IN_RANGE:
-			return how == ST_MATCH_ALL ? op : op + 1;
+			return how == STNODE_MATCH_ALL ? op : op + 1;
 		case ANY_EQ:
 		case ANY_NE:
 		case ANY_GT:
@@ -57,7 +57,7 @@ select_opcode(dfvm_opcode_t op, test_match_t how)
 		case ANY_CONTAINS:
 		case ANY_MATCHES:
 		case ANY_IN_RANGE:
-			return how == ST_MATCH_ANY ? op : op - 1;
+			return how == STNODE_MATCH_ANY ? op : op - 1;
 		case IF_TRUE_GOTO:
 		case IF_FALSE_GOTO:
 		case CHECK_EXISTS:
@@ -349,7 +349,7 @@ gen_relation_insn(dfwork_t *dfw, dfvm_opcode_t op,
 }
 
 static void
-gen_relation(dfwork_t *dfw, dfvm_opcode_t op, test_match_t how,
+gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stmatch_t how,
 					stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	GSList		*jumps = NULL;
@@ -384,7 +384,7 @@ fixup_jumps(gpointer data, gpointer user_data)
 /* Generate the code for the in operator.  It behaves much like an OR-ed
  * series of == tests, but without the redundant existence checks. */
 static void
-gen_relation_in(dfwork_t *dfw, test_match_t how,
+gen_relation_in(dfwork_t *dfw, stmatch_t how,
 				stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	dfvm_insn_t	*insn;
@@ -452,31 +452,31 @@ static dfvm_value_t *
 gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 {
 	stnode_t	*left, *right;
-	test_op_t	st_op;
+	stnode_op_t	st_op;
 	dfvm_value_t	*reg_val, *val1, *val2 = NULL;
 	dfvm_opcode_t	op;
 
-	sttype_test_get(st_arg, &st_op, &left, &right);
+	sttype_oper_get(st_arg, &st_op, &left, &right);
 
-	if (st_op == OP_UNARY_MINUS) {
+	if (st_op == STNODE_OP_UNARY_MINUS) {
 		op = MK_MINUS;
 	}
-	else if (st_op == OP_ADD) {
+	else if (st_op == STNODE_OP_ADD) {
 		op = DFVM_ADD;
 	}
-	else if (st_op == OP_SUBTRACT) {
+	else if (st_op == STNODE_OP_SUBTRACT) {
 		op = DFVM_SUBTRACT;
 	}
-	else if (st_op == OP_MULTIPLY) {
+	else if (st_op == STNODE_OP_MULTIPLY) {
 		op = DFVM_MULTIPLY;
 	}
-	else if (st_op == OP_DIVIDE) {
+	else if (st_op == STNODE_OP_DIVIDE) {
 		op = DFVM_DIVIDE;
 	}
-	else if (st_op == OP_MODULO) {
+	else if (st_op == STNODE_OP_MODULO) {
 		op = DFVM_MODULO;
 	}
-	else if (st_op == OP_BITWISE_AND) {
+	else if (st_op == STNODE_OP_BITWISE_AND) {
 		op = MK_BITWISE_AND;
 	}
 	else {
@@ -603,28 +603,28 @@ gen_notzero(dfwork_t *dfw, stnode_t *st_node)
 static void
 gen_test(dfwork_t *dfw, stnode_t *st_node)
 {
-	test_op_t	st_op;
-	test_match_t	st_how;
+	stnode_op_t	st_op;
+	stmatch_t	st_how;
 	stnode_t	*st_arg1, *st_arg2;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*jmp;
 
 
-	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
+	sttype_oper_get(st_node, &st_op, &st_arg1, &st_arg2);
 	st_how = sttype_test_get_match(st_node);
 
 	switch (st_op) {
-		case TEST_OP_UNINITIALIZED:
+		case STNODE_OP_UNINITIALIZED:
 			ws_assert_not_reached();
 			break;
 
-		case TEST_OP_NOT:
+		case STNODE_OP_NOT:
 			gencode(dfw, st_arg1);
 			insn = dfvm_insn_new(NOT);
 			dfw_append_insn(dfw, insn);
 			break;
 
-		case TEST_OP_AND:
+		case STNODE_OP_AND:
 			gencode(dfw, st_arg1);
 
 			insn = dfvm_insn_new(IF_FALSE_GOTO);
@@ -636,7 +636,7 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			jmp->value.numeric = dfw->next_insn_id;
 			break;
 
-		case TEST_OP_OR:
+		case STNODE_OP_OR:
 			gencode(dfw, st_arg1);
 
 			insn = dfvm_insn_new(IF_TRUE_GOTO);
@@ -648,57 +648,57 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			jmp->value.numeric = dfw->next_insn_id;
 			break;
 
-		case TEST_OP_ALL_EQ:
+		case STNODE_OP_ALL_EQ:
 			gen_relation(dfw, ALL_EQ, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_ANY_EQ:
+		case STNODE_OP_ANY_EQ:
 			gen_relation(dfw, ANY_EQ, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_ALL_NE:
+		case STNODE_OP_ALL_NE:
 			gen_relation(dfw, ALL_NE, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_ANY_NE:
+		case STNODE_OP_ANY_NE:
 			gen_relation(dfw, ANY_NE, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_GT:
+		case STNODE_OP_GT:
 			gen_relation(dfw, ANY_GT, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_GE:
+		case STNODE_OP_GE:
 			gen_relation(dfw, ANY_GE, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_LT:
+		case STNODE_OP_LT:
 			gen_relation(dfw, ANY_LT, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_LE:
+		case STNODE_OP_LE:
 			gen_relation(dfw, ANY_LE, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_CONTAINS:
+		case STNODE_OP_CONTAINS:
 			gen_relation(dfw, ANY_CONTAINS, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_MATCHES:
+		case STNODE_OP_MATCHES:
 			gen_relation(dfw, ANY_MATCHES, st_how, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_IN:
+		case STNODE_OP_IN:
 			gen_relation_in(dfw, st_how, st_arg1, st_arg2);
 			break;
 
-		case OP_BITWISE_AND:
-		case OP_UNARY_MINUS:
-		case OP_ADD:
-		case OP_SUBTRACT:
-		case OP_MULTIPLY:
-		case OP_DIVIDE:
-		case OP_MODULO:
+		case STNODE_OP_BITWISE_AND:
+		case STNODE_OP_UNARY_MINUS:
+		case STNODE_OP_ADD:
+		case STNODE_OP_SUBTRACT:
+		case STNODE_OP_MULTIPLY:
+		case STNODE_OP_DIVIDE:
+		case STNODE_OP_MODULO:
 			ws_assert_not_reached();
 			break;
 	}

@@ -14,7 +14,7 @@
 #include <wsutil/wmem/wmem.h>
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>
-#include "sttype-test.h"
+#include "sttype-op.h"
 #include "sttype-function.h"
 #include "dfilter-int.h"
 
@@ -34,7 +34,7 @@ sttype_init(void)
 	sttype_register_set();
 	sttype_register_slice();
 	sttype_register_string();
-	sttype_register_test();
+	sttype_register_opers();
 }
 
 void
@@ -349,11 +349,11 @@ log_test_full(enum ws_log_level level,
 		return;
 	}
 
-	test_op_t st_op;
+	stnode_op_t st_op;
 	stnode_t *st_lhs = NULL, *st_rhs = NULL;
 	char *lhs = NULL, *rhs = NULL;
 
-	sttype_test_get(node, &st_op, &st_lhs, &st_rhs);
+	sttype_oper_get(node, &st_op, &st_lhs, &st_rhs);
 
 	if (st_lhs)
 		lhs = sprint_node(st_lhs);
@@ -390,7 +390,7 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 	if (stnode_type_id(node) == STTYPE_TEST ||
 			stnode_type_id(node) == STTYPE_ARITHMETIC) {
 		wmem_strbuf_append_printf(buf, "%s:\n", stnode_todebug(node));
-		sttype_test_get(node, NULL, &left, &right);
+		sttype_oper_get(node, NULL, &left, &right);
 		if (left && right) {
 			indent(buf, level + 1);
 			visit_tree(buf, left, level + 1);

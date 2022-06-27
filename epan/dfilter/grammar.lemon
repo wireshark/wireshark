@@ -8,7 +8,7 @@
 #include "syntax-tree.h"
 #include "sttype-field.h"
 #include "sttype-slice.h"
-#include "sttype-test.h"
+#include "sttype-op.h"
 #include "sttype-function.h"
 #include "sttype-set.h"
 #include "drange.h"
@@ -99,19 +99,19 @@ expr(X) ::= arithmetic_expr(E). { X = E; }
 expr(X) ::= expr(Y) TEST_AND(T) expr(Z).
 {
     X = T;
-    sttype_test_set2(X, TEST_OP_AND, Y, Z);
+    sttype_oper_set2(X, STNODE_OP_AND, Y, Z);
 }
 
 expr(X) ::= expr(Y) TEST_OR(T) expr(Z).
 {
     X = T;
-    sttype_test_set2(X, TEST_OP_OR, Y, Z);
+    sttype_oper_set2(X, STNODE_OP_OR, Y, Z);
 }
 
 expr(X) ::= TEST_NOT(T) expr(Y).
 {
     X = T;
-    sttype_test_set1(X, TEST_OP_NOT, Y);
+    sttype_oper_set1(X, STNODE_OP_NOT, Y);
 }
 
 /* Any expression inside parens is simply that expression */
@@ -213,43 +213,43 @@ arithmetic_expr(T) ::= PLUS entity(N).  [UNARY_PLUS]
 arithmetic_expr(T) ::= MINUS(M) entity(N). [UNARY_MINUS]
 {
     T = M;
-    sttype_test_set1(T, OP_UNARY_MINUS, N);
+    sttype_oper_set1(T, STNODE_OP_UNARY_MINUS, N);
 }
 
 arithmetic_expr(T) ::= arithmetic_expr(F) BITWISE_AND(O) arithmetic_expr(M).
 {
     T = O;
-    sttype_test_set2(T, OP_BITWISE_AND, F, M);
+    sttype_oper_set2(T, STNODE_OP_BITWISE_AND, F, M);
 }
 
 arithmetic_expr(T) ::= arithmetic_expr(F) PLUS(O) arithmetic_expr(M).
 {
     T = O;
-    sttype_test_set2(T, OP_ADD, F, M);
+    sttype_oper_set2(T, STNODE_OP_ADD, F, M);
 }
 
 arithmetic_expr(T) ::= arithmetic_expr(F) MINUS(O) arithmetic_expr(M).
 {
     T = O;
-    sttype_test_set2(T, OP_SUBTRACT, F, M);
+    sttype_oper_set2(T, STNODE_OP_SUBTRACT, F, M);
 }
 
 arithmetic_expr(T) ::= arithmetic_expr(F) STAR(O) arithmetic_expr(M).
 {
     T = O;
-    sttype_test_set2(T, OP_MULTIPLY, F, M);
+    sttype_oper_set2(T, STNODE_OP_MULTIPLY, F, M);
 }
 
 arithmetic_expr(T) ::= arithmetic_expr(F) RSLASH(O) arithmetic_expr(M).
 {
     T = O;
-    sttype_test_set2(T, OP_DIVIDE, F, M);
+    sttype_oper_set2(T, STNODE_OP_DIVIDE, F, M);
 }
 
 arithmetic_expr(T) ::= arithmetic_expr(F) PERCENT(O) arithmetic_expr(M).
 {
     T = O;
-    sttype_test_set2(T, OP_MODULO, F, M);
+    sttype_oper_set2(T, STNODE_OP_MODULO, F, M);
 }
 
 arithmetic_expr(T) ::= LBRACE arithmetic_expr(F) RBRACE.
@@ -258,40 +258,40 @@ arithmetic_expr(T) ::= LBRACE arithmetic_expr(F) RBRACE.
 }
 
 /* Relational tests */
-cmp_op(O) ::= TEST_ALL_EQ(L).   { O = L; sttype_test_set_op(O, TEST_OP_ALL_EQ); }
-cmp_op(O) ::= TEST_ANY_EQ(L).   { O = L; sttype_test_set_op(O, TEST_OP_ANY_EQ); }
-cmp_op(O) ::= TEST_ALL_NE(L).   { O = L; sttype_test_set_op(O, TEST_OP_ALL_NE); }
-cmp_op(O) ::= TEST_ANY_NE(L).   { O = L; sttype_test_set_op(O, TEST_OP_ANY_NE); }
-cmp_op(O) ::= TEST_GT(L).       { O = L; sttype_test_set_op(O, TEST_OP_GT); }
-cmp_op(O) ::= TEST_GE(L).       { O = L; sttype_test_set_op(O, TEST_OP_GE); }
-cmp_op(O) ::= TEST_LT(L).       { O = L; sttype_test_set_op(O, TEST_OP_LT); }
-cmp_op(O) ::= TEST_LE(L).       { O = L; sttype_test_set_op(O, TEST_OP_LE); }
+cmp_op(O) ::= TEST_ALL_EQ(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ALL_EQ); }
+cmp_op(O) ::= TEST_ANY_EQ(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ANY_EQ); }
+cmp_op(O) ::= TEST_ALL_NE(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ALL_NE); }
+cmp_op(O) ::= TEST_ANY_NE(L).   { O = L; sttype_oper_set_op(O, STNODE_OP_ANY_NE); }
+cmp_op(O) ::= TEST_GT(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_GT); }
+cmp_op(O) ::= TEST_GE(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_GE); }
+cmp_op(O) ::= TEST_LT(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_LT); }
+cmp_op(O) ::= TEST_LE(L).       { O = L; sttype_oper_set_op(O, STNODE_OP_LE); }
 
 comparison_test(T) ::= arithmetic_expr(E) cmp_op(O) arithmetic_expr(F).
 {
     T = O;
-    sttype_test_set2_args(O, E, F);
+    sttype_oper_set2_args(O, E, F);
 }
 
 /* 'a == b == c' or 'a < b <= c <= d < e' */
 comparison_test(T) ::= arithmetic_expr(E) cmp_op(O) comparison_test(R).
 {
     stnode_t *L, *F;
-    /* for now generate it like E O F  TEST_OP_AND  F P G, later it could be optimized
+    /* for now generate it like E O F  STNODE_OP_AND  F P G, later it could be optimized
        or semantically checked (to make a <= b >= c or a == b != c invalid)?
      */
 
     F = R;
     do {
         ws_assert(F != NULL && stnode_type_id(F) == STTYPE_TEST);
-        sttype_test_get(F, NULL, &F, NULL);
+        sttype_oper_get(F, NULL, &F, NULL);
     } while (stnode_type_id(F) == STTYPE_TEST);
 
     L = O;
-    sttype_test_set2_args(L, E, stnode_dup(F));
+    sttype_oper_set2_args(L, E, stnode_dup(F));
 
     T = stnode_new(STTYPE_TEST, NULL, NULL, NULL);
-    sttype_test_set2(T, TEST_OP_AND, L, R);
+    sttype_oper_set2(T, STNODE_OP_AND, L, R);
 }
 
 relation_test(T) ::= comparison_test(C).    { T = C; }
@@ -299,26 +299,26 @@ relation_test(T) ::= comparison_test(C).    { T = C; }
 relation_test(T) ::= entity(E) TEST_CONTAINS(L) entity(F).
 {
     T = L;
-    sttype_test_set2(T, TEST_OP_CONTAINS, E, F);
+    sttype_oper_set2(T, STNODE_OP_CONTAINS, E, F);
 }
 
 relation_test(T) ::= entity(E) TEST_MATCHES(L) entity(F).
 {
     T = L;
-    sttype_test_set2(T, TEST_OP_MATCHES, E, F);
+    sttype_oper_set2(T, STNODE_OP_MATCHES, E, F);
 }
 
 relation_test(T) ::= entity(E) TEST_IN(O) set(S).
 {
     T = O;
-    sttype_test_set2(T, TEST_OP_IN, E, S);
+    sttype_oper_set2(T, STNODE_OP_IN, E, S);
 }
 
 relation_test(T) ::= entity(E) TEST_NOT(P) TEST_IN(O) set(S).
 {
     T = P;
-    sttype_test_set2(O, TEST_OP_IN, E, S);
-    sttype_test_set1(T, TEST_OP_NOT, O);
+    sttype_oper_set2(O, STNODE_OP_IN, E, S);
+    sttype_oper_set1(T, STNODE_OP_NOT, O);
 }
 
 relation(R) ::= relation_test(T).   { R = T; }
@@ -326,13 +326,13 @@ relation(R) ::= relation_test(T).   { R = T; }
 relation(R) ::= ANY relation_test(T).
 {
     R = T;
-    sttype_test_set_match(R, ST_MATCH_ANY);
+    sttype_test_set_match(R, STNODE_MATCH_ANY);
 }
 
 relation(R) ::= ALL relation_test(T).
 {
     R = T;
-    sttype_test_set_match(R, ST_MATCH_ALL);
+    sttype_test_set_match(R, STNODE_MATCH_ALL);
 }
 
 set(S) ::= LBRACE set_list(L) RBRACE.
@@ -358,7 +358,7 @@ set_entity(N) ::= entity(E).
 set_entity(N) ::= MINUS(M) entity(E).
 {
     N = M;
-    sttype_test_set1(N, OP_UNARY_MINUS, E);
+    sttype_oper_set1(N, STNODE_OP_UNARY_MINUS, E);
 }
 
 set_entity(N) ::= PLUS entity(E).
