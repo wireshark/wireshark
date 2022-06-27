@@ -1,6 +1,6 @@
 // Common attributes
 
-:wireshark-version: 3.7.1
+:wireshark-version: 3.7.2
 :logwolf-version: 0.9.0
 
 // Required for btn, kbd:, and menu: macros.
