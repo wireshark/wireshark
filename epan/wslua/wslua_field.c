@@ -76,8 +76,8 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
        instead of just the *value* bytes. That was a bug, and has been changed in 1.11.4.
        Furthermore, it retrieved an `ftypes.GUID` as a `ByteArray`, which is also incorrect.
 
-       If you wish to still get a `ByteArray` of the `TvbRange`, use `FieldInfo:get_range()`
-       to get the `TvbRange`, and then use `Tvb:bytes()` to convert it to a `ByteArray`.
+       If you wish to still get a `ByteArray` of the `TvbRange`, use `fieldinfo.range`
+       to get the `TvbRange`, and then use `tvbrange:bytes()` to convert it to a `ByteArray`.
        */
     FieldInfo fi = checkFieldInfo(L,1);
 
