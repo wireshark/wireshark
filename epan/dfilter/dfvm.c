@@ -661,24 +661,28 @@ GSList *
 filter_refs_fvalues(GPtrArray *refs_array, drange_t *range)
 {
 	int length; /* maximum proto layer number. The numbers are sequential. */
-	df_reference_t *last_ref, *ref;
+	df_reference_t *last_ref = NULL;
 	int cookie = -1;
 	gboolean cookie_matches = false;
-	int layer;
 	GSList *fvalues = NULL;
+
+	if (!refs_array || refs_array->len == 0) {
+		return fvalues;
+	}
 
 	/* refs array is sorted. */
 	last_ref = refs_array->pdata[refs_array->len - 1];
 	length = last_ref->proto_layer_num;
 
 	for (guint i = 0; i < refs_array->len; i++) {
+		df_reference_t *ref = refs_array->pdata[i];
+		int layer = ref->proto_layer_num;
+
 		if (range == NULL) {
 			fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
 			continue;
 		}
 
-		ref = refs_array->pdata[i];
-		layer = ref->proto_layer_num;
 		if (cookie == layer) {
 			if (cookie_matches) {
 				fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
