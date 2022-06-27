@@ -1,3 +1,323 @@
+dac75fba7f CMake: Bump the minimum Python version to 3.6.
+8bdff72625 dfilter: Fix undefined dereference and add null check
+7f951eda3e Qt: Increase animation speed for progress frame
+d562cc3033 PTP: Improved robustness on wrong 2-step flag and 1-step
+26b0a0a8d3 stun: Tighten heuristic by rejecting restricted values
+1433104479 IEEE1905: fix IPv6 type TLV parsing
+2c9675b759 TECMP: fix typo
+dda4af1fc5 STUN: Update some comments
+b5e1e63dd0 [Automatic update for 2022-06-26]
+006d20db9e Qt: Only sort if there are actually lines to sort
+cc52ef4d12 STUN: Fix MS-IMPLEMENTATION-VERSION value string
+e49a69f361 HTTP: Add chunks as items instead of calling data dissector
+efbe699756 dfilter: Remove STTYPE_RANGE_NODE
+aaff0d21ae dfilter: Add layer support for references
+e9e6431d7b dfilter: Change boolean string representation
+229dad6a75 X509IF: Fix duplicate filter name
+8793650707 dftest: Print ftype of protocol fields
+f1902c643e Regenerate ASN.1 dissectors
+0dbd0a6903 Qt: Fix endianness for an IPv4 value
+d3e2f1053b Doc: Port make-authors-short to Python3.
+602e87d6c5 Make sure our Python scripts read and write UTF-8.
+26f87b3250 wslua: Port epan/wslua/make-reg.py to Python3
+acb8158033 Tools: Port tools/generate_authors.py to Python3.
+a9bcbaf738 DNS: Note and dissect any extraneous payload bytes
+e79630f1d9 Frame: Fix segmentation dump when parsing packet_verdict
+95b01dc4bf GREbond: Add support for Huawei's GRE bonding (RFC8157) control protocol
+181a7c7d7d Signal-PDU: Fix performance degradation on config switch
+d7322e757e epan: Use host byte order with AT_NUMERIC
+0079058837 openSAFETY: Define broadcast address globaly
+342af4727d Cisco Mis-Cabling Protocol: Support strict mode PDUs
+4c768f54a7 epan: Make AT_NUMERIC behave more safely
+39fc49b792 wsdg: escape tick marks after backtick; fix typo
+ff4663931c wsdg: docbook\README.adoc - filename
+2e5b09f486 Qt: Fix compiler warning on macOS
+1424e28c7d Qt: Fix stream id display in context menu
+3b0d9194bc Docs: Update the ftype description list in wireshark-filter(4).
+9c19f47394 Qt: Fix a couple of slot names.
+b6ccc65a92 RTP Analysis dialog: Fix of clock drift freq drift calculation
+4c22ff6bdb GTP: Several fixes and improvements to QoS IE GBR & MBR fields
+24cab126fd Qt: Fix our filter edit line lengths.
+3d52693eaa Qt+docs: Capitalize JSON.
+d8140e92c9 Fix Debian symbols
+1eafee6566 Qt: Work around a background fill issue with Qt 6.
+fe25d701ba Docs: Updates to wireshark-filter manpage
+354e0d7edf dfilter: Add support for unicode escape sequences
+47348ae598 dfilter: Add support for literal strings with null bytes
+d372ed3483 wsutil/str_util: Escape string API extensions
+847795d381 Qt: Add stream number to conversations
+e89784a577 Fix Debian symbols
+cbd3c44776 ftypes: Add FT_UINT_STRING to IS_FT_STRING() macro
+e42a4de47c ftypes: Fix an error message
+0615ba6317 ftypes: Make accessor functions type safe
+0cadfff04a MCPTT: Fix dissection of FC Reject Phase field
+17f5e15fcc DCT2000: call dissectors for R16 RRC
+992e9f93aa Revert "A small for for the Doxygen warning:"
+1aa9a52a44 A small for for the Doxygen warning:   capture/airpcap.h:906: warning: end of file while inside a group
+e046877ad1 Qt: Fix column hiding for traffic model
+0bc756c2c0 TPNCP: Simplify size tracking
+058fe0dd09 [Automatic update for 2022-06-19]
+2b4878d452 Qt: Hide columns for traffic tree
+f75f577579 Qt: Fix TrafficTree typo
+efe8dc051c Prefs: Change the default UI layout to type "2".
+41cd2fed9c BSSGP: Correct BBSGP -> BSSGP in a few places
+79310ebbd2 Qt: Remove our idle dissection wait period.
+5db7ddb209 ui: Add Logwolf software updates.
+e11c7559a8 plugins.example: Fix an installation path
+b3fd206822 Qt: Sort tap list initially
+9319394af1 MEGACO: Reset bracket counters after a Topology Descriptor
+c5aa352ad4 docbook: Adapt releasenotes for openSafety and AT_NUMERIC
+972a7950f2 openSAFETY: Adding conversation handler code
+83e420913d Qt: Implement sort model for traffic type list
+300befc12a epan: Numeric address type
+3e012e2a87 epan: Finish converting endpoint_by_id to elements
+bd6808c4a0 Qt: Fix missing includes
+4d57854294 ethercat: Fix EEPROM Ctrl/Status bitmask fields
+1bd24bb95d RTCP: ensure that at least two bytes are captured for heuristic checks
+2efe338b2e Qt: Use a combobox for Decode As selectors if there are packet values
+a159fe125e SIGNAL-PDU: Fixing memory leak in Signal List UAT
+60efc1a1c0 woww: Change SMSG_AUTH_RESPONSE result field size from 4 to 1
+9b08b02d8e a615a: don't parse exception timer if A1
+d008708552 editcap/mergecap: swap 'v'|'V' options to match other CLI utilities
+572e6b0c10 Docs: Add some protocols to the release notes.
+022ebb106a GitLab CI: Fix our documentation globs
+a1f36f06f6 Fix a sentence in AUTHORS file
+a664d29978 ieee80211: Update reason codes as in IEEE Std 802.11-2020 and 802.11ax-2021
+05074f3e96 Add two more acknowledgements for external projects we use
+c5b47cb839 Qt: Remove some bogus entries from Authors list
+1272b62106 Docs: Update documentation for redesigned Traffic Tabs
+208cf56b75 ip: ip.flags field are 3 high bits not full byte
+4f283e9ef8 Qt: Fix Qt6 compile warnings for traffic tabs
+a4f25e5115 Qt: Redesign TrafficTree Dialogs UI
+f1cbc6b662 epan: Remove fragment_get_reassembled()
+47c418d419 tftp: Handle TFTP servers that don't switch ports
+1ec1422318 MCPTT: Fix dissection of Track Info field
+9d17919f2a WSUG: Typo
+1dc37de740 Qt: Fix sorting for ports
+be112bd44e Qt: Fix maxmind open map
+16af26dcc2 gsm_sms: Display reassembled unpacked 7-bit GSM SM with that encoding
+1301c033b4 SMPP: Handle decoding packed 7-bit GSM with UDH correctly
+0cfe7a0d56 Qt: Better sorting for traffic dialogs
+b3a102eb46 [Automatic update for 2022-06-12]
+f82ddef8d2 tshark/docs: add -X read_format: example to view file internals
+212abb7efe Qt: Autoset limit to display filter for expert dialog
+01f9dcbb7b tftp: Fix spelling
+4277d24fa1 smpp: Handle TLV and UDH parameters for text and subdissection
+a807047b95 Qt: Adapt sorting for traffic tables
+58ee7bf6ee AT: Implement CMGL command (binary mode)
+1e8beaa245 Add support for UUID type in Thrift
+1d09a9a4fb gsm_sms: Don't let header be included twice
+6df11bde44 gsm_sms_ud: Use the UDH function from the GSM SMS dissector
+c758e9d9c0 LLDP: Add CIP TLVs
+bcb8558be2 Docs: Update release notes
+d047a18e83 Docs: Update the release notes.
+cbed7f8013 docbook: Add Releasenotes for traffic column
+fa1d908f9e gsm_sms: Use character_set enum when decoding DCS and TP-UD
+51d5cb42b2 Qt: Implement total columns for traffic tables
+0640b711ea tap: Mark filtered packets instead of dropping them
+2cf938cfa8 tap: Adding flags for tap_packet
+8b1d140c49 smpp: Decode message_payload field as text
+4fa4cad396 irda: Use correct conversation_new() options
+ef581f230f fix-encoding-args: Remove a string check
+eafcd7f97c fix-encoding-args: Revert a change
+3e543bb0af Docs: Update README.dissector for string encodings
+662957926a PortableApps: Fix a couple of variables.
+5a2bd62cd3 gsm_sms: Add Language IEIs
+a530d45c20 SMPP: Fix DCS decoding
+7394527038 roon_discovery: Include stdlib.h
+b89a195b4c Add Roon Discovery dissector
+0b48a284b6 SOME/IP-SD: Make option parsing a bit more robust
+bbe6ab6316 CMake: Update WiX and PortableApps target names.
+de1a4c3774 CMake: Update package target names.
+c253dda269 CMake+Packaging: Add a logwolf_dmg target.
+8fa64a4773 Docs: Note that display filter layer numbers start at 1.
+4015522162 Docs: Another display filter regex update
+c03bf18db1 Qt: Remove double registered signals
+3029a4a4d9 Qt: Remove unnecessary cli option
+de103394fe dfilter: Make regex matches case insensitive by default
+bd0f0cbbed Docs: Update display filter manual page to PCRE2
+176ba718f0 Qt: Fix displayfilter always on
+5d61db3ad5 CMake+NSIS: More variable cleanup.
+c9396bba11 epan: Remove an unneeded null check.
+c5e265f852 CMake: Deduplicate some version variables.
+604cb2a7a3 t38: Use correct conversation_new() options
+86fdbe2ea9 fcels: Use correct find_conversation() options
+c5739dcded umts_fp: Use correct find_conversation() and conversation_new() options
+e329582f1d rtp: Use correct find_conversation() options
+ad7905e8da coap: Use correct conversation_new() options
+4829f8c04e jxta: Use correct conversation_new() options
+104cc42008 Make it easier to call tools/make-enums.py from the source dir
+e21aa6c36e epan: Update instrospection enums
+4b9d152767 Qt: Auto apply "Limit to display filter"
+0b6bb6949e DCT2000: Fix format of string with PDCP-NR keys
+218821f2c1 Packaging: Fixed a bug config.nsh not found
+a3e0d93bed debian: Remove removed symbols
+286f57a2c7 epan: Check for null addresses in find_conversation.
+3187fbbd61 Qt: Fix segfault when some ICU codec is not available
+fe4210029a Qt: Reword menu item Seconds Since Beginning of Capture
+9d716d793c Follow Stream: Allow using spin boxes with no packets visible
+2939c6d0dc Version info: Do not show plugin count
+2ac2b0670a Git+CMake: Add support for CMake presets.
+c0bd7266ad Gitlab-CI: Add tfshark to code check job
+5cd591129f epan: Convert remaining conversation code to elements.
+729b4d3b69 [Automatic update for 2022-06-05]
+b05678b40e nvme: Fix uint32 to pointer conversion
+b06c1c451c Qt: Make TrafficTable detachable
+9edf06383a Qt: Move most Contextmenu stuff to TrafficTree
+f72a33fc1c dot11decrypt: explicitly cast *pmk_len and msk_len
+8fd9d1d274 AT: Implementing a session context
+8c7e3f0d30 Packaging: Add a Logwolf NSIS config.
+06f0b78ce6 NSIS: Deprecate 32-bit installs.
+9e7a2b7699 NSIS: Fix our indentation.
+05759d3ec5 Qt: Better handle retapping for traffic tables
+056fd8a1e3 NSIS: Update some target and filenames.
+709593ee91 Make distinction between conversation options for creation and search
+a930a78686 Docs: We no longer require Bison / YACC.
+9ec5208873 IWARP_DDP_RDMAP: reassemble fragmented iWarp RDMA Send messages
+b18646baca IWARP_DDP_RDMAP: make use of wmem_new(wmem_packet_scope(), rdmap_request_t)
+3aae474c49 CIP: Minor updates
+fc505eed29 Qt: Fix coverity warnings for TrafficView
+693820b90d lrexlib: Disable MSVC narrowing warnings
+caacdae870 epan: Add a post_init() plugin routine
+06871d27df wiretap: merge support for IDBs in the middle of a file
+ea2ddd40f5 Qt: Fix leak in CaptureFileDialog
+f725bbef5e Qt: Minor changes to TrafficTrees
+335795ab16 Qt: Fix build withouth MaxMindDB
+dd9e4fd3fa Qt: Fix warning for TrafficData
+7306d7681a Qt: Save Trafficdata as raw
+cb56345175 Qt: Move Traffic Tables to Model/View
+6014d7ad2b cpuid: clean up, update. and expand some comments.
+02eb128bef cpuid: don't use __cpuid on non-x86 Windows.
+356a6ab0ea file: Free fname_new when rename successful.
+0d2e248a25 file: Only change the file descriptors on a Save with Copy
+429c7a6ce3 epan: Don't free epan-scoped memory.
+66b73ddd11 Profinet plugin: Dissect writing I&M1 and I&M2, too
+1438336c1d Profinet plugin: Decode more error codes
+b49edf0a5b github: update macos action.
+e8dc20899f epan: Remove conversation_create_endpoint options.
+48ff21b573 [Automatic update for 2022-05-29]
+6fd1c08a3a TCP: Don't add [TCP segment of a reassembled PDU] to the second PDU
+ec12d0c530 TCP: Report reassembled in for more PDUs where we know it
+717e4c47ee TCP: reset addresses and ports after each segment
+95ba1151df TCP: Handle additional data requested with ooo reassembly
+17322b0cc2 Make a couple of functions static.
+cba61d08f8 Zigbee: Touchlink typo
+7df725a119 Zigbee: Touchlink missing info field
+941539b6a2 debian: add missing symbol.
+083c6828f5 EOBI: Disable dissector by default
+9fa0d711f6 O-RAN: Fix offset extension 10 and beam vector list
+cd73921a9e lrexlib: Disable a warning [-Wshorten-64-to-32]
+370c58f913 macOS: Add Logwolf packaging targets.
+5373483963 Tools: Add a CMakeExecutable parameter to win-setup.ps1.
+e6a8318f18 epan: Fix our conversation key lifetimes.
+b8279a6ce1 lrexlib: Pacify checkAPIs
+8ff24c2b6e Lua: Add lrexlib-pcre2 Lua regex bindings
+e6da2cd8de Lua: Remove on-life-support GRegex bindings
+7ab343e7d6 tcp: Split MSPs in out of order processing
+ab33d9b809 Qt6+MSYS2: Fix windeployqt usage
+ee7094d34c CMake: Fix typo
+9c86d22e5b MSYS2: Fix compilation error
+34d74031a9 epan+Qt: Add element tables to the ConversationHashTablesDialog.
+966969e777 conversation(.h): Fix -Wdocumentation
+1a60de0b76 USB: Sanitize USB 2.0 endpoint max packet size
+aef4c0c60a epan: Allocate a conversation key.
+19e1764ca5 epan: Lazily create conversation dissector trees.
+7a59f8a22c gprscdr: Update to 3GPP TS 32.298 V17.2.0
+0188c9a1da ORAN FH-CUS: Section type 5 has ef field.
+485aedf4e1 tap-iostat: Make a bunch of ints unsigned
+c0032f2f0d epan: Switch the conversation IDs back to guint32s.
+286aec2436 Tools: Clean up win-setup.ps1's CleanupItems
+f065fdbc63 Windows: Upgrade zstd to 1.5.2.
+865feb2bf8 epan: Switch some _by_id conversation routines to elements.
+e5fc7c1d83 Tools: Switch to a new Windows development library repository.
+f3db612fa1 PDCP-NR: Fix a test (flagged by coverity)
+8be21c7867 SIP: Add a filter for VIA parameter be-route
+e6c4557c0b SIP: Handle short frame in dissect_sip_sec_mechanism()
+20b311e7a9 PDCP-NR: Add separate UL/DL expert info ei items for missing SNs
+66506483bf Minor release notes clean up
+94fe2b195c Try to fix some warnings.
+51de43cfd2 dfilter: Fix protocol slices with negative indexes
+ce52af1a32 CMake: Disable errors with -Walloc-size-larger-than=
+f6fdf53eca epan: Consolidate some duplicate conversation code.
+b4376b4533 Git+docs: Ignore and document CMakeListsCustom.txt.
+be929e162d epan: Allow conversations based on arbitrary element lists.
+96cf14ea01 TECMP: Renaming to Device and Interface for TECMP 1.7
+75f31638f2 Apply 1 suggestion(s) to 1 file(s)
+349787051e CMake+Qt: Fix our Resource Compiler arguments.
+e1a6913a2b qt: Ignore gcc 12.1 optimization bug with Qt
+87d0c6f492 Some check_typed_item_calls.py warning fixes.
+c8fc8de3d4 [Automatic update for 2022-05-22]
+2f0b5ab2cb Tools: Remove 32-bit support from win-setup.ps1.
+bc57219e46 TECMP: Update to TECMP 1.7 specification
+bc7c41c820 smc: fix clang analyzer warning (Dead.Store)
+f6dda3c116 couchbase: fix clang analyzer warning (Dead.Store)
+406f5263c3 catapult-dct200: fix clang analyer warning (Dead.Store)
+8ee1eabeee dfvm(dfilter): fix clang analyzer warning (Dead.Store)
+17367e4648 check_typed_item_calls: skip mask checks if can't parse
+7b53720999 Use proto_tree_add_item where possible
+cc4223f537 Add PA Profile 4.02 diagnostics codes
+85eb9fba4d Dissect PA Profile IO data
+225e90564d Resolve PA Profile 4.02 submodule names
+c552665fd3 CMake: Enable Qt6 if WIRESHARK_QT6_PREFIX_PATH is set.
+aad47c8438 RLC-NR:  When have NACK Range, clearly show which SNs were lost
+e47ab95e46 BPv7 and TCPCL: Update references to published RFCs
+6b07710188 Falco Bridge: API updates.
+fd76c7ea80 Falco Bridge: Fix address field registration.
+5a53e72c63 Qt: Row colors and resize
+6913bff6cd Qt: Simplify traffic type selection
+3e117ed788 check_spelling: Recognise epan/pci-ids.c as generated
+1cde1cc1f5 Qt: Move type selection to tab
+1bfa15f7de epan: Document the epan, file, and packet scopes.
+3d4dfb829b Qt: Allow translation for traffic tables
+f5b5d2c3c9 Qt: Cleanup Traffic Table
+7079d881fa Update bpv7 and bpsec dissectors to resolve ticket 17727
+148f5905af SDP: Minor Refactoring by Extract Method
+44433d3c9c f5ethtrailer: Decode TLS 1.3 trailer info on some versions
+cc6a749fda Docs: Document packaging/debian.
+b4e041a619 Qt: Fix packet diagram cleanup
+fc89ddcdcf ISUP: avoid parameter summary text duplication
+4376cf1209 wsdg/lua: gui.colorized_frame.fg example is a few digits short
+9ba4847a13 Qt: Fix some pathSelection warnings
+6c612bf251 Tools: Don't validate file_util.c.
+f238dec118 GitLab CI: Switch the Windows packages to Qt 6.2.3.
+eca007e617 Qt: Speedup for Resolved Addresses Dlg
+28b917a72e extcap: Close pipe on windows properly
+acdda8eb6b Qt: Fix File Path editor in table
+52054046c1 Tools: Unzip using CMake in win-setup.ps1.
+d5f99ef126 [Automatic update for 2022-05-15]
+8020aea27a epan: Fix our conversation flags
+f2fb1662b2 proto: Handle BASE_SPECIAL_VALS in add_bitmask_ title
+1e7a600680 proto: Fix display of BASE_UNIT_STRING for 64 bit fields in bitmask
+a98391e316 proto: Fix reversed test for signed ints with unit strings
+8a872d6142 proto: Add support for BASE_SPECIAL_VALS to fields with bitmasks
+1f1ee198f2 merge: Don't write to stdout if tempdir is not set
+bebf7afa37 dfilter: Remove unused DFVM 4th instruction argument
+3bb918428e dfilter: Remove stale comment
+ac901e5de8 dfilter: Fix maybe-unitialized warning
+a42f8ea7f4 Docs: Add a section on automatic updates to the User's Guide.
+76423db8e0 Qt: Fix clazy-incorrect-emit warnings.
+909280ce82 MySQL: Initialize a variable.
+609c0d3881 docs: adoc migration bolding typos; Windows pipe name syntax
+2e5a78dc64 text2pcap: Switch default file format to pcapng
+b602911b31 dfilter: Add support for universal quantifiers
+164f3ce9a2 dfilter: Improve syntax tree display format for sets
+8c9480214b Remove execute flag on source files
+aa8b2b9f1c ssh: fixing warnings.
+3e81d98499 ssh: fixing MAC IV derivation.
+a036c4dd09 ssh: switching consistently from g_debug to ws_debug
+797486fa18 ssh: Diffie-Hellman
+967107fb8e ssh: Diffie-Hellman group exchange.
+51087141c8 ssh: aes-ctr
+e1ca35c7a6 ssh: aes-cbc
+f3c61d7638 ssh: aes-gcm
+4e41383aad MySQL: fix bug for mysql response message length.
+f265c5869b MySQL: fix bug for mysql response message length.
+dab59caf38 MySQL: fix bug for mysql response message length.
+565670c1c8 Version: 3.7.0 → 3.7.1
+c5b983c93a Packaging: Ignore the return value of git stash.
+0bde1e795a Build: 3.7.0
+eedf82cd97 SIP: Refactoring too many if-else branches by table-driven method
+7b749f5e15 Qt: Fix a version check.
 ad28888d2f Qt: Fix display filter read/write
 c4f6914aa6 DVB-S2: Only add the rolloff value once
 4977e20ab2 Qt: Prevent remote interfaces to show up
