@@ -284,7 +284,11 @@ PacketList::PacketList(QWidget *parent) :
     connect(packet_list_model_, SIGNAL(itemHeightChanged(const QModelIndex&)), this, SLOT(updateRowHeights(const QModelIndex&)));
     connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
     connect(mainApp, SIGNAL(columnDataChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
-    connect(mainApp, &MainApplication::preferencesChanged, this, [=]() { setSortingEnabled(prefs.gui_packet_list_sortable); });
+    connect(mainApp, &MainApplication::preferencesChanged, this, [=]() {
+        if ((bool) (prefs.gui_packet_list_sortable) != isSortingEnabled()) {
+            setSortingEnabled(prefs.gui_packet_list_sortable);
+        }
+    });
 
     connect(header(), SIGNAL(sectionResized(int,int,int)),
             this, SLOT(sectionResized(int,int,int)));
