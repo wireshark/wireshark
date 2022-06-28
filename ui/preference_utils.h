@@ -80,6 +80,21 @@ gint column_prefs_add_custom(gint fmt, const gchar *title,
  */
 gint column_prefs_has_custom(const gchar *custom_field);
 
+/** Check if a custom column's data can be displayed differently
+ * resolved or unresolved, e.g. it has a field with a value string.
+ *
+ * This is for when adding or editing custom columns. Compare with
+ * resolve_column() in packet_list_utils.h, which is for columns
+ * that have already been added.
+ *
+ * @param custom_field column custom field
+ *
+ * @return TRUE if a custom column with the field description
+ * would support being displayed differently resolved or unresolved,
+ * FALSE otherwise.
+ */
+gboolean column_prefs_custom_resolve(const gchar *custom_field);
+
 /** Remove a column.
  *
  * @param col_link Column list entry

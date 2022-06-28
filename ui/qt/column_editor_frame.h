@@ -21,7 +21,7 @@ class ColumnEditorFrame : public AccordionFrame
     Q_OBJECT
 
 public:
-    explicit ColumnEditorFrame(QWidget *parent = 0);
+    explicit ColumnEditorFrame(QWidget *parent = nullptr);
     ~ColumnEditorFrame();
     void editColumn(int column);
 
@@ -38,6 +38,7 @@ private slots:
     void on_occurrenceLineEdit_textEdited(const QString &occurrence);
     void on_buttonBox_rejected();
     void on_buttonBox_accepted();
+    void checkCanResolve(void);
 
 private:
     bool syntaxIsValid(void);

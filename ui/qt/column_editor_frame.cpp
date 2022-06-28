@@ -46,6 +46,8 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
 
     connect(ui->fieldsNameLineEdit, &FieldFilterEdit::textChanged,
             ui->fieldsNameLineEdit, &FieldFilterEdit::checkCustomColumn);
+    connect(ui->fieldsNameLineEdit, &FieldFilterEdit::textChanged,
+            this, &ColumnEditorFrame::checkCanResolve);
 }
 
 ColumnEditorFrame::~ColumnEditorFrame()
@@ -76,6 +78,7 @@ void ColumnEditorFrame::setFields(int index)
         ui->fieldsNameLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
         ui->occurrenceLineEdit->clear();
         ui->occurrenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
+        ui->resolvedCheckBox->setEnabled(false);
     }
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
 }
@@ -87,6 +90,7 @@ void ColumnEditorFrame::editColumn(int column)
     saved_fields_ = get_column_custom_fields(column);
     saved_occurrence_ = QString::number(get_column_custom_occurrence(column));
     ui->typeComboBox->setCurrentIndex(get_column_format(column));
+    ui->resolvedCheckBox->setChecked(get_column_resolved(column));
     setFields(ui->typeComboBox->currentIndex());
 }
 
@@ -152,6 +156,9 @@ void ColumnEditorFrame::on_buttonBox_accepted()
             if (!ui->occurrenceLineEdit->text().isEmpty()) {
                 set_column_custom_occurrence(cur_column_, ui->occurrenceLineEdit->text().toInt());
             }
+            if (ui->resolvedCheckBox->isEnabled()) {
+                set_column_resolved(cur_column_, ui->resolvedCheckBox->isChecked());
+            }
         }
         prefs_main_write();
         emit columnEdited();
@@ -179,4 +186,13 @@ void ColumnEditorFrame::keyPressEvent(QKeyEvent *event)
     }
 
     AccordionFrame::keyPressEvent(event);
+}
+
+void ColumnEditorFrame::checkCanResolve()
+{
+    if (ui->fieldsNameLineEdit->syntaxState() == SyntaxLineEdit::Valid && column_prefs_custom_resolve(ui->fieldsNameLineEdit->text().toUtf8().constData())) {
+        ui->resolvedCheckBox->setEnabled(true);
+    } else  {
+        ui->resolvedCheckBox->setEnabled(false);
+    }
 }

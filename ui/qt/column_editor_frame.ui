@@ -106,6 +106,19 @@
     <widget class="SyntaxLineEdit" name="occurrenceLineEdit"/>
    </item>
    <item>
+    <widget class="QCheckBox" name="resolvedCheckBox">
+     <property name="text">
+      <string>Resolve Names:</string>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

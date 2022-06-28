@@ -228,6 +228,35 @@ column_prefs_has_custom(const gchar *custom_field)
     return colnr;
 }
 
+gboolean
+column_prefs_custom_resolve(const gchar* custom_field)
+{
+    gchar **fields;
+    header_field_info *hfi;
+    bool resolve = false;
+
+    fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX, custom_field,
+                                  (GRegexCompileFlags) (G_REGEX_ANCHORED | G_REGEX_RAW),
+                                  G_REGEX_MATCH_ANCHORED);
+
+    for (guint i = 0; i < g_strv_length(fields); i++) {
+        if (fields[i] && *fields[i]) {
+            hfi = proto_registrar_get_byname(fields[i]);
+            if (hfi && ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_BOOLEAN) ||
+                    ((hfi->strings != NULL) &&
+                     (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))))
+                {
+                    resolve = TRUE;
+                    break;
+                }
+        }
+    }
+
+    g_strfreev(fields);
+
+    return resolve;
+}
+
 void
 column_prefs_remove_link(GList *col_link)
 {
