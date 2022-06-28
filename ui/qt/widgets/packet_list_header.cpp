@@ -219,6 +219,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     action = contextMenu->addAction(tr("Resolve Names"));
     bool canResolve = resolve_column(sectionIdx, cap_file_);
     action->setEnabled(canResolve);
+    action->setCheckable(true);
     action->setChecked(canResolve && get_column_resolved(sectionIdx));
     connect(action, &QAction::triggered, this, &PacketListHeader::doResolveNames);
 
