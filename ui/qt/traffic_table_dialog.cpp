@@ -49,6 +49,8 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
     copy_bt_ = buttonBox()->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     copy_bt_->setMenu(ui->trafficTab->createCopyMenu(copy_bt_));
 
+    ui->displayFilterCheckBox->setChecked(cf.displayFilter().length() > 0);
+
     ui->trafficTab->setFocus();
     ui->trafficTab->useNanosecondTimestamps(cf.timestampPrecision() == WTAP_TSPREC_NSEC);
     connect(ui->trafficList, &TrafficTypesList::protocolsChanged, ui->trafficTab, &TrafficTab::setOpenTabs);
@@ -127,7 +129,7 @@ void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
     }
 
     if (checked)
-        trafficTab()->setFilter(cap_file_.capFile()->dfilter);
+        trafficTab()->setFilter(cap_file_.displayFilter());
     else
         trafficTab()->setFilter(QString());
 

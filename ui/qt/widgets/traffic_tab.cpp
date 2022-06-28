@@ -351,7 +351,6 @@ void TrafficTab::disableTap()
     }
 
     _disableTaps = true;
-    cornerWidget()->setEnabled(false);
     emit disablingTaps();
 }
 
