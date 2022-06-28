@@ -98,15 +98,6 @@ const int tail_update_interval_ = 100; // Milliseconds.
 const int overlay_update_interval_ = 100; // 250; // Milliseconds.
 
 
-// Copied from ui/gtk/packet_list.c
-void
-packet_list_select_first_row(void)
-{
-    if (!gbl_cur_packet_list)
-        return;
-    gbl_cur_packet_list->goFirstPacket(false);
-}
-
 /*
  * Given a frame_data structure, scroll to and select the row in the
  * packet list corresponding to that frame.  If there is no such
@@ -124,7 +115,12 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
         return FALSE;
 
     model->flushVisibleRows();
-    int row = model->visibleIndexOf(fdata_needle);
+    int row = -1;
+    if (!fdata_needle)
+        row = 0;
+    else
+        row = model->visibleIndexOf(fdata_needle);
+
     if (row >= 0) {
         /* Calling ClearAndSelect with setCurrentIndex clears the "current"
          * item, but doesn't clear the "selected" item. We want to clear
@@ -173,14 +169,6 @@ packet_list_get_row_data(gint row)
         return gbl_cur_packet_list->getFDataForRow(row);
     }
     return NULL;
-}
-
-// Called from cf_continue_tail and cf_finish_tail when auto_scroll_live
-// is enabled.
-void
-packet_list_moveto_end(void)
-{
-    // gbl_cur_packet_list->scrollToBottom();
 }
 
 /* Redraw the packet list *and* currently-selected detail */

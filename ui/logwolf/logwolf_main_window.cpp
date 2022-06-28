@@ -1411,7 +1411,7 @@ bool LogwolfMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
                    If we discarded comments, redraw the packet list to reflect
                    any packets that no longer have comments. */
                 if (discard_comments)
-                    packet_list_queue_draw();
+                    packet_list_->redrawVisiblePackets();
 
                 cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
                 updateForUnsavedChanges(); // we update the title bar to remove the *
@@ -1525,7 +1525,7 @@ bool LogwolfMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_co
             /* If we discarded comments, redraw the packet list to reflect
                any packets that no longer have comments. */
             if (discard_comments)
-                packet_list_queue_draw();
+                packet_list_->redrawVisiblePackets();
 
             cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
             updateForUnsavedChanges(); // we update the title bar to remove the *
@@ -1667,7 +1667,7 @@ void LogwolfMainWindow::exportSelectedPackets() {
             /* If we discarded comments, redraw the packet list to reflect
                any packets that no longer have comments. */
             if (discard_comments)
-                packet_list_queue_draw();
+                packet_list_->redrawVisiblePackets();
             /* Add this filename to the list of recent files in the "Recent Files" submenu */
             add_menu_recent_capture_file(qUtf8Printable(file_name));
             goto cleanup;

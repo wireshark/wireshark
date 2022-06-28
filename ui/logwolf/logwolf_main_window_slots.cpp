@@ -2367,7 +2367,6 @@ void LogwolfMainWindow::setTimestampPrecision(QAction *action)
     }
     ts_precision tsp = action->data().value<ts_precision>();
     if (recent.gui_time_precision != tsp) {
-        /* the actual precision will be set in packet_list_queue_draw() below */
         timestamp_set_precision(tsp);
         recent.gui_time_precision = tsp;
 

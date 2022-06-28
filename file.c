@@ -701,7 +701,7 @@ cf_read(capture_file *cf, gboolean reloading)
     /* If we have any displayed packets to select, select the first of those
        packets by making the first row the selected row. */
     if (cf->first_displayed != 0) {
-        packet_list_select_first_row();
+        packet_list_select_row_from_data(NULL);
     }
 
     /* It is safe again to execute redissections. */
@@ -860,12 +860,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
      * isn't automatically selected.
      */
     if (!cf->current_frame && !packet_list_multi_select_active())
-        packet_list_select_first_row();
-
-    /* moving to the end of the packet list - if the user requested so and
-       we have some new packets. */
-    if (newly_displayed_packets && cf->count != 0)
-        packet_list_moveto_end();
+        packet_list_select_row_from_data(NULL);
 
     if (cf->state == FILE_READ_ABORTED) {
         /* Well, the user decided to exit Wireshark.  Return CF_READ_ABORTED
@@ -1988,7 +1983,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
         /* Set to invalid to force update of packet list and packet details */
         cf->current_row = -1;
         if (selected_frame_num == 0) {
-            packet_list_select_first_row();
+            packet_list_select_row_from_data(NULL);
         }else{
             if (!packet_list_select_row_from_data(selected_frame)) {
                 /* We didn't find a row corresponding to this frame.
