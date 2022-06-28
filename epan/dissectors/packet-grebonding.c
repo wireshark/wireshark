@@ -72,7 +72,7 @@ static gint *ett[] = {
 };
 
 
-const value_string greb_message_types[] = {
+static const value_string greb_message_types[] = {
 #define GREB_TUNNEL_SETUP_REQ 1
     {GREB_TUNNEL_SETUP_REQ, "Tunnel setup request"},
 #define GREB_TUNNEL_SETUP_ACK 2
@@ -88,7 +88,7 @@ const value_string greb_message_types[] = {
     {0, NULL}
 };
 
-const value_string greb_tunnel_types[] = {
+static const value_string greb_tunnel_types[] = {
 #define GREB_TUNNEL_FIRST 0x0001
     {GREB_TUNNEL_FIRST, "first tunnel (most likely the DSL GRE tunnel)"},
 #define GREB_TUNNEL_SECOND 0x0010
@@ -96,7 +96,7 @@ const value_string greb_tunnel_types[] = {
     {0, NULL}
 };
 
-const value_string greb_error_codes[] = {
+static const value_string greb_error_codes[] = {
 #define GREB_ERROR_HAAP_UNREACHABLE_LTE 1
     {GREB_ERROR_HAAP_UNREACHABLE_LTE, "HAAP not reachable over LTE"},
 #define GREB_ERROR_HAAP_UNREACHABLE_DSL 2
@@ -124,7 +124,7 @@ const value_string greb_error_codes[] = {
     {0,NULL}
 };
 
-const value_string greb_attribute_types[] = {
+static const value_string greb_attribute_types[] = {
 #define GREB_ATTRB_H_IP4_ADDR 1
     {GREB_ATTRB_H_IP4_ADDR, "H IPv4 address"},
 #define GREB_ATTRB_H_IP6_ADDR 2
@@ -197,7 +197,7 @@ const value_string greb_attribute_types[] = {
     {0, NULL}
 };
 
-const value_string greb_filter_types[] = {
+static const value_string greb_filter_types[] = {
 #define GREB_ATTRB_FILTER_FQDN 1
     {GREB_ATTRB_FILTER_FQDN, "FQDN"},
 #define GREB_ATTRB_FILTER_DSCP 2
@@ -229,7 +229,7 @@ const value_string greb_filter_types[] = {
     {0, NULL}
 };
 
-const value_string greb_filter_ack_codes[] = {
+static const value_string greb_filter_ack_codes[] = {
 #define GREB_ATTRB_FILTER_ACK 0
     {GREB_ATTRB_FILTER_ACK, "Filter list acknowledged"},
 #define GREB_ATTRB_FILTER_NACK_NO_OLD 1
