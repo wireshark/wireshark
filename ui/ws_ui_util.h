@@ -60,7 +60,6 @@ void packet_list_recreate_visible_rows(void);
 void packet_list_thaw(void);
 guint packet_list_append(column_info *cinfo, frame_data *fdata);
 frame_data *packet_list_get_row_data(gint row);
-void packet_list_recolor_packets(void);
 void packet_list_queue_draw(void);
 void packet_list_select_first_row(void);
 void packet_list_moveto_end(void);

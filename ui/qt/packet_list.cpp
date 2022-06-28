@@ -155,14 +155,6 @@ packet_list_clear(void)
 }
 
 void
-packet_list_recolor_packets(void)
-{
-    if (gbl_cur_packet_list) {
-        gbl_cur_packet_list->recolorPackets();
-    }
-}
-
-void
 packet_list_freeze(void)
 {
     if (gbl_cur_packet_list) {

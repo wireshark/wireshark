@@ -2467,8 +2467,7 @@ void LogwolfMainWindow::on_actionViewNormalSize_triggered()
 
 void LogwolfMainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
     recent.packet_list_colorize = checked;
-    packet_list_recolor_packets();
-    packet_list_->resetColorized();
+    packet_list_->recolorPackets();
 }
 
 void LogwolfMainWindow::on_actionViewColoringRules_triggered()
