@@ -36,13 +36,6 @@ public:
      */
     bool isValid() const;
 
-    /** Get the current selected row
-     *
-     * @return the current selected index of the packet list if the capture
-     * file is open and a packet is selected, otherwise -1.
-     */
-    int currentRow();
-
     /** Return the full pathname.
      *
      * @return The entire pathname, converted from the native OS's encoding

@@ -162,15 +162,6 @@ packet_list_thaw(void)
     packets_bar_update();
 }
 
-frame_data *
-packet_list_get_row_data(gint row)
-{
-    if (gbl_cur_packet_list) {
-        return gbl_cur_packet_list->getFDataForRow(row);
-    }
-    return NULL;
-}
-
 /* Redraw the packet list *and* currently-selected detail */
 void
 packet_list_queue_draw(void)
@@ -509,10 +500,12 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         }
     }
 
-    if (row < 0)
+    if (row < 0 || !packet_list_model_)
         cf_unselect_packet(cap_file_);
-    else
-        cf_select_packet(cap_file_, row);
+    else {
+        frame_data * fdata = packet_list_model_->getRowFdata(row);
+        cf_select_packet(cap_file_, fdata);
+    }
 
     if (!in_history_ && cap_file_->current_frame) {
         cur_history_++;
