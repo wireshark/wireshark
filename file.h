@@ -616,7 +616,6 @@ gboolean cf_goto_framenum(capture_file *cf);
  *
  * @param cf the capture file
  * @param frame the frame to be selected
- * @param row the row the frame is currently residing to be selected
  */
 void cf_select_packet(capture_file *cf, frame_data *frame);
 
