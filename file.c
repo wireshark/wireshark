@@ -198,25 +198,6 @@ cf_callback_remove(cf_callback_t func, gpointer user_data)
     ws_assert_not_reached();
 }
 
-void
-cf_timestamp_auto_precision(capture_file *cf)
-{
-    int i;
-
-    /* don't try to get the file's precision if none is opened */
-    if (cf->state == FILE_CLOSED) {
-        return;
-    }
-
-    /* Set the column widths of those columns that show the time in
-       "command-line-specified" format. */
-    for (i = 0; i < cf->cinfo.num_cols; i++) {
-        if (col_has_time_fmt(&cf->cinfo, i)) {
-            packet_list_resize_column(i);
-        }
-    }
-}
-
 gulong
 cf_get_computed_elapsed(capture_file *cf)
 {

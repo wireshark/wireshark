@@ -2355,10 +2355,7 @@ void LogwolfMainWindow::setTimestampFormat(QAction *action)
 
         if (packet_list_) {
             packet_list_->resetColumns();
-        }
-        if (capture_file_.capFile()) {
-            /* This call adjusts column width */
-            cf_timestamp_auto_precision(capture_file_.capFile());
+            packet_list_->resizeAllColumns(true);
         }
     }
 }
@@ -2376,10 +2373,7 @@ void LogwolfMainWindow::setTimestampPrecision(QAction *action)
 
         if (packet_list_) {
             packet_list_->resetColumns();
-        }
-        if (capture_file_.capFile()) {
-            /* This call adjusts column width */
-            cf_timestamp_auto_precision(capture_file_.capFile());
+            packet_list_->resizeAllColumns(true);
         }
     }
 }
@@ -2395,10 +2389,7 @@ void LogwolfMainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_trigg
 
     if (packet_list_) {
         packet_list_->resetColumns();
-    }
-    if (capture_file_.capFile()) {
-        /* This call adjusts column width */
-        cf_timestamp_auto_precision(capture_file_.capFile());
+        packet_list_->resizeAllColumns(true);
     }
 }
 

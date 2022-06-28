@@ -92,6 +92,8 @@ public:
     QString createSummaryText(QModelIndex idx, SummaryCopyType type);
     QString createHeaderSummaryText(SummaryCopyType type);
 
+    void resizeAllColumns(bool onlyTimeFormatted = false);
+
 protected:
 
     void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected) override;

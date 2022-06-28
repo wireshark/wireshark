@@ -99,12 +99,6 @@ const int overlay_update_interval_ = 100; // 250; // Milliseconds.
 
 
 // Copied from ui/gtk/packet_list.c
-void packet_list_resize_column(gint col)
-{
-    if (!gbl_cur_packet_list) return;
-    gbl_cur_packet_list->resizeColumnToContents(col);
-}
-
 void
 packet_list_select_first_row(void)
 {
@@ -2132,4 +2126,16 @@ void PacketList::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     QTreeView::rowsInserted(parent, start, end);
     rows_inserted_ = true;
+}
+
+void PacketList::resizeAllColumns(bool onlyTimeFormatted)
+{
+    if (!cap_file_ || cap_file_->state == FILE_CLOSED)
+        return;
+
+    for (int col = 0; col < cap_file_->cinfo.num_cols; col++) {
+        if (! onlyTimeFormatted || col_has_time_fmt(&cap_file_->cinfo, col)) {
+            resizeColumnToContents(col);
+        }
+    }
 }

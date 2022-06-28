@@ -2526,10 +2526,7 @@ void WiresharkMainWindow::setTimestampFormat(QAction *action)
 
         if (packet_list_) {
             packet_list_->resetColumns();
-        }
-        if (capture_file_.capFile()) {
-            /* This call adjusts column width */
-            cf_timestamp_auto_precision(capture_file_.capFile());
+            packet_list_->resizeAllColumns(true);
         }
     }
 }
@@ -2547,10 +2544,7 @@ void WiresharkMainWindow::setTimestampPrecision(QAction *action)
 
         if (packet_list_) {
             packet_list_->resetColumns();
-        }
-        if (capture_file_.capFile()) {
-            /* This call adjusts column width */
-            cf_timestamp_auto_precision(capture_file_.capFile());
+            packet_list_->resizeAllColumns(true);
         }
     }
 }
@@ -2566,10 +2560,7 @@ void WiresharkMainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_tri
 
     if (packet_list_) {
         packet_list_->resetColumns();
-    }
-    if (capture_file_.capFile()) {
-        /* This call adjusts column width */
-        cf_timestamp_auto_precision(capture_file_.capFile());
+        packet_list_->resizeAllColumns(true);
     }
 }
 
