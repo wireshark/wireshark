@@ -31,8 +31,7 @@
 
 PacketListHeader::PacketListHeader(Qt::Orientation orientation, QWidget *parent) :
     QHeaderView(orientation, parent),
-    sectionIdx(-1),
-    lastSize(-1)
+    sectionIdx(-1)
 {
     setAcceptDrops(true);
     setSectionsMovable(true);
@@ -129,7 +128,6 @@ void PacketListHeader::mousePressEvent(QMouseEvent *e)
 #endif
 
         QString headerName = model()->headerData(sectIdx, orientation()).toString();
-        lastSize = sectionSize(sectIdx);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
         QToolTip::showText(e->globalPosition().toPoint(), QString("Width: %1").arg(sectionSize(sectIdx)));
 #else
@@ -145,7 +143,6 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
     {
         /* no move is happening */
         sectionIdx = -1;
-        lastSize = -1;
     }
     else if (e->buttons() & Qt::LeftButton)
     {
@@ -162,11 +159,10 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
         {
             /* Only run for the current moving section after a change */
             QString headerName = model()->headerData(sectionIdx, orientation()).toString();
-            lastSize = sectionSize(sectionIdx);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-            QToolTip::showText(e->globalPosition().toPoint(), QString("Width: %1").arg(lastSize));
+            QToolTip::showText(e->globalPosition().toPoint(), QString("Width: %1").arg(sectionSize(sectionIdx)));
 #else
-            QToolTip::showText(e->globalPos(), QString("Width: %1").arg(lastSize));
+            QToolTip::showText(e->globalPos(), QString("Width: %1").arg(sectionSize(sectionIdx)));
 #endif
         }
     }
@@ -176,8 +172,12 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
 void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
 {
     int sectionIdx = logicalIndexAt(event->pos());
+    if (sectionIdx < 0 || sectionIdx >= prefs.num_cols)
+        return;
+
     char xalign = recent_get_column_xalign(sectionIdx);
-    QAction * action = Q_NULLPTR;
+    QAction * action = nullptr;
+
     QMenu * contextMenu = new QMenu(this);
     contextMenu->setProperty("column", QVariant::fromValue(sectionIdx));
 
@@ -250,12 +250,6 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     contextMenu->popup(viewport()->mapToGlobal(event->pos()));
 }
 
-void PacketListHeader::setSectionVisibility()
-{
-    for (int cnt = 0; cnt < prefs.num_cols; cnt++)
-        setSectionHidden(cnt, get_column_visible(cnt) ? false : true);
-}
-
 void PacketListHeader::columnVisibilityTriggered()
 {
     QAction *ha = qobject_cast<QAction*>(sender());
@@ -263,7 +257,7 @@ void PacketListHeader::columnVisibilityTriggered()
 
     int col = ha->data().toInt();
     set_column_visible(col, ha->isChecked());
-    setSectionVisibility();
+    setSectionHidden(col, ha->isChecked() ? false : true);
     if (ha->isChecked())
         emit resetColumnWidth(col);
 

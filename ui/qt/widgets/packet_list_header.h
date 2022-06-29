@@ -56,11 +56,7 @@ signals:
     void columnsChanged();
 
 private:
-
     int sectionIdx;
-    int lastSize;
-
-    void setSectionVisibility();
 };
 
 #endif
