@@ -41,8 +41,6 @@ typedef struct window_geometry_s {
 
 /* update the main window */
 extern void main_window_update(void);
-/* quit the main window */
-extern void main_window_quit(void);
 
 /* Exit routine provided by UI-specific code. */
 extern void exit_application(int status);

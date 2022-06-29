@@ -259,7 +259,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
         case CF_READ_ABORTED:
             /* User wants to quit program. Exit by leaving the main loop,
                so that any quit functions we registered get called. */
-            main_window_quit();
+            exit_application(0);
             return FALSE;
     }
 
@@ -733,7 +733,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
                 case CF_READ_ABORTED:
                     /* Exit by leaving the main loop, so that any quit functions
                        we registered get called. */
-                    main_window_quit();
+                    exit_application(0);
                     break;
             }
         } else {

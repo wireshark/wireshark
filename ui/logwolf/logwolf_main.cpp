@@ -121,16 +121,6 @@ void main_window_update(void)
     LogwolfApplication::processEvents();
 }
 
-#ifdef HAVE_LIBPCAP
-
-/* quit the main window */
-void main_window_quit(void)
-{
-    lwApp->quit();
-}
-
-#endif /* HAVE_LIBPCAP */
-
 void exit_application(int status) {
     if (lwApp) {
         lwApp->quit();

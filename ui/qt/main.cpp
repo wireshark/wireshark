@@ -123,16 +123,6 @@ void main_window_update(void)
     WiresharkApplication::processEvents();
 }
 
-#ifdef HAVE_LIBPCAP
-
-/* quit the main window */
-void main_window_quit(void)
-{
-    wsApp->quit();
-}
-
-#endif /* HAVE_LIBPCAP */
-
 void exit_application(int status) {
     if (wsApp) {
         wsApp->quit();
