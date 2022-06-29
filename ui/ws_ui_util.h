@@ -50,17 +50,6 @@ typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
 /* install callback function, called if pipe input is available */
 extern void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb);
 
-/* packet_list.c */
-
-void packet_list_clear(void);
-void packet_list_freeze(void);
-void packet_list_recreate_visible_rows(void);
-void packet_list_thaw(void);
-guint packet_list_append(column_info *cinfo, frame_data *fdata);
-void packet_list_queue_draw(void);
-gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
-gboolean packet_list_multi_select_active(void);
-
 /* XXX - Yes this isn't the best place, but they are used by file_dlg_win32.c, which is supposed
          to be GUI independent, but has lots of GTK leanings.  But if you put these in a GTK UI
          header file, file_dlg_win32.c complains about all of the GTK structures also in the header

@@ -25,6 +25,7 @@
 #include "ui/last_open_dir.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
+#include "ui/packet_list_utils.h"
 #include "ui/simple_dialog.h"
 
 #include <wsutil/file_util.h>

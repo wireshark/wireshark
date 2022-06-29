@@ -55,6 +55,7 @@
 #include "ui/progress_dlg.h"
 #include "ui/urls.h"
 #include "ui/ws_ui_util.h"
+#include "ui/packet_list_utils.h"
 
 /* Needed for addrinfo */
 #include <sys/types.h>

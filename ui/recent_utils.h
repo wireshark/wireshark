@@ -46,12 +46,6 @@ extern gboolean dfilter_combo_add_recent(const gchar *dftext);
  */
 extern void dfilter_recent_combo_write_all(FILE *rf);
 
-/** Write all packet list geometry values to the recent file.
- *
- *  @param rf recent file handle from caller
- */
-extern void packet_list_recent_write_all(FILE *rf);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
