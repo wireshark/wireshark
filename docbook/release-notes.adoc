@@ -121,7 +121,7 @@ They previously shipped with Qt 5.12.2.
 ** Support for some additional character escape sequences in double quoted strings has been added.
    Along with octal (\<number>) and hex (\x<number>) encoding, the following C escape sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v.
    Previously they were only supported with character constants.
-** Unicode universal character names are now supported with the escape sequences \uNNNN or \UNNNNNNNN, where N is an hexadecimal digit.
+** Unicode universal character names are now supported with the escape sequences \uNNNN or \UNNNNNNNN, where N is a hexadecimal digit.
 ** Unrecognized escape sequences are now treated as a syntax error.
    Previously they were treated as a literal character.
    In addition to the sequences indicated above, backslash, single quotation and double quotation mark are also valid sequences: \\, \', \".
@@ -144,25 +144,25 @@ They previously shipped with Qt 5.12.2.
 
 * The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
 ** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.
-** Consistent with the other command line tools like `editcap`, `mergecap`, `tshark`, and the "Import from Hex Dump" option within Wireshark, the default capture file format for `text2pcap` is now *pcapng*. The `-n` flag to select pcapng (instead of the previous default, pcap) has been has been deprecated and will be removed in a future release.
-** `text2pcap` supports selecting the encapsulation type of the output file format using the wiretap library short names with an `-E` option, similiar to the `-T` option of `editcap`.
+** Consistent with the other command line tools like `editcap`, `mergecap`, `tshark`, and the "Import from Hex Dump" option within Wireshark, the default capture file format for `text2pcap` is now *pcapng*. The `-n` flag to select pcapng (instead of the previous default, pcap) has been deprecated and will be removed in a future release.
+** `text2pcap` supports selecting the encapsulation type of the output file format using the wiretap library short names with an `-E` option, similar to the `-T` option of `editcap`.
 ** `text2pcap` has been updated to use the new logging output options and the `-d` flag has been removed.
     The "debug" log level corresponds to the old `-d` flag, and the "noisy" log level corresponds to using `-d` multiple times.
 ** `text2pcap` and “Import from Hex Dump” support writing fake IP, TCP, UDP, and SCTP headers to files with Raw IP, Raw IPv4, and Raw IPv6 encapsulations, in addition to Ethernet encapsulation available in previous versions.
 ** `text2pcap` supports scanning the input file using a custom regular expression, as supported in “Import from Hex Dump” in Wireshark 3.6.x.
 ** In general, `text2pcap` and wireshark's “Import from Hex Dump” have feature parity.
 
-* The default main window layout has been changed so that the packet detail and bytes are side by side.
+* The default main window layout has been changed so that the Packet Detail and Packet Bytes are side by side underneath the Packet List pane.
 
 * The HTTP2 dissector now supports using fake headers to parse the DATAs of streams captured without first HEADERS frames of a long-lived stream (such as a gRPC streaming call which allows sending many request or response messages in one HTTP2 stream).
  Users can specify fake headers using an existing stream’s server port, stream id and direction.
 
 * The IEEE 802.11 dissector supports Mesh Connex (MCX).
 
-* The “Capture Options” dialog contains the same configuration icon as Welcome Screen.
+* The “Capture Options” dialog contains the same configuration icon as the Welcome Screen.
   It is now possible to configure interfaces there.
 
-* The “Extcap” dialog remembers password items during runtime, which makes it possible to run extcaps multiple times in row.
+* The “Extcap” dialog remembers password items during runtime, which makes it possible to run extcaps multiple times in row without having to reenter the password each time.
   Passwords are never stored on disk.
 
 * It is possible to set extcap passwords in `tshark` and other CLI tools.
@@ -179,7 +179,7 @@ They previously shipped with Qt 5.12.2.
 * The interface list on the welcome page sorts active interfaces first and only displays sparklines for active interfaces.
   Additionally, the interfaces can now be hidden and shown via the context menu in the interface list
 
-* The Event Tracing for Windows (ETW) file reader now supports display IP packets from an event trace logfile or an event trace live session.
+* The Event Tracing for Windows (ETW) file reader now supports displaying IP packets from an event trace logfile or an event trace live session.
 
 === Removed Features and Support
 
