@@ -35,7 +35,8 @@
 #include <epan/wmem_scopes.h>
 #include "packet-tcp.h"
 
-#define TPLINK_SMARTHOME_PORT	9999			/* TP-Link Smart Home devices use this port on both TCP and UDP */
+#define TPLINK_SMARTHOME_PORT	9999 /* Not IANA registered */
+/* TP-Link Smart Home devices use this port on both TCP and UDP */
 #define FRAME_HEADER_LEN	4			/* 4 bytes of TCP frame length header info */
 
 	/* Prototypes */
@@ -59,6 +60,8 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item	*ti;
 	proto_tree	*tplink_smarthome_tree;
 	gint8		start;
+	guint8		c, d;
+	guint8		key = 171;
 	gint32		len = tvb_captured_length(tvb);
 
 	switch (pinfo->ptype) {									/* look at the IP port type */
@@ -73,6 +76,18 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		default:
 			return 0;
 	}
+	/* The message is always JSON, so test the first two characters.
+         * They must be {" or {}, as the protocol doesn't appear to
+         * have whitespace.). */
+	c = tvb_get_guint8(tvb, start);
+	d = c ^ key;
+	if (d != '{') {
+		return 0;
+	}
+	d = c ^ tvb_get_guint8(tvb, start+1);
+	if (d != '"' && d != '}') {
+		return 0;
+	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPLINK-SMARTHOME");				/* show the protocol name of what we're dissecting */
 	col_clear(pinfo->cinfo, COL_INFO);							/* and clear anything that might be in the Info field on the UI */
@@ -84,8 +99,6 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		proto_tree_add_item(tplink_smarthome_tree, hf_tplink_smarthome_Len,
 					tvb, 0, FRAME_HEADER_LEN, ENC_BIG_ENDIAN);		/* decode the 4 byte message length field pre-pended in a TCP message, */
 	}
-	guint8	c, d;
-	guint8	key		= 171;
 	gint	i_offset	= start;
 	gint	o_offset	= 0;
 	gint	decode_len	= len - start;
