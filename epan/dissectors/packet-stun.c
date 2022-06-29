@@ -855,6 +855,16 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     if (msg_type & 0xC000) {
         /* two first bits not NULL => should be a channel-data message */
 
+        /*
+         * If the packet is being dissected through heuristics, we never match
+         * TURN ChannelData because the heuristics are otherwise rather weak.
+         * Instead we have to have seen another STUN message type on the same
+         * 5-tuple, and then set that conversation for non-heuristic STUN
+         * dissection.
+         */
+        if (heur_check)
+            return 0;
+
         /* RFC 5764 defined a demultiplexing scheme to allow STUN to co-exist
          * on the same 5-tuple as DTLS-SRTP (and ZRTP) by rejecting previously
          * reserved channel numbers and method types, implicitly restricting
@@ -867,25 +877,19 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
          * Reject the range 0x8000-0xFFFF, except for the special
          * MS-TURN multiplex channel number, since no implementation has
          * used any other value in that range.
-         * This allows us to set the conversation for non-heuristic STUN
-         * dissection on UDP if we see any STUN message, not just a TURN
-         * message type.
          */
         if (msg_type & 0x8000 && msg_type != MS_MULTIPLEX_TURN) {
+            /* XXX: If this packet is not being dissected through heuristics,
+             * then the range 0x8000-0xBFFF is quite likely to be RTP/RTCP,
+             * and according to RFC 7983 should be forwarded to the RTP
+             * dissector. However, similar to TURN ChannelData, the heuristics
+             * for RTP are fairly weak and turned off by default over UDP.
+             * It would be nice to be able to ensure that for this packet
+             * the RTP over UDP heuristic dissector is called while still
+             * rejecting the packet and removing STUN from the list of layers.
+             */
             return 0;
         }
-
-        /*
-         * If the packet is being dissected through heuristics, we never match
-         * TURN ChannelData because the heuristics are otherwise rather weak.
-         * Instead we have to have seen another TURN message type on the same
-         * 5-tuple, and then set that conversation for non-heuristic STUN dissection.
-         */
-        if (heur_check)
-            return 0;
-
-        if (msg_type == 0xFFFF)
-            return 0;
 
         /* note that padding is only mandatory over streaming
            protocols */
@@ -1697,14 +1701,21 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
          * used in the replies */
         is_turn = TRUE;
     }
-    if (heur_check && is_turn && conversation) {
+    if (heur_check && conversation) {
         /*
-         * When in heuristic dissector mode, if this is a TURN message, set
+         * When in heuristic dissector mode, if this is a STUN message, set
          * the 5-tuple conversation to always decode as non-heuristic. The
-         * odds of incorrectly identifying a random packet as a TURN message
-         * (other than ChannelData) is incredibly small. A ChannelData message
-         * won't be matched when in heuristic mode, so heur_check can't be true
-         * in that case and get to this part of the code.
+         * odds of incorrectly identifying a random packet as a STUN message
+         * (other than TURN ChannelData) is small, especially with RFC 7983
+         * implemented. A ChannelData message won't be matched when in heuristic
+         * mode, so heur_check can't be true in that case and get to this part
+         * of the code.
+         *
+         * XXX: If we ever support STUN over [D]TLS (or MS-TURN's Pseudo-TLS)
+         * as a heuristic dissector (instead of through ALPN), make sure to
+         * set the TLS app_handle instead of changing the conversation
+         * dissector from TLS. As it is, heur_check is FALSE over [D]TLS so
+         * we won't get here.
          */
         if (pinfo->ptype == PT_TCP) {
             conversation_set_dissector(conversation, stun_tcp_handle);
