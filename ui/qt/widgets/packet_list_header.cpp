@@ -29,9 +29,8 @@
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/packet_list_header.h>
 
-PacketListHeader::PacketListHeader(Qt::Orientation orientation, capture_file * cap_file, QWidget *parent) :
+PacketListHeader::PacketListHeader(Qt::Orientation orientation, QWidget *parent) :
     QHeaderView(orientation, parent),
-    cap_file_(cap_file),
     sectionIdx(-1),
     lastSize(-1)
 {
@@ -174,11 +173,6 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
     QHeaderView::mouseMoveEvent(e);
 }
 
-void PacketListHeader::setCaptureFile(capture_file *cap_file)
-{
-    this->cap_file_ = cap_file;
-}
-
 void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
 {
     int sectionIdx = logicalIndexAt(event->pos());
@@ -217,7 +211,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToWidth);
 
     action = contextMenu->addAction(tr("Resolve Names"));
-    bool canResolve = resolve_column(sectionIdx, cap_file_);
+    bool canResolve = model()->headerData(sectionIdx, Qt::Horizontal, PacketListModel::HEADER_CAN_RESOLVE).toBool();
     action->setEnabled(canResolve);
     action->setCheckable(true);
     action->setChecked(canResolve && get_column_resolved(sectionIdx));
@@ -323,14 +317,9 @@ void PacketListHeader::doResolveNames()
     if (!menu)
         return;
 
-    PacketListModel * plmModel = qobject_cast<PacketListModel *>(model());
-    if (!plmModel)
-        return;
-
     int section = menu->property("column").toInt();
 
     set_column_resolved(section, action->isChecked());
-    plmModel->resetColumns();
     prefs_main_write();
     emit updatePackets(true);
 }

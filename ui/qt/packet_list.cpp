@@ -216,7 +216,7 @@ PacketList::PacketList(QWidget *parent) :
 
     proto_prefs_menus_.setTitle(tr("Protocol Preferences"));
 
-    packet_list_header_ = new PacketListHeader(header()->orientation(), cap_file_);
+    packet_list_header_ = new PacketListHeader(header()->orientation());
     connect(packet_list_header_, &PacketListHeader::resetColumnWidth, this, &PacketList::setRecentColumnWidth);
     connect(packet_list_header_, &PacketListHeader::updatePackets, this, &PacketList::updatePackets);
     connect(packet_list_header_, &PacketListHeader::showColumnPreferences, this, &PacketList::showProtocolPreferences);
@@ -1526,7 +1526,6 @@ void PacketList::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
     packet_list_model_->setCaptureFile(cf);
-    packet_list_header_->setCaptureFile(cf);
     if (cf) {
         if (columns_changed_) {
             columnsChanged();
@@ -1742,6 +1741,7 @@ void PacketList::applyTimeShift()
 void PacketList::updatePackets(bool redraw)
 {
     if (redraw) {
+        packet_list_model_->resetColumns();
         redrawVisiblePackets();
     } else {
         update();
