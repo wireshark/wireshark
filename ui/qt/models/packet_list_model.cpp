@@ -481,15 +481,16 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
         // Column comes directly from frame data
         cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), sort_cap_file_->cinfo.columns[sort_column_].col_fmt);
     } else  {
-        if (r1->columnString(sort_cap_file_, sort_column_).constData() == r2->columnString(sort_cap_file_, sort_column_).constData()) {
-            cmp_val = 0;
-        } else if (sort_column_is_numeric_) {
+        QString r1String = r1->columnString(sort_cap_file_, sort_column_);
+        QString r2String = r2->columnString(sort_cap_file_, sort_column_);
+        cmp_val = r1String.compare(r2String);
+        if (cmp_val != 0 && sort_column_is_numeric_) {
             // Custom column with numeric data (or something like a port number).
             // Attempt to convert to numbers.
             // XXX This is slow. Can we avoid doing this?
             bool ok_r1, ok_r2;
-            double num_r1 = parseNumericColumn(r1->columnString(sort_cap_file_, sort_column_), &ok_r1);
-            double num_r2 = parseNumericColumn(r2->columnString(sort_cap_file_, sort_column_), &ok_r2);
+            double num_r1 = parseNumericColumn(r1String, &ok_r1);
+            double num_r2 = parseNumericColumn(r2String, &ok_r2);
 
             if (!ok_r1 && !ok_r2) {
                 cmp_val = 0;
@@ -500,8 +501,6 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
             } else if (!ok_r2 || (num_r1 > num_r2)) {
                 cmp_val = 1;
             }
-        } else {
-            cmp_val = r1->columnString(sort_cap_file_, sort_column_).compare(r2->columnString(sort_cap_file_, sort_column_));
         }
 
         if (cmp_val == 0) {
