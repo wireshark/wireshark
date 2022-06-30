@@ -5947,7 +5947,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
             if ((guar_dl_ext2 > 0xba) && (guar_dl_ext2 <= 0xfa)) {
                 gd = 1500 + (guar_dl_ext2-0xa1) * 10;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
-                                           "Ext2 Guaranteed bit rate for uplink: %u Mbps", gd);
+                                           "Ext2 Guaranteed bit rate for downlink: %u Mbps", gd);
             }
         }
 
