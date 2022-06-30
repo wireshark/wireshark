@@ -194,5 +194,6 @@ void ColumnEditorFrame::checkCanResolve()
         ui->resolvedCheckBox->setEnabled(true);
     } else  {
         ui->resolvedCheckBox->setEnabled(false);
+        ui->resolvedCheckBox->setChecked(false);
     }
 }
