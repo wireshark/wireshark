@@ -18,7 +18,7 @@ ManifestDPIAware true
 !addincludedir ${NSIS_INCLUDE_DIR}
 !endif
 
-!include "logwolf-config.nsh"
+!include "logray-config.nsh"
 
 !define BITS 64
 
@@ -28,14 +28,14 @@ Name "${DISPLAY_NAME}"
 !define PROGRAM_FULL_NAME "The ${PROGRAM_NAME} Log Analyzer"
 !define PROGRAM_NAME_PATH "${PROGRAM_NAME}.exe"
 
-!define UNINSTALLER_NAME "uninstall-logwolf.exe"
+!define UNINSTALLER_NAME "uninstall-logray.exe"
 
 VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
 VIAddVersionKey "Comments" "It's a great product with a great story to tell. I'm pumped!"
 VIAddVersionKey "CompanyName" "${PROGRAM_NAME} development team"
 ; NSIS handles U+00a9 but not a UTF-8 encoded copyright symbol.
 VIAddVersionKey "LegalCopyright" "${U+00a9} Gerald Combs and many others"
-VIAddVersionKey "LegalTrademarks" "Logwolf and the 'wolf' logo are registered trademarks"
+VIAddVersionKey "LegalTrademarks" "Logray and the 'ray' logo are registered trademarks"
 VIAddVersionKey "FileDescription" "${PROGRAM_NAME} installer for ${BITS}-bit Windows"
 VIAddVersionKey "Language" "English"
 VIAddVersionKey "ProductVersion" "${PRODUCT_VERSION}"
@@ -90,8 +90,8 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 ; probably don't want to grab JPEG or MP3 files.
 ; ============================================================================
 
-; Used to add associations between file extensions and Logwolf
-!define LOGWOLF_ASSOC "logwolf-log-file"
+; Used to add associations between file extensions and Logray
+!define LOGRAY_ASSOC "logray-log-file"
 
 !define FILE_EXTENSION_MARKER "FILE_EXTENSION_MARKER"
 
@@ -100,8 +100,8 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
   Push ".scap"
 !macroend
 
-!macro IsLogwolfRunning
-; See if Logwolf is running
+!macro IsLograyRunning
+; See if Logray is running
 ; https://nsis.sourceforge.io/Check_whether_your_application_is_running
 ${Do}
 

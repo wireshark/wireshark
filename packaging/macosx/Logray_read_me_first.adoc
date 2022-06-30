@@ -7,28 +7,28 @@ include::{include-dir}/attributes.adoc[]
 
 == Before You Begin
 
-This release of Logwolf requires macOS {min-macos-version} or later.
+This release of Logray requires macOS {min-macos-version} or later.
 If you are running an earlier version of macOS you can install using another packaging system such as Homebrew or MacPorts.
 
 == Quick Setup
 
-To install Logwolf, drag the _Logwolf_ application bundle to the _Applications_ folder.
+To install Logray, drag the _Logray_ application bundle to the _Applications_ folder.
 
 ////
 If you would like to add the path to
-https://www.wireshark.org/docs/man-pages/wireshark.html[Logwolf],
+https://www.wireshark.org/docs/man-pages/wireshark.html[Logray],
 https://www.wireshark.org/docs/man-pages/tshark.html[TShark],
 https://www.wireshark.org/docs/man-pages/capinfos.html[capinfos],
 https://www.wireshark.org/docs/man-pages/editcap.html[editcap],
 and
 https://www.wireshark.org/docs/man-pages/[other command line utilities]
 to the system PATH, install the
-link:Logwolf.app/Contents/Resources/Extras/Add%20Wireshark%20to%20the%20system%20path.pkg[Add Logwolf to the system path]
+link:Logray.app/Contents/Resources/Extras/Add%20Wireshark%20to%20the%20system%20path.pkg[Add Logray to the system path]
 package.
 ////
 
 == Uninstalling
 
-To uninstall Logwolf, do the following:
+To uninstall Logray, do the following:
 
-. Remove _/Applications/Logwolf.app_
+. Remove _/Applications/Logray.app_

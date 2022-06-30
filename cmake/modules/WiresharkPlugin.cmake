@@ -58,11 +58,11 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 	ADD_WIRESHARK_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
 endmacro()
 
-macro(ADD_LOGWOLF_PLUGIN_LIBRARY _plugin _subfolder)
+macro(ADD_LOGRAY_PLUGIN_LIBRARY _plugin _subfolder)
 	ADD_WIRESHARK_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
 
 	set_target_properties(${_plugin} PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${LOGWOLF_PLUGIN_DIR}/${_subfolder}
+		LIBRARY_OUTPUT_DIRECTORY ${LOGRAY_PLUGIN_DIR}/${_subfolder}
 	)
 endmacro()
 

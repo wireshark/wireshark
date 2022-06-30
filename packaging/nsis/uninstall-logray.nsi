@@ -1,17 +1,17 @@
 ;
-; uninstall-logwolf.nsi
+; uninstall-logray.nsi
 ;
 
 ; Create an installer that only writes an uninstaller.
 ; https://nsis.sourceforge.io/Signing_an_Uninstaller
 
-!include "logwolf-common.nsh"
+!include "logray-common.nsh"
 !include 'LogicLib.nsh'
 !include x64.nsh
 !include "StrFunc.nsh"
 
 SetCompress off
-OutFile "${STAGING_DIR}\uninstall_logwolf_installer.exe"
+OutFile "${STAGING_DIR}\uninstall_logray_installer.exe"
 
 ; InstType "un.Default (keep Personal Settings and Npcap)"
 InstType "un.All (remove all)"
@@ -69,10 +69,10 @@ Function un.Disassociate
   Pop $EXTENSION
   ${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
     ReadRegStr $R0 HKCR $EXTENSION ""
-    StrCmp $R0 ${LOGWOLF_ASSOC} un.Disassociate.doDeregister
+    StrCmp $R0 ${LOGRAY_ASSOC} un.Disassociate.doDeregister
     Goto un.Disassociate.end
 un.Disassociate.doDeregister:
-    ; The extension is associated with Logwolf so, we must destroy this!
+    ; The extension is associated with Logray so, we must destroy this!
     DeleteRegKey HKCR $EXTENSION
     DetailPrint "Deregistered file type: $EXTENSION"
 un.Disassociate.end:
@@ -96,7 +96,7 @@ Section "Uninstall" un.SecUinstall
 SectionIn 1 2
 SetShellVarContext all
 
-!insertmacro IsLogwolfRunning
+!insertmacro IsLograyRunning
 
 Push "${EXECUTABLE_MARKER}"
 Push "${PROGRAM_NAME}"
@@ -116,7 +116,7 @@ Push "mmdbresolve"
 Pop $EXECUTABLE
 ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
 
-  ; IsLogwolfRunning should make sure everything is closed down so we *shouldn't* run
+  ; IsLograyRunning should make sure everything is closed down so we *shouldn't* run
   ; into any problems here.
   Delete "$INSTDIR\$EXECUTABLE.exe"
   IfErrors 0 deletionSuccess
@@ -135,9 +135,9 @@ DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App P
 
 Call un.Disassociate
 
-DeleteRegKey HKCR ${LOGWOLF_ASSOC}
-DeleteRegKey HKCR "${LOGWOLF_ASSOC}\Shell\open\command"
-DeleteRegKey HKCR "${LOGWOLF_ASSOC}\DefaultIcon"
+DeleteRegKey HKCR ${LOGRAY_ASSOC}
+DeleteRegKey HKCR "${LOGRAY_ASSOC}\Shell\open\command"
+DeleteRegKey HKCR "${LOGRAY_ASSOC}\DefaultIcon"
 
 Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\*.exe"

@@ -1,5 +1,5 @@
 ;
-; logwolf.nsi
+; logray.nsi
 ;
 
 ; Set the compression mechanism first.
@@ -10,7 +10,7 @@
 SetCompressor /SOLID lzma
 SetCompressorDictSize 64 ; MB
 
-!include "logwolf-common.nsh"
+!include "logray-common.nsh"
 !include 'LogicLib.nsh'
 !include "StrFunc.nsh"
 !include "WordFunc.nsh"
@@ -54,7 +54,7 @@ Icon "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
 ;!addplugindir ".\Plugins"
 
 !define MUI_ICON "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
-BrandingText "Logwolf${U+00ae} Installer"
+BrandingText "Logray${U+00ae} Installer"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -69,7 +69,7 @@ BrandingText "Logwolf${U+00ae} Installer"
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-; NSIS runs as Administrator and will run Logwolf as Administrator
+; NSIS runs as Administrator and will run Logray as Administrator
 ; if these are enabled.
 ;!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME_PATH}"
 ;!define MUI_FINISHPAGE_RUN_NOTCHECKED
@@ -80,7 +80,7 @@ BrandingText "Logwolf${U+00ae} Installer"
 
 !insertmacro MUI_PAGE_WELCOME
 
-!define MUI_LICENSEPAGE_TEXT_TOP "Logwolf is distributed under the GNU General Public License."
+!define MUI_LICENSEPAGE_TEXT_TOP "Logray is distributed under the GNU General Public License."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "This is not an end user license agreement (EULA). It is provided here for informational purposes only."
 !define MUI_LICENSEPAGE_BUTTON "Noted"
 !insertmacro MUI_PAGE_LICENSE "${STAGING_DIR}\COPYING.txt"
@@ -115,7 +115,7 @@ Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
   ; https://nsis.sourceforge.io/Docs/Modern%20UI%202/Readme.html
   ; https://nsis.sourceforge.io/Docs/nsDialogs/Readme.html
   !ifdef QT_DIR
-  !include "logwolf-additional-tasks.nsdinc"
+  !include "logray-additional-tasks.nsdinc"
   !endif
 
 ; ============================================================================
@@ -225,7 +225,7 @@ Function Associate
 
 Associate.doRegister:
     ;The extension is not associated to any program, we can do the link
-    WriteRegStr HKCR $EXTENSION "" ${LOGWOLF_ASSOC}
+    WriteRegStr HKCR $EXTENSION "" ${LOGRAY_ASSOC}
     DetailPrint "Registered file type: $EXTENSION"
 
 Associate.end:
@@ -266,7 +266,7 @@ Function .onInit
   !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
     ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
     ${IfNot} ${RunningX64}
-      MessageBox MB_OK "Logwolf only runs on 64-bit machines." /SD IDOK
+      MessageBox MB_OK "Logray only runs on 64-bit machines." /SD IDOK
       Abort
     ${EndIf}
   !endif
@@ -301,7 +301,7 @@ lbl_winversion_unsupported:
   Quit
 
 lbl_winversion_supported:
-!insertmacro IsLogwolfRunning
+!insertmacro IsLograyRunning
 
   ; Default control values.
   StrCpy $START_MENU_STATE ${BST_CHECKED}
@@ -382,7 +382,7 @@ check_wix:
       "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$TMP_PRODUCT_GUID" \
       "DisplayName"
     ; MessageBox MB_OK|MB_ICONINFORMATION "Reading HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$1 DisplayName = $2"
-    ; Look for "Logwolf".
+    ; Look for "Logray".
     StrCmp $WIX_DISPLAYNAME "${PROGRAM_NAME}" wix_found wix_reg_enum_loop
 
     wix_found:
@@ -462,7 +462,7 @@ File "${STAGING_DIR}\libwiretap.dll"
 File "${STAGING_DIR}\libwireshark.dll"
 File "${STAGING_DIR}\libwsutil.dll"
 
-!include logwolf-manifest.nsh
+!include logray-manifest.nsh
 
 File "${STAGING_DIR}\COPYING.txt"
 File "${STAGING_DIR}\NEWS.txt"
@@ -474,7 +474,7 @@ File "${STAGING_DIR}\wka"
 File "${STAGING_DIR}\services"
 File "${STAGING_DIR}\pdml2html.xsl"
 File "${STAGING_DIR}\ws.css"
-;File "${STAGING_DIR}\logwolf.html"
+;File "${STAGING_DIR}\logray.html"
 File "${STAGING_DIR}\wireshark-filter.html"
 File "${STAGING_DIR}\dumpcap.exe"
 File "${STAGING_DIR}\dumpcap.html"
@@ -835,7 +835,7 @@ WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayName" "${DISPLAY_NAME
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayVersion" "${VERSION}"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "HelpLink" "https://ask.wireshark.org/"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "InstallLocation" "$INSTDIR"
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Publisher" "The Logwolf developer community, https://www.wireshark.org"
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Publisher" "The Logray developer community, https://www.wireshark.org"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLInfoAbout" "https://www.wireshark.org"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLUpdateInfo" "https://www.wireshark.org/download.html"
 
@@ -854,9 +854,9 @@ Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
 ; Create file extensions if the Associated Tasks page check box
 ; is checked.
 ${If} $FILE_ASSOCIATE_STATE == ${BST_CHECKED}
-WriteRegStr HKCR ${LOGWOLF_ASSOC} "" "Logwolf log file"
-WriteRegStr HKCR "${LOGWOLF_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME_PATH}" "%1"'
-WriteRegStr HKCR "${LOGWOLF_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME_PATH}",1'
+WriteRegStr HKCR ${LOGRAY_ASSOC} "" "Logray log file"
+WriteRegStr HKCR "${LOGRAY_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME_PATH}" "%1"'
+WriteRegStr HKCR "${LOGRAY_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME_PATH}",1'
 ; We refresh the icon cache down in -Finally.
 Call Associate
 ; If you add something here be sure to sync it with the uninstall section and the
@@ -866,15 +866,15 @@ ${Endif}
 SectionEnd ; "Required"
 
 !ifdef QT_DIR
-Section "${PROGRAM_NAME}" SecLogwolfQt
+Section "${PROGRAM_NAME}" SecLograyQt
 ;-------------------------------------------
-; by default, Logwolf.exe is installed
+; by default, Logray.exe is installed
 SetOutPath $INSTDIR
 File "${QT_DIR}\${PROGRAM_NAME_PATH}"
 ; Write an entry for ShellExecute
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "" '$INSTDIR\${PROGRAM_NAME_PATH}'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME_PATH}" "Path" '$INSTDIR'
-!include logwolf-qt-manifest.nsh
+!include logray-qt-manifest.nsh
 
 ${!defineifexist} TRANSLATIONS_FOLDER "${QT_DIR}\translations"
 SetOutPath $INSTDIR
@@ -898,7 +898,7 @@ ${If} $QUICK_LAUNCH_STATE == ${BST_CHECKED}
   CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH}" "" "$INSTDIR\${PROGRAM_NAME_PATH}" 0 "" "" "${PROGRAM_FULL_NAME}"
 ${Endif}
 
-SectionEnd ; "SecLogwolfQt"
+SectionEnd ; "SecLograyQt"
 !endif
 
 
@@ -1064,7 +1064,7 @@ SectionEnd
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef QT_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecLogwolfQt} "The main network protocol analyzer application."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecLograyQt} "The main network protocol analyzer application."
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "Text based network protocol analyzer."
 
@@ -1113,7 +1113,7 @@ Function InitAdditionalTasksPage
   ${NSD_SetState} $hCtl_AdditionalTasksPage_AssociateExtensionsCheckBox $FILE_ASSOCIATE_STATE
 
   StrCpy $QT_SELECTED 0
-  ${If} ${SectionIsSelected} ${SecLogwolfQt}
+  ${If} ${SectionIsSelected} ${SecLograyQt}
     StrCpy $QT_SELECTED 1
   ${Endif}
   EnableWindow $hCtl_AdditionalTasksPage_CreateShortcutsLabel $QT_SELECTED

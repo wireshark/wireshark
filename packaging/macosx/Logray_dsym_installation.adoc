@@ -1,0 +1,17 @@
+// Required attributes:
+// include-dir
+
+include::{include-dir}/attributes.adoc[]
+:stylesheet: {include-dir}/ws.css
+
+== Debugging Symbols for Logray
+
+This archive contains the debugging symbols for Logray {logray-version}.
+The debugging symbols are only necessary if Logray is crashing and you need to report an issue to the Logray development team.
+
+WARNING: This won't work properly with any version other than Logray {logray-version}.
+
+To install the symbols, drag _Logray.dSYM_ to the same location as _Logray_.
+This is usually your _Applications_ folder.
+
+To uninstall, drag _Logray.dSYM_ to the trash.

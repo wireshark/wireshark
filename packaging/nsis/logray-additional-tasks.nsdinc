@@ -36,19 +36,19 @@ Function fnc_AdditionalTasksPage_Create
   Pop $hCtl_AdditionalTasksPage_ExtensionsLabel
 
   ; === AssociateExtensionsCheckBox (type: Checkbox) ===
-  ${NSD_CreateCheckbox} 14u 78u 267u 9u "Associate log file extensions with Logwolf"
+  ${NSD_CreateCheckbox} 14u 78u 267u 9u "Associate log file extensions with Logray"
   Pop $hCtl_AdditionalTasksPage_AssociateExtensionsCheckBox
 
   ; === QuickLaunchCheckBox (type: Checkbox) ===
-  ${NSD_CreateCheckbox} 14u 46u 267u 9u "Logwolf Quick Launch Icon"
+  ${NSD_CreateCheckbox} 14u 46u 267u 9u "Logray Quick Launch Icon"
   Pop $hCtl_AdditionalTasksPage_QuickLaunchCheckBox
 
   ; === DesktopIconCheckBox (type: Checkbox) ===
-  ${NSD_CreateCheckbox} 14u 33u 267u 9u "Logwolf Desktop Icon"
+  ${NSD_CreateCheckbox} 14u 33u 267u 9u "Logray Desktop Icon"
   Pop $hCtl_AdditionalTasksPage_DesktopIconCheckBox
 
   ; === StartMenuCheckBox (type: Checkbox) ===
-  ${NSD_CreateCheckbox} 14u 21u 267u 9u "Logwolf Start Menu Item"
+  ${NSD_CreateCheckbox} 14u 21u 267u 9u "Logray Start Menu Item"
   Pop $hCtl_AdditionalTasksPage_StartMenuCheckBox
 
   ; === FileExtensionsLabel (type: Label) ===
@@ -62,7 +62,7 @@ Function fnc_AdditionalTasksPage_Create
   SendMessage $hCtl_AdditionalTasksPage_CreateShortcutsLabel ${WM_SETFONT} $hCtl_AdditionalTasksPage_Font1 0
 
   ; CreateFunctionCustomScript
-  ; Defined in logwolf.nsi
+  ; Defined in logray.nsi
   Call InitAdditionalTasksPage
 
 

@@ -1,8 +1,8 @@
 #include "winver.h"
 #pragma code_page(65001)
 
-LOGWOLF_ICON1 ICON "@ICON_PATH@wireshark.ico"
-LOGWOLF_ICON2 ICON "@ICON_PATH@wiresharkdoc.ico"
+LOGRAY_ICON1 ICON "@ICON_PATH@wireshark.ico"
+LOGRAY_ICON2 ICON "@ICON_PATH@wiresharkdoc.ico"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION @LOG_RC_VERSION@
@@ -22,12 +22,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "The Wireshark developer community, https://www.wireshark.org/\0"
-            VALUE "FileDescription", "Logwolf\0"
+            VALUE "FileDescription", "Logray\0"
             VALUE "FileVersion", "@LOG_PROJECT_VERSION@\0"
-            VALUE "InternalName", "Logwolf @LOG_PROJECT_VERSION@\0"
+            VALUE "InternalName", "Logray @LOG_PROJECT_VERSION@\0"
             VALUE "LegalCopyright", "Copyright © 2022 Loris Degioanni <loris@sysdig.com>, Gerald Combs <gerald@wireshark.org> and others\0"
-            VALUE "OriginalFilename", "Logwolf.exe\0"
-            VALUE "ProductName", "Logwolf\0"
+            VALUE "OriginalFilename", "Logray.exe\0"
+            VALUE "ProductName", "Logray\0"
             VALUE "ProductVersion", "@LOG_PROJECT_VERSION@\0"
         END
     END
@@ -40,4 +40,4 @@ END
 #define MANIFEST_RESOURCE_ID 1
 #define RT_MANIFEST 24
 
-MANIFEST_RESOURCE_ID RT_MANIFEST "logwolf.exe.manifest"
+MANIFEST_RESOURCE_ID RT_MANIFEST "logray.exe.manifest"

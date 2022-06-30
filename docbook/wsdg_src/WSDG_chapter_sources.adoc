@@ -1011,9 +1011,9 @@ In your build directory, type:
 
 [source,sh]
 ----
-ninja wireshark_dmg logwolf_dmg # (Modify as needed)
+ninja wireshark_dmg logray_dmg # (Modify as needed)
 # ...or, if you're using GNU make...
-make wireshark_dmg logwolf_dmg # (Modify as needed)
+make wireshark_dmg logray_dmg # (Modify as needed)
 ----
 
 to build the macOS Packages.

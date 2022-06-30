@@ -34,14 +34,14 @@ extern "C" {
  *
  * @param arg0 Executable name hint. Should be argv[0].
  * @param namespace_name The namespace to use. "Wireshark" or NULL uses
- *        the Wireshark namespace. "Logwolf" uses the Logwolf namespace.
+ *        the Wireshark namespace. "Logray" uses the Logray namespace.
  * @return NULL on success, and a g_mallocated string containing an error on failure.
  */
 WS_DLL_PUBLIC char *configuration_init(const char *arg0, const char *namespace_name);
 
 /**
  * Get the configuration namespace name.
- * @return The namespace name. One of "Wireshark" or "Logwolf".
+ * @return The namespace name. One of "Wireshark" or "Logray".
  */
 WS_DLL_PUBLIC const char *get_configuration_namespace(void);
 

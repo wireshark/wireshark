@@ -72,7 +72,7 @@ OPTIONS
 		/usr/local.
 
 EXAMPLE
-	$0 -b Logwolf.app -s -l /opt/local
+	$0 -b Logray.app -s -l /opt/local
 "
 }
 
@@ -257,7 +257,7 @@ fi
 "@QT_MACDEPLOYQT_EXECUTABLE@" "$bundle" -no-strip -verbose=2 || exit 1
 
 #
-# The build process added to the Wireshark/Logwolf binary an rpath
+# The build process added to the Wireshark/Logray binary an rpath
 # entry pointing to the directory containing the Qt frameworks; remove
 # that entry from the binary in the package.
 #

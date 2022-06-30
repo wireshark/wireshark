@@ -1,4 +1,4 @@
-# This file was created by Logwolf. Edit with care.
+# This file was created by Logray. Edit with care.
 @Errors@ct.error@[4626,10023,11822][63479,34695,34695]
 @State Modifying Event@ct.readonly == "false"@[61423,50372,39578][0,0,0]
 @Administrative Activity@cloudtrail and not (ct.name ~ "^Describe.*" or ct.name ~ "^List.*"  or ct.name ~ "^(Batch|)Get.*")@[61423,50372,39578][0,0,0]

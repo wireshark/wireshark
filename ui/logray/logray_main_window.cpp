@@ -1,6 +1,6 @@
-/* logwolf_main_window.cpp
+/* logray_main_window.cpp
  *
- * Logwolf - Event log analyzer
+ * Logray - Event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
@@ -8,14 +8,14 @@
  */
 
 #include "main_application.h"
-#include "logwolf_main_window.h"
+#include "logray_main_window.h"
 
 /*
- * The generated Ui_LogwolfMainWindow::setupUi() can grow larger than our configured limit,
+ * The generated Ui_LograyMainWindow::setupUi() can grow larger than our configured limit,
  * so turn off -Wframe-larger-than= for ui_main_window.h.
  */
 DIAG_OFF(frame-larger-than=)
-#include <ui_logwolf_main_window.h>
+#include <ui_logray_main_window.h>
 DIAG_ON(frame-larger-than=)
 
 #include <epan/addr_resolv.h>
@@ -93,7 +93,7 @@ DIAG_ON(frame-larger-than=)
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
-static LogwolfMainWindow *gbl_cur_main_window_ = NULL;
+static LograyMainWindow *gbl_cur_main_window_ = NULL;
 
 void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
 {
@@ -303,7 +303,7 @@ static void mainwindow_remove_toolbar(const gchar *menu_title)
     }
 }
 
-QMenu* LogwolfMainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
+QMenu* LograyMainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
     QList<QAction *> actions = parent_menu->actions();
     QList<QAction *>::const_iterator i;
     for (i = actions.constBegin(); i != actions.constEnd(); ++i) {
@@ -315,9 +315,9 @@ QMenu* LogwolfMainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) 
     return parent_menu->addMenu(menu_text);
 }
 
-LogwolfMainWindow::LogwolfMainWindow(QWidget *parent) :
+LograyMainWindow::LograyMainWindow(QWidget *parent) :
     MainWindow(parent),
-    main_ui_(new Ui::LogwolfMainWindow),
+    main_ui_(new Ui::LograyMainWindow),
     previous_focus_(NULL),
     file_set_dialog_(NULL),
     show_hide_actions_(NULL),
@@ -419,7 +419,7 @@ LogwolfMainWindow::LogwolfMainWindow(QWidget *parent) :
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
     connect(df_combo_box_, &QComboBox::editTextChanged, funnel_statistics_, &FunnelStatistics::displayFilterTextChanged);
-    connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &LogwolfMainWindow::setDisplayFilter);
+    connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &LograyMainWindow::setDisplayFilter);
     connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
             this, SLOT(openCaptureFile(QString, QString)));
 
@@ -435,9 +435,9 @@ LogwolfMainWindow::LogwolfMainWindow(QWidget *parent) :
     // larger toolbar. We do this by adding them to a child toolbar.
     // https://bugreports.qt.io/browse/QTBUG-2472
     FilterExpressionToolBar *filter_expression_toolbar_ = new FilterExpressionToolBar(this);
-    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterPreferences, this, &LogwolfMainWindow::onFilterPreferences);
-    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterSelected, this, &LogwolfMainWindow::onFilterSelected);
-    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterEdit, this, &LogwolfMainWindow::onFilterEdit);
+    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterPreferences, this, &LograyMainWindow::onFilterPreferences);
+    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterSelected, this, &LograyMainWindow::onFilterSelected);
+    connect(filter_expression_toolbar_, &FilterExpressionToolBar::filterEdit, this, &LograyMainWindow::onFilterEdit);
 
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
@@ -519,18 +519,18 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     main_status_bar_ = main_ui_->statusBar;
 
     connect(proto_tree_, &ProtoTree::fieldSelected,
-            this, &LogwolfMainWindow::fieldSelected);
+            this, &LograyMainWindow::fieldSelected);
     connect(packet_list_, &PacketList::fieldSelected,
-            this, &LogwolfMainWindow::fieldSelected);
-    connect(this, &LogwolfMainWindow::fieldSelected,
-            this, &LogwolfMainWindow::setMenusForSelectedTreeRow);
-    connect(this, &LogwolfMainWindow::fieldSelected,
+            this, &LograyMainWindow::fieldSelected);
+    connect(this, &LograyMainWindow::fieldSelected,
+            this, &LograyMainWindow::setMenusForSelectedTreeRow);
+    connect(this, &LograyMainWindow::fieldSelected,
             main_ui_->statusBar, &MainStatusBar::selectedFieldChanged);
 
-    connect(this, &LogwolfMainWindow::fieldHighlight,
+    connect(this, &LograyMainWindow::fieldHighlight,
             main_ui_->statusBar, &MainStatusBar::highlightedFieldChanged);
     connect(mainApp, &WiresharkApplication::captureActive,
-            this, &LogwolfMainWindow::captureActive);
+            this, &LograyMainWindow::captureActive);
 
     byte_view_tab_ = new ByteViewTab(&master_split_);
 
@@ -583,24 +583,24 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
             this, SLOT(openCaptureFile(QString)));
 
     connect(main_ui_->addressEditorFrame, &AddressEditorFrame::redissectPackets,
-            this, &LogwolfMainWindow::redissectPackets);
+            this, &LograyMainWindow::redissectPackets);
     connect(main_ui_->addressEditorFrame, &AddressEditorFrame::showNameResolutionPreferences,
-            this, &LogwolfMainWindow::showPreferencesDialog);
+            this, &LograyMainWindow::showPreferencesDialog);
     connect(main_ui_->preferenceEditorFrame, &PreferenceEditorFrame::showProtocolPreferences,
-            this, &LogwolfMainWindow::showPreferencesDialog);
+            this, &LograyMainWindow::showPreferencesDialog);
     connect(main_ui_->filterExpressionFrame, &FilterExpressionFrame::showPreferencesDialog,
-            this, &LogwolfMainWindow::showPreferencesDialog);
+            this, &LograyMainWindow::showPreferencesDialog);
     connect(main_ui_->filterExpressionFrame, &FilterExpressionFrame::filterExpressionsChanged,
             filter_expression_toolbar_, &FilterExpressionToolBar::filterExpressionsChanged);
 
     /* Connect change of capture file */
-    connect(this, &LogwolfMainWindow::setCaptureFile,
+    connect(this, &LograyMainWindow::setCaptureFile,
             main_ui_->searchFrame, &SearchFrame::setCaptureFile);
-    connect(this, &LogwolfMainWindow::setCaptureFile,
+    connect(this, &LograyMainWindow::setCaptureFile,
             main_ui_->statusBar, &MainStatusBar::setCaptureFile);
-    connect(this, &LogwolfMainWindow::setCaptureFile,
+    connect(this, &LograyMainWindow::setCaptureFile,
             packet_list_, &PacketList::setCaptureFile);
-    connect(this, &LogwolfMainWindow::setCaptureFile,
+    connect(this, &LograyMainWindow::setCaptureFile,
             proto_tree_, &ProtoTree::setCaptureFile);
 
     connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
@@ -663,9 +663,9 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
 
     connect(main_ui_->menuApplyAsFilter, &QMenu::aboutToShow,
-            this, &LogwolfMainWindow::filterMenuAboutToShow);
+            this, &LograyMainWindow::filterMenuAboutToShow);
     connect(main_ui_->menuPrepareAFilter, &QMenu::aboutToShow,
-            this, &LogwolfMainWindow::filterMenuAboutToShow);
+            this, &LograyMainWindow::filterMenuAboutToShow);
 
 #ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
@@ -721,7 +721,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     showWelcome();
 }
 
-LogwolfMainWindow::~LogwolfMainWindow()
+LograyMainWindow::~LograyMainWindow()
 {
     disconnect(main_ui_->mainStack, 0, 0, 0);
 
@@ -742,7 +742,7 @@ LogwolfMainWindow::~LogwolfMainWindow()
     delete main_ui_;
 }
 
-QMenu *LogwolfMainWindow::createPopupMenu()
+QMenu *LograyMainWindow::createPopupMenu()
 {
     QMenu *menu = new QMenu();
     menu->addAction(main_ui_->actionViewMainToolbar);
@@ -772,7 +772,7 @@ QMenu *LogwolfMainWindow::createPopupMenu()
     return menu;
 }
 
-void LogwolfMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
+void LograyMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
 {
     QMenu *menu = main_ui_->menuInterfaceToolbars;
     bool visible = g_list_find_custom(recent.interface_toolbars, toolbar_entry->menu_title, (GCompareFunc)strcmp) ? true : false;
@@ -815,7 +815,7 @@ void LogwolfMainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
     menu->menuAction()->setVisible(true);
 }
 
-void LogwolfMainWindow::removeInterfaceToolbar(const gchar *menu_title)
+void LograyMainWindow::removeInterfaceToolbar(const gchar *menu_title)
 {
     QMenu *menu = main_ui_->menuInterfaceToolbars;
     QAction *action = NULL;
@@ -844,7 +844,7 @@ void LogwolfMainWindow::removeInterfaceToolbar(const gchar *menu_title)
     menu->menuAction()->setVisible(!menu->actions().isEmpty());
 }
 
-void LogwolfMainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
+void LograyMainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
 {
     pipe_source_        = source;
     pipe_child_process_ = child_process;
@@ -881,7 +881,7 @@ void LogwolfMainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_
 #endif
 }
 
-bool LogwolfMainWindow::eventFilter(QObject *obj, QEvent *event) {
+bool LograyMainWindow::eventFilter(QObject *obj, QEvent *event) {
 
     // The user typed some text. Start filling in a filter.
     // We may need to be more choosy here. We just need to catch events for the packet list,
@@ -899,7 +899,7 @@ bool LogwolfMainWindow::eventFilter(QObject *obj, QEvent *event) {
     return QMainWindow::eventFilter(obj, event);
 }
 
-bool LogwolfMainWindow::event(QEvent *event)
+bool LograyMainWindow::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ApplicationPaletteChange:
@@ -912,7 +912,7 @@ bool LogwolfMainWindow::event(QEvent *event)
     return QMainWindow::event(event);
 }
 
-void LogwolfMainWindow::keyPressEvent(QKeyEvent *event) {
+void LograyMainWindow::keyPressEvent(QKeyEvent *event) {
 
     // Explicitly focus on the display filter combo.
     if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Slash) {
@@ -942,7 +942,7 @@ void LogwolfMainWindow::keyPressEvent(QKeyEvent *event) {
     QMainWindow::keyPressEvent(event);
 }
 
-void LogwolfMainWindow::closeEvent(QCloseEvent *event) {
+void LograyMainWindow::closeEvent(QCloseEvent *event) {
     saveWindowGeometry();
 
     /* If we're in the middle of stopping a capture, don't do anything;
@@ -983,7 +983,7 @@ void LogwolfMainWindow::closeEvent(QCloseEvent *event) {
 // XXX On windows the drag description is "Copy". It should be "Open" or
 // "Merge" as appropriate. It looks like we need access to IDataObject in
 // order to set DROPDESCRIPTION.
-void LogwolfMainWindow::dragEnterEvent(QDragEnterEvent *event)
+void LograyMainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     if (!event->mimeData()->hasUrls())
     {
@@ -1014,7 +1014,7 @@ void LogwolfMainWindow::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void LogwolfMainWindow::dropEvent(QDropEvent *event)
+void LograyMainWindow::dropEvent(QDropEvent *event)
 {
     if (!event->mimeData()->hasUrls())
     {
@@ -1076,7 +1076,7 @@ void LogwolfMainWindow::dropEvent(QDropEvent *event)
 // Note we might end up with unexpected screen geometries if the user
 // unplugs or plugs in a monitor:
 // https://bugreports.qt.io/browse/QTBUG-44213
-void LogwolfMainWindow::loadWindowGeometry()
+void LograyMainWindow::loadWindowGeometry()
 {
     int min_sensible_dimension = 200;
 
@@ -1111,7 +1111,7 @@ void LogwolfMainWindow::loadWindowGeometry()
     }
 }
 
-void LogwolfMainWindow::saveWindowGeometry()
+void LograyMainWindow::saveWindowGeometry()
 {
     if (prefs.gui_geometry_save_position) {
         recent.gui_geometry_main_x = pos().x();
@@ -1147,7 +1147,7 @@ void LogwolfMainWindow::saveWindowGeometry()
 //
 // We might want to do this any time the main status bar progress frame is
 // shown and hidden.
-void LogwolfMainWindow::freeze()
+void LograyMainWindow::freeze()
 {
     freeze_focus_ = mainApp->focusWidget();
 
@@ -1160,7 +1160,7 @@ void LogwolfMainWindow::freeze()
     main_ui_->centralWidget->setEnabled(false);
 }
 
-void LogwolfMainWindow::thaw()
+void LograyMainWindow::thaw()
 {
     main_ui_->centralWidget->setEnabled(true);
     for (int i = 0; i < freeze_actions_.size(); i++) {
@@ -1171,7 +1171,7 @@ void LogwolfMainWindow::thaw()
     freeze_focus_ = NULL;
 }
 
-void LogwolfMainWindow::mergeCaptureFile()
+void LograyMainWindow::mergeCaptureFile()
 {
     QString file_name = "";
     QString read_filter = "";
@@ -1320,7 +1320,7 @@ void LogwolfMainWindow::mergeCaptureFile()
 
 }
 
-void LogwolfMainWindow::importCaptureFile() {
+void LograyMainWindow::importCaptureFile() {
     ImportTextDialog import_dlg;
 
     QString before_what(tr(" before importing a capture"));
@@ -1337,7 +1337,7 @@ void LogwolfMainWindow::importCaptureFile() {
     openCaptureFile(import_dlg.capfileName());
 }
 
-bool LogwolfMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
+bool LograyMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
     QString file_name;
     gboolean discard_comments;
 
@@ -1435,7 +1435,7 @@ bool LogwolfMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
     return true;
 }
 
-bool LogwolfMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
+bool LograyMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
     QString file_name = "";
     int file_type;
     wtap_compression_type compression_type;
@@ -1545,7 +1545,7 @@ bool LogwolfMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_co
     return true;
 }
 
-void LogwolfMainWindow::exportSelectedPackets() {
+void LograyMainWindow::exportSelectedPackets() {
     QString file_name = "";
     int file_type;
     wtap_compression_type compression_type;
@@ -1686,7 +1686,7 @@ cleanup:
     packet_range_cleanup(&range);
 }
 
-void LogwolfMainWindow::exportDissections(export_type_e export_type) {
+void LograyMainWindow::exportDissections(export_type_e export_type) {
     capture_file *cf = capture_file_.capFile();
     g_return_if_fail(cf);
 
@@ -1721,7 +1721,7 @@ void LogwolfMainWindow::exportDissections(export_type_e export_type) {
  *    if there is a set of extensions used by the file type to be used,
  *    the file name has one of those extensions.
  */
-void LogwolfMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compression_type compression_type) {
+void LograyMainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compression_type compression_type) {
     QString file_name_lower;
     GSList  *extensions_list;
     const char *compressed_file_extension;
@@ -1807,7 +1807,7 @@ void LogwolfMainWindow::fileAddExtension(QString &file_name, int file_type, wtap
 }
 #endif // Q_OS_WIN
 
-bool LogwolfMainWindow::testCaptureFileClose(QString before_what, FileCloseContext context) {
+bool LograyMainWindow::testCaptureFileClose(QString before_what, FileCloseContext context) {
     bool capture_in_progress = false;
     bool do_close_file = false;
 
@@ -2020,7 +2020,7 @@ bool LogwolfMainWindow::testCaptureFileClose(QString before_what, FileCloseConte
     return true; /* File closed */
 }
 
-void LogwolfMainWindow::captureStop() {
+void LograyMainWindow::captureStop() {
     stopCapture();
 
     while (capture_file_.capFile() && capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
@@ -2028,7 +2028,7 @@ void LogwolfMainWindow::captureStop() {
     }
 }
 
-void LogwolfMainWindow::findTextCodecs() {
+void LograyMainWindow::findTextCodecs() {
     const QList<int> mibs = QTextCodec::availableMibs();
     QRegularExpression ibmRegExp("^IBM([0-9]+).*$");
     QRegularExpression iso8859RegExp("^ISO-8859-([0-9]+).*$");
@@ -2078,7 +2078,7 @@ void LogwolfMainWindow::findTextCodecs() {
     }
 }
 
-void LogwolfMainWindow::initMainToolbarIcons()
+void LograyMainWindow::initMainToolbarIcons()
 {
     // Normally 16 px. Reflects current GTK+ behavior and other Windows apps.
     int icon_size = style()->pixelMetric(QStyle::PM_SmallIconSize);
@@ -2133,7 +2133,7 @@ void LogwolfMainWindow::initMainToolbarIcons()
     main_ui_->actionNewDisplayFilterExpression->setIcon(StockIcon("list-add"));
 }
 
-void LogwolfMainWindow::initShowHideMainWidgets()
+void LograyMainWindow::initShowHideMainWidgets()
 {
     if (show_hide_actions_) {
         return;
@@ -2165,7 +2165,7 @@ void LogwolfMainWindow::initShowHideMainWidgets()
     connect(show_hide_actions_, SIGNAL(triggered(QAction*)), this, SLOT(showHideMainWidgets(QAction*)));
 }
 
-void LogwolfMainWindow::initTimeDisplayFormatMenu()
+void LograyMainWindow::initTimeDisplayFormatMenu()
 {
     if (time_display_actions_) {
         return;
@@ -2192,7 +2192,7 @@ void LogwolfMainWindow::initTimeDisplayFormatMenu()
     connect(time_display_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampFormat(QAction*)));
 }
 
-void LogwolfMainWindow::initTimePrecisionFormatMenu()
+void LograyMainWindow::initTimePrecisionFormatMenu()
 {
     if (time_precision_actions_) {
         return;
@@ -2218,7 +2218,7 @@ void LogwolfMainWindow::initTimePrecisionFormatMenu()
 
 // Menu items which will be disabled when we freeze() and whose state will
 // be restored when we thaw(). Add to the list as needed.
-void LogwolfMainWindow::initFreezeActions()
+void LograyMainWindow::initFreezeActions()
 {
     QList<QAction *> freeze_actions = QList<QAction *>()
             << main_ui_->actionFileClose
@@ -2237,7 +2237,7 @@ void LogwolfMainWindow::initFreezeActions()
     }
 }
 
-void LogwolfMainWindow::initConversationMenus()
+void LograyMainWindow::initConversationMenus()
 {
     int i;
 
@@ -2303,10 +2303,10 @@ void LogwolfMainWindow::initConversationMenus()
     connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
 }
 
-gboolean LogwolfMainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
+gboolean LograyMainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
 {
     register_eo_t *eo = (register_eo_t*)value;
-    LogwolfMainWindow *window = (LogwolfMainWindow*)userdata;
+    LograyMainWindow *window = (LograyMainWindow*)userdata;
 
     ExportObjectAction *export_action = new ExportObjectAction(window->main_ui_->menuFileExportObjects, eo);
     window->main_ui_->menuFileExportObjects->addAction(export_action);
@@ -2319,13 +2319,13 @@ gboolean LogwolfMainWindow::addExportObjectsMenuItem(const void *, void *value, 
     return FALSE;
 }
 
-void LogwolfMainWindow::initExportObjectsMenus()
+void LograyMainWindow::initExportObjectsMenus()
 {
     eo_iterate_tables(addExportObjectsMenuItem, this);
 }
 
 // Titlebar
-void LogwolfMainWindow::setTitlebarForCaptureFile()
+void LograyMainWindow::setTitlebarForCaptureFile()
 {
     if (capture_file_.capFile() && capture_file_.capFile()->filename) {
         setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileDisplayName()));
@@ -2347,7 +2347,7 @@ void LogwolfMainWindow::setTitlebarForCaptureFile()
     }
 }
 
-QString LogwolfMainWindow::replaceWindowTitleVariables(QString title)
+QString LograyMainWindow::replaceWindowTitleVariables(QString title)
 {
     title.replace("%P", get_profile_name());
     title.replace("%V", get_ws_vcs_version_info());
@@ -2390,10 +2390,10 @@ QString LogwolfMainWindow::replaceWindowTitleVariables(QString title)
     return title;
 }
 
-void LogwolfMainWindow::setWSWindowTitle(QString title)
+void LograyMainWindow::setWSWindowTitle(QString title)
 {
     if (title.isEmpty()) {
-        title = tr("The Logwolf System Log Analyzer");
+        title = tr("The Logray System Log Analyzer");
     }
 
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {
@@ -2419,7 +2419,7 @@ void LogwolfMainWindow::setWSWindowTitle(QString title)
     setWindowFilePath(NULL);
 }
 
-void LogwolfMainWindow::setTitlebarForCaptureInProgress()
+void LograyMainWindow::setTitlebarForCaptureInProgress()
 {
     if (capture_file_.capFile()) {
         setWSWindowTitle(tr("Capturing from %1").arg(cf_get_tempfile_source(capture_file_.capFile())));
@@ -2434,7 +2434,7 @@ void LogwolfMainWindow::setTitlebarForCaptureInProgress()
 /* Enable or disable menu items based on whether you have a capture file
    you've finished reading and, if you have one, whether it's been saved
    and whether it could be saved except by copying the raw packet data. */
-void LogwolfMainWindow::setMenusForCaptureFile(bool force_disable)
+void LograyMainWindow::setMenusForCaptureFile(bool force_disable)
 {
     bool enable = true;
     bool can_write = false;
@@ -2484,7 +2484,7 @@ void LogwolfMainWindow::setMenusForCaptureFile(bool force_disable)
 #endif
 }
 
-void LogwolfMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
+void LograyMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     /* Either a capture was started or stopped; in either case, it's not
        in the process of stopping, so allow quitting. */
 
@@ -2532,7 +2532,7 @@ void LogwolfMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
 }
 
-void LogwolfMainWindow::setMenusForCaptureStopping() {
+void LograyMainWindow::setMenusForCaptureStopping() {
     main_ui_->actionFileQuit->setEnabled(false);
 #ifdef HAVE_SOFTWARE_UPDATE
     update_action_->setEnabled(false);
@@ -2545,7 +2545,7 @@ void LogwolfMainWindow::setMenusForCaptureStopping() {
 #endif /* HAVE_LIBPCAP */
 }
 
-void LogwolfMainWindow::setForCapturedPackets(bool have_captured_packets)
+void LograyMainWindow::setForCapturedPackets(bool have_captured_packets)
 {
     main_ui_->actionFilePrint->setEnabled(have_captured_packets);
 
@@ -2574,7 +2574,7 @@ void LogwolfMainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionStatisticsIOGraph->setEnabled(have_captured_packets);
 }
 
-void LogwolfMainWindow::setMenusForFileSet(bool enable_list_files) {
+void LograyMainWindow::setMenusForFileSet(bool enable_list_files) {
     bool enable_next = fileset_get_next() != NULL && enable_list_files;
     bool enable_prev = fileset_get_previous() != NULL && enable_list_files;
 
@@ -2583,17 +2583,17 @@ void LogwolfMainWindow::setMenusForFileSet(bool enable_list_files) {
     main_ui_->actionFileSetPreviousFile->setEnabled(enable_prev);
 }
 
-void LogwolfMainWindow::setWindowIcon(const QIcon &icon) {
+void LograyMainWindow::setWindowIcon(const QIcon &icon) {
     mainApp->setWindowIcon(icon);
     QMainWindow::setWindowIcon(icon);
 }
 
-void LogwolfMainWindow::updateForUnsavedChanges() {
+void LograyMainWindow::updateForUnsavedChanges() {
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
 }
 
-void LogwolfMainWindow::changeEvent(QEvent* event)
+void LograyMainWindow::changeEvent(QEvent* event)
 {
     if (0 != event)
     {
@@ -2621,7 +2621,7 @@ void LogwolfMainWindow::changeEvent(QEvent* event)
 }
 
 /* Update main window items based on whether there's a capture in progress. */
-void LogwolfMainWindow::setForCaptureInProgress(bool capture_in_progress, bool handle_toolbars, GArray *ifaces)
+void LograyMainWindow::setForCaptureInProgress(bool capture_in_progress, bool handle_toolbars, GArray *ifaces)
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
@@ -2644,7 +2644,7 @@ void LogwolfMainWindow::setForCaptureInProgress(bool capture_in_progress, bool h
     }
 }
 
-void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
+void LograyMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
@@ -2692,7 +2692,7 @@ void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group
     }
 }
 
-void LogwolfMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
+void LograyMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
 {
     foreach(QAction *action, actions) {
         switch (menu_group) {
@@ -2721,7 +2721,7 @@ void LogwolfMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_gr
     }
 }
 
-void LogwolfMainWindow::addDynamicMenus()
+void LograyMainWindow::addDynamicMenus()
 {
     // Fill in each menu
     foreach(register_stat_group_t menu_group, menu_groups_) {
@@ -2730,7 +2730,7 @@ void LogwolfMainWindow::addDynamicMenus()
     }
 }
 
-void LogwolfMainWindow::reloadDynamicMenus()
+void LograyMainWindow::reloadDynamicMenus()
 {
     foreach(register_stat_group_t menu_group, menu_groups_) {
         QList<QAction *>actions = mainApp->removedMenuGroupItems(menu_group);
@@ -2744,7 +2744,7 @@ void LogwolfMainWindow::reloadDynamicMenus()
     mainApp->clearRemovedMenuGroupItems();
 }
 
-void LogwolfMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)
+void LograyMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)
 {
     QAction * itemAction = Q_NULLPTR;
     ext_menubar_t * item = Q_NULLPTR;
@@ -2779,7 +2779,7 @@ void LogwolfMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, 
     }
 }
 
-QMenu * LogwolfMainWindow::searchSubMenu(QString objectName)
+QMenu * LograyMainWindow::searchSubMenu(QString objectName)
 {
     QList<QMenu*> lst;
 
@@ -2796,7 +2796,7 @@ QMenu * LogwolfMainWindow::searchSubMenu(QString objectName)
     return 0;
 }
 
-void LogwolfMainWindow::addPluginIFStructures()
+void LograyMainWindow::addPluginIFStructures()
 {
     GList *user_menu = ext_menubar_get_entries();
 
@@ -2884,7 +2884,7 @@ void LogwolfMainWindow::addPluginIFStructures()
         tbMenu->menuAction()->setVisible(true);
 }
 
-void LogwolfMainWindow::removeAdditionalToolbar(QString toolbarName)
+void LograyMainWindow::removeAdditionalToolbar(QString toolbarName)
 {
     if (toolbarName.length() == 0)
         return;
@@ -2913,18 +2913,18 @@ void LogwolfMainWindow::removeAdditionalToolbar(QString toolbarName)
 
 }
 
-QString LogwolfMainWindow::getMwFileName()
+QString LograyMainWindow::getMwFileName()
 {
     return mwFileName_;
 }
 
-void LogwolfMainWindow::setMwFileName(QString fileName)
+void LograyMainWindow::setMwFileName(QString fileName)
 {
     mwFileName_ = fileName;
     return;
 }
 
-frame_data * LogwolfMainWindow::frameDataForRow(int row) const
+frame_data * LograyMainWindow::frameDataForRow(int row) const
 {
     if (packet_list_)
         return packet_list_->getFDataForRow(row);

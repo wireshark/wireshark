@@ -1,14 +1,14 @@
 /** @file
  *
- * Logwolf - Event log analyzer
+ * Logray - Event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef LOGWOLF_MAIN_WINDOW_H
-#define LOGWOLF_MAIN_WINDOW_H
+#ifndef LOGRAY_MAIN_WINDOW_H
+#define LOGRAY_MAIN_WINDOW_H
 
 /** @defgroup main_window_group Main window
  * The main window has the following submodules:
@@ -31,7 +31,7 @@
  */
 
 /** @file
- *  The Logwolf main window
+ *  The Logray main window
  *  @ingroup main_window_group
  *  @ingroup windows_group
  */
@@ -93,19 +93,19 @@ class QAction;
 class QActionGroup;
 
 namespace Ui {
-    class LogwolfMainWindow;
+    class LograyMainWindow;
 }
 
 Q_DECLARE_METATYPE(ts_type)
 Q_DECLARE_METATYPE(ts_precision)
 
-class LogwolfMainWindow : public MainWindow
+class LograyMainWindow : public MainWindow
 {
     Q_OBJECT
 
 public:
-    explicit LogwolfMainWindow(QWidget *parent = nullptr);
-    ~LogwolfMainWindow();
+    explicit LograyMainWindow(QWidget *parent = nullptr);
+    ~LograyMainWindow();
     void setPipeInputHandler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb);
 
 #ifdef HAVE_LIBPCAP
@@ -165,7 +165,7 @@ private:
         Reload
     };
 
-    Ui::LogwolfMainWindow *main_ui_;
+    Ui::LograyMainWindow *main_ui_;
     CaptureFile capture_file_;
     QFont mono_font_;
     QMap<QString, QTextCodec *> text_codec_map_;
@@ -435,7 +435,7 @@ private slots:
 
     void on_actionFileExportPDU_triggered();
 
-    void actionEditCopyTriggered(LogwolfMainWindow::CopySelected selection_type);
+    void actionEditCopyTriggered(LograyMainWindow::CopySelected selection_type);
     void on_actionCopyAllVisibleItems_triggered();
     void on_actionCopyAllVisibleSelectedTreeItems_triggered();
     void on_actionCopyListAsText_triggered();
@@ -591,4 +591,4 @@ private slots:
     friend class MainApplication;
 };
 
-#endif // LOGWOLF_MAIN_WINDOW_H
+#endif // LOGRAY_MAIN_WINDOW_H

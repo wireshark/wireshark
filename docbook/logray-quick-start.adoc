@@ -1,18 +1,18 @@
-= Logwolf Quick Start
+= Logray Quick Start
 
-Logwolf is a sibling application for Wireshark which focuses on log messages.
+Logray is a sibling application for Wireshark which focuses on log messages.
 It helps people understand, troubleshoot, and secure their systems via log messages similar to the way Wireshark helps people understand, troubleshoot, and secure their networks via packets.
 
-This document provides brief instructions for building Logwolf until more complete documentation comparable to the Wireshark Developer’s and User’s Guides can be written.
+This document provides brief instructions for building Logray until more complete documentation comparable to the Wireshark Developer’s and User’s Guides can be written.
 
-== Building Logwolf
+== Building Logray
 
-Logwolf requires the same build environment as Wireshark.
+Logray requires the same build environment as Wireshark.
 See the https://www.wireshark.org/docs/wsdg_html_chunked/[Wireshark Developer’s Guide] for instructions on setting that up.
 
 It additionally requires libsinsp and libscap from https://github.com/falcosecurity/libs/[falcosecurity/libs] and any desired plugins from https://github.com/falcosecurity/plugins/[falcosecurity/plugins].
 
-In order to build Logwolf, do the following:
+In order to build Logray, do the following:
 
 1. https://falco.org/docs/getting-started/source/[Build falcosecurity/libs].
 
@@ -22,31 +22,31 @@ In order to build Logwolf, do the following:
 +
 --
 [horizontal]
-BUILD_logwolf:: Must be enabled, e.g. set to ON
+BUILD_logray:: Must be enabled, e.g. set to ON
 SINSP_INCLUDEDIR:: The path to your local falcosecurity/libs directory
 SINSP_LIBDIR:: The path to your falcosecurity/libs build directory
 --
 
-4. Create a directory named `falco` in your Logwolf plugins directory, and either copy in or symlink any desired Falco plugins.
+4. Create a directory named `falco` in your Logray plugins directory, and either copy in or symlink any desired Falco plugins.
 
 .Example 1: Building on macOS using Ninja
 [sh]
 ----
 cmake -G Ninja \
-  -DBUILD_logwolf=ON \
+  -DBUILD_logray=ON \
   -DSINSP_INCLUDEDIR=/path/to/falcosecurity/libs \
   -DSINSP_LIBDIR=/path/to/falcosecurity/libs/build \
   ..
 ninja
-mkdir run/Logwolf.app/Contents/PlugIns/logwolf/3-7/falco
-(cd run/Logwolf.app/Contents/PlugIns/logwolf/3-7/falco ; ln -sn /path/to/falcosecurity-plugins/plugins/cloudtrail/libcloudtrail.so )
+mkdir run/Logray.app/Contents/PlugIns/logray/3-7/falco
+(cd run/Logray.app/Contents/PlugIns/logray/3-7/falco ; ln -sn /path/to/falcosecurity-plugins/plugins/cloudtrail/libcloudtrail.so )
 ----
 
 .Example 2: Building on Linux using Make
 [sh]
 ----
 cmake \
-  -DBUILD_logwolf=ON \
+  -DBUILD_logray=ON \
   -DSINSP_INCLUDEDIR=/path/to/falcosecurity/libs \
   -DSINSP_LIBDIR=/path/to/falcosecurity/libs/build \
   ..

@@ -19,15 +19,15 @@ import os.path
 # .. Useful stuff ..............................................................
 
 lw_version = '@LOG_PROJECT_VERSION@'
-lw_volname = 'Logwolf ' + lw_version
+lw_volname = 'Logray ' + lw_version
 lw_srcdir = '@CMAKE_SOURCE_DIR@'
 lw_bindir = '@CMAKE_BINARY_DIR@'
-lw_app = 'Logwolf.app'
+lw_app = 'Logray.app'
 lw_readme = 'Read me first.html'
 lw_install_chmodbpf = 'Install ChmodBPF.pkg'
 lw_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
-lw_install_path_helper = 'Add Logwolf to the system path.pkg'
-lw_uninstall_path_helper = 'Remove Logwolf from the system path.pkg'
+lw_install_path_helper = 'Add Logray to the system path.pkg'
+lw_uninstall_path_helper = 'Remove Logray from the system path.pkg'
 
 # .. Basics ....................................................................
 
@@ -35,7 +35,7 @@ lw_uninstall_path_helper = 'Remove Logwolf from the system path.pkg'
 # filename = lw_volname + ' Intel 64.dmg'
 
 # Uncomment to override the output volume name
-# volume_name = 'Logwolf ' + lw_version
+# volume_name = 'Logray ' + lw_version
 
 # From the hdiutil man page:
 # UDZO - UDIF zlib-compressed image
@@ -55,7 +55,7 @@ size = None
 # Files to include
 files = [
     os.path.join(lw_bindir, 'run', lw_app),
-    os.path.join(lw_bindir, 'packaging', 'macosx', 'logwolf', lw_readme),
+    os.path.join(lw_bindir, 'packaging', 'macosx', 'logray', lw_readme),
 ]
 
 # Symlinks to create

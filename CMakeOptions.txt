@@ -1,8 +1,8 @@
 # Build options for use by CMake
 
 option(BUILD_wireshark     "Build Wireshark" ON)
-option(BUILD_logwolf       "Build Logwolf" OFF)
-if(BUILD_wireshark OR BUILD_logwolf)
+option(BUILD_logray        "Build Logray" OFF)
+if(BUILD_wireshark OR BUILD_logray)
 	if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
 		option(USE_qt6     "Use Qt6 instead of Qt5" ON)
 	else()

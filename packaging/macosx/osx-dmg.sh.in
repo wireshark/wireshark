@@ -67,8 +67,8 @@ fi
 
 if [[ $app_name = Log* ]] ; then
 	version=$log_version
-	app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/logwolf-app.dmgbuild"
-	dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/logwolf-dsym.dmgbuild"
+	app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/logray-app.dmgbuild"
+	dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/logray-dsym.dmgbuild"
 fi
 
 app_vol_name="$app_name ${version}"

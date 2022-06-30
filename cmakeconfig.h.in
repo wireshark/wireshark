@@ -16,7 +16,7 @@
 #define VERSION_MINOR ${PROJECT_MINOR_VERSION}
 #define VERSION_MICRO ${PROJECT_PATCH_VERSION}
 
-/* Version number of Logwolf and associated utilities */
+/* Version number of Logray and associated utilities */
 #define LOG_VERSION "${LOG_PROJECT_VERSION}${VERSION_EXTRA}"
 
 #define PLUGIN_PATH_ID "${PLUGIN_PATH_ID}"

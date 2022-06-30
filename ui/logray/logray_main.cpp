@@ -1,6 +1,6 @@
-/* logwolf_main.cpp
+/* logray_main.cpp
  *
- * Logwolf - Event log analyzer
+ * Logray - Event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
@@ -81,11 +81,11 @@
 #include "ui/qt/utils/color_utils.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
-#include "ui/logwolf/logwolf_main_window.h"
+#include "ui/logray/logray_main_window.h"
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
-#include "ui/logwolf/logwolf_application.h"
+#include "ui/logray/logray_application.h"
 
 #include "capture/capture-pcap-util.h"
 
@@ -118,7 +118,7 @@
 /* update the main window */
 void main_window_update(void)
 {
-    LogwolfApplication::processEvents();
+    LograyApplication::processEvents();
 }
 
 void exit_application(int status) {
@@ -170,12 +170,12 @@ void exit_application(int status) {
  */
 // xxx copied from ../gtk/main.c
 static void
-logwolf_cmdarg_err(const char *fmt, va_list ap)
+logray_cmdarg_err(const char *fmt, va_list ap)
 {
 #ifdef _WIN32
     create_console();
 #endif
-    fprintf(stderr, "logwolf: ");
+    fprintf(stderr, "logray: ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
 }
@@ -186,7 +186,7 @@ logwolf_cmdarg_err(const char *fmt, va_list ap)
  */
 // xxx copied from ../gtk/main.c
 static void
-logwolf_cmdarg_err_cont(const char *fmt, va_list ap)
+logray_cmdarg_err_cont(const char *fmt, va_list ap)
 {
 #ifdef _WIN32
     create_console();
@@ -406,7 +406,7 @@ macos_enable_layer_backing(void)
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *qt_argv[])
 {
-    LogwolfMainWindow *main_w;
+    LograyMainWindow *main_w;
 
 #ifdef _WIN32
     LPWSTR              *wc_argv;
@@ -479,10 +479,10 @@ int main(int argc, char *qt_argv[])
     macos_enable_layer_backing();
 #endif
 
-    cmdarg_err_init(logwolf_cmdarg_err, logwolf_cmdarg_err_cont);
+    cmdarg_err_init(logray_cmdarg_err, logray_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init_with_writer("logwolf", console_log_writer, vcmdarg_err);
+    ws_log_init_with_writer("logray", console_log_writer, vcmdarg_err);
     /* For backward compatibility with GLib logging and Wireshark 3.4. */
     ws_log_console_writer_set_use_stdout(TRUE);
 
@@ -548,7 +548,7 @@ int main(int argc, char *qt_argv[])
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    /* configuration_init_error = */ configuration_init(argv[0], "Logwolf");
+    /* configuration_init_error = */ configuration_init(argv[0], "Logray");
     /* ws_log(NULL, LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir()); */
 
 #ifdef _WIN32
@@ -601,7 +601,7 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    ws_init_version_info("Logwolf", gather_wireshark_qt_compiled_info,
+    ws_init_version_info("Logray", gather_wireshark_qt_compiled_info,
                          gather_wireshark_runtime_info);
 
     /* Create the user profiles directory */
@@ -645,7 +645,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
     /* Create The Wireshark app */
-    LogwolfApplication ls_app(argc, qt_argv);
+    LograyApplication ls_app(argc, qt_argv);
 
     /* initialize the funnel mini-api */
     // xxx qtshark
@@ -685,7 +685,7 @@ int main(int argc, char *qt_argv[])
     /* ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "Translator %s", language); */
 
     // Init the main window (and splash)
-    main_w = new(LogwolfMainWindow);
+    main_w = new(LograyMainWindow);
     main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
@@ -713,7 +713,7 @@ int main(int argc, char *qt_argv[])
     capture_opts_init(&global_capture_opts);
 #endif
 
-    init_report_message("Logwolf", &wireshark_report_routines);
+    init_report_message("Logray", &wireshark_report_routines);
 
     /*
      * Libwiretap must be initialized before libwireshark is, so that
@@ -889,7 +889,7 @@ int main(int argc, char *qt_argv[])
 #endif
     prefs_apply_all();
     prefs_to_capture_opts();
-    lwApp->emitAppSignal(LogwolfApplication::PreferencesChanged);
+    lwApp->emitAppSignal(LograyApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP
     if ((global_capture_opts.num_selected == 0) &&
@@ -917,8 +917,8 @@ int main(int argc, char *qt_argv[])
     }
 
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, global_commandline_info.prefs_p->num_cols, TRUE);
-    lwApp->emitAppSignal(LogwolfApplication::ColumnsChanged); // We read "recent" widths above.
-    lwApp->emitAppSignal(LogwolfApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
+    lwApp->emitAppSignal(LograyApplication::ColumnsChanged); // We read "recent" widths above.
+    lwApp->emitAppSignal(LograyApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
     lwApp->setMonospaceFont(prefs.gui_qt_font_name);
 
@@ -931,7 +931,7 @@ int main(int argc, char *qt_argv[])
     }
 
     lwApp->allSystemsGo();
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Logwolf is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Logray is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */
@@ -1019,7 +1019,7 @@ int main(int argc, char *qt_argv[])
     profile_store_persconffiles(FALSE);
 
     // If the lwApp->exec() event loop exits cleanly, we call
-    // LogwolfApplication::cleanup().
+    // LograyApplication::cleanup().
     ret_val = lwApp->exec();
     lwApp = NULL;
 

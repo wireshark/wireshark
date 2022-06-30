@@ -5,13 +5,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>Logwolf</string>
+	<string>Logray</string>
 	<key>CFBundleGetInfoString</key>
 	<string>@LOG_PROJECT_VERSION@, Copyright 1998-2022 Wireshark Development Team</string>
 	<key>CFBundleIconFile</key>
 	<string>Wireshark.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.wireshark.Logwolf</string>
+	<string>org.wireshark.Logray</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -53,7 +53,7 @@
 
 	<!-- Sparkle settings https://sparkle-project.org/documentation/customization/ -->
 	<key>SUFeedURL</key>
-	<string>https://www.wireshark.org/update/0/Logwolf/@LOG_PROJECT_MAJOR_VERSION@.@LOG_PROJECT_MINOR_VERSION@.@PROJECT_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
+	<string>https://www.wireshark.org/update/0/Logray/@LOG_PROJECT_MAJOR_VERSION@.@LOG_PROJECT_MINOR_VERSION@.@PROJECT_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<false/>
 	<key>SUPublicEDKey</key>

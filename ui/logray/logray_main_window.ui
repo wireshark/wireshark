@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LogwolfMainWindow</class>
- <widget class="QMainWindow" name="LogwolfMainWindow">
+ <class>LograyMainWindow</class>
+ <widget class="QMainWindow" name="LograyMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -2266,7 +2266,7 @@
   <connection>
    <sender>actionFileQuit</sender>
    <signal>triggered()</signal>
-   <receiver>LogwolfMainWindow</receiver>
+   <receiver>LograyMainWindow</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
