@@ -29,10 +29,10 @@ Wireshark uses C-macros liberally, both for the usual reasons as well as for
 the binding generator and documentation generator scripts.  The macros are
 described within this document.
 
-The API documentation is auto-generated from a Perl script called 'make-
-wsluarm.pl', which searches C-files for the known macros and generates
-appropriate HTML documentation from them.  This includes using the C-comments
-after the macros for the API document info.
+The API documentation is auto-generated from a Python script called 'make-
+wsluarm.py', which searches C-files for the known macros and generates
+appropriate AsciiDoc documentation from them.  This includes using the C
+comments after the macros for the API document info.
 
 Likewise, another script called 'make-reg.py' generates the C-files
 'register_wslua.c' and 'declare_wslua.h', based on the C-macros it searches
@@ -81,7 +81,7 @@ followed.
 Documenting things for the API docs:
 
 As explained previously, the API documentation is auto-generated from a
-Perl script called 'make-wsluarm.pl', which searches C-files for the known
+Python script called 'make-wsluarm.py', which searches C-files for the known
 macros and generates appropriate HTML documentation from them. This includes
 using the C-comments after the macros for the API document info. The comments
 are extremely important, because the API documentation is what most Lua script
@@ -92,10 +92,10 @@ Please make sure to at least use the '@since' version notification markup
 in your comments, to let users know when the new class/function/etc. you
 created became available.
 
-Because documentation is so important, the make-wsluarm.pl script supports
+Because documentation is so important, the make-wsluarm.py script supports
 specific markup syntax in comments, and converts them to XML and ultimately
 into the various documentation formats. The markup syntax is documented in
-the top comments in make-wsluarm.pl, but are repeated here as well:
+the top comments in make-wsluarm.py, but are repeated here as well:
   - two (or more) line breaks in comments result in separate paragraphs
   - all '&' are converted into their entity names, except inside urls
   - all '<', and '>' are converted into their entity names everywhere
@@ -292,7 +292,7 @@ table named 'Gui' (in fact there isn't).  It's just for documentation.
 If you look at the documentation, you'll see there is 'ProgDlg', 'TextWindow',
 etc. in that 'GUI support' section.  That's because both ProgDlg and
 TextWindow are defined in that same wslua_gui.c file using the
-'WSLUA_CLASS_DEFINE' macro. (see description of that later)  make-wsluarm.pl
+'WSLUA_CLASS_DEFINE' macro. (see description of that later) make-wsluarm.py
 created those in the same documentation section because they're in the same c
 file as that WSLUA_MODULE comment.  You'll also note the documentation
 includes a sub-section for 'Non Method Functions', which it auto-generated
@@ -442,7 +442,7 @@ WSLUA_ARG_ - the prefix used in a #define statement, for a required
 function/method argument (ie, one without a default value).  It is defined to
 an integer representing the index slot number of the Lua stack it will be at,
 when calling the appropriate lua_check/lua_opt routine to get it from the
-stack.  The make_wsluarm.pl Perl script will generate API documentation with
+stack.  The make_wsluarm.py Python script will generate API documentation with
 this argument name for the function/method, removing the 'WSLUA_ARG_' prefix.
 The name following the 'WSLUA_ARG_' prefix must be the same name as the
 function it's an argument for, followed by an underscore and then an ALLCAPS
@@ -458,7 +458,7 @@ WSLUA_OPTARG_ - the prefix used in a #define statement, for an optional
 function/method argument (ie, one with a default value).  It is defined to an
 integer representing the index slot number of the Lua stack it will be at,
 when calling the appropriate lua_check/lua_opt routine to get it from the
-stack.  The make_wsluarm.pl Perl script will generate API documentation with
+stack.  The make_wsluarm.py Python script will generate API documentation with
 this argument name for the function/method, removing the 'WSLUA_OPTARG_'
 prefix.  The rules for the name of the argument after the prefix are the same
 as for 'WSLUA_ARG_' above.
