@@ -37,6 +37,11 @@
 #include "packet-knxip.h"
 #include "packet-knxip_decrypt.h"
 
+#define KIP_DEFAULT_PORT_RANGE "3671" /* IANA-assigned (EIBnet aka KNXnet) */
+/* Other ports are commonly used, especially 3672 by KNX IP Gateways, but
+ * not registered.
+ */
+
 #define ECDH_PUBLIC_VALUE_SIZE  32
 
 #define KIP_HDR_LEN 6
@@ -4087,14 +4092,10 @@ void proto_reg_handoff_knxip( void )
   const gchar* text;
 
   knxip_handle = find_dissector( "udp.knxip" );
-  dissector_add_uint( "udp.port", 3671, knxip_handle );
-  dissector_add_uint( "udp.port", 3672, knxip_handle );
-  dissector_add_uint( "udp.port", 40000, knxip_handle );
+  dissector_add_uint_range_with_preference("udp.port", KIP_DEFAULT_PORT_RANGE, knxip_handle);
 
   knxip_handle = find_dissector( "tcp.knxip" );
-  dissector_add_uint( "tcp.port", 3671, knxip_handle );
-  dissector_add_uint( "tcp.port", 3672, knxip_handle );
-  dissector_add_uint( "tcp.port", 40000, knxip_handle );
+  dissector_add_uint_range_with_preference("tcp.port", KIP_DEFAULT_PORT_RANGE, knxip_handle);
 
   /* Evaluate preferences
   */
