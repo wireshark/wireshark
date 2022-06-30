@@ -899,17 +899,19 @@ proto_register_autosar_ipdu_multiplexer(void) {
 
 
     ipdum_message_uat = uat_new("I-PduM Message List",
-        sizeof(ipdum_message_list_uat_t), DATAFILE_IPDUM_MESSAGES, TRUE,
-        (void**)&ipdum_message_list,
-        &ipdum_message_list_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_ipdum_message_list_cb,
-        update_ipdum_message_list,
-        free_ipdum_message_list_cb,
-        post_update_ipdum_message_list_cb,
-        NULL, /* reset */
-        ipdum_message_list_uat_fields
+        sizeof(ipdum_message_list_uat_t),                  /* record size           */
+        DATAFILE_IPDUM_MESSAGES,                           /* filename              */
+        TRUE,                                              /* from profile          */
+        (void**)&ipdum_message_list,                       /* data_ptr              */
+        &ipdum_message_list_num,                           /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_ipdum_message_list_cb,                        /* copy callback         */
+        update_ipdum_message_list,                         /* update callback       */
+        free_ipdum_message_list_cb,                        /* free callback         */
+        post_update_ipdum_message_list_cb,                 /* post update callback  */
+        NULL,                                              /* reset callback        */
+        ipdum_message_list_uat_fields                      /* UAT field definitions */
     );
 
     prefs_register_uat_preference(ipdum_module, "_ipdum_message_list", "Message List",
@@ -921,17 +923,19 @@ proto_register_autosar_ipdu_multiplexer(void) {
 
 
     ipdum_can_mapping_uat = uat_new("CAN",
-        sizeof(ipdum_can_mapping_uat_t), DATAFILE_IPDUM_CAN_MAPPING, TRUE,
-        (void**)&ipdum_can_mapping,
-        &ipdum_can_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_ipdum_can_mapping_cb,
-        update_ipdum_can_mapping,
-        NULL,
-        post_update_ipdum_can_mapping_cb,
-        NULL, /* reset */
-        ipdum_can_mapping_uat_fields
+        sizeof(ipdum_can_mapping_uat_t),                   /* record size           */
+        DATAFILE_IPDUM_CAN_MAPPING,                        /* filename              */
+        TRUE,                                              /* from profile          */
+        (void**)&ipdum_can_mapping,                        /* data_ptr              */
+        &ipdum_can_mapping_num,                            /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL, /* help */                                   /* help                  */
+        copy_ipdum_can_mapping_cb,                         /* copy callback         */
+        update_ipdum_can_mapping,                          /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_ipdum_can_mapping_cb,                  /* post update callback  */
+        NULL, /* reset */                                  /* reset callback        */
+        ipdum_can_mapping_uat_fields                       /* UAT field definitions */
     );
 
     prefs_register_uat_preference(ipdum_module, "_ipdum_can_mapping", "CAN Mappings",
@@ -939,17 +943,19 @@ proto_register_autosar_ipdu_multiplexer(void) {
 
 
     ipdum_flexray_mapping_uat = uat_new("FlexRay",
-        sizeof(ipdum_flexray_mapping_uat_t), DATAFILE_IPDUM_FLEXRAY_MAPPING, TRUE,
-        (void**)&ipdum_flexray_mapping,
-        &ipdum_flexray_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_ipdum_flexray_mapping_cb,
-        update_ipdum_flexray_mapping,
-        NULL,
-        post_update_ipdum_flexray_mapping_cb,
-        NULL, /* reset */
-        ipdum_flexray_mapping_uat_fields
+        sizeof(ipdum_flexray_mapping_uat_t),               /* record size           */
+        DATAFILE_IPDUM_FLEXRAY_MAPPING,                    /* filename              */
+        TRUE,                                              /* from profile          */
+        (void**)&ipdum_flexray_mapping,                    /* data_ptr              */
+        &ipdum_flexray_mapping_num,                        /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_ipdum_flexray_mapping_cb,                     /* copy callback         */
+        update_ipdum_flexray_mapping,                      /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_ipdum_flexray_mapping_cb,              /* post update callback  */
+        NULL,                                              /* reset callback        */
+        ipdum_flexray_mapping_uat_fields                   /* UAT field definitions */
     );
 
     prefs_register_uat_preference(ipdum_module, "_ipdum_flexray_mapping", "FlexRay Mappings",
@@ -957,17 +963,19 @@ proto_register_autosar_ipdu_multiplexer(void) {
 
 
     ipdum_lin_mapping_uat = uat_new("LIN",
-        sizeof(ipdum_lin_mapping_uat_t), DATAFILE_IPDUM_LIN_MAPPING, TRUE,
-        (void**)&ipdum_lin_mapping,
-        &ipdum_lin_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_ipdum_lin_mapping_cb,
-        update_ipdum_lin_mapping,
-        NULL,
-        post_update_ipdum_lin_mapping_cb,
-        NULL, /* reset */
-        ipdum_lin_mapping_uat_fields
+        sizeof(ipdum_lin_mapping_uat_t),                   /* record size           */
+        DATAFILE_IPDUM_LIN_MAPPING,                        /* filename              */
+        TRUE,                                              /* from profile          */
+        (void**)&ipdum_lin_mapping,                        /* data_ptr              */
+        &ipdum_lin_mapping_num,                            /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_ipdum_lin_mapping_cb,                         /* copy callback         */
+        update_ipdum_lin_mapping,                          /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_ipdum_lin_mapping_cb,                  /* post update callback  */
+        NULL,                                              /* reset callback        */
+        ipdum_lin_mapping_uat_fields                       /* UAT field definitions */
     );
 
     prefs_register_uat_preference(ipdum_module, "_ipdum_lin_mapping", "LIN Mappings",
@@ -975,17 +983,19 @@ proto_register_autosar_ipdu_multiplexer(void) {
 
 
     ipdum_pdu_transport_mapping_uat = uat_new("PDU Transport",
-        sizeof(ipdum_pdu_transport_mapping_uat_t), DATAFILE_IPDUM_PDU_TRANSPORT_MAPPING, TRUE,
-        (void**)&ipdum_pdu_transport_mapping,
-        &ipdum_pdu_transport_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_ipdum_pdu_transport_mapping_cb,
-        update_ipdum_pdu_transport_mapping,
-        NULL,
-        post_update_ipdum_pdu_transport_mapping_cb,
-        NULL, /* reset */
-        ipdum_pdu_transport_mapping_uat_fields
+        sizeof(ipdum_pdu_transport_mapping_uat_t),         /* record size           */
+        DATAFILE_IPDUM_PDU_TRANSPORT_MAPPING,              /* filename              */
+        TRUE,                                              /* from profile          */
+        (void**)&ipdum_pdu_transport_mapping,              /* data_ptr              */
+        &ipdum_pdu_transport_mapping_num,                  /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_ipdum_pdu_transport_mapping_cb,               /* copy callback         */
+        update_ipdum_pdu_transport_mapping,                /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_ipdum_pdu_transport_mapping_cb,        /* post update callback  */
+        NULL,                                              /* reset callback        */
+        ipdum_pdu_transport_mapping_uat_fields             /* UAT field definitions */
     );
 
     prefs_register_uat_preference(ipdum_module, "_ipdum_pdu_transport_mapping", "PDU Transport Mappings",

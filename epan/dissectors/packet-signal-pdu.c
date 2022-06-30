@@ -2681,19 +2681,19 @@ proto_register_signal_pdu(void) {
 
     /* UATs */
     spdu_messages_uat = uat_new("Signal PDU Messages",
-        sizeof(generic_one_id_string_t),            /* record size           */
-        DATAFILE_SPDU_MESSAGES,                     /* filename              */
-        TRUE,                                       /* from profile          */
-        (void **)&spdu_message_ident,               /* data_ptr              */
-        &spdu_message_ident_num,                    /* numitems_ptr          */
-        UAT_AFFECTS_DISSECTION,                     /* but not fields        */
-        NULL,                                       /* help                  */
-        copy_generic_one_id_string_cb,              /* copy callback         */
-        update_generic_one_identifier_32bit,        /* update callback       */
-        free_generic_one_id_string_cb,              /* free callback         */
-        post_update_spdu_message_cb,                /* post update callback  */
-        NULL,                                       /* reset callback        */
-        spdu_messages_uat_fields                    /* UAT field definitions */
+        sizeof(generic_one_id_string_t),                   /* record size           */
+        DATAFILE_SPDU_MESSAGES,                            /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_message_ident,                      /* data_ptr              */
+        &spdu_message_ident_num,                           /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_generic_one_id_string_cb,                     /* copy callback         */
+        update_generic_one_identifier_32bit,               /* update callback       */
+        free_generic_one_id_string_cb,                     /* free callback         */
+        post_update_spdu_message_cb,                       /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_messages_uat_fields                           /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_signal_pdus", "Signal PDUs",
@@ -2718,17 +2718,19 @@ proto_register_signal_pdu(void) {
         &spdu_deserializer_hide_raw_values);
 
     spdu_parameter_value_names_uat = uat_new("Signal Value Names",
-        sizeof(spdu_signal_value_name_uat_t), DATAFILE_SPDU_VALUE_NAMES, TRUE,
-        (void **)&spdu_signal_value_names,
-        &spdu_parameter_value_names_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_signal_value_name_cb,
-        update_spdu_signal_value_name,
-        free_spdu_signal_value_name_cb,
-        post_update_spdu_signal_value_names_cb,
-        NULL, /* reset */
-        spdu_parameter_value_name_uat_fields
+        sizeof(spdu_signal_value_name_uat_t),              /* record size           */
+        DATAFILE_SPDU_VALUE_NAMES,                         /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_signal_value_names,                 /* data_ptr              */
+        &spdu_parameter_value_names_num,                   /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_signal_value_name_cb,                    /* copy callback         */
+        update_spdu_signal_value_name,                     /* update callback       */
+        free_spdu_signal_value_name_cb,                    /* free callback         */
+        post_update_spdu_signal_value_names_cb,            /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_parameter_value_name_uat_fields               /* UAT field definitions */
     );
 
     /* value names must be for signals since we need this data for the later */
@@ -2737,17 +2739,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_signal_list_uat = uat_new("Signal PDU Signal List",
-        sizeof(spdu_signal_list_uat_t), DATAFILE_SPDU_SIGNALS, TRUE,
-        (void **)&spdu_signal_list,
-        &spdu_signal_list_num,
+        sizeof(spdu_signal_list_uat_t),                    /* record size           */
+        DATAFILE_SPDU_SIGNALS,                             /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_signal_list,                        /* data_ptr              */
+        &spdu_signal_list_num,                             /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
-        NULL, /* help */
-        copy_spdu_signal_list_cb,
-        update_spdu_signal_list,
-        free_spdu_signal_list_cb,
-        post_update_spdu_signal_list_cb,
-        reset_spdu_signal_list,
-        spdu_signal_list_uat_fields
+        NULL,                                              /* help                  */
+        copy_spdu_signal_list_cb,                          /* copy callback         */
+        update_spdu_signal_list,                           /* update callback       */
+        free_spdu_signal_list_cb,                          /* free callback         */
+        post_update_spdu_signal_list_cb,                   /* post update callback  */
+        reset_spdu_signal_list,                            /* reset callback        */
+        spdu_signal_list_uat_fields                        /* UAT field definitions */
     );
 
     static const char *spdu_signal_list_uat_defaults_[] = {
@@ -2764,17 +2768,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_someip_mapping_uat = uat_new("SOME/IP",
-        sizeof(spdu_someip_mapping_uat_t), DATAFILE_SPDU_SOMEIP_MAPPING, TRUE,
-        (void **)&spdu_someip_mapping,
-        &spdu_someip_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_someip_mapping_cb,
-        update_spdu_someip_mapping,
-        NULL,
-        post_update_spdu_someip_mapping_cb,
-        NULL, /* reset */
-        spdu_someip_mapping_uat_fields
+        sizeof(spdu_someip_mapping_uat_t),                 /* record size           */
+        DATAFILE_SPDU_SOMEIP_MAPPING,                      /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_someip_mapping,                     /* data_ptr              */
+        &spdu_someip_mapping_num,                          /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_someip_mapping_cb,                       /* copy callback         */
+        update_spdu_someip_mapping,                        /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_someip_mapping_cb,                /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_someip_mapping_uat_fields                     /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_someip_mapping", "SOME/IP Mappings",
@@ -2782,17 +2788,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_can_mapping_uat = uat_new("CAN",
-        sizeof(spdu_can_mapping_uat_t), DATAFILE_SPDU_CAN_MAPPING, TRUE,
-        (void **)&spdu_can_mapping,
-        &spdu_can_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_can_mapping_cb,
-        update_spdu_can_mapping,
-        NULL,
-        post_update_spdu_can_mapping_cb,
-        NULL, /* reset */
-        spdu_can_mapping_uat_fields
+        sizeof(spdu_can_mapping_uat_t),                    /* record size           */
+        DATAFILE_SPDU_CAN_MAPPING,                         /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_can_mapping,                        /* data_ptr              */
+        &spdu_can_mapping_num,                             /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_can_mapping_cb,                          /* copy callback         */
+        update_spdu_can_mapping,                           /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_can_mapping_cb,                   /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_can_mapping_uat_fields                        /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_can_mapping", "CAN Mappings",
@@ -2800,17 +2808,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_flexray_mapping_uat = uat_new("FlexRay",
-        sizeof(spdu_flexray_mapping_uat_t), DATAFILE_SPDU_FLEXRAY_MAPPING, TRUE,
-        (void **)&spdu_flexray_mapping,
-        &spdu_flexray_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_flexray_mapping_cb,
-        update_spdu_flexray_mapping,
-        NULL,
-        post_update_spdu_flexray_mapping_cb,
-        NULL, /* reset */
-        spdu_flexray_mapping_uat_fields
+        sizeof(spdu_flexray_mapping_uat_t),                /* record size           */
+        DATAFILE_SPDU_FLEXRAY_MAPPING,                     /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_flexray_mapping,                    /* data_ptr              */
+        &spdu_flexray_mapping_num,                         /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_flexray_mapping_cb,                      /* copy callback         */
+        update_spdu_flexray_mapping,                       /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_flexray_mapping_cb,               /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_flexray_mapping_uat_fields                    /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_flexray_mapping", "FlexRay Mappings",
@@ -2818,17 +2828,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_lin_mapping_uat = uat_new("LIN",
-        sizeof(spdu_lin_mapping_uat_t), DATAFILE_SPDU_LIN_MAPPING, TRUE,
-        (void **)&spdu_lin_mapping,
-        &spdu_lin_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_lin_mapping_cb,
-        update_spdu_lin_mapping,
-        NULL,
-        post_update_spdu_lin_mapping_cb,
-        NULL, /* reset */
-        spdu_lin_mapping_uat_fields
+        sizeof(spdu_lin_mapping_uat_t),                    /* record size           */
+        DATAFILE_SPDU_LIN_MAPPING,                         /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_lin_mapping,                        /* data_ptr              */
+        &spdu_lin_mapping_num,                             /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_lin_mapping_cb,                          /* copy callback         */
+        update_spdu_lin_mapping,                           /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_lin_mapping_cb,                   /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_lin_mapping_uat_fields                        /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_lin_mapping", "LIN Mappings",
@@ -2836,17 +2848,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_pdu_transport_mapping_uat = uat_new("PDU Transport",
-        sizeof(spdu_pdu_transport_mapping_uat_t), DATAFILE_SPDU_PDU_TRANSPORT_MAPPING, TRUE,
-        (void **)&spdu_pdu_transport_mapping,
-        &spdu_pdu_transport_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_pdu_transport_mapping_cb,
-        update_spdu_pdu_transport_mapping,
-        NULL,
-        post_update_spdu_pdu_transport_mapping_cb,
-        NULL, /* reset */
-        spdu_pdu_transport_mapping_uat_fields
+        sizeof(spdu_pdu_transport_mapping_uat_t),          /* record size           */
+        DATAFILE_SPDU_PDU_TRANSPORT_MAPPING,               /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_pdu_transport_mapping,              /* data_ptr              */
+        &spdu_pdu_transport_mapping_num,                   /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_pdu_transport_mapping_cb,                /* copy callback         */
+        update_spdu_pdu_transport_mapping,                 /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_pdu_transport_mapping_cb,         /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_pdu_transport_mapping_uat_fields              /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_pdu_transport_mapping", "PDU Transport Mappings",
@@ -2854,17 +2868,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_ipdum_mapping_uat = uat_new("AUTOSAR I-PduM",
-        sizeof(spdu_ipdum_mapping_uat_t), DATAFILE_SPDU_IPDUM_MAPPING, TRUE,
-        (void **)&spdu_ipdum_mapping,
-        &spdu_ipdum_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_ipdum_mapping_cb,
-        update_spdu_ipdum_mapping,
-        NULL,
-        post_update_spdu_ipdum_mapping_cb,
-        NULL, /* reset */
-        spdu_ipdum_mapping_uat_fields
+        sizeof(spdu_ipdum_mapping_uat_t),                  /* record size           */
+        DATAFILE_SPDU_IPDUM_MAPPING,                       /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_ipdum_mapping,                      /* data_ptr              */
+        &spdu_ipdum_mapping_num,                           /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_ipdum_mapping_cb,                        /* copy callback         */
+        update_spdu_ipdum_mapping,                         /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_ipdum_mapping_cb,                 /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_ipdum_mapping_uat_fields                      /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_ipdum_mapping", "IPduM Mappings",
@@ -2872,17 +2888,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_dlt_mapping_uat = uat_new("DLT",
-        sizeof(spdu_dlt_mapping_uat_t), DATAFILE_SPDU_DLT_MAPPING, TRUE,
-        (void **)&spdu_dlt_mapping,
-        &spdu_dlt_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_dlt_mapping_cb,
-        update_spdu_dlt_mapping,
-        NULL,
-        post_update_spdu_dlt_mapping_cb,
-        NULL, /* reset */
-        spdu_dlt_mapping_uat_fields
+        sizeof(spdu_dlt_mapping_uat_t),                    /* record size           */
+        DATAFILE_SPDU_DLT_MAPPING,                         /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_dlt_mapping,                        /* data_ptr              */
+        &spdu_dlt_mapping_num,                             /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_dlt_mapping_cb,                          /* copy callback         */
+        update_spdu_dlt_mapping,                           /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_dlt_mapping_cb,                   /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_dlt_mapping_uat_fields                        /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_dlt_mapping", "DLT Mappings",
@@ -2890,17 +2908,19 @@ proto_register_signal_pdu(void) {
 
 
     spdu_uds_mapping_uat = uat_new("UDS",
-        sizeof(spdu_uds_mapping_uat_t), DATAFILE_SPDU_UDS_MAPPING, TRUE,
-        (void **)&spdu_uds_mapping,
-        &spdu_uds_mapping_num,
-        UAT_AFFECTS_DISSECTION,
-        NULL, /* help */
-        copy_spdu_uds_mapping_cb,
-        update_spdu_uds_mapping,
-        NULL,
-        post_update_spdu_uds_mapping_cb,
-        NULL, /* reset */
-        spdu_uds_mapping_uat_fields
+        sizeof(spdu_uds_mapping_uat_t),                    /* record size           */
+        DATAFILE_SPDU_UDS_MAPPING,                         /* filename              */
+        TRUE,                                              /* from profile          */
+        (void **)&spdu_uds_mapping,                        /* data_ptr              */
+        &spdu_uds_mapping_num,                             /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_spdu_uds_mapping_cb,                          /* copy callback         */
+        update_spdu_uds_mapping,                           /* update callback       */
+        NULL,                                              /* free callback         */
+        post_update_spdu_uds_mapping_cb,                   /* post update callback  */
+        NULL,                                              /* reset callback        */
+        spdu_uds_mapping_uat_fields                        /* UAT field definitions */
     );
 
     prefs_register_uat_preference(spdu_module, "_spdu_uds_mapping", "UDS Mappings",
