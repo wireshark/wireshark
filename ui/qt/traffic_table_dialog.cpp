@@ -63,6 +63,9 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
     connect(ui->absoluteTimeCheckBox, &QCheckBox::toggled, ui->trafficTab, &TrafficTab::useAbsoluteTime);
     connect(ui->trafficTab, &TrafficTab::retapRequired, &cap_file_, &CaptureFile::delayedRetapPackets);
 
+    connect(ui->trafficListSearch, &QLineEdit::textChanged, ui->trafficList, &TrafficTypesList::filterList);
+    connect(ui->trafficList, &TrafficTypesList::clearFilterList, ui->trafficListSearch, &QLineEdit::clear);
+
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt)
         close_bt->setDefault(true);

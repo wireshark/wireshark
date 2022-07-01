@@ -93,6 +93,19 @@
         <item>
          <widget class="TrafficTypesList" name="trafficList"/>
         </item>
+        <item>
+         <widget class="QLineEdit" name="trafficListSearch">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>Filter list for specific type</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>

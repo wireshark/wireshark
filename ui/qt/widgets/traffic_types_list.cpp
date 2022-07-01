@@ -199,6 +199,30 @@ bool TrafficListSortModel::lessThan(const QModelIndex &source_left, const QModel
     return QSortFilterProxyModel::lessThan(source_left, source_right);
 }
 
+void TrafficListSortModel::setFilter(QString filter)
+{
+    if ( filter.compare(_filter) != 0 ) {
+        _filter = filter;
+        invalidateFilter();
+    }
+}
+
+bool TrafficListSortModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    if (sourceModel() && _filter.length() > 0) {
+        QModelIndex idx = sourceModel()->index(source_row, TrafficTypesModel::COL_NAME);
+
+        if (idx.isValid()) {
+            QString name = idx.data().toString();
+            if (name.contains(_filter, Qt::CaseInsensitive))
+                return true;
+            return false;
+        }
+    }
+
+    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}
+
 
 TrafficTypesList::TrafficTypesList(QWidget *parent) :
     QTreeView(parent)
@@ -214,11 +238,11 @@ void TrafficTypesList::setProtocolInfo(QString name, GList ** recentList)
 {
     _name = name;
 
-    TrafficListSortModel * sortModel = new TrafficListSortModel();
+    _sortModel = new TrafficListSortModel();
 
     _model = new TrafficTypesModel(recentList);
-    sortModel->setSourceModel(_model);
-    setModel(sortModel);
+    _sortModel->setSourceModel(_model);
+    setModel(_sortModel);
 
     setSortingEnabled(true);
     sortByColumn(TrafficTypesModel::COL_NAME, Qt::AscendingOrder);
@@ -231,8 +255,10 @@ void TrafficTypesList::setProtocolInfo(QString name, GList ** recentList)
 
 void TrafficTypesList::selectProtocols(QList<int> protocols)
 {
-    if (_model)
+    if (_model) {
         _model->selectProtocols(protocols);
+        emit clearFilterList();
+    }
 }
 
 QList<int> TrafficTypesList::protocols(bool onlySelected) const
@@ -248,5 +274,10 @@ QList<int> TrafficTypesList::protocols(bool onlySelected) const
     }
 
     return entries;
+}
+
+void TrafficTypesList::filterList(QString filter)
+{
+    _sortModel->setFilter(filter);
 }
 
