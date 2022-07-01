@@ -88,6 +88,7 @@ QWidget *ColumnTypeDelegate::createEditor(QWidget *parent,
     else if (index.column() == ColumnListModel::COL_FIELDS)
     {
         FieldFilterEdit * ff_editor = new FieldFilterEdit(parent);
+        connect(ff_editor, &FieldFilterEdit::textChanged, ff_editor, &FieldFilterEdit::checkCustomColumn);
         ff_editor->setText(index.data().toString());
         editor = ff_editor;
     }
@@ -149,8 +150,7 @@ void ColumnTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
         FieldFilterEdit * ffe = qobject_cast<FieldFilterEdit *>(editor);
         if (ffe)
         {
-            if (ffe->checkFilter())
-            {
+            if (ffe->syntaxState() == SyntaxLineEdit::Valid) {
                 QModelIndex typeIndex = index.sibling(index.row(), ColumnListModel::COL_TYPE);
                 model->setData(typeIndex, COL_CUSTOM, Qt::EditRole);
                 model->setData(index, ffe->text(), Qt::EditRole);
