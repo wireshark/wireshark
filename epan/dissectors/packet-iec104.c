@@ -662,7 +662,8 @@ static guint global_iec60870_ioa_len = 2;
 
 /* Protocol fields to be filtered */
 static int hf_apdulen = -1;
-static int hf_apcitype = -1;
+static int hf_apcitype_i = -1;
+static int hf_apcitype_s_u = -1;
 static int hf_apciutype = -1;
 static int hf_apcitx = -1;
 static int hf_apcirx = -1;
@@ -2061,7 +2062,7 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
 	guint TcpLen = tvb_reported_length(tvb);
 	guint8 Start, len, type, temp8;
-	guint16 apci_txid, apci_rxid;
+	guint32 apci_txid, apci_rxid, apci_u_type;
 	guint Off;
 	proto_item *it104, *ti;
 	proto_tree *it104tree;
@@ -2105,9 +2106,9 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				type = temp8 & 0x03;
 
 			if (type == I_TYPE)
-				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 7, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(it104tree, hf_apcitype_i, tvb, Off + 2, 4, ENC_LITTLE_ENDIAN);
 			else
-				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 6, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(it104tree, hf_apcitype_s_u, tvb, Off + 2, 4, ENC_LITTLE_ENDIAN);
 
 			if (len <= APDU_MAX_LEN) {
 				wmem_strbuf_append_printf(res, "%s %s ",
@@ -2120,20 +2121,17 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 			switch(type) {
 			case I_TYPE:
-				apci_txid = tvb_get_letohs(tvb, Off + 2) >> 1;
-				apci_rxid = tvb_get_letohs(tvb, Off + 4) >> 1;
+				proto_tree_add_item_ret_uint(it104tree, hf_apcitx, tvb, Off + 2, 4, ENC_LITTLE_ENDIAN, &apci_txid);
+				proto_tree_add_item_ret_uint(it104tree, hf_apcirx, tvb, Off + 2, 4, ENC_LITTLE_ENDIAN, &apci_rxid);
 				wmem_strbuf_append_printf(res, "(%d,%d) ", apci_txid, apci_rxid);
-				proto_tree_add_uint(it104tree, hf_apcitx, tvb, Off+2, 2, apci_txid);
-				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, apci_rxid);
 				break;
 			case S_TYPE:
-				apci_rxid = tvb_get_letohs(tvb, Off + 4) >> 1;
+				proto_tree_add_item_ret_uint(it104tree, hf_apcirx, tvb, Off + 2, 4, ENC_LITTLE_ENDIAN, &apci_rxid);
 				wmem_strbuf_append_printf(res, "(%d) ", apci_rxid);
-				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, apci_rxid);
 				break;
 			case U_TYPE:
-				wmem_strbuf_append_printf(res, "(%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
-				proto_tree_add_item(it104tree, hf_apciutype, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item_ret_uint(it104tree, hf_apciutype, tvb, Off + 2, 4, ENC_LITTLE_ENDIAN, &apci_u_type);
+				wmem_strbuf_append_printf(res, "(%s) ", val_to_str_const(apci_u_type, u_types, "<ERR>"));
 				break;
 			}
 
@@ -2270,20 +2268,24 @@ proto_register_iec60870_104(void)
 		  { "ApduLen", "iec60870_104.apdulen", FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "APDU Len", HFILL }},
 
-		{ &hf_apcitype,
-		  { "Type", "iec60870_104.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x00,
+		{ &hf_apcitype_i,
+		  { "Type", "iec60870_104.type", FT_UINT32, BASE_HEX, VALS(apci_types), 0x00000001,
+		    "APCI type", HFILL }},
+
+		{ &hf_apcitype_s_u,
+		  { "Type", "iec60870_104.type", FT_UINT32, BASE_HEX, VALS(apci_types), 0x00000003,
 		    "APCI type", HFILL }},
 
 		{ &hf_apciutype,
-		  { "UType", "iec60870_104.utype", FT_UINT8, BASE_HEX, VALS(u_types), 0xFC,
+		  { "UType", "iec60870_104.utype", FT_UINT32, BASE_HEX, VALS(u_types), 0x000000FC,
 		    "Apci U type", HFILL }},
 
 		{ &hf_apcitx,
-		  { "Tx", "iec60870_104.tx", FT_UINT16, BASE_DEC, NULL, 0,
+		  { "Tx", "iec60870_104.tx", FT_UINT32, BASE_DEC, NULL, 0x0000FFFE,
 		    NULL, HFILL }},
 
 		{ &hf_apcirx,
-		  { "Rx", "iec60870_104.rx", FT_UINT16, BASE_DEC, NULL, 0,
+		  { "Rx", "iec60870_104.rx", FT_UINT32, BASE_DEC, NULL, 0xFFFE0000,
 		    NULL, HFILL }},
 
 		{ &hf_apcidata,
