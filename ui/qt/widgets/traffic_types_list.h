@@ -88,7 +88,7 @@ public:
     TrafficListSortModel(QObject * parent = nullptr);
 
 protected:
-    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 };
 
 
@@ -100,8 +100,7 @@ public:
     TrafficTypesList(QWidget *parent = nullptr);
 
     void setProtocolInfo(QString name, GList ** recentList);
-    QList<int> protocols() const;
-    QList<int> selectedProtocols() const;
+    QList<int> protocols(bool onlySelected = false) const;
 
 public slots:
     void selectProtocols(QList<int> protocols);

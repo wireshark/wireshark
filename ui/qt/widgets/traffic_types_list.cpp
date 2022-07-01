@@ -235,28 +235,18 @@ void TrafficTypesList::selectProtocols(QList<int> protocols)
         _model->selectProtocols(protocols);
 }
 
-QList<int> TrafficTypesList::protocols() const
+QList<int> TrafficTypesList::protocols(bool onlySelected) const
 {
     QList<int> entries;
     for (int cnt = 0; cnt < _model->rowCount(); cnt++) {
         QModelIndex idx = _model->index(cnt, TrafficTypesModel::COL_CHECKED);
         int protoId = _model->data(idx, TrafficTypesModel::TRAFFIC_PROTOCOL).toInt();
-        if (protoId > 0 && ! entries.contains(protoId))
-            entries.append(protoId);
+        if (protoId > 0 && ! entries.contains(protoId)) {
+            if (!onlySelected || _model->data(idx, TrafficTypesModel::TRAFFIC_IS_CHECKED).toBool())
+                entries.append(protoId);
+        }
     }
 
     return entries;
 }
 
-QList<int> TrafficTypesList::selectedProtocols() const
-{
-    QList<int> entries;
-    for (int cnt = 0; cnt < _model->rowCount(); cnt++) {
-        QModelIndex idx = _model->index(cnt, TrafficTypesModel::COL_CHECKED);
-        int protoId = _model->data(idx, TrafficTypesModel::TRAFFIC_PROTOCOL).toInt();
-        if (protoId > 0 && ! entries.contains(protoId) && _model->data(idx, TrafficTypesModel::TRAFFIC_IS_CHECKED).toBool())
-            entries.append(protoId);
-    }
-
-    return entries;
-}

@@ -51,8 +51,6 @@ public:
     explicit TrafficTableDialog(QWidget &parent, CaptureFile &cf, const QString &table_name = tr("Unknown"));
     ~TrafficTableDialog();
 
-public slots:
-
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
     void openFollowStreamDialog(follow_type_t type);

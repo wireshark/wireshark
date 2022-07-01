@@ -241,7 +241,7 @@ void TrafficTab::setProtocolInfo(QString tableName, TrafficTypesList * trafficLi
 
     _recentColumnList = recentColumnList;
 
-    setOpenTabs(trafficList->selectedProtocols());
+    setOpenTabs(trafficList->protocols(true));
 }
 
 void TrafficTab::setDelegate(int column, ATapCreateDelegate createDelegate)
