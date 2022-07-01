@@ -58,7 +58,8 @@ public:
         COL_TITLE,
         COL_TYPE,
         COL_FIELDS,
-        COL_OCCURRENCE
+        COL_OCCURRENCE,
+        COL_RESOLVED
     };
 
     enum {

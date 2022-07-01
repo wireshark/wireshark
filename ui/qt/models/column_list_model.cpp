@@ -33,6 +33,7 @@ struct ListElement
     int originalType;
     int occurrence;
     bool displayed;
+    bool resolved;
 };
 
 static QList<ListElement> store_;
@@ -216,7 +217,7 @@ ColumnListModel::ColumnListModel(QObject * parent):
 
 QVariant ColumnListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (section > ColumnListModel::COL_OCCURRENCE || orientation != Qt::Horizontal ||
+    if (section > ColumnListModel::COL_RESOLVED || orientation != Qt::Horizontal ||
         role != Qt::DisplayRole)
         return QVariant();
 
@@ -230,7 +231,7 @@ int ColumnListModel::rowCount(const QModelIndex &/*parent*/) const
 
 int ColumnListModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    return ColumnListModel::COL_OCCURRENCE + 1;
+    return ColumnListModel::COL_RESOLVED + 1;
 }
 
 QString ColumnListModel::headerTitle(int section) const
@@ -247,6 +248,8 @@ QString ColumnListModel::headerTitle(int section) const
             return tr("Fields");
         case ColumnListModel::COL_OCCURRENCE:
             return tr("Field Occurrence");
+        case ColumnListModel::COL_RESOLVED:
+            return tr("Resolved");
     }
 
     return QString();
@@ -267,6 +270,7 @@ void ColumnListModel::populate()
         ne.type = ne.originalType = cfmt->fmt;
         ne.customFields = cfmt->custom_fields;
         ne.occurrence = cfmt->custom_occurrence;
+        ne.resolved = cfmt->resolved;
 
         nr++;
         store_ << ne;
@@ -285,6 +289,7 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
         switch (index.column())
         {
             case COL_DISPLAYED:
+            case COL_RESOLVED:
                 return QVariant();
             case ColumnListModel::COL_TITLE:
                 return ne.title;
@@ -301,6 +306,20 @@ QVariant ColumnListModel::data(const QModelIndex &index, int role) const
         if (index.column() == COL_DISPLAYED)
         {
             return ne.displayed ? Qt::Checked : Qt::Unchecked;
+        }
+        else if (index.column() == COL_RESOLVED)
+        {
+            QModelIndex fieldsIndex = index.sibling(index.row(), ColumnListModel::COL_FIELDS);
+            if (column_prefs_custom_resolve(fieldsIndex.data().toString().toUtf8().constData())) {
+                return ne.resolved ? Qt::Checked : Qt::Unchecked;
+            }
+        }
+    }
+    else if (role == Qt::ToolTipRole)
+    {
+        if (index.column() == COL_RESOLVED)
+        {
+            return tr("<html>Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.</html>");
         }
     }
     else if (role == OriginalType)
@@ -320,10 +339,11 @@ Qt::ItemFlags ColumnListModel::flags(const QModelIndex &index) const
 
         Qt::ItemFlags flags = Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
 
-        if (index.column() == COL_DISPLAYED)
+        if (index.column() == COL_DISPLAYED || index.column() == COL_RESOLVED) {
             flags |= Qt::ItemIsUserCheckable;
-
-        flags |= Qt::ItemIsEditable;
+        } else {
+            flags |= Qt::ItemIsEditable;
+        }
 
         return flags;
     }
@@ -429,6 +449,10 @@ bool ColumnListModel::setData(const QModelIndex &index, const QVariant &value, i
         if (ok)
             store_[index.row()].occurrence = val;
     }
+    else if (role == Qt::CheckStateRole && index.column() == ColumnListModel::COL_RESOLVED)
+    {
+        store_[index.row()].resolved = value.toInt() == Qt::Checked ? true : false;
+    }
 
     if (change)
         emit dataChanged(index, index);
@@ -453,6 +477,7 @@ void ColumnListModel::saveColumns()
         {
             cfmt->custom_fields = qstring_strdup(elem.customFields);
             cfmt->custom_occurrence = elem.occurrence;
+            cfmt->resolved = elem.resolved;
         }
 
         new_col_list = g_list_append(new_col_list, cfmt);
@@ -474,6 +499,7 @@ void ColumnListModel::addEntry()
     elem.type = elem.originalType = COL_NUMBER;
     elem.occurrence = 0;
     elem.customFields = QString();
+    elem.resolved = true;
     store_ << elem;
     endInsertRows();
 }
