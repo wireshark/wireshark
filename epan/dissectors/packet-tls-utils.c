@@ -4745,13 +4745,15 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 
 static gint
 dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
-        guint32 datalen, guint8* mac)
+        guint32 datalen, guint8* mac, const guchar *cid, guint8 cidl)
 {
     SSL_HMAC hm;
     gint     md;
     guint32  len;
     guint8   buf[DIGEST_MAX_SIZE];
     gint16   temp;
+
+    gboolean is_cid = ((ct == SSL_ID_TLS12_CID) && (ver == DTLSV1DOT2_VERSION));
 
     md=ssl_get_digest_by_name(ssl_cipher_suite_dig(decoder->cipher_suite)->name);
     ssl_debug_printf("dtls_check_mac mac type:%s md %d\n",
@@ -4763,26 +4765,54 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
         return -1;
 
     ssl_debug_printf("dtls_check_mac seq: %" PRIu64 " epoch: %d\n",decoder->seq,decoder->epoch);
-    /* hash sequence number */
-    phton64(buf, decoder->seq);
-    buf[0]=decoder->epoch>>8;
-    buf[1]=(guint8)decoder->epoch;
 
-    ssl_hmac_update(&hm,buf,8);
+    if (is_cid) {
+        /* hash seq num placeholder */
+        memset(buf,0xFF,8);
+        ssl_hmac_update(&hm,buf,8);
 
-    /* hash content type */
-    buf[0]=ct;
-    ssl_hmac_update(&hm,buf,1);
+        /* hash content type + cid length + content type */
+        buf[0]=ct;
+        buf[1]=cidl;
+        buf[2]=ct;
+        ssl_hmac_update(&hm,buf,3);
 
-    /* hash version,data length and data */
-    temp = g_htons(ver);
-    memcpy(buf, &temp, 2);
-    ssl_hmac_update(&hm,buf,2);
+        /* hash version */
+        temp = g_htons(ver);
+        memcpy(buf, &temp, 2);
+        ssl_hmac_update(&hm,buf,2);
 
+        /* hash sequence number */
+        phton64(buf, decoder->seq);
+        buf[0]=decoder->epoch>>8;
+        buf[1]=(guint8)decoder->epoch;
+        ssl_hmac_update(&hm,buf,8);
+
+        /* hash cid */
+        ssl_hmac_update(&hm,cid,cidl);
+    } else {
+        /* hash sequence number */
+        phton64(buf, decoder->seq);
+        buf[0]=decoder->epoch>>8;
+        buf[1]=(guint8)decoder->epoch;
+        ssl_hmac_update(&hm,buf,8);
+
+        /* hash content type */
+        buf[0]=ct;
+        ssl_hmac_update(&hm,buf,1);
+
+        /* hash version */
+        temp = g_htons(ver);
+        memcpy(buf, &temp, 2);
+        ssl_hmac_update(&hm,buf,2);
+    }
+
+    /* data length and data */
     temp = g_htons(datalen);
     memcpy(buf, &temp, 2);
     ssl_hmac_update(&hm,buf,2);
     ssl_hmac_update(&hm,data,datalen);
+
     /* get digest and digest len */
     len = sizeof(buf);
     ssl_hmac_final(&hm,buf,&len);
@@ -5192,7 +5222,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         ssl->session.version==DTLSV1DOT2_VERSION ||
         ssl->session.version==DTLSV1DOT0_OPENSSL_VERSION){
         /* Try rfc-compliant mac first, and if failed, try old openssl's non-rfc-compliant mac */
-        if(dtls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac)>= 0) {
+        if(dtls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac,cid,cidl)>= 0) {
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
         else if(tls_check_mac(decoder,ct,TLSV1_VERSION,mac_frag,mac_fraglen,mac)>= 0) {
