@@ -55,6 +55,8 @@
 #include <wsutil/report_message.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
+#include "packet-tls.h"
+#include "packet-dtls.h"
 #include "packet-e212.h"
 #include "packet-e164.h"
 
@@ -320,8 +322,10 @@ static dissector_handle_t diameter_udp_handle;
 static dissector_handle_t diameter_tcp_handle;
 static dissector_handle_t diameter_sctp_handle;
 static range_t *global_diameter_sctp_port_range;
-/* This is used for TCP and SCTP */
+/* This is IANA registered for TCP and SCTP (and reserved for UDP) */
 #define DEFAULT_DIAMETER_PORT_RANGE "3868"
+/* This is IANA registered for TLS/TCP and DTLS/SCTP (and reserved for UDP) */
+#define DEFAULT_DIAMETER_TLS_PORT 5868
 
 /* desegmentation of Diameter over TCP */
 static gboolean gbl_diameter_desegment = TRUE;
@@ -2576,6 +2580,7 @@ proto_register_diameter(void)
 
 	/* Allow dissector to find be found by name. */
 	diameter_sctp_handle = register_dissector("diameter", dissect_diameter, proto_diameter);
+	diameter_tcp_handle = register_dissector("diameter.tcp", dissect_diameter_tcp, proto_diameter);
 	/* Diameter AVPs without Diameter header, for EAP-TTLS (RFC 5281, Section 10) */
 	register_dissector("diameter_avps", dissect_diameter_avps, proto_diameter);
 
@@ -2636,13 +2641,14 @@ proto_reg_handoff_diameter(void)
 	static range_t *diameter_sctp_port_range;
 
 	if (!Initialized) {
-		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
-							      proto_diameter);
 		diameter_udp_handle = create_dissector_handle(dissect_diameter, proto_diameter);
 		data_handle = find_dissector("data");
 		eap_handle = find_dissector_add_dependency("eap", proto_diameter);
 
 		dissector_add_uint("sctp.ppi", DIAMETER_PROTOCOL_ID, diameter_sctp_handle);
+
+		ssl_dissector_add(DEFAULT_DIAMETER_TLS_PORT, diameter_tcp_handle);
+		dtls_dissector_add(DEFAULT_DIAMETER_TLS_PORT, diameter_sctp_handle);
 
 		/* Register special decoding for some AVPs */
 
