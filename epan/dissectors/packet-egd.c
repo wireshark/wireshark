@@ -16,7 +16,10 @@
 
 #include <epan/packet.h>
 
-#define EGD_PORT 18246 /* 0x4746 - Not IANA registered */
+#define EGD_PORT 18246 /* 0x4746 "GF" for GE Fanuc - Not IANA registered */
+/* The above port is used for data packets. UDP port 7937 (also not registered)
+ * is used for configuration commands, but this dissector doesn't support them.
+ */
 
 #define EGD_ST_NONEW        0
 #define EGD_ST_NOERROR      1
@@ -76,6 +79,14 @@ static gint ett_status_item = -1;
 
 static int dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+  /* EGD Data messages are PDU type 13 (0x0d) and version 1.
+   * All other PDU types are Control messages, which are sent to a different
+   * port, each have a different format, and not handled by this dissector.
+   */
+  if (tvb_get_ntohs(tvb, 0) != 0x0d01) {
+    return 0;
+  }
+
   /* replace UDP with EGD in display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EGD");
 
