@@ -229,6 +229,7 @@ TrafficTypesList::TrafficTypesList(QWidget *parent) :
 {
     _name = QString();
     _model = nullptr;
+    _sortModel = nullptr;
 
     setAlternatingRowColors(true);
     setRootIsDecorated(false);
