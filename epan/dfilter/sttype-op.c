@@ -181,25 +181,25 @@ oper_todebug(const oper_t *oper)
 			s = "TEST_LE";
 			break;
 		case STNODE_OP_BITWISE_AND:
-			s = "STNODE_OP_BITWISE_AND";
+			s = "OP_BITWISE_AND";
 			break;
 		case STNODE_OP_UNARY_MINUS:
-			s = "STNODE_OP_UNARY_MINUS";
+			s = "OP_UNARY_MINUS";
 			break;
 		case STNODE_OP_ADD:
-			s = "STNODE_OP_ADD";
+			s = "OP_ADD";
 			break;
 		case STNODE_OP_SUBTRACT:
-			s = "STNODE_OP_SUBTRACT";
+			s = "OP_SUBTRACT";
 			break;
 		case STNODE_OP_MULTIPLY:
-			s = "STNODE_OP_MULTIPLY";
+			s = "OP_MULTIPLY";
 			break;
 		case STNODE_OP_DIVIDE:
-			s = "STNODE_OP_DIVIDE";
+			s = "OP_DIVIDE";
 			break;
 		case STNODE_OP_MODULO:
-			s = "STNODE_OP_MODULO";
+			s = "OP_MODULO";
 			break;
 		case STNODE_OP_CONTAINS:
 			s = "TEST_CONTAINS";
