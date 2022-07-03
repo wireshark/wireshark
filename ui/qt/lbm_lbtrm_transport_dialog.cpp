@@ -1487,7 +1487,7 @@ void LBMLBTRMTransportDialog::receiversDetailItemDoubleClicked(QTreeWidgetItem *
 
 void LBMLBTRMTransportDialog::custom_source_context_menuRequested(const QPoint & pos)
 {
-    m_source_context_menu->exec(m_source_header->mapToGlobal(pos));
+    m_source_context_menu->popup(m_source_header->mapToGlobal(pos));
 }
 
 void LBMLBTRMTransportDialog::actionSourceDataFrames_triggered(bool checked)

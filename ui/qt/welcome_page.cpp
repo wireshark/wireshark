@@ -371,25 +371,26 @@ void WelcomePage::showRecentContextMenu(QPoint pos)
     QListWidgetItem *li = recent_files_->itemAt(pos);
     if (!li) return;
 
-    QMenu recent_ctx_menu;
+    QMenu *recent_ctx_menu = new QMenu(this);
+    recent_ctx_menu->setAttribute(Qt::WA_DeleteOnClose);
 
     QString cf_path = li->data(Qt::UserRole).toString();
 
-    QAction *show_action = recent_ctx_menu.addAction(show_in_str_);
+    QAction *show_action = recent_ctx_menu->addAction(show_in_str_);
     show_action->setData(cf_path);
     connect(show_action, SIGNAL(triggered(bool)), this, SLOT(showRecentFolder()));
 
-    QAction *copy_action = recent_ctx_menu.addAction(tr("Copy file path"));
+    QAction *copy_action = recent_ctx_menu->addAction(tr("Copy file path"));
     copy_action->setData(cf_path);
     connect(copy_action, SIGNAL(triggered(bool)), this, SLOT(copyRecentPath()));
 
-    recent_ctx_menu.addSeparator();
+    recent_ctx_menu->addSeparator();
 
-    QAction *remove_action = recent_ctx_menu.addAction(tr("Remove from list"));
+    QAction *remove_action = recent_ctx_menu->addAction(tr("Remove from list"));
     remove_action->setData(cf_path);
     connect(remove_action, SIGNAL(triggered(bool)), this, SLOT(removeRecentPath()));
 
-    recent_ctx_menu.exec(recent_files_->mapToGlobal(pos));
+    recent_ctx_menu->popup(recent_files_->mapToGlobal(pos));
 }
 
 void WelcomePage::showRecentFolder()

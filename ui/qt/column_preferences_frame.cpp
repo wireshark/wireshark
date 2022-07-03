@@ -117,9 +117,10 @@ void ColumnPreferencesFrame::on_chkShowDisplayedOnly_stateChanged(int /*state*/)
 void ColumnPreferencesFrame::on_columnTreeView_customContextMenuRequested(const QPoint &pos)
 {
     QMenu * contextMenu = new QMenu(this);
+    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
     QAction * action = contextMenu->addAction(tr("Reset all changes"));
     connect(action, &QAction::triggered, this, &ColumnPreferencesFrame::resetAction);
-    contextMenu->exec(mapToGlobal(pos));
+    contextMenu->popup(mapToGlobal(pos));
 }
 
 void ColumnPreferencesFrame::resetAction(bool /*checked*/)

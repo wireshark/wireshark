@@ -194,7 +194,7 @@ void BluetoothHciSummaryDialog::keyPressEvent(QKeyEvent *event)
 
 void BluetoothHciSummaryDialog::tableContextMenu(const QPoint &pos)
 {
-    context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
+    context_menu_.popup(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
 }
 
 void BluetoothHciSummaryDialog::tableItemExpanded(QTreeWidgetItem *)

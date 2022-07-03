@@ -1007,9 +1007,9 @@ void IOGraphDialog::graphClicked(QMouseEvent *event)
         // XXX We should find some way to get ioPlot to handle a
         // contextMenuEvent instead.
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-        ctx_menu_.exec(event->globalPosition().toPoint());
+        ctx_menu_.popup(event->globalPosition().toPoint());
 #else
-        ctx_menu_.exec(event->globalPos());
+        ctx_menu_.popup(event->globalPos());
 #endif
     } else  if (mouse_drags_) {
         if (iop->axisRect()->rect().contains(event->pos())) {

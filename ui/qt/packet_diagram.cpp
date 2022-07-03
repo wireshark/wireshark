@@ -467,27 +467,28 @@ void PacketDiagram::contextMenuEvent(QContextMenuEvent *event)
     }
 
     QAction *action;
-    QMenu ctx_menu(this);
+    QMenu *ctx_menu = new QMenu(this);
+    ctx_menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    action = ctx_menu.addAction(tr("Show Field Values"));
+    action = ctx_menu->addAction(tr("Show Field Values"));
     action->setCheckable(true);
     action->setChecked(layout_->showFields());
     connect(action, &QAction::toggled, this, &PacketDiagram::showFieldsToggled);
 
-    ctx_menu.addSeparator();
+    ctx_menu->addSeparator();
 
-    action = ctx_menu.addAction(tr("Save Diagram As…"));
+    action = ctx_menu->addAction(tr("Save Diagram As…"));
     connect(action, &QAction::triggered, this, &PacketDiagram::saveAsTriggered);
 
-    action = ctx_menu.addAction(tr("Copy as Raster Image"));
+    action = ctx_menu->addAction(tr("Copy as Raster Image"));
     connect(action, &QAction::triggered, this, &PacketDiagram::copyAsRasterTriggered);
 
 #if defined(QT_SVG_LIB) && !defined(Q_OS_MAC)
-    action = ctx_menu.addAction(tr("…as SVG"));
+    action = ctx_menu->addAction(tr("…as SVG"));
     connect(action, &QAction::triggered, this, &PacketDiagram::copyAsSvgTriggered);
 #endif
 
-    ctx_menu.exec(event->globalPos());
+    ctx_menu->popup(event->globalPos());
 }
 
 void PacketDiagram::connectToMainWindow()

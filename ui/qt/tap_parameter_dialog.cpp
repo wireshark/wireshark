@@ -428,7 +428,7 @@ void TapParameterDialog::contextMenuEvent(QContextMenuEvent *event)
         fa->setEnabled(enable);
     }
 
-    ctx_menu_.exec(event->globalPos());
+    ctx_menu_.popup(event->globalPos());
 }
 
 void TapParameterDialog::addFilterActions()

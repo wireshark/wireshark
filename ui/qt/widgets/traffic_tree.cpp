@@ -65,7 +65,8 @@ void TrafficTreeHeaderView::headerContextMenu(const QPoint &pos)
     if (sender() != this || ! proxy)
         return;
 
-    QMenu ctxMenu;
+    QMenu * ctxMenu = new QMenu(this);
+    ctxMenu->setAttribute(Qt::WA_DeleteOnClose);
 
     for (int col = 0; col < tree->dataModel()->columnCount(); col++)
     {
@@ -74,12 +75,12 @@ void TrafficTreeHeaderView::headerContextMenu(const QPoint &pos)
         action->setCheckable(true);
         action->setChecked(proxy->columnVisible(col));
         action->setProperty("col_nr", col);
-        ctxMenu.addAction(action);
+        ctxMenu->addAction(action);
 
         connect(action, &QAction::triggered, this, &TrafficTreeHeaderView::columnTriggered);
     }
 
-    ctxMenu.exec(mapToGlobal(pos));
+    ctxMenu->popup(mapToGlobal(pos));
 }
 
 void TrafficTreeHeaderView::applyRecent()
@@ -175,7 +176,8 @@ void TrafficTree::customContextMenu(const QPoint &pos)
     if (sender() != this)
         return;
 
-    QMenu ctxMenu;
+    QMenu * ctxMenu = new QMenu(this);
+    ctxMenu->setAttribute(Qt::WA_DeleteOnClose);
     bool isConv = false;
 
     QModelIndex idx = indexAt(pos);
@@ -183,19 +185,19 @@ void TrafficTree::customContextMenu(const QPoint &pos)
     if (model)
         isConv = true;
 
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionApply, idx, isConv));
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionPrepare, idx, isConv));
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionFind, idx, isConv));
-    ctxMenu.addMenu(createActionSubMenu(FilterAction::ActionColorize, idx, isConv));
+    ctxMenu->addMenu(createActionSubMenu(FilterAction::ActionApply, idx, isConv));
+    ctxMenu->addMenu(createActionSubMenu(FilterAction::ActionPrepare, idx, isConv));
+    ctxMenu->addMenu(createActionSubMenu(FilterAction::ActionFind, idx, isConv));
+    ctxMenu->addMenu(createActionSubMenu(FilterAction::ActionColorize, idx, isConv));
 
-    ctxMenu.addSeparator();
-    ctxMenu.addMenu(createCopyMenu());
+    ctxMenu->addSeparator();
+    ctxMenu->addMenu(createCopyMenu());
 
-    ctxMenu.addSeparator();
-    QAction * act = ctxMenu.addAction(tr("Resize all columns to content"));
+    ctxMenu->addSeparator();
+    QAction * act = ctxMenu->addAction(tr("Resize all columns to content"));
     connect(act, &QAction::triggered, this, &TrafficTree::resizeAction);
 
-    ctxMenu.exec(mapToGlobal(pos));
+    ctxMenu->popup(mapToGlobal(pos));
 }
 
 static QMap<FilterAction::ActionDirection, int> fad_to_cd_;

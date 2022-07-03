@@ -1974,7 +1974,7 @@ void LBMLBTRUTransportDialog::receiversDetailItemDoubleClicked(QTreeWidgetItem *
 
 void LBMLBTRUTransportDialog::custom_source_context_menuRequested(const QPoint & pos)
 {
-    m_source_context_menu->exec(m_source_header->mapToGlobal(pos));
+    m_source_context_menu->popup(m_source_header->mapToGlobal(pos));
 }
 
 void LBMLBTRUTransportDialog::actionSourceDataFrames_triggered(bool checked)
@@ -2108,7 +2108,7 @@ void LBMLBTRUTransportDialog::actionSourceAutoResizeColumns_triggered(void)
 
 void LBMLBTRUTransportDialog::custom_receiver_context_menuRequested(const QPoint & pos)
 {
-    m_receiver_context_menu->exec(m_receiver_header->mapToGlobal(pos));
+    m_receiver_context_menu->popup(m_receiver_header->mapToGlobal(pos));
 }
 
 void LBMLBTRUTransportDialog::actionReceiverNAKFrames_triggered(bool checked)

@@ -136,7 +136,7 @@ void BluetoothAttServerAttributesDialog::keyPressEvent(QKeyEvent *event)
 
 void BluetoothAttServerAttributesDialog::tableContextMenu(const QPoint &pos)
 {
-    context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
+    context_menu_.popup(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
 }
 
 

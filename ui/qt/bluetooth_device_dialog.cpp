@@ -264,7 +264,7 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
 
 void BluetoothDeviceDialog::tableContextMenu(const QPoint &pos)
 {
-    context_menu_.exec(ui->tableWidget->viewport()->mapToGlobal(pos));
+    context_menu_.popup(ui->tableWidget->viewport()->mapToGlobal(pos));
 }
 
 void BluetoothDeviceDialog::on_actionCopy_Cell_triggered()

@@ -854,6 +854,7 @@ void ShowPacketBytesTextEdit::contextMenuEvent(QContextMenuEvent *event)
     QMenu *menu = createStandardContextMenu();
     QAction *action;
 
+    menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->addSeparator();
 
     action = menu->addAction(tr("Show Selected"));
@@ -864,8 +865,7 @@ void ShowPacketBytesTextEdit::contextMenuEvent(QContextMenuEvent *event)
     action->setEnabled(menus_enabled_);
     connect(action, SIGNAL(triggered()), this, SLOT(showAll()));
 
-    menu->exec(event->globalPos());
-    delete menu;
+    menu->popup(event->globalPos());
 }
 
 void ShowPacketBytesTextEdit::showSelected()

@@ -490,9 +490,10 @@ void InterfaceFrame::showRunOnFile(void)
 
 void InterfaceFrame::showContextMenu(QPoint pos)
 {
-    QMenu ctx_menu;
+    QMenu * ctx_menu = new QMenu(this);
+    ctx_menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    ctx_menu.addAction(tr("Start capture"), this, [=] () {
+    ctx_menu->addAction(tr("Start capture"), this, [=] () {
         QStringList ifaces;
         QModelIndexList selIndices = ui->interfaceTree->selectionModel()->selectedIndexes();
         foreach(QModelIndex idx, selIndices)
@@ -508,12 +509,12 @@ void InterfaceFrame::showContextMenu(QPoint pos)
         startCapture(ifaces);
     });
 
-    ctx_menu.addSeparator();
+    ctx_menu->addSeparator();
 
     QModelIndex actIndex = ui->interfaceTree->indexAt(pos);
     QModelIndex realIndex = proxy_model_.mapToSource(info_model_.mapToSource(actIndex));
     bool isHidden = realIndex.sibling(realIndex.row(), IFTREE_COL_HIDDEN).data(Qt::UserRole).toBool();
-    QAction * hideAction = ctx_menu.addAction(tr("Hide Interface"), this, [=] () {
+    QAction * hideAction = ctx_menu->addAction(tr("Hide Interface"), this, [=] () {
         /* Attention! Only realIndex.row is a 1:1 correlation to all_ifaces */
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, realIndex.row());
         device->hidden = ! device->hidden;
@@ -522,7 +523,7 @@ void InterfaceFrame::showContextMenu(QPoint pos)
     hideAction->setCheckable(true);
     hideAction->setChecked(isHidden);
 
-    ctx_menu.exec(ui->interfaceTree->mapToGlobal(pos));
+    ctx_menu->popup(ui->interfaceTree->mapToGlobal(pos));
 }
 
 void InterfaceFrame::on_warningLabel_linkActivated(const QString &link)

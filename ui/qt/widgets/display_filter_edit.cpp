@@ -140,9 +140,12 @@ void DisplayFilterEdit::connectToMainWindow()
 
 void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event) {
     QMenu *menu = this->createStandardContextMenu();
+    menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    if (menu->actions().count() <= 0)
+    if (menu->actions().count() <= 0) {
+        menu->deleteLater();
         return;
+    }
 
     QAction * first = menu->actions().at(0);
 
@@ -159,7 +162,7 @@ void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event) {
 
     menu->insertSeparator(first);
 
-    menu->exec(event->globalPos());
+    menu->popup(event->globalPos());
 }
 
 void DisplayFilterEdit::triggerAlignementAction()
@@ -762,11 +765,12 @@ void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, bool prepare
 
     FilterAction::Action filterAct = prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply;
     QMenu * applyMenu = FilterAction::createFilterMenu(filterAct, filterText, true, this);
+    applyMenu->setAttribute(Qt::WA_DeleteOnClose);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
-    applyMenu->exec(this->mapToGlobal(event->position().toPoint()));
+    applyMenu->popup(this->mapToGlobal(event->position().toPoint()));
 #else
-    applyMenu->exec(this->mapToGlobal(event->pos()));
+    applyMenu->popup(this->mapToGlobal(event->pos()));
 #endif
 }
 

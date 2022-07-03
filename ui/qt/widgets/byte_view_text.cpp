@@ -353,7 +353,7 @@ void ByteViewText::leaveEvent(QEvent *event)
 
 void ByteViewText::contextMenuEvent(QContextMenuEvent *event)
 {
-    ctx_menu_.exec(event->globalPos());
+    ctx_menu_.popup(event->globalPos());
 }
 
 // Private
