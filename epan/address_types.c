@@ -53,6 +53,14 @@ static address_type_t* type_list[MAX_ADDR_TYPE_VALUE + 1];
  */
 #define BUF_TOO_SMALL_ERR "[Buffer too small]"
 
+#define _addr_return_if_nospace(str_len, buf, buf_len) \
+        do { \
+                if ((str_len) > (buf_len)) { \
+                        (void)g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); \
+                        return buf_len; \
+                } \
+        } while (0)
+
 static void address_type_register(int addr_type, address_type_t *at)
 {
     /* Check input */
@@ -158,8 +166,10 @@ static const gchar* none_name_res_str(const address* addr _U_)
 /******************************************************************************
  * AT_ETHER
  ******************************************************************************/
-int ether_to_str(const address* addr, gchar *buf, int buf_len _U_)
+int ether_to_str(const address* addr, gchar *buf, int buf_len)
 {
+    _addr_return_if_nospace(18, buf, buf_len);
+
     bytes_to_hexstr_punct(buf, (const guint8*)addr->data, 6, ':');
     buf[17] = '\0';
     return ether_str_len(addr);
@@ -274,8 +284,10 @@ static int ipv6_name_res_len(void)
 /******************************************************************************
  * AT_IPX
  ******************************************************************************/
-static int ipx_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int ipx_to_str(const address* addr, gchar *buf, int buf_len)
 {
+    _addr_return_if_nospace(22, buf, buf_len);
+
     const guint8 *addrdata = (const guint8 *)addr->data;
     gchar *bufp = buf;
 
@@ -299,8 +311,10 @@ static int ipx_len(void)
 /******************************************************************************
  * AT_FC
  ******************************************************************************/
-static int fc_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int fc_to_str(const address* addr, gchar *buf, int buf_len)
 {
+    _addr_return_if_nospace(9, buf, buf_len);
+
     gchar *bufp = buf;
 
     bufp = bytes_to_hexstr_punct(bufp, (const guint8 *)addr->data, 3, '.');
@@ -339,8 +353,10 @@ static int fcwwn_str_len(const address* addr _U_)
     return 24;
 }
 
-static int fcwwn_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int fcwwn_to_str(const address* addr, gchar *buf, int buf_len)
 {
+    _addr_return_if_nospace(24, buf, buf_len);
+
     const guint8 *addrp = (const guint8*)addr->data;
 
     buf = bytes_to_hexstr_punct(buf, addrp, 8, ':'); /* 23 bytes */
@@ -405,8 +421,10 @@ static int stringz_addr_str_len(const address* addr)
 /******************************************************************************
  * AT_EUI64
  ******************************************************************************/
-static int eui64_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int eui64_addr_to_str(const address* addr, gchar *buf, int buf_len)
 {
+    _addr_return_if_nospace(EUI64_STR_LEN, buf, buf_len);
+
     buf = bytes_to_hexstr_punct(buf, (const guint8 *)addr->data, 8, ':');
     *buf = '\0'; /* NULL terminate */
     return EUI64_STR_LEN;
@@ -450,8 +468,10 @@ static int ib_str_len(const address* addr _U_)
 /******************************************************************************
  * AT_AX25
  ******************************************************************************/
-static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len)
 {
+    _addr_return_if_nospace(10, buf, buf_len);
+
     const guint8 *addrdata = (const guint8 *)addr->data;
     int i, ssid;
     gchar *bufp = buf;
@@ -496,27 +516,28 @@ static int ax25_len(void)
  * AT_VINES
  ******************************************************************************/
 
-static int vines_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int vines_addr_to_str(const address* addr, gchar *buf, int buf_len)
 {
-	const guint8 *addr_data = (const guint8 *)addr->data;
-	gchar *bufp = buf;
+    _addr_return_if_nospace(14, buf, buf_len);
+    const guint8 *addr_data = (const guint8 *)addr->data;
+    gchar *bufp = buf;
 
-	bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
-	*bufp++ = '.'; /* 1 byte */
-	bufp = word_to_hex(bufp, pntoh16(&addr_data[4])); /* 4 bytes */
-	*bufp++ = '\0'; /* NULL terminate */
+    bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
+    *bufp++ = '.'; /* 1 byte */
+    bufp = word_to_hex(bufp, pntoh16(&addr_data[4])); /* 4 bytes */
+    *bufp++ = '\0'; /* NULL terminate */
 
-	return (int)(bufp - buf);
+    return (int)(bufp - buf);
 }
 
 static int vines_addr_str_len(const address* addr _U_)
 {
-	return 14;
+    return 14;
 }
 
 static int vines_len(void)
 {
-	return VINES_ADDR_LEN;
+    return VINES_ADDR_LEN;
 }
 
 /******************************************************************************
