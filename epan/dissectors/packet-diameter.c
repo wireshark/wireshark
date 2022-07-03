@@ -1712,6 +1712,21 @@ dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	return tvb_reported_length(tvb);
 }
 
+static gboolean
+dissect_diameter_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	if (check_diameter(tvb) != IS_DIAMETER) {
+		return FALSE;
+	}
+
+	conversation_set_dissector(find_or_create_conversation(pinfo), diameter_tcp_handle);
+
+	tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
+			 get_diameter_pdu_len, dissect_diameter_common, data);
+
+	return TRUE;
+}
+
 static int
 dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2646,6 +2661,8 @@ proto_reg_handoff_diameter(void)
 		eap_handle = find_dissector_add_dependency("eap", proto_diameter);
 
 		dissector_add_uint("sctp.ppi", DIAMETER_PROTOCOL_ID, diameter_sctp_handle);
+
+		heur_dissector_add("tcp", dissect_diameter_tcp_heur, "Diameter over TCP", "diameter_tcp", proto_diameter, HEURISTIC_DISABLE);
 
 		ssl_dissector_add(DEFAULT_DIAMETER_TLS_PORT, diameter_tcp_handle);
 		dtls_dissector_add(DEFAULT_DIAMETER_TLS_PORT, diameter_sctp_handle);
