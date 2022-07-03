@@ -8994,18 +8994,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>パイプを開く</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>参照</translation>
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>パスを選択</translation>
     </message>
 </context>
 <context>
