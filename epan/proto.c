@@ -6397,10 +6397,14 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 static int
 protoo_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
 {
+	if (dest_size == 0) return 0;
+
 	gsize res = g_strlcpy(dest, src, dest_size);
 
-	if (res > dest_size)
-		res = dest_size;
+	/* At most dest_size - 1 characters will be copied
+         * (unless dest_size is 0). */
+	if (res >= dest_size)
+		res = dest_size - 1;
 	return (int) res;
 }
 
