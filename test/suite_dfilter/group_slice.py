@@ -78,3 +78,19 @@ class case_range(unittest.TestCase):
     def test_slice_range_5(self, checkDFilterSucceed):
         dfilter = "frame[20:] contains :12345678"
         checkDFilterSucceed(dfilter)
+
+    def test_slice_exists_1(self, checkDFilterCount):
+        dfilter = "frame[59]"
+        checkDFilterCount(dfilter, 1)
+
+    def test_slice_exists_2(self, checkDFilterCount):
+        dfilter = "frame[60]"
+        checkDFilterCount(dfilter, 0)
+
+    def test_slice_exists_3(self, checkDFilterCount):
+        dfilter = "frame[50-59]"
+        checkDFilterCount(dfilter, 1)
+
+    def test_slice_exists_4(self, checkDFilterCount):
+        dfilter = "frame[50-60]"
+        checkDFilterCount(dfilter, 0)

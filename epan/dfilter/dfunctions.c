@@ -73,30 +73,6 @@ df_func_upper(GSList *args, guint32 arg_count, GSList **retval)
     return string_walk(args, arg_count, retval, g_ascii_toupper);
 }
 
-/* dfilter function: len() */
-static gboolean
-df_func_len(GSList *args, guint32 arg_count, GSList **retval)
-{
-    GSList      *arg1;
-    fvalue_t    *arg_fvalue;
-    fvalue_t    *ft_len;
-
-    ws_assert(arg_count == 1);
-    arg1 = args->data;
-    if (arg1 == NULL)
-        return FALSE;
-
-    while (arg1) {
-        arg_fvalue = (fvalue_t *)arg1->data;
-        ft_len = fvalue_new(FT_UINT32);
-        fvalue_set_uinteger(ft_len, fvalue_length(arg_fvalue));
-        *retval = g_slist_prepend(*retval, ft_len);
-        arg1 = arg1->next;
-    }
-
-    return TRUE;
-}
-
 /* dfilter function: count() */
 static gboolean
 df_func_count(GSList *args, guint32 arg_count, GSList **retval)
@@ -460,7 +436,8 @@ static df_func_def_t
 df_functions[] = {
     { "lower",  df_func_lower,  1, 1, ul_semcheck_is_field_string },
     { "upper",  df_func_upper,  1, 1, ul_semcheck_is_field_string },
-    { "len",    df_func_len,    1, 1, ul_semcheck_is_field },
+    /* Length function is implemented as a DFVM instruction. */
+    { "len",    NULL,           1, 1, ul_semcheck_is_field },
     { "count",  df_func_count,  1, 1, ul_semcheck_is_field },
     { "string", df_func_string, 1, 1, ul_semcheck_string_param },
     { "max",    df_func_max,    1, 0, ul_semcheck_compare },
@@ -476,7 +453,7 @@ df_func_lookup(const char *name)
     df_func_def_t *func_def;
 
     func_def = df_functions;
-    while (func_def->function != NULL) {
+    while (func_def->name != NULL) {
         if (strcmp(func_def->name, name) == 0) {
             return func_def;
         }

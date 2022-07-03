@@ -3839,7 +3839,7 @@ set(_test_group_list
 	suite_dfilter.group_integer_1byte
 	suite_dfilter.group_ipv4
 	suite_dfilter.group_membership
-	suite_dfilter.group_range_method
+	suite_dfilter.group_slice
 	suite_dfilter.group_scanner
 	suite_dfilter.group_string_type
 	suite_dfilter.group_stringz

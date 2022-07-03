@@ -454,7 +454,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
-		case STTYPE_ARITHMETIC:
 			/* This is OK */
 			break;
 		case STTYPE_REFERENCE:
@@ -463,16 +462,6 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_CHARCONST:
 			FAIL(dfw, st_arg1, "%s is neither a field nor a protocol name.",
 					stnode_todisplay(st_arg1));
-			break;
-
-		case STTYPE_SLICE:
-			/*
-			 * XXX - why not?  Shouldn't "eth[3:2]" mean
-			 * "check whether the 'eth' field is present and
-			 * has at least 2 bytes starting at an offset of
-			 * 3"?
-			 */
-			FAIL(dfw, st_arg1, "You cannot test whether a slice is present.");
 			break;
 
 		case STTYPE_FUNCTION:
@@ -487,6 +476,8 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 		case STTYPE_TEST:
 		case STTYPE_FVALUE:
 		case STTYPE_PCRE:
+		case STTYPE_ARITHMETIC:
+		case STTYPE_SLICE:
 			ws_assert_not_reached();
 	}
 }
@@ -1254,6 +1245,9 @@ semcheck(dfwork_t *dfw, stnode_t *st_node)
 			break;
 		case STTYPE_ARITHMETIC:
 			check_arithmetic_expr(dfw, st_node, FT_NONE);
+			break;
+		case STTYPE_SLICE:
+			check_slice_sanity(dfw, st_node, FT_NONE);
 			break;
 		default:
 			check_exists(dfw, st_node);

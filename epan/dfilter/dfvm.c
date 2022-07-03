@@ -53,6 +53,7 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case DFVM_ALL_IN_RANGE:		return "ALL_IN_RANGE";
 		case DFVM_ANY_IN_RANGE:		return "ANY_IN_RANGE";
 		case DFVM_SLICE:		return "SLICE";
+		case DFVM_LENGTH:		return "LENGTH";
 		case DFVM_BITWISE_AND:		return "BITWISE_AND";
 		case DFVM_UNARY_MINUS:		return "UNARY_MINUS";
 		case DFVM_ADD:			return "ADD";
@@ -348,6 +349,11 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 			case DFVM_SLICE:
 				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s[%s] -> %s\n",
 					id, opcode_str, arg1_str, arg3_str, arg2_str);
+				break;
+
+			case DFVM_LENGTH:
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s -> %s\n",
+					id, opcode_str, arg1_str, arg2_str);
 				break;
 
 			case DFVM_ALL_EQ:
@@ -998,6 +1004,28 @@ mk_slice(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
 	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
 }
 
+static void
+mk_length(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg)
+{
+	GSList		*from_list, *to_list;
+	fvalue_t	*old_fv, *new_fv;
+
+	to_list = NULL;
+	from_list = df->registers[from_arg->value.numeric];
+
+	while (from_list) {
+		old_fv = from_list->data;
+		new_fv = fvalue_new(FT_UINT32);
+		fvalue_set_uinteger(new_fv, fvalue_length(old_fv));
+		to_list = g_slist_prepend(to_list, new_fv);
+
+		from_list = g_slist_next(from_list);
+	}
+
+	df->registers[to_arg->value.numeric] = to_list;
+	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
+}
+
 static gboolean
 call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 							dfvm_value_t *arg3)
@@ -1316,6 +1344,10 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case DFVM_SLICE:
 				mk_slice(df, arg1, arg2, arg3);
+				break;
+
+			case DFVM_LENGTH:
+				mk_length(df, arg1, arg2);
 				break;
 
 			case DFVM_ALL_EQ:
