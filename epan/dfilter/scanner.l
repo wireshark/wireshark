@@ -80,15 +80,15 @@ DIAG_OFF_FLEX
 stnode_t *df_lval;
 
 static int set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, sttype_id_t type_id);
-static int set_lval_str(df_scanner_state_t *state, int token, const char *token_value);
-
-static int set_lval_quoted_string(df_scanner_state_t *state, int token, GString *quoted_string);
-static int set_lval_charconst(df_scanner_state_t *state, int token, GString *quoted_string);
-static int set_lval_field(df_scanner_state_t *state, int token, const char *token_value);
-
 #define simple(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_UNINITIALIZED))
 #define test(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_TEST))
 #define math(token)	(update_location(yyextra, yytext), set_lval_simple(yyextra, token, yytext, STTYPE_ARITHMETIC))
+
+static int set_lval_literal(df_scanner_state_t *state, const char *token_value);
+static int set_lval_unparsed(df_scanner_state_t *state, const char *token_value);
+static int set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string);
+static int set_lval_charconst(df_scanner_state_t *state, GString *quoted_string);
+static int set_lval_field(df_scanner_state_t *state, const char *token_value);
 
 static gboolean append_escaped_char(df_scanner_state_t *state, GString *str, char c);
 static gboolean append_universal_character_name(df_scanner_state_t *state, GString *str, const char *ucn);
@@ -283,7 +283,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 	/* end quote */
 	BEGIN(INITIAL);
 	update_string_loc(yyextra, yytext);
-	int token = set_lval_quoted_string(yyextra, TOKEN_STRING, yyextra->quoted_string);
+	int token = set_lval_quoted_string(yyextra, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
 	yyextra->string_loc.col_start = -1;
 	return token;
@@ -395,7 +395,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 	BEGIN(INITIAL);
 	update_string_loc(yyextra, yytext);
 	g_string_append_c(yyextra->quoted_string, '\'');
-	int token = set_lval_charconst(yyextra, TOKEN_CHARCONST, yyextra->quoted_string);
+	int token = set_lval_charconst(yyextra, yyextra->quoted_string);
 	yyextra->quoted_string = NULL;
 	yyextra->string_loc.col_start = -1;
 	return token;
@@ -438,14 +438,14 @@ hyphen-bytes	{hex2}(-{hex2})+
 	/* Bytes. */
 	update_location(yyextra, yytext);
 	if (yytext[0] == ':')
-		return set_lval_str(yyextra, TOKEN_LITERAL, yytext); /* Keep leading colon. */
-	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
+		return set_lval_literal(yyextra, yytext); /* Keep leading colon. */
+	return set_lval_unparsed(yyextra, yytext);
 }
 
 :[[:xdigit:]]+		{
 	/* Numeric. */
 	update_location(yyextra, yytext);
-	return set_lval_str(yyextra, TOKEN_LITERAL, yytext + 1); /* Skip leading colon. */
+	return set_lval_literal(yyextra, yytext + 1); /* Skip leading colon. */
 }
 
 "<"[^>=]+">"			{
@@ -454,7 +454,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 	update_location(yyextra, yytext);
 	char *end = strchr(yytext, '>');
 	*end = '\0';
-	return set_lval_str(yyextra, TOKEN_LITERAL, yytext + 1);
+	return set_lval_literal(yyextra, yytext + 1);
 }
 
 \.?{Identifier}			{
@@ -462,9 +462,9 @@ hyphen-bytes	{hex2}(-{hex2})+
 	update_location(yyextra, yytext);
 	if (yytext[0] == '.') {
 		/* Skip leading dot. */
-		return set_lval_field(yyextra, TOKEN_FIELD, yytext + 1);
+		return set_lval_field(yyextra, yytext + 1);
 	}
-	return set_lval_simple(yyextra, TOKEN_UNPARSED, yytext, STTYPE_UNINITIALIZED);
+	return set_lval_unparsed(yyextra, yytext);
 }
 
 . {
@@ -514,35 +514,31 @@ set_lval_simple(df_scanner_state_t *state, int token, const char *token_value, s
 }
 
 static int
-set_lval_str(df_scanner_state_t *state, int token, const char *token_value)
+set_lval_literal(df_scanner_state_t *state, const char *token_value)
 {
-	sttype_id_t type_id;
-
-	switch (token) {
-		case TOKEN_LITERAL:
-			type_id = STTYPE_LITERAL;
-			break;
-		default:
-			ws_assert_not_reached();
-	}
-	stnode_init(df_lval, type_id, g_strdup(token_value), g_strdup(token_value), &state->location);
-	return token;
+	stnode_init(df_lval, STTYPE_LITERAL, g_strdup(token_value), g_strdup(token_value), &state->location);
+	return TOKEN_LITERAL;
 }
 
 static int
-set_lval_quoted_string(df_scanner_state_t *state, int token, GString *quoted_string)
+set_lval_unparsed(df_scanner_state_t *state, const char *token_value)
 {
-	ws_assert(token == TOKEN_STRING);
-	char *token_value = ws_escape_string_len(NULL, quoted_string->str, quoted_string->len, true);
+	return set_lval_simple(state, TOKEN_UNPARSED, token_value, STTYPE_UNINITIALIZED);
+}
 
+static int
+set_lval_quoted_string(df_scanner_state_t *state, GString *quoted_string)
+{
+	char *token_value;
+
+	token_value = ws_escape_string_len(NULL, quoted_string->str, quoted_string->len, true);
 	stnode_init(df_lval, STTYPE_STRING, quoted_string, token_value, &state->string_loc);
-	return token;
+	return TOKEN_STRING;
 }
 
 static int
-set_lval_charconst(df_scanner_state_t *state, int token, GString *quoted_string)
+set_lval_charconst(df_scanner_state_t *state, GString *quoted_string)
 {
-	ws_assert(token == TOKEN_CHARCONST);
 	unsigned long number;
 	gboolean ok;
 
@@ -553,29 +549,20 @@ set_lval_charconst(df_scanner_state_t *state, int token, GString *quoted_string)
 		return SCAN_FAILED;
 	}
 	stnode_init(df_lval, STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token_value, &state->string_loc);
-	return token;
+	return TOKEN_CHARCONST;
 }
 
 static int
-set_lval_field(df_scanner_state_t *state, int token, const char *token_value)
+set_lval_field(df_scanner_state_t *state, const char *token_value)
 {
-	sttype_id_t type_id;
 	header_field_info *hfinfo;
-
-	switch (token) {
-		case TOKEN_FIELD:
-			type_id = STTYPE_FIELD;
-			break;
-		default:
-			ws_assert_not_reached();
-	}
 
 	hfinfo = dfilter_resolve_unparsed(state->dfw, token_value);
 	if (hfinfo == NULL) {
 		dfilter_fail(state->dfw, &state->location, "\"%s\" is not a valid protocol or protocol field.", token_value);
 	}
-	stnode_init(df_lval, type_id, hfinfo, g_strdup(token_value), &state->location);
-	return token;
+	stnode_init(df_lval, STTYPE_FIELD, hfinfo, g_strdup(token_value), &state->location);
+	return TOKEN_FIELD;
 }
 
 static gboolean
