@@ -1737,6 +1737,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Förekomst:</translation>
     </message>
     <message>
+        <source>Resolve Names:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Missing fields.</source>
         <translation>Saknade fält.</translation>
     </message>
@@ -1770,6 +1778,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Field Occurrence</source>
         <translation>Fältförekomst</translation>
+    </message>
+    <message>
+        <source>Resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New Column</source>
@@ -10946,11 +10962,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Bild</translation>
     </message>
     <message>
-        <source>JSON</source>
-        <oldsource>Json</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Raw</source>
         <translation>Rå</translation>
     </message>
@@ -10988,6 +10999,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
             <numerusform>Visar %Ln byte.</numerusform>
             <numerusform>Visar %Ln byte.</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>JSON</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -11878,6 +11893,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Limit to display filter</source>
         <translation>Begränsa till visningsfilter</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter list for specific type</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

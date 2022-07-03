@@ -1737,6 +1737,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Occorrenza:</translation>
     </message>
     <message>
+        <source>Resolve Names:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Missing fields.</source>
         <translation>Campi mancanti.</translation>
     </message>
@@ -1770,6 +1778,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Field Occurrence</source>
         <translation>Occorrenze del campo</translation>
+    </message>
+    <message>
+        <source>Resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New Column</source>
@@ -1842,7 +1858,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Stream ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID flusso</translation>
     </message>
     <message>
         <source>Packets A </source>
@@ -1854,11 +1870,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Bytes B </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets B </source>
-        <translation type="vanished">Pacchetti B</translation>
+        <translation>Byte B</translation>
     </message>
     <message>
         <source>Abs Start</source>
@@ -10950,11 +10962,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Immagine</translation>
     </message>
     <message>
-        <source>JSON</source>
-        <oldsource>Json</oldsource>
-        <translation type="unfinished">Json</translation>
-    </message>
-    <message>
         <source>Raw</source>
         <translation>Grezzo</translation>
     </message>
@@ -10992,6 +10999,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
             <numerusform>Visualizzazione di %Ln byte.</numerusform>
             <numerusform>Visualizzazione di %Ln byte.</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>JSON</source>
+        <translation>JSON</translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -11879,6 +11890,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Limita al filtro di visualizzazione</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter list for specific type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra gli orari assoluti nella colonna ora iniziale.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -11907,7 +11926,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Filter on stream id</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro su ID flusso</translation>
     </message>
     <message>
         <source>Copy %1 table</source>
@@ -11931,19 +11950,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>as JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>come JSON</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>as Json</source>
-        <translation type="vanished">come Json</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
-        <translation type="vanished">Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati Json.</translation>
+        <translation>Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati JSON.</translation>
     </message>
     <message>
         <source>Save data as raw</source>

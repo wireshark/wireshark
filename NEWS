@@ -1,4 +1,4 @@
-Wireshark 3.7.1 Release Notes
+Wireshark 3.7.2 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 4.0.
@@ -175,7 +175,7 @@ Wireshark 3.7.1 Release Notes
        character constants.
 
         • Unicode universal character names are now supported with the
-       escape sequences \uNNNN or \UNNNNNNNN, where N is an hexadecimal
+       escape sequences \uNNNN or \UNNNNNNNN, where N is a hexadecimal
        digit.
 
         • Unrecognized escape sequences are now treated as a syntax
@@ -226,12 +226,12 @@ Wireshark 3.7.1 Release Notes
        `mergecap`, `tshark`, and the "Import from Hex Dump" option
        within Wireshark, the default capture file format for `text2pcap`
        is now pcapng. The `-n` flag to select pcapng (instead of the
-       previous default, pcap) has been has been deprecated and will be
-       removed in a future release.
+       previous default, pcap) has been deprecated and will be removed
+       in a future release.
 
         • `text2pcap` supports selecting the encapsulation type of the
        output file format using the wiretap library short names with an
-       `-E` option, similiar to the `-T` option of `editcap`.
+       `-E` option, similar to the `-T` option of `editcap`.
 
         • `text2pcap` has been updated to use the new logging output
        options and the `-d` flag has been removed. The "debug" log level
@@ -251,7 +251,8 @@ Wireshark 3.7.1 Release Notes
        have feature parity.
 
      • The default main window layout has been changed so that the
-       packet detail and bytes are side by side.
+       Packet Detail and Packet Bytes are side by side underneath the
+       Packet List pane.
 
      • The HTTP2 dissector now supports using fake headers to parse the
        DATAs of streams captured without first HEADERS frames of a
@@ -263,12 +264,13 @@ Wireshark 3.7.1 Release Notes
      • The IEEE 802.11 dissector supports Mesh Connex (MCX).
 
      • The “Capture Options” dialog contains the same configuration icon
-       as Welcome Screen. It is now possible to configure interfaces
+       as the Welcome Screen. It is now possible to configure interfaces
        there.
 
      • The “Extcap” dialog remembers password items during runtime,
-       which makes it possible to run extcaps multiple times in row.
-       Passwords are never stored on disk.
+       which makes it possible to run extcaps multiple times in row
+       without having to reenter the password each time. Passwords are
+       never stored on disk.
 
      • It is possible to set extcap passwords in `tshark` and other CLI
        tools.
@@ -293,8 +295,8 @@ Wireshark 3.7.1 Release Notes
        context menu in the interface list
 
      • The Event Tracing for Windows (ETW) file reader now supports
-       display IP packets from an event trace logfile or an event trace
-       live session.
+       displaying IP packets from an event trace logfile or an event
+       trace live session.
 
   Removed Features and Support
 
@@ -365,7 +367,7 @@ Wireshark 3.7.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-06-27 17:03:56 UTC
+  Last updated 2022-06-29 08:19:20 UTC
 
  References
 

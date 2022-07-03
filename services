@@ -5099,6 +5099,7 @@ ms-do		7680/tcp/udp	# Microsoft Delivery Optimization Peer-to-Peer
 dmt		7683/tcp	# Cleondris DMT
 bolt		7687/tcp	# Bolt database connection
 collaber	7689/tcp/udp	# Collaber Network Service
+sovd		7690/tcp	# Service-Oriented Vehicle Diagnostics
 klio		7697/tcp/udp	# KLIO communications
 em7-secom	7700/tcp	# EM7 Secure Communications
 nfapi		7701/sctp	# SCF nFAPI defining MAC/PHY split

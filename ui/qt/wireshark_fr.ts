@@ -1737,6 +1737,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Occurrence :</translation>
     </message>
     <message>
+        <source>Resolve Names:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Missing fields.</source>
         <translation>Champs manquants.</translation>
     </message>
@@ -1770,6 +1778,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Field Occurrence</source>
         <translation>Occurrence d&apos;un champ</translation>
+    </message>
+    <message>
+        <source>Resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New Column</source>
@@ -1855,10 +1871,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Bytes B </source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets B </source>
-        <translation type="vanished">Paquets B</translation>
     </message>
     <message>
         <source>Abs Start</source>
@@ -10947,11 +10959,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Image</translation>
     </message>
     <message>
-        <source>JSON</source>
-        <oldsource>Json</oldsource>
-        <translation type="unfinished">Json</translation>
-    </message>
-    <message>
         <source>Raw</source>
         <translation>Brut</translation>
     </message>
@@ -10989,6 +10996,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
             <numerusform>Affichage de %Ln octet.</numerusform>
             <numerusform>Affichage de %Ln octets.</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>JSON</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -11882,6 +11893,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Limiter au Filtre d&apos;Affichage</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter list for specific type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Afficher les heures absolues dans la colonne de l&apos;heure de début.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -11939,14 +11958,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>as Json</source>
-        <translation type="vanished">comme Json</translation>
-    </message>
-    <message>
-        <source>Copy all values of this page to the clipboard in the Json data serialization format.</source>
-        <translation type="vanished">Copier toutes les valeurs de cette page dans le presse-papiers au format de sérialisation des données Json.</translation>
     </message>
     <message>
         <source>Save data as raw</source>

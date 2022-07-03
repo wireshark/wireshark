@@ -1741,6 +1741,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Wystąpienia:</translation>
     </message>
     <message>
+        <source>Resolve Names:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Missing fields.</source>
         <translation>Pominięte pola.</translation>
     </message>
@@ -1773,6 +1781,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Field Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10957,11 +10973,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Obraz</translation>
     </message>
     <message>
-        <source>JSON</source>
-        <oldsource>Json</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Raw</source>
         <translation>Dane surowe</translation>
     </message>
@@ -11000,6 +11011,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform>Wyświetl %Ln bajtów.</numerusform>
             <numerusform>Wyświetl %Ln bajtów.</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>JSON</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -11885,6 +11900,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Limit to display filter</source>
         <translation>Ogranicz do filtru</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter list for specific type</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

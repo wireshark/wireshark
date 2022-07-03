@@ -1,11 +1,11 @@
 #
 # generated from https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-# run "tools/make-sminmpec.pl [infile]" to regenerate
+# run "tools/make-sminmpec.py [infile] outfile" to regenerate
 #
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2022-06-24)
+# (last updated 2022-07-03)
 
 0	Reserved
 1	NxNetworks
@@ -48252,7 +48252,7 @@
 48433	Wuxi Broadlan Telecommunication Technology Co.,Ltd
 48434	praclear
 48435	Wuxi Neihua Network Technology Co.,(NHN)
-48436	Siemens AG - Transmission Solutions
+48436	Siemens Energy AG - Transmission
 48437	Ikano Bank
 48438	Trätransporter i Norrbotten AB
 48439	Schönfelder Papierfabrik GmbH
@@ -58848,3 +58848,36 @@
 59056	Klinikum Würzburg Mitte gGmbH
 59057	TETA-CO
 59058	CHSLD90
+59059	BeFoxIT
+59060	Capgemini Outsourcing Services GmbH
+59061	PRIVATE JOINT-STOCK COMPANY "UKRAINSKY GRAFIT"
+59062	e-Governance infrastructure implementation agency (EKENG)
+59063	NETWORK RAIL LIMITED
+59064	Valdosta State University
+59065	Arzeda
+59066	Lovisenberg Diakonale Sykehus
+59067	GIRD Systems, Inc.
+59068	Gxmicro
+59069	MobiFone Corporation
+59070	Minsk Central Customs
+59071	Erste Investment Hungary
+59072	Technische Hochschule Bingen
+59073	NRW Audio GmbH & Co. KG
+59074	Integrated Security Solutions, INC
+59075	Antenne Bayern GmbH & Co.KG
+59076	JCIUS
+59077	Robson da Silva Andrade - Arduinfo
+59078	Jacob Boily Network
+59079	Vard Electro AS
+59080	eBZ Tecnologia
+59081	Telonium
+59082	Slovak Academy of Sciences
+59083	Surf Telecom S/A
+59084	coreMem Limited
+59085	Meta Serviços de Informatica LTDA
+59086	Purvis Industries
+59087	Delta Media Corporation
+59088	SUNGROW AUSTRALIA GROUP PTY LTD
+59089	NTA Systemhaus GmbH & Co. KG
+59090	GreenSync
+59091	RGryncewicz
