@@ -44,7 +44,6 @@ my $force_extra = undef;
 my $package_string = "";
 my $version_file = 'vcs_version.h';
 my $vcs_name = "Git";
-my $tortoise_file = "tortoise_template";
 my $last_change = 0;
 my $num_commits = 0;
 my $commit_id = '';
@@ -58,7 +57,6 @@ my $is_tagged = 0;
 my $git_client = 0;
 my $svn_client = 0;
 my $git_svn = 0;
-my $tortoise_svn = 0;
 my $script_dir = dirname(__FILE__);
 my $src_dir = "$script_dir/..";
 my $verbose = 0;
@@ -83,7 +81,6 @@ sub read_repo_info {
 	my $in_entries = 0;
 	my $svn_name;
 	my $repo_version;
-	my $do_hack = 1;
 	my $info_source = "Unknown";
 	my $is_git_repo = 0;
 	my $git_abbrev_length = 12;
@@ -170,7 +167,6 @@ sub read_repo_info {
 	# efd7cb38e67cbfd3333a8c2fd4bc47aaec4ba83c	HEAD
 
 	if ($git_archive_commit) {
-		$do_hack = 0;
 		# Assume a full commit hash, abbreviate it.
 		$commit_id = substr($git_archive_commit, 0, $git_abbrev_length);
 	} elsif ($git_client) {
@@ -208,10 +204,6 @@ sub read_repo_info {
 
 			1;
 		};
-
-		if ($last_change && ($num_commits || $is_tagged) && $repo_branch) {
-			$do_hack = 0;
-		}
 	} elsif ($svn_client || $git_svn) {
 		my $repo_root = undef;
 		my $repo_url = undef;
@@ -240,28 +232,6 @@ sub read_repo_info {
 		if ($repo_url && $repo_root && index($repo_url, $repo_root) == 0) {
 			$repo_branch = substr($repo_url, length($repo_root));
 		}
-
-		if ($last_change && $num_commits && $repo_url && $repo_root) {
-			$do_hack = 0;
-		}
-	} elsif ($tortoise_svn) {
-		# XXX This is likely dead code.
-		# Dynamically generic template file needed by TortoiseSVN
-		open(TORTOISE, ">$tortoise_file");
-		print TORTOISE "#define VCSVERSION \"\$WCREV\$\"\r\n";
-		print TORTOISE "#define VCSBRANCH \"\$WCURL\$\"\r\n";
-		close(TORTOISE);
-
-		$info_source = "Command line (SubWCRev)";
-		$info_cmd = "SubWCRev $src_dir $tortoise_file";
-		my $tortoise = system($info_cmd);
-		if ($tortoise == 0) {
-			$do_hack = 0;
-		}
-		$vcs_name = "SVN";
-
-		#clean up the template file
-		unlink($tortoise_file);
 	}
 
 	if (defined $num_commits and $num_commits == 0 and -e "$src_dir/.git") {
@@ -296,73 +266,6 @@ sub read_repo_info {
 			}
 			1;
 			};
-	}
-	if (defined $num_commits and $num_commits == 0 and -d "$src_dir/.bzr") {
-
-		# Try bzr...
-		eval {
-			use warnings "all";
-			no warnings "all";
-			$info_cmd = "(cd $src_dir; bzr log -l 1)";
-			$line = qx{$info_cmd};
-			if (defined($line)) {
-				if ($line =~ /timestamp: \S+ (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
-					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
-				}
-				if ($line =~ /svn revno: (\d+) \(on (\S+)\)/) {
-					$num_commits = $1;
-					$repo_branch = $2;
-				}
-				$vcs_name = "Bzr";
-			}
-			1;
-			};
-	}
-
-
-	# 'svn info' failed or the user really wants us to dig around in .svn/entries
-	if ($do_hack) {
-		# Start of ugly internal SVN file hack
-		if (open (ENTRIES, "< $src_dir/.svn/entries")) {
-			print STDERR "Opening $src_dir/.svn/entries\n";
-			$info_source = "Prodding .svn";
-			# We need to find out whether our parser can handle the entries file
-			$line = <ENTRIES>;
-			chomp $line;
-			if ($line eq '<?xml version="1.0" encoding="utf-8"?>') {
-				$repo_version = "pre1.4";
-			} elsif ($line =~ /^8$/) {
-				$repo_version = "1.4";
-			} else {
-				$repo_version = "unknown";
-			}
-
-			if ($repo_version eq "pre1.4") {
-				# The entries schema is flat, so we can use regexes to parse its contents.
-				while ($line = <ENTRIES>) {
-					if ($line =~ /<entry$/ || $line =~ /<entry\s/) {
-						$in_entries = 1;
-						$svn_name = "";
-					}
-					if ($in_entries) {
-						if ($line =~ /name="(.*)"/) { $svn_name = $1; }
-						if ($line =~ /committed-date="(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
-							$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
-						}
-						if ($line =~ /revision="(\d+)"/) { $num_commits = $1; }
-					}
-					if ($line =~ /\/>/) {
-						if (($svn_name eq "" || $svn_name eq "svn:this_dir") &&
-								$last_change && $num_commits) {
-							$in_entries = 0;
-							last;
-						}
-					}
-					# XXX - Fetch the repository root & URL
-				}
-			}
-			close ENTRIES;
-		}
 	}
 
 	if ($force_extra) {
