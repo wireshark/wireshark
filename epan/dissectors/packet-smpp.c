@@ -2194,7 +2194,7 @@ static void
 broadcast_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     nstime_t     zero_time = NSTIME_INIT_ZERO;
-    tvbuff_t    *tvb_msg;
+    tvbuff_t    *tvb_msg = NULL;
     smpp_data_t *smpp_data;
     const char  *src_str = NULL;
 
