@@ -1634,6 +1634,7 @@ static gint
 check_diameter(tvbuff_t *tvb)
 {
 	guint8 flags;
+	guint32 msg_len;
 
 	/* Ensure we don't throw an exception trying to do these heuristics */
 	if (tvb_captured_length(tvb) < 5)
@@ -1657,7 +1658,12 @@ check_diameter(tvbuff_t *tvb)
 	 *
 	 * --> 36 bytes
 	 */
-	if (tvb_get_ntoh24(tvb, 1) < 36)
+        msg_len = tvb_get_ntoh24(tvb, 1);
+	/* Diameter message length field must be a multiple of 4.
+         * This is implicit in RFC 3588 (based on the header and that each
+         * AVP must align on a 32-bit boundary) and explicit in RFC 6733.
+         */
+	if ((msg_len < 36) || (msg_len & 0x3))
 		return NOT_DIAMETER;
 
 	flags = tvb_get_guint8(tvb, 4);
