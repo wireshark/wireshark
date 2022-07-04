@@ -67,7 +67,7 @@ void proto_reg_handoff_stun(void);
  * ===============================================================================================
  *  Message  | 0b00+14-bit        | 16-bit             | 0b00+14-bit, type= |                    |
  *  Type     | No class or method | No class or method | class+method       |                    |
- *           |                    |                    | Method: 0x000-0xFFF| Method: 0x000-0x0FF|
+ *           | 0x0115: Data Ind   |                    | Method: 0x000-0xFFF| Method: 0x000-0x0FF|
  * -----------------------------------------------------------------------------------------------
  *  Transac- | 128 bits, seen     | 128 bits           | 32 bit Magic +     |                    |
  *  tion ID  | with MAGIC as well |                    | 96 bit Trans ID    |                    |
@@ -284,6 +284,13 @@ typedef struct _stun_conv_info_t {
 #define SHARED_SECRET           0x0002 /* RFC3489 */
 #define ALLOCATE                0x0003 /* RFC8489 */
 #define REFRESH                 0x0004 /* RFC8489 */
+/* 0x0005 is Unassigned.
+ * 0x1115 was used for DATA_INDICATION in draft-rosenberg-midcom-turn-08,
+ * but this did not fit the later class+indication scheme (it would
+ * indicate an error response, which it is not) and was unassigned and
+ * replaced with 0x0007 before RFC5389. The MS-TURN specification lists
+ * it, however, and some MS-TURN captures use it.
+ */
 #define SEND                    0x0006 /* RFC8656 */
 #define DATA_IND                0x0007 /* RFC8656 */
 #define CREATE_PERMISSION       0x0008 /* RFC8656 */
@@ -418,6 +425,12 @@ typedef struct _stun_conv_info_t {
 #define GOOG_NETWORK_INFO       0xc057
 #define GOOG_LAST_ICE_CHECK_RECEIVED 0xc058
 #define GOOG_MISC_INFO          0xc059
+/* Various IANA-registered but undocumented Google attributes follow */
+#define GOOG_OBSOLETE_1         0xc05a
+#define GOOG_CONNECTION_ID      0xc05b
+#define GOOG_DELTA              0xc05c
+#define GOOG_DELTA_ACK          0xc05d
+/* 0xc05e-0xc05f Unassigned */
 #define GOOG_MESSAGE_INTEGRITY_32 0xc060
 /* 0xc061-0xff03 Unassigned */
 /* https://webrtc.googlesource.com/src/+/refs/heads/master/p2p/base/turn_port.cc */
@@ -570,6 +583,10 @@ static const value_string attributes[] = {
     {GOOG_NETWORK_INFO     , "GOOG-NETWORK-INFO"},
     {GOOG_LAST_ICE_CHECK_RECEIVED, "GOOG-LAST-ICE-CHECK-RECEIVED"},
     {GOOG_MISC_INFO        , "GOOG-MISC-INFO"},
+    {GOOG_OBSOLETE_1       , "GOOG-OBSOLETE-1"},
+    {GOOG_CONNECTION_ID    , "GOOG-CONNECTION-ID"},
+    {GOOG_DELTA            , "GOOG-DELTA"},
+    {GOOG_DELTA_ACK        , "GOOG-DELTA-ACK"},
     {GOOG_MESSAGE_INTEGRITY_32, "GOOG-MESSAGE_INTEGRITY-32"},
     {GOOG_MULTI_MAPPING    , "GOOG-MULTI-MAPPING"},
     {GOOG_LOGGING_ID       , "GOOG-LOGGING-ID"},
