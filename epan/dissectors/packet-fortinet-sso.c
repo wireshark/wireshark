@@ -107,7 +107,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         offset += (string_length);
     }
 
-     if(tvb_reported_length_remaining(tvb, offset)) {
+    if(tvb_reported_length_remaining(tvb, offset)) {
         guint16 value;
         guint32 number_port_range;
         value = tvb_get_ntohs(tvb, offset);
