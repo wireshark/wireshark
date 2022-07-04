@@ -1818,15 +1818,16 @@ try_append_method_path_info(packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
+static proto_item*
 try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 length, const char *header_name, const char *header_value)
 {
     int hf_id = -1;
     header_field_info *hfi;
+    proto_item* ti = NULL;
 
     const gint *entry = (const gint*) g_hash_table_lookup(header_fields_hash, header_name);
     if (entry == NULL) {
-        return;
+        return NULL;
     }
 
     hf_id = *entry;
@@ -1837,16 +1838,17 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 
     if (IS_FT_UINT32(hfi->type)) {
         guint32 value;
         if (ws_strtou32(header_value, NULL, &value)) {
-            proto_tree_add_uint(tree, hf_id, tvb, offset, length, value);
+            ti = proto_tree_add_uint(tree, hf_id, tvb, offset, length, value);
         }
     } else if (IS_FT_UINT(hfi->type)) {
         guint64 value;
         if (ws_strtou64(header_value, NULL, &value)) {
-            proto_tree_add_uint64(tree, hf_id, tvb, offset, length, value);
+            ti = proto_tree_add_uint64(tree, hf_id, tvb, offset, length, value);
         }
     } else {
-        proto_tree_add_item(tree, hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
     }
+    return ti;
 }
 
 static void
@@ -1911,7 +1913,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 {
     guint8 *headbuf;
     proto_tree *header_tree;
-    proto_item *header, *ti;
+    proto_item *header, *ti, *ti_named_field;
     guint32 header_name_length;
     guint32 header_value_length;
     const guint8 *header_name;
@@ -2149,7 +2151,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         /* Add header value. */
         proto_tree_add_item_ret_string(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA, pinfo->pool, &header_value);
         // check if field is http2 header https://tools.ietf.org/html/rfc7541#appendix-A
-        try_add_named_header_field(header_tree, header_tvb, hoffset, header_value_length, header_name, header_value);
+        ti_named_field = try_add_named_header_field(header_tree, header_tvb, hoffset, header_value_length, header_name, header_value);
 
         /* Add header unescaped. */
         header_unescaped = g_uri_unescape_string(header_value, NULL);
@@ -2195,6 +2197,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         else if (strcmp(header_name, HTTP2_HEADER_PATH) == 0) {
             path_header_value = header_value;
             try_append_method_path_info(pinfo, tree, method_header_value, path_header_value);
+            http_add_path_components_to_tree(header_tvb, pinfo, ti_named_field, hoffset - header_value_length, header_value_length);
         }
         else if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
             const gchar* reason_phase = val_to_str((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");

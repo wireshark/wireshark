@@ -22,6 +22,9 @@ void http_tcp_dissector_delete(guint32 port);
 WS_DLL_PUBLIC
 void http_tcp_port_add(guint32 port);
 
+WS_DLL_PUBLIC
+void http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_item* item, int offset, int length);
+
 /* Used for HTTP statistics */
 typedef struct _http_info_value_t {
 	guint32 framenum;
