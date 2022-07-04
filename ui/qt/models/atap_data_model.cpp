@@ -17,6 +17,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/nstime.h>
+#include <wsutil/str_util.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
@@ -31,7 +32,11 @@
 
 static QString formatString(qlonglong value)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+    return QString(format_size(value, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
+#else
     return QLocale::system().formattedDataSize(value, QLocale::DataSizeSIFormat);
+#endif
 }
 
 ATapDataModel::ATapDataModel(dataModelType type, int protoId, QString filter, QObject *parent):
