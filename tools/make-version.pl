@@ -318,10 +318,10 @@ Fin
 
 # Read CMakeLists.txt, then write it back out with updated "set(PROJECT_..._VERSION ...)
 # lines
-# set(GIT_REVISION 999)
 # set(PROJECT_MAJOR_VERSION 1)
 # set(PROJECT_MINOR_VERSION 99)
 # set(PROJECT_PATCH_VERSION 0)
+# set(PROJECT_BUILD_VERSION 999)
 # set(PROJECT_VERSION_EXTENSION "-rc5")
 sub update_cmakelists_txt
 {
@@ -334,14 +334,14 @@ sub update_cmakelists_txt
 
 	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^set *\( *GIT_REVISION .*?([\r\n]+)$/) {
-			$line = sprintf("set(GIT_REVISION %d)$1", $num_commits);
-		} elsif ($line =~ /^set *\( *PROJECT_MAJOR_VERSION .*?([\r\n]+)$/) {
+		if ($line =~ /^set *\( *PROJECT_MAJOR_VERSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_MAJOR_VERSION %d)$1", $version_major);
 		} elsif ($line =~ /^set *\( *PROJECT_MINOR_VERSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_MINOR_VERSION %d)$1", $version_minor);
 		} elsif ($line =~ /^set *\( *PROJECT_PATCH_VERSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_PATCH_VERSION %d)$1", $version_micro);
+		} elsif ($line =~ /^set *\( *PROJECT_BUILD_VERSION .*?([\r\n]+)$/) {
+			$line = sprintf("set(PROJECT_BUILD_VERSION %d)$1", $num_commits);
 		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_VERSION_EXTENSION \"%s\")$1", $package_string);
 		}
