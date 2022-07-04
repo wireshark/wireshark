@@ -1090,7 +1090,25 @@ end:
 static void
 dissect_eap_identity(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, int offset, gint size)
 {
-  /* Try to dissect as WLAN identity */
+  /*
+   * Try to dissect as WLAN identity.
+   *
+   * XXX - what other types of identity are there?
+   *
+   * XXX - dissect_eap_identity_wlan() speaks of EAP-AKA and EAP-SIM,
+   * and neither RFC 4187 for EAP-AKA nor RFC 4186 for EAP-SIM speak
+   * of those being used solely on WLANs.  For that matter, 802.1X
+   * was originally designed for wired networks (Ethernet, Token Ring,
+   * FDDI), and later adapted for 802.11.
+   *
+   * If dissecting EAP identities must be done differently for wired
+   * networks and 802.11, this should dissect them based on the link-layer
+   * type of the network on which the packet arrived.
+   *
+   * If dissecting EAP identities does *not* need to be done differently
+   * for wired networks and 802.11, dissect_eap_identity_wlan() should
+   * just be incorporated within this routine.
+   */
   if (dissect_eap_identity_wlan(tvb, pinfo, tree, offset, size))
     return;
 }
