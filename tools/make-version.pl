@@ -86,7 +86,6 @@ sub read_repo_info {
 	my $git_abbrev_length = 12;
 	my $git_cdir;
 	my $vcs_tag;
-	my $repo_branch = "unknown";
 	my $info_cmd = "";
 
 	# Tarball produced by 'git archive' will have the $Format string
@@ -194,19 +193,9 @@ sub read_repo_info {
 				chomp($vcs_tag = qx{git --git-dir="$src_dir"/.git describe --exact-match --match "v[1-9]*" 2> $devnull});
 				$is_tagged = ! ($? >> 8);
 			}
-
-			# This will break in some cases. Hopefully not during
-			# official package builds.
-			chomp($line = qx{git --git-dir="$src_dir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\} 2> $devnull});
-			if ($? == 0 && length($line) > 1) {
-				$repo_branch = basename($line);
-			}
-
 			1;
 		};
 	} elsif ($svn_client || $git_svn) {
-		my $repo_root = undef;
-		my $repo_url = undef;
 		eval {
 			use warnings "all";
 			no warnings "all";
@@ -218,20 +207,10 @@ sub read_repo_info {
 				if ($line =~ /Last Changed Rev: (\d+)/) {
 					$num_commits = $1;
 				}
-				if ($line =~ /URL: (\S+)/) {
-					$repo_url = $1;
-				}
-				if ($line =~ /Repository Root: (\S+)/) {
-					$repo_root = $1;
-				}
 				$vcs_name = "SVN";
 			}
 			1;
 		};
-
-		if ($repo_url && $repo_root && index($repo_url, $repo_root) == 0) {
-			$repo_branch = substr($repo_url, length($repo_root));
-		}
 	}
 
 	if (defined $num_commits and $num_commits == 0 and -e "$src_dir/.git") {
@@ -255,13 +234,6 @@ sub read_repo_info {
 			if (defined($line)) {
 				if ($line =~ /(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
-				}
-			}
-			$info_cmd = "(cd $src_dir; git branch)";
-			$line = qx{$info_cmd};
-			if (defined($line)) {
-				if ($line =~ /\* (\S+)/) {
-					$repo_branch = $1;
 				}
 			}
 			1;
