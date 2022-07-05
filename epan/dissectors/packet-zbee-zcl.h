@@ -45,6 +45,11 @@ typedef struct{
 #define ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT_RESP     0x10
 #define ZBEE_ZCL_CMD_DISCOVER_CMDS_REC          0x11
 #define ZBEE_ZCL_CMD_DISCOVER_CMDS_REC_RESP     0x12
+#define ZBEE_ZCL_CMD_DISCOVER_CMDS_GEN          0X13
+#define ZBEE_ZCL_CMD_DISCOVER_CMDS_GEN_RESP     0X14
+#define ZBEE_ZCL_CMD_DISCOVER_ATTR_EXTENDED     0x15
+#define ZBEE_ZCL_CMD_DISCOVER_ATTR_EXTENDED_RESP 0x16
+
 
 /* ZCL Data Types */
 #define ZBEE_ZCL_NO_DATA            0x00
@@ -123,6 +128,7 @@ typedef struct{
 #define ZBEE_ZCL_INVALID_LONG_STR_LENGTH        0xffff
 #define ZBEE_ZCL_NUM_INDIVIDUAL_ETT             2
 #define ZBEE_ZCL_NUM_ATTR_ETT                   64
+#define ZBEE_ZCL_NUM_IND_FIELD                  16
 #define ZBEE_ZCL_NUM_ARRAY_ELEM_ETT             16
 #define ZBEE_ZCL_NUM_TOTAL_ETT                  (ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)
 #define ZBEE_ZCL_DIR_REPORTED                   0
