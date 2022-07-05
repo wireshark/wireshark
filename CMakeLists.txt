@@ -1992,7 +1992,7 @@ if(NOT WIN32)
 endif()
 
 if(USE_REPOSITORY)
-	set(_dll_output_dir "${DATAFILE_DIR}")
+	set(_dll_output_dir "$<TARGET_FILE_DIR:wsutil>")
 	add_custom_target(copy_cli_dlls)
 	set_target_properties(copy_cli_dlls PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
