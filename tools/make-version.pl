@@ -78,9 +78,6 @@ sub read_repo_info {
 
 	my $line;
 	my $release_candidate = "";
-	my $in_entries = 0;
-	my $svn_name;
-	my $repo_version;
 	my $info_source = "Unknown";
 	my $is_git_repo = 0;
 	my $git_abbrev_length = 12;
