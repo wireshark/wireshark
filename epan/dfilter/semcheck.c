@@ -52,26 +52,25 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 {
 	switch (a) {
 		case FT_NONE:
+		case FT_BOOLEAN:
 		case FT_PROTOCOL:
-		case FT_FLOAT:		/* XXX - should be able to compare with INT */
-		case FT_DOUBLE:		/* XXX - should be able to compare with INT */
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_IEEE_11073_SFLOAT:
 		case FT_IEEE_11073_FLOAT:
 		case FT_IPv4:
 		case FT_IPv6:
-		case FT_IPXNET:
-		case FT_INT40:		/* XXX - should be able to compare with INT */
-		case FT_UINT40:		/* XXX - should be able to compare with INT */
-		case FT_INT48:		/* XXX - should be able to compare with INT */
-		case FT_UINT48:		/* XXX - should be able to compare with INT */
-		case FT_INT56:		/* XXX - should be able to compare with INT */
-		case FT_UINT56:		/* XXX - should be able to compare with INT */
-		case FT_INT64:		/* XXX - should be able to compare with INT */
-		case FT_UINT64:		/* XXX - should be able to compare with INT */
-		case FT_EUI64:		/* XXX - should be able to compare with INT */
 			return a == b;
+
+		case FT_FLOAT:		/* XXX - should be able to compare with INT */
+		case FT_DOUBLE:		/* XXX - should be able to compare with INT */
+			switch (b) {
+				case FT_FLOAT:
+				case FT_DOUBLE:
+					return TRUE;
+				default:
+					return FALSE;
+			}
 
 		case FT_ETHER:
 		case FT_BYTES:
@@ -86,33 +85,33 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 
 			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID || b == FT_AX25 || b == FT_VINES || b == FT_FCWWN || b == FT_REL_OID || b == FT_SYSTEM_ID);
 
-		case FT_BOOLEAN:
-		case FT_FRAMENUM:
-		case FT_CHAR:
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_CHAR:
+		case FT_FRAMENUM:
+		case FT_IPXNET:
+			return ftype_can_val_to_uinteger(b);
+
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
+		case FT_UINT64:
+		case FT_EUI64:
+			return ftype_can_val_to_uinteger64(b);
+
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			switch (b) {
-				case FT_BOOLEAN:
-				case FT_FRAMENUM:
-				case FT_CHAR:
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-					return TRUE;
-				default:
-					return FALSE;
-			}
+			return ftype_can_val_to_sinteger(b);
+
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
+		case FT_INT64:
+			return ftype_can_val_to_sinteger64(b);
 
 		case FT_STRING:
 		case FT_STRINGZ:

@@ -134,40 +134,46 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
-static int
-cmp_order(const fvalue_t *a, const fvalue_t *b)
+static enum ft_result
+cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 {
-	return wmem_strbuf_strcmp(a->value.strbuf, b->value.strbuf);
+	*cmp = wmem_strbuf_strcmp(a->value.strbuf, b->value.strbuf);
+	return FT_OK;
 }
 
-static gboolean
-cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b, gboolean *contains)
 {
 	/* According to
 	* http://www.introl.com/introl-demo/Libraries/C/ANSI_C/string/strstr.html
 	* strstr() returns a non-NULL value if needle is an empty
 	* string. We don't that behavior for cmp_contains. */
 	if (fv_b->value.strbuf->len == 0) {
-		return FALSE;
+		*contains = FALSE;
+		return FT_OK;
 	}
 
 	if (wmem_strbuf_strstr(fv_a->value.strbuf, fv_b->value.strbuf)) {
-		return TRUE;
+		*contains = TRUE;
 	}
 	else {
-		return FALSE;
+		*contains = FALSE;
 	}
+
+	return FT_OK;
 }
 
-static gboolean
-cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
+static enum ft_result
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex, gboolean *matches)
 {
 	wmem_strbuf_t *buf = fv->value.strbuf;
 
 	if (regex == NULL) {
-		return FALSE;
+		return FT_BADARG;
 	}
-	return ws_regex_matches_length(regex, buf->str, buf->len);
+
+	*matches = ws_regex_matches_length(regex, buf->str, buf->len);
+	return FT_OK;
 }
 
 void
@@ -186,6 +192,9 @@ ftype_register_string(void)
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_strbuf = string_fvalue_set_strbuf },	/* union set_value */
 		{ .get_value_strbuf = value_get },	/* union get_value */
@@ -219,6 +228,9 @@ ftype_register_string(void)
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_strbuf = string_fvalue_set_strbuf },	/* union set_value */
 		{ .get_value_strbuf = value_get },	/* union get_value */
 
@@ -250,6 +262,9 @@ ftype_register_string(void)
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_strbuf = string_fvalue_set_strbuf },	/* union set_value */
 		{ .get_value_strbuf = value_get },	/* union get_value */
@@ -283,6 +298,9 @@ ftype_register_string(void)
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_strbuf = string_fvalue_set_strbuf },	/* union set_value */
 		{ .get_value_strbuf = value_get },	/* union get_value */
 
@@ -314,6 +332,9 @@ ftype_register_string(void)
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_strbuf = string_fvalue_set_strbuf },	/* union set_value */
 		{ .get_value_strbuf = value_get },	/* union get_value */

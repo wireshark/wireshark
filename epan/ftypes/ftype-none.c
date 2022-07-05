@@ -28,6 +28,9 @@ ftype_register_none(void)
 		NULL,				/* val_from_charconst */
 		NULL,				/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ NULL },			/* union set_value */
 		{ NULL },			/* union get_value */
 

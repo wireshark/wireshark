@@ -299,6 +299,44 @@ ftype_can_is_negative(enum ftenum ftype)
 	return ft->is_negative ? TRUE : FALSE;
 }
 
+gboolean
+ftype_can_val_to_sinteger(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	/* We first convert to 64 bit and then check for overflow. */
+	return ft->val_to_sinteger64 ? TRUE : FALSE;
+}
+
+gboolean
+ftype_can_val_to_uinteger(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	/* We first convert to 64 bit and then check for overflow. */
+	return ft->val_to_uinteger64 ? TRUE : FALSE;
+}
+
+gboolean
+ftype_can_val_to_sinteger64(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->val_to_sinteger64 ? TRUE : FALSE;
+}
+
+gboolean
+ftype_can_val_to_uinteger64(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->val_to_uinteger64 ? TRUE : FALSE;
+}
+
 /* ---------------------------------------------------------- */
 
 /* Allocate and initialize an fvalue_t, given an ftype */
@@ -484,6 +522,46 @@ fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtyp
 	}
 
 	return fv->ftype->val_to_string_repr(scope, fv, rtype, field_display);
+}
+
+enum ft_result
+fvalue_to_uinteger(const fvalue_t *fv, guint32 *repr)
+{
+	guint64 val;
+	enum ft_result res = fv->ftype->val_to_uinteger64(fv, &val);
+	if (res != FT_OK)
+		return res;
+	if (val > G_MAXUINT32)
+		return FT_OVERFLOW;
+
+	*repr = (guint32)val;
+	return FT_OK;
+}
+
+enum ft_result
+fvalue_to_sinteger(const fvalue_t *fv, gint32 *repr)
+{
+	gint64 val;
+	enum ft_result res = fv->ftype->val_to_sinteger64(fv, &val);
+	if (res != FT_OK)
+		return res;
+	if (val > G_MAXINT32)
+		return FT_OVERFLOW;
+
+	*repr = (gint32)val;
+	return FT_OK;
+}
+
+enum ft_result
+fvalue_to_uinteger64(const fvalue_t *fv, guint64 *repr)
+{
+	return fv->ftype->val_to_uinteger64(fv, repr);
+}
+
+enum ft_result
+fvalue_to_sinteger64(const fvalue_t *fv, gint64 *repr)
+{
+	return fv->ftype->val_to_sinteger64(fv, repr);
 }
 
 typedef struct {
@@ -830,63 +908,108 @@ fvalue_get_floating(fvalue_t *fv)
 	return fv->ftype->get_value.get_value_floating(fv);
 }
 
-static inline int
-_fvalue_cmp(const fvalue_t *a, const fvalue_t *b)
-{
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_order);
-	return a->ftype->cmp_order(a, b);
-}
-
-gboolean
+ft_bool_t
 fvalue_eq(const fvalue_t *a, const fvalue_t *b)
 {
-	return _fvalue_cmp(a, b) == 0;
+	int cmp;
+	enum ft_result res;
+
+	ws_assert(a->ftype->cmp_order);
+	res = a->ftype->cmp_order(a, b, &cmp);
+	if (res != FT_OK)
+		return -res;
+	return cmp == 0 ? FT_TRUE : FT_FALSE;
 }
 
-gboolean
+ft_bool_t
 fvalue_ne(const fvalue_t *a, const fvalue_t *b)
 {
-	return _fvalue_cmp(a, b) != 0;
+	int cmp;
+	enum ft_result res;
+
+	ws_assert(a->ftype->cmp_order);
+	res = a->ftype->cmp_order(a, b, &cmp);
+	if (res != FT_OK)
+		return -res;
+	return cmp != 0 ? FT_TRUE : FT_FALSE;
 }
 
-gboolean
+ft_bool_t
 fvalue_gt(const fvalue_t *a, const fvalue_t *b)
 {
-	return _fvalue_cmp(a, b) > 0;
+	int cmp;
+	enum ft_result res;
+
+	ws_assert(a->ftype->cmp_order);
+	res = a->ftype->cmp_order(a, b, &cmp);
+	if (res != FT_OK)
+		return -res;
+	return cmp > 0 ? FT_TRUE : FT_FALSE;
 }
 
-gboolean
+ft_bool_t
 fvalue_ge(const fvalue_t *a, const fvalue_t *b)
 {
-	return _fvalue_cmp(a, b) >= 0;
+	int cmp;
+	enum ft_result res;
+
+	ws_assert(a->ftype->cmp_order);
+	res = a->ftype->cmp_order(a, b, &cmp);
+	if (res != FT_OK)
+		return -res;
+	return cmp >= 0 ? FT_TRUE : FT_FALSE;
 }
 
-gboolean
+ft_bool_t
 fvalue_lt(const fvalue_t *a, const fvalue_t *b)
 {
-	return _fvalue_cmp(a, b) < 0;
+	int cmp;
+	enum ft_result res;
+
+	ws_assert(a->ftype->cmp_order);
+	res = a->ftype->cmp_order(a, b, &cmp);
+	if (res != FT_OK)
+		return -res;
+	return cmp < 0 ? FT_TRUE : FT_FALSE;
 }
 
-gboolean
+ft_bool_t
 fvalue_le(const fvalue_t *a, const fvalue_t *b)
 {
-	return _fvalue_cmp(a, b) <= 0;
+	int cmp;
+	enum ft_result res;
+
+	ws_assert(a->ftype->cmp_order);
+	res = a->ftype->cmp_order(a, b, &cmp);
+	if (res != FT_OK)
+		return -res;
+	return cmp <= 0 ? FT_TRUE : FT_FALSE;
 }
 
-gboolean
+ft_bool_t
 fvalue_contains(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
+	gboolean yes;
+	enum ft_result res;
+
 	ws_assert(a->ftype->cmp_contains);
-	return a->ftype->cmp_contains(a, b);
+	res = a->ftype->cmp_contains(a, b, &yes);
+	if (res != FT_OK)
+		return -res;
+	return yes ? FT_TRUE : FT_FALSE;
 }
 
-gboolean
+ft_bool_t
 fvalue_matches(const fvalue_t *a, const ws_regex_t *re)
 {
+	gboolean yes;
+	enum ft_result res;
+
 	ws_assert(a->ftype->cmp_matches);
-	return a->ftype->cmp_matches(a, re);
+	res = a->ftype->cmp_matches(a, re, &yes);
+	if (res != FT_OK)
+		return -res;
+	return yes ? FT_TRUE : FT_FALSE;
 }
 
 gboolean

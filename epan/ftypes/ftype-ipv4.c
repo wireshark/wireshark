@@ -109,8 +109,8 @@ val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int
  * So, for example, w.x.y.z/32 eq w.x.y.0/24 is TRUE.
  */
 
-static int
-cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b, int *cmp)
 {
 	guint32		addr_a, addr_b, nmask;
 
@@ -118,8 +118,10 @@ cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	addr_a = fv_a->value.ipv4.addr & nmask;
 	addr_b = fv_b->value.ipv4.addr & nmask;
 	if (addr_a == addr_b)
-		return 0;
-	return addr_a < addr_b ? -1 : 1;
+		*cmp = 0;
+	else
+		*cmp = addr_a < addr_b ? -1 : 1;
+	return FT_OK;
 }
 
 static enum ft_result
@@ -161,6 +163,9 @@ ftype_register_ipv4(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		val_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = value_get },	/* union get_value */

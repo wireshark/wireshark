@@ -17,10 +17,11 @@
 #include <wsutil/time_util.h>
 
 
-static int
-cmp_order(const fvalue_t *a, const fvalue_t *b)
+static enum ft_result
+cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 {
-	return nstime_cmp(&(a->value.time), &(b->value.time));
+	*cmp = nstime_cmp(&(a->value.time), &(b->value.time));
+	return FT_OK;
 }
 
 /*
@@ -462,6 +463,9 @@ ftype_register_time(void)
 		NULL,				/* val_from_charconst */
 		absolute_val_to_repr,		/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_time = value_get },	/* union get_value */
 
@@ -493,6 +497,9 @@ ftype_register_time(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		relative_val_to_repr,		/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_time = value_get },	/* union get_value */

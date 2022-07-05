@@ -536,16 +536,18 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
-static int
-cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b, int *cmp)
 {
 	GByteArray	*a = fv_a->value.bytes;
 	GByteArray	*b = fv_b->value.bytes;
 
 	if (a->len != b->len)
-		return a->len < b->len ? -1 : 1;
+		*cmp = a->len < b->len ? -1 : 1;
+	else
+		*cmp = memcmp(a->data, b->data, a->len);
 
-	return memcmp(a->data, b->data, a->len);
+	return FT_OK;
 }
 
 static enum ft_result
@@ -573,26 +575,29 @@ bytes_bitwise_and(fvalue_t *fv_dst, const fvalue_t *fv_a, const fvalue_t *fv_b, 
 	return FT_OK;
 }
 
-static gboolean
-cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b, gboolean *contains)
 {
 	GByteArray	*a = fv_a->value.bytes;
 	GByteArray	*b = fv_b->value.bytes;
 
 	if (ws_memmem(a->data, a->len, b->data, b->len)) {
-		return TRUE;
+		*contains = TRUE;
 	}
 	else {
-		return FALSE;
+		*contains = FALSE;
 	}
+
+	return FT_OK;
 }
 
-static gboolean
-cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
+static enum ft_result
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex, gboolean *matches)
 {
 	GByteArray *a = fv->value.bytes;
 
-	return ws_regex_matches_length(regex, a->data, a->len);
+	*matches = ws_regex_matches_length(regex, a->data, a->len);
+	return FT_OK;
 }
 
 static gboolean
@@ -628,6 +633,9 @@ ftype_register_bytes(void)
 		bytes_from_charconst,		/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
 
@@ -660,6 +668,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
@@ -694,6 +705,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
 
@@ -726,6 +740,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
@@ -760,6 +777,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
 
@@ -792,6 +812,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		oid_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
@@ -826,6 +849,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_charconst */
 		rel_oid_to_repr,		/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
 
@@ -859,6 +885,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_charconst */
 		system_id_to_repr,		/* val_to_string_repr */
 
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
+
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */
 
@@ -891,6 +920,9 @@ ftype_register_bytes(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
 		{ .get_value_bytes = bytes_fvalue_get },	/* union get_value */

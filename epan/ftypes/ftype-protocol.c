@@ -267,8 +267,8 @@ _tvbcmp(const protocol_value_t *a, const protocol_value_t *b)
 	return memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len);
 }
 
-static int
-cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b, int *cmp)
 {
 	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
 	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
@@ -286,25 +286,26 @@ cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	}
 	ENDTRY;
 
-	return c;
+	*cmp = c;
+	return FT_OK;
 }
 
-static gboolean
-cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b, gboolean *contains)
 {
-	volatile gboolean contains = FALSE;
+	volatile gboolean yes = FALSE;
 
 	TRY {
 		/* First see if tvb exists for both sides */
 		if ((fv_a->value.protocol.tvb != NULL) && (fv_b->value.protocol.tvb != NULL)) {
 			if (tvb_find_tvb(fv_a->value.protocol.tvb, fv_b->value.protocol.tvb, 0) > -1) {
-				contains = TRUE;
+				yes = TRUE;
 			}
 		} else {
 			/* Otherwise just compare strings */
 			if ((strlen(fv_b->value.protocol.proto_string) != 0) &&
 				strstr(fv_a->value.protocol.proto_string, fv_b->value.protocol.proto_string)) {
-				contains = TRUE;
+				yes = TRUE;
 			}
 		}
 	}
@@ -313,11 +314,12 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	}
 	ENDTRY;
 
-	return contains;
+	*contains = yes;
+	return FT_OK;
 }
 
-static gboolean
-cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
+static enum ft_result
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex, gboolean *matches)
 {
 	const protocol_value_t *a = (const protocol_value_t *)&fv->value.protocol;
 	volatile gboolean rc = FALSE;
@@ -325,7 +327,7 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 	guint32 tvb_len; /* tvb length */
 
 	if (! regex) {
-		return FALSE;
+		return FT_BADARG;
 	}
 	TRY {
 		if (a->tvb != NULL) {
@@ -340,7 +342,9 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 		rc = FALSE;
 	}
 	ENDTRY;
-	return rc;
+
+	*matches = rc;
+	return FT_OK;
 }
 
 static gboolean
@@ -366,6 +370,9 @@ ftype_register_tvbuff(void)
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		val_to_repr,			/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_protocol = value_set },	/* union set_value */
 		{ .get_value_protocol = value_get },	/* union get_value */

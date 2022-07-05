@@ -139,6 +139,25 @@ typedef enum ft_framenum_type ft_framenum_type_t;
 struct _ftype_t;
 typedef struct _ftype_t ftype_t;
 
+enum ft_result {
+	FT_OK = 0,
+	FT_OVERFLOW,
+	FT_BADARG,
+	FT_ERROR, /* Generic. */
+};
+
+/*
+ * True, false or error if negative.
+ * Note that
+ *     ft_bool == FT_FALSE
+ * and
+ *     ft_bool != FT_TRUE
+ * are different results (three-state logic).
+ */
+typedef int ft_bool_t;
+#define FT_TRUE		1
+#define FT_FALSE	0
+
 /* String representation types. */
 enum ftrepr {
 	FTREPR_DISPLAY,
@@ -226,6 +245,22 @@ WS_DLL_PUBLIC
 gboolean
 ftype_can_is_negative(enum ftenum ftype);
 
+WS_DLL_PUBLIC
+gboolean
+ftype_can_val_to_sinteger(enum ftenum ftype);
+
+WS_DLL_PUBLIC
+gboolean
+ftype_can_val_to_uinteger(enum ftenum ftype);
+
+WS_DLL_PUBLIC
+gboolean
+ftype_can_val_to_sinteger64(enum ftenum ftype);
+
+WS_DLL_PUBLIC
+gboolean
+ftype_can_val_to_uinteger64(enum ftenum ftype);
+
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
@@ -304,6 +339,18 @@ fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtyp
 
 #define fvalue_to_debug_repr(scope, fv) \
 	fvalue_to_string_repr(scope, fv, FTREPR_DFILTER, 0)
+
+WS_DLL_PUBLIC enum ft_result
+fvalue_to_uinteger(const fvalue_t *fv, guint32 *repr);
+
+WS_DLL_PUBLIC enum ft_result
+fvalue_to_sinteger(const fvalue_t *fv, gint32 *repr);
+
+WS_DLL_PUBLIC enum ft_result
+fvalue_to_uinteger64(const fvalue_t *fv, guint64 *repr);
+
+WS_DLL_PUBLIC enum ft_result
+fvalue_to_sinteger64(const fvalue_t *fv, gint64 *repr);
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);
@@ -388,28 +435,28 @@ fvalue_get_sinteger64(fvalue_t *fv);
 WS_DLL_PUBLIC double
 fvalue_get_floating(fvalue_t *fv);
 
-gboolean
+ft_bool_t
 fvalue_eq(const fvalue_t *a, const fvalue_t *b);
 
-gboolean
+ft_bool_t
 fvalue_ne(const fvalue_t *a, const fvalue_t *b);
 
-gboolean
+ft_bool_t
 fvalue_gt(const fvalue_t *a, const fvalue_t *b);
 
-gboolean
+ft_bool_t
 fvalue_ge(const fvalue_t *a, const fvalue_t *b);
 
-gboolean
+ft_bool_t
 fvalue_lt(const fvalue_t *a, const fvalue_t *b);
 
-gboolean
+ft_bool_t
 fvalue_le(const fvalue_t *a, const fvalue_t *b);
 
-gboolean
+ft_bool_t
 fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 
-gboolean
+ft_bool_t
 fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
 gboolean

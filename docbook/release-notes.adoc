@@ -142,6 +142,7 @@ They previously shipped with Qt 5.12.2.
    This may be useful to match byte patterns but note that in general protocol fields with a string type still cannot contain embedded null bytes.
 ** Booleans can be written as True/TRUE or False/FALSE. Previously they could only be written as 1 or 0.
 ** It is now possible to test for the existence of a slice.
+** All integer sizes are now compatible. Unless overflow occurs any integer field can be compared with any other.
 
 * The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
 ** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.

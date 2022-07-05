@@ -444,12 +444,15 @@ sfloat_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
     return FALSE;
 }
 
-static int
-sfloat_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b)
+static enum ft_result
+sfloat_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 {
     if (sfloat_ieee_11073_cmp_lt(a, b))
-        return -1;
-    return sfloat_ieee_11073_cmp_eq(a, b) ? 0 : 1;
+        *cmp = -1;
+    else
+        *cmp = sfloat_ieee_11073_cmp_eq(a, b) ? 0 : 1;
+
+    return FT_OK;
 }
 
 static gboolean
@@ -853,12 +856,15 @@ float_ieee_11073_cmp_lt(const fvalue_t *a, const fvalue_t *b)
     return FALSE;
 }
 
-static int
-float_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b)
+static enum ft_result
+float_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 {
     if (float_ieee_11073_cmp_lt(a, b))
-        return -1;
-    return float_ieee_11073_cmp_eq(a, b) ? 0 : 1;
+        *cmp = -1;
+    else
+        *cmp = float_ieee_11073_cmp_eq(a, b) ? 0 : 1;
+
+    return FT_OK;
 }
 
 static gboolean
@@ -910,6 +916,9 @@ Example: 114 is 0x0072
         NULL,                                 /* val_from_string */
         NULL,                                 /* val_from_charconst */
         sfloat_ieee_11073_val_to_repr,        /* val_to_string_repr */
+
+        NULL,                                 /* val_to_uinteger64 */
+        NULL,                                 /* val_to_sinteger64 */
 
         { .set_value_uinteger = sfloat_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = sfloat_ieee_11073_value_get }, /* union get_value */
@@ -970,6 +979,9 @@ Example: 36.4 is 0xFF00016C
         NULL,                                /* val_from_string */
         NULL,                                /* val_from_charconst */
         float_ieee_11073_val_to_repr,        /* val_to_string_repr */
+
+        NULL,                                 /* val_to_uinteger64 */
+        NULL,                                 /* val_to_sinteger64 */
 
         { .set_value_uinteger = float_ieee_11073_value_set }, /* union set_value */
         { .get_value_uinteger = float_ieee_11073_value_get }, /* union get_value */

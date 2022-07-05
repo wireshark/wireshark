@@ -120,14 +120,16 @@ val_divide(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr 
 	return FT_OK;
 }
 
-static int
-cmp_order(const fvalue_t *a, const fvalue_t *b)
+static enum ft_result
+cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 {
 	if (a->value.floating < b->value.floating)
-		return -1;
-	if (a->value.floating > b->value.floating)
-		return 1;
-	return 0;
+		*cmp = -1;
+	else if (a->value.floating > b->value.floating)
+		*cmp = 1;
+	else
+		*cmp = 0;
+	return FT_OK;
 }
 
 static gboolean
@@ -158,6 +160,9 @@ ftype_register_double(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		float_val_to_repr,		/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
@@ -191,6 +196,9 @@ ftype_register_double(void)
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		double_val_to_repr,		/* val_to_string_repr */
+
+		NULL,				/* val_to_uinteger64 */
+		NULL,				/* val_to_sinteger64 */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
