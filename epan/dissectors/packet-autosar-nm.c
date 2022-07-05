@@ -741,7 +741,7 @@ void proto_reg_handoff_autosar_nm(void)
       dissector_add_for_decode_as("can.subdissector", nm_handle_can);
 
       /* heuristics default on since they do nothing without IDs being configured */
-      heur_dissector_add("can", dissect_autosar_nm_can_heur, "AUTOSAR over CAN", "autosar_nm_can_heur", proto_autosar_nm, HEURISTIC_ENABLE);
+      heur_dissector_add("can", dissect_autosar_nm_can_heur, "AUTOSAR NM over CAN", "autosar_nm_can_heur", proto_autosar_nm, HEURISTIC_ENABLE);
 
       initialized = TRUE;
   } else {
