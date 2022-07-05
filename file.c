@@ -4591,7 +4591,9 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
                     &data_offset))) {
         framenum++;
         fdata = frame_data_sequence_find(cf->provider.frames, framenum);
-        fdata->file_off = data_offset;
+        if (G_LIKELY(fdata != NULL)) {
+            fdata->file_off = data_offset;
+        }
         if (size >= 0) {
             count++;
             cf->f_datalen = wtap_read_so_far(cf->provider.wth);
