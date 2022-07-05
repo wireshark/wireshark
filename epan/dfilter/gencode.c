@@ -42,7 +42,6 @@ select_opcode(dfvm_opcode_t op, stmatch_t how)
 		case DFVM_ALL_GE:
 		case DFVM_ALL_LT:
 		case DFVM_ALL_LE:
-		case DFVM_ALL_ZERO:
 		case DFVM_ALL_CONTAINS:
 		case DFVM_ALL_MATCHES:
 		case DFVM_ALL_IN_RANGE:
@@ -53,11 +52,11 @@ select_opcode(dfvm_opcode_t op, stmatch_t how)
 		case DFVM_ANY_GE:
 		case DFVM_ANY_LT:
 		case DFVM_ANY_LE:
-		case DFVM_ANY_ZERO:
 		case DFVM_ANY_CONTAINS:
 		case DFVM_ANY_MATCHES:
 		case DFVM_ANY_IN_RANGE:
 			return how == STNODE_MATCH_ANY ? op : op - 1;
+		case DFVM_NOT_ALL_ZERO:
 		case DFVM_IF_TRUE_GOTO:
 		case DFVM_IF_FALSE_GOTO:
 		case DFVM_CHECK_EXISTS:
@@ -621,10 +620,8 @@ gen_notzero(dfwork_t *dfw, stnode_t *st_node)
 	GSList		*jumps = NULL;
 
 	val1 = gen_arithmetic(dfw, st_node, &jumps);
-	insn = dfvm_insn_new(DFVM_ALL_ZERO);
+	insn = dfvm_insn_new(DFVM_NOT_ALL_ZERO);
 	insn->arg1 = dfvm_value_ref(val1);
-	dfw_append_insn(dfw, insn);
-	insn = dfvm_insn_new(DFVM_NOT);
 	dfw_append_insn(dfw, insn);
 	g_slist_foreach(jumps, fixup_jumps, dfw);
 	g_slist_free(jumps);
@@ -645,10 +642,8 @@ gen_exists_slice(dfwork_t *dfw, stnode_t *st_node)
 	insn->arg2 = dfvm_value_ref(reg_val);
 	dfw_append_insn(dfw, insn);
 	/* Check length is not zero. */
-	insn = dfvm_insn_new(DFVM_ALL_ZERO);
+	insn = dfvm_insn_new(DFVM_NOT_ALL_ZERO);
 	insn->arg1 = dfvm_value_ref(reg_val);
-	dfw_append_insn(dfw, insn);
-	insn = dfvm_insn_new(DFVM_NOT);
 	dfw_append_insn(dfw, insn);
 	/* Fixup jumps. */
 	g_slist_foreach(jumps, fixup_jumps, dfw);

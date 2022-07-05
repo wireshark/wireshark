@@ -70,8 +70,6 @@ typedef enum {
 	DFVM_ANY_LT,
 	DFVM_ALL_LE,
 	DFVM_ANY_LE,
-	DFVM_ALL_ZERO,
-	DFVM_ANY_ZERO,
 	DFVM_ALL_CONTAINS,
 	DFVM_ANY_CONTAINS,
 	DFVM_ALL_MATCHES,
@@ -90,6 +88,7 @@ typedef enum {
 	DFVM_CALL_FUNCTION,
 	DFVM_STACK_PUSH,
 	DFVM_STACK_POP,
+	DFVM_NOT_ALL_ZERO,
 } dfvm_opcode_t;
 
 const char *
