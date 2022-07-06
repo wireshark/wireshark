@@ -113,7 +113,8 @@ DEBDEPS_LIST="debhelper \
 	python3-ply \
 	quilt"
 
-TESTDEPS_LIST=
+TESTDEPS_LIST="python3-pytest \
+	python3-pytest-xdist"
 
 # Adds package $2 to list variable $1 if the package is found.
 # If $3 is given, then this version requirement must be satisfied.
