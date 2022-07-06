@@ -3744,15 +3744,15 @@ prefs_get_string_list(const gchar *str)
 {
     enum { PRE_STRING, IN_QUOT, NOT_IN_QUOT };
 
-    gint      state = PRE_STRING, i = 0, j = 0;
+    gint      state = PRE_STRING, i = 0;
     gboolean  backslash = FALSE;
     guchar    cur_c;
-    gchar    *slstr = NULL;
+    const gsize default_size = 64;
+    GString  *slstr = NULL;
     GList    *sl = NULL;
 
     /* Allocate a buffer for the first string.   */
-    slstr = g_new(gchar, COL_MAX_LEN);
-    j = 0;
+    slstr = g_string_sized_new(default_size);
 
     for (;;) {
         cur_c = str[i];
@@ -3762,15 +3762,14 @@ prefs_get_string_list(const gchar *str)
             if (state == IN_QUOT || backslash) {
                 /* We were in the middle of a quoted string or backslash escape,
                    and ran out of characters; that's an error.  */
-                g_free(slstr);
+                g_string_free(slstr, TRUE);
                 prefs_clear_string_list(sl);
                 return NULL;
             }
-            slstr[j] = '\0';
-            if (j > 0)
-                sl = g_list_append(sl, slstr);
+            if (slstr->len > 0)
+                sl = g_list_append(sl, g_string_free(slstr, FALSE));
             else
-                g_free(slstr);
+                g_string_free(slstr, TRUE);
             break;
         }
         if (cur_c == '"' && !backslash) {
@@ -3805,26 +3804,20 @@ prefs_get_string_list(const gchar *str)
             /* We saw a comma, and we're not in the middle of a quoted string
                and it wasn't preceded by a backslash; it's the end of
                the string we were working on...  */
-            slstr[j] = '\0';
-            if (j > 0) {
-                sl = g_list_append(sl, slstr);
-                slstr = g_new(gchar, COL_MAX_LEN);
+            if (slstr->len > 0) {
+                sl = g_list_append(sl, g_string_free(slstr, FALSE));
+                slstr = g_string_sized_new(default_size);
             }
 
             /* ...and the beginning of a new string.  */
             state = PRE_STRING;
-            j = 0;
         } else if (!g_ascii_isspace(cur_c) || state != PRE_STRING) {
             /* Either this isn't a white-space character, or we've started a
                string (i.e., already seen a non-white-space character for that
                string and put it into the string).
 
-               The character is to be put into the string; do so if there's
-               room.  */
-            if (j < COL_MAX_LEN) {
-                slstr[j] = cur_c;
-                j++;
-            }
+               The character is to be put into the string; do so.  */
+            g_string_append_c(slstr, cur_c);
 
             /* If it was backslash-escaped, we're done with the backslash escape.  */
             backslash = FALSE;
