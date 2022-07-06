@@ -78,6 +78,7 @@ void SyntaxLineEdit::allowCompletion(bool enabled)
 void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
     syntax_state_ = state;
 
+    // XXX Should we drop the background colors here in favor of ::paintEvent below?
     QColor valid_bg = ColorUtils::fromColorT(&prefs.gui_text_valid);
     QColor valid_fg = ColorUtils::contrastingTextColor(valid_bg);
     QColor invalid_bg = ColorUtils::fromColorT(&prefs.gui_text_invalid);
@@ -409,7 +410,24 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
     // Must match CaptureFilterEdit and DisplayFilterEdit stylesheets.
     int pad = style()->pixelMetric(QStyle::PM_DefaultFrameWidth) + 1;
     QRect full_cr = cr.adjusted(-pad, 0, 0, 0);
-    painter.fillRect(full_cr, palette().base());
+    QBrush bg;
+
+    switch (syntax_state_) {
+    case Valid:
+        bg = ColorUtils::fromColorT(&prefs.gui_text_valid);
+        break;
+    case Invalid:
+        bg = ColorUtils::fromColorT(&prefs.gui_text_invalid);
+        break;
+    case Deprecated:
+        bg = ColorUtils::fromColorT(&prefs.gui_text_deprecated);
+        break;
+    default:
+        bg = palette().base();
+        break;
+    }
+
+    painter.fillRect(full_cr, bg);
 #endif
 
     QLineEdit::paintEvent(event);
