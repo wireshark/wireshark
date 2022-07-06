@@ -91,7 +91,9 @@ typedef struct _http_message_info_t {
 	http_type_t type;       /**< Message type; may be HTTP_OTHERS if not called by HTTP */
 	const char *media_str;  /**< Content-Type parameters */
 	const char *content_id; /**< Content-ID parameter */
-	void *data;             /**< The http_type is used to indicate the data transported */
+	/** In http1.0/1.1, data contains the header name/value mappings, valid only within the packet scope.
+	    In other protocols, the http_type is used to indicate the data transported. */
+	void *data;
 } http_message_info_t;
 
 #endif /* __PACKET_HTTP_H__ */
