@@ -814,6 +814,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
     while ((offset + 4) <= extEnd)
     {
         proto_tree *nhrp_tree;
+        proto_item *nhrp_item;
         gint        extTypeC = tvb_get_ntohs(tvb, offset);
         gint        extType  = extTypeC & 0x3FFF;
         guint       len      = tvb_get_ntohs(tvb, offset+2);
@@ -822,11 +823,11 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
             /* Assume it's not really a Cisco NAT extension, but a device
              * capabilities extension instead (see RFC 2735). */
             nhrp_tree =  proto_tree_add_subtree(tree, tvb, offset,
-                len + 4, ett_nhrp_ext, NULL, "Device Capabilities Extension");
+                -1, ett_nhrp_ext, &nhrp_item, "Device Capabilities Extension");
         }
         else {
             nhrp_tree =  proto_tree_add_subtree(tree, tvb, offset,
-                len + 4, ett_nhrp_ext, NULL,
+                -1, ett_nhrp_ext, &nhrp_item,
                 val_to_str(extType, ext_type_vals, "Unknown (%u)"));
         }
         proto_tree_add_boolean(nhrp_tree, hf_nhrp_ext_C, tvb, offset, 2, extTypeC);
@@ -881,12 +882,14 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                 }
                 else {
                     proto_tree *auth_tree;
+                    proto_item *auth_item;
+                    guint32 spi;
 
-                    auth_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
-                        ett_nhrp_auth_ext, NULL, "Extension Data: SPI=%u: Data=%s", tvb_get_ntohs(tvb, offset + 2),
-                        tvb_bytes_to_str(pinfo->pool, tvb, offset + 4 + srcLen, len - (4 + srcLen)));
+                    auth_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, -1,
+                        ett_nhrp_auth_ext, &auth_item, "Extension Data");
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &spi);
+                    proto_item_append_text(auth_item, ": SPI=%u", spi);
                     if (srcLen == 4)
                         proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                     else if (srcLen) {
@@ -894,7 +897,10 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     }
                     if (len > (4 + srcLen)) {
                         proto_tree_add_item(auth_tree, hf_nhrp_auth_data, tvb, offset + 4 + srcLen, len - (4 + srcLen), ENC_NA);
+                        proto_item_append_text(auth_item, ": Data=%s",
+                            tvb_bytes_to_str(pinfo->pool, tvb, offset + 4 + srcLen, len - (4 + srcLen)));
                     }
+                    proto_item_set_len(auth_item, len);
                 }
                 break;
 
@@ -935,6 +941,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
 skip_switch:
             offset += len;
         }
+        proto_item_set_end(nhrp_item, tvb, offset);
 
         if (!nested) {
             len = tvb_reported_length_remaining(tvb, offset);
