@@ -1313,7 +1313,7 @@ proto_register_nhrp(void)
         },
         { &hf_nhrp_vendor_ext_id      ,
           { "Vendor ID", "nhrp.vendor_ext.id",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nhrp_devcap_ext_srccap,
