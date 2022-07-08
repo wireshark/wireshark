@@ -40,6 +40,7 @@
 
 #include <QAudio>
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+#include <algorithm>
 #include <QAudioDevice>
 #include <QAudioSink>
 #include <QMediaDevices>
@@ -1442,6 +1443,7 @@ QAudioDevice RtpPlayerDialog::getCurrentDeviceInfo()
 void RtpPlayerDialog::sinkStateChanged()
 {
     if (marker_stream_->state() == QAudio::ActiveState) {
+        notify_timer_start_diff_ = -1;
         notify_timer_.start();
     } else {
         notify_timer_.stop();
@@ -1516,8 +1518,17 @@ void RtpPlayerDialog::outputNotify()
 {
     double new_current_pos = 0.0;
     double current_pos = 0.0;
+    qint64 usecs = marker_stream_->processedUSecs();
 
-    double secs = marker_stream_->processedUSecs() / 1000000.0;
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    // First notify can show end of buffer, not play point so we have
+    // remember the shift
+    if ( -1 == notify_timer_start_diff_) {
+      notify_timer_start_diff_ = usecs;
+    }
+    usecs -= notify_timer_start_diff_;
+#endif
+    double secs = usecs / 1000000.0;
 
     if (ui->skipSilenceButton->isChecked()) {
         // We should check whether we can skip some silence
@@ -1940,10 +1951,32 @@ void RtpPlayerDialog::fillAudioRateMenu()
     // what's available.
     QAudioDevice cur_out_device = getCurrentDeviceInfo();
     QSet<int>sample_rates;
-    sample_rates.insert(cur_out_device.minimumSampleRate());
     sample_rates.insert(cur_out_device.preferredFormat().sampleRate());
-    sample_rates.insert(cur_out_device.maximumSampleRate());
-    for (auto rate : sample_rates) {
+    // Add 8000 if supported
+    if ((cur_out_device.minimumSampleRate() <= 8000) &&
+        (8000 <= cur_out_device.maximumSampleRate())
+       ) {
+      sample_rates.insert(8000);
+    }
+    // Add 16000 if supported
+    if ((cur_out_device.minimumSampleRate() <= 16000) &&
+        (16000 <= cur_out_device.maximumSampleRate())
+       ) {
+      sample_rates.insert(16000);
+    }
+    // Add 44100 if supported
+    if ((cur_out_device.minimumSampleRate() <= 44100) &&
+        (44100 <= cur_out_device.maximumSampleRate())
+       ) {
+      sample_rates.insert(44100);
+    }
+
+    // Sort values
+    QList<int> sorter = sample_rates.values();
+    std::sort(sorter.begin(), sorter.end());
+
+    // Insert rates to the list
+    for (auto rate : sorter) {
         ui->outputAudioRate->addItem(QString::number(rate));
     }
 #else

@@ -233,6 +233,7 @@ private:
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QAudioSink *marker_stream_;
     QTimer notify_timer_;
+    qint64 notify_timer_start_diff_;    // Used to shift play cursor to correct place
 #else
     QAudioOutput *marker_stream_;
 #endif
