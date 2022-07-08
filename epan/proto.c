@@ -6739,7 +6739,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 	guint64             number64;
 	const guint8       *bytes;
 
-	int                 len, prev_len, last, i, offset_r = 0, offset_e = 0, label_len;
+	int                 len, prev_len, last, i, offset_r = 0, offset_e = 0, prev_offset_r = 0, label_len;
 	GPtrArray          *finfos;
 	field_info         *finfo         = NULL;
 	header_field_info*  hfinfo;
@@ -6807,6 +6807,14 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 			}
 
 			prev_len += len; /* Count handled occurrences */
+
+			/* Store the offset where all the occurrences of this
+			 * field begin in the result.
+			 */
+			prev_offset_r = offset_r;
+			if (offset_r && (offset_r < (size - 2))) {
+				prev_offset_r++; /* skip the comma added below */
+			}
 
 			while (i <= last) {
 				finfo = (field_info *)g_ptr_array_index(finfos, i);
@@ -6979,11 +6987,13 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					break;
 
 				default:
-					/* for all others, just copy "result" to "expr" */
-					(void) g_strlcpy(expr, result, size);
+					/* for all others, just copy the latest "result" to "expr" */
+					offset_e += protoo_strlcpy(expr+offset_e, result+prev_offset_r, size-offset_e);
 					break;
 			}
 
+			/* XXX: Why is only the first abbreviation returned for a multifield
+			 * custom column? */
 			if (!abbrev) {
 				/* Store abbrev for return value */
 				abbrev = hfinfo->abbrev;
