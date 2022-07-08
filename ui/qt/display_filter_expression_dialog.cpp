@@ -54,6 +54,11 @@ enum {
     in_op_
 };
 
+static inline bool compareTreeWidgetItems(const QTreeWidgetItem *it1, const QTreeWidgetItem *it2)
+{
+    return *it1 < *it2;
+}
+
 DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     GeometryStateDialog(parent),
     ui(new Ui::DisplayFilterExpressionDialog),
@@ -95,9 +100,6 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     connect(ui->valueLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
     connect(ui->rangeLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
 
-    // Trigger updateWidgets
-    ui->fieldTreeWidget->selectionModel()->clear();
-
     fillTree();
 }
 
@@ -125,13 +127,8 @@ void DisplayFilterExpressionDialog::fillTree()
         proto_ti->setData(0, Qt::UserRole, QVariant::fromValue(proto_id));
         proto_list << proto_ti;
     }
+    std::stable_sort(proto_list.begin(), proto_list.end(), compareTreeWidgetItems);
 
-    mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
-
-    ui->fieldTreeWidget->invisibleRootItem()->addChildren(proto_list);
-    ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
-
-    int field_count = 0;
     foreach (QTreeWidgetItem *proto_ti, proto_list) {
         void *field_cookie;
         int proto_id = proto_ti->data(0, Qt::UserRole).toInt();
@@ -146,19 +143,12 @@ void DisplayFilterExpressionDialog::fillTree()
             field_ti->setText(0, label);
             field_ti->setData(0, Qt::UserRole, VariantPointer<header_field_info>::asQVariant(hfinfo));
             field_list << field_ti;
-
-            field_count++;
-            if (field_count % 10000 == 0) {
-                mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
-            }
         }
-        std::sort(field_list.begin(), field_list.end());
+        std::stable_sort(field_list.begin(), field_list.end(), compareTreeWidgetItems);
         proto_ti->addChildren(field_list);
     }
 
-    mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
-    ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
-
+    ui->fieldTreeWidget->invisibleRootItem()->addChildren(proto_list);
     updateWidgets();
 }
 
