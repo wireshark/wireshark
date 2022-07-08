@@ -6578,40 +6578,62 @@ BACnetVendorIdentifiers [] = {
     { 1306, "GBX Technology, LLC" },
     { 1307, "Kaiterra" },
     { 1308, "ThinKuan loT Technology (Shanghai) Co., Ltd" },
-    { 1309,	"HoCoSto B.V." },
-    { 1310,	"Shenzhen AS-AI Technology Co., Ltd." },
-    { 1311,	"RPS S.p.a." },
-    { 1312,	"Delta Dore Ems" },
-    { 1313,	"IOTech Systems Limited" },
-    { 1314,	"i-AutoLogic Co., Ltd." },
-    { 1315,	"New Age Micro, LLC" },
-    { 1316,	"Guardian Glass" },
-    { 1317,	"Guangzhou Zhaoyu Information Technology" },
-    { 1318,	"ACE IoT Solutions LLC" },
-    { 1319,	"Poris Electronics Co., Ltd." },
-    { 1320,	"Terminus Technologies Group" },
-    { 1321,	"Intech 21, Inc." },
-    { 1322,	"Accurate Electronics" },
-    { 1323,	"Fluence Bioengineering" },
-    { 1324,	"Mun Hean Singapore Pte Ltd" },
-    { 1325,	"Katronic AG & Co. KG" },
-    { 1326,	"Suzhou XinAo Information Technology Co. Ltd" },
-    { 1327,	"Linktekk Technology, JSC." },
-    { 1328,	"Stirling Ultracold" },
-    { 1329,	"UV Partners, Inc." },
-    { 1330,	"ProMinent GmbH" },
-    { 1331,	"Multi-Tech Systems, Inc." },
-    { 1332,	"JUMO GmbH & Co. KG" },
-    { 1333,	"Qingdao Huarui Technology Co. Ltd." },
-    { 1334,	"Cairn Systemes" },
-    { 1335,	"NeuroLogic Research Corp." },
-    { 1336,	"Transition Technologies Advanced Solutions Sp. z o.o" },
-    { 1337,	"Xxter bv" },
-    { 1338,	"PassiveLogic" },
-    { 1339,	"EnSmart Controls" },
-    { 1340,	"Watts Heating and Hot Water Solutions, dba Lync" },
-    { 1341,	"Troposphaira Technologies LLP" },
-    { 1342,	"Network Thermostat" },
+    { 1309, "HoCoSto B.V." },
+    { 1310, "Shenzhen AS-AI Technology Co., Ltd." },
+    { 1311, "RPS S.p.a." },
+    { 1312, "Delta Dore Ems" },
+    { 1313, "IOTech Systems Limited" },
+    { 1314, "i-AutoLogic Co., Ltd." },
+    { 1315, "New Age Micro, LLC" },
+    { 1316, "Guardian Glass" },
+    { 1317, "Guangzhou Zhaoyu Information Technology" },
+    { 1318, "ACE IoT Solutions LLC" },
+    { 1319, "Poris Electronics Co., Ltd." },
+    { 1320, "Terminus Technologies Group" },
+    { 1321, "Intech 21, Inc." },
+    { 1322, "Accurate Electronics" },
+    { 1323, "Fluence Bioengineering" },
+    { 1324, "Mun Hean Singapore Pte Ltd" },
+    { 1325, "Katronic AG & Co. KG" },
+    { 1326, "Suzhou XinAo Information Technology Co. Ltd" },
+    { 1327, "Linktekk Technology, JSC." },
+    { 1328, "Stirling Ultracold" },
+    { 1329, "UV Partners, Inc." },
+    { 1330, "ProMinent GmbH" },
+    { 1331, "Multi-Tech Systems, Inc." },
+    { 1332, "JUMO GmbH & Co. KG" },
+    { 1333, "Qingdao Huarui Technology Co. Ltd." },
+    { 1334, "Cairn Systemes" },
+    { 1335, "NeuroLogic Research Corp." },
+    { 1336, "Transition Technologies Advanced Solutions Sp. z o.o" },
+    { 1337, "Xxter bv" },
+    { 1338, "PassiveLogic" },
+    { 1339, "EnSmart Controls" },
+    { 1340, "Watts Heating and Hot Water Solutions, dba Lync" },
+    { 1341, "Troposphaira Technologies LLP" },
+    { 1342, "Network Thermostat" },
+    { 1343, "Titanium Intelligent Solutions, LLC" },
+    { 1344, "Numa Products, LLC" },
+    { 1345, "WAREMA Renkhoff SE" },
+    { 1346, "Frese A/S" },
+    { 1347, "Mapped" },
+    { 1348, "ELEKTRODESIGN ventilatory s.r.o" },
+    { 1349, "AirCare Automation, Inc." },
+    { 1350, "Antrum" },
+    { 1351, "Bao Linh Connect Technology" },
+    { 1352, "Virginia Controls, LLC" },
+    { 1353, "Duosys SDN BHD" },
+    { 1354, "Onsen SAS" },
+    { 1355, "Vaughn Thermal Corporation" },
+    { 1356, "Thermoplastic Engineering Ltd (TPE)" },
+    { 1357, "Wirth Research Ltd." },
+    { 1358, "SST Automation" },
+    { 1359, "Shanghai Bencol Electronic Technology Co., Ltd" },
+    { 1360, "AIWAA Systems Private Limited" },
+    { 1361, "Enless Wireless" },
+    { 1362, "Ozuno Engineering Pty Ltd" },
+    { 1363, "Hubbell, The Electric Heater Company" },
+    { 1364, "Industrial Turnaround Corporation (ITAC)" },
     {    0, NULL }
 };
 static value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
@@ -10206,9 +10228,7 @@ fSCDirectConnection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
         }
         switch (tag_no) {
         case 0: /* uri */
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             offset = fCharacterString(tvb, pinfo, tree, offset, "uri: ");
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 1: /* connection-state */
             offset = fEnumeratedTag(tvb, pinfo, tree, offset, "connection-state: ", BACnetSCConnectionState);
@@ -10240,9 +10260,7 @@ fSCDirectConnection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 8: /* details - OPTIONAL */
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             offset = fCharacterString(tvb, pinfo, tree, offset, "details: ");
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         default:
             return offset;
@@ -10304,9 +10322,7 @@ fSCFailedConnectionRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 5: /* details - OPTIONAL */
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             offset = fCharacterString(tvb, pinfo, tree, offset, "details: ");
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         default:
             return offset;
@@ -10364,9 +10380,7 @@ fSCHubConnection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 4: /* details - OPTIONAL */
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             offset = fCharacterString(tvb, pinfo, tree, offset, "details: ");
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         default:
             return offset;
@@ -10438,9 +10452,7 @@ fSCHubFunctionConnection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 7: /* details - OPTIONAL */
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             offset = fCharacterString(tvb, pinfo, tree, offset, "details: ");
-            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         default:
             return offset;
@@ -11871,8 +11883,25 @@ fEventParameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
                 break;
             case 2: /* parameters */
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
-                offset = fApplicationTypes(tvb, pinfo, tree, offset, "parameters: ");
-                offset = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
+                while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info) && tag_no == 2) {
+                        break;
+                    }
+
+                    if ( ! tag_is_context_specific(tag_info)) {
+                        offset  = fApplicationTypes(tvb, pinfo, tree, offset, "parameters: ");
+                    } else {
+                        if (tag_no == 0) {
+                            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                            offset  = fDeviceObjectPropertyReference(tvb, pinfo, tree, offset);
+                            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                        } else {
+                            offset = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
+                        }
+                    }
+                }
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
                 lastoffset = offset;
                 break;
