@@ -126,6 +126,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ip_to_str_buf@Base 3.5.1
  ipxnet_to_str_punct@Base 3.5.1
  is_default_profile@Base 1.12.0~rc1
+ is_packet_configuration_namespace@Base 3.7.2
  isdigit_string@Base 1.10.0
  iso8601_to_nstime@Base 3.5.0
  isprint_string@Base 1.10.0
