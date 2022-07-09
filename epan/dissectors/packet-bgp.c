@@ -1385,7 +1385,7 @@ static const value_string bgpext_com_stype_tr_evpn[] = {
     { BGP_EXT_COM_STYPE_EVPN_MMAC,        "MAC Mobility" },
     { BGP_EXT_COM_STYPE_EVPN_LABEL,       "ESI MPLS Label" },
     { BGP_EXT_COM_STYPE_EVPN_IMP,         "ES Import" },
-    { BGP_EXT_COM_STYPE_EVPN_ROUTERMAC,   "EVPN Router MAC" },
+    { BGP_EXT_COM_STYPE_EVPN_ROUTERMAC,   "EVPN Router's MAC" },
     { BGP_EXT_COM_STYPE_EVPN_L2ATTR,      "Layer 2 Attributes" },
     { BGP_EXT_COM_STYPE_EVPN_ETREE,       "E-Tree" },
     { BGP_EXT_COM_STYPE_EVPN_DF,          "DF Election" },
@@ -8142,7 +8142,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
                     case BGP_EXT_COM_STYPE_EVPN_ROUTERMAC:
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_evpn_routermac, tvb, offset+2, 6, ENC_NA);
 
-                        proto_item_append_text(community_item, " Router MAC: %s", tvb_ether_to_str(pinfo->pool, tvb, offset+2));
+                        proto_item_append_text(community_item, " Router's MAC: %s", tvb_ether_to_str(pinfo->pool, tvb, offset+2));
                         break;
 
                     case BGP_EXT_COM_STYPE_EVPN_L2ATTR:
@@ -11998,8 +11998,8 @@ proto_register_bgp(void)
         { "ES-Import Route Target", "bgp.ext_com_evpn.esi.rt", FT_ETHER, BASE_NONE,
           NULL, 0x0, "Route Target as a MAC Address", HFILL }},
       { &hf_bgp_ext_com_evpn_routermac,
-        { "Router MAC", "bgp.ext_com_evpn.esi.router_mac", FT_ETHER, BASE_NONE,
-          NULL, 0x0, "Router MAC Address", HFILL }},
+        { "Router's MAC", "bgp.ext_com_evpn.esi.router_mac", FT_ETHER, BASE_NONE,
+          NULL, 0x0, "Router's MAC Address", HFILL }},
       { &hf_bgp_ext_com_evpn_l2attr_flags,
         { "Flags", "bgp.ext_com_evpn.l2attr.flags", FT_UINT16, BASE_HEX,
           NULL, 0x0, "EVPN L2 attribute flags", HFILL }},
