@@ -351,15 +351,8 @@ static const value_string tecmp_device_types[] = {
 
 /* Control Message IDs */
 /* Updated by ID Registry */
-static const value_string tecmp_ctrl_msg_ids[] = {
+static const value_string tecmp_ctrl_msg_ids_types[] = {
     {0x0002, "Logger Ready"},
-    {0x0004, "Shutdown Level 1"},
-    {0x0005, "Shutdown Level 2"},
-    {0x0006, "Shutdown"},
-    {0x0010, "Config Mode On"},
-    {0x0011, "Logging Mode On"},
-    {0x0020, "Trigger 1"},
-    {0x0021, "Trigger 2"},
     {0, NULL}
 };
 
@@ -487,6 +480,7 @@ typedef struct _interface_config {
 
 #define DATAFILE_TECMP_DEVICE_IDS "TECMP_device_identifiers"
 #define DATAFILE_TECMP_INTERFACE_IDS "TECMP_interface_identifiers"
+#define DATAFILE_TECMP_CONTROL_MSG_IDS "TECMP_control_message_identifiers"
 
 static GHashTable *data_tecmp_devices = NULL;
 static generic_one_id_string_t* tecmp_devices = NULL;
@@ -502,6 +496,13 @@ static guint tecmp_interfaces_num = 0;
 UAT_HEX_CB_DEF(tecmp_interfaces, id, interface_config_t)
 UAT_CSTRING_CB_DEF(tecmp_interfaces, name, interface_config_t)
 UAT_HEX_CB_DEF(tecmp_interfaces, bus_id, interface_config_t)
+
+static GHashTable *data_tecmp_ctrlmsgids = NULL;
+static generic_one_id_string_t* tecmp_ctrl_msgs = NULL;
+static guint tecmp_ctrl_msg_num = 0;
+
+UAT_HEX_CB_DEF(tecmp_ctrl_msgs, id, generic_one_id_string_t)
+UAT_CSTRING_CB_DEF(tecmp_ctrl_msgs, name, generic_one_id_string_t)
 
 /* generic UAT */
 static void
@@ -677,6 +678,28 @@ post_update_tecmp_devices_cb(void) {
 }
 
 static void
+add_device_id_text(proto_item *ti, guint16 device_id) {
+    const gchar *descr = ht_lookup_name(data_tecmp_devices, device_id);
+
+    if (descr != NULL) {
+        proto_item_append_text(ti, " (%s)", descr);
+    } else {
+        /* try to pick a default */
+        descr = val_to_str((device_id & 0xfff0), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
+
+        if (descr != NULL) {
+            if ((device_id & 0x000f) == 0) {
+                proto_item_append_text(ti, " (%s %d (Default))", descr, (device_id & 0x000f));
+            } else {
+                proto_item_append_text(ti, " (%s %d)", descr, (device_id & 0x000f));
+            }
+        }
+    }
+}
+
+/*** UAT TECMP_INTERFACE_IDs ***/
+
+static void
 post_update_tecmp_interfaces_cb(void) {
     guint  i;
     int   *key = NULL;
@@ -702,26 +725,6 @@ post_update_tecmp_interfaces_cb(void) {
 }
 
 static void
-add_device_id_text(proto_item *ti, guint16 device_id) {
-    const gchar *descr = ht_lookup_name(data_tecmp_devices, device_id);
-
-    if (descr != NULL) {
-        proto_item_append_text(ti, " (%s)", descr);
-    } else {
-        /* try to pick a default */
-        descr = val_to_str((device_id & 0xfff0), tecmp_device_id_prefixes, "Unknown/Unconfigured CM");
-
-        if (descr != NULL) {
-            if ((device_id & 0x000f) == 0) {
-                proto_item_append_text(ti, " (%s %d (Default))", descr, (device_id & 0x000f));
-            } else {
-                proto_item_append_text(ti, " (%s %d)", descr, (device_id & 0x000f));
-            }
-        }
-    }
-}
-
-static void
 add_interface_id_text_and_name(proto_item *ti, guint32 interface_id, tvbuff_t *tvb, gint offset) {
     const gchar *descr = ht_interface_config_to_string(interface_id);
 
@@ -731,6 +734,42 @@ add_interface_id_text_and_name(proto_item *ti, guint32 interface_id, tvbuff_t *t
         proto_tree_add_string(subtree, hf_tecmp_payload_interface_name, tvb, offset, 4, descr);
     }
 }
+
+/*** UAT TECMP_CONTROL_MESSAGE_IDs ***/
+
+static void
+post_update_tecmp_control_messages_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (data_tecmp_ctrlmsgids) {
+        g_hash_table_destroy(data_tecmp_ctrlmsgids);
+        data_tecmp_ctrlmsgids = NULL;
+    }
+
+    /* create new hash table */
+    data_tecmp_ctrlmsgids = g_hash_table_new_full(g_int_hash, g_int_equal, &tecmp_free_key, &simple_free);
+    post_update_one_id_string_template_cb(tecmp_ctrl_msgs, tecmp_ctrl_msg_num, data_tecmp_ctrlmsgids);
+}
+
+static const gchar*
+resolve_control_message_id(guint16 control_message_id)
+{
+    const gchar *tmp = ht_lookup_name(data_tecmp_ctrlmsgids, control_message_id);
+
+    /* lets look at the static values, if nothing is configured */
+    if (tmp == NULL) {
+        tmp = try_val_to_str(control_message_id, tecmp_ctrl_msg_ids_types);
+    }
+
+    /* no configured or standardized name known */
+    if (tmp != NULL) {
+        return wmem_strdup_printf(wmem_packet_scope(), "%s (0x%04x)", tmp, control_message_id);
+    }
+
+    /* just give back unknown */
+    return wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%04x)", control_message_id);
+}
+
+
 
 static gboolean
 tecmp_entry_header_present(tvbuff_t *tvb, guint offset) {
@@ -1112,6 +1151,7 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     guint16 length = 0;
     guint offset = offset_orig;
     guint device_id = 0;
+    guint ctrl_msg_id = 0;
 
     if (tvb_captured_length_remaining(tvb, offset) >= (16 + 4)) {
         length = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
@@ -1126,7 +1166,9 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_ctrl_msg_device_id, tvb, offset, 2, ENC_BIG_ENDIAN,
                                           &device_id);
         add_device_id_text(ti, (guint16)device_id);
-        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_id, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        ctrl_msg_id = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        proto_tree_add_uint_format(tecmp_tree, hf_tecmp_payload_ctrl_msg_id, tvb, offset + 2, 2, ctrl_msg_id, "Type: %s", resolve_control_message_id(ctrl_msg_id));
+
         offset += 4;
     }
 
@@ -1676,7 +1718,7 @@ proto_register_tecmp_payload(void) {
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_tecmp_payload_ctrl_msg_id,
             { "Control Message ID", "tecmp.payload.ctrl_msg.id",
-            FT_UINT16, BASE_HEX, VALS(tecmp_ctrl_msg_ids), 0x0, NULL, HFILL }},
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         /* Status Device / Status Bus / Status Configuration */
         { &hf_tecmp_payload_status_vendor_id,
@@ -1966,6 +2008,7 @@ proto_register_tecmp(void) {
     module_t *tecmp_module = NULL;
     uat_t *tecmp_device_id_uat = NULL;
     uat_t *tecmp_interface_id_uat = NULL;
+    uat_t *tecmp_control_message_id_uat = NULL;
 
     static hf_register_info hf[] = {
         { &hf_tecmp_device_id,
@@ -2025,6 +2068,12 @@ proto_register_tecmp(void) {
         UAT_END_FIELDS
     };
 
+    static uat_field_t tecmp_control_message_id_uat_fields[] = {
+        UAT_FLD_HEX(tecmp_ctrl_msgs, id, "ID", "ID of the Control Message"),
+        UAT_FLD_CSTRING(tecmp_ctrl_msgs, name, "Control Message Name", "Name of the Control Message"),
+        UAT_END_FIELDS
+    };
+
     proto_tecmp = proto_register_protocol("Technically Enhanced Capture Module Protocol", "TECMP", "tecmp");
     proto_register_field_array(proto_tecmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2068,6 +2117,25 @@ proto_register_tecmp(void) {
 
     prefs_register_uat_preference(tecmp_module, "_udf_tecmp_interfaces", "Interfaces",
         "A table to define names of Interfaces.", tecmp_interface_id_uat);
+
+    tecmp_control_message_id_uat = uat_new("TECMP Control Messages",
+        sizeof(generic_one_id_string_t),        /* record size           */
+        DATAFILE_TECMP_CONTROL_MSG_IDS,         /* filename              */
+        TRUE,                                   /* from profile          */
+        (void**)&tecmp_ctrl_msgs,               /* data_ptr              */
+        &tecmp_ctrl_msg_num,                    /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                 /* but not fields        */
+        NULL,                                   /* help                  */
+        copy_generic_one_id_string_cb,          /* copy callback         */
+        update_generic_one_identifier_16bit,    /* update callback       */
+        free_generic_one_id_string_cb,          /* free callback         */
+        post_update_tecmp_control_messages_cb,  /* post update callback  */
+        NULL,                                   /* reset callback        */
+        tecmp_control_message_id_uat_fields     /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(tecmp_module, "_udf_tecmp_control_msg_id", "Control Messages",
+        "A table to define names of Control Messages.", tecmp_control_message_id_uat);
 
     prefs_register_bool_preference(tecmp_module, "try_heuristic_first",
         "Try heuristic sub-dissectors first",
