@@ -261,7 +261,9 @@ void TrafficTreeHeaderView::filterColumn(bool)
 
 TrafficDataFilterProxy::TrafficDataFilterProxy(QObject *parent) :
     QSortFilterProxyModel(parent),
-    _filterColumn(-1)
+    _filterColumn(-1),
+    _filterOn(-1),
+    _filterText(QString())
 {}
 
 void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString filterText)
