@@ -806,6 +806,20 @@ get_column_tooltip(const gint col)
     return g_string_free (column_tooltip, FALSE);
 }
 
+const gchar*
+get_column_text(column_info *cinfo, const gint col)
+{
+  ws_assert(cinfo);
+  ws_assert(col < cinfo->num_cols);
+
+  if (!get_column_resolved(col) && cinfo->col_expr.col_expr_val[col]) {
+      /* Use the unresolved value in col_expr_val */
+      return cinfo->col_expr.col_expr_val[col];
+  }
+
+  return cinfo->columns[col].col_data;
+}
+
 void
 col_finalize(column_info *cinfo)
 {

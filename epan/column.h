@@ -66,6 +66,19 @@ gint                 get_column_char_width(const gint format);
 WS_DLL_PUBLIC
 gchar               *get_column_tooltip(const gint col);
 
+/** Get the text of a column element. The string returned may
+ * depend on whether the resolved member variable is set.
+ * For internal Wireshark use, not to be called from dissectors.
+ * Dissectors use col_get_text() in column-utils.h
+ *
+ * @param cinfo the column information
+ * @param col the column index to use (not the format)
+ *
+ * @return the text string
+ */
+WS_DLL_PUBLIC
+const gchar         *get_column_text(column_info *cinfo, const gint col);
+
 WS_DLL_PUBLIC
 void
 col_finalize(column_info *cinfo);

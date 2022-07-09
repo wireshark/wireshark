@@ -799,6 +799,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_column_format_from_str@Base 1.9.1
  get_column_format_matches@Base 1.9.1
  get_column_resolved@Base 1.9.1
+ get_column_text@Base 3.7.2
  get_column_title@Base 1.9.1
  get_column_tooltip@Base 2.0.1
  get_column_visible@Base 1.9.1

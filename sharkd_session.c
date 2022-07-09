@@ -1333,9 +1333,7 @@ sharkd_session_process_frames_cb(epan_dissect_t *edt, proto_tree *tree _U_,
     sharkd_json_array_open("c");
     for (int col = 0; col < cinfo->num_cols; ++col)
     {
-        const col_item_t *col_item = &cinfo->columns[col];
-
-        sharkd_json_value_string(NULL, col_item->col_data);
+        sharkd_json_value_string(NULL, get_column_text(cinfo, col));
     }
     sharkd_json_array_close();
 
@@ -3483,9 +3481,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
         sharkd_json_array_open("col");
         for (col = 0; col < cinfo->num_cols; ++col)
         {
-            const col_item_t *col_item = &cinfo->columns[col];
-
-            sharkd_json_value_string(NULL, col_item->col_data);
+            sharkd_json_value_string(NULL, get_column_text(cinfo, col));
         }
         sharkd_json_array_close();
     }

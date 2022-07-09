@@ -237,7 +237,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         /* Column based on frame_data or it already contains a value */
         if (text_col < 0) {
             col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
-            col_text_ << QString(cinfo->columns[column].col_data);
+            col_text_ << QString(get_column_text(cinfo, column));
             continue;
         }
 
@@ -249,12 +249,13 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         case COL_8021Q_VLAN_ID:
         case COL_EXPERT:
         case COL_FREQ_CHAN:
-            if (cinfo->columns[column].col_data && cinfo->columns[column].col_data != cinfo->columns[column].col_buf) {
+            const gchar *col_data = get_column_text(cinfo, column);
+            if (col_data && col_data != cinfo->columns[column].col_buf) {
                 /* This is a constant string, so we don't have to copy it */
                 // XXX - ui/gtk/packet_list_store.c uses G_MAXUSHORT. We don't do proper UTF8
                 // truncation in either case.
-                int col_text_len = MIN(qstrlen(cinfo->col_data[column]) + 1, COL_MAX_INFO_LEN);
-                col_text_ << QString(QByteArray::fromRawData(cinfo->columns[column].col_data, col_text_len));
+                int col_text_len = MIN(qstrlen(col_data) + 1, COL_MAX_INFO_LEN);
+                col_text_ << QString(QByteArray::fromRawData(col_data, col_text_len));
                 break;
             }
             /* !! FALL-THROUGH!! */
@@ -278,29 +279,18 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         case COL_RES_NET_DST:
         case COL_UNRES_NET_DST:
         default:
-            if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
-                /* Use the unresolved value in col_expr_val */
-                // XXX Use QContiguousCache?
-                col_text_ << QString(cinfo->col_expr.col_expr_val[column]);
-            } else {
-                col_text_ << QString(cinfo->columns[column].col_data);
-            }
+            // XXX Use QContiguousCache?
+            col_text_ << QString(get_column_text(cinfo, column));
             break;
         }
 #else // MINIMIZE_STRING_COPYING
         QString col_str;
-        if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
-            /* Use the unresolved value in col_expr_val */
-            col_str = QString(cinfo->col_expr.col_expr_val[column]);
-        } else {
-            int text_col = cinfo_column_.value(column, -1);
-
-            if (text_col < 0) {
-                col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
-            }
-            col_str = QString(cinfo->columns[column].col_data);
+        int text_col = cinfo_column_.value(column, -1);
+        if (text_col < 0) {
+            col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
         }
 
+        col_str = QString(get_column_text(cinfo, column));
         col_text_ << col_str;
         col_lines = static_cast<int>(col_str.count('\n'));
         if (col_lines > lines_) {

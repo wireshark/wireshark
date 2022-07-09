@@ -83,7 +83,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
         // ElidedLabel doesn't support rich text / HTML
         col_parts << QString("%1: %2")
                      .arg(get_column_title(i))
-                     .arg(cap_file_.capFile()->cinfo.columns[i].col_data);
+                     .arg(get_column_text(&cap_file_.capFile()->cinfo, i));
     }
     col_info_ = col_parts.join(" " UTF8_MIDDLE_DOT " ");
 

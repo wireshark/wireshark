@@ -2345,6 +2345,7 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
     char            bookmark_name[9+10+1];  /* "__frameNNNNNNNNNN__\0" */
     char            bookmark_title[6+10+1]; /* "Frame NNNNNNNNNN__\0"  */
     col_item_t*     col_item;
+    const gchar*    col_text;
 
     /* Fill in the column information if we're printing the summary
        information. */
@@ -2394,8 +2395,9 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
         line_len = 0;
         for (i = 0; i < args->num_visible_cols; i++) {
             col_item = &cf->cinfo.columns[args->visible_cols[i]];
+            col_text = get_column_text(&cf->cinfo, args->visible_cols[i]);
             /* Find the length of the string for this column. */
-            column_len = (int) strlen(col_item->col_data);
+            column_len = (int) strlen(col_text);
             if (args->col_widths[i] > column_len)
                 column_len = args->col_widths[i];
 
@@ -2411,9 +2413,9 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
 
             /* Right-justify the packet number column. */
             if (col_item->col_fmt == COL_NUMBER)
-                snprintf(cp, column_len+1, "%*s", args->col_widths[i], col_item->col_data);
+                snprintf(cp, column_len+1, "%*s", args->col_widths[i], col_text);
             else
-                snprintf(cp, column_len+1, "%-*s", args->col_widths[i], col_item->col_data);
+                snprintf(cp, column_len+1, "%-*s", args->col_widths[i], col_text);
             cp += column_len;
             if (i != args->num_visible_cols - 1)
                 *cp++ = ' ';
@@ -3218,7 +3220,7 @@ match_summary_line(capture_file *cf, frame_data *fdata,
     for (colx = 0; colx < cf->cinfo.num_cols; colx++) {
         if (cf->cinfo.columns[colx].fmt_matx[COL_INFO]) {
             /* Found it.  See if we match. */
-            info_column = edt.pi.cinfo->columns[colx].col_data;
+            info_column = get_column_text(edt.pi.cinfo, colx);
             info_column_len = strlen(info_column);
             if (cf->regex) {
                 if (g_regex_match(cf->regex, info_column, (GRegexMatchFlags) 0, NULL)) {
