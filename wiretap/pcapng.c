@@ -1044,12 +1044,12 @@ pcapng_process_section_header_block_option(wtapng_block_t *wblock,
      * standardized option codes in either section 3.5 "Options"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-options
      *
      * or in the list of options in section 4.1 "Section Header Block"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-section-header-block
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-section-header-block
      *
      * All option codes in this switch statement here must be listed
      * in one of those places as standardized option types.
@@ -1249,12 +1249,12 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
      * standardized option codes in either section 3.5 "Options"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-options
      *
      * or in the list of options in section 4.1 "Section Header Block"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-section-header-block
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-section-header-block
      *
      * All option codes in this switch statement here must be listed
      * in one of those places as standardized option types.
@@ -1652,12 +1652,12 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
      * standardized option codes in either section 3.5 "Options"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-options
      *
      * or in the list of options in section 4.3 "Enhanced Packet Block"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-enhanced-packet-block
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-enhanced-packet-block
      *
      * All option codes in this switch statement here must be listed
      * in one of those places as standardized option types.
@@ -2243,12 +2243,12 @@ pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
      * standardized option codes in either section 3.5 "Options"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-options
      *
      * or in the list of options in section 4.1 "Section Header Block"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-section-header-block
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-section-header-block
      *
      * All option codes in this switch statement here must be listed
      * in one of those places as standardized option types.
@@ -2521,12 +2521,12 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
      * standardized option codes in either section 3.5 "Options"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-options
      *
      * or in the list of options in section 4.1 "Section Header Block"
      * of the current pcapng spec, at
      *
-     *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-section-header-block
+     *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html#name-section-header-block
      *
      * All option codes in this switch statement here must be listed
      * in one of those places as standardized option types.
@@ -3225,7 +3225,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
          * ***DO NOT*** add any items to this table that are not
          * standardized block types in the current pcapng spec at
          *
-         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html
+         *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html
          *
          * All block types in this switch statement here must be
          * listed there as standardized block types, ideally with
