@@ -510,7 +510,9 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         }
         audio_stream->setTimingMode(timing_mode);
 
-        audio_stream->decode(cur_out_device);
+	       //if (!cur_out_device.isNull()) {
+            audio_stream->decode(cur_out_device);
+        //}
     }
 
     for (int col = 0; col < ui->streamTreeWidget->columnCount() - 1; col++) {
@@ -1951,24 +1953,26 @@ void RtpPlayerDialog::fillAudioRateMenu()
     // what's available.
     QAudioDevice cur_out_device = getCurrentDeviceInfo();
     QSet<int>sample_rates;
-    sample_rates.insert(cur_out_device.preferredFormat().sampleRate());
-    // Add 8000 if supported
-    if ((cur_out_device.minimumSampleRate() <= 8000) &&
-        (8000 <= cur_out_device.maximumSampleRate())
-       ) {
-      sample_rates.insert(8000);
-    }
-    // Add 16000 if supported
-    if ((cur_out_device.minimumSampleRate() <= 16000) &&
-        (16000 <= cur_out_device.maximumSampleRate())
-       ) {
-      sample_rates.insert(16000);
-    }
-    // Add 44100 if supported
-    if ((cur_out_device.minimumSampleRate() <= 44100) &&
-        (44100 <= cur_out_device.maximumSampleRate())
-       ) {
-      sample_rates.insert(44100);
+    if (!cur_out_device.isNull()) {
+       sample_rates.insert(cur_out_device.preferredFormat().sampleRate());
+       // Add 8000 if supported
+       if ((cur_out_device.minimumSampleRate() <= 8000) &&
+           (8000 <= cur_out_device.maximumSampleRate())
+          ) {
+         sample_rates.insert(8000);
+       }
+       // Add 16000 if supported
+       if ((cur_out_device.minimumSampleRate() <= 16000) &&
+           (16000 <= cur_out_device.maximumSampleRate())
+          ) {
+         sample_rates.insert(16000);
+       }
+       // Add 44100 if supported
+       if ((cur_out_device.minimumSampleRate() <= 44100) &&
+           (44100 <= cur_out_device.maximumSampleRate())
+          ) {
+         sample_rates.insert(44100);
+       }
     }
 
     // Sort values
@@ -1980,8 +1984,12 @@ void RtpPlayerDialog::fillAudioRateMenu()
         ui->outputAudioRate->addItem(QString::number(rate));
     }
 #else
-    foreach (int rate, getCurrentDeviceInfo().supportedSampleRates()) {
-        ui->outputAudioRate->addItem(QString::number(rate));
+    QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
+
+    if (!cur_out_device.isNull()) {
+        foreach (int rate, cur_out_device.supportedSampleRates()) {
+            ui->outputAudioRate->addItem(QString::number(rate));
+        }
     }
 #endif
     ui->outputAudioRate->blockSignals(false);

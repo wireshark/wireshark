@@ -236,8 +236,9 @@ quint32 RtpAudioStream::calculateAudioOutRate(QAudioDeviceInfo out_device, unsig
     format.setCodec("audio/pcm");
 #endif
 
-    if (!out_device.isFormatSupported(format) &&
-        (requested_out_rate==0)
+    if (!out_device.isNull() &&
+        !out_device.isFormatSupported(format) &&
+        (requested_out_rate == 0)
        ) {
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
         out_rate = out_device.preferredFormat().sampleRate();
@@ -247,7 +248,7 @@ quint32 RtpAudioStream::calculateAudioOutRate(QAudioDeviceInfo out_device, unsig
         audio_resampler_ = speex_resampler_init(1, sample_rate, out_rate, 10, NULL);
         RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, out_rate);
     } else {
-        if ((requested_out_rate!=0) &&
+        if ((requested_out_rate != 0) &&
             (requested_out_rate != sample_rate)
            ) {
             out_rate = requested_out_rate;
