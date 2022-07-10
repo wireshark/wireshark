@@ -7859,7 +7859,7 @@ static const value_string usb_products_vals[] = {
     { 0x04a932ea, "Canon EOS 90D" },
     { 0x04a932ee, "Canon PowerShot SX70 HS" },
     { 0x04a932ef, "Canon EOS M200" },
-    { 0x04a932f1, "Canon EOS Rebel T8i" },
+    { 0x04a932f1, "Canon EOS 850D" },
     { 0x04a932f4, "Canon EOS R5" },
     { 0x04a932f5, "Canon EOS R6" },
     { 0x04a932f9, "Canon EOS M50m2" },

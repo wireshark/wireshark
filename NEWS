@@ -215,6 +215,8 @@ Wireshark 3.7.2 Release Notes
         • Booleans can be written as True/TRUE or False/FALSE.
        Previously they could only be written as 1 or 0.
 
+        • It is now possible to test for the existence of a slice.
+
      • The `text2pcap` command and the “Import from Hex Dump” feature
        have been updated and enhanced:
 
@@ -367,7 +369,7 @@ Wireshark 3.7.2 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-06-29 08:19:20 UTC
+  Last updated 2022-07-03 22:07:36 UTC
 
  References
 
