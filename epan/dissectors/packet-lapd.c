@@ -383,9 +383,11 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 			if (conversation) {
 				if (convo_data) { /* already have lapd convo data */
-					if (forward_stream)
+					if (forward_stream) {
+						if (!convo_data->byte_state_a)
+							convo_data->byte_state_a = wmem_new(wmem_file_scope(), lapd_byte_state_t);
 						fill_lapd_byte_state(convo_data->byte_state_a, state, full_byte, bit_offset, ones, data, data_len);
-					else {
+					} else {
 						if (!convo_data->byte_state_b)
 							convo_data->byte_state_b = wmem_new(wmem_file_scope(), lapd_byte_state_t);
 						fill_lapd_byte_state(convo_data->byte_state_b, state, full_byte, bit_offset, ones, data, data_len);
