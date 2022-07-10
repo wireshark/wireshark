@@ -36,6 +36,7 @@ import re
 import argparse
 import time
 import struct
+import array
 from threading import Thread
 
 ERROR_USAGE          = 0
@@ -238,8 +239,10 @@ def ip_checksum(iph):
     csum = csum & 0xFFFF ^ 0xFFFF
     return csum
 
-def pcap_fake_package(message, fake_ip):
+iterateCounter = 0
 
+def pcap_fake_package(message, fake_ip):
+    global iterateCounter
     pcap = bytearray()
     #length = 14 bytes [ eth ] + 20 bytes [ ip ] + messagelength
 
@@ -252,13 +255,21 @@ def pcap_fake_package(message, fake_ip):
     pcap += struct.pack('<L', unsigned(caplength))  # length in frame
 
 # ETH
-    pcap += struct.pack('h', 0)  # source mac
-    pcap += struct.pack('h', 0)  # source mac
-    pcap += struct.pack('h', 0)  # source mac
-    pcap += struct.pack('h', 0)  # dest mac
-    pcap += struct.pack('h', 0)  # dest mac
-    pcap += struct.pack('h', 0)  # dest mac
+    destValue = '2900'
+    srcValue = '3400'
+    if (iterateCounter % 2 == 0):
+        x = srcValue
+        srcValue = destValue
+        destValue = x
+
+    pcap += struct.pack('h', int(destValue, 16))  # dest mac
+    pcap += struct.pack('h', int(destValue, 16))  # dest mac
+    pcap += struct.pack('h', int(destValue, 16))  # dest mac
+    pcap += struct.pack('h', int(srcValue, 16))  # source mac
+    pcap += struct.pack('h', int(srcValue, 16))  # source mac
+    pcap += struct.pack('h', int(srcValue, 16))  # source mac
     pcap += struct.pack('<h', unsigned(8))  # protocol (ip)
+    iterateCounter += 1
 
 # IP
     pcap += struct.pack('b', int('45', 16))  # IP version
@@ -277,6 +288,7 @@ def pcap_fake_package(message, fake_ip):
     pcap += struct.pack('>L', int('7F000001', 16))  # Dest IP
 
     pcap += message
+
     return pcap
 
 def control_read(fn):
@@ -361,6 +373,13 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
     counter = 1
     fn_out = None
 
+    data = """Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+           incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nost
+           rud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+           aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugi
+           at nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culp
+           a qui officia deserunt mollit anim id est laborum. """
+
     with open(fifo, 'wb', 0) as fh:
         fh.write(pcap_fake_header())
 
@@ -376,6 +395,9 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
         if fn_out is not None:
             control_write_defaults(fn_out)
 
+        dataPackage = int(0)
+        dataTotal = int(len(data) / 20) + 1
+
         while True:
             if fn_out is not None:
                 log = "Received packet #" + str(counter) + "\n"
@@ -387,7 +409,12 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
                     control_write(fn_out, CTRL_ARG_NONE, CTRL_CMD_INFORMATION, "Turn action finished.")
                     button_disabled = False
 
-            out = ("%s|%04X%s|%s" % (remote.strip(), len(message), message, verify)).encode("utf8")
+            if (dataPackage * 20 > len(data)):
+                dataPackage = 0
+            dataSub = data[dataPackage * 20:(dataPackage + 1) * 20]
+            dataPackage += 1
+
+            out = ("%c%s%c%c%c%s%c%s%c" % (len(remote), remote.strip(), dataPackage, dataTotal, len(dataSub), dataSub.strip(), len(message), message.strip(), verify)).encode("utf8")
             fh.write(pcap_fake_package(out, fake_ip))
             time.sleep(delay)
 
