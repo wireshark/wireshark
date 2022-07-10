@@ -85,35 +85,35 @@ double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _
 	return buf;
 }
 
-enum ft_result
+static enum ft_result
 val_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
 {
 	dst->value.floating = -src->value.floating;
 	return FT_OK;
 }
 
-enum ft_result
+static enum ft_result
 val_add(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
 {
 	dst->value.floating = a->value.floating + b->value.floating;
 	return FT_OK;
 }
 
-enum ft_result
+static enum ft_result
 val_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
 {
 	dst->value.floating = a->value.floating - b->value.floating;
 	return FT_OK;
 }
 
-enum ft_result
+static enum ft_result
 val_multiply(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
 {
 	dst->value.floating = a->value.floating * b->value.floating;
 	return FT_OK;
 }
 
-enum ft_result
+static enum ft_result
 val_divide(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
 {
 	dst->value.floating = a->value.floating / b->value.floating;

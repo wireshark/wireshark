@@ -53,6 +53,8 @@
 #include <epan/dissectors/packet-bpv6.h>
 #include "packet-tcpcl.h"
 
+void proto_register_tcpclv3(void);
+void proto_reg_handoff_tcpclv3(void);
 
 static const char magic[] = {'d', 't', 'n', '!'};
 

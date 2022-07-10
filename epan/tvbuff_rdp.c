@@ -322,7 +322,7 @@ zgfx_write_from_history(zgfx_context_t *zgfx, guint32 distance, guint32 count)
 }
 
 
-gboolean
+static gboolean
 rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 {
 	bitstream_t bitstream;

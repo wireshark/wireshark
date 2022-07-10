@@ -18,6 +18,9 @@
 #include <epan/packet.h>
 #include <etypes.h>
 
+void proto_register_realtek(void);
+void proto_reg_handoff_realtek(void);
+
 #define RTL_PROTOCOL_RRCP    0x01    /* RRCP */
 #define RTL_PROTOCOL_REP     0x02    /* REP */
 #define RTL_PROTOCOL_RLDP    0x03    /* RLDP */

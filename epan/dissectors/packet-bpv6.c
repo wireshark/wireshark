@@ -47,6 +47,9 @@
 #include "packet-bpv6.h"
 #include "packet-cfdp.h"
 
+void proto_register_bpv6(void);
+void proto_reg_handoff_bpv6(void);
+
 static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
                                 int offset, int payload_length, gboolean* success);
 
