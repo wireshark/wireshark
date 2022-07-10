@@ -29,9 +29,9 @@
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
 #include <QRegularExpression>
+#include <QtConcurrent>
 
 // To do:
-// - Speed up initialization.
 // - Speed up search.
 
 enum {
@@ -59,8 +59,74 @@ static inline bool compareTreeWidgetItems(const QTreeWidgetItem *it1, const QTre
     return *it1 < *it2;
 }
 
+#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+static void generateProtocolTreeItems(QPromise<QTreeWidgetItem *> &promise)
+{
+    QList<QTreeWidgetItem *> proto_list;
+    QList<QTreeWidgetItem *> *ptr_proto_list = &proto_list;
+#else
+static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
+{
+    QList<QTreeWidgetItem *> *ptr_proto_list = new QList<QTreeWidgetItem *>();
+#endif
+
+    void *proto_cookie;
+    for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1;
+         proto_id = proto_get_next_protocol(&proto_cookie)) {
+        protocol_t *protocol = find_protocol_by_id(proto_id);
+        if (!proto_is_protocol_enabled(protocol)) continue;
+
+        QTreeWidgetItem *proto_ti = new QTreeWidgetItem(proto_type_);
+        QString label = QString("%1 " UTF8_MIDDLE_DOT " %3")
+                .arg(proto_get_protocol_short_name(protocol))
+                .arg(proto_get_protocol_long_name(protocol));
+        proto_ti->setText(0, label);
+        proto_ti->setData(0, Qt::UserRole, QVariant::fromValue(proto_id));
+        ptr_proto_list->append(proto_ti);
+    }
+    std::stable_sort(ptr_proto_list->begin(), ptr_proto_list->end(), compareTreeWidgetItems);
+
+    foreach (QTreeWidgetItem *proto_ti, *ptr_proto_list) {
+#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+        if (promise.isCanceled()) {
+            delete proto_ti;
+            continue;
+        }
+        promise.suspendIfRequested();
+#endif
+        void *field_cookie;
+        int proto_id = proto_ti->data(0, Qt::UserRole).toInt();
+
+        QList <QTreeWidgetItem *> field_list;
+        for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo != NULL;
+             hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
+            if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
+
+            QTreeWidgetItem *field_ti = new QTreeWidgetItem(field_type_);
+            QString label = QString("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
+            field_ti->setText(0, label);
+            field_ti->setData(0, Qt::UserRole, VariantPointer<header_field_info>::asQVariant(hfinfo));
+            field_list << field_ti;
+        }
+        std::stable_sort(field_list.begin(), field_list.end(), compareTreeWidgetItems);
+        proto_ti->addChildren(field_list);
+#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+        if (!promise.addResult(proto_ti))
+            delete proto_ti;
+    }
+#else
+    }
+    return ptr_proto_list;
+#endif
+}
+
 DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     GeometryStateDialog(parent),
+#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+    watcher(new QFutureWatcher<QTreeWidgetItem *>(nullptr)),
+#else
+    watcher(new QFutureWatcher<QList<QTreeWidgetItem *> *>(nullptr)),
+#endif
     ui(new Ui::DisplayFilterExpressionDialog),
     ftype_(FT_NONE),
     field_(NULL)
@@ -73,6 +139,8 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     setWindowIcon(mainApp->normalIcon());
 
     proto_initialize_all_prefixes();
+
+    auto future = QtConcurrent::run(generateProtocolTreeItems);
 
     ui->fieldTreeWidget->setToolTip(ui->fieldLabel->toolTip());
     ui->searchLineEdit->setToolTip(ui->searchLabel->toolTip());
@@ -100,56 +168,60 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     connect(ui->valueLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
     connect(ui->rangeLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
 
-    fillTree();
+    updateWidgets();
+    ui->searchLineEdit->setReadOnly(true);
+
+#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+    connect(watcher, &QFutureWatcher<QTreeWidgetItem *>::resultReadyAt, this, &DisplayFilterExpressionDialog::addTreeItem);
+    connect(watcher, &QFutureWatcher<QTreeWidgetItem *>::finished, this, &DisplayFilterExpressionDialog::fillTree);
+#else
+    connect(watcher, &QFutureWatcher<QList<QTreeWidgetItem *> *>::finished, this, &DisplayFilterExpressionDialog::fillTree);
+    // If window is closed before future finishes, DisplayFilterExpressionDialog fillTree slot won't run
+    // Register lambda to free up the list container and tree entries (if not consumed by fillTree())
+    auto captured_watcher = this->watcher;
+    connect(watcher, &QFutureWatcher<QList<QTreeWidgetItem *> *>::finished, [captured_watcher]() {
+        QList<QTreeWidgetItem *> *items = captured_watcher->future().result();
+        qDeleteAll(*items);
+        delete items;
+    });
+#endif
+    watcher->setFuture(future);
 }
 
 DisplayFilterExpressionDialog::~DisplayFilterExpressionDialog()
 {
+    if (watcher)
+    {
+#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+        watcher->future().cancel();
+        qDeleteAll(watcher->future().results());
+#endif
+        watcher->waitForFinished();
+        watcher->deleteLater();
+    }
     delete ui;
 }
 
-// Nearly identical to SupportedProtocolsDialog::fillTree.
+#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+void DisplayFilterExpressionDialog::addTreeItem(int result)
+{
+    QTreeWidgetItem *item = watcher->future().resultAt(result);
+    ui->fieldTreeWidget->invisibleRootItem()->addChild(item);
+}
+#endif
+
 void DisplayFilterExpressionDialog::fillTree()
 {
-    void *proto_cookie;
-    QList <QTreeWidgetItem *> proto_list;
+#ifndef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
+    QList<QTreeWidgetItem *> *items = watcher->future().result();
+    ui->fieldTreeWidget->invisibleRootItem()->addChildren(*items);
+    // fieldTreeWidget now owns all items
+    items->clear();
+#endif
+    watcher->deleteLater();
+    watcher = nullptr;
 
-    for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1;
-         proto_id = proto_get_next_protocol(&proto_cookie)) {
-        protocol_t *protocol = find_protocol_by_id(proto_id);
-        if (!proto_is_protocol_enabled(protocol)) continue;
-
-        QTreeWidgetItem *proto_ti = new QTreeWidgetItem(proto_type_);
-        QString label = QString("%1 " UTF8_MIDDLE_DOT " %3")
-                .arg(proto_get_protocol_short_name(protocol))
-                .arg(proto_get_protocol_long_name(protocol));
-        proto_ti->setText(0, label);
-        proto_ti->setData(0, Qt::UserRole, QVariant::fromValue(proto_id));
-        proto_list << proto_ti;
-    }
-    std::stable_sort(proto_list.begin(), proto_list.end(), compareTreeWidgetItems);
-
-    foreach (QTreeWidgetItem *proto_ti, proto_list) {
-        void *field_cookie;
-        int proto_id = proto_ti->data(0, Qt::UserRole).toInt();
-
-        QList <QTreeWidgetItem *> field_list;
-        for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo != NULL;
-             hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
-            if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
-
-            QTreeWidgetItem *field_ti = new QTreeWidgetItem(field_type_);
-            QString label = QString("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
-            field_ti->setText(0, label);
-            field_ti->setData(0, Qt::UserRole, VariantPointer<header_field_info>::asQVariant(hfinfo));
-            field_list << field_ti;
-        }
-        std::stable_sort(field_list.begin(), field_list.end(), compareTreeWidgetItems);
-        proto_ti->addChildren(field_list);
-    }
-
-    ui->fieldTreeWidget->invisibleRootItem()->addChildren(proto_list);
-    updateWidgets();
+    ui->searchLineEdit->setReadOnly(false);
 }
 
 void DisplayFilterExpressionDialog::updateWidgets()

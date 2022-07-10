@@ -1214,6 +1214,7 @@ if(BUILD_wireshark OR BUILD_logray)
 		# Qt${qtver}Multimedia
 		Qt${qtver}PrintSupport
 		Qt${qtver}Widgets
+		Qt${qtver}Concurrent
 	)
 	if(USE_qt6)
 		set(CMAKE_CXX_STANDARD 17)
