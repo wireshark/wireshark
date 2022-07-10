@@ -1436,6 +1436,10 @@ if (QT_FOUND)
 		endif()
 	endif()
 
+	# Qt requires MSVC /permissive- option since 6.3 release
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND Qt${qtver}Widgets_VERSION VERSION_GREATER_EQUAL "6.3.0")
+		add_compile_options("/permissive-")
+	endif()
 endif()
 
 if(ENABLE_CHECKHF_CONFLICT)
