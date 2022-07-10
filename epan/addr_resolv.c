@@ -2228,6 +2228,7 @@ initialize_vlans(void)
 static void
 vlan_name_lookup_cleanup(void)
 {
+    end_vlanent();
     vlan_hash_table = NULL;
     g_free(g_pvlan_path);
     g_pvlan_path = NULL;
