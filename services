@@ -4163,6 +4163,7 @@ xmcp		4788/tcp	# eXtensible Messaging Client Protocol
 vxlan		4789/udp	# Virtual eXtensible Local Area Network (VXLAN)
 vxlan-gpe	4790/udp	# Generic Protocol Extension for Virtual eXtensible Local Area Network (VXLAN)
 roce		4791/udp	# IP Routable RocE
+unified-bus	4792/tcp/udp	# IP Routable Unified Bus
 iims		4800/tcp/udp	# Icona Instant Messenging System
 iwec		4801/tcp/udp	# Icona Web Embedded Chat
 ilss		4802/tcp/udp	# Icona License System Server
@@ -5900,6 +5901,7 @@ rdm-tfs		21553/tcp	# Raima RDM TFS
 dfserver	21554/tcp/udp	# MineScape Design File Server
 vofr-gateway	21590/tcp/udp	# VoFR Gateway
 tvpm		21800/tcp/udp	# TVNC Pro Multiplexing
+sal		21801/tcp	# Safe AutoLogon
 webphone	21845/tcp/udp
 netspeak-is	21846/tcp/udp	# NetSpeak Corp. Directory Services
 netspeak-cs	21847/tcp/udp	# NetSpeak Corp. Connection Services
