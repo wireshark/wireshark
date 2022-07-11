@@ -45,7 +45,7 @@ static gboolean rdn_one_value = FALSE; /* have we seen one value in an RDN yet *
 static gboolean dn_one_rdn = FALSE; /* have we seen one RDN in a DN yet */
 static gboolean doing_attr = FALSE;
 
-#define MAX_RDN_STR_LEN   64
+#define MAX_RDN_STR_LEN   128
 #define MAX_DN_STR_LEN    (20 * MAX_RDN_STR_LEN)
 
 static char *last_dn = NULL;
