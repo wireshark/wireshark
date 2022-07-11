@@ -38,7 +38,7 @@ build:
   project: build\Wireshark.sln
 
 before_build:
-  - perl tools/make-version.pl --set-release --untagged-version-extra=-{vcsinfo}-AppVeyor --tagged-version-extra=-AppVeyor
+  - python3 tools/make-version.py --set-release --untagged-version-extra=-{vcsinfo}-AppVeyor --tagged-version-extra=-AppVeyor
   - mkdir build
   - cd build
   - cmake -E time cmake -DCMAKE_SYSTEM_VERSION=10.0.20348.0 -G "%CMAKE_GENERATOR%" ..

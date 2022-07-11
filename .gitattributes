@@ -5,5 +5,5 @@
 .gitattributes              export-ignore
 .gitignore                  export-ignore
 .gitreview                  export-ignore
-tools/make-version.pl       export-subst
+tools/make-version.py       export-subst
 packaging/source/git-export-release.sh.in export-subst

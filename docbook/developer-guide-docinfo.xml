@@ -1,6 +1,6 @@
 <!-- Document information for the Developer's Guide. -->
 
-<!-- Updated by tools/make-version.pl -->
+<!-- Updated by tools/make-version.py -->
 <subtitle>For Wireshark 3.7</subtitle>
 
   <!-- <title><inlinegraphic entityref="WiresharkLogo" valign="middle" format="PNG"/> &DocumentTitle;</title> -->

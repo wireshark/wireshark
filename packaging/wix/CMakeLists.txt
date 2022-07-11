@@ -71,7 +71,7 @@ endif()
 
 # To do:
 # - Sync the various version names between CMake and Wix.
-# - Set CMakeLists.txt version strings in tools/make-version.pl
+# - Set CMakeLists.txt version strings in tools/make-version.py
 # - Add a VERSION_EXTRA cmake option
 set (VERSION "${PROJECT_VERSION}")
 set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})

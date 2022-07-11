@@ -143,7 +143,7 @@ variables:
     - git config --global user.name "Your Name"
     - mkdir build
     - cd build
-    - perl ../tools/make-version.pl --set-release
+    - python3 ../tools/make-version.py --set-release ..
     - mv -v ../wireshark-*.tar.* .
   artifacts:
     paths:
@@ -185,7 +185,7 @@ Source Package:
   stage: .pre
   rules: !reference [.if-merged]
   script:
-    - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
+    - python3 ../tools/make-version.py --set-release ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
@@ -208,7 +208,7 @@ Debian Stable APT Package:
   image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   script:
     - ln --symbolic --no-dereference --force packaging/debian
-    - perl tools/make-version.pl --set-release
+    - python3 tools/make-version.py --set-release .
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
     - export DH_QUIET=1
@@ -330,7 +330,7 @@ Win64 Package:
     - mkdir build
     - cd build
   script:
-    - perl ../tools/make-version.pl --set-release
+    - python3 ../tools/make-version.py --set-release ..
     - cmake -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=ON -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
@@ -366,7 +366,7 @@ macOS Arm Package:
     - wireshark-macos-arm-package
   retry: 1
   script:
-    - perl tools/make-version.pl --set-release
+    - python3 tools/make-version.py --set-release .
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
@@ -400,7 +400,7 @@ macOS Intel Package:
   script:
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-5.15.3
     - export PATH="$PATH:$HOME/bin"
-    - perl tools/make-version.pl --set-release
+    - python3 tools/make-version.py --set-release .
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"

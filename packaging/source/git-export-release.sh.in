@@ -33,7 +33,7 @@ shift $(( OPTIND - 1 ))
 
 # The remaining parameter, if set, is a package version such as 3.4.5
 # or 3.4.5-67-gabcd4321
-# By default the version from make-version.pl + CMake is used.
+# By default the version from make-version.py + CMake is used.
 PROJECT_VERSION=@PROJECT_VERSION@
 if test -n "${1-}"; then
     PROJECT_VERSION="$1"

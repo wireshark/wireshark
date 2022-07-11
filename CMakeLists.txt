@@ -38,7 +38,7 @@ endif()
 
 project(${_project_name} C CXX)
 
-# Updated by tools/make-version.pl
+# Updated by tools/make-version.py
 set(PROJECT_MAJOR_VERSION 3)
 set(PROJECT_MINOR_VERSION 7)
 set(PROJECT_PATCH_VERSION 2)
@@ -1715,8 +1715,8 @@ if(VCSVERSION_OVERRIDE)
 else()
 	add_custom_target(vcs_version
 		BYPRODUCTS vcs_version.h
-		COMMAND ${PERL_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/tools/make-version.pl
+		COMMAND ${PYTHON_EXECUTABLE}
+			${CMAKE_SOURCE_DIR}/tools/make-version.py
 			${CMAKE_SOURCE_DIR}
 	)
 	set_target_properties(vcs_version PROPERTIES FOLDER "Auxiliary")
@@ -3582,8 +3582,8 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 
 	execute_process(
-		COMMAND ${PERL_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/tools/make-version.pl
+		COMMAND ${PYTHON_EXECUTABLE}
+			${CMAKE_SOURCE_DIR}/tools/make-version.py
 			${CMAKE_SOURCE_DIR}
 	)
 

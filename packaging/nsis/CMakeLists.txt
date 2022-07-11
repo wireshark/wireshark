@@ -73,7 +73,7 @@ set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
 
 # To do:
 # - Sync the various version names between CMake and NSIS.
-# - Set CMakeLists.txt version strings in tools/make-version.pl
+# - Set CMakeLists.txt version strings in tools/make-version.py
 # - Add a VERSION_EXTRA cmake option
 set (PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 set (LOG_PRODUCT_VERSION ${LOG_PROJECT_MAJOR_VERSION}.${LOG_PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
