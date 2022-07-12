@@ -24,6 +24,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/maxmind_db.h>
 #include <epan/prefs.h>
+#include <epan/uat.h>
 #include <epan/conversation_table.h>
 #include <epan/conversation_filter.h>
 #include <epan/reassemble.h>
@@ -574,6 +575,50 @@ ipv6_build_filter(packet_info *pinfo)
     return ws_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
                 address_to_str(pinfo->pool, &pinfo->net_dst));
+}
+
+//UAT for providing a list of NAT64 prefixes
+
+struct nat64_prefix_data {
+    char* ipaddr;
+};
+
+UAT_CSTRING_CB_DEF(nat64_prefix_uats, ipaddr, struct nat64_prefix_data)
+
+static uat_t* nat64_prefix_uat = NULL;
+static struct nat64_prefix_data* nat64_prefix_uats = NULL;
+static guint number_of_nat64_prefix = 0;
+
+static void
+nat64_prefix_free_cb(void* data)
+{
+    struct nat64_prefix_data* h = (struct nat64_prefix_data*)data;
+
+    g_free(h->ipaddr);
+}
+
+static void*
+nat64_prefix_copy_cb(void* dst_, const void* src_, size_t len _U_)
+{
+    const struct nat64_prefix_data* src = (const struct nat64_prefix_data*)src_;
+    struct nat64_prefix_data* dst = (struct nat64_prefix_data*)dst_;
+
+    dst->ipaddr = g_strdup(src->ipaddr);
+
+    return dst;
+}
+
+static gboolean
+nat64_prefix_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+{
+    //Check for a valid IPv4 or IPv6 address.
+    if (ipaddr && g_hostname_is_ip_address(ipaddr)) {
+        *err = NULL;
+        return TRUE;
+    }
+
+    *err = ws_strdup_printf("No valid IP address given.");
+    return FALSE;
 }
 
 static gint
@@ -2813,7 +2858,7 @@ add_ipv6_address_isatap(proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_isa
 
 /* RFC 6052 */
 static void
-add_ipv6_address_embed_ipv4(proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_embed)
+add_ipv6_address_embed_ipv4(proto_tree* tree, tvbuff_t* tvb, int offset, gint hf_embed)
 {
     /* Well-Known Prefix for IPv4-Embedded IPv6 Address: 64:FF9B::/96 */
     static const guint8 ipv6_embedded_ipv4_well_known_prefix[] = {
@@ -2821,18 +2866,27 @@ add_ipv6_address_embed_ipv4(proto_tree *tree, tvbuff_t *tvb, int offset, gint hf
         0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00
     };
-    /* Check for well-known prefix */
-    if (tvb_memeql(tvb, offset, ipv6_embedded_ipv4_well_known_prefix, 12) != 0)
-        return;
 
+    ws_in6_addr ipv6addr;
+    proto_item* ti;
     struct { gint embed; } hf[2] = {
         { hf_embed },
         { hf_ipv6_embed_ipv4 }
     };
-    proto_item *ti;
-    for (int i = 0; i < 2; i++) {
-        ti = proto_tree_add_item(tree, hf[i].embed, tvb, offset + 12, 4, ENC_NA);
-        ADDRESS_SET_GENERATED_HIDDEN(ti);
+    if (tvb_memeql(tvb, offset, ipv6_embedded_ipv4_well_known_prefix, 12) == 0) {
+        for (int j = 0; j < 2; j++) {
+            ti = proto_tree_add_item(tree, hf[j].embed, tvb, offset + 12, 4, ENC_NA);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+    }
+    for (guint i = 0; i < number_of_nat64_prefix; i++) {
+        if (ws_inet_pton6(nat64_prefix_uats[i].ipaddr, &ipv6addr)) {
+            if (tvb_memeql(tvb, offset, (const guint8*)&ipv6addr, 12) == 0)
+                for (int k = 0; k < 2; k++) {
+                    ti = proto_tree_add_item(tree, hf[k].embed, tvb, offset + 12, 4, ENC_NA);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                }
+        }
     }
 }
 
@@ -4514,6 +4568,31 @@ proto_register_ipv6(void)
                                     "Support packet-capture from IPv6 TSO-enabled hardware",
                                     "Whether to correct for TSO-enabled (TCP segmentation offload) hardware "
                                     "captures, such as spoofing the IPv6 packet length", &ipv6_tso_supported);
+
+    static uat_field_t nat64_uats_flds[] = {
+        UAT_FLD_CSTRING_OTHER(nat64_prefix_uats, ipaddr, "IP address", nat64_prefix_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
+        UAT_END_FIELDS
+    };
+
+    nat64_prefix_uat = uat_new("NAT64 Prefixes",
+        sizeof(struct nat64_prefix_data),
+        "n64_prefixes_list",               /* filename */
+        TRUE,                           /* from_profile */
+        &nat64_prefix_uats,                /* data_ptr */
+        &number_of_nat64_prefix,       /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,
+        NULL,
+        nat64_prefix_copy_cb,
+        NULL,
+        nat64_prefix_free_cb,
+        NULL,
+        NULL,
+        nat64_uats_flds);
+
+    prefs_register_uat_preference(ipv6_module, "nat64_prefixes",
+        "NAT64 Prefixes",
+        "A list of IPv6 prefixes used for N64s",
+        nat64_prefix_uat);
 
     ipv6_handle = register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     reassembly_table_register(&ipv6_reassembly_table,
