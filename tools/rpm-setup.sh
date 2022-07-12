@@ -180,6 +180,10 @@ add_package BASIC_LIST libqt5-qtsvg-devel ||
 echo "Qt5 SVG is unavailable" >&2
 
 # This in only required on OpenSUSE
+add_package BASIC_LIST libQt5Concurrent-devel ||
+echo "Qt5 Concurrent is unavailable" >&2
+
+# This in only required on OpenSUSE
 add_packages BASIC_LIST hicolor-icon-theme xdg-utils ||
 echo "Default icon theme and XDG utils are unavailable" >&2
 
