@@ -2698,15 +2698,6 @@ static const value_string vht_supported_mcs_flag[] = {
   {0x00, NULL}
 };
 
-static const value_string vht_op_channel_width_flag[] = {
-  {0x00, "20 MHz or 40 MHz"},
-  {0x01, "80 MHz"},
-  {0x02, "160 MHz"},
-  {0x03, "80+80 MHz"},
-  {0x04, "Reserved"},
-  {0x00, NULL}
-};
-
 static const value_string vht_tpe_pwr_units[] = {
   {0x00, "EIRP"},
   {0x00, NULL}
@@ -44347,7 +44338,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_op_channel_width,
      {"Channel Width", "wlan.vht.op.channelwidth",
-      FT_UINT8, BASE_HEX, VALS(vht_op_channel_width_flag), 0,
+      FT_UINT8, BASE_DEC, VALS(channel_width_vals), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_op_channel_center0,
