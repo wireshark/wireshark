@@ -356,14 +356,22 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 				break;
 
 			case DFVM_ALL_EQ:
-			case DFVM_ANY_EQ:
 				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s === %s\n",
 					id, opcode_str, arg1_str, arg2_str);
 				break;
 
+			case DFVM_ANY_EQ:
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s == %s\n",
+					id, opcode_str, arg1_str, arg2_str);
+				break;
+
 			case DFVM_ALL_NE:
-			case DFVM_ANY_NE:
 				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s != %s\n",
+					id, opcode_str, arg1_str, arg2_str);
+				break;
+
+			case DFVM_ANY_NE:
+				wmem_strbuf_append_printf(buf, "%05d %s\t\t%s !== %s\n",
 					id, opcode_str, arg1_str, arg2_str);
 				break;
 
