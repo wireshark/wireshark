@@ -33,6 +33,9 @@
 
 #define VERSION_PCRE2 (PCRE2_MAJOR*100 + PCRE2_MINOR)
 
+extern int Lpcre2_get_flags (lua_State *L);
+extern int Lpcre2_config (lua_State *L);
+
 static flag_pair pcre2_flags[] = {
   { "MAJOR",                         PCRE2_MAJOR },
   { "MINOR",                         PCRE2_MINOR },
@@ -204,7 +207,7 @@ static flag_pair pcre2_config_flags[] = {
   { NULL, 0 }
 };
 
-int Lpcre2_config (lua_State *L) {
+extern int Lpcre2_config (lua_State *L) {
   flag_pair *fp;
   if (lua_istable (L, 1))
     lua_settop (L, 1);
@@ -231,7 +234,7 @@ int Lpcre2_config (lua_State *L) {
   return 1;
 }
 
-int Lpcre2_get_flags (lua_State *L) {
+extern int Lpcre2_get_flags (lua_State *L) {
   const flag_pair* fps[] = { pcre2_flags, pcre2_error_flags, NULL };
   return get_flags (L, fps);
 }
