@@ -378,9 +378,9 @@ dissect_erspan_88BE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		 */
 		has_erspan_header = FALSE;
 	} else {
-		guint16 gre_flags_and_ver = *(guint16 *)data;
+		gre_hdr_info_t *gre_hdr_info = (gre_hdr_info_t *)data;
 
-		if (gre_flags_and_ver & GRE_SEQUENCE) {
+		if (gre_hdr_info->flags_and_ver & GRE_SEQUENCE) {
 			/*
 			 * "sequence number present" set, so it has a
 			 * header.

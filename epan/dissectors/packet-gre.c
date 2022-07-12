@@ -307,18 +307,18 @@ static int
 dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
-    int         offset             = 0;
-    guint16     flags_and_ver;
-    guint16     type;
-    gboolean    is_ppp             = FALSE;
-    gboolean    is_wccp2           = FALSE;
-    proto_item *ti, *it_flags;
-    proto_tree *gre_tree, *fv_tree = NULL;
-    guint16     sre_af;
-    guint8      sre_length;
-    tvbuff_t   *next_tvb;
+    int             offset             = 0;
+    gre_hdr_info_t  gre_hdr_info;
+    guint16         type;
+    gboolean        is_ppp             = FALSE;
+    gboolean        is_wccp2           = FALSE;
+    proto_item     *ti, *it_flags;
+    proto_tree     *gre_tree, *fv_tree = NULL;
+    guint16         sre_af;
+    guint8          sre_length;
+    tvbuff_t       *next_tvb;
 
-    flags_and_ver = tvb_get_ntohs(tvb, offset);
+    gre_hdr_info.flags_and_ver = tvb_get_ntohs(tvb, offset);
     type = tvb_get_ntohs(tvb, offset + 2);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GRE");
@@ -328,7 +328,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     switch (type) {
 
     case ETHERTYPE_PPP:
-        if (flags_and_ver & GRE_VERSION)
+        if (gre_hdr_info.flags_and_ver & GRE_VERSION)
             is_ppp = TRUE;
         break;
     case ETHERTYPE_3GPP2:
@@ -390,7 +390,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(gre_tree, hf_gre_proto, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        if (flags_and_ver & GRE_CHECKSUM || flags_and_ver & GRE_ROUTING) {
+        if (gre_hdr_info.flags_and_ver & GRE_CHECKSUM || gre_hdr_info.flags_and_ver & GRE_ROUTING) {
             guint length, reported_length;
             vec_t cksum_vec[1];
 
@@ -399,7 +399,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             reported_length = tvb_reported_length(tvb);
             /* The Checksum Present bit is set, and the packet isn't part of a
                fragmented datagram and isn't truncated, so we can checksum it. */
-            if ((flags_and_ver & GRE_CHECKSUM) && !pinfo->fragmented && length >= reported_length) {
+            if ((gre_hdr_info.flags_and_ver & GRE_CHECKSUM) && !pinfo->fragmented && length >= reported_length) {
                 SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, reported_length);
                 proto_tree_add_checksum(gre_tree, tvb, offset, hf_gre_checksum, hf_gre_checksum_status, &ei_gre_checksum_incorrect, pinfo, in_cksum(cksum_vec, 1),
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
@@ -413,7 +413,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             offset += 2;
         }
 
-        if (flags_and_ver & GRE_KEY) {
+        if (gre_hdr_info.flags_and_ver & GRE_KEY) {
             /* RFC2637 Section 4.1 : Enhanced GRE Header */
             if (is_ppp && type!=ETHERTYPE_CDMA2000_A10_UBS) {
 
@@ -424,21 +424,21 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 offset += 2;
             }
             else {
-                proto_tree_add_item(gre_tree, hf_gre_key, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(gre_tree, hf_gre_key, tvb, offset, 4, ENC_BIG_ENDIAN, &gre_hdr_info.key);
                 offset += 4;
             }
         }
-        if (flags_and_ver & GRE_SEQUENCE) {
+        if (gre_hdr_info.flags_and_ver & GRE_SEQUENCE) {
 
             proto_tree_add_item(gre_tree, hf_gre_sequence_number , tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
-        if (is_ppp && (flags_and_ver & GRE_ACK)) {
+        if (is_ppp && (gre_hdr_info.flags_and_ver & GRE_ACK)) {
 
             proto_tree_add_item(gre_tree, hf_gre_ack_number , tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
-        if (flags_and_ver & GRE_ROUTING) {
+        if (gre_hdr_info.flags_and_ver & GRE_ROUTING) {
             proto_item *it_routing;
             proto_tree *r_tree;
             for (;;) {
@@ -483,13 +483,13 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
            and some other bits in RFC 1701 and says that they should be
            zero for RFC 2784-compliant GRE; as such, the absence of the
            S bit doesn't necessarily mean there's no payload.  */
-        if (!(flags_and_ver & GRE_SEQUENCE)) {
+        if (!(gre_hdr_info.flags_and_ver & GRE_SEQUENCE)) {
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
                 return offset; /* no payload */
         }
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         pinfo->flags.in_gre_pkt = TRUE;
-        if (!dissector_try_uint_new(gre_dissector_table, type, next_tvb, pinfo, tree, TRUE, &flags_and_ver))
+        if (!dissector_try_uint_new(gre_dissector_table, type, next_tvb, pinfo, tree, TRUE, &gre_hdr_info))
             call_data_dissector(next_tvb, pinfo, gre_tree);
     }
     return tvb_captured_length(tvb);

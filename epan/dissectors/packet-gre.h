@@ -61,3 +61,8 @@
 #define GRE_ARUBA_9000		0x9000
 
 extern const value_string gre_typevals[];
+
+typedef struct gre_hdr_info {
+	guint16		flags_and_ver;
+	guint32		key;
+} gre_hdr_info_t;
