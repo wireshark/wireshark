@@ -179,9 +179,10 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 #define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ATM 0x00
 #define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ETH 0x01
 
-#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA               0x00
-#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH     0x01
-#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINLE_TAGGED_ETH 0x02
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA                0x00
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH      0x01
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINGLE_TAGGED_ETH 0x02
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_DOUBLE_TAGGED_ETH 0x03
 
 #define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_NA                             0x00
 #define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_LLC                      0x01
@@ -269,10 +270,11 @@ static const value_string vspec_tag_dslf_access_loop_encap_data_link_vals[] = {
 };
 
 static const value_string vspec_tag_dslf_access_loop_encap_encap_1_vals[] = {
-	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA,               "NA"                    },
-	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH,     "Untagged Ethernet"     },
-	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINLE_TAGGED_ETH, "Single-tagged Ethernet"},
-	{0,                                                     NULL                               }
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA,                "NA"                    },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH,      "Untagged Ethernet"     },
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINGLE_TAGGED_ETH, "Single-tagged Ethernet"},
+	{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_DOUBLE_TAGGED_ETH, "Double-tagged Ethernet"},
+	{0,                                                     NULL                                }
 };
 
 static const value_string vspec_tag_dslf_access_loop_encap_encap_2_vals[] = {
@@ -878,7 +880,7 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_vspec_access_loop_encap_encap_2,
-			{ "Encaps 1", "pppoed.tags.access_loop_encap.encap_2", FT_UINT8, BASE_HEX,
+			{ "Encaps 2", "pppoed.tags.access_loop_encap.encap_2", FT_UINT8, BASE_HEX,
 				 VALS(vspec_tag_dslf_access_loop_encap_encap_2_vals), 0x0, NULL, HFILL
 			}
 		},
