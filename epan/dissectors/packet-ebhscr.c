@@ -1423,7 +1423,7 @@ proto_register_ebhscr(void)
 			NULL, HFILL }
 		},
 		{ &hf_lin_wakeup_length,
-			{ "Wake-Up signal low phase length in us", "ebhscr.lin.wakeup",
+			{ "Wake-Up signal low phase length in us", "ebhscr.lin.wakeup.length",
 			FT_UINT64, BASE_DEC, NULL,
 			0xFFFF000000000000,
 			"Only valid if wakeup bit in status header is set. Set to 0 otherwise.", HFILL }
