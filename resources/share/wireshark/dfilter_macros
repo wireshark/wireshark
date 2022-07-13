@@ -2,5 +2,5 @@
 # This file is the macro file shipped with Wireshark.
 # For your personal macros, use the same file in your profile dir.
 "private_ipv4","$1 == 192.168.0.0/16 or $1 == 172.16.0.0/12 or $1 == 10.0.0.0/8"
-"private_ethernet","($1[0-0] & 02) == 0x02 or ($1[0-0] & 06) or ($1[0-0] & 0A) or ($1[0-0] & 06)"
+"private_ethernet","$1[0] & 0x0F == 2"
 "private_ipv6", "ipv6 && $1 == fc00::/7"
