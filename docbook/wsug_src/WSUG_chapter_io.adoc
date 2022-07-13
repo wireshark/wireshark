@@ -101,7 +101,7 @@ The native capture file formats used by Wireshark are:
 * pcap. The default format used by the _libpcap_ packet capture library. Used
   by _tcpdump, _Snort_, _Nmap_, _Ntop_, and many other tools.
 
-* pcapng.  A flexible, extensible successor to the pcap format. 
+* pcapng.  A flexible, extensible successor to the pcap format.
   Wireshark 1.8 and later save files as pcapng by default.  Versions
   prior to 1.8 used pcap.  Used by Wireshark and by _tcpdump_ in newer
   versions of macOS.
@@ -497,7 +497,7 @@ I 2019-05-14T19:04:57Z
 Wireshark is also capable of scanning the input using a custom Perl regular
 expression as specified by GLib's https://developer-old.gnome.org/glib/stable/glib-regex-syntax.html[GRegex here].
 Using a regex capturing a single packet in the given file
-wireshark will search the given file from start to the second to last character
+Wireshark will search the given file from start to the second to last character
 (the last character has to be `\n` and is ignored)
 for non-overlapping (and non-empty) strings matching the given regex and then
 identify the fields to import using named capturing subgroups. Using provided
