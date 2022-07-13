@@ -95,7 +95,6 @@ static const value_string etf_tag_vals[] = {
   { FUN_EXT             , "FUN_EXT" },
   { DIST_HEADER         , "DIST_HEADER" },
   { DIST_FRAG_HEADER    , "DIST_FRAG_HEADER" },
-  { DIST_FRAG_CONT      , "DIST_FRAG_CONT" },
   { ATOM_CACHE_REF      , "ATOM_CACHE_REF" },
   { COMPRESSED          , "COMPRESSED" },
   {  0, NULL }
