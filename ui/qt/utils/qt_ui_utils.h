@@ -45,12 +45,6 @@ struct epan_range;
 }
 #endif /* __cplusplus */
 
-// qsizetype was added in Qt 5.10.0 and is used in the Qt 6 API.
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-#include "include/ws_posix_compat.h"
-typedef ssize_t qsizetype;
-#endif
-
 /*
  * Helper macro, to prevent old-style-cast warnings, when using GList in c++ code
  */

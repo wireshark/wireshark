@@ -1382,8 +1382,11 @@ if(GNUTLS_FOUND)
 endif()
 
 if (QT_FOUND)
-	if (Qt${qtver}Widgets_VERSION VERSION_LESS 5.9)
-		message(FATAL_ERROR "Qt 5.9 or later is required.")
+	if (Qt${qtver}Widgets_VERSION VERSION_LESS 5.10)
+		message(FATAL_ERROR "Qt 5.12 or later is required.")
+	endif()
+	if (Qt${qtver}Widgets_VERSION VERSION_LESS 5.12)
+		message(WARNING "Wireshark can be build with this version of Qt, though 5.12 or higher is recommended.")
 	endif()
 	if(NOT DEFINED MOC_OPTIONS)
 		# Squelch moc verbose "nothing to do" output
