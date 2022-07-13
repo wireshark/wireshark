@@ -1297,8 +1297,6 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 		arg2 = insn->arg2;
 		arg3 = insn->arg3;
 
-		ws_noisy("ID: %d; OP: %s", id, dfvm_opcode_tostr(insn->op));
-
 		switch (insn->op) {
 			case DFVM_CHECK_EXISTS:
 				accum = check_exists(tree, arg1, NULL);
