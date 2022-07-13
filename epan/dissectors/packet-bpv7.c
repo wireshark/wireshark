@@ -480,7 +480,7 @@ static ei_register_info expertitems[] = {
 
 /** Delete an arbitrary object allocated under this file scope.
  *
- * @param obj The object to delete.
+ * @param ptr The object to delete.
  */
 static void file_scope_delete(gpointer ptr) {
     wmem_free(wmem_file_scope(), ptr);
