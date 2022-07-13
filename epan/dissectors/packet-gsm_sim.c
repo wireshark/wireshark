@@ -908,7 +908,7 @@ static const value_string df_gsm_dfs[] = {
 	{ 0x5f32, "DF.ICO" },
 	{ 0x5f33, "DF.ACeS" },
 	{ 0x5f3c, "DF.MExE" },
-	{ 0x5f40, "DF.EIA/TIA-533" },
+	{ 0x5f40, "DF.EIA/TIA-533/DF.WLAN" },
 	{ 0x5f60, "DF.CTS" },
 	{ 0x5f70, "DF.SoLSA" },
 #if 0
@@ -919,9 +919,9 @@ static const value_string adf_usim_dfs[] = {
 #endif
 	{ 0x5f3a, "DF.PHONEBOOK" },
 	{ 0x5f3b, "DF.GSM-ACCESS" },
-	{ 0x5f3c, "DF.MexE" },
-	{ 0x5f70, "DF.SoLSA" },
-	{ 0x5f40, "DF.WLAN" },
+//	{ 0x5f3c, "DF.MexE" },
+//	{ 0x5f70, "DF.SoLSA" },
+//	{ 0x5f40, "DF.WLAN" },
 	{ 0x5f50, "DF.HNB" },
 	{ 0x5f90, "DF.ProSe" },
 	{ 0x5fa0, "DF.ACDC" },
@@ -1047,8 +1047,8 @@ static const value_string adf_5gs_efs[] = {
 	{ 0x4f06, "EF.UAC_AIC" },
 	{ 0x4f07, "EF.SUCI_Calc_Info" },
 	{ 0x4f08, "EF.OPL5G" },
-	{ 0x4f09, "EF.EFSUPI_NAI" },
-	{ 0x4f0a, "EF.Routing_Indicator" },
+	{ 0x4f09, "EF.EFSUPI_NAI/EF.PBC" },
+	{ 0x4f0a, "EF.Routing_Indicator/EF.PBC1" },
 	{ 0x4f0b, "EF.URSP" },
 	{ 0x4f0c, "EF.TN3GPPSNN" },
 #if 0
@@ -1057,8 +1057,8 @@ static const value_string adf_5gs_efs[] = {
 
 static const value_string df_phonebook_efs[] = {
 #endif
-	{ 0x4f09, "EF.PBC" },
-	{ 0x4f0a, "EF.PBC1" },
+//	{ 0x4f09, "EF.PBC" },
+//	{ 0x4f0a, "EF.PBC1" },
 	{ 0x4f11, "EF.ANRA" },
 	{ 0x4f12, "EF.ANRA1" },
 	{ 0x4f13, "EF.ANRB" },
