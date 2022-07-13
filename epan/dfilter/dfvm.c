@@ -202,7 +202,7 @@ dfvm_value_new_guint(guint num)
 	return v;
 }
 
-char *
+static char *
 dfvm_value_tostr(dfvm_value_t *v)
 {
 	char *s, *aux;
@@ -554,7 +554,7 @@ drange_contains_layer(drange_t *dr, int num, int length)
 	return FALSE;
 }
 
-GSList *
+static GSList *
 filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range)
 {
 	int length; /* maximum proto layer number. The numbers are sequential. */
@@ -649,7 +649,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 	return TRUE;
 }
 
-GSList *
+static GSList *
 filter_refs_fvalues(GPtrArray *refs_array, drange_t *range)
 {
 	int length; /* maximum proto layer number. The numbers are sequential. */
