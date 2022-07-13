@@ -944,7 +944,6 @@ static const value_string ieee802154_psie_types[] = {
 static const value_string ieee802154_header_ie_names[] = {
     { IEEE802154_HEADER_IE_VENDOR_SPECIFIC, "Vendor Specific IE" },
     { IEEE802154_HEADER_IE_CSL,             "CSL IE" },
-    { IEEE802154_HEADER_IE_RENDEZVOUS,      "RendezVous Time IE" },
     { IEEE802154_HEADER_IE_RIT,             "RIT IE" },
     { IEEE802154_HEADER_IE_DSME_PAN,        "DSME PAN descriptor IE" },
     { IEEE802154_HEADER_IE_RENDEZVOUS,      "Rendezvous Time IE" },
