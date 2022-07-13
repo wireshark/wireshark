@@ -100,6 +100,7 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CAPS_EP 0x0040 /* CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS */
 #define MYSQL_CAPS_ST 0x0080 /* CLIENT_SESSION_TRACK */
 #define MYSQL_CAPS_DE 0x0100 /* CLIENT_DEPRECATE_EOF */
+#define MYSQL_CAPS_QA 0x0800 /* CLIENT_QUERY_ATTRIBUTES */
 #define MYSQL_CAPS_UNUSED 0xFE00
 
 /* status bitfield */
@@ -900,6 +901,7 @@ static gint ett_extcaps = -1;
 static gint ett_stat = -1;
 static gint ett_row_value = -1;
 static gint ett_request = -1;
+static gint ett_query_attributes = -1;
 static gint ett_refresh = -1;
 static gint ett_field_flags = -1;
 static gint ett_exec_param = -1;
@@ -1025,6 +1027,12 @@ static int hf_mysql_affected_rows = -1;
 static int hf_mysql_insert_id = -1;
 static int hf_mysql_num_warn = -1;
 static int hf_mysql_stmt_id = -1;
+static int hf_mysql_query_attributes = -1;
+static int hf_mysql_query_attributes_count = -1;
+static int hf_mysql_query_attributes_send_types_to_server = -1;
+static int hf_mysql_query_attribute_name_type = -1;
+static int hf_mysql_query_attribute_name = -1;
+static int hf_mysql_query_attribute_value = -1;
 static int hf_mysql_query = -1;
 static int hf_mysql_shutdown = -1;
 static int hf_mysql_option = -1;
@@ -1298,6 +1306,8 @@ static int mariadb_dissect_caps_or_flags(tvbuff_t *tvb, int offset, enum ftenum 
 
 static gint my_tvb_strsize(tvbuff_t *tvb, int offset);
 static int tvb_get_fle(tvbuff_t *tvb, proto_tree* tree, int offset, guint64 *res, guint8 *is_null);
+
+static int mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree, int field);
 
 static const mysql_exec_dissector_t mysql_exec_dissectors[] = {
 	{ 0x01, 0, mysql_dissect_exec_tiny },
@@ -1970,6 +1980,32 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		break;
 
 	case MYSQL_QUERY:
+		if (conn_data->clnt_caps_ext & MYSQL_CAPS_QA) {
+			proto_item *query_attrs_item = proto_tree_add_item(req_tree, hf_mysql_query_attributes, tvb, offset, -1, ENC_NA);
+			proto_item *query_attrs_tree = proto_item_add_subtree(query_attrs_item, ett_query_attributes);
+
+			gint n_params = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(query_attrs_tree, hf_mysql_query_attributes_count, tvb, offset, 1, ENC_ASCII);
+			offset += 2;
+
+			if (n_params > 0) {
+				gint null_count = (n_params + 7) / 8;
+				proto_tree_add_item(query_attrs_tree, hf_mysql_unused, tvb, offset, null_count, ENC_ASCII);
+				offset += null_count;
+
+				proto_tree_add_item(query_attrs_tree, hf_mysql_query_attributes_send_types_to_server, tvb, offset, 1, ENC_ASCII);
+				offset += 1;
+
+				for (int i = 0; i < n_params; ++i) {
+					proto_tree_add_item(query_attrs_tree, hf_mysql_query_attribute_name_type, tvb, offset, 2, ENC_ASCII);
+					offset += 2;
+					offset = mysql_field_add_lestring(tvb, offset, query_attrs_tree, hf_mysql_query_attribute_name);
+				}
+				for (int i = 0; i < n_params; ++i) {
+					offset = mysql_field_add_lestring(tvb, offset, query_attrs_tree, hf_mysql_query_attribute_value);
+				}
+			}
+		}
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII);
 		if (mysql_showquery) {
@@ -3984,6 +4020,36 @@ void proto_register_mysql(void)
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
+		{ &hf_mysql_query_attributes,
+                { "Query Attributes", "mysql.query_attrs",
+                        FT_NONE, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
+
+		{ &hf_mysql_query_attributes_count,
+                { "Count", "mysql.query_attrs_count",
+                        FT_UINT8, BASE_DEC, NULL,  0x0,
+                        NULL, HFILL }},
+
+		{ &hf_mysql_query_attributes_send_types_to_server,
+                { "Send types to server", "mysql.query_attrs_send_types_to_server",
+                        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
+
+		{ &hf_mysql_query_attribute_name_type,
+                { "Attribute Name Type", "mysql.query_attr_name_type",
+                        FT_UINT16, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL }},
+
+		{ &hf_mysql_query_attribute_name,
+                { "Attribute Name", "mysql.query_attr_name",
+                        FT_STRING, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
+
+		{ &hf_mysql_query_attribute_value,
+                { "Attribute Value", "mysql.query_attr_value",
+                        FT_STRING, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL }},
+
 		{ &hf_mysql_query,
 		{ "Statement", "mysql.query",
 		FT_STRING, BASE_NONE, NULL, 0x0,
@@ -4460,7 +4526,8 @@ void proto_register_mysql(void)
 		&ett_extmeta_data,
 		&ett_connattrs,
 		&ett_connattrs_attr,
-		&ett_mysql_field
+		&ett_mysql_field,
+		&ett_query_attributes
 	};
 
 	static ei_register_info ei[] = {
