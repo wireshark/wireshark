@@ -4,13 +4,13 @@
 "No ARP" not arp
 "IPv4 only" ip
 "IPv4 address 192.0.2.1" ip.addr == 192.0.2.1
-"IPv4 address isn't 192.0.2.1 (don't use != for this!)" !(ip.addr == 192.0.2.1)
+"IPv4 address isn't 192.0.2.1" ip.addr != 192.0.2.1
 "IPv6 only" ipv6
 "IPv6 address 2001:db8::1" ipv6.addr == 2001:db8::1
 "TCP only" tcp
 "UDP only" udp
-"Non-DNS" !(udp.port == 53 || tcp.port == 53)
+"Non-DNS port" !(udp.port == 53 || tcp.port == 53)
 "TCP or UDP port is 80 (HTTP)" tcp.port == 80 || udp.port == 80
 "HTTP" http
-"No ARP and no DNS" not arp and !(udp.port == 53)
+"No ARP and no DNS" not arp and not dns
 "Non-HTTP and non-SMTP to/from 192.0.2.1" ip.addr == 192.0.2.1 and tcp.port not in {80, 25}
