@@ -1144,7 +1144,7 @@ void proto_register_erldp(void) {
     { &hf_erldp_big_ext_str, { "Int", "erldp.big_ext_str",
                         FT_STRING, BASE_NONE, NULL, 0x0,
                         NULL, HFILL}},
-    { &hf_erldp_big_ext_bytes, { "Int", "erldp.big_ext_str",
+    { &hf_erldp_big_ext_bytes, { "Int", "erldp.big_ext_bytes",
                         FT_BYTES, BASE_NONE, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_float_ext, { "Float", "erldp.float_ext",
