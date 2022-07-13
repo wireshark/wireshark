@@ -62,7 +62,7 @@ uint8_t pkt_data[26] = { 0x1c, 0x0b, 0x00, 0x00, 0x02, 0x00, 0xeb, 0x4b,
 /*
  * Generate some u_sig packets.
  */
-void gen_u_sig_pkts(pcap_dumper_t *dumper)
+static void gen_u_sig_pkts(pcap_dumper_t *dumper)
 {
 	struct pcap_pkthdr hdr;
 	struct complete_pkt pkt;
