@@ -1105,7 +1105,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 	}
 }
 
-ftenum_t
+static ftenum_t
 check_arithmetic_entity(dfwork_t *dfw, stnode_t *st_arg, ftenum_t lhs_ftype)
 {
 	sttype_id_t		type;
