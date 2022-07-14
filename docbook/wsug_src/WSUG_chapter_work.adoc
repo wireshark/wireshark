@@ -562,7 +562,6 @@ English and C-like operators are interchangeable and can be mixed within a filte
 | le           |          | \<=    | Less than or equal to            | `frame.len \<= 0x20`
 | contains     |          |        | Protocol, field or slice contains a value | `sip.To contains "a1762"`
 | matches      |          | ~      | Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\\.(org\|com\|net)"`
-| bitwise_and  |          | &      | Bitwise AND is non-zero          | `tcp.flags & 0x02`
 |===
 
 
@@ -802,6 +801,29 @@ http.request.method in {"HEAD", "GET"}
 ip.addr in {10.0.0.5 .. 10.0.0.9, 192.168.1.1..192.168.1.9}
 frame.time_delta in {10 .. 10.5}
 ----
+
+==== Arithmetic operators
+
+You can perform the arithmetic operations on numeric fields shown in <<ArithmeticOps>>
+
+[#ArithmeticOps]
+
+.Display Filter Arithmetic Operations
+[options="header",cols="1,1,4"]
+|===
+|Name            |Syntax    | Description
+|Unary minus     |-A        | Negation of A
+|Addition        |A + B     | Add B to A
+|Subtraction     |A - B     | Subtract B from A
+|Multiplication  |A * B     | Multiply A times B
+|Division        |A / B     | Divide A by B
+|Modulo          |A % B     | Remainder of A divided by B
+|Bitwise AND     |A & B     | Bitwise AND of A and B
+|===
+
+Arithmetic expressions can be grouped using curly braces.
+
+//TODO: Add example.
 
 ==== Functions
 
