@@ -4381,6 +4381,20 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 
                         length = decode_mp_next_hop_vpn_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
                     }
                     break;
+                case SAFNUM_FSPEC_RULE:
+                case SAFNUM_FSPEC_VPN_RULE:
+                    length = 0;
+                    /* When advertising Flow Specifications, the Length of the
+                     * Next-Hop Address MUST be set 0. The Network Address of
+                     * the Next-Hop field MUST be ignored.
+                     */
+                    if (nhlen != 0) {
+                        expert_add_info_format(pinfo, ti, &ei_bgp_length_invalid,
+                                               "The length (%d) of Next Hop (FlowSpec) is not zero", nhlen);
+                        break;
+                    }
+                    length++;
+                    break;
                 default:
                     length = 0;
                     expert_add_info_format(pinfo, ti, &ei_bgp_unknown_safi,
@@ -4405,6 +4419,20 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 
                 case SAFNUM_LAB_VPNUNIMULC: /* Deprecated, but as above */
                     /* VPN-IPv6 address, possibly followed by link-local addr */
                     length = decode_mp_next_hop_vpn_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
+                    break;
+                case SAFNUM_FSPEC_RULE:
+                case SAFNUM_FSPEC_VPN_RULE:
+                    length = 0;
+                    /* When advertising Flow Specifications, the Length of the
+                     * Next-Hop Address MUST be set 0. The Network Address of
+                     * the Next-Hop field MUST be ignored.
+                     */
+                    if (nhlen != 0) {
+                        expert_add_info_format(pinfo, ti, &ei_bgp_length_invalid,
+                                               "The length (%d) of Next Hop (FlowSpec) is not zero", nhlen);
+                        break;
+                    }
+                    length++;
                     break;
                 default:
                     length = 0;
@@ -9011,7 +9039,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 proto_tree_add_item_ret_uint(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_address_family, tvb,
                                     o + i + aoff, 2, ENC_BIG_ENDIAN, &af);
                 proto_tree_add_item_ret_uint(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_safi, tvb,
-                                    o + i + aoff+2, 1, ENC_BIG_ENDIAN, &saf);
+                                    o + i + aoff + 2, 1, ENC_BIG_ENDIAN, &saf);
                 nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
 
                 decode_mp_next_hop(tvb_new_subset_length(tvb, o + i + aoff + 3, nexthop_len + 1), subtree2, pinfo, af, saf, nexthop_len);
