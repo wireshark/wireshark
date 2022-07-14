@@ -63,7 +63,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,1,0,4,1,0">
+      <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0,1,0,4,1,0">
        <item>
         <layout class="QVBoxLayout" name="relationLayout">
          <item>
@@ -80,6 +80,57 @@
          </item>
          <item>
           <widget class="QListWidget" name="relationListWidget"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="quantityLayout">
+         <item>
+          <widget class="QLabel" name="quantityLabel">
+           <property name="toolTip">
+            <string>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</string>
+           </property>
+           <property name="text">
+            <string>Quantifier</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QRadioButton" name="anyRadioButton">
+             <property name="text">
+              <string>Any</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="allRadioButton">
+             <property name="text">
+              <string>All</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>

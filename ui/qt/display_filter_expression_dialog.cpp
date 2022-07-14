@@ -165,6 +165,8 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
 
     value_label_pfx_ = ui->valueLabel->text();
 
+    connect(ui->anyRadioButton, &QAbstractButton::toggled, this, &DisplayFilterExpressionDialog::updateWidgets);
+    connect(ui->allRadioButton, &QAbstractButton::toggled, this, &DisplayFilterExpressionDialog::updateWidgets);
     connect(ui->valueLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
     connect(ui->rangeLineEdit, &QLineEdit::textEdited, this, &DisplayFilterExpressionDialog::updateWidgets);
 
@@ -232,6 +234,7 @@ void DisplayFilterExpressionDialog::updateWidgets()
     ui->relationListWidget->setEnabled(rel_enable);
     ui->hintLabel->clear();
 
+    bool quantity_enable = false;
     bool value_enable = false;
     bool enum_enable = false;
     bool enum_multi_enable = false;
@@ -241,6 +244,18 @@ void DisplayFilterExpressionDialog::updateWidgets()
     if (field_) {
         filter = field_;
         QListWidgetItem *rli = ui->relationListWidget->currentItem();
+        if (rli && rli->type() > all_ne_op_) {
+            quantity_enable = true;
+            if (ui->anyRadioButton->isChecked()) {
+                filter.prepend("any ");
+            }
+            else if (ui->allRadioButton->isChecked()) {
+                filter.prepend("all ");
+            }
+            else {
+                ws_assert_not_reached();
+            }
+        }
         if (rli && rli->type() != present_op_) {
             value_enable = true;
             if (ftype_can_slice(ftype_)) {
@@ -262,6 +277,10 @@ void DisplayFilterExpressionDialog::updateWidgets()
             }
         }
     }
+
+    ui->quantityLabel->setEnabled(quantity_enable);
+    ui->allRadioButton->setEnabled(quantity_enable);
+    ui->anyRadioButton->setEnabled(quantity_enable);
 
     ui->valueLabel->setEnabled(value_enable);
     ui->valueLineEdit->setEnabled(value_enable);
