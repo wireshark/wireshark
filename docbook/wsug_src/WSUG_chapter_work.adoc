@@ -689,7 +689,7 @@ tcp.flags & 0x02
 That display filter will match all packets that contain the “tcp.flags” field with the 0x02 bit,
 i.e., the SYN bit, set.
 
-==== Possible Pitfalls Using Regular Expressions
+===== Possible Pitfalls Using Regular Expressions
 
 String literals containing regular expressions are parsed twice. Once by Wireshark's display
 filter engine and again by the PCRE2 library. It's important to keep this in mind when using
