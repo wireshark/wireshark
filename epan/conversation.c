@@ -335,7 +335,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
  * (formerly at http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing)
  * One-at-a-Time hash
  */
-guint
+static guint
 conversation_hash_element_list(gconstpointer v)
 {
     const conversation_element_t *element = (const conversation_element_t*)v;
