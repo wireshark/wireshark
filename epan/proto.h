@@ -3001,7 +3001,7 @@ proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
         FT_integer fields that have a value_string attached will have the
         matched string displayed on the expansion line.
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN)
- @param return_value if a pointer is passed here the value is returned. */
+ @param retval if a pointer is passed here the value is returned. */
 WS_DLL_PUBLIC  void
 proto_tree_add_bitmask_list_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 					const int len, int * const *fields, const guint encoding, guint64 *retval);
