@@ -295,7 +295,7 @@ static int hf_pfcp_up_function_features_o10_b5_resps = -1;
 static int hf_pfcp_up_function_features_o10_b4_upber = -1;
 static int hf_pfcp_up_function_features_o10_b3_l2tp = -1;
 static int hf_pfcp_up_function_features_o10_b2_nspoc = -1;
-static int hf_pfcp_up_function_features_o10_b1_quoaf = -1;
+static int hf_pfcp_up_function_features_o10_b1_quosf = -1;
 static int hf_pfcp_up_function_features_o10_b0_rttwp = -1;
 static int hf_pfcp_up_function_features_o9_b7_rds = -1;
 static int hf_pfcp_up_function_features_o9_b6_ddds = -1;
@@ -3201,7 +3201,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o9_b0_atsss_ll,
         NULL
     };
-    /* Octet 9  SPARE   ETHAR   CIOT    MT-EDT   GPQM    QFQM    ATSSS-LL */
+    /* Octet 9  RDS     DDDS   ETHAR   CIOT    MT-EDT   GPQM    QFQM    ATSSS-LL */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o9_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3216,11 +3216,11 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o10_b4_upber,
         &hf_pfcp_up_function_features_o10_b3_l2tp,
         &hf_pfcp_up_function_features_o10_b2_nspoc,
-        &hf_pfcp_up_function_features_o10_b1_quoaf,
+        &hf_pfcp_up_function_features_o10_b1_quosf,
         &hf_pfcp_up_function_features_o10_b0_rttwp,
         NULL
     };
-    /* Octet 10  DNSTS   IPREP   RESPS    UPBER   L2TP   NSPOC    QUOAF    RTTWP */
+    /* Octet 10  DNSTS   IPREP   RESPS    UPBER   L2TP   NSPOC    QUOSF    RTTWP */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o10_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3238,7 +3238,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o11_b0_drqos,
         NULL
     };
-    /* Octet 10  Spare  UPIDP    RATP   EPPI    PSUPRM    MBSN4   DRQOS */
+    /* Octet 11  Spare  UPIDP    RATP   EPPI    PSUPRM    MBSN4   DRQOS */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o11_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -12888,13 +12888,13 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "UPF support of RTT measurement towards the UE without PMF", HFILL }
         },
-        { &hf_pfcp_up_function_features_o10_b1_quoaf,
-        { "QUOAF", "pfcp.up_function_features.quoaf",
+        { &hf_pfcp_up_function_features_o10_b1_quosf,
+        { "QUOSF", "pfcp.up_function_features.quosf",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             "UP function supports being provisioned with the Quota Action Application ID or a Quota Action SDF Filter to apply when reaching quotas", HFILL }
         },
         { &hf_pfcp_up_function_features_o10_b2_nspoc,
-        { "QUOAF", "pfcp.up_function_features.nspoc",
+        { "NSPOC", "pfcp.up_function_features.nspoc",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
             "UP function supports notifying start of Pause of Charging via user plane", HFILL }
         },
