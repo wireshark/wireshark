@@ -565,6 +565,13 @@ English and C-like operators are interchangeable and can be mixed within a filte
 | bitwise_and  |          | &      | Bitwise AND is non-zero          | `tcp.flags & 0x02`
 |===
 
+
+[NOTE]
+====
+The meaning of != (all not equal) was changed in Wireshark 3.6.
+Before it used to mean "any not equal".
+====
+
 All protocol fields have a type. <<ChWorkFieldTypes>> provides a list
 of the types with examples of how to use them in display filters.
 
