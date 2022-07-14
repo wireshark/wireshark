@@ -228,6 +228,7 @@ static int hf_tecmp_payload_status_cfg_vendor_technica_segment_data = -1;
 /* TECMP Control Message */
 static int hf_tecmp_payload_ctrl_msg_device_id = -1;
 static int hf_tecmp_payload_ctrl_msg_id = -1;
+static int hf_tecmp_payload_ctrl_msg_unparsed_bytes = -1;
 
 /* protocol tree items */
 static gint ett_tecmp = -1;
@@ -1228,8 +1229,13 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         add_device_id_text(ti, (guint16)device_id);
         ctrl_msg_id = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
         proto_tree_add_uint_format(tecmp_tree, hf_tecmp_payload_ctrl_msg_id, tvb, offset + 2, 2, ctrl_msg_id, "Type: %s", resolve_control_message_id(ctrl_msg_id));
-
         offset += 4;
+
+        /* offset includes 16 byte header, while length is only for payload */
+        gint bytes_left = length + (guint)16 - (offset - offset_orig);
+        if (bytes_left > 0) {
+            proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_unparsed_bytes, tvb, offset, bytes_left, ENC_NA);
+        }
     }
 
     return offset - offset_orig;
@@ -1797,6 +1803,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_ctrl_msg_id,
             { "Control Message ID", "tecmp.payload.ctrl_msg.id",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_ctrl_msg_unparsed_bytes,
+            { "Unparsed Bytes", "tecmp.payload.ctrl_msg.unparsed",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         /* Status Device / Status Bus / Status Configuration */
         { &hf_tecmp_payload_status_vendor_id,
