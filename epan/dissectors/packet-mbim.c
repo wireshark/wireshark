@@ -130,6 +130,8 @@ static int hf_mbim_ms_rej_snssai_cause = -1;
 static int hf_mbim_ms_pre_dflt_nssai_info_access_type = -1;
 static int hf_mbim_device_caps_info_device_type = -1;
 static int hf_mbim_device_caps_info_cellular_class = -1;
+static int hf_mbim_cellular_class_gsm = -1;
+static int hf_mbim_cellular_class_cdma = -1;
 static int hf_mbim_device_caps_info_voice_class = -1;
 static int hf_mbim_device_caps_info_sim_class = -1;
 static int hf_mbim_device_caps_info_sim_class_logical = -1;
@@ -1734,6 +1736,12 @@ static const value_string mbim_cellular_class_vals[] = {
     { MBIM_CELLULAR_CLASS_GSM, "GSM"},
     { MBIM_CELLULAR_CLASS_CDMA, "CDMA"},
     { 0, NULL}
+};
+
+static int* const mbim_cellular_class_fields[] = {
+    &hf_mbim_cellular_class_gsm,
+    &hf_mbim_cellular_class_cdma,
+    NULL
 };
 
 static const value_string mbim_device_caps_info_voice_class_vals[] = {
@@ -3633,8 +3641,9 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_device_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_device_caps_info_cellular_class, tvb, offset, 4,
-                                 ENC_LITTLE_ENDIAN, &mbim_conv->cellular_class);
+    mbim_conv->cellular_class = tvb_get_letohl(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_device_caps_info_cellular_class, ett_mbim_bitmap,
+        mbim_cellular_class_fields, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_voice_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -3678,7 +3687,7 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     if (device_id_offset && device_id_size) {
         it = proto_tree_add_item(tree, hf_mbim_device_caps_info_device_id, tvb, base_offset + device_id_offset,
                                  device_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
-        if ((mbim_conv->cellular_class == MBIM_CELLULAR_CLASS_GSM) && (device_id_size > 30)) {
+        if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && (device_id_size > 30)) {
             expert_add_info(pinfo, it, &ei_mbim_oversized_string);
         } else if (device_id_size > 36) {
             expert_add_info(pinfo, it, &ei_mbim_oversized_string);
@@ -6169,8 +6178,9 @@ mbim_dissect_device_caps_v2_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_device_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_device_caps_info_cellular_class, tvb, offset, 4,
-                                 ENC_LITTLE_ENDIAN, &mbim_conv->cellular_class);
+    mbim_conv->cellular_class = tvb_get_letohl(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_device_caps_info_cellular_class, ett_mbim_bitmap,
+        mbim_cellular_class_fields, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_voice_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -6215,7 +6225,7 @@ mbim_dissect_device_caps_v2_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     if (device_id_offset && device_id_size) {
         it = proto_tree_add_item(tree, hf_mbim_device_caps_info_device_id, tvb, base_offset + device_id_offset,
                                  device_id_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
-        if ((mbim_conv->cellular_class == MBIM_CELLULAR_CLASS_GSM) && (device_id_size > 30)) {
+        if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && (device_id_size > 30)) {
             expert_add_info(pinfo, it, &ei_mbim_oversized_string);
         } else if (device_id_size > 36) {
             expert_add_info(pinfo, it, &ei_mbim_oversized_string);
@@ -6245,8 +6255,9 @@ mbim_dissect_device_caps_v3_and_higher_info(tvbuff_t *tvb, packet_info *pinfo _U
 
     proto_tree_add_item(tree, hf_mbim_device_caps_info_device_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_device_caps_info_cellular_class, tvb, offset, 4,
-        ENC_LITTLE_ENDIAN, &mbim_conv->cellular_class);
+    mbim_conv->cellular_class = tvb_get_letohl(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_device_caps_info_cellular_class, ett_mbim_bitmap,
+        mbim_cellular_class_fields, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_voice_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -10051,7 +10062,17 @@ proto_register_mbim(void)
         },
         { &hf_mbim_device_caps_info_cellular_class,
             { "Cellular Class", "mbim.control.device_caps_info.cellular_class",
-               FT_UINT32, BASE_DEC, VALS(mbim_cellular_class_vals), 0,
+               FT_UINT32, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_cellular_class_gsm,
+            { "GSM", "mbim.control.cellular_class.gsm",
+               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000001,
+              NULL, HFILL }
+        },
+        { &hf_mbim_cellular_class_cdma,
+            { "CDMA", "mbim.control.cellular_class.cdma",
+               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000002,
               NULL, HFILL }
         },
         { &hf_mbim_device_caps_info_voice_class,
