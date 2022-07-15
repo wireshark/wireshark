@@ -579,7 +579,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
                        args->str, win32strerror(GetLastError()));
         ws_close(sync_pipe_read_fd);    /* Should close sync_pipe_read */
         CloseHandle(sync_pipe_write);
-        CloseHandle(signal_pipe);
+        ws_close(signal_pipe_write_fd); /* Should close signal_pipe */
         free_argv(argv, argc);
         g_string_free(args, TRUE);
         return FALSE;

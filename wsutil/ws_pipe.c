@@ -590,6 +590,21 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         ws_pipe->threadId = processInfo.hThread;
         pid = processInfo.hProcess;
     }
+    else
+    {
+        CloseHandle(child_stdin_wr);
+        CloseHandle(child_stdout_rd);
+        CloseHandle(child_stderr_rd);
+    }
+
+    /* We no longer need other (child) end of pipes. The child process holds
+     * its own handles that will be closed on process exit. However, we have
+     * to close *our* handles as otherwise read() on stdout_fd and stderr_fd
+     * will block indefinitely after the process exits.
+     */
+    CloseHandle(child_stdin_rd);
+    CloseHandle(child_stdout_wr);
+    CloseHandle(child_stderr_wr);
 #else
 
     GError *error = NULL;
