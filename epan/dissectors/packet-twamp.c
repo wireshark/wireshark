@@ -19,6 +19,7 @@
  *           (not yet implemented)
  * RFC 6038: TWAMP Reflect Octets and Symmetrical Size Features
  *           (not yet implemented)
+ * RFC 8186: Support of the IEEE 1588 Timestamp Format in TWAMP
  */
 
 #include <config.h>
@@ -41,6 +42,8 @@ void proto_register_twamp(void);
 #define TWAMP_MODE_UNAUTHENTICATED  0x1
 #define TWAMP_MODE_AUTHENTICATED    0x2
 #define TWAMP_MODE_ENCRYPTED        0x4
+
+#define TWAMP_ERROR_ESTIMATE_ZBIT   0x4000
 
 enum twamp_control_state {
     CONTROL_STATE_UNKNOWN = 0,
@@ -532,6 +535,11 @@ static const true_false_string tfs_twamp_sbit_tfs = {
     "No notion of external synchronization"
 };
 
+static const true_false_string tfs_twamp_zbit_tfs = {
+    "Abbreviated PTP Timestamp (RFC8186)",
+    "Always Zero (RFC5357) or NTP Timestamp (RFC8186)"
+};
+
 static int
 dissect_owamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -594,7 +602,10 @@ dissect_twamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(twamp_tree, hf_twamp_seq_number, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(twamp_tree, hf_twamp_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+    if (tvb_get_ntohs(tvb, offset + 8) & TWAMP_ERROR_ESTIMATE_ZBIT)
+        proto_tree_add_item(twamp_tree, hf_twamp_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS | ENC_BIG_ENDIAN);
+    else
+        proto_tree_add_item(twamp_tree, hf_twamp_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
     offset += 8;
 
     /*
@@ -612,16 +623,22 @@ dissect_twamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     if (tvb_reported_length(tvb) - offset >= 27) {
         proto_tree_add_item (twamp_tree, hf_twamp_mbz1, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(twamp_tree, hf_twamp_receive_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+        if (tvb_get_ntohs(tvb, offset - 4) & TWAMP_ERROR_ESTIMATE_ZBIT)
+            proto_tree_add_item(twamp_tree, hf_twamp_receive_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS | ENC_BIG_ENDIAN);
+        else
+            proto_tree_add_item(twamp_tree, hf_twamp_receive_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
         offset += 8;
 
         proto_tree_add_item (twamp_tree, hf_twamp_sender_seq_number, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(twamp_tree, hf_twamp_sender_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+        if (tvb_get_ntohs(tvb, offset) & TWAMP_ERROR_ESTIMATE_ZBIT)
+            proto_tree_add_item(twamp_tree, hf_twamp_sender_timestamp, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+        else
+            proto_tree_add_item(twamp_tree, hf_twamp_sender_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS | ENC_BIG_ENDIAN);
         offset += 8;
 
-        proto_tree_add_item (twamp_tree, hf_twamp_sender_error_estimate, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(twamp_tree, tvb, offset, hf_twamp_sender_error_estimate, ett_twamp_error_estimate, twamp_error_estimate_flags, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item (twamp_tree, hf_twamp_mbz2, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -681,7 +698,7 @@ void proto_register_twamp(void)
           NULL, 0x3f00, NULL, HFILL } },
         { &hf_twamp_error_estimate_b14,
           { "Z", "twamp.test.error_estimate.z", FT_BOOLEAN, 16,
-          NULL, 0x4000, NULL, HFILL } },
+          TFS(&tfs_twamp_zbit_tfs), 0x4000, NULL, HFILL } },
         { &hf_twamp_error_estimate_b15,
           { "S", "twamp.test.error_estimate.s", FT_BOOLEAN, 16,
           TFS(&tfs_twamp_sbit_tfs), 0x8000, NULL, HFILL } },
