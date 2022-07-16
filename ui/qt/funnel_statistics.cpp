@@ -106,7 +106,6 @@ private:
 
 static QHash<int, QList<FunnelAction *> > funnel_actions_;
 const QString FunnelStatistics::action_name_ = "FunnelStatisticsAction";
-static gboolean menus_registered = FALSE;
 
 struct _funnel_ops_id_t {
     FunnelStatistics *funnel_statistics;
@@ -348,8 +347,6 @@ void progress_window_destroy(progdlg *progress_dialog) {
 
 extern "C" {
 
-void register_tap_listener_qt_funnel(void);
-
 static void register_menu_cb(const char *name,
                              register_stat_group_t group,
                              funnel_menu_callback callback,
@@ -357,11 +354,8 @@ static void register_menu_cb(const char *name,
                              gboolean retap)
 {
     FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap, mainApp);
-    if (menus_registered) {
-        mainApp->appendDynamicMenuGroupItem(group, funnel_action);
-    } else {
-        mainApp->addDynamicMenuGroupItem(group, funnel_action);
-    }
+    mainApp->addDynamicMenuGroupItem(group, funnel_action);
+
     if (!funnel_actions_.contains(group)) {
         funnel_actions_[group] = QList<FunnelAction *>();
     }
@@ -384,13 +378,6 @@ static void deregister_menu_cb(funnel_menu_callback callback)
             }
         }
     }
-}
-
-void
-register_tap_listener_qt_funnel(void)
-{
-    funnel_register_all_menus(register_menu_cb);
-    menus_registered = TRUE;
 }
 
 void

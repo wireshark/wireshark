@@ -879,15 +879,6 @@ void MainApplication::addDynamicMenuGroupItem(int group, QAction *sg_action)
     dynamic_menu_groups_[group] << sg_action;
 }
 
-void MainApplication::appendDynamicMenuGroupItem(int group, QAction *sg_action)
-{
-    if (!added_menu_groups_.contains(group)) {
-        added_menu_groups_[group] = QList<QAction *>();
-    }
-    added_menu_groups_[group] << sg_action;
-    addDynamicMenuGroupItem(group, sg_action);
-}
-
 void MainApplication::removeDynamicMenuGroupItem(int group, QAction *sg_action)
 {
     if (!removed_menu_groups_.contains(group)) {
