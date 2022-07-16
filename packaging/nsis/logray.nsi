@@ -238,7 +238,6 @@ FunctionEnd
 ; Control states
 Var START_MENU_STATE
 Var DESKTOP_ICON_STATE
-Var QUICK_LAUNCH_STATE
 Var FILE_ASSOCIATE_STATE
 
 ; NSIS
@@ -306,7 +305,6 @@ lbl_winversion_supported:
   ; Default control values.
   StrCpy $START_MENU_STATE ${BST_CHECKED}
   StrCpy $DESKTOP_ICON_STATE ${BST_UNCHECKED}
-  StrCpy $QUICK_LAUNCH_STATE ${BST_CHECKED}
   StrCpy $FILE_ASSOCIATE_STATE ${BST_CHECKED}
 
   ; Copied from https://nsis.sourceforge.io/Auto-uninstall_old_before_installing_new
@@ -329,20 +327,16 @@ lbl_winversion_supported:
   ; user chose before.
   ; (we use the "all users" start menu, so select it first)
   SetShellVarContext all
-  ; MessageBox MB_OK|MB_ICONINFORMATION "oninit 1 sm $START_MENU_STATE di $DESKTOP_ICON_STATE ql $QUICK_LAUNCH_STATE"
+  ; MessageBox MB_OK|MB_ICONINFORMATION "oninit 1 sm $START_MENU_STATE di $DESKTOP_ICON_STATE"
   ${IfNot} ${FileExists} $SMPROGRAMS\${PROGRAM_NAME}.lnk
     StrCpy $START_MENU_STATE ${BST_UNCHECKED}
   ${Endif}
   ${If} ${FileExists} $DESKTOP\${PROGRAM_NAME}.lnk
     StrCpy $DESKTOP_ICON_STATE ${BST_CHECKED}
   ${Endif}
-  ${IfNot} ${FileExists} $QUICKLAUNCH\${PROGRAM_NAME}.lnk
-    StrCpy $QUICK_LAUNCH_STATE ${BST_UNCHECKED}
-  ${Endif}
   ; Leave FILE_ASSOCIATE_STATE checked.
   ; MessageBox MB_OK|MB_ICONINFORMATION "oninit 2 sm $START_MENU_STATE $SMPROGRAMS\${PROGRAM_NAME}\${PROGRAM_NAME}.lnk \
-  ;   $\ndi $DESKTOP_ICON_STATE $DESKTOP\${PROGRAM_NAME}.lnk \
-  ;   $\nql $QUICK_LAUNCH_STATE $QUICKLAUNCH\${PROGRAM_NAME}.lnk"
+  ;   $\ndi $DESKTOP_ICON_STATE $DESKTOP\${PROGRAM_NAME}.lnk
 
   MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
     "$OLD_DISPLAYNAME is already installed.\
@@ -425,13 +419,6 @@ done:
     StrCpy $DESKTOP_ICON_STATE ${BST_CHECKED}
   ${ElseIf} $R1 == "no"
     StrCpy $DESKTOP_ICON_STATE ${BST_UNCHECKED}
-  ${Endif}
-
-  ${GetOptions} $R0 "/quicklaunchicon=" $R1
-  ${If} $R1 == "yes"
-    StrCpy $QUICK_LAUNCH_STATE ${BST_CHECKED}
-  ${ElseIf} $R1 == "no"
-    StrCpy $QUICK_LAUNCH_STATE ${BST_UNCHECKED}
   ${Endif}
 
   ;Extract InstallOptions INI files
@@ -894,10 +881,6 @@ ${If} $DESKTOP_ICON_STATE == ${BST_CHECKED}
   CreateShortCut "$DESKTOP\${PROGRAM_NAME}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH}" "" "$INSTDIR\${PROGRAM_NAME_PATH}" 0 "" "" "${PROGRAM_FULL_NAME}"
 ${Endif}
 
-${If} $QUICK_LAUNCH_STATE == ${BST_CHECKED}
-  CreateShortCut "$QUICKLAUNCH\${PROGRAM_NAME}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH}" "" "$INSTDIR\${PROGRAM_NAME_PATH}" 0 "" "" "${PROGRAM_FULL_NAME}"
-${Endif}
-
 SectionEnd ; "SecLograyQt"
 !endif
 
@@ -1109,7 +1092,6 @@ Function InitAdditionalTasksPage
   ; We set XXX_STATE -> XxxCheckBox here and go the other direction below.
   ${NSD_SetState} $hCtl_AdditionalTasksPage_StartMenuCheckBox $START_MENU_STATE
   ${NSD_SetState} $hCtl_AdditionalTasksPage_DesktopIconCheckBox $DESKTOP_ICON_STATE
-  ${NSD_SetState} $hCtl_AdditionalTasksPage_QuickLaunchCheckBox $QUICK_LAUNCH_STATE
   ${NSD_SetState} $hCtl_AdditionalTasksPage_AssociateExtensionsCheckBox $FILE_ASSOCIATE_STATE
 
   StrCpy $QT_SELECTED 0
@@ -1119,7 +1101,6 @@ Function InitAdditionalTasksPage
   EnableWindow $hCtl_AdditionalTasksPage_CreateShortcutsLabel $QT_SELECTED
   EnableWindow $hCtl_AdditionalTasksPage_StartMenuCheckBox $QT_SELECTED
   EnableWindow $hCtl_AdditionalTasksPage_DesktopIconCheckBox $QT_SELECTED
-  EnableWindow $hCtl_AdditionalTasksPage_QuickLaunchCheckBox $QT_SELECTED
 
   EnableWindow $hCtl_AdditionalTasksPage_ExtensionsLabel $QT_SELECTED
   EnableWindow $hCtl_AdditionalTasksPage_AssociateExtensionsCheckBox $QT_SELECTED
@@ -1132,7 +1113,6 @@ Function LeaveAdditionalTasksPage
   ; We set XxxCheckBox -> XXX_STATE here and go the other direction above.
   ${NSD_GetState} $hCtl_AdditionalTasksPage_StartMenuCheckBox $START_MENU_STATE
   ${NSD_GetState} $hCtl_AdditionalTasksPage_DesktopIconCheckBox $DESKTOP_ICON_STATE
-  ${NSD_GetState} $hCtl_AdditionalTasksPage_QuickLaunchCheckBox $QUICK_LAUNCH_STATE
   ${NSD_GetState} $hCtl_AdditionalTasksPage_AssociateExtensionsCheckBox $FILE_ASSOCIATE_STATE
 FunctionEnd
 
