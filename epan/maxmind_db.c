@@ -197,77 +197,68 @@ write_mmdbr_stdin_worker(gpointer data _U_) {
     return NULL;
 }
 
-static ssize_t mmdbr_pipe_read_one(char *ch_p) {
-    ssize_t status = -1;
-    g_rw_lock_reader_lock(&mmdbr_pipe_mtx);
-    if (ws_pipe_valid(&mmdbr_pipe) && ws_pipe_data_available(mmdbr_pipe.stdout_fd)) {
-        status = ws_read(mmdbr_pipe.stdout_fd, ch_p, 1);
-    }
-    g_rw_lock_reader_unlock(&mmdbr_pipe_mtx);
-    return status;
-}
-
-// We need to read a series of lines from mmdbresolve's stdout. Trying to
-// use fgets is problematic because it blocks on Windows blocks. Doing so
-// in a thread is even worse since it locks the I/O stream and if the main
-// thread calls fclose while fgets is blocking, it will block as well. The
-// same happens for plain close+read.
-//
-// Read our input one character at a time and only after we've ensured
-// that data is available. If this is too inefficient we could try one
-// of the following:
-// - Use overlapped I/O, which implies adding ws_pipe_set_nonblock and
-//   ws_pipe_read_nonblock routines.
-// - Stash our worker thread handles on Windows and call CancelSynchronousIo
-//   before shutting down our threads.
-#define MAX_MMDB_LINE_LEN 2000
-#define MMDB_WAIT_TIME (150 * 1000) // microseconds
+#define MAX_MMDB_LINE_LEN 2001
 static gpointer
 read_mmdbr_stdout_worker(gpointer data _U_) {
     mmdb_response_t *response = g_new0(mmdb_response_t, 1);
-    GString *line_buf = g_string_new("");
+    gchar *line_buf = g_new(gchar, MAX_MMDB_LINE_LEN);
     GString *country_iso = g_string_new("");
     GString *country = g_string_new("");
     GString *city = g_string_new("");
     GString *as_org = g_string_new("");
     char cur_addr[WS_INET6_ADDRSTRLEN] = { 0 };
 
+    size_t bytes_in_buffer, search_offset;
+    gboolean line_feed_found;
+
     MMDB_DEBUG("starting read worker");
 
-    while (1) { // Start of line
-        char ch;
-        ssize_t status;
-
-        g_string_truncate(line_buf, 0);
-
-        while((status = mmdbr_pipe_read_one(&ch)) == 1) {
-            if (ch == '\n') {
-                break;
-            }
-
-            g_string_append_c(line_buf, ch);
-
-            if (line_buf->len > MAX_MMDB_LINE_LEN) {
-                MMDB_DEBUG("long line");
-                g_string_assign(line_buf, RES_INVALID_LINE);
-            }
+    bytes_in_buffer = search_offset = 0;
+    line_feed_found = FALSE;
+    for (;;) {
+        if (line_feed_found) {
+            /* Line parsed, move all (if any) next line bytes to beginning */
+            bytes_in_buffer -= (search_offset + 1);
+            memmove(line_buf, &line_buf[search_offset + 1], bytes_in_buffer);
+            search_offset = 0;
+            line_feed_found = FALSE;
         }
 
-        if (status != 1) {
-            if (!mmdbr_pipe_valid()) {
-                // Should be due to mmdb_resolve_stop.
-                MMDB_DEBUG("invalid mmdbr stdout pipe. exiting thread.");
+        while (search_offset < bytes_in_buffer) {
+            if (line_buf[search_offset] == '\n') {
+                line_buf[search_offset] = 0; /* NULL-terminate the string */
+                line_feed_found = TRUE;
                 break;
             }
+            search_offset++;
+        }
 
-            MMDB_DEBUG("no pipe data");
-            g_usleep(MMDB_WAIT_TIME);
+        if (!line_feed_found) {
+            int space_available = (int)(MAX_MMDB_LINE_LEN - bytes_in_buffer);
+            if (space_available > 0) {
+                ssize_t bytes_read;
+                bytes_read = ws_read(mmdbr_pipe.stdout_fd, &line_buf[bytes_in_buffer], space_available);
+                if (bytes_read > 0) {
+                    bytes_in_buffer += bytes_read;
+                } else {
+                    if (!mmdbr_pipe_valid()) {
+                        // Should be due to mmdb_resolve_stop.
+                        MMDB_DEBUG("invalid mmdbr stdout pipe. exiting thread.");
+                        break;
+                    }
+                    MMDB_DEBUG("no pipe data");
+                }
+            } else {
+                MMDB_DEBUG("long line");
+                bytes_in_buffer = g_strlcpy(line_buf, RES_INVALID_LINE, MAX_MMDB_LINE_LEN);
+                search_offset = bytes_in_buffer;
+            }
             continue;
         }
 
-        char *line = g_strstrip(line_buf->str);
+        char *line = g_strstrip(line_buf);
         size_t line_len = strlen(line);
-        MMDB_DEBUG("read %zd bytes, status %zd: %s", line_len, status, line);
+        MMDB_DEBUG("read %zd bytes: %s", line_len, line);
         if (line_len < 1) continue;
 
         char *val_start = strchr(line, ':');
@@ -361,11 +352,11 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
         }
     }
 
-    g_string_free(line_buf, TRUE);
     g_string_free(country_iso, TRUE);
     g_string_free(country, TRUE);
     g_string_free(city, TRUE);
     g_string_free(as_org, TRUE);
+    g_free(line_buf);
     g_free(response);
     return NULL;
 }
@@ -394,21 +385,23 @@ static void mmdb_resolve_stop(void) {
 
     g_async_queue_push(mmdbr_request_q, g_strdup(mmdbr_stop_sentinel));
 
-    MMDB_DEBUG("closing pipe FDs");
-    ws_close(mmdbr_pipe.stdin_fd);
-    ws_close(mmdbr_pipe.stdout_fd);
-
-    // read_mmdbr_stdout_worker should exit
-
     g_rw_lock_writer_unlock(&mmdbr_pipe_mtx);
 
     // write_mmdbr_stdin_worker should exit
-
     g_thread_join(write_mmdbr_stdin_thread);
     write_mmdbr_stdin_thread = NULL;
 
+    MMDB_DEBUG("closing stdin FD");
+    ws_close(mmdbr_pipe.stdin_fd);
+
+    // child process notices broken stdin pipe and exits (breaks stdout pipe)
+    // read_mmdbr_stdout_worker should exit
+
     g_thread_join(read_mmdbr_stdout_thread);
     read_mmdbr_stdout_thread = NULL;
+
+    MMDB_DEBUG("closing stdout FD");
+    ws_close(mmdbr_pipe.stdout_fd);
 
     while (mmdbr_response_q && (response = (mmdb_response_t *) g_async_queue_try_pop(mmdbr_response_q)) != NULL) {
         g_free((char *) response->mmdb_val.country_iso);
