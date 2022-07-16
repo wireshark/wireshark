@@ -60,6 +60,8 @@ wsbuglink:17779[]
 * The tap registration system has been updated and the list of arguments for tap_packet_cb has
   changed. All taps registered through register_tap_listener have to be updated.
 
+* Speed when using maxminddb has been greatly improved on Windows
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
