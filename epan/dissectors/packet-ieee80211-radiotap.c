@@ -5800,7 +5800,7 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 40, NULL, 0x0020000000, NULL, HFILL }},
 
 		{&hf_radiotap_s1g_ndp_cts_bandwidth_indic_2m,
-		 {"Address Indicator", "radiotap.s1g.ndp.cts.address_indic",
+		 {"Bandwidth Indicator", "radiotap.s1g.ndp.cts.bandwidth_indic_2m",
 		  FT_UINT40, BASE_DEC, NULL, 0x01C0000000, NULL, HFILL }},
 
 		{&hf_radiotap_s1g_ndp_cts_reserved,
