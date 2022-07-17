@@ -85,6 +85,8 @@ Wireshark 3.7.2 Release Notes
       arguments for tap_packet_cb has changed. All taps registered
       through register_tap_listener have to be updated.
 
+    • Speed when using maxminddb has been greatly improved on Windows
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
@@ -216,6 +218,9 @@ Wireshark 3.7.2 Release Notes
        Previously they could only be written as 1 or 0.
 
         • It is now possible to test for the existence of a slice.
+
+        • All integer sizes are now compatible. Unless overflow occurs
+       any integer field can be compared with any other.
 
      • The `text2pcap` command and the “Import from Hex Dump” feature
        have been updated and enhanced:
@@ -369,7 +374,7 @@ Wireshark 3.7.2 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2022-07-03 22:07:36 UTC
+  Last updated 2022-07-16 15:37:20 UTC
 
  References
 

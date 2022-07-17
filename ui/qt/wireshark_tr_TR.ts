@@ -11943,27 +11943,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>TrafficTreeHeaderView</name>
     <message>
         <source>Less than</source>
-        <translation type="unfinished"></translation>
+        <translation>Daha az</translation>
     </message>
     <message>
         <source>Greater than</source>
-        <translation type="unfinished"></translation>
+        <translation>Daha büyük</translation>
     </message>
     <message>
         <source>Equal</source>
-        <translation type="unfinished"></translation>
+        <translation>Eşit</translation>
     </message>
     <message>
         <source>Columns to display</source>
-        <translation type="unfinished"></translation>
+        <translation>Görüntülenecek sütunlar</translation>
     </message>
     <message>
         <source>Filter %1 by</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&apos;e göre filtrele</translation>
     </message>
     <message>
         <source>Enter filter value</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre değerini girin</translation>
     </message>
 </context>
 <context>
