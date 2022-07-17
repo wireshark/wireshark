@@ -64,6 +64,10 @@ typedef struct _http_conv_t {
 	gchar   *request_uri;
 	gchar   *full_uri;
 
+        /* Used to speed up desegmenting of chunked Transfer-Encoding. */
+	wmem_map_t *chunk_offsets_fwd;
+	wmem_map_t *chunk_offsets_rev;
+
 	/* Fields related to proxied/tunneled/Upgraded connections. */
 	guint32	 startframe;	/* First frame of proxied connection */
 	int    	 startoffset;	/* Offset within the frame where the new protocol begins. */

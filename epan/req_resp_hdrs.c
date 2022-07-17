@@ -27,7 +27,7 @@
 gboolean
 req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const gboolean desegment_headers, const gboolean desegment_body,
-    gboolean desegment_until_fin)
+    gboolean desegment_until_fin, int *last_chunk_offset)
 {
 	gint		next_offset = offset;
 	gint		next_offset_sav;
@@ -164,9 +164,13 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				} else if (g_ascii_strncasecmp( line, "Transfer-Encoding:", 18) == 0) {
 					/*
 					 * Find out if this Transfer-Encoding is
-					 * chunked.  It should be, since there
-					 * really aren't any other types, but
-					 * RFC 2616 allows for them.
+					 * chunked.  It should be, since the
+					 * other types aren't really used, but
+					 * RFC 7230 defines some.
+					 * (RFC 3261 says "chunked" MUST NOT be
+					 * used for SIP, and RFCs 2326 and 7826
+					 * say the same for RTSP, but handle it
+					 * anyway.)
 					 */
 					gchar *p;
 					guint len;
@@ -201,6 +205,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 * The above loop ends when we reached the end of the headers, so
 	 * there should be content_length bytes after the 4 terminating bytes
 	 * and next_offset points to after the end of the headers.
+	 *
+	 * XXX: If desegment_headers is FALSE but desegment_body is TRUE,
+	 * then for HTTP Responses we will always set to DESEGMENT_UNTIL_FIN,
+	 * which is probably not what we want.
 	 */
 	if (desegment_body) {
 		if (chunked_encoding) {
@@ -216,6 +224,9 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * a trailing header, or the start of a new response.
 			 */
 			gboolean done_chunking = FALSE;
+			if (last_chunk_offset != NULL && *last_chunk_offset) {
+				next_offset = offset + *last_chunk_offset;
+			}
 
 			while (!done_chunking) {
 				guint chunk_size = 0;
@@ -248,6 +259,15 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				}
 
 				/* We have a line with the chunk size in it.*/
+
+				/* Save off the offset so we can skip this work next time.
+				 * Use a relative offset, because we might call this
+				 * with a different offset with a reassembled tvb.
+				 */
+				if (last_chunk_offset != NULL) {
+					*last_chunk_offset = next_offset - offset;
+				}
+
 				chunk_string = tvb_get_string_enc(pinfo->pool, tvb, next_offset,
 				    linelen, ENC_ASCII);
 				c = chunk_string;

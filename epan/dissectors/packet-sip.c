@@ -3497,7 +3497,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
          * RFC 6594, Section 20.14. requires Content-Length for TCP.
          */
         if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
-            sip_desegment_headers, sip_desegment_body, FALSE)) {
+            sip_desegment_headers, sip_desegment_body, FALSE, NULL)) {
             /*
              * More data needed for desegmentation.
              */
