@@ -2482,6 +2482,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			}
 			break;
 
+		case AUTH_SWITCH_REQUEST:
+			proto_item_append_text(pi, " - %s", val_to_str(AUTH_SWITCH_REQUEST, state_vals, "Unknown (%u)"));
+			offset = mysql_dissect_auth_switch_request(tvb, pinfo, offset, tree, conn_data);
+			break;
+
 		default:
 			ti = proto_tree_add_item(tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
 			expert_add_info(pinfo, ti, &ei_mysql_unknown_response);
