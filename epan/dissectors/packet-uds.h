@@ -25,6 +25,7 @@
 #define UDS_SERVICES_RSDBI   0x24
 #define UDS_SERVICES_SA      0x27
 #define UDS_SERVICES_CC      0x28
+#define UDS_SERVICES_ARS     0x29
 #define UDS_SERVICES_RDBPI   0x2A
 #define UDS_SERVICES_DDDI    0x2C
 #define UDS_SERVICES_WDBI    0x2E
@@ -38,7 +39,10 @@
 #define UDS_SERVICES_WMBA    0x3D
 #define UDS_SERVICES_TP      0x3E
 #define UDS_SERVICES_ERR     0x3F
+#define UDS_SERVICES_SDT     0x84
 #define UDS_SERVICES_CDTCS   0x85
+#define UDS_SERVICES_ROE     0x86
+#define UDS_SERVICES_LC      0x87
 
 typedef struct uds_info {
     guint32  id;
