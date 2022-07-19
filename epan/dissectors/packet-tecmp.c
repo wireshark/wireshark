@@ -27,6 +27,7 @@
 #include <epan/proto_data.h>
 #include <wsutil/utf8_entities.h>
 
+#include <packet-tecmp.h>
 #include <packet-socketcan.h>
 #include <packet-flexray.h>
 #include <packet-lin.h>
@@ -48,7 +49,8 @@ static gboolean analog_samples_are_signed_int = TRUE;
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
 static dissector_table_t lin_subdissector_table;
-
+static dissector_table_t data_subdissector_table;
+static dissector_handle_t text_lines_handle;
 
 /* Header fields */
 /* TECMP */
@@ -1370,8 +1372,34 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 device_id, guint8 msg_type, guint16 data_type, guint32 interface_id) {
+    tecmp_info_t tecmp_info;
+    int          dissected_bytes;
+
+    tecmp_info.interface_id = interface_id;
+    tecmp_info.device_id = device_id;
+    tecmp_info.data_type = data_type;
+    tecmp_info.msg_type = msg_type;
+
+
+    dissector_handle_t handle = dissector_get_uint_handle(data_subdissector_table, interface_id);
+    if (handle != NULL) {
+        dissected_bytes = call_dissector_only(handle, tvb, pinfo, tree, &tecmp_info);
+        if (dissected_bytes > 0) {
+            return dissected_bytes;
+        }
+    }
+
+    if (tecmp_info.data_type == TECMP_DATA_TYPE_RS232_ASCII) {
+        return call_dissector(text_lines_handle, tvb, pinfo, tree);
+    } else {
+        return call_data_dissector(tvb, pinfo, tree);
+    }
+}
+
+static int
 dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig,
-                                   guint16 msg_type, guint tecmp_msg_type) {
+                                   guint16 data_type, guint8 tecmp_msg_type, guint16 device_id) {
     proto_item *ti = NULL;
     proto_item *ti_tecmp = NULL;
     proto_tree *tecmp_tree = NULL;
@@ -1421,10 +1449,10 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         length = tvb_get_guint16(tvb, offset+12, ENC_BIG_ENDIAN);
         ti_tecmp = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (gint)length + 16, ENC_NA);
-        proto_item_append_text(ti_tecmp, " (%s)", val_to_str(msg_type, tecmp_msgtype_names, "Unknown (%d)"));
+        proto_item_append_text(ti_tecmp, " (%s)", val_to_str(data_type, tecmp_msgtype_names, "Unknown (%d)"));
         tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload);
 
-        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, msg_type, first, &dataflags, &interface_id);
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, first, &dataflags, &interface_id);
 
         first = FALSE;
 
@@ -1432,7 +1460,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             sub_tvb = tvb_new_subset_length_caplen(tvb, offset, (gint)length, (gint)length);
             offset2 = 0;
 
-            switch (msg_type) {
+            switch (data_type) {
             case TECMP_DATA_TYPE_LIN:
                 lin_info.id = tvb_get_guint8(sub_tvb, offset2) & DATA_LIN_ID_MASK;
 
@@ -1453,7 +1481,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     guint32 bus_frame_id = lin_info.id | (lin_info.bus_id << 16);
                     if (!dissector_try_uint_new(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
                         if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
-                            call_data_dissector(payload_tvb, pinfo, tree);
+                            dissect_data(payload_tvb, pinfo, tree, device_id, tecmp_msg_type, data_type, interface_id);
                         }
                     }
                     offset2 += (gint)length2;
@@ -1485,14 +1513,14 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
                     offset2 += length2;
 
-                    can_info.fd = (msg_type == TECMP_DATA_TYPE_CAN_FD_DATA);
+                    can_info.fd = (data_type == TECMP_DATA_TYPE_CAN_FD_DATA);
                     can_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
                     can_info.bus_id = ht_interface_config_to_bus_id(interface_id);
 
                     /* luckely TECMP and SocketCAN share the first bit as indicator for 11 vs 29bit Identifiers */
                     can_info.id = tmp;
 
-                    if (msg_type == TECMP_DATA_TYPE_CAN_DATA && (dataflags & DATA_FLAG_CAN_RTR) == DATA_FLAG_CAN_RTR) {
+                    if (data_type == TECMP_DATA_TYPE_CAN_DATA && (dataflags & DATA_FLAG_CAN_RTR) == DATA_FLAG_CAN_RTR) {
                         can_info.id |= CAN_RTR_FLAG;
                     }
 
@@ -1501,14 +1529,14 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     }
 
                     if (!socketcan_call_subdissectors(payload_tvb, pinfo, tree, &can_info, heuristic_first)) {
-                        call_data_dissector(payload_tvb, pinfo, tree);
+                        dissect_data(payload_tvb, pinfo, tree, device_id, tecmp_msg_type, data_type, interface_id);
                     }
                 }
 
                 /* new for TECMP 1.6 */
-                if (msg_type == TECMP_DATA_TYPE_CAN_DATA && tvb_captured_length_remaining(sub_tvb, offset2) >= 2) {
+                if (data_type == TECMP_DATA_TYPE_CAN_DATA && tvb_captured_length_remaining(sub_tvb, offset2) >= 2) {
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_crc15, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
-                } else if (msg_type == TECMP_DATA_TYPE_CAN_FD_DATA && tvb_captured_length_remaining(sub_tvb, offset2) >= 3) {
+                } else if (data_type == TECMP_DATA_TYPE_CAN_FD_DATA && tvb_captured_length_remaining(sub_tvb, offset2) >= 3) {
                     if (length2 <= 16) {
                         proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_crc17, sub_tvb, offset2, 3, ENC_BIG_ENDIAN);
                     } else {
@@ -1543,7 +1571,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     offset2 += length2;
 
                     if (!flexray_call_subdissectors(payload_tvb, pinfo, tree, &fr_info, heuristic_first)) {
-                        call_data_dissector(payload_tvb, pinfo, tree);
+                        dissect_data(payload_tvb, pinfo, tree, device_id, tecmp_msg_type, data_type, interface_id);
                     }
                 }
 
@@ -1560,7 +1588,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             case TECMP_DATA_TYPE_RS232_ASCII:
-                call_data_dissector(sub_tvb, pinfo, tree);
+                dissect_data(sub_tvb, pinfo, tree, device_id, tecmp_msg_type, data_type, interface_id);
                 break;
 
             case TECMP_DATA_TYPE_ANALOG:
@@ -1631,7 +1659,7 @@ dissect_tecmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree *tecmp_tree = NULL;
     guint offset = 0;
     guint tecmp_type = 0;
-    guint tecmp_msg_type = 0;
+    guint data_type = 0;
     guint device_id = 0;
 
     static int * const tecmp_flags[] = {
@@ -1665,7 +1693,7 @@ dissect_tecmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_msgtype, tvb, offset, 1, ENC_NA, &tecmp_type);
     offset += 1;
 
-    proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_data_type, tvb, offset, 2, ENC_BIG_ENDIAN, &tecmp_msg_type);
+    proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_data_type, tvb, offset, 2, ENC_BIG_ENDIAN, &data_type);
     offset += 2;
 
     proto_tree_add_item(tecmp_tree, hf_tecmp_res, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1677,18 +1705,18 @@ dissect_tecmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     switch (tecmp_type) {
     case TECMP_MSG_TYPE_CTRL_MSG:
-        offset += dissect_tecmp_control_msg(tvb, pinfo, tree, offset, (guint16)tecmp_msg_type, (guint8)tecmp_type);
+        offset += dissect_tecmp_control_msg(tvb, pinfo, tree, offset, (guint16)data_type, (guint8)tecmp_type);
         break;
 
     case TECMP_MSG_TYPE_STATUS_BUS:
     case TECMP_MSG_TYPE_CFG_CM:
     case TECMP_MSG_TYPE_STATUS_DEV:
-        offset += dissect_tecmp_status_device(tvb, pinfo, tree, offset, (guint16)tecmp_msg_type, (guint8)tecmp_type);
+        offset += dissect_tecmp_status_device(tvb, pinfo, tree, offset, (guint16)data_type, (guint8)tecmp_type);
         break;
 
     case TECMP_MSG_TYPE_LOG_STREAM:
     case TECMP_MSG_TYPE_REPLAY_DATA:
-        offset += dissect_tecmp_log_or_replay_stream(tvb, pinfo, tree, offset, (guint16)tecmp_msg_type, (guint8)tecmp_type);
+        offset += dissect_tecmp_log_or_replay_stream(tvb, pinfo, tree, offset, (guint16)data_type, (guint8)tecmp_type, (guint16)device_id);
         break;
 
     }
@@ -2102,6 +2130,13 @@ proto_register_tecmp_payload(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_module_tecmp_payload = expert_register_protocol(proto_tecmp_payload);
     expert_register_field_array(expert_module_tecmp_payload, ei, array_length(ei));
+
+
+    /*
+     * Dissectors can register themselves in this table.
+     */
+    data_subdissector_table = register_dissector_table(TECMP_PAYLOAD_INTERFACE_ID, "TECMP Interface ID", proto_tecmp_payload, FT_UINT32, BASE_HEX);
+
 }
 
 void
@@ -2267,6 +2302,8 @@ proto_reg_handoff_tecmp(void) {
     fr_heur_subdissector_list = find_heur_dissector_list("flexray");
 
     lin_subdissector_table = find_dissector_table("lin.frame_id");
+
+    text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_tecmp);
 }
 
 /*

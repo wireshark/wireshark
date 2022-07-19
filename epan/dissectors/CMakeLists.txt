@@ -590,6 +590,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tcap.h
 	packet-tcp.h
 	packet-tcpcl.h
+	packet-tecmp.h
 	packet-tetra.h
 	packet-thrift.h
 	packet-tls-utils.h
