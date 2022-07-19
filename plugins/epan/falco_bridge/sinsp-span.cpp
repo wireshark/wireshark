@@ -65,7 +65,7 @@ create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_
     sinsp_source_info_t *ssi = new sinsp_source_info_t();
 
     try {
-        sinsp_plugin *sp = sinsp_span->inspector.register_plugin(libname, "{}").get();
+        sinsp_plugin *sp = sinsp_span->inspector.register_plugin(libname).get();
         if (sp->caps() & CAP_EXTRACTION) {
             ssi->source = dynamic_cast<sinsp_plugin *>(sp);
         } else {
@@ -73,6 +73,11 @@ create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_
         }
     } catch (const sinsp_exception& e) {
         err_str = g_strdup_printf("Caught sinsp exception %s", e.what());
+    }
+
+    std::string init_err;
+    if (!ssi->source->init("{}", init_err)) {
+        err_str = g_strdup_printf("Unable to initialize %s: %s", libname, init_err.c_str());
     }
 
     if (err_str) {
@@ -89,11 +94,6 @@ create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_
 uint32_t get_sinsp_source_id(sinsp_source_info_t *ssi)
 {
     return ssi->source->id();
-}
-
-bool init_sinsp_source(sinsp_source_info_t *ssi, const char *config)
-{
-    return ssi->source->init(config);
 }
 
 const char *get_sinsp_source_last_error(sinsp_source_info_t *ssi)
