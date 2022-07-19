@@ -89,11 +89,11 @@ static int ByteArray__gc(lua_State* L) {
 
 WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
     /* Concatenate two <<lua_class_ByteArray,`ByteArray`>>s. */
-#define WSLUA_ARG_ByteArray__cat_FIRST 1 /* First array. */
-#define WSLUA_ARG_ByteArray__cat_SECOND 2 /* Second array. */
+#define WSLUA_ARG_ByteArray__concat_FIRST 1 /* First array. */
+#define WSLUA_ARG_ByteArray__concat_SECOND 2 /* Second array. */
 
-    ByteArray ba1 = checkByteArray(L,WSLUA_ARG_ByteArray__cat_FIRST);
-    ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__cat_SECOND);
+    ByteArray ba1 = checkByteArray(L,WSLUA_ARG_ByteArray__concat_FIRST);
+    ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__concat_SECOND);
     ByteArray ba;
 
     ba = g_byte_array_new();

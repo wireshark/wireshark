@@ -642,7 +642,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /*
 }
 
 WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that will be called when the text window closes. */
-#define WSLUA_ARG_TextWindow_at_close_ACTION 2 /* A Lua function to be executed when the user closes the text window. */
+#define WSLUA_ARG_TextWindow_set_atclose_ACTION 2 /* A Lua function to be executed when the user closes the text window. */
 
     TextWindow tw = checkTextWindow(L,1);
     struct _close_cb_data* cbd;
@@ -655,7 +655,7 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     lua_settop(L,2);
 
     if (! lua_isfunction(L,2)) {
-        WSLUA_ARG_ERROR(TextWindow_at_close,ACTION,"Must be a function");
+        WSLUA_ARG_ERROR(TextWindow_set_atclose,ACTION,"Must be a function");
         return 0;
     }
 

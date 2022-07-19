@@ -127,8 +127,8 @@ WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestam
 
 WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
     /* Get a preference value. @since 3.5.0 */
-#define WSLUA_ARG_Prefs_get_PREFERENCE 1 /* The name of the preference. */
-    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_Prefs_get_PREFERENCE);
+#define WSLUA_ARG_get_preference_PREFERENCE 1 /* The name of the preference. */
+    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_get_preference_PREFERENCE);
 
     /* Split preference from module.preference */
     gchar *module_name = g_strdup(preference);
@@ -206,9 +206,9 @@ WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
 
 WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
     /* Set a preference value. @since 3.5.0 */
-#define WSLUA_ARG_Prefs_set_PREFERENCE 1 /* The name of the preference. */
-#define WSLUA_ARG_Prefs_set_VALUE 2 /* The preference value to set. */
-    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_Prefs_get_PREFERENCE);
+#define WSLUA_ARG_set_preference_PREFERENCE 1 /* The name of the preference. */
+#define WSLUA_ARG_set_preference_VALUE 2 /* The preference value to set. */
+    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_set_preference_PREFERENCE);
 
     /* Split preference from module.preference */
     gchar *module_name = g_strdup(preference);
@@ -230,7 +230,7 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
         switch (prefs_get_type(pref)) {
             case PREF_UINT:
             {
-                guint uint_value = (guint)luaL_checkinteger(L,WSLUA_ARG_Prefs_set_VALUE);
+                guint uint_value = (guint)luaL_checkinteger(L,WSLUA_ARG_set_preference_VALUE);
                 changed = prefs_set_uint_value(pref, uint_value, pref_current);
                 module->prefs_changed_flags |= changed;
                 lua_pushboolean(L, changed);
@@ -238,7 +238,7 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
             }
             case PREF_BOOL:
             {
-                gboolean bool_value = wslua_checkboolean(L, WSLUA_ARG_Prefs_set_VALUE);
+                gboolean bool_value = wslua_checkboolean(L, WSLUA_ARG_set_preference_VALUE);
                 changed = prefs_set_bool_value(pref, bool_value, pref_current);
                 module->prefs_changed_flags |= changed;
                 lua_pushboolean(L, changed);
@@ -246,7 +246,7 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
             }
             case PREF_ENUM:
             {
-                const gchar *enum_value = luaL_checkstring(L,WSLUA_ARG_Prefs_set_VALUE);
+                const gchar *enum_value = luaL_checkstring(L,WSLUA_ARG_set_preference_VALUE);
                 changed = prefs_set_enum_string_value(pref, enum_value, pref_current);
                 module->prefs_changed_flags |= changed;
                 lua_pushboolean(L, changed);
@@ -257,7 +257,7 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
             case PREF_OPEN_FILENAME:
             case PREF_DIRNAME:
             {
-                const gchar *string_value = luaL_checkstring(L,WSLUA_ARG_Prefs_set_VALUE);
+                const gchar *string_value = luaL_checkstring(L,WSLUA_ARG_set_preference_VALUE);
                 changed = prefs_set_string_value(pref, string_value, pref_current);
                 module->prefs_changed_flags |= changed;
                 lua_pushboolean(L, changed);
@@ -265,7 +265,7 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
             }
             case PREF_RANGE:
             {
-                const gchar *range_value = luaL_checkstring(L,WSLUA_ARG_Prefs_set_VALUE);
+                const gchar *range_value = luaL_checkstring(L,WSLUA_ARG_set_preference_VALUE);
                 range_t *range = NULL;
                 convert_ret_t ret = range_convert_str(NULL, &range, range_value, prefs_get_max_value(pref));
                 if (ret == CVT_NUMBER_TOO_BIG) {
@@ -293,8 +293,8 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
 
 WSLUA_FUNCTION wslua_reset_preference(lua_State *L) {
     /* Reset a preference to default value. @since 3.5.0 */
-#define WSLUA_ARG_Prefs_set_PREFERENCE 1 /* The name of the preference. */
-    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_Prefs_get_PREFERENCE);
+#define WSLUA_ARG_reset_preference_PREFERENCE 1 /* The name of the preference. */
+    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_reset_preference_PREFERENCE);
 
     // Split preference from module.preference
     gchar *module_name = g_strdup(preference);

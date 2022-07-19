@@ -288,8 +288,8 @@ WSLUA_CONSTRUCTOR Dir_personal_config_path(lua_State* L) {
 
        @since 1.11.3
     */
-#define WSLUA_OPTARG_personal_config_path_FILENAME 1 /* A filename. */
-    const char *fname = luaL_optstring(L, WSLUA_OPTARG_personal_config_path_FILENAME,"");
+#define WSLUA_OPTARG_Dir_personal_config_path_FILENAME 1 /* A filename. */
+    const char *fname = luaL_optstring(L, WSLUA_OPTARG_Dir_personal_config_path_FILENAME,"");
     char* filename = get_persconffile_path(fname,FALSE);
 
     lua_pushstring(L,filename);
@@ -302,8 +302,8 @@ WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
 
        @since 1.11.3
     */
-#define WSLUA_OPTARG_global_config_path_FILENAME 1 /* A filename */
-    const char *fname = luaL_optstring(L, WSLUA_OPTARG_global_config_path_FILENAME,"");
+#define WSLUA_OPTARG_Dir_global_config_path_FILENAME 1 /* A filename */
+    const char *fname = luaL_optstring(L, WSLUA_OPTARG_Dir_global_config_path_FILENAME,"");
     char* filename;
 
     filename = get_datafile_path(fname);
