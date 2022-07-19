@@ -52,7 +52,7 @@ target_include_directories(falco-bridge SYSTEM PRIVATE
 
 target_link_libraries(falco-bridge
 	epan
-	${SINSP_LIBRARIES}
+	${SINSP_LINK_LIBRARIES}
 )
 
 install_plugin(falco-bridge epan)

@@ -65,7 +65,6 @@ char *create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_s
 // Extractor plugin routines.
 // These roughly match common_plugin_info
 uint32_t get_sinsp_source_id(sinsp_source_info_t *ssi);
-bool init_sinsp_source(sinsp_source_info_t *ssi, const char *config);
 const char *get_sinsp_source_last_error(sinsp_source_info_t *ssi);
 const char *get_sinsp_source_name(sinsp_source_info_t *ssi);
 const char* get_sinsp_source_description(sinsp_source_info_t *ssi);
