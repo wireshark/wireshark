@@ -408,16 +408,25 @@ ul_semcheck_absolute_value(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ft
     if (stnode_type_id(st_node) == STTYPE_ARITHMETIC) {
         ftype = check_arithmetic_expr(dfw, st_node, lhs_ftype);
     }
-    else if (stnode_type_id(st_node) == STTYPE_LITERAL && lhs_ftype != FT_NONE) {
-        fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, FALSE, NULL);
-        stnode_replace(st_node, STTYPE_FVALUE, fv);
-        ftype = fvalue_type_ftenum(fv);
+    else if (stnode_type_id(st_node) == STTYPE_LITERAL) {
+        if (lhs_ftype != FT_NONE) {
+            /* Convert RHS literal to the same ftype as LHS. */
+            fv = dfilter_fvalue_from_literal(dfw, lhs_ftype, st_node, FALSE, NULL);
+            stnode_replace(st_node, STTYPE_FVALUE, fv);
+            ftype = fvalue_type_ftenum(fv);
+        }
+        else {
+            FAIL(dfw, st_node, "Need a field or field-like value on the LHS.");
+        }
     }
     else if (stnode_type_id(st_node) == STTYPE_FUNCTION) {
         ftype = check_function(dfw, st_node, lhs_ftype);
     }
-    else {
+    else if (stnode_type_id(st_node) == STTYPE_FIELD) {
         ftype = sttype_field_ftenum(st_node);
+    }
+    else {
+        ftype = FT_NONE;
     }
 
     if (ftype == FT_NONE) {
