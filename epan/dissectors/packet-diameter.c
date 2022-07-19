@@ -95,7 +95,6 @@ void proto_reg_handoff_diameter(void);
 #define AVP_FLAGS_RESERVED7 0x01
 #define AVP_FLAGS_RESERVED 0x1f          /* 00011111  -- V M P X X X X X */
 
-#define DIAMETER_V16 16
 #define DIAMETER_RFC 1
 
 static gint exported_pdu_tap = -1;
@@ -109,7 +108,6 @@ typedef struct _diam_ctx_t {
 	proto_tree *tree;
 	packet_info *pinfo;
 	wmem_tree_t *avps;
-	gboolean version_rfc;
 } diam_ctx_t;
 
 typedef struct _diam_avp_t diam_avp_t;
@@ -122,13 +120,11 @@ typedef struct _diam_vnd_t {
 	guint32  code;
 	wmem_array_t *vs_avps;
 	value_string_ext *vs_avps_ext;
-	wmem_array_t *vs_cmds;
 } diam_vnd_t;
 
 struct _diam_avp_t {
 	guint32 code;
 	diam_vnd_t *vendor;
-	diam_avp_dissector_t dissector_v16;
 	diam_avp_dissector_t dissector_rfc;
 
 	gint ett;
@@ -138,7 +134,6 @@ struct _diam_avp_t {
 
 #define VND_AVP_VS(v)      ((value_string *)(void *)(wmem_array_get_raw((v)->vs_avps)))
 #define VND_AVP_VS_LEN(v)  (wmem_array_get_count((v)->vs_avps))
-#define VND_CMD_VS(v)      ((value_string *)(void *)(wmem_array_get_raw((v)->vs_cmds)))
 
 typedef struct _diam_dictionary_t {
 	wmem_tree_t *avps;
@@ -151,7 +146,6 @@ typedef diam_avp_t *(*avp_constructor_t)(const avp_type_t *, guint32, diam_vnd_t
 
 struct _avp_type_t {
 	const char *name;
-	diam_avp_dissector_t v16;
 	diam_avp_dissector_t rfc;
 	enum ftenum ft;
 	int base;
@@ -189,9 +183,9 @@ typedef struct _proto_avp_t {
 
 static const char *simple_avp(diam_ctx_t *, diam_avp_t *, tvbuff_t *, diam_sub_dis_t *);
 
-static diam_vnd_t unknown_vendor = { 0xffffffff, NULL, NULL, NULL };
-static diam_vnd_t no_vnd = { 0, NULL, NULL, NULL };
-static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1, -1, NULL };
+static diam_vnd_t unknown_vendor = { 0xffffffff, NULL, NULL };
+static diam_vnd_t no_vnd = { 0, NULL, NULL };
+static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, -1, -1, NULL };
 static GArray *all_cmds;
 static diam_dictionary_t dictionary = { NULL, NULL, NULL, NULL };
 static struct _build_dict build_dict;
@@ -294,7 +288,6 @@ static gint ett_diameter_flags = -1;
 static gint ett_diameter_avp_flags = -1;
 static gint ett_diameter_avpinfo = -1;
 static gint ett_unknown = -1;
-static gint ett_err = -1;
 static gint ett_diameter_mip6_feature_vector = -1;
 static gint ett_diameter_3gpp_mip6_feature_vector = -1;
 
@@ -969,10 +962,8 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		if (diam_sub_dis_inf->avp_str) {
 			proto_item_append_text(avp_item," val=%s", diam_sub_dis_inf->avp_str);
 		}
-	} else if (c->version_rfc) {
-		avp_str = a->dissector_rfc(c,a,subtvb, diam_sub_dis_inf);
 	} else {
-		avp_str = a->dissector_v16(c,a,subtvb, diam_sub_dis_inf);
+		avp_str = a->dissector_rfc(c,a,subtvb, diam_sub_dis_inf);
 	}
 	c->tree = save_tree;
 
@@ -1105,7 +1096,7 @@ time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_d
 }
 
 static const char *
-address_v16_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf _U_)
+address_radius_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf _U_)
 {
 	char *label = NULL;
 
@@ -1423,6 +1414,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	c->pinfo = pinfo;
 
 	version_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_version, tvb, 0, 1, ENC_BIG_ENDIAN, &version);
+	if (version != DIAMETER_RFC) {
+		expert_add_info(c->pinfo, version_item, &ei_diameter_version);
+	}
 	proto_tree_add_item_ret_uint(diam_tree, hf_diameter_length, tvb, 1, 3, ENC_BIG_ENDIAN, &packet_len);
 
 	pi = proto_tree_add_bitmask_ret_uint64(diam_tree, tvb, 4, hf_diameter_flags, ett_diameter_flags, diameter_flags_fields, ENC_BIG_ENDIAN, &flags_bits);
@@ -1434,54 +1428,23 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	diam_sub_dis_inf->cmd_code = cmd;
 
 
-	switch (version) {
-		case DIAMETER_V16: {
-			guint32 vendorid;
-			diam_vnd_t *vendor;
+	cmd_vs = (value_string *)(void *)all_cmds->data;
 
-			proto_tree_add_item_ret_uint(diam_tree, hf_diameter_vendor_id, tvb, 8, 4, ENC_BIG_ENDIAN, &vendorid);
-			diam_sub_dis_inf->application_id = vendorid;
-			if (! ( vendor = (diam_vnd_t *)wmem_tree_lookup32(dictionary.vnds,vendorid) ) ) {
-				vendor = &unknown_vendor;
-			}
+	app_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_application_id, tvb, 8, 4,
+		ENC_BIG_ENDIAN, &diam_sub_dis_inf->application_id);
 
-			cmd_vs = VND_CMD_VS(vendor);
-
-			c->version_rfc = FALSE;
-			break;
-		}
-		case DIAMETER_RFC: {
-
-			cmd_vs = (value_string *)(void *)all_cmds->data;
-
-			app_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_application_id, tvb, 8, 4,
-				ENC_BIG_ENDIAN, &diam_sub_dis_inf->application_id);
-
-			if (try_val_to_str_ext(diam_sub_dis_inf->application_id, dictionary.applications) == NULL) {
-				proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
-				proto_tree_add_expert_format(tu, c->pinfo, &ei_diameter_application_id, tvb, 8, 4,
-					"Unknown Application Id (%u), if you know what this is you can add it to dictionary.xml", diam_sub_dis_inf->application_id);
-			}
-
-			c->version_rfc = TRUE;
-			break;
-		}
-		default:
-		{
-			proto_tree *pt = proto_item_add_subtree(version_item,ett_err);
-			proto_tree_add_expert(pt, pinfo, &ei_diameter_version, tvb, 0, 1);
-			c->version_rfc = TRUE;
-			cmd_vs = VND_CMD_VS(&no_vnd);
-			break;
-		}
+	if (try_val_to_str_ext(diam_sub_dis_inf->application_id, dictionary.applications) == NULL) {
+		proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
+		proto_tree_add_expert_format(tu, c->pinfo, &ei_diameter_application_id, tvb, 8, 4,
+			"Unknown Application Id (%u), if you know what this is you can add it to dictionary.xml", diam_sub_dis_inf->application_id);
 	}
+
 	cmd_str = val_to_str_const(cmd, cmd_vs, "Unknown");
 
 	/* Append name to command item, warn if unknown */
 	proto_item_append_text(cmd_item," %s", cmd_str);
 	if (strcmp(cmd_str, "Unknown") == 0) {
-		proto_tree *tu = proto_item_add_subtree(cmd_item,ett_unknown);
-		proto_tree_add_expert(tu, c->pinfo, &ei_diameter_code, tvb, 5, 3);
+		expert_add_info(c->pinfo, cmd_item, &ei_diameter_code);
 	}
 
 
@@ -1494,9 +1457,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			 ((flags_bits>>4)&0x08) ? " Request" : " Answer",
 			 cmd,
 			 msgflags_str[((flags_bits>>4)&0x0f)],
-			 c->version_rfc ? "appl" : "vend",
-			 c->version_rfc ? val_to_str_ext_const(diam_sub_dis_inf->application_id, dictionary.applications, "Unknown") :
-					  val_to_str_const(diam_sub_dis_inf->application_id, vnd_short_vs, "Unknown"),
+			 "appl",
+			 val_to_str_ext_const(diam_sub_dis_inf->application_id, dictionary.applications, "Unknown"),
 			 diam_sub_dis_inf->application_id,
 			 hop_by_hop_id,
 			 end_to_end_id);
@@ -1753,7 +1715,6 @@ dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	diam_tree = proto_item_add_subtree(pi, ett_diameter);
 	c->tree = diam_tree;
 	c->pinfo = pinfo;
-	c->version_rfc = TRUE;
 
 	/* Dissect AVPs until the end of the packet is reached */
 	while (tvb_reported_length_remaining(tvb, offset)) {
@@ -1870,9 +1831,8 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
  *    defined in [IANAADFAM].  The AddressType is used to discriminate
  *    the content and format of the remaining octets.
  */
-	a->dissector_v16 = address_v16_avp;
 	if (code<256) {
-		a->dissector_rfc = address_v16_avp;
+		a->dissector_rfc = address_radius_avp;
 	} else {
 		a->dissector_rfc = address_rfc_avp;
 	}
@@ -1925,7 +1885,6 @@ build_proto_avp(const avp_type_t *type _U_, guint32 code,
 
 	a->code = code;
 	a->vendor = vendor;
-	a->dissector_v16 = proto_avp;
 	a->dissector_rfc = proto_avp;
 	a->ett = -1;
 	a->hf_value = -2;
@@ -1979,7 +1938,6 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 	a = wmem_new0(wmem_epan_scope(), diam_avp_t);
 	a->code = code;
 	a->vendor = vendor;
-	a->dissector_v16 = type->v16;
 	a->dissector_rfc = type->rfc;
 	a->ett = -1;
 	a->hf_value = -1;
@@ -1999,7 +1957,6 @@ build_appid_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 	a = wmem_new0(wmem_epan_scope(), diam_avp_t);
 	a->code = code;
 	a->vendor = vendor;
-	a->dissector_v16 = type->v16;
 	a->dissector_rfc = type->rfc;
 	a->ett = -1;
 	a->hf_value = -1;
@@ -2016,24 +1973,24 @@ build_appid_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 }
 
 static const avp_type_t basic_types[] = {
-	{"octetstring"			, simple_avp		, simple_avp	, FT_BYTES			, BASE_NONE			, build_simple_avp  },
-	{"octetstringorutf8"	, simple_avp		, simple_avp	, FT_BYTES			, BASE_SHOW_ASCII_PRINTABLE	, build_simple_avp  },
-	{"utf8string"			, utf8_avp			, utf8_avp		, FT_STRING			, BASE_NONE			, build_simple_avp  },
-	{"grouped"				, grouped_avp		, grouped_avp	, FT_BYTES			, BASE_NONE			, build_simple_avp  },
-	{"integer32"			, integer32_avp		, integer32_avp	, FT_INT32			, BASE_DEC			, build_simple_avp  },
-	{"unsigned32"			, unsigned32_avp	, unsigned32_avp, FT_UINT32			, BASE_DEC			, build_simple_avp  },
-	{"integer64"			, integer64_avp		, integer64_avp	, FT_INT64			, BASE_DEC			, build_simple_avp  },
-	{"unsigned64"			, unsigned64_avp	, unsigned64_avp, FT_UINT64			, BASE_DEC			, build_simple_avp  },
-	{"float32"				, float32_avp		, float32_avp	, FT_FLOAT			, BASE_NONE			, build_simple_avp  },
-	{"float64"				, float64_avp		, float64_avp	, FT_DOUBLE			, BASE_NONE			, build_simple_avp  },
-	{"ipaddress"			, NULL				, NULL			, FT_NONE			, BASE_NONE			, build_address_avp },
-	{"diameteruri"			, utf8_avp			, utf8_avp		, FT_STRING			, BASE_NONE			, build_simple_avp  },
-	{"diameteridentity"		, utf8_avp			, utf8_avp		, FT_STRING			, BASE_NONE			, build_simple_avp  },
-	{"ipfilterrule"			, utf8_avp			, utf8_avp		, FT_STRING			, BASE_NONE			, build_simple_avp  },
-	{"qosfilterrule"		, utf8_avp			, utf8_avp		, FT_STRING			, BASE_NONE			, build_simple_avp  },
-	{"time"					, time_avp			, time_avp		, FT_ABSOLUTE_TIME	, ABSOLUTE_TIME_UTC	, build_simple_avp  },
-	{"AppId"				, simple_avp		, simple_avp	, FT_UINT32			, BASE_DEC			, build_appid_avp   },
-	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
+	{"octetstring"			, simple_avp		, FT_BYTES			, BASE_NONE			, build_simple_avp  },
+	{"octetstringorutf8"	, simple_avp		, FT_BYTES			, BASE_SHOW_ASCII_PRINTABLE	, build_simple_avp  },
+	{"utf8string"			, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
+	{"grouped"				, grouped_avp		, FT_BYTES			, BASE_NONE			, build_simple_avp  },
+	{"integer32"			, integer32_avp		, FT_INT32			, BASE_DEC			, build_simple_avp  },
+	{"unsigned32"			, unsigned32_avp	, FT_UINT32			, BASE_DEC			, build_simple_avp  },
+	{"integer64"			, integer64_avp		, FT_INT64			, BASE_DEC			, build_simple_avp  },
+	{"unsigned64"			, unsigned64_avp	, FT_UINT64			, BASE_DEC			, build_simple_avp  },
+	{"float32"				, float32_avp		, FT_FLOAT			, BASE_NONE			, build_simple_avp  },
+	{"float64"				, float64_avp		, FT_DOUBLE			, BASE_NONE			, build_simple_avp  },
+	{"ipaddress"			, NULL				, FT_NONE			, BASE_NONE			, build_address_avp },
+	{"diameteruri"			, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
+	{"diameteridentity"		, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
+	{"ipfilterrule"			, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
+	{"qosfilterrule"		, utf8_avp			, FT_STRING			, BASE_NONE			, build_simple_avp  },
+	{"time"					, time_avp			, FT_ABSOLUTE_TIME	, ABSOLUTE_TIME_UTC	, build_simple_avp  },
+	{"AppId"				, simple_avp		, FT_UINT32			, BASE_DEC			, build_appid_avp   },
+	{NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
 
 
@@ -2090,7 +2047,7 @@ ddict_cleanup_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, voi
 }
 
 
-/* Note: Dynamic "value string arrays" (e.g., vs_cmds, vs_avps, ...) are constructed using */
+/* Note: Dynamic "value string arrays" (e.g., vs_avps, ...) are constructed using */
 /*       "zero-terminated" GArrays so that they will have the same form as standard        */
 /*       value_string arrays created at compile time. Since the last entry in a            */
 /*       value_string array must be {0, NULL}, we are assuming that NULL == 0 (hackish).   */
@@ -2123,15 +2080,9 @@ dictionary_load(void)
 	dictionary.vnds = wmem_tree_new(wmem_epan_scope());
 	dictionary.avps = wmem_tree_new(wmem_epan_scope());
 
-	unknown_vendor.vs_cmds = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
-	wmem_array_set_null_terminator(unknown_vendor.vs_cmds);
-	wmem_array_bzero(unknown_vendor.vs_cmds);
 	unknown_vendor.vs_avps = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
 	wmem_array_set_null_terminator(unknown_vendor.vs_avps);
 	wmem_array_bzero(unknown_vendor.vs_avps);
-	no_vnd.vs_cmds = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
-	wmem_array_set_null_terminator(no_vnd.vs_cmds);
-	wmem_array_bzero(no_vnd.vs_cmds);
 	no_vnd.vs_avps = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
 	wmem_array_set_null_terminator(no_vnd.vs_avps);
 	wmem_array_bzero(no_vnd.vs_avps);
@@ -2234,9 +2185,6 @@ dictionary_load(void)
 
 			vnd = wmem_new(wmem_epan_scope(), diam_vnd_t);
 			vnd->code = v->code;
-			vnd->vs_cmds = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
-			wmem_array_set_null_terminator(vnd->vs_cmds);
-			wmem_array_bzero(vnd->vs_cmds);
 			vnd->vs_avps = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
 			wmem_array_set_null_terminator(vnd->vs_avps);
 			wmem_array_bzero(vnd->vs_avps);
@@ -2262,8 +2210,6 @@ dictionary_load(void)
 				item[0].value =  c->code;
 				item[0].strptr = c->name;
 
-				wmem_array_append_one(vnd->vs_cmds,item);
-				/* Also add to all_cmds as used by RFC version */
 				g_array_append_val(all_cmds,item);
 			} else {
 				report_failure("Diameter Dictionary: No Vendor: %s\n",c->vendor);
@@ -2322,7 +2268,7 @@ dictionary_load(void)
 			if ( (strcase_equal(x->name,"avp-proto") && strcase_equal(x->key,a->name))
 				 || (a->type && strcase_equal(x->name,"type-proto") && strcase_equal(x->key,a->type))
 				 ) {
-				static avp_type_t proto_type = {"proto", proto_avp, proto_avp, FT_UINT32, BASE_HEX, build_proto_avp};
+				static avp_type_t proto_type = {"proto", proto_avp, FT_UINT32, BASE_HEX, build_proto_avp};
 				type =  &proto_type;
 
 				avp_data = x->value;
@@ -2538,7 +2484,6 @@ real_register_diameter_fields(void)
 		&ett_diameter_avp_flags,
 		&ett_diameter_avpinfo,
 		&ett_unknown,
-		&ett_err,
 		&ett_diameter_mip6_feature_vector,
 	    &ett_diameter_3gpp_mip6_feature_vector,
 		&(unknown_avp.ett)
