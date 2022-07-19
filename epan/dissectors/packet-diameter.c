@@ -186,7 +186,7 @@ static const char *simple_avp(diam_ctx_t *, diam_avp_t *, tvbuff_t *, diam_sub_d
 static diam_vnd_t unknown_vendor = { 0xffffffff, NULL, NULL };
 static diam_vnd_t no_vnd = { 0, NULL, NULL };
 static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, -1, -1, NULL };
-static GArray *all_cmds;
+static const value_string *cmd_vs;
 static diam_dictionary_t dictionary = { NULL, NULL, NULL, NULL };
 static struct _build_dict build_dict;
 static const value_string *vnd_short_vs;
@@ -1381,7 +1381,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree *diam_tree;
 	diam_ctx_t *c = wmem_new0(wmem_packet_scope(), diam_ctx_t);
 	int offset;
-	value_string *cmd_vs;
 	const char *cmd_str;
 	guint32 cmd;
 	guint32 hop_by_hop_id, end_to_end_id;
@@ -1427,9 +1426,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	cmd_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_code, tvb, 5, 3, ENC_BIG_ENDIAN, &cmd);
 	diam_sub_dis_inf->cmd_code = cmd;
 
-
-	cmd_vs = (value_string *)(void *)all_cmds->data;
-
 	app_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_application_id, tvb, 8, 4,
 		ENC_BIG_ENDIAN, &diam_sub_dis_inf->application_id);
 
@@ -1440,9 +1436,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	cmd_str = val_to_str_const(cmd, cmd_vs, "Unknown");
-
-	/* Append name to command item, warn if unknown */
-	proto_item_append_text(cmd_item," %s", cmd_str);
 	if (strcmp(cmd_str, "Unknown") == 0) {
 		expert_add_info(c->pinfo, cmd_item, &ei_diameter_code);
 	}
@@ -2070,6 +2063,7 @@ dictionary_load(void)
 	GHashTable *vendors = g_hash_table_new(strcase_hash,strcase_equal);
 	diam_vnd_t *vnd;
 	GArray *vnd_shrt_arr = g_array_new(TRUE,TRUE,sizeof(value_string));
+	GArray *all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
 	/* Pre allocate the arrays big enough to hold the hf:s and etts:s*/
 	build_dict.hf = wmem_array_sized_new(wmem_epan_scope(), sizeof(hf_register_info), 4096);
@@ -2086,8 +2080,6 @@ dictionary_load(void)
 	no_vnd.vs_avps = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
 	wmem_array_set_null_terminator(no_vnd.vs_avps);
 	wmem_array_bzero(no_vnd.vs_avps);
-
-	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
 	wmem_tree_insert32(dictionary.vnds,0,&no_vnd);
 	g_hash_table_insert(vendors,"None",&no_vnd);
@@ -2303,6 +2295,8 @@ dictionary_load(void)
 	g_hash_table_destroy(build_dict.avps);
 	g_hash_table_destroy(vendors);
 
+	cmd_vs = (const value_string *)(void *)all_cmds->data;
+
 	return 1;
 }
 
@@ -2407,7 +2401,7 @@ real_register_diameter_fields(void)
 	{ &hf_diameter_avp_pad,
 		  { "Padding","diameter.avp.pad", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_diameter_code,
-		  { "Command Code", "diameter.cmd.code", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+		  { "Command Code", "diameter.cmd.code", FT_UINT32, BASE_DEC, VALS(cmd_vs), 0, NULL, HFILL }},
 	{ &hf_diameter_answer_in,
 		{ "Answer In", "diameter.answer_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 		"The answer to this diameter request is in this frame", HFILL }},
