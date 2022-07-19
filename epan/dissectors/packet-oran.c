@@ -550,6 +550,11 @@ static float uncompressed_to_float(guint32 h)
     return ((float)i16) / 0x7fff;
 }
 
+static gfloat digital_power_scaling(gfloat f)
+{
+    return f / (1 << 15);
+}
+
 static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
                               guint32 *iq_width, guint32 *comp_meth, proto_item **comp_meth_ti)
 {
@@ -635,7 +640,7 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
             }
 
             const guint8 mantissa_bits = iq_width-1;
-            return (cPRB / (gfloat)(1 << (15+mantissa_bits))) * scaler;
+            return (cPRB / (gfloat)(1 << (mantissa_bits))) * scaler;
         }
 
         case COMP_BLOCK_SCALE:
@@ -1020,7 +1025,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* I value */
                     /* Get bits, and convert to float. */
                     guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                    gfloat value = uncompressed_to_float(bits);
+                    gfloat value = decompress_value(bits, COMP_BLOCK_FP, iq_width, exponent);
                     /* Add to tree. */
                     proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "%f", value);
                     bit_offset += iq_width;
@@ -1032,7 +1037,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Q value */
                     /* Get bits, and convert to float. */
                     bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                    value = uncompressed_to_float(bits);
+                    value = decompress_value(bits, COMP_BLOCK_FP, iq_width, exponent);
                     /* Add to tree. */
                     proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "%f", value);
                     bit_offset += iq_width;
@@ -1617,9 +1622,10 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         for (guint i = 0; i < numPrbu; ++i) {
             proto_item *prbHeading;
             proto_tree *rb_tree = proto_tree_add_subtree(section_tree, tvb, offset, nBytesPerPrb, ett_oran_u_prb, &prbHeading, "PRB");
+            guint32 exponent = 0;
             if (compression != COMP_NONE) {
                 proto_tree_add_item(rb_tree, hf_oran_rsvd4, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(rb_tree, hf_oran_exponent, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint(rb_tree, hf_oran_exponent, tvb, offset, 1, ENC_BIG_ENDIAN, &exponent);
                 offset += 1;
             }
 
@@ -1631,20 +1637,24 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             if (pref_showIQSampleValues) {
                 /* Individual values */
-                guint samples_offset = 0;
-                guint sample_number = 1;
-                while (samples_offset < nBytesForSamples*8) {
+                guint samples_offset = offset*8;
+                guint sample_number = 0;
+                for (guint n = 0; n<12; n++) {
                     /* I */
-                    guint i_value = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    guint i_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    gfloat i_value = decompress_value(i_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
+                    i_value = digital_power_scaling(i_value);
                     guint sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
-                    proto_item *i_ti = proto_tree_add_uint(rb_tree, hf_oran_iSample, tvb, offset+(samples_offset/8), sample_len_in_bytes, i_value);
-                    proto_item_set_text(i_ti, "iSample: %5u  0x%04x (iSample-%u in the PRB)", i_value, i_value, sample_number);
+                    proto_item *i_ti = proto_tree_add_uint(rb_tree, hf_oran_iSample, tvb, samples_offset/8, sample_len_in_bytes, i_value);
+                    proto_item_set_text(i_ti, "iSample: %0.12f  0x%04x (iSample-%u in the PRB)", i_value, i_bits, sample_number);
                     samples_offset += sample_bit_width;
                     /* Q */
-                    guint q_value = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    guint q_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    gfloat q_value = decompress_value(q_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
+                    q_value = digital_power_scaling(q_value);
                     sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
-                    proto_item *q_ti = proto_tree_add_uint(rb_tree, hf_oran_qSample, tvb, offset+(samples_offset/8), sample_len_in_bytes, q_value);
-                    proto_item_set_text(q_ti, "qSample: %5u  0x%04x (qSample-%u in the PRB)", q_value, q_value, sample_number);
+                    proto_item *q_ti = proto_tree_add_uint(rb_tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
+                    proto_item_set_text(q_ti, "qSample: %0.12f  0x%04x (qSample-%u in the PRB)", q_value, q_bits, sample_number);
                     samples_offset += sample_bit_width;
 
                     sample_number++;
