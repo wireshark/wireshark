@@ -13,7 +13,7 @@ target_link_libraries(lrexlib PRIVATE
 )
 
 target_include_directories(lrexlib SYSTEM PRIVATE
-	${CMAKE_SOURCE_DIR}
+	${CMAKE_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}/epan
 	${LUA_INCLUDE_DIRS}
 	${PCRE2_INCLUDE_DIRS}
