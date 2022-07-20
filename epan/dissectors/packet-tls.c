@@ -1248,6 +1248,7 @@ again:
      */
     if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(flow->multisegment_pdus, seq))) {
         const char *prefix;
+        gboolean is_retransmission = FALSE;
 
         if (msp->first_frame == pinfo->num) {
             /* This must be after the first pass. */
@@ -1259,8 +1260,19 @@ again:
             }
         } else {
             prefix = "Retransmitted ";
+            is_retransmission = TRUE;
         }
 
+        if (!is_retransmission) {
+            ipfd_head = fragment_get(&ssl_reassembly_table, pinfo, msp->first_frame, msp);
+            if (ipfd_head != NULL && ipfd_head->reassembled_in !=0 &&
+                ipfd_head->reassembled_in != pinfo->num) {
+                /* Show what frame this was reassembled in if not this one. */
+                item=proto_tree_add_uint(tree, *ssl_segment_items.hf_reassembled_in,
+                                         tvb, 0, 0, ipfd_head->reassembled_in);
+                proto_item_set_generated(item);
+            }
+        }
         nbytes = tvb_reported_length_remaining(tvb, offset);
         ssl_proto_tree_add_segment_data(tree, tvb, offset, nbytes, prefix);
         return;
@@ -1567,9 +1579,10 @@ again:
 
     if (!called_dissector || pinfo->desegment_len != 0) {
         if (ipfd_head != NULL && ipfd_head->reassembled_in != 0 &&
+            ipfd_head->reassembled_in != pinfo->num &&
             !(ipfd_head->flags & FD_PARTIAL_REASSEMBLY)) {
             /*
-             * We know what frame this PDU is reassembled in;
+             * We know what other frame this PDU is reassembled in;
              * let the user know.
              */
             item=proto_tree_add_uint(tree, *ssl_segment_items.hf_reassembled_in,
