@@ -108,25 +108,20 @@ static const value_string company_pid_vals[] = {
  * ########################################################################
  */
 
-#ifdef _MSC_VER
-#define PACK(__Declaration__) __pragma(pack(push, 1)) __Declaration__ __pragma(pack(pop))
-#else
-#define PACK(__Declaration__) __Declaration__ __attribute__((__packed__))
-#endif
-
-PACK(struct _sample_set_t {
-	guint16 ranges;
-	gint32 sample_1;
-	gint32 sample_2;
-	gint32 sample_3;
-	gint32 sample_4;
-	gint32 sample_5;
-	gint32 sample_6;
-	gint32 sample_7;
-	gint32 sample_8;
-});
-
-typedef struct _sample_set_t sample_set_t;
+/*
+ * struct _sample_set_t {
+ * 	guint16 ranges;
+ * 	gint32 sample_1;
+ * 	gint32 sample_2;
+ * 	gint32 sample_3;
+ * 	gint32 sample_4;
+ * 	gint32 sample_5;
+ * 	gint32 sample_6;
+ * 	gint32 sample_7;
+ * 	gint32 sample_8;
+ * };
+ */
+#define SAMPLE_SET_SIZE 34
 
 /*
  * ########################################################################
@@ -412,7 +407,7 @@ static int hf_samples_sample_set_sample_7 = -1;
 static int hf_samples_sample_set_sample_8 = -1;
 
 static void add_sample_set(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_offset, int hf, proto_tree *tree) {
-	gint item_size = sizeof(sample_set_t);
+	gint item_size = SAMPLE_SET_SIZE;
 	tvb_ensure_bytes_exist(tvb, *tvb_offset, item_size);
 	proto_item *sample_set_item = proto_tree_add_item(tree, hf, tvb, *tvb_offset, item_size, ENC_BIG_ENDIAN);
 
@@ -629,7 +624,7 @@ static int dissect_samples_im(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	{
 		proto_tree *sample_sets_subtree = proto_item_add_subtree(samples_item, hst_samples_sets);
 
-		item_size = sizeof(sample_set_t) * 6;
+		item_size = SAMPLE_SET_SIZE * 6;
 		tvb_ensure_bytes_exist(tvb, tvb_offset, item_size);
 		proto_item *sample_sets_subtree_item = proto_tree_add_item(sample_sets_subtree, hf_samples_sample_set, tvb, tvb_offset, item_size, ENC_NA);
 
