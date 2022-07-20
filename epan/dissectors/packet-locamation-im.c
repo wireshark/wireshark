@@ -108,7 +108,13 @@ static const value_string company_pid_vals[] = {
  * ########################################################################
  */
 
-typedef struct _sample_set_t {
+#ifdef _MSC_VER
+#define PACK(__Declaration__) __pragma(pack(push, 1)) __Declaration__ __pragma(pack(pop))
+#else
+#define PACK(__Declaration__) __Declaration__ __attribute__((__packed__))
+#endif
+
+PACK(struct _sample_set_t {
 	guint16 ranges;
 	gint32 sample_1;
 	gint32 sample_2;
@@ -118,7 +124,9 @@ typedef struct _sample_set_t {
 	gint32 sample_6;
 	gint32 sample_7;
 	gint32 sample_8;
-} __attribute__((packed)) sample_set_t;
+});
+
+typedef struct _sample_set_t sample_set_t;
 
 /*
  * ########################################################################
