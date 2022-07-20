@@ -7074,8 +7074,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     struct tcpinfo tcpinfo;
     struct tcpheader *tcph;
     proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL, *scaled_pi;
-    conversation_t *conv=NULL, *other_conv;
-    guint32 save_last_frame = 0;
+    conversation_t *conv=NULL;
     struct tcp_analysis *tcpd=NULL;
     struct tcp_per_packet_data_t *tcppd=NULL;
     proto_item *item;
@@ -7154,18 +7153,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* find(or create if needed) the conversation for this tcp session
      * This is a slight deviation from find_or_create_conversation so it's
-     * done manually.  This is done to save the last frame of the conversation
-     * in case a new conversation is found and the previous conversation needs
-     * to be adjusted,
+     * done manually. This is done to avoid conversation overlapping when
+     * reusing ports (see issue 15097), as find_or_create_conversation automatically
+     * extends the conversation found. This extension is done later.
      */
-    if((conv = find_conversation_pinfo(pinfo, 0)) != NULL) {
-        /* Update how far the conversation reaches */
-        if (pinfo->num > conv->last_frame) {
-            save_last_frame = conv->last_frame;
-            conv->last_frame = pinfo->num;
-        }
-    }
-    else {
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
+    if(!conv) {
         conv = conversation_new(pinfo->num, &pinfo->src,
                      &pinfo->dst, ENDPOINT_TCP,
                      pinfo->srcport, pinfo->destport, 0);
@@ -7187,9 +7180,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET)) {
         if(tcph->th_seq!=tcpd->fwd->base_seq) {
             if (!(pinfo->fd->visited)) {
-                /* Reset the last frame seen in the conversation */
-                if (save_last_frame > 0)
-                    conv->last_frame = save_last_frame;
 
                 conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
                 tcpd=get_tcp_conversation_data(conv,pinfo);
@@ -7230,21 +7220,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) &&
         (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
         (tcph->th_seq!=tcpd->fwd->base_seq) ) {
-        if (!(pinfo->fd->visited)) {
-            /* Reset the last frame seen in the conversation */
-            if (save_last_frame > 0)
-                conv->last_frame = save_last_frame;
-        }
 
-        other_conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, ENDPOINT_TCP, pinfo->destport, pinfo->srcport, 0);
-        if (other_conv != NULL)
-        {
-            conv = other_conv;
-            tcpd=get_tcp_conversation_data(conv,pinfo);
-
-            /* the retrieved conversation might have a different base_seq (issue 16944) */
-            tcpd->fwd->base_seq = tcph->th_seq;
-        }
+        /* the retrieved conversation might have a different base_seq (issue 16944) */
+        tcpd->fwd->base_seq = tcph->th_seq;
 
         if(!tcpd->ta)
             tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
@@ -7410,6 +7388,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
       }
       else {
+          /* Explicitly and immediately move forward the conversation last_frame,
+           * although it would one way or another be changed later
+           * in the conversation helper functions.
+           */
+          if (!(pinfo->fd->visited)) {
+            if (pinfo->num > conv->last_frame) {
+              conv->last_frame = pinfo->num;
+            }
+          }
+
           conversation_completeness  = tcpd->conversation_completeness ;
 
           /* SYN-ACK */

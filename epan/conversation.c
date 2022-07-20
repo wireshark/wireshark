@@ -1133,7 +1133,7 @@ conversation_t *
 find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b, const endpoint_type etype,
         const guint32 port_a, const guint32 port_b, const guint options)
 {
-    conversation_t *conversation;
+    conversation_t *conversation, *other_conv;
 
     if (!addr_a) {
         addr_a = &null_address_;
@@ -1160,11 +1160,27 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
         DPRINT(("trying exact match: %s:%d -> %s:%d",
                     addr_a_str, port_a, addr_b_str, port_b));
         conversation = conversation_lookup_exact(frame_num, addr_a, port_a, addr_b, port_b, etype);
-        /* Didn't work, try the other direction */
-        if (conversation == NULL) {
-            DPRINT(("trying exact match: %s:%d -> %s:%d",
-                        addr_b_str, port_b, addr_a_str, port_a));
-            conversation = conversation_lookup_exact(frame_num, addr_b, port_b, addr_a, port_a, etype);
+        /*
+         * Look for an alternate conversation in the opposite direction, which
+         * might fit better. Note that using the helper functions such as
+         * find_conversation_pinfo and find_or_create_conversation will finally
+         * call this function and look for an orientation-agnostic conversation.
+         * If oriented conversations had to be implemented, amend this code or
+         * create new functions.
+         */
+
+        DPRINT(("trying exact match: %s:%d -> %s:%d",
+                    addr_b_str, port_b, addr_a_str, port_a));
+        other_conv = conversation_lookup_exact(frame_num, addr_b, port_b, addr_a, port_a, etype);
+        if (other_conv != NULL) {
+            if (conversation != NULL) {
+                if(other_conv->conv_index > conversation->conv_index) {
+                    conversation = other_conv;
+                }
+            }
+            else {
+                conversation = other_conv;
+            }
         }
         if ((conversation == NULL) && (addr_a->type == AT_FC)) {
             /* In Fibre channel, OXID & RXID are never swapped as
