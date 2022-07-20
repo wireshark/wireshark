@@ -105,7 +105,7 @@ static int FrameInfo__gc(lua_State* L) {
     return 0;
 }
 
-/* WSLUA_ATTRIBUTE FrameInfo_comment RW table of comments in this frame. */
+/* WSLUA_ATTRIBUTE FrameInfo_comment RW Table of comments in this frame. */
 static int FrameInfo_get_comment (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
 #define FRAMEINFO_COMMENTS_TABLE 2

@@ -791,7 +791,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
     /* Register the FileHandler into Wireshark/TShark, so they can read/write this new format.
        All functions and settings must be complete before calling this registration function.
        This function cannot be called inside the reading/writing callback functions. */
-#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be registered */
+#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* The FileHandler object to be registered */
     FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);
 
     if (in_routine)
@@ -875,7 +875,7 @@ wslua_deregister_filehandler_work(FileHandler fh)
 WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
     /* Deregister the FileHandler from Wireshark/TShark, so it no longer gets used for reading/writing/display.
        This function cannot be called inside the reading/writing callback functions. */
-#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be deregistered */
+#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* The FileHandler object to be deregistered */
     FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);
 
     if (in_routine)
@@ -1053,7 +1053,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FileHandler,type,file_type);
 WSLUA_ATTRIBUTE_STRING_GETTER(FileHandler,extensions);
 WSLUA_ATTRIBUTE_STRING_SETTER(FileHandler,extensions,TRUE);
 
-/* WSLUA_ATTRIBUTE FileHandler_writing_must_seek RW true if the ability to seek is required when writing
+/* WSLUA_ATTRIBUTE FileHandler_writing_must_seek RW True if the ability to seek is required when writing
     this file format, else false.
 
     This will be checked by Wireshark when writing out to compressed
@@ -1063,7 +1063,7 @@ WSLUA_ATTRIBUTE_STRING_SETTER(FileHandler,extensions,TRUE);
 WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(FileHandler,writing_must_seek,finfo.writing_must_seek);
 WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(FileHandler,writing_must_seek,finfo.writing_must_seek);
 
-/* WSLUA_ATTRIBUTE FileHandler_writes_name_resolution RW true if the file format supports name resolution
+/* WSLUA_ATTRIBUTE FileHandler_writes_name_resolution RW True if the file format supports name resolution
     records, else false. */
 static inline struct supported_block_type *
 safe_cast_away_block_type_const(const struct supported_block_type *arg)
@@ -1116,7 +1116,7 @@ WSLUA_ATTRIBUTE_SET(FileHandler,writes_name_resolution, { \
     } \
 });
 
-/* WSLUA_ATTRIBUTE FileHandler_supported_comment_types RW set to the bit-wise OR'ed number representing
+/* WSLUA_ATTRIBUTE FileHandler_supported_comment_types RW Set to the bit-wise OR'ed number representing
     the type of comments the file writer supports writing, based on the numbers in the `wtap_comments` table. */
 static inline struct supported_option_type *
 safe_cast_away_option_type_const(const struct supported_option_type *arg)

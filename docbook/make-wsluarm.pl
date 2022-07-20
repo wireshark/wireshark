@@ -83,8 +83,6 @@ sub parse_desc_common {
 	# (ie, <para> followed by </para>), so we do this stuff to a temp @r
 	# array and then copy the non-empty ones into the passed-in array @ret
 	if ($#lines >= 0) {
-		# capitalize the first letter of the first line
-		$lines[0] = ucfirst($lines[0]);
 		# for each double newline, break into separate para's
 		for (my $idx=0; $idx <= $#lines; $idx++) {
 
@@ -222,9 +220,9 @@ sub parse_attrib_desc {
 
 	my $mode = shift;
 	if ($mode) {
-		$mode =~ s/RO/ Retrieve only./;
-		$mode =~ s/WO/ Assign only./;
-		$mode =~ s/RW|WR/ Retrieve or assign./;
+		$mode =~ s/RO/Retrieve only./;
+		$mode =~ s/WO/Assign only./;
+		$mode =~ s/RW|WR/Retrieve or assign./;
 		$r[++$#r] = "Mode: $mode\n\n";
 	} else {
 		die "Attribute does not have a RO/WO/RW mode: '$s'\n";

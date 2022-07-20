@@ -343,7 +343,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
      */
 #define WSLUA_ARG_Dumper_dump_TIMESTAMP 2 /* The absolute timestamp the packet will have. */
 #define WSLUA_ARG_Dumper_dump_PSEUDOHEADER 3 /* The `PseudoHeader` to use. */
-#define WSLUA_ARG_Dumper_dump_BYTEARRAY 4 /* the data to be saved */
+#define WSLUA_ARG_Dumper_dump_BYTEARRAY 4 /* The data to be saved */
 
     Dumper d = checkDumper(L,1);
     PseudoHeader ph;

@@ -293,7 +293,7 @@ PINFO_ADDRESS_SETTER(src);
 PINFO_ADDRESS_GETTER(dst);
 PINFO_ADDRESS_SETTER(dst);
 
-/* WSLUA_ATTRIBUTE Pinfo_p2p_dir RW direction of this Packet. (incoming / outgoing) */
+/* WSLUA_ATTRIBUTE Pinfo_p2p_dir RW Direction of this Packet. (incoming / outgoing) */
 PINFO_NUMBER_GETTER(p2p_dir);
 PINFO_NUMBER_SETTER(p2p_dir,int);
 
@@ -360,7 +360,7 @@ static int Pinfo_get_private(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_hi RW higher Address of this Packet. */
+/* WSLUA_ATTRIBUTE Pinfo_hi RW Higher Address of this Packet. */
 static int Pinfo_get_hi(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Address addr;
@@ -376,7 +376,7 @@ static int Pinfo_get_hi(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_lo RO lower Address of this Packet. */
+/* WSLUA_ATTRIBUTE Pinfo_lo RO Lower Address of this Packet. */
 static int Pinfo_get_lo(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Address addr;
@@ -392,7 +392,7 @@ static int Pinfo_get_lo(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_conversation WO sets the packet conversation to the given Proto object. */
+/* WSLUA_ATTRIBUTE Pinfo_conversation WO Sets the packet conversation to the given Proto object. */
 static int Pinfo_set_conversation(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Proto proto = checkProto(L,2);

@@ -166,7 +166,7 @@ static int Proto__tostring(lua_State* L) {
 WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
     /* Make a <<lua_class_Proto,`Proto`>> protocol (with a dissector function) a post-dissector.
        It will be called for every frame after dissection. */
-#define WSLUA_ARG_register_postdissector_PROTO 1 /* the protocol to be used as post-dissector. */
+#define WSLUA_ARG_register_postdissector_PROTO 1 /* The protocol to be used as post-dissector. */
 #define WSLUA_OPTARG_register_postdissector_ALLFIELDS 2 /* Whether to generate all fields.
                                                            Note: This impacts performance (default=false). */
 

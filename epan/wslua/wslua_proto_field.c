@@ -1110,7 +1110,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_bool Creates a <<lua_class_ProtoField,`ProtoField`>> for a boolean true/false value. */
 /* WSLUA_ARG_ProtoField_bool_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_ProtoField_bool_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_ProtoField_bool_DISPLAY how wide the parent bitfield is (`base.NONE` is used for NULL-value). */
+/* WSLUA_OPTARG_ProtoField_bool_DISPLAY How wide the parent bitfield is (`base.NONE` is used for NULL-value). */
 /* WSLUA_OPTARG_ProtoField_bool_VALUESTRING A table containing the text that corresponds to the values. */
 /* WSLUA_OPTARG_ProtoField_bool_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_ProtoField_bool_DESC Description of the field. */
