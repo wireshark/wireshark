@@ -78,6 +78,7 @@ static dissector_handle_t signal_pdu_handle_lin             = NULL;
 static dissector_handle_t signal_pdu_handle_pdu_transport   = NULL;
 static dissector_handle_t signal_pdu_handle_ipdum           = NULL;
 
+static int hf_pdu_name                                      = -1;
 static int hf_payload_unparsed                              = -1;
 
 static gint ett_spdu_payload                                = -1;
@@ -2352,6 +2353,9 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
             col_append_fstr(pinfo->cinfo, COL_INFO, " (PDU: %s)", name);
             col_set_str(pinfo->cinfo, COL_PROTOCOL, SPDU_NAME);
         }
+        ti = proto_tree_add_string(tree, hf_pdu_name, tvb, offset, -1, name);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
     }
 
     spdu_signal_list_t *paramlist = get_parameter_config(id);
@@ -2551,6 +2555,9 @@ proto_register_signal_pdu(void) {
 
     /* data fields */
     static hf_register_info hf[] = {
+        { &hf_pdu_name,
+            { "Signal PDU Name", "signal_pdu.name",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_payload_unparsed,
             { "Unparsed Payload", "signal_pdu.payload.unparsed",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
