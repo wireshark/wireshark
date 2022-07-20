@@ -14,12 +14,12 @@
 set -e -u -o pipefail
 
 function print_usage() {
-	echo "\nUtility to setup a rpm-based system for Wireshark Development.\n"
-	echo "The basic usage installs the needed software\n\n"
-	echo "Usage: $0 [--install-optional] [...other options...]\n"
-	echo "\t--install-optional: install optional software as well"
-	echo "\t--install-rpm-deps: install packages required to build the .rpm file\\n"
-	echo "\t[other]: other options are passed as-is to the packet manager\n"
+	printf "\nUtility to setup a rpm-based system for Wireshark Development.\n"
+	printf "The basic usage installs the needed software\n\n"
+	printf "Usage: $0 [--install-optional] [...other options...]\n"
+	printf "\t--install-optional: install optional software as well\n"
+	printf "\t--install-rpm-deps: install packages required to build the .rpm file\n"
+	printf "\t[other]: other options are passed as-is to the packet manager\n"
 }
 
 ADDITIONAL=0
@@ -27,7 +27,7 @@ RPMDEPS=0
 OPTIONS=
 for arg; do
 	case $arg in
-		--help)
+		--help|-h)
 			print_usage
 			exit 0
 			;;
@@ -139,123 +139,123 @@ add_packages() {
 }
 
 add_package BASIC_LIST cmake3 || add_package BASIC_LIST cmake ||
-echo "cmake is unavailable" >&2
+echo "Required package cmake|cmake3 is unavailable" >&2
 
 add_package BASIC_LIST glib2 || add_package BASIC_LIST libglib-2_0-0 ||
-echo "glib2 is unavailable" >&2
+echo "Required package glib2|libglib-2_0-0 is unavailable" >&2
 
 # lua51, lua51-devel: OpenSUSE Leap 42.3 (lua would be fine too, as it installs lua52), OpenSUSE Leap 15.0 (lua installs lua53, so it wouldn't work)
 # compat-lua, compat-lua-devel: Fedora 28, Fedora 29, CentOS 8
 # lua, lua-devel: CentOS 7
 add_package BASIC_LIST lua51-devel || add_package BASIC_LIST compat-lua-devel || add_package BASIC_LIST lua-devel ||
-echo "lua devel is unavailable" >&2
+echo "Required package lua51-devel|compat-lua-devel|lua-devel is unavailable" >&2
 
 add_package BASIC_LIST lua51 || add_package BASIC_LIST compat-lua || add_package BASIC_LIST lua ||
-echo "lua is unavailable" >&2
+echo "Required package lua51|compat-lua|lua is unavailable" >&2
 
 add_package BASIC_LIST libpcap || add_package BASIC_LIST libpcap1 ||
-echo "libpcap is unavailable" >&2
+echo "Required package libpcap|libpcap1 is unavailable" >&2
 
 add_package BASIC_LIST zlib || add_package BASIC_LIST libz1 ||
-echo "zlib is unavailable" >&2
+echo "Required package zlib|libz1 is unavailable" >&2
 
 add_package BASIC_LIST c-ares-devel || add_package BASIC_LIST libcares-devel ||
-echo "libcares-devel is unavailable" >&2
+echo "Required package c-ares-devel|libcares-devel is unavailable" >&2
 
 # qt5-linguist: CentOS, Fedora
 # libqt5-linguist-devel: OpenSUSE
 add_package BASIC_LIST qt5-linguist ||
 add_package BASIC_LIST libqt5-linguist-devel ||
-echo "Qt5 linguist is unavailable" >&2
+echo "Required package qt5-linguist|libqt5-linguist-devel is unavailable" >&2
 
 # qt5-qtmultimedia: CentOS, Fedora, pulls in qt5-qtbase-devel (big dependency list!)
 # libqt5-qtmultimedia-devel: OpenSUSE, pulls in Core, Gui, Multimedia, Network, Widgets
 # OpenSUSE additionally has a separate Qt5PrintSupport package.
 add_package BASIC_LIST qt5-qtmultimedia-devel ||
 add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
-echo "Qt5 is unavailable" >&2
+echo "Required Qt5 Mutlimedia and/or Qt5 Print Support is unavailable" >&2
 
 # This in only required on OpenSUSE
 add_package BASIC_LIST libqt5-qtsvg-devel ||
-echo "Qt5 SVG is unavailable" >&2
+echo "Required OpenSUSE package libqt5-qtsvg-devel is unavailable. Not required for other distributions." >&2
 
 # This in only required on OpenSUSE
 add_package BASIC_LIST libQt5Concurrent-devel ||
-echo "Qt5 Concurrent is unavailable" >&2
+echo "Required OpenSUSE package libQt5Concurrent-devel is unavailable. Not required for other distributions." >&2
 
 # This in only required on OpenSUSE
 add_packages BASIC_LIST hicolor-icon-theme xdg-utils ||
-echo "Default icon theme and XDG utils are unavailable" >&2
+echo "Required OpenSUSE packages hicolor-icon-theme and xdg-utils are unavailable. Not required for other distirbutions." >&2
 
 # This in only required (and available) on OpenSUSE
 add_package BASIC_LIST update-desktop-files ||
-echo "update-desktop-files is unavailable" >&2
+echo "Required OpenSUSE package update-desktop-files is unavailable. Not required for other distributions." >&2
 
 add_package BASIC_LIST perl-podlators ||
-echo "perl-podlators unavailable" >&2
+echo "Required package perl-podlators unavailable" >&2
 
 # rubygem-asciidoctor.noarch: Centos 7, Fedora
 # ruby2.5-rubygem-asciidoctor: openSUSE 15.2
 # You will get nothing and you will like it: CentOS 8
 add_package RPMDEPS_LIST rubygem-asciidoctor.noarch || add_package RPMDEPS_LIST ruby2.5-rubygem-asciidoctor ||
-echo "asciidoctor is unavailable" >&2
+echo "RPM dependency asciidoctor is unavailable. Not available for CentOS 8" >&2
 
 
 # libcap: CentOS 7, Fedora 28, Fedora 29
 # libcap2: OpenSUSE Leap 42.3, OpenSUSE Leap 15.0
 add_package ADDITIONAL_LIST libcap || add_package ADDITIONAL_LIST libcap2 ||
-echo "libcap is unavailable" >&2
+echo "Optional package libcap|libcap2 is unavailable" >&2
 
 add_package ADDITIONAL_LIST nghttp2-devel || add_package ADDITIONAL_LIST libnghttp2-devel ||
-echo "nghttp2 is unavailable" >&2
+echo "Optional package nghttp2-devel|libnghttp2-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST snappy || add_package ADDITIONAL_LIST libsnappy1 ||
-echo "snappy is unavailable" >&2
+echo "Optional package snappy|libsnappy1 is unavailable" >&2
 
-add_package ADDITIONAL_LIST libzstd-devel || echo "zstd is unavailable" >&2
+add_package ADDITIONAL_LIST libzstd-devel || echo "Optional package lbzstd-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST lz4-devel || add_package ADDITIONAL_LIST liblz4-devel ||
-echo "lz4 devel is unavailable" >&2
+echo "Optional package lz4-devel|liblz4-devel is unavailable" >&2
 
-add_package ADDITIONAL_LIST libcap-progs || echo "cap progs are unavailable" >&2
+add_package ADDITIONAL_LIST libcap-progs || echo "Optional package libcap-progs is unavailable" >&2
 
 add_package ADDITIONAL_LIST libmaxminddb-devel ||
-echo "MaxMind DB devel is unavailable" >&2
+echo "Optional package libmaxminddb-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST gnutls-devel || add_package ADDITIONAL_LIST libgnutls-devel ||
-echo "gnutls devel is unavailable" >&2
+echo "Optional package gnutls-devel|libgnutls-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST gettext-devel || add_package ADDITIONAL_LIST gettext-tools ||
-echo "Gettext devel is unavailable" >&2
+echo "Optional package gettext-devel|gettext-tools is unavailable" >&2
 
 add_package ADDITIONAL_LIST perl-Pod-Html ||
-echo "perl-Pod-Html is unavailable" >&2
+echo "Optional package perl-Pod-Html is unavailable" >&2
 
 add_package ADDITIONAL_LIST ninja || add_package ADDITIONAL_LIST ninja-build ||
-echo "ninja is unavailable" >&2
+echo "Optional package ninja|ninja-build is unavailable" >&2
 
 add_package ADDITIONAL_LIST libxslt || add_package ADDITIONAL_LIST libxslt1 ||
-echo "xslt is unavailable" >&2
+echo "Optional package libxslt|libxslt1 is unavailable" >&2
 
 add_package ADDITIONAL_LIST brotli-devel || add_packages ADDITIONAL_LIST libbrotli-devel libbrotlidec1 ||
-echo "brotli is unavailable" >&2
+echo "Optional packages brotli-devel|libbrotli-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST speexdsp-devel || add_package ADDITIONAL_LIST speex-devel ||
-echo "speex is unavailable" >&2
+echo "Optional package speexdsp-devel|speex-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST libnl3-devel || add_package ADDITIONAL_LIST libnl-devel ||
-echo "libnl3/libnl are unavailable" >&2
+echo "Optional package libnl3-devel|libnl-devel are unavailable" >&2
 
 add_package ADDITIONAL_LIST ilbc-devel ||
-echo "ilbc is unavailable" >&2
+echo "Optional package ilbc-devel is unavailable" >&2
 
 # opus-devel: RHEL/CentOS, Fedora
 # libopus-devel: OpenSUSE
 add_package ADDITIONAL_LIST opus-devel || add_package ADDITIONAL_LIST libopus-devel ||
-echo "opus is unavailable" >&2
+echo "Optional package opus-devel|libopus-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST bcg729-devel ||
-echo "bcg729 is unavailable" >&2
+echo "Optional package bcg729-devel is unavailable" >&2
 
 # RHEL 8 / CentOS 8 are missing the -devel packages for sbc and libsmi due to
 # RH deciding not to ship all -devel packages.
@@ -265,10 +265,10 @@ echo "bcg729 is unavailable" >&2
 # https://bugs.centos.org/view.php?id=16504
 # https://bugs.centos.org/view.php?id=17824
 add_package ADDITIONAL_LIST sbc-devel ||
-echo "sbc is unavailable"
+echo "Optional package sbc-devel is unavailable"
 
 add_package ADDITIONAL_LIST libsmi-devel ||
-echo "libsmi is unavailable"
+echo "Optional package libsmi-devel is unavailable"
 
 ACTUAL_LIST=$BASIC_LIST
 
