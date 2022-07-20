@@ -376,17 +376,13 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(ui->searchShortcuts, &QLineEdit::textChanged, shortcutProxyModel, &AStringListListSortFilterProxyModel::setFilter);
 
     /* License */
-#if defined(_WIN32)
-    f_license.setFileName(get_datafile_path("COPYING.txt"));
-#else
-    f_license.setFileName(get_datafile_path("COPYING"));
-#endif
+    f_license.setFileName(get_datafile_path("gpl-2.0-standalone.html"));
 
     f_license.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_license(&f_license);
 
-    ui->pte_License->insertPlainText(ReadFile_license.readAll());
-    ui->pte_License->moveCursor(QTextCursor::Start);
+    ui->textEditLicense->setHtml(ReadFile_license.readAll());
+    ui->textEditLicense->moveCursor(QTextCursor::Start);
 }
 
 AboutDialog::~AboutDialog()

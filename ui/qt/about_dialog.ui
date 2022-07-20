@@ -277,7 +277,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QPlainTextEdit" name="pte_License">
+        <widget class="QTextEdit" name="textEditLicense">
          <property name="readOnly">
           <bool>true</bool>
          </property>

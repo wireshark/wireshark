@@ -208,6 +208,36 @@ some platforms (e.g., BSD systems).  If you got a core dump with
 TShark rather than Wireshark, use "tshark" as the first argument to
 the debugger; the core dump may be named "tshark.core".
 
+License
+-------
+
+Wireshark is distributed under the GNU GPLv2. See the file COPYING for
+the full text of the license. When in doubt the full text is the legally
+binding part. These notes are just to make it easier for people that are not
+familiar with the GPLv2.
+
+There are no restrictions on its use. There are restrictions on its distribution
+in source or binary form.
+
+Most parts of Wireshark are covered by a "GPL version 2 or later" license.
+Some files are covered by different licenses that are compatible with
+the GPLv2.
+
+As a notable exception, some utilities distributed with the Wireshark source are
+covered by other licenses that are not themselves directly compatible with the
+GPLv2. This is OK, as only the tools themselves are licensed this way, the
+output of the tools is not considered a derived work, and so can be safely
+licensed for Wireshark's use. An incomplete selection of these tools includes:
+ - the pidl utility (tools/pidl) is licensed under the GPLv3+.
+
+Parts of Wireshark can be built and distributed as libraries. These
+parts are still covered by the GPL, and NOT by the Lesser General Public
+License or any other license.
+
+If you integrate all or part of Wireshark into your own application, then
+that application must be released under a license compatible with the GPL.
+
+
 Disclaimer
 ----------
 

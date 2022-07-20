@@ -1960,6 +1960,7 @@ set(INSTALL_DIRS
 set(INSTALL_FILES
 	docbook/ws.css
 	enterprises.tsv
+	gpl-2.0-standalone.html
 	manuf
 	resources/share/wireshark/cfilters
 	resources/share/wireshark/colorfilters
