@@ -354,9 +354,13 @@ static  wmem_list_t *async_dns_queue_head = NULL;
 gboolean use_custom_dns_server_list = FALSE;
 struct dns_server_data {
     char *ipaddr;
+    char *udp_port;
+    char *tcp_port;
 };
 
 UAT_CSTRING_CB_DEF(dnsserverlist_uats, ipaddr, struct dns_server_data)
+UAT_CSTRING_CB_DEF(dnsserverlist_uats, tcp_port, struct dns_server_data)
+UAT_CSTRING_CB_DEF(dnsserverlist_uats, udp_port, struct dns_server_data)
 
 static uat_t *dnsserver_uat = NULL;
 static struct dns_server_data  *dnsserverlist_uats = NULL;
@@ -368,6 +372,31 @@ dns_server_free_cb(void *data)
     struct dns_server_data *h = (struct dns_server_data*)data;
 
     g_free(h->ipaddr);
+    g_free(h->tcp_port);
+    g_free(h->udp_port);
+}
+
+static char *
+copy_port(char *p)
+{
+    if (!p || strlen(p) == 0u)
+        return g_strdup("53");
+    return g_strdup(p);
+}
+
+static int
+get_port_to_int(char *p)
+{
+    guint16 port;
+
+    if (!p || strlen(p) == 0u)
+        return 53;
+
+    if (!ws_strtou16(p, NULL, &port)) {
+        return 53;
+    }
+
+    return port;
 }
 
 static void*
@@ -377,6 +406,8 @@ dns_server_copy_cb(void *dst_, const void *src_, size_t len _U_)
     struct dns_server_data       *dst = (struct dns_server_data *)dst_;
 
     dst->ipaddr = g_strdup(src->ipaddr);
+    dst->udp_port = copy_port(src->udp_port);
+    dst->tcp_port = copy_port(src->tcp_port);
 
     return dst;
 }
@@ -394,7 +425,26 @@ dnsserver_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, cons
     return FALSE;
 }
 
+static gboolean
+dnsserver_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+{
+    if (!p || strlen(p) == 0u) {
+        // This should be removed in favor of Decode As. Make it optional.
+        *err = NULL;
+        return TRUE;
+    }
 
+    if (strcmp(p, "53") != 0){
+        guint16 port;
+        if (!ws_strtou16(p, NULL, &port)) {
+            *err = g_strdup("Invalid port given.");
+            return FALSE;
+        }
+    }
+
+    *err = NULL;
+    return TRUE;
+}
 
 static void
 c_ares_ghba_sync_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
@@ -545,14 +595,14 @@ c_ares_set_dns_servers(void)
 
     if (ndnsservers == 0) {
         //clear the list of servers.  This may effectively disable name resolution
-        ares_set_servers(ghba_chan, NULL);
-        ares_set_servers(ghbn_chan, NULL);
+        ares_set_servers_ports(ghba_chan, NULL);
+        ares_set_servers_ports(ghbn_chan, NULL);
     } else {
-        struct ares_addr_node* servers = wmem_alloc_array(NULL, struct ares_addr_node, ndnsservers);
+        struct ares_addr_port_node* servers = wmem_alloc_array(NULL, struct ares_addr_port_node, ndnsservers);
         ws_in4_addr ipv4addr;
         ws_in6_addr ipv6addr;
         gboolean invalid_IP_found = FALSE;
-        struct ares_addr_node* server;
+        struct ares_addr_port_node* server;
         guint i;
         for (i = 0, server = servers; i < ndnsservers-1; i++, server++) {
             if (ws_inet_pton6(dnsserverlist_uats[i].ipaddr, &ipv6addr)) {
@@ -568,6 +618,9 @@ c_ares_set_dns_servers(void)
                 memset(&server->addr.addr4, 0, 4);
                 break;
             }
+
+            server->udp_port = get_port_to_int(dnsserverlist_uats[i].udp_port);
+            server->tcp_port = get_port_to_int(dnsserverlist_uats[i].tcp_port);
 
             server->next = (server+1);
         }
@@ -587,8 +640,8 @@ c_ares_set_dns_servers(void)
         }
         server->next = NULL;
 
-        ares_set_servers(ghba_chan, servers);
-        ares_set_servers(ghbn_chan, servers);
+        ares_set_servers_ports(ghba_chan, servers);
+        ares_set_servers_ports(ghbn_chan, servers);
         wmem_free(NULL, servers);
     }
 }
@@ -2844,6 +2897,8 @@ addr_resolve_pref_init(module_t *nameres)
 
     static uat_field_t dns_server_uats_flds[] = {
         UAT_FLD_CSTRING_OTHER(dnsserverlist_uats, ipaddr, "IP address", dnsserver_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
+        UAT_FLD_CSTRING_OTHER(dnsserverlist_uats, tcp_port, "TCP Port", dnsserver_uat_fld_port_chk_cb, "Port Number (TCP)"),
+        UAT_FLD_CSTRING_OTHER(dnsserverlist_uats, udp_port, "UDP Port", dnsserver_uat_fld_port_chk_cb, "Port Number (UDP)"),
         UAT_END_FIELDS
     };
 
