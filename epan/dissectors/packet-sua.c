@@ -25,13 +25,13 @@
 #include <epan/to_str.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-mtp3.h"
 #include "packet-sccp.h"
 void proto_register_sua(void);
 void proto_reg_handoff_sua(void);
 
-#define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 #define SCTP_PORT_SUA          14001
 
 #define RESERVED_1_LENGTH      1
@@ -2104,7 +2104,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   offset = 0;
   while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
-    total_length = ADD_PADDING(length);
+    total_length = WS_ROUNDUP_4(length);
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */

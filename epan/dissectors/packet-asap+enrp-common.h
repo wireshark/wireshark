@@ -28,9 +28,6 @@
 #include <epan/packet.h>
 
 
-#define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
-
-
 #define UNRECOGNIZED_PARAMETER_CAUSE_CODE                  0x1
 #define UNRECONGNIZED_MESSAGE_CAUSE_CODE                   0x2
 #define INVALID_VALUES                                     0x3

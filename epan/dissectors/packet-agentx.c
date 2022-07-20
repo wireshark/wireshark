@@ -15,6 +15,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-tcp.h"
 
@@ -271,7 +272,6 @@ enum OID_USAGE { OID_START_RANGE, OID_END_RANGE, OID_EXACT };
 #define OID_IS_INCLUSIVE 	0x01
 
 #define PDU_HDR_LEN	20
-#define PADDING(x) ((((x) + 3) >> 2) << 2)
 
 #define NORLEL(flags,var,tvb,offset) \
 	var = (flags & NETWORK_BYTE_ORDER) ? \
@@ -289,7 +289,7 @@ dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 flags)
 
 	NORLEL(flags, n_oct, tvb, offset);
 
-	p_noct = PADDING(n_oct);
+	p_noct = WS_ROUNDUP_4(n_oct);
 
 	proto_tree_add_uint(tree, hf_ostring_len, tvb, offset, 4, n_oct);
 	/*

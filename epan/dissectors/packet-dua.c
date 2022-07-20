@@ -23,6 +23,7 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <wsutil/str_util.h>
+#include <wsutil/ws_roundup.h>
 
 void proto_register_dua(void);
 void proto_reg_handoff_dua(void);
@@ -66,8 +67,6 @@ static gint ett_dua_parameter       = -1;
 
 static dissector_handle_t dpnss_handle;
 static dissector_handle_t dua_handle;
-
-#define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
 #define PARAMETER_TAG_LENGTH    2
 #define PARAMETER_LENGTH_LENGTH 2
@@ -533,7 +532,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   offset = 0;
   while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
-    total_length = ADD_PADDING(length);
+    total_length = WS_ROUNDUP_4(length);
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
     /* create a tvb for the parameter including the padding bytes */

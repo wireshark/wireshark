@@ -60,12 +60,12 @@
 #include <wsutil/adler32.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-sctp.h"
 
 #define LT(x, y) ((gint32)((x) - (y)) < 0)
 
-#define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 #define UDP_TUNNELING_PORT 9899
 
 #define MAX_NUMBER_OF_PPIDS     2
@@ -2017,7 +2017,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
       proto_item_append_text(additional_item, " ");
 
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
-    total_length = ADD_PADDING(length);
+    total_length = WS_ROUNDUP_4(length);
 
     /*  If we have less bytes than we need, throw an exception while dissecting
      *  the parameter--not when generating the parameter_tvb below.
@@ -2414,7 +2414,7 @@ dissect_error_causes(tvbuff_t *causes_tvb, packet_info *pinfo, proto_tree *tree)
   offset = 0;
   while((remaining_length = tvb_reported_length_remaining(causes_tvb, offset))) {
     length       = tvb_get_ntohs(causes_tvb, offset + CAUSE_LENGTH_OFFSET);
-    total_length = ADD_PADDING(length);
+    total_length = WS_ROUNDUP_4(length);
 
     /*  If we have less bytes than we need, throw an exception while dissecting
      *  the cause--not when generating the causes_tvb below.
@@ -4587,7 +4587,7 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
   while((remaining_length = tvb_reported_length_remaining(tvb, offset))) {
     /* extract the chunk length and compute number of padding bytes */
     length         = tvb_get_ntohs(tvb, offset + CHUNK_LENGTH_OFFSET);
-    total_length   = ADD_PADDING(length);
+    total_length   = WS_ROUNDUP_4(length);
 
     /*  If we have less bytes than we need, throw an exception while dissecting
      *  the chunk--not when generating the chunk_tvb below.
