@@ -354,13 +354,13 @@ static  wmem_list_t *async_dns_queue_head = NULL;
 gboolean use_custom_dns_server_list = FALSE;
 struct dns_server_data {
     char *ipaddr;
-    char *udp_port;
-    char *tcp_port;
+    guint32 udp_port;
+    guint32 tcp_port;
 };
 
 UAT_CSTRING_CB_DEF(dnsserverlist_uats, ipaddr, struct dns_server_data)
-UAT_CSTRING_CB_DEF(dnsserverlist_uats, tcp_port, struct dns_server_data)
-UAT_CSTRING_CB_DEF(dnsserverlist_uats, udp_port, struct dns_server_data)
+UAT_DEC_CB_DEF(dnsserverlist_uats, tcp_port, struct dns_server_data)
+UAT_DEC_CB_DEF(dnsserverlist_uats, udp_port, struct dns_server_data)
 
 static uat_t *dnsserver_uat = NULL;
 static struct dns_server_data  *dnsserverlist_uats = NULL;
@@ -372,31 +372,6 @@ dns_server_free_cb(void *data)
     struct dns_server_data *h = (struct dns_server_data*)data;
 
     g_free(h->ipaddr);
-    g_free(h->tcp_port);
-    g_free(h->udp_port);
-}
-
-static char *
-copy_port(char *p)
-{
-    if (!p || strlen(p) == 0u)
-        return g_strdup("53");
-    return g_strdup(p);
-}
-
-static int
-get_port_to_int(char *p)
-{
-    guint16 port;
-
-    if (!p || strlen(p) == 0u)
-        return 53;
-
-    if (!ws_strtou16(p, NULL, &port)) {
-        return 53;
-    }
-
-    return port;
 }
 
 static void*
@@ -406,8 +381,8 @@ dns_server_copy_cb(void *dst_, const void *src_, size_t len _U_)
     struct dns_server_data       *dst = (struct dns_server_data *)dst_;
 
     dst->ipaddr = g_strdup(src->ipaddr);
-    dst->udp_port = copy_port(src->udp_port);
-    dst->tcp_port = copy_port(src->tcp_port);
+    dst->udp_port = src->udp_port;
+    dst->tcp_port = src->tcp_port;
 
     return dst;
 }
@@ -619,8 +594,8 @@ c_ares_set_dns_servers(void)
                 break;
             }
 
-            server->udp_port = get_port_to_int(dnsserverlist_uats[i].udp_port);
-            server->tcp_port = get_port_to_int(dnsserverlist_uats[i].tcp_port);
+            server->udp_port = (int)dnsserverlist_uats[i].udp_port;
+            server->tcp_port = (int)dnsserverlist_uats[i].tcp_port;
 
             server->next = (server+1);
         }
