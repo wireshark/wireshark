@@ -216,6 +216,8 @@ struct ptvcursor {
 
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 static const char *hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo);
+static const char *hf_try_val_to_str_const(guint32 value, const header_field_info *hfinfo, const char *unknown_str);
+static const char *hf_try_val64_to_str_const(guint64 value, const header_field_info *hfinfo, const char *unknown_str);
 static int hfinfo_bitoffset(const header_field_info *hfinfo);
 static int hfinfo_mask_bitwidth(const header_field_info *hfinfo);
 static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
@@ -223,6 +225,7 @@ static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
 #define label_concat(dst, pos, src) \
 	ws_label_strcpy(dst, ITEM_LABEL_LENGTH, pos, src, 0)
 
+static void mark_truncated(char *label_str, gsize name_pos, const size_t size);
 static void label_mark_truncated(char *label_str, gsize name_pos);
 #define LABEL_MARK_TRUNCATED_START(label_str) label_mark_truncated(label_str, 0)
 
@@ -6726,23 +6729,23 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 }
 
 /* -------------------------- */
+/* Sets the text for a custom column from proto fields.
+ *
+ * @param[out] result The "resolved" column text (human readable, uses strings)
+ * @param[out] expr The "unresolved" column text (values, display repr)
+ * @return The filter (abbrev) for the field (XXX: Only the first if multifield)
+ */
 const gchar *
 proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 		 gchar *result, gchar *expr, const int size)
 {
-	guint32             number;
-	guint64             number64;
-	const guint8       *bytes;
-
-	int                 len, prev_len, last, i, offset_r = 0, offset_e = 0, prev_offset_r = 0, label_len;
+	int                 len, prev_len, last, i, offset_r = 0, offset_e = 0;
 	GPtrArray          *finfos;
 	field_info         *finfo         = NULL;
 	header_field_info*  hfinfo;
 	const gchar        *abbrev        = NULL;
 
 	const char *hf_str_val;
-	char number_buf[48];
-	const char *number_out;
 	char *str;
 	int *field_idx;
 	int field_id;
@@ -6803,22 +6806,12 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 			prev_len += len; /* Count handled occurrences */
 
-			/* Store the offset where all the occurrences of this
-			 * field begin in the result.
-			 */
-			prev_offset_r = offset_r;
-			if (offset_r && (offset_r < (size - 2))) {
-				prev_offset_r++; /* skip the comma added below */
-			}
-
 			while (i <= last) {
 				finfo = (field_info *)g_ptr_array_index(finfos, i);
 
-				if (offset_r && (offset_r < (size - 2)))
+				if (offset_r && (offset_r < (size - 1)))
 					result[offset_r++] = ',';
 
-				if (offset_e && (offset_e < (size - 2)))
-					expr[offset_e++] = ',';
 
 				switch (hfinfo->type) {
 
@@ -6832,159 +6825,40 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						}
 						break;
 
-					case FT_BOOLEAN:
-						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
-
-						number64 = fvalue_get_uinteger64(&finfo->value);
-						offset_e += protoo_strlcpy(expr+offset_e,
-								number64 ? "1" : "0", size-offset_e);
-						break;
-
-					case FT_CHAR:
-						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
-
-						number = fvalue_get_uinteger(&finfo->value);
-
-						if (hfinfo->strings && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
-							hf_str_val = hf_try_val_to_str(number, hfinfo);
-							snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
-						} else {
-							number_out = hfinfo_char_value_format(hfinfo, number_buf, number);
-
-							(void) g_strlcpy(expr+offset_e, number_out, size-offset_e);
-						}
-
-						offset_e = (int)strlen(expr);
-						break;
-
-						/* XXX - make these just FT_NUMBER? */
-					case FT_INT8:
-					case FT_INT16:
-					case FT_INT24:
-					case FT_INT32:
-					case FT_UINT8:
-					case FT_UINT16:
-					case FT_UINT24:
-					case FT_UINT32:
-					case FT_FRAMENUM:
-						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
-
-						hf_str_val = NULL;
-						number = IS_FT_INT(hfinfo->type) ?
-							(guint32) fvalue_get_sinteger(&finfo->value) :
-							fvalue_get_uinteger(&finfo->value);
-
-						if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM) {
-							hf_str_val = hf_try_val_to_str(number, hfinfo);
-						}
-
-						if (hf_str_val && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
-
-							hf_str_val = hf_try_val_to_str(number, hfinfo);
-							snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
-						} else {
-							number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
-
-							(void) g_strlcpy(expr+offset_e, number_out, size-offset_e);
-						}
-
-						offset_e = (int)strlen(expr);
-						break;
-
-					case FT_INT40:
-					case FT_INT48:
-					case FT_INT56:
-					case FT_INT64:
-					case FT_UINT40:
-					case FT_UINT48:
-					case FT_UINT56:
-					case FT_UINT64:
-						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
-
-						hf_str_val = NULL;
-						number64 = IS_FT_INT(hfinfo->type) ?
-							(guint64) fvalue_get_sinteger64(&finfo->value) :
-							fvalue_get_uinteger64(&finfo->value);
-
-						if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM) {
-							hf_str_val = hf_try_val64_to_str(number64, hfinfo);
-						}
-
-						if (hf_str_val && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
-							snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
-						} else {
-							number_out = hfinfo_numeric_value_format64(hfinfo, number_buf, number64);
-
-							(void) g_strlcpy(expr+offset_e, number_out, size-offset_e);
-						}
-
-						offset_e = (int)strlen(expr);
-						break;
-
-					case FT_REL_OID:
-						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
-
-						bytes = fvalue_get_bytes(&finfo->value);
-						str = rel_oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
-						offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
-						wmem_free(NULL, str);
-						break;
-
-					case FT_OID:
-						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
-
-						bytes = fvalue_get_bytes(&finfo->value);
-						str = oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
-						offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
-						wmem_free(NULL, str);
-						break;
-
-					case FT_SYSTEM_ID:
-						label_len = proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
-
-						offset_e += protoo_strlcpy(expr+offset_e, result+offset_r, size-offset_e);
-
-						offset_r += label_len;
-						break;
-
 					default:
 						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
 						break;
+					}
+
+				if (offset_e && (offset_e < (size - 1)))
+					expr[offset_e++] = ',';
+
+				if (hfinfo->strings && FIELD_DISPLAY(hfinfo->display) == BASE_NONE && (IS_FT_INT(hfinfo->type) || IS_FT_UINT(hfinfo->type))) {
+					/* Integer types with BASE_NONE never get the numeric value. */
+					if (IS_FT_INT32(hfinfo->type)) {
+						hf_str_val = hf_try_val_to_str_const(fvalue_get_sinteger(&finfo->value), hfinfo, "Unknown");
+					} else if (IS_FT_UINT32(hfinfo->type)) {
+						hf_str_val = hf_try_val_to_str_const(fvalue_get_uinteger(&finfo->value), hfinfo, "Unknown");
+					} else if (IS_FT_INT64(hfinfo->type)) {
+						hf_str_val = hf_try_val64_to_str_const(fvalue_get_sinteger64(&finfo->value), hfinfo, "Unknown");
+					} else { // if (IS_FT_UINT64(hfinfo->type)) {
+						hf_str_val = hf_try_val64_to_str_const(fvalue_get_uinteger64(&finfo->value), hfinfo, "Unknown");
+					}
+					snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
+					offset_e = (int)strlen(expr);
+				} else if (hfinfo->type == FT_NONE || hfinfo->type == FT_PROTOCOL) {
+					/* Prevent multiple check marks */
+					if (strstr(result, UTF8_CHECK_MARK ",") == NULL) {
+						offset_e += proto_item_fill_display_label(finfo, result+offset_e, size-offset_e);
+					} else {
+						result[--offset_e] = '\0'; /* Remove the added trailing ',' again */
+					}
+				} else {
+					str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, finfo->hfinfo->display);
+					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+					wmem_free(NULL, str);
 				}
 				i++;
-			}
-
-			switch (hfinfo->type) {
-
-				case FT_BOOLEAN:
-				case FT_CHAR:
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-				case FT_UINT40:
-				case FT_UINT48:
-				case FT_UINT56:
-				case FT_UINT64:
-				case FT_FRAMENUM:
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-				case FT_INT40:
-				case FT_INT48:
-				case FT_INT56:
-				case FT_INT64:
-				case FT_OID:
-				case FT_REL_OID:
-				case FT_SYSTEM_ID:
-					/* for these types, "expr" is filled in the loop above */
-					break;
-
-				default:
-					/* for all others, just copy the latest "result" to "expr" */
-					offset_e += protoo_strlcpy(expr+offset_e, result+prev_offset_r, size-offset_e);
-					break;
 			}
 
 			/* XXX: Why is only the first abbreviation returned for a multifield
@@ -7003,6 +6877,12 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 		}
 	}
 
+	if (offset_r >= (size - 1)) {
+		mark_truncated(result, 0, size);
+	}
+	if (offset_e >= (size - 1)) {
+		mark_truncated(expr, 0, size);
+	}
 	return abbrev ? abbrev : "";
 }
 
@@ -9207,7 +9087,7 @@ proto_register_subtree_array(gint * const *indices, const int num_indices)
 }
 
 static void
-label_mark_truncated(char *label_str, gsize name_pos)
+mark_truncated(char *label_str, gsize name_pos, const size_t size)
 {
 	static const char  trunc_str[] = " [truncated]";
 	const size_t       trunc_len = sizeof(trunc_str)-1;
@@ -9222,8 +9102,8 @@ label_mark_truncated(char *label_str, gsize name_pos)
 	 * name_pos==0 means that we have only data or only a field_name
 	 */
 
-	if (name_pos < ITEM_LABEL_LENGTH - trunc_len) {
-		memmove(label_str + name_pos + trunc_len, label_str + name_pos, ITEM_LABEL_LENGTH - name_pos - trunc_len);
+	if (name_pos < size - trunc_len) {
+		memmove(label_str + name_pos + trunc_len, label_str + name_pos, size - name_pos - trunc_len);
 		memcpy(label_str + name_pos, trunc_str, trunc_len);
 
 		/* in general, label_str is UTF-8
@@ -9238,11 +9118,17 @@ label_mark_truncated(char *label_str, gsize name_pos)
 		 * passed in (until after decrementing it, so it is perfectly
 		 * legal to pass in a pointer one past the last element.
 		 */
-		last_char = g_utf8_prev_char(label_str + ITEM_LABEL_LENGTH);
+		last_char = g_utf8_prev_char(label_str + size);
 		*last_char = '\0';
 
-	} else if (name_pos < ITEM_LABEL_LENGTH)
-		(void) g_strlcpy(label_str + name_pos, trunc_str, ITEM_LABEL_LENGTH - name_pos);
+	} else if (name_pos < size)
+		(void) g_strlcpy(label_str + name_pos, trunc_str, size - name_pos);
+}
+
+static void
+label_mark_truncated(char *label_str, gsize name_pos)
+{
+	mark_truncated(label_str, name_pos, ITEM_LABEL_LENGTH);
 }
 
 static gsize
