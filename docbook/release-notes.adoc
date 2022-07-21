@@ -53,17 +53,37 @@ wsbuglink:17779[]
   Code using the Lua GRegex module will have to be updated to use lrexlib-pcre2 instead.
   In most cases the API should be compatible and the conversion just requires a module name change.
 
+* The tap registration system has been updated and the list of arguments for tap_packet_cb has
+  changed. All taps registered through register_tap_listener have to be updated.
+
+* Speed when using maxminddb has been greatly improved
+
 * The PCRE2 library (https://www.pcre.org/) is now a required dependency to build Wireshark.
 
 * You must now have a compiler with C11 support in order to build Wireshark.
 
-* The tap registration system has been updated and the list of arguments for tap_packet_cb has
-  changed. All taps registered through register_tap_listener have to be updated.
+* The following libraries and tools have had their minimum required version increased:
+  - CMake 3.10 is required on macos/Linux
+  - Qt version 5.12 (has been 5.6.0), although compilation with 5.10 and 5.11 is still possible, but will trigger a warning during configuration
+  - Windows SDK 10.0.18362.0 is required due to issues with C11 support
+  - macOS version 10.10 (has been 10.8) is required, if the Qt version is to be build, at least 10.11 is required, depending on the Qt version used (see below)
+  - glib2 version 2.50.0 (has been 2.38.0) is required
+  - gcrypt version 1.8.0 (has been 1.5.0) is required
+  - c-ares version 1.14.0 (has been 1.5.0)
+  - Python version 3.6.0 (has been 3.4.0)
+  - gnutls version 3.5.8 (has been 3.3.0)
+  - nghttp2 minimum version has been set to 1.11.0 (none previous)
 
-* Speed when using maxminddb has been greatly improved on Windows
+* For building with Qt on macOS, the following versions are required depending on the Qt version to be used:
+  - Qt 5.10 or higher requires macOS version 10.11
+  - Qt 5.12 or higher requires macOS version 10.12
+  - Qt 5.14 or higher requires macOS version 10.13
+  - Qt 6.0 or higher requires macOS version 10.14
+
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
+
 
 // === Bug Fixes
 

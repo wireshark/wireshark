@@ -1146,7 +1146,7 @@ reset_find_package(GCRYPT GCRYPT_ERROR_LIBRARY)
 find_package(GCRYPT "1.8.0" REQUIRED)
 # C Asynchronous resolver
 reset_find_package(CARES)
-find_package(CARES "1.5.0" REQUIRED)
+find_package(CARES "1.14.0" REQUIRED)
 find_package(LEX REQUIRED)
 find_package(Perl REQUIRED)
 find_package(PCRE2 REQUIRED)
