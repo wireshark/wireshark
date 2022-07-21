@@ -230,6 +230,9 @@ static void fill_label_char(field_info *fi, gchar *label_str);
 static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed);
 
+static size_t fill_display_label_float(field_info *fi, gchar *label_str);
+static void fill_label_float(field_info *fi, gchar *label_str);
+
 static const char *hfinfo_char_value_format_display(int display, char buf[7], guint32 value);
 static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value);
 static const char *hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[48], guint64 value);
@@ -6679,29 +6682,8 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			break;
 
 		case FT_FLOAT:
-			if (hfinfo->display & BASE_UNIT_STRING) {
-				double d_value = fvalue_get_floating(&finfo->value);
-				snprintf(display_label_str, label_str_size,
-						"%." G_STRINGIFY(FLT_DIG) "g%s", d_value,
-						unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
-			} else {
-				snprintf(display_label_str, label_str_size,
-						"%." G_STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
-			}
-			label_len = (int)strlen(display_label_str);
-			break;
-
 		case FT_DOUBLE:
-			if (hfinfo->display & BASE_UNIT_STRING) {
-				double d_value = fvalue_get_floating(&finfo->value);
-				snprintf(display_label_str, label_str_size,
-						"%." G_STRINGIFY(DBL_DIG) "g%s", d_value,
-						unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
-			} else {
-				snprintf(display_label_str, label_str_size,
-						"%." G_STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
-			}
-			label_len = (int)strlen(display_label_str);
+			label_len = (int)fill_display_label_float(finfo, display_label_str);
 			break;
 
 		case FT_STRING:
@@ -8306,7 +8288,6 @@ static const value_string hf_display[] = {
 	{ BASE_DEC_HEX|BASE_VAL64_STRING, "BASE_DEC_HEX|BASE_VAL64_STRING" },
 	{ BASE_HEX_DEC|BASE_VAL64_STRING, "BASE_HEX_DEC|BASE_VAL64_STRING" },
 	{ BASE_CUSTOM|BASE_VAL64_STRING,  "BASE_CUSTOM|BASE_VAL64_STRING"  },
-	/* Alias: BASE_NONE { BASE_FLOAT,			"BASE_FLOAT" }, */
 	{ ABSOLUTE_TIME_LOCAL,		  "ABSOLUTE_TIME_LOCAL"		   },
 	{ ABSOLUTE_TIME_UTC,		  "ABSOLUTE_TIME_UTC"		   },
 	{ ABSOLUTE_TIME_DOY_UTC,	  "ABSOLUTE_TIME_DOY_UTC"	   },
@@ -8364,7 +8345,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	/*  These types of fields are allowed to have value_strings,
 	 *  true_false_strings or a protocol_t struct
 	 */
-	if (hfinfo->strings != NULL) {
+	if (hfinfo->strings != NULL && FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM) {
 		switch (hfinfo->type) {
 
 		/*
@@ -8781,19 +8762,26 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			break;
 		case FT_FLOAT:
 		case FT_DOUBLE:
-			if (FIELD_DISPLAY(hfinfo->display) != BASE_NONE) {
-				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
-				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE",
-					hfinfo->name, hfinfo->abbrev,
-					ftype_name(hfinfo->type),
-					tmp_str);
-				wmem_free(NULL, tmp_str);
+			switch (FIELD_DISPLAY(hfinfo->display)) {
+				case BASE_NONE:
+				case BASE_DEC:
+				case BASE_HEX:
+				case BASE_EXP:
+				case BASE_CUSTOM:
+					break;
+				default:
+					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+					REPORT_DISSECTOR_BUG("Field '%s' (%s) is a float value (%s)"
+						" but is being displayed as %s",
+						hfinfo->name, hfinfo->abbrev,
+						ftype_name(hfinfo->type), tmp_str);
+					wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->bitmask != 0)
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a bitmask",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type));
-			if ((hfinfo->strings != NULL) && (!(hfinfo->display & BASE_UNIT_STRING)))
+			if (FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM && (hfinfo->strings != NULL) && !(hfinfo->display & BASE_UNIT_STRING))
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a strings value",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type));
@@ -9277,36 +9265,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_FLOAT:
-		{
-			double d_value = fvalue_get_floating(&fi->value);
-			if (hfinfo->display & BASE_UNIT_STRING) {
-				snprintf(label_str, ITEM_LABEL_LENGTH,
-					   "%s: %." G_STRINGIFY(FLT_DIG) "g%s",
-					   hfinfo->name, d_value,
-					   unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
-			} else {
-				snprintf(label_str, ITEM_LABEL_LENGTH,
-					   "%s: %." G_STRINGIFY(FLT_DIG) "g",
-					   hfinfo->name, d_value);
-			}
-			break;
-		}
-
 		case FT_DOUBLE:
-		{
-			double d_value = fvalue_get_floating(&fi->value);
-			if (hfinfo->display & BASE_UNIT_STRING) {
-				snprintf(label_str, ITEM_LABEL_LENGTH,
-					   "%s: %." G_STRINGIFY(DBL_DIG) "g%s",
-					   hfinfo->name, d_value,
-					   unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
-			} else {
-				snprintf(label_str, ITEM_LABEL_LENGTH,
-					   "%s: %." G_STRINGIFY(DBL_DIG) "g",
-					   hfinfo->name, d_value);
-			}
+			fill_label_float(fi, label_str);
 			break;
-		}
 
 		case FT_ABSOLUTE_TIME:
 			tmp = abs_time_to_str(NULL, fvalue_get_time(&fi->value), hfinfo->display, TRUE);
@@ -9937,6 +9898,65 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 
 		label_fill(label_str, 0, hfinfo, out);
 	}
+}
+
+static size_t
+fill_display_label_float(field_info *fi, gchar *label_str)
+{
+	int display;
+	int digits;
+	int n;
+	double value;
+
+	display = FIELD_DISPLAY(fi->hfinfo->display);
+	value = fvalue_get_floating(&fi->value);
+
+	if (display == BASE_CUSTOM) {
+		const custom_fmt_func_double_t fmtfunc = (const custom_fmt_func_double_t)fi->hfinfo->strings;
+		DISSECTOR_ASSERT(fmtfunc);
+		fmtfunc(label_str, value);
+		return strlen(label_str);
+	}
+
+	switch (display) {
+		case BASE_NONE:
+			if (fi->hfinfo->type == FT_FLOAT)
+				digits = FLT_DIG;
+			else
+				digits = DBL_DIG;
+
+			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%.*g", digits, value);
+			break;
+		case BASE_DEC:
+			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%f", value);
+			break;
+		case BASE_HEX:
+			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%a", value);
+			break;
+		case BASE_EXP:
+			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%e", value);
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+	if (n < 0) {
+		return 0; /* error */
+	}
+	if (n > ITEM_LABEL_LENGTH) {
+		ws_warning("label length too small");
+		return strlen(label_str);
+	}
+
+	return n;
+}
+
+void
+fill_label_float(field_info *fi, gchar *label_str)
+{
+	gchar tmp[ITEM_LABEL_LENGTH];
+
+	fill_display_label_float(fi, tmp);
+	label_fill(label_str, 0, fi->hfinfo, tmp);
 }
 
 int

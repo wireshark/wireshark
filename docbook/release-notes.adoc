@@ -281,6 +281,10 @@ Too many protocols have been updated to list here.
 * proto.h: The field display types "STR_ASCII" and "STR_UNICODE" have been removed.
 Use "BASE_NONE" instead.
 
+* proto.h: The field display types for floats have been extended and refactored.
+  The type BASE_FLOAT has been removed. Use BASE_NONE instead. New display
+  types for floats are BASE_DEC, BASE_HEX, BASE_EXP and BASE_CUSTOM.
+
 == Getting Wireshark
 
 Wireshark source code and installation packages are available from

@@ -6618,7 +6618,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_tap_rss,
-        { "RSS",           "wpan-tap.rss", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_dbm, 0x0,
+        { "RSS",           "wpan-tap.rss", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_dbm, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_ch_num,
@@ -6690,11 +6690,11 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_chplan_start,
-        { "Channel0 freq",              "wpan-tap.chplan.start", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_khz, 0x0,
+        { "Channel0 freq",              "wpan-tap.chplan.start", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_khz, 0x0,
             "Channel 0 center frequency", HFILL }},
 
         { &hf_ieee802154_chplan_spacing,
-        { "Spacing",                    "wpan-tap.chplan.spacing", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_khz, 0x0,
+        { "Spacing",                    "wpan-tap.chplan.spacing", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_khz, 0x0,
             "Channel spacing", HFILL }},
 
         { &hf_ieee802154_chplan_channels,
@@ -6702,7 +6702,7 @@ void proto_register_ieee802154(void)
             "Number of channels", HFILL }},
 
         { &hf_ieee802154_ch_freq,
-        { "Frequency",                  "wpan-tap.ch_freq", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_khz, 0x0,
+        { "Frequency",                  "wpan-tap.ch_freq", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_khz, 0x0,
             "Channel center frequency", HFILL }},
 
         { &hf_ieee802154_frame_start_offset,

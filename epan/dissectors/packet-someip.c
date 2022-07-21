@@ -2319,10 +2319,10 @@ get_param_attributes(guint8 data_type, guint32 id_ref) {
                 ret.type = FT_INT64;
             } else if (g_strcmp0(tmp->data_type, "float32") == 0) {
                 ret.type = FT_FLOAT;
-                ret.display_base = BASE_FLOAT;
+                ret.display_base = BASE_NONE;
             } else if (g_strcmp0(tmp->data_type, "float64") == 0) {
                 ret.type = FT_DOUBLE;
-                ret.display_base = BASE_FLOAT;
+                ret.display_base = BASE_NONE;
             } else {
                 ret.type = FT_NONE;
             }

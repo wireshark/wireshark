@@ -1316,7 +1316,7 @@ init_pn_io_rtc1(int proto)
         },
         { &hf_pn_pa_profile_value_float,
             { "Value", "pn_io.pa.value",
-            FT_FLOAT, BASE_FLOAT, NULL, 0x0,
+            FT_FLOAT, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };

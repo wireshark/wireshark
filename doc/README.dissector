@@ -162,6 +162,12 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
 
                   BASE_NONE can be used in the same way as with FT_UINT8.
 
+                --For FT_FLOAT, FT_DOUBLE:
+                  BASE_NONE, BASE_DEC, BASE_HEX, BASE_EXP or BASE_CUSTOM.
+
+                  BASE_NONE uses BASE_DEC or BASE_EXP, similarly to the
+                  %g double format for the printf() function.
+
                 --For FT_ABSOLUTE_TIME:
 
                   ABSOLUTE_TIME_LOCAL, ABSOLUTE_TIME_UTC, or
