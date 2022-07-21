@@ -613,6 +613,9 @@ c_ares_set_dns_servers(void)
                 memset(&server->addr.addr4, 0, 4);
             }
         }
+        server->udp_port = (int)dnsserverlist_uats[i].udp_port;
+        server->tcp_port = (int)dnsserverlist_uats[i].tcp_port;
+
         server->next = NULL;
 
         ares_set_servers_ports(ghba_chan, servers);
