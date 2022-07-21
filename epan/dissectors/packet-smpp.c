@@ -1921,7 +1921,7 @@ bind_receiver(proto_tree *tree, tvbuff_t *tvb, int offset)
     offset += 1;
     proto_tree_add_item(tree, hf_smpp_addr_npi, tvb, offset, 1, ENC_NA);
     offset += 1;
-    smpp_handle_string(tree, tvb, hf_smpp_address_range, &offset);
+    smpp_handle_string_z(tree, tvb, hf_smpp_address_range, &offset, "NULL");
 }
 
 static void
