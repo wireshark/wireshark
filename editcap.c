@@ -2387,6 +2387,9 @@ main(int argc, char *argv[])
     g_free(fprefix);
     g_free(fsuffix);
 
+    if (verbose)
+        fprintf(stderr, "Total selected: %d\n", written_count);
+
     if (read_err != 0) {
         /* Print a message noting that the read failed somewhere along the
          * line. */
