@@ -1046,6 +1046,15 @@ static int hf_mysql_binlog_position = -1;
 static int hf_mysql_binlog_flags = -1;
 static int hf_mysql_binlog_server_id = -1;
 static int hf_mysql_binlog_file_name = -1;
+static int hf_mysql_binlog_slave_hostname_length = -1;
+static int hf_mysql_binlog_slave_hostname = -1;
+static int hf_mysql_binlog_slave_user_length = -1;
+static int hf_mysql_binlog_slave_user = -1;
+static int hf_mysql_binlog_slave_password_length = -1;
+static int hf_mysql_binlog_slave_password = -1;
+static int hf_mysql_binlog_slave_mysql_port = -1;
+static int hf_mysql_binlog_replication_rank = -1;
+static int hf_mysql_binlog_master_id = -1;
 static int hf_mysql_eof = -1;
 static int hf_mysql_num_fields = -1;
 static int hf_mysql_extra = -1;
@@ -2303,10 +2312,47 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 		mysql_set_conn_state(pinfo, conn_data, REQUEST);
 		break;
+
+	case MYSQL_REGISTER_SLAVE:
+		proto_tree_add_item(req_tree, hf_mysql_binlog_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		lenstr = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_binlog_slave_hostname_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_slave_hostname, tvb, offset, lenstr, ENC_ASCII);
+		offset += lenstr;
+
+		lenstr = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_binlog_slave_user_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_slave_user, tvb, offset, lenstr, ENC_ASCII);
+		offset += lenstr;
+
+		lenstr = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(req_tree, hf_mysql_binlog_slave_password_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_slave_password, tvb, offset, lenstr, ENC_ASCII);
+		offset += lenstr;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_slave_mysql_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_replication_rank, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(req_tree, hf_mysql_binlog_master_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		mysql_set_conn_state(pinfo, conn_data, REQUEST);
+		break;
+
 /* FIXME: implement replication packets */
 	case MYSQL_TABLE_DUMP:
 	case MYSQL_CONNECT_OUT:
-	case MYSQL_REGISTER_SLAVE:
 		ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
 		expert_add_info_format(pinfo, ti, &ei_mysql_dissector_incomplete, "FIXME: implement replication packets");
 		offset += tvb_reported_length_remaining(tvb, offset);
@@ -4119,6 +4165,51 @@ void proto_register_mysql(void)
 		{ "Binlog server id", "mysql.binlog.server_id",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		"server_id of the slave", HFILL }},
+
+		{ &hf_mysql_binlog_slave_hostname_length,
+		{ "Slave hostname length", "mysql.binlog.slave_hostname_length",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"slave_hostname field length", HFILL }},
+
+		{ &hf_mysql_binlog_slave_hostname,
+		{ "Slave hostname", "mysql.binlog.slave_hostname",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  "slave_hostname", HFILL }},
+
+		{ &hf_mysql_binlog_slave_user_length,
+		{ "Slave user length", "mysql.binlog.slave_user_length",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "slave_hostname field length", HFILL }},
+
+		{ &hf_mysql_binlog_slave_user,
+		{ "Slave user", "mysql.binlog.slave_user",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  "slave_user", HFILL }},
+
+		{ &hf_mysql_binlog_slave_password_length,
+		{ "Slave password length", "mysql.binlog.slave_password_length",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "slave_password field length", HFILL }},
+
+		{ &hf_mysql_binlog_slave_password,
+		{ "Slave password", "mysql.binlog.slave_password",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  "slave_password", HFILL }},
+
+		{ &hf_mysql_binlog_slave_mysql_port,
+		{ "Slave MySQL port", "mysql.binlog.slave_mysql_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "slave's mysql port", HFILL }},
+
+		{ &hf_mysql_binlog_replication_rank,
+		{ "Replication rank", "mysql.binlog.replication_rank",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "ignored", HFILL }},
+
+		{ &hf_mysql_binlog_master_id,
+		{ "Master id", "mysql.binlog.master_id",
+		  FT_UINT32, BASE_HEX, NULL, 0x0,
+		  "master_id of the slave", HFILL }},
 
 		{ &hf_mysql_binlog_file_name,
 		{ "Binlog file name", "mysql.binlog.file_name",
