@@ -44,7 +44,7 @@ override_dh_auto_build:
 	$(MAKE) -C $(CURDIR)/obj-* user_guide_html developer_guide_html
 	# fix links in documentation
 	sed -i "s|$(CURDIR)/docbook|..|" obj-*/docbook/ws*g_html_chunked/*.html
-ifneq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
+ifeq (,$(filter $(DEB_BUILD_OPTIONS),nocheck))
 	# Required for the "unittests" suite.
 	$(MAKE) -C $(CURDIR)/obj-* test-programs
 endif
@@ -78,9 +78,8 @@ override_dh_fixperms:
 		debian/wireshark-dev/usr/share/pyshared/wireshark_be.py \
 		debian/wireshark-dev/usr/share/pyshared/wireshark_gen.py
 
-# Adapted from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=861988
 override_dh_auto_test:
-ifneq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
+ifeq (,$(filter $(DEB_BUILD_OPTIONS),nocheck))
 	# XXX Add -- --verbose?
 	dh_auto_test
 else
