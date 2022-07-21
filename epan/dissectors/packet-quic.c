@@ -180,6 +180,12 @@ static int hf_quic_fragment_multiple_tails = -1;
 static int hf_quic_fragment_too_long_fragment = -1;
 static int hf_quic_fragment_error = -1;
 static int hf_quic_fragment_count = -1;
+
+static int hf_quic_crypto_reassembled_in = -1;
+static int hf_quic_crypto_fragments = -1;
+static int hf_quic_crypto_fragment = -1;
+static int hf_quic_crypto_fragment_count = -1;
+
 static int hf_quic_mp_add_address_first_byte	= -1;
 static int hf_quic_mp_add_address_reserved = -1;
 static int hf_quic_mp_add_address_port_present = -1;
@@ -204,6 +210,8 @@ static expert_field ei_quic_decryption_failed = EI_INIT;
 static expert_field ei_quic_protocol_violation = EI_INIT;
 static expert_field ei_quic_bad_retry = EI_INIT;
 static expert_field ei_quic_coalesced_padding_data = EI_INIT;
+static expert_field ei_quic_retransmission = EI_INIT;
+static expert_field ei_quic_overlap = EI_INIT;
 
 static gint ett_quic = -1;
 static gint ett_quic_af = -1;
@@ -214,6 +222,8 @@ static gint ett_quic_ftflags = -1;
 static gint ett_quic_ftid = -1;
 static gint ett_quic_fragments = -1;
 static gint ett_quic_fragment = -1;
+static gint ett_quic_crypto_fragments = -1;
+static gint ett_quic_crypto_fragment = -1;
 
 static dissector_handle_t quic_handle;
 static dissector_handle_t tls13_handshake_handle;
@@ -235,6 +245,24 @@ static const fragment_items quic_stream_fragment_items = {
     &hf_quic_reassembled_in,
     &hf_quic_reassembled_length,
     &hf_quic_reassembled_data,
+    "Fragments"
+};
+
+/* Fields for showing reassembly results for fragments of QUIC crypto packets. */
+static const fragment_items quic_crypto_fragment_items = {
+    &ett_quic_crypto_fragment,
+    &ett_quic_crypto_fragments,
+    &hf_quic_crypto_fragments,
+    &hf_quic_crypto_fragment,
+    &hf_quic_fragment_overlap, /* We can reuse the error fields. */
+    &hf_quic_fragment_overlap_conflict,
+    &hf_quic_fragment_multiple_tails,
+    &hf_quic_fragment_too_long_fragment,
+    &hf_quic_fragment_error,
+    &hf_quic_crypto_fragment_count,
+    &hf_quic_crypto_reassembled_in,
+    NULL, /* length, redundant */
+    NULL, /* data, redundant */
     "Fragments"
 };
 
@@ -329,6 +357,17 @@ struct quic_cid_item {
 };
 
 /**
+ * CRYPTO stream state.
+ *
+ */
+typedef struct _quic_crypto_state {
+    guint64         max_contiguous_offset;
+    guint8          encryption_level; /**< AKA packet type */
+    wmem_tree_t    *multisegment_pdus;
+    wmem_map_t     *retrans_offsets;
+} quic_crypto_state;
+
+/**
  * Per-STREAM state, identified by QUIC Stream ID.
  *
  * Assume that every QUIC Short Header packet has no STREAM frames that overlap
@@ -389,8 +428,17 @@ typedef struct quic_info_data {
     wmem_map_t     *server_streams; /**< Map from Stream ID -> STREAM info (guint64 -> quic_stream_state), sent by the server. */
     wmem_list_t    *streams_list;   /**< Ordered list of QUIC Stream ID in this connection (both directions). Used by "Follow QUIC Stream" functionality */
     wmem_map_t     *streams_map;    /**< Map pinfo->num --> First stream in that frame (guint -> quic_follow_stream). Used by "Follow QUIC Stream" functionality */
+    wmem_map_t     *client_crypto;
+    wmem_map_t     *server_crypto;
     gquic_info_data_t *gquic_info; /**< GQUIC info for >Q050 flows. */
 } quic_info_data_t;
+
+typedef struct _quic_crypto_info {
+    const guint64 packet_number; /**< Reconstructed full packet number. */
+    guint64     crypto_offset;  /**< 62-bit stream offset. */
+    guint32     offset;         /**< Offset within the stream (different for reassembled data). */
+    gboolean    from_server;
+} quic_crypto_info;
 
 /** Per-packet information about QUIC, populated on the first pass. */
 struct quic_packet_info {
@@ -399,6 +447,7 @@ struct quic_packet_info {
     quic_decrypt_result_t   decryption;
     guint8                  pkn_len;        /**< Length of PKN (1/2/3/4) or unknown (0). */
     guint8                  first_byte;     /**< Decrypted flag byte, valid only if pkn_len is non-zero. */
+    guint8                  packet_type;
     gboolean                retry_integrity_failure : 1;
     gboolean                retry_integrity_success : 1;
 };
@@ -1366,6 +1415,7 @@ again:
      */
     if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(stream->multisegment_pdus, seq)) &&
             nxtseq <= msp->nxtpdu) {
+        // XXX: This also happens the second time through the data for an MSP normally
         // TODO show expert info for retransmission? Additional checks may be
         // necessary here to tell a retransmission apart from other (normal?)
         // conditions. See also similar code in packet-tcp.c.
@@ -1662,6 +1712,394 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
 }
 /* QUIC Streams tracking and reassembly. }}} */
 
+static gboolean quic_crypto_out_of_order = TRUE;
+
+static reassembly_table quic_crypto_reassembly_table;
+
+typedef struct _quic_crypto_retrans_key {
+    guint64 pkt_number; /* QUIC packet number */
+    int offset;
+    guint32 num;        /* Frame number in the capture file, pinfo->num */
+} quic_crypto_retrans_key;
+
+static guint
+quic_crypto_retrans_hash(gconstpointer k)
+{
+    const quic_crypto_retrans_key* key = (const quic_crypto_retrans_key*) k;
+
+#if 0
+    return wmem_strong_hash((const guint8 *)key, sizeof(quic_crypto_retrans_key));
+#endif
+    guint hash_val;
+
+    /* Most of the time the packet number in the capture file suffices. */
+    hash_val = key->num;
+
+    return hash_val;
+}
+
+static gint
+quic_crypto_retrans_equal(gconstpointer k1, gconstpointer k2)
+{
+    const quic_crypto_retrans_key* key1 = (const quic_crypto_retrans_key*) k1;
+    const quic_crypto_retrans_key* key2 = (const quic_crypto_retrans_key*) k2;
+
+    return (key1->num == key2->num) &&
+           (key1->pkt_number == key2->pkt_number) &&
+           (key1->offset == key2->offset);
+}
+
+static quic_crypto_state *
+quic_get_crypto_state(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server, const guint8 encryption_level)
+{
+    wmem_map_t **cryptos_p = from_server ? &quic_info->server_crypto : &quic_info->client_crypto;
+    wmem_map_t *cryptos = *cryptos_p;
+    quic_crypto_state *crypto = NULL;
+
+    if (PINFO_FD_VISITED(pinfo)) {
+        DISSECTOR_ASSERT(cryptos);
+        crypto = (quic_crypto_state *)wmem_map_lookup(cryptos, GUINT_TO_POINTER(encryption_level));
+        DISSECTOR_ASSERT(crypto);
+        return crypto;
+    }
+
+    // Initialize per-connection and per-stream state.
+    if (!cryptos) {
+        cryptos = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        *cryptos_p = cryptos;
+    } else {
+        crypto = (quic_crypto_state *)wmem_map_lookup(cryptos, GUINT_TO_POINTER(encryption_level));
+    }
+    if (!crypto) {
+        crypto = wmem_new0(wmem_file_scope(), quic_crypto_state);
+        crypto->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+        crypto->retrans_offsets = wmem_map_new(wmem_file_scope(),
+                quic_crypto_retrans_hash, quic_crypto_retrans_equal);
+        crypto->encryption_level = encryption_level;
+        wmem_map_insert(cryptos, GUINT_TO_POINTER(encryption_level), crypto);
+    }
+
+    return crypto;
+}
+
+static void
+process_quic_crypto(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
+                    proto_tree *tree, quic_crypto_info *crypto_info)
+{
+
+    tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, length);
+    col_set_writable(pinfo->cinfo, -1, FALSE);
+    /*
+     * Dissect TLS handshake record. The Client/Server Hello (CH/SH)
+     * are contained in the Initial Packet. 0-RTT keys are ready
+     * after CH. HS + 1-RTT keys are ready after SH.
+     * (Note: keys captured from the client might become available
+     * after capturing the packets due to processing delay.)
+     * These keys will be loaded in the first HS/0-RTT/1-RTT msg.
+     */
+    call_dissector_with_data(tls13_handshake_handle, next_tvb, pinfo, tree, GUINT_TO_POINTER(crypto_info->offset));
+    col_set_writable(pinfo->cinfo, -1, TRUE);
+}
+
+/**
+ * Reassemble data within a CRYPTO frame.
+ *
+ * This always gets handed to the TLS handshake dissector, which does its own
+ * fragmentation handling, so all we do is the Out Of Order handling.
+ * RFC 9001 4.1.3 "Sending and Receiving Handshake Messages"
+ * "TLS is responsible for buffering handshake bytes that have arrived in order.
+ * QUIC is responsible for buffering handshake bytes that arrive out of order or
+ * for encryption levels that are not yet ready."
+ *
+ * XXX: We are only buffering bytes that arive out of order within an encryption
+ * level. Buffering for encryption levels that are not yet ready requires
+ * determining that they are not ready (and they may never be ready from our
+ * perspective if we don't have the keys.)
+ */
+
+static void
+desegment_quic_crypto(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
+                      proto_tree *tree, quic_info_data_t *quic_info _U_,
+                      quic_crypto_info *crypto_info,
+                      quic_crypto_state *crypto)
+{
+    fragment_head *fh;
+    gboolean called_dissector;
+    gboolean has_gap;
+    struct tcp_multisegment_pdu *msp;
+
+    /* XXX: There are a few elements in QUIC that can be up to 64 bit
+     * integers that we're truncating to 32 bit here to re-use current
+     * code.
+     */
+
+    guint32 seq = (guint32)crypto_info->crypto_offset;
+    const guint32 nxtseq = seq + (guint32)length;
+    guint32 reassembly_id = 0;
+
+    fh = NULL;
+    called_dissector = FALSE;
+    has_gap = FALSE;
+    msp = NULL;
+
+    /* Look for retransmissions and overlap and discard them, only handing
+     * new in order bytes to TLS.
+     *
+     * It's possible to have multiple QUIC packets in the same capture
+     * file frame, so to really be assured of no collision we need the
+     * QUIC connection ID, the QUIC packet number space, the QUIC
+     * packet number, and the offset within the QUIC packet in addition
+     * to the frame number in the capture file.
+     *
+     * crypto (a quic_crypto_state*) is already unique to the connection
+     * ID and packet number space, so we need to store the other two
+     * in its map.
+     *
+     * Alternatively we could have the real offset in the capture
+     * file frame, but we can't easily get that since the tvb is the
+     * result of decryption.
+     */
+    quic_crypto_retrans_key *tmp_key = wmem_new(pinfo->pool, quic_crypto_retrans_key);
+    tmp_key->num = pinfo->num;
+    tmp_key->offset = offset;
+    tmp_key->pkt_number = crypto_info->packet_number;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        if (crypto_info->crypto_offset + length <= crypto->max_contiguous_offset) {
+            /* No new data. Remember this. */
+            proto_tree_add_expert(tree, pinfo, &ei_quic_retransmission, tvb, offset, length);
+            guint64* contiguous_offset = wmem_new(wmem_file_scope(), guint64);
+            *contiguous_offset = crypto->max_contiguous_offset;
+            quic_crypto_retrans_key *fkey = wmem_new(wmem_file_scope(), quic_crypto_retrans_key);
+            *fkey = *tmp_key;
+            wmem_map_insert(crypto->retrans_offsets, fkey, contiguous_offset);
+            return;
+        } else if (crypto_info->crypto_offset < crypto->max_contiguous_offset) {
+            /* XXX: Retrieve the previous data and compare for conflicts? */
+            proto_tree_add_expert(tree, pinfo, &ei_quic_overlap, tvb, offset, length);
+            guint64 overlap = crypto->max_contiguous_offset - crypto_info->crypto_offset;
+            length -= (int)overlap;
+            seq = (guint32)(crypto->max_contiguous_offset);
+            offset += (guint32)(overlap);
+            /* Store this offset */
+            guint64* contiguous_offset = wmem_new(wmem_file_scope(), guint64);
+            *contiguous_offset = crypto->max_contiguous_offset;
+            quic_crypto_retrans_key *fkey = wmem_new(wmem_file_scope(), quic_crypto_retrans_key);
+            *fkey = *tmp_key;
+            wmem_map_insert(crypto->retrans_offsets, fkey, contiguous_offset);
+        }
+    } else {
+        /* Retrieve any per-frame state about retransmitted and overlapping
+         * data.
+         */
+        guint64 *contiguous_offset = (guint64 *)wmem_map_lookup(crypto->retrans_offsets, tmp_key);
+        if (contiguous_offset != NULL) {
+            if (crypto_info->crypto_offset + length <= *contiguous_offset) {
+                proto_tree_add_expert(tree, pinfo, &ei_quic_retransmission, tvb, offset, length);
+                return;
+            } else if (crypto_info->crypto_offset < *contiguous_offset) {
+                /* XXX: Retrieve the previous data and compare for conflicts? */
+                proto_tree_add_expert(tree, pinfo, &ei_quic_overlap, tvb, offset, length);
+                guint64 overlap = *contiguous_offset - crypto_info->crypto_offset;
+                length -= (int)overlap;
+                seq = (guint32)(*contiguous_offset);
+                offset += (guint32)(overlap);
+            } else {
+                DISSECTOR_ASSERT_NOT_REACHED();
+            }
+        }
+    }
+
+    /* By doing the above we should not have any retransmissions from in
+     * order bytes. Retransmission and overlaps in out of order bytes are
+     * still possible, but those will be handled by adding them to the
+     * msp fragments. TLS is also going to handle defragmenting (instead
+     * of returning info about PDU ends via pinfo->desegment_offset and
+     * pinfo->desegment_len), so we can make this simpler than for payload
+     * streams or TCP.
+     *
+     * Since TLS doesn't set pinfo->desegment_offset and pinfo->desegment_len,
+     * we can't align our msps to PDU boundaries, and so we can't skip past
+     * any missing out of order bytes to send TLS later whole received PDUs.
+     */
+
+    /* Find the most recent msp that starts before this sequence number. */
+    msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(crypto->multisegment_pdus, seq);
+
+    /* If we already fully reassembled that msp and seq is beyond its end
+     * (the latter should always be the case since we're discarding
+     * retransmitted bytes above), this segment isn't part of the msp.
+     */
+    if (msp && (msp->flags & MSP_FLAGS_GOT_ALL_SEGMENTS) &&
+        seq >= msp->nxtpdu) {
+        msp = NULL;
+    }
+
+    /* The TCP reassembly functions already use msp->seq as a tiebreaker in
+     * case we do have more than one OOO reassembly in a given frame, which
+     * happens with Chrome's "Chaos Protection".
+     *
+     * XXX: It would be better to use functions that use the QUIC connection
+     * instead of addresses and ports, since concurrent connections on the
+     * same 5 tuple is possible, but using the frame number as well limits
+     * problems to more unusual encapsulations.
+     *
+     * RFC 9000 9. "Connection Migration": "An endpoint MUST NOT initiate
+     * connection migration before the handshake is confirmed" so we shouldn't
+     * have to worry about CRYPTO packets for the same connection being
+     * fragmented on different 5-tuples. (There may be new CRYPTO packets
+     * with session tickets later, but we should handle that.)
+     */
+    reassembly_id = ((msp ? msp->first_frame : pinfo->num) << 8) | crypto->encryption_level;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        has_gap = crypto->max_contiguous_offset < seq;
+
+        if (!has_gap) {
+            /* No gap, so either this is a standalone in order
+             * segment, or it's part of our in progress out of
+             * order MSP and we need to look at the MSP fragments
+             * to see what the last contiguous offset is.
+             * Advance the contiguous offset appropriately.
+             *
+             * XXX: A slightly different approach would involve splitting
+             * the MSP as now done in the TCP dissector. That would send
+             * any new bytes to TLS sooner and is closer to what RFC 9001
+             * recommends. It's less important to do so than in TCP, but
+             * is a possible future improvement.
+             */
+            if (msp) {
+                fh = fragment_get(&quic_crypto_reassembly_table, pinfo, reassembly_id, msp);
+                DISSECTOR_ASSERT(fh);
+                /* The offsets in the fragment list are relative to msp->seq */
+                guint32 max = nxtseq - msp->seq;
+                for (fragment_item *frag = fh->next; frag; frag = frag->next) {
+                    guint32 frag_end = frag->offset + frag->len;
+                    if (frag->offset <= max && max < frag_end) {
+                        max = frag_end;
+                    }
+                }
+                crypto->max_contiguous_offset = max + msp->seq;
+            } else {
+                crypto->max_contiguous_offset = nxtseq;
+            }
+        }
+
+        /* We always want to hand the entire segment to the TLS dissector.
+         * So update nxtpdu to point at least to the start of the next segment.
+         */
+        if (msp) {
+            msp->nxtpdu = MAX(msp->nxtpdu, nxtseq);
+        }
+    }
+
+    if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
+        if (!PINFO_FD_VISITED(pinfo)) {
+            msp->last_frame=pinfo->num;
+            msp->last_frame_time=pinfo->abs_ts;
+        }
+
+        /* OK, this PDU was found, which means the segment continues
+         * a higher-level PDU and that we must desegment it.
+         */
+        fragment_reset_tot_len(&quic_crypto_reassembly_table, pinfo, reassembly_id, msp,
+            MAX(nxtseq, msp->nxtpdu) - msp->seq);
+
+        fh = fragment_add(&quic_crypto_reassembly_table, tvb, offset,
+                          pinfo, reassembly_id, msp,
+                          seq - msp->seq, length,
+                          nxtseq < msp->nxtpdu);
+        if (fh) {
+            msp->flags |= MSP_FLAGS_GOT_ALL_SEGMENTS;
+            if (msp->flags & MSP_FLAGS_MISSING_FIRST_SEGMENT) {
+                msp->first_frame_with_seq = seq; // Overloading this
+                /* We use "first_frame_with_seq" to mean "the sequence number
+                 * of the fragment that completed the MSP" because many
+                 * CRYPTO frames can be at the same layer, so the normal
+                 * methods of determining the reassembled in fragment don't
+                 * work. (We could store the seq in last_frame instead.)
+                 */
+                msp->flags &= (~MSP_FLAGS_MISSING_FIRST_SEGMENT);
+            }
+        }
+    } else if (has_gap) {
+        /* We need to start a new Out of Order MSP on our first visit.
+         * We shouldn't get here on a second visit.
+         */
+        if (!PINFO_FD_VISITED(pinfo)) {
+            msp = pdu_store_sequencenumber_of_next_pdu(pinfo, (guint32)crypto->max_contiguous_offset, nxtseq, crypto->multisegment_pdus);
+            msp->flags |= MSP_FLAGS_MISSING_FIRST_SEGMENT;
+            fh = fragment_add(&quic_crypto_reassembly_table, tvb, offset,
+                              pinfo, reassembly_id, msp,
+                              seq - msp->seq, length,
+                              nxtseq < msp->nxtpdu);
+        }
+    } else {
+        /* This segment was not found in our table, so it doesn't
+         * contain a continuation of a higher-level PDU.
+         * Call the normal subdissector.
+         */
+
+        crypto_info->offset = seq;
+        process_quic_crypto(tvb, offset, length, pinfo, tree, crypto_info);
+        called_dissector = TRUE;
+    }
+
+    /* is it completely desegmented? */
+    if (fh) {
+        /*
+         * Yes, we think it is.
+         * We only call TLS for the segment that reassembled it.
+         */
+        if (fh->reassembled_in == pinfo->num && seq == msp->first_frame_with_seq) {
+            /*
+             * OK, this is it.
+             * Let's call the subdissector with the desegmented data.
+             */
+
+            tvbuff_t *next_tvb = tvb_new_chain(tvb, fh->tvb_data);
+            add_new_data_source(pinfo, next_tvb, "Reassembled QUIC CRYPTO");
+            proto_item *frag_tree_item;
+            /* XXX: Should we use the proto_tree_get_root for these?
+             * There are PADDING and PINGs after the crypto, so maybe not?
+             */
+            show_fragment_tree(fh, &quic_crypto_fragment_items, tree, pinfo, next_tvb, &frag_tree_item);
+            crypto_info->offset = seq;
+            process_quic_crypto(next_tvb, 0, tvb_captured_length(next_tvb), pinfo, tree, crypto_info);
+            called_dissector = TRUE;
+        }
+    }
+
+    if (!called_dissector) {
+        if (fh != NULL && fh->reassembled_in != 0 &&
+            fh->reassembled_in != pinfo->num ) {
+            /*
+             * We know what frame this PDU is reassembled in;
+             * let the user know.
+             */
+            proto_item *item = proto_tree_add_uint(tree, hf_quic_reassembled_in, tvb, 0,
+                                                   0, fh->reassembled_in);
+            proto_item_set_generated(item);
+        }
+    }
+}
+
+static void
+dissect_quic_crypto_payload(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
+                            proto_tree *tree, quic_info_data_t *quic_info,
+                            quic_crypto_info *crypto_info,
+                            quic_crypto_state *crypto)
+{
+    /* Make sure that TLS can also desegment */
+    pinfo->can_desegment = 2;
+    if (quic_crypto_out_of_order) {
+        desegment_quic_crypto(tvb, offset, length, pinfo, tree, quic_info, crypto_info, crypto);
+    } else {
+        crypto_info->offset = (guint32)crypto_info->crypto_offset;
+        process_quic_crypto(tvb, offset, length, pinfo, tree, crypto_info);
+    }
+}
+
 void
 quic_stream_add_proto_data(packet_info *pinfo, quic_stream_info *stream_info, void *proto_data)
 {
@@ -1676,7 +2114,7 @@ void *quic_stream_get_proto_data(packet_info *pinfo, quic_stream_info *stream_in
 }
 
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, gboolean from_server)
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, const quic_packet_info_t *quic_packet, gboolean from_server)
 {
     proto_item *ti_ft, *ti_ftflags, *ti_ftid, *ti;
     proto_tree *ft_tree, *ftflags_tree, *ftid_tree;
@@ -1823,20 +2261,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_crypto_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
             offset += lenvar;
             proto_tree_add_item(ft_tree, hf_quic_crypto_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
-            {
-                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)crypto_length);
-                col_set_writable(pinfo->cinfo, -1, FALSE);
-                /*
-                 * Dissect TLS handshake record. The Client/Server Hello (CH/SH)
-                 * are contained in the Initial Packet. 0-RTT keys are ready
-                 * after CH. HS + 1-RTT keys are ready after SH.
-                 * (Note: keys captured from the client might become available
-                 * after capturing the packets due to processing delay.)
-                 * These keys will be loaded in the first HS/0-RTT/1-RTT msg.
-                 */
-                call_dissector_with_data(tls13_handshake_handle, next_tvb, pinfo, ft_tree, GUINT_TO_POINTER(crypto_offset));
-                col_set_writable(pinfo->cinfo, -1, TRUE);
-            }
+            quic_crypto_state *crypto = quic_get_crypto_state(pinfo, quic_info, from_server, quic_packet->packet_type);
+            quic_crypto_info crypto_info = {
+                .packet_number = quic_packet->packet_number,
+                .crypto_offset = crypto_offset,
+                .from_server = from_server,
+            };
+            dissect_quic_crypto_payload(tvb, offset, (int)crypto_length, pinfo, ft_tree, quic_info, &crypto_info, crypto);
             offset += (guint32)crypto_length;
         }
         break;
@@ -2928,7 +3359,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
             if (quic_info->version == 0x51303530 || quic_info->version == 0x54303530 || quic_info->version == 0x54303531) {
                 decrypted_offset = dissect_gquic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, pkn_len, quic_info->gquic_info);
             } else {
-                decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_info, from_server);
+                decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_info, quic_packet, from_server);
             }
         }
     } else if (quic_info->skip_decryption) {
@@ -3204,6 +3635,9 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     proto_item *ti;
 
     quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        quic_packet->packet_type = long_packet_type;
+    }
     if (conn) {
         if (long_packet_type == QUIC_LPT_INITIAL) {
             ciphers = !from_server ? &conn->client_initial_ciphers : &conn->server_initial_ciphers;
@@ -3372,6 +3806,9 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     proto_tree *hdr_tree = proto_item_add_subtree(pi, ett_quic_short_header);
     proto_tree_add_item(hdr_tree, hf_quic_header_form, tvb, 0, 1, ENC_NA);
 
+    if (!PINFO_FD_VISITED(pinfo)) {
+        quic_packet->packet_type = QUIC_SHORT_PACKET;
+    }
     if (conn) {
        dcid.len = from_server ? conn->client_cids.data.len : conn->server_cids.data.len;
        loss_bits_negotiated = quic_loss_bits_negotiated(conn, from_server);
@@ -4032,6 +4469,7 @@ void
 proto_register_quic(void)
 {
     expert_module_t *expert_quic;
+    module_t *quic_module;
 
     static hf_register_info hf[] = {
         { &hf_quic_connection_number,
@@ -4682,6 +5120,26 @@ proto_register_quic(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "The reassembled payload", HFILL }
         },
+        { &hf_quic_crypto_fragment_count,
+          { "Fragment count", "quic.crypto.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_crypto_fragment,
+          { "QUIC CRYPTO Data Fragment", "quic.crypto.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_crypto_fragments,
+          { "Reassembled QUIC CRYPTO Data Fragments", "quic.crypto.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "QUIC STREAM Data Fragments", HFILL }
+        },
+        { &hf_quic_crypto_reassembled_in,
+          { "Reassembled PDU in frame", "quic.crypto.reassembled_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "The PDU that doesn't end in this fragment is reassembled in this frame", HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -4694,6 +5152,8 @@ proto_register_quic(void)
         &ett_quic_ftid,
         &ett_quic_fragments,
         &ett_quic_fragment,
+        &ett_quic_crypto_fragments,
+        &ett_quic_crypto_fragment,
     };
 
     static ei_register_info ei[] = {
@@ -4721,6 +5181,14 @@ proto_register_quic(void)
           { "quic.coalesced_padding_data", PI_PROTOCOL, PI_NOTE,
             "Coalesced Padding Data", EXPFILL }
         },
+        { &ei_quic_retransmission,
+          { "quic.retransmission", PI_SEQUENCE, PI_NOTE,
+            "This QUIC frame has a reused stream offset (retransmission?)", EXPFILL }
+        },
+        { &ei_quic_overlap,
+          { "quic.overlap", PI_SEQUENCE, PI_NOTE,
+            "This QUIC frame overlaps a previous frame in the stream", EXPFILL }
+        },
     };
 
     proto_quic = proto_register_protocol("QUIC IETF", "QUIC", "quic");
@@ -4730,6 +5198,13 @@ proto_register_quic(void)
 
     expert_quic = expert_register_protocol(proto_quic);
     expert_register_field_array(expert_quic, ei, array_length(ei));
+
+    quic_module = prefs_register_protocol(proto_quic, NULL);
+    prefs_register_bool_preference(quic_module, "reassemble_crypto_out_of_order",
+        "Reassemble out-of-order CRYPTO frames",
+        "Whether out-of-order CRYPTO frames should be buffered and reordered before "
+        "passing them to the TLS handshake dissector.",
+        &quic_crypto_out_of_order);
 
     quic_handle = register_dissector("quic", dissect_quic, proto_quic);
 
@@ -4743,6 +5218,9 @@ proto_register_quic(void)
     // ID instead of address and port numbers.
     reassembly_table_register(&quic_reassembly_table,
                               &addresses_ports_reassembly_table_functions);
+
+    reassembly_table_register(&quic_crypto_reassembly_table,
+                              &tcp_reassembly_table_functions);
 
     /*
      * Application protocol. QUIC with TLS uses ALPN.

@@ -702,6 +702,42 @@ class case_dissect_tls(subprocesstest.SubprocessTestCase):
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
+class case_dissect_quic(subprocesstest.SubprocessTestCase):
+    def check_quic_tls_handshake_reassembly(self, cmd_tshark, capture_file,
+                                       extraArgs=[]):
+        # An assortment of QUIC carrying TLS handshakes that need to be
+        # reassembled, including fragmented in one packet, fragmented in
+        # multiple packets, fragmented in multiple out of order packets,
+        # retried, retried with overlap from the original packets, and retried
+        # with one of the original packets missing (but all data there.)
+        # Include -zexpert just to be sure that nothing Warn or higher occured.
+        # Note level expert infos may be expected with the overlaps and
+        # retransmissions.
+        proc = self.assertRun([cmd_tshark,
+                               '-r', capture_file('quic-fragmented-handshakes.pcapng.gz'),
+                               '-zexpert,warn',
+                               '-Ytls.handshake.type',
+                               '-o', 'gui.column.format:"Handshake Type","%Cus:tls.handshake.type:0:R"',
+                               ] + extraArgs)
+        self.assertEqual(self.countOutput('Client Hello'), 18)
+        self.assertEqual(self.countOutput('Server Hello'), 2)
+        self.assertEqual(self.countOutput('Finished'), 2)
+        self.assertEqual(self.countOutput('New Session Ticket,New Session Ticket'), 1)
+        self.assertEqual(self.countOutput('Certificate'), 2)
+        self.assertFalse(self.grepOutput('Warns'))
+        self.assertFalse(self.grepOutput('Errors'))
+
+    def test_quic_tls_handshake_reassembly(self, cmd_tshark, capture_file):
+        '''Verify that QUIC and TLS handshake reassembly works.'''
+        self.check_quic_tls_handshake_reassembly(cmd_tshark, capture_file)
+
+    def test_quic_tls_handshake_reassembly_2(self, cmd_tshark, capture_file):
+        '''Verify that QUIC and TLS handshake reassembly works (second pass).'''
+        self.check_quic_tls_handshake_reassembly(
+            cmd_tshark, capture_file, extraArgs=['-2'])
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_decompress_smb2(subprocesstest.SubprocessTestCase):
     def extract_compressed_payload(self, cmd_tshark, capture_file, frame_num):
         proc = self.assertRun((cmd_tshark,
