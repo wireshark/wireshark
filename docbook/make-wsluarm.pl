@@ -104,13 +104,13 @@ sub parse_desc_common {
 					$line .= $block_line . "\n";
 					$block_line = $lines[++$idx];
 				}
-				$line .= $block_delim . "\n";
+				$line .= $block_delim;
 
 				$r[++$#r] = $line . "\n";
 			} elsif ($lines[$idx] =~ /^\s*$/) {
 				# line is either empty or just whitespace, and we're not in a @code block
 				# so it's the end of a previous paragraph, beginning of new one
-				$r[++$#r] = "\n\n";
+				$r[++$#r] = "\n";
 			} else {
 				# We have a regular line, not in a @code block.
 				# Add it as-is.
@@ -119,7 +119,7 @@ sub parse_desc_common {
 				# if line starts with "@version" or "@since", make it a "Since:"
 				if ($line =~ /^\@version |^\@since /) {
 					$line =~ s/^\@version\s+|^\@since\s+/Since: /;
-					$r[++$#r] = "\n" . $line . "\n\n";
+					$r[++$#r] = $line . "\n";
 
 				# if line starts with single "*" and space, leave it mostly intact.
 				} elsif ($line =~ /^\*\s/) {
@@ -193,7 +193,7 @@ sub parse_module_desc {
 	my @lines = split(/\n/, $s);
 	my $line  = shift @lines;
 
-	$r[++$#r] = "=== $line\n\n";
+	$r[++$#r] = "=== $line\n";
 
 	return parse_desc_common(\@r, \@lines);
 }
@@ -277,7 +277,7 @@ my $asciidoc_template = {
 	#function_arg_descr =>          "\t\t\t\t\t\t<listitem>\n" .
 	#                               "\t\t\t\t\t\t\t<para>%s</para>\n" .
 	#                               "\t\t\t\t\t\t</listitem>\n",
-	function_arg_footer =>         "// function_arg_footer: %s\n\n",
+	function_arg_footer =>         "// function_arg_footer: %s\n",
 	function_args_footer =>        "// end of function_args\n\n",
 	function_argerror_header =>    "", #"\t\t\t\t\t<section><title>Errors</title>\n\t\t\t\t\t\t<itemizedlist>\n",
 	function_argerror =>           "", #"\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
@@ -288,11 +288,11 @@ my $asciidoc_template = {
 	function_returns_footer =>     "// function_returns_footer: %s\n",
 	function_errors_header =>      "[float]\n" .
 								"===== Errors\n\n",
-	function_errors =>             "* %s\n",
+	function_errors =>             "* %s\n\n",
 	function_errors_footer =>      "// function_errors_footer: %s\n",
 	function_footer =>             "// function_footer: %s\n\n",
 	class_footer =>                "// class_footer: %s\n",
-	global_functions_header =>     "[#global_functions_%s]\n\n" .
+	global_functions_header =>     "\n[#global_functions_%s]\n\n" .
 								   "==== Global Functions\n\n",
 	global_functions_footer =>     "// Global function\n",
 	module_footer =>               "// end of module\n",
