@@ -2164,6 +2164,15 @@ dissecting_body:
 			}
 #endif
 
+#ifdef HAVE_SNAPPY
+			if (http_decompress_body &&
+			    g_ascii_strcasecmp(headers->content_encoding, "snappy") == 0)
+			{
+				uncomp_tvb = tvb_child_uncompress_snappy(tvb, next_tvb, 0,
+				    tvb_captured_length(next_tvb));
+			}
+#endif
+
 			/*
 			 * Add the encoded entity to the protocol tree
 			 */

@@ -254,6 +254,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbuff.c
 	tvbuff_base64.c
 	tvbuff_brotli.c
+	tvbuff_snappy.c
 	tvbuff_composite.c
 	tvbuff_hpackhuff.c
 	tvbuff_real.c
@@ -378,6 +379,7 @@ target_include_directories(epan
 		${NGHTTP2_INCLUDE_DIRS}
 		${NGHTTP3_INCLUDE_DIRS}
 		${SMI_INCLUDE_DIRS}
+		${SNAPPY_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
 		${ZSTD_INCLUDE_DIRS}
 	PRIVATE

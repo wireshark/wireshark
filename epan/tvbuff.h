@@ -1106,6 +1106,24 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_brotli(tvbuff_t *tvb, const int offset,
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_brotli(tvbuff_t *parent, tvbuff_t *tvb,
     const int offset, int comprlen);
 
+/* From tvbuff_snappy.c */
+
+/**
+ * Uncompresses a snappy compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer if uncompression
+ * succeeded or NULL if uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_snappy(tvbuff_t *tvb, const int offset,
+    int comprlen);
+
+/**
+ * Uncompresses a snappy compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer attached to tvb if
+ * uncompression succeeded or NULL if uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_snappy(tvbuff_t *parent, tvbuff_t *tvb,
+    const int offset, int comprlen);
+
 /* From tvbuff_lz77.c */
 
 /**
