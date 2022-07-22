@@ -50,8 +50,8 @@ void proto_reg_handoff_uds(void);
 #define UDS_RESPONSE_CODES_CVFIT    0x53
 #define UDS_RESPONSE_CODES_CVFIF    0x54
 #define UDS_RESPONSE_CODES_CVFIC    0x55
-#define UDS_RESPONSE_CODES_CVFIS2   0x56
-#define UDS_RESPONSE_CODES_CVFIC2   0x57
+#define UDS_RESPONSE_CODES_CVFISD   0x56
+#define UDS_RESPONSE_CODES_CVFICR   0x57
 #define UDS_RESPONSE_CODES_OVF      0x58
 #define UDS_RESPONSE_CODES_CCF      0x59
 #define UDS_RESPONSE_CODES_SARF     0x5A
@@ -271,8 +271,8 @@ static const value_string uds_response_codes[]= {
         {UDS_RESPONSE_CODES_CVFIT,   "Certificate Verification Failed: Invalid Type"},
         {UDS_RESPONSE_CODES_CVFIF,   "Certificate Verification Failed: Invalid Format"},
         {UDS_RESPONSE_CODES_CVFIC,   "Certificate Verification Failed: Invalid Content"},
-        {UDS_RESPONSE_CODES_CVFIS2,  "Certificate Verification Failed: Invalid Scope"},
-        {UDS_RESPONSE_CODES_CVFIC2,  "Certificate Verification Failed: Invalid Certificate (revoked)"},
+        {UDS_RESPONSE_CODES_CVFISD,  "Certificate Verification Failed: Invalid Scope"},
+        {UDS_RESPONSE_CODES_CVFICR,  "Certificate Verification Failed: Invalid Certificate (revoked)"},
         {UDS_RESPONSE_CODES_OVF,     "Ownership Verification Failed"},
         {UDS_RESPONSE_CODES_CCF,     "Challenge Calculation Failed"},
         {UDS_RESPONSE_CODES_SARF,    "Setting Access Rights Failed"},
