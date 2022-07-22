@@ -913,6 +913,8 @@ static gint ett_extmeta_data = -1;
 static gint ett_connattrs = -1;
 static gint ett_connattrs_attr = -1;
 static gint ett_mysql_field = -1;
+static gint ett_binlog_event = -1;
+static gint ett_binlog_event_hb_v2 = -1;
 
 /* protocol fields */
 static int hf_mysql_caps_server = -1;
@@ -1055,6 +1057,18 @@ static int hf_mysql_binlog_slave_password = -1;
 static int hf_mysql_binlog_slave_mysql_port = -1;
 static int hf_mysql_binlog_replication_rank = -1;
 static int hf_mysql_binlog_master_id = -1;
+static int hf_mysql_binlog_event_header_timestamp = -1;
+static int hf_mysql_binlog_event_header_event_type = -1;
+static int hf_mysql_binlog_event_header_server_id = -1;
+static int hf_mysql_binlog_event_header_event_size = -1;
+static int hf_mysql_binlog_event_header_log_position = -1;
+static int hf_mysql_binlog_event_header_flags = -1;
+static int hf_mysql_binlog_event_checksum = -1;
+static int hf_mysql_binlog_event_heartbeat_v2 = -1;
+static int hf_mysql_binlog_event_heartbeat_v2_otw = -1;
+static int hf_mysql_binlog_event_heartbeat_v2_otw_type = -1;
+static int hf_mysql_binlog_hb_event_filename = -1;
+static int hf_mysql_binlog_hb_event_log_position = -1;
 static int hf_mysql_eof = -1;
 static int hf_mysql_num_fields = -1;
 static int hf_mysql_extra = -1;
@@ -1202,7 +1216,8 @@ typedef enum mysql_state {
 	PREPARED_PARAMETERS,
 	PREPARED_FIELDS,
 	AUTH_SWITCH_REQUEST,
-	AUTH_SWITCH_RESPONSE
+	AUTH_SWITCH_RESPONSE,
+	BINLOG_DUMP
 } mysql_state_t;
 
 static const value_string state_vals[] = {
@@ -1224,6 +1239,7 @@ static const value_string state_vals[] = {
 	{PREPARED_FIELDS,      "fields in response to PREPARE"},
 	{AUTH_SWITCH_REQUEST,  "authentication switch request"},
 	{AUTH_SWITCH_RESPONSE, "authentication switch response"},
+	{BINLOG_DUMP,          "binlog event"},
 	{0, NULL}
 };
 
@@ -1285,6 +1301,7 @@ static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int of
 static int mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi, int offset, proto_tree *tree, packet_info *pinfo, mysql_conn_data_t *conn_data, mysql_state_t current_state);
 static int mysql_dissect_text_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
 static int mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static int mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_eof(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
@@ -2310,7 +2327,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		}
 		offset += lenstr;
 
-		mysql_set_conn_state(pinfo, conn_data, REQUEST);
+		mysql_set_conn_state(pinfo, conn_data, BINLOG_DUMP);
 		break;
 
 	case MYSQL_REGISTER_SLAVE:
@@ -2462,6 +2479,10 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		case ROW_PACKET:
 			proto_item_append_text(pi, " - %s", val_to_str(ROW_PACKET, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_binary_row_packet(tvb, pinfo, pi, offset, tree, conn_data);
+			break;
+		case BINLOG_DUMP:
+			proto_item_append_text(pi, " - %s", val_to_str(BINLOG_DUMP, state_vals, "Unknown (%u)"));
+			offset = mysql_dissect_binlog_event_packet(tvb, pinfo, offset, tree);
 			break;
 		default:
 			proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_OK, state_vals, "Unknown (%u)"));
@@ -3154,6 +3175,262 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	return offset + tvb_reported_length_remaining(tvb, offset);
 }
 
+/**
+  Enumeration type for the different types of log events.
+*/
+enum Log_event_type {
+	/**
+	  Every time you add a type, you have to
+	  - Assign it a number explicitly. Otherwise it will cause trouble
+		if a event type before is deprecated and removed directly from
+		the enum.
+	  - Fix Format_description_event::Format_description_event().
+	*/
+	UNKNOWN_EVENT = 0,
+	/*
+	  Deprecated since mysql 8.0.2. It is just a placeholder,
+	  should not be used anywhere else.
+	*/
+	START_EVENT_V3 = 1,
+	QUERY_EVENT = 2,
+	STOP_EVENT = 3,
+	ROTATE_EVENT = 4,
+	INTVAR_EVENT = 5,
+
+	SLAVE_EVENT = 7,
+
+	APPEND_BLOCK_EVENT = 9,
+	DELETE_FILE_EVENT = 11,
+
+	RAND_EVENT = 13,
+	USER_VAR_EVENT = 14,
+	FORMAT_DESCRIPTION_EVENT = 15,
+	XID_EVENT = 16,
+	BEGIN_LOAD_QUERY_EVENT = 17,
+	EXECUTE_LOAD_QUERY_EVENT = 18,
+
+	TABLE_MAP_EVENT = 19,
+
+	/**
+	  The V1 event numbers are used from 5.1.16 until mysql-5.6.
+	*/
+	WRITE_ROWS_EVENT_V1 = 23,
+	UPDATE_ROWS_EVENT_V1 = 24,
+	DELETE_ROWS_EVENT_V1 = 25,
+
+	/**
+	  Something out of the ordinary happened on the master
+	 */
+	INCIDENT_EVENT = 26,
+
+	/**
+	  Heartbeat event to be send by master at its idle time
+	  to ensure master's online status to slave
+	*/
+	HEARTBEAT_LOG_EVENT = 27,
+
+	/**
+	  In some situations, it is necessary to send over ignorable
+	  data to the slave: data that a slave can handle in case there
+	  is code for handling it, but which can be ignored if it is not
+	  recognized.
+	*/
+	IGNORABLE_LOG_EVENT = 28,
+	ROWS_QUERY_LOG_EVENT = 29,
+
+	/** Version 2 of the Row events */
+	WRITE_ROWS_EVENT = 30,
+	UPDATE_ROWS_EVENT = 31,
+	DELETE_ROWS_EVENT = 32,
+
+	GTID_LOG_EVENT = 33,
+	ANONYMOUS_GTID_LOG_EVENT = 34,
+
+	PREVIOUS_GTIDS_LOG_EVENT = 35,
+
+	TRANSACTION_CONTEXT_EVENT = 36,
+
+	VIEW_CHANGE_EVENT = 37,
+
+	/* Prepared XA transaction terminal event similar to Xid */
+	XA_PREPARE_LOG_EVENT = 38,
+
+	/**
+	  Extension of UPDATE_ROWS_EVENT, allowing partial values according
+	  to binlog_row_value_options.
+	*/
+	PARTIAL_UPDATE_ROWS_EVENT = 39,
+
+	TRANSACTION_PAYLOAD_EVENT = 40,
+
+	HEARTBEAT_LOG_EVENT_V2 = 41,
+	/**
+	  Add new events here - right above this comment!
+	  Existing events (except ENUM_END_EVENT) should never change their numbers
+	*/
+	ENUM_END_EVENT /* end marker */
+};
+
+static const value_string mysql_binlog_event_type_vals[] = {
+	{0, "Unknown"},
+
+	{1, "START_EVENT_V3"},
+	{2, "Query"},
+	{3, "Stop"},
+	{4, "Rotate"},
+	{5, "Intvar"},
+
+	{7, "SLAVE_EVENT"},
+
+	{9, "Append_block"},
+	{11, "Delete_file"},
+
+	{13, "RAND"},
+	{14, "User_var"},
+	{15, "Format_desc"},
+	{16, "Xid"},
+	{17, "Begin_load_query"},
+	{18, "Execute_load_query"},
+
+	{19, "Table_map"},
+
+	{23, "Write_rows_v1"},
+	{24, "Update_rows_v1"},
+	{25, "Delete_rows_v1"},
+
+	{26, "Incident"},
+
+	{27, "Heartbeat"},
+
+	{28, "Ignorable"},
+	{29, "Rows_query"},
+
+	{30, "Write_rows"},
+	{31, "Update_rows"},
+	{32, "Delete_rows"},
+
+	{33, "Gtid"},
+	{34, "Anonymous_Gtid"},
+
+	{35, "Previous_gtids"},
+
+	{36, "Transaction_context"},
+
+	{37, "View_change"},
+
+	{38, "XA_prepare"},
+
+	{39, "Update_rows_partial"},
+
+	{40, "Transaction_payload"},
+
+	{41, "Heartbeat_v2"},
+	{0, NULL},
+};
+
+static int
+mysql_dissect_binlog_event_heartbeat_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
+{
+	int fle;
+	guint64 num;
+	proto_item *item, *parent_item;
+	proto_item *hb_v2_tree, *hb_v2_subtree;
+
+	col_append_str(pinfo->cinfo, COL_INFO, "Heartbeat_v2 ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
+	item = proto_tree_add_item(tree, hf_mysql_binlog_event_heartbeat_v2, tvb, offset, -1, ENC_NA);
+	hb_v2_tree = proto_item_add_subtree(item, ett_binlog_event);
+
+	// OTW_HB_LOG_FILENAME_FIELD
+	parent_item = proto_tree_add_item(hb_v2_tree, hf_mysql_binlog_event_heartbeat_v2_otw, tvb, offset, -1, ENC_NA);
+	hb_v2_subtree = proto_item_add_subtree(parent_item, ett_binlog_event_hb_v2);
+
+	item = proto_tree_add_item(hb_v2_subtree, hf_mysql_binlog_event_heartbeat_v2_otw_type, tvb, offset, 1, ENC_NA);
+	proto_item_append_text(item, " (OTW_HB_LOG_FILENAME_FIELD)");
+	proto_item_append_text(parent_item, " OTW_HB_LOG_FILENAME_FIELD");
+	offset += 1;
+
+	fle = tvb_get_fle(tvb, hb_v2_subtree, offset, &num, ENC_NA);
+	offset += fle;
+
+	proto_tree_add_item(hb_v2_subtree, hf_mysql_binlog_hb_event_filename, tvb, offset, (gint) num, ENC_ASCII);
+	offset += (gint)num;
+
+	// OTW_HB_LOG_POSITION_FIELD
+	parent_item = proto_tree_add_item(hb_v2_tree, hf_mysql_binlog_event_heartbeat_v2_otw, tvb, offset, -1, ENC_NA);
+	hb_v2_subtree = proto_item_add_subtree(parent_item, ett_binlog_event_hb_v2);
+	item = proto_tree_add_item(hb_v2_subtree, hf_mysql_binlog_event_heartbeat_v2_otw_type, tvb, offset, 1, ENC_NA);
+	proto_item_append_text(item, " (OTW_HB_LOG_POSITION_FIELD)");
+	proto_item_append_text(parent_item, " OTW_HB_LOG_POSITION_FIELD");
+	offset += 1;
+
+	fle = tvb_get_fle(tvb, hb_v2_subtree, offset, &num, NULL);
+	offset += fle;
+
+	fle = tvb_get_fle(tvb, hb_v2_subtree, offset, &num, NULL);
+	proto_tree_add_uint64(hb_v2_subtree, hf_mysql_binlog_hb_event_log_position, tvb, offset, fle, num);
+	offset += fle;
+
+	// OTW_HB_LOG_FILENAME_FIELD
+	parent_item = proto_tree_add_item(hb_v2_tree, hf_mysql_binlog_event_heartbeat_v2_otw, tvb, offset, -1, ENC_NA);
+	hb_v2_subtree = proto_item_add_subtree(parent_item, ett_binlog_event_hb_v2);
+	item = proto_tree_add_item(hb_v2_subtree, hf_mysql_binlog_event_heartbeat_v2_otw_type, tvb, offset, 1, ENC_NA);
+	proto_item_append_text(item, " (OTW_HB_HEADER_END_MARK)");
+	proto_item_append_text(parent_item, " OTW_HB_HEADER_END_MARK");
+	offset += 1;
+	return offset;
+}
+
+static int
+mysql_dissect_binlog_event_header(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_mysql_binlog_event_header_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_mysql_binlog_event_header_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_mysql_binlog_event_header_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_mysql_binlog_event_header_event_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_mysql_binlog_event_header_log_position, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_mysql_binlog_event_header_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	return offset;
+}
+
+static int
+mysql_dissect_binlog_event_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
+{
+	guint8 event_type;
+	int fle;
+
+	col_append_str(pinfo->cinfo, COL_INFO, "Binlog Event " );
+	col_set_fence(pinfo->cinfo, COL_INFO);
+
+	event_type = tvb_get_guint8(tvb, offset + 4);
+	offset = mysql_dissect_binlog_event_header(tvb, offset, tree);
+	switch (event_type) {
+		case HEARTBEAT_LOG_EVENT_V2:
+			offset = mysql_dissect_binlog_event_heartbeat_v2(tvb, pinfo, offset, tree);
+			break;
+		default:
+			fle = tvb_reported_length_remaining(tvb, offset);
+			offset += fle - 4;
+			break;
+	}
+	// checksum
+	proto_tree_add_item(tree, hf_mysql_binlog_event_checksum, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
 
 static int
 mysql_dissect_eof(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *pi _U_, int offset, proto_tree *tree, mysql_conn_data_t *conn_data _U_)
@@ -4216,6 +4493,66 @@ void proto_register_mysql(void)
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
+		{ &hf_mysql_binlog_event_header_timestamp,
+		{ "Timestamp",       "mysql.binlog.event_header.timestamp",
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,       NULL,        0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_binlog_event_header_event_type,
+		{ "Binlog Event Type", "mysql.binlog.event_header.event_type",
+		  FT_UINT8, BASE_DEC, VALS(mysql_binlog_event_type_vals), 0x0,
+		  "event type", HFILL }},
+
+		{ &hf_mysql_binlog_event_header_server_id,
+		{ "Server ID", "mysql.binlog.event_header.server_id",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "server-id of the originating mysql-server", HFILL }},
+
+		{ &hf_mysql_binlog_event_header_event_size,
+		{ "Event Size", "mysql.binlog.event_header.event_size",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "size of the event (header, post-header, body)", HFILL }},
+
+		{ &hf_mysql_binlog_event_header_log_position,
+		{ "Binlog Position", "mysql.binlog.event_header.log_position",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "position of the next event", HFILL }},
+
+		{ &hf_mysql_binlog_event_header_flags,
+		{ "Binlog Event Flags", "mysql.binlog.event_header.flags",
+		  FT_UINT16, BASE_HEX, NULL, 0x0,
+		  "flag", HFILL }},
+
+		{ &hf_mysql_binlog_event_checksum,
+		{ "Checksum", "mysql.binlog.event_checksum",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		"binlog event checksum", HFILL }},
+
+		{ &hf_mysql_binlog_event_heartbeat_v2,
+		{ "Binlog Event: HEARTBEAT_LOG_EVENT_V2", "mysql.binlog.event_heartbeat_v2",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_binlog_event_heartbeat_v2_otw,
+		{ "Entry", "mysql.binlog.event_heartbeat_v2_otw",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_binlog_event_heartbeat_v2_otw_type,
+		{ "Type", "mysql.binlog.event_heartbeat_v2_otw_type",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_binlog_hb_event_filename,
+		{ "Binlog Filename", "mysql.binlog.hb_event.filename",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"filename", HFILL }},
+
+		{ &hf_mysql_binlog_hb_event_log_position,
+		{ "Binlog Position", "mysql.binlog.hb_event.log_position",
+		FT_UINT64, BASE_DEC, NULL, 0x0,
+		"position of the next event", HFILL }},
+
 		{ &hf_mysql_eof,
 		{ "EOF marker", "mysql.eof",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4623,7 +4960,9 @@ void proto_register_mysql(void)
 		&ett_connattrs,
 		&ett_connattrs_attr,
 		&ett_mysql_field,
-		&ett_query_attributes
+		&ett_query_attributes,
+		&ett_binlog_event,
+		&ett_binlog_event_hb_v2
 	};
 
 	static ei_register_info ei[] = {
