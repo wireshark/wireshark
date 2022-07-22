@@ -88,19 +88,26 @@ add_custom_command(
 
 add_custom_command(
 	OUTPUT
-		${CMAKE_BINARY_DIR}/epan/wslua/declare_wslua.h
-		${CMAKE_BINARY_DIR}/epan/wslua/register_wslua.c
+		declare_wslua.h
+		register_wslua.c
 	COMMAND
 		${PYTHON_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.py
 		${WSLUA_MODULES}
-	WORKING_DIRECTORY
-		${CMAKE_BINARY_DIR}/epan/wslua
 	DEPENDS
 		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.py
 		${WSLUA_MODULES}
 		# ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
 )
+
+add_custom_target(
+	register_wslua ALL
+	DEPENDS
+		declare_wslua.h
+		register_wslua.c
+)
+
+set_target_properties(register_wslua PROPERTIES FOLDER "Libs/epan/wslua")
 
 add_custom_command(
 	OUTPUT init.lua
