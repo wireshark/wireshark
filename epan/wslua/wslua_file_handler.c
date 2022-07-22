@@ -875,8 +875,8 @@ wslua_deregister_filehandler_work(FileHandler fh)
 WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
     /* Deregister the FileHandler from Wireshark/TShark, so it no longer gets used for reading/writing/display.
        This function cannot be called inside the reading/writing callback functions. */
-#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* The FileHandler object to be deregistered */
-    FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);
+#define WSLUA_ARG_deregister_filehandler_FILEHANDLER 1 /* The FileHandler object to be deregistered */
+    FileHandler fh = checkFileHandler(L,WSLUA_ARG_deregister_filehandler_FILEHANDLER);
 
     if (in_routine)
         return luaL_error(L,"A FileHandler cannot be deregistered during reading/writing callback functions");

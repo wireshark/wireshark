@@ -230,11 +230,11 @@ WSLUA_METHOD ByteArray_len(lua_State* L) {
 
 WSLUA_METHOD ByteArray_subset(lua_State* L) {
     /* Obtain a segment of a <<lua_class_ByteArray,`ByteArray`>>, as a new <<lua_class_ByteArray,`ByteArray`>>. */
-#define WSLUA_ARG_ByteArray_set_index_OFFSET 2 /* The position of the first byte (0=first). */
-#define WSLUA_ARG_ByteArray_set_index_LENGTH 3 /* The length of the segment. */
+#define WSLUA_ARG_ByteArray_subset_OFFSET 2 /* The position of the first byte (0=first). */
+#define WSLUA_ARG_ByteArray_subset_LENGTH 3 /* The length of the segment. */
     ByteArray ba = checkByteArray(L,1);
-    int offset = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_index_OFFSET);
-    int len = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_index_LENGTH);
+    int offset = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_subset_OFFSET);
+    int len = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_subset_LENGTH);
     ByteArray sub;
 
     if ((offset + len) > (int)ba->len || offset < 0 || len < 1) {
