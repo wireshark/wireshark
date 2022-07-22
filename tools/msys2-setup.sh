@@ -72,7 +72,6 @@ BASIC_LIST="base-devel \
 	mingw-w64-x86_64-ninja \
 	mingw-w64-x86_64-opus \
 	mingw-w64-x86_64-pcre2 \
-	mingw-w64-x86_64-perl \
 	mingw-w64-x86_64-python \
 	mingw-w64-x86_64-qt5-base \
 	mingw-w64-x86_64-qt5-multimedia \
@@ -88,6 +87,7 @@ BASIC_LIST="base-devel \
 ADDITIONAL_LIST="mingw-w64-x86_64-asciidoctor \
 	mingw-w64-x86_64-ccache \
 	mingw-w64-x86_64-doxygen \
+	mingw-w64-x86_64-perl \
 	mingw-w64-x86_64-libxslt"
 
 TESTDEPS_LIST="mingw-w64-x86_64-python-pytest \

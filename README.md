@@ -46,11 +46,13 @@ operating system. This is the case for Windows XP, which is supported by
 Wireshark 1.10 and earlier. In other cases the standard package for
 Wireshark might simply be old. This is the case for Solaris and HP-UX.
 
-Both Perl and Python 3 are needed, the former for building the man
-pages.
+Python 3 is needed to build Wireshark. AsciiDoctor is required to build
+the documentation, including the man pages. Perl and flex are required
+to generate some of the source code.
 
-You must therefore install Perl, Python, GNU "make", and "flex" (vanilla
-"lex" won't work) on systems that lack them.
+You must therefore install Python 3, AsciiDoctor, and GNU "flex" (vanilla
+"lex" won't work) on systems that lack them. You might need to install
+Perl as well.
 
 Full installation instructions can be found in the INSTALL file and in the
 Developer's Guide at https://www.wireshark.org/docs/wsdg_html_chunked/

@@ -52,7 +52,6 @@ BASIC_LIST="cmake \
 	glib-dev \
 	libgcrypt-dev \
 	flex \
-	perl \
 	tiff-dev \
 	c-ares-dev \
 	pcre2-dev \
@@ -81,6 +80,7 @@ ADDITIONAL_LIST="
 	minizip-dev \
 	speexdsp-dev \
 	brotli-dev \
+	perl \
 	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:

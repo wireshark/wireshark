@@ -81,7 +81,6 @@ BASIC_LIST="base-devel \
 	minizip \
 	ninja \
 	pcre2 \
-	perl \
 	python \
 	qt5-base \
 	qt5-multimedia \
@@ -98,7 +97,8 @@ ADDITIONAL_LIST="asciidoctor \
 	docbook-xml \
 	docbook-xsl \
 	doxygen \
-	libxslt"
+	libxslt \
+	perl"
 
 TESTDEPS_LIST="python-pytest \
 	python-pytest-xdist"

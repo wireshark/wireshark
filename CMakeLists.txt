@@ -1148,7 +1148,7 @@ find_package(GCRYPT "1.8.0" REQUIRED)
 reset_find_package(CARES)
 find_package(CARES "1.14.0" REQUIRED)
 find_package(LEX REQUIRED)
-find_package(Perl REQUIRED)
+find_package(Perl)
 find_package(PCRE2 REQUIRED)
 
 if(CMAKE_VERSION VERSION_LESS "3.12")

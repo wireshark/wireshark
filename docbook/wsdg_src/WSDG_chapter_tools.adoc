@@ -519,7 +519,7 @@ The Ruby and Java flavors can be used to build Wireshark’s documentation, but 
 The guides and release notes were originally written in DocBook (hence the directory name).
 They were later converted to AsciiDoc and then migrated to Asciidoctor.
 The man pages were originally in Perl’s POD (Plain Old Documentation) format and were later converted to Asciidoctor.
-We currently use Asciidoctor’s modern (>= 1.5.0) syntax.
+We use Asciidoctor’s modern (>= 1.5.0) syntax.
 
 PDF output requires Asciidoctor’s PDF backend.
 It is included with AsciidoctorJ but _not_ with Asciidoctor.
@@ -698,95 +698,6 @@ Python 3.5.1
 
 Your version string may vary of course.
 
-[#ChToolsPerl]
-
-=== Perl
-
-Perl is an interpreted programming language. The
-homepage of the Perl project is
-https://www.perl.org[]. Perl is used to convert
-various text files into usable source code. Perl version 5.6
-and above should work fine.
-
-[#ChToolsUnixPerl]
-
-[discrete]
-==== Unix
-
-Perl is available for most UNIX and UNIX-like platforms. If perl isn't
-already installed or available as a package for your platform, you can
-get it at https://www.perl.org/[].
-
-After correct installation, typing at the
-bash command line prompt:
-
-[source,sh]
-----
-$ perl --version
-----
-
-should result in something like:
-
-----
-This is perl 5, version 26, subversion 0 (v5.26.0) built for x86_64-linux-gnu-thread-multi
-(with 62 registered patches, see perl -V for more detail)
-
-Copyright 1987-2017, Larry Wall
-
-Perl may be copied only under the terms of either the Artistic License or the
-GNU General Public License, which may be found in the Perl 5 source kit.
-
-Complete documentation for Perl, including FAQ lists, should be found on
-this system using "man perl" or "perldoc perl".  If you have access to the
-Internet, point your browser at http://www.perl.org/, the Perl Home Page.
-----
-
-However, the version string may vary.
-
-[#ChToolsWindowsPerl]
-
-[discrete]
-==== Windows
-
-A native Windows Perl package can be obtained from
-http://strawberryperl.com/[Strawberry Perl] or
-https://www.activestate.com[Active State]. The installation should be
-straightforward.
-
-You may also use Chocolatey to install either package:
-
-----
-PS:\> choco install strawberryperl
-----
-
-or
-
-----
-PS:\> choco install activeperl
-----
-
-After correct installation, typing at the command
-line prompt (cmd.exe):
-
-----
-> perl -v
-----
-
-should result in something like:
-
-----
-This is perl, v5.8.0 built for MSWin32-x86-multi-thread
-(with 1 registered patch, see perl -V for more detail)
-
-Copyright 1987-2002, Larry Wall
-
-Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
-Built 18:08:02 Feb  4 2003
-...
-----
-
-However, the version string may vary.
-
 [#ChToolsFlex]
 
 === Flex
@@ -930,6 +841,93 @@ https://git-scm.com/downloads/guis[] for details.
 
 // [[ChToolsUnixGitGUI]]
 // XXX Add Gui client section
+
+[#ChToolsPerl]
+
+=== Perl (Optional)
+
+https://www.perl.org[Perl] is an interpreted programming language.
+Perl is used to convert various text files into usable source code and for various source code checks.
+Perl version 5.6 and above should work fine.
+
+[#ChToolsUnixPerl]
+
+[discrete]
+==== Unix
+
+Perl is available for most UNIX and UNIX-like platforms. If it isn't
+already installed or available as a package for your platform, you can
+get it at https://www.perl.org/[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+[source,sh]
+----
+$ perl --version
+----
+
+should result in something like:
+
+----
+This is perl 5, version 26, subversion 0 (v5.26.0) built for x86_64-linux-gnu-thread-multi
+(with 62 registered patches, see perl -V for more detail)
+
+Copyright 1987-2017, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using "man perl" or "perldoc perl".  If you have access to the
+Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+----
+
+However, the version string may vary.
+
+[#ChToolsWindowsPerl]
+
+[discrete]
+==== Windows
+
+A native Windows Perl package can be obtained from
+http://strawberryperl.com/[Strawberry Perl] or
+https://www.activestate.com[Active State]. The installation should be
+straightforward.
+
+You may also use Chocolatey to install either package:
+
+----
+PS:\> choco install strawberryperl
+----
+
+or
+
+----
+PS:\> choco install activeperl
+----
+
+After correct installation, typing at the command
+line prompt (cmd.exe):
+
+----
+> perl -v
+----
+
+should result in something like:
+
+----
+This is perl, v5.8.0 built for MSWin32-x86-multi-thread
+(with 1 registered patch, see perl -V for more detail)
+
+Copyright 1987-2002, Larry Wall
+
+Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
+Built 18:08:02 Feb  4 2003
+...
+----
+
+However, the version string may vary.
 
 [#ChToolsPatch]
 

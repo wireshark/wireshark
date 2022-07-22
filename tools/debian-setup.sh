@@ -72,7 +72,6 @@ BASIC_LIST="gcc \
 	flex \
 	make \
 	python3 \
-	perl \
 	libgcrypt-dev"
 
 ADDITIONAL_LIST="libnl-3-dev \
@@ -91,6 +90,7 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libminizip-dev \
 	git \
 	ninja-build \
+	perl \
 	xsltproc \
 	ccache \
 	libspeexdsp-dev"

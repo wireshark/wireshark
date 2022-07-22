@@ -55,7 +55,6 @@ BASIC_LIST="cmake \
 	gcc-c++ \
 	flex \
 	python3 \
-	perl \
 	desktop-file-utils \
 	git \
 	glib2-devel \
@@ -72,6 +71,7 @@ ADDITIONAL_LIST="libcap-devel \
 	minizip-devel \
 	lz4 \
 	libxml2-devel \
+	perl \
 	spandsp-devel \
 	systemd-devel"
 

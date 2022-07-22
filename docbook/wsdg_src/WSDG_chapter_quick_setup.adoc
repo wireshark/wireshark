@@ -16,7 +16,6 @@ The following must be installed in order to build Wireshark:
 
 * a C compiler and a C++ compiler;
 * the Flex lexical analyzer;
-* Perl;
 * Python 3;
 * CMake;
 * several required libraries.
@@ -25,6 +24,8 @@ Either make or Ninja can be used to build Wireshark; at least one of
 those must be installed.
 
 To build the manual pages, Developer's Guide and User's Guide, Asciidoctor, Xsltproc, and DocBook must be installed.
+
+Perl is required to generate some code and run some code analysis checks.
 
 Some features of Wireshark require additional libraries to be installed.
 
@@ -234,9 +235,9 @@ You can install Chocolatey packages using the command `choco install` (or its sh
 ----
 > rem Flex is required.
 > choco install -y winflexbison3
-> rem Git, CMake, Perl, Python, etc are also required, but can be installed
+> rem Git, CMake, Python, etc are also required, but can be installed
 > rem via their respective installation packages.
-> choco install -y git cmake strawberryperl python3
+> choco install -y git cmake python3
 ----
 
 
@@ -332,22 +333,6 @@ Chocolatey will likely install Python in one of the locations above, or possibly
 
 // winget has Python 3 packages.
 // https://github.com/microsoft/winget-pkgs/tree/master/manifests/p/Python/Python/3
-
-==== Install Perl
-
-Get a Perl installer from http://strawberryperl.com/ or
-https://www.activestate.com/ and install Perl into the default location.
-
-Alternatively you can install Perl using Chocolatey:
-
-----
-PS$> choco install -y strawberryperl
-# ...or...
-PS$> choco install -y activeperl
-----
-
-// winget has StrawberryPerl.
-// https://github.com/microsoft/winget-pkgs/tree/master/manifests/s/StrawberryPerl/StrawberryPerl
 
 [#ChSetupGit]
 
@@ -463,6 +448,25 @@ PS$> choco install -y winflexbison3
 Chocolatey ensures win_flex.exe is on your path.
 
 // winget has no bison package.
+
+==== Optional: Install Perl
+
+If needed you can get a Perl installer from
+http://strawberryperl.com/
+or
+https://www.activestate.com/
+and install Perl into the default location.
+
+Alternatively you can install Perl using Chocolatey:
+
+----
+PS$> choco install -y strawberryperl
+# ...or...
+PS$> choco install -y activeperl
+----
+
+// winget has StrawberryPerl.
+// https://github.com/microsoft/winget-pkgs/tree/master/manifests/s/StrawberryPerl/StrawberryPerl
 
 ==== Install and Prepare Sources
 
