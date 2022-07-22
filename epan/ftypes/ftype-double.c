@@ -44,7 +44,7 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid floating-point number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
@@ -68,20 +68,24 @@ val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, 
 }
 
 static char *
-float_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+float_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
-	size_t size = G_ASCII_DTOSTR_BUF_SIZE;
-	char *buf = wmem_alloc(scope, size);
-	g_ascii_formatd(buf, (gint)size, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
+	char *buf = wmem_alloc(scope, G_ASCII_DTOSTR_BUF_SIZE);
+	if (rtype == FTREPR_DFILTER)
+		g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, fv->value.floating);
+	else
+		g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
 	return buf;
 }
 
 static char *
-double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
-	size_t size = G_ASCII_DTOSTR_BUF_SIZE;
-	char *buf = wmem_alloc(scope, size);
-	g_ascii_formatd(buf, (gint)size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
+	char *buf = wmem_alloc(scope, G_ASCII_DTOSTR_BUF_SIZE);
+	if (rtype == FTREPR_DFILTER)
+		g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, fv->value.floating);
+	else
+		g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
 	return buf;
 }
 
