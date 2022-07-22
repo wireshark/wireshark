@@ -1064,6 +1064,16 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
         // from the peer. For Client Initial packets, match DCID of the first
         // Client Initial (these may contain ACK frames).
         conn = quic_connection_find_dcid(pinfo, dcid, from_server);
+        /* Handle cases where we get a second Client Initial packet before a
+         * Server Initial packet (so this is not recognized by the server yet),
+         * e.g. the TLS Client Hello is fragmented in more than one frame.
+         */
+        if (long_packet_type == QUIC_LPT_INITIAL && !conn && dcid->len > 0) {
+            conn = (quic_info_data_t *) wmem_map_lookup(quic_initial_connections, dcid);
+            if (conn) {
+                *from_server = FALSE;
+            }
+        }
         if (long_packet_type == QUIC_LPT_INITIAL && conn && !*from_server && dcid->len > 0 &&
             memcmp(dcid, &conn->client_dcid_initial, sizeof(quic_cid_t)) &&
             !quic_cids_has_match(&conn->server_cids, dcid)) {
