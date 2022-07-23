@@ -196,8 +196,8 @@ class LuaFunction:
         section_name = re.sub('[^A-Za-z0-9]', '_', f'{self.name}_{"__".join(mangled_names)}_')
         opt_names = [f'[{a}]' if optional else a for a, _, optional in self.arguments]
         adoc_buf = f'''
+// {self.c_file}
 [#lua_fn_{section_name}]
-
 ===== {self.name}({', '.join(opt_names)})
 
 {self.description}
@@ -403,15 +403,15 @@ def main():
 
         with open(os.path.join(args.output_directory, adoc_file), 'w', encoding='utf-8') as adoc_f:
             adoc_f.write(f'''\
+// {c_file}
 [#lua_module_{module_name}]
-
 === {modules[module_name]["description"]}
 ''')
             for class_name in sorted(classes.keys()):
                 lua_class = classes[class_name]
                 adoc_f.write(f'''
+// {c_file}
 [#lua_class_{class_name}]
-
 ==== {class_name}
 ''')
 
@@ -430,7 +430,6 @@ def main():
                     attribute_id = re.sub('[^A-Za-z0-9]', '_', f'{attribute["name"]}')
                     adoc_f.write(f'''
 [#lua_class_attrib_{attribute_id}]
-
 ===== {attribute["name"]}
 
 {attribute["description"]}
@@ -444,7 +443,6 @@ def main():
             if len(functions.keys()) > 0:
                 adoc_f.write(f'''\
 [#global_functions_{module_name}]
-
 ==== Global Functions
 ''')
 
