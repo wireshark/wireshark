@@ -175,6 +175,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/funnel_string_dialog.h
 	../qt/funnel_text_dialog.h
 	../qt/geometry_state_dialog.h
+	../qt/glib_mainloop_on_qeventloop.h
 	../qt/import_text_dialog.h
 	../qt/interface_frame.h
 	../qt/interface_toolbar_reader.h
@@ -394,6 +395,7 @@ set(WIRESHARK_QT_SRC
 	../qt/funnel_string_dialog.cpp
 	../qt/funnel_text_dialog.cpp
 	../qt/geometry_state_dialog.cpp
+	../qt/glib_mainloop_on_qeventloop.cpp
 	../qt/import_text_dialog.cpp
 	../qt/interface_frame.cpp
 	../qt/interface_toolbar_reader.cpp

@@ -81,6 +81,7 @@
 #include "ui/qt/utils/color_utils.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
+#include "ui/qt/glib_mainloop_on_qeventloop.h"
 #include "ui/logray/logray_main_window.h"
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
@@ -687,6 +688,8 @@ int main(int argc, char *qt_argv[])
     // Init the main window (and splash)
     main_w = new(LograyMainWindow);
     main_w->show();
+    // Setup GLib mainloop on Qt event loop to enable GLib and GIO watches
+    GLibMainloopOnQEventLoop::setup(main_w);
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
     main_w->connect(&ls_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
