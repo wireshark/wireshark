@@ -266,6 +266,7 @@ static const value_string CANopenType[] =
    {   ETHERCAT_COE_TYPE_RXPDO, "RxPDO" },
    {   ETHERCAT_COE_TYPE_TXPDO_RTR, "TxPDO_RTR" },
    {   ETHERCAT_COE_TYPE_RXPDO_RTR, "RxPDO_RTR" },
+   {   ETHERCAT_COE_TYPE_SDOINFO, "SDO Information" },
    {   0, NULL }
 };
 
