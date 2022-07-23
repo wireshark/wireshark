@@ -1,5 +1,5 @@
 /*
- *  wslua_util.c
+ *  wslua_utility.c
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
