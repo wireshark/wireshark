@@ -244,7 +244,7 @@ include::{build_dir}/wsluarm_src/wslua_tvb.adoc[]
 include::{build_dir}/wsluarm_src/wslua_file.adoc[]
 include::{build_dir}/wsluarm_src/wslua_dir.adoc[]
 include::{build_dir}/wsluarm_src/wslua_wtap.adoc[]
-include::{build_dir}/wsluarm_src/wslua_util.adoc[]
+include::{build_dir}/wsluarm_src/wslua_utility.adoc[]
 include::{build_dir}/wsluarm_src/wslua_int64.adoc[]
 include::{build_dir}/wsluarm_src/wslua_struct.adoc[]
 
