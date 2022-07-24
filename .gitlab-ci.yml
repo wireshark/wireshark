@@ -268,21 +268,21 @@ openSUSE 15.3 RPM Test:
     - tshark --version
   needs: [ 'openSUSE 15.3 RPM Package' ]
 
-Rocky Linux 8 RPM Package:
+Rocky Linux 9 RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-8-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja-build wireshark_rpm
-Rocky Linux 8 RPM Test:
+Rocky Linux 9 RPM Test:
   extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-8-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
   script:
     - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  needs: [ 'Rocky Linux 8 RPM Package' ]
+  needs: [ 'Rocky Linux 9 RPM Package' ]
 
 Ubuntu APT Package:
   extends: .build-ubuntu
