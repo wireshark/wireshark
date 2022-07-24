@@ -275,7 +275,7 @@ Rocky Linux 9 RPM Package:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja-build wireshark_rpm
+    - ninja wireshark_rpm
 Rocky Linux 9 RPM Test:
   extends: .test-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
