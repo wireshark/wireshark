@@ -65,7 +65,6 @@ BuildRequires:	clang
 %else
 BuildRequires:	gcc
 %endif
-BuildRequires:	perl
 BuildRequires:	flex
 %if %{with ninja}
 %if 0%{?fedora} || 0%{?rhel}

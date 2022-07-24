@@ -50,16 +50,13 @@ README.windows for those instructions.
    Similarly, Red Hat users will need to install a "libpcap-devel"
    .rpm to go along with the "libpcap" .rpm.
 
-4. Building Wireshark requires Perl (specifically the pod2man program)
-   so that the documentation can be built.
+4. Building Wireshark requires Python, flex, and Asciidoctor.
 
-5. Building Wireshark requires Python.
-
-6. Create a build directory separate from the source directory. It can
+5. Create a build directory separate from the source directory. It can
    be anywhere, but you might run into issues if the path contains
    spaces.
 
-7. Run 'cmake <options> <path/to/the/wireshark/sources>' in your build
+6. Run 'cmake <options> <path/to/the/wireshark/sources>' in your build
    directory. Running 'cmake -LH <path/to/the/wireshark/sources>'
    displays a complete list of options. The "Tool Reference" section of
    Developer's Guide contains general instructions for using CMake. Some
@@ -166,17 +163,17 @@ README.windows for those instructions.
         the packet analyzers are build with support for plugins.
         Use this switch to build packet analyzers without plugin support.
 
-8. After running 'cmake', you will see a summary of some
+7. After running 'cmake', you will see a summary of some
    of the options you chose. Ensure that the summary reflects
    what you want. If it doesn't, re-run 'cmake' with new options.
 
-9. Run 'make', or 'ninja' if you chose to create Ninja build files.
+8. Run 'make', or 'ninja' if you chose to create Ninja build files.
    Hopefully, you won't run into any problems.
 
-10. Run './run/wireshark' or './run/tshark' or ./run/dumpcap, and make sure things are
+9. Run './run/wireshark' or './run/tshark' or ./run/dumpcap, and make sure things are
    working. You must have root privileges in order to capture live data.
 
-11./a. Run 'make install'.  If you're running a system that supports
+10./a. Run 'make install'.  If you're running a system that supports
    the RPM packaging systems you can run
 
         make wireshark_rpm
@@ -189,7 +186,7 @@ README.windows for those instructions.
    defaults to /usr/local, so you'll probably want to pass
    -DCMAKE_INSTALL_PREFIX=/usr to CMake.
 
-11/b. If you 're running a system that supports APT (Debian/Ubuntu/etc.)
+10/b. If you 're running a system that supports APT (Debian/Ubuntu/etc.)
    run
 
         dpkg-buildpackage -us -uc -rfakeroot
