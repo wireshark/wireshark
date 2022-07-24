@@ -176,9 +176,6 @@ echo "Qt5 is unavailable" >&2
 add_package BASIC_LIST update-desktop-files ||
 echo "update-desktop-files is unavailable" >&2
 
-add_package BASIC_LIST perl-podlators ||
-echo "perl-podlators unavailable" >&2
-
 # rubygem-asciidoctor.noarch: Centos 7, Fedora
 # ruby2.5-rubygem-asciidoctor: openSUSE 15.2
 # You will get nothing and you will like it: CentOS 8
@@ -212,9 +209,6 @@ echo "gnutls devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST gettext-devel || add_package ADDITIONAL_LIST gettext-tools ||
 echo "Gettext devel is unavailable" >&2
-
-add_package ADDITIONAL_LIST perl-Pod-Html ||
-echo "perl-Pod-Html is unavailable" >&2
 
 add_package ADDITIONAL_LIST ninja || add_package ADDITIONAL_LIST ninja-build ||
 echo "ninja is unavailable" >&2
