@@ -1734,7 +1734,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;raw(無加工)のフィールド値の代わりに人が読むことのできる文字列を表示します。有効な文字列を含むフィールドを持つカスタム列へ適用する場合にのみ適用できます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1777,7 +1777,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;123raw(無加工)のフィールド値の代わりに人が読むことのできる文字列を表示します。有効な文字列を含むフィールドを持つカスタム列へ適用する場合にのみ適用できます。&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -2228,6 +2228,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Relation</source>
         <translation>リレーション</translation>
+    </message>
+    <message>
+        <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quantifier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Any</source>
+        <translation type="unfinished">すべて</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished">すべて</translation>
     </message>
     <message>
         <source>Match against this value.</source>
@@ -11868,7 +11884,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;フィルタ値に適当する形式のみ表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Filter list for specific type</source>
@@ -11915,7 +11931,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished"></translation>
+        <translation>このページの全ての値をCSV(カンマ区切りテキスト)形式でクリップボードへコピーします</translation>
     </message>
     <message>
         <source>as YAML</source>
@@ -11923,7 +11939,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>このページの全ての値をシリアル化されたYAMLデータ形式でクリップボードへコピーします</translation>
     </message>
     <message>
         <source>as JSON</source>
@@ -11931,42 +11947,42 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>このページの全ての値をシリアル化されたJSONデータ形式でクリップボードへコピーします</translation>
     </message>
     <message>
         <source>Save data as raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Raw(無加工)形式でデータを保存</translation>
     </message>
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポートやクリップボードのためにデータフォーマットを無効にしてRaw(無加工)形式で保存します</translation>
     </message>
 </context>
 <context>
     <name>TrafficTreeHeaderView</name>
     <message>
         <source>Less than</source>
-        <translation type="unfinished"></translation>
+        <translation>より小さい</translation>
     </message>
     <message>
         <source>Greater than</source>
-        <translation type="unfinished"></translation>
+        <translation>より大きい</translation>
     </message>
     <message>
         <source>Equal</source>
-        <translation type="unfinished"></translation>
+        <translation>イコール</translation>
     </message>
     <message>
         <source>Columns to display</source>
-        <translation type="unfinished"></translation>
+        <translation>表示する列</translation>
     </message>
     <message>
         <source>Filter %1 by</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 でフィルタします</translation>
     </message>
     <message>
         <source>Enter filter value</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ値を入力します</translation>
     </message>
 </context>
 <context>

@@ -2238,6 +2238,22 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Relation</translation>
     </message>
     <message>
+        <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quantifier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Any</source>
+        <translation type="unfinished">Alle</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished">Alle</translation>
+    </message>
+    <message>
         <source>Match against this value.</source>
         <translation>Überprüft diesen Wert.</translation>
     </message>

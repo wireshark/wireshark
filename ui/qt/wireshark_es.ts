@@ -2213,6 +2213,22 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Relación</translation>
     </message>
     <message>
+        <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quantifier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Any</source>
+        <translation type="unfinished">Cualquiera</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Match against this value.</source>
         <translation>Coincide con este valor.</translation>
     </message>

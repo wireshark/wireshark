@@ -2227,6 +2227,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>关系</translation>
     </message>
     <message>
+        <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quantifier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Any</source>
+        <translation type="unfinished">任何</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Match against this value.</source>
         <translation>匹配对应此值。</translation>
     </message>
