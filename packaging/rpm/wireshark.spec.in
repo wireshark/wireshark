@@ -43,6 +43,13 @@
 # are set.
 %global use_wireshark_group 1
 
+# RPM 4.11.2 and higher errors out on double dash in versions by default.
+# Some, but not all, distros make this a warning instead; ensure that it is.
+# We override the dashes with underscores for the main wireshark RPM version,
+# but rpmbuild will fail based on its generated dependency from the pkg-config
+# file (wireshark.pc), which has our original version with dashes.
+%global _wrong_version_format_terminate_build 0
+
 %global package_version @PROJECT_VERSION@
 
 
@@ -130,12 +137,6 @@ BuildRequires:	lua51-devel
 BuildRequires:	lua-devel < 5.3
 %endif
 %endif
-%endif
-
-# Fedora complains about double dash in version.
-# Shut it up just for it.
-%if 0%{?fedora}
-%define _wrong_version_format_terminate_build 0
 %endif
 
 %if %{with nghttp2}
