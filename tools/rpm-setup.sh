@@ -191,9 +191,6 @@ echo "Required OpenSUSE packages hicolor-icon-theme and xdg-utils are unavailabl
 add_package BASIC_LIST update-desktop-files ||
 echo "Required OpenSUSE package update-desktop-files is unavailable. Not required for other distributions." >&2
 
-add_package BASIC_LIST perl-podlators ||
-echo "Required package perl-podlators unavailable" >&2
-
 # rubygem-asciidoctor.noarch: Centos 7, Fedora
 # ruby2.5-rubygem-asciidoctor: openSUSE 15.2
 # You will get nothing and you will like it: CentOS 8
@@ -227,9 +224,6 @@ echo "Optional package gnutls-devel|libgnutls-devel is unavailable" >&2
 
 add_package ADDITIONAL_LIST gettext-devel || add_package ADDITIONAL_LIST gettext-tools ||
 echo "Optional package gettext-devel|gettext-tools is unavailable" >&2
-
-add_package ADDITIONAL_LIST perl-Pod-Html ||
-echo "Optional package perl-Pod-Html is unavailable" >&2
 
 add_package ADDITIONAL_LIST ninja || add_package ADDITIONAL_LIST ninja-build ||
 echo "Optional package ninja|ninja-build is unavailable" >&2
