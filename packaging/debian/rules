@@ -60,7 +60,6 @@ override_dh_auto_install:
 	dh_auto_install
 	rm -f debian/*.shlibs
 	rm -rf $(CURDIR)/debian/tmp/usr/share/wireshark/COPYING
-	cp debian/license-text-about-dialog $(CURDIR)/debian/tmp/usr/share/wireshark/ABOUT.GPL
 	mkdir -p $(CURDIR)/debian/tmp/etc/wireshark/
 	mv $(CURDIR)/debian/tmp/usr/share/wireshark/init.lua \
 		$(CURDIR)/debian/tmp/etc/wireshark/
