@@ -20,7 +20,7 @@ install:
   # Java is already installed, prevent an expensive upgrade (102 seconds).
   - choco install --ignore-dependencies asciidoctorj docbook-bundle xsltproc
   # Py2 fails the test_tshark_unicode_display_filter test, so use Py3.
-  - set PATH=C:\Strawberry\perl\bin\;C:\Python37-x64;C:\Python37-x64\Scripts;%PATH%
+  - set PATH=C:\Python37-x64;C:\Python37-x64\Scripts;%PATH%
   - pip install pytest pytest-xdist
   - ps: New-Item -ItemType Directory -Force -Path $Env:WIRESHARK_BASE_DIR
   - ps: |   # For pkcs11 tests.
