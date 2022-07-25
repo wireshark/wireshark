@@ -211,6 +211,7 @@ Debian Stable APT Package:
     - tools/make-version.py --set-release .
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
+    - export DEB_BUILD_OPTIONS="nocheck parallel=$(( $(getconf _NPROCESSORS_ONLN) + 2 ))"
     - export DH_QUIET=1
     - export MAKEFLAGS=--silent
     - dpkg-buildpackage -b --no-sign -jauto
