@@ -17,10 +17,23 @@ ENDIF (CARES_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("c-ares-.*" "CARES_HINTS")
 
-FIND_PATH(CARES_INCLUDE_DIR ares.h HINTS "${CARES_HINTS}/include" )
+find_path( CARES_INCLUDE_DIR
+  NAMES ares.h
+  PATH_SUFFIXES
+        include
+  HINTS
+    "${CARES_INCLUDEDIR}"
+    "${CARES_HINTS}"
+)
 
-SET(CARES_NAMES cares libcares-2)
-FIND_LIBRARY(CARES_LIBRARY NAMES ${CARES_NAMES} HINTS "${CARES_HINTS}/lib" )
+find_library( CARES_LIBRARY
+  NAMES cares libcares-2
+  PATH_SUFFIXES
+        lib64 lib
+  HINTS
+    "${CARES_LIBDIR}"
+    "${CARES_HINTS}"
+)
 
 # Try to retrieve version from header if found
 if(CARES_INCLUDE_DIR)
