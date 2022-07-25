@@ -232,6 +232,20 @@ static int hf_tecmp_payload_ctrl_msg_device_id = -1;
 static int hf_tecmp_payload_ctrl_msg_id = -1;
 static int hf_tecmp_payload_ctrl_msg_unparsed_bytes = -1;
 
+/* Counter Event */
+static int hf_tecmp_payload_counter_event_device_id = -1;
+static int hf_tecmp_payload_counter_event_interface_id = -1;
+static int hf_tecmp_payload_counter_event_counter_last = -1;
+static int hf_tecmp_payload_counter_event_counter_cur = -1;
+
+/* TimeSync Event */
+static int hf_tecmp_payload_timesync_event_device_id = -1;
+static int hf_tecmp_payload_timesync_event_interface_id = -1;
+static int hf_tecmp_payload_timesync_event_reserved = -1;
+static int hf_tecmp_payload_timesync_event_async = -1;
+static int hf_tecmp_payload_timesync_event_time_delta = -1;
+
+
 /* protocol tree items */
 static gint ett_tecmp = -1;
 static gint ett_tecmp_flags = -1;
@@ -261,6 +275,9 @@ static expert_field ef_tecmp_header_crc_overflow = EI_INIT;
 #define TECMP_MSG_TYPE_LOG_STREAM          0x03
 #define TECMP_MSG_TYPE_CFG_CM              0x04
 #define TECMP_MSG_TYPE_REPLAY_DATA         0x0A
+#define TECMP_MSG_TYPE_COUNTER_EVENT       0x0B
+#define TECMP_MSG_TYPE_TIMESYNC_EVENT      0x0C
+
 
 /* TECMP Type Names */
 /* Updated by ID Registry */
@@ -271,6 +288,8 @@ static const value_string msg_type_names[] = {
     {TECMP_MSG_TYPE_LOG_STREAM,            "Logging Stream"},
     {TECMP_MSG_TYPE_CFG_CM,                "Status Configuration"},
     {TECMP_MSG_TYPE_REPLAY_DATA,           "Replay Data"},
+    {TECMP_MSG_TYPE_COUNTER_EVENT,         "Counter Event"},
+    {TECMP_MSG_TYPE_TIMESYNC_EVENT,        "TimeSync Event"},
     {0, NULL}
 };
 
@@ -461,6 +480,13 @@ static const value_string tecmp_bus_status_link_quality[] = {
     {0x5, "Excellent (5/5)"},
     {0, NULL}
 };
+
+static const value_string tecmp_timesync_event_flags[] = {
+    {0x0, "No error occurred"},
+    {0x1, "Error occurred"},
+    {0, NULL}
+};
+
 
 #define DATA_FLAG_CAN_ACK               0x0001
 #define DATA_FLAG_CAN_RTR               0x0002
@@ -814,7 +840,7 @@ tecmp_entry_header_present(tvbuff_t *tvb, guint offset) {
 }
 
 static guint
-dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint tecmp_msg_type, guint16 msg_type,
+dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint tecmp_msg_type, guint16 data_type,
                            gboolean first, guint16 *dataflags, guint32 *interface_id) {
     proto_item *ti;
     proto_tree *subtree = NULL;
@@ -954,7 +980,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (!first) {
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
     }
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(msg_type, tecmp_msgtype_names, "Unknown (%d)"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(data_type, tecmp_msgtype_names, "Unknown (%d)"));
 
     ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
     add_interface_id_text_and_name(ti, tmp, tvb, offset);
@@ -987,62 +1013,82 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         *dataflags = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
     }
 
-    switch (msg_type) {
-    case TECMP_DATA_TYPE_LIN:
-        if (tecmp_msg_type == TECMP_MSG_TYPE_LOG_STREAM) {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                dataflags_lin, ENC_BIG_ENDIAN);
-        } else {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                dataflags_lin_tx, ENC_BIG_ENDIAN);
+    switch (tecmp_msg_type) {
+    case TECMP_MSG_TYPE_LOG_STREAM:
+        switch (data_type) {
+        case TECMP_DATA_TYPE_LIN:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_lin, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_CAN_DATA:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_can_data, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_CAN_FD_DATA:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_can_fd_data, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_FR_DATA:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_flexray_data, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_RS232_ASCII:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_rs232_uart_ascii, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_ANALOG:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_analog, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_ETH:
+        default:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_generic, ENC_BIG_ENDIAN);
         }
         break;
 
-    case TECMP_DATA_TYPE_CAN_DATA:
-        if (tecmp_msg_type == TECMP_MSG_TYPE_LOG_STREAM) {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                               dataflags_can_data, ENC_BIG_ENDIAN);
-        } else {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                dataflags_can_tx_data, ENC_BIG_ENDIAN);
+    case TECMP_MSG_TYPE_REPLAY_DATA:
+        switch (data_type) {
+        case TECMP_DATA_TYPE_LIN:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_lin_tx, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_CAN_DATA:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_can_tx_data, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_CAN_FD_DATA:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_can_fd_tx_data, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_FR_DATA:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_flexray_tx_data, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_RS232_ASCII:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_rs232_uart_ascii, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_ANALOG:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_analog, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_ETH:
+        default:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_generic, ENC_BIG_ENDIAN);
         }
         break;
 
-    case TECMP_DATA_TYPE_CAN_FD_DATA:
-        if (tecmp_msg_type == TECMP_MSG_TYPE_LOG_STREAM) {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                               dataflags_can_fd_data, ENC_BIG_ENDIAN);
-        } else {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                dataflags_can_fd_tx_data, ENC_BIG_ENDIAN);
-        }
-        break;
-
-    case TECMP_DATA_TYPE_FR_DATA:
-        if (tecmp_msg_type == TECMP_MSG_TYPE_LOG_STREAM) {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                               dataflags_flexray_data, ENC_BIG_ENDIAN);
-        } else {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                dataflags_flexray_tx_data, ENC_BIG_ENDIAN);
-        }
-        break;
-
-    case TECMP_DATA_TYPE_RS232_ASCII:
-        proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                               dataflags_rs232_uart_ascii, ENC_BIG_ENDIAN);
-        break;
-
-    case TECMP_DATA_TYPE_ANALOG:
-        proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                               dataflags_analog, ENC_BIG_ENDIAN);
-        break;
-
-    case TECMP_DATA_TYPE_ETH:
+    case TECMP_MSG_TYPE_CTRL_MSG:
+    case TECMP_MSG_TYPE_STATUS_DEV:
+    case TECMP_MSG_TYPE_STATUS_BUS:
+    case TECMP_MSG_TYPE_CFG_CM:
+    case TECMP_MSG_TYPE_COUNTER_EVENT:
+    case TECMP_MSG_TYPE_TIMESYNC_EVENT:
     default:
-        proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags,
-                               dataflags_generic, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tecmp_payload_data_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
     }
+
     offset += 2;
 
     return offset - offset_orig;
@@ -1653,6 +1699,81 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int
+dissect_tecmp_counter_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint16 data_type, guint tecmp_msg_type) {
+    proto_item *ti = NULL;
+    proto_tree *tecmp_tree = NULL;
+    guint16 length = 0;
+    guint offset = offset_orig;
+    guint tmp = 0;
+
+    if (tvb_captured_length_remaining(tvb, offset) >= (16 + 8)) {
+        length = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (gint)length + 16, ENC_NA);
+        proto_item_append_text(ti, " Counter Event");
+        tecmp_tree = proto_item_add_subtree(ti, ett_tecmp_payload);
+
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, TRUE, NULL, NULL);
+
+        col_set_str(pinfo->cinfo, COL_INFO, "TECMP Counter Event");
+
+        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_counter_event_device_id, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
+        add_device_id_text(ti, (guint16)tmp);
+        offset += 2;
+
+        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_counter_event_interface_id, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
+        add_interface_id_text_and_name(ti, tmp, tvb, offset);
+        offset += 2;
+
+        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_counter_event_counter_last, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_counter_event_counter_cur, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+    return offset - offset_orig;
+}
+
+static int
+dissect_tecmp_timesync_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset_orig, guint16 data_type, guint tecmp_msg_type) {
+    proto_item *ti = NULL;
+    proto_tree *tecmp_tree = NULL;
+    guint16 length = 0;
+    guint offset = offset_orig;
+    guint tmp = 0;
+
+    if (tvb_captured_length_remaining(tvb, offset) >= (16 + 8)) {
+        length = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (gint)length + 16, ENC_NA);
+        proto_item_append_text(ti, " TimeSync Event");
+        tecmp_tree = proto_item_add_subtree(ti, ett_tecmp_payload);
+
+        offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, TRUE, NULL, NULL);
+
+        col_set_str(pinfo->cinfo, COL_INFO, "TECMP TimeSync Event");
+
+        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_timesync_event_device_id, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
+        add_device_id_text(ti, (guint16)tmp);
+        offset += 2;
+
+        ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_timesync_event_interface_id, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
+        add_interface_id_text_and_name(ti, tmp, tvb, offset);
+        offset += 2;
+
+        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_timesync_event_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_timesync_event_async, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_timesync_event_time_delta, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
+
+    return offset - offset_orig;
+}
+
+static int
 dissect_tecmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     proto_item *ti = NULL;
     proto_item *ti_root = NULL;
@@ -1717,6 +1838,14 @@ dissect_tecmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     case TECMP_MSG_TYPE_LOG_STREAM:
     case TECMP_MSG_TYPE_REPLAY_DATA:
         offset += dissect_tecmp_log_or_replay_stream(tvb, pinfo, tree, offset, (guint16)data_type, (guint8)tecmp_type, (guint16)device_id);
+        break;
+
+    case TECMP_MSG_TYPE_COUNTER_EVENT:
+        offset += dissect_tecmp_counter_event(tvb, pinfo, tree, offset, (guint16)data_type, (guint8)tecmp_type);
+        break;
+
+    case TECMP_MSG_TYPE_TIMESYNC_EVENT:
+        offset += dissect_tecmp_timesync_event(tvb, pinfo, tree, offset, (guint16)data_type, (guint8)tecmp_type);
         break;
 
     }
@@ -2101,6 +2230,37 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_flags_tx_mode,
             { "TX Mode", "tecmp.payload.data_flags.set_tx_mode",
             FT_UINT16, BASE_DEC, VALS(tecmp_payload_flexray_tx_mode), 0x0380, NULL, HFILL }},
+
+        /* Counter Event */
+        { &hf_tecmp_payload_counter_event_device_id,
+            { "Device ID", "tecmp.payload.counter_event.device_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_counter_event_interface_id,
+            { "Interface ID", "tecmp.payload.counter_event.interface_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_counter_event_counter_last,
+            { "Last Counter", "tecmp.payload.counter_event.counter_last",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_counter_event_counter_cur,
+            { "Current Counter", "tecmp.payload.counter_event.counter_current",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        /* TimeSync Event */
+        { &hf_tecmp_payload_timesync_event_device_id,
+            { "Device ID", "tecmp.payload.timesync_event.device_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_timesync_event_interface_id,
+            { "Interface ID", "tecmp.payload.timesync_event.interface_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_timesync_event_reserved,
+            { "Reserved", "tecmp.payload.timesync_event.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_timesync_event_async,
+            { "Async", "tecmp.payload.timesync_event.async",
+            FT_UINT16, BASE_HEX, VALS(tecmp_timesync_event_flags), 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_timesync_event_time_delta,
+            { "TimeDelta", "tecmp.payload.timesync_event.time_delta",
+            FT_UINT16, BASE_HEX, VALS(tecmp_timesync_event_flags), 0x0, NULL, HFILL } },
     };
 
     static gint *ett[] = {
