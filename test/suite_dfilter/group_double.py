@@ -20,6 +20,30 @@ class case_double(unittest.TestCase):
         dfilter = "icmp.resptime == 492.205"
         checkDFilterCount(dfilter, 0)
 
+    def test_eq_3(self, checkDFilterCount):
+        dfilter = "icmp.resptime == 492204e-3"
+        checkDFilterCount(dfilter, 1)
+
+    def test_eq_4(self, checkDFilterCount):
+        dfilter = "icmp.resptime == 492205e-3"
+        checkDFilterCount(dfilter, 0)
+
+    def test_ne_1(self, checkDFilterCount):
+        dfilter = "icmp.resptime != 492.204"
+        checkDFilterCount(dfilter, 0)
+
+    def test_ne_2(self, checkDFilterCount):
+        dfilter = "icmp.resptime != 492.205"
+        checkDFilterCount(dfilter, 1)
+
+    def test_ne_3(self, checkDFilterCount):
+        dfilter = "icmp.resptime != 492204e-3"
+        checkDFilterCount(dfilter, 0)
+
+    def test_ne_4(self, checkDFilterCount):
+        dfilter = "icmp.resptime != 492205e-3"
+        checkDFilterCount(dfilter, 1)
+
     def test_gt_1(self, checkDFilterCount):
         dfilter = "icmp.resptime > 492"
         checkDFilterCount(dfilter, 1)
