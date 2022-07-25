@@ -1745,9 +1745,17 @@ find_or_create_conversation(packet_info *pinfo)
         DPRINT(("did not find previous conversation for frame #%u",
                     pinfo->num));
         DINDENT();
-        conv = conversation_new(pinfo->num, &pinfo->src,
-                &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
-                pinfo->srcport, pinfo->destport, 0);
+        if (pinfo->use_endpoint) {
+            conv = conversation_new(pinfo->num, &pinfo->conv_endpoint->addr1, &pinfo->conv_endpoint->addr2,
+                        pinfo->conv_endpoint->etype, pinfo->conv_endpoint->port1,
+                        pinfo->conv_endpoint->port2, 0);
+        } else if (pinfo->conv_elements) {
+            conv = conversation_new_full(pinfo->num, pinfo->conv_elements);
+        } else {
+            conv = conversation_new(pinfo->num, &pinfo->src,
+                    &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+                    pinfo->srcport, pinfo->destport, 0);
+        }
         DENDENT();
     }
 
