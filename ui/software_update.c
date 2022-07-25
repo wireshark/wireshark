@@ -157,7 +157,6 @@ software_update_check(void) {
 /** Clean up software update checking.
  */
 void software_update_cleanup(void) {
-    sparkle_software_update_cleanup();
 }
 
 const char *software_update_info(void) {
