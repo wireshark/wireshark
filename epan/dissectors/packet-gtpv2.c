@@ -10806,7 +10806,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_smenb,
          {"SMeNB", "gtpv2.smenb",
-          FT_BOOLEAN, 24, TFS(&gtpv2_smenb), 0x800000,
+          FT_BOOLEAN, 8, TFS(&gtpv2_smenb), 0x80,
           NULL, HFILL}
         },
         {&hf_gtpv2_ext_macro_enodeb_id,
