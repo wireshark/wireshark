@@ -4407,23 +4407,22 @@ quic_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_
 static gchar *
 quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream)
 {
-    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
-        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))) {
-        gboolean from_server;
-        quic_info_data_t *conn = quic_connection_find_dcid(pinfo, NULL, &from_server);
-        if (!conn) {
-            return NULL;
-        }
+    quic_datagram *dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
 
-        /* First Stream ID in the selected packet */
-        quic_follow_stream *s;
-        if (conn->streams_map) {
-	    s = wmem_map_lookup(conn->streams_map, GUINT_TO_POINTER(pinfo->num));
-            if (s) {
-                *stream = conn->number;
-                *sub_stream = (guint)s->stream_id;
-                return ws_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, *sub_stream);
-            }
+    if (!dgram_info || !dgram_info->conn) {
+        return NULL;
+    }
+
+    quic_info_data_t *conn = dgram_info->conn;
+
+    /* First Stream ID in the selected packet */
+    quic_follow_stream *s;
+    if (conn->streams_map) {
+        s = wmem_map_lookup(conn->streams_map, GUINT_TO_POINTER(pinfo->num));
+        if (s) {
+            *stream = conn->number;
+            *sub_stream = (guint)s->stream_id;
+            return ws_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, *sub_stream);
         }
     }
 
@@ -4456,6 +4455,11 @@ follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt 
         return TAP_PACKET_DONT_REDRAW;
     }
 
+    // XXX: follow_tvb_tap_listener sets follow_info->is_server based on
+    // the initial client_port and client_ip, and is not correct after
+    // connection migration. QUIC should implement its own function
+    // here. Ideally, such function should also deal with stream
+    // fragmentation in a similar manner to the TCP dissector.
     return follow_tvb_tap_listener(tapdata, pinfo, NULL, follow_data->tvb, flags);
 }
 
