@@ -69,12 +69,10 @@ typedef struct _fvalue_t {
 		/* Put a few basic types in here */
 		guint32			uinteger;
 		gint32			sinteger;
-		guint64			integer64;
 		guint64			uinteger64;
 		gint64			sinteger64;
 		gdouble			floating;
-		gchar			*string;
-		guchar			*ustring;
+		wmem_strbuf_t		*strbuf;
 		GByteArray		*bytes;
 		ipv4_addr_and_mask	ipv4;
 		ipv6_addr_and_prefix	ipv6;
@@ -84,11 +82,6 @@ typedef struct _fvalue_t {
 		guint16			sfloat_ieee_11073;
 		guint32			float_ieee_11073;
 	} value;
-
-	/* The following is provided for private use
-	 * by the fvalue. */
-	gboolean	fvalue_gboolean1;
-
 } fvalue_t;
 
 
@@ -367,7 +360,7 @@ if none match.
 
 This returns the accumulator's value, either TRUE or FALSE.
 
-In addition to dftest, there is also a unit-test script for the 
+In addition to dftest, there is also a unit-test script for the
 display filter engine - test/suite_dfilter/dfiltertest.py.
 It makes use of tshark to run specific display filters against
 specific captures in test/captures. See the "Wireshark Tests" chapter
