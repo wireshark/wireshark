@@ -121,4 +121,4 @@ if(LibXml2_FOUND)
     endif()
 endif()
 
-AddWSWinDLLS(LibXml2 LIBXML2_HINTS "libxml2*" "lzma*")
+AddWSWinDLLS(LibXml2 LIBXML2_HINTS "libxml2*" "liblzma*")
