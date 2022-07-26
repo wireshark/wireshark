@@ -1645,7 +1645,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     gfloat i_value = decompress_value(i_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
                     i_value = digital_power_scaling(i_value);
                     guint sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
-                    proto_item *i_ti = proto_tree_add_uint(rb_tree, hf_oran_iSample, tvb, samples_offset/8, sample_len_in_bytes, i_value);
+                    proto_item *i_ti = proto_tree_add_float(rb_tree, hf_oran_iSample, tvb, samples_offset/8, sample_len_in_bytes, i_value);
                     proto_item_set_text(i_ti, "iSample: %0.12f  0x%04x (iSample-%u in the PRB)", i_value, i_bits, sample_number);
                     samples_offset += sample_bit_width;
                     /* Q */
@@ -1653,7 +1653,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     gfloat q_value = decompress_value(q_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
                     q_value = digital_power_scaling(q_value);
                     sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
-                    proto_item *q_ti = proto_tree_add_uint(rb_tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
+                    proto_item *q_ti = proto_tree_add_float(rb_tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
                     proto_item_set_text(q_ti, "qSample: %0.12f  0x%04x (qSample-%u in the PRB)", q_value, q_bits, sample_number);
                     samples_offset += sample_bit_width;
 
@@ -2516,7 +2516,7 @@ proto_register_oran(void)
         /* Section 6.3.3.15 */
         {&hf_oran_iSample,
          {"iSample", "oran_fh_cus.iSample",
-          FT_UINT16, BASE_DEC,
+          FT_FLOAT, BASE_NONE,
           NULL, 0x0,
           "In-phase Sample value", HFILL}
         },
@@ -2524,7 +2524,7 @@ proto_register_oran(void)
         /* Section 6.3.3.16 */
         {&hf_oran_qSample,
          {"qSample", "oran_fh_cus.qSample",
-          FT_UINT16, BASE_DEC,
+          FT_FLOAT, BASE_NONE,
           NULL, 0x0,
           "Quadrature Sample value", HFILL}
         },
