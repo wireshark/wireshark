@@ -42,6 +42,9 @@
         <Component Id="cmpAUTHORS_SHORT" Guid="*">
           <File Id="filAUTHORS_SHORT" KeyPath="yes" Source="$(var.Staging.Dir)\AUTHORS-SHORT" />
         </Component>
+        <Component Id="cmpGpl2_Standalone_html" Guid="*">
+          <File Id="filGpl2_Standalone_html" KeyPath="yes" Source="$(var.Staging.Dir)\gpl-2.0-standalone.html" />
+        </Component>
         <Component Id="cmpManuf" Guid="*">
           <File Id="filManuf" KeyPath="yes" Source="$(var.Staging.Dir)\manuf" />
         </Component>
@@ -87,6 +90,7 @@
         <ComponentRef Id="cmpREADME_txt" />
         <ComponentRef Id="cmpREADME_windows_txt" />
         <ComponentRef Id="cmpAUTHORS_SHORT" />
+        <ComponentRef Id="cmpGpl2_Standalone_html" />
         <ComponentRef Id="cmpManuf" />
         <ComponentRef Id="cmpWka" />
         <ComponentRef Id="cmpServices" />
