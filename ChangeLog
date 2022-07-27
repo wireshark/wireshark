@@ -1,0 +1,414 @@
+commit 6e06d05e7c6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Mar 15 10:20:09 2022 -0400
+
+    TCP: Add comments about current desegmentation limitations
+
+    (cherry picked from commit 52e0a5a0053e0ed1f2ee7b0016fd58ba47e1f7e8)
+
+commit 3de17bb03bf
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Tue Jul 26 15:20:06 2022 -0500
+
+    gtpv2: adjust field size and bitmask for gtpv2.smenb
+
+    Closes #18225
+
+    (cherry picked from commit c4f983141278158770dae804c99929fe3ffe3bd4)
+
+commit 0e33b244244
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jul 26 13:55:30 2022 -0700
+
+    Prep for 3.6.7.
+
+commit c3a75722f68
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 24 10:52:14 2022 -0700
+
+    Tools: Remove Pod installation steps from rpm-setup.sh.
+
+    [skip ci]
+
+    (cherry picked from commit 619639483325038f4c5f070e665938396eec2742)
+
+    Conflicts:
+            tools/rpm-setup.sh
+
+commit f749293cda4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 24 16:37:05 2022 +0000
+
+    [Automatic update for 2022-07-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 6e5d0baceda
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Sat Jul 23 16:16:27 2022 +0200
+
+    ECATMB: Add SDO Information to CANopenType
+
+    Fixes #18220
+
+    (cherry picked from commit 54b4be901511993701c6bcc4da8e625ab2c3c222)
+
+commit 95afd6e57e8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jul 22 10:19:59 2022 -0400
+
+    quic: Handle multiple Client Initial messages before a server initial
+
+    If there are multiple Client Initial messages before the first server
+    response (e.g., a long fragmented TLS Client Hello), we won't recognize
+    the client ID from the server connection and we need to look it up
+    in the list of initial connections.
+
+    (cherry picked from commit 9d284afa907e8ba21930f9492cb3131667db0c7f)
+
+commit 3db6bcbba8f
+Author: Roland Knall <rknall@gmail.com>
+Date:   Wed Feb 23 16:31:35 2022 +0000
+
+    Lua: Forward display filter text info
+
+    Fix issues caused with previous commits
+
+    Fixes: #17188
+
+    (cherry picked from commit 21f57f04b11c6f7f25c7410e53f6e80111c7413b)
+
+commit ba7b749b49e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 17 16:38:41 2022 +0000
+
+    [Automatic update for 2022-07-17]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e4e1e2e4fca
+Author: Aeneas Jaißle <aj@ajaissle.de>
+Date:   Wed Jul 13 14:54:26 2022 +0000
+
+    PPPoE: add TLV 0x90 value 0x03 "Double-tagged Ethernet", fix typo in "Encaps 2"
+
+    (cherry picked from commit ae3f69ab7dcc129013cedc160f52bf0f01e9bdef)
+
+commit abee1aa078d
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sat Jul 9 17:26:50 2022 +0000
+
+    BGP: fix typo for EVPN Router's MAC (RFC9135)
+
+    Reported by Joe Neville => https://twitter.com/joeneville_/status/1544020405530279938
+
+    (cherry picked from commit a7fa51b417ac99627c25786c80766e2606c53efe)
+
+commit d52f419489c
+Author: ismaelrti <ismael@rti.com>
+Date:   Thu Oct 14 17:38:37 2021 +0200
+
+    RTPS: ixed dissection of unions in user data.
+
+    Removed the type_id check when dissecting user data. That check avoids
+    dissection in valid cases.
+
+    (cherry picked from commit a1031afbff3924f298eec672c8ce5f168f713473)
+
+commit 48ddde1d954
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Sat Jun 4 18:06:31 2022 +0200
+
+    SIGNAL-PDU: Fixing memory leak in Signal List UAT
+
+commit 9f0944e2cdf
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Mon Jun 6 11:54:08 2022 +0200
+
+    SOME/IP: code cleanup to reduce memory leaks
+
+commit 1fe6417ebc0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 10 16:42:17 2022 +0000
+
+    [Automatic update for 2022-07-10]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 32cc1a66760
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jul 7 02:03:26 2022 -0700
+
+    nhrp: clean up extension parsing.
+
+    For the top-level item for an extension, initially create it with a
+    length of "to the end of the packet" and, when we finish dissecting it,
+    set the length appropriately.  That way, if the length is too large, we
+    don't throw an immediate exception, making it a little clearer what's
+    happending.
+
+    When dissecting an authentication extension, construct the text of the
+    top-level item as we dissect it, and initially create it with a length
+    of "to the end of the packet" and, when we're finished dissecting it,
+    set the length appropriately.  That way, we don't throw an exception
+    before doing any dissection if the data for the item isn't all there, we
+    only throw an exception when we run out of data, and we also don't try
+    to add the data unless there is at least one byte of data.
+
+    The latter of those fixes #18181.
+
+    (cherry picked from commit abe8798b78eac21c39d45239ca6674bad7456346)
+
+commit dc8320862b8
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jul 7 11:40:48 2022 -0700
+
+    nhrp: fix type of "Vendor ID" field.
+
+    We're fetching it as an 3-octet unsigned integer, so make it an
+    FT_UINT24.
+
+    (backported from part of commit 89b7a1328b104e081304ce91a375a4de8ed11156)
+
+commit 82a7af42ba5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 3 09:15:10 2022 -0400
+
+    epan: Fix return value of prooto_strlcpy when not enough room
+
+    proto_strlcpy in normal situations returns the number of bytes
+    copied (because the return value of g_strlcpy is strlen of the
+    source buffer). It can copy no more than dest_size - 1, because
+    dest_size is the size of the buffer, including the null terminator.
+    (https://docs.gtk.org/glib/func.strlcpy.html)
+
+    Returning dest_size can cause offsets to get off by one and reach
+    the end of the buffer, and can cause subsequent calls to have
+    buffer overflows. (See #16905 for an example in the comments.)
+
+    (cherry picked from commit dd5e2f3b3f8a639d386c63d0dce62c823f46163d)
+
+commit 682fcc73462
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 3 10:29:52 2022 -0400
+
+    epan: Prevent buffer overflows in some built-in addr_to_str types
+
+    Several of the constant length string built in address types don't
+    check to see if the buf_len passed in is long enough to write
+    the string.
+
+    This can cause buffer overflows, e.g. with a custom column with
+    many FT_ETHER fields.
+
+    (cherry picked from commit 5ef4da4d982d2a581d6caec4e5491226c722c07b)
+
+commit e59e956c3d0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 3 16:39:28 2022 +0000
+
+    [Automatic update for 2022-07-03]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit fc232189b8f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 30 20:14:52 2022 -0400
+
+    Qt: Check custom column syntax in Preferences properly
+
+    Not all display filters are valid for custom columns (see #15990).
+    Use the validation function for custom columns instead of the
+    display filter validation when adding or editing a custom column
+    through Edit->Preferences, as the Edit Column in the packet list
+    header already does.
+
+    Revisit this if we ever do expand the list of possible custom
+    columns.
+
+    (cherry picked from commit a40e5f715a2b4ef1be04598bee4834c216b76553)
+
+commit f76613cf186
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri Jul 1 15:15:58 2022 +0200
+
+    dtls: Support Connection ID when using Block Ciphers
+
+    Add support for DTLS Connection ID when using Block Ciphers,
+    the MAC algorithm is different.
+
+    (cherry picked from commit 190404d66bdb2573ca224967e368288b78fe525d)
+
+commit 02e3c954c3d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jun 30 23:35:52 2022 -0700
+
+    iec104: dissect the control field as a 4-octet little-endian field.
+
+    Treat all 4 octets of the control field as a single little-endian value
+    divided into bitfields.  We already showed *some* subfields as
+    bitfields; this means we show *all* of them that way.
+
+    That makes the display more clearly show which bits in those octets
+    correspond to which fields.
+
+    It also fixes the dissection of the type field; we have separate
+    bitfields for I frames (1-bit bitfield) and S and U frames (2-bit
+    bitfield).
+
+    Use proto_tree_add_item_ret_uint() to fetch the values other than the
+    frame type value.
+
+    Fixes #18167.
+
+    (backported from commit 0257b41167b05e11ce1c587cdb2f23b1616e56ea)
+
+commit 3c362dde088
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jun 27 20:26:08 2022 -0400
+
+    Qt: Make the Resolve Names buttons checkable again
+
+    The checkable property got lost at some point, rendering it impossible
+    to make columns resolved.
+
+    (cherry picked from commit 4ed4678859e0a90046f2dc025e0a1641129c3941)
+
+commit ff777dc1c72
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 26 16:38:46 2022 +0000
+
+    [Automatic update for 2022-06-26]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c8bf5817d92
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jun 25 08:01:31 2022 -0400
+
+    HTTP: Add chunks as items instead of calling data dissector
+
+    HTTP chunked transfer encoding can have lots of chunks, and calling
+    the data dissector for each individual chunk adds a large number of
+    layers to the frame and doesn't really make sense. (As opposed to
+    calling the data dissector on the reassembled data if we can't handle
+    the content type, which does make sense.) In particular, this can
+    cause a failed assertion by adding more layers than
+    PINFO_LAYER_MAX_RECURSION_DEPTH.
+
+    Just add each data chunk as a FT_BYTES item. Fix #18130.
+
+    (cherry picked from commit e49a69f361009e1d51d1608c6edd7b09b113488b)
+
+commit d83af184bad
+Author: João Valverde <j@v6e.pt>
+Date:   Fri Jun 24 14:00:15 2022 +0100
+
+    X509IF: Fix duplicate filter name
+
+    Fixes #18155.
+
+    (cherry picked from commit 229dad6a754c4c1840befafd7cc5917b36bd3f53)
+
+commit 89b10ad3878
+Author: Eelco Chaudron <echaudro@redhat.com>
+Date:   Mon Mar 7 13:39:07 2022 +0100
+
+    Frame: Fix segmentation dump when parsing packet_verdict
+
+    This change fixes a segmentation fault core dump in tshark/Wireshark
+    when loading a pcapng file that contains the packet verdict option.
+
+    This problem got introduced in the commit mentioned below.
+
+    Fixes: 030b06ba3c8 ("pcapng: write packet and Netflix custom blocks the same as other blocks.")
+    Signed-off-by: Eelco Chaudron <echaudro@redhat.com>
+
+    (cherry picked from commit e79630f1d978f38f7e95373311cdc5c9b0677fb4)
+
+commit 234f45d8e5e
+Author: j.novak@netsystem.cz <j.novak@netsystem.cz>
+Date:   Tue Jun 21 19:08:28 2022 +0000
+
+    RTP Analysis dialog: Fix of clock drift freq drift calculation
+
+    (cherry picked from commit b6ccc65a9202454a84902232b435f95a869f20fc)
+
+commit 710b90a52f5
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Thu Nov 18 12:21:43 2021 -0600
+
+    Qt: capture with file intervals bug; autostop duration reset
+
+    Closes #16783. No open issue for autostop bug. Link added in
+    issue 16783 to Ask site question 15303.
+
+    (cherry picked from commit c560226f3b7d8acd3d7acb4d9d2aac862ffefcc4)
+
+commit 84d10fab913
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 19 16:38:48 2022 +0000
+
+    [Automatic update for 2022-06-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e11cac49e79
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 16 20:27:45 2022 -0400
+
+    MEGACO: Reset bracket counters after a Topology Descriptor
+
+    After parsing a Topology Descriptor at the start of a request
+    or reply command, reset the left and right bracket counters
+    before going back to the top of the loop to parse the next
+    command, just like how done at the end of the while loop with
+    a normal command.
+
+    Prevents marking as malformed packets which have a Topology Descriptor
+    followed by a single command (e.g. Move) without any trailing
+    descriptors, and hence no more left brackets.
+
+    (cherry picked from commit 9319394af11156a8ce093b6c5552d57d62873108)
+
+commit 0abca189666
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 15 23:21:35 2022 -0400
+
+    ethercat: Fix EEPROM Ctrl/Status bitmask fields
+
+    When the field width was corrected by commit
+    b240d5baa062a475ff0943b91205eb2aee2a0471, the masks got messed
+    up. There's 4 reserved bits that don't have fields and the bits
+    are in Little Endian order. Fix #18132.
+
+    (cherry picked from commit 4d578542944dfc475a5fe1fd8e2696bced7bb4fe)
+
+commit 5c1ce37ed84
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Jun 15 19:01:24 2022 +0200
+
+    RTCP: ensure that at least two bytes are captured for heuristic checks
+
+    Fixes #18136
+
+    (cherry picked from commit 1bd24bb95dc215a55fad0056e59a8494faef1493)
+
+commit 5b026eab12a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 15 10:24:07 2022 -0700
+
+    GitLab CI: Fix our documentation globs
+
+    The correct glob pattern for a directory and its subdirectories is
+    "**/*". Use that in the change rules for the Documentation job.
+
+    (cherry picked from commit 022ebb106a2890397d3ac9ff9b3db5cc369da99c)
+
+commit e6c79f36912
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 15 11:19:15 2022 -0700
+
+    Version: 3.6.6 → 3.6.7
+
+    [skip ci]

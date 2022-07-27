@@ -18,8 +18,8 @@ NOTE: This is the last release branch with support for 32-bit Windows.
 Updates will no longer be available after May 22, 2024 for that platform.
 wsbuglink:17779[]
 
-The Windows installers now ship with Npcap 1.60.
-They previously shipped with Npcap 1.55.
+// The Windows installers now ship with Npcap 1.60.
+// They previously shipped with Npcap 1.55.
 
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
@@ -54,7 +54,7 @@ The following bugs have been fixed:
 
 * Dissector bug, protocol HTTP failed assertion "saved_layers_len < 500" with chunked/multipart wsbuglink:18130[].
 
-* Wrong ethercat bit label(possible dissector bug) wsbuglink:18132[].
+* Wrong EtherCAT bit label (possible dissector bug) wsbuglink:18132[].
 
 * UDP packets falsely marked as "malformed packet" wsbuglink:18136[].
 
@@ -64,7 +64,7 @@ The following bugs have been fixed:
 
 * NHRP Problem wsbuglink:18181[].
 
-* Ethercat CoE header unknown type wsbuglink:18220[].
+* EtherCAT CoE header unknown type wsbuglink:18220[].
 
 === New and Updated Features
 
@@ -85,8 +85,8 @@ There are no new protocols in this release.
 --
 BGP
 DTLS
-ECAT
-ECAT_MAILBOX
+EtherCAT
+EtherCAT Mailbox
 HTTP
 IEC 104
 MEGACO
