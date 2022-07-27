@@ -4093,7 +4093,7 @@ proto_register_gsm_a_common(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_type_of_ciph_alg,
-        { "Call priority", "gsm_a.call_prio",
+        { "Type of ciphering algorithm", "gsm_a.type_of_ciph_alg",
         FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_ciph_alg_vals), 0x07,
         NULL, HFILL }
     },
