@@ -17,6 +17,7 @@
 #include <epan/strutil.h>
 
 #include <wsutil/utf8_entities.h>
+#include <wsutil/regex.h>
 
 #include "main_application.h"
 #include <QKeyEvent>
@@ -63,7 +64,7 @@ SearchFrame::SearchFrame(QWidget *parent) :
 SearchFrame::~SearchFrame()
 {
     if (regex_) {
-        g_regex_unref(regex_);
+        ws_regex_free(regex_);
     }
     delete sf_ui_;
 }
@@ -140,13 +141,13 @@ void SearchFrame::keyPressEvent(QKeyEvent *event)
 
 bool SearchFrame::regexCompile()
 {
-    int flags = (G_REGEX_OPTIMIZE);
+    unsigned flags = 0;
     if (!sf_ui_->caseCheckBox->isChecked()) {
-        flags |= G_REGEX_CASELESS;
+        flags |= WS_REGEX_CASELESS;
     }
 
     if (regex_) {
-        g_regex_unref(regex_);
+        ws_regex_free(regex_);
     }
 
     if (sf_ui_->searchLineEdit->text().isEmpty()) {
@@ -154,12 +155,12 @@ bool SearchFrame::regexCompile()
         return false;
     }
 
-    GError *error = nullptr;
-    regex_ = g_regex_new(sf_ui_->searchLineEdit->text().toUtf8().constData(),
-                         (GRegexCompileFlags)flags, (GRegexMatchFlags) 0, &error);
-    if (error) {
-        regex_error_ = error->message;
-        g_error_free(error);
+    char *errmsg = nullptr;
+    regex_ = ws_regex_compile_ex(sf_ui_->searchLineEdit->text().toUtf8().constData(), -1,
+                         &errmsg, flags);
+
+    if (errmsg != nullptr) {
+        regex_error_ = errmsg;
     }
 
     return regex_ ? true : false;

@@ -103,14 +103,16 @@ ws_regex_compile(const char *patt, char **errmsg)
 
 
 static bool
-match_pcre2(pcre2_code *code, PCRE2_SPTR subject, PCRE2_SIZE length)
+match_pcre2(pcre2_code *code, const char *subject, ssize_t subj_length,
+                pcre2_match_data *match_data)
 {
-    pcre2_match_data *match_data;
+    PCRE2_SIZE length;
     int rc;
 
-    /* We don't use the matched substring but pcre2_match requires
-     * at least one pair of offsets. */
-    match_data = pcre2_match_data_create(1, NULL);
+    if (subj_length < 0)
+        length = PCRE2_ZERO_TERMINATED;
+    else
+        length = (PCRE2_SIZE)subj_length;
 
     rc = pcre2_match(code,
                     subject,
@@ -119,8 +121,6 @@ match_pcre2(pcre2_code *code, PCRE2_SPTR subject, PCRE2_SIZE length)
                     0,          /* default options */
                     match_data,
                     NULL);
-
-    pcre2_match_data_free(match_data);
 
     if (rc < 0) {
         /* No match */
@@ -142,21 +142,49 @@ match_pcre2(pcre2_code *code, PCRE2_SPTR subject, PCRE2_SIZE length)
 bool
 ws_regex_matches(const ws_regex_t *re, const char *subj)
 {
-    ws_return_val_if_null(re, FALSE);
-    ws_return_val_if_null(subj, FALSE);
-
-    return match_pcre2(re->code, (PCRE2_SPTR)subj, PCRE2_ZERO_TERMINATED);
+    return ws_regex_matches_length(re, subj, -1);
 }
 
 
 bool
 ws_regex_matches_length(const ws_regex_t *re,
-                        const char *subj, size_t subj_length)
+                        const char *subj, ssize_t subj_length)
 {
+    bool matched;
+    pcre2_match_data *match_data;
+
     ws_return_val_if_null(re, FALSE);
     ws_return_val_if_null(subj, FALSE);
 
-    return match_pcre2(re->code, (PCRE2_SPTR)subj, (PCRE2_SIZE)subj_length);
+    /* We don't use the matched substring but pcre2_match requires
+     * at least one pair of offsets. */
+    match_data = pcre2_match_data_create(1, NULL);
+    matched = match_pcre2(re->code, subj, subj_length, match_data);
+    pcre2_match_data_free(match_data);
+    return matched;
+}
+
+
+bool
+ws_regex_matches_pos(const ws_regex_t *re,
+                        const char *subj, ssize_t subj_length,
+                        size_t pos_vect[2])
+{
+    bool matched;
+    pcre2_match_data *match_data;
+
+    ws_return_val_if_null(re, FALSE);
+    ws_return_val_if_null(subj, FALSE);
+
+    match_data = pcre2_match_data_create(1, NULL);
+    matched = match_pcre2(re->code, subj, subj_length, match_data);
+    if (matched && pos_vect) {
+        PCRE2_SIZE *ovect = pcre2_get_ovector_pointer(match_data);
+        pos_vect[0] = ovect[0];
+        pos_vect[1] = ovect[1];
+    }
+    pcre2_match_data_free(match_data);
+    return matched;
 }
 
 

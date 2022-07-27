@@ -3146,7 +3146,7 @@ match_subtree_text(proto_node *node, gpointer data)
     }
 
     if (cf->regex) {
-        if (g_regex_match(cf->regex, label_ptr, (GRegexMatchFlags) 0, NULL)) {
+        if (ws_regex_matches(cf->regex, label_ptr)) {
             mdata->frame_matched = TRUE;
             mdata->finfo = fi;
             return;
@@ -3223,7 +3223,7 @@ match_summary_line(capture_file *cf, frame_data *fdata,
             info_column = get_column_text(edt.pi.cinfo, colx);
             info_column_len = strlen(info_column);
             if (cf->regex) {
-                if (g_regex_match(cf->regex, info_column, (GRegexMatchFlags) 0, NULL)) {
+                if (ws_regex_matches(cf->regex, info_column)) {
                     result = MR_MATCHED;
                     break;
                 }
@@ -3747,7 +3747,7 @@ match_regex(capture_file *cf, frame_data *fdata,
         wtap_rec *rec, Buffer *buf, void *criterion _U_)
 {
     match_result  result = MR_NOTMATCHED;
-    GMatchInfo   *match_info = NULL;
+    size_t result_pos[2] = {0, 0};
 
     /* Load the frame's data. */
     if (!cf_read_record(cf, fdata, rec, buf)) {
@@ -3755,13 +3755,13 @@ match_regex(capture_file *cf, frame_data *fdata,
         return MR_ERROR;
     }
 
-    if (g_regex_match_full(cf->regex, (const gchar *)ws_buffer_start_ptr(buf), fdata->cap_len,
-                0, (GRegexMatchFlags) 0, &match_info, NULL))
-    {
-        gint start_pos = 0, end_pos = 0;
-        g_match_info_fetch_pos (match_info, 0, &start_pos, &end_pos);
-        cf->search_pos = end_pos - 1;
-        cf->search_len = end_pos - start_pos;
+    if (ws_regex_matches_pos(cf->regex,
+                                (const gchar *)ws_buffer_start_ptr(buf),
+                                fdata->cap_len,
+                                result_pos)) {
+        //TODO: Fix cast.
+        cf->search_pos = (guint32)(result_pos[1] - 1); /* last byte = end position - 1 */
+        cf->search_len = (guint32)(result_pos[1] - result_pos[0]);
         result = MR_MATCHED;
     }
     return result;
