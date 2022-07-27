@@ -4012,6 +4012,8 @@ Dan Lasley <dlasley[AT]promus.com> gave permission for his dumpit() hex-dump rou
 
 We use the exception module from Kazlib, a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library. The Kazlib home page can be found at http://www.kylheku.com/~kaz/kazlib.html
 
+We use Lua <https://www.lua.org/about.html> to extend Wireshark APIs with scripting capabilities. Lua is a powerful, efficient, lightweight, embeddable scripting language developed and maintained by a team at PUC-Rio.
+
 We use Lua BitOp, written by Mike Pall, for bitwise operations on numbers in Lua. The Lua BitOp home page can be found at https://bitop.luajit.org
 
 Snax <snax[AT]shmoo.com> gave permission to use the weak key detection code from Airsnort.
