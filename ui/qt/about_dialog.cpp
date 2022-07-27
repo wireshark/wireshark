@@ -381,8 +381,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     f_license.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_license(&f_license);
 
-    ui->textEditLicense->setHtml(ReadFile_license.readAll());
-    ui->textEditLicense->moveCursor(QTextCursor::Start);
+    ui->textBrowserLicense->setHtml(ReadFile_license.readAll());
+    ui->textBrowserLicense->moveCursor(QTextCursor::Start);
 }
 
 AboutDialog::~AboutDialog()

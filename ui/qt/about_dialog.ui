@@ -112,7 +112,7 @@
            </property>
           </spacer>
          </item>
-      </layout>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -277,8 +277,11 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QTextEdit" name="textEditLicense">
+        <widget class="QTextBrowser" name="textBrowserLicense">
          <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
         </widget>
