@@ -227,6 +227,7 @@ BuildRequires:	libQt5Core-devel
 BuildRequires:	libQt5Gui-devel
 BuildRequires:	libQt5Widgets-devel
 BuildRequires:	libQt5PrintSupport-devel
+BuildRequires:	libQt5Concurrent-devel
 BuildRequires:	libqt5-qtmultimedia-devel
 BuildRequires:	libqt5-linguist-devel
 Requires:	libQt5Svg5
