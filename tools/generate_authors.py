@@ -48,7 +48,6 @@ def get_git_authors():
 def extract_contributors(authors_content):
     # Extract names and email addresses from the AUTHORS file Contributors
     contributors_content = authors_content.split("= Contributors =", 1)[1]
-    contributors_content = contributors_content.split("= Acknowledgements =", 1)[0]
     CONTRIBUTOR_LINE_REGEX = r"^([\w\.\-\'\x80-\xff]+(\s*[\w+\.\-\'\x80-\xff])*)\s+<([^>]*)>"
     contributors = []
     state = ""
@@ -126,11 +125,8 @@ def main():
     git_contributors_text = generate_git_contributors_text(contributors_emails, git_authors_emails)
 
     # Now we can write our output:
-    acknowledgements_start = author_content.find("\n\n= Acknowledgements =")
-    before_acknowledgements = author_content[:acknowledgements_start]
-    acknowledgements = author_content[acknowledgements_start:]
-    git_contributor_header = '\n\n\n= From git log =\n\n'
-    output = before_acknowledgements + git_contributor_header + git_contributors_text + '\n' + acknowledgements
+    git_contributor_header = '\n\n= From git log =\n\n'
+    output = author_content + git_contributor_header + git_contributors_text + '\n'
     stdoutu8.write(output)
 
 

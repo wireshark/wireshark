@@ -63,11 +63,11 @@
 #include <QMenu>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPlainTextEdit>
 
 AuthorListModel::AuthorListModel(QObject * parent) :
 AStringListListModel(parent)
 {
-    bool readAck = false;
     QFile f_authors;
 
     f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
@@ -80,38 +80,24 @@ AStringListListModel(parent)
 #endif
 
     QRegularExpression rx("(.*)[<(]([\\s'a-zA-Z0-9._%+-]+(\\[[Aa][Tt]\\])?[a-zA-Z0-9._%+-]+)[>)]");
-    acknowledgement_.clear();
     while (!ReadFile_authors.atEnd()) {
         QString line = ReadFile_authors.readLine();
 
-        if (! readAck && line.trimmed().length() == 0)
+        if (line.trimmed().length() == 0)
                 continue;
         if (line.startsWith("------"))
             continue;
 
-        if (line.contains("Acknowledgements")) {
-            readAck = true;
-            continue;
+        QRegularExpressionMatch match = rx.match(line);
+        if (match.hasMatch()) {
+            appendRow(QStringList() << match.captured(1).trimmed() << match.captured(2).trimmed());
         }
-        else if (!readAck) {
-            QRegularExpressionMatch match = rx.match(line);
-            if (match.hasMatch())
-                appendRow(QStringList() << match.captured(1).trimmed() << match.captured(2).trimmed());
-        }
-
-        if (readAck && (!line.isEmpty() || !acknowledgement_.isEmpty()))
-            acknowledgement_.append(QString("%1\n").arg(line));
     }
     f_authors.close();
 
 }
 
 AuthorListModel::~AuthorListModel() { }
-
-QString AuthorListModel::acknowledgment() const
-{
-    return acknowledgement_;
-}
 
 QStringList AuthorListModel::headerColumns() const
 {
@@ -278,6 +264,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
+    QFile f_acknowledgements;
     QFile f_license;
 
     AuthorListModel * authorModel = new AuthorListModel(this);
@@ -288,10 +275,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     proxyAuthorModel->setColumnToFilter(1);
     ui->tblAuthors->setModel(proxyAuthorModel);
     ui->tblAuthors->setRootIsDecorated(false);
-    ui->pte_Authors->clear();
-    ui->pte_Authors->appendPlainText(authorModel->acknowledgment());
-    ui->pte_Authors->moveCursor(QTextCursor::Start);
-
     ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tblAuthors, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchAuthors, &QLineEdit::textChanged, proxyAuthorModel, &AStringListListSortFilterProxyModel::setFilter);
@@ -374,6 +357,28 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblShortcuts->sortByColumn(1, Qt::AscendingOrder);
     connect(ui->tblShortcuts, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchShortcuts, &QLineEdit::textChanged, shortcutProxyModel, &AStringListListSortFilterProxyModel::setFilter);
+
+    /* Acknowledgements */
+    f_acknowledgements.setFileName(get_datafile_path("Acknowledgements.md"));
+
+    f_acknowledgements.open(QFile::ReadOnly | QFile::Text);
+    QTextStream ReadFile_acks(&f_acknowledgements);
+
+    /* QTextBrowser markdown support added in 5.14. */
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    QTextBrowser *textBrowserAcks = new QTextBrowser();
+    textBrowserAcks->setMarkdown(ReadFile_acks.readAll());
+    textBrowserAcks->setReadOnly(true);
+    textBrowserAcks->setOpenExternalLinks(true);
+    textBrowserAcks->moveCursor(QTextCursor::Start);
+    ui->ackVerticalLayout->addWidget(textBrowserAcks);
+#else
+    QPlainTextEdit *pte = new QPlainTextEdit();
+    pte->setPlainText(ReadFile_acks.readAll());
+    pte->setReadOnly(true);
+    pte->moveCursor(QTextCursor::Start);
+    ui->ackVerticalLayout->addWidget(pte);
+#endif
 
     /* License */
     f_license.setFileName(get_datafile_path("gpl-2.0-standalone.html"));

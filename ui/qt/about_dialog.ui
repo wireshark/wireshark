@@ -261,15 +261,7 @@
       <attribute name="title">
        <string>Acknowledgments</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_8">
-       <item>
-        <widget class="QPlainTextEdit" name="pte_Authors">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <layout class="QVBoxLayout" name="ackVerticalLayout"/>
      </widget>
      <widget class="QWidget" name="tab_license">
       <attribute name="title">
