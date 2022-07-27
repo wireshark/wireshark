@@ -48,24 +48,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
-* Multiple Files preference "Create new file automatically...after" [time] working incorrectly wsbuglink:16783[].
-
-* get_filter Lua function doesn't return the filter wsbuglink:17188[].
-
-* Dissector bug, protocol HTTP failed assertion "saved_layers_len < 500" with chunked/multipart wsbuglink:18130[].
-
-* Wrong EtherCAT bit label (possible dissector bug) wsbuglink:18132[].
-
-* UDP packets falsely marked as "malformed packet" wsbuglink:18136[].
-
-* TLS certificate parser with filter crash wsbuglink:18155[].
-
-* Incorrect type for the IEC 60870 APDU appears in packet details pane wsbuglink:18167[].
-
-* NHRP Problem wsbuglink:18181[].
-
-* EtherCAT CoE header unknown type wsbuglink:18220[].
-
 === New and Updated Features
 
 
@@ -83,20 +65,6 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
-BGP
-DTLS
-EtherCAT
-EtherCAT Mailbox
-HTTP
-IEC 104
-MEGACO
-NHRP
-PPPoE
-QUIC
-RTCP
-Signal PDU
-SOME/IP
-X509IF
 --
 
 === New and Updated Capture File Support
