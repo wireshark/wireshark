@@ -44,6 +44,21 @@ The following bugs have been fixed:
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Multiple Files preference "Create new file automatically...after" [time] working incorrectly wsbuglink:16783[].
+
+* TLS: RSA decryption fails with Extended Master Secret and renegotiation wsbuglink:18059[].
+
+* UDP packets falsely marked as "malformed packet" wsbuglink:18136[].
+
+* Incorrect type for the IEC 60870 APDU appears in packet details pane wsbuglink:18167[].
+
+* NHRP Problem wsbuglink:18181[].
+
+* EtherCAT CoE header unknown type wsbuglink:18220[].
+
+* GTPv2: SMeNB display in tree wsbuglink:18225[].
+
+
 === New and Updated Features
 
 // === Removed Features and Support
@@ -66,6 +81,15 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+DTLS
+F5 Ethernet trailer
+EtherCAT Mailbox
+GTPv2
+IEC 104
+NHRP
+RTCP
+TLS
+ZigBee ZCL
 --
 
 === New and Updated Capture File Support

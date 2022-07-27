@@ -11,6 +11,23 @@
 
    The following bugs have been fixed:
 
+     • Multiple Files preference "Create new file automatically…​after"
+       [time] working incorrectly Issue 16783[1].
+
+     • TLS: RSA decryption fails with Extended Master Secret and
+       renegotiation Issue 18059[2].
+
+     • UDP packets falsely marked as "malformed packet" Issue 18136[3].
+
+     • Incorrect type for the IEC 60870 APDU appears in packet details
+       pane Issue 18167[4].
+
+     • NHRP Problem Issue 18181[5].
+
+     • EtherCAT CoE header unknown type Issue 18220[6].
+
+     • GTPv2: SMeNB display in tree Issue 18225[7].
+
   New and Updated Features
 
   New Protocol Support
@@ -18,6 +35,9 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   DTLS, EtherCAT Mailbox, F5 Ethernet trailer, GTPv2, IEC 104, NHRP,
+   RTCP, TLS, and ZigBee ZCL
 
   New and Updated Capture File Support
 
@@ -33,7 +53,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[8] on the Wireshark web site.
 
  File Locations
 
@@ -47,22 +67,29 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[9] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[10].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[11].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[12].
 
-  Last updated 2022-05-04 19:33:46 UTC
+  Last updated 2022-07-27 18:35:02 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/16783
+   2. https://gitlab.com/wireshark/wireshark/-/issues/18059
+   3. https://gitlab.com/wireshark/wireshark/-/issues/18136
+   4. https://gitlab.com/wireshark/wireshark/-/issues/18167
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18181
+   6. https://gitlab.com/wireshark/wireshark/-/issues/18220
+   7. https://gitlab.com/wireshark/wireshark/-/issues/18225
+   8. https://www.wireshark.org/download.html#thirdparty
+   9. https://ask.wireshark.org/
+  10. https://www.wireshark.org/lists/
+  11. https://gitlab.com/wireshark/wireshark/-/issues
+  12. https://www.wireshark.org/faq.html
