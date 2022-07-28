@@ -141,6 +141,7 @@ void ftype_register_string(void);
 void ftype_register_time(void);
 void ftype_register_tvbuff(void);
 
+/* For debugging. */
 void ftype_register_pseudofields_bytes(int proto);
 void ftype_register_pseudofields_double(int proto);
 void ftype_register_pseudofields_ieee_11073_float(int proto);
@@ -148,6 +149,7 @@ void ftype_register_pseudofields_integer(int proto);
 void ftype_register_pseudofields_ipv4(int proto);
 void ftype_register_pseudofields_ipv6(int proto);
 void ftype_register_pseudofields_guid(int proto);
+void ftype_register_pseudofields_none(int proto);
 void ftype_register_pseudofields_string(int proto);
 void ftype_register_pseudofields_time(int proto);
 void ftype_register_pseudofields_tvbuff(int proto);

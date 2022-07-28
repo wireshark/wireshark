@@ -53,6 +53,22 @@ ftype_register_none(void)
 	ftype_register(FT_NONE, &none_type);
 }
 
+void
+ftype_register_pseudofields_none(int proto)
+{
+	static int hf_ft_none;
+
+	static hf_register_info hf_ftypes[] = {
+		{ &hf_ft_none,
+		    { "FT_NONE", "_ws.ftypes.none",
+			FT_NONE, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+	};
+
+	proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

@@ -1188,9 +1188,6 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 		return ftype1;
 	}
 
-	ftype1 = check_arithmetic_expr(dfw, st_arg1, lhs_ftype);
-	ftype2 = check_arithmetic_expr(dfw, st_arg2, ftype1);
-
 	switch (st_op) {
 		case STNODE_OP_ADD:
 			can_func = ftype_can_add;
@@ -1214,10 +1211,13 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 			ws_assert_not_reached();
 	}
 
+	ftype1 = check_arithmetic_expr(dfw, st_arg1, lhs_ftype);
 	if (!can_func(ftype1)) {
 		FAIL(dfw, st_arg1, "%s cannot %s.",
 			ftype_name(ftype1), stnode_todisplay(st_node));
 	}
+
+	ftype2 = check_arithmetic_expr(dfw, st_arg2, ftype1);
 	if (!can_func(ftype2)) {
 		FAIL(dfw, st_arg2, "%s cannot %s.",
 			ftype_name(ftype2), stnode_todisplay(st_node));

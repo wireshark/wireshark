@@ -49,6 +49,7 @@ ftypes_register_pseudofields(void)
 	ftype_register_pseudofields_ipv4(proto_ftypes);
 	ftype_register_pseudofields_ipv6(proto_ftypes);
 	ftype_register_pseudofields_guid(proto_ftypes);
+	ftype_register_pseudofields_none(proto_ftypes);
 	ftype_register_pseudofields_string(proto_ftypes);
 	ftype_register_pseudofields_time(proto_ftypes);
 	ftype_register_pseudofields_tvbuff(proto_ftypes);
