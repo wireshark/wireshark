@@ -270,7 +270,7 @@ def read_git_archive(tagged_version_extra, untagged_version_extra):
         match = re.match(r'^tag: (v[1-9].+)', git_ref)
         if match:
             is_tagged = True
-            vcs_tag = match.groups[0]
+            vcs_tag = match.groups()[0]
 
     if is_tagged:
         print(f"We are on tag {vcs_tag}.")
