@@ -40,16 +40,7 @@ wsbuglink:17779[]
  - Columns for the Conversations and Endpoint dialogs can be hidden by context menu.
  - TCP/UDP conversations now include the stream id and allows filtering on it.
 
-* The ip.flags field is now only the three high bits, not the full byte.
-  Display filters and Coloring rules using the field will need to be adjusted.
-
 * Speed when using MaxMind geolocation has been greatly improved.
-
-* The 'v' (lower case) and 'V' (upper case) switches have been swapped for editcap and mergecap to
-  match the other command line utilities.
-
-* New address type AT_NUMERIC allows simple numeric addresses for protocols which do not have
-  a more common-style address approach, analog to AT_STRINGZ.
 
 * The Wireshark Lua API now uses the https://github.com/rrthomas/lrexlib[lrexlib] bindings to PCRE2.
   Code using the Lua GRegex module will have to be updated to use lrexlib-pcre2 instead.
@@ -96,6 +87,19 @@ See the “New and Updated Features” section below for more details.
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated) since version 3.7.2:
+
+The following features are new (or have been significantly updated) since version 3.7.1:
+
+* The 'v' (lower case) and 'V' (upper case) switches have been swapped for editcap and mergecap to
+  match the other command line utilities.
+
+* The ip.flags field is now only the three high bits, not the full byte.
+  Display filters and Coloring rules using the field will need to be adjusted.
+
+* New address type AT_NUMERIC allows simple numeric addresses for protocols which do not have
+  a more common-style address approach, analog to AT_STRINGZ.
 
 The following features are new (or have been significantly updated) since version 3.7.0:
 
