@@ -1,3 +1,262 @@
+2a6d74f280 Docbook: Update the release notes.
+df7f3e76b5 tshark: Run GLib mainloop during capture
+0816e317cb dfilter: Fix crash with FT_NONE and arithmetic expressions
+32326b3a07 packaging: EPEL 8 has asciidoctor now
+65e13f9d8f gitignore: Add Qt creator autosave
+3f6e577dc1 TECMP: Adding CounterEvent and TimeSyncEvent
+39aa6b06da gsm_a_common: Use common E212 MCC MNC function
+0ccfdfbf5c Win-setup: Update bcg729 to 1.1.1.
+a618fe72a2 GRPC: Fix the bug of GRPC-WEB decompression failure over HTTP1.1
+1c89a14117 gsm_a_common: Fix cut and paste error
+ab77d11599 Windows: Add missing license file to installer
+6455fe3efd Win-setup: Update c-ares, nghttp2, and pcre2.
+1b62c53f56 packaging: Add Qt5Concurrent to SUSE BuildRequires
+35f3fe1b1d Qt: Enable About->License external hyperlinks
+3fac6f9772 Add acknowledgement for Lua itself.
+e7f439bc2f Convert capture file regex search to PCRE2.
+2cc887e80d MySQL: Add dissector for binlog event HEARTBEAT_LOG_EVENT_V2
+ae1c630025 QUIC: Use the stored datagram info for follow filter
+1ed39fa0b5 Add vcpkg-export-20220726-1.
+c4f9831412 gtpv2: adjust field size and bitmask for gtpv2.smenb
+7a75c638ac ORAN: Block FP improvement, additional correction
+6189eee63f Improvemnet Block FP decompression, common in case both U plane/C plane.
+c41a27b96d ORAN: eAxC ID flexible bit allocations
+9c2cbc842a PDCP_NR: Show direction in more sequence analysis expert output
+bfe8187608 test: Add dfilter 'double' tests
+f7a5efe87b doc: Update README.display_filter
+3307397da1 CMake: Set the correct variables for ccache.
+b093b6a992 epan: Make find_or_create_conversation create what it finds and vice versa
+babb059f21 GitLab CI: Disable tests in the Debian package job.
+cb8fc2874c macos: Remove no longer needed function
+4be3ae9738 CMake: improve finding C-Ares library
+cb3fd3b5cd quic: Handle out-of-order CRYPTO frames, aka "Chaos Protection"
+081bc13eb8 rpm: Disable build terminating on double dash versions for all distros
+d1bd808e84 appveyor: We no longer require Perl.
+6fc9667b16 Debian: Don't override our license in the About dialog.
+fa9703cb27 GitLab CI: Rocky 9 fixups.
+18e08d04d1 Qt: Setup GLib mainloop when needed
+5a8977acd2 Docbook: wslua_util → wslua_utility.
+d1074274d1 More Perl cleanup.
+6196394833 Tools: Remove Pod installation steps from rpm-setup.sh.
+3bb40a586d wslua: Rename wslua_util.c to wslua_utility.c.
+e68db21421 docbook: Add file comments to wsluarm.
+c252852c9d [Automatic update for 2022-07-24]
+73910a3319 Update Keysight/Ixia netflow fields support.
+34d30922eb GitLab CI: Switch to Rocky Linux 9.
+49dda8c71e Make Perl optional.
+a1c83a901b docbook: Port make-wsluarm to Python3
+832687cc74 UDS: Change Symbol Names as of ISO 14229-1:2020 Amd1
+90ac880b8a TECMP: Fix CRC decoding on FlexRay Null Frames (Bugfix)
+54b4be9015 ECATMB: Add SDO Information to CANopenType
+5f85c1f8aa dfilter: Use an exact floating-point string representation
+fd830dff58 wslua+lrexlib: Fixup our dependencies and paths.
+74082386de DVB-S2: Store whether low roll-off values are used in conversation data
+3e7ea95108 TECMP: Adding Subdissector support
+d92af30f29 SOME/IP: Remove legacy datatype support
+b1edbd337f TECMP: Show unparsed payload of control messages
+6d0619cdd0 ciscodump: Added support for IOS XE and ASA
+f2b30e70eb ciscodump: Added support for IOS XE and ASA
+62e81d53ba Removed useless function
+274f423401 Fixed issue in processing filters for ASA
+1e53e49a54 ciscodump: Added support for IOS XE and ASA
+9d284afa90 quic: Handle multiple Client Initial messages before a server initial
+158becb733 MySQL: support COM_REGISTER_SLAVE
+4702e3bfad WLAN: fix IEEE802.11 dissection bug
+b9ee6f4563 wslua: Fix more argument definitions.
+a113fd5c7b wslua: Remove unneeded empty lines from our markup.
+26e1d3cdb2 cmake: copy profiles output check
+9f59cae607 wslua: tapinfo - add state to debug info; update wsluarm
+0ed87211da proto.h: Fix -Wdocumentation
+476eb0e627 RTP player: fixed issue with no audio card available in Qt6
+ea91c5785a Qt6: Audio code review
+b8d85227f6 Qt: Update the RTP stream UI to support Qt6Multimedia.
+d2b6b89b94 Update license file structure and GUI display
+924076ed29 GitLab CI: Fix format of DEB_BUILD_OPTIONS passed to the Ubuntu build
+18b0c379a3 Fix handling of DEB_BUILD_OPTIONS=nocheck
+5991a75d78 ReleasNotes: Add minimum version requirements
+1f3f41391c addr_resolv: Add port correctly
+73ecb86f4c rpm-setup.sh: Improve messages
+fbadb8c785 wslua: Capitalize words in our markup.
+897bc6d27c HTTP2: display the full request URI
+cadcd7d261 Signal-PDU: Add Header Field for Signal PDU Name
+2068ec0f95 TCP: Fix conversation overlapping when reusing ports
+cab1ae7794 Locamation Interface Module dissector: simplify the Windows build fix
+596c8e9095 Addr_resolv: Use int for ports
+0b780341cb tls: Show reassembled in for the first fragment
+3a57dd522b Use WS_ROUNDUP_4 in more dissectors
+bf89153aa0 addr_resolve: Allow for port to be configured
+6699b33276 Locamation Interface Module dissector for IM1: fix the Windows build
+0a42b0976b Locamation Interface Module dissector for IM1
+f4fb92745e Diameter: Allow diameter command code text to be added to custom column
+3acd20fabe CMake+lrexlib: Another include path fix attempt.
+9d96b301de CMake+lrexlib: Add another include path.
+56a9666a3a wslua: Fix our argument definitions.
+84f54d54e5 dfilter: Fix a crash using abs()
+9e84721c1a TECMP: Updating to TECMP 1.7
+dec99a5f42 UDS: Adding IDs and Names for 2020 standard
+aa1c6db337 Diameter: Remove dead code for pre Internet Draft 16 protocol
+953c6f73aa CMake+lrexlib: Fix our include paths.
+b90fb0da55 Qt: Fix jump on packetlist
+ddcb429979 Qt: remove unnecessary method from FunnelStatistics
+66978182d0 epan: Fix typo in conversation_create_endpoint_by_id
+c7afb52c84 MySQL: fix Auth Swith Request dissection
+c2b53b7680 NSIS(logray): Remove QUICK LAUNCH too
+ca178cf03a NSIS(wireshark): Remove QUICK LAUNCH
+b50880f329 Qt: Update display filter expression dialog with any/all
+a6b09b52b4 [Automatic update for 2022-07-17]
+0749873c70 decode as: Add data dissector to all tables that support Decode As
+7935734d61 ReleaseNotes: add maxminddb improvement
+22f7f56151 MaxMind DB: Significantly speed up stdout reader
+1323544f65 Win32: Fix child process pipe handle leaks
+3a989f2e72 Debian: Add missing symbols.
+496dc0fcb3 TWAMP Test Frames: Adds dissection of PTP timestamps RFC8186
+b9bc750fd8 conversation: fix -Wmissing-prototypes
+b448b6a591 semcheck: fix -Wmissing-prototypes
+bd28c19ad6 dvfm: Fix -Wmissing-prototypes
+f70546d111 radiotap-gen: Fix -Wmissing-prototypes
+b68acb6bff pcre2: Fix -Wmissing-prototypes
+1ca19b3c38 Fix -Wmissing-prototypes found by Clang
+52ddd86929 BGP: Fix dissector bug when BGP Update packets containing BGP Flowspec updates
+f15b7b0ccc proto: fix proto_tree_add_bitmask_list_ret_uint64 to always return a value.
+7bea636cd4 WSUG: Add display filter arithmetic operators
+97ce9845c3 WSUG: Fix a heading level
+d5ec420bb5 WSUG: Add a note about the changes to "!="
+4c975b770e dfilter: Improve compatibility of integer types
+53dcf53ae5 EAP: Encrypted IMSI Memory Bug
+f5d997fd2d PPPoE: add TLV 0x90 value 0x03 "Double-tagged Ethernet", fix typo in "Encaps 2"
+61f433406f thrift: Fix -Wdocumentation
+134809fd80 bpv7: fix -Wdocumentation
+bf8577b88c pfcp: change to utilize proto_tree_add_bitmask_list
+b97556fabf ebhscr: Fix conflict
+f70e58a2eb erldp: fix conflict
+204916c390 gsm_file: fix duplicate entry
+19bc326f1b erldp: Fix duplicate entry
+1ff01f18bb ieee802154: fix duplicate entry
+a89696dc2d MySQL: support CLIENT_QUERY_ATTRIBUTES capability
+edab806981 pfcp: correction of UP Function Features IE
+a28a3150fd Update display filter bookmark examples
+d594743e4b dfilter: Fix "private_ethernet" macro
+06cd84a6e9 Qt: Recommend 5.12 and enforce 5.10
+32a4a08683 lapd: Fix Clang Analyzer warning
+69ea1930a7 BGP: fix typo for EVPN Router's MAC (RFC9135)
+64549654db ExtcapExample: Harden and alternate mac address
+4ea0e5de83 IPv6: Configurable IPv6 NAT64 prefixes
+4ff209e881 Qt: Edit->Preferences resets titlebar and statusBar to defaults
+51bf87a641 WSUG: Fix typo
+f68f172454 dfilter: Remove a debug message
+6c8a8d7960 dfilter: Fix dfvm code string
+84d230d878 Tools: Add Qt5Concurrent to rpm-setup.sh.
+5a3b7488d9 BACnet: Added new vendor ID's, fixed BACnet SC decodings.
+3c29458a46 ieee80211: Update VHT channel width interpretation as in IEEE Std 802.11-2020
+f99b056025 Qt: Supported Protocols search - increase debounce timeout
+e12954a637 epan: ws_debug log for heuristic that claims frame (len != 0)
+8ac995578c epan: Respect custom column resolved/unresolved status everywhere
+58b29b8f74 tshark: Respect -Q option
+b91079d3a6 GitLab CI: Fixup our make-version calls.
+0438fca96b Qt: Concurrently fill display filter expression dialog
+fc85196f61 Qt: Do not spin event loops in display filter dialog
+868492fd2a Addr-Resolv: close vlans file on changing profile (BUGFIX)
+0a6eae4df1 X509if: Increase MAX_RDN_STR_LEN to 128
+87ca8c227a tools: Port make-version.pl to Python
+b53044ea16 Get CPU type strings from the OS if possible.
+d10253ebea [Automatic update for 2022-07-10]
+885d6b7f73 wiretap: Fix urls in comments
+75196b5103 Qt: Fix Qt 6.3 Visual Studio build
+298a46446a SOME/IP: Make uats much more robust against faulty configs (BUGFIX)
+cbe62539b2 TECMP: Update Control Message IDs
+26b8674320 Qt: Fix unitialized TrafficTree members
+fad4d7f608 SOME/IP, Signal-PDU, IPduM: Harmonize uat comments
+4742e0cade Qt: Filter column information for traffic dialogs
+02b00a8ee5 epan: Copy multifield custom column undecoded values correctly
+79afe8e202 IEEE 802.15.4: CSL: Add dissector for RendezVousTime IE (#18182)
+8ed2cb6bb5 debian: Add missing symbol
+ccbc0d5fe9 pfcp: add TP IPFIX and Trace IEs
+d7720667d9 pfcp: add TP packet measurement IE
+70b7a42f73 pfcp: add TP Created NAT Binding
+7a6ff3e5fe prefs: Remove custom column expression limit
+1eeb0c9934 cli: Copy global configuration profile to personal as with the GUI
+abe8798b78 nhrp: clean up extension parsing.
+f296a00f09 Add a default configuration profile for Logray.
+75efbb1ac4 Rename Logwolf to Logray
+78ebafd708 Qt: Explicitly set our SyntaxLineEdit background color.
+eab62aa768 Fix some spellings.
+aa0eeb3184 debian-setup.sh: install pytest and pytest-xdist
+51cb231208 CMake: Copy our DLLs to a DLL-specific directory.
+dd5e2f3b3f epan: Fix return value of prooto_strlcpy when not enough room
+5ef4da4d98 epan: Prevent buffer overflows in some built-in addr_to_str types
+88a7bf9db2 Properly free range strings, ext strings, custom base
+51315cf37c Fix AUTOSAR heuristic label
+82408922fd Prevent null dereference in `rescan_file()`
+6684583c7c tools: Remove more unused variables from make-version.pl
+218d290110 tools: Remove unused variables from make-version.pl.
+f17d39db1e CMake+tools: Clean up our build version variables.
+5e3a7e9ab8 dfilter: Small optimization for "not all zero" code
+dfa160832d Adding 9 zbee zcl frames
+a877f2d5f3 dfilter: Allow existence check for slices
+0fc81c21b2 dfilter: Cleanup scanner value setters
+7b38ff3d9d tools: Remove dead/unused code from make-version.pl.
+ff36056573 [Automatic update for 2022-07-03]
+2fe99d640f pfcp: Update to 3GPP TS 29.244 V17.5.0
+c054501335 Qt: Fix compile issue for 5.9
+fed641fc27 http: Add path components to tree
+1489ea8fe6 SMPP: Initialize tvb_msg to NULL
+1018e39ea3 eap: add a comment asking why dissect_eap_identity_wlan() exists?
+50a3ac0c18 diameter: Strengthen heuristic slightly
+d5c81ba9d8 ath: Add heuristics
+d065e9ac50 Diameter: Add a heuristic dissector over TCP
+d1f7aa5acb Qt: Do not spin new event loop on menu show
+8d93f0920a dfilter: Fix some debug strings
+fe3d70e792 Qt: fix uninitialized member
+c88107f632 diameter: Register the [D]TLS port
+f30062b9d5 egd: Do some simple heuristics
+eb8acd088e dfilter: Rename dfvm opcodes with a namespace prefix
+fc5c81328e dfilter: Rename test syntax tree node
+b10db887ce dfilter: Remove unparsed syntax type and RHS literal bias
+190404d66b dtls: Support Connection ID when using Block Ciphers
+42567a59bc Qt: Support setting columns as un/resolved via Edit Preferences
+2cebafc613 Qt: Filter TrafficListTypes
+54aed0aa10 Qt: Cleanup TrafficTypesList
+0257b41167 iec104: dissect the control field as a 4-octet little-endian field.
+a40e5f715a Qt: Check custom column syntax in Preferences properly
+4149d52f4e Qt: column edit default checkbox
+b250224c45 MBIM: dissect SAR commands
+493e65a0d8 Tools: Remove fixhf.pl.
+b165f31cd3 gtp: Fix copy-paste error
+09800da792 Qt: Add resolved button to Edit Columns
+774a7f0eee dcp-etsi: Strengthen heuristic, add for Decode As
+4a26993ec0 SOME/IP: code cleanup to reduce memory leaks
+96c4c9063f packet-gtp.c: Fix copy-paste error (Coverity 1506627)
+37d3c7add2 STUN: Check the Fingerprint (CRC32)
+7f5089ba40 knxip: Add a port range preference
+6c16cd7cbb tplink-smarthome: Add a brief heuristic
+1b586a66df register.c: Avoid potential race condition (Coverity 1477510)
+ac4b9e174d Qt: Cleanup PacketListHeader
+413b383224 Qt: Reduce PacketListHeader complexity
+5fb2324692 Qt: Improve sort for packet list
+505226d1e2 Ui: Centralize PacketList helper prototypes
+94c439f603 Ui: Use only one method for exit
+799a033080 ReleaseNotes: Correct some spellings and wordings
+88c8bb19e5 USBLL: Dissect speed specific linktypes
+d41127602a STUN: Set conversation dissector after any STUN packet
+cdb83a370f tools: Port make-sminmpec.pl to make-sminmpec.py
+a2272362ce conversation_dialog.h: Fix -Wdocumentation
+cfbb6973d4 file: Fix documentation
+1d6b547029 Qt: Fix FileClose not available and segfault
+1fdbc65394 tools: Port colorfilters2js.pl to colorfilters2js.py
+487165dd50 DoIP: Support UAT for User defined payload types
+33031c8955 Make some variables in packet-grebonding.c static.
+c3b2cec3f2 Ui: Cleanup row number and select packet
+f210edeaf0 Ui: Further simplify ws_ui_util
+ef8ed9dff9 Ui: Remove time column reformat callback
+1d42fcdd76 Ui: Remove call to recoloring
+865141e61b Ui: Remove unused prototype declaration
+b6226cb136 Qt: Better handle sort restriction
+4ed4678859 Qt: Make the Resolve Names buttons checkable again
+7c96053f3b Version: 3.7.1 → 3.7.2
+5ee0b97c96 Build: 3.7.1
+eaae2d0ee7 Minor Python3 script fixups.
+4153af1dc7 wslua: Port make-init-lua to Python3
+ae3010cabe wslua: Port make-taps to Python3
 dac75fba7f CMake: Bump the minimum Python version to 3.6.
 8bdff72625 dfilter: Fix undefined dereference and add null check
 7f951eda3e Qt: Increase animation speed for progress frame

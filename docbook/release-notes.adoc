@@ -63,10 +63,10 @@ wsbuglink:17779[]
 * You must now have a compiler with C11 support in order to build Wireshark.
 
 * The following libraries and tools have had their minimum required version increased:
-  - CMake 3.10 is required on macos/Linux
+  - CMake 3.10 is required on macOS and Linux.
   - Qt version 5.12 (was 5.6.0), although compilation with 5.10 and 5.11 is still possible, but will trigger a warning during configuration.
   - Windows SDK 10.0.18362.0 is required due to issues with C11 support.
-  - macOS version 10.10 (was 10.8) is required, if the Qt version is to be build, at least 10.11 is required, depending on the Qt version used (see below).
+  - macOS version 10.10 (was 10.8) is required, if the Qt version is to be built, at least 10.11 is required, depending on the Qt version used (see below).
   - GLib version 2.50.0 (was 2.38.0) is required.
   - Libgcrypt version 1.8.0 (was 1.5.0) is required.
   - c-ares version 1.14.0 (was 1.5.0).

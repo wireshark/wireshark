@@ -21,45 +21,47 @@ Wireshark 3.7.2 Release Notes
       the following improvements:
 
        • The context menu now includes the option to resize all columns,
-      as well as copying elements
+      as well as copying elements.
 
-       • Data may be exported as JSON
+       • Data may be exported as JSON.
 
-       • Tabs may be detached and reattached from the dialog
+       • Tabs may be detached and reattached from the dialog.
 
        • Adding/Removing tabs will keep them in the same order all the
-      time
+      time.
 
        • If a filter is applied, two columns are shown in either dialog
-      detailing the difference between unmatched and matched packets
+      detailing the difference between unmatched and matched packets.
 
        • Columns are now sorted via secondary properties if an identical
       entry is found.
 
        • Conversations will be sorted via second address and first port
-      number
+      number.
 
-       • Endpoints will be sorted via port numbers
+       • Endpoints will be sorted via port numbers.
 
-       • IPv6 addresses are sorted correctly after IPv4 addresses
+       • IPv6 addresses are sorted correctly after IPv4 addresses.
 
        • The dialog elements have been moved to make it easier to handle
       for new users.
 
-       • Selection of tap elements is done via list
+       • Selection of tap elements is done via list.
 
        • All configurations and options are done via a left side button
-      row
+      row.
 
        • Columns for the Conversations and Endpoint dialogs can be
-      hidden by context menu
+      hidden by context menu.
 
        • TCP/UDP conversations now include the stream id and allows
-      filtering on it
+      filtering on it.
 
     • The ip.flags field is now only the three high bits, not the full
-      byte. Display filters or Coloring rules using the field will need
+      byte. Display filters and Coloring rules using the field will need
       to be adjusted.
+
+    • Speed when using MaxMind geolocation has been greatly improved.
 
     • The 'v' (lower case) and 'V' (upper case) switches have been
       swapped for editcap and mergecap to match the other command line
@@ -69,20 +71,17 @@ Wireshark 3.7.2 Release Notes
       protocols which do not have a more common-style address approach,
       analog to AT_STRINGZ.
 
-    • The Wireshark Lua API now uses the lrexlib bindings to PCRE2
-      (https://github.com/rrthomas/lrexlib). Code using the Lua GRegex
-      module will have to be updated to use lrexlib-pcre2 instead. In
-      most cases the API should be compatible and the conversion just
-      requires a module name change.
+    • The Wireshark Lua API now uses the lrexlib[2] bindings to PCRE2.
+      Code using the Lua GRegex module will have to be updated to use
+      lrexlib-pcre2 instead. In most cases the API should be compatible
+      and the conversion just requires a module name change.
 
     • The tap registration system has been updated and the list of
       arguments for tap_packet_cb has changed. All taps registered
       through register_tap_listener have to be updated.
 
-    • Speed when using maxminddb has been greatly improved
-
-    • The PCRE2 library (https://www.pcre.org/) is now a required
-      dependency to build Wireshark.
+    • The PCRE2 library[3] is now a required dependency to build
+      Wireshark.
 
     • You must now have a compiler with C11 support in order to build
       Wireshark.
@@ -90,30 +89,30 @@ Wireshark 3.7.2 Release Notes
     • The following libraries and tools have had their minimum required
       version increased:
 
-       • CMake 3.10 is required on macos/Linux
+       • CMake 3.10 is required on macOS and Linux.
 
-       • Qt version 5.12 (has been 5.6.0), although compilation with
-      5.10 and 5.11 is still possible, but will trigger a warning during
-      configuration
+       • Qt version 5.12 (was 5.6.0), although compilation with 5.10 and
+      5.11 is still possible, but will trigger a warning during
+      configuration.
 
        • Windows SDK 10.0.18362.0 is required due to issues with C11
-      support
+      support.
 
-       • macOS version 10.10 (has been 10.8) is required, if the Qt
-      version is to be build, at least 10.11 is required, depending on
-      the Qt version used (see below)
+       • macOS version 10.10 (was 10.8) is required, if the Qt version
+      is to be built, at least 10.11 is required, depending on the Qt
+      version used (see below).
 
-       • glib2 version 2.50.0 (has been 2.38.0) is required
+       • GLib version 2.50.0 (was 2.38.0) is required.
 
-       • gcrypt version 1.8.0 (has been 1.5.0) is required
+       • Libgcrypt version 1.8.0 (was 1.5.0) is required.
 
-       • c-ares version 1.14.0 (has been 1.5.0)
+       • c-ares version 1.14.0 (was 1.5.0).
 
-       • Python version 3.6.0 (has been 3.4.0)
+       • Python version 3.6.0 (was 3.4.0).
 
-       • gnutls version 3.5.8 (has been 3.3.0)
+       • GnuTLS version 3.5.8 (was 3.3.0).
 
-       • nghttp2 minimum version has been set to 1.11.0 (none previous)
+       • Nghttp2 minimum version has been set to 1.11.0 (none previous).
 
     • For building with Qt on macOS, the following versions are required
       depending on the Qt version to be used:
@@ -125,6 +124,9 @@ Wireshark 3.7.2 Release Notes
        • Qt 5.14 or higher requires macOS version 10.13
 
        • Qt 6.0 or higher requires macOS version 10.14
+
+    • Perl is no longer required to build Wireshark, but may be required
+      to build some source code files and run code analysis checks.
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
@@ -182,7 +184,7 @@ Wireshark 3.7.2 Release Notes
         • A new syntax to disambiguate literals from identifiers has
        been added. Every value with a leading dot is a protocol or
        protocol field. Every value in between angle brackets is a
-       literal value. See the User’s Guide[2] for details.
+       literal value. See the User’s Guide[4] for details.
 
         • The "bitwise and" operator is now a first-class bit operator,
        not a boolean operator. In particular this means it is now
@@ -391,7 +393,7 @@ Wireshark 3.7.2 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[5] on the Wireshark web site.
 
  File Locations
 
@@ -406,25 +408,27 @@ Wireshark 3.7.2 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[6] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[7].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[9].
 
-  Last updated 2021-11-17 21:54:23 UTC
+  Last updated 2022-07-28 19:00:34 UTC
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDispla
+   2. https://github.com/rrthomas/lrexlib
+   3. https://www.pcre.org/
+   4. https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDispla
   yFilterSection.html#_some_protocol_names_can_be_ambiguous
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://www.wireshark.org/faq.html
+   5. https://www.wireshark.org/download.html
+   6. https://ask.wireshark.org/
+   7. https://www.wireshark.org/lists/
+   8. https://gitlab.com/wireshark/wireshark/-/issues
+   9. https://www.wireshark.org/faq.html
