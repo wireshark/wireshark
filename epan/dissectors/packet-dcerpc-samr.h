@@ -8,6 +8,9 @@
 	found at https://gitlab.com/wireshark/wireshark/-/wikis/Pidl
 */
 
+#include "packet-dcerpc-misc.h"
+#include "packet-dcerpc-lsa.h"
+
 #ifndef __PACKET_DCERPC_SAMR_H
 #define __PACKET_DCERPC_SAMR_H
 
@@ -21,15 +24,45 @@
 
 #define GENERIC_RIGHTS_SAM_EXECUTE	( (STANDARD_RIGHTS_EXECUTE_ACCESS|SAMR_ACCESS_LOOKUP_DOMAIN|SAMR_ACCESS_CONNECT_TO_SERVER) )
 
-#define SAMR_GROUP_ACCESS_MASK_INVALID	( 0x0000ffe0 )
+#define SAMR_USER_ACCESS_ALL_ACCESS	( 0x000007FF )
 
-#define SAMR_GROUP_ACCESS_ALL_ACCESS	( 0x000f001f )
+#define GENERIC_RIGHTS_USER_ALL_ACCESS	( (STANDARD_RIGHTS_REQUIRED_ACCESS|SAMR_USER_ACCESS_ALL_ACCESS) )
 
-#define SAMR_GROUP_ACCESS_ALL_READ	( 0x00020010 )
+#define GENERIC_RIGHTS_USER_READ	( (STANDARD_RIGHTS_READ_ACCESS|SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP|SAMR_USER_ACCESS_GET_GROUPS|SAMR_USER_ACCESS_GET_ATTRIBUTES|SAMR_USER_ACCESS_GET_LOGONINFO|SAMR_USER_ACCESS_GET_LOCALE) )
 
-#define SAMR_GROUP_ACCESS_ALL_WRITE	( 0x0002000e )
+#define GENERIC_RIGHTS_USER_WRITE	( (STANDARD_RIGHTS_WRITE_ACCESS|SAMR_USER_ACCESS_CHANGE_PASSWORD|SAMR_USER_ACCESS_SET_LOC_COM|SAMR_USER_ACCESS_SET_ATTRIBUTES|SAMR_USER_ACCESS_SET_PASSWORD|SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP) )
 
-#define SAMR_GROUP_ACCESS_ALL_EXECUTE	( 0x00020001 )
+#define GENERIC_RIGHTS_USER_EXECUTE	( (STANDARD_RIGHTS_EXECUTE_ACCESS|SAMR_USER_ACCESS_CHANGE_PASSWORD|SAMR_USER_ACCESS_GET_NAME_ETC) )
+
+#define SAMR_DOMAIN_ACCESS_ALL_ACCESS	( 0x000007FF )
+
+#define GENERIC_RIGHTS_DOMAIN_ALL_ACCESS	( (STANDARD_RIGHTS_REQUIRED_ACCESS|SAMR_DOMAIN_ACCESS_ALL_ACCESS) )
+
+#define GENERIC_RIGHTS_DOMAIN_READ	( (STANDARD_RIGHTS_READ_ACCESS|SAMR_DOMAIN_ACCESS_LOOKUP_ALIAS|SAMR_DOMAIN_ACCESS_LOOKUP_INFO_2) )
+
+#define GENERIC_RIGHTS_DOMAIN_WRITE	( (STANDARD_RIGHTS_WRITE_ACCESS|SAMR_DOMAIN_ACCESS_SET_INFO_3|SAMR_DOMAIN_ACCESS_CREATE_ALIAS|SAMR_DOMAIN_ACCESS_CREATE_GROUP|SAMR_DOMAIN_ACCESS_CREATE_USER|SAMR_DOMAIN_ACCESS_SET_INFO_2|SAMR_DOMAIN_ACCESS_SET_INFO_1) )
+
+#define GENERIC_RIGHTS_DOMAIN_EXECUTE	( (STANDARD_RIGHTS_EXECUTE_ACCESS|SAMR_DOMAIN_ACCESS_OPEN_ACCOUNT|SAMR_DOMAIN_ACCESS_ENUM_ACCOUNTS|SAMR_DOMAIN_ACCESS_LOOKUP_INFO_1) )
+
+#define SAMR_GROUP_ACCESS_ALL_ACCESS	( 0x0000001F )
+
+#define GENERIC_RIGHTS_GROUP_ALL_ACCESS	( (STANDARD_RIGHTS_REQUIRED_ACCESS|SAMR_GROUP_ACCESS_ALL_ACCESS) )
+
+#define GENERIC_RIGHTS_GROUP_READ	( (STANDARD_RIGHTS_READ_ACCESS|SAMR_GROUP_ACCESS_GET_MEMBERS) )
+
+#define GENERIC_RIGHTS_GROUP_WRITE	( (STANDARD_RIGHTS_WRITE_ACCESS|SAMR_GROUP_ACCESS_REMOVE_MEMBER|SAMR_GROUP_ACCESS_ADD_MEMBER|SAMR_GROUP_ACCESS_SET_INFO) )
+
+#define GENERIC_RIGHTS_GROUP_EXECUTE	( (STANDARD_RIGHTS_EXECUTE_ACCESS|SAMR_GROUP_ACCESS_LOOKUP_INFO) )
+
+#define SAMR_ALIAS_ACCESS_ALL_ACCESS	( 0x0000001F )
+
+#define GENERIC_RIGHTS_ALIAS_ALL_ACCESS	( (STANDARD_RIGHTS_REQUIRED_ACCESS|SAMR_ALIAS_ACCESS_ALL_ACCESS) )
+
+#define GENERIC_RIGHTS_ALIAS_READ	( (STANDARD_RIGHTS_READ_ACCESS|SAMR_ALIAS_ACCESS_GET_MEMBERS) )
+
+#define GENERIC_RIGHTS_ALIAS_WRITE	( (STANDARD_RIGHTS_WRITE_ACCESS|SAMR_ALIAS_ACCESS_REMOVE_MEMBER|SAMR_ALIAS_ACCESS_ADD_MEMBER|SAMR_ALIAS_ACCESS_SET_INFO) )
+
+#define GENERIC_RIGHTS_ALIAS_EXECUTE	( (STANDARD_RIGHTS_EXECUTE_ACCESS|SAMR_ALIAS_ACCESS_LOOKUP_INFO) )
 
 #define SAMR_ENUM_USERS_MULTIPLIER	( 54 )
 
@@ -50,12 +83,6 @@ int samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_in
 #define SID_NAME_COMPUTER (9)
 extern const value_string samr_lsa_SidType_vals[];
 int samr_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
-#define SAMR_REJECT_OTHER (0)
-#define SAMR_REJECT_TOO_SHORT (1)
-#define SAMR_REJECT_IN_HISTORY (2)
-#define SAMR_REJECT_COMPLEXITY (5)
-extern const value_string samr_samr_RejectReason_vals[];
-int samr_dissect_enum_RejectReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 int samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_bitmap_UserAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -144,6 +171,8 @@ int samr_dissect_enum_AliasInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_in
 #define UserInternal5Information (24)
 #define UserInternal4InformationNew (25)
 #define UserInternal5InformationNew (26)
+#define UserInternal7InformationNew (31)
+#define UserInternal8InformationNew (32)
 extern const value_string samr_samr_UserInfoLevel_vals[];
 int samr_dissect_enum_UserInfoLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_);
 int samr_dissect_struct_UserInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -174,6 +203,9 @@ int samr_dissect_struct_UserInfo24(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 int samr_dissect_struct_CryptPasswordEx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_UserInfo25(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_UserInfo26(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_EncryptedPasswordAES(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_UserInfo31(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_UserInfo32(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_RidWithAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_RidWithAttributeArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_DispEntryGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -197,7 +229,24 @@ int samr_dissect_struct_PwInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 #define SAMR_CONNECT_AFTER_W2K (3)
 extern const value_string samr_samr_ConnectVersion_vals[];
 int samr_dissect_enum_ConnectVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
-int samr_dissect_struct_ChangeReject(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define SAM_PWD_CHANGE_NO_ERROR (0)
+#define SAM_PWD_CHANGE_PASSWORD_TOO_SHORT (1)
+#define SAM_PWD_CHANGE_PWD_IN_HISTORY (2)
+#define SAM_PWD_CHANGE_USERNAME_IN_PASSWORD (3)
+#define SAM_PWD_CHANGE_FULLNAME_IN_PASSWORD (4)
+#define SAM_PWD_CHANGE_NOT_COMPLEX (5)
+#define SAM_PWD_CHANGE_MACHINE_NOT_DEFAULT (6)
+#define SAM_PWD_CHANGE_FAILED_BY_FILTER (7)
+#define SAM_PWD_CHANGE_PASSWORD_TOO_LONG (8)
+extern const value_string samr_samPwdChangeReason_vals[];
+int samr_dissect_enum_samPwdChangeReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
+int samr_dissect_struct_userPwdChangeFailureInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define SAMR_CONNECT_FEATURE_RID_ONLY (0x00000001)
+#define SAMR_CONNECT_FEATURE_RESRVED1 (0x00000002)
+#define SAMR_CONNECT_FEATURE_RESRVED2 (0x00000004)
+#define SAMR_CONNECT_FEATURE_USE_AES (0x00000010)
+extern const value_string samr_samr_SupportedFeatures_vals[];
+int samr_dissect_enum_SupportedFeatures(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 int samr_dissect_struct_ConnectInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #define NetValidateAuthentication (1)

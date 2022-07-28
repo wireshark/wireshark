@@ -101,6 +101,7 @@ set(PIDL_DISSECTOR_rfr_EXTRA_DEPS
 )
 set(PIDL_DISSECTOR_samr_EXTRA_DEPS
 	idl_types.h
+	lsa/lsa.idl
 )
 set(PIDL_DISSECTOR_srvsvc_EXTRA_DEPS
 	idl_types.h

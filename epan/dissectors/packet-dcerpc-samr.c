@@ -83,6 +83,9 @@ static gint ett_samr_samr_UserInfo24 = -1;
 static gint ett_samr_samr_CryptPasswordEx = -1;
 static gint ett_samr_samr_UserInfo25 = -1;
 static gint ett_samr_samr_UserInfo26 = -1;
+static gint ett_samr_samr_EncryptedPasswordAES = -1;
+static gint ett_samr_samr_UserInfo31 = -1;
+static gint ett_samr_samr_UserInfo32 = -1;
 static gint ett_samr_samr_UserInfo = -1;
 static gint ett_samr_samr_RidWithAttribute = -1;
 static gint ett_samr_samr_RidWithAttributeArray = -1;
@@ -96,7 +99,7 @@ static gint ett_samr_samr_DispEntryAscii = -1;
 static gint ett_samr_samr_DispInfoAscii = -1;
 static gint ett_samr_samr_DispInfo = -1;
 static gint ett_samr_samr_PwInfo = -1;
-static gint ett_samr_samr_ChangeReject = -1;
+static gint ett_samr_userPwdChangeFailureInformation = -1;
 static gint ett_samr_samr_ConnectInfo1 = -1;
 static gint ett_samr_samr_ConnectInfo = -1;
 static gint ett_samr_samr_ValidateFieldsPresent = -1;
@@ -134,6 +137,7 @@ static gint hf_samr_samr_AcctFlags_ACB_MNS = -1;
 static gint hf_samr_samr_AcctFlags_ACB_NORMAL = -1;
 static gint hf_samr_samr_AcctFlags_ACB_NOT_DELEGATED = -1;
 static gint hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD = -1;
+static gint hf_samr_samr_AcctFlags_ACB_PARTIAL_SECRETS_ACCOUNT = -1;
 static gint hf_samr_samr_AcctFlags_ACB_PWNOEXP = -1;
 static gint hf_samr_samr_AcctFlags_ACB_PWNOTREQ = -1;
 static gint hf_samr_samr_AcctFlags_ACB_PW_EXPIRED = -1;
@@ -141,7 +145,8 @@ static gint hf_samr_samr_AcctFlags_ACB_SMARTCARD_REQUIRED = -1;
 static gint hf_samr_samr_AcctFlags_ACB_SVRTRUST = -1;
 static gint hf_samr_samr_AcctFlags_ACB_TEMPDUP = -1;
 static gint hf_samr_samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION = -1;
-static gint hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT = -1;
+static gint hf_samr_samr_AcctFlags_ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION = -1;
+static gint hf_samr_samr_AcctFlags_ACB_USE_AES_KEYS = -1;
 static gint hf_samr_samr_AcctFlags_ACB_USE_DES_KEY_ONLY = -1;
 static gint hf_samr_samr_AcctFlags_ACB_WSTRUST = -1;
 static gint hf_samr_samr_AddAliasMember_sid = -1;
@@ -175,6 +180,9 @@ static gint hf_samr_samr_ChangePasswordUser3_nt_verifier = -1;
 static gint hf_samr_samr_ChangePasswordUser3_password3 = -1;
 static gint hf_samr_samr_ChangePasswordUser3_reject = -1;
 static gint hf_samr_samr_ChangePasswordUser3_server = -1;
+static gint hf_samr_samr_ChangePasswordUser4_account = -1;
+static gint hf_samr_samr_ChangePasswordUser4_password = -1;
+static gint hf_samr_samr_ChangePasswordUser4_server = -1;
 static gint hf_samr_samr_ChangePasswordUser_cross1_present = -1;
 static gint hf_samr_samr_ChangePasswordUser_cross2_present = -1;
 static gint hf_samr_samr_ChangePasswordUser_lm_cross = -1;
@@ -185,9 +193,6 @@ static gint hf_samr_samr_ChangePasswordUser_nt_cross = -1;
 static gint hf_samr_samr_ChangePasswordUser_nt_present = -1;
 static gint hf_samr_samr_ChangePasswordUser_old_lm_crypted = -1;
 static gint hf_samr_samr_ChangePasswordUser_old_nt_crypted = -1;
-static gint hf_samr_samr_ChangeReject_reason = -1;
-static gint hf_samr_samr_ChangeReject_unknown1 = -1;
-static gint hf_samr_samr_ChangeReject_unknown2 = -1;
 static gint hf_samr_samr_Connect2_system_name = -1;
 static gint hf_samr_samr_Connect3_system_name = -1;
 static gint hf_samr_samr_Connect3_unknown = -1;
@@ -205,7 +210,7 @@ static gint hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_INITIALIZE_SERVER = -1;
 static gint hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_LOOKUP_DOMAIN = -1;
 static gint hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER = -1;
 static gint hf_samr_samr_ConnectInfo1_client_version = -1;
-static gint hf_samr_samr_ConnectInfo1_unknown2 = -1;
+static gint hf_samr_samr_ConnectInfo1_supported_features = -1;
 static gint hf_samr_samr_ConnectInfo_info1 = -1;
 static gint hf_samr_samr_Connect_system_name = -1;
 static gint hf_samr_samr_CreateDomAlias_alias_name = -1;
@@ -302,6 +307,11 @@ static gint hf_samr_samr_DomainInfo_info7 = -1;
 static gint hf_samr_samr_DomainInfo_info8 = -1;
 static gint hf_samr_samr_DomainInfo_info9 = -1;
 static gint hf_samr_samr_DomainInfo_oem = -1;
+static gint hf_samr_samr_EncryptedPasswordAES_PBKDF2Iterations = -1;
+static gint hf_samr_samr_EncryptedPasswordAES_auth_data = -1;
+static gint hf_samr_samr_EncryptedPasswordAES_cipher = -1;
+static gint hf_samr_samr_EncryptedPasswordAES_cipher_len = -1;
+static gint hf_samr_samr_EncryptedPasswordAES_salt = -1;
 static gint hf_samr_samr_EnumDomainAliases_max_size = -1;
 static gint hf_samr_samr_EnumDomainAliases_num_entries = -1;
 static gint hf_samr_samr_EnumDomainAliases_resume_handle = -1;
@@ -532,19 +542,19 @@ static gint hf_samr_samr_UserInfo21_home_drive = -1;
 static gint hf_samr_samr_UserInfo21_last_logoff = -1;
 static gint hf_samr_samr_UserInfo21_last_logon = -1;
 static gint hf_samr_samr_UserInfo21_last_password_change = -1;
-static gint hf_samr_samr_UserInfo21_lm_password = -1;
+static gint hf_samr_samr_UserInfo21_lm_owf_password = -1;
 static gint hf_samr_samr_UserInfo21_lm_password_set = -1;
 static gint hf_samr_samr_UserInfo21_logon_count = -1;
 static gint hf_samr_samr_UserInfo21_logon_hours = -1;
 static gint hf_samr_samr_UserInfo21_logon_script = -1;
-static gint hf_samr_samr_UserInfo21_nt_password = -1;
+static gint hf_samr_samr_UserInfo21_nt_owf_password = -1;
 static gint hf_samr_samr_UserInfo21_nt_password_set = -1;
 static gint hf_samr_samr_UserInfo21_parameters = -1;
 static gint hf_samr_samr_UserInfo21_password_expired = -1;
 static gint hf_samr_samr_UserInfo21_primary_gid = -1;
-static gint hf_samr_samr_UserInfo21_private = -1;
+static gint hf_samr_samr_UserInfo21_private_data = -1;
+static gint hf_samr_samr_UserInfo21_private_data_sensitive = -1;
 static gint hf_samr_samr_UserInfo21_profile_path = -1;
-static gint hf_samr_samr_UserInfo21_unknown4 = -1;
 static gint hf_samr_samr_UserInfo21_workstations = -1;
 static gint hf_samr_samr_UserInfo23_info = -1;
 static gint hf_samr_samr_UserInfo23_password = -1;
@@ -557,7 +567,11 @@ static gint hf_samr_samr_UserInfo26_password_expired = -1;
 static gint hf_samr_samr_UserInfo2_code_page = -1;
 static gint hf_samr_samr_UserInfo2_comment = -1;
 static gint hf_samr_samr_UserInfo2_country_code = -1;
-static gint hf_samr_samr_UserInfo2_unknown = -1;
+static gint hf_samr_samr_UserInfo2_reserved = -1;
+static gint hf_samr_samr_UserInfo31_password = -1;
+static gint hf_samr_samr_UserInfo31_password_expired = -1;
+static gint hf_samr_samr_UserInfo32_info = -1;
+static gint hf_samr_samr_UserInfo32_password = -1;
 static gint hf_samr_samr_UserInfo3_account_name = -1;
 static gint hf_samr_samr_UserInfo3_acct_flags = -1;
 static gint hf_samr_samr_UserInfo3_allow_password_change = -1;
@@ -615,6 +629,8 @@ static gint hf_samr_samr_UserInfo_info24 = -1;
 static gint hf_samr_samr_UserInfo_info25 = -1;
 static gint hf_samr_samr_UserInfo_info26 = -1;
 static gint hf_samr_samr_UserInfo_info3 = -1;
+static gint hf_samr_samr_UserInfo_info31 = -1;
+static gint hf_samr_samr_UserInfo_info32 = -1;
 static gint hf_samr_samr_UserInfo_info4 = -1;
 static gint hf_samr_samr_UserInfo_info5 = -1;
 static gint hf_samr_samr_UserInfo_info6 = -1;
@@ -662,6 +678,8 @@ static gint hf_samr_samr_ValidationBlob_data = -1;
 static gint hf_samr_samr_ValidationBlob_length = -1;
 static gint hf_samr_sec_desc_buf_len = -1;
 static gint hf_samr_status = -1;
+static gint hf_samr_userPwdChangeFailureInformation_extendedFailureReason = -1;
+static gint hf_samr_userPwdChangeFailureInformation_filterModuleName = -1;
 static gint hf_samr_user_access_mask = -1;
 static gint hf_samr_user_handle = -1;
 
@@ -690,13 +708,6 @@ const value_string samr_lsa_SidType_vals[] = {
 	{ SID_NAME_INVALID, "SID_NAME_INVALID" },
 	{ SID_NAME_UNKNOWN, "SID_NAME_UNKNOWN" },
 	{ SID_NAME_COMPUTER, "SID_NAME_COMPUTER" },
-{ 0, NULL }
-};
-const value_string samr_samr_RejectReason_vals[] = {
-	{ SAMR_REJECT_OTHER, "SAMR_REJECT_OTHER" },
-	{ SAMR_REJECT_TOO_SHORT, "SAMR_REJECT_TOO_SHORT" },
-	{ SAMR_REJECT_IN_HISTORY, "SAMR_REJECT_IN_HISTORY" },
-	{ SAMR_REJECT_COMPLEXITY, "SAMR_REJECT_COMPLEXITY" },
 { 0, NULL }
 };
 static const true_false_string samr_AcctFlags_ACB_DISABLED_tfs = {
@@ -771,13 +782,21 @@ static const true_false_string samr_AcctFlags_ACB_PW_EXPIRED_tfs = {
    "ACB_PW_EXPIRED is SET",
    "ACB_PW_EXPIRED is NOT SET",
 };
-static const true_false_string samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT_tfs = {
-   "ACB_TRUST_AUTH_DELEGAT is SET",
-   "ACB_TRUST_AUTH_DELEGAT is NOT SET",
+static const true_false_string samr_AcctFlags_ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION_tfs = {
+   "ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION is SET",
+   "ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION is NOT SET",
 };
 static const true_false_string samr_AcctFlags_ACB_NO_AUTH_DATA_REQD_tfs = {
    "ACB_NO_AUTH_DATA_REQD is SET",
    "ACB_NO_AUTH_DATA_REQD is NOT SET",
+};
+static const true_false_string samr_AcctFlags_ACB_PARTIAL_SECRETS_ACCOUNT_tfs = {
+   "ACB_PARTIAL_SECRETS_ACCOUNT is SET",
+   "ACB_PARTIAL_SECRETS_ACCOUNT is NOT SET",
+};
+static const true_false_string samr_AcctFlags_ACB_USE_AES_KEYS_tfs = {
+   "ACB_USE_AES_KEYS is SET",
+   "ACB_USE_AES_KEYS is NOT SET",
 };
 static const true_false_string samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER_tfs = {
    "SAMR_ACCESS_CONNECT_TO_SERVER is SET",
@@ -1129,6 +1148,8 @@ const value_string samr_samr_UserInfoLevel_vals[] = {
 	{ UserInternal5Information, "UserInternal5Information" },
 	{ UserInternal4InformationNew, "UserInternal4InformationNew" },
 	{ UserInternal5InformationNew, "UserInternal5InformationNew" },
+	{ UserInternal7InformationNew, "UserInternal7InformationNew" },
+	{ UserInternal8InformationNew, "UserInternal8InformationNew" },
 { 0, NULL }
 };
 static int samr_dissect_element_UserInfo1_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1137,7 +1158,7 @@ static int samr_dissect_element_UserInfo1_primary_gid(tvbuff_t *tvb _U_, int off
 static int samr_dissect_element_UserInfo1_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo1_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo2_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo2_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo2_country_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo2_code_page(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LogonHours_units_per_week(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1338,9 +1359,9 @@ static int samr_dissect_element_UserInfo21_description(tvbuff_t *tvb _U_, int of
 static int samr_dissect_element_UserInfo21_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_private(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_lm_owf_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_nt_owf_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_private_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_buf_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1357,7 +1378,7 @@ static int samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb _U_, int offs
 static int samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_private_data_sensitive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_CryptPassword_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo23_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1370,6 +1391,19 @@ static int samr_dissect_element_UserInfo25_info(tvbuff_t *tvb _U_, int offset _U
 static int samr_dissect_element_UserInfo25_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo26_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_auth_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_auth_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_salt(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_salt_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_cipher_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_cipher(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_cipher_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_cipher__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_EncryptedPasswordAES_PBKDF2Iterations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo31_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo31_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo32_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo32_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1393,6 +1427,8 @@ static int samr_dissect_element_UserInfo_info23(tvbuff_t *tvb _U_, int offset _U
 static int samr_dissect_element_UserInfo_info24(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info25(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info26(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo_info31(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo_info32(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_RidWithAttribute_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_RidWithAttribute_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1454,11 +1490,29 @@ const value_string samr_samr_ConnectVersion_vals[] = {
 	{ SAMR_CONNECT_AFTER_W2K, "SAMR_CONNECT_AFTER_W2K" },
 { 0, NULL }
 };
-static int samr_dissect_element_ChangeReject_reason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangeReject_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangeReject_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+const value_string samr_samPwdChangeReason_vals[] = {
+	{ SAM_PWD_CHANGE_NO_ERROR, "SAM_PWD_CHANGE_NO_ERROR" },
+	{ SAM_PWD_CHANGE_PASSWORD_TOO_SHORT, "SAM_PWD_CHANGE_PASSWORD_TOO_SHORT" },
+	{ SAM_PWD_CHANGE_PWD_IN_HISTORY, "SAM_PWD_CHANGE_PWD_IN_HISTORY" },
+	{ SAM_PWD_CHANGE_USERNAME_IN_PASSWORD, "SAM_PWD_CHANGE_USERNAME_IN_PASSWORD" },
+	{ SAM_PWD_CHANGE_FULLNAME_IN_PASSWORD, "SAM_PWD_CHANGE_FULLNAME_IN_PASSWORD" },
+	{ SAM_PWD_CHANGE_NOT_COMPLEX, "SAM_PWD_CHANGE_NOT_COMPLEX" },
+	{ SAM_PWD_CHANGE_MACHINE_NOT_DEFAULT, "SAM_PWD_CHANGE_MACHINE_NOT_DEFAULT" },
+	{ SAM_PWD_CHANGE_FAILED_BY_FILTER, "SAM_PWD_CHANGE_FAILED_BY_FILTER" },
+	{ SAM_PWD_CHANGE_PASSWORD_TOO_LONG, "SAM_PWD_CHANGE_PASSWORD_TOO_LONG" },
+{ 0, NULL }
+};
+static int samr_dissect_element_userPwdChangeFailureInformation_extendedFailureReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_userPwdChangeFailureInformation_filterModuleName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+const value_string samr_samr_SupportedFeatures_vals[] = {
+	{ SAMR_CONNECT_FEATURE_RID_ONLY, "SAMR_CONNECT_FEATURE_RID_ONLY" },
+	{ SAMR_CONNECT_FEATURE_RESRVED1, "SAMR_CONNECT_FEATURE_RESRVED1" },
+	{ SAMR_CONNECT_FEATURE_RESRVED2, "SAMR_CONNECT_FEATURE_RESRVED2" },
+	{ SAMR_CONNECT_FEATURE_USE_AES, "SAMR_CONNECT_FEATURE_USE_AES" },
+{ 0, NULL }
+};
 static int samr_dissect_element_ConnectInfo1_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ConnectInfo1_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ConnectInfo1_supported_features(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_ConnectInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static const true_false_string samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET_tfs = {
    "SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET is SET",
@@ -1662,7 +1716,6 @@ static int samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb _U_, in
 static int samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1985,6 +2038,12 @@ static int samr_dissect_element_ValidatePassword_req_(tvbuff_t *tvb _U_, int off
 static int samr_dissect_element_ValidatePassword_rep(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_ValidatePassword_rep_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_ValidatePassword_rep__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ChangePasswordUser4_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ChangePasswordUser4_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ChangePasswordUser4_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ChangePasswordUser4_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ChangePasswordUser4_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ChangePasswordUser4_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static void
 samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
@@ -2321,28 +2380,6 @@ samr_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 
-/* IDL: enum { */
-/* IDL: 	SAMR_REJECT_OTHER=0, */
-/* IDL: 	SAMR_REJECT_TOO_SHORT=1, */
-/* IDL: 	SAMR_REJECT_IN_HISTORY=2, */
-/* IDL: 	SAMR_REJECT_COMPLEXITY=5, */
-/* IDL: } */
-
-int
-samr_dissect_enum_RejectReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
-{
-	guint32 parameter=0;
-	if (param) {
-		parameter = *param;
-	}
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if (param) {
-		*param = parameter;
-	}
-	return offset;
-}
-
-
 /* IDL: bitmap { */
 /* IDL: 	ACB_DISABLED =  0x00000001 , */
 /* IDL: 	ACB_HOMDIRREQ =  0x00000002 , */
@@ -2362,8 +2399,10 @@ samr_dissect_enum_RejectReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: 	ACB_USE_DES_KEY_ONLY =  0x00008000 , */
 /* IDL: 	ACB_DONT_REQUIRE_PREAUTH =  0x00010000 , */
 /* IDL: 	ACB_PW_EXPIRED =  0x00020000 , */
-/* IDL: 	ACB_TRUST_AUTH_DELEGAT =  0x00040000 , */
+/* IDL: 	ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION =  0x00040000 , */
 /* IDL: 	ACB_NO_AUTH_DATA_REQD =  0x00080000 , */
+/* IDL: 	ACB_PARTIAL_SECRETS_ACCOUNT =  0x00100000 , */
+/* IDL: 	ACB_USE_AES_KEYS =  0x00200000 , */
 /* IDL: } */
 
 int
@@ -2389,8 +2428,10 @@ samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 		&hf_samr_samr_AcctFlags_ACB_USE_DES_KEY_ONLY,
 		&hf_samr_samr_AcctFlags_ACB_DONT_REQUIRE_PREAUTH,
 		&hf_samr_samr_AcctFlags_ACB_PW_EXPIRED,
-		&hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT,
+		&hf_samr_samr_AcctFlags_ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION,
 		&hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD,
+		&hf_samr_samr_AcctFlags_ACB_PARTIAL_SECRETS_ACCOUNT,
+		&hf_samr_samr_AcctFlags_ACB_USE_AES_KEYS,
 		NULL
 	};
 	guint32 flags;
@@ -2404,8 +2445,8 @@ samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	if (!flags)
 		proto_item_append_text(item, ": (No values set)");
 
-	if (flags & (~0x000fffff)) {
-		flags &= (~0x000fffff);
+	if (flags & (~0x003fffff)) {
+		flags &= (~0x003fffff);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -4292,6 +4333,8 @@ samr_dissect_AliasInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 /* IDL: 	UserInternal5Information=24, */
 /* IDL: 	UserInternal4InformationNew=25, */
 /* IDL: 	UserInternal5InformationNew=26, */
+/* IDL: 	UserInternal7InformationNew=31, */
+/* IDL: 	UserInternal8InformationNew=32, */
 /* IDL: } */
 
 int
@@ -4397,7 +4440,7 @@ samr_dissect_struct_UserInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 
 /* IDL: struct { */
 /* IDL: 	lsa_String comment; */
-/* IDL: 	lsa_String unknown; */
+/* IDL: 	lsa_String reserved; */
 /* IDL: 	uint16 country_code; */
 /* IDL: 	uint16 code_page; */
 /* IDL: } */
@@ -4411,9 +4454,9 @@ samr_dissect_element_UserInfo2_comment(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_UserInfo2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo2_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo2_unknown);
+	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo2_reserved);
 
 	return offset;
 }
@@ -4452,7 +4495,7 @@ samr_dissect_struct_UserInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 
 	offset = samr_dissect_element_UserInfo2_comment(tvb, offset, pinfo, tree, di, drep);
 
-	offset = samr_dissect_element_UserInfo2_unknown(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_UserInfo2_reserved(tvb, offset, pinfo, tree, di, drep);
 
 	offset = samr_dissect_element_UserInfo2_country_code(tvb, offset, pinfo, tree, di, drep);
 
@@ -5650,13 +5693,13 @@ samr_dissect_struct_UserInfo18(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 
 /* IDL: struct { */
-/* IDL: 	lsa_String parameters; */
+/* IDL: 	lsa_BinaryString parameters; */
 /* IDL: } */
 
 static int
 samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo20_parameters);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo20_parameters);
 
 	return offset;
 }
@@ -5797,10 +5840,10 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	lsa_String description; */
 /* IDL: 	lsa_String workstations; */
 /* IDL: 	lsa_String comment; */
-/* IDL: 	lsa_String parameters; */
-/* IDL: 	lsa_String lm_password; */
-/* IDL: 	lsa_String nt_password; */
-/* IDL: 	lsa_String private; */
+/* IDL: 	lsa_BinaryString parameters; */
+/* IDL: 	lsa_BinaryString lm_owf_password; */
+/* IDL: 	lsa_BinaryString nt_owf_password; */
+/* IDL: 	lsa_String private_data; */
 /* IDL: 	uint32 buf_count; */
 /* IDL: 	[size_is(buf_count)] [unique(1)] uint8 *buffer; */
 /* IDL: 	uint32 rid; */
@@ -5815,7 +5858,7 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	uint8 lm_password_set; */
 /* IDL: 	uint8 nt_password_set; */
 /* IDL: 	uint8 password_expired; */
-/* IDL: 	uint8 unknown4; */
+/* IDL: 	uint8 private_data_sensitive; */
 /* IDL: } */
 
 static int
@@ -5941,31 +5984,31 @@ samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_parameters);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_parameters);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_lm_owf_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_lm_password);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_lm_owf_password);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_nt_owf_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_nt_password);
+	offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_nt_owf_password);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_UserInfo21_private(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_private_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_private);
+	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_private_data);
 
 	return offset;
 }
@@ -6099,9 +6142,9 @@ samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_private_data_sensitive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_unknown4, 0);
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_private_data_sensitive, 0);
 
 	return offset;
 }
@@ -6154,11 +6197,11 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	offset = samr_dissect_element_UserInfo21_parameters(tvb, offset, pinfo, tree, di, drep);
 
-	offset = samr_dissect_element_UserInfo21_lm_password(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_UserInfo21_lm_owf_password(tvb, offset, pinfo, tree, di, drep);
 
-	offset = samr_dissect_element_UserInfo21_nt_password(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_UserInfo21_nt_owf_password(tvb, offset, pinfo, tree, di, drep);
 
-	offset = samr_dissect_element_UserInfo21_private(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_UserInfo21_private_data(tvb, offset, pinfo, tree, di, drep);
 
 	offset = samr_dissect_element_UserInfo21_buf_count(tvb, offset, pinfo, tree, di, drep);
 
@@ -6188,7 +6231,7 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	offset = samr_dissect_element_UserInfo21_password_expired(tvb, offset, pinfo, tree, di, drep);
 
-	offset = samr_dissect_element_UserInfo21_unknown4(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_UserInfo21_private_data_sensitive(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -6494,6 +6537,234 @@ samr_dissect_struct_UserInfo26(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 
+/* IDL: struct { */
+/* IDL: 	uint8 auth_data[64]; */
+/* IDL: 	uint8 salt[16]; */
+/* IDL: 	uint32 cipher_len; */
+/* IDL: 	[size_is(cipher_len)] [unique(1)] uint8 *cipher; */
+/* IDL: 	hyper PBKDF2Iterations; */
+/* IDL: } */
+
+static int
+samr_dissect_element_EncryptedPasswordAES_auth_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	int i;
+	for (i = 0; i < 64; i++)
+		offset = samr_dissect_element_EncryptedPasswordAES_auth_data_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_auth_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EncryptedPasswordAES_auth_data, 0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_salt(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	int i;
+	for (i = 0; i < 16; i++)
+		offset = samr_dissect_element_EncryptedPasswordAES_salt_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_salt_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EncryptedPasswordAES_salt, 0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_cipher_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EncryptedPasswordAES_cipher_len, 0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_cipher(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EncryptedPasswordAES_cipher_, NDR_POINTER_UNIQUE, "Pointer to Cipher (uint8)",hf_samr_samr_EncryptedPasswordAES_cipher);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_cipher_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EncryptedPasswordAES_cipher__);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_cipher__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EncryptedPasswordAES_cipher, 0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EncryptedPasswordAES_PBKDF2Iterations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_EncryptedPasswordAES_PBKDF2Iterations);
+
+	return offset;
+}
+
+int
+samr_dissect_struct_EncryptedPasswordAES(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_8_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_samr_samr_EncryptedPasswordAES);
+	}
+
+	offset = samr_dissect_element_EncryptedPasswordAES_auth_data(tvb, offset, pinfo, tree, di, drep);
+
+	offset = samr_dissect_element_EncryptedPasswordAES_salt(tvb, offset, pinfo, tree, di, drep);
+
+	offset = samr_dissect_element_EncryptedPasswordAES_cipher_len(tvb, offset, pinfo, tree, di, drep);
+
+	offset = samr_dissect_element_EncryptedPasswordAES_cipher(tvb, offset, pinfo, tree, di, drep);
+
+	offset = samr_dissect_element_EncryptedPasswordAES_PBKDF2Iterations(tvb, offset, pinfo, tree, di, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
+
+	return offset;
+}
+
+
+/* IDL: struct { */
+/* IDL: 	samr_EncryptedPasswordAES password; */
+/* IDL: 	uint8 password_expired; */
+/* IDL: } */
+
+static int
+samr_dissect_element_UserInfo31_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_EncryptedPasswordAES(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo31_password,0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_UserInfo31_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo31_password_expired, 0);
+
+	return offset;
+}
+
+int
+samr_dissect_struct_UserInfo31(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_8_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_samr_samr_UserInfo31);
+	}
+
+	offset = samr_dissect_element_UserInfo31_password(tvb, offset, pinfo, tree, di, drep);
+
+	offset = samr_dissect_element_UserInfo31_password_expired(tvb, offset, pinfo, tree, di, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
+
+	return offset;
+}
+
+
+/* IDL: struct { */
+/* IDL: 	samr_UserInfo21 info; */
+/* IDL: 	samr_EncryptedPasswordAES password; */
+/* IDL: } */
+
+static int
+samr_dissect_element_UserInfo32_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_UserInfo21(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo32_info,0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_UserInfo32_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_EncryptedPasswordAES(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo32_password,0);
+
+	return offset;
+}
+
+int
+samr_dissect_struct_UserInfo32(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_8_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_samr_samr_UserInfo32);
+	}
+
+	offset = samr_dissect_element_UserInfo32_info(tvb, offset, pinfo, tree, di, drep);
+
+	offset = samr_dissect_element_UserInfo32_password(tvb, offset, pinfo, tree, di, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_8_BYTES;
+	}
+
+	return offset;
+}
+
+
 /* IDL: [switch_type(uint16)] union { */
 /* IDL: [case(1)] [case(1)] samr_UserInfo1 info1; */
 /* IDL: [case(2)] [case(2)] samr_UserInfo2 info2; */
@@ -6518,6 +6789,8 @@ samr_dissect_struct_UserInfo26(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: [case(24)] [case(24)] samr_UserInfo24 info24; */
 /* IDL: [case(25)] [case(25)] samr_UserInfo25 info25; */
 /* IDL: [case(26)] [case(26)] samr_UserInfo26 info26; */
+/* IDL: [case(31)] [case(31)] samr_UserInfo31 info31; */
+/* IDL: [case(32)] [case(32)] samr_UserInfo32 info32; */
 /* IDL: } */
 
 static int
@@ -6705,6 +6978,22 @@ samr_dissect_element_UserInfo_info26(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
+samr_dissect_element_UserInfo_info31(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_UserInfo31(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info31,0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_UserInfo_info32(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_UserInfo32(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info32,0);
+
+	return offset;
+}
+
+static int
 samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
@@ -6718,7 +7007,7 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
-	ALIGN_TO_5_BYTES;
+	ALIGN_TO_8_BYTES;
 
 	switch(level) {
 		case 1:
@@ -6811,6 +7100,14 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 
 		case 26:
 			offset = samr_dissect_element_UserInfo_info26(tvb, offset, pinfo, tree, di, drep);
+		break;
+
+		case 31:
+			offset = samr_dissect_element_UserInfo_info31(tvb, offset, pinfo, tree, di, drep);
+		break;
+
+		case 32:
+			offset = samr_dissect_element_UserInfo_info32(tvb, offset, pinfo, tree, di, drep);
 		break;
 	}
 	proto_item_set_len(item, offset-old_offset);
@@ -7727,73 +8024,111 @@ samr_dissect_enum_ConnectVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 
+/* IDL: enum { */
+/* IDL: 	SAM_PWD_CHANGE_NO_ERROR=0, */
+/* IDL: 	SAM_PWD_CHANGE_PASSWORD_TOO_SHORT=1, */
+/* IDL: 	SAM_PWD_CHANGE_PWD_IN_HISTORY=2, */
+/* IDL: 	SAM_PWD_CHANGE_USERNAME_IN_PASSWORD=3, */
+/* IDL: 	SAM_PWD_CHANGE_FULLNAME_IN_PASSWORD=4, */
+/* IDL: 	SAM_PWD_CHANGE_NOT_COMPLEX=5, */
+/* IDL: 	SAM_PWD_CHANGE_MACHINE_NOT_DEFAULT=6, */
+/* IDL: 	SAM_PWD_CHANGE_FAILED_BY_FILTER=7, */
+/* IDL: 	SAM_PWD_CHANGE_PASSWORD_TOO_LONG=8, */
+/* IDL: } */
+
+int
+samr_dissect_enum_samPwdChangeReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+{
+	guint32 parameter=0;
+	if (param) {
+		parameter = *param;
+	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
+	if (param) {
+		*param = parameter;
+	}
+	return offset;
+}
+
+
 /* IDL: struct { */
-/* IDL: 	samr_RejectReason reason; */
-/* IDL: 	uint32 unknown1; */
-/* IDL: 	uint32 unknown2; */
+/* IDL: 	samPwdChangeReason extendedFailureReason; */
+/* IDL: 	lsa_String filterModuleName; */
 /* IDL: } */
 
 static int
-samr_dissect_element_ChangeReject_reason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_userPwdChangeFailureInformation_extendedFailureReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_enum_RejectReason(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangeReject_reason, 0);
+	offset = samr_dissect_enum_samPwdChangeReason(tvb, offset, pinfo, tree, di, drep, hf_samr_userPwdChangeFailureInformation_extendedFailureReason, 0);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_ChangeReject_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_userPwdChangeFailureInformation_filterModuleName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangeReject_unknown1, 0);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_ChangeReject_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangeReject_unknown2, 0);
+	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_userPwdChangeFailureInformation_filterModuleName);
 
 	return offset;
 }
 
 int
-samr_dissect_struct_ChangeReject(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_userPwdChangeFailureInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_samr_samr_ChangeReject);
+		tree = proto_item_add_subtree(item, ett_samr_userPwdChangeFailureInformation);
 	}
 
-	offset = samr_dissect_element_ChangeReject_reason(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_userPwdChangeFailureInformation_extendedFailureReason(tvb, offset, pinfo, tree, di, drep);
 
-	offset = samr_dissect_element_ChangeReject_unknown1(tvb, offset, pinfo, tree, di, drep);
-
-	offset = samr_dissect_element_ChangeReject_unknown2(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_userPwdChangeFailureInformation_filterModuleName(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
 
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
+		ALIGN_TO_5_BYTES;
 	}
 
 	return offset;
 }
 
 
+/* IDL: enum { */
+/* IDL: 	SAMR_CONNECT_FEATURE_RID_ONLY=0x00000001, */
+/* IDL: 	SAMR_CONNECT_FEATURE_RESRVED1=0x00000002, */
+/* IDL: 	SAMR_CONNECT_FEATURE_RESRVED2=0x00000004, */
+/* IDL: 	SAMR_CONNECT_FEATURE_USE_AES=0x00000010, */
+/* IDL: } */
+
+int
+samr_dissect_enum_SupportedFeatures(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+{
+	guint32 parameter=0;
+	if (param) {
+		parameter = *param;
+	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
+	if (param) {
+		*param = parameter;
+	}
+	return offset;
+}
+
+
 /* IDL: struct { */
 /* IDL: 	samr_ConnectVersion client_version; */
-/* IDL: 	uint32 unknown2; */
+/* IDL: 	samr_SupportedFeatures supported_features; */
 /* IDL: } */
 
 static int
@@ -7805,9 +8140,9 @@ samr_dissect_element_ConnectInfo1_client_version(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ConnectInfo1_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ConnectInfo1_supported_features(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ConnectInfo1_unknown2, 0);
+	offset = samr_dissect_enum_SupportedFeatures(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ConnectInfo1_supported_features, 0);
 
 	return offset;
 }
@@ -7830,7 +8165,7 @@ samr_dissect_struct_ConnectInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	offset = samr_dissect_element_ConnectInfo1_client_version(tvb, offset, pinfo, tree, di, drep);
 
-	offset = samr_dissect_element_ConnectInfo1_unknown2(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_ConnectInfo1_supported_features(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -10197,21 +10532,13 @@ samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names_, NDR_POINTER_REF, "Pointer to Names (lsa_String)",hf_samr_samr_LookupNames_names);
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names_);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names__);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_LookupNames_names);
 
@@ -10253,7 +10580,7 @@ samr_dissect_element_LookupNames_types_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: NTSTATUS samr_LookupNames( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_names, */
-/* IDL: [in] [length_is(num_names)] [ref] [size_is(1000)] lsa_String *names, */
+/* IDL: [in] [length_is(num_names)] [size_is(1000)] lsa_String names[*], */
 /* IDL: [out] [ref] samr_Ids *rids, */
 /* IDL: [out] [ref] samr_Ids *types */
 /* IDL: ); */
@@ -14178,7 +14505,7 @@ samr_dissect_element_ChangePasswordUser3_dominfo__(tvbuff_t *tvb _U_, int offset
 static int
 samr_dissect_element_ChangePasswordUser3_reject(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_reject_, NDR_POINTER_REF, "Pointer to Reject (samr_ChangeReject)",hf_samr_samr_ChangePasswordUser3_reject);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_reject_, NDR_POINTER_REF, "Pointer to Reject (userPwdChangeFailureInformation)",hf_samr_samr_ChangePasswordUser3_reject);
 
 	return offset;
 }
@@ -14186,7 +14513,7 @@ samr_dissect_element_ChangePasswordUser3_reject(tvbuff_t *tvb _U_, int offset _U
 static int
 samr_dissect_element_ChangePasswordUser3_reject_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_reject__, NDR_POINTER_UNIQUE, "Pointer to Reject (samr_ChangeReject)",hf_samr_samr_ChangePasswordUser3_reject);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_reject__, NDR_POINTER_UNIQUE, "Pointer to Reject (userPwdChangeFailureInformation)",hf_samr_samr_ChangePasswordUser3_reject);
 
 	return offset;
 }
@@ -14194,7 +14521,7 @@ samr_dissect_element_ChangePasswordUser3_reject_(tvbuff_t *tvb _U_, int offset _
 static int
 samr_dissect_element_ChangePasswordUser3_reject__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_struct_ChangeReject(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_reject,0);
+	offset = samr_dissect_struct_userPwdChangeFailureInformation(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_reject,0);
 
 	return offset;
 }
@@ -14209,7 +14536,7 @@ samr_dissect_element_ChangePasswordUser3_reject__(tvbuff_t *tvb _U_, int offset 
 /* IDL: [in] [unique(1)] samr_Password *lm_verifier, */
 /* IDL: [in] [unique(1)] samr_CryptPassword *password3, */
 /* IDL: [out] [ref] samr_DomInfo1 **dominfo, */
-/* IDL: [out] [ref] samr_ChangeReject **reject */
+/* IDL: [out] [ref] userPwdChangeFailureInformation **reject */
 /* IDL: ); */
 
 static int
@@ -14639,6 +14966,177 @@ samr_dissect_ValidatePassword_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 
+/* IDL: void samr_Opnum68NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+samr_dissect_Opnum68NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum68NotUsedOnWire";
+	return offset;
+}
+
+static int
+samr_dissect_Opnum68NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum68NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: void samr_Opnum69NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+samr_dissect_Opnum69NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum69NotUsedOnWire";
+	return offset;
+}
+
+static int
+samr_dissect_Opnum69NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum69NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: void samr_Opnum70NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+samr_dissect_Opnum70NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum70NotUsedOnWire";
+	return offset;
+}
+
+static int
+samr_dissect_Opnum70NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum70NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: void samr_Opnum71NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+samr_dissect_Opnum71NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum71NotUsedOnWire";
+	return offset;
+}
+
+static int
+samr_dissect_Opnum71NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum71NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: void samr_Opnum72NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+samr_dissect_Opnum72NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum72NotUsedOnWire";
+	return offset;
+}
+
+static int
+samr_dissect_Opnum72NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum72NotUsedOnWire";
+	return offset;
+}
+
+static int
+samr_dissect_element_ChangePasswordUser4_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser4_server_, NDR_POINTER_UNIQUE, "Pointer to Server (lsa_String)",hf_samr_samr_ChangePasswordUser4_server);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_ChangePasswordUser4_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ChangePasswordUser4_server);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_ChangePasswordUser4_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser4_account_, NDR_POINTER_REF, "Pointer to Account (lsa_String)",hf_samr_samr_ChangePasswordUser4_account);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_ChangePasswordUser4_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ChangePasswordUser4_account);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_ChangePasswordUser4_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser4_password_, NDR_POINTER_REF, "Pointer to Password (samr_EncryptedPasswordAES)",hf_samr_samr_ChangePasswordUser4_password);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_ChangePasswordUser4_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_EncryptedPasswordAES(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser4_password,0);
+
+	return offset;
+}
+
+/* IDL: NTSTATUS samr_ChangePasswordUser4( */
+/* IDL: [in] [unique(1)] lsa_String *server, */
+/* IDL: [in] [ref] lsa_String *account, */
+/* IDL: [in] [ref] samr_EncryptedPasswordAES *password */
+/* IDL: ); */
+
+static int
+samr_dissect_ChangePasswordUser4_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="ChangePasswordUser4";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_samr_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+samr_dissect_ChangePasswordUser4_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="ChangePasswordUser4";
+	offset = samr_dissect_element_ChangePasswordUser4_server(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = samr_dissect_element_ChangePasswordUser4_account(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = samr_dissect_element_ChangePasswordUser4_password(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	return offset;
+}
+
 
 static dcerpc_sub_dissector samr_dissectors[] = {
 	{ 0, "Connect",
@@ -14777,6 +15275,18 @@ static dcerpc_sub_dissector samr_dissectors[] = {
 	   samr_dissect_SetDsrmPassword_request, samr_dissect_SetDsrmPassword_response},
 	{ 67, "ValidatePassword",
 	   samr_dissect_ValidatePassword_request, samr_dissect_ValidatePassword_response},
+	{ 68, "Opnum68NotUsedOnWire",
+	   samr_dissect_Opnum68NotUsedOnWire_request, samr_dissect_Opnum68NotUsedOnWire_response},
+	{ 69, "Opnum69NotUsedOnWire",
+	   samr_dissect_Opnum69NotUsedOnWire_request, samr_dissect_Opnum69NotUsedOnWire_response},
+	{ 70, "Opnum70NotUsedOnWire",
+	   samr_dissect_Opnum70NotUsedOnWire_request, samr_dissect_Opnum70NotUsedOnWire_response},
+	{ 71, "Opnum71NotUsedOnWire",
+	   samr_dissect_Opnum71NotUsedOnWire_request, samr_dissect_Opnum71NotUsedOnWire_response},
+	{ 72, "Opnum72NotUsedOnWire",
+	   samr_dissect_Opnum72NotUsedOnWire_request, samr_dissect_Opnum72NotUsedOnWire_response},
+	{ 73, "ChangePasswordUser4",
+	   samr_dissect_ChangePasswordUser4_request, samr_dissect_ChangePasswordUser4_response},
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -14829,6 +15339,8 @@ void proto_register_dcerpc_samr(void)
 	  { "ACB NOT DELEGATED", "samr.samr_AcctFlags.ACB_NOT_DELEGATED", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_NOT_DELEGATED_tfs), ( 0x00004000 ), NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD,
 	  { "ACB NO AUTH DATA REQD", "samr.samr_AcctFlags.ACB_NO_AUTH_DATA_REQD", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_NO_AUTH_DATA_REQD_tfs), ( 0x00080000 ), NULL, HFILL }},
+	{ &hf_samr_samr_AcctFlags_ACB_PARTIAL_SECRETS_ACCOUNT,
+	  { "ACB PARTIAL SECRETS ACCOUNT", "samr.samr_AcctFlags.ACB_PARTIAL_SECRETS_ACCOUNT", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_PARTIAL_SECRETS_ACCOUNT_tfs), ( 0x00100000 ), NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_PWNOEXP,
 	  { "ACB PWNOEXP", "samr.samr_AcctFlags.ACB_PWNOEXP", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_PWNOEXP_tfs), ( 0x00000200 ), NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_PWNOTREQ,
@@ -14843,8 +15355,10 @@ void proto_register_dcerpc_samr(void)
 	  { "ACB TEMPDUP", "samr.samr_AcctFlags.ACB_TEMPDUP", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_TEMPDUP_tfs), ( 0x00000008 ), NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION,
 	  { "ACB TRUSTED FOR DELEGATION", "samr.samr_AcctFlags.ACB_TRUSTED_FOR_DELEGATION", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION_tfs), ( 0x00002000 ), NULL, HFILL }},
-	{ &hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT,
-	  { "ACB TRUST AUTH DELEGAT", "samr.samr_AcctFlags.ACB_TRUST_AUTH_DELEGAT", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT_tfs), ( 0x00040000 ), NULL, HFILL }},
+	{ &hf_samr_samr_AcctFlags_ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION,
+	  { "ACB TRUSTED TO AUTHENTICATE FOR DELEGATION", "samr.samr_AcctFlags.ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION_tfs), ( 0x00040000 ), NULL, HFILL }},
+	{ &hf_samr_samr_AcctFlags_ACB_USE_AES_KEYS,
+	  { "ACB USE AES KEYS", "samr.samr_AcctFlags.ACB_USE_AES_KEYS", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_USE_AES_KEYS_tfs), ( 0x00200000 ), NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_USE_DES_KEY_ONLY,
 	  { "ACB USE DES KEY ONLY", "samr.samr_AcctFlags.ACB_USE_DES_KEY_ONLY", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_USE_DES_KEY_ONLY_tfs), ( 0x00008000 ), NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_WSTRUST,
@@ -14911,6 +15425,12 @@ void proto_register_dcerpc_samr(void)
 	  { "Reject", "samr.samr_ChangePasswordUser3.reject", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser3_server,
 	  { "Server", "samr.samr_ChangePasswordUser3.server", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_ChangePasswordUser4_account,
+	  { "Account", "samr.samr_ChangePasswordUser4.account", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_ChangePasswordUser4_password,
+	  { "Password", "samr.samr_ChangePasswordUser4.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_ChangePasswordUser4_server,
+	  { "Server", "samr.samr_ChangePasswordUser4.server", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_cross1_present,
 	  { "Cross1 Present", "samr.samr_ChangePasswordUser.cross1_present", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_cross2_present,
@@ -14931,12 +15451,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Old Lm Crypted", "samr.samr_ChangePasswordUser.old_lm_crypted", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_old_nt_crypted,
 	  { "Old Nt Crypted", "samr.samr_ChangePasswordUser.old_nt_crypted", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_ChangeReject_reason,
-	  { "Reason", "samr.samr_ChangeReject.reason", FT_UINT32, BASE_DEC, VALS(samr_samr_RejectReason_vals), 0, NULL, HFILL }},
-	{ &hf_samr_samr_ChangeReject_unknown1,
-	  { "Unknown1", "samr.samr_ChangeReject.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_ChangeReject_unknown2,
-	  { "Unknown2", "samr.samr_ChangeReject.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_Connect2_system_name,
 	  { "System Name", "samr.samr_Connect2.system_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_Connect3_system_name,
@@ -14971,8 +15485,8 @@ void proto_register_dcerpc_samr(void)
 	  { "SAMR ACCESS SHUTDOWN SERVER", "samr.samr_ConnectAccessMask.SAMR_ACCESS_SHUTDOWN_SERVER", FT_BOOLEAN, 32, TFS(&samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_samr_samr_ConnectInfo1_client_version,
 	  { "Client Version", "samr.samr_ConnectInfo1.client_version", FT_UINT32, BASE_DEC, VALS(samr_samr_ConnectVersion_vals), 0, NULL, HFILL }},
-	{ &hf_samr_samr_ConnectInfo1_unknown2,
-	  { "Unknown2", "samr.samr_ConnectInfo1.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_ConnectInfo1_supported_features,
+	  { "Supported Features", "samr.samr_ConnectInfo1.supported_features", FT_UINT32, BASE_DEC, VALS(samr_samr_SupportedFeatures_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_ConnectInfo_info1,
 	  { "Info1", "samr.samr_ConnectInfo.info1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_Connect_system_name,
@@ -15165,6 +15679,16 @@ void proto_register_dcerpc_samr(void)
 	  { "Info9", "samr.samr_DomainInfo.info9", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomainInfo_oem,
 	  { "Oem", "samr.samr_DomainInfo.oem", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_EncryptedPasswordAES_PBKDF2Iterations,
+	  { "PBKDF2Iterations", "samr.samr_EncryptedPasswordAES.PBKDF2Iterations", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_EncryptedPasswordAES_auth_data,
+	  { "Auth Data", "samr.samr_EncryptedPasswordAES.auth_data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_EncryptedPasswordAES_cipher,
+	  { "Cipher", "samr.samr_EncryptedPasswordAES.cipher", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_EncryptedPasswordAES_cipher_len,
+	  { "Cipher Len", "samr.samr_EncryptedPasswordAES.cipher_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_EncryptedPasswordAES_salt,
+	  { "Salt", "samr.samr_EncryptedPasswordAES.salt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomainAliases_max_size,
 	  { "Max Size", "samr.samr_EnumDomainAliases.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomainAliases_num_entries,
@@ -15625,8 +16149,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Last Logon", "samr.samr_UserInfo21.last_logon", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_last_password_change,
 	  { "Last Password Change", "samr.samr_UserInfo21.last_password_change", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_UserInfo21_lm_password,
-	  { "Lm Password", "samr.samr_UserInfo21.lm_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo21_lm_owf_password,
+	  { "Lm Owf Password", "samr.samr_UserInfo21.lm_owf_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_lm_password_set,
 	  { "Lm Password Set", "samr.samr_UserInfo21.lm_password_set", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_logon_count,
@@ -15635,8 +16159,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Logon Hours", "samr.samr_UserInfo21.logon_hours", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_logon_script,
 	  { "Logon Script", "samr.samr_UserInfo21.logon_script", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_UserInfo21_nt_password,
-	  { "Nt Password", "samr.samr_UserInfo21.nt_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo21_nt_owf_password,
+	  { "Nt Owf Password", "samr.samr_UserInfo21.nt_owf_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_nt_password_set,
 	  { "Nt Password Set", "samr.samr_UserInfo21.nt_password_set", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_parameters,
@@ -15645,12 +16169,12 @@ void proto_register_dcerpc_samr(void)
 	  { "Password Expired", "samr.samr_UserInfo21.password_expired", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_primary_gid,
 	  { "Primary Gid", "samr.samr_UserInfo21.primary_gid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_UserInfo21_private,
-	  { "Private", "samr.samr_UserInfo21.private", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo21_private_data,
+	  { "Private Data", "samr.samr_UserInfo21.private_data", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo21_private_data_sensitive,
+	  { "Private Data Sensitive", "samr.samr_UserInfo21.private_data_sensitive", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_profile_path,
 	  { "Profile Path", "samr.samr_UserInfo21.profile_path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_UserInfo21_unknown4,
-	  { "Unknown4", "samr.samr_UserInfo21.unknown4", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_workstations,
 	  { "Workstations", "samr.samr_UserInfo21.workstations", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo23_info,
@@ -15675,8 +16199,16 @@ void proto_register_dcerpc_samr(void)
 	  { "Comment", "samr.samr_UserInfo2.comment", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo2_country_code,
 	  { "Country Code", "samr.samr_UserInfo2.country_code", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_UserInfo2_unknown,
-	  { "Unknown", "samr.samr_UserInfo2.unknown", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo2_reserved,
+	  { "Reserved", "samr.samr_UserInfo2.reserved", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo31_password,
+	  { "Password", "samr.samr_UserInfo31.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo31_password_expired,
+	  { "Password Expired", "samr.samr_UserInfo31.password_expired", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo32_info,
+	  { "Info", "samr.samr_UserInfo32.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo32_password,
+	  { "Password", "samr.samr_UserInfo32.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo3_account_name,
 	  { "Account Name", "samr.samr_UserInfo3.account_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo3_acct_flags,
@@ -15791,6 +16323,10 @@ void proto_register_dcerpc_samr(void)
 	  { "Info26", "samr.samr_UserInfo.info26", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info3,
 	  { "Info3", "samr.samr_UserInfo.info3", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo_info31,
+	  { "Info31", "samr.samr_UserInfo.info31", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo_info32,
+	  { "Info32", "samr.samr_UserInfo.info32", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info4,
 	  { "Info4", "samr.samr_UserInfo.info4", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info5,
@@ -15885,6 +16421,10 @@ void proto_register_dcerpc_samr(void)
 	  { "Sec Desc Buf Len", "samr.sec_desc_buf_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_status,
 	  { "NT Error", "samr.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	{ &hf_samr_userPwdChangeFailureInformation_extendedFailureReason,
+	  { "ExtendedFailureReason", "samr.userPwdChangeFailureInformation.extendedFailureReason", FT_UINT32, BASE_DEC, VALS(samr_samPwdChangeReason_vals), 0, NULL, HFILL }},
+	{ &hf_samr_userPwdChangeFailureInformation_filterModuleName,
+	  { "FilterModuleName", "samr.userPwdChangeFailureInformation.filterModuleName", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_user_access_mask,
 	  { "Access Mask", "samr.user.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_user_handle,
@@ -15954,6 +16494,9 @@ void proto_register_dcerpc_samr(void)
 		&ett_samr_samr_CryptPasswordEx,
 		&ett_samr_samr_UserInfo25,
 		&ett_samr_samr_UserInfo26,
+		&ett_samr_samr_EncryptedPasswordAES,
+		&ett_samr_samr_UserInfo31,
+		&ett_samr_samr_UserInfo32,
 		&ett_samr_samr_UserInfo,
 		&ett_samr_samr_RidWithAttribute,
 		&ett_samr_samr_RidWithAttributeArray,
@@ -15967,7 +16510,7 @@ void proto_register_dcerpc_samr(void)
 		&ett_samr_samr_DispInfoAscii,
 		&ett_samr_samr_DispInfo,
 		&ett_samr_samr_PwInfo,
-		&ett_samr_samr_ChangeReject,
+		&ett_samr_userPwdChangeFailureInformation,
 		&ett_samr_samr_ConnectInfo1,
 		&ett_samr_samr_ConnectInfo,
 		&ett_samr_samr_ValidateFieldsPresent,
