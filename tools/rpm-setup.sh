@@ -191,12 +191,11 @@ echo "Required OpenSUSE packages hicolor-icon-theme and xdg-utils are unavailabl
 add_package BASIC_LIST update-desktop-files ||
 echo "Required OpenSUSE package update-desktop-files is unavailable. Not required for other distributions." >&2
 
-# rubygem-asciidoctor.noarch: Centos 7, Fedora
+# rubygem-asciidoctor.noarch: Centos, Fedora
+# (Added to RHEL/Centos 8: https://bugzilla.redhat.com/show_bug.cgi?id=1820896 )
 # ruby2.5-rubygem-asciidoctor: openSUSE 15.2
-# You will get nothing and you will like it: CentOS 8
 add_package RPMDEPS_LIST rubygem-asciidoctor.noarch || add_package RPMDEPS_LIST ruby2.5-rubygem-asciidoctor ||
-echo "RPM dependency asciidoctor is unavailable. Not available for CentOS 8" >&2
-
+echo "RPM dependency asciidoctor is unavailable" >&2
 
 # libcap: CentOS 7, Fedora 28, Fedora 29
 # libcap2: OpenSUSE Leap 42.3, OpenSUSE Leap 15.0
