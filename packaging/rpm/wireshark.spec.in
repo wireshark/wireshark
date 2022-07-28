@@ -63,18 +63,14 @@ BuildRequires:	ninja-build
 BuildRequires:	ninja
 %endif
 %endif
-# XXX We always require Asciidoctor for packaging builds as of 84ab55cf75,
+# We always require Asciidoctor for packaging builds as of 84ab55cf75,
 # unfortunately it's not evenly distributed across distros.
-# Fedora & CentOS 7: rubygem-asciidoctor
-# CentOS 8: <no package? - https://bugzilla.redhat.com/show_bug.cgi?id=1820896>
+# Fedora & CentOS: rubygem-asciidoctor
+# CentOS 8: <added in - https://bugzilla.redhat.com/show_bug.cgi?id=1820896>
 # openSUSE 15.3: ruby2.5-rubygem-asciidoctor
 # SLES 12 SP5: ruby2.1-rubygem-asciidoctor
 # All of the packages provide this, so we can rely on it:
-%if ! 0%{?el8}
 BuildRequires:	/usr/bin/asciidoctor
-%endif
-# No CentOS 8 package, so we install it from rubygems directly, but that
-# means the package manager doesn't know about it and we can't require it.
 
 # For the HTML guides, we need xsltproc, and the docbook stylesheets
 %if %{with guides}
