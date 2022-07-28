@@ -2028,11 +2028,6 @@ signal_pipe_capquit_to_child(capture_session *cap_session)
 void
 sync_pipe_stop(capture_session *cap_session)
 {
-#ifdef _WIN32
-    int count;
-    DWORD childstatus;
-    gboolean terminate = TRUE;
-#endif
     if (cap_session->fork_child != WS_INVALID_PID) {
 #ifndef _WIN32
         /* send the SIGINT signal to close the capture child gracefully. */
@@ -2042,24 +2037,18 @@ sync_pipe_stop(capture_session *cap_session)
         }
 #else
 #define STOP_SLEEP_TIME 500 /* ms */
-#define STOP_CHECK_TIME 50
+        DWORD status;
+
         /* First, use the special signal pipe to try to close the capture child
          * gracefully.
          */
         signal_pipe_capquit_to_child(cap_session);
 
         /* Next, wait for the process to exit on its own */
-        for (count = 0; count < STOP_SLEEP_TIME / STOP_CHECK_TIME; count++) {
-            if (GetExitCodeProcess((HANDLE) cap_session->fork_child, &childstatus) &&
-                childstatus != STILL_ACTIVE) {
-                terminate = FALSE;
-                break;
-            }
-            Sleep(STOP_CHECK_TIME);
-        }
+        status = WaitForSingleObject((HANDLE) cap_session->fork_child, STOP_SLEEP_TIME);
 
         /* Force the issue. */
-        if (terminate) {
+        if (status != WAIT_OBJECT_0) {
             ws_warning("sync_pipe_stop: forcing child to exit");
             sync_pipe_kill(cap_session->fork_child);
         }
