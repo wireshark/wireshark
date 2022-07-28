@@ -34,6 +34,7 @@ static gint ett_lsarpc_lsa_StringLarge = -1;
 static gint ett_lsarpc_lsa_Strings = -1;
 static gint ett_lsarpc_lsa_AsciiString = -1;
 static gint ett_lsarpc_lsa_AsciiStringLarge = -1;
+static gint ett_lsarpc_lsa_BinaryString = -1;
 static gint ett_lsarpc_lsa_LUID = -1;
 static gint ett_lsarpc_lsa_PrivEntry = -1;
 static gint ett_lsarpc_lsa_PrivArray = -1;
@@ -134,6 +135,9 @@ static gint hf_lsarpc_lsa_AuditLogInfo_retention_time = -1;
 static gint hf_lsarpc_lsa_AuditLogInfo_shutdown_in_progress = -1;
 static gint hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown = -1;
 static gint hf_lsarpc_lsa_AuditLogInfo_unknown = -1;
+static gint hf_lsarpc_lsa_BinaryString_array = -1;
+static gint hf_lsarpc_lsa_BinaryString_length = -1;
+static gint hf_lsarpc_lsa_BinaryString_size = -1;
 static gint hf_lsarpc_lsa_CloseTrustedDomainEx_handle = -1;
 static gint hf_lsarpc_lsa_Close_handle = -1;
 static gint hf_lsarpc_lsa_CreateAccount_access_mask = -1;
@@ -667,6 +671,11 @@ static int lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvbuff_t *tvb _U_, i
 static int lsarpc_dissect_element_lsa_AsciiStringLarge_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_AsciiStringLarge_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_AsciiStringLarge_string__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_BinaryString_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_BinaryString_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_BinaryString_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_BinaryString_array_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_BinaryString_array__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LUID_low(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LUID_high(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_PrivEntry_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -2035,6 +2044,86 @@ lsarpc_dissect_struct_lsa_AsciiStringLarge(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_AsciiStringLarge_string(tvb, offset, pinfo, tree, di, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
+	return offset;
+}
+
+
+/* IDL: struct { */
+/* IDL: 	uint16 length; */
+/* IDL: 	uint16 size; */
+/* IDL: 	[length_is(length/2)] [size_is(size/2)] [unique(1)] uint16 *array; */
+/* IDL: } */
+
+static int
+lsarpc_dissect_element_lsa_BinaryString_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_BinaryString_length, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_BinaryString_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_BinaryString_size, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_BinaryString_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_BinaryString_array_, NDR_POINTER_UNIQUE, "Pointer to Array (uint16)",hf_lsarpc_lsa_BinaryString_array);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_BinaryString_array_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_BinaryString_array__);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_BinaryString_array__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_BinaryString_array, 0);
+
+	return offset;
+}
+
+int
+lsarpc_dissect_struct_lsa_BinaryString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_5_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_BinaryString);
+	}
+
+	offset = lsarpc_dissect_element_lsa_BinaryString_length(tvb, offset, pinfo, tree, di, drep);
+
+	offset = lsarpc_dissect_element_lsa_BinaryString_size(tvb, offset, pinfo, tree, di, drep);
+
+	offset = lsarpc_dissect_element_lsa_BinaryString_array(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -13804,6 +13893,12 @@ void proto_register_dcerpc_lsarpc(void)
 	  { "Time To Shutdown", "lsarpc.lsa_AuditLogInfo.time_to_shutdown", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_AuditLogInfo_unknown,
 	  { "Unknown", "lsarpc.lsa_AuditLogInfo.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_BinaryString_array,
+	  { "Array", "lsarpc.lsa_BinaryString.array", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_BinaryString_length,
+	  { "Length", "lsarpc.lsa_BinaryString.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_BinaryString_size,
+	  { "Size", "lsarpc.lsa_BinaryString.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_CloseTrustedDomainEx_handle,
 	  { "Handle", "lsarpc.lsa_CloseTrustedDomainEx.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_Close_handle,
@@ -14612,6 +14707,7 @@ void proto_register_dcerpc_lsarpc(void)
 		&ett_lsarpc_lsa_Strings,
 		&ett_lsarpc_lsa_AsciiString,
 		&ett_lsarpc_lsa_AsciiStringLarge,
+		&ett_lsarpc_lsa_BinaryString,
 		&ett_lsarpc_lsa_LUID,
 		&ett_lsarpc_lsa_PrivEntry,
 		&ett_lsarpc_lsa_PrivArray,

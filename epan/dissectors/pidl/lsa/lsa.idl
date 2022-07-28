@@ -82,6 +82,12 @@
 		[charset(DOS),size_is(size),length_is(length)] uint8 *string;
 	} lsa_AsciiStringLarge;
 
+	typedef [public] struct {
+		uint16 length;
+		uint16 size;
+		[size_is(size/2),length_is(length/2)] uint16 *array;
+	} lsa_BinaryString;
+
 	/******************/
 	/* Function: 0x00 */
 	NTSTATUS lsa_Close (
