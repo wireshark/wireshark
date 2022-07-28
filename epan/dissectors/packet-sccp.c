@@ -706,6 +706,7 @@ static expert_field ei_sccp_ssn_zero = EI_INIT;
 static expert_field ei_sccp_class_unexpected = EI_INIT;
 static expert_field ei_sccp_handling_invalid = EI_INIT;
 static expert_field ei_sccp_gt_digits_missing = EI_INIT;
+static expert_field ei_sccp_externally_reassembled = EI_INIT;
 
 
 static gboolean sccp_reassemble = TRUE;
@@ -2752,6 +2753,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *sccp_tree, proto_tree *tree,
                                 guint8 parameter_type, int offset, sccp_decode_context_t* sccp_info)
 {
+  gint        remaining_length;
   guint16     parameter_length;
   guint8      length_length;
   proto_item *pi;
@@ -2770,8 +2772,15 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
                                   val_to_str(parameter_type, sccp_parameter_values,
                                              "Unknown: %d"),
                                   parameter_length);
-  if (!sccp_show_length) {
+  remaining_length = tvb_reported_length_remaining(tvb, offset + length_length);
+  if (parameter_type == PARAMETER_DATA && remaining_length > 255 && parameter_length == 255) {
+    expert_add_info_format(pinfo, pi, &ei_sccp_externally_reassembled, "Possibly externally reassembled (remaining length %u > %u), check SCCP preferences", remaining_length, parameter_length);
+    if (dt1_ignore_length) {
+      parameter_length = remaining_length;
+    }
+  } else if (!sccp_show_length) {
     /* The user doesn't want to see it... */
+    /* Show the length anyway, though, if there was an error. */
     proto_item_set_hidden(pi);
   }
 
@@ -4122,6 +4131,7 @@ proto_register_sccp(void)
      { &ei_sccp_class_unexpected, { "sccp.class_unexpected", PI_MALFORMED, PI_ERROR, "Unexpected message class for this message type", EXPFILL }},
      { &ei_sccp_handling_invalid, { "sccp.handling_invalid", PI_MALFORMED, PI_ERROR, "Invalid message handling", EXPFILL }},
      { &ei_sccp_gt_digits_missing, { "sccp.gt_digits_missing", PI_MALFORMED, PI_ERROR, "Address digits missing", EXPFILL }},
+     { &ei_sccp_externally_reassembled, { "sccp.externally_reassembled", PI_ASSUMPTION, PI_NOTE, "Possibly externally reassembled (remaining length > 255 bytes), enable in SCCP preferences", EXPFILL }},
   };
 
   /* Decode As handling */
@@ -4205,9 +4215,9 @@ proto_register_sccp(void)
                                    "The protocol which should be used to dissect the payload if nothing else has claimed it",
                                    &default_payload);
 
-  prefs_register_bool_preference(sccp_module, "dt1_ignore_length", "Ignore length in DT1",
-                                 "Use all bytes for data payload. Overcome 255 bytes limit of SCCP stadard."
-                                 "  (Some tracing tool save information without DT1 segmentation of 255 bytes)",
+  prefs_register_bool_preference(sccp_module, "dt1_ignore_length", "Dissect data past 255 byte limit",
+                                 "Use all bytes for data payload. Overcome 255 bytes limit of SCCP standard."
+                                 "  (Some tracing tools externally reassemble segmented data.)",
                                  &dt1_ignore_length);
 
   register_init_routine(&init_sccp);
