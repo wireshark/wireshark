@@ -30,7 +30,6 @@
 
 #ifndef _WIN32
 #include <signal.h>
-#include <glib-unix.h>
 #endif
 
 #include <glib.h>
@@ -2501,94 +2500,6 @@ clean_exit:
 
 gboolean loop_running = FALSE;
 guint32 packet_count = 0;
-
-
-typedef struct pipe_input_tag {
-    gint             source;
-    gpointer         user_data;
-    ws_process_id   *child_process;
-    pipe_input_cb_t  input_cb;
-    guint            pipe_input_id;
-} pipe_input_t;
-
-static pipe_input_t pipe_input;
-
-#ifdef _WIN32
-/* The timer has expired, see if there's stuff to read from the pipe,
-   if so, do the callback */
-static gint
-pipe_timer_cb(gpointer data)
-{
-    HANDLE        handle;
-    DWORD         avail        = 0;
-    gboolean      result;
-    DWORD         childstatus;
-    pipe_input_t *pipe_input_p = data;
-    gint          iterations   = 0;
-
-    /* try to read data from the pipe only 5 times, to avoid blocking */
-    while(iterations < 5) {
-        /* Oddly enough although Named pipes don't work on win9x,
-           PeekNamedPipe does !!! */
-        handle = (HANDLE) _get_osfhandle (pipe_input_p->source);
-        result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-        /* Get the child process exit status */
-        GetExitCodeProcess((HANDLE)*(pipe_input_p->child_process),
-                &childstatus);
-
-        /* If the Peek returned an error, or there are bytes to be read
-           or the childwatcher thread has terminated then call the normal
-           callback */
-        if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
-
-            /* And call the real handler */
-            if (!pipe_input_p->input_cb(pipe_input_p->source, pipe_input_p->user_data)) {
-                ws_debug("input pipe closed, iterations: %u", iterations);
-                /* pipe closed, stop the timer */
-                return G_SOURCE_REMOVE;
-            }
-        }
-        else {
-            /* No data, stop now */
-            break;
-        }
-
-        iterations++;
-    }
-
-    /* we didn't stopped the timer, so let it run */
-    return G_SOURCE_CONTINUE;
-}
-#else
-static gboolean
-pipe_fd_cb(gint fd _U_, GIOCondition condition _U_, gpointer user_data)
-{
-    pipe_input_t *pipe_input_p = (pipe_input_t *)user_data;
-    return pipe_input_p->input_cb(pipe_input_p->source, pipe_input_p->user_data);
-}
-#endif
-
-void
-pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
-{
-
-    pipe_input.source         = source;
-    pipe_input.child_process  = child_process;
-    pipe_input.user_data      = user_data;
-    pipe_input.input_cb       = input_cb;
-
-#ifdef _WIN32
-    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
-       do this but that doesn't cover all win32 platforms.  GTK can do
-       this but doesn't seem to work over processes.  Attempt to do
-       something similar here, start a timer and check for data on every
-       timeout. */
-    pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
-#else
-    pipe_input.pipe_input_id = g_unix_fd_add(source, G_IO_IN | G_IO_HUP, pipe_fd_cb, &pipe_input);
-#endif
-}
 
 static const nstime_t *
 tshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)

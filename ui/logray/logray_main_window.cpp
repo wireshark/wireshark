@@ -95,11 +95,6 @@ DIAG_ON(frame-larger-than=)
 // If we ever add support for multiple windows this will need to be replaced.
 static LograyMainWindow *gbl_cur_main_window_ = NULL;
 
-void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
-{
-    gbl_cur_main_window_->setPipeInputHandler(source, user_data, child_process, input_cb);
-}
-
 static void plugin_if_mainwindow_apply_filter(GHashTable * data_set)
 {
     if (!gbl_cur_main_window_ || !data_set)
@@ -334,11 +329,6 @@ LograyMainWindow::LograyMainWindow(QWidget *parent) :
 #endif
     , display_filter_dlg_(NULL)
     , capture_filter_dlg_(NULL)
-#ifdef _WIN32
-    , pipe_timer_(NULL)
-#else
-    , pipe_notifier_(NULL)
-#endif
 #if defined(Q_OS_MAC)
     , dock_menu_(NULL)
 #endif
@@ -842,43 +832,6 @@ void LograyMainWindow::removeInterfaceToolbar(const gchar *menu_title)
     }
 
     menu->menuAction()->setVisible(!menu->actions().isEmpty());
-}
-
-void LograyMainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
-{
-    pipe_source_        = source;
-    pipe_child_process_ = child_process;
-    pipe_user_data_     = user_data;
-    pipe_input_cb_      = input_cb;
-
-#ifdef _WIN32
-    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
-       do this but that doesn't cover all win32 platforms.  GTK can do
-       this but doesn't seem to work over processes.  Attempt to do
-       something similar here, start a timer and check for data on every
-       timeout. */
-       /*ws_log(NULL, LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
-
-    if (pipe_timer_) {
-        disconnect(pipe_timer_, SIGNAL(timeout()), this, SLOT(pipeTimeout()));
-        delete pipe_timer_;
-    }
-
-    pipe_timer_ = new QTimer(this);
-    connect(pipe_timer_, SIGNAL(timeout()), this, SLOT(pipeTimeout()));
-    connect(pipe_timer_, SIGNAL(destroyed()), this, SLOT(pipeNotifierDestroyed()));
-    pipe_timer_->start(200);
-#else
-    if (pipe_notifier_) {
-        disconnect(pipe_notifier_, SIGNAL(activated(int)), this, SLOT(pipeActivated(int)));
-        delete pipe_notifier_;
-    }
-
-    pipe_notifier_ = new QSocketNotifier(pipe_source_, QSocketNotifier::Read);
-    // XXX ui/gtk/gui_utils.c sets the encoding. Do we need to do the same?
-    connect(pipe_notifier_, SIGNAL(activated(int)), this, SLOT(pipeActivated(int)));
-    connect(pipe_notifier_, SIGNAL(destroyed()), this, SLOT(pipeNotifierDestroyed()));
-#endif
 }
 
 bool LograyMainWindow::eventFilter(QObject *obj, QEvent *event) {

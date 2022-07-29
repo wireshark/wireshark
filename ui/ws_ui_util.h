@@ -45,11 +45,6 @@ extern void main_window_update(void);
 /* Exit routine provided by UI-specific code. */
 extern void exit_application(int status);
 
-/* read from a pipe (callback) */
-typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
-/* install callback function, called if pipe input is available */
-extern void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb);
-
 /* XXX - Yes this isn't the best place, but they are used by file_dlg_win32.c, which is supposed
          to be GUI independent, but has lots of GTK leanings.  But if you put these in a GTK UI
          header file, file_dlg_win32.c complains about all of the GTK structures also in the header

@@ -106,7 +106,6 @@ class LograyMainWindow : public MainWindow
 public:
     explicit LograyMainWindow(QWidget *parent = nullptr);
     ~LograyMainWindow();
-    void setPipeInputHandler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb);
 
 #ifdef HAVE_LIBPCAP
     capture_session *captureSession() { return &cap_session_; }
@@ -194,17 +193,6 @@ private:
 #endif
     FilterDialog *display_filter_dlg_;
     FilterDialog *capture_filter_dlg_;
-
-    // Pipe input
-    gint                pipe_source_;
-    gpointer            pipe_user_data_;
-    ws_process_id      *pipe_child_process_;
-    pipe_input_cb_t     pipe_input_cb_;
-#ifdef _WIN32
-    QTimer *pipe_timer_;
-#else
-    QSocketNotifier *pipe_notifier_;
-#endif
 
 #if defined(Q_OS_MAC)
     QMenu *dock_menu_;
@@ -333,9 +321,7 @@ private slots:
      */
     void startCapture(QStringList);
     void startCapture();
-    void pipeTimeout();
-    void pipeActivated(int source);
-    void pipeNotifierDestroyed();
+    void popLiveCaptureInProgress();
     void stopCapture();
 
     void loadWindowGeometry();

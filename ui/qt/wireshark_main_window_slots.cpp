@@ -547,6 +547,7 @@ void WiresharkMainWindow::captureCaptureUpdateFinished(capture_session *session)
     setMenusForCaptureFile();
 
     setWindowIcon(mainApp->normalIcon());
+    popLiveCaptureInProgress();
 
     if (global_commandline_info.quit_after_cap) {
         // Command line asked us to quit after capturing.
@@ -569,6 +570,7 @@ void WiresharkMainWindow::captureCaptureFixedFinished(capture_session *) {
     setMenusForCaptureFile(true);
 
     setWindowIcon(mainApp->normalIcon());
+    popLiveCaptureInProgress();
 
     if (global_commandline_info.quit_after_cap) {
         // Command line asked us to quit after capturing.
@@ -589,6 +591,7 @@ void WiresharkMainWindow::captureCaptureFailed(capture_session *) {
     mainApp->popStatus(WiresharkApplication::FileStatus);
 
     setWindowIcon(mainApp->normalIcon());
+    popLiveCaptureInProgress();
 
     if (global_commandline_info.quit_after_cap) {
         // Command line asked us to quit after capturing.
@@ -977,75 +980,9 @@ DIAG_ON(stringop-overread)
 #endif // HAVE_LIBPCAP
 }
 
-// Copied from ui/gtk/gui_utils.c
-void WiresharkMainWindow::pipeTimeout() {
-#ifdef _WIN32
-    HANDLE handle;
-    DWORD avail = 0;
-    gboolean result, result1;
-    DWORD childstatus;
-    gint iterations = 0;
-
-
-    /* try to read data from the pipe only 5 times, to avoid blocking */
-    while (iterations < 5) {
-        /* Oddly enough although Named pipes don't work on win9x,
-           PeekNamedPipe does !!! */
-        handle = (HANDLE)_get_osfhandle(pipe_source_);
-        result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-        /* Get the child process exit status */
-        result1 = GetExitCodeProcess((HANDLE)*(pipe_child_process_),
-                                     &childstatus);
-
-        /* If the Peek returned an error, or there are bytes to be read
-           or the childwatcher thread has terminated then call the normal
-           callback */
-        if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
-
-            /* And call the real handler */
-            if (!pipe_input_cb_(pipe_source_, pipe_user_data_)) {
-                ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
-                /* pipe closed, return false so that the old timer is not run again */
-                delete pipe_timer_;
-                return;
-            }
-        } else {
-            /* No data, stop now */
-            break;
-        }
-
-        iterations++;
-    }
-#endif // _WIN32
-}
-
-void WiresharkMainWindow::pipeActivated(int source) {
-    Q_UNUSED(source)
-
-#ifndef _WIN32
-    ws_assert(source == pipe_source_);
-
-    pipe_notifier_->setEnabled(false);
-    if (pipe_input_cb_(pipe_source_, pipe_user_data_)) {
-        pipe_notifier_->setEnabled(true);
-    }
-    else {
-        delete pipe_notifier_;
-    }
-#endif // _WIN32
-}
-
-void WiresharkMainWindow::pipeNotifierDestroyed()
-{
+void WiresharkMainWindow::popLiveCaptureInProgress() {
     /* Pop the "<live capture in progress>" message off the status bar. */
     main_ui_->statusBar->setFileName(capture_file_);
-
-#ifdef _WIN32
-    pipe_timer_ = NULL;
-#else
-    pipe_notifier_ = NULL;
-#endif // _WIN32
 }
 
 void WiresharkMainWindow::stopCapture() {

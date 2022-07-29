@@ -28,6 +28,8 @@
 #include <wsutil/unicode-utils.h>
 #include <wsutil/win32-utils.h>
 #include <wsutil/ws_pipe.h>
+#else
+#include <glib-unix.h>
 #endif
 
 #ifdef HAVE_SYS_WAIT_H
@@ -124,7 +126,9 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
 {
     cap_session->cf                              = cf;
     cap_session->fork_child                      = WS_INVALID_PID;   /* invalid process handle */
+    cap_session->pipe_input_id                   = 0;
 #ifdef _WIN32
+    cap_session->sync_pipe_read_fd               = 0;
     cap_session->signal_pipe_write_fd            = -1;
 #endif
     cap_session->state                           = CAPTURE_STOPPED;
@@ -200,6 +204,67 @@ init_pipe_args(int *argc) {
 
     return argv;
 }
+
+#ifdef _WIN32
+/* The timer has expired, see if there's stuff to read from the pipe,
+   if so, do the callback */
+static gint
+pipe_timer_cb(gpointer user_data)
+{
+    capture_session *cap_session = (capture_session *)user_data;
+    HANDLE        handle;
+    DWORD         avail        = 0;
+    gboolean      result;
+    DWORD         childstatus;
+    gint          iterations   = 0;
+
+    /* try to read data from the pipe only 5 times, to avoid blocking */
+    while(iterations < 5) {
+        /* Oddly enough although Named pipes don't work on win9x,
+           PeekNamedPipe does !!! */
+        handle = (HANDLE) _get_osfhandle (cap_session->sync_pipe_read_fd);
+        result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+        /* Get the child process exit status */
+        GetExitCodeProcess((HANDLE)cap_session->fork_child,
+                           &childstatus);
+
+        /* If the Peek returned an error, or there are bytes to be read
+           or the childwatcher thread has terminated then call the normal
+           callback */
+        if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
+
+            /* And call the real handler */
+            if (!sync_pipe_input_cb(cap_session->sync_pipe_read_fd, user_data)) {
+                ws_debug("input pipe closed, iterations: %u", iterations);
+                /* pipe closed, stop the timer */
+                cap_session->pipe_input_id = 0;
+                return G_SOURCE_REMOVE;
+            }
+        }
+        else {
+            /* No data, stop now */
+            break;
+        }
+
+        iterations++;
+    }
+
+    /* we didn't stop the timer, so let it run */
+    return G_SOURCE_CONTINUE;
+}
+#else
+static gboolean
+pipe_fd_cb(gint fd, GIOCondition condition _U_, gpointer user_data)
+{
+    capture_session *cap_session = (capture_session *)user_data;
+    if (!sync_pipe_input_cb(fd, user_data)) {
+        cap_session->pipe_input_id = 0;
+        return G_SOURCE_REMOVE;
+    }
+    return G_SOURCE_CONTINUE;
+}
+#endif
 
 #define ARGV_NUMBER_LEN 24
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
@@ -664,9 +729,20 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
        the child process wants to tell us something. */
 
     /* we have a running capture, now wait for the real capture filename */
-    pipe_input_set_handler(sync_pipe_read_fd, (gpointer) cap_session,
-                           &cap_session->fork_child, sync_pipe_input_cb);
-
+    if (cap_session->pipe_input_id) {
+        g_source_remove(cap_session->pipe_input_id);
+        cap_session->pipe_input_id = 0;
+    }
+#ifdef _WIN32
+    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
+       do this but that doesn't cover all win32 platforms. Attempt to do
+       something similar here, start a timer and check for data on every
+       timeout. */
+    cap_session->sync_pipe_read_fd = sync_pipe_read_fd;
+    cap_session->pipe_input_id = g_timeout_add(200, pipe_timer_cb, cap_session);
+#else
+    cap_session->pipe_input_id = g_unix_fd_add(sync_pipe_read_fd, G_IO_IN | G_IO_HUP, pipe_fd_cb, cap_session);
+#endif
     return TRUE;
 }
 
