@@ -7800,6 +7800,20 @@ capture_tcp(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
     return TRUE;
 }
 
+typedef struct _tcp_tap_cleanup_t {
+
+    packet_info *pinfo;
+    struct tcpheader *tcph;
+
+} tcp_tap_cleanup_t;
+
+static void tcp_tap_cleanup(void *data)
+{
+    tcp_tap_cleanup_t *cleanup = (tcp_tap_cleanup_t *)data;
+
+    tap_queue_packet(tcp_tap, cleanup->pinfo, cleanup->tcph);
+}
+
 static int
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -8300,6 +8314,23 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
         return offset+12;
     }
+
+    /* Now we certainly have enough information to be willing to send
+     * the header information to the tap. The options can add information
+     * about the SACKs, but the other taps don't really *require* that.
+     * Add a CLEANUP function so that the tap_queue_packet gets called
+     * if any exception is thrown.
+     *
+     * XXX: Could we move this earlier, before the window size and urgent
+     * pointer, for example? Probably, but if so, remember to
+     * CLEANUP_CALL_AND_POP before any return statements, such as the
+     * one above.
+     */
+
+    tcp_tap_cleanup_t *cleanup = wmem_new(pinfo->pool, tcp_tap_cleanup_t);
+    cleanup->pinfo = pinfo;
+    cleanup->tcph = tcph;
+    CLEANUP_PUSH(tcp_tap_cleanup, cleanup);
 
     /* initialize or move forward the conversation completeness */
     if(tcpd) {
@@ -8819,7 +8850,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
-    tap_queue_packet(tcp_tap, pinfo, tcph);
+    /* Nothing more to add to tcph, go ahead and send to the taps. */
+    CLEANUP_CALL_AND_POP;
 
     /* if it is an MPTCP packet */
     if(tcpd->mptcp_analysis) {
