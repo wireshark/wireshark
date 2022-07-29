@@ -435,6 +435,8 @@ _Capture filters_ are used for filtering
 when capturing packets and are discussed in <<ChCapCaptureFilterSection>>.
 _Display filters_ are used for filtering
 which packets are displayed and are discussed below.
+For more information about _display filter_ syntax, see the
+link:{wireshark-man-page-url}wireshark-filter.html[wireshark-filter(4)] man page.
 
 Display filters allow you to concentrate on the packets you are interested in
 while hiding the currently uninteresting ones. They allow you to only display packets
