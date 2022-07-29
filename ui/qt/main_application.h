@@ -92,6 +92,7 @@ public:
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void emitTapParameterSignal(const QString cfg_abbr, const QString arg, void *userdata);
     void addDynamicMenuGroupItem(int group, QAction *sg_action);
+    void appendDynamicMenuGroupItem(int group, QAction *sg_action);
     void removeDynamicMenuGroupItem(int group, QAction *sg_action);
     QList<QAction *> dynamicMenuGroupItems(int group);
     QList<QAction *> addedMenuGroupItems(int group);
