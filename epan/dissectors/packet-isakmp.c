@@ -288,6 +288,8 @@ static int hf_isakmp_ike_attr_prf = -1;
 static int hf_isakmp_ike_attr_key_length = -1;
 static int hf_isakmp_ike_attr_field_size = -1;
 static int hf_isakmp_ike_attr_group_order = -1;
+static int hf_isakmp_ike_attr_block_size = -1;
+static int hf_isakmp_ike_attr_asymmetric_cryptographic_algorithm_type = -1;
 
 static attribute_common_fields hf_isakmp_resp_lifetime_ike_attr = { -1, -1, -1, -1, -1 };
 static int hf_isakmp_resp_lifetime_ike_attr_life_type = -1;
@@ -817,6 +819,8 @@ static const range_string tek_key_attr_type[] = {
 #define IKE_ATTR_KEY_LENGTH                             14
 #define IKE_ATTR_FIELD_SIZE                             15
 #define IKE_ATTR_GROUP_ORDER                    16
+#define IKE_ATTR_BLOCK_SIZE                     17
+#define IKE_ATTR_ACAT                           20
 
 
 
@@ -837,7 +841,10 @@ static const range_string ike_attr_type[] = {
   { 14,14,       "Key-Length" },
   { 15,15,       "Field-Size" },
   { 16,16,       "Group-Order" },
-  { 17,16383,    "Unassigned (Future use)" },
+  { 17,17,       "Block-Size" },
+  { 18,19,       "Unassigned (Future use)" },
+  { 20,20,       "Asymmetric-Cryptographic-Algorithm-Type" },
+  { 21,16383,    "Unassigned (Future use)" },
   { 16384,32767, "Private use" },
   { 0,0,         NULL },
 };
@@ -957,6 +964,9 @@ static const value_string ipsec_attr_auth_algo[] = {
 #define ENC_CAST_CBC            6
 #define ENC_AES_CBC             7
 #define ENC_CAMELLIA_CBC        8
+#define ENC_SM4_CBC_DEPRECATED  127
+#define ENC_SM1_CBC             128
+#define ENC_SM4_CBC             129
 
 static const value_string ike_attr_enc_algo[] = {
   { 0,                          "RESERVED" },
@@ -968,6 +978,9 @@ static const value_string ike_attr_enc_algo[] = {
   { ENC_CAST_CBC,               "CAST-CBC" },
   { ENC_AES_CBC,                "AES-CBC" },
   { ENC_CAMELLIA_CBC,           "CAMELLIA-CBC" },
+  { ENC_SM4_CBC_DEPRECATED,     "SM4-CBC (DEPRECATED)" },
+  { ENC_SM1_CBC,                "SM1-CBC" },
+  { ENC_SM4_CBC,                "SM4-CBC" },
   { 0,  NULL },
 };
 
@@ -977,6 +990,7 @@ static const value_string ike_attr_enc_algo[] = {
 #define HMAC_SHA2_256   4
 #define HMAC_SHA2_384   5
 #define HMAC_SHA2_512   6
+#define HMAC_SM3        20
 
 static const value_string ike_attr_hash_algo[] = {
   { 0,                  "RESERVED" },
@@ -986,6 +1000,16 @@ static const value_string ike_attr_hash_algo[] = {
   { HMAC_SHA2_256,      "SHA2-256" },
   { HMAC_SHA2_384,      "SHA2-384" },
   { HMAC_SHA2_512,      "SHA2-512" },
+  { HMAC_SM3,           "SM3" },
+  { 0,  NULL },
+};
+
+#define ASYMMETRIC_RSA   1
+#define ASYMMETRIC_SM2   2
+
+static const value_string ike_attr_asym_algo[] = {
+  { ASYMMETRIC_RSA,      "RSA" },
+  { ASYMMETRIC_SM2,      "SM2" },
   { 0,  NULL },
 };
 
@@ -4013,6 +4037,13 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
       break;
     case IKE_ATTR_GROUP_ORDER:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_order, tvb, offset, value_len, ENC_NA);
+      break;
+    case IKE_ATTR_BLOCK_SIZE:
+      proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_block_size, tvb, offset, value_len, ENC_NA);
+      break;
+    case IKE_ATTR_ACAT:
+      proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_asymmetric_cryptographic_algorithm_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
+      proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_asym_algo, "Unknown %d"));
       break;
     default:
       /* No Default Action */
@@ -7355,6 +7386,14 @@ proto_register_isakmp(void)
     { &hf_isakmp_ike_attr_group_order,
       { "Group Order", "isakmp.ike.attr.group_order",
         FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_ike_attr_block_size,
+      { "Block Size", "isakmp.ike.attr.block_size",
+        FT_BYTES, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_ike_attr_asymmetric_cryptographic_algorithm_type,
+      { "Asymmetric Cryptographic Algorithm Type", "isakmp.ike.attr.asymmetric_cryptographic_algorithm_type",
+        FT_UINT16, BASE_DEC, VALS(ike_attr_asym_algo), 0x00,
         NULL, HFILL }},
 
     /* Responder Lifetime Notification for IKEv1 SA */
