@@ -649,13 +649,13 @@ static gboolean aeron_is_address_multicast(const address * addr)
     switch (addr->type)
     {
         case AT_IPv4:
-            if ((addr_data[0] & 0xf0) == 0xe0)
+            if (addr_data && ((addr_data[0] & 0xf0) == 0xe0))
             {
                 return (TRUE);
             }
             break;
         case AT_IPv6:
-            if (addr_data[0] == 0xff)
+            if (addr_data && (addr_data[0] == 0xff))
             {
                 return (TRUE);
             }
