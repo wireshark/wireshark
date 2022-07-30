@@ -1808,7 +1808,6 @@ static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_tr
             {
                 guint32 next_offset = term_offset + length;
                 guint32 next_offset_term_id = term_id;
-                guint32 next_offset_first_frame = 0;
                 aeron_term_t * next_offset_term = NULL;
                 proto_item * item;
 
@@ -1837,8 +1836,7 @@ static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_tr
                     {
                         if (next_offset_fragment->first_frame != NULL)
                         {
-                            next_offset_first_frame = next_offset_fragment->first_frame->frame;
-                            item = proto_tree_add_uint(tree, hf_aeron_data_next_offset_first_frame, tvb, 0, 0, next_offset_first_frame);
+                            item = proto_tree_add_uint(tree, hf_aeron_data_next_offset_first_frame, tvb, 0, 0, next_offset_fragment->first_frame->frame);
                             proto_item_set_generated(item);
                         }
                     }
