@@ -34,12 +34,8 @@
 void proto_register_rtp_events(void);
 void proto_reg_handoff_rtp_events(void);
 
-#define RTP_EVENT_DEFAULT_PT_RANGE "101"
-static range_t *rtp_event_payload_type_range = NULL;
-
-#define CISCO_NSE_DEFAULT_PT_RANGE "100"
-static range_t *cisco_nse_pt_range = NULL;
-
+/* 101 for RTP Event, 100 for Cisco NSE */
+#define RTP_EVENT_DEFAULT_PT_RANGE "100-101"
 
 /* RTP Event Fields */
 
@@ -556,25 +552,9 @@ proto_register_rtp_events(void)
 
 
 	/* Register preferences */
-	rtp_events_module = prefs_register_protocol (proto_rtp_events, proto_reg_handoff_rtp_events);
-	range_convert_str(wmem_epan_scope(), &rtp_event_payload_type_range,
-			RTP_EVENT_DEFAULT_PT_RANGE, 127);
-	prefs_register_range_preference(rtp_events_module,
-				    "event_payload_type_value",
-				    "Payload Types for RFC2833 RTP Events",
-				    "Payload Types for RFC2833 RTP Events"
-				    "; values must be in the range 1 - 127",
-				    &rtp_event_payload_type_range, 127);
-
-
-	range_convert_str(wmem_epan_scope(), &cisco_nse_pt_range,
-			CISCO_NSE_DEFAULT_PT_RANGE, 127);
-	prefs_register_range_preference(rtp_events_module,
-				    "cisco_nse_payload_type_value",
-				    "Payload Types for Cisco Named Signaling Events",
-				    "Payload Types for Cisco Named Signaling Events"
-				    "; values must be in the range 1 - 127",
-				    &cisco_nse_pt_range, 127);
+	rtp_events_module = prefs_register_protocol (proto_rtp_events, NULL);
+	prefs_register_obsolete_preference(rtp_events_module, "event_payload_type_value");
+	prefs_register_obsolete_preference(rtp_events_module, "cisco_nse_payload_type_value");
 
 	rtp_events_handle = register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
 	rtp_event_tap = register_tap("rtpevent");
@@ -585,31 +565,9 @@ proto_register_rtp_events(void)
 void
 proto_reg_handoff_rtp_events(void)
 {
-	/* saved_payload_type_value is a temporary place to save */
-	/* the value so we can properly reinitialize when the    */
-	/* settings get changed.                                 */
-	static range_t *saved_payload_type_range;
-	static range_t *saved_cisco_nse_pt_range;
-	static gboolean rtp_events_prefs_initialized = FALSE;
-
-	if (!rtp_events_prefs_initialized) {
-		dissector_add_string("rtp_dyn_payload_type", "telephone-event", rtp_events_handle);
-		dissector_add_string("rtp_dyn_payload_type", "X-NSE", rtp_events_handle);
-		rtp_events_prefs_initialized = TRUE;
-	}
-	else {
-		dissector_delete_uint_range("rtp.pt", saved_payload_type_range, rtp_events_handle);
-		dissector_delete_uint_range("rtp.pt", saved_cisco_nse_pt_range, rtp_events_handle);
-		wmem_free(wmem_epan_scope(), saved_payload_type_range);
-		wmem_free(wmem_epan_scope(), saved_cisco_nse_pt_range);
-	}
-
-	saved_payload_type_range = range_copy(wmem_epan_scope(), rtp_event_payload_type_range);
-	saved_cisco_nse_pt_range = range_copy(wmem_epan_scope(), cisco_nse_pt_range);
-	range_remove_value(wmem_epan_scope(), &saved_payload_type_range, 0);
-	range_remove_value(wmem_epan_scope(), &saved_cisco_nse_pt_range, 0);
-	dissector_add_uint_range("rtp.pt", saved_payload_type_range, rtp_events_handle);
-	dissector_add_uint_range("rtp.pt", saved_cisco_nse_pt_range, rtp_events_handle);
+	dissector_add_string("rtp_dyn_payload_type", "telephone-event", rtp_events_handle);
+	dissector_add_string("rtp_dyn_payload_type", "X-NSE", rtp_events_handle);
+	dissector_add_uint_range_with_preference("rtp.pt", RTP_EVENT_DEFAULT_PT_RANGE, rtp_events_handle);
 }
 
 /*

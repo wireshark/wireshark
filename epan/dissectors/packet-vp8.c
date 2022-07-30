@@ -45,8 +45,6 @@ void proto_register_vp8(void);
 #define BIT_EXT_PICTURE_MASK    0x7FFF
 #define BIT_PARTITION_SIZE_MASK 0xE0FFFF
 
-static range_t *temp_dynamic_payload_type_range = NULL;
-
 static dissector_handle_t vp8_handle;
 
 /* Initialize the protocol and registered fields */
@@ -571,16 +569,12 @@ proto_register_vp8(void)
     proto_register_field_array(proto_vp8, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    vp8_module = prefs_register_protocol(proto_vp8, proto_reg_handoff_vp8);
+    vp8_module = prefs_register_protocol(proto_vp8, NULL);
 
     expert_vp8 = expert_register_protocol(proto_vp8);
     expert_register_field_array(expert_vp8, ei, array_length(ei));
 
-    prefs_register_range_preference(vp8_module, "dynamic.payload.type",
-                            "vp8 dynamic payload types",
-                            "Dynamic payload types which will be interpreted as vp8"
-                            "; Values must be in the range 1 - 127",
-                            &temp_dynamic_payload_type_range, 127);
+    prefs_register_obsolete_preference(vp8_module, "dynamic.payload.type");
 
     vp8_handle = register_dissector("vp8", dissect_vp8, proto_vp8);
 }
@@ -588,20 +582,9 @@ proto_register_vp8(void)
 void
 proto_reg_handoff_vp8(void)
 {
-    static range_t  *dynamic_payload_type_range = NULL;
-    static gboolean  vp8_prefs_initialized      = FALSE;
+    dissector_add_string("rtp_dyn_payload_type" , "VP8", vp8_handle);
 
-    if (!vp8_prefs_initialized) {
-        dissector_add_string("rtp_dyn_payload_type" , "VP8", vp8_handle);
-        vp8_prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, vp8_handle);
-        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
-    }
-
-    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
-    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, vp8_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", "", vp8_handle);
 }
 
 /*

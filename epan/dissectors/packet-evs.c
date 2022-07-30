@@ -65,9 +65,6 @@ static int ett_evs_header = -1;
 static int ett_evs_speech = -1;
 static int ett_evs_voice_data = -1;
 
-/* The dynamic payload type range which will be dissected as EVS */
-static range_t *temp_dynamic_payload_type_range = NULL;
-
 static const value_string evs_protected_payload_sizes_value[] = {
     {    48, "EVS Primary SID 2.4" },
     {    56, "Special case" },
@@ -1084,13 +1081,9 @@ proto_register_evs(void)
     proto_register_field_array(proto_evs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    evs_module = prefs_register_protocol(proto_evs, proto_reg_handoff_evs);
+    evs_module = prefs_register_protocol(proto_evs, NULL);
 
-    prefs_register_range_preference(evs_module, "dynamic.payload.type",
-        "EVS dynamic payload types",
-        "Dynamic payload types which will be interpreted as EVS"
-        "; values must be in the range 1 - 127",
-        &temp_dynamic_payload_type_range, 127);
+    prefs_register_obsolete_preference(evs_module, "dynamic.payload.type");
 
     evs_handle = register_dissector("evs", dissect_evs, proto_evs);
 
@@ -1099,22 +1092,8 @@ proto_register_evs(void)
 void
 proto_reg_handoff_evs(void)
 {
-    static range_t           *dynamic_payload_type_range = NULL;
-    static gboolean           evs_prefs_initialized = FALSE;
-
-    if (!evs_prefs_initialized) {
-        dissector_add_string("rtp_dyn_payload_type", "EVS", evs_handle);
-        evs_prefs_initialized = TRUE;
-    }
-    else {
-        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, evs_handle);
-        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
-    }
-
-    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-
-    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
-    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, evs_handle);
+    dissector_add_string("rtp_dyn_payload_type", "EVS", evs_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", "", evs_handle);
 }
 
 /*

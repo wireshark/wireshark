@@ -159,8 +159,6 @@ static const fragment_items mtp2_frag_items = {
 static reassembly_table mtp2_reassembly_table;
 
 /* variables needed for property registration to wireshark menu */
-static range_t *mtp2_rtp_payload_types;
-static range_t *pref_mtp2_rtp_payload_types = NULL;
 static gboolean reverse_bit_order_mtp2 = FALSE;
 
 static expert_field ei_mtp2_checksum_error = EI_INIT;
@@ -1276,7 +1274,7 @@ proto_register_mtp2(void)
   expert_mtp2 = expert_register_protocol(proto_mtp2);
   expert_register_field_array(expert_mtp2, ei, array_length(ei));
 
-  mtp2_module = prefs_register_protocol(proto_mtp2, proto_reg_handoff_mtp2);
+  mtp2_module = prefs_register_protocol(proto_mtp2, NULL);
   prefs_register_bool_preference(mtp2_module,
                                  "use_extended_sequence_numbers",
                                  "Use extended sequence numbers",
@@ -1294,12 +1292,8 @@ proto_register_mtp2(void)
                                  "Reverse bit order inside bytes",
                                  "Reverse the bit order inside bytes specified in Q.703.",
                                  &reverse_bit_order_mtp2);
-  prefs_register_range_preference(mtp2_module, "rtp_payload_type",
-                                 "RTP payload types for embedded packets in RTP stream",
-                                 "RTP payload types for embedded packets in RTP stream"
-                                 "; values must be in the range 1 - 127",
-                                 &pref_mtp2_rtp_payload_types,
-                                 127);
+  prefs_register_obsolete_preference(mtp2_module, "rtp_payload_type");
+
   register_init_routine(&mtp2_init_routine);
 }
 
@@ -1307,8 +1301,7 @@ void
 proto_reg_handoff_mtp2(void)
 {
   dissector_handle_t mtp2_with_phdr_handle;
-  static dissector_handle_t mtp2_bitstream_handle;
-  static gboolean init = FALSE;
+  dissector_handle_t mtp2_bitstream_handle;
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
   mtp2_with_phdr_handle = create_dissector_handle(dissect_mtp2_with_phdr,
@@ -1318,18 +1311,10 @@ proto_reg_handoff_mtp2(void)
 
   mtp3_handle   = find_dissector_add_dependency("mtp3", proto_mtp2);
 
-  if (!init) {
-    mtp2_bitstream_handle = create_dissector_handle(dissect_mtp2_bitstream, proto_mtp2);
-    dissector_add_string("rtp_dyn_payload_type", "MTP2", mtp2_bitstream_handle);
-    init = TRUE;
-  } else {
-    dissector_delete_uint_range("rtp.pt", mtp2_rtp_payload_types, mtp2_bitstream_handle);
-    wmem_free(wmem_epan_scope(), mtp2_rtp_payload_types);
-  }
+  mtp2_bitstream_handle = create_dissector_handle(dissect_mtp2_bitstream, proto_mtp2);
+  dissector_add_string("rtp_dyn_payload_type", "MTP2", mtp2_bitstream_handle);
 
-  mtp2_rtp_payload_types = range_copy(wmem_epan_scope(), pref_mtp2_rtp_payload_types);
-  range_remove_value(wmem_epan_scope(), &mtp2_rtp_payload_types, 0);
-  dissector_add_uint_range("rtp.pt", mtp2_rtp_payload_types, mtp2_bitstream_handle);
+  dissector_add_uint_range_with_preference("rtp.pt", "", mtp2_bitstream_handle);
 }
 
 /*

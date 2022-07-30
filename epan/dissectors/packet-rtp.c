@@ -273,7 +273,6 @@ static gboolean desegment_rtp = TRUE;
 
 /* RFC2198 Redundant Audio Data */
 #define RFC2198_DEFAULT_PT_RANGE "99"
-static range_t *rtp_rfc2198_pt_range = NULL;
 
 /* Proto data key values */
 #define RTP_CONVERSATION_PROTO_DATA     0
@@ -3321,7 +3320,7 @@ proto_register_rtp(void)
     rtp_hdr_ext_rfc5285_dissector_table = register_dissector_table("rtp.ext.rfc5285.id",
                                     "RTP Generic header extension (RFC 5285)", proto_rtp, FT_UINT8, BASE_DEC);
 
-    rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
+    rtp_module = prefs_register_protocol(proto_rtp, NULL);
 
     prefs_register_bool_preference(rtp_module, "show_setup_info",
                                     "Show stream setup information",
@@ -3342,12 +3341,7 @@ proto_register_rtp(void)
                                     "an invalid or ZRTP packet, a CLASSIC-STUN packet, or a T.38 packet",
                                     &global_rtp_version0_type,
                                     rtp_version0_types, FALSE);
-    range_convert_str(wmem_epan_scope(), &rtp_rfc2198_pt_range, RFC2198_DEFAULT_PT_RANGE, 127);
-    prefs_register_range_preference(rtp_module,
-                                    "rfc2198_payload_type", "Payload Types for RFC2198",
-                                    "Payload Types for RFC2198 Redundant Audio Data"
-                                    "; values must be in the range 1-127",
-                                    &rtp_rfc2198_pt_range, 127);
+    prefs_register_obsolete_preference(rtp_module, "rfc2198_payload_type");
 
     reassembly_table_register(&rtp_reassembly_table,
                   &addresses_reassembly_table_functions);
@@ -3359,52 +3353,40 @@ proto_register_rtp(void)
 void
 proto_reg_handoff_rtp(void)
 {
-    static gboolean rtp_prefs_initialized = FALSE;
-    static range_t *rtp_saved_rfc2198_pt_range = NULL;
+    dissector_add_for_decode_as("udp.port", rtp_handle);
+    dissector_add_for_decode_as("tcp.port", rtp_rfc4571_handle);
+    dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
+    heur_dissector_add( "udp", dissect_rtp_heur,  "RTP over UDP", "rtp_udp", proto_rtp, HEURISTIC_DISABLE);
+    heur_dissector_add("stun", dissect_rtp_heur, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
+    heur_dissector_add("classicstun", dissect_rtp_heur, "RTP over CLASSICSTUN", "rtp_classicstun", proto_rtp, HEURISTIC_DISABLE);
+    heur_dissector_add("rtsp", dissect_rtp_heur, "RTP over RTSP", "rtp_rtsp", proto_rtp, HEURISTIC_DISABLE);
 
-    if (!rtp_prefs_initialized) {
-
-        dissector_add_for_decode_as("udp.port", rtp_handle);
-        dissector_add_for_decode_as("tcp.port", rtp_rfc4571_handle);
-        dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
-        heur_dissector_add( "udp", dissect_rtp_heur,  "RTP over UDP", "rtp_udp", proto_rtp, HEURISTIC_DISABLE);
-        heur_dissector_add("stun", dissect_rtp_heur, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
-        heur_dissector_add("classicstun", dissect_rtp_heur, "RTP over CLASSICSTUN", "rtp_classicstun", proto_rtp, HEURISTIC_DISABLE);
-        heur_dissector_add("rtsp", dissect_rtp_heur, "RTP over RTSP", "rtp_rtsp", proto_rtp, HEURISTIC_DISABLE);
-
-        dissector_add_for_decode_as("flip.payload", rtp_handle );
+    dissector_add_for_decode_as("flip.payload", rtp_handle );
 
 
-        rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtp);
-        stun_handle = find_dissector_add_dependency("stun-udp", proto_rtp);
-        classicstun_handle = find_dissector_add_dependency("classicstun", proto_rtp);
-        classicstun_heur_handle = find_dissector_add_dependency("classicstun-heur", proto_rtp);
-        stun_heur_handle = find_dissector_add_dependency("stun-heur", proto_rtp);
-        t38_handle = find_dissector_add_dependency("t38_udp", proto_rtp);
-        zrtp_handle = find_dissector_add_dependency("zrtp", proto_rtp);
+    rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtp);
+    stun_handle = find_dissector_add_dependency("stun-udp", proto_rtp);
+    classicstun_handle = find_dissector_add_dependency("classicstun", proto_rtp);
+    classicstun_heur_handle = find_dissector_add_dependency("classicstun-heur", proto_rtp);
+    stun_heur_handle = find_dissector_add_dependency("stun-heur", proto_rtp);
+    t38_handle = find_dissector_add_dependency("t38_udp", proto_rtp);
+    zrtp_handle = find_dissector_add_dependency("zrtp", proto_rtp);
 
-        sprt_handle = find_dissector_add_dependency("sprt", proto_rtp);
-        v150fw_handle = find_dissector("v150fw");
+    sprt_handle = find_dissector_add_dependency("sprt", proto_rtp);
+    v150fw_handle = find_dissector("v150fw");
 
-        bta2dp_content_protection_header_scms_t = find_dissector_add_dependency("bta2dp_content_protection_header_scms_t", proto_rtp);
-        btvdp_content_protection_header_scms_t = find_dissector_add_dependency("btvdp_content_protection_header_scms_t", proto_rtp);
-        bta2dp_handle = find_dissector_add_dependency("bta2dp", proto_rtp);
-        btvdp_handle = find_dissector_add_dependency("btvdp", proto_rtp);
-        sbc_handle = find_dissector_add_dependency("sbc", proto_rtp);
+    bta2dp_content_protection_header_scms_t = find_dissector_add_dependency("bta2dp_content_protection_header_scms_t", proto_rtp);
+    btvdp_content_protection_header_scms_t = find_dissector_add_dependency("btvdp_content_protection_header_scms_t", proto_rtp);
+    bta2dp_handle = find_dissector_add_dependency("bta2dp", proto_rtp);
+    btvdp_handle = find_dissector_add_dependency("btvdp", proto_rtp);
+    sbc_handle = find_dissector_add_dependency("sbc", proto_rtp);
 
-        dissector_add_string("rtp_dyn_payload_type", "v150fw", v150fw_handle);
-        dissector_add_for_decode_as("rtp.pt", v150fw_handle);
+    dissector_add_string("rtp_dyn_payload_type", "v150fw", v150fw_handle);
+    dissector_add_for_decode_as("rtp.pt", v150fw_handle);
 
-        dissector_add_for_decode_as("btl2cap.cid", rtp_handle);
+    dissector_add_for_decode_as("btl2cap.cid", rtp_handle);
 
-        rtp_prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint_range("rtp.pt", rtp_saved_rfc2198_pt_range, rtp_rfc2198_handle);
-        wmem_free(wmem_epan_scope(), rtp_saved_rfc2198_pt_range);
-    }
-    rtp_saved_rfc2198_pt_range = range_copy(wmem_epan_scope(), rtp_rfc2198_pt_range);
-    range_remove_value(wmem_epan_scope(), &rtp_saved_rfc2198_pt_range, 0);
-    dissector_add_uint_range("rtp.pt", rtp_saved_rfc2198_pt_range, rtp_rfc2198_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", RFC2198_DEFAULT_PT_RANGE, rtp_rfc2198_handle);
     proto_sdp = proto_get_id_by_filter_name("sdp");
 }
 

@@ -5200,8 +5200,8 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         const char* pref_name;
     };
 
-    /* For now this is only supporting TCP/UDP port dissector preferences
-       which are assumed to be decimal */
+    /* For now this is only supporting TCP/UDP port and RTP payload
+     * types dissector preferences, which are assumed to be decimal */
     /* module_name is the filter name of the destination port preference,
      * which is usually the same as the original module but not
      * necessarily (e.g., if the preference is for what is now a PINO.)
@@ -5293,6 +5293,25 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"sscop.udp.ports", "sscop", "udp.port", 10},
         {"tftp.udp_ports", "tftp", "udp.port", 10},
         {"tipc.udp.ports", "tipc", "udp.port", 10},
+        /* RTP */
+        {"amr.dynamic.payload.type", "amr", "rtp.pt", 10},
+        {"amr.wb.dynamic.payload.type", "amr_wb", "rtp.pt", 10},
+        {"dvb-s2_modeadapt.dynamic.payload.type", "dvb-s2_modeadapt", "rtp.pt", 10},
+        {"evs.dynamic.payload.type", "evs", "rtp.pt", 10},
+        {"h263p.dynamic.payload.type", "h263p", "rtp.pt", 10},
+        {"h264.dynamic.payload.type", "h264", "rtp.pt", 10},
+        {"h265.dynamic.payload.type", "h265", "rtp.pt", 10},
+        {"ismacryp.dynamic.payload.type", "ismacryp", "rtp.pt", 10},
+        {"iuup.dynamic.payload.type", "iuup", "rtp.pt", 10},
+        {"lapd.rtp_payload_type", "lapd", "rtp.pt", 10},
+        {"mp4ves.dynamic.payload.type", "mp4ves", "rtp.pt", 10},
+        {"mtp2.rtp_payload_type", "mtp2", "rtp.pt", 10},
+        {"opus.dynamic.payload.type", "opus", "rtp.pt", 10},
+        {"rtp.rfc2198_payload_type", "rtp_rfc2198", "rtp.pt", 10},
+        {"rtpevent.event_payload_type_value", "rtpevent", "rtp.pt", 10},
+        {"rtpevent.cisco_nse_payload_type_value", "rtpevent", "rtp.pt", 10},
+        {"rtpmidi.midi_payload_type_value", "rtpmidi", "rtp.pt", 10},
+        {"vp8.dynamic.payload.type", "vp8", "rtp.pt", 10},
     };
 
     /* These are subdissectors of TPKT/OSITP that used to have a

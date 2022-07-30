@@ -78,9 +78,6 @@ static expert_field ei_amr_padding_bits_not0 = EI_INIT;
 static expert_field ei_amr_padding_bits_correct = EI_INIT;
 static expert_field ei_amr_reserved = EI_INIT;
 
-/* The dynamic payload types which will be dissected as AMR */
-static range_t *global_amr_dynamic_payload_types;
-static range_t *global_amr_wb_dynamic_payload_types;
 static gint  amr_encoding_type         = 0;
 static gint  pref_amr_mode             = AMR_NB;
 
@@ -785,19 +782,10 @@ proto_register_amr(void)
     expert_register_field_array(expert_amr, ei, array_length(ei));
     /* Register a configuration option for port */
 
-    amr_module = prefs_register_protocol(proto_amr, proto_reg_handoff_amr);
+    amr_module = prefs_register_protocol(proto_amr, NULL);
 
-    prefs_register_range_preference(amr_module, "dynamic.payload.type",
-                       "AMR dynamic payload types",
-                       "Dynamic payload types which will be interpreted as AMR"
-                       "; values must be in the range 1 - 127",
-                       &global_amr_dynamic_payload_types, 127);
-
-    prefs_register_range_preference(amr_module, "wb.dynamic.payload.type",
-        "AMR-WB dynamic payload types",
-        "Dynamic payload types which will be interpreted as AMR-WB"
-        "; values must be in the range 1-127",
-        &global_amr_wb_dynamic_payload_types, 127);
+    prefs_register_obsolete_preference(amr_module, "dynamic.payload.type");
+    prefs_register_obsolete_preference(amr_module, "wb.dynamic.payload.type");
 
     prefs_register_enum_preference(amr_module, "encoding.version",
                        "Type of AMR encoding of the payload",
@@ -823,46 +811,29 @@ proto_register_amr(void)
 void
 proto_reg_handoff_amr(void)
 {
-    static range_t *amr_dynamic_payload_types;
-    static range_t *amr_wb_dynamic_payload_types;
-    static gboolean amr_prefs_initialized = FALSE;
+    dissector_handle_t  amr_name_handle;
+    amr_capability_t   *ftr;
 
-    if (!amr_prefs_initialized) {
-        dissector_handle_t  amr_name_handle;
-        amr_capability_t   *ftr;
+    dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
+    dissector_add_string("rtp_dyn_payload_type","AMR-WB", amr_wb_handle);
 
-        dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
-        dissector_add_string("rtp_dyn_payload_type","AMR-WB", amr_wb_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", "", amr_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", "", amr_wb_handle);
 
-        /*
-         * Register H.245 Generic parameter name(s)
-         */
-        amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
-        for (ftr=amr_capability_tab; ftr->id; ftr++) {
-            if (ftr->name)
-                dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);
-            if (ftr->content_pdu)
-                dissector_add_string("h245.gef.content", ftr->id,
-                             create_dissector_handle(ftr->content_pdu, proto_amr));
-        }
-        /*  Activate the next line for testing with the randpkt tool
-            dissector_add_uint_with_preference("udp.port", 55555, amr_handle);
-        */
-        amr_prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint_range("rtp.pt", amr_dynamic_payload_types, amr_handle);
-        dissector_delete_uint_range("rtp.pt", amr_wb_dynamic_payload_types, amr_wb_handle);
-        wmem_free(wmem_epan_scope(), amr_dynamic_payload_types);
-        wmem_free(wmem_epan_scope(), amr_wb_dynamic_payload_types);
+    /*
+     * Register H.245 Generic parameter name(s)
+     */
+    amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
+    for (ftr=amr_capability_tab; ftr->id; ftr++) {
+        if (ftr->name)
+            dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);
+        if (ftr->content_pdu)
+            dissector_add_string("h245.gef.content", ftr->id,
+                         create_dissector_handle(ftr->content_pdu, proto_amr));
     }
-
-    amr_dynamic_payload_types = range_copy(wmem_epan_scope(), global_amr_dynamic_payload_types);
-    amr_wb_dynamic_payload_types = range_copy(wmem_epan_scope(), global_amr_wb_dynamic_payload_types);
-
-    range_remove_value(wmem_epan_scope(), &amr_dynamic_payload_types, 0);
-    dissector_add_uint_range("rtp.pt", amr_dynamic_payload_types, amr_handle);
-    range_remove_value(wmem_epan_scope(), &amr_wb_dynamic_payload_types, 0);
-    dissector_add_uint_range("rtp.pt", amr_wb_dynamic_payload_types, amr_wb_handle);
+    /*  Activate the next line for testing with the randpkt tool
+        dissector_add_uint_with_preference("udp.port", 55555, amr_handle);
+    */
 }
 
 /*

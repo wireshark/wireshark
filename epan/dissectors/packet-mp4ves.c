@@ -57,10 +57,6 @@ static expert_field ei_mp4ves_not_dissected_bits = EI_INIT;
 
 static dissector_handle_t mp4ves_name_handle;
 
-/* The dynamic payload types which will be dissected as MP4V-ES */
-
-static range_t *global_dynamic_payload_type_range = NULL;
-
 static dissector_handle_t mp4ves_handle;
 
 /*
@@ -1012,44 +1008,28 @@ proto_register_mp4ves(void)
 	register_dissector("mp4ves_config", dissect_mp4ves_config, proto_mp4ves);
 
 	/* Register a configuration option for port */
-	mp4ves_module = prefs_register_protocol(proto_mp4ves, proto_reg_handoff_mp4ves);
+	mp4ves_module = prefs_register_protocol(proto_mp4ves, NULL);
 
-	prefs_register_range_preference(mp4ves_module,
-				       "dynamic.payload.type",
-				       "MP4V-ES dynamic payload types",
-				       "Dynamic payload types which will be interpreted as MP4V-ES"
-				       "; values must be in the range 1 - 127",
-				       &global_dynamic_payload_type_range, 127);
+        prefs_register_obsolete_preference(mp4ves_module, "dynamic.payload.type");
 
 }
 
 void
 proto_reg_handoff_mp4ves(void)
 {
-	static range_t *dynamic_payload_type_range = NULL;
-	static gboolean mp4ves_prefs_initialized = FALSE;
+	mp4ves_capability_t *ftr;
 
-	if (!mp4ves_prefs_initialized) {
-		mp4ves_capability_t *ftr;
+	dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
 
-		dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
-		mp4ves_prefs_initialized = TRUE;
-
-		mp4ves_name_handle = create_dissector_handle(dissect_mp4ves_name, proto_mp4ves);
-		for (ftr=mp4ves_capability_tab; ftr->id; ftr++) {
-		    if (ftr->name)
-				dissector_add_string("h245.gef.name", ftr->id, mp4ves_name_handle);
-			if (ftr->content_pdu)
-				dissector_add_string("h245.gef.content", ftr->id, create_dissector_handle(ftr->content_pdu, proto_mp4ves));
-		}
-	}else{
-		dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, mp4ves_handle);
-		wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
+	mp4ves_name_handle = create_dissector_handle(dissect_mp4ves_name, proto_mp4ves);
+	for (ftr=mp4ves_capability_tab; ftr->id; ftr++) {
+	    if (ftr->name)
+			dissector_add_string("h245.gef.name", ftr->id, mp4ves_name_handle);
+		if (ftr->content_pdu)
+			dissector_add_string("h245.gef.content", ftr->id, create_dissector_handle(ftr->content_pdu, proto_mp4ves));
 	}
-	dynamic_payload_type_range = range_copy(wmem_epan_scope(), global_dynamic_payload_type_range);
 
-	range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
-	dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, mp4ves_handle);
+	dissector_add_uint_range_with_preference("rtp.pt", "", mp4ves_handle);
 }
 
 /*

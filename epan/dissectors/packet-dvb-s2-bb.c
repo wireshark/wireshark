@@ -109,9 +109,6 @@ static dissector_handle_t data_handle;
 static dissector_handle_t mp2t_handle;
 static dissector_handle_t dvb_s2_modeadapt_handle;
 
-/* The dynamic payload type range which will be dissected as H.264 */
-static range_t *temp_dynamic_payload_type_range = NULL;
-
 void proto_register_dvb_s2_modeadapt(void);
 void proto_reg_handoff_dvb_s2_modeadapt(void);
 
@@ -2547,7 +2544,7 @@ void proto_register_dvb_s2_modeadapt(void)
     expert_dvb_s2_gse = expert_register_protocol(proto_dvb_s2_gse);
     expert_register_field_array(expert_dvb_s2_gse, ei_gse, array_length(ei_gse));
 
-    dvb_s2_modeadapt_module = prefs_register_protocol(proto_dvb_s2_modeadapt, proto_reg_handoff_dvb_s2_modeadapt);
+    dvb_s2_modeadapt_module = prefs_register_protocol(proto_dvb_s2_modeadapt, NULL);
 
     prefs_register_obsolete_preference(dvb_s2_modeadapt_module, "enable");
 
@@ -2573,11 +2570,7 @@ void proto_register_dvb_s2_modeadapt(void)
         " Frames with the preferred type",
         &dvb_s2_try_all_modeadapt);
 
-    prefs_register_range_preference(dvb_s2_modeadapt_module, "dynamic.payload.type",
-                            "DVB-S2 RTP dynamic payload types",
-                            "RTP Dynamic payload types which will be interpreted as DVB-S2"
-                            "; values must be in the range 1 - 127",
-                            &temp_dynamic_payload_type_range, 127);
+    prefs_register_obsolete_preference(dvb_s2_modeadapt_module, "dynamic.payload.type");
 
     register_init_routine(dvb_s2_gse_defragment_init);
     register_init_routine(&virtual_stream_init);
@@ -2589,30 +2582,17 @@ void proto_register_dvb_s2_modeadapt(void)
 
 void proto_reg_handoff_dvb_s2_modeadapt(void)
 {
-    static range_t  *dynamic_payload_type_range = NULL;
-    static gboolean prefs_initialized = FALSE;
+    heur_dissector_add("udp", dissect_dvb_s2_modeadapt_heur, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
+    dissector_add_for_decode_as("udp.port", dvb_s2_modeadapt_handle);
+    ip_handle   = find_dissector_add_dependency("ip", proto_dvb_s2_bb);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
+    dvb_s2_table_handle = find_dissector("dvb-s2_table");
+    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+    data_handle = find_dissector("data");
+    mp2t_handle = find_dissector_add_dependency("mp2t", proto_dvb_s2_bb);
 
-    if (!prefs_initialized) {
-        heur_dissector_add("udp", dissect_dvb_s2_modeadapt_heur, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
-        dissector_add_for_decode_as("udp.port", dvb_s2_modeadapt_handle);
-        ip_handle   = find_dissector_add_dependency("ip", proto_dvb_s2_bb);
-        ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
-        dvb_s2_table_handle = find_dissector("dvb-s2_table");
-        eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-        data_handle = find_dissector("data");
-        mp2t_handle = find_dissector_add_dependency("mp2t", proto_dvb_s2_bb);
-
-        dissector_add_string("rtp_dyn_payload_type","DVB-S2", dvb_s2_modeadapt_handle);
-
-        prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, dvb_s2_modeadapt_handle);
-        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
-    }
-
-    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
-    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, dvb_s2_modeadapt_handle);
+    dissector_add_string("rtp_dyn_payload_type","DVB-S2", dvb_s2_modeadapt_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", "", dvb_s2_modeadapt_handle);
 }
 
 /*

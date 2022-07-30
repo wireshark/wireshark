@@ -390,10 +390,6 @@ static expert_field ei_h265_format_specific_parameter = EI_INIT;
 static expert_field ei_h265_oversized_exp_golomb_code = EI_INIT;
 static expert_field ei_h265_value_to_large = EI_INIT;
 
-/* The dynamic payload type range which will be dissected as H.265 */
-
-static range_t *temp_dynamic_payload_type_range = NULL;
-
 static dissector_handle_t h265_handle;
 
 static gboolean dependent_slice_segments_enabled_flag = 0;
@@ -4663,14 +4659,9 @@ proto_register_h265(void)
 	/* Register a configuration option for port */
 
 
-	h265_module = prefs_register_protocol(proto_h265, proto_reg_handoff_h265);
+	h265_module = prefs_register_protocol(proto_h265, NULL);
 
-
-	prefs_register_range_preference(h265_module, "dynamic.payload.type",
-		"H.265 dynamic payload types",
-		"Dynamic payload types which will be interpreted as H.265"
-		"; values must be in the range 1 - 127",
-		&temp_dynamic_payload_type_range, 127);
+	prefs_register_obsolete_preference(h265_module, "dynamic.payload.type");
 
 	h265_handle = register_dissector("h265", dissect_h265, proto_h265);
 }
@@ -4679,22 +4670,8 @@ proto_register_h265(void)
 void
 proto_reg_handoff_h265(void)
 {
-	static range_t  *dynamic_payload_type_range = NULL;
-	static gboolean  h265_prefs_initialized = FALSE;
-
-	if (!h265_prefs_initialized) {
-		dissector_add_string("rtp_dyn_payload_type", "H265", h265_handle);
-
-		h265_prefs_initialized = TRUE;
-	}
-	else {
-		dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, h265_handle);
-		wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
-	}
-
-	dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-	range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
-	dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, h265_handle);
+        dissector_add_string("rtp_dyn_payload_type", "H265", h265_handle);
+	dissector_add_uint_range_with_preference("rtp.pt", "", h265_handle);
 }
 
 /*

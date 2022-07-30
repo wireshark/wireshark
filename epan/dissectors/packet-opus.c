@@ -25,8 +25,6 @@
 void proto_reg_handoff_opus(void);
 void proto_register_opus(void);
 
-static range_t *g_dynamic_payload_type_range = NULL;
-
 static dissector_handle_t opus_handle;
 
 /* Initialize the protocol and registered fields */
@@ -424,17 +422,12 @@ proto_register_opus(void)
     proto_register_field_array(proto_opus, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    opus_module = prefs_register_protocol(proto_opus, proto_reg_handoff_opus);
+    opus_module = prefs_register_protocol(proto_opus, NULL);
 
     expert_opus = expert_register_protocol(proto_opus);
     expert_register_field_array(expert_opus, ei, array_length(ei));
 
-    prefs_register_range_preference(opus_module, "dynamic.payload.type",
-                                    "OPUS dynamic payload types",
-                                    "Dynamic payload types which will be "
-                                    "interpreted as OPUS; Values must be in "
-                                    "the range 1 - 127",
-                                    &g_dynamic_payload_type_range, 127);
+    prefs_register_obsolete_preference(opus_module, "dynamic.payload.type");
 
     opus_handle = register_dissector("opus", dissect_opus, proto_opus);
 }
@@ -442,20 +435,9 @@ proto_register_opus(void)
 void
 proto_reg_handoff_opus(void)
 {
-    static range_t  *dynamic_payload_type_range = NULL;
-    static gboolean  opus_prefs_initialized      = FALSE;
+    dissector_add_string("rtp_dyn_payload_type" , "OPUS", opus_handle);
 
-    if (!opus_prefs_initialized) {
-        dissector_add_string("rtp_dyn_payload_type" , "OPUS", opus_handle);
-        opus_prefs_initialized = TRUE;
-    } else {
-        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, opus_handle);
-        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
-    }
-
-    dynamic_payload_type_range = range_copy(wmem_epan_scope(), g_dynamic_payload_type_range);
-    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
-    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, opus_handle);
+    dissector_add_uint_range_with_preference("rtp.pt", "", opus_handle);
 }
 
 /*
