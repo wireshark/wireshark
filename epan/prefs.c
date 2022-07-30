@@ -5202,91 +5202,97 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
 
     /* For now this is only supporting TCP/UDP port dissector preferences
        which are assumed to be decimal */
+    /* module_name is the filter name of the destination port preference,
+     * which is usually the same as the original module but not
+     * necessarily (e.g., if the preference is for what is now a PINO.)
+     * XXX:  Most of these were changed pre-2.0. Can we end support
+     * for migrating legacy preferences at some point?
+     */
     struct port_pref_name port_prefs[] = {
         /* TCP */
-        {"cmp.tcp_alternate_port", "CMP", "tcp.port", 10},
-        {"h248.tcp_port", "H248", "tcp.port", 10},
-        {"cops.tcp.cops_port", "COPS", "tcp.port", 10},
-        {"dhcpfo.tcp_port", "DHCPFO", "tcp.port", 10},
-        {"enttec.tcp_port", "ENTTEC", "tcp.port", 10},
-        {"forces.tcp_alternate_port", "ForCES", "tcp.port", 10},
-        {"ged125.tcp_port", "GED125", "tcp.port", 10},
-        {"hpfeeds.dissector_port", "HPFEEDS", "tcp.port", 10},
-        {"lsc.port", "LSC", "tcp.port", 10},
-        {"megaco.tcp.txt_port", "MEGACO", "tcp.port", 10},
-        {"netsync.tcp_port", "Netsync", "tcp.port", 10},
-        {"osi.tpkt_port", "OSI", "tcp.port", 10},
-        {"rsync.tcp_port", "RSYNC", "tcp.port", 10},
-        {"sametime.tcp_port", "SAMETIME", "tcp.port", 10},
-        {"sigcomp.tcp.port2", "SIGCOMP", "tcp.port", 10},
+        {"cmp.tcp_alternate_port", "cmp", "tcp.port", 10},
+        {"h248.tcp_port", "h248", "tcp.port", 10},
+        {"cops.tcp.cops_port", "cops", "tcp.port", 10},
+        {"dhcpfo.tcp_port", "dhcpfo", "tcp.port", 10},
+        {"enttec.tcp_port", "enttec", "tcp.port", 10},
+        {"forces.tcp_alternate_port", "forces", "tcp.port", 10},
+        {"ged125.tcp_port", "ged125", "tcp.port", 10},
+        {"hpfeeds.dissector_port", "hpfeeds", "tcp.port", 10},
+        {"lsc.port", "lsc", "tcp.port", 10},
+        {"megaco.tcp.txt_port", "megaco", "tcp.port", 10},
+        {"netsync.tcp_port", "netsync", "tcp.port", 10},
+        {"osi.tpkt_port", "osi", "tcp.port", 10},
+        {"rsync.tcp_port", "rsync", "tcp.port", 10},
+        {"sametime.tcp_port", "sametime", "tcp.port", 10},
+        {"sigcomp.tcp.port2", "sigcomp", "tcp.port", 10},
         {"synphasor.tcp_port", "synphasor", "tcp.port", 10},
-        {"tipc.alternate_port", "TIPC", "tcp.port", 10},
-        {"vnc.alternate_port", "VNC", "tcp.port", 10},
-        {"scop.port", "SCoP", "tcp.port", 10},
-        {"scop.port_secure", "SCoP", "tcp.port", 10},
-        {"tpncp.tcp.trunkpack_port", "TPNCP", "tcp.port", 10},
+        {"tipc.alternate_port", "tipc", "tcp.port", 10},
+        {"vnc.alternate_port", "vnc", "tcp.port", 10},
+        {"scop.port", "scop", "tcp.port", 10},
+        {"scop.port_secure", "scop", "tcp.port", 10},
+        {"tpncp.tcp.trunkpack_port", "tpncp", "tcp.port", 10},
         /* UDP */
-        {"h248.udp_port", "H248", "udp.port", 10},
-        {"actrace.udp_port", "ACtrace", "udp.port", 10},
-        {"brp.port", "BRP", "udp.port", 10},
-        {"bvlc.additional_udp_port", "BVLC", "udp.port", 10},
+        {"h248.udp_port", "h248", "udp.port", 10},
+        {"actrace.udp_port", "actrace", "udp.port", 10},
+        {"brp.port", "brp", "udp.port", 10},
+        {"bvlc.additional_udp_port", "bvlc", "udp.port", 10},
         {"capwap.udp.port.control", "capwap", "udp.port", 10},
         {"capwap.udp.port.data", "capwap", "udp.port", 10},
-        {"coap.udp_port", "CoAP", "udp.port", 10},
-        {"enttec.udp_port", "ENTTEC", "udp.port", 10},
-        {"forces.udp_alternate_port", "ForCES", "udp.port", 10},
-        {"ldss.udp_port", "LDSS", "udp.port", 10},
-        {"lmp.udp_port", "LMP", "udp.port", 10},
-        {"ltp.port", "LTP", "udp.port", 10},
-        {"lwres.udp.lwres_port", "LWRES", "udp.port", 10},
-        {"megaco.udp.txt_port", "MEGACO", "udp.port", 10},
-        {"pgm.udp.encap_ucast_port", "PGM", "udp.port", 10},
-        {"pgm.udp.encap_mcast_port", "PGM", "udp.port", 10},
-        {"quic.udp.quic.port", "QUIC", "udp.port", 10},
-        {"quic.udp.quics.port", "QUIC", "udp.port", 10},
-        {"radius.alternate_port", "RADIUS", "udp.port", 10},
-        {"rdt.default_udp_port", "RDT", "udp.port", 10},
-        {"alc.default.udp_port", "ALC", "udp.port", 10},
-        {"sigcomp.udp.port2", "SIGCOMP", "udp.port", 10},
+        {"coap.udp_port", "coap", "udp.port", 10},
+        {"enttec.udp_port", "enttec", "udp.port", 10},
+        {"forces.udp_alternate_port", "forces", "udp.port", 10},
+        {"ldss.udp_port", "ldss", "udp.port", 10},
+        {"lmp.udp_port", "lmp", "udp.port", 10},
+        {"ltp.port", "ltp", "udp.port", 10},
+        {"lwres.udp.lwres_port", "lwres", "udp.port", 10},
+        {"megaco.udp.txt_port", "megaco", "udp.port", 10},
+        {"pgm.udp.encap_ucast_port", "pgm", "udp.port", 10},
+        {"pgm.udp.encap_mcast_port", "pgm", "udp.port", 10},
+        {"quic.udp.quic.port", "quic", "udp.port", 10},
+        {"quic.udp.quics.port", "quic", "udp.port", 10},
+        {"radius.alternate_port", "radius", "udp.port", 10},
+        {"rdt.default_udp_port", "rdt", "udp.port", 10},
+        {"alc.default.udp_port", "alc", "udp.port", 10},
+        {"sigcomp.udp.port2", "sigcomp", "udp.port", 10},
         {"synphasor.udp_port", "synphasor", "udp.port", 10},
-        {"tdmop.udpport", "TDMoP", "udp.port", 10},
-        {"uaudp.port1", "UAUDP", "udp.port", 10},
-        {"uaudp.port2", "UAUDP", "udp.port", 10},
-        {"uaudp.port3", "UAUDP", "udp.port", 10},
-        {"uaudp.port4", "UAUDP", "udp.port", 10},
-        {"uhd.dissector_port", "UHD", "udp.port", 10},
+        {"tdmop.udpport", "tdmop", "udp.port", 10},
+        {"uaudp.port1", "uaudp", "udp.port", 10},
+        {"uaudp.port2", "uaudp", "udp.port", 10},
+        {"uaudp.port3", "uaudp", "udp.port", 10},
+        {"uaudp.port4", "uaudp", "udp.port", 10},
+        {"uhd.dissector_port", "uhd", "udp.port", 10},
         {"vrt.dissector_port", "vrt", "udp.port", 10},
-        {"tpncp.udp.trunkpack_port", "TPNCP", "udp.port", 10},
+        {"tpncp.udp.trunkpack_port", "tpncp", "udp.port", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
         /* TCP */
-        {"couchbase.tcp.ports", "Couchbase", "tcp.port", 10},
-        {"gsm_ipa.tcp_ports", "GSM over IP", "tcp.port", 10},
-        {"kafka.tcp.ports", "Kafka", "tcp.port", 10},
-        {"kt.tcp.ports", "Kyoto Tycoon", "tcp.port", 10},
-        {"memcache.tcp.ports", "MEMCACHE", "tcp.port", 10},
-        {"mrcpv2.tcp.port_range", "MRCPv2", "tcp.port", 10},
-        {"rtsp.tcp.port_range", "RTSP", "tcp.port", 10},
-        {"sip.tcp.ports", "SIP", "tcp.port", 10},
-        {"tds.tcp_ports", "TDS", "tcp.port", 10},
-        {"uma.tcp.ports", "UMA", "tcp.port", 10},
+        {"couchbase.tcp.ports", "couchbase", "tcp.port", 10},
+        {"gsm_ipa.tcp_ports", "gsm_ipa", "tcp.port", 10},
+        {"kafka.tcp.ports", "kafka", "tcp.port", 10},
+        {"kt.tcp.ports", "kt", "tcp.port", 10},
+        {"memcache.tcp.ports", "memcache", "tcp.port", 10},
+        {"mrcpv2.tcp.port_range", "mrcpv2", "tcp.port", 10},
+        {"rtsp.tcp.port_range", "rtsp", "tcp.port", 10},
+        {"sip.tcp.ports", "sip", "tcp.port", 10},
+        {"tds.tcp_ports", "tds", "tcp.port", 10},
+        {"uma.tcp.ports", "uma", "tcp.port", 10},
         /* UDP */
-        {"aruba_erm.udp.ports", "ARUBA_ERM", "udp.port", 10},
-        {"diameter.udp.ports", "DIAMETER", "udp.port", 10},
-        {"dmp.udp_ports", "DMP", "udp.port", 10},
-        {"dns.udp.ports", "DNS", "udp.port", 10},
-        {"gsm_ipa.udp_ports", "GSM over IP", "udp.port", 10},
-        {"hcrt.dissector_udp_port", "HCrt", "udp.port", 10},
-        {"memcache.udp.ports", "MEMCACHE", "udp.port", 10},
-        {"nb_rtpmux.udp_ports", "NB_RTPMUX", "udp.port", 10},
-        {"gprs-ns.udp.ports", "GPRS-NS", "udp.port", 10},
-        {"p_mul.udp_ports", "P_MUL", "udp.port", 10},
-        {"radius.ports", "RADIUS", "udp.port", 10},
-        {"sflow.ports", "sFlow", "udp.port", 10},
-        {"sscop.udp.ports", "SSCOP", "udp.port", 10},
-        {"tftp.udp_ports", "TFTP", "udp.port", 10},
-        {"tipc.udp.ports", "TIPC", "udp.port", 10},
+        {"aruba_erm.udp.ports", "arubs_erm", "udp.port", 10},
+        {"diameter.udp.ports", "diameter", "udp.port", 10},
+        {"dmp.udp_ports", "dmp", "udp.port", 10},
+        {"dns.udp.ports", "dns", "udp.port", 10},
+        {"gsm_ipa.udp_ports", "gsm_ipa", "udp.port", 10},
+        {"hcrt.dissector_udp_port", "hcrt", "udp.port", 10},
+        {"memcache.udp.ports", "memcache", "udp.port", 10},
+        {"nb_rtpmux.udp_ports", "nb_rtpmux", "udp.port", 10},
+        {"gprs-ns.udp.ports", "gprs-ns", "udp.port", 10},
+        {"p_mul.udp_ports", "p_mul", "udp.port", 10},
+        {"radius.ports", "radius", "udp.port", 10},
+        {"sflow.ports", "sflow", "udp.port", 10},
+        {"sscop.udp.ports", "sscop", "udp.port", 10},
+        {"tftp.udp_ports", "tftp", "udp.port", 10},
+        {"tipc.udp.ports", "tipc", "udp.port", 10},
     };
 
     /* These are subdissectors of TPKT/OSITP that used to have a
@@ -5294,13 +5300,13 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
        directly on TCP.  Convert them to use Decode As
        with the TPKT dissector handle */
     struct port_pref_name tpkt_subdissector_port_prefs[] = {
-        {"dap.tcp.port", "DAP", "tcp.port", 10},
-        {"disp.tcp.port", "DISP", "tcp.port", 10},
-        {"dop.tcp.port", "DOP", "tcp.port", 10},
-        {"dsp.tcp.port", "DSP", "tcp.port", 10},
-        {"p1.tcp.port", "P1", "tcp.port", 10},
-        {"p7.tcp.port", "P7", "tcp.port", 10},
-        {"rdp.tcp.port", "RDP", "tcp.port", 10},
+        {"dap.tcp.port", "dap", "tcp.port", 10},
+        {"disp.tcp.port", "disp", "tcp.port", 10},
+        {"dop.tcp.port", "dop", "tcp.port", 10},
+        {"dsp.tcp.port", "dsp", "tcp.port", 10},
+        {"p1.tcp.port", "p1", "tcp.port", 10},
+        {"p7.tcp.port", "p7", "tcp.port", 10},
+        {"rdp.tcp.port", "rdp", "tcp.port", 10},
     };
 
     /* These are obsolete preferences from the dissectors' view,
@@ -5369,7 +5375,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
             {
                 sub_dissectors = find_dissector_table(port_prefs[i].table_name);
                 if (sub_dissectors != NULL) {
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, port_prefs[i].module_name);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, module->title);
                     if (handle != NULL) {
                         dissector_change_uint(port_prefs[i].table_name, uval, handle);
                         decode_build_reset_list(port_prefs[i].table_name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(uval), NULL, NULL);
@@ -5410,7 +5416,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
                         return FALSE;        /* number was bad */
                     }
 
-                    handle = dissector_table_get_dissector_handle(sub_dissectors, port_range_prefs[i].module_name);
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, module->title);
                     if (handle != NULL) {
 
                         for (range_i = 0; range_i < (*pref->varp.range)->nranges; range_i++) {
