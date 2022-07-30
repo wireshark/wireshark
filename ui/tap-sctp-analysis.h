@@ -12,6 +12,7 @@
 #ifndef __TAP_SCTP_ANALYSIS_H__
 #define __TAP_SCTP_ANALYSIS_H__
 
+#include <stdbool.h>
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>
 #ifdef _WIN32
@@ -165,8 +166,8 @@ typedef struct _sctp_init_collision {
 	guint32 initack_vtag;		/* initiate tag of the INIT-ACK chunk */
 	guint32 init_min_tsn;		/* initial tsn of the INIT chunk */
 	guint32 initack_min_tsn;	/* initial tsn of the INIT-ACK chunk */
-	gboolean init:1;
-	gboolean initack:1;
+	bool    init:1;
+	bool    initack:1;
 } sctp_init_collision_t;
 
 struct tsn_sort{
@@ -232,10 +233,10 @@ typedef struct _sctp_assoc_info {
 	guint32	   max_window2;
 	guint32	   arwnd1;
 	guint32	   arwnd2;
-	gboolean   init:1;
-	gboolean   initack:1;
-	gboolean   firstdata:1;
-	gboolean   init_collision:1;
+	bool       init:1;
+	bool       initack:1;
+	bool       firstdata:1;
+	bool       init_collision:1;
 	guint16	   initack_dir;
 	guint16	   direction;
 	guint32	   min_secs;

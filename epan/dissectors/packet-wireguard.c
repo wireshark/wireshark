@@ -16,6 +16,7 @@
 #include <config.h>
 
 #include <errno.h>
+#include <stdbool.h>
 
 #define WS_LOG_DOMAIN "packet-wireguard"
 
@@ -210,8 +211,8 @@ typedef struct {
     const wg_skey_t    *initiator_skey;     /* Spub_i based on Initiation.static (decrypted, null if decryption failed) */
     const wg_skey_t    *responder_skey;     /* Spub_r based on Initiation.MAC1 (+Spriv_r if available) */
     guint8              timestamp[12];      /* Initiation.timestamp (decrypted) */
-    gboolean            timestamp_ok : 1;   /* Whether the timestamp was successfully decrypted */
-    gboolean            empty_ok : 1;       /* Whether the empty field was successfully decrypted */
+    bool                timestamp_ok : 1;   /* Whether the timestamp was successfully decrypted */
+    bool                empty_ok : 1;       /* Whether the empty field was successfully decrypted */
 
     /* The following fields are only valid on the initial pass. */
     const wg_ekey_t    *initiator_ekey;     /* Epub_i matching Initiation.Ephemeral (+Epriv_i if available) */

@@ -48,6 +48,8 @@
 
 #include <config.h>
 
+#include <stdbool.h>
+
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -346,7 +348,7 @@ typedef struct quic_pp_state {
     quic_pp_cipher  pp_ciphers[2];  /**< PP cipher for Key Phase 0/1 */
     quic_hp_cipher  hp_cipher;      /**< HP cipher for both Key Phases; it does not change after KeyUpdate */
     guint64         changed_in_pkn; /**< Packet number where key change occurred. */
-    gboolean        key_phase : 1;  /**< Current key phase. */
+    bool            key_phase : 1;  /**< Current key phase. */
 } quic_pp_state_t;
 
 /** Singly-linked list of Connection IDs. */
@@ -402,12 +404,12 @@ typedef struct quic_info_data {
     guint32         version;
     address         server_address;
     guint16         server_port;
-    gboolean        skip_decryption : 1; /**< Set to 1 if no keys are available. */
-    gboolean        client_dcid_set : 1; /**< Set to 1 if client_dcid_initial is set. */
-    gboolean        client_loss_bits_recv : 1; /**< The client is able to read loss bits info */
-    gboolean        client_loss_bits_send : 1; /**< The client wants to send loss bits info */
-    gboolean        server_loss_bits_recv : 1; /**< The server is able to read loss bits info */
-    gboolean        server_loss_bits_send : 1; /**< The server wants to send loss bits info */
+    bool            skip_decryption : 1; /**< Set to 1 if no keys are available. */
+    bool            client_dcid_set : 1; /**< Set to 1 if client_dcid_initial is set. */
+    bool            client_loss_bits_recv : 1; /**< The client is able to read loss bits info */
+    bool            client_loss_bits_send : 1; /**< The client wants to send loss bits info */
+    bool            server_loss_bits_recv : 1; /**< The server is able to read loss bits info */
+    bool            server_loss_bits_send : 1; /**< The server wants to send loss bits info */
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
     int             cipher_algo;    /**< Cipher algorithm for packet number and packet encryption. */
     int             cipher_mode;    /**< Cipher mode for packet encryption. */
@@ -448,8 +450,8 @@ struct quic_packet_info {
     guint8                  pkn_len;        /**< Length of PKN (1/2/3/4) or unknown (0). */
     guint8                  first_byte;     /**< Decrypted flag byte, valid only if pkn_len is non-zero. */
     guint8                  packet_type;
-    gboolean                retry_integrity_failure : 1;
-    gboolean                retry_integrity_success : 1;
+    bool                    retry_integrity_failure : 1;
+    bool                    retry_integrity_success : 1;
 };
 typedef struct quic_packet_info quic_packet_info_t;
 
@@ -457,7 +459,7 @@ typedef struct quic_packet_info quic_packet_info_t;
 typedef struct quic_datagram {
     quic_info_data_t       *conn;
     quic_packet_info_t      first_packet;
-    gboolean                from_server : 1;
+    bool                    from_server : 1;
 } quic_datagram;
 
 /**
