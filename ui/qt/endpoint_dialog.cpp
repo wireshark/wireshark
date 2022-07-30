@@ -73,8 +73,8 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf) :
     trafficTab()->setFilter(cf.displayFilter());
 
     connect(trafficTab(), &TrafficTab::filterAction, this, &EndpointDialog::filterAction);
+    connect(trafficTab()->tabBar(), &QTabBar::currentChanged, this, &EndpointDialog::tabChanged);
     connect(trafficTab(), &TrafficTab::tabDataChanged, this, &EndpointDialog::tabChanged);
-    connect(trafficTab(), &TrafficTab::currentChanged, this, &EndpointDialog::tabChanged);
 
 #ifdef HAVE_MAXMINDDB
     map_bt_ = buttonBox()->addButton(tr("Map"), QDialogButtonBox::ActionRole);
@@ -110,6 +110,8 @@ void EndpointDialog::tabChanged(int idx)
 #else
     Q_UNUSED(idx);
 #endif
+
+    TrafficTableDialog::currentTabChanged();
 }
 
 #ifdef HAVE_MAXMINDDB
