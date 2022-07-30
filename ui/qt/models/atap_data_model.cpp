@@ -232,16 +232,22 @@ bool ATapDataModel::allowsNameResolution() const
     if (_protoId < 0)
         return false;
 
-    QStringList mac_protos = QStringList() << "eth" << "tr"<< "wlan";
+    QStringList mac_protos = QStringList() << "bluetooth" << "eth" << "fddi"
+                                           << "sll" << "tr" << "wlan";
     QStringList net_protos = QStringList() << "dccp" << "ip" << "ipv6"
-                                           << "jxta" << "mptcp" << "rsvp"
-                                           << "sctp" << "tcp" << "udp";
+                                           << "jxta" << "mptcp" << "ncp"
+                                           << "rsvp" << "sctp" << "sll"
+                                           << "tcp" << "udp";
+    QStringList transport_protos = QStringList() << "dccp" << "mptcp" << "sctp"
+                                                 << "tcp" << "udp";
 
     QString table_proto = proto_get_protocol_filter_name(_protoId);
 
     if (mac_protos.contains(table_proto) && gbl_resolv_flags.mac_name)
         return true;
     if (net_protos.contains(table_proto) && gbl_resolv_flags.network_name)
+        return true;
+    if (transport_protos.contains(table_proto) && gbl_resolv_flags.transport_name)
         return true;
 
     return false;
