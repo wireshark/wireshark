@@ -338,6 +338,7 @@ static const value_string card_type[] = {
     {  5, "girocard" },
     {  6, "Mastercard" },
     { 10, "VISA" },
+    { 46, "Maestro" },
     {  0, NULL }
 };
 static value_string_ext card_type_ext = VALUE_STRING_EXT_INIT(card_type);
