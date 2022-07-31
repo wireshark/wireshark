@@ -2239,19 +2239,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>In modo predefinito, le comparazioni di ordine e le relazioni contiene/corrisponde/in sono vere se qualsiasi valore corrisponde. Il quantificatore &quot;tutto&quot; può essere utilizzato per applicare il test a tutti i valori in un frame.</translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Quantificatore</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished">Tutti</translation>
+        <translation>Qualsiasi</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Tutto</translation>
+        <translation>Tutto</translation>
     </message>
     <message>
         <source>Match against this value.</source>

@@ -1,4 +1,4 @@
-Wireshark 3.7.2 Release Notes
+Wireshark 3.7.3 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 4.0.
@@ -57,19 +57,7 @@ Wireshark 3.7.2 Release Notes
        • TCP/UDP conversations now include the stream id and allows
       filtering on it.
 
-    • The ip.flags field is now only the three high bits, not the full
-      byte. Display filters and Coloring rules using the field will need
-      to be adjusted.
-
     • Speed when using MaxMind geolocation has been greatly improved.
-
-    • The 'v' (lower case) and 'V' (upper case) switches have been
-      swapped for editcap and mergecap to match the other command line
-      utilities.
-
-    • New address type AT_NUMERIC allows simple numeric addresses for
-      protocols which do not have a more common-style address approach,
-      analog to AT_STRINGZ.
 
     • The Wireshark Lua API now uses the lrexlib[2] bindings to PCRE2.
       Code using the Lua GRegex module will have to be updated to use
@@ -132,6 +120,24 @@ Wireshark 3.7.2 Release Notes
   Features” section below for more details.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 3.7.2:
+
+   The following features are new (or have been significantly updated)
+   since version 3.7.1:
+
+     • The 'v' (lower case) and 'V' (upper case) switches have been
+       swapped for editcap and mergecap to match the other command line
+       utilities.
+
+     • The ip.flags field is now only the three high bits, not the full
+       byte. Display filters and Coloring rules using the field will
+       need to be adjusted.
+
+     • New address type AT_NUMERIC allows simple numeric addresses for
+       protocols which do not have a more common-style address approach,
+       analog to AT_STRINGZ.
 
    The following features are new (or have been significantly updated)
    since version 3.7.0:
@@ -364,13 +370,13 @@ Wireshark 3.7.2 Release Notes
    (EOBI), Enhanced Trading Interface 10.0 (ETI), FiveCo’s Legacy
    Register Access Protocol (5co-legacy), Generic Data Transfer Protocol
    (GDT), gRPC Web (gRPC-Web), Host IP Configuration Protocol (HICP),
-   Locamation Interface Module (IDENT, CALIBRATION, SAMPLES - IM1), Mesh
-   Connex (MCX), Microsoft Cluster Remote Control Protocol (RCP),
-   Protected Extensible Authentication Protocol (PEAP), Realtek, REdis
-   Serialization Protocol v2 (RESP), Roon Discovery (RoonDisco), Secure
-   File Transfer Protocol (sftp), Secure Host IP Configuration Protocol
-   (SHICP), SSH File Transfer Protocol (SFTP), USB Attached SCSI (UASP),
-   and ZBOSS NCP
+   Locamation Interface Module (IDENT, CALIBRATION, SAMPLES - IM1,
+   SAMPLES - IM2R0), Mesh Connex (MCX), Microsoft Cluster Remote Control
+   Protocol (RCP), Protected Extensible Authentication Protocol (PEAP),
+   Realtek, REdis Serialization Protocol v2 (RESP), Roon Discovery
+   (RoonDisco), Secure File Transfer Protocol (sftp), Secure Host IP
+   Configuration Protocol (SHICP), SSH File Transfer Protocol (SFTP),
+   USB Attached SCSI (UASP), and ZBOSS NCP
 
   Updated Protocol Support
 
@@ -417,8 +423,6 @@ Wireshark 3.7.2 Release Notes
  Frequently Asked Questions
 
   A complete FAQ is available on the Wireshark web site[9].
-
-  Last updated 2022-07-28 19:00:34 UTC
 
  References
 

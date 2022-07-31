@@ -2232,19 +2232,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>Herhangi bir değer eşleşirse, varsayılan olarak sıra karşılaştırmaları ve içerir/eşleşir/içinde ilişkileri doğrudur. &quot;tümü&quot; niceleyicisi, testi bir çerçevedeki tüm değerlere uygulamak için kullanılabilir.</translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Niceleyici</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished">Herhangi biri</translation>
+        <translation>Herhangi biri</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Tümü</translation>
+        <translation>Tümü</translation>
     </message>
     <message>
         <source>Match against this value.</source>
