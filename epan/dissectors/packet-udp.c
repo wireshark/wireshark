@@ -379,9 +379,17 @@ static gchar *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo
     conversation_t *conv;
     struct udp_analysis *udpd;
 
-    if( ((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
-                (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
-                && (conv=find_conversation_pinfo(pinfo, 0)) != NULL ) {
+    /* XXX: Since UDP doesn't use the endpoint API, we can only look
+     * up using the current pinfo addresses and ports. We don't want
+     * to create a new conversation or new UDP stream.
+     * Eventually the endpoint API should support storing multiple
+     * endpoints and UDP should be changed to use the endpoint API.
+     */
+    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
+        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
+        && (pinfo->ptype == PT_UDP) &&
+        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, ENDPOINT_UDP, pinfo->srcport, pinfo->destport, 0)) != NULL)
+    {
         /* UDP over IPv4/6 */
         udpd=get_udp_conversation_data(conv, pinfo);
         if (udpd == NULL)

@@ -992,6 +992,10 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
                                  tr("Error creating filter for this stream."),
                                  tr("QUIC streams not found on the selected packet."));
         } else {
+            // XXX: This error probably has to do with tunneling, where
+            // the addresses or ports changed after the TCP or UDP layer.
+            // (The appropriate layer must be present, or else the GUI
+            // doesn't allow the option to be selected.)
             QMessageBox::warning(this,
                                  tr("Error creating filter for this stream."),
                                  tr("A transport or network layer header is needed."));
