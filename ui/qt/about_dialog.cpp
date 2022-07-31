@@ -454,7 +454,7 @@ void AboutDialog::updateWiresharkText()
     message += "<p>" + html_escape(copyright_info_str) + "</p>\n\n";
     message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
     message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
-    message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
+    message += "<p>Wireshark is free and open-source software released under the GNU General Public License, version 2 or later.</p>\n\n";
     message += "<p>Check the man page and ";
     message += "<a href=https://www.wireshark.org>https://www.wireshark.org</a> ";
     message += "for more information.</p>\n\n";
@@ -476,7 +476,7 @@ DIAG_OFF(stringop-overread)
 #if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
 DIAG_ON(stringop-overread)
 #endif
-    clipboardInfo += "Wireshark is Open Source Software released under the GNU General Public License.\n";
+    clipboardInfo += "Wireshark is free and open-source software released under the GNU General Public License, version 2 or later.\n\n";
 }
 
 void AboutDialog::on_copyToClipboard_clicked()
