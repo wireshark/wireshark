@@ -322,6 +322,9 @@ static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
 
 /* ISO 4217 currency codes */
 static const value_string zvt_cc[] = {
+    { 0x0756, "CHF" },
+    { 0x0826, "GBP" },
+    { 0x0840, "USD" },
     { 0x0978, "EUR" },
     { 0, NULL }
 };
