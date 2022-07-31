@@ -232,6 +232,7 @@ static int ett_zvt_bitmap = -1;
 static int ett_zvt_tlv_dat_obj = -1;
 static int ett_zvt_tlv_subseq = -1;
 static int ett_zvt_tlv_tag = -1;
+static int ett_zvt_tlv_receipt = -1;
 
 static int hf_zvt_resp_in = -1;
 static int hf_zvt_resp_to = -1;
@@ -276,6 +277,11 @@ static int hf_zvt_card_number = -1;
 static int hf_zvt_card_name = -1;
 static int hf_zvt_additional_data = -1;
 static int hf_zvt_characters_per_line = -1;
+static int hf_zvt_receipt_info = -1;
+static int hf_zvt_receipt_info_positive = -1;
+static int hf_zvt_receipt_info_signature = -1;
+static int hf_zvt_receipt_info_negative = -1;
+static int hf_zvt_receipt_info_printing = -1;
 
 static int * const receipt_parameter_flag_fields[] = {
     &hf_zvt_receipt_parameter_positive_customer,
@@ -286,6 +292,14 @@ static int * const receipt_parameter_flag_fields[] = {
     &hf_zvt_receipt_parameter_print_short_receipt,
     &hf_zvt_receipt_parameter_no_product_data,
     &hf_zvt_receipt_parameter_ecr_as_printer,
+    NULL
+};
+
+static int * const receipt_info_fields[] = {
+    &hf_zvt_receipt_info_positive,
+    &hf_zvt_receipt_info_signature,
+    &hf_zvt_receipt_info_negative,
+    &hf_zvt_receipt_info_printing,
     NULL
 };
 
@@ -404,6 +418,7 @@ static value_string_ext tlv_tag_class_ext = VALUE_STRING_EXT_INIT(tlv_tag_class)
 #define TLV_TAG_CARDHOLDER_AUTH     0x1F10
 #define TLV_TAG_ONLINE_FLAG         0x1F11
 #define TLV_TAG_CARD_TYPE           0x1F12
+#define TLV_TAG_RECEIPT_INFO        0x1F37
 
 
 typedef struct _tlv_seq_info_t {
@@ -445,6 +460,10 @@ static inline gint dissect_zvt_tlv_characters_per_line(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info _U_);
 
+static inline gint dissect_zvt_tlv_receipt_info(
+        tvbuff_t *tvb, gint offset, gint len, packet_info *pinfo _U_,
+        proto_tree *tree, tlv_seq_info_t *seq_info _U_);
+
 static const tlv_info_t tlv_info[] = {
     { TLV_TAG_TEXT_LINES, dissect_zvt_tlv_text_lines },
     { TLV_TAG_DISPLAY_TEXTS, dissect_zvt_tlv_subseq },
@@ -454,7 +473,8 @@ static const tlv_info_t tlv_info[] = {
     { TLV_TAG_PERMITTED_ZVT_CMD, dissect_zvt_tlv_permitted_cmd },
     { TLV_TAG_RECEIPT_TYPE, dissect_zvt_tlv_receipt_type },
     { TLV_TAG_RECEIPT_PARAM, dissect_zvt_tlv_receipt_param },
-    { TLV_TAG_CHARS_PER_LINE, dissect_zvt_tlv_characters_per_line }
+    { TLV_TAG_CHARS_PER_LINE, dissect_zvt_tlv_characters_per_line },
+    { TLV_TAG_RECEIPT_INFO, dissect_zvt_tlv_receipt_info }
 };
 
 static const value_string tlv_tags[] = {
@@ -476,6 +496,7 @@ static const value_string tlv_tags[] = {
     { TLV_TAG_CARDHOLDER_AUTH,    "Cardholder authentication" },
     { TLV_TAG_ONLINE_FLAG,        "Online flag" },
     { TLV_TAG_CARD_TYPE,          "Card type" },
+    { TLV_TAG_RECEIPT_INFO,       "Receipt information" },
     { 0, NULL }
 };
 static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
@@ -528,7 +549,7 @@ static inline gint dissect_zvt_tlv_receipt_param(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
 {
-    proto_tree_add_bitmask(tree, tvb, offset, hf_zvt_receipt_parameter, ett_zvt_tlv_tag, receipt_parameter_flag_fields, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zvt_receipt_parameter, ett_zvt_tlv_receipt, receipt_parameter_flag_fields, ENC_BIG_ENDIAN);
     return len;
 }
 
@@ -539,6 +560,16 @@ static inline gint dissect_zvt_tlv_characters_per_line(
 {
     const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 1, NULL, FALSE);
     proto_tree_add_string(tree, hf_zvt_characters_per_line, tvb, offset, 1, str);
+    return len;
+}
+
+
+static inline gint dissect_zvt_tlv_receipt_info(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
+{
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zvt_receipt_info,
+            ett_zvt_tlv_receipt, receipt_info_fields, ENC_BIG_ENDIAN);
     return len;
 }
 
@@ -1279,7 +1310,8 @@ proto_register_zvt(void)
         &ett_zvt_bitmap,
         &ett_zvt_tlv_dat_obj,
         &ett_zvt_tlv_subseq,
-        &ett_zvt_tlv_tag
+        &ett_zvt_tlv_tag,
+        &ett_zvt_tlv_receipt
     };
     static hf_register_info hf[] = {
         { &hf_zvt_resp_in,
@@ -1414,6 +1446,24 @@ proto_register_zvt(void)
         { &hf_zvt_characters_per_line,
             { "Characters per line", "zvt.characters_per_line", FT_STRING,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_receipt_info,
+            { "Receipt information", "zvt.tlv.receipt_info", FT_UINT8,
+                BASE_HEX, NULL, 0x00, NULL, HFILL } },
+        { &hf_zvt_receipt_info_positive,
+            { "Positive receipt (authorised)",
+                "zvt.tlv.receipt_info.positive", FT_BOOLEAN, 8,
+                TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
+        { &hf_zvt_receipt_info_signature,
+            { "Receipt contains a signature",
+                "zvt.tlv.receipt_info.signature", FT_BOOLEAN, 8,
+                TFS(&tfs_yes_no), 0x02, NULL, HFILL } },
+        { &hf_zvt_receipt_info_negative,
+            { "Negative receipt (aborted, rejected)",
+                "zvt.tlv.receipt_info.negative", FT_BOOLEAN, 8,
+                TFS(&tfs_yes_no), 0x04, NULL, HFILL } },
+        { &hf_zvt_receipt_info_printing,
+            { "Printing is mandatory", "zvt.tlv.receipt_info.printing",
+                FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } }
     };
 
     static ei_register_info ei[] = {
