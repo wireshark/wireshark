@@ -1,4 +1,4 @@
- Wireshark 3.6.7 Release Notes
+ Wireshark 3.6.8 Release Notes
 
  What is Wireshark?
 
@@ -15,27 +15,6 @@
 
    The following bugs have been fixed:
 
-     • Multiple Files preference "Create new file automatically…​after"
-       [time] working incorrectly Issue 16783[2].
-
-     • get_filter Lua function doesn’t return the filter Issue 17188[3].
-
-     • Dissector bug, protocol HTTP failed assertion "saved_layers_len <
-       500" with chunked/multipart Issue 18130[4].
-
-     • Wrong EtherCAT bit label (possible dissector bug) Issue 18132[5].
-
-     • UDP packets falsely marked as "malformed packet" Issue 18136[6].
-
-     • TLS certificate parser with filter crash Issue 18155[7].
-
-     • Incorrect type for the IEC 60870 APDU appears in packet details
-       pane Issue 18167[8].
-
-     • NHRP Problem Issue 18181[9].
-
-     • EtherCAT CoE header unknown type Issue 18220[10].
-
   New and Updated Features
 
   New Protocol Support
@@ -43,9 +22,6 @@
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   BGP, DTLS, EtherCAT, EtherCAT Mailbox, HTTP, IEC 104, MEGACO, NHRP,
-   PPPoE, QUIC, RTCP, Signal PDU, SOME/IP, and X509IF
 
   New and Updated Capture File Support
 
@@ -65,7 +41,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[11] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -80,32 +56,21 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[12] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[13].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[14].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[15].
-
-  Last updated 2022-07-27 18:31:51 UTC
+  A complete FAQ is available on the Wireshark web site[6].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://gitlab.com/wireshark/wireshark/-/issues/16783
-   3. https://gitlab.com/wireshark/wireshark/-/issues/17188
-   4. https://gitlab.com/wireshark/wireshark/-/issues/18130
-   5. https://gitlab.com/wireshark/wireshark/-/issues/18132
-   6. https://gitlab.com/wireshark/wireshark/-/issues/18136
-   7. https://gitlab.com/wireshark/wireshark/-/issues/18155
-   8. https://gitlab.com/wireshark/wireshark/-/issues/18167
-   9. https://gitlab.com/wireshark/wireshark/-/issues/18181
-  10. https://gitlab.com/wireshark/wireshark/-/issues/18220
-  11. https://www.wireshark.org/download.html
-  12. https://ask.wireshark.org/
-  13. https://www.wireshark.org/lists/
-  14. https://gitlab.com/wireshark/wireshark/-/issues
-  15. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://www.wireshark.org/faq.html

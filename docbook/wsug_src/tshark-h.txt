@@ -1,4 +1,4 @@
-TShark (Wireshark) 3.6.7 (v3.6.7rc0-4-ge11cac49e791)
+TShark (Wireshark) 3.6.8 (v3.6.8rc0-8-g18c9c2c20dff)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
