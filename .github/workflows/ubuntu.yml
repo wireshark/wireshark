@@ -36,6 +36,10 @@ jobs:
       - name: Build debian pkg
         run: |
           ln --symbolic --no-dereference --force packaging/debian
+          tools/make-version.py --set-release .
+          export DEB_BUILD_OPTIONS="nocheck parallel=$(( $(getconf _NPROCESSORS_ONLN) + 2 ))"
+          export DH_QUIET=1
+          export MAKEFLAGS=--silent
           dpkg-buildpackage -b -us -uc -jauto
       - name: Move deb packages
         run: |
