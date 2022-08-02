@@ -1027,6 +1027,7 @@ static int hf_mysql_connattrs_name_length = -1;
 static int hf_mysql_connattrs_name = -1;
 static int hf_mysql_connattrs_value_length = -1;
 static int hf_mysql_connattrs_value = -1;
+static int hf_mysql_zstd_compression_level = -1;
 static int hf_mysql_thread_id  = -1;
 static int hf_mysql_salt = -1;
 static int hf_mysql_salt2 = -1;
@@ -1777,6 +1778,11 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 	}
 
+	if (conn_data->clnt_caps & MYSQL_CAPS_ZS)
+	{
+		proto_tree_add_item(login_tree, hf_mysql_zstd_compression_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+	}
 	return offset;
 }
 
@@ -4161,6 +4167,11 @@ void proto_register_mysql(void)
 		{ "Connection Attribute Value", "mysql.connattrs.value",
 		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL }},
+
+		{ &hf_mysql_zstd_compression_level,
+		{ "ZSTD Compression Level", "mysql.compression.zstd_level",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
 
 
 		{ &hf_mariadb_extmeta_data,
