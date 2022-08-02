@@ -9752,6 +9752,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
 
   tap_rec = wmem_new(pinfo->pool, isup_tap_rec_t);
   tap_rec->message_type   = message_type;
+  tap_rec->itu_isup_variant = itu_isup_variant;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
   tap_rec->circuit_id     = circuit_id;
@@ -10053,6 +10054,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
   tap_rec = wmem_new(pinfo->pool, isup_tap_rec_t);
   tap_rec->message_type   = message_type;
+  tap_rec->itu_isup_variant = itu_isup_variant;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
   tap_rec->circuit_id     = circuit_id;
@@ -10661,10 +10663,32 @@ msg_stats_tree_init(stats_tree *st)
 static tap_packet_status
 msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p, tap_flags_t flags _U_)
 {
-  const gchar *msg = try_val_to_str_ext(((const isup_tap_rec_t*)p)->message_type, &isup_message_type_value_acro_ext);
+  const isup_tap_rec_t *tap_rec = (const isup_tap_rec_t *)p;
+  const gchar *msg;
   gchar       *src, *dst, *dir;
   int          msg_node;
   int          dir_node;
+  value_string_ext *used_value_string_ext;
+
+  switch (tap_rec->itu_isup_variant) {
+    case ISUP_FRENCH_VARIANT:
+      used_value_string_ext = &french_isup_message_type_value_acro_ext;
+      break;
+    case ISUP_ISRAELI_VARIANT:
+      used_value_string_ext = &israeli_isup_message_type_value_acro_ext;
+      break;
+    case ISUP_RUSSIAN_VARIANT:
+      used_value_string_ext = &russian_isup_message_type_value_acro_ext;
+      break;
+    case ISUP_JAPAN_VARIANT:
+    case ISUP_JAPAN_TTC_VARIANT:
+      used_value_string_ext = &japan_isup_message_type_value_acro_ext;
+      break;
+    default:
+      used_value_string_ext = &isup_message_type_value_acro_ext;
+      break;
+  }
+  msg = val_to_str_ext_const(tap_rec->message_type, used_value_string_ext, "reserved");
 
   src = address_to_str(NULL, &pinfo->src);
   dst = address_to_str(NULL, &pinfo->dst);

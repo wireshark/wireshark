@@ -19,6 +19,7 @@
 
 typedef struct _isup_tap_rec_t {
     guint8      message_type;
+    guint8      itu_isup_variant;
     /* added for VoIP calls analysis, see ui/voip_calls.c*/
     gchar           *called_number;
     gchar           *calling_number;
