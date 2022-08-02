@@ -32,6 +32,7 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/ws_ui_util.h"
+#include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>
 #include "ui/util.h"
 
@@ -1415,6 +1416,18 @@ void PacketList::addPacketComment(QString new_comment)
 
         wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
 
+        /*
+         * Make sure this would fit in a pcapng option.
+         *
+         * XXX - 65535 is the maximum size for an option in pcapng;
+         * what if another capture file format supports larger
+         * comments?
+         */
+        if (ba.size() > 65535) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "That coment is too large to save in a capture file.");
+            return;
+        }
         wtap_block_add_string_option(pkt_block, OPT_COMMENT, ba.data(), ba.size());
 
         cf_set_modified_block(cap_file_, fdata, pkt_block);
@@ -1441,6 +1454,18 @@ void PacketList::setPacketComment(guint c_number, QString new_comment)
         wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, c_number);
     } else {
         QByteArray ba = new_comment.toLocal8Bit();
+        /*
+         * Make sure this would fit in a pcapng option.
+         *
+         * XXX - 65535 is the maximum size for an option in pcapng;
+         * what if another capture file format supports larger
+         * comments?
+         */
+        if (ba.size() > 65535) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "That coment is too large to save in a capture file.");
+            return;
+        }
         wtap_block_set_nth_string_option_value(pkt_block, OPT_COMMENT, c_number, ba.data(), ba.size());
     }
 
