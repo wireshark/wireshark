@@ -31,6 +31,7 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/ws_ui_util.h"
+#include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>
 #include "ui/util.h"
 
@@ -1393,6 +1394,19 @@ void PacketList::setPacketComment(QString new_comment)
         new_packet_comment = NULL;
     } else {
         new_packet_comment = qstring_strdup(new_comment);
+
+        /*
+         * Make sure this would fit in a pcapng option.
+         *
+         * XXX - 65535 is the maximum size for an option in pcapng;
+         * what if another capture file format supports larger
+         * comments?
+         */
+        if (strlen(new_packet_comment) > 65535) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "That coment is too large to save in a capture file.");
+            return;
+        }
     }
 
     cf_set_user_packet_comment(cap_file_, fdata, new_packet_comment);
