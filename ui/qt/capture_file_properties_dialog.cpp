@@ -12,6 +12,7 @@
 #include "capture_file_properties_dialog.h"
 #include <ui_capture_file_properties_dialog.h>
 
+#include "ui/simple_dialog.h"
 #include "ui/summary.h"
 
 #include "wsutil/str_util.h"
@@ -616,6 +617,20 @@ void CaptureFilePropertiesDialog::on_buttonBox_accepted()
     if (wtap_dump_can_write(cap_file_.capFile()->linktypes, WTAP_COMMENT_PER_SECTION))
     {
         gchar *str = qstring_strdup(ui->commentsTextEdit->toPlainText());
+
+        /*
+         * Make sure this would fit in a pcapng option.
+         *
+         * XXX - 65535 is the maximum size for an option in pcapng;
+         * what if another capture file format supports larger
+         * comments?
+         */
+        if (strlen(str) > 65535) {
+            /* It doesn't fit.  Tell the user and give up. */
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "That coment is too large to save in a capture file.");
+            return;
+        }
         cf_update_section_comment(cap_file_.capFile(), str);
         emit captureCommentChanged();
         fillDetails();
