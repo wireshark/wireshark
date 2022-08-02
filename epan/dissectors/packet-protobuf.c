@@ -886,6 +886,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     gboolean is_packed = FALSE;
     gboolean is_repeated = FALSE;
     const PbwFieldDescriptor* field_desc = NULL;
+    guint start_offset = *offset;
 
     /* A protocol buffer message is a series of key-value pairs. The binary version of a message just uses
      * the field's number as the key. a wire type that provides just enough information to find the length of
@@ -932,7 +933,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     proto_item_append_text(ti_field, "(%" PRIu64 "):", field_number);
 
     /* support filtering with field name */
-    ti_field_name = proto_tree_add_string(field_tree, hf_protobuf_field_name, tvb, *offset, 1,
+    ti_field_name = proto_tree_add_string(field_tree, hf_protobuf_field_name, tvb, start_offset, 0,
         (field_name ? field_name : "<UNKNOWN>"));
     proto_item_set_generated(ti_field_name);
     if (field_name) {
@@ -942,7 +943,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
             ? "" : "="
         );
         if (field_type > 0) {
-            ti_field_type = proto_tree_add_int(field_tree, hf_protobuf_field_type, tvb, *offset, 1, field_type);
+            ti_field_type = proto_tree_add_int(field_tree, hf_protobuf_field_type, tvb, start_offset, 0, field_type);
             proto_item_set_generated(ti_field_type);
         }
 
