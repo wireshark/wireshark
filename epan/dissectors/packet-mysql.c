@@ -2483,8 +2483,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			} else {
 				proto_item_append_text(pi, " - %s", val_to_str(RESPONSE_OK, state_vals, "Unknown (%u)"));
 				offset = mysql_dissect_ok_packet(tvb, pinfo, offset, tree, conn_data);
+				mysql_set_conn_state(pinfo, conn_data, REQUEST);
 			}
-			mysql_set_conn_state(pinfo, conn_data, REQUEST);
 		} else {
 			// text row packet
 			proto_item_append_text(pi, " - %s", val_to_str(ROW_PACKET, state_vals, "Unknown (%u)"));
