@@ -100,6 +100,12 @@ void show_version(void);
  */
 void show_help_header(const char *description);
 
+const char *get_copyright_info(void);
+
+const char *get_license_info(void);
+
+const char *get_license_info_short(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

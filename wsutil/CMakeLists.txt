@@ -23,7 +23,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	buffer.h
 	codecs.h
 	color.h
-	copyright_info.h
 	cpu_info.h
 	crash_info.h
 	crc5.h
@@ -93,7 +92,6 @@ set(WSUTIL_COMMON_FILES
 	bitswap.c
 	buffer.c
 	codecs.c
-	copyright_info.c
 	crash_info.c
 	crc10.c
 	crc16.c

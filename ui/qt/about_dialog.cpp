@@ -38,7 +38,6 @@
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/plugins.h"
-#include "wsutil/copyright_info.h"
 #include "ui/version_info.h"
 #include "ui/capture_globals.h"
 
@@ -444,26 +443,25 @@ void AboutDialog::updateWiresharkText()
 {
     QString vcs_version_info_str = get_ws_vcs_version_info();
     QString copyright_info_str = get_copyright_info();
+    QString license_info_str = get_license_info();
     QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info));
     QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(gather_wireshark_runtime_info));
 
     QString message = ColorUtils::themeLinkStyle();
 
     /* Construct the message string */
-    message += "<p>Version " + html_escape(vcs_version_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(copyright_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
-    message += "<p>Wireshark is free and open-source software released under the GNU General Public License, version 2 or later.</p>\n\n";
-    message += "<p>Check the man page and ";
-    message += "<a href=https://www.wireshark.org>https://www.wireshark.org</a> ";
-    message += "for more information.</p>\n\n";
+    message += "<p>Version " + html_escape(vcs_version_info_str) + ".</p>\n";
+    message += "<p>" + html_escape(copyright_info_str) + "</p>\n";
+    message += "<p>" + html_escape(license_info_str) + "</p>\n";
+    message += "<p>" + html_escape(comp_info_str) + "</p>\n";
+    message += "<p>" + html_escape(runtime_info_str) + "</p>\n";
+    message += "<p>Check the man page and <a href=https://www.wireshark.org>www.wireshark.org</a> "
+               "for more information.</p>\n";
     ui->pte_wireshark->setHtml(message);
 
     /* Save the info for the clipboard copy */
     clipboardInfo = "";
-    clipboardInfo += "Version " + vcs_version_info_str + "\n\n";
-    clipboardInfo += copyright_info_str + "\n";
+    clipboardInfo += "Version " + vcs_version_info_str + ".\n\n";
     /* XXX: GCC 12.1 has a bogus stringop-overread warning using the Qt
      * conversions from QByteArray to QString at -O2 and higher due to
      * computing a branch that will never be taken.
@@ -476,7 +474,6 @@ DIAG_OFF(stringop-overread)
 #if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
 DIAG_ON(stringop-overread)
 #endif
-    clipboardInfo += "Wireshark is free and open-source software released under the GNU General Public License, version 2 or later.\n\n";
 }
 
 void AboutDialog::on_copyToClipboard_clicked()
