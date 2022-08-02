@@ -100,8 +100,13 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CAPS_EP 0x0040 /* CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS */
 #define MYSQL_CAPS_ST 0x0080 /* CLIENT_SESSION_TRACK */
 #define MYSQL_CAPS_DE 0x0100 /* CLIENT_DEPRECATE_EOF */
+#define MYSQL_CAPS_RM 0x0200 /* CLIENT_OPTIONAL_RESULTSET_METADATA */
+#define MYSQL_CAPS_ZS 0x0400 /* CLIENT_ZSTD_COMPRESSION_ALGORITHM */
 #define MYSQL_CAPS_QA 0x0800 /* CLIENT_QUERY_ATTRIBUTES */
-#define MYSQL_CAPS_UNUSED 0xFE00
+#define MYSQL_CAPS_MF 0x1000 /* MULTI_FACTOR_AUTHENTICATION */
+#define MYSQL_CAPS_CE 0x2000 /* CLIENT_CAPABILITY_EXTENSION */
+
+#define MYSQL_CAPS_UNUSED 0xC000
 
 /* status bitfield */
 #define MYSQL_STAT_IT 0x0001
@@ -946,6 +951,11 @@ static int hf_mysql_cap_plugin_auth_lenenc_client_data = -1;
 static int hf_mysql_cap_client_can_handle_expired_passwords = -1;
 static int hf_mysql_cap_session_track = -1;
 static int hf_mysql_cap_deprecate_eof = -1;
+static int hf_mysql_cap_optional_metadata = -1;
+static int hf_mysql_cap_compress_zstd = -1;
+static int hf_mysql_cap_query_attrs = -1;
+static int hf_mysql_cap_mf_auth = -1;
+static int hf_mysql_cap_cap_ext = -1;
 static int hf_mysql_cap_unused = -1;
 static int hf_mysql_server_language = -1;
 static int hf_mysql_server_status = -1;
@@ -1419,6 +1429,11 @@ static int * const mysql_extcaps_flags[] = {
 	&hf_mysql_cap_client_can_handle_expired_passwords,
 	&hf_mysql_cap_session_track,
 	&hf_mysql_cap_deprecate_eof,
+	&hf_mysql_cap_optional_metadata,
+	&hf_mysql_cap_compress_zstd,
+	&hf_mysql_cap_query_attrs,
+	&hf_mysql_cap_mf_auth,
+	&hf_mysql_cap_cap_ext,
 	&hf_mysql_cap_unused,
 	NULL
 };
@@ -4040,6 +4055,31 @@ void proto_register_mysql(void)
 		{ &hf_mysql_cap_deprecate_eof,
 		{ "Deprecate EOF","mysql.caps.deprecate_eof",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_DE,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_optional_metadata,
+		{ "Client can hanle optional resultset metadata","mysql.caps.optional_metadata",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_RM,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_compress_zstd,
+		{ "ZSTD Compression Algorithm","mysql.caps.compress_zsd",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_ZS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_query_attrs,
+		{ "Query Attributes","mysql.caps.query_attrs",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_QA,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_mf_auth,
+		{ "Multifactor Authentication","mysql.caps.mf_auth",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MF,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_cap_ext,
+		{ "Capability Extension","mysql.caps.cap_ext",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CE,
 		NULL, HFILL }},
 
 		{ &hf_mysql_cap_unused,
