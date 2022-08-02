@@ -1250,8 +1250,8 @@ void dissector_add_uint_with_preference(const char *name, const guint32 pattern,
 	dissector_add_uint(name, pattern, handle);
 }
 
-void dissector_add_uint_range_with_preference(const char *name, const char* range_str,
-    dissector_handle_t handle)
+static range_t*
+dissector_add_range_preference(const char *name, dissector_handle_t handle, const char* range_str)
 {
 	range_t** range;
 	module_t *module;
@@ -1305,7 +1305,16 @@ void dissector_add_uint_range_with_preference(const char *name, const char* rang
 		prefs_register_decode_as_range_preference(module, name, title, description, range, max_value);
 	}
 
-	dissector_add_uint_range(name, *range, handle);
+	return *range;
+}
+
+void dissector_add_uint_range_with_preference(const char *name, const char* range_str,
+    dissector_handle_t handle)
+{
+	range_t* range;
+
+	range = dissector_add_range_preference(name, handle, range_str);
+	dissector_add_uint_range(name, range, handle);
 }
 
 /* Delete the entry for a dissector in a uint dissector table
@@ -2242,7 +2251,7 @@ void dissector_add_for_decode_as_with_preference(const char *name,
 	   table value would default to 0.
 	   Set up a preference value with that information
 	 */
-	dissector_add_preference(name, handle, 0);
+	dissector_add_range_preference(name, handle, "");
 
 	dissector_add_for_decode_as(name, handle);
 }
