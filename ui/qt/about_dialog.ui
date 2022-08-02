@@ -95,7 +95,7 @@
             <string>Copy the version information to the clipboard</string>
            </property>
            <property name="text">
-            <string>Copy To Clipboard</string>
+            <string>Copy to Clipboard</string>
            </property>
           </widget>
          </item>
