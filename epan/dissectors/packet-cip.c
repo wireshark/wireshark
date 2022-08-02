@@ -5471,7 +5471,7 @@ int dissect_cip_utime(proto_tree* tree, tvbuff_t* tvb, int offset, int hf_dateti
    nstime_t ts_nstime = { 0 };
    guint64 timestamp = tvb_get_letoh64(tvb, offset);
    ts_nstime.secs = timestamp / 1000000;
-   ts_nstime.nsecs = timestamp % 1000000;
+   ts_nstime.nsecs = (timestamp % 1000000) * 1000;
 
    proto_tree_add_time(tree, hf_datetime, tvb, offset, 8, &ts_nstime);
 
