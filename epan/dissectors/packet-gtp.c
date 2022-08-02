@@ -5549,13 +5549,14 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
         offset++;
 
         length -= offset;
-        length /= 2;
+        length /= 2; /* Binary length of encoded data. */
 
         /* Fake the length of the IE including the IE id and length octets
-         * we are actually using it to determine precense of Octet n as counted in
-         * TS 24.008
+         * we are actually using it to determine presence of Octet n as counted
+         * in  TS 24.008
          */
-        length = retval = length + 2;    /* Actually, will be ignored. */
+
+        retval = length + 2;    /* Actually, will be ignored. */
         break;
     default:
         /* XXX - what should we do with the length here? */
@@ -5565,7 +5566,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
         break;
     }
 
-    if ((type == 3) && (rel_ind >= 8)) {
+    if ((type == 3) && (rel_ind >= 8) && (rel_ind < 98)) {
         /* Release 8 or higher P-GW QoS profile */
         static int * const arp_flags[] = {
             &hf_gtp_qos_arp_pci,
@@ -5652,8 +5653,14 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
     mean        = wrapped_tvb_get_guint8(tvb, offset + (3 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_MEAN_MASK;
 
     /* In RADIUS messages there is no allocation-retention priority */
-    if (type != 3)
+    if (type != 3) {
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_al_ret_priority, tvb, offset, 1, al_ret_priority);
+    } else {
+        /* Add an octet to the binary data length to account for the
+         * missing ARP so that the length tests below are correct.
+         */
+        length += 1;
+    }
 
     /* All additions must take care of the fact that QoS fields in RADIUS
      * messages are UTF-8 encoded, so we have to use the same trick as above.
