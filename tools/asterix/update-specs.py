@@ -352,6 +352,20 @@ def generate_group(item, variation=None):
 def is_generated(item):
     return item.get('is_generated') is not None
 
+def ungroup(item):
+    """Convert group of items of known size to element"""
+    n = sum([get_bit_size(i) for i in item['variation']['items']])
+    result = copy(item)
+    result['variation'] = {
+        'rule': {
+            'content': {'type': 'Raw'},
+            'type': 'ContextFree',
+        },
+        'size': n,
+        'type': 'Element',
+    }
+    return result
+
 def part1(ctx, get_ref, catalogue):
     """Generate components in order
     - static gint hf_...
@@ -452,12 +466,19 @@ def part1(ctx, get_ref, catalogue):
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
                 tell('static gint hf_{} = -1;'.format(ref))
+
+                items = []
                 for i in variation['items']:
+                    if i.get('variation') is not None:
+                        if i['variation']['type'] == 'Group':
+                            i = ungroup(i)
+                    items.append(i)
+
+                for i in items:
                     handle_item(path, i)
 
                 tell('static const FieldPart *I{}_PARTS[] = {}'.format(ref,'{'))
                 chunks = chain(repeat(n1,1), repeat(n2))
-                items = variation['items']
                 # iterate over items, reinsert FX bits
                 while True:
                     bit_size = next(chunks)
