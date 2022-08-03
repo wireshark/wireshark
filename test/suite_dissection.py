@@ -408,8 +408,12 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
                 '-o', 'tls.keylog_file: {}'.format(key_file),
                 '-z', 'follow,http2,hex,0,0'
             ))
+        # Stream ID 0 bytes
         self.assertTrue(self.grepOutput('00000000  00 00 12 04 00 00 00 00'))
+        # Stream ID 1 bytes, decrypted but compressed by HPACK
         self.assertFalse(self.grepOutput('00000000  00 00 2c 01 05 00 00 00'))
+        # Stream ID 1 bytes, decrypted and uncompressed
+        self.assertFalse(self.grepOutput('00000000  00 00 00 07 3a 6d 65 74'))
 
     def test_http2_follow_1(self, cmd_tshark, features, dirs, capture_file):
         '''Follow HTTP/2 Stream ID 1 test'''
@@ -421,8 +425,12 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
                 '-o', 'tls.keylog_file: {}'.format(key_file),
                 '-z', 'follow,http2,hex,0,1'
             ))
+        # Stream ID 0 bytes
         self.assertFalse(self.grepOutput('00000000  00 00 12 04 00 00 00 00'))
-        self.assertTrue(self.grepOutput('00000000  00 00 2c 01 05 00 00 00'))
+        # Stream ID 1 bytes, decrypted but compressed by HPACK
+        self.assertFalse(self.grepOutput('00000000  00 00 2c 01 05 00 00 00'))
+        # Stream ID 1 bytes, decrypted and uncompressed
+        self.assertTrue(self.grepOutput('00000000  00 00 00 07 3a 6d 65 74'))
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
