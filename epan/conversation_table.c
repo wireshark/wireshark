@@ -315,6 +315,8 @@ char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, endpoint_
         return udp_port_to_display(allocator, port);
     case(ENDPOINT_SCTP):
         return sctp_port_to_display(allocator, port);
+    case(ENDPOINT_DCCP):
+        return dccp_port_to_display(allocator, port);
     default:
         return wmem_strdup_printf(allocator, "%d", port);
     }
