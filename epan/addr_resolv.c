@@ -2115,7 +2115,6 @@ initialize_ipxnets(void)
 static void
 ipx_name_lookup_cleanup(void)
 {
-    ipxnet_hash_table = NULL;
     g_free(g_pipxnets_path);
     g_pipxnets_path = NULL;
 }
