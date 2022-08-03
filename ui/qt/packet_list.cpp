@@ -1404,7 +1404,7 @@ void PacketList::setPacketComment(QString new_comment)
          */
         if (strlen(new_packet_comment) > 65535) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That coment is too large to save in a capture file.");
+                          "That comment is too large to save in a capture file.");
             return;
         }
     }
