@@ -1276,8 +1276,13 @@ dissector_add_range_preference(const char *name, dissector_handle_t handle, cons
 		routine to apply preferences, which could duplicate the
 		registration of a preference.  Check for that here */
 	if (prefs_find_preference(module, name) == NULL) {
-		description = wmem_strdup_printf(wmem_epan_scope(), "%s %s(s)",
+		if (g_strcmp0(range_str, "") > 0) {
+			description = wmem_strdup_printf(wmem_epan_scope(), "%s %s(s) (default: %s)",
+									    proto_get_protocol_short_name(handle->protocol), pref_dissector_table->ui_name, range_str);
+		} else {
+			description = wmem_strdup_printf(wmem_epan_scope(), "%s %s(s)",
 									    proto_get_protocol_short_name(handle->protocol), pref_dissector_table->ui_name);
+		}
 		title = wmem_strdup_printf(wmem_epan_scope(), "%s(s)", pref_dissector_table->ui_name);
 
 		/* Max value is based on datatype of dissector table */
