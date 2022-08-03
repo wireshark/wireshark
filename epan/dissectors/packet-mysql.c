@@ -1663,7 +1663,11 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	proto_item *login_tree;
 
 	/* after login there can be OK or DENIED */
-	mysql_set_conn_state(pinfo, conn_data, RESPONSE_OK);
+	if (conn_data->clnt_caps & MYSQL_CAPS_SL) {
+		mysql_set_conn_state(pinfo, conn_data, LOGIN);
+	} else if (!(conn_data->clnt_caps == 0)) {
+		mysql_set_conn_state(pinfo, conn_data, RESPONSE_OK);
+	}
 
 	tf = proto_tree_add_item(tree, hf_mysql_login_request, tvb, offset, -1, ENC_NA);
 	login_tree = proto_item_add_subtree(tf, ett_login_request);
