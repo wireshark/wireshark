@@ -2855,12 +2855,12 @@ addr_resolve_pref_init(module_t *nameres)
             &gbl_resolv_flags.network_name);
 
     prefs_register_bool_preference(nameres, "dns_pkt_addr_resolution",
-            "Use captured DNS packet data for address resolution",
-            "Whether address/name pairs found in captured DNS packets should be used by Wireshark for name resolution.",
+            "Use captured DNS packet data for name resolution",
+            "Use address/name pairs found in captured DNS packets for name resolution.",
             &gbl_resolv_flags.dns_pkt_addr_resolution);
 
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
-            "Use an external network name resolver",
+            "Use your system's DNS settings for name resolution",
             "Use your system's configured name resolver"
             " (usually DNS) to resolve network names."
             " Only applies when network name resolution"
@@ -2868,9 +2868,9 @@ addr_resolve_pref_init(module_t *nameres)
             &gbl_resolv_flags.use_external_net_name_resolver);
 
     prefs_register_bool_preference(nameres, "use_custom_dns_servers",
-        "Use custom list of DNS servers for name resolution",
-        "Uses DNS Servers list to resolve network names if TRUE.  If FALSE, default information is used",
-        &use_custom_dns_server_list);
+            "Use a custom list of DNS servers for name resolution",
+            "Use a DNS Servers list to resolve network names if TRUE.  If FALSE, default information is used",
+            &use_custom_dns_server_list);
 
     static uat_field_t dns_server_uats_flds[] = {
         UAT_FLD_CSTRING_OTHER(dnsserverlist_uats, ipaddr, "IP address", dnsserver_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
