@@ -1054,6 +1054,7 @@ typedef struct {
     http2_direction_type direction;
     gchar* header_name;
     gchar* header_value;
+    gboolean override; /* override existing header */
     gboolean enable; /* enable or disable this rule */
 } http2_fake_header_t;
 
@@ -1137,10 +1138,11 @@ UAT_VS_DEF(http2_fake_headers, direction, http2_fake_header_t, http2_direction_t
     DIRECTION_IN, try_val_to_str(DIRECTION_IN, http2_direction_type_vals))
 UAT_CSTRING_CB_DEF(http2_fake_headers, header_name, http2_fake_header_t)
 UAT_CSTRING_CB_DEF(http2_fake_headers, header_value, http2_fake_header_t)
+UAT_BOOL_CB_DEF(http2_fake_headers, override, http2_fake_header_t)
 UAT_BOOL_CB_DEF(http2_fake_headers, enable, http2_fake_header_t)
 
 static const gchar*
-get_fake_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_direction)
+get_fake_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_direction, gboolean* override)
 {
     if (num_http2_fake_headers == 0) {
         return NULL;
@@ -1168,6 +1170,9 @@ get_fake_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_
         }
 
         if (fake_header->direction == direction && strcmp(fake_header->header_name, name) == 0) {
+            if(override) {
+                *override = fake_header->override;
+            }
             return wmem_strdup(pinfo->pool, fake_header->header_value);
         }
     }
@@ -1854,7 +1859,7 @@ get_content_type_parameters_only(const gchar *content_type, int content_type_str
  */
 static void
 populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t *h2session, int header_value_length,
-                                   const gchar *header_name, const gchar *header_value, guint32 stream_id)
+                                   const gchar *header_name, const gchar *header_value, guint32 stream_id, const gboolean override)
 {
     http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, h2session, FALSE, stream_id);
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info_for_id(pinfo, h2session, stream_id);
@@ -1862,7 +1867,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
     /* Populate the content encoding used so we can uncompress the body later if required */
     if (strcmp(header_name, HTTP2_HEADER_CONTENT_ENCODING) == 0) {
-        if (body_info->content_encoding == NULL) {
+        if (body_info->content_encoding == NULL || override == TRUE) {
             body_info->content_encoding = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
         }
     }
@@ -1905,7 +1910,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
     /* Populate the content type so we can dissect the body later */
     if (strcmp(header_name, HTTP2_HEADER_CONTENT_TYPE) == 0) {
-        if (body_info->content_type == NULL) {
+        if (body_info->content_type == NULL || override == TRUE) {
             body_info->content_type = get_content_type_only(header_value, header_value_length);
             body_info->content_type_parameters = get_content_type_parameters_only(header_value, header_value_length);
             stream_info->reassembly_mode = http2_get_data_reassembly_mode(body_info->content_type);
@@ -2309,7 +2314,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
          * http2_frame_num_t points to. */
         guint32 header_stream_id;
         if (!PINFO_FD_VISITED(pinfo) && (header_stream_id = is_in_header_context(tvb, pinfo, h2session))) {
-            populate_http_header_tracking(tvb, pinfo, h2session, header_value_length, header_name, header_value, header_stream_id);
+            populate_http_header_tracking(tvb, pinfo, h2session, header_value_length, header_name, header_value, header_stream_id, FALSE);
         }
 
         /* Add encoding representation */
@@ -2455,13 +2460,13 @@ try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_sessi
             }
 
             /* now match one */
-            if (get_real_header_value(pinfo, fake_header->header_name, FALSE)) {
-                /* If this header already appears, the fake header is ignored. */
+            if (get_real_header_value(pinfo, fake_header->header_name, FALSE) && fake_header->override == FALSE) {
+                /* If this header already appears, the fake header is ignored, unless we want to override. */
                 continue;
             }
 
             populate_http_header_tracking(tvb, pinfo, h2session, (int)strlen(fake_header->header_value),
-                fake_header->header_name, fake_header->header_value, h2session->current_stream_id);
+                fake_header->header_name, fake_header->header_value, h2session->current_stream_id, fake_header->override);
 
             wmem_array_append(header_stream_info->fake_headers, &fake_header, 1);
         }
@@ -3335,12 +3340,15 @@ get_real_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_
 const gchar*
 http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction)
 {
-    const gchar* value = get_real_header_value(pinfo, name, the_other_direction);
-    if (value) {
-        return value;
-    } else {
-        return get_fake_header_value(pinfo, name, the_other_direction);
+    gboolean override = FALSE;
+    const gchar* real_value = get_real_header_value(pinfo, name, the_other_direction);
+    const gchar* fake_value = get_fake_header_value(pinfo, name, the_other_direction, &override);
+    if (real_value && override == FALSE) {
+        return real_value;
+    } else if (fake_value) {
+        return fake_value;
     }
+    return NULL;
 }
 #else
 static void
@@ -4864,6 +4872,7 @@ proto_register_http2(void)
                    "This rule applies to the message sent to (IN) or from (OUT) server."),
         UAT_FLD_CSTRING(http2_fake_headers, header_name, "Header name", "HTTP2 header name"),
         UAT_FLD_CSTRING(http2_fake_headers, header_value, "Header value", "HTTP2 header value"),
+        UAT_FLD_BOOL(http2_fake_headers, override, "Override", "Override existing header"),
         UAT_FLD_BOOL(http2_fake_headers, enable, "Enable", "Enable this rule"),
         UAT_END_FIELDS
     };

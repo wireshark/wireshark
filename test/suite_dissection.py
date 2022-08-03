@@ -197,12 +197,12 @@ class TestDissectGprpc:
                 '-r', capture_file('grpc_person_search_protobuf_with_image-missing_headers.pcapng.gz'),
                 '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
                 '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
-                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}"'.format(
-                            '50051','3','IN',':path','/tutorial.PersonSearchService/Search','TRUE'),
-                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}"'.format(
-                            '50051','0','IN','content-type','application/grpc','TRUE'),
-                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}"'.format(
-                            '50051','0','OUT','content-type','application/grpc','TRUE'),
+                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}","{}"'.format(
+                            '50051','3','IN',':path','/tutorial.PersonSearchService/Search','FALSE', 'TRUE'),
+                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}","{}"'.format(
+                            '50051','0','IN','content-type','application/grpc','FALSE','TRUE'),
+                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}","{}"'.format(
+                            '50051','0','OUT','content-type','application/grpc','FALSE','TRUE'),
                 '-d', 'tcp.port==50051,http2',
                 '-2',
                 '-Y', 'protobuf.field.value.string == "Jason" || protobuf.field.value.string == "Lily"',
