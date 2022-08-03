@@ -628,7 +628,7 @@ void CaptureFilePropertiesDialog::on_buttonBox_accepted()
         if (strlen(str) > 65535) {
             /* It doesn't fit.  Tell the user and give up. */
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That coment is too large to save in a capture file.");
+                          "That comment is too large to save in a capture file.");
             return;
         }
         cf_update_section_comment(cap_file_.capFile(), str);

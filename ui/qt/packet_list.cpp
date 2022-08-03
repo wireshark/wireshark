@@ -1425,7 +1425,7 @@ void PacketList::addPacketComment(QString new_comment)
          */
         if (ba.size() > 65535) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That coment is too large to save in a capture file.");
+                          "That comment is too large to save in a capture file.");
             return;
         }
         wtap_block_add_string_option(pkt_block, OPT_COMMENT, ba.data(), ba.size());
@@ -1463,7 +1463,7 @@ void PacketList::setPacketComment(guint c_number, QString new_comment)
          */
         if (ba.size() > 65535) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "That coment is too large to save in a capture file.");
+                          "That comment is too large to save in a capture file.");
             return;
         }
         wtap_block_set_nth_string_option_value(pkt_block, OPT_COMMENT, c_number, ba.data(), ba.size());
