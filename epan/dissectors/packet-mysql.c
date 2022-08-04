@@ -1960,7 +1960,11 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 	param_type = tvb_get_guint8(tvb, *offset);
 	*offset += 1; /* type */
 	proto_tree_add_item(field_tree, hf_mysql_exec_unsigned, tvb, *offset, 1, ENC_NA);
-	param_unsigned = tvb_get_guint8(tvb, *offset);
+	if ((tvb_get_guint8(tvb, *offset) & 128) == 128) {
+		param_unsigned = 1;
+	} else {
+		param_unsigned = 0;
+	}
 	*offset += 1; /* signedness */
 	if ((param_flags & MYSQL_PARAM_FLAG_STREAMED) == MYSQL_PARAM_FLAG_STREAMED) {
 		expert_add_info(pinfo, field_tree, &ei_mysql_streamed_param);
