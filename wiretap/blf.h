@@ -23,6 +23,9 @@ wtap_open_return_val blf_open(wtap *wth, int *err, gchar **err_info);
 
 
 #define BLF_HEADER_TYPE_DEFAULT                   1
+#define BLF_HEADER_TYPE_2                         2
+#define BLF_HEADER_TYPE_3                         3
+
 
 #define BLF_COMPRESSION_NONE                      0
 #define BLF_COMPRESSION_ZLIB                      2
@@ -83,6 +86,27 @@ typedef struct blf_logobjectheader {
     guint16 object_version;
     guint64 object_timestamp;
 } blf_logobjectheader_t;
+
+#define BLF_TS_STATUS_ORIG_TS_VALID     0x01
+#define BLF_TS_STATUS_SW_TS             0x02
+#define BLF_TS_STATUS_PROTO_SPECIFIC    0x10
+
+typedef struct blf_logobjectheader2 {
+    guint32 flags;
+    guint8  timestamp_status;
+    guint8  res1;
+    guint16 object_version;
+    guint64 object_timestamp;
+    guint64 original_timestamp;
+} blf_logobjectheader2_t;
+
+typedef struct blf_logobjectheader3 {
+    guint32 flags;
+    guint16 static_size;
+    guint16 object_version;
+    guint64 object_timestamp;
+} blf_logobjectheader3_t;
+
 
 #define BLF_DIR_RX    0
 #define BLF_DIR_TX    1
