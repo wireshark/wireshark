@@ -36,7 +36,7 @@
 #define STACK_ALLOC_H
 
 #ifdef USE_ALLOCA
-# ifdef WIN32
+# ifdef _WIN32
 #  include <malloc.h>
 # else
 #  ifdef HAVE_ALLOCA_H

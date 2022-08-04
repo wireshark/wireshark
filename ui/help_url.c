@@ -31,7 +31,7 @@ gchar *
 user_guide_url(const gchar *page) {
     GString *url = g_string_new("");
 
-#if defined(WIN32)
+#if defined(_WIN32)
     /*
      * The User's Guide is in a directory named "Wireshark User's Guide" in
      * the program directory.
@@ -48,7 +48,7 @@ user_guide_url(const gchar *page) {
         /* try to open the HTML page from wireshark.org instead */
         g_string_printf(url, "file://" DOC_DIR "/guides/wsug_html_chunked/%s", page);
     }
-#endif /* WIN32 / DOC_DIR */
+#endif /* _WIN32 / DOC_DIR */
 
 
     /* Fall back to wireshark.org. */

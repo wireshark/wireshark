@@ -316,11 +316,6 @@
 #endif
 
 #if defined(_WIN32)
-   /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */
-#  ifndef WIN32
-#    define WIN32	1
-#  endif
-
    /*
     * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
     */
