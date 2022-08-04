@@ -1891,23 +1891,6 @@ void prefs_register_decode_as_range_preference(module_t *module, const char *nam
 }
 
 /*
- * Register a (internal) "Decode As" preference with an unsigned integral value
- * for a dissector table.
- */
-void prefs_register_decode_as_preference(module_t *module, const char *name,
-    const char *title, const char *description, guint *var)
-{
-    pref_t *preference;
-
-    preference = register_preference(module, name, title, description,
-                                     PREF_DECODE_AS_UINT);
-    preference->varp.uint = var;
-    preference->default_val.uint = *var;
-    /* XXX - Presume base 10 for now */
-    preference->info.base = 10;
-}
-
-/*
  * Register a preference with password value.
  */
 void
