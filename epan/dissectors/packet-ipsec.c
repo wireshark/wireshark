@@ -1867,10 +1867,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           esp_block_len = 1;
 
           /* Allocate buffer for decrypted data  */
-          esp_decr_data = (guint8 *)wmem_alloc(wmem_packet_scope(), esp_encr_data_len);
-          esp_decr_data_len = esp_encr_data_len;
+          esp_decr_data_len = esp_encr_data_len - esp_icv_len;
+          esp_decr_data = (guint8 *)wmem_alloc(wmem_packet_scope(), esp_decr_data_len);
 
-          tvb_memcpy(tvb, esp_decr_data, ESP_HEADER_LEN, esp_encr_data_len);
+          tvb_memcpy(tvb, esp_decr_data, ESP_HEADER_LEN, esp_decr_data_len);
 
           decrypt_ok = TRUE;
 
