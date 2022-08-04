@@ -78,7 +78,7 @@ static dissector_handle_t rsync_handle;
 
 #define TCP_PORT_RSYNC  873
 
-static guint glb_rsync_tcp_port = TCP_PORT_RSYNC;
+static range_t *glb_rsync_tcp_range = NULL;
 
 #define VERSION_LEN     4           /* 2 digits for main version; '.'; 1 digit for sub version */
 
@@ -121,7 +121,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    me = pinfo->srcport == glb_rsync_tcp_port ? SERVER : CLIENT;
+    me = value_is_in_range(glb_rsync_tcp_range, pinfo->srcport) ? SERVER : CLIENT;
 
     conversation = find_or_create_conversation(pinfo);
 
@@ -271,7 +271,7 @@ static void
 apply_rsync_prefs(void)
 {
     /* Rsync uses the port preference to determine client/server */
-    glb_rsync_tcp_port = prefs_get_uint_value("rsync", "tcp.port");
+    glb_rsync_tcp_range = prefs_get_range_value("rsync", "tcp.port");
 }
 
 /* Register protocol with Wireshark. */
@@ -332,11 +332,6 @@ proto_register_rsync(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     rsync_module = prefs_register_protocol(proto_rsync, apply_rsync_prefs);
-    prefs_register_uint_preference(rsync_module, "tcp_port",
-                                   "rsync TCP Port",
-                                   "Set the TCP port for RSYNC messages",
-                                   10,
-                                   &glb_rsync_tcp_port);
     prefs_register_bool_preference(rsync_module, "desegment",
                                    "Reassemble RSYNC messages spanning multiple TCP segments",
                                    "Whether the RSYNC dissector should reassemble messages spanning multiple TCP segments."
