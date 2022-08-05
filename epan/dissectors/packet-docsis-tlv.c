@@ -223,6 +223,7 @@ static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65 = -1;
 static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85 = -1;
 static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_117 = -1;
 static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_204 = -1;
+static int hf_docsis_tlv_mcap_low_latency_sup = -1;
 
 static int hf_docsis_tlv_clsfr_ref = -1;
 static int hf_docsis_tlv_clsfr_id = -1;
@@ -3019,7 +3020,7 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
                 expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
-         case CAP_DIPL_DOWN_UPPER_BAND_EDGE:
+          case CAP_DIPL_DOWN_UPPER_BAND_EDGE:
             if (length == 1)
               {
                 static int * const dipl_down_upper_band_edge[] = {
@@ -3051,6 +3052,17 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
 
                 proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_dipl_up_upper_band_edge,
                          ett_docsis_tlv_mcap_dipl_up_upper_band_edge, dipl_up_upper_band_edge, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_LOW_LATENCY_SUP:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_low_latency_sup, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -6279,6 +6291,12 @@ proto_register_docsis_tlv (void)
       "docsis_tlv.mcap.dipl_up_upper_band_edge.204mhz",
       FT_BOOLEAN, 8, NULL, 0x10,
       NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_low_latency_sup,
+     {".62 Low Latency Support",
+      "docsis_tlv.mcap.low_latancy_sup",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Low Latency Support", HFILL}
     },
     {&hf_docsis_tlv_cm_mic,
      {"6 CM MIC", "docsis_tlv.cmmic",

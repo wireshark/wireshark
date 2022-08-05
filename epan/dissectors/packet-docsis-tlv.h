@@ -163,6 +163,7 @@
 #define CAP_DIPL_DOWN_LOWER_BAND_EDGE 60
 #define CAP_DIPL_DOWN_UPPER_BAND_EDGE 61
 #define CAP_DIPL_UP_UPPER_BAND_EDGE 62
+#define CAP_LOW_LATENCY_SUP 76
 
 /* Define Classifier subtypes
  * These are subtypes of either:
