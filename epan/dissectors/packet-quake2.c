@@ -69,7 +69,7 @@ static gint ett_quake2_game_clc_cmd_move_moves = -1;
 
 
 #define PORT_MASTER 27910 /* Not IANA registered */
-static guint gbl_quake2ServerPort=PORT_MASTER;
+static range_t *gbl_quake2ServerPorts = NULL;
 
 
 static void
@@ -556,7 +556,7 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
     int        offset;
     guint      rest_length;
 
-    direction = (pinfo->destport == gbl_quake2ServerPort) ?
+    direction = value_is_in_range(gbl_quake2ServerPorts, pinfo->destport) ?
         DIR_C2S : DIR_S2C;
 
     game_tree = proto_tree_add_subtree(tree, tvb,
@@ -629,7 +629,7 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *quake2_tree = NULL;
     int  direction;
 
-    direction = (pinfo->destport == gbl_quake2ServerPort) ?
+    direction = value_is_in_range(gbl_quake2ServerPorts, pinfo->destport) ?
         DIR_C2S : DIR_S2C;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE2");
@@ -674,7 +674,7 @@ static void
 apply_quake2_prefs(void)
 {
     /* Port preference used to determine client/server */
-    gbl_quake2ServerPort = prefs_get_uint_value("quake2", "udp.port");
+    gbl_quake2ServerPorts = prefs_get_range_value("quake2", "udp.port");
 }
 
 void

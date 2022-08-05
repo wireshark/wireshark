@@ -310,8 +310,7 @@ static const value_string names_direction[] = {
 
 /* I took this name and value directly out of the QW source. */
 #define PORT_MASTER 27500 /* Not IANA registered */
-static guint gbl_quakeworldServerPort=PORT_MASTER;
-
+static range_t *gbl_quakeworldServerPorts = NULL;
 
 /* out of band message id bytes (taken out of quakeworldsource/client/protocol.h */
 
@@ -579,7 +578,7 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	int		offset;
 	guint		rest_length;
 
-	direction = (pinfo->destport == gbl_quakeworldServerPort) ?
+	direction = value_is_in_range(gbl_quakeworldServerPorts, pinfo->destport) ?
 			DIR_C2S : DIR_S2C;
 
 	game_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_quakeworld_game, NULL, "Game");
@@ -648,7 +647,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	proto_tree	*quakeworld_tree = NULL;
 	int		direction;
 
-	direction = (pinfo->destport == gbl_quakeworldServerPort) ?
+	direction = value_is_in_range(gbl_quakeworldServerPorts, pinfo->destport) ?
 			DIR_C2S : DIR_S2C;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKEWORLD");
@@ -693,7 +692,7 @@ static void
 apply_quakeworld_prefs(void)
 {
     /* Port preference used to determine client/server */
-    gbl_quakeworldServerPort = prefs_get_uint_value("quakeworld", "udp.port");
+    gbl_quakeworldServerPorts = prefs_get_range_value("quakeworld", "udp.port");
 }
 
 void
