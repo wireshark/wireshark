@@ -971,14 +971,14 @@ void InterfaceToolbar::interfaceListChanged()
     if (!keep_selected)
     {
         // Select the first interface
-        on_interfacesComboBox_currentIndexChanged(ui->interfacesComboBox->currentText());
+        on_interfacesComboBox_currentTextChanged(ui->interfacesComboBox->currentText());
     }
 
     updateWidgets();
 #endif
 }
 
-void InterfaceToolbar::on_interfacesComboBox_currentIndexChanged(const QString &ifname)
+void InterfaceToolbar::on_interfacesComboBox_currentTextChanged(const QString &ifname)
 {
     foreach (int num, control_widget_.keys())
     {
