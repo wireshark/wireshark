@@ -1176,6 +1176,7 @@ static expert_field ei_mysql_prepare_response_needed = EI_INIT;
 static expert_field ei_mysql_unknown_response = EI_INIT;
 static expert_field ei_mysql_command = EI_INIT;
 static expert_field ei_mysql_invalid_length = EI_INIT;
+static expert_field ei_mysql_compression = EI_INIT;
 
 /* type constants */
 static const value_string type_constants[] = {
@@ -2421,16 +2422,31 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
  * https://dev.mysql.com/doc/internals/en/compressed-packet-header.html
  */
 static int
-mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tree)
+mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tree, packet_info *pinfo)
 {
+	tvbuff_t *next_tvb;
+	guint clen, ulen;
+
+	clen = tvb_get_letoh24(tvb, offset);
 	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 	offset += 3;
 
 	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_number, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
+	ulen = tvb_get_letoh24(tvb, offset);
 	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length_uncompressed, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 	offset += 3;
+
+	if (ulen>0) {
+		next_tvb = tvb_uncompress(tvb, offset, clen);
+		if (next_tvb) {
+			add_new_data_source(pinfo, next_tvb, "compressed data");
+			// call_dissector(mysql_handle, next_tvb, pinfo, mysql_tree);
+		} else {
+			expert_add_info_format(pinfo, mysql_tree, &ei_mysql_compression, "Can't uncompress packet");
+		}
+	}
 
 	return offset;
 }
@@ -3682,7 +3698,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	if ((conn_data->frame_start_compressed) && (pinfo->num > conn_data->frame_start_compressed)) {
 		if (conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE) {
-			offset = mysql_dissect_compressed_header(tvb, offset, tree);
+			offset = mysql_dissect_compressed_header(tvb, offset, tree, pinfo);
 		}
 	}
 
@@ -5037,6 +5053,7 @@ void proto_register_mysql(void)
 		{ &ei_mysql_command, { "mysql.command.invalid", PI_PROTOCOL, PI_WARN, "Unknown/invalid command code", EXPFILL }},
 		{ &ei_mysql_unknown_response, { "mysql.unknown_response", PI_UNDECODED, PI_WARN, "unknown/invalid response", EXPFILL }},
 		{ &ei_mysql_invalid_length, { "mysql.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+		{ &ei_mysql_compression, { "mysql.uncompress_failure", PI_MALFORMED, PI_WARN, "Uncompression faled", EXPFILL }},
 	};
 
 	module_t *mysql_module;
