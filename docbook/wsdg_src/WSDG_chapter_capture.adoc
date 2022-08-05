@@ -10,9 +10,9 @@ This chapter needs to be reviewed and extended.
 
 [#ChCaptureAddLibpcap]
 
-=== How To Add A New Capture Type To Libpcap
+=== Adding A New Capture Type To Libpcap
 
-For this discussion, I'll assume you're working with libpcap 1.0 or
+For this discussion, let's assume you're working with libpcap 1.0 or
 later.  You probably don't want to work with a version older than 1.0,
 even if whatever OS you're using happens to include libpcap - older
 versions are not as friendly towards adding support for devices other
@@ -36,7 +36,7 @@ values by calling `dissector_add_uint()`.
 
 [#ChCaptureExtcap]
 
-=== Extcap: Developer Guide
+=== Adding Capture Interfaces And Log Sources Using Extcap
 
 The extcap interface is a versatile plugin interface that allows external binaries
 to act as capture interfaces directly in Wireshark. It is used in scenarios, where
@@ -58,7 +58,7 @@ configured using the Wireshark GUI.
 
 The extcap subsystem is made of multiple extcap binaries that are automatically
 called by the GUI in a row. In the following chapters we will refer to them as
-"the extcaps".
+“the extcaps”.
 
 Extcaps may be any binary or script within the extcap directory. Please note, that
 scripts need to be executable without prefacing a script interpreter before the call.
@@ -68,21 +68,21 @@ In such a case, a batch file may be provided, which then in turn executes the sc
 Please refer to <<ChCaptureExtcapWindowsShell>> for more information.
 
 When Wireshark launches an extcap, it automatically adds its installation path
-(c:\Program Files\Wireshark\) to the DLL search path so that the extcap library dependencies
+(normally _C:\Program Files\Wireshark\_) to the DLL search path so that the extcap library dependencies
 can be found (it is not designed to be launched by hand).  This is done on purpose. There should
-only be extcap programs (executable, python scripts, ...) in the extcap folder to reduce the startup
+only be extcap programs (executables, Python scripts, etc.) in the extcap folder to reduce the startup
 time and not have Wireshark trying to execute other file types.
 
 [#ChCaptureExtcapProcess]
 
-==== Extcap command line interface
+==== Extcap Command Line Interface
 
-The actual capture is run after a setup process that can be made manually by the
+The actual capture is run after a setup process that can be done manually by the
 user or automatically by the GUI. All the steps performed are done for every extcap.
 
 Let's go through those steps.
 
-===== Query for available interfaces
+===== Query For Available Interfaces
 
 In the first step the extcap is queried for its interfaces.
 
@@ -95,14 +95,13 @@ This call must print the existing interfaces for this extcap and must return 0.
 The output must conform to the grammar specified for extcap, and it is specified
 in the doc/extcap.4 generated man page (in the build dir).
 
-Since Wireshark 2.9 this call is extended with `--extcap-version=x.x`, which will
-always represent the calling Wireshark's version information. This can be used
-to change behavior depending on the Wireshark version in question.
+Wireshark 2.9 and later also pass `--extcap-version=x.x`, which provides the calling Wireshark's major and minor version.
+This can be used to change behavior depending on the Wireshark version in question.
 
 .Example call for interface query
 [source,bash]
 ----
-$ extcap_example.py --extcap-interfaces --extcap-version=3.0
+$ extcap_example.py --extcap-interfaces --extcap-version=4.0
 extcap {version=1.0}{help=Some help url}
 interface {value=example1}{display=Example interface 1 for extcap}
 interface {value=example2}{display=Example interface 2 for extcap}
@@ -112,19 +111,18 @@ The *version* for the extcap sentence (which may exist as many times as is neede
 the last one will be used) will be used for displaying the version information of
 the extcap interface in the about dialog of Wireshark.
 
-The value for each interface will be used in subsequent calls as the interface name
-IFACE.
+The value for each interface will be used in subsequent calls as the interface name <iface>.
 
 Using the help argument, an interface may provide a generic help URL for the extcap
 utility.
 
-===== Ask for DLT's to each interface
+===== Ask For DLTs For Each Interface
 
-The extcap binary is queried for all valid DLTs for all the interfaces returned by step 1.
+Next, the extcap binary is queried for all valid DLTs for all the interfaces returned by step 1.
 
 [source,bash]
 ----
-$ extcap_example.py --extcap-dlts --extcap-interface IFACE
+$ extcap_example.py --extcap-dlts --extcap-interface <iface>
 ----
 
 This call must print the valid DLTs for the interface specified. This call is
@@ -137,17 +135,15 @@ $ extcap_example.py --extcap-interface IFACE --extcap-dlts
 dlt {number=147}{name=USER1}{display=Demo Implementation for Extcap}
 ----
 
-A binary or script, which neither provides an interface list or a DLT list will
-not show up in the extcap interfaces list.
+A binary or script which neither provides an interface list or a DLT list will not show up in the extcap interfaces list.
 
+===== The Extcap Configuration Interface
 
-===== The extcap configuration interface
-
-The extcap binary is asked for the configuration of a specific interface
+The extcap binary is next asked for the configuration of each specific interface
 
 [source,bash]
 ----
-$ extcap_example.py --extcap-interface IFACE --extcap-config
+$ extcap_example.py --extcap-interface <iface> --extcap-config
 ----
 
 Each interface can have custom options that are valid for this interface only.
@@ -155,17 +151,14 @@ Those config options are specified on the command line when running the actual
 capture. To allow an end-user to specify certain options, such options may be
 provided using the extcap config argument.
 
-To share which options are available for an interface, the extcap responds to
-the command `--extcap-config`, that shows all the available options (aka additional command
-line options).
+To share which options are available for an interface, the extcap responds to the command `--extcap-config`, which shows all the available options (aka additional command line options).
 
-Those options are automatically presented via a dialog to the user for the individual
-interface.
+Those options are used to build a configuration dialog for the interface.
 
 .Example for interface options
 [source,bash]
 ----
-$ extcap_example.py --extcap-interface IFACE --extcap-config
+$ extcap_example.py --extcap-interface <iface> --extcap-config
 arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}{required=true}
 arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{placeholder=Please enter a message here ...}{type=string}
 arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
@@ -178,72 +171,84 @@ value {arg=3}{value=if2}{display=Remote2}{default=false}
 Now the user can click on the options and change them. They are sent to the
 extcap when the capture is launched.
 
-There are three kind of options available:
+There are several kind of options available:
 
 [horizontal]
-Flag:: boolflag for instance expects the option to be present resulting in the corresponding entry set to true, false otherwise
-Value:: are value based options and each expect a single value via the command-line call
-Selection:: are selections and can be presented multiple times in the command line. Both expect subsequent "value" items in the config list, with the corresponding argument selected via arg
+File::
+A path to a file displayed as a text entry and file selector.
 
+Flag::
+A boolean value displayed as a checkbox.
+_boolflag_ for instance expects the option to be present resulting in the corresponding entry set to true or false.
 
-===== The capture process
+Selection::
+A set of fixed values displayed as a combobox, radio group, or selection list.
+Selections can be presented multiple times in the command line.
+Subsequent _value_ items must be provided in the config list.
 
-Once the interfaces are listed and configuration is customized by the user the capture is started.
+Timestamp::
+A time value displayed as a date/time editor.
+
+Value::
+A text or numeric value displayed as an entry box.
+Values are passed as a single value via the command-line call.
+
+===== The Extcap Capture Process
+
+Once the interfaces are listed and configuration is customized by the user the capture can be started.
 
 [source,bash]
 ----
-$ extcap_example.py --extcap-interface IFACE [params] --capture [--extcap-capture-filter CFILTER]
+$ extcap_example.py --extcap-interface <iface> [params] --capture [--extcap-capture-filter <cfilter>]
   --fifo FIFO
 ----
 
 To run the capture, the extcap must implement the `--capture`, `--extcap-capture-filter`
-and `--fifo` option.
+and `--fifo` options.
 
-They are automatically added by Wireshark that opens the fifo for reading. All
-the other options are automatically added to run the capture. The extcap interface
-is used like all other interfaces (meaning that capture on multiple interfaces, as
-well as stopping and restarting the capture is supported).
+They are automatically added by Wireshark, which opens the fifo for reading.
+All the other options are automatically added to run the capture.
+The extcap interface is used like all other interfaces (meaning that capture on multiple interfaces, as well as stopping and restarting the capture is supported).
 
 [#ChCaptureExtcapWindowsShell]
 
-====== Execute a script-based extcap on Windows
+====== Execute A Script-based Extcap On Windows
 
-To use scripts on Windows, please generate an <scriptname>.bat inside
-the extcap folder, with the following content (in this case for a Python-based extcap utility):
+Although Windows will run batch and PowerShell scripts directly, other scripting languages require extra effort.
+In most cases this involves creating a wrapper script which runs the appropriate interpreter.
+For example, in order to run a Python-based extcap, you can create _scriptname.bat_ inside your extcap folder with the following content:
 
 [source,batch]
 ----
 @echo off
-<Path to python interpreter> <Path to script file> %*
+C:\Windows\py.exe C:\Path\to\my\extcap.py %*
 ----
-
-Windows is not able to execute most scripts directly (Powershell being an exception), which also goes for all other script-based formats besides VBScript and PowerShell
-
-
 
 ==== Extcap Arguments
 
 The extcap interface provides the possibility for generating a GUI dialog to
 set and adapt settings for the extcap binary.
 
-All options must provide a number, by which they are identified. No `NUMBER` may be
-provided twice. Also all options must present the elements `CALL` and `DISPLAY`, where
-call provides the arguments name on the command-line and display the name in the GUI.
+All options must provide a number, by which they are identified.
+No number may be provided twice.
+All options must present the elements _call_ and _display_, with _call_ specifying the argument’s name on the command line and _display_ specifying the name in the GUI.
 
-Additionally `TOOLTIP` and PLACEHOLDER may be provided, which will give the user an
-explanation within the GUI, about what to enter into this field.
+Additionally _tooltip_ and _placeholder_ may be provided, which will give the user information about what to enter into this field.
 
 These options do have types, for which the following types are being supported:
 
 [horizontal]
-INTEGER, UNSIGNED, LONG, DOUBLE:: This provides a field for entering a numeric value of the given data type. A DEFAULT value may be provided, as well as a RANGE
+_integer_, _unsigned_, _long_, _double_::
+This provides a field for entering a numeric value of the given data type.
+A _default_ value may be provided, as well as a _range_.
 +
 [source,python]
 ----
 arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}{default=0}
 ----
 
-STRING:: Let the user provide a string to the capture
+_string_::
+This provides a field for entering a text value.
 +
 [source,python]
 ----
@@ -252,28 +257,38 @@ arg {number=1}{call=--server}{display=IP Address}{tooltip=IP Address for log ser
 +
 `validation` allows to provide a regular expression string, which is used to check the user input for validity beyond normal data type or range checks. Back-slashes must be escaped (as in \\b for \b)
 
-PASSWORD:: Let the user provide a masked string to the capture. Password strings are not saved, when the extcap configuration is being saved
+_password_::
+Lets the user provide a masked string to the capture.
+Password strings are not saved with other capture settings.
 +
 [source,python]
 ----
 arg {number=0}{call=--password}{display=The user password}{tooltip=The password for the connection}{type=password}
 ----
 
-BOOLEAN, BOOLFLAG:: This provides the possibility to set a true/false value. BOOLFLAG values will only appear in the command-line if set to true, otherwise they will not be added to the command-line call for the extcap interface
+_boolean_, _boolflag_::
+This provides the possibility to set a true/false value.
+_boolflag_ values will only appear in the command line if set to true, otherwise they will not be added to the command-line call for the extcap interface.
 +
 [source,python]
 ----
 arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
 ----
 
-FILESELECT:: Let the user provide a filepath. If MUSTEXIST=true is being provided, the GUI gives the user a dialog for selecting a file. When  MUSTEXIST=false is used, the GUI gives the user a file dialog for saving a file.
+_fileselect_::
+Lets the user provide a file path.
+If _mustexist=true_ is provided, the GUI shows the user a dialog for selecting a file.
+When _mustexist=false_ is used, the GUI shows the user a file dialog for saving a file.
 +
 [source,python]
 ----
 arg {number=3}{call=--logfile}{display=Logfile}{tooltip=A file for log messages}{type=fileselect}{mustexist=false}
 ----
 
-SELECTOR, RADIO, MULTICHECK:: Optionfields, where the user may choose one or more options from. If PARENT is provided for the value items, the option fields for MULTICHECK and SELECTOR are being presented in a tree-like structure. SELECTOR and RADIO values must present a default value, which will be the value provided to the extcap binary for this argument
+_selector_, _radio_, _multicheck_::
+Option fields where the user may choose from one or more options.
+If _parent_ is provided for the value items, the option fields for _multicheck_ and _selector_ are presented in a tree-like structure.
+_selector_ and _radio_ values must present a default value, which will be the value provided to the extcap binary for this argument
 +
 [source,python]
 ----
@@ -282,7 +297,8 @@ value {arg=3}{value=if1}{display=Remote1}{default=true}
 value {arg=3}{value=if2}{display=Remote2}{default=false}
 ----
 
-===== Reload a selector
+===== Reload A Selector
+
 A selector may be reloaded from the configuration dialog of the extcap application within Wireshark. With the reload argument (defaults to false), the entry can be marked as reloadable.
 
 [source,python]
@@ -294,7 +310,7 @@ After this has been defined, the user will get a button displayed in the configu
 
 The extcap utility is then called again with all filled out arguments and the additional parameter `--extcap-reload-option <option_name>`. It is expected to return a value section for this option, as it would during normal configuration. The provided option list is then presented as the selection, a previous selected option will be reselected if applicable.
 
-===== Validation of arguments
+===== Validation Of Arguments
 
 Arguments may be set with `{required=true}` which enforces a value being provided, before
 a capture can be started using the extcap options dialog. This is not being checked, if
@@ -339,16 +355,15 @@ of other capturing tools not using GUI (e.g. tshark, tfshark).
 
 
 ===== Controls
-The controls are similar to the ARGUMENTS, but without the CALL element.  All controls
-may be given a default value at startup and most can be changed during capture, both
-by the extcap and the user (depending on the type of control).
 
-All controls must provide a NUMBER, by which they are identified. No NUMBER may be
-provided twice. Also all options must present the elements TYPE and DISPLAY, where
-TYPE provides the type of control to add to the toolbar and DISPLAY the name in the GUI.
+The controls are similar to the _arguments_, but without the _call_ element.
+All controls may be given a default value at startup and most can be changed during capture, both by the extcap and the user (depending on the type of control).
 
-Additionally TOOLTIP and PLACEHOLDER may be provided, which will give the user an
-explanation within the GUI.
+All controls must provide a _number_, by which they are identified.
+No _number_ may be provided twice.
+All options must present the elements _type_ and _display_, where _type_ provides the type of control to add to the toolbar and _display_ providing the name in the GUI.
+
+Additionally _tooltip_ and _placeholder_ may be provided, which will give the user information about what to enter into this field.
 
 All controls, except from the logger, help and restore buttons, may be disabled
 (and enabled) in GUI by the extcap during capture. This can be because of set-once
@@ -358,10 +373,11 @@ All control values which are changed by the user (not equal to the default value
 be sent to the extcap utility when starting a capture.  The extcap utility may choose
 to discard initial values and set new values, depending on implementation.
 
-These TYPEs are defined as controls:
+These __type__s are defined as controls:
 
 [horizontal]
-BOOLEAN:: This provides a checkbox with the possibility to set a true/false value.
+_boolean_::
+This provides a checkbox which lets the user set a true/false value.
 +
 The extcap utility can set a default value at startup, and can change (set) and receive value changes while capturing. When starting a capture the GUI will send the value if different from the default value.
 +
@@ -369,9 +385,11 @@ The payload is one byte with binary value 0 or 1.
 +
 Valid Commands: Set value, Enable, Disable.
 
-BUTTON:: This provides a button with different ROLEs:
+_button_:: This provides a button with different __role__s:
 
-CONTROL:::: This button will send a signal when pressed. This is the default if no role is configured. The button is only enabled when capturing.
+_control_::::
+This button will send a signal when pressed. This is the default if no role is configured.
+The button is only enabled when capturing.
 +
 The extcap utility can set the button text at startup, and can change (set) the button text and receive button press signals while capturing.  The button is disabled and the button text is restored to the default text when not capturing.
 +
@@ -379,23 +397,30 @@ The payload is either the button text or empty (signal).
 +
 Valid Commands: Set value, Enable, Disable.
 
-LOGGER:::: This provides a logger mechanism where the extcap utility can send log entries to be presented in a log window. This communication is unidirectional.
+_logger_::::
+This provides a logger mechanism where the extcap utility can send log entries to be presented in a log window.
+This communication is unidirectional.
 +
 The payload is the log entry, and should be ended with a newline. Maximum length is 65535 bytes.
 +
 Valid Commands: Set log entry, Add log entry.
 +
 The Set command will clear the log before adding the entry.
-+
-HELP:::: This button opens the help page, if configured. This role has no controls and will not be used in communication.
-+
-Valid Commands: NONE.
 
-RESTORE:::: This button will restore all control values to default. This role has no controls and will not be used in communication. The button is only enabled when not capturing.
+_help_::::
+This button opens the help page, if configured.
+This role has no controls and will not be used in communication.
 +
-Valid Commands: NONE.
+Valid Commands: None.
 
-SELECTOR:: This provides a combo box with fixed values which can be selected.
+_restore_::::
+This button will restore all control values to default.
+This role has no controls and will not be used in communication. The button is only enabled when not capturing.
++
+Valid Commands: None.
+
+_selector_::
+This provides a combo box with fixed values which can be selected.
 +
 The extcap utility can set default values at startup, and add and remove values and receive change in value selection while capturing. When starting a capture the GUI will send the value if different from the default value.
 +
@@ -405,7 +430,8 @@ Valid Commands: Set selected value, Add value, Remove value, Enable, Disable.
 +
 If value is empty the Remove command will remove all entries.
 
-STRING:: This provides a text edit line with the possibility to set a string or any value which can be represented in a string (integer, float, date, etc.).
+_string_::
+This provides a text edit line with the possibility to set a string or any value which can be represented in a string (integer, float, date, etc.).
 +
 The extcap utility can set a default string value at startup, and can change (set) and receive value changes while capturing. When starting a capture the GUI will send the value if different from the default value.
 +
@@ -415,13 +441,12 @@ Valid Commands for control: Set value, Enable, Disable.
 +
 The element VALIDATION allows to provide a regular expression string, which is used to check the user input for validity beyond normal data type or range checks. Back-slashes must be escaped (as in \\b for \b).
 
-
 ===== Messages
-In addition to the controls it's possible to send a single message from the extcap
+
+In addition to the controls it’s possible to send a single message from the extcap
 utility to the user.  This message can be put in the status bar or displayed in a
 information, warning or error dialog which must be accepted by the user.  This message
 does not use the NUMBER argument so this can have any value.
-
 
 ====== Control Protocol
 
@@ -440,14 +465,14 @@ The protocol used to communicate over the control pipes has a fixed size header 
  (0 - 65535 bytes)
 |===
 
-.Sync Pipe Indication:
-  The common sync pipe indication. This protocol uses the value “T”.
+.Sync Pipe Indication
+The common sync pipe indication. This protocol uses the value “T”.
 
-.Message Length:
-  Payload length + 2 bytes for control number and command.
+.Message Length
+Payload length + 2 bytes for control number and command.
 
-.Control Number:
-  Unique number to identify the control. This number also gives the order of the controls in the interface toolbar.
+.Control Number
+Unique number to identify the control. This number also gives the order of the controls in the interface toolbar.
 
 .Commands and application for controls
 [cols="1,2,3"]
