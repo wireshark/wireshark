@@ -57,6 +57,8 @@
         <file>stock_icons/14x14/x-filter-matching-bookmark.active@2x.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.selected.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.selected@2x.png</file>
+        <file>stock_icons/14x14/x-reset.template.png</file>
+        <file>stock_icons/14x14/x-reset.template@2x.png</file>
         <file>stock_icons/16x16/edit-find.template.png</file>
         <file>stock_icons/16x16/edit-find.template@2x.png</file>
         <file>stock_icons/16x16/go-first.png</file>
@@ -88,6 +90,8 @@
         <file>stock_icons/16x16/x-colorize-packets.png</file>
         <file>stock_icons/16x16/x-colorize-packets@2x.png</file>
         <file>stock_icons/16x16/x-hide-ro.png</file>
+        <file>stock_icons/16x16/x-reset.template.png</file>
+        <file>stock_icons/16x16/x-reset.template@2x.png</file>
         <file>stock_icons/16x16/x-resize-columns.png</file>
         <file>stock_icons/16x16/x-resize-columns@2x.png</file>
         <file>stock_icons/16x16/x-stay-last.png</file>

@@ -48,6 +48,7 @@
 #include <ui/preference_utils.h>
 
 #include <ui/qt/main_application.h>
+#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/variant_pointer.h>
 
 #include <ui/qt/extcap_argument.h>
@@ -59,7 +60,7 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *pare
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
     device_idx(0),
-    defaultValueIcon_(QApplication::style()->standardIcon(QStyle::SP_BrowserReload))
+    defaultValueIcon_(StockIcon("x-reset"))
 {
     ui->setupUi(this);
 
