@@ -2557,7 +2557,6 @@ static const enum_val_t x2ap_rrc_context_vals[] = {
 };
 
 /* Global variables */
-static guint gbl_x2apSctpPort=SCTP_PORT_X2AP;
 static gint g_x2ap_dissect_rrc_context_as = X2AP_RRC_CONTEXT_LTE;
 
 /* Dissector tables */
@@ -21957,7 +21956,7 @@ static int dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 297 "./asn1/x2ap/packet-x2ap-template.c"
+#line 296 "./asn1/x2ap/packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -27098,7 +27097,7 @@ void proto_register_x2ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 645 "./asn1/x2ap/packet-x2ap-template.c"
+#line 644 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -27741,7 +27740,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 698 "./asn1/x2ap/packet-x2ap-template.c"
+#line 697 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   module_t *x2ap_module;
@@ -27762,14 +27761,9 @@ void proto_register_x2ap(void) {
   x2ap_proc_sout_dissector_table = register_dissector_table("x2ap.proc.sout", "X2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_x2ap, FT_UINT32, BASE_DEC);
   x2ap_proc_uout_dissector_table = register_dissector_table("x2ap.proc.uout", "X2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_x2ap, FT_UINT32, BASE_DEC);
 
-  /* Register configuration1 options for ports */
-  x2ap_module = prefs_register_protocol(proto_x2ap, proto_reg_handoff_x2ap);
+  /* Register configuration options */
+  x2ap_module = prefs_register_protocol(proto_x2ap, NULL);
 
-  prefs_register_uint_preference(x2ap_module, "sctp.port",
-                                 "X2AP SCTP Port",
-                                 "Set the SCTP port for X2AP messages",
-                                 10,
-                                 &gbl_x2apSctpPort);
   prefs_register_enum_preference(x2ap_module, "dissect_rrc_context_as", "Dissect RRC Context as",
                                  "Select whether RRC Context should be dissected as legacy LTE or NB-IOT",
                                  &g_x2ap_dissect_rrc_context_as, x2ap_rrc_context_vals, FALSE);
@@ -27780,13 +27774,8 @@ void proto_register_x2ap(void) {
 void
 proto_reg_handoff_x2ap(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint SctpPort;
-
-  if (!Initialized) {
-    dissector_add_for_decode_as("sctp.port", x2ap_handle);
-    dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
-    Initialized=TRUE;
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_X2AP, x2ap_handle);
+  dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
 
 /*--- Included file: packet-x2ap-dis-tab.c ---*/
 #line 1 "./asn1/x2ap/packet-x2ap-dis-tab.c"
@@ -28299,17 +28288,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 744 "./asn1/x2ap/packet-x2ap-template.c"
-  } else {
-    if (SctpPort != 0) {
-      dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);
-    }
-  }
-
-  SctpPort=gbl_x2apSctpPort;
-  if (SctpPort != 0) {
-    dissector_add_uint("sctp.port", SctpPort, x2ap_handle);
-  }
+#line 733 "./asn1/x2ap/packet-x2ap-template.c"
 }
 
 

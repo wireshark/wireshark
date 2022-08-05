@@ -2382,7 +2382,6 @@ static const enum_val_t xnap_lte_rrc_context_vals[] = {
 };
 
 /* Global variables */
-static guint xnap_sctp_port = SCTP_PORT_XnAP;
 static gint xnap_dissect_target_ng_ran_container_as = XNAP_NG_RAN_CONTAINER_AUTOMATIC;
 static gint xnap_dissect_lte_rrc_context_as = XNAP_LTE_RRC_CONTEXT_LTE;
 
@@ -20653,7 +20652,7 @@ static int dissect_XnAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-xnap-fn.c ---*/
-#line 267 "./asn1/xnap/packet-xnap-template.c"
+#line 266 "./asn1/xnap/packet-xnap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -25728,7 +25727,7 @@ void proto_register_xnap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-xnap-hfarr.c ---*/
-#line 453 "./asn1/xnap/packet-xnap-template.c"
+#line 452 "./asn1/xnap/packet-xnap-template.c"
   };
 
   /* List of subtrees */
@@ -26388,7 +26387,7 @@ void proto_register_xnap(void) {
     &ett_xnap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-xnap-ettarr.c ---*/
-#line 495 "./asn1/xnap/packet-xnap-template.c"
+#line 494 "./asn1/xnap/packet-xnap-template.c"
   };
 
   module_t *xnap_module;
@@ -26405,13 +26404,8 @@ void proto_register_xnap(void) {
   xnap_proc_sout_dissector_table = register_dissector_table("xnap.proc.sout", "XNAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_xnap, FT_UINT32, BASE_DEC);
   xnap_proc_uout_dissector_table = register_dissector_table("xnap.proc.uout", "XNAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_xnap, FT_UINT32, BASE_DEC);
 
-  xnap_module = prefs_register_protocol(proto_xnap, proto_reg_handoff_xnap);
+  xnap_module = prefs_register_protocol(proto_xnap, NULL);
 
-  prefs_register_uint_preference(xnap_module, "sctp.port",
-                                 "XnAP SCTP Port",
-                                 "Set the SCTP port for XnAP messages",
-                                 10,
-                                 &xnap_sctp_port);
   prefs_register_enum_preference(xnap_module, "dissect_target_ng_ran_container_as", "Dissect target NG-RAN container as",
                                  "Select whether target NG-RAN container should be decoded automatically"
                                  " (based on Xn Setup procedure) or manually",
@@ -26425,13 +26419,8 @@ void proto_register_xnap(void) {
 void
 proto_reg_handoff_xnap(void)
 {
-  static gboolean initialized = FALSE;
-  static guint sctp_port;
-
-  if (!initialized) {
-    dissector_add_for_decode_as("sctp.port", xnap_handle);
-    dissector_add_uint("sctp.ppi", XNAP_PROTOCOL_ID, xnap_handle);
-    initialized = TRUE;
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_XnAP, xnap_handle);
+  dissector_add_uint("sctp.ppi", XNAP_PROTOCOL_ID, xnap_handle);
 
 /*--- Included file: packet-xnap-dis-tab.c ---*/
 #line 1 "./asn1/xnap/packet-xnap-dis-tab.c"
@@ -26768,14 +26757,5 @@ proto_reg_handoff_xnap(void)
 
 
 /*--- End of included file: packet-xnap-dis-tab.c ---*/
-#line 539 "./asn1/xnap/packet-xnap-template.c"
-  } else {
-    if (sctp_port != 0) {
-      dissector_delete_uint("sctp.port", sctp_port, xnap_handle);
-    }
-  }
-  sctp_port = xnap_sctp_port;
-  if (sctp_port != 0) {
-    dissector_add_uint("sctp.port", sctp_port, xnap_handle);
-  }
+#line 528 "./asn1/xnap/packet-xnap-template.c"
 }

@@ -54,8 +54,7 @@ static int hf_roon_disco_user_id          = -1;
 #define ROON_DISCOVERY_ID "SOOD"
 #define ROON_QUERY 0x0251 // Q(uery)
 #define ROON_REPLY 0x0252 // R(eply)
-#define ROON_DISCOVERY_UDP_PORT 9003
-static guint udp_port_pref = ROON_DISCOVERY_UDP_PORT;
+#define ROON_DISCOVERY_UDP_PORT 9003 /* Not IANA-assigned */
 
 /* Initialize the subtree pointers */
 static gint ett_roon_discover = -1;
@@ -332,50 +331,13 @@ proto_register_roon_discover(void)
     proto_register_subtree_array(ett, array_length(ett));
 }
 
-/* If this dissector uses sub-dissector registration add a registration routine.
- * This exact format is required because a script is used to find these
- * routines and create the code that calls these routines.
- *
- * If this function is registered as a prefs callback (see
- * prefs_register_protocol above) this function is also called by Wireshark's
- * preferences manager whenever "Apply" or "OK" are pressed. In that case, it
- * should accommodate being called more than once by use of the static
- * 'initialized' variable included below.
- *
- * This form of the reg_handoff function is used if you perform registration
- * functions which are dependent upon prefs. See below this function for a
- * simpler form which can be used if there are no prefs-dependent registration
- * functions.
- */
 void
 proto_reg_handoff_roon_discover(void)
 {
-    static gboolean initialized = FALSE;
     static dissector_handle_t roon_discover_handle;
-    static int current_port;
 
-    if (!initialized) {
-        /* Use create_dissector_handle() to indicate that
-         * dissect_roon_discover() returns the number of bytes it dissected (or 0
-         * if it thinks the packet does not belong to Roon Discovery).
-         */
-        roon_discover_handle = create_dissector_handle(dissect_roon_discover, proto_roon_discover);
-        initialized = TRUE;
-    } else {
-        /* If you perform registration functions which are dependent upon
-         * prefs then you should de-register everything which was associated
-         * with the previous settings and re-register using the new prefs
-         * settings here. In general this means you need to keep track of
-         * the roon_discover_handle and the value the preference had at the time
-         * you registered.  The roon_discover_handle value and the value of the
-         * preference can be saved using local statics in this
-         * function (proto_reg_handoff).
-         */
-        dissector_delete_uint("udp.port", current_port, roon_discover_handle);
-    }
-
-    current_port = udp_port_pref;
-    dissector_add_uint("udp.port", current_port, roon_discover_handle);
+    roon_discover_handle = create_dissector_handle(dissect_roon_discover, proto_roon_discover);
+    dissector_add_uint_with_preference("udp.port", ROON_DISCOVERY_UDP_PORT, roon_discover_handle);
 }
 
 /*

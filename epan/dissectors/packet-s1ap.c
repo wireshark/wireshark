@@ -2002,7 +2002,6 @@ enum {
 };
 
 /* Global variables */
-static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static gboolean g_s1ap_dissect_container = TRUE;
 static gint g_s1ap_dissect_lte_container_as = S1AP_LTE_CONTAINER_AUTOMATIC;
 
@@ -17799,7 +17798,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 398 "./asn1/s1ap/packet-s1ap-template.c"
+#line 397 "./asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -17898,23 +17897,18 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_reg_handoff_s1ap(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint SctpPort;
-
-  if (!Initialized) {
-    gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
-    nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
-    lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
-    bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
-    lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_s1ap);
-    lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_s1ap);
-    nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_s1ap);
-    lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_s1ap);
-    lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_s1ap);
-    nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_s1ap);
-    dissector_add_for_decode_as("sctp.port", s1ap_handle);
-    dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID, s1ap_handle);
-    Initialized=TRUE;
+  gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
+  nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
+  lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
+  bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
+  lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_s1ap);
+  lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_s1ap);
+  nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_s1ap);
+  lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_s1ap);
+  lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_s1ap);
+  nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_s1ap);
+  dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID, s1ap_handle);
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_S1AP, s1ap_handle);
 
 /*--- Included file: packet-s1ap-dis-tab.c ---*/
 #line 1 "./asn1/s1ap/packet-s1ap-dis-tab.c"
@@ -18322,17 +18316,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 514 "./asn1/s1ap/packet-s1ap-template.c"
-  } else {
-    if (SctpPort != 0) {
-      dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
-    }
-  }
-
-  SctpPort=gbl_s1apSctpPort;
-  if (SctpPort != 0) {
-    dissector_add_uint("sctp.port", SctpPort, s1ap_handle);
-  }
+#line 508 "./asn1/s1ap/packet-s1ap-template.c"
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -22050,7 +22034,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 725 "./asn1/s1ap/packet-s1ap-template.c"
+#line 709 "./asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -22507,7 +22491,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_EHRPDMultiSectorLoadReportingResponseItem,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 772 "./asn1/s1ap/packet-s1ap-template.c"
+#line 756 "./asn1/s1ap/packet-s1ap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -22538,13 +22522,8 @@ void proto_register_s1ap(void) {
   s1ap_proc_uout_dissector_table = register_dissector_table("s1ap.proc.uout", "S1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_s1ap, FT_UINT32, BASE_DEC);
 
   /* Register configuration options for ports */
-  s1ap_module = prefs_register_protocol(proto_s1ap, proto_reg_handoff_s1ap);
+  s1ap_module = prefs_register_protocol(proto_s1ap, NULL);
 
-  prefs_register_uint_preference(s1ap_module, "sctp.port",
-                                 "S1AP SCTP Port",
-                                 "Set the SCTP port for S1AP messages",
-                                 10,
-                                 &gbl_s1apSctpPort);
   prefs_register_bool_preference(s1ap_module, "dissect_container", "Dissect TransparentContainer", "Dissect TransparentContainers that are opaque to S1AP", &g_s1ap_dissect_container);
   prefs_register_enum_preference(s1ap_module, "dissect_lte_container_as", "Dissect LTE TransparentContainer as",
                                  "Select whether LTE TransparentContainer should be dissected as NB-IOT or legacy LTE",

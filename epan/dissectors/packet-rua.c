@@ -37,7 +37,7 @@
 #define PSNAME "RUA"
 #define PFNAME "rua"
 /* Dissector to use SCTP PPID 19 or a configured SCTP port. IANA assigned port = 29169*/
-#define SCTP_PORT_RUA              29169;
+#define SCTP_PORT_RUA              29169
 
 void proto_register_rua(void);
 
@@ -201,7 +201,6 @@ static gint ett_rua_UnsuccessfulOutcome = -1;
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint global_sctp_port = SCTP_PORT_RUA
 
 /* Dissector tables */
 static dissector_table_t rua_ies_dissector_table;
@@ -1347,7 +1346,7 @@ static int dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-rua-fn.c ---*/
-#line 74 "./asn1/rua/packet-rua-template.c"
+#line 73 "./asn1/rua/packet-rua-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1392,7 +1391,6 @@ dissect_rua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 /*--- proto_register_rua -------------------------------------------*/
 void proto_register_rua(void) {
-module_t *rua_module;
 
   /* List of fields */
 
@@ -1671,7 +1669,7 @@ module_t *rua_module;
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-rua-hfarr.c ---*/
-#line 125 "./asn1/rua/packet-rua-template.c"
+#line 123 "./asn1/rua/packet-rua-template.c"
   };
 
   /* List of subtrees */
@@ -1718,7 +1716,7 @@ module_t *rua_module;
     &ett_rua_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-rua-ettarr.c ---*/
-#line 131 "./asn1/rua/packet-rua-template.c"
+#line 129 "./asn1/rua/packet-rua-template.c"
   };
 
 
@@ -1738,8 +1736,7 @@ module_t *rua_module;
   rua_proc_sout_dissector_table = register_dissector_table("rua.proc.sout", "RUA-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_rua, FT_UINT32, BASE_DEC);
   rua_proc_uout_dissector_table = register_dissector_table("rua.proc.uout", "RUA-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_rua, FT_UINT32, BASE_DEC);
 
-  rua_module = prefs_register_protocol(proto_rua, proto_reg_handoff_rua);
-  prefs_register_uint_preference(rua_module, "port", "RUA SCTP Port", "Set the port for RUA messages (Default of 29169)", 10, &global_sctp_port);
+  /* rua_module = prefs_register_protocol(proto_rua, NULL); */
 
 }
 
@@ -1748,13 +1745,9 @@ module_t *rua_module;
 void
 proto_reg_handoff_rua(void)
 {
-        static gboolean initialized = FALSE;
-        static guint sctp_port;
-
-        if (!initialized) {
-                ranap_handle = find_dissector_add_dependency("ranap", proto_rua);
-                dissector_add_uint("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
-                initialized = TRUE;
+        ranap_handle = find_dissector_add_dependency("ranap", proto_rua);
+        dissector_add_uint("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
+        dissector_add_uint_with_preference("sctp.port", SCTP_PORT_RUA, rua_handle);
 
 /*--- Included file: packet-rua-dis-tab.c ---*/
 #line 1 "./asn1/rua/packet-rua-dis-tab.c"
@@ -1775,12 +1768,5 @@ proto_reg_handoff_rua(void)
 
 
 /*--- End of included file: packet-rua-dis-tab.c ---*/
-#line 168 "./asn1/rua/packet-rua-template.c"
-
-        } else {
-                dissector_delete_uint("sctp.port", sctp_port, rua_handle);
-        }
-        /* Set our port number for future use */
-        sctp_port = global_sctp_port;
-        dissector_add_uint("sctp.port", sctp_port, rua_handle);
+#line 161 "./asn1/rua/packet-rua-template.c"
 }

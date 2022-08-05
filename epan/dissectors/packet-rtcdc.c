@@ -27,9 +27,6 @@
 void proto_register_rtcdc(void);
 void proto_reg_handoff_rtcdc(void);
 
-/* PPID used for this protocol */
-static guint32 rtcdc_ppid = WEBRTC_DCEP_PROTOCOL_ID;
-
 /* Initialize the protocol and registered fields */
 static int proto_rtcdc = -1;
 static int hf_message_type = -1;
@@ -260,7 +257,6 @@ dissect_rtcdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 void
 proto_register_rtcdc(void)
 {
-    module_t        *rtcdc_module;
     expert_module_t *expert_rtcdc;
 
     static hf_register_info hf[] = {
@@ -368,25 +364,16 @@ proto_register_rtcdc(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_rtcdc = expert_register_protocol(proto_rtcdc);
     expert_register_field_array(expert_rtcdc, ei, array_length(ei));
-    rtcdc_module = prefs_register_protocol(proto_rtcdc, proto_reg_handoff_rtcdc);
-    prefs_register_uint_preference(rtcdc_module, "sctp.ppi", "RTCDC SCTP PPID", "RTCDC SCTP PPID if other than the default", 10, &rtcdc_ppid);
+    /* rtcdc_module = prefs_register_protocol(proto_rtcdc, NULL); */
 }
 
 void
 proto_reg_handoff_rtcdc(void)
 {
-    static gboolean           initialized = FALSE;
     static dissector_handle_t rtcdc_handle;
-    static guint32            current_ppid;
 
-    if (!initialized) {
-        rtcdc_handle = create_dissector_handle(dissect_rtcdc, proto_rtcdc);
-        initialized = TRUE;
-    } else {
-        dissector_delete_uint("sctp.ppi", current_ppid, rtcdc_handle);
-    }
-    current_ppid = rtcdc_ppid;
-    dissector_add_uint("sctp.ppi", current_ppid, rtcdc_handle);
+    rtcdc_handle = create_dissector_handle(dissect_rtcdc, proto_rtcdc);
+    dissector_add_uint_with_preference("sctp.ppi", WEBRTC_DCEP_PROTOCOL_ID, rtcdc_handle);
 }
 
 /*

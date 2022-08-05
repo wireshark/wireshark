@@ -31,8 +31,6 @@ void proto_reg_handoff_m2pa(void);
 
 #define SCTP_PORT_M2PA              3565
 
-static guint global_sctp_port       = SCTP_PORT_M2PA;
-
 static int proto_m2pa      = -1;
 static module_t *m2pa_module;
 
@@ -567,36 +565,18 @@ proto_register_m2pa(void)
   /* Allow other dissectors to find this one by name. */
   m2pa_handle = register_dissector("m2pa", dissect_m2pa, proto_m2pa);
 
-  m2pa_module = prefs_register_protocol(proto_m2pa, proto_reg_handoff_m2pa);
+  m2pa_module = prefs_register_protocol(proto_m2pa, NULL);
 
   prefs_register_enum_preference(m2pa_module, "version", "M2PA version", "Version used by Wireshark", &m2pa_version, m2pa_version_options, FALSE);
-  prefs_register_uint_preference(m2pa_module, "port", "M2PA SCTP Port", "Set the port for M2PA messages (default: " G_STRINGIFY(SCTP_PORT_M2PA) ")", 10, &global_sctp_port);
 }
 
 void
 proto_reg_handoff_m2pa(void)
 {
-  static gboolean prefs_initialized = FALSE;
-  static guint sctp_port;
+  mtp3_handle   = find_dissector_add_dependency("mtp3", proto_m2pa);
 
-  /* Port preferences code shamelessly copied from packet-beep.c */
-  if (!prefs_initialized) {
-    mtp3_handle   = find_dissector_add_dependency("mtp3", proto_m2pa);
-
-    dissector_add_uint("sctp.ppi", M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);
-
-    prefs_initialized = TRUE;
-
-  } else {
-
-    dissector_delete_uint("sctp.port", sctp_port, m2pa_handle);
-
-  }
-
-  /* Set our port number for future use */
-  sctp_port = global_sctp_port;
-
-  dissector_add_uint("sctp.port", sctp_port, m2pa_handle);
+  dissector_add_uint("sctp.ppi", M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_M2PA, m2pa_handle);
 }
 
 /*

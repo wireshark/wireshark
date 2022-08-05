@@ -130,7 +130,6 @@ static expert_field ei_steam_ihs_discovery_invalid_wiretype = EI_INIT;
 static expert_field ei_steam_ihs_discovery_invalid_length = EI_INIT;
 
 #define STEAM_IHS_DISCOVERY_UDP_PORT 27036
-static guint udp_port_pref = STEAM_IHS_DISCOVERY_UDP_PORT;
 
 /* Initialize the subtree pointers */
 static gint ett_steam_ihs_discovery = -1;
@@ -1119,7 +1118,6 @@ dissect_steam_ihs_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 proto_register_steam_ihs_discovery(void)
 {
-    module_t        *steam_ihs_discovery_module;
     expert_module_t *expert_steam_ihs_discovery;
 
     static hf_register_info hf[] = {
@@ -1414,35 +1412,18 @@ proto_register_steam_ihs_discovery(void)
     expert_steam_ihs_discovery = expert_register_protocol(proto_steam_ihs_discovery);
     expert_register_field_array(expert_steam_ihs_discovery, ei, array_length(ei));
 
-    /* Register a preferences module. */
-    steam_ihs_discovery_module = prefs_register_protocol(proto_steam_ihs_discovery,
-            proto_reg_handoff_steam_ihs_discovery);
-
-    /* Register an example port preference */
-    prefs_register_uint_preference(steam_ihs_discovery_module, "udp.port", "steam_ihs_discovery UDP Port",
-            " Steam IHS Discovery UDP port if other than the default",
-            10, &udp_port_pref);
+    /* Register a preferences module - handled by Decode As. */
+    /* steam_ihs_discovery_module = prefs_register_protocol(proto_steam_ihs_discovery, NULL); */
 }
 
 void
 proto_reg_handoff_steam_ihs_discovery(void)
 {
-    static gboolean initialized = FALSE;
     static dissector_handle_t steam_ihs_discovery_handle;
-    static int current_port;
 
-    if (!initialized) {
-        steam_ihs_discovery_handle = create_dissector_handle(dissect_steam_ihs_discovery,
-                proto_steam_ihs_discovery);
-        initialized = TRUE;
+    steam_ihs_discovery_handle = create_dissector_handle(dissect_steam_ihs_discovery, proto_steam_ihs_discovery);
 
-    } else {
-        dissector_delete_uint("udp.port", current_port, steam_ihs_discovery_handle);
-    }
-
-    current_port = udp_port_pref;
-
-    dissector_add_uint("udp.port", current_port, steam_ihs_discovery_handle);
+    dissector_add_uint_with_preference("udp.port", STEAM_IHS_DISCOVERY_UDP_PORT, steam_ihs_discovery_handle);
 }
 
 /*

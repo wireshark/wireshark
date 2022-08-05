@@ -5229,6 +5229,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"ltp.port", "ltp", "udp.port", 10},
         {"lwres.udp.lwres_port", "lwres", "udp.port", 10},
         {"megaco.udp.txt_port", "megaco", "udp.port", 10},
+        {"pfcp.port_pfcp", "pfcp", "udp.port", 10},
         {"pgm.udp.encap_ucast_port", "pgm", "udp.port", 10},
         {"pgm.udp.encap_mcast_port", "pgm", "udp.port", 10},
         {"quic.udp.quic.port", "quic", "udp.port", 10},
@@ -5246,6 +5247,10 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"uhd.dissector_port", "uhd", "udp.port", 10},
         {"vrt.dissector_port", "vrt", "udp.port", 10},
         {"tpncp.udp.trunkpack_port", "tpncp", "udp.port", 10},
+        /* SCTP */
+        {"m2pa.port", "m2pa", "sctp.port", 10},
+        {"megaco.sctp.txt_port", "megaco", "sctp.port", 10},
+        {"rua.port", "rua", "sctp.port", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
@@ -5256,6 +5261,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"kt.tcp.ports", "kt", "tcp.port", 10},
         {"memcache.tcp.ports", "memcache", "tcp.port", 10},
         {"mrcpv2.tcp.port_range", "mrcpv2", "tcp.port", 10},
+        {"pdu_transport.ports.tcp", "pdu_transport", "tcp.port", 10},
         {"rtsp.tcp.port_range", "rtsp", "tcp.port", 10},
         {"sip.tcp.ports", "sip", "tcp.port", 10},
         {"tds.tcp_ports", "tds", "tcp.port", 10},
@@ -5271,6 +5277,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"nb_rtpmux.udp_ports", "nb_rtpmux", "udp.port", 10},
         {"gprs-ns.udp.ports", "gprs-ns", "udp.port", 10},
         {"p_mul.udp_ports", "p_mul", "udp.port", 10},
+        {"pdu_transport.ports.udp", "pdu_transport", "udp.port", 10},
         {"radius.ports", "radius", "udp.port", 10},
         {"sflow.ports", "sflow", "udp.port", 10},
         {"sscop.udp.ports", "sscop", "udp.port", 10},
@@ -5295,6 +5302,8 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"rtpevent.cisco_nse_payload_type_value", "rtpevent", "rtp.pt", 10},
         {"rtpmidi.midi_payload_type_value", "rtpmidi", "rtp.pt", 10},
         {"vp8.dynamic.payload.type", "vp8", "rtp.pt", 10},
+        /* SCTP */
+        {"sgsap.sctp_ports", "sgsap", "sctp.port", 10},
     };
 
     /* These are subdissectors of TPKT/OSITP that used to have a

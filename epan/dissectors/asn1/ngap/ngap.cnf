@@ -689,7 +689,7 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
     if (ngap_data->transparent_container_type == SOURCE_TO_TARGET_TRANSPARENT_CONTAINER ||
         ngap_data->transparent_container_type == TARGET_TO_SOURCE_TRANSPARENT_CONTAINER) {
-      if (actx->pinfo->destport == gbl_ngapSctpPort)
+      if (value_is_in_range(gbl_ngapSctpRange, actx->pinfo->destport))
         ranmode_id = ngap_get_ranmode_id(&actx->pinfo->src, actx->pinfo->srcport, actx->pinfo);
       else
         ranmode_id = ngap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);

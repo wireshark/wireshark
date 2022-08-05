@@ -5497,7 +5497,7 @@ void proto_register_rsl(void)
 
     rsl_handle = register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 
-    rsl_module = prefs_register_protocol(proto_rsl, proto_reg_handoff_rsl);
+    rsl_module = prefs_register_protocol(proto_rsl, NULL);
     prefs_register_bool_preference(rsl_module, "use_ipaccess_rsl",
                                    "Use nanoBTS definitions",
                                    "Use ipaccess nanoBTS specific definitions for RSL",

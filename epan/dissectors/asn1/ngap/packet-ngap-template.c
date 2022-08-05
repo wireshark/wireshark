@@ -479,7 +479,7 @@ static const enum_val_t ngap_lte_container_vals[] = {
 };
 
 /* Global variables */
-static guint gbl_ngapSctpPort = SCTP_PORT_NGAP;
+static range_t *gbl_ngapSctpRange = NULL;
 static gboolean ngap_dissect_container = TRUE;
 static gint ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
 static gint ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
@@ -1001,43 +1001,36 @@ found:
   }
 }
 
+void
+apply_ngap_prefs(void)
+{
+  gbl_ngapSctpRange = prefs_get_range_value("ngap", "sctp.port");
+}
+
 /*--- proto_reg_handoff_ngap ---------------------------------------*/
 void
 proto_reg_handoff_ngap(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint SctpPort;
-
-  if (!Initialized) {
-    nas_5gs_handle = find_dissector_add_dependency("nas-5gs", proto_ngap);
-    nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_ngap);
-    nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_ngap);
-    lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_ngap);
-    lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_ngap);
-    lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_ngap);
-    lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_ngap);
-    dissector_add_for_decode_as("sctp.port", ngap_handle);
-    dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID,   ngap_handle);
-    Initialized=TRUE;
+  nas_5gs_handle = find_dissector_add_dependency("nas-5gs", proto_ngap);
+  nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_ngap);
+  nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_ngap);
+  lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_ngap);
+  lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_ngap);
+  lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_ngap);
+  lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_ngap);
+  dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID,   ngap_handle);
 #include "packet-ngap-dis-tab.c"
 
-    dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
-  } else {
-    if (SctpPort != 0) {
-      dissector_delete_uint("sctp.port", SctpPort, ngap_handle);
-    }
-  }
+  dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
 
   nrppa_handle = find_dissector_add_dependency("nrppa", proto_ngap);
   proto_json = proto_get_id_by_filter_name("json");
 
-  SctpPort=gbl_ngapSctpPort;
-  if (SctpPort != 0) {
-    dissector_add_uint("sctp.port", SctpPort, ngap_handle);
-  }
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_NGAP, ngap_handle);
 
   stats_tree_register("ngap", "ngap", "NGAP", 0,
                       ngap_stats_tree_packet, ngap_stats_tree_init, NULL);
+  apply_ngap_prefs();
 }
 
 /*--- proto_register_ngap -------------------------------------------*/
@@ -1370,13 +1363,8 @@ void proto_register_ngap(void) {
   ngap_n2_ie_type_dissector_table = register_dissector_table("ngap.n2_ie_type", "NGAP N2 IE Type", proto_ngap, FT_STRING, FALSE);
 
   /* Register configuration options for ports */
-  ngap_module = prefs_register_protocol(proto_ngap, proto_reg_handoff_ngap);
+  ngap_module = prefs_register_protocol(proto_ngap, apply_ngap_prefs);
 
-  prefs_register_uint_preference(ngap_module, "sctp.port",
-                                 "NGAP SCTP Port",
-                                 "Set the SCTP port for NGAP messages",
-                                 10,
-                                 &gbl_ngapSctpPort);
   prefs_register_bool_preference(ngap_module, "dissect_container",
                                  "Dissect TransparentContainer",
                                  "Dissect TransparentContainers that are opaque to NGAP",

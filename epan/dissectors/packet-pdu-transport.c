@@ -62,11 +62,6 @@ static gint ett_pdu_transport = -1;
 /* expert info items */
 static expert_field ef_pdu_transport_message_truncated = EI_INIT;
 
-/* config */
-static range_t *pdu_transport_ports_udp = NULL;
-static range_t *pdu_transport_ports_tcp = NULL;
-
-
 /********* UATs *********/
 
 typedef struct _generic_one_id_string {
@@ -315,17 +310,9 @@ proto_register_pdu_transport(void) {
     proto_register_field_array(proto_pdu_transport, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    pdu_transport_module = prefs_register_protocol(proto_pdu_transport, &proto_reg_handoff_pdu_transport);
+    pdu_transport_module = prefs_register_protocol(proto_pdu_transport, NULL);
     expert_module_pdu_transport = expert_register_protocol(proto_pdu_transport);
     expert_register_field_array(expert_module_pdu_transport, ei, array_length(ei));
-
-    range_convert_str(wmem_epan_scope(), &pdu_transport_ports_udp, "", 65535);
-    prefs_register_range_preference(pdu_transport_module, "ports.udp", "UDP Ports",
-        "Port Ranges UDP.", &pdu_transport_ports_udp, 65535);
-
-    range_convert_str(wmem_epan_scope(), &pdu_transport_ports_tcp, "", 65535);
-    prefs_register_range_preference(pdu_transport_module, "ports.tcp", "TCP Ports",
-        "Port Ranges TCP.", &pdu_transport_ports_tcp, 65535);
 
     static uat_field_t pdu_transport_cm_id_uat_fields[] = {
         UAT_FLD_HEX(pdu_transport_pdus, id, "ID", "ID  (hex uint32)"),
@@ -358,19 +345,12 @@ proto_register_pdu_transport(void) {
 
 void
 proto_reg_handoff_pdu_transport(void) {
-    static gboolean initialized = FALSE;
 
-    if (!initialized) {
-        pdu_transport_handle_udp = register_dissector("pdu_transport_over_udp", dissect_pdu_transport_udp, proto_pdu_transport);
-        pdu_transport_handle_tcp = register_dissector("pdu_transport_over_tcp", dissect_pdu_transport_tcp, proto_pdu_transport);
+    pdu_transport_handle_udp = register_dissector("pdu_transport_over_udp", dissect_pdu_transport_udp, proto_pdu_transport);
+    pdu_transport_handle_tcp = register_dissector("pdu_transport_over_tcp", dissect_pdu_transport_tcp, proto_pdu_transport);
 
-        initialized = TRUE;
-    } else {
-        dissector_delete_all("udp.port", pdu_transport_handle_tcp);
-        dissector_delete_all("tcp.port", pdu_transport_handle_tcp);
-    }
-    dissector_add_uint_range("udp.port", pdu_transport_ports_udp, pdu_transport_handle_udp);
-    dissector_add_uint_range("tcp.port", pdu_transport_ports_tcp, pdu_transport_handle_tcp);
+    dissector_add_uint_range_with_preference("udp.port", "", pdu_transport_handle_udp);
+    dissector_add_uint_range_with_preference("tcp.port", "", pdu_transport_handle_tcp);
 }
 
 /*

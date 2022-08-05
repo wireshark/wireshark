@@ -217,7 +217,6 @@ static const enum_val_t x2ap_rrc_context_vals[] = {
 };
 
 /* Global variables */
-static guint gbl_x2apSctpPort=SCTP_PORT_X2AP;
 static gint g_x2ap_dissect_rrc_context_as = X2AP_RRC_CONTEXT_LTE;
 
 /* Dissector tables */
@@ -715,14 +714,9 @@ void proto_register_x2ap(void) {
   x2ap_proc_sout_dissector_table = register_dissector_table("x2ap.proc.sout", "X2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_x2ap, FT_UINT32, BASE_DEC);
   x2ap_proc_uout_dissector_table = register_dissector_table("x2ap.proc.uout", "X2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_x2ap, FT_UINT32, BASE_DEC);
 
-  /* Register configuration1 options for ports */
-  x2ap_module = prefs_register_protocol(proto_x2ap, proto_reg_handoff_x2ap);
+  /* Register configuration options */
+  x2ap_module = prefs_register_protocol(proto_x2ap, NULL);
 
-  prefs_register_uint_preference(x2ap_module, "sctp.port",
-                                 "X2AP SCTP Port",
-                                 "Set the SCTP port for X2AP messages",
-                                 10,
-                                 &gbl_x2apSctpPort);
   prefs_register_enum_preference(x2ap_module, "dissect_rrc_context_as", "Dissect RRC Context as",
                                  "Select whether RRC Context should be dissected as legacy LTE or NB-IOT",
                                  &g_x2ap_dissect_rrc_context_as, x2ap_rrc_context_vals, FALSE);
@@ -733,24 +727,9 @@ void proto_register_x2ap(void) {
 void
 proto_reg_handoff_x2ap(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint SctpPort;
-
-  if (!Initialized) {
-    dissector_add_for_decode_as("sctp.port", x2ap_handle);
-    dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
-    Initialized=TRUE;
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_X2AP, x2ap_handle);
+  dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
 #include "packet-x2ap-dis-tab.c"
-  } else {
-    if (SctpPort != 0) {
-      dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);
-    }
-  }
-
-  SctpPort=gbl_x2apSctpPort;
-  if (SctpPort != 0) {
-    dissector_add_uint("sctp.port", SctpPort, x2ap_handle);
-  }
 }
 
 

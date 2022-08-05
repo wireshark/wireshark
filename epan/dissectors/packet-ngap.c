@@ -2649,7 +2649,7 @@ static const enum_val_t ngap_lte_container_vals[] = {
 };
 
 /* Global variables */
-static guint gbl_ngapSctpPort = SCTP_PORT_NGAP;
+static range_t *gbl_ngapSctpRange = NULL;
 static gboolean ngap_dissect_container = TRUE;
 static gint ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
 static gint ngap_dissect_lte_container_as = NGAP_LTE_CONTAINER_AUTOMATIC;
@@ -14773,7 +14773,7 @@ dissect_ngap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
     if (ngap_data->transparent_container_type == SOURCE_TO_TARGET_TRANSPARENT_CONTAINER ||
         ngap_data->transparent_container_type == TARGET_TO_SOURCE_TRANSPARENT_CONTAINER) {
-      if (actx->pinfo->destport == gbl_ngapSctpPort)
+      if (value_is_in_range(gbl_ngapSctpRange, actx->pinfo->destport))
         ranmode_id = ngap_get_ranmode_id(&actx->pinfo->src, actx->pinfo->srcport, actx->pinfo);
       else
         ranmode_id = ngap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
@@ -22237,24 +22237,24 @@ found:
   }
 }
 
+void
+apply_ngap_prefs(void)
+{
+  gbl_ngapSctpRange = prefs_get_range_value("ngap", "sctp.port");
+}
+
 /*--- proto_reg_handoff_ngap ---------------------------------------*/
 void
 proto_reg_handoff_ngap(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint SctpPort;
-
-  if (!Initialized) {
-    nas_5gs_handle = find_dissector_add_dependency("nas-5gs", proto_ngap);
-    nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_ngap);
-    nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_ngap);
-    lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_ngap);
-    lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_ngap);
-    lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_ngap);
-    lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_ngap);
-    dissector_add_for_decode_as("sctp.port", ngap_handle);
-    dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID,   ngap_handle);
-    Initialized=TRUE;
+  nas_5gs_handle = find_dissector_add_dependency("nas-5gs", proto_ngap);
+  nr_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_paging_info", proto_ngap);
+  nr_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("nr-rrc.ue_radio_access_cap_info", proto_ngap);
+  lte_rrc_ue_radio_paging_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info", proto_ngap);
+  lte_rrc_ue_radio_access_cap_info_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info", proto_ngap);
+  lte_rrc_ue_radio_paging_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_paging_info.nb", proto_ngap);
+  lte_rrc_ue_radio_access_cap_info_nb_handle = find_dissector_add_dependency("lte-rrc.ue_radio_access_cap_info.nb", proto_ngap);
+  dissector_add_uint("sctp.ppi", NGAP_PROTOCOL_ID,   ngap_handle);
 
 /*--- Included file: packet-ngap-dis-tab.c ---*/
 #line 1 "./asn1/ngap/packet-ngap-dis-tab.c"
@@ -22679,23 +22679,16 @@ proto_reg_handoff_ngap(void)
 /*--- End of included file: packet-ngap-dis-tab.c ---*/
 #line 1023 "./asn1/ngap/packet-ngap-template.c"
 
-    dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
-  } else {
-    if (SctpPort != 0) {
-      dissector_delete_uint("sctp.port", SctpPort, ngap_handle);
-    }
-  }
+  dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
 
   nrppa_handle = find_dissector_add_dependency("nrppa", proto_ngap);
   proto_json = proto_get_id_by_filter_name("json");
 
-  SctpPort=gbl_ngapSctpPort;
-  if (SctpPort != 0) {
-    dissector_add_uint("sctp.port", SctpPort, ngap_handle);
-  }
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_NGAP, ngap_handle);
 
   stats_tree_register("ngap", "ngap", "NGAP", 0,
                       ngap_stats_tree_packet, ngap_stats_tree_init, NULL);
+  apply_ngap_prefs();
 }
 
 /*--- proto_register_ngap -------------------------------------------*/
@@ -27369,7 +27362,7 @@ void proto_register_ngap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 1294 "./asn1/ngap/packet-ngap-template.c"
+#line 1287 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -28025,7 +28018,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 1341 "./asn1/ngap/packet-ngap-template.c"
+#line 1334 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -28058,13 +28051,8 @@ void proto_register_ngap(void) {
   ngap_n2_ie_type_dissector_table = register_dissector_table("ngap.n2_ie_type", "NGAP N2 IE Type", proto_ngap, FT_STRING, FALSE);
 
   /* Register configuration options for ports */
-  ngap_module = prefs_register_protocol(proto_ngap, proto_reg_handoff_ngap);
+  ngap_module = prefs_register_protocol(proto_ngap, apply_ngap_prefs);
 
-  prefs_register_uint_preference(ngap_module, "sctp.port",
-                                 "NGAP SCTP Port",
-                                 "Set the SCTP port for NGAP messages",
-                                 10,
-                                 &gbl_ngapSctpPort);
   prefs_register_bool_preference(ngap_module, "dissect_container",
                                  "Dissect TransparentContainer",
                                  "Dissect TransparentContainers that are opaque to NGAP",

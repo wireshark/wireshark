@@ -144,7 +144,6 @@ static const enum_val_t xnap_lte_rrc_context_vals[] = {
 };
 
 /* Global variables */
-static guint xnap_sctp_port = SCTP_PORT_XnAP;
 static gint xnap_dissect_target_ng_ran_container_as = XNAP_NG_RAN_CONTAINER_AUTOMATIC;
 static gint xnap_dissect_lte_rrc_context_as = XNAP_LTE_RRC_CONTEXT_LTE;
 
@@ -508,13 +507,8 @@ void proto_register_xnap(void) {
   xnap_proc_sout_dissector_table = register_dissector_table("xnap.proc.sout", "XNAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_xnap, FT_UINT32, BASE_DEC);
   xnap_proc_uout_dissector_table = register_dissector_table("xnap.proc.uout", "XNAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_xnap, FT_UINT32, BASE_DEC);
 
-  xnap_module = prefs_register_protocol(proto_xnap, proto_reg_handoff_xnap);
+  xnap_module = prefs_register_protocol(proto_xnap, NULL);
 
-  prefs_register_uint_preference(xnap_module, "sctp.port",
-                                 "XnAP SCTP Port",
-                                 "Set the SCTP port for XnAP messages",
-                                 10,
-                                 &xnap_sctp_port);
   prefs_register_enum_preference(xnap_module, "dissect_target_ng_ran_container_as", "Dissect target NG-RAN container as",
                                  "Select whether target NG-RAN container should be decoded automatically"
                                  " (based on Xn Setup procedure) or manually",
@@ -528,21 +522,7 @@ void proto_register_xnap(void) {
 void
 proto_reg_handoff_xnap(void)
 {
-  static gboolean initialized = FALSE;
-  static guint sctp_port;
-
-  if (!initialized) {
-    dissector_add_for_decode_as("sctp.port", xnap_handle);
-    dissector_add_uint("sctp.ppi", XNAP_PROTOCOL_ID, xnap_handle);
-    initialized = TRUE;
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_XnAP, xnap_handle);
+  dissector_add_uint("sctp.ppi", XNAP_PROTOCOL_ID, xnap_handle);
 #include "packet-xnap-dis-tab.c"
-  } else {
-    if (sctp_port != 0) {
-      dissector_delete_uint("sctp.port", sctp_port, xnap_handle);
-    }
-  }
-  sctp_port = xnap_sctp_port;
-  if (sctp_port != 0) {
-    dissector_add_uint("sctp.port", sctp_port, xnap_handle);
-  }
 }

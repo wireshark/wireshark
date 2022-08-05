@@ -38,7 +38,6 @@ static dissector_handle_t gsm_a_dtap_handle;
  * The payload protocol identifier to be used for SGsAP is 0.
  */
 #define SGSAP_SCTP_PORT_RANGE "29118"
-static range_t *global_sgsap_port_range;
 
 /* Initialize the protocol and registered fields */
 static int proto_sgsap = -1;
@@ -1583,7 +1582,6 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 void proto_register_sgsap(void) {
     guint        i;
     guint        last_offset;
-    module_t    *sgsap_module;
 
     /* List of fields */
 
@@ -1721,16 +1719,8 @@ void proto_register_sgsap(void) {
     /* Register dissector */
     sgsap_handle = register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
 
-   /* Set default SCTP ports */
-    range_convert_str(wmem_epan_scope(), &global_sgsap_port_range, SGSAP_SCTP_PORT_RANGE, MAX_SCTP_PORT);
+    /* sgsap_module = prefs_register_protocol(proto_sgsap, NULL); */
 
-    sgsap_module = prefs_register_protocol(proto_sgsap, proto_reg_handoff_sgsap);
-
-    prefs_register_range_preference(sgsap_module, "sctp_ports",
-                                  "SGsAP SCTP port numbers",
-                                  "Port numbers used for SGsAP traffic "
-                                  "(default " SGSAP_SCTP_PORT_RANGE ")",
-                                  &global_sgsap_port_range, MAX_SCTP_PORT);
 }
 
 void
@@ -1739,21 +1729,8 @@ proto_reg_handoff_sgsap(void)
     /* The registered SCTP port number for SGsAP is 29118.
      * The payload protocol identifier to be used for SGsAP is 0.
      */
-    static gboolean Initialized = FALSE;
-    static range_t *sgsap_port_range;
-
     gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_sgsap);
-
-    if (!Initialized) {
-        dissector_add_for_decode_as("sctp.port", sgsap_handle);
-        Initialized=TRUE;
-    } else {
-        dissector_delete_uint_range("sctp.port", sgsap_port_range, sgsap_handle);
-        wmem_free(wmem_epan_scope(), sgsap_port_range);
-    }
-
-    sgsap_port_range = range_copy(wmem_epan_scope(), global_sgsap_port_range);
-    dissector_add_uint_range("sctp.port", sgsap_port_range, sgsap_handle);
+    dissector_add_uint_range_with_preference("sctp.port", SGSAP_SCTP_PORT_RANGE, sgsap_handle);
 }
 
 /*
