@@ -34,6 +34,7 @@
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
+#include <epan/column-info.h>
 #include <epan/print.h>
 #include <epan/epan_dissect.h>
 #include <epan/disabled_protos.h>

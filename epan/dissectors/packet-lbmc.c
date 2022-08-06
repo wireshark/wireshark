@@ -15,7 +15,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/sequence_analysis.h>
-#include <epan/column-info.h>
 #include <epan/to_str.h>
 #include <epan/tap.h>
 #include "packet-lbm.h"

@@ -60,7 +60,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem_scopes.h>
 #include <epan/conversation.h>
-#include <epan/column.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rtps.h>
 

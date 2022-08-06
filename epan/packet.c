@@ -32,6 +32,7 @@
 
 #include <epan/wmem_scopes.h>
 
+#include <epan/column-info.h>
 #include <epan/exceptions.h>
 #include <epan/reassemble.h>
 #include <epan/stream.h>

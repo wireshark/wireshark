@@ -14,7 +14,6 @@
 #include <ui/qt/utils/wireshark_mime_data.h>
 
 #include <glib.h>
-#include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>

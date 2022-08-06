@@ -12,7 +12,6 @@
 #include <file.h>
 
 #include <epan/epan_dissect.h>
-#include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>

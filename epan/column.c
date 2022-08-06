@@ -22,6 +22,7 @@
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/column.h>
+#include <epan/column-info.h>
 #include <epan/packet.h>
 #include <wsutil/ws_assert.h>
 

@@ -14,7 +14,7 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
-#include <epan/column-info.h>
+#include <epan/column.h>
 
 #include <wsutil/utf8_entities.h>
 

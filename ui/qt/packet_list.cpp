@@ -18,7 +18,6 @@
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 
-#include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>

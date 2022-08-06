@@ -38,7 +38,6 @@
 #include "packet-frame.h"
 #include "packet-icmp.h"
 
-#include <epan/column-info.h>
 #include <epan/color_filters.h>
 
 void proto_register_frame(void);

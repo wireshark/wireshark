@@ -16,7 +16,7 @@
 
 #include "cfile.h"
 
-#include <epan/column-info.h>
+#include <epan/column.h>
 #include <epan/packet.h>
 
 #include <QByteArray>

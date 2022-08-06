@@ -39,7 +39,7 @@
 #include "except.h"
 #include "packet.h"
 #include "prefs.h"
-#include "column-utils.h"
+#include "column-info.h"
 #include "tap.h"
 #include "addr_resolv.h"
 #include "oids.h"

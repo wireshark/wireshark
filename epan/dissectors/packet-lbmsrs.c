@@ -17,11 +17,9 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/column-info.h>
 #include <epan/to_str.h>
 #include <packet-lbm.h>
 #include <epan/proto.h>
-#include <epan/column-utils.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <wsutil/pint.h>

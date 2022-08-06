@@ -1,5 +1,6 @@
 /** @file
  * Definitions for column utility structures and routines
+ * Utility routines used by packet*.c
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,6 +20,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+#define COL_MAX_LEN 2048
+#define COL_MAX_INFO_LEN 4096
+#define COL_CUSTOM_PRIME_REGEX " *([^ \\|]+) *(?:(?:\\|\\|)|(?:or)| *$){1}"
 
 struct epan_dissect;
 
@@ -91,54 +96,6 @@ enum {
   COL_CLS_TIME,       /**< 49) Command line-specified time (default relative) */
   NUM_COL_FMTS        /**< 50) Should always be last */
 };
-
-/** Allocate all the data structures for constructing column data, given
- * the number of columns.
- *
- * Internal, don't use this in dissectors!
- */
-WS_DLL_PUBLIC void col_setup(column_info *cinfo, const gint num_cols);
-
-/** Cleanup all the data structures for constructing column data;
- * undoes the alocations that col_setup() does.
- *
- * Internal, don't use this in dissectors!
- */
-WS_DLL_PUBLIC void col_cleanup(column_info *cinfo);
-
-/** Initialize the data structures for constructing column data.
- *
- * Internal, don't use this in dissectors!
- */
-extern void col_init(column_info *cinfo, const struct epan_session *epan);
-
-/** Fill in all columns of the given packet which are based on values from frame_data.
- *
- * Internal, don't use this in dissectors!
- */
-WS_DLL_PUBLIC void col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col, gboolean const fill_col_exprs);
-
-/** Fill in all columns of the given packet.
- *
- * Internal, don't use this in dissectors!
- */
-WS_DLL_PUBLIC void col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
-
-/** Fill in columns if we got an error reading the packet.
- * We set most columns to "???", and set the Info column to an error
- * message.
- *
- * Internal, don't use this in dissectors!
- */
-WS_DLL_PUBLIC void col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
-
-/** Check to see if our column data has changed, e.g. we have new request/response info.
- *
- * Internal, don't use this in dissectors!
- */
-WS_DLL_PUBLIC gboolean	col_data_changed(void);
-
-/* Utility routines used by packet*.c */
 
 /** Are the columns writable?
  *
@@ -226,28 +183,6 @@ WS_DLL_PUBLIC void col_add_lstr(column_info *cinfo, const gint el, const gchar *
  */
 WS_DLL_PUBLIC void col_add_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
-
-/** For internal Wireshark use only.  Not to be called from dissectors. */
-void col_custom_set_edt(struct epan_dissect *edt, column_info *cinfo);
-
-/** For internal Wireshark use only.  Not to be called from dissectors. */
-WS_DLL_PUBLIC
-void col_custom_prime_edt(struct epan_dissect *edt, column_info *cinfo);
-
-/** For internal Wireshark use only.  Not to be called from dissectors. */
-WS_DLL_PUBLIC
-gboolean have_custom_cols(column_info *cinfo);
-
-/** For internal Wireshark use only.  Not to be called from dissectors. */
-WS_DLL_PUBLIC
-gboolean have_field_extractors(void);
-
-/** For internal Wireshark use only.  Not to be called from dissectors. */
-WS_DLL_PUBLIC
-gboolean col_has_time_fmt(column_info *cinfo, const gint col);
-/** For internal Wireshark use only.  Not to be called from dissectors. */
-WS_DLL_PUBLIC
-gboolean col_based_on_frame_data(column_info *cinfo, const gint col);
 
 /** Append the given text to a column element, the text will be copied.
  *

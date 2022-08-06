@@ -27,7 +27,6 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 #include <epan/etypes.h>
-#include <epan/column.h>
 #include <epan/tvbuff.h>
 
 #include <epan/to_str.h>

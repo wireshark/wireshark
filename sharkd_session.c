@@ -34,6 +34,7 @@
 #include <wiretap/wtap.h>
 
 #include <epan/column.h>
+#include <epan/column-info.h>
 
 #include <ui/ssl_key_export.h>
 

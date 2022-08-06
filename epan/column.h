@@ -1,5 +1,8 @@
 /** @file
  * Definitions for column handling routines
+ * Column preference and format settings.
+ *
+ * For internal Wireshark useonly. Don't include this header in dissectors!
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +15,7 @@
 #define __COLUMN_H__
 
 #include "ws_symbol_export.h"
-#include <epan/column-info.h>
+#include <epan/column-utils.h>
 
 #ifdef __cplusplus
 extern "C" {

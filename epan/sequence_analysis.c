@@ -17,7 +17,7 @@
 #include "addr_resolv.h"
 #include "proto.h"
 #include "color_filters.h"
-#include "column-info.h"
+#include <epan/column.h>
 #include "tap.h"
 #include <epan/wmem_scopes.h>
 
