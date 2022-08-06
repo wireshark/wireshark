@@ -91,7 +91,7 @@ WS_DLL_PUBLIC convert_ret_t range_convert_str_work(wmem_allocator_t *scope, rang
  * @param val the value to check
  * @return TRUE if the value is in range
  */
-WS_DLL_PUBLIC gboolean value_is_in_range(range_t *range, guint32 val);
+WS_DLL_PUBLIC gboolean value_is_in_range(const range_t *range, guint32 val);
 
 /** This function returns TRUE if val has successfully been added to
  * a range.  This may extend an existing range or create a new one
@@ -116,7 +116,7 @@ WS_DLL_PUBLIC gboolean range_remove_value(wmem_allocator_t *scope, range_t **ran
  * @param b second range
  * @return TRUE if the value is in range
  */
-WS_DLL_PUBLIC gboolean ranges_are_equal(range_t *a, range_t *b);
+WS_DLL_PUBLIC gboolean ranges_are_equal(const range_t *a, const range_t *b);
 
 /** This function calls the provided callback function for each value in
  * in the range. Takes a pointer argument, which is passed to the
@@ -138,7 +138,7 @@ WS_DLL_PUBLIC char *range_convert_range(wmem_allocator_t *scope, const range_t *
  * @param src the range to copy
  * @return ep allocated copy of the range
  */
-WS_DLL_PUBLIC range_t *range_copy(wmem_allocator_t *scope, range_t *src);
+WS_DLL_PUBLIC range_t *range_copy(wmem_allocator_t *scope, const range_t *src);
 
 #ifdef __cplusplus
 }

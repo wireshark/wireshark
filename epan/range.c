@@ -257,7 +257,7 @@ range_convert_str_work(wmem_allocator_t *scope, range_t **rangep, const gchar *e
  * stored in the ranges array.
  */
 gboolean
-value_is_in_range(range_t *range, guint32 val)
+value_is_in_range(const range_t *range, guint32 val)
 {
    guint i;
 
@@ -366,7 +366,7 @@ range_remove_value(wmem_allocator_t *scope, range_t **range, guint32 val)
 /* This function returns TRUE if the two given range_t's are equal.
  */
 gboolean
-ranges_are_equal(range_t *a, range_t *b)
+ranges_are_equal(const range_t *a, const range_t *b)
 {
    guint i;
 
@@ -429,7 +429,7 @@ range_convert_range(wmem_allocator_t *scope, const range_t *range)
 
 /* Create a copy of a range. */
 range_t *
-range_copy(wmem_allocator_t *scope, range_t *src)
+range_copy(wmem_allocator_t *scope, const range_t *src)
 {
    range_t *dst;
    size_t range_size;
