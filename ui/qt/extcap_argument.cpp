@@ -281,7 +281,7 @@ QWidget * ExtArgRadio::createEditor(QWidget * parent)
 
     callStrings = new QList<QString>();
 
-    if (values.length() > 0  )
+    if (values.length() > 0)
     {
         ExtcapValueList::const_iterator iter = values.constBegin();
 
@@ -316,7 +316,7 @@ QString ExtArgRadio::value()
 
     idx = selectorGroup->checkedId();
     if (idx > -1 && callStrings->length() > idx)
-        return callStrings->takeAt(idx);
+        return callStrings->at(idx);
 
     return QString();
 }
@@ -353,28 +353,29 @@ bool ExtArgRadio::isSetDefaultValueSupported()
 
 void ExtArgRadio::setDefaultValue()
 {
-    int count = 0;
-    bool anyChecked = false;
+    int counter = 0;
+    int selected = 0;
 
-    if (values.length() > 0  )
+    const char *prefval = (_argument->pref_valptr && strlen(*_argument->pref_valptr)) ? *_argument->pref_valptr : NULL;
+    QString stored(prefval ? prefval : "");
+
+    if (values.length() > 0)
     {
         ExtcapValueList::const_iterator iter = values.constBegin();
 
         while (iter != values.constEnd())
         {
-            if ((*iter).isDefault())
-            {
-                selectorGroup->button(count)->setChecked(true);
-                anyChecked = true;
-            }
-            count++;
+            if (!prefval && (*iter).isDefault())
+                selected = counter;
+            else if (prefval && stored.compare((*iter).call()) == 0)
+                selected = counter;
+
+            counter++;
             ++iter;
         }
-    }
 
-    /* No default was provided, and not saved value exists */
-    if (anyChecked == false && count > 0)
-        ((QRadioButton*)(selectorGroup->button(0)))->setChecked(true);
+        ((QRadioButton*)(selectorGroup->button(selected)))->setChecked(true);
+    }
 }
 
 
