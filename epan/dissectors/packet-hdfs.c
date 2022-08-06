@@ -47,7 +47,7 @@ static const int AUTHENTICATION = 1;
 static const int DATA = 2;
 #endif
 
-static guint tcp_port = 0;
+static range_t *tcp_ports = NULL;
 
 static int proto_hdfs = -1;
 static int hf_hdfs_pdu_type = -1;
@@ -530,7 +530,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         hdfs_tree = proto_item_add_subtree(ti, ett_hdfs);
 
         /* Response */
-        if (pinfo->srcport == tcp_port) {
+        if (value_is_in_range(tcp_ports, pinfo->srcport)) {
             /* 4 bytes = sequence number */
             proto_tree_add_item(hdfs_tree, hf_hdfs_packetno, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -675,7 +675,7 @@ static void
 apply_hdfs_prefs(void)
 {
   /* HDFS uses the port preference to determine request/response */
-  tcp_port = prefs_get_uint_value("hdfs", "tcp.port");;
+  tcp_ports = prefs_get_range_value("hdfs", "tcp.port");;
 }
 
 /* registers the protcol with the given names */

@@ -26,7 +26,7 @@ void proto_reg_handoff_openflow(void);
 #define OFP_LEGACY_PORT 6633
 #define OFP_LEGACY2_PORT 6634
 #define OFP_IANA_PORT 6653
-static int g_openflow_port = OFP_IANA_PORT;
+static range_t *g_openflow_ports = NULL;
 
 static dissector_handle_t openflow_handle;
 static dissector_handle_t openflow_v1_handle;
@@ -117,7 +117,7 @@ dissect_openflow_heur(tvbuff_t *tvb, packet_info *pinfo,
     if ((pinfo->destport != OFP_LEGACY_PORT) &&
         (pinfo->destport != OFP_LEGACY2_PORT) &&
         (pinfo->destport != OFP_IANA_PORT) &&
-        (pinfo->destport != (guint32)g_openflow_port)) {
+        (!value_is_in_range(g_openflow_ports, pinfo->destport))) {
         return FALSE;
     }
 
@@ -132,7 +132,7 @@ static void
 apply_openflow_prefs(void)
 {
     /* Openflow uses the port preference for heuristics */
-    g_openflow_port = prefs_get_uint_value("openflow", "tcp.port");
+    g_openflow_ports = prefs_get_range_value("openflow", "tcp.port");
 }
 
 /*
@@ -191,6 +191,7 @@ proto_reg_handoff_openflow(void)
     openflow_v4_handle = find_dissector_add_dependency("openflow_v4", proto_openflow);
     openflow_v5_handle = find_dissector_add_dependency("openflow_v5", proto_openflow);
     openflow_v6_handle = find_dissector_add_dependency("openflow_v6", proto_openflow);
+    apply_openflow_prefs();
 }
 
 /*

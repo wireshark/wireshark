@@ -31,7 +31,7 @@
 void proto_register_beep(void);
 void proto_reg_handoff_beep(void);
 
-static guint global_beep_tcp_port = TCP_PORT_BEEP;
+static range_t *global_beep_tcp_ports = NULL;
 static int global_beep_strict_term = TRUE;
 
 static int proto_beep = -1;
@@ -387,7 +387,7 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 
   if (!request_val) return; /* Nothing to do ??? */
 
-  if (pinfo->destport == global_beep_tcp_port) { /* Going to the server ... client */
+  if (value_is_in_range(global_beep_tcp_ports, pinfo->destport)) { /* Going to the server ... client */
 
     if (request_val->c_mime_hdr) {
 
@@ -868,7 +868,7 @@ static void
 apply_beep_prefs(void)
 {
   /* Beep uses the port preference to determine client/server */
-  global_beep_tcp_port = prefs_get_uint_value("beep", "tcp.port");
+  global_beep_tcp_ports = prefs_get_range_value("beep", "tcp.port");
 }
 
 /* Register all the bits needed with the filtering engine */
