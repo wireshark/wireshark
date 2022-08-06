@@ -367,9 +367,6 @@ static gint ett_dlm3_rl_asts     = -1;
 static gint ett_dlm3_rl_name     = -1;
 
 
-/* configurable parameters */
-static guint dlm3_sctp_port = SCTP_PORT_DLM3;
-
 /*
  * Value strings
  */
@@ -1191,8 +1188,6 @@ dissect_tcp_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 void
 proto_register_dlm3(void)
 {
-  module_t *dlm3_module;
-
 
   static hf_register_info hf[] = {
     /* dlm_header */
@@ -1811,38 +1806,21 @@ proto_register_dlm3(void)
   proto_register_field_array(proto_dlm3, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  dlm3_module = prefs_register_protocol(proto_dlm3,
-                                        proto_reg_handoff_dlm3);
-
-  prefs_register_uint_preference(dlm3_module, "sctp.port",
-                                 "DLM3 SCTP Port",
-                                 "Set the SCTP port for Distributed Lock Manager",
-                                 10,
-                                 &dlm3_sctp_port);
+  /* dlm3_module = prefs_register_protocol(proto_dlm3, NULL); */
 }
 
 
 void
 proto_reg_handoff_dlm3(void)
 {
-  static gboolean dissector_registered = FALSE;
+  dissector_handle_t dlm3_tcp_handle;
+  dissector_handle_t dlm3_sctp_handle;
 
-  static guint sctp_port;
+  dlm3_sctp_handle = create_dissector_handle(dissect_dlm3, proto_dlm3);
+  dlm3_tcp_handle = create_dissector_handle(dissect_tcp_dlm3, proto_dlm3);
 
-  static dissector_handle_t dlm3_tcp_handle;
-  static dissector_handle_t dlm3_sctp_handle;
-
-  if (!dissector_registered) {
-    dlm3_sctp_handle = create_dissector_handle(dissect_dlm3, proto_dlm3);
-    dlm3_tcp_handle = create_dissector_handle(dissect_tcp_dlm3, proto_dlm3);
-    dissector_add_uint_with_preference("tcp.port", TCP_PORT_DLM3, dlm3_tcp_handle);
-    dissector_registered = TRUE;
-  } else {
-    dissector_delete_uint("sctp.port", sctp_port, dlm3_sctp_handle);
-  }
-
-  sctp_port = dlm3_sctp_port;
-  dissector_add_uint("sctp.port", sctp_port, dlm3_sctp_handle);
+  dissector_add_uint_with_preference("tcp.port", TCP_PORT_DLM3, dlm3_tcp_handle);
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_DLM3, dlm3_sctp_handle);
 }
 
 /* packet-dlm3.c ends here. */

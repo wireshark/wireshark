@@ -113,8 +113,6 @@ static range_t *global_sessions_samis_type_1;
 #define IPDR_PORT 4737
 #define IPDR_HEADER_LEN     8
 
-static guint global_ipdr_port = IPDR_PORT;
-
 enum
 {
     IPDR_FLOW_START = 0x01,
@@ -662,7 +660,6 @@ proto_register_ipdr(void)
 void
 proto_reg_handoff_ipdr(void)
 {
-    static guint ipdr_port;
     static range_t *sessions_samis_type_1;
     static gboolean ipdr_prefs_initialized = FALSE;
 
@@ -670,19 +667,12 @@ proto_reg_handoff_ipdr(void)
         ipdr_handle = create_dissector_handle(dissect_ipdr, proto_ipdr);
         ipdr_samis_type_1_handle = register_dissector("ipdr-samis-type-1", dissect_ipdr_samis_type_1,
                                                       proto_ipdr_samis_type_1);
-        dissector_add_uint_with_preference("tcp.port", global_ipdr_port, ipdr_handle);
+        dissector_add_uint_with_preference("tcp.port", IPDR_PORT, ipdr_handle);
 
         ipdr_prefs_initialized = TRUE;
     } else {
-        dissector_delete_uint("tcp.port", ipdr_port, ipdr_handle);
         dissector_delete_uint_range("ipdr.session_type", sessions_samis_type_1, ipdr_samis_type_1_handle);
     }
-
-    if (global_ipdr_port) {
-        dissector_add_uint("tcp.port", global_ipdr_port, ipdr_handle);
-    }
-
-    ipdr_port = global_ipdr_port;
 
     sessions_samis_type_1 = range_copy(wmem_epan_scope(), global_sessions_samis_type_1);
     dissector_add_uint_range("ipdr.session_type", sessions_samis_type_1, ipdr_samis_type_1_handle);

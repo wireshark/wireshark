@@ -69,8 +69,6 @@ static gint ett_lapd_address = -1;
 static gint ett_lapd_control = -1;
 static gint ett_lapd_checksum = -1;
 
-static guint pref_lapd_sctp_ppi = 0;
-
 static expert_field ei_lapd_abort = EI_INIT;
 static expert_field ei_lapd_checksum_bad = EI_INIT;
 
@@ -780,48 +778,30 @@ proto_register_lapd(void)
 	lapd_gsm_sapi_dissector_table = register_dissector_table("lapd.gsm.sapi",
 								 "LAPD GSM SAPI", proto_lapd, FT_UINT16, BASE_DEC);
 
-	lapd_module = prefs_register_protocol(proto_lapd, proto_reg_handoff_lapd);
+	lapd_module = prefs_register_protocol(proto_lapd, NULL);
 
 	prefs_register_bool_preference(lapd_module, "use_gsm_sapi_values",
 				       "Use GSM SAPI values",
 				       "Use SAPI values as specified in TS 48 056",
 				       &global_lapd_gsm_sapis);
 	prefs_register_obsolete_preference(lapd_module, "rtp_payload_type");
-	prefs_register_uint_preference(lapd_module, "sctp_payload_protocol_identifier",
-				       "SCTP Payload Protocol Identifier for LAPD",
-				       "SCTP Payload Protocol Identifier for LAPD. It is a "
-				       "32 bits value from 0 to 4294967295. Set it to 0 to disable.",
-				       10, &pref_lapd_sctp_ppi);
 }
 
 void
 proto_reg_handoff_lapd(void)
 {
-	static gboolean init = FALSE;
-	static guint lapd_sctp_ppi;
 	dissector_handle_t lapd_frame_handle;
 
-	if (!init) {
-		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, linux_lapd_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, linux_lapd_handle);
 
-		lapd_frame_handle = create_dissector_handle(dissect_lapd_frame, proto_lapd);
-		dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_frame_handle);
+	lapd_frame_handle = create_dissector_handle(dissect_lapd_frame, proto_lapd);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_frame_handle);
 
-		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
-		dissector_add_for_decode_as("sctp.ppi", lapd_handle);
-		dissector_add_for_decode_as("sctp.port", lapd_handle);
-		dissector_add_uint_range_with_preference("udp.port", "", lapd_handle);
-		dissector_add_uint_range_with_preference("rtp.pt", "", lapd_bitstream_handle);
-
-		init = TRUE;
-	} else {
-		if (lapd_sctp_ppi > 0)
-			dissector_delete_uint("sctp.ppi", lapd_sctp_ppi, lapd_handle);
-	}
-
-	lapd_sctp_ppi = pref_lapd_sctp_ppi;
-	if (lapd_sctp_ppi > 0)
-		dissector_add_uint("sctp.ppi", lapd_sctp_ppi, lapd_handle);
+	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
+	dissector_add_for_decode_as_with_preference("sctp.ppi", lapd_handle);
+	dissector_add_for_decode_as("sctp.port", lapd_handle);
+	dissector_add_uint_range_with_preference("udp.port", "", lapd_handle);
+	dissector_add_uint_range_with_preference("rtp.pt", "", lapd_bitstream_handle);
 
 }
 

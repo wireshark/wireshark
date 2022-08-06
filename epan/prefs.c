@@ -5248,9 +5248,12 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"vrt.dissector_port", "vrt", "udp.port", 10},
         {"tpncp.udp.trunkpack_port", "tpncp", "udp.port", 10},
         /* SCTP */
+        {"hnbap.port", "hnbap", "sctp.port", 10},
         {"m2pa.port", "m2pa", "sctp.port", 10},
         {"megaco.sctp.txt_port", "megaco", "sctp.port", 10},
         {"rua.port", "rua", "sctp.port", 10},
+        /* SCTP PPI */
+        {"lapd.sctp_payload_protocol_identifier", "lapd", "sctp.ppi", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
@@ -5303,6 +5306,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"rtpmidi.midi_payload_type_value", "rtpmidi", "rtp.pt", 10},
         {"vp8.dynamic.payload.type", "vp8", "rtp.pt", 10},
         /* SCTP */
+        {"diameter.sctp.ports", "diameter", "sctp.port", 10},
         {"sgsap.sctp_ports", "sgsap", "sctp.port", 10},
     };
 

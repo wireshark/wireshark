@@ -69,7 +69,6 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 static guint32 PayloadType = -1;
-static guint gbl_lcsapSctpPort=SCTP_PORT_LCSAP;
 
 /* Dissector handles */
 static dissector_handle_t lcsap_handle;
@@ -231,27 +230,13 @@ dissect_lcsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 void
 proto_reg_handoff_lcsap(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint SctpPort;
-
-  if (!Initialized) {
-    lpp_handle = find_dissector_add_dependency("lpp", proto_lcsap);
-    lppa_handle = find_dissector_add_dependency("lppa", proto_lcsap);
-    xml_handle = find_dissector_add_dependency("xml", proto_lcsap);
-    dissector_add_for_decode_as("sctp.port", lcsap_handle);   /* for "decode-as"  */
-    dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
-    Initialized=TRUE;
+  lpp_handle = find_dissector_add_dependency("lpp", proto_lcsap);
+  lppa_handle = find_dissector_add_dependency("lppa", proto_lcsap);
+  xml_handle = find_dissector_add_dependency("xml", proto_lcsap);
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_LCSAP, lcsap_handle);
+  dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
 #include "packet-lcsap-dis-tab.c"
-  } else {
-    if (SctpPort != 0) {
-      dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
-    }
-  }
 
-  SctpPort=gbl_lcsapSctpPort;
-  if (SctpPort != 0) {
-    dissector_add_uint("sctp.port", SctpPort, lcsap_handle);
-  }
 }
 
 /*--- proto_register_lcsap -------------------------------------------*/
@@ -298,7 +283,7 @@ void proto_register_lcsap(void) {
 #include "packet-lcsap-ettarr.c"
  };
 
-  module_t *lcsap_module;
+  /* module_t *lcsap_module; */
   expert_module_t *expert_lcsap;
 
   static ei_register_info ei[] = {
@@ -326,14 +311,8 @@ void proto_register_lcsap(void) {
   lcsap_proc_sout_dissector_table = register_dissector_table("lcsap.proc.sout", "LCS-AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_lcsap, FT_UINT32, BASE_DEC);
   lcsap_proc_uout_dissector_table = register_dissector_table("lcsap.proc.uout", "LCS-AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_lcsap, FT_UINT32, BASE_DEC);
 
-  /* Register configuration options for ports */
-  lcsap_module = prefs_register_protocol(proto_lcsap, proto_reg_handoff_lcsap);
+  /* lcsap_module = prefs_register_protocol(proto_lcsap, NULL); */
 
-  prefs_register_uint_preference(lcsap_module, "sctp.port",
-                                 "LCSAP SCTP Port",
-                                 "Set the SCTP port for LCSAP messages",
-                                 10,
-                                 &gbl_lcsapSctpPort);
 }
 
 /*

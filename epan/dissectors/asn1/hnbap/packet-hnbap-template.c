@@ -54,7 +54,6 @@ struct hnbap_private_data {
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint global_sctp_port = SCTP_PORT_HNBAP;
 
 /* Dissector tables */
 static dissector_table_t hnbap_ies_dissector_table;
@@ -147,7 +146,6 @@ dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 /*--- proto_register_hnbap -------------------------------------------*/
 void proto_register_hnbap(void) {
-module_t *hnbap_module;
 
   /* List of fields */
 
@@ -180,8 +178,7 @@ module_t *hnbap_module;
   hnbap_proc_sout_dissector_table = register_dissector_table("hnbap.proc.sout", "HNBAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_hnbap, FT_UINT32, BASE_DEC);
   hnbap_proc_uout_dissector_table = register_dissector_table("hnbap.proc.uout", "HNBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_hnbap, FT_UINT32, BASE_DEC);
 
-  hnbap_module = prefs_register_protocol(proto_hnbap, proto_reg_handoff_hnbap);
-  prefs_register_uint_preference(hnbap_module, "port", "HNBAP SCTP Port", "Set the port for HNBAP messages (Default of 29169)", 10, &global_sctp_port);
+  /* hnbap_module = prefs_register_protocol(proto_hnbap, NULL); */
 }
 
 
@@ -189,18 +186,8 @@ module_t *hnbap_module;
 void
 proto_reg_handoff_hnbap(void)
 {
-        static gboolean initialized = FALSE;
-        static guint sctp_port;
-
-        if (!initialized) {
-                dissector_add_uint("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
-                initialized = TRUE;
+        dissector_add_uint("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
+        dissector_add_uint_with_preference("sctp.port", SCTP_PORT_HNBAP, hnbap_handle);
 #include "packet-hnbap-dis-tab.c"
 
-        } else {
-                dissector_delete_uint("sctp.port", sctp_port, hnbap_handle);
-        }
-        /* Set our port number for future use */
-        sctp_port = global_sctp_port;
-        dissector_add_uint("sctp.port", sctp_port, hnbap_handle);
 }

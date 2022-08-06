@@ -105,9 +105,6 @@ static dissector_handle_t knet_handle_sctp;
 static dissector_handle_t knet_handle_tcp;
 static dissector_handle_t knet_handle_udp;
 
-/* Ports used by the dissectors */
-static guint32 knet_sctp_port =   PORT; /*!< Port used by kNet SCTP */
-
 static const value_string packettypenames[] = { /*!< Messageid List */
     { PINGREQUEST,          "Ping Request"        },
     { PINGREPLY,            "Ping Reply"          },
@@ -648,7 +645,7 @@ dissect_knet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 void
 proto_register_knet(void)
 {
-    module_t *knet_module;
+    /* module_t *knet_module; */
 
     static hf_register_info hf_knet[] =
     {
@@ -746,11 +743,9 @@ proto_register_knet(void)
     knet_handle_tcp = register_dissector("knettcp",  dissect_knet_tcp, proto_knet);
     knet_handle_udp = register_dissector("knetudp",  dissect_knet_udp, proto_knet);
 
-    knet_module = prefs_register_protocol(proto_knet, proto_reg_handoff_knet);
+    /* Prefs module added by Decode As */
+    /* knet_module = prefs_register_protocol(proto_knet, NULL); */
 
-    prefs_register_uint_preference(knet_module, "sctp.port", "kNet SCTP Port",
-                                   "Set the SCTP port for kNet messages",
-                                   10, &knet_sctp_port);
 }
 
 /**
@@ -760,23 +755,9 @@ proto_register_knet(void)
 void
 proto_reg_handoff_knet(void)
 {
-    static gboolean initialized = FALSE;
-
-    static guint current_sctp_port;
-
-    if(!initialized)
-    {
-        dissector_add_uint_with_preference("tcp.port", PORT, knet_handle_tcp);
-        dissector_add_uint_with_preference("udp.port", PORT, knet_handle_udp);
-        initialized = TRUE;
-    }
-    else
-    {
-        dissector_delete_uint("sctp.port", current_sctp_port, knet_handle_sctp);
-    }
-
-    current_sctp_port = knet_sctp_port;
-    dissector_add_uint("sctp.port", current_sctp_port, knet_handle_sctp);
+    dissector_add_uint_with_preference("tcp.port", PORT, knet_handle_tcp);
+    dissector_add_uint_with_preference("udp.port", PORT, knet_handle_udp);
+    dissector_add_uint_with_preference("sctp.port", PORT, knet_handle_sctp);
 }
 /*
 * Editor modelines - https://www.wireshark.org/tools/modelines.html

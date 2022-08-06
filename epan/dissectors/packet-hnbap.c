@@ -330,7 +330,6 @@ struct hnbap_private_data {
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint global_sctp_port = SCTP_PORT_HNBAP;
 
 /* Dissector tables */
 static dissector_table_t hnbap_ies_dissector_table;
@@ -2661,7 +2660,7 @@ static int dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-hnbap-fn.c ---*/
-#line 87 "./asn1/hnbap/packet-hnbap-template.c"
+#line 86 "./asn1/hnbap/packet-hnbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2725,7 +2724,6 @@ dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 /*--- proto_register_hnbap -------------------------------------------*/
 void proto_register_hnbap(void) {
-module_t *hnbap_module;
 
   /* List of fields */
 
@@ -3280,7 +3278,7 @@ module_t *hnbap_module;
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-hnbap-hfarr.c ---*/
-#line 157 "./asn1/hnbap/packet-hnbap-template.c"
+#line 155 "./asn1/hnbap/packet-hnbap-template.c"
   };
 
   /* List of subtrees */
@@ -3356,7 +3354,7 @@ module_t *hnbap_module;
     &ett_hnbap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-hnbap-ettarr.c ---*/
-#line 164 "./asn1/hnbap/packet-hnbap-template.c"
+#line 162 "./asn1/hnbap/packet-hnbap-template.c"
   };
 
 
@@ -3376,8 +3374,7 @@ module_t *hnbap_module;
   hnbap_proc_sout_dissector_table = register_dissector_table("hnbap.proc.sout", "HNBAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_hnbap, FT_UINT32, BASE_DEC);
   hnbap_proc_uout_dissector_table = register_dissector_table("hnbap.proc.uout", "HNBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_hnbap, FT_UINT32, BASE_DEC);
 
-  hnbap_module = prefs_register_protocol(proto_hnbap, proto_reg_handoff_hnbap);
-  prefs_register_uint_preference(hnbap_module, "port", "HNBAP SCTP Port", "Set the port for HNBAP messages (Default of 29169)", 10, &global_sctp_port);
+  /* hnbap_module = prefs_register_protocol(proto_hnbap, NULL); */
 }
 
 
@@ -3385,12 +3382,8 @@ module_t *hnbap_module;
 void
 proto_reg_handoff_hnbap(void)
 {
-        static gboolean initialized = FALSE;
-        static guint sctp_port;
-
-        if (!initialized) {
-                dissector_add_uint("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
-                initialized = TRUE;
+        dissector_add_uint("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
+        dissector_add_uint_with_preference("sctp.port", SCTP_PORT_HNBAP, hnbap_handle);
 
 /*--- Included file: packet-hnbap-dis-tab.c ---*/
 #line 1 "./asn1/hnbap/packet-hnbap-dis-tab.c"
@@ -3441,12 +3434,6 @@ proto_reg_handoff_hnbap(void)
 
 
 /*--- End of included file: packet-hnbap-dis-tab.c ---*/
-#line 199 "./asn1/hnbap/packet-hnbap-template.c"
+#line 192 "./asn1/hnbap/packet-hnbap-template.c"
 
-        } else {
-                dissector_delete_uint("sctp.port", sctp_port, hnbap_handle);
-        }
-        /* Set our port number for future use */
-        sctp_port = global_sctp_port;
-        dissector_add_uint("sctp.port", sctp_port, hnbap_handle);
 }
