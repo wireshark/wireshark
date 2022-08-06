@@ -4507,7 +4507,9 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 
         proto_item_append_text(ti, ": %s", wmem_strbuf_get_str(strbuf));
     } else {
         expert_add_info_format(pinfo, ti, &ei_bgp_length_invalid, "Unknown Next Hop length (%u byte%s)", nhlen, plurality(nhlen, "", "s"));
-        proto_item_append_text(ti, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, nhlen));
+        if (nhlen > 0) {
+            proto_item_append_text(ti, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, nhlen));
+        }
     }
 
     return length;
