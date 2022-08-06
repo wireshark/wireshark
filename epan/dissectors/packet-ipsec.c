@@ -1218,6 +1218,7 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
   int esp_packet_len, esp_pad_len, esp_icv_len, offset;
   guint encapsulated_protocol;
   guint32 saved_match_uint;
+  gboolean heur_ok;
 
   tvbuff_t *next_tvb;
   dissector_handle_t dissector_handle;
@@ -1251,10 +1252,15 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
       if (ESP_HEADER_LEN + esp_pad_len > offset) {
         continue;
       }
+      heur_ok = TRUE;
       for (int j=0; j < esp_pad_len; j++) {
         if (tvb_get_guint8(tvb, offset - (j + 1)) != (esp_pad_len - j)) {
-          continue;
+          heur_ok = FALSE;
+          break;
         }
+      }
+      if (!heur_ok) {
+        continue;
       }
 
       saved_match_uint  = pinfo->match_uint;
