@@ -28,8 +28,9 @@
         <translation>复制版本信息到剪贴板</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>复制到剪贴板</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">复制到剪贴板</translation>
     </message>
     <message>
         <source>Authors</source>

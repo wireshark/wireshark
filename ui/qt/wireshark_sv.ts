@@ -28,8 +28,9 @@
         <translation>Kopiera versionsinformationen till urklipp</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>Kopiera till urklipp</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">Kopiera till urklipp</translation>
     </message>
     <message>
         <source>Authors</source>

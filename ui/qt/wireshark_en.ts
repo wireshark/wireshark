@@ -28,7 +28,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
+        <source>Copy to Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -28,8 +28,9 @@
         <translation>バージョン情報をクリップボードにコピーします</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>クリップボードにコピー</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">クリップボードにコピー</translation>
     </message>
     <message>
         <source>Authors</source>

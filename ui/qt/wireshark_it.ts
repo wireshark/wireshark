@@ -28,8 +28,9 @@
         <translation>Copia le informazioni di versione negli appunti</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>Copia negli appunti</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">Copia negli appunti</translation>
     </message>
     <message>
         <source>Authors</source>

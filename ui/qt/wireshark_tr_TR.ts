@@ -28,8 +28,9 @@
         <translation>Sürüm bilgilerini panoya kopyalayın</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>Panoya kopyala</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">Panoya kopyala</translation>
     </message>
     <message>
         <source>Authors</source>

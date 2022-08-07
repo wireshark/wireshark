@@ -28,8 +28,9 @@
         <translation>Versionsinformationen in die Zwischenablage kopieren</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>In die Zwischenablage kopieren</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Authors</source>

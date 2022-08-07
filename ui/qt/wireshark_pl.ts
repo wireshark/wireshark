@@ -28,8 +28,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation type="unfinished">Skopiuj do schowka</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Authors</source>

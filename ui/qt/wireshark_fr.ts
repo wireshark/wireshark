@@ -28,8 +28,9 @@
         <translation>Copier les informations de version dans le presse-papier</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>Copier dans le Presse-papiers</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">Copier dans le Presse-papiers</translation>
     </message>
     <message>
         <source>Authors</source>

@@ -28,8 +28,9 @@
         <translation>Копировать данные о версии в буфер обмена</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>Копировать В Буфер</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">Копировать В Буфер</translation>
     </message>
     <message>
         <source>Authors</source>

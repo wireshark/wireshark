@@ -28,8 +28,9 @@
         <translation>Copia la información de versión al portapapeles</translation>
     </message>
     <message>
-        <source>Copy To Clipboard</source>
-        <translation>Copiar al portapapeles</translation>
+        <source>Copy to Clipboard</source>
+        <oldsource>Copy To Clipboard</oldsource>
+        <translation type="unfinished">Copiar al portapapeles</translation>
     </message>
     <message>
         <source>Authors</source>
