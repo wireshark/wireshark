@@ -1299,6 +1299,55 @@ extcap_add_arg_and_remove_cb(gpointer key, gpointer value, gpointer data)
     return FALSE;
 }
 
+static gboolean
+extcap_stdout_cb(GIOChannel *source, GIOCondition condition _U_, gpointer data)
+{
+    interface_options *interface_opts = (interface_options *)data;
+    char buf[128];
+    gsize bytes_read;
+
+    /* Discard data to prevent child process hanging on stdout write */
+    g_io_channel_read_chars(source, buf, sizeof(buf), &bytes_read, NULL);
+    if (bytes_read == 0)
+    {
+        interface_opts->extcap_stdout_watch = 0;
+        return G_SOURCE_REMOVE;
+    }
+    return G_SOURCE_CONTINUE;
+}
+
+static gboolean
+extcap_stderr_cb(GIOChannel *source, GIOCondition condition _U_, gpointer data)
+{
+    interface_options *interface_opts = (interface_options *)data;
+    char buf[128];
+    gsize bytes_read;
+
+    g_io_channel_read_chars(source, buf, sizeof(buf), &bytes_read, NULL);
+    if (bytes_read == 0)
+    {
+        interface_opts->extcap_stderr_watch = 0;
+        return G_SOURCE_REMOVE;
+    }
+
+#define STDERR_BUFFER_SIZE 1024
+    if (interface_opts->extcap_stderr == NULL)
+    {
+        interface_opts->extcap_stderr = g_string_new_len(buf, bytes_read);
+    }
+    else
+    {
+        gssize remaining = STDERR_BUFFER_SIZE - interface_opts->extcap_stderr->len;
+        if (remaining > 0)
+        {
+            gssize bytes = bytes_read;
+            bytes = MIN(bytes, remaining);
+            g_string_append_len(interface_opts->extcap_stderr, buf, bytes);
+        }
+    }
+    return G_SOURCE_CONTINUE;
+}
+
 static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
 {
     guint i;
@@ -1320,23 +1369,30 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
                      interface_opts->extcap_pid);
             interface_opts->extcap_pid = WS_INVALID_PID;
 
+            if (interface_opts->extcap_stdout_watch > 0)
+            {
+                g_source_remove(interface_opts->extcap_stdout_watch);
+                interface_opts->extcap_stdout_watch = 0;
+            }
+
+            if (interface_opts->extcap_stderr_watch > 0)
+            {
+                g_source_remove(interface_opts->extcap_stderr_watch);
+                interface_opts->extcap_stderr_watch = 0;
+            }
+
             pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
             if (pipedata != NULL)
             {
                 g_io_channel_unref(pipedata->stdout_io);
 
-                if (pipedata->stderr_io)
+                while (extcap_stderr_cb(pipedata->stderr_io,
+                                        g_io_channel_get_buffer_condition(pipedata->stderr_io),
+                                        (gpointer)interface_opts) != G_SOURCE_REMOVE)
                 {
-#define STDERR_BUFFER_SIZE 1024
-                    gchar *buffer = (gchar *)g_malloc0(STDERR_BUFFER_SIZE + 1);
-                    g_io_channel_read_chars(pipedata->stderr_io, buffer, STDERR_BUFFER_SIZE, NULL, NULL);
-                    if (strlen(buffer) > 0)
-                    {
-                        interface_opts->extcap_stderr = g_strdup(buffer);
-                    }
-                    g_free(buffer);
-                    g_io_channel_unref(pipedata->stderr_io);
+                    /* Keep reading until there's nothing left */
                 }
+                g_io_channel_unref(pipedata->stderr_io);
 
                 g_free(pipedata);
                 interface_opts->extcap_pipedata = NULL;
@@ -1618,6 +1674,12 @@ extcap_init_interfaces(capture_session *cap_session)
         interface_opts->extcap_child_watch =
             g_child_watch_add_full(G_PRIORITY_HIGH, pid, extcap_child_watch_cb,
                                    (gpointer)cap_session, NULL);
+        interface_opts->extcap_stdout_watch =
+            g_io_add_watch(pipedata->stdout_io, G_IO_IN | G_IO_HUP,
+                           extcap_stdout_cb, (gpointer)interface_opts);
+        interface_opts->extcap_stderr_watch =
+            g_io_add_watch(pipedata->stderr_io, G_IO_IN | G_IO_HUP,
+                           extcap_stderr_cb, (gpointer)interface_opts);
 
 #ifdef _WIN32
         /* On Windows, wait for extcap to connect to named pipe.
