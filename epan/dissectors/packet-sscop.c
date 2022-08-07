@@ -375,10 +375,10 @@ proto_reg_handoff_sscop(void)
   if (!prefs_initialized) {
     initialize_handles_once();
     dissector_add_uint_range_with_preference("udp.port", "", sscop_handle);
+    dissector_add_uint("atm.aal5.type", TRAF_SSCOP, sscop_handle);
+
     prefs_initialized = TRUE;
   }
-
-  dissector_add_uint("atm.aal5.type", TRAF_SSCOP, sscop_handle);
 
   switch(sscop_payload_dissector) {
   case DATA_DISSECTOR:     default_handle = data_handle;     break;

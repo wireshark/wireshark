@@ -905,7 +905,8 @@ void proto_register_lwm(void)
  *      proto_reg_handoff_lwm
  *  DESCRIPTION
  *      Registers the lwm dissector with Wireshark.
- *      Will be called during Wireshark startup.
+ *      Will be called during Wireshark startup, and whenever
+ *      preferences are changed.
  *  PARAMETERS
  *      none
  *  RETURNS
@@ -914,9 +915,17 @@ void proto_register_lwm(void)
  */
 void proto_reg_handoff_lwm(void)
 {
+    static gboolean initialized = FALSE;
     GByteArray      *bytes;
     gboolean         res;
 
+    if (!initialized) {
+        /* Register our dissector with IEEE 802.15.4 */
+        dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, lwm_handle);
+        heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_lwm_heur, "Lightweight Mesh over IEEE 802.15.4", "lwm_wlan", proto_lwm, HEURISTIC_ENABLE);
+
+        initialized = TRUE;
+    }
     /* Convert key to raw bytes */
     bytes = g_byte_array_new();
     res = hex_str_to_bytes(lwmes_key_str, bytes, FALSE);
@@ -925,11 +934,6 @@ void proto_reg_handoff_lwm(void)
         memcpy(lwmes_key, bytes->data, IEEE802154_CIPHER_SIZE);
     }
     g_byte_array_free(bytes, TRUE);
-
-
-    /* Register our dissector with IEEE 802.15.4 */
-    dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, lwm_handle);
-    heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_lwm_heur, "Lightweight Mesh over IEEE 802.15.4", "lwm_wlan", proto_lwm, HEURISTIC_ENABLE);
 
 } /* proto_reg_handoff_lwm */
 

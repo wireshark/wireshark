@@ -3365,7 +3365,7 @@ proto_register_thread(void)
 
     proto_thread = proto_register_protocol("Thread", "Thread", "thread");
 
-    thread_module = prefs_register_protocol(proto_thread, proto_reg_handoff_thread);
+    thread_module = prefs_register_protocol(proto_thread, NULL);
     prefs_register_obsolete_preference(thread_module, "thr_coap_decode");
     prefs_register_string_preference(thread_module, "thr_seq_ctr",
                                      "Thread sequence counter",

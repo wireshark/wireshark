@@ -70,7 +70,7 @@ static expert_field ei_s5066dts_eow_hftrp_invalid = EI_INIT;
 /* TCP port that will be listened by the application that peer
  * dts layers will be connected through
  */
-static guint config_s5066dts_port = 0;
+static range_t *config_s5066dts_ports = NULL;
 
 static gint hf_s5066dts_sync_word = -1;
 static gint hf_s5066dts_dpdu_type = -1;
@@ -927,7 +927,7 @@ static int dissect_s5066dts_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     /* Drop packets with port matches other than the destination port. */
-    if ( pinfo->destport != config_s5066dts_port) {
+    if (!value_is_in_range(config_s5066dts_ports, pinfo->destport)) {
         /* Configured to dissect TCP destination port matches only, dropping.. */
         return 0;
     }
@@ -942,7 +942,7 @@ static void
 apply_s5066dts_prefs(void)
 {
     /* STANAG 5066 uses the port preference for some heuristics */
-    config_s5066dts_port = prefs_get_uint_value("s5066dts", "tcp.port");;
+    config_s5066dts_ports = prefs_get_range_value("s5066dts", "tcp.port");;
 }
 
 void proto_register_s5066dts (void)

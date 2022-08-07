@@ -426,12 +426,13 @@ proto_reg_handoff_ssyncp(void)
     if (!initialized) {
         ssyncp_handle = create_dissector_handle(dissect_ssyncp, proto_ssyncp);
         dissector_add_uint("udp.port", SSYNCP_UDP_PORT, ssyncp_handle);
-        initialized = TRUE;
-    }
 
-    dissector_protobuf = find_dissector("protobuf");
-    if (dissector_protobuf == NULL) {
-        report_failure("unable to find protobuf dissector");
+        dissector_protobuf = find_dissector("protobuf");
+        if (dissector_protobuf == NULL) {
+            report_failure("unable to find protobuf dissector");
+        }
+
+        initialized = TRUE;
     }
 
     have_ssyncp_key = FALSE;

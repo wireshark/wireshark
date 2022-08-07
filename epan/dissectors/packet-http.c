@@ -282,7 +282,6 @@ static gboolean http_decompress_body = TRUE;
 #define SCTP_DEFAULT_RANGE "80"
 #define TLS_DEFAULT_RANGE "443"
 
-static range_t *global_http_sctp_range = NULL;
 static range_t *global_http_tls_range = NULL;
 
 static range_t *http_tcp_range = NULL;
@@ -3923,10 +3922,7 @@ range_add_http_tls_callback(guint32 port, gpointer ptr _U_) {
 static void reinit_http(void) {
 	http_tcp_range = prefs_get_range_value("http", "tcp.port");
 
-	dissector_delete_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
-	wmem_free(wmem_epan_scope(), http_sctp_range);
-	http_sctp_range = range_copy(wmem_epan_scope(), global_http_sctp_range);
-	dissector_add_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
+	http_sctp_range = prefs_get_range_value("http", "sctp.port");
 
 	range_foreach(http_tls_range, range_delete_http_tls_callback, NULL);
 	wmem_free(wmem_epan_scope(), http_tls_range);
@@ -4315,11 +4311,6 @@ proto_register_http(void)
 #endif
 	prefs_register_obsolete_preference(http_module, "tcp_alternate_port");
 
-	range_convert_str(wmem_epan_scope(), &global_http_sctp_range, SCTP_DEFAULT_RANGE, 65535);
-	prefs_register_range_preference(http_module, "sctp.port", "SCTP Ports",
-					"SCTP Ports range",
-					&global_http_sctp_range, 65535);
-
 	range_convert_str(wmem_epan_scope(), &global_http_tls_range, TLS_DEFAULT_RANGE, 65535);
 	prefs_register_range_preference(http_module, "tls.port", "SSL/TLS Ports",
 					"SSL/TLS Ports range",
@@ -4543,6 +4534,7 @@ proto_reg_handoff_message_http(void)
 	proto_http2 = proto_get_id_by_filter_name("http2");
 
 	dissector_add_uint_range_with_preference("tcp.port", TCP_DEFAULT_RANGE, http_tcp_handle);
+	dissector_add_uint_range_with_preference("sctp.port", SCTP_DEFAULT_RANGE, http_sctp_handle);
 
 	reinit_http();
 }

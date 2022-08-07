@@ -13466,6 +13466,8 @@ proto_reg_handoff_amqp(void)
         dissector_add_uint("amqp.version", AMQP_V0_10, create_dissector_handle( dissect_amqpv0_10, proto_amqpv0_10 ));
         dissector_add_uint("amqp.version", AMQP_V1_0, create_dissector_handle( dissect_amqpv1_0, proto_amqpv1_0 ));
 
+        media_type_subdissector_table = find_dissector_table ("media_type");
+
         initialize = TRUE;
     }
 
@@ -13476,8 +13478,6 @@ proto_reg_handoff_amqp(void)
         ssl_dissector_add(amqps_port, amqp_tcp_handle);
         old_amqps_port = amqps_port;
     }
-
-    media_type_subdissector_table = find_dissector_table ("media_type");
 }
 
 /*

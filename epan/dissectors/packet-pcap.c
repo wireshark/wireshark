@@ -48,10 +48,6 @@
 void proto_register_pcap(void);
 void proto_reg_handoff_pcap(void);
 
-static range_t *global_ssn_range;
-
-static dissector_table_t sccp_ssn_table;
-
 
 /*--- Included file: packet-pcap-val.h ---*/
 #line 1 "./asn1/pcap/packet-pcap-val.h"
@@ -240,7 +236,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-pcap-val.h ---*/
-#line 48 "./asn1/pcap/packet-pcap-template.c"
+#line 44 "./asn1/pcap/packet-pcap-template.c"
 
 static dissector_handle_t pcap_handle = NULL;
 
@@ -1393,7 +1389,7 @@ static int hf_pcap_AvailableSubChannelNumbers_subCh1 = -1;
 static int hf_pcap_AvailableSubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-pcap-hf.c ---*/
-#line 55 "./asn1/pcap/packet-pcap-template.c"
+#line 51 "./asn1/pcap/packet-pcap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_pcap = -1;
@@ -1796,7 +1792,7 @@ static gint ett_pcap_UnsuccessfulOutcome = -1;
 static gint ett_pcap_Outcome = -1;
 
 /*--- End of included file: packet-pcap-ett.c ---*/
-#line 60 "./asn1/pcap/packet-pcap-template.c"
+#line 56 "./asn1/pcap/packet-pcap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -13540,7 +13536,7 @@ static int dissect_PCAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pcap-fn.c ---*/
-#line 84 "./asn1/pcap/packet-pcap-template.c"
+#line 80 "./asn1/pcap/packet-pcap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -13593,12 +13589,6 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_reg_handoff_pcap(void)
 {
-    static gboolean prefs_initialized = FALSE;
-    static range_t *ssn_range;
-
-    if (! prefs_initialized) {
-        sccp_ssn_table = find_dissector_table("sccp.ssn");
-        prefs_initialized = TRUE;
 
 /*--- Included file: packet-pcap-dis-tab.c ---*/
 #line 1 "./asn1/pcap/packet-pcap-dis-tab.c"
@@ -13740,13 +13730,8 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 143 "./asn1/pcap/packet-pcap-template.c"
-    } else {
-        dissector_delete_uint_range("sccp.ssn", ssn_range, pcap_handle);
-        wmem_free(wmem_epan_scope(), ssn_range);
-    }
-    ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
-    dissector_add_uint_range("sccp.ssn", ssn_range, pcap_handle);
+#line 133 "./asn1/pcap/packet-pcap-template.c"
+    dissector_add_for_decode_as_with_preference("sccp.ssn", pcap_handle);
 }
 
 /*--- proto_register_pcap -------------------------------------------*/
@@ -18321,7 +18306,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 159 "./asn1/pcap/packet-pcap-template.c"
+#line 144 "./asn1/pcap/packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -18725,10 +18710,10 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 165 "./asn1/pcap/packet-pcap-template.c"
+#line 150 "./asn1/pcap/packet-pcap-template.c"
   };
 
-  module_t *pcap_module;
+  /* module_t *pcap_module; */
 
   /* Register protocol */
   proto_pcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -18736,7 +18721,7 @@ void proto_register_pcap(void) {
   proto_register_field_array(proto_pcap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  pcap_module = prefs_register_protocol(proto_pcap, proto_reg_handoff_pcap);
+  /* pcap_module = prefs_register_protocol(proto_pcap, NULL); */
 
   /* Register dissector */
   pcap_handle = register_dissector("pcap", dissect_pcap, proto_pcap);
@@ -18752,13 +18737,6 @@ void proto_register_pcap(void) {
   pcap_proc_out_dissector_table = register_dissector_table("pcap.proc.out", "PCAP-ELEMENTARY-PROCEDURE Outcome", proto_pcap, FT_UINT32, BASE_DEC);
 
 
-  /* Preferences */
-  /* Set default SSNs */
-  range_convert_str(wmem_epan_scope(), &global_ssn_range, "", MAX_SSN);
-
-  prefs_register_range_preference(pcap_module, "ssn", "SCCP SSNs",
-                                  "SCCP (and SUA) SSNs to decode as PCAP",
-                                  &global_ssn_range, MAX_SSN);
 }
 
 

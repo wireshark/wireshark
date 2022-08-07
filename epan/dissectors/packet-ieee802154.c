@@ -7050,6 +7050,29 @@ void proto_reg_handoff_ieee802154(void)
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_TAP, ieee802154_tap_handle);
         dissector_add_uint("sll.ltype", LINUX_SLL_P_IEEE802154, ieee802154_handle);
 
+        /* Register internal IE handlers */
+        dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_TIME_CORR, create_dissector_handle(dissect_hie_time_correction, -1));
+        dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_CSL, create_dissector_handle(dissect_hie_csl, -1));
+        dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_RENDEZVOUS, create_dissector_handle(dissect_hie_rendezvous_time, -1));
+        dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_GLOBAL_TIME, create_dissector_handle(dissect_hie_global_time, -1));
+        dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_VENDOR_SPECIFIC, create_dissector_handle(dissect_hie_vendor_specific, -1));
+
+        dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_MLME, create_dissector_handle(dissect_pie_mlme, -1));
+        dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_VENDOR, create_dissector_handle(dissect_pie_vendor, -1));
+        dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_MPX, create_dissector_handle(dissect_mpx_ie, -1));
+        dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_IETF, create_dissector_handle(dissect_ietf_ie, -1));
+
+        dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_CHANNEL_HOPPING, create_dissector_handle(dissect_802154_channel_hopping, -1));
+        dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_TSCH_SYNCH, create_dissector_handle(dissect_802154_tsch_time_sync, -1));
+        dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_TSCH_SLOTFR_LINK, create_dissector_handle(dissect_802154_tsch_slotframe_link, -1));
+        dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_TSCH_TIMESLOT, create_dissector_handle(dissect_802154_tsch_timeslot, -1));
+        dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_ENHANCED_BEACON_FILTER, create_dissector_handle(dissect_802154_eb_filter, -1));
+
+        /* For the MPX-IE */
+        ethertype_table = find_dissector_table("ethertype");
+        eapol_handle = find_dissector("eapol");
+        lowpan_handle = find_dissector("6lowpan");
+        wisun_sec_handle = find_dissector("wisun.sec");
         prefs_initialized = TRUE;
     } else {
         dissector_delete_uint("ethertype", old_ieee802154_ethertype, ieee802154_handle);
@@ -7060,29 +7083,6 @@ void proto_reg_handoff_ieee802154(void)
     /* Register dissector handles. */
     dissector_add_uint("ethertype", ieee802154_ethertype, ieee802154_handle);
 
-    /* Register internal IE handlers */
-    dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_TIME_CORR, create_dissector_handle(dissect_hie_time_correction, -1));
-    dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_CSL, create_dissector_handle(dissect_hie_csl, -1));
-    dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_RENDEZVOUS, create_dissector_handle(dissect_hie_rendezvous_time, -1));
-    dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_GLOBAL_TIME, create_dissector_handle(dissect_hie_global_time, -1));
-    dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_VENDOR_SPECIFIC, create_dissector_handle(dissect_hie_vendor_specific, -1));
-
-    dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_MLME, create_dissector_handle(dissect_pie_mlme, -1));
-    dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_VENDOR, create_dissector_handle(dissect_pie_vendor, -1));
-    dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_MPX, create_dissector_handle(dissect_mpx_ie, -1));
-    dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_IETF, create_dissector_handle(dissect_ietf_ie, -1));
-
-    dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_CHANNEL_HOPPING, create_dissector_handle(dissect_802154_channel_hopping, -1));
-    dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_TSCH_SYNCH, create_dissector_handle(dissect_802154_tsch_time_sync, -1));
-    dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_TSCH_SLOTFR_LINK, create_dissector_handle(dissect_802154_tsch_slotframe_link, -1));
-    dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_TSCH_TIMESLOT, create_dissector_handle(dissect_802154_tsch_timeslot, -1));
-    dissector_add_uint(IEEE802154_MLME_IE_DTABLE, IEEE802154_MLME_SUBIE_ENHANCED_BEACON_FILTER, create_dissector_handle(dissect_802154_eb_filter, -1));
-
-    /* For the MPX-IE */
-    ethertype_table = find_dissector_table("ethertype");
-    eapol_handle = find_dissector("eapol");
-    lowpan_handle = find_dissector("6lowpan");
-    wisun_sec_handle = find_dissector("wisun.sec");
 } /* proto_reg_handoff_ieee802154 */
 
 /*

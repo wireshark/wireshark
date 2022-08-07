@@ -208,8 +208,8 @@ proto_register_etag(void)
     proto_register_field_array(proto_etag, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    etag_module = prefs_register_protocol(proto_etag, proto_reg_handoff_etag);
-        prefs_register_bool_preference(etag_module, "summary_in_tree",
+    etag_module = prefs_register_protocol(proto_etag, NULL);
+    prefs_register_bool_preference(etag_module, "summary_in_tree",
         "Show E-Tag summary in protocol tree",
         "Whether the E-Tag summary line should be shown in the protocol tree",
         &etag_summary_in_tree);

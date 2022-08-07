@@ -55,7 +55,6 @@ static dissector_handle_t osi_tp_handle;
 static dissector_handle_t tpkt_handle;
 
 #define DEFAULT_TPKT_PORT_RANGE "102"
-static range_t *tpkt_tcp_port_range;
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
@@ -675,19 +674,12 @@ proto_register_tpkt(void)
     proto_register_subtree_array(ett, array_length(ett));
     tpkt_handle = register_dissector("tpkt", dissect_tpkt, proto_tpkt);
 
-    tpkt_module = prefs_register_protocol(proto_tpkt, proto_reg_handoff_tpkt);
+    tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
     prefs_register_bool_preference(tpkt_module, "desegment",
         "Reassemble TPKT messages spanning multiple TCP segments",
         "Whether the TPKT dissector should reassemble messages spanning multiple TCP segments. "
         "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &tpkt_desegment);
-
-    range_convert_str(wmem_epan_scope(), &tpkt_tcp_port_range, DEFAULT_TPKT_PORT_RANGE, MAX_TCP_PORT);
-
-    prefs_register_range_preference(tpkt_module, "tcp.ports", "TPKT TCP ports",
-                                  "TCP ports to be decoded as TPKT (default: "
-                                  DEFAULT_TPKT_PORT_RANGE ")",
-                                  &tpkt_tcp_port_range, MAX_TCP_PORT);
 
     /* heuristic dissectors for premable CredSSP before RDP and Fast-Path RDP packets */
     tpkt_heur_subdissector_list = register_heur_dissector_list("tpkt", proto_tpkt);
@@ -698,16 +690,8 @@ proto_register_tpkt(void)
 void
 proto_reg_handoff_tpkt(void)
 {
-    static range_t *port_range = NULL;
-
     osi_tp_handle = find_dissector("ositp");
     dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_TPKT_RANGE, tpkt_handle);
-
-    dissector_delete_uint_range("tcp.port", port_range, tpkt_handle);
-    wmem_free(wmem_epan_scope(), port_range);
-
-    port_range = range_copy(wmem_epan_scope(), tpkt_tcp_port_range);
-    dissector_add_uint_range("tcp.port", port_range, tpkt_handle);
 
     /* ssl_dissector_add registers TLS as the dissector for TCP for the
      * given port. We can't use it, since on port 3389 TPKT (for RDP) can be

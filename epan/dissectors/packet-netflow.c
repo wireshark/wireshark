@@ -21021,10 +21021,10 @@ proto_reg_handoff_netflow(void)
     static range_t  *netflow_ports;
     static range_t  *ipfix_ports;
 
-    /* Find eth_handle used for IE315*/
-    eth_handle = find_dissector ("eth_withoutfcs");
-
     if (!netflow_prefs_initialized) {
+        /* Find eth_handle used for IE315*/
+        eth_handle = find_dissector ("eth_withoutfcs");
+
         netflow_handle = create_dissector_handle(dissect_netflow, proto_netflow);
         netflow_tcp_handle = create_dissector_handle(dissect_tcp_netflow, proto_netflow);
         netflow_prefs_initialized = TRUE;

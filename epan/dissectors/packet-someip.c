@@ -234,9 +234,6 @@ static const fragment_items someip_tp_frag_items = {
 
 static reassembly_table someip_tp_reassembly_table;
 
-static range_t *someip_ports_udp = NULL;
-static range_t *someip_ports_tcp = NULL;
-
 static gboolean someip_tp_reassemble = TRUE;
 static gboolean someip_deserializer_activated = TRUE;
 static gboolean someip_deserializer_wtlv_default = FALSE;
@@ -4074,16 +4071,6 @@ proto_register_someip(void) {
     /* Register preferences */
     someip_module = prefs_register_protocol(proto_someip, &proto_reg_handoff_someip);
 
-    range_convert_str(wmem_epan_scope(), &someip_ports_udp, "", 65535);
-    prefs_register_range_preference(someip_module, "ports.udp", "UDP Ports",
-        "SOME/IP Port Ranges UDP.",
-        &someip_ports_udp, 65535);
-
-    range_convert_str(wmem_epan_scope(), &someip_ports_tcp, "", 65535);
-    prefs_register_range_preference(someip_module, "ports.tcp", "TCP Ports",
-        "SOME/IP Port Ranges TCP.",
-        &someip_ports_tcp, 65535);
-
     /* UATs */
     someip_service_uat = uat_new("SOME/IP Services",
         sizeof(generic_one_id_string_t),                   /* record size           */
@@ -4396,16 +4383,13 @@ proto_reg_handoff_someip(void) {
 
         stats_tree_register("someip_messages", "someip_messages", "SOME/IP Messages", 0, someip_messages_stats_tree_packet, someip_messages_stats_tree_init, NULL);
 
+        dissector_add_uint_range_with_preference("udp.port", "", someip_handle_udp);
+        dissector_add_uint_range_with_preference("tcp.port", "", someip_handle_tcp);
+
         initialized = TRUE;
     } else {
-        /* delete all my ports even the dynamically registered ones */
-        dissector_delete_all("udp.port", someip_handle_udp);
-        dissector_delete_all("tcp.port", someip_handle_tcp);
-
         clean_all_hashtables_with_empty_uat();
     }
-    dissector_add_uint_range("udp.port", someip_ports_udp, someip_handle_udp);
-    dissector_add_uint_range("tcp.port", someip_ports_tcp, someip_handle_tcp);
 
     update_dynamic_hf_entries_someip_parameter_list();
     update_dynamic_hf_entries_someip_parameter_arrays();

@@ -536,14 +536,15 @@ void proto_reg_handoff_uasip(void)
     {
         ua_sys_to_term_handle = find_dissector_add_dependency("ua_sys_to_term", proto_uasip);
         ua_term_to_sys_handle = find_dissector_add_dependency("ua_term_to_sys", proto_uasip);
+
+        /* Enable decoding "Internet media type" as UASIP */
+        dissector_add_for_decode_as("media_type", uasip_handle);
+
         prefs_initialized = TRUE;
     }
 
     use_proxy_ipaddr = FALSE;
     memset(proxy_ipaddr, 0, sizeof(proxy_ipaddr));
-
-    /* Enable decoding "Internet media type" as UASIP */
-    dissector_add_for_decode_as("media_type", uasip_handle);
 
     if (strcmp(pref_proxy_ipaddr_s, "") != 0) {
         if (str_to_ip(pref_proxy_ipaddr_s, proxy_ipaddr)) {

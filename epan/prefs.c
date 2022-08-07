@@ -5254,6 +5254,8 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"rua.port", "rua", "sctp.port", 10},
         /* SCTP PPI */
         {"lapd.sctp_payload_protocol_identifier", "lapd", "sctp.ppi", 10},
+        /* SCCP SSN */
+        {"ranap.sccp_ssn", "ranap", "sccp.ssn", 10},
     };
 
     struct port_pref_name port_range_prefs[] = {
@@ -5267,7 +5269,9 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"pdu_transport.ports.tcp", "pdu_transport", "tcp.port", 10},
         {"rtsp.tcp.port_range", "rtsp", "tcp.port", 10},
         {"sip.tcp.ports", "sip", "tcp.port", 10},
+        {"someip.ports.tcp", "someip", "tcp.port", 10},
         {"tds.tcp_ports", "tds", "tcp.port", 10},
+        {"tpkt.tcp.ports", "tpkt", "tcp.port", 10},
         {"uma.tcp.ports", "uma", "tcp.port", 10},
         /* UDP */
         {"aruba_erm.udp.ports", "arubs_erm", "udp.port", 10},
@@ -5283,6 +5287,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         {"pdu_transport.ports.udp", "pdu_transport", "udp.port", 10},
         {"radius.ports", "radius", "udp.port", 10},
         {"sflow.ports", "sflow", "udp.port", 10},
+        {"someip.ports.udp", "someip", "udp.port", 10},
         {"sscop.udp.ports", "sscop", "udp.port", 10},
         {"tftp.udp_ports", "tftp", "udp.port", 10},
         {"tipc.udp.ports", "tipc", "udp.port", 10},
@@ -5308,6 +5313,8 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         /* SCTP */
         {"diameter.sctp.ports", "diameter", "sctp.port", 10},
         {"sgsap.sctp_ports", "sgsap", "sctp.port", 10},
+        /* SCCP SSN */
+        {"pcap.ssn", "pcap", "sccp.ssn", 10},
     };
 
     /* These are subdissectors of TPKT/OSITP that used to have a

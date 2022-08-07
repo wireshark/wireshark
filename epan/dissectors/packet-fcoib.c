@@ -313,7 +313,7 @@ proto_register_fcoib(void)
     expert_fcoib = expert_register_protocol(proto_fcoib);
     expert_register_field_array(expert_fcoib, ei, array_length(ei));
 
-    fcoib_module = prefs_register_protocol(proto_fcoib, proto_reg_handoff_fcoib);
+    fcoib_module = prefs_register_protocol(proto_fcoib, NULL);
 
     prefs_register_static_text_preference(fcoib_module, "use_decode_as",
         "Heuristic matching preferences removed.  Use Infiniband protocol preferences or Decode As.",

@@ -435,6 +435,9 @@ proto_reg_handoff_ieee8021ah(void)
         capture_dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ah_cap_handle);
         capture_dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1AH, ieee8021ah_cap_handle);
 
+        ipx_cap_handle = find_capture_dissector("ipx");
+        llc_cap_handle = find_capture_dissector("llc");
+
         prefs_initialized = TRUE;
     }
     else {
@@ -443,9 +446,6 @@ proto_reg_handoff_ieee8021ah(void)
 
     old_ieee8021ah_ethertype = ieee8021ah_ethertype;
     dissector_add_uint("ethertype", ieee8021ah_ethertype, ieee8021ah_handle);
-
-    ipx_cap_handle = find_capture_dissector("ipx");
-    llc_cap_handle = find_capture_dissector("llc");
 }
 
 /*

@@ -151,7 +151,7 @@ proto_register_tdmoe(void)
 	proto_tdmoe = proto_register_protocol("Digium TDMoE Protocol", "TDMoE", "tdmoe");
 	proto_register_field_array(proto_tdmoe, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	tdmoe_module = prefs_register_protocol(proto_tdmoe, proto_reg_handoff_tdmoe);
+	tdmoe_module = prefs_register_protocol(proto_tdmoe, NULL);
 	prefs_register_uint_preference(tdmoe_module, "d_channel",
 				       "TDMoE D-Channel",
 				       "The TDMoE channel that contains the D-Channel.",

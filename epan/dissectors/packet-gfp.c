@@ -576,15 +576,6 @@ proto_register_gfp(void)
     register_decode_as(&gfp_da);
 }
 
-/* If this function is registered as a prefs callback (see
- * prefs_register_protocol above) this function is also called by Wireshark's
- * preferences manager whenever "Apply" or "OK" are pressed. In that case, it
- * should accommodate being called more than once by use of the static
- * 'initialized' variable included below.
- *
- * This form of the reg_handoff function is used if you perform registration
- * functions which are dependent upon prefs.
- */
 void
 proto_reg_handoff_gfp(void)
 {

@@ -74,9 +74,6 @@ struct e2ap_private_data {
   guint32 ran_ue_e2ap_id;
 };
 
-/* Global variables */
-static guint gbl_e2apSctpPort = SCTP_PORT_E2AP;
-
 /* Dissector tables */
 static dissector_table_t e2ap_ies_dissector_table;
 //static dissector_table_t e2ap_ies_p1_dissector_table;
@@ -193,31 +190,16 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_reg_handoff_e2ap(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint SctpPort;
-
-  if (!Initialized) {
-    dissector_add_for_decode_as("sctp.port", e2ap_handle);
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E2AP, e2ap_handle);
 #if 0
-    /* TODO: should one or more of these be registered? */
-    dissector_add_uint("sctp.ppi", E2_CP_PROTOCOL_ID,   e2ap_handle);
-    dissector_add_uint("sctp.ppi", E2_UP_PROTOCOL_ID,   e2ap_handle);
-    dissector_add_uint("sctp.ppi", E2_DU_PROTOCOL_ID,   e2ap_handle);
+  /* TODO: should one or more of these be registered? */
+  dissector_add_uint("sctp.ppi", E2_CP_PROTOCOL_ID,   e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_UP_PROTOCOL_ID,   e2ap_handle);
+  dissector_add_uint("sctp.ppi", E2_DU_PROTOCOL_ID,   e2ap_handle);
 #endif
 
-    Initialized=TRUE;
 #include "packet-e2ap-dis-tab.c"
 
-  } else {
-    if (SctpPort != 0) {
-      dissector_delete_uint("sctp.port", SctpPort, e2ap_handle);
-    }
-  }
-
-  SctpPort=gbl_e2apSctpPort;
-  if (SctpPort != 0) {
-    dissector_add_uint("sctp.port", SctpPort, e2ap_handle);
-  }
 }
 
 /*--- proto_register_e2ap -------------------------------------------*/
@@ -237,7 +219,7 @@ void proto_register_e2ap(void) {
   };
 
 
-  module_t *e2ap_module;
+  /* module_t *e2ap_module; */
 
   /* Register protocol */
   proto_e2ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -260,13 +242,8 @@ void proto_register_e2ap(void) {
   e2ap_n2_ie_type_dissector_table = register_dissector_table("e2ap.n2_ie_type", "E2AP N2 IE Type", proto_e2ap, FT_STRING, FALSE);
 
   /* Register configuration options for ports */
-  e2ap_module = prefs_register_protocol(proto_e2ap, proto_reg_handoff_e2ap);
+  /* e2ap_module = prefs_register_protocol(proto_e2ap, NULL); */
 
-  prefs_register_uint_preference(e2ap_module, "sctp.port",
-                                 "e2ap SCTP Port",
-                                 "Set the SCTP port for e2ap messages",
-                                 10,
-                                 &gbl_e2apSctpPort);
 }
 
 /*

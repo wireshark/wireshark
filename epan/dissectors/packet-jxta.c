@@ -2391,6 +2391,10 @@ void proto_reg_handoff_jxta(void)
 
         media_handle = find_dissector_add_dependency("media", proto_jxta);
 
+        heur_dissector_add("udp", dissect_jxta_UDP_heur, "JXTA over UDP", "jxta_udp", proto_jxta, HEURISTIC_ENABLE);
+        heur_dissector_add("tcp", dissect_jxta_TCP_heur, "JXTA over TCP", "jxta_tcp", proto_jxta, HEURISTIC_ENABLE);
+        heur_dissector_add("sctp", dissect_jxta_SCTP_heur, "JXTA over SCTP", "jxta_sctp", proto_jxta, HEURISTIC_ENABLE);
+
         init_done = TRUE;
         }
 
@@ -2407,15 +2411,6 @@ void proto_reg_handoff_jxta(void)
             msg_media_register_done = FALSE;
             }
     }
-
-    /* ws_message( "Registering UDP Heuristic dissector" ); */
-    heur_dissector_add("udp", dissect_jxta_UDP_heur, "JXTA over UDP", "jxta_udp", proto_jxta, HEURISTIC_ENABLE);
-
-    /* ws_message( "Registering TCP Heuristic dissector" ); */
-    heur_dissector_add("tcp", dissect_jxta_TCP_heur, "JXTA over TCP", "jxta_tcp", proto_jxta, HEURISTIC_ENABLE);
-
-    /* ws_message( "Registering SCTP Heuristic dissector" ); */
-    heur_dissector_add("sctp", dissect_jxta_SCTP_heur, "JXTA over SCTP", "jxta_sctp", proto_jxta, HEURISTIC_ENABLE);
 }
 
 /*

@@ -1717,9 +1717,6 @@ static dissector_handle_t ranap_handle;
 
 int pdu_type = 0; /* 0 means wildcard */
 
-/* Initialise the Preferences */
-static gint global_ranap_sccp_ssn = SCCP_SSN_RANAP;
-
 /* Dissector tables */
 static dissector_table_t ranap_ies_dissector_table;
 static dissector_table_t ranap_ies_p1_dissector_table;
@@ -15056,7 +15053,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 196 "./asn1/ranap/packet-ranap-template.c"
+#line 193 "./asn1/ranap/packet-ranap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -18440,7 +18437,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 411 "./asn1/ranap/packet-ranap-template.c"
+#line 408 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -18804,7 +18801,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 419 "./asn1/ranap/packet-ranap-template.c"
+#line 416 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -18829,10 +18826,7 @@ void proto_register_ranap(void) {
 
   nas_pdu_dissector_table = register_dissector_table("ranap.nas_pdu", "RANAP NAS PDU", proto_ranap, FT_UINT8, BASE_DEC);
 
-  ranap_module = prefs_register_protocol(proto_ranap, proto_reg_handoff_ranap);
-  prefs_register_uint_preference(ranap_module, "sccp_ssn", "SCCP SSN for RANAP",
-                                 "The SCCP SubSystem Number for RANAP (default 142)", 10,
-                                 &global_ranap_sccp_ssn);
+  ranap_module = prefs_register_protocol(proto_ranap, NULL);
   prefs_register_bool_preference(ranap_module, "dissect_rrc_container",
                                  "Attempt to dissect RRC-Container",
                                  "Attempt to dissect RRC message embedded in RRC-Container IE",
@@ -18844,17 +18838,13 @@ void proto_register_ranap(void) {
 void
 proto_reg_handoff_ranap(void)
 {
-  static gboolean initialized = FALSE;
-  static gint local_ranap_sccp_ssn;
-
-  if (!initialized) {
-    rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
-    rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
-    rrc_ho_to_utran_cmd = find_dissector_add_dependency("rrc.irat.ho_to_utran_cmd", proto_ranap);
-    bssgp_handle = find_dissector("bssgp");
-    heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap, HEURISTIC_ENABLE);
-    heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap, HEURISTIC_ENABLE);
-    initialized = TRUE;
+  rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
+  rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
+  rrc_ho_to_utran_cmd = find_dissector_add_dependency("rrc.irat.ho_to_utran_cmd", proto_ranap);
+  bssgp_handle = find_dissector("bssgp");
+  heur_dissector_add("sccp", dissect_sccp_ranap_heur, "RANAP over SCCP", "ranap_sccp", proto_ranap, HEURISTIC_ENABLE);
+  heur_dissector_add("sua", dissect_sccp_ranap_heur, "RANAP over SUA", "ranap_sua", proto_ranap, HEURISTIC_ENABLE);
+  dissector_add_uint_with_preference("sccp.ssn", SCCP_SSN_RANAP, ranap_handle);
 
 /*--- Included file: packet-ranap-dis-tab.c ---*/
 #line 1 "./asn1/ranap/packet-ranap-dis-tab.c"
@@ -19233,13 +19223,8 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 470 "./asn1/ranap/packet-ranap-template.c"
-  } else {
-    dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
-  }
+#line 460 "./asn1/ranap/packet-ranap-template.c"
 
-  dissector_add_uint("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
-  local_ranap_sccp_ssn = global_ranap_sccp_ssn;
 }
 
 /*

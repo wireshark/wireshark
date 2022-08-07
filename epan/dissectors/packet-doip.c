@@ -1267,7 +1267,7 @@ proto_register_doip(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     doip_handle = register_dissector("doip", dissect_doip, proto_doip);
-    doip_module = prefs_register_protocol(proto_doip, &proto_reg_handoff_doip);
+    doip_module = prefs_register_protocol(proto_doip, NULL);
 
     /* UATs */
     doip_diag_addr_uat = uat_new("Diagnostic Addresses",

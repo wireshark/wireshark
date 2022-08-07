@@ -2607,7 +2607,7 @@ proto_register_tibia(void)
     expert_module_t *expert_tibia = expert_register_protocol(proto_tibia);
     expert_register_field_array (expert_tibia, ei, array_length (ei));
 
-    module_t *tibia_module = prefs_register_protocol(proto_tibia, proto_reg_handoff_tibia);
+    module_t *tibia_module = prefs_register_protocol(proto_tibia, NULL);
 
     prefs_register_bool_preference(tibia_module, "try_otserv_key", "Try OTServ's RSA key",
         "Try the default RSA key in use by nearly all Open Tibia servers", &try_otserv_key);

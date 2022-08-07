@@ -436,7 +436,7 @@ proto_register_ib_sdp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register preferences */
-    ib_sdp_module = prefs_register_protocol(proto_ib_sdp, proto_reg_handoff_ib_sdp);
+    ib_sdp_module = prefs_register_protocol(proto_ib_sdp, NULL);
 
     prefs_register_static_text_preference(ib_sdp_module, "use_decode_as",
         "Heuristic matching preferences removed.  Use Infiniband protocol preferences or Decode As.",

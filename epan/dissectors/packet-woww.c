@@ -5265,8 +5265,7 @@ proto_register_woww(void)
     proto_register_field_array(proto_woww, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    prefs_register_protocol(proto_woww,
-            NULL);
+    prefs_register_protocol(proto_woww, NULL);
 
 }
 

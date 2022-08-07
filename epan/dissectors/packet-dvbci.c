@@ -6430,8 +6430,7 @@ proto_register_dvbci(void)
     expert_dvbci = expert_register_protocol(proto_dvbci);
     expert_register_field_array(expert_dvbci, ei, array_length(ei));
 
-    dvbci_module = prefs_register_protocol(
-        proto_dvbci, proto_reg_handoff_dvbci);
+    dvbci_module = prefs_register_protocol(proto_dvbci, proto_reg_handoff_dvbci);
     prefs_register_string_preference(dvbci_module,
             "sek", "SAC Encryption Key", "SAC Encryption Key (16 hex bytes)",
             &dvbci_sek);
@@ -6472,14 +6471,19 @@ proto_register_dvbci(void)
 void
 proto_reg_handoff_dvbci(void)
 {
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
+    static gboolean initialized = FALSE;
 
-    data_handle = find_dissector("data");
-    mpeg_pmt_handle = find_dissector_add_dependency("mpeg_pmt", proto_dvbci);
-    dvb_nit_handle = find_dissector_add_dependency("dvb_nit", proto_dvbci);
-    mime_handle = find_dissector_add_dependency("mime_dlt", proto_dvbci);
-    tcp_dissector_table = find_dissector_table("tcp.port");
-    udp_dissector_table = find_dissector_table("udp.port");
+    if (!initialized) {
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
+
+        data_handle = find_dissector("data");
+        mpeg_pmt_handle = find_dissector_add_dependency("mpeg_pmt", proto_dvbci);
+        dvb_nit_handle = find_dissector_add_dependency("dvb_nit", proto_dvbci);
+        mime_handle = find_dissector_add_dependency("mime_dlt", proto_dvbci);
+        tcp_dissector_table = find_dissector_table("tcp.port");
+        udp_dissector_table = find_dissector_table("udp.port");
+        initialized = TRUE;
+    }
 
     g_free(dvbci_sek_bin);
     g_free(dvbci_siv_bin);
