@@ -4058,7 +4058,7 @@ set_both_sides_umts_fp_conv_data(packet_info *pinfo, umts_fp_conversation_info_t
         /* Conversation does not exist yet, creating one now. */
         packet_direction_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
             conversation_pt_to_endpoint_type(pinfo->ptype),
-            pinfo->destport, pinfo->srcport, NO_PORT2);
+            pinfo->destport, pinfo->srcport, NO_ADDR2);
     }
     conversation_add_proto_data(packet_direction_conv, proto_fp, umts_fp_conversation_info);
 
@@ -4071,7 +4071,7 @@ set_both_sides_umts_fp_conv_data(packet_info *pinfo, umts_fp_conversation_info_t
         /* Conversation does not exist yet, creating one now. */
         other_direction_conv = conversation_new(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
             conversation_pt_to_endpoint_type(pinfo->ptype),
-            pinfo->srcport, pinfo->destport, NO_PORT2);
+            pinfo->srcport, pinfo->destport, NO_ADDR2);
     }
     conversation_add_proto_data(other_direction_conv, proto_fp, umts_fp_conversation_info);
 
