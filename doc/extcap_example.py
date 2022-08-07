@@ -20,7 +20,7 @@ the extcap folder, with the following content:
 
 -------
 @echo off
-<Path to python interpreter> <Path to script file> %*
+C:\Windows\py.exe C:\Path\to\extcap_example.py %*
 -------
 
 Windows is not able to execute Python scripts directly, which also goes for all
@@ -445,7 +445,7 @@ if __name__ == '__main__':
 
     parser = ArgumentParser(
             prog="Extcap Example",
-            description="Extcap example program for python"
+            description="Extcap example program for Python"
             )
 
     # Extcap Arguments

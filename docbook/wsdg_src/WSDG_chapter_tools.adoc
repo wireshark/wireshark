@@ -655,9 +655,10 @@ Your version string will likely vary.
 
 === Python
 
-https://python.org/[Python] is an interpreted programming language. It is
-used to generate some source files, documentation, testing and other tasks.
-Python 3.4 and later is required. Python 2.7 is no longer supported.
+https://python.org/[Python] is an interpreted programming language.
+It is used to generate some source files, documentation, testing and other tasks.
+Python 3.6 and later is required.
+Python 2 is no longer supported.
 
 Python is either included or available as a package on most UNIX-like platforms.
 Windows packages and source are available at https://python.org/download/[].

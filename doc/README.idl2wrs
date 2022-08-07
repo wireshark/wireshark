@@ -46,7 +46,7 @@ need the following.
 
 
 1. Python must be installed
-   http://python.org/
+   https://python.org/
 
 2. omniidl from the omniORB package must be available.
    http://omniorb.sourceforge.net/

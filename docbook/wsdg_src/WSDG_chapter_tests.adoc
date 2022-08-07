@@ -68,7 +68,7 @@ be skipped while other tests can still run to completion.
 
 The `test/test.py` script uses Python's “unittest” module. Our tests are
 patterned after it, and individual tests are organized according to
-suites, cases, and individual tests. Suites correspond to python modules
+suites, cases, and individual tests. Suites correspond to Python modules
 that match the pattern “suite_*.py”. Cases correspond to one or more
 classes in each module, and case class methods matching the pattern
 ”test_*” correspond to individual tests. For example, the invalid
