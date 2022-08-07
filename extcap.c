@@ -1323,22 +1323,19 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
             pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
             if (pipedata != NULL)
             {
-                if (pipedata->stdout_fd > 0)
-                {
-                    ws_close(pipedata->stdout_fd);
-                }
+                g_io_channel_unref(pipedata->stdout_io);
 
-                if (pipedata->stderr_fd > 0)
+                if (pipedata->stderr_io)
                 {
 #define STDERR_BUFFER_SIZE 1024
                     gchar *buffer = (gchar *)g_malloc0(STDERR_BUFFER_SIZE + 1);
-                    ws_read_string_from_pipe(ws_get_pipe_handle(pipedata->stderr_fd), buffer, STDERR_BUFFER_SIZE + 1);
+                    g_io_channel_read_chars(pipedata->stderr_io, buffer, STDERR_BUFFER_SIZE, NULL, NULL);
                     if (strlen(buffer) > 0)
                     {
                         interface_opts->extcap_stderr = g_strdup(buffer);
                     }
                     g_free(buffer);
-                    ws_close(pipedata->stderr_fd);
+                    g_io_channel_unref(pipedata->stderr_io);
                 }
 
                 g_free(pipedata);
@@ -1614,7 +1611,8 @@ extcap_init_interfaces(capture_session *cap_session)
             continue;
         }
 
-        ws_close(pipedata->stdin_fd);
+        g_io_channel_unref(pipedata->stdin_io);
+        pipedata->stdin_io = NULL;
         interface_opts->extcap_pid = pid;
 
         interface_opts->extcap_child_watch =

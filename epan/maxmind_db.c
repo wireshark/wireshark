@@ -165,6 +165,9 @@ static gboolean mmdbr_pipe_valid(void) {
 // Writing to mmdbr_pipe.stdin_fd can block. Do so in a separate thread.
 static gpointer
 write_mmdbr_stdin_worker(gpointer data _U_) {
+    GIOStatus status;
+    GError *err = NULL;
+    gsize bytes_written;
     MMDB_DEBUG("starting write worker");
 
     while (1) {
@@ -187,11 +190,14 @@ write_mmdbr_stdin_worker(gpointer data _U_) {
         }
 
         MMDB_DEBUG("write %s ql %d", request, g_async_queue_length(mmdbr_request_q));
-        ssize_t req_status = ws_write(mmdbr_pipe.stdin_fd, request, (unsigned int)strlen(request));
-        if (req_status < 0) {
-            MMDB_DEBUG("write error %s. exiting thread.", g_strerror(errno));
+        status = g_io_channel_write_chars(mmdbr_pipe.stdin_io, request, strlen(request), &bytes_written, &err);
+        if (status != G_IO_STATUS_NORMAL) {
+            MMDB_DEBUG("write error %s. exiting thread.", err->message);
+            g_clear_error(&err);
+            g_free(request);
             return NULL;
         }
+        g_clear_error(&err);
         g_free(request);
     }
     return NULL;
@@ -236,8 +242,9 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
         if (!line_feed_found) {
             int space_available = (int)(MAX_MMDB_LINE_LEN - bytes_in_buffer);
             if (space_available > 0) {
-                ssize_t bytes_read;
-                bytes_read = ws_read(mmdbr_pipe.stdout_fd, &line_buf[bytes_in_buffer], space_available);
+                gsize bytes_read;
+                g_io_channel_read_chars(mmdbr_pipe.stdout_io, &line_buf[bytes_in_buffer],
+                                        space_available, &bytes_read, NULL);
                 if (bytes_read > 0) {
                     bytes_in_buffer += bytes_read;
                 } else {
@@ -391,8 +398,8 @@ static void mmdb_resolve_stop(void) {
     g_thread_join(write_mmdbr_stdin_thread);
     write_mmdbr_stdin_thread = NULL;
 
-    MMDB_DEBUG("closing stdin FD");
-    ws_close(mmdbr_pipe.stdin_fd);
+    MMDB_DEBUG("closing stdin IO");
+    g_io_channel_unref(mmdbr_pipe.stdin_io);
 
     // child process notices broken stdin pipe and exits (breaks stdout pipe)
     // read_mmdbr_stdout_worker should exit
@@ -400,8 +407,8 @@ static void mmdb_resolve_stop(void) {
     g_thread_join(read_mmdbr_stdout_thread);
     read_mmdbr_stdout_thread = NULL;
 
-    MMDB_DEBUG("closing stdout FD");
-    ws_close(mmdbr_pipe.stdout_fd);
+    MMDB_DEBUG("closing stdout IO");
+    g_io_channel_unref(mmdbr_pipe.stdout_io);
 
     while (mmdbr_response_q && (response = (mmdb_response_t *) g_async_queue_try_pop(mmdbr_response_q)) != NULL) {
         g_free((char *) response->mmdb_val.country_iso);
@@ -477,7 +484,7 @@ static void mmdb_resolve_start(void) {
         ws_pipe_init(&mmdbr_pipe);
         return;
     }
-    ws_close(mmdbr_pipe.stderr_fd);
+    g_io_channel_unref(mmdbr_pipe.stderr_io);
 
     write_mmdbr_stdin_thread = g_thread_new("write_mmdbr_stdin_worker", write_mmdbr_stdin_worker, NULL);
     read_mmdbr_stdout_thread = g_thread_new("read_mmdbr_stdout_worker", read_mmdbr_stdout_worker, NULL);

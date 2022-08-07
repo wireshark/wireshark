@@ -29,14 +29,9 @@
 
 typedef struct _ws_pipe_t {
     GPid pid;
-    gchar *stderr_msg;
-    gint exitcode;
-    gint stdin_fd;
-    gint stdout_fd;
-    gint stderr_fd;
-#ifdef _WIN32
-    HANDLE threadId;
-#endif
+    GIOChannel *stdin_io;
+    GIOChannel *stdout_io;
+    GIOChannel *stderr_io;
 } ws_pipe_t;
 
 /**
@@ -93,20 +88,10 @@ WS_DLL_PUBLIC gboolean ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe
 
 /**
  * @brief Check to see if a file descriptor has data available.
- * @param pipe_fd File descriptor, usually ws_pipe_t .stdout_fd or .stderr_fd.
+ * @param pipe_fd File descriptor.
  * @return TRUE if data is available or FALSE otherwise.
  */
 WS_DLL_PUBLIC gboolean ws_pipe_data_available(int pipe_fd);
-
-/**
- * @brief Read up to buffer_size - 1 bytes from a pipe and append '\0' to the buffer.
- * @param read_pipe File descriptor, usually ws_pipe_t .stdout_fd or .stderr_fd.
- * @param buffer String buffer.
- * @param buffer_size String buffer size.
- * @return TRUE if zero or more bytes were read without error, FALSE otherwise.
- */
-WS_DLL_PUBLIC gboolean ws_read_string_from_pipe(ws_pipe_handle read_pipe,
-    gchar *buffer, size_t buffer_size);
 
 #endif /* __WS_PIPE_H__ */
 
