@@ -124,6 +124,8 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
                      new_file_fn new_file, new_packets_fn new_packets,
                      drops_fn drops, error_fn error,
                      cfilter_error_fn cfilter_error, closed_fn closed);
+
+void capture_process_finished(capture_session *cap_session);
 #else
 
 /* dummy is needed because clang throws the error: empty struct has size 0 in C, size 1 in C++ */

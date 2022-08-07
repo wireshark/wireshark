@@ -147,6 +147,56 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
     cap_session->closed                          = closed;
 }
 
+void capture_process_finished(capture_session *cap_session)
+{
+    capture_options *capture_opts = cap_session->capture_opts;
+    interface_options *interface_opts;
+    GString *message;
+    guint i;
+
+    if (cap_session->fork_child != WS_INVALID_PID) {
+        /* Child process still running, session is not closed yet */
+        return;
+    }
+
+    for (i = 0; i < capture_opts->ifaces->len; i++) {
+        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+        if ((interface_opts->if_type == IF_EXTCAP) &&
+            (interface_opts->extcap_pid != WS_INVALID_PID)) {
+            /* Atleast one extcap process did not finish yet, wait for it */
+            return;
+        }
+    }
+
+    /* All child processes finished */
+    if (capture_opts->extcap_terminate_id > 0) {
+        g_source_remove(capture_opts->extcap_terminate_id);
+        capture_opts->extcap_terminate_id = 0;
+    }
+
+    /* Construct message and close session */
+    message = g_string_new(capture_opts->closed_msg);
+    for (i = 0; i < capture_opts->ifaces->len; i++) {
+        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+        if (interface_opts->if_type != IF_EXTCAP) {
+            continue;
+        }
+
+        if (interface_opts->extcap_stderr != NULL) {
+            if (message->len > 0) {
+                g_string_append(message, "\n");
+            }
+            g_string_append(message, "Error by extcap pipe: ");
+            g_string_append(message, interface_opts->extcap_stderr);
+        }
+    }
+
+    cap_session->closed(cap_session, message->str);
+    g_string_free(message, TRUE);
+    g_free(capture_opts->closed_msg);
+    capture_opts->closed_msg = NULL;
+}
+
 /* Append an arg (realloc) to an argc/argv array */
 /* (add a string pointer to a NULL-terminated array of string pointers) */
 static char **
@@ -303,8 +353,9 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
     capture_opts_log(LOG_DOMAIN_CAPTURE, LOG_LEVEL_DEBUG, capture_opts);
 
     cap_session->fork_child = WS_INVALID_PID;
+    cap_session->capture_opts = capture_opts;
 
-    if (!extcap_init_interfaces(capture_opts)) {
+    if (!extcap_init_interfaces(cap_session)) {
         report_failure("Unable to init extcaps. (tmp fifo already exists?)");
         return FALSE;
     }
@@ -717,7 +768,6 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
     }
 
     cap_session->fork_child_status = 0;
-    cap_session->capture_opts = capture_opts;
     cap_session->cap_data_info = cap_data;
 
     /* we might wait for a moment till child is ready, so update screen now */
@@ -1763,9 +1813,9 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         ws_close(cap_session->signal_pipe_write_fd);
 #endif
         ws_debug("cleaning extcap pipe");
-        extcap_if_cleanup(cap_session->capture_opts, &primary_msg);
-        cap_session->closed(cap_session, primary_msg);
-        g_free(primary_msg);
+        extcap_if_cleanup(cap_session);
+        cap_session->capture_opts->closed_msg = primary_msg;
+        capture_process_finished(cap_session);
         return FALSE;
     }
 

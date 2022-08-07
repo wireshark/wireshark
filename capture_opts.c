@@ -63,8 +63,10 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.extcap          = NULL;
     capture_opts->default_options.extcap_fifo     = NULL;
     capture_opts->default_options.extcap_args     = NULL;
-    capture_opts->default_options.extcap_pipedata = NULL;
     capture_opts->default_options.extcap_pid      = WS_INVALID_PID;
+    capture_opts->default_options.extcap_pipedata = NULL;
+    capture_opts->default_options.extcap_stderr   = NULL;
+    capture_opts->default_options.extcap_child_watch = 0;
 #ifdef _WIN32
     capture_opts->default_options.extcap_pipe_h   = INVALID_HANDLE_VALUE;
     capture_opts->default_options.extcap_control_in_h  = INVALID_HANDLE_VALUE;
@@ -129,6 +131,8 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->print_name_to                   = NULL;
     capture_opts->temp_dir                        = NULL;
     capture_opts->compress_type                   = NULL;
+    capture_opts->closed_msg                      = NULL;
+    capture_opts->extcap_terminate_id             = 0;
 }
 
 void
@@ -155,6 +159,15 @@ capture_opts_cleanup(capture_options *capture_opts)
     }
     g_free(capture_opts->save_file);
     g_free(capture_opts->temp_dir);
+
+    if (capture_opts->closed_msg) {
+        g_free(capture_opts->closed_msg);
+        capture_opts->closed_msg = NULL;
+    }
+    if (capture_opts->extcap_terminate_id > 0) {
+        g_source_remove(capture_opts->extcap_terminate_id);
+        capture_opts->extcap_terminate_id = 0;
+    }
 }
 
 /* log content of capture_opts */
@@ -773,6 +786,8 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.extcap_args = NULL;
     interface_opts.extcap_pid = WS_INVALID_PID;
     interface_opts.extcap_pipedata = NULL;
+    interface_opts.extcap_stderr = NULL;
+    interface_opts.extcap_child_watch = 0;
 #ifdef _WIN32
     interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
     interface_opts.extcap_control_in_h = INVALID_HANDLE_VALUE;
@@ -1274,6 +1289,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     if (interface_opts->extcap_pid != WS_INVALID_PID)
         ws_pipe_close((ws_pipe_t *) interface_opts->extcap_pipedata);
     g_free(interface_opts->extcap_pipedata);
+    g_free(interface_opts->extcap_stderr);
     g_free(interface_opts->extcap_control_in);
     g_free(interface_opts->extcap_control_out);
 #ifdef HAVE_PCAP_REMOTE
@@ -1328,6 +1344,7 @@ collect_ifaces(capture_options *capture_opts)
             if (interface_opts.extcap_args)
                 g_hash_table_ref(interface_opts.extcap_args);
             interface_opts.extcap_pipedata = NULL;
+            interface_opts.extcap_stderr = NULL;
 #ifdef _WIN32
             interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
             interface_opts.extcap_control_in_h = INVALID_HANDLE_VALUE;

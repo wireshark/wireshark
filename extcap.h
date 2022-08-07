@@ -22,6 +22,7 @@
 
 #include <wsutil/plugins.h>
 
+#include "capture/capture_session.h"
 #include <ui/capture_ui_utils.h>
 
 /* As boolean flags will be allowed any form of yes, true or any number != 0 (or starting with 0)
@@ -205,22 +206,23 @@ extcap_has_configuration(const char * ifname, gboolean is_required);
 gboolean
 extcap_has_toolbar(const char *ifname);
 
+#ifdef HAVE_LIBPCAP
 /**
- * Initializes each extcap interface with the supplied capture options.
+ * Initializes each extcap interface with the supplied capture session.
  * Initializes the extcap interface list if that hasn't already been done.
- * @param capture_opts Capture options.
+ * @param cap_session Capture session.
  * @return TRUE on success, FALSE on failure.
  */
 gboolean
-extcap_init_interfaces(capture_options * capture_opts);
+extcap_init_interfaces(capture_session *cap_session);
+#endif /* HAVE_LIBPCAP */
 
 /**
  * Clean up all if related stuff.
- * @param capture_opts Capture options.
- * @param errormsg Set to NULL on success, error description on failure.
+ * @param cap_session Capture session.
  */
 void
-extcap_if_cleanup(capture_options * capture_opts, gchar ** errormsg);
+extcap_if_cleanup(capture_session *cap_session);
 
 /**
  * Fetch an extcap preference for a given argument.
