@@ -15,6 +15,8 @@
  * REF: 3GPP TS 48.058 version 6.1.0 Release 6
  * http://www.3gpp.org/ftp/Specs/html-info/48058.htm
  *
+ * Huawei paging encapsulation in RSL from:
+ * https://patents.google.com/patent/EP2192796B1/en
  */
 
 #include "config.h"
@@ -3466,7 +3468,7 @@ static const true_false_string rsl_paging_type_vals = {
 };
 
 static int
-dissect_rsl_paging_group_paras(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean increse_offset)
+dissect_rsl_paging_group_paras(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     proto_tree *ie_tree;
     guint8     paging_type, i, length;
@@ -3477,7 +3479,7 @@ dissect_rsl_paging_group_paras(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     if(paging_type == 0){
        length = 2; /* length of Paging Group Paras if it is CS type (2 byte Cs Paging Group Para) */
     }else{
-       length = 9; /* length of Paging Group Paras if it is PS type (1 byte spare, 4x 2 byte of PS Paging Group Para */
+       length = 5; /* length of Paging Group Paras if it is PS type (1 byte spare, 4x 1 byte of PS Paging Group Para */
     }
 
     ie_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ie_paging_group_paras, NULL, "Paging Group Paras");
@@ -3496,15 +3498,9 @@ dissect_rsl_paging_group_paras(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     {
        proto_tree_add_item(ie_tree, hf_rsl_paging_group_ps_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
        offset++;
-       for(i = 1; i <= 5; i++){
+       for(i = 1; i <= 4; i++){
            proto_tree_add_item(ie_tree, hf_rsl_paging_grp, tvb, offset, 1, ENC_BIG_ENDIAN);
            offset++;
-           proto_tree_add_item(ie_tree, hf_rsl_paging_group_empty_package, tvb, offset, 1, ENC_BIG_ENDIAN);
-            if(!increse_offset){
-                return offset; /* it's end of RSL frame */
-            }else{
-                offset++; /* move over empty (0x00) packet */
-            }
        }
 
     }
@@ -3561,7 +3557,6 @@ dissect_rsl_paging_package(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
     proto_tree *ie_tree;
     guint8     i, length, paging_type;
-    gboolean increse_offset = TRUE;
 
     for(i = 1; i <= package_number; i++){
        /* Calculating whole length of Paging Package Info */
@@ -3570,7 +3565,7 @@ dissect_rsl_paging_package(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
        if(paging_type == 0){
            length = length + 2; /* length of Paging Group Paras if it is CS type (2 byte Cs Paging Group Para) */
        }else{
-           length = length + 9; /* length of Paging Group Paras if it is PS type (1 byte spare, 4x 2 byte of PS Paging Group Para */
+           length = length + 5; /* length of Paging Group Paras if it is PS type (1 byte spare, 4x 1 byte of PS Paging Group Para */
        }
 
        ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_ie_paging_package, NULL, "Paging Package Info %u", i);
@@ -3578,13 +3573,7 @@ dissect_rsl_paging_package(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
        offset = dissect_rsl_paging_package_channel_and_emlpp(tvb, pinfo, ie_tree, offset);
        offset = dissect_rsl_ie_ms_id(tvb, pinfo, ie_tree, offset, TRUE);
 
-        /* if its last dissected packet, incresing offset causes pointing out of RSL frame range - [Malformed Packet] appears */
-       if( i == package_number){
-           increse_offset = FALSE;
-       }else{
-           increse_offset = TRUE;
-       }
-       offset = dissect_rsl_paging_group_paras(tvb, pinfo, ie_tree, offset, increse_offset);
+       offset = dissect_rsl_paging_group_paras(tvb, pinfo, ie_tree, offset);
     }
 
     return offset;
