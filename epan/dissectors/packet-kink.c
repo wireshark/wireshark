@@ -23,7 +23,7 @@
 void proto_register_kink(void);
 void proto_reg_handoff_kink(void);
 
-#define KINK_PORT       57203 /* Not IANA registered */
+#define KINK_PORT       910
 
 #define KINK_ISAKMP_PAYLOAD_BASE 14
 
