@@ -1734,7 +1734,7 @@ proto_register_jfif(void)
 
     static ei_register_info ei[] = {
         { &ei_file_jpeg_first_identifier_not_jfif,
-          { "image-jfif.app0-identifier-not-jfif", PI_MALFORMED, PI_WARN,
+          { "image-jfif.app0-identifier-not-jfif", PI_PROTOCOL, PI_WARN,
             "Initial App0 segment with \"JFIF\" Identifier not found", EXPFILL }},
         { &ei_start_ifd_offset,
           { "image-jfif.start_ifd_offset.invalid", PI_PROTOCOL, PI_WARN,
