@@ -14581,7 +14581,7 @@ proto_register_nfs(void)
 	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");
 
 	/* "protocols" registered just for Decode As */
-	proto_nfs_unknown = proto_register_protocol_in_name_only("Unknown", "unknown", "nfs.unknown", proto_nfs, FT_PROTOCOL);
+	proto_nfs_unknown = proto_register_protocol_in_name_only("Unknown NFS", "nfs_unknown", "nfs.unknown", proto_nfs, FT_PROTOCOL);
 	proto_nfs_svr4 = proto_register_protocol_in_name_only("SVR4", "svr4", "nfs.svr4", proto_nfs, FT_PROTOCOL);
 	proto_nfs_knfsd_le = proto_register_protocol_in_name_only("KNFSD_LE", "knfsd_le", "nfs.knfsd_le", proto_nfs, FT_PROTOCOL);
 	proto_nfs_nfsd_le = proto_register_protocol_in_name_only("NFSD_LE", "nfsd_le", "nfs.nfsd_le", proto_nfs, FT_PROTOCOL);
