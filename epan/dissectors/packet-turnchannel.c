@@ -22,6 +22,7 @@
  * - RFC 5780
  * - RFC 5766
  * - RFC 6156
+ * - RFC 8656
  *
  * Update as necessary.
  */
@@ -45,12 +46,35 @@ static int hf_turnchannel_len = -1;
 
 #define TURNCHANNEL_HDR_LEN	((guint)4)
 
+#define MS_MULTIPLEX_TURN 0xFF10
 
 /* Initialize the subtree pointers */
 static gint ett_turnchannel = -1;
 
 static dissector_handle_t turnchannel_tcp_handle;
 static dissector_handle_t turnchannel_udp_handle;
+
+/*
+ * RFC 5764 defined a demultiplexing scheme to allow TURN is co-exist
+ * on the same 5-tuple as STUN, DTLS, RTP/RTCP, and ZTLS by rejecting
+ * previous reserved channel numbers, restricting the channel numbers
+ * to 0x4000-0x7FFF. RFC 5766 (TURN) did not incorporate the restriction,
+ * but RFC 8656 did, further restricting the channel numbers to the
+ * range 0x4000-0x4FFF.
+ *
+ * Reject channel numbers outside 0x4000-0x7FFF (except for the special
+ * MS-TURN multiplex channel number), since no implementation has used
+ * any value outside that range, and the 0x5000-0x7FFF range is reserved
+ * in the multiplexing scheme.
+ */
+static gboolean
+test_turnchannel_id(guint16 channel_id)
+{
+	if ((channel_id & 0x4000) == 0x4000 || channel_id == MS_MULTIPLEX_TURN)
+		return TRUE;
+
+	return FALSE;
+}
 
 static int
 dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
@@ -72,7 +96,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	channel_id = tvb_get_ntohs(tvb, 0);
 	data_len = tvb_get_ntohs(tvb, 2);
 
-	if ((channel_id < 0x4000) || (channel_id > 0xFFFE)) {
+	if (!test_turnchannel_id(channel_id)) {
 	  return 0;
 	}
 
@@ -91,7 +115,6 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 
 	proto_tree_add_uint(turnchannel_tree, hf_turnchannel_id, tvb, 0, 2, channel_id);
 	proto_tree_add_uint(turnchannel_tree, hf_turnchannel_len, tvb, 2, 2, data_len);
-
 
 	if (len > TURNCHANNEL_HDR_LEN) {
 	  tvbuff_t *next_tvb;
@@ -120,6 +143,18 @@ static guint
 get_turnchannel_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                             int offset, void *data _U_)
 {
+	guint16 channel_id;
+	channel_id = tvb_get_ntohs(tvb, 0);
+	/* If the channel number is outside the range, either we missed
+         * a TCP segment or this is STUN, DTLS, RTP, etc. multiplexed on
+         * the same 5-tuple. Report the length as the rest of the packet
+         * and dissect_turnchannel_message will reject it, rather than
+         * using a bogus PDU length and messing up the dissection of
+         * future TURN packets.
+         */
+	if (!test_turnchannel_id(channel_id)) {
+		return tvb_reported_length(tvb);
+	}
 	return (guint)tvb_get_ntohs(tvb, offset+2) + TURNCHANNEL_HDR_LEN;
 }
 
@@ -148,7 +183,7 @@ dissect_turnchannel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	channel_id = tvb_get_ntohs(tvb, 0);
 	data_len = tvb_get_ntohs(tvb, 2);
 
-	if ((channel_id < 0x4000) || (channel_id > 0xFFFE)) {
+	if (!test_turnchannel_id(channel_id)) {
 	  return FALSE;
 	}
 
@@ -186,6 +221,11 @@ proto_register_turnchannel(void)
 	turnchannel_udp_handle = register_dissector("turnchannel", dissect_turnchannel_message, proto_turnchannel);
 
 /* subdissectors */
+	/* XXX: Nothing actually registers to this list. All dissectors register
+         * to the heuristic subdissector list for STUN, since the STUN dissector
+         * doesn't actually call this dissector but uses its own implementation
+         * of TURN Channel messages.
+         */
 	heur_subdissector_list = register_heur_dissector_list("turnchannel", proto_turnchannel);
 
 /* Required function calls to register the header fields and subtrees used */
