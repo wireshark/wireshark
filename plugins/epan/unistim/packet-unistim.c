@@ -32,6 +32,8 @@
 
 void proto_register_unistim(void);
 
+static dissector_handle_t unistim_handle;
+
 static unistim_info_t *uinfo;
 static int unistim_tap = -1;
 
@@ -3835,6 +3837,7 @@ proto_register_unistim(void){
    expert_module_t* expert_unistim;
 
    proto_unistim=proto_register_protocol("UNISTIM Protocol", "UNISTIM", "unistim");
+   unistim_handle=register_dissector("unistim", dissect_unistim,proto_unistim);
 
    proto_register_subtree_array(ett,array_length(ett));
    proto_register_field_array(proto_unistim,hf,array_length(hf));
@@ -3846,10 +3849,6 @@ proto_register_unistim(void){
 
 void
 proto_reg_handoff_unistim(void) {
-
-   dissector_handle_t unistim_handle;
-
-   unistim_handle=create_dissector_handle(dissect_unistim,proto_unistim);
    dissector_add_for_decode_as_with_preference("udp.port", unistim_handle);
 }
 

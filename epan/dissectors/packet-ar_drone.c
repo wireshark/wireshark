@@ -27,6 +27,9 @@ void proto_reg_handoff_ar_drone(void);
 /* ar_drone Protocol */
 static int proto_ar_drone = -1;
 
+/* ar_drone Dissector handle */
+static dissector_handle_t ar_drone_handle;
+
 /* Headers */
 static int hf_command = -1;
 static int hf_PCMD_id = -1;
@@ -751,6 +754,7 @@ proto_register_ar_drone(void)
 
     /* Setup protocol info */
     proto_ar_drone = proto_register_protocol("AR Drone Packet", "AR Drone", "ar_drone");
+    ar_drone_handle = register_dissector("ar_drone", dissect_ar_drone, proto_ar_drone);
 
     proto_register_field_array(proto_ar_drone, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -762,10 +766,6 @@ proto_register_ar_drone(void)
 void
 proto_reg_handoff_ar_drone(void)
 {
-    dissector_handle_t ar_drone_handle;
-
-    ar_drone_handle = create_dissector_handle(dissect_ar_drone, proto_ar_drone);
-
     heur_dissector_add("udp", dissect_ar_drone, "AR Drone over UDP", "ar_drone_udp", proto_ar_drone, HEURISTIC_ENABLE);
     dissector_add_for_decode_as_with_preference("udp.port", ar_drone_handle);
 }

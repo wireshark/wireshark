@@ -16,6 +16,8 @@
 void proto_register_x29(void);
 void proto_reg_handoff_x29(void);
 
+static dissector_handle_t x29_handle;
+
 static int proto_x29 = -1;
 static int hf_msg_code = -1;
 static int hf_error_type = -1;
@@ -257,6 +259,7 @@ proto_register_x29(void)
 	};
 
 	proto_x29 = proto_register_protocol("X.29", "X.29", "x29");
+	x29_handle = register_dissector("x29", dissect_x29, proto_x29);
 	proto_register_field_array(proto_x29, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -264,9 +267,6 @@ proto_register_x29(void)
 void
 proto_reg_handoff_x29(void)
 {
-	dissector_handle_t x29_handle;
-
-	x29_handle = create_dissector_handle(dissect_x29, proto_x29);
 	dissector_add_uint("x.25.spi", NLPID_SPI_X_29, x29_handle);
 }
 

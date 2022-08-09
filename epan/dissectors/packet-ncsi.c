@@ -31,6 +31,7 @@ void proto_reg_handoff_ncsi(void);
 void proto_register_ncsi(void);
 
 static int proto_ncsi = -1;
+static dissector_handle_t ncsi_handle;
 
 /* Common header fields */
 static int hf_ncsi_mc_id = -1;
@@ -1658,6 +1659,7 @@ proto_register_ncsi(void)
 
     /* Register the protocol name and description */
     proto_ncsi = proto_register_protocol("NCSI", "NCSI", "ncsi");
+    ncsi_handle = register_dissector("ncsi", dissect_ncsi, proto_ncsi);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_ncsi, hf, array_length(hf));
@@ -1667,8 +1669,6 @@ proto_register_ncsi(void)
 void
 proto_reg_handoff_ncsi(void)
 {
-    dissector_handle_t ncsi_handle;
-    ncsi_handle = create_dissector_handle(dissect_ncsi, proto_ncsi);
     dissector_add_uint("ethertype", ETHERTYPE_NCSI, ncsi_handle);
 }
 

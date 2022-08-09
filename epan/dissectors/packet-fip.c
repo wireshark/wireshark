@@ -30,6 +30,8 @@
 void proto_register_fip(void);
 void proto_reg_handoff_fip(void);
 
+static dissector_handle_t fip_handle;
+
 /*
  * FIP protocol information.
  */
@@ -794,6 +796,7 @@ proto_register_fip(void)
     /* Register the protocol name and description */
     proto_fip = proto_register_protocol("FCoE Initialization Protocol",
         "FIP", "fip");
+    fip_handle = register_dissector("fip", dissect_fip, proto_fip);
 
     /* Required function calls to register the header fields and
      * subtrees used */
@@ -810,9 +813,6 @@ proto_register_fip(void)
 void
 proto_reg_handoff_fip(void)
 {
-    dissector_handle_t fip_handle;
-
-    fip_handle = create_dissector_handle(dissect_fip, proto_fip);
     dissector_add_uint("ethertype", ETHERTYPE_FIP, fip_handle);
     fc_handle = find_dissector_add_dependency("fc", proto_fip);
 }

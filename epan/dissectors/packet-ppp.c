@@ -85,7 +85,6 @@ void proto_reg_handoff_ipv6cp(void);
 void proto_register_iphc_crtp(void);
 void proto_reg_handoff_iphc_crtp(void);
 
-
 static int proto_ppp = -1;
 static int hf_ppp_direction = -1;
 static int hf_ppp_address = -1;
@@ -465,6 +464,33 @@ static expert_field ei_bap_sub_option_length = EI_INIT;
 static dissector_table_t bap_option_table;
 
 static dissector_handle_t ppp_hdlc_handle, ppp_handle;
+static dissector_handle_t ppp_raw_hdlc_handle;
+static dissector_handle_t mp_handle;
+static dissector_handle_t lcp_handle;
+static dissector_handle_t vsncp_handle;
+static dissector_handle_t vsnp_handle;
+static dissector_handle_t ipcp_handle;
+static dissector_handle_t bcp_bpdu_handle;
+static dissector_handle_t bcp_ncp_handle;
+static dissector_handle_t osinlcp_handle;
+static dissector_handle_t ccp_handle;
+static dissector_handle_t cbcp_handle;
+static dissector_handle_t bacp_handle;
+static dissector_handle_t bap_handle;
+static dissector_handle_t comp_data_handle;
+static dissector_handle_t pap_handle;
+static dissector_handle_t chap_handle;
+static dissector_handle_t muxcp_handle;
+static dissector_handle_t pppmux_handle;
+static dissector_handle_t mplscp_handle;
+static dissector_handle_t cdpcp_handle;
+static dissector_handle_t ipv6cp_handle;
+static dissector_handle_t fh_handle;
+static dissector_handle_t cudp16_handle;
+static dissector_handle_t cudp8_handle;
+static dissector_handle_t cs_handle;
+static dissector_handle_t cntcp_handle;
+
 
 static int proto_comp_data = -1;
 
@@ -6107,6 +6133,7 @@ proto_register_ppp_raw_hdlc(void)
 
     proto_ppp_hdlc = proto_register_protocol("PPP In HDLC-Like Framing",
         "PPP-HDLC", "ppp_hdlc");
+    ppp_raw_hdlc_handle = register_dissector("ppp_raw_hdlc", dissect_ppp_raw_hdlc, proto_ppp_hdlc);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_ppp_hdlc, hf, array_length(hf));
 
@@ -6117,10 +6144,7 @@ proto_register_ppp_raw_hdlc(void)
 void
 proto_reg_handoff_ppp_raw_hdlc(void)
 {
-    dissector_handle_t ppp_raw_hdlc_handle;
     capture_dissector_handle_t ppp_hdlc_cap_handle;
-
-    ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
 
     dissector_add_uint("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
@@ -6589,6 +6613,7 @@ proto_register_mp(void)
     module_t *mp_module;
 
     proto_mp = proto_register_protocol("PPP Multilink Protocol", "PPP MP", "mp");
+    mp_handle = register_dissector("mp", dissect_mp, proto_mp);
     proto_register_field_array(proto_mp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     reassembly_table_register(&mp_reassembly_table,
@@ -6614,9 +6639,6 @@ proto_register_mp(void)
 void
 proto_reg_handoff_mp(void)
 {
-    dissector_handle_t mp_handle;
-
-    mp_handle = create_dissector_handle(dissect_mp, proto_mp);
     dissector_add_uint("ppp.protocol", PPP_MP, mp_handle);
 }
 
@@ -6900,6 +6922,7 @@ proto_register_lcp(void)
     };
 
     proto_lcp = proto_register_protocol("PPP Link Control Protocol", "PPP LCP", "lcp");
+    lcp_handle = register_dissector("lcp", dissect_lcp, proto_lcp);
     proto_register_field_array(proto_lcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -6941,11 +6964,7 @@ proto_register_lcp(void)
 void
 proto_reg_handoff_lcp(void)
 {
-    dissector_handle_t lcp_handle;
-
-    lcp_handle = create_dissector_handle(dissect_lcp, proto_lcp);
     dissector_add_uint("ppp.protocol", PPP_LCP, lcp_handle);
-
 
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level
@@ -7046,6 +7065,7 @@ proto_register_vsncp(void)
     };
 
     proto_vsncp = proto_register_protocol("Vendor Specific Control Protocol", "VSNCP", "vsncp");
+    vsncp_handle = register_dissector("vsncp", dissect_vsncp, proto_vsncp);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_vsncp, hf, array_length(hf));
 
@@ -7068,9 +7088,6 @@ proto_register_vsncp(void)
 void
 proto_reg_handoff_vsncp(void)
 {
-    dissector_handle_t vsncp_handle;
-
-    vsncp_handle = create_dissector_handle(dissect_vsncp, proto_vsncp);
     dissector_add_uint("ppp.protocol", PPP_VSNCP, vsncp_handle);
 
     dissector_add_uint("vsncp.option", CI_PDN_IDENTIFIER, create_dissector_handle( dissect_vsncp_pdnid_opt, proto_vsncp_option_pdnid ));
@@ -7101,6 +7118,7 @@ proto_register_vsnp(void)
 
     proto_vsnp = proto_register_protocol("Vendor Specific Network Protocol",
         "PPP VSNP", "vsnp");
+    vsnp_handle = register_dissector("vsnp", dissect_vsnp, proto_vsnp);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_vsnp, hf, array_length(hf));
 }
@@ -7108,9 +7126,6 @@ proto_register_vsnp(void)
 void
 proto_reg_handoff_vsnp(void)
 {
-    dissector_handle_t vsnp_handle;
-
-    vsnp_handle = create_dissector_handle(dissect_vsnp, proto_vsnp);
     dissector_add_uint("ppp.protocol", PPP_VSNP, vsnp_handle);
 }
 
@@ -7221,6 +7236,7 @@ proto_register_ipcp(void)
     };
 
     proto_ipcp = proto_register_protocol("PPP IP Control Protocol", "PPP IPCP", "ipcp");
+    ipcp_handle = register_dissector("ipcp", dissect_ipcp, proto_ipcp);
     proto_register_field_array(proto_ipcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -7248,9 +7264,6 @@ proto_register_ipcp(void)
 void
 proto_reg_handoff_ipcp(void)
 {
-    dissector_handle_t ipcp_handle;
-
-    ipcp_handle = create_dissector_handle(dissect_ipcp, proto_ipcp);
     dissector_add_uint("ppp.protocol", PPP_IPCP, ipcp_handle);
 
     /*
@@ -7314,6 +7327,7 @@ proto_register_bcp_bpdu(void)
 
     proto_bcp_bpdu = proto_register_protocol("PPP Bridging Control Protocol Bridged PDU",
         "PPP BCP BPDU", "bcp_bpdu");
+    bcp_bpdu_handle = register_dissector("bcp_bpdu", dissect_bcp_bpdu, proto_bcp_bpdu);
     proto_register_field_array(proto_bcp_bpdu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -7321,12 +7335,8 @@ proto_register_bcp_bpdu(void)
 void
 proto_reg_handoff_bcp_bpdu(void)
 {
-    dissector_handle_t bcp_bpdu_handle;
-
     eth_withfcs_handle    = find_dissector_add_dependency("eth_withfcs", proto_bcp_bpdu);
     eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_bcp_bpdu);
-
-    bcp_bpdu_handle = create_dissector_handle(dissect_bcp_bpdu, proto_bcp_bpdu);
 
     dissector_add_uint("ppp.protocol", PPP_BCP_BPDU, bcp_bpdu_handle);
 }
@@ -7384,6 +7394,7 @@ proto_register_bcp_ncp(void)
     };
 
     proto_bcp_ncp = proto_register_protocol("PPP Bridging Control Protocol Network Control Protocol", "PPP BCP NCP", "bcp_ncp");
+    bcp_ncp_handle = register_dissector("bcp_ncp", dissect_bcp_ncp, proto_bcp_ncp);
     proto_register_field_array(proto_bcp_ncp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -7405,10 +7416,6 @@ proto_register_bcp_ncp(void)
 void
 proto_reg_handoff_bcp_ncp(void)
 {
-    dissector_handle_t bcp_ncp_handle;
-
-    bcp_ncp_handle = create_dissector_handle(dissect_bcp_ncp, proto_bcp_ncp);
-
     dissector_add_uint("ppp.protocol", PPP_BCP_NCP, bcp_ncp_handle);
 
     dissector_add_uint("bcp_ncp.option", CI_BCPNCP_BRIDGE_ID, create_dissector_handle( dissect_bcp_ncp_bridge_id, proto_bcp_ncp_option_bridge_id ));
@@ -7445,6 +7452,7 @@ proto_register_osinlcp(void)
     };
 
     proto_osinlcp = proto_register_protocol("PPP OSI Network Layer Control Protocol", "PPP OSINLCP", "osinlcp");
+    osinlcp_handle = register_dissector("osinlcp", dissect_osinlcp, proto_osinlcp);
     proto_register_field_array(proto_osinlcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -7458,9 +7466,6 @@ proto_register_osinlcp(void)
 void
 proto_reg_handoff_osinlcp(void)
 {
-    dissector_handle_t osinlcp_handle;
-
-    osinlcp_handle = create_dissector_handle(dissect_osinlcp, proto_osinlcp);
     dissector_add_uint("ppp.protocol", PPP_OSINLCP, osinlcp_handle);
 
     /*
@@ -7608,6 +7613,7 @@ proto_register_ccp(void)
     };
 
     proto_ccp = proto_register_protocol("PPP Compression Control Protocol", "PPP CCP", "ccp");
+    ccp_handle = register_dissector("ccp", dissect_ccp, proto_ccp);
     proto_register_field_array(proto_ccp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -7635,9 +7641,6 @@ proto_register_ccp(void)
 void
 proto_reg_handoff_ccp(void)
 {
-    dissector_handle_t ccp_handle;
-
-    ccp_handle = create_dissector_handle(dissect_ccp, proto_ccp);
     dissector_add_uint("ppp.protocol", PPP_CCP, ccp_handle);
 
     /*
@@ -7694,6 +7697,7 @@ proto_register_cbcp(void)
     expert_module_t* expert_cbcp;
 
     proto_cbcp = proto_register_protocol("PPP Callback Control Protocol", "PPP CBCP", "cbcp");
+    cbcp_handle = register_dissector("cbcp", dissect_cbcp, proto_cbcp);
     proto_register_field_array(proto_cbcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_cbcp = expert_register_protocol(proto_cbcp);
@@ -7711,9 +7715,6 @@ proto_register_cbcp(void)
 void
 proto_reg_handoff_cbcp(void)
 {
-    dissector_handle_t cbcp_handle;
-
-    cbcp_handle = create_dissector_handle(dissect_cbcp, proto_cbcp);
     dissector_add_uint("ppp.protocol", PPP_CBCP, cbcp_handle);
 
     /*
@@ -7747,6 +7748,7 @@ proto_register_bacp(void)
     };
 
     proto_bacp = proto_register_protocol("PPP Bandwidth Allocation Control Protocol", "PPP BACP", "bacp");
+    bacp_handle = register_dissector("bacp", dissect_bacp, proto_bacp);
     proto_register_field_array(proto_bacp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -7759,9 +7761,6 @@ proto_register_bacp(void)
 void
 proto_reg_handoff_bacp(void)
 {
-    dissector_handle_t bacp_handle;
-
-    bacp_handle = create_dissector_handle(dissect_bacp, proto_bacp);
     dissector_add_uint("ppp.protocol", PPP_BACP, bacp_handle);
 
     /*
@@ -7815,6 +7814,7 @@ proto_register_bap(void)
     expert_module_t* expert_bap;
 
     proto_bap = proto_register_protocol("PPP Bandwidth Allocation Protocol", "PPP BAP", "bap");
+    bap_handle = register_dissector("bap", dissect_bap, proto_bap);
     proto_register_field_array(proto_bap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_bap = expert_register_protocol(proto_bap);
@@ -7834,9 +7834,6 @@ proto_register_bap(void)
 void
 proto_reg_handoff_bap(void)
 {
-    dissector_handle_t bap_handle;
-
-    bap_handle = create_dissector_handle(dissect_bap, proto_bap);
     dissector_add_uint("ppp.protocol", PPP_BAP, bap_handle);
 
     /*
@@ -7864,6 +7861,8 @@ proto_register_comp_data(void)
 
     proto_comp_data = proto_register_protocol("PPP Compressed Datagram",
         "PPP Comp", "comp_data");
+    comp_data_handle = register_dissector("ppp_comp", dissect_comp_data,
+        proto_comp_data);
 #if 0
     proto_register_subtree_array(ett, array_length(ett));
 #endif
@@ -7872,10 +7871,6 @@ proto_register_comp_data(void)
 void
 proto_reg_handoff_comp_data(void)
 {
-    dissector_handle_t comp_data_handle;
-
-    comp_data_handle = create_dissector_handle(dissect_comp_data,
-        proto_comp_data);
     dissector_add_uint("ppp.protocol", PPP_COMP, comp_data_handle);
 
     /*
@@ -7944,6 +7939,7 @@ proto_register_pap(void)
 
     proto_pap = proto_register_protocol("PPP Password Authentication Protocol",
         "PPP PAP", "pap");
+    pap_handle = register_dissector("pap", dissect_pap, proto_pap);
     proto_register_field_array(proto_pap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -7951,9 +7947,6 @@ proto_register_pap(void)
 void
 proto_reg_handoff_pap(void)
 {
-    dissector_handle_t pap_handle;
-
-    pap_handle = create_dissector_handle(dissect_pap, proto_pap);
     dissector_add_uint("ppp.protocol", PPP_PAP, pap_handle);
 
     /*
@@ -8008,6 +8001,8 @@ proto_register_chap(void)
 
     proto_chap = proto_register_protocol(
         "PPP Challenge Handshake Authentication Protocol", "PPP CHAP", "chap");
+    chap_handle = register_dissector("chap", dissect_chap,
+        proto_chap);
     proto_register_field_array(proto_chap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -8015,8 +8010,6 @@ proto_register_chap(void)
 void
 proto_reg_handoff_chap(void)
 {
-    dissector_handle_t chap_handle = create_dissector_handle(dissect_chap,
-        proto_chap);
     dissector_add_uint("ppp.protocol", PPP_CHAP, chap_handle);
 
     /*
@@ -8061,6 +8054,7 @@ proto_register_pppmuxcp(void)
     };
 
     proto_pppmuxcp = proto_register_protocol("PPPMux Control Protocol", "PPP PPPMuxCP", "pppmuxcp");
+    muxcp_handle = register_dissector("pppmuxcp", dissect_pppmuxcp, proto_pppmuxcp);
     proto_register_field_array(proto_pppmuxcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -8074,9 +8068,6 @@ proto_register_pppmuxcp(void)
 void
 proto_reg_handoff_pppmuxcp(void)
 {
-    dissector_handle_t muxcp_handle;
-
-    muxcp_handle = create_dissector_handle(dissect_pppmuxcp, proto_pppmuxcp);
     dissector_add_uint("ppp.protocol", PPP_MUXCP, muxcp_handle);
 
     /*
@@ -8109,6 +8100,7 @@ proto_register_pppmux(void)
 
     proto_pppmux = proto_register_protocol("PPP Multiplexing", "PPP PPPMux",
         "pppmux");
+    pppmux_handle = register_dissector("pppmux", dissect_pppmux, proto_pppmux);
     proto_register_field_array(proto_pppmux, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -8116,9 +8108,6 @@ proto_register_pppmux(void)
 void
 proto_reg_handoff_pppmux(void)
 {
-    dissector_handle_t pppmux_handle;
-
-    pppmux_handle = create_dissector_handle(dissect_pppmux, proto_pppmux);
     dissector_add_uint("ppp.protocol", PPP_MUX, pppmux_handle);
 
     /*
@@ -8138,15 +8127,13 @@ proto_register_mplscp(void)
 
     proto_mplscp = proto_register_protocol("PPP MPLS Control Protocol",
         "PPP MPLSCP", "mplscp");
+    mplscp_handle = register_dissector("mplscp", dissect_mplscp, proto_mplscp);
     proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_mplscp(void)
 {
-    dissector_handle_t mplscp_handle;
-
-    mplscp_handle = create_dissector_handle(dissect_mplscp, proto_mplscp);
     dissector_add_uint("ppp.protocol", PPP_MPLSCP, mplscp_handle);
 
     /*
@@ -8166,15 +8153,13 @@ proto_register_cdpcp(void)
 
     proto_cdpcp = proto_register_protocol("PPP CDP Control Protocol",
         "PPP CDPCP", "cdpcp");
+    cdpcp_handle = register_dissector("cdpcp", dissect_cdpcp, proto_cdpcp);
     proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_cdpcp(void)
 {
-    dissector_handle_t cdpcp_handle;
-
-    cdpcp_handle = create_dissector_handle(dissect_cdpcp, proto_cdpcp);
     dissector_add_uint("ppp.protocol", PPP_CDPCP, cdpcp_handle);
 
     /*
@@ -8201,6 +8186,7 @@ proto_register_ipv6cp(void)
     };
 
     proto_ipv6cp = proto_register_protocol("PPP IPv6 Control Protocol", "PPP IPV6CP", "ipv6cp");
+    ipv6cp_handle = register_dissector("ipv6cp", dissect_ipv6cp, proto_ipv6cp);
     proto_register_field_array(proto_ipv6cp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -8214,9 +8200,6 @@ proto_register_ipv6cp(void)
 void
 proto_reg_handoff_ipv6cp(void)
 {
-    dissector_handle_t ipv6cp_handle;
-
-    ipv6cp_handle = create_dissector_handle(dissect_ipv6cp, proto_ipv6cp);
     dissector_add_uint("ppp.protocol", PPP_IPV6CP, ipv6cp_handle);
 
     /*
@@ -8294,11 +8277,16 @@ proto_register_iphc_crtp(void)
     expert_module_t* expert_iphc_crtp;
 
     proto_iphc_crtp = proto_register_protocol("CRTP", "CRTP", "crtp");
+    fh_handle = register_dissector("crtp", dissect_iphc_crtp_fh, proto_iphc_crtp);
     /* Created to remove Decode As confusion */
     proto_iphc_crtp_cudp16 = proto_register_protocol_in_name_only("CRTP (CUDP 16)", "CRTP (CUDP 16)", "crtp_cudp16", proto_iphc_crtp, FT_PROTOCOL);
+    cudp16_handle = register_dissector("crtp_cudp16", dissect_iphc_crtp_cudp16, proto_iphc_crtp_cudp16);
     proto_iphc_crtp_cudp8 = proto_register_protocol_in_name_only("CRTP (CUDP 8)", "CRTP (CUDP 8)", "crtp_cudp8", proto_iphc_crtp, FT_PROTOCOL);
+    cudp8_handle = register_dissector("crtp_cudp8", dissect_iphc_crtp_cudp8, proto_iphc_crtp_cudp8);
     proto_iphc_crtp_cs = proto_register_protocol_in_name_only("CRTP (CS)", "CRTP (CS)", "crtp_cs", proto_iphc_crtp, FT_PROTOCOL);
+    cs_handle = register_dissector("crtp_cs", dissect_iphc_crtp_cs, proto_iphc_crtp_cs);
     proto_iphc_crtp_cntcp = proto_register_protocol_in_name_only("CRTP (CNTCP)", "CRTP (CNTCP)", "crtp_cntcp", proto_iphc_crtp, FT_PROTOCOL);
+    cntcp_handle = register_dissector("crtp_cntcp", dissect_iphc_crtp_cntcp, proto_iphc_crtp_cntcp);
 
     proto_register_field_array(proto_iphc_crtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -8309,25 +8297,10 @@ proto_register_iphc_crtp(void)
 void
 proto_reg_handoff_iphc_crtp(void)
 {
-    dissector_handle_t fh_handle;
-    dissector_handle_t cudp16_handle;
-    dissector_handle_t cudp8_handle;
-    dissector_handle_t cs_handle;
-    dissector_handle_t cntcp_handle;
-
-    fh_handle = create_dissector_handle(dissect_iphc_crtp_fh, proto_iphc_crtp);
     dissector_add_uint("ppp.protocol", PPP_RTP_FH, fh_handle);
-
-    cudp16_handle = create_dissector_handle(dissect_iphc_crtp_cudp16, proto_iphc_crtp_cudp16);
     dissector_add_uint("ppp.protocol", PPP_RTP_CUDP16, cudp16_handle);
-
-    cudp8_handle = create_dissector_handle(dissect_iphc_crtp_cudp8, proto_iphc_crtp_cudp8);
     dissector_add_uint("ppp.protocol", PPP_RTP_CUDP8, cudp8_handle);
-
-    cs_handle = create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp_cs);
     dissector_add_uint("ppp.protocol", PPP_RTP_CS, cs_handle);
-
-    cntcp_handle = create_dissector_handle(dissect_iphc_crtp_cntcp, proto_iphc_crtp_cntcp);
     dissector_add_uint("ppp.protocol", PPP_RTP_CNTCP, cntcp_handle);
 
     /*

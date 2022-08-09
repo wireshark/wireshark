@@ -33,6 +33,8 @@ void proto_reg_handoff_pn_rt(void);
 static int proto_pn_rt     = -1;
 static gboolean pnio_desegment = TRUE;
 
+static dissector_handle_t pn_rt_handle;
+
 /* Define many header fields for pn-rt */
 static int hf_pn_rt_frame_id = -1;
 static int hf_pn_rt_cycle_counter = -1;
@@ -1142,6 +1144,7 @@ proto_register_pn_rt(void)
 
     proto_pn_rt = proto_register_protocol("PROFINET Real-Time Protocol",
                                           "PN-RT", "pn_rt");
+    pn_rt_handle = register_dissector("pn_rt", dissect_pn_rt, proto_pn_rt);
 
     proto_register_field_array(proto_pn_rt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1177,10 +1180,6 @@ proto_register_pn_rt(void)
 void
 proto_reg_handoff_pn_rt(void)
 {
-    dissector_handle_t pn_rt_handle;
-
-    pn_rt_handle = create_dissector_handle(dissect_pn_rt, proto_pn_rt);
-
     dissector_add_uint("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
     dissector_add_uint_with_preference("udp.port", PROFINET_UDP_PORT, pn_rt_handle);
 

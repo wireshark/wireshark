@@ -56,6 +56,8 @@ typedef struct _profinet_lldp_column_info {
 
 static gint column_info_selection = DEFAULT_COLUMN_INFO;
 
+static dissector_handle_t lldp_handle;
+
 void proto_register_lldp(void);
 void proto_reg_handoff_lldp(void);
 
@@ -6485,6 +6487,7 @@ proto_register_lldp(void)
 
 	/* Register the protocol name and description */
 	proto_lldp = proto_register_protocol("Link Layer Discovery Protocol", "LLDP", "lldp");
+	lldp_handle = register_dissector("lldp", dissect_lldp, proto_lldp);
 
 	/* Register preferences */
 	lldp_module = prefs_register_protocol(proto_lldp, NULL);
@@ -6509,9 +6512,6 @@ proto_register_lldp(void)
 void
 proto_reg_handoff_lldp(void)
 {
-	dissector_handle_t lldp_handle;
-
-	lldp_handle = create_dissector_handle(dissect_lldp,proto_lldp);
 	dissector_add_uint("ethertype", ETHERTYPE_LLDP, lldp_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_ONOS, lldp_handle);
 }

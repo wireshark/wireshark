@@ -1030,6 +1030,7 @@ proto_register_pgsql(void)
     };
 
     proto_pgsql = proto_register_protocol("PostgreSQL", "PGSQL", "pgsql");
+    pgsql_handle = register_dissector("pgsql", dissect_pgsql, proto_pgsql);
     proto_register_field_array(proto_pgsql, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -1037,8 +1038,6 @@ proto_register_pgsql(void)
 void
 proto_reg_handoff_pgsql(void)
 {
-    pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
-
     dissector_add_uint_with_preference("tcp.port", PGSQL_PORT, pgsql_handle);
 
     tls_handle = find_dissector_add_dependency("tls", proto_pgsql);

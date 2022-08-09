@@ -141,6 +141,8 @@ void proto_reg_handoff_edp(void);
 
 static int hf_llc_extreme_pid = -1;
 
+static dissector_handle_t edp_handle;
+
 static int proto_edp = -1;
 /* EDP header */
 static int hf_edp_version = -1;
@@ -1538,6 +1540,7 @@ proto_register_edp(void)
 	expert_module_t* expert_edp;
 
 	proto_edp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "edp");
+	edp_handle = register_dissector("edp", dissect_edp, proto_edp);
 	proto_register_field_array(proto_edp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_edp = expert_register_protocol(proto_edp);
@@ -1550,9 +1553,6 @@ proto_register_edp(void)
 void
 proto_reg_handoff_edp(void)
 {
-	dissector_handle_t edp_handle;
-
-	edp_handle = create_dissector_handle(dissect_edp, proto_edp);
 	dissector_add_uint("llc.extreme_pid", 0x00bb, edp_handle);
 }
 

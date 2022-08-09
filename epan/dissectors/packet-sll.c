@@ -585,8 +585,8 @@ proto_register_sll(void)
 	proto_register_field_array(proto_sll, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	sll_handle = create_dissector_handle(dissect_sll_v1, proto_sll);
-	sll2_handle = create_dissector_handle(dissect_sll_v2, proto_sll);
+	sll_handle = register_dissector("sll_v1", dissect_sll_v1, proto_sll);
+	sll2_handle = register_dissector("sll_v2", dissect_sll_v2, proto_sll);
 	sll_tap = register_tap("sll");
 
 	/*

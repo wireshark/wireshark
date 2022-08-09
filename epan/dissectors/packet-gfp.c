@@ -37,6 +37,9 @@
 void proto_reg_handoff_gfp(void);
 void proto_register_gfp(void);
 
+/* Dissector handle */
+static dissector_handle_t gfp_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_gfp = -1;
 static int hf_gfp_pli = -1;
@@ -555,6 +558,8 @@ proto_register_gfp(void)
     /* Register the protocol name and description */
     proto_gfp = proto_register_protocol("Generic Framing Procedure",
             "GFP", "gfp");
+    gfp_handle = register_dissector("gfp", dissect_gfp,
+            proto_gfp);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_gfp, hf, array_length(hf));
@@ -579,11 +584,6 @@ proto_register_gfp(void)
 void
 proto_reg_handoff_gfp(void)
 {
-    static dissector_handle_t gfp_handle;
-
-    gfp_handle = create_dissector_handle(dissect_gfp,
-            proto_gfp);
-
     dissector_add_uint("wtap_encap", WTAP_ENCAP_GFP_T, gfp_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_GFP_F, gfp_handle);
 

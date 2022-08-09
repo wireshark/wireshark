@@ -28,6 +28,8 @@ void proto_reg_handoff_igrp(void);
 #define IGRP_HEADER_LENGTH 12
 #define IGRP_ENTRY_LENGTH 14
 
+static dissector_handle_t igrp_handle;
+
 static gint proto_igrp = -1;
 static gint hf_igrp_update = -1;
 static gint hf_igrp_as = -1;
@@ -231,6 +233,7 @@ void proto_register_igrp(void)
   /* Register the protocol name and description */
   proto_igrp = proto_register_protocol("Cisco Interior Gateway Routing Protocol",
                                        "IGRP", "igrp");
+  igrp_handle = register_dissector("igrp", dissect_igrp, proto_igrp);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_igrp, hf, array_length(hf));
@@ -242,9 +245,6 @@ void proto_register_igrp(void)
 void
 proto_reg_handoff_igrp(void)
 {
-  dissector_handle_t igrp_handle;
-
-  igrp_handle = create_dissector_handle(dissect_igrp, proto_igrp);
   dissector_add_uint("ip.proto", IP_PROTO_IGRP, igrp_handle);
 }
 

@@ -436,7 +436,7 @@ proto_register_vlan(void)
         "Priorities and drop eligibility",
         "Number of priorities supported, and number of those drop eligible (not used for 802.1Q-1998)",
         &vlan_priority_drop, priority_drop_vals, FALSE);
-  vlan_handle = create_dissector_handle(dissect_vlan, proto_vlan);
+  vlan_handle = register_dissector("vlan", dissect_vlan, proto_vlan);
 }
 
 void

@@ -22,6 +22,8 @@
 void proto_reg_handoff_packetbb(void);
 void proto_register_packetbb(void);
 
+static dissector_handle_t packetbb_handle;
+
 #define PACKET_HEADER_HASSEQNR     0x08
 #define PACKET_HEADER_HASTLV       0x04
 
@@ -960,9 +962,6 @@ static int dissect_packetbb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void proto_reg_handoff_packetbb(void) {
-  dissector_handle_t packetbb_handle;
-
-  packetbb_handle = create_dissector_handle(dissect_packetbb, proto_packetbb);
   dissector_add_uint_with_preference("udp.port", PACKETBB_PORT, packetbb_handle);
 }
 
@@ -1394,6 +1393,7 @@ void proto_register_packetbb(void) {
 
   /* name, short name, abbrev */
   proto_packetbb = proto_register_protocol("PacketBB Protocol", "PacketBB", "packetbb");
+  packetbb_handle = register_dissector("packetbb", dissect_packetbb, proto_packetbb);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_packetbb, hf, array_length(hf));

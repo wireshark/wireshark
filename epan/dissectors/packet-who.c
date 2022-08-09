@@ -48,6 +48,8 @@ RWHOD(8)                 UNIX System Manager's Manual                 RWHOD(8)
 void proto_register_who(void);
 void proto_reg_handoff_who(void);
 
+static dissector_handle_t who_handle;
+
 static int proto_who = -1;
 static int hf_who_vers = -1;
 static int hf_who_type = -1;
@@ -255,6 +257,7 @@ proto_register_who(void)
 	};
 
 	proto_who = proto_register_protocol("Who", "WHO", "who");
+	who_handle = register_dissector("who", dissect_who, proto_who);
 	proto_register_field_array(proto_who, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -262,9 +265,6 @@ proto_register_who(void)
 void
 proto_reg_handoff_who(void)
 {
-	dissector_handle_t who_handle;
-
-	who_handle = create_dissector_handle(dissect_who, proto_who);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_WHO, who_handle);
 }
 
