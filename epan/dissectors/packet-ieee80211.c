@@ -36104,7 +36104,7 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_fc_frame_type_subtype,
      {"Type/Subtype", "wlan.fc.type_subtype",
       FT_UINT16, BASE_HEX|BASE_EXT_STRING, &frame_type_subtype_vals_ext, 0x0,
-      "Type and subtype combined (first byte: type, second byte: subtype)", HFILL }},
+      "Type and subtype combined (as bytes (for Control Frame Extension subtypes) or nibbles)", HFILL }},
 
     {&hf_ieee80211_fc_frame_extension,
      {"Control Frame Extension", "wlan.fc.extension",
