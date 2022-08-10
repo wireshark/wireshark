@@ -28,6 +28,7 @@ sshdump - Provide interfaces to capture from a remote host through SSH using a r
 [ *--remote-password*=<password> ]
 [ *--sshkey*=<public key path> ]
 [ *--remote-interface*=<interface> ]
+[ *--remote-capture-command-select*=<capture command selection> ]
 [ *--remote-capture-command*=<capture command> ]
 [ *--remote-sudo* ]
 
@@ -154,7 +155,7 @@ The SSH port of the remote host.
 --remote-username=<username>::
 +
 --
-The username for ssh authentication.
+The username for SSH authentication.
 --
 
 --remote-password=<password>::
@@ -175,6 +176,17 @@ The path to a private key for authentication. NOTE: Only OPENSSH key/value pair 
 +
 --
 The remote network interface to capture from.
+--
+
+--remote-capture-command-select=<capture command-selection>::
++
+--
+The selection of the build-in support for remote capture commands. Either *dumpcap* for a remote
+capture command using dumpcap, *tcpdump* for a remote capture command using tcpdump, or *other*,
+where the remote capture command is to be given with the *--remote-capture-command* option.
+
+Note that selecting dumpcap allows for specifying multiple capture interfaces as a whitespace
+seperated list, while tcpdump does not.
 --
 
 --remote-capture-command=<capture command>::
@@ -240,27 +252,37 @@ To see interface configuration options:
     arg {number=3}{call=--remote-password}{display=Remote SSH server password}{type=password}
         {tooltip=The SSH password, used when other methods (SSH agent or key files) are unavailable.}{group=Authentication}
     arg {number=4}{call=--sshkey}{display=Path to SSH private key}{type=fileselect}
-        {tooltip=The path on the local filesystem of the private ssh key}{group=Authentication}
+        {tooltip=The path on the local filesystem of the private SSH key (OpenSSH format)}{mustexist=true}{group=Authentication}
     arg {number=5}{call=--sshkey-passphrase}{display=SSH key passphrase}{type=password}
-        {tooltip=Passphrase to unlock the SSH private key}{group=Authentication (OPENSSH format)}
+        {tooltip=Passphrase to unlock the SSH private key}{group=Authentication}
     arg {number=6}{call=--proxycommand}{display=ProxyCommand}{type=string}
         {tooltip=The command to use as proxy for the SSH connection}{group=Authentication}
     arg {number=7}{call=--remote-interface}{display=Remote interface}{type=string}
         {tooltip=The remote network interface used for capture}{group=Capture}
-    arg {number=8}{call=--remote-capture-command}{display=Remote capture command}{type=string}
+    arg {number=8}{call=--remote-capture-command-select}{display=Remote capture command selection}{type=radio}
+        {tooltip=The remote capture command to build a command line for}{group=Capture}
+        value {arg=8}{value=dumpcap}{display=dumpcap}
+        value {arg=8}{value=tcpdump}{display=tcpdump}{default=true}
+        value {arg=8}{value=other}{display=Other:}
+    arg {number=9}{call=--remote-capture-command}{display=Remote capture command}{type=string}
         {tooltip=The remote command used to capture}{group=Capture}
-    arg {number=9}{call=--remote-sudo}{display=Use sudo on the remote machine}{type=boolean}
+    arg {number=10}{call=--remote-sudo}{display=Use sudo on the remote machine}{type=boolflag}
         {tooltip=Prepend the capture command with sudo on the remote machine}{group=Capture}
-    arg {number=10}{call=--remote-noprom}{display=No promiscuous mode}{type=boolflag}
+    arg {number=11}{call=--remote-noprom}{display=No promiscuous mode}{type=boolflag}
         {tooltip=Don't use promiscuous mode on the remote machine}{group=Capture}
-    arg {number=11}{call=--remote-filter}{display=Remote capture filter}{type=string}
+    arg {number=12}{call=--remote-filter}{display=Remote capture filter}{type=string}
         {tooltip=The remote capture filter}{default=not ((host myhost) and port 22)}{group=Capture}
-    arg {number=12}{call=--remote-count}{display=Packets to capture}{type=unsigned}{default=0}
+    arg {number=13}{call=--remote-count}{display=Packets to capture}{type=unsigned}{default=0}
         {tooltip=The number of remote packets to capture. (Default: inf)}{group=Capture}
-    arg {number=13}{call=--debug}{display=Run in debug mode}{type=boolflag}{default=false}
-        {tooltip=Print debug messages}{required=false}{group=Debug}
-    arg {number=14}{call=--debug-file}{display=Use a file for debug}{type=string}
-        {tooltip=Set a file where the debug messages are written}{required=false}{group=Debug}
+    arg {number=14}{call=--log-level}{display=Set the log level}{type=selector}
+        {tooltip=Set the log level}{required=false}{group=Debug}
+        value {arg=14}{value=message}{display=Message}{default=true}
+        value {arg=14}{value=info}{display=Info}
+        value {arg=14}{value=debug}{display=Debug}
+        value {arg=14}{value=noisy}{display=Noisy}
+    arg {number=15}{call=--log-file}{display=Use a file for logging}{type=fileselect}
+        {tooltip=Set a file where log messages are written}{required=false}{group=Debug}
+
 
 To capture:
 
