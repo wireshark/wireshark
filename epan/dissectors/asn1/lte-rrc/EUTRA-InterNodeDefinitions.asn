@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.8.0 (2022-03)
+-- 3GPP TS 36.331 V17.1.0 (2022-06)
 
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -210,6 +210,11 @@ HandoverPreparationInformation-v1620-IEs ::= SEQUENCE {
 
 HandoverPreparationInformation-v1630-IEs ::= SEQUENCE {
 	as-Context-v1630			AS-Context-v1630						OPTIONAL, 	--Cond HO2
+	nonCriticalExtension		HandoverPreparationInformation-v1700-IEs		OPTIONAL
+}
+
+HandoverPreparationInformation-v1700-IEs ::= SEQUENCE {
+	as-Config-v1700			AS-Config-v1700						OPTIONAL,	--Cond HO5
 	nonCriticalExtension		SEQUENCE {}								OPTIONAL
 }
 
@@ -520,6 +525,10 @@ AS-Config-v1550 ::=			SEQUENCE {
 
 AS-ConfigNR-v1620 ::=			SEQUENCE {
 	tdm-PatternConfig2-r16		TDM-PatternConfig-r15
+}
+
+AS-Config-v1700 ::=				SEQUENCE {
+	scg-State-r17					ENUMERATED { deactivated }		OPTIONAL
 }
 
 

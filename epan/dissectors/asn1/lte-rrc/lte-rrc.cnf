@@ -63,7 +63,6 @@ CQI-ShortConfigSCell-r15/setup                                          cQI-Shor
 CRI-ReportConfig-r13/setup                                              cRI-ReportConfig-r13_setup
 CSI-Process-r11/eag_1/csi-IM-ConfigIdList-r12/setup                     cSI-Process-r11_eag_1_csi-IM-ConfigIdList-r12_setup
 CSI-Process-r11/eag_1/cqi-ReportAperiodicProc2-r12/setup                cSI-Process-r11_eag_1_cqi-ReportAperiodicProc2-r12_setup
-CSI-Process-r11/eag_1/cqi-ReportAperiodicProc2-r12/setup                cSI-Process-r11_eag_1_cqi-ReportAperiodicProc2-r12_setup
 CSI-Process-r11/eag_2/cqi-ReportAperiodicProc2-v1310/setup                               cSI-Process-r11_eag_2_cqi-ReportAperiodicProc2-v1310_setup
 CSI-RS-Config-r10/csi-RS-r10/setup                                                       cSI-RS-Config-r10_csi-RS-r10_setup
 CSI-RS-Config-v1250/ds-ZeroTxPowerCSI-RS-r12/setup                                       cSI-RS-Config-v1250_ds-ZeroTxPowerCSI-RS-r12_setup
@@ -369,7 +368,6 @@ CQI-ReportPeriodicProcExt-r11/csi-ConfigIndex-r11/setup                 ABBREV=c
 CQI-ShortConfigSCell-r15/setup                                          ABBREV=cQI_ShortConfigSCell_r15.setup
 CRI-ReportConfig-r13/setup                                              ABBREV=cRI_ReportConfig_r13.setup
 CSI-Process-r11/eag_1/csi-IM-ConfigIdList-r12/setup                     ABBREV=cSI_Process_r11.eag_1.csi_IM_ConfigIdList_r12.setup
-CSI-Process-r11/eag_1/cqi-ReportAperiodicProc2-r12/setup                ABBREV=cSI_Process_r11.eag_1.cqi_ReportAperiodicProc2_r12.setup
 CSI-Process-r11/eag_1/cqi-ReportAperiodicProc2-r12/setup                ABBREV=cSI_Process_r11.eag_1.cqi_ReportAperiodicProc2_r12.setup
 CSI-Process-r11/eag_2/cqi-ReportAperiodicProc2-v1310/setup                               ABBREV=cSI_Process_r11.eag_2.cqi_ReportAperiodicProc2_v1310.setup
 CSI-RS-Config-r10/csi-RS-r10/setup                                                       ABBREV=cSI_RS_Config_r10.csi_RS_r10.setup
@@ -779,9 +777,11 @@ BCCH-DL-SCH-Message-MBMS     @bcch.dl.sch.mbms
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+CE-PUCCH-TxDurationConfig-r17
 CellsTriggeredList
 CSI-RS-TriggeredList-r12
 LogMeasInfoList2-r10
+NPUSCH-ConfigDedicated-NB-v1700
 RSRP-RangeSL3-r12
 SL-CBR-PPPP-TxPreconfigList-r14
 SL-CBR-PPPP-TxPreconfigList-v1530
@@ -819,6 +819,7 @@ VarLogMeasConfig-r10
 VarLogMeasConfig-r11
 VarLogMeasConfig-r12
 VarLogMeasConfig-r15
+VarLogMeasConfig-r17
 VarLogMeasReport-r10
 VarLogMeasReport-r11
 VarMeasConfig
@@ -1799,6 +1800,20 @@ RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_
 #.TYPE_ATTR
 LogMeasInfo-r10/relativeTimeStamp-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
+#.FN_BODY LogMeasInfo-r10/eag_9/uncomBarPreMeasResult-r17 VAL_PTR = &sensor_meas_info_tvb
+  tvbuff_t *sensor_meas_info_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (sensor_meas_info_tvb) {
+    dissect_lpp_Sensor_MeasurementInformation_r13_PDU(sensor_meas_info_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY MeasResults/eag_10/uncomBarPreMeasResult-r17 VAL_PTR = &sensor_meas_info_tvb
+  tvbuff_t *sensor_meas_info_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (sensor_meas_info_tvb) {
+    dissect_lpp_Sensor_MeasurementInformation_r13_PDU(sensor_meas_info_tvb, actx->pinfo, tree, NULL);
+  }
+
 #.FN_BODY BLER-Result-r12/blocksReceived-r12/n-r12 VAL_PTR = &n_r12_tvb HF_INDEX = -1
   tvbuff_t *n_r12_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -2372,6 +2387,18 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_HDR SystemInformationBlockType29-r16
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB29");
+
+#.FN_HDR SystemInformationBlockType30-r17
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB30");
+
+#.FN_HDR SystemInformationBlockType31-r17
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB31");
+
+#.FN_HDR SystemInformationBlockType32-r17
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB32");
 
 #.FN_HDR SystemInformationBlockPos-r15
 
@@ -3387,7 +3414,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRCConnectionResume-v1610-IEs/nr-SecondaryCellGroupConfig VAL_PTR = &rrc_reconfiguration_tvb
+#.FN_BODY RRCConnectionResume-v1610-IEs/nr-SecondaryCellGroupConfig-r16 VAL_PTR = &rrc_reconfiguration_tvb
   tvbuff_t *rrc_reconfiguration_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -3689,6 +3716,12 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 #.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib5-1-v1610
   private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_5_1);
 
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-9-v1700
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_9);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-10-v1700
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_10);
+
 #.FN_BODY SystemInformationBlockPos-r15/assistanceDataSIB-Element-r15 VAL_PTR = &assist_data_sib_elem_tvb
   tvbuff_t *assist_data_sib_elem_tvb = NULL;
 
@@ -3700,6 +3733,23 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_lpp_AssistanceDataSIBelement_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo,
                                                  subtree, private_data_get_pos_sib_type(actx));
   }
+
+#.FN_BODY UEInformationResponse-v1710-IEs/coarseLocationInfo-r17 VAL_PTR = &ellipsoid_point_tvb
+  tvbuff_t *ellipsoid_point_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_tvb) {
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY MeasResults/eag_10/coarseLocationInfo-r17 VAL_PTR = &ellipsoid_point_tvb
+  tvbuff_t *ellipsoid_point_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_tvb) {
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.TYPE_ATTR
+TimeOffsetUTC-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #
 # EUTRA-Sidelink-Preconf
@@ -3851,6 +3901,12 @@ SL-V2X-PreconfigCommPool-r14/threshS-RSSI-CBR-r14 DISPLAY=BASE_CUSTOM STRINGS=CF
 
 #.FN_HDR SystemInformationBlockType27-NB-r16
   col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB27");
+
+#.FN_HDR SystemInformationBlockType31-NB-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB31");
+
+#.FN_HDR SystemInformationBlockType32-NB-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB32");
 
 #.TYPE_ATTR
 MasterInformationBlock-NB/schedulingInfoSIB1-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext
