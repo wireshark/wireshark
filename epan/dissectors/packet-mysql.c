@@ -1783,7 +1783,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 	}
 
-	if (conn_data->clnt_caps & MYSQL_CAPS_ZS)
+	if (conn_data->clnt_caps_ext & MYSQL_CAPS_ZS)
 	{
 		proto_tree_add_item(login_tree, hf_mysql_zstd_compression_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
