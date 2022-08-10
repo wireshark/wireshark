@@ -64,6 +64,9 @@ typedef enum {
     LPP_POS_SIB_TYPE_6_1,
     LPP_POS_SIB_TYPE_6_2,
     LPP_POS_SIB_TYPE_6_3,
+    LPP_POS_SIB_TYPE_6_4,
+    LPP_POS_SIB_TYPE_6_5,
+    LPP_POS_SIB_TYPE_6_6,
 } lpp_pos_sib_type_t;
 
 int dissect_lpp_AssistanceDataSIBelement_r15_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lpp_pos_sib_type_t pos_sib_type);
@@ -110,6 +113,6 @@ int dissect_lpp_Sensor_MotionInformation_r15_PDU(tvbuff_t *tvb _U_, packet_info 
 int dissect_lpp_DisplacementTimeStamp_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lpp-exp.h ---*/
-#line 62 "./asn1/lpp/packet-lpp-template.h"
+#line 67 "./asn1/lpp/packet-lpp-template.h"
 
 #endif  /* PACKET_LPP_H */

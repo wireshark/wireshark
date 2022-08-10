@@ -66,6 +66,8 @@ GNSS-Almanac
 GNSS-DataBitAssistance
 GNSS-DifferentialCorrections
 GNSS-EarthOrientationParameters
+GNSS-Integrity-ServiceAlert-r17
+GNSS-Integrity-ServiceParameters-r17
 GNSS-IonosphericModel
 GNSS-NavigationModel
 GNSS-RealTimeIntegrity
@@ -98,6 +100,9 @@ LPP-Message
 NavIC-DifferentialCorrections-r16
 NavIC-GridModelParameter-r16
 NR-DL-PRS-AssistanceData-r16
+NR-DL-PRS-TRP-TEG-Info-r17
+NR-On-Demand-DL-PRS-Configurations-r17
+NR-TRP-BeamAntennaInfo-r17
 NR-UEB-TRP-LocationData-r16
 NR-UEB-TRP-RTD-Info-r16
 OTDOA-UE-Assisted-r15
@@ -1833,6 +1838,12 @@ BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
     case LPP_POS_SIB_TYPE_1_8:
       dissect_GNSS_SSR_CorrectionPoints_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
+    case LPP_POS_SIB_TYPE_1_9:
+      dissect_GNSS_Integrity_ServiceParameters_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_10:
+      dissect_GNSS_Integrity_ServiceAlert_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
     case LPP_POS_SIB_TYPE_2_1:
       dissect_GNSS_TimeModelList_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
@@ -1925,6 +1936,15 @@ BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
       break;
     case LPP_POS_SIB_TYPE_6_3:
       dissect_NR_UEB_TRP_RTD_Info_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_6_4:
+      dissect_NR_TRP_BeamAntennaInfo_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_6_5:
+      dissect_NR_DL_PRS_TRP_TEG_Info_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_6_6:
+      dissect_NR_On_Demand_DL_PRS_Configurations_r17_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
       break;
     default:
       break;
