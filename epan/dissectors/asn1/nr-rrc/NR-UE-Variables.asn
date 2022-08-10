@@ -1,13 +1,15 @@
--- 3GPP TS 38.331 V16.8.0 (2022-03)
+-- 3GPP TS 38.331 V17.1.0 (2022-06)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
+    AreaConfiguration-v1700,
     ARFCN-ValueNR,
     CellIdentity,
     EUTRA-PhysCellId,
+    maxCEFReport-r17,
     MeasId,
     MeasIdToAddModList,
     MeasIdleCarrierEUTRA-r16,
@@ -44,6 +46,7 @@ IMPORTS
     WLAN-NameList-r16,
     BT-NameList-r16,
     PLMN-Identity,
+    maxNrofRelayMeas-r17,
     maxPLMN,
     RA-ReportList-r16,
     VisitedCellInfoList-r16,
@@ -51,6 +54,8 @@ IMPORTS
     LoggedEventTriggerConfig-r16,
     LoggedPeriodicalReportConfig-r16,
     Sensor-NameList-r16,
+    SL-SourceIdentity-r17,
+    SuccessHO-Report-r17,
     PLMN-IdentityList2-r16,
     AreaConfiguration-r16,
     maxNrofSL-MeasId-r16,
@@ -68,7 +73,6 @@ VarConditionalReconfig ::=     SEQUENCE {
     condReconfigList               CondReconfigToAddModList-r16        OPTIONAL
 }
 
-
 -- TAG-VARCONDITIONALRECONFIG-STOP
 -- TAG-VARCONNESTFAILREPORT-START
 
@@ -78,6 +82,13 @@ VarConnEstFailReport-r16 ::= SEQUENCE {
 }
 
 -- TAG-VARCONNESTFAILREPORT-STOP
+-- TAG-VARCONNESTFAILREPORTLIST-START
+
+VarConnEstFailReportLIST-r17 ::= SEQUENCE {
+    connEstFailReportList-r17        SEQUENCE (SIZE (1..maxCEFReport-r17)) OF VarConnEstFailReport-r16
+}
+
+-- TAG-VARCONNESTFAILREPORTLIST-STOP
 -- TAG-VARLOGMEASCONFIG-START
 
 VarLogMeasConfig-r16-IEs ::= SEQUENCE {
@@ -89,7 +100,10 @@ VarLogMeasConfig-r16-IEs ::= SEQUENCE {
     reportType                   CHOICE {
         periodical                   LoggedPeriodicalReportConfig-r16,
         eventTriggered               LoggedEventTriggerConfig-r16
-    }
+    },
+    sigLoggedMeasType-r17        ENUMERATED {true}            OPTIONAL,
+    earlyMeasIndication-r17      ENUMERATED {true}            OPTIONAL,
+    areaConfiguration-v1700      AreaConfiguration-v1700      OPTIONAL
 }
 -- TAG-VARLOGMEASCONFIG-STOP
 -- TAG-VARLOGMEASREPORT-START
@@ -100,7 +114,8 @@ VarLogMeasReport-r16 ::=     SEQUENCE {
     traceRecordingSessionRef-r16 OCTET STRING (SIZE (2)),
     tce-Id-r16                   OCTET STRING (SIZE (1)),
     logMeasInfoList-r16          LogMeasInfoList-r16,
-    plmn-IdentityList-r16        PLMN-IdentityList2-r16
+    plmn-IdentityList-r16        PLMN-IdentityList2-r16,
+    sigLoggedMeasType-r17        ENUMERATED {true}
 }
 
 -- TAG-VARLOGMEASREPORT-STOP
@@ -119,7 +134,6 @@ VarMeasConfig ::=                   SEQUENCE {
         ssb-RSRP                                RSRP-Range,
         csi-RSRP                                RSRP-Range
     }                                                                       OPTIONAL
-
 }
 
 -- TAG-VARMEASCONFIG-STOP
@@ -165,7 +179,8 @@ VarMeasReport ::=                   SEQUENCE {
     cellsTriggeredList                  CellsTriggeredList              OPTIONAL,
     numberOfReportsSent                 INTEGER,
     cli-TriggeredList-r16               CLI-TriggeredList-r16           OPTIONAL,
-    tx-PoolMeasToAddModListNR-r16       Tx-PoolMeasList-r16             OPTIONAL
+    tx-PoolMeasToAddModListNR-r16       Tx-PoolMeasList-r16             OPTIONAL,
+    relaysTriggeredList-r17             RelaysTriggeredList-r17         OPTIONAL
 }
 
 CellsTriggeredList ::=              SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CHOICE {
@@ -182,6 +197,8 @@ CLI-TriggeredList-r16 ::=           CHOICE {
 SRS-RSRP-TriggeredList-r16 ::=      SEQUENCE (SIZE (1.. maxNrofCLI-SRS-Resources-r16)) OF SRS-ResourceId
 
 CLI-RSSI-TriggeredList-r16 ::=      SEQUENCE (SIZE (1.. maxNrofCLI-RSSI-Resources-r16)) OF RSSI-ResourceId-r16
+
+RelaysTriggeredList-r17 ::=         SEQUENCE (SIZE (1.. maxNrofRelayMeas-r17)) OF SL-SourceIdentity-r17
 
 -- TAG-VARMEASREPORTLIST-STOP
 -- TAG-VARMEASREPORTLISTSL-START
@@ -224,7 +241,6 @@ VarResumeMAC-Input  ::=     SEQUENCE {
     sourcePhysCellId                        PhysCellId,
     targetCellIdentity                      CellIdentity,
     source-c-RNTI                           RNTI-Value
-
 }
 
 -- TAG-VARRESUMEMAC-INPUT-STOP
@@ -245,5 +261,12 @@ VarShortMAC-Input   ::=                 SEQUENCE {
 }
 
 -- TAG-VARSHORTMAC-INPUT-STOP
+-- TAG-VARSUCCESSHO-Report-START
+
+VarSuccessHO-Report-r17-IEs ::= SEQUENCE {
+    successHO-Report-r17            SuccessHO-Report-r17,
+    plmn-IdentityList-r17           PLMN-IdentityList2-r16
+}
+-- TAG-VARSUCCESSHO-Report-STOP
 
 END

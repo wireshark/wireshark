@@ -1,21 +1,24 @@
--- 3GPP TS 38.331 V16.8.0 (2022-03)
+-- 3GPP TS 38.331 V17.1.0 (2022-06)
 
 NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
 IMPORTS
-SL-FreqConfigCommon-r16,
-SL-RadioBearerConfig-r16,
-SL-RLC-BearerConfig-r16,
-SL-EUTRA-AnchorCarrierFreqList-r16,
-SL-NR-AnchorCarrierFreqList-r16,
-SL-MeasConfigCommon-r16,
-SL-UE-SelectedConfig-r16,
-TDD-UL-DL-ConfigCommon,
-maxNrofFreqSL-r16,
-maxNrofSLRB-r16,
-maxSL-LCID-r16
+    SL-RemoteUE-Config-r17,
+    SL-DRX-Config-GC-BC-r17,
+    ffsUpperLimit, -- to be removed later
+    SL-FreqConfigCommon-r16,
+    SL-RadioBearerConfig-r16,
+    SL-RLC-BearerConfig-r16,
+    SL-EUTRA-AnchorCarrierFreqList-r16,
+    SL-NR-AnchorCarrierFreqList-r16,
+    SL-MeasConfigCommon-r16,
+    SL-UE-SelectedConfig-r16,
+    TDD-UL-DL-ConfigCommon,
+    maxNrofFreqSL-r16,
+    maxNrofSLRB-r16,
+    maxSL-LCID-r16
 FROM NR-RRC-Definitions;
 
 -- TAG-NR-SIDELINK-PRECONF-DEFINITIONS-STOP
@@ -42,8 +45,17 @@ SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
     sl-CSI-Acquisition-r16                      ENUMERATED {enabled}                                                  OPTIONAL,
     sl-RoHC-Profiles-r16                        SL-RoHC-Profiles-r16                                                  OPTIONAL,
     sl-MaxCID-r16                               INTEGER (1..16383)                                                    DEFAULT 15,
-    ...
+    ...,
+    [[
+    sl-DRX-PreConfig-GC-BC-r17                  SL-DRX-Config-GC-BC-r17                                               OPTIONAL,
+    sl-TxProfileList-r17                        SL-TxProfileList-r17                                                  OPTIONAL,
+    sl-PreconfigDiscConfig-r17                  SL-RemoteUE-Config-r17                                                OPTIONAL
+    ]]
 }
+
+SL-TxProfileList-r17 ::=                    SEQUENCE (SIZE (1..256)) OF SL-TxProfile-r17
+
+SL-TxProfile-r17 ::=                        ENUMERATED {drx-Compatible, drx-Incompatible, spare6, spare5, spare4, spare3,spare2, spare1}
 
 SL-PreconfigGeneral-r16 ::=                 SEQUENCE {
     sl-TDD-Configuration-r16                    TDD-UL-DL-ConfigCommon                                                OPTIONAL,

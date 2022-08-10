@@ -62,6 +62,7 @@ CellGroupConfig_PDU
 DRX-Config_PDU
 CG-Config_PDU
 CG-ConfigInfo_PDU
+CondReconfigExecCondSCG-r17_PDU
 ConfigRestrictInfoSCG_PDU
 FeatureSetEntryIndex_PDU
 FreqBandList_PDU
@@ -75,6 +76,8 @@ MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
 NZP-CSI-RS-Resource_PDU
+OverheatingAssistance_PDU
+OverheatingAssistance-r17_PDU
 P-Max_PDU
 PDCCH-ConfigSIB1_PDU
 PH-TypeListMCG_PDU
@@ -123,6 +126,7 @@ BandParametersSidelink-r16
 BCCH-BCH-Message                   @bcch.bch
 BCCH-DL-SCH-Message                @bcch.dl.sch
 CellGroupConfig
+CondReconfigExecCondSCG-r17
 CG-Config
 CG-ConfigInfo
 ConfigRestrictInfoSCG
@@ -134,6 +138,7 @@ FreqBandList
 HandoverCommand
 HandoverPreparationInformation
 LocationMeasurementInfo
+MCCH-Message-r17                   @mcch
 MeasConfig
 MeasGapConfig
 MeasGapSharingConfig
@@ -141,6 +146,8 @@ MeasResultSCG-Failure
 MeasurementTimingConfiguration
 MIB
 NZP-CSI-RS-Resource
+OverheatingAssistance
+OverheatingAssistance-r17
 P-Max
 PCCH-Message                       @pcch
 PDCCH-ConfigSIB1
@@ -158,6 +165,8 @@ SchedulingRequestResourceConfig
 SidelinkParametersNR-r16
 SidelinkUEInformationNR-r16
 SL-ConfigDedicatedEUTRA-Info-r16
+SL-MeasResultListRelay-r17
+SL-MeasResultRelay-r17
 SL-PHY-MAC-RLC-Config-r16
 SIB1
 SIB2
@@ -191,41 +200,24 @@ VisitedCellInfoList-r16
 #.END
 
 #.OMIT_ASSIGNMENT
-CellsTriggeredList
-CLI-RSSI-TriggeredList-r16
-CLI-TriggeredList-r16
-PLMN-IdentityList-r16
+CG-CandidateInfo-r17
+CG-CandidateInfoId-r17
+CG-CandidateList
+CG-CandidateList-r17-IEs
 SIB12-IEs-r16
-SidelinkPreconfigNR-r16
+SIB17-IEs-r17
 SL-BWP-ConfigCommon-r16
+SL-BWP-DiscPoolConfigCommon-r17
 SL-BWP-PoolConfigCommon-r16
 SL-ConfigCommonNR-r16
+SL-DiscConfigCommon-r17
 SL-EUTRA-AnchorCarrierFreqList-r16
 SL-FreqConfigCommon-r16
 SL-MeasConfigCommon-r16
 SL-NR-AnchorCarrierFreqList-r16
-SL-PreconfigGeneral-r16
-SL-PreconfigurationNR-r16
-SL-RoHC-Profiles-r16
-SRS-RSRP-TriggeredList-r16
-VarConditionalReconfig
-VarConnEstFailReport-r16
-VarLogMeasConfig-r16-IEs
-VarLogMeasReport-r16
-VarMeasConfig
-VarMeasConfigSL-r16
-VarMeasIdleConfig-r16
-VarMeasIdleReport-r16
-VarMeasReport
-VarMeasReportList
-VarMeasReportListSL-r16
-VarMeasReportSL-r16
-VarMobilityHistoryReport-r16
-VarPendingRNA-Update
-VarRA-Report-r16
-VarResumeMAC-Input
-VarRLF-Report-r16
-VarShortMAC-Input
+SL-ServingCellInfo-r17
+TRS-ResourceSet-r17
+UE-TimersAndConstantsRemoteUE-r17
 
 #.FIELD_RENAME
 RRM-Config/eag_1/candidateCellInfoListSN-EUTRA                                 rRM-Config_eag_1_candidateCellInfoListSN-EUTRA
@@ -331,7 +323,7 @@ MIMO-ParametersPerBand/maxNumberRxTxBeamSwitchDL/scs-60kHz                      
 MIMO-ParametersPerBand/beamReportTiming/scs-60kHz                                                    mIMO-ParametersPerBand_beamReportTiming_scs-60kHz
 MIMO-ParametersPerBand/ptrs-DensityRecommendationSetDL/scs-60kHz                                     mIMO-ParametersPerBand_ptrs-DensityRecommendationSetDL_scs-60kHz
 MIMO-ParametersPerBand/ptrs-DensityRecommendationSetUL/scs-60kHz                                     mIMO-ParametersPerBand_ptrs-DensityRecommendationSetUL_scs-60kHz
-MIMO-ParametersPerBand/eag_1/beamSwitchTiming/scs-60kHz                                              MmIMO-ParametersPerBand_eag_1_beamSwitchTiming_scs-60kHz
+MIMO-ParametersPerBand/eag_1/beamSwitchTiming/scs-60kHz                                              mIMO-ParametersPerBand_eag_1_beamSwitchTiming_scs-60kHz
 BandNR/channelBWs-DL/fr1/scs-60kHz                                                                   bandNR_channelBWs-DL_fr1_scs-60kHz
 BandNR/channelBWs-UL/fr1/scs-60kHz                                                                   bandNR_channelBWs-UL_fr1_scs-60kHz
 BandNR/channelBWs-DL/fr2/scs-60kHz                                                                   bandNR_channelBWs-DL_fr2_scs-60kHz
@@ -720,6 +712,27 @@ RAT-Type TYPE_PREFIX
 #.FN_HDR SIB14-r16
   col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB14");
 
+#.FN_HDR SIB15-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB15");
+
+#.FN_HDR SIB16-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB16");
+
+#.FN_HDR SIB17-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB17");
+
+#.FN_HDR SIB18-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB18");
+
+#.FN_HDR SIB19-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB19");
+
+#.FN_HDR SIB20-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB20");
+
+#.FN_HDR SIB21-r17
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB21");
+
 #.FN_HDR SIB1
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SIB1");
 
@@ -874,6 +887,15 @@ RAT-Type TYPE_PREFIX
 
 #.FN_HDR IABOtherInformation-r16
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IAB Other Information");
+
+#.FN_HDR MBSInterestIndication-r17
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBS Interest Indication");
+
+#.FN_HDR UEPositioningAssistanceInfo-r17
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Positioning Assistance Info");
+
+#.FN_HDR MeasurementReportAppLayer-r17
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Measurement Report App Layer");
 
 #.FN_BODY MRDC-SecondaryCellGroupConfig/mrdc-SecondaryCellGroup/eutra-SCG VAL_PTR = &eutra_scg_tvb
   tvbuff_t *eutra_scg_tvb = NULL;
@@ -1044,6 +1066,15 @@ SIB1/cellSelectionInfo/q-QualMinOffset DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS
     dissect_UECapabilityInformationSidelink_PDU(sl_cap_info_sidelink_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY SL-TxResourceReqL2U2N-Relay-r17/sl-CapabilityInformationSidelink-r17 VAL_PTR = &sl_cap_info_sidelink_tvb
+  tvbuff_t *sl_cap_info_sidelink_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (sl_cap_info_sidelink_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_sl_CapabilityInformationSidelink);
+    dissect_UECapabilityInformationSidelink_PDU(sl_cap_info_sidelink_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.TYPE_ATTR
 LogMeasInfo-r16/relativeTimeStamp-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
@@ -1059,11 +1090,26 @@ RLF-Report-r16/nr-RLF-Report-r16/timeConnFailure-r16 DISPLAY=BASE_CUSTOM STRINGS
     dissect_lte_rrc_RLF_Report_r9_PDU(meas_result_rlf_report_eutra_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY RLF-Report-r16/eutra-RLF-Report-r16/eag_1/measResult-RLF-Report-EUTRA-v1690 VAL_PTR = &meas_result_rlf_report_eutra_v1690_tvb
+  tvbuff_t *meas_result_rlf_report_eutra_v1690_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (meas_result_rlf_report_eutra_v1690_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_measResult_RLF_Report_EUTRA_v1690);
+    dissect_lte_rrc_RLF_Report_v9e0_PDU(meas_result_rlf_report_eutra_v1690_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.TYPE_ATTR
 TimeSinceFailure-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 TimeUntilReconnection-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+TimeSinceCHO-Reconfig-r17 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_TimeSinceCHO_Reconfig_r17_fmt)
+
+#.TYPE_ATTR
+UPInterruptionTimeAtHO-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
 
 #.FN_BODY ULInformationTransferIRAT-r16-IEs/ul-DCCH-MessageEUTRA-r16 VAL_PTR = &ul_dcch_msg_eutra_tvb
   tvbuff_t *ul_dcch_msg_eutra_tvb = NULL;
@@ -1700,6 +1746,9 @@ WLAN-Identifiers-r16/hessid-r16 TYPE=FT_ETHER
 #.TYPE_ATTR
 VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
+#.TYPE_ATTR
+VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item
   nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_UNKNOWN;
 
@@ -1813,6 +1862,27 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
 
 #.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-3-r16
   nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_3;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-9-v1700
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_9;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-10-v1700
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_10;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-24-v1700
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_24;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-25-v1700
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_25;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-4-v1700
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_4;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-5-v1700
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_5;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-6-v1700
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_6;
 
 #.FN_BODY SIBpos-r16/assistanceDataSIB-Element-r16 VAL_PTR = &assist_data_sib_elem_tvb
   tvbuff_t *assist_data_sib_elem_tvb = NULL;
@@ -2106,6 +2176,54 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
     dissect_lte_rrc_TDD_Config_PDU(tdd_config_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY UEInformationResponse-v1700-IEs/coarseLocationInfo-r17 VAL_PTR = &ellipsoid_point_tvb
+  tvbuff_t *ellipsoid_point_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_coarseLocationInfo_r17);
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MeasResults/measResultNeighCells/sl-MeasResultsCandRelay-r17 VAL_PTR = &sl_meas_result_list_relay_tvb
+  tvbuff_t *sl_meas_result_list_relay_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (sl_meas_result_list_relay_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_sl_MeasResultsCandRelay_r17);
+    dissect_SL_MeasResultListRelay_r17_PDU(sl_meas_result_list_relay_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MeasResults/eag_4/sl-MeasResultServingRelay-r17 VAL_PTR = &sl_meas_result_serving_relay_tvb
+  tvbuff_t *sl_meas_result_serving_relay_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (sl_meas_result_serving_relay_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_sl_MeasResultServingRelay_r17);
+    dissect_SL_MeasResultRelay_r17_PDU(sl_meas_result_serving_relay_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MeasResults/eag_4/coarseLocationInfo-r17 VAL_PTR = &ellipsoid_point_tvb
+  tvbuff_t *ellipsoid_point_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_coarseLocationInfo_r17);
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+TimeBetweenEvent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+
+#.FN_BODY ReferenceLocation-r17 VAL_PTR = &ellipsoid_point_tvb
+  tvbuff_t *ellipsoid_point_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_ReferenceLocation_r17);
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_HDR SBCCH-SL-BCH-Message
   proto_item *ti;
 
@@ -2144,3 +2262,15 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
 
 #.FN_HDR UECapabilityInformationSidelink
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Capability Information Sidelink");
+
+#.FN_HDR MCCH-Message-r17
+  proto_item *ti;
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "NR RRC");
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_nr_rrc);
+
+#.FN_HDR MBSBroadcastConfiguration-r17
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBS Broadcast Configuration");

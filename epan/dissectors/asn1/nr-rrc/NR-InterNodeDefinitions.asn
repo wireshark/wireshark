@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.8.0 (2022-03)
+-- 3GPP TS 38.331 V17.1.0 (2022-06)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -10,6 +10,7 @@ IMPORTS
     CellIdentity,
     CGI-InfoEUTRA,
     CGI-InfoNR,
+    CondReconfigExecCondSCG-r17,
     CSI-RS-Index,
     CSI-RS-CellMobility,
     DRX-Config,
@@ -20,10 +21,13 @@ IMPORTS
     GapConfig,
     maxBandComb,
     maxBands,
+    maxBandsEUTRA,
     maxCellSFTD,
     maxFeatureSetsPerBand,
     maxFreqIDC-MRDC,
     maxNrofCombIDC,
+    maxNrofCondCells-r16,
+    ffsUpperLimit, -- to be removed later
     maxNrofPhysicalResourceBlocks,
     maxNrofSCells,
     maxNrofServingCells,
@@ -31,6 +35,7 @@ IMPORTS
     maxNrofServingCellsEUTRA,
     maxNrofIndexesToReport,
     maxSimultaneousBands,
+    MBSInterestIndication-r17,
     MeasQuantityResults,
     MeasResultCellListSFTD-EUTRA,
     MeasResultCellListSFTD-NR,
@@ -38,7 +43,10 @@ IMPORTS
     MeasResultSCG-Failure,
     MeasResultServFreqListEUTRA-SCG,
     NeedForGapsInfoNR-r16,
+    NeedForGapNCSG-InfoNR-r17,
+    NeedForGapNCSG-InfoEUTRA-r17,
     OverheatingAssistance,
+    OverheatingAssistance-r17,
     P-Max,
     PhysCellId,
     RadioBearerConfig,
@@ -57,11 +65,42 @@ IMPORTS
     maxNrofCLI-RSSI-Resources-r16,
     maxNrofCLI-SRS-Resources-r16,
     RSSI-ResourceId-r16,
+    SDT-Config-r17,
     SidelinkUEInformationNR-r16,
-    SRS-ResourceId
+    SRS-ResourceId,
+    UE-RadioPagingInfo-r17
 FROM NR-RRC-Definitions;
 
 -- TAG-NR-INTER-NODE-DEFINITIONS-STOP
+-- TAG-CG-CANDIDATELIST-START
+
+CG-CandidateList ::=                SEQUENCE {
+    criticalExtensions                  CHOICE {
+        c1                                  CHOICE{
+            cg-CandidateList-r17                CG-CandidateList-r17-IEs,
+            spare3 NULL, spare2 NULL, spare1 NULL
+        },
+        criticalExtensionsFuture            SEQUENCE {}
+    }
+}
+
+CG-CandidateList-r17-IEs ::=        SEQUENCE {
+    cg-CandidateToAddModList-r17        SEQUENCE (SIZE (1..maxNrofCondCells-r16)) OF CG-CandidateInfo-r17    OPTIONAL,
+    cg-CandidateToReleaseList-r17       SEQUENCE (SIZE (1..maxNrofCondCells-r16)) OF CG-CandidateInfoId-r17  OPTIONAL,
+    nonCriticalExtension                SEQUENCE {}                                                          OPTIONAL
+}
+
+CG-CandidateInfo-r17 ::=            SEQUENCE {
+   	cg-CandidateInfoId-r17              CG-CandidateInfoId-r17,
+    candidateCG-Config-r17             OCTET STRING (CONTAINING CG-Config)
+}
+
+CG-CandidateInfoId-r17::=           SEQUENCE {
+    ssbFrequency-r17                    ARFCN-ValueNR,
+    physCellId-r17                      PhysCellId
+}
+
+-- TAG-CG-CANDIDATELIST-STOP
 -- TAG-HANDOVER-COMMAND-START
 
 HandoverCommand ::=                 SEQUENCE {
@@ -110,8 +149,10 @@ AS-Config ::=                           SEQUENCE {
     ]],
     [[
     sourceSCG-Configured                    ENUMERATED {true}                               OPTIONAL
+    ]],
+    [[
+    sdt-Config-r17                          SDT-Config-r17                                  OPTIONAL
     ]]
-
 }
 
 AS-Context ::=                          SEQUENCE {
@@ -135,6 +176,11 @@ AS-Context ::=                          SEQUENCE {
     ]],
     [[
     configRestrictInfoDAPS-v1640            ConfigRestrictInfoDAPS-v1640                        OPTIONAL
+    ]],
+    [[
+    needForGapNCSG-InfoNR-r17               NeedForGapNCSG-InfoNR-r17                           OPTIONAL,
+    needForGapNCSG-InfoEUTRA-r17            NeedForGapNCSG-InfoEUTRA-r17                        OPTIONAL,
+    mbsInterestIndication-r17               OCTET STRING (CONTAINING MBSInterestIndication-r17) OPTIONAL
     ]]
 }
 
@@ -261,7 +307,13 @@ CG-Config-v1630-IEs ::=             SEQUENCE {
 CG-Config-v1640-IEs ::=             SEQUENCE {
     servCellInfoListSCG-NR-r16          ServCellInfoListSCG-NR-r16                      OPTIONAL,
     servCellInfoListSCG-EUTRA-r16       ServCellInfoListSCG-EUTRA-r16                   OPTIONAL,
-    nonCriticalExtension            SEQUENCE {}                                         OPTIONAL
+    nonCriticalExtension                CG-Config-v1700-IEs                             OPTIONAL
+}
+
+CG-Config-v1700-IEs ::=             SEQUENCE {
+    candidateCellInfoListCPC-r17        CandidateCellInfoListCPC-r17                    OPTIONAL,
+    twoPHRModeSCG-r17                   ENUMERATED {enabled}                            OPTIONAL,
+    nonCriticalExtension                SEQUENCE {}                                     OPTIONAL
 }
 
 ServCellInfoListSCG-NR-r16 ::=      SEQUENCE (SIZE (1.. maxNrofServingCells)) OF  ServCellInfoXCG-NR-r16
@@ -296,7 +348,10 @@ PH-InfoSCG ::=                      SEQUENCE {
     servCellIndex                       ServCellIndex,
     ph-Uplink                           PH-UplinkCarrierSCG,
     ph-SupplementaryUplink              PH-UplinkCarrierSCG                             OPTIONAL,
-    ...
+    ...,
+    [[
+    twoSRS-PUSCH-Repetition-r17         ENUMERATED{enabled}                             OPTIONAL
+    ]]
 }
 
 PH-UplinkCarrierSCG ::=             SEQUENCE{
@@ -349,6 +404,19 @@ CandidateServingFreqListNR ::= SEQUENCE (SIZE (1.. maxFreqIDC-MRDC)) OF ARFCN-Va
 CandidateServingFreqListEUTRA ::= SEQUENCE (SIZE (1.. maxFreqIDC-MRDC)) OF ARFCN-ValueEUTRA
 
 T-Offset-r16 ::= ENUMERATED {ms0dot5, ms0dot75, ms1, ms1dot5, ms2, ms2dot5, ms3, spare1}
+
+CandidateCellInfoListCPC-r17 ::= SEQUENCE (SIZE (1..ffsUpperLimit)) OF CandidateCellInfo-r17   -- FFS
+
+CandidateCellInfo-r17 ::=        SEQUENCE {
+    ssbFrequency-r17                 ARFCN-ValueNR,
+    candidateList-r17                SEQUENCE (SIZE (1..ffsUpperLimit)) OF CandidateCell-r17   -- FFS
+}
+
+CandidateCell-r17 ::=            SEQUENCE {
+    physCellId-r17                   PhysCellId,
+    condExecutionCondSCG-r17         OCTET STRING (CONTAINING CondReconfigExecCondSCG-r17)               OPTIONAL
+--  FFS whether the Optional flag is to be removed from condExecutionConditionSN-r17
+}
 
 -- TAG-CG-CONFIG-STOP
 -- TAG-CG-CONFIG-INFO-START
@@ -432,7 +500,7 @@ CG-ConfigInfo-v1610-IEs ::=  SEQUENCE {
     scgFailureInfo-r16                  SEQUENCE {
         failureType-r16                     ENUMERATED { scg-lbtFailure-r16, beamFailureRecoveryFailure-r16,
                                                          t312-Expiry-r16, bh-RLF-r16,
-                                                         spare4, spare3, spare2, spare1},
+                                                         beamFailure-r17, spare3, spare2, spare1},
         measResultSCG-r16                   OCTET STRING (CONTAINING MeasResultSCG-Failure)
     }                                                                                                 OPTIONAL,
     dummy1                                  SEQUENCE {
@@ -452,9 +520,16 @@ CG-ConfigInfo-v1620-IEs ::=             SEQUENCE {
 }
 
 CG-ConfigInfo-v1640-IEs ::=             SEQUENCE {
-	servCellInfoListMCG-NR-r16              ServCellInfoListMCG-NR-r16                   OPTIONAL,
-	servCellInfoListMCG-EUTRA-r16           ServCellInfoListMCG-EUTRA-r16                OPTIONAL,
-	nonCriticalExtension                    SEQUENCE {}                                  OPTIONAL
+    servCellInfoListMCG-NR-r16              ServCellInfoListMCG-NR-r16                   OPTIONAL,
+    servCellInfoListMCG-EUTRA-r16           ServCellInfoListMCG-EUTRA-r16                OPTIONAL,
+    nonCriticalExtension                    CG-ConfigInfo-v1700-IEs                      OPTIONAL
+}
+
+CG-ConfigInfo-v1700-IEs ::=             SEQUENCE {
+    candidateCellListCPC-r17                CandidateCellListCPC-r17                     OPTIONAL,
+    twoPHRModeSCG-r17                       ENUMERATED {enabled}                         OPTIONAL,
+    lowMobilityEvaluationConnectedInPCell-r17 ENUMERATED {enabled}                       OPTIONAL,
+    nonCriticalExtension                    SEQUENCE {}                                  OPTIONAL
 }
 
 ServCellInfoListMCG-NR-r16 ::=          SEQUENCE (SIZE (1.. maxNrofServingCells)) OF  ServCellInfoXCG-NR-r16
@@ -502,7 +577,13 @@ ConfigRestrictInfoSCG ::=       SEQUENCE {
     maxNumberEHC-ContextsSN-r16      INTEGER(0..65536)                                                OPTIONAL,
     allowedReducedConfigForOverheating-r16      OverheatingAssistance                                 OPTIONAL,
     maxToffset-r16                   T-Offset-r16                                                     OPTIONAL
+    ]],
+    [[
+    allowedReducedConfigForOverheating-r17      OverheatingAssistance-r17                             OPTIONAL,
+    maxNumberUDC-DRB-r17             INTEGER(0..2)                                                    OPTIONAL,
+    maxNumberCPCCandidates-r17       INTEGER(1..maxNrofCondCells-r16)                                 OPTIONAL
     ]]
+-- This field is included according to a working assumption, it can be revisited in next meeting if complications are found
 }
 
 SelectedBandEntriesMN ::=       SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandEntryIndex
@@ -515,7 +596,10 @@ PH-InfoMCG ::=                  SEQUENCE {
     servCellIndex                       ServCellIndex,
     ph-Uplink                           PH-UplinkCarrierMCG,
     ph-SupplementaryUplink              PH-UplinkCarrierMCG                                           OPTIONAL,
-    ...
+    ...,
+    [[
+    twoSRS-PUSCH-Repetition-r17         ENUMERATED{enabled}                                           OPTIONAL
+    ]]
 }
 
 PH-UplinkCarrierMCG ::=         SEQUENCE{
@@ -590,6 +674,9 @@ MRDC-AssistanceInfo ::= SEQUENCE {
     ...,
     [[
     overheatingAssistanceSCG-r16            OCTET STRING (CONTAINING OverheatingAssistance)       OPTIONAL
+    ]],
+    [[
+    overheatingAssistanceSCG-FR2-2-r17      OCTET STRING (CONTAINING OverheatingAssistance-r17)   OPTIONAL
     ]]
 }
 
@@ -614,6 +701,13 @@ VictimSystemType ::= SEQUENCE {
 AffectedCarrierFreqCombEUTRA ::= SEQUENCE (SIZE (1..maxNrofServingCellsEUTRA)) OF ARFCN-ValueEUTRA
 
 AffectedCarrierFreqCombNR ::= SEQUENCE (SIZE (1..maxNrofServingCells)) OF ARFCN-ValueNR
+
+CandidateCellListCPC-r17 ::= SEQUENCE (SIZE (1..ffsUpperLimit)) OF CandidateCellCPC-r17       -- FFS
+
+CandidateCellCPC-r17 ::=           SEQUENCE {
+    ssbFrequency-r17                   ARFCN-ValueNR,
+    candidateCellList-r17              SEQUENCE (SIZE (1..ffsUpperLimit)) OF PhysCellId       -- FFS
+}
 
 -- TAG-CG-CONFIG-INFO-STOP
 -- TAG-MEASUREMENT-TIMING-CONFIGURATION-START
@@ -691,7 +785,15 @@ UERadioPagingInformation-v15e0-IEs ::= SEQUENCE {
     dl-SchedulingOffset-PDSCH-TypeB-FDD-FR1     ENUMERATED {supported}          OPTIONAL,
     dl-SchedulingOffset-PDSCH-TypeB-TDD-FR1     ENUMERATED {supported}          OPTIONAL,
     dl-SchedulingOffset-PDSCH-TypeB-TDD-FR2     ENUMERATED {supported}          OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                 OPTIONAL
+    nonCriticalExtension                UERadioPagingInformation-v1700-IEs          OPTIONAL
+}
+
+UERadioPagingInformation-v1700-IEs ::= SEQUENCE {
+    ue-RadioPagingInfo-r17                 OCTET STRING (CONTAINING UE-RadioPagingInfo-r17)     OPTIONAL,
+    inactiveStatePO-Determination-r17      ENUMERATED {supported}                               OPTIONAL,
+    numberOfRxRedCap-r17                   ENUMERATED {one, two}                                OPTIONAL,
+    hd-FDDRedCap-r17                       ENUMERATED {supported}                               OPTIONAL,
+    nonCriticalExtension                   SEQUENCE {}                                          OPTIONAL
 }
 
 -- TAG-UE-RADIO-PAGING-INFORMATION-STOP

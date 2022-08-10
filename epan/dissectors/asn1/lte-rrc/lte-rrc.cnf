@@ -778,70 +778,8 @@ BCCH-DL-SCH-Message-MBMS     @bcch.dl.sch.mbms
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
 CE-PUCCH-TxDurationConfig-r17
-CellsTriggeredList
-CSI-RS-TriggeredList-r12
-LogMeasInfoList2-r10
 NPUSCH-ConfigDedicated-NB-v1700
 RSRP-RangeSL3-r12
-SL-CBR-PPPP-TxPreconfigList-r14
-SL-CBR-PPPP-TxPreconfigList-v1530
-SL-CBR-PreconfigTxConfigList-r14
-SL-PPPP-TxPreconfigIndex-r14
-SL-PPPP-TxPreconfigIndex-v1530
-SL-PreconfigCommPool-r12
-SL-PreconfigCommPoolList4-r12
-SL-PreconfigCommRxPoolList-r13
-SL-PreconfigCommTxPoolList-r13
-SL-PreconfigDiscPool-r13
-SL-PreconfigDiscRxPoolList-r13
-SL-PreconfigDiscTxPoolList-r13
-SL-PreconfigGeneral-r12
-SL-PreconfigRelay-r13
-SL-PreconfigSync-r12
-SL-PreconfigV2X-Sync-r14
-SL-PreconfigV2X-RxPoolList-r14
-SL-PreconfigV2X-TxPoolList-r14
-SL-Preconfiguration-r12
-SL-V2X-PreconfigCommPool-r14
-SL-V2X-PreconfigFreqInfo-r14
-SL-V2X-PreconfigFreqList-r14
-SL-V2X-Preconfiguration-r14
-SL-V2X-SyncOffsetIndicators-r14
-SL-V2X-TxProfile-r15
-SL-V2X-TxProfileList-r15
-SSB-IndexList-r15
-Tx-PreconfigIndex-r14
-VarANR-MeasConfig-NB-r16
-VarANR-MeasReport-NB-r16
-VarConditionalReconfiguration
-VarConnEstFailReport-r11
-VarLogMeasConfig-r10
-VarLogMeasConfig-r11
-VarLogMeasConfig-r12
-VarLogMeasConfig-r15
-VarLogMeasConfig-r17
-VarLogMeasReport-r10
-VarLogMeasReport-r11
-VarMeasConfig
-VarMeasIdleConfig-r15
-VarMeasIdleConfig-r16
-VarMeasIdleReport-r15
-VarMeasIdleReport-r16
-VarMeasReportList
-VarMeasReportList-r12
-VarMeasReport
-VarMobilityHistoryReport-r12
-VarPendingRnaUpdate-r15
-VarRLF-Report-NB-r16
-VarRLF-Report-r10
-VarRLF-Report-r11
-VarShortINACTIVE-MAC-Input-r15
-VarShortMAC-Input
-VarShortMAC-Input-NB-r13
-VarShortResumeMAC-Input-NB-r13
-VarShortResumeMAC-Input-r13
-VarWLAN-MobilityConfig
-VarWLAN-Status-r13
 
 #.NO_EMIT ONLY_VALS
 EAB-Config-r11/eab-Category-r11
@@ -3750,6 +3688,30 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.TYPE_ATTR
 TimeOffsetUTC-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.FN_BODY OverheatingAssistance-v1610/overheatingAssistanceForSCG-r16 VAL_PTR = &overheating_assist_for_scg_tvb
+  tvbuff_t *overheating_assist_for_scg_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (overheating_assist_for_scg_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_overheatingAssistanceForSCG_r16);
+    dissect_nr_rrc_OverheatingAssistance_PDU(overheating_assist_for_scg_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY OverheatingAssistance-v1710/overheatingAssistanceForSCG-FR2-2-r17 VAL_PTR = &overheating_assist_for_scg_tvb
+  tvbuff_t *overheating_assist_for_scg_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (overheating_assist_for_scg_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_overheatingAssistanceForSCG_FR2_2_r17);
+    dissect_nr_rrc_OverheatingAssistance_r17_PDU(overheating_assist_for_scg_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CondReconfigurationAddMod-r16/eag_1/triggerConditionSN-r17 VAL_PTR = &cond_reconfig_exec_cond_scg_tvb
+  tvbuff_t *cond_reconfig_exec_cond_scg_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (cond_reconfig_exec_cond_scg_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_triggerConditionSN_r17);
+    dissect_nr_rrc_CondReconfigExecCondSCG_r17_PDU(cond_reconfig_exec_cond_scg_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #
 # EUTRA-Sidelink-Preconf

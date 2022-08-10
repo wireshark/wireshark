@@ -1,0 +1,17 @@
+-- 3GPP TS 38.331 V17.1.0 (2022-06)
+
+NR-Sidelink-DiscoveryMessage DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+IMPORTS
+    CellAccessRelatedInfo,
+    SL-ServingCellInfo-r17
+FROM NR-RRC-Definitions;
+
+SL-AccessInfo-L2U2N-r17 ::=             SEQUENCE {
+    cellAccessRelatedInfo-r17               CellAccessRelatedInfo,
+    sl-ServingCellInfo-r17                  SL-ServingCellInfo-r17,
+    ...
+}
+
+END

@@ -1,7 +1,7 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V16.8.0 Release 16) packet dissection
+ * (3GPP TS 38.331 V17.1.0 Release 17) packet dissection
  * Copyright 2018-2022, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
@@ -138,6 +138,7 @@ static gint ett_nr_rrc_dl_DCCH_MessageEUTRA = -1;
 static gint ett_nr_rrc_sl_ConfigDedicatedEUTRA = -1;
 static gint ett_nr_rrc_sl_CapabilityInformationSidelink = -1;
 static gint ett_nr_rrc_measResult_RLF_Report_EUTRA = -1;
+static gint ett_nr_rrc_measResult_RLF_Report_EUTRA_v1690 = -1;
 static gint ett_nr_rrc_locationTimestamp_r16 = -1;
 static gint ett_nr_rrc_locationCoordinate_r16 = -1;
 static gint ett_nr_rrc_locationError_r16 = -1;
@@ -154,6 +155,10 @@ static gint ett_nr_rrc_absTimeInfo = -1;
 static gint ett_nr_rrc_assistanceDataSIB_Element_r16 = -1;
 static gint ett_nr_sl_V2X_ConfigCommon_r16 = -1;
 static gint ett_nr_tdd_Config_r16 = -1;
+static gint ett_nr_coarseLocationInfo_r17 = -1;
+static gint ett_nr_sl_MeasResultsCandRelay_r17 = -1;
+static gint ett_nr_sl_MeasResultServingRelay_r17 = -1;
+static gint ett_nr_ReferenceLocation_r17 = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
 
@@ -163,6 +168,8 @@ static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static int dissect_DL_CCCH_Message_PDU(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_);
 static int dissect_UL_CCCH_Message_PDU(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_);
 static int dissect_UERadioAccessCapabilityInformation_PDU(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_);
+static int dissect_SL_MeasResultListRelay_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_SL_MeasResultRelay_r17_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static const unit_name_string units_periodicities = { " periodicity", " periodicities" };
 static const unit_name_string units_prbs = { " PRB", " PRBs" };
@@ -531,6 +538,12 @@ nr_rrc_MeasTriggerQuantityOffset_fmt(gchar *s, guint32 v)
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", (float)d/2, d);
 }
 
+static void
+nr_rrc_TimeSinceCHO_Reconfig_r17_fmt(gchar *s, guint32 v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fs (%u)", (float)v/10, v);
+}
+
 static int
 dissect_nr_rrc_cg_configinfo_msg(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_)
 {
@@ -707,7 +720,7 @@ dissect_nr_rrc_handoverpreparationinformation_msg(tvbuff_t* tvb _U_, packet_info
     proto_tree* sub_tree;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NR RRC");
-    col_set_str(pinfo->cinfo, COL_INFO, "MeasGapConfig");
+    col_set_str(pinfo->cinfo, COL_INFO, "HandoverPreparationInformation");
 
     ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_nr_rrc);
@@ -964,6 +977,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_sl_ConfigDedicatedEUTRA,
     &ett_nr_rrc_sl_CapabilityInformationSidelink,
     &ett_nr_rrc_measResult_RLF_Report_EUTRA,
+    &ett_nr_rrc_measResult_RLF_Report_EUTRA_v1690,
     &ett_nr_rrc_locationTimestamp_r16,
     &ett_nr_rrc_locationCoordinate_r16,
     &ett_nr_rrc_locationError_r16,
@@ -979,7 +993,11 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_absTimeInfo,
     &ett_nr_rrc_assistanceDataSIB_Element_r16,
     &ett_nr_sl_V2X_ConfigCommon_r16,
-    &ett_nr_tdd_Config_r16
+    &ett_nr_tdd_Config_r16,
+    &ett_nr_coarseLocationInfo_r17,
+    &ett_nr_sl_MeasResultsCandRelay_r17,
+    &ett_nr_sl_MeasResultServingRelay_r17,
+    &ett_nr_ReferenceLocation_r17
   };
 
   static ei_register_info ei[] = {

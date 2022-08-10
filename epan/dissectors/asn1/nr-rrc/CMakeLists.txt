@@ -21,8 +21,6 @@ set( EXT_ASN_FILE_LIST
 set( ASN_FILE_LIST
 	NR-InterNodeDefinitions.asn
 	NR-RRC-Definitions.asn
-	NR-Sidelink-Preconf.asn
-	NR-UE-Variables.asn
 	PC5-RRC-Definitions.asn
 )
 
