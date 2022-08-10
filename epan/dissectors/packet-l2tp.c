@@ -1498,7 +1498,7 @@ static gpointer l2tp_value(packet_info *pinfo _U_)
 /*
  * Dissect CISCO AVP:s
  */
-static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 ccid) {
+static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, l2tp_cntrl_data_t *l2tp_cntrl_data, l2tpv3_session_t **session) {
 
     int offset = 0;
     int         avp_type;
@@ -1540,7 +1540,7 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     switch (avp_type) {
     case CISCO_ACK:
         /* process_l2tpv3_control does not set COL_INFO for vendor messages */
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Cisco ACK (tunnel id=%u)", control_msg, ccid);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Cisco ACK (tunnel id=%u)", control_msg, l2tp_cntrl_data->ccid);
         break;
 
     case CISCO_ASSIGNED_CONNECTION_ID:
@@ -1559,18 +1559,22 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     case CISCO_LOCAL_SESSION_ID:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_local_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        *session = store_lsession_id(*session, tvb, offset, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_REMOTE_SESSION_ID:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_remote_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        *session = store_rsession_id(*session, tvb, offset, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_ASSIGNED_COOKIE:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_assigned_cookie, tvb, offset, avp_len, ENC_NA);
+        *session = store_cookie_len(*session, avp_len, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_REMOTE_END_ID:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_remote_end_id, tvb, offset, avp_len, ENC_NA|ENC_ASCII);
         break;
     case CISCO_PW_TYPE:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_pseudowire_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        *session = store_pw_type(*session, tvb, offset, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_CIRCUIT_STATUS:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_circuit_status, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2004,7 +2008,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_vendor_id == VENDOR_CISCO) {      /* Vendor-Specific AVP */
 
-                dissect_l2tp_cisco_avps(avp_tvb, pinfo, l2tp_tree, ccid);
+                dissect_l2tp_cisco_avps(avp_tvb, pinfo, l2tp_tree, l2tp_cntrl_data, &session);
                 idx += avp_len;
                 continue;
 
