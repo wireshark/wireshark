@@ -2854,7 +2854,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     }
 
-    if (tree && (LENGTH_BIT(control))&&(length==12)) {
+    if ((LENGTH_BIT(control))&&(length==12)) {
         proto_tree_add_item(l2tp_tree, hf_l2tp_zero_length_body_message, tvb, 0, 0, ENC_NA);
     } else {
         avp_type = tvb_get_ntohs(tvb, idx + 4);
