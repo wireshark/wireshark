@@ -191,6 +191,14 @@ struct pcapng_option {
 #define OPT_VERDICT_TYPE_TC  1
 #define OPT_VERDICT_TYPE_XDP 2
 
+/* OPT_EPB_HASH sub-types */
+#define OPT_HASH_2COMP    0
+#define OPT_HASH_XOR	  1
+#define OPT_HASH_CRC32    2
+#define OPT_HASH_MD5      3
+#define OPT_HASH_SHA1     4
+#define OPT_HASH_TOEPLITZ 5
+
 /*
  * In order to keep from trying to allocate large chunks of memory,
  * which could either fail or, even if it succeeds, chew up so much
@@ -1644,6 +1652,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
 {
     guint64 tmp64;
     packet_verdict_opt_t packet_verdict;
+    packet_hash_opt_t packet_hash;
 
     /*
      * Handle option content.
@@ -1677,8 +1686,22 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                          option_content);
             break;
         case(OPT_EPB_HASH):
-            ws_debug("epb_hash %u currently not handled - ignoring %u bytes",
-                     option_code, option_length);
+            if (option_length < 1) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = ws_strdup_printf("pcapng: packet block hash option length %u is < 1",
+                                            option_length);
+                /* XXX - free anything? */
+                return FALSE;
+            }
+            packet_hash.type = option_content[0];
+            packet_hash.hash_bytes =
+                g_byte_array_new_take((guint8 *)g_memdup2(&option_content[1],
+                                                          option_length - 1),
+                                      option_length - 1);
+            wtap_block_add_packet_hash_option(wblock->block, option_code, &packet_hash);
+            wtap_packet_hash_free(&packet_hash);
+            ws_debug("hash type %u, data len %u",
+                     option_content[0], option_length - 1);
             break;
         case(OPT_EPB_DROPCOUNT):
             if (option_length != 8) {
@@ -3907,6 +3930,39 @@ static guint32 pcapng_compute_custom_option_size(wtap_optval_t *optval)
     return (guint32)size;
 }
 
+static guint32 pcapng_compute_packet_hash_option_size(wtap_optval_t *optval)
+{
+    packet_hash_opt_t* hash = &optval->packet_hash;
+    guint32 size;
+    guint32 pad;
+
+    switch (hash->type) {
+    case OPT_HASH_CRC32:
+        size = 4;
+        break;
+    case OPT_HASH_MD5:
+        size = 16;
+        break;
+    case OPT_HASH_SHA1:
+        size = 20;
+        break;
+    case OPT_HASH_TOEPLITZ:
+        size = 4;
+        break;
+    default:
+        /* 2COMP and XOR size not defined in standard (yet) */
+        size = hash->hash_bytes->len;
+        break;
+    }
+    if ((size % 4)) {
+        pad = 4 - (size % 4);
+    } else {
+        pad = 0;
+    }
+    size += pad;
+    return size;
+}
+
 static guint32 pcapng_compute_packet_verdict_option_size(wtap_optval_t *optval)
 {
     packet_verdict_opt_t* verdict = &optval->packet_verdictval;
@@ -4756,6 +4812,9 @@ compute_epb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e 
         break;
     case OPT_EPB_VERDICT:
         size = pcapng_compute_packet_verdict_option_size(optval);
+        break;
+    case OPT_EPB_HASH:
+        size = pcapng_compute_packet_hash_option_size(optval);
         break;
     default:
         /* Unknown options - size by datatype? */

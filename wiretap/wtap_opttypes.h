@@ -282,7 +282,8 @@ typedef enum {
     WTAP_OPTTYPE_IPv6,
     WTAP_OPTTYPE_CUSTOM,
     WTAP_OPTTYPE_IF_FILTER,
-    WTAP_OPTTYPE_PACKET_VERDICT
+    WTAP_OPTTYPE_PACKET_VERDICT,
+    WTAP_OPTTYPE_PACKET_HASH,
 } wtap_opttype_e;
 
 typedef enum {
@@ -378,6 +379,11 @@ typedef struct packet_verdict_opt_s {
     }               data;
 } packet_verdict_opt_t;
 
+typedef struct packet_hash_opt_s {
+    guint8 type;
+    GByteArray *hash_bytes;
+} packet_hash_opt_t;
+
 /*
  * Structure describing a value of an option.
  */
@@ -392,6 +398,7 @@ typedef union {
     custom_opt_t custom_opt;
     if_filter_opt_t if_filterval;
     packet_verdict_opt_t packet_verdictval;
+    packet_hash_opt_t packet_hash;
 } wtap_optval_t;
 
 /*
@@ -1046,6 +1053,20 @@ wtap_block_get_nth_packet_verdict_option_value(wtap_block_t block, guint option_
 
 WS_DLL_PUBLIC void
 wtap_packet_verdict_free(packet_verdict_opt_t* verdict);
+
+/** Add an packet_hash option value to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_packet_hash_option(wtap_block_t block, guint option_id, packet_hash_opt_t* value);
+
+WS_DLL_PUBLIC void
+wtap_packet_hash_free(packet_hash_opt_t* hash);
 
 /** Remove an option from a block
  *

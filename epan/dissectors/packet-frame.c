@@ -65,6 +65,8 @@ static int hf_frame_marked = -1;
 static int hf_frame_ignored = -1;
 static int hf_link_number = -1;
 static int hf_frame_packet_id = -1;
+static int hf_frame_hash = -1;
+static int hf_frame_hash_bytes = -1;
 static int hf_frame_verdict = -1;
 static int hf_frame_verdict_hardware = -1;
 static int hf_frame_verdict_tc = -1;
@@ -107,6 +109,7 @@ static gint ett_frame = -1;
 static gint ett_ifname = -1;
 static gint ett_flags = -1;
 static gint ett_comments = -1;
+static gint ett_hash = -1;
 static gint ett_verdict = -1;
 static gint ett_bblog = -1;
 static gint ett_pcaplog_data = -1;
@@ -189,6 +192,14 @@ static dissector_table_t wtap_fts_rec_dissector_table;
 #define OPT_VERDICT_TYPE_TC  1
 #define OPT_VERDICT_TYPE_XDP 2
 
+/* OPT_EPB_HASH sub-types */
+#define OPT_HASH_2COMP    0
+#define OPT_HASH_XOR	  1
+#define OPT_HASH_CRC32    2
+#define OPT_HASH_MD5      3
+#define OPT_HASH_SHA1     4
+#define OPT_HASH_TOEPLITZ 5
+
 /* Structure for passing as userdata to wtap_block_foreach_option */
 typedef struct fr_foreach_s {
 	proto_item *item;
@@ -210,6 +221,27 @@ get_verdict_type_string(guint8 type)
 		return "eBPF_XDP";
 	}
 	return "Unknown";
+}
+
+static const char *
+get_hash_type_string(guint8 type)
+{
+	switch(type) {
+	case OPT_HASH_2COMP:
+		return "2's Complement";
+	case OPT_HASH_XOR:
+		return "XOR";
+	case OPT_HASH_CRC32:
+		return "CRC32";
+	case OPT_HASH_MD5:
+		return "MD5";
+	case OPT_HASH_SHA1:
+		return "SHA1";
+	case OPT_HASH_TOEPLITZ:
+		return "Toeplitz";
+	default:
+		return "Unknown";
+	}
 }
 
 static void
@@ -287,6 +319,30 @@ frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option
 							    "%s", option->stringval);
 		expert_add_info_format(fr_user_data->pinfo, comment_item, &ei_comments_text,
 				"%s",  option->stringval);
+	}
+	fr_user_data->n_changes++;
+	return TRUE;
+}
+
+static gboolean
+frame_add_hash(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
+{
+	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
+
+	if (option_id == OPT_PKT_HASH) {
+		packet_hash_opt_t *hash = &option->packet_hash;
+		const char *format
+			= fr_user_data->n_changes ? "%s (%u)" : ", %s (%u)";
+
+		proto_item_append_text(fr_user_data->item, format,
+				       get_hash_type_string(hash->type),
+				       hash->type);
+
+		proto_tree_add_bytes_with_length(fr_user_data->tree,
+						 hf_frame_hash_bytes,
+						 fr_user_data->tvb, 0, 0,
+						 hash->hash_bytes->data,
+						 hash->hash_bytes->len);
 	}
 	fr_user_data->n_changes++;
 	return TRUE;
@@ -691,6 +747,21 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_QUEUE, &interface_queue)) {
 			proto_tree_add_uint(fh_tree, hf_frame_interface_queue, tvb, 0, 0, interface_queue);
 		}
+
+		if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_HASH) > 0) {
+			proto_tree *hash_tree;
+			proto_item *hash_item;
+
+			hash_item = proto_tree_add_string(fh_tree, hf_frame_hash, tvb, 0, 0, "");
+			hash_tree = proto_item_add_subtree(hash_item, ett_hash);
+			fr_user_data.item = hash_item;
+			fr_user_data.tree = hash_tree;
+			fr_user_data.pinfo = pinfo;
+			fr_user_data.tvb = tvb;
+			fr_user_data.n_changes = 0;
+			wtap_block_foreach_option(fr_data->pkt_block, frame_add_hash, (void *)&fr_user_data);
+		}
+
 		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
 			proto_tree *flags_tree;
 			proto_item *flags_item;
@@ -1376,6 +1447,16 @@ proto_register_frame(void)
 		    FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
+		{ &hf_frame_hash,
+		  { "Hash Algorithm", "frame.hash",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_hash_bytes,
+		  { "Hash Value", "frame.hash.value",
+		    FT_BYTES, SEP_SPACE, NULL, 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_frame_verdict,
 		  { "Verdict", "frame.verdict",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1460,6 +1541,7 @@ proto_register_frame(void)
 		&ett_ifname,
 		&ett_flags,
 		&ett_comments,
+		&ett_hash,
 		&ett_verdict,
 		&ett_bblog,
 		&ett_pcaplog_data
