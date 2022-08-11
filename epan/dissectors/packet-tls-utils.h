@@ -403,8 +403,8 @@ typedef struct {
 #define DIG_SHA         0x41
 #define DIG_SHA256      0x42
 #define DIG_SHA384      0x43
-#define DIG_NA          0x44 /* Not Applicable */
-#define DIG_SM3         0x45
+#define DIG_SM3         0x44
+#define DIG_NA          0x45 /* Not Applicable */
 
 typedef struct {
     const gchar *name;
