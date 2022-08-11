@@ -64,6 +64,7 @@ void proto_register_l2tp(void);
 void proto_reg_handoff_l2tp(void);
 
 static int proto_l2tp = -1;
+static int hf_l2tp_flags = -1;
 static int hf_l2tp_type = -1;
 static int hf_l2tp_length_bit = -1;
 static int hf_l2tp_seq_bit = -1;
@@ -252,7 +253,6 @@ static int hf_l2tp_cisco_remote_end_id = -1;
 static int hf_l2tp_avp_tx_connect_speed_v3 = -1;
 static int hf_l2tp_avp_rx_connect_speed_v3 = -1;
 static int hf_l2tp_lapd_info = -1;
-static int hf_l2tp_session_id = -1;
 static int hf_l2tp_zero_length_body_message = -1;
 static int hf_l2tp_offset_padding = -1;
 
@@ -282,7 +282,7 @@ static dissector_table_t pw_type_table;
 #define FLOW_ID_MASK  0x0E
 
 static gint ett_l2tp = -1;
-static gint ett_l2tp_ctrl = -1;
+static gint ett_l2tp_flags = -1;
 static gint ett_l2tp_avp = -1;
 static gint ett_l2tp_avp_sub = -1;
 static gint ett_l2tp_ale_sub = -1;
@@ -2556,88 +2556,87 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_append_fstr(pinfo->cinfo, COL_INFO, "D[S:0x%02X]", sid);
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, ENC_BIG_ENDIAN);
+    if (!(tvb_offset_exists(tvb, idx))) {
+        return;
+    }
+    if (cookie_len != 0) {
+        proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, cookie_len, ENC_NA);
+        idx += cookie_len;
         proto_item_set_len(l2tp_item, idx);
-        if (!(tvb_offset_exists(tvb, idx))) {
-            return;
-        }
-        if (cookie_len != 0) {
-            proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, cookie_len, ENC_NA);
-        }
     }
 
     switch(l2_spec){
     case L2TPv3_L2_SPECIFIC_DEFAULT:
         if (tree) {
             ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_def,
-                                     tvb, idx + cookie_len, 4, ENC_NA);
+                                     tvb, idx, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + cookie_len,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                idx + cookie_len + 1, 3, ENC_BIG_ENDIAN);
+                                idx + 1, 3, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len + 4);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + 4);
         break;
     case L2TPv3_L2_SPECIFIC_DOCSIS_DMPT:
         if (tree) {
             ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_docsis_dmpt,
-                                     tvb, idx + cookie_len, 4, ENC_NA);
+                                     tvb, idx, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb,
-                                idx + cookie_len,1, ENC_BIG_ENDIAN);
+                                idx, 1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb,
-                                idx + cookie_len,1, ENC_BIG_ENDIAN);
+                                idx, 1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_h, tvb,
-                                idx + cookie_len,1, ENC_BIG_ENDIAN);
+                                idx, 1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb,
-                                idx + cookie_len,1, ENC_BIG_ENDIAN);
+                                idx, 1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                idx + cookie_len + 2,2, ENC_BIG_ENDIAN);
+                                idx + 2, 2, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len + 4);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + 4);
         break;
     case L2TPv3_L2_SPECIFIC_ATM:
         if (tree) {
             ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
-                                     tvb, idx + cookie_len, 4, ENC_NA);
+                                     tvb, idx, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + cookie_len,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, idx + cookie_len,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, idx,
                                 1, ENC_BIG_ENDIAN);
             /*
              * As per RFC 4454, the T bit specifies whether
              * we're transporting an OAM cell or an AAL5 frame.
              */
-            oam_cell = tvb_get_guint8(tvb, idx + cookie_len) & 0x08;
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, idx + cookie_len,
+            oam_cell = tvb_get_guint8(tvb, idx) & 0x08;
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, idx,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, idx + cookie_len,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, idx,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, idx + cookie_len,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, idx,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                idx + cookie_len + 1, 3, ENC_BIG_ENDIAN);
+                                idx + 1, 3, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len + 4);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + 4);
         break;
     case L2TPv3_L2_SPECIFIC_LAPD:
         if (tree)
-            proto_tree_add_item(tree, hf_l2tp_lapd_info, tvb, idx + cookie_len + 4, 3, ENC_NA);
-        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len+4+3);
+            proto_tree_add_item(tree, hf_l2tp_lapd_info, tvb, idx + 4, 3, ENC_NA);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + 4 + 3);
         break;
     case L2TPv3_L2_SPECIFIC_NONE:
     default:
-        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len);
+        next_tvb = tvb_new_subset_remaining(tvb, idx);
         break;
     }
 
@@ -2665,23 +2664,17 @@ static void
 process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         l2tpv3_conversation_t *l2tp_conv)
 {
-    proto_tree *l2tp_tree, *ctrl_tree;
+    proto_tree *l2tp_tree;
     proto_item *l2tp_item;
     int idx = 4;  /* skip to sid */
-    int sid;
 
-    sid = tvb_get_ntohl(tvb, idx);
-
-    l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
+    l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, 8, ENC_NA);
     l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 
     if (tree) {
         proto_item_append_text(l2tp_item, " version 3");
 
-        ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, 0, 2,
-                                 ett_l2tp_ctrl, NULL, "Packet Type: %s Session Id=%u",
-                                 data_msg, sid);
-        proto_tree_add_bitmask_list(ctrl_tree, tvb, 0, 2, l2tp_control_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(l2tp_tree, tvb, 0, hf_l2tp_flags, ett_l2tp_flags, l2tp_control_fields, ENC_BIG_ENDIAN);
 
         /* Data in v3 over UDP has this reserved */
         proto_tree_add_item(l2tp_tree, hf_l2tp_res, tvb, 2, 2, ENC_BIG_ENDIAN);
@@ -2703,15 +2696,10 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *l2tp_item;
 
     int idx = 0;
-    int sid;
 
-    sid = tvb_get_ntohl(tvb, idx);
-
-    l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
+    l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, 4, ENC_NA);
     l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
     proto_item_append_text(l2tp_item, " version 3");
-
-    proto_tree_add_uint_format(l2tp_tree, hf_l2tp_session_id, tvb, 0, 4, sid, "Packet Type: %s Session Id=%u", data_msg, sid);
 
     /* Call process_l2tpv3_data from Session ID (offset in idx of 0) */
     process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx, l2tp_conv->tunnel);
@@ -2725,7 +2713,7 @@ static void
 process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int baseIdx,
                        l2tpv3_conversation_t *l2tp_conv)
 {
-    proto_tree *l2tp_tree = NULL, *ctrl_tree;
+    proto_tree *l2tp_tree = NULL;
     proto_item *l2tp_item = NULL;
 
     int     idx     = baseIdx;
@@ -2814,10 +2802,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         if (baseIdx) {
             proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, 0, 4, ENC_BIG_ENDIAN);
         }
-        ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, baseIdx, 2,
-                                 ett_l2tp_ctrl, NULL, "Packet Type: %s Control Connection Id=%u",
-                                 (CONTROL_BIT(control) ? control_msg : data_msg), ccid);
-        proto_tree_add_bitmask_list(ctrl_tree, tvb, baseIdx, 2, l2tp_control_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(l2tp_tree, tvb, baseIdx, hf_l2tp_flags, ett_l2tp_flags, l2tp_control_fields, ENC_BIG_ENDIAN);
     }
     idx = baseIdx + 2;
     if (LENGTH_BIT(control)) {
@@ -2878,7 +2863,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 static int
 dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_tree *l2tp_tree, *ctrl_tree;
+    proto_tree *l2tp_tree;
     proto_item *l2tp_item;
     int         idx       = 0;
     int         tmp_idx;
@@ -3043,11 +3028,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             NULL
         };
 
-        ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, 0, 2, ett_l2tp_ctrl, NULL,
-                                 "Packet Type: %s Tunnel Id=%d Session Id=%d",
-                                 (CONTROL_BIT(control) ? control_msg : data_msg), tid, cid);
-
-        proto_tree_add_bitmask_list(ctrl_tree, tvb, 0, 2, control_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(l2tp_tree, tvb, 0, hf_l2tp_flags, ett_l2tp_flags, control_fields, ENC_BIG_ENDIAN);
     }
     idx = 2;
     if (LENGTH_BIT(control)) {
@@ -3189,6 +3170,10 @@ void
 proto_register_l2tp(void)
 {
     static hf_register_info hf[] = {
+        { &hf_l2tp_flags,
+          { "Flags", "l2tp.flags", FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }},
+
         { &hf_l2tp_type,
           { "Type", "l2tp.type", FT_UINT16, BASE_DEC, VALS(l2tp_type_vals), 0x8000,
             "Type bit", HFILL }},
@@ -3690,14 +3675,13 @@ proto_register_l2tp(void)
       { &hf_l2tp_avp_tx_connect_speed_v3, { "Tx Connect Speed v3", "l2tp.avp.tx_connect_speed_v3", FT_UINT64, BASE_HEX|BASE_VAL64_STRING|BASE_SPECIAL_VALS, VALS64(unique_indeterminable_or_no_link), 0x0, NULL, HFILL }},
       { &hf_l2tp_avp_rx_connect_speed_v3, { "Rx Connect Speed v3", "l2tp.avp.rx_connect_speed_v3", FT_UINT64, BASE_HEX|BASE_VAL64_STRING|BASE_SPECIAL_VALS, VALS64(unique_indeterminable_or_no_link), 0x0, NULL, HFILL }},
       { &hf_l2tp_lapd_info, { "LAPD info", "l2tp.lapd_info", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_l2tp_session_id, { "Packet Type", "l2tp.session_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_zero_length_body_message, { "Zero Length Body message", "l2tp.zero_length_body_message", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_offset_padding, { "Offset Padding", "l2tp.offset_padding", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
         &ett_l2tp,
-        &ett_l2tp_ctrl,
+        &ett_l2tp_flags,
         &ett_l2tp_avp,
         &ett_l2tp_avp_sub,
         &ett_l2tp_ale_sub,
