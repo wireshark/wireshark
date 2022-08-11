@@ -2892,6 +2892,8 @@ static const gchar *ciphers[]={
     "CAMELLIA256",
     "SEED",
     "CHACHA20", /* since Libgcrypt 1.7.0 */
+    "SM1",
+    "SM4",
     "*UNKNOWN*"
 };
 
