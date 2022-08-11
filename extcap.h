@@ -208,6 +208,14 @@ extcap_has_toolbar(const char *ifname);
 
 #ifdef HAVE_LIBPCAP
 /**
+ * Cleanup after capture session.
+ * @param cap_session Capture session.
+ * @return TRUE if session can be stopped, FALSE if there are remaining tasks.
+ */
+gboolean
+extcap_session_stop(capture_session *cap_session);
+
+/**
  * Initializes each extcap interface with the supplied capture session.
  * Initializes the extcap interface list if that hasn't already been done.
  * @param cap_session Capture session.

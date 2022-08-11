@@ -66,7 +66,6 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.extcap_pid      = WS_INVALID_PID;
     capture_opts->default_options.extcap_pipedata = NULL;
     capture_opts->default_options.extcap_stderr   = NULL;
-    capture_opts->default_options.extcap_child_watch = 0;
     capture_opts->default_options.extcap_stdout_watch = 0;
     capture_opts->default_options.extcap_stderr_watch = 0;
 #ifdef _WIN32
@@ -789,7 +788,6 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.extcap_pid = WS_INVALID_PID;
     interface_opts.extcap_pipedata = NULL;
     interface_opts.extcap_stderr = NULL;
-    interface_opts.extcap_child_watch = 0;
     interface_opts.extcap_stdout_watch = 0;
     interface_opts.extcap_stderr_watch = 0;
 #ifdef _WIN32

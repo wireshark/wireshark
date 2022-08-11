@@ -211,7 +211,6 @@ typedef struct interface_options_tag {
     GPid              extcap_pid;           /* pid of running process or WS_INVALID_PID */
     gpointer          extcap_pipedata;
     GString          *extcap_stderr;
-    guint             extcap_child_watch;
     guint             extcap_stdout_watch;
     guint             extcap_stderr_watch;
 #ifdef _WIN32

@@ -1168,6 +1168,7 @@ static gboolean extcap_terminate_cb(gpointer user_data)
     capture_options *capture_opts = cap_session->capture_opts;
     interface_options *interface_opts;
     guint icnt;
+    gboolean all_finished = TRUE;
 
     for (icnt = 0; icnt < capture_opts->ifaces->len; icnt++)
     {
@@ -1187,10 +1188,28 @@ static gboolean extcap_terminate_cb(gpointer user_data)
 #else
             kill(interface_opts->extcap_pid, SIGKILL);
 #endif
+            all_finished = FALSE;
+        }
+
+        /* Do not care about stdout/stderr anymore */
+        if (interface_opts->extcap_stdout_watch > 0)
+        {
+            g_source_remove(interface_opts->extcap_stdout_watch);
+            interface_opts->extcap_stdout_watch = 0;
+        }
+
+        if (interface_opts->extcap_stderr_watch > 0)
+        {
+            g_source_remove(interface_opts->extcap_stderr_watch);
+            interface_opts->extcap_stderr_watch = 0;
         }
     }
 
     capture_opts->extcap_terminate_id = 0;
+    if (all_finished)
+    {
+        capture_process_finished(cap_session);
+    }
     return G_SOURCE_REMOVE;
 }
 
@@ -1299,51 +1318,139 @@ extcap_add_arg_and_remove_cb(gpointer key, gpointer value, gpointer data)
     return FALSE;
 }
 
+gboolean extcap_session_stop(capture_session *cap_session)
+{
+    capture_options *capture_opts = cap_session->capture_opts;
+    interface_options *interface_opts;
+    guint i;
+
+    for (i = 0; i < capture_opts->ifaces->len; i++)
+    {
+        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+        if (interface_opts->if_type != IF_EXTCAP)
+        {
+            continue;
+        }
+
+        if ((interface_opts->extcap_pid != WS_INVALID_PID) ||
+            (interface_opts->extcap_stdout_watch > 0) ||
+            (interface_opts->extcap_stderr_watch > 0))
+        {
+            /* Capture session is not finished, wait for remaining watches */
+            return FALSE;
+        }
+
+        g_free(interface_opts->extcap_pipedata);
+        interface_opts->extcap_pipedata = NULL;
+    }
+
+    /* All child processes finished */
+    if (capture_opts->extcap_terminate_id > 0)
+    {
+        g_source_remove(capture_opts->extcap_terminate_id);
+        capture_opts->extcap_terminate_id = 0;
+    }
+
+    /* Nothing left to do, do not prevent capture session stop */
+    return TRUE;
+}
+
+static void
+extcap_watch_removed(capture_session *cap_session, interface_options *interface_opts)
+{
+    if ((interface_opts->extcap_pid == WS_INVALID_PID) &&
+        (interface_opts->extcap_stdout_watch == 0) &&
+        (interface_opts->extcap_stderr_watch == 0))
+    {
+        /* Close session if this was the last remaining process */
+        capture_process_finished(cap_session);
+    }
+}
+
+static interface_options *
+extcap_find_channel_interface(capture_session *cap_session, GIOChannel *source)
+{
+    capture_options *capture_opts = cap_session->capture_opts;
+    interface_options *interface_opts;
+    guint i;
+
+    for (i = 0; i < capture_opts->ifaces->len; i++)
+    {
+        ws_pipe_t *pipedata;
+        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+        pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
+        if (pipedata &&
+            ((pipedata->stdout_io == source) || (pipedata->stderr_io == source)))
+        {
+            return interface_opts;
+        }
+    }
+
+    ws_assert_not_reached();
+}
+
 static gboolean
 extcap_stdout_cb(GIOChannel *source, GIOCondition condition _U_, gpointer data)
 {
-    interface_options *interface_opts = (interface_options *)data;
+    capture_session *cap_session = (capture_session *)data;
+    interface_options *interface_opts = extcap_find_channel_interface(cap_session, source);
     char buf[128];
-    gsize bytes_read;
+    gsize bytes_read = 0;
+    GIOStatus status = G_IO_STATUS_EOF;
 
     /* Discard data to prevent child process hanging on stdout write */
-    g_io_channel_read_chars(source, buf, sizeof(buf), &bytes_read, NULL);
-    if (bytes_read == 0)
+    if (condition & G_IO_IN)
+    {
+        status = g_io_channel_read_chars(source, buf, sizeof(buf), &bytes_read, NULL);
+    }
+
+    if ((bytes_read == 0) || (status != G_IO_STATUS_NORMAL))
     {
         interface_opts->extcap_stdout_watch = 0;
+        extcap_watch_removed(cap_session, interface_opts);
         return G_SOURCE_REMOVE;
     }
     return G_SOURCE_CONTINUE;
 }
 
 static gboolean
-extcap_stderr_cb(GIOChannel *source, GIOCondition condition _U_, gpointer data)
+extcap_stderr_cb(GIOChannel *source, GIOCondition condition, gpointer data)
 {
-    interface_options *interface_opts = (interface_options *)data;
+    capture_session *cap_session = (capture_session *)data;
+    interface_options *interface_opts = extcap_find_channel_interface(cap_session, source);
     char buf[128];
-    gsize bytes_read;
+    gsize bytes_read = 0;
+    GIOStatus status = G_IO_STATUS_EOF;
 
-    g_io_channel_read_chars(source, buf, sizeof(buf), &bytes_read, NULL);
-    if (bytes_read == 0)
+    if (condition & G_IO_IN)
     {
-        interface_opts->extcap_stderr_watch = 0;
-        return G_SOURCE_REMOVE;
+        status = g_io_channel_read_chars(source, buf, sizeof(buf), &bytes_read, NULL);
     }
 
 #define STDERR_BUFFER_SIZE 1024
-    if (interface_opts->extcap_stderr == NULL)
+    if (bytes_read > 0)
     {
-        interface_opts->extcap_stderr = g_string_new_len(buf, bytes_read);
-    }
-    else
-    {
-        gssize remaining = STDERR_BUFFER_SIZE - interface_opts->extcap_stderr->len;
-        if (remaining > 0)
+        if (interface_opts->extcap_stderr == NULL)
         {
-            gssize bytes = bytes_read;
-            bytes = MIN(bytes, remaining);
-            g_string_append_len(interface_opts->extcap_stderr, buf, bytes);
+            interface_opts->extcap_stderr = g_string_new_len(buf, bytes_read);
         }
+        else
+        {
+            gssize remaining = STDERR_BUFFER_SIZE - interface_opts->extcap_stderr->len;
+            if (remaining > 0)
+            {
+                gssize bytes = bytes_read;
+                bytes = MIN(bytes, remaining);
+                g_string_append_len(interface_opts->extcap_stderr, buf, bytes);
+            }
+        }
+    }
+
+    if ((bytes_read == 0) || (status != G_IO_STATUS_NORMAL))
+    {
+        interface_opts->extcap_stderr_watch = 0;
+        extcap_watch_removed(cap_session, interface_opts);
+        return G_SOURCE_REMOVE;
     }
     return G_SOURCE_CONTINUE;
 }
@@ -1352,7 +1459,6 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
 {
     guint i;
     interface_options *interface_opts;
-    ws_pipe_t *pipedata = NULL;
     capture_session *cap_session = (capture_session *)(user_data);
     capture_options *capture_opts = cap_session->capture_opts;
 
@@ -1368,40 +1474,7 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
             ws_debug("Extcap [%s] - Closing spawned PID: %d", interface_opts->name,
                      interface_opts->extcap_pid);
             interface_opts->extcap_pid = WS_INVALID_PID;
-
-            if (interface_opts->extcap_stdout_watch > 0)
-            {
-                g_source_remove(interface_opts->extcap_stdout_watch);
-                interface_opts->extcap_stdout_watch = 0;
-            }
-
-            if (interface_opts->extcap_stderr_watch > 0)
-            {
-                g_source_remove(interface_opts->extcap_stderr_watch);
-                interface_opts->extcap_stderr_watch = 0;
-            }
-
-            pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
-            if (pipedata != NULL)
-            {
-                g_io_channel_unref(pipedata->stdout_io);
-
-                while (extcap_stderr_cb(pipedata->stderr_io,
-                                        g_io_channel_get_buffer_condition(pipedata->stderr_io),
-                                        (gpointer)interface_opts) != G_SOURCE_REMOVE)
-                {
-                    /* Keep reading until there's nothing left */
-                }
-                g_io_channel_unref(pipedata->stderr_io);
-
-                g_free(pipedata);
-                interface_opts->extcap_pipedata = NULL;
-            }
-
-            interface_opts->extcap_child_watch = 0;
-
-            /* Close session if this is the last remaining process */
-            capture_process_finished(cap_session);
+            extcap_watch_removed(cap_session, interface_opts);
             break;
         }
     }
@@ -1671,15 +1744,20 @@ extcap_init_interfaces(capture_session *cap_session)
         pipedata->stdin_io = NULL;
         interface_opts->extcap_pid = pid;
 
-        interface_opts->extcap_child_watch =
-            g_child_watch_add_full(G_PRIORITY_HIGH, pid, extcap_child_watch_cb,
-                                   (gpointer)cap_session, NULL);
+        g_child_watch_add_full(G_PRIORITY_HIGH, pid, extcap_child_watch_cb,
+                               (gpointer)cap_session, NULL);
         interface_opts->extcap_stdout_watch =
             g_io_add_watch(pipedata->stdout_io, G_IO_IN | G_IO_HUP,
-                           extcap_stdout_cb, (gpointer)interface_opts);
+                           extcap_stdout_cb, (gpointer)cap_session);
         interface_opts->extcap_stderr_watch =
             g_io_add_watch(pipedata->stderr_io, G_IO_IN | G_IO_HUP,
-                           extcap_stderr_cb, (gpointer)interface_opts);
+                           extcap_stderr_cb, (gpointer)cap_session);
+
+        /* Pipedata pointers are only used to match GIOChannel to interface.
+         * GIOChannel watch holds the only remaining reference.
+         */
+        g_io_channel_unref(pipedata->stdout_io);
+        g_io_channel_unref(pipedata->stderr_io);
 
 #ifdef _WIN32
         /* On Windows, wait for extcap to connect to named pipe.

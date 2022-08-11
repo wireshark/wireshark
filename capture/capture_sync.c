@@ -159,19 +159,9 @@ void capture_process_finished(capture_session *cap_session)
         return;
     }
 
-    for (i = 0; i < capture_opts->ifaces->len; i++) {
-        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-        if ((interface_opts->if_type == IF_EXTCAP) &&
-            (interface_opts->extcap_pid != WS_INVALID_PID)) {
-            /* Atleast one extcap process did not finish yet, wait for it */
-            return;
-        }
-    }
-
-    /* All child processes finished */
-    if (capture_opts->extcap_terminate_id > 0) {
-        g_source_remove(capture_opts->extcap_terminate_id);
-        capture_opts->extcap_terminate_id = 0;
+    if (!extcap_session_stop(cap_session)) {
+        /* Atleast one extcap process did not fully finish yet, wait for it */
+        return;
     }
 
     /* Construct message and close session */
