@@ -2036,7 +2036,9 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		break;
 
 	case MYSQL_QUERY:
-		if (conn_data->clnt_caps_ext & MYSQL_CAPS_QA) {
+		/* Check both the extended capabilities of the client and server. The flag is set by the client
+		 * even if the server didn't set it. This is only actively used if both set the flag. */
+		if ((conn_data->clnt_caps_ext & MYSQL_CAPS_QA) && (conn_data->srv_caps_ext & MYSQL_CAPS_QA)){
 			proto_item *query_attrs_item = proto_tree_add_item(req_tree, hf_mysql_query_attributes, tvb, offset, -1, ENC_NA);
 			proto_item *query_attrs_tree = proto_item_add_subtree(query_attrs_item, ett_query_attributes);
 
