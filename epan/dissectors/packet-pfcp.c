@@ -12602,7 +12602,7 @@ proto_register_pfcp(void)
             "UPF support of RTT measurement towards the UE without PMF", HFILL }
         },
         { &hf_pfcp_up_function_features_o10_b1_quasf,
-        { "QUOSF", "pfcp.up_function_features.quasf",
+        { "QUASF", "pfcp.up_function_features.quasf",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             "The UP function supports being provisioned in a URR with an Exempted Application ID for Quota Action or an Exempted SDF Filter for Quota Action which is to be used when the quota is exhausted", HFILL }
         },
