@@ -394,9 +394,9 @@ typedef struct {
 #define ENC_CAMELLIA256 0x38
 #define ENC_SEED        0x39
 #define ENC_CHACHA20    0x3A
-#define ENC_NULL        0x3B
-#define ENC_SM1         0x3C
-#define ENC_SM4         0x3D
+#define ENC_SM1         0x3B
+#define ENC_SM4         0x3C
+#define ENC_NULL        0x3D
 
 
 #define DIG_MD5         0x40
