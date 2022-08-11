@@ -283,7 +283,7 @@ static int hf_pfcp_up_function_features_o10_b5_resps = -1;
 static int hf_pfcp_up_function_features_o10_b4_upber = -1;
 static int hf_pfcp_up_function_features_o10_b3_l2tp = -1;
 static int hf_pfcp_up_function_features_o10_b2_nspoc = -1;
-static int hf_pfcp_up_function_features_o10_b1_quosf = -1;
+static int hf_pfcp_up_function_features_o10_b1_quasf = -1;
 static int hf_pfcp_up_function_features_o10_b0_rttwp = -1;
 static int hf_pfcp_up_function_features_o9_b7_rds = -1;
 static int hf_pfcp_up_function_features_o9_b6_ddds = -1;
@@ -3053,7 +3053,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o10_b4_upber,
         &hf_pfcp_up_function_features_o10_b3_l2tp,
         &hf_pfcp_up_function_features_o10_b2_nspoc,
-        &hf_pfcp_up_function_features_o10_b1_quosf,
+        &hf_pfcp_up_function_features_o10_b1_quasf,
         &hf_pfcp_up_function_features_o10_b0_rttwp,
         NULL
     };
@@ -12601,10 +12601,10 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "UPF support of RTT measurement towards the UE without PMF", HFILL }
         },
-        { &hf_pfcp_up_function_features_o10_b1_quosf,
-        { "QUOSF", "pfcp.up_function_features.quosf",
+        { &hf_pfcp_up_function_features_o10_b1_quasf,
+        { "QUOSF", "pfcp.up_function_features.quasf",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
-            "UP function supports being provisioned with the Quota Action Application ID or a Quota Action SDF Filter to apply when reaching quotas", HFILL }
+            "The UP function supports being provisioned in a URR with an Exempted Application ID for Quota Action or an Exempted SDF Filter for Quota Action which is to be used when the quota is exhausted", HFILL }
         },
         { &hf_pfcp_up_function_features_o10_b2_nspoc,
         { "NSPOC", "pfcp.up_function_features.nspoc",
