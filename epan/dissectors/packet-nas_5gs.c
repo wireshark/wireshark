@@ -1,7 +1,7 @@
 /* packet-nas_5gs.c
  * Routines for Non-Access-Stratum (NAS) protocol for 5G System (5GS) dissection
  *
- * Copyright 2018-2020, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2018-2022, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -7638,10 +7638,11 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             offset++;
             break;
         case 0x02: /* S-NSSAI type*/
-            /* For "S-NSSAI type", the route selection descriptor component value field shall be encoded as a
-             * sequence of a one octet S-NSSAI length field and an S-NSSAI value field of a variable size.
-             * The S-NSSAI value shall be encoded as the value part of the S-NSSAI information element defined
-             * in clause 9.11.2.8 of 3GPP TS 24.501 */
+            /* For "S-NSSAI type", the route selection descriptor component value field shall be
+             * encoded as a sequence of a one octet S-NSSAI length field and an S-NSSAI value
+             * field of a variable size. The S-NSSAI value shall be encoded as the value part of the
+             * S-NSSAI information element defined in clause 9.11.2.8 of 3GPP TS 24.501 [11], without
+             * the mapped HPLMN SST field and without the mapped HPLMN SD field. */
             proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_len_of_mapped_s_nssai, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
             offset++;
             de_nas_5gs_cmn_s_nssai(tvb, tree, pinfo, offset, length, NULL, 0);
