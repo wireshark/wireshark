@@ -817,7 +817,6 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
     proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_3, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
     proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_4, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-    curr_bit_offset++;
 }
 
 #.FN_BODY PLMN-Identity
@@ -1530,6 +1529,54 @@ private_data_set_rbid(actx, rbid);
 guint32 rlc_ciphering_sqn;
 %(DEFAULT_BODY)s
 private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
+
+#.FN_BODY CipheringAlgorithm VAL_PTR = &ciphering_algo
+  rrc_ciphering_info *ciphering_info;
+  gint32 ciphering_algo;
+
+%(DEFAULT_BODY)s
+
+  ciphering_info = private_data_get_ciphering_info(actx);
+  if (ciphering_info == NULL) {
+    return offset;
+  }
+  ciphering_info->ciphering_algorithm = ciphering_algo;
+
+#.FN_BODY CipheringAlgorithm-r7 VAL_PTR = &ciphering_algo
+  rrc_ciphering_info *ciphering_info;
+  gint32 ciphering_algo;
+
+%(DEFAULT_BODY)s
+
+  ciphering_info = private_data_get_ciphering_info(actx);
+  if (ciphering_info == NULL) {
+    return offset;
+  }
+  ciphering_info->ciphering_algorithm = ciphering_algo;
+
+#.FN_BODY IntegrityProtectionAlgorithm VAL_PTR = &integrity_algo
+  rrc_ciphering_info *ciphering_info;
+  gint32 integrity_algo;
+
+%(DEFAULT_BODY)s
+
+  ciphering_info = private_data_get_ciphering_info(actx);
+  if (ciphering_info == NULL) {
+    return offset;
+  }
+  ciphering_info->integrity_algorithm = integrity_algo;
+
+#.FN_BODY IntegrityProtectionAlgorithm-r7 VAL_PTR = &integrity_algo
+  rrc_ciphering_info *ciphering_info;
+  gint32 integrity_algo;
+
+%(DEFAULT_BODY)s
+
+  ciphering_info = private_data_get_ciphering_info(actx);
+  if (ciphering_info == NULL) {
+    return offset;
+  }
+  ciphering_info->integrity_algorithm = integrity_algo;
 
 #.FN_BODY DL-DCCH-MessageType VAL_PTR = &msg_type
 %(DEFAULT_BODY)s

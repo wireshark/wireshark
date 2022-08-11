@@ -976,14 +976,16 @@ rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 ueid,
     ch_lookup.ueid = ueid;
     frags = get_frags(NULL, &ch_lookup, atm);
     endlist = get_endlist(NULL, &ch_lookup, atm);
-    DISSECTOR_ASSERT(frags && endlist);
+    if (endlist) {
+        endlist->fail_packet = 0;
+        g_list_free(endlist->list);
+        endlist->list = NULL;
+    }
 
-    endlist->fail_packet = 0;
-    g_list_free(endlist->list);
-    endlist->list = NULL;
-
-    for (i = 0; i < 4096; i++) {
-        frags[i] = NULL;
+    if (frags) {
+        for (i = 0; i < 4096; i++) {
+            frags[i] = NULL;
+        }
     }
 }
 
@@ -1508,7 +1510,8 @@ is_ciphered_according_to_rrc(packet_info *pinfo, fp_info *fpinf, rlc_info *rlcin
             /* Making sure the sequence number where ciphering starts makes sense */
             /* TODO: This check is incorrect if the sequence numbers wrap around */
             if(ciphering_begin_seq >= 0 && ciphering_begin_seq <= seq){
-                return TRUE;
+				/* Finally, make sure the encryption algorithm isn't set to UEA0 (no ciphering)*/
+                return ciphering_info->ciphering_algorithm != 0;
             }
         }
     }
