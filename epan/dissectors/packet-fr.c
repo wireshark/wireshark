@@ -1117,7 +1117,7 @@ proto_reg_handoff_fr(void)
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_FRELAY, fr_handle);
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_FRAME_RELAY, fr_handle);
   dissector_add_uint("atm.aal5.type", TRAF_FR, fr_handle);
-  dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_FR, fr_handle);
+  dissector_add_uint("l2tp.pw_type", L2TPv3_PW_FR, fr_handle);
   dissector_add_uint("sll.hatype", ARPHRD_FRAD, fr_handle);
 
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);

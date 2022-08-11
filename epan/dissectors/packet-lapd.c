@@ -797,7 +797,7 @@ proto_reg_handoff_lapd(void)
 	lapd_frame_handle = create_dissector_handle(dissect_lapd_frame, proto_lapd);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_frame_handle);
 
-	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
+	dissector_add_for_decode_as("l2tp.pw_type", lapd_handle);
 	dissector_add_for_decode_as_with_preference("sctp.ppi", lapd_handle);
 	dissector_add_for_decode_as("sctp.port", lapd_handle);
 	dissector_add_uint_range_with_preference("udp.port", "", lapd_handle);

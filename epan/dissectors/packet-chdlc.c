@@ -254,7 +254,7 @@ proto_reg_handoff_chdlc(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_CHDLC, chdlc_handle);
-  dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_CHDLC, chdlc_handle);
+  dissector_add_uint("l2tp.pw_type", L2TPv3_PW_CHDLC, chdlc_handle);
 
   chdlc_cap_handle = find_capture_dissector("chdlc");
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_cap_handle);

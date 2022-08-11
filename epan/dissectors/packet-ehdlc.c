@@ -462,7 +462,7 @@ proto_reg_handoff_ehdlc(void)
 	sub_handles[SUB_PGSL]  = find_dissector_add_dependency("gsm_abis_pgsl", proto_ehdlc);
 	sub_handles[SUB_DATA] = find_dissector("data");
 
-	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ERICSSON, ehdlc_handle);
+	dissector_add_for_decode_as("l2tp.pw_type", ehdlc_handle);
 }
 
 /*

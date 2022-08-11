@@ -719,7 +719,7 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP_MPLS, mpls_handle);
     dissector_add_for_decode_as("pwach.channel_type", mpls_handle);
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_MPLS, mpls_handle);
-    dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_MPLS, mpls_handle);
+    dissector_add_for_decode_as("l2tp.pw_type", mpls_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_MPLS_OVER_UDP, mpls_handle);
     dissector_add_uint("vxlan.next_proto", VXLAN_MPLS, mpls_handle);
     dissector_add_uint("nsh.next_proto", NSH_MPLS, mpls_handle);

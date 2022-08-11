@@ -306,7 +306,6 @@ static const enum_val_t l2tpv3_cookies[] = {
 };
 
 #define L2TPv3_COOKIE_DEFAULT       0
-#define L2TPv3_PROTOCOL_DEFAULT     L2TPv3_PROTOCOL_CHDLC
 
 #define L2TPv3_L2_SPECIFIC_NONE         0
 #define L2TPv3_L2_SPECIFIC_DEFAULT      1
@@ -881,26 +880,26 @@ static const value_string l2tp_cablel_modulation_vals[] = {
 };
 
 static const value_string pw_types_vals[] = {
-    { 0x0001,  "Frame Relay DLCI" },
-    { 0x0002,  "ATM AAL5 SDU VCC transport" },
-    { 0x0003,  "ATM Cell transparent Port Mode" },
-    { 0x0004,  "Ethernet VLAN" },
-    { 0x0005,  "Ethernet" },
-    { 0x0006,  "HDLC" },
-    { 0x0007,  "PPP" },
-    { 0x0009,  "ATM Cell transport VCC Mode" },
-    { 0x000A,  "ATM Cell transport VPC Mode" },
-    { 0x000B,  "IP Transport" },
-    { 0x000C,  "MPEG-TS Payload Type (MPTPW)" },
-    { 0x000D,  "Packet Streaming Protocol (PSPPW)" },
+    { L2TPv3_PW_FR,          "Frame Relay DLCI" },
+    { L2TPv3_PW_AAL5,        "ATM AAL5 SDU VCC transport" },
+    { L2TPv3_PW_ATM_PORT,    "ATM Cell transparent Port Mode" },
+    { L2TPv3_PW_ETH_VLAN,    "Ethernet VLAN" },
+    { L2TPv3_PW_ETH,         "Ethernet" },
+    { L2TPv3_PW_CHDLC,       "HDLC" },
+    { L2TPv3_PW_PPP,         "PPP" }, /* Currently unassigned */
+    { L2TPv3_PW_ATM_VCC,     "ATM Cell transport VCC Mode" },
+    { L2TPv3_PW_ATM_VPC,     "ATM Cell transport VPC Mode" },
+    { L2TPv3_PW_IP,          "IP Transport" }, /* Currently unassigned */
+    { L2TPv3_PW_DOCSIS_DMPT, "MPEG-TS Payload Type (MPTPW)" },
+    { L2TPv3_PW_DOCSIS_PSP,  "Packet Streaming Protocol (PSPPW)" },
     /* 0x000E-0x0010 Unassigned */
-    { 0x0011,  "Structure-agnostic E1 circuit" },       /* [RFC5611] */
-    { 0x0012,  "Structure-agnostic T1 (DS1) circuit" }, /* [RFC5611]   */
-    { 0x0013,  "Structure-agnostic E3 circuit" },       /* [RFC5611]   */
-    { 0x0014,  "Structure-agnostic T3 (DS3) circuit" }, /* [RFC5611]   */
-    { 0x0015,  "CESoPSN basic mode" },                  /* [RFC5611]   */
-    { 0x0016,  "Unassigned" },
-    { 0x0017,  "CESoPSN TDM with CAS" },                /* [RFC5611]  */
+    { L2TPv3_PW_E1,          "Structure-agnostic E1 circuit" },       /* [RFC5611]  */
+    { L2TPv3_PW_T1,          "Structure-agnostic T1 (DS1) circuit" }, /* [RFC5611]  */
+    { L2TPv3_PW_E3,          "Structure-agnostic E3 circuit" },       /* [RFC5611]  */
+    { L2TPv3_PW_T3,          "Structure-agnostic T3 (DS3) circuit" }, /* [RFC5611]  */
+    { L2TPv3_PW_CESOPSN,     "CESoPSN basic mode" },                  /* [RFC5611]  */
+    { 0x0016,                "Unassigned" },
+    { L2TPv3_PW_CESOPSN_CAS, "CESoPSN TDM with CAS" },                /* [RFC5611]  */
 
     { 0,  NULL },
 };
@@ -1005,7 +1004,7 @@ typedef struct l2tpv3_session {
     lcce_settings_t lcce1;
     lcce_settings_t lcce2;
 
-    gint    pw_type;
+    guint    pw_type;
 } l2tpv3_session_t;
 
 static const gchar* shared_secret = "";
@@ -1243,7 +1242,7 @@ static void init_session(l2tpv3_session_t *session)
 {
     session->lcce1.cookie_len = session->lcce2.cookie_len = -1;
     session->lcce1.l2_specific = session->lcce2.l2_specific = -1;
-    session->pw_type = -1;
+    session->pw_type = L2TPv3_PW_DEFAULT;
 }
 
 static l2tpv3_session_t *alloc_session(void)
@@ -1350,8 +1349,6 @@ static l2tpv3_session_t *store_pw_type(l2tpv3_session_t *_session,
                                      int msg_type)
 {
     l2tpv3_session_t *session = _session;
-    gint result = -1;
-    guint16 pw_type;
 
     switch (msg_type) {
         case MESSAGE_TYPE_ICRQ:
@@ -1364,23 +1361,7 @@ static l2tpv3_session_t *store_pw_type(l2tpv3_session_t *_session,
     if (session == NULL)
         session = alloc_session();
 
-    pw_type = tvb_get_ntohs(tvb, offset);
-    switch (pw_type) {
-        case 0x0007:
-            result = L2TPv3_PROTOCOL_PPP; break;
-        case 0x0005:
-            result = L2TPv3_PROTOCOL_ETH; break;
-        case 0x0006:
-            result = L2TPv3_PROTOCOL_CHDLC; break;
-        case 0x0002:
-            result = L2TPv3_PROTOCOL_AAL5; break;
-        case 0x0001:
-            result = L2TPv3_PROTOCOL_FR; break;
-        default:
-            break;
-    }
-
-    session->pw_type = result;
+    session->pw_type = tvb_get_ntohs(tvb, offset);
 
     return session;
 }
@@ -1473,7 +1454,7 @@ static void update_session(l2tpv3_tunnel_t *tunnel, l2tpv3_session_t *session)
     if (session->lcce2.l2_specific != -1)
         existing->lcce2.l2_specific = session->lcce2.l2_specific;
 
-    if (session->pw_type != -1)
+    if (session->pw_type != L2TPv3_PW_DEFAULT)
         existing->pw_type = session->pw_type;
 
     if (tunnel->sessions == NULL) {
@@ -1486,7 +1467,7 @@ static void update_session(l2tpv3_tunnel_t *tunnel, l2tpv3_session_t *session)
 
 static void l2tp_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode L2TPv3 packet type 0x%04x as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode L2TPv3 pseudowire type 0x%04x as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_l2tp, 0)));
 }
 
@@ -2536,7 +2517,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t   *next_tvb;
     gint        cookie_len  = l2tpv3_cookie;
     gint        l2_spec     = l2tpv3_l2_specific;
-    gint        pw_type     = -1;
+    guint       pw_type     = L2TPv3_PW_DEFAULT;
 
     lcce_settings_t  *lcce      = NULL;
     l2tpv3_session_t *session   = NULL;
@@ -2562,15 +2543,12 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             l2_spec = lcce->l2_specific;
         if (cookie_len == -1)
             cookie_len = lcce->cookie_len;
-        if (pw_type == -1)
+        if (pw_type == L2TPv3_PW_DEFAULT)
             pw_type = session->pw_type;
     }
 
     if (l2_spec == -1)
         l2_spec = L2TPv3_L2_SPECIFIC_NONE;
-
-    if (pw_type == -1)
-        pw_type = L2TPv3_PROTOCOL_DEFAULT;
 
     if (cookie_len == -1)
         cookie_len = L2TPv3_COOKIE_DEFAULT;
@@ -2663,7 +2641,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    p_add_proto_data(pinfo->pool, pinfo, proto_l2tp, 0, GUINT_TO_POINTER((guint)pw_type));
+    p_add_proto_data(pinfo->pool, pinfo, proto_l2tp, 0, GUINT_TO_POINTER(pw_type));
 
     if (!dissector_try_uint_new(pw_type_table, pw_type, next_tvb, pinfo, tree, FALSE, GUINT_TO_POINTER(oam_cell)))
     {
@@ -3754,7 +3732,7 @@ proto_register_l2tp(void)
     expert_register_field_array(expert_l2tp, ei, array_length(ei));
 
     l2tp_vendor_avp_dissector_table = register_dissector_table("l2tp.vendor_avp", "L2TP vendor AVP dissector table", proto_l2tp, FT_UINT32, BASE_DEC);
-    pw_type_table = register_dissector_table("l2tp.pw_type", "L2TPv3 payload type", proto_l2tp, FT_UINT32, BASE_DEC);
+    pw_type_table = register_dissector_table("l2tp.pw_type", "L2TPv3 pseudowire type", proto_l2tp, FT_UINT32, BASE_DEC);
 
     l2tp_module = prefs_register_protocol(proto_l2tp, NULL);
 
@@ -3774,7 +3752,10 @@ proto_register_l2tp(void)
                                    l2tpv3_l2_specifics,
                                    FALSE);
 
-    prefs_register_obsolete_preference(l2tp_module, "protocol");
+    prefs_register_static_text_preference(l2tp_module, "protocol",
+        "Dissection of pseudowire types is configured through \"Decode As\". "
+        "Type 0 is used for sessions with unknown pseudowire type.",
+        "Pseudowire Type \"Decode As\" instuctions");
 
     prefs_register_string_preference(l2tp_module,"shared_secret","Shared Secret",
                                    "Shared secret used for control message digest authentication",
@@ -3812,7 +3793,12 @@ proto_reg_handoff_l2tp(void)
     llc_handle            = find_dissector_add_dependency("llc", proto_l2tp);
 
     atm_oam_llc_handle = create_dissector_handle( dissect_atm_oam_llc, proto_l2tp );
-    dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_AAL5, atm_oam_llc_handle);
+    dissector_add_uint("l2tp.pw_type", L2TPv3_PW_AAL5, atm_oam_llc_handle);
+
+    /*
+     * XXX: Should we register something (Ethernet?) to L2TPv3_PW_DEFAULT?
+     * The user could always change it with Decode As.
+     */
 }
 
 /*

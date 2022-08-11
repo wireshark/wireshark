@@ -6530,7 +6530,7 @@ proto_reg_handoff_ppp(void)
     dissector_add_uint("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_PPP, ppp_handle);
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_PPP, ppp_hdlc_handle);
-    dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_PPP, ppp_hdlc_handle);
+    dissector_add_uint("l2tp.pw_type", L2TPv3_PW_PPP, ppp_hdlc_handle);
 }
 
 void
