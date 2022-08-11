@@ -4476,7 +4476,7 @@ create_decoders:
     ssl_debug_printf("%s ssl_create_decoder(server)\n", G_STRFUNC);
     ssl_session->server_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, s_mk, s_wk, s_iv, write_iv_len);
     if (!ssl_session->server_new) {
-        ssl_debug_printf("%s can't init client decoder\n", G_STRFUNC);
+        ssl_debug_printf("%s can't init server decoder\n", G_STRFUNC);
         goto fail;
     }
 
