@@ -1521,7 +1521,7 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     switch (avp_type) {
     case CISCO_ACK:
         /* process_l2tpv3_control does not set COL_INFO for vendor messages */
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Cisco ACK (tunnel id=%u)", control_msg, l2tp_cntrl_data->ccid);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Cisco ACK (ccid=%u)", control_msg, l2tp_cntrl_data->ccid);
         break;
 
     case CISCO_ASSIGNED_CONNECTION_ID:
@@ -2553,10 +2553,12 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (cookie_len == -1)
         cookie_len = L2TPv3_COOKIE_DEFAULT;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "D[S:0x%02X]", sid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "D[S:0x%08X]", sid);
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_uint(l2tp_tree, hf_l2tp_avp_pseudowire_type, tvb, 0, 0, pw_type);
+    proto_item_set_generated(ti);
     if (!(tvb_offset_exists(tvb, idx))) {
         return;
     }
@@ -2569,7 +2571,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch(l2_spec){
     case L2TPv3_L2_SPECIFIC_DEFAULT:
         if (tree) {
-            ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_def,
+            ti = proto_tree_add_item(l2tp_tree, hf_l2tp_l2_spec_def,
                                      tvb, idx, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
@@ -2578,11 +2580,11 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
                                 idx + 1, 3, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + 4);
+        idx += 4;
         break;
     case L2TPv3_L2_SPECIFIC_DOCSIS_DMPT:
         if (tree) {
-            ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_docsis_dmpt,
+            ti = proto_tree_add_item(l2tp_tree, hf_l2tp_l2_spec_docsis_dmpt,
                                      tvb, idx, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
@@ -2601,11 +2603,11 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
                                 idx + 2, 2, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + 4);
+        idx += 4;
         break;
     case L2TPv3_L2_SPECIFIC_ATM:
         if (tree) {
-            ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
+            ti = proto_tree_add_item(l2tp_tree, hf_l2tp_l2_spec_atm,
                                      tvb, idx, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
@@ -2627,19 +2629,20 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
                                 idx + 1, 3, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + 4);
+        idx += 4;
         break;
     case L2TPv3_L2_SPECIFIC_LAPD:
         if (tree)
-            proto_tree_add_item(tree, hf_l2tp_lapd_info, tvb, idx + 4, 3, ENC_NA);
-        next_tvb = tvb_new_subset_remaining(tvb, idx + 4 + 3);
+            proto_tree_add_item(l2tp_tree, hf_l2tp_lapd_info, tvb, idx + 4, 3, ENC_NA);
+        idx += 4 + 3;
         break;
     case L2TPv3_L2_SPECIFIC_NONE:
     default:
-        next_tvb = tvb_new_subset_remaining(tvb, idx);
         break;
     }
 
+    next_tvb = tvb_new_subset_remaining(tvb, idx);
+    proto_item_set_len(l2tp_item, idx);
     p_add_proto_data(pinfo->pool, pinfo, proto_l2tp, 0, GUINT_TO_POINTER(pw_type));
 
     if (!dissector_try_uint_new(pw_type_table, pw_type, next_tvb, pinfo, tree, FALSE, GUINT_TO_POINTER(oam_cell)))
@@ -2743,7 +2746,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     if ((LENGTH_BIT(control))&&(length==12))                /* ZLB Message */
         col_add_fstr(pinfo->cinfo, COL_INFO,
-                        "%s - ZLB      (tunnel id=%u)",
+                        "%s - ZLB (ccid=0x%08X)",
                         control_msg , ccid);
     else
     {
@@ -2765,7 +2768,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                 /* We print message type */
                 msg_type = tvb_get_ntohs(tvb, tmp_idx);
                 col_add_fstr(pinfo->cinfo, COL_INFO,
-                                "%s - %s (tunnel id=%u)",
+                                "%s - %s (ccid=0x%08X)",
                                 control_msg ,
                                 val_to_str_ext(msg_type, &l2tp_message_type_short_str_vals_ext, "Unknown (%u)"),
                                 ccid);
@@ -2776,7 +2779,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                     * We never pass here except in case of bad l2tp packet!
                     */
                 col_add_fstr(pinfo->cinfo, COL_INFO,
-                                "%s (tunnel id=%u)",
+                                "%s (ccid=0x%08X)",
                                 control_msg,  ccid);
             }
         }
@@ -3247,11 +3250,11 @@ proto_register_l2tp(void)
             NULL, HFILL }},
 
         { &hf_l2tp_sid,
-          { "Session ID","l2tp.sid", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Session ID","l2tp.sid", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_ccid,
-          { "Control Connection ID","l2tp.ccid", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Control Connection ID","l2tp.ccid", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_res,
