@@ -2869,6 +2869,7 @@ static const SslDigestAlgo digests[]={
     {"SHA256",  32},
     {"SHA384",  48},
     {"Not Applicable",  0},
+    {"SM3",     32},
 };
 
 #define DIGEST_MAX_SIZE 48
