@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.9.0 (2022-04)
+-- 3GPP TS 38.413 V17.1.1 (2022-06)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-NGAP-PDU-Contents { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+NGAP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-Access (22) modules (3) ngap (1) version1 (1) ngap-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -55,9 +55,12 @@ IMPORTS
 	EndIndication,
 	Enhanced-CoverageRestriction,
 	EUTRA-CGI,
+	EUTRA-PagingeDRXInformation,
 	Extended-AMFName,
 	Extended-ConnectedTime,
 	Extended-RANNodeName,
+	FiveG-ProSeAuthorized,
+	FiveG-ProSePC5QoSParameters,
 	FiveG-S-TMSI,
 	GlobalRANNodeID,
 	GUAMI,
@@ -76,9 +79,25 @@ IMPORTS
 	LTEUESidelinkAggregateMaximumBitrate,
 	LTEV2XServicesAuthorized,
 	MaskedIMEISV,
+	MBS-AreaSessionID,
+	MBS-ServiceArea,
+	MBS-SessionID,
+	MBS-DistributionReleaseRequestTransfer,
+	MBS-DistributionSetupRequestTransfer,
+	MBS-DistributionSetupResponseTransfer,
+	MBS-DistributionSetupUnsuccessfulTransfer,
+	MBSSessionReleaseResponseTransfer,
+	MBSSessionSetupOrModFailureTransfer,
+	MBSSessionSetupOrModRequestTransfer,
+	MBSSessionSetupOrModResponseTransfer,
 	MessageIdentifier,
 	MDTPLMNList,
+	MDTPLMNModificationList,
 	MobilityRestrictionList,
+	MulticastSessionActivationRequestTransfer,
+	MulticastSessionDeactivationRequestTransfer,
+	MulticastSessionUpdateRequestTransfer,
+	MulticastGroupPagingAreaList,
 	NAS-PDU,
 	NASSecurityParametersFromNGRAN,
 	NB-IoT-DefaultPagingDRX,
@@ -92,6 +111,7 @@ IMPORTS
 	NotifySourceNGRANNode,
 	NPN-AccessInformation,
 	NR-CGI,
+	NR-PagingeDRXInformation,
 	NRPPa-PDU,
 	NumberOfBroadcastsRequested,
 	NRUESidelinkAggregateMaximumBitrate,
@@ -99,10 +119,10 @@ IMPORTS
 	OverloadResponse,
 	OverloadStartNSSAIList,
 	PagingAssisDataforCEcapabUE,
+	PagingCause,
 	PagingDRX,
 	PagingOrigin,
 	PagingPriority,
-	PagingeDRXInformation,
 	PDUSessionAggregateMaximumBitRate,
 	PDUSessionResourceAdmittedList,
 	PDUSessionResourceFailedToModifyListModCfm,
@@ -140,15 +160,19 @@ IMPORTS
 	PDUSessionResourceToBeSwitchedDLList,
 	PDUSessionResourceToReleaseListHOCmd,
 	PDUSessionResourceToReleaseListRelCmd,
+	PEIPSassistanceInformation,
 	PLMNIdentity,
 	PLMNSupportList,
 	PrivacyIndicator,
 	PWSFailedCellIDList,
 	PC5QoSParameters,
+	QMCConfigInfo,
+	QMCDeactivation,
 	RANNodeName,
 	RANPagingPriority,
 	RANStatusTransfer-TransparentContainer,
 	RAN-UE-NGAP-ID,
+	RedCapIndication,
 	RedirectionVoiceFallback,
 	RelativeAMFCapacity,
 	RepetitionPeriod,
@@ -175,8 +199,10 @@ IMPORTS
 	TAIListForPaging,
 	TAIListForRestart,
 	TargetID,
+	TargetNSSAIInformation,
 	TargetToSource-TransparentContainer,
 	TargettoSource-Failure-TransparentContainer,
+	TimeSyncAssistanceInfo,
 	TimeToWait,
 	TNLAssociationList,
 	TraceActivation,
@@ -195,6 +221,7 @@ IMPORTS
 	UERadioCapabilityID,
 	UERetentionInformation,
 	UESecurityCapabilities,
+	UESliceMaximumBitRateList,
 	UE-UP-CIoT-Support,
 	UL-CP-SecurityInformation,
 	UnavailableGUAMIList,
@@ -259,9 +286,13 @@ FROM NGAP-Containers
 	id-EndIndication,
 	id-Enhanced-CoverageRestriction,
 	id-EUTRA-CGI,
+	id-EUTRA-PagingeDRXInformation,
 	id-Extended-AMFName,
 	id-Extended-ConnectedTime,
 	id-Extended-RANNodeName,
+	id-FiveG-ProSeAuthorized,
+	id-FiveG-ProSeUEPC5AggregateMaximumBitRate,
+	id-FiveG-ProSePC5QoSParameters,
 	id-FiveG-S-TMSI,
 	id-GlobalRANNodeID,
 	id-GUAMI,
@@ -280,9 +311,28 @@ FROM NGAP-Containers
 	id-LTEV2XServicesAuthorized,
 	id-LTEUESidelinkAggregateMaximumBitrate,
 	id-ManagementBasedMDTPLMNList,
+	id-ManagementBasedMDTPLMNModificationList,
 	id-MaskedIMEISV,
+	id-MBS-AreaSessionID,
+	id-MBS-ServiceArea,
+	id-MBS-SessionID,
+	id-MBS-DistributionReleaseRequestTransfer,
+	id-MBS-DistributionSetupRequestTransfer,
+	id-MBS-DistributionSetupResponseTransfer,
+	id-MBS-DistributionSetupUnsuccessfulTransfer,
+	id-MBSSessionModificationFailureTransfer,
+	id-MBSSessionModificationRequestTransfer,
+	id-MBSSessionModificationResponseTransfer,
+	id-MBSSessionReleaseResponseTransfer,
+	id-MBSSessionSetupFailureTransfer,
+	id-MBSSessionSetupRequestTransfer,
+	id-MBSSessionSetupResponseTransfer,
 	id-MessageIdentifier,
 	id-MobilityRestrictionList,
+	id-MulticastSessionActivationRequestTransfer,
+	id-MulticastSessionDeactivationRequestTransfer,
+	id-MulticastSessionUpdateRequestTransfer,
+	id-MulticastGroupPagingAreaList,
 	id-NAS-PDU,
 	id-NASC,
 	id-NASSecurityParametersFromNGRAN,
@@ -299,7 +349,7 @@ FROM NGAP-Containers
 	id-NGRANTraceID,
 	id-NotifySourceNGRANNode,
 	id-NPN-AccessInformation,
-	id-NR-CGI,
+	id-NR-PagingeDRXInformation,
 	id-NRPPa-PDU,
 	id-NRV2XServicesAuthorized,
 	id-NRUESidelinkAggregateMaximumBitrate,
@@ -307,8 +357,8 @@ FROM NGAP-Containers
 	id-OldAMF,
 	id-OverloadStartNSSAIList,
 	id-PagingAssisDataforCEcapabUE,
+	id-PagingCause,
 	id-PagingDRX,
-	id-PagingeDRXInformation,
 	id-PagingOrigin,
 	id-PagingPriority,
 	id-PDUSessionResourceAdmittedList,
@@ -347,14 +397,18 @@ FROM NGAP-Containers
 	id-PDUSessionResourceToBeSwitchedDLList,
 	id-PDUSessionResourceToReleaseListHOCmd,
 	id-PDUSessionResourceToReleaseListRelCmd,
+	id-PEIPSassistanceInformation,
 	id-PLMNSupportList,
 	id-PrivacyIndicator,
 	id-PWSFailedCellIDList,
 	id-PC5QoSParameters,
+	id-QMCConfigInfo,
+	id-QMCDeactivation,
 	id-RANNodeName,
 	id-RANPagingPriority,
 	id-RANStatusTransfer-TransparentContainer,
-	id-RAN-UE-NGAP-ID, 
+	id-RAN-UE-NGAP-ID,
+	id-RedCapIndication,
 	id-RedirectionVoiceFallback,
 	id-RelativeAMFCapacity,
 	id-RepetitionPeriod,
@@ -385,8 +439,10 @@ FROM NGAP-Containers
 	id-TAIListForPaging,
 	id-TAIListForRestart,
 	id-TargetID,
+	id-TargetNSSAIInformation,
 	id-TargetToSource-TransparentContainer,
 	id-TargettoSource-Failure-TransparentContainer,
+	id-TimeSyncAssistanceInfo,
 	id-TimeToWait,
 	id-TNGFIdentityInformation,
 	id-TraceActivation,
@@ -407,6 +463,7 @@ FROM NGAP-Containers
 	id-UERadioCapability-EUTRA-Format,
 	id-UERetentionInformation,
 	id-UESecurityCapabilities,
+	id-UESliceMaximumBitRateList,
 	id-UE-UP-CIoT-Support,
 	id-UL-CP-SecurityInformation,
 	id-UnavailableGUAMIList,
@@ -451,7 +508,8 @@ PDUSessionResourceSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RANPagingPriority						CRITICALITY ignore	TYPE RANPagingPriority							PRESENCE optional		}|
 	{ ID id-NAS-PDU									CRITICALITY reject	TYPE NAS-PDU									PRESENCE optional		}|
 	{ ID id-PDUSessionResourceSetupListSUReq		CRITICALITY reject	TYPE PDUSessionResourceSetupListSUReq		PRESENCE mandatory	}|
-	{ ID id-UEAggregateMaximumBitRate				CRITICALITY ignore	TYPE UEAggregateMaximumBitRate				PRESENCE optional		},
+	{ ID id-UEAggregateMaximumBitRate				CRITICALITY ignore	TYPE UEAggregateMaximumBitRate				PRESENCE optional		}|
+	{ ID id-UESliceMaximumBitRateList				CRITICALITY ignore	TYPE UESliceMaximumBitRateList				PRESENCE optional		},
 	...
 }
 
@@ -472,7 +530,7 @@ PDUSessionResourceSetupResponseIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-PDUSessionResourceSetupListSURes			CRITICALITY ignore	TYPE PDUSessionResourceSetupListSURes				PRESENCE optional		}|
 	{ ID id-PDUSessionResourceFailedToSetupListSURes	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListSURes		PRESENCE optional		}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
-	...	
+	...
 }
 
 
@@ -701,7 +759,14 @@ InitialContextSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UE-UP-CIoT-Support						CRITICALITY ignore	TYPE UE-UP-CIoT-Support									PRESENCE optional		}|
 	{ ID id-RGLevelWirelineAccessCharacteristics	CRITICALITY ignore	TYPE RGLevelWirelineAccessCharacteristics		PRESENCE optional		}|
 	{ ID id-ManagementBasedMDTPLMNList				CRITICALITY ignore	TYPE MDTPLMNList										PRESENCE optional		}|
-	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID								PRESENCE optional		},
+	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID								PRESENCE optional		}|
+	{ ID id-TimeSyncAssistanceInfo					CRITICALITY ignore	TYPE TimeSyncAssistanceInfo							PRESENCE optional		}|
+	{ ID id-QMCConfigInfo							CRITICALITY ignore	TYPE QMCConfigInfo										PRESENCE optional		}|
+	{ ID id-TargetNSSAIInformation					CRITICALITY ignore	TYPE TargetNSSAIInformation							PRESENCE optional		}|
+	{ ID id-UESliceMaximumBitRateList				CRITICALITY ignore	TYPE UESliceMaximumBitRateList						PRESENCE optional		}|
+	{ ID id-FiveG-ProSeAuthorized					CRITICALITY ignore	TYPE FiveG-ProSeAuthorized							PRESENCE optional		}|
+	{ ID id-FiveG-ProSeUEPC5AggregateMaximumBitRate	CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate			PRESENCE optional		}|
+	{ ID id-FiveG-ProSePC5QoSParameters				CRITICALITY ignore	TYPE FiveG-ProSePC5QoSParameters					PRESENCE optional		},
 	...
 }
 
@@ -879,7 +944,7 @@ UEContextResumeFailure ::= SEQUENCE {
 	...
 }
 
-UEContextResumeFailureIEs NGAP-PROTOCOL-IES ::= {	
+UEContextResumeFailureIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
@@ -943,7 +1008,7 @@ UEContextSuspendFailure ::= SEQUENCE {
 	...
 }
 
-UEContextSuspendFailureIEs NGAP-PROTOCOL-IES ::= {	
+UEContextSuspendFailureIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
@@ -990,7 +1055,15 @@ UEContextModificationRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-LTEUESidelinkAggregateMaximumBitrate	CRITICALITY ignore	TYPE LTEUESidelinkAggregateMaximumBitrate	PRESENCE optional		}|
 	{ ID id-PC5QoSParameters						CRITICALITY ignore	TYPE PC5QoSParameters								PRESENCE optional 	}|
 	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID							PRESENCE optional		}|
-	{ ID id-RGLevelWirelineAccessCharacteristics	CRITICALITY ignore	TYPE RGLevelWirelineAccessCharacteristics	PRESENCE optional		},
+	{ ID id-RGLevelWirelineAccessCharacteristics	CRITICALITY ignore	TYPE RGLevelWirelineAccessCharacteristics	PRESENCE optional		}|
+	{ ID id-TimeSyncAssistanceInfo					CRITICALITY ignore	TYPE TimeSyncAssistanceInfo						PRESENCE optional		}|
+	{ ID id-QMCConfigInfo							CRITICALITY ignore	TYPE QMCConfigInfo									PRESENCE optional		}|
+	{ ID id-QMCDeactivation							CRITICALITY ignore	TYPE QMCDeactivation									PRESENCE optional		}|
+	{ ID id-UESliceMaximumBitRateList				CRITICALITY ignore	TYPE UESliceMaximumBitRateList					PRESENCE optional		}|
+	{ ID id-ManagementBasedMDTPLMNModificationList	CRITICALITY ignore	TYPE MDTPLMNModificationList						PRESENCE optional		}|
+	{ ID id-FiveG-ProSeAuthorized					CRITICALITY ignore	TYPE FiveG-ProSeAuthorized						PRESENCE optional		}|
+	{ ID id-FiveG-ProSeUEPC5AggregateMaximumBitRate	CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate		PRESENCE optional		}|
+	{ ID id-FiveG-ProSePC5QoSParameters				CRITICALITY ignore	TYPE FiveG-ProSePC5QoSParameters				PRESENCE optional		},
 	...
 }
 
@@ -1005,7 +1078,7 @@ UEContextModificationResponse ::= SEQUENCE {
 	...
 }
 
-UEContextModificationResponseIEs NGAP-PROTOCOL-IES ::= {	
+UEContextModificationResponseIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RRCState					CRITICALITY ignore	TYPE RRCState					PRESENCE optional		}|
@@ -1025,7 +1098,7 @@ UEContextModificationFailure ::= SEQUENCE {
 	...
 }
 
-UEContextModificationFailureIEs NGAP-PROTOCOL-IES ::= {	
+UEContextModificationFailureIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
@@ -1054,7 +1127,7 @@ RRCInactiveTransitionReportIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Retrieve UE Information 
+-- Retrieve UE Information
 --
 -- **************************************************************
 
@@ -1133,7 +1206,7 @@ HandoverRequired ::= SEQUENCE {
 	...
 }
 
-HandoverRequiredIEs NGAP-PROTOCOL-IES ::= {	
+HandoverRequiredIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID							CRITICALITY reject	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID							CRITICALITY reject	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
 	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType									PRESENCE mandatory	}|
@@ -1156,7 +1229,7 @@ HandoverCommand ::= SEQUENCE {
 	...
 }
 
-HandoverCommandIEs NGAP-PROTOCOL-IES ::= {	
+HandoverCommandIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID								CRITICALITY reject	TYPE AMF-UE-NGAP-ID											PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID								CRITICALITY reject	TYPE RAN-UE-NGAP-ID											PRESENCE mandatory	}|
 	{ ID id-HandoverType								CRITICALITY reject	TYPE HandoverType											PRESENCE mandatory	}|
@@ -1181,7 +1254,7 @@ HandoverPreparationFailure ::= SEQUENCE {
 	...
 }
 
-HandoverPreparationFailureIEs NGAP-PROTOCOL-IES ::= {	
+HandoverPreparationFailureIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
@@ -1241,7 +1314,12 @@ HandoverRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UE-UP-CIoT-Support						CRITICALITY ignore	TYPE UE-UP-CIoT-Support								PRESENCE optional		}|
 	{ ID id-ManagementBasedMDTPLMNList				CRITICALITY ignore	TYPE MDTPLMNList									PRESENCE optional		}|
 	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID							PRESENCE optional		}|
-	{ ID id-Extended-ConnectedTime					CRITICALITY ignore	TYPE Extended-ConnectedTime						PRESENCE optional		},
+	{ ID id-Extended-ConnectedTime					CRITICALITY ignore	TYPE Extended-ConnectedTime						PRESENCE optional		}|
+	{ ID id-TimeSyncAssistanceInfo					CRITICALITY ignore	TYPE TimeSyncAssistanceInfo						PRESENCE optional		}|
+	{ ID id-UESliceMaximumBitRateList				CRITICALITY ignore	TYPE UESliceMaximumBitRateList					PRESENCE optional		}|
+	{ ID id-FiveG-ProSeAuthorized					CRITICALITY ignore	TYPE FiveG-ProSeAuthorized						PRESENCE optional		}|
+	{ ID id-FiveG-ProSeUEPC5AggregateMaximumBitRate	CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate		PRESENCE optional		}|
+	{ ID id-FiveG-ProSePC5QoSParameters				CRITICALITY ignore	TYPE FiveG-ProSePC5QoSParameters				PRESENCE optional		},
 	...
 }
 
@@ -1263,7 +1341,8 @@ HandoverRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-PDUSessionResourceFailedToSetupListHOAck	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListHOAck		PRESENCE optional		}|
 	{ ID id-TargetToSource-TransparentContainer			CRITICALITY reject	TYPE TargetToSource-TransparentContainer			PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		}|
-	{ ID id-NPN-AccessInformation						CRITICALITY reject	TYPE NPN-AccessInformation								PRESENCE optional		},
+	{ ID id-NPN-AccessInformation						CRITICALITY reject	TYPE NPN-AccessInformation								PRESENCE optional		}|
+	{ ID id-RedCapIndication							CRITICALITY ignore	TYPE RedCapIndication										PRESENCE optional		},
 	...
 }
 
@@ -1279,7 +1358,7 @@ HandoverFailure ::= SEQUENCE {
 	...
 }
 
-HandoverFailureIEs NGAP-PROTOCOL-IES ::= {	
+HandoverFailureIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		}|
@@ -1304,7 +1383,7 @@ HandoverNotify ::= SEQUENCE {
 	...
 }
 
-HandoverNotifyIEs NGAP-PROTOCOL-IES ::= {	
+HandoverNotifyIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY reject	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY reject	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-UserLocationInformation		CRITICALITY ignore	TYPE UserLocationInformation	PRESENCE mandatory	}|
@@ -1329,14 +1408,15 @@ PathSwitchRequest ::= SEQUENCE {
 	...
 }
 
-PathSwitchRequestIEs NGAP-PROTOCOL-IES ::= {	
+PathSwitchRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-NGAP-ID								CRITICALITY reject	TYPE RAN-UE-NGAP-ID											PRESENCE mandatory	}|
 	{ ID id-SourceAMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID											PRESENCE mandatory	}|
 	{ ID id-UserLocationInformation						CRITICALITY ignore	TYPE UserLocationInformation							PRESENCE mandatory	}|
 	{ ID id-UESecurityCapabilities						CRITICALITY ignore	TYPE UESecurityCapabilities								PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceToBeSwitchedDLList		CRITICALITY reject	TYPE PDUSessionResourceToBeSwitchedDLList			PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceFailedToSetupListPSReq	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListPSReq		PRESENCE optional		}|
-	{ ID id-RRC-Resume-Cause							CRITICALITY ignore	TYPE RRCEstablishmentCause								PRESENCE optional		},
+	{ ID id-RRC-Resume-Cause							CRITICALITY ignore	TYPE RRCEstablishmentCause								PRESENCE optional		}|
+	{ ID id-RedCapIndication							CRITICALITY ignore	TYPE RedCapIndication										PRESENCE optional		},
 	...
 }
 
@@ -1352,7 +1432,7 @@ PathSwitchRequestAcknowledge ::= SEQUENCE {
 	...
 }
 
-PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {	
+PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID								CRITICALITY ignore	TYPE AMF-UE-NGAP-ID										PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID								CRITICALITY ignore	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
 	{ ID id-UESecurityCapabilities						CRITICALITY reject	TYPE UESecurityCapabilities							PRESENCE optional		}|
@@ -1378,7 +1458,11 @@ PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-CEmodeBrestricted							CRITICALITY ignore	TYPE CEmodeBrestricted								PRESENCE optional		}|
 	{ ID id-UE-UP-CIoT-Support							CRITICALITY ignore	TYPE UE-UP-CIoT-Support								PRESENCE optional		}|
 	{ ID id-UERadioCapabilityID							CRITICALITY reject	TYPE UERadioCapabilityID								PRESENCE optional		}|
-	{ ID id-ManagementBasedMDTPLMNList					CRITICALITY ignore	TYPE MDTPLMNList										PRESENCE optional		},
+	{ ID id-ManagementBasedMDTPLMNList					CRITICALITY ignore	TYPE MDTPLMNList										PRESENCE optional		}|
+	{ ID id-TimeSyncAssistanceInfo						CRITICALITY ignore	TYPE TimeSyncAssistanceInfo							PRESENCE optional		}|
+	{ ID id-FiveG-ProSeAuthorized						CRITICALITY ignore	TYPE FiveG-ProSeAuthorized							PRESENCE optional		}|
+	{ ID id-FiveG-ProSeUEPC5AggregateMaximumBitRate		CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate		PRESENCE optional		}|
+	{ ID id-FiveG-ProSePC5QoSParameters					CRITICALITY ignore	TYPE FiveG-ProSePC5QoSParameters					PRESENCE optional		},
 	...
 }
 
@@ -1394,7 +1478,7 @@ PathSwitchRequestFailure ::= SEQUENCE {
 	...
 }
 
-PathSwitchRequestFailureIEs NGAP-PROTOCOL-IES ::= {	
+PathSwitchRequestFailureIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID							CRITICALITY ignore	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID							CRITICALITY ignore	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceReleasedListPSFail	CRITICALITY ignore	TYPE PDUSessionResourceReleasedListPSFail	PRESENCE mandatory	}|
@@ -1419,7 +1503,7 @@ HandoverCancel ::= SEQUENCE {
 	...
 }
 
-HandoverCancelIEs NGAP-PROTOCOL-IES ::= {	
+HandoverCancelIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID		CRITICALITY reject	TYPE AMF-UE-NGAP-ID		PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID		CRITICALITY reject	TYPE RAN-UE-NGAP-ID		PRESENCE mandatory	}|
 	{ ID id-Cause				CRITICALITY ignore	TYPE Cause				PRESENCE mandatory	},
@@ -1437,7 +1521,7 @@ HandoverCancelAcknowledge ::= SEQUENCE {
 	...
 }
 
-HandoverCancelAcknowledgeIEs NGAP-PROTOCOL-IES ::= {	
+HandoverCancelAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
@@ -1461,7 +1545,7 @@ HandoverSuccess ::= SEQUENCE {
 	...
 }
 
-HandoverSuccessIEs NGAP-PROTOCOL-IES ::= {	
+HandoverSuccessIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID		CRITICALITY reject	TYPE AMF-UE-NGAP-ID		PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID		CRITICALITY reject	TYPE RAN-UE-NGAP-ID		PRESENCE mandatory	},
 	...
@@ -1593,8 +1677,11 @@ PagingIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-NB-IoT-PagingDRX				CRITICALITY ignore	TYPE NB-IoT-PagingDRX				PRESENCE optional		}|
 	{ ID id-Enhanced-CoverageRestriction	CRITICALITY ignore	TYPE Enhanced-CoverageRestriction	PRESENCE optional		}|
 	{ ID id-WUS-Assistance-Information		CRITICALITY ignore	TYPE WUS-Assistance-Information		PRESENCE optional		}|
-	{ ID id-PagingeDRXInformation			CRITICALITY ignore	TYPE PagingeDRXInformation			PRESENCE optional		}|
-	{ ID id-CEmodeBrestricted				CRITICALITY ignore	TYPE CEmodeBrestricted				PRESENCE optional		},
+	{ ID id-EUTRA-PagingeDRXInformation		CRITICALITY ignore	TYPE EUTRA-PagingeDRXInformation	PRESENCE optional		}|
+	{ ID id-CEmodeBrestricted				CRITICALITY ignore	TYPE CEmodeBrestricted				PRESENCE optional		}|
+	{ ID id-NR-PagingeDRXInformation		CRITICALITY ignore	TYPE NR-PagingeDRXInformation		PRESENCE optional		}|
+	{ ID id-PagingCause						CRITICALITY ignore	TYPE PagingCause					PRESENCE optional		}|
+	{ ID id-PEIPSassistanceInformation		CRITICALITY ignore	TYPE PEIPSassistanceInformation		PRESENCE optional		},
 	...
 }
 
@@ -1631,7 +1718,8 @@ InitialUEMessage-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-LTEM-Indication							CRITICALITY ignore	TYPE LTEM-Indication								PRESENCE optional		}|
 	{ ID id-EDT-Session								CRITICALITY ignore	TYPE EDT-Session									PRESENCE optional		}|
 	{ ID id-AuthenticatedIndication					CRITICALITY ignore	TYPE AuthenticatedIndication						PRESENCE optional		}|
-	{ ID id-NPN-AccessInformation					CRITICALITY reject	TYPE NPN-AccessInformation						PRESENCE optional		},
+	{ ID id-NPN-AccessInformation					CRITICALITY reject	TYPE NPN-AccessInformation						PRESENCE optional		}|
+	{ ID id-RedCapIndication						CRITICALITY ignore	TYPE RedCapIndication								PRESENCE optional		},
 	...
 }
 
@@ -1664,7 +1752,8 @@ DownlinkNASTransport-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UERadioCapability				CRITICALITY ignore	TYPE UERadioCapability				PRESENCE optional		}|
 	{ ID id-UECapabilityInfoRequest			CRITICALITY ignore	TYPE UECapabilityInfoRequest		PRESENCE optional		}|
 	{ ID id-EndIndication					CRITICALITY ignore	TYPE EndIndication					PRESENCE optional		}|
-	{ ID id-UERadioCapabilityID				CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional		},
+	{ ID id-UERadioCapabilityID				CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional		}|
+	{ ID id-TargetNSSAIInformation			CRITICALITY ignore	TYPE TargetNSSAIInformation			PRESENCE optional		},
 	...
 }
 
@@ -1827,7 +1916,7 @@ NGSetupFailureIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- RAN CONFIGURATION UPDATE 
+-- RAN CONFIGURATION UPDATE
 --
 -- **************************************************************
 
@@ -1889,7 +1978,7 @@ RANConfigurationUpdateFailureIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- AMF CONFIGURATION UPDATE 
+-- AMF CONFIGURATION UPDATE
 --
 -- **************************************************************
 
@@ -2045,7 +2134,7 @@ OverloadStart ::= SEQUENCE {
 	...
 }
 
-OverloadStartIEs NGAP-PROTOCOL-IES ::= {	
+OverloadStartIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMFOverloadResponse						CRITICALITY reject	TYPE OverloadResponse							PRESENCE optional 	}|
 	{ ID id-AMFTrafficLoadReductionIndication		CRITICALITY ignore	TYPE TrafficLoadReductionIndication		PRESENCE optional		}|
 	{ ID id-OverloadStartNSSAIList					CRITICALITY ignore	TYPE OverloadStartNSSAIList					PRESENCE optional		},
@@ -2063,7 +2152,7 @@ OverloadStop ::= SEQUENCE {
 	...
 }
 
-OverloadStopIEs NGAP-PROTOCOL-IES ::= {	
+OverloadStopIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -2111,7 +2200,7 @@ DownlinkRANConfigurationTransferIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- WARNING MESSAGE TRANSMISSION ELEMENTARY PROCEDURES 
+-- WARNING MESSAGE TRANSMISSION ELEMENTARY PROCEDURES
 --
 -- **************************************************************
 
@@ -2132,7 +2221,7 @@ WriteReplaceWarningRequest ::= SEQUENCE {
 	...
 }
 
-WriteReplaceWarningRequestIEs NGAP-PROTOCOL-IES ::= {	
+WriteReplaceWarningRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-MessageIdentifier				CRITICALITY reject	TYPE MessageIdentifier					PRESENCE mandatory	}|
 	{ ID id-SerialNumber					CRITICALITY reject	TYPE SerialNumber						PRESENCE mandatory	}|
 	{ ID id-WarningAreaList					CRITICALITY ignore	TYPE WarningAreaList					PRESENCE optional		}|
@@ -2183,7 +2272,7 @@ PWSCancelRequest ::= SEQUENCE {
 	...
 }
 
-PWSCancelRequestIEs NGAP-PROTOCOL-IES ::= {	
+PWSCancelRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier				PRESENCE mandatory	}|
 	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber					PRESENCE mandatory	}|
 	{ ID id-WarningAreaList				CRITICALITY ignore	TYPE WarningAreaList				PRESENCE optional	}|
@@ -2547,7 +2636,7 @@ UERadioCapabilityCheckRequest ::= SEQUENCE {
 	...
 }
 
-UERadioCapabilityCheckRequestIEs NGAP-PROTOCOL-IES ::= {	
+UERadioCapabilityCheckRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID			CRITICALITY reject	TYPE AMF-UE-NGAP-ID			PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID			CRITICALITY reject	TYPE RAN-UE-NGAP-ID			PRESENCE mandatory	}|
 	{ ID id-UERadioCapability		CRITICALITY ignore	TYPE UERadioCapability		PRESENCE optional	}|
@@ -2566,7 +2655,7 @@ UERadioCapabilityCheckResponse ::= SEQUENCE {
 	...
 }
 
-UERadioCapabilityCheckResponseIEs NGAP-PROTOCOL-IES ::= {	
+UERadioCapabilityCheckResponseIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID					CRITICALITY ignore	TYPE AMF-UE-NGAP-ID					PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID					CRITICALITY ignore	TYPE RAN-UE-NGAP-ID					PRESENCE mandatory	}|
 	{ ID id-IMSVoiceSupportIndicator		CRITICALITY reject	TYPE IMSVoiceSupportIndicator		PRESENCE mandatory	}|
@@ -2746,5 +2835,543 @@ AMFCPRelocationIndicationIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AllowedNSSAI				CRITICALITY ignore	TYPE AllowedNSSAI				PRESENCE optional		},
 	...
 }
+
+-- **************************************************************
+--
+-- MBS SESSION MANAGEMENT ELEMENTARY PROCEDURES
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Broadcast Session Setup Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BROADCAST SESSION SETUP REQUEST
+--
+-- **************************************************************
+
+BroadcastSessionSetupRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionSetupRequestIEs} },
+	...
+}
+-- WS modification: define a dedicated type
+MBSSessionSetupOrModRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBSSessionSetupOrModRequestTransfer)
+
+BroadcastSessionSetupRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID							CRITICALITY reject	TYPE MBS-SessionID									PRESENCE mandatory	}|
+	{ ID id-S-NSSAI									CRITICALITY reject	TYPE S-NSSAI											PRESENCE mandatory	}|
+	{ ID id-MBS-ServiceArea							CRITICALITY reject	TYPE MBS-ServiceArea									PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBSSessionSetupRequestTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBSSessionSetupOrModRequestTransfer)		PRESENCE mandatory	},
+	{ ID id-MBSSessionSetupRequestTransfer		CRITICALITY reject	TYPE MBSSessionSetupOrModRequestTransfer-OCTET-STRING		PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- BROADCAST SESSION SETUP RESPONSE
+--
+-- **************************************************************
+
+BroadcastSessionSetupResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionSetupResponseIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MBSSessionSetupOrModResponseTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBSSessionSetupOrModResponseTransfer)
+
+BroadcastSessionSetupResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID									CRITICALITY reject	TYPE MBS-SessionID									PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBSSessionSetupResponseTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBSSessionSetupOrModResponseTransfer)	PRESENCE optional		}|
+	{ ID id-MBSSessionSetupResponseTransfer		CRITICALITY reject	TYPE MBSSessionSetupOrModResponseTransfer-OCTET-STRING	PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- BROADCAST SESSION SETUP FAILURE
+--
+-- **************************************************************
+
+BroadcastSessionSetupFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionSetupFailureIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MBSSessionSetupOrModFailureTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBSSessionSetupOrModFailureTransfer)
+
+BroadcastSessionSetupFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID							CRITICALITY reject	TYPE MBS-SessionID									PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBSSessionSetupFailureTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBSSessionSetupOrModFailureTransfer	)	PRESENCE optional 	}|
+	{ ID id-MBSSessionSetupFailureTransfer		CRITICALITY reject	TYPE MBSSessionSetupOrModFailureTransfer-OCTET-STRING	PRESENCE optional 	}|
+	{ ID id-Cause										CRITICALITY ignore	TYPE Cause												PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- Broadcast Session Modification Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BROADCAST SESSION MODIFICATION REQUEST
+--
+-- **************************************************************
+
+BroadcastSessionModificationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionModificationRequestIEs} },
+	...
+}
+
+BroadcastSessionModificationRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID									CRITICALITY reject	TYPE MBS-SessionID									PRESENCE mandatory	}|
+	{ ID id-MBS-ServiceArea									CRITICALITY reject	TYPE MBS-ServiceArea									PRESENCE optional		}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBSSessionModificationRequestTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBSSessionSetupOrModRequestTransfer)		PRESENCE optional		},
+	{ ID id-MBSSessionModificationRequestTransfer	CRITICALITY reject	TYPE MBSSessionSetupOrModRequestTransfer-OCTET-STRING		PRESENCE optional		},	...
+}
+
+-- **************************************************************
+--
+-- BROADCAST SESSION MODIFICATION RESPONSE
+--
+-- **************************************************************
+
+BroadcastSessionModificationResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionModificationResponseIEs} },
+	...
+}
+
+BroadcastSessionModificationResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID									CRITICALITY reject	TYPE MBS-SessionID									PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBSSessionModificationResponseTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBSSessionSetupOrModResponseTransfer)	PRESENCE optional 	}|
+	{ ID id-MBSSessionModificationResponseTransfer	CRITICALITY reject	TYPE MBSSessionSetupOrModResponseTransfer-OCTET-STRING	PRESENCE optional 	}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- BROADCAST SESSION MODIFICATION  FAILURE
+--
+-- **************************************************************
+
+BroadcastSessionModificationFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionModificationFailureIEs} },
+	...
+}
+
+BroadcastSessionModificationFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID									CRITICALITY reject	TYPE MBS-SessionID									PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBSSessionModificationFailureTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBSSessionSetupOrModFailureTransfer)	PRESENCE optional	}|
+	{ ID id-MBSSessionModificationFailureTransfer	CRITICALITY reject	TYPE MBSSessionSetupOrModFailureTransfer-OCTET-STRING	PRESENCE optional	}|
+	{ ID id-Cause												CRITICALITY ignore	TYPE Cause												PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- Broadcast Session Release Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BROADCAST SESSION RELEASE REQUEST
+--
+-- **************************************************************
+
+BroadcastSessionReleaseRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionReleaseRequestIEs} },
+	...
+}
+
+BroadcastSessionReleaseRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID							CRITICALITY reject	TYPE MBS-SessionID								PRESENCE mandatory	}|
+	{ ID id-Cause										CRITICALITY ignore	TYPE Cause											PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- Broadcast Session Release Required Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BROADCAST SESSION RELEASE REQUIRED
+--
+-- **************************************************************
+
+BroadcastSessionReleaseRequired ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionReleaseRequiredIEs} },
+	...
+}
+
+BroadcastSessionReleaseRequiredIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID							CRITICALITY reject	TYPE MBS-SessionID								PRESENCE mandatory	}|
+	{ ID id-Cause										CRITICALITY ignore	TYPE Cause											PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- BROADCAST SESSION RELEASE RESPONSE
+--
+-- **************************************************************
+
+BroadcastSessionReleaseResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {BroadcastSessionReleaseResponseIEs} },
+	...
+}
+
+BroadcastSessionReleaseResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID								PRESENCE mandatory	}|
+	{ ID id-MBSSessionReleaseResponseTransfer		CRITICALITY ignore	TYPE MBSSessionReleaseResponseTransfer		PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional		},
+	...
+}
+
+
+-- **************************************************************
+--
+-- Distribution Setup Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- DISTRIBUTION SETUP REQUEST
+--
+-- **************************************************************
+
+DistributionSetupRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {DistributionSetupRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MBS-DistributionSetupRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBS-DistributionSetupRequestTransfer)
+
+DistributionSetupRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID							CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBS-DistributionSetupRequestTransfer			CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBS-DistributionSetupRequestTransfer)			PRESENCE mandatory	},
+	{ ID id-MBS-DistributionSetupRequestTransfer			CRITICALITY reject	TYPE MBS-DistributionSetupRequestTransfer-OCTET-STRING			PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- DISTRIBUTION SETUP RESPONSE
+--
+-- **************************************************************
+
+DistributionSetupResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {DistributionSetupResponseIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MBS-DistributionSetupResponseTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBS-DistributionSetupResponseTransfer)
+
+DistributionSetupResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID							CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBS-DistributionSetupResponseTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBS-DistributionSetupResponseTransfer)			PRESENCE mandatory	}|
+	{ ID id-MBS-DistributionSetupResponseTransfer		CRITICALITY reject	TYPE MBS-DistributionSetupResponseTransfer-OCTET-STRING			PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- DISTRIBUTION SETUP FAILURE
+--
+-- **************************************************************
+
+DistributionSetupFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {DistributionSetupFailureIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MBS-DistributionSetupUnsuccessfulTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBS-DistributionSetupUnsuccessfulTransfer)
+
+DistributionSetupFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID							CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBS-DistributionSetupUnsuccessfulTransfer	CRITICALITY ignore	TYPE OCTET STRING (CONTAINING MBS-DistributionSetupUnsuccessfulTransfer)	PRESENCE mandatory	}|
+	{ ID id-MBS-DistributionSetupUnsuccessfulTransfer	CRITICALITY ignore	TYPE MBS-DistributionSetupUnsuccessfulTransfer-OCTET-STRING	PRESENCE mandatory	}|
+	{ ID id-Cause										CRITICALITY ignore	TYPE Cause													PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- Distribution Release Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- DISTRIBUTION RELEASE REQUEST
+--
+-- **************************************************************
+
+DistributionReleaseRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {DistributionReleaseRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MBS-DistributionReleaseRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBS-DistributionReleaseRequestTransfer)
+
+DistributionReleaseRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID							CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBS-DistributionReleaseRequestTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING MBS-DistributionReleaseRequestTransfer)		PRESENCE mandatory	}|
+	{ ID id-MBS-DistributionReleaseRequestTransfer		CRITICALITY reject	TYPE MBS-DistributionReleaseRequestTransfer-OCTET-STRING		PRESENCE mandatory	}|
+	{ ID id-Cause										CRITICALITY ignore	TYPE Cause													PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- DISTRIBUTION RELEASE RESPONSE
+--
+-- **************************************************************
+
+DistributionReleaseResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {DistributionReleaseResponseIEs} },
+	...
+}
+
+DistributionReleaseResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID							CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- Multicast Session Activation Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MULTICAST SESSION ACTIVATION REQUEST
+--
+-- **************************************************************
+
+MulticastSessionActivationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionActivationRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MulticastSessionActivationRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MulticastSessionActivationRequestTransfer)
+
+MulticastSessionActivationRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-MulticastSessionActivationRequestTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING MulticastSessionActivationRequestTransfer)	PRESENCE mandatory	},
+	{ ID id-MulticastSessionActivationRequestTransfer	CRITICALITY reject	TYPE MulticastSessionActivationRequestTransfer-OCTET-STRING	PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MULTICAST SESSION ACTIVATION RESPONSE
+--
+-- **************************************************************
+
+MulticastSessionActivationResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionActivationResponseIEs} },
+	...
+}
+
+MulticastSessionActivationResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- MULTICAST SESSION ACTIVATION FAILURE
+--
+-- **************************************************************
+
+MulticastSessionActivationFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionActivationFailureIEs} },
+	...
+}
+
+MulticastSessionActivationFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID									CRITICALITY reject	TYPE MBS-SessionID										PRESENCE mandatory	}|
+	{ ID id-Cause											CRITICALITY ignore	TYPE Cause													PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- Multicast Session Deactivation Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MULTICAST SESSION DEACTIVATION REQUEST
+--
+-- **************************************************************
+
+MulticastSessionDeactivationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionDeactivationRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MulticastSessionDeactivationRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MulticastSessionDeactivationRequestTransfer)
+
+MulticastSessionDeactivationRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+-- WS modification: define a dedicated type
+--	{ ID id-MulticastSessionDeactivationRequestTransfer	CRITICALITY reject	TYPE OCTET STRING (CONTAINING MulticastSessionDeactivationRequestTransfer)	PRESENCE mandatory	},
+	{ ID id-MulticastSessionDeactivationRequestTransfer	CRITICALITY reject	TYPE MulticastSessionDeactivationRequestTransfer-OCTET-STRING	PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MULTICAST SESSION DEACTIVATION RESPONSE
+--
+-- **************************************************************
+
+MulticastSessionDeactivationResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionDeactivationResponseIEs} },
+	...
+}
+
+MulticastSessionDeactivationResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID									CRITICALITY reject	TYPE MBS-SessionID										PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- Multicast Session Update Elementary Procedure
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MULTICAST SESSION UPDATE REQUEST
+--
+-- **************************************************************
+
+MulticastSessionUpdateRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionUpdateRequestIEs} },
+	...
+}
+
+-- WS modification: define a dedicated type
+MulticastSessionUpdateRequestTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MulticastSessionUpdateRequestTransfer)
+
+MulticastSessionUpdateRequestIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID							CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+-- WS modification: define a dedicated type
+--	{ ID id-MulticastSessionUpdateRequestTransfer		CRITICALITY reject	TYPE OCTET STRING (CONTAINING MulticastSessionUpdateRequestTransfer)			PRESENCE mandatory	},
+	{ ID id-MulticastSessionUpdateRequestTransfer		CRITICALITY reject	TYPE MulticastSessionUpdateRequestTransfer-OCTET-STRING			PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MULTICAST SESSION UPDATE RESPONSE
+--
+-- **************************************************************
+
+MulticastSessionUpdateResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionUpdateResponseIEs} },
+	...
+}
+
+MulticastSessionUpdateResponseIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID											PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID							CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- MULTICAST SESSION UPDATE FAILURE
+--
+-- **************************************************************
+
+MulticastSessionUpdateFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastSessionUpdateFailureIEs} },
+	...
+}
+
+MulticastSessionUpdateFailureIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID									CRITICALITY reject	TYPE MBS-SessionID										PRESENCE mandatory	}|
+	{ ID id-MBS-AreaSessionID								CRITICALITY reject	TYPE MBS-AreaSessionID									PRESENCE optional		}|
+	{ ID id-Cause											CRITICALITY ignore	TYPE Cause													PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- MULTICAST GROUP PAGING ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MULTICAST GROUP PAGING
+--
+-- **************************************************************
+
+MulticastGroupPaging ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {MulticastGroupPagingIEs} },
+	...
+}
+
+MulticastGroupPagingIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-SessionID							CRITICALITY ignore	TYPE MBS-SessionID						PRESENCE mandatory	}|
+	{ ID id-MBS-ServiceArea						CRITICALITY ignore	TYPE MBS-ServiceArea					PRESENCE optional		}|
+	{ ID id-MulticastGroupPagingAreaList			CRITICALITY ignore	TYPE MulticastGroupPagingAreaList	PRESENCE mandatory	},
+	...
+}
+
 
 END

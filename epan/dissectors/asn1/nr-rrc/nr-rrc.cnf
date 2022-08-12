@@ -107,6 +107,7 @@ SidelinkParametersNR-r16_PDU
 SidelinkUEInformationNR-r16_PDU
 SL-ConfigDedicatedEUTRA-Info-r16_PDU
 SL-PHY-MAC-RLC-Config-r16_PDU
+SuccessHO-Report-r17_PDU
 TDD-UL-DL-ConfigCommon_PDU
 UE-CapabilityRAT-ContainerList_PDU
 UE-CapabilityRequestFilterCommon_PDU
@@ -182,6 +183,7 @@ SIB11-r16
 SIB12-r16
 SIB13-r16
 SIB14-r16
+SuccessHO-Report-r17
 TDD-UL-DL-ConfigCommon
 UE-CapabilityRAT-ContainerList
 UE-CapabilityRequestFilterCommon

@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.9.0 (2022-04)
+-- 3GPP TS 38.413 V17.1.1 (2022-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-NGAP-Constants { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-ngran-Access (22) modules (3) ngap (1) version1 (1) ngap-Constants (4) } 
+NGAP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-Access (22) modules (3) ngap (1) version1 (1) ngap-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -99,6 +99,16 @@ id-UplinkRANEarlyStatusTransfer				ProcedureCode ::= 62
 id-DownlinkRANEarlyStatusTransfer			ProcedureCode ::= 63
 id-AMFCPRelocationIndication				ProcedureCode ::= 64
 id-ConnectionEstablishmentIndication		ProcedureCode ::= 65
+id-BroadcastSessionModification				ProcedureCode ::= 66
+id-BroadcastSessionRelease					ProcedureCode ::= 67
+id-BroadcastSessionSetup					ProcedureCode ::= 68
+id-DistributionSetup 						ProcedureCode ::= 69
+id-DistributionRelease 						ProcedureCode ::= 70
+id-MulticastSessionActivation 				ProcedureCode ::= 71
+id-MulticastSessionDeactivation 			ProcedureCode ::= 72
+id-MulticastSessionUpdate 					ProcedureCode ::= 73
+id-MulticastGroupPaging						ProcedureCode ::= 74
+id-BroadcastSessionReleaseRequired			ProcedureCode ::= 75
 
 -- **************************************************************
 --
@@ -127,8 +137,10 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofCellinAoI					INTEGER ::= 256
 	maxnoofCellinEAI					INTEGER ::= 65535
 	maxnoofCellinTAI					INTEGER ::= 65535
+	maxnoofCellsforMBS					INTEGER ::= 8192
 	maxnoofCellsingNB					INTEGER ::= 16384
 	maxnoofCellsinngeNB					INTEGER ::= 256
+	maxnoofCellsinNGRANNode				INTEGER ::= 16384
 	maxnoofCellsinUEHistoryInfo			INTEGER ::= 16
 	maxnoofCellsUEMovingTrajectory		INTEGER ::= 16
 	maxnoofDRBs							INTEGER ::= 32
@@ -141,39 +153,61 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofExtSliceItems					INTEGER ::= 65535
 	maxnoofForbTACs						INTEGER ::= 4096
 	maxnoofFreqforMDT					INTEGER ::= 8
+	maxnoofMBSAreaSessionIDs			INTEGER ::= 256
+	maxnoofMBSFSAs						INTEGER ::= 64
+	maxnoofMBSQoSFlows					INTEGER ::= 64
+	maxnoofMBSSessions					INTEGER ::= 32
+	maxnoofMBSSessionsofUE				INTEGER ::= 256
+	maxnoofMBSServiceAreaInformation		INTEGER ::= 256
 	maxnoofMDTPLMNs						INTEGER ::= 16
+	maxnoofMRBs							INTEGER ::= 32
 	maxnoofMultiConnectivity			INTEGER ::= 4
 	maxnoofMultiConnectivityMinusOne	INTEGER ::= 3
 	maxnoofNeighPCIforMDT				INTEGER ::= 32
+	maxnoofNGAPIESupportInfo			INTEGER ::= 32
 	maxnoofNGConnectionsToReset			INTEGER ::= 65536
 	maxnoofNRCellBands					INTEGER ::= 32
+	maxnoofNSAGs						INTEGER ::= 256
+	maxnoofPagingAreas					INTEGER ::= 64
 	maxnoofPC5QoSFlows 					INTEGER ::= 2048
 	maxnoofPDUSessions					INTEGER ::= 256
 	maxnoofPLMNs						INTEGER ::= 12
+	maxnoofPSCellsPerPrimaryCellinUEHistoryInfo	INTEGER ::= 8
 	maxnoofQosFlows						INTEGER ::= 64
 	maxnoofQosParaSets					INTEGER ::= 8
 	maxnoofRANNodeinAoI					INTEGER ::= 64
 	maxnoofRecommendedCells				INTEGER ::= 16
 	maxnoofRecommendedRANNodes			INTEGER ::= 16
 	maxnoofAoI							INTEGER ::= 64
+	maxnoofReportedCells				INTEGER ::= 256
 	maxnoofSensorName					INTEGER ::= 3
 	maxnoofServedGUAMIs					INTEGER ::= 256
 	maxnoofSliceItems					INTEGER ::= 1024
+	maxnoofSuccessfulHOReports			INTEGER ::= 64
 	maxnoofTACs							INTEGER ::= 256
+	maxnoofTACsinNTN						INTEGER ::= 12
 	maxnoofTAforMDT						INTEGER ::= 8
 	maxnoofTAIforInactive				INTEGER ::= 16
+	maxnoofTAIforMBS					INTEGER ::= 1024
 	maxnoofTAIforPaging					INTEGER ::= 16
 	maxnoofTAIforRestart				INTEGER ::= 2048
 	maxnoofTAIforWarning				INTEGER ::= 65535
 	maxnoofTAIinAoI						INTEGER ::= 16
 	maxnoofTimePeriods					INTEGER ::= 2
 	maxnoofTNLAssociations				INTEGER ::= 32
+	maxnoofUEsforPaging					INTEGER ::=	4096
 	maxnoofWLANName						INTEGER ::= 4
 	maxnoofXnExtTLAs					INTEGER ::= 16
 	maxnoofXnGTP-TLAs					INTEGER ::= 16
 	maxnoofXnTLAs						INTEGER ::= 2
 	maxnoofCandidateCells				INTEGER ::= 32
+	maxnoofTargetS-NSSAIs				INTEGER ::= 8
 	maxNRARFCN							INTEGER ::= 3279165
+	maxnoofCellIDforQMC					INTEGER ::= 32
+	maxnoofPLMNforQMC					INTEGER ::= 16
+	maxnoofUEAppLayerMeas				INTEGER ::= 16
+	maxnoofSNSSAIforQMC					INTEGER ::= 16
+	maxnoofTAforQMC						INTEGER ::= 8
 
 -- **************************************************************
 --
@@ -405,7 +439,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-AlternativeQoSParaSetList							ProtocolIE-ID ::= 220
 	id-CurrentQoSParaSetIndex								ProtocolIE-ID ::= 221
 	id-CEmodeBrestricted									ProtocolIE-ID ::= 222
- 	id-PagingeDRXInformation								ProtocolIE-ID ::= 223
+ 	id-EUTRA-PagingeDRXInformation							ProtocolIE-ID ::= 223
 	id-CEmodeBSupport-Indicator								ProtocolIE-ID ::= 224
 	id-LTEM-Indication										ProtocolIE-ID ::= 225
 	id-EndIndication										ProtocolIE-ID ::= 226
@@ -469,5 +503,82 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-SourceTNLAddrInfo										ProtocolIE-ID ::= 284
 	id-ExtendedReportIntervalMDT							ProtocolIE-ID ::= 285
 	id-SourceNodeID											ProtocolIE-ID ::= 286
+	id-NRNTNTAIInformation									ProtocolIE-ID ::= 287
+	id-UEContextReferenceAtSource							ProtocolIE-ID ::= 288
+	id-LastVisitedPSCellList								ProtocolIE-ID ::= 289
+	id-IntersystemSONInformationRequest						ProtocolIE-ID ::= 290
+	id-IntersystemSONInformationReply						ProtocolIE-ID ::= 291
+	id-EnergySavingIndication								ProtocolIE-ID ::= 292
+	id-IntersystemResourceStatusUpdate						ProtocolIE-ID ::= 293
+	id-SuccessfulHandoverReportList							ProtocolIE-ID ::= 294
+	id-MBS-AreaSessionID 									ProtocolIE-ID ::= 295
+	id-MBS-QoSFlowsToBeSetupList							ProtocolIE-ID ::= 296
+	id-MBS-QoSFlowsToBeSetupModList							ProtocolIE-ID ::= 297
+	id-MBS-ServiceArea 										ProtocolIE-ID ::= 298
+	id-MBS-SessionID 										ProtocolIE-ID ::= 299
+	id-MBS-DistributionReleaseRequestTransfer				ProtocolIE-ID ::= 300
+	id-MBS-DistributionSetupRequestTransfer 				ProtocolIE-ID ::= 301
+	id-MBS-DistributionSetupResponseTransfer				ProtocolIE-ID ::= 302
+	id-MBS-DistributionSetupUnsuccessfulTransfer			ProtocolIE-ID ::= 303
+	id-MulticastSessionActivationRequestTransfer			ProtocolIE-ID ::= 304
+	id-MulticastSessionDeactivationRequestTransfer			ProtocolIE-ID ::= 305
+	id-MulticastSessionUpdateRequestTransfer				ProtocolIE-ID ::= 306
+	id-MulticastGroupPagingAreaList							ProtocolIE-ID ::= 307
+	--WS extension
+	id-Unknown-308											ProtocolIE-ID ::= 308
+	id-MBS-SupportIndicator									ProtocolIE-ID ::= 309
+	id-MBSSessionFailedtoSetupList							ProtocolIE-ID ::= 310
+	id-MBSSessionFailedtoSetuporModifyList					ProtocolIE-ID ::= 311
+	id-MBSSessionSetupResponseList							ProtocolIE-ID ::= 312
+	id-MBSSessionSetuporModifyResponseList					ProtocolIE-ID ::= 313
+	id-MBSSessionSetupFailureTransfer						ProtocolIE-ID ::= 314
+	id-MBSSessionSetupRequestTransfer						ProtocolIE-ID ::= 315
+	id-MBSSessionSetupResponseTransfer						ProtocolIE-ID ::= 316
+	id-MBSSessionToReleaseList								ProtocolIE-ID ::= 317
+	id-MBSSessionSetupRequestList 							ProtocolIE-ID ::= 318
+	id-MBSSessionSetuporModifyRequestList 					ProtocolIE-ID ::= 319
+	--WS extension
+	id-Unknown-320											ProtocolIE-ID ::= 320
+	id-Unknown-321											ProtocolIE-ID ::= 321
+	id-Unknown-322											ProtocolIE-ID ::= 322
+	id-MBS-ActiveSessionInformation-SourcetoTargetList		ProtocolIE-ID ::= 323
+	id-MBS-ActiveSessionInformation-TargettoSourceList		ProtocolIE-ID ::= 324
+	id-OnboardingSupport									ProtocolIE-ID ::= 325
+	id-TimeSyncAssistanceInfo								ProtocolIE-ID ::= 326
+	id-SurvivalTime											ProtocolIE-ID ::= 327
+	id-QMCConfigInfo											ProtocolIE-ID ::= 328
+	id-QMCDeactivation										ProtocolIE-ID ::= 329
+	--WS extension
+	id-Unknown-330											ProtocolIE-ID ::= 330
+	id-PDUSessionPairID										ProtocolIE-ID ::= 331
+	id-NR-PagingeDRXInformation								ProtocolIE-ID ::= 332
+	id-RedCapIndication										ProtocolIE-ID ::= 333
+	id-TargetNSSAIInformation								ProtocolIE-ID ::= 334
+	id-UESliceMaximumBitRateList							ProtocolIE-ID ::= 335
+	id-M4ReportAmount										ProtocolIE-ID ::= 336
+	id-M5ReportAmount										ProtocolIE-ID ::= 337
+	id-M6ReportAmount										ProtocolIE-ID ::= 338
+	id-M7ReportAmount										ProtocolIE-ID ::= 339
+	id-IncludeBeamMeasurementsIndication					ProtocolIE-ID ::= 340
+	id-M6DelayThreshold   									ProtocolIE-ID ::= 341
+	id-PagingCause											ProtocolIE-ID ::= 342
+	id-PagingCauseIndicationForVoiceService					ProtocolIE-ID ::= 343
+	id-PEIPSassistanceInformation							ProtocolIE-ID ::= 344
+	id-FiveG-ProSeAuthorized									ProtocolIE-ID ::= 345
+	id-FiveG-ProSeUEPC5AggregateMaximumBitRate				ProtocolIE-ID ::= 346
+	id-FiveG-ProSePC5QoSParameters							ProtocolIE-ID ::= 347
+	id-MBSSessionModificationFailureTransfer				ProtocolIE-ID ::= 348
+	id-MBSSessionModificationRequestTransfer				ProtocolIE-ID ::= 349
+	id-MBSSessionModificationResponseTransfer				ProtocolIE-ID ::= 350
+	id-MBS-QoSFlowToReleaseList								ProtocolIE-ID ::= 351
+	id-MBS-SessionTNLInfo5GC								ProtocolIE-ID ::= 352
+	id-TAINSAGSupportList									ProtocolIE-ID ::= 353
+	id-SourceNodeTNLAddrInfo									ProtocolIE-ID ::= 354
+	id-NGAPIESupportInformationRequestList					ProtocolIE-ID ::= 355
+	id-NGAPIESupportInformationResponseList					ProtocolIE-ID ::= 356
+	id-MBS-SessionFSAIDList									ProtocolIE-ID ::= 357
+	id-MBSSessionReleaseResponseTransfer						ProtocolIE-ID ::= 358
+	id-ManagementBasedMDTPLMNModificationList				ProtocolIE-ID ::= 359
+
 
 END

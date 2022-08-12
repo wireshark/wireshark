@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.9.0 (2022-04)
+-- 3GPP TS 38.413 V17.1.1 (2022-06)
 -- 9.4.8	Container Definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 NGAP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-Access (22) modules (3) ngap (1) version1 (1) ngap-Containers (5) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -120,11 +120,11 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {NGAP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container {NGAP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-SingleContainer {NGAP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-SingleContainer {NGAP-PROTOCOL-IES : IEsSetParam} ::=
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {NGAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
@@ -139,7 +139,7 @@ ProtocolIE-Field {NGAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {NGAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+ProtocolIE-ContainerPair {NGAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
@@ -171,7 +171,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, NGAP-P
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {NGAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+ProtocolExtensionContainer {NGAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -187,7 +187,7 @@ ProtocolExtensionField {NGAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENC
 --
 -- **************************************************************
 
-PrivateIE-Container {NGAP-PRIVATE-IES : IEsSetParam } ::= 
+PrivateIE-Container {NGAP-PRIVATE-IES : IEsSetParam } ::=
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 
