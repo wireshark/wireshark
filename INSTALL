@@ -81,11 +81,11 @@ README.windows for those instructions.
         Use this switch to avoid building it.
 
     -DBUILD_capinfos=OFF
-        By default the capture-file statistics reporting pogram
+        By default the capture-file statistics reporting program
         is built. Use this switch to avoid building it.
 
     -DBUILD_captype=OFF
-        By default the capture-type reporting pogram is built. Use this
+        By default the capture-type reporting program is built. Use this
         switch to avoid building it.
 
     -DBUILD_mergecap=OFF
