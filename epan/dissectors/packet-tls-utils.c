@@ -3646,11 +3646,17 @@ prf(SslDecryptSession *ssl, StringInfo *secret, const gchar *usage,
     case TLSV1DOT1_VERSION:
     case DTLSV1DOT0_VERSION:
     case DTLSV1DOT0_OPENSSL_VERSION:
-    case GMTLSV1_VERSION:
         return tls_prf(secret, usage, rnd1, rnd2, out, out_len);
 
     default: /* TLSv1.2 */
         switch (ssl->cipher_suite->dig) {
+        case DIG_SM3:
+#if GCRYPT_VERSION_NUMBER >= 0x010900
+            return tls12_prf(GCRY_MD_SM3, secret, usage, rnd1, rnd2,
+                             out, out_len);
+#else
+            return FALSE;
+#endif
         case DIG_SHA384:
             return tls12_prf(GCRY_MD_SHA384, secret, usage, rnd1, rnd2,
                              out, out_len);
@@ -5127,6 +5133,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         case DTLSV1DOT0_VERSION:
         case DTLSV1DOT2_VERSION:
         case DTLSV1DOT0_OPENSSL_VERSION:
+        case GMTLSV1_VERSION:
             blocksize = ssl_get_cipher_blocksize(decoder->cipher_suite);
             if (inl < blocksize) {
                 ssl_debug_printf("ssl_decrypt_record failed: input %d has no space for IV %d\n",
