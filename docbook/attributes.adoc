@@ -7,6 +7,8 @@
 :experimental:
 
 // Don't add a "Last updated" footer to our man pages.
+// We could use the "reproducible" attribute here, but it generates an
+// empty black box.
 :nofooter:
 
 // Create PA4 (210 × 280mm) pages: https://en.wikipedia.org/wiki/Paper_size#PA4_or_L4
