@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V16.9.0 (2022-04)
+ * References: 3GPP TS 36.413 V17.1.0 (2022-06)
  */
 
 #include "config.h"
@@ -157,7 +157,7 @@ static int ett_s1ap_threshRS_Index_r15 = -1;
 static int ett_s1ap_sSBToMeasure = -1;
 static int ett_s1ap_sSRSSIMeasurement = -1;
 static int ett_s1ap_quantityConfigNR_R15 = -1;
-static int ett_s1ap_blackCellsToAddModList = -1;
+static int ett_s1ap_excludedCellsToAddModList = -1;
 static int ett_s1ap_NB_IoT_RLF_Report_Container = -1;
 static int ett_s1ap_MDT_ConfigurationNR = -1;
 static int ett_s1ap_IntersystemSONConfigurationTransfer = -1;
@@ -748,7 +748,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_sSBToMeasure,
     &ett_s1ap_sSRSSIMeasurement,
     &ett_s1ap_quantityConfigNR_R15,
-    &ett_s1ap_blackCellsToAddModList,
+    &ett_s1ap_excludedCellsToAddModList,
     &ett_s1ap_NB_IoT_RLF_Report_Container,
     &ett_s1ap_MDT_ConfigurationNR,
     &ett_s1ap_IntersystemSONConfigurationTransfer,

@@ -997,12 +997,12 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
     dissect_lte_rrc_QuantityConfigNR_r15_PDU(quantity_config_nr_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY InterSystemMeasurementItem/blackCellsToAddModList VAL_PTR = &black_cells_list_tvb
-  tvbuff_t *black_cells_list_tvb = NULL;
+#.FN_BODY InterSystemMeasurementItem/excludedCellsToAddModList VAL_PTR = &excluded_cells_list_tvb
+  tvbuff_t *excluded_cells_list_tvb = NULL;
 %(DEFAULT_BODY)s
-  if (black_cells_list_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_blackCellsToAddModList);
-    dissect_lte_rrc_CellsToAddModListNR_r15_PDU(black_cells_list_tvb, actx->pinfo, subtree, NULL);
+  if (excluded_cells_list_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_excludedCellsToAddModList);
+    dissect_lte_rrc_CellsToAddModListNR_r15_PDU(excluded_cells_list_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY GUMMEI
@@ -1073,6 +1073,12 @@ Time-UE-StayedInCell-EnhancedGranularity DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC
 
 #.TYPE_ATTR
 TimeSinceSecondaryNodeRelease TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+LastVisitedPSCellInformation/timeStay DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY LastVisitedNGRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -1898,6 +1904,20 @@ id-TraceCollectionEntityURI                         ProtocolIE-ID
 id-EmergencyIndicator                               ProtocolIE-ID
 id-UERadioCapabilityForPaging-NR-Format             ProtocolIE-ID
 id-SourceTransportLayerAddress                      ProtocolIE-ID
+id-lastVisitedPSCellList                            ProtocolIE-ID
+id-RACSIndication                                   ProtocolIE-ID
+id-PagingCause                                      ProtocolIE-ID
+id-SecurityIndication                               ProtocolIE-ID
+id-SecurityResult                                   ProtocolIE-ID
+id-E-RABSecurityResultItem                          ProtocolIE-ID
+id-E-RABSecurityResultList                          ProtocolIE-ID
+id-RAT-Restrictions                                 ProtocolIE-ID
+id-UEContextReferenceatSourceeNB                    ProtocolIE-ID
+id-LTE-NTN-TAI-Information                          ProtocolIE-ID
+id-SourceNodeTransportLayerAddress                  ProtocolIE-ID
+id-E-RABToBeUpdatedList                             ProtocolIE-ID
+id-E-RABToBeUpdatedItem                             ProtocolIE-ID
+id-SourceSNID                                       ProtocolIE-ID
 
 #.END
 
@@ -2147,6 +2167,11 @@ Bearers-SubjectToEarlyStatusTransfer-Item       N s1ap.ies id-Bearers-SubjectToE
 WUS-Assistance-Information                      N s1ap.ies id-WUS-Assistance-Information
 NB-IoT-PagingDRX                                N s1ap.ies id-NB-IoT-PagingDRX
 UERadioCapabilityForPaging                      N s1ap.ies id-UERadioCapabilityForPaging-NR-Format
+PagingCause                                     N s1ap.ies id-PagingCause
+E-RABSecurityResultItem                         N s1ap.ies id-E-RABSecurityResultItem
+LTE-NTN-TAI-Information                         N s1ap.ies id-LTE-NTN-TAI-Information
+E-RABToBeUpdatedList                            N s1ap.ies id-E-RABToBeUpdatedList
+E-RABToBeUpdatedItem                            N s1ap.ies id-E-RABToBeUpdatedItem
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -2219,6 +2244,15 @@ DAPSResponseInfoList                    N s1ap.extension id-DAPSResponseInfoList
 URI-Address                             N s1ap.extension id-TraceCollectionEntityURI
 EmergencyIndicator                      N s1ap.extension id-EmergencyIndicator
 TransportLayerAddress                   N s1ap.extension id-SourceTransportLayerAddress
+LastVisitedPSCellList                   N s1ap.extension id-lastVisitedPSCellList
+RACSIndication                          N s1ap.extension id-RACSIndication
+SecurityIndication                      N s1ap.extension id-SecurityIndication
+E-RABSecurityResultList                 N s1ap.extension id-E-RABSecurityResultList
+RAT-Restrictions                        N s1ap.extension id-RAT-Restrictions
+ENB-UE-S1AP-ID                          N s1ap.extension id-UEContextReferenceatSourceeNB
+LTE-NTN-TAI-Information                 N s1ap.extension id-LTE-NTN-TAI-Information
+TransportLayerAddress                   N s1ap.extension id-SourceNodeTransportLayerAddress
+Global-RAN-NODE-ID                      N s1ap.extension id-SourceSNID
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation

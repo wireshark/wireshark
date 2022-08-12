@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.9.0 (2022-04)
+-- 3GPP TS 36.413 V17.1.0 (2022-06)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -116,53 +116,55 @@ maxProtocolIEs							INTEGER ::= 65535
 --
 -- **************************************************************
 
-maxnoofCSGs								INTEGER ::= 256
-maxnoofE-RABs							INTEGER ::= 256
-maxnoofTAIs								INTEGER ::= 256
-maxnoofTACs								INTEGER ::= 256
-maxnoofErrors							INTEGER ::= 256
-maxnoofBPLMNs							INTEGER ::= 6
-maxnoofPLMNsPerMME						INTEGER ::= 32
-maxnoofEPLMNs							INTEGER ::= 15
-maxnoofEPLMNsPlusOne					INTEGER ::= 16
-maxnoofForbLACs							INTEGER ::= 4096
-maxnoofForbTACs							INTEGER ::= 4096
-maxnoofIndividualS1ConnectionsToReset	INTEGER ::= 256
-maxnoofCellsinUEHistoryInfo				INTEGER ::= 16
-maxnoofCellsineNB						INTEGER ::= 256
-maxnoofTAIforWarning					INTEGER ::= 65535
-maxnoofCellID							INTEGER ::= 65535
-maxnoofDCNs								INTEGER ::= 32
-maxnoofEmergencyAreaID					INTEGER ::= 65535
-maxnoofCellinTAI						INTEGER ::= 65535
-maxnoofCellinEAI						INTEGER ::= 65535
-maxnoofeNBX2TLAs						INTEGER ::= 2
-maxnoofeNBX2ExtTLAs						INTEGER ::= 16
-maxnoofeNBX2GTPTLAs						INTEGER ::= 16
-maxnoofRATs								INTEGER ::= 8
-maxnoofGroupIDs							INTEGER ::= 65535
-maxnoofMMECs							INTEGER ::= 256
-maxnoofCellIDforMDT						INTEGER ::= 32
-maxnoofTAforMDT							INTEGER ::= 8
-maxnoofMDTPLMNs							INTEGER ::= 16
-maxnoofCellsforRestart					INTEGER ::= 256
-maxnoofRestartTAIs						INTEGER ::= 2048
-maxnoofRestartEmergencyAreaIDs			INTEGER ::= 256
-maxEARFCN								INTEGER ::= 262143
-maxnoofMBSFNAreaMDT						INTEGER ::= 8
-maxnoofRecommendedCells					INTEGER ::= 16
-maxnoofRecommendedENBs					INTEGER ::= 16
-maxnooftimeperiods						INTEGER ::= 2
-maxnoofCellIDforQMC						INTEGER ::= 32
-maxnoofTAforQMC							INTEGER ::= 8
-maxnoofPLMNforQMC						INTEGER ::= 16
-maxnoofBluetoothName					INTEGER ::= 4
-maxnoofWLANName							INTEGER ::= 4
-maxnoofConnectedengNBs					INTEGER ::= 256
-maxnoofPC5QoSFlows 						INTEGER ::= 2048
-maxnooffrequencies						INTEGER ::= 64
-maxNARFCN								INTEGER ::= 3279165
-maxRS-IndexCellQual						INTEGER ::= 16
+maxnoofCSGs										INTEGER ::= 256
+maxnoofE-RABs									INTEGER ::= 256
+maxnoofTAIs										INTEGER ::= 256
+maxnoofTACs										INTEGER ::= 256
+maxnoofErrors									INTEGER ::= 256
+maxnoofBPLMNs									INTEGER ::= 6
+maxnoofPLMNsPerMME								INTEGER ::= 32
+maxnoofEPLMNs									INTEGER ::= 15
+maxnoofEPLMNsPlusOne							INTEGER ::= 16
+maxnoofForbLACs									INTEGER ::= 4096
+maxnoofForbTACs									INTEGER ::= 4096
+maxnoofIndividualS1ConnectionsToReset			INTEGER ::= 256
+maxnoofCellsinUEHistoryInfo						INTEGER ::= 16
+maxnoofCellsineNB								INTEGER ::= 256
+maxnoofTAIforWarning							INTEGER ::= 65535
+maxnoofCellID									INTEGER ::= 65535
+maxnoofDCNs										INTEGER ::= 32
+maxnoofEmergencyAreaID							INTEGER ::= 65535
+maxnoofCellinTAI								INTEGER ::= 65535
+maxnoofCellinEAI								INTEGER ::= 65535
+maxnoofeNBX2TLAs								INTEGER ::= 2
+maxnoofeNBX2ExtTLAs								INTEGER ::= 16
+maxnoofeNBX2GTPTLAs								INTEGER ::= 16
+maxnoofRATs										INTEGER ::= 8
+maxnoofGroupIDs									INTEGER ::= 65535
+maxnoofMMECs									INTEGER ::= 256
+maxnoofCellIDforMDT								INTEGER ::= 32
+maxnoofTAforMDT									INTEGER ::= 8
+maxnoofMDTPLMNs									INTEGER ::= 16
+maxnoofCellsforRestart							INTEGER ::= 256
+maxnoofRestartTAIs								INTEGER ::= 2048
+maxnoofRestartEmergencyAreaIDs					INTEGER ::= 256
+maxEARFCN										INTEGER ::= 262143
+maxnoofMBSFNAreaMDT								INTEGER ::= 8
+maxnoofRecommendedCells							INTEGER ::= 16
+maxnoofRecommendedENBs							INTEGER ::= 16
+maxnooftimeperiods								INTEGER ::= 2
+maxnoofCellIDforQMC								INTEGER ::= 32
+maxnoofTAforQMC									INTEGER ::= 8
+maxnoofPLMNforQMC								INTEGER ::= 16
+maxnoofBluetoothName							INTEGER ::= 4
+maxnoofWLANName									INTEGER ::= 4
+maxnoofConnectedengNBs							INTEGER ::= 256
+maxnoofPC5QoSFlows 								INTEGER ::= 2048
+maxnooffrequencies								INTEGER ::= 64
+maxNARFCN										INTEGER ::= 3279165
+maxRS-IndexCellQual								INTEGER ::= 16
+maxnoofPSCellsPerPrimaryCellinUEHistoryInfo		INTEGER ::= 8
+maxnoofTACsInNTN								INTEGER ::= 12
 
 
 -- **************************************************************
@@ -514,5 +516,21 @@ id-TraceCollectionEntityURI							ProtocolIE-ID ::= 325
 id-EmergencyIndicator								ProtocolIE-ID ::= 326
 id-UERadioCapabilityForPaging-NR-Format 			ProtocolIE-ID ::= 327
 id-SourceTransportLayerAddress						ProtocolIE-ID ::= 328
+id-lastVisitedPSCellList							ProtocolIE-ID ::= 329
+id-RACSIndication									ProtocolIE-ID ::= 330
+id-PagingCause										ProtocolIE-ID ::= 331
+id-SecurityIndication								ProtocolIE-ID ::= 332
+id-SecurityResult									ProtocolIE-ID ::= 333
+id-E-RABSecurityResultItem							ProtocolIE-ID ::= 334
+id-E-RABSecurityResultList							ProtocolIE-ID ::= 335
+id-RAT-Restrictions									ProtocolIE-ID ::= 336
+id-UEContextReferenceatSourceeNB					ProtocolIE-ID ::= 337
+--WS extension
+id-Unknown-338										ProtocolIE-ID ::= 338
+id-LTE-NTN-TAI-Information  						ProtocolIE-ID ::= 339
+id-SourceNodeTransportLayerAddress					ProtocolIE-ID ::= 340
+id-E-RABToBeUpdatedList								ProtocolIE-ID ::= 341
+id-E-RABToBeUpdatedItem								ProtocolIE-ID ::= 342
+id-SourceSNID										ProtocolIE-ID ::= 343
 
 END
