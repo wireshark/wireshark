@@ -116,6 +116,11 @@ static int hf_s1ap_NRintegrityProtectionAlgorithms_Reserved = -1;
 static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service = -1;
 static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service = -1;
 static int hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved = -1;
+static int hf_s1ap_rAT_RestrictionInformation_LEO = -1;
+static int hf_s1ap_rAT_RestrictionInformation_MEO = -1;
+static int hf_s1ap_rAT_RestrictionInformation_GEO = -1;
+static int hf_s1ap_rAT_RestrictionInformation_OTHERSAT = -1;
+static int hf_s1ap_rAT_RestrictionInformation_Reserved = -1;
 #include "packet-s1ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -161,6 +166,7 @@ static int ett_s1ap_excludedCellsToAddModList = -1;
 static int ett_s1ap_NB_IoT_RLF_Report_Container = -1;
 static int ett_s1ap_MDT_ConfigurationNR = -1;
 static int ett_s1ap_IntersystemSONConfigurationTransfer = -1;
+static int ett_s1ap_rAT_RestrictionInformation = -1;
 #include "packet-s1ap-ett.c"
 
 static expert_field ei_s1ap_number_pages_le15 = EI_INIT;
@@ -705,6 +711,26 @@ void proto_register_s1ap(void) {
       { "Reserved", "s1ap.UE_Application_Layer_Measurement_Capability.Reserved",
         FT_UINT8, BASE_HEX, NULL, 0x3f,
         NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_LEO,
+      { "LEO", "s1ap.rAT_RestrictionInformation.LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_MEO,
+      { "MEO", "s1ap.rAT_RestrictionInformation.MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_GEO,
+      { "GEO", "s1ap.rAT_RestrictionInformation.GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_OTHERSAT,
+      { "OTHERSAT", "s1ap.rAT_RestrictionInformation.OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
+        NULL, HFILL }},
+    { &hf_s1ap_rAT_RestrictionInformation_Reserved,
+      { "Reserved", "s1ap.rAT_RestrictionInformation.Reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0f,
+        NULL, HFILL }},
 #include "packet-s1ap-hfarr.c"
   };
 
@@ -752,6 +778,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_NB_IoT_RLF_Report_Container,
     &ett_s1ap_MDT_ConfigurationNR,
     &ett_s1ap_IntersystemSONConfigurationTransfer,
+    &ett_s1ap_rAT_RestrictionInformation,
 #include "packet-s1ap-ettarr.c"
   };
 

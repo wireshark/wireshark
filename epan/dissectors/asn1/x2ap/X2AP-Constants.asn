@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.9.0 (2022-04)
+-- 3GPP TS 36.423 V17.1.0 (2022-06)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 X2AP-Constants {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -82,6 +82,9 @@ id-endcresourceStatusReporting									ProcedureCode ::= 53
 id-endcresourceStatusReportingInitiation						ProcedureCode ::= 54
 id-f1CTrafficTransfer											ProcedureCode ::= 55
 id-UERadioCapabilityIDMapping									ProcedureCode ::= 56
+id-accessAndMobilityIndication									ProcedureCode ::= 57
+id-MIMOPRBusageInformation										ProcedureCode ::= 58
+id-CPC-cancel													ProcedureCode ::= 59
 
 -- **************************************************************
 --
@@ -145,6 +148,16 @@ maxnoofSSBAreas								INTEGER ::= 64
 maxnoofNRSCSs								INTEGER ::= 5
 maxnoofNRPhysicalResourceBlocks				INTEGER ::= 275
 maxnoofNonAnchorCarrierFreqConfig			INTEGER ::= 15
+maxnoofRACHReports							INTEGER ::= 64
+maxnoofPSCellsPerSN							INTEGER ::= 8
+maxnoofPSCellsPerPrimaryCellinUEHistoryInfo	INTEGER ::= 8
+maxnoofReportedNRCellsPossiblyAggregated	INTEGER ::= 16
+maxnoofPSCellCandidates						INTEGER ::= 8
+maxnoofTargetSgNBs							INTEGER ::= 8
+maxnoofMTCItems								INTEGER ::= 16
+maxnoofCSIRSconfigurations					INTEGER ::= 96
+maxnoofCSIRSneighbourCells					INTEGER ::= 16
+maxnoofCSIRSneighbourCellsInMTC				INTEGER ::= 16
 
 -- **************************************************************
 --
@@ -571,5 +584,29 @@ id-DirectForwardingPathAvailability											ProtocolIE-ID ::= 410
 id-sourceNG-RAN-node-id														ProtocolIE-ID ::= 411
 id-SourceDLForwardingIPAddress												ProtocolIE-ID ::= 412
 id-SourceNodeDLForwardingIPAddress											ProtocolIE-ID ::= 413
+id-NRRACHReportInformation													ProtocolIE-ID ::= 414
+id-SCG-UE-HistoryInformation												ProtocolIE-ID ::= 415
+id-PSCellHistoryInformationRetrieve											ProtocolIE-ID ::= 416
+id-MeasurementResultforNRCellsPossiblyAggregated							ProtocolIE-ID ::= 417
+id-PSCell-UE-HistoryInformation												ProtocolIE-ID ::= 418
+id-PSCellChangeHistory														ProtocolIE-ID ::= 419
+id-CHOinformation-AddReq													ProtocolIE-ID ::= 420
+id-CHOinformation-ModReq													ProtocolIE-ID ::= 421
+id-SCGActivationStatus														ProtocolIE-ID ::= 422
+id-SCGActivationRequest														ProtocolIE-ID ::= 423
+id-CPAinformation-REQ														ProtocolIE-ID ::= 424
+id-CPAinformation-REQ-ACK													ProtocolIE-ID ::= 425
+id-CPAinformation-MOD														ProtocolIE-ID ::= 426
+id-CPAinformation-MOD-ACK													ProtocolIE-ID ::= 427
+id-CPACinformation-REQD														ProtocolIE-ID ::= 428
+id-CPCinformation-REQD														ProtocolIE-ID ::= 429
+id-CPCinformation-CONF														ProtocolIE-ID ::= 430
+id-CPCinformation-NOTIFY													ProtocolIE-ID ::= 431
+id-CPCupdate-MOD															ProtocolIE-ID ::= 432
+id-Additional-Measurement-Timing-Configuration-List							ProtocolIE-ID ::= 433
+id-ServedCellSpecificInfoReq-NR											    ProtocolIE-ID ::= 434
+id-SecurityIndication														ProtocolIE-ID ::= 435
+id-SecurityResult															ProtocolIE-ID ::= 436
+id-RAT-Restrictions															ProtocolIE-ID ::= 437
 
 END

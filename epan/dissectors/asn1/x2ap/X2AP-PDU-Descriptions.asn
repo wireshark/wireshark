@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.9.0 (2022-04)
+-- 3GPP TS 36.423 V17.1.0 (2022-06)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 X2AP-PDU-Descriptions {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-PDU-Descriptions (0) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -45,7 +45,7 @@ FROM X2AP-CommonDataTypes
 	ResourceStatusFailure,
 	ResourceStatusRequest,
 	ResourceStatusResponse,
-	ResourceStatusUpdate, 
+	ResourceStatusUpdate,
 	RLFIndication,
 	SNStatusTransfer,
 	UEContextRelease,
@@ -130,7 +130,9 @@ FROM X2AP-CommonDataTypes
 	CellTrafficTrace,
 	F1CTrafficTransfer,
 	UERadioCapabilityIDMappingRequest,
-	UERadioCapabilityIDMappingResponse
+	UERadioCapabilityIDMappingResponse,
+	AccessAndMobilityIndication,
+	CPC-cancel
 
 
 
@@ -140,16 +142,16 @@ FROM X2AP-PDU-Contents
 	id-cellActivation,
 	id-eNBConfigurationUpdate,
 	id-errorIndication,
-	id-handoverCancel, 
+	id-handoverCancel,
 	id-handoverReport,
 	id-handoverPreparation,
-	
+
 	id-loadIndication,
 	id-privateMessage,
 	id-reset,
-	
+
 	id-resourceStatusReporting,
-	id-resourceStatusReportingInitiation, 
+	id-resourceStatusReportingInitiation,
 	id-rLFIndication,
 	id-snStatusTransfer,
 	id-uEContextRelease,
@@ -195,7 +197,9 @@ FROM X2AP-PDU-Contents
 	id-endcresourceStatusReportingInitiation,
 	id-cellTrafficTrace,
 	id-f1CTrafficTransfer,
-	id-UERadioCapabilityIDMapping
+	id-UERadioCapabilityIDMapping,
+	id-accessAndMobilityIndication,
+	id-CPC-cancel
 
 
 
@@ -327,7 +331,9 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	conditionalHandoverCancel				|
 	endcresourceStatusReporting				|
 	cellTrafficTrace						|
-	f1CTrafficTransfer						,
+	f1CTrafficTransfer						|
+	accessAndMobilityIndication				|
+	cPC-cancel								,
 	...
 
 }
@@ -552,7 +558,7 @@ sgNBinitiatedSgNBModification		X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		SgNBModificationRequired
 	SUCCESSFUL OUTCOME		SgNBModificationConfirm
 	UNSUCCESSFUL OUTCOME	SgNBModificationRefuse
-	PROCEDURE CODE			id-sgNBinitiatedSgNBModification	
+	PROCEDURE CODE			id-sgNBinitiatedSgNBModification
 	CRITICALITY				reject
 }
 
@@ -731,5 +737,19 @@ uERadioCapabilityIDMapping X2AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-UERadioCapabilityIDMapping
 	CRITICALITY				reject
 }
+
+accessAndMobilityIndication X2AP-ELEMENTARY-PROCEDURE ::={
+	INITIATING MESSAGE 		AccessAndMobilityIndication
+	PROCEDURE CODE			id-accessAndMobilityIndication
+	CRITICALITY 				ignore
+}
+
+
+cPC-cancel X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CPC-cancel
+	PROCEDURE CODE			id-CPC-cancel
+	CRITICALITY				ignore
+}
+
 
 END

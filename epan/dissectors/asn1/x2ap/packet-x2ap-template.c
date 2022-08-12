@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V16.9.0 (2022-04)
+ * 3GPP TS 36.423 V17.1.0 (2022-06)
  */
 
 #include "config.h"
@@ -125,6 +125,11 @@ static int hf_x2ap_ReportCharacteristics_ENDC_Reserved = -1;
 static int hf_x2ap_Registration_Request_ENDC_PDU = -1;
 static int hf_x2ap_ReportingPeriodicity_ENDC_PDU = -1;
 static int hf_x2ap_ReportCharacteristics_ENDC_PDU = -1;
+static int hf_x2ap_rAT_RestrictionInformation_LEO = -1;
+static int hf_x2ap_rAT_RestrictionInformation_MEO = -1;
+static int hf_x2ap_rAT_RestrictionInformation_GEO = -1;
+static int hf_x2ap_rAT_RestrictionInformation_OTHERSAT = -1;
+static int hf_x2ap_rAT_RestrictionInformation_Reserved = -1;
 #include "packet-x2ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -176,6 +181,9 @@ static int ett_x2ap_MDT_ConfigurationNR = -1;
 static int ett_x2ap_NRCellPRACHConfig = -1;
 static int ett_x2ap_IntendedTDD_DL_ULConfiguration_NR = -1;
 static int ett_x2ap_UERadioCapability = -1;
+static int ett_x2ap_LastVisitedPSCell_Item = -1;
+static int ett_x2ap_NRRACHReportContainer = -1;
+static int ett_x2ap_rAT_RestrictionInformation = -1;
 #include "packet-x2ap-ett.c"
 
 /* Forward declarations */
@@ -640,6 +648,26 @@ void proto_register_x2ap(void) {
       { "ReportCharacteristics-ENDC", "x2ap.ReportCharacteristics_ENDC",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_LEO,
+      { "LEO", "x2ap.rAT_RestrictionInformation.LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_MEO,
+      { "MEO", "x2ap.rAT_RestrictionInformation.MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_GEO,
+      { "GEO", "x2ap.rAT_RestrictionInformation.GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_OTHERSAT,
+      { "OTHERSAT", "x2ap.rAT_RestrictionInformation.OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
+        NULL, HFILL }},
+    { &hf_x2ap_rAT_RestrictionInformation_Reserved,
+      { "Reserved", "x2ap.rAT_RestrictionInformation.Reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0f,
+        NULL, HFILL }},
 #include "packet-x2ap-hfarr.c"
   };
 
@@ -693,6 +721,9 @@ void proto_register_x2ap(void) {
     &ett_x2ap_NRCellPRACHConfig,
     &ett_x2ap_IntendedTDD_DL_ULConfiguration_NR,
     &ett_x2ap_UERadioCapability,
+    &ett_x2ap_LastVisitedPSCell_Item,
+    &ett_x2ap_NRRACHReportContainer,
+    &ett_x2ap_rAT_RestrictionInformation,
 #include "packet-x2ap-ettarr.c"
   };
 

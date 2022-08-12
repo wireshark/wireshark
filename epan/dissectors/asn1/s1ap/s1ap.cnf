@@ -30,6 +30,7 @@ ImmediateMDT_PDU
 LastVisitedEUTRANCellInformation_PDU
 LastVisitedGERANCellInformation_PDU
 MDTMode_PDU
+PSCellInformation_PDU
 SourceeNB-ToTargeteNB-TransparentContainer_PDU
 SONConfigurationTransfer_PDU
 SONtransferApplicationIdentity_PDU
@@ -50,6 +51,7 @@ ImmediateMDT
 LastVisitedEUTRANCellInformation
 LastVisitedGERANCellInformation
 MDTMode
+PSCellInformation
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
 SONConfigurationTransfer
@@ -705,6 +707,22 @@ Threshold-RSRP DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Threshold_RSRP_fmt)
 
 #.TYPE_ATTR
 Threshold-RSRQ DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Threshold_RSRQ_fmt)
+
+#.FN_BODY RAT-RestrictionsItem/rAT-RestrictionInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    static int * const fields[] = {
+      &hf_s1ap_rAT_RestrictionInformation_LEO,
+      &hf_s1ap_rAT_RestrictionInformation_MEO,
+      &hf_s1ap_rAT_RestrictionInformation_GEO,
+      &hf_s1ap_rAT_RestrictionInformation_OTHERSAT,
+      &hf_s1ap_rAT_RestrictionInformation_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_rAT_RestrictionInformation);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
 
 # 9.2.3.24 RIM Information
 # Contains the BSSGP RIM PDU
