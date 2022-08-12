@@ -133,7 +133,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		const char* capture_command, const gboolean use_sudo, gboolean noprom,
 		const char* iface, const char* cfilter, const guint32 count)
 {
-	gchar* cmdline;
+	gchar* cmdline = NULL;
 	ssh_channel channel;
 	char** ifaces_array = NULL;
 	int ifaces_array_num = 0;
