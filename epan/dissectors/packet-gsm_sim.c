@@ -1458,7 +1458,6 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 
 	/* obtain status word */
 	sw = tvb_get_ntohs(tvb, offset);
-	/* proto_tree_add_item(sim_tree, hf_apdu_sw, tvb, offset, 2, ENC_BIG_ENDIAN); */
 	proto_tree_add_uint_format(sim_tree, hf_apdu_sw, tvb, offset, 2, sw,
 							"Status Word: %04x %s", sw, get_sw_string(sw));
 	offset += 2;

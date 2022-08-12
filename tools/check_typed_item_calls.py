@@ -95,7 +95,9 @@ class APICheck:
                 if to_check.find(self.fun_name) != -1:
                     # Ok, add the next file lines before trying RE
                     for i in range(1, 4):
-                        if line_number+i < total_lines:
+                        if to_check.find(';') != -1:
+                            break
+                        elif line_number+i < total_lines:
                             to_check += (lines[line_number-1+i] + '\n')
                     m = self.p.search(to_check)
                     if m:
@@ -188,11 +190,13 @@ class ProtoTreeAddItemCheck(APICheck):
             for line_number,line in enumerate(lines):
                 # Want to check this, and next few lines
                 to_check = lines[line_number-1] + '\n'
-                # Nothing to check if function name isn't in itk)
+                # Nothing to check if function name isn't in it
                 if to_check.find(self.fun_name) != -1:
                     # Ok, add the next file lines before trying RE
                     for i in range(1, 5):
-                        if line_number+i < total_lines:
+                        if to_check.find(';') != -1:
+                            break
+                        elif line_number+i < total_lines:
                             to_check += (lines[line_number-1+i] + '\n')
                     m = self.p.search(to_check)
                     if m:
@@ -460,6 +464,45 @@ class Item:
                 warnings_found += 1
 
 
+class CombinedCallsCheck:
+    def __init__(self, file, apiChecks):
+        self.file = file
+        self.apiChecks = apiChecks
+        self.get_all_calls()
+
+    def get_all_calls(self):
+        self.all_calls = []
+        # Combine calls into one list.
+        for check in self.apiChecks:
+            self.all_calls += check.calls
+
+        # Sort by line number.
+        self.all_calls.sort(key=lambda x:x.line_number)
+
+    def check_consecutive_item_calls(self):
+        lines = open(self.file, 'r').read().splitlines()
+
+        prev = None
+        for call in self.all_calls:
+            if prev and call.hf_name == prev.hf_name:
+                # More compelling if close together..
+                if call.line_number>prev.line_number and call.line_number-prev.line_number <= 4:
+                    scope_different = False
+                    for l in range(prev.line_number, call.line_number-1):
+                        if lines[l].find('{') != -1 or lines[l].find('}') != -1 or lines[l].find('else') != -1 or lines[l].find('break;') != -1 or lines[l].find('if ') != -1:
+                            scope_different = True
+                            break
+                    # Also more compelling if check for and scope changes { } in lines in-between?
+                    if not scope_different:
+                        print('Warning:', f + ':' + str(call.line_number),
+                              call.hf_name + ' called consecutively at line', call.line_number, '- previous at', prev.line_number)
+                        global warnings_found
+                        warnings_found += 1
+            prev = call
+
+
+
+
 # These are APIs in proto.c that check a set of types at runtime and can print '.. is not of type ..' to the console
 # if the type is not suitable.
 apiChecks = []
@@ -506,7 +549,8 @@ apiChecks.append(APICheck('proto_tree_add_item_ret_varint', { 'FT_INT8', 'FT_INT
 apiChecks.append(APICheck('proto_tree_add_boolean_bits_format_value', { 'FT_BOOLEAN'}))
 apiChecks.append(APICheck('proto_tree_add_boolean_bits_format_value64', { 'FT_BOOLEAN'}))
 apiChecks.append(APICheck('proto_tree_add_ascii_7bits_item', { 'FT_STRING'}))
-apiChecks.append(APICheck('proto_tree_add_checksum', { 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
+# TODO: positions are different, and takes 2 hf_fields..
+#apiChecks.append(APICheck('proto_tree_add_checksum', { 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
 apiChecks.append(APICheck('proto_tree_add_int64_bits_format_value', { 'FT_INT40', 'FT_INT48', 'FT_INT56', 'FT_INT64'}))
 
 # TODO: add proto_tree_add_bytes_item, proto_tree_add_time_item ?
@@ -524,7 +568,8 @@ apiChecks.append(APICheck('proto_tree_add_bitmask_with_flags_ret_uint64', bitmas
 apiChecks.append(APICheck('proto_tree_add_bitmask_value', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_value_with_flags', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_len', bitmask_types))
-apiChecks.append(APICheck('proto_tree_add_bitmask_text', bitmask_types))
+# TODO: doesn't even have an hf_item !
+#apiChecks.append(APICheck('proto_tree_add_bitmask_text', bitmask_types))
 
 # Check some ptvcuror calls too.
 apiChecks.append(APICheck('ptvcursor_add_ret_uint', { 'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
@@ -759,6 +804,12 @@ for f in files:
         exit(1)
     checkFile(f, check_mask=args.mask, check_label=args.label,
               check_consecutive=args.consecutive, check_missing_items=args.missing_items)
+
+    # Do checks against all calls.
+    if args.consecutive:
+        combined_calls = CombinedCallsCheck(f, apiChecks)
+        combined_calls.check_consecutive_item_calls()
+
 
 # Show summary.
 print(warnings_found, 'warnings')

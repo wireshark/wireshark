@@ -2006,6 +2006,7 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         mih_tree = proto_item_add_subtree(ti, ett_mih);
         if(mih_tree)
         {
+                /* TODO: should have a different hf item for this version root */
                 item = proto_tree_add_item(mih_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 ver_flags_tree = proto_item_add_subtree(item, ett_ver_flags);

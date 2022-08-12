@@ -9135,10 +9135,6 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
         /* Also show api version from request */
         ti = proto_tree_add_int(kafka_tree, hf_kafka_response_api_version, tvb,
-                0, 0, matcher->api_version);
-        proto_item_set_generated(ti);
-        proto_item_set_hidden(ti);
-        ti = proto_tree_add_int(kafka_tree, hf_kafka_response_api_version, tvb,
                                 0, 0, matcher->api_version);
         proto_item_set_generated(ti);
         kafka_check_supported_api_version(pinfo, ti, matcher);

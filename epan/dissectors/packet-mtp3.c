@@ -463,6 +463,7 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
   proto_item_set_hidden(hidden_item);
+
   snprintf(pc_string, sizeof(pc_string), "0x%x", pc);
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
