@@ -1437,7 +1437,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
   guint32 rat_type = 0xffffffff;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
-  if (s1ap_data->s1ap_conv && s1ap_data->supported_ta && (rat_type == nbiot)) {
+  if (s1ap_data->s1ap_conv && s1ap_data->supported_ta && rat_type <= nbiot_othersat) {
     guint64 *key;
     guint i;
 

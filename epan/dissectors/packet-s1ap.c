@@ -9676,7 +9676,7 @@ dissect_s1ap_RAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, &rat_type, TRUE, 8, NULL);
 
-  if (s1ap_data->s1ap_conv && s1ap_data->supported_ta && (rat_type == nbiot)) {
+  if (s1ap_data->s1ap_conv && s1ap_data->supported_ta && rat_type <= nbiot_othersat) {
     guint64 *key;
     guint i;
 
