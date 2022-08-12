@@ -245,6 +245,7 @@ source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 
 set(DISSECTOR_PUBLIC_HEADERS
 	cond_ace_token_enum.h
+	file-pcapng.h
 	file-rbm.h
 	packet-6lowpan.h
 	packet-a21.h

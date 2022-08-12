@@ -22,6 +22,7 @@
 #include <epan/wmem_scopes.h>
 #include <wiretap/secrets-types.h>
 
+#include <epan/dissectors/file-pcapng.h>
 #include <epan/dissectors/packet-pcap_pktdata.h>
 
 static int proto_pcapng = -1;
@@ -209,27 +210,6 @@ static int * const hfx_pcapng_option_data_packet_darwin_flags[] = {
     &hf_pcapng_option_data_packet_darwin_flags_ka,
     &hf_pcapng_option_data_packet_darwin_flags_nf,
     NULL
-};
-
-struct info {
-    guint32        section_number;
-    guint32        interface_number;
-    guint32        darwin_process_event_number;
-    guint32        frame_number;
-    guint          encoding;
-    wmem_array_t  *interfaces;
-    wmem_array_t  *darwin_process_events;
-};
-
-struct interface_description {
-    guint32  link_type;
-    guint32  snap_len;
-    guint64  timestamp_resolution;
-    guint64  timestamp_offset;
-};
-
-struct darwin_process_event_description {
-    guint32  process_id;
 };
 
 static gboolean pref_dissect_next_layer = FALSE;
@@ -1881,8 +1861,7 @@ dissect_darwin_process_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     dissect_options(tree, pinfo, BLOCK_DARWIN_PROCESS, tvb, offset, argp->info->encoding, NULL);
 }
 
-static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-        struct info *info)
+gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct info *info)
 {
     proto_tree      *block_tree;
     proto_item      *block_item;
