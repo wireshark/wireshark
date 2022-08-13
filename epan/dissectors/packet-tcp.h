@@ -27,7 +27,7 @@ extern "C" {
 #define TH_PUSH 0x0008
 #define TH_ACK  0x0010
 #define TH_URG  0x0020
-#define TH_ECN  0x0040
+#define TH_ECE  0x0040
 #define TH_CWR  0x0080
 #define TH_NS   0x0100
 #define TH_RES  0x0E00 /* 3 reserved bits */
