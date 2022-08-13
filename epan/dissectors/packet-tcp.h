@@ -29,7 +29,7 @@ extern "C" {
 #define TH_URG  0x0020
 #define TH_ECE  0x0040
 #define TH_CWR  0x0080
-#define TH_NS   0x0100
+#define TH_AE   0x0100
 #define TH_RES  0x0E00 /* 3 reserved bits */
 #define TH_MASK 0x0FFF
 
@@ -89,6 +89,7 @@ typedef struct tcpheader {
 	guint16 th_sport;
 	guint16 th_dport;
 	guint8  th_hlen;
+	gboolean th_use_ace;
 	guint16 th_flags;
 	guint32 th_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
 	address ip_src;
@@ -487,6 +488,11 @@ struct tcp_analysis {
 	 * connection or left before it was terminated explicitly
 	 */
 	guint8          conversation_completeness;
+
+	/* Track AccECN support */
+	gboolean had_acc_ecn_setup_syn;
+	gboolean had_acc_ecn_setup_syn_ack;
+	gboolean had_acc_ecn_option;
 };
 
 /* Structure that keeps per packet data. First used to be able

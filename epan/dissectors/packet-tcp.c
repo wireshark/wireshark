@@ -147,6 +147,7 @@ static int proto_tcp_option_scpscor = -1;
 static int proto_tcp_option_qs = -1;
 static int proto_tcp_option_user_to = -1;
 static int proto_tcp_option_tfo = -1;
+static int proto_tcp_option_acc_ecn = -1;
 static int proto_tcp_option_rvbd_probe = -1;
 static int proto_tcp_option_rvbd_trpy = -1;
 static int proto_tcp_option_exp = -1;
@@ -166,9 +167,10 @@ static int hf_tcp_ack_abs = -1;
 static int hf_tcp_hdr_len = -1;
 static int hf_tcp_flags = -1;
 static int hf_tcp_flags_res = -1;
-static int hf_tcp_flags_ns = -1;
+static int hf_tcp_flags_ae = -1;
 static int hf_tcp_flags_cwr = -1;
 static int hf_tcp_flags_ece = -1;
+static int hf_tcp_flags_ace = -1;
 static int hf_tcp_flags_urg = -1;
 static int hf_tcp_flags_ack = -1;
 static int hf_tcp_flags_push = -1;
@@ -234,6 +236,9 @@ static int hf_tcp_option_qs_rate = -1;
 static int hf_tcp_option_qs_ttl_diff = -1;
 static int hf_tcp_option_tarr_rate = -1;
 static int hf_tcp_option_tarr_reserved = -1;
+static int hf_tcp_option_acc_ecn_ee0b = -1;
+static int hf_tcp_option_acc_ecn_eceb = -1;
+static int hf_tcp_option_acc_ecn_ee1b = -1;
 static int hf_tcp_option_exp_data = -1;
 static int hf_tcp_option_exp_exid = -1;
 static int hf_tcp_option_unknown_payload = -1;
@@ -381,6 +386,7 @@ static gint ett_tcp_scpsoption_flags = -1;
 static gint ett_tcp_option_scps_extended = -1;
 static gint ett_tcp_option_user_to = -1;
 static gint ett_tcp_option_exp = -1;
+static gint ett_tcp_option_acc_ecn = -1;
 static gint ett_tcp_option_sack_perm = -1;
 static gint ett_tcp_analysis = -1;
 static gint ett_tcp_analysis_faults = -1;
@@ -520,6 +526,8 @@ static gboolean read_seq_as_syn_cookie = FALSE;
 #define TCPOPT_AO               29      /* RFC5925 The TCP Authentication Option */
 #define TCPOPT_MPTCP            30      /* RFC6824 Multipath TCP */
 #define TCPOPT_TFO              34      /* RFC7413 TCP Fast Open Cookie */
+#define TCPOPT_ACC_ECN_0        0xac    /* draft-ietf-tcpm-accurate-ecn */
+#define TCPOPT_ACC_ECN_1        0xae    /* draft-ietf-tcpm-accurate-ecn */
 #define TCPOPT_EXP_FD           0xfd    /* Experimental, reserved */
 #define TCPOPT_EXP_FE           0xfe    /* Experimental, reserved */
 /* Non IANA registered option numbers */
@@ -635,6 +643,8 @@ static const value_string tcp_option_kind_vs[] = {
     { TCPOPT_TFO, "TCP Fast Open Cookie" },
     { TCPOPT_RVBD_PROBE, "Riverbed Probe" },
     { TCPOPT_RVBD_TRPY, "Riverbed Transparency" },
+    { TCPOPT_ACC_ECN_0, "Accurate ECN Order 0" },
+    { TCPOPT_ACC_ECN_1, "Accurate ECN Order 1" },
     { TCPOPT_EXP_FD, "RFC3692-style Experiment 1" },
     { TCPOPT_EXP_FE, "RFC3692-style Experiment 2" },
     { 0, NULL }
@@ -752,27 +762,50 @@ static int * const tcp_option_mptcp_tcprst_flags[] = {
 
 static const unit_name_string units_64bit_version = { " (64bits version)", NULL };
 
+static guint8
+tcp_get_ace(const struct tcpheader *tcph)
+{
+    guint8 ace;
+
+    ace = 0;
+    if (tcph->th_flags & TH_AE) {
+        ace += 4;
+    }
+    if (tcph->th_flags & TH_CWR) {
+        ace += 2;
+    }
+    if (tcph->th_flags & TH_ECE) {
+        ace += 1;
+    }
+    return ace;
+}
 
 static char *
 tcp_flags_to_str(wmem_allocator_t *scope, const struct tcpheader *tcph)
 {
-    static const char flags[][4] = { "FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECE", "CWR", "NS" };
+    static const char flags[][4] = { "FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECE", "CWR", "AE" };
+    static const char digit[][2] = { "0", "1", "2", "3", "4", "5", "6", "7" };
     const int maxlength = 64; /* upper bounds, max 53B: 8 * 3 + 2 + strlen("Reserved") + 9 * 2 + 1 */
 
     char *pbuf;
     char *buf;
-
+    guint8 ace;
     int i;
 
     buf = pbuf = (char *) wmem_alloc(scope, maxlength);
     *pbuf = '\0';
 
-    for (i = 0; i < 9; i++) {
+    for (i = 0; i < (tcph->th_use_ace ? 6 : 9); i++) {
         if (tcph->th_flags & (1 << i)) {
             if (buf[0])
                 pbuf = g_stpcpy(pbuf, ", ");
             pbuf = g_stpcpy(pbuf, flags[i]);
         }
+    }
+    if (tcph->th_use_ace) {
+        ace = tcp_get_ace(tcph);
+        pbuf = g_stpcpy(pbuf, ", ACE=");
+        pbuf = g_stpcpy(pbuf, digit[ace]);
     }
 
     if (tcph->th_flags & TH_RES) {
@@ -792,14 +825,23 @@ tcp_flags_to_str_first_letter(wmem_allocator_t *scope, const struct tcpheader *t
     wmem_strbuf_t *buf = wmem_strbuf_new(scope, "");
     unsigned i;
     const unsigned flags_count = 12;
-    const char first_letters[] = "RRRNCEUAPRSF";
+    const char first_letters[] = "RRRACEUAPRSF";
+    const char digits[] = "01234567";
 
     /* upper three bytes are marked as reserved ('R'). */
     for (i = 0; i < flags_count; i++) {
-        if (((tcph->th_flags >> (flags_count - 1 - i)) & 1)) {
-            wmem_strbuf_append_c(buf, first_letters[i]);
+        if (tcph->th_use_ace && 3 <= i && i <= 5) {
+            if (i == 4) {
+                wmem_strbuf_append_c(buf, digits[tcp_get_ace(tcph)]);
+            } else {
+                wmem_strbuf_append_c(buf, '-');
+            }
         } else {
-            wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+            if (((tcph->th_flags >> (flags_count - 1 - i)) & 1)) {
+                wmem_strbuf_append_c(buf, first_letters[i]);
+            } else {
+                wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+            }
         }
     }
 
@@ -4913,13 +4955,114 @@ dissect_tcpopt_tarr_data(tvbuff_t *tvb, int data_offset, guint data_len,
         tcp_info_append_uint(pinfo, "TARR", rate);
         proto_item_append_text(item, " %u", rate);
         break;
-  }
+    }
+}
+
+static void
+dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, guint data_len,
+    gboolean is_order_0, packet_info *pinfo, proto_tree *tree, proto_item *item, void *data _U_)
+{
+    struct tcp_analysis *tcpd;
+    gint32 ee0b, eceb, ee1b;
+
+    switch (data_len) {
+    case 0:
+        col_append_str(pinfo->cinfo, COL_INFO, " AccECN");
+        break;
+    case 3:
+        if (is_order_0) {
+            ee0b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
+            proto_item_append_text(item, " (Order 0): EE0B %u", ee0b);
+            tcp_info_append_uint(pinfo, "EE0B", ee0b);
+        } else {
+            ee1b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
+            proto_item_append_text(item, " (Order 1): EE1B %u", ee1b);
+            tcp_info_append_uint(pinfo, "EE1B", ee1b);
+        }
+        break;
+    case 6:
+        if (is_order_0) {
+            ee0b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
+            tcp_info_append_uint(pinfo, "EE0B", ee0b);
+        } else {
+            ee1b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
+            tcp_info_append_uint(pinfo, "EE1B", ee1b);
+        }
+        eceb = tvb_get_gint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tcp_option_acc_ecn_eceb, tvb, data_offset + 3, 3, ENC_BIG_ENDIAN);
+        tcp_info_append_uint(pinfo, "ECEB", eceb);
+        if (is_order_0) {
+            proto_item_append_text(item, " (Order 0): EE0B %u, ECEB %u", ee0b, eceb);
+        } else {
+            proto_item_append_text(item, " (Order 1): EE1B %u, ECEB %u", ee1b, eceb);
+        }
+        break;
+    case 9:
+        if (is_order_0) {
+            ee0b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
+            tcp_info_append_uint(pinfo, "EE0B", ee0b);
+        } else {
+            ee1b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
+            tcp_info_append_uint(pinfo, "EE1B", ee1b);
+        }
+        eceb = tvb_get_gint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tcp_option_acc_ecn_eceb, tvb, data_offset + 3, 3, ENC_BIG_ENDIAN);
+        tcp_info_append_uint(pinfo, "ECEB", eceb);
+        if (is_order_0) {
+            ee1b = tvb_get_gint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset + 6, 3, ENC_BIG_ENDIAN);
+            tcp_info_append_uint(pinfo, "EE1B", ee1b);
+            proto_item_append_text(item, " (Order 0): EE0B %u, ECEB %u, EE1B %u", ee0b, eceb, ee1b);
+        } else {
+            ee0b = tvb_get_gint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset + 6, 3, ENC_BIG_ENDIAN);
+            tcp_info_append_uint(pinfo, "EE0B", ee0b);
+            proto_item_append_text(item, " (Order 1): EE1B %u, ECEB %u, EE0B %u", ee1b, eceb, ee0b);
+        }
+        break;
+    }
+    tcpd = get_tcp_conversation_data(NULL, pinfo);
+    if (tcpd != NULL) {
+        tcpd->had_acc_ecn_option = TRUE;
+    }
+}
+
+static int
+dissect_tcpopt_acc_ecn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_item *length_item, *item;
+    proto_tree *acc_ecn_tree;
+    int offset;
+    guint8 kind, length;
+
+    offset = 0;
+    item = proto_tree_add_item(tree, proto_tcp_option_acc_ecn, tvb, offset, -1, ENC_NA);
+    acc_ecn_tree = proto_item_add_subtree(item, ett_tcp_option_acc_ecn);
+    kind = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(acc_ecn_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    length = tvb_get_guint8(tvb, offset);
+    length_item = proto_tree_add_item(acc_ecn_tree, hf_tcp_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    if (length != 2 && length != 5 && length != 8 && length != 11) {
+        expert_add_info_format(pinfo, length_item, &ei_tcp_opt_len_invalid,
+                               "option length should be 2, 5, 8, or 11 instead of %u", length);
+    } else {
+        dissect_tcpopt_acc_ecn_data(tvb, offset, length - 2, kind == TCPOPT_ACC_ECN_0, pinfo, acc_ecn_tree, item, data);
+    }
+    return tvb_captured_length(tvb);
 }
 
 static int
 dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *length_item, *item;
+    proto_item *item, *length_item;
     proto_tree *exp_tree;
     guint16 exid;
     guint8 kind;
@@ -4945,6 +5088,19 @@ dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 } else {
                     dissect_tcpopt_tarr_data(tvb, offset + 4, optlen - 4,
                                              pinfo, exp_tree, item, data);
+                }
+                break;
+            case 0xACC0:  /* draft-ietf-tcpm-accurate-ecn-20 */
+            case 0xACC1:
+                if (optlen != 4 && optlen != 7 && optlen != 10 && optlen != 13) {
+                    expert_add_info_format(pinfo, length_item, &ei_tcp_opt_len_invalid,
+                                           "option length should be 4, 7, 10, or 13 instead of %d",
+                                           optlen);
+                } else {
+                    proto_item_append_text(item, ": Accurate ECN");
+                    dissect_tcpopt_acc_ecn_data(tvb, offset + 4, optlen - 4,
+                                                exid == 0xACC0, pinfo, exp_tree,
+                                                item, data);
                 }
                 break;
             case TCPEXID_FO:
@@ -7190,6 +7346,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     gboolean    icmp_ip = FALSE;
     guint8     conversation_completeness = 0;
     gboolean   conversation_is_new = FALSE;
+    guint8     ace;
 
     tcph = wmem_new0(pinfo->pool, struct tcpheader);
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
@@ -7284,37 +7441,38 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * retransmission later.
      * XXX - Is this affected by MPTCP which can use multiple SYNs?
      */
-    if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
-       (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET)) {
-        if(tcph->th_seq!=tcpd->fwd->base_seq) {
-            if (!(pinfo->fd->visited)) {
+    if (tcpd != NULL  && (tcph->th_flags & (TH_SYN|TH_ACK)) == TH_SYN) {
+        if (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) {
+            if(tcph->th_seq!=tcpd->fwd->base_seq) {
+                if (!(pinfo->fd->visited)) {
 
-                conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
-                tcpd=get_tcp_conversation_data(conv,pinfo);
+                    conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
+                    tcpd=get_tcp_conversation_data(conv,pinfo);
 
-                if(!tcpd->ta)
-                    tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
-                tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+                    if(!tcpd->ta)
+                        tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
+                    tcpd->ta->flags|=TCP_A_REUSED_PORTS;
 
-                /* As above, a new conversation starting with a SYN implies conversation completeness value 1 */
-                tcpd->conversation_completeness = 1;
+                    /* As above, a new conversation starting with a SYN implies conversation completeness value 1 */
+                    tcpd->conversation_completeness = 1;
+                }
+            } else {
+                if (!(pinfo->fd->visited)) {
+                    /*
+                     * Sometimes we need to restore the nextseq value.
+                     * As stated in RFC 793 3.4 a RST packet might be
+                     * sent with SEQ being equal to the ACK received,
+                     * thus breaking our flow monitoring. (issue 17616)
+                     */
+                    tcpd->fwd->tcp_analyze_seq_info->nextseq = tcpd->fwd->tcp_analyze_seq_info->maxseqtobeacked;
+
+                    if(!tcpd->ta)
+                        tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
+                    tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+                }
             }
         }
-        else {
-            if (!(pinfo->fd->visited)) {
-                /*
-                 * Sometimes we need to restore the nextseq value.
-                 * As stated in RFC 793 3.4 a RST packet might be
-                 * sent with SEQ being equal to the ACK received,
-                 * thus breaking our flow monitoring. (issue 17616)
-                 */
-                tcpd->fwd->tcp_analyze_seq_info->nextseq = tcpd->fwd->tcp_analyze_seq_info->maxseqtobeacked;
-
-                if(!tcpd->ta)
-                    tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
-                tcpd->ta->flags|=TCP_A_REUSED_PORTS;
-            }
-        }
+        tcpd->had_acc_ecn_setup_syn = (tcph->th_flags & (TH_AE|TH_CWR|TH_ECE)) == (TH_AE|TH_CWR|TH_ECE);
     }
 
     /* If this is a SYN/ACK packet, then check if its seq-nr is different
@@ -7325,16 +7483,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * mission later.
      * XXX - Is this affected by MPTCP which can use multiple SYNs?
      */
-    if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) &&
-        (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
-        (tcph->th_seq!=tcpd->fwd->base_seq) ) {
+    if (tcpd != NULL && (tcph->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
+        if ((tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
+            (tcph->th_seq != tcpd->fwd->base_seq)) {
 
-        /* the retrieved conversation might have a different base_seq (issue 16944) */
-        tcpd->fwd->base_seq = tcph->th_seq;
+            /* the retrieved conversation might have a different base_seq (issue 16944) */
+            tcpd->fwd->base_seq = tcph->th_seq;
 
-        if(!tcpd->ta)
-            tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
-        tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+            if(!tcpd->ta)
+                tcp_analyze_get_acked_struct(pinfo->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
+            tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+        }
+        tcpd->had_acc_ecn_setup_syn_ack = ((tcph->th_flags & (TH_AE|TH_CWR)) == TH_CWR) ||
+                                          ((tcph->th_flags & (TH_AE|TH_ECE)) == TH_AE);
     }
 
     if (tcpd) {
@@ -7433,6 +7594,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     } else
         tcph->th_have_seglen = FALSE;
 
+    /*
+     * Decode the ECN related flags as ACE if it is not a SYN segment,
+     * and an AccECN-setup SYN and SYN ACK have been observed, or an
+     * AccECN option was observed (this covers the case where Wireshark
+     * did not observe the initial handshake).
+     */
+    tcph->th_use_ace = (tcph->th_flags & TH_SYN) == 0 &&
+                       tcpd != NULL &&
+                       ((tcpd->had_acc_ecn_setup_syn && tcpd->had_acc_ecn_setup_syn_ack) ||
+                        tcpd->had_acc_ecn_option);
     flags_str = tcp_flags_to_str(pinfo->pool, tcph);
     flags_str_first_letter = tcp_flags_to_str_first_letter(pinfo->pool, tcph);
 
@@ -7592,9 +7763,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                         tcph->th_flags, "Flags: 0x%03x (%s)", tcph->th_flags, flags_str);
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
-        proto_tree_add_boolean(field_tree, hf_tcp_flags_ns, tvb, offset + 12, 1, tcph->th_flags);
-        proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, tvb, offset + 13, 1, tcph->th_flags);
-        proto_tree_add_boolean(field_tree, hf_tcp_flags_ece, tvb, offset + 13, 1, tcph->th_flags);
+        if (tcph->th_use_ace) {
+            ace = tcp_get_ace(tcph);
+            proto_tree_add_uint_format(field_tree, hf_tcp_flags_ace, tvb, 12, 2, ace,
+                                       "...%c %c%c.. .... = ACE: %u",
+                                       ace & 0x04 ? '1' : '0',
+                                       ace & 0x02 ? '1' : '0',
+                                       ace & 0x01 ? '1' : '0',
+                                       ace);
+        } else {
+            proto_tree_add_boolean(field_tree, hf_tcp_flags_ae, tvb, offset + 12, 1, tcph->th_flags);
+            proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, tvb, offset + 13, 1, tcph->th_flags);
+            proto_tree_add_boolean(field_tree, hf_tcp_flags_ece, tvb, offset + 13, 1, tcph->th_flags);
+        }
         proto_tree_add_boolean(field_tree, hf_tcp_flags_urg, tvb, offset + 13, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_ack, tvb, offset + 13, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_push, tvb, offset + 13, 1, tcph->th_flags);
@@ -8158,9 +8339,9 @@ proto_register_tcp(void)
         { "Reserved",            "tcp.flags.res", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_RES,
             "Three reserved bits (must be zero)", HFILL }},
 
-        { &hf_tcp_flags_ns,
-        { "Nonce", "tcp.flags.ns", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_NS,
-            "ECN concealment protection (RFC 3540)", HFILL }},
+        { &hf_tcp_flags_ae,
+        { "Accurate ECN", "tcp.flags.ae", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_AE,
+            NULL, HFILL }},
 
         { &hf_tcp_flags_cwr,
         { "Congestion Window Reduced",            "tcp.flags.cwr", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_CWR,
@@ -8168,6 +8349,10 @@ proto_register_tcp(void)
 
         { &hf_tcp_flags_ece,
         { "ECN-Echo",           "tcp.flags.ece", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_ECE,
+            NULL, HFILL }},
+
+        { &hf_tcp_flags_ace,
+        { "ACE", "tcp.flags.ace", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_flags_urg,
@@ -8591,6 +8776,21 @@ proto_register_tcp(void)
           { "TARR Reserved", "tcp.options.tar.reserved", FT_UINT16, BASE_DEC,
             NULL, TCPOPT_TARR_RESERVED_MASK, NULL, HFILL}},
 
+        { &hf_tcp_option_acc_ecn_ee0b,
+          { "Accurate ECN Echo ECT(0) Byte Counter", "tcp.options.acc_ecn.ee0b",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_tcp_option_acc_ecn_eceb,
+          { "Accurate ECN Echo CE Byte Counter", "tcp.options.acc_ecn.eceb",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_tcp_option_acc_ecn_ee1b,
+          { "Accurate ECN Echo ECT(1) Byte Counter", "tcp.options.acc_ecn.ee1b",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_tcp_option_scps_vector,
           { "TCP SCPS Capabilities Vector", "tcp.options.scps.vector",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -8929,6 +9129,7 @@ proto_register_tcp(void)
         &ett_tcp_option_scps_extended,
         &ett_tcp_option_user_to,
         &ett_tcp_option_exp,
+        &ett_tcp_option_acc_ecn,
         &ett_tcp_option_sack_perm,
         &ett_tcp_option_mss,
         &ett_tcp_opt_rvbd_probe,
@@ -9147,6 +9348,7 @@ proto_register_tcp(void)
     proto_tcp_option_qs = proto_register_protocol_in_name_only("TCP Option - Quick-Start", "Quick-Start", "tcp.options.qs", proto_tcp, FT_BYTES);
     proto_tcp_option_user_to = proto_register_protocol_in_name_only("TCP Option - User Timeout", "User Timeout", "tcp.options.user_to", proto_tcp, FT_BYTES);
     proto_tcp_option_tfo = proto_register_protocol_in_name_only("TCP Option - TCP Fast Open", "TCP Fast Open", "tcp.options.tfo", proto_tcp, FT_BYTES);
+    proto_tcp_option_acc_ecn = proto_register_protocol_in_name_only("TCP Option - Accurate ECN", "Accurate ECN", "tcp.options.acc_ecn", proto_tcp, FT_BYTES);
     proto_tcp_option_rvbd_probe = proto_register_protocol_in_name_only("TCP Option - Riverbed Probe", "Riverbed Probe", "tcp.options.rvbd.probe", proto_tcp, FT_BYTES);
     proto_tcp_option_rvbd_trpy = proto_register_protocol_in_name_only("TCP Option - Riverbed Transparency", "Riverbed Transparency", "tcp.options.rvbd.trpy", proto_tcp, FT_BYTES);
     proto_tcp_option_exp = proto_register_protocol_in_name_only("TCP Option - Experimental", "Experimental", "tcp.options.experimental", proto_tcp, FT_BYTES);
@@ -9328,6 +9530,8 @@ proto_reg_handoff_tcp(void)
     dissector_add_uint("tcp.option", TCPOPT_TFO, create_dissector_handle( dissect_tcpopt_tfo, proto_tcp_option_tfo ));
     dissector_add_uint("tcp.option", TCPOPT_RVBD_PROBE, create_dissector_handle( dissect_tcpopt_rvbd_probe, proto_tcp_option_rvbd_probe ));
     dissector_add_uint("tcp.option", TCPOPT_RVBD_TRPY, create_dissector_handle( dissect_tcpopt_rvbd_trpy, proto_tcp_option_rvbd_trpy ));
+    dissector_add_uint("tcp.option", TCPOPT_ACC_ECN_0, create_dissector_handle( dissect_tcpopt_acc_ecn, proto_tcp_option_acc_ecn ));
+    dissector_add_uint("tcp.option", TCPOPT_ACC_ECN_1, create_dissector_handle( dissect_tcpopt_acc_ecn, proto_tcp_option_acc_ecn ));
     dissector_add_uint("tcp.option", TCPOPT_EXP_FD, create_dissector_handle( dissect_tcpopt_exp, proto_tcp_option_exp ));
     dissector_add_uint("tcp.option", TCPOPT_EXP_FE, create_dissector_handle( dissect_tcpopt_exp, proto_tcp_option_exp ));
     dissector_add_uint("tcp.option", TCPOPT_MPTCP, create_dissector_handle( dissect_tcpopt_mptcp, proto_mptcp ));
