@@ -327,6 +327,8 @@ typedef struct capture_options_tag {
     /* internally used (don't touch from outside) */
     gboolean           output_to_pipe;        /**< save_file is a pipe (named or stdout) */
     gboolean           capture_child;         /**< hidden option: Wireshark child mode */
+    gboolean           stop_after_extcaps;    /**< request dumpcap stop after last extcap */
+    gboolean           wait_for_extcap_cbs;   /**< extcaps terminated, waiting for callbacks */
     gchar             *compress_type;         /**< compress type */
     gchar             *closed_msg;            /**< Dumpcap capture closed message */
     guint              extcap_terminate_id;   /**< extcap process termination source ID */

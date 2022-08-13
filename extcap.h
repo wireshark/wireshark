@@ -226,11 +226,12 @@ extcap_init_interfaces(capture_session *cap_session);
 #endif /* HAVE_LIBPCAP */
 
 /**
- * Clean up all if related stuff.
+ * Notify all extcaps that capture session should be stopped.
+ * Forcefully stop session if extcaps do not finish before timeout.
  * @param cap_session Capture session.
  */
 void
-extcap_if_cleanup(capture_session *cap_session);
+extcap_request_stop(capture_session *cap_session);
 
 /**
  * Fetch an extcap preference for a given argument.

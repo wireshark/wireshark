@@ -55,7 +55,12 @@
 /* Number of seconds to wait for extcap process to exit after cleanup.
  * If extcap does not exit before the timeout, it is forcefully terminated.
  */
+#ifdef _WIN32
+/* Extcap interface does not specify SIGTERM replacement on Windows yet */
+#define EXTCAP_CLEANUP_TIMEOUT 0
+#else
 #define EXTCAP_CLEANUP_TIMEOUT 30
+#endif
 
 /* internal container, for all the extcap executables that have been found.
  * Will be reset if extcap_clear_interfaces() is being explicitly called
@@ -1184,7 +1189,7 @@ static gboolean extcap_terminate_cb(gpointer user_data)
         if (interface_opts->extcap_pid != WS_INVALID_PID)
         {
 #ifdef _WIN32
-            /* extcap_if_cleanup() already called TerminateProcess() */
+            TerminateProcess(interface_opts->extcap_pid, 0);
 #else
             kill(interface_opts->extcap_pid, SIGKILL);
 #endif
@@ -1205,20 +1210,39 @@ static gboolean extcap_terminate_cb(gpointer user_data)
         }
     }
 
+    capture_opts->wait_for_extcap_cbs = TRUE;
     capture_opts->extcap_terminate_id = 0;
     if (all_finished)
     {
         capture_process_finished(cap_session);
     }
+
     return G_SOURCE_REMOVE;
 }
 
-void extcap_if_cleanup(capture_session *cap_session)
+void extcap_request_stop(capture_session *cap_session)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     interface_options *interface_opts;
     guint icnt = 0;
-    gboolean extcaps_alive = FALSE;
+
+    if (capture_opts->extcap_terminate_id > 0)
+    {
+        /* Already requested, do not extend timeout */
+        return;
+    }
+
+    if (capture_opts->wait_for_extcap_cbs)
+    {
+        /* Terminate callback was called, waiting for child callbacks */
+        return;
+    }
+
+    if (extcap_session_stop(cap_session))
+    {
+        /* Nothing left to do, all extcaps have fully finished */
+        return;
+    }
 
     for (icnt = 0; icnt < capture_opts->ifaces->len; icnt++)
     {
@@ -1231,71 +1255,19 @@ void extcap_if_cleanup(capture_session *cap_session)
             continue;
         }
 
-        ws_debug("Extcap [%s] - Cleaning up fifo: %s; PID: %d", interface_opts->name,
-              interface_opts->extcap_fifo, interface_opts->extcap_pid);
-#ifdef _WIN32
-        if (interface_opts->extcap_pipe_h != INVALID_HANDLE_VALUE)
-        {
-            ws_debug("Extcap [%s] - Closing pipe", interface_opts->name);
-            FlushFileBuffers(interface_opts->extcap_pipe_h);
-            DisconnectNamedPipe(interface_opts->extcap_pipe_h);
-            CloseHandle(interface_opts->extcap_pipe_h);
-            interface_opts->extcap_pipe_h = INVALID_HANDLE_VALUE;
-        }
-        if (interface_opts->extcap_control_in_h != INVALID_HANDLE_VALUE)
-        {
-            ws_debug("Extcap [%s] - Closing control_in pipe", interface_opts->name);
-            FlushFileBuffers(interface_opts->extcap_control_in_h);
-            DisconnectNamedPipe(interface_opts->extcap_control_in_h);
-            CloseHandle(interface_opts->extcap_control_in_h);
-            interface_opts->extcap_control_in_h = INVALID_HANDLE_VALUE;
-        }
-        if (interface_opts->extcap_control_out_h != INVALID_HANDLE_VALUE)
-        {
-            ws_debug("Extcap [%s] - Closing control_out pipe", interface_opts->name);
-            FlushFileBuffers(interface_opts->extcap_control_out_h);
-            DisconnectNamedPipe(interface_opts->extcap_control_out_h);
-            CloseHandle(interface_opts->extcap_control_out_h);
-            interface_opts->extcap_control_out_h = INVALID_HANDLE_VALUE;
-        }
-#else
-        if (interface_opts->extcap_fifo != NULL && file_exists(interface_opts->extcap_fifo))
-        {
-            /* the fifo will not be freed here, but with the other capture_opts in capture_sync */
-            ws_unlink(interface_opts->extcap_fifo);
-            interface_opts->extcap_fifo = NULL;
-        }
-        if (interface_opts->extcap_control_in && file_exists(interface_opts->extcap_control_in))
-        {
-            ws_unlink(interface_opts->extcap_control_in);
-            interface_opts->extcap_control_in = NULL;
-        }
-        if (interface_opts->extcap_control_out && file_exists(interface_opts->extcap_control_out))
-        {
-            ws_unlink(interface_opts->extcap_control_out);
-            interface_opts->extcap_control_out = NULL;
-        }
-#endif
-        /* Send termination signal to child. On Linux and OSX the child will not notice that the
-         * pipe has been closed before writing to the pipe.
-         */
+        ws_debug("Extcap [%s] - Requesting stop PID: %d", interface_opts->name,
+              interface_opts->extcap_pid);
+
+#ifndef _WIN32
         if (interface_opts->extcap_pid != WS_INVALID_PID)
         {
-            extcaps_alive = TRUE;
-#ifdef _WIN32
-            /* Not nice, but Wireshark has been doing so for years */
-            TerminateProcess(interface_opts->extcap_pid, 0);
-#else
             kill(interface_opts->extcap_pid, SIGTERM);
-#endif
         }
+#endif
     }
 
-    if (extcaps_alive)
-    {
-        capture_opts->extcap_terminate_id =
-            g_timeout_add_seconds(EXTCAP_CLEANUP_TIMEOUT, extcap_terminate_cb, cap_session);
-    }
+    capture_opts->extcap_terminate_id =
+        g_timeout_add_seconds(EXTCAP_CLEANUP_TIMEOUT, extcap_terminate_cb, cap_session);
 }
 
 static gboolean
@@ -1342,9 +1314,54 @@ gboolean extcap_session_stop(capture_session *cap_session)
 
         g_free(interface_opts->extcap_pipedata);
         interface_opts->extcap_pipedata = NULL;
+
+#ifdef _WIN32
+        if (interface_opts->extcap_pipe_h != INVALID_HANDLE_VALUE)
+        {
+            ws_debug("Extcap [%s] - Closing pipe", interface_opts->name);
+            FlushFileBuffers(interface_opts->extcap_pipe_h);
+            DisconnectNamedPipe(interface_opts->extcap_pipe_h);
+            CloseHandle(interface_opts->extcap_pipe_h);
+            interface_opts->extcap_pipe_h = INVALID_HANDLE_VALUE;
+        }
+        if (interface_opts->extcap_control_in_h != INVALID_HANDLE_VALUE)
+        {
+            ws_debug("Extcap [%s] - Closing control_in pipe", interface_opts->name);
+            FlushFileBuffers(interface_opts->extcap_control_in_h);
+            DisconnectNamedPipe(interface_opts->extcap_control_in_h);
+            CloseHandle(interface_opts->extcap_control_in_h);
+            interface_opts->extcap_control_in_h = INVALID_HANDLE_VALUE;
+        }
+        if (interface_opts->extcap_control_out_h != INVALID_HANDLE_VALUE)
+        {
+            ws_debug("Extcap [%s] - Closing control_out pipe", interface_opts->name);
+            FlushFileBuffers(interface_opts->extcap_control_out_h);
+            DisconnectNamedPipe(interface_opts->extcap_control_out_h);
+            CloseHandle(interface_opts->extcap_control_out_h);
+            interface_opts->extcap_control_out_h = INVALID_HANDLE_VALUE;
+        }
+#else
+        if (interface_opts->extcap_fifo != NULL && file_exists(interface_opts->extcap_fifo))
+        {
+            /* the fifo will not be freed here, but with the other capture_opts in capture_sync */
+            ws_unlink(interface_opts->extcap_fifo);
+            interface_opts->extcap_fifo = NULL;
+        }
+        if (interface_opts->extcap_control_in && file_exists(interface_opts->extcap_control_in))
+        {
+            ws_unlink(interface_opts->extcap_control_in);
+            interface_opts->extcap_control_in = NULL;
+        }
+        if (interface_opts->extcap_control_out && file_exists(interface_opts->extcap_control_out))
+        {
+            ws_unlink(interface_opts->extcap_control_out);
+            interface_opts->extcap_control_out = NULL;
+        }
+#endif
     }
 
     /* All child processes finished */
+    capture_opts->wait_for_extcap_cbs = FALSE;
     if (capture_opts->extcap_terminate_id > 0)
     {
         g_source_remove(capture_opts->extcap_terminate_id);

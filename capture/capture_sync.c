@@ -154,13 +154,18 @@ void capture_process_finished(capture_session *cap_session)
     GString *message;
     guint i;
 
-    if (cap_session->fork_child != WS_INVALID_PID) {
-        /* Child process still running, session is not closed yet */
+    if (!extcap_session_stop(cap_session)) {
+        /* Atleast one extcap process did not fully finish yet, wait for it */
         return;
     }
 
-    if (!extcap_session_stop(cap_session)) {
-        /* Atleast one extcap process did not fully finish yet, wait for it */
+    if (cap_session->fork_child != WS_INVALID_PID) {
+        if (capture_opts->stop_after_extcaps) {
+            /* User has requested capture stop and all extcaps are gone now */
+            capture_opts->stop_after_extcaps = FALSE;
+            sync_pipe_stop(cap_session);
+        }
+        /* Wait for child process to end, session is not closed yet */
         return;
     }
 
@@ -186,6 +191,7 @@ void capture_process_finished(capture_session *cap_session)
     g_string_free(message, TRUE);
     g_free(capture_opts->closed_msg);
     capture_opts->closed_msg = NULL;
+    capture_opts->stop_after_extcaps = FALSE;
 }
 
 /* Append an arg (realloc) to an argc/argv array */
@@ -1803,10 +1809,12 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 #ifdef _WIN32
         ws_close(cap_session->signal_pipe_write_fd);
 #endif
-        ws_debug("cleaning extcap pipe");
-        extcap_if_cleanup(cap_session);
         cap_session->capture_opts->closed_msg = primary_msg;
-        capture_process_finished(cap_session);
+        if (extcap_session_stop(cap_session)) {
+            capture_process_finished(cap_session);
+        } else {
+            extcap_request_stop(cap_session);
+        }
         return FALSE;
     }
 

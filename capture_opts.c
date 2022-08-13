@@ -128,6 +128,8 @@ capture_opts_init(capture_options *capture_opts)
 
     capture_opts->output_to_pipe                  = FALSE;
     capture_opts->capture_child                   = FALSE;
+    capture_opts->stop_after_extcaps              = FALSE;
+    capture_opts->wait_for_extcap_cbs             = FALSE;
     capture_opts->print_file_names                = FALSE;
     capture_opts->print_name_to                   = NULL;
     capture_opts->temp_dir                        = NULL;

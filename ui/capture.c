@@ -21,6 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
+#include "extcap.h"
 #include "file.h"
 #include "ui/capture.h"
 #include "capture/capture_ifinfo.h"
@@ -182,8 +183,13 @@ capture_stop(capture_session *cap_session)
 
     capture_callback_invoke(capture_cb_capture_stopping, cap_session);
 
-    /* stop the capture child gracefully */
-    sync_pipe_stop(cap_session);
+    if (!extcap_session_stop(cap_session)) {
+        extcap_request_stop(cap_session);
+        cap_session->capture_opts->stop_after_extcaps = TRUE;
+    } else {
+        /* stop the capture child gracefully */
+        sync_pipe_stop(cap_session);
+    }
 }
 
 
