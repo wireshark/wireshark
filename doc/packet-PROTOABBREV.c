@@ -37,6 +37,11 @@
 #include "packet-PROTOABBREV.h"
 #endif
 
+/* Some protocols may need code from other dissectors, as here for
+ * ssl_dissector_add()
+ */
+#include "packet-tls.h"
+
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */
 void proto_reg_handoff_PROTOABBREV(void);
@@ -47,13 +52,19 @@ static int proto_PROTOABBREV = -1;
 static int hf_FIELDABBREV = -1;
 static expert_field ei_PROTOABBREV_EXPERTABBREV = EI_INIT;
 
+static dissector_handle_t PROTOABBREV_handle;
+static dissector_handle_t PROTOABBREV_tls_handle;
+
 /* Global sample preference ("controls" display of numbers) */
 static gboolean pref_hex = FALSE;
 /* Global sample port preference - real port preferences should generally
- * default to 0 unless there is an IANA-registered (or equivalent) port for your
- * protocol. */
-#define PROTOABBREV_TCP_PORT 1234
-static guint tcp_port_pref = PROTOABBREV_TCP_PORT;
+ * default to "" (for a range) or 0 (for a single uint) unless there is an
+ * IANA-registered (or equivalent) port for your protocol. */
+#define PROTOABBREV_TLS_PORT 5678
+static guint tls_port_pref = PROTOABBREV_TLS_PORT;
+
+#define PROTOABBREV_TCP_PORTS "1234"
+static range_t *tcp_port_range = PROTOABBREV_TCP_PORTS;
 
 /* Initialize the subtree pointers */
 static gint ett_PROTOABBREV = -1;
@@ -143,7 +154,15 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_clear(pinfo->cinfo, COL_INFO);
 #endif
 
-    col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
+    /* Some protocols need to be parsed differently for packets sent to the
+     * registered (server) port versus packets sent from the server port
+     * to an ephemeral client port.
+     */
+    if (value_is_in_range(tcp_port_range, pinfo->destport)) {
+        col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
+    } else {
+        col_set_str(pinfo->cinfo, COL_INFO, "XXX Reply");
+    }
 
     /*** PROTOCOL TREE ***/
 
@@ -231,6 +250,18 @@ proto_register_PROTOABBREV(void)
     expert_PROTOABBREV = expert_register_protocol(proto_PROTOABBREV);
     expert_register_field_array(expert_PROTOABBREV, ei, array_length(ei));
 
+    /* Use register_dissector() here so that the dissector can be
+     * found by name by other protocols, by Lua, by Export PDU,
+     * by custom User DLT dissection, etc. Some protocols may require
+     * multiple uniquely named dissectors that behave differently
+     * depending on the caller, e.g. over TCP directly vs over TLS.
+     */
+    PROTOABBREV_handle = register_dissector("PROTOABBREV", dissect_PROTOABBREV,
+            proto_PROTOABBREV);
+
+    PROTOABBREV_tls_handle = register_dissector("PROTOABBREV.tls",
+            dissect_PROTOABBREV_tls, proto_PROTOABBREV);
+
     /* Register a preferences module (see section 2.6 of README.dissector
      * for more details). Registration of a prefs callback is not required
      * if there are no preferences that affect protocol registration (an example
@@ -261,9 +292,10 @@ proto_register_PROTOABBREV(void)
             &pref_hex);
 
     /* Register an example port preference */
-    prefs_register_uint_preference(PROTOABBREV_module, "tcp.port", "PROTOABBREV TCP Port",
-            " PROTOABBREV TCP port if other than the default",
-            10, &tcp_port_pref);
+    prefs_register_uint_preference(PROTOABBREV_module, "tls.port", "PROTOABBREV TLS Port",
+            " PROTOABBREV TLS port if other than the default",
+            10, &tls_port_pref);
+
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -285,34 +317,38 @@ void
 proto_reg_handoff_PROTOABBREV(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t PROTOABBREV_handle;
-    static int current_port;
+    static int current_tls_port_pref;
 
     if (!initialized) {
-        /* Use create_dissector_handle() to indicate that
-         * dissect_PROTOABBREV() returns the number of bytes it dissected (or 0
-         * if it thinks the packet does not belong to PROTONAME).
+        /* Simple port preferences like TCP can be registered as automatic
+         * Decode As preferences.
          */
-        PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
-                proto_PROTOABBREV);
-        initialized = TRUE;
+        dissector_add_uint_range_with_preference("tcp.port", PROTOABBREV_TCP_PORTS, PROTOABBREV_handle);
 
+        initialized = TRUE;
     } else {
         /* If you perform registration functions which are dependent upon
          * prefs then you should de-register everything which was associated
          * with the previous settings and re-register using the new prefs
          * settings here. In general this means you need to keep track of
-         * the PROTOABBREV_handle and the value the preference had at the time
-         * you registered.  The PROTOABBREV_handle value and the value of the
-         * preference can be saved using local statics in this
-         * function (proto_reg_handoff).
+         * the value the preference had at the time you registered, which
+         * can be saved using local statics in this function (proto_reg_handoff).
          */
-        dissector_delete_uint("tcp.port", current_port, PROTOABBREV_handle);
+        ssl_dissector_delete(current_tls_port_pref, PROTOABBREV_tls_handle);
     }
 
-    current_port = tcp_port_pref;
-
-    dissector_add_uint("tcp.port", current_port, PROTOABBREV_handle);
+    /* Some port preferences, like TLS, are more complicated and cannot
+     * be done with auto preferences, because the TCP dissector has to call
+     * TLS for the particular port as well as TLS calling this dissector.
+     */
+    ssl_dissector_add(tls_port_pref, PROTOABBREV_tls_handle);
+    current_tls_port = tls_port_pref;
+    /* Some protocols dissect packets going to the server port differently
+     * than packets coming from the server port. The current Decode As
+     * value can be retrieved here. Note that auto preferences are always
+     * a range, even if registered with dissector_add_uint_with_preference.
+     */
+    tcp_port_range = prefs_get_range_value("PROTOABBREV", "tcp.port");
 }
 
 #if 0
@@ -322,15 +358,7 @@ proto_reg_handoff_PROTOABBREV(void)
 void
 proto_reg_handoff_PROTOABBREV(void)
 {
-    dissector_handle_t PROTOABBREV_handle;
-
-    /* Use create_dissector_handle() to indicate that dissect_PROTOABBREV()
-     * returns the number of bytes it dissected (or 0 if it thinks the packet
-     * does not belong to PROTONAME).
-     */
-    PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
-            proto_PROTOABBREV);
-    dissector_add_uint_with_preference("tcp.port", PROTOABBREV_TCP_PORT, PROTOABBREV_handle);
+    dissector_add_uint_range_with_preference("tcp.port", PROTOABBREV_TCP_PORTS, PROTOABBREV_handle);
 }
 #endif
 
