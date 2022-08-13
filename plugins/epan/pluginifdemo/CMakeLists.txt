@@ -10,14 +10,14 @@
 include(WiresharkPlugin)
 
 # Plugin name and version info (major minor micro extra)
-set_module_info(pluginifdemo 0 0 1 0)
+set_module_info(pluginifdemo 0 0 2 0)
 
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_AUTOUIC ON)
 
-find_package(Qt5Core)
-find_package(Qt5PrintSupport)
-find_package(Qt5Widgets)
+find_package(Qt6Core)
+find_package(Qt6PrintSupport)
+find_package(Qt6Widgets)
 
 set(DISSECTOR_SRC
 	pluginifdemo.c
@@ -52,7 +52,7 @@ register_plugin_files(plugin.c
 
 add_wireshark_plugin_library(pluginifdemo epan)
 
-target_link_libraries(pluginifdemo epan Qt5::Core Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia)
+target_link_libraries(pluginifdemo epan Qt6::Core Qt6::Widgets Qt6::PrintSupport)
 
 install_plugin(pluginifdemo epan)
 
