@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V16.1.0 (2020-09)
+-- 3GPP TS 25.331 V17.1.0 (2022-06)
 --
 -- 11.4	Constant definitions
 --
@@ -193,10 +193,10 @@ maxTrCHConcat				INTEGER ::= 3
 -- maxTrCHpreconf should be 16 but has been set to 32 for compatibility
 maxTrCHpreconf				INTEGER ::= 32
 maxTS						INTEGER ::= 14
-maxTS-1						INTEGER ::= 13 
+maxTS-1						INTEGER ::= 13
 maxTS-2						INTEGER ::= 12
 maxTS-LCR					INTEGER ::= 6
-maxTS-LCR-1					INTEGER ::= 5 
+maxTS-LCR-1					INTEGER ::= 5
 maxURA						INTEGER ::= 8
 maxURNTI-Group				INTEGER ::= 8
 maxWLANID					INTEGER ::= 16

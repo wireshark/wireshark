@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V16.1.0 (2020-09)
+-- 3GPP TS 25.331 V17.1.0 (2022-06)
 --
 -- 11.5	RRC information between network nodes
 --
@@ -255,7 +255,7 @@ TargetRNC-ToSourceRNC-Container ::= CHOICE {
 
 InterRATHandoverInfoWithInterRATCapabilities-r3 ::= CHOICE {
 	r3								SEQUENCE {
-		-- IE InterRATHandoverInfoWithInterRATCapabilities-r3-IEs also 
+		-- IE InterRATHandoverInfoWithInterRATCapabilities-r3-IEs also
 		-- includes non critical extensions
 		interRATHandoverInfo-r3			InterRATHandoverInfoWithInterRATCapabilities-r3-IEs,
 		v390NonCriticalExtensions		SEQUENCE {
@@ -285,7 +285,7 @@ InterRATHandoverInfoWithInterRATCapabilities-r3-IEs ::=		SEQUENCE {
 		--  but has been chosen to simplify the handling of the information in the BSC
 	--	Other IEs
 		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList	OPTIONAL,
-		-- interRATHandoverInfo, Octet string is used to obtain 8 bit length field prior to 
+		-- interRATHandoverInfo, Octet string is used to obtain 8 bit length field prior to
 		-- actual information.  This makes it possible for BSS to transparently handle information
 		-- received via GSM air interface even when it includes non critical extensions.
 		-- The octet string shall include the InterRATHandoverInfo information
@@ -538,10 +538,10 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 								v8d0NonCriticalExtensions		SEQUENCE {
 									sRNC-RelocationInfo-v8d0ext		SRNC-RelocationInfo-v8d0ext-IEs,
 									v970NonCriticalExtensions			SEQUENCE {
-										sRNC-RelocationInfo-v970ext	
+										sRNC-RelocationInfo-v970ext
 															SRNC-RelocationInfo-v970ext-IEs,
 										v9c0NonCriticalExtensions		SEQUENCE {
-											sRNC-RelocationInfo-v9c0ext	
+											sRNC-RelocationInfo-v9c0ext
 																SRNC-RelocationInfo-v9c0ext-IEs,
 											nonCriticalExtensions	SEQUENCE {}	OPTIONAL
 										}	OPTIONAL
@@ -553,10 +553,10 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 									sRNC-RelocationInfo-r10			SRNC-RelocationInfo-r10-IEs,
 									sRNC-RelocationInfo-r10-add-ext	BIT STRING		OPTIONAL,
 									v9c0NonCriticalExtensions		SEQUENCE {
-										sRNC-RelocationInfo-v9c0ext	
+										sRNC-RelocationInfo-v9c0ext
 															SRNC-RelocationInfo-v9c0ext-IEs,
 										vab0NonCriticalExtensions			SEQUENCE {
-											sRNC-RelocationInfo-vab0ext	
+											sRNC-RelocationInfo-vab0ext
 															SRNC-RelocationInfo-vab0ext-IEs,
 											nonCriticalExtensions			SEQUENCE {}	OPTIONAL
 										}	OPTIONAL
@@ -655,7 +655,7 @@ SRNC-RelocationInfo-r3-IEs ::=		SEQUENCE {
 
 SRNC-RelocationInfo-v380ext-IEs ::= SEQUENCE {
 	-- Ciphering related information IEs
-		-- In the SRNC-RelocationInfo-r3-IEs, the IE 'cn-DomainIdentity' is used to represent the 
+		-- In the SRNC-RelocationInfo-r3-IEs, the IE 'cn-DomainIdentity' is used to represent the
 		-- IE 'Latest configured CN domain' in the tabular.
 		cn-DomainIdentity					CN-DomainIdentity,
 		cipheringStatusList					CipheringStatusList
@@ -680,9 +680,9 @@ SRNC-RelocationInfo-v3a0ext-IEs ::= SEQUENCE {
 SRNC-RelocationInfo-v3b0ext-IEs ::= SEQUENCE {
 		-- cn-domain identity for IE startValueForCiphering-v3a0ext included in previous extension
 		cn-DomainIdentity				CN-DomainIdentity,
-		-- the IE startValueForCiphering-v3b0ext contains the start values for each CN Domain. The 
+		-- the IE startValueForCiphering-v3b0ext contains the start values for each CN Domain. The
 		-- value of start indicated by the IE startValueForCiphering-v3a0ext should be set to the
-		-- same value as the start-Value for the corresponding cn-DomainIdentity in the IE 
+		-- same value as the start-Value for the corresponding cn-DomainIdentity in the IE
 		-- startValueForCiphering-v3b0ext
 		startValueForCiphering-v3b0ext		STARTList2								OPTIONAL
 }
@@ -930,10 +930,10 @@ SRNC-RelocationInfo-v690ext-IEs ::=	SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -984,10 +984,10 @@ SRNC-RelocationInfo-r6-IEs ::=			SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1076,10 +1076,10 @@ SRNC-RelocationInfo-r7-IEs ::=			SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1178,10 +1178,10 @@ SRNC-RelocationInfo-r8-IEs ::=			SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1274,10 +1274,10 @@ SRNC-RelocationInfo-r9-IEs ::=			SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1367,10 +1367,10 @@ SRNC-RelocationInfo-r10-IEs ::=			SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1418,7 +1418,7 @@ SRNC-RelocationInfo-r10-IEs ::=			SEQUENCE {
 }
 
 SRNC-RelocationInfo-vab0ext-IEs ::=		SRNC-RelocationInfo-v970ext-IEs
- 
+
 SRNC-RelocationInfo-r11-IEs ::=			SEQUENCE {
 	-- Non-RRC IEs
 		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
@@ -1453,10 +1453,10 @@ SRNC-RelocationInfo-r11-IEs ::=			SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1537,10 +1537,10 @@ SRNC-RelocationInfo-r12-IEs ::=			SEQUENCE {
 		-- received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
-		-- transparent transfer of capability information received from the UE that was introduced 
-		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
-		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
+		-- transparent transfer of capability information received from the UE that was introduced
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION
 		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
 		-- messages that was last received.
 		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1575,7 +1575,7 @@ SRNC-RelocationInfo-r12-IEs ::=			SEQUENCE {
 		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList					OPTIONAL,
 		storedCompressedModeInfo		StoredCompressedModeInfo-r8					OPTIONAL,
 		secondary-tpc-CombinationInfoList		TPC-CombinationInfoList-r9			OPTIONAL,
-		secondary-e-RGCH-CombinationInfoList	E-RGCH-CombinationInfoList-r9		OPTIONAL, 
+		secondary-e-RGCH-CombinationInfoList	E-RGCH-CombinationInfoList-r9		OPTIONAL,
 		serving-HSDSCH-CellInformation	Serving-HSDSCH-CellInformation-r12			OPTIONAL,
 		dtx-drx-Info					DTX-DRX-Info-r12							OPTIONAL,
 		ul-SecondaryCellInfoFDD			UL-SecondaryCellInfoFDD-r12					OPTIONAL,
@@ -1627,11 +1627,11 @@ SRNC-RelocationInfo-r13-IEs ::=			SEQUENCE {
  	-- information received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-	-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
+	-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
 	-- transparent transfer of capability information received from the UE that was
- 	-- introduced in a release independent manner, i.e., transferred within a VLEC. 
-	-- These UE capabilities are included both in the RRC CONNECTION SETUP COMPLETE and 
-	-- the UE CAPABILITY INFORMATION messages. 
+ 	-- introduced in a release independent manner, i.e., transferred within a VLEC.
+	-- These UE capabilities are included both in the RRC CONNECTION SETUP COMPLETE and
+	-- the UE CAPABILITY INFORMATION messages.
 	-- Only the VLEC of one message needs to be included i.e. the one from these
 	-- messages that was last received.
 	-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1666,7 +1666,7 @@ SRNC-RelocationInfo-r13-IEs ::=			SEQUENCE {
 		e-RGCH-CombinationInfoList	E-RGCH-CombinationInfoList					OPTIONAL,
 		storedCompressedModeInfo		StoredCompressedModeInfo-r8					OPTIONAL,
 		secondary-tpc-CombinationInfoList		TPC-CombinationInfoList-r9		OPTIONAL,
-		secondary-e-RGCH-CombinationInfoList	E-RGCH-CombinationInfoList-r9			OPTIONAL, 
+		secondary-e-RGCH-CombinationInfoList	E-RGCH-CombinationInfoList-r9			OPTIONAL,
 		serving-HSDSCH-CellInformation	Serving-HSDSCH-CellInformation-r12		OPTIONAL,
 		dtx-drx-Info					DTX-DRX-Info-r12								OPTIONAL,
 		ul-SecondaryCellInfoFDD		UL-SecondaryCellInfoFDD-r13					OPTIONAL,
@@ -1740,11 +1740,11 @@ SRNC-RelocationInfo-r14-IEs ::=			SEQUENCE {
  	-- information received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-	-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
+	-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
 	-- transparent transfer of capability information received from the UE that was
- 	-- introduced in a release independent manner, i.e., transferred within a VLEC. 
-	-- These UE capabilities are included both in the RRC CONNECTION SETUP COMPLETE and 
-	-- the UE CAPABILITY INFORMATION messages. 
+ 	-- introduced in a release independent manner, i.e., transferred within a VLEC.
+	-- These UE capabilities are included both in the RRC CONNECTION SETUP COMPLETE and
+	-- the UE CAPABILITY INFORMATION messages.
 	-- Only the VLEC of one message needs to be included i.e. the one from these
 	-- messages that was last received.
 	-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1831,11 +1831,11 @@ SRNC-RelocationInfo-r15-IEs ::=			SEQUENCE {
  	-- information received from the UE
 		ueCapabilityContainer			BIT STRING
 											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
-	-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
+	-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the
 	-- transparent transfer of capability information received from the UE that was
- 	-- introduced in a release independent manner, i.e., transferred within a VLEC. 
-	-- These UE capabilities are included both in the RRC CONNECTION SETUP COMPLETE and 
-	-- the UE CAPABILITY INFORMATION messages. 
+ 	-- introduced in a release independent manner, i.e., transferred within a VLEC.
+	-- These UE capabilities are included both in the RRC CONNECTION SETUP COMPLETE and
+	-- the UE CAPABILITY INFORMATION messages.
 	-- Only the VLEC of one message needs to be included i.e. the one from these
 	-- messages that was last received.
 	-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
@@ -1907,7 +1907,7 @@ CipheringInfoPerRB-r4 ::=			SEQUENCE {
 	ul-HFN								BIT STRING (SIZE (20..25))
 }
 
--- TABULAR: CipheringInfoPerRB-List, multiplicity value numberOfRadioBearers 
+-- TABULAR: CipheringInfoPerRB-List, multiplicity value numberOfRadioBearers
 -- has been replaced with maxRB.
 CipheringInfoPerRB-List ::=			SEQUENCE (SIZE (1..maxRB)) OF
 										CipheringInfoPerRB
@@ -1951,7 +1951,7 @@ COUNT-C-List ::=						SEQUENCE (SIZE (1..maxCNdomains)) OF
 
 COUNT-CSingle ::=						SEQUENCE {
 	cn-DomainIdentity					CN-DomainIdentity,
-	count-C								BIT STRING (SIZE (32))			
+	count-C								BIT STRING (SIZE (32))
 }
 
 DL-PhysChCapabilityFDD-r4 ::=		SEQUENCE {
@@ -2061,13 +2061,13 @@ IntraFreqReportingCriteria-r6-ext ::= SEQUENCE {
 
 -- dummy is not used in this version of the specification, it should
 -- not be sent and if received it should be ignored.
-MaxHcContextSpace-r5 ::=				ENUMERATED { 
-											dummy, by1024, by2048, by4096, by8192, 
+MaxHcContextSpace-r5 ::=				ENUMERATED {
+											dummy, by1024, by2048, by4096, by8192,
 											by16384, by32768, by65536, by131072 }
 
 MeasurementCapability-r4 ::=		SEQUENCE {
 	downlinkCompressedMode				CompressedModeMeasCapability-r4,
-	uplinkCompressedMode				CompressedModeMeasCapability-r4	
+	uplinkCompressedMode				CompressedModeMeasCapability-r4
 }
 
 MeasurementCommandWithType ::=		CHOICE {
@@ -2203,19 +2203,19 @@ OngoingMeasRep-r9 ::=				SEQUENCE {
 	measurementCommandWithType			MeasurementCommandWithType-r9,
 	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
 	-- if any of the additional measurement ID is within the range 17 to 32,
-	-- "OngoingMeasRep-v970ext-IEs" should be present and should include 
+	-- "OngoingMeasRep-v970ext-IEs" should be present and should include
 	-- the IE "measurementIdentity" and "additionalMeasurementID-List".
 	-- The value of the IE "measurementIdentity" in "OngoingMeasRep-v970ext-IEs"
 	-- should be the same as the "measurementIdentity" value in "OngoingMeasRep-r9",
 	-- and "additionalMeasurementID-List" should contain the complete list.
-	-- The IE "additionalMeasurementID-List" in "OngoingMeasRep-r9" should still 
+	-- The IE "additionalMeasurementID-List" in "OngoingMeasRep-r9" should still
 	-- contain the additional measurement ID which value is within the range 1 to 16.
 	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
 }
 
--- The IE "OngoingMeasRep-v970ext-IEs" should be included to report 
--- measurementIdentity values within the range 17 to 32 and when a 
--- "measurementIdentity" in "OngoingMeasRep-r9" needs to contain one of the 
+-- The IE "OngoingMeasRep-v970ext-IEs" should be included to report
+-- measurementIdentity values within the range 17 to 32 and when a
+-- "measurementIdentity" in "OngoingMeasRep-r9" needs to contain one of the
 -- values within the range 17 to 32 in the IE "additionalMeasurementID-List".
 
 OngoingMeasRep-v970ext-IEs ::=		SEQUENCE {
@@ -2228,14 +2228,14 @@ OngoingMeasRep-r10 ::=				SEQUENCE {
 	measurementCommandWithType			MeasurementCommandWithType-r10,
 	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
 	-- if any of the additional measurement ID is within the range 17 to 32,
-	-- "OngoingMeasRep-v970ext-IEs" (in SRNC-RelocationInfo-vab0ext-IEs)should be present 
-	-- and should include the IE "measurementIdentity" and 
+	-- "OngoingMeasRep-v970ext-IEs" (in SRNC-RelocationInfo-vab0ext-IEs)should be present
+	-- and should include the IE "measurementIdentity" and
 	-- "additionalMeasurementID-List". In this case, the value of the IE "measurementIdentity" in
-	-- "OngoingMeasRep-v970ext-IEs" (in SRNC-RelocationInfo-vab0ext-IEs) should be the same as the 
+	-- "OngoingMeasRep-v970ext-IEs" (in SRNC-RelocationInfo-vab0ext-IEs) should be the same as the
 	-- "measurementIdentity" value in "OngoingMeasRep-r10", and "additionalMeasurementID-List"
 	-- should contain the complete list.
-	-- The IE "additionalMeasurementID-List" in "OngoingMeasRep-r10" should still 
-	-- contain the additional measurement ID which value is within the range 1 to 16. 
+	-- The IE "additionalMeasurementID-List" in "OngoingMeasRep-r10" should still
+	-- contain the additional measurement ID which value is within the range 1 to 16.
 	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
 }
 
@@ -2456,11 +2456,11 @@ StateOfRRC-Procedure ::=			ENUMERATED {
 										-- dummy is not used in this version of specification
 										-- It should not be sent
 										dummy,
-										otherStates 
+										otherStates
 }
 
-TotalRLC-AM-BufferSize-r5 ::=		ENUMERATED { 
-										kb10, kb50, kb100, kb150, kb200, 
+TotalRLC-AM-BufferSize-r5 ::=		ENUMERATED {
+										kb10, kb50, kb100, kb150, kb200,
 										kb300, kb400, kb500, kb750, kb1000 }
 
 TPC-Combination-Info ::= SEQUENCE {
@@ -2490,7 +2490,7 @@ UE-Positioning-Capability-r4 ::=	SEQUENCE {
 	sfn-sfnType2Capability					ENUMERATED { true }			OPTIONAL
 }
 
-UE-Positioning-LastKnownPos ::=		SEQUENCE { 
+UE-Positioning-LastKnownPos ::=		SEQUENCE {
 		sfn								INTEGER (0..4095),
 		cell-id							CellIdentity,
 		positionEstimate				PositionEstimate
