@@ -95,6 +95,10 @@ static int hf_ngap_RATRestrictionInformation_reserved = -1;
 static int hf_ngap_primaryRATRestriction_e_UTRA = -1;
 static int hf_ngap_primaryRATRestriction_nR = -1;
 static int hf_ngap_primaryRATRestriction_nR_unlicensed = -1;
+static int hf_ngap_primaryRATRestriction_nR_LEO = -1;
+static int hf_ngap_primaryRATRestriction_nR_MEO = -1;
+static int hf_ngap_primaryRATRestriction_nR_GEO = -1;
+static int hf_ngap_primaryRATRestriction_nR_OTHERSAT = -1;
 static int hf_ngap_primaryRATRestriction_reserved = -1;
 static int hf_ngap_secondaryRATRestriction_e_UTRA = -1;
 static int hf_ngap_secondaryRATRestriction_nR = -1;
@@ -1189,9 +1193,25 @@ void proto_register_ngap(void) {
       { "nR-unlicensed", "ngap.primaryRATRestriction.nR_unlicensed",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
         NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_nR_LEO,
+      { "nR-LEO", "ngap.primaryRATRestriction.nR_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_nR_MEO,
+      { "nR-MEO", "ngap.primaryRATRestriction.nR_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x08,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_nR_GEO,
+      { "nR-GEO", "ngap.primaryRATRestriction.nR_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_nR_OTHERSAT,
+      { "nR-OTHERSAT", "ngap.primaryRATRestriction.nR_OTHERSAT",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }},
     { &hf_ngap_primaryRATRestriction_reserved,
       { "reserved", "ngap.primaryRATRestriction.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x1f,
+        FT_UINT8, BASE_HEX, NULL, 0x01,
         NULL, HFILL }},
     { &hf_ngap_secondaryRATRestriction_e_UTRA,
       { "e-UTRA", "ngap.secondaryRATRestriction.e_UTRA",

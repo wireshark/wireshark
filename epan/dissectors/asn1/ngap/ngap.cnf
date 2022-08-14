@@ -1055,6 +1055,10 @@ ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_ExtendedPacke
       &hf_ngap_primaryRATRestriction_e_UTRA,
       &hf_ngap_primaryRATRestriction_nR,
       &hf_ngap_primaryRATRestriction_nR_unlicensed,
+      &hf_ngap_primaryRATRestriction_nR_LEO,
+      &hf_ngap_primaryRATRestriction_nR_MEO,
+      &hf_ngap_primaryRATRestriction_nR_GEO,
+      &hf_ngap_primaryRATRestriction_nR_OTHERSAT,
       &hf_ngap_primaryRATRestriction_reserved,
       NULL
     };
