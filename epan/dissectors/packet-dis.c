@@ -882,6 +882,14 @@ static const value_string DIS_PDU_RadioTransmitState_Strings[] =
     {0,    NULL }
 };
 
+static const value_string DIS_PDU_RadioReceiveState_Strings[] =
+{
+    {0,    "Off" },
+    {1,    "On but not receiving" },
+    {2,    "On and receiving" },
+    {0,    NULL }
+};
+
 /* SISO-REF-010 [UID 165] */
 static const value_string DIS_PDU_RadioInputSource_Strings[] =
 {
@@ -4437,6 +4445,7 @@ static int hf_dis_em_location_y = -1;
 static int hf_dis_em_location_z = -1;
 static int hf_dis_beam_function = -1;
 static int hf_dis_radio_id = -1;
+static int hf_dis_transmitter_radio_id = -1;
 static int hf_dis_ens = -1;
 static int hf_dis_ens_class = -1;
 static int hf_dis_ens_type = -1;
@@ -4450,6 +4459,7 @@ static int hf_dis_radio_category = -1;
 static int hf_dis_nomenclature_version = -1;
 static int hf_dis_nomenclature = -1;
 static int hf_dis_radio_transmit_state = -1;
+static int hf_dis_radio_receive_state = -1;
 static int hf_dis_radio_input_source = -1;
 static int hf_dis_antenna_location_x = -1;
 static int hf_dis_antenna_location_y = -1;
@@ -4462,6 +4472,7 @@ static int hf_dis_antenna_pattern_length = -1;
 static int hf_dis_transmit_frequency = -1;
 static int hf_dis_transmit_freq_bandwidth = -1;
 static int hf_dis_transmit_power = -1;
+static int hf_dis_receive_power = -1;
 static int hf_dis_spread_spectrum_usage = -1;
 static int hf_dis_frequency_hopping = -1;
 static int hf_dis_pseudo_noise_modulation = -1;
@@ -7248,6 +7259,36 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
     return offset;
 }
 
+static int dissect_DIS_PARSER_RECEIVER_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    guint32 radioID, disRadioReceiveState;
+
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    radioID = tvb_get_ntohs(tvb, offset);
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", RadioID=%u", radioID);
+    offset += 2;
+
+    disRadioReceiveState = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_radio_receive_state, tvb, offset, 2, ENC_BIG_ENDIAN);
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", Receive State=%s", val_to_str_const(disRadioReceiveState, DIS_PDU_RadioReceiveState_Strings, "Unknown Receive State"));
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_receive_power, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_Entity(tvb, tree, offset, "Transmitter ID");
+
+    proto_tree_add_item(tree, hf_dis_transmitter_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
 /* DIS Warfare PDUs
  */
 static int dissect_DIS_PARSER_FIRE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
@@ -8447,6 +8488,8 @@ static gint parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     case DIS_PDUTYPE_SIGNAL:
     case DIS_PDUTYPE_INTERCOM_SIGNAL:
         return dissect_DIS_PARSER_SIGNAL_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_RECEIVER:
+        return dissect_DIS_PARSER_RECEIVER_PDU(tvb, pinfo, tree, offset);
     case DIS_PDUTYPE_INTERCOM_CONTROL:
         return dissect_DIS_PARSER_INTERCOM_CONTROL_PDU(tvb, pinfo, tree, offset);
     /* DIS Warfare PDUs */
@@ -9069,6 +9112,11 @@ void proto_register_dis(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_dis_transmitter_radio_id,
+              { "Transmitter Radio ID",  "dis.radio.transmitter_radio_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_dis_ens,
               { "Encoding Scheme",  "dis.radio.encoding_scheme",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -9134,6 +9182,11 @@ void proto_register_dis(void)
                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioTransmitState_Strings), 0x0,
                 NULL, HFILL }
             },
+            { &hf_dis_radio_receive_state,
+              { "Radio Receive State", "dis.radio.receive_state",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioReceiveState_Strings), 0x0,
+                NULL, HFILL }
+            },
             { &hf_dis_radio_input_source,
               { "Radio Input Source", "dis.radio.input_source",
                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioInputSource_Strings), 0x0,
@@ -9191,6 +9244,11 @@ void proto_register_dis(void)
             },
             { &hf_dis_transmit_power,
               { "Transmit Power", "dis.transmit_power",
+                FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL}
+            },
+            { &hf_dis_receive_power,
+              { "Receive Power", "dis.receive_power",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 NULL, HFILL}
             },
