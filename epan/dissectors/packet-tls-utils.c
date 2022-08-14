@@ -6604,8 +6604,14 @@ ssl_add_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, prot
     guint32     veclen_value;
     proto_item *pi;
 
-    DISSECTOR_ASSERT(offset <= offset_end);
-    DISSECTOR_ASSERT(min_value <= max_value);
+    DISSECTOR_ASSERT_CMPUINT(min_value, <=, max_value);
+    if (offset > offset_end) {
+        expert_add_info_format(pinfo, tree, &hf->ei.malformed_buffer_too_small,
+                               "Vector offset is past buffer end offset (%u > %u)",
+                               offset, offset_end);
+        *ret_length = 0;
+        return FALSE;   /* Cannot read length. */
+    }
 
     if (max_value > 0xffffff) {
         veclen_size = 4;
