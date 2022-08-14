@@ -1291,7 +1291,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     if (interface_opts->extcap_args)
         g_hash_table_unref(interface_opts->extcap_args);
     if (interface_opts->extcap_pid != WS_INVALID_PID)
-        ws_pipe_close((ws_pipe_t *) interface_opts->extcap_pipedata);
+        ws_warning("Extcap still running during interface delete");
     g_free(interface_opts->extcap_pipedata);
     if (interface_opts->extcap_stderr)
         g_string_free(interface_opts->extcap_stderr, TRUE);

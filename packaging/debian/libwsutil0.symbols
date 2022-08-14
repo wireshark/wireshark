@@ -427,7 +427,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_optopt@Base 3.5.1
  ws_optpos@Base 3.5.1
  ws_optreset@Base 3.5.1
- ws_pipe_close@Base 2.6.5
  ws_pipe_data_available@Base 2.5.0
  ws_pipe_init@Base 2.5.1
  ws_pipe_spawn_async@Base 2.5.1

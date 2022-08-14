@@ -171,12 +171,6 @@ write_mmdbr_stdin_worker(gpointer data _U_) {
     MMDB_DEBUG("starting write worker");
 
     while (1) {
-        if (!mmdbr_pipe_valid()) {
-            // Should be due to mmdb_resolve_stop.
-            MMDB_DEBUG("invalid mmdbr stdin pipe. exiting thread.");
-            return NULL;
-        }
-
         // On some operating systems (most notably macOS), g_async_queue_timeout_pop
         // will return immediately if we've been built with an older version of GLib:
         //   https://bugzilla.gnome.org/show_bug.cgi?id=673607
@@ -184,9 +178,12 @@ write_mmdbr_stdin_worker(gpointer data _U_) {
         // mmdb_resolve_stop will close our pipe and then push an invalid address
         // (mmdbr_stop_sentinel) onto the queue.
         char *request = (char *) g_async_queue_pop(mmdbr_request_q);
-        if (!request || strcmp(request, mmdbr_stop_sentinel) == 0) {
-            g_free(request);
+        if (!request) {
             continue;
+        }
+        if (strcmp(request, mmdbr_stop_sentinel) == 0) {
+            g_free(request);
+            return NULL;
         }
 
         MMDB_DEBUG("write %s ql %d", request, g_async_queue_length(mmdbr_request_q));
@@ -248,12 +245,8 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
                 if (bytes_read > 0) {
                     bytes_in_buffer += bytes_read;
                 } else {
-                    if (!mmdbr_pipe_valid()) {
-                        // Should be due to mmdb_resolve_stop.
-                        MMDB_DEBUG("invalid mmdbr stdout pipe. exiting thread.");
-                        break;
-                    }
-                    MMDB_DEBUG("no pipe data");
+                    MMDB_DEBUG("no pipe data. exiting thread.");
+                    break;
                 }
             } else {
                 MMDB_DEBUG("long line");
@@ -387,9 +380,6 @@ static void mmdb_resolve_stop(void) {
 
     g_rw_lock_writer_lock(&mmdbr_pipe_mtx);
 
-    MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
-    ws_pipe_close(&mmdbr_pipe);
-
     g_async_queue_push(mmdbr_request_q, g_strdup(mmdbr_stop_sentinel));
 
     g_rw_lock_writer_unlock(&mmdbr_pipe_mtx);
@@ -400,6 +390,15 @@ static void mmdb_resolve_stop(void) {
 
     MMDB_DEBUG("closing stdin IO");
     g_io_channel_unref(mmdbr_pipe.stdin_io);
+
+#ifdef _WIN32
+    /* TODO: Actually solve the issue instead of just terminating process */
+    MMDB_DEBUG("terminating pid %d", mmdbr_pipe.pid);
+    TerminateProcess(mmdbr_pipe.pid, 0);
+#endif
+    MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
+    g_spawn_close_pid(mmdbr_pipe.pid);
+    mmdbr_pipe.pid = WS_INVALID_PID;
 
     // child process notices broken stdin pipe and exits (breaks stdout pipe)
     // read_mmdbr_stdout_worker should exit
