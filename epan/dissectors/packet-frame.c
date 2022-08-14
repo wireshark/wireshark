@@ -114,6 +114,7 @@ static gint ett_pcaplog_data = -1;
 static expert_field ei_comments_text = EI_INIT;
 static expert_field ei_arrive_time_out_of_range = EI_INIT;
 static expert_field ei_incomplete = EI_INIT;
+static expert_field ei_len_lt_caplen = EI_INIT;
 
 static int frame_tap = -1;
 
@@ -786,9 +787,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 				    0, 0, pinfo->num);
 
-		proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
-					   0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
-					   frame_len, frame_plurality, frame_len * 8);
+		item = proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
+						  0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
+						  frame_len, frame_plurality, frame_len * 8);
+		if (frame_len < cap_len)
+			expert_add_info(pinfo, item, &ei_len_lt_caplen);
 
 		proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
 					   0, 0, cap_len, "Capture Length: %u byte%s (%u bits)",
@@ -1465,7 +1468,8 @@ proto_register_frame(void)
 	static ei_register_info ei[] = {
 		{ &ei_comments_text, { "frame.comment.expert", PI_COMMENTS_GROUP, PI_COMMENT, "Formatted comment", EXPFILL }},
 		{ &ei_arrive_time_out_of_range, { "frame.time_invalid", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-1000000000)", EXPFILL }},
-		{ &ei_incomplete, { "frame.incomplete", PI_UNDECODED, PI_NOTE, "Incomplete dissector", EXPFILL }}
+		{ &ei_incomplete, { "frame.incomplete", PI_UNDECODED, PI_NOTE, "Incomplete dissector", EXPFILL }},
+		{ &ei_len_lt_caplen, { "frame.len_lt_caplen", PI_MALFORMED, PI_ERROR, "Frame length is less than captured length", EXPFILL }}
 	};
 
 	module_t *frame_module;
