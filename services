@@ -3918,8 +3918,9 @@ fdt-rcatp	4320/tcp/udp	# FDT Remote Categorization Protocol
 rwhois		4321/tcp/udp	# Remote Who Is
 trim-event	4322/tcp/udp	# TRIM Event Service
 trim-ice	4323/tcp/udp	# TRIM ICE Service
-geognosisman	4325/tcp/udp	# Cadcorp GeognoSIS Manager Service
-geognosis	4326/tcp/udp	# Cadcorp GeognoSIS Service
+geognosisadmin	4325/tcp	# Cadcorp GeognoSIS Administrator
+geognosisman	4325/udp	# Cadcorp GeognoSIS Administrator
+geognosis	4326/tcp/udp	# Cadcorp GeognoSIS
 jaxer-web	4327/tcp/udp	# Jaxer Web Protocol
 jaxer-manager	4328/tcp/udp	# Jaxer Manager Command Protocol
 publiqare-sync	4329/tcp	# PubliQare Distributed Environment Synchronisation Engine
@@ -4656,10 +4657,14 @@ rpas-c2		5906/tcp/udp/sctp	# Remotely Piloted Vehicle C&C
 dsd		5907/tcp/udp/sctp	# Distress and Safety Data App
 ipsma		5908/tcp/udp/sctp	# IPS Management Application
 agma		5909/tcp/udp/sctp	# Air-ground media advisory
-cm		5910/tcp/udp/sctp	# Context Management
-cpdlc		5911/tcp/udp/sctp	# Controller Pilot Data Link Communication
-fis		5912/tcp/udp/sctp	# Flight Information Services
-ads-c		5913/tcp/udp/sctp	# Automatic Dependent Surveillance
+ats-atn		5910/tcp/udp	# Air Traffic Services applications using ATN
+cm		5910/sctp	# Context Management
+ats-acars	5911/tcp/udp	# Air Traffic Services applications using ACARS
+cpdlc		5911/sctp	# Controller Pilot Data Link Communication
+ais-met		5912/tcp/udp	# Aeronautical Information Service/Meteorological applications using ACARS
+fis		5912/sctp	# Flight Information Services
+aoc-acars	5913/tcp/udp	# Airline operational communications applications using ACARS
+ads-c		5913/sctp	# Automatic Dependent Surveillance
 indy		5963/tcp/udp	# Indy Application Server
 mppolicy-v5	5968/tcp/udp
 mppolicy-mgr	5969/tcp/udp

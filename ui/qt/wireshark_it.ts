@@ -29,8 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <oldsource>Copy To Clipboard</oldsource>
-        <translation type="unfinished">Copia negli appunti</translation>
+        <translation>Copia negli appunti</translation>
     </message>
     <message>
         <source>Authors</source>
