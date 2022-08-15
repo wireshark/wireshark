@@ -7,7 +7,7 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an experimental release intended to test new features for Wireshark 4.0.
+This is the first release candidate for Wireshark 4.0.
 
 == What is Wireshark?
 
@@ -89,6 +89,8 @@ See the “New and Updated Features” section below for more details.
 === New and Updated Features
 
 The following features are new (or have been significantly updated) since version 3.7.2:
+
+Nothing of note.
 
 The following features are new (or have been significantly updated) since version 3.7.1:
 
@@ -245,6 +247,7 @@ Enhanced Trading Interface 10.0 (ETI)
 FiveCo's Legacy Register Access Protocol (5co-legacy)
 Generic Data Transfer Protocol (GDT)
 Host IP Configuration Protocol (HICP)
+Huawei GRE bonding (GREbond)
 Locamation Interface Module (IDENT, CALIBRATION, SAMPLES - IM1, SAMPLES - IM2R0)
 Mesh Connex (MCX)
 Microsoft Cluster Remote Control Protocol (RCP)
@@ -256,7 +259,7 @@ Secure File Transfer Protocol (sftp)
 Secure Host IP Configuration Protocol (SHICP)
 SSH File Transfer Protocol (SFTP)
 USB Attached SCSI (UASP)
-ZBOSS NCP
+ZBOSS Network Coprocessor product (ZB NCP)
 gRPC Web (gRPC-Web)
 --
 

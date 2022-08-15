@@ -24,7 +24,7 @@ Wireshark.
 
 .PARAMETER Destination
 Specifies the destination directory for the text files. The path must
-contain the pattern "wireshark-*-libs".
+contain the pattern "wireshark-*-libs-4.0".
 
 .PARAMETER Platform
 Target platform. Must be "win64".
@@ -43,12 +43,12 @@ their compressed archives.
 A manifest file (library-manifest.xml)
 
 .EXAMPLE
-C:\PS> .\tools\win-setup.ps1 -Destination C:\wireshark-master-64-libs -Platform win64
+C:\PS> .\tools\win-setup.ps1 -Destination C:\wireshark-master-64-libs-4.0 -Platform win64
 #>
 
 Param(
     [Parameter(Mandatory=$true, Position=0)]
-    [ValidateScript({$_ -like "*[/\]wireshark-*-libs"})]
+    [ValidateScript({$_ -like "*[/\]wireshark-*-libs-4.0"})]
     [String]
     $Destination,
 

@@ -50,7 +50,7 @@ option(BUILD_sharkd        "Build sharkd" ON)
 option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
 option(BUILD_fuzzshark     "Build fuzzshark" OFF)
 
-option(ENABLE_WERROR     "Treat warnings as errors" ON)
+option(ENABLE_WERROR     "Treat warnings as errors" OFF)
 option(ENABLE_DEBUG      "Enable debug code" ON)
 option(ENABLE_ASSERT     "Enable assertions" ON)
 option(ENABLE_CCACHE     "Speed up compiling and linking using ccache if possible" OFF)
