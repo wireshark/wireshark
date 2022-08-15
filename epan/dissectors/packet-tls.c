@@ -2253,8 +2253,6 @@ save_tls_handshake_fragment(packet_info *pinfo, guint8 curr_layer_num_tls,
 {
     // Full handshake messages should not be saved.
     DISSECTOR_ASSERT(!(frag_offset == 0 && is_last));
-    // Fragment data must be non-empty.
-    DISSECTOR_ASSERT(frag_len != 0);
     // 0 is a special value indicating no reassembly in progress.
     DISSECTOR_ASSERT(reassembly_id != 0);
 
