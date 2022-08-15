@@ -4044,6 +4044,14 @@ configure_file(
 add_custom_target(uninstall
 	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
+# Break on programmer errors when debugging in Visual Studio
+if(MSVC)
+	get_property(_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
+	foreach(_target ${_targets})
+		set_target_properties(${_target} PROPERTIES VS_DEBUGGER_ENVIRONMENT "G_DEBUG=fatal-criticals")
+	endforeach()
+endif()
+
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
