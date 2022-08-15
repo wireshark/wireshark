@@ -39,6 +39,8 @@ typedef struct _quic_stream_info {
 typedef struct quic_cid {
     guint8      len;
     guint8      cid[QUIC_MAX_CID_LENGTH];
+    guint8      reset_token[16];
+    gboolean    reset_token_set;
 } quic_cid_t;
 
 /**
@@ -75,6 +77,8 @@ void
 quic_add_connection(packet_info *pinfo, const quic_cid_t *cid);
 void
 quic_add_loss_bits(packet_info *pinfo, guint64 value);
+void
+quic_add_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, gint offset, const quic_cid_t *cid);
 void
 quic_proto_tree_add_version(tvbuff_t *tvb, proto_tree *tree, int hfindex, guint offset);
 
