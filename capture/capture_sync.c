@@ -321,6 +321,8 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
                 void (*update_cb)(void))
 {
 #ifdef _WIN32
+    size_t i_handles = 0;                   /* Number of handles the child prcess will inherit */
+    HANDLE *handles;                        /* Handles the child process will inherit */
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from child to parent */
     int signal_pipe_write_fd;
@@ -477,6 +479,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             char *pipe = ws_strdup_printf("%s%" PRIuPTR, EXTCAP_PIPE_PREFIX, interface_opts->extcap_pipe_h);
             argv = sync_pipe_add_arg(argv, &argc, pipe);
             g_free(pipe);
+            i_handles++;
 #else
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->extcap_fifo);
 #endif
@@ -595,7 +598,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
 #ifdef _WIN32
     /* init SECURITY_ATTRIBUTES */
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = TRUE;
+    sa.bInheritHandle = FALSE;
     sa.lpSecurityDescriptor = NULL;
 
     /* Create a pipe for the child process */
@@ -685,8 +688,24 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         g_free(quoted_arg);
     }
 
+    handles = g_new(HANDLE, 3 + i_handles);
+    i_handles = 0;
+    if (si.hStdInput) {
+        handles[i_handles++] = si.hStdInput;
+    }
+    if (si.hStdOutput && (si.hStdOutput != si.hStdInput)) {
+        handles[i_handles++] = si.hStdOutput;
+    }
+    handles[i_handles++] = si.hStdError;
+    for (j = 0; j < capture_opts->ifaces->len; j++) {
+        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, j);
+        if (interface_opts->extcap_fifo != NULL) {
+            handles[i_handles++] = interface_opts->extcap_pipe_h;
+        }
+    }
+
     /* call dumpcap */
-    if(!win32_create_process(argv[0], args->str, NULL, NULL, TRUE,
+    if(!win32_create_process(argv[0], args->str, NULL, NULL, i_handles, handles,
                                CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         report_failure("Couldn't run %s in child process: %s",
                        args->str, win32strerror(GetLastError()));
@@ -695,12 +714,14 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         ws_close(signal_pipe_write_fd); /* Should close signal_pipe */
         free_argv(argv, argc);
         g_string_free(args, TRUE);
+        g_free(handles);
         return FALSE;
     }
     cap_session->fork_child = pi.hProcess;
     /* We may need to store this and close it later */
     CloseHandle(pi.hThread);
     g_string_free(args, TRUE);
+    g_free(handles);
 
     cap_session->signal_pipe_write_fd = signal_pipe_write_fd;
 
@@ -816,6 +837,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
 #ifdef _WIN32
     HANDLE sync_pipe[2];                    /* pipe used to send messages from child to parent */
     HANDLE data_pipe[2];                    /* pipe used to send data from child to parent */
+    HANDLE handles[2];                      /* handles inherited by child process */
     GString *args = g_string_sized_new(200);
     gchar *quoted_arg;
     SECURITY_ATTRIBUTES sa;
@@ -843,7 +865,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
 #ifdef _WIN32
     /* init SECURITY_ATTRIBUTES */
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = TRUE;
+    sa.bInheritHandle = FALSE;
     sa.lpSecurityDescriptor = NULL;
 
     /* Create a pipe for the child process to send us messages */
@@ -914,6 +936,9 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     si.hStdError = sync_pipe[PIPE_WRITE];
 #endif
 
+    handles[0] = si.hStdOutput;
+    handles[1] = si.hStdError;
+
     /* convert args array into a single string */
     /* XXX - could change sync_pipe_add_arg() instead */
     /* there is a drawback here: the length is internally limited to 1024 bytes */
@@ -925,8 +950,8 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     }
 
     /* call dumpcap */
-    if(!win32_create_process(argv[0], args->str, NULL, NULL, TRUE,
-                               CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+    if(!win32_create_process(argv[0], args->str, NULL, NULL, G_N_ELEMENTS(handles), handles,
+                             CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         *msg = ws_strdup_printf("Couldn't run %s in child process: %s",
                                args->str, win32strerror(GetLastError()));
         ws_close(*data_read_fd);       /* Should close data_pipe[PIPE_READ] */
