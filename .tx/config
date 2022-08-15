@@ -19,8 +19,8 @@ trans.zh_CN = ui/qt/wireshark_zh_CN.ts
 type = QT
 
 [wireshark.po-master]
-file_filter = debian/po/<lang>.po
-source_file = debian/po/templates.pot
+file_filter = packaging/debian/po/<lang>.po
+source_file = packaging/debian/po/templates.pot
 source_lang = en
 type = PO
 
