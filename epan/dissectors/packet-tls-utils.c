@@ -7857,6 +7857,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN:
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_stateless_reset_token,
                                     tvb, offset, 16, ENC_BIG_ENDIAN);
+                quic_add_stateless_reset_token(pinfo, tvb, offset, NULL);
                 offset += 16;
             break;
             case SSL_HND_QUIC_TP_MAX_UDP_PAYLOAD_SIZE:
@@ -7951,6 +7952,9 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
 
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_statelessresettoken,
                                     tvb, offset, 16, ENC_NA);
+                if (connectionid_length >= 1 && connectionid_length <= QUIC_MAX_CID_LENGTH) {
+                    quic_add_stateless_reset_token(pinfo, tvb, offset, &cid);
+                }
                 offset += 16;
             }
             break;
