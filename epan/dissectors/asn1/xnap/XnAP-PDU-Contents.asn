@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.9.0 (2022-04)
+-- 3GPP TS 38.423 V17.1.0 (2022-06)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -35,6 +35,8 @@ IMPORTS
 	CellAssistanceInfo-NR,
 	CHOinformation-Req,
 	CHOinformation-Ack,
+	CHOinformation-AddReq,
+	CHOinformation-ModReq,
 	CHO-MRDC-EarlyDataForwarding,
 	CHO-MRDC-Indicator,
 	CPTransportLayerInformation,
@@ -67,6 +69,7 @@ IMPORTS
 	GUAMI,
 	InterfaceInstanceIndication,
 	I-RNTI,
+	Local-NG-RAN-Node-Identifier,
 	LocationInformationSNReporting,
 	LocationReportingInformation,
 	LowerLayerPresenceStatusChange,
@@ -82,6 +85,7 @@ IMPORTS
 	MDT-Configuration,
 	MDTPLMNList,
 	MobilityRestrictionList,
+	Neighbour-NG-RAN-Node-List,
 	NG-RAN-Cell-Identity,
 	NG-RANnodeUEXnAPID,
 	NR-CGI,
@@ -89,7 +93,7 @@ IMPORTS
 	NRUESidelinkAggregateMaximumBitRate,
 	NRV2XServicesAuthorized,
 	PagingDRX,
-	PagingeDRXInformation,
+	EUTRAPagingeDRXInformation,
 	PagingPriority,
 	PartialListIndicator,
 	PLMN-Identity,
@@ -181,7 +185,65 @@ IMPORTS
 	SNTriggered,
 	SCGIndicator,
 	UESpecificDRX,
-	DirectForwardingPathAvailability
+	DirectForwardingPathAvailability,
+	TransportLayerAddress,
+	PrivacyIndicator,
+	URIaddress,
+	MBS-Session-ID,
+	UEIdentityIndexList-MBSGroupPaging,
+	MBS-SessionInformation-List,
+	MBS-SessionInformationResponse-List,
+	SuccessfulHOReportInformation,
+	PSCellHistoryInformationRetrieve,
+	SSBOffsets-List,
+	NG-RANnode2SSBOffsetsModificationRange,
+	Coverage-Modification-List,
+	SCGFailureReportContainer,
+	SNMobilityInformation,
+	PSCellChangeHistory,
+	CHOConfiguration,
+	SCGUEHistoryInformation,
+	F1CTrafficContainer,
+	NoPDUSessionIndication,
+	IAB-TNL-Address-Request,
+	IAB-TNL-Address-Response,
+	TrafficIndex,
+	TrafficProfile,
+	TrafficToBeReleaseInformation,
+	F1-TerminatingTopologyBHInformation,
+	Non-F1-TerminatingTopologyBHInformation,
+	BHInfoList,
+	IABTNLAddress,
+	IABCellInformation,
+	IABTNLAddressException,
+	TimeSynchronizationAssistanceInformation,
+	SCGActivationRequest,
+	SCGActivationStatus,
+	CPAInformationRequest,
+	CPAInformationAck,
+	CPCInformationRequired,
+	CPCInformationConfirm,
+	CPAInformationModReq,
+	CPAInformationModReqAck,
+	CPC-DataForwarding-Indicator,
+	CPCInformationUpdate,
+	CPACInformationModRequired,
+	QMCConfigInfo,
+	FiveGProSeAuthorized,
+	FiveGProSePC5QoSParameters,
+	ServedCellSpecificInfoReq-NR,
+	NRPagingeDRXInformation,
+	NRPagingeDRXInformationforRRCINACTIVE,
+	SDTSupportRequest,
+	SDT-Termination-Request,
+	SDTPartialUEContextInfo,
+	SDTDataForwardingDRBList,
+	PEIPSassistanceInformation,
+	UESliceMaximumBitRateList,
+	PagingCause,
+	MDTPLMNModificationList,
+	F1-terminatingIAB-donorIndicator,
+	SRB-ID
 
 
 FROM XnAP-IEs
@@ -245,8 +307,9 @@ FROM XnAP-Containers
 	id-NRV2XServicesAuthorized,
 	id-oldNG-RANnodeUEXnAPID,
 	id-OldtoNewNG-RANnodeResumeContainer,
+	id-PagingCause,
 	id-PagingDRX,
-	id-PagingeDRXInformation,
+	id-EUTRAPagingeDRXInformation,
 	id-PagingPriority,
 	id-PartialListIndicator-EUTRA,
 	id-PartialListIndicator-NR,
@@ -387,13 +450,97 @@ FROM XnAP-Containers
 	id-DirectForwardingPathAvailability,
 	id-SourceNG-RAN-node-ID,
 	id-TargetNodeID,
+	id-ManagementBasedMDTPLMNList,
+	id-PrivacyIndicator,
+	id-TraceCollectionEntityIPAddress,
+	id-TraceCollectionEntityURI,
+	id-MBS-Session-ID,
+	id-UEIdentityIndexList-MBSGroupPaging,
+	id-MulticastRANPagingArea,
+	id-MBS-SessionInformation-List,
+	id-MBS-SessionInformationResponse-List,
+	id-SuccessfulHOReportInformation,
+	id-PSCellHistoryInformationRetrieve,
+	id-SSBOffsets-List,
+	id-NG-RANnode2SSBOffsetsModificationRange,
+	id-Coverage-Modification-List,
+	id-SourcePSCellCGI,
+	id-FailedPSCellCGI,
+	id-SCGFailureReportContainer,
+	id-SNMobilityInformation,
+	id-SourcePSCellID,
+	id-SuitablePSCellCGI,
+	id-PSCellChangeHistory,
+	id-CHOConfiguration,
+	id-SCGUEHistoryInformation,
+	id-F1CTrafficContainer,
+	id-NoPDUSessionIndication,
+	id-F1-Terminating-IAB-DonorUEXnAPID,
+	id-nonF1-Terminating-IAB-DonorUEXnAPID,
+	id-IAB-TNL-Address-Request,
+	id-IAB-TNL-Address-Response,
+	id-TrafficToBeAddedList,
+	id-TrafficToBeModifiedList,
+	id-TrafficToBeReleaseInformation,
+	id-TrafficAddedList,
+	id-TrafficModifiedList,
+	id-TrafficNotAddedList,
+	id-TrafficNotModifiedList,
+	id-TrafficRequiredToBeModifiedList,
+	id-TrafficRequiredModifiedList,
+	id-TrafficReleasedList,
+	id-IABTNLAddressToBeAdded,
+	id-IABTNLAddressToBeReleasedList,
+	id-BoundaryNodeCellsList,
+	id-ParentNodeCellsList,
+	id-IABTNLAddressException,
+	id-CHOinformation-AddReq,
+	id-CHOinformation-ModReq,
+	id-TimeSynchronizationAssistanceInformation,
+	id-SCGActivationRequest,
+	id-SCGActivationStatus,
+	id-CPAInformationRequest,
+	id-CPAInformationAck,
+	id-CPCInformationRequired,
+	id-CPCInformationConfirm,
+	id-CPAInformationModReq,
+	id-CPAInformationModReqAck,
+	id-CPC-DataForwarding-Indicator,
+	id-CPCInformationUpdate,
+	id-CPACInformationModRequired,
+	id-QMCConfigInfo,
+	id-Local-NG-RAN-Node-Identifier,
+	id-Neighbour-NG-RAN-Node-List,
+	id-Local-NG-RAN-Node-Identifier-Removal,
+	id-FiveGProSeAuthorized,
+	id-FiveGProSePC5QoSParameters,
+	id-FiveGProSeUEPC5AggregateMaximumBitRate,
+	id-ServedCellSpecificInfoReq-NR,
+	id-NRPagingeDRXInformation,
+	id-NRPagingeDRXInformationforRRCINACTIVE,
+	id-SDTSupportRequest,
+	id-SDT-SRB-between-NewNode-OldNode,
+	id-SDT-Termination-Request,
+	id-SDTPartialUEContextInfo,
+	id-SDTDataForwardingDRBList,
+	id-PEIPSassistanceInformation,
+	id-UESliceMaximumBitRateList,
+	id-S-NG-RANnodeUE-Slice-MBR,
+	id-ManagementBasedMDTPLMNModificationList,
+	id-F1-terminatingIAB-donorIndicator,
 
 
 
 	maxnoofCellsinNG-RANnode,
 	maxnoofDRBs,
 	maxnoofPDUSessions,
-	maxnoofQoSFlows
+	maxnoofQoSFlows,
+	maxnoofServedCellsIAB,
+	maxnoofTrafficIndexEntries,
+	maxnoofTLAsIAB,
+	maxnoofBAPControlPDURLCCHs,
+	maxnoofServingCells
+
 FROM XnAP-Constants;
 
 -- **************************************************************
@@ -418,12 +565,17 @@ HandoverRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-UEHistoryInformation				CRITICALITY ignore	TYPE UEHistoryInformation						PRESENCE mandatory}|
 	{ ID id-UEContextRefAtSN-HORequest			CRITICALITY ignore	TYPE UEContextRefAtSN-HORequest				PRESENCE optional }|
 	{ ID id-CHOinformation-Req					CRITICALITY reject	TYPE CHOinformation-Req							PRESENCE optional }|
-{ ID id-NRV2XServicesAuthorized				CRITICALITY ignore	TYPE NRV2XServicesAuthorized					PRESENCE optional }|
-{ ID id-LTEV2XServicesAuthorized			CRITICALITY ignore	TYPE LTEV2XServicesAuthorized					PRESENCE optional }|
-{ ID id-PC5QoSParameters					CRITICALITY ignore	TYPE PC5QoSParameters					PRESENCE optional }|
-	{ ID id-MobilityInformation				CRITICALITY ignore	TYPE MobilityInformation								PRESENCE optional}|
-	{ ID id-UEHistoryInformationFromTheUE	CRITICALITY ignore	TYPE UEHistoryInformationFromTheUE				PRESENCE optional }|
-	{ ID id-IABNodeIndication					CRITICALITY reject	TYPE IABNodeIndication							PRESENCE optional},
+	{ ID id-NRV2XServicesAuthorized				CRITICALITY ignore	TYPE NRV2XServicesAuthorized					PRESENCE optional }|
+	{ ID id-LTEV2XServicesAuthorized			CRITICALITY ignore	TYPE LTEV2XServicesAuthorized					PRESENCE optional }|
+	{ ID id-PC5QoSParameters					CRITICALITY ignore	TYPE PC5QoSParameters							PRESENCE optional }|
+	{ ID id-MobilityInformation					CRITICALITY ignore	TYPE MobilityInformation						PRESENCE optional }|
+	{ ID id-UEHistoryInformationFromTheUE		CRITICALITY ignore	TYPE UEHistoryInformationFromTheUE			PRESENCE optional }|
+	{ ID id-IABNodeIndication					CRITICALITY reject	TYPE IABNodeIndication							PRESENCE optional }|
+	{ ID id-NoPDUSessionIndication				CRITICALITY ignore	TYPE NoPDUSessionIndication						PRESENCE optional }|
+	{ ID id-TimeSynchronizationAssistanceInformation	CRITICALITY ignore	TYPE TimeSynchronizationAssistanceInformation		PRESENCE optional }|
+	{ ID id-QMCConfigInfo						CRITICALITY ignore	TYPE QMCConfigInfo								PRESENCE optional }|
+	{ ID id-FiveGProSeAuthorized				CRITICALITY ignore	TYPE FiveGProSeAuthorized						PRESENCE optional }|
+	{ ID id-FiveGProSePC5QoSParameters			CRITICALITY ignore	TYPE FiveGProSePC5QoSParameters				PRESENCE optional },
 	...
 }
 
@@ -447,7 +599,10 @@ UEContextInfoHORequest-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
 	{ ID id-NRUESidelinkAggregateMaximumBitRate		CRITICALITY ignore	EXTENSION NRUESidelinkAggregateMaximumBitRate			PRESENCE optional }|
 	{ ID id-LTEUESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION LTEUESidelinkAggregateMaximumBitRate			PRESENCE optional }|
 	{ ID id-MDTPLMNList								CRITICALITY ignore	EXTENSION MDTPLMNList											PRESENCE optional }|
-	{ ID id-UERadioCapabilityID						CRITICALITY reject	EXTENSION UERadioCapabilityID								PRESENCE optional },
+	{ ID id-UERadioCapabilityID						CRITICALITY reject	EXTENSION UERadioCapabilityID								PRESENCE optional }|
+	{ ID id-MBS-SessionInformation-List				CRITICALITY ignore	EXTENSION MBS-SessionInformation-List						PRESENCE optional }|
+	{ ID id-FiveGProSeUEPC5AggregateMaximumBitRate	CRITICALITY ignore	EXTENSION NRUESidelinkAggregateMaximumBitRate			PRESENCE optional }|
+	{ ID id-UESliceMaximumBitRateList				CRITICALITY ignore	EXTENSION UESliceMaximumBitRateList						PRESENCE optional },
 	...
 }
 
@@ -488,7 +643,8 @@ HandoverRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional }|
 	{ ID id-DRBs-transferred-to-MN					CRITICALITY ignore	TYPE DRB-List										PRESENCE optional }|
 	{ ID id-DAPSResponseInfo-List					CRITICALITY reject	TYPE DAPSResponseInfo-List						PRESENCE optional }|
-	{ ID id-CHOinformation-Ack						CRITICALITY reject	TYPE CHOinformation-Ack								PRESENCE optional },
+	{ ID id-CHOinformation-Ack						CRITICALITY reject	TYPE CHOinformation-Ack								PRESENCE optional }|
+	{ ID id-MBS-SessionInformationResponse-List		CRITICALITY ignore	TYPE MBS-SessionInformationResponse-List		PRESENCE optional },
 	...
 }
 
@@ -525,7 +681,9 @@ SNStatusTransfer ::= SEQUENCE {
 SNStatusTransfer-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-sourceNG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-targetNG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-DRBsSubjectToStatusTransfer-List		CRITICALITY ignore		TYPE DRBsSubjectToStatusTransfer-List		PRESENCE mandatory},
+	{ ID id-DRBsSubjectToStatusTransfer-List		CRITICALITY ignore		TYPE DRBsSubjectToStatusTransfer-List		PRESENCE mandatory}|
+	{ ID id-CHOConfiguration							CRITICALITY ignore		TYPE CHOConfiguration								PRESENCE optional}|
+	{ ID id-MobilityInformation						CRITICALITY ignore		TYPE MobilityInformation							PRESENCE optional},
 	...
 }
 
@@ -662,16 +820,20 @@ RANPaging ::= SEQUENCE {
 }
 
 RANPaging-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-UEIdentityIndexValue				CRITICALITY reject		TYPE UEIdentityIndexValue							PRESENCE mandatory}|
-	{ ID id-UERANPagingIdentity					CRITICALITY ignore		TYPE UERANPagingIdentity							PRESENCE mandatory}|
-	{ ID id-PagingDRX							CRITICALITY ignore		TYPE PagingDRX										PRESENCE mandatory}|
-	{ ID id-RANPagingArea						CRITICALITY reject		TYPE RANPagingArea									PRESENCE mandatory}|
-	{ ID id-PagingPriority						CRITICALITY ignore		TYPE PagingPriority									PRESENCE optional }|
-	{ ID id-AssistanceDataForRANPaging			CRITICALITY ignore		TYPE AssistanceDataForRANPaging					PRESENCE optional }|
-	{ ID id-UERadioCapabilityForPaging			CRITICALITY ignore		TYPE UERadioCapabilityForPaging					PRESENCE optional }|
-	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY ignore		TYPE ExtendedUEIdentityIndexValue				PRESENCE optional }|
-	{ ID id-PagingeDRXInformation				CRITICALITY ignore		TYPE PagingeDRXInformation						PRESENCE optional }|
-	{ ID id-UESpecificDRX						CRITICALITY ignore		TYPE UESpecificDRX									PRESENCE optional },
+	{ ID id-UEIdentityIndexValue					CRITICALITY reject		TYPE UEIdentityIndexValue						PRESENCE mandatory}|
+	{ ID id-UERANPagingIdentity						CRITICALITY ignore		TYPE UERANPagingIdentity							PRESENCE mandatory}|
+	{ ID id-PagingDRX								CRITICALITY ignore		TYPE PagingDRX										PRESENCE mandatory}|
+	{ ID id-RANPagingArea							CRITICALITY reject		TYPE RANPagingArea									PRESENCE mandatory}|
+	{ ID id-PagingPriority							CRITICALITY ignore		TYPE PagingPriority									PRESENCE optional }|
+	{ ID id-AssistanceDataForRANPaging				CRITICALITY ignore		TYPE AssistanceDataForRANPaging				PRESENCE optional }|
+	{ ID id-UERadioCapabilityForPaging				CRITICALITY ignore		TYPE UERadioCapabilityForPaging				PRESENCE optional }|
+	{ ID id-ExtendedUEIdentityIndexValue			CRITICALITY ignore		TYPE ExtendedUEIdentityIndexValue				PRESENCE optional }|
+	{ ID id-EUTRAPagingeDRXInformation				CRITICALITY ignore		TYPE EUTRAPagingeDRXInformation				PRESENCE optional }|
+	{ ID id-UESpecificDRX							CRITICALITY ignore		TYPE UESpecificDRX									PRESENCE optional }|
+	{ ID id-NRPagingeDRXInformation					CRITICALITY ignore		TYPE NRPagingeDRXInformation					PRESENCE optional }|
+	{ ID id-NRPagingeDRXInformationforRRCINACTIVE	CRITICALITY ignore		TYPE NRPagingeDRXInformationforRRCINACTIVE	PRESENCE optional }|
+	{ ID id-PagingCause								CRITICALITY ignore		TYPE PagingCause										PRESENCE optional }|
+	{ ID id-PEIPSassistanceInformation				CRITICALITY ignore		TYPE PEIPSassistanceInformation				PRESENCE optional },
 	...
 }
 
@@ -691,7 +853,8 @@ RetrieveUEContextRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-UEContextID								CRITICALITY reject		TYPE UEContextID									PRESENCE mandatory}|
 	{ ID id-MAC-I									CRITICALITY reject		TYPE MAC-I											PRESENCE mandatory}|
 	{ ID id-new-NG-RAN-Cell-Identity				CRITICALITY reject		TYPE NG-RAN-Cell-Identity						PRESENCE mandatory}|
-	{ ID id-RRCResumeCause							CRITICALITY ignore		TYPE RRCResumeCause									PRESENCE optional },
+	{ ID id-RRCResumeCause							CRITICALITY ignore		TYPE RRCResumeCause									PRESENCE optional }|
+	{ ID id-SDTSupportRequest						CRITICALITY ignore		TYPE SDTSupportRequest							PRESENCE optional },
 	...
 }
 
@@ -707,22 +870,48 @@ RetrieveUEContextResponse ::= SEQUENCE {
 }
 
 RetrieveUEContextResponse-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-GUAMI									CRITICALITY reject		TYPE GUAMI											PRESENCE mandatory}|
-	{ ID id-UEContextInfoRetrUECtxtResp				CRITICALITY reject		TYPE UEContextInfoRetrUECtxtResp				PRESENCE mandatory}|
-	{ ID id-TraceActivation							CRITICALITY ignore		TYPE TraceActivation								PRESENCE optional }|
-	{ ID id-MaskedIMEISV							CRITICALITY ignore		TYPE MaskedIMEISV									PRESENCE optional }|
-	{ ID id-LocationReportingInformation			CRITICALITY ignore		TYPE LocationReportingInformation				PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional }|
-{ ID id-NRV2XServicesAuthorized			CRITICALITY ignore	TYPE NRV2XServicesAuthorized		PRESENCE optional}|
-{ ID id-LTEV2XServicesAuthorized		CRITICALITY ignore	TYPE LTEV2XServicesAuthorized		PRESENCE optional}|
-	{ ID id-PC5QoSParameters				CRITICALITY ignore	TYPE PC5QoSParameters			PRESENCE optional }|
-	{ ID id-UEHistoryInformation				CRITICALITY ignore	TYPE UEHistoryInformation						PRESENCE optional}|
-	{ ID id-UEHistoryInformationFromTheUE	CRITICALITY ignore	TYPE UEHistoryInformationFromTheUE				PRESENCE optional }|
-	{ ID id-MDTPLMNList								CRITICALITY ignore		TYPE MDTPLMNList									PRESENCE optional },
+	{ ID id-newNG-RANnodeUEXnAPID						CRITICALITY ignore	TYPE NG-RANnodeUEXnAPID									PRESENCE mandatory}|
+	{ ID id-oldNG-RANnodeUEXnAPID						CRITICALITY ignore	TYPE NG-RANnodeUEXnAPID									PRESENCE mandatory}|
+	{ ID id-GUAMI										CRITICALITY reject	TYPE GUAMI													PRESENCE mandatory}|
+	{ ID id-UEContextInfoRetrUECtxtResp					CRITICALITY reject	TYPE UEContextInfoRetrUECtxtResp						PRESENCE mandatory}|
+	{ ID id-TraceActivation								CRITICALITY ignore	TYPE TraceActivation										PRESENCE optional }|
+	{ ID id-MaskedIMEISV								CRITICALITY ignore	TYPE MaskedIMEISV											PRESENCE optional }|
+	{ ID id-LocationReportingInformation				CRITICALITY ignore	TYPE LocationReportingInformation						PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional }|
+	{ ID id-NRV2XServicesAuthorized						CRITICALITY ignore	TYPE NRV2XServicesAuthorized							PRESENCE optional }|
+	{ ID id-LTEV2XServicesAuthorized					CRITICALITY ignore	TYPE LTEV2XServicesAuthorized							PRESENCE optional }|
+	{ ID id-PC5QoSParameters							CRITICALITY ignore	TYPE PC5QoSParameters										PRESENCE optional }|
+	{ ID id-UEHistoryInformation						CRITICALITY ignore	TYPE UEHistoryInformation								PRESENCE optional }|
+	{ ID id-UEHistoryInformationFromTheUE				CRITICALITY ignore	TYPE UEHistoryInformationFromTheUE					PRESENCE optional }|
+	{ ID id-MDTPLMNList									CRITICALITY ignore	TYPE MDTPLMNList											PRESENCE optional }|
+	{ ID id-IABNodeIndication							CRITICALITY reject	TYPE IABNodeIndication									PRESENCE optional }|
+	{ ID id-UEContextRefAtSN-HORequest					CRITICALITY ignore	TYPE UEContextRefAtSN-HORequest						PRESENCE optional }|
+	{ ID id-TimeSynchronizationAssistanceInformation	CRITICALITY ignore	TYPE TimeSynchronizationAssistanceInformation		PRESENCE optional }|
+	{ ID id-QMCConfigInfo								CRITICALITY ignore	TYPE QMCConfigInfo											PRESENCE optional }|
+	{ ID id-FiveGProSeAuthorized						CRITICALITY ignore	TYPE FiveGProSeAuthorized								PRESENCE optional }|
+	{ ID id-FiveGProSePC5QoSParameters					CRITICALITY ignore	TYPE FiveGProSePC5QoSParameters						PRESENCE optional },
 	...
 }
+
+-- **************************************************************
+--
+-- RETRIEVE UE CONTEXT CONFIRM
+--
+-- **************************************************************
+
+RetrieveUEContextConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{RetrieveUEContextConfirm-IEs}},
+	...
+}
+RetrieveUEContextConfirm-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-UEContextKeptIndicator					CRITICALITY ignore		TYPE UEContextKeptIndicator						PRESENCE optional }|
+	{ ID id-SDT-Termination-Request					CRITICALITY ignore		TYPE SDT-Termination-Request					PRESENCE optional },
+	...
+}
+
+
 
 -- **************************************************************
 --
@@ -764,7 +953,8 @@ XnUAddressIndication-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-XnUAddressInfoperPDUSession-List		CRITICALITY reject		TYPE XnUAddressInfoperPDUSession-List		PRESENCE mandatory}|
 	{ ID id-CHO-MRDC-Indicator						CRITICALITY reject		TYPE CHO-MRDC-Indicator							PRESENCE optional }|
-	{ ID id-CHO-MRDC-EarlyDataForwarding			CRITICALITY ignore		TYPE CHO-MRDC-EarlyDataForwarding				PRESENCE optional },
+	{ ID id-CHO-MRDC-EarlyDataForwarding			CRITICALITY ignore		TYPE CHO-MRDC-EarlyDataForwarding				PRESENCE optional }|
+	{ ID id-CPC-DataForwarding-Indicator			CRITICALITY reject		TYPE CPC-DataForwarding-Indicator				PRESENCE optional },
 	...
 }
 
@@ -803,15 +993,26 @@ SNodeAdditionRequest-IEs XNAP-PROTOCOL-IES ::= {
  -- The IE shall be present if there is at least one  PDUSessionResourceSetupInfo-SNterminated included --|
 	{ ID id-S-NG-RANnodeMaxIPDataRate-UL		CRITICALITY reject		TYPE BitRate										PRESENCE optional }|
 	{ ID id-S-NG-RANnodeMaxIPDataRate-DL		CRITICALITY reject		TYPE BitRate										PRESENCE optional }|
-	{ ID id-LocationInformationSNReporting		CRITICALITY ignore		TYPE LocationInformationSNReporting			PRESENCE optional}|
+	{ ID id-LocationInformationSNReporting		CRITICALITY ignore		TYPE LocationInformationSNReporting			PRESENCE optional }|
 	{ ID id-MR-DC-ResourceCoordinationInfo		CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo			PRESENCE optional }|
-	{ ID id-MaskedIMEISV						CRITICALITY ignore		TYPE MaskedIMEISV									PRESENCE optional}|
-	{ ID id-NE-DC-TDM-Pattern					CRITICALITY ignore		TYPE NE-DC-TDM-Pattern								PRESENCE optional}|
-	{ ID id-S-NG-RANnode-Addition-Trigger-Ind	CRITICALITY reject		TYPE S-NG-RANnode-Addition-Trigger-Ind		PRESENCE optional}|
-	{ ID id-TraceActivation						CRITICALITY ignore		TYPE TraceActivation								PRESENCE optional}|
-	{ ID id-RequestedFastMCGRecoveryViaSRB3		CRITICALITY ignore		TYPE RequestedFastMCGRecoveryViaSRB3			PRESENCE optional}|
-	{ ID id-UERadioCapabilityID					CRITICALITY reject		TYPE UERadioCapabilityID							PRESENCE optional}|
-	{ ID id-SourceNG-RAN-node-ID				CRITICALITY ignore		TYPE GlobalNG-RANNode-ID							PRESENCE optional},
+	{ ID id-MaskedIMEISV						CRITICALITY ignore		TYPE MaskedIMEISV									PRESENCE optional }|
+	{ ID id-NE-DC-TDM-Pattern					CRITICALITY ignore		TYPE NE-DC-TDM-Pattern								PRESENCE optional }|
+	{ ID id-S-NG-RANnode-Addition-Trigger-Ind	CRITICALITY reject		TYPE S-NG-RANnode-Addition-Trigger-Ind		PRESENCE optional }|
+	{ ID id-TraceActivation						CRITICALITY ignore		TYPE TraceActivation								PRESENCE optional }|
+	{ ID id-RequestedFastMCGRecoveryViaSRB3		CRITICALITY ignore		TYPE RequestedFastMCGRecoveryViaSRB3			PRESENCE optional }|
+	{ ID id-UERadioCapabilityID					CRITICALITY reject		TYPE UERadioCapabilityID							PRESENCE optional }|
+	{ ID id-SourceNG-RAN-node-ID				CRITICALITY ignore		TYPE GlobalNG-RANNode-ID							PRESENCE optional }|
+	{ ID id-ManagementBasedMDTPLMNList			CRITICALITY ignore		TYPE MDTPLMNList									PRESENCE optional }|
+	{ ID id-UEHistoryInformation				CRITICALITY ignore		TYPE UEHistoryInformation							PRESENCE optional }|
+	{ ID id-UEHistoryInformationFromTheUE		CRITICALITY ignore		TYPE UEHistoryInformationFromTheUE				PRESENCE optional }|
+	{ ID id-PSCellChangeHistory					CRITICALITY ignore		TYPE PSCellChangeHistory							PRESENCE optional }|
+	{ ID id-IABNodeIndication					CRITICALITY reject		TYPE IABNodeIndication								PRESENCE optional }|
+	{ ID id-NoPDUSessionIndication				CRITICALITY ignore		TYPE NoPDUSessionIndication						PRESENCE optional }|
+	{ ID id-CHOinformation-AddReq				CRITICALITY reject		TYPE CHOinformation-AddReq						PRESENCE optional }|
+	{ ID id-SCGActivationRequest				CRITICALITY ignore		TYPE SCGActivationRequest							PRESENCE optional }|
+	{ ID id-CPAInformationRequest				CRITICALITY reject		TYPE CPAInformationRequest						PRESENCE optional }|
+	{ ID id-S-NG-RANnodeUE-Slice-MBR				CRITICALITY reject		TYPE UESliceMaximumBitRateList					PRESENCE optional }|
+	{ ID id-F1-terminatingIAB-donorIndicator		CRITICALITY reject		TYPE F1-terminatingIAB-donorIndicator			PRESENCE optional },
 	...
 }
 
@@ -824,7 +1025,7 @@ PDUSessionToBeAddedAddReq-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceSetupInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceSetupInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Setup Info – SN terminated IE
--- nor the PDU Session Resource Setup Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Setup Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.1.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionToBeAddedAddReq-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -864,7 +1065,9 @@ SNodeAdditionRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-LocationInformationSN				CRITICALITY ignore		TYPE Target-CGI									PRESENCE optional }|
 	{ ID id-MR-DC-ResourceCoordinationInfo		CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo		PRESENCE optional }|
 	{ ID id-AvailableFastMCGRecoveryViaSRB3		CRITICALITY ignore		TYPE AvailableFastMCGRecoveryViaSRB3		PRESENCE optional }|
-	{ ID id-DirectForwardingPathAvailability	CRITICALITY ignore		TYPE DirectForwardingPathAvailability		PRESENCE optional },
+	{ ID id-DirectForwardingPathAvailability	CRITICALITY ignore		TYPE DirectForwardingPathAvailability		PRESENCE optional }|
+	{ ID id-SCGActivationStatus					CRITICALITY ignore		TYPE SCGActivationStatus						PRESENCE optional	}|
+	{ ID id-CPAInformationAck					CRITICALITY ignore		TYPE CPAInformationAck							PRESENCE optional },
 	...
 }
 
@@ -875,7 +1078,7 @@ PDUSessionAdmittedAddedAddReqAck-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceSetupResponseInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceSetupResponseInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Setup Response Info – SN terminated IE
--- nor the PDU Session Resource Setup Response Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Setup Response Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.1.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedAddedAddReqAck-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1006,14 +1209,22 @@ SNodeModificationRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-AdditionalDRBIDs						CRITICALITY reject		TYPE DRB-List										PRESENCE optional }|
 	{ ID id-S-NG-RANnodeMaxIPDataRate-UL			CRITICALITY reject		TYPE BitRate										PRESENCE optional }|
 	{ ID id-S-NG-RANnodeMaxIPDataRate-DL			CRITICALITY reject		TYPE BitRate										PRESENCE optional }|
-	{ ID id-LocationInformationSNReporting			CRITICALITY ignore		TYPE LocationInformationSNReporting			PRESENCE optional}|
+	{ ID id-LocationInformationSNReporting			CRITICALITY ignore		TYPE LocationInformationSNReporting			PRESENCE optional }|
 	{ ID id-MR-DC-ResourceCoordinationInfo			CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo			PRESENCE optional }|
 	{ ID id-PCellID									CRITICALITY reject		TYPE GlobalNG-RANCell-ID							PRESENCE optional }|
 	{ ID id-NE-DC-TDM-Pattern						CRITICALITY ignore		TYPE NE-DC-TDM-Pattern							PRESENCE optional}|
 	{ ID id-RequestedFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE RequestedFastMCGRecoveryViaSRB3			PRESENCE optional }|
 	{ ID id-RequestedFastMCGRecoveryViaSRB3Release	CRITICALITY ignore		TYPE RequestedFastMCGRecoveryViaSRB3Release	PRESENCE optional }|
-	{ ID id-SNTriggered								CRITICALITY ignore		TYPE SNTriggered									PRESENCE optional}|
-	{ ID id-TargetNodeID							CRITICALITY ignore		TYPE GlobalNG-RANNode-ID							PRESENCE optional},
+	{ ID id-SNTriggered								CRITICALITY ignore		TYPE SNTriggered									PRESENCE optional }|
+	{ ID id-TargetNodeID							CRITICALITY ignore		TYPE GlobalNG-RANNode-ID							PRESENCE optional }|
+	{ ID id-PSCellHistoryInformationRetrieve		CRITICALITY ignore		TYPE PSCellHistoryInformationRetrieve		PRESENCE optional }|
+	{ ID id-UEHistoryInformationFromTheUE			CRITICALITY ignore		TYPE UEHistoryInformationFromTheUE			PRESENCE optional }|
+	{ ID id-CHOinformation-ModReq					CRITICALITY ignore		TYPE CHOinformation-ModReq						PRESENCE optional }|
+	{ ID id-SCGActivationRequest					CRITICALITY ignore		TYPE SCGActivationRequest						PRESENCE optional }|
+	{ ID id-CPAInformationModReq					CRITICALITY ignore		TYPE CPAInformationModReq						PRESENCE optional }|
+	{ ID id-CPCInformationUpdate					CRITICALITY ignore		TYPE CPCInformationUpdate						PRESENCE optional }|
+	{ ID id-S-NG-RANnodeUE-Slice-MBR					CRITICALITY ignore		TYPE UESliceMaximumBitRateList					PRESENCE optional }|
+	{ ID id-ManagementBasedMDTPLMNModificationList	CRITICALITY	ignore		TYPE MDTPLMNModificationList					PRESENCE optional },
 	...
 }
 
@@ -1043,7 +1254,7 @@ PDUSessionsToBeAdded-SNModRequest-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceSetupInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceSetupInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Setup Info – SN terminated IE
--- nor the PDU Session Resource Setup Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Setup Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionsToBeAdded-SNModRequest-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1062,7 +1273,7 @@ PDUSessionsToBeModified-SNModRequest-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceModificationInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceModificationInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Modification Info – SN terminated IE
--- nor the PDU Session Resource Modification Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Modification Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionsToBeModified-SNModRequest-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1114,7 +1325,10 @@ SNodeModificationRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-RRCConfigIndication						CRITICALITY reject		TYPE RRCConfigIndication								PRESENCE optional }|
 	{ ID id-AvailableFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE AvailableFastMCGRecoveryViaSRB3				PRESENCE optional }|
 	{ ID id-ReleaseFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE ReleaseFastMCGRecoveryViaSRB3				PRESENCE optional }|
-	{ ID id-DirectForwardingPathAvailability		CRITICALITY ignore		TYPE DirectForwardingPathAvailability			PRESENCE optional },
+	{ ID id-DirectForwardingPathAvailability		CRITICALITY ignore		TYPE DirectForwardingPathAvailability			PRESENCE optional }|
+	{ ID id-SCGUEHistoryInformation					CRITICALITY ignore		TYPE SCGUEHistoryInformation						PRESENCE optional }|
+	{ ID id-SCGActivationStatus						CRITICALITY ignore		TYPE SCGActivationStatus								PRESENCE optional }|
+	{ ID id-CPAInformationModReqAck					CRITICALITY ignore		TYPE CPAInformationModReqAck						PRESENCE optional },
 	...
 }
 PDUSessionAdmitted-SNModResponse ::= SEQUENCE {
@@ -1135,7 +1349,7 @@ PDUSessionAdmittedToBeAddedSNModResponse-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceSetupResponseInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceSetupResponseInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Setup Response Info – SN terminated IE
--- nor the PDU Session Resource Setup Response Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Setup Response Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedToBeAddedSNModResponse-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1151,7 +1365,7 @@ PDUSessionAdmittedToBeModifiedSNModResponse-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceModificationResponseInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceModificationResponseInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Modification Response Info – SN terminated IE
--- nor the PDU Session Resource Modification Response Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Modification Response Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedToBeModifiedSNModResponse-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1243,8 +1457,11 @@ SNodeModificationRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-MR-DC-ResourceCoordinationInfo			CRITICALITY ignore		TYPE MR-DC-ResourceCoordinationInfo			PRESENCE optional }|
 	{ ID id-RRCConfigIndication						CRITICALITY reject		TYPE RRCConfigIndication							PRESENCE optional }|
 	{ ID id-AvailableFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE AvailableFastMCGRecoveryViaSRB3			PRESENCE optional }|
-	{ ID id-ReleaseFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE ReleaseFastMCGRecoveryViaSRB3				PRESENCE optional }|
-	{ ID id-SCGIndicator							CRITICALITY ignore		TYPE SCGIndicator										PRESENCE optional },
+	{ ID id-ReleaseFastMCGRecoveryViaSRB3			CRITICALITY ignore		TYPE ReleaseFastMCGRecoveryViaSRB3			PRESENCE optional }|
+	{ ID id-SCGIndicator							CRITICALITY ignore		TYPE SCGIndicator									PRESENCE optional }|
+	{ ID id-SCGUEHistoryInformation					CRITICALITY ignore		TYPE SCGUEHistoryInformation					PRESENCE optional }|
+	{ ID id-SCGActivationRequest					CRITICALITY ignore		TYPE SCGActivationRequest						PRESENCE optional }|
+	{ ID id-CPACInformationModRequired				CRITICALITY ignore		TYPE CPACInformationModRequired				PRESENCE optional },
 	...
 }
 PDUSessionToBeModifiedSNModRequired::= SEQUENCE (SIZE (1.. maxnoofPDUSessions)) OF 	PDUSessionToBeModifiedSNModRequired-Item
@@ -1254,7 +1471,7 @@ PDUSessionToBeModifiedSNModRequired-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceModRqdInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceModRqdInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Modification Required Info – SN terminated IE
--- nor the PDU Session Resource Modification Required Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Modification Required Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.4.4 apply.
 	iE-Extension		ProtocolExtensionContainer { {PDUSessionToBeModifiedSNModRequired-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1307,7 +1524,7 @@ PDUSessionAdmittedModSNModConfirm-Item ::= SEQUENCE {
 	sn-terminated			PDUSessionResourceModConfirmInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceModConfirmInfo-MNterminated	OPTIONAL,
 -- NOTE: If neither the PDU Session Resource Modification Confirm Info – SN terminated IE
--- nor the PDU Session Resource Modification Confirm Info – MN terminated IE is present, 
+-- nor the PDU Session Resource Modification Confirm Info – MN terminated IE is present,
 -- abnormal conditions as specified in clause 8.3.4.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedModSNModConfirm-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1391,7 +1608,8 @@ SNodeReleaseRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID						CRITICALITY reject		TYPE NG-RANnodeUEXnAPID									PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID						CRITICALITY reject		TYPE NG-RANnodeUEXnAPID									PRESENCE optional }|
 	{ ID id-PDUSessionToBeReleased-RelReqAck			CRITICALITY ignore		TYPE PDUSessionToBeReleasedList-RelReqAck			PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics						CRITICALITY ignore		TYPE CriticalityDiagnostics							PRESENCE optional },
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore		TYPE CriticalityDiagnostics							PRESENCE optional }|
+	{ ID id-SCGUEHistoryInformation						CRITICALITY ignore		TYPE SCGUEHistoryInformation							PRESENCE optional },
 	...
 }
 
@@ -1441,8 +1659,9 @@ SNodeReleaseRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-PDUSessionToBeReleasedList-RelRqd		CRITICALITY ignore		TYPE PDUSessionToBeReleasedList-RelRqd		PRESENCE optional }|
 	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
 -- WS modification: define a dedicated type
---	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },
-	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE SN-to-MN-Container									PRESENCE optional },
+--	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
+	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE SN-to-MN-Container									PRESENCE optional }|
+	{ ID id-SCGUEHistoryInformation					CRITICALITY ignore		TYPE SCGUEHistoryInformation					PRESENCE optional },
 	...
 }
 
@@ -1538,8 +1757,12 @@ SNodeChangeRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
 	{ ID id-PDUSession-SNChangeRequired-List		CRITICALITY ignore		TYPE PDUSession-SNChangeRequired-List		PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-SN-to-MN-Container						CRITICALITY reject		TYPE OCTET STRING									PRESENCE mandatory},
-	{ ID id-SN-to-MN-Container						CRITICALITY reject		TYPE SN-to-MN-Container									PRESENCE mandatory},
+--	{ ID id-SN-to-MN-Container						CRITICALITY reject		TYPE OCTET STRING									PRESENCE mandatory}|
+	{ ID id-SN-to-MN-Container						CRITICALITY reject		TYPE SN-to-MN-Container									PRESENCE mandatory}|
+	{ ID id-SCGUEHistoryInformation					CRITICALITY ignore		TYPE SCGUEHistoryInformation					PRESENCE optional }|
+	{ ID id-SNMobilityInformation					CRITICALITY ignore		TYPE SNMobilityInformation						PRESENCE optional }|
+	{ ID id-SourcePSCellID							CRITICALITY ignore		TYPE GlobalNG-RANCell-ID							PRESENCE optional }|
+	{ ID id-CPCInformationRequired					CRITICALITY ignore		TYPE CPCInformationRequired						PRESENCE optional },
 	...
 }
 
@@ -1549,7 +1772,7 @@ PDUSession-SNChangeRequired-Item ::= SEQUENCE {
 	pduSessionId				PDUSession-ID,
 	sn-terminated			PDUSessionResourceChangeRequiredInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceChangeRequiredInfo-MNterminated	OPTIONAL,
--- NOTE: If the PDU Session Resource Change Required Info – SN terminated IE is not present, 
+-- NOTE: If the PDU Session Resource Change Required Info – SN terminated IE is not present,
 -- abnormal conditions as specified in clause 8.3.5.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSession-SNChangeRequired-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1575,7 +1798,11 @@ SNodeChangeConfirm-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-PDUSession-SNChangeConfirm-List			CRITICALITY ignore		TYPE PDUSession-SNChangeConfirm-List			PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional }|
+	{ ID id-CPCInformationConfirm					CRITICALITY ignore		TYPE CPCInformationConfirm						PRESENCE optional }|
+-- WS modification: define a dedicated type
+--	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },
+	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE MN-to-SN-Container									PRESENCE optional },
 	...
 }
 PDUSession-SNChangeConfirm-List ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF PDUSession-SNChangeConfirm-Item
@@ -1584,7 +1811,7 @@ PDUSession-SNChangeConfirm-Item ::= SEQUENCE {
 	pduSessionId				PDUSession-ID,
 	sn-terminated			PDUSessionResourceChangeConfirmInfo-SNterminated	OPTIONAL,
 	mn-terminated			PDUSessionResourceChangeConfirmInfo-MNterminated	OPTIONAL,
--- NOTE: If the PDU Session Resource Change Confirm Info – SN terminated IE is not present, 
+-- NOTE: If the PDU Session Resource Change Confirm Info – SN terminated IE is not present,
 -- abnormal conditions as specified in clause 8.3.5.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSession-SNChangeConfirm-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1630,8 +1857,9 @@ RRCTransfer-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-SplitSRB-RRCTransfer					CRITICALITY reject		TYPE SplitSRB-RRCTransfer						PRESENCE optional }|
 	{ ID id-UEReportRRCTransfer						CRITICALITY reject		TYPE UEReportRRCTransfer							PRESENCE optional }|
-	{ ID id-FastMCGRecoveryRRCTransfer-SN-to-MN		CRITICALITY ignore		TYPE FastMCGRecoveryRRCTransfer				PRESENCE optional}|
-	{ ID id-FastMCGRecoveryRRCTransfer-MN-to-SN		CRITICALITY ignore		TYPE FastMCGRecoveryRRCTransfer				PRESENCE optional},
+	{ ID id-FastMCGRecoveryRRCTransfer-SN-to-MN		CRITICALITY ignore		TYPE FastMCGRecoveryRRCTransfer				PRESENCE optional }|
+	{ ID id-FastMCGRecoveryRRCTransfer-MN-to-SN		CRITICALITY ignore		TYPE FastMCGRecoveryRRCTransfer				PRESENCE optional }|
+	{ ID id-SDT-SRB-between-NewNode-OldNode			CRITICALITY ignore		TYPE SDT-SRB-between-NewNode-OldNode			PRESENCE optional },
 	...
 }
 
@@ -1664,6 +1892,17 @@ FastMCGRecoveryRRCTransfer::= SEQUENCE {
 }
 
 FastMCGRecoveryRRCTransfer-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SDT-SRB-between-NewNode-OldNode::= SEQUENCE {
+	rrcContainer					OCTET STRING,
+	srb-ID							SRB-ID,
+	iE-Extensions					ProtocolExtensionContainer { { SDT-SRB-between-NewNode-OldNode-ExtIEs} } OPTIONAL,
+	...
+}
+
+SDT-SRB-between-NewNode-OldNode-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1757,17 +1996,19 @@ XnSetupRequest ::= SEQUENCE {
 }
 
 XnSetupRequest-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-GlobalNG-RAN-node-ID					CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
+	{ ID id-GlobalNG-RAN-node-ID				CRITICALITY reject	TYPE GlobalNG-RANNode-ID						PRESENCE mandatory}|
 	{ ID id-TAISupport-list						CRITICALITY reject	TYPE TAISupport-List							PRESENCE mandatory}|
 	{ ID id-AMF-Region-Information				CRITICALITY reject	TYPE AMF-Region-Information						PRESENCE mandatory}|
 	{ ID id-List-of-served-cells-NR				CRITICALITY reject	TYPE ServedCells-NR								PRESENCE optional }|
 	{ ID id-List-of-served-cells-E-UTRA			CRITICALITY reject	TYPE ServedCells-E-UTRA							PRESENCE optional }|
 	{ ID id-InterfaceInstanceIndication			CRITICALITY reject	TYPE InterfaceInstanceIndication				PRESENCE optional }|
-	{ ID id-TNLConfigurationInfo				CRITICALITY ignore	TYPE TNLConfigurationInfo						PRESENCE optional}|
+	{ ID id-TNLConfigurationInfo				CRITICALITY ignore	TYPE TNLConfigurationInfo						PRESENCE optional }|
 	{ ID id-PartialListIndicator-NR				CRITICALITY ignore	TYPE PartialListIndicator						PRESENCE optional }|
 	{ ID id-CellAndCapacityAssistanceInfo-NR 	CRITICALITY ignore 	TYPE CellAndCapacityAssistanceInfo-NR		PRESENCE optional }|
 	{ ID id-PartialListIndicator-EUTRA			CRITICALITY ignore	TYPE PartialListIndicator						PRESENCE optional }|
-	{ ID id-CellAndCapacityAssistanceInfo-EUTRA	CRITICALITY ignore 	TYPE CellAndCapacityAssistanceInfo-EUTRA	PRESENCE optional },
+	{ ID id-CellAndCapacityAssistanceInfo-EUTRA	CRITICALITY ignore 	TYPE CellAndCapacityAssistanceInfo-EUTRA	PRESENCE optional }|
+	{ ID id-Local-NG-RAN-Node-Identifier		CRITICALITY ignore	TYPE Local-NG-RAN-Node-Identifier			PRESENCE optional	}|
+	{ ID id-Neighbour-NG-RAN-Node-List			CRITICALITY ignore	TYPE Neighbour-NG-RAN-Node-List				PRESENCE optional	},
 	...
 }
 
@@ -1794,7 +2035,9 @@ XnSetupResponse-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-PartialListIndicator-NR				CRITICALITY ignore	TYPE PartialListIndicator						PRESENCE optional }|
 	{ ID id-CellAndCapacityAssistanceInfo-NR 	CRITICALITY ignore 	TYPE CellAndCapacityAssistanceInfo-NR		PRESENCE optional }|
 	{ ID id-PartialListIndicator-EUTRA			CRITICALITY ignore	TYPE PartialListIndicator						PRESENCE optional }|
-	{ ID id-CellAndCapacityAssistanceInfo-EUTRA	CRITICALITY ignore 	TYPE CellAndCapacityAssistanceInfo-EUTRA	PRESENCE optional },
+	{ ID id-CellAndCapacityAssistanceInfo-EUTRA	CRITICALITY ignore 	TYPE CellAndCapacityAssistanceInfo-EUTRA	PRESENCE optional }|
+	{ ID id-Local-NG-RAN-Node-Identifier		CRITICALITY ignore	TYPE Local-NG-RAN-Node-Identifier			PRESENCE optional	}|
+	{ ID id-Neighbour-NG-RAN-Node-List			CRITICALITY ignore	TYPE Neighbour-NG-RAN-Node-List				PRESENCE optional	},
 	...
 }
 
@@ -1839,7 +2082,11 @@ NGRANNodeConfigurationUpdate-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-Region-Information-To-Add			CRITICALITY reject	TYPE AMF-Region-Information							PRESENCE optional }|
 	{ ID id-AMF-Region-Information-To-Delete		CRITICALITY reject	TYPE AMF-Region-Information							PRESENCE optional }|
 	{ ID id-InterfaceInstanceIndication				CRITICALITY reject	TYPE InterfaceInstanceIndication					PRESENCE optional }|
-	{ ID id-TNLConfigurationInfo					CRITICALITY ignore	TYPE TNLConfigurationInfo			   				PRESENCE optional	},
+	{ ID id-TNLConfigurationInfo					CRITICALITY ignore	TYPE TNLConfigurationInfo								PRESENCE optional	}|
+	{ ID id-Coverage-Modification-List				CRITICALITY reject	TYPE Coverage-Modification-List						PRESENCE optional	}|
+	{ ID id-Local-NG-RAN-Node-Identifier			CRITICALITY ignore	TYPE Local-NG-RAN-Node-Identifier					PRESENCE optional	}|
+	{ ID id-Neighbour-NG-RAN-Node-List				CRITICALITY ignore	TYPE Neighbour-NG-RAN-Node-List						PRESENCE optional	}|
+	{ ID id-Local-NG-RAN-Node-Identifier-Removal	CRITICALITY ignore	TYPE Local-NG-RAN-Node-Identifier					PRESENCE optional	},
 	...
 }
 
@@ -1854,9 +2101,10 @@ ServedCellsToUpdateInitiatingNodeChoice-ExtIEs XNAP-PROTOCOL-IES ::= {
 }
 
 ConfigurationUpdate-gNB XNAP-PROTOCOL-IES ::= {
-	{ ID id-servedCellsToUpdate-NR			CRITICALITY ignore TYPE	ServedCellsToUpdate-NR					PRESENCE optional }|
-	{ ID id-cellAssistanceInfo-NR			CRITICALITY ignore TYPE	CellAssistanceInfo-NR					PRESENCE optional }|
-	{ ID id-cellAssistanceInfo-EUTRA			CRITICALITY ignore TYPE	CellAssistanceInfo-EUTRA					PRESENCE optional },
+	{ ID id-servedCellsToUpdate-NR			CRITICALITY ignore TYPE	ServedCellsToUpdate-NR							PRESENCE optional }|
+	{ ID id-cellAssistanceInfo-NR			CRITICALITY ignore TYPE	CellAssistanceInfo-NR							PRESENCE optional }|
+	{ ID id-cellAssistanceInfo-EUTRA		CRITICALITY ignore TYPE	CellAssistanceInfo-EUTRA						PRESENCE optional }|
+	{ ID id-ServedCellSpecificInfoReq-NR	CRITICALITY ignore TYPE	ServedCellSpecificInfoReq-NR					PRESENCE optional},
 	...
 }
 
@@ -1882,12 +2130,15 @@ NGRANNodeConfigurationUpdateAcknowledge ::= SEQUENCE {
 }
 
 NGRANNodeConfigurationUpdateAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-RespondingNodeTypeConfigUpdateAck	CRITICALITY ignore	TYPE RespondingNodeTypeConfigUpdateAck		PRESENCE mandatory}|
-	{ ID id-TNLA-Setup-List						CRITICALITY ignore	TYPE TNLA-Setup-List							PRESENCE optional }|
-	{ ID id-TNLA-Failed-To-Setup-List			CRITICALITY ignore	TYPE TNLA-Failed-To-Setup-List				PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional }|
-	{ ID id-InterfaceInstanceIndication			CRITICALITY reject	TYPE InterfaceInstanceIndication				PRESENCE optional }|
-	{ ID id-TNLConfigurationInfo				CRITICALITY ignore	TYPE TNLConfigurationInfo						PRESENCE optional	},
+	{ ID id-RespondingNodeTypeConfigUpdateAck			CRITICALITY ignore	TYPE RespondingNodeTypeConfigUpdateAck		PRESENCE mandatory}|
+	{ ID id-TNLA-Setup-List								CRITICALITY ignore	TYPE TNLA-Setup-List								PRESENCE optional }|
+	{ ID id-TNLA-Failed-To-Setup-List					CRITICALITY ignore	TYPE TNLA-Failed-To-Setup-List					PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional }|
+	{ ID id-InterfaceInstanceIndication					CRITICALITY reject	TYPE InterfaceInstanceIndication				PRESENCE optional }|
+	{ ID id-TNLConfigurationInfo						CRITICALITY ignore	TYPE TNLConfigurationInfo						PRESENCE optional	}|
+	{ ID id-Local-NG-RAN-Node-Identifier				CRITICALITY ignore	TYPE Local-NG-RAN-Node-Identifier				PRESENCE optional	}|
+	{ ID id-Neighbour-NG-RAN-Node-List					CRITICALITY ignore	TYPE Neighbour-NG-RAN-Node-List				PRESENCE optional	}|
+	{ ID id-Local-NG-RAN-Node-Identifier-Removal		CRITICALITY ignore	TYPE Local-NG-RAN-Node-Identifier				PRESENCE optional	},
 	...
 }
 RespondingNodeTypeConfigUpdateAck ::= CHOICE {
@@ -2012,8 +2263,8 @@ E-UTRA-NR-CellResourceCoordinationResponse::= SEQUENCE {
 }
 
 E-UTRA-NR-CellResourceCoordinationResponse-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-respondingNodeType-ResourceCoordResponse  CRITICALITY reject  	TYPE RespondingNodeType-ResourceCoordResponse 	PRESENCE mandatory}|
-	{ ID id-InterfaceInstanceIndication				CRITICALITY reject	TYPE InterfaceInstanceIndication						PRESENCE optional },
+	{ ID id-respondingNodeType-ResourceCoordResponse  	CRITICALITY reject	TYPE RespondingNodeType-ResourceCoordResponse 	PRESENCE mandatory}|
+	{ ID id-InterfaceInstanceIndication					CRITICALITY reject	TYPE InterfaceInstanceIndication						PRESENCE optional },
 	...
 }
 
@@ -2169,7 +2420,7 @@ CellActivationResponse-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-ActivatedServedCells					CRITICALITY reject		TYPE ActivatedServedCells						PRESENCE mandatory}|
 	{ ID id-ActivationIDforCellActivation			CRITICALITY reject		TYPE ActivationIDforCellActivation			PRESENCE mandatory}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional }|
-	{ ID id-InterfaceInstanceIndication			CRITICALITY reject		TYPE InterfaceInstanceIndication				PRESENCE optional },
+	{ ID id-InterfaceInstanceIndication				CRITICALITY reject		TYPE InterfaceInstanceIndication				PRESENCE optional },
 	...
 }
 
@@ -2341,15 +2592,16 @@ HandoverReport ::= SEQUENCE {
 HandoverReport-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-HandoverReportType			CRITICALITY ignore		TYPE HandoverReportType				PRESENCE mandatory}|
 	{ ID id-HandoverCause				CRITICALITY ignore		TYPE Cause							PRESENCE mandatory}|
-	{ ID id-SourceCellCGI				CRITICALITY ignore		TYPE GlobalNG-RANCell-ID			PRESENCE mandatory }| 
-	{ ID id-TargetCellCGI            	CRITICALITY ignore		TYPE GlobalNG-RANCell-ID			PRESENCE mandatory }|
-	{ ID id-ReEstablishmentCellCGI   	CRITICALITY ignore		TYPE GlobalCell-ID					PRESENCE conditional }|
+	{ ID id-SourceCellCGI				CRITICALITY ignore		TYPE GlobalNG-RANCell-ID			PRESENCE mandatory }|
+	{ ID id-TargetCellCGI				CRITICALITY ignore		TYPE GlobalNG-RANCell-ID			PRESENCE mandatory }|
+	{ ID id-ReEstablishmentCellCGI		CRITICALITY ignore		TYPE GlobalCell-ID					PRESENCE conditional }|
 -- This IE shall be present if the Handover Report Type IE is set to the value "HO to wrong cell"
 	{ ID id-TargetCellinEUTRAN   		CRITICALITY ignore		TYPE TargetCellinEUTRAN				PRESENCE conditional }|
 -- This IE shall be present if the Handover Report Type IE is set to the value "Inter-system ping-pong"
-	{ ID id-SourceCellCRNTI   			CRITICALITY ignore		TYPE C-RNTI							PRESENCE optional }|
-	{ ID id-MobilityInformation   		CRITICALITY ignore		TYPE MobilityInformation			PRESENCE optional }|
-	{ ID id-UERLFReportContainer   		CRITICALITY ignore		TYPE UERLFReportContainer			PRESENCE optional },
+	{ ID id-SourceCellCRNTI				CRITICALITY ignore		TYPE C-RNTI							PRESENCE optional }|
+	{ ID id-MobilityInformation			CRITICALITY ignore		TYPE MobilityInformation			PRESENCE optional }|
+	{ ID id-UERLFReportContainer		CRITICALITY ignore		TYPE UERLFReportContainer			PRESENCE optional }|
+	{ ID id-CHOConfiguration			CRITICALITY ignore		TYPE CHOConfiguration				PRESENCE optional},
 	...
 }
 
@@ -2430,7 +2682,7 @@ ResourceStatusUpdate ::= SEQUENCE {
 ResourceStatusUpdate-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NGRAN-Node1-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
 	{ ID id-NGRAN-Node2-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
-{ ID id-CellMeasurementResult			CRITICALITY ignore	TYPE CellMeasurementResult			PRESENCE mandatory},
+     { ID id-CellMeasurementResult			CRITICALITY ignore	TYPE CellMeasurementResult			PRESENCE mandatory},
 	...
 }
 
@@ -2450,7 +2702,8 @@ MobilityChangeRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NG-RANnode2CellID							CRITICALITY reject	TYPE GlobalNG-RANCell-ID							PRESENCE mandatory}|
 	{ ID id-NG-RANnode1MobilityParameters				CRITICALITY reject	TYPE MobilityParametersInformation				PRESENCE optional}|
 	{ ID id-NG-RANnode2ProposedMobilityParameters	CRITICALITY reject	TYPE MobilityParametersInformation				PRESENCE optional}|
-	{ ID id-Cause										CRITICALITY ignore	TYPE Cause											PRESENCE mandatory},
+	{ ID id-Cause										CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
+	{ ID id-SSBOffsets-List								CRITICALITY ignore	TYPE SSBOffsets-List								PRESENCE optional},
 	...
 }
 
@@ -2486,11 +2739,12 @@ MobilityChangeFailure ::= SEQUENCE {
 }
 
 MobilityChangeFailure-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-NG-RANnode1CellID						CRITICALITY reject	TYPE GlobalNG-RANCell-ID							PRESENCE mandatory}|
-	{ ID id-NG-RANnode2CellID							CRITICALITY reject	TYPE GlobalNG-RANCell-ID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
-	{ ID id-MobilityParametersModificationRange 	CRITICALITY reject	TYPE MobilityParametersModificationRange		PRESENCE optional}|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional},
+	{ ID id-NG-RANnode1CellID						CRITICALITY reject	TYPE GlobalNG-RANCell-ID									PRESENCE mandatory}|
+	{ ID id-NG-RANnode2CellID							CRITICALITY reject	TYPE GlobalNG-RANCell-ID									PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause													PRESENCE mandatory}|
+	{ ID id-MobilityParametersModificationRange 	CRITICALITY reject	TYPE MobilityParametersModificationRange				PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional}|
+	{ ID id-NG-RANnode2SSBOffsetsModificationRange	CRITICALITY ignore	TYPE NG-RANnode2SSBOffsetsModificationRange			PRESENCE optional},
 	...
 }
 
@@ -2506,7 +2760,483 @@ AccessAndMobilityIndication ::= SEQUENCE {
 	...
 }
 AccessAndMobilityIndication-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-RACHReportInformation			CRITICALITY ignore		TYPE RACHReportInformation			PRESENCE optional},
+	{ ID id-RACHReportInformation			CRITICALITY ignore		TYPE RACHReportInformation					PRESENCE optional}|
+	{ ID id-SuccessfulHOReportInformation		CRITICALITY ignore		TYPE SuccessfulHOReportInformation			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- CELL TRAFFIC TRACE
+--
+-- **************************************************************
+
+CellTrafficTrace ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {CellTrafficTraceIEs} },
+	...
+}
+
+CellTrafficTraceIEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-M-NG-RANnodeUEXnAPID			CRITICALITY reject	TYPE NG-RANnodeUEXnAPID				PRESENCE mandatory}|
+	{ ID id-S-NG-RANnodeUEXnAPID			CRITICALITY reject	TYPE NG-RANnodeUEXnAPID				PRESENCE mandatory}|
+	{ ID id-NG-RANTraceID					CRITICALITY ignore	TYPE NG-RANTraceID				PRESENCE mandatory	}|
+	{ ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE mandatory	}|
+	{ ID id-PrivacyIndicator				CRITICALITY ignore	TYPE PrivacyIndicator				PRESENCE optional	}|
+     { ID id-TraceCollectionEntityURI		CRITICALITY ignore	TYPE URIaddress						PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- RAN MULTICAST GROUP PAGING
+--
+-- **************************************************************
+
+RANMulticastGroupPaging ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{RANMulticastGroupPaging-IEs}},
+	...
+}
+
+RANMulticastGroupPaging-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-MBS-Session-ID							CRITICALITY reject	TYPE MBS-Session-ID									PRESENCE mandatory}|
+	{ ID id-UEIdentityIndexList-MBSGroupPaging			CRITICALITY reject	TYPE UEIdentityIndexList-MBSGroupPaging		PRESENCE mandatory}|
+	{ ID id-MulticastRANPagingArea					CRITICALITY reject	TYPE RANPagingArea									PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- SCG FAILURE INFORMATION REPORT
+--
+-- **************************************************************
+
+ScgFailureInformationReport ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ ScgFailureInformationReport-IEs}},
+	...
+}
+
+ScgFailureInformationReport-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory }|
+	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory }|
+	{ ID id-SourcePSCellCGI								CRITICALITY ignore		TYPE GlobalNG-RANCell-ID							PRESENCE optional }|
+	{ ID id-FailedPSCellCGI								CRITICALITY ignore		TYPE GlobalNG-RANCell-ID							PRESENCE optional }|
+	{ ID id-SCGFailureReportContainer					CRITICALITY ignore		TYPE SCGFailureReportContainer					PRESENCE mandatory }|
+	{ ID id-SNMobilityInformation				CRITICALITY ignore		TYPE SNMobilityInformation						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- SCG FAILURE TRANSFER
+--
+-- **************************************************************
+
+ScgFailureTransfer ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ ScgFailureTransfer-IEs}},
+	...
+}
+ScgFailureTransfer-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory }|
+	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- F1-C TRAFFIC TRANSFER
+
+--
+-- **************************************************************
+
+F1CTrafficTransfer ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{{ F1CTrafficTransfer-IEs}},
+	...
+}
+
+F1CTrafficTransfer-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-M-NG-RANnodeUEXnAPID						CRITICALITY reject	TYPE NG-RANnodeUEXnAPID			PRESENCE mandatory}|
+	{ ID id-S-NG-RANnodeUEXnAPID						CRITICALITY reject	TYPE NG-RANnodeUEXnAPID			PRESENCE mandatory}|
+	{ ID id-F1CTrafficContainer							CRITICALITY reject	TYPE F1CTrafficContainer			PRESENCE mandatory},
+	...
+}
+
+
+-- **************************************************************
+--
+-- IAB TRANSPORT MIGRATION MANAGEMENT REQUEST
+--
+-- **************************************************************
+
+IABTransportMigrationManagementRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ IABTransportMigrationManagementRequest-IEs}},
+	...
+}
+
+IABTransportMigrationManagementRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-F1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-nonF1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-TrafficToBeAddedList					CRITICALITY reject		TYPE TrafficToBeAddedList					PRESENCE optional }|
+	{ ID id-TrafficToBeModifiedList					CRITICALITY reject		TYPE TrafficToBeModifiedList				PRESENCE optional }|
+	{ ID id-TrafficToBeReleaseInformation			CRITICALITY reject		TYPE TrafficToBeReleaseInformation		PRESENCE optional }|
+	{ ID id-IAB-TNL-Address-Request					CRITICALITY reject		TYPE IAB-TNL-Address-Request				PRESENCE optional }|
+	{ ID id-IABTNLAddressException					CRITICALITY reject		TYPE IABTNLAddressException					PRESENCE optional },
+	...
+}
+
+TrafficToBeAddedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficToBeAdded-Item
+
+TrafficToBeAdded-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	trafficProfile			TrafficProfile,
+	f1-TerminatingTopologyBHInformation		F1-TerminatingTopologyBHInformation		OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {TrafficToBeAdded-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficToBeAdded-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TrafficToBeModifiedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficToBeModified-Item
+
+TrafficToBeModified-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	trafficProfile			TrafficProfile		OPTIONAL,
+	f1-TerminatingTopologyBHInformation		F1-TerminatingTopologyBHInformation		OPTIONAL,
+	iE-Extension			ProtocolExtensionContainer { {TrafficToBeModified-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficToBeModified-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- IAB TRANSPORT MIGRATION MANAGEMENT RESPONSE
+--
+-- **************************************************************
+
+IABTransportMigrationManagementResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ IABTransportMigrationManagementResponse-IEs}},
+	...
+}
+
+IABTransportMigrationManagementResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-F1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-nonF1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-TrafficAddedList						CRITICALITY reject		TYPE TrafficAddedList							PRESENCE optional }|
+	{ ID id-TrafficModifiedList						CRITICALITY reject		TYPE TrafficModifiedList						PRESENCE optional }|
+	{ ID id-TrafficNotAddedList						CRITICALITY reject		TYPE TrafficNotAddedList						PRESENCE optional }|
+	{ ID id-TrafficNotModifiedList					CRITICALITY reject		TYPE TrafficNotModifiedList					PRESENCE optional }|
+	{ ID id-IAB-TNL-Address-Response				CRITICALITY reject		TYPE IAB-TNL-Address-Response				PRESENCE optional }|
+	{ ID id-TrafficReleasedList						CRITICALITY reject		TYPE TrafficReleasedList						PRESENCE optional },
+	...
+}
+
+TrafficAddedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficAdded-Item
+
+TrafficAdded-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	non-F1-TerminatingTopologyBHInformation		Non-F1-TerminatingTopologyBHInformation,
+	iE-Extensions			ProtocolExtensionContainer { {TrafficAdded-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficAdded-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TrafficModifiedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficModified-Item
+
+TrafficModified-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	non-F1-TerminatingTopologyBHInformation		Non-F1-TerminatingTopologyBHInformation,
+	iE-Extensions			ProtocolExtensionContainer { {TrafficModified-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficModified-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TrafficNotAddedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficNotAdded-Item
+
+TrafficNotAdded-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	casue					Cause			OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {TrafficNotAdded-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficNotAdded-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TrafficNotModifiedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficNotModified-Item
+
+TrafficNotModified-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	cause					Cause		OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {TrafficNotModified-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficNotModified-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+TrafficReleasedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficReleased-Item
+
+TrafficReleased-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	bHInfoList				BHInfoList		OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { TrafficReleased-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficReleased-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- IAB TRANSPORT MIGRATION MANAGEMENT REJECT
+--
+-- **************************************************************
+
+IABTransportMigrationManagementReject ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ IABTransportMigrationManagementReject-IEs}},
+	...
+}
+
+IABTransportMigrationManagementReject-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-F1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-nonF1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause										PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics					PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- IAB TRANSPORT MIGRATION MODIFICATION REQUEST
+--
+-- **************************************************************
+
+IABTransportMigrationModificationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ IABTransportMigrationModificationRequest-IEs}},
+	...
+}
+
+IABTransportMigrationModificationRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-F1-Terminating-IAB-DonorUEXnAPID			CRITICALITY reject	TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-nonF1-Terminating-IAB-DonorUEXnAPID			CRITICALITY reject	TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-TrafficRequiredToBeModifiedList				CRITICALITY reject	TYPE TrafficRequiredToBeModifiedList			PRESENCE optional }|
+	{ ID id-TrafficToBeReleaseInformation				CRITICALITY reject	TYPE TrafficToBeReleaseInformation			PRESENCE optional }|
+	{ ID id-IABTNLAddressToBeAdded						CRITICALITY reject	TYPE IAB-TNL-Address-Response					PRESENCE optional }|
+	{ ID id-IABTNLAddressToBeReleasedList				CRITICALITY reject	TYPE IABTNLAddressToBeReleasedList			PRESENCE optional },
+	...
+}
+
+TrafficRequiredToBeModifiedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficRequiredToBeModified-Item
+
+TrafficRequiredToBeModified-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	non-f1-TerminatingTopologyBHInformation		Non-F1-TerminatingTopologyBHInformation,
+	iE-Extensions			ProtocolExtensionContainer{ { TrafficRequiredToBeModified-Item-ExtIEs} }		OPTIONAL,
+	...
+}
+
+TrafficRequiredToBeModified-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+IABTNLAddressToBeReleasedList ::= SEQUENCE (SIZE(1..maxnoofTLAsIAB)) OF IABTNLAddressToBeReleased-Item
+
+IABTNLAddressToBeReleased-Item ::= SEQUENCE {
+	iabTNLAddress			IABTNLAddress,
+	iE-Extensions			ProtocolExtensionContainer{ { IABTNLAddressToBeReleased-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+IABTNLAddressToBeReleased-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+-- **************************************************************
+--
+-- IAB TRANSPORT MIGRATION MODIFICATION RESPONSE
+--
+-- **************************************************************
+
+IABTransportMigrationModificationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ IABTransportMigrationModificationResponse-IEs}},
+	...
+}
+
+IABTransportMigrationModificationResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-F1-Terminating-IAB-DonorUEXnAPID			CRITICALITY reject	TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-nonF1-Terminating-IAB-DonorUEXnAPID			CRITICALITY reject	TYPE NG-RANnodeUEXnAPID						PRESENCE mandatory}|
+	{ ID id-TrafficRequiredModifiedList					CRITICALITY reject	TYPE TrafficRequiredModifiedList			PRESENCE optional }|
+	{ ID id-TrafficReleasedList							CRITICALITY reject	TYPE TrafficReleasedList						PRESENCE optional },
+	...
+}
+
+
+
+TrafficRequiredModifiedList ::= SEQUENCE (SIZE(1..maxnoofTrafficIndexEntries)) OF TrafficRequiredModified-Item
+
+TrafficRequiredModified-Item ::= SEQUENCE {
+	trafficIndex			TrafficIndex,
+	iE-Extensions			ProtocolExtensionContainer { { TrafficRequiredModified-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TrafficRequiredModified-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- IAB RESOURCE COORDINATION REQUEST
+--
+-- **************************************************************
+
+IABResourceCoordinationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ IABResourceCoordinationRequest-IEs}},
+	...
+}
+
+IABResourceCoordinationRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-F1-Terminating-IAB-DonorUEXnAPID	CRITICALITY reject		TYPE NG-RANnodeUEXnAPID					PRESENCE mandatory}|
+	{ ID id-nonF1-Terminating-IAB-DonorUEXnAPID	CRITICALITY reject		TYPE NG-RANnodeUEXnAPID					PRESENCE mandatory}|
+	{ ID id-BoundaryNodeCellsList				CRITICALITY reject		TYPE BoundaryNodeCellsList			PRESENCE optional }|
+	{ ID id-ParentNodeCellsList					CRITICALITY reject		TYPE ParentNodeCellsList				PRESENCE optional },
+	...
+}
+
+
+BoundaryNodeCellsList ::= SEQUENCE (SIZE(1..maxnoofServedCellsIAB)) OF BoundaryNodeCellsList-Item
+
+BoundaryNodeCellsList-Item ::= SEQUENCE {
+	boundaryNodeCellInformation			IABCellInformation,
+	iE-Extensions						ProtocolExtensionContainer { {BoundaryNodeCellsList-Item-ExtIEs} }		OPTIONAL,
+	...
+}
+
+BoundaryNodeCellsList-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ParentNodeCellsList ::= SEQUENCE (SIZE(1..maxnoofServingCells)) OF ParentNodeCellsList-Item
+
+ParentNodeCellsList-Item ::= SEQUENCE {
+	parentNodeCellInformation			IABCellInformation,
+	iE-Extensions						ProtocolExtensionContainer { {ParentNodeCellsList-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ParentNodeCellsList-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- IAB RESOURCE COORDINATION RESPONSE
+--
+-- **************************************************************
+
+IABResourceCoordinationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ IABResourceCoordinationResponse-IEs}},
+	...
+}
+
+IABResourceCoordinationResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-F1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID					PRESENCE mandatory}|
+	{ ID id-nonF1-Terminating-IAB-DonorUEXnAPID		CRITICALITY reject		TYPE NG-RANnodeUEXnAPID					PRESENCE mandatory}|
+	{ ID id-BoundaryNodeCellsList					CRITICALITY reject		TYPE BoundaryNodeCellsList				PRESENCE optional }|
+	{ ID id-ParentNodeCellsList						CRITICALITY reject		TYPE ParentNodeCellsList					PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- CONDITIONAL PSCELL CHANGE CANCEL
+--
+-- **************************************************************
+
+CPCCancel ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ CPCCancel-IEs}},
+	...
+}
+CPCCancel-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-M-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-S-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-Cause								CRITICALITY ignore		TYPE Cause										PRESENCE optional }|
+	{ ID id-target-S-NG-RANnodeID				CRITICALITY reject		TYPE GlobalNG-RANNode-ID						PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- PARTIAL UE CONTEXT TRANSFER
+--
+-- **************************************************************
+PartialUEContextTransfer ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ PartialUEContextTransfer-IEs}},
+	...
+}
+
+PartialUEContextTransfer-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-SDTPartialUEContextInfo					CRITICALITY ignore		TYPE SDTPartialUEContextInfo					PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- PARTIAL UE CONTEXT TRANSFER ACKNOWLEDGE
+--
+-- **************************************************************
+PartialUEContextTransferAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ PartialUEContextTransferAcknowledge-IEs}},
+	...
+}
+
+PartialUEContextTransferAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-SDTDataForwardingDRBList				CRITICALITY ignore		TYPE SDTDataForwardingDRBList					PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- PARTIAL UE CONTEXT TRANSFER FAILURE
+--
+-- **************************************************************
+
+PartialUEContextTransferFailure::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ PartialUEContextTransferFailure-IEs}},
+	...
+}
+
+PartialUEContextTransferFailure-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 

@@ -15,6 +15,7 @@ ProtocolIE-ID
 
 #.EXPORTS
 LastVisitedNGRANCellInformation_PDU
+LastVisitedPSCellInformation_PDU
 MDT-Configuration_PDU
 MobilityRestrictionList_PDU
 NGRAN-CGI_PDU
@@ -29,6 +30,7 @@ HandoverPreparationUnsuccessfulTransfer
 HandoverRequestAcknowledgeTransfer
 HandoverResourceAllocationUnsuccessfulTransfer
 LastVisitedNGRANCellInformation
+LastVisitedPSCellInformation
 MDT-Configuration
 MobilityRestrictionList
 NGAP-PDU
@@ -506,6 +508,9 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
       ngap_data->tai->tac = tvb_get_ntoh24(parameter_tvb, 0);
     }
   }
+
+#.TYPE_ATTR
+TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_nanoseconds
 
 #.FN_BODY PLMNIdentity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;

@@ -72,6 +72,7 @@ LocationMeasurementInfo_PDU
 MeasConfig_PDU
 MeasGapConfig_PDU
 MeasGapSharingConfig_PDU
+MeasObjectToAddMod_PDU
 MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
@@ -86,6 +87,8 @@ RA-ReportList-r16_PDU
 RACH-ConfigCommon_PDU
 RadioBearerConfig_PDU
 ReferenceTime-r16_PDU
+ReportConfigToAddMod_PDU
+RLC-BearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
 SchedulingRequestResourceConfig_PDU
@@ -143,6 +146,7 @@ MCCH-Message-r17                   @mcch
 MeasConfig
 MeasGapConfig
 MeasGapSharingConfig
+MeasObjectToAddMod
 MeasResultSCG-Failure
 MeasurementTimingConfiguration
 MIB
@@ -158,6 +162,8 @@ RA-ReportList-r16
 RACH-ConfigCommon
 RadioBearerConfig
 ReferenceTime-r16
+ReportConfigToAddMod
+RLC-BearerConfig
 RRCReconfiguration                 @rrc_reconf
 RRCReconfigurationComplete
 SBCCH-SL-BCH-Message               @sbcch.sl.bch

@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V16.9.0 (2022-04)
+ * 3GPP TS 38.423 V17.1.0 (2022-06)
  */
 
 #include "config.h"
@@ -56,6 +56,10 @@ static int hf_xnap_NG_RANTraceID_TraceRecordingSessionReference = -1;
 static int hf_xnap_primaryRATRestriction_e_UTRA = -1;
 static int hf_xnap_primaryRATRestriction_nR = -1;
 static int hf_xnap_primaryRATRestriction_nR_unlicensed = -1;
+static int hf_xnap_primaryRATRestriction_nR_LEO = -1;
+static int hf_xnap_primaryRATRestriction_nR_MEO = -1;
+static int hf_xnap_primaryRATRestriction_nR_GEO = -1;
+static int hf_xnap_primaryRATRestriction_nR_OTHERSAT = -1;
 static int hf_xnap_primaryRATRestriction_reserved = -1;
 static int hf_xnap_secondaryRATRestriction_e_UTRA = -1;
 static int hf_xnap_secondaryRATRestriction_nR = -1;
@@ -117,6 +121,17 @@ static gint ett_xnap_non_anchorCarrier_Format2_NPRACHConfig = -1;
 static gint ett_xnap_anchorCarrier_NPRACHConfigTDD = -1;
 static gint ett_xnap_non_anchorCarrier_NPRACHConfigTDD = -1;
 static gint ett_xnap_non_anchorCarrierFrequency = -1;
+static gint ett_xnap_cSI_RS_Configuration = -1;
+static gint ett_xnap_sR_Configuration = -1;
+static gint ett_xnap_pDCCH_ConfigSIB1 = -1;
+static gint ett_xnap_sCS_Common = -1;
+static gint ett_xnap_LastVisitedPSCellInformation = -1;
+static gint ett_xnap_MeasObjectContainer = -1;
+static gint ett_xnap_RACH_Config_Common = -1;
+static gint ett_xnap_RACH_Config_Common_IAB = -1;
+static gint ett_xnap_ReportConfigContainer = -1;
+static gint ett_xnap_RLC_Bearer_Configuration = -1;
+static gint ett_xnap_SuccessfulHOReportContainer = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -364,9 +379,25 @@ void proto_register_xnap(void) {
       { "nR-unlicensed", "xnap.primaryRATRestriction.nR_unlicensed",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
         NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_nR_LEO,
+      { "nR-LEO", "xnap.primaryRATRestriction.nR_LEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_nR_MEO,
+      { "nR-MEO", "xnap.primaryRATRestriction.nR_MEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x08,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_nR_GEO,
+      { "nR-GEO", "xnap.primaryRATRestriction.nR_GEO",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
+        NULL, HFILL }},
+    { &hf_xnap_primaryRATRestriction_nR_OTHERSAT,
+      { "nR-unlicensed", "xnap.primaryRATRestriction.nR_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }},
     { &hf_xnap_primaryRATRestriction_reserved,
       { "reserved", "xnap.primaryRATRestriction.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x1f,
+        FT_UINT8, BASE_HEX, NULL, 0x01,
         NULL, HFILL }},
     { &hf_xnap_secondaryRATRestriction_e_UTRA,
       { "e-UTRA", "xnap.secondaryRATRestriction.e_UTRA",
@@ -490,6 +521,17 @@ void proto_register_xnap(void) {
     &ett_xnap_anchorCarrier_NPRACHConfigTDD,
     &ett_xnap_non_anchorCarrier_NPRACHConfigTDD,
     &ett_xnap_non_anchorCarrierFrequency,
+    &ett_xnap_cSI_RS_Configuration,
+    &ett_xnap_sR_Configuration,
+    &ett_xnap_pDCCH_ConfigSIB1,
+    &ett_xnap_sCS_Common,
+    &ett_xnap_LastVisitedPSCellInformation,
+    &ett_xnap_MeasObjectContainer,
+    &ett_xnap_RACH_Config_Common,
+    &ett_xnap_RACH_Config_Common_IAB,
+    &ett_xnap_ReportConfigContainer,
+    &ett_xnap_RLC_Bearer_Configuration,
+    &ett_xnap_SuccessfulHOReportContainer,
 #include "packet-xnap-ettarr.c"
   };
 
