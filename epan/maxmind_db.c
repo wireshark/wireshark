@@ -391,11 +391,6 @@ static void mmdb_resolve_stop(void) {
     MMDB_DEBUG("closing stdin IO");
     g_io_channel_unref(mmdbr_pipe.stdin_io);
 
-#ifdef _WIN32
-    /* TODO: Actually solve the issue instead of just terminating process */
-    MMDB_DEBUG("terminating pid %d", mmdbr_pipe.pid);
-    TerminateProcess(mmdbr_pipe.pid, 0);
-#endif
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
     g_spawn_close_pid(mmdbr_pipe.pid);
     mmdbr_pipe.pid = WS_INVALID_PID;

@@ -219,10 +219,13 @@ static void win32_kill_child_on_exit(HANDLE child_handle) {
     }
 }
 
-BOOL win32_create_process(const char *application_name, const char *command_line, LPSECURITY_ATTRIBUTES process_attributes, LPSECURITY_ATTRIBUTES thread_attributes, BOOL inherit_handles, DWORD creation_flags, LPVOID environment, const char *current_directory, LPSTARTUPINFO startup_info, LPPROCESS_INFORMATION process_information)
+BOOL win32_create_process(const char *application_name, const char *command_line, LPSECURITY_ATTRIBUTES process_attributes, LPSECURITY_ATTRIBUTES thread_attributes, size_t n_inherit_handles, HANDLE *inherit_handles, DWORD creation_flags, LPVOID environment, const char *current_directory, LPSTARTUPINFO startup_info, LPPROCESS_INFORMATION process_information)
 {
     gunichar2 *wappname = NULL, *wcurrentdirectory = NULL;
     gunichar2 *wcommandline = g_utf8_to_utf16(command_line, -1, NULL, NULL, NULL);
+    LPPROC_THREAD_ATTRIBUTE_LIST attribute_list = NULL;
+    STARTUPINFOEX startup_infoex;
+    size_t i;
     // CREATE_SUSPENDED: Suspend the child so that we can cleanly call
     //     AssignProcessToJobObject.
     DWORD wcreationflags = creation_flags|CREATE_SUSPENDED;
@@ -243,15 +246,54 @@ BOOL win32_create_process(const char *application_name, const char *command_line
     if (current_directory) {
         wcurrentdirectory = g_utf8_to_utf16(current_directory, -1, NULL, NULL, NULL);
     }
+    if (n_inherit_handles > 0) {
+        size_t attr_size = 0;
+        BOOL success;
+        success = InitializeProcThreadAttributeList(NULL, 1, 0, &attr_size);
+        if (success || (GetLastError() == ERROR_INSUFFICIENT_BUFFER)) {
+            attribute_list = g_malloc(attr_size);
+            success = InitializeProcThreadAttributeList(attribute_list, 1, 0, &attr_size);
+        }
+        if (success && (attribute_list != NULL)) {
+            success = UpdateProcThreadAttribute(attribute_list, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+                inherit_handles, n_inherit_handles * sizeof(HANDLE), NULL, NULL);
+        }
+        if (!success && (attribute_list != NULL)) {
+            DeleteProcThreadAttributeList(attribute_list);
+            g_free(attribute_list);
+            attribute_list = NULL;
+        }
+    }
+    memset(&startup_infoex, 0, sizeof(startup_infoex));
+    startup_infoex.StartupInfo = *startup_info;
+    startup_infoex.StartupInfo.cb = sizeof(startup_infoex);
+    startup_infoex.lpAttributeList = attribute_list;
+    wcreationflags |= EXTENDED_STARTUPINFO_PRESENT;
+    for (i = 0; i < n_inherit_handles; i++) {
+        SetHandleInformation(inherit_handles[i], HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
+    }
     BOOL cp_res = CreateProcess(wappname, wcommandline, process_attributes, thread_attributes,
-        inherit_handles, wcreationflags, environment, wcurrentdirectory, startup_info,
-        process_information);
+        (n_inherit_handles > 0) ? TRUE : FALSE, wcreationflags, environment, wcurrentdirectory,
+        &startup_infoex.StartupInfo, process_information);
+    /* While this function makes the created process inherit only the explicitly
+     * listed handles, there can be other functions (in 3rd party libraries)
+     * that create processes inheriting all inheritable handles. To minimize
+     * number of unwanted handle duplicates (handle duplicate can extend object
+     * lifetime, e.g. pipe write end) created that way clear the inherit flag.
+     */
+    for (i = 0; i < n_inherit_handles; i++) {
+        SetHandleInformation(inherit_handles[i], HANDLE_FLAG_INHERIT, 0);
+    }
     if (cp_res) {
         win32_kill_child_on_exit(process_information->hProcess);
         ResumeThread(process_information->hThread);
     }
     // XXX Else try again if CREATE_BREAKAWAY_FROM_JOB and GetLastError() == ERROR_ACCESS_DENIED?
 
+    if (attribute_list) {
+        DeleteProcThreadAttributeList(attribute_list);
+        g_free(attribute_list);
+    }
     g_free(wappname);
     g_free(wcommandline);
     g_free(wcurrentdirectory);

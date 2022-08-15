@@ -1623,7 +1623,7 @@ static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, HANDLE *ha
     /* Security struct to enable Inheritable HANDLE */
     memset(&security, 0, sizeof(SECURITY_ATTRIBUTES));
     security.nLength = sizeof(SECURITY_ATTRIBUTES);
-    security.bInheritHandle = TRUE;
+    security.bInheritHandle = FALSE;
     security.lpSecurityDescriptor = NULL;
 
     /* create a namedPipe */

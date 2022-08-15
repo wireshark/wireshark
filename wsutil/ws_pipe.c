@@ -243,6 +243,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     HANDLE child_stdout_wr = NULL;
     HANDLE child_stderr_rd = NULL;
     HANDLE child_stderr_wr = NULL;
+    HANDLE inherit_handles[2];
 
     OVERLAPPED stdout_overlapped;
     OVERLAPPED stderr_overlapped;
@@ -281,7 +282,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
 
     memset(&sa, 0, sizeof(SECURITY_ATTRIBUTES));
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = TRUE;
+    sa.bInheritHandle = FALSE;
     sa.lpSecurityDescriptor = NULL;
 
     if (!ws_pipe_create_overlapped_read(&child_stdout_rd, &child_stdout_wr, &sa, 0))
@@ -306,6 +307,9 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         return FALSE;
     }
 
+    inherit_handles[0] = child_stderr_wr;
+    inherit_handles[1] = child_stdout_wr;
+
     memset(&processInfo, 0, sizeof(PROCESS_INFORMATION));
     memset(&info, 0, sizeof(STARTUPINFO));
 
@@ -315,7 +319,8 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
 
-    if (win32_create_process(NULL, command_line, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, working_directory, &info, &processInfo))
+    if (win32_create_process(NULL, command_line, NULL, NULL, G_N_ELEMENTS(inherit_handles), inherit_handles,
+                             CREATE_NEW_CONSOLE, NULL, working_directory, &info, &processInfo))
     {
         gchar* stdout_buffer = (gchar*)g_malloc(BUFFER_SIZE);
         gchar* stderr_buffer = (gchar*)g_malloc(BUFFER_SIZE);
@@ -528,6 +533,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     HANDLE child_stdout_wr = NULL;
     HANDLE child_stderr_rd = NULL;
     HANDLE child_stderr_wr = NULL;
+    HANDLE inherit_handles[3];
 #endif
 
     // XXX harmonize handling of command arguments for the sync/async functions
@@ -540,7 +546,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 
 #ifdef _WIN32
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = TRUE;
+    sa.bInheritHandle = FALSE;
     sa.lpSecurityDescriptor = NULL;
 
     if (!CreatePipe(&child_stdin_rd, &child_stdin_wr, &sa, 0))
@@ -573,6 +579,10 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         return WS_INVALID_PID;
     }
 
+    inherit_handles[0] = child_stdin_rd;
+    inherit_handles[1] = child_stderr_wr;
+    inherit_handles[2] = child_stdout_wr;
+
     memset(&processInfo, 0, sizeof(PROCESS_INFORMATION));
     memset(&info, 0, sizeof(STARTUPINFO));
 
@@ -583,7 +593,8 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
 
-    if (win32_create_process(NULL, command_line, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
+    if (win32_create_process(NULL, command_line, NULL, NULL, G_N_ELEMENTS(inherit_handles), inherit_handles,
+                             CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
         stdin_fd = _open_osfhandle((intptr_t)(child_stdin_wr), _O_BINARY);
         stdout_fd = _open_osfhandle((intptr_t)(child_stdout_rd), _O_BINARY);
