@@ -1858,6 +1858,24 @@ struct linux_usb_phdr {
 	guint32 ndesc;      /* actual number of isochronous descriptors */
 };
 
+/*
+ * event_type values
+ */
+#define URB_SUBMIT        'S'
+#define URB_COMPLETE      'C'
+#define URB_ERROR         'E'
+
+/*
+ * URB transfer_type values
+ */
+#define URB_ISOCHRONOUS   0x0
+#define URB_INTERRUPT     0x1
+#define URB_CONTROL       0x2
+#define URB_BULK          0x3
+#define URB_UNKNOWN       0xFF
+
+#define URB_TRANSFER_IN   0x80		/* to host */
+
 struct linux_usb_isodesc {
 	gint32 iso_status;
 	guint32 iso_off;
@@ -2387,6 +2405,150 @@ pcap_process_pseudo_header(FILE_T fh, gboolean is_nokia, int wtap_encap,
 	return phdr_len;
 }
 
+/*
+ * Compute, from the data provided by the Linux USB memory-mapped capture
+ * mechanism, the amount of packet data that would have been provided
+ * had the capture mechanism not chopped off any data at the end, if, in
+ * fact, it did so.
+ *
+ * Set the "unsliced length" field of the packet header to that value.
+ */
+static void
+fix_linux_usb_mmapped_length(wtap_rec *rec, const u_char *bp)
+{
+	const struct linux_usb_phdr *hdr;
+	u_int bytes_left;
+
+	/*
+	 * All callers of this routine must ensure that pkth->caplen is
+	 * >= sizeof (struct linux_usb_phdr).
+	 */
+	bytes_left = rec->rec_header.packet_header.caplen;
+	bytes_left -= sizeof (struct linux_usb_phdr);
+
+	hdr = (const struct linux_usb_phdr *) bp;
+	if (!hdr->data_flag && hdr->transfer_type == URB_ISOCHRONOUS &&
+	    hdr->event_type == URB_COMPLETE &&
+	    (hdr->endpoint_number & URB_TRANSFER_IN) &&
+	    rec->rec_header.packet_header.len == sizeof(struct linux_usb_phdr) +
+	                 (hdr->ndesc * sizeof (struct linux_usb_isodesc)) + hdr->urb_len) {
+		struct linux_usb_isodesc *descs;
+		u_int pre_truncation_data_len, pre_truncation_len;
+
+		descs = (struct linux_usb_isodesc *) (bp + sizeof(struct linux_usb_phdr));
+
+		/*
+		 * We have data (yes, data_flag is 0 if we *do* have data),
+		 * and this is a "this is complete" incoming isochronous
+		 * transfer event, and the length was calculated based
+		 * on the URB length.
+		 *
+		 * That's not correct, because the data isn't contiguous,
+		 * and the isochronous descriptos show how it's scattered.
+		 *
+		 * Find the end of the last chunk of data in the buffer
+		 * referred to by the isochronous descriptors; that indicates
+		 * how far into the buffer the data would have gone.
+		 *
+		 * Make sure we don't run past the end of the captured data
+		 * while processing the isochronous descriptors.
+		 */
+		pre_truncation_data_len = 0;
+		for (guint32 desc = 0;
+		    desc < hdr->ndesc && bytes_left >= sizeof (struct linux_usb_isodesc);
+		    desc++, bytes_left -= sizeof (struct linux_usb_isodesc)) {
+			u_int desc_end;
+
+			if (descs[desc].iso_len != 0) {
+				desc_end = descs[desc].iso_off + descs[desc].iso_len;
+				if (desc_end > pre_truncation_data_len)
+					pre_truncation_data_len = desc_end;
+			}
+		}
+
+		/*
+		 * Now calculate the total length based on that data
+		 * length.
+		 */
+		pre_truncation_len = sizeof(struct linux_usb_phdr) +
+		    (hdr->ndesc * sizeof (struct linux_usb_isodesc)) +
+		    pre_truncation_data_len;
+
+		/*
+		 * If that's greater than or equal to the captured length,
+		 * use that as the length.
+		 */
+		if (pre_truncation_len >= rec->rec_header.packet_header.caplen)
+			rec->rec_header.packet_header.len = pre_truncation_len;
+
+		/*
+		 * If the captured length is greater than the length,
+		 * use the captured length.
+		 *
+		 * For completion events for incoming isochronous transfers,
+		 * it's based on data_len, which is calculated the same way
+		 * we calculated pre_truncation_data_len above, except that
+		 * it has access to all the isochronous descriptors, not
+		 * just the ones that the kernel were able to provide us or,
+		 * for a capture file, that weren't sliced off by a snapshot
+		 * length.
+		 *
+		 * However, it might have been reduced by the USB capture
+		 * mechanism arbitrarily limiting the amount of data it
+		 * provides to userland, or by the libpcap capture code
+		 * limiting it to being no more than the snapshot, so
+		 * we don't want to just use it all the time; we only
+		 * do so to try to get a better estimate of the actual
+		 * length - and to make sure the on-the-network length
+		 * is always >= the captured length.
+		 */
+		if (rec->rec_header.packet_header.caplen > rec->rec_header.packet_header.len)
+			rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
+	}
+}
+
+static void
+pcap_fixup_len(wtap_rec *rec, const guint8 *pd)
+{
+	struct linux_usb_phdr *usb_phdr;
+
+	/*
+	 * Greasy hack, but we never directly dereference any of
+	 * the fields in *usb_phdr, we just get offsets of and
+	 * addresses of its members and byte-swap it with a
+	 * byte-at-a-time macro, so it's alignment-safe.
+	 */
+	usb_phdr = (struct linux_usb_phdr *)(void *)pd;
+
+	if (rec->rec_header.packet_header.caplen >=
+	    sizeof (struct linux_usb_phdr)) {
+		/*
+		 * In older versions of libpcap, in memory-mapped captures,
+		 * the "on-the-bus length" for completion events for
+		 * incoming isochronous transfers was miscalculated; it
+		 * needed to be calculated based on the* offsets and lengths
+		 * in the descriptors, not on the raw URB length, but it
+		 * wasn't.
+		 *
+		 * If this packet contains transferred data (yes, data_flag
+		 * is 0 if we *do* have data), and the total on-the-network
+		 * length is equal to the value calculated from the raw URB
+		 * length, then it might be one of those transfers.
+		 *
+		 * We only do this if we have the full USB pseudo-header.
+		 */
+		if (!usb_phdr->data_flag &&
+		    rec->rec_header.packet_header.len == sizeof (struct linux_usb_phdr) +
+		      (usb_phdr->ndesc * sizeof (struct linux_usb_isodesc)) + usb_phdr->urb_len) {
+			/*
+			 * It might need fixing; fix it if it's a completion
+			 * event for an incoming isochronous transfer.
+			 */
+			fix_linux_usb_mmapped_length(rec, pd);
+		}
+	}
+}
+
 void
 pcap_read_post_process(gboolean is_nokia, int wtap_encap,
     wtap_rec *rec, guint8 *pd, gboolean bytes_swapped, int fcs_len)
@@ -2437,6 +2599,11 @@ pcap_read_post_process(gboolean is_nokia, int wtap_encap,
 	case WTAP_ENCAP_USB_LINUX_MMAPPED:
 		if (bytes_swapped)
 			pcap_byteswap_linux_usb_pseudoheader(rec, pd, TRUE);
+
+		/*
+		 * Fix up the on-the-network length if necessary.
+		 */
+		pcap_fixup_len(rec, pd);
 		break;
 
 	case WTAP_ENCAP_NETANALYZER:
