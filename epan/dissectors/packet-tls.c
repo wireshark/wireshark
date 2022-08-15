@@ -1400,7 +1400,7 @@ again:
             next_tvb = tvb_new_chain(tvb, ipfd_head->tvb_data);
 
             /* add desegmented data to the data source list */
-            add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
+            add_new_data_source(pinfo, next_tvb, "Reassembled TLS");
 
             /* call subdissector */
             process_ssl_payload(next_tvb, 0, pinfo, tree, session, app_handle_port);
