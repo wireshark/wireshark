@@ -485,6 +485,12 @@ static dissector_table_t rtps_type_name_table;
 #define ENTITYID_BUILTIN_PARTICIPANT_READER     (0x000100c7)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER (0x000200c2)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER (0x000200c7)
+#define ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER (0x00010082)
+#define ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER (0x00010087)
+#define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER    (0x00010182)
+#define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER    (0x00010187)
+#define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER (0xff010182)
+#define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER (0xff010187)
 
 /* Secure DDS */
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER          (0x000201c3)
@@ -749,6 +755,20 @@ static dissector_table_t rtps_type_name_table;
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB      (1)
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2     (2)
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO      (G_MAXUINT32)
+
+/* VENDOR_BUILTIN_ENDPOINT_SET FLAGS */
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_WRITER          (0x00000001U << 7)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_READER          (0x00000001U << 8)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_WRITER   (0x00000001U << 9)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_READER   (0x00000001U << 10)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_WRITER         (0x00000001U << 11)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_READER         (0x00000001U << 12)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_WRITER            (0x00000001U << 13)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_READER            (0x00000001U << 14)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_WRITER          (0x00000001U << 15)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_READER          (0x00000001U << 16)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_WRITER       (0x00000001U << 17)
+#define VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_READER       (0x00000001U << 18)
 
 static int hf_rtps_dissection_boolean = -1;
 static int hf_rtps_dissection_byte    = -1;
@@ -1171,6 +1191,18 @@ static int hf_rtps_flag_locator_ping_writer                     = -1;
 static int hf_rtps_flag_locator_ping_reader                     = -1;
 static int hf_rtps_flag_secure_service_request_writer           = -1;
 static int hf_rtps_flag_cloud_discovery_service_announcer       = -1;
+static int hf_rtps_flag_participant_config_writer               = -1;
+static int hf_rtps_flag_participant_config_reader               = -1;
+static int hf_rtps_flag_participant_config_secure_writer        = -1;
+static int hf_rtps_flag_participant_config_secure_reader        = -1;
+static int hf_rtps_flag_participant_bootstrap_writer            = -1;
+static int hf_rtps_flag_participant_bootstrap_reader            = -1;
+static int hf_rtps_flag_monitoring_periodic_writer              = -1;
+static int hf_rtps_flag_monitoring_periodic_reader              = -1;
+static int hf_rtps_flag_monitoring_event_writer                 = -1;
+static int hf_rtps_flag_monitoring_event_reader                 = -1;
+static int hf_rtps_flag_monitoring_logging_writer               = -1;
+static int hf_rtps_flag_monitoring_logging_reader               = -1;
 static int hf_rtps_flag_secure_service_request_reader           = -1;
 static int hf_rtps_flag_security_access_protected               = -1;
 static int hf_rtps_flag_security_discovery_protected            = -1;
@@ -1400,6 +1432,12 @@ static const value_string entity_id_vals[] = {
   { ENTITYID_RTI_BUILTIN_LOCATOR_PING_READER,       "ENTITYID_RTI_BUILTIN_LOCATOR_PING_READER" },
   { ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER,    "ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER" },
   { ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_READER,    "ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_READER" },
+  { ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER, "ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER" },
+  { ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER, "ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER" },
+  { ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER,    "ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER" },
+  { ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER,    "ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER" },
+  { ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER, "ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER"},
+  { ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER, "ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER"},
 
   /* Deprecated Items */
   { ENTITYID_APPLICATIONS_WRITER,               "writerApplications [DEPRECATED]" },
@@ -2449,6 +2487,18 @@ static int* const NACK_FLAGS[] = {
 #endif
 
 static int* const VENDOR_BUILTIN_ENDPOINT_FLAGS[] = {
+  &hf_rtps_flag_participant_bootstrap_reader,         /* Bit 18 */
+  &hf_rtps_flag_participant_bootstrap_writer,         /* Bit 17 */
+  &hf_rtps_flag_monitoring_logging_reader,            /* Bit 16 */
+  &hf_rtps_flag_monitoring_logging_writer,            /* Bit 15 */
+  &hf_rtps_flag_monitoring_event_reader,              /* Bit 14 */
+  &hf_rtps_flag_monitoring_event_writer,              /* Bit 13 */
+  &hf_rtps_flag_monitoring_periodic_reader,           /* Bit 12 */
+  &hf_rtps_flag_monitoring_periodic_writer,           /* Bit 11 */
+  &hf_rtps_flag_participant_config_secure_reader,     /* Bit 10 */
+  &hf_rtps_flag_participant_config_secure_writer,     /* Bit 9 */
+  &hf_rtps_flag_participant_config_reader,            /* Bit 8 */
+  &hf_rtps_flag_participant_config_writer,            /* Bit 7 */
   &hf_rtps_flag_cloud_discovery_service_announcer,    /* Bit 6 */
   &hf_rtps_flag_secure_service_request_reader,        /* Bit 5 */
   &hf_rtps_flag_secure_service_request_writer,        /* Bit 4 */
@@ -3263,8 +3313,14 @@ static void append_status_info(packet_info *pinfo,
    * ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_WRITER    | M
    * ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER          | W
    * ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER         | R
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER        | Pc
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER        | Pc
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER           | Pb
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER           | Pb
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER    | sPc
+   * ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER    | sPc
 
-   *
+
    * The letter is followed by:
    * status_info &1 | status_info & 2       | Text
    * ---------------+-----------------------+--------------
@@ -3314,6 +3370,18 @@ static void append_status_info(packet_info *pinfo,
       break;
     case ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER:
       writerId = "R";
+      break;
+    case ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER:
+    case ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER:
+      writerId = "Pb";
+      break;
+    case ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER:
+    case ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_READER:
+      writerId = "Pc";
+      break;
+    case ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER:
+    case ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER:
+      writerId = "sPc";
       break;
     default:
     /* Unknown writer ID, don't format anything */
@@ -10124,8 +10192,12 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
 
   /* SerializedData */
   if ((flags & FLAG_DATA_D_v2) != 0) {
-    from_builtin_writer =
-        (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
+    from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
+      || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
+	  || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
+	  || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         "serializedData", vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
@@ -10255,8 +10327,12 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
   /* SerializedData */
   if ((flags & FLAG_DATA_D_v2) != 0) {
-    from_builtin_writer =
-        (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
+    from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
+      || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         "serializedData", vendor_id, from_builtin_writer, NULL, (gint32)frag_number);
@@ -10393,8 +10469,12 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
   }
 
   if ((version >= 0x0200) && (flags & FLAG_DATA_D_v2) != 0) {
-    from_builtin_writer =
-        (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
+    from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
+      || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         "serializedData", vendor_id, from_builtin_writer, NULL, NOT_A_FRAGMENT);
@@ -10498,8 +10578,12 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
   /* SerializedData */
   if ((flags & FLAG_DATA_D_v2) != 0) {
-    from_builtin_writer =
-      (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
+    from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
+      || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb,offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         "serializedData", vendor_id, from_builtin_writer, NULL, (gint32)frag_number);
@@ -11524,8 +11608,12 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
         label = "<invalid or unknown data type>";
       }
 
-      from_builtin_writer =
-        (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
+      from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
+          || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
+          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
+          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
+          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
+          || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
       /* At the end still dissect the rest of the bytes as raw data */
       dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
@@ -11708,8 +11796,12 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint 
     if ((flags & FLAG_RTPS_DATA_FRAG_K) != 0) {
         snprintf(label, 14, "serializedKey");
     }
-    from_builtin_writer =
-      (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
+    from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
+      || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER))
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_WRITER)
+      || (wid == ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER) ? TRUE : FALSE;
 
     guint32 frag_index_in_submessage = 0, this_frag_number = 0, this_frag_size = 0, fragment_offset = 0;
     gboolean more_fragments = FALSE;
@@ -15887,6 +15979,54 @@ void proto_register_rtps(void) {
     { &hf_rtps_flag_cloud_discovery_service_announcer,{
         "Cloud Discovery Service Announcer", "rtps.flag.cloud_discovery_service_announcer",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_config_writer,{
+        "Participant Config Writer", "rtps.flag.participant_config_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_WRITER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_config_reader,{
+        "Participant Config Reader", "rtps.flag.articipant_config_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_READER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_config_secure_writer,{
+        "Participant Config Secure Writer", "rtps.flag.articipant_config_secure_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_WRITER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_config_secure_reader,{
+        "Participant Config Secure Reader", "rtps.flag.participant_config_secure_reader",
+	    FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_CONFIG_SECURE_READER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_bootstrap_writer,{
+        "Participant Bootstrap Writer", "rtps.flag.participant_bootstrap_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_WRITER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_bootstrap_reader,{
+        "Participant Bootstrap Reader", "rtps.flag.participant_bootstrap_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_PARTICIPANT_BOOTSTRAP_READER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_monitoring_periodic_writer,{
+        "Monitoring Periodic Writer", "rtps.flag.monitoring_periodic_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_WRITER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_monitoring_periodic_reader,{
+        "Monitoring Periodic Reader", "rtps.flag.monitoring_periodic_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_PERIODIC_READER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_monitoring_event_writer,{
+        "Monitoring Event Writer", "rtps.flag.monitoring_event_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_WRITER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_monitoring_event_reader,{
+        "Monitoring Event Reader", "rtps.flag.monitoring_event_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_EVENT_READER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_monitoring_logging_writer,{
+        "Monitoring Logging Writer", "rtps.flag.monitoring_logging_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_WRITER, NULL, HFILL }
+    },
+    { &hf_rtps_flag_monitoring_logging_reader,{
+        "Monitoring Logging Reader", "rtps.flag.monitoring_logging_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), VENDOR_BUILTIN_ENDPOINT_SET_FLAG_MONITORING_LOGGING_READER, NULL, HFILL }
     }
   };
 
