@@ -802,8 +802,10 @@ static int
 dissect_tiff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     int encoding;
 
-    proto_item *ti = proto_tree_add_item(tree, proto_tiff, tvb, 0, -1, ENC_NA);
-    proto_tree *tiff_tree = proto_item_add_subtree(ti, ett_tiff);
+    // Reject if we don't have enough room for the heuristics
+    if (tvb_captured_length(tvb) < 4) {
+        return 0;
+    }
 
     // Figure out if we're big-endian or little endian
     guint16 raw_encoding = tvb_get_ntohs(tvb, 0);
@@ -819,17 +821,19 @@ dissect_tiff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     magic = tvb_get_guint16(tvb, 2, encoding);
-    ifd_offset = tvb_get_guint32(tvb, 4, encoding);
 
     // If the magic number isn't 42, abort with nothing decoded
     if (magic != 42) {
         return 0;
     }
 
+    proto_item *ti = proto_tree_add_item(tree, proto_tiff, tvb, 0, -1, ENC_NA);
+    proto_tree *tiff_tree = proto_item_add_subtree(ti, ett_tiff);
+
     // Dissect the rest of the header
     proto_tree_add_item(tiff_tree, hf_tiff_header_endianness, tvb, 0, 2, encoding);
     proto_tree_add_item(tiff_tree, hf_tiff_header_magic, tvb, 2, 2, encoding);
-    proto_tree_add_item(tiff_tree, hf_tiff_header_lead_ifd, tvb, 4, 4, encoding);
+    proto_tree_add_item_ret_uint(tiff_tree, hf_tiff_header_lead_ifd, tvb, 4, 4, encoding, &ifd_offset);
 
     // Keep dissecting IFDs until the offset to the next one is zero
     while (ifd_offset != 0) {
