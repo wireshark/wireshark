@@ -1381,6 +1381,9 @@ static const char *wtap_errlist[] = {
 
 	/* WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED */
 	"We don't support decompressing that type of compressed file",
+
+	/* WTAP_ERR_TIME_STAMP_NOT_SUPPORTED */
+	"We don't support writing that record's time stamp to that file type",
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 

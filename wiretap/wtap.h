@@ -2302,8 +2302,8 @@ void wtap_cleanup(void);
     /**< The file being opened is not a capture file in a known format */
 
 #define WTAP_ERR_UNSUPPORTED                   -4
-    /**< Supported file type, but there's something in the file we
-       can't support */
+    /**< Supported file type, but there's something in the file we're
+       reading that we can't support */
 
 #define WTAP_ERR_CANT_WRITE_TO_PIPE            -5
     /**< Wiretap can't save to a pipe in the specified format */
@@ -2373,6 +2373,10 @@ void wtap_cleanup(void);
 
 #define WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED  -26
     /**< We don't support decompressing that type of compressed file */
+
+#define WTAP_ERR_TIME_STAMP_NOT_SUPPORTED     -27
+    /**< We don't support writing that record's time stamp to that
+         file type  */
 
 #ifdef __cplusplus
 }
