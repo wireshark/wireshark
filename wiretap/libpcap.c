@@ -1297,6 +1297,15 @@ libpcap_dump_pcap(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 {
 	struct pcaprec_hdr rec_hdr;
 
+	/*
+	 * Some code that reads libpcap files may handle time
+	 * stamps as unsigned, but most of it probably handles
+	 * them as signed.
+	 */
+	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+		return FALSE;
+	}
 	rec_hdr.ts_sec = (guint32) rec->ts.secs;
 	rec_hdr.ts_usec = rec->ts.nsecs / 1000;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr, sizeof rec_hdr,
@@ -1312,6 +1321,15 @@ libpcap_dump_pcap_nsec(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd,
 {
 	struct pcaprec_hdr rec_hdr;
 
+	/*
+	 * Some code that reads libpcap files may handle time
+	 * stamps as unsigned, but most of it probably handles
+	 * them as signed.
+	 */
+	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+		return FALSE;
+	}
 	rec_hdr.ts_sec = (guint32) rec->ts.secs;
 	rec_hdr.ts_usec = rec->ts.nsecs;
 	return libpcap_dump_write_packet(wdh, rec, &rec_hdr, sizeof rec_hdr,
@@ -1327,6 +1345,15 @@ libpcap_dump_pcap_ss990417(wtap_dumper *wdh, const wtap_rec *rec,
 {
 	struct pcaprec_modified_hdr rec_hdr;
 
+	/*
+	 * Some code that reads libpcap files may handle time
+	 * stamps as unsigned, but most of it probably handles
+	 * them as signed.
+	 */
+	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+		return FALSE;
+	}
 	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	/* XXX - what should we supply here?
@@ -1364,6 +1391,15 @@ libpcap_dump_pcap_ss990915(wtap_dumper *wdh, const wtap_rec *rec,
 {
 	struct pcaprec_ss990915_hdr rec_hdr;
 
+	/*
+	 * Some code that reads libpcap files may handle time
+	 * stamps as unsigned, but most of it probably handles
+	 * them as signed.
+	 */
+	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+		return FALSE;
+	}
 	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	rec_hdr.ifindex = 0;
@@ -1384,6 +1420,15 @@ libpcap_dump_pcap_ss991029(wtap_dumper *wdh, const wtap_rec *rec,
 {
 	struct pcaprec_modified_hdr rec_hdr;
 
+	/*
+	 * Some code that reads libpcap files may handle time
+	 * stamps as unsigned, but most of it probably handles
+	 * them as signed.
+	 */
+	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+		return FALSE;
+	}
 	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	/* XXX - what should we supply here?
@@ -1422,6 +1467,15 @@ libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
 	struct pcaprec_nokia_hdr rec_hdr;
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 
+	/*
+	 * Some code that reads libpcap files may handle time
+	 * stamps as unsigned, but most of it probably handles
+	 * them as signed.
+	 */
+	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+		return FALSE;
+	}
 	rec_hdr.hdr.ts_sec = (guint32) rec->ts.secs;
 	rec_hdr.hdr.ts_usec = rec->ts.nsecs / 1000;
 	/* restore the "mysterious stuff" that came with the packet */
