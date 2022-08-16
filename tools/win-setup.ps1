@@ -105,7 +105,7 @@ $ArchivesSubDirectory = @{
 # Plain file downloads
 
 $Win64Files = @{
-    "Npcap/npcap-1.60.exe" = "87d3624772b8272767a3a4ffcceecc3052489cd09e494a6c352dce5e5efa4070";
+    "Npcap/npcap-1.70.exe" = "53913ee65ac54927c793254d7404d40c57432de18b60feb3bd9cfd554d38dde9";
     "USBPcap/USBPcapSetup-1.5.4.0.exe" = "87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622";
 }
 
