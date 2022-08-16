@@ -7,7 +7,7 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an experimental release intended to test new features for Wireshark 4.0.
+This is an experimental release intended to test new features for Wireshark 4.2.
 
 == What is Wireshark?
 
@@ -16,62 +16,7 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-NOTE: We do not ship official 32-bit Windows packages for this branch.
-If you need to use Wireshark on that platform, please install the latest 3.6 release.
-wsbuglink:17779[]
-
-* The display filter syntax is now more powerful with many new extensions.
-  See below for details.
-
-* The Conversation and Endpoint dialogs have been redesigned with the following improvements:
- - The context menu now includes the option to resize all columns, as well as copying elements.
- - Data may be exported as JSON.
- - Tabs may be detached and reattached from the dialog.
- - Adding/Removing tabs will keep them in the same order all the time.
- - If a filter is applied, two columns are shown in either dialog detailing the difference between
-   unmatched and matched packets.
- - Columns are now sorted via secondary properties if an identical entry is found.
-   - Conversations will be sorted via second address and first port number.
-   - Endpoints will be sorted via port numbers.
-   - IPv6 addresses are sorted correctly after IPv4 addresses.
- - The dialog elements have been moved to make it easier to handle for new users.
-   - Selection of tap elements is done via list.
-   - All configurations and options are done via a left side button row.
- - Columns for the Conversations and Endpoint dialogs can be hidden by context menu.
- - TCP/UDP conversations now include the stream id and allows filtering on it.
-
-* Speed when using MaxMind geolocation has been greatly improved.
-
-* The Wireshark Lua API now uses the https://github.com/rrthomas/lrexlib[lrexlib] bindings to PCRE2.
-  Code using the Lua GRegex module will have to be updated to use lrexlib-pcre2 instead.
-  In most cases the API should be compatible and the conversion just requires a module name change.
-
-* The tap registration system has been updated and the list of arguments for tap_packet_cb has changed.
-  All taps registered through register_tap_listener have to be updated.
-
-* The https://www.pcre.org/[PCRE2 library] is now a required dependency to build Wireshark.
-
-* You must now have a compiler with C11 support in order to build Wireshark.
-
-* The following libraries and tools have had their minimum required version increased:
-  - CMake 3.10 is required on macOS and Linux.
-  - Qt version 5.12 (was 5.6.0), although compilation with 5.10 and 5.11 is still possible, but will trigger a warning during configuration.
-  - Windows SDK 10.0.18362.0 is required due to issues with C11 support.
-  - macOS version 10.10 (was 10.8) is required, if the Qt version is to be built, at least 10.11 is required, depending on the Qt version used (see below).
-  - GLib version 2.50.0 (was 2.38.0) is required.
-  - Libgcrypt version 1.8.0 (was 1.5.0) is required.
-  - c-ares version 1.14.0 (was 1.5.0).
-  - Python version 3.6.0 (was 3.4.0).
-  - GnuTLS version 3.5.8 (was 3.3.0).
-  - Nghttp2 minimum version has been set to 1.11.0 (none previous).
-
-* For building with Qt on macOS, the following versions are required depending on the Qt version to be used:
-  - Qt 5.10 or higher requires macOS version 10.11
-  - Qt 5.12 or higher requires macOS version 10.12
-  - Qt 5.14 or higher requires macOS version 10.13
-  - Qt 6.0 or higher requires macOS version 10.14
-
-* Perl is no longer required to build Wireshark, but may be required to build some source code files and run code analysis checks.
+// Add *major* changes here.
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
@@ -88,135 +33,14 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated) since version 3.7.2:
+The following features are new (or have been significantly updated) since version 4.0.0:
 
-The following features are new (or have been significantly updated) since version 3.7.1:
+// * The Windows installers now ship with Npcap 1.70.
+//   They previously shipped with Npcap 1.60.
 
-* The 'v' (lower case) and 'V' (upper case) switches have been swapped for editcap and mergecap to
-  match the other command line utilities.
 
-* The ip.flags field is now only the three high bits, not the full byte.
-  Display filters and Coloring rules using the field will need to be adjusted.
 
-* New address type AT_NUMERIC allows simple numeric addresses for protocols which do not have
-  a more common-style address approach, analog to AT_STRINGZ.
-
-The following features are new (or have been significantly updated) since version 3.7.0:
-
-* The Windows installers now ship with Qt 6.2.3.
-  They previously shipped with Qt 6.2.4.
-
-* The Conversation and Endpoint dialogs have been reworked extensively
-
-The following features are new (or have been significantly updated) since version 3.6.0:
-
-* The Windows installers now ship with Npcap 1.60.
-  They previously shipped with Npcap 1.55.
-
-* The Windows installers now ship with Qt 6.2.4.
-They previously shipped with Qt 5.12.2.
-
-* The display filter syntax has been updated and enhanced:
-** A syntax to match a specific layer in the protocol stack has been added.
-   For example in an IP-over-IP packet “ip.addr#1 == 1.1.1.1” matches the outer layer addresses and “ip.addr#2 == 1.1.1.2” matches the inner layer addresses.
-** Universal quantifiers "any" and "all" have been added to any relational operator.
-   For example the expression "all tcp.port > 1024" is true if and only if all tcp.port fields match the condition.
-   Previously only the default behaviour to return true if any one field matches was supported.
-** Field references, of the form ${some.field}, are now part of the syntax of display filters. Previously they were implemented as macros.
-   The new implementation is more efficient and has the same properties as protocol fields, like matching on multiple values
-   using quantifiers and support for layer filtering.
-** Arithmetic is supported for numeric fields with the usual operators “+”, “-”, “*”, “/”, and “%”.
-   Arithmetic expressions must be grouped using curly brackets (not parenthesis).
-** New display filter functions max(), min() and abs() have been added.
-** Functions can accept expressions as arguments, including other functions.
-   Previously only protocol fields and slices were syntactically valid function arguments.
-** A new syntax to disambiguate literals from identifiers has been added.
-   Every value with a leading dot is a protocol or protocol field.
-   Every value in between angle brackets is a literal value.
-   See the https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html#_some_protocol_names_can_be_ambiguous[User’s Guide] for details.
-** The "bitwise and" operator is now a first-class bit operator, not a boolean operator.
-   In particular this means it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
-** Dates and times can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
-   Otherwise local time is used.
-** Integer literal constants may be written in binary (in addition to decimal/octal/hexadecimal) using the prefix "0b" or "0B".
-** Logical AND now has higher precedence than logical OR, in line with most programming languages.
-** It is now possible to index protocol fields from the end using negative indexes. For example the
-   following expression tests the last two bytes of the TCP protocol field: tcp[-2:] == AA:BB.
-   This was a longstanding bug that has been fixed in this release.
-** Set elements must be separated using a comma, e.g: {1, 2, "foo"}.
-   Using only whitespace as a separator was deprecated in 3.6 and is now a syntax error.
-** Support for some additional character escape sequences in double quoted strings has been added.
-   Along with octal (\<number>) and hex (\x<number>) encoding, the following C escape sequences are now supported with the same meaning: \a, \b, \f, \n, \r, \t, \v.
-   Previously they were only supported with character constants.
-** Unicode universal character names are now supported with the escape sequences \uNNNN or \UNNNNNNNN, where N is a hexadecimal digit.
-** Unrecognized escape sequences are now treated as a syntax error.
-   Previously they were treated as a literal character.
-   In addition to the sequences indicated above, backslash, single quotation and double quotation mark are also valid sequences: \\, \', \".
-** A new strict equality operator "===" or "all_eq" has been added.
-   The expression "a === b" is true if and only if all a’s are equal to b.
-   The negation of "===" can now be written as "!==" (any_ne).
-** The aliases "any_eq" for "==" and "all_ne" for "!=" have been added.
-** The operator "~=" is deprecated and will be removed in a future version.
-   Use "!==", which has the same meaning instead.
-** Floats must be written with a leading and ending digit.
-   For example the values ".7" and "7." are now invalid as floats.
-   They must be written "0.7" and "7.0" respectively.
-** The display filter engine now uses PCRE2 instead of GRegex (GLib’s bindings to the older and end-of-life PCRE library).
-   PCRE2 is compatible with PCRE so any user-visible changes should be minimal.
-   Some exotic patterns may now be invalid and require rewriting.
-** Literal strings can handle embedded null bytes (the value '\0') correctly. This includes regular expression patterns.
-   For example the double-quoted string "\0 is a null byte" is a legal literal value.
-   This may be useful to match byte patterns but note that in general protocol fields with a string type still cannot contain embedded null bytes.
-** Booleans can be written as True/TRUE or False/FALSE. Previously they could only be written as 1 or 0.
-** It is now possible to test for the existence of a slice.
-** All integer sizes are now compatible. Unless overflow occurs any integer field can be compared with any other.
-
-* The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
-** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.
-** Consistent with the other command line tools like `editcap`, `mergecap`, `tshark`, and the "Import from Hex Dump" option within Wireshark, the default capture file format for `text2pcap` is now *pcapng*. The `-n` flag to select pcapng (instead of the previous default, pcap) has been deprecated and will be removed in a future release.
-** `text2pcap` supports selecting the encapsulation type of the output file format using the wiretap library short names with an `-E` option, similar to the `-T` option of `editcap`.
-** `text2pcap` has been updated to use the new logging output options and the `-d` flag has been removed.
-    The "debug" log level corresponds to the old `-d` flag, and the "noisy" log level corresponds to using `-d` multiple times.
-** `text2pcap` and “Import from Hex Dump” support writing fake IP, TCP, UDP, and SCTP headers to files with Raw IP, Raw IPv4, and Raw IPv6 encapsulations, in addition to Ethernet encapsulation available in previous versions.
-** `text2pcap` supports scanning the input file using a custom regular expression, as supported in “Import from Hex Dump” in Wireshark 3.6.x.
-** In general, `text2pcap` and wireshark's “Import from Hex Dump” have feature parity.
-
-* The default main window layout has been changed so that the Packet Detail and Packet Bytes are side by side underneath the Packet List pane.
-
-* The HTTP2 dissector now supports using fake headers to parse the DATAs of streams captured without first HEADERS frames of a long-lived stream (such as a gRPC streaming call which allows sending many request or response messages in one HTTP2 stream).
- Users can specify fake headers using an existing stream’s server port, stream id and direction.
-
-* The IEEE 802.11 dissector supports Mesh Connex (MCX).
-
-* The “Capture Options” dialog contains the same configuration icon as the Welcome Screen.
-  It is now possible to configure interfaces there.
-
-* The “Extcap” dialog remembers password items during runtime, which makes it possible to run extcaps multiple times in row without having to reenter the password each time.
-  Passwords are never stored on disk.
-
-* It is possible to set extcap passwords in `tshark` and other CLI tools.
-
-* The extcap configuration dialog now supports and remembers empty strings.
-  There are new buttons to reset values back to their defaults.
-
-* Support to display JSON mapping for Protobuf message has been added.
-
-* macOS debugging symbols are now shipped in separate packages, similar to Windows packages.
-
-* In the ZigBee ZCL Messaging dissector the zbee_zcl_se.msg.msg_ctrl.depreciated field has been renamed to zbee_zcl_se.msg.msg_ctrl.deprecated
-
-* The interface list on the welcome page sorts active interfaces first and only displays sparklines for active interfaces.
-  Additionally, the interfaces can now be hidden and shown via the context menu in the interface list
-
-* The Event Tracing for Windows (ETW) file reader now supports displaying IP packets from an event trace logfile or an event trace live session.
-
-* ciscodump now supports IOS, IOS-XE and ASA remote capturing
-
-=== Removed Features and Support
-
-* The CMake options starting with DISABLE_something were renamed ENABLE_something for consistency.
-  For example DISABLE_WERROR=On became ENABLE_WERROR=Off.
-  The default values are unchanged.
+// === Removed Features and Support
 
 // === Removed Dissectors
 
@@ -233,31 +57,6 @@ They previously shipped with Qt 5.12.2.
 // git log --oneline --diff-filter=A --stat v3.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
-Allied Telesis Loop Detection (AT LDF)
-AUTOSAR I-PDU Multiplexer (AUTOSAR I-PduM)
-DTN Bundle Protocol Version 7 (BPv7)
-DTN Bundle Protocol Security (BPSec)
-DTN TCP Convergence Layer Protocol (TCPCL)
-DVB Selection Information Table (DVB SIT)
-Enhanced Cash Trading Interface 10.0 (XTI)
-Enhanced Order Book Interface 10.0 (EOBI)
-Enhanced Trading Interface 10.0 (ETI)
-FiveCo's Legacy Register Access Protocol (5co-legacy)
-Generic Data Transfer Protocol (GDT)
-Host IP Configuration Protocol (HICP)
-Locamation Interface Module (IDENT, CALIBRATION, SAMPLES - IM1, SAMPLES - IM2R0)
-Mesh Connex (MCX)
-Microsoft Cluster Remote Control Protocol (RCP)
-Protected Extensible Authentication Protocol (PEAP)
-Realtek
-REdis Serialization Protocol v2 (RESP)
-Roon Discovery (RoonDisco)
-Secure File Transfer Protocol (sftp)
-Secure Host IP Configuration Protocol (SHICP)
-SSH File Transfer Protocol (SFTP)
-USB Attached SCSI (UASP)
-ZBOSS NCP
-gRPC Web (gRPC-Web)
 --
 
 === Updated Protocol Support
@@ -276,14 +75,7 @@ Too many protocols have been updated to list here.
 
 //_Non-empty section placeholder._
 
-=== Major API Changes
-
-* proto.h: The field display types "STR_ASCII" and "STR_UNICODE" have been removed.
-Use "BASE_NONE" instead.
-
-* proto.h: The field display types for floats have been extended and refactored.
-  The type BASE_FLOAT has been removed. Use BASE_NONE instead. New display
-  types for floats are BASE_DEC, BASE_HEX, BASE_EXP and BASE_CUSTOM.
+// === Major API Changes
 
 == Getting Wireshark
 
