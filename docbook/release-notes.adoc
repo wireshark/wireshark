@@ -110,6 +110,9 @@ https://www.wireshark.org/lists/[the web site].
 Bugs and feature requests can be reported on
 https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 
+You can learn protocol analysis and meet Wireshark’s developers at
+https://sharkfest.wireshark.org[SharkFest].
+
 // Official Wireshark training and certification are available from
 // https://www.wiresharktraining.com/[Wireshark University].
 
