@@ -136,7 +136,7 @@ struct visual_read_info
 /* Additional information for writing Visual files */
 struct visual_write_info
 {
-    time_t  start_time;         /* Capture start time in seconds */
+    guint32 start_time;         /* Capture start time in seconds */
     int     index_table_index;  /* Index of the next index entry */
     int     index_table_size;   /* Allocated size of the index table */
     guint32 * index_table;      /* File offsets for the packets */
@@ -678,8 +678,18 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
        file start time. */
     if (visual->index_table_index == 0)
     {
-        /* This is the first packet.  Save its start time as the file time. */
-        visual->start_time = rec->ts.secs;
+        /*
+         * This is the first packet.  Save its start time as the file time.
+         *
+         * XXX - is the start time signed, or unsigned?  If it's signed,
+         * in which case we should check against G_MININT32 and G_MAXINT32
+         * and make start_time a gint32.
+         */
+        if (rec->ts.secs < 0 || rec->ts.secs > G_MAXUINT32) {
+            *err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+            return FALSE;
+        }
+        visual->start_time = (guint32)rec->ts.secs;
 
         /* Initialize the index table */
         visual->index_table = (guint32 *)g_malloc(1024 * sizeof *visual->index_table);
