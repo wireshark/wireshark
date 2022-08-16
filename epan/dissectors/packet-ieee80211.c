@@ -6084,6 +6084,10 @@ static int hf_ieee80211_vs_fortinet_system_apmodel = -1;
 static int hf_ieee80211_vs_fortinet_system_apserial = -1;
 static int hf_ieee80211_vs_fortinet_data = -1;
 
+static int hf_ieee80211_vs_arista_subtype = -1;
+static int hf_ieee80211_vs_arista_apname = -1;
+static int hf_ieee80211_vs_arista_data = -1;
+
 static int hf_ieee80211_rsn_ie_ptk_keyid = -1;
 
 static int hf_ieee80211_rsn_ie_gtk_kde_data_type = -1;
@@ -18482,6 +18486,46 @@ dissect_vendor_ie_fortinet(proto_item *item, proto_tree *ietree,
   }
 }
 
+#define ARISTA_APNAME  6
+static const value_string ieee80211_vs_arista_subtype_vals[] = {
+  { ARISTA_APNAME, "AP Name"},
+  { 0,                 NULL }
+};
+static void
+dissect_vendor_ie_arista(proto_item *item, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  guint8 type;
+  const guint8* name;
+
+  offset += 1; /* VS OUI Type */
+  tag_len -= 1;
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(ietree, hf_ieee80211_vs_arista_subtype, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_arista_subtype_vals, "Unknown"));
+  offset += 1;
+  tag_len -= 1;
+
+  switch (type) {
+  case ARISTA_APNAME:
+    offset += 1;
+    tag_len -= 1;
+
+    proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_arista_apname, tvb,
+                         offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+    proto_item_append_text(item, " (%s)", name);
+    break;
+
+  default:
+    proto_tree_add_item(ietree, hf_ieee80211_vs_arista_data, tvb, offset,
+      tag_len, ENC_NA);
+    if (tag_len > 0)
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+    break;
+  }
+}
+
 /* 802.11-2012 8.4.2.37 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
@@ -27698,6 +27742,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     case OUI_FORTINET:
       dissect_vendor_ie_fortinet(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      break;
+    case OUI_MOJO_ARISTA:
+      dissect_vendor_ie_arista(field_data->item_tag, tree, tvb, offset, tag_vs_len);
       break;
 
     default:
@@ -47692,6 +47739,22 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vs_fortinet_data,
      {"Data", "wlan.vs.fortinet.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    /* Vendor Specific : Arista Networks */
+    {&hf_ieee80211_vs_arista_subtype,
+     {"Subtype", "wlan.vs.arista.subtype",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_arista_subtype_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_arista_apname,
+     {"AP Name", "wlan.vs.arista.ap_name",
+      FT_STRINGZ, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_arista_data,
+     {"Data", "wlan.vs.arista.data",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
