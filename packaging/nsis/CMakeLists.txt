@@ -66,8 +66,8 @@ else()
 endif()
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
-# Must match ${EXTRA_INSTALLER_DIR}/Npcap-X.Y.Z.exe
-set(NPCAP_PACKAGE_VERSION "1.60")
+# Must match tools/win-setup.ps1.
+set(NPCAP_PACKAGE_VERSION "1.70")
 
 set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
 
