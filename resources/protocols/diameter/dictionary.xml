@@ -689,7 +689,7 @@
 			the 'V' bit is enabled).
 		-->
 		<typedefn type-name="OctetStringOrUTF8" type-parent="OctetString"/>
-		<!-- A Wireshark extension to be able to use 
+		<!-- A Wireshark extension to be able to use
 			BASE_SHOW_ASCII_PRINTABLE 0x00010000 show byte array as ASCII if it's all printable characters
 		-->
 		<!-- ************************************************************** -->
@@ -2892,7 +2892,7 @@
 		668	Redirect-Address-SIP-URI	[RFC8506]
 		669	QoS-Final-Unit-Indication	[RFC8506]
 		670	OC-Maximum-Rate	[RFC8582]
-		671-16777215	Unassigned	
+		671-16777215	Unassigned
 		-->
 
 		<!-- **************************************************************************** -->
@@ -4019,20 +4019,37 @@
 		</avp>
 		<avp name="RAT-Type" code="1032" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated" />
-			<enum name="WLAN"		code="0"/>
-			<enum name="VIRTUAL"		code="1"/>
-			<enum name="UTRAN"		code="1000"/>
-			<enum name="GERAN"		code="1001"/>
-			<enum name="GAN"		code="1002"/>
-			<enum name="HSPA_EVOLUTION"	code="1003"/>
-			<enum name="EUTRAN"		code="1004"/>
-			<enum name="EUTRAN-NB-IoT"	code="1005"/>
-			<enum name="NG-RAN"	code="1006"/>
-			<enum name="LTE-M"	code="1007"/>
-			<enum name="CDMA2000_1X"	code="2000"/>
-			<enum name="HRPD"		code="2001"/>
-			<enum name="UMB"		code="2002"/>
-			<enum name="EHRPD"		code="2003"/>
+			<enum name="WLAN"						code="0"/>
+			<enum name="VIRTUAL"					code="1"/>
+			<enum name="TRUSTED-N3GA"				code="2"/>
+			<enum name="WIRELINE"					code="3"/>
+			<enum name="WIRELINE-CABLE"				code="4"/>
+			<enum name="WIRELINE-BBF"				code="5"/>
+			<enum name="UTRAN"						code="1000"/>
+			<enum name="GERAN"						code="1001"/>
+			<enum name="GAN"						code="1002"/>
+			<enum name="HSPA_EVOLUTION"				code="1003"/>
+			<enum name="EUTRAN"						code="1004"/>
+			<enum name="EUTRAN-NB-IoT"				code="1005"/>
+			<enum name="NG-RAN"						code="1006"/>
+			<enum name="LTE-M"						code="1007"/>
+			<enum name="NR-U"						code="1008"/>
+			<enum name="EUTRAN(LEO)"				code="1011"/>
+			<enum name="EUTRAN(MEO)"				code="1012"/>
+			<enum name="EUTRAN(GEO)"				code="1013"/>
+			<enum name="EUTRAN(OTHERSAT)"			code="1014"/>
+			<enum name="EUTRAN-NB-IoT(LEO)"			code="1021"/>
+			<enum name="EUTRAN-NB-IoT(MEO)"			code="1022"/>
+			<enum name="EUTRAN-NB-IoT(GEO)"			code="1023"/>
+			<enum name="EUTRAN-NB-IoT(OTHERSAT)"	code="1024"/>
+			<enum name="LTE-M(LEO)"					code="1031"/>
+			<enum name="LTE-M(MEO)"					code="1032"/>
+			<enum name="LTE-M(GEO)"					code="1033"/>
+			<enum name="LTE-M(OTHERSAT)"			code="1034"/>
+			<enum name="CDMA2000_1X"				code="2000"/>
+			<enum name="HRPD"						code="2001"/>
+			<enum name="UMB"						code="2002"/>
+			<enum name="EHRPD"						code="2003"/>
 		</avp>
 		<avp name="Event-Report-Indication" code="1033" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
