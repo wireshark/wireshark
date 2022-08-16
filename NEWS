@@ -1,7 +1,6 @@
-Wireshark 3.7.3 Release Notes
+Wireshark 4.0.0rc1 Release Notes
 
- This is an experimental release intended to test new features for
- Wireshark 4.0.
+ This is the first release candidate for Wireshark 4.0.
 
  What is Wireshark?
 
@@ -27,8 +26,8 @@ Wireshark 3.7.3 Release Notes
 
        • Tabs may be detached and reattached from the dialog.
 
-       • Adding/Removing tabs will keep them in the same order all the
-      time.
+       • Adding and removing tabs will keep them in the same order all
+      the time.
 
        • If a filter is applied, two columns are shown in either dialog
       detailing the difference between unmatched and matched packets.
@@ -36,25 +35,25 @@ Wireshark 3.7.3 Release Notes
        • Columns are now sorted via secondary properties if an identical
       entry is found.
 
-       • Conversations will be sorted via second address and first port
+       • Conversations are sorted via second address and first port
       number.
 
-       • Endpoints will be sorted via port numbers.
+       • Endpoints are sorted via port numbers.
 
        • IPv6 addresses are sorted correctly after IPv4 addresses.
 
        • The dialog elements have been moved to make it easier to handle
       for new users.
 
-       • Selection of tap elements is done via list.
+       • Selection of tap elements is done via a list.
 
        • All configurations and options are done via a left side button
       row.
 
        • Columns for the Conversations and Endpoint dialogs can be
-      hidden by context menu.
+      hidden by a context menu.
 
-       • TCP/UDP conversations now include the stream id and allows
+       • TCP and UDP conversations now include the stream ID and allow
       filtering on it.
 
     • Speed when using MaxMind geolocation has been greatly improved.
@@ -123,6 +122,8 @@ Wireshark 3.7.3 Release Notes
 
    The following features are new (or have been significantly updated)
    since version 3.7.2:
+
+   Nothing of note.
 
    The following features are new (or have been significantly updated)
    since version 3.7.1:
@@ -370,13 +371,14 @@ Wireshark 3.7.3 Release Notes
    (EOBI), Enhanced Trading Interface 10.0 (ETI), FiveCo’s Legacy
    Register Access Protocol (5co-legacy), Generic Data Transfer Protocol
    (GDT), gRPC Web (gRPC-Web), Host IP Configuration Protocol (HICP),
-   Locamation Interface Module (IDENT, CALIBRATION, SAMPLES - IM1,
-   SAMPLES - IM2R0), Mesh Connex (MCX), Microsoft Cluster Remote Control
-   Protocol (RCP), Protected Extensible Authentication Protocol (PEAP),
-   Realtek, REdis Serialization Protocol v2 (RESP), Roon Discovery
-   (RoonDisco), Secure File Transfer Protocol (sftp), Secure Host IP
-   Configuration Protocol (SHICP), SSH File Transfer Protocol (SFTP),
-   USB Attached SCSI (UASP), and ZBOSS NCP
+   Huawei GRE bonding (GREbond), Locamation Interface Module (IDENT,
+   CALIBRATION, SAMPLES - IM1, SAMPLES - IM2R0), Mesh Connex (MCX),
+   Microsoft Cluster Remote Control Protocol (RCP), Protected Extensible
+   Authentication Protocol (PEAP), Realtek, REdis Serialization Protocol
+   v2 (RESP), Roon Discovery (RoonDisco), Secure File Transfer Protocol
+   (sftp), Secure Host IP Configuration Protocol (SHICP), SSH File
+   Transfer Protocol (SFTP), USB Attached SCSI (UASP), and ZBOSS Network
+   Coprocessor product (ZB NCP)
 
   Updated Protocol Support
 

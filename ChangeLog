@@ -1,3 +1,156 @@
+01af6ff1db win32-utils: Explicitly list inherited handles
+e160346bff XnAP: upgrade dissector to v17.1.0
+f96bf96d50 Falco Bridge: Update to match falcosecurity-libs 0.8.0.
+56bfd69c9d CMake+GitLab CI: Add ABI checks.
+733268f12c Initialize the release-4.0 branch.
+7d583e1340 TLS: rename reassembled data source from SSL to TLS
+09c5183878 Linux USB: fix incorrect values for the packet length.
+bbb9610cb3 pluginifdemo: Qt5->Qt6; bump version to 0.0.2
+e33bc8d5bf docs: Update the sample dissector
+8674eea7b0 frame: warn if the real length is less than the captured length.
+7962d18222 tls-utils: Add malformed expert info instead of asserting
+938cc05d20 NGAP: add NTN related restricted RATs
+a24f1cbd8d [Automatic update for 2022-08-14]
+4240381026 wsutil: Remove flawed ws_pipe_close() function
+298eabc36c DIS: support Receiver PDUs
+c7a136a5c0 epan: Rearrange column includes
+d0a9de2af1 capture: Stop extcaps before dumpcap
+8291dc23f3 RRC: upgrade dissector to v17.1.0
+bc10ddd7ba Docbook: Add a comment about the "reproducible" attribute.
+a033dc7dc6 TCP: cleanup ECN related flags
+b5cea67768 Qt: Expert Info: Return TAP_PACKET_REDRAW if any ei is added
+d982338177 NGAP: upgrade dissector to v17.1.1
+cf17011c53 S1AP: add support for NTN NB-IoT TACs
+abe78a4109 sshdump: may be used uninitialized in this function [-Wmaybe-uninitialized]
+1337db5a18 check_typed_item_calls.py: check for consecutive calls to same item
+7d1f5939ae X2AP: upgrade dissector to v17.1.0
+a9ea071b83 S1AP: upgrade dissector to v17.1.0
+387a769003 PCAPNG: make dissect_block public for custom dissectors
+0bca2419d6 extcap: Do not drain stderr on process exit
+25bb87a781 GitLab CI: BUILD_logwolf → BUILD_logray.
+05f59f0045 GSM A RR: dissect random bit stream in SI6 Rest Octets
+dbf18e1de1 GSM BSSMAP LE: cosmetic: fix inconsistent spacing in bssmap_le_elem_fcn[]
+cc57beb304 PFCP: UP Function feature bit QUASF typo, take 2.
+913a96a2d3 mysql: Correct query attribute handling
+903a5a74ee NAS-5GS: Update comment in Route selection descriptor content.
+414dab7396 L2TP: Add generated PW type field to data packets, etc.
+32bce6c8d6 TLS: put DIG_NA macro in last position
+9da3c833a4 TLS: sync ciphers with ENC_ macro
+e5db541526 PFCP: UP Function feature bit QUASF typo.
+6cd2258c55 TLS: sync digests with DIG macro
+7160d9e0f0 mysql: Fix capability check in login packet
+a81a7876f1 L2TP: Account for cookie length in protocol length, etc.
+1bdf7427b6 TLS: fix wrong debug text
+61e1da8e86 UMTS RLC: Support no-op encryption (UEA0)
+ee6519bca6 L2TP: Use the IANA assigned PW types for Decode As
+34ab3f308a sshdump: add option to select dumpcap as remote capture command
+af558f672b NR RRC: upgrade dissector to v17.1.0
+e51916b54c L2TP: Fix UDP conversation handling.
+f1140dbc9c LPP: upgrade dissector to v17.1.0
+dc03586983 LTE RRC: upgrade dissector to v17.1.0
+100fe4e94e NAS 5GS:  fix decoding of T3324 IE
+13df9b0b64 HTTP: Speed up chunked Transfer-Encoding on TCP
+5e04463282 L2TP: Store cookie length, session IDs, and PW type from Cisco AVPs
+7316b16e1d extcap: Read stdout and stderr during capture
+ac4e1b86b8 wsutil: Use GIOChannel for standard pipes
+c1861ad1cc extcap: Close capture session after extcap finishes
+86c6509cf3 L2TP: Don't report Malformed Packet on ZLB messages
+787ecb7f1d file-jpeg: Reduce expert info to PI_PROTOCOL for Exif
+678fba2bc9 TURN: Don't report bogus PDU lengths
+8528f96ea4 Name `proto_nfs_unknown` as "Unknown NFS"
+43d499ca45 Use `register_dissector()` for more protocols
+33a34aeec1 stun: Add some comments
+ebb68e0b23 KINK: change default to IANA port 910 (RFC 4430)
+318b969d1d GRE: forward GRE key to encapsulated data
+203cd2cba9 prefs: More cleanup, auto prefs
+862803de5c HTTP2: Send headers to the follow tap after decompression
+8097d3e4a3 Streamline hfinfo retrieval in proto_tree_add_* functions
+95069d8f78 Docs: Clean up some Python references.
+4e85e0bfbe GSM CBSP: fix dissection of Repetition Period IE
+a6813db329 Qt: traffic tables - tcp/udp port name resolution
+728edc0d1f mysql: actually uncompress compresed packets
+dc24cdfc4b Qt: Add an "x-reset" icon and use to reset extcap options.
+2e7a61a2c1 Docs: Update the extcap section of the Developer's Guide.
+a7be80b04a [Automatic update for 2022-08-07]
+66b264559c UMTS FP: Fix flag in conversation_new calls
+2347345eec prefs: More port prefs to auto prefs with ranges
+f9cf0a0ae7 BGP: Check nhlen
+da5603a0d0 extcap: implement saving and restoring radio button setting
+6fd212926a epan: Constify a few range functions
+057436ff81 Prefs: Convert some SCTP port preferences to auto prefs
+9cfd989abf prefs: A few more range conversions
+41791cad7b ipsec: Fix ESP NULL pad check
+b87e7aea49 Add support for DOCSIS TLV 5.76 'Low Latency Support'
+e43c6b1aa2 quake2, quakeworld: Get ports as ranges
+0aed38cf97 ipsec: Improve ESP NULL autodetection
+d24d27ebc1 Qt: Fix interface auto slot
+74e0b506be Windows: Don't define or check for WIN32.
+a0d03745a9 mysql: Handle unsigned fields in prepared stmt
+077547d033 dccp: allow port resolution in conversation table
+5f05a705a6 ipsec: Don't include ICV in decrypted data with ESP NULL
+baf61478e4 rsync: Fix port pref
+452b5e3e0f prefs: Remove prefs_register_decode_as_preference
+59909dfb5d CIP: Correct UTIME sub-seconds portion
+0ca960c6d8 epan: Update our name resolution preference names.
+8604d03a98 prefs: Make all auto port preferences ranges
+7238dad792 Always use `next_tvb` for X.25 payload
+13bffe4630 prefs: Add default range to description of auto pref
+fe12d2428c Add support for missing DPoE OAM leaf-branch attributes
+1c1d23e323 Asterix: update dissector after specification updates
+7547e7993c asterix: asterix-specs converter fix
+bf26f538c6 wiretap: Do not silently limit capture length
+566ea8ceb4 ipx: ipxnet_hash_table clear after init causes ipx_crash
+53b49b292d MBIM: Display CellularClass as bitmask instead of enum
+5a430097b0 About: Reformat and expand some text.
+b61c47e1b5 zvt: dissect the receipt info object
+c72bf933b6 mysql: Fix dissection of AuthSwitchResponse
+fd03a35c5f mysql: Fix handling of AuthSwitchRequest
+cd2d79a220 mysql: Fix decoding of AuthSwitch on top of TLS
+20a013a8af Qt: fix speling.
+ab6f902216 prefs: Make add_for_decode_as_with_preference add ranges
+71f32ef2a8 Make sure we don't create comment options longer than 65535 bytes.
+4d9167908c GTP: Fix the version check in decode_qos_umts()
+ebc20edea1 mysql: fix dissecting login packet with zstd compression flag set
+bacaa1b869 mysql: Add new protocol capability flags
+e2ab139249 ISUP tap with proper message
+66b26d7251 follow: Only retrieve matching conversations
+210a891fb7 zvt: add some currency codes
+80f16015e2 epan: Refactor floating point display types
+269e4b7d10 Qt: Remove capitalization of preposition in title
+2c4557d7ad About: Tweak a sentence about the project
+a97e1ee581 About: Make clipboard info a close copy of dialog info
+b8ec3199ab Convert Acknowledgements to markdown and update GUI
+a0174e4f0b github: fix ubuntu workflow.
+fe573cfe9a zvt: card type for Maestro cards
+0130277571 zvt: clean up the _U_ tags
+f231711f1e [Automatic update for 2022-07-31]
+72703582d5 quic: Make follow stream respect server direction
+6f6d53be78 IPv6: Make full implementation of RFC 6052
+e2b0140edb Docs: extcap man page fixups.
+6462c60a3e wsug: add link to wireshark-filter man page
+5c15ebb9a2 prefs: Convert most RTP dissectors to use "auto" PT preferences
+39ca9db96a aeron: Fix cppcheck warning about unread Variable
+6b35ff22de aeron: Fix Clang Warnings
+727dc92dd2 radiotap(ieee80211): fix typo (duplicate hf)
+f50cd81ecb Qt: initialize endpoints name resolution
+2d1380ae5b capture: Move capture pipe polling out of UI
+5aba5772e9 gboolean bitfields considered harmful
+735ae00417 Add China IPSec Algorithms and IKE Attributes
+059c3b7924 Locamation Interface Module dissector: add support for IM2R0
+a2c5ae9a8b prefs: Fix deprecated_port_pref migration
+0a8ab48849 Revert "Win-setup: Update bcg729 to 1.1.1."
+6857e1ed04 Docs: Fix our man page dependencies.
+8015762319 Docs: Remove the "Last updated" footer from our HTML man pages.
+f65fd437dd Fix our version.
+59e7c16425 Revert "Qt: remove unnecessary method from FunnelStatistics"
+9781ae3fc1 FSSO: add support of packet with extra IPv4 a the end of packet
+206e600687 FSSO: fix indent
+72b4b21623 SCCP: Fix handling of XUDT segmentation parameter
+9c5f1255af packet_info: Fix a comment
+5e715340bf sccp: Allow processing externally reassembled data
+fa3735378f make-version.py: Add missing parentheses on function call
+05eee7f71c Version: 3.7.2 → 3.7.3rc0.
+0304e827d1 Build: 3.7.2.
 2a6d74f280 Docbook: Update the release notes.
 df7f3e76b5 tshark: Run GLib mainloop during capture
 0816e317cb dfilter: Fix crash with FT_NONE and arithmetic expressions
