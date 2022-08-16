@@ -110,51 +110,51 @@ class case_integer(unittest.TestCase):
         checkDFilterCount(dfilter, 1)
 
     def test_s_gt_1(self, checkDFilterCount):
-        dfilter = "ntp.precision > 244"
+        dfilter = "ntp.precision > -12"
         checkDFilterCount(dfilter, 1)
 
     def test_s_gt_2(self, checkDFilterCount):
-        dfilter = "ntp.precision > 245"
+        dfilter = "ntp.precision > -11"
         checkDFilterCount(dfilter, 0)
 
     def test_s_gt_3(self, checkDFilterCount):
-        dfilter = "ntp.precision > 246"
+        dfilter = "ntp.precision > -10"
         checkDFilterCount(dfilter, 0)
 
     def test_s_ge_1(self, checkDFilterCount):
-        dfilter = "ntp.precision >= 244"
+        dfilter = "ntp.precision >= -12"
         checkDFilterCount(dfilter, 1)
 
     def test_s_ge_2(self, checkDFilterCount):
-        dfilter = "ntp.precision >= 245"
+        dfilter = "ntp.precision >= -11"
         checkDFilterCount(dfilter, 1)
 
     def test_s_ge_3(self, checkDFilterCount):
-        dfilter = "ntp.precision >= 246"
+        dfilter = "ntp.precision >= -10"
         checkDFilterCount(dfilter, 0)
 
     def test_s_lt_1(self, checkDFilterCount):
-        dfilter = "ntp.precision < 244"
+        dfilter = "ntp.precision < -12"
         checkDFilterCount(dfilter, 0)
 
     def test_s_lt_2(self, checkDFilterCount):
-        dfilter = "ntp.precision < 245"
+        dfilter = "ntp.precision < -11"
         checkDFilterCount(dfilter, 0)
 
     def test_s_lt_3(self, checkDFilterCount):
-        dfilter = "ntp.precision < 246"
+        dfilter = "ntp.precision < -10"
         checkDFilterCount(dfilter, 1)
 
     def test_s_le_1(self, checkDFilterCount):
-        dfilter = "ntp.precision <= 244"
+        dfilter = "ntp.precision <= -12"
         checkDFilterCount(dfilter, 0)
 
     def test_s_le_2(self, checkDFilterCount):
-        dfilter = "ntp.precision <= 245"
+        dfilter = "ntp.precision <= -11"
         checkDFilterCount(dfilter, 1)
 
     def test_s_le_3(self, checkDFilterCount):
-        dfilter = "ntp.precision <= 246"
+        dfilter = "ntp.precision <= -10"
         checkDFilterCount(dfilter, 1)
 
     def test_bool_eq_1(self, checkDFilterCount):

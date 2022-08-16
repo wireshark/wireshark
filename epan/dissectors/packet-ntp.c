@@ -1137,7 +1137,7 @@ static void
 dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
 {
 	guint8 stratum;
-	guint8 ppoll;
+	gint8 ppoll;
 	gint8 precision;
 	guint32 rootdelay;
 	double rootdelay_double;
@@ -1211,21 +1211,17 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 * between successive messages, in seconds to the nearest
 	 * power of two.
 	 */
-	ppoll = tvb_get_guint8(tvb, 2);
-	if ((ppoll >= 4) && (ppoll <= 17)) {
-		proto_tree_add_uint_format_value(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
-			ppoll, "%u (%u seconds)", ppoll, 1 << ppoll);
-	} else {
-		proto_tree_add_uint_format_value(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
-			ppoll, "invalid (%u)", ppoll);
-	}
+	ppoll = tvb_get_gint8(tvb, 2);
+	proto_tree_add_int_format_value(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
+		ppoll, ppoll >= 0 ? "%d (%.0f seconds)" : "%d (%5.3f seconds)",
+		ppoll, pow(2, ppoll));
 
 	/* Precision, 1 byte field indicating the precision of the
 	 * local clock, in seconds to the nearest power of two.
 	 */
-	precision = tvb_get_guint8(tvb, 3);
-	proto_tree_add_uint_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
-		(guint8)precision, "%8.6f seconds", pow(2, precision));
+	precision = tvb_get_gint8(tvb, 3);
+	proto_tree_add_int_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
+		precision, "%d (%11.9f seconds)", precision, pow(2, precision));
 
 	/* Root Delay is a 32-bit signed fixed-point number indicating
 	 * the total roundtrip delay to the primary reference source,
@@ -2646,10 +2642,10 @@ proto_register_ntp(void)
 			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
 			RVALS(stratum_rvals), 0, NULL, HFILL }},
 		{ &hf_ntp_ppoll, {
-			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC,
+			"Peer Polling Interval", "ntp.ppoll", FT_INT8, BASE_DEC,
 			NULL, 0, "Maximum interval between successive messages", HFILL }},
 		{ &hf_ntp_precision, {
-			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC,
+			"Peer Clock Precision", "ntp.precision", FT_INT8, BASE_DEC,
 			NULL, 0, "The precision of the system clock", HFILL }},
 		{ &hf_ntp_rootdelay, {
 			"Root Delay", "ntp.rootdelay", FT_UINT32, BASE_DEC,
