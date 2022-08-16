@@ -153,6 +153,8 @@ static bool is_request_magic(guint8 magic) {
 #define STATUS_LOCKED             0x09
 #define STATUS_DCP_STREAM_NOT_FOUND 0x0a
 #define STATUS_OPAQUE_NO_MATCH    0x0b
+#define STATUS_EWOULDTHROTTLE     0x0c
+#define STATUS_ECONFIGONLY        0x0d
 #define STATUS_AUTH_STALE         0x1f
 #define STATUS_AUTH_ERROR         0x20
 #define STATUS_AUTH_CONTINUE      0x21
@@ -183,6 +185,9 @@ static bool is_request_magic(guint8 magic) {
 #define STATUS_SYNC_WRITE_IN_PROGRESS           0xa2
 #define STATUS_SYNC_WRITE_AMBIGUOUS             0xa3
 #define STATUS_SYNC_WRITE_RECOMMIT_IN_PROGRESS  0xa4
+#define STATUS_RANGE_SCAN_CANCELLED 0xa5
+#define STATUS_RANGE_SCAN_MORE 0xa6
+#define STATUS_RANGE_SCAN_COMPLETE 0xa7
 #define STATUS_SUBDOC_PATH_ENOENT         0xc0
 #define STATUS_SUBDOC_PATH_MISMATCH       0xc1
 #define STATUS_SUBDOC_PATH_EINVAL         0xc2
@@ -600,6 +605,8 @@ static int hf_flex_frame_id_res_esc = -1;
 static int hf_flex_frame_len = -1;
 static int hf_flex_frame_len_esc = -1;
 static int hf_flex_frame_tracing_duration = -1;
+static int hf_flex_frame_ru_count = -1;
+static int hf_flex_frame_wu_count = -1;
 static int hf_flex_frame_durability_req = -1;
 static int hf_flex_frame_dcp_stream_id = -1;
 static int hf_flex_frame_impersonated_user = -1;
@@ -658,6 +665,8 @@ static const value_string magic_vals[] = {
   Response IDs
  */
 #define FLEX_RESPONSE_ID_RX_TX_DURATION 0
+#define FLEX_RESPONSE_ID_RU_USAGE 1
+#define FLEX_RESPONSE_ID_WU_USAGE 2
 
 /* Request IDs */
 #define FLEX_REQUEST_ID_REORDER 0
@@ -669,6 +678,8 @@ static const value_string magic_vals[] = {
 
 static const value_string flex_frame_response_ids[] = {
   { FLEX_RESPONSE_ID_RX_TX_DURATION, "Server Recv->Send duration"},
+  { FLEX_RESPONSE_ID_RU_USAGE, "Read units"},
+  { FLEX_RESPONSE_ID_WU_USAGE, "Write units"},
   { 0, NULL }
 };
 
@@ -702,6 +713,8 @@ static const value_string status_vals[] = {
   { STATUS_LOCKED,            "The requested resource is locked" },
   { STATUS_DCP_STREAM_NOT_FOUND, "No DCP Stream for this request" },
   { STATUS_OPAQUE_NO_MATCH,   "Opaque does not match" },
+  { STATUS_EWOULDTHROTTLE,    "Command would have been throttled" },
+  { STATUS_ECONFIGONLY,       "Command can't be executed in config-only bucket" },
   { STATUS_AUTH_STALE,        "Authentication context is stale. Should reauthenticate." },
   { STATUS_AUTH_ERROR,        "Authentication error"    },
   { STATUS_AUTH_CONTINUE,     "Authentication continue" },
@@ -746,6 +759,9 @@ static const value_string status_vals[] = {
     "The SyncWrite request has not completed in the specified time and has ambiguous result"},
   { STATUS_SYNC_WRITE_RECOMMIT_IN_PROGRESS,
     "The SyncWrite is being re-committed after a change in active node"},
+  { STATUS_RANGE_SCAN_CANCELLED, "RangeScan was cancelled"},
+  { STATUS_RANGE_SCAN_MORE, "RangeScan has more data available"},
+  { STATUS_RANGE_SCAN_COMPLETE, "RangeScan has completed"},
   { STATUS_SUBDOC_PATH_ENOENT,
     "Subdoc: Path not does not exist"},
   { STATUS_SUBDOC_PATH_MISMATCH,
@@ -1078,6 +1094,8 @@ static const value_string feature_vals[] = {
   {0x17, "SubdocCreateAsDeleted"},
   {0x18, "SubdocDocumentMacroSupport"},
   {0x19, "SubdocReplaceBodyWithXattr"},
+  {0x1a, "ReportUnitUsage"},
+  {0x1b, "NonBlockingThrottlingMode"},
   {0, NULL}
 };
 
@@ -2817,6 +2835,44 @@ static void flex_frame_duration_dissect(tvbuff_t* tvb,
   }
 }
 
+static void flex_frame_ru_usage_dissect(tvbuff_t* tvb,
+                                        proto_tree* frame_tree,
+                                        gint offset,
+                                        gint length) {
+
+  if (length != 2) {
+    proto_tree_add_expert_format(frame_tree,
+                                 NULL,
+                                 &ef_warn_unknown_flex_len,
+                                 tvb,
+                                 offset,
+                                 length,
+                                 "Read unit illegal length %d", length);
+  } else {
+    guint16 units = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(frame_tree, hf_flex_frame_ru_count, tvb, offset, 2, units);
+  }
+}
+
+static void flex_frame_wu_usage_dissect(tvbuff_t* tvb,
+                                        proto_tree* frame_tree,
+                                        gint offset,
+                                        gint length) {
+
+  if (length != 2) {
+    proto_tree_add_expert_format(frame_tree,
+                                 NULL,
+                                 &ef_warn_unknown_flex_len,
+                                 tvb,
+                                 offset,
+                                 length,
+                                 "Write unit illegal length %d", length);
+  } else {
+    guint16 units = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(frame_tree, hf_flex_frame_wu_count, tvb, offset, 2, units);
+  }
+}
+
 static void flex_frame_reorder_dissect(tvbuff_t* tvb,
                                        proto_tree* frame_tree,
                                        gint offset,
@@ -2908,6 +2964,8 @@ struct flex_frame_by_id_dissect {
 
 static const struct flex_frame_by_id_dissect flex_frame_response_dissect[] = {
   {FLEX_RESPONSE_ID_RX_TX_DURATION, &flex_frame_duration_dissect},
+  {FLEX_RESPONSE_ID_RU_USAGE, &flex_frame_ru_usage_dissect},
+  {FLEX_RESPONSE_ID_WU_USAGE, &flex_frame_wu_usage_dissect},
   {0, NULL }
 };
 
@@ -3709,6 +3767,8 @@ proto_register_couchbase(void)
     { &hf_flex_frame_len_esc, {"Flexible Frame Len (esc)", "couchbase.flex_frame.frame.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0, NULL, HFILL } },
+    { &hf_flex_frame_ru_count, {"Read unit count", "couchbase.flex_frame.frame.ru_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_flex_frame_wu_count, {"Write unit count", "couchbase.flex_frame.frame.wu_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_flex_frame_durability_req, {"Durability Requirement", "couchbase.flex_frame.frame.durability_req", FT_UINT8, BASE_DEC, VALS(flex_frame_durability_req), 0, NULL, HFILL } },
     { &hf_flex_frame_dcp_stream_id, {"DCP Stream Identifier", "couchbase.flex_frame.frame.dcp_stream_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_flex_frame_impersonated_user, {"Impersonated User", "couchbase.flex_frame.frame.impersonated_user", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
