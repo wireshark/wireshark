@@ -1558,7 +1558,7 @@ F5 trailers.
 +
 --
 Collect requests/response SRT (Service Response Time) data for GTP.
-Data collected is the number of request/response pairs, mimimum SRT,
+Data collected is the number of request/response pairs, minimum SRT,
 maximum SRT, average SRT, and sum SRT for each value of the Type field
 (next protocol).  No statistics are gathered on unpaired messages.
 --
@@ -1737,7 +1737,7 @@ and results separately and combined is displayed.
 +
 --
 Collect requests/response SRT (Service Response Time) data for GTP.
-Data collected is the number of calls, mimimum SRT, maximum SRT, average
+Data collected is the number of calls, minimum SRT, maximum SRT, average
 SRT, and sum SRT for Echo and Create/Update/Delete PDP context commands only.
 Currently no statistics are gathered on unpaired messages.
 --
@@ -2289,7 +2289,7 @@ Calculate statistics on port types that occur on IPv4 packets.
 *-z* radius,rtd[,__filter__]::
 +
 --
-Collect requests/response RTD (Response Time Delay) data for RAIDUS.
+Collect requests/response RTD (Response Time Delay) data for RADIUS.
 The data collected for each RADIUS code is the number of calls,
 Minimum RTD, Maximum RTD, Average RTD, Minimum in Frame, and Maximum in Frame,
 along with the number of Open Requests (Unresponded Requests), Discarded

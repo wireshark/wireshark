@@ -3742,7 +3742,7 @@ proto_register_l2tp(void)
     prefs_register_static_text_preference(l2tp_module, "protocol",
         "Dissection of pseudowire types is configured through \"Decode As\". "
         "Type 0 is used for sessions with unknown pseudowire type.",
-        "Pseudowire Type \"Decode As\" instuctions");
+        "Pseudowire Type \"Decode As\" instructions");
 
     prefs_register_string_preference(l2tp_module,"shared_secret","Shared Secret",
                                    "Shared secret used for control message digest authentication",

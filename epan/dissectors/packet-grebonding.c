@@ -154,7 +154,7 @@ static const value_string greb_attribute_types[] = {
 #define GREB_ATTRB_ACTIVE_HELLO_INTERVAL 14
     {GREB_ATTRB_ACTIVE_HELLO_INTERVAL, "Active hello interval"},
 #define GREB_ATTRB_HELLO_RETRYS 15
-    {GREB_ATTRB_HELLO_RETRYS, "Hello retrys"},
+    {GREB_ATTRB_HELLO_RETRYS, "Hello retries"},
 #define GREB_ATTRB_IDLE_TIMEOUT 16
     {GREB_ATTRB_IDLE_TIMEOUT, "Idle timeout"},
 #define GREB_ATTRB_ERROR 17
@@ -475,10 +475,10 @@ proto_register_greb(void)
                 FT_UINT16, BASE_DEC, VALS(greb_filter_types), 0, NULL, HFILL }
         },
         { &hf_greb_attr_filter_item_desc_val,
-            { "Descripton", "grebonding.attr.val.filter.item.desc", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+            { "Description", "grebonding.attr.val.filter.item.desc", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_greb_attr_filter_item_desc_length,
-            { "Descripton length", "grebonding.attr.val.filter.item.desc.length",
+            { "Description length", "grebonding.attr.val.filter.item.desc.length",
                 FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_greb_attr_filter_item_val,

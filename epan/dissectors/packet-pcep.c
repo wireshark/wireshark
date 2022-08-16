@@ -1175,7 +1175,7 @@ static const value_string pcep_error_types_obj_vals[] = {
     {ATTEMPT_2_SESSION,                 "Attempt to Establish a Second PCEP Session"    },
     {INVALID_OBJ,                       "Reception of an invalid object"                },
     {UNRECO_EXRS_SUBOBJ,                "Unrecognized EXRS Subobject"                   },
-    {DIFFSERV_TE_ERROR,                 "Differsv-aware TE error"                       },
+    {DIFFSERV_TE_ERROR,                 "Diffserv-aware TE error"                       },
     {BRPC_FAILURE,                      "BRPC procedure completion failure"             },
     {GCO_ERROR,                         "Global Concurrent Optimization error"          },
     {P2MP_CAPABILITY_ERROR,             "P2PM capability error"                         },

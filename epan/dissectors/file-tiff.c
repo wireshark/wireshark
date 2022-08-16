@@ -64,7 +64,7 @@ static int hf_tiff_bits_per_sample = -1;
 #define TIFF_TAG_COMPRESSION 259
 static int hf_tiff_compression = -1;
 
-#define TIFF_TAG_PHOTOMETIC_INTERPRETATION 262
+#define TIFF_TAG_PHOTOMETRIC_INTERPRETATION 262
 static int hf_tiff_photometric_interp = -1;
 
 #define TIFF_TAG_THRESHHOLDING 263
@@ -287,7 +287,7 @@ static const value_string tiff_tag_names[] = {
     { TIFF_TAG_IMAGE_LENGTH, "Image Length" },
     { TIFF_TAG_BITS_PER_SAMPLE, "Bits Per Sample" },
     { TIFF_TAG_COMPRESSION, "Compression" },
-    { TIFF_TAG_PHOTOMETIC_INTERPRETATION, "Photometic Interpretation" },
+    { TIFF_TAG_PHOTOMETRIC_INTERPRETATION, "Photometric Interpretation" },
     { TIFF_TAG_THRESHHOLDING, "Threshholding" },
     { TIFF_TAG_CELL_WIDTH, "Cell Width" },
     { TIFF_TAG_CELL_LENGTH, "Cell Length" },
@@ -673,7 +673,7 @@ dissect_tiff_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
     case TIFF_TAG_COMPRESSION:
         dissect_tiff_single_uint(tvb, pinfo, entry_tree, offset + 8, type, count, encoding, hf_tiff_compression);
         break;
-    case TIFF_TAG_PHOTOMETIC_INTERPRETATION:
+    case TIFF_TAG_PHOTOMETRIC_INTERPRETATION:
         dissect_tiff_single_uint(tvb, pinfo, entry_tree, offset + 8, type, count, encoding, hf_tiff_photometric_interp);
         break;
     case TIFF_TAG_THRESHHOLDING:

@@ -1655,7 +1655,7 @@ static const value_string pfcp_ie_type[] = {
     { 311, "MBS Session N4 Control Information IE within PFCP Session Establishment Response"},     /* Extendable / Table 7.5.3.1-5 */
     { 312, "MBSN4Resp-Flags"},                                      /* Extendable / Clause 8.2.211 */
     { 313, "Tunnel Password"},                                      /* Variable Length / Clause 8.2.212 */
-    { 314, "Area Sesson ID"},                                       /* Fixed / Clause 8.2.213 */
+    { 314, "Area Session ID"},                                      /* Fixed / Clause 8.2.213 */
     { 315, "Peer UP Restart Report IE within PFCP Node Report Request"},     /* Extendable / Table 7.4.5.1-7 */
     { 316, "DSCP to PPI Control Information IE within PFCP Session Establishment Request"},     /* Extendable / Table 7.5.2.1-6 */
     { 317, "DSCP to PPI Mapping Information"},                      /* Extendable / Clause 8.2.214 */

@@ -33,6 +33,7 @@ adspec
 adwin
 aes128
 aes256
+aethra
 aggregations
 aggregator
 agnss
@@ -121,6 +122,7 @@ bibliography
 bidirectional
 bidirectionally
 bigint
+binlog
 bitfield
 bitmask
 bitrate
@@ -389,6 +391,7 @@ diplexer
 directionality
 disambiguate
 disambiguation
+discriminant
 dissection
 dissector
 dissectors
@@ -488,6 +491,7 @@ extensible
 extern
 exthdr
 extrainformation
+eyesdn
 failover
 fastcom
 fastip
@@ -603,6 +607,7 @@ ieee80211
 iface
 ifconfig
 ifdef
+ifname
 ikev2
 illuminance
 immersive
@@ -729,6 +734,7 @@ loghans
 loglocal
 logoff
 logout
+logray
 lookups
 loopback
 lossy
@@ -834,7 +840,9 @@ multislot
 multistate
 mumbai
 mycapture
+mycaptures
 mydns
+myhost
 mysql
 nacks
 namelen
@@ -1138,6 +1146,7 @@ relocatable
 remapping
 renumbering
 reoptimization
+reoptimized
 reordercap
 reorigination
 representable
@@ -1168,6 +1177,7 @@ resize
 resized
 resolvable
 resolver
+resub
 resubmission
 resynchronization
 resynchronize
@@ -1353,6 +1363,7 @@ subtrees
 superset
 svhdx
 switchinfo
+symantec
 synchronizing
 synchronously
 synphasor
