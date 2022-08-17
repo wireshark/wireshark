@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <epan/ftypes/ftypes.h> /* for fieldtype lengths */
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>       /* for IP_PROTO_TCP and IP_PROTO_UDP */
 #include <epan/packet.h>
@@ -196,11 +197,13 @@ static gboolean dlep_desegment = TRUE;
 
 static dissector_handle_t dlep_msg_handle;
 static dissector_handle_t dlep_sig_handle;
+static dissector_table_t dlep_dataitem_table;
 
 void proto_register_dlep(void);
 void proto_reg_handoff_dlep(void);
 
 static gint proto_dlep = -1;
+static gint proto_dataitem = -1;
 
 static gint ett_dlep = -1;
 static gint ett_dlep_dataitem = -1;
@@ -380,8 +383,11 @@ static expert_field ei_dlep_dataitem_macaddr_unexpected_length = EI_INIT;
 
 /* Section 13.1: Status */
 static int
-decode_dataitem_status(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  const gint len = tvb_captured_length(tvb);
+  gint offset = 0;
   proto_item *tmp_pi = NULL;
   guint32 status_code;
 
@@ -390,7 +396,6 @@ decode_dataitem_status(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   proto_item_set_hidden(tmp_pi);
 
   if (len < DLEP_DIT_STATUS_MINLEN) {
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
     return offset;
   }
 
@@ -407,8 +412,11 @@ decode_dataitem_status(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
 
 /* Section 13.2: IPv4 Connection Point */
 static int
-decode_dataitem_v4conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_v4conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  const gint len = tvb_captured_length(tvb);
+  gint offset = 0;
   proto_item* tmp_pi = NULL;
   proto_tree* flags_pt = NULL;
   guint32 v4conn_port;
@@ -431,16 +439,16 @@ decode_dataitem_v4conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
     offset+=2;
   }
 
-  if (len != DLEP_DIT_V4CONN_LEN && len != DLEP_DIT_V4CONN_WPORT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.3: IPv6 Connection Point */
 static int
-decode_dataitem_v6conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_v6conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  const gint len = tvb_captured_length(tvb);
+  gint offset = 0;
   proto_item* tmp_pi = NULL;
   proto_tree* flags_pt = NULL;
   guint32 v6conn_port;
@@ -463,16 +471,16 @@ decode_dataitem_v6conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
     offset+=2;
   }
 
-  if (len != DLEP_DIT_V6CONN_LEN && len != DLEP_DIT_V6CONN_WPORT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.4: Peer Type */
 static int
-decode_dataitem_peertype(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_peertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  const gint len = tvb_captured_length(tvb);
+  gint offset = 0;
   proto_item *tmp_pi = NULL;
   proto_tree * flags_pt = NULL;
 
@@ -480,7 +488,6 @@ decode_dataitem_peertype(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   proto_item_set_hidden(tmp_pi);
 
   if (len < DLEP_DIT_PEERTYPE_MINLEN) {
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
     return offset;
   }
 
@@ -498,24 +505,26 @@ decode_dataitem_peertype(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
 
 /* Section 13.5: Heartbeat Interval */
 static int
-decode_dataitem_heartbeat(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_heartbeat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint32 heartbeat;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_heartbeat, tvb, offset, DLEP_DIT_HEARTBEAT_LEN, ENC_BIG_ENDIAN, &heartbeat);
   proto_item_append_text(pi, ": %u (ms)", heartbeat);
   offset+=DLEP_DIT_HEARTBEAT_LEN;
 
-  if (len != DLEP_DIT_HEARTBEAT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.6: Extensions Supported */
 static int
-decode_dataitem_extsupp(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len)
+decode_dataitem_extsupp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  const gint len = tvb_captured_length(tvb);
+  gint offset = 0;
   guint32 extension_code;
 
   proto_item* tmp_pi = NULL;
@@ -523,11 +532,10 @@ decode_dataitem_extsupp(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_extsupp, tvb, offset, len, ENC_NA);
   proto_item_set_hidden(tmp_pi);
 
-  while(len > 0) {
+  while(offset < len) {
     proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_extsupp_code, tvb, offset, 2, ENC_BIG_ENDIAN, &extension_code);
     proto_item_append_text(pi, ", Ext: %s (%u)", rval_to_str(extension_code, extension_code_vals, "Unknown"), extension_code);
     offset+=2;
-    len-=2;
   }
 
   return offset;
@@ -535,8 +543,11 @@ decode_dataitem_extsupp(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
 
 /* Section 13.7: MAC Address */
 static int
-decode_dataitem_macaddr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len)
+decode_dataitem_macaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  const gint len = tvb_captured_length(tvb);
+  gint offset = 0;
   switch(len) {
     case FT_ETHER_LEN:
       proto_tree_add_item(pt, hf_dlep_dataitem_macaddr_eui48, tvb, offset, len, ENC_NA);
@@ -557,8 +568,10 @@ decode_dataitem_macaddr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
 
 /* Section 13.8: IPv4 Address */
 static int
-decode_dataitem_v4addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_v4addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item* tmp_pi = NULL;
   proto_tree* flags_pt = NULL;
 
@@ -575,16 +588,15 @@ decode_dataitem_v4addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   proto_item_append_text(pi, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv4_LEN;
 
-  if (len != DLEP_DIT_V4ADDR_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.9: IPv6 Address */
 static int
-decode_dataitem_v6addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_v6addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item* tmp_pi = NULL;
   proto_tree* flags_pt = NULL;
 
@@ -601,16 +613,15 @@ decode_dataitem_v6addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   proto_item_append_text(pi, " %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv6_LEN;
 
-  if (len != DLEP_DIT_V6ADDR_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.10: IPv4 Attached Subnet */
 static int
-decode_dataitem_v4subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_v4subnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item* tmp_pi = NULL;
   proto_tree* flags_pt = NULL;
   guint32 prefixlen;
@@ -632,16 +643,15 @@ decode_dataitem_v4subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   proto_item_append_text(pi, "/%u", prefixlen);
   offset+=1;
 
-  if (len != DLEP_DIT_V4SUBNET_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.11: IPv6 Attached Subnet */
 static int
-decode_dataitem_v6subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_v6subnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item* tmp_pi = NULL;
   proto_tree* flags_pt = NULL;
   guint32 prefixlen;
@@ -663,166 +673,156 @@ decode_dataitem_v6subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   proto_item_append_text(pi, "/%u", prefixlen);
   offset+=1;
 
-  if (len != DLEP_DIT_V6SUBNET_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.12: Maximum Data Rate (Receive) */
 static int
-decode_dataitem_mdrr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_mdrr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint64 mdrr;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_mdrr, tvb, offset, DLEP_DIT_MDRR_LEN, ENC_BIG_ENDIAN, &mdrr);
   proto_item_append_text(pi, ": %" PRIu64 " (bps)", mdrr);
   offset+=DLEP_DIT_MDRR_LEN;
 
-  if (len != DLEP_DIT_MDRR_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.13: Maximum Data Rate (Transmit) */
 static int
-decode_dataitem_mdrt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+decode_dataitem_mdrt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint64 mdrt;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_mdrt, tvb, offset, DLEP_DIT_MDRT_LEN, ENC_BIG_ENDIAN, &mdrt);
   proto_item_append_text(pi, ": %" PRIu64 " (bps)", mdrt);
   offset+=DLEP_DIT_MDRT_LEN;
 
-  if (len != DLEP_DIT_MDRT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.14: Current Data Rate (Receive) */
-  static int
-decode_dataitem_cdrr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_cdrr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint64 cdrr;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_cdrr, tvb, offset, DLEP_DIT_CDRR_LEN, ENC_BIG_ENDIAN, &cdrr);
   proto_item_append_text(pi, ": %" PRIu64 " (bps)", cdrr);
   offset+=DLEP_DIT_CDRR_LEN;
 
-  if (len != DLEP_DIT_CDRR_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.15: Current Data Rate (Transmit) */
-  static int
-decode_dataitem_cdrt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_cdrt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint64 cdrt;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_cdrt, tvb, offset, DLEP_DIT_CDRT_LEN, ENC_BIG_ENDIAN, &cdrt);
   proto_item_append_text(pi, ": %" PRIu64 " (bps)", cdrt);
   offset+=DLEP_DIT_CDRT_LEN;
 
-  if (len != DLEP_DIT_CDRT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.16: Latency */
-  static int
-decode_dataitem_latency(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_latency(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint64 latency;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_latency, tvb, offset, DLEP_DIT_LAT_LEN, ENC_BIG_ENDIAN, &latency);
   proto_item_append_text(pi, ": %" PRIu64 " (us)", latency);
   offset+=DLEP_DIT_LAT_LEN;
 
-  if (len != DLEP_DIT_LAT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.17: Resources */
-  static int
-decode_dataitem_resources(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_resources(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint32 resources;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_resources, tvb, offset, DLEP_DIT_RES_LEN, ENC_BIG_ENDIAN, &resources);
   proto_item_append_text(pi, ": %u (%%)", resources);
   offset+=DLEP_DIT_RES_LEN;
 
-  if (len != DLEP_DIT_RES_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.18: Relative Link Quality (Receive) */
-  static int
-decode_dataitem_rlqr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_rlqr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint32 rlqr;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_rlqr, tvb, offset, DLEP_DIT_RLQR_LEN, ENC_BIG_ENDIAN, &rlqr);
   proto_item_append_text(pi, ": %u (%%)", rlqr);
   offset+=DLEP_DIT_RLQR_LEN;
 
-  if (len != DLEP_DIT_RLQR_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 13.19: Relative Link Quality (Transmit) */
-  static int
-decode_dataitem_rlqt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_rlqt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint32 rlqt;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_rlqt, tvb, offset, DLEP_DIT_RLQT_LEN, ENC_BIG_ENDIAN, &rlqt);
   proto_item_append_text(pi, ": %u (%%)", rlqt);
   offset+=DLEP_DIT_RLQT_LEN;
 
-  if (len != DLEP_DIT_RLQT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* Section 11.20: Maximum Transmission Unit (MTU) */
-  static int
-decode_dataitem_mtu(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_mtu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   guint32 mtu;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_mtu, tvb, offset, DLEP_DIT_MTU_LEN, ENC_BIG_ENDIAN, &mtu);
   proto_item_append_text(pi, ": %u (bytes)", mtu);
   offset+=DLEP_DIT_MTU_LEN;
 
-  if (len != DLEP_DIT_MTU_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* RFC 8629 Multi-Hop Extension Hop Count*/
-  static int
-decode_dataitem_hop_cnt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_hop_cnt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item *pi_field = NULL;
   static int * const hop_cnt_flags[] = {
       &hf_dlep_dataitem_hop_count_flags_p,
       &hf_dlep_dataitem_hop_count_flags_reserved,
       NULL
-      };
+  };
 
   proto_tree_add_bitmask(pt, tvb, offset, hf_dlep_dataitem_hop_count_flags, ett_dlep_flags, hop_cnt_flags, ENC_BIG_ENDIAN);
   offset+=1;
@@ -830,48 +830,47 @@ decode_dataitem_hop_cnt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
   proto_item_append_text(pi, ": %s Hops", proto_item_get_display_repr(pinfo->pool, pi_field));
   offset+=1;
 
-  if (len != DLEP_DIT_HOP_CNT_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* RFC 8629 Multi-Hop Extension Hop Control*/
-  static int
-decode_dataitem_hop_cntrl(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_hop_cntrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item *pi_field = NULL;
 
   pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_hop_control, tvb, offset, DLEP_DIT_HOP_CNTRL_LEN, ENC_BIG_ENDIAN);
   proto_item_append_text(pi, ": %s", proto_item_get_display_repr(pinfo->pool, pi_field));
   offset+=DLEP_DIT_HOP_CNTRL_LEN;
 
-  if (len != DLEP_DIT_HOP_CNTRL_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* RFC 8703 Link Identifier Extension Length */
-  static int
-decode_dataitem_li_length(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_li_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item *pi_field = NULL;
 
   pi_field = proto_tree_add_item(pt, hf_dlep_dataitem_li_length, tvb, offset, DLEP_DIT_LI_LENGTH_LEN, ENC_BIG_ENDIAN);
   proto_item_append_text(pi, ": %s Bytes", proto_item_get_display_repr(pinfo->pool, pi_field));
   offset+=DLEP_DIT_LI_LENGTH_LEN;
 
-  if (len != DLEP_DIT_LI_LENGTH_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
-
   return offset;
 }
 
 /* RFC 8703 Link Identifier Extension Data */
-  static int
-decode_dataitem_li(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo _U_)
+static int
+decode_dataitem_li(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  const gint len = tvb_captured_length(tvb);
+  gint offset = 0;
+
   proto_tree_add_item(pt, hf_dlep_dataitem_li, tvb, offset, len, ENC_NA);
   proto_item_append_text(pi, ": %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
   offset+=len;
@@ -880,9 +879,11 @@ decode_dataitem_li(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, in
 }
 
 /* RFC 8757 Latency Range Extension */
-  static int
-decode_dataitem_lat_range(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, int len, packet_info *pinfo)
+static int
+decode_dataitem_lat_range(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _U_)
 {
+  proto_item *pi = proto_tree_get_parent(pt);
+  gint offset = 0;
   proto_item *max_lat = NULL;
   proto_item *min_lat = NULL;
 
@@ -891,9 +892,6 @@ decode_dataitem_lat_range(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree 
   min_lat = proto_tree_add_item(pt, hf_dlep_dataitem_min_lat, tvb, offset, 8, ENC_BIG_ENDIAN);
   proto_item_append_text(pi, ": %s - %s (us)", proto_item_get_display_repr(pinfo->pool, min_lat), proto_item_get_display_repr(pinfo->pool, max_lat));
   offset+=8;
-
-  if (len != DLEP_DIT_LAT_RANGE_LEN)
-    expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
 
   return offset;
 }
@@ -904,7 +902,7 @@ decode_dataitem_lat_range(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree 
  * A note on dataitem decoding:
  *
  * When decoding a specific dataitem, we append information to the generic
- * dataitem's protocol display line using proto_item_append_test. This is
+ * dataitem's protocol display line using proto_item_append_text. This is
  * intended to provide a one-line summary of the specific dataitem without
  * needing to open the corresponding subtree. The pattern is to typically
  * augment the one-line summary as each piece of the specific dataitem is
@@ -918,13 +916,15 @@ decode_dataitem_lat_range(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree 
  * under 'dlep.dataitem'. For very simple dataitems (e.g., Heartbeat Interval),
  * there is only one subfield, and this step is skipped.
  */
-  static int
-decode_dataitem(tvbuff_t *tvb, int offset, proto_tree *pt, packet_info *pinfo)
+static int
+decode_dataitem(tvbuff_t *tvb, volatile int offset, proto_tree *pt, packet_info *pinfo)
 {
   proto_item *dataitem_pi = NULL;
   proto_tree *dataitem_pt = NULL;
   int dataitem_type       = 0;
   int dataitem_length     = 0;
+  tvbuff_t *dataitem_tvb  = NULL;
+  volatile int used_length = 0;
 
   dataitem_type   = tvb_get_ntohs(tvb, offset);
   dataitem_length = tvb_get_ntohs(tvb, offset+2);
@@ -942,86 +942,22 @@ decode_dataitem(tvbuff_t *tvb, int offset, proto_tree *pt, packet_info *pinfo)
   proto_tree_add_item(dataitem_pt, hf_dlep_dataitem_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset+=2;
 
-  switch(dataitem_type) {
-    case DLEP_DIT_STATUS:
-      offset=decode_dataitem_status(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_V4CONN:
-      offset=decode_dataitem_v4conn(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_V6CONN:
-      offset=decode_dataitem_v6conn(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_PEERTYPE:
-      offset=decode_dataitem_peertype(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_HEARTBEAT:
-      offset=decode_dataitem_heartbeat(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_EXTSUPP:
-      offset=decode_dataitem_extsupp(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length);
-      break;
-    case DLEP_DIT_MACADDR:
-      offset=decode_dataitem_macaddr(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length);
-      break;
-    case DLEP_DIT_V4ADDR:
-      offset=decode_dataitem_v4addr(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_V6ADDR:
-      offset=decode_dataitem_v6addr(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_V4SUBNET:
-      offset=decode_dataitem_v4subnet(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_V6SUBNET:
-      offset=decode_dataitem_v6subnet(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_MDRR:
-      offset=decode_dataitem_mdrr(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_MDRT:
-      offset=decode_dataitem_mdrt(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_CDRR:
-      offset=decode_dataitem_cdrr(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_CDRT:
-      offset=decode_dataitem_cdrt(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_LAT:
-      offset=decode_dataitem_latency(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_RES:
-      offset=decode_dataitem_resources(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_RLQR:
-      offset=decode_dataitem_rlqr(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_RLQT:
-      offset=decode_dataitem_rlqt(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_MTU:
-      offset=decode_dataitem_mtu(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_HOP_CNT:
-      offset=decode_dataitem_hop_cnt(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_HOP_CNTRL:
-      offset=decode_dataitem_hop_cntrl(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_LI_LENGTH:
-      offset=decode_dataitem_li_length(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_LI:
-      offset=decode_dataitem_li(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    case DLEP_DIT_LAT_RANGE:
-      offset=decode_dataitem_lat_range(tvb, offset, dataitem_pi, dataitem_pt, dataitem_length, pinfo);
-      break;
-    default:
-      proto_tree_add_item(dataitem_pt, hf_dlep_dataitem_value, tvb, offset, dataitem_length, ENC_NA);
-      offset+=dataitem_length;
-  };
+  dataitem_tvb = tvb_new_subset_length(tvb, offset, dataitem_length);
+  TRY {
+    used_length = dissector_try_uint(dlep_dataitem_table, dataitem_type, dataitem_tvb, pinfo, dataitem_pt);
+  }
+  CATCH_BOUNDS_ERRORS {
+    expert_add_info(pinfo, dataitem_pi, &ei_dlep_dataitem_unexpected_length);
+    used_length = dataitem_length;
+  }
+  ENDTRY;
+  if (used_length == 0) {
+    proto_tree_add_item(dataitem_pt, hf_dlep_dataitem_value, dataitem_tvb, 0, dataitem_length, ENC_NA);
+  }
+  else if (used_length != dataitem_length) {
+    expert_add_info(pinfo, dataitem_pi, &ei_dlep_dataitem_unexpected_length);
+  }
+  offset+=dataitem_length;
 
   return offset;
 }
@@ -1185,7 +1121,7 @@ proto_register_dlep(void)
       { "Length (bytes)", "dlep.dataitem.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dlep_dataitem_value,
-      { "Value", "dlep.dataitem.value", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+      { "Value", "dlep.dataitem.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dlep_dataitem_status,
       { "Status", "dlep.dataitem.status", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
@@ -1379,6 +1315,34 @@ proto_register_dlep(void)
   proto_dlep = proto_register_protocol("Dynamic Link Exchange Protocol", "DLEP", "dlep");
   dlep_msg_handle = register_dissector ("dlep.tcp", dissect_dlep_tcp, proto_dlep);
   dlep_sig_handle = register_dissector ("dlep.udp", dissect_dlep_sig, proto_dlep);
+
+  dlep_dataitem_table = register_dissector_table("dlep.dataitem", "DLEP Data Item Type", proto_dlep, FT_UINT16, BASE_DEC);
+  proto_dataitem = proto_register_protocol_in_name_only("DLEP Data Item Dissector", "DLEP Data Item", "dlep.dataitem", proto_dlep, FT_BYTES);
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_STATUS, create_dissector_handle(decode_dataitem_status, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_V4CONN, create_dissector_handle(decode_dataitem_v4conn, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_V6CONN, create_dissector_handle(decode_dataitem_v6conn, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_PEERTYPE, create_dissector_handle(decode_dataitem_peertype, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_HEARTBEAT, create_dissector_handle(decode_dataitem_heartbeat, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_EXTSUPP, create_dissector_handle(decode_dataitem_extsupp, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_MACADDR, create_dissector_handle(decode_dataitem_macaddr, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_V4ADDR, create_dissector_handle(decode_dataitem_v4addr, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_V6ADDR, create_dissector_handle(decode_dataitem_v6addr, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_V4SUBNET, create_dissector_handle(decode_dataitem_v4subnet, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_V6SUBNET, create_dissector_handle(decode_dataitem_v6subnet, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_MDRR, create_dissector_handle(decode_dataitem_mdrr, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_MDRT, create_dissector_handle(decode_dataitem_mdrt, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_CDRR, create_dissector_handle(decode_dataitem_cdrr, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_CDRT, create_dissector_handle(decode_dataitem_cdrt, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_LAT, create_dissector_handle(decode_dataitem_latency, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_RES, create_dissector_handle(decode_dataitem_resources, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_RLQR, create_dissector_handle(decode_dataitem_rlqr, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_RLQT, create_dissector_handle(decode_dataitem_rlqt, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_MTU, create_dissector_handle(decode_dataitem_mtu, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_HOP_CNT, create_dissector_handle(decode_dataitem_hop_cnt, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_HOP_CNTRL, create_dissector_handle(decode_dataitem_hop_cntrl, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_LI_LENGTH, create_dissector_handle(decode_dataitem_li_length, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_LI, create_dissector_handle(decode_dataitem_li, proto_dataitem));
+  dissector_add_uint("dlep.dataitem", DLEP_DIT_LAT_RANGE, create_dissector_handle(decode_dataitem_lat_range, proto_dataitem));
 
   proto_register_field_array(proto_dlep, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
