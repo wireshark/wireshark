@@ -40,7 +40,7 @@ typedef struct {
     guint8 *pkt_data;
 
     gboolean saw_timestamp;
-    guint32 timestamp;
+    time_t timestamp;
 
     gint64 first_hexbyte;
     guint32 wirelen;
