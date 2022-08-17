@@ -12826,22 +12826,22 @@ proto_register_btatt(void)
         },
         {&hf_btatt_battery_power_state_level,
             {"Level", "btatt.battery_power_state.level",
-            FT_UINT8, BASE_HEX, VALS(battery_power_state_level_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_level_vals), 0xC0,
             NULL, HFILL}
         },
         {&hf_btatt_battery_power_state_charging,
             {"Charging", "btatt.battery_power_state.charging",
-            FT_UINT8, BASE_HEX, VALS(battery_power_state_charging_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_charging_vals), 0x30,
             NULL, HFILL}
         },
         {&hf_btatt_battery_power_state_discharging,
             {"Discharging", "btatt.battery_power_state.discharging",
-            FT_UINT8, BASE_HEX, VALS(battery_power_state_discharging_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_discharging_vals), 0x0C,
             NULL, HFILL}
         },
         {&hf_btatt_battery_power_state_present,
             {"Present", "btatt.battery_power_state.present",
-            FT_UINT8, BASE_HEX, VALS(battery_power_state_present_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(battery_power_state_present_vals), 0x03,
             NULL, HFILL}
         },
         {&hf_btatt_temperature_type,
