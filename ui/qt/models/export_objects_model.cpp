@@ -53,6 +53,13 @@ ExportObjectModel::ExportObjectModel(register_eo_t* eo, QObject *parent) :
     export_object_list_.gui_data = (void*)&eo_gui_data_;
 }
 
+ExportObjectModel::~ExportObjectModel()
+{
+    foreach (QVariant v, objects_) {
+        eo_free_entry(VariantPointer<export_object_entry_t>::asPtr(v));
+    }
+}
+
 QVariant ExportObjectModel::data(const QModelIndex &index, int role) const
 {
     if ((!index.isValid()) || ((role != Qt::DisplayRole) && (role != Qt::UserRole))) {
