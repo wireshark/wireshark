@@ -31,6 +31,7 @@ class ExportObjectModel : public QAbstractTableModel
 
 public:
     ExportObjectModel(register_eo_t* eo, QObject *parent);
+    virtual ~ExportObjectModel();
 
     enum ExportObjectColumn {
         colPacket = 0,
