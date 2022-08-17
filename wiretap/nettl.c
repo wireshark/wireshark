@@ -697,7 +697,17 @@ static gboolean nettl_dump(wtap_dumper *wdh,
     /* HP-UX 11.X header should be 68 bytes */
     rec_hdr.hdr_len = g_htons(sizeof(rec_hdr) + 4);
     rec_hdr.kind = g_htonl(NETTL_HDR_PDUIN);
-    rec_hdr.sec = g_htonl(rec->ts.secs);
+    /*
+     * Probably interpreted as signed in other programs that read it.
+     * Maybe HPE will decide to make it unsigned, which could probably
+     * be made to work once the last 32-bit UN*X is gone and time_t
+     * is universally 64-bit.
+     */
+    if (rec->ts.secs < 0 || rec->ts.secs > G_MAXINT32) {
+        *err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+        return FALSE;
+    }
+    rec_hdr.sec = g_htonl((guint32)rec->ts.secs);
     rec_hdr.usec = g_htonl(rec->ts.nsecs/1000);
     rec_hdr.caplen = g_htonl(rec->rec_header.packet_header.caplen);
     rec_hdr.length = g_htonl(rec->rec_header.packet_header.len);
