@@ -386,7 +386,16 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	HeaderFrame.RecNb = GUINT32_TO_LE(1);
 
 	/* record-dependent fields */
-	HeaderFrame.Utc = GUINT32_TO_LE(rec->ts.secs);
+	/*
+	 * XXX - is the frame time signed, or unsigned?  If it's signed,
+	 * we should check against G_MININT32 and G_MAXINT32 and make
+	 * Utc a gint32.
+	 */
+	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXUINT32) {
+		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
+		return FALSE;
+	}
+	HeaderFrame.Utc = GUINT32_TO_LE((guint32)rec->ts.secs);
 	HeaderFrame.NanoSecondes = GUINT32_TO_LE(rec->ts.nsecs);
 	HeaderFrame.RecSize = GUINT32_TO_LE(rec->rec_header.packet_header.len);
 	HeaderFrame.RecInfo = GUINT32_TO_LE(0);
