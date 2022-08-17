@@ -271,7 +271,7 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		conv->is_lossy = (flags & RDPUDP_SYNLOSSY);
 		if (!(flags & RDPUDP_ACK)) {
 			/* set the server address only on the first SYN packet */
-			copy_address(&conv->server_addr, &pinfo->dst);
+			copy_address_wmem(wmem_file_scope(), &conv->server_addr, &pinfo->dst);
 			conv->server_port = pinfo->destport;
 		}
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "SYN");
