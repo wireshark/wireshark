@@ -233,7 +233,7 @@ static int hf_tcp_option_ao_mac = -1;
 static int hf_tcp_option_qs_rate = -1;
 static int hf_tcp_option_qs_ttl_diff = -1;
 static int hf_tcp_option_exp_data = -1;
-static int hf_tcp_option_exp_magic_number = -1;
+static int hf_tcp_option_exp_exid = -1;
 static int hf_tcp_option_unknown_payload = -1;
 
 static int hf_tcp_option_rvbd_probe_version1 = -1;
@@ -469,13 +469,14 @@ static gboolean tcp_no_subdissector_on_error = TRUE;
 static gboolean tcp_reassemble_out_of_order = FALSE;
 
 /*
- * FF: (draft-ietf-tcpm-experimental-options-03)
+ * FF: https://www.rfc-editor.org/rfc/rfc6994.html
  * With this flag set we assume the option structure for experimental
- * codepoints (253, 254) has a magic number field (first field after the
- * Kind and Length).  The magic number is used to differentiate different
- * experiments and thus will be used in data dissection.
+ * codepoints (253, 254) has an Experiment Identifier (ExID), which is
+ * the first 16-bit field after the Kind and Length.
+ * The ExID is used to differentiate different experiments and thus will
+ * be used in data dissection.
  */
-static gboolean tcp_exp_options_with_magic = TRUE;
+static gboolean tcp_exp_options_rfc6994 = TRUE;
 
 /*
  * This flag indicates which of Fast Retransmission or Out-of-Order
@@ -547,7 +548,28 @@ static gboolean read_seq_as_syn_cookie = FALSE;
 #define TCPOLEN_TFO_MIN        2
 #define TCPOLEN_RVBD_PROBE_MIN 3
 #define TCPOLEN_RVBD_TRPY_MIN 16
-#define TCPOLEN_EXP_MIN        2
+#define TCPOLEN_EXP_MIN        4
+
+/*
+ * TCP Experimental Option Experiment Identifiers (TCP ExIDs)
+ * See: https://www.iana.org/assignments/tcp-parameters/tcp-parameters.xhtml#tcp-exids
+ * Wireshark only supports 16-bit ExIDs
+ */
+
+#define TCPEXID_TARR           0x00ac
+#define TCPEXID_HOST_ID        0x0348
+#define TCPEXID_ASC            0x0a0d
+#define TCPEXID_CAPABILITY     0x0ca0
+#define TCPEXID_EDO            0x0ed0
+#define TCPEXID_ENO            0x454e
+#define TCPEXID_SNO            0x5323
+#define TCPEXID_TS_INTERVAL    0x75ec /* 32-bit ExID: 0x75ecffee */
+#define TCPEXID_ACC_ECN_0      0xacc0
+#define TCPEXID_ACC_ECN_1      0xacc1
+#define TCPEXID_ACC_ECN        0xacce
+#define TCPEXID_SMC_R          0xe2d4 /* 32-bit ExID: 0xe2d4c3d9 */
+#define TCPEXID_FO             0xf989
+#define TCPEXID_LOW_LATENCY    0xf990
 
 /*
  *     Multipath TCP subtypes
@@ -616,6 +638,24 @@ static const value_string tcp_option_kind_vs[] = {
     { 0, NULL }
 };
 static value_string_ext tcp_option_kind_vs_ext = VALUE_STRING_EXT_INIT(tcp_option_kind_vs);
+
+static const value_string tcp_exid_vs[] = {
+    { TCPEXID_TARR, "TCP ACK Rate Request" },
+    { TCPEXID_HOST_ID, "Host ID" },
+    { TCPEXID_ASC, "Autonomous System Compensation" },
+    { TCPEXID_CAPABILITY, "Capability Option" },
+    { TCPEXID_EDO, "Extended Data Offset" },
+    { TCPEXID_ENO, "Encryption Negotiation" },
+    { TCPEXID_SNO, "Service Number" },
+    { TCPEXID_TS_INTERVAL, "Timestamp Interval" },
+    { TCPEXID_ACC_ECN_0, "Accurate ECN - Order 0" },
+    { TCPEXID_ACC_ECN_1, "Accurate ECN - Order 1" },
+    { TCPEXID_ACC_ECN, "Accurate ECN" },
+    { TCPEXID_SMC_R, "Shared Memory communications over RMDA protocol" },
+    { TCPEXID_FO, "Fast Open" },
+    { TCPEXID_LOW_LATENCY, "Low Latency" },
+    { 0, NULL }
+};
 
 /* not all of the hf_fields below make sense for TCP but we have to provide
    them anyways to comply with the API (which was aimed for IP fragment
@@ -4728,6 +4768,12 @@ tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
     col_append_str_uint(pinfo->cinfo, COL_INFO, abbrev, val, " ");
 }
 
+static void
+tcp_info_append_hex_uint(packet_info *pinfo, const char *abbrev, guint32 val)
+{
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s=%X", abbrev, val);
+}
+
 static gboolean
 tcp_option_len_check(proto_item* length_item, packet_info *pinfo, guint len, guint optlen)
 {
@@ -4842,32 +4888,44 @@ dissect_tcpopt_tfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *item;
+    proto_item *length_item, *item;
     proto_tree *exp_tree;
-    guint16 magic;
+    guint16 exid;
+    guint8 kind;
     gint offset = 0, optlen = tvb_reported_length(tvb);
 
     item = proto_tree_add_item(tree, proto_tcp_option_exp, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
-
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-    if (tcp_exp_options_with_magic && ((optlen - 2) > 0)) {
-        magic = tvb_get_ntohs(tvb, offset + 2);
-        proto_tree_add_item(exp_tree, hf_tcp_option_exp_magic_number, tvb,
-                            offset + 2, 2, ENC_BIG_ENDIAN);
-        switch (magic) {
-        case 0xf989:  /* RFC7413, TCP Fast Open */
-            dissect_tcpopt_tfo_payload(tvb, offset+2, optlen-2, pinfo, exp_tree, data);
-            break;
-        default:
-            /* Unknown magic number */
-            break;
+    kind = tvb_get_guint8(tvb, offset);
+    length_item = proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    if (tcp_exp_options_rfc6994) {
+        if (optlen >= TCPOLEN_EXP_MIN) {
+            exid = tvb_get_ntohs(tvb, offset + 2);
+            proto_tree_add_item(exp_tree, hf_tcp_option_exp_exid, tvb,
+                                offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_item_append_text(item, ": %s", val_to_str_const(exid, tcp_exid_vs, "Unknown"));
+            switch (exid) {
+            case TCPEXID_FO:
+                dissect_tcpopt_tfo_payload(tvb, offset + 2, optlen - 2, pinfo, exp_tree, data);
+                break;
+            default:
+                if (optlen > TCPOLEN_EXP_MIN) {
+                    proto_tree_add_item(exp_tree, hf_tcp_option_exp_data, tvb,
+                                        offset + TCPOLEN_EXP_MIN,
+                                        optlen - TCPOLEN_EXP_MIN, ENC_NA);
+                }
+                tcp_info_append_hex_uint(pinfo, "ExID", exid);
+                break;
+            }
+        } else {
+            expert_add_info_format(pinfo, length_item, &ei_tcp_opt_len_invalid,
+                                   "option length %u smaller than 4", optlen);
         }
     } else {
         proto_tree_add_item(exp_tree, hf_tcp_option_exp_data, tvb,
                             offset + 2, optlen - 2, ENC_NA);
-        tcp_info_append_uint(pinfo, "Expxx", TRUE);
+        tcp_info_append_uint(pinfo, "Exp", (kind == TCPOPT_EXP_FD) ? 1 : 2);
     }
     return tvb_captured_length(tvb);
 }
@@ -8256,9 +8314,9 @@ proto_register_tcp(void)
           { "Data", "tcp.options.experimental.data", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_exp_magic_number,
-          { "Magic Number", "tcp.options.experimental.magic_number", FT_UINT16,
-            BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        { &hf_tcp_option_exp_exid,
+          { "Experiment Identifier", "tcp.options.experimental.exid", FT_UINT16,
+            BASE_HEX, &tcp_exid_vs, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_unknown_payload,
           { "Payload", "tcp.options.unknown.payload", FT_BYTES,
@@ -9118,10 +9176,10 @@ proto_register_tcp(void)
         "Do not call any subdissectors for Retransmitted or OutOfOrder segments",
         &tcp_no_subdissector_on_error);
 
-    prefs_register_bool_preference(tcp_module, "dissect_experimental_options_with_magic",
-        "TCP Experimental Options with a Magic Number",
-        "Assume TCP Experimental Options (253, 254) have a Magic Number and use it for dissection",
-        &tcp_exp_options_with_magic);
+    prefs_register_bool_preference(tcp_module, "dissect_experimental_options_rfc6994",
+        "TCP Experimental Options using the format of RFC 6994",
+        "Assume TCP Experimental Options (253, 254) have an Experiment Identifier and use it for dissection",
+        &tcp_exp_options_rfc6994);
 
     prefs_register_bool_preference(tcp_module, "display_process_info_from_ipfix",
         "Display process information via IPFIX",

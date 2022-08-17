@@ -5808,6 +5808,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                     pref = prefs_find_preference(module, "analyze_sequence_numbers");
                 else if (strcmp(dotp, "tcp_relative_sequence_numbers") == 0)
                     pref = prefs_find_preference(module, "relative_sequence_numbers");
+                else if (strcmp(dotp, "dissect_experimental_options_with_magic") == 0)
+                    pref = prefs_find_preference(module, "dissect_experimental_options_rfc6994");
             } else if (strcmp(module->name, "udp") == 0) {
                 /* Handle old names for UDP preferences. */
                 if (strcmp(dotp, "udp_summary_in_tree") == 0)
