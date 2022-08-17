@@ -232,6 +232,8 @@ static int hf_tcp_option_ao_rnextkeyid = -1;
 static int hf_tcp_option_ao_mac = -1;
 static int hf_tcp_option_qs_rate = -1;
 static int hf_tcp_option_qs_ttl_diff = -1;
+static int hf_tcp_option_tarr_rate = -1;
+static int hf_tcp_option_tarr_reserved = -1;
 static int hf_tcp_option_exp_data = -1;
 static int hf_tcp_option_exp_exid = -1;
 static int hf_tcp_option_unknown_payload = -1;
@@ -4885,6 +4887,35 @@ dissect_tcpopt_tfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     return tvb_captured_length(tvb);
 }
 
+/*
+ * TCP ACK Rate Request option is based on
+ * https://datatracker.ietf.org/doc/html/draft-gomez-tcpm-ack-rate-request-05
+ */
+
+#define TCPOPT_TARR_RATE_MASK     0xffe0
+#define TCPOPT_TARR_RESERVED_MASK 0x001f
+#define TCPOPT_TARR_RATE_SHIFT    5
+
+static void
+dissect_tcpopt_tarr_data(tvbuff_t *tvb, int data_offset, guint data_len,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, void *data _U_)
+{
+    guint16 rate;
+
+    switch (data_len) {
+    case 0:
+        col_append_str(pinfo->cinfo, COL_INFO, " TARR");
+        break;
+    case 2:
+        rate = (tvb_get_ntohs(tvb, data_offset) & TCPOPT_TARR_RATE_MASK) >> TCPOPT_TARR_RATE_SHIFT;
+        proto_tree_add_item(tree, hf_tcp_option_tarr_rate, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tcp_option_tarr_reserved, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+        tcp_info_append_uint(pinfo, "TARR", rate);
+        proto_item_append_text(item, " %u", rate);
+        break;
+  }
+}
+
 static int
 dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -4906,6 +4937,16 @@ dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                                 offset + 2, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(item, ": %s", val_to_str_const(exid, tcp_exid_vs, "Unknown"));
             switch (exid) {
+            case TCPEXID_TARR:
+                if (optlen != 4 && optlen != 6) {
+                    expert_add_info_format(pinfo, length_item, &ei_tcp_opt_len_invalid,
+                                           "option length should be 4 or 6 instead of %d",
+                                           optlen);
+                } else {
+                    dissect_tcpopt_tarr_data(tvb, offset + 4, optlen - 4,
+                                             pinfo, exp_tree, item, data);
+                }
+                break;
             case TCPEXID_FO:
                 dissect_tcpopt_tfo_payload(tvb, offset + 2, optlen - 2, pinfo, exp_tree, data);
                 break;
@@ -8541,6 +8582,14 @@ proto_register_tcp(void)
         { &hf_tcp_option_qs_ttl_diff,
           { "QS Rate", "tcp.options.qs.ttl_diff", FT_UINT8, BASE_DEC,
             NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_tarr_rate,
+          { "TARR Rate", "tcp.options.tarr.rate", FT_UINT16, BASE_DEC,
+            NULL, TCPOPT_TARR_RATE_MASK, NULL, HFILL}},
+
+        { &hf_tcp_option_tarr_reserved,
+          { "TARR Reserved", "tcp.options.tar.reserved", FT_UINT16, BASE_DEC,
+            NULL, TCPOPT_TARR_RESERVED_MASK, NULL, HFILL}},
 
         { &hf_tcp_option_scps_vector,
           { "TCP SCPS Capabilities Vector", "tcp.options.scps.vector",
