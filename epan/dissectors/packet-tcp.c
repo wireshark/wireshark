@@ -1191,7 +1191,9 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     const tcp_follow_tap_data_t *follow_data = (const tcp_follow_tap_data_t *)data;
     gboolean is_server;
     guint32 sequence = follow_data->tcph->th_seq;
-    guint32 length = follow_data->tcph->th_seglen;
+    guint32 length = follow_data->tcph->th_have_seglen
+                        ? follow_data->tcph->th_seglen
+                        : 0;
     guint32 data_offset = 0;
     guint32 data_length = tvb_captured_length(follow_data->tvb);
 
