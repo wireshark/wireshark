@@ -1095,6 +1095,7 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 		if (chunk_offset<=current_free_chunk->start_offset && chunk_end_offset>=current_free_chunk->end_offset) {
 			file->data_gathered += current_free_chunk->end_offset-current_free_chunk->start_offset+1;
 			file->free_chunk_list = g_slist_remove(file->free_chunk_list, current_free_chunk);
+			g_free(current_free_chunk);
 			nfreechunks -= 1;
 			if (nfreechunks == 0) { /* The free chunk list is empty */
 				g_slist_free(file->free_chunk_list);
