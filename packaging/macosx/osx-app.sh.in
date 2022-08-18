@@ -466,6 +466,9 @@ else
 
 fi
 
+# QtNetwork might be linked with brotli.
+rpathify_file "$pkglib/QtNetwork.framework/Versions/Current/QtNetwork"
+
 bundle_dsym="${bundle%%.app}.dSYM"
 
 frameworks=()
