@@ -90,7 +90,8 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 4.0.0rc1:
 
-Nothing of note.
+* The macOS packages now ship with Qt 6.2.4 and require macOS 10.14.
+  They previously shipped with Qt 5.15.3.
 
 The following features are new (or have been significantly updated) since version 3.7.2:
 
@@ -274,11 +275,11 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
