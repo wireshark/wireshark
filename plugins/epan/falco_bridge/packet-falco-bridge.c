@@ -296,7 +296,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 };
                 *ri_v6 = finfo_v6;
                 addr_fld_cnt++;
-            } else {
+            } else if (bi->hf_id_to_addr_id) {
                 bi->hf_id_to_addr_id[fld_cnt] = -1;
             }
             fld_cnt++;
