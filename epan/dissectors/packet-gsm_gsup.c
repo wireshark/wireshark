@@ -89,6 +89,8 @@ enum osmo_gsup_iei {
 	OSMO_GSUP_AUTS_IE			= 0x26,
 	OSMO_GSUP_RES_IE			= 0x27,
 	OSMO_GSUP_CN_DOMAIN_IE			= 0x28,
+	OSMO_GSUP_SUPPORTED_RAT_TYPES_IE	= 0x29,
+	OSMO_GSUP_CURRENT_RAT_TYPE_IE		= 0x2a,
 	OSMO_GSUP_SESSION_ID_IE			= 0x30,
 	OSMO_GSUP_SESSION_STATE_IE		= 0x31,
 	OSMO_GSUP_SS_INFO_IE			= 0x35,
@@ -185,6 +187,13 @@ enum osmo_gsup_message_type {
 #define OSMO_GSUP_IS_MSGT_REQUEST(msgt) (((msgt) & 0b00000011) == 0b00)
 #define OSMO_GSUP_IS_MSGT_ERROR(msgt)   (((msgt) & 0b00000011) == 0b01)
 #define OSMO_GSUP_TO_MSGT_ERROR(msgt)   (((msgt) & 0b11111100) | 0b01)
+
+enum osmo_gsup_rat_type {
+	OSMO_GSUP_RAT_UNKNOWN			= 0,
+	OSMO_GSUP_RAT_GERAN_A			= 1,
+	OSMO_GSUP_RAT_UTRAN_IU			= 2,
+	OSMO_GSUP_RAT_EUTRAN_SGS		= 3,
+};
 
 enum osmo_gsup_cancel_type {
 	OSMO_GSUP_CANCEL_TYPE_UPDATE		= 0,
@@ -291,6 +300,8 @@ static int hf_gsup_source_name = -1;
 static int hf_gsup_source_name_text = -1;
 static int hf_gsup_destination_name = -1;
 static int hf_gsup_destination_name_text = -1;
+static int hf_gsup_supported_rat_type = -1;
+static int hf_gsup_current_rat_type = -1;
 
 static gint ett_gsup = -1;
 static gint ett_gsup_ie = -1;
@@ -329,6 +340,8 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_AUTS_IE,		"AUTS" },
 	{ OSMO_GSUP_RES_IE,		"RES" },
 	{ OSMO_GSUP_CN_DOMAIN_IE,	"CN Domain" },
+	{ OSMO_GSUP_SUPPORTED_RAT_TYPES_IE, "Supported RAT Types" },
+	{ OSMO_GSUP_CURRENT_RAT_TYPE_IE, "Current RAT Type" },
 	{ OSMO_GSUP_SESSION_ID_IE,	"Session Id" },
 	{ OSMO_GSUP_SESSION_STATE_IE,	"Session State" },
 	{ OSMO_GSUP_SS_INFO_IE,		"Supplementary Service Info"},
@@ -400,6 +413,14 @@ static const value_string gsup_msg_types[] = {
 	{ OSMO_GSUP_MSGT_E_CLOSE,			"E Close"},
 	{ OSMO_GSUP_MSGT_E_ABORT,			"E Abort"},
 	{ OSMO_GSUP_MSGT_E_ROUTING_ERROR,		"E Routing Error"},
+	{ 0, NULL }
+};
+
+static const value_string gsup_rat_types[] = {
+	{ OSMO_GSUP_RAT_UNKNOWN,		"Unknown" },
+	{ OSMO_GSUP_RAT_GERAN_A,		"GERAN (A)" },
+	{ OSMO_GSUP_RAT_UTRAN_IU,		"UTRAN (IU)" },
+	{ OSMO_GSUP_RAT_EUTRAN_SGS,		"EUTRAN (SGS)" },
 	{ 0, NULL }
 };
 
@@ -683,6 +704,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		const gchar *str;
 		gint apn_len;
 		guint32 ui32;
+		guint8 i;
 
 		tag = tvb_get_guint8(tvb, offset);
 		offset++;
@@ -734,6 +756,15 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			break;
 		case OSMO_GSUP_CN_DOMAIN_IE:
 			proto_tree_add_item(att_tree, hf_gsup_cn_domain, tvb, offset, len, ENC_NA);
+			break;
+		case OSMO_GSUP_SUPPORTED_RAT_TYPES_IE:
+			for (i = 0; i < len; i++) {
+				proto_tree_add_item(att_tree, hf_gsup_supported_rat_type,
+						    tvb, offset + i, 1, ENC_NA);
+			}
+			break;
+		case OSMO_GSUP_CURRENT_RAT_TYPE_IE:
+			proto_tree_add_item(att_tree, hf_gsup_current_rat_type, tvb, offset, len, ENC_NA);
 			break;
 		case OSMO_GSUP_CANCEL_TYPE_IE:
 			proto_tree_add_item(att_tree, hf_gsup_cancel_type, tvb, offset, len, ENC_NA);
@@ -912,6 +943,10 @@ proto_register_gsup(void)
 
 		{ &hf_gsup_cn_domain, { "CN Domain Indicator", "gsup.cn_domain",
 		  FT_UINT8, BASE_DEC, VALS(gsup_cndomain_types), 0, NULL, HFILL } },
+		{ &hf_gsup_supported_rat_type, { "Supported RAT Type", "gsup.supported_rat_type",
+		  FT_UINT8, BASE_DEC, VALS(gsup_rat_types), 0, NULL, HFILL } },
+		{ &hf_gsup_current_rat_type, { "Current RAT Type", "gsup.current_rat_type",
+		  FT_UINT8, BASE_DEC, VALS(gsup_rat_types), 0, NULL, HFILL } },
 		{ &hf_gsup_cancel_type, { "Cancel Type", "gsup.cancel_type",
 		  FT_UINT8, BASE_DEC, VALS(gsup_cancel_types), 0, NULL, HFILL } },
 		{ &hf_gsup_pdp_info_compl, { "PDP Information Complete", "gsup.pdp_info_compl",
