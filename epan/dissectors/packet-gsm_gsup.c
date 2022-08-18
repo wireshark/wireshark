@@ -2,6 +2,7 @@
  * Dissector for Osmocom Generic Subscriber Update Protocol (GSUP)
  *
  * (C) 2017-2018 by Harald Welte <laforge@gnumonks.org>
+ * Contributions by sysmocom - s.f.m.c. GmbH
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -105,6 +106,7 @@ enum osmo_gsup_iei {
 
 	OSMO_GSUP_IMEI_IE			= 0x50,
 	OSMO_GSUP_IMEI_RESULT_IE		= 0x51,
+	OSMO_GSUP_NUM_VECTORS_REQ_IE		= 0x52,
 
 	/* Inter-MSC handover related */
 	OSMO_GSUP_SOURCE_NAME_IE		= 0x60,
@@ -294,6 +296,7 @@ static int hf_gsup_sm_rp_cause = -1;
 static int hf_gsup_sm_rp_mms = -1;
 static int hf_gsup_sm_alert_rsn = -1;
 static int hf_gsup_imei_result = -1;
+static int hf_gsup_num_vectors_req = -1;
 static int hf_gsup_msg_class = -1;
 static int hf_gsup_an_type = -1;
 static int hf_gsup_source_name = -1;
@@ -354,6 +357,7 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_SM_ALERT_RSN_IE,	"SM Alert Reason" },
 	{ OSMO_GSUP_IMEI_IE,		"IMEI" },
 	{ OSMO_GSUP_IMEI_RESULT_IE,	"IMEI Check Result" },
+	{ OSMO_GSUP_NUM_VECTORS_REQ_IE,	"Number of Vectors Requested" },
 	{ OSMO_GSUP_MESSAGE_CLASS_IE,	"Message Class" },
 	{ OSMO_GSUP_SOURCE_NAME_IE,	"Source Name"},
 	{ OSMO_GSUP_DESTINATION_NAME_IE,"Destination Name"},
@@ -843,6 +847,9 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		case OSMO_GSUP_IMEI_RESULT_IE:
 			proto_tree_add_item(att_tree, hf_gsup_imei_result, tvb, offset, len, ENC_NA);
 			break;
+		case OSMO_GSUP_NUM_VECTORS_REQ_IE:
+			proto_tree_add_item(att_tree, hf_gsup_num_vectors_req, tvb, offset, len, ENC_NA);
+			break;
 		case OSMO_GSUP_MESSAGE_CLASS_IE:
 			proto_tree_add_item_ret_uint(att_tree, hf_gsup_msg_class, tvb, offset, len, ENC_NA, &ui32);
 			proto_item_append_text(ti, ": %s", val_to_str_const(ui32, gsup_msg_class_types, "unknown"));
@@ -979,6 +986,8 @@ proto_register_gsup(void)
 		  FT_UINT8, BASE_DEC, VALS(osmo_gsup_sms_sm_alert_rsn_types), 0, NULL, HFILL } },
 		{ &hf_gsup_imei_result, { "IMEI Check Result", "gsup.imei_check_res",
 		  FT_UINT8, BASE_DEC, VALS(gsup_imei_result_types), 0, NULL, HFILL } },
+		{ &hf_gsup_num_vectors_req, { "Number of Vectors Requested", "gsup.num_vectors_req",
+		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsup_msg_class, { "Message Class", "gsup.msg_class",
 		  FT_UINT8, BASE_DEC, VALS(gsup_msg_class_types), 0, NULL, HFILL } },
 		{ &hf_gsup_an_type, { "Access Network Type", "gsup.an_type",
