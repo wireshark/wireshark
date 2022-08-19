@@ -3420,7 +3420,7 @@ ssl_get_cipher_export_keymat_size(int cipher_suite_num)
 
 
 /* HMAC and the Pseudorandom function {{{ */
-static void
+static gint
 tls_hash(StringInfo *secret, StringInfo *seed, gint md,
          StringInfo *out, guint out_len)
 {
@@ -3447,7 +3447,9 @@ tls_hash(StringInfo *secret, StringInfo *seed, gint md,
     A = seed->data;
     A_l = seed->data_len;
 
-    ssl_hmac_init(&hm, md);
+    if (ssl_hmac_init(&hm, md) != 0) {
+        return -1;
+    }
     while (left) {
         /* A(i) = HMAC_hash(secret, A(i-1)) */
         ssl_hmac_setkey(&hm, secret->data, secret->data_len);
@@ -3475,6 +3477,7 @@ tls_hash(StringInfo *secret, StringInfo *seed, gint md,
     out->data_len = out_len;
 
     ssl_print_string("hash out", out);
+    return 0;
 }
 
 static gboolean
@@ -3530,9 +3533,11 @@ tls_prf(StringInfo* secret, const gchar *usage,
     memcpy(s2.data,secret->data + (secret->data_len - s_l),s_l);
 
     ssl_debug_printf("tls_prf: tls_hash(md5 secret_len %d seed_len %d )\n", s1.data_len, seed.data_len);
-    tls_hash(&s1, &seed, ssl_get_digest_by_name("MD5"), &md5_out, out_len);
+    if(tls_hash(&s1, &seed, ssl_get_digest_by_name("MD5"), &md5_out, out_len) != 0)
+        goto free_s2;
     ssl_debug_printf("tls_prf: tls_hash(sha)\n");
-    tls_hash(&s2, &seed, ssl_get_digest_by_name("SHA1"), &sha_out, out_len);
+    if(tls_hash(&s2, &seed, ssl_get_digest_by_name("SHA1"), &sha_out, out_len) != 0)
+        goto free_s2;
 
     for (i = 0; i < out_len; i++)
         out->data[i] = md5_out.data[i] ^ sha_out.data[i];
@@ -3541,6 +3546,7 @@ tls_prf(StringInfo* secret, const gchar *usage,
     success = TRUE;
 
     ssl_print_string("PRF out",out);
+free_s2:
     g_free(s2.data);
 free_s1:
     g_free(s1.data);
@@ -3558,6 +3564,7 @@ tls12_prf(gint md, StringInfo* secret, const gchar* usage,
           StringInfo* rnd1, StringInfo* rnd2, StringInfo* out, guint out_len)
 {
     StringInfo label_seed;
+    gint success;
     size_t     usage_len, rnd2_len;
     rnd2_len = rnd2 ? rnd2->data_len : 0;
 
@@ -3572,10 +3579,13 @@ tls12_prf(gint md, StringInfo* secret, const gchar* usage,
         memcpy(label_seed.data+usage_len+rnd1->data_len, rnd2->data, rnd2->data_len);
 
     ssl_debug_printf("tls12_prf: tls_hash(hash_alg %s secret_len %d seed_len %d )\n", gcry_md_algo_name(md), secret->data_len, label_seed.data_len);
-    tls_hash(secret, &label_seed, md, out, out_len);
+    success = tls_hash(secret, &label_seed, md, out, out_len);
     g_free(label_seed.data);
-    ssl_print_string("PRF out", out);
-    return TRUE;
+    if(success != -1){
+        ssl_print_string("PRF out", out);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static void
