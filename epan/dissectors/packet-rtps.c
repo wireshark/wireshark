@@ -430,6 +430,11 @@ static dissector_table_t rtps_type_name_table;
 #define PID_DATA_TAGS                           (0x1003)
 #define PID_ENDPOINT_SECURITY_INFO              (0x1004)
 #define PID_PARTICIPANT_SECURITY_INFO           (0x1005)
+#define PID_PARTICIPANT_SECURITY_DIGITAL_SIGNATURE_ALGO     (0x1006)
+#define PID_PARTICIPANT_SECURITY_KEY_ESTABLISHMENT_ALGO     (0x1007)
+#define PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO      (0x1008)
+#define PID_ENDPOINT_SECURITY_SYMMETRIC_CIPHER_ALGO         (0x1009)
+
 #define PID_TYPE_OBJECT_LB                      (0x8021)
 
 /* Vendor-specific: ADLink */
@@ -715,6 +720,22 @@ static dissector_table_t rtps_type_name_table;
 #define CRYPTO_TRANSFORMATION_KIND_AES128_GCM    (2)
 #define CRYPTO_TRANSFORMATION_KIND_AES256_GMAC   (3)
 #define CRYPTO_TRANSFORMATION_KIND_AES256_GCM    (4)
+
+#define SECURITY_SYMMETRIC_CIPHER_BIT_AES128_GCM         0x00000001
+#define SECURITY_SYMMETRIC_CIPHER_BIT_AES256_GCM         0x00000002
+#define SECURITY_SYMMETRIC_CIPHER_BIT_CUSTOM_ALGORITHM   0x80000000
+
+#define SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPSSMGF1SHA256_2048_SHA256  0x00000001
+#define SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPKCS1V15_2048_SHA256       0x00000002
+#define SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P256_SHA256                0x00000004
+#define SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P384_SHA384                0x00000008
+#define SECURITY_DIGITAL_SIGNATURE_BIT_CUSTOM_ALGORITHM                 0x80000000
+
+#define SECURITY_KEY_ESTABLISHMENT_BIT_DHE_MODP2048256     0x00000001
+#define SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P256      0x00000002
+#define SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P384      0x00000004
+#define SECURITY_KEY_ESTABLISHMENT_BIT_CUSTOM_ALGORITHM    0x80000000
+
 
 #define TOPIC_INFO_ADD_GUID                      (0x01)
 #define TOPIC_INFO_ADD_TYPE_NAME                 (0x02)
@@ -1081,6 +1102,7 @@ static int hf_rtps_flag_reserved0200                            = -1;
 static int hf_rtps_flag_reserved0100                            = -1;
 static int hf_rtps_flag_reserved0080                            = -1;
 static int hf_rtps_flag_reserved0040                            = -1;
+
 static int hf_rtps_flag_builtin_endpoint_set_reserved           = -1;
 static int hf_rtps_flag_unregister                              = -1;
 static int hf_rtps_flag_inline_qos_v1                           = -1;
@@ -1153,7 +1175,29 @@ static int hf_rtps_flag_secure_service_request_reader           = -1;
 static int hf_rtps_flag_security_access_protected               = -1;
 static int hf_rtps_flag_security_discovery_protected            = -1;
 static int hf_rtps_flag_security_submessage_protected           = -1;
-static int hf_rtps_flag_security_payload_protected              = -1;
+static int hf_rtps_param_endpoint_security_symmetric_cipher_algorithms_used_bit                                       = -1;
+static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_used_bit                  = -1;
+static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_key_exchange_used_bit     = -1;
+static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_supported_mask    = -1;
+static int hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm                           = -1;
+static int hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm                           = -1;
+static int hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm                     = -1;
+static int hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_supported_mask                   = -1;
+static int hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_used_mask                        = -1;
+static int hf_rtps_param_participant_security_digital_signature_algorithms_auth_supported_mask                          = -1;
+static int hf_rtps_flag_security_digital_signature_mask_rsassapssmgf1sha256_2048_sha256    = -1;
+static int hf_rtps_flag_security_digital_signature_mask_rsassapkcs1v15_2048_sha256         = -1;
+static int hf_rtps_flag_security_digital_signature_mask_ecdsa_p256_sha256                  = -1;
+static int hf_rtps_flag_security_digital_signature_mask_ecdsa_p384_sha384                  = -1;
+static int hf_rtps_flag_security_digital_signature_mask_custom_algorithm                   = -1;
+static int hf_rtps_param_participant_security_key_establishment_algorithms_supported_mask  = -1;
+static int hf_rtps_param_participant_security_key_establishment_algorithms_preferred_bit   = -1;
+static int hf_rtps_param_participant_security_digital_signature_algorithms_auth_used_bit   = -1;
+static int hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256                    = -1;
+static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_p256                     = -1;
+static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_p384                     = -1;
+static int hf_rtps_flag_security_key_establishment_mask_custom_algorithm                   = -1;
+static int hf_rtps_flag_security_payload_protected                                        = -1;
 static int hf_rtps_flag_endpoint_security_attribute_flag_is_read_protected                = -1;
 static int hf_rtps_flag_endpoint_security_attribute_flag_is_write_protected               = -1;
 static int hf_rtps_flag_endpoint_security_attribute_flag_is_discovery_protected           = -1;
@@ -1661,6 +1705,10 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_DATA_TAGS,                      "PID_DATA_TAGS" },
   { PID_ENDPOINT_SECURITY_INFO,         "PID_ENDPOINT_SECURITY_INFO" },
   { PID_PARTICIPANT_SECURITY_INFO,      "PID_PARTICIPANT_SECURITY_INFO" },
+  { PID_PARTICIPANT_SECURITY_DIGITAL_SIGNATURE_ALGO,    "PID_PARTICIPANT_SECURITY_DIGITAL_SIGNATURE_ALGO" },
+  { PID_PARTICIPANT_SECURITY_KEY_ESTABLISHMENT_ALGO,    "PID_PARTICIPANT_SECURITY_KEY_ESTABLISHMENT_ALGO" },
+  { PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO,     "PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO" },
+  { PID_ENDPOINT_SECURITY_SYMMETRIC_CIPHER_ALGO,        "PID_ENDPOINT_SECURITY_SYMMETRIC_CIPHER_ALGO" },
   { PID_DOMAIN_ID,                      "PID_DOMAIN_ID" },
   { PID_DOMAIN_TAG,                     "PID_DOMAIN_TAG" },
   { PID_GROUP_COHERENT_SET,             "PID_GROUP_COHERENT_SET" },
@@ -1870,6 +1918,31 @@ static const value_string acknowledgement_kind_vals[] = {
   { APPLICATION_EXPLICIT_ACKNOWLEDGMENT,  "APPLICATION_EXPLICIT_ACKNOWLEDGMENT" },
   { 0, NULL }
 };
+
+static const value_string security_symmetric_cipher_bit_vals[] = {
+  { SECURITY_SYMMETRIC_CIPHER_BIT_AES128_GCM, "AES128_GCM"},
+  { SECURITY_SYMMETRIC_CIPHER_BIT_AES256_GCM, "AES256_GCM"},
+  { SECURITY_SYMMETRIC_CIPHER_BIT_CUSTOM_ALGORITHM, "Custom Algorithm"},
+  {0, NULL}
+};
+
+static const value_string security_digital_signature_bit_vals[] = {
+  { SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPSSMGF1SHA256_2048_SHA256, "RSASSAPSSMGF1SHA256_2048_SHA256"},
+  { SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPKCS1V15_2048_SHA256,      "RSASSAPKCS1V15_2048_SHA256"},
+  { SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P256_SHA256,               "ECDSA_P256_SHA256"},
+  { SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P384_SHA384,               "ECDSA_P384_SHA384"},
+  { SECURITY_DIGITAL_SIGNATURE_BIT_CUSTOM_ALGORITHM,                "Custom Algorithm"},
+  { 0, NULL}
+};
+
+static const value_string security_key_establishment_bit_vals[] = {
+  { SECURITY_KEY_ESTABLISHMENT_BIT_DHE_MODP2048256, "DHE_MODP2048256" },
+  { SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P256, "ECDHECEUM_P256" },
+  { SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P384, "ECDHECEUM_P384" },
+  { SECURITY_KEY_ESTABLISHMENT_BIT_CUSTOM_ALGORITHM, "Custom Algorithm" },
+  { 0, NULL}
+};
+
 
 static int* const TYPE_FLAG_FLAGS[] = {
   &hf_rtps_flag_typeflag_nested,                /* Bit 2 */
@@ -2393,6 +2466,32 @@ static int* const ENDPOINT_SECURITY_ATTRIBUTES[] = {
   &hf_rtps_flag_security_access_protected,             /* Bit 0 */
   NULL
 };
+
+
+static int* const SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS[] = {
+  &hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm,
+  &hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm,
+  &hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm,
+  NULL
+};
+
+static int* const SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS[] = {
+  &hf_rtps_flag_security_key_establishment_mask_custom_algorithm,
+  &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p384,
+  &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p256,
+  &hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256,
+  NULL
+};
+
+static int* const SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS[] = {
+  &hf_rtps_flag_security_digital_signature_mask_custom_algorithm,
+  &hf_rtps_flag_security_digital_signature_mask_ecdsa_p384_sha384,
+  &hf_rtps_flag_security_digital_signature_mask_ecdsa_p256_sha256,
+  &hf_rtps_flag_security_digital_signature_mask_rsassapkcs1v15_2048_sha256,
+  &hf_rtps_flag_security_digital_signature_mask_rsassapssmgf1sha256_2048_sha256,
+  NULL
+};
+
 
 /**TCP get DomainId feature constants**/
 #define RTPS_UNKNOWN_DOMAIN_ID_VAL -1
@@ -7115,6 +7214,102 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
     case PID_UNICAST_LOCATOR_EX: {
       ENSURE_LENGTH(28);
       rtps_util_add_locator_ex_t(rtps_parameter_tree, pinfo, tvb, offset, encoding, param_length);
+      break;
+    }
+
+    case PID_ENDPOINT_SECURITY_SYMMETRIC_CIPHER_ALGO: {
+        ENSURE_LENGTH(4);
+        proto_tree_add_item(
+            rtps_parameter_tree,
+            hf_rtps_param_endpoint_security_symmetric_cipher_algorithms_used_bit,
+            tvb,
+            offset,
+            4,
+            encoding);
+      break;
+    }
+
+    case PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO: {
+        ENSURE_LENGTH(12);
+        proto_tree_add_bitmask(
+            rtps_parameter_tree,
+            tvb,
+            offset,
+            hf_rtps_param_participant_security_symmetric_cipher_algorithms_supported_mask,
+            ett_rtps_flags,
+            SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS,
+            encoding);
+        offset += 4;
+        proto_tree_add_item(
+            rtps_parameter_tree,
+            hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_used_bit,
+            tvb,
+            offset,
+            4,
+            encoding);
+        offset += 4;
+        proto_tree_add_item(
+            rtps_parameter_tree,
+            hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_key_exchange_used_bit,
+            tvb,
+            offset,
+            4,
+            encoding);
+      break;
+    }
+
+    case PID_PARTICIPANT_SECURITY_KEY_ESTABLISHMENT_ALGO: {
+        ENSURE_LENGTH(8);
+        proto_tree_add_bitmask(
+            rtps_parameter_tree,
+            tvb,
+            offset,
+            hf_rtps_param_participant_security_key_establishment_algorithms_supported_mask,
+            ett_rtps_flags, SECURITY_KEY_ESTABLISHMENT_MASK_FLAGS,
+            encoding);
+        offset += 4;
+        proto_tree_add_item(
+            rtps_parameter_tree,
+            hf_rtps_param_participant_security_key_establishment_algorithms_preferred_bit,
+            tvb, offset,
+            4,
+            encoding);
+      break;
+    }
+
+    case PID_PARTICIPANT_SECURITY_DIGITAL_SIGNATURE_ALGO: {
+        ENSURE_LENGTH(16);
+        proto_tree_add_bitmask(
+            rtps_parameter_tree,
+            tvb,
+            offset,
+            hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_supported_mask,
+            ett_rtps_flags, SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS,
+            encoding);
+        offset += 4;
+        proto_tree_add_bitmask(
+            rtps_parameter_tree,
+            tvb,
+            offset,
+            hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_used_mask,
+            ett_rtps_flags, SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS,
+            encoding);
+        offset += 4;
+        proto_tree_add_bitmask(
+            rtps_parameter_tree,
+            tvb,
+            offset,
+            hf_rtps_param_participant_security_digital_signature_algorithms_auth_supported_mask,
+            ett_rtps_flags, SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS,
+            encoding);
+        offset += 4;
+        proto_tree_add_item(
+            rtps_parameter_tree,
+            hf_rtps_param_participant_security_digital_signature_algorithms_auth_used_bit,
+            tvb,
+            offset,
+            4,
+            encoding);
       break;
     }
 
@@ -15124,12 +15319,110 @@ void proto_register_rtps(void) {
     { &hf_rtps_param_endpoint_security_attributes_mask,{
         "EndpointSecurityAttributesMask", "rtps.param.endpoint_security_attributes",
         FT_UINT32, BASE_HEX, NULL, 0,
-        "bitmask representing the EndpointSecurityAttributes flags in PID_ENDPOINT_SECURITY_INFO",
+        "Bitmask representing the EndpointSecurityAttributes flags in PID_ENDPOINT_SECURITY_INFO",
         HFILL }
     },
-    { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted,{
+    { &hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_used_bit, {
+        "Builtin Endpoints Used Bit", "rtps.param.participant_security_symmetric_cipher_algorithms.builtin_endpoints_used_bit",
+        FT_UINT32, BASE_HEX, VALS(security_symmetric_cipher_bit_vals), 0,
+        "Enum representing the Symmetric Cipher algorithm the builtin endpoints use",
+        HFILL }
+    },
+    { &hf_rtps_param_endpoint_security_symmetric_cipher_algorithms_used_bit, {
+        "Used Bit", "rtps.param.endpoint_security_symmetric_cipher_algorithm.used_bit",
+        FT_UINT32, BASE_HEX, VALS(security_symmetric_cipher_bit_vals), 0,
+        "Enum representing the Symmetric Cipher algorithm the endpoint uses",
+        HFILL }
+    },
+    { &hf_rtps_param_participant_security_symmetric_cipher_algorithms_builtin_endpoints_key_exchange_used_bit, {
+        "Key Exchange Builtin Endpoints Used Bit", "rtps.param.participant_security_symmetric_cipher_algorithms.builtin_endpoints_key_exchange_used_bit",
+        FT_UINT32, BASE_HEX, VALS(security_symmetric_cipher_bit_vals), 0,
+        "Enum representing the Symmetric Cipher algorithm the key exchange builtin endpoints use",
+        HFILL }
+    },
+    { &hf_rtps_param_participant_security_symmetric_cipher_algorithms_supported_mask, {
+        "Supported Mask", "rtps.param.participant_security_symmetric_cipher_algorithms.supported_mask",
+        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing Symmetric Cipher algorithms the participant supports",
+		HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm, {
+        "AES128 GCM", "rtps.flag.security_symmetric_cipher_mask.aes128_gcm",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_AES128_GCM, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm, {
+        "AES256 GCM", "rtps.flag.security_symmetric_cipher_mask.aes256_gcm",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_AES256_GCM, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm, {
+        "Custom Algorithm", "rtps.flag.security_symmetric_cipher_mask.custom_algorithm",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_CUSTOM_ALGORITHM, NULL, HFILL }
+    },
+    { &hf_rtps_param_participant_security_key_establishment_algorithms_preferred_bit, {
+        "Preferred Bit", "rtps.param.participant_security_key_establishment_algorithms.preferred_bit",
+        FT_UINT32, BASE_HEX, VALS(security_key_establishment_bit_vals), 0,
+        "Enum representing the Key Establishment algorithm the participant will use if it is the authentication initiator",  HFILL }
+    },
+    { &hf_rtps_param_participant_security_digital_signature_algorithms_auth_used_bit, {
+        "Authentication Used Bit", "rtps.articipant_security_digital_signature_algorithms.auth_used_bit",
+        FT_UINT32, BASE_HEX, VALS(security_digital_signature_bit_vals), 0,
+        "Enum representing the Digital Signature algorithm the participant will use during Authentication",  HFILL }
+    },
+    { &hf_rtps_param_participant_security_key_establishment_algorithms_supported_mask, {
+        "Supported Mask", "rtps.param.participant_security_key_establishment_algorithms.supported_mask",
+        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Key Establishment algorithms the participant supports",
+		HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256, {
+        "DHE_MODP2048256", "rtps.flag.security_key_establishment_mask.dhe_modp2048256",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_DHE_MODP2048256, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p256, {
+        "ECDHECEUM_P256", "rtps.flag.security_key_establishment_mask.ecdheceum_p256",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P256, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_ecdheceum_p384, {
+        "ECDHECEUM_P384", "rtps.flag.security_key_establishment_mask.ecdheceum_p384",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_ECDHECEUM_P384, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_key_establishment_mask_custom_algorithm, {
+        "Custom Algorithm", "rtps.flag.security_key_establishment_mask.custom_algorithm",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_CUSTOM_ALGORITHM, NULL, HFILL }
+    },
+    { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_payload_encrypted, {
         "Submessage Encrypted", "rtps.flag.security.info.plugin_submessage_encrypted",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_supported_mask, {
+        "Trust Chain Supported Mask", "rtps.param.participant_security_digital_signature_algorithms.trust_chain_supported_mask",
+        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Trust Chain Digital Signature algorithms the participant supports", HFILL }
+    },
+    { &hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_used_mask, {
+        "Trust Chain Used Mask", "rtps.param.participant_security_digital_signature_algorithms.trust_chain_used_mask",
+        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Digital Signature algorithms the participant will use to build its Trust Chain", HFILL }
+    },
+    { &hf_rtps_param_participant_security_digital_signature_algorithms_auth_supported_mask, {
+        "Authentication Supported Mask", "rtps.param.participant_security_digital_signature_algorithms.auth_supported_mask",
+        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Authentication Digital Signature algorithms the participant supports", HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_rsassapssmgf1sha256_2048_sha256, {
+        "RSASSAPSSMGF1SHA256_2048_SHA256", "rtps.flag.security_digital_signature_mask.rsassapssmgf1sha256_2048_sha256",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPSSMGF1SHA256_2048_SHA256, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_rsassapkcs1v15_2048_sha256, {
+        "RSASSAPKCS1V15_2048_SHA256", "rtps.flag.security_digital_signature_mask.rsassapkcs1v15_2048_sha256",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_RSASSAPKCS1V15_2048_SHA256, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_ecdsa_p256_sha256, {
+        "ECDSA_P256_SHA256", "rtps.flag.security_digital_signature_mask.ecdsa_p256_sha256",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P256_SHA256, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_ecdsa_p384_sha384, {
+        "ECDSA_P384_SHA384", "rtps.flag.security_digital_signature_mask.ecdsa_p384_sha384",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_ECDSA_P384_SHA384, NULL, HFILL }
+    },
+    { &hf_rtps_flag_security_digital_signature_mask_custom_algorithm, {
+        "Custom Algorithm", "rtps.flag.security_digital_signature_mask.custom_algorithm",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_DIGITAL_SIGNATURE_BIT_CUSTOM_ALGORITHM, NULL, HFILL }
     },
     { &hf_rtps_flag_plugin_endpoint_security_attribute_flag_is_key_encrypted,{
         "Payload Encrypted", "rtps.flag.security.info.plugin_payload_encrypted",
