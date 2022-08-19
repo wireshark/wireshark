@@ -1180,15 +1180,28 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
 		/*
 		 * But, if we've seen some real HTTP then we're sure this is
-		 * an HTTP conversation.  Mark it as such.
+		 * an HTTP conversation, and this is binary file data.
+		 * Mark it as such.
 		 */
 		if (have_seen_http) {
+			tvbuff_t *next_tvb;
+			const gchar *file_data;
+
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 			ti = proto_tree_add_item(tree, proto, tvb, offset, -1, ENC_NA);
 			http_tree = proto_item_add_subtree(ti, ett_http);
 
-			call_data_dissector(tvb_new_subset_remaining(tvb, orig_offset), pinfo, http_tree);
+			next_tvb = tvb_new_subset_remaining(tvb, orig_offset);
+			/* Send it to Follow HTTP Stream and mark as file data */
+			if(have_tap_listener(http_follow_tap)) {
+				tap_queue_packet(http_follow_tap, pinfo, next_tvb);
+			}
+			file_data = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_captured_length(next_tvb), ENC_ASCII);
+			proto_tree_add_string_format_value(http_tree, hf_http_file_data,
+				next_tvb, 0, tvb_captured_length(next_tvb), file_data, "%u bytes", tvb_captured_length(next_tvb));
+
+			call_data_dissector(next_tvb, pinfo, http_tree);
 		}
 		return -1;
 	}
@@ -1736,6 +1749,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (headers.transfer_encoding_chunked) {
 			if (!http_dechunk_body) {
 				/* Chunking disabled, cannot dissect further. */
+				/* XXX: Should this be sent to the follow tap? */
 				call_data_dissector(next_tvb, pinfo, http_tree);
 				goto body_dissected;
 			}
@@ -1775,6 +1789,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * We currently can't handle, for example, "gzip",
 			 * "compress", or "deflate" as *transfer* encodings;
 			 * just handle them as data for now.
+			 * XXX: Should this be sent to the follow tap?
 			 */
 			call_data_dissector(next_tvb, pinfo, http_tree);
 			goto body_dissected;
@@ -1863,6 +1878,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					expert_add_info(pinfo, e_ti, &ei_http_decompression_disabled);
 				}
 #endif
+				/* XXX: Should this be sent to the follow tap? */
 				call_data_dissector(next_tvb, pinfo, e_tree);
 
 				goto body_dissected;
@@ -1876,6 +1892,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* Save values for the Export Object GUI feature if we have
 		 * an active listener to process it (which happens when
 		 * the export object window is open). */
+		/* XXX: Do we really want to send it to Export Object if we didn't
+		 * get the headers, so that this is just a fragment of Continuation
+		 * Data and not a complete object?
+		 */
 		if(have_tap_listener(http_eo_tap)) {
 			eo_info = wmem_new(wmem_packet_scope(), http_eo_t);
 
@@ -1888,9 +1908,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tap_queue_packet(http_eo_tap, pinfo, eo_info);
 		}
 
-		/* Save values for the Export Object GUI feature if we have
-		 * an active listener to process it (which happens when
-		 * the export object window is open). */
+		/* Send it to Follow HTTP Stream and mark as file data */
 		if(have_tap_listener(http_follow_tap)) {
 			tap_queue_packet(http_follow_tap, pinfo, next_tvb);
 		}
