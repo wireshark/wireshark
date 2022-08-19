@@ -26,6 +26,8 @@
 void proto_register_mpeg1(void);
 void proto_reg_handoff_mpeg1(void);
 
+static dissector_handle_t mpeg1_handle;
+
 /* MPEG1 header fields             */
 
 static int proto_mpg          = -1;
@@ -307,6 +309,7 @@ proto_register_mpeg1(void)
 
 
 	proto_mpg = proto_register_protocol("RFC 2250 MPEG1","MPEG1","mpeg1");
+	mpeg1_handle = register_dissector("mpeg1", dissect_mpeg1, proto_mpg);
 	proto_register_field_array(proto_mpg, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -314,9 +317,6 @@ proto_register_mpeg1(void)
 void
 proto_reg_handoff_mpeg1(void)
 {
-	dissector_handle_t mpeg1_handle;
-
-	mpeg1_handle = create_dissector_handle(dissect_mpeg1, proto_mpg);
 	dissector_add_uint("rtp.pt", PT_MPV, mpeg1_handle);
 }
 

@@ -35,6 +35,7 @@ static char* json_string_unescape(tvbparse_elem_t *tok, gboolean enclose_in_quot
 
 
 static dissector_handle_t json_handle;
+static dissector_handle_t json_file_handle;
 
 static int proto_json = -1;
 static int proto_json_3gpp = -1;
@@ -2080,6 +2081,7 @@ proto_register_json(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	json_handle = register_dissector("json", dissect_json, proto_json);
+	json_file_handle = register_dissector("json_file", dissect_json_file, proto_json);
 
 	init_json_parser();
 
@@ -2108,8 +2110,6 @@ proto_register_json(void)
 void
 proto_reg_handoff_json(void)
 {
-	dissector_handle_t json_file_handle = create_dissector_handle(dissect_json_file, proto_json);
-
 	heur_dissector_add("hpfeeds", dissect_json_heur, "JSON over HPFEEDS", "json_hpfeeds", proto_json, HEURISTIC_ENABLE);
 	heur_dissector_add("db-lsp", dissect_json_heur, "JSON over DB-LSP", "json_db_lsp", proto_json, HEURISTIC_ENABLE);
 	heur_dissector_add("udp", dissect_json_acdr_heur, "JSON over AC DR", "json_acdr", proto_json, HEURISTIC_ENABLE);

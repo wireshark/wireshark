@@ -32,6 +32,7 @@ static int hf_nettl_kind = -1;
 static int hf_nettl_pid = -1;
 static int hf_nettl_uid = -1;
 
+static dissector_handle_t nettl_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t fddi_bitswapped_handle;
@@ -310,6 +311,7 @@ proto_register_nettl(void)
     /* Register the protocol name and description */
 
     proto_nettl = proto_register_protocol("HP-UX Network Tracing and Logging", "nettl", "nettl");
+    nettl_handle = register_dissector("nettl", dissect_nettl, proto_nettl);
 
     /* Required function calls to register the header fields and subtrees used */
 
@@ -322,8 +324,6 @@ proto_register_nettl(void)
 void
 proto_reg_handoff_nettl(void)
 {
-    dissector_handle_t nettl_handle;
-
     /*
      * Get handles for various dissectors and dissector tables.
      */
@@ -337,7 +337,6 @@ proto_reg_handoff_nettl(void)
     ip_proto_dissector_table = find_dissector_table("ip.proto");
     tcp_subdissector_table   = find_dissector_table("tcp.port");
 
-    nettl_handle = create_dissector_handle(dissect_nettl, proto_nettl);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_ETHERNET,   nettl_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_TOKEN_RING, nettl_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_FDDI,       nettl_handle);

@@ -25,6 +25,8 @@
 void proto_reg_handoff_dsr(void);
 void proto_register_dsr(void);
 
+static dissector_handle_t dsr_handle;
+
 static dissector_table_t ip_dissector_table;
 
 /* Initialize the protocol and registered fields */
@@ -728,6 +730,7 @@ proto_register_dsr(void)
                         "Dynamic Source Routing",
                         "DSR",
                         "dsr");
+    dsr_handle = register_dissector("dsr", dissect_dsr, proto_dsr);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_dsr, hf, array_length(hf));
@@ -738,11 +741,7 @@ proto_register_dsr(void)
 void
 proto_reg_handoff_dsr(void)
 {
-    dissector_handle_t dsr_handle;
-
     ip_dissector_table = find_dissector_table("ip.proto");
-
-    dsr_handle = create_dissector_handle(dissect_dsr, proto_dsr);
     dissector_add_uint("ip.proto", IP_PROTO_DSR, dsr_handle);
 }
 /*

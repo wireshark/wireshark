@@ -32,6 +32,8 @@
 
 void proto_register_rtpproxy(void);
 
+static dissector_handle_t rtpproxy_handle;
+
 static int proto_rtpproxy = -1;
 
 static int hf_rtpproxy_cookie = -1;
@@ -1452,6 +1454,7 @@ proto_register_rtpproxy(void)
     };
 
     proto_rtpproxy = proto_register_protocol ("Sippy RTPproxy Protocol", "RTPproxy", "rtpproxy");
+    rtpproxy_handle = register_dissector("rtpproxy", dissect_rtpproxy, proto_rtpproxy);
 
     proto_register_field_array(proto_rtpproxy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1479,15 +1482,10 @@ proto_reg_handoff_rtpproxy(void)
 {
     static gboolean rtpproxy_initialized = FALSE;
 
-    dissector_handle_t rtpproxy_tcp_handle, rtpproxy_udp_handle;
-
     if(!rtpproxy_initialized){
-        rtpproxy_tcp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
-        rtpproxy_udp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
-
         /* Register TCP port for dissection */
-        dissector_add_uint_range_with_preference("tcp.port", RTPPROXY_PORT, rtpproxy_tcp_handle);
-        dissector_add_uint_range_with_preference("udp.port", RTPPROXY_PORT, rtpproxy_udp_handle);
+        dissector_add_uint_range_with_preference("tcp.port", RTPPROXY_PORT, rtpproxy_handle);
+        dissector_add_uint_range_with_preference("udp.port", RTPPROXY_PORT, rtpproxy_handle);
         rtpproxy_prefs_apply();
         rtpproxy_initialized = TRUE;
     }

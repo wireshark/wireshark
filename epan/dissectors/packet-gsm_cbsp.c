@@ -346,6 +346,8 @@ static const struct tlv_definition cbsp_att_tlvdef = {
 void proto_register_cbsp(void);
 void proto_reg_handoff_cbsp(void);
 
+static dissector_handle_t cbsp_handle;
+
 static int proto_cbsp = -1;
 
 static int hf_cbsp_msg_type = -1;
@@ -918,6 +920,7 @@ proto_register_cbsp(void)
 	};
 
 	proto_cbsp = proto_register_protocol("3GPP/GSM Cell Broadcast Service Protocol", "cbsp", "cbsp");
+	cbsp_handle = register_dissector("cbsp", dissect_cbsp, proto_cbsp);
 	proto_register_field_array(proto_cbsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -925,8 +928,6 @@ proto_register_cbsp(void)
 void
 proto_reg_handoff_cbsp(void)
 {
-	dissector_handle_t cbsp_handle;
-	cbsp_handle = create_dissector_handle(dissect_cbsp, proto_cbsp);
 	dissector_add_uint_with_preference("tcp.port", CBSP_TCP_PORT, cbsp_handle);
 }
 

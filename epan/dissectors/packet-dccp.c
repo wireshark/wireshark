@@ -80,6 +80,8 @@
 void proto_register_dccp(void);
 void proto_reg_handoff_dccp(void);
 
+static dissector_handle_t dccp_handle;
+
 /*
  * FF: please keep this list in sync with
  * http://www.iana.org/assignments/dccp-parameters/dccp-parameters.xml
@@ -1686,6 +1688,7 @@ proto_register_dccp(void)
     proto_dccp =
         proto_register_protocol("Datagram Congestion Control Protocol", "DCCP",
                                 "dccp");
+    dccp_handle = register_dissector("dccp", dissect_dccp, proto_dccp);
     proto_register_field_array(proto_dccp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_dccp = expert_register_protocol(proto_dccp);
@@ -1738,9 +1741,6 @@ proto_register_dccp(void)
 void
 proto_reg_handoff_dccp(void)
 {
-    dissector_handle_t dccp_handle;
-
-    dccp_handle = create_dissector_handle(dissect_dccp, proto_dccp);
     dissector_add_uint("ip.proto", IP_PROTO_DCCP, dccp_handle);
     dccp_tap    = register_tap("dccp");
     dccp_follow_tap = register_tap("dccp_follow");

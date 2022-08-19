@@ -42,6 +42,8 @@ static gboolean pvfs_desegment = TRUE;
 void proto_register_pvfs(void);
 void proto_reg_handoff_pvfs(void);
 
+static dissector_handle_t pvfs_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_pvfs = -1;
 static int hf_pvfs_magic_nr = -1;
@@ -3575,6 +3577,7 @@ proto_register_pvfs(void)
 	/* Register the protocol name and description */
 	proto_pvfs = proto_register_protocol("Parallel Virtual File System",
 			"PVFS", "pvfs");
+	pvfs_handle = register_dissector("pvfs", dissect_pvfs_heur, proto_pvfs);
 
 	/*
 	 * Required function calls to register the header fields and
@@ -3599,9 +3602,6 @@ proto_register_pvfs(void)
 void
 proto_reg_handoff_pvfs(void)
 {
-	dissector_handle_t pvfs_handle;
-
-	pvfs_handle = create_dissector_handle(dissect_pvfs_heur, proto_pvfs);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_PVFS2, pvfs_handle);
 
 	heur_dissector_add("tcp", dissect_pvfs_heur, "PVFS over TCP", "pvfs_tcp", proto_pvfs, HEURISTIC_ENABLE);

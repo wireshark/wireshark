@@ -26,6 +26,10 @@
 void proto_register_gre(void);
 void proto_reg_handoff_gre(void);
 
+static dissector_handle_t gre_handle;
+static capture_dissector_handle_t gre_cap_handle;
+
+
 /*
  * See RFC 1701 "Generic Routing Encapsulation (GRE)", RFC 1702
  * "Generic Routing Encapsulation over IPv4 networks", RFC 2637
@@ -720,6 +724,8 @@ proto_register_gre(void)
 
     proto_gre = proto_register_protocol("Generic Routing Encapsulation",
                                         "GRE", "gre");
+    gre_handle = register_dissector("gre", dissect_gre, proto_gre);
+    gre_cap_handle = register_capture_dissector("gre", capture_gre, proto_gre);
     proto_register_field_array(proto_gre, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_gre = expert_register_protocol(proto_gre);
@@ -751,13 +757,8 @@ proto_register_gre(void)
 void
 proto_reg_handoff_gre(void)
 {
-    dissector_handle_t gre_handle;
-    capture_dissector_handle_t gre_cap_handle;
-
-    gre_handle = create_dissector_handle(dissect_gre, proto_gre);
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
     dissector_add_uint("udp.port", GRE_IN_UDP_PORT, gre_handle);
-    gre_cap_handle = create_capture_dissector_handle(capture_gre, proto_gre);
     capture_dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_cap_handle);
 }
 

@@ -25,6 +25,8 @@
 void proto_register_17221(void);
 void proto_reg_handoff_17221(void);
 
+static dissector_handle_t avb17221_handle;
+
 /* 17221 Offsets */
 #define P1722_HEADER_OFFSET                 12
 
@@ -7015,6 +7017,7 @@ proto_register_17221(void)
 
    /* Register the protocol name and description */
    proto_17221 = proto_register_protocol("IEEE 1722.1 Protocol", "IEEE1722.1", "ieee17221");
+   avb17221_handle = register_dissector("ieee17221", dissect_17221, proto_17221);
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_17221, hf, array_length(hf));
@@ -7027,12 +7030,6 @@ proto_register_17221(void)
 void
 proto_reg_handoff_17221(void)
 {
-
-   dissector_handle_t avb17221_handle;
-
-   /* avb17221_handle = find_dissector("ieee1722"); */
-
-   avb17221_handle = create_dissector_handle(dissect_17221, proto_17221);
    dissector_add_uint("ieee1722.subtype", 0xFA, avb17221_handle);
    dissector_add_uint("ieee1722.subtype", 0xFB, avb17221_handle);
    dissector_add_uint("ieee1722.subtype", 0xFC, avb17221_handle);

@@ -22,6 +22,8 @@
 void proto_register_sasp(void);
 void proto_reg_handoff_sasp(void);
 
+static dissector_handle_t sasp_handle;
+
 static void dissect_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset);
 static void dissect_reg_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
@@ -1508,6 +1510,7 @@ void proto_register_sasp(void)
     expert_module_t* expert_sasp;
 
     proto_sasp = proto_register_protocol("Server/Application State Protocol", "SASP", "sasp");
+    sasp_handle = register_dissector("sasp", dissect_sasp, proto_sasp);
 
     proto_register_field_array(proto_sasp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1530,9 +1533,6 @@ void proto_register_sasp(void)
 void
 proto_reg_handoff_sasp(void)
 {
-    dissector_handle_t sasp_handle;
-
-    sasp_handle = create_dissector_handle(dissect_sasp, proto_sasp);
     dissector_add_uint_with_preference("tcp.port", SASP_GLOBAL_PORT, sasp_handle);
 }
 

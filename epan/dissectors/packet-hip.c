@@ -31,6 +31,9 @@
 void proto_register_hip(void);
 void proto_reg_handoff_hip(void);
 
+static dissector_handle_t hip_ip_handle;
+static dissector_handle_t hip_udp_handle;
+
 #define HIP_UDP_PORT 10500
 
 #define HI_ALG_DSA 3
@@ -1580,6 +1583,8 @@ proto_register_hip(void)
         expert_module_t* expert_hip;
 
         proto_hip = proto_register_protocol("Host Identity Protocol", "HIP", "hip");
+        hip_ip_handle = register_dissector("hip", dissect_hip, proto_hip);
+        hip_udp_handle = register_dissector("hip_udp", dissect_hip_in_udp, proto_hip);
 
         proto_register_field_array(proto_hip, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
@@ -1590,14 +1595,8 @@ proto_register_hip(void)
 void
 proto_reg_handoff_hip(void)
 {
-        dissector_handle_t hip_handle;
-        dissector_handle_t hip_handle2;
-
-        hip_handle = create_dissector_handle(dissect_hip, proto_hip);
-        dissector_add_uint("ip.proto", IP_PROTO_HIP, hip_handle);
-
-        hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
-        dissector_add_uint_with_preference("udp.port", HIP_UDP_PORT, hip_handle2);
+        dissector_add_uint("ip.proto", IP_PROTO_HIP, hip_ip_handle);
+        dissector_add_uint_with_preference("udp.port", HIP_UDP_PORT, hip_udp_handle);
 }
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

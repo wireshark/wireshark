@@ -16,6 +16,8 @@
 void proto_register_lpd(void);
 void proto_reg_handoff_lpd(void);
 
+static dissector_handle_t lpd_handle;
+
 #define TCP_PORT_PRINTER		515
 
 static int proto_lpd = -1;
@@ -176,6 +178,7 @@ proto_register_lpd(void)
 	};
 
 	proto_lpd = proto_register_protocol("Line Printer Daemon Protocol", "LPD", "lpd");
+	lpd_handle = register_dissector("lpd", dissect_lpd, proto_lpd);
 	proto_register_field_array(proto_lpd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -183,9 +186,6 @@ proto_register_lpd(void)
 void
 proto_reg_handoff_lpd(void)
 {
-	dissector_handle_t lpd_handle;
-
-	lpd_handle = create_dissector_handle(dissect_lpd, proto_lpd);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_PRINTER, lpd_handle);
 }
 

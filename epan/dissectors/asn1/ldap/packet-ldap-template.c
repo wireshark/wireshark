@@ -221,7 +221,8 @@ static dissector_handle_t gssapi_wrap_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t spnego_handle;
 static dissector_handle_t tls_handle;
-static dissector_handle_t ldap_handle ;
+static dissector_handle_t ldap_handle;
+static dissector_handle_t cldap_handle;
 
 static void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
 
@@ -2255,6 +2256,7 @@ void proto_register_ldap(void) {
   proto_cldap = proto_register_protocol(
           "Connectionless Lightweight Directory Access Protocol",
           "CLDAP", "cldap");
+  cldap_handle = register_dissector("cldap", dissect_mscldap, proto_cldap);
 
   ldap_tap=register_tap("ldap");
 
@@ -2268,9 +2270,6 @@ void proto_register_ldap(void) {
 void
 proto_reg_handoff_ldap(void)
 {
-  dissector_handle_t cldap_handle;
-
-  cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
   gssapi_handle = find_dissector_add_dependency("gssapi", proto_ldap);

@@ -435,7 +435,8 @@ static dissector_handle_t gssapi_wrap_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t spnego_handle;
 static dissector_handle_t tls_handle;
-static dissector_handle_t ldap_handle ;
+static dissector_handle_t ldap_handle;
+static dissector_handle_t cldap_handle;
 
 static void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
 
@@ -3815,7 +3816,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 909 "./asn1/ldap/packet-ldap-template.c"
+#line 910 "./asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -5653,7 +5654,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2178 "./asn1/ldap/packet-ldap-template.c"
+#line 2179 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5727,7 +5728,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2192 "./asn1/ldap/packet-ldap-template.c"
+#line 2193 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5794,6 +5795,7 @@ void proto_register_ldap(void) {
   proto_cldap = proto_register_protocol(
           "Connectionless Lightweight Directory Access Protocol",
           "CLDAP", "cldap");
+  cldap_handle = register_dissector("cldap", dissect_mscldap, proto_cldap);
 
   ldap_tap=register_tap("ldap");
 
@@ -5807,9 +5809,6 @@ void proto_register_ldap(void) {
 void
 proto_reg_handoff_ldap(void)
 {
-  dissector_handle_t cldap_handle;
-
-  cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
   gssapi_handle = find_dissector_add_dependency("gssapi", proto_ldap);
@@ -5938,7 +5937,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2386 "./asn1/ldap/packet-ldap-template.c"
+#line 2385 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 

@@ -158,6 +158,8 @@ static expert_field ei_sigcomp_execution_of_this_instruction_is_not_implemented 
 
 static dissector_handle_t sip_handle;
 static dissector_handle_t sigcomp_handle;
+static dissector_handle_t sigcomp_tcp_handle;
+
 
 /* set the tcp ports */
 #define SIGCOMP_TCP_PORT_RANGE "5555,6666" /* Not IANA registered */
@@ -6863,6 +6865,7 @@ proto_register_sigcomp(void)
     proto_raw_sigcomp = proto_register_protocol("Decompressed SigComp message as raw text", "Raw_SigComp", "raw_sigcomp");
 
     sigcomp_handle = register_dissector("sigcomp", dissect_sigcomp, proto_sigcomp);
+    sigcomp_tcp_handle = register_dissector("sigcomp_tcp", dissect_sigcomp_tcp,proto_sigcomp);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sigcomp, hf, array_length(hf));
@@ -6910,9 +6913,6 @@ proto_register_sigcomp(void)
 void
 proto_reg_handoff_sigcomp(void)
 {
-    dissector_handle_t sigcomp_tcp_handle;
-
-    sigcomp_tcp_handle = create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
     sip_handle = find_dissector_add_dependency("sip",proto_sigcomp);
     dissector_add_uint_range_with_preference("tcp.port", SIGCOMP_TCP_PORT_RANGE, sigcomp_tcp_handle);
     dissector_add_uint_range_with_preference("udp.port", SIGCOMP_TCP_PORT_RANGE, sigcomp_handle);

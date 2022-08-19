@@ -520,6 +520,7 @@ proto_register_iso10681(void) {
             "ISO 10681",         /* short name */
             "iso10681"           /* abbrev     */
     );
+    iso10681_handle_flexray = register_dissector("iso10681", dissect_iso10681_flexray, proto_iso10681);
 
     /* Register configuration options */
     iso10681_module = prefs_register_protocol(proto_iso10681, proto_reg_handoff_iso10681);
@@ -550,7 +551,6 @@ proto_reg_handoff_iso10681(void) {
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        iso10681_handle_flexray = create_dissector_handle(dissect_iso10681_flexray, proto_iso10681);
         dissector_add_for_decode_as("flexray.subdissector", iso10681_handle_flexray);
 
         initialized = TRUE;

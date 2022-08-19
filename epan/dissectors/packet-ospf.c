@@ -68,6 +68,9 @@
 void proto_register_ospf(void);
 void proto_reg_handoff_ospf(void);
 
+static dissector_handle_t ospf_handle;
+static capture_dissector_handle_t ospf_cap_handle;
+
 #define OSPF_VERSION_2 2
 #define OSPF_VERSION_3 3
 #define OSPF_AF_4 4
@@ -5255,6 +5258,8 @@ proto_register_ospf(void)
 
     proto_ospf = proto_register_protocol("Open Shortest Path First",
                                          "OSPF", "ospf");
+    ospf_handle = register_dissector("ospf", dissect_ospf, proto_ospf);
+    ospf_cap_handle = register_capture_dissector("ospf", capture_ospf, proto_ospf);
     proto_register_field_array(proto_ospf, ospff_info, array_length(ospff_info));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ospf = expert_register_protocol(proto_ospf);
@@ -5264,12 +5269,7 @@ proto_register_ospf(void)
 void
 proto_reg_handoff_ospf(void)
 {
-    dissector_handle_t ospf_handle;
-    capture_dissector_handle_t ospf_cap_handle;
-
-    ospf_handle = create_dissector_handle(dissect_ospf, proto_ospf);
     dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
-    ospf_cap_handle = create_capture_dissector_handle(capture_ospf, proto_ospf);
     capture_dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_cap_handle);
 }
 

@@ -4888,6 +4888,7 @@ proto_register_vnc(void)
 
 	/* Register the protocol name and description */
 	proto_vnc = proto_register_protocol("Virtual Network Computing", "VNC", "vnc");
+	vnc_handle = register_dissector("vnc", dissect_vnc, proto_vnc);
 
 	/* Required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_vnc, hf, array_length(hf));
@@ -4909,8 +4910,6 @@ proto_register_vnc(void)
 void
 proto_reg_handoff_vnc(void)
 {
-	vnc_handle = create_dissector_handle(dissect_vnc, proto_vnc);
-
 	dissector_add_uint_range_with_preference("tcp.port", VNC_PORT_RANGE, vnc_handle);
 	heur_dissector_add("tcp", test_vnc_protocol, "VNC over TCP", "vnc_tcp", proto_vnc, HEURISTIC_ENABLE);
 	/* We don't register a port for the VNC HTTP server because

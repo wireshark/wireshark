@@ -29,6 +29,8 @@
 void proto_reg_handoff_ecmp(void);
 void proto_register_ecmp (void);
 
+static dissector_handle_t ecmp_tcp_handle, ecmp_udp_handle;
+
 /* Wireshark ID of the ECMP protocol */
 static int proto_ecmp = -1;
 
@@ -3530,6 +3532,9 @@ void proto_register_ecmp (void)
 	expert_module_t* expert_ecmp;
 
 	proto_ecmp = proto_register_protocol ("ECMP", PROTO_TAG_ECMP, "ecmp");
+	ecmp_tcp_handle = register_dissector("ecmp_tcp", dissect_ecmp_tcp, proto_ecmp);
+	ecmp_udp_handle = register_dissector("ecmp_udp", dissect_ecmp_udp, proto_ecmp);
+
 
 	/* full name short name and abbreviation (display filter name)*/
 	proto_register_field_array(proto_ecmp, hf, array_length (hf));
@@ -3542,11 +3547,6 @@ void proto_register_ecmp (void)
 /* Wireshark literally scans this file (packet-ecmp.c) to find this function  */
 void proto_reg_handoff_ecmp(void)
 {
-	dissector_handle_t ecmp_tcp_handle, ecmp_udp_handle;
-
-	ecmp_tcp_handle = create_dissector_handle(dissect_ecmp_tcp, proto_ecmp);
-	ecmp_udp_handle = create_dissector_handle(dissect_ecmp_udp, proto_ecmp);
-
 	/* Cyclic frames are over UDP and non-cyclic are over TCP */
 	dissector_add_uint_with_preference("udp.port", ECMP_TCP_PORT, ecmp_udp_handle);
 	dissector_add_uint_with_preference("tcp.port", ECMP_TCP_PORT, ecmp_tcp_handle);

@@ -20,6 +20,8 @@
 void proto_register_pptp(void);
 void proto_reg_handoff_pptp(void);
 
+static dissector_handle_t pptp_handle;
+
 static int proto_pptp = -1;
 static int hf_pptp_length = -1;
 static int hf_pptp_message_type = -1;
@@ -937,6 +939,7 @@ proto_register_pptp(void)
 
   proto_pptp = proto_register_protocol("Point-to-Point Tunnelling Protocol",
                                        "PPTP", "pptp");
+  pptp_handle = register_dissector("pptp", dissect_pptp, proto_pptp);
   proto_register_field_array(proto_pptp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_pptp = expert_register_protocol(proto_pptp);
@@ -946,9 +949,6 @@ proto_register_pptp(void)
 void
 proto_reg_handoff_pptp(void)
 {
-  dissector_handle_t pptp_handle;
-
-  pptp_handle = create_dissector_handle(dissect_pptp, proto_pptp);
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_PPTP, pptp_handle);
 }
 

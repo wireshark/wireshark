@@ -19,6 +19,8 @@
 void proto_register_cups(void);
 void proto_reg_handoff_cups(void);
 
+static dissector_handle_t cups_handle;
+
 /* From cups/cups.h, GNU GPL, Copyright 1997-2001 by Easy Software Products. */
 typedef guint32 cups_ptype_t;           /**** Printer Type/Capability Bits ****/
 enum                                    /* Not a typedef'd enum so we can OR */
@@ -378,6 +380,7 @@ proto_register_cups(void)
     };
 
     proto_cups = proto_register_protocol("Common Unix Printing System (CUPS) Browsing Protocol", "CUPS", "cups");
+    cups_handle = register_dissector("cups", dissect_cups, proto_cups);
     proto_register_field_array(proto_cups, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -388,9 +391,6 @@ proto_register_cups(void)
 void
 proto_reg_handoff_cups(void)
 {
-    dissector_handle_t cups_handle;
-
-    cups_handle = create_dissector_handle(dissect_cups, proto_cups);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_CUPS, cups_handle);
 }
 

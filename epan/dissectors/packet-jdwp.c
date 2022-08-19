@@ -23,6 +23,8 @@
 void proto_register_jdwp(void);
 void proto_reg_handoff_jdwp(void);
 
+static dissector_handle_t jdwp_handle;
+
 /* IMPORTANT IMPLEMENTATION NOTES
  *
  * You need to be looking at:
@@ -698,6 +700,7 @@ proto_register_jdwp(void)
   };
 
   proto_jdwp = proto_register_protocol("Java Debug Wire Protocol", "JDWP", "jdwp");
+  jdwp_handle = register_dissector("jdwp", dissect_jdwp, proto_jdwp);
   proto_register_field_array(proto_jdwp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_jdwp = expert_register_protocol(proto_jdwp);
@@ -708,9 +711,6 @@ proto_register_jdwp(void)
 void
 proto_reg_handoff_jdwp(void)
 {
-  dissector_handle_t jdwp_handle;
-
-  jdwp_handle = create_dissector_handle(dissect_jdwp, proto_jdwp);
   dissector_add_uint_with_preference("tcp.port", JDWP_PORT, jdwp_handle);
 }
 

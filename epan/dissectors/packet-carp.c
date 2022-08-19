@@ -20,6 +20,8 @@
 void proto_register_carp(void);
 void proto_reg_handoff_carp(void);
 
+static dissector_handle_t carp_handle;
+
 static gint proto_carp = -1;
 static gint ett_carp = -1;
 static gint ett_carp_ver_type = -1;
@@ -233,6 +235,7 @@ void proto_register_carp(void)
     expert_module_t* expert_carp;
 
     proto_carp = proto_register_protocol("Common Address Redundancy Protocol", "CARP", "carp");
+    carp_handle = register_dissector("carp", dissect_carp, proto_carp);
     proto_register_field_array(proto_carp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_carp = expert_register_protocol(proto_carp);
@@ -242,9 +245,6 @@ void proto_register_carp(void)
 void
 proto_reg_handoff_carp(void)
 {
-    dissector_handle_t carp_handle;
-
-    carp_handle = create_dissector_handle(dissect_carp, proto_carp);
     dissector_add_uint("ip.proto", IP_PROTO_VRRP, carp_handle);
     heur_dissector_add( "ip", dissect_carp_heur, "CARP over IP", "carp_ip", proto_carp, HEURISTIC_ENABLE);
 }

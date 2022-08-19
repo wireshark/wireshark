@@ -305,8 +305,7 @@ proto_register_ubdp(void)
     expert_ubdp = expert_register_protocol(proto_ubdp);
     expert_register_field_array(expert_ubdp, ei, array_length(ei));
 
-    register_dissector("ubdp", dissect_ubdp, proto_ubdp);
-    ubdp_handle = create_dissector_handle(dissect_ubdp, proto_ubdp);
+    ubdp_handle = register_dissector("ubdp", dissect_ubdp, proto_ubdp);
 }
 
 void

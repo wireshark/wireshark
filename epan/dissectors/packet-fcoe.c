@@ -89,6 +89,8 @@ static int ett_fcoe            = -1;
 static expert_field ei_fcoe_crc = EI_INIT;
 
 static dissector_handle_t fc_handle;
+static dissector_handle_t fcoe_handle;
+
 
 /* Looks for the EOF at a given offset. Returns NULL if the EOF is not
  * present, is not one of the known values, or if the next three bytes, if
@@ -323,6 +325,7 @@ proto_register_fcoe(void)
     /* Register the protocol name and description */
     proto_fcoe = proto_register_protocol("Fibre Channel over Ethernet",
         "FCoE", "fcoe");
+    fcoe_handle = register_dissector("fcoe", dissect_fcoe, proto_fcoe);
 
     /* Required function calls to register the header fields and
      * subtrees used */
@@ -339,9 +342,6 @@ proto_register_fcoe(void)
 void
 proto_reg_handoff_fcoe(void)
 {
-    dissector_handle_t fcoe_handle;
-
-    fcoe_handle = create_dissector_handle(dissect_fcoe, proto_fcoe);
     dissector_add_uint("ethertype", ETHERTYPE_FCOE, fcoe_handle);
     fc_handle   = find_dissector_add_dependency("fc", proto_fcoe);
 }

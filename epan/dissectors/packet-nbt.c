@@ -25,6 +25,8 @@
 void proto_register_nbt(void);
 void proto_reg_handoff_nbt(void);
 
+static dissector_handle_t nbns_handle, nbdgm_handle, nbss_handle;
+
 static int proto_nbns = -1;
 static int hf_nbns_flags = -1;
 static int hf_nbns_flags_response = -1;
@@ -1944,16 +1946,19 @@ proto_register_nbt(void)
     expert_module_t* expert_nbns;
 
     proto_nbns = proto_register_protocol("NetBIOS Name Service", "NBNS", "nbns");
+    nbns_handle = register_dissector("nbns", dissect_nbns, proto_nbns);
     proto_register_field_array(proto_nbns, hf_nbns, array_length(hf_nbns));
     expert_nbns = expert_register_protocol(proto_nbns);
     expert_register_field_array(expert_nbns, ei, array_length(ei));
 
     proto_nbdgm = proto_register_protocol("NetBIOS Datagram Service",
                                           "NBDS", "nbdgm");
+    nbdgm_handle = register_dissector("nbds", dissect_nbdgm, proto_nbdgm);
     proto_register_field_array(proto_nbdgm, hf_nbdgm, array_length(hf_nbdgm));
 
     proto_nbss = proto_register_protocol("NetBIOS Session Service",
                                          "NBSS", "nbss");
+    nbss_handle  = register_dissector("nbss", dissect_nbss, proto_nbss);
     proto_register_field_array(proto_nbss, hf_nbss, array_length(hf_nbss));
 
     proto_register_subtree_array(ett, array_length(ett));
@@ -1970,15 +1975,8 @@ proto_register_nbt(void)
 void
 proto_reg_handoff_nbt(void)
 {
-    dissector_handle_t nbns_handle, nbdgm_handle, nbss_handle;
-
-    nbns_handle  = create_dissector_handle(dissect_nbns, proto_nbns);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_NBNS, nbns_handle);
-
-    nbdgm_handle = create_dissector_handle(dissect_nbdgm, proto_nbdgm);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
-
-    nbss_handle  = create_dissector_handle(dissect_nbss, proto_nbss);
     dissector_add_uint_range_with_preference("tcp.port", TCP_NBSS_PORT_RANGE, nbss_handle);
 
     netbios_heur_subdissector_list = find_heur_dissector_list("netbios");

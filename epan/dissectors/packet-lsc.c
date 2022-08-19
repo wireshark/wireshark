@@ -116,6 +116,9 @@ static int hf_lsc_mode = -1;
 /* Initialize the subtree pointers */
 static gint ett_lsc = -1;
 
+static dissector_handle_t lsc_udp_handle;
+static dissector_handle_t lsc_tcp_handle;
+
 /* Code to actually dissect the packets */
 static int
 dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -377,6 +380,8 @@ proto_register_lsc(void)
 
   /* Register the protocol name and description */
   proto_lsc = proto_register_protocol("Pegasus Lightweight Stream Control", "LSC", "lsc");
+  lsc_udp_handle = register_dissector("lsc_udp", dissect_lsc_udp, proto_lsc);
+  lsc_tcp_handle = register_dissector("lsc_tcp", dissect_lsc_tcp, proto_lsc);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_lsc, hf, array_length(hf));
@@ -386,11 +391,6 @@ proto_register_lsc(void)
 void
 proto_reg_handoff_lsc(void)
 {
-  dissector_handle_t lsc_udp_handle;
-  dissector_handle_t lsc_tcp_handle;
-
-  lsc_udp_handle = create_dissector_handle(dissect_lsc_udp, proto_lsc);
-  lsc_tcp_handle = create_dissector_handle(dissect_lsc_tcp, proto_lsc);
   dissector_add_for_decode_as_with_preference("udp.port", lsc_udp_handle);
   dissector_add_for_decode_as_with_preference("tcp.port", lsc_tcp_handle);
 }

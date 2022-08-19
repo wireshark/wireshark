@@ -43,6 +43,8 @@ static const value_string gdb_ack[] = {
 void proto_register_gdb(void);
 void proto_reg_handoff_gdb(void);
 
+static dissector_handle_t gdb_handle;
+
 static int proto_gdb = -1;
 
 static gint ett_gdb = -1;
@@ -205,6 +207,7 @@ proto_register_gdb(void)
 
 
     proto_gdb = proto_register_protocol("GDB Remote Serial Protocol", "GDB remote", "gdb");
+    gdb_handle = register_dissector("gdb", dissect_gdb_tcp, proto_gdb);
 
     proto_register_field_array(proto_gdb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -216,10 +219,6 @@ proto_register_gdb(void)
 void
 proto_reg_handoff_gdb(void)
 {
-    dissector_handle_t  gdb_handle;
-
-    gdb_handle = create_dissector_handle(dissect_gdb_tcp, proto_gdb);
-
     dissector_add_for_decode_as_with_preference("tcp.port", gdb_handle);
 }
 

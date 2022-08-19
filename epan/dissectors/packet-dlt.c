@@ -1377,6 +1377,8 @@ void proto_register_dlt(void) {
 
     /* Register the protocol name and description */
     proto_dlt = proto_register_protocol(DLT_NAME_LONG, DLT_NAME, DLT_NAME_FILTER);
+    dlt_handle_tcp = register_dissector("dlt_tcp", dissect_dlt_tcp, proto_dlt);
+    dlt_handle_udp = register_dissector("dlt_udp", dissect_dlt_udp, proto_dlt);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_dlt, hf_dlt, array_length(hf_dlt));
 
@@ -1388,10 +1390,7 @@ void proto_register_dlt(void) {
 }
 
 void proto_reg_handoff_dlt(void) {
-    dlt_handle_udp = create_dissector_handle(dissect_dlt_udp, proto_dlt);
     dissector_add_uint_with_preference("udp.port", 0, dlt_handle_udp);
-
-    dlt_handle_tcp = create_dissector_handle(dissect_dlt_tcp, proto_dlt);
     dissector_add_uint_with_preference("tcp.port", 0, dlt_handle_tcp);
 }
 

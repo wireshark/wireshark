@@ -38,6 +38,8 @@
 void proto_register_cdp(void);
 void proto_reg_handoff_cdp(void);
 
+static dissector_handle_t cdp_handle;
+
 /* Offsets in TLV structure. */
 #define TLV_TYPE        0
 #define TLV_LENGTH      2
@@ -1494,6 +1496,7 @@ proto_register_cdp(void)
     expert_module_t* expert_cdp;
 
     proto_cdp = proto_register_protocol("Cisco Discovery Protocol", "CDP", "cdp");
+    cdp_handle = register_dissector("cdp", dissect_cdp, proto_cdp);
 
     proto_register_field_array(proto_cdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1504,9 +1507,6 @@ proto_register_cdp(void)
 void
 proto_reg_handoff_cdp(void)
 {
-    dissector_handle_t cdp_handle;
-
-    cdp_handle  = create_dissector_handle(dissect_cdp, proto_cdp);
     dissector_add_uint("llc.cisco_pid", CISCO_PID_CDP, cdp_handle);
     dissector_add_uint("chdlc.protocol", 0x2000, cdp_handle);
     dissector_add_uint("ppp.protocol", 0x0207, cdp_handle);

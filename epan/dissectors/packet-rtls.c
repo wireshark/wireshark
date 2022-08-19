@@ -21,6 +21,8 @@
 void proto_reg_handoff_rtls(void);
 void proto_register_rtls(void);
 
+static dissector_handle_t rtls_handle;
+
 static int proto_rtls = -1;
 static int hf_rtls_message_type = -1;
 static int hf_rtls_message_id = -1;
@@ -759,6 +761,7 @@ proto_register_rtls(void)
 
 
     proto_rtls = proto_register_protocol("Real Time Location System", "RTLS", "rtls");
+    rtls_handle = register_dissector("rtls", dissect_rtls, proto_rtls);
 
     proto_register_field_array(proto_rtls, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -771,9 +774,6 @@ proto_register_rtls(void)
 void
 proto_reg_handoff_rtls(void)
 {
-    dissector_handle_t rtls_handle;
-
-    rtls_handle = create_dissector_handle(dissect_rtls, proto_rtls);
     dissector_add_for_decode_as_with_preference("udp.port", rtls_handle);
 }
 

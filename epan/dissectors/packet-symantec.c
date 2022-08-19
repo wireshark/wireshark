@@ -18,6 +18,8 @@
 void proto_register_symantec(void);
 void proto_reg_handoff_symantec(void);
 
+static dissector_handle_t symantec_handle;
+
 static dissector_table_t ethertype_dissector_table;
 
 /* protocols and header fields */
@@ -121,6 +123,8 @@ proto_register_symantec(void)
 
    proto_symantec = proto_register_protocol("Symantec Enterprise Firewall",
          "Symantec", "symantec");
+   symantec_handle = register_dissector("symantec", dissect_symantec,
+         proto_symantec);
    proto_register_field_array(proto_symantec, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 }
@@ -128,12 +132,7 @@ proto_register_symantec(void)
 void
 proto_reg_handoff_symantec(void)
 {
-   dissector_handle_t symantec_handle;
-
    ethertype_dissector_table = find_dissector_table("ethertype");
-
-   symantec_handle = create_dissector_handle(dissect_symantec,
-         proto_symantec);
    dissector_add_uint("wtap_encap", WTAP_ENCAP_SYMANTEC, symantec_handle);
 }
 

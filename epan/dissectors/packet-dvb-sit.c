@@ -18,6 +18,8 @@
 void proto_register_dvb_sit(void);
 void proto_reg_handoff_dvb_sit(void);
 
+static dissector_handle_t dvb_sit_handle;
+
 static int proto_dvb_sit = -1;
 
 static int hf_dvb_sit_reserved_future_use1 = -1;
@@ -210,6 +212,7 @@ proto_register_dvb_sit(void)
     };
 
     proto_dvb_sit = proto_register_protocol("DVB Selection Information Table", "DVB SIT", "dvb_sit");
+    dvb_sit_handle = register_dissector("dvb_sit", dissect_dvb_sit, proto_dvb_sit);
 
     proto_register_field_array(proto_dvb_sit, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -219,9 +222,6 @@ proto_register_dvb_sit(void)
 
 void proto_reg_handoff_dvb_sit(void)
 {
-    dissector_handle_t dvb_sit_handle;
-
-    dvb_sit_handle = create_dissector_handle(dissect_dvb_sit, proto_dvb_sit);
     dissector_add_uint("mpeg_sect.tid", DVB_SIT_TID, dvb_sit_handle);
 }
 
