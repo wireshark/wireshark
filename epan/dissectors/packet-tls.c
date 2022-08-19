@@ -1144,6 +1144,7 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         0x1303, /* TLS_CHACHA20_POLY1305_SHA256 */
         0x1304, /* TLS_AES_128_CCM_SHA256 */
         0x1305, /* TLS_AES_128_CCM_8_SHA256 */
+        0x00c6, /* TLS_SM4_GCM_SM3 */
     };
     const guchar   *record = tvb_get_ptr(tvb, offset, record_length);
     for (guint i = 0; i < G_N_ELEMENTS(tls13_ciphers); i++) {
