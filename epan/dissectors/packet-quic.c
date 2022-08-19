@@ -3503,13 +3503,15 @@ quic_find_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, gboolean *fro
     const quic_cid_item_t *cids;
 
     if (conn) {
-        *from_server = conn->server_port == pinfo->srcport &&
+        gboolean conn_from_server;
+        conn_from_server = conn->server_port == pinfo->srcport &&
                 addresses_equal(&conn->server_address, &pinfo->src);
-        cids = from_server ? &conn->server_cids : &conn->client_cids;
+        cids = conn_from_server ? &conn->server_cids : &conn->client_cids;
         while (cids) {
             const quic_cid_t *cid = &cids->data;
             if (cid->reset_token_set &&
                     !tvb_memeql(tvb, -16, cid->reset_token, 16) ) {
+                *from_server = conn_from_server;
                 return conn;
             }
             cids = cids->next;
