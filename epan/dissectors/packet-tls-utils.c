@@ -4880,7 +4880,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
      * ciphertext and authentication tag.
      */
     const guint16   version = ssl->session.version;
-    const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION;
+    const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION || version == GMTLSV1_VERSION;
     gcry_error_t    err;
     const guchar   *explicit_nonce = NULL, *ciphertext;
     guint           ciphertext_len, auth_tag_len;
@@ -5054,11 +5054,11 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     }
 
     /*
-     * Increment the (implicit) sequence number for TLS 1.2/1.3. This is done
+     * Increment the (implicit) sequence number for TLS 1.2/1.3 and GMTLSv1. This is done
      * after successful authentication to ensure that early data is skipped when
      * CLIENT_EARLY_TRAFFIC_SECRET keys are unavailable.
      */
-    if (version == TLSV1DOT2_VERSION || version == TLSV1DOT3_VERSION) {
+    if (version == TLSV1DOT2_VERSION || version == TLSV1DOT3_VERSION || version == GMTLSV1_VERSION) {
         decoder->seq++;
     }
 
