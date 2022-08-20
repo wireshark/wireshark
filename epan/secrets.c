@@ -30,6 +30,10 @@
 # include <errno.h>
 #endif  /* HAVE_LIBGNUTLS */
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 /** Maps guint32 secrets_type -> secrets_block_callback_t. */
 static GHashTable *secrets_callbacks;
 
