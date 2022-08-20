@@ -22,15 +22,18 @@ find_path(GCRYPT_INCLUDE_DIR gcrypt.h
     "${GCRYPT_HINTS}/include"
 )
 
+# libgcrypt-20 is used in libgcrypt-1.8.3-win??ws (from Debian).
+# libgcrypt is used in libgcrypt-1.10.1-2-win??ws (from Debian).
 find_library(GCRYPT_LIBRARY
-  NAMES gcrypt libgcrypt-20
-  HINTS "${GCRYPT_HINTS}/bin")
+  NAMES gcrypt libgcrypt libgcrypt-20
+  HINTS "${GCRYPT_HINTS}/lib")
 
 # libgpg-error6-0 is used in libgcrypt-1.7.6-win??ws (built from source).
 # libgpg-error-0 is used in libgcrypt-1.8.3-win??ws (from Debian).
+# libgpg-error is used in libgcrypt-1.10.1-2-win??ws (from Debian).
 find_library(GCRYPT_ERROR_LIBRARY
-  NAMES gpg-error libgpg-error-0 libgpg-error6-0
-  HINTS "${GCRYPT_HINTS}/bin")
+  NAMES gpg-error libgpg-error libgpg-error-0 libgpg-error6-0
+  HINTS "${GCRYPT_HINTS}/lib")
 
 # Try to retrieve version from header if found (available since libgcrypt 1.3.0)
 if(GCRYPT_INCLUDE_DIR)
