@@ -156,7 +156,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
 
     /* For now, still always choose the first/only one */
     hdrs->num = fdata->num;
-    hdrs->rel_secs = (guint32) rel_ts.secs;
+    hdrs->rel_secs = rel_ts.secs;
     hdrs->rel_usecs = rel_ts.nsecs/1000;
 
     hdrs->ueid = th.rlchdrs[0]->ueid;
