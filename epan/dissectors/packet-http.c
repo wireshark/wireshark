@@ -327,6 +327,7 @@ static int is_http_request_or_reply(const gchar *data, int linelen,
 				    *reqresp_dissector, http_conv_t *conv_data);
 static guint chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					proto_tree *tree, int offset);
+static gboolean valid_header_name(const guchar *line, int header_len);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
 			   const guchar *line, int linelen, int colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
@@ -1390,10 +1391,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		linep = (const guchar *)memchr(line, ':', linelen);
 		if (linep) {
 			/*
-			 * Colon found, assume it is a header.
+			 * Colon found, assume it is a header if we've seen a
+			 * valid line before. Check a little more if not.
 			 */
-			colon_offset += (int)(linep - line);
-			goto is_http;
+			if (saw_req_resp_or_header || valid_header_name(line, (int)(linep - line))) {
+				colon_offset += (int)(linep - line);
+				goto is_http;
+			}
 		}
 
 		/*
@@ -3066,6 +3070,32 @@ is_token_char(char c)
 	return strchr("!#$%&\\:*+-.^_`|~", c) || g_ascii_isalnum(c);
 }
 
+static gboolean
+valid_header_name(const guchar *line, int header_len)
+{
+
+	/*
+	 * Validate the header name. This allows no space between the field name
+	 * and colon (RFC 7230, Section. 3.2.4).
+	 */
+	if (header_len == 0) {
+		return FALSE;
+	}
+	for (int i = 0; i < header_len; i++) {
+		/*
+		 * NUL is not a valid character; treat it specially
+		 * due to C's notion that strings are NUL-terminated.
+		 */
+		if (line[i] == '\0') {
+			return FALSE;
+		}
+		if (!is_token_char(line[i])) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 static void
 process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const guchar *line, int linelen, int colon_offset,
@@ -3092,31 +3122,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	line_end_offset = offset + linelen;
 	header_len = colon_offset - offset;
 
-	/*
-	 * Validate the header name. This allows no space between the field name
-	 * and colon (RFC 7230, Section. 3.2.4).
-	 */
-	gboolean valid_header_name = header_len != 0;
-	if (valid_header_name) {
-		for (i = 0; i < header_len; i++) {
-			/*
-			 * NUL is not a valid character; treat it specially
-			 * due to C's notion that strings are NUL-terminated.
-			 */
-			if (line[i] == '\0') {
-				valid_header_name = FALSE;
-				break;
-			}
-			if (!is_token_char(line[i])) {
-				valid_header_name = FALSE;
-				break;
-			}
-		}
-	}
 	/**
 	 * Not a valid header name? Just add a line plus expert info.
 	 */
-	if (!valid_header_name) {
+	if (!valid_header_name(line, header_len)) {
 		if (http_type == HTTP_REQUEST) {
 			hf_index = hf_http_request_line;
 		} else if (http_type == HTTP_RESPONSE) {
