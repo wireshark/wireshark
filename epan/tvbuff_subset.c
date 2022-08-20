@@ -211,6 +211,16 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint r
 			        &subset_tvb_offset,
 			        &subset_tvb_length);
 
+	/*
+         * If the requested reported length is "to the end of the buffer",
+         * subtract the offset from the total length. We do this now, because
+         * the user might have passed in a negative offset.
+         */
+	if (reported_length == -1) {
+		THROW_ON(backing->reported_length < subset_tvb_offset, ReportedBoundsError);
+		actual_reported_length -= subset_tvb_offset;
+	}
+
 	tvb = tvb_new_with_subset(backing, (guint)actual_reported_length,
 	    subset_tvb_offset, subset_tvb_length);
 
