@@ -372,6 +372,192 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+dissect_smtp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *smtp_tree, struct smtp_session_state *session_state)
+{
+  proto_item                *ti, *hidden_item;
+  proto_tree                *cmdresp_tree = NULL;
+  int                        offset = 0;
+  int                        next_offset;
+  int                        linelen   = 0;
+  guint32                    code;
+  guint8                     line_code[3];
+  guint8                    *decrypt   = NULL;
+  gsize                      decrypt_len  = 0;
+  guint8                    *base64_string   = NULL;
+
+  /*
+   * Process the response, a line at a time, until we hit a line
+   * that doesn't have a continuation indication on it.
+   */
+  hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb, 0, 0, TRUE);
+  proto_item_set_hidden(hidden_item);
+
+  //Multiline information
+  smtp_multiline_state_t multiline_state = SMTP_MULTILINE_NONE;
+  guint32 multiline_code = 0;
+  proto_item* code_item = NULL;
+
+  while (tvb_offset_exists(tvb, offset)) {
+    /*
+     * Find the end of the line.
+     */
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+
+    if (offset == 0)
+        col_append_str(pinfo->cinfo, COL_INFO, "S: ");
+    else
+        col_append_str(pinfo->cinfo, COL_INFO, " | ");
+
+    if (linelen >= 3) {
+        line_code[0] = tvb_get_guint8(tvb, offset);
+        line_code[1] = tvb_get_guint8(tvb, offset+1);
+        line_code[2] = tvb_get_guint8(tvb, offset+2);
+        if (g_ascii_isdigit(line_code[0]) && g_ascii_isdigit(line_code[1])
+            && g_ascii_isdigit(line_code[2])) {
+          /*
+           * We have a 3-digit response code.
+           */
+          code = (line_code[0] - '0')*100 + (line_code[1] - '0')*10 + (line_code[2] - '0');
+          if ((linelen > 3) && (tvb_get_guint8(tvb, offset + 3) == '-')) {
+            if (multiline_state == SMTP_MULTILINE_NONE) {
+              multiline_state = SMTP_MULTILINE_START;
+              multiline_code = code;
+            } else {
+              multiline_state = SMTP_MULTILINE_CONTINUE;
+            }
+          } else if ((multiline_state == SMTP_MULTILINE_START) || (multiline_state == SMTP_MULTILINE_CONTINUE)) {
+            multiline_state = SMTP_MULTILINE_END;
+          }
+
+          /*
+           * If we're awaiting the response to a STARTTLS code, this
+           * is it - if it's 220, all subsequent traffic will
+           * be TLS, otherwise we're back to boring old SMTP.
+           */
+          if (session_state->smtp_state == SMTP_STATE_AWAITING_STARTTLS_RESPONSE) {
+            if (code == 220) {
+              /* This is the last non-TLS frame. */
+              ssl_starttls_ack(tls_handle, pinfo, smtp_handle);
+            }
+            session_state->smtp_state =  SMTP_STATE_READING_CMDS;
+          }
+
+          if (code == 334) {
+              switch(session_state->auth_state)
+              {
+              case SMTP_AUTH_STATE_START:
+                  session_state->auth_state = SMTP_AUTH_STATE_USERNAME_REQ;
+                  break;
+              case SMTP_AUTH_STATE_USERNAME_RSP:
+                  session_state->auth_state = SMTP_AUTH_STATE_PASSWORD_REQ;
+                  break;
+              case SMTP_AUTH_STATE_PLAIN_REQ:
+                  session_state->auth_state = SMTP_AUTH_STATE_PLAIN_RSP;
+                  break;
+              case SMTP_AUTH_STATE_PLAIN_START_REQ:
+                  session_state->auth_state = SMTP_AUTH_STATE_PLAIN_REQ;
+                  break;
+              case SMTP_AUTH_STATE_NTLM_REQ:
+                  session_state->auth_state = SMTP_AUTH_STATE_NTLM_CHALLANGE;
+                  break;
+              case SMTP_AUTH_STATE_NONE:
+              case SMTP_AUTH_STATE_USERNAME_REQ:
+              case SMTP_AUTH_STATE_PASSWORD_REQ:
+              case SMTP_AUTH_STATE_PASSWORD_RSP:
+              case SMTP_AUTH_STATE_PLAIN_RSP:
+              case SMTP_AUTH_STATE_PLAIN_CRED_REQ:
+              case SMTP_AUTH_STATE_NTLM_RSP:
+              case SMTP_AUTH_STATE_NTLM_CHALLANGE:
+              case SMTP_AUTH_STATE_SUCCESS:
+              case SMTP_AUTH_STATE_FAILED:
+                  /* ignore */
+                  break;
+              }
+          } else if ((session_state->auth_state == SMTP_AUTH_STATE_PASSWORD_RSP) ||
+                     ( session_state->auth_state == SMTP_AUTH_STATE_PLAIN_RSP) ||
+                     ( session_state->auth_state == SMTP_AUTH_STATE_NTLM_RSP) ||
+                     ( session_state->auth_state == SMTP_AUTH_STATE_PLAIN_CRED_REQ) ) {
+              if (code == 235) {
+                session_state->auth_state = SMTP_AUTH_STATE_SUCCESS;
+              } else {
+                session_state->auth_state = SMTP_AUTH_STATE_FAILED;
+              }
+              session_state->last_auth_frame = pinfo->num;
+          }
+
+          /*
+           * Put the response code and parameters into the protocol tree.
+           * Only create a new response tree when not in the middle of multiline response.
+           */
+          if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
+              (multiline_state != SMTP_MULTILINE_END))
+          {
+            ti = proto_tree_add_item(smtp_tree, hf_smtp_response, tvb,
+              offset, next_offset - offset, ENC_ASCII | ENC_NA);
+            cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
+
+            code_item = proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3, code);
+          } else if (multiline_code != code) {
+            expert_add_info_format(pinfo, code_item, &ei_smtp_rsp_code, "Unexpected response code %u in multiline response. Expected %u", code, multiline_code);
+          }
+
+          decrypt = NULL;
+          if (linelen >= 4) {
+              if ((smtp_auth_parameter_decoding_enabled) && (code == 334)) {
+                  decrypt = tvb_get_string_enc(pinfo->pool, tvb, offset + 4, linelen - 4, ENC_ASCII);
+                  if (strlen(decrypt) > 1 && (g_base64_decode_inplace(decrypt, &decrypt_len)) && decrypt_len > 0) {
+                    decrypt[decrypt_len] = 0;
+                    if (g_ascii_strncasecmp(decrypt, "NTLMSSP", 7) == 0) {
+                      base64_string = tvb_get_string_enc(pinfo->pool, tvb, offset + 4, linelen - 4, ENC_ASCII);
+                      col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", code);
+                      proto_tree_add_string(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
+                                        offset + 4, linelen - 4, (const char*)base64_string);
+                      dissect_ntlm_auth(tvb, pinfo, cmdresp_tree, base64_string);
+                    }
+                    else {
+                      proto_tree_add_string(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
+                                        offset + 4, linelen - 4, (const char*)decrypt);
+
+                      col_append_fstr(pinfo->cinfo, COL_INFO, "%d %s", code, format_text(pinfo->pool, decrypt, decrypt_len));
+                    }
+                  } else {
+                    decrypt = NULL;
+                  }
+              }
+
+              if (decrypt == NULL) {
+                  proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
+                                    offset + 4, linelen - 4, ENC_ASCII);
+
+                  if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
+                      (multiline_state != SMTP_MULTILINE_END)) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                                  tvb_format_text(pinfo->pool, tvb, offset, linelen));
+                  } else {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                      tvb_format_text(pinfo->pool, tvb, offset+4, linelen-4));
+                  }
+              }
+          } else {
+             col_append_str(pinfo->cinfo, COL_INFO,
+                            tvb_format_text(pinfo->pool, tvb, offset, linelen));
+          }
+        }
+
+        //Clear multiline state if this is the last line
+        if (multiline_state == SMTP_MULTILINE_END)
+          multiline_state = SMTP_MULTILINE_NONE;
+    }
+    /*
+     * Step past this line.
+     */
+    offset = next_offset;
+
+  }
+  return offset;
+}
+
+static int
 dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct smtp_proto_data    *spd_frame_data;
@@ -383,7 +569,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   conversation_t            *conversation;
   struct smtp_session_state *session_state;
   const guchar              *line, *linep, *lineend;
-  guint32                    code;
   int                        linelen   = 0;
   gint                       length_remaining;
   gboolean                   eom_seen  = FALSE;
@@ -395,7 +580,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   guint8                    *decrypt   = NULL;
   gsize                      decrypt_len  = 0;
   guint8                    *base64_string   = NULL;
-  guint8                     line_code[3];
 
   /* As there is no guarantee that we will only see frames in the
    * the SMTP conversation once, and that we will see them in
@@ -1062,177 +1246,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       }
     }
   } else {
-    /*
-     * Process the response, a line at a time, until we hit a line
-     * that doesn't have a continuation indication on it.
-     */
-    hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb, 0, 0, TRUE);
-    proto_item_set_hidden(hidden_item);
-
-    loffset = offset;
-
-    //Multiline information
-    smtp_multiline_state_t multiline_state = SMTP_MULTILINE_NONE;
-    guint32 multiline_code = 0;
-    proto_item* code_item = NULL;
-
-    while (tvb_offset_exists(tvb, offset)) {
-      /*
-       * Find the end of the line.
-       */
-      linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-
-      if (loffset == offset)
-          col_append_str(pinfo->cinfo, COL_INFO, "S: ");
-      else
-          col_append_str(pinfo->cinfo, COL_INFO, " | ");
-
-      if (linelen >= 3) {
-          line_code[0] = tvb_get_guint8(tvb, offset);
-          line_code[1] = tvb_get_guint8(tvb, offset+1);
-          line_code[2] = tvb_get_guint8(tvb, offset+2);
-          if (g_ascii_isdigit(line_code[0]) && g_ascii_isdigit(line_code[1])
-              && g_ascii_isdigit(line_code[2])) {
-            /*
-             * We have a 3-digit response code.
-             */
-            code = (line_code[0] - '0')*100 + (line_code[1] - '0')*10 + (line_code[2] - '0');
-            if ((linelen > 3) && (tvb_get_guint8(tvb, offset + 3) == '-')) {
-              if (multiline_state == SMTP_MULTILINE_NONE) {
-                multiline_state = SMTP_MULTILINE_START;
-                multiline_code = code;
-              } else {
-                multiline_state = SMTP_MULTILINE_CONTINUE;
-              }
-            } else if ((multiline_state == SMTP_MULTILINE_START) || (multiline_state == SMTP_MULTILINE_CONTINUE)) {
-              multiline_state = SMTP_MULTILINE_END;
-            }
-
-            /*
-             * If we're awaiting the response to a STARTTLS code, this
-             * is it - if it's 220, all subsequent traffic will
-             * be TLS, otherwise we're back to boring old SMTP.
-             */
-            if (session_state->smtp_state == SMTP_STATE_AWAITING_STARTTLS_RESPONSE) {
-              if (code == 220) {
-                /* This is the last non-TLS frame. */
-                ssl_starttls_ack(tls_handle, pinfo, smtp_handle);
-              }
-              session_state->smtp_state =  SMTP_STATE_READING_CMDS;
-            }
-
-            if (code == 334) {
-                switch(session_state->auth_state)
-                {
-                case SMTP_AUTH_STATE_START:
-                    session_state->auth_state = SMTP_AUTH_STATE_USERNAME_REQ;
-                    break;
-                case SMTP_AUTH_STATE_USERNAME_RSP:
-                    session_state->auth_state = SMTP_AUTH_STATE_PASSWORD_REQ;
-                    break;
-                case SMTP_AUTH_STATE_PLAIN_REQ:
-                    session_state->auth_state = SMTP_AUTH_STATE_PLAIN_RSP;
-                    break;
-                case SMTP_AUTH_STATE_PLAIN_START_REQ:
-                    session_state->auth_state = SMTP_AUTH_STATE_PLAIN_REQ;
-                    break;
-                case SMTP_AUTH_STATE_NTLM_REQ:
-                    session_state->auth_state = SMTP_AUTH_STATE_NTLM_CHALLANGE;
-                    break;
-                case SMTP_AUTH_STATE_NONE:
-                case SMTP_AUTH_STATE_USERNAME_REQ:
-                case SMTP_AUTH_STATE_PASSWORD_REQ:
-                case SMTP_AUTH_STATE_PASSWORD_RSP:
-                case SMTP_AUTH_STATE_PLAIN_RSP:
-                case SMTP_AUTH_STATE_PLAIN_CRED_REQ:
-                case SMTP_AUTH_STATE_NTLM_RSP:
-                case SMTP_AUTH_STATE_NTLM_CHALLANGE:
-                case SMTP_AUTH_STATE_SUCCESS:
-                case SMTP_AUTH_STATE_FAILED:
-                    /* ignore */
-                    break;
-                }
-            } else if ((session_state->auth_state == SMTP_AUTH_STATE_PASSWORD_RSP) ||
-                       ( session_state->auth_state == SMTP_AUTH_STATE_PLAIN_RSP) ||
-                       ( session_state->auth_state == SMTP_AUTH_STATE_NTLM_RSP) ||
-                       ( session_state->auth_state == SMTP_AUTH_STATE_PLAIN_CRED_REQ) ) {
-                if (code == 235) {
-                  session_state->auth_state = SMTP_AUTH_STATE_SUCCESS;
-                } else {
-                  session_state->auth_state = SMTP_AUTH_STATE_FAILED;
-                }
-                session_state->last_auth_frame = pinfo->num;
-            }
-
-            /*
-             * Put the response code and parameters into the protocol tree.
-             * Only create a new response tree when not in the middle of multiline response.
-             */
-            if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
-                (multiline_state != SMTP_MULTILINE_END))
-            {
-              ti = proto_tree_add_item(smtp_tree, hf_smtp_response, tvb,
-                offset, next_offset - offset, ENC_ASCII | ENC_NA);
-              cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
-
-              code_item = proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3, code);
-            } else if (multiline_code != code) {
-              expert_add_info_format(pinfo, code_item, &ei_smtp_rsp_code, "Unexpected response code %u in multiline response. Expected %u", code, multiline_code);
-            }
-
-            decrypt = NULL;
-            if (linelen >= 4) {
-                if ((smtp_auth_parameter_decoding_enabled) && (code == 334)) {
-                    decrypt = tvb_get_string_enc(pinfo->pool, tvb, offset + 4, linelen - 4, ENC_ASCII);
-                    if (strlen(decrypt) > 1 && (g_base64_decode_inplace(decrypt, &decrypt_len)) && decrypt_len > 0) {
-                      decrypt[decrypt_len] = 0;
-                      if (g_ascii_strncasecmp(decrypt, "NTLMSSP", 7) == 0) {
-                        base64_string = tvb_get_string_enc(pinfo->pool, tvb, loffset + 4, linelen - 4, ENC_ASCII);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", code);
-                        proto_tree_add_string(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
-                                          offset + 4, linelen - 4, (const char*)base64_string);
-                        dissect_ntlm_auth(tvb, pinfo, cmdresp_tree, base64_string);
-                      }
-                      else {
-                        proto_tree_add_string(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
-                                          offset + 4, linelen - 4, (const char*)decrypt);
-
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%d %s", code, format_text(pinfo->pool, decrypt, decrypt_len));
-                      }
-                    } else {
-                      decrypt = NULL;
-                    }
-                }
-
-                if (decrypt == NULL) {
-                    proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
-                                      offset + 4, linelen - 4, ENC_ASCII);
-
-                    if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
-                        (multiline_state != SMTP_MULTILINE_END)) {
-                      col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                                    tvb_format_text(pinfo->pool, tvb, offset, linelen));
-                    } else {
-                      col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                        tvb_format_text(pinfo->pool, tvb, offset+4, linelen-4));
-                    }
-                }
-            } else {
-               col_append_str(pinfo->cinfo, COL_INFO,
-                              tvb_format_text(pinfo->pool, tvb, offset, linelen));
-            }
-          }
-
-          //Clear multiline state if this is the last line
-          if (multiline_state == SMTP_MULTILINE_END)
-            multiline_state = SMTP_MULTILINE_NONE;
-      }
-      /*
-       * Step past this line.
-       */
-      offset = next_offset;
-
-    }
+    dissect_smtp_response(tvb, pinfo, smtp_tree, session_state);
   }
 
   return tvb_captured_length(tvb);
