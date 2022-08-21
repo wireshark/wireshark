@@ -90,7 +90,6 @@ struct _capture_session {
     int       fork_child_status;          /**< Child exit status */
     int       pipe_input_id;              /**< GLib input pipe source ID */
 #ifdef _WIN32
-    int       sync_pipe_read_fd;          /**< Input pipe descriptor */
     int       signal_pipe_write_fd;       /**< the pipe to signal the child */
 #endif
     capture_state state;                  /**< current state of the capture engine */

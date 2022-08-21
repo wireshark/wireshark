@@ -102,10 +102,10 @@ static const char *sync_pipe_signame(int);
 #endif
 
 
-static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
+static gboolean sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session);
 static int sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp);
 static void pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len);
-static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
+static ssize_t pipe_read_block(GIOChannel *pipe_io, char *indicator, int len, char *msg,
                            char **err_msg);
 
 static void (*fetch_dumpcap_pid)(ws_process_id) = NULL;
@@ -128,7 +128,6 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
     cap_session->fork_child                      = WS_INVALID_PID;   /* invalid process handle */
     cap_session->pipe_input_id                   = 0;
 #ifdef _WIN32
-    cap_session->sync_pipe_read_fd               = 0;
     cap_session->signal_pipe_write_fd            = -1;
 #endif
     cap_session->state                           = CAPTURE_STOPPED;
@@ -252,66 +251,16 @@ init_pipe_args(int *argc) {
     return argv;
 }
 
-#ifdef _WIN32
-/* The timer has expired, see if there's stuff to read from the pipe,
-   if so, do the callback */
-static gint
-pipe_timer_cb(gpointer user_data)
-{
-    capture_session *cap_session = (capture_session *)user_data;
-    HANDLE        handle;
-    DWORD         avail        = 0;
-    gboolean      result;
-    DWORD         childstatus;
-    gint          iterations   = 0;
-
-    /* try to read data from the pipe only 5 times, to avoid blocking */
-    while(iterations < 5) {
-        /* Oddly enough although Named pipes don't work on win9x,
-           PeekNamedPipe does !!! */
-        handle = (HANDLE) _get_osfhandle (cap_session->sync_pipe_read_fd);
-        result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-        /* Get the child process exit status */
-        GetExitCodeProcess((HANDLE)cap_session->fork_child,
-                           &childstatus);
-
-        /* If the Peek returned an error, or there are bytes to be read
-           or the childwatcher thread has terminated then call the normal
-           callback */
-        if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
-
-            /* And call the real handler */
-            if (!sync_pipe_input_cb(cap_session->sync_pipe_read_fd, user_data)) {
-                ws_debug("input pipe closed, iterations: %u", iterations);
-                /* pipe closed, stop the timer */
-                cap_session->pipe_input_id = 0;
-                return G_SOURCE_REMOVE;
-            }
-        }
-        else {
-            /* No data, stop now */
-            break;
-        }
-
-        iterations++;
-    }
-
-    /* we didn't stop the timer, so let it run */
-    return G_SOURCE_CONTINUE;
-}
-#else
 static gboolean
-pipe_fd_cb(gint fd, GIOCondition condition _U_, gpointer user_data)
+pipe_io_cb(GIOChannel *pipe_io, GIOCondition condition _U_, gpointer user_data)
 {
     capture_session *cap_session = (capture_session *)user_data;
-    if (!sync_pipe_input_cb(fd, user_data)) {
+    if (!sync_pipe_input_cb(pipe_io, cap_session)) {
         cap_session->pipe_input_id = 0;
         return G_SOURCE_REMOVE;
     }
     return G_SOURCE_CONTINUE;
 }
-#endif
 
 #define ARGV_NUMBER_LEN 24
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
@@ -339,6 +288,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #endif
+    GIOChannel *sync_pipe_read_io;
     int sync_pipe_read_fd;
     int argc;
     char **argv;
@@ -802,15 +752,17 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         cap_session->pipe_input_id = 0;
     }
 #ifdef _WIN32
-    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
-       do this but that doesn't cover all win32 platforms. Attempt to do
-       something similar here, start a timer and check for data on every
-       timeout. */
-    cap_session->sync_pipe_read_fd = sync_pipe_read_fd;
-    cap_session->pipe_input_id = g_timeout_add(200, pipe_timer_cb, cap_session);
+    sync_pipe_read_io = g_io_channel_win32_new_fd(sync_pipe_read_fd);
 #else
-    cap_session->pipe_input_id = g_unix_fd_add(sync_pipe_read_fd, G_IO_IN | G_IO_HUP, pipe_fd_cb, cap_session);
+    sync_pipe_read_io = g_io_channel_unix_new(sync_pipe_read_fd);
 #endif
+    g_io_channel_set_encoding(sync_pipe_read_io, NULL, NULL);
+    g_io_channel_set_buffered(sync_pipe_read_io, FALSE);
+    g_io_channel_set_close_on_unref(sync_pipe_read_io, TRUE);
+    cap_session->pipe_input_id = g_io_add_watch(sync_pipe_read_io, G_IO_IN | G_IO_HUP, pipe_io_cb, cap_session);
+    /* Pipe will be closed when watch is removed */
+    g_io_channel_unref(sync_pipe_read_io);
+
     return TRUE;
 }
 
@@ -831,9 +783,10 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
 #define PIPE_BUF_SIZE 5120
 static int
 sync_pipe_open_command(char* const argv[], int *data_read_fd,
-                       int *message_read_fd, ws_process_id *fork_child, gchar **msg, void(*update_cb)(void))
+                       GIOChannel **message_read_io, ws_process_id *fork_child, gchar **msg, void(*update_cb)(void))
 {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
+    int message_read_fd = -1;
 #ifdef _WIN32
     HANDLE sync_pipe[2];                    /* pipe used to send messages from child to parent */
     HANDLE data_pipe[2];                    /* pipe used to send data from child to parent */
@@ -851,7 +804,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
 #endif
     *fork_child = WS_INVALID_PID;
     *data_read_fd = -1;
-    *message_read_fd = -1;
+    *message_read_io = NULL;
     ws_debug("sync_pipe_open_command");
 
     if (!msg) {
@@ -884,8 +837,8 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
      * (See http://www.flounder.com/handles.htm for information on various
      * types of file handle in C/C++ on Windows.)
      */
-    *message_read_fd = _open_osfhandle( (intptr_t) sync_pipe[PIPE_READ], _O_BINARY);
-    if (*message_read_fd == -1) {
+    message_read_fd = _open_osfhandle( (intptr_t) sync_pipe[PIPE_READ], _O_BINARY);
+    if (message_read_fd == -1) {
         *msg = ws_strdup_printf("Couldn't get C file handle for message read pipe: %s", g_strerror(errno));
         CloseHandle(sync_pipe[PIPE_READ]);
         CloseHandle(sync_pipe[PIPE_WRITE]);
@@ -898,7 +851,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
         /* Couldn't create the message pipe between parent and child. */
         *msg = ws_strdup_printf("Couldn't create data pipe: %s",
                                win32strerror(GetLastError()));
-        ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
+        ws_close(message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
         return -1;
     }
@@ -915,7 +868,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
         *msg = ws_strdup_printf("Couldn't get C file handle for data read pipe: %s", g_strerror(errno));
         CloseHandle(data_pipe[PIPE_READ]);
         CloseHandle(data_pipe[PIPE_WRITE]);
-        ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
+        ws_close(message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
         return -1;
     }
@@ -956,7 +909,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
                                args->str, win32strerror(GetLastError()));
         ws_close(*data_read_fd);       /* Should close data_pipe[PIPE_READ] */
         CloseHandle(data_pipe[PIPE_WRITE]);
-        ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
+        ws_close(message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
         g_string_free(args, TRUE);
         return -1;
@@ -1012,7 +965,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
         fetch_dumpcap_pid(*fork_child);
 
     *data_read_fd = data_pipe[PIPE_READ];
-    *message_read_fd = sync_pipe[PIPE_READ];
+    message_read_fd = sync_pipe[PIPE_READ];
 #endif
 
     /* Parent process - read messages from the child process over the
@@ -1034,9 +987,18 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
         /* We couldn't even create the child process. */
         *msg = ws_strdup_printf("Couldn't create child process: %s", g_strerror(errno));
         ws_close(*data_read_fd);
-        ws_close(*message_read_fd);
+        ws_close(message_read_fd);
         return -1;
     }
+
+#ifdef _WIN32
+    *message_read_io = g_io_channel_win32_new_fd(message_read_fd);
+#else
+    *message_read_io = g_io_channel_unix_new(message_read_fd);
+#endif
+    g_io_channel_set_encoding(*message_read_io, NULL, NULL);
+    g_io_channel_set_buffered(*message_read_io, FALSE);
+    g_io_channel_set_close_on_unref(*message_read_io, TRUE);
 
     /* we might wait for a moment till child is ready, so update screen now */
     if (update_cb) update_cb();
@@ -1052,12 +1014,12 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
  * latter case, *msgp must be freed with g_free().
  */
 static int
-sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
+sync_pipe_close_command(int *data_read_fd, GIOChannel *message_read_io,
 	ws_process_id *fork_child, gchar **msgp)
 {
     ws_close(*data_read_fd);
-    if (message_read_fd != NULL)
-        ws_close(*message_read_fd);
+    if (message_read_io != NULL)
+        g_io_channel_unref(message_read_io);
 
 #ifdef _WIN32
     /* XXX - Should we signal the child somehow? */
@@ -1087,7 +1049,8 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
                       gchar **secondary_msg,  void(*update_cb)(void))
 {
     gchar *msg;
-    int data_pipe_read_fd, sync_pipe_read_fd, ret;
+    int data_pipe_read_fd, ret;
+    GIOChannel *sync_pipe_read_io;
     ws_process_id fork_child;
     char *wait_msg;
     gchar buffer[PIPE_BUF_SIZE+1] = {0};
@@ -1101,7 +1064,7 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
     GString *data_buf = NULL;
     ssize_t count;
 
-    ret = sync_pipe_open_command(argv, &data_pipe_read_fd, &sync_pipe_read_fd,
+    ret = sync_pipe_open_command(argv, &data_pipe_read_fd, &sync_pipe_read_io,
                                  &fork_child, &msg, update_cb);
     if (ret == -1) {
         *primary_msg = msg;
@@ -1115,7 +1078,7 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
      *
      * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
      */
-    nread = pipe_read_block(sync_pipe_read_fd, &indicator, SP_MAX_MSG_LEN,
+    nread = pipe_read_block(sync_pipe_read_io, &indicator, SP_MAX_MSG_LEN,
                             buffer, primary_msg);
     if(nread <= 0) {
         /* We got a read error from the sync pipe, or we got no data at
@@ -1175,7 +1138,7 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
         /*
          * Pick up the child status.
          */
-        ret = sync_pipe_close_command(&data_pipe_read_fd, &sync_pipe_read_fd,
+        ret = sync_pipe_close_command(&data_pipe_read_fd, sync_pipe_read_io,
                                       &fork_child, &msg);
         if (ret == -1) {
             /*
@@ -1207,7 +1170,7 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
         /*
          * Pick up the child status.
          */
-        ret = sync_pipe_close_command(&data_pipe_read_fd, &sync_pipe_read_fd,
+        ret = sync_pipe_close_command(&data_pipe_read_fd, sync_pipe_read_io,
                                       &fork_child, &msg);
         if (ret == -1) {
             /*
@@ -1232,7 +1195,7 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
         /*
          * Pick up the child status.
          */
-        ret = sync_pipe_close_command(&data_pipe_read_fd, &sync_pipe_read_fd,
+        ret = sync_pipe_close_command(&data_pipe_read_fd, sync_pipe_read_io,
                                       &fork_child, &msg);
         if (ret == -1) {
             /*
@@ -1453,7 +1416,8 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
 {
     int argc;
     char **argv;
-    int message_read_fd, ret;
+    int ret;
+    GIOChannel *message_read_io;
     char *wait_msg;
     gchar buffer[PIPE_BUF_SIZE+1] = {0};
     ssize_t nread;
@@ -1485,7 +1449,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
 #endif
-    ret = sync_pipe_open_command(argv, data_read_fd, &message_read_fd,
+    ret = sync_pipe_open_command(argv, data_read_fd, &message_read_io,
                                  fork_child, msg, update_cb);
     free_argv(argv, argc);
     if (ret == -1) {
@@ -1497,7 +1461,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
      *
      * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
      */
-    nread = pipe_read_block(message_read_fd, &indicator, SP_MAX_MSG_LEN,
+    nread = pipe_read_block(message_read_io, &indicator, SP_MAX_MSG_LEN,
                             buffer, msg);
     if(nread <= 0) {
         /* We got a read error from the sync pipe, or we got no data at
@@ -1511,7 +1475,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
            case, the child will get an error when writing to the broken pipe
            the next time, cleaning itself up then. */
         ret = sync_pipe_wait_for_child(*fork_child, &wait_msg);
-        ws_close(message_read_fd);
+        g_io_channel_unref(message_read_io);
         ws_close(*data_read_fd);
         if(nread == 0) {
             /* We got an EOF from the sync pipe.  That means that it exited
@@ -1556,7 +1520,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
         /*
          * Pick up the child status.
          */
-        ret = sync_pipe_close_command(data_read_fd, &message_read_fd,
+        ret = sync_pipe_close_command(data_read_fd, message_read_io,
                                       fork_child, msg);
         if (ret == -1) {
             /*
@@ -1575,14 +1539,14 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
 
     case SP_SUCCESS:
         /* Close the message pipe. */
-        ws_close(message_read_fd);
+        g_io_channel_unref(message_read_io);
         break;
 
     default:
         /*
          * Pick up the child status.
          */
-        ret = sync_pipe_close_command(data_read_fd, &message_read_fd,
+        ret = sync_pipe_close_command(data_read_fd, message_read_io,
                                       fork_child, msg);
         if (ret == -1) {
             /*
@@ -1619,30 +1583,28 @@ sync_interface_stats_close(int *read_fd, ws_process_id *fork_child, gchar **msg)
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */
 static ssize_t
-pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
+pipe_read_bytes(GIOChannel *pipe_io, char *bytes, gsize required, char **msg)
 {
-    ssize_t newly;
-    ssize_t offset = 0;
-    int error;
+    GError *err = NULL;
+    gsize newly;
+    gsize offset = 0;
 
     while(required) {
-        newly = ws_read(pipe_fd, &bytes[offset], required);
+        g_io_channel_read_chars(pipe_io, &bytes[offset], required, &newly, &err);
+        if (err != NULL) {
+            ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
+            *msg = ws_strdup_printf("Error reading from sync pipe: %s", err->message);
+            g_clear_error(&err);
+            return -1;
+        }
         if (newly == 0) {
             /* EOF */
-            ws_debug("read from pipe %d: EOF (capture closed?)", pipe_fd);
+            ws_debug("read from pipe %p: EOF (capture closed?)", pipe_io);
             *msg = 0;
             return offset;
         }
-        if (newly < 0) {
-            /* error */
-            error = errno;
-            ws_debug("read from pipe %d: error(%u): %s", pipe_fd, error, g_strerror(error));
-            *msg = ws_strdup_printf("Error reading from sync pipe: %s",
-                                   g_strerror(error));
-            return newly;
-        }
 
-        required -= (int)newly;
+        required -= newly;
         offset += newly;
     }
 
@@ -1700,7 +1662,7 @@ pipe_convert_header(const guchar *header, int header_len _U_, char *indicator, i
    (1-byte message indicator, 3-byte message length (excluding length
    and indicator field), and the rest is the message) */
 static ssize_t
-pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
+pipe_read_block(GIOChannel *pipe_io, char *indicator, int len, char *msg,
                 char **err_msg)
 {
     int required;
@@ -1708,7 +1670,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     gchar header[4];
 
     /* read header (indicator and 3-byte length) */
-    newly = pipe_read_bytes(pipe_fd, header, 4, err_msg);
+    newly = pipe_read_bytes(pipe_io, header, 4, err_msg);
     if(newly != 4) {
         if (newly == 0) {
             /*
@@ -1716,10 +1678,10 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
              * is an "I'm done" indication, so don't report it as an
              * error.
              */
-            ws_debug("read %d got an EOF", pipe_fd);
+            ws_debug("read %p got an EOF", pipe_io);
             return 0;
         }
-        ws_debug("read %d failed to read header: %lu", pipe_fd, (long)newly);
+        ws_debug("read %p failed to read header: %lu", pipe_io, (long)newly);
         if (newly != -1) {
             /*
              * Short read, but not an immediate EOF.
@@ -1735,21 +1697,24 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
 
     /* only indicator with no value? */
     if(required == 0) {
-        ws_debug("read %d indicator: %c empty value", pipe_fd, *indicator);
+        ws_debug("read %p indicator: %c empty value", pipe_io, *indicator);
         return 4;
     }
 
     /* does the data fit into the given buffer? */
     if(required > len) {
-        ws_debug("read %d length error, required %d > len %d, header: 0x%02x 0x%02x 0x%02x 0x%02x",
-              pipe_fd, required, len,
+        gsize bytes_read;
+        GError *err = NULL;
+        ws_debug("read %p length error, required %d > len %d, header: 0x%02x 0x%02x 0x%02x 0x%02x",
+              pipe_io, required, len,
               header[0], header[1], header[2], header[3]);
 
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
         memcpy(msg, header, sizeof(header));
-        newly = ws_read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
-        if (newly < 0) { /* error */
-            ws_debug("read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
+        g_io_channel_read_chars(pipe_io, &msg[sizeof(header)], len-sizeof(header), &bytes_read, &err);
+        if (err != NULL) { /* error */
+            ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
+            g_clear_error(&err);
         }
         *err_msg = ws_strdup_printf("Unknown message from dumpcap reading header, try to show it as a string: %s",
                                    msg);
@@ -1758,7 +1723,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     len = required;
 
     /* read the actual block data */
-    newly = pipe_read_bytes(pipe_fd, msg, required, err_msg);
+    newly = pipe_read_bytes(pipe_io, msg, required, err_msg);
     if(newly != required) {
         if (newly != -1) {
             *err_msg = ws_strdup_printf("Unknown message from dumpcap reading data, try to show it as a string: %s",
@@ -1768,7 +1733,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     }
 
     /* XXX If message is "2part", the msg probably won't be sent to debug log correctly */
-    ws_debug("read %d ok indicator: %c len: %u msg: %s", pipe_fd, *indicator, len, msg);
+    ws_debug("read %p ok indicator: %c len: %u msg: %s", pipe_io, *indicator, len, msg);
     *err_msg = NULL;
     return newly + 4;
 }
@@ -1778,9 +1743,8 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
 static gboolean
-sync_pipe_input_cb(gint source, gpointer user_data)
+sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
 {
-    capture_session *cap_session = (capture_session *)user_data;
     int  ret;
     char buffer[SP_MAX_MSG_LEN+1] = {0};
     ssize_t nread;
@@ -1792,7 +1756,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     char *wait_msg, *combined_msg;
     guint32 npackets = 0;
 
-    nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer,
+    nread = pipe_read_block(pipe_io, &indicator, SP_MAX_MSG_LEN, buffer,
                             &primary_msg);
     if(nread <= 0) {
         /* We got a read error, or a bad message, or an EOF, from the sync pipe.
@@ -1850,8 +1814,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
             ws_debug("file failed, closing capture");
 
             /* We weren't able to open the new capture file; user has been
-               alerted. Close the sync pipe. */
-            ws_close(source);
+               alerted. The sync pipe will close after we return FALSE. */
 
             /* The child has sent us a filename which we couldn't open.
 
