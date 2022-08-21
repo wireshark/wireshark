@@ -1143,7 +1143,8 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
 
             /* Now should be Auth params (required) */
             guint32 integrity_algorithm;
-            tag = tvb_get_guint8(tvb, offset++);
+            /* Skip tag */
+            offset++;
 
             len = tvb_get_guint8(tvb, offset++);
 
