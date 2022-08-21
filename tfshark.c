@@ -572,7 +572,7 @@ main(int argc, char *argv[])
     /* Now get our args */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
-            case '2':        /* Perform two pass analysis */
+            case '2':        /* Perform two-pass analysis */
                 perform_two_pass_analysis = TRUE;
                 break;
             case 'C':

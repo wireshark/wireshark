@@ -28,7 +28,7 @@ DONE=false
 # Currently running children
 RUNNER_PIDS=
 
-# Perform a two pass analysis on the capture file?
+# Perform a two-pass analysis on the capture file?
 TWO_PASS=
 
 # Specific config profile ?
