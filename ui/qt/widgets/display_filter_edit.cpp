@@ -357,9 +357,8 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     }
     case Invalid:
     {
-        QString invalidMsg = tr("Invalid filter: ").append(syntaxErrorMessage());
         mainApp->pushStatus(MainApplication::FilterSyntax, syntaxErrorMessage());
-        setToolTip(invalidMsg);
+        setToolTip(syntaxErrorMessageFull());
         break;
     }
     default:

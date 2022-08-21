@@ -31,12 +31,18 @@ public:
     SyntaxState syntaxState() const { return syntax_state_; }
     void setSyntaxState(SyntaxState state = Empty);
     QString syntaxErrorMessage();
+    // Error message with filter expression and location error.
+    QString syntaxErrorMessageFull();
     QString styleSheet() const;
     QString deprecatedToken();
 
     void setCompleter(QCompleter *c);
     QCompleter *completer() const { return completer_; }
     void allowCompletion(bool enabled);
+
+    static QString createSyntaxErrorMessageFull(const QString &filter,
+                                                const QString &err_msg,
+                                                qsizetype loc_start, size_t loc_length);
 
 public slots:
     void setStyleSheet(const QString &style_sheet);
@@ -69,6 +75,7 @@ private:
     QString style_sheet_;
     QString state_style_sheet_;
     QString syntax_error_message_;
+    QString syntax_error_message_full_;
     QString token_chars_;
     bool completion_enabled_;
 
