@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Panoya Kopyala</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -110,7 +110,7 @@
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation>
-            <numerusform>Satırı Kopyala</numerusform>
+            <numerusform>Satırları Kopyala</numerusform>
         </translation>
     </message>
 </context>
@@ -813,7 +813,7 @@
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
         <translation type="vanished">
-            <numerusform>%1, %Ln paketinde zaman aşımına uğradı</numerusform>
+            <numerusform>%1, %Ln paketi zaman aşımına uğradı</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -912,7 +912,7 @@
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
         <translation>
-            <numerusform>%1, %Ln veri kaydında zaman aşımına uğradı</numerusform>
+            <numerusform>%1, %Ln veri kaydı zaman aşımına uğradı</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2892,7 +2892,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
         <translation>
-            <numerusform>Kümedeki %Ln Dosyaları</numerusform>
+            <numerusform>Kümedeki %Ln Dosyalar</numerusform>
         </translation>
     </message>
 </context>
@@ -3429,7 +3429,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
         <translation>
-            <numerusform>%Ln toplam akış.</numerusform>
+            <numerusform>%Ln akışı.</numerusform>
         </translation>
     </message>
     <message>
@@ -14567,7 +14567,7 @@ a:hover {
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
         <translation>
-            <numerusform>%n paket(inden) yorumları sil</numerusform>
+            <numerusform>%n paket(lerinden) yorumları sil</numerusform>
         </translation>
     </message>
     <message>

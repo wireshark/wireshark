@@ -803,29 +803,6 @@
         <source>Automatically detect file type</source>
         <translation>Dateityp automatisch erkennen</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, Fehler nach %Ln Paket</numerusform>
-            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, Zeitüberschreitung nach %Ln Paket</numerusform>
-            <numerusform>%1, Zeitüberschreitung nach %Ln Paketen</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln Paket</numerusform>
-            <numerusform>%1, %Ln Pakete</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Pakete vorne einfügen</translation>
@@ -3285,20 +3262,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Print</source>
         <translation>Drucken</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln Client Paket,</numerusform>
-            <numerusform>%Ln Client Pakete,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln Server Paket,</numerusform>
-            <numerusform>%Ln Server Pakete,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -7393,13 +7356,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Select zip file for export</source>
         <translation>Zum Exportieren eine Zipdatei auswählen</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln ausgewähltes persönliches Profil</numerusform>
-            <numerusform>… %Ln ausgewählte persönliche Profile</numerusform>
-        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
@@ -14521,14 +14477,6 @@ text-decoration: underline;
     <message>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL Session Keys exportieren (%Ln Key)</numerusform>
-            <numerusform>SSL Session Key exportieren (%Ln Keys)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

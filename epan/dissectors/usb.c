@@ -23685,6 +23685,7 @@ static const value_string usb_products_vals[] = {
     { 0x25fb0179, "Pentax K1" },
     { 0x25fb017b, "Pentax K3 II" },
     { 0x25fb017d, "Pentax K70" },
+    { 0x25fb017f, "Pentax KP" },
     { 0x25fb210b, "Ricoh WG-M2" },
     { 0x26040012, "U12" },
     { 0x2626ea60, "UART Bridge Controller [cp210x]" },
