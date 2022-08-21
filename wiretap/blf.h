@@ -1,6 +1,7 @@
 /** @file
  *
- * BLF file format decoder for the Wiretap library.
+ * Binary Log File (BLF) file format from Vector Informatik decoder
+ * for the Wiretap library.
  *
  * Copyright (c) 2021-2022 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
  *
