@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>クリップボードへコピー</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -2231,19 +2231,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトでは比較演算子と contains/matches/in 関係演算子はいずれかの値が一致した場合に真になります。数量詞 &quot;all&quot; はフレーム内の全ての値に適用するテストに使えます。</translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>数量</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished">すべて</translation>
+        <translation>いずれかの</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">すべて</translation>
+        <translation>すべて</translation>
     </message>
     <message>
         <source>Match against this value.</source>
@@ -7904,7 +7904,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Any </source>
-        <translation>すべて </translation>
+        <translation>いずれかの</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -10644,7 +10644,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Any</source>
-        <translation>すべて</translation>
+        <translation>いずれかの</translation>
     </message>
     <message>
         <source>Network</source>

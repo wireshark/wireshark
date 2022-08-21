@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Panoya Kopyala</translation>
     </message>
     <message>
         <source>Authors</source>

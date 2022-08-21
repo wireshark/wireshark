@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera till urklipp</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -379,7 +379,7 @@
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished">Ctrl+M</translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -723,7 +723,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillåt markering vid hovring</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -1475,11 +1475,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ange om så önskas en tillfällig katalog för namnlösa fångstfiler.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Directory for temporary files</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog för tillfälliga filer</translation>
     </message>
     <message>
         <source>Capture Options</source>
@@ -1499,7 +1499,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Specify temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange temporärkatalog</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -1738,11 +1738,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Resolve Names:</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp namn:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Visa mänskligt läsbara strängar istället för råa värden för fält. Endast tillämpligt på anpassade kolumner med fält som har värdesträngar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1781,11 +1781,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppslagen</translation>
     </message>
     <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Visa mänskligt läsbara strängar istället för råa värden för fält. Endast tillämpligt på anpassade kolumner med fält som har värdesträngar.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -1834,71 +1834,71 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
-        <translation type="unfinished"></translation>
+        <translation>Adress A</translation>
     </message>
     <message>
         <source>Port A</source>
-        <translation type="unfinished"></translation>
+        <translation>Port A</translation>
     </message>
     <message>
         <source>Address B</source>
-        <translation type="unfinished"></translation>
+        <translation>Adress B</translation>
     </message>
     <message>
         <source>Port B</source>
-        <translation type="unfinished"></translation>
+        <translation>Port B</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Stream ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Ström-ID</translation>
     </message>
     <message>
         <source>Packets A </source>
-        <translation type="unfinished"></translation>
+        <translation>Paket A</translation>
     </message>
     <message>
         <source>Bytes A </source>
-        <translation type="unfinished"></translation>
+        <translation>Byte A</translation>
     </message>
     <message>
         <source>Bytes B </source>
-        <translation type="unfinished"></translation>
+        <translation>Byte B</translation>
     </message>
     <message>
         <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Abs start</translation>
     </message>
     <message>
         <source>Rel Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Rel start</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Varaktighet</translation>
+        <translation>Varaktighet</translation>
     </message>
     <message>
         <source>Bits/s A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bitar/s A</translation>
     </message>
     <message>
         <source>Bits/s B </source>
-        <translation type="unfinished"></translation>
+        <translation>Bitar/s B</translation>
     </message>
     <message>
         <source>Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Totalt antal paket</translation>
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
+        <translation>Procent filtrerade</translation>
     </message>
 </context>
 <context>
@@ -2074,11 +2074,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändra beteenden när fältet matchar detta värde</translation>
     </message>
     <message>
         <source>Field value type (and base, if Integer)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fältvärdetypen (och basen, ifall heltal)</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
@@ -2239,19 +2239,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>Som standard är ordningsjämförelser och innehåller-/matchar-/i-relationer sanna om något värde matchar. Kvantifieraren ”all” kan användas för att tillämpa testet på alla värden i en ram.</translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Kvantifierare</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished">Godtycklig</translation>
+        <translation>Något</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Allt</translation>
+        <translation>Alla</translation>
     </message>
     <message>
         <source>Match against this value.</source>
@@ -2430,35 +2430,35 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adress</translation>
+        <translation>Adress</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished">Port</translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Tx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Snd paket</translation>
     </message>
     <message>
         <source>Tx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Snd byte</translation>
     </message>
     <message>
         <source>Rx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Mott paket</translation>
     </message>
     <message>
         <source>Rx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mott byte</translation>
     </message>
     <message>
         <source>Country</source>
@@ -2478,11 +2478,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Totalt antal paket</translation>
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procent filtrerade</translation>
     </message>
 </context>
 <context>
