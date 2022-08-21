@@ -1198,7 +1198,7 @@ main(int argc, char *argv[])
     /* Now get our args */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
-            case '2':        /* Perform two pass analysis */
+            case '2':        /* Perform two-pass analysis */
                 if(epan_auto_reset){
                     cmdarg_err("-2 does not support auto session reset.");
                     arg_error=TRUE;
@@ -1207,7 +1207,7 @@ main(int argc, char *argv[])
                 break;
             case 'M':
                 if(perform_two_pass_analysis){
-                    cmdarg_err("-M does not support two pass analysis.");
+                    cmdarg_err("-M does not support two-pass analysis.");
                     arg_error=TRUE;
                 }
                 epan_auto_reset_count = get_positive_int(ws_optarg, "epan reset count");
