@@ -3,7 +3,8 @@
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * File format support for blf file format
+ * File format support for the Binary Log File (BLF) file format from
+ * Vector Informatik decoder
  * Copyright (c) 2021-2022 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -399,6 +400,13 @@ blf_timestamp_to_ns(guint32 flags, guint64 timestamp) {
         break;
 
     default:
+        /*
+         * XXX - report this as an error?
+         *
+         * Or provide a mechanism to allow file readers to report
+         * a warning (an error that the the reader tries to work
+         * around and that the caller should report)?
+         */
         ws_debug("I don't understand the flags 0x%x", flags);
         return 0;
         break;
@@ -999,6 +1007,9 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
     return TRUE;
 }
 
+/*
+ * XXX - provide radio information to our caller in the pseudo-header.
+ */
 static gboolean
 blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 block_start, gint64 data_start, gint64 object_length, guint64 timestamp) {
     blf_wlanframeheader_t wlanheader;
@@ -1980,7 +1991,7 @@ static const struct supported_block_type blf_blocks_supported[] = {
 };
 
 static const struct file_type_subtype_info blf_info = {
-        "BLF Logfile", "blf", "blf", NULL,
+        "Vector Informatik Binary Logging Format (BLF) logfile", "blf", "blf", NULL,
         FALSE, BLOCKS_SUPPORTED(blf_blocks_supported),
         NULL, NULL, NULL
 };
