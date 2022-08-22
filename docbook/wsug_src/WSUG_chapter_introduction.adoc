@@ -208,14 +208,17 @@ release lifecycle] page for more details.
 
 ==== macOS
 
-Wireshark supports macOS 10.13 and later.
+Wireshark supports macOS 10.14 and later.
 Similar to Windows, supported macOS versions depend on third party libraries and on Apple’s requirements.
+Apple Silicon hardware is supported natively starting with version 4.0
 
+// Wireshark 4.0 ships with Qt 6.2.4, which requires macOS 10.14 and later
 // Wireshark 3.6 ships with Qt 5.15, which requires macOS 10.13 and later.
 // Wireshark 3.4, 3.2 and 3.0 ship with Qt 5.12, which requires macOS 10.12 and later.
 // Wireshark 2.6 ships with Qt 5.3, which was the last release to support 10.6: https://wiki.qt.io/New_Features_in_Qt_5.3
 // "Mac OS 10.6 support is deprecated and scheduled for removal in Qt 5.4"
 
+* Wireshark 3.6 was the last release branch to support macOS 10.13.
 * Wireshark 3.4 was the last release branch to support macOS 10.12.
 * Wireshark 2.6 was the last release branch to support Mac OS X 10.6 and 10.7 and OS X 10.8 to 10.11.
 * Wireshark 2.0 was the last release branch to support OS X on 32-bit Intel.

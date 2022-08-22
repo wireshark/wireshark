@@ -429,7 +429,7 @@ own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
 
 Wireshark requires minimum versions of each of the libraries it uses, in
-particular GLib 2.50.0 and Qt 5.9.0 or newer. If you require a mechanism
+particular GLib 2.50.0 and Qt 5.12.0 or newer. If you require a mechanism
 that is available only in a newer version of a library then use its
 version detection macros, e.g. "#if GLIB_CHECK_VERSION(...)" and "#if
 QT_VERSION_CHECK(...)" to conditionally compile code using that
@@ -836,7 +836,7 @@ header file (foobar.h) looks like this:
   followed by <wireshark public headers>
 
   #ifdef __cplusplus
-  extern "C" { 
+  extern "C" {
   #endif
   (declarations)
   #ifdef __cplusplus

@@ -43,18 +43,12 @@ directory.
 
 After you have installed those libraries:
 
- 1. If you have installed Qt into some non-standard place, as is
-	distinctly possible with the build included with
-	macos-setup.sh, you must inform cmake by either including its
-	"bin" directory as part of the PATH environment variable or
-	setting CMAKE_PREFIX_PATH to the directory above Qt's "lib"
-	directory.  For Qt 5.8 installed into one's home directory,
-	for instance:
+ 1. It is generally recommended to install Qt with the online installer
+    provided by Qt - see https://www.qt.io/download
 
-	% export CMAKE_PREFIX_PATH=~/Qt5.8.0/5.8/clang_64
-
-	This step is unnecessary if you've used a recent version of
-	Homebrew, as the CMake build scripts will find Qt.
+	If you are building on an Apple Silicon machine, it is highly recommended
+	to use at least Qt 6.2.4, as this architecture is not fully supported
+	with Qt 5.15
 
  2. Make a directory in which Wireshark is to be built, separate
 	from the top-level source directory for Wireshark - it can be a
@@ -75,19 +69,19 @@ directory;
 	make
 
 It is also possible to use the Xcode IDE to build and debug Wireshark
-using cmake's Xcode generator. Create a separate build directory, as 
-described above and run cmake with the "-G Xcode" argument to create 
+using cmake's Xcode generator. Create a separate build directory, as
+described above and run cmake with the "-G Xcode" argument to create
 a Xcode project file in the current directory.
 
 	cmake -G Xcode ..
 
- 1. Double click Wireshark.xcodeproj 
+ 1. Double click Wireshark.xcodeproj
 
  2. Choose to create schemes manually
 
  3. Create a scheme for the ALL_BUILD target
 
- 4. Edit the scheme, go to the run configuration and select Wireshark.app 
+ 4. Edit the scheme, go to the run configuration and select Wireshark.app
   as executable
 
 If you upgrade the major release of macOS on which you are building

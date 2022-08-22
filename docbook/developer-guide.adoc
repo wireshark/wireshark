@@ -17,7 +17,7 @@ endif::[]
 // XXX This should be surrounded by single quotes in the text. It’s
 // currently surrounded by plus signs for AsciiDoc compatibility.
 :dlt-glob: DLT_*
-:qt-lts-version: 5.15
+:qt-lts-version: 6.2.4
 :source-highlighter: coderay
 
 include::wsdg_src/WSDG_preface.adoc[]

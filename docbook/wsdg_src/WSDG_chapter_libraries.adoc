@@ -46,7 +46,9 @@ You may also set the library directory to a custom value with the environment va
 === Qt
 
 The Qt library is used to build the UI for Wireshark and is used to provide a platform independent UI.
-Wireshark can be built with Qt 5.6 or later and has experimental support for Qt 6.
+Wireshark can be built with Qt 5.12 or later, but looks for Qt 6 as the default version.
+
+To enable builds with Qt 5.x, the command-line option `-DUSE_qt6=OFF` has to be set for cmake.
 
 For more information on the Qt libraries, see <<ChUIQt>>.
 
@@ -57,8 +59,8 @@ For more information on the Qt libraries, see <<ChUIQt>>.
 
 Most Linux distributions provide Qt and its development libraries as standard packages.
 The required libraries and tools will likely be split across several packages. For example,
-building on Ubuntu requires _qttools5-dev_, _qttools5-dev-tools_, _libqt5svg5-dev_,
-_qtmultimedia5-dev_, and possibly others.
+building on Ubuntu requires _qt6-tools-dev_, _qt6-tools-dev-tools_, _libqt6svg6-dev_,
+_qt6-multimedia-dev_, and possibly others.
 
 The Qt Project provides an installation tool for macOS, similar to Windows.
 It is available at https://www.qt.io/download-open-source/#section-2[].
@@ -68,10 +70,9 @@ It is available at https://www.qt.io/download-open-source/#section-2[].
 [discrete]
 ==== Windows
 
-Qt5 must be installed manually from the Qt installers page https://www.qt.io/download-open-source/#section-2[] using the version of Qt appropriate for your compiler.
-Note that separate installations (into different directories) of Qt are required for 32 bit and 64 bit builds.
-The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH]` should be set to your Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_.
-You can alternatively set QT5_BASE_DIR to your Qt installation path, but this is no longer recommended.
+Qt 6 must be installed manually from the Qt installers page https://www.qt.io/download-open-source/#section-2[] using the version of Qt appropriate for your compiler.
+
+The environment variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set to your Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}\msvc2019_64_.
 
 [#ChLibsGLib]
 
