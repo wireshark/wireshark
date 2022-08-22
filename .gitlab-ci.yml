@@ -118,7 +118,7 @@ variables:
   script:
     # setcap restricts our library paths
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja -DENABLE_CCACHE=ON $CMAKE_ARGS ..
+    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF $CMAKE_ARGS ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
@@ -187,7 +187,7 @@ Source Package:
   script:
     - ../tools/make-version.py --set-release ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
+    - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - cd $CI_PROJECT_DIR
     - build/packaging/source/git-export-release.sh -d .
@@ -332,7 +332,7 @@ Win64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release ..
-    - cmake -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=ON -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
@@ -372,7 +372,7 @@ macOS Arm Package:
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -DENABLE_CCACHE=ON -DUSE_qt6=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_ARCHITECTURES=arm64 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_ARCHITECTURES=arm64 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - package-prep
@@ -406,7 +406,7 @@ macOS Intel Package:
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -DENABLE_CCACHE=ON -DUSE_qt6=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 -DCMAKE_OSX_SYSROOT=macosx10.15 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 -DCMAKE_OSX_SYSROOT=macosx10.15 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - package-prep
@@ -500,7 +500,7 @@ GCC Warnings:
   script:
     # build-ubuntu puts us in `build`.
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
+    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -DUSE_qt6=OFF -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - script --command ninja --flush --quiet --return ../gcc_report.txt
     - ansi2html < ../gcc_report.txt > ../gcc_report.html
@@ -530,7 +530,7 @@ Code Checks + Clang Warnings:
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # We don't have an "All options" job, so build fuzzshark and tfshark here.
-    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DBUILD_fuzzshark=ON -DBUILD_tfshark=On -DBUILD_logray=ON -DENABLE_CCACHE=ON -G Ninja ..
+    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DBUILD_fuzzshark=ON -DBUILD_tfshark=On -DBUILD_logray=ON -DENABLE_CCACHE=ON -DUSE_qt6=OFF -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - mkdir ../html
     - script --command ninja --flush --quiet --return ../tmp_clang_report.txt
@@ -555,7 +555,7 @@ No options:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   script: |
-    cmake -GNinja -DENABLE_CCACHE=ON \
+    cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF \
       -DENABLE_BROTLI=OFF -DENABLE_CAP=OFF -DENABLE_CARES=OFF -DENABLE_CHECKHF_CONFLICT=ON -DENABLE_GNUTLS=OFF \
       -DENABLE_KERBEROS=OFF -DENABLE_LIBXML2=OFF -DENABLE_ILBC=OFF -DENABLE_LUA=OFF -DENABLE_LZ4=OFF -DENABLE_MINIZIP=OFF \
       -DENABLE_NETLINK=OFF -DENABLE_NGHTTP2=OFF -DENABLE_PCAP=OFF -DENABLE_PLUGIN_IFDEMO=ON -DENABLE_PLUGINS=OFF \
@@ -570,7 +570,7 @@ Windows Build:
   tags:
     - wireshark-windows-merge-req
   script:
-    - cmake -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=ON -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
@@ -642,7 +642,7 @@ Coverity Visual C++ Scan:
     - $gitDescription = (( git describe --tags ) | Out-String).Trim()
     - C:\Windows\System32\curl --output $env:temp\cov-analysis-win64.zip --form project=$COVERITY_SCAN_PROJECT_NAME --form token=$COVERITY_SCAN_TOKEN https://scan.coverity.com/download/win64
     - C:\ProgramData\chocolatey\tools\7z x "$env:temp\cov-analysis-win64.zip" -y -r -o"$env:temp"
-    - cmake -DTEST_EXTRA_ARGS=--enable-release -DUSE_qt6=ON -DENABLE_LTO=off -G "Visual Studio 17 2022" -A x64 ..
+    - cmake -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off -G "Visual Studio 17 2022" -A x64 ..
     - $covAnalysisWin64 = (Get-ChildItem -Path $env:temp -Filter "cov-analysis-win64-*" -Directory)[0].FullName
     - Invoke-Expression "& $covAnalysisWin64\bin\cov-build.exe --return-emit-failures --dir ..\cov-int msbuild /verbosity:minimal `"/consoleloggerparameters:PerformanceSummary;NoSummary`" /maxcpucount:1 Wireshark.sln"
     - cd ..
@@ -676,7 +676,7 @@ Clang Static Analyzer:
     CC: "clang-${CLANG_VERSION}"
     CXX: "clang++-${CLANG_VERSION}"
   script:
-    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -G Ninja ..
+    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -DUSE_qt6=OFF -G Ninja ..
     - scan-build-${CLANG_VERSION} -o ../sbout ninja
     - cd ../sbout
     - RAW_DIR=$( find ../sbout -type d -name "20??-??-??-*" -printf "%P\n" | head )
@@ -699,7 +699,7 @@ Visual Studio Code Analysis:
       when: always
   script:
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
-    - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=ON -DENABLE_LTO=off ..
+    - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
 
 # Build all doxygen docs

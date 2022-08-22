@@ -289,7 +289,7 @@ development of Wireshark scripts and plugins.
   -DENABLE_CCACHE=ON \
 %endif
 %if %{with qt5}
-  -DBUILD_wireshark=ON \
+  -DBUILD_wireshark=ON -DUSE_qt6=OFF \
 %else
   -DBUILD_wireshark=OFF \
 %endif

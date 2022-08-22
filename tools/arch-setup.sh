@@ -82,9 +82,10 @@ BASIC_LIST="base-devel \
 	ninja \
 	pcre2 \
 	python \
-	qt5-base \
-	qt5-multimedia \
-	qt5-tools \
+	qt6-base \
+	qt6-multimedia \
+	qt6-tools \
+	qt6-5compat \
 	sbc \
 	snappy \
 	spandsp \

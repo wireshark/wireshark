@@ -1185,9 +1185,6 @@ ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 if(BUILD_wireshark OR BUILD_logray)
 	if(USE_qt6)
 		set(qtver "6")
-		if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
-			set(CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT6_PREFIX_PATH})
-		endif()
 	else()
 		set(qtver "5")
 		# XXX We used to recommend setting QT5_BASE_DIR. Remove after the 4.0 branch is created.
@@ -1610,6 +1607,8 @@ add_subdirectory( wsutil )
 
 if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
+elseif(BUILD_wireshark AND USE_qt6)
+	message(VERBOSE "To use Qt5 instead of Qt6 use CMake option USE_qt6=OFF.")
 endif()
 
 if(BUILD_logray AND QT_FOUND)

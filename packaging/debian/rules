@@ -34,7 +34,7 @@ endif
 	dh $@ --with python3 --buildsystem $(DH_BUILDSYSTEM) --with quilt
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DBUILD_xxx2deb=ON -DBUILD_corbaidl2wrs=ON
+	dh_auto_configure -- -DBUILD_xxx2deb=ON -DBUILD_corbaidl2wrs=ON -DUSE_qt6=OFF
 
 override_dh_auto_build:
 	# Ignore warnings from asn2wrs.py about duplicate field names.

@@ -18,6 +18,8 @@ It is used for troubleshooting, analysis, development and education.
 
 // Add *major* changes here.
 
+* Wireshark now builds with Qt6 by default. To use Qt5 instead pass USE_qt6=OFF to CMake.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
