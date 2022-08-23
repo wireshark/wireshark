@@ -622,7 +622,7 @@ Windows Build:
     - wsar_html.zip
   needs: []
 
-ABI Check:
+.ABI Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   variables:
