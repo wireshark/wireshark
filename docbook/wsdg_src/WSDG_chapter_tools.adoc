@@ -136,7 +136,7 @@ For example, adding the follwing to `CMakeUserPresets.json` would let you build 
 [source,json]
 ----
 {
-  "version: 4,
+  "version": 4,
   "configurePresets": [
     {
       "name": "mydev",
@@ -144,7 +144,7 @@ For example, adding the follwing to `CMakeUserPresets.json` would let you build 
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "ENABLE_CCACHE": "ON",
+        "ENABLE_CCACHE": "ON"
       },
       "environment": {
         "CMAKE_PREFIX_PATH": "/usr/local/Qt6"
