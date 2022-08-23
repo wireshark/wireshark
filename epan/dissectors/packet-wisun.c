@@ -152,6 +152,7 @@ static int hf_wisun_lbsie = -1;
 static int hf_wisun_lbsie_broadcast_interval = -1;
 static int hf_wisun_lbsie_broadcast_id = -1;
 static int hf_wisun_lbsie_channel_plan_tag = -1;
+static int hf_wisun_lbsie_broadcast_sync_period = -1;
 static int hf_wisun_lndie = -1;
 static int hf_wisun_lndie_response_threshold = -1;
 static int hf_wisun_lndie_response_delay = -1;
@@ -824,6 +825,7 @@ dissect_wisun_lbsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     proto_tree_add_item(tree, hf_wisun_lbsie_broadcast_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lbsie_broadcast_id, tvb, offset+3, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lbsie_channel_plan_tag, tvb, offset+5, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_wisun_lbsie_broadcast_sync_period, tvb, offset+6, 1, ENC_LITTLE_ENDIAN);
     return 6;
 }
 
@@ -1835,6 +1837,11 @@ void proto_register_wisun(void)
 
         { &hf_wisun_lbsie_channel_plan_tag,
           { "Channel Plan Tag", "wisun.lbsie.channeltag", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_lbsie_broadcast_sync_period,
+          { "Broadcast Sync Period", "wisun.lbsie.broadcast_sync_period", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
