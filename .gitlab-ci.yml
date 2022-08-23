@@ -629,7 +629,7 @@ Windows Build:
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
-ABI Check:
+.ABI Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   script:
