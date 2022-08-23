@@ -1188,6 +1188,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_USB_2_0_HIGH_SPEED */
 	{ "usb-20-high", "High-Speed USB 2.0 packets" },
+
+	/* WTAP_ENCAP_AUTOSAR_DLT */
+	{ "autosardlt", "AUTOSAR DLT" },
 };
 
 WS_DLL_LOCAL

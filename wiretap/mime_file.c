@@ -71,6 +71,7 @@ static const guint8 pcap_nsec_magic[]           = { 0xA1, 0xB2, 0x3C, 0x4D };
 static const guint8 pcap_nsec_swapped_magic[]   = { 0x4D, 0x3C, 0xB2, 0xA1 };
 static const guint8 pcapng_premagic[]      = { 0x0A, 0x0D, 0x0D, 0x0A };
 static const guint8 blf_magic[]                 = { 'L', 'O', 'G', 'G' };
+static const guint8 autosar_dlt_magic[]         = { 'D', 'L', 'T', 0x01 };
 
 /* File does not start with it */
 static const guint8 pcapng_xmagic[]         = { 0x1A, 0x2B, 0x3C, 0x4D };
@@ -91,7 +92,8 @@ static const mime_files_t magic_files[] = {
 	{ pcap_nsec_magic, sizeof(pcap_nsec_magic) },
 	{ pcap_nsec_swapped_magic, sizeof(pcap_nsec_swapped_magic) },
 	{ pcapng_premagic, sizeof(pcapng_premagic) },
-	{ blf_magic, sizeof(blf_magic) }
+	{ blf_magic, sizeof(blf_magic) },
+	{ autosar_dlt_magic, sizeof(autosar_dlt_magic) }
 };
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))

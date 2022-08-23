@@ -37,9 +37,16 @@
 void proto_register_dlt(void);
 void proto_reg_handoff_dlt(void);
 
+void proto_register_dlt_storage_header(void);
+void proto_reg_handoff_dlt_storage_header(void);
+
 #define DLT_NAME                                        "DLT"
 #define DLT_NAME_LONG                                   "Diagnostic Log and Trace (DLT)"
 #define DLT_NAME_FILTER                                 "dlt"
+
+#define DLT_STORAGE_HEADER_NAME                         "DLT Storage Header (short)"
+#define DLT_STORAGE_HEADER_NAME_LONG                    "Shortened Diagnostic Log and Trace (DLT) Storage Header"
+#define DLT_STORAGE_HEADER_NAME_FILTER                  "dlt.storage"
 
 #define DLT_MIN_SIZE_FOR_PARSING                        4
 
@@ -153,9 +160,11 @@ void proto_reg_handoff_dlt(void);
 #define DLT_SERVICE_OPTIONS_WITH_LOG_TRACE_TEXT         7
 
 static int proto_dlt = -1;
+static int proto_dlt_storage_header = -1;
 
 static dissector_handle_t dlt_handle_udp = NULL;
 static dissector_handle_t dlt_handle_tcp = NULL;
+static dissector_handle_t dlt_handle_storage = NULL;
 
 /* Subdissectors */
 static heur_dissector_list_t heur_subdissector_list;
@@ -222,6 +231,11 @@ static int hf_dlt_service_count                         = -1;
 static int hf_dlt_service_app_desc                      = -1;
 static int hf_dlt_service_ctx_desc                      = -1;
 
+static int hf_dlt_storage_tstamp_s                      = -1;
+static int hf_dlt_storage_tstamp_us                     = -1;
+static int hf_dlt_storage_ecu_name                      = -1;
+static int hf_dlt_storage_reserved                      = -1;
+
 /* subtrees */
 static gint ett_dlt                                     = -1;
 static gint ett_dlt_hdr_type                            = -1;
@@ -231,6 +245,8 @@ static gint ett_dlt_payload                             = -1;
 static gint ett_dlt_service_app_ids                     = -1;
 static gint ett_dlt_service_app_id                      = -1;
 static gint ett_dlt_service_ctx_id                      = -1;
+
+static gint ett_dlt_storage                             = -1;
 
 /***************************
  ****** String Tables ******
@@ -1035,12 +1051,12 @@ dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *r
 }
 
 static int
-dissect_dlt_msg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint32 offset_orig) {
     proto_item     *ti;
     proto_tree     *dlt_tree = NULL;
     proto_tree     *ext_hdr_tree = NULL;
     proto_tree     *subtree = NULL;
-    guint32         offset = 0;
+    guint32         offset = offset_orig;
 
     guint8          header_type = 0;
     gboolean        ext_header = FALSE;
@@ -1069,11 +1085,11 @@ dissect_dlt_msg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         return captured_length;
     }
 
-    header_type = tvb_get_guint8( tvb, 0 );
+    header_type = tvb_get_guint8(tvb, offset);
     ext_header = ((header_type & DLT_HDR_TYPE_EXT_HEADER) == DLT_HDR_TYPE_EXT_HEADER);
     payload_le = ((header_type & DLT_HDR_TYPE_MSB_FIRST) != DLT_HDR_TYPE_MSB_FIRST);
 
-    ti = proto_tree_add_item(tree, proto_dlt, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_dlt, tvb, offset, -1, ENC_NA);
     dlt_tree = proto_item_add_subtree(ti, ett_dlt);
 
     ti = proto_tree_add_item(dlt_tree, hf_dlt_header_type, tvb, offset, 1, ENC_NA);
@@ -1153,23 +1169,53 @@ dissect_dlt_msg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     col_set_fence(pinfo->cinfo, COL_INFO);
-    return offset;
-}
-
-static guint
-get_dlt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void* data _U_) {
-    return tvb_get_ntohs(tvb, offset+2);
+    return offset - offset_orig;
 }
 
 static int
-dissect_dlt_tcp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+dissect_dlt_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    return dissect_dlt(tvb, pinfo, tree, data, 0);
+}
+
+static guint
+get_dlt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void* data _U_) {
+    return tvb_get_ntohs(tvb, offset + 2);
+}
+
+static int
+dissect_dlt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DLT_MIN_SIZE_FOR_PARSING, get_dlt_message_len, dissect_dlt_msg, data);
     return tvb_reported_length(tvb);
 }
 
 static int
-dissect_dlt_udp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+dissect_dlt_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return udp_dissect_pdus(tvb, pinfo, tree, DLT_MIN_SIZE_FOR_PARSING, NULL, get_dlt_message_len, dissect_dlt_msg, data);
+}
+
+static int
+dissect_dlt_storage_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    proto_tree *dlt_storage_tree;
+    proto_item *ti;
+
+    guint32     offset = 0;
+
+    ti = proto_tree_add_item(tree, proto_dlt_storage_header, tvb, offset, 16, ENC_NA);
+    dlt_storage_tree = proto_item_add_subtree(ti, ett_dlt_storage);
+
+    proto_tree_add_item(dlt_storage_tree, hf_dlt_storage_tstamp_s, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(dlt_storage_tree, hf_dlt_storage_tstamp_us, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* setting source to ECU Name of the encapsulation header */
+    set_address_tvb(&(pinfo->src), AT_STRINGZ, 4, tvb, offset);
+    proto_tree_add_item(dlt_storage_tree, hf_dlt_storage_ecu_name, tvb, offset, 5, ENC_ASCII);
+    offset += 5;
+
+    proto_tree_add_item(dlt_storage_tree, hf_dlt_storage_reserved, tvb, offset, 3, ENC_NA);
+    return 16 + dissect_dlt(tvb, pinfo, tree, data, 16);
 }
 
 void proto_register_dlt(void) {
@@ -1394,6 +1440,37 @@ void proto_reg_handoff_dlt(void) {
     dissector_add_uint_with_preference("tcp.port", 0, dlt_handle_tcp);
 }
 
+void proto_register_dlt_storage_header(void) {
+    static hf_register_info hfs[] = {
+        { &hf_dlt_storage_tstamp_s, {
+            "Timestamp s", "dlt.storage.timestamp_s",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dlt_storage_tstamp_us, {
+            "Timestamp us", "dlt.storage.timestamp_us",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dlt_storage_ecu_name, {
+            "ECU Name", "dlt.storage.ecu_name",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_dlt_storage_reserved, {
+            "Reserved", "dlt.storage.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    };
+
+    static gint *ett[] = {
+        &ett_dlt_storage,
+    };
+
+    /* Register the protocol name and description */
+    proto_dlt_storage_header = proto_register_protocol(DLT_STORAGE_HEADER_NAME_LONG, DLT_STORAGE_HEADER_NAME, DLT_STORAGE_HEADER_NAME_FILTER);
+    proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_dlt, hfs, array_length(hfs));
+}
+
+void proto_reg_handoff_dlt_storage_header(void) {
+    dlt_handle_storage = create_dissector_handle(dissect_dlt_storage_header, proto_dlt_storage_header);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_AUTOSAR_DLT, dlt_handle_storage);
+}
 /*
  * Editor modelines
  *

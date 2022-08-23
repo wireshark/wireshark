@@ -293,6 +293,7 @@ extern "C" {
 #define WTAP_ENCAP_USB_2_0_LOW_SPEED            215
 #define WTAP_ENCAP_USB_2_0_FULL_SPEED           216
 #define WTAP_ENCAP_USB_2_0_HIGH_SPEED           217
+#define WTAP_ENCAP_AUTOSAR_DLT                  218
 
 /* After adding new item here, please also add new item to encap_table_base array */
 

@@ -90,6 +90,7 @@
 #include "busmaster.h"
 #include "blf.h"
 #include "eri_enb_log.h"
+#include "autosar_dlt.h"
 
 
 /*
@@ -161,6 +162,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Ixia IxVeriWave .vwr Raw 802.11 Capture", TRUE, "vwr" },
 	{ "CAM Inspector file", TRUE, "camins" },
 	{ "BLF file", TRUE, "blf" },
+	{ "AUTOSAR DLT file", TRUE, "dlt" },
 	{ "MPEG files", FALSE, "mpg;mp3" },
 	{ "Transport-Neutral Encapsulation Format", FALSE, "tnef" },
 	{ "JPEG/JFIF files", FALSE, "jpg;jpeg;jfif" },
@@ -388,6 +390,7 @@ static const struct open_info open_info_base[] = {
 	/* Gammu DCT3 trace must come before MIME files as it's XML based*/
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
 	{ "BLF Logfile",                            OPEN_INFO_MAGIC,     blf_open,                 "blf",      NULL, NULL },
+	{ "AUTOSAR DLT Logfile",                    OPEN_INFO_MAGIC,     autosar_dlt_open,         "dlt",      NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
 	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,               "mplog",    NULL, NULL },
 	{ "Unigraf DPA-400 capture",                OPEN_INFO_MAGIC,     dpa400_open,              "bin",      NULL, NULL },
