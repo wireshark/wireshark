@@ -210,7 +210,7 @@ Debian Stable APT Package:
     - export DH_QUIET=1
     - export MAKEFLAGS=--silent
     - dpkg-buildpackage -b --no-sign -jauto
-    - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
+    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
     - mkdir debian-packages
     - mv ../*.deb debian-packages/
   artifacts:
