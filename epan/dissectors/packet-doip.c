@@ -68,6 +68,7 @@ void proto_reg_handoff_doip(void);
 #define ISO13400_2010                              0x01
 #define ISO13400_2012                              0x02
 #define ISO13400_2019                              0x03
+#define ISO13400_2019_AMD1                         0x04
 #define DEFAULT_VALUE                              0xFF
 
 
@@ -178,11 +179,12 @@ void proto_reg_handoff_doip(void);
 /* Header */
 /* Protocol version */
 static const value_string doip_versions[] = {
-    { RESERVED_VER,  "Reserved" },
-    { ISO13400_2010, "DoIP ISO/DIS 13400-2:2010" },
-    { ISO13400_2012, "DoIP ISO 13400-2:2012" },
-    { ISO13400_2019, "DoIP ISO 13400-2:2019" },
-    { DEFAULT_VALUE, "Default value for vehicle identification request messages" },
+    { RESERVED_VER,         "Reserved" },
+    { ISO13400_2010,        "DoIP ISO/DIS 13400-2:2010" },
+    { ISO13400_2012,        "DoIP ISO 13400-2:2012" },
+    { ISO13400_2019,        "DoIP ISO 13400-2:2019" },
+    { ISO13400_2019_AMD1,   "DoIP ISO 13400-2:2019 Amd1 (experimental)" },
+    { DEFAULT_VALUE,        "Default value for vehicle identification request messages" },
     { 0, NULL }
 };
 
@@ -804,12 +806,12 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         version == ISO13400_2010 ||
         version == ISO13400_2012 ||
         version == ISO13400_2019 ||
+        version == ISO13400_2019_AMD1 ||
         (version == DEFAULT_VALUE && (payload_type >= DOIP_VEHICLE_IDENTIFICATION_REQ && payload_type <= DOIP_VEHICLE_IDENTIFICATION_REQ_EID))
         ) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", resolve_doip_payload_type(payload_type, true));
     } else {
-        col_set_str(pinfo->cinfo, COL_INFO, "Invalid DoIP version");
-        return;
+        col_set_str(pinfo->cinfo, COL_INFO, "Invalid/unsupported DoIP version");
     }
 
 
