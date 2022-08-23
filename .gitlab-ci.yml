@@ -638,15 +638,16 @@ Windows Build:
 .ABI Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
+  variables:
+    # Use DWARF-4. ABI dumper version 1.3 is required for DWARF-5 support (the GCC 11 default) but version 1.3 is still not released.
+    # https://github.com/lvc/abi-dumper/issues/34
+    CFLAGS: "-Og -gdwarf-4"
   script:
     # build-ubuntu puts us in `build`.
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install abi-dumper abi-compliance-checker
-    # Ubuntu 20.04 ships with version 1.1, which has issues: https://github.com/lvc/abi-dumper/issues/21
-    - curl --fail -JL https://raw.githubusercontent.com/lvc/abi-dumper/1.2/abi-dumper.pl > /usr/bin/abi-dumper
-    # ABI dumper version 1.3 required for DWARF-5 support (the GCC 11 default). Version 1.3 is still not released.
-    # https://github.com/lvc/abi-dumper/issues/34
-    - CFLAGS="-Og -gdwarf-4" cmake -G Ninja -DENABLE_CCACHE=ON -DCMAKE_BUILD_TYPE=Debug -DBUILD_wireshark=OFF ..
+    # CMake build type None is required to prevent CMake from adding its own debug flags and clobbering our own.
+    - cmake -G Ninja -DENABLE_CCACHE=ON -DCMAKE_BUILD_TYPE=None -DBUILD_wireshark=OFF ..
     - ninja wiretap-abi-dump epan-abi-dump wsutil-abi-dump
     - ACC_EXIT=0
     - abi-compliance-checker -l wiretap -old ../tools/abi-dumps/wiretap-abi-12.0.0.dump -new wiretap-abi-12*.dump || ACC_EXIT=1
