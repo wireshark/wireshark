@@ -1281,6 +1281,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_cbor_ctrl@Base 3.5.1
  proto_tree_add_cbor_eid@Base 3.5.1rc0-3265-gb0c69d7db316
  proto_tree_add_cbor_int64@Base 3.5.1
+ proto_tree_add_cbor_strlen@Base 3.7.0
  proto_tree_add_cbor_tstr@Base 3.5.1
  proto_tree_add_cbor_uint64@Base 3.5.1
  proto_tree_add_checksum@Base 2.1.1

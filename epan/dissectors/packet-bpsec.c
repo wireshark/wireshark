@@ -316,7 +316,9 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     }
 
                     const gint offset_value = offset;
-                    wscbor_skip_next_item(wmem_packet_scope(), tvb, &offset);
+                    if (!wscbor_skip_next_item(wmem_packet_scope(), tvb, &offset)) {
+                        return 0;
+                    }
                     tvbuff_t *tvb_value = tvb_new_subset_length(tvb, offset_value, offset - offset_value);
 
                     dissector_handle_t value_dissect = NULL;
@@ -375,7 +377,9 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         }
 
                         const gint offset_value = offset;
-                        wscbor_skip_next_item(wmem_packet_scope(), tvb, &offset);
+                        if (!wscbor_skip_next_item(wmem_packet_scope(), tvb, &offset)) {
+                            return 0;
+                        }
                         tvbuff_t *tvb_value = tvb_new_subset_length(tvb, offset_value, offset - offset_value);
 
                         dissector_handle_t value_dissect = NULL;
@@ -498,14 +502,14 @@ void proto_reg_handoff_bpsec(void) {
     /* Packaged extensions */
     {
         guint64 *key = g_new(guint64, 1);
-        *key = 11;
-        dissector_handle_t hdl = create_dissector_handle(dissect_block_bib, proto_bpsec);
+        *key = BP_BLOCKTYPE_BIB;
+        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_bib, proto_bpsec, "Block Integrity Block");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
     {
         guint64 *key = g_new(guint64, 1);
-        *key = 12;
-        dissector_handle_t hdl = create_dissector_handle(dissect_block_bcb, proto_bpsec);
+        *key = BP_BLOCKTYPE_BCB;
+        dissector_handle_t hdl = create_dissector_handle_with_name(dissect_block_bcb, proto_bpsec, "Block Confidentiality Block");
         dissector_add_custom_table_handle("bpv7.block_type", key, hdl);
     }
 

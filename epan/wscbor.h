@@ -163,7 +163,10 @@ gboolean wscbor_is_indefinite_break(const wscbor_chunk_t *chunk);
  * @param alloc The allocator to use.
  * @param tvb The data buffer.
  * @param[in,out] offset The initial offset to read and skip over.
- * @return True if the skipped item was an indefinite break.
+ * Will be set to one-past the last valid CBOR (possibly nested) present.
+ * @return True if the skipped item was fully valid.
+ * @post This can throw ReportedBoundsError or ContainedBoundsError
+ * if the read itself ran out of data.
  */
 WS_DLL_PUBLIC
 gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset);
@@ -304,6 +307,11 @@ proto_item * proto_tree_add_cbor_tstr(proto_tree *tree, int hfindex, packet_info
 
 WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_bstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk);
+
+/** Add an item representing the length of a bstr or tstr value.
+ */
+WS_DLL_PUBLIC
+proto_item * proto_tree_add_cbor_strlen(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk);
 
 #ifdef __cplusplus
 }

@@ -234,9 +234,8 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint 
                 // skip over definite data
                 *offset += datalen;
                 chunk->data_length += datalen;
-                if(datalen) {
-                    chunk->_priv->str_value = tvb_new_subset_length(tvb, chunk->start + chunk->head_length, datalen);
-                }
+                // allow even zero-length strings
+                chunk->_priv->str_value = tvb_new_subset_length(tvb, chunk->start + chunk->head_length, datalen);
             }
             else {
                 // indefinite length, sequence of definite items
@@ -348,8 +347,21 @@ gboolean wscbor_is_indefinite_break(const wscbor_chunk_t *chunk) {
     );
 }
 
-gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset) {
+/** Add output parameter to indicate internal state.
+ * @param alloc The allocator to use.
+ * @param tvb The data buffer.
+ * @param[in,out] offset The initial offset to read and skip over.
+ * @param[out] is_break If non-null, set to true only when the item was
+ * an indefinite break.
+ * @return True if the skipped item was fully valid.
+ */
+static gboolean wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset, gboolean *is_break) {
     wscbor_chunk_t *chunk = wscbor_chunk_read(alloc, tvb, offset);
+    if (wscbor_has_errors(chunk)) {
+        *offset = chunk->start;
+        wscbor_chunk_free(chunk);
+        return FALSE;
+    }
     switch (chunk->type_major) {
         case CBOR_TYPE_UINT:
         case CBOR_TYPE_NEGINT:
@@ -363,12 +375,20 @@ gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *off
         case CBOR_TYPE_ARRAY: {
             if (chunk->type_minor == 31) {
                 // wait for indefinite break
-                while (!wscbor_skip_next_item(alloc, tvb, offset)) {}
+                gboolean was_break = FALSE;
+                do {
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, &was_break)) {
+                        return FALSE;
+                    }
+                }
+                while (!was_break);
             }
             else {
                 const guint64 count = chunk->head_value;
                 for (guint64 ix = 0; ix < count; ++ix) {
-                    wscbor_skip_next_item(alloc, tvb, offset);
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL)) {
+                        return FALSE;
+                    }
                 }
             }
             break;
@@ -376,21 +396,40 @@ gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *off
         case CBOR_TYPE_MAP: {
             if (chunk->type_minor == 31) {
                 // wait for indefinite break
-                while (!wscbor_skip_next_item(alloc, tvb, offset)) {}
+                gboolean was_break = FALSE;
+                do {
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, &was_break)) {
+                        return FALSE;
+                    }
+                }
+                while (!was_break);
             }
             else {
                 const guint64 count = chunk->head_value;
                 for (guint64 ix = 0; ix < count; ++ix) {
-                    wscbor_skip_next_item(alloc, tvb, offset);
-                    wscbor_skip_next_item(alloc, tvb, offset);
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL)) {
+                        return FALSE;
+                    }
+                    if (!wscbor_skip_next_item_internal(alloc, tvb, offset, NULL)) {
+                        return FALSE;
+                    }
                 }
             }
             break;
         }
     }
-    const gboolean is_break = wscbor_is_indefinite_break(chunk);
+    const gboolean got_break = wscbor_is_indefinite_break(chunk);
+    if (is_break) {
+        *is_break = got_break;
+    }
     wscbor_chunk_free(chunk);
-    return is_break;
+    // RFC 8949 Sec 3.2.1: a break code outside of an indefinite container is
+    // not valid, and is_break is non-null only in indefinite container.
+    return is_break || !got_break;
+}
+
+gboolean wscbor_skip_next_item(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset) {
+    return wscbor_skip_next_item_internal(alloc, tvb, offset, NULL);
 }
 
 gboolean wscbor_skip_if_errors(wmem_allocator_t *alloc, tvbuff_t *tvb, gint *offset, const wscbor_chunk_t *chunk) {
@@ -624,22 +663,34 @@ proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const gi
     return item;
 }
 
-proto_item * proto_tree_add_cbor_tstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb _U_, const wscbor_chunk_t *chunk) {
+proto_item * proto_tree_add_cbor_tstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk) {
+    proto_item *item;
     if (chunk->_priv->str_value) {
-        proto_item *item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
-        wscbor_chunk_mark_errors(pinfo, item, chunk);
-        return item;
-    } else {
-        return NULL;
+        item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
     }
+    else {
+        // still show an empty item with errors
+        item = proto_tree_add_item(tree, hfindex, tvb, chunk->start, 0, 0);
+    }
+    wscbor_chunk_mark_errors(pinfo, item, chunk);
+    return item;
 }
 
-proto_item * proto_tree_add_cbor_bstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb _U_, const wscbor_chunk_t *chunk) {
+proto_item * proto_tree_add_cbor_bstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk) {
+    proto_item *item;
     if (chunk->_priv->str_value) {
-        proto_item *item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
-        wscbor_chunk_mark_errors(pinfo, item, chunk);
-        return item;
-    } else {
-        return NULL;
+        item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
     }
+    else {
+        // still show an empty item with errors
+        item = proto_tree_add_item(tree, hfindex, tvb, chunk->start, 0, 0);
+    }
+    wscbor_chunk_mark_errors(pinfo, item, chunk);
+    return item;
+}
+
+proto_item * proto_tree_add_cbor_strlen(proto_tree *tree, int hfindex, packet_info *pinfo _U_, tvbuff_t *tvb, const wscbor_chunk_t *chunk) {
+    const guint str_len = (chunk->_priv->str_value ? tvb_reported_length(chunk->_priv->str_value) : 0);
+    proto_item *item = proto_tree_add_uint64(tree, hfindex, tvb, chunk->start, chunk->head_length, str_len);
+    return item;
 }

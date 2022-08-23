@@ -346,8 +346,9 @@ gboolean cose_param_key_equal(gconstpointer a, gconstpointer b) {
  *
  * @param dis_table The cose_param_key_t dissector table.
  * @param[in,out] ctx The context from other pairs.
+ * @return True if the pair was dissected (even as opaque CBOR data).
  */
-static void dissect_header_pair(dissector_table_t dis_table, cose_header_context_t *ctx, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset) {
+static gboolean dissect_header_pair(dissector_table_t dis_table, cose_header_context_t *ctx, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset) {
     wscbor_chunk_t *chunk_label = wscbor_chunk_read(wmem_packet_scope(), tvb, offset);
 
     proto_item *item_label = NULL;
@@ -400,7 +401,9 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
 
     // Peek into the value as tvb
     const gint offset_value = *offset;
-    wscbor_skip_next_item(wmem_packet_scope(), tvb, offset);
+    if (!wscbor_skip_next_item(wmem_packet_scope(), tvb, offset)) {
+        return FALSE;
+    }
     tvb_value = tvb_new_subset_length(tvb, offset_value, *offset - offset_value);
 
     gint sublen = 0;
@@ -422,6 +425,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
         CATCH_ALL {}
         ENDTRY;
     }
+    return TRUE;
 }
 
 /** Dissect an entire header map, either for messages, recipients, or keys.
@@ -442,7 +446,9 @@ static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packe
         cose_header_context_t *ctx = wmem_new0(wmem_packet_scope(), cose_header_context_t);
 
         for (guint64 ix = 0; ix < chunk_hdr_map->head_value; ++ix) {
-            dissect_header_pair(dis_table, ctx, tvb, pinfo, tree_hdr_map, offset);
+            if (!dissect_header_pair(dis_table, ctx, tvb, pinfo, tree_hdr_map, offset)) {
+                break;
+            }
         }
 
         if (ctx->principal) {
