@@ -1825,7 +1825,7 @@ static tap_packet_status zbee_nwk_conversation_packet(void *pct, packet_info *pi
     return TAP_PACKET_REDRAW;
 }
 
-static const char* zbee_nwk_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+static const char* zbee_nwk_host_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
 {
     if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == zbee_nwk_address_type))
         return "zbee_nwk.addr";
@@ -1833,7 +1833,7 @@ static const char* zbee_nwk_host_get_filter_type(hostlist_talker_t* host, conv_f
     return CONV_FILTER_INVALID;
 }
 
-static hostlist_dissector_info_t zbee_nwk_host_dissector_info = {&zbee_nwk_host_get_filter_type };
+static et_dissector_info_t zbee_nwk_host_dissector_info = {&zbee_nwk_host_get_filter_type };
 
 static tap_packet_status zbee_nwk_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
 {
@@ -1843,9 +1843,9 @@ static tap_packet_status zbee_nwk_hostlist_packet(void *pit, packet_info *pinfo,
     /* Take two "add" passes per packet, adding for each direction, ensures that all
      packets are counted properly (even if address is sending to itself)
      XXX - this could probably be done more efficiently inside hostlist_table */
-    add_hostlist_table_data(hash, &pinfo->net_src, 0, TRUE, 1,
+    add_endpoint_table_data(hash, &pinfo->net_src, 0, TRUE, 1,
             pinfo->fd->pkt_len, &zbee_nwk_host_dissector_info, ENDPOINT_NONE);
-    add_hostlist_table_data(hash, &pinfo->net_dst, 0, FALSE, 1,
+    add_endpoint_table_data(hash, &pinfo->net_dst, 0, FALSE, 1,
             pinfo->fd->pkt_len, &zbee_nwk_host_dissector_info, ENDPOINT_NONE);
 
     return TAP_PACKET_REDRAW;

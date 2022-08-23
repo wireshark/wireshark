@@ -1970,7 +1970,7 @@ static const char* opensafety_conv_get_filter_type(conv_item_t* conv, conv_filte
 
 static ct_dissector_info_t opensafety_ct_dissector_info = {&opensafety_conv_get_filter_type};
 
-static const char* opensafety_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+static const char* opensafety_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
 {
     if (host->myaddress.type == AT_NUMERIC) {
         if (filter == CONV_FT_ANY_ADDRESS)
@@ -1984,7 +1984,7 @@ static const char* opensafety_get_filter_type(hostlist_talker_t* host, conv_filt
     return CONV_FILTER_INVALID;
 }
 
-static hostlist_dissector_info_t  opensafety_dissector_info = {&opensafety_get_filter_type};
+static et_dissector_info_t  opensafety_dissector_info = {&opensafety_get_filter_type};
 
 static tap_packet_status
 opensafety_conversation_packet(void *pct, packet_info *pinfo,
@@ -2028,8 +2028,8 @@ opensafety_hostlist_packet(void *pit, packet_info *pinfo,
     alloc_address_wmem(pinfo->pool, src, AT_NUMERIC, (int) sizeof(guint16), &sender);
     alloc_address_wmem(pinfo->pool, dst, AT_NUMERIC, (int) sizeof(guint16), &receiver);
 
-    add_hostlist_table_data(hash, src, 0, TRUE,  1, osinfo->msg_len, &opensafety_dissector_info, ENDPOINT_NONE);
-    add_hostlist_table_data(hash, dst, 0, FALSE, 1, osinfo->msg_len, &opensafety_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, src, 0, TRUE,  1, osinfo->msg_len, &opensafety_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, dst, 0, FALSE, 1, osinfo->msg_len, &opensafety_dissector_info, ENDPOINT_NONE);
 
     return TAP_PACKET_REDRAW;
 }

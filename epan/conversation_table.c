@@ -24,10 +24,10 @@
 struct register_ct {
     gboolean hide_ports;       /* hide TCP / UDP port columns */
     int proto_id;              /* protocol id (0-indexed) */
-    tap_packet_cb conv_func;   /* function to be called for new incoming packets for conversation*/
-    tap_packet_cb host_func;   /* function to be called for new incoming packets for hostlist */
+    tap_packet_cb conv_func;        /* function to be called for new incoming packets for conversations */
+    tap_packet_cb endpoint_func;    /* function to be called for new incoming packets for endpoints */
     conv_gui_init_cb conv_gui_init; /* GUI specific function to initialize conversation */
-    host_gui_init_cb host_gui_init; /* GUI specific function to initialize hostlist */
+    endpoint_gui_init_cb endpoint_gui_init; /* GUI specific function to initialize endpoint */
 };
 
 gboolean get_conversation_hide_ports(register_ct_t* ct)
@@ -48,9 +48,15 @@ tap_packet_cb get_conversation_packet_func(register_ct_t* ct)
     return ct->conv_func;
 }
 
+tap_packet_cb get_endpoint_packet_func(register_ct_t* ct)
+{
+    return ct->endpoint_func;
+}
+
+/* For backwards source and binary compatibility */
 tap_packet_cb get_hostlist_packet_func(register_ct_t* ct)
 {
-    return ct->host_func;
+    return get_endpoint_packet_func(ct);
 }
 
 static wmem_tree_t *registered_ct_tables = NULL;
@@ -75,13 +81,13 @@ dissector_conversation_init(const char *opt_arg, void* userdata)
 }
 
 void
-dissector_hostlist_init(const char *opt_arg, void* userdata)
+dissector_endpoint_init(const char *opt_arg, void* userdata)
 {
     register_ct_t *table = (register_ct_t*)userdata;
     GString *cmd_str = g_string_new("");
     const char *filter=NULL;
 
-    g_string_printf(cmd_str, "%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
+    g_string_printf(cmd_str, "%s,%s", ENDPOINT_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     if(!strncmp(opt_arg, cmd_str->str, cmd_str->len)){
         if (opt_arg[cmd_str->len] == ',') {
             filter = opt_arg + cmd_str->len + 1;
@@ -92,9 +98,17 @@ dissector_hostlist_init(const char *opt_arg, void* userdata)
 
     g_string_free(cmd_str, TRUE);
 
-    if (table->host_gui_init)
-        table->host_gui_init(table, filter);
+    if (table->endpoint_gui_init)
+        table->endpoint_gui_init(table, filter);
 }
+
+/* For backwards source and binary compatibility */
+void
+dissector_hostlist_init(const char *opt_arg, void* userdata)
+{
+    dissector_endpoint_init(opt_arg, userdata);
+}
+
 /** get conversation from protocol ID
  *
  * @param proto_id protocol ID
@@ -106,7 +120,7 @@ register_ct_t* get_conversation_by_proto_id(int proto_id)
 }
 
 void
-register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func)
+register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb endpoint_packet_func)
 {
     register_ct_t *table;
 
@@ -115,9 +129,9 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     table->hide_ports    = hide_ports;
     table->proto_id      = proto_id;
     table->conv_func     = conv_packet_func;
-    table->host_func     = hostlist_func;
+    table->endpoint_func = endpoint_packet_func;
     table->conv_gui_init = NULL;
-    table->host_gui_init = NULL;
+    table->endpoint_gui_init = NULL;
 
     if (registered_ct_tables == NULL)
         registered_ct_tables = wmem_tree_new(wmem_epan_scope());
@@ -153,17 +167,17 @@ void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
 }
 
 static gboolean
-set_host_gui_data(const void *key _U_, void *value, void *userdata)
+set_endpoint_gui_data(const void *key _U_, void *value, void *userdata)
 {
     stat_tap_ui ui_info;
     register_ct_t *table = (register_ct_t*)value;
 
-    table->host_gui_init = (host_gui_init_cb)userdata;
+    table->endpoint_gui_init = (endpoint_gui_init_cb)userdata;
 
     ui_info.group = REGISTER_STAT_GROUP_ENDPOINT_LIST;
     ui_info.title = NULL;   /* construct this from the protocol info? */
-    ui_info.cli_string = ws_strdup_printf("%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
-    ui_info.tap_init_cb = dissector_hostlist_init;
+    ui_info.cli_string = ws_strdup_printf("%s,%s", ENDPOINT_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
+    ui_info.tap_init_cb = dissector_endpoint_init;
     ui_info.nparams = 0;
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);
@@ -171,9 +185,15 @@ set_host_gui_data(const void *key _U_, void *value, void *userdata)
     return FALSE;
 }
 
-void hostlist_table_set_gui_info(host_gui_init_cb init_cb)
+void endpoint_table_set_gui_info(endpoint_gui_init_cb init_cb)
 {
-    wmem_tree_foreach(registered_ct_tables, set_host_gui_data, (void*)init_cb);
+    wmem_tree_foreach(registered_ct_tables, set_endpoint_gui_data, (void*)init_cb);
+}
+
+/* For backwards source and binary compatibility */
+void hostlist_table_set_gui_info(endpoint_gui_init_cb init_cb)
+{
+    endpoint_table_set_gui_info(init_cb);
 }
 
 void conversation_table_iterate_tables(wmem_foreach_func func, void* user_data)
@@ -270,7 +290,7 @@ reset_conversation_table_data(conv_hash_t *ch)
     ch->hashtable=NULL;
 }
 
-void reset_hostlist_table_data(conv_hash_t *ch)
+void reset_endpoint_table_data(conv_hash_t *ch)
 {
     if (!ch) {
         return;
@@ -279,8 +299,8 @@ void reset_hostlist_table_data(conv_hash_t *ch)
     if (ch->conv_array != NULL) {
         guint i;
         for(i = 0; i < ch->conv_array->len; i++){
-            hostlist_talker_t *host = &g_array_index(ch->conv_array, hostlist_talker_t, i);
-            free_address(&host->myaddress);
+            endpoint_item_t *endpoint = &g_array_index(ch->conv_array, endpoint_item_t, i);
+            free_address(&endpoint->myaddress);
         }
 
         g_array_free(ch->conv_array, TRUE);
@@ -292,6 +312,12 @@ void reset_hostlist_table_data(conv_hash_t *ch)
 
     ch->conv_array=NULL;
     ch->hashtable=NULL;
+}
+
+/* For backwards source and binary compatibility */
+void reset_hostlist_table_data(conv_hash_t *ch)
+{
+    reset_endpoint_table_data(ch);
 }
 
 char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gboolean resolve_names)
@@ -342,14 +368,14 @@ conversation_get_filter_name(conv_item_t *conv_item, conv_filter_type_e filter_t
 }
 
 static const char *
-hostlist_get_filter_name(hostlist_talker_t *host, conv_filter_type_e filter_type)
+endpoint_get_filter_name(endpoint_item_t *endpoint, conv_filter_type_e filter_type)
 {
 
-    if ((host == NULL) || (host->dissector_info == NULL) || (host->dissector_info->get_filter_type == NULL)) {
+    if ((endpoint == NULL) || (endpoint->dissector_info == NULL) || (endpoint->dissector_info->get_filter_type == NULL)) {
         return CONV_FILTER_INVALID;
     }
 
-    return host->dissector_info->get_filter_type(host, filter_type);
+    return endpoint->dissector_info->get_filter_type(endpoint, filter_type);
 }
 
 /* Convert a port number into a string or NULL */
@@ -528,7 +554,7 @@ char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction
     return str;
 }
 
-char *get_hostlist_filter(hostlist_talker_t *host)
+char *get_endpoint_filter(endpoint_item_t *endpoint_item)
 {
     char *sport, *src_addr;
     char *str;
@@ -537,9 +563,9 @@ char *get_hostlist_filter(hostlist_talker_t *host)
     if (usb_address_type == -1)
         usb_address_type = address_type_get_by_name("AT_USB");
 
-    sport = ct_port_to_str(host->etype, host->port);
-    src_addr = address_to_str(NULL, &host->myaddress);
-    if (host->myaddress.type == AT_STRINGZ || host->myaddress.type == usb_address_type) {
+    sport = ct_port_to_str(endpoint_item->etype, endpoint_item->port);
+    src_addr = address_to_str(NULL, &endpoint_item->myaddress);
+    if (endpoint_item->myaddress.type == AT_STRINGZ || endpoint_item->myaddress.type == usb_address_type) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);
@@ -548,16 +574,22 @@ char *get_hostlist_filter(hostlist_talker_t *host)
     }
 
     str = ws_strdup_printf("%s==%s%s%s%s%s",
-                          hostlist_get_filter_name(host, CONV_FT_ANY_ADDRESS),
+                          endpoint_get_filter_name(endpoint_item, CONV_FT_ANY_ADDRESS),
                           src_addr,
                           sport?" && ":"",
-                          sport?hostlist_get_filter_name(host, CONV_FT_ANY_PORT):"",
+                          sport?endpoint_get_filter_name(endpoint_item, CONV_FT_ANY_PORT):"",
                           sport?"==":"",
                           sport?sport:"");
 
     g_free(sport);
     wmem_free(NULL, src_addr);
     return str;
+}
+
+/* For backwards source and binary compatibility */
+char *get_hostlist_filter(endpoint_item_t *endpoint_item)
+{
+    return get_endpoint_filter(endpoint_item);
 }
 
 void
@@ -711,13 +743,13 @@ add_conversation_table_data_with_conv_id(
 }
 
 /*
- * Compute the hash value for a given address/port pairs if the match
+ * Compute the hash value for a given address/port pair if the match
  * is to be exact.
  */
 static guint
-host_hash(gconstpointer v)
+endpoint_hash(gconstpointer v)
 {
-    const host_key_t *key = (const host_key_t *)v;
+    const endpoint_key_t *key = (const endpoint_key_t *)v;
     guint hash_val;
 
     hash_val = 0;
@@ -727,13 +759,13 @@ host_hash(gconstpointer v)
 }
 
 /*
- * Compare two host keys for an exact match.
+ * Compare two endpoint keys for an exact match.
  */
 static gint
-host_match(gconstpointer v, gconstpointer w)
+endpoint_match(gconstpointer v, gconstpointer w)
 {
-    const host_key_t *v1 = (const host_key_t *)v;
-    const host_key_t *v2 = (const host_key_t *)w;
+    const endpoint_key_t *v1 = (const endpoint_key_t *)v;
+    const endpoint_key_t *v2 = (const endpoint_key_t *)w;
 
     if (v1->port == v2->port &&
         addresses_equal(&v1->myaddress, &v2->myaddress)) {
@@ -746,88 +778,95 @@ host_match(gconstpointer v, gconstpointer w)
 }
 
 void
-add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, endpoint_type etype)
+add_endpoint_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype)
 {
-    hostlist_talker_t *talker=NULL;
+    endpoint_item_t *endpoint_item = NULL;
 
     /* XXX should be optimized to allocate n extra entries at a time
        instead of just one */
     /* if we don't have any entries at all yet */
     if(ch->conv_array==NULL){
-        ch->conv_array=g_array_sized_new(FALSE, FALSE, sizeof(hostlist_talker_t), 10000);
-        ch->hashtable = g_hash_table_new_full(host_hash,
-                                              host_match, /* key_equal_func */
+        ch->conv_array=g_array_sized_new(FALSE, FALSE, sizeof(endpoint_item_t), 10000);
+        ch->hashtable = g_hash_table_new_full(endpoint_hash,
+                                              endpoint_match, /* key_equal_func */
                                               g_free,     /* key_destroy_func */
                                               NULL);      /* value_destroy_func */
     }
     else {
         /* try to find it among the existing known conversations */
-        host_key_t existing_key;
-        gpointer talker_idx_hash_val;
+        endpoint_key_t existing_key;
+        gpointer endpoint_idx_hash_val;
 
         copy_address_shallow(&existing_key.myaddress, addr);
         existing_key.port = port;
 
-        if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, &talker_idx_hash_val)) {
-            talker = &g_array_index(ch->conv_array, hostlist_talker_t, GPOINTER_TO_UINT(talker_idx_hash_val));
+        if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, &endpoint_idx_hash_val)) {
+            endpoint_item = &g_array_index(ch->conv_array, endpoint_item_t, GPOINTER_TO_UINT(endpoint_idx_hash_val));
         }
     }
 
-    /* if we still don't know what talker this is it has to be a new one
+    /* if we still don't know what endpoint this is it has to be a new one
        and we have to allocate it and append it to the end of the list */
-    if(talker==NULL){
-        host_key_t *new_key;
-        hostlist_talker_t host;
-        int talker_idx;
+    if(endpoint_item==NULL){
+        endpoint_key_t *new_key;
+        endpoint_item_t new_endpoint_item;
+        unsigned int endpoint_idx;
 
-        copy_address(&host.myaddress, addr);
-        host.dissector_info = host_info;
-        host.etype=etype;
-        host.port=port;
-        host.rx_frames=0;
-        host.tx_frames=0;
-        host.rx_bytes=0;
-        host.tx_bytes=0;
-        host.rx_frames_total=0;
-        host.tx_frames_total=0;
-        host.rx_bytes_total=0;
-        host.tx_bytes_total=0;
-        host.modified = TRUE;
-        host.filtered = TRUE;
+        copy_address(&new_endpoint_item.myaddress, addr);
+        new_endpoint_item.dissector_info = et_info;
+        new_endpoint_item.etype=etype;
+        new_endpoint_item.port=port;
+        new_endpoint_item.rx_frames=0;
+        new_endpoint_item.tx_frames=0;
+        new_endpoint_item.rx_bytes=0;
+        new_endpoint_item.tx_bytes=0;
+        new_endpoint_item.rx_frames_total=0;
+        new_endpoint_item.tx_frames_total=0;
+        new_endpoint_item.rx_bytes_total=0;
+        new_endpoint_item.tx_bytes_total=0;
+        new_endpoint_item.modified = TRUE;
+        new_endpoint_item.filtered = TRUE;
 
-        g_array_append_val(ch->conv_array, host);
-        talker_idx= ch->conv_array->len - 1;
-        talker=&g_array_index(ch->conv_array, hostlist_talker_t, talker_idx);
+        g_array_append_val(ch->conv_array, new_endpoint_item);
+        endpoint_idx = ch->conv_array->len - 1;
+        endpoint_item = &g_array_index(ch->conv_array, endpoint_item_t, endpoint_idx);
 
         /* hl->hosts address is not a constant but address.data is */
-        new_key = g_new(host_key_t,1);
-        set_address(&new_key->myaddress, talker->myaddress.type, talker->myaddress.len, talker->myaddress.data);
+        new_key = g_new(endpoint_key_t,1);
+        set_address(&new_key->myaddress, endpoint_item->myaddress.type, endpoint_item->myaddress.len, endpoint_item->myaddress.data);
         new_key->port = port;
-        g_hash_table_insert(ch->hashtable, new_key, GUINT_TO_POINTER(talker_idx));
+        g_hash_table_insert(ch->hashtable, new_key, GUINT_TO_POINTER(endpoint_idx));
     }
 
-    /* if this is a new talker we need to initialize the struct */
-    talker->modified = TRUE;
+    /* if this is a new endpoint we need to initialize the struct */
+    endpoint_item->modified = TRUE;
 
-    /* update the talker struct */
+    /* update the endpoint struct */
     if (! (ch->flags & TL_DISPLAY_FILTER_IGNORED)) {
         if( sender ){
-            talker->tx_frames+=num_frames;
-            talker->tx_bytes+=num_bytes;
+            endpoint_item->tx_frames+=num_frames;
+            endpoint_item->tx_bytes+=num_bytes;
         } else {
-            talker->rx_frames+=num_frames;
-            talker->rx_bytes+=num_bytes;
+            endpoint_item->rx_frames+=num_frames;
+            endpoint_item->rx_bytes+=num_bytes;
         }
-        talker->filtered = FALSE;
+        endpoint_item->filtered = FALSE;
     }
-    /* update the talker struct for total values */
+    /* update the endpoint struct for total values */
     if( sender ){
-        talker->tx_frames_total+=num_frames;
-        talker->tx_bytes_total+=num_bytes;
+        endpoint_item->tx_frames_total+=num_frames;
+        endpoint_item->tx_bytes_total+=num_bytes;
     } else {
-        talker->rx_frames_total+=num_frames;
-        talker->rx_bytes_total+=num_bytes;
+        endpoint_item->rx_frames_total+=num_frames;
+        endpoint_item->rx_bytes_total+=num_bytes;
     }
+}
+
+/* For backwards source and binary compatibility */
+void
+add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype)
+{
+    add_endpoint_table_data(ch, addr, port, sender, num_frames, num_bytes, et_info, etype);
 }
 
 /*

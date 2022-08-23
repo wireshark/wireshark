@@ -1062,7 +1062,7 @@ main(int argc, char *argv[])
     }
 
     conversation_table_set_gui_info(init_iousers);
-    hostlist_table_set_gui_info(init_hostlists);
+    endpoint_table_set_gui_info(init_endpoints);
     srt_table_iterate_tables(register_srt_tables, NULL);
     rtd_table_iterate_tables(register_rtd_tables, NULL);
     stat_tap_iterate_tables(register_simple_stat_tables, NULL);

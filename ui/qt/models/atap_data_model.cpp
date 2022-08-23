@@ -173,7 +173,7 @@ tap_packet_cb ATapDataModel::conversationPacketHandler()
     register_ct_t* table = registerTable();
     if (table) {
         if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
-            return get_hostlist_packet_func(table);
+            return get_endpoint_packet_func(table);
         else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
             return get_conversation_packet_func(table);
     }
@@ -189,7 +189,7 @@ void ATapDataModel::resetData()
     beginResetModel();
     storage_ = nullptr;
     if (_type == ATapDataModel::DATAMODEL_ENDPOINT)
-        reset_hostlist_table_data(&hash_);
+        reset_endpoint_table_data(&hash_);
     else if (_type == ATapDataModel::DATAMODEL_CONVERSATION)
         reset_conversation_table_data(&hash_);
 
@@ -371,7 +371,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         return QVariant();
 
     // Column text cooked representation.
-    hostlist_talker_t *item = &g_array_index(storage_, hostlist_talker_t, idx.row());
+    endpoint_item_t *item = &g_array_index(storage_, endpoint_item_t, idx.row());
     const mmdb_lookup_t *mmdb_lookup = nullptr;
 #ifdef HAVE_MAXMINDDB
     char addr[WS_INET6_ADDRSTRLEN];
@@ -466,7 +466,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             return Qt::AlignLeft;
         return Qt::AlignRight;
     } else if (role == ATapDataModel::DISPLAY_FILTER) {
-        return QString(get_hostlist_filter(item));
+        return QString(get_endpoint_filter(item));
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {
         return (bool)item->filtered && showTotalColumn();
     }

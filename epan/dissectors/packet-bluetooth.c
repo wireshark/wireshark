@@ -4412,7 +4412,7 @@ static const char* bluetooth_conv_get_filter_type(conv_item_t* conv, conv_filter
 static ct_dissector_info_t bluetooth_ct_dissector_info = {&bluetooth_conv_get_filter_type};
 
 
-static const char* bluetooth_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+static const char* bluetooth_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
 {
     if (filter == CONV_FT_ANY_ADDRESS) {
         if (host->myaddress.type == AT_ETHER)
@@ -4424,7 +4424,7 @@ static const char* bluetooth_get_filter_type(hostlist_talker_t* host, conv_filte
     return CONV_FILTER_INVALID;
 }
 
-static hostlist_dissector_info_t  bluetooth_dissector_info = {&bluetooth_get_filter_type};
+static et_dissector_info_t  bluetooth_dissector_info = {&bluetooth_get_filter_type};
 
 
 static tap_packet_status
@@ -4448,8 +4448,8 @@ bluetooth_hostlist_packet(void *pit, packet_info *pinfo,
     conv_hash_t *hash = (conv_hash_t*) pit;
     hash->flags = flags;
 
-    add_hostlist_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
-    add_hostlist_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
+    add_endpoint_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
 
     return TAP_PACKET_REDRAW;
 }

@@ -804,7 +804,7 @@ sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata
         json_dumper_end_object(&dumper);
     }
 
-    if (get_hostlist_packet_func(table))
+    if (get_endpoint_packet_func(table))
     {
         json_dumper_begin_object(&dumper);
         sharkd_json_value_stringf("name", "Endpoint/%s", label);
@@ -2221,7 +2221,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
     {
         for (i = 0; i < iu->hash.conv_array->len; i++)
         {
-            hostlist_talker_t *host = &g_array_index(iu->hash.conv_array, hostlist_talker_t, i);
+            endpoint_item_t *host = &g_array_index(iu->hash.conv_array, endpoint_item_t, i);
             char *host_str, *port_str;
             char *filter_str;
 
@@ -2242,7 +2242,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
             sharkd_json_value_anyf("txf", "%" PRIu64, host->tx_frames);
             sharkd_json_value_anyf("txb", "%" PRIu64, host->tx_bytes);
 
-            filter_str = get_hostlist_filter(host);
+            filter_str = get_endpoint_filter(host);
             if (filter_str)
             {
                 sharkd_json_value_string("filter", filter_str);
@@ -2276,7 +2276,7 @@ sharkd_session_free_tap_conv_cb(void *arg)
     }
     else if (!strncmp(iu->type, "endpt:", 6))
     {
-        reset_hostlist_table_data(hash);
+        reset_endpoint_table_data(hash);
     }
 
     g_free(iu);
@@ -2899,7 +2899,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
             {
                 ct = get_conversation_by_proto_id(proto_get_id_by_short_name(tok_tap + 6));
 
-                if (!ct || !(tap_func = get_hostlist_packet_func(ct)))
+                if (!ct || !(tap_func = get_endpoint_packet_func(ct)))
                 {
                     sharkd_json_error(
                             rpcid, -11004, NULL,

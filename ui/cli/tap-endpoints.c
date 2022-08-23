@@ -32,7 +32,7 @@ endpoints_draw(void *arg)
 {
 	conv_hash_t *hash = (conv_hash_t*)arg;
 	endpoints_t *iu = (endpoints_t *)hash->user_data;
-	hostlist_talker_t *host;
+	endpoint_item_t *endpoint;
 	guint64 last_frames, max_frames;
 	guint i;
 	gboolean display_port = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3) || !strncmp(iu->type, "SCTP", 4)) ? TRUE : FALSE;
@@ -50,8 +50,8 @@ endpoints_draw(void *arg)
 		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
 			guint64 tot_frames;
 
-			host = &g_array_index(iu->hash.conv_array, hostlist_talker_t, i);
-			tot_frames = host->rx_frames + host->tx_frames;
+			endpoint = &g_array_index(iu->hash.conv_array, endpoint_item_t, i);
+			tot_frames = endpoint->rx_frames + endpoint->tx_frames;
 
 			if ((tot_frames > last_frames) && (tot_frames < max_frames)) {
 				last_frames = tot_frames;
@@ -62,23 +62,23 @@ endpoints_draw(void *arg)
 			guint64 tot_frames;
 			gchar *conversation_str, *port_str;
 
-			host = &g_array_index(iu->hash.conv_array, hostlist_talker_t, i);
-			tot_frames = host->rx_frames + host->tx_frames;
+			endpoint = &g_array_index(iu->hash.conv_array, endpoint_item_t, i);
+			tot_frames = endpoint->rx_frames + endpoint->tx_frames;
 
 			if (tot_frames == last_frames) {
 				/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
-				conversation_str = get_conversation_address(NULL, &host->myaddress, TRUE);
+				conversation_str = get_conversation_address(NULL, &endpoint->myaddress, TRUE);
 				if (display_port) {
 					/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
-					port_str = get_conversation_port(NULL, host->port, host->etype, TRUE);
+					port_str = get_conversation_port(NULL, endpoint->port, endpoint->etype, TRUE);
 					printf("%-20s      %5s     %6" PRIu64 "     %9" PRIu64
 					       "     %6" PRIu64 "       %9" PRIu64 "      %6"
 					       PRIu64 "       %9" PRIu64 "   \n",
 						conversation_str,
 						port_str,
-						host->tx_frames+host->rx_frames, host->tx_bytes+host->rx_bytes,
-						host->tx_frames, host->tx_bytes,
-						host->rx_frames, host->rx_bytes);
+						endpoint->tx_frames+endpoint->rx_frames, endpoint->tx_bytes+endpoint->rx_bytes,
+						endpoint->tx_frames, endpoint->tx_bytes,
+						endpoint->rx_frames, endpoint->rx_bytes);
 					wmem_free(NULL, port_str);
 				} else {
 					printf("%-20s      %6" PRIu64 "     %9" PRIu64
@@ -86,9 +86,9 @@ endpoints_draw(void *arg)
 					       PRIu64 "       %9" PRIu64 "   \n",
 						/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
 						conversation_str,
-						host->tx_frames+host->rx_frames, host->tx_bytes+host->rx_bytes,
-						host->tx_frames, host->tx_bytes,
-						host->rx_frames, host->rx_bytes);
+						endpoint->tx_frames+endpoint->rx_frames, endpoint->tx_bytes+endpoint->rx_bytes,
+						endpoint->tx_frames, endpoint->tx_bytes,
+						endpoint->rx_frames, endpoint->rx_bytes);
 
 				}
 				wmem_free(NULL, conversation_str);
@@ -99,7 +99,7 @@ endpoints_draw(void *arg)
 	printf("================================================================================\n");
 }
 
-void init_hostlists(struct register_ct *ct, const char *filter)
+void init_endpoints(struct register_ct *ct, const char *filter)
 {
 	endpoints_t *iu;
 	GString *error_string;
@@ -109,7 +109,7 @@ void init_hostlists(struct register_ct *ct, const char *filter)
 	iu->filter = g_strdup(filter);
 	iu->hash.user_data = iu;
 
-	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_hostlist_packet_func(ct), endpoints_draw, NULL);
+	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_endpoint_packet_func(ct), endpoints_draw, NULL);
 	if (error_string) {
 		g_free(iu);
 		cmdarg_err("Couldn't register endpoint tap: %s",
