@@ -383,6 +383,8 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         const ws_in6_addr * ip6 = (const ws_in6_addr *) item->myaddress.data;
         mmdb_lookup = maxmind_db_lookup_ipv6(ip6);
         ws_inet_ntop6(ip6, addr, sizeof(addr));
+    } else {
+        addr[0] = '\0';
     }
     QString ipAddress(addr);
 #endif
