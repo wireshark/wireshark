@@ -45,7 +45,7 @@ fi
 
 BASIC_LIST="\
 	cmake \
-	qt5 \
+	qt6 \
 	git \
 	pcre2"
 
