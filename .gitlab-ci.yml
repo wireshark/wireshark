@@ -839,6 +839,11 @@ ASan randpkt Fuzz:
 Valgrind Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-valgrind
+  variables:
+    # Use DWARF-4 debug info. Valgrind does not support Clang 14 with DWARF-5.
+    # https://gitlab.com/wireshark/wireshark/-/issues/18191
+    # https://www.mail-archive.com/valgrind-users@lists.sourceforge.net/msg07239.html
+    CFLAGS: "-gdwarf-4"
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install valgrind
