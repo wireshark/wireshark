@@ -4991,19 +4991,6 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         return FALSE;
     }
 
-    if (decoder->cipher_suite->mode == MODE_CCM || decoder->cipher_suite->mode == MODE_CCM_8) {
-        /* size of plaintext, additional authenticated data and auth tag. */
-        guint64 lengths[3] = { ciphertext_len, is_v12 ? 13 : 0, auth_tag_len };
-        if (is_cid) {
-            if (ssl->session.deprecated_cid) {
-                lengths[1] += 1 + cidl; /* cid length (1 byte) + cid (cidl bytes) */
-            } else {
-                lengths[1] += 8 + 1 + 1 + cidl; /* seq_num_placeholder + ct + cid length + cid */
-            }
-        }
-        gcry_cipher_ctl(decoder->evp, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
-    }
-
     /* (D)TLS 1.2 needs specific AAD, TLS 1.3 (before -25) uses empty AAD. */
     if (is_cid) { /* if connection ID */
         if (ssl->session.deprecated_cid) {
@@ -5045,6 +5032,13 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         aad[0] = ct;                        /* TLSCiphertext.opaque_type (23) */
         phton16(aad + 1, record_version);   /* TLSCiphertext.legacy_record_version (0x0303) */
         phton16(aad + 3, inl);              /* TLSCiphertext.length */
+    }
+
+    if (decoder->cipher_suite->mode == MODE_CCM || decoder->cipher_suite->mode == MODE_CCM_8) {
+        /* size of plaintext, additional authenticated data and auth tag. */
+        guint64 lengths[3] = { ciphertext_len, aad_len, auth_tag_len };
+
+        gcry_cipher_ctl(decoder->evp, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
     }
 
     if (aad && aad_len > 0) {
