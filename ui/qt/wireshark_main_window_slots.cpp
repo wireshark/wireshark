@@ -3560,6 +3560,11 @@ void WiresharkMainWindow::on_actionStatisticsSOMEIPSDentries_triggered()
     openStatisticsTreeDialog("someipsd_entries");
 }
 
+void WiresharkMainWindow::on_actionStatisticsLTP_triggered()
+{
+    openStatisticsTreeDialog("ltp");
+}
+
 // Telephony Menu
 
 RtpPlayerDialog *WiresharkMainWindow::openTelephonyRtpPlayerDialog()

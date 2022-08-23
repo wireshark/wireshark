@@ -565,6 +565,13 @@
      <addaction name="actionStatisticsSOMEIPmessages"/>
      <addaction name="actionStatisticsSOMEIPSDentries"/>
     </widget>
+    <addaction name="menuDTN"/>
+    <widget class="QMenu" name="menuDTN">
+     <property name="title">
+      <string>&amp;DTN</string>
+     </property>
+     <addaction name="actionStatisticsLTP"/>
+    </widget>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
@@ -1954,6 +1961,14 @@
    </property>
    <property name="toolTip">
     <string>SOME/IP-SD Entries statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsLTP">
+   <property name="text">
+    <string>&amp;LTP</string>
+   </property>
+   <property name="toolTip">
+    <string>LTP segment and block statistics</string>
    </property>
   </action>
   <action name="actionTelephonyISUPMessages">

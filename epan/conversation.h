@@ -88,6 +88,7 @@ typedef enum {
     CONVERSATION_IWARP_MPA,	/* iWarp MPA */
     CONVERSATION_BT_UTP,	/* BitTorrent uTP Connection ID */
     CONVERSATION_LOG,		/* Logging source */
+    CONVERSATION_LTP,		/* LTP Engine ID and Session Number */
 } conversation_type;
 
 /*

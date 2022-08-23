@@ -555,6 +555,7 @@ private slots:
     void on_actionStatisticsHTTP2_triggered();
     void on_actionStatisticsSOMEIPmessages_triggered();
     void on_actionStatisticsSOMEIPSDentries_triggered();
+    void on_actionStatisticsLTP_triggered();
 
     RtpStreamDialog *openTelephonyRtpStreamsDialog();
     RtpPlayerDialog *openTelephonyRtpPlayerDialog();
