@@ -69,7 +69,15 @@ typedef struct _conversation_key_t {
 typedef struct {
     address  myaddress;
     guint32  port;
-} host_key_t;
+} endpoint_key_t;
+
+/*
+ * For backwards source compatibiity.
+ * Yes, G_DEPRECATED_FOR() has to be at the beginning, so that this
+ * works with MSVC.
+ */
+G_DEPRECATED_FOR(endpoint_key_t)
+typedef endpoint_key_t host_key_t;
 
 struct _conversation_item_t;
 typedef const char* (*conv_get_filter_type)(struct _conversation_item_t* item, conv_filter_type_e filter);
@@ -78,12 +86,16 @@ typedef struct _ct_dissector_info {
     conv_get_filter_type get_filter_type;
 } ct_dissector_info_t;
 
-struct _hostlist_talker_t;
-typedef const char* (*host_get_filter_type)(struct _hostlist_talker_t* item, conv_filter_type_e filter_type);
+struct _endpoint_item_t;
+typedef const char* (*endpoint_get_filter_type)(struct _endpoint_item_t* item, conv_filter_type_e filter_type);
 
-typedef struct _hostlist_dissector_info {
-    host_get_filter_type get_filter_type;
-} hostlist_dissector_info_t;
+typedef struct _et_dissector_info {
+    endpoint_get_filter_type get_filter_type;
+} et_dissector_info_t;
+
+/* For backwards source compatibiity */
+G_DEPRECATED_FOR(et_dissector_info_t)
+typedef et_dissector_info_t hostlist_dissector_info_t;
 
 #define CONV_FILTER_INVALID "INVALID"
 
@@ -91,9 +103,13 @@ typedef struct _hostlist_dissector_info {
 struct register_ct;
 typedef void (*conv_gui_init_cb)(struct register_ct* ct, const char *filter);
 
-typedef void (*host_gui_init_cb)(struct register_ct* host, const char *filter);
+typedef void (*endpoint_gui_init_cb)(struct register_ct* ct, const char *filter);
 
-/** Structure for information about a registered conversation */
+/**
+ * Structure for information about a registered conversation table;
+ * this information is for both the conversation table and any
+ * endpoint table associated with it.
+ */
 typedef struct register_ct register_ct_t;
 
 /** Conversation information */
@@ -123,9 +139,9 @@ typedef struct _conversation_item_t {
     gboolean filtered;                  /**< the entry contains only filtered data */
 } conv_item_t;
 
-/** Hostlist information */
-typedef struct _hostlist_talker_t {
-    hostlist_dissector_info_t *dissector_info; /**< conversation information provided by dissector */
+/** Endpoint information */
+typedef struct _endpoint_item_t {
+    et_dissector_info_t *dissector_info; /**< endpoint information provided by dissector */
     address myaddress;      /**< address */
     endpoint_type etype;    /**< endpoint_type (e.g. ENDPOINT_TCP) */
     guint32 port;           /**< port */
@@ -143,51 +159,60 @@ typedef struct _hostlist_talker_t {
     gboolean modified;      /**< new to redraw the row */
     gboolean filtered;      /**< the entry contains only filtered data */
 
-} hostlist_talker_t;
+} endpoint_item_t;
 
-#define HOSTLIST_TAP_PREFIX     "endpoints"
+/* For backwards source compatibility */
+G_DEPRECATED_FOR(endpoint_item_t)
+typedef endpoint_item_t hostlist_talker_t;
+
+#define ENDPOINT_TAP_PREFIX     "endpoints"
 
 /** Register the conversation table for the conversation and endpoint windows.
  *
  * @param proto_id is the protocol with conversation
  * @param hide_ports hide the port columns
  * @param conv_packet_func the registered conversation tap name
- * @param hostlist_func the registered hostlist tap name
+ * @param endpoint_packet_func the registered endpoint tap name
  */
-WS_DLL_PUBLIC void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func);
+WS_DLL_PUBLIC void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb endpoint_packet_func);
 
 /** Should port columns be hidden?
  *
- * @param ct Registered conversation
- * @return TRUE if port columns should be hidden for this conversation type.
+ * @param ct Registered conversation table
+ * @return TRUE if port columns should be hidden for this conversation table.
  */
 WS_DLL_PUBLIC gboolean get_conversation_hide_ports(register_ct_t* ct);
 
-/** Get protocol ID from conversation
+/** Get protocol ID of a conversation table
  *
- * @param ct Registered conversation
- * @return protocol id of conversation
+ * @param ct Registered conversation tble
+ * @return protocol id of conversation table
  */
 WS_DLL_PUBLIC int get_conversation_proto_id(register_ct_t* ct);
 
-/** Get tap function handler from conversation
+/** Get conversation tap function handler of a conversation tble
  *
- * @param ct Registered conversation
- * @return tap function handler of conversation
+ * @param ct Registered conversation table
+ * @return conversation tap function handler of conversation table
  */
 WS_DLL_PUBLIC tap_packet_cb get_conversation_packet_func(register_ct_t* ct);
 
-/** Get tap function handler from hostlist
+/** Get endpoint tap function handler for a conversation table
  *
- * @param ct Registered conversation
- * @return tap function handler of conversation
+ * @param ct Registered conversation table
+ * @return endpoint tap function handler of conversation table
  */
+WS_DLL_PUBLIC tap_packet_cb get_endpoint_packet_func(register_ct_t* ct);
+
+/* For backwards source and binary compatibility */
+G_DEPRECATED_FOR(get_hostlist_packet_func)
 WS_DLL_PUBLIC tap_packet_cb get_hostlist_packet_func(register_ct_t* ct);
 
-/** get conversation from protocol ID
+
+/** get conversation table from protocol ID
  *
  * @param proto_id protocol ID
- * @return tap function handler of conversation
+ * @return conversation table for that protocol ID
  */
 WS_DLL_PUBLIC register_ct_t* get_conversation_by_proto_id(int proto_id);
 
@@ -199,13 +224,17 @@ WS_DLL_PUBLIC register_ct_t* get_conversation_by_proto_id(int proto_id);
  */
 WS_DLL_PUBLIC void conversation_table_set_gui_info(conv_gui_init_cb init_cb);
 
-/** Register "initialization function" used by the GUI to create hostlist
+/** Register "initialization function" used by the GUI to create endpoint
  * table display in GUI
  *
- * @param init_cb callback function that will be called when hostlist "display"
+ * @param init_cb callback function that will be called when endpoint table "display"
  * is instantiated in GUI
  */
-WS_DLL_PUBLIC void hostlist_table_set_gui_info(host_gui_init_cb init_cb);
+WS_DLL_PUBLIC void endpoint_table_set_gui_info(endpoint_gui_init_cb init_cb);
+
+/* For backwards source and binary compatibility */
+G_DEPRECATED_FOR(endpoint_table_set_gui_info)
+WS_DLL_PUBLIC void hostlist_table_set_gui_info(endpoint_gui_init_cb init_cb);
 
 /** Iterator to walk converation tables and execute func
  *
@@ -224,24 +253,32 @@ WS_DLL_PUBLIC guint conversation_table_get_num(void);
  */
 WS_DLL_PUBLIC void reset_conversation_table_data(conv_hash_t *ch);
 
-/** Remove all entries from the hostlist table.
+/** Remove all entries from the endpoint table.
  *
  * @param ch the table to reset
  */
+WS_DLL_PUBLIC void reset_endpoint_table_data(conv_hash_t *ch);
+
+/* For backwards source and binary compatibility */
+G_DEPRECATED_FOR(reset_endpoint_table_data)
 WS_DLL_PUBLIC void reset_hostlist_table_data(conv_hash_t *ch);
 
 /** Initialize dissector conversation for stats and (possibly) GUI.
  *
  * @param opt_arg filter string to compare with dissector
- * @param userdata register_ct_t* for dissector conversation
+ * @param userdata register_ct_t* for dissector conversation table
  */
 WS_DLL_PUBLIC void dissector_conversation_init(const char *opt_arg, void* userdata);
 
-/** Initialize dissector hostlist for stats and (possibly) GUI.
+/** Initialize dissector endpoint for stats and (possibly) GUI.
  *
  * @param opt_arg filter string to compare with dissector
- * @param userdata register_ct_t* for dissector conversation
+ * @param userdata register_ct_t* for dissector conversation table
  */
+WS_DLL_PUBLIC void dissector_endpoint_init(const char *opt_arg, void* userdata);
+
+/* For backwards source and binary compatibility */
+G_DEPRECATED_FOR(dissector_endpoint_init)
 WS_DLL_PUBLIC void dissector_hostlist_init(const char *opt_arg, void* userdata);
 
 /** Get the string representation of an address.
@@ -271,13 +308,13 @@ WS_DLL_PUBLIC char *get_conversation_port(wmem_allocator_t *allocator, guint32 p
  */
 WS_DLL_PUBLIC char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction);
 
-/** Get a display filter for the given hostlist.
+/** Get a display filter for the given endpoint.
  *
- * @param host The hostlist.
+ * @param endpoint_item The endpoint.
  * @return A string, allocated using the wmem NULL allocator,
  * representing the conversation.
  */
-WS_DLL_PUBLIC char *get_hostlist_filter(hostlist_talker_t *host);
+WS_DLL_PUBLIC char *get_endpoint_filter(endpoint_item_t *endpoint_item);
 
 /** Add some data to the conversation table.
  *
@@ -311,7 +348,7 @@ WS_DLL_PUBLIC void add_conversation_table_data(conv_hash_t *ch, const address *s
  * @param ts timestamp
  * @param abs_ts absolute timestamp
  * @param ct_info callback handlers from the dissector
- * @param etype the port type (e.g. PT_TCP)
+ * @param etype the conversation/endpoint type (e.g. ENDPOINT_TCP)
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
  */
 WS_DLL_PUBLIC void
@@ -319,7 +356,7 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
     guint32 dst_port, conv_id_t conv_id, int num_frames, int num_bytes,
     nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, endpoint_type etype);
 
-/** Add some data to the table.
+/** Add some data to the endpoint table.
  *
  * @param ch the table hash to add the data to
  * @param addr address
@@ -327,11 +364,16 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
  * @param sender TRUE, if this is a sender
  * @param num_frames number of packets
  * @param num_bytes number of bytes
- * @param host_info conversation information provided by dissector
- * @param etype the port type (e.g. PT_TCP)
+ * @param et_info endpoint information provided by dissector
+ * @param etype the conversation/endpoint type (e.g. ENDPOINT_TCP)
  */
+WS_DLL_PUBLIC void add_endpoint_table_data(conv_hash_t *ch, const address *addr,
+    guint32 port, gboolean sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype);
+
+/* For backwards source and binary compatibility */
+G_DEPRECATED_FOR(add_endpoint_table_data)
 WS_DLL_PUBLIC void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
-    guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, endpoint_type etype);
+    guint32 port, gboolean sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype);
 
 #ifdef __cplusplus
 }

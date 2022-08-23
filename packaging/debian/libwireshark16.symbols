@@ -25,6 +25,7 @@ libwireshark.so.16 libwireshark16 #MINVER#
  add_conversation_filter_protocol@Base 3.7.0
  add_conversation_table_data@Base 2.5.0
  add_conversation_table_data_with_conv_id@Base 2.5.0
+ add_endpoint_table_data@Base 4.0.0-rc2
  add_hostlist_table_data@Base 2.5.0
  add_hosts_file@Base 1.9.1
  add_ip_name_from_string@Base 1.9.1
@@ -506,6 +507,7 @@ libwireshark.so.16 libwireshark16 #MINVER#
  dissector_dump_decodes@Base 1.9.1
  dissector_dump_dissector_tables@Base 1.99.1
  dissector_dump_heur_decodes@Base 1.9.1
+ dissector_endpoint_init@Base 4.0.0-rc2
  dissector_get_custom_table_handle@Base 1.99.8
  dissector_get_default_string_handle@Base 1.12.0~rc1
  dissector_get_default_uint_handle@Base 1.12.0~rc1
@@ -565,6 +567,7 @@ libwireshark.so.16 libwireshark16 #MINVER#
  elem_tv_short@Base 1.9.1
  elem_v@Base 1.9.1
  elem_v_short@Base 1.9.1
+ endpoint_table_set_gui_info@Base 4.0.0-rc2
  enterprises_base_custom@Base 2.5.0
  enterprises_lookup@Base 2.5.0
  eo_ct2ext@Base 2.3.0
@@ -830,6 +833,8 @@ libwireshark.so.16 libwireshark16 #MINVER#
  get_dissector_table_selector_type@Base 1.9.1
  get_dissector_table_ui_name@Base 1.9.1
  get_edited_resolved_name@Base 3.3.0
+ get_endpoint_filter@Base 4.0.0-rc2
+ get_endpoint_packet_func@Base 4.0.0-rc2
  get_eo_by_name@Base 2.3.0
  get_eo_packet_func@Base 2.3.0
  get_eo_proto_id@Base 2.3.0
@@ -1459,6 +1464,7 @@ libwireshark.so.16 libwireshark16 #MINVER#
  remove_tap_listener@Base 1.9.1
  req_resp_hdrs_do_reassembly@Base 1.9.1
  reset_conversation_table_data@Base 1.99.0
+ reset_endpoint_table_data@Base 4.0.0-rc2
  reset_hostlist_table_data@Base 1.99.0
  reset_pref@Base 2.3.0
  reset_rtd_table@Base 1.99.8

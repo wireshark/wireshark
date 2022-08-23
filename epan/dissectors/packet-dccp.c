@@ -451,7 +451,7 @@ dccpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U
     return TAP_PACKET_REDRAW;
 }
 
-static const char* dccp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+static const char* dccp_host_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
 {
 
     if (filter == CONV_FT_SRC_PORT)
@@ -492,7 +492,7 @@ static const char* dccp_host_get_filter_type(hostlist_talker_t* host, conv_filte
     return CONV_FILTER_INVALID;
 }
 
-static hostlist_dissector_info_t dccp_host_dissector_info = {&dccp_host_get_filter_type};
+static et_dissector_info_t dccp_host_dissector_info = {&dccp_host_get_filter_type};
 
 static tap_packet_status
 dccpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags )
@@ -504,8 +504,8 @@ dccpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, c
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside hostlist_table */
-    add_hostlist_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
-    add_hostlist_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
+    add_endpoint_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
+    add_endpoint_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
 
     return TAP_PACKET_REDRAW;
 }

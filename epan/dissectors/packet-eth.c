@@ -167,7 +167,7 @@ eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
   return TAP_PACKET_REDRAW;
 }
 
-static const char* eth_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+static const char* eth_host_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
 {
   if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_ETHER))
     return "eth.addr";
@@ -175,7 +175,7 @@ static const char* eth_host_get_filter_type(hostlist_talker_t* host, conv_filter
   return CONV_FILTER_INVALID;
 }
 
-static hostlist_dissector_info_t eth_host_dissector_info = {&eth_host_get_filter_type};
+static et_dissector_info_t eth_host_dissector_info = {&eth_host_get_filter_type};
 
 static tap_packet_status
 eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
@@ -187,8 +187,8 @@ eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
   /* Take two "add" passes per packet, adding for each direction, ensures that all
      packets are counted properly (even if address is sending to itself)
      XXX - this could probably be done more efficiently inside hostlist_table */
-  add_hostlist_table_data(hash, &ehdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, ENDPOINT_NONE);
-  add_hostlist_table_data(hash, &ehdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, ENDPOINT_NONE);
+  add_endpoint_table_data(hash, &ehdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, ENDPOINT_NONE);
+  add_endpoint_table_data(hash, &ehdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, ENDPOINT_NONE);
 
   return TAP_PACKET_REDRAW;
 }

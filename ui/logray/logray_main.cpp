@@ -768,7 +768,7 @@ int main(int argc, char *qt_argv[])
     register_all_tap_listeners(tap_reg_listener);
 
     conversation_table_set_gui_info(init_conversation_table);
-    hostlist_table_set_gui_info(init_endpoint_table);
+    endpoint_table_set_gui_info(init_endpoint_table);
 //    srt_table_iterate_tables(register_service_response_tables, NULL);
 //    rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
     stat_tap_iterate_tables(register_simple_stat_tables, NULL);
