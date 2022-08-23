@@ -316,6 +316,10 @@ WS_DLL_PUBLIC char *get_conversation_filter(conv_item_t *conv_item, conv_directi
  */
 WS_DLL_PUBLIC char *get_endpoint_filter(endpoint_item_t *endpoint_item);
 
+/* For backwards source and binary compatibility */
+G_DEPRECATED_FOR(get_endpoint_filter)
+WS_DLL_PUBLIC char *get_hostlist_filter(endpoint_item_t *endpoint_item);
+
 /** Add some data to the conversation table.
  *
  * @param ch the table to add the data to
