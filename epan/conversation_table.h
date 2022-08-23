@@ -205,7 +205,7 @@ WS_DLL_PUBLIC tap_packet_cb get_conversation_packet_func(register_ct_t* ct);
 WS_DLL_PUBLIC tap_packet_cb get_endpoint_packet_func(register_ct_t* ct);
 
 /* For backwards source and binary compatibility */
-G_DEPRECATED_FOR(get_hostlist_packet_func)
+G_DEPRECATED_FOR(get_endpoint_packet_func)
 WS_DLL_PUBLIC tap_packet_cb get_hostlist_packet_func(register_ct_t* ct);
 
 
