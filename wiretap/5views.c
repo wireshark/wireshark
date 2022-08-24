@@ -391,7 +391,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	 * we should check against G_MININT32 and G_MAXINT32 and make
 	 * Utc a gint32.
 	 */
-	if (rec->ts.secs < 0 || rec->ts.secs > G_MAXUINT32) {
+	if (rec->ts.secs < 0 || rec->ts.secs > WTAP_NSTIME_32BIT_SECS_MAX) {
 		*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
 		return FALSE;
 	}

@@ -1338,6 +1338,8 @@ typedef struct {
 #define BBLOG_TYPE_EVENT_BLOCK   1
 #define BBLOG_TYPE_SKIPPED_BLOCK 2
 
+#define WTAP_NSTIME_32BIT_SECS_MAX ((time_t)(sizeof(time_t) > sizeof(gint32) ? G_MAXUINT32 : G_MAXINT32))
+
 typedef struct {
     guint     rec_type;          /* what type of record is this? */
     guint32   presence_flags;    /* what stuff do we have? */

@@ -1812,7 +1812,7 @@ netxray_dump_1_1(wtap_dumper *wdh,
 		 * G_MININT32 and G_MAXINT32 and make start_secs a
 		 * gint32.
 		 */
-		if (rec->ts.secs < 0 || rec->ts.secs > G_MAXUINT32) {
+		if (rec->ts.secs < 0 || rec->ts.secs > WTAP_NSTIME_32BIT_SECS_MAX) {
 			*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
 			return FALSE;
 		}
@@ -2011,7 +2011,7 @@ netxray_dump_2_0(wtap_dumper *wdh,
 		 * G_MININT32 and G_MAXINT32 and make start_secs a
 		 * gint32.
 		 */
-		if (rec->ts.secs < 0 || rec->ts.secs > G_MAXUINT32) {
+		if (rec->ts.secs < 0 || rec->ts.secs > WTAP_NSTIME_32BIT_SECS_MAX) {
 			*err = WTAP_ERR_TIME_STAMP_NOT_SUPPORTED;
 			return FALSE;
 		}
