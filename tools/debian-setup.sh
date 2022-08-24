@@ -93,7 +93,8 @@ ADDITIONAL_LIST="libnl-3-dev \
 	perl \
 	xsltproc \
 	ccache \
-	libspeexdsp-dev"
+	libspeexdsp-dev \
+	doxygen"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
 # ADDITIONAL_LIST="$ADDITIONAL_LIST \
@@ -180,6 +181,10 @@ echo "libilbc-dev is unavailable"
 # opus library libopus-dev
 add_package ADDITIONAL_LIST libopus-dev ||
     echo "libopus-dev is unavailable"
+
+# bcg729 library libbcg729-dev
+add_package ADDITIONAL_LIST libbcg729-dev ||
+    echo "libbcg729-dev is unavailable"
 
 # softhsm2 2.0.0: Ubuntu 16.04
 # softhsm2 2.2.0: Debian >= jessie-backports, Ubuntu 18.04
