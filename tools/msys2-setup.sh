@@ -73,9 +73,10 @@ BASIC_LIST="base-devel \
 	mingw-w64-x86_64-opus \
 	mingw-w64-x86_64-pcre2 \
 	mingw-w64-x86_64-python \
-	mingw-w64-x86_64-qt5-base \
-	mingw-w64-x86_64-qt5-multimedia \
-	mingw-w64-x86_64-qt5-tools \
+	mingw-w64-x86_64-qt6-base \
+	mingw-w64-x86_64-qt6-multimedia \
+	mingw-w64-x86_64-qt6-tools \
+	mingw-w64-x86_64-qt6-5compat \
 	mingw-w64-x86_64-snappy \
 	mingw-w64-x86_64-spandsp \
 	mingw-w64-x86_64-speexdsp \
@@ -106,7 +107,7 @@ then
 fi
 
 # Partial upgrades are unsupported.
-pacman -Syu --needed $ACTUAL_LIST $OPTIONS || exit 2
+pacman --sync --refresh --sysupgrade --needed $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ $ADDITIONAL -eq 0 ]
 then
