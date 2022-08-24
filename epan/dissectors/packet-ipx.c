@@ -161,18 +161,18 @@ ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 	return TAP_PACKET_REDRAW;
 }
 
-static const char* ipx_host_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
+static const char* ipx_endpoint_get_filter_type(endpoint_item_t* endpoint, conv_filter_type_e filter)
 {
-	if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_IPX))
+	if ((filter == CONV_FT_ANY_ADDRESS) && (endpoint->myaddress.type == AT_IPX))
 		return "ipx.addr";
 
 	return CONV_FILTER_INVALID;
 }
 
-static et_dissector_info_t ipx_host_dissector_info = {&ipx_host_get_filter_type};
+static et_dissector_info_t ipx_endpoint_dissector_info = {&ipx_endpoint_get_filter_type};
 
 static tap_packet_status
-ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
+ipx_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
 	conv_hash_t *hash = (conv_hash_t*) pit;
     hash->flags = flags;
@@ -182,8 +182,8 @@ ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)
 	XXX - this could probably be done more efficiently inside endpoint_table */
-	add_endpoint_table_data(hash, &ipxh->ipx_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipx_host_dissector_info, ENDPOINT_NONE);
-	add_endpoint_table_data(hash, &ipxh->ipx_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipx_host_dissector_info, ENDPOINT_NONE);
+	add_endpoint_table_data(hash, &ipxh->ipx_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipx_endpoint_dissector_info, ENDPOINT_NONE);
+	add_endpoint_table_data(hash, &ipxh->ipx_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipx_endpoint_dissector_info, ENDPOINT_NONE);
 
 	return TAP_PACKET_REDRAW;
 }
@@ -1584,7 +1584,7 @@ proto_register_ipx(void)
 	spx_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), spx_hash_func, spx_equal);
 	ipx_tap=register_tap("ipx");
 
-	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_hostlist_packet);
+	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_endpoint_packet);
 
 	register_capture_dissector("ipx", capture_ipx, proto_ipx);
 }

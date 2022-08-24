@@ -167,18 +167,18 @@ eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
   return TAP_PACKET_REDRAW;
 }
 
-static const char* eth_host_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
+static const char* eth_endpoint_get_filter_type(endpoint_item_t* endpoint, conv_filter_type_e filter)
 {
-  if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_ETHER))
+  if ((filter == CONV_FT_ANY_ADDRESS) && (endpoint->myaddress.type == AT_ETHER))
     return "eth.addr";
 
   return CONV_FILTER_INVALID;
 }
 
-static et_dissector_info_t eth_host_dissector_info = {&eth_host_get_filter_type};
+static et_dissector_info_t eth_endpoint_dissector_info = {&eth_endpoint_get_filter_type};
 
 static tap_packet_status
-eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
+eth_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
   conv_hash_t *hash = (conv_hash_t*) pit;
   hash->flags = flags;
@@ -187,8 +187,8 @@ eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
   /* Take two "add" passes per packet, adding for each direction, ensures that all
      packets are counted properly (even if address is sending to itself)
      XXX - this could probably be done more efficiently inside endpoint_table */
-  add_endpoint_table_data(hash, &ehdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, ENDPOINT_NONE);
-  add_endpoint_table_data(hash, &ehdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &eth_host_dissector_info, ENDPOINT_NONE);
+  add_endpoint_table_data(hash, &ehdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &eth_endpoint_dissector_info, ENDPOINT_NONE);
+  add_endpoint_table_data(hash, &ehdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &eth_endpoint_dissector_info, ENDPOINT_NONE);
 
   return TAP_PACKET_REDRAW;
 }
@@ -1154,7 +1154,7 @@ proto_register_eth(void)
   eth_maybefcs_handle = register_dissector("eth_maybefcs", dissect_eth_maybefcs, proto_eth);
   eth_tap = register_tap("eth");
 
-  register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet);
+  register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_endpoint_packet);
   register_conversation_filter("eth", "Ethernet", eth_filter_valid, eth_build_filter);
 
   register_capture_dissector("eth", capture_eth, proto_eth);

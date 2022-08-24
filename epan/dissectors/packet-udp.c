@@ -286,7 +286,7 @@ udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     return TAP_PACKET_REDRAW;
 }
 
-static const char* udp_host_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
+static const char* udp_endpoint_get_filter_type(endpoint_item_t* endpoint, conv_filter_type_e filter)
 {
 
     if (filter == CONV_FT_SRC_PORT)
@@ -298,39 +298,39 @@ static const char* udp_host_get_filter_type(endpoint_item_t* host, conv_filter_t
     if (filter == CONV_FT_ANY_PORT)
         return "udp.port";
 
-    if(!host) {
+    if(!endpoint) {
         return CONV_FILTER_INVALID;
     }
 
 
     if (filter == CONV_FT_SRC_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.src";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.src";
     }
 
     if (filter == CONV_FT_DST_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.dst";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.dst";
     }
 
     if (filter == CONV_FT_ANY_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.addr";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.addr";
     }
 
     return CONV_FILTER_INVALID;
 }
 
-static et_dissector_info_t udp_host_dissector_info = {&udp_host_get_filter_type};
+static et_dissector_info_t udp_endpoint_dissector_info = {&udp_endpoint_get_filter_type};
 
 static tap_packet_status
-udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
+udpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     hash->flags = flags;
@@ -340,8 +340,8 @@ udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &udphdr->ip_src, udphdr->uh_sport, TRUE, 1, pinfo->fd->pkt_len, &udp_host_dissector_info, ENDPOINT_UDP);
-    add_endpoint_table_data(hash, &udphdr->ip_dst, udphdr->uh_dport, FALSE, 1, pinfo->fd->pkt_len, &udp_host_dissector_info, ENDPOINT_UDP);
+    add_endpoint_table_data(hash, &udphdr->ip_src, udphdr->uh_sport, TRUE, 1, pinfo->fd->pkt_len, &udp_endpoint_dissector_info, ENDPOINT_UDP);
+    add_endpoint_table_data(hash, &udphdr->ip_dst, udphdr->uh_dport, FALSE, 1, pinfo->fd->pkt_len, &udp_endpoint_dissector_info, ENDPOINT_UDP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -1473,7 +1473,7 @@ proto_register_udp(void)
                          &udplite_calculate_ts);
 
     register_decode_as(&udp_da);
-    register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet);
+    register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_endpoint_packet);
     register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter);
     register_follow_stream(proto_udp, "udp_follow", udp_follow_conv_filter, udp_follow_index_filter, udp_follow_address_filter,
                         udp_port_to_display, follow_tvb_tap_listener);
