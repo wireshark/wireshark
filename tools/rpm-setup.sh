@@ -19,11 +19,16 @@ function print_usage() {
 	printf "Usage: $0 [--install-optional] [...other options...]\n"
 	printf "\t--install-optional: install optional software as well\n"
 	printf "\t--install-rpm-deps: install packages required to build the .rpm file\n"
+	printf "\\t--install-qt5-deps: force installation of packages required to use Qt5\\n"
+	printf "\\t--install-qt6-deps: force installation of packages required to use Qt6\\n"
 	printf "\t[other]: other options are passed as-is to the packet manager\n"
 }
 
 ADDITIONAL=0
 RPMDEPS=0
+ADD_QT5=0
+ADD_QT6=0
+HAVE_ADD_QT=0
 OPTIONS=
 for arg; do
 	case $arg in
@@ -36,6 +41,14 @@ for arg; do
 			;;
 		--install-rpm-deps)
 			RPMDEPS=1
+			;;
+		--install-qt5-deps)
+			ADD_QT5=1
+			HAVE_ADD_QT=1
+			;;
+		--install-qt6-deps)
+			ADD_QT6=1
+			HAVE_ADD_QT=1
 			;;
 		*)
 			OPTIONS="$OPTIONS $arg"
@@ -162,26 +175,62 @@ echo "Required package zlib|libz1 is unavailable" >&2
 add_package BASIC_LIST c-ares-devel || add_package BASIC_LIST libcares-devel ||
 echo "Required package c-ares-devel|libcares-devel is unavailable" >&2
 
-# qt5-linguist: CentOS, Fedora
-# libqt5-linguist-devel: OpenSUSE
-add_package BASIC_LIST qt5-linguist ||
-add_package BASIC_LIST libqt5-linguist-devel ||
-echo "Required package qt5-linguist|libqt5-linguist-devel is unavailable" >&2
+if [ $HAVE_ADD_QT -eq 0 ]
+then
+	# Try to select Qt version from distro
+	test -e /etc/os-release && os_release='/etc/os-release' || os_release='/usr/lib/os-release'
+	# shellcheck disable=SC1090
+	. "${os_release}"
 
-# qt5-qtmultimedia: CentOS, Fedora, pulls in qt5-qtbase-devel (big dependency list!)
-# libqt5-qtmultimedia-devel: OpenSUSE, pulls in Core, Gui, Multimedia, Network, Widgets
-# OpenSUSE additionally has a separate Qt5PrintSupport package.
-add_package BASIC_LIST qt5-qtmultimedia-devel ||
-add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
-echo "Required Qt5 Mutlimedia and/or Qt5 Print Support is unavailable" >&2
+	# Fedora 35 or later
+	if [ "${ID:-linux}" = "fedora" ] && [ "${VERSION_ID:-0}" -ge "35" ]; then
+		echo "Installing Qt6."
+		ADD_QT6=1
+	else
+		echo "Installing Qt5."
+		ADD_QT5=1
+	fi
+fi
 
-# This in only required on OpenSUSE
-add_package BASIC_LIST libqt5-qtsvg-devel ||
-echo "Required OpenSUSE package libqt5-qtsvg-devel is unavailable. Not required for other distributions." >&2
+if [ $ADD_QT5 -ne 0 ]
+then
+	# qt5-linguist: CentOS, Fedora
+	# libqt5-linguist-devel: OpenSUSE
+	add_package BASIC_LIST qt5-linguist ||
+	add_package BASIC_LIST libqt5-linguist-devel ||
+	echo "Required package qt5-linguist|libqt5-linguist-devel is unavailable" >&2
 
-# This in only required on OpenSUSE
-add_package BASIC_LIST libQt5Concurrent-devel ||
-echo "Required OpenSUSE package libQt5Concurrent-devel is unavailable. Not required for other distributions." >&2
+	# qt5-qtmultimedia: CentOS, Fedora, pulls in qt5-qtbase-devel (big dependency list!)
+	# libqt5-qtmultimedia-devel: OpenSUSE, pulls in Core, Gui, Multimedia, Network, Widgets
+	# OpenSUSE additionally has a separate Qt5PrintSupport package.
+	add_package BASIC_LIST qt5-qtmultimedia-devel ||
+	add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
+	echo "Required Qt5 Mutlimedia and/or Qt5 Print Support is unavailable" >&2
+
+	# This in only required on OpenSUSE
+	add_package BASIC_LIST libqt5-qtsvg-devel ||
+	echo "Required OpenSUSE package libqt5-qtsvg-devel is unavailable. Not required for other distributions." >&2
+
+	# This in only required on OpenSUSE
+	add_package BASIC_LIST libQt5Concurrent-devel ||
+	echo "Required OpenSUSE package libQt5Concurrent-devel is unavailable. Not required for other distributions." >&2
+fi
+
+if [ $ADD_QT6 -ne 0 ]
+then
+	# Fedora Qt6 packages required from a minimal installation
+	QT6_LIST=(qt6-qtbase-devel
+			qt6-qttools-devel
+			qt6-qt5compat-devel
+			qt6-qtmultimedia-devel
+			libxkbcommon-devel)
+		
+	for pkg in ${QT6_LIST[@]}
+	do
+		add_package BASIC_LIST "$pkg" ||
+		echo "Qt6 dependency $pkg is unavailable" >&2
+	done
+fi
 
 # This in only required on OpenSUSE
 add_packages BASIC_LIST hicolor-icon-theme xdg-utils ||
