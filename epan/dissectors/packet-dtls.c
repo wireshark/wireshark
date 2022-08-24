@@ -77,6 +77,7 @@ static proto_tree *top_tree;
 
 /* https://www.iana.org/assignments/srtp-protection/srtp-protection.xhtml */
 
+#define SRTP_PROFILE_RESERVED       0x0000
 #define SRTP_AES128_CM_HMAC_SHA1_80 0x0001
 #define SRTP_AES128_CM_HMAC_SHA1_32 0x0002
 #define SRTP_NULL_HMAC_SHA1_80      0x0005
@@ -161,6 +162,7 @@ static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 static expert_field ei_dtls_cid_invalid_content_type = EI_INIT;
+static expert_field ei_dtls_use_srtp_profiles_length = EI_INIT;
 #if 0
 static expert_field ei_dtls_cid_invalid_enc_content = EI_INIT;
 #endif
@@ -1686,6 +1688,7 @@ dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
    * SRTPProtectionProfile SRTPProtectionProfiles<2..2^16-1>;
    */
 
+  proto_item *ti;
   guint32 profiles_length, profiles_end, profile, mki_length;
 
   if (ext_len < 2) {
@@ -1694,21 +1697,26 @@ dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
   }
 
   /* SRTPProtectionProfiles list length */
-  proto_tree_add_item_ret_uint(tree, hf_dtls_hs_ext_use_srtp_protection_profiles_length,
+  ti = proto_tree_add_item_ret_uint(tree, hf_dtls_hs_ext_use_srtp_protection_profiles_length,
       tvb, offset, 2, ENC_BIG_ENDIAN, &profiles_length);
   if (profiles_length > ext_len - 2) {
-    /* XXX expert info because length exceeds extension_data field */
     profiles_length = ext_len - 2;
+    expert_add_info_format(pinfo, ti, &ei_dtls_use_srtp_profiles_length,
+                           "The protection profiles length exceeds the extension data field length");
+  }
+  if (is_server && profiles_length != 2) {
+    /* The server, if sending the use_srtp extension, MUST return a
+     * a single chosen profile that the client has offered.
+     */
+    profile = SRTP_PROFILE_RESERVED;
+    expert_add_info_format(pinfo, ti, &ei_dtls_use_srtp_profiles_length,
+                           "The server MUST return a single chosen protection profile");
   }
   offset += 2;
 
   /* SRTPProtectionProfiles list items */
   profiles_end = offset + profiles_length;
   while (offset < profiles_end) {
-    /* The server, if sending the use_srtp extension, MUST return a
-     * single chosen profile that the client has offered. We will
-     * use that to set up the connection.
-     */
     proto_tree_add_item_ret_uint(tree,
         hf_dtls_hs_ext_use_srtp_protection_profile, tvb, offset, 2,
         ENC_BIG_ENDIAN, &profile);
@@ -1725,8 +1733,8 @@ dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
     offset += mki_length;
   }
 
-  /* If we only get the Client Hello, we don't know which SRTP protection
-   * profile is chosen, unless only one was provided.
+  /* We don't know which SRTP protection profile is chosen, unless only one
+   * was provided.
    */
   if (is_server || profiles_length == 2) {
     struct srtp_info *srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
@@ -2187,6 +2195,7 @@ proto_register_dtls(void)
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
      { &ei_dtls_heartbeat_payload_length, { "dtls.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
      { &ei_dtls_cid_invalid_content_type, { "dtls.cid.content_type.invalid", PI_MALFORMED, PI_ERROR, "Invalid real content type", EXPFILL }},
+     { &ei_dtls_use_srtp_profiles_length, { "dtls.use_srtp.protection_profiles_length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid real content type", EXPFILL }},
 #if 0
      { &ei_dtls_cid_invalid_enc_content, { "dtls.cid.enc_content.invalid", PI_MALFORMED, PI_ERROR, "Invalid encrypted content", EXPFILL }},
 #endif
