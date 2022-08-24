@@ -1842,7 +1842,7 @@ static tap_packet_status zbee_nwk_hostlist_packet(void *pit, packet_info *pinfo,
 
     /* Take two "add" passes per packet, adding for each direction, ensures that all
      packets are counted properly (even if address is sending to itself)
-     XXX - this could probably be done more efficiently inside hostlist_table */
+     XXX - this could probably be done more efficiently inside endpoint_table */
     add_endpoint_table_data(hash, &pinfo->net_src, 0, TRUE, 1,
             pinfo->fd->pkt_len, &zbee_nwk_host_dissector_info, ENDPOINT_NONE);
     add_endpoint_table_data(hash, &pinfo->net_dst, 0, FALSE, 1,
