@@ -3579,34 +3579,31 @@ static reassembly_table tcp_reassembly_table;
 /* Enable desegmenting of TCP streams */
 static gboolean tcp_desegment = TRUE;
 
-#if 0
-/* Returns true iff any gap exists in the segments associated with msp up to the
- * given sequence number (it ignores any gaps after the sequence number). */
-static gboolean
-missing_segments(packet_info *pinfo, struct tcp_multisegment_pdu *msp, guint32 seq)
+/* Returns the maximum next sequence number associated with msp starting
+ * with the given max sequence number (which is from the current frame
+ * and may not have been added to the msp yet). */
+static guint32
+find_maxnextseq(packet_info *pinfo, struct tcp_multisegment_pdu *msp, guint32 maxnextseq)
 {
     fragment_head *fd_head;
-    guint32 frag_offset = seq - msp->seq;
 
-    if ((gint32)frag_offset <= 0) {
-        return FALSE;
-    }
+    DISSECTOR_ASSERT(msp);
 
     fd_head = fragment_get(&tcp_reassembly_table, pinfo, msp->first_frame, msp);
     /* msp implies existence of fragments, this should never be NULL. */
     DISSECTOR_ASSERT(fd_head);
 
     /* Find length of contiguous fragments. */
-    guint32 max = 0;
+    guint32 max = maxnextseq - msp->seq;
     for (fragment_item *frag = fd_head; frag; frag = frag->next) {
         guint32 frag_end = frag->offset + frag->len;
         if (frag->offset <= max && max < frag_end) {
             max = frag_end;
         }
     }
-    return max < frag_offset;
+
+    return max + msp->seq;
 }
-#endif
 
 static struct tcp_multisegment_pdu*
 split_msp(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struct tcp_analysis *tcpd)
@@ -3742,6 +3739,12 @@ msp_add_out_of_order(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struc
     /* Whether a previous MSP exists with missing segments. */
     gboolean has_unfinished_msp = msp && !(msp->flags & MSP_FLAGS_GOT_ALL_SEGMENTS);
 
+    if (msp) {
+        guint32 maxnextseq = find_maxnextseq(pinfo, msp, tcpd->fwd->maxnextseq);
+        if (LE_SEQ(tcpd->fwd->maxnextseq, maxnextseq)) {
+            tcpd->fwd->maxnextseq = maxnextseq;
+        }
+    }
     wmem_list_frame_t *curr_entry;
     curr_entry = wmem_list_head(tcpd->fwd->ooo_segments);
     ooo_segment_item *fd;
