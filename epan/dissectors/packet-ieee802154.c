@@ -5624,7 +5624,7 @@ static tap_packet_status ieee802154_hostlist_packet(void *pit, packet_info *pinf
 
     /* Take two "add" passes per packet, adding for each direction, ensures that all
      packets are counted properly (even if address is sending to itself)
-     XXX - this could probably be done more efficiently inside hostlist_table */
+     XXX - this could probably be done more efficiently inside endpoint_table */
     add_endpoint_table_data(hash, &pinfo->dl_src, 0, TRUE, 1,
             pinfo->fd->pkt_len, &ieee802154_host_dissector_info, ENDPOINT_NONE);
     add_endpoint_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1,

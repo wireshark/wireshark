@@ -505,7 +505,7 @@ dccpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
-    XXX - this could probably be done more efficiently inside hostlist_table */
+    XXX - this could probably be done more efficiently inside endpoint_table */
     add_endpoint_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
     add_endpoint_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
 
