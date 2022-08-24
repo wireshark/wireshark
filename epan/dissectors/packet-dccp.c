@@ -451,7 +451,7 @@ dccpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U
     return TAP_PACKET_REDRAW;
 }
 
-static const char* dccp_host_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
+static const char* dccp_endpoint_get_filter_type(endpoint_item_t* endpoint, conv_filter_type_e filter)
 {
 
     if (filter == CONV_FT_SRC_PORT)
@@ -463,39 +463,39 @@ static const char* dccp_host_get_filter_type(endpoint_item_t* host, conv_filter_
     if (filter == CONV_FT_ANY_PORT)
         return "dccp.port";
 
-    if(!host) {
+    if(!endpoint) {
         return CONV_FILTER_INVALID;
     }
 
 
     if (filter == CONV_FT_SRC_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.src";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.src";
     }
 
     if (filter == CONV_FT_DST_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.dst";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.dst";
     }
 
     if (filter == CONV_FT_ANY_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.addr";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.addr";
     }
 
     return CONV_FILTER_INVALID;
 }
 
-static et_dissector_info_t dccp_host_dissector_info = {&dccp_host_get_filter_type};
+static et_dissector_info_t dccp_endpoint_dissector_info = {&dccp_endpoint_get_filter_type};
 
 static tap_packet_status
-dccpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags )
+dccpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags )
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     hash->flags = flags;
@@ -504,8 +504,8 @@ dccpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, c
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
-    add_endpoint_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
+    add_endpoint_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
+    add_endpoint_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -1727,7 +1727,7 @@ proto_register_dccp(void)
         "Make the DCCP dissector use relative sequence numbers instead of absolute ones.",
         &dccp_relative_seq);
 
-    register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_hostlist_packet);
+    register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_endpoint_packet);
     register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter);
     register_follow_stream(proto_dccp, "dccp_follow", dccp_follow_conv_filter, dccp_follow_index_filter, dccp_follow_address_filter,
                            dccp_port_to_display, follow_tvb_tap_listener);

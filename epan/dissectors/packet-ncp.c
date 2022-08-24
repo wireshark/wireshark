@@ -772,15 +772,15 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
     return TAP_PACKET_REDRAW;
 }
 
-static const char* ncp_host_get_filter_type(endpoint_item_t* host _U_, conv_filter_type_e filter)
+static const char* ncp_endpoint_get_filter_type(endpoint_item_t* endpoint _U_, conv_filter_type_e filter)
 {
     return ncp_conv_get_filter_type(NULL, filter);
 }
 
-static et_dissector_info_t ncp_host_dissector_info = {&ncp_host_get_filter_type};
+static et_dissector_info_t ncp_endpoint_dissector_info = {&ncp_endpoint_get_filter_type};
 
 static tap_packet_status
-ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
+ncp_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
     hash->flags = flags;
@@ -790,8 +790,8 @@ ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &pinfo->src, 0, TRUE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, ENDPOINT_NCP);
-    add_endpoint_table_data(hash, &pinfo->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, ENDPOINT_NCP);
+    add_endpoint_table_data(hash, &pinfo->src, 0, TRUE, 1, pinfo->fd->pkt_len, &ncp_endpoint_dissector_info, ENDPOINT_NCP);
+    add_endpoint_table_data(hash, &pinfo->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ncp_endpoint_dissector_info, ENDPOINT_NCP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -1611,7 +1611,7 @@ proto_register_ncp(void)
     ncp_tap.stat=register_tap("ncp_srt");
     ncp_tap.hdr=register_tap("ncp");
 
-    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet, ncp_hostlist_packet);
+    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet, ncp_endpoint_packet);
     register_srt_table(proto_ncp, "ncp_srt", 24, ncpstat_packet, ncpstat_init, NULL);
 }
 

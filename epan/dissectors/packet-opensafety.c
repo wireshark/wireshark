@@ -1970,9 +1970,9 @@ static const char* opensafety_conv_get_filter_type(conv_item_t* conv, conv_filte
 
 static ct_dissector_info_t opensafety_ct_dissector_info = {&opensafety_conv_get_filter_type};
 
-static const char* opensafety_get_filter_type(endpoint_item_t* host, conv_filter_type_e filter)
+static const char* opensafety_get_filter_type(endpoint_item_t* endpoint, conv_filter_type_e filter)
 {
-    if (host->myaddress.type == AT_NUMERIC) {
+    if (endpoint->myaddress.type == AT_NUMERIC) {
         if (filter == CONV_FT_ANY_ADDRESS)
             return "opensafety.msg.node";
         else if (filter == CONV_FT_SRC_ADDRESS)
@@ -2011,7 +2011,7 @@ opensafety_conversation_packet(void *pct, packet_info *pinfo,
 }
 
 static tap_packet_status
-opensafety_hostlist_packet(void *pit, packet_info *pinfo,
+opensafety_endpoint_packet(void *pit, packet_info *pinfo,
         epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
     address *src = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
@@ -3086,7 +3086,7 @@ proto_register_opensafety(void)
     opensafety_mbtcp_handle = register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
     opensafety_pnio_handle = register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
 
-    register_conversation_table(proto_opensafety, TRUE, opensafety_conversation_packet, opensafety_hostlist_packet);
+    register_conversation_table(proto_opensafety, TRUE, opensafety_conversation_packet, opensafety_endpoint_packet);
 }
 
 void

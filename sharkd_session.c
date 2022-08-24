@@ -2221,28 +2221,28 @@ sharkd_session_process_tap_conv_cb(void *arg)
     {
         for (i = 0; i < iu->hash.conv_array->len; i++)
         {
-            endpoint_item_t *host = &g_array_index(iu->hash.conv_array, endpoint_item_t, i);
+            endpoint_item_t *endpoint = &g_array_index(iu->hash.conv_array, endpoint_item_t, i);
             char *host_str, *port_str;
             char *filter_str;
 
             json_dumper_begin_object(&dumper);
 
-            sharkd_json_value_string("host", (host_str = get_conversation_address(NULL, &host->myaddress, iu->resolve_name)));
+            sharkd_json_value_string("host", (host_str = get_conversation_address(NULL, &endpoint->myaddress, iu->resolve_name)));
 
             if (proto_with_port)
             {
-                sharkd_json_value_string("port", (port_str = get_conversation_port(NULL, host->port, host->etype, iu->resolve_port)));
+                sharkd_json_value_string("port", (port_str = get_conversation_port(NULL, endpoint->port, endpoint->etype, iu->resolve_port)));
 
                 wmem_free(NULL, port_str);
             }
 
-            sharkd_json_value_anyf("rxf", "%" PRIu64, host->rx_frames);
-            sharkd_json_value_anyf("rxb", "%" PRIu64, host->rx_bytes);
+            sharkd_json_value_anyf("rxf", "%" PRIu64, endpoint->rx_frames);
+            sharkd_json_value_anyf("rxb", "%" PRIu64, endpoint->rx_bytes);
 
-            sharkd_json_value_anyf("txf", "%" PRIu64, host->tx_frames);
-            sharkd_json_value_anyf("txb", "%" PRIu64, host->tx_bytes);
+            sharkd_json_value_anyf("txf", "%" PRIu64, endpoint->tx_frames);
+            sharkd_json_value_anyf("txb", "%" PRIu64, endpoint->tx_bytes);
 
-            filter_str = get_endpoint_filter(host);
+            filter_str = get_endpoint_filter(endpoint);
             if (filter_str)
             {
                 sharkd_json_value_string("filter", filter_str);
@@ -2251,7 +2251,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
             wmem_free(NULL, host_str);
 
-            if (sharkd_session_geoip_addr(&(host->myaddress), ""))
+            if (sharkd_session_geoip_addr(&(endpoint->myaddress), ""))
                 with_geoip = 1;
             json_dumper_end_object(&dumper);
         }
