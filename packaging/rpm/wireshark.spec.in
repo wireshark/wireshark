@@ -8,7 +8,8 @@
 %bcond_with	toolchain_clang
 %bcond_with	ninja
 %bcond_with	ccache
-%bcond_without	qt5
+%bcond_with	qt5
+%bcond_with	qt6
 %bcond_with	lua
 %bcond_with	mmdbresolve
 %bcond_with	lz4_and_snappy
@@ -209,7 +210,7 @@ transferred over HTTP or CIFS, or play back an RTP audio stream.
 This package contains command-line utilities, plugins, and documentation for
 Wireshark. A Qt graphical user interface is packaged separately.
 
-%if %{with qt5}
+%if %{with qt5} || %{with qt6}
 %package	qt
 Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
@@ -218,6 +219,7 @@ Requires:	%{name} = %{version}-%{release}
 %if %{without toolchain_clang}
 BuildRequires:	gcc-c++
 %endif
+%if %{with qt5}
 %if 0%{?suse_version}
 BuildRequires:	libQt5Core-devel
 BuildRequires:	libQt5Gui-devel
@@ -234,6 +236,14 @@ BuildRequires:	qt5-qtbase-devel
 BuildRequires:	qt5-qtmultimedia-devel
 BuildRequires:	qt5-linguist
 Requires:	qt5-qtsvg
+%endif
+%endif
+%if %{with qt6}
+BuildRequires:	qt6-qtbase-devel
+BuildRequires:	qt6-qtmultimedia-devel
+BuildRequires:	qt6-qttools-devel
+BuildRequires:	qt6-qt5compat-devel
+BuildRequires:	libxkbcommon-devel
 %endif
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
@@ -288,8 +298,11 @@ development of Wireshark scripts and plugins.
 %if %{with ccache}
   -DENABLE_CCACHE=ON \
 %endif
+%if %{with qt5} || %{with qt6}
+  -DBUILD_wireshark=ON \
 %if %{with qt5}
-  -DBUILD_wireshark=ON -DUSE_qt6=OFF \
+  -DUSE_qt6=OFF \
+%endif
 %else
   -DBUILD_wireshark=OFF \
 %endif
@@ -411,7 +424,7 @@ make DESTDIR=$RPM_BUILD_ROOT install_guides -C %{__cmake_builddir}
 	echo %{_libdir} > $RPM_BUILD_ROOT/etc/ld.so.conf.d/wireshark.conf
 %endif
 
-%if %{with qt5}
+%if %{with qt5} || %{with qt6}
 %if 0%{?suse_version}
 # SUSE's packaging conventions
 # (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
@@ -436,7 +449,7 @@ getent group wireshark >/dev/null || groupadd -r wireshark
 
 %postun -p /sbin/ldconfig
 
-%if %{with qt5}
+%if %{with qt5} || %{with qt6}
 %post qt
 update-desktop-database %{_datadir}/applications &> /dev/null || :
 update-mime-database %{_datadir}/mime &> /dev/null || :
@@ -510,7 +523,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 /etc/ld.so.conf.d/wireshark.conf
 %endif
 
-%if %{with qt5}
+%if %{with qt5} || %{with qt6}
 %files qt
 %defattr(-,root,root)
 %{_datadir}/applications/org.wireshark.Wireshark.desktop
@@ -533,6 +546,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Wed Aug 24 2022 Joao Valverde
+- Add Qt6 support with Fedora build dependencies
+
 * Mon Apr 25 2022 John Thacker
 - Cleanup specfile to remove obsolete and deprecated syntax
 
