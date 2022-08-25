@@ -118,7 +118,7 @@ variables:
   script:
     # setcap restricts our library paths
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF $CMAKE_ARGS ..
+    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja -DENABLE_CCACHE=ON $CMAKE_ARGS ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
@@ -187,7 +187,7 @@ Source Package:
   script:
     - ../tools/make-version.py --set-release ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON -DUSE_qt6=OFF ..
+    - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - cd $CI_PROJECT_DIR
     - build/packaging/source/git-export-release.sh -d .
@@ -453,7 +453,7 @@ Documentation:
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja -DUSE_qt6=OFF ..
+    - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja all_guides
     - cd docbook
@@ -505,7 +505,7 @@ GCC Warnings:
   script:
     # build-ubuntu puts us in `build`.
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -DUSE_qt6=OFF -G Ninja ..
+    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - script --command ninja --flush --quiet --return ../gcc_report.txt
     - ansi2html < ../gcc_report.txt > ../gcc_report.html
@@ -535,7 +535,7 @@ Code Checks + Clang Warnings:
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # We don't have an "All options" job, so build fuzzshark and tfshark here.
-    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DBUILD_fuzzshark=ON -DBUILD_tfshark=On -DBUILD_logray=ON -DENABLE_CCACHE=ON -DUSE_qt6=OFF -G Ninja ..
+    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DBUILD_fuzzshark=ON -DBUILD_tfshark=On -DBUILD_logray=ON -DENABLE_CCACHE=ON -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - mkdir ../html
     - script --command ninja --flush --quiet --return ../tmp_clang_report.txt
@@ -560,7 +560,7 @@ No options:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   script: |
-    cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF \
+    cmake -GNinja -DENABLE_CCACHE=ON \
       -DENABLE_BROTLI=OFF -DENABLE_CAP=OFF -DENABLE_CARES=OFF -DENABLE_CHECKHF_CONFLICT=ON -DENABLE_GNUTLS=OFF \
       -DENABLE_KERBEROS=OFF -DENABLE_LIBXML2=OFF -DENABLE_ILBC=OFF -DENABLE_LUA=OFF -DENABLE_LZ4=OFF -DENABLE_MINIZIP=OFF \
       -DENABLE_NETLINK=OFF -DENABLE_NGHTTP2=OFF -DENABLE_PCAP=OFF -DENABLE_PLUGIN_IFDEMO=ON -DENABLE_PLUGINS=OFF \
@@ -610,7 +610,7 @@ Coverity GCC Scan:
     - tar --directory=/tmp --extract --gzip --file /tmp/cov-analysis-linux64.tar.gz
     - mkdir build
     - cd build
-    - cmake -G Ninja -DUSE_qt6=OFF ..
+    - cmake -G Ninja ..
     - /tmp/cov-analysis-linux64-*/bin/cov-build --return-emit-failures --dir ../cov-int ninja
     - cd ..
     - tar --create --gzip --file cov-int.tar.gz cov-int
@@ -682,7 +682,7 @@ Clang Static Analyzer:
     CC: "clang-${CLANG_VERSION}"
     CXX: "clang++-${CLANG_VERSION}"
   script:
-    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -DUSE_qt6=OFF -G Ninja ..
+    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -G Ninja ..
     - scan-build-${CLANG_VERSION} -o ../sbout ninja
     - cd ../sbout
     - RAW_DIR=$( find ../sbout -type d -name "20??-??-??-*" -printf "%P\n" | head )
@@ -714,7 +714,7 @@ API Reference:
   rules: !reference [.if-daily-schedule]
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja -DUSE_qt6=OFF ..
+    - cmake -GNinja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
   after_script:
@@ -752,7 +752,7 @@ Code Lines:
     - tar -xf tokei-x86_64-unknown-linux-gnu.tar.gz
     - popd
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DUSE_qt6=OFF ..
+    - cmake -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - cd ..
