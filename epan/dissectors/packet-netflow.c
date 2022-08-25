@@ -133,6 +133,8 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include <wsutil/str_util.h>
 #include "packet-tcp.h"
 #include "packet-udp.h"
@@ -4075,17 +4077,24 @@ typedef struct netflow_domain_state_t {
     guint32 current_frame_number;
 } netflow_domain_state_t;
 
-static wmem_map_t *netflow_sequence_analysis_domain_hash = NULL;
-
-/* Frame number -> domain state */
-static wmem_map_t *netflow_sequence_analysis_result_hash = NULL;
-
 /* On first pass, check ongoing sequence of observation domain, and only store a result
    if the sequence number is not as expected */
 static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsigned int version, guint32 new_flows,
                                          packet_info *pinfo)
 {
     /* Find current domain info */
+    /* XXX: "Each SCTP Stream counts sequence numbers separately," but
+     * SCTP conversations are per association. This is correct for TCP
+     * connections and UDP sessions, though.
+     */
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (conv == NULL) {
+        return;
+    }
+    wmem_map_t *netflow_sequence_analysis_domain_hash = conversation_get_proto_data(conv, proto_netflow);
+    if (netflow_sequence_analysis_domain_hash == NULL) {
+        return;
+    }
     netflow_domain_state_t *domain_state = (netflow_domain_state_t *)wmem_map_lookup(netflow_sequence_analysis_domain_hash,
                                                                                          GUINT_TO_POINTER(domain_id));
     if (domain_state == NULL) {
@@ -4104,7 +4113,7 @@ static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsi
         *result_state = *domain_state;
 
         /* Add into result table for current frame number */
-        wmem_map_insert(netflow_sequence_analysis_result_hash, GUINT_TO_POINTER(pinfo->num), result_state);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_netflow, 0, result_state);
     }
 
     /* Update domain info for the next frame to consult.
@@ -4120,8 +4129,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
                                         proto_item *flow_sequence_ti, proto_tree *tree)
 {
     /* Look for info stored for this frame */
-    netflow_domain_state_t *state = (netflow_domain_state_t *)wmem_map_lookup(netflow_sequence_analysis_result_hash,
-                                                                                  GUINT_TO_POINTER(pinfo->num));
+    netflow_domain_state_t *state = (netflow_domain_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_netflow, 0);
     if (state != NULL) {
         proto_item *ti;
 
@@ -12596,6 +12604,14 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
                              hdrinfo_t *hdrinfo_p, guint16 flowset_id _U_)
 {
     int remaining;
+
+    conversation_t *conv = find_or_create_conversation(pinfo);
+    wmem_map_t *netflow_sequence_analysis_domain_hash = (wmem_map_t *)conversation_get_proto_data(conv, proto_netflow);
+    if (netflow_sequence_analysis_domain_hash == NULL) {
+        netflow_sequence_analysis_domain_hash = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        conversation_add_proto_data(conv, proto_netflow, netflow_sequence_analysis_domain_hash);
+    }
+
     proto_item_append_text(pdutree, " (Data Template): ");
     col_append_fstr(pinfo->cinfo, COL_INFO, " [Data-Template:");
 
@@ -20965,8 +20981,6 @@ proto_register_netflow(void)
     prefs_register_bool_preference(netflow_module, "desegment", "Reassemble Netflow v10 messages spanning multiple TCP segments.", "Whether the Netflow/Ipfix dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &netflow_preference_desegment);
 
     v9_v10_tmplt_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), v9_v10_tmplt_table_hash, v9_v10_tmplt_table_equal);
-    netflow_sequence_analysis_domain_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
-    netflow_sequence_analysis_result_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 static guint
