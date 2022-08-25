@@ -21,6 +21,7 @@ function print_usage() {
 	printf "\t--install-rpm-deps: install packages required to build the .rpm file\n"
 	printf "\\t--install-qt5-deps: force installation of packages required to use Qt5\\n"
 	printf "\\t--install-qt6-deps: force installation of packages required to use Qt6\\n"
+	printf "\\t--install-all: install everything\\n"
 	printf "\t[other]: other options are passed as-is to the packet manager\n"
 }
 
@@ -47,6 +48,13 @@ for arg; do
 			HAVE_ADD_QT=1
 			;;
 		--install-qt6-deps)
+			ADD_QT6=1
+			HAVE_ADD_QT=1
+			;;
+		--install-all)
+			ADDITIONAL=1
+			RPMDEPS=1
+			ADD_QT5=1
 			ADD_QT6=1
 			HAVE_ADD_QT=1
 			;;
