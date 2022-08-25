@@ -3938,6 +3938,14 @@ set(_test_group_list
 set(TEST_EXTRA_ARGS "" CACHE STRING "Extra arguments to pass to test/test.py")
 separate_arguments(TEST_EXTRA_ARGS)
 
+add_test(build_unittests
+	"${CMAKE_COMMAND}"
+	--build "${CMAKE_BINARY_DIR}"
+	--config "${CONFIG}"
+	--target test-programs
+)
+set_tests_properties(build_unittests PROPERTIES FIXTURES_SETUP unittests)
+
 foreach(_group_name ${_test_group_list})
 	add_test(
 		NAME ${_group_name}
@@ -3950,6 +3958,8 @@ foreach(_group_name ${_test_group_list})
 		)
 	set_tests_properties(${_group_name} PROPERTIES TIMEOUT 600)
 endforeach()
+
+set_tests_properties(suite_unittests PROPERTIES FIXTURES_REQUIRED unittests)
 
 # Make it possible to run pytest without passing the full path as argument.
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
