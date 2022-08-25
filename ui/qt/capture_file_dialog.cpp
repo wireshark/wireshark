@@ -49,6 +49,9 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <main_application.h>
 
+static const double WIDTH_SCALE_FACTOR = 1.4;
+static const double HEIGHT_SCALE_FACTOR = 1.4;
+
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf) :
     WiresharkFileDialog(parent),
     cap_file_(cf),
@@ -709,7 +712,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type, QString &dis
     addHelpButton(HELP_OPEN_DIALOG);
 
     // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + left_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
+    resize(width() * WIDTH_SCALE_FACTOR, height() * HEIGHT_SCALE_FACTOR + left_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
 
     display_filter.clear();
 
@@ -741,7 +744,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     addHelpButton(HELP_SAVE_DIALOG);
 
     // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + left_v_box_.minimumSize().height());
+    resize(width() * WIDTH_SCALE_FACTOR, height() * HEIGHT_SCALE_FACTOR + left_v_box_.minimumSize().height());
 
     if (!file_name.isEmpty()) {
         selectFile(file_name);
@@ -791,7 +794,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     }
 
     // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + (packet_range_group_box_.height() * 2 / 3));
+    resize(width() * WIDTH_SCALE_FACTOR, height() * HEIGHT_SCALE_FACTOR + (packet_range_group_box_.height() * 2 / 3));
 
     if (!file_name.isEmpty()) {
         selectFile(file_name);
@@ -833,7 +836,7 @@ int CaptureFileDialog::merge(QString &file_name, QString &display_filter) {
     display_filter.clear();
 
     // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
+    resize(width() * WIDTH_SCALE_FACTOR, height() * HEIGHT_SCALE_FACTOR + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
 
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
         file_name.append(selectedFiles()[0]);
