@@ -161,7 +161,7 @@ typedef struct {
 	guint32	clnt_port;
 	guint32	dst_port;
 	guint32	server_int_port;
-	int	proto;
+	endpoint_type	etype;
 }hash_entry_t;
 
 
@@ -172,7 +172,7 @@ typedef struct {
 	guint32	clnt_port;
 	guint32	server_int_port;
 	guint32	remote_port;
-	int	proto;
+	endpoint_type	etype;
 }redirect_entry_t;
 
 
@@ -202,7 +202,7 @@ static int msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Proxy");
 
 	col_set_str(pinfo->cinfo, COL_INFO,
-			(( redirect_info->proto == PT_TCP) ? "TCP stream" :
+			(( redirect_info->etype == ENDPOINT_TCP) ? "TCP stream" :
 			 "UDP packets"));
 
 	if ( tree) {
@@ -228,7 +228,7 @@ static int msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	*ptr = redirect_info->remote_port;
 
-	if ( redirect_info->proto == PT_TCP)
+	if ( redirect_info->etype == ENDPOINT_TCP)
 		decode_tcp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
 			pinfo->destport, NULL, NULL);
 	else
@@ -267,12 +267,12 @@ static void add_msproxy_conversation( packet_info *pinfo,
 	}
 
 	conversation = find_conversation( pinfo->num, &pinfo->src,
-		&pinfo->dst, (endpoint_type)hash_info->proto, hash_info->server_int_port,
+		&pinfo->dst, hash_info->etype, hash_info->server_int_port,
 		hash_info->clnt_port, 0);
 
 	if ( !conversation) {
 		conversation = conversation_new( pinfo->num, &pinfo->src, &pinfo->dst,
-			(endpoint_type)hash_info->proto, hash_info->server_int_port,
+			hash_info->etype, hash_info->server_int_port,
 			hash_info->clnt_port, 0);
 	}
 	conversation_set_dissector(conversation, msproxy_sub_handle);
@@ -283,7 +283,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 	new_conv_info->clnt_port = hash_info->clnt_port;
 	new_conv_info->remote_port = hash_info->dst_port;
 	new_conv_info->server_int_port = hash_info->server_int_port;
-	new_conv_info->proto = hash_info->proto;
+	new_conv_info->etype = hash_info->etype;
 
 	conversation_add_proto_data(conversation, proto_msproxy,
 		new_conv_info);
@@ -455,7 +455,7 @@ static void dissect_tcp_bind(tvbuff_t *tvb, int offset,
 /* dissector.								*/
 
 
-	conv_info->proto = PT_TCP;
+	conv_info->etype = ENDPOINT_TCP;
 
 	if ( tree) {
 		offset += 6;
@@ -478,7 +478,7 @@ static void dissect_request_connect(tvbuff_t *tvb, int offset,
 
 /* decode the connect request, display  */
 
-	conv_info->proto = PT_TCP;
+	conv_info->etype = ENDPOINT_TCP;
 
 	offset += 20;
 
@@ -578,11 +578,13 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 static void dissect_udp_bind(tvbuff_t *tvb, int offset,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
-/* Dissect the udp bind request.  Load the protocol id (PT_UDP) and the	*/
-/* remote address so bind_info can use it to create conversation 	*/
-/* dissector. 								*/
+/*
+ * Dissect the udp bind request.  Load the endpoint type (ENDPOINT_UDP)
+ * and the remote address so bind_info can use it to create conversation
+ * dissector.
+ */
 
-	conv_info->proto = PT_UDP;
+	conv_info->etype = ENDPOINT_UDP;
 
 
 	offset += 8;
@@ -807,7 +809,7 @@ static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
  			offset, 2, ENC_BIG_ENDIAN);
 
 
-	conv_info->proto = PT_TCP;
+	conv_info->etype = ENDPOINT_TCP;
 	conv_info->server_int_port = tvb_get_ntohs( tvb, offset);
 	offset += 2;
 
