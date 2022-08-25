@@ -222,6 +222,7 @@ Debian Stable APT Package:
     paths:
       - debian-packages/*.deb
     expire_in: 3 days
+
 Debian Stable APT Test:
   extends: .test-linux
   rules: !reference [.if-merged]
@@ -245,6 +246,7 @@ Fedora RPM Package:
     - cmake3 -GNinja -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
+
 # Fedora RPM Test:
 #   extends: .test-rpm
 #   image: fedora
@@ -261,6 +263,7 @@ openSUSE 15.3 RPM Package:
     - cmake -GNinja -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
+
 openSUSE 15.3 RPM Test:
   extends: .test-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
@@ -277,6 +280,7 @@ Rocky Linux 9 RPM Package:
     - cmake -GNinja -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
+
 Rocky Linux 9 RPM Test:
   extends: .test-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
@@ -303,6 +307,7 @@ Ubuntu APT Package:
     paths:
       - ubuntu-packages/*.deb
     expire_in: 3 days
+
 Ubuntu APT Test:
   extends: .test-linux
   rules: !reference [.if-merged]
@@ -653,6 +658,7 @@ Coverity Visual C++ Scan:
     paths:
       - cov-int.zip
       - job_environment_variables.sh
+
 Coverity Visual C++ Submit:
   image: curlimages/curl
   rules:
