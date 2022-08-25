@@ -1338,6 +1338,28 @@ typedef struct {
 #define BBLOG_TYPE_EVENT_BLOCK   1
 #define BBLOG_TYPE_SKIPPED_BLOCK 2
 
+/*
+ * The largest nstime.secs value that can be put into an unsigned
+ * 32-bit quantity.
+ *
+ * We assume that time_t is signed; it is signed on Windows/MSVC and
+ * on many UN*Xes.
+ *
+ * So, if time_t is 32-bit, we define this as G_MAXINT32, as that's
+ * the largest value a time_t can have, and it fits in an unsigned
+ * 32-bit quantity.  If it's 64-bit or larger, we define this as
+ * G_MAXUINT32, as, even if it's signed, it can be as large as
+ * G_MAXUINT32, and that's the largest value that can fit in
+ * a 32-bit unsigned quantity.
+ *
+ * Comparing against this, rather than against G_MAXINT2, when checking
+ * whether a time stamp will fit in a 32-bit unsigned integer seconds
+ * field in a capture file being written avoids signed vs. unsigned
+ * warnings if time_t is a signed 32-bit type.
+ *
+ * XXX - what if time_t is unsigned?  Are there any platforms where
+ * it is?
+ */
 #define WTAP_NSTIME_32BIT_SECS_MAX ((time_t)(sizeof(time_t) > sizeof(gint32) ? G_MAXUINT32 : G_MAXINT32))
 
 typedef struct {
