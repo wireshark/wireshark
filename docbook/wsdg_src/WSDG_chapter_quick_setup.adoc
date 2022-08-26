@@ -296,7 +296,7 @@ Qt, go to the https://www.qt.io/download[“Download Qt” page], select “Go
 open source”, download the *Qt Online Installer for Windows* from the Qt
 Project and select, for the desired Qt version, a component that matches
 your target system and compiler. For example, at the time of this
-writing the Qt {qt-lts-version} “msvc2019 64-bit” component is used to
+writing the Qt {qt6-lts-version} “msvc2019 64-bit” component is used to
 build the official 64-bit packages. The “Qt Debug Information Files”
 component contains PDB files which can be used for debugging. You can
 deselect all of the other the components such as “Qt Charts” or “Android
@@ -306,7 +306,8 @@ Qt 6 needs the "Qt 5 Compatibility Module" to be installed as well. Additionally
 "Qt Multimedia" may be installed, to support advanced controls for playing back streams in the
 RTP Player dialog.
 
-The environment variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}\msvc2019_64_
+The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{qt6-lts-version}\msvc2019_64_
+Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
 
 Qt 6 is the default option for building Wireshark, but Wireshark has support for Qt 5.12 and later. To enable Wireshark to build with Qt 5 pass `-DUSE_qt6=OFF`
 to cmake.
@@ -542,7 +543,7 @@ Set the following environment variables, using paths and values suitable for you
 > set WIRESHARK_BASE_DIR=C:\Development
 > rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
 > rem Set the Qt installation directory
-> set CMAKE_PREFIX_PATH=C:\Qt{backslash}{qt-lts-version}\msvc2019_64
+> set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{qt6-lts-version}\msvc2019_64
 > rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
@@ -554,7 +555,7 @@ the Visual Studio Tools Command Prompt.
 .Use of Qt’s LTS branch
 ====
 It is generally recommended to use a LTS ("long term support") version for Qt. The current LTS version for Qt 6 is
-{qt-lts-version}.
+{qt6-lts-version}.
 ====
 
 --
