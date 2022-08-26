@@ -218,7 +218,7 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_full(const guint32 
  * @param setup_frame The first frame in the conversation.
  * @param addr1 The first address in the identifying tuple.
  * @param addr2 The second address in the identifying tuple.
- * @param etype The endpoint type.
+ * @param ctype The conversation type.
  * @param port1 The first port in the identifying tuple.
  * @param port2 The second port in the identifying tuple.
  * @param options NO_ADDR2, NO_PORT2, NO_PORT2_FORCE, or CONVERSATION_TEMPLATE.
@@ -370,7 +370,7 @@ WS_DLL_PUBLIC void conversation_set_elements_by_id(struct _packet_info *pinfo,
  * @param pinfo Packet info.
  * @param ctype The conversation type.
  * @param options USE_LAST_ENDPOINT or 0.
- * @return The ID value from the conversation key if successful, or 0
+ * @return The ID value from the elements if successful, or 0
  *   on failure.
  */
 WS_DLL_PUBLIC guint32 conversation_get_id_from_elements(struct _packet_info *pinfo,
