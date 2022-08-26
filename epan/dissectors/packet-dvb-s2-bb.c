@@ -1646,7 +1646,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         subcircuit = conversation_new_by_id(pinfo->num, CONVERSATION_DVBBBF, virtual_id);
     }
 
-    /* conversation_create_key_by_address_port_pairs() could be useful for the subdissectors
+    /* conversation_set_elements_by_address_port_pairs() could be useful for the subdissectors
      * this calls (whether GSE or TS, and replace passing the packet data
      * below), but it could cause problems when the subdissectors of those
      * subdissectors try and call find_or_create_conversation().

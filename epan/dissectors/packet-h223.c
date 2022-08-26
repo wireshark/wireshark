@@ -728,7 +728,7 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
     TRY {
         /* update the circuit details before passing to a subdissector */
         guint32 circuit_id = circuit_chain_lookup(call_info, vc);
-        conversation_create_key_by_id(pinfo, CONVERSATION_H223, circuit_id);
+        conversation_set_elements_by_id(pinfo, CONVERSATION_H223, circuit_id);
 
         conversation_t *subcircuit = find_conversation_by_id(pinfo->num, CONVERSATION_H223, circuit_id);
         proto_tree *vc_tree;
@@ -794,7 +794,7 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 
     /* restore the original circuit details for future PDUs */
     FINALLY {
-        conversation_create_key_by_id(pinfo, orig_ctype, orig_circuit);
+        conversation_set_elements_by_id(pinfo, orig_ctype, orig_circuit);
     }
     ENDTRY;
 }

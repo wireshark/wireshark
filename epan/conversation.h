@@ -341,8 +341,9 @@ WS_DLL_PUBLIC void conversation_set_dissector_from_frame_number(conversation_t *
 WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation, const guint32 frame_num);
 
 /**
- * Save address+port information in the current packet info which can be matched by
- * find_conversation_pinfo. Supports wildcarding.
+ * Save conversation elements including address+port information in the
+ * current packet info which can be matched by find_conversation_pinfo.
+ * Supports wildcarding.
  * @param pinfo Packet info.
  * @param addr1 The first address in the identifying tuple.
  * @param addr2 The second address in the identifying tuple.
@@ -350,28 +351,29 @@ WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conv
  * @param port1 The first port in the identifying tuple.
  * @param port2 The second port in the identifying tuple.
  */
-WS_DLL_PUBLIC void conversation_create_key_by_address_port_pairs(struct _packet_info *pinfo, address* addr1, address* addr2,
+WS_DLL_PUBLIC void conversation_set_elements_by_address_port_pairs(struct _packet_info *pinfo, address* addr1, address* addr2,
     conversation_type ctype, guint32 port1, guint32 port2);
 
 /**
- * Save ID information in the current packet info which can be matched by
- * conversation_get_conversation_key_by_id. Does not support wildcarding.
+ * Save conversation elements including ID information in the current
+ * packet info which can be matched by conversation_get_id_from_elements.
+ * Does not support wildcarding.
  * @param pinfo Packet info.
  * @param ctype The conversation type.
  * @param id A unique ID.
  */
-WS_DLL_PUBLIC void conversation_create_key_by_id(struct _packet_info *pinfo,
+WS_DLL_PUBLIC void conversation_set_elements_by_id(struct _packet_info *pinfo,
     conversation_type ctype, guint32 id);
 
 /**
- * @brief Get the ID value from the conversation key in the packet info.
+ * @brief Get the ID value from the conversation elements in the packet info.
  * @param pinfo Packet info.
  * @param ctype The conversation type.
  * @param options USE_LAST_ENDPOINT or 0.
  * @return The ID value from the conversation key if successful, or 0
  *   on failure.
  */
-WS_DLL_PUBLIC guint32 conversation_get_id_from_key(struct _packet_info *pinfo,
+WS_DLL_PUBLIC guint32 conversation_get_id_from_elements(struct _packet_info *pinfo,
     conversation_type ctype, const guint options);
 
 /**
