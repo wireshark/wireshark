@@ -3291,7 +3291,7 @@ proto_register_ocp1(void)
 
     oca_request_hash_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), oca_handle_hash, oca_handle_equal);
 
-    proto_ocp1 = proto_register_protocol ("Open Control Protocol (OCP.1/AES70)", "ocp1", "ocp1");
+    proto_ocp1 = proto_register_protocol("Open Control Protocol (OCP.1/AES70)", "OCP.1", "ocp1");
 
     proto_register_field_array(proto_ocp1, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
