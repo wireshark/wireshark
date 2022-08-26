@@ -1229,7 +1229,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     modulo = ((bytes0_1 & 0x2000) ? 128 : 8);
     vc     = (int)(bytes0_1 & 0x0FFF);
 
-    conversation_create_key_by_id(pinfo, CONVERSATION_X25, vc);
+    conversation_set_elements_by_id(pinfo, CONVERSATION_X25, vc);
 
     if (bytes0_1 & X25_ABIT) toa = TRUE;
     else toa = FALSE;

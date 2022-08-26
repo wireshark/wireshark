@@ -2291,7 +2291,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		proto_tree_add_item_ret_uint(tipc_tree, hf_tipc_dst_port, tipc_tvb, offset, 4, ENC_BIG_ENDIAN, &destport);
 	}
 
-	conversation_create_key_by_address_port_pairs(pinfo, &pinfo->src, &pinfo->dst, CONVERSATION_TIPC, srcport, destport);
+	conversation_set_elements_by_address_port_pairs(pinfo, &pinfo->src, &pinfo->dst, CONVERSATION_TIPC, srcport, destport);
 
 	offset = offset + 4;
 	/* 20 - 24 Bytes

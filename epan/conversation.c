@@ -1781,7 +1781,7 @@ find_or_create_conversation_by_id(packet_info *pinfo, const conversation_type ct
 }
 
 void
-conversation_create_key_by_address_port_pairs(struct _packet_info *pinfo, address* addr1, address* addr2,
+conversation_set_elements_by_address_port_pairs(struct _packet_info *pinfo, address* addr1, address* addr2,
         conversation_type ctype, guint32 port1, guint32 port2)
 {
     pinfo->conv_key = wmem_new0(pinfo->pool, struct conversation_key);
@@ -1801,7 +1801,7 @@ conversation_create_key_by_address_port_pairs(struct _packet_info *pinfo, addres
 }
 
 void
-conversation_create_key_by_id(struct _packet_info *pinfo, conversation_type ctype, guint32 id)
+conversation_set_elements_by_id(struct _packet_info *pinfo, conversation_type ctype, guint32 id)
 {
     pinfo->conv_elements = wmem_alloc0(pinfo->pool, sizeof(conversation_element_t) * 2);
     pinfo->conv_elements[0].type = CE_UINT;
@@ -1811,7 +1811,7 @@ conversation_create_key_by_id(struct _packet_info *pinfo, conversation_type ctyp
 }
 
 guint32
-conversation_get_id_from_key(struct _packet_info *pinfo, conversation_type ctype, const guint options)
+conversation_get_id_from_elements(struct _packet_info *pinfo, conversation_type ctype, const guint options)
 {
     if (pinfo->conv_elements == NULL) {
         return 0;

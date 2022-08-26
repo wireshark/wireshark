@@ -617,7 +617,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
 
         phdr &= 0x7fff;
 
-        conversation_create_key_by_id(pinfo, CONVERSATION_IUUP, phdr);
+        conversation_set_elements_by_id(pinfo, CONVERSATION_IUUP, phdr);
 
         tvb = tvb_new_subset_length(tvb_in,2,len);
     }
@@ -650,7 +650,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree);
             add_payload_crc(tvb, pinfo, iuup_tree);
-            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,4, conversation_get_id_from_key(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
+            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,4, conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
             return tvb_captured_length(tvb);
         case PDUTYPE_DATA_NO_CRC:
             col_append_fstr(pinfo->cinfo, COL_INFO," RFCI %u", (guint)(second_octet & 0x3f));
@@ -664,7 +664,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree);
-            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,3, conversation_get_id_from_key(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
+            dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,3, conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
             return tvb_captured_length(tvb);
         case PDUTYPE_DATA_CONTROL_PROC:
             if (tree) {
@@ -715,7 +715,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
             switch( second_octet & PROCEDURE_MASK ) {
                 case PROC_INIT:
                     add_payload_crc(tvb, pinfo, iuup_tree);
-                    dissect_iuup_init(tvb,pinfo,iuup_tree, conversation_get_id_from_key(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
+                    dissect_iuup_init(tvb,pinfo,iuup_tree, conversation_get_id_from_elements(pinfo, CONVERSATION_IUUP, USE_LAST_ENDPOINT));
                     return tvb_captured_length(tvb);
                 case PROC_RATE:
                     add_payload_crc(tvb, pinfo, iuup_tree);
