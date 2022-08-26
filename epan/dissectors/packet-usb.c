@@ -1796,7 +1796,7 @@ get_usb_conversation(packet_info *pinfo,
      */
     conversation = find_conversation(pinfo->num,
                                src_addr, dst_addr,
-                               conversation_pt_to_endpoint_type(pinfo->ptype),
+                               conversation_pt_to_conversation_type(pinfo->ptype),
                                src_endpoint, dst_endpoint, 0);
     if (conversation) {
         return conversation;
@@ -1805,7 +1805,7 @@ get_usb_conversation(packet_info *pinfo,
     /* We don't yet have a conversation, so create one. */
     conversation = conversation_new(pinfo->num,
                            src_addr, dst_addr,
-                           conversation_pt_to_endpoint_type(pinfo->ptype),
+                           conversation_pt_to_conversation_type(pinfo->ptype),
                            src_endpoint, dst_endpoint, 0);
     return conversation;
 }
@@ -1850,7 +1850,7 @@ get_existing_usb_ep_conv_info(packet_info* pinfo, guint16 bus_id, guint16 device
     set_address(&dst, usb_address_type, USB_ADDR_LEN, (char *)dst_addr);
 
     conversation = find_conversation(pinfo->num, &src, &dst,
-                                     conversation_pt_to_endpoint_type(PT_USB),
+                                     conversation_pt_to_conversation_type(PT_USB),
                                      src_addr->endpoint, dst_addr->endpoint, 0);
     if (conversation) {
         usb_conv_info = (usb_conv_info_t *)conversation_get_proto_data(conversation, proto_usb);
@@ -1880,7 +1880,7 @@ usb_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
     conv_hash_t *hash = (conv_hash_t*) pct;
     hash->flags = flags;
 
-    add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &usb_ct_dissector_info, ENDPOINT_NONE);
+    add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &usb_ct_dissector_info, CONVERSATION_NONE);
 
     return TAP_PACKET_REDRAW;
 }

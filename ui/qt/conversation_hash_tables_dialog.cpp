@@ -55,7 +55,7 @@ fill_named_table(gpointer key, gpointer value _U_, gpointer user_data)
             case CE_UINT64:
                 title = QString("UInt64 %1").arg(uint64_count++);
                 break;
-            case CE_ENDPOINT:
+            case CE_CONVERSATION_TYPE:
                 html_table->append(QString("<th>Endpoint</th>"));
                 goto title_done;
                 break;
@@ -86,8 +86,8 @@ title_done:
         case CE_UINT64:
             val = QString::number(cur_el->uint64_val);
             break;
-        case CE_ENDPOINT:
-            html_table->append(QString("<td>%1</td>").arg(QString::number(cur_el->endpoint_type_val)));
+        case CE_CONVERSATION_TYPE:
+            html_table->append(QString("<td>%1</td>").arg(QString::number(cur_el->conversation_type_val)));
             goto val_done;
             break;
         }

@@ -399,7 +399,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
         }
         case ENDP_COLUMN_PORT:
             if (_resolveNames) {
-                char* port_str = get_conversation_port(NULL, item->port, item->etype, _resolveNames);
+                char* port_str = get_endpoint_port(NULL, item, _resolveNames);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
@@ -619,7 +619,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             }
         case CONV_COLUMN_SRC_PORT:
             if (_resolveNames) {
-                char* port_str = get_conversation_port(NULL, conv_item->src_port, conv_item->etype, _resolveNames);
+                char* port_str = get_conversation_port(NULL, conv_item->src_port, conv_item->ctype, _resolveNames);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
@@ -635,7 +635,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             }
         case CONV_COLUMN_DST_PORT:
             if (_resolveNames) {
-                char* port_str = get_conversation_port(NULL, conv_item->dst_port, conv_item->etype, _resolveNames);
+                char* port_str = get_conversation_port(NULL, conv_item->dst_port, conv_item->ctype, _resolveNames);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
@@ -728,7 +728,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             return QVariant::fromValue(span_data);
         }
     } else if (role == ATapDataModel::ENDPOINT_DATATYPE) {
-        return (int)(conv_item->etype);
+        return (int)(conv_item->ctype);
     } else if (role == ATapDataModel::CONVERSATION_ID) {
         return (int)(conv_item->conv_id);
     } else if (role == ATapDataModel::ROW_IS_FILTERED) {
@@ -772,7 +772,7 @@ bool ConversationDataModel::showConversationId(int row) const
         return false;
 
     conv_item_t *conv_item = (conv_item_t *)&g_array_index(storage_, conv_item_t, row);
-    if (conv_item && (conv_item->etype == ENDPOINT_TCP || conv_item->etype == ENDPOINT_UDP))
+    if (conv_item && (conv_item->ctype == CONVERSATION_TCP || conv_item->ctype == CONVERSATION_UDP))
         return true;
     return false;
 }

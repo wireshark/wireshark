@@ -935,7 +935,7 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
 
     add_conversation_table_data_with_conv_id(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, ENDPOINT_TCP);
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, CONVERSATION_TCP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -951,7 +951,7 @@ mptcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _
 
     add_conversation_table_data_with_conv_id(hash, &meta->ip_src, &meta->ip_dst,
         meta->sport, meta->dport, (conv_id_t) tcpd->mptcp_analysis->stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, ENDPOINT_TCP);
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, CONVERSATION_TCP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -1101,7 +1101,7 @@ gchar *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_TCP) &&
-        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
+        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
     {
         /* TCP over IPv4/6 */
         tcpd=get_tcp_conversation_data(conv, pinfo);
@@ -1460,7 +1460,7 @@ static void
 handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, int dst_port, struct tcpinfo *tcpinfo)
 {
     if (have_tap_listener(exported_pdu_tap)) {
-        conversation_t *conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, src_port, dst_port, 0);
+        conversation_t *conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, src_port, dst_port, 0);
         if (conversation != NULL)
         {
             dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
@@ -1796,7 +1796,7 @@ add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     if (!tcp_display_process_info)
         return;
 
-    conv = find_conversation(frame_num, local_addr, remote_addr, ENDPOINT_TCP, local_port, remote_port, 0);
+    conv = find_conversation(frame_num, local_addr, remote_addr, CONVERSATION_TCP, local_port, remote_port, 0);
     if (!conv) {
         return;
     }
@@ -7032,7 +7032,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
-    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, ENDPOINT_TCP,
+    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, CONVERSATION_TCP,
                                    src_port, dst_port, next_tvb, pinfo, tree, tcpinfo, 0)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         handle_export_pdu_conversation(pinfo, next_tvb, src_port, dst_port, tcpinfo);
@@ -7425,10 +7425,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * reusing ports (see issue 15097), as find_or_create_conversation automatically
      * extends the conversation found. This extension is done later.
      */
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
     if(!conv) {
         conv = conversation_new(pinfo->num, &pinfo->src,
-                     &pinfo->dst, ENDPOINT_TCP,
+                     &pinfo->dst, CONVERSATION_TCP,
                      pinfo->srcport, pinfo->destport, 0);
         /* we need to know when a conversation is new then we initialize the completeness correctly */
         conversation_is_new = TRUE;
@@ -7449,7 +7449,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if(tcph->th_seq!=tcpd->fwd->base_seq) {
                 if (!(pinfo->fd->visited)) {
 
-                    conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0);
+                    conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0);
                     tcpd=get_tcp_conversation_data(conv,pinfo);
 
                     if(!tcpd->ta)

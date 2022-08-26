@@ -1773,7 +1773,7 @@ proto_register_ansi_tcap(void)
     expert_ansi_tcap = expert_register_protocol(proto_ansi_tcap);
     expert_register_field_array(expert_ansi_tcap, ei, array_length(ei));
 
-    ansi_tcap_module = prefs_register_protocol(proto_ansi_tcap, NULL);
+    ansi_tcap_module = prefs_register_protocol(proto_ansi_tcap, proto_reg_handoff_ansi_tcap);
 
     prefs_register_enum_preference(ansi_tcap_module, "transaction.matchtype",
                                    "Type of matching invoke/response",

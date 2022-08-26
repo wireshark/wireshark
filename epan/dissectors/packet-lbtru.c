@@ -45,7 +45,7 @@ static lbtru_transport_t * lbtru_transport_find(const address * source_address, 
     wmem_tree_t * session_tree = NULL;
     conversation_t * conv = NULL;
 
-    conv = find_conversation(frame, source_address, &lbtru_null_address, ENDPOINT_UDP, source_port, 0, 0);
+    conv = find_conversation(frame, source_address, &lbtru_null_address, CONVERSATION_UDP, source_port, 0, 0);
     if (conv != NULL)
     {
         if (frame != 0)
@@ -74,10 +74,10 @@ lbtru_transport_t * lbtru_transport_add(const address * source_address, guint16 
     wmem_tree_t * session_tree = NULL;
     conversation_t * conv = NULL;
 
-    conv = find_conversation(frame, source_address, &lbtru_null_address, ENDPOINT_UDP, source_port, 0, 0);
+    conv = find_conversation(frame, source_address, &lbtru_null_address, CONVERSATION_UDP, source_port, 0, 0);
     if (conv == NULL)
     {
-        conv = conversation_new(frame, source_address, &lbtru_null_address, ENDPOINT_UDP, source_port, 0, 0);
+        conv = conversation_new(frame, source_address, &lbtru_null_address, CONVERSATION_UDP, source_port, 0, 0);
     }
     if (frame != 0)
     {
@@ -121,7 +121,7 @@ static lbtru_client_transport_t * lbtru_client_transport_find(lbtru_transport_t 
     {
         return (NULL);
     }
-    client_conv = find_conversation(frame, &(transport->source_address), receiver_address, ENDPOINT_UDP, transport->source_port, receiver_port, 0);
+    client_conv = find_conversation(frame, &(transport->source_address), receiver_address, CONVERSATION_UDP, transport->source_port, receiver_port, 0);
     if (client_conv != NULL)
     {
         wmem_tree_t * session_tree = NULL;
@@ -170,10 +170,10 @@ static lbtru_client_transport_t * lbtru_client_transport_add(lbtru_transport_t *
     entry->sm_high_sqn = 0;
 
     /* See if a conversation for this address/port pair exists. */
-    client_conv = find_conversation(frame, &(transport->source_address), receiver_address, ENDPOINT_UDP, transport->source_port, receiver_port, 0);
+    client_conv = find_conversation(frame, &(transport->source_address), receiver_address, CONVERSATION_UDP, transport->source_port, receiver_port, 0);
     if (client_conv == NULL)
     {
-        client_conv = conversation_new(frame, &(transport->source_address), receiver_address, ENDPOINT_UDP, transport->source_port, receiver_port, 0);
+        client_conv = conversation_new(frame, &(transport->source_address), receiver_address, CONVERSATION_UDP, transport->source_port, receiver_port, 0);
         session_tree = wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(client_conv, proto_lbtru, (void *) session_tree);
     }

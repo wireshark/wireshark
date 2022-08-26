@@ -379,7 +379,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static void
 new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 
-    conversation_t *conversation = conversation_new( pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
+    conversation_t *conversation = conversation_new( pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP,
             hash_info->udp_port, hash_info->port, 0);
 
     DISSECTOR_ASSERT( conversation);
@@ -1047,7 +1047,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
             return 0;
 
         conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                        conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
+                                        conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
     }
 
     hash_info = (socks_hash_entry_t *)conversation_get_proto_data(conversation,proto_socks);

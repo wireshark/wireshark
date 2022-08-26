@@ -199,7 +199,7 @@ dissect_soupbintcp_common(
         conv = conversation_new(pinfo->num,
                                 &pinfo->src,
                                 &pinfo->dst,
-                                conversation_pt_to_endpoint_type(pinfo->ptype),
+                                conversation_pt_to_conversation_type(pinfo->ptype),
                                 pinfo->srcport,
                                 pinfo->destport,
                                 0);

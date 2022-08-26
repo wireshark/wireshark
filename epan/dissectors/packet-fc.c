@@ -201,7 +201,7 @@ fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
     hash->flags = flags;
     const fc_hdr *fchdr=(const fc_hdr *)vip;
 
-    add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &fc_ct_dissector_info, ENDPOINT_NONE);
+    add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &fc_ct_dissector_info, CONVERSATION_NONE);
 
     return TAP_PACKET_REDRAW;
 }
@@ -722,9 +722,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if(!is_ifcp){
         set_address_tvb (&pinfo->dst, AT_FC, 3, tvb, offset+1);
         set_address_tvb (&pinfo->src, AT_FC, 3, tvb, offset+5);
-        conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_EXCHG, 0, 0);
+        conversation_create_key_by_address_port_pairs(pinfo, &pinfo->src, &pinfo->dst, CONVERSATION_EXCHG, 0, 0);
     } else {
-        conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_EXCHG, pinfo->srcport, pinfo->destport);
+        conversation_create_key_by_address_port_pairs(pinfo, &pinfo->src, &pinfo->dst, CONVERSATION_EXCHG, pinfo->srcport, pinfo->destport);
     }
     set_address(&fchdr->d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
     set_address(&fchdr->s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);

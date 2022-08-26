@@ -70,7 +70,7 @@ endpoints_draw(void *arg)
 				conversation_str = get_conversation_address(NULL, &endpoint->myaddress, TRUE);
 				if (display_port) {
 					/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
-					port_str = get_conversation_port(NULL, endpoint->port, endpoint->etype, TRUE);
+					port_str = get_endpoint_port(NULL, endpoint, TRUE);
 					printf("%-20s      %5s     %6" PRIu64 "     %9" PRIu64
 					       "     %6" PRIu64 "       %9" PRIu64 "      %6"
 					       PRIu64 "       %9" PRIu64 "   \n",

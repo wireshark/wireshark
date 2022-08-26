@@ -675,7 +675,7 @@ static int dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
 
     /* Retrieve conversation state to determine expected payload */
     conversation = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
-                                      ENDPOINT_SBCCS, ch_cu_id, dev_addr, 0);
+                                      CONVERSATION_SBCCS, ch_cu_id, dev_addr, 0);
 
     if (conversation) {
 #if 0
@@ -689,7 +689,7 @@ static int dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
         conversation =
 #endif
                        conversation_new (pinfo->num, &pinfo->src, &pinfo->dst,
-                                         ENDPOINT_SBCCS, ch_cu_id, dev_addr, 0);
+                                         CONVERSATION_SBCCS, ch_cu_id, dev_addr, 0);
 #if 0
         task_key.conv_id = conversation->index;
         task_key.task_id = ccw;

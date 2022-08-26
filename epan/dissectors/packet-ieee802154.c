@@ -1325,10 +1325,10 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo, const ad
     conversation_t *conv = NULL;
 
     /* Have we seen this conversation before? */
-    conv = find_conversation(pinfo->num, src_addr, dst_addr, ENDPOINT_NONE, 0, 0, 0);
+    conv = find_conversation(pinfo->num, src_addr, dst_addr, CONVERSATION_NONE, 0, 0, 0);
     if (conv == NULL) {
         /* No, this is a new conversation. */
-        conv = conversation_new(pinfo->num, src_addr, dst_addr, ENDPOINT_NONE, 0, 0, 0);
+        conv = conversation_new(pinfo->num, src_addr, dst_addr, CONVERSATION_NONE, 0, 0, 0);
     }
     return conv;
 }
@@ -5598,7 +5598,7 @@ static tap_packet_status ieee802154_conversation_packet(void *pct, packet_info *
 
     add_conversation_table_data(hash, &pinfo->dl_src, &pinfo->dl_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
-            &ieee802154_ct_dissector_info, ENDPOINT_NONE);
+            &ieee802154_ct_dissector_info, CONVERSATION_NONE);
 
     return TAP_PACKET_REDRAW;
 }

@@ -2005,7 +2005,7 @@ opensafety_conversation_packet(void *pct, packet_info *pinfo,
     alloc_address_wmem(pinfo->pool, dst, AT_NUMERIC, (int) sizeof(guint16), &receiver);
 
     add_conversation_table_data(hash, src, dst, 0, 0, 1, osinfo->msg_len, &pinfo->rel_ts, &pinfo->abs_ts,
-            &opensafety_ct_dissector_info, ENDPOINT_NONE);
+            &opensafety_ct_dissector_info, CONVERSATION_NONE);
 
     return TAP_PACKET_REDRAW;
 }

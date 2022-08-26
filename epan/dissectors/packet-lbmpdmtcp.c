@@ -77,10 +77,10 @@ static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, guint
     lbmtcp_transport_t * entry;
     conversation_t * conv = NULL;
 
-    conv = find_conversation(frame, address1, address2, ENDPOINT_TCP, port1, port2, 0);
+    conv = find_conversation(frame, address1, address2, CONVERSATION_TCP, port1, port2, 0);
     if (conv == NULL)
     {
-        conv = conversation_new(frame, address1, address2, ENDPOINT_TCP, port1, port2, 0);
+        conv = conversation_new(frame, address1, address2, CONVERSATION_TCP, port1, port2, 0);
     }
     entry = (lbmtcp_transport_t *) conversation_get_proto_data(conv, lbmpdm_tcp_protocol_handle);
     if (entry != NULL)

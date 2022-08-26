@@ -54,62 +54,107 @@ extern "C" {
 /** Flags to handle endpoints */
 #define USE_LAST_ENDPOINT 0x08		/**< Use last endpoint created, regardless of type */
 
-/* Types of port numbers Wireshark knows about. */
+/* Types of conversations Wireshark knows about. */
 typedef enum {
-    ENDPOINT_NONE,			/* no endpoint */
-    ENDPOINT_SCTP,			/* SCTP */
-    ENDPOINT_TCP,			/* TCP */
-    ENDPOINT_UDP,			/* UDP */
-    ENDPOINT_DCCP,			/* DCCP */
-    ENDPOINT_IPX,			/* IPX sockets */
-    ENDPOINT_NCP,			/* NCP connection */
-    ENDPOINT_EXCHG,			/* Fibre Channel exchange */
-    ENDPOINT_DDP,			/* DDP AppleTalk connection */
-    ENDPOINT_SBCCS,			/* FICON */
-    ENDPOINT_IDP,			/* XNS IDP sockets */
-    ENDPOINT_TIPC,			/* TIPC PORT */
-    ENDPOINT_USB,			/* USB endpoint 0xffff means the host */
-    ENDPOINT_I2C,
-    ENDPOINT_IBQP,			/* Infiniband QP number */
-    ENDPOINT_BLUETOOTH,
-    ENDPOINT_TDMOP,
-    ENDPOINT_DVBCI,
-    ENDPOINT_ISO14443,
-    ENDPOINT_ISDN,			/* ISDN channel number */
-    ENDPOINT_H223,			/* H.223 logical channel number */
-    ENDPOINT_X25,			/* X.25 logical channel number */
-    ENDPOINT_IAX2,			/* IAX2 call id */
-    ENDPOINT_DLCI,			/* Frame Relay DLCI */
-    ENDPOINT_ISUP,			/* ISDN User Part CIC */
-    ENDPOINT_BICC,			/* BICC Circuit identifier */
-    ENDPOINT_GSMTAP,
-    ENDPOINT_IUUP,
-    ENDPOINT_DVBBBF,        /* DVB Base Band Frame ISI/PLP_ID */
-    ENDPOINT_IWARP_MPA,		/* iWarp MPA */
-    ENDPOINT_BT_UTP,        /* BitTorrent uTP Connection ID */
-    ENDPOINT_LOG,			/* Logging source */
-} endpoint_type;
+    CONVERSATION_NONE,		/* no conversation key */
+    CONVERSATION_SCTP,		/* SCTP */
+    CONVERSATION_TCP,		/* TCP address/port pairs */
+    CONVERSATION_UDP,		/* UDP address/port pairs */
+    CONVERSATION_DCCP,		/* DCCP */
+    CONVERSATION_IPX,		/* IPX sockets */
+    CONVERSATION_NCP,		/* NCP connection */
+    CONVERSATION_EXCHG,		/* Fibre Channel exchange */
+    CONVERSATION_DDP,		/* DDP AppleTalk address/port pair */
+    CONVERSATION_SBCCS,		/* FICON */
+    CONVERSATION_IDP,		/* XNS IDP sockets */
+    CONVERSATION_TIPC,		/* TIPC PORT */
+    CONVERSATION_USB,		/* USB endpoint 0xffff means the host */
+    CONVERSATION_I2C,
+    CONVERSATION_IBQP,		/* Infiniband QP number */
+    CONVERSATION_BLUETOOTH,
+    CONVERSATION_TDMOP,
+    CONVERSATION_DVBCI,
+    CONVERSATION_ISO14443,
+    CONVERSATION_ISDN,		/* ISDN channel number */
+    CONVERSATION_H223,		/* H.223 logical channel number */
+    CONVERSATION_X25,		/* X.25 logical channel number */
+    CONVERSATION_IAX2,		/* IAX2 call id */
+    CONVERSATION_DLCI,		/* Frame Relay DLCI */
+    CONVERSATION_ISUP,		/* ISDN User Part CIC */
+    CONVERSATION_BICC,		/* BICC Circuit identifier */
+    CONVERSATION_GSMTAP,
+    CONVERSATION_IUUP,
+    CONVERSATION_DVBBBF,	/* DVB Base Band Frame ISI/PLP_ID */
+    CONVERSATION_IWARP_MPA,	/* iWarp MPA */
+    CONVERSATION_BT_UTP,	/* BitTorrent uTP Connection ID */
+    CONVERSATION_LOG,		/* Logging source */
+} conversation_type;
+
+/*
+ * XXX - for now, we just #define these to be the same as the
+ * corresponding CONVERSATION_ values, for backwards source
+ * compatibility.
+ *
+ * In the long term, we should make this into a separate enum,
+ * with elements corresponding to conversation types that do
+ * not have known endpoints removed.
+ */
+/* Types of conversation endpoints Wireshark knows about. */
+#define ENDPOINT_NONE		CONVERSATION_NONE
+#define ENDPOINT_SCTP		CONVERSATION_SCTP
+#define ENDPOINT_TCP		CONVERSATION_TCP
+#define ENDPOINT_UDP		CONVERSATION_UDP
+#define ENDPOINT_DCCP		CONVERSATION_DCCP
+#define ENDPOINT_IPX		CONVERSATION_IPX
+#define ENDPOINT_NCP		CONVERSATION_NCP
+#define ENDPOINT_EXCHG		CONVERSATION_EXCHG
+#define ENDPOINT_DDP		CONVERSATION_DDP
+#define ENDPOINT_SBCCS		CONVERSATION_SBCCS
+#define ENDPOINT_IDP		CONVERSATION_IDP
+#define ENDPOINT_TIPC		CONVERSATION_TIPC
+#define ENDPOINT_USB		CONVERSATION_USB
+#define ENDPOINT_I2C		CONVERSATION_I2C
+#define ENDPOINT_IBQP		CONVERSATION_IBQP
+#define ENDPOINT_BLUETOOTH	CONVERSATION_BLUETOOTH
+#define ENDPOINT_TDMOP		CONVERSATION_TDMOP
+#define ENDPOINT_DVBCI		CONVERSATION_DVBCI
+#define ENDPOINT_ISO14443	CONVERSATION_ISO14443
+#define ENDPOINT_ISDN		CONVERSATION_ISDN
+#define ENDPOINT_H223		CONVERSATION_H223
+#define ENDPOINT_X25		CONVERSATION_X25
+#define ENDPOINT_IAX2		CONVERSATION_IAX2
+#define ENDPOINT_DLCI		CONVERSATION_DLCI
+#define ENDPOINT_ISUP		CONVERSATION_ISUP
+#define ENDPOINT_BICC		CONVERSATION_BICC
+#define ENDPOINT_GSMTAP		CONVERSATION_GSMTAP
+#define ENDPOINT_IUUP		CONVERSATION_IUUP
+#define ENDPOINT_DVBBBF		CONVERSATION_DVBBBF
+#define ENDPOINT_IWARP_MPA	CONVERSATION_IWARP_MPA
+#define ENDPOINT_BT_UTP		CONVERSATION_BT_UTP
+#define ENDPOINT_LOG		CONVERSATION_LOG
+
+typedef conversation_type endpoint_type;
 
 /**
  * Conversation element type.
  */
 typedef enum {
-    CE_ENDPOINT,
-    CE_ADDRESS,
-    CE_PORT,
-    CE_STRING,
-    CE_UINT,
-    CE_UINT64,
+    CE_CONVERSATION_TYPE,	/* CONVERSATION_ value */
+    CE_ADDRESS,			/* address */
+    CE_PORT,			/* unsigned integer representing a port */
+    CE_STRING,			/* string */
+    CE_UINT,			/* unsigned integer not representing a port */
+    CE_UINT64,			/* 64-bit unsigned integer */
 } conversation_element_type;
 
 /**
  * Elements used to identify conversations for *_full routines and pinfo->conv_elements.
- * Arrays must be terminated with an element .type set to CE_ENDPOINT.
+ * Arrays must be terminated with an element .type set to CE_CONVERSATION_TYPE.
  */
 typedef struct conversation_element {
     conversation_element_type type;
     union {
-        endpoint_type endpoint_type_val;
+        conversation_type conversation_type_val;
         address addr_val;
         unsigned int port_val;
         const char *str_val;
@@ -132,11 +177,11 @@ typedef struct conversation {
     wmem_tree_t *data_list;		/** list of data associated with conversation */
     wmem_tree_t *dissector_tree;	/** tree containing protocol dissector client associated with conversation */
     guint	options;		/** wildcard flags */
-    conversation_element_t *key_ptr;	/** Keys are conversation element arrays terminated with a CE_ENDPOINT */
+    conversation_element_t *key_ptr;	/** Keys are conversation element arrays terminated with a CE_CONVERSATION_TYPE */
 } conversation_t;
 
-struct endpoint;
-typedef struct endpoint* endpoint_t;
+struct conversation_key;
+typedef struct conversation_key* conversation_key_t;
 
 WS_DLL_PUBLIC const address* conversation_key_addr1(const conversation_element_t *key);
 WS_DLL_PUBLIC guint32 conversation_key_port1(const conversation_element_t *key);
@@ -156,7 +201,7 @@ extern void conversation_epan_reset(void);
 /**
  * Create a new conversation identified by a list of elements.
  * @param setup_frame The first frame in the conversation.
- * @param elements An array of element types and values. Must not be NULL. Must be terminated with a CE_ENDPOINT element.
+ * @param elements An array of element types and values. Must not be NULL. Must be terminated with a CE_CONVERSATION_TYPE element.
  * @return The new conversation.
  */
 WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_full(const guint32 setup_frame, conversation_element_t *elements);
@@ -181,14 +226,14 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_full(const guint32 
  * @return The new conversation.
  */
 WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
-    const endpoint_type etype, const guint32 port1, const guint32 port2, const guint options);
+    const conversation_type ctype, const guint32 port1, const guint32 port2, const guint options);
 
-WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint32 id);
+WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_by_id(const guint32 setup_frame, const conversation_type ctype, const guint32 id);
 
 /**
  * Search for a conversation based on the structure and values of an element list.
  * @param frame_num Frame number. Must be greater than or equal to the conversation's initial frame number.
- * @param elements An array of element types and values. Must not be NULL. Must be terminated with a CE_ENDPOINT element.
+ * @param elements An array of element types and values. Must not be NULL. Must be terminated with a CE_CONVERSATION_TYPE element.
  * @return The matching conversation if found, otherwise NULL.
  */
 WS_DLL_PUBLIC conversation_t *find_conversation_full(const guint32 frame_num, conversation_element_t *elements);
@@ -234,16 +279,16 @@ WS_DLL_PUBLIC conversation_t *find_conversation_full(const guint32 frame_num, co
  * @param frame_num Frame number. Must be greater than or equal to the conversation's initial frame number.
  * @param addr_a The first address in the identifying tuple.
  * @param addr_b The second address in the identifying tuple.
- * @param etype The endpoint type.
+ * @param ctype The conversation type.
  * @param port_a The first port in the identifying tuple.
  * @param port_b The second port in the identifying tuple.
  * @param options Wildcard options as described above.
  * @return The matching conversation if found, otherwise NULL.
  */
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
-    const endpoint_type etype, const guint32 port_a, const guint32 port_b, const guint options);
+    const conversation_type ctype, const guint32 port_a, const guint32 port_b, const guint options);
 
-WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id);
+WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const conversation_type ctype, const guint32 id);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
@@ -266,7 +311,7 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *find_or_create_conversation(packet_i
  *  conversation is not found, calls conversation_new_by_id().
  *  The frame number is taken from pinfo.
  */
-WS_DLL_PUBLIC WS_RETNONNULL conversation_t *find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id);
+WS_DLL_PUBLIC WS_RETNONNULL conversation_t *find_or_create_conversation_by_id(packet_info *pinfo, const conversation_type ctype, const guint32 id);
 
 /** Associate data with a conversation.
  * @param conv Conversation. Must not be NULL.
@@ -301,32 +346,33 @@ WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conv
  * @param pinfo Packet info.
  * @param addr1 The first address in the identifying tuple.
  * @param addr2 The second address in the identifying tuple.
- * @param etype The endpoint type.
+ * @param ctype The conversation type.
  * @param port1 The first port in the identifying tuple.
  * @param port2 The second port in the identifying tuple.
  */
-WS_DLL_PUBLIC void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
-    endpoint_type etype, guint32 port1, guint32	port2);
+WS_DLL_PUBLIC void conversation_create_key_by_address_port_pairs(struct _packet_info *pinfo, address* addr1, address* addr2,
+    conversation_type ctype, guint32 port1, guint32 port2);
 
 /**
  * Save ID information in the current packet info which can be matched by
- * conversation_get_endpoint_by_id. Does not support wildcarding.
+ * conversation_get_conversation_key_by_id. Does not support wildcarding.
  * @param pinfo Packet info.
- * @param etype The endpoint type.
+ * @param ctype The conversation type.
  * @param id A unique ID.
  */
-WS_DLL_PUBLIC void conversation_create_endpoint_by_id(struct _packet_info *pinfo,
-    endpoint_type etype, guint32 id);
+WS_DLL_PUBLIC void conversation_create_key_by_id(struct _packet_info *pinfo,
+    conversation_type ctype, guint32 id);
 
 /**
- * @brief conversation_get_endpoint_by_id
+ * @brief Get the ID value from the conversation key in the packet info.
  * @param pinfo Packet info.
- * @param etype The endpoint type.
+ * @param ctype The conversation type.
  * @param options USE_LAST_ENDPOINT or 0.
- * @return The endpoint ID if successful, or 0 on failure.
+ * @return The ID value from the conversation key if successful, or 0
+ *   on failure.
  */
-WS_DLL_PUBLIC guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo,
-    endpoint_type etype, const guint options);
+WS_DLL_PUBLIC guint32 conversation_get_id_from_key(struct _packet_info *pinfo,
+    conversation_type ctype, const guint options);
 
 /**
  * Given two address/port pairs for a packet, search for a matching
@@ -338,11 +384,11 @@ WS_DLL_PUBLIC guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo
  * Our caller is responsible to call the data dissector explicitly in case
  * this function returns FALSE.
  */
-WS_DLL_PUBLIC gboolean try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
+WS_DLL_PUBLIC gboolean try_conversation_dissector(const address *addr_a, const address *addr_b, const conversation_type ctype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data, const guint options);
 
-WS_DLL_PUBLIC gboolean try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
+WS_DLL_PUBLIC gboolean try_conversation_dissector_by_id(const conversation_type ctype, const guint32 id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data);
 
 /* These routines are used to set undefined values for a conversation */
@@ -369,11 +415,11 @@ WS_DLL_PUBLIC void conversation_set_addr2(conversation_t *conv, const address *a
  */
 WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtables(void);
 
-/* Temporary function to handle port_type to endpoint_type conversion
+/* Temporary function to handle port_type to conversation_type conversion
    For now it's a 1-1 mapping, but the intention is to remove
-   many of the port_type instances in favor of endpoint_type
+   many of the port_type instances in favor of conversation_type
  */
-WS_DLL_PUBLIC endpoint_type conversation_pt_to_endpoint_type(port_type pt);
+WS_DLL_PUBLIC conversation_type conversation_pt_to_conversation_type(port_type pt);
 
 #ifdef __cplusplus
 }

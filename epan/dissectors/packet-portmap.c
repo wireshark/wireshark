@@ -128,9 +128,9 @@ dissect_getport_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 			port=tvb_get_ntohl(tvb, offset);
 			if(port){
 				conversation_t *conv;
-				conv=find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP, port, 0, NO_ADDR_B|NO_PORT_B);
+				conv=find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP, port, 0, NO_ADDR_B|NO_PORT_B);
 				if(!conv){
-					conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP, port, 0, NO_ADDR2|NO_PORT2);
+					conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP, port, 0, NO_ADDR2|NO_PORT2);
 				}
 				conversation_set_dissector(conv, rpc_handle);
 			}

@@ -299,10 +299,10 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 session = (twamp_session_t*) list->data;
                 session->receiver_port = receiver_port;
 
-                cp->conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
+                cp->conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, CONVERSATION_UDP,
                         session->sender_port, session->receiver_port, 0);
                 if (cp->conversation == NULL /*|| cp->conversation->dissector_handle != twamp_test_handle*/) {
-                    cp->conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
+                    cp->conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src, CONVERSATION_UDP,
                             session->sender_port, session->receiver_port, 0);
                     if (cp->conversation) {
                         /* create conversation specific data for test sessions */

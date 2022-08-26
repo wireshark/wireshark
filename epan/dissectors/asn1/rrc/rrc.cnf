@@ -1313,7 +1313,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
   /* Finding FP conversation info */
   p_conv = (conversation_t *)find_conversation(actx->pinfo->num, &actx->pinfo->net_dst, &actx->pinfo->net_src,
-      conversation_pt_to_endpoint_type(actx->pinfo->ptype),
+      conversation_pt_to_conversation_type(actx->pinfo->ptype),
       actx->pinfo->destport, actx->pinfo->srcport, NO_ADDR_B);
 
   /* If the current FP channel is FACH, Adding the C-RNTI / U-RNTI match to the FACH's RNTIs map*/

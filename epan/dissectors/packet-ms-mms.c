@@ -296,7 +296,7 @@ static void dissect_media_stream_mbr_selector(tvbuff_t *tvb, proto_tree *tree, g
 static void dissect_header_request(tvbuff_t *tvb, proto_tree *tree, guint offset);
 static void dissect_stop_button_pressed(tvbuff_t *tvb, proto_tree *tree, guint offset);
 
-static void msmms_data_add_address(packet_info *pinfo, address *addr, endpoint_type et, int port);
+static void msmms_data_add_address(packet_info *pinfo, address *addr, conversation_type ckt, int port);
 
 
 
@@ -751,21 +751,21 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
     /* Use this information to set up a conversation for the data stream */
     if (fields_matched == 6)
     {
-        endpoint_type et = ENDPOINT_NONE;
+        conversation_type ckt = CONVERSATION_NONE;
 
         /* Work out the port type */
         if (strncmp(protocol, "UDP", 3) == 0)
         {
-            et = ENDPOINT_UDP;
+            ckt = CONVERSATION_UDP;
         }
         else
         if (strncmp(protocol, "TCP", 3) == 0)
         {
-            et = ENDPOINT_TCP;
+            ckt = CONVERSATION_TCP;
         }
 
         /* Set the dissector for indicated conversation */
-        if (et != ENDPOINT_NONE)
+        if (ckt != CONVERSATION_NONE)
         {
             guint8 octets[4];
             address addr;
@@ -776,7 +776,7 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
             addr.type = AT_IPv4;
             addr.len = 4;
             addr.data = octets;
-            msmms_data_add_address(pinfo, &addr, et, port);
+            msmms_data_add_address(pinfo, &addr, ckt, port);
         }
     }
 }
@@ -1097,7 +1097,7 @@ static void dissect_stop_button_pressed(tvbuff_t *tvb, proto_tree *tree, guint o
 /********************************************************/
 /* Helper function to set up an MS-MMS data conversation */
 /********************************************************/
-static void msmms_data_add_address(packet_info *pinfo, address *addr, endpoint_type et, int port)
+static void msmms_data_add_address(packet_info *pinfo, address *addr, conversation_type ckt, int port)
 {
     address         null_addr;
     conversation_t *p_conv;
@@ -1114,13 +1114,13 @@ static void msmms_data_add_address(packet_info *pinfo, address *addr, endpoint_t
 
     /* Check if the ip address and port combination is not
      * already registered as a conversation. */
-    p_conv = find_conversation(pinfo->num, addr, &null_addr, et, port, 0,
+    p_conv = find_conversation(pinfo->num, addr, &null_addr, ckt, port, 0,
                                NO_ADDR_B | NO_PORT_B);
 
     /* If not, create a new conversation. */
     if (!p_conv)
     {
-        p_conv = conversation_new(pinfo->num, addr, &null_addr, et,
+        p_conv = conversation_new(pinfo->num, addr, &null_addr, ckt,
                                   (guint32)port, 0, NO_ADDR2 | NO_PORT2);
     }
 

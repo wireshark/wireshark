@@ -1172,11 +1172,11 @@ enip_conv_info_t* get_conversation_info_one_direction(packet_info* pinfo, addres
    // Similar logic to find_or_create_conversation(), but since I/O traffic
    //    is on UDP, the pinfo parameter doesn't have the correct information.
    conversation_t* conversation = find_conversation(pinfo->num, src_address, &dest_address,
-      ENDPOINT_UDP, connid_info->port, 0, NO_PORT_B);
+      CONVERSATION_UDP, connid_info->port, 0, NO_PORT_B);
    if (conversation == NULL)
    {
       conversation = conversation_new(pinfo->num, src_address, &dest_address,
-         ENDPOINT_UDP, connid_info->port, 0, NO_PORT2);
+         CONVERSATION_UDP, connid_info->port, 0, NO_PORT2);
    }
 
    enip_conv_info_t* enip_info = (enip_conv_info_t*)conversation_get_proto_data(conversation, proto_enip);
@@ -1356,7 +1356,7 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
     */
    conversation = find_conversation(pinfo->num,
             &pinfo->src, &pinfo->dst,
-            conversation_pt_to_endpoint_type(pinfo->ptype),
+            conversation_pt_to_conversation_type(pinfo->ptype),
             pinfo->destport, 0, NO_PORT_B);
 
    if (conversation == NULL)

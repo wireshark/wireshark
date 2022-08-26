@@ -171,7 +171,7 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pin
     u8DataValid = (u8DataStatus >> 2) & 0x01;
 
     /* if PN Connect Request has been read, IOC mac is dl_src and IOD mac is dl_dst */
-    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_UDP, 0, 0, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_UDP, 0, 0, 0);
 
     if (conversation != NULL) {
         apdu_status_switch = (apduStatusSwitch*)conversation_get_proto_data(conversation, proto_pn_io_apdu_status);
@@ -642,7 +642,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     /* TimeAwareness Information needed for differentiating RTC3 - RTSteam frames  */
-    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
 
     if (conversation != NULL) {
         isTimeAware = GPOINTER_TO_UINT(conversation_get_proto_data(conversation, proto_pn_io_time_aware_status));

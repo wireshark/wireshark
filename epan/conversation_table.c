@@ -329,22 +329,42 @@ char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gbool
     }
 }
 
-char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, endpoint_type etype, gboolean resolve_names)
+char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, conversation_type ctype, gboolean resolve_names)
 {
+
+    if(!resolve_names) ctype = CONVERSATION_NONE;
+
+    switch(ctype) {
+    case(CONVERSATION_TCP):
+        return tcp_port_to_display(allocator, port);
+    case(CONVERSATION_UDP):
+        return udp_port_to_display(allocator, port);
+    case(CONVERSATION_SCTP):
+        return sctp_port_to_display(allocator, port);
+    case(CONVERSATION_DCCP):
+        return dccp_port_to_display(allocator, port);
+    default:
+        return wmem_strdup_printf(allocator, "%d", port);
+    }
+}
+
+char *get_endpoint_port(wmem_allocator_t *allocator, endpoint_item_t *item, gboolean resolve_names)
+{
+    endpoint_type etype = item->etype;
 
     if(!resolve_names) etype = ENDPOINT_NONE;
 
     switch(etype) {
     case(ENDPOINT_TCP):
-        return tcp_port_to_display(allocator, port);
+        return tcp_port_to_display(allocator, item->port);
     case(ENDPOINT_UDP):
-        return udp_port_to_display(allocator, port);
+        return udp_port_to_display(allocator, item->port);
     case(ENDPOINT_SCTP):
-        return sctp_port_to_display(allocator, port);
+        return sctp_port_to_display(allocator, item->port);
     case(ENDPOINT_DCCP):
-        return dccp_port_to_display(allocator, port);
+        return dccp_port_to_display(allocator, item->port);
     default:
-        return wmem_strdup_printf(allocator, "%d", port);
+        return wmem_strdup_printf(allocator, "%d", item->port);
     }
 }
 
@@ -380,13 +400,13 @@ endpoint_get_filter_name(endpoint_item_t *endpoint, conv_filter_type_e filter_ty
 
 /* Convert a port number into a string or NULL */
 static char *
-ct_port_to_str(endpoint_type etype, guint32 port)
+ct_port_to_str(conversation_type ctype, guint32 port)
 {
-    switch(etype){
-    case ENDPOINT_TCP:
-    case ENDPOINT_UDP:
-    case ENDPOINT_SCTP:
-    case ENDPOINT_NCP:
+    switch(ctype){
+    case CONVERSATION_TCP:
+    case CONVERSATION_UDP:
+    case CONVERSATION_SCTP:
+    case CONVERSATION_NCP:
         return ws_strdup_printf("%d", port);
     default:
         break;
@@ -405,8 +425,8 @@ char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction
     if (usb_address_type == -1)
         usb_address_type = address_type_get_by_name("AT_USB");
 
-    sport = ct_port_to_str(conv_item->etype, conv_item->src_port);
-    dport = ct_port_to_str(conv_item->etype, conv_item->dst_port);
+    sport = ct_port_to_str(conv_item->ctype, conv_item->src_port);
+    dport = ct_port_to_str(conv_item->ctype, conv_item->dst_port);
     src_addr = address_to_str(NULL, &conv_item->src_address);
     dst_addr = address_to_str(NULL, &conv_item->dst_address);
 
@@ -563,7 +583,17 @@ char *get_endpoint_filter(endpoint_item_t *endpoint_item)
     if (usb_address_type == -1)
         usb_address_type = address_type_get_by_name("AT_USB");
 
-    sport = ct_port_to_str(endpoint_item->etype, endpoint_item->port);
+    switch(endpoint_item->etype){
+    case ENDPOINT_TCP:
+    case ENDPOINT_UDP:
+    case ENDPOINT_SCTP:
+    case ENDPOINT_NCP:
+        sport = ws_strdup_printf("%d", endpoint_item->port);
+        break;
+    default:
+        sport = NULL;
+        break;
+    }
     src_addr = address_to_str(NULL, &endpoint_item->myaddress);
     if (endpoint_item->myaddress.type == AT_STRINGZ || endpoint_item->myaddress.type == usb_address_type) {
         char *new_addr;
@@ -594,9 +624,9 @@ char *get_hostlist_filter(endpoint_item_t *endpoint_item)
 
 void
 add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes,
-        nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, endpoint_type etype)
+        nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, conversation_type ctype)
 {
-    add_conversation_table_data_with_conv_id(ch, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, abs_ts, ct_info, etype);
+    add_conversation_table_data_with_conv_id(ch, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, abs_ts, ct_info, ctype);
 }
 
 void
@@ -612,7 +642,7 @@ add_conversation_table_data_with_conv_id(
     nstime_t *ts,
     nstime_t *abs_ts,
     ct_dissector_info_t *ct_info,
-    endpoint_type etype)
+    conversation_type ctype)
 {
     conv_item_t *conv_item = NULL;
     gboolean is_fwd_direction = FALSE; /* direction of any conversation found */
@@ -664,7 +694,7 @@ add_conversation_table_data_with_conv_id(
         copy_address(&new_conv_item.src_address, src);
         copy_address(&new_conv_item.dst_address, dst);
         new_conv_item.dissector_info = ct_info;
-        new_conv_item.etype = etype;
+        new_conv_item.ctype = ctype;
         new_conv_item.src_port = src_port;
         new_conv_item.dst_port = dst_port;
         new_conv_item.conv_id = conv_id;

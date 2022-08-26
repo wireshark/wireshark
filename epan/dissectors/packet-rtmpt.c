@@ -2404,16 +2404,16 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         cdir = pinfo->srcport == pinfo->match_uint;
 
         if (cdir) {
-                conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, conversation_pt_to_endpoint_type(pinfo->ptype), 0, pinfo->srcport, 0);
+                conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->srcport, 0);
                 if (!conv) {
                         RTMPT_DEBUG("RTMPT new conversation\n");
-                        conv = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src, conversation_pt_to_endpoint_type(pinfo->ptype), 0, pinfo->srcport, 0);
+                        conv = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->srcport, 0);
                 }
         } else {
-                conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), 0, pinfo->destport, 0);
+                conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->destport, 0);
                 if (!conv) {
                         RTMPT_DEBUG("RTMPT new conversation\n");
-                        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), 0, pinfo->destport, 0);
+                        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), 0, pinfo->destport, 0);
                 }
         }
 

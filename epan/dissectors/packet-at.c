@@ -2491,7 +2491,7 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     conversation = find_conversation(pinfo->num,
                                &pinfo->src, &pinfo->dst,
-                               conversation_pt_to_endpoint_type(pinfo->ptype),
+                               conversation_pt_to_conversation_type(pinfo->ptype),
                                pinfo->srcport, pinfo->destport, 0);
     at_conv = get_at_conv_info(conversation);
     at_info = get_at_packet_info(pinfo, at_conv);

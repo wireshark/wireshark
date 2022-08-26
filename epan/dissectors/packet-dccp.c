@@ -283,7 +283,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * determine if this packet is part of a conversation and call dissector
      * for the conversation if available
      */
-    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, ENDPOINT_DCCP, sport,
+    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, CONVERSATION_DCCP, sport,
                                    dport, next_tvb, pinfo, tree, NULL, 0)) {
         return;
     }
@@ -448,7 +448,7 @@ dccpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U
     hash->flags = flags;
     const e_dccphdr *dccphdr=(const e_dccphdr *)vip;
 
-    add_conversation_table_data_with_conv_id(hash, &dccphdr->ip_src, &dccphdr->ip_dst, dccphdr->sport, dccphdr->dport, (conv_id_t) dccphdr->stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &dccp_ct_dissector_info, ENDPOINT_DCCP);
+    add_conversation_table_data_with_conv_id(hash, &dccphdr->ip_src, &dccphdr->ip_dst, dccphdr->sport, dccphdr->dport, (conv_id_t) dccphdr->stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &dccp_ct_dissector_info, CONVERSATION_DCCP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -560,7 +560,7 @@ static gchar *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinf
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_DCCP) &&
-        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, ENDPOINT_DCCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
+        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, CONVERSATION_DCCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
     {
         /* DCCP over IPv4/6 */
         dccpd = get_dccp_conversation_data(conv, pinfo);

@@ -299,10 +299,10 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
 
     if (pinfo->srcport != 0 && pinfo->destport != 0) {
         /* COTP over RFC1006/TCP, try reassembling */
-        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, ENDPOINT_NONE,
+        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, CONVERSATION_NONE,
             pinfo->srcport, pinfo->destport, 0);
         if (!conv) {
-            conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, ENDPOINT_NONE,
+            conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, CONVERSATION_NONE,
                 pinfo->srcport, pinfo->destport, 0);
         }
 
@@ -312,10 +312,10 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
     }
     else {
         /* plain COTP transport (without RFC1006/TCP), try reassembling */
-        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, ENDPOINT_NONE,
+        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, CONVERSATION_NONE,
             pinfo->clnp_srcref, pinfo->clnp_dstref, 0);
         if (!conv) {
-            conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, ENDPOINT_NONE,
+            conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, CONVERSATION_NONE,
                 pinfo->clnp_srcref, pinfo->clnp_dstref, 0);
         }
 

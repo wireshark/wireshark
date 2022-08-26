@@ -241,7 +241,7 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
         proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, 4, 16, ENC_BIG_ENDIAN);
         c_rnti = tvb_get_bits16(tvb, bitoffs, 16,ENC_BIG_ENDIAN);
         p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                        conversation_pt_to_endpoint_type(pinfo->ptype),
+                        conversation_pt_to_conversation_type(pinfo->ptype),
                         pinfo->destport, pinfo->srcport, NO_ADDR_B);
         if (p_conv != NULL) {
             umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);

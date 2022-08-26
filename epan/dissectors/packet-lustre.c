@@ -1618,11 +1618,11 @@ lustre_get_trans(packet_info *pinfo, struct lnet_trans_info *info)
     lustre_trans_t *trans;
 
     // Ignore ports because this is kernel level and there can only be one Lustre instance per server
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
                                      0, 0, 0);
     if (conversation == NULL)
         conversation = conversation_new(pinfo->num, &pinfo->src,
-                                        &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), 0, 0, 0);
+                                        &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), 0, 0, 0);
 
     conv_info = (lustre_conv_info_t *)conversation_get_proto_data(conversation, proto_lustre);
     if (!conv_info) {

@@ -10185,12 +10185,12 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
         /* When ARType==IOCARSR, then find or create conversation for this frame */
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Get current conversation endpoints using MAC addresses */
-            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_UDP, 0, 0, 0);
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_UDP, 0, 0, 0);
             if (conversation == NULL) {
                 /* Create new conversation, if no "Ident OK" frame as been dissected yet!
                  * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
                  * All conversations are based on Device MAC as addr1 */
-                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_UDP, 0, 0, 0);
+                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_UDP, 0, 0, 0);
             }
 
             /* Try to get apdu status switch information from the conversation */
@@ -10422,10 +10422,10 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         iocr_mac_addr = (u16IOCRType == PN_INPUT_CR) ? pinfo->dl_dst : pinfo->dl_src;
 
          /* Get current conversation endpoints using MAC addresses */
-        conversation_time_aware = find_conversation(pinfo->num, &cyclic_mac_addr, &iocr_mac_addr, ENDPOINT_NONE, 0, 0, 0);
+        conversation_time_aware = find_conversation(pinfo->num, &cyclic_mac_addr, &iocr_mac_addr, CONVERSATION_NONE, 0, 0, 0);
 
         if (conversation_time_aware == NULL) {
-            conversation_time_aware = conversation_new(pinfo->num, &iocr_mac_addr, &cyclic_mac_addr, ENDPOINT_NONE, 0, 0, 0);
+            conversation_time_aware = conversation_new(pinfo->num, &iocr_mac_addr, &cyclic_mac_addr, CONVERSATION_NONE, 0, 0, 0);
         }
 
         conversation_add_proto_data(conversation_time_aware, proto_pn_io_time_aware_status, wmem_map_lookup(pnio_time_aware_frame_map, GUINT_TO_POINTER(pinfo->num)));
@@ -10455,12 +10455,12 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         /* Notice: Handle Input & Output seperate!!! */
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Get current conversation endpoints using MAC addresses */
-            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
             if (conversation == NULL) {
                 /* Create new conversation, if no "Ident OK" frame as been dissected yet!
                  * Need to switch dl_src & dl_dst, as Connect Request is sent by controller and not by device.
                  * All conversations are based on Device MAC as addr1 */
-                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
             }
 
             current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
@@ -11265,12 +11265,12 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
     /* Save new data for IO Data Objects */
     if (!PINFO_FD_VISITED(pinfo)) {
         /* Get current conversation endpoints using MAC addresses */
-        conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+        conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
         if (conversation == NULL) {
             /* Create new conversation, if no "Ident OK" frame as been dissected yet!
              * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
              * All conversations are based on Device MAC as addr1 */
-           conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+           conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
         }
 
         current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
@@ -11514,12 +11514,12 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 
 
     /* Get current conversation endpoints using MAC addresses */
-    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
     if (conversation == NULL) {
         /* Create new conversation, if no "Ident OK" frame as been dissected yet!
         * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
         * All conversations are based on Device MAC as addr1 */
-        conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+        conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
     }
 
     current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
@@ -11935,9 +11935,9 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
 
             if (!PINFO_FD_VISITED(pinfo)) {
                 /* Get current conversation endpoints using MAC addresses */
-                conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
                 if (conversation == NULL) {
-                    conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                    conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
                 }
 
                 current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
@@ -13635,12 +13635,12 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* Get current conversation endpoints using MAC addresses */
-        conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+        conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
         if (conversation == NULL) {
             /* Create new conversation, if no "Ident OK" frame as been dissected yet!
              * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
              * All conversations are based on Device MAC as addr1 */
-            conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+            conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
         }
 
         current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
@@ -13715,12 +13715,12 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 
     /* PROFISafe */
     /* Get current conversation endpoints using MAC addresses */
-    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
     if (conversation == NULL) {
         /* Create new conversation, if no "Ident OK" frame as been dissected yet!
         * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
         * All conversations are based on Device MAC as addr1 */
-        conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+        conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
     }
 
     current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
@@ -14186,7 +14186,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return TRUE;
 
     /* TimeAwareness Information needed for dissecting RTC3 - RTSteam frames  */
-    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
 
     if (conversation != NULL) {
         isTimeAware = GPOINTER_TO_UINT(conversation_get_proto_data(conversation, proto_pn_io_time_aware_status));

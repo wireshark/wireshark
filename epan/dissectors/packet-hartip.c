@@ -1271,12 +1271,12 @@ hartip_set_conversation(packet_info *pinfo)
      * for this protocol.
      */
     conversation = find_conversation(pinfo->num,
-                                     &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+                                     &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
                                      pinfo->srcport, 0, NO_PORT_B);
     if( (conversation == NULL) ||
         (conversation_get_dissector(conversation, pinfo->num) != hartip_udp_handle) ) {
       conversation = conversation_new(pinfo->num,
-                                      &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+                                      &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
                                       pinfo->srcport, 0, NO_PORT2);
       conversation_set_dissector(conversation, hartip_udp_handle);
     }

@@ -211,7 +211,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if (!conversation) {
     conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                    conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
+                                    conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
   }
 
   /*

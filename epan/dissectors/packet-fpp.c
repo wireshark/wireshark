@@ -510,13 +510,13 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
 
     prev_crc = 0;
-    conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction);
+    conv = find_conversation_by_id(pinfo->num, CONVERSATION_NONE, interface_id | packet_direction);
     /* Create a conversation at every SMD-S fragment.
     Find the conversation for every SMD-C fragment.*/
     if (pck_type == FPP_Packet_Init) {
         /* will be used for seeding the crc calculation */
         if (!PINFO_FD_VISITED(pinfo)) {
-            conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction);
+            conv = conversation_new_by_id(pinfo->num, CONVERSATION_NONE, interface_id | packet_direction);
             /* XXX Is this needed? */
             find_conversation_pinfo(pinfo, 0);
         }

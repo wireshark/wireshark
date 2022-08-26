@@ -246,7 +246,7 @@ get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
     /* SYN packets are special, they have the connection ID for the other
      * side, and allow us to know both.
      */
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_BT_UTP,
  id_up, utp_info->connection, 0);
     if (!conv) {
       /* XXX: A SYN for between the same pair of hosts with a duplicate
@@ -257,7 +257,7 @@ get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
        * number matches. (The latter still doesn't help if the client also
        * doesn't start with random sequence numbers.)
        */
-      conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, id_up, utp_info->connection, 0);
+      conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_BT_UTP, id_up, utp_info->connection, 0);
     }
   } else {
     /* For non-SYN packets, we know our connection ID, but we don't know if
@@ -267,21 +267,21 @@ get_utp_stream_info(packet_info *pinfo, utp_info_t *utp_info)
      * we have a wildcarded conversation around (if we've seen previous
      * non-SYN packets from our current direction but none in the other.)
      */
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, 0, NO_PORT_B);
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_BT_UTP, utp_info->connection, 0, NO_PORT_B);
     if (!conv) {
       /* Do we have a complete conversation originated by our src, or
        * possibly a wildcarded conversation originated in this direction
        * (but we saw a non-SYN for the non-initiating side first)? */
-      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, id_up, 0);
+      conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_BT_UTP, utp_info->connection, id_up, 0);
       if (!conv) {
         /* As above, but dst initiated? */
-        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, id_down, 0);
+        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_BT_UTP, utp_info->connection, id_down, 0);
         if (!conv) {
           /* Didn't find it, so create a new wildcarded conversation. When we
            * get a packet for the other direction, find_conversation() above
            * will set port2 with the other connection ID.
            */
-          conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_BT_UTP, utp_info->connection, 0, NO_PORT2);
+          conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_BT_UTP, utp_info->connection, 0, NO_PORT2);
         }
       }
     }

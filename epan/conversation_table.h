@@ -112,12 +112,12 @@ typedef void (*endpoint_gui_init_cb)(struct register_ct* ct, const char *filter)
  */
 typedef struct register_ct register_ct_t;
 
-/** Conversation information */
+/** Conversation list information */
 typedef struct _conversation_item_t {
     ct_dissector_info_t *dissector_info; /**< conversation information provided by dissector */
     address             src_address;    /**< source address */
     address             dst_address;    /**< destination address */
-    endpoint_type       etype;          /**< endpoint_type (e.g. ENDPOINT_TCP) */
+    conversation_type   ctype;          /**< conversation key_type (e.g. CONVERSATION_TCP) */
     guint32             src_port;       /**< source port */
     guint32             dst_port;       /**< destination port */
     conv_id_t           conv_id;        /**< conversation id */
@@ -294,11 +294,25 @@ WS_DLL_PUBLIC char *get_conversation_address(wmem_allocator_t *allocator, addres
  *
  * @param allocator The wmem allocator to use when allocating the string
  * @param port The port number.
- * @param etype The endpoint type.
+ * @param ctype The conversation type.
  * @param resolve_names Enable name resolution.
  * @return A string representing the port.
+ *
+ * XXX - this should really be a *port* type, as we just supply a port.
  */
-WS_DLL_PUBLIC char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, endpoint_type etype, gboolean resolve_names);
+WS_DLL_PUBLIC char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, conversation_type ctype, gboolean resolve_names);
+
+/** Get the string representation of the port for an endpoint_item_t.
+ *
+ * @param allocator The wmem allocator to use when allocating the string
+ *
+ * @param item Pointer to the endpoint_item_t
+ * @param resolve_names Enable name resolution.
+ * @return A string representing the port.
+ *
+ * XXX - this should really be a *port* type, as we just supply a port.
+ */
+WS_DLL_PUBLIC char *get_endpoint_port(wmem_allocator_t *allocator, endpoint_item_t *item, gboolean resolve_names);
 
 /** Get a display filter for the given conversation and direction.
  *
@@ -332,11 +346,11 @@ WS_DLL_PUBLIC char *get_hostlist_filter(endpoint_item_t *endpoint_item);
  * @param ts timestamp
  * @param abs_ts absolute timestamp
  * @param ct_info callback handlers from the dissector
- * @param etype the port type (e.g. PT_TCP)
+ * @param ctype the conversation type (e.g. CONVERSATION_TCP)
  */
 WS_DLL_PUBLIC void add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst,
     guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, nstime_t *abs_ts,
-    ct_dissector_info_t *ct_info, endpoint_type etype);
+    ct_dissector_info_t *ct_info, conversation_type ctype);
 
 /** Add some data to the conversation table, passing a value to be used in
  *  addition to the address and port quadruple to uniquely identify the
@@ -352,13 +366,14 @@ WS_DLL_PUBLIC void add_conversation_table_data(conv_hash_t *ch, const address *s
  * @param ts timestamp
  * @param abs_ts absolute timestamp
  * @param ct_info callback handlers from the dissector
- * @param etype the conversation/endpoint type (e.g. ENDPOINT_TCP)
+ * @param ctype the conversation type (e.g. CONVERSATION_TCP)
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
  */
 WS_DLL_PUBLIC void
 add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port,
     guint32 dst_port, conv_id_t conv_id, int num_frames, int num_bytes,
-    nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, endpoint_type etype);
+    nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info,
+    conversation_type ctype);
 
 /** Add some data to the endpoint table.
  *
@@ -369,7 +384,7 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
  * @param num_frames number of packets
  * @param num_bytes number of bytes
  * @param et_info endpoint information provided by dissector
- * @param etype the conversation/endpoint type (e.g. ENDPOINT_TCP)
+ * @param etype the endpoint type (e.g. ENDPOINT_TCP)
  */
 WS_DLL_PUBLIC void add_endpoint_table_data(conv_hash_t *ch, const address *addr,
     guint32 port, gboolean sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype);

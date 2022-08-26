@@ -2052,13 +2052,13 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			 * if you do that.
 			 */
 			conversation = find_conversation(pinfo->num, &pinfo->src,
-				&null_address, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
+				&null_address, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport,
 				pinfo->destport, 0);
 			if (conversation == NULL)
 			{
 				/* It's not part of any conversation - create a new one. */
 				conversation = conversation_new(pinfo->num, &pinfo->src,
-					&null_address, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
+					&null_address, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport,
 					pinfo->destport, 0);
 			}
 
@@ -2190,7 +2190,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			 * if you do that.
 			 */
 			conversation = find_conversation(pinfo->num, &null_address,
-				&pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
+				&pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
 			if (conversation == NULL) {
 				/* Nothing more to do here */
 				break;

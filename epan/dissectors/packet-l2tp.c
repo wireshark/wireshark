@@ -2906,16 +2906,16 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
      * the assigned L2TP port the entire time, due to NAT, firewalls, etc.
      * We support both methods by using conversations with no second port.
      */
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP,
                          pinfo->srcport, pinfo->destport, NO_PORT_B);
 
     if (conv == NULL || (conversation_get_dissector(conv, pinfo->num) != l2tp_udp_handle)) {
-        conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP,
+        conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, CONVERSATION_UDP,
                              pinfo->destport, pinfo->srcport, NO_PORT_B);
     }
 
     if ((conv == NULL) || (conversation_get_dissector(conv, pinfo->num) != l2tp_udp_handle)) {
-        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
+        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_UDP,
                         pinfo->srcport, 0, NO_PORT2);
         conversation_set_dissector(conv, l2tp_udp_handle);
     }

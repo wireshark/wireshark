@@ -244,7 +244,7 @@ typedef struct _iax2_info_t
 /* Container for passing data between dissectors */
 typedef struct _iax2_dissector_info_t
 {
-	endpoint_type etype;
+	conversation_type ctype;
 	guint32 circuit_id;
 } iax2_dissector_info_t;
 

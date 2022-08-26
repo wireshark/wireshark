@@ -1859,12 +1859,12 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             new_options = NO_PORT2;
         }
         conversation = find_conversation (pinfo->num, &pinfo->dst, &pinfo->src,
-                                          conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
+                                          conversation_pt_to_conversation_type(pinfo->ptype), fchdr->oxid,
                                           fchdr->rxid, find_options);
 
         if (!conversation) {
             conversation = conversation_new (pinfo->num, &pinfo->dst, &pinfo->src,
-                                             conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
+                                             conversation_pt_to_conversation_type(pinfo->ptype), fchdr->oxid,
                                              fchdr->rxid, new_options);
         }
 
@@ -1894,7 +1894,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         find_options = NO_PORT_B;
         conversation = find_conversation (pinfo->num, &pinfo->dst, &pinfo->src,
-                                          conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
+                                          conversation_pt_to_conversation_type(pinfo->ptype), fchdr->oxid,
                                           fchdr->rxid, find_options);
         if (!conversation) {
             /* FLOGI has two ways to save state: without the src and using just
@@ -1916,7 +1916,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             addrdata[2] = dstfc[2];
             set_address (&dstaddr, AT_FC, 3, addrdata);
             conversation = find_conversation (pinfo->num, &dstaddr, &pinfo->src,
-                                              conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
+                                              conversation_pt_to_conversation_type(pinfo->ptype), fchdr->oxid,
                                               fchdr->rxid, find_options);
         }
 
@@ -1924,7 +1924,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             /* Finally check for FLOGI with both NO_PORT2 and NO_ADDR2 set */
             find_options = NO_ADDR2 | NO_PORT2;
             conversation = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
-                                              conversation_pt_to_endpoint_type(pinfo->ptype), fchdr->oxid,
+                                              conversation_pt_to_conversation_type(pinfo->ptype), fchdr->oxid,
                                               fchdr->rxid, find_options);
             if (!conversation) {
                 if (tree && (opcode == FC_ELS_ACC)) {

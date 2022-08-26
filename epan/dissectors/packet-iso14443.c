@@ -698,7 +698,7 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
     col_set_str(pinfo->cinfo, COL_INFO, "ATS");
     proto_item_append_text(ti, ": ATS");
 
-    conv = conversation_new_by_id(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID);
+    conv = conversation_new_by_id(pinfo->num, CONVERSATION_ISO14443, ISO14443_CIRCUIT_ID);
     conversation_add_proto_data(conv, proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_A));
 
     offset_tl = offset;
@@ -929,7 +929,7 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
         col_set_str(pinfo->cinfo, COL_INFO, "Response to Attrib");
         proto_item_append_text(ti, ": Response to Attrib");
 
-        conv = conversation_new_by_id(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID);
+        conv = conversation_new_by_id(pinfo->num, CONVERSATION_ISO14443, ISO14443_CIRCUIT_ID);
         conversation_add_proto_data(conv, proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_B));
 
         mbli = tvb_get_guint8(tvb, offset) >> 4;
@@ -1107,7 +1107,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         guint32 computed_checksum = 0;
         guint flags = PROTO_CHECKSUM_NO_FLAGS;
 
-        conv = find_conversation_by_id(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID);
+        conv = find_conversation_by_id(pinfo->num, CONVERSATION_ISO14443, ISO14443_CIRCUIT_ID);
         if (conv)
             t = (iso14443_type_t)GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_iso14443));
 
@@ -1397,7 +1397,7 @@ static int dissect_iso14443(tvbuff_t *tvb,
 
         /* all events that are not data transfers close the connection
            to the card (e.g. the field is switched on or off) */
-        conv = find_conversation_by_id(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID);
+        conv = find_conversation_by_id(pinfo->num, CONVERSATION_ISO14443, ISO14443_CIRCUIT_ID);
         if (conv)
             conv->last_frame = pinfo->num;
     }

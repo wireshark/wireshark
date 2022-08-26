@@ -99,10 +99,10 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
      * return_port.
      */
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                     ENDPOINT_TCP, return_port, 0, NO_PORT_B);
+                                     CONVERSATION_TCP, return_port, 0, NO_PORT_B);
     if (conversation == NULL) {
       conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                      ENDPOINT_TCP, return_port, 0, NO_PORT2);
+                                      CONVERSATION_TCP, return_port, 0, NO_PORT2);
       conversation_set_dissector(conversation, xyplex_handle);
     }
     return offset;

@@ -388,7 +388,7 @@ static void create_and_link_data_conversation(packet_info *pinfo,
     ftp_data_conversation_t *p_ftp_data_conv;
     conversation_t *data_conversation = conversation_new(pinfo->num,
                                                          addr_a, addr_b,
-                                                         ENDPOINT_TCP,
+                                                         CONVERSATION_TCP,
                                                          port_a, port_b,
                                                          NO_PORT2);
     conversation_set_dissector(data_conversation, ftpdata_handle);

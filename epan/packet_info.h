@@ -15,7 +15,7 @@
 #include "tvbuff.h"
 #include "address.h"
 
-struct endpoint;
+struct conversation_key;
 struct conversation_element;
 
 /** @file
@@ -72,7 +72,7 @@ typedef struct _packet_info {
   guint32 match_uint;               /**< matched uint for calling subdissector from table */
   const char *match_string;         /**< matched string for calling subdissector from table */
   gboolean use_endpoint;            /**< TRUE if endpoint member should be used for conversations */
-  struct endpoint* conv_endpoint;   /**< Data that can be used for address+port conversations, including wildcarding */
+  struct conversation_key* conv_key;   /**< Data that can be used for address+port conversations, including wildcarding */
   struct conversation_element *conv_elements; /**< Arbritrary conversation identifier; can't be wildcarded */
   guint16 can_desegment;            /**< >0 if this segment could be desegmented.
                                          A dissector that can offer this API (e.g.

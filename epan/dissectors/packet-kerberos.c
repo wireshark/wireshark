@@ -6063,10 +6063,10 @@ dissect_kerberos_KDC_REQ_BODY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
    * http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
    */
   if (actx->pinfo->destport == UDP_PORT_KERBEROS && actx->pinfo->ptype == PT_UDP) {
-    conversation = find_conversation(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, ENDPOINT_UDP,
+    conversation = find_conversation(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, CONVERSATION_UDP,
                       actx->pinfo->srcport, 0, NO_PORT_B);
     if (conversation == NULL) {
-      conversation = conversation_new(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, ENDPOINT_UDP,
+      conversation = conversation_new(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, CONVERSATION_UDP,
                       actx->pinfo->srcport, 0, NO_PORT2);
       conversation_set_dissector(conversation, kerberos_handle_udp);
     }

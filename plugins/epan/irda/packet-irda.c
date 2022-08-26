@@ -557,7 +557,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
 
             set_address(&destaddr, irda_address_type, 1, &circuit_id);
 
-            conv = find_conversation(pinfo->num, &srcaddr, &destaddr, ENDPOINT_NONE, pinfo->srcport, pinfo->destport, 0);
+            conv = find_conversation(pinfo->num, &srcaddr, &destaddr, CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
             if (conv)
             {
                 iap_conv = (iap_conversation_t*)conversation_get_proto_data(conv, proto_iap);
@@ -579,7 +579,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             }
             else
             {
-                conv = conversation_new(pinfo->num, &srcaddr, &destaddr, ENDPOINT_NONE, pinfo->srcport, pinfo->destport, 0);
+                conv = conversation_new(pinfo->num, &srcaddr, &destaddr, CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
                 iap_conv = wmem_new(wmem_file_scope(), iap_conversation_t);
                 conversation_add_proto_data(conv, proto_iap, (void*)iap_conv);
             }
@@ -699,7 +699,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     set_address(&destaddr, irda_address_type, 1, &circuit_id);
 
     /* Find result value dissector */
-    conv = find_conversation(pinfo->num, &srcaddr, &destaddr, ENDPOINT_NONE, pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation(pinfo->num, &srcaddr, &destaddr, CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
     if (conv)
     {
         num = pinfo->num;
@@ -980,7 +980,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     set_address(&destaddr, irda_address_type, 1, &circuit_id);
 
     /* Find result value dissector */
-    conv = find_conversation(pinfo->num, &srcaddr, &destaddr, ENDPOINT_NONE, pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation(pinfo->num, &srcaddr, &destaddr, CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
     if (conv)
     {
         num = pinfo->num;
@@ -1208,7 +1208,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     dest = circuit_id ^ CMD_FRAME;
     set_address(&destaddr, irda_address_type, 1, &dest);
 
-    conv = find_conversation(pinfo->num, &destaddr, &srcaddr, ENDPOINT_NONE, dlsap, 0, NO_PORT_B);
+    conv = find_conversation(pinfo->num, &destaddr, &srcaddr, CONVERSATION_NONE, dlsap, 0, NO_PORT_B);
     if (conv)
     {
         lmp_conv = (lmp_conversation_t*)conversation_get_proto_data(conv, proto_irlmp);
@@ -1229,7 +1229,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     }
     else
     {
-        conv = conversation_new(pinfo->num, &destaddr, &srcaddr, ENDPOINT_NONE, dlsap, 0, NO_PORT2);
+        conv = conversation_new(pinfo->num, &destaddr, &srcaddr, CONVERSATION_NONE, dlsap, 0, NO_PORT2);
         lmp_conv = wmem_new(wmem_file_scope(), lmp_conversation_t);
         conversation_add_proto_data(conv, proto_irlmp, (void*)lmp_conv);
     }

@@ -4435,7 +4435,7 @@ bluetooth_conversation_packet(void *pct, packet_info *pinfo,
     hash->flags = flags;
     add_conversation_table_data(hash, &pinfo->dl_src, &pinfo->dl_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
-            &bluetooth_ct_dissector_info, ENDPOINT_NONE);
+            &bluetooth_ct_dissector_info, CONVERSATION_NONE);
 
     return TAP_PACKET_REDRAW;
 }
@@ -4463,7 +4463,7 @@ get_conversation(packet_info *pinfo,
 
     conversation = find_conversation(pinfo->num,
                                src_addr, dst_addr,
-                               ENDPOINT_BLUETOOTH,
+                               CONVERSATION_BLUETOOTH,
                                src_endpoint, dst_endpoint, 0);
     if (conversation) {
         return conversation;
@@ -4471,7 +4471,7 @@ get_conversation(packet_info *pinfo,
 
     conversation = conversation_new(pinfo->num,
                            src_addr, dst_addr,
-                           ENDPOINT_BLUETOOTH,
+                           CONVERSATION_BLUETOOTH,
                            src_endpoint, dst_endpoint, 0);
     return conversation;
 }
