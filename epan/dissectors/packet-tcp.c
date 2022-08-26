@@ -3674,7 +3674,7 @@ split_msp(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struct tcp_analy
         guint32 frag_offset = fd_i->offset;
         guint32 frag_len = fd_i->len;
         /* Check for some unusual out of order overlapping segment situations. */
-        if (split_offset <= frag_offset + frag_len) {
+        if (split_offset < frag_offset + frag_len) {
             if (fd_i->offset < split_offset) {
                 frag_offset = split_offset;
                 frag_len -= (split_offset - fd_i->offset);
