@@ -5717,17 +5717,17 @@ static int dissect_dof_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         } */
 
         /* Register the source address as being DPS for the sender UDP port. */
-        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, NO_ADDR_B | NO_PORT_B);
+        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, NO_ADDR_B | NO_PORT_B);
         if (!conversation)
         {
-            conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, NO_ADDR2 | NO_PORT2);
+            conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, NO_ADDR2 | NO_PORT2);
             conversation_set_dissector(conversation, dof_udp_handle);
         }
 
         /* Find or create the conversation for this transport session. For UDP, the transport session is determined entirely by the
          * server port. This assumes that the first packet seen is from a client to the server.
          */
-        conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP, pinfo->destport, pinfo->srcport, NO_ADDR_B | NO_PORT_B);
+        conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, CONVERSATION_UDP, pinfo->destport, pinfo->srcport, NO_ADDR_B | NO_PORT_B);
         if (conversation)
         {
             /* TODO: Determine if this is valid or not. */
@@ -5736,7 +5736,7 @@ static int dissect_dof_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
 
         if (!conversation)
-            conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP, pinfo->destport, pinfo->srcport, NO_ADDR2 | NO_PORT2 | CONVERSATION_TEMPLATE);
+            conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src, CONVERSATION_UDP, pinfo->destport, pinfo->srcport, NO_ADDR2 | NO_PORT2 | CONVERSATION_TEMPLATE);
 
         transport_session = (udp_session_data *)conversation_get_proto_data(conversation, proto_2008_1_dof_udp);
         if (transport_session == NULL)

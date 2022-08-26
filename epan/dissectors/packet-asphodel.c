@@ -501,10 +501,10 @@ dissect_asphodel_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         proto_tree_add_item(asphodel_tree, hf_asphodel_remote_stream_packet_length, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     }
 
-    conversation = find_conversation(pinfo->num, &pinfo->src, 0, ENDPOINT_UDP, pinfo->srcport, 0, NO_ADDR_B | NO_PORT_B);
+    conversation = find_conversation(pinfo->num, &pinfo->src, 0, CONVERSATION_UDP, pinfo->srcport, 0, NO_ADDR_B | NO_PORT_B);
     if (!conversation)
     {
-        conversation = conversation_new(pinfo->num, &pinfo->src, 0, ENDPOINT_TCP, pinfo->srcport, 0, NO_ADDR2 | NO_PORT2);
+        conversation = conversation_new(pinfo->num, &pinfo->src, 0, CONVERSATION_TCP, pinfo->srcport, 0, NO_ADDR2 | NO_PORT2);
         conversation_set_dissector(conversation, asphodel_tcp_handle);
     }
 
@@ -538,10 +538,10 @@ dissect_asphodel_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         }
     }
 
-    conversation = find_conversation(pinfo->num, &pinfo->src, 0, ENDPOINT_UDP, pinfo->srcport, 0, NO_ADDR_B | NO_PORT_B);
+    conversation = find_conversation(pinfo->num, &pinfo->src, 0, CONVERSATION_UDP, pinfo->srcport, 0, NO_ADDR_B | NO_PORT_B);
     if (!conversation)
     {
-        conversation = conversation_new(pinfo->num, &pinfo->src, 0, ENDPOINT_UDP, pinfo->srcport, 0, NO_ADDR2 | NO_PORT2);
+        conversation = conversation_new(pinfo->num, &pinfo->src, 0, CONVERSATION_UDP, pinfo->srcport, 0, NO_ADDR2 | NO_PORT2);
         conversation_set_dissector(conversation, asphodel_response_handle);
     }
 

@@ -2367,7 +2367,7 @@ http2_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *str
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
         && (pinfo->ptype == PT_TCP) &&
-        (conversation=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, ENDPOINT_TCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
+        (conversation=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, CONVERSATION_TCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
     {
         h2session = get_http2_session(pinfo, conversation);
         tcpd = get_tcp_conversation_data(conversation, pinfo);

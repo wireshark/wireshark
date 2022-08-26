@@ -407,7 +407,7 @@ static int dissect_idn_message_acknowledgement(tvbuff_t *tvb, int offset, proto_
 static configuration_info *get_configuration_info(packet_info *pinfo, int channel_id) {
 	configuration_info *config = NULL;
 
-	conversation_t *conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, channel_id);
+	conversation_t *conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, channel_id);
 	if(conv)
 		config = (configuration_info *)conversation_get_proto_data(conv, proto_idn);
 	if(!config)
@@ -883,7 +883,7 @@ static int dissect_idn_channel_configuration_header(tvbuff_t *tvb, packet_info *
 	config->count = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
 	config->base = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
 
-	conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, channel_id);
+	conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, channel_id);
 	conversation_add_proto_data(conv, proto_idn, config);
 
 	return offset;

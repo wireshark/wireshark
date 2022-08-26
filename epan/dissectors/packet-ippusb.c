@@ -219,7 +219,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
     }
     else {
-        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP,
+        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_TCP,
                      pinfo->srcport, pinfo->destport, 0);
     }
 

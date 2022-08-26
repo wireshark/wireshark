@@ -4695,7 +4695,7 @@ dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                     memcpy(zbncp_ctx_str, tmp, strlen(tmp) + 1);
 
                     conversation = conversation_new(pinfo->num,  &pinfo->src, &pinfo->dst,
-                        conversation_pt_to_endpoint_type(pinfo->ptype),
+                        conversation_pt_to_conversation_type(pinfo->ptype),
                         pinfo->srcport, pinfo->destport, 0);
 
                     conversation_add_proto_data(conversation, zbncp_frame, (void *)zbncp_ctx_str);
@@ -4710,7 +4710,7 @@ dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             dissect_zbncp_fragmentation_body(tvb, pinfo, tree, offset);
 
             conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                conversation_pt_to_endpoint_type(pinfo->ptype),
+                conversation_pt_to_conversation_type(pinfo->ptype),
                 pinfo->srcport, pinfo->destport, 0);
 
             if (conversation != NULL)

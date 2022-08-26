@@ -89,7 +89,7 @@ static void dissect_payload(tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *
     p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, fp_mux_info->rlcinfos[payload_index]);
 
     /* Trying a dissector assigned to the conversation (Usually from NBAP) */
-    conv_dissected = try_conversation_dissector(&pinfo->dst, &pinfo->src, ENDPOINT_UDP,
+    conv_dissected = try_conversation_dissector(&pinfo->dst, &pinfo->src, CONVERSATION_UDP,
                                  pinfo->destport, pinfo->srcport, next_tvb, pinfo, tree, NULL, 0);
     if (!conv_dissected) {
         /* No conversation dissector / TVB was rejected, try other options */

@@ -535,7 +535,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame, dissector_handle_t dissect)
     /*
      * Is there already a circuit with this VC number?
      */
-    conv = find_conversation_by_id(frame, ENDPOINT_X25, vc);
+    conv = find_conversation_by_id(frame, CONVERSATION_X25, vc);
     if (conv != NULL) {
         /*
          * Yes - close it, as we're creating a new one.
@@ -546,7 +546,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame, dissector_handle_t dissect)
     /*
      * Set up a new circuit.
      */
-    conv = conversation_new_by_id(frame, ENDPOINT_X25, vc);
+    conv = conversation_new_by_id(frame, CONVERSATION_X25, vc);
 
     /*
      * Set its dissector.
@@ -562,7 +562,7 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame)
     /*
      * Try to find the circuit.
      */
-    conv = find_conversation_by_id(frame, ENDPOINT_X25, vc);
+    conv = find_conversation_by_id(frame, CONVERSATION_X25, vc);
 
     /*
      * If we succeeded, close it.
@@ -1229,7 +1229,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     modulo = ((bytes0_1 & 0x2000) ? 128 : 8);
     vc     = (int)(bytes0_1 & 0x0FFF);
 
-    conversation_create_endpoint_by_id(pinfo, ENDPOINT_X25, vc);
+    conversation_create_key_by_id(pinfo, CONVERSATION_X25, vc);
 
     if (bytes0_1 & X25_ABIT) toa = TRUE;
     else toa = FALSE;
@@ -1923,7 +1923,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       next_tvb = tvb_new_subset_remaining(tvb, localoffset);
 
     /* See if there's already a dissector for this circuit. */
-    if (try_conversation_dissector_by_id(ENDPOINT_X25, vc, next_tvb, pinfo,
+    if (try_conversation_dissector_by_id(CONVERSATION_X25, vc, next_tvb, pinfo,
                               tree, &q_bit_set)) {
                 return; /* found it and dissected it */
     }

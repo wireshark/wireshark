@@ -6832,7 +6832,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
     if (!pinfo->fd->visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                         ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                         CONVERSATION_NCP, nw_connection, nw_connection, 0);
         if (conversation != NULL) {
             /* find the record telling us the request made that caused
                this reply */
@@ -7192,12 +7192,12 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
            as being part of a single conversation so that we can
            let the user select that conversation to be displayed.) */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                         ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                         CONVERSATION_NCP, nw_connection, nw_connection, 0);
 
         if (conversation == NULL) {
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                            ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                            CONVERSATION_NCP, nw_connection, nw_connection, 0);
         }
         request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->num);
         request_value->req_frame_num = pinfo->num;
@@ -7351,7 +7351,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         if (!request_value)
         {
              conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                                 ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                                 CONVERSATION_NCP, nw_connection, nw_connection, 0);
              if (conversation != NULL) {
                  /* find the record telling us the request made that caused
                     this reply */
@@ -8022,7 +8022,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
     if (!pinfo->fd->visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                         ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                         CONVERSATION_NCP, nw_connection, nw_connection, 0);
         if (conversation != NULL) {
             /* find the record telling us the request made that caused
                this reply */
@@ -8042,7 +8042,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
            proper request packet. */
         else {
             conversation = find_conversation(pinfo->num,
-                                             &pinfo->src, &pinfo->dst, ENDPOINT_NCP, 65535, 65535, 0);
+                                             &pinfo->src, &pinfo->dst, CONVERSATION_NCP, 65535, 65535, 0);
             if (conversation != NULL) {
                 /* find the record telling us the request made
                    that caused this reply */
@@ -8056,7 +8056,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             }
             else {
                 conversation = find_conversation(pinfo->num,
-                                                 &pinfo->src, &pinfo->dst, ENDPOINT_NCP, 0, 0, 0);
+                                                 &pinfo->src, &pinfo->dst, CONVERSATION_NCP, 0, 0, 0);
                 if (conversation != NULL) {
                     /* find the record telling us the request made
                        that caused this reply */
@@ -8076,7 +8076,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
     else {
         /*request_value = p_get_proto_data(wmem_file_scope(), pinfo, proto_ncp);*/
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                         ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                         CONVERSATION_NCP, nw_connection, nw_connection, 0);
         if (conversation != NULL) {
 
              request_value = ncp_hash_lookup(conversation,
@@ -8348,11 +8348,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        let the user select that conversation to be displayed.) */
 
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                     ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                     CONVERSATION_NCP, nw_connection, nw_connection, 0);
     if (conversation == NULL) {
         /* It's not part of any conversation - create a new one. */
         conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                        ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                        CONVERSATION_NCP, nw_connection, nw_connection, 0);
     }
 
     if (!pinfo->fd->visited) {
@@ -9450,13 +9450,13 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
            let the user select that conversation to be displayed.) */
 
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                         ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                         CONVERSATION_NCP, nw_connection, nw_connection, 0);
 
         if (conversation == NULL)
         {
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                            ENDPOINT_NCP, nw_connection, nw_connection, 0);
+                                            CONVERSATION_NCP, nw_connection, nw_connection, 0);
         }
 
         request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->num);

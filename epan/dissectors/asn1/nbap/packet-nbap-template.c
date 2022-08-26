@@ -482,12 +482,12 @@ static void add_hsdsch_bind(packet_info *pinfo){
   clear_address(&null_addr);
   for (i = 0; i < maxNrOfMACdFlows; i++) {
     if (nbap_hsdsch_channel_info[i].crnc_port != 0){
-      conversation = find_conversation(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, ENDPOINT_UDP,
+      conversation = find_conversation(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, CONVERSATION_UDP,
                                       nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
       if (conversation == NULL) {
         /* It's not part of any conversation - create a new one. */
-        conversation = conversation_new(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, ENDPOINT_UDP,
+        conversation = conversation_new(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, CONVERSATION_UDP,
                                        nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR2|NO_PORT2);
 
         /* Set dissector */

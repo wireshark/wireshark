@@ -10452,7 +10452,7 @@ nbap_hsdsch_channel_info = nbap_private_data->nbap_hsdsch_channel_info;
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             conversation = find_conversation(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
-                               ENDPOINT_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
+                               CONVERSATION_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
             if(conversation != NULL){
                 umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(conversation, proto_fp);
                 DISSECTOR_ASSERT(umts_fp_conversation_info != NULL);
@@ -18535,7 +18535,7 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
     e_dch_macdflow_id = nbap_private_data->e_dch_macdflow_id;
     clear_address(&null_addr);
     p_conv = find_conversation(actx->pinfo->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
-                               ENDPOINT_UDP, nbap_edch_channel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
+                               CONVERSATION_UDP, nbap_edch_channel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
     if(!p_conv)
         return offset;
 
@@ -18830,7 +18830,7 @@ nbap_private_data->num_items = 1;
     /* Check if we have conversation info */
     clear_address(&null_addr);
     p_conv = find_conversation(actx->pinfo->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
-                               ENDPOINT_UDP, nbap_edch_channel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
+                               CONVERSATION_UDP, nbap_edch_channel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
     if(!p_conv)
         return offset;
 
@@ -18953,7 +18953,7 @@ nbap_private_data->binding_id_port = 0;
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         old_conversation = find_conversation(actx->pinfo->num, &dst_addr,
-            &null_addr, ENDPOINT_UDP, bindingID,
+            &null_addr, CONVERSATION_UDP, bindingID,
             0, NO_ADDR_B|NO_PORT_B);
 
         if(old_conversation){
@@ -18968,7 +18968,7 @@ nbap_private_data->binding_id_port = 0;
 
         /* It's not part of any conversation - create a new one. */
         conversation = conversation_new(actx->pinfo->num, &dst_addr,
-                &null_addr, ENDPOINT_UDP, bindingID,
+                &null_addr, CONVERSATION_UDP, bindingID,
                 0, NO_ADDR2|NO_PORT2);
 
             /* Set dissector */
@@ -23663,11 +23663,11 @@ int i;
         if (nbap_common_channel_info[i].crnc_port != 0){
 
             conversation = find_conversation(actx->pinfo->num, &(nbap_common_channel_info[i].crnc_address), &null_addr,
-                               ENDPOINT_UDP, nbap_common_channel_info[i].crnc_port, 0, NO_ADDR_B);
+                               CONVERSATION_UDP, nbap_common_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
             if (conversation == NULL) {
                 conversation = conversation_new(actx->pinfo->num, &(nbap_common_channel_info[i].crnc_address),
-                    &null_addr, ENDPOINT_UDP, nbap_common_channel_info[i].crnc_port,
+                    &null_addr, CONVERSATION_UDP, nbap_common_channel_info[i].crnc_port,
                     0, NO_ADDR2|NO_PORT2);
 
                 /* Set dissector */
@@ -24137,13 +24137,13 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                         address_to_str (actx->pinfo->pool, &(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
-                               ENDPOINT_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
+                               CONVERSATION_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
                 nbap_debug("Frame %u HSDSCH-MACdFlows-Information: Set up conv on Port %u", actx->pinfo->num, nbap_hsdsch_channel_info[i].crnc_port);
                 conversation = conversation_new(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address),
-                    &null_addr, ENDPOINT_UDP, nbap_hsdsch_channel_info[i].crnc_port,
+                    &null_addr, CONVERSATION_UDP, nbap_hsdsch_channel_info[i].crnc_port,
                     0, NO_ADDR2|NO_PORT2);
 
                 /* Set dissector */
@@ -24483,14 +24483,14 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                         address_to_str (actx->pinfo->pool, &(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
-                               ENDPOINT_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
+                               CONVERSATION_UDP, nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
                 nbap_debug("    Set up conv on Port %u", nbap_hsdsch_channel_info[i].crnc_port);
 
                 conversation = conversation_new(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address),
-                    &null_addr, ENDPOINT_UDP, nbap_hsdsch_channel_info[i].crnc_port,
+                    &null_addr, CONVERSATION_UDP, nbap_hsdsch_channel_info[i].crnc_port,
                     0, NO_ADDR2|NO_PORT2);
 
                 /* Set dissector */
@@ -29250,13 +29250,13 @@ nbap_private_data->dch_id = 0xFFFFFFFF;
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         conversation = find_conversation(actx->pinfo->num, &dst_addr,
-            &null_addr, ENDPOINT_UDP, nbap_private_data->binding_id_port,
+            &null_addr, CONVERSATION_UDP, nbap_private_data->binding_id_port,
             0, NO_ADDR_B|NO_PORT_B);
 
         if (conversation == NULL) {
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(actx->pinfo->num, &dst_addr,
-                &null_addr, ENDPOINT_UDP, nbap_private_data->binding_id_port,
+                &null_addr, CONVERSATION_UDP, nbap_private_data->binding_id_port,
                 0, NO_ADDR2|NO_PORT2);
 
             /* Set dissector */
@@ -29391,7 +29391,7 @@ nbap_private_data->binding_id_port = 0;
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         conversation = find_conversation(actx->pinfo->num, &dst_addr,
-            &null_addr, ENDPOINT_UDP, bindingID,
+            &null_addr, CONVERSATION_UDP, bindingID,
             0, NO_ADDR_B|NO_PORT_B);
         if (conversation) {
             umts_fp_conversation_info = (umts_fp_conversation_info_t*)conversation_get_proto_data(conversation, proto_fp);
@@ -29404,7 +29404,7 @@ nbap_private_data->binding_id_port = 0;
 
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(actx->pinfo->num, &dst_addr,
-                &null_addr, ENDPOINT_UDP, bindingID,
+                &null_addr, CONVERSATION_UDP, bindingID,
                 0, NO_ADDR2|NO_PORT2);
 
             /* Set dissector */
@@ -32950,7 +32950,7 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
 
   set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
-  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, ENDPOINT_UDP, bindingID, 0, NO_ADDR2|NO_PORT2);
+  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, CONVERSATION_UDP, bindingID, 0, NO_ADDR2|NO_PORT2);
 
   /* Set dissector */
   conversation_set_dissector(conversation, fp_handle);
@@ -33124,7 +33124,7 @@ nbap_private_data->num_items = 1;
 
   set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
-  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, ENDPOINT_UDP, bindingID, 0, NO_ADDR2|NO_PORT2);
+  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, CONVERSATION_UDP, bindingID, 0, NO_ADDR2|NO_PORT2);
 
   /* Set dissector */
   conversation_set_dissector(conversation, fp_handle);
@@ -33268,7 +33268,7 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
 
   set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
-  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, ENDPOINT_UDP, bindingID, 0, NO_ADDR2|NO_PORT2);
+  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, CONVERSATION_UDP, bindingID, 0, NO_ADDR2|NO_PORT2);
 
   conversation_set_dissector(conversation, fp_handle);
 
@@ -55751,12 +55751,12 @@ static void add_hsdsch_bind(packet_info *pinfo){
   clear_address(&null_addr);
   for (i = 0; i < maxNrOfMACdFlows; i++) {
     if (nbap_hsdsch_channel_info[i].crnc_port != 0){
-      conversation = find_conversation(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, ENDPOINT_UDP,
+      conversation = find_conversation(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, CONVERSATION_UDP,
                                       nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
       if (conversation == NULL) {
         /* It's not part of any conversation - create a new one. */
-        conversation = conversation_new(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, ENDPOINT_UDP,
+        conversation = conversation_new(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr, CONVERSATION_UDP,
                                        nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR2|NO_PORT2);
 
         /* Set dissector */

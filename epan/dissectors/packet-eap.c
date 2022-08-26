@@ -1848,7 +1848,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   }
   if (conversation == NULL) {
     conversation = conversation_new(pinfo_conv->num, &pinfo_conv->src,
-		      &pinfo_conv->dst, conversation_pt_to_endpoint_type(pinfo_conv->ptype),
+		      &pinfo_conv->dst, conversation_pt_to_conversation_type(pinfo_conv->ptype),
 		      pinfo_conv->srcport, pinfo_conv->destport, 0);
   }
 

@@ -144,7 +144,7 @@ sll_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 	const sll_tap_data *tap_data = (const sll_tap_data*)vip;
 
-	add_conversation_table_data(hash, &tap_data->src_address, &no_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &sll_ct_dissector_info, ENDPOINT_NONE);
+	add_conversation_table_data(hash, &tap_data->src_address, &no_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &sll_ct_dissector_info, CONVERSATION_NONE);
 
 	return TAP_PACKET_REDRAW;
 }

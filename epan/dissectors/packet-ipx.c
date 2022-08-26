@@ -156,7 +156,7 @@ ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 	const ipxhdr_t *ipxh=(const ipxhdr_t *)vip;
 
-	add_conversation_table_data(hash, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ipx_ct_dissector_info, ENDPOINT_NONE);
+	add_conversation_table_data(hash, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ipx_ct_dissector_info, CONVERSATION_NONE);
 
 	return TAP_PACKET_REDRAW;
 }
@@ -673,7 +673,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	 * SPX session using that source port; can that happen?  If so,
 	 * we should probably use the direction, as well as the conversation,
 	 * as part of the hash key; if we do that, we can probably just
-	 * use ENDPOINT_IPX as the port type, and possibly get rid of ENDPOINT_NCP.
+	 * use CONVERSATION_IPX as the port type, and possibly get rid of CONVERSATION_NCP.
 	 *
 	 * According to
 	 *
@@ -698,7 +698,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		 */
 		if (!pinfo->fd->visited) {
 			conversation = find_conversation(pinfo->num, &pinfo->src,
-			    &pinfo->dst, ENDPOINT_NCP, pinfo->srcport,
+			    &pinfo->dst, CONVERSATION_NCP, pinfo->srcport,
 			    pinfo->srcport, 0);
 			if (conversation == NULL) {
 				/*
@@ -706,7 +706,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				 * a new one.
 				 */
 				conversation = conversation_new(pinfo->num, &pinfo->src,
-				    &pinfo->dst, ENDPOINT_NCP, pinfo->srcport,
+				    &pinfo->dst, CONVERSATION_NCP, pinfo->srcport,
 				    pinfo->srcport, 0);
 			}
 

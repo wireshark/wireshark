@@ -1820,7 +1820,7 @@ static tap_packet_status zbee_nwk_conversation_packet(void *pct, packet_info *pi
 
     add_conversation_table_data(hash, &pinfo->net_src, &pinfo->net_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
-            &zbee_nwk_ct_dissector_info, ENDPOINT_NONE);
+            &zbee_nwk_ct_dissector_info, CONVERSATION_NONE);
 
     return TAP_PACKET_REDRAW;
 }

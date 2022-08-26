@@ -814,12 +814,12 @@ static conversation_t *find_drbd_conversation(packet_info *pinfo)
         addr_b = &pinfo->src;
     }
 
-    conversation_t *conv = find_conversation(pinfo->num, addr_a, addr_b, ENDPOINT_TCP, port_a, 0, NO_PORT_B);
+    conversation_t *conv = find_conversation(pinfo->num, addr_a, addr_b, CONVERSATION_TCP, port_a, 0, NO_PORT_B);
     if (!conv)
     {
         /* CONVERSATION_TEMPLATE prevents the port information being added once
          * a wildcard search matches. */
-        conv = conversation_new(pinfo->num, addr_a, addr_b, ENDPOINT_TCP, port_a, 0,
+        conv = conversation_new(pinfo->num, addr_a, addr_b, CONVERSATION_TCP, port_a, 0,
                 NO_PORT2|CONVERSATION_TEMPLATE);
     }
 

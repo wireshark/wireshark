@@ -354,7 +354,7 @@ find_or_create_conversation_noaddrb(packet_info *pinfo, gboolean request)
 		}
 		/* Have we seen this conversation before? */
 		if((conv = find_conversation(pinfo->num, addr_a, addr_b,
-					     conversation_pt_to_endpoint_type(pinfo->ptype), port_a,
+					     conversation_pt_to_conversation_type(pinfo->ptype), port_a,
 					     port_b, NO_ADDR_B|NO_PORT_B)) != NULL) {
 			if (pinfo->num > conv->last_frame) {
 				conv->last_frame = pinfo->num;
@@ -362,7 +362,7 @@ find_or_create_conversation_noaddrb(packet_info *pinfo, gboolean request)
 		} else {
 			/* No, this is a new conversation. */
 			conv = conversation_new(pinfo->num, &pinfo->src,
-						&pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+						&pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
 						pinfo->srcport, pinfo->destport, NO_ADDR2|NO_PORT2);
 		}
 	} else {

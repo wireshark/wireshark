@@ -1704,9 +1704,9 @@ dissect_h225_H245TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
       return offset;
     }
 
-    conv=find_conversation(actx->pinfo->num, &src_addr, &src_addr, ENDPOINT_TCP, ip_port, ip_port, NO_ADDR_B|NO_PORT_B);
+    conv=find_conversation(actx->pinfo->num, &src_addr, &src_addr, CONVERSATION_TCP, ip_port, ip_port, NO_ADDR_B|NO_PORT_B);
     if(!conv){
-      conv=conversation_new(actx->pinfo->num, &src_addr, &src_addr, ENDPOINT_TCP, ip_port, ip_port, NO_ADDR2|NO_PORT2);
+      conv=conversation_new(actx->pinfo->num, &src_addr, &src_addr, CONVERSATION_TCP, ip_port, ip_port, NO_ADDR2|NO_PORT2);
       conversation_set_dissector(conv, h245_handle);
     }
   }

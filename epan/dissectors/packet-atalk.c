@@ -891,7 +891,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         call_dissector_with_data(sub, new_tvb, pinfo, tree, &aspinfo);
         conversation_set_dissector(conversation, sub);
       }
-      else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+      else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
                                            pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree, &aspinfo, 0)) {
         call_data_dissector(new_tvb, pinfo, tree);
 

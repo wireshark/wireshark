@@ -135,11 +135,11 @@ void ConversationDialog::followStream()
         return;
 
     int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
-    if (endpointType != ENDPOINT_TCP && endpointType != ENDPOINT_UDP)
+    if (endpointType != CONVERSATION_TCP && endpointType != CONVERSATION_UDP)
         return;
 
     follow_type_t ftype = FOLLOW_TCP;
-    if (endpointType == ENDPOINT_UDP)
+    if (endpointType == CONVERSATION_UDP)
         ftype = FOLLOW_UDP;
 
     int convId = trafficTab()->currentItemData(ATapDataModel::CONVERSATION_ID).toInt();
@@ -155,7 +155,7 @@ void ConversationDialog::graphTcp()
         return;
 
     int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
-    if (endpointType != ENDPOINT_TCP)
+    if (endpointType != CONVERSATION_TCP)
         return;
 
     int convId = trafficTab()->currentItemData(ATapDataModel::CONVERSATION_ID).toInt();
@@ -178,10 +178,10 @@ void ConversationDialog::tabChanged(int)
     if (!file_closed_) {
         int endpointType = trafficTab()->currentItemData(ATapDataModel::ENDPOINT_DATATYPE).toInt();
         switch(endpointType) {
-            case ENDPOINT_TCP:
+            case CONVERSATION_TCP:
                 graph = true;
                 // Fall through
-            case ENDPOINT_UDP:
+            case CONVERSATION_UDP:
                 follow = true;
                 break;
         }

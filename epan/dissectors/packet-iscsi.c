@@ -576,7 +576,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
     if (addr && !pinfo->fd->visited) {
         conversation_t *conv;
 
-        conv = conversation_new(pinfo->num, addr, addr, ENDPOINT_TCP, port, port, NO_ADDR2|NO_PORT2);
+        conv = conversation_new(pinfo->num, addr, addr, CONVERSATION_TCP, port, port, NO_ADDR2|NO_PORT2);
         if (conv == NULL) {
             return;
         }

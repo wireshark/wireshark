@@ -766,7 +766,7 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
     connection = (ncph->conn_high * 256)+ncph->conn_low;
     if (connection < 65535) {
-        add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ncp_ct_dissector_info, ENDPOINT_NCP);
+        add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ncp_ct_dissector_info, CONVERSATION_NCP);
     }
 
     return TAP_PACKET_REDRAW;
@@ -885,7 +885,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * connection.
      */
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        ENDPOINT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
+        CONVERSATION_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
         0);
     if ((ncpiph.length & 0x80000000) || ncpiph.signature == NCPIP_RPLY) {
         /* First time through we will record the initial connection and task
@@ -909,7 +909,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * - create a new one.
                  */
                 conversation = conversation_new(pinfo->num, &pinfo->src,
-                    &pinfo->dst, ENDPOINT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                    &pinfo->dst, CONVERSATION_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
                 mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
             }
             /* If this is a request packet then we
@@ -951,7 +951,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * - create a new one.
                  */
                 conversation = conversation_new(pinfo->num, &pinfo->src,
-                    &pinfo->dst, ENDPOINT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                    &pinfo->dst, CONVERSATION_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
                 mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
             }
             /* find the record telling us the request

@@ -2183,8 +2183,8 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
             if (proto_with_port)
             {
-                sharkd_json_value_string("sport", (src_port = get_conversation_port(NULL, iui->src_port, iui->etype, iu->resolve_port)));
-                sharkd_json_value_string("dport", (dst_port = get_conversation_port(NULL, iui->dst_port, iui->etype, iu->resolve_port)));
+                sharkd_json_value_string("sport", (src_port = get_conversation_port(NULL, iui->src_port, iui->ctype, iu->resolve_port)));
+                sharkd_json_value_string("dport", (dst_port = get_conversation_port(NULL, iui->dst_port, iui->ctype, iu->resolve_port)));
 
                 wmem_free(NULL, src_port);
                 wmem_free(NULL, dst_port);
@@ -2231,7 +2231,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
             if (proto_with_port)
             {
-                sharkd_json_value_string("port", (port_str = get_conversation_port(NULL, endpoint->port, endpoint->etype, iu->resolve_port)));
+                sharkd_json_value_string("port", (port_str = get_endpoint_port(NULL, endpoint, iu->resolve_port)));
 
                 wmem_free(NULL, port_str);
             }

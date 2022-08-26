@@ -1437,11 +1437,11 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo)
 
     /* Have we seen this conversation before? */
     conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        conversation_pt_to_endpoint_type(pinfo->ptype), 0, 0, 0);
+        conversation_pt_to_conversation_type(pinfo->ptype), 0, 0, 0);
     if (conv == NULL) {
         /* No, this is a new conversation. */
         conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-            conversation_pt_to_endpoint_type(pinfo->ptype), 0, 0, 0);
+            conversation_pt_to_conversation_type(pinfo->ptype), 0, 0, 0);
     }
     return conv;
 }
@@ -1558,7 +1558,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     double resp_time;
 
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        conversation_pt_to_endpoint_type(pinfo->ptype), 0, 0, 0);
+        conversation_pt_to_conversation_type(pinfo->ptype), 0, 0, 0);
     if (conversation == NULL)
         return NULL;
 

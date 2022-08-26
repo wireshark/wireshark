@@ -390,10 +390,10 @@ static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t *
     conversation_t * conv;
     wmem_map_t * session_map;
 
-    conv = find_conversation(frame, cinfo->addr1, cinfo->addr2, ENDPOINT_UDP, cinfo->port1, cinfo->port2, 0);
+    conv = find_conversation(frame, cinfo->addr1, cinfo->addr2, CONVERSATION_UDP, cinfo->port1, cinfo->port2, 0);
     if (conv == NULL)
     {
-        conv = conversation_new(frame, cinfo->addr1, cinfo->addr2, ENDPOINT_UDP, cinfo->port1, cinfo->port2, 0);
+        conv = conversation_new(frame, cinfo->addr1, cinfo->addr2, CONVERSATION_UDP, cinfo->port1, cinfo->port2, 0);
     }
     if (frame > conv->last_frame)
     {

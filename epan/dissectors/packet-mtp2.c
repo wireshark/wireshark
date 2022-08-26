@@ -940,12 +940,12 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 #endif
 
   /* find conversation related to this packet */
-  conversation = find_conversation(pinfo->fd->num,&pinfo->src, &pinfo->dst,conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
+  conversation = find_conversation(pinfo->fd->num,&pinfo->src, &pinfo->dst,conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
   /* if there is no conversation or it does not contain the per packet data we need */
   if (conversation == NULL) {
     /* there was no conversation => this packet is the first in a new conversation => let's create it */
     /* here we decide about the direction, every following packet with the same direction as this first one will be a forward packet */
-    conversation = conversation_new(pinfo->fd->num,&pinfo->src, &pinfo->dst,conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
+    conversation = conversation_new(pinfo->fd->num,&pinfo->src, &pinfo->dst,conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, 0);
   }
 
   /* there is no proto data in the conversation */

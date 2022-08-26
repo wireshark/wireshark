@@ -2220,7 +2220,7 @@ epl_get_convo(packet_info *pinfo, int opts)
 	node_addr = &epl_placeholder_mac;
 
 	if ((epan_convo = find_conversation(pinfo->num, node_addr, node_addr,
-				conversation_pt_to_endpoint_type(pinfo->ptype), node_port, node_port, NO_ADDR_B|NO_PORT_B)))
+				conversation_pt_to_conversation_type(pinfo->ptype), node_port, node_port, NO_ADDR_B|NO_PORT_B)))
 	{
 		/* XXX Do I need to check setup_frame != pinfo->num in order to not
 		 * create unnecessary new conversations?
@@ -2237,7 +2237,7 @@ epl_get_convo(packet_info *pinfo, int opts)
 	{
 new_convo_creation:
 		epan_convo = conversation_new(pinfo->num, node_addr, node_addr,
-				conversation_pt_to_endpoint_type(pinfo->ptype), node_port, node_port, NO_ADDR2|NO_PORT2);
+				conversation_pt_to_conversation_type(pinfo->ptype), node_port, node_port, NO_ADDR2|NO_PORT2);
 	}
 
 	convo = (struct epl_convo*)conversation_get_proto_data(epan_convo, proto_epl);

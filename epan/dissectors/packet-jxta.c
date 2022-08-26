@@ -192,7 +192,7 @@ jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt 
     const jxta_tap_header *jxtahdr = (const jxta_tap_header *) vip;
 
     add_conversation_table_data(hash, &jxtahdr->src_address, &jxtahdr->dest_address,
-        0, 0, 1, jxtahdr->size, NULL, NULL, &jxta_ct_dissector_info, ENDPOINT_NONE);
+        0, 0, 1, jxtahdr->size, NULL, NULL, &jxta_ct_dissector_info, CONVERSATION_NONE);
 
     return TAP_PACKET_REDRAW;
 }
@@ -765,11 +765,11 @@ static conversation_t *get_peer_conversation(packet_info * pinfo, jxta_stream_co
 
     if ((AT_NONE != tpt_conv_data->initiator_address.type) && (AT_NONE != tpt_conv_data->receiver_address.type)) {
         peer_conversation = find_conversation(pinfo->num, &tpt_conv_data->initiator_address, &tpt_conv_data->receiver_address,
-                                               ENDPOINT_NONE, 0, 0, NO_PORT_B);
+                                               CONVERSATION_NONE, 0, 0, NO_PORT_B);
 
         if (create && (NULL == peer_conversation)) {
             peer_conversation = conversation_new(pinfo->num, &tpt_conv_data->initiator_address,
-                                                  &tpt_conv_data->receiver_address, ENDPOINT_NONE, 0, 0, NO_PORT2);
+                                                  &tpt_conv_data->receiver_address, CONVERSATION_NONE, 0, 0, NO_PORT2);
             conversation_set_dissector(peer_conversation, stream_jxta_handle);
         }
 

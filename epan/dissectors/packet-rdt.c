@@ -232,13 +232,13 @@ void rdt_add_address(packet_info *pinfo,
 
     /* Check if the ip address and port combination is not already registered
        as a conversation. */
-    p_conv = find_conversation(pinfo->num, addr, &null_addr, ENDPOINT_UDP, port, other_port,
+    p_conv = find_conversation(pinfo->num, addr, &null_addr, CONVERSATION_UDP, port, other_port,
                                NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
     /* If not, create a new conversation. */
     if ( !p_conv || p_conv->setup_frame != pinfo->num)
     {
-        p_conv = conversation_new(pinfo->num, addr, &null_addr, ENDPOINT_UDP,
+        p_conv = conversation_new(pinfo->num, addr, &null_addr, CONVERSATION_UDP,
                                   (guint32)port, (guint32)other_port,
                                   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
     }
@@ -1184,7 +1184,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         /* First time, get info from conversation */
         p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                                   conversation_pt_to_endpoint_type(pinfo->ptype),
+                                   conversation_pt_to_conversation_type(pinfo->ptype),
                                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
         if (p_conv)
         {

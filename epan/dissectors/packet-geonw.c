@@ -690,10 +690,10 @@ static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * 
     proto_item *it;
 
     /* Handle the conversation tracking */
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), HT_LS, HT_LS, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), HT_LS, HT_LS, 0);
     if (conversation == NULL) {
         /* No, this is a new conversation. */
-        conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), HT_LS, HT_LS, 0);
+        conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), HT_LS, HT_LS, 0);
     }
     geonw_info = (geonw_conv_info_t *)conversation_get_proto_data(conversation, proto_geonw);
     if (geonw_info == NULL) {
@@ -761,7 +761,7 @@ static geonw_transaction_t *transaction_end(packet_info * pinfo, proto_tree * tr
     nstime_t ns;
     double resp_time;
 
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), HT_LS, HT_LS, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), HT_LS, HT_LS, 0);
     if (conversation == NULL) {
         return NULL;
     }

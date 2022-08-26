@@ -144,7 +144,7 @@ tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	const tr_hdr *trhdr=(const tr_hdr *)vip;
 
-	add_conversation_table_data(hash, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &tr_ct_dissector_info, ENDPOINT_NONE);
+	add_conversation_table_data(hash, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &tr_ct_dissector_info, CONVERSATION_NONE);
 
 	return TAP_PACKET_REDRAW;
 }

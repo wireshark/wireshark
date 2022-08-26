@@ -577,7 +577,7 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
             REPORT_DISSECTOR_BUG("Field %s has an unrecognized or mismatched type %u != %u",
                 hfinfo->abbrev, sfe->type, hfinfo->type);
         }
-        if (conv_el.type != CE_ENDPOINT) {
+        if (conv_el.type != CE_CONVERSATION_TYPE) {
             wmem_array_append_one(conversation_elements, conv_el);
         }
     }
@@ -589,8 +589,8 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     unsigned num_conv_els = wmem_array_get_count(conversation_elements);
     if (num_conv_els > 0) {
         conversation_element_t conv_el;
-        conv_el.type = CE_ENDPOINT;
-        conv_el.endpoint_type_val = ENDPOINT_LOG;
+        conv_el.type = CE_CONVERSATION_TYPE;
+        conv_el.conversation_type_val = CONVERSATION_LOG;
         wmem_array_append_one(conversation_elements, conv_el);
         pinfo->conv_elements = (conversation_element_t *) wmem_array_get_raw(conversation_elements);
         conversation_t *conv = find_conversation_pinfo(pinfo, 0);

@@ -2605,7 +2605,7 @@ static void update_sport(packet_info *pinfo)
     conversation_infiniband_data *conv_data;
 
     conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
-                             ENDPOINT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
+                             CONVERSATION_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
     if (!conv)
         return;
 
@@ -3306,13 +3306,13 @@ create_conv_and_add_proto_data(packet_info *pinfo, guint64 service_id,
     proto_data->src_qp = src_port;
     memcpy(&proto_data->mad_private_data[0], mad_data, MAD_DATA_SIZE);
     conv = conversation_new(pinfo->num, addr, addr,
-                            ENDPOINT_IBQP, port, port, options);
+                            CONVERSATION_IBQP, port, port, options);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 
     /* next, register the conversation using the LIDs */
     set_address(addr, AT_IB, sizeof(guint16), wmem_memdup(pinfo->pool, &lid, sizeof lid));
     conv = conversation_new(pinfo->num, addr, addr,
-                            ENDPOINT_IBQP, port, port, options);
+                            CONVERSATION_IBQP, port, port, options);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 }
 
@@ -3358,7 +3358,7 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
         proto_data->client_to_server = TRUE;
 
         conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                ENDPOINT_IBQP, pinfo->srcport, pinfo->destport, 0);
+                                CONVERSATION_IBQP, pinfo->srcport, pinfo->destport, 0);
         conversation_add_proto_data(conv, proto_infiniband, proto_data);
 
         /* create unidirection conversation for packets that will flow from
@@ -3567,7 +3567,7 @@ static void create_bidi_conv(packet_info *pinfo, connection_context *connection)
     proto_data->client_to_server = FALSE;
     memset(&proto_data->mad_private_data[0], 0, MAD_DATA_SIZE);
     conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                            ENDPOINT_IBQP, connection->resp_qp,
+                            CONVERSATION_IBQP, connection->resp_qp,
                             connection->req_qp, 0);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 }
@@ -3618,7 +3618,7 @@ static void update_passive_conv_info(packet_info *pinfo,
     conversation_infiniband_data *conv_data;
 
     conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
-                             ENDPOINT_IBQP, connection->req_qp, connection->req_qp,
+                             CONVERSATION_IBQP, connection->req_qp, connection->req_qp,
                              NO_ADDR_B|NO_PORT_B);
     if (!conv)
         return;   /* nothing to do with no conversation context */

@@ -161,7 +161,7 @@ fddi_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
   hash->flags = flags;
   const fddi_hdr *ehdr=(const fddi_hdr *)vip;
 
-  add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &fddi_ct_dissector_info, ENDPOINT_NONE);
+  add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &fddi_ct_dissector_info, CONVERSATION_NONE);
 
   return TAP_PACKET_REDRAW;
 }

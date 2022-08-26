@@ -250,11 +250,11 @@ get_lnet_conv(packet_info *pinfo, guint64 match_bits) {
     lnet_conv_info_t *conv_info;
 
     // Ignore ports because this is kernel level and there can only be one Lustre instance per server
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
                                      0, 0, 0);
     if (conversation == NULL)
         conversation = conversation_new(pinfo->num, &pinfo->src,
-                                        &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), 0, 0, 0);
+                                        &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), 0, 0, 0);
 
     conv_info = (lnet_conv_info_t *)conversation_get_proto_data(conversation, proto_lnet);
     if (!conv_info) {

@@ -1927,11 +1927,11 @@ snmp_find_conversation_and_get_conv_data(packet_info *pinfo) {
 	conversation_t *conversation;
 	snmp_conv_info_t *snmp_info = NULL;
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
 		pinfo->srcport, pinfo->destport, 0);
 
 	if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
-		conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+		conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
 			pinfo->srcport, pinfo->destport, 0);
 		conversation_set_dissector(conversation, snmp_handle);
 	}
