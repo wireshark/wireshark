@@ -452,6 +452,7 @@ static expert_field ei_tcp_checksum_bad = EI_INIT;
 static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
 static expert_field ei_tcp_suboption_malformed = EI_INIT;
 static expert_field ei_tcp_nop = EI_INIT;
+static expert_field ei_tcp_non_zero_bytes_after_eol = EI_INIT;
 static expert_field ei_tcp_bogus_header_length = EI_INIT;
 
 /* static expert_field ei_mptcp_analysis_unexpected_idsn = EI_INIT; */
@@ -6870,7 +6871,7 @@ dissect_tcpopt_rvbd_trpy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
  /* Started as a copy of dissect_ip_tcp_options(), but was changed to support
     options as a dissector table */
 static void
-tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
+tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
                        packet_info *pinfo, proto_tree *opt_tree,
                        proto_item *opt_item, void * data)
 {
@@ -6882,9 +6883,15 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
     tvbuff_t         *next_tvb;
     struct tcpheader *tcph = (struct tcpheader *)data;
     gboolean          mss_seen = FALSE;
+    gboolean          eol_seen = FALSE;
 
     while (length > 0) {
         opt = tvb_get_guint8(tvb, offset);
+        if (eol_seen && opt != TCPOPT_EOL) {
+            proto_tree_add_expert_format(opt_tree, pinfo, &ei_tcp_non_zero_bytes_after_eol, tvb, offset, length,
+                                         "Non-zero header padding");
+            return;
+        }
         --length;      /* account for type byte */
         if ((opt == TCPOPT_EOL) || (opt == TCPOPT_NOP)) {
             int local_proto;
@@ -6967,8 +6974,8 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
             length -= (optlen-2); //already accounted for type and len bytes
         }
 
-        if (opt == eol)
-            break;
+        if (opt == TCPOPT_EOL)
+            eol_seen = true;
     }
 
     if ((tcph->th_flags & TH_SYN) && (mss_seen != TRUE))
@@ -8066,8 +8073,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         rvbd_option_data* option_data;
 
         tcp_dissect_options(tvb, offset + 20, optlen,
-                               TCPOPT_EOL, pinfo, options_tree,
-                               options_item, tcph);
+                            pinfo, options_tree,
+                            options_item, tcph);
 
         /* Do some post evaluation of some Riverbed probe options in the list */
         option_data = (rvbd_option_data*)p_get_proto_data(pinfo->pool, pinfo, proto_tcp_option_rvbd_probe, pinfo->curr_layer_num);
@@ -9226,6 +9233,7 @@ proto_register_tcp(void)
         { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }},
         { &ei_tcp_suboption_malformed, { "tcp.suboption_malformed", PI_MALFORMED, PI_ERROR, "suboption would go past end of option", EXPFILL }},
         { &ei_tcp_nop, { "tcp.nop", PI_PROTOCOL, PI_WARN, "4 NOP in a row - a router may have removed some options", EXPFILL }},
+        { &ei_tcp_non_zero_bytes_after_eol, { "tcp.non_zero_bytes_after_eol", PI_PROTOCOL, PI_ERROR, "Non zero bytes in option space after EOL option", EXPFILL }},
         { &ei_tcp_bogus_header_length, { "tcp.bogus_header_length", PI_PROTOCOL, PI_ERROR, "Bogus TCP Header length", EXPFILL }},
     };
 
