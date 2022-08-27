@@ -373,7 +373,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       break;
 
     case TEAP_IDENTITY:
-      proto_tree_add_item(tlv_tree, hf_teap_identity, tvb, 2, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_tree, hf_teap_identity, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += len;
       break;
 
