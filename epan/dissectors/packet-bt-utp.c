@@ -16,6 +16,7 @@
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
@@ -49,6 +50,7 @@ enum {
   EXT_NO_EXTENSION    = 0,
   EXT_SELECTIVE_ACKS  = 1,
   EXT_EXTENSION_BITS  = 2,
+  EXT_CLOSE_REASON    = 3,
   EXT_NUM_EXT
 };
 
@@ -56,7 +58,63 @@ static const value_string bt_utp_extension_type_vals[] = {
   { EXT_NO_EXTENSION,   "No Extension" },
   { EXT_SELECTIVE_ACKS, "Selective ACKs" },
   { EXT_EXTENSION_BITS, "Extension bits" },
+  { EXT_CLOSE_REASON,   "Close reason" },
   { 0, NULL }
+};
+
+/* https://github.com/arvidn/libtorrent/blob/master/include/libtorrent/close_reason.hpp */
+static const value_string bt_utp_close_reason_vals[] = {
+  {  0, "None" },
+  {  1, "Duplicate peer ID" },
+  {  2, "Torrent removed" },
+  {  3, "Memory allocation failed" },
+  {  4, "Port blocked" },
+  {  5, "Address blocked" },
+  {  6, "Upload to upload" },
+  {  7, "Not interested upload only" },
+  {  8, "Timeout" },
+  {  9, "Timeout: interest" },
+  { 10, "Timeout: activity" },
+  { 11, "Timeout: handshake" },
+  { 12, "Timeout: request" },
+  { 13, "Protocol blocked" },
+  { 14, "Peer churn" },
+  { 15, "Too many connections" },
+  { 16, "Too many files" },
+  /* Reasons caused by the peer sending unexpected data are 256 and up */
+  {256, "Encryption error" },
+  {257, "Invalid info hash" },
+  {258, "Self connection" },
+  {259, "Invalid metadata" },
+  {260, "Metadata too big" },
+  {261, "Message too big" },
+  {262, "Invalid message id" },
+  {263, "Invalid message" },
+  {264, "Invalid piece message" },
+  {265, "Invalid have message" },
+  {266, "Invalid bitfield message" },
+  {267, "Invalid choke message" },
+  {268, "Invalid unchoke message" },
+  {269, "Invalid interested message" },
+  {270, "Invalid not interested message" },
+  {271, "Invalid request message" },
+  {272, "Invalid reject message" },
+  {273, "Invalid allow fast message" },
+  {274, "Invalid extended message" },
+  {275, "Invalid cancel message" },
+  {276, "Invalid DHT port message" },
+  {277, "Invalid suggest message" },
+  {278, "Invalid have all message" },
+  {279, "Invalid don't have message" },
+  {280, "Invalid PEX message" },
+  {281, "Invalid metadata request message" },
+  {282, "Invalid metadata message" },
+  {283, "Invalid metadata offset" },
+  {284, "Request when choked" },
+  {285, "Corrupt pieces" },
+  {286, "PEX message too big" },
+  {287, "PEX too frequent" },
+  {  0, NULL }
 };
 
 static int proto_bt_utp = -1;
@@ -141,6 +199,7 @@ static int hf_bt_utp_extension = -1;
 static int hf_bt_utp_next_extension_type = -1;
 static int hf_bt_utp_extension_len = -1;
 static int hf_bt_utp_extension_bitmask = -1;
+static int hf_bt_utp_extension_close_reason = -1;
 static int hf_bt_utp_extension_unknown = -1;
 static int hf_bt_utp_connection_id_v0 = -1;
 static int hf_bt_utp_connection_id_v1 = -1;
@@ -156,6 +215,8 @@ static int hf_bt_utp_len = -1;
 static int hf_bt_utp_data = -1;
 static int hf_bt_utp_pdu_size = -1;
 static int hf_bt_utp_continuation_to = -1;
+
+static expert_field ei_extension_len_invalid = EI_INIT;
 
 static gint ett_bt_utp = -1;
 static gint ett_bt_utp_extension = -1;
@@ -797,68 +858,47 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
 {
   proto_item *ti;
   proto_tree *ext_tree;
-  guint8 extension_length;
+  guint32 next_extension, extension_length;
   /* display the extension tree */
 
   while(*extension_type != EXT_NO_EXTENSION && offset < (int)tvb_reported_length(tvb))
   {
+    ti = proto_tree_add_none_format(tree, hf_bt_utp_extension, tvb, offset, -1, "Extension: %s", val_to_str_const(*extension_type, bt_utp_extension_type_vals, "Unknown"));
+    ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
+
+    proto_tree_add_item_ret_uint(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN, &next_extension);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_length);
+    proto_item_append_text(ti, ", Len=%d", extension_length);
+    offset += 1;
+
     switch(*extension_type){
       case EXT_SELECTIVE_ACKS: /* 1 */
       {
-        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
-        ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
-
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        *extension_type = tvb_get_guint8(tvb, offset);
-        offset += 1;
-
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-        extension_length = tvb_get_guint8(tvb, offset);
-        proto_item_append_text(ti, " Selective ACKs, Len=%d", extension_length);
-        offset += 1;
-
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, ENC_NA);
-        offset += extension_length;
-        proto_item_set_len(ti, 1 + 1 + extension_length);
         break;
       }
       case EXT_EXTENSION_BITS: /* 2 */
       {
-        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
-        ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
-
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        *extension_type = tvb_get_guint8(tvb, offset);
-        offset += 1;
-
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-        extension_length = tvb_get_guint8(tvb, offset);
-        proto_item_append_text(ti, " Extension Bits, Len=%d", extension_length);
-        offset += 1;
-
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, ENC_NA);
-        offset += extension_length;
-        proto_item_set_len(ti, 1 + 1 + extension_length);
+        break;
+      }
+      case EXT_CLOSE_REASON: /* 3 */
+      {
+        if (extension_length != 4) {
+          expert_add_info(pinfo, ti, &ei_extension_len_invalid);
+        }
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_close_reason, tvb, offset, 4, ENC_NA);
         break;
       }
       default:
-        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
-        ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
-
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        *extension_type = tvb_get_guint8(tvb, offset);
-        offset += 1;
-
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-        extension_length = tvb_get_guint8(tvb, offset);
-        proto_item_append_text(ti, " Unknown, Len=%d", extension_length);
-        offset += 1;
-
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_unknown, tvb, offset, extension_length, ENC_NA);
-        offset += extension_length;
-        proto_item_set_len(ti, 1 + 1 + extension_length);
       break;
     }
+    offset += extension_length;
+    proto_item_set_len(ti, 1 + 1 + extension_length);
+    *extension_type = next_extension;
   }
 
   return offset;
@@ -1121,6 +1161,11 @@ proto_register_bt_utp(void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
+    { &hf_bt_utp_extension_close_reason,
+      { "Close Reason", "bt-utp.extension_close_reason",
+      FT_UINT32, BASE_DEC, VALS(bt_utp_close_reason_vals), 0x0,
+      NULL, HFILL }
+    },
     { &hf_bt_utp_extension_unknown,
       { "Extension Unknown", "bt-utp.extension_unknown",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1198,10 +1243,18 @@ proto_register_bt_utp(void)
     },
   };
 
+  static ei_register_info ei[] = {
+    { &ei_extension_len_invalid,
+      { "bt-utp.extension_len.invalid", PI_PROTOCOL, PI_WARN,
+        "The extension is an unexpected length", EXPFILL }
+    },
+  };
+
   /* Setup protocol subtree array */
   static gint *ett[] = { &ett_bt_utp, &ett_bt_utp_extension };
 
   module_t *bt_utp_module;
+  expert_module_t *expert_bt_utp;
 
   /* Register protocol */
   proto_bt_utp = proto_register_protocol ("uTorrent Transport Protocol", "BT-uTP", "bt-utp");
@@ -1234,6 +1287,9 @@ proto_register_bt_utp(void)
 
   proto_register_field_array(proto_bt_utp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_bt_utp = expert_register_protocol(proto_bt_utp);
+  expert_register_field_array(expert_bt_utp, ei, array_length(ei));
 
   register_init_routine(utp_init);
 }
