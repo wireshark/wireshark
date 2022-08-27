@@ -167,13 +167,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  color_filters_write@Base 2.1.0
  column_dump_column_formats@Base 1.12.0~rc1
  conversation_add_proto_data@Base 1.9.1
- conversation_create_endpoint@Base 2.5.0
- conversation_create_endpoint_by_id@Base 2.5.0
  conversation_delete_proto_data@Base 1.9.1
  conversation_filter_from_log@Base 3.7.0
  conversation_filter_from_packet@Base 2.2.8
  conversation_get_dissector@Base 2.0.0
- conversation_get_endpoint_by_id@Base 2.5.0
+ conversation_get_id_from_elements@Base 4.0.0-rc2
  conversation_get_proto_data@Base 1.9.1
  conversation_key_addr1@Base 2.5.0
  conversation_key_addr2@Base 2.5.0
@@ -182,9 +180,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  conversation_new@Base 1.9.1
  conversation_new_by_id@Base 2.5.0
  conversation_new_full@Base 3.7.1
- conversation_pt_to_endpoint_type@Base 2.5.0
+ conversation_pt_to_conversation_type@Base 4.0.0-rc2
  conversation_set_dissector@Base 1.9.1
  conversation_set_dissector_from_frame_number@Base 2.0.0
+ conversation_set_elements_by_address_port_pairs@Base 4.0.0-rc2
+ conversation_set_elements_by_id@Base 4.0.0-rc2
  conversation_set_port2@Base 2.6.3
  conversation_set_addr2@Base 2.6.3
  conversation_table_get_num@Base 1.99.0
@@ -835,6 +835,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_edited_resolved_name@Base 3.3.0
  get_endpoint_filter@Base 4.0.0-rc2
  get_endpoint_packet_func@Base 4.0.0-rc2
+ get_endpoint_port@Base 4.0.0-rc2
  get_eo_by_name@Base 2.3.0
  get_eo_packet_func@Base 2.3.0
  get_eo_proto_id@Base 2.3.0
