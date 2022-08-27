@@ -621,15 +621,17 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
         # H - first time that the start of the MSP is delivered
         self.assertIn('3\t6\t[TCP Out-Of-Order]', lines[2])
         self.assertIn('[TCP segment of a reassembled PDU]', lines[2])
-        # H - first retransmission.
-        self.assertIn('4\t\t', lines[3])
-        self.assertNotIn('[TCP segment of a reassembled PDU]', lines[3])
+        # H - first retransmission. Because this is before the reassembly
+        # completes we can add it to the reassembly
+        self.assertIn('4\t6\t[TCP Out-Of-Order]', lines[3])
+        self.assertIn('[TCP segment of a reassembled PDU]', lines[3])
         # 1 - continue reassembly
         self.assertIn('5\t6\t[TCP Out-Of-Order]', lines[4])
         self.assertIn('[TCP segment of a reassembled PDU]', lines[4])
         # 3 - finish reassembly
         self.assertIn('6\t\tPUT /0 HTTP/1.1', lines[5])
-        # H - second retransmission.
+        # H - second retransmission. This is after the reassembly completes
+        # so we do not add it to the ressembly (but throw a ReassemblyError.)
         self.assertIn('7\t\t', lines[6])
         self.assertNotIn('[TCP segment of a reassembled PDU]', lines[6])
 
