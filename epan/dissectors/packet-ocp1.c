@@ -177,7 +177,7 @@ static gint ett_ocp1_params_ocaver = -1;
 static gint ett_ocp1_params_ptp = -1;
 
 /* PDU Types */
-const value_string pdu_type_vals[] = {
+static const value_string pdu_type_vals[] = {
     { OCP1_PDU_TYPE_OCA_CMD,        "Command, no response required" },
     { OCP1_PDU_TYPE_OCA_CMD_RRQ,    "Command, response required" },
     { OCP1_PDU_TYPE_OCA_NTF,        "Notification" },
@@ -187,7 +187,7 @@ const value_string pdu_type_vals[] = {
 };
 
 /* OCA enums */
-const value_string OcaStatus[] = {
+static const value_string OcaStatus[] = {
     { 0x00, "OK" },
     { 0x01, "Protocol Version Error" },
     { 0x02, "Device Error" },
@@ -206,19 +206,19 @@ const value_string OcaStatus[] = {
     { 0,    NULL }
 };
 
-const value_string OcaNotificationDeliveryMode[] = {
+static const value_string OcaNotificationDeliveryMode[] = {
     { 0x01, "Reliable" },
     { 0x02, "Fast" },
     { 0,    NULL }
 };
-const value_string OcaPowerState[] = {
+static const value_string OcaPowerState[] = {
     { 0x00, "None" },
     { 0x01, "Working" },
     { 0x02, "Standby" },
     { 0x03, "Off" },
     { 0,    NULL }
 };
-const value_string OcaMediaClockType[] = {
+static const value_string OcaMediaClockType[] = {
     { 0x00, "None" },
     { 0x01, "Internal" },
     { 0x02, "Network" },
@@ -226,7 +226,7 @@ const value_string OcaMediaClockType[] = {
     { 0,    NULL }
 };
 
-const value_string OcaResetCause[] = {
+static const value_string OcaResetCause[] = {
     { 0x00, "PowerOn" },
     { 0x01, "InternalError" },
     { 0x02, "Upgrade" },
@@ -234,12 +234,12 @@ const value_string OcaResetCause[] = {
     { 0,    NULL }
 };
 
-const value_string OcaComponent[] = {
+static const value_string OcaComponent[] = {
     { 0x0000, "BootLoader" },
     { 0,    NULL }
 };
 
-const value_string OcaTaskCommand[] = {
+static const value_string OcaTaskCommand[] = {
     { 0x00, "None" },
     { 0x01, "Prepare" },
     { 0x02, "Enable" },
@@ -251,13 +251,14 @@ const value_string OcaTaskCommand[] = {
     { 0,    NULL }
 };
 
-const value_string OcaTaskManagerState[] = {
+static const value_string OcaTaskManagerState[] = {
     { 0x00, "None" },
     { 0x01, "Enabled" },
     { 0x02, "Disabled" },
     { 0,    NULL }
 };
-const value_string OcaTaskState[] = {
+
+static const value_string OcaTaskState[] = {
     { 0x00, "None" },
     { 0x01, "NotPrepared" },
     { 0x02, "Disabled" },
@@ -270,7 +271,7 @@ const value_string OcaTaskState[] = {
     { 0,    NULL }
 };
 
-const value_string OaFixedONo[] = {
+static const value_string OaFixedONo[] = {
     { 0x01, "OcaDeviceManager" },
     { 0x02, "OcaSecurityManager" },
     { 0x03, "OcaFirmwareManager" },
@@ -287,7 +288,7 @@ const value_string OaFixedONo[] = {
     { 0,    NULL }
 };
 
-const value_string OcaRootMethods[] = {
+static const value_string OcaRootMethods[] = {
     { 0x01, "GetClassIdentification" },
     { 0x02, "GetLockable" },
     { 0x03, "LockTotal" },
@@ -297,7 +298,7 @@ const value_string OcaRootMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaDeviceManagerMethods[] = {
+static const value_string OcaDeviceManagerMethods[] = {
     { 0x01, "GetOcaVersion" },
     { 0x02, "GetModelGUID" },
     { 0x03, "GetSerialNumber" },
@@ -321,7 +322,7 @@ const value_string OcaDeviceManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaSecurityManagerMethods[] = {
+static const value_string OcaSecurityManagerMethods[] = {
     { 0x01, "EnableControlSecurity" },
     { 0x02, "DisableControlSecurity" },
     { 0x03, "ChangePreSharedKey" },
@@ -330,7 +331,7 @@ const value_string OcaSecurityManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaFirmwareManagerMethods[] = {
+static const value_string OcaFirmwareManagerMethods[] = {
     { 0x01, "GetComponentVersions" },
     { 0x02, "StartUpdateProcess" },
     { 0x03, "BeginActiveImageUpdate" },
@@ -342,7 +343,7 @@ const value_string OcaFirmwareManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaSubscriptionManagerMethods[] = {
+static const value_string OcaSubscriptionManagerMethods[] = {
     { 0x01, "AddSubscription" },
     { 0x02, "RemoveSubscription" },
     { 0x03, "DisableNotifications" },
@@ -353,7 +354,7 @@ const value_string OcaSubscriptionManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaPowerManagerMethods[] = {
+static const value_string OcaPowerManagerMethods[] = {
     { 0x01, "GetState" },
     { 0x02, "SetState" },
     { 0x03, "GetPowerSupplies" },
@@ -363,7 +364,7 @@ const value_string OcaPowerManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaNetworkManagerMethods[] = {
+static const value_string OcaNetworkManagerMethods[] = {
     { 0x01, "GetNetworks" },
     { 0x02, "GetStreamNetworks" },
     { 0x03, "GetControlNetworks" },
@@ -371,14 +372,14 @@ const value_string OcaNetworkManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaMediaClockManagerMethods[] = {
+static const value_string OcaMediaClockManagerMethods[] = {
     { 0x01, "GetClocks" },
     { 0x02, "GetMediaClockTypesSupported" },
     { 0x03, "GetClock3s" },
     { 0,    NULL }
 };
 
-const value_string OcaLibraryManagerMethods[] = {
+static const value_string OcaLibraryManagerMethods[] = {
     { 0x01, "AddLibrary" },
     { 0x02, "DeleteLibrary" },
     { 0x03, "GetLibraryCount" },
@@ -388,23 +389,23 @@ const value_string OcaLibraryManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaTimeMode[] = {
+static const value_string OcaTimeMode[] = {
     { 0x01, "Absolute" },
     { 0x02, "Relative" },
     { 0, NULL }
 };
 
-const value_string OcaTimeUnits[] = {
+static const value_string OcaTimeUnits[] = {
     { 0x01, "Seconds" },
     { 0x02, "Samples" },
     { 0, NULL }
 };
 
-const value_string OcaAudioProcessingManagerMethods[] = {
+static const value_string OcaAudioProcessingManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaDeviceTimeManagerMethods[] = {
+static const value_string OcaDeviceTimeManagerMethods[] = {
     { 0x01, "GetDeviceTimeNTP" },
     { 0x02, "SetDeviceTimeNTP" },
     { 0x03, "GetTimeSources" },
@@ -415,7 +416,7 @@ const value_string OcaDeviceTimeManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaTaskManagerMethods[] = {
+static const value_string OcaTaskManagerMethods[] = {
     { 0x01, "Enable" },
     { 0x02, "ControlAllTasks" },
     { 0x03, "ControlTaskGroup" },
@@ -431,13 +432,13 @@ const value_string OcaTaskManagerMethods[] = {
     { 0,    NULL }
 };
 
-const value_string OcaCodingManagerMethods[] = {
+static const value_string OcaCodingManagerMethods[] = {
     { 0x01, "GetAvailableEncodingSchemes" },
     { 0x02, "GetAvailableDecodingSchemes" },
     { 0,    NULL }
 };
 
-const value_string OcaDiagnosticManagerMethods[] = {
+static const value_string OcaDiagnosticManagerMethods[] = {
     { 0x01, "GetLockStatus" },
     { 0,    NULL }
 };
