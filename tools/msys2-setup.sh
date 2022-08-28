@@ -55,6 +55,7 @@ done
 # be fixed by the MSYS2 maintainers. Take a hands off approach for now.
 #
 BASIC_LIST="base-devel \
+	git \
 	mingw-w64-x86_64-brotli \
 	mingw-w64-x86_64-c-ares \
 	mingw-w64-x86_64-cmake \
