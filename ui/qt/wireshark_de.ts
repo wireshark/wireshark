@@ -9015,18 +9015,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne eine Pipe</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad auswählen</translation>
     </message>
 </context>
 <context>
