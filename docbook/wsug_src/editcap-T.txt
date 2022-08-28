@@ -6,6 +6,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     atm-pdus - ATM PDUs
     atm-pdus-untruncated - ATM PDUs - untruncated
     atm-rfc1483 - RFC 1483 ATM
+    autosardlt - AUTOSAR DLT
     ax25 - Amateur Radio AX.25
     ax25-kiss - AX.25 with KISS header
     bacnet-ms-tp - BACnet MS/TP

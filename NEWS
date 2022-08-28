@@ -10,6 +10,9 @@ Wireshark 4.1.0 Release Notes
 
  What’s New
 
+    • Wireshark now builds with Qt6 by default. To use Qt5 instead pass
+      USE_qt6=OFF to CMake.
+
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
 
