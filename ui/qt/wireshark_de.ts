@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Authors</source>
@@ -802,6 +802,29 @@
     <message>
         <source>Automatically detect file type</source>
         <translation>Dateityp automatisch erkennen</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, Fehler nach %Ln Paket</numerusform>
+            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, Zeitüberschreitung nach %Ln Paket</numerusform>
+            <numerusform>%1, Zeitüberschreitung nach %Ln Paketen</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln Paket</numerusform>
+            <numerusform>%1, %Ln Pakete</numerusform>
+        </translation>
     </message>
     <message>
         <source>Prepend packets</source>
@@ -1715,11 +1738,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Resolve Names:</source>
-        <translation type="unfinished"></translation>
+        <translation>Namen auflösen:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;In Feldern menschenleserliche Zeichenketten anstatt Rohwerte anzeigen. Nur auf benutzerdefinierte Spalten mit Zeichenketten anwendbar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1758,11 +1781,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgelöst</translation>
     </message>
     <message>
         <source>&lt;html&gt;Show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;In Feldern menschenleserliche Zeichenketten anstatt Rohwerte anzeigen. Nur auf benutzerdefinierte Spalten mit Zeichenketten anwendbar.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -1811,71 +1834,71 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse A</translation>
     </message>
     <message>
         <source>Port A</source>
-        <translation type="unfinished"></translation>
+        <translation>Port A</translation>
     </message>
     <message>
         <source>Address B</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse B</translation>
     </message>
     <message>
         <source>Port B</source>
-        <translation type="unfinished"></translation>
+        <translation>Port B</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Pakete</translation>
+        <translation>Pakete</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Stream ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream ID</translation>
     </message>
     <message>
         <source>Packets A </source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete A</translation>
     </message>
     <message>
         <source>Bytes A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes A</translation>
     </message>
     <message>
         <source>Bytes B </source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes B</translation>
     </message>
     <message>
         <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Abs. Start</translation>
     </message>
     <message>
         <source>Rel Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Rel. Start</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Dauer</translation>
+        <translation>Dauer</translation>
     </message>
     <message>
         <source>Bits/s A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bits/s A </translation>
     </message>
     <message>
         <source>Bits/s B </source>
-        <translation type="unfinished"></translation>
+        <translation>Bits/s B </translation>
     </message>
     <message>
         <source>Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete gesamt</translation>
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozent gefiltert</translation>
     </message>
 </context>
 <context>
@@ -2216,19 +2239,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardmäßig sind Vergleiche und contains/matches/in-Relationen bereits wahr, wenn ein Wert zutrifft. Der Quantifikator &quot;Alle&quot; kann benutzt werden, um den Test auf alle Werte anzuwenden. </translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Quantifikator</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Jedes</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Match against this value.</source>
@@ -2407,43 +2430,43 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adresse</translation>
+        <translation>Adresse</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished">Port</translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Pakete</translation>
+        <translation>Pakete</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Tx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tx Pakete</translation>
     </message>
     <message>
         <source>Tx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tx Bytes</translation>
     </message>
     <message>
         <source>Rx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Rx Pakete</translation>
     </message>
     <message>
         <source>Rx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Rx Bytes</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Land</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort</translation>
     </message>
     <message>
         <source>AS Number</source>
@@ -2451,15 +2474,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>AS Organization</source>
-        <translation type="unfinished"></translation>
+        <translation>AS Organisation</translation>
     </message>
     <message>
         <source>Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete gesamt</translation>
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozent gefiltert</translation>
     </message>
 </context>
 <context>
@@ -3262,6 +3285,20 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Print</source>
         <translation>Drucken</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln Client Paket, </numerusform>
+            <numerusform>%Ln Client Pakete, </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln Server Paket, </numerusform>
+            <numerusform>%Ln Server Pakete, </numerusform>
+        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -7105,18 +7142,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne eine Pipe</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad auswählen</translation>
     </message>
 </context>
 <context>
@@ -7356,6 +7393,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Select zip file for export</source>
         <translation>Zum Exportieren eine Zipdatei auswählen</translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln ausgewähltes persönliches Profil</numerusform>
+            <numerusform>… %Ln ausgewählte persönliche Profile</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
@@ -7884,7 +7928,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Any </source>
-        <translation>Alle</translation>
+        <translation>Jedes</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
@@ -10974,7 +11018,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON</translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -11833,19 +11877,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>TrafficTab</name>
     <message>
         <source>Map file error</source>
-        <translation type="unfinished">Fehler bei der Kartendatei</translation>
+        <translation>Fehler bei der Kartendatei</translation>
     </message>
     <message>
         <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei %1 konnte nicht zum Lesen geöffnet werden: %2</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Geräte gefunden</translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen der temporären Datei</translation>
     </message>
 </context>
 <context>
@@ -11868,11 +11912,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur Typen anzeigen, die zum Filterwert passen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Filter list for specific type</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtere Liste nach spezifischem Typ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11880,7 +11924,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished">Gruppierungsbox</translation>
+        <translation>Gruppierungsbox</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -11899,81 +11943,81 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>TrafficTree</name>
     <message>
         <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Spaltenbreiten an Inhalt anpassen</translation>
     </message>
     <message>
         <source>Filter on stream id</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtere nach Stream ID</translation>
     </message>
     <message>
         <source>Copy %1 table</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere %1 Tabelle</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished">als CSV</translation>
+        <translation>als CSV</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Werte dieser Seite im CSV-Format (Comma Separated Values) in die Zwischenablage kopieren.</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished">als YAML</translation>
+        <translation>als YAML</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Werte dieser Seite im YAML-Format in die Zwischenablage kopieren.</translation>
     </message>
     <message>
         <source>as JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>Als JSON</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Werte dieser Seite im JSON-Format in die Zwischenablage kopieren.</translation>
     </message>
     <message>
         <source>Save data as raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Rohdaten speichern</translation>
     </message>
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
-        <translation type="unfinished"></translation>
+        <translation>Datenformatierung für Export/Zwischenablage und Speichern deaktivieren</translation>
     </message>
 </context>
 <context>
     <name>TrafficTreeHeaderView</name>
     <message>
         <source>Less than</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleiner als</translation>
     </message>
     <message>
         <source>Greater than</source>
-        <translation type="unfinished"></translation>
+        <translation>Größer als</translation>
     </message>
     <message>
         <source>Equal</source>
-        <translation type="unfinished"></translation>
+        <translation>Gleich</translation>
     </message>
     <message>
         <source>Columns to display</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzuzeigende Spalten</translation>
     </message>
     <message>
         <source>Filter %1 by</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 filtern nach</translation>
     </message>
     <message>
         <source>Enter filter value</source>
-        <translation type="unfinished"></translation>
+        <translation>Filterwert eingeben</translation>
     </message>
 </context>
 <context>
     <name>TrafficTypesModel</name>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
 </context>
 <context>
@@ -13548,7 +13592,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Seconds Since First Captured Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekunden seit erstem aufgezeichneten Paket</translation>
     </message>
     <message>
         <source>Packet &amp;Diagram</source>
@@ -14477,6 +14521,14 @@ text-decoration: underline;
     <message>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>SSL Session Key exportieren (%Ln Key)</numerusform>
+            <numerusform>SSL Session Key exportieren (%Ln Keys)</numerusform>
+        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
