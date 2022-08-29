@@ -1330,7 +1330,7 @@
   <avp name="Diagnostic-Info" code="933" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
     <type type-name="Unsigned32"/>
   </avp>
-  <avp name="MBMS-Cell-List" code="933" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+  <avp name="MBMS-Cell-List" code="934" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
     <type type-name="OctetString"/>
   </avp>
 

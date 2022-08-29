@@ -2356,7 +2356,7 @@
 				<gavp name="MAC-Address-Mask-Pattern"/>
 			</grouped>
 		</avp>
-		<avp name="MAC-Address-Mask-Pattern" code="525" mandatory="may">
+		<avp name="MAC-Address-Mask-Pattern" code="526" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="EUI64-Address" code="527" mandatory="may">
@@ -7359,7 +7359,7 @@
 			<enum name="ONE_TIME_EVENT" code="0"/>
 			<enum name="MULTIPLE_TIME_EVENT" code="1"/>
 		</avp>
-		<avp name="Interval-Time" code="2537" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Interval-Time" code="2539" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Periodic-LDR-Information" code="2540" vendor-bit="must" vendor-id="TGPP">
