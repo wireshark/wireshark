@@ -2664,7 +2664,7 @@ get_ocp1_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
         guint pdu_size = tvb_get_guint32(tvb, offset + 3, ENC_BIG_ENDIAN) + 1;
         size += pdu_size;
 
-        if (!(tvb_captured_length_remaining(tvb, offset + pdu_size) >= 11))
+        if (!(tvb_captured_length_remaining(tvb, offset + pdu_size) >= OCP1_FRAME_HEADER_LEN + 1) || pdu_size < OCP1_FRAME_HEADER_LEN - 1)
             another_pdu = FALSE;
 
         offset += pdu_size;
@@ -2694,6 +2694,10 @@ test_ocp1(tvbuff_t *tvb)
 
     /* Size must be larger than SyncVal + Header = 10 bytes */
     if (tvb_captured_length(tvb) < OCP1_FRAME_HEADER_LEN)
+        return FALSE;
+
+    /* PDU size must be larger than header size (without SyncVal) */
+    if (tvb_get_guint32(tvb, 3, ENC_BIG_ENDIAN) < OCP1_FRAME_HEADER_LEN - 1)
         return FALSE;
 
     /* SyncVal must be the first byte */
