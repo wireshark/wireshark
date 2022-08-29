@@ -62,8 +62,6 @@
 
 #define UDPDUMP_EXPORT_HEADER_LEN 40
 
-static gboolean run_loop = TRUE;
-
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
 	OPT_HELP,
@@ -148,12 +146,6 @@ cleanup_setup_listener:
 	closesocket(*sock);
 	return EXIT_FAILURE;
 
-}
-
-static void exit_from_loop(int signo _U_)
-{
-	ws_warning("Exiting from main loop");
-	run_loop = FALSE;
 }
 
 static int setup_dumpfile(const char* fifo, FILE** fp)
@@ -289,11 +281,6 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 	ssize_t buflen;
 	FILE* fp = NULL;
 
-	if (signal(SIGINT, exit_from_loop) == SIG_ERR) {
-		ws_warning("Can't set signal handler");
-		return;
-	}
-
 	if (setup_dumpfile(fifo, &fp) == EXIT_FAILURE) {
 		if (fp)
 			fclose(fp);
@@ -306,7 +293,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 	ws_debug("Listener running on port %u", port);
 
 	buf = (char*)g_malloc(PKT_BUF_SIZE);
-	while(run_loop == TRUE) {
+	while(!extcap_end_application) {
 		memset(buf, 0x0, PKT_BUF_SIZE);
 
 		buflen = recvfrom(sock, buf, PKT_BUF_SIZE, 0, (struct sockaddr *)&clientaddr, &clientlen);
@@ -330,12 +317,12 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 #else
 					ws_warning("Error in recvfrom: %s (errno=%d)", strerror(errno), errno);
 #endif
-					run_loop = FALSE;
+					extcap_end_application = FALSE;
 					break;
 			}
 		} else {
 			if (dump_packet(proto_name, port, buf, buflen, clientaddr, fp) == EXIT_FAILURE)
-				run_loop = FALSE;
+				extcap_end_application = FALSE;
 		}
 	}
 
@@ -449,6 +436,11 @@ int main(int argc, char *argv[])
 	}
 
 	if (extcap_base_handle_interface(extcap_conf)) {
+		ret = EXIT_SUCCESS;
+		goto end;
+	}
+
+	if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, NULL)) {
 		ret = EXIT_SUCCESS;
 		goto end;
 	}

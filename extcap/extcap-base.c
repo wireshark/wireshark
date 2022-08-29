@@ -46,7 +46,30 @@ typedef struct _extcap_option {
 
 static FILE *custom_log = NULL;
 
+/* used to inform to extcap application that end of application is requested */
+gboolean extcap_end_application = FALSE;
+/* graceful shutdown callback, can be null */
+void (*extcap_graceful_shutdown_cb)(void) = NULL;
+
 static void extcap_init_log_file(const char *filename);
+
+/* Called from signals */
+#ifdef _WIN32
+static BOOL WINAPI
+extcap_exit_from_loop(DWORD dwCtrlType _U_)
+#else
+static void extcap_exit_from_loop(int signo _U_)
+#endif /* _WIN32 */
+{
+    ws_debug("Exiting from main loop by signal");
+    extcap_end_application = TRUE;
+    if (extcap_graceful_shutdown_cb != NULL) {
+       extcap_graceful_shutdown_cb();
+    }
+#ifdef _WIN32
+    return TRUE;
+#endif /* _WIN32 */
+}
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription )
 {
@@ -71,6 +94,38 @@ void extcap_base_register_interface_ext(extcap_parameters * extcap,
     iface->dltdescription = g_strdup(dltdescription);
 
     extcap->interfaces = g_list_append(extcap->interfaces, (gpointer) iface);
+}
+
+gboolean extcap_base_register_graceful_shutdown_cb(extcap_parameters * extcap _U_, void (*callback)(void))
+{
+#ifndef _WIN32
+    struct sigaction sig_handler = { .sa_handler = extcap_exit_from_loop };
+#endif
+
+    extcap_end_application = FALSE;
+    extcap_graceful_shutdown_cb = callback;
+#ifdef _WIN32
+    if (!SetConsoleCtrlHandler(extcap_exit_from_loop, TRUE)) {
+            ws_warning("Can't set console handler");
+            return FALSE;
+    }
+#else
+    /* Catch signals to be able to cleanup config later */
+    if (sigaction(SIGINT, &sig_handler, NULL)) {
+            ws_warning("Can't set SIGINT signal handler");
+            return FALSE;
+    }
+    if (sigaction(SIGTERM, &sig_handler, NULL)) {
+            ws_warning("Can't set SIGTERM signal handler");
+            return FALSE;
+    }
+    if (sigaction(SIGPIPE, &sig_handler, NULL)) {
+            ws_warning("Can't set SIGPIPE signal handler");
+            return FALSE;
+    }
+#endif /* _WIN32 */
+
+    return TRUE;
 }
 
 void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major,

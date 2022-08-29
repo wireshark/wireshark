@@ -29,7 +29,6 @@
 #include <netlink/genl/ctrl.h>
 #include <netlink/genl/mngt.h>
 
-#include <signal.h>
 #include <errno.h>
 
 #include <linux/genetlink.h>
@@ -43,7 +42,6 @@
 #define DPAUXMON_VERSION_MINOR "1"
 #define DPAUXMON_VERSION_RELEASE "0"
 
-static gboolean run_loop = TRUE;
 FILE* pcap_fp = NULL;
 
 enum {
@@ -95,11 +93,6 @@ static int list_config(char *interface)
 	extcap_config_debug(&inc);
 
 	return EXIT_SUCCESS;
-}
-
-static void exit_from_loop(int signo _U_)
-{
-	run_loop = FALSE;
 }
 
 static int setup_dumpfile(const char* fifo, FILE** fp)
@@ -357,7 +350,7 @@ static int handle_data(struct nl_cache_ops *unused _U_, struct genl_cmd *cmd _U_
 	memcpy(&packet[2], data, data_size);
 
 	if (dump_packet(pcap_fp, packet, data_size + 2, ts) == EXIT_FAILURE)
-		run_loop = FALSE;
+		extcap_end_application = FALSE;
 
 	return NL_OK;
 }
@@ -407,13 +400,7 @@ static void run_listener(const char* fifo, unsigned int interface_id)
 {
 	int err;
 	int grp;
-	struct sigaction int_handler = { .sa_handler = exit_from_loop };
 	struct nl_cb *socket_cb;
-
-	if (sigaction(SIGINT, &int_handler, 0)) {
-		ws_warning("Can't set signal handler");
-		return;
-	}
 
 	if (setup_dumpfile(fifo, &pcap_fp) == EXIT_FAILURE) {
 		if (pcap_fp)
@@ -469,7 +456,7 @@ static void run_listener(const char* fifo, unsigned int interface_id)
 
 	ws_debug("DisplayPort AUX monitor running on interface %u", interface_id);
 
-	while(run_loop == TRUE) {
+	while(!extcap_end_application) {
 		if ((err = nl_recvmsgs_default(sock)) < 0)
 			ws_warning("Unable to receive message: %s", nl_geterror(err));
 	}
@@ -577,6 +564,11 @@ int main(int argc, char *argv[])
 	}
 
 	if (extcap_base_handle_interface(extcap_conf)) {
+		ret = EXIT_SUCCESS;
+		goto end;
+	}
+
+	if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, NULL)) {
 		ret = EXIT_SUCCESS;
 		goto end;
 	}

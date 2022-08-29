@@ -105,8 +105,6 @@ enum {
 static char prompt_str[SSH_READ_BLOCK_SIZE + 1];
 static gint32 prompt_len = -1;
 
-static gboolean end_application = FALSE;
-
 static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	{ "help", ws_no_argument, NULL, OPT_HELP},
@@ -114,24 +112,6 @@ static struct ws_option longopts[] = {
 	SSH_BASE_OPTIONS,
 	{ 0, 0, 0, 0}
 };
-
-#ifdef _WIN32
-static BOOL WINAPI
-exit_from_loop(DWORD dwCtrlType _U_)
-#else
-static void exit_from_loop(int signo _U_)
-#endif /* _WIN32 */
-{
-#ifndef _WIN32
-	/* Disable signal reception after first signal to avoid signal storms */
-	signal(signo, SIG_IGN);
-#endif /* _WIN32 */
-	ws_warning("Exiting from main loop");
-	end_application = TRUE;
-#ifdef _WIN32
-	return TRUE;
-#endif /* _WIN32 */
-}
 
 /* Replaces needle with rep in line */
 static char* str_replace_char(char *line, char needle, char rep)
@@ -315,7 +295,7 @@ static int ssh_channel_read_prompt(ssh_channel channel, char *line, guint32 *len
 				return READ_PROMPT_ERROR;
 			}
 		}
-	} while (!end_application && (*len < max_len));
+	} while (!extcap_end_application && (*len < max_len));
 
 	line[*len] = '\0';
 	return READ_PROMPT_TOO_LONG;
@@ -388,7 +368,7 @@ static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const 
 	int wscp_cnt = 1;
 	gchar* wscp_str = NULL;
 
-	end_application = FALSE;
+	extcap_end_application = FALSE;
 	if (channel) {
 		ws_debug("Removing configuration...");
 		read_output_bytes(channel, -1, NULL);
@@ -878,8 +858,8 @@ static int process_buffer_response_ios(ssh_channel channel, guint8* packet, FILE
 				return FALSE;
 		}
 		len = 0;
-		ws_debug("loop end detection %d %d %d %d", end_application, loop_end, *processed_packets, count);
-	} while ((!end_application) && (!loop_end) && (*processed_packets < count));
+		ws_debug("loop end detection %d %d %d %d", extcap_end_application, loop_end, *processed_packets, count);
+	} while ((!extcap_end_application) && (!loop_end) && (*processed_packets < count));
 
 	return TRUE;
 }
@@ -934,7 +914,7 @@ static void ssh_loop_read_ios(ssh_channel channel, FILE* fp, const guint32 count
 			g_free(packet);
 			return;
 		}
-	} while (!end_application && running && (processed_packets < count));
+	} while (!extcap_end_application && running && (processed_packets < count));
 
 	g_free(packet);
 
@@ -993,8 +973,8 @@ static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, F
 				return FALSE;
 		}
 		len = 0;
-		ws_debug("loop end detection %d %d %d %d", end_application, loop_end, *processed_packets, count);
-	} while ((!end_application) && (!loop_end) && (*processed_packets < count));
+		ws_debug("loop end detection %d %d %d %d", extcap_end_application, loop_end, *processed_packets, count);
+	} while ((!extcap_end_application) && (!loop_end) && (*processed_packets < count));
 
 	return TRUE;
 }
@@ -1049,7 +1029,7 @@ static void ssh_loop_read_ios_xe(ssh_channel channel, FILE* fp, const guint32 co
 			g_free(packet);
 			return;
 		}
-	} while (!end_application && running && (processed_packets < count));
+	} while (!extcap_end_application && running && (processed_packets < count));
 
 	g_free(packet);
 
@@ -1116,9 +1096,9 @@ static int process_buffer_response_asa(ssh_channel channel, guint8* packet, FILE
 			}
 			len = 0;
 			ws_debug("loop end detection1 %d %d", *processed_packets, count);
-		} while (!end_application && !loop_end);
-		ws_debug("loop end detection2 %d %d %d", end_application, *processed_packets, count);
-	} while (!end_application && (*processed_packets < *current_max) && ((*processed_packets < count)));
+		} while (!extcap_end_application && !loop_end);
+		ws_debug("loop end detection2 %d %d %d", extcap_end_application, *processed_packets, count);
+	} while (!extcap_end_application && (*processed_packets < *current_max) && ((*processed_packets < count)));
 
 	return TRUE;
 }
@@ -1167,7 +1147,7 @@ static void ssh_loop_read_asa(ssh_channel channel, FILE* fp, const guint32 count
 			g_free(packet);
 			return;
 		}
-	} while (!end_application && running && (processed_packets < count));
+	} while (!extcap_end_application && running && (processed_packets < count));
 
 	g_free(packet);
 
@@ -1847,27 +1827,6 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 		}
 	}
 
-#ifdef _WIN32
-	if (!SetConsoleCtrlHandler(exit_from_loop, TRUE)) {
-		ws_warning("Can't set console handler");
-		goto cleanup;
-	}
-#else
-	/* Catch signals to be able to cleanup config later */
-	if (signal(SIGINT, exit_from_loop) == SIG_ERR) {
-		ws_warning("Can't set SIGINT signal handler");
-		goto cleanup;
-	}
-	if (signal(SIGTERM, exit_from_loop) == SIG_ERR) {
-		ws_warning("Can't set SIGTERM signal handler");
-		goto cleanup;
-	}
-	if (signal(SIGPIPE, exit_from_loop) == SIG_ERR) {
-		ws_warning("Can't set SIGPIPE signal handler");
-		goto cleanup;
-	}
-#endif /* _WIN32 */
-
 	if (!libpcap_write_file_header(fp, 1, PCAP_SNAPLEN, FALSE, &bytes_written, &err)) {
 		ws_warning("Can't write pcap file header");
 		goto cleanup;
@@ -2028,6 +1987,10 @@ int main(int argc, char *argv[])
 	add_libssh_info(extcap_conf);
 	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, "Remote capture dependent DLT");
+	if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, NULL)) {
+		ret = EXIT_FAILURE;
+		goto end;
+	}
 
 	help_header = ws_strdup_printf(
 		" %s --extcap-interfaces\n"
@@ -2062,7 +2025,6 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 
-	ws_log_set_level(LOG_LEVEL_DEBUG);
 	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 
 		switch (result) {
