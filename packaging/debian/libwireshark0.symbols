@@ -181,9 +181,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  conversation_new_by_id@Base 2.5.0
  conversation_new_full@Base 3.7.1
  conversation_pt_to_conversation_type@Base 4.0.0-rc2
+ conversation_set_conv_addr_port_endpoints@Base 4.0.0-rc2
  conversation_set_dissector@Base 1.9.1
  conversation_set_dissector_from_frame_number@Base 2.0.0
- conversation_set_elements_by_address_port_pairs@Base 4.0.0-rc2
  conversation_set_elements_by_id@Base 4.0.0-rc2
  conversation_set_port2@Base 2.6.3
  conversation_set_addr2@Base 2.6.3

@@ -1628,7 +1628,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (conv) {
         virtual_id = virtual_stream_lookup(conv, isi);
         /* DVB Base Band streams are unidirectional. Differentiate by direction
-         * for the unlikely case of two streams between the same endpoints in
+         * for the unlikely case of two streams between the same endpointss in
          * the opposite direction.
          */
         if (addresses_equal(&pinfo->src, conversation_key_addr1(conv->key_ptr))) {
@@ -1646,14 +1646,15 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         subcircuit = conversation_new_by_id(pinfo->num, CONVERSATION_DVBBBF, virtual_id);
     }
 
-    /* conversation_set_elements_by_address_port_pairs() could be useful for the subdissectors
+    /* conversation_set_conv_addr_port_endpoints() could be useful for the subdissectors
      * this calls (whether GSE or TS, and replace passing the packet data
      * below), but it could cause problems when the subdissectors of those
      * subdissectors try and call find_or_create_conversation().
-     * pinfo->use_endpoint doesn't affect reassembly tables in the default
-     * reassembly functions, either. So maybe the eventual approach is
-     * to create an endpoint but set pinfo->use_endpoint back to FALSE, and
-     * also make the GSE and MP2T dissectors more (DVB BBF) endpoint aware,
+     * pinfo->use_conv_addr_port_endpoints doesn't affect reassembly tables
+     * in the default reassembly functions, either. So maybe the eventual
+     * approach is to create a conversation key but set
+     * pinfo->use_conv_addr_port_endpoints back to FALSE, and also make the
+     * GSE and MP2T dissectors more (DVB BBF) conversation key aware,
      * including in their reassembly functions.
      */
 

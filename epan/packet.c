@@ -590,8 +590,8 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	clear_address(&edt->pi.dst);
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
-	edt->pi.use_endpoint = FALSE;
-	edt->pi.conv_key = NULL;
+	edt->pi.use_conv_addr_port_endpoints = FALSE;
+	edt->pi.conv_addr_port_endpoints = NULL;
 	edt->pi.conv_elements = NULL;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
@@ -664,8 +664,8 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	clear_address(&edt->pi.dst);
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
-	edt->pi.use_endpoint = FALSE;
-	edt->pi.conv_key = NULL;
+	edt->pi.use_conv_addr_port_endpoints = FALSE;
+	edt->pi.conv_addr_port_endpoints = NULL;
 	edt->pi.conv_elements = NULL;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
