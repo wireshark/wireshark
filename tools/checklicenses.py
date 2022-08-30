@@ -138,6 +138,9 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'epan/dissectors/pidl/mapi/response.cnf.c': [
         'UNKNOWN',
     ],
+    'tools/abi-dumps': [
+        'UNKNOWN',
+    ],
     # The following tools are under incompatible licenses (mostly GPLv3 or
     # GPLv3+), but this is OK since they are not actually linked into Wireshark
     'tools/pidl': [

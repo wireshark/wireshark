@@ -635,7 +635,7 @@ Windows Build:
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
-.ABI Check:
+ABI Check:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
   variables:
@@ -649,19 +649,24 @@ Windows Build:
     # CMake build type None is required to prevent CMake from adding its own debug flags and clobbering our own.
     - cmake -G Ninja -DENABLE_CCACHE=ON -DCMAKE_BUILD_TYPE=None -DBUILD_wireshark=OFF ..
     - ninja wiretap-abi-dump epan-abi-dump wsutil-abi-dump
-    - ACC_EXIT=0
-    - abi-compliance-checker -l wiretap -old ../tools/abi-dumps/wiretap-abi-12.0.0.dump -new wiretap-abi-12*.dump || ACC_EXIT=1
-    - abi-compliance-checker -l epan -old ../tools/abi-dumps/epan-abi-15.0.0.dump -new epan-abi-15*.dump || ACC_EXIT=1
-    - abi-compliance-checker -l wsutil -old ../tools/abi-dumps/wsutil-abi-13.0.0.dump -new wsutil-abi-13*.dump || ACC_EXIT=1
-    - mv compat_reports ..
+    - set +e
+    - abi-compliance-checker -l wiretap -old ../tools/abi-dumps/wiretap-abi-12.0.1.dump -new wiretap-abi-12*.dump
+    - WIRETAP_EXIT=$?
+    - abi-compliance-checker -l epan -old ../tools/abi-dumps/epan-abi-15.0.1.dump -new epan-abi-15*.dump
+    - EPAN_EXIT=$?
+    - abi-compliance-checker -l wsutil -old ../tools/abi-dumps/wsutil-abi-13.0.1.dump -new wsutil-abi-13*.dump
+    - WSUTIL_EXIT=$?
+    - set -e
+    - printf "WIRETAP_EXIT=%d EPAN_EXIT=%d WSUTIL_EXIT=%d\\n" $WIRETAP_EXIT $EPAN_EXIT $WSUTIL_EXIT
+    - mv compat_reports ../compat_reports_3.6
     - mv *-abi-*.dump ..
     - cd ..
-    - zip -9 -r compat_reports.zip compat_reports
-    - exit $ACC_EXIT
+    - zip -9 -r compat_reports_3.6.zip compat_reports_3.6
+    - exit $(( WIRETAP_EXIT + EPAN_EXIT + WSUTIL_EXIT ))
   artifacts:
     when: always
     paths:
-      - compat_reports.zip
+      - compat_reports_3.6.zip
       - ./*-abi-*.dump
 
 # Fuzz TShark using ASAN and valgrind.
