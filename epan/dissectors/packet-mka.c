@@ -1011,7 +1011,7 @@ proto_register_mka(void)
         NULL, HFILL }},
 
     { &hf_mka_latest_lowest_acceptable_pn, {
-        "Latest Key: Lowest Acceptable PN", "mka.latest_lowest_acceptable_pn",
+        "Latest Key: Lowest Acceptable PN (32 MSB)", "mka.latest_lowest_acceptable_pn",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
@@ -1026,7 +1026,7 @@ proto_register_mka(void)
         NULL, HFILL }},
 
     { &hf_mka_old_lowest_acceptable_pn, {
-        "Old Key: Lowest Acceptable PN", "mka.old_lowest_acceptable_pn",
+        "Old Key: Lowest Acceptable PN (32 MSB)", "mka.old_lowest_acceptable_pn",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
