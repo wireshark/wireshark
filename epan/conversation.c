@@ -43,7 +43,7 @@ int _debug_conversation_indent = 0;
  * We could use an element list here, but this is effectively a parameter list
  * for find_conversation and is more compact.
  */
-struct conversation_key {
+struct conversation_addr_port_endpoints {
     address addr1;
     address addr2;
     guint32 port1;
@@ -1692,11 +1692,11 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
     DINSTR(wmem_free(NULL, dst_str));
 
     /* Have we seen this conversation before? */
-    if (pinfo->use_endpoint) {
-        DISSECTOR_ASSERT(pinfo->conv_key);
-        if ((conv = find_conversation(pinfo->num, &pinfo->conv_key->addr1, &pinfo->conv_key->addr2,
-                        pinfo->conv_key->ctype, pinfo->conv_key->port1,
-                        pinfo->conv_key->port2, 0)) != NULL) {
+    if (pinfo->use_conv_addr_port_endpoints) {
+        DISSECTOR_ASSERT(pinfo->conv_addr_port_endpoints);
+        if ((conv = find_conversation(pinfo->num, &pinfo->conv_addr_port_endpoints->addr1, &pinfo->conv_addr_port_endpoints->addr2,
+                        pinfo->conv_addr_port_endpoints->ctype, pinfo->conv_addr_port_endpoints->port1,
+                        pinfo->conv_addr_port_endpoints->port2, 0)) != NULL) {
             DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
                     pinfo->num, conv->last_frame));
             if (pinfo->num > conv->last_frame) {
@@ -1745,10 +1745,10 @@ find_or_create_conversation(packet_info *pinfo)
         DPRINT(("did not find previous conversation for frame #%u",
                     pinfo->num));
         DINDENT();
-        if (pinfo->use_endpoint) {
-            conv = conversation_new(pinfo->num, &pinfo->conv_key->addr1, &pinfo->conv_key->addr2,
-                        pinfo->conv_key->ctype, pinfo->conv_key->port1,
-                        pinfo->conv_key->port2, 0);
+        if (pinfo->use_conv_addr_port_endpoints) {
+            conv = conversation_new(pinfo->num, &pinfo->conv_addr_port_endpoints->addr1, &pinfo->conv_addr_port_endpoints->addr2,
+                        pinfo->conv_addr_port_endpoints->ctype, pinfo->conv_addr_port_endpoints->port1,
+                        pinfo->conv_addr_port_endpoints->port2, 0);
         } else if (pinfo->conv_elements) {
             conv = conversation_new_full(pinfo->num, pinfo->conv_elements);
         } else {
@@ -1781,23 +1781,23 @@ find_or_create_conversation_by_id(packet_info *pinfo, const conversation_type ct
 }
 
 void
-conversation_set_elements_by_address_port_pairs(struct _packet_info *pinfo, address* addr1, address* addr2,
+conversation_set_conv_addr_port_endpoints(struct _packet_info *pinfo, address* addr1, address* addr2,
         conversation_type ctype, guint32 port1, guint32 port2)
 {
-    pinfo->conv_key = wmem_new0(pinfo->pool, struct conversation_key);
+    pinfo->conv_addr_port_endpoints = wmem_new0(pinfo->pool, struct conversation_addr_port_endpoints);
 
     if (addr1 != NULL) {
-        copy_address_wmem(pinfo->pool, &pinfo->conv_key->addr1, addr1);
+        copy_address_wmem(pinfo->pool, &pinfo->conv_addr_port_endpoints->addr1, addr1);
     }
     if (addr2 != NULL) {
-        copy_address_wmem(pinfo->pool, &pinfo->conv_key->addr2, addr2);
+        copy_address_wmem(pinfo->pool, &pinfo->conv_addr_port_endpoints->addr2, addr2);
     }
 
-    pinfo->conv_key->ctype = ctype;
-    pinfo->conv_key->port1 = port1;
-    pinfo->conv_key->port2 = port2;
+    pinfo->conv_addr_port_endpoints->ctype = ctype;
+    pinfo->conv_addr_port_endpoints->port1 = port1;
+    pinfo->conv_addr_port_endpoints->port2 = port2;
 
-    pinfo->use_endpoint = TRUE;
+    pinfo->use_conv_addr_port_endpoints = TRUE;
 }
 
 void

@@ -180,8 +180,8 @@ typedef struct conversation {
     conversation_element_t *key_ptr;	/** Keys are conversation element arrays terminated with a CE_CONVERSATION_TYPE */
 } conversation_t;
 
-struct conversation_key;
-typedef struct conversation_key* conversation_key_t;
+struct conversation_addr_port_endpoints;
+typedef struct conversation_addr_port_endpoints* conversation_addr_port_endpoints_t;
 
 WS_DLL_PUBLIC const address* conversation_key_addr1(const conversation_element_t *key);
 WS_DLL_PUBLIC guint32 conversation_key_port1(const conversation_element_t *key);
@@ -341,8 +341,8 @@ WS_DLL_PUBLIC void conversation_set_dissector_from_frame_number(conversation_t *
 WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation, const guint32 frame_num);
 
 /**
- * Save conversation elements including address+port information in the
- * current packet info which can be matched by find_conversation_pinfo.
+ * Save address+port information in the current packet info; it can be matched
+ * by find_conversation_pinfo or find_conversation.
  * Supports wildcarding.
  * @param pinfo Packet info.
  * @param addr1 The first address in the identifying tuple.
@@ -351,7 +351,7 @@ WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conv
  * @param port1 The first port in the identifying tuple.
  * @param port2 The second port in the identifying tuple.
  */
-WS_DLL_PUBLIC void conversation_set_elements_by_address_port_pairs(struct _packet_info *pinfo, address* addr1, address* addr2,
+WS_DLL_PUBLIC void conversation_set_conv_addr_port_endpoints(struct _packet_info *pinfo, address* addr1, address* addr2,
     conversation_type ctype, guint32 port1, guint32 port2);
 
 /**
