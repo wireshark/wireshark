@@ -250,6 +250,9 @@ static int hf_pac_attr_pac_type = -1;
 static int hf_pac_attr_val = -1;
 
 static int
+dissect_teap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+
+static int
 dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 len);
 
 static int
@@ -387,6 +390,12 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       offset += 4;
       proto_tree_add_item(tlv_tree, hf_teap_nak_type, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
+
+      if (len > 6) {
+        next_tvb = tvb_new_subset_length(tvb, offset, len - 6);
+        offset += dissect_teap(next_tvb, pinfo, tlv_tree, NULL);
+      }
+
       break;
 
     case TEAP_ERROR:
@@ -404,17 +413,38 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_request_action_action, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
+
+      if (len > 2) {
+        next_tvb = tvb_new_subset_length(tvb, offset, len - 2);
+        offset += dissect_teap(next_tvb, pinfo, tlv_tree, NULL);
+      }
+
       break;
 
     case TEAP_EAP_PAYLOAD:
-      next_tvb = tvb_new_subset_length(tvb, offset, len);
+    {
+      guint16 eaplen = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+
+      next_tvb = tvb_new_subset_length(tvb, offset, eaplen);
       call_dissector(eap_handle, next_tvb, pinfo, tlv_tree);
-      offset += len;
-      break;
+      offset += eaplen;
+
+      if (len > eaplen) {
+        next_tvb = tvb_new_subset_length(tvb, offset, len - eaplen);
+        offset += dissect_teap(next_tvb, pinfo, tlv_tree, NULL);
+      }
+    }
+    break;
 
     case TEAP_INTERMEDIATE_RESULT:
       proto_tree_add_item(tlv_tree, hf_teap_status, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += len;
+      offset += 2;
+
+      if (len > 2) {
+        next_tvb = tvb_new_subset_length(tvb, offset, len - 2);
+        offset += dissect_teap(next_tvb, pinfo, tlv_tree, NULL);
+      }
+
       break;
 
     case TEAP_PAC:
