@@ -46,9 +46,9 @@
 /**************************************************************************
  * Names of types in userdata parameter part
  */
-#define S7COMM_UD_TYPE_PUSH                 0x0
-#define S7COMM_UD_TYPE_REQ                  0x4
-#define S7COMM_UD_TYPE_RES                  0x8
+#define S7COMM_UD_TYPE_IND                  0x0
+#define S7COMM_UD_TYPE_REQ                  0x1
+#define S7COMM_UD_TYPE_RES                  0x2
 
 extern const value_string s7comm_item_return_valuenames[];
 

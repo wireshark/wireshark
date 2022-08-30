@@ -293,6 +293,7 @@ static value_string_ext param_errcode_names_ext = VALUE_STRING_EXT_INIT(param_er
  * Function codes in parameter part
  */
 #define S7COMM_SERV_CPU                     0x00
+#define S7COMM_SERV_MODETRANS               0x01
 #define S7COMM_SERV_SETUPCOMM               0xF0
 #define S7COMM_SERV_READVAR                 0x04
 #define S7COMM_SERV_WRITEVAR                0x05
@@ -308,6 +309,7 @@ static value_string_ext param_errcode_names_ext = VALUE_STRING_EXT_INIT(param_er
 
 static const value_string param_functionnames[] = {
     { S7COMM_SERV_CPU,                      "CPU services" },
+    { S7COMM_SERV_MODETRANS,                "Mode transition" },
     { S7COMM_SERV_SETUPCOMM,                "Setup communication" },
     { S7COMM_SERV_READVAR,                  "Read Var" },
     { S7COMM_SERV_WRITEVAR,                 "Write Var" },
@@ -435,6 +437,8 @@ static const value_string item_transportsizenames[] = {
  * Syntax Ids of variable specification
  */
 #define S7COMM_SYNTAXID_S7ANY               0x10        /* Address data S7-Any pointer-like DB1.DBX10.2 */
+#define S7COMM_SYNTAXID_SHORT               0x11
+#define S7COMM_SYNTAXID_EXT                 0x12
 #define S7COMM_SYNTAXID_PBC_ID              0x13        /* R_ID for PBC */
 #define S7COMM_SYNTAXID_ALARM_LOCKFREESET   0x15        /* Alarm lock/free dataset */
 #define S7COMM_SYNTAXID_ALARM_INDSET        0x16        /* Alarm indication dataset */
@@ -450,6 +454,8 @@ static const value_string item_transportsizenames[] = {
 
 static const value_string item_syntaxid_names[] = {
     { S7COMM_SYNTAXID_S7ANY,                "S7ANY" },
+    { S7COMM_SYNTAXID_SHORT,                "ParameterShort" },
+    { S7COMM_SYNTAXID_EXT,                  "ParameterExtended" },
     { S7COMM_SYNTAXID_PBC_ID,               "PBC-R_ID" },
     { S7COMM_SYNTAXID_ALARM_LOCKFREESET,    "ALARM_LOCKFREE" },
     { S7COMM_SYNTAXID_ALARM_INDSET,         "ALARM_IND" },
@@ -598,34 +604,13 @@ static const value_string blocklanguage_names[] = {
 };
 
 /**************************************************************************
- * Second request/response in userdata parameter part
- */
-#define S7COMM_UD_REQRES2_UNDEF             0x00
-#define S7COMM_UD_REQRES2_REQ               0x11
-#define S7COMM_UD_REQRES2_RES               0x12
-
-static const value_string userdata_reqres2_names[] = {
-    { S7COMM_UD_REQRES2_UNDEF,              "Undef" },                      /* only seen in mode transition events */
-    { S7COMM_UD_REQRES2_REQ,                "Req" },
-    { S7COMM_UD_REQRES2_RES,                "Res" },
-    { 0,                                    NULL }
-};
-
-/**************************************************************************
  * Names of types in userdata parameter part
  */
 
-#define S7COMM_UD_TYPE_NCPUSH               0x3
-#define S7COMM_UD_TYPE_NCREQ                0x7
-#define S7COMM_UD_TYPE_NCRES                0xb
-
 static const value_string userdata_type_names[] = {
-    { S7COMM_UD_TYPE_PUSH,                  "Push" },               /* this type occurs when 2 telegrams follow after another from the same partner, or initiated from PLC */
+    { S7COMM_UD_TYPE_IND,                   "Indication" },
     { S7COMM_UD_TYPE_REQ,                   "Request" },
     { S7COMM_UD_TYPE_RES,                   "Response" },
-    { S7COMM_UD_TYPE_NCPUSH,                "NC Push" },            /* used only by Sinumerik NC */
-    { S7COMM_UD_TYPE_NCREQ,                 "NC Request" },         /* used only by Sinumerik NC */
-    { S7COMM_UD_TYPE_NCRES,                 "NC Response" },        /* used only by Sinumerik NC */
     { 0,                                    NULL }
 };
 
@@ -652,6 +637,20 @@ static const value_string userdata_ncprg_subfunc_names[] = {
 };
 
 /**************************************************************************
+ * Subfunctions for Data Record Routing to Profibus
+ */
+#define S7COMM_DRR_FUNCINIT                 1
+#define S7COMM_DRR_FUNCFINISH               2
+#define S7COMM_DRR_FUNCDATA                 3
+
+static const value_string userdata_drr_subfunc_names[] = {
+    { S7COMM_DRR_FUNCINIT,                  "DRR Init" },
+    { S7COMM_DRR_FUNCFINISH,                "DRR Finish" },
+    { S7COMM_DRR_FUNCDATA,                  "DRR Data" },
+    { 0,                                    NULL }
+};
+
+/**************************************************************************
  * Userdata Parameter, last data unit
  */
 #define S7COMM_UD_LASTDATAUNIT_YES          0x00
@@ -666,26 +665,26 @@ static const value_string userdata_lastdataunit_names[] = {
 /**************************************************************************
  * Names of Function groups in userdata parameter part
  */
-#define S7COMM_UD_FUNCGROUP_MODETRANS       0x0
-#define S7COMM_UD_FUNCGROUP_PROG            0x1
-#define S7COMM_UD_FUNCGROUP_CYCLIC          0x2
-#define S7COMM_UD_FUNCGROUP_BLOCK           0x3
-#define S7COMM_UD_FUNCGROUP_CPU             0x4
-#define S7COMM_UD_FUNCGROUP_SEC             0x5                     /* Security functions e.g. plc password */
-#define S7COMM_UD_FUNCGROUP_PBC             0x6                     /* PBC = Programmable Block Communication (PBK in german) */
-#define S7COMM_UD_FUNCGROUP_TIME            0x7
-#define S7COMM_UD_FUNCGROUP_NCPRG           0xf
+#define S7COMM_UD_FUNCGROUP_TIS             0x01
+#define S7COMM_UD_FUNCGROUP_CYCLIC          0x02
+#define S7COMM_UD_FUNCGROUP_BLOCK           0x03
+#define S7COMM_UD_FUNCGROUP_CPU             0x04
+#define S7COMM_UD_FUNCGROUP_SEC             0x05                    /* Security functions e.g. plc password */
+#define S7COMM_UD_FUNCGROUP_PBC_BSEND       0x06                    /* PBC = Programmable Block Communication (PBK in german) */
+#define S7COMM_UD_FUNCGROUP_TIME            0x07
+#define S7COMM_UD_FUNCGROUP_NCPRG           0x3f
+#define S7COMM_UD_FUNCGROUP_DRR             0x20
 
 static const value_string userdata_functiongroup_names[] = {
-    { S7COMM_UD_FUNCGROUP_MODETRANS,        "Mode-transition" },
-    { S7COMM_UD_FUNCGROUP_PROG,             "Programmer commands" },
+    { S7COMM_UD_FUNCGROUP_TIS,              "Programmer commands" },
     { S7COMM_UD_FUNCGROUP_CYCLIC,           "Cyclic services" },    /* to read data from plc without a request */
     { S7COMM_UD_FUNCGROUP_BLOCK,            "Block functions" },
     { S7COMM_UD_FUNCGROUP_CPU,              "CPU functions" },
     { S7COMM_UD_FUNCGROUP_SEC,              "Security" },
-    { S7COMM_UD_FUNCGROUP_PBC,              "PBC BSEND/BRECV" },
+    { S7COMM_UD_FUNCGROUP_PBC_BSEND,        "PBC BSEND" },
     { S7COMM_UD_FUNCGROUP_TIME,             "Time functions" },
     { S7COMM_UD_FUNCGROUP_NCPRG,            "NC programming" },
+    { S7COMM_UD_FUNCGROUP_DRR,              "DR Routing" },
     { 0,                                    NULL }
 };
 
@@ -701,50 +700,50 @@ static const value_string userdata_functiongroup_names[] = {
  * 54=TIMER
  * 64=COUNTER
  */
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MX     0x00
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MB     0x01
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MW     0x02
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MD     0x03
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EX     0x10
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EB     0x11
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EW     0x12
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_ED     0x13
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AX     0x20
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AB     0x21
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AW     0x22
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AD     0x23
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PEB    0x31
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PEW    0x32
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PED    0x33
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBX    0x70
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBB    0x71
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBW    0x72
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBD    0x73
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_T      0x54
-#define S7COMM_UD_SUBF_PROG_VARSTAT_AREA_C      0x64
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MX      0x00
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MB      0x01
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MW      0x02
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MD      0x03
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EX      0x10
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EB      0x11
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EW      0x12
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_ED      0x13
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AX      0x20
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AB      0x21
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AW      0x22
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AD      0x23
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PEB     0x31
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PEW     0x32
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PED     0x33
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBX     0x70
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBB     0x71
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBW     0x72
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBD     0x73
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_T       0x54
+#define S7COMM_UD_SUBF_TIS_VARSTAT_AREA_C       0x64
 
-static const value_string userdata_prog_varstat_area_names[] = {
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MX,      "MX" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MB,      "MB" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MW,      "MW" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MD,      "MD" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EB,      "IB" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EX,      "IX" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EW,      "IW" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_ED,      "ID" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AX,      "QX" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AB,      "QB" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AW,      "QW" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AD,      "QD" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PEB,     "PIB" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PEW,     "PIW" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PED,     "PID" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBX,     "DBX" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBB,     "DBB" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBW,     "DBW" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBD,     "DBD" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_T,       "TIMER" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT_AREA_C,       "COUNTER" },
+static const value_string userdata_tis_varstat_area_names[] = {
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MX,       "MX" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MB,       "MB" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MW,       "MW" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MD,       "MD" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EB,       "IB" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EX,       "IX" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EW,       "IW" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_ED,       "ID" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AX,       "QX" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AB,       "QB" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AW,       "QW" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AD,       "QD" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PEB,      "PIB" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PEW,      "PIW" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PED,      "PID" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBX,      "DBX" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBB,      "DBB" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBW,      "DBW" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBD,      "DBD" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_T,        "TIMER" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT_AREA_C,        "COUNTER" },
     { 0,                                        NULL }
 };
 
@@ -753,48 +752,48 @@ static const value_string userdata_prog_varstat_area_names[] = {
  * In szl dataset 0x0132/2 these are defined as "Test and installation functions TIS".
  * The methods supported by the CPU are listed in the funkt_n bits.
  */
-#define S7COMM_UD_SUBF_PROG_BLOCKSTAT       0x01
-#define S7COMM_UD_SUBF_PROG_VARSTAT         0x02
-#define S7COMM_UD_SUBF_PROG_OUTISTACK       0x03
-#define S7COMM_UD_SUBF_PROG_OUTBSTACK       0x04
-#define S7COMM_UD_SUBF_PROG_OUTLSTACK       0x05
-#define S7COMM_UD_SUBF_PROG_TIMEMEAS        0x06
-#define S7COMM_UD_SUBF_PROG_FORCESEL        0x07
-#define S7COMM_UD_SUBF_PROG_MODVAR          0x08
-#define S7COMM_UD_SUBF_PROG_FORCE           0x09
-#define S7COMM_UD_SUBF_PROG_BREAKPOINT      0x0a
-#define S7COMM_UD_SUBF_PROG_EXITHOLD        0x0b
-#define S7COMM_UD_SUBF_PROG_MEMORYRES       0x0c
-#define S7COMM_UD_SUBF_PROG_DISABLEJOB      0x0d
-#define S7COMM_UD_SUBF_PROG_ENABLEJOB       0x0e
-#define S7COMM_UD_SUBF_PROG_DELETEJOB       0x0f
-#define S7COMM_UD_SUBF_PROG_READJOBLIST     0x10
-#define S7COMM_UD_SUBF_PROG_READJOB         0x11
-#define S7COMM_UD_SUBF_PROG_REPLACEJOB      0x12
-#define S7COMM_UD_SUBF_PROG_BLOCKSTAT2      0x13
-#define S7COMM_UD_SUBF_PROG_FLASHLED        0x16
+#define S7COMM_UD_SUBF_TIS_BLOCKSTAT        0x01
+#define S7COMM_UD_SUBF_TIS_VARSTAT          0x02
+#define S7COMM_UD_SUBF_TIS_OUTISTACK        0x03
+#define S7COMM_UD_SUBF_TIS_OUTBSTACK        0x04
+#define S7COMM_UD_SUBF_TIS_OUTLSTACK        0x05
+#define S7COMM_UD_SUBF_TIS_TIMEMEAS         0x06
+#define S7COMM_UD_SUBF_TIS_FORCESEL         0x07
+#define S7COMM_UD_SUBF_TIS_MODVAR           0x08
+#define S7COMM_UD_SUBF_TIS_FORCE            0x09
+#define S7COMM_UD_SUBF_TIS_BREAKPOINT       0x0a
+#define S7COMM_UD_SUBF_TIS_EXITHOLD         0x0b
+#define S7COMM_UD_SUBF_TIS_MEMORYRES        0x0c
+#define S7COMM_UD_SUBF_TIS_DISABLEJOB       0x0d
+#define S7COMM_UD_SUBF_TIS_ENABLEJOB        0x0e
+#define S7COMM_UD_SUBF_TIS_DELETEJOB        0x0f
+#define S7COMM_UD_SUBF_TIS_READJOBLIST      0x10
+#define S7COMM_UD_SUBF_TIS_READJOB          0x11
+#define S7COMM_UD_SUBF_TIS_REPLACEJOB       0x12
+#define S7COMM_UD_SUBF_TIS_BLOCKSTAT2       0x13
+#define S7COMM_UD_SUBF_TIS_FLASHLED         0x16
 
-static const value_string userdata_prog_subfunc_names[] = {
-    { S7COMM_UD_SUBF_PROG_BLOCKSTAT,        "Block status" },
-    { S7COMM_UD_SUBF_PROG_VARSTAT,          "Variable status" },
-    { S7COMM_UD_SUBF_PROG_OUTISTACK,        "Output ISTACK" },
-    { S7COMM_UD_SUBF_PROG_OUTBSTACK,        "Output BSTACK" },
-    { S7COMM_UD_SUBF_PROG_OUTLSTACK,        "Output LSTACK" },
-    { S7COMM_UD_SUBF_PROG_TIMEMEAS,         "Time measurement from to" },       /* never seen yet */
-    { S7COMM_UD_SUBF_PROG_FORCESEL,         "Force selection" },
-    { S7COMM_UD_SUBF_PROG_MODVAR,           "Modify variable" },
-    { S7COMM_UD_SUBF_PROG_FORCE,            "Force" },
-    { S7COMM_UD_SUBF_PROG_BREAKPOINT,       "Breakpoint" },
-    { S7COMM_UD_SUBF_PROG_EXITHOLD,         "Exit HOLD" },
-    { S7COMM_UD_SUBF_PROG_MEMORYRES,        "Memory reset" },
-    { S7COMM_UD_SUBF_PROG_DISABLEJOB,       "Disable job" },
-    { S7COMM_UD_SUBF_PROG_ENABLEJOB,        "Enable job" },
-    { S7COMM_UD_SUBF_PROG_DELETEJOB,        "Delete job" },
-    { S7COMM_UD_SUBF_PROG_READJOBLIST,      "Read job list" },
-    { S7COMM_UD_SUBF_PROG_READJOB,          "Read job" },
-    { S7COMM_UD_SUBF_PROG_REPLACEJOB,       "Replace job" },
-    { S7COMM_UD_SUBF_PROG_BLOCKSTAT2,       "Block status v2" },
-    { S7COMM_UD_SUBF_PROG_FLASHLED,         "Flash LED" },
+static const value_string userdata_tis_subfunc_names[] = {
+    { S7COMM_UD_SUBF_TIS_BLOCKSTAT,         "Block status" },
+    { S7COMM_UD_SUBF_TIS_VARSTAT,           "Variable status" },
+    { S7COMM_UD_SUBF_TIS_OUTISTACK,         "Output ISTACK" },
+    { S7COMM_UD_SUBF_TIS_OUTBSTACK,         "Output BSTACK" },
+    { S7COMM_UD_SUBF_TIS_OUTLSTACK,         "Output LSTACK" },
+    { S7COMM_UD_SUBF_TIS_TIMEMEAS,          "Time measurement from to" },       /* never seen yet */
+    { S7COMM_UD_SUBF_TIS_FORCESEL,          "Force selection" },
+    { S7COMM_UD_SUBF_TIS_MODVAR,            "Modify variable" },
+    { S7COMM_UD_SUBF_TIS_FORCE,             "Force" },
+    { S7COMM_UD_SUBF_TIS_BREAKPOINT,        "Breakpoint" },
+    { S7COMM_UD_SUBF_TIS_EXITHOLD,          "Exit HOLD" },
+    { S7COMM_UD_SUBF_TIS_MEMORYRES,         "Memory reset" },
+    { S7COMM_UD_SUBF_TIS_DISABLEJOB,        "Disable job" },
+    { S7COMM_UD_SUBF_TIS_ENABLEJOB,         "Enable job" },
+    { S7COMM_UD_SUBF_TIS_DELETEJOB,         "Delete job" },
+    { S7COMM_UD_SUBF_TIS_READJOBLIST,       "Read job list" },
+    { S7COMM_UD_SUBF_TIS_READJOB,           "Read job" },
+    { S7COMM_UD_SUBF_TIS_REPLACEJOB,        "Replace job" },
+    { S7COMM_UD_SUBF_TIS_BLOCKSTAT2,        "Block status v2" },
+    { S7COMM_UD_SUBF_TIS_FLASHLED,          "Flash LED" },
     { 0,                                    NULL }
 };
 
@@ -865,6 +864,7 @@ static const value_string userdata_block_subfunc_names[] = {
  * Names of userdata subfunctions in group 4 (CPU functions)
  */
 #define S7COMM_UD_SUBF_CPU_SCAN_IND         0x09
+#define S7COMM_UD_SUBF_CPU_AR_SEND_IND      0x10
 
 static const value_string userdata_cpu_subfunc_names[] = {
     { S7COMM_UD_SUBF_CPU_READSZL,           "Read SZL" },
@@ -875,6 +875,7 @@ static const value_string userdata_cpu_subfunc_names[] = {
     { S7COMM_UD_SUBF_CPU_ALARM8LOCK,        "ALARM_8 lock" },                   /* Lock an ALARM message from HMI/SCADA */
     { S7COMM_UD_SUBF_CPU_ALARM8UNLOCK,      "ALARM_8 unlock" },                 /* Unlock an ALARM message from HMI/SCADA */
     { S7COMM_UD_SUBF_CPU_SCAN_IND,          "SCAN indication" },                /* PLC is indicating a SCAN message */
+    { S7COMM_UD_SUBF_CPU_AR_SEND_IND,       "AR_SEND indication" },             /* PLC is indicating a AR_SEND message */
     { S7COMM_UD_SUBF_CPU_ALARMS_IND,        "ALARM_S indication" },             /* PLC is indicating an ALARM message, using ALARM_S/ALARM_D SFCs */
     { S7COMM_UD_SUBF_CPU_ALARMSQ_IND,       "ALARM_SQ indication" },            /* PLC is indicating an ALARM message, using ALARM_SQ/ALARM_DQ SFCs */
     { S7COMM_UD_SUBF_CPU_ALARMQUERY,        "ALARM query" },                    /* HMI/SCADA query of ALARMs */
@@ -1196,9 +1197,6 @@ static gint hf_s7comm_data_ts_weekday = -1;
 /* userdata, block services */
 static gint hf_s7comm_userdata_data = -1;
 
-static gint hf_s7comm_userdata_param_head = -1;
-static gint hf_s7comm_userdata_param_len = -1;
-static gint hf_s7comm_userdata_param_reqres2 = -1;
 static gint hf_s7comm_userdata_param_type = -1;
 static gint hf_s7comm_userdata_param_funcgroup = -1;
 static gint hf_s7comm_userdata_param_subfunc_prog = -1;
@@ -1208,6 +1206,7 @@ static gint hf_s7comm_userdata_param_subfunc_cpu = -1;
 static gint hf_s7comm_userdata_param_subfunc_sec = -1;
 static gint hf_s7comm_userdata_param_subfunc_time = -1;
 static gint hf_s7comm_userdata_param_subfunc_ncprg = -1;
+static gint hf_s7comm_userdata_param_subfunc_drr = -1;
 static gint hf_s7comm_userdata_param_subfunc = -1;          /* for all other subfunctions */
 static gint hf_s7comm_userdata_param_seq_num = -1;
 static gint hf_s7comm_userdata_param_dataunitref = -1;
@@ -1696,10 +1695,13 @@ static gint hf_s7comm_data_ncprg_filetime = -1;
 static gint hf_s7comm_data_ncprg_filepath = -1;
 static gint hf_s7comm_data_ncprg_filedata = -1;
 
+/* Data record routing to Profibus */
+static gint hf_s7comm_data_drr_data = -1;
+
 /* Variable status */
 static gint hf_s7comm_varstat_unknown = -1;                  /* Unknown byte(s), hex */
 static gint hf_s7comm_varstat_item_count = -1;               /* Item count, 2 bytes, int */
-static gint hf_s7comm_varstat_req_memory_area = -1;          /* Memory area, 1 byte, stringlist userdata_prog_varstat_area_names  */
+static gint hf_s7comm_varstat_req_memory_area = -1;          /* Memory area, 1 byte, stringlist userdata_tis_varstat_area_names  */
 static gint hf_s7comm_varstat_req_repetition_factor = -1;    /* Repetition factor, 1 byte as int */
 static gint hf_s7comm_varstat_req_db_number = -1;            /* DB number, 2 bytes as int */
 static gint hf_s7comm_varstat_req_startaddress = -1;         /* Startaddress, 2 bytes as int */
@@ -1723,8 +1725,15 @@ static gint hf_s7comm_rdrec_reserved1 = -1;
 
 /* PBC, Programmable Block Functions */
 static gint hf_s7comm_pbc_unknown = -1;                     /* unknown, 1 byte */
-static gint hf_s7comm_pbc_r_id = -1;                        /* Request ID R_ID, 4 bytes as hex */
-static gint hf_s7comm_pbc_len = -1;
+static gint hf_s7comm_pbc_bsend_r_id = -1;                  /* Request ID R_ID, 4 bytes as hex */
+static gint hf_s7comm_pbc_bsend_len = -1;
+static gint hf_s7comm_pbc_usend_unknown1 = -1;
+static gint hf_s7comm_pbc_usend_r_id = -1;
+static gint hf_s7comm_pbc_usend_unknown2 = -1;
+static gint hf_s7comm_pbc_arsend_ar_id = -1;
+static gint hf_s7comm_pbc_arsend_ret = -1;
+static gint hf_s7comm_pbc_arsend_unknown = -1;
+static gint hf_s7comm_pbc_arsend_len = -1;
 
 /* Alarm messages */
 static gint hf_s7comm_cpu_alarm_message_item = -1;
@@ -2430,18 +2439,30 @@ static gint hf_s7comm_cpu_msgservice_res_reserved1 = -1;
 static gint hf_s7comm_cpu_msgservice_res_reserved2 = -1;
 static gint hf_s7comm_cpu_msgservice_res_reserved3 = -1;
 
+#define S7COMM_CPU_MSG_ALMTYPE_SCAN_ABORT               0
+#define S7COMM_CPU_MSG_ALMTYPE_SCAN_INITIATE            1
+#define S7COMM_CPU_MSG_ALMTYPE_ALARM_ABORT              4
+#define S7COMM_CPU_MSG_ALMTYPE_ALARM_INITIATE           5
+#define S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT            6
+#define S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE         7
+#define S7COMM_CPU_MSG_ALMTYPE_ALARM_S_ABORT            8
+#define S7COMM_CPU_MSG_ALMTYPE_ALARM_S_INITIATE         9
+
 static const value_string cpu_msgservice_almtype_names[] = {
-    { 0,                                    "SCAN_ABORT" },
-    { 1,                                    "SCAN_INITIATE" },
-    { 4,                                    "ALARM_ABORT" },
-    { 5,                                    "ALARM_INITIATE" },
-    { 8,                                    "ALARM_S_ABORT" },
-    { 9,                                    "ALARM_S_INITIATE" },
-    { 0,                                    NULL }
+    { S7COMM_CPU_MSG_ALMTYPE_SCAN_ABORT,                "SCAN_ABORT" },
+    { S7COMM_CPU_MSG_ALMTYPE_SCAN_INITIATE,             "SCAN_INITIATE" },
+    { S7COMM_CPU_MSG_ALMTYPE_ALARM_ABORT,               "ALARM_ABORT" },
+    { S7COMM_CPU_MSG_ALMTYPE_ALARM_INITIATE,            "ALARM_INITIATE" },
+    { S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT,             "AR_SEND_ABORT" },
+    { S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE,          "AR_SEND_INITIATE" },
+    { S7COMM_CPU_MSG_ALMTYPE_ALARM_S_ABORT,             "ALARM_S_ABORT" },
+    { S7COMM_CPU_MSG_ALMTYPE_ALARM_S_INITIATE,          "ALARM_S_INITIATE" },
+    { 0,                                                NULL }
 };
 
-static gint hf_s7comm_modetrans_param_subfunc = -1;
-static const value_string modetrans_param_subfunc_names[] = {
+static gint hf_s7comm_modetrans_param_unknown1 = -1;
+static gint hf_s7comm_modetrans_param_mode = -1;
+static const value_string modetrans_param_mode_names[] = {
     { 0,                                    "STOP" },
     { 1,                                    "Warm Restart" },
     { 2,                                    "RUN" },
@@ -2453,6 +2474,7 @@ static const value_string modetrans_param_subfunc_names[] = {
     { 12,                                   "UPDATE" },
     { 0,                                    NULL }
 };
+static gint hf_s7comm_modetrans_param_unknown2 = -1;
 
 /* These fields used when reassembling S7COMM fragments */
 static gint hf_s7comm_fragments = -1;
@@ -2801,7 +2823,7 @@ static guint32
 s7comm_syntaxid_1200sym(tvbuff_t *tvb,
                         guint32 offset,
                         proto_tree *tree,
-                        guint8 var_spec_length)
+                        guint8 varspec_length)
 {
     guint32 tia_var_area1 = 0;
     guint32 tia_var_area2 = 0;
@@ -2838,7 +2860,7 @@ s7comm_syntaxid_1200sym(tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_s7comm_tia1200_item_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    for (i = 0; i < (var_spec_length - 10) / 4; i++) {
+    for (i = 0; i < (varspec_length - 10) / 4; i++) {
         sub_item = proto_tree_add_item(tree, hf_s7comm_tia1200_substructure_item, tvb, offset, 4, ENC_NA);
         sub_item_tree = proto_item_add_subtree(sub_item, ett_s7comm_param_subitem);
         tia_lid_flags = tvb_get_guint8(tvb, offset) >> 4;
@@ -3835,7 +3857,7 @@ s7comm_decode_ud_tis_blockstat(tvbuff_t *tvb,
     gchar str_flags[80];
 
     if (type == S7COMM_UD_TYPE_REQ) {
-        if (subfunc == S7COMM_UD_SUBF_PROG_BLOCKSTAT2) {
+        if (subfunc == S7COMM_UD_SUBF_TIS_BLOCKSTAT2) {
             proto_tree_add_item(td_tree, hf_s7comm_tis_blockstat_flagsunknown, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             line_cnt = tvb_get_guint8(tvb, offset);
@@ -3852,7 +3874,7 @@ s7comm_decode_ud_tis_blockstat(tvbuff_t *tvb,
             ett_s7comm_diagdata_registerflag, s7comm_diagdata_registerflag_fields, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if (subfunc == S7COMM_UD_SUBF_PROG_BLOCKSTAT2) {
+        if (subfunc == S7COMM_UD_SUBF_TIS_BLOCKSTAT2) {
             item_size = 4;
         } else {
             item_size = 2;
@@ -3860,7 +3882,7 @@ s7comm_decode_ud_tis_blockstat(tvbuff_t *tvb,
         for (line_nr = 0; line_nr < line_cnt; line_nr++) {
             item = proto_tree_add_item(td_tree, hf_s7comm_data_item, tvb, offset, item_size, ENC_NA);
             item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-            if (subfunc == S7COMM_UD_SUBF_PROG_BLOCKSTAT2) {
+            if (subfunc == S7COMM_UD_SUBF_TIS_BLOCKSTAT2) {
                 proto_tree_add_item(item_tree, hf_s7comm_tis_blockstat_line_address, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
@@ -3873,7 +3895,7 @@ s7comm_decode_ud_tis_blockstat(tvbuff_t *tvb,
                 ett_s7comm_diagdata_registerflag, s7comm_diagdata_registerflag_fields, ENC_BIG_ENDIAN);
             offset += 1;
         }
-    } else if (type == S7COMM_UD_TYPE_PUSH) {
+    } else if (type == S7COMM_UD_TYPE_IND) {
         /* The response data can only be dissected when the requested registers for each line
          * from the job setup is known. As the STW is only 16 Bits and all other registers 32 Bits,
          * this has no fixed structure.
@@ -3948,71 +3970,71 @@ s7comm_decode_ud_tis_item_address(tvbuff_t *tvb,
 
     /* build a full address to show item data directly beside the item */
     switch (area) {
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MX:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MX:
             proto_item_append_text(sub_tree, " (M%d.%d)", bytepos, bitpos);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MB:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MB:
             proto_item_append_text(sub_tree, " (M%d.0 BYTE %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MW:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MW:
             proto_item_append_text(sub_tree, " (M%d.0 WORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_MD:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_MD:
             proto_item_append_text(sub_tree, " (M%d.0 DWORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EX:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EX:
             proto_item_append_text(sub_tree, " (I%d.%d)", bytepos, bitpos);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EB:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EB:
             proto_item_append_text(sub_tree, " (I%d.0 BYTE %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_EW:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_EW:
             proto_item_append_text(sub_tree, " (I%d.0 WORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_ED:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_ED:
             proto_item_append_text(sub_tree, " (I%d.0 DWORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AX:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AX:
             proto_item_append_text(sub_tree, " (Q%d.%d)", bytepos, bitpos);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AB:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AB:
             proto_item_append_text(sub_tree, " (Q%d.0 BYTE %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AW:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AW:
             proto_item_append_text(sub_tree, " (Q%d.0 WORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_AD:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_AD:
             proto_item_append_text(sub_tree, " (Q%d.0 DWORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PEB:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PEB:
             proto_item_append_text(sub_tree, " (PI%d.0 BYTE %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PEW:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PEW:
             proto_item_append_text(sub_tree, " (PI%d.0 WORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_PED:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_PED:
             proto_item_append_text(sub_tree, " (PI%d.0 DWORD %d)", bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBX:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBX:
             proto_item_append_text(sub_tree, " (DB%d.DBX%d.%d)", db, bytepos, bitpos);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBB:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBB:
             proto_item_append_text(sub_tree, " (DB%d.DBX%d.0 BYTE %d)", db, bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBW:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBW:
             proto_item_append_text(sub_tree, " (DB%d.DBX%d.0 WORD %d)", db, bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_DBD:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_DBD:
             proto_item_append_text(sub_tree, " (DB%d.DBX%d.0 DWORD %d)", db, bytepos, len);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_T:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_T:
             /* it's possible to read multiple timers */
             if (len >1)
                 proto_item_append_text(sub_tree, " (T %d..%d)", bytepos, bytepos + len - 1);
             else
                 proto_item_append_text(sub_tree, " (T %d)", bytepos);
             break;
-        case S7COMM_UD_SUBF_PROG_VARSTAT_AREA_C:
+        case S7COMM_UD_SUBF_TIS_VARSTAT_AREA_C:
             /* it's possible to read multiple counters */
             if (len >1)
                 proto_item_append_text(sub_tree, " (C %d..%d)", bytepos, bytepos + len - 1);
@@ -4111,7 +4133,7 @@ s7comm_decode_ud_tis_force(tvbuff_t *tvb,
                 offset = s7comm_decode_ud_tis_item_value(tvb, offset, td_tree, i, " Value to force");
             }
             break;
-        case S7COMM_UD_TYPE_PUSH:
+        case S7COMM_UD_TYPE_IND:
             item_count = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(td_tree, hf_s7comm_varstat_item_count, tvb, offset, 2, item_count);
             offset += 2;
@@ -4245,26 +4267,26 @@ s7comm_decode_ud_tis_jobs(tvbuff_t *tvb,
 
     if (type == S7COMM_UD_TYPE_REQ) {
         switch (subfunc) {
-            case S7COMM_UD_SUBF_PROG_DELETEJOB:
+            case S7COMM_UD_SUBF_TIS_DELETEJOB:
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 /* fallthrough */
-            case S7COMM_UD_SUBF_PROG_ENABLEJOB:
-            case S7COMM_UD_SUBF_PROG_DISABLEJOB:
-            case S7COMM_UD_SUBF_PROG_READJOB:
+            case S7COMM_UD_SUBF_TIS_ENABLEJOB:
+            case S7COMM_UD_SUBF_TIS_DISABLEJOB:
+            case S7COMM_UD_SUBF_TIS_READJOB:
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_function, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_seqnr, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
-            case S7COMM_UD_SUBF_PROG_READJOBLIST:
+            case S7COMM_UD_SUBF_TIS_READJOBLIST:
                 /* 4 bytes, possible as filter? */
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 break;
-            case S7COMM_UD_SUBF_PROG_REPLACEJOB:
+            case S7COMM_UD_SUBF_TIS_REPLACEJOB:
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 /* The job which has to be replaced */
@@ -4291,7 +4313,7 @@ s7comm_decode_ud_tis_jobs(tvbuff_t *tvb,
         }
     } else {
         switch (subfunc) {
-            case S7COMM_UD_SUBF_PROG_READJOBLIST:
+            case S7COMM_UD_SUBF_TIS_READJOBLIST:
                 /* 4 bytes each job:
                  * - 2 bytes job id
                  * - 2 bytes status: 1=active, 0=idle/pending?
@@ -4309,7 +4331,7 @@ s7comm_decode_ud_tis_jobs(tvbuff_t *tvb,
                     offset += 2;
                 }
                 break;
-            case S7COMM_UD_SUBF_PROG_READJOB:
+            case S7COMM_UD_SUBF_TIS_READJOB:
                 /* This includes the same data as in the job request. With the disadvantage that is does
                  * not contain information of the function, so the data can't be further dissected.
                  * We need to know the function from the request.
@@ -4360,7 +4382,7 @@ s7comm_decode_ud_tis_varstat(tvbuff_t *tvb,
                 offset = s7comm_decode_ud_tis_item_address(tvb, offset, td_tree, i, " Address to read");
             }
             break;
-        case S7COMM_UD_TYPE_PUSH:
+        case S7COMM_UD_TYPE_IND:
             item_count = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(td_tree, hf_s7comm_varstat_item_count, tvb, offset, 2, item_count);
             offset += 2;
@@ -4401,7 +4423,7 @@ s7comm_decode_ud_tis_modvar(tvbuff_t *tvb,
                 offset = s7comm_decode_ud_tis_item_value(tvb, offset, td_tree, i, " Data to write");
             }
             break;
-        case S7COMM_UD_TYPE_PUSH:
+        case S7COMM_UD_TYPE_IND:
             item_count = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(td_tree, hf_s7comm_varstat_item_count, tvb, offset, 2, item_count);
             offset += 2;
@@ -4440,7 +4462,7 @@ s7comm_decode_ud_tis_istack(tvbuff_t *tvb,
             offset += 2;
             break;
         case S7COMM_UD_TYPE_RES:
-        case S7COMM_UD_TYPE_PUSH:
+        case S7COMM_UD_TYPE_IND:
             proto_tree_add_item(td_tree, hf_s7comm_tis_continued_blocktype, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(td_tree, hf_s7comm_tis_continued_blocknr, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4921,7 +4943,7 @@ s7comm_decode_ud_tis_bstack(tvbuff_t *tvb,
             offset += 2;
             break;
         case S7COMM_UD_TYPE_RES:
-        case S7COMM_UD_TYPE_PUSH:
+        case S7COMM_UD_TYPE_IND:
             rem = td_size;
             i = 1;
             while (rem > 16) {
@@ -5050,7 +5072,7 @@ s7comm_decode_ud_tis_breakpoint(tvbuff_t *tvb,
             offset += 2;
             break;
         case S7COMM_UD_TYPE_RES:
-        case S7COMM_UD_TYPE_PUSH:
+        case S7COMM_UD_TYPE_IND:
             /* Info: Both blocknumbers and addresses are the same on online-blockview inside a block.
              * On return out of a block, the first address contains the current breakpoint, the second
              * address the address from where it was returned (previous block).
@@ -5112,40 +5134,40 @@ s7comm_decode_ud_tis_data(tvbuff_t *tvb,
         item = proto_tree_add_item(tree, hf_s7comm_tis_data, tvb, offset, td_size, ENC_NA);
         td_tree = proto_item_add_subtree(item, ett_s7comm_prog_data);
         switch (subfunc) {
-            case S7COMM_UD_SUBF_PROG_OUTISTACK:
+            case S7COMM_UD_SUBF_TIS_OUTISTACK:
                 offset = s7comm_decode_ud_tis_istack(tvb, td_tree, type, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_OUTBSTACK:
+            case S7COMM_UD_SUBF_TIS_OUTBSTACK:
                 offset = s7comm_decode_ud_tis_bstack(tvb, td_tree, td_size, type, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_OUTLSTACK:
+            case S7COMM_UD_SUBF_TIS_OUTLSTACK:
                 offset = s7comm_decode_ud_tis_lstack(tvb, td_tree, type, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_BREAKPOINT:
+            case S7COMM_UD_SUBF_TIS_BREAKPOINT:
                 offset = s7comm_decode_ud_tis_breakpoint(tvb, td_tree, type, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_EXITHOLD:
+            case S7COMM_UD_SUBF_TIS_EXITHOLD:
                 offset = s7comm_decode_ud_tis_exithold(tvb, td_tree, type, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_BLOCKSTAT:
-            case S7COMM_UD_SUBF_PROG_BLOCKSTAT2:
+            case S7COMM_UD_SUBF_TIS_BLOCKSTAT:
+            case S7COMM_UD_SUBF_TIS_BLOCKSTAT2:
                 offset = s7comm_decode_ud_tis_blockstat(tvb, td_tree, td_size, type, subfunc, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_VARSTAT:
+            case S7COMM_UD_SUBF_TIS_VARSTAT:
                 offset = s7comm_decode_ud_tis_varstat(tvb, td_tree, type, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_DISABLEJOB:
-            case S7COMM_UD_SUBF_PROG_ENABLEJOB:
-            case S7COMM_UD_SUBF_PROG_DELETEJOB:
-            case S7COMM_UD_SUBF_PROG_READJOBLIST:
-            case S7COMM_UD_SUBF_PROG_READJOB:
-            case S7COMM_UD_SUBF_PROG_REPLACEJOB:
+            case S7COMM_UD_SUBF_TIS_DISABLEJOB:
+            case S7COMM_UD_SUBF_TIS_ENABLEJOB:
+            case S7COMM_UD_SUBF_TIS_DELETEJOB:
+            case S7COMM_UD_SUBF_TIS_READJOBLIST:
+            case S7COMM_UD_SUBF_TIS_READJOB:
+            case S7COMM_UD_SUBF_TIS_REPLACEJOB:
                 offset = s7comm_decode_ud_tis_jobs(tvb, td_tree, td_size, type, subfunc, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_MODVAR:
+            case S7COMM_UD_SUBF_TIS_MODVAR:
                 offset = s7comm_decode_ud_tis_modvar(tvb, td_tree, type, offset);
                 break;
-            case S7COMM_UD_SUBF_PROG_FORCE:
+            case S7COMM_UD_SUBF_TIS_FORCE:
                 offset = s7comm_decode_ud_tis_force(tvb, td_tree, type, offset);
                 break;
             default:
@@ -5209,13 +5231,13 @@ s7comm_decode_ud_security_subfunc(tvbuff_t *tvb,
  *
  *******************************************************************************************************/
 static guint32
-s7comm_decode_ud_pbc_pre_reass(tvbuff_t *tvb,
-                               packet_info *pinfo,
-                               proto_tree *data_tree,
-                               guint8 type,                /* Type of data (request/response) */
-                               guint16 *dlength,
-                               guint32 *r_id,              /* R_ID of the PBC communication */
-                               guint32 offset)
+s7comm_decode_ud_pbc_bsend_pre_reass(tvbuff_t *tvb,
+                                     packet_info *pinfo,
+                                     proto_tree *data_tree,
+                                     guint8 type,
+                                     guint16 *dlength,
+                                     guint32 *r_id,              /* R_ID of the PBC communication */
+                                     guint32 offset)
 {
     if ((type == S7COMM_UD_TYPE_REQ || type == S7COMM_UD_TYPE_RES) && (*dlength >= 8)) {
         proto_tree_add_item(data_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5227,7 +5249,7 @@ s7comm_decode_ud_pbc_pre_reass(tvbuff_t *tvb,
         /* 0x00 when passive partners is sending, 0xcc when active partner is sending? */
         proto_tree_add_item(data_tree, hf_s7comm_pbc_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item(data_tree, hf_s7comm_pbc_r_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(data_tree, hf_s7comm_pbc_bsend_r_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         *r_id = tvb_get_ntohl(tvb, offset);
         col_append_fstr(pinfo->cinfo, COL_INFO, " R_ID=0x%X", *r_id);
         offset += 4;
@@ -5242,15 +5264,91 @@ s7comm_decode_ud_pbc_pre_reass(tvbuff_t *tvb,
  *
  *******************************************************************************************************/
 static guint32
-s7comm_decode_ud_pbc_subfunc(tvbuff_t *tvb,
+s7comm_decode_ud_pbc_bsend_subfunc(tvbuff_t *tvb,
                              proto_tree *data_tree,
                              guint32 dlength,
                              guint32 offset)
 {
-    proto_tree_add_item(data_tree, hf_s7comm_pbc_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(data_tree, hf_s7comm_pbc_bsend_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 2, ENC_NA);
     offset += (dlength - 2);
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> PBC, Programmable Block Function USEND
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_usend(tvbuff_t *tvb,
+                       proto_tree *tree,
+                       guint32 dlength,
+                       guint32 offset)
+{
+    proto_item *item = NULL;
+    proto_tree *data_tree = NULL;
+    proto_tree *item_tree = NULL;
+    guint8 tsize;
+    guint16 len;
+    guint16 len2;
+    guint8 ret_val;
+    guint8 item_count;
+    guint8 i;
+
+    item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);
+    data_tree = proto_item_add_subtree(item, ett_s7comm_data);
+
+    ret_val = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(data_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
+    offset += 1;
+
+    proto_tree_add_item(data_tree, hf_s7comm_pbc_usend_unknown1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    item_count = tvb_get_guint8(tvb, offset + 1); /* max. 4 possible */
+    proto_tree_add_uint(data_tree, hf_s7comm_param_itemcount, tvb, offset, 2, item_count);
+    offset += 2;
+
+    for (i = 0; i < item_count; i++) {
+        tsize = tvb_get_guint8(tvb, offset + 1);
+        len = tvb_get_ntohs(tvb, offset + 2);
+        /* calculate length in bytes */
+        if (tsize == S7COMM_DATA_TRANSPORT_SIZE_BBIT ||
+            tsize == S7COMM_DATA_TRANSPORT_SIZE_BBYTE ||
+            tsize == S7COMM_DATA_TRANSPORT_SIZE_BINT
+            ) {
+            if (len % 8) {
+                len /= 8;
+                len = len + 1;
+            } else {
+                len /= 8;
+            }
+        }
+
+        if ((len % 2) && (i < (item_count-1))) {
+            len2 = len + 1;
+        } else {
+            len2 = len;
+        }
+
+        item = proto_tree_add_item(data_tree, hf_s7comm_data_item, tvb, offset, len + 4, ENC_NA);
+        item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
+        proto_item_append_text(item, " [%d]", i+1);
+        proto_tree_add_item(item_tree, hf_s7comm_pbc_usend_unknown2, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(item_tree, hf_s7comm_data_transport_size, tvb, offset + 1, 1, tsize);
+        proto_tree_add_uint(item_tree, hf_s7comm_data_length, tvb, offset + 2, 2, len);
+        offset += 4;
+
+        proto_tree_add_item(item_tree, hf_s7comm_readresponse_data, tvb, offset, len, ENC_NA);
+        offset += len;
+        if (len != len2) {
+            proto_tree_add_item(item_tree, hf_s7comm_data_fillbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
+    }
 
     return offset;
 }
@@ -5263,12 +5361,12 @@ s7comm_decode_ud_pbc_subfunc(tvbuff_t *tvb,
 static guint32
 s7comm_decode_ud_ncprg_pre_reass(tvbuff_t *tvb,
                                  proto_tree *data_tree,
-                                 guint8 type,                /* Type of data (request/response) */
-                                 guint8 subfunc,             /* Subfunction */
+                                 guint8 type,
+                                 guint8 subfunc,
                                  guint16 *dlength,
                                  guint32 offset)
 {
-    if ((type == S7COMM_UD_TYPE_NCRES || type == S7COMM_UD_TYPE_NCPUSH) &&
+    if ((type == S7COMM_UD_TYPE_RES || type == S7COMM_UD_TYPE_IND) &&
         (subfunc == S7COMM_NCPRG_FUNCDOWNLOADBLOCK ||
          subfunc == S7COMM_NCPRG_FUNCUPLOAD ||
          subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD)) {
@@ -5288,8 +5386,8 @@ static guint32
 s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
                                packet_info *pinfo,
                                proto_tree *data_tree,
-                               guint8 type,                /* Type of data (request/response) */
-                               guint8 subfunc,             /* Subfunction */
+                               guint8 type,
+                               guint8 subfunc,
                                guint32 dlength,
                                guint32 offset)
 {
@@ -5300,12 +5398,12 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
     guint32 start_offset;
 
     if (dlength >= 2) {
-        if (type == S7COMM_UD_TYPE_NCREQ && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
+        if (type == S7COMM_UD_TYPE_REQ && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
             proto_tree_add_item_ret_string(data_tree, hf_s7comm_data_blockcontrol_filename, tvb, offset, dlength,
                                            ENC_ASCII|ENC_NA, pinfo->pool, &str_filename);
             col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str_filename);
             offset += dlength;
-        } else if (type == S7COMM_UD_TYPE_NCREQ && subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD) {
+        } else if (type == S7COMM_UD_TYPE_REQ && subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD) {
             proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
             offset += 1;
             dlength -= 1;
@@ -5316,17 +5414,17 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
                                            ENC_ASCII|ENC_NA, pinfo->pool, &str_filename);
             col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str_filename);
             offset += dlength;
-        } else if (type == S7COMM_UD_TYPE_NCRES && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
+        } else if (type == S7COMM_UD_TYPE_RES && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
                 proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
                 offset += 1;
-        } else if (type == S7COMM_UD_TYPE_NCPUSH && (subfunc == S7COMM_NCPRG_FUNCCONTUPLOAD || subfunc == S7COMM_NCPRG_FUNCCONTDOWNLOAD)) {
+        } else if (type == S7COMM_UD_TYPE_IND && (subfunc == S7COMM_NCPRG_FUNCCONTUPLOAD || subfunc == S7COMM_NCPRG_FUNCCONTDOWNLOAD)) {
                 proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
                 offset += 1;
-        } else if ((type == S7COMM_UD_TYPE_NCRES || type == S7COMM_UD_TYPE_NCPUSH) &&
+        } else if ((type == S7COMM_UD_TYPE_RES || type == S7COMM_UD_TYPE_IND) &&
                 (subfunc == S7COMM_NCPRG_FUNCDOWNLOADBLOCK ||
                  subfunc == S7COMM_NCPRG_FUNCUPLOAD ||
                  subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD)) {
@@ -5365,6 +5463,84 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
+ * PDU Type: User Data -> Data record routing to Profibus
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_drr_subfunc(tvbuff_t *tvb,
+                             proto_tree *tree,
+                             guint32 dlength,
+                             guint32 offset)
+{
+    /* As a start add only a data block. At least there are min. 6 bytes of a header.
+     * At some point of the data, parts of the Profinet dissector may be reusable,
+     * as there's an overlap between the Profibus and Profinet Specification.
+     */
+    if (dlength > 0) {
+        proto_tree_add_item(tree, hf_s7comm_data_drr_data, tvb, offset, dlength, ENC_NA);
+        offset += dlength;
+    }
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> Message services -> AR_SEND parameters on initiate/abort
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_message_service_ar_send_args(tvbuff_t *tvb,
+                                           packet_info *pinfo,
+                                           proto_tree *tree,
+                                           guint8 type,
+                                           guint32 offset)
+{
+    guint8 item_count;
+    guint8 i;
+    guint32 ar_id;
+    proto_item *item = NULL;
+    proto_tree *item_tree = NULL;
+
+    item_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf_s7comm_param_itemcount, tvb, offset, 1, item_count);
+    offset += 1;
+
+    for (i = 0; i < item_count; i++) {
+        if (type == S7COMM_UD_TYPE_REQ) {
+            item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, 8, ENC_NA);
+            item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
+            proto_tree_add_item(item_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(item_tree, hf_s7comm_item_varspec_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(item_tree, hf_s7comm_item_syntax_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(item_tree, hf_s7comm_pbc_arsend_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item_ret_uint(item_tree, hf_s7comm_pbc_arsend_ar_id, tvb, offset, 4, ENC_BIG_ENDIAN, &ar_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s0x%X", (i == 0) ? " AR_ID=" : ",", ar_id);
+            proto_item_append_text(item, " [%d]: AR_ID=0x%X", i+1, ar_id);
+            offset += 4;
+        } else if (type == S7COMM_UD_TYPE_RES) {
+            item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, 1, ENC_NA);
+            item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
+            proto_item_append_text(item, " [%d]", i+1);
+            /* Kind of return code. But from what was captured, it doesn't matter if the AR_ID of the request is not available */
+            proto_tree_add_item(item_tree, hf_s7comm_pbc_arsend_ret, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
+    }
+    /* Fill byte on response if number of items is uneven */
+    if (type == S7COMM_UD_TYPE_RES && (item_count % 2)) {
+        proto_tree_add_item(tree, hf_s7comm_data_fillbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
  * PDU Type: User Data -> Message services
  *
  *******************************************************************************************************/
@@ -5372,7 +5548,7 @@ static guint32
 s7comm_decode_message_service(tvbuff_t *tvb,
                               packet_info *pinfo,
                               proto_tree *data_tree,
-                              guint8 type,                /* Type of data (request/response) */
+                              guint8 type,
                               guint32 dlength,
                               guint32 offset)
 {
@@ -5409,8 +5585,12 @@ s7comm_decode_message_service(tvbuff_t *tvb,
                 proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
                 offset += 1;
-                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_req_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+                if (almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE || almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT) {
+                    offset = s7comm_decode_message_service_ar_send_args(tvb, pinfo, data_tree, type, offset);
+                } else {
+                    proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_req_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                }
             }
             break;
         case S7COMM_UD_TYPE_RES:
@@ -5423,10 +5603,14 @@ s7comm_decode_message_service(tvbuff_t *tvb,
                 proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
                 offset += 1;
-                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+                if (almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE || almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT) {
+                    offset = s7comm_decode_message_service_ar_send_args(tvb, pinfo, data_tree, type, offset);
+                } else {
+                    proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                }
             }
             break;
     }
@@ -5436,6 +5620,59 @@ s7comm_decode_message_service(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
+ *  PDU Type: User Data -> AR_SEND, before reassembly
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_cpu_ar_send_pre_reass(tvbuff_t *tvb,
+                                       packet_info *pinfo,
+                                       proto_tree *data_tree,
+                                       guint16 *dlength,
+                                       guint32 offset)
+{
+    guint32 ar_id;
+
+    if (*dlength >= 8) {
+        proto_tree_add_item(data_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(data_tree, hf_s7comm_item_varspec_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(data_tree, hf_s7comm_item_syntax_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(data_tree, hf_s7comm_pbc_arsend_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item_ret_uint(data_tree, hf_s7comm_pbc_arsend_ar_id, tvb, offset, 4, ENC_BIG_ENDIAN, &ar_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " AR_ID=0x%X", ar_id);
+        offset += 4;
+
+        *dlength -= 8;
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> AR_SEND
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_cpu_ar_send(tvbuff_t *tvb,
+                             proto_tree *data_tree,
+                             guint32 offset)
+{
+    guint32 len;
+
+    /* Only the first fragment contains the length. As we get the length after reassembly, it's ok. */
+    proto_tree_add_item_ret_uint(data_tree, hf_s7comm_pbc_arsend_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &len);
+    offset += 2;
+
+    proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, len, ENC_NA);
+    offset += len;
+
+    return offset;
+}
+/*******************************************************************************************************
+ *
  * PDU Type: User Data -> Function group 4 -> alarm, main tree for all except query response
  *
  *******************************************************************************************************/
@@ -5443,8 +5680,8 @@ static guint32
 s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
                                 packet_info *pinfo,
                                 proto_tree *data_tree,
-                                guint8 type,                /* Type of data (request/response) */
-                                guint8 subfunc,             /* Subfunction */
+                                guint8 type,
+                                guint8 subfunc,
                                 guint32 offset)
 {
     guint32 start_offset;
@@ -5503,7 +5740,7 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
         msg_obj_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_obj_item, tvb, offset, 0, ENC_NA);
         msg_obj_item_tree = proto_item_add_subtree(msg_obj_item, ett_s7comm_cpu_alarm_message_object);
         proto_item_append_text(msg_obj_item_tree, " [%d]", i+1);
-        if (type == S7COMM_UD_TYPE_REQ || type == S7COMM_UD_TYPE_PUSH) {
+        if (type == S7COMM_UD_TYPE_REQ || type == S7COMM_UD_TYPE_IND) {
             proto_tree_add_item(msg_obj_item_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             varspec_length = tvb_get_guint8(tvb, offset);
@@ -5822,8 +6059,8 @@ s7comm_decode_ud_cpu_diagnostic_message(tvbuff_t *tvb,
 static guint32
 s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
                               proto_tree *data_tree,
-                              guint8 type,                /* Type of data (request/response) */
-                              guint8 subfunc,             /* Subfunction */
+                              guint8 type,
+                              guint8 subfunc,
                               guint8 ret_val,             /* Return value in data part */
                               guint32 dlength,
                               guint32 offset)
@@ -5833,7 +6070,7 @@ s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
     switch (subfunc) {
         case S7COMM_UD_SUBF_TIME_READ:
         case S7COMM_UD_SUBF_TIME_READF:
-            if (type == S7COMM_UD_TYPE_RES) {                   /*** Response ***/
+            if (type == S7COMM_UD_TYPE_RES) {
                 if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
                     proto_item_append_text(data_tree, ": ");
                     offset = s7comm_add_timestamp_to_tree(tvb, data_tree, offset, TRUE, TRUE);
@@ -5843,7 +6080,7 @@ s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
             break;
         case S7COMM_UD_SUBF_TIME_SET:
         case S7COMM_UD_SUBF_TIME_SET2:
-            if (type == S7COMM_UD_TYPE_REQ) {                   /*** Request ***/
+            if (type == S7COMM_UD_TYPE_REQ) {
                 if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
                     proto_item_append_text(data_tree, ": ");
                     offset = s7comm_add_timestamp_to_tree(tvb, data_tree, offset, TRUE, TRUE);
@@ -5871,8 +6108,8 @@ static guint32
 s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                                packet_info *pinfo,
                                proto_tree *data_tree,
-                               guint8 type,                /* Type of data (request/response) */
-                               guint8 subfunc,             /* Subfunction */
+                               guint8 type,
+                               guint8 subfunc,
                                guint8 ret_val,             /* Return value in data part */
                                guint8 tsize,               /* transport size in data part */
                                guint32 dlength,
@@ -6147,8 +6384,8 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
                                 packet_info *pinfo,
                                 guint8 seq_num,
                                 proto_tree *data_tree,
-                                guint8 type,                /* Type of data (request/response) */
-                                guint8 subfunc,             /* Subfunction */
+                                guint8 type,
+                                guint8 subfunc,
                                 guint32 dlength,
                                 guint32 offset)
 {
@@ -6185,7 +6422,7 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
                         offset += 1;
                     }
                 }
-            } else if (type == S7COMM_UD_TYPE_RES || type == S7COMM_UD_TYPE_PUSH) {
+            } else if (type == S7COMM_UD_TYPE_RES || type == S7COMM_UD_TYPE_IND) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " JobID=%d", seq_num);
                 offset = s7comm_decode_response_read_data(tvb, data_tree, item_count, offset);
             }
@@ -6284,10 +6521,18 @@ s7comm_decode_ud_data(tvbuff_t *tvb,
                     is_fragmented = TRUE;
                     frag_id = seq_num;
                     break;
-                case S7COMM_UD_FUNCGROUP_PBC:
+                case S7COMM_UD_FUNCGROUP_PBC_BSEND:
                     /* The R_ID is used for fragment identification */
-                    offset = s7comm_decode_ud_pbc_pre_reass(tvb, pinfo, data_tree, type, &len, &frag_id, offset);
+                    offset = s7comm_decode_ud_pbc_bsend_pre_reass(tvb, pinfo, data_tree, type, &len, &frag_id, offset);
                     is_fragmented = data_unit_ref > 0 || seq_num > 0;
+                    break;
+                case S7COMM_UD_FUNCGROUP_CPU:
+                    if (subfunc == S7COMM_UD_SUBF_CPU_AR_SEND_IND) {
+                        offset = s7comm_decode_ud_cpu_ar_send_pre_reass(tvb, pinfo, data_tree, &len, offset);
+                    }
+                    /* fragment identification is always the same here */
+                    is_fragmented = (data_unit_ref > 0);
+                    frag_id = data_unit_ref;
                     break;
                 default:
                     is_fragmented = (data_unit_ref > 0);
@@ -6333,10 +6578,10 @@ s7comm_decode_ud_data(tvbuff_t *tvb,
             }
             pinfo->fragmented = save_fragmented;
             length_rem = tvb_reported_length_remaining(next_tvb, offset);
-            /* TODO: PBC telegrams say "Last data unit = no" and data_unit_ref=0 and not fragmented */
+
             if (last_data_unit == S7COMM_UD_LASTDATAUNIT_YES && length_rem > 0) {
                 switch (funcgroup) {
-                    case S7COMM_UD_FUNCGROUP_PROG:
+                    case S7COMM_UD_FUNCGROUP_TIS:
                         offset = s7comm_decode_ud_tis_subfunc(next_tvb, data_tree, type, subfunc, offset);
                         break;
                     case S7COMM_UD_FUNCGROUP_CYCLIC:
@@ -6377,6 +6622,9 @@ s7comm_decode_ud_data(tvbuff_t *tvb,
                             case S7COMM_UD_SUBF_CPU_MSGS:
                                 offset = s7comm_decode_message_service(next_tvb, pinfo, data_tree, type, length_rem, offset);
                                 break;
+                            case S7COMM_UD_SUBF_CPU_AR_SEND_IND:
+                                offset = s7comm_decode_ud_cpu_ar_send(next_tvb, data_tree, offset);
+                                break;
                             default:
                                 /* print other currently unknown data as raw bytes */
                                 proto_tree_add_item(data_tree, hf_s7comm_userdata_data, next_tvb, offset, length_rem, ENC_NA);
@@ -6386,14 +6634,17 @@ s7comm_decode_ud_data(tvbuff_t *tvb,
                     case S7COMM_UD_FUNCGROUP_SEC:
                         offset = s7comm_decode_ud_security_subfunc(next_tvb, data_tree, length_rem, offset);
                         break;
-                    case S7COMM_UD_FUNCGROUP_PBC:
-                        offset = s7comm_decode_ud_pbc_subfunc(next_tvb, data_tree, length_rem, offset);
+                    case S7COMM_UD_FUNCGROUP_PBC_BSEND:
+                        offset = s7comm_decode_ud_pbc_bsend_subfunc(next_tvb, data_tree, length_rem, offset);
                         break;
                     case S7COMM_UD_FUNCGROUP_TIME:
                         offset = s7comm_decode_ud_time_subfunc(next_tvb, data_tree, type, subfunc, ret_val, length_rem, offset);
                         break;
                     case S7COMM_UD_FUNCGROUP_NCPRG:
                         offset = s7comm_decode_ud_ncprg_subfunc(next_tvb, pinfo, data_tree, type, subfunc, length_rem, offset);
+                        break;
+                    case S7COMM_UD_FUNCGROUP_DRR:
+                        offset = s7comm_decode_ud_drr_subfunc(next_tvb, data_tree, length_rem, offset);
                         break;
                     default:
                         break;
@@ -6424,58 +6675,96 @@ s7comm_decode_ud(tvbuff_t *tvb,
 
     guint32 errorcode;
     guint32 offset_temp;
-    guint32 reqres2;
+    guint8 function;
     guint8 type;
     guint8 funcgroup;
     guint8 subfunc;
+    guint8 mode;
     guint8 data_unit_ref = 0;
     guint8 last_data_unit = 0;
     guint8 seq_num;
+    guint32 r_id;
+    guint8 varspec_syntax_id = 0;
 
     /* Add parameter tree */
     item = proto_tree_add_item(tree, hf_s7comm_param, tvb, offset, plength, ENC_NA);
     param_tree = proto_item_add_subtree(item, ett_s7comm_param);
 
     offset_temp = offset;
-    /* 3 bytes constant head */
-    proto_tree_add_item(param_tree, hf_s7comm_userdata_param_head, tvb, offset_temp, 3, ENC_BIG_ENDIAN);
-    offset_temp += 3;
-    /* 1 byte length of following parameter (8 or 12 bytes) */
-    proto_tree_add_item(param_tree, hf_s7comm_userdata_param_len, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
-    offset_temp += 1;
-    /* 1 byte indicating request/response again, but useful in Push telegrams*/
-    proto_tree_add_item_ret_uint(param_tree, hf_s7comm_userdata_param_reqres2, tvb, offset_temp, 1, ENC_BIG_ENDIAN, &reqres2);
-    offset_temp += 1;
-    /* High nibble (following/request/response) */
-    type = (tvb_get_guint8(tvb, offset_temp) & 0xf0) >> 4;
-    funcgroup = (tvb_get_guint8(tvb, offset_temp) & 0x0f);
-    proto_tree_add_item(param_tree, hf_s7comm_userdata_param_type, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
-    if (type == S7COMM_UD_TYPE_PUSH || type == S7COMM_UD_TYPE_NCPUSH) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s-%s] -> [%s]",
-            val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"),
-            val_to_str(reqres2, userdata_reqres2_names, "Unknown method: 0x%02x"),
-            val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function: 0x%02x")
-            );
-    } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s] -> [%s]",
-            val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"),
-            val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function: 0x%02x")
-            );
-    }
-    proto_item_append_text(param_tree, ": (%s)", val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"));
-    proto_item_append_text(param_tree, " ->(%s)", val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function: 0x%02x"));
 
-    /* Low nibble function group  */
+    function = tvb_get_guint8(tvb, offset_temp);
+    proto_tree_add_uint(param_tree, hf_s7comm_param_service, tvb, offset_temp, 1, function);
+    offset_temp += 1;
+
+    /* It's like an itemcounter, but only the value of 1 is allowed. */
+    proto_tree_add_item(param_tree, hf_s7comm_param_itemcount, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+    offset_temp += 1;
+
+    if (function == S7COMM_SERV_MODETRANS) {
+        /* Mode transition indication needs a separate handling */
+        proto_item_append_text(param_tree, ": ->(Mode transition indication)");
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[Mode transition indication]");
+        proto_tree_add_item(param_tree, hf_s7comm_modetrans_param_unknown1, tvb, offset_temp, 4, ENC_BIG_ENDIAN);
+        offset_temp += 4;
+        mode = tvb_get_guint8(tvb, offset_temp);
+        proto_tree_add_uint(param_tree, hf_s7comm_modetrans_param_mode, tvb, offset_temp, 1, mode);
+        offset_temp += 1;
+        col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
+            val_to_str(mode, modetrans_param_mode_names, "Unknown mode: 0x%02x"));
+        proto_item_append_text(param_tree, " ->(%s)", val_to_str(mode, modetrans_param_mode_names, "Unknown mode: 0x%02x"));
+        proto_tree_add_item(param_tree, hf_s7comm_modetrans_param_unknown2, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+        offset_temp += 1;
+        /* No data part here */
+        return offset_temp;
+    }
+
+    proto_tree_add_item(param_tree, hf_s7comm_item_varspec, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+    offset_temp += 1;
+    proto_tree_add_item(param_tree, hf_s7comm_item_varspec_length, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+    offset_temp += 1;
+    varspec_syntax_id = tvb_get_guint8(tvb, offset_temp);
+    proto_tree_add_item(param_tree, hf_s7comm_item_syntax_id, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+    offset_temp += 1;
+
+    if (varspec_syntax_id == S7COMM_SYNTAXID_PBC_ID) {
+        /* When the R_ID occurs here, it's USEND and needs a separate handling */
+        proto_item_append_text(param_tree, ": (Indication) ->(USEND)");
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[Indication] -> [USEND]");
+        proto_tree_add_item(param_tree, hf_s7comm_pbc_unknown, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+        offset_temp += 1;
+        proto_tree_add_item_ret_uint(param_tree, hf_s7comm_pbc_usend_r_id, tvb, offset_temp, 4, ENC_BIG_ENDIAN, &r_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " R_ID=0x%X", r_id);
+        /* USEND data must fit in a single PDU. Fragmentation is not possible and we can dissect the data part here. */
+        offset += plength; /* To start of data part */
+        offset = s7comm_decode_ud_usend(tvb, tree, dlength, offset);
+        /* Return here as all data is decoded */
+        return offset;
+    }
+
+    /* Left 2 bits for indication/request/response
+     * Right 6 bits for the function group
+     */
+    type = (tvb_get_guint8(tvb, offset_temp) & 0xc0) >> 6;
+    funcgroup = (tvb_get_guint8(tvb, offset_temp) & 0x3f);
+    proto_tree_add_item(param_tree, hf_s7comm_userdata_param_type, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(param_tree, hf_s7comm_userdata_param_funcgroup, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
     offset_temp += 1;
-    /* 1 Byte subfunction  */
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s] -> [%s]",
+        val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"),
+        val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function group: 0x%02x")
+        );
+    proto_item_append_text(param_tree, ": (%s)", val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"));
+    proto_item_append_text(param_tree, " ->(%s)", val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function group: 0x%02x"));
+
+    /* 1 Byte subfunction */
     subfunc = tvb_get_guint8(tvb, offset_temp);
-    switch (funcgroup){
-        case S7COMM_UD_FUNCGROUP_PROG:
+    switch (funcgroup) {
+        case S7COMM_UD_FUNCGROUP_TIS:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_prog, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str(subfunc, userdata_prog_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, userdata_prog_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(subfunc, userdata_tis_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, userdata_tis_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_CYCLIC:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_cyclic, tvb, offset_temp, 1, subfunc);
@@ -6507,11 +6796,11 @@ s7comm_decode_ud(tvbuff_t *tvb,
                 val_to_str(subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
             proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
-        case S7COMM_UD_FUNCGROUP_MODETRANS:
-            proto_tree_add_uint(param_tree, hf_s7comm_modetrans_param_subfunc, tvb, offset_temp, 1, subfunc);
+        case S7COMM_UD_FUNCGROUP_DRR:
+            proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_drr, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str(subfunc, modetrans_param_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, modetrans_param_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(subfunc, userdata_drr_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, userdata_drr_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_NCPRG:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_ncprg, tvb, offset_temp, 1, subfunc);
@@ -6524,12 +6813,14 @@ s7comm_decode_ud(tvbuff_t *tvb,
             break;
     }
     offset_temp += 1;
-    /* 1 Byte sequence number  */
+    /* 1 Byte sequence number */
     seq_num = tvb_get_guint8(tvb, offset_temp);
     proto_tree_add_item(param_tree, hf_s7comm_userdata_param_seq_num, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
     offset_temp += 1;
-    if (plength >= 12) {
-        /* 1 Byte data unit reference. If packet is fragmented, all packets with this number belong together */
+    if (varspec_syntax_id == S7COMM_SYNTAXID_EXT) {
+        /* 1 Byte data unit reference. If packet is fragmented, all packets with this number belong together.
+         * But there are function which use a different fragment identification methon.
+         */
         data_unit_ref = tvb_get_guint8(tvb, offset_temp);
         proto_tree_add_item(param_tree, hf_s7comm_userdata_param_dataunitref, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
         offset_temp += 1;
@@ -7015,26 +7306,15 @@ proto_register_s7comm (void)
           "Userdata data", HFILL }},
 
         /* Userdata parameter 8/12 Bytes len*/
-        { &hf_s7comm_userdata_param_head,
-        { "Parameter head", "s7comm.param.userdata.head", FT_UINT24, BASE_HEX, NULL, 0x0,
-          "Header before parameter (constant 0x000112)", HFILL }},
-        { &hf_s7comm_userdata_param_len,
-        { "Parameter length", "s7comm.param.userdata.length", FT_UINT8, BASE_DEC, NULL, 0x0,
-          "Length of following parameter data (without head)", HFILL }},
-        { &hf_s7comm_userdata_param_reqres2,
-        { "Method (Request/Response)", "s7comm.param.userdata.reqres1", FT_UINT8, BASE_HEX, VALS(userdata_reqres2_names), 0x0,
-          "Unknown part, second request/response (0x00, 0x11, 0x12)", HFILL }},
-
         { &hf_s7comm_userdata_param_type,
-        { "Type", "s7comm.param.userdata.type", FT_UINT8, BASE_DEC, VALS(userdata_type_names), 0xf0,
+        { "Type", "s7comm.param.userdata.type", FT_UINT8, BASE_DEC, VALS(userdata_type_names), 0xc0,
           "Type of parameter", HFILL }},
-
         { &hf_s7comm_userdata_param_funcgroup,
-        { "Function group", "s7comm.param.userdata.funcgroup", FT_UINT8, BASE_DEC, VALS(userdata_functiongroup_names), 0x0f,
+        { "Function group", "s7comm.param.userdata.funcgroup", FT_UINT8, BASE_DEC, VALS(userdata_functiongroup_names), 0x3f,
           NULL, HFILL }},
 
         { &hf_s7comm_userdata_param_subfunc_prog,
-        { "Subfunction", "s7comm.param.userdata.subfunc", FT_UINT8, BASE_DEC, VALS(userdata_prog_subfunc_names), 0x0,
+        { "Subfunction", "s7comm.param.userdata.subfunc", FT_UINT8, BASE_DEC, VALS(userdata_tis_subfunc_names), 0x0,
           NULL, HFILL }},
         { &hf_s7comm_userdata_param_subfunc_cyclic,
         { "Subfunction", "s7comm.param.userdata.subfunc", FT_UINT8, BASE_DEC, VALS(userdata_cyclic_subfunc_names), 0x0,
@@ -7056,6 +7336,9 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_userdata_param_subfunc_ncprg,
         { "Subfunction", "s7comm.param.userdata.subfunc", FT_UINT8, BASE_DEC, VALS(userdata_ncprg_subfunc_names), 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_userdata_param_subfunc_drr,
+        { "Subfunction", "s7comm.param.userdata.subfunc", FT_UINT8, BASE_DEC, VALS(userdata_drr_subfunc_names), 0x0,
           NULL, HFILL }},
 
         { &hf_s7comm_userdata_param_seq_num,
@@ -7220,7 +7503,7 @@ proto_register_s7comm (void)
         { "TIS Response Parameter 2", "s7comm.tis.res.param2", FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_tis_job_function,
-        { "Job function", "s7comm.tis.job.function", FT_UINT8, BASE_DEC, VALS(userdata_prog_subfunc_names), 0x0,
+        { "Job function", "s7comm.tis.job.function", FT_UINT8, BASE_DEC, VALS(userdata_tis_subfunc_names), 0x0,
           NULL, HFILL }},
         { &hf_s7comm_tis_job_seqnr,
         { "Job reference sequence number", "s7comm.tis.job.response_seq_num", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -7877,6 +8160,11 @@ proto_register_s7comm (void)
         { "NC file data", "s7comm.data.ncprg.filedata", FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
 
+        /* Data record routing to Profibus */
+        { &hf_s7comm_data_drr_data,
+        { "DRR Data", "s7comm.data.drr.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+
         /* Variable status */
         { &hf_s7comm_varstat_unknown,
         { "Unknown byte(s) varstat", "s7comm.varstat.unknown", FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -7885,7 +8173,7 @@ proto_register_s7comm (void)
         { "Item count", "s7comm.varstat.item_count", FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_varstat_req_memory_area,
-        { "Memory area", "s7comm.varstat.req.memory_area", FT_UINT8, BASE_DEC, VALS(userdata_prog_varstat_area_names), 0x0,
+        { "Memory area", "s7comm.varstat.req.memory_area", FT_UINT8, BASE_DEC, VALS(userdata_tis_varstat_area_names), 0x0,
           NULL, HFILL }},
         { &hf_s7comm_varstat_req_repetition_factor,
         { "Repetition factor", "s7comm.varstat.req.repetition_factor", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -7942,13 +8230,34 @@ proto_register_s7comm (void)
 
         /* PBC, Programmable Block Functions */
         { &hf_s7comm_pbc_unknown,
-        { "PBC BSEND/BRECV unknown", "s7comm.pbc.bsend.unknown", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "PBC unknown", "s7comm.pbc.unknown", FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
-        { &hf_s7comm_pbc_r_id,
-        { "PBC BSEND/BRECV R_ID", "s7comm.pbc.req.bsend.r_id", FT_UINT32, BASE_HEX, NULL, 0x0,
+        { &hf_s7comm_pbc_bsend_r_id,
+        { "PBC BSEND R_ID", "s7comm.pbc.req.bsend.r_id", FT_UINT32, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
-        { &hf_s7comm_pbc_len,
-        { "PBC BSEND/BRECV LEN", "s7comm.pbc.req.bsend.len", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { &hf_s7comm_pbc_bsend_len,
+        { "PBC BSEND LEN", "s7comm.pbc.req.bsend.len", FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_usend_unknown1,
+        { "PBC USEND unknown 1", "s7comm.pbc.usend.unknown1", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_usend_r_id,
+        { "PBC USEND R_ID", "s7comm.pbc.usend.r_id", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_usend_unknown2,
+        { "PBC USEND unknown 2", "s7comm.pbc.usend.unknown2", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_arsend_ret,
+        { "PBC AR_SEND Returncode", "s7comm.pbc.arsend.ret", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_arsend_unknown,
+        { "PBC AR_SEND unknown", "s7comm.pbc.arsend.unknown", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_arsend_ar_id,
+        { "PBC AR_SEND AR_ID", "s7comm.pbc.arsend.ar_id", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_arsend_len,
+        { "PBC AR_SEND LEN", "s7comm.pbc.arsend.len", FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
 
         /* CPU alarms */
@@ -8135,8 +8444,14 @@ proto_register_s7comm (void)
         { &hf_s7comm_cpu_msgservice_res_reserved3,
         { "Reserved/Unknown", "s7comm.cpu.msg.res_reserved3", FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
-        { &hf_s7comm_modetrans_param_subfunc,
-        { "Current mode", "s7comm.param.modetrans.subfunc", FT_UINT8, BASE_DEC, VALS(modetrans_param_subfunc_names), 0x0,
+        { &hf_s7comm_modetrans_param_unknown1,
+        { "Reserved/Unknown", "s7comm.param.modetrans.unknown1", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_modetrans_param_mode,
+        { "Current mode", "s7comm.param.modetrans.mode", FT_UINT8, BASE_DEC, VALS(modetrans_param_mode_names), 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_modetrans_param_unknown2,
+        { "Reserved/Unknown", "s7comm.param.modetrans.unknown2", FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
 
         /* TIA Portal stuff */
