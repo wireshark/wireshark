@@ -4967,7 +4967,7 @@ dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, guint data_len,
     gboolean is_order_0, packet_info *pinfo, proto_tree *tree, proto_item *item, void *data _U_)
 {
     struct tcp_analysis *tcpd;
-    gint32 ee0b, eceb, ee1b;
+    guint32 ee0b, eceb, ee1b;
 
     switch (data_len) {
     case 0:
@@ -4975,12 +4975,12 @@ dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, guint data_len,
         break;
     case 3:
         if (is_order_0) {
-            ee0b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             proto_item_append_text(item, " (Order 0): EE0B %u", ee0b);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
         } else {
-            ee1b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             proto_item_append_text(item, " (Order 1): EE1B %u", ee1b);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
@@ -4988,15 +4988,15 @@ dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, guint data_len,
         break;
     case 6:
         if (is_order_0) {
-            ee0b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
         } else {
-            ee1b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
         }
-        eceb = tvb_get_gint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
+        eceb = tvb_get_guint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_tcp_option_acc_ecn_eceb, tvb, data_offset + 3, 3, ENC_BIG_ENDIAN);
         tcp_info_append_uint(pinfo, "ECEB", eceb);
         if (is_order_0) {
@@ -5007,24 +5007,24 @@ dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, guint data_len,
         break;
     case 9:
         if (is_order_0) {
-            ee0b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
         } else {
-            ee1b = tvb_get_gint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
         }
-        eceb = tvb_get_gint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
+        eceb = tvb_get_guint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_tcp_option_acc_ecn_eceb, tvb, data_offset + 3, 3, ENC_BIG_ENDIAN);
         tcp_info_append_uint(pinfo, "ECEB", eceb);
         if (is_order_0) {
-            ee1b = tvb_get_gint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_guint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset + 6, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
             proto_item_append_text(item, " (Order 0): EE0B %u, ECEB %u, EE1B %u", ee0b, eceb, ee1b);
         } else {
-            ee0b = tvb_get_gint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_guint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset + 6, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
             proto_item_append_text(item, " (Order 1): EE1B %u, ECEB %u, EE0B %u", ee1b, eceb, ee0b);
