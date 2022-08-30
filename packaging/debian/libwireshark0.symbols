@@ -2048,6 +2048,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_word_words@Base 2.3.0
  unsigned_time_secs_to_str@Base 2.1.0
  update_crc10_by_bytes_tvb@Base 1.99.0
+ uri_to_bytes@Base 4.1.0
  uri_str_to_bytes@Base 1.9.1
  vals_http_status_code@Base 3.3.0
  val64_string_ext_free@Base 2.9.0

@@ -70,6 +70,7 @@ private:
         DecodeAsBASE64,
         DecodeAsCompressed,
         DecodeAsHexDigits,
+        DecodeAsPercentEncoding,
         DecodeAsQuotedPrintable,
         DecodeAsROT13
     };

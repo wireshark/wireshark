@@ -846,15 +846,19 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
 }
 
 /*
- * Turn an RFC 3986 percent-encoded string into a byte array.
+ * Turn an RFC 3986 percent-encoded array of characters, not
+ * necessarily null-terminated, into a byte array.
  * XXX - We don't check for reserved characters.
+ * XXX - g_uri_unescape_bytes is superior, but limited to
+ * glib >= 2.66
  */
 #define HEX_DIGIT_BUF_LEN 3
 gboolean
-uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
+uri_to_bytes(const char *uri_str, GByteArray *bytes, size_t len)
 {
     guint8        val;
-    const gchar    *p;
+    const gchar  *p;
+    const gchar  *uri_end = uri_str + len;
     gchar         hex_digit[HEX_DIGIT_BUF_LEN];
 
     g_byte_array_set_size(bytes, 0);
@@ -864,7 +868,7 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
 
     p = uri_str;
 
-    while (*p) {
+    while (p < uri_end) {
         if (!g_ascii_isprint(*p))
             return FALSE;
         if (*p == '%') {
@@ -886,6 +890,17 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
 
     }
     return TRUE;
+}
+
+/*
+ * Turn an RFC 3986 percent-encoded string into a byte array.
+ * XXX - We don't check for reserved characters.
+ * XXX - Just use g_uri_unescape_string instead?
+ */
+gboolean
+uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
+{
+    return uri_to_bytes(uri_str, bytes, strlen(uri_str));
 }
 
 /**

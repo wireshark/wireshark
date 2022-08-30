@@ -178,13 +178,24 @@ WS_DLL_PUBLIC
 gboolean hex_str_to_bytes_encoding(const char *hex_str, GByteArray *bytes, const char **endptr,
                                    const guint encoding, const gboolean fail_if_partial);
 
-/** Turn an RFC 3986 percent-encoded string into a byte array.
+/** Turn an RFC 3986 percent-encoded array of characters, not necessarily
+ * null-terminated, into a byte array.
  *
  * @param uri_str The string of hex digits.
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
  * @return True if the string was converted successfully
- * @see format_uri()
+ */
+WS_DLL_PUBLIC
+gboolean   uri_to_bytes(const char *uri_str, GByteArray *bytes, size_t len);
+
+/** Turn an RFC 3986 percent-encoded string into a byte array.
+ *
+ * @param uri_str The string of hex digits.
+ * @param bytes The GByteArray that will receive the bytes.  This
+ *        must be initialized by the caller.
+ * @param len The length of the input string
+ * @return True if the string was converted successfully
  */
 WS_DLL_PUBLIC
 gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
