@@ -4056,18 +4056,41 @@ again:
                 goto clean_exit;
             }
 
-            /* The above code only finds retransmission if the PDU boundaries and the seq coincide I think
+            /* Else, find the most previous PDU starting before this sequence number */
+            if (!msp) {
+                msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
+            }
+
+            gboolean has_unfinished_msp = FALSE;
+            if (msp && LE_SEQ(msp->seq, seq) && GT_SEQ(msp->nxtpdu, seq) && !(msp->flags & MSP_FLAGS_GOT_ALL_SEGMENTS)) {
+                has_unfinished_msp = TRUE;
+            }
+
+            /* The above code only finds retransmission if the PDU boundaries and the seq coincide
              * If we have sequence analysis active use the TCP_A_RETRANSMISSION flag.
              * XXXX Could the above code be improved?
              */
             if(tcpd->ta) {
-                /* Spurious Retransmission is the most obvious case to handle, just ignore it.
-                 * See issue 10289
+                /* If we have an unfinished MSP that this segment belongs to
+                 * or if the sequence number is newer than anything we've seen,
+                 * then this is Out of Order from the reassembly perspective
+                 * and we want to process it anyway.
                  */
-                if((tcpd->ta->flags&TCP_A_SPURIOUS_RETRANSMISSION) == TCP_A_SPURIOUS_RETRANSMISSION) {
-                    goto clean_exit;
+                if (!PINFO_FD_VISITED(pinfo) && tcpd->fwd->maxnextseq && LE_SEQ(seq, tcpd->fwd->maxnextseq) && !has_unfinished_msp) {
+                    /* Otherwise, if TCP Analysis calls the segment a
+                     * Spurious Retransmission or Retransmission, ignore it
+                     * here and on future passes.
+                     * See issue 10289
+                     * XXX: There are still some cases where TCP Analysis
+                     * marks segments as Retransmissions when they are
+                     * Out of Order from this perspective (#10725, #13843)
+                     */
+                    if((tcpd->ta->flags&TCP_A_SPURIOUS_RETRANSMISSION) == TCP_A_SPURIOUS_RETRANSMISSION ||
+                      ((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION)) {
+                        tcpd->ta->flags |= TCP_A_OLD_DATA;
+                    }
                 }
-                if((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION) {
+                if((tcpd->ta->flags&TCP_A_OLD_DATA) == TCP_A_OLD_DATA) {
                     const char* str = "Retransmitted ";
                     nbytes = tvb_reported_length_remaining(tvb, offset);
                     proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
@@ -4075,10 +4098,6 @@ again:
                         plurality(nbytes, "", "s"));
                     goto clean_exit;
                 }
-            }
-            /* Else, find the most previous PDU starting before this sequence number */
-            if (!msp) {
-                msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
             }
         }
     }
@@ -4140,6 +4159,17 @@ again:
             fd->len = nxtseq - seq;
             if (wmem_list_find_custom(tcpd->fwd->ooo_segments, fd, compare_ooo_segment_item)) {
                 has_gap = TRUE;
+            }
+        }
+    }
+
+    /* If we are not processing out of order, update the max nextseq value if
+     * is later than our current value (or our first value.)
+     */
+    if (!reassemble_ooo && tcpd && !(tcpd->fwd->flags & TCP_FLOW_REASSEMBLE_UNTIL_FIN)) {
+        if (!PINFO_FD_VISITED(pinfo)) {
+            if (LT_SEQ(tcpd->fwd->maxnextseq, nxtseq) || tcpd->fwd->maxnextseq == 0) {
+                tcpd->fwd->maxnextseq = nxtseq;
             }
         }
     }
