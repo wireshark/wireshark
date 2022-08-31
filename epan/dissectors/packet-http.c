@@ -1022,8 +1022,8 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
 	if(!conv_data) {
 		/* Setup the conversation structure itself */
 		conv_data = wmem_new0(wmem_file_scope(), http_conv_t);
-		conv_data->chunk_offsets_fwd = wmem_map_new(wmem_file_scope(), g_int_hash, g_int_equal);
-		conv_data->chunk_offsets_rev = wmem_map_new(wmem_file_scope(), g_int_hash, g_int_equal);
+		conv_data->chunk_offsets_fwd = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+		conv_data->chunk_offsets_rev = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 		conversation_add_proto_data(*conversation, proto_http,
 					    conv_data);
@@ -1142,7 +1142,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (seq && chunk_map) {
-		chunk_offset = GPOINTER_TO_INT(wmem_map_lookup(chunk_map, seq));
+		chunk_offset = GPOINTER_TO_INT(wmem_map_lookup(chunk_map, GUINT_TO_POINTER(*seq)));
 		/* Returns 0 when there is no entry in the map, as we want. */
 	}
 
@@ -1290,7 +1290,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * More data needed for desegmentation.
 			 */
 			if (seq && chunk_map && chunk_offset) {
-				wmem_map_insert(chunk_map, seq, GINT_TO_POINTER(chunk_offset));
+				wmem_map_insert(chunk_map, GUINT_TO_POINTER(*seq), GINT_TO_POINTER(chunk_offset));
 			}
 			return -1;
 		}
