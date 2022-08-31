@@ -3900,8 +3900,8 @@ BACnetErrorCode [] = {
     {  54, "abort - segmentation - not - supported" },
     {  55, "abort - proprietary" },
     {  56, "abort - other" },
-    {  57, "reject - invalid - tag" },
-    {  58, "reject - network - down" },
+    {  57, "invalid - tag" },
+    {  58, "network - down" },
     {  59, "reject - buffer - overflow" },
     {  60, "reject - inconsistent - parameters" },
     {  61, "reject - invalid - parameter - data - type" },
@@ -5265,7 +5265,7 @@ BACnetSuccessFilter [] = {
 
 /* These values are (manually) transferred from
  * http://www.bacnet.org/VendorID/BACnet Vendor IDs.htm
- * Version: "As of January 12, 2022"
+ * Version: "As of July 27, 2022"
  */
 
 static const value_string
@@ -6634,6 +6634,15 @@ BACnetVendorIdentifiers [] = {
     { 1362, "Ozuno Engineering Pty Ltd" },
     { 1363, "Hubbell, The Electric Heater Company" },
     { 1364, "Industrial Turnaround Corporation (ITAC)" },
+    { 1365, "Wadsworth Control Systems" },
+    { 1366, "Services Hilo Inc." },
+    { 1367, "iDM Energiesysteme GmbH" },
+    { 1368, "BeNext B.V." },
+    { 1369, "CleanAir.ai Corporation" },
+    { 1370, "Revolution Microelectronics (America) Inc." },
+    { 1371, "Arendar IT-Security GmbH" },
+    { 1372, "ZedBee Technologies Pvt Ltd." },
+    { 1373, "Winmate Technology Solutions Pvt. Ltd." },
     {    0, NULL }
 };
 static value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
@@ -8638,7 +8647,7 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
         tmp = tvb_get_guint8(tvb, (offset)+i + 1);
         if (i == numberOfBytes - 1) { skip = unused; }
         for (j = 0; j < 8 - skip; j++) {
-            bf_arr[MIN(255, (i * 8) + j)] = tmp & (1 << (7 - j)) ? 'T' : 'F';
+            bf_arr[MIN(sizeof(bf_arr) - 1, (i * 8) + j)] = tmp & (1 << (7 - j)) ? 'T' : 'F';
         }
     }
 
@@ -8647,8 +8656,9 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
                                     ett_bacapp_tag, NULL,
                                     "%s(Bit String) (%s)", label, bf_arr);
     } else {
-        subtree = proto_tree_add_subtree(tree, tvb, offset, offs+lvt, ett_bacapp_tag, NULL, "present-value");
-        proto_tree_add_string(subtree, hf_bacapp_present_value_bit_string, tvb, offset, offs+lvt, bf_arr);
+        subtree = proto_tree_add_subtree_format(tree, tvb, start, offs+lvt,
+                                    ett_bacapp_tag, NULL,
+                                    "present-value (%s)", bf_arr);
     }
 
     fTagHeaderTree(tvb, pinfo, subtree, start, &tag_no, &tag_info, &lvt);
@@ -10893,7 +10903,9 @@ BACnetPropertyStatesEnums[] = {
     {  55, BACnetLiftCarMode },
     {  56, BACnetLiftGroupMode },
     {  57, BACnetLiftFault },
-    {  58, BACnetProtocolLevel }
+    {  58, BACnetProtocolLevel },
+    {  59, BACnetAuditLevel },
+    {  60, BACnetAuditOperation }
 };
 #define BACnetPropertyStatesEnums_Size \
     (sizeof(BACnetPropertyStatesEnums) / sizeof(BACnetPropertyStatesEnums[0]))
@@ -10916,6 +10928,12 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         offset = fBooleanTag(tvb, pinfo, tree, offset, label);
         break;
     case 11:
+        offset = fUnsignedTag(tvb, pinfo, tree, offset, label);
+        break;
+    case 41:
+        offset = fSignedTag(tvb, pinfo, tree, offset, label);
+        break;
+    case 63:
         offset = fUnsignedTag(tvb, pinfo, tree, offset, label);
         break;
     default:
