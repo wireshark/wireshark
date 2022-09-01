@@ -36,7 +36,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>@LOG_PROJECT_VERSION@</string>
 	<key>CFBundleSignature</key>
-	<string>Lshk</string>
+	<string>Lgry</string>
 	<key>CFBundleVersion</key>
 	<string>@LOG_PROJECT_VERSION@</string>
 	<key>NSHumanReadableCopyright</key>

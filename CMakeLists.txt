@@ -2535,47 +2535,89 @@ if(ENABLE_APPLICATION_BUNDLE)
 	"-Wl,-headerpad_max_install_names -Wl,-search_paths_first ${CMAKE_EXE_LINKER_FLAGS}"
 	)
 
-	# Add files to the app bundle
+	# Add files to the Wireshark application bundle
 	# Wireshark.app/Contents
-	file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo "APPLWshk\n")
-	set(BUNDLE_CONTENTS_FILES
-		${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
+	file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/wireshark/PkgInfo "APPLWshk\n")
+	set(WIRESHARK_BUNDLE_CONTENTS_FILES
+		${CMAKE_BINARY_DIR}/packaging/macosx/wireshark/PkgInfo
 	)
-	set_source_files_properties(${BUNDLE_CONTENTS_FILES} PROPERTIES
+	set_source_files_properties(${WIRESHARK_BUNDLE_CONTENTS_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION .
 	)
 
 	# Wireshark.app/Contents/Resources
-	set(BUNDLE_RESOURCE_FILES
+	set(WIRESHARK_BUNDLE_RESOURCE_FILES
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.icns
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
 	)
-	set_source_files_properties(${BUNDLE_RESOURCE_FILES} PROPERTIES
+	set_source_files_properties(${WIRESHARK_BUNDLE_RESOURCE_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources
 	)
 
 	# Wireshark.app/Contents/Resources/share/man/man1
-	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_MAN1_FILES} PROPERTIES
+	set_source_files_properties(${WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN1_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man1
 		GENERATED 1
 	)
 
 	# Wireshark.app/Contents/Resources/share/man/man4
-	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
+	set_source_files_properties(${WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man4
 		GENERATED 1
 	)
 
 	# INSTALL_FILES and INSTALL_DIRS are handled by copy_data_files
 
-	set(EXTRA_BUNDLE_FILES
-		${BUNDLE_CONTENTS_FILES}
-		${BUNDLE_RESOURCE_FILES}
-		${BUNDLE_RESOURCE_SHARE_MAN1_FILES}
-		${BUNDLE_RESOURCE_SHARE_MAN4_FILES}
+	set(EXTRA_WIRESHARK_BUNDLE_FILES
+		${WIRESHARK_BUNDLE_CONTENTS_FILES}
+		${WIRESHARK_BUNDLE_RESOURCE_FILES}
+		${WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN1_FILES}
+		${WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN4_FILES}
 	)
+
+	# Add files to the Logray application bundle
+	# Logray.app/Contents
+	file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/logray/PkgInfo "APPLLgry\n")
+	set(LOGRAY_BUNDLE_CONTENTS_FILES
+		${CMAKE_BINARY_DIR}/packaging/macosx/logray/PkgInfo
+	)
+	set_source_files_properties(${LOGRAY_BUNDLE_CONTENTS_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION .
+	)
+
+	# Logray.app/Contents/Resources
+	set(LOGRAY_BUNDLE_RESOURCE_FILES
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.icns
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
+	)
+	set_source_files_properties(${LOGRAY_BUNDLE_RESOURCE_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION Resources
+	)
+
+	# Logray.app/Contents/Resources/share/man/man1
+	set_source_files_properties(${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN1_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION Resources/share/man/man1
+		GENERATED 1
+	)
+
+	# Logray.app/Contents/Resources/share/man/man4
+	set_source_files_properties(${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN4_FILES} PROPERTIES
+		MACOSX_PACKAGE_LOCATION Resources/share/man/man4
+		GENERATED 1
+	)
+
+	# INSTALL_FILES and INSTALL_DIRS are handled by copy_data_files
+
+	set(EXTRA_LOGRAY_BUNDLE_FILES
+		${LOGRAY_BUNDLE_CONTENTS_FILES}
+		${LOGRAY_BUNDLE_RESOURCE_FILES}
+		${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN1_FILES}
+		${LOGRAY_BUNDLE_RESOURCE_SHARE_MAN4_FILES}
+	)
+
 else()
-	set(EXTRA_BUNDLE_FILES)
+	set(EXTRA_WIRESHARK_BUNDLE_FILES)
+	set(EXTRA_LOGRAY_BUNDLE_FILES)
 endif()
 
 if(BUILD_wireshark AND QT_FOUND)
@@ -2600,7 +2642,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${MINIZIP_LIBRARIES}
 	)
 
-	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
+	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_WIRESHARK_BUNDLE_FILES})
 	if(WIN32)
 		set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT wireshark)
 	endif()
@@ -2623,7 +2665,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	if(ENABLE_APPLICATION_BUNDLE)
 		if(ASCIIDOCTOR_FOUND)
 			# Make sure to generate files referenced by
-			# BUNDLE_RESOURCE_SHARE_MAN1_FILES
+			# WIRESHARK_BUNDLE_RESOURCE_SHARE_MAN1_FILES
 			add_dependencies(wireshark manpages)
 		endif()
 		set_target_properties(
@@ -2703,7 +2745,7 @@ if(BUILD_logray AND QT_FOUND)
 		${MINIZIP_LIBRARIES}
 	)
 
-	add_executable(logray WIN32 MACOSX_BUNDLE ${logray_FILES} ${EXTRA_BUNDLE_FILES})
+	add_executable(logray WIN32 MACOSX_BUNDLE ${logray_FILES} ${EXTRA_LOGRAY_BUNDLE_FILES})
 	if(WIN32 AND NOT BUILD_wireshark)
 		set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT logray)
 	endif()
@@ -2726,7 +2768,7 @@ if(BUILD_logray AND QT_FOUND)
 	if(ENABLE_APPLICATION_BUNDLE)
 		if(ASCIIDOCTOR_FOUND)
 			# Make sure to generate files referenced by
-			# BUNDLE_RESOURCE_SHARE_MAN1_FILES
+			# LOGRAY_BUNDLE_RESOURCE_SHARE_MAN1_FILES
 			add_dependencies(logray manpages)
 		endif()
 		set_target_properties(
