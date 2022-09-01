@@ -587,8 +587,8 @@ set(LOGRAY_QT_QRC
 	../../resources/about.qrc
 	../../resources/languages/languages.qrc
 	../../resources/layout.qrc
+	../../resources/lricon.qrc
 	../../resources/stock_icons.qrc
-	../../resources/wsicon.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 

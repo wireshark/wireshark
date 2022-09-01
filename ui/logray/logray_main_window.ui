@@ -720,7 +720,7 @@
   <action name="actionHelpWebsite">
    <property name="icon">
     <iconset resource="../../image/stock_icons.qrc">
-     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
+     <normaloff>:/menu/help/lricon16.png</normaloff>:/menu/help/lricon16.png</iconset>
    </property>
    <property name="text">
     <string>Website</string>
@@ -739,7 +739,7 @@
   <action name="actionHelpWiki">
    <property name="icon">
     <iconset resource="../../image/stock_icons.qrc">
-     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
+     <normaloff>:/menu/help/lricon16.png</normaloff>:/menu/help/lricon16.png</iconset>
    </property>
    <property name="text">
     <string>Wiki</string>

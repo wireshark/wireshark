@@ -2587,7 +2587,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	# Logray.app/Contents/Resources
 	set(LOGRAY_BUNDLE_RESOURCE_FILES
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.icns
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Logray.icns
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
 	)
 	set_source_files_properties(${LOGRAY_BUNDLE_RESOURCE_FILES} PROPERTIES

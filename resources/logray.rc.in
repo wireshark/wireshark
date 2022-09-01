@@ -1,7 +1,7 @@
 #include "winver.h"
 #pragma code_page(65001)
 
-LOGRAY_ICON1 ICON "@ICON_PATH@wireshark.ico"
+LOGRAY_ICON1 ICON "@ICON_PATH@logray.ico"
 LOGRAY_ICON2 ICON "@ICON_PATH@wiresharkdoc.ico"
 
 VS_VERSION_INFO VERSIONINFO

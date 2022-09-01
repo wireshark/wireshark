@@ -15,6 +15,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     MainApplication(argc, argv)
 {
     wsApp = this;
+    Q_INIT_RESOURCE(wsicon);
     setApplicationName("Wireshark");
     setDesktopFileName(QStringLiteral("org.wireshark.Wireshark"));
 }

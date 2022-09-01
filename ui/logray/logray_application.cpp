@@ -19,6 +19,7 @@ LograyApplication::LograyApplication(int &argc, char **argv) :
     MainApplication(argc, argv)
 {
     lwApp = this;
+    Q_INIT_RESOURCE(lricon);
     setApplicationName("Logray");
     setDesktopFileName(QStringLiteral("org.wireshark.Logray"));
 }

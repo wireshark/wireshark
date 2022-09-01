@@ -8,7 +8,7 @@ and WiresharkDoc-*.png in the icons directory.
 File descriptions:
 
 wsicon.svg::
-Old vector source for the wireshark icon.
+Old vector source for the Wireshark icon.
 
 wsiconcap.svg::
 Old vector source for the "capture" icon.
@@ -23,16 +23,25 @@ wsiconcap16.png ... wsiconcap1024.png::
 “Capture in progress” application icon in various sizes
 
 wsiconinst16.png ... wsiconinst1024.png::
-Wireshark installer icons in various sizes
+Wireshark installer icons in various sizes.
 
-WiresharkDoc-16.png ... WiresharkDoc-256.png
-Capture document icon in various sizes
+WiresharkDoc-16.png ... WiresharkDoc-256.png::
+Capture document icon in various sizes.
 
 wireshark.ico::
-Windows application icon file with 16 and 32 pixel 3D logo icons, high and low color.
+Windows application icon file with 16x16, 24x24 32x32, 48x48, and 256x256 pixel images.
 
 wiresharkdoc.ico::
 Windows document icon file with 16 and 32 pixel 3D logo icons, high and low color.
+
+lricon.svg::
+Vector source for the Logray icon.
+
+lricon16.png ... lricon1024.png::
+Logray application icons in various sizes.
+
+logray.ico::
+Windows application icon file with 16x16, 32x32, 48x48, and 256x256 pixel images.
 
 *.rc.in::
 MSVC++ resource templates

@@ -646,7 +646,6 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(i18n);
     Q_INIT_RESOURCE(layout);
     Q_INIT_RESOURCE(stock_icons);
-    Q_INIT_RESOURCE(wsicon);
     Q_INIT_RESOURCE(languages);
 
 #ifdef Q_OS_WIN

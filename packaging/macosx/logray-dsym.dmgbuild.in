@@ -64,7 +64,7 @@ symlinks = {
 # image, *or* you can define badge_icon, in which case the icon file you specify
 # will be used to badge the system's Removable Disk icon
 #
-badge_icon = os.path.join(lw_srcdir, 'packaging', 'macosx', 'wsiconvol.icns')
+badge_icon = os.path.join(lw_srcdir, 'packaging', 'macosx', 'lriconvol.icns')
 #badge_icon = icon_from_app(application)
 
 # Where to put the icons

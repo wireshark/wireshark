@@ -38,7 +38,7 @@ SetCompressorDictSize 64 ; MB
 ; The file to write
 OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 ; Installer icon
-Icon "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
+Icon "${TOP_SRC_DIR}\resources\icons\lograyinst.ico"
 
 ; ============================================================================
 ; Modern UI
@@ -53,7 +53,7 @@ Icon "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
 !include "InstallOptions.nsh"
 ;!addplugindir ".\Plugins"
 
-!define MUI_ICON "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
+!define MUI_ICON "${TOP_SRC_DIR}\resources\icons\lograyinst.ico"
 BrandingText "Logray${U+00ae} Installer"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC

@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/lricon">
+        <file alias="wsiconcap16.png">icons/wsiconcap16.png</file>
+        <file alias="wsiconcap32.png">icons/wsiconcap32.png</file>
+        <file alias="wsiconcap48.png">icons/wsiconcap48.png</file>
+        <file alias="wsiconcap64.png">icons/wsiconcap64.png</file>
+        <file alias="wsiconcap128.png">icons/wsiconcap128.png</file>
+        <file alias="wsiconcap256.png">icons/wsiconcap256.png</file>
+        <file alias="wsiconcap512.png">icons/wsiconcap512.png</file>
+        <file alias="wsiconcap1024.png">icons/wsiconcap1024.png</file>
+        <file alias="lricon16.png">icons/lricon16.png</file>
+        <file alias="lricon32.png">icons/lricon32.png</file>
+        <file alias="lricon48.png">icons/lricon48.png</file>
+        <file alias="lricon64.png">icons/lricon64.png</file>
+        <file alias="lricon128.png">icons/lricon128.png</file>
+        <file alias="lricon256.png">icons/lricon256.png</file>
+        <file alias="lricon512.png">icons/lricon512.png</file>
+        <file alias="lricon1024.png">icons/lricon1024.png</file>
+    </qresource>
+</RCC>

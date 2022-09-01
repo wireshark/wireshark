@@ -31,7 +31,7 @@ Name "${DISPLAY_NAME}"
 !define UNINSTALLER_NAME "uninstall-logray.exe"
 
 VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
-VIAddVersionKey "Comments" "It's a great product with a great story to tell. I'm pumped!"
+VIAddVersionKey "Comments" "My manta ray is all right."
 VIAddVersionKey "CompanyName" "${PROGRAM_NAME} development team"
 ; NSIS handles U+00a9 but not a UTF-8 encoded copyright symbol.
 VIAddVersionKey "LegalCopyright" "${U+00a9} Gerald Combs and many others"
