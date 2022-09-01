@@ -1052,6 +1052,10 @@ static dissector_handle_t bgp_handle;
 #define SRV6_ENDPOINT_BEHAVIOR_END_DX2V_CSID          0x0042 /* End.DX2V with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
 #define SRV6_ENDPOINT_BEHAVIOR_END_DT2U_CSID          0x0043 /* End.DT2U with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
 #define SRV6_ENDPOINT_BEHAVIOR_END_DT2M_CSID          0x0044 /* End.DT2M with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6D            0x0045 /* End.M.GTP6.D [draft-ietf-dmm-srv6-mobile-uplane]                                         */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6DI           0x0046 /* End.M.GTP6.Di [draft-ietf-dmm-srv6-mobile-uplane]                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6E            0x0047 /* End.M.GTP6.E [draft-ietf-dmm-srv6-mobile-uplane]                                         */
+#define SRV6_ENDPOINT_BEHAVIOR_END_M_GTP4E            0x0048 /* End.M.GTP4.E [draft-ietf-dmm-srv6-mobile-uplane]                                         */
 #define SRV6_ENDPOINT_BEHAVIOR_OPAQUE                 0xFFFF /* Opaque [draft-ietf-spring-srv6-network-programming]                                      */
 
 static const value_string bgptypevals[] = {
@@ -1926,6 +1930,10 @@ static const value_string srv6_endpoint_behavior[] = {
     { SRV6_ENDPOINT_BEHAVIOR_END_DX2V_CSID,          "End.DX2V with NEXT-CSID" },
     { SRV6_ENDPOINT_BEHAVIOR_END_DT2U_CSID,          "End.DT2U with NEXT-CSID" },
     { SRV6_ENDPOINT_BEHAVIOR_END_DT2M_CSID,          "End.DT2M with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6D,            "End.M.GTP6.D" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6DI,           "End.M.GTP6.Di" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_M_GTP6E,            "End.M.GTP6.E" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_M_GTP4E,            "End.M.GTP4.E" },
     { SRV6_ENDPOINT_BEHAVIOR_OPAQUE,                 "Opaque" },
     { 0,  NULL }
 };
