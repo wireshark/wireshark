@@ -723,14 +723,14 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
                 /*
                  * Port 1 but not port 2.
                  */
-                DPRINT(("creating conversation for frame #%u: ID %u (etype=%d)",
-                            setup_frame, port1, etype));
+                DPRINT(("creating conversation for frame #%u: ID %u (ctype=%d)",
+                            setup_frame, port1, ctype));
             } else {
                 /*
                  * Ports 1 and 2.
                  */
-                DPRINT(("creating conversation for frame #%u: %u -> %u (etype=%d)",
-                            setup_frame, port1, port2, etype));
+                DPRINT(("creating conversation for frame #%u: %u -> %u (ctype=%d)",
+                            setup_frame, port1, port2, ctype));
             }
         } else {
             /*
@@ -741,14 +741,14 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
                 /*
                  * Port 1 but not port 2.
                  */
-                DPRINT(("creating conversation for frame #%u: ID %u, address %s (etype=%d)",
-                            setup_frame, port1, addr2_str, etype));
+                DPRINT(("creating conversation for frame #%u: ID %u, address %s (ctype=%d)",
+                            setup_frame, port1, addr2_str, ctype));
             } else {
                 /*
                  * Ports 1 and 2.
                  */
-                DPRINT(("creating conversation for frame #%u: %u -> %s:%u (etype=%d)",
-                            setup_frame, port1, addr2_str, port2, etype));
+                DPRINT(("creating conversation for frame #%u: %u -> %s:%u (ctype=%d)",
+                            setup_frame, port1, addr2_str, port2, ctype));
             }
             wmem_free(NULL, addr2_str);
         }
@@ -765,14 +765,14 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
                 /*
                  * Port 1 but not port 2.
                  */
-                DPRINT(("creating conversation for frame #%u: %s:%u (etype=%d)",
-                            setup_frame, addr1_str, port1, etype));
+                DPRINT(("creating conversation for frame #%u: %s:%u (ctype=%d)",
+                            setup_frame, addr1_str, port1, ctype));
             } else {
                 /*
                  * Ports 1 and 2.
                  */
-                DPRINT(("creating conversation for frame #%u: %s:%u -> %u (etype=%d)",
-                            setup_frame, addr1_str, port1, port2, etype));
+                DPRINT(("creating conversation for frame #%u: %s:%u -> %u (ctype=%d)",
+                            setup_frame, addr1_str, port1, port2, ctype));
             }
         } else {
             /*
@@ -783,14 +783,14 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
                 /*
                  * Port 1 but not port 2.
                  */
-                DPRINT(("creating conversation for frame #%u: %s:%u -> %s (etype=%d)",
-                            setup_frame, addr1_str, port1, addr2_str, etype));
+                DPRINT(("creating conversation for frame #%u: %s:%u -> %s (ctype=%d)",
+                            setup_frame, addr1_str, port1, addr2_str, ctype));
             } else {
                 /*
                  * Ports 1 and 2.
                  */
-                DPRINT(("creating conversation for frame #%u: %s:%u -> %s:%u (etype=%d)",
-                            setup_frame, addr1_str, port1, addr2_str, port2, etype));
+                DPRINT(("creating conversation for frame #%u: %s:%u -> %s:%u (ctype=%d)",
+                            setup_frame, addr1_str, port1, addr2_str, port2, ctype));
             }
             wmem_free(NULL, addr2_str);
         }
