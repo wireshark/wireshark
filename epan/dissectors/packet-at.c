@@ -122,6 +122,12 @@ static int hf_ccwa_mode                                                    = -1;
 static int hf_ccwa_class                                                   = -1;
 static int hf_cfun_fun                                                     = -1;
 static int hf_cfun_rst                                                     = -1;
+static int hf_cgdcont_cid                                                  = -1;
+static int hf_cgdcont_pdp_type                                             = -1;
+static int hf_cgdcont_apn                                                  = -1;
+static int hf_cgdcont_pdp_addr                                             = -1;
+static int hf_cgdcont_d_comp                                               = -1;
+static int hf_cgdcont_h_comp                                               = -1;
 static int hf_cgmi_manufacturer_id                                         = -1;
 static int hf_cgmm_model_id                                                = -1;
 static int hf_cgmr_revision_id                                             = -1;
@@ -644,6 +650,14 @@ static gboolean check_cfun(gint role, guint16 type) {
     return FALSE;
 }
 
+static gboolean check_cgdcont(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_ACTION_SIMPLY ||
+                             type == TYPE_READ || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
 static gboolean check_cgmi(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
@@ -981,6 +995,46 @@ dissect_cfun_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (value > 1)
                 expert_add_info(pinfo, pitem, &ei_cfun_rst);
             break;
+    }
+
+    return TRUE;
+}
+
+static gboolean
+dissect_cgdcont_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          gint offset, gint role, guint16 type, guint8 *parameter_stream,
+                          guint parameter_number, gint parameter_length,
+                          at_packet_info_t *at_info _U_, void **data _U_)
+{
+    guint32      value;
+
+    if (!check_cgdcont(role, type)) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        value = get_uint_parameter(pinfo->pool, parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cgdcont_cid, tvb, offset, parameter_length, value);
+        break;
+    case 1:
+        proto_tree_add_item(tree, hf_cgdcont_pdp_type, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 2:
+        proto_tree_add_item(tree, hf_cgdcont_apn, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 3:
+        proto_tree_add_item(tree, hf_cgdcont_pdp_addr, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 4:
+        value = get_uint_parameter(pinfo->pool, parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cgdcont_d_comp, tvb, offset, parameter_length, value);
+        break;
+    case 5:
+        value = get_uint_parameter(pinfo->pool, parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cgdcont_h_comp, tvb, offset, parameter_length, value);
+        break;
+    default:
+        proto_tree_add_item(tree, hf_parameter, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
     }
 
     return TRUE;
@@ -2045,6 +2099,7 @@ dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 static const at_cmd_t at_cmds[] = {
     { "+CCWA",      "Call Waiting Notification",                               check_ccwa, dissect_ccwa_parameter },
     { "+CFUN",      "Set Phone Functionality",                                 check_cfun, dissect_cfun_parameter },
+    { "+CGDCONT",   "PDP context define",                                      check_cgdcont, dissect_cgdcont_parameter },
     { "+CGMI",      "Request manufacturer identification",                     check_cgmi, dissect_cgmi_parameter },
     { "+CGMM",      "Request model identification",                            check_cgmm, dissect_cgmm_parameter },
     { "+CGMR",      "Request revision identification",                         check_cgmr, dissect_cgmr_parameter },
@@ -3072,6 +3127,36 @@ proto_register_at_command(void)
         { &hf_cfun_rst,
            { "Reset",                             "at.cfun.rst",
            FT_UINT8, BASE_DEC, VALS(cfun_rst_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cgdcont_cid,
+           { "CID",                               "at.cgdcont.cid",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cgdcont_pdp_type,
+           { "PDP type",                          "at.cgdcont.pdp_type",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cgdcont_apn,
+           { "APN",                               "at.cgdcont.apn",
+           FT_STRING, BASE_NONE, NULL, 0,
+           "Access Point Name", HFILL}
+        },
+        { &hf_cgdcont_pdp_addr,
+           { "PDP address",                       "at.cgdcont.pdp_addr",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cgdcont_d_comp,
+           { "Data compression",                  "at.cgdcont.d_comp",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cgdcont_h_comp,
+           { "Header compression",                "at.cgdcont.h_comp",
+           FT_UINT32, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         { &hf_cgmi_manufacturer_id,
