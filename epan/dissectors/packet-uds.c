@@ -209,6 +209,66 @@ void proto_reg_handoff_uds(void);
 #define UDS_CDTCS_ACTIONS_ON  1
 #define UDS_CDTCS_ACTIONS_OFF 2
 
+#define UDS_DID_BSIDID          0xF180
+#define UDS_DID_ASIDID          0xF181
+#define UDS_DID_ADIDID          0xF182
+#define UDS_DID_BSFPDID         0xF183
+#define UDS_DID_ASFPDID         0xF184
+#define UDS_DID_ADFPDID         0xF185
+#define UDS_DID_ADSDID          0xF186
+#define UDS_DID_VMSPNDID        0xF187
+#define UDS_DID_VMECUSNDID      0xF188
+#define UDS_DID_VMECUSVNDID     0xF189
+#define UDS_DID_SSIDDID         0xF18A
+#define UDS_DID_ECUMDDID        0xF18B
+#define UDS_DID_ECUSNDID        0xF18C
+#define UDS_DID_SFUDID          0xF18D
+#define UDS_DID_VMKAPNDID       0xF18E
+#define UDS_DID_RXSWIN          0xF18F
+#define UDS_DID_VINDID          0xF190
+#define UDS_DID_VMECUHNDID      0xF191
+#define UDS_DID_SSECUHWNDID     0xF192
+#define UDS_DID_SSECUHWVNDID    0xF193
+#define UDS_DID_SSECUSWNDID     0xF194
+#define UDS_DID_SSECUSWVNDID    0xF195
+#define UDS_DID_EROTANDID       0xF196
+#define UDS_DID_SNOETDID        0xF197
+#define UDS_DID_RSCOTSNDID      0xF198
+#define UDS_DID_PDDID           0xF199
+#define UDS_DID_CRSCOCESNDID    0xF19A
+#define UDS_DID_CDDID           0xF19B
+#define UDS_DID_CESWNDID        0xF19D
+#define UDS_DID_EIDDID          0xF19D
+#define UDS_DID_ODXFDID         0xF19E
+#define UDS_DID_EDID            0xF19F
+#define UDS_DID_ADDID_FA00      0xFA00
+#define UDS_DID_ADDID_FA01      0xFA01
+#define UDS_DID_ADDID_FA02      0xFA02
+#define UDS_DID_ADDID_FA03      0xFA03
+#define UDS_DID_ADDID_FA04      0xFA04
+#define UDS_DID_ADDID_FA05      0xFA05
+#define UDS_DID_ADDID_FA06      0xFA06
+#define UDS_DID_ADDID_FA07      0xFA07
+#define UDS_DID_ADDID_FA08      0xFA08
+#define UDS_DID_ADDID_FA09      0xFA09
+#define UDS_DID_ADDID_FA0A      0xFA0A
+#define UDS_DID_ADDID_FA0B      0xFA0B
+#define UDS_DID_ADDID_FA0C      0xFA0C
+#define UDS_DID_ADDID_FA0D      0xFA0D
+#define UDS_DID_ADDID_FA0E      0xFA0E
+#define UDS_DID_ADDID_FA0F      0xFA0F
+#define UDS_DID_NOEDRD          0xFA10
+#define UDS_DID_EDRI            0xFA11
+#define UDS_DID_EDRDAI          0xFA12
+#define UDS_DID_UDSVDID         0xFF00
+#define UDS_DID_RESRVDCPADLC    0xFF01
+
+#define UDS_RID_EXSPLRI_        0xE200
+#define UDS_RID_DLRI_           0xE201
+#define UDS_RID_EM_             0xFF00
+#define UDS_RID_CPD_            0xFF01
+#define UDS_RID_FF02            0xFF02
+
 /*
  * Enums
  */
@@ -391,6 +451,73 @@ static const value_string uds_cdtcs_types[] = {
         {0, NULL}
 };
 
+/* DIDS */
+static const value_string uds_standard_did_types[] = {
+        {UDS_DID_BSIDID,        "BootSoftwareIdentificationDataIdentifier"},
+        {UDS_DID_ASIDID,        "applicationSoftwareIdentificationDataIdentifier"},
+        {UDS_DID_ADIDID,        "applicationDataIdentificationDataIdentifier"},
+        {UDS_DID_BSFPDID,       "bootSoftwareFingerprintDataIdentifier"},
+        {UDS_DID_ASFPDID,       "applicationSoftwareFingerprintDataIdentifier"},
+        {UDS_DID_ADFPDID,       "applicationDataFingerprintDataIdentifier"},
+        {UDS_DID_ADSDID,        "ActiveDiagnosticSessionDataIdentifier"},
+        {UDS_DID_VMSPNDID,      "vehicleManufacturerSparePartNumberDataIdentifier"},
+        {UDS_DID_VMECUSNDID,    "vehicleManufacturerECUSoftwareNumberDataIdentifier"},
+        {UDS_DID_VMECUSVNDID,   "vehicleManufacturerECUSoftwareVersionNumberDataIdentifier"},
+        {UDS_DID_SSIDDID,       "systemSupplierIdentifierDataIdentifier"},
+        {UDS_DID_ECUMDDID,      "ECUManufacturingDateDataIdentifier (year/month/day)"},
+        {UDS_DID_ECUSNDID,      "ECUSerialNumberDataIdentifier"},
+        {UDS_DID_SFUDID,        "supportedFunctionalUnitsDataIdentifier"},
+        {UDS_DID_VMKAPNDID,     "VehicleManufacturerKitAssemblyPartNumberDataIdentifier"},
+        {UDS_DID_RXSWIN,        "RegulationXSoftwareIdentificationNumbers (RxSWIN)"},
+        {UDS_DID_VINDID,        "VINDataIdentifier"},
+        {UDS_DID_VMECUHNDID,    "vehicleManufacturerECUHardwareNumberDataIdentifier"},
+        {UDS_DID_SSECUHWNDID,   "systemSupplierECUHardwareNumberDataIdentifier"},
+        {UDS_DID_SSECUHWVNDID,  "systemSupplierECUHardwareVersionNumberDataIdentifier"},
+        {UDS_DID_SSECUSWNDID,   "systemSupplierECUSoftwareNumberDataIdentifier"},
+        {UDS_DID_SSECUSWVNDID,  "systemSupplierECUSoftwareVersionNumberDataIdentifier"},
+        {UDS_DID_EROTANDID,     "exhaustRegulationOrTypeApprovalNumberDataIdentifier"},
+        {UDS_DID_SNOETDID,      "systemNameOrEngineTypeDataIdentifier"},
+        {UDS_DID_RSCOTSNDID,    "repairShopCodeOrTesterSerialNumberDataIdentifier"},
+        {UDS_DID_PDDID,         "programmingDateDataIdentifier (year/month/day)"},
+        {UDS_DID_CRSCOCESNDID,  "calibrationRepairShopCodeOrCalibrationEquipmentSerialNumberDataIdentifier"},
+        {UDS_DID_CDDID,         "calibrationDateDataIdentifier (year/month/day)"},
+        {UDS_DID_CESWNDID,      "calibrationEquipmentSoftwareNumberDataIdentifier"},
+        {UDS_DID_EIDDID,        "ECUInstallationDateDataIdentifier (year/month/day)"},
+        {UDS_DID_ODXFDID,       "ODXFileDataIdentifier"},
+        {UDS_DID_EDID,          "EntityDataIdentifier"},
+        {UDS_DID_ADDID_FA00,    "AirbagDeployment: Number of PCUs (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA01,    "AirbagDeployment: Deployment Method Version (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA02,    "AirbagDeployment: Address Information of PCU (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA03,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA04,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA05,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA06,    "AirbagDeployment: Deployment Loop Table of PCU (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA07,    "AirbagDeployment: Dismantler Info (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA08,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA09,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA0A,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA0B,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA0C,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA0D,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA0E,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_ADDID_FA0F,    "AirbagDeployment (ISO 26021-2)"},
+        {UDS_DID_NOEDRD,        "NumberOfEDRDevices"},
+        {UDS_DID_EDRI,          "EDRIdentification"},
+        {UDS_DID_EDRDAI,        "EDRDeviceAddressInformation"},
+        {UDS_DID_UDSVDID,       "EDRDAI"},
+        {UDS_DID_RESRVDCPADLC,  "ReservedForISO15765-5 (CAN, CAN-FD, CAN+CAN-FD, ...)"},
+        {0, NULL}
+};
+
+/* RIDS */
+static const value_string uds_standard_rid_types[] = {
+        {UDS_RID_EXSPLRI_,      "Execute SPL"},
+        {UDS_RID_DLRI_,         "DeployLoopRoutineID"},
+        {UDS_RID_EM_,           "eraseMemory"},
+        {UDS_RID_CPD_,          "checkProgrammingDependencies"},
+        {UDS_RID_FF02,          "eraseMirrorMemoryDTCs (deprecated)"},
+        {0, NULL}
+};
 /*
  * Fields
  */
@@ -660,14 +787,20 @@ post_update_uds_routine_cb(void) {
     post_update_one_id_string_template_cb(uds_uat_routine_ids, uds_uat_routine_id_num, uds_ht_routine_ids);
 }
 
-static char *
+static const char *
 uds_lookup_routine_name(guint32 addr, guint16 id) {
-    return generic_lookup_addr_id(addr, id, uds_ht_routine_ids);
+    const char *tmp = generic_lookup_addr_id(addr, id, uds_ht_routine_ids);
+
+    if (tmp == NULL) {
+        tmp = try_val_to_str(id, uds_standard_rid_types);
+    }
+
+    return tmp;
 }
 
 static void
 protoitem_append_routine_name(proto_item *ti, guint32 addr, guint16 data_identifier) {
-    gchar *routine_name = uds_lookup_routine_name(addr, data_identifier);
+    const gchar *routine_name = uds_lookup_routine_name(addr, data_identifier);
     if (routine_name != NULL) {
         proto_item_append_text(ti, " (%s)", routine_name);
     }
@@ -675,7 +808,7 @@ protoitem_append_routine_name(proto_item *ti, guint32 addr, guint16 data_identif
 
 static void
 infocol_append_routine_name(packet_info *pinfo, guint32 addr, guint16 routine_identifier) {
-    gchar *routine_name = uds_lookup_routine_name(addr, routine_identifier);
+    const gchar *routine_name = uds_lookup_routine_name(addr, routine_identifier);
     if (routine_name != NULL) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", routine_name);
     }
@@ -703,14 +836,20 @@ post_update_uds_data_cb(void) {
     post_update_one_id_string_template_cb(uds_uat_data_ids, uds_uat_data_id_num, uds_ht_data_ids);
 }
 
-static char *
+static const char *
 uds_lookup_data_name(guint32 addr, guint16 id) {
-    return generic_lookup_addr_id(addr, id, uds_ht_data_ids);
+    const char *tmp = generic_lookup_addr_id(addr, id, uds_ht_data_ids);
+
+    if (tmp == NULL) {
+        tmp = try_val_to_str(id, uds_standard_did_types);
+    }
+
+    return tmp;
 }
 
 static void
 protoitem_append_data_name(proto_item *ti, guint32 addr, guint16 data_identifier) {
-    gchar *data_name = uds_lookup_data_name(addr, data_identifier);
+    const gchar *data_name = uds_lookup_data_name(addr, data_identifier);
     if (data_name != NULL) {
         proto_item_append_text(ti, " (%s)", data_name);
     }
@@ -718,7 +857,7 @@ protoitem_append_data_name(proto_item *ti, guint32 addr, guint16 data_identifier
 
 static void
 infocol_append_data_name(packet_info *pinfo, guint32 addr, guint16 data_identifier) {
-    gchar *data_name = uds_lookup_data_name(addr, data_identifier);
+    const gchar *data_name = uds_lookup_data_name(addr, data_identifier);
     if (data_name != NULL) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", data_name);
     }
