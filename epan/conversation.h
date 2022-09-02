@@ -474,6 +474,12 @@ WS_DLL_PUBLIC wmem_map_t *get_conversation_hashtables(void);
  */
 WS_DLL_PUBLIC conversation_type conversation_pt_to_conversation_type(port_type pt);
 
+/* Temporary function to handle port_type to endpoint_type conversion
+   For now it's a 1-1 mapping, but the intention is to remove
+   many of the port_type instances in favor of endpoint_type
+ */
+WS_DLL_PUBLIC endpoint_type conversation_pt_to_endpoint_type(port_type pt);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -1904,6 +1904,7 @@ conversation_type conversation_pt_to_conversation_type(port_type pt)
         case PT_USB:
             return CONVERSATION_USB;
         case PT_I2C:
+            /* XXX - this doesn't currently have conversations */
             return CONVERSATION_I2C;
         case PT_IBQP:
             return CONVERSATION_IBQP;
@@ -1915,6 +1916,44 @@ conversation_type conversation_pt_to_conversation_type(port_type pt)
 
     DISSECTOR_ASSERT(FALSE);
     return CONVERSATION_NONE;
+}
+
+WS_DLL_PUBLIC
+endpoint_type conversation_pt_to_endpoint_type(port_type pt)
+{
+    switch (pt)
+    {
+        case PT_NONE:
+            return ENDPOINT_NONE;
+        case PT_SCTP:
+            return ENDPOINT_SCTP;
+        case PT_TCP:
+            return ENDPOINT_TCP;
+        case PT_UDP:
+            return ENDPOINT_UDP;
+        case PT_DCCP:
+            return ENDPOINT_DCCP;
+        case PT_IPX:
+            return ENDPOINT_IPX;
+        case PT_DDP:
+            return ENDPOINT_DDP;
+        case PT_IDP:
+            return ENDPOINT_IDP;
+        case PT_USB:
+            return ENDPOINT_USB;
+        case PT_I2C:
+            /* XXX - this doesn't have ports */
+            return ENDPOINT_I2C;
+        case PT_IBQP:
+            return ENDPOINT_IBQP;
+        case PT_BLUETOOTH:
+            return ENDPOINT_BLUETOOTH;
+        case PT_IWARP_MPA:
+            return ENDPOINT_IWARP_MPA;
+    }
+
+    DISSECTOR_ASSERT(FALSE);
+    return ENDPOINT_NONE;
 }
 
 /*
