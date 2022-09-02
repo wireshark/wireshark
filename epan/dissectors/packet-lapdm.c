@@ -323,7 +323,6 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             /* Check if new N(S) is equal to previous N(S) (to avoid adding retransmissions in reassembly table)
                As GUINT_TO_POINTER macro does not allow to differentiate NULL from 0, use 1-8 range instead of 0-7 */
             guint *p_last_n_s = (guint*)wmem_map_lookup(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id));
-            ws_warning("%u: fragid:%u last_n_s:%u n_s:%u", pinfo->num, fragment_id, GPOINTER_TO_UINT(p_last_n_s), n_s);
             if (GPOINTER_TO_UINT(p_last_n_s) == (guint)(n_s+1)) {
                 add_frag = FALSE;
             } else {
