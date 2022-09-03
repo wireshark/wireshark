@@ -268,8 +268,14 @@ WS_DLL_PUBLIC guint tvb_ensure_reported_length_remaining(const tvbuff_t *tvb,
    dissector's payload may include padding as well as the packet for
    this protocol.
 
-   Also adjusts the data length. */
+   Also adjusts the available and contained length. */
 WS_DLL_PUBLIC void tvb_set_reported_length(tvbuff_t *tvb, const guint);
+
+/* Repair a tvbuff where the captured length is greater than the
+ * reported length; such a tvbuff makes no sense, as it's impossible
+ * to capture more data than is in the packet.
+ */
+WS_DLL_PUBLIC void tvb_fix_reported_length(tvbuff_t *tvb);
 
 WS_DLL_PUBLIC guint tvb_offset_from_real_beginning(const tvbuff_t *tvb);
 

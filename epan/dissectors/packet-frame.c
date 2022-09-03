@@ -576,6 +576,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		wtap_block_foreach_option(fr_data->pkt_block, frame_add_comment, (void *)&fr_user_data);
 	}
 
+	cap_len = tvb_captured_length(tvb);
+	frame_len = tvb_reported_length(tvb);
+
 	/* if FRAME is not referenced from any filters we don't need to worry about
 	   generating any tree items.  */
 	if (!proto_field_is_referenced(tree, proto_frame)) {
@@ -586,9 +589,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 	} else {
 		/* Put in frame header information. */
-		cap_len = tvb_captured_length(tvb);
-		frame_len = tvb_reported_length(tvb);
-
 		cap_plurality = plurality(cap_len, "", "s");
 		frame_plurality = plurality(frame_len, "", "s");
 
@@ -861,8 +861,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		item = proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
 						  0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
 						  frame_len, frame_plurality, frame_len * 8);
-		if (frame_len < cap_len)
+		if (frame_len < cap_len) {
+			/*
+			 * A reported length less than a captured length
+			 * is bogus, as you cannot capture more data
+			 * than there is in a packet.
+			 */
 			expert_add_info(pinfo, item, &ei_len_lt_caplen);
+		}
 
 		proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
 					   0, 0, cap_len, "Capture Length: %u byte%s (%u bits)",
@@ -928,6 +934,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
 		proto_tree_add_boolean_format(tree, hf_frame_ignored, tvb, 0, 0, TRUE, "This frame is marked as ignored");
 		return tvb_captured_length(tvb);
+	}
+
+	if (frame_len < cap_len) {
+		/*
+		 * Fix the reported length; a reported length less than
+		 * a captured length is bogus, as you cannot capture
+		 * more data than there is in a packet.
+		 */
+		tvb_fix_reported_length(tvb);
 	}
 
 	/* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
