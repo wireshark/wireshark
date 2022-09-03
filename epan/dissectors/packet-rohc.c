@@ -1136,7 +1136,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     gint                key = cid;
     guint32             sn;
 
-    if (!pinfo->fd->visited){
+    if (!PINFO_FD_VISITED(pinfo)){
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
         if(rohc_cid_context){
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0, rohc_cid_context);
@@ -2138,7 +2138,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
      * Update it if we do otherwise create it
      * and fill in the info.
      */
-    if (!pinfo->fd->visited){
+    if (!PINFO_FD_VISITED(pinfo)){
         gint key = cid;
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
         if (rohc_cid_context != NULL){
@@ -2258,7 +2258,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
      * Update it if we do otherwise create it
      * and fill in the info.
      */
-    if (!pinfo->fd->visited){
+    if (!PINFO_FD_VISITED(pinfo)){
         gint key = cid;
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
 
@@ -2328,13 +2328,13 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 }
 
 static int
-dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data /* rohc_info* */)
 {
     proto_item         *ti, *item, *conf_item;
     proto_tree         *rohc_tree, *sub_tree = NULL, *conf_tree;
     int                 offset               = 0, length;
     guint8              oct, code, size, val_len = 0;
-    gint16              feedback_data_len    = 0, cid = 0;
+    gint16              feedback_data_len, cid = 0;
     gboolean            is_add_cid           = FALSE;
     rohc_info          *p_rohc_info          = NULL;
     rohc_info           g_rohc_info;
@@ -2342,6 +2342,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     rohc_cid_context_t *rohc_cid_context     = NULL;
 
     if(data == NULL){
+        /* No rohc_info passed in, set some defaults */
         g_rohc_info.rohc_compression     = FALSE;
         g_rohc_info.rohc_ip_version      = g_version;
         g_rohc_info.cid_inclusion_info   = FALSE;
@@ -2368,32 +2369,42 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* Append a space if we add stuff to existing col info */
         col_append_str(pinfo->cinfo, COL_INFO, " ");
     }
+
+    /* Add ROHC root */
     ti = proto_tree_add_item(tree, proto_rohc, tvb, 0, -1, ENC_NA);
     rohc_tree = proto_item_add_subtree(ti, ett_rohc);
-    /*    1) If the first octet is a Padding Octet (11100000),
-     *       strip away all initial Padding Octets and goto next step.
-     */
+
 
     /* Put configuration data into the tree */
     conf_tree = proto_tree_add_subtree_format(rohc_tree, tvb, offset, 0, ett_rohc_conf, &item,
             "Global Configuration: (%s)", p_rohc_info->large_cid_present ? "Large CID" : "Small CID");
     proto_item_set_generated(item);
+
     rohc_cid_context = (rohc_cid_context_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0);
     if(rohc_cid_context){
         /* Do we have info from an IR frame? */
         if(rohc_cid_context->ir_frame_number>0){
+            /* Show was configured by IR Packet */
             conf_item = proto_tree_add_item(conf_tree, hf_rohc_configured_by_ir_packet, tvb, offset, 0, ENC_NA);
             proto_item_set_generated(conf_item);
+            /* No. of IR setup frame */
             conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_pkt_frame, tvb, 0, 0, rohc_cid_context->ir_frame_number);
             proto_item_set_generated(conf_item);
+
+            /* Any previous IR frame number */
             if(rohc_cid_context->prev_ir_frame_number>0){
                 conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_previous_frame, tvb, 0, 0, rohc_cid_context->prev_ir_frame_number);
                 proto_item_set_generated(conf_item);
             }
+
+            /* Profile */
             conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_profile, tvb, offset, 0, rohc_cid_context->profile);
             proto_item_set_generated(conf_item);
+            /* IP Version number */
             conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_ip_version, tvb, offset, 0, rohc_cid_context->rohc_ip_version);
             proto_item_set_generated(conf_item);
+
+            /* IR mode */
             if(rohc_cid_context->mode == 0){
                 conf_item = proto_tree_add_uint_format_value(conf_tree, hf_rohc_ir_mode, tvb, offset, 0, 0, "not known");
                 proto_item_set_generated(conf_item);
@@ -2403,12 +2414,17 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
         }else{
+            /* No IR frame number stored in context */
             conf_item = proto_tree_add_item(conf_tree, hf_rohc_no_configuration_info, tvb, offset, 0, ENC_NA);
             proto_item_set_generated(conf_item);
         }
     }
 
+
 start_over:
+    /*    1) If the first octet is a Padding Octet (11100000),
+     *       strip away all initial Padding Octets and goto next step.
+     */
     cid = 0;
     oct = tvb_get_guint8(tvb,offset);
     if(oct== 0xe0){
@@ -2541,14 +2557,12 @@ start_over:
         return tvb_captured_length(tvb);
     }
 
-    if (!pinfo->fd->visited){
+    if (!PINFO_FD_VISITED(pinfo)){
+        /* First pass - look up or create CID context */
         gint key = cid;
-
-        /*ws_warning("Lookup CID %u",cid);*/
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
-        if(rohc_cid_context){
-            /*ws_warning("Found CID %u",cid);*/
-        }else{
+        if (!rohc_cid_context){
+            /* Not found, so initialize new context based upon p_rohc_info */
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             /*rohc_cid_context->d_mode;*/
             rohc_cid_context->rnd = p_rohc_info->rnd;
@@ -2561,22 +2575,24 @@ start_over:
             rohc_cid_context->ir_frame_number = -1;
             /*ws_warning("Store dummy data %u",cid);*/
         }
+        /* Store in pinfo */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0, rohc_cid_context);
     } else {
+        /* Later passes - get from pinfo */
         rohc_cid_context = (rohc_cid_context_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0);
     }
+    DISSECTOR_ASSERT(rohc_cid_context);
 
     /* Call IP for uncompressed*/
-    DISSECTOR_ASSERT(rohc_cid_context);
     if (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED) {
         if (rohc_cid_context->large_cid_present) {
-            guint8 *payload_data;
-            gint len;
+            /* How long does packet say it is? */
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
-            len = tvb_captured_length_remaining(tvb, offset);
+            /* How many bytes do we actually have? */
+            gint len = tvb_captured_length_remaining(tvb, offset);
             if (len >= val_len) {
                 len -= val_len;
-                payload_data = (guint8 *)wmem_alloc(pinfo->pool, len);
+                guint8 *payload_data = (guint8 *)wmem_alloc(pinfo->pool, len);
                 tvb_memcpy(tvb, payload_data, offset, 1);
                 tvb_memcpy(tvb, &payload_data[1], offset+1+val_len, len-1);
                 next_tvb = tvb_new_child_real_data(tvb, payload_data, len, len);
@@ -2586,6 +2602,9 @@ start_over:
         else {
             next_tvb = tvb_new_subset_remaining(tvb, offset);
         }
+
+        /* Call appropriate IP dissector.
+           TODO: could just call "ip" dissector instead? */
         if ((oct&0xf0)==0x40) {
             call_dissector(ip_handle, next_tvb, pinfo, tree);
         }
@@ -2595,6 +2614,7 @@ start_over:
         else {
             call_data_dissector(next_tvb, pinfo, tree);
         }
+
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
         col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
         return tvb_captured_length(tvb);
@@ -2628,6 +2648,7 @@ start_over:
         offset += 2;
     }
 
+    /* Any remainder is undissected data */
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
     call_data_dissector(payload_tvb, pinfo, tree);
 
@@ -2642,21 +2663,10 @@ start_over:
  */
 
 
-static gint cid_hash_equal(gconstpointer v, gconstpointer v2)
-{
-    return (v == v2);
-}
-
-static guint cid_hash_func(gconstpointer v)
-{
-    return GPOINTER_TO_UINT(v);
-}
-
-
 static void
 rohc_init_protocol(void)
 {
-    rohc_cid_hash = g_hash_table_new(cid_hash_func, cid_hash_equal);
+    rohc_cid_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 static void
