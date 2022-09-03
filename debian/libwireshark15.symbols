@@ -1767,6 +1767,7 @@ libwireshark.so.15 libwireshark15 #MINVER#
  tvb_find_line_end@Base 1.9.1
  tvb_find_line_end_unquoted@Base 1.9.1
  tvb_find_tvb@Base 1.9.1
+ tvb_fix_reported_length@Base 4.0.0-rc2
  tvb_format_text@Base 1.9.1
  tvb_format_text_wsp@Base 1.9.1
  tvb_free@Base 1.9.1

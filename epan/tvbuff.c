@@ -818,6 +818,21 @@ tvb_set_reported_length(tvbuff_t *tvb, const guint reported_length)
 		tvb->contained_length = reported_length;
 }
 
+/* Repair a tvbuff where the captured length is greater than the
+ * reported length; such a tvbuff makes no sense, as it's impossible
+ * to capture more data than is in the packet.
+ */
+void
+tvb_fix_reported_length(tvbuff_t *tvb)
+{
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+	DISSECTOR_ASSERT(tvb->reported_length < tvb->length);
+
+	tvb->reported_length = tvb->length;
+	if (tvb->contained_length < tvb->length)
+		tvb->contained_length = tvb->length;
+}
+
 guint
 tvb_offset_from_real_beginning_counter(const tvbuff_t *tvb, const guint counter)
 {
