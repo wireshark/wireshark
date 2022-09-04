@@ -579,13 +579,36 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	cap_len = tvb_captured_length(tvb);
 	frame_len = tvb_reported_length(tvb);
 
-	/* if FRAME is not referenced from any filters we don't need to worry about
-	   generating any tree items.  */
+	/* If FRAME is not referenced from any filters we don't need to
+	   worry about generating any tree items.
+
+	   We do, however, have to worry about generating expert infos,
+	   as those have to show up if, for example, the user requests
+	   the expert info dialog.
+
+	   NOTE: if any expert infos are added in the "frame is referenced"
+	   arm of the conditional, they must also be added to the "frame
+	   is not referenced" arm.  See, for example, issue #18312.
+
+	   XXX - all these tricks to optimize dissection if only some
+	   information is required are fragile.  Something better that
+	   handles this automatically would be useful. */
 	if (!proto_field_is_referenced(tree, proto_frame)) {
 		tree=NULL;
 		if (pinfo->presence_flags & PINFO_HAS_TS) {
 			if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000)
-				expert_add_info(pinfo, NULL, &ei_arrive_time_out_of_range);
+				expert_add_info_format(pinfo, NULL, &ei_arrive_time_out_of_range,
+								    "Arrival Time: Fractional second %09ld is invalid,"
+								    " the valid range is 0-1000000000",
+								    (long) pinfo->abs_ts.nsecs);
+		}
+		if (frame_len < cap_len) {
+			/*
+			 * A reported length less than a captured length
+			 * is bogus, as you cannot capture more data
+			 * than there is in a packet.
+			 */
+			expert_add_info(pinfo, NULL, &ei_len_lt_caplen);
 		}
 	} else {
 		/* Put in frame header information. */
