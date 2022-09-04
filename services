@@ -3673,7 +3673,7 @@ lanrevagent	3970/tcp/udp	# LANrev Agent
 lanrevserver	3971/tcp/udp	# LANrev Server
 iconp		3972/tcp/udp	# ict-control Protocol
 progistics	3973/tcp/udp	# ConnectShip Progistics
-citysearch	3974/tcp/udp	# Remote Applicant Tracking Service
+xk22		3974/tcp/udp	# Remote Applicant Tracking Service
 airshot		3975/tcp/udp	# Air Shot
 opswagent	3976/tcp/udp	# Server Automation Agent
 opswmanager	3977/tcp/udp	# Opsware Manager
