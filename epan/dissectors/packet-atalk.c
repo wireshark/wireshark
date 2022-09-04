@@ -228,7 +228,7 @@ static int hf_asp_size          = -1;
 typedef struct {
   guint32 conversation;
   guint8  src[4];
-  guint16 seq;
+  guint16 tid;
 } asp_request_key;
 
 typedef struct {
@@ -244,7 +244,7 @@ static gint  asp_equal (gconstpointer v, gconstpointer v2)
   const asp_request_key *val2 = (const asp_request_key*)v2;
 
   if (val1->conversation == val2->conversation &&
-      val1->seq == val2->seq &&
+      val1->tid == val2->tid &&
       !memcmp(val1->src, val2->src, 4)) {
     return 1;
   }
@@ -254,7 +254,7 @@ static gint  asp_equal (gconstpointer v, gconstpointer v2)
 static guint asp_hash  (gconstpointer v)
 {
   const asp_request_key *asp_key = (const asp_request_key*)v;
-  return asp_key->seq;
+  return asp_key->tid;
 }
 
 /* ------------------------------------ */
@@ -726,7 +726,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   guint            op;
   guint16          tid;
   guint8           query;
-  struct aspinfo   aspinfo;
+  struct atp_asp_dsi_info   atp_asp_dsi_info;
   tvbuff_t        *new_tvb       = NULL;
   gboolean         save_fragmented;
   gboolean         more_fragment = FALSE;
@@ -751,11 +751,11 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   op = ctrlinfo >> 6;
 
-  aspinfo.reply   = (0x80 == (ctrlinfo & ATP_FUNCMASK))?1:0;
-  aspinfo.release = (0xC0 == (ctrlinfo & ATP_FUNCMASK))?1:0;
-  aspinfo.seq = tid;
-  aspinfo.code = 0;
-  query = (!aspinfo.reply && !aspinfo.release);
+  atp_asp_dsi_info.reply   = (0x80 == (ctrlinfo & ATP_FUNCMASK))?1:0;
+  atp_asp_dsi_info.release = (0xC0 == (ctrlinfo & ATP_FUNCMASK))?1:0;
+  atp_asp_dsi_info.tid = tid;
+  atp_asp_dsi_info.code = 0;
+  query = (!atp_asp_dsi_info.reply && !atp_asp_dsi_info.release);
 
   conversation = find_or_create_conversation(pinfo);
 
@@ -763,8 +763,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     asp_request_key request_key;
 
     request_key.conversation = conversation->conv_index;
-    memcpy(request_key.src, (!aspinfo.reply)?pinfo->src.data:pinfo->dst.data, 4);
-    request_key.seq = aspinfo.seq;
+    memcpy(request_key.src, (!atp_asp_dsi_info.reply)?pinfo->src.data:pinfo->dst.data, 4);
+    request_key.tid = atp_asp_dsi_info.tid;
 
     request_val = (asp_request_val *) wmem_map_lookup(atp_request_hash, &request_key);
 
@@ -793,7 +793,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     So it needs to keep the number of packets asked in request.
   */
 
-  if (aspinfo.reply) {
+  if (atp_asp_dsi_info.reply) {
     more_fragment = !(ATP_EOM & ctrlinfo) && request_val;
     frag_number = bitmap;
   }
@@ -807,7 +807,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, ENC_NA);
     atp_tree = proto_item_add_subtree(ti, ett_atp);
-    proto_item_set_len(atp_tree, aspinfo.release?8:ATP_HDRSIZE -1);
+    proto_item_set_len(atp_tree, atp_asp_dsi_info.release?8:ATP_HDRSIZE -1);
 
     info_item = proto_tree_add_item(atp_tree, hf_atp_ctrlinfo, tvb, offset, 1, ENC_BIG_ENDIAN);
     atp_info_tree = proto_item_add_subtree(info_item, ett_atp_info);
@@ -829,12 +829,12 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
     proto_tree_add_item(atp_tree, hf_atp_tid, tvb, offset +2, 2, ENC_BIG_ENDIAN);
 
-    if (aspinfo.release)
+    if (atp_asp_dsi_info.release)
       proto_tree_add_item(atp_tree, hf_atp_user_bytes, tvb, offset +4, 4, ENC_BIG_ENDIAN);
 
   }
 
-  if (aspinfo.release)
+  if (atp_asp_dsi_info.release)
     return tvb_captured_length(tvb);
 
   save_fragmented = pinfo->fragmented;
@@ -843,7 +843,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      asp doesn't fit very well here
      move asp back in atp?
   */
-  if (atp_defragment && aspinfo.reply && (more_fragment || frag_number != 0)) {
+  if (atp_defragment && atp_asp_dsi_info.reply && (more_fragment || frag_number != 0)) {
     fragment_head *fd_head;
     int hdr;
 
@@ -868,10 +868,10 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (new_tvb) {
     /* if port == 6 it's not an ASP packet but a ZIP packet */
     if (pinfo->srcport == 6 || pinfo->destport == 6 )
-      call_dissector_with_data(zip_atp_handle, new_tvb, pinfo, tree, &aspinfo);
+      call_dissector_with_data(zip_atp_handle, new_tvb, pinfo, tree, &atp_asp_dsi_info);
     else {
       /* XXX need a conversation_get_dissector function ? */
-      if (!aspinfo.reply && !conversation_get_dissector(conversation, pinfo->num)) {
+      if (!atp_asp_dsi_info.reply && !conversation_get_dissector(conversation, pinfo->num)) {
         dissector_handle_t sub;
 
         /* if it's a known ASP function call ASP dissector
@@ -888,11 +888,11 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         else {
           sub = asp_handle;
         }
-        call_dissector_with_data(sub, new_tvb, pinfo, tree, &aspinfo);
+        call_dissector_with_data(sub, new_tvb, pinfo, tree, &atp_asp_dsi_info);
         conversation_set_dissector(conversation, sub);
       }
       else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
-                                           pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree, &aspinfo, 0)) {
+                                           pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree, &atp_asp_dsi_info, 0)) {
         call_data_dissector(new_tvb, pinfo, tree);
 
       }
@@ -1000,8 +1000,8 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 /* -----------------------------
    ASP protocol cf. inside appletalk chap. 11
 */
-static struct aspinfo *
-get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct aspinfo *aspinfo)
+static struct atp_asp_dsi_info *
+get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_asp_dsi_info)
 {
   conversation_t  *conversation;
   asp_request_key  request_key, *new_request_key;
@@ -1011,11 +1011,11 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct aspinfo *aspinfo)
   conversation = find_or_create_conversation(pinfo);
 
   request_key.conversation = conversation->conv_index;
-  memcpy(request_key.src, (!aspinfo->reply)?pinfo->src.data:pinfo->dst.data, 4);
-  request_key.seq = aspinfo->seq;
+  memcpy(request_key.src, (!atp_asp_dsi_info->reply)?pinfo->src.data:pinfo->dst.data, 4);
+  request_key.tid = atp_asp_dsi_info->tid;
 
   request_val = (asp_request_val *) wmem_map_lookup(asp_request_hash, &request_key);
-  if (!request_val && !aspinfo->reply )  {
+  if (!request_val && !atp_asp_dsi_info->reply )  {
     fn = tvb_get_guint8(tvb, 0);
     new_request_key = wmem_new(wmem_file_scope(), asp_request_key);
     *new_request_key = request_key;
@@ -1029,15 +1029,15 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct aspinfo *aspinfo)
   if (!request_val)
     return NULL;
 
-  aspinfo->command = request_val->value;
-  return aspinfo;
+  atp_asp_dsi_info->command = request_val->value;
+  return atp_asp_dsi_info;
 }
 
 
 static int
 dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  struct aspinfo *aspinfo;
+  struct atp_asp_dsi_info *atp_asp_dsi_info;
   int             offset   = 0;
   proto_tree     *asp_tree = NULL;
   proto_item     *ti;
@@ -1050,23 +1050,23 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  aspinfo = get_transaction(tvb, pinfo, (struct aspinfo *)data);
-  if (!aspinfo)
+  atp_asp_dsi_info = get_transaction(tvb, pinfo, (struct atp_asp_dsi_info *)data);
+  if (!atp_asp_dsi_info)
      return 0;
 
-  fn = (guint8) aspinfo->command;
+  fn = (guint8) atp_asp_dsi_info->command;
 
-  if (aspinfo->reply)
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
+  if (atp_asp_dsi_info->reply)
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-                 val_to_str_ext(fn, &asp_func_vals_ext, "Unknown (0x%01x)"), aspinfo->seq);
+                 val_to_str_ext(fn, &asp_func_vals_ext, "Unknown (0x%01x)"), atp_asp_dsi_info->tid);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, ENC_NA);
     asp_tree = proto_item_add_subtree(ti, ett_asp);
   }
-  if (!aspinfo->reply) {
+  if (!atp_asp_dsi_info->reply) {
     tvbuff_t   *new_tvb;
     /* let the called deal with asp_tree == NULL */
 
@@ -1106,7 +1106,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       new_tvb = tvb_new_subset_remaining(tvb, offset);
-      call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, aspinfo);
+      call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, atp_asp_dsi_info);
       break;
     case ASPFUNC_WRTCONT:
       proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1154,11 +1154,11 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case ASPFUNC_CMD:
     case ASPFUNC_WRITE:
       proto_item_set_len(asp_tree, 4);
-      aspinfo->code = tvb_get_ntohl(tvb, offset);
+      atp_asp_dsi_info->code = tvb_get_ntohl(tvb, offset);
       proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       new_tvb = tvb_new_subset_remaining(tvb, offset);
-      call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, aspinfo);
+      call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, atp_asp_dsi_info);
       break;
     case ASPFUNC_TICKLE:
     case ASPFUNC_WRTCONT:
@@ -1222,7 +1222,7 @@ static int atalk_len(void)
 static int
 dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  struct aspinfo *aspinfo;
+  struct atp_asp_dsi_info *atp_asp_dsi_info;
   int             offset = 0;
   proto_tree     *zip_tree;
   proto_tree     *sub_tree;
@@ -1238,17 +1238,17 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  aspinfo = get_transaction(tvb, pinfo, (struct aspinfo *)data);
-  if (!aspinfo)
+  atp_asp_dsi_info = get_transaction(tvb, pinfo, (struct atp_asp_dsi_info *)data);
+  if (!atp_asp_dsi_info)
      return tvb_reported_length(tvb);
 
-  fn = (guint8) aspinfo->command;
+  fn = (guint8) atp_asp_dsi_info->command;
 
-  if (aspinfo->reply)
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
+  if (atp_asp_dsi_info->reply)
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-                 val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
+                 val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), atp_asp_dsi_info->tid);
 
   if (!tree)
     return tvb_reported_length(tvb);
@@ -1256,7 +1256,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, ENC_NA);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
-  if (!aspinfo->reply) {
+  if (!atp_asp_dsi_info->reply) {
     proto_tree_add_item(zip_tree, hf_zip_atp_function, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     switch(fn) {
