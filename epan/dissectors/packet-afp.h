@@ -92,19 +92,20 @@ extern value_string_ext afp_server_addr_type_vals_ext;
 #define AFPSTATUS_LEN        (AFPSTATUS_PRELEN + AFPSTATUS_POSTLEN)
 
 /*
- * Private data passed from DSI,DDP dissectors to AFP dissector.
- *                       DSI              DDP
- * aspinfo.reply     	dsi.flags       atp.function == 0x80
- *         release                      atp.function == 0xc0
- *         command          command     asp.function
- *         seq              requestid   atp.tid
- *         code             code
+ * Private data passed from DSI dissector, and the ATP and ASP dissectors,
+ * to subdissectors, including the AFP dissector.
+ *                              DSI             ATP/ASP
+ * atp_asp_dsi_info.reply       dsi.flags       atp.function == 0x80
+ * atp_asp_dsi_info.release                     atp.function == 0xc0
+ * atp_asp_dsi_info.command     dsi.command     asp.function
+ * atp_asp_dsi_info.tid         dsi.requestid   atp.tid
+ * atp_asp_dsi_info.code        dsi.code
  */
-struct aspinfo {
+struct atp_asp_dsi_info {
 	guint8	reply;			/* 0 query  1 reply */
 	guint8  release;
 	guint16	command;		/* 2  6 write */
-	guint16	seq;			/* sequence number */
+	guint16	tid;			/* request/transaction ID */
 	gint32  code;			/* error code/ offset NU */
 };
 

@@ -216,7 +216,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint16		dsi_requestid;
 	gint32		dsi_code;
 	guint32		dsi_length;
-	struct		aspinfo aspinfo;
+	struct		atp_asp_dsi_info atp_asp_dsi_info;
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
@@ -288,14 +288,14 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		{
 			tvbuff_t   *new_tvb;
 
-			aspinfo.reply = (dsi_flags == DSIFL_REPLY);
-			aspinfo.command = dsi_command;
-			aspinfo.seq = dsi_requestid;
-			aspinfo.code = dsi_code;
+			atp_asp_dsi_info.reply = (dsi_flags == DSIFL_REPLY);
+			atp_asp_dsi_info.command = dsi_command;
+			atp_asp_dsi_info.tid = dsi_requestid;
+			atp_asp_dsi_info.code = dsi_code;
 			proto_item_set_len(dsi_ti, DSI_BLOCKSIZ);
 
 			new_tvb = tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ);
-			call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, &aspinfo);
+			call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, &atp_asp_dsi_info);
 		}
 		break;
 	default:

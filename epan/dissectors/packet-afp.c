@@ -1145,7 +1145,7 @@ static guint afp_hash  (gconstpointer v);
 
 typedef struct {
 	guint32 conversation;
-	guint16	seq;
+	guint16	tid;
 } afp_request_key;
 
 static wmem_map_t *afp_request_hash = NULL;
@@ -1186,7 +1186,7 @@ static gint  afp_equal (gconstpointer v, gconstpointer v2)
 	const afp_request_key *val2 = (const afp_request_key*)v2;
 
 	if (val1->conversation == val2->conversation &&
-			val1->seq == val2->seq) {
+			val1->tid == val2->tid) {
 		return 1;
 	}
 	return 0;
@@ -1195,7 +1195,7 @@ static gint  afp_equal (gconstpointer v, gconstpointer v2)
 static guint afp_hash  (gconstpointer v)
 {
 	const afp_request_key *afp_key = (const afp_request_key*)v;
-	return afp_key->seq;
+	return afp_key->tid;
 }
 
 /* --------------------------
@@ -5105,7 +5105,7 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static int
 dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct aspinfo	*aspinfo = (struct aspinfo*)data;
+	struct atp_asp_dsi_info	*atp_asp_dsi_info = (struct atp_asp_dsi_info*)data;
 	proto_tree	*afp_tree = NULL;
 	proto_item	*ti;
 	conversation_t	*conversation;
@@ -5127,12 +5127,12 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	conversation = find_or_create_conversation(pinfo);
 
 	request_key.conversation = conversation->conv_index;
-	request_key.seq = aspinfo->seq;
+	request_key.tid = atp_asp_dsi_info->tid;
 
 	request_val = (afp_request_val *) wmem_map_lookup(
 								afp_request_hash, &request_key);
 
-	if (!request_val && !aspinfo->reply) {
+	if (!request_val && !atp_asp_dsi_info->reply) {
 		afp_command = tvb_get_guint8(tvb, offset);
 		new_request_key = wmem_new(wmem_file_scope(), afp_request_key);
 		*new_request_key = request_key;
@@ -5162,17 +5162,17 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 		     val_to_str_ext(afp_command, &CommandCode_vals_ext,
 				"Unknown command (%u)"),
-		     aspinfo->reply ? "reply" : "request");
-	if (aspinfo->reply && aspinfo->code != 0) {
+		     atp_asp_dsi_info->reply ? "reply" : "request");
+	if (atp_asp_dsi_info->reply && atp_asp_dsi_info->code != 0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (%d)",
-			val_to_str_ext(aspinfo->code, &asp_error_vals_ext,
-				"Unknown error (%u)"), aspinfo->code);
+			val_to_str_ext(atp_asp_dsi_info->code, &asp_error_vals_ext,
+				"Unknown error (%u)"), atp_asp_dsi_info->code);
 	}
 
 	ti = proto_tree_add_item(tree, proto_afp, tvb, offset, -1, ENC_NA);
 	afp_tree = proto_item_add_subtree(ti, ett_afp);
 
-	if (!aspinfo->reply)  {
+	if (!atp_asp_dsi_info->reply)  {
 
 		ti = proto_tree_add_uint(afp_tree, hf_afp_command, tvb,offset, 1, afp_command);
 		if (afp_command != tvb_get_guint8(tvb, offset)) {
