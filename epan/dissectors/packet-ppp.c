@@ -5996,7 +5996,28 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
             call_data_dissector(ppp_tvb, pinfo, tree);
         }
     }
+
+    /* These frames within the byte stream need to be treated like independent
+     * frames / PDUs, not encapsulated in each other, which means that much of
+     * the various information stored in the packet_info struct should be reset
+     * with each frame.
+     * In particular, the "most recent conservation" elements should be reset
+     * at the start of a new frame, if that frame is dissected, and possibly
+     * for fragments that are put on a reassembly table (if the reassembly
+     * functions use elements from the pinfo struct for matching). (#18278)
+     * On the other hand, we do want to keep the last set information for use
+     * in displaying the address of the packet, conversation filtering, etc.
+     */
+    gboolean save_use_conv_addr_port_endpoints;
+    struct conversation_addr_port_endpoints *save_conv_addr_port_endpoints;
+    struct conversation_element *save_conv_elements;
+
+    save_use_conv_addr_port_endpoints = pinfo->use_conv_addr_port_endpoints;
+    save_conv_addr_port_endpoints = pinfo->conv_addr_port_endpoints;
+    save_conv_elements = pinfo->conv_elements;
+
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
+
         /*
          * Look for the next frame delimiter.
          */
@@ -6051,6 +6072,9 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         if (length > 1) {
             ppp_tvb = remove_escape_chars(tvb, pinfo, data_offset, data_length);
             if (ppp_tvb != NULL) {
+                pinfo->use_conv_addr_port_endpoints = save_use_conv_addr_port_endpoints;
+                pinfo->conv_addr_port_endpoints = save_conv_addr_port_endpoints;
+                pinfo->conv_elements = save_conv_elements;
                 add_new_data_source(pinfo, ppp_tvb, "PPP Message");
                 dissect_ppp_hdlc_common(ppp_tvb, pinfo, tree);
                 first = FALSE;
