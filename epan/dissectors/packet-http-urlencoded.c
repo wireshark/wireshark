@@ -10,6 +10,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/charsets.h>
+#include <epan/strutil.h>
 #include <wsutil/str_util.h>
 
 #include "packet-http.h"
@@ -140,22 +142,32 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		const int start_offset = offset;
 		char *key, *value;
+		char *key_decoded, *value_decoded;
 
 		sub = proto_tree_add_subtree(url_tree, tvb, offset, 0, ett_form_keyvalue, &ti, "Form item");
 
 		next_offset = get_form_key_value(tvb, &key, offset, '=');
 		if (next_offset == -1)
 			break;
-		proto_tree_add_string(sub, hf_form_key, tvb, offset, next_offset - offset, key);
-		proto_item_append_text(sub, ": \"%s\"", key);
+		/* XXX: Only UTF-8 is conforming according to WHATWG, though we
+		 * ought to look for a "charset" parameter in media_str
+		 * to handle other encodings.
+		 * Our charset functions should probably return a boolean
+		 * indicating that replacement characters had to be used,
+		 * and that the string was not the expected encoding.
+		 */
+		key_decoded = get_utf_8_string(pinfo->pool, key, next_offset - offset);
+		proto_tree_add_string(sub, hf_form_key, tvb, offset, next_offset - offset, key_decoded);
+		proto_item_append_text(sub, ": \"%s\"", format_text(pinfo->pool, key, strlen(key)));
 
 		offset = next_offset+1;
 
 		next_offset = get_form_key_value(tvb, &value, offset, '&');
 		if (next_offset == -1)
 			break;
-		proto_tree_add_string(sub, hf_form_value, tvb, offset, next_offset - offset, value);
-		proto_item_append_text(sub, " = \"%s\"", value);
+		value_decoded = get_utf_8_string(pinfo->pool, value, next_offset - offset);
+		proto_tree_add_string(sub, hf_form_value, tvb, offset, next_offset - offset, value_decoded);
+		proto_item_append_text(sub, " = \"%s\"", format_text(pinfo->pool, value, strlen(value)));
 
 		offset = next_offset+1;
 
