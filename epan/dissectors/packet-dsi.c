@@ -25,15 +25,21 @@
 
 http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
 
+  which is no longer available and does not appear to be in the Wayback Machine.
+
   The netatalk source code by Wesley Craig & Adrian Sun
 
   The Data Stream Interface description from
-  http://developer.apple.com/documentation/Networking/Conceptual/AFPClient/AFPClient-6.html
 
-(no longer available, apparently)
+http://developer.apple.com/documentation/Networking/Conceptual/AFPClient/AFPClient-6.html
+
+  which is no longer available, but is archived at
+
+https://web.archive.org/web/20040924082047/http://developer.apple.com/documentation/Networking/Conceptual/AFPClient/AFPClient-6.html
 
   Also, AFP 3.3 documents parts of DSI at:
-  http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
+
+http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
 
  * What a Data Stream Interface packet looks like:
  * 0                               32
@@ -289,7 +295,6 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			tvbuff_t   *new_tvb;
 
 			atp_asp_dsi_info.reply = (dsi_flags == DSIFL_REPLY);
-			atp_asp_dsi_info.command = dsi_command;
 			atp_asp_dsi_info.tid = dsi_requestid;
 			atp_asp_dsi_info.code = dsi_code;
 			proto_item_set_len(dsi_ti, DSI_BLOCKSIZ);
