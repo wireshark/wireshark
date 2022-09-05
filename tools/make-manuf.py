@@ -188,11 +188,11 @@ def main():
     in_header = True
 
     ieee_d = {
-        'OUI':   { 'url': "http://standards-oui.ieee.org/oui/oui.csv", 'min_entries': 1000 },
-        'CID':   { 'url': "http://standards-oui.ieee.org/cid/cid.csv", 'min_entries': 75 },
-        'IAB':   { 'url': "http://standards-oui.ieee.org/iab/iab.csv", 'min_entries': 1000 },
-        'OUI28': { 'url': "http://standards-oui.ieee.org/oui28/mam.csv", 'min_entries': 1000 },
-        'OUI36': { 'url': "http://standards-oui.ieee.org/oui36/oui36.csv", 'min_entries': 1000 },
+        'OUI':   { 'url': "https://standards-oui.ieee.org/oui/oui.csv", 'min_entries': 1000 },
+        'CID':   { 'url': "https://standards-oui.ieee.org/cid/cid.csv", 'min_entries': 75 },
+        'IAB':   { 'url': "https://standards-oui.ieee.org/iab/iab.csv", 'min_entries': 1000 },
+        'OUI28': { 'url': "https://standards-oui.ieee.org/oui28/mam.csv", 'min_entries': 1000 },
+        'OUI36': { 'url': "https://standards-oui.ieee.org/oui36/oui36.csv", 'min_entries': 1000 },
     }
     oui_d = {}
     hp = "[0-9a-fA-F]{2}"
