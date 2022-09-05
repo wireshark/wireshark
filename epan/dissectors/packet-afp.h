@@ -97,14 +97,12 @@ extern value_string_ext afp_server_addr_type_vals_ext;
  *                              DSI             ATP/ASP
  * atp_asp_dsi_info.reply       dsi.flags       atp.function == 0x80
  * atp_asp_dsi_info.release                     atp.function == 0xc0
- * atp_asp_dsi_info.command     dsi.command     asp.function
  * atp_asp_dsi_info.tid         dsi.requestid   atp.tid
  * atp_asp_dsi_info.code        dsi.code
  */
 struct atp_asp_dsi_info {
 	guint8	reply;			/* 0 query  1 reply */
 	guint8  release;
-	guint16	command;		/* 2  6 write */
 	guint16	tid;			/* request/transaction ID */
 	gint32  code;			/* error code/ offset NU */
 };

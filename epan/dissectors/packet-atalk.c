@@ -1000,7 +1000,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 /* -----------------------------
    ASP protocol cf. inside appletalk chap. 11
 */
-static struct atp_asp_dsi_info *
+static asp_request_val *
 get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_asp_dsi_info)
 {
   conversation_t  *conversation;
@@ -1026,11 +1026,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_
     wmem_map_insert(asp_request_hash, new_request_key, request_val);
   }
 
-  if (!request_val)
-    return NULL;
-
-  atp_asp_dsi_info->command = request_val->value;
-  return atp_asp_dsi_info;
+  return request_val;
 }
 
 
@@ -1038,6 +1034,7 @@ static int
 dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct atp_asp_dsi_info *atp_asp_dsi_info;
+  asp_request_val *request_val;
   int             offset   = 0;
   proto_tree     *asp_tree = NULL;
   proto_item     *ti;
@@ -1050,11 +1047,12 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  atp_asp_dsi_info = get_transaction(tvb, pinfo, (struct atp_asp_dsi_info *)data);
-  if (!atp_asp_dsi_info)
+  atp_asp_dsi_info = (struct atp_asp_dsi_info *)data;
+  request_val = get_transaction(tvb, pinfo, atp_asp_dsi_info);
+  if (!request_val)
      return 0;
 
-  fn = (guint8) atp_asp_dsi_info->command;
+  fn = (guint8) request_val->value;
 
   if (atp_asp_dsi_info->reply)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
@@ -1223,6 +1221,7 @@ static int
 dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   struct atp_asp_dsi_info *atp_asp_dsi_info;
+  asp_request_val *request_val;
   int             offset = 0;
   proto_tree     *zip_tree;
   proto_tree     *sub_tree;
@@ -1238,11 +1237,12 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  atp_asp_dsi_info = get_transaction(tvb, pinfo, (struct atp_asp_dsi_info *)data);
-  if (!atp_asp_dsi_info)
+  atp_asp_dsi_info = (struct atp_asp_dsi_info *)data;
+  request_val = get_transaction(tvb, pinfo, atp_asp_dsi_info);
+  if (!request_val)
      return tvb_reported_length(tvb);
 
-  fn = (guint8) atp_asp_dsi_info->command;
+  fn = (guint8) request_val->value;
 
   if (atp_asp_dsi_info->reply)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
