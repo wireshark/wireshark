@@ -28,6 +28,7 @@
 #include "packet-flexray.h"
 #include "packet-iso15765.h"
 #include "packet-autosar-ipdu-multiplexer.h"
+#include "packet-pdu-transport.h"
 
 void proto_register_iso15765(void);
 void proto_reg_handoff_iso15765(void);
@@ -61,6 +62,8 @@ void proto_reg_handoff_iso15765(void);
 
 #define ISO15765_MESSAGE_AUTOSAR_ACK_MASK 0xF0
 #define ISO15765_AUTOSAR_ACK_OFFSET 3
+
+#define ISO15765_ADDR_INVALID 0xffffffff
 
 struct iso15765_identifier
 {
@@ -132,14 +135,14 @@ static const enum_val_t enum_addressing[] = {
 /* Encoding */
 static const enum_val_t enum_flexray_addressing[] = {
         {"1 Byte", "1 byte addressing", ONE_BYTE_ADDRESSING},
-        {"2 byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
+        {"2 Byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
         {NULL, NULL, 0}
 };
 
 static const enum_val_t enum_ipdum_addressing[] = {
         {"0 Byte", "0 byte addressing", ZERO_BYTE_ADDRESSING},
         {"1 Byte", "1 byte addressing", ONE_BYTE_ADDRESSING},
-        {"2 byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
+        {"2 Byte", "2 byte addressing", TWO_BYTE_ADDRESSING},
         {NULL, NULL, 0}
 };
 
@@ -166,6 +169,7 @@ static dissector_handle_t iso15765_handle_can = NULL;
 static dissector_handle_t iso15765_handle_lin = NULL;
 static dissector_handle_t iso15765_handle_flexray = NULL;
 static dissector_handle_t iso15765_handle_ipdum = NULL;
+static dissector_handle_t iso15765_handle_pdu_transport = NULL;
 
 static dissector_table_t subdissector_table;
 
@@ -355,6 +359,172 @@ find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint32 *source_ad
 }
 
 
+/* UAT for PDU Transport config */
+typedef struct config_pdu_tranport_config {
+    guint32 pdu_id;
+    guint32 source_address_size;
+    guint32 source_address_fixed;
+    guint32 target_address_size;
+    guint32 target_address_fixed;
+    guint32 ecu_address_size;
+    guint32 ecu_address_fixed;
+} config_pdu_transport_config_t;
+
+static config_pdu_transport_config_t *config_pdu_transport_config_items = NULL;
+static guint config_pdu_transport_config_items_num = 0;
+#define DATAFILE_PDU_TRANSPORT_CONFIG "ISO15765_pdu_transport_config"
+
+UAT_HEX_CB_DEF(config_pdu_transport_config_items, pdu_id, config_pdu_transport_config_t)
+UAT_DEC_CB_DEF(config_pdu_transport_config_items, source_address_size, config_pdu_transport_config_t)
+UAT_HEX_CB_DEF(config_pdu_transport_config_items, source_address_fixed, config_pdu_transport_config_t)
+UAT_DEC_CB_DEF(config_pdu_transport_config_items, target_address_size, config_pdu_transport_config_t)
+UAT_HEX_CB_DEF(config_pdu_transport_config_items, target_address_fixed, config_pdu_transport_config_t)
+UAT_DEC_CB_DEF(config_pdu_transport_config_items, ecu_address_size, config_pdu_transport_config_t)
+UAT_HEX_CB_DEF(config_pdu_transport_config_items, ecu_address_fixed, config_pdu_transport_config_t)
+
+
+static void *
+copy_config_pdu_transport_config_cb(void *n, const void *o, size_t size _U_) {
+    config_pdu_transport_config_t *new_rec = (config_pdu_transport_config_t *)n;
+    const config_pdu_transport_config_t *old_rec = (const config_pdu_transport_config_t *)o;
+
+    new_rec->pdu_id = old_rec->pdu_id;
+    new_rec->source_address_size = old_rec->source_address_size;
+    new_rec->source_address_fixed = old_rec->source_address_fixed;
+    new_rec->target_address_size = old_rec->target_address_size;
+    new_rec->target_address_fixed = old_rec->target_address_fixed;
+    new_rec->ecu_address_size = old_rec->ecu_address_size;
+    new_rec->ecu_address_fixed = old_rec->ecu_address_fixed;
+
+    return new_rec;
+}
+
+static gboolean
+update_config_pdu_transport_config_item(void *r, char **err) {
+    config_pdu_transport_config_t *rec = (config_pdu_transport_config_t *)r;
+
+    gboolean source_address_configured = rec->source_address_size != 0 || rec->source_address_fixed != ISO15765_ADDR_INVALID;
+    gboolean target_address_configured = rec->target_address_size != 0 || rec->target_address_fixed != ISO15765_ADDR_INVALID;
+    gboolean ecu_address_configured = rec->ecu_address_size != 0 || rec->ecu_address_fixed != ISO15765_ADDR_INVALID;
+
+    if (rec->source_address_size != 0 && rec->source_address_fixed != ISO15765_ADDR_INVALID) {
+        *err = ws_strdup_printf("You can either set the size of the source address or configure a fixed value!");
+        return FALSE;
+    }
+
+    if (rec->target_address_size != 0 && rec->target_address_fixed != ISO15765_ADDR_INVALID) {
+        *err = ws_strdup_printf("You can either set the size of the target address or configure a fixed value!");
+        return FALSE;
+    }
+
+    if (rec->ecu_address_size != 0 && rec->ecu_address_fixed != ISO15765_ADDR_INVALID) {
+        *err = ws_strdup_printf("You can either set the size of the ecu address or configure a fixed value!");
+        return FALSE;
+    }
+
+    if (ecu_address_configured && (source_address_configured || target_address_configured)) {
+        *err = ws_strdup_printf("You cannot configure an ecu address and a source or target address at the same time!");
+        return FALSE;
+    }
+
+    if ((source_address_configured && !target_address_configured) || (!source_address_configured && target_address_configured)) {
+        *err = ws_strdup_printf("You can only configure source and target address at the same time but not only one of them!");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void
+free_config_pdu_transport_config(void *r _U_) {
+    /* do nothing for now */
+}
+
+static void
+reset_config_pdu_transport_config_cb(void) {
+    /* do nothing for now */
+}
+
+static void
+post_update_config_pdu_transport_config_cb(void) {
+    dissector_delete_all("pdu_transport.id", iso15765_handle_pdu_transport);
+
+    config_pdu_transport_config_t *tmp;
+    guint i;
+    for (i = 0; i < config_pdu_transport_config_items_num; i++) {
+        tmp = &(config_pdu_transport_config_items[i]);
+        dissector_add_uint("pdu_transport.id", tmp->pdu_id, iso15765_handle_pdu_transport);
+    }
+}
+
+static config_pdu_transport_config_t *
+find_pdu_transport_config(guint32 pdu_id) {
+    guint i;
+    for (i = 0; i < config_pdu_transport_config_items_num; i++) {
+        if (config_pdu_transport_config_items[i].pdu_id == pdu_id) {
+            return &(config_pdu_transport_config_items[i]);
+        }
+    }
+
+    return NULL;
+}
+
+static int
+handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset_orig, guint32 pdu_id, iso15765_info_t *iso15765data) {
+    gint offset = offset_orig;
+    config_pdu_transport_config_t *config = find_pdu_transport_config(pdu_id);
+
+    iso15765data->number_of_addresses_valid = 0;
+    iso15765data->source_address = 0xffffffff;
+    iso15765data->target_address = 0xffffffff;
+
+    if (config == NULL) {
+        return offset - offset_orig;
+    }
+
+    guint32 tmp;
+    if (config->ecu_address_size != 0) {
+        proto_tree_add_item_ret_uint(tree, hf_iso15765_address, tvb, offset, config->ecu_address_size, ENC_BIG_ENDIAN, &tmp);
+        offset += config->ecu_address_size;
+        iso15765data->number_of_addresses_valid = 1;
+        iso15765data->source_address = tmp;
+        iso15765data->target_address = tmp;
+        return offset - offset_orig;
+    }
+
+    if (config->ecu_address_fixed != ISO15765_ADDR_INVALID) {
+        iso15765data->number_of_addresses_valid = 1;
+        iso15765data->source_address = config->ecu_address_fixed;
+        iso15765data->target_address = config->ecu_address_fixed;
+        return offset - offset_orig;
+    }
+
+    if (config->source_address_size == 0 && config->source_address_fixed == ISO15765_ADDR_INVALID && config->target_address_size == 0 && config->target_address_fixed == ISO15765_ADDR_INVALID) {
+        return offset - offset_orig;
+    }
+
+    /* now we can only have two addresses! */
+    iso15765data->number_of_addresses_valid = 2;
+
+    if (config->source_address_size != 0) {
+        proto_tree_add_item_ret_uint(tree, hf_iso15765_source_address, tvb, offset, config->source_address_size, ENC_BIG_ENDIAN, &tmp);
+        offset += config->source_address_size;
+        iso15765data->source_address = tmp;
+    } else if (config->source_address_fixed != ISO15765_ADDR_INVALID) {
+        iso15765data->source_address = config->source_address_fixed;
+    }
+
+    if (config->target_address_size != 0) {
+        proto_tree_add_item_ret_uint(tree, hf_iso15765_target_address, tvb, offset, config->target_address_size, ENC_BIG_ENDIAN, &tmp);
+        offset += config->target_address_size;
+        iso15765data->target_address = tmp;
+    } else if (config->target_address_fixed != ISO15765_ADDR_INVALID) {
+        iso15765data->target_address = config->target_address_fixed;
+    }
+
+    return offset - offset_orig;
+}
+
 static int
 dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bus_type, guint32 frame_id, guint32 frame_length)
 {
@@ -412,6 +582,8 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         iso15765data.target_address = (guint16)tmp;
         iso15765data.number_of_addresses_valid = 2;
         ae = 2 * ipdum_addressing;
+    } else if (bus_type == ISO15765_TYPE_PDU_TRANSPORT) {
+        ae = handle_pdu_transport_addresses(tvb, pinfo, iso15765_tree, 0, frame_id, &iso15765data);
     } else {
         if (ae != 0) {
             guint32 tmp;
@@ -420,7 +592,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             iso15765data.source_address = (guint16)tmp;
             iso15765data.target_address = (guint16)tmp;
         } else {
-            /* Address implicit encoded? */
+            /* Address implicitly encoded? */
             if (bus_type == ISO15765_TYPE_CAN || bus_type == ISO15765_TYPE_CAN_FD) {
                 gboolean ext_id = (CAN_EFF_FLAG & frame_id) == CAN_EFF_FLAG;
                 guint32  can_id = ext_id ? frame_id & CAN_EFF_MASK : frame_id & CAN_SFF_MASK;
@@ -725,6 +897,16 @@ dissect_iso15765_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_IPDUM, ipdum_data->pdu_id, tvb_captured_length(tvb));
 }
 
+static int
+dissect_iso15765_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    DISSECTOR_ASSERT(data);
+
+    pdu_transport_info_t *pdu_transport_data = (pdu_transport_info_t *)data;
+
+    return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_PDU_TRANSPORT, pdu_transport_data->id, tvb_captured_length(tvb));
+}
+
 static void
 update_config(void)
 {
@@ -754,6 +936,7 @@ void
 proto_register_iso15765(void)
 {
     uat_t *config_can_addr_mapping_uat;
+    uat_t *config_pdu_transport_config_uat;
 
     static hf_register_info hf[] = {
             {
@@ -995,8 +1178,7 @@ proto_register_iso15765(void)
                                    "Window of ISO 15765 fragments",
                                    10, &window);
 
-    prefs_register_static_text_preference(iso15765_module, "empty1", "", NULL);
-    prefs_register_static_text_preference(iso15765_module, "header1", "Protocol Handling:", NULL);
+    prefs_register_static_text_preference(iso15765_module, "empty_can", "", NULL);
 
     range_convert_str(wmem_epan_scope(), &configured_can_ids, "", 0x7ff);
     prefs_register_range_preference(iso15765_module, "can.ids",
@@ -1040,11 +1222,13 @@ proto_register_iso15765(void)
     prefs_register_uat_preference(iso15765_module, "_iso15765_can_id_mappings", "CAN ID Mappings",
         "A table to define mappings rules for CAN IDs", config_can_addr_mapping_uat);
 
+    prefs_register_static_text_preference(iso15765_module, "empty_lin", "", NULL);
     prefs_register_bool_preference(iso15765_module, "lin_diag",
                                    "Handle LIN Diagnostic Frames",
                                    "Handle LIN Diagnostic Frames",
                                    &register_lin_diag_frames);
 
+    prefs_register_static_text_preference(iso15765_module, "empty_fr", "", NULL);
     prefs_register_enum_preference(iso15765_module, "flexray_addressing",
                                    "FlexRay Addressing",
                                    "Addressing of FlexRay TP. 1 Byte or 2 Byte",
@@ -1057,6 +1241,7 @@ proto_register_iso15765(void)
                                    10, &flexray_segment_size_limit);
 
 
+    prefs_register_static_text_preference(iso15765_module, "empty_ipdum", "", NULL);
     range_convert_str(wmem_epan_scope(), &configured_ipdum_pdu_ids, "", 0xffffffff);
     prefs_register_range_preference(iso15765_module, "ipdum.pdu.id",
         "I-PduM PDU-IDs",
@@ -1068,6 +1253,40 @@ proto_register_iso15765(void)
         "Addressing of I-PduM TP. 0, 1, or 2 Bytes",
         &ipdum_addressing,
         enum_ipdum_addressing, TRUE);
+
+    prefs_register_static_text_preference(iso15765_module, "empty_pdu_transport", "", NULL);
+
+    /* UATs for config_pdu_transport_uat */
+    static uat_field_t config_pdu_transport_uat_fields[] = {
+        UAT_FLD_HEX(config_pdu_transport_config_items, pdu_id,               "PDU ID",             "PDU ID (hex)"),
+        UAT_FLD_DEC(config_pdu_transport_config_items, source_address_size,  "Source Addr. Size",  "Size of encoded source address (0, 1, 2 bytes)"),
+        UAT_FLD_HEX(config_pdu_transport_config_items, source_address_fixed, "Source Addr. Fixed", "Fixed source address for this PDU ID (hex), 0xffffffff is invalid"),
+        UAT_FLD_DEC(config_pdu_transport_config_items, target_address_size,  "Target Addr. Size",  "Size of encoded target address (0, 1, 2 bytes)"),
+        UAT_FLD_HEX(config_pdu_transport_config_items, target_address_fixed, "Target Addr. Fixed", "Fixed target address for this PDU ID (hex), 0xffffffff is invalid"),
+        UAT_FLD_DEC(config_pdu_transport_config_items, ecu_address_size,     "Single Addr. Size",  "Size of encoded address (0, 1, 2 bytes)"),
+        UAT_FLD_HEX(config_pdu_transport_config_items, ecu_address_fixed,    "Single Addr. Fixed", "Fixed address for this PDU ID (hex), 0xffffffff is invalid"),
+        UAT_END_FIELDS
+    };
+
+    config_pdu_transport_config_uat = uat_new("ISO15765 PDU Transport Config",
+        sizeof(config_pdu_transport_config_t),      /* record size           */
+        DATAFILE_PDU_TRANSPORT_CONFIG,              /* filename              */
+        TRUE,                                       /* from profile          */
+        (void**)&config_pdu_transport_config_items, /* data_ptr              */
+        &config_pdu_transport_config_items_num,     /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                     /* but not fields        */
+        NULL,                                       /* help                  */
+        copy_config_pdu_transport_config_cb,        /* copy callback         */
+        update_config_pdu_transport_config_item,    /* update callback       */
+        free_config_pdu_transport_config,           /* free callback         */
+        post_update_config_pdu_transport_config_cb, /* post update callback  */
+        reset_config_pdu_transport_config_cb,       /* reset callback        */
+        config_pdu_transport_uat_fields             /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(iso15765_module, "_iso15765_pdu_transport_config", "PDU Transport Config",
+        "A table to define the PDU Transport Config", config_pdu_transport_config_uat);
+
 
     iso15765_frame_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
@@ -1083,6 +1302,7 @@ proto_reg_handoff_iso15765(void)
     iso15765_handle_lin = create_dissector_handle(dissect_iso15765_lin, proto_iso15765);
     iso15765_handle_flexray = create_dissector_handle(dissect_iso15765_flexray, proto_iso15765);
     iso15765_handle_ipdum = create_dissector_handle(dissect_iso15765_ipdum, proto_iso15765);
+    iso15765_handle_pdu_transport = create_dissector_handle(dissect_iso15765_pdu_transport, proto_iso15765);
     dissector_add_for_decode_as("can.subdissector", iso15765_handle_can);
     dissector_add_for_decode_as("flexray.subdissector", iso15765_handle_flexray);
     update_config();

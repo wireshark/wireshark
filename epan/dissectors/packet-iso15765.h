@@ -10,12 +10,14 @@
 #ifndef __PACKET_ISO15765_H__
 #define __PACKET_ISO15765_H__
 
-#define ISO15765_TYPE_NONE    0
-#define ISO15765_TYPE_CAN     1
-#define ISO15765_TYPE_CAN_FD  2
-#define ISO15765_TYPE_LIN     3
-#define ISO15765_TYPE_FLEXRAY 4
-#define ISO15765_TYPE_IPDUM   5
+#define ISO15765_TYPE_NONE          0
+#define ISO15765_TYPE_CAN           1
+#define ISO15765_TYPE_CAN_FD        2
+#define ISO15765_TYPE_LIN           3
+#define ISO15765_TYPE_FLEXRAY       4
+#define ISO15765_TYPE_IPDUM         5
+#define ISO15765_TYPE_PDU_TRANSPORT 6
+
 
 struct iso15765_info {
     guint32  bus_type;
