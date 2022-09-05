@@ -13352,7 +13352,7 @@ proto_register_netflow(void)
         {&hf_cflow_ipv4_router_sc,
          {"ipv4RouterSc", "cflow.ipv4_router_sc",
           FT_IPv4, BASE_NONE, NULL, 0x0,
-          "ipv4 Router Shortcur", HFILL}
+          "ipv4 Router Shortcut", HFILL}
         },
         {&hf_cflow_srcprefix,
          {"SrcPrefix", "cflow.srcprefix",

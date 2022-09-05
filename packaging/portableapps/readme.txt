@@ -17,7 +17,7 @@ NSIS
 
 The Portable Apps packaging uses the NullSoft Scriptable Installer System (NSIS) to create a installation package to install onto the USB drive, and a launcher to launch Wireshark from the USB drive.
 
-NSIS is used by the standard Win32 installation mechansim (packaging/nsis) but an additional plug-in is required for the Wireshark Portable launcher. This is now automatically downloaded and installed from the wireshark-win32-libs repository.
+NSIS is used by the standard Win32 installation mechanism (packaging/nsis) but an additional plug-in is required for the Wireshark Portable launcher. This is now automatically downloaded and installed from the wireshark-win32-libs repository.
 
 INI Settings
 ============

@@ -117,6 +117,7 @@ beamformed
 beamformee
 beamformer
 beamforming
+bgpspec
 bibliographic
 bibliography
 bidirectional
@@ -292,6 +293,7 @@ cryptographic
 csapi
 ctime
 ctype
+cumulated
 customizable
 customization
 customizing
@@ -304,6 +306,7 @@ datarate
 datastate
 datetime
 dcerpc
+dct3trace
 deact
 deactivated
 deactivating
@@ -476,6 +479,7 @@ esperanto
 etheraddr
 ethers
 ethertype
+etlfile
 ettarr
 etwdump
 etype
@@ -520,6 +524,7 @@ framenum
 framenumber
 frametype
 frcrpt
+freebsd
 frontend
 fsctl
 ftype
@@ -599,6 +604,7 @@ huffman
 icmpv
 ident
 idiographic
+idl2deb
 idl2wrs
 iec60870
 ieee1609dot
@@ -1177,6 +1183,7 @@ resize
 resized
 resolvable
 resolver
+resolvers
 resub
 resubmission
 resynchronization
@@ -1198,6 +1205,7 @@ revalidation
 revertive
 revocations
 rfcomm
+rfmon
 rgoose
 ripemd
 rlcmac
@@ -1260,6 +1268,7 @@ sha256
 sha384
 sha512
 sharkd
+shomiti
 siapp
 sidelink
 signaling
@@ -1312,6 +1321,7 @@ statusbar
 stderr
 stdin
 stdout
+strdup
 streamid
 stringz
 stringzpad
@@ -1364,6 +1374,7 @@ superset
 svhdx
 switchinfo
 symantec
+synchronizer
 synchronizing
 synchronously
 synphasor
@@ -1584,6 +1595,7 @@ uploads
 urlencoded
 urnti
 usability
+usbmon
 usbms
 usbpcap
 userdata
@@ -1626,6 +1638,7 @@ voipmetrics
 volerr
 vxlan
 wakeup
+wbxml
 webcam
 webkit
 websocket
@@ -1646,6 +1659,7 @@ withoutfcs
 wksta
 workarounds
 wowlan
+wpcap
 wrepl
 writable
 wsbuild

@@ -12591,10 +12591,10 @@ proto_register_bgp(void)
           NULL, 0x0, "Original metric of the route before its redistribution into EIGRP", HFILL }},
       { &hf_bgp_ext_com_mup_segment_id2,
         { "Segment Identifier 2-byte", "bgp.ext_com_mup.segment_id2", FT_UINT16, BASE_DEC,
-          NULL, 0x0, "Configuable segment identifier value 2-byte", HFILL }},
+          NULL, 0x0, "Configurable segment identifier value 2-byte", HFILL }},
       { &hf_bgp_ext_com_mup_segment_id4,
         { "Segment Identifier 4-byte", "bgp.ext_com_mup.segment_id4", FT_UINT32, BASE_DEC,
-          NULL, 0x0, "Configuable segment identifier value 4-byte", HFILL }},
+          NULL, 0x0, "Configurable segment identifier value 4-byte", HFILL }},
 
       /* idr-ls-03 */
       { &hf_bgp_ls_type,
