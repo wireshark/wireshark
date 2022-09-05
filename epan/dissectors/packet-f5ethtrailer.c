@@ -2751,69 +2751,73 @@ dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static gint
 dissect_old_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_tree *type_tree   = NULL;
-    proto_item *ti          = NULL;
     guint offset            = 0;
-    guint processed         = 0;
-    f5eth_tap_data_t *tdata = (f5eth_tap_data_t *)data;
-    guint8 type;
-    guint8 len;
-    guint8 ver;
 
     /* While we still have data in the trailer.  For old format trailers, this needs
      * type, length, version (3 bytes) and for new format trailers, the magic header (4 bytes).
      * All old format trailers are at least 4 bytes long, so just check for length of magic.
      */
-    while (tvb_reported_length_remaining(tvb, offset)) {
-        type = tvb_get_guint8(tvb, offset);
-        len = tvb_get_guint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
-        ver = tvb_get_guint8(tvb, offset + F5_OFF_VERSION);
+    while (tvb_reported_length_remaining(tvb, offset) >= F5_MIN_SANE) {
+        /* length field does not include the type and length bytes.  Add them back in */
+        guint8 len = tvb_get_guint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
+        if (len > tvb_reported_length_remaining(tvb, offset)
+            || len < F5_MIN_SANE || len > F5_MAX_SANE) {
+            /* Invalid length - either a malformed trailer, corrupt packet, or not f5ethtrailer */
+            return offset;
+        }
+        guint8 type = tvb_get_guint8(tvb, offset);
+        guint8 ver = tvb_get_guint8(tvb, offset + F5_OFF_VERSION);
 
-        if (len <= tvb_reported_length_remaining(tvb, offset) && type >= F5TYPE_LOW
-            && type <= F5TYPE_HIGH && len >= F5_MIN_SANE && len <= F5_MAX_SANE
-            && ver <= F5TRAILER_VER_MAX) {
-            /* Parse out the specified trailer. */
-            switch (type) {
-            case F5TYPE_LOW:
-                ti        = proto_tree_add_item(tree, hf_low_id, tvb, offset, len, ENC_NA);
-                type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_low);
+        /* Parse out the specified trailer. */
+        proto_tree *type_tree   = NULL;
+        proto_item *ti          = NULL;
+        f5eth_tap_data_t *tdata = (f5eth_tap_data_t *)data;
+        guint processed = 0;
 
-                processed = dissect_low_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
-                if (processed > 0) {
-                    tdata->trailer_len += processed;
-                    tdata->noise_low = 1;
-                }
-                break;
-            case F5TYPE_MED:
-                ti        = proto_tree_add_item(tree, hf_med_id, tvb, offset, len, ENC_NA);
-                type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_med);
+        switch (type) {
+        case F5TYPE_LOW:
+            ti        = proto_tree_add_item(tree, hf_low_id, tvb, offset, len, ENC_NA);
+            type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_low);
 
-                processed = dissect_med_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
-                if (processed > 0) {
-                    tdata->trailer_len += processed;
-                    tdata->noise_med = 1;
-                }
-                break;
-            case F5TYPE_HIGH:
-                ti        = proto_tree_add_item(tree, hf_high_id, tvb, offset, len, ENC_NA);
-                type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_high);
-
-                processed =
-                    dissect_high_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
-                if (processed > 0) {
-                    tdata->trailer_len += processed;
-                    tdata->noise_high = 1;
-                }
-                break;
+            processed = dissect_low_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
+            if (processed > 0) {
+                tdata->trailer_len += processed;
+                tdata->noise_low = 1;
             }
-            if (processed == 0) {
-                proto_item_set_len(ti, 1);
-                return offset;
+            break;
+        case F5TYPE_MED:
+            ti        = proto_tree_add_item(tree, hf_med_id, tvb, offset, len, ENC_NA);
+            type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_med);
+
+            processed = dissect_med_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
+            if (processed > 0) {
+                tdata->trailer_len += processed;
+                tdata->noise_med = 1;
             }
+            break;
+        case F5TYPE_HIGH:
+            ti        = proto_tree_add_item(tree, hf_high_id, tvb, offset, len, ENC_NA);
+            type_tree = proto_item_add_subtree(ti, ett_f5ethtrailer_high);
+
+            processed =
+                dissect_high_trailer(tvb, pinfo, type_tree, offset, len, ver, tdata);
+            if (processed > 0) {
+                tdata->trailer_len += processed;
+                tdata->noise_high = 1;
+            }
+            break;
+        default:
+            /* Unknown type - malformed trailer, corrupt packet, or not f5ethtrailer - bali out*/
+            return offset;
+        }
+        if (processed == 0) {
+            /* couldn't process trailer - bali out */
+            proto_item_set_len(ti, 1);
+            return offset;
         }
         offset += processed;
     }
-return offset;
+    return offset;
 } /* dissect_old_trailer() */
 
 /*---------------------------------------------------------------------------*/
