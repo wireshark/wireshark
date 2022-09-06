@@ -5648,7 +5648,6 @@ mbim_dissect_ms_sar_config_state(tvbuff_t* tvb, proto_tree* tree, gint offset)
     proto_tree_add_item(tree, hf_mbim_ms_sar_config_state_sar_antenna_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_ms_sar_config_state_sar_backoff_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 static void
@@ -5700,7 +5699,6 @@ mbim_dissect_ms_transmission_status(tvbuff_t* tvb, proto_tree* tree, gint offset
         offset += 4;
     }
     proto_tree_add_item(tree, hf_mbim_ms_transmission_status_hysteresis_timer, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 
