@@ -2195,7 +2195,7 @@ dictionary_load(void)
 				continue;
 			}
 
-			if ((vnd = (diam_vnd_t *)g_hash_table_lookup(vendors,c->vendor))) {
+			if ((diam_vnd_t *)g_hash_table_lookup(vendors,c->vendor)) {
 				value_string item[1];
 
 				item[0].value =  c->code;
