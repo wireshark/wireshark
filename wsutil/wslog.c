@@ -891,6 +891,7 @@ static void log_write_do_work(FILE *fp, bool use_color,
     else if (file != NULL)
         fprintf(fp, "%s ", file);
 
+    /* Any formatting changes here need to be synced with ui/capture.c:capture_input_closed. */
     fputs("-- ", fp);
 
     /* Function name */

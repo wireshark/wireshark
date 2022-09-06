@@ -182,7 +182,7 @@ void capture_process_finished(capture_session *cap_session)
             if (message->len > 0) {
                 g_string_append(message, "\n");
             }
-            g_string_append(message, "Error by extcap pipe: ");
+            g_string_append(message, "Error from extcap pipe: ");
             g_string_append(message, interface_opts->extcap_stderr->str);
         }
     }
