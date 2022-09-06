@@ -23,6 +23,9 @@
    <number>0</number>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinimumSize</enum>
+   </property>
    <property name="topMargin">
     <number>0</number>
    </property>
