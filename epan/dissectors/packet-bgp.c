@@ -6883,7 +6883,6 @@ static int decode_bgp_mup_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, pac
         if (decoded_length < 0) {
             return -1;
         }
-        reader_offset += decoded_length;
         break;
 
     case BGP_MUP_RT_DIRECT_SEGMENT_DISCOVERY:
@@ -6914,7 +6913,6 @@ static int decode_bgp_mup_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, pac
         if (decoded_length < 0) {
             return -1;
         }
-        reader_offset += decoded_length;
         break;
 
     case BGP_MUP_RT_TYPE_2_SESSION_TRANSFORMED:
@@ -6922,7 +6920,6 @@ static int decode_bgp_mup_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, pac
         if (decoded_length < 0) {
             return -1;
         }
-        reader_offset += decoded_length;
         break;
 
     default:
