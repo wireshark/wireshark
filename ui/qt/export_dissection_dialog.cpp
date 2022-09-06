@@ -144,7 +144,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + (packet_range_group_box_.height() * 2 / 3));
 
-    connect(this, SIGNAL(accepted()), this, SLOT(dialogAccepted()));
+    connect(this, SIGNAL(filesSelected(QStringList)), this, SLOT(dialogAccepted(QStringList)));
 #else // Q_OS_WIN
 #endif // Q_OS_WIN
 }
@@ -169,11 +169,11 @@ void ExportDissectionDialog::show()
 }
 
 #ifndef Q_OS_WIN
-void ExportDissectionDialog::dialogAccepted()
+void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
 {
-    if (selectedFiles().length() > 0) {
+    if (selected.length() > 0) {
         cf_print_status_t status;
-        QString file_name = selectedFiles()[0];
+        QString file_name = selected[0];
 
         /* Fill in our print (and export) args */
 
@@ -239,12 +239,10 @@ void ExportDissectionDialog::dialogAccepted()
                 break;
         }
 
-        if (selectedFiles().length() > 0) {
-            gchar *dirname;
-            /* Save the directory name for future file dialogs. */
-            dirname = get_dirname(print_args_.file);  /* Overwrites file_name data */
-            set_last_open_dir(dirname);
-        }
+        gchar *dirname;
+        /* Save the directory name for future file dialogs. */
+        dirname = get_dirname(print_args_.file);  /* Overwrites file_name data */
+        set_last_open_dir(dirname);
     }
 }
 
