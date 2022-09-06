@@ -6,7 +6,7 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is expected to be the final supported version of the 3.4 branch.
+This is expected to be the final release of the 3.4 branch.
 
 == What is Wireshark?
 
@@ -26,17 +26,18 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2022-06[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxx[].
+* wssalink:2022-06[]
+F5 Ethernet Trailer dissector infinite loop.
+wsbuglink:18307[].
 // cveidlink:2022-xxxx[].
-// Fixed in master: xxxx
-// Fixed in release-3.6: xxxx
-// Fixed in release-3.4: xxxx
+// Fixed in master: 67326401a5
+// Fixed in release-3.6: 68c3d706c7
+// Fixed in release-3.4: 0664b90b35
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-?
+// CWE-835
+// * f5ethtrailer: Infinite loop in legacy style dissector. wsbuglink:18307[].
 
 The following bugs have been fixed:
 
@@ -45,6 +46,20 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* USB Truncation of URB_isochronous in frames wsbuglink:18021[].
+
+* IPX/IPX RIP: Crash on expand subtree wsbuglink:18234[].
+
+* Qt: A file or packet comment that is too large will corrupt the pcapng file wsbuglink:18235[].
+
+* Wrong interpretation of the cbsp.rep_period field in epan/dissectors/packet-gsm_cbsp.c wsbuglink:18254[].
+
+* Assertion due to incorrect mask for btatt.battery_power_state.* wsbuglink:18267[].
+
+* Qt: Expert Info dialog not showing Malformed Frame when Frame length is less than captured length wsbuglink:18312[].
+
+* Wireshark and tshark become non-responsive when reading certain packets wsbuglink:18313[].
 
 === New and Updated Features
 
@@ -68,15 +83,23 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+BT ATT
+CBSP
+Couchbase
+F5 Ethernet Trailer
+Frame
+NAS-5GS
+Protobuf
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcap
+--
 
 // === New and Updated Capture Interfaces support
 
