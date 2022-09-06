@@ -8632,7 +8632,6 @@ dissect_pfcp_mbs_session_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* NIDI (if present)*/
     if ((mbs_session_identifier_flags & 0x4)) {
         proto_tree_add_item(tree, hf_pfcp_mbs_session_identifier_nidi, tvb, offset, 5, ENC_NA);
-        offset += 5;
         return;
     }
 
