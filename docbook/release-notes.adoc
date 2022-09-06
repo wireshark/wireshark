@@ -29,17 +29,18 @@ wsbuglink:17779[]
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2022-06[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxx[].
+* wssalink:2022-06[]
+F5 Ethernet Trailer dissector infinite loop.
+wsbuglink:18307[].
 // cveidlink:2022-xxxx[].
-// Fixed in master: xxxx
-// Fixed in release-3.6: xxxx
-// Fixed in release-3.4: xxxx
+// Fixed in master: 67326401a5
+// Fixed in release-3.6: 68c3d706c7
+// Fixed in release-3.4: 0664b90b35
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-?
+// CWE-835
+// * f5ethtrailer: Infinite loop in legacy style dissector. wsbuglink:18307[].
 
 The following bugs have been fixed:
 
@@ -48,8 +49,35 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
-=== New and Updated Features
+* TCAP Malformed exception on externally re-assembled packet wsbuglink:10515[].
 
+* Extended 3GPP-GPRS-Negotiated-QoS-profile strings decoded incompletely wsbuglink:10688[].
+
+* HTTP2 dissector decodes first SSL record only wsbuglink:11173[].
+
+* L2TP improvements - cookie length detection, UDP encapsulation and more wsbuglink:16565[].
+
+* USB Truncation of URB_isochronous in frames wsbuglink:18021[].
+
+* ISUP/BICC parameter summary text duplication wsbuglink:18094[].
+
+* Running rpm-setup.sh shows missing packages that Centos does not need wsbuglink:18166[].
+
+* IPX/IPX RIP: Crash on expand subtree wsbuglink:18234[].
+
+* Qt: A file or packet comment that is too large will corrupt the pcapng file wsbuglink:18235[].
+
+* BGP dissector bug wsbuglink:18248[].
+
+* Wrong interpretation of the cbsp.rep_period field in epan/dissectors/packet-gsm_cbsp.c wsbuglink:18254[].
+
+* Assertion due to incorrect mask for btatt.battery_power_state.* wsbuglink:18267[].
+
+* Qt: Expert Info dialog not showing Malformed Frame when Frame length is less than captured length wsbuglink:18312[].
+
+* Wireshark and tshark become non-responsive when reading certain packets wsbuglink:18313[].
+
+=== New and Updated Features
 
 // === Removed Features and Support
 
@@ -65,15 +93,33 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+BGP
+BICC
+BT ATT
+CBSP
+Couchbase
+F5 Ethernet Trailer
+Frame
+GTP
+GTP (prime)
+IPsec
+ISUP
+L2TP
+NAS-5GS
+Protobuf
+SCCP
+TCP
+TLS
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcap
+--
 
 === New File Format Decoding Support
 
