@@ -1513,6 +1513,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-miop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mip6.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-miwi-p2pstar.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mka.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mle.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mmse.c
