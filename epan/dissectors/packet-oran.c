@@ -514,7 +514,6 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name)
     bit_offset += pref_cc_id_bits;
     /* RU Port ID */
     proto_tree_add_bits_ret_val(oran_pcid_tree, hf_oran_ru_port_id, tvb, bit_offset, pref_ru_port_id_bits, &ruPortId, ENC_BIG_ENDIAN);
-    bit_offset += pref_ru_port_id_bits;
     *offset += 2;
 
     proto_item_append_text(item, " (DU_Port_ID: %d, BandSector_ID: %d, CC_ID: %d, RU_Port_ID: %d)", (int)duPortId, (int)bandSectorId, (int)ccId, (int)ruPortId);
