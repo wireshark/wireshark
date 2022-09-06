@@ -6899,11 +6899,9 @@ static int decode_bgp_mup_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, pac
         switch (afi) {
         case AFNUM_INET:
             proto_tree_add_item(prefix_tree, hf_bgp_mup_nlri_ip_addr, tvb, reader_offset, 4, ENC_NA);
-            reader_offset += 4;
             break;
         case AFNUM_INET6:
             proto_tree_add_item(prefix_tree, hf_bgp_mup_nlri_ipv6_addr, tvb, reader_offset, 16, ENC_NA);
-            reader_offset += 16;
             break;
         }
         break;

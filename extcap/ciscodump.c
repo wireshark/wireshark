@@ -1706,7 +1706,6 @@ static gboolean run_capture_asa(ssh_channel channel, const char* iface, const ch
 			goto error;
 
 		multiline_filter = g_strdup(cfilter);
-		chr = multiline_filter;
 		start = multiline_filter;
 		while((chr = g_strstr_len(start, strlen(start), ",")) != NULL) {
 			chr[0] = '\0';
