@@ -2983,6 +2983,16 @@ static const guint8 VID_FORTINET_ENDPOINT_CONTROL[] = { /* Endpoint Control (For
         0x0B, 0xAF, 0xBB, 0xD3, 0x4A, 0xD3, 0x04, 0x4E
 };
 
+static const guint8 VID_FORTINET_AUTODISCOVERY_RECEIVER[] = { /* Auto-Discovery Receiver (Fortinet) */
+        0xCA, 0x4A, 0x4C, 0xBB, 0x12, 0xEA, 0xB6, 0xC5,
+        0x8C, 0x57, 0x06, 0x7C, 0x2E, 0x65, 0x37, 0x86
+};
+
+static const guint8 VID_FORTINET_EXCHANGE_INTERFACE_IP[] = { /* Exchange Interface IP (Fortinet) */
+        0xA5, 0x8F, 0xEC, 0x50, 0x36, 0xF5, 0x7B, 0x21,
+        0xE8, 0xB4, 0x99, 0xE3, 0x36, 0xC7, 0x6E, 0xE6
+};
+
 static const bytes_string vendor_id[] = {
   { VID_SSH_IPSEC_EXPRESS_1_1_0, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_0), "Ssh Communications Security IPSEC Express version 1.1.0" },
   { VID_SSH_IPSEC_EXPRESS_1_1_1, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_1), "Ssh Communications Security IPSEC Express version 1.1.1" },
@@ -3095,6 +3105,8 @@ static const bytes_string vendor_id[] = {
   { VID_FORTINET_FORTIGATE, sizeof(VID_FORTINET_FORTIGATE), "Fortigate (Fortinet)" },
   { VID_FORTINET_FORTICLIENT_CONNECT, sizeof(VID_FORTINET_FORTICLIENT_CONNECT), "Forticlient connect license (Fortinet)" },
   { VID_FORTINET_ENDPOINT_CONTROL, sizeof(VID_FORTINET_ENDPOINT_CONTROL), "Endpoint Control (Fortinet)" },
+  { VID_FORTINET_AUTODISCOVERY_RECEIVER, sizeof(VID_FORTINET_AUTODISCOVERY_RECEIVER), "Auto-Discovery Receiver (Fortinet)" },
+  { VID_FORTINET_EXCHANGE_INTERFACE_IP, sizeof(VID_FORTINET_EXCHANGE_INTERFACE_IP), "Exchange Interface IP (Fortinet)" },
   { 0, 0, NULL }
 };
 
