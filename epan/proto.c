@@ -9100,7 +9100,11 @@ label_mark_truncated(char *label_str, gsize name_pos)
 		   there's no need to use g_utf8_find_prev_char(), the search
 		    will always succeed since we copied trunc_str into the
 		    buffer */
-		last_char = g_utf8_prev_char(&label_str[ITEM_LABEL_LENGTH - 1]);
+		/* g_utf8_prev_char does not deference the memory address
+		 * passed in (until after decrementing it, so it is perfectly
+		 * legal to pass in a pointer one past the last element.
+		 */
+		last_char = g_utf8_prev_char(label_str + ITEM_LABEL_LENGTH);
 		*last_char = '\0';
 
 	} else if (name_pos < ITEM_LABEL_LENGTH)
