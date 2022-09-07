@@ -897,7 +897,7 @@ proto_register_cbor(void)
 		    NULL, HFILL }
 		},
 		{ &hf_cbor_item_length5,
-		  { "Length", "cbor.item.length",
+		  { "Length", "cbor.item.length5",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
@@ -907,12 +907,12 @@ proto_register_cbor(void)
 		    NULL, HFILL }
 		},
 		{ &hf_cbor_item_items5,
-		  { "Items", "cbor.item.items",
+		  { "Items", "cbor.item.items5",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
 		{ &hf_cbor_item_items,
-		  { "Items", "cbor.item.length",
+		  { "Items", "cbor.item.items",
 		    FT_UINT64, BASE_DEC, NULL, 0x00,
 		    NULL, HFILL }
 		},
