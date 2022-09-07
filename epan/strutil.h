@@ -194,7 +194,6 @@ gboolean   uri_to_bytes(const char *uri_str, GByteArray *bytes, size_t len);
  * @param uri_str The string of hex digits.
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
- * @param len The length of the input string
  * @return True if the string was converted successfully
  */
 WS_DLL_PUBLIC
