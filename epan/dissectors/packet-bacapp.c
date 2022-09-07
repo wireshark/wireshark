@@ -8633,7 +8633,7 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
     guint           start = offset;
     guint           offs;
     guint32         lvt, i, numberOfBytes;
-    guint8          bf_arr[256 + 1];
+    char            bf_arr[256 + 1];
     proto_tree     *subtree = tree;
 
     offs = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
@@ -8647,7 +8647,7 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
         tmp = tvb_get_guint8(tvb, (offset)+i + 1);
         if (i == numberOfBytes - 1) { skip = unused; }
         for (j = 0; j < 8 - skip; j++) {
-            bf_arr[MIN(sizeof(bf_arr) - 1, (i * 8) + j)] = tmp & (1 << (7 - j)) ? 'T' : 'F';
+            bf_arr[MIN(sizeof(bf_arr) - 2, (i * 8) + j)] = tmp & (1 << (7 - j)) ? 'T' : 'F';
         }
     }
 
