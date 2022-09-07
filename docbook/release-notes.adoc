@@ -98,7 +98,7 @@ Protobuf
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-pcap
+pcap, pcapng
 --
 
 // === New and Updated Capture Interfaces support
