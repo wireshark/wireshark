@@ -567,13 +567,13 @@ test_bt_dht(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
   if (tvb_captured_length_remaining(tvb, offset) < DHT_MIN_LEN)
     return FALSE;
 
-  if (tvb_memeql(tvb, offset, "d1:ad", 5) == 0) {
+  if (tvb_memeql(tvb, offset, (const guint8*)"d1:ad", 5) == 0) {
     return TRUE;
-  } else if (tvb_memeql(tvb, offset, "d1:rd", 5) == 0) {
+  } else if (tvb_memeql(tvb, offset, (const guint8*)"d1:rd", 5) == 0) {
     return TRUE;
-  } else if (tvb_memeql(tvb, offset, "d2:ip", 5) == 0) {
+  } else if (tvb_memeql(tvb, offset, (const guint8*)"d2:ip", 5) == 0) {
     return TRUE;
-  } else if (tvb_memeql(tvb, offset, "d1:el", 5) == 0) {
+  } else if (tvb_memeql(tvb, offset, (const guint8*)"d1:el", 5) == 0) {
     return TRUE;
   }
 

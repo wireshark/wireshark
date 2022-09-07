@@ -465,7 +465,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             break;
         }
 
-        if (tvb_memeql(tvb, offset, JXTA_UDP_SIG, sizeof(JXTA_UDP_SIG)) != 0) {
+        if (tvb_memeql(tvb, offset, (const guint8*)JXTA_UDP_SIG, sizeof(JXTA_UDP_SIG)) != 0) {
             /* not ours */
             return 0;
         }
@@ -571,7 +571,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         goto Common_Exit;
     }
 
-    if (0 == tvb_memeql(tvb, 0, JXTA_WELCOME_MSG_SIG, sizeof(JXTA_WELCOME_MSG_SIG))) {
+    if (0 == tvb_memeql(tvb, 0, (const guint8*)JXTA_WELCOME_MSG_SIG, sizeof(JXTA_WELCOME_MSG_SIG))) {
         /* The beginning of a JXTA stream connection */
         address *welcome_addr;
         gboolean initiator = FALSE;
@@ -802,7 +802,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         return (gint) (available - sizeof(JXTA_WELCOME_MSG_SIG));
     }
 
-    if (0 != tvb_memeql(tvb, 0, JXTA_WELCOME_MSG_SIG, sizeof(JXTA_WELCOME_MSG_SIG))) {
+    if (0 != tvb_memeql(tvb, 0, (const guint8*)JXTA_WELCOME_MSG_SIG, sizeof(JXTA_WELCOME_MSG_SIG))) {
         /* not ours! */
         return 0;
     }
@@ -1176,7 +1176,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             break;
         }
 
-        if (tvb_memeql(tvb, offset, JXTA_MSG_SIG, sizeof(JXTA_MSG_SIG)) != 0) {
+        if (tvb_memeql(tvb, offset, (const guint8*)JXTA_MSG_SIG, sizeof(JXTA_MSG_SIG)) != 0) {
             /* It is not one of ours */
             return 0;
         }
@@ -1478,7 +1478,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             needed = (gint) (sizeof(JXTA_MSGELEM_SIG) - available);
         }
 
-        if (tvb_memeql(tvb, offset, JXTA_MSGELEM_SIG, sizeof(JXTA_MSGELEM_SIG)) != 0) {
+        if (tvb_memeql(tvb, offset, (const guint8*)JXTA_MSGELEM_SIG, sizeof(JXTA_MSGELEM_SIG)) != 0) {
             /* It is not one of ours */
             return 0;
         }
@@ -1726,7 +1726,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             needed = (gint) (sizeof(JXTA_MSGELEM_SIG) - available);
         }
 
-        if (tvb_memeql(tvb, offset, JXTA_MSGELEM_SIG, sizeof(JXTA_MSGELEM_SIG)) != 0) {
+        if (tvb_memeql(tvb, offset, (const guint8*)JXTA_MSGELEM_SIG, sizeof(JXTA_MSGELEM_SIG)) != 0) {
             /* It is not one of ours */
             return 0;
         }

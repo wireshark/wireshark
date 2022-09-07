@@ -24,7 +24,7 @@ void proto_reg_handoff_raw(void);
 static int proto_raw = -1;
 static gint ett_raw = -1;
 
-static const char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
+static const unsigned char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
 
 static dissector_handle_t raw_handle;
 static dissector_handle_t ip_handle;

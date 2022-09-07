@@ -205,7 +205,7 @@ is_proxy_v1(tvbuff_t *tvb, gint *header_length)
         return FALSE;
     }
 
-    if (tvb_memeql(tvb, 0, "PROXY ", 6) != 0) {
+    if (tvb_memeql(tvb, 0, (const guint8*)"PROXY ", 6) != 0) {
         return FALSE;
     }
 
@@ -215,7 +215,7 @@ is_proxy_v1(tvbuff_t *tvb, gint *header_length)
     }
 
     /* The line must end with a CRLF and not just a single CR or LF. */
-    if (tvb_memeql(tvb, next_offset - 2, "\r\n", 2) != 0) {
+    if (tvb_memeql(tvb, next_offset - 2, (const guint8*)"\r\n", 2) != 0) {
         return FALSE;
     }
 
@@ -494,7 +494,7 @@ dissect_proxy_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     if (tvb_reported_length(tvb) >= 16 &&
         tvb_captured_length(tvb) >= sizeof(proxy_v2_magic) &&
-        tvb_memeql(tvb, 0, proxy_v2_magic, sizeof(proxy_v2_magic)) == 0) {
+        tvb_memeql(tvb, 0, (const guint8*)proxy_v2_magic, sizeof(proxy_v2_magic)) == 0) {
         // TODO maybe check for "(hdr.v2.ver_cmd & 0xF0) == 0x20" as done in "9. Sample code" from
         // https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt?
         dissect_proxy_v2(tvb, pinfo, tree, data);

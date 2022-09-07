@@ -132,14 +132,14 @@ dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, guint offset, int params) 
         proto_tree_add_item(hdfs_tree, hf_hdfs_paramtype, tvb, offset, length, ENC_ASCII);
         offset += length;
 
-        if (offset >= length && (!tvb_memeql(tvb, offset - length, "long", length) || !tvb_memeql(tvb, offset - length, "int", length) ||
-                                 !tvb_memeql(tvb, offset - length, "short", length) || !tvb_memeql(tvb, offset - length, "char", length) ||
-                                 !tvb_memeql(tvb, offset - length, "byte", length) || !tvb_memeql(tvb, offset - length, "float", length)
-                                 || !tvb_memeql(tvb, offset - length, "double", length) || !tvb_memeql(tvb, offset - length, "boolean", length))) {
+        if (offset >= length && (!tvb_memeql(tvb, offset - length, (const guint8*)"long", length) || !tvb_memeql(tvb, offset - length, (const guint8*)"int", length) ||
+                                 !tvb_memeql(tvb, offset - length, (const guint8*)"short", length) || !tvb_memeql(tvb, offset - length, (const guint8*)"char", length) ||
+                                 !tvb_memeql(tvb, offset - length, (const guint8*)"byte", length) || !tvb_memeql(tvb, offset - length, (const guint8*)"float", length)
+                                 || !tvb_memeql(tvb, offset - length, (const guint8*)"double", length) || !tvb_memeql(tvb, offset - length, (const guint8*)"boolean", length))) {
 
-            if (!tvb_memeql(tvb, offset - length, "boolean", length)) {
+            if (!tvb_memeql(tvb, offset - length, (const guint8*)"boolean", length)) {
                 length = 1;
-            } else if (!tvb_memeql(tvb, offset - length, "short", length)) {
+            } else if (!tvb_memeql(tvb, offset - length, (const guint8*)"short", length)) {
                 length = 2;
             } else {
                 length = sizeof(type_name);
@@ -159,7 +159,7 @@ dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, guint offset, int params) 
             proto_tree_add_item(hdfs_tree, hf_hdfs_paramval, tvb, offset, length, ENC_ASCII);
             offset += length;
 
-            if (!tvb_memeql(tvb, offset - length, "org.apache.hadoop.fs.permission.FsPermission", length)) {
+            if (!tvb_memeql(tvb, offset - length, (const guint8*)"org.apache.hadoop.fs.permission.FsPermission", length)) {
                 proto_tree_add_item(hdfs_tree, hf_hdfs_fileperm, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
@@ -544,7 +544,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 return offset;
             }
 
-            if (!tvb_memeql(tvb, offset + 2, "long", 4)) {
+            if (!tvb_memeql(tvb, offset + 2, (const guint8*)"long", 4)) {
                 dissect_resp_long (tvb, hdfs_tree,  offset);
 
             } else {
@@ -570,11 +570,11 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 offset += length;
 
                 /* responses about block location info */
-                if (!tvb_memeql(tvb, offset - length, "org.apache.hadoop.hdfs.protocol.LocatedBlocks", length)) {
+                if (!tvb_memeql(tvb, offset - length, (const guint8*)"org.apache.hadoop.hdfs.protocol.LocatedBlocks", length)) {
                     dissect_resp_locatedblocks (tvb, hdfs_tree, offset);
 
                     /* responses about file statuses */
-                } else if (!tvb_memeql(tvb, offset - length, "org.apache.hadoop.hdfs.protocol.HdfsFileStatus", length)) {
+                } else if (!tvb_memeql(tvb, offset - length, (const guint8*)"org.apache.hadoop.hdfs.protocol.HdfsFileStatus", length)) {
                     dissect_resp_filestatus (tvb, hdfs_tree, offset);
 
                 } else {
@@ -598,7 +598,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             guint auth = tvb_get_ntohl(tvb, offset);
 
             /* first setup packet starts with "hrpc" */
-            if (!tvb_memeql(tvb, offset, REQUEST_STR, sizeof(REQUEST_STR) - 1)) {
+            if (!tvb_memeql(tvb, offset, (const guint8*)REQUEST_STR, sizeof(REQUEST_STR) - 1)) {
 
                 proto_tree_add_item(hdfs_tree, hf_hdfs_sequenceno, tvb, offset, sizeof(REQUEST_STR) - 1, ENC_ASCII);
                 offset += (int)sizeof(REQUEST_STR) - 1;

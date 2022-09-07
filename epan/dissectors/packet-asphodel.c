@@ -556,7 +556,7 @@ dissect_asphodel_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         return FALSE;
     }
 
-    if (tvb_memeql(tvb, 2, "Asphodel", 9) != 0)
+    if (tvb_memeql(tvb, 2, (const guint8*)"Asphodel", 9) != 0)
     {
         return FALSE;
     }

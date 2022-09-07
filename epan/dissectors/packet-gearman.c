@@ -68,8 +68,8 @@ static gboolean gearman_desegment  = TRUE;
 
 static const int GEARMAN_COMMAND_HEADER_SIZE = 12;
 static const int GEARMAN_PORT = 4730;
-static const gchar *GEARMAN_MAGIC_CODE_REQUEST = "\0REQ";
-static const gchar *GEARMAN_MAGIC_CODE_RESPONSE = "\0RES";
+static const guchar *GEARMAN_MAGIC_CODE_REQUEST = "\0REQ";
+static const guchar *GEARMAN_MAGIC_CODE_RESPONSE = "\0RES";
 
 static const gchar *GEARMAN_MGR_CMDS[] = {
   "workers",

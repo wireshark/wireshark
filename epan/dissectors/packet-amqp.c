@@ -2191,7 +2191,7 @@ check_amqp_version(tvbuff_t *tvb, amqp_conv *conn)
     if ((conn->version != 0) && (tvb_get_guint8(tvb, 0) != 'A'))
         return;
 
-    if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
+    if (tvb_memeql(tvb, 0, (const guint8*)"AMQP", 4) == 0) {
         /* AMQP 0-* has protocol major/minor in 6th/7th byte, while AMQP 1.0
          * has it in 5th/6th byte (7th is revision)
          */
@@ -2250,7 +2250,7 @@ get_amqp_1_0_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                          int offset, void *data _U_)
 {
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
-    if (tvb_memeql(tvb, offset, "AMQP", 4) == 0)
+    if (tvb_memeql(tvb, offset, (const guint8*)"AMQP", 4) == 0)
         return 8;
     return (guint) tvb_get_ntohl(tvb, offset);
 }
@@ -2260,7 +2260,7 @@ get_amqp_0_10_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                           int offset, void *data _U_)
 {
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
-    if (tvb_memeql(tvb, offset, "AMQP", 4) == 0)
+    if (tvb_memeql(tvb, offset, (const guint8*)"AMQP", 4) == 0)
         return 8;
 
     return (guint) tvb_get_ntohs(tvb, offset + 2); /*  Max *frame* length = 65K; */
@@ -2273,7 +2273,7 @@ get_amqp_0_9_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     guint32 length;
 
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
-    if (tvb_memeql(tvb, offset, "AMQP", 4) == 0)
+    if (tvb_memeql(tvb, offset, (const guint8*)"AMQP", 4) == 0)
         return 8;
 
     /*
@@ -6513,7 +6513,7 @@ dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         dissect_amqp_1_0_SASL_frame(next_tvb, amqp_tree, pinfo);
         break;
     case AMQP_1_0_TLS_FRAME:
-        /* should not occur, this is handled in '(tvb_memeql(tvb, 0, "AMQP", 4) == 0)' test above */
+        /* should not occur, this is handled in '(tvb_memeql(tvb, 0, (const guint8*)"AMQP", 4) == 0)' test above */
         break;
     default:
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %d", frame_type);
@@ -6534,7 +6534,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     tvbuff_t   *next_tvb;
 
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
-    if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
+    if (tvb_memeql(tvb, 0, (const guint8*)"AMQP", 4) == 0) {
         guint8         proto_major;
         guint8         proto_minor;
 
@@ -9058,7 +9058,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint16        channel_num, class_id, method_id;
 
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
-    if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
+    if (tvb_memeql(tvb, 0, (const guint8*)"AMQP", 4) == 0) {
         guint8         proto_id, proto_major, proto_minor;
 
         proto_id = tvb_get_guint8(tvb, 5);

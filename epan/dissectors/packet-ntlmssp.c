@@ -1192,7 +1192,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
      * XXX - should we have a field for Response as well as
      * ClientChallenge?
      */
-    if (tvb_memeql(tvb, blob_offset+8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN) == 0) {
+    if (tvb_memeql(tvb, blob_offset+8, (const guint8*)"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN) == 0) {
       /*
        * LMv2_RESPONSE.
        *

@@ -299,7 +299,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			/* Maybe it's new NTLMSSP payload */
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>16) &&
-			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
+			   ((tvb_memeql(gss_tvb, start_offset, (const guint8*)"\x01\x00\x00\x00", 4) == 0))) {
 				return_offset = call_dissector(ntlmssp_payload_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
 							pinfo, subtree);
@@ -307,7 +307,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				goto done;
 			}
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)==16) &&
-			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
+			   ((tvb_memeql(gss_tvb, start_offset, (const guint8*)"\x01\x00\x00\x00", 4) == 0))) {
 				if( is_verifier ) {
 					return_offset = call_dissector(ntlmssp_verf_handle,
 									tvb_new_subset_remaining(gss_tvb, start_offset),
@@ -324,8 +324,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* Maybe it's new GSSKRB5 CFX Wrapping */
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>2) &&
-			   ((tvb_memeql(gss_tvb, start_offset, "\04\x04", 2) == 0) ||
-			    (tvb_memeql(gss_tvb, start_offset, "\05\x04", 2) == 0))) {
+			   ((tvb_memeql(gss_tvb, start_offset, (const guint8*)"\04\x04", 2) == 0) ||
+			    (tvb_memeql(gss_tvb, start_offset, (const guint8*)"\05\x04", 2) == 0))) {
 				return_offset = call_dissector_with_data(spnego_krb5_wrap_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
 							pinfo, subtree, encrypt_info);

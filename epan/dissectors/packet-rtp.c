@@ -1220,7 +1220,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     version = RTP_VERSION( octet1 );
 
     if (version == 0) {
-        if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
+        if (!(tvb_memeql(tvb, 4, (const guint8*)"ZRTP", 4)))
         {
             call_dissector_only(zrtp_handle, tvb, pinfo, tree, NULL);
             return TRUE;
@@ -1971,7 +1971,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             return tvb_captured_length(tvb);
 
         case RTP0_INVALID:
-            if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
+            if (!(tvb_memeql(tvb, 4, (const guint8*)"ZRTP", 4)))
             {
                 call_dissector(zrtp_handle, tvb,pinfo, tree);
                 return tvb_captured_length(tvb);

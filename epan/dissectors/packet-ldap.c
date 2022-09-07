@@ -1586,7 +1586,7 @@ dissect_ldap_T_bindResponse_matchedDN(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   if(  new_tvb
   &&  (tvb_reported_length(new_tvb)>=7)
-  &&  (!tvb_memeql(new_tvb, 0, "NTLMSSP", 7))){
+  &&  (!tvb_memeql(new_tvb, 0, (const guint8*)"NTLMSSP", 7))){
 
     /* make sure the protocol op comes first */
     ldap_do_protocolop(actx->pinfo);
@@ -1690,7 +1690,7 @@ ldap_conv_info_t *ldap_info;
        * NTLMSSP blob
        */
       if ( (tvb_reported_length(parameter_tvb)>=7)
-        &&   (!tvb_memeql(parameter_tvb, 0, "NTLMSSP", 7))){
+        &&   (!tvb_memeql(parameter_tvb, 0, (const guint8*)"NTLMSSP", 7))){
         call_dissector(ntlmssp_handle, parameter_tvb, actx->pinfo, tree);
         break;
       }

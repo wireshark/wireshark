@@ -179,8 +179,8 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		return FALSE;
 	}
 
-	if (tvb_memeql(tvb, offset, "YPNS", 4) != 0 &&
-	    tvb_memeql(tvb, offset, "YHOO", 4) != 0) {
+	if (tvb_memeql(tvb, offset, (const guint8*)"YPNS", 4) != 0 &&
+	    tvb_memeql(tvb, offset, (const guint8*)"YHOO", 4) != 0) {
 		/* Not a Yahoo Messenger packet. */
 		return FALSE;
 	}
@@ -188,7 +188,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YHOO");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-			     ( tvb_memeql(tvb, offset + 0, "YPNS", 4) == 0 ) ? "Request" : "Response",
+			     ( tvb_memeql(tvb, offset + 0, (const guint8*)"YPNS", 4) == 0 ) ? "Request" : "Response",
 			     val_to_str(tvb_get_letohl(tvb, offset + 12),
 					yhoo_service_vals, "Unknown Service: %u"));
 

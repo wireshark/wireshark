@@ -806,7 +806,7 @@ ncp_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 #define SYS 0x80        /* System packet */
 
 #define LIP_ECHO_MAGIC_LEN 16
-static char lip_echo_magic[LIP_ECHO_MAGIC_LEN] = {
+static const unsigned char lip_echo_magic[LIP_ECHO_MAGIC_LEN] = {
     'L', 'I', 'P', ' ', 'E', 'c', 'h', 'o', ' ', 'D', 'a', 't', 'a', ' ', ' ', ' '
 };
 

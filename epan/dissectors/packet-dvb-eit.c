@@ -139,7 +139,7 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         proto_tree_add_item(dvb_eit_event_tree, hf_dvb_eit_event_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        if (tvb_memeql(tvb, offset, "\xFF\xFF\xFF\xFF\xFF", 5)) {
+        if (tvb_memeql(tvb, offset, (const guint8*)"\xFF\xFF\xFF\xFF\xFF", 5)) {
             if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &start_time) < 0) {
                 proto_tree_add_time_format(dvb_eit_event_tree, hf_dvb_eit_start_time, tvb, offset, 5,
                                     &start_time, "Unparseable time");

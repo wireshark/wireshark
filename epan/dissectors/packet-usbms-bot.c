@@ -357,8 +357,8 @@ dissect_usbms_bot_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 static gboolean
 dissect_usbms_bot_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    const gchar usbc[] = {0x55, 0x53, 0x42, 0x43};
-    const gchar usbs[] = {0x55, 0x53, 0x42, 0x53};
+    const guchar usbc[] = {0x55, 0x53, 0x42, 0x43};
+    const guchar usbs[] = {0x55, 0x53, 0x42, 0x53};
     if (tvb_reported_length(tvb) < 4)
         return FALSE;
 

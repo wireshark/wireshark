@@ -1257,7 +1257,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 		snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%s'",
 			tvb_get_string_enc(wmem_packet_scope(), tvb, 12, 4, ENC_ASCII));
 		for (i = 0; primary_sources[i].id; i++) {
-			if (tvb_memeql(tvb, 12, primary_sources[i].id, 4) == 0) {
+			if (tvb_memeql(tvb, 12, (const guint8*)primary_sources[i].id, 4) == 0) {
 				snprintf(buff, NTP_TS_SIZE, "%s",
 					primary_sources[i].data);
 				break;

@@ -466,7 +466,7 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	if (tvb_captured_length(tvb) < 4) {
 		return FALSE;
 	}
-	if (tvb_memeql(tvb, 0, "YMSG", 4) == -1) {
+	if (tvb_memeql(tvb, 0, (const guint8*)"YMSG", 4) == -1) {
 		/* Not a Yahoo Messenger packet. */
 		return FALSE;
 	}

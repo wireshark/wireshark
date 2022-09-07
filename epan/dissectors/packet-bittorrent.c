@@ -383,7 +383,7 @@ get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
    guint32 length;
 
    if (tvb_get_guint8(tvb, offset) == 19 &&
-       tvb_memeql(tvb, offset + 1, "BitTorrent protocol", 19) == 0) {
+       tvb_memeql(tvb, offset + 1, (const guint8*)"BitTorrent protocol", 19) == 0) {
       /* Return the length of a Handshake message */
       return  1 + /* pstrlen */
              19 + /* pstr */
@@ -649,7 +649,7 @@ dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if(decode_client_information) {
       for(i = 0; peer_id[i].name != NULL; ++i)
       {
-         if(tvb_memeql(tvb, offset, peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
+         if(tvb_memeql(tvb, offset, (const guint8*)peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
             version = tvb_get_string_enc(pinfo->pool, tvb, offset + (int)strlen(peer_id[i].id),
                                      peer_id[i].ver_len, ENC_ASCII);
             proto_tree_add_string_format(tree, hf_bittorrent_version, tvb, offset, 20, version, "Client is %s v%s",
@@ -675,7 +675,7 @@ int dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    tree = proto_item_add_subtree(ti, ett_bittorrent);
 
    if (tvb_get_guint8(tvb, 0) == 19 &&
-       tvb_memeql(tvb, 1, "BitTorrent protocol", 19) == 0) {
+       tvb_memeql(tvb, 1, (const guint8*)"BitTorrent protocol", 19) == 0) {
       dissect_bittorrent_welcome(tvb, pinfo, tree);
    } else {
       dissect_bittorrent_message(tvb, pinfo, tree);
@@ -711,7 +711,7 @@ gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
 
    if (tvb_captured_length(tvb) >= 20 &&
        tvb_get_guint8(tvb, 0) == 19 &&
-       tvb_memeql(tvb, 1, "BitTorrent protocol", 19) == 0) {
+       tvb_memeql(tvb, 1, (const guint8*)"BitTorrent protocol", 19) == 0) {
       conversation = find_or_create_conversation(pinfo);
       conversation_set_dissector(conversation, dissector_handle);
 

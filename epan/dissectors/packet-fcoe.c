@@ -109,7 +109,7 @@ fcoe_get_eof(tvbuff_t *tvb, gint eof_offset)
     }
 
     padding_remaining = MIN(tvb_captured_length_remaining(tvb, eof_offset+1),3);
-    if (tvb_memeql(tvb, eof_offset+1, "\x00\x00\x00", padding_remaining)) {
+    if (tvb_memeql(tvb, eof_offset+1, (const guint8*)"\x00\x00\x00", padding_remaining)) {
         return NULL;
     }
 

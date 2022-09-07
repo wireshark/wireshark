@@ -71,7 +71,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!PINFO_FD_VISITED(pinfo)) {
         if (pinfo->can_desegment) {
             if (is_query) {
-                if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
+                if ((len < 2) || (tvb_memeql(tvb, len - 2, (const guint8*)"\r\n", 2))) {
                     pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                     pinfo->desegment_offset = 0;
                     return -1;
@@ -112,7 +112,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (is_query) {
         expert_ti = proto_tree_add_item(finger_tree, hf_finger_query, tvb, 0, -1, ENC_ASCII);
-        if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
+        if ((len < 2) || (tvb_memeql(tvb, len - 2, (const guint8*)"\r\n", 2))) {
             /*
              * From RFC742, Send a single "command line", ending with <CRLF>.
              */

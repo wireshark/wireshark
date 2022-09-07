@@ -2850,7 +2850,7 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
   /*
    * routingToken or cookie?  Both begin with "Cookie: ".
    */
-  if (tvb_memeql(tvb, offset, "Cookie: ", 8) == 0) {
+  if (tvb_memeql(tvb, offset, (const guint8*)"Cookie: ", 8) == 0) {
     /* Looks like a routing token or cookie */
     have_cookie = TRUE;
   } else if (tvb_bytes_exist(tvb, offset, 4) &&
