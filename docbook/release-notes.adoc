@@ -118,7 +118,7 @@ TLS
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-pcap
+pcap, pcapng
 --
 
 === New File Format Decoding Support
