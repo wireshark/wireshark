@@ -152,37 +152,37 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpcUa");
 
     /* parse message type */
-    if (tvb_memeql(tvb, 0, "HEL", 3) == 0)
+    if (tvb_memeql(tvb, 0, (const guint8 * )"HEL", 3) == 0)
     {
         msgtype = MSG_HELLO;
         pfctParse = parseHello;
     }
-    else if (tvb_memeql(tvb, 0, "ACK", 3) == 0)
+    else if (tvb_memeql(tvb, 0, (const guint8*)"ACK", 3) == 0)
     {
         msgtype = MSG_ACKNOWLEDGE;
         pfctParse = parseAcknowledge;
     }
-    else if (tvb_memeql(tvb, 0, "ERR", 3) == 0)
+    else if (tvb_memeql(tvb, 0, (const guint8*)"ERR", 3) == 0)
     {
         msgtype = MSG_ERROR;
         pfctParse = parseError;
     }
-    else if (tvb_memeql(tvb, 0, "RHE", 3) == 0)
+    else if (tvb_memeql(tvb, 0, (const guint8*)"RHE", 3) == 0)
     {
         msgtype = MSG_REVERSEHELLO;
         pfctParse = parseReverseHello;
     }
-    else if (tvb_memeql(tvb, 0, "MSG", 3) == 0)
+    else if (tvb_memeql(tvb, 0, (const guint8*)"MSG", 3) == 0)
     {
         msgtype = MSG_MESSAGE;
         pfctParse = parseMessage;
     }
-    else if (tvb_memeql(tvb, 0, "OPN", 3) == 0)
+    else if (tvb_memeql(tvb, 0, (const guint8*)"OPN", 3) == 0)
     {
         msgtype = MSG_OPENSECURECHANNEL;
         pfctParse = parseOpenSecureChannel;
     }
-    else if (tvb_memeql(tvb, 0, "CLO", 3) == 0)
+    else if (tvb_memeql(tvb, 0, (const guint8*)"CLO", 3) == 0)
     {
         msgtype = MSG_CLOSESECURECHANNEL;
         pfctParse = parseCloseSecureChannel;
