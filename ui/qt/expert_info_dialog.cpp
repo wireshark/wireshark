@@ -17,6 +17,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 
+#include "progress_frame.h"
 #include "main_application.h"
 
 #include <QAction>
@@ -105,6 +106,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file, Q
 
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
             this, SLOT(captureEvent(CaptureEvent)));
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     updateWidgets();
     QTimer::singleShot(0, this, SLOT(retapPackets()));
