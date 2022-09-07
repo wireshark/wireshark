@@ -219,6 +219,7 @@ static int hfinfo_bitoffset(const header_field_info *hfinfo);
 static int hfinfo_mask_bitwidth(const header_field_info *hfinfo);
 static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
 
+static inline gsize label_concat(char *label_str, gsize pos, const char *str);
 static void label_mark_truncated(char *label_str, gsize name_pos);
 #define LABEL_MARK_TRUNCATED_START(label_str) label_mark_truncated(label_str, 0)
 
@@ -6332,7 +6333,8 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 	/* If the tree (GUI) or item isn't visible it's pointless for us to generate the protocol
 	 * items string representation */
 	if (PTREE_DATA(pi)->visible && !proto_item_is_hidden(pi)) {
-		int               ret = 0;
+		gsize             name_pos, ret = 0;
+		char              *str, *tmp;
 		field_info        *fi = PITEM_FINFO(pi);
 		header_field_info *hf;
 
@@ -6353,22 +6355,24 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 			val <<= hfinfo_bitshift(hf);
 
 			p = decode_bitfield_value(fi->rep->representation, val, hf->bitmask, hfinfo_container_bitwidth(hf));
-			ret = (int) (p - fi->rep->representation);
+			ret = (p - fi->rep->representation);
 		}
 
 		/* put in the hf name */
-		ret += snprintf(fi->rep->representation + ret, ITEM_LABEL_LENGTH - ret, "%s: ", hf->name);
+		name_pos = ret = label_concat(fi->rep->representation, ret, hf->name);
 
+		ret = label_concat(fi->rep->representation, ret, ": ");
 		/* If possible, Put in the value of the string */
-		if (ret < ITEM_LABEL_LENGTH) {
-			ret += vsnprintf(fi->rep->representation + ret,
-					  ITEM_LABEL_LENGTH - ret, format, ap);
-		}
+		str = ws_strdup_vprintf(format, ap);
+		tmp = format_text_string(NULL, str);
+		wmem_free(NULL, str);
+		ret = label_concat(fi->rep->representation, ret, tmp);
+		wmem_free(NULL, tmp);
 		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
 			 */
-			LABEL_MARK_TRUNCATED_START(fi->rep->representation);
+			label_mark_truncated(fi->rep->representation, name_pos);
 		}
 	}
 }
@@ -6379,15 +6383,20 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 {
-	int	    ret;	/*tmp return value */
+	gsize	    ret;	/*tmp return value */
+	char       *str, *tmp;
 	field_info *fi = PITEM_FINFO(pi);
 
 	DISSECTOR_ASSERT(fi);
 
 	if (!proto_item_is_hidden(pi)) {
 		ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
-		ret = vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
-				  format, ap);
+
+		str = ws_strdup_vprintf(format, ap);
+		tmp = format_text_string(NULL, str);
+		wmem_free(NULL, str);
+		ret = label_concat(fi->rep->representation, 0, tmp);
+		wmem_free(NULL, tmp);
 		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
@@ -7023,6 +7032,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = NULL;
 	size_t      curlen;
+	char       *str, *tmp;
 	va_list     ap;
 
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
@@ -7043,11 +7053,28 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		}
 
 		curlen = strlen(fi->rep->representation);
-		if (ITEM_LABEL_LENGTH > curlen) {
+		/* curlen doesn't include the \0 byte.
+		 * XXX: If curlen + 4 > ITEM_LABEL_LENGTH, we can't tell if
+		 * the representation has already been truncated (of an up
+		 * to 4 byte UTF-8 character) or is just at the maximum length
+		 * unless we search for " [truncated]" (which may not be
+		 * at the start.)
+		 * It's safer to do nothing.
+		 */
+		if (ITEM_LABEL_LENGTH > (curlen + 4)) {
 			va_start(ap, format);
-			vsnprintf(fi->rep->representation + curlen,
-				ITEM_LABEL_LENGTH - (gulong) curlen, format, ap);
+			str = ws_strdup_vprintf(format, ap);
 			va_end(ap);
+			tmp = format_text_string(NULL, str);
+			wmem_free(NULL, str);
+			curlen = label_concat(fi->rep->representation, curlen, tmp);
+			wmem_free(NULL, tmp);
+			if (curlen >= ITEM_LABEL_LENGTH) {
+				/* Uh oh, we don't have enough room.  Tell the user
+				 * that the field is truncated.
+				 */
+				LABEL_MARK_TRUNCATED_START(fi->rep->representation);
+			}
 		}
 	}
 }
@@ -7057,7 +7084,9 @@ void
 proto_item_prepend_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = NULL;
+	gsize       pos;
 	char        representation[ITEM_LABEL_LENGTH];
+	char       *str, *tmp;
 	va_list     ap;
 
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
@@ -7079,10 +7108,21 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 			(void) g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
 
 		va_start(ap, format);
-		vsnprintf(fi->rep->representation,
-			ITEM_LABEL_LENGTH, format, ap);
+		str = ws_strdup_vprintf(format, ap);
 		va_end(ap);
-		(void) g_strlcat(fi->rep->representation, representation, ITEM_LABEL_LENGTH);
+		tmp = format_text_string(NULL, str);
+		wmem_free(NULL, str);
+		pos = label_concat(fi->rep->representation, 0, tmp);
+		wmem_free(NULL, tmp);
+		pos = label_concat(fi->rep->representation, pos, representation);
+		/* XXX: As above, if the old representation is close to the label
+		 * length, it might already be marked as truncated. */
+		if (pos >= ITEM_LABEL_LENGTH && (strlen(representation) + 4) <= ITEM_LABEL_LENGTH) {
+			/* Uh oh, we don't have enough room.  Tell the user
+			 * that the field is truncated.
+			 */
+			LABEL_MARK_TRUNCATED_START(fi->rep->representation);
+		}
 	}
 }
 
