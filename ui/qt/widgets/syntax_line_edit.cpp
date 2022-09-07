@@ -156,8 +156,8 @@ QString SyntaxLineEdit::createSyntaxErrorMessageFull(
         msg = QString("<p>%1<pre>  %2\n  %3^%4</pre></p>")
             .arg(msg)
             .arg(filter)
-            .arg(QString(' ').repeated(loc_start))
-            .arg(QString('~').repeated(loc_length - 1));
+            .arg(QString(' ').repeated(static_cast<int>(loc_start)))
+            .arg(QString('~').repeated(static_cast<int>(loc_length) - 1));
     }
     return msg;
 }
