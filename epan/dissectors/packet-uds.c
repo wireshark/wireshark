@@ -298,7 +298,7 @@ static const value_string uds_services[]= {
         {UDS_SERVICES_WMBA,  "Write Memory By Address"},
         {UDS_SERVICES_TP,    "Tester Present"},
         {UDS_SERVICES_ERR,   "Error"},
-        {UDS_SERVICES_SDT,   "Sercure Data Transmission"},
+        {UDS_SERVICES_SDT,   "Secured Data Transmission"},
         {UDS_SERVICES_CDTCS, "Control DTC Setting"},
         {UDS_SERVICES_ROE,   "Response On Event"},
         {UDS_SERVICES_LC,    "Link Control"},
