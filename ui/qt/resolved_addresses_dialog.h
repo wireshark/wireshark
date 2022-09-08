@@ -30,9 +30,9 @@ public:
     ~ResolvedAddressesDialog();
 
 protected slots:
-    void on_cmbDataType_currentIndexChanged(QString val);
+    void on_cmbDataType_currentIndexChanged(int index);
     void on_txtSearchFilter_textChanged(QString text);
-    void on_cmbPortFilterType_currentIndexChanged(QString val);
+    void on_cmbPortFilterType_currentIndexChanged(int index);
     void on_txtPortFilter_textChanged(QString text);
 
     void changeEvent(QEvent* event);
