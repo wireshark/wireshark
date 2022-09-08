@@ -126,16 +126,16 @@ RpcServiceResponseTimeDialog::RpcServiceResponseTimeDialog(QWidget &parent, Capt
         // full-height list to the left of the stats tree instead.
         QStringList programs = dce_name_to_uuid_key_.keys();
         std::sort(programs.begin(), programs.end(), qStringCaseLessThan);
-        connect(program_combo_, SIGNAL(currentIndexChanged(QString)),
-                this, SLOT(dceRpcProgramChanged(QString)));
+        connect(program_combo_, SIGNAL(currentTextChanged(const QString)),
+                this, SLOT(dceRpcProgramChanged(const QString)));
         program_combo_->addItems(programs);
     } else {
         setWindowSubtitle(tr("ONC-RPC Service Response Times"));
         g_hash_table_foreach(rpc_progs, onc_rpc_add_program, this);
         QStringList programs = onc_name_to_program_.keys();
         std::sort(programs.begin(), programs.end(), qStringCaseLessThan);
-        connect(program_combo_, SIGNAL(currentIndexChanged(QString)),
-                this, SLOT(oncRpcProgramChanged(QString)));
+        connect(program_combo_, SIGNAL(currentTextChanged(const QString)),
+                this, SLOT(oncRpcProgramChanged(const QString)));
         program_combo_->addItems(programs);
     }
 }
@@ -382,12 +382,15 @@ void RpcServiceResponseTimeDialog::provideParameterData()
         if (!dce_name_to_uuid_key_.contains(program_name)) return;
 
         guid_key *dkey = dce_name_to_uuid_key_[program_name];
+        guint16 version = (guint16) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
+        dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), version);
+        if (!procs) return;
+
         dcerpcstat_tap_data_t *dtap_data = g_new0(dcerpcstat_tap_data_t, 1);
         dtap_data->uuid = dkey->guid;
-        dtap_data->ver = (guint16) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
+        dtap_data->ver = version;
         dtap_data->prog = dcerpc_get_proto_name(&dtap_data->uuid, dtap_data->ver);
 
-        dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), dtap_data->ver);
         for (int i = 0; procs[i].name; i++) {
             if (procs[i].num > max_procs) max_procs = procs[i].num;
         }
