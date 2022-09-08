@@ -167,9 +167,17 @@ void EthernetAddressModel::populate()
     if (wmem_map_t *eth_hashtable = get_eth_hashtable()) {
         wmem_map_foreach(eth_hashtable, eth_hash_to_qstringlist, &values);
     }
+    const QString &eth_label = tr("Ethernet Addresses");
+    foreach (const QString &line, values)
+        appendRow(QStringList() << eth_label << line.split(" "));
+    values.clear();
     if (wmem_map_t *eth_hashtable = get_manuf_hashtable()) {
         wmem_map_foreach(eth_hashtable, manuf_hash_to_qstringlist, &values);
     }
+    const QString &manuf_label = tr("Ethernet Manufacturers");
+    foreach (const QString &line, values)
+        appendRow(QStringList() << manuf_label << line.split(" "));
+    values.clear();
     if (wmem_map_t *eth_hashtable = get_wka_hashtable()) {
         wmem_map_foreach(eth_hashtable, wka_hash_to_qstringlist, &values);
     }
