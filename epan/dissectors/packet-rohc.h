@@ -35,12 +35,7 @@ enum rohc_mode
   RELIABLE_BIDIRECTIONAL = 3
 };
 
-enum rohc_d_mode
-{
-  NO_CONTEXT = 1,
-  STATIC_CONTEXT = 2,
-  FULL_CONTEXT = 3
-};
+
 typedef struct rohc_info
 {
     gboolean           rohc_compression;
@@ -53,20 +48,5 @@ typedef struct rohc_info
     guint16            profile;
     proto_item         *last_created_item;
 } rohc_info;
-
-
-typedef struct rohc_context
-{
-    guint8             rohc_ip_version[MAX_CID+1];
-    gboolean           large_cid_present[MAX_CID+1];
-    enum rohc_mode     mode[MAX_CID+1];
-    enum rohc_d_mode   d_mode[MAX_CID+1];
-    gboolean           rnd[MAX_CID+1];
-    gboolean           udp_checkum_present[MAX_CID+1];
-    guint16            profile[MAX_CID+1];
-	gboolean           rohc_context_init[MAX_CID+1];
-	gint               ir_frame_number[MAX_CID+1];        /* The frame number of the last IR packet seen */
-
-} rohc_context;
 
 #endif /* PACKET_ROHC_H */

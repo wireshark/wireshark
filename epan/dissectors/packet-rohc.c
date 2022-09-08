@@ -34,6 +34,7 @@ static int
 dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
                         proto_tree *tree, tvbuff_t *tvb, int offset);
 
+/* cid -> rohc_cid_context_t* */
 static GHashTable *rohc_cid_hash = NULL;
 
 /* Initialize the protocol and registered fields */
@@ -209,17 +210,24 @@ static dissector_handle_t rohc_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
+enum rohc_d_mode
+{
+  NO_CONTEXT = 1,
+  STATIC_CONTEXT = 2,
+  FULL_CONTEXT = 3
+};
+
 typedef struct _rohc_cid_context_t
 {
     guint8             rohc_ip_version;
     gboolean           large_cid_present;
     enum rohc_mode     mode;
-    enum rohc_d_mode   d_mode;
+    enum rohc_d_mode   d_mode;                 /* Decompressor mode (not used) */
     gboolean           rnd;
     gboolean           udp_checksum_present;
     guint16            profile;
-    gint               prev_ir_frame_number;   /* The frame number of the previous IR packet seen */
-    gint               ir_frame_number;        /* The frame number of the latest IR packet seen */
+    gint               prev_ir_frame_number;   /* The frame number of the previous IR packet seen. -1 if not set */
+    gint               ir_frame_number;        /* The frame number of the latest IR packet seen. -1 if not set */
 
 } rohc_cid_context_t;
 
@@ -244,7 +252,7 @@ static const value_string rohc_profile_vals[] =
     { 0, NULL },
 };
 
-/* IPv4 hard wired for now */
+/* Defaults if not supplied */
 static guint16 g_profile = ROHC_PROFILE_UNKNOWN;
 static guint8 g_version = 4;
 
@@ -351,7 +359,8 @@ static const value_string compressed_list_ps_vals[] =
 
 /* 4.5.6.  Self-describing variable-length values */
 static guint32
-get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, guint8 *val_len){
+get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, guint8 *val_len)
+{
     guint8  oct;
     guint32 val = 0;
     int     num_bits = 0, bit_offset = offset <<3;
@@ -812,7 +821,7 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     if ((rohc_cid_context->rohc_ip_version != 4) ||
-        (rohc_cid_context->rnd == 1) ||
+        (rohc_cid_context->rnd) ||
         (rohc_cid_context->profile == ROHC_PROFILE_UDP)) {
         /*   R-1 (RTP profile)
             *
@@ -916,7 +925,7 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     if ((rohc_cid_context->rohc_ip_version != 4) ||
-        (rohc_cid_context->rnd == 1) ||
+        (rohc_cid_context->rnd) ||
         (rohc_cid_context->profile == ROHC_PROFILE_UDP)) {
         /*   UO-1 (RTP profile)
             *
@@ -1020,7 +1029,7 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     }
 
     if ((rohc_cid_context->rohc_ip_version != 4) ||
-        (rohc_cid_context->rnd == 1) ||
+        (rohc_cid_context->rnd) ||
         (rohc_cid_context->profile == ROHC_PROFILE_UDP)) {
         /*   UOR-2 (RTP profile)
             *
