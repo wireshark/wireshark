@@ -44,3 +44,16 @@ void LograyApplication::refreshLocalInterfaces()
     emit localInterfaceListChanged();
 #endif
 }
+
+void LograyApplication::initializeIcons()
+{
+    // Do this as late as possible in order to allow time for
+    // MimeDatabaseInitThread to do its work.
+    QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
+    foreach (int icon_size, icon_sizes) {
+        QString icon_path = QString(":/lricon/lricon%1.png").arg(icon_size);
+        normal_icon_.addFile(icon_path);
+        icon_path = QString(":/lricon/lriconcap%1.png").arg(icon_size);
+        capture_icon_.addFile(icon_path);
+    }
+}

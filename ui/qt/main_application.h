@@ -157,8 +157,6 @@ private:
     QTimer tap_update_timer_;
     QList<QString> pending_open_files_;
     QSocketNotifier *if_notifier_;
-    QIcon normal_icon_;
-    QIcon capture_icon_;
     static QString window_title_separator_;
     QList<AppSignal> app_signals_;
     int active_captures_;
@@ -168,10 +166,13 @@ private:
 
     void storeCustomColorsInRecent();
     void clearDynamicMenuGroupItems();
-    void initializeIcons();
 
 protected:
     bool event(QEvent *event);
+    virtual void initializeIcons() = 0;
+
+    QIcon normal_icon_;
+    QIcon capture_icon_;
 
 signals:
     void appInitialized();

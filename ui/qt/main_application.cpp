@@ -903,19 +903,6 @@ void MainApplication::clearDynamicMenuGroupItems()
     }
 }
 
-void MainApplication::initializeIcons()
-{
-    // Do this as late as possible in order to allow time for
-    // MimeDatabaseInitThread to do its work.
-    QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
-    foreach (int icon_size, icon_sizes) {
-        QString icon_path = QString(":/wsicon/wsicon%1.png").arg(icon_size);
-        normal_icon_.addFile(icon_path);
-        icon_path = QString(":/wsicon/wsiconcap%1.png").arg(icon_size);
-        capture_icon_.addFile(icon_path);
-    }
-}
-
 QList<QAction *> MainApplication::dynamicMenuGroupItems(int group)
 {
     if (!dynamic_menu_groups_.contains(group)) {

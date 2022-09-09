@@ -23,6 +23,9 @@ public:
     ~LograyApplication();
 
     void refreshLocalInterfaces() override;
+
+private:
+    void initializeIcons() override;
 };
 
 extern LograyApplication *lwApp;
