@@ -1988,7 +1988,9 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
     gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add an FT_STRING, FT_STRINGZ, FT_STRINGZPAD, or FT_STRINGZTRUNC to a
-    proto_tree.
+    proto_tree. The value passed in should be a UTF-8 encoded null terminated
+    string, such as produced by tvb_get_string_enc(), regardless of the original
+    packet data.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
