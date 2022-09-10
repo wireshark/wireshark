@@ -626,6 +626,31 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
 
+    connect(main_ui_->actionAnalyzeFollowTCPStream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_TCP); },
+            Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowUDPStream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_UDP); },
+            Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowDCCPStream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_DCCP); },
+            Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowTLSStream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_TLS); },
+            Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowHTTPStream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_HTTP); },
+            Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowHTTP2Stream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_HTTP2); },
+            Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowQUICStream, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_QUIC); },
+            Qt::QueuedConnection);
+    connect(main_ui_->actionAnalyzeFollowSIPCall, &QAction::triggered, this,
+            [this]() { this->openFollowStreamDialogForType(FOLLOW_SIP); },
+            Qt::QueuedConnection);
+
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
     connect(main_ui_->actionGoPreviousPacket, SIGNAL(triggered()),
@@ -2242,7 +2267,7 @@ void WiresharkMainWindow::initConversationMenus()
         main_ui_->menuConversationFilter->addAction(conv_action);
 
         connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
-        connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
+        connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()), Qt::QueuedConnection);
 
         // Packet list context menu items
         packet_list_->conversationMenu()->addAction(conv_action);
