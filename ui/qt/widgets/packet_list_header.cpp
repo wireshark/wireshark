@@ -179,6 +179,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     QAction * action = nullptr;
 
     QMenu * contextMenu = new QMenu(this);
+    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
     contextMenu->setProperty("column", QVariant::fromValue(sectionIdx));
 
     QActionGroup * alignmentActions = new QActionGroup(contextMenu);
