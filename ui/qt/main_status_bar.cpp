@@ -491,10 +491,10 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 {
     ProfileModel model;
 
-    QMenu * profile_menu_ = new QMenu(this);
-    profile_menu_->setAttribute(Qt::WA_DeleteOnClose);
-    QActionGroup * global = new QActionGroup(profile_menu_);
-    QActionGroup * user = new QActionGroup(profile_menu_);
+    QMenu * profile_menu = new QMenu(this);
+    profile_menu->setAttribute(Qt::WA_DeleteOnClose);
+    QActionGroup * global = new QActionGroup(profile_menu);
+    QActionGroup * user = new QActionGroup(profile_menu);
 
     for (int cnt = 0; cnt < model.rowCount(); cnt++)
     {
@@ -512,7 +512,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
         if (idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
         {
-            pa = profile_menu_->addAction(name);
+            pa = profile_menu->addAction(name);
         }
         else if (idx.data(ProfileModel::DATA_IS_GLOBAL).toBool())
         {
@@ -537,12 +537,12 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         connect(pa, &QAction::triggered, this, &MainStatusBar::switchToProfile);
     }
 
-    profile_menu_->addActions(user->actions());
-    profile_menu_->addSeparator();
-    profile_menu_->addActions(global->actions());
+    profile_menu->addActions(user->actions());
+    profile_menu->addSeparator();
+    profile_menu->addActions(global->actions());
 
     if (button == Qt::LeftButton) {
-        profile_menu_->popup(global_pos);
+        profile_menu->popup(global_pos);
     } else {
 
         bool enable_edit = false;
@@ -551,7 +551,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         if (! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() && ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool())
             enable_edit = true;
 
-        profile_menu_->setTitle(tr("Switch to"));
+        profile_menu->setTitle(tr("Switch to"));
         QMenu * ctx_menu_ = new QMenu(this);
         ctx_menu_->setAttribute(Qt::WA_DeleteOnClose);
         QAction * action = ctx_menu_->addAction(tr("Manage Profiles…"), this, SLOT(manageProfile()));
@@ -596,7 +596,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 #endif
         ctx_menu_->addSeparator();
 
-        ctx_menu_->addMenu(profile_menu_);
+        ctx_menu_->addMenu(profile_menu);
         ctx_menu_->popup(global_pos);
     }
 }
