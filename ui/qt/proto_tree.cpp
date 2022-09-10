@@ -250,8 +250,8 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     QAction *action;
 
     bool have_subtree = false;
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
-    field_info * fi = finfo.fieldInfo();
+    FieldInformation *finfo = new FieldInformation(proto_tree_model_->protoNodeFromIndex(index).protoNode(), ctx_menu);
+    field_info * fi = finfo->fieldInfo();
     bool is_selected = false;
     epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
 
@@ -282,8 +282,8 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         ctx_menu->addSeparator();
     }
 
-    char * selectedfilter = proto_construct_match_selected_string(finfo.fieldInfo(), edt);
-    bool can_match_selected = proto_can_match_selected(finfo.fieldInfo(), edt);
+    char * selectedfilter = proto_construct_match_selected_string(finfo->fieldInfo(), edt);
+    bool can_match_selected = proto_can_match_selected(finfo->fieldInfo(), edt);
     ctx_menu->addMenu(FilterAction::createFilterMenu(FilterAction::ActionApply, selectedfilter, can_match_selected, ctx_menu));
     ctx_menu->addMenu(FilterAction::createFilterMenu(FilterAction::ActionPrepare, selectedfilter, can_match_selected, ctx_menu));
     if (selectedfilter)
@@ -330,7 +330,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     submenu->addSeparator();
     submenu->addAction(tr("As Filter"), this, SLOT(ctxCopyAsFilter()));
     submenu->addSeparator();
-    QActionGroup * copyEntries = DataPrinter::copyActions(this, &finfo);
+    QActionGroup * copyEntries = DataPrinter::copyActions(this, finfo);
     submenu->addActions(copyEntries->actions());
     ctx_menu->addSeparator();
 
@@ -344,7 +344,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         ctx_menu->addSeparator();
     }
 
-    int field_id = finfo.headerInfo().id;
+    int field_id = finfo->headerInfo().id;
     action = ctx_menu->addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
     action->setProperty("toolTip", QString(WS_WIKI_URL("Protocols/%1")).arg(proto_registrar_get_abbrev(field_id)));
 
