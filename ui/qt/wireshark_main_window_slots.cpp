@@ -2959,46 +2959,6 @@ void WiresharkMainWindow::openFollowStreamDialogForType(follow_type_t type) {
     openFollowStreamDialog(type, 0, 0, false);
 }
 
-void WiresharkMainWindow::on_actionAnalyzeFollowTCPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_TCP);
-}
-
-void WiresharkMainWindow::on_actionAnalyzeFollowUDPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_UDP);
-}
-
-void WiresharkMainWindow::on_actionAnalyzeFollowDCCPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_DCCP);
-}
-
-void WiresharkMainWindow::on_actionAnalyzeFollowTLSStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_TLS);
-}
-
-void WiresharkMainWindow::on_actionAnalyzeFollowHTTPStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_HTTP);
-}
-
-void WiresharkMainWindow::on_actionAnalyzeFollowHTTP2Stream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_HTTP2);
-}
-
-void WiresharkMainWindow::on_actionAnalyzeFollowQUICStream_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_QUIC);
-}
-
-void WiresharkMainWindow::on_actionAnalyzeFollowSIPCall_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_SIP);
-}
-
 void WiresharkMainWindow::openSCTPAllAssocsDialog()
 {
     SCTPAllAssocsDialog *sctp_dialog = new SCTPAllAssocsDialog(this, capture_file_.capFile());
