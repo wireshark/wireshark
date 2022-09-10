@@ -365,36 +365,40 @@ get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int
     guint32 val = 0;
     int     num_bits = 0, bit_offset = offset <<3;
 
+    /* Get first byte */
     oct = tvb_get_guint8(tvb, offset);
+
     if((oct&0x80)==0){
-        /* One octet */
+        /* First bit is 0 - 1 octet */
         *val_len = 1;
         val = (oct&0x7f);
         proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         num_bits = 7;
         bit_offset++;
     }else if((oct&0xc0)==0x80){
-        /* Two octets */
+        /* First bits are 10: 2 octets */
         *val_len = 2;
         proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset+=2;
         num_bits = 14;
         val =  tvb_get_ntohs(tvb, offset)&0x3fff;
     }else if((oct&0xe0)==0xc0){
-        /* Three octets */
+        /* First bits are 110: 3 octets */
         *val_len = 3;
         proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset+=3;
         num_bits = 21;
         val = tvb_get_ntoh24(tvb, offset)&0x1fffff;
     }else if ((oct&0xe0)==0xe0){
-        /* Four octets */
+        /* First bits are 111: 4 octets */
         *val_len = 4;
-        proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
         bit_offset+=3;
         num_bits = 29;
         val = tvb_get_ntohl(tvb, offset)&0x1fffffff;
     }
+
+    /* Add the field */
     proto_tree_add_bits_item(tree, hf_index, tvb, bit_offset, num_bits, ENC_BIG_ENDIAN);
 
     return val;
@@ -422,11 +426,15 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                     /* Handle Large CID:s here */
                     get_self_describing_var_len_val(tvb, tree, offset+1, hf_rohc_large_cid, &val_len);
                 }
+                /* R-0 subtree */
                 col_set_str(pinfo->cinfo, COL_INFO, "R-0");
                 pkt_tree = proto_tree_add_subtree(tree, tvb, offset, 1+val_len, ett_rohc_packet, NULL, "R-0 packet");
+
+                /* SN */
                 sn = tvb_get_bits8(tvb,(offset<<3)+2, 6);
                 proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
                 offset += 1 + val_len;
+
                 /* Show SN in info column */
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", (guint)sn);
             }else if((pkt_type&0xc0)==0x40){
@@ -449,13 +457,18 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                     get_self_describing_var_len_val(tvb, tree, offset+1, hf_rohc_large_cid, &val_len);
                     rohc_sn_crumbs[1].crumb_bit_offset += val_len*8;
                 }
+                /* R-0-CRC subtree */
                 col_set_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
                 pkt_tree = proto_tree_add_subtree(tree, tvb, offset, 2+val_len, ett_rohc_packet, NULL, "R-0-CRC packet");
+                /* SN */
                 proto_tree_add_split_bits_item_ret_val(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3),
                                                        rohc_sn_crumbs, &sn);
                 offset += 1 + val_len;
+
+                /* CRC */
                 proto_tree_add_bits_item(pkt_tree, hf_rohc_r_0_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
                 offset++;
+
                 /* Show SN in info column */
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", (guint)sn);
             }
@@ -474,15 +487,22 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 /* Handle Large CID:s here */
                 get_self_describing_var_len_val(tvb, tree, offset+1, hf_rohc_large_cid, &val_len);
             }
+            /* UO-0 subtree */
             col_set_str(pinfo->cinfo, COL_INFO, "UO-0");
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, 1+val_len, ett_rohc_packet, NULL, "UO-0 packet");
+
+            /* SN */
             sn = tvb_get_bits8(tvb,(offset<<3)+1, 4);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
+
+            /* CRC */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_r_0_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
             offset += 1 + val_len;
+
             /* Show SN in info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", (guint)sn);
             break;
+
         default:
             col_set_str(pinfo->cinfo, COL_INFO, "Packet type 0");
             break;
@@ -842,24 +862,40 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             *   +---+---+---+---+---+---+---+---+
             */
         col_set_str(pinfo->cinfo, COL_INFO, "R-1");
+
+        /* Create R-1 subtree */
         pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "R-1 packet");
+
+        /* SN */
         sn = tvb_get_bits8(tvb, (offset<<3)+2, 6);
         proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
         offset += 1 + val_len;
+
         /* Show SN in info column */
         col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
+            /* X */
             x= tvb_get_bits8(tvb, (offset<<3), 1);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_x, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
+
+            /* IP-ID */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
         } else {
+            /* RTP Profile */
+
+            /* M */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_rtp_m, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
+
+            /* X */
             x = tvb_get_bits8(tvb, (offset<<3)+1, 1);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_x, tvb, (offset<<3)+1, 1, ENC_BIG_ENDIAN);
+
+            /* TS */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_ts, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
         }
         offset++;
     } else {
+        /* Packet type depends upon value of T bit */
         t = tvb_get_bits8(tvb, ((offset+1+val_len)<<3)+2, 1);
         if (t == 0) {
             /*   R-1-ID
@@ -872,6 +908,7 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 *   +---+---+---+---+---+---+---+---+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "R-1-ID");
+            /* Create R-1-ID subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "R-1-ID packet");
         } else {
             /*   R-1-TS
@@ -884,24 +921,36 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 *   +---+---+---+---+---+---+---+---+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "R-1-TS");
+            /* Create R-1-TS subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "R-1-TS packet");
         }
+
+        /* SN */
         sn = tvb_get_bits8(tvb, (offset<<3)+2, 6);
         proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
         offset += 1 + val_len;
         /* Show SN in info column */
         col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
+
+        /* M */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_rtp_m, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
+
+        /* X */
         x = tvb_get_bits8(tvb, (offset<<3)+1, 1);
         proto_tree_add_bits_item(pkt_tree, hf_rohc_x, tvb, (offset<<3)+1, 1, ENC_BIG_ENDIAN);
+
+        /* T */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_t, tvb, (offset<<3)+2, 1, ENC_BIG_ENDIAN);
         if (t == 0) {
+            /* IP-ID */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
         } else {
+            /* TS */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_ts, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
         }
         offset++;
     }
+
     if (x) {
         offset = dissect_rohc_ext_format(tvb, pinfo, pkt_tree, offset, t, rohc_cid_context);
     }
@@ -946,24 +995,37 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             *   +---+---+---+---+---+---+---+---+
             */
         col_set_str(pinfo->cinfo, COL_INFO, "UO-1");
+
+        /* Create subtree */
         pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UO-1 packet");
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
+            /* IP-ID */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
             offset += 1 + val_len;
+
+            /* SN */
             sn = tvb_get_bits8(tvb, (offset<<3), 5);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3), 5, ENC_BIG_ENDIAN);
         } else {
+            /* TS */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_ts, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
             offset += 1 + val_len;
+
+            /* M */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_rtp_m, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
+
+            /* SN */
             sn = tvb_get_bits8(tvb, (offset<<3)+1, 4);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
         }
         /* Show SN in info column */
         col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
+
+        /* CRC (common to both) */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
         offset++;
     } else {
+        /* Type depends upon t bit */
         t = tvb_get_bits8(tvb, ((offset)<<3)+2, 1);
         if (t == 0) {
             /*   UO-1-ID
@@ -976,10 +1038,18 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 *   +---+---+---+---+---+---+---+---+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "UO-1-ID");
+
+            /* UO-1-ID subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UO-1-ID packet");
+
+            /* T */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_t, tvb, (offset<<3)+2, 1, ENC_BIG_ENDIAN);
+
+            /* IP-ID */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
             offset += 1 + val_len;
+
+            /* X */
             x = tvb_get_bits8(tvb, (offset<<3), 1);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_x, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
         } else {
@@ -993,16 +1063,28 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 *   +---+---+---+---+---+---+---+---+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "UO-1-TS");
+
+            /* UO-1-TS subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UO-1-TS packet");
+
+            /* T */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_t, tvb, (offset<<3)+2, 1, ENC_BIG_ENDIAN);
+
+            /* TS */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_ts, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
             offset += 1 + val_len;
+
+            /* M */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_rtp_m, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
         }
+
+        /* SN */
         sn = tvb_get_bits8(tvb, (offset<<3)+1, 4);
         proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
         /* Show SN in info column */
         col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
+
+        /* CRC */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
         offset++;
     }
@@ -1052,35 +1134,51 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             *   +---+---+---+---+---+---+---+---+
             */
         col_set_str(pinfo->cinfo, COL_INFO, "UOR-2");
+
+        /* UOR-2 subtree */
         pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UOR-2 packet");
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
+            /* SN */
             sn = tvb_get_bits8(tvb, (offset<<3)+3, 5);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
             offset += 1 + val_len;
             /* Show SN in info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
         } else {
+            /* RTP profile */
+
+            /* TS */
             crumb_spec_t rohc_ts_crumbs[] = {
                 { 2, 6},
                 { 8, 1},
                 { 0, 0}
             };
             rohc_ts_crumbs[1].crumb_bit_offset += val_len*8;
+
             proto_tree_add_split_bits_item_ret_val(pkt_tree, hf_rohc_ts, tvb, (offset<<3),
                                                    rohc_ts_crumbs, NULL);
             offset += 1 + val_len;
+
+            /* M */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_rtp_m, tvb, (offset<<3)+1, 1, ENC_BIG_ENDIAN);
             sn = tvb_get_bits8(tvb, (offset<<3)+2, 6);
+
+            /* SN */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
             offset++;
             /* Show SN in info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
         }
+
+        /* X - common to both */
         x = tvb_get_bits8(tvb, (offset<<3), 1);
         proto_tree_add_bits_item(pkt_tree, hf_rohc_x, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
+
+        /* CRC - common to both */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
         offset++;
     } else {
+        /* Packet type depends upon T bit */
         t = tvb_get_bits8(tvb, ((offset+1+val_len)<<3), 1);
         if (t == 0) {
             /*   UOR-2-ID
@@ -1095,7 +1193,11 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   +---+---+---+---+---+---+---+---+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "UOR-2-ID");
+
+            /* UOR-2-ID subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UOR-2-ID packet");
+
+            /* IP-ID */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
         } else {
             /*   UOR-2-TS
@@ -1110,19 +1212,33 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   +---+---+---+---+---+---+---+---+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "UOR-2-TS");
+
+            /* UOR-2-TS subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UOR-2-TS packet");
+
+            /* TS */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_ts, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
          }
         offset += 1 + val_len;
+
+        /* T - commonto  both */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_t, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
+
+        /* M - common to both */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_rtp_m, tvb, (offset<<3)+1, 1, ENC_BIG_ENDIAN);
+
+        /* SN - common to both */
         sn = tvb_get_bits8(tvb, (offset<<3)+2, 6);
         proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
         offset++;
         /* Show SN in info column */
         col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
+
+        /* X - common to both */
         x = tvb_get_bits8(tvb, (offset<<3), 1);
         proto_tree_add_bits_item(pkt_tree, hf_rohc_x, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
+
+        /* CRC - common to both */
         proto_tree_add_bits_item(pkt_tree, hf_rohc_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
         offset++;
     }
