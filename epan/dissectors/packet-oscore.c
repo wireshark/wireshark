@@ -705,7 +705,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
 /* Code to actually dissect the packets */
 static int
 oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+        void *data)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -921,6 +921,11 @@ proto_register_oscore(void)
     register_dissector("oscore", oscore_dissect, proto_oscore);
 
     proto_coap = proto_get_id_by_short_name("CoAP");
+}
+
+/* We're called only by dissector name. */
+void proto_reg_handoff_oscore(void)
+{
 }
 
 /*
