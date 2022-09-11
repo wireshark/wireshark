@@ -1,4 +1,4 @@
- Wireshark 3.6.8 Release Notes
+ Wireshark 3.6.9 Release Notes
 
  What is Wireshark?
 
@@ -13,49 +13,7 @@
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed:
-
-     • wnpa-sec-2022-06[2] F5 Ethernet Trailer dissector infinite loop.
-       Issue 18307[3].
-
    The following bugs have been fixed:
-
-     • TCAP Malformed exception on externally re-assembled packet Issue
-       10515[4].
-
-     • Extended 3GPP-GPRS-Negotiated-QoS-profile strings decoded
-       incompletely Issue 10688[5].
-
-     • HTTP2 dissector decodes first SSL record only Issue 11173[6].
-
-     • L2TP improvements - cookie length detection, UDP encapsulation
-       and more Issue 16565[7].
-
-     • USB Truncation of URB_isochronous in frames Issue 18021[8].
-
-     • ISUP/BICC parameter summary text duplication Issue 18094[9].
-
-     • Running rpm-setup.sh shows missing packages that Centos does not
-       need Issue 18166[10].
-
-     • IPX/IPX RIP: Crash on expand subtree Issue 18234[11].
-
-     • Qt: A file or packet comment that is too large will corrupt the
-       pcapng file Issue 18235[12].
-
-     • BGP dissector bug Issue 18248[13].
-
-     • Wrong interpretation of the cbsp.rep_period field in
-       epan/dissectors/packet-gsm_cbsp.c Issue 18254[14].
-
-     • Assertion due to incorrect mask for btatt.battery_power_state.*
-       Issue 18267[15].
-
-     • Qt: Expert Info dialog not showing Malformed Frame when Frame
-       length is less than captured length Issue 18312[16].
-
-     • Wireshark and tshark become non-responsive when reading certain
-       packets Issue 18313[17].
 
   New and Updated Features
 
@@ -65,12 +23,9 @@
 
   Updated Protocol Support
 
-   BGP, BICC, BT ATT, CBSP, Couchbase, F5 Ethernet Trailer, Frame, GTP,
-   GTP (prime), IPsec, ISUP, L2TP, NAS-5GS, Protobuf, SCCP, TCP, and TLS
-
   New and Updated Capture File Support
 
-   pcap, pcapng
+   There is no new or updated capture file support in this release.
 
   New File Format Decoding Support
 
@@ -86,7 +41,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[18] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -101,37 +56,21 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[19] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[20].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[21].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[22].
+  A complete FAQ is available on the Wireshark web site[6].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/security/wnpa-sec-2022-06
-   3. https://gitlab.com/wireshark/wireshark/-/issues/18307
-   4. https://gitlab.com/wireshark/wireshark/-/issues/10515
-   5. https://gitlab.com/wireshark/wireshark/-/issues/10688
-   6. https://gitlab.com/wireshark/wireshark/-/issues/11173
-   7. https://gitlab.com/wireshark/wireshark/-/issues/16565
-   8. https://gitlab.com/wireshark/wireshark/-/issues/18021
-   9. https://gitlab.com/wireshark/wireshark/-/issues/18094
-  10. https://gitlab.com/wireshark/wireshark/-/issues/18166
-  11. https://gitlab.com/wireshark/wireshark/-/issues/18234
-  12. https://gitlab.com/wireshark/wireshark/-/issues/18235
-  13. https://gitlab.com/wireshark/wireshark/-/issues/18248
-  14. https://gitlab.com/wireshark/wireshark/-/issues/18254
-  15. https://gitlab.com/wireshark/wireshark/-/issues/18267
-  16. https://gitlab.com/wireshark/wireshark/-/issues/18312
-  17. https://gitlab.com/wireshark/wireshark/-/issues/18313
-  18. https://www.wireshark.org/download.html
-  19. https://ask.wireshark.org/
-  20. https://www.wireshark.org/lists/
-  21. https://gitlab.com/wireshark/wireshark/-/issues
-  22. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://www.wireshark.org/faq.html
