@@ -80,7 +80,6 @@ class LBMLBTRUTransportDialog : public QDialog
         void loadReceiverCREQDetails(LBMLBTRUReceiverTransportEntry * transport);
 
     private slots:
-        void closeDialog(void);
         void on_applyFilterButton_clicked(void);
 
         void sourcesDetailCurrentChanged(int index);

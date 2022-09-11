@@ -54,7 +54,6 @@ class LBMStreamDialog : public QDialog
         static void drawTreeItems(void * tap_data);
 
     private slots:
-        void closeDialog(void);
         void on_applyFilterButton_clicked(void);
 };
 

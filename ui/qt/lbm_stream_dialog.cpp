@@ -332,8 +332,7 @@ LBMStreamDialog::LBMStreamDialog(QWidget * parent, capture_file * cfile) :
 {
     m_ui->setupUi(this);
     m_dialog_info = new LBMStreamDialogInfo();
-    connect(this, &LBMStreamDialog::accepted, this, &LBMStreamDialog::closeDialog);
-    connect(this, &LBMStreamDialog::rejected, this, &LBMStreamDialog::closeDialog);
+    setAttribute(Qt::WA_DeleteOnClose, true);
     fillTree();
 }
 
@@ -418,9 +417,4 @@ void LBMStreamDialog::drawTreeItems(void *)
 void LBMStreamDialog::on_applyFilterButton_clicked(void)
 {
     fillTree();
-}
-
-void LBMStreamDialog::closeDialog(void)
-{
-    delete this;
 }
