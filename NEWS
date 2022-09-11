@@ -380,11 +380,12 @@ Wireshark 4.0.0 Release Notes
    (GDT), gRPC Web (gRPC-Web), Host IP Configuration Protocol (HICP),
    Huawei GRE bonding (GREbond), Locamation Interface Module (IDENT,
    CALIBRATION, SAMPLES - IM1, SAMPLES - IM2R0), Mesh Connex (MCX),
-   Microsoft Cluster Remote Control Protocol (RCP), Protected Extensible
-   Authentication Protocol (PEAP), Realtek, REdis Serialization Protocol
-   v2 (RESP), Roon Discovery (RoonDisco), Secure File Transfer Protocol
-   (sftp), Secure Host IP Configuration Protocol (SHICP), SSH File
-   Transfer Protocol (SFTP), USB Attached SCSI (UASP), and ZBOSS Network
+   Microsoft Cluster Remote Control Protocol (RCP), Open Control
+   Protocol for OCA/AES70 (OCP.1), Protected Extensible Authentication
+   Protocol (PEAP), Realtek, REdis Serialization Protocol v2 (RESP),
+   Roon Discovery (RoonDisco), Secure File Transfer Protocol (sftp),
+   Secure Host IP Configuration Protocol (SHICP), SSH File Transfer
+   Protocol (SFTP), USB Attached SCSI (UASP), and ZBOSS Network
    Coprocessor product (ZB NCP)
 
   Updated Protocol Support
