@@ -63,17 +63,17 @@ static int ss7pc_address_type = -1;
 
 static dissector_handle_t exported_pdu_handle;
 
-#define EXPORTED_PDU_NEXT_PROTO_STR      0
-#define EXPORTED_PDU_NEXT_HEUR_PROTO_STR 1
-#define EXPORTED_PDU_NEXT_DIS_TABLE_STR  2
+#define EXPORTED_PDU_NEXT_DISSECTOR_STR      0
+#define EXPORTED_PDU_NEXT_HEUR_DISSECTOR_STR 1
+#define EXPORTED_PDU_NEXT_DIS_TABLE_STR      2
 
 static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_END_OF_OPT,       "End-of-options" },
 /* 1 - 9 reserved */
    { EXP_PDU_TAG_OPTIONS_LENGTH,        "Total length of the options excluding this TLV" },
    { EXP_PDU_TAG_LINKTYPE,              "Linktype value" },
-   { EXP_PDU_TAG_PROTO_NAME,            "PDU content protocol name" },
-   { EXP_PDU_TAG_HEUR_PROTO_NAME,       "PDU content heuristic protocol name" },
+   { EXP_PDU_TAG_DISSECTOR_NAME,        "PDU content dissector name" },
+   { EXP_PDU_TAG_HEUR_DISSECTOR_NAME,   "PDU content heuristic dissector name" },
    { EXP_PDU_TAG_DISSECTOR_TABLE_NAME,  "PDU content dissector table name" },
     /* Add protocol type related tags here */
 /* 14 - 19 reserved */
@@ -209,12 +209,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         offset+=2;
 
         switch(tag) {
-            case EXP_PDU_TAG_PROTO_NAME:
-                next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
+            case EXP_PDU_TAG_DISSECTOR_NAME:
+                next_proto_type = EXPORTED_PDU_NEXT_DISSECTOR_STR;
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA, pinfo->pool, &proto_name);
                 break;
-            case EXP_PDU_TAG_HEUR_PROTO_NAME:
-                next_proto_type = EXPORTED_PDU_NEXT_HEUR_PROTO_STR;
+            case EXP_PDU_TAG_HEUR_DISSECTOR_NAME:
+                next_proto_type = EXPORTED_PDU_NEXT_HEUR_DISSECTOR_STR;
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_heur_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA, pinfo->pool, &proto_name);
                 break;
             case EXP_PDU_TAG_DISSECTOR_TABLE_NAME:
@@ -348,7 +348,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_exported_pdu, payload_tvb, 0, -1, ENC_NA);
 
     switch(next_proto_type) {
-        case EXPORTED_PDU_NEXT_PROTO_STR:
+        case EXPORTED_PDU_NEXT_DISSECTOR_STR:
             proto_handle = find_dissector(proto_name);
             if (proto_handle) {
                 if (col_proto_str) {
@@ -359,7 +359,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 call_dissector_with_data(proto_handle, payload_tvb, pinfo, tree, dissector_data);
             }
             break;
-        case EXPORTED_PDU_NEXT_HEUR_PROTO_STR:
+        case EXPORTED_PDU_NEXT_HEUR_DISSECTOR_STR:
         {
             heur_dtbl_entry_t *heur_diss = find_heur_dissector_by_unique_short_name(proto_name);
             if (heur_diss) {

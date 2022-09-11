@@ -177,7 +177,7 @@ static void add_proto_name(guint8* mbuf, guint* offset, const char* proto_name)
 	size_t proto_str_len = strlen(proto_name);
 	guint16 proto_name_len = (guint16)((proto_str_len + 3) & 0xfffffffc);
 
-	phton16(mbuf + *offset, EXP_PDU_TAG_PROTO_NAME);
+	phton16(mbuf + *offset, EXP_PDU_TAG_DISSECTOR_NAME);
 	*offset += 2;
 	phton16(mbuf + *offset, proto_name_len);
 	*offset += 2;

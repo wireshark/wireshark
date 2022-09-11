@@ -390,6 +390,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
         key.principal = NULL;
         dissector = dissector_get_custom_table_handle(dis_table, &key);
     }
+    /* XXX - dissector name, or protocol name? */
     const char *dis_name = dissector_handle_get_dissector_name(dissector);
     if (dis_name) {
         proto_item_set_text(item_label, "Label: %s (%s)", dis_name, label_str);

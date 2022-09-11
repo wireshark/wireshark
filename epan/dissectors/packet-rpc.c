@@ -477,6 +477,7 @@ rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog, guint32 vers, 
 	key.proc = proc;
 
 	/* Look at both tables for possible procedure names */
+	/* XXX - dissector name, or protocol name? */
 	if ((dissect_function = dissector_get_custom_table_handle(subdissector_call_table, &key)) != NULL)
 		procname = wmem_strdup(allocator, dissector_handle_get_dissector_name(dissect_function));
 	else if ((dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key)) != NULL)
@@ -1937,6 +1938,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key);
 	if (dissect_function != NULL) {
+		/* XXX - dissector name, or protocol name? */
 		procname = dissector_handle_get_dissector_name(dissect_function);
 	}
 	else {
@@ -2371,6 +2373,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		key.proc = proc;
 
 		if ((dissect_function = dissector_get_custom_table_handle(subdissector_call_table, &key)) != NULL) {
+			/* XXX - dissector name, or protocol name? */
 			procname = dissector_handle_get_dissector_name(dissect_function);
 		}
 		else {
@@ -2552,6 +2555,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		dissect_function = dissector_get_custom_table_handle(subdissector_reply_table, &key);
 		if (dissect_function != NULL) {
+			/* XXX - dissector name, or protocol name? */
 			procname = dissector_handle_get_dissector_name(dissect_function);
 		}
 		else {

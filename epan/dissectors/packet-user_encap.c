@@ -85,7 +85,7 @@ static void export_pdu(tvbuff_t *tvb, packet_info* pinfo, char *proto_name)
             NULL
         };
 
-        exp_pdu_data_t *exp_pdu_data = export_pdu_create_tags(pinfo, proto_name, EXP_PDU_TAG_PROTO_NAME, user_encap_exp_pdu_items);
+        exp_pdu_data_t *exp_pdu_data = export_pdu_create_tags(pinfo, proto_name, EXP_PDU_TAG_DISSECTOR_NAME, user_encap_exp_pdu_items);
 
         exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
         exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);

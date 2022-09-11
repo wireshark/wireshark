@@ -1428,7 +1428,7 @@ handle_export_pdu_heuristic(packet_info *pinfo, tvbuff_t *tvb, heur_dtbl_entry_t
     if (have_tap_listener(exported_pdu_tap)) {
         if ((!hdtbl_entry->enabled) ||
             (hdtbl_entry->protocol != NULL && !proto_is_protocol_enabled(hdtbl_entry->protocol))) {
-            exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_PROTO_NAME);
+            exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_DISSECTOR_NAME);
         } else if (hdtbl_entry->protocol != NULL) {
             exp_pdu_data_item_t exp_pdu_data_dissector_data = {exp_pdu_tcp_dissector_data_size, exp_pdu_tcp_dissector_data_populate_data, NULL};
             const exp_pdu_data_item_t *tcp_exp_pdu_items[] = {
@@ -1444,7 +1444,7 @@ handle_export_pdu_heuristic(packet_info *pinfo, tvbuff_t *tvb, heur_dtbl_entry_t
 
             exp_pdu_data_dissector_data.data = tcpinfo;
 
-            exp_pdu_data = export_pdu_create_tags(pinfo, hdtbl_entry->short_name, EXP_PDU_TAG_HEUR_PROTO_NAME, tcp_exp_pdu_items);
+            exp_pdu_data = export_pdu_create_tags(pinfo, hdtbl_entry->short_name, EXP_PDU_TAG_HEUR_DISSECTOR_NAME, tcp_exp_pdu_items);
         }
 
         if (exp_pdu_data != NULL) {
@@ -1483,7 +1483,7 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, 
 
                 exp_pdu_data_dissector_data.data = tcpinfo;
 
-                exp_pdu_data = export_pdu_create_tags(pinfo, dissector_handle_get_dissector_name(handle), EXP_PDU_TAG_PROTO_NAME, tcp_exp_pdu_items);
+                exp_pdu_data = export_pdu_create_tags(pinfo, dissector_handle_get_dissector_name(handle), EXP_PDU_TAG_DISSECTOR_NAME, tcp_exp_pdu_items);
                 exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
                 exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
                 exp_pdu_data->pdu_tvb = tvb;
@@ -7276,7 +7276,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
     if (have_tap_listener(exported_pdu_tap)) {
-        exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_PROTO_NAME);
+        exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_DISSECTOR_NAME);
         exp_pdu_data->tvb_captured_length = tvb_captured_length(next_tvb);
         exp_pdu_data->tvb_reported_length = tvb_reported_length(next_tvb);
         exp_pdu_data->pdu_tvb = next_tvb;

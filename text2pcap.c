@@ -256,8 +256,8 @@ print_usage (FILE *output)
             "                         Automatically prepends a dummy SCTP DATA\n"
             "                         chunk header with payload protocol identifier ppi.\n"
             "                         Example: -S 30,40,34\n"
-            "  -P <dissector>         prepend EXPORTED_PDU header with specifieddissector\n"
-            "                         as the payload PROTO_NAME tag.\n"
+            "  -P <dissector>         prepend EXPORTED_PDU header with specified dissector\n"
+            "                         as the payload DISSECTOR_NAME tag.\n"
             "                         Automatically sets link type to Upper PDU Export.\n"
             "                         EXPORTED_PDU payload defaults to \"data\" otherwise.\n"
             "\n",

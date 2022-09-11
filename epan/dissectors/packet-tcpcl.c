@@ -1539,6 +1539,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 extitem_offset += 2;
 
                 dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
+                /* XXX - dissector name, or protocol name? */
                 const char *subname = dissector_handle_get_dissector_name(subdis);
                 if (subdis) {
                     proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
@@ -1663,6 +1664,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     extitem_offset += 2;
 
                     dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
+                    /* XXX - dissector name, or protocol name? */
                     const char *subname = dissector_handle_get_dissector_name(subdis);
                     if (subdis) {
                         proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
