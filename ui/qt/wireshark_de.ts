@@ -10939,7 +10939,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Percent-Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozent-Kodierung</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
@@ -11160,7 +11160,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>SyntaxLineEdit</name>
     <message>
         <source>Invalid filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Filter: %1</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>

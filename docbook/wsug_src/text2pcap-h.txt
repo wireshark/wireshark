@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 4.1.0 (v4.1.0rc0-55-gccf720d95daf)
+Text2pcap (Wireshark) 4.1.0 (v4.1.0rc0-198-ga48298a93a39)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -87,8 +87,8 @@ Prepend dummy header:
                          Automatically prepends a dummy SCTP DATA
                          chunk header with payload protocol identifier ppi.
                          Example: -S 30,40,34
-  -P <dissector>         prepend EXPORTED_PDU header with specifieddissector
-                         as the payload PROTO_NAME tag.
+  -P <dissector>         prepend EXPORTED_PDU header with specified dissector
+                         as the payload DISSECTOR_NAME tag.
                          Automatically sets link type to Upper PDU Export.
                          EXPORTED_PDU payload defaults to "data" otherwise.
 

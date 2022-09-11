@@ -10909,7 +10909,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Percent-Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Yüzde-Kodlama</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
