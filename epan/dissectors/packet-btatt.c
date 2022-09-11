@@ -10664,6 +10664,7 @@ btatt_dissect_attribute_handle(guint16 handle, tvbuff_t *tvb, packet_info *pinfo
     if (attribute_handler == NULL)
         return 0;
 
+    /* XXX - dissector name, or protocol name? */
     attribute_name = dissector_handle_get_dissector_name(attribute_handler); /* abbrev */
     DISSECTOR_ASSERT(attribute_name);
 

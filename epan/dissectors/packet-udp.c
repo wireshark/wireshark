@@ -514,10 +514,10 @@ handle_export_pdu_heuristic(packet_info *pinfo, tvbuff_t *tvb, heur_dtbl_entry_t
     if (have_tap_listener(exported_pdu_tap)) {
         if ((!hdtbl_entry->enabled) ||
                 (hdtbl_entry->protocol != NULL && !proto_is_protocol_enabled(hdtbl_entry->protocol))) {
-            exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_PROTO_NAME);
+            exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_DISSECTOR_NAME);
         }
         else if (hdtbl_entry->protocol != NULL) {
-            exp_pdu_data = export_pdu_create_common_tags(pinfo, hdtbl_entry->short_name, EXP_PDU_TAG_HEUR_PROTO_NAME);
+            exp_pdu_data = export_pdu_create_common_tags(pinfo, hdtbl_entry->short_name, EXP_PDU_TAG_HEUR_DISSECTOR_NAME);
         }
 
         if (exp_pdu_data != NULL) {
@@ -538,7 +538,7 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int uh_dport, 
         if (conversation != NULL) {
             dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
             if (handle != NULL) {
-                exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, dissector_handle_get_dissector_name(handle), EXP_PDU_TAG_PROTO_NAME);
+                exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, dissector_handle_get_dissector_name(handle), EXP_PDU_TAG_DISSECTOR_NAME);
                 exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
                 exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
                 exp_pdu_data->pdu_tvb = tvb;
@@ -705,7 +705,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     call_data_dissector(next_tvb, pinfo, tree);
 
     if (have_tap_listener(exported_pdu_tap)) {
-        exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_PROTO_NAME);
+        exp_pdu_data = export_pdu_create_common_tags(pinfo, "data", EXP_PDU_TAG_DISSECTOR_NAME);
         exp_pdu_data->tvb_captured_length = tvb_captured_length(next_tvb);
         exp_pdu_data->tvb_reported_length = tvb_reported_length(next_tvb);
         exp_pdu_data->pdu_tvb = next_tvb;

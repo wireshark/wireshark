@@ -496,7 +496,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 
 	/* Fill packet buff */
 	if (use_proto_table == FALSE) {
-		phton16(packet_buf, EXP_PDU_TAG_PROTO_NAME);
+		phton16(packet_buf, EXP_PDU_TAG_DISSECTOR_NAME);
 		packet_buf += 2;
 		phton16(packet_buf, tag_str_len);
 		packet_buf += 2;

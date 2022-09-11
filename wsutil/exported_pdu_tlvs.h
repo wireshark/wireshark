@@ -59,18 +59,24 @@
  *  changed to do so (as that would destroy their ability to read captures
  *  using that value for that other purpose).
  */
-#define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
+#define EXP_PDU_TAG_END_OF_OPT            0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
-#define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV
-                                          * Deprecated - do not use
-                                          */
-#define EXP_PDU_TAG_LINKTYPE          11 /**< Deprecated - do not use */
-#define EXP_PDU_TAG_PROTO_NAME        12 /**< The value part should be an ASCII non NULL terminated string
-                                          * of the registered dissector used by Wireshark e.g "sip"
-                                          * Will be used to call the next dissector.
-                                          */
-#define EXP_PDU_TAG_HEUR_PROTO_NAME   13 /**< The value part should be an ASCII non NULL terminated string
-                                          * containing the heuristic unique short protocol name given
+#define EXP_PDU_TAG_OPTIONS_LENGTH       10 /**< Total length of the options excluding this TLV
+                                             * Deprecated - do not use
+                                             */
+#define EXP_PDU_TAG_LINKTYPE             11 /**< Deprecated - do not use */
+#define EXP_PDU_TAG_DISSECTOR_NAME       12 /**< The value part should be an ASCII non NULL terminated string
+                                             * of the registered dissector used by Wireshark e.g "sip"
+                                             * Will be used to call the next dissector.
+                                             * NOTE: this is NOT a protocol name;
+                                             * a given protocol may have multiple
+                                             * dissectors, if, for example, the
+                                             * protocol headers depend on the
+                                             * protocol being used to transport
+                                             * the protocol in question.
+                                             */
+#define EXP_PDU_TAG_HEUR_DISSECTOR_NAME  13 /**< The value part should be an ASCII non NULL terminated string
+                                          * containing the heuristic dissector unique short name given
                                           * during registration, e.g "sip_udp"
                                           * Will be used to call the next dissector.
                                           */
@@ -79,6 +85,10 @@
                                           * during registration, e.g "gsm_map.v3.arg.opcode"
                                           * Will be used to call the next dissector.
                                           */
+
+/* For backwards source compatibility */
+#define EXP_PDU_TAG_PROTO_NAME           EXP_PDU_TAG_DISSECTOR_NAME
+#define EXP_PDU_TAG_HEUR_PROTO_NAME      EXP_PDU_TAG_HEUR_DISSECTOR_NAME
 
 /* Add protocol type related tags here.
  * NOTE Only one protocol type tag may be present in a packet, the first one

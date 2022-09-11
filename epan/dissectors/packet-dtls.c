@@ -1011,14 +1011,14 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                         val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                         session->app_handle
-                        ? dissector_handle_get_dissector_name(session->app_handle)
+                        ? dissector_handle_get_long_name(session->app_handle)
                         : "Application Data");
 
     proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
                         offset, record_length, ENC_NA);
 
     if (session->app_handle) {
-      ti = proto_tree_add_string(dtls_record_tree, hf_dtls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_dissector_name(session->app_handle));
+      ti = proto_tree_add_string(dtls_record_tree, hf_dtls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_long_name(session->app_handle));
       proto_item_set_generated(ti);
     }
 
@@ -1045,7 +1045,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           ssl_print_data("decrypted app data", record->plain_data, record->data_len);
 
           if (have_tap_listener(exported_pdu_tap)) {
-            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_PROTO_NAME,
+            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_DISSECTOR_NAME,
                               dissector_handle_get_dissector_name(session->app_handle));
           }
 
@@ -1055,7 +1055,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           /* try heuristic subdissectors */
           dissected = dissector_try_heuristic(heur_subdissector_list, decrypted, pinfo, top_tree, &hdtbl_entry, NULL);
           if (dissected && have_tap_listener(exported_pdu_tap)) {
-            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, hdtbl_entry->short_name);
+            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_HEUR_DISSECTOR_NAME, hdtbl_entry->short_name);
           }
         }
         pinfo->match_uint = saved_match_port;

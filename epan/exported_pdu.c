@@ -224,7 +224,7 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, guint16 tag_t
 	guint8* buffer_data;
 
 	DISSECTOR_ASSERT(proto_name != NULL);
-	DISSECTOR_ASSERT((tag_type == EXP_PDU_TAG_PROTO_NAME) || (tag_type == EXP_PDU_TAG_HEUR_PROTO_NAME) || (tag_type == EXP_PDU_TAG_DISSECTOR_TABLE_NAME));
+	DISSECTOR_ASSERT((tag_type == EXP_PDU_TAG_DISSECTOR_NAME) || (tag_type == EXP_PDU_TAG_HEUR_DISSECTOR_NAME) || (tag_type == EXP_PDU_TAG_DISSECTOR_TABLE_NAME));
 
 	exp_pdu_data = wmem_new(pinfo->pool, exp_pdu_data_t);
 

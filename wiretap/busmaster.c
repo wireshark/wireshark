@@ -85,7 +85,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
 
     memset(buf_data, 0, packet_length);
 
-    phton16(buf_data + 0, EXP_PDU_TAG_PROTO_NAME);
+    phton16(buf_data + 0, EXP_PDU_TAG_DISSECTOR_NAME);
     phton16(buf_data + 2, proto_name_length);
     memcpy(buf_data + 4, proto_name, strlen(proto_name));
 
