@@ -1629,8 +1629,7 @@ LBMLBTRUTransportDialog::LBMLBTRUTransportDialog(QWidget * parent, capture_file 
     m_ui->receivers_TreeWidget->setColumnHidden(Receiver_ACKFramesBytes_Column, true);
     m_ui->receivers_TreeWidget->setColumnHidden(Receiver_CREQFramesBytes_Column, true);
 
-    connect(this, SIGNAL(accepted()), this, SLOT(closeDialog()));
-    connect(this, SIGNAL(rejected()), this, SLOT(closeDialog()));
+    setAttribute(Qt::WA_DeleteOnClose, true);
     fillTree();
 }
 
@@ -1761,11 +1760,6 @@ void LBMLBTRUTransportDialog::drawTreeItems(void *)
 void LBMLBTRUTransportDialog::on_applyFilterButton_clicked(void)
 {
     fillTree();
-}
-
-void LBMLBTRUTransportDialog::closeDialog(void)
-{
-    delete this;
 }
 
 void LBMLBTRUTransportDialog::sourcesDetailCurrentChanged(int index)
