@@ -1537,7 +1537,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case FINGERPRINT:
                 if (att_length < 4)
                     break;
-                proto_tree_add_checksum(att_tree, tvb, offset, hf_stun_att_crc32, hf_stun_att_crc32_status, &ei_stun_fingerprint_bad, pinfo, crc32_ccitt_tvb(tvb, offset-4) ^ 0x5354554e, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                proto_tree_add_checksum(att_tree, tvb, offset, hf_stun_att_crc32, hf_stun_att_crc32_status, &ei_stun_fingerprint_bad, pinfo, crc32_ccitt_tvb_offset(tvb, tcp_framing_offset, offset-4-tcp_framing_offset) ^ 0x5354554e, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
                 break;
 
             case ICE_CONTROLLED:
