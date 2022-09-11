@@ -76,7 +76,6 @@ class LBMLBTRMTransportDialog : public QDialog
         void loadReceiverNAKDetails(LBMLBTRMReceiverTransportEntry * transport);
 
     private slots:
-        void closeDialog(void);
         void on_applyFilterButton_clicked(void);
 
         void sourcesDetailCurrentChanged(int Index);
