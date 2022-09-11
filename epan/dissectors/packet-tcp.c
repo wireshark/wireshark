@@ -8271,6 +8271,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * need to explicitly check for that here.
      */
     if(tcph->th_have_seglen && tcpd && (tcph->th_flags & TH_FIN)
+       && pinfo->can_desegment
        && (tcpd->fwd->flags&TCP_FLOW_REASSEMBLE_UNTIL_FIN) ) {
         struct tcp_multisegment_pdu *msp;
 
