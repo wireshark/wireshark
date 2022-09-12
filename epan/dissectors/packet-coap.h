@@ -23,6 +23,13 @@
 #define COAP_OBJECT_SECURITY_KID_MASK				0x08
 #define COAP_OBJECT_SECURITY_PIVLEN_MASK			0x07
 
+/* Parent protocol for CoAP */
+typedef enum {
+	PARENT_WEBSOCKETS,	/* WebSockets */
+	PARENT_TCP_TLS,		/* TCP or TLS */
+	PARENT_OTHER		/* UDP, WAP, other packet-based protocols */
+} coap_parent_protocol;
+
 /* CoAP Message information */
 typedef struct {
 	const gchar *ctype_str;
