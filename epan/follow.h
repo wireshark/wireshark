@@ -110,11 +110,13 @@ typedef gchar* (*follow_conv_filter_func)(epan_dissect_t *edt, packet_info *pinf
 typedef gchar* (*follow_index_filter_func)(guint stream, guint sub_stream);
 typedef gchar* (*follow_address_filter_func)(address* src_addr, address* dst_addr, int src_port, int dst_port);
 typedef gchar* (*follow_port_to_display_func)(wmem_allocator_t *allocator, guint port);
+typedef guint32 (*follow_stream_count_func)(void);
 
 WS_DLL_PUBLIC
 void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,
-                            follow_port_to_display_func port_to_display, tap_packet_cb tap_handler);
+                            follow_port_to_display_func port_to_display, tap_packet_cb tap_handler,
+                            follow_stream_count_func stream_count);
 
 /** Get protocol ID from registered follower
  *
@@ -172,6 +174,13 @@ WS_DLL_PUBLIC follow_port_to_display_func get_follow_port_to_display(register_fo
  */
 WS_DLL_PUBLIC tap_packet_cb get_follow_tap_handler(register_follow_t* follower);
 
+/** Provide function that gets the total number of streams for a registered follower
+ * The function can be NULL if the follower does not count the number of streams
+ *
+ * @param follower [in] Registered follower
+ * @return A stream count handler
+ */
+WS_DLL_PUBLIC follow_stream_count_func get_follow_stream_count_func(register_follow_t* follower);
 
 /** Tap function handler when dissector's tap provides follow data as a tvb.
  * Used by TCP, UDP and HTTP followers

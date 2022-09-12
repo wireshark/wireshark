@@ -4603,7 +4603,7 @@ proto_register_http2(void)
     http2_follow_tap = register_tap("http2_follow");
 
     register_follow_stream(proto_http2, "http2_follow", http2_follow_conv_filter, http2_follow_index_filter, tcp_follow_address_filter,
-                           tcp_port_to_display, follow_http2_tap_listener);
+                           tcp_port_to_display, follow_http2_tap_listener, get_tcp_stream_count);
 }
 
 static void http2_stats_tree_init(stats_tree* st)

@@ -856,6 +856,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_follow_index_func@Base 2.1.0
  get_follow_port_to_display@Base 2.1.0
  get_follow_proto_id@Base 2.1.0
+ get_follow_stream_count_func@Base 4.1.0
  get_follow_tap_handler@Base 2.1.0
  get_follow_tap_string@Base 2.1.0
  get_export_pdu_tap_list@Base 1.99.0

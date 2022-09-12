@@ -28,13 +28,15 @@ struct register_follow {
     follow_address_filter_func address_filter; /* generate address filter to follow */
     follow_port_to_display_func port_to_display; /* port to name resolution for follow type */
     tap_packet_cb tap_handler; /* tap listener handler */
+    follow_stream_count_func stream_count; /* maximum stream count, used for UI */
 };
 
 static wmem_tree_t *registered_followers = NULL;
 
 void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,
-                            follow_port_to_display_func port_to_display, tap_packet_cb tap_handler)
+                            follow_port_to_display_func port_to_display, tap_packet_cb tap_handler,
+                            follow_stream_count_func stream_count)
 {
   register_follow_t *follower;
   DISSECTOR_ASSERT(tap_listener);
@@ -53,6 +55,7 @@ void register_follow_stream(const int proto_id, const char* tap_listener,
   follower->address_filter = address_filter;
   follower->port_to_display = port_to_display;
   follower->tap_handler    = tap_handler;
+  follower->stream_count   = stream_count;
 
   if (registered_followers == NULL)
     registered_followers = wmem_tree_new(wmem_epan_scope());
@@ -101,6 +104,10 @@ tap_packet_cb get_follow_tap_handler(register_follow_t* follower)
   return follower->tap_handler;
 }
 
+follow_stream_count_func get_follow_stream_count_func(register_follow_t* follower)
+{
+  return follower->stream_count;
+}
 
 register_follow_t* get_follow_by_name(const char* proto_short_name)
 {
