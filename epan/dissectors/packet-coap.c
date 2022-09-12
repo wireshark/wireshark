@@ -82,7 +82,8 @@ static expert_field ei_retransmitted				= EI_INIT;
 
 static COAP_COMMON_LIST_T(dissect_coap_hf);
 
-static dissector_handle_t coap_handle;
+static dissector_handle_t coap_tcp_tls_handle;
+static dissector_handle_t coap_other_handle;
 static dissector_handle_t oscore_handle;
 
 /* CoAP's IANA-assigned TCP/UDP port numbers */
@@ -1159,7 +1160,7 @@ coap_frame_length(tvbuff_t *tvb, guint offset, gint *size)
 }
 
 static int
-dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean is_tcp, gboolean is_websocket)
+dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, coap_parent_protocol parent_protocol)
 {
 	gint              offset = 0;
 	proto_item       *coap_root;
@@ -1198,7 +1199,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * explicit length is present.
 	 */
 	coap_length = tvb_reported_length(tvb);
-	if (is_tcp && !is_websocket) {
+	if (parent_protocol == PARENT_TCP_TLS) {
 		token_len = tvb_get_guint8(tvb, offset) & 0xf;
 		coap_length = coap_frame_length(tvb, offset, &length_size);
 		if (length_size < 0) {
@@ -1227,7 +1228,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	coap_root = proto_tree_add_item(parent_tree, proto_coap, tvb, offset, -1, ENC_NA);
 	coap_tree = proto_item_add_subtree(coap_root, ett_coap);
 
-	if (!is_tcp) {
+	if (parent_protocol == PARENT_OTHER) {
 		proto_tree_add_item(coap_tree, hf_coap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(coap_tree, hf_coap_ttype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1256,7 +1257,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				       mid);
 	} else {
 		guint len = coap_length;
-		if (is_websocket) {
+		if (parent_protocol == PARENT_WEBSOCKETS) {
 			len = tvb_get_guint8(tvb, offset) >> 4;
 			length_size = 1;
 		}
@@ -1504,28 +1505,21 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 static int
-dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_coap_tcp_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	wmem_list_frame_t *prev_layer;
-	const char *name;
+	return dissect_coap_message(tvb, pinfo, tree, PARENT_TCP_TLS);
+}
 
-	/* retrieve parent protocol */
-	prev_layer = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-	if (prev_layer) {
-		name = proto_get_protocol_filter_name(GPOINTER_TO_INT(wmem_list_frame_data(prev_layer)));
-	} else {
-		name = NULL;
-	}
-	if (proto_is_frame_protocol(pinfo->layers, "websocket")) {
-		/* WebSockets */
-		return dissect_coap_message(tvb, pinfo, tree, TRUE, TRUE);
-	} else if (!g_strcmp0(name, "tcp") || !g_strcmp0(name, "tls")) {
-		/* TCP */
-		return dissect_coap_message(tvb, pinfo, tree, TRUE, FALSE);
-	} else {
-		/* Assume UDP */
-		return dissect_coap_message(tvb, pinfo, tree, FALSE, FALSE);
-	}
+static int
+dissect_coap_websockets(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	return dissect_coap_message(tvb, pinfo, tree, PARENT_WEBSOCKETS);
+}
+
+static int
+dissect_coap_other(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	return dissect_coap_message(tvb, pinfo, tree, PARENT_OTHER);
 }
 
 /*
@@ -1690,21 +1684,29 @@ proto_register_coap(void)
 
 	reassembly_table_register (&coap_block_reassembly_table, &addresses_reassembly_table_functions);
 
-	coap_handle = register_dissector("coap", dissect_coap, proto_coap);
+	coap_other_handle = register_dissector("coap", dissect_coap_other, proto_coap);
+	coap_tcp_tls_handle = register_dissector("coap_tcp_tls", dissect_coap_tcp_tls, proto_coap);
 }
 
 void
 proto_reg_handoff_coap(void)
 {
-	media_type_dissector_table = find_dissector_table("media_type");
-	dissector_add_uint_with_preference("udp.port", DEFAULT_COAP_PORT, coap_handle);
-	dtls_dissector_add(DEFAULT_COAPS_PORT, coap_handle);
+	dissector_handle_t coap_websockets_handle;
 
-	/* TCP, TLS, WebSockets (RFC 8323) */
-	dissector_add_uint_with_preference("tcp.port", DEFAULT_COAP_PORT, coap_handle);
-	ssl_dissector_add(DEFAULT_COAPS_PORT, coap_handle);
-	dissector_add_string("tls.alpn", "coap", coap_handle);
-	dissector_add_string("ws.protocol", "coap", coap_handle);
+	media_type_dissector_table = find_dissector_table("media_type");
+
+	/* UDP and DTLS */
+	dissector_add_uint_with_preference("udp.port", DEFAULT_COAP_PORT, coap_other_handle);
+	dtls_dissector_add(DEFAULT_COAPS_PORT, coap_other_handle);
+
+	/* TCP, TLS */
+	dissector_add_uint_with_preference("tcp.port", DEFAULT_COAP_PORT, coap_tcp_tls_handle);
+	ssl_dissector_add(DEFAULT_COAPS_PORT, coap_tcp_tls_handle);
+	dissector_add_string("tls.alpn", "coap", coap_tcp_tls_handle);
+
+	/* WebSockets (RFC 8323) */
+	coap_websockets_handle = create_dissector_handle(dissect_coap_websockets, proto_coap);
+	dissector_add_string("ws.protocol", "coap", coap_websockets_handle);
 
 	oscore_handle = find_dissector("oscore");
 }
