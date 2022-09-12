@@ -359,7 +359,7 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                     lastItemIsOk = itemOk;
 
                     if (dissector != NULL) {
-                        item->default_proto_ = dissector_handle_get_short_name(dissector);
+                        item->default_proto_ = dissector_handle_get_description(dissector);
                         //When adding a new record, "default" should equal "current", so the user can
                         //explicitly change it
                         item->current_proto_ = item->default_proto_;
@@ -624,13 +624,13 @@ void DecodeAsModel::buildChangedList(const gchar *table_name, ftenum_t, gpointer
 
     default_dh = dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
     if (default_dh) {
-        default_proto_name = dissector_handle_get_short_name(default_dh);
+        default_proto_name = dissector_handle_get_description(default_dh);
     }
     item->default_proto_ = default_proto_name;
 
     current_dh = dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current_dh) {
-        current_proto_name = QString(dissector_handle_get_short_name(current_dh));
+        current_proto_name = QString(dissector_handle_get_description(current_dh));
     }
     item->current_proto_ = current_proto_name;
     item->dissector_handle_ = current_dh;
@@ -662,7 +662,7 @@ void DecodeAsModel::buildDceRpcChangedList(gpointer data, gpointer user_data)
     guid_val.guid = binding->uuid;
     item->dissector_handle_ = dissector_get_guid_handle(sub_dissectors, &guid_val);
     if (item->dissector_handle_) {
-        current_proto_name = QString(dissector_handle_get_short_name(item->dissector_handle_));
+        current_proto_name = QString(dissector_handle_get_description(item->dissector_handle_));
     }
     item->current_proto_ = current_proto_name;
     item->default_proto_ = default_proto_name;

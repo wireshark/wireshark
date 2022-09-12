@@ -187,7 +187,7 @@ static void gatherProtocolDecodes(const char *, ftenum_t selector_type, gpointer
 
     dtbl_entry_t       *dtbl_entry = (dtbl_entry_t*)value;
     dissector_handle_t  handle = dtbl_entry_get_handle(dtbl_entry);
-    const QString proto_name = dissector_handle_get_short_name(handle);
+    const QString proto_name = dissector_handle_get_description(handle);
     DissectorTablesItem *ti = NULL;
 
     switch (selector_type) {

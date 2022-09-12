@@ -6562,7 +6562,7 @@ ssl_association_info_(const gchar *table _U_, gpointer handle, gpointer user_dat
 {
     ssl_association_info_callback_data_t* data = (ssl_association_info_callback_data_t*)user_data;
     const int l = (const int)strlen(data->str);
-    snprintf(data->str+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s\n", dissector_handle_get_short_name((dissector_handle_t)handle), data->table_protocol);
+    snprintf(data->str+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s\n", dissector_handle_get_description((dissector_handle_t)handle), data->table_protocol);
 }
 
 /**

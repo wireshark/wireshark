@@ -7037,7 +7037,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length,
                 name = wmem_strdup_printf(pinfo->pool, "Unknown (0x%02x)", opt);
                 option_dissector = tcp_opt_unknown_handle;
             } else {
-                name = dissector_handle_get_short_name(option_dissector);
+                name = dissector_handle_get_description(option_dissector);
             }
 
             /* Option has a length. Is it in the packet? */
