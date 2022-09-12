@@ -424,9 +424,10 @@ WS_DLL_PUBLIC void dissector_add_for_decode_as_with_preference(const char *name,
  */
 WS_DLL_PUBLIC GSList *dissector_table_get_dissector_handles(dissector_table_t dissector_table);
 
-/** Get a handle to dissector out of a dissector table
+/** Get a handle to dissector out of a dissector table given the description
+ * of what the dissector dissects.
  */
-WS_DLL_PUBLIC dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, const gchar* short_name);
+WS_DLL_PUBLIC dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, const gchar* description);
 
 /** Get a dissector table's type
  */
@@ -552,6 +553,9 @@ WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t diss
 /** Register a new dissector. */
 WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector, const int proto);
 
+/** Register a new dissector with a description. */
+WS_DLL_PUBLIC dissector_handle_t register_dissector_with_description(const char *name, const char *description, dissector_t dissector, const int proto);
+
 /** Register a new dissector with a callback pointer. */
 WS_DLL_PUBLIC dissector_handle_t register_dissector_with_data(const char *name, dissector_cb_t dissector, const int proto, void *cb_data);
 
@@ -563,6 +567,9 @@ extern const char *dissector_handle_get_long_name(const dissector_handle_t handl
 
 /** Get the short name of the protocol for a dissector handle. */
 WS_DLL_PUBLIC const char *dissector_handle_get_short_name(const dissector_handle_t handle);
+
+/** Get the description for what the dissector for a dissector handle dissects. */
+WS_DLL_PUBLIC const char *dissector_handle_get_description(const dissector_handle_t handle);
 
 /** Get the index of the protocol for a dissector handle. */
 WS_DLL_PUBLIC int dissector_handle_get_protocol_index(const dissector_handle_t handle);
@@ -584,6 +591,8 @@ WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
     const int proto);
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(dissector_t dissector,
     const int proto, const char* name);
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name_and_description(dissector_t dissector,
+    const int proto, const char* name, const char* description);
 
 /** Call a dissector through a handle and if no dissector was found
  * pass it over to the "data" dissector instead.

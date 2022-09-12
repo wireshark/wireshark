@@ -1714,7 +1714,7 @@ dcerpc_get_proto_name(e_guid_t *uuid, guint16 ver)
         return NULL;
     }
 
-    return dissector_handle_get_short_name(handle);
+    return dissector_handle_get_description(handle);
 }
 
 /* Function to find the opnum hf-field of a registered protocol

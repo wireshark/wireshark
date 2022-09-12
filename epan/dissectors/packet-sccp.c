@@ -2102,7 +2102,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
 
       if (ssn_dissector) {
-        ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+        ssn_dissector_short_name = dissector_handle_get_description(ssn_dissector);
 
         if (ssn_dissector_short_name) {
           item = proto_tree_add_string_format(call_tree, hf_sccp_linked_dissector, tvb, offset - 1, ADDRESS_SSN_LENGTH,
@@ -2113,7 +2113,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
             tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 
             if (tcap_ssn_dissector) {
-              tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
+              tcap_ssn_dissector_short_name = dissector_handle_get_description(tcap_ssn_dissector);
               proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
             }
           }

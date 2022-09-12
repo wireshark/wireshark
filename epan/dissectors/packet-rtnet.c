@@ -582,7 +582,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if (ver == 1) {
       if (!type_str) {
         if (dissector != data_handle)
-          type_str = dissector_handle_get_short_name(dissector);
+          type_str = dissector_handle_get_description(dissector);
         else
           type_str = "Unknown";
       }
@@ -591,7 +591,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         type_str = val_to_str_const(type, rtmac_type_vals, "Unknown");
       else {
         if (dissector != data_handle)
-          type_str = dissector_handle_get_short_name(dissector);
+          type_str = dissector_handle_get_description(dissector);
         else
           type_str = "Unknown";
       }

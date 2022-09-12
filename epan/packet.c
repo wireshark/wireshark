@@ -726,6 +726,7 @@ enum dissector_e {
  */
 struct dissector_handle {
 	const char	*name;		/* dissector name */
+	const char	*description;	/* dissector description */
 	enum dissector_e dissector_type;
 	void		*dissector_func;
 	void		*dissector_data;
@@ -2191,8 +2192,10 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 		return;
 	}
 
-	/* Ensure the protocol is unique.  This prevents confusion when
-	   using Decode As with duplicative entries.
+	/* Ensure the dissector's description is unique.  This prevents
+	   confusion when using Decode As; duplicate descriptions would
+	   make it impossible to distinguish between the dissectors
+	   with the same descriptions.
 
 	   FT_STRING can at least show the string value in the dialog,
 	   so we don't do the check for them. */
@@ -2201,7 +2204,8 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 		for (entry = sub_dissectors->dissector_handles; entry != NULL; entry = g_slist_next(entry))
 		{
 			dup_handle = (dissector_handle_t)entry->data;
-			if (dup_handle->protocol == handle->protocol)
+			if (dup_handle->description != NULL &&
+			    strcmp(dup_handle->description, handle->description) == 0)
 			{
 				const char *dissector_name, *dup_dissector_name;
 
@@ -2211,10 +2215,9 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 				dup_dissector_name = dissector_handle_get_dissector_name(dup_handle);
 				if (dup_dissector_name == NULL)
 					dup_dissector_name = "(anonymous)";
-				fprintf(stderr, "Duplicate dissectors %s and %s for protocol %s in dissector table %s\n",
+				fprintf(stderr, "Dissectors %s and %s in dissector table %s have same dissector name %s\n",
 				    dissector_name, dup_dissector_name,
-				    proto_get_protocol_short_name(handle->protocol),
-				    name);
+				    name, handle->description);
 				if (wireshark_abort_on_dissector_bug)
 					abort();
 			}
@@ -2256,7 +2259,7 @@ dissector_table_get_dissector_handles(dissector_table_t dissector_table) {
  * Data structure used as user data when iterating dissector handles
  */
 typedef struct lookup_entry {
-	const gchar* dissector_short_name;
+	const gchar* dissector_description;
 	dissector_handle_t handle;
 } lookup_entry_t;
 
@@ -2269,17 +2272,17 @@ find_dissector_in_table(gpointer item, gpointer user_data)
 {
 	dissector_handle_t handle = (dissector_handle_t)item;
 	lookup_entry_t * lookup = (lookup_entry_t *)user_data;
-	const gchar *proto_short_name = dissector_handle_get_short_name(handle);
-	if (proto_short_name && strcmp(lookup->dissector_short_name, proto_short_name) == 0) {
+	const gchar *description = dissector_handle_get_description(handle);
+	if (description && strcmp(lookup->dissector_description, description) == 0) {
 		lookup->handle = handle;
 	}
 }
 
-dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, const gchar* short_name)
+dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, const gchar* description)
 {
 	lookup_entry_t lookup;
 
-	lookup.dissector_short_name = short_name;
+	lookup.dissector_description = description;
 	lookup.handle = NULL;
 
 	g_slist_foreach(dissector_table->dissector_handles, find_dissector_in_table, &lookup);
@@ -3153,16 +3156,18 @@ dissector_handle_get_long_name(const dissector_handle_t handle)
 const char *
 dissector_handle_get_short_name(const dissector_handle_t handle)
 {
-	if (handle->protocol == NULL) {
-		/*
-		 * No protocol (see, for example, the handle for
-		 * dissecting the set of protocols where the first
-		 * octet of the payload is an OSI network layer protocol
-		 * ID).
-		 */
+	if (handle == NULL || handle->protocol == NULL) {
 		return NULL;
 	}
 	return proto_get_protocol_short_name(handle->protocol);
+}
+
+/* Get the description for what the dissector in the dissector handle
+   dissects, if it has one. */
+const char *
+dissector_handle_get_description(const dissector_handle_t handle)
+{
+	return handle->description;
 }
 
 /* Get the index of the protocol for a dissector handle, if it has
@@ -3204,7 +3209,7 @@ dissector_handle_t find_dissector_add_dependency(const char *name, const int par
 	dissector_handle_t handle = (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
 	if ((handle != NULL) && (parent_proto > 0))
 	{
-		register_depend_dissector(proto_get_protocol_short_name(find_protocol_by_id(parent_proto)), dissector_handle_get_short_name(handle));
+		register_depend_dissector(proto_get_protocol_short_name(find_protocol_by_id(parent_proto)), dissector_handle_get_description(handle));
 	}
 
 	return handle;
@@ -3221,16 +3226,32 @@ dissector_handle_get_dissector_name(const dissector_handle_t handle)
 }
 
 static dissector_handle_t
-new_dissector_handle(enum dissector_e type, void *dissector, const int proto, const char *name, void *cb_data)
+new_dissector_handle(enum dissector_e type, void *dissector, const int proto, const char *name, const char *description, void *cb_data)
 {
 	struct dissector_handle *handle;
 
 	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name		= name;
+	handle->description	= description;
 	handle->dissector_type	= type;
 	handle->dissector_func	= dissector;
 	handle->dissector_data	= cb_data;
 	handle->protocol	= find_protocol_by_id(proto);
+
+	if (handle->description == NULL) {
+		/*
+		 * No description for what this dissector dissects
+		 * was supplied; use the short name for the protocol,
+		 * if we have the protocol.
+		 *
+		 * (We may have no protocol; see, for example, the handle
+		 * for dissecting the set of protocols where the first
+		 * octet of the payload is an OSI network layer protocol
+		 * ID.)
+		 */
+		if (handle->protocol != NULL)
+			handle->description = proto_get_protocol_short_name(handle->protocol);
+	}
 	return handle;
 }
 
@@ -3238,14 +3259,23 @@ new_dissector_handle(enum dissector_e type, void *dissector, const int proto, co
 dissector_handle_t
 create_dissector_handle(dissector_t dissector, const int proto)
 {
-	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, NULL, NULL);
+	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, NULL, NULL, NULL);
 }
 
 dissector_handle_t
 create_dissector_handle_with_name(dissector_t dissector,
 				const int proto, const char* name)
 {
-	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, NULL);
+	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, NULL, NULL);
+}
+
+dissector_handle_t
+create_dissector_handle_with_name_and_description(dissector_t dissector,
+						const int proto,
+						const char* name,
+						const char* description)
+{
+	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, description, NULL);
 }
 
 /* Destroy an anonymous handle for a dissector. */
@@ -3276,7 +3306,17 @@ register_dissector(const char *name, dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
-	handle = new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, NULL);
+	handle = new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, NULL, NULL);
+
+	return register_dissector_handle(name, handle);
+}
+
+dissector_handle_t
+register_dissector_with_description(const char *name, const char *description, dissector_t dissector, const int proto)
+{
+	struct dissector_handle *handle;
+
+	handle = new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, description, NULL);
 
 	return register_dissector_handle(name, handle);
 }
@@ -3286,7 +3326,7 @@ register_dissector_with_data(const char *name, dissector_cb_t dissector, const i
 {
 	struct dissector_handle *handle;
 
-	handle = new_dissector_handle(DISSECTOR_TYPE_CALLBACK, dissector, proto, name, cb_data);
+	handle = new_dissector_handle(DISSECTOR_TYPE_CALLBACK, dissector, proto, name, NULL, cb_data);
 
 	return register_dissector_handle(name, handle);
 }

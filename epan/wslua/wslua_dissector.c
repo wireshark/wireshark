@@ -121,7 +121,7 @@ WSLUA_METAMETHOD Dissector__tostring(lua_State* L) {
     /* Gets the Dissector's protocol short name. */
     Dissector d = checkDissector(L,1);
     if (!d) return 0;
-    lua_pushstring(L,dissector_handle_get_short_name(d));
+    lua_pushstring(L,dissector_handle_get_description(d));
     WSLUA_RETURN(1); /* A string of the protocol's short name. */
 }
 

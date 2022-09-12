@@ -103,7 +103,7 @@ decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user
 
 
     handle = (dissector_handle_t)value;
-    proto_name = dissector_handle_get_short_name(handle);
+    proto_name = dissector_handle_get_description(handle);
 
     i = dissector_handle_get_protocol_index(handle);
     if (i >= 0 && !proto_is_protocol_enabled(find_protocol_by_id(i)))
@@ -317,12 +317,12 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
     if (current == NULL)
         current_proto_name = DECODE_AS_NONE;
     else
-        current_proto_name = dissector_handle_get_short_name(current);
+        current_proto_name = dissector_handle_get_description(current);
     initial = dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
     if (initial == NULL)
         initial_proto_name = DECODE_AS_NONE;
     else
-        initial_proto_name = dissector_handle_get_short_name(initial);
+        initial_proto_name = dissector_handle_get_description(initial);
 
     switch (selector_type) {
 
