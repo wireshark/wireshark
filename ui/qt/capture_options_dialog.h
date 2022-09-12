@@ -47,7 +47,7 @@ signals:
     void filterChanged(const QString filter);
 
 private slots:
-    void linkTypeChanged(QString selected_link_type);
+    void linkTypeChanged(const QString selected_link_type);
     void snapshotLengthChanged(int value);
     void bufferSizeChanged(int value);
 };

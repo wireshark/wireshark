@@ -1390,7 +1390,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             QComboBox *cb = new QComboBox(parent);
             cb->addItems(valid_link_types);
 
-            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(linkTypeChanged(QString)));
+            connect(cb, &QComboBox::currentTextChanged, this, &InterfaceTreeDelegate::linkTypeChanged);
             w = (QWidget*) cb;
             break;
         }
@@ -1445,7 +1445,7 @@ bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void InterfaceTreeDelegate::linkTypeChanged(QString selected_link_type)
+void InterfaceTreeDelegate::linkTypeChanged(const QString selected_link_type)
 {
     GList *list;
     link_row *temp;

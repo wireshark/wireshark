@@ -37,7 +37,7 @@ private slots:
     void on_pwAuth_toggled(bool checked);
     void on_nullAuth_toggled(bool checked);
     void apply_remote();
-    void hostChanged(QString host);
+    void hostChanged(const QString host);
 
 private:
     Ui::RemoteCaptureDialog *ui;

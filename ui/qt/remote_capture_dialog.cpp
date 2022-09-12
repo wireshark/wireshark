@@ -35,7 +35,7 @@ RemoteCaptureDialog::RemoteCaptureDialog(QWidget *parent) :
     fillComboBox();
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(apply_remote()));
     connect(this, SIGNAL(remoteAdded(GList *, remote_options*)), parent, SIGNAL(remoteAdded(GList *, remote_options*)));
-    connect(ui->hostCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(hostChanged(QString)));
+    connect(ui->hostCombo, &QComboBox::currentTextChanged, this, &RemoteCaptureDialog::hostChanged);
 }
 
 RemoteCaptureDialog::~RemoteCaptureDialog()
@@ -43,7 +43,7 @@ RemoteCaptureDialog::~RemoteCaptureDialog()
     delete ui;
 }
 
-void RemoteCaptureDialog::hostChanged(QString host)
+void RemoteCaptureDialog::hostChanged(const QString host)
 {
     if (!host.compare(tr("Clear list"))) {
         recent_free_remote_host_list();
