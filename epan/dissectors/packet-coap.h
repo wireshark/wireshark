@@ -39,6 +39,7 @@ typedef struct {
 	guint block_mflag;
 	wmem_strbuf_t *uri_str_strbuf;		/* the maximum is 1024 > 510 = Uri-Host:255 + Uri-Path:255 x 2 */
 	wmem_strbuf_t *uri_query_strbuf;	/* the maximum is 1024 >         765 = Uri-Query:255 x 3 */
+	gboolean is_coap_for_tmf;		/* CoAP for Thread Management Framework */
 	gboolean object_security;
 	oscore_info_t *oscore_info;		/* OSCORE data needed to decrypt */
 } coap_info;
