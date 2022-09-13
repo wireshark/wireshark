@@ -8346,6 +8346,7 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
     proto_tree *groups_tree;
     proto_item *ti;
     guint32     ja3_value;
+    gchar      *ja3_dash = "";
 
     /* NamedGroup named_group_list<2..2^16-1> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &groups_length,
@@ -8374,10 +8375,8 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
                                      ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
         if (ja3 && ((ja3_value & 0x0f0f) != 0x0a0a)) {
-            wmem_strbuf_append_printf(ja3, "%i", ja3_value);
-            if (offset < offset_end) {
-                wmem_strbuf_append_c(ja3, '-');
-            }
+            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
+            ja3_dash = "-";
         }
     }
     if (!ssl_end_vector(hf, tvb, pinfo, groups_tree, offset, next_offset)) {
@@ -8923,6 +8922,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     guint32     ja3_value;
     wmem_strbuf_t *ja3 = wmem_strbuf_new(wmem_packet_scope(), "");
     gchar      *ja3_hash;
+    gchar      *ja3_dash = "";
 
     /* show the client version */
     proto_tree_add_item_ret_uint(tree, hf->hf.hs_client_version, tvb,
@@ -8968,10 +8968,8 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                      ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
         if ((ja3_value & 0x0f0f) != 0x0a0a) {
-            wmem_strbuf_append_printf(ja3, "%i", ja3_value);
-            if (offset < next_offset) {
-                wmem_strbuf_append_c(ja3, '-');
-            }
+            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ja3_value);
+            ja3_dash = "-";
         }
     }
     wmem_strbuf_append_c(ja3, ',');
@@ -9746,6 +9744,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
     wmem_strbuf_t *ja3_sg = wmem_strbuf_new(wmem_packet_scope(), "");
     wmem_strbuf_t *ja3_ecpf = wmem_strbuf_new(wmem_packet_scope(), "");
+    gchar      *ja3_dash = "";
 
     /* Extension extensions<0..2^16-2> (for TLS 1.3 HRR/CR min-length is 2) */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &exts_len,
@@ -9769,10 +9768,8 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                             tvb, offset, 2, ext_type);
         offset += 2;
         if (ja3 && ((ext_type & 0x0f0f) != 0x0a0a)) {
-            wmem_strbuf_append_printf(ja3, "%i", ext_type);
-            if (offset_end - offset - ext_len > 2) {
-                wmem_strbuf_append_c(ja3, '-');
-            }
+            wmem_strbuf_append_printf(ja3, "%s%i",ja3_dash, ext_type);
+            ja3_dash = "-";
         }
 
         /* opaque extension_data<0..2^16-1> */
