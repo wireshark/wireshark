@@ -1970,8 +1970,8 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
   guint8 national = 0xFFU, routing_ind, gti, pci, ssni, ssn;
   tvbuff_t *gt_tvb;
   dissector_handle_t ssn_dissector = NULL, tcap_ssn_dissector = NULL;
-  const char *ssn_dissector_short_name = NULL;
-  const char *tcap_ssn_dissector_short_name = NULL;
+  const char *ssn_dissector_description = NULL;
+  const char *tcap_ssn_dissector_description = NULL;
 
   call_tree = proto_tree_add_subtree_format(tree, tvb, 0, length,
                                   called ? ett_sccp_called : ett_sccp_calling, NULL,
@@ -2102,19 +2102,19 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
 
       if (ssn_dissector) {
-        ssn_dissector_short_name = dissector_handle_get_description(ssn_dissector);
+        ssn_dissector_description = dissector_handle_get_description(ssn_dissector);
 
-        if (ssn_dissector_short_name) {
+        if (ssn_dissector_description) {
           item = proto_tree_add_string_format(call_tree, hf_sccp_linked_dissector, tvb, offset - 1, ADDRESS_SSN_LENGTH,
-                                     ssn_dissector_short_name, "Linked to %s", ssn_dissector_short_name);
+                                     ssn_dissector_description, "Linked to %s", ssn_dissector_description);
           proto_item_set_generated(item);
 
-          if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
+          if (g_ascii_strncasecmp("TCAP", ssn_dissector_description, 4)== 0) {
             tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 
             if (tcap_ssn_dissector) {
-              tcap_ssn_dissector_short_name = dissector_handle_get_description(tcap_ssn_dissector);
-              proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
+              tcap_ssn_dissector_description = dissector_handle_get_description(tcap_ssn_dissector);
+              proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_description);
             }
           }
         } /* short name */

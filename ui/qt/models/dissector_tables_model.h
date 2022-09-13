@@ -19,17 +19,17 @@
 class DissectorTablesItem : public ModelHelperTreeItem<DissectorTablesItem>
 {
 public:
-    DissectorTablesItem(QString tableName, QString shortName, DissectorTablesItem* parent);
+    DissectorTablesItem(QString tableName, QString dissectorDescription, DissectorTablesItem* parent);
     virtual ~DissectorTablesItem();
 
     QString tableName() const {return tableName_;}
-    QString shortName() const {return shortName_;}
+    QString dissectorDescription() const {return dissectorDescription_;}
 
     virtual bool lessThan(DissectorTablesItem &right) const;
 
 protected:
     QString tableName_;
-    QString shortName_;
+    QString dissectorDescription_;
 };
 
 class DissectorTablesModel : public QAbstractItemModel
@@ -42,7 +42,7 @@ public:
 
     enum DissectorTablesColumn {
         colTableName = 0,
-        colShortName,
+        colDissectorDescription,
         colLast
     };
 
@@ -82,7 +82,7 @@ protected:
 private:
 
     QString tableName_;
-    QString shortName_;
+    QString dissectorDescription_;
     QString filter_;
 };
 

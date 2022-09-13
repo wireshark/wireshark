@@ -148,7 +148,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         export_pdu(hdr_tvb, pinfo, encap->header_proto_name);
         call_dissector(encap->header_proto, hdr_tvb, pinfo, tree);
         if (encap->header_proto_name) {
-            const char *proto_name = dissector_handle_get_long_name(encap->header_proto);
+            const char *proto_name = dissector_handle_get_protocol_long_name(encap->header_proto);
             if (proto_name) {
                 proto_item_append_text(item, ", Header: %s (%s)", encap->header_proto_name, proto_name);
             }
@@ -162,7 +162,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
     export_pdu(payload_tvb, pinfo, encap->payload_proto_name);
     call_dissector(encap->payload_proto, payload_tvb, pinfo, tree);
     if (encap->payload_proto_name) {
-        const char *proto_name = dissector_handle_get_long_name(encap->payload_proto);
+        const char *proto_name = dissector_handle_get_protocol_long_name(encap->payload_proto);
         if (proto_name) {
             proto_item_append_text(item, ", Payload: %s (%s)", encap->payload_proto_name, proto_name);
         }
@@ -173,7 +173,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         export_pdu(trailer_tvb, pinfo, encap->trailer_proto_name);
         call_dissector(encap->trailer_proto, trailer_tvb, pinfo, tree);
         if (encap->trailer_proto_name) {
-            const char *proto_name = dissector_handle_get_long_name(encap->trailer_proto);
+            const char *proto_name = dissector_handle_get_protocol_long_name(encap->trailer_proto);
             if (proto_name) {
                 proto_item_append_text(item, ", Trailer: %s (%s)", encap->trailer_proto_name, proto_name);
             }

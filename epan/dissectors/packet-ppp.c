@@ -1298,7 +1298,7 @@ ppp_dissect_options(tvbuff_t *tvb, int offset, guint length, dissector_table_t c
             if (option_dissector == NULL) {
                 name = wmem_strdup_printf(pinfo->pool, "Unknown (0x%02x)", opt);
             } else {
-                name = dissector_handle_get_description(option_dissector);
+                name = dissector_handle_get_protocol_short_name(option_dissector);
             }
         } else {
             name = wmem_strdup_printf(pinfo->pool, "Unknown (0x%02x)", opt);

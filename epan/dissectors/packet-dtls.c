@@ -1011,14 +1011,14 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                         val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                         session->app_handle
-                        ? dissector_handle_get_long_name(session->app_handle)
+                        ? dissector_handle_get_protocol_long_name(session->app_handle)
                         : "Application Data");
 
     proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
                         offset, record_length, ENC_NA);
 
     if (session->app_handle) {
-      ti = proto_tree_add_string(dtls_record_tree, hf_dtls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_long_name(session->app_handle));
+      ti = proto_tree_add_string(dtls_record_tree, hf_dtls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_protocol_long_name(session->app_handle));
       proto_item_set_generated(ti);
     }
 

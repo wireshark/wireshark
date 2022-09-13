@@ -2104,9 +2104,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 #endif
 
     if (p_conv_data && p_conv_data->bta2dp_info && p_conv_data->bta2dp_info->codec_dissector) {
-        rtp_info->info_payload_type_str = (const char *) dissector_handle_get_description(p_conv_data->bta2dp_info->codec_dissector);
+        rtp_info->info_payload_type_str = (const char *) dissector_handle_get_protocol_short_name(p_conv_data->bta2dp_info->codec_dissector);
     } else if (p_conv_data && p_conv_data->btvdp_info && p_conv_data->btvdp_info->codec_dissector) {
-        rtp_info->info_payload_type_str = (const char *) dissector_handle_get_description(p_conv_data->btvdp_info->codec_dissector);
+        rtp_info->info_payload_type_str = (const char *) dissector_handle_get_protocol_short_name(p_conv_data->btvdp_info->codec_dissector);
     }
 
     /* if it is dynamic payload, let use the conv data to see if it is defined */
@@ -2142,9 +2142,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     if (p_conv_data && p_conv_data->bta2dp_info) {
-        pt = (p_conv_data->bta2dp_info->codec_dissector) ? dissector_handle_get_description(p_conv_data->bta2dp_info->codec_dissector) : "Unknown";
+        pt = (p_conv_data->bta2dp_info->codec_dissector) ? dissector_handle_get_protocol_short_name(p_conv_data->bta2dp_info->codec_dissector) : "Unknown";
     } else if (p_conv_data && p_conv_data->btvdp_info) {
-        pt = (p_conv_data->btvdp_info->codec_dissector) ? dissector_handle_get_description(p_conv_data->btvdp_info->codec_dissector) : "Unknown";
+        pt = (p_conv_data->btvdp_info->codec_dissector) ? dissector_handle_get_protocol_short_name(p_conv_data->btvdp_info->codec_dissector) : "Unknown";
     } else {
         pt = (payload_type_str ? payload_type_str : val_to_str_ext(payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)"));
     }
