@@ -2489,6 +2489,16 @@ http2_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id
     return FALSE;
 }
 
+gboolean
+http2_get_sub_stream_id(guint streamid, guint sub_stream_id, gboolean le, guint *sub_stream_id_out)
+{
+    if (le) {
+        return http2_get_stream_id_le(streamid, sub_stream_id, sub_stream_id_out);
+    } else {
+        return http2_get_stream_id_ge(streamid, sub_stream_id, sub_stream_id_out);
+    }
+}
+
 static gchar*
 http2_follow_index_filter(guint stream, guint sub_stream)
 {
@@ -4635,7 +4645,8 @@ proto_register_http2(void)
     http2_follow_tap = register_tap("http2_follow");
 
     register_follow_stream(proto_http2, "http2_follow", http2_follow_conv_filter, http2_follow_index_filter, tcp_follow_address_filter,
-                           tcp_port_to_display, follow_http2_tap_listener, get_tcp_stream_count);
+                           tcp_port_to_display, follow_http2_tap_listener, get_tcp_stream_count,
+                           http2_get_sub_stream_id);
 }
 
 static void http2_stats_tree_init(stats_tree* st)

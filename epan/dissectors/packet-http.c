@@ -4513,7 +4513,7 @@ proto_register_http(void)
 
 	register_follow_stream(proto_http, "http_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
 							tcp_port_to_display, follow_tvb_tap_listener,
-							get_tcp_stream_count);
+							get_tcp_stream_count, NULL);
 	http_eo_tap = register_export_object(proto_http, http_eo_packet, NULL);
 
 	/* compile patterns, exluding "/" */

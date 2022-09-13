@@ -4766,7 +4766,7 @@ proto_register_tls(void)
         "tls", tls_tap);
 
     register_follow_stream(proto_tls, "tls", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
-                            tcp_port_to_display, ssl_follow_tap_listener, get_tcp_stream_count);
+                            tcp_port_to_display, ssl_follow_tap_listener, get_tcp_stream_count, NULL);
     secrets_register_type(SECRETS_TYPE_TLS, tls_secrets_block_callback);
 }
 

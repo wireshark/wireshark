@@ -1476,7 +1476,7 @@ proto_register_udp(void)
     register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_endpoint_packet);
     register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter);
     register_follow_stream(proto_udp, "udp_follow", udp_follow_conv_filter, udp_follow_index_filter, udp_follow_address_filter,
-                        udp_port_to_display, follow_tvb_tap_listener, get_udp_stream_count);
+                        udp_port_to_display, follow_tvb_tap_listener, get_udp_stream_count, NULL);
 
     register_init_routine(udp_init);
 }

@@ -9742,7 +9742,7 @@ proto_register_tcp(void)
 
     register_conversation_table(proto_mptcp, FALSE, mptcpip_conversation_packet, tcpip_endpoint_packet);
     register_follow_stream(proto_tcp, "tcp_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
-                            tcp_port_to_display, follow_tcp_tap_listener, get_tcp_stream_count);
+                            tcp_port_to_display, follow_tcp_tap_listener, get_tcp_stream_count, NULL);
 }
 
 void

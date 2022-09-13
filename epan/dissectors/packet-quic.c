@@ -4551,6 +4551,16 @@ quic_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_
     return FALSE;
 }
 
+gboolean
+quic_get_sub_stream_id(guint streamid, guint sub_stream_id, gboolean le, guint *sub_stream_id_out)
+{
+    if (le) {
+        return quic_get_stream_id_le(streamid, sub_stream_id, sub_stream_id_out);
+    } else {
+        return quic_get_stream_id_ge(streamid, sub_stream_id, sub_stream_id_out);
+    }
+}
+
 static gchar *
 quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream)
 {
@@ -5409,7 +5419,8 @@ proto_register_quic(void)
     register_cleanup_routine(quic_cleanup);
 
     register_follow_stream(proto_quic, "quic_follow", quic_follow_conv_filter, quic_follow_index_filter, quic_follow_address_filter,
-                           udp_port_to_display, follow_quic_tap_listener, get_quic_connections_count);
+                           udp_port_to_display, follow_quic_tap_listener, get_quic_connections_count,
+                           quic_get_sub_stream_id);
 
     // TODO implement custom reassembly functions that uses the QUIC Connection
     // ID instead of address and port numbers.

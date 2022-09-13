@@ -1990,7 +1990,7 @@ proto_register_dccp(void)
     register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_endpoint_packet);
     register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter);
     register_follow_stream(proto_dccp, "dccp_follow", dccp_follow_conv_filter, dccp_follow_index_filter, dccp_follow_address_filter,
-                           dccp_port_to_display, follow_tvb_tap_listener, get_dccp_stream_count);
+                           dccp_port_to_display, follow_tvb_tap_listener, get_dccp_stream_count, NULL);
 
     register_init_routine(dccp_init);
 }

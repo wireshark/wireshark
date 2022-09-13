@@ -15,8 +15,6 @@
 
 #include "frame_tvbuff.h"
 #include "epan/follow.h"
-#include "epan/dissectors/packet-http2.h"
-#include "epan/dissectors/packet-quic.h"
 #include "epan/prefs.h"
 #include "epan/addr_resolv.h"
 #include "epan/charsets.h"
@@ -256,7 +254,7 @@ void FollowStreamDialog::updateWidgets(bool follow_in_progress)
     ui->cbDirections->setEnabled(enable);
     ui->cbCharset->setEnabled(enable);
     ui->streamNumberSpinBox->setEnabled(enable);
-    if (follow_type_ == FOLLOW_HTTP2 || follow_type_ == FOLLOW_QUIC) {
+    if (get_follow_sub_stream_id_func(follower_) != NULL) {
         ui->subStreamNumberSpinBox->setEnabled(enable);
     }
     ui->leFind->setEnabled(enable);
@@ -413,24 +411,32 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
     gboolean ok;
     if (ui->subStreamNumberSpinBox->isVisible()) {
         /* We need to find a suitable sub stream for the new stream */
+        follow_sub_stream_id_func sub_stream_func;
+        sub_stream_func = get_follow_sub_stream_id_func(follower_);
+
+        if (sub_stream_func == NULL) {
+            // Should not happen, this field is only visible for suitable protocols.
+            return;
+        }
+
         guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
         if (sub_stream_num < 0) {
             // Stream ID 0 should always exist as it is used for control messages.
+            // XXX: That is only guaranteed for HTTP2. For example, in QUIC,
+            // stream ID 0 is a normal stream used by the first standard client-
+            // initiated bidirectional stream (if it exists, and it might not)
+            // and we might have a stream (connection) but only the CRYPTO
+            // stream, which does not have a (sub) stream ID.
+            // What should we do if there is a stream with no substream to
+            // follow? Right now the substream spinbox is left active and
+            // the user can change the value to no effect.
             sub_stream_num_new = 0;
             ok = TRUE;
-        } else if (follow_type_ == FOLLOW_HTTP2) {
-            ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-            if (!ok) {
-                ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-            }
-        } else if (follow_type_ == FOLLOW_QUIC) {
-            ok = quic_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-            if (!ok) {
-                ok = quic_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-            }
         } else {
-            // Should not happen, this field is only visible for suitable protocols.
-            return;
+            ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, FALSE, &sub_stream_num_new);
+            if (!ok) {
+                ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, TRUE, &sub_stream_num_new);
+            }
         }
         sub_stream_num = static_cast<gint>(sub_stream_num_new);
     } else {
@@ -457,28 +463,26 @@ void FollowStreamDialog::on_subStreamNumberSpinBox_valueChanged(int sub_stream_n
     stream_num = ui->streamNumberSpinBox->value();
     ui->streamNumberSpinBox->blockSignals(false);
 
+    follow_sub_stream_id_func sub_stream_func;
+    sub_stream_func = get_follow_sub_stream_id_func(follower_);
+
+    if (sub_stream_func == NULL) {
+        // Should not happen, this field is only visible for suitable protocols.
+        return;
+    }
+
     guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
     gboolean ok;
     /* previous_sub_stream_num_ is a hack to track which buttons was pressed without event handling */
     if (sub_stream_num < 0) {
         // Stream ID 0 should always exist as it is used for control messages.
+        // XXX: That is only guaranteed for HTTP2, see above.
         sub_stream_num_new = 0;
         ok = TRUE;
-    } else if (follow_type_ == FOLLOW_HTTP2) {
-        if (previous_sub_stream_num_ < sub_stream_num) {
-            ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-        } else {
-            ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-        }
-    } else if (follow_type_ == FOLLOW_QUIC) {
-        if (previous_sub_stream_num_ < sub_stream_num) {
-            ok = quic_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-        } else {
-            ok = quic_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
-        }
+    } else if (previous_sub_stream_num_ < sub_stream_num) {
+        ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, FALSE, &sub_stream_num_new);
     } else {
-        // Should not happen, this field is only visible for suitable protocols.
-        return;
+        ok = sub_stream_func(static_cast<guint>(stream_num), sub_stream_num_new, TRUE, &sub_stream_num_new);
     }
     sub_stream_num = static_cast<gint>(sub_stream_num_new);
 
@@ -1023,15 +1027,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
-    /* disable substream spin box for all protocols except HTTP2 and QUIC */
-    ui->subStreamNumberSpinBox->blockSignals(true);
-    ui->subStreamNumberSpinBox->setEnabled(false);
-    ui->subStreamNumberSpinBox->setValue(0);
-    ui->subStreamNumberSpinBox->setKeyboardTracking(false);
-    ui->subStreamNumberSpinBox->blockSignals(false);
-    ui->subStreamNumberSpinBox->setVisible(false);
-    ui->subStreamNumberLabel->setVisible(false);
-
     stream_count_func = get_follow_stream_count_func(follower_);
 
     if (stream_count_func == NULL) {
@@ -1046,45 +1041,30 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
     }
 
-    switch (follow_type_)
-    {
-    case FOLLOW_HTTP2:
-    {
+    follow_sub_stream_id_func sub_stream_func;
+    sub_stream_func = get_follow_sub_stream_id_func(follower_);
+    if (sub_stream_func != NULL) {
         guint substream_max_id = 0;
-        http2_get_stream_id_le(static_cast<guint>(stream_num), G_MAXINT32, &substream_max_id);
+        sub_stream_func(static_cast<guint>(stream_num), G_MAXINT32, TRUE, &substream_max_id);
         stream_count = static_cast<gint>(substream_max_id);
         ui->subStreamNumberSpinBox->blockSignals(true);
         ui->subStreamNumberSpinBox->setEnabled(true);
         ui->subStreamNumberSpinBox->setMaximum(stream_count);
         ui->subStreamNumberSpinBox->setValue(sub_stream_num);
         ui->subStreamNumberSpinBox->blockSignals(false);
-        ui->subStreamNumberSpinBox->setToolTip(tr("%Ln total sub stream(s).", "", stream_count));
+        ui->subStreamNumberSpinBox->setToolTip(tr("Max sub stream ID for the selected stream: %Ln", "", stream_count));
         ui->subStreamNumberSpinBox->setToolTip(ui->subStreamNumberSpinBox->toolTip());
         ui->subStreamNumberSpinBox->setVisible(true);
         ui->subStreamNumberLabel->setVisible(true);
-
-        break;
-    }
-    case FOLLOW_QUIC:
-    {
-        guint substream_max_id = 0;
-        quic_get_stream_id_le(static_cast<guint>(stream_num), G_MAXINT32, &substream_max_id);
-        stream_count = static_cast<gint>(substream_max_id);
+    } else {
+        /* disable substream spin box for protocols without substreams */
         ui->subStreamNumberSpinBox->blockSignals(true);
-        ui->subStreamNumberSpinBox->setEnabled(true);
-        ui->subStreamNumberSpinBox->setMaximum(stream_count);
-        ui->subStreamNumberSpinBox->setValue(sub_stream_num);
+        ui->subStreamNumberSpinBox->setEnabled(false);
+        ui->subStreamNumberSpinBox->setValue(0);
+        ui->subStreamNumberSpinBox->setKeyboardTracking(false);
         ui->subStreamNumberSpinBox->blockSignals(false);
-        ui->subStreamNumberSpinBox->setToolTip(tr("Max QUIC Stream ID for the selected connection: %Ln", "", stream_count));
-        ui->subStreamNumberSpinBox->setToolTip(ui->subStreamNumberSpinBox->toolTip());
-        ui->subStreamNumberSpinBox->setVisible(true);
-        ui->subStreamNumberLabel->setVisible(true);
-
-        break;
-    }
-    default:
-        /* No extra handling */
-        break;
+        ui->subStreamNumberSpinBox->setVisible(false);
+        ui->subStreamNumberLabel->setVisible(false);
     }
 
     beginRetapPackets();
