@@ -97,19 +97,19 @@ static void
 decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user_data)
 {
     struct decode_as_default_populate* populate = (struct decode_as_default_populate*)user_data;
-    const gchar     *proto_name;
+    const gchar     *dissector_description;
     gint       i;
     dissector_handle_t handle;
 
 
     handle = (dissector_handle_t)value;
-    proto_name = dissector_handle_get_description(handle);
+    dissector_description = dissector_handle_get_description(handle);
 
     i = dissector_handle_get_protocol_index(handle);
     if (i >= 0 && !proto_is_protocol_enabled(find_protocol_by_id(i)))
         return;
 
-    populate->add_to_list(table_name, proto_name, value, populate->ui_element);
+    populate->add_to_list(table_name, dissector_description, value, populate->ui_element);
 }
 
 void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element)
@@ -311,18 +311,18 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
 {
     GList **decode_as_rows_list = (GList **)user_data;
     dissector_handle_t current, initial;
-    const gchar *current_proto_name, *initial_proto_name, *decode_as_row;
+    const gchar *current_dissector_name, *initial_dissector_name, *decode_as_row;
 
     current = dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current == NULL)
-        current_proto_name = DECODE_AS_NONE;
+        current_dissector_name = DECODE_AS_NONE;
     else
-        current_proto_name = dissector_handle_get_description(current);
+        current_dissector_name = dissector_handle_get_description(current);
     initial = dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
     if (initial == NULL)
-        initial_proto_name = DECODE_AS_NONE;
+        initial_dissector_name = DECODE_AS_NONE;
     else
-        initial_proto_name = dissector_handle_get_description(initial);
+        initial_dissector_name = dissector_handle_get_description(initial);
 
     switch (selector_type) {
 
@@ -342,8 +342,8 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
          */
         decode_as_row = ws_strdup_printf(
             DECODE_AS_ENTRY ": %s,%u,%s,%s\n",
-            table_name, GPOINTER_TO_UINT(key), initial_proto_name,
-            current_proto_name);
+            table_name, GPOINTER_TO_UINT(key), initial_dissector_name,
+            current_dissector_name);
         break;
     case FT_NONE:
         /*
@@ -353,8 +353,8 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
          */
         decode_as_row = ws_strdup_printf(
             DECODE_AS_ENTRY ": %s,0,%s,%s\n",
-            table_name, initial_proto_name,
-            current_proto_name);
+            table_name, initial_dissector_name,
+            current_dissector_name);
         break;
 
     case FT_STRING:
@@ -364,8 +364,8 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
     case FT_STRINGZTRUNC:
         decode_as_row = ws_strdup_printf(
             DECODE_AS_ENTRY ": %s,%s,%s,%s\n",
-            table_name, (gchar *)key, initial_proto_name,
-            current_proto_name);
+            table_name, (gchar *)key, initial_dissector_name,
+            current_dissector_name);
         break;
 
     default:

@@ -2058,14 +2058,14 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
            "%s Record Layer: %s Protocol: %s",
             val_to_str_const(version, ssl_version_short_names, "SSL"),
             val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-            app_handle ? dissector_handle_get_long_name(app_handle)
+            app_handle ? dissector_handle_get_protocol_long_name(app_handle)
             : "Application Data");
 
         proto_tree_add_item(ssl_record_tree, hf_tls_record_appdata, tvb,
                        offset, record_length, ENC_NA);
 
         if (app_handle) {
-            ti = proto_tree_add_string(ssl_record_tree, hf_tls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_long_name(app_handle));
+            ti = proto_tree_add_string(ssl_record_tree, hf_tls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_protocol_long_name(app_handle));
             proto_item_set_generated(ti);
         }
 
@@ -2079,7 +2079,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                "%s Record Layer: %s Protocol: %s",
                 val_to_str_const(version, ssl_version_short_names, "SSL"),
                 val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-                dissector_handle_get_long_name(session->app_handle));
+                dissector_handle_get_protocol_long_name(session->app_handle));
 
         break;
     }

@@ -520,6 +520,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_handle_get_description@Base 4.0.0-rc2
  dissector_handle_get_dissector_name@Base 1.12.0~rc1
  dissector_handle_get_protocol_index@Base 1.9.1
+ dissector_handle_get_protocol_long_name@Base 4.0.0-rc2
+ dissector_handle_get_protocol_short_name@Base 4.0.0-rc2
  dissector_handle_get_short_name@Base 1.9.1
  dissector_hostlist_init@Base 1.99.0
  dissector_is_string_changed@Base 3.5.1

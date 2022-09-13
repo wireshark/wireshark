@@ -38,8 +38,8 @@ public:
     QString selectorString_;
     decode_dcerpc_bind_values_t* selectorDCERPC_; //for special handling of DCE/RPC
 
-    QString default_proto_;
-    QString current_proto_;
+    QString default_dissector_;
+    QString current_dissector_;
     dissector_handle_t  dissector_handle_;
 };
 

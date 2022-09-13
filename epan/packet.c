@@ -3143,7 +3143,7 @@ register_heur_dissector_list(const char *name, const int proto)
 /* Get the long name of the protocol for a dissector handle, if it has
    a protocol. */
 const char *
-dissector_handle_get_long_name(const dissector_handle_t handle)
+dissector_handle_get_protocol_long_name(const dissector_handle_t handle)
 {
 	if (handle == NULL || handle->protocol == NULL) {
 		return NULL;
@@ -3154,12 +3154,19 @@ dissector_handle_get_long_name(const dissector_handle_t handle)
 /* Get the short name of the protocol for a dissector handle, if it has
    a protocol. */
 const char *
-dissector_handle_get_short_name(const dissector_handle_t handle)
+dissector_handle_get_protocol_short_name(const dissector_handle_t handle)
 {
 	if (handle == NULL || handle->protocol == NULL) {
 		return NULL;
 	}
 	return proto_get_protocol_short_name(handle->protocol);
+}
+
+/* For backwards source and binary compatibility */
+const char *
+dissector_handle_get_short_name(const dissector_handle_t handle)
+{
+	return dissector_handle_get_protocol_short_name(handle);
 }
 
 /* Get the description for what the dissector in the dissector handle
@@ -3209,7 +3216,7 @@ dissector_handle_t find_dissector_add_dependency(const char *name, const int par
 	dissector_handle_t handle = (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
 	if ((handle != NULL) && (parent_proto > 0))
 	{
-		register_depend_dissector(proto_get_protocol_short_name(find_protocol_by_id(parent_proto)), dissector_handle_get_description(handle));
+		register_depend_dissector(proto_get_protocol_short_name(find_protocol_by_id(parent_proto)), dissector_handle_get_protocol_short_name(handle));
 	}
 
 	return handle;

@@ -2328,7 +2328,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     current_handle = dissector_get_uint_handle(obex_profile_table, profile);
     default_handle = dissector_get_default_uint_handle("obex.profile", profile);
     if (current_handle != default_handle) {
-        expert_add_info_format(pinfo, main_item, &ei_decoded_as_profile, "Decoded As %s", dissector_handle_get_long_name(current_handle));
+        expert_add_info_format(pinfo, main_item, &ei_decoded_as_profile, "Decoded As %s", dissector_handle_get_protocol_long_name(current_handle));
     }
 
     complete = FALSE;

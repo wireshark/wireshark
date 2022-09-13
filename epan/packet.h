@@ -563,9 +563,13 @@ WS_DLL_PUBLIC dissector_handle_t register_dissector_with_data(const char *name, 
 void deregister_dissector(const char *name);
 
 /** Get the long name of the protocol for a dissector handle. */
-extern const char *dissector_handle_get_long_name(const dissector_handle_t handle);
+WS_DLL_PUBLIC const char *dissector_handle_get_protocol_long_name(const dissector_handle_t handle);
 
 /** Get the short name of the protocol for a dissector handle. */
+WS_DLL_PUBLIC const char *dissector_handle_get_protocol_short_name(const dissector_handle_t handle);
+
+/* For backwards source and binary compatibility */
+G_DEPRECATED_FOR(dissector_handle_get_protocol_short_name)
 WS_DLL_PUBLIC const char *dissector_handle_get_short_name(const dissector_handle_t handle);
 
 /** Get the description for what the dissector for a dissector handle dissects. */
