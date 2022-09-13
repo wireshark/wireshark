@@ -148,6 +148,16 @@ id-CellTrafficTrace                       ProcedureCode
 id-earlyForwardingSNTransfer              ProcedureCode
 id-gNB-CU-CPMeasurementResultsInformation ProcedureCode
 id-iABPSKNotification                     ProcedureCode
+id-BCBearerContextSetup                   ProcedureCode
+id-BCBearerContextModification            ProcedureCode
+id-BCBearerContextModificationRequired    ProcedureCode
+id-BCBearerContextRelease                 ProcedureCode
+id-BCBearerContextReleaseRequest          ProcedureCode
+id-MCBearerContextSetup                   ProcedureCode
+id-MCBearerContextModification            ProcedureCode
+id-MCBearerContextModificationRequired    ProcedureCode
+id-MCBearerContextRelease                 ProcedureCode
+id-MCBearerContextReleaseRequest          ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                        ProtocolIE-ID
@@ -295,6 +305,41 @@ id-QoSFlowsDRBRemapping                         ProtocolIE-ID
 id-DataForwardingSourceIPAddress                ProtocolIE-ID
 id-SecurityIndicationModify                     ProtocolIE-ID
 id-IAB-Donor-CU-UPPSKInfo                       ProtocolIE-ID
+id-ECGI-Support-List                            ProtocolIE-ID
+id-MDTPollutedMeasurementIndicator              ProtocolIE-ID
+id-M4ReportAmount                               ProtocolIE-ID
+id-M6ReportAmount                               ProtocolIE-ID
+id-M7ReportAmount                               ProtocolIE-ID
+id-UESliceMaximumBitRateList                    ProtocolIE-ID
+id-PDUSession-PairID                            ProtocolIE-ID
+id-SurvivalTime                                 ProtocolIE-ID
+id-UDC-Parameters                               ProtocolIE-ID
+id-SCGActivationStatus                          ProtocolIE-ID
+id-GNB-CU-CP-MBS-E1AP-ID                        ProtocolIE-ID
+id-GNB-CU-UP-MBS-E1AP-ID                        ProtocolIE-ID
+id-GlobalMBSSessionID                           ProtocolIE-ID
+id-BCBearerContextToSetup                       ProtocolIE-ID
+id-BCBearerContextToSetupResponse               ProtocolIE-ID
+id-BCBearerContextToModify                      ProtocolIE-ID
+id-BCBearerContextToModifyResponse              ProtocolIE-ID
+id-BCBearerContextToModifyRequired              ProtocolIE-ID
+id-BCBearerContextToModifyConfirm               ProtocolIE-ID
+id-MCBearerContextToSetup                       ProtocolIE-ID
+id-MCBearerContextToSetupResponse               ProtocolIE-ID
+id-MCBearerContextToModify                      ProtocolIE-ID
+id-MCBearerContextToModifyResponse              ProtocolIE-ID
+id-MCBearerContextToModifyRequired              ProtocolIE-ID
+id-MCBearerContextToModifyConfirm               ProtocolIE-ID
+id-MBSMulticastF1UContextDescriptor             ProtocolIE-ID
+id-gNB-CU-UP-MBS-Support-Info                   ProtocolIE-ID
+id-SecurityIndication                           ProtocolIE-ID
+id-SecurityResult                               ProtocolIE-ID
+id-SDTContinueROHC                              ProtocolIE-ID
+id-SDTindicatorSetup                            ProtocolIE-ID
+id-SDTindicatorMod                              ProtocolIE-ID
+id-DiscardTimerExtended                         ProtocolIE-ID
+id-ManagementBasedMDTPLMNModificationList       ProtocolIE-ID
+
 #.END
 
 #.REGISTER
@@ -402,6 +447,28 @@ Extended-GNB-CU-UP-Name                      N e1ap.ies id-Extended-GNB-CU-UP-Na
 AdditionalHandoverInfo                       N e1ap.ies id-AdditionalHandoverInfo
 DirectForwardingPathAvailability             N e1ap.ies id-DirectForwardingPathAvailability
 IAB-Donor-CU-UPPSKInfo                       N e1ap.ies id-IAB-Donor-CU-UPPSKInfo
+MDTPollutedMeasurementIndicator              N e1ap.ies id-MDTPollutedMeasurementIndicator
+UESliceMaximumBitRateList                    N e1ap.ies id-UESliceMaximumBitRateList
+SCGActivationStatus                          N e1ap.ies id-SCGActivationStatus
+GNB-CU-CP-MBS-E1AP-ID                        N e1ap.ies id-GNB-CU-CP-MBS-E1AP-ID
+GNB-CU-UP-MBS-E1AP-ID                        N e1ap.ies id-GNB-CU-UP-MBS-E1AP-ID
+GlobalMBSSessionID                           N e1ap.ies id-GlobalMBSSessionID
+BCBearerContextToSetup                       N e1ap.ies id-BCBearerContextToSetup
+BCBearerContextToSetupResponse               N e1ap.ies id-BCBearerContextToSetupResponse
+BCBearerContextToModify                      N e1ap.ies id-BCBearerContextToModify
+BCBearerContextToModifyResponse              N e1ap.ies id-BCBearerContextToModifyResponse
+BCBearerContextToModifyRequired              N e1ap.ies id-BCBearerContextToModifyRequired
+BCBearerContextToModifyConfirm               N e1ap.ies id-BCBearerContextToModifyConfirm
+MCBearerContextToSetup                       N e1ap.ies id-MCBearerContextToSetup
+MCBearerContextToSetupResponse               N e1ap.ies id-MCBearerContextToSetupResponse
+MCBearerContextToModify                      N e1ap.ies id-MCBearerContextToModify
+MCBearerContextToModifyResponse              N e1ap.ies id-MCBearerContextToModifyResponse
+MCBearerContextToModifyRequired              N e1ap.ies id-MCBearerContextToModifyRequired
+MCBearerContextToModifyConfirm               N e1ap.ies id-MCBearerContextToModifyConfirm
+MBSMulticastF1UContextDescriptor             N e1ap.ies id-MBSMulticastF1UContextDescriptor
+GNB-CU-UP-MBS-Support-Info                   N e1ap.ies id-gNB-CU-UP-MBS-Support-Info
+SDTContinueROHC                              N e1ap.ies id-SDTContinueROHC
+MDTPLMNModificationList                      N e1ap.ies id-ManagementBasedMDTPLMNModificationList
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
@@ -447,6 +514,18 @@ EarlyDataForwardingIndicator                 N e1ap.extension id-EarlyDataForwar
 QoS-Flows-DRB-Remapping                      N e1ap.extension id-QoSFlowsDRBRemapping
 TransportLayerAddress                        N e1ap.extension id-DataForwardingSourceIPAddress
 SecurityIndication                           N e1ap.extension id-SecurityIndicationModify
+ECGI-Support-List                            N e1ap.extension id-ECGI-Support-List
+M4ReportAmount                               N e1ap.extension id-M4ReportAmount
+M6ReportAmount                               N e1ap.extension id-M6ReportAmount
+M7ReportAmount                               N e1ap.extension id-M7ReportAmount
+PDUSession-PairID                            N e1ap.extension id-PDUSession-PairID
+SurvivalTime                                 N e1ap.extension id-SurvivalTime
+UDC-Parameters                               N e1ap.extension id-UDC-Parameters
+SecurityIndication                           N e1ap.extension id-SecurityIndication
+SecurityResult                               N e1ap.extension id-SecurityResult
+SDTindicatorSetup                            N e1ap.extension id-SDTindicatorSetup
+SDTindicatorMod                              N e1ap.extension id-SDTindicatorMod
+DiscardTimerExtended                         N e1ap.extension id-DiscardTimerExtended
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -526,6 +605,38 @@ CellTrafficTrace                         N e1ap.proc.imsg id-CellTrafficTrace
 EarlyForwardingSNTransfer                N e1ap.proc.imsg id-earlyForwardingSNTransfer
 
 IABPSKNotification                       N e1ap.proc.imsg id-iABPSKNotification
+
+BCBearerContextSetupRequest              N e1ap.proc.imsg id-BCBearerContextSetup
+BCBearerContextSetupResponse             N e1ap.proc.sout id-BCBearerContextSetup
+BCBearerContextSetupFailure              N e1ap.proc.uout id-BCBearerContextSetup
+
+BCBearerContextModificationRequest       N e1ap.proc.imsg id-BCBearerContextModification
+BCBearerContextModificationResponse      N e1ap.proc.sout id-BCBearerContextModification
+BCBearerContextModificationFailure       N e1ap.proc.uout id-BCBearerContextModification
+
+BCBearerContextModificationRequired      N e1ap.proc.imsg id-BCBearerContextModificationRequired
+BCBearerContextModificationConfirm       N e1ap.proc.sout id-BCBearerContextModificationRequired
+
+BCBearerContextReleaseCommand            N e1ap.proc.imsg id-BCBearerContextRelease
+BCBearerContextReleaseComplete           N e1ap.proc.sout id-BCBearerContextRelease
+
+BCBearerContextReleaseRequest            N e1ap.proc.imsg id-BCBearerContextReleaseRequest
+
+MCBearerContextSetupRequest              N e1ap.proc.imsg id-MCBearerContextSetup
+MCBearerContextSetupResponse             N e1ap.proc.sout id-MCBearerContextSetup
+MCBearerContextSetupFailure              N e1ap.proc.uout id-MCBearerContextSetup
+
+MCBearerContextModificationRequest       N e1ap.proc.imsg id-MCBearerContextModification
+MCBearerContextModificationResponse      N e1ap.proc.sout id-MCBearerContextModification
+MCBearerContextModificationFailure       N e1ap.proc.uout id-MCBearerContextModification
+
+MCBearerContextModificationRequired      N e1ap.proc.imsg id-MCBearerContextModificationRequired
+MCBearerContextModificationConfirm       N e1ap.proc.sout id-MCBearerContextModificationRequired
+
+MCBearerContextReleaseCommand            N e1ap.proc.imsg id-MCBearerContextRelease
+MCBearerContextReleaseComplete           N e1ap.proc.sout id-MCBearerContextRelease
+
+MCBearerContextReleaseRequest            N e1ap.proc.imsg id-MCBearerContextReleaseRequest
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -715,6 +826,9 @@ DRB-Measurement-Results-Information-Item/uL-D1-Result DISPLAY = BASE_CUSTOM STRI
 #.TYPE_ATTR
 QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
+#.TYPE_ATTR
+SurvivalTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
@@ -811,8 +925,52 @@ QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
 #.FN_HDR EarlyForwardingSNTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EarlyForwardingSNTransfer");
-#.FN_HDR EarlyForwardingSNTransfer
+#.FN_HDR IABPSKNotification
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABPSKNotification");
+#.FN_HDR BCBearerContextSetupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextSetupRequest");
+#.FN_HDR BCBearerContextSetupResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextSetupResponse");
+#.FN_HDR BCBearerContextSetupFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextSetupFailure");
+#.FN_HDR BCBearerContextModificationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextModificationRequest");
+#.FN_HDR BCBearerContextModificationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextModificationResponse");
+#.FN_HDR BCBearerContextModificationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextModificationFailure");
+#.FN_HDR BCBearerContextModificationRequired
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextModificationRequired");
+#.FN_HDR BCBearerContextModificationConfirm
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextModificationConfirm");
+#.FN_HDR BCBearerContextReleaseCommand
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextReleaseCommand");
+#.FN_HDR BCBearerContextReleaseComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextReleaseComplete");
+#.FN_HDR BCBearerContextReleaseRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BCBearerContextReleaseRequest");
+#.FN_HDR MCBearerContextSetupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextSetupRequest");
+#.FN_HDR MCBearerContextSetupResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextSetupResponse");
+#.FN_HDR MCBearerContextSetupFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextSetupFailure");
+#.FN_HDR MCBearerContextModificationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextModificationRequest");
+#.FN_HDR MCBearerContextModificationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextModificationResponse");
+#.FN_HDR MCBearerContextModificationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextModificationFailure");
+#.FN_HDR MCBearerContextModificationRequired
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextModificationRequired");
+#.FN_HDR MCBearerContextModificationConfirm
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextModificationConfirm");
+#.FN_HDR MCBearerContextReleaseCommand
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextReleaseCommand");
+#.FN_HDR MCBearerContextReleaseComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextReleaseComplete");
+#.FN_HDR MCBearerContextReleaseRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MCBearerContextReleaseRequest");
 #.END
 
 #

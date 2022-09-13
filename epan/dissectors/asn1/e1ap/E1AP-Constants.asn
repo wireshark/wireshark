@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.9.0 (2022-04)
+-- 3GPP TS 37.483 V17.1.0 (2022-06)
 -- **************************************************************
 --
 -- Constant definitions
@@ -55,6 +55,17 @@ id-CellTrafficTrace												ProcedureCode ::= 25
 id-earlyForwardingSNTransfer									ProcedureCode ::= 26
 id-gNB-CU-CPMeasurementResultsInformation						ProcedureCode ::= 27
 id-iABPSKNotification											ProcedureCode ::= 28
+id-BCBearerContextSetup											ProcedureCode ::= 29
+id-BCBearerContextModification									ProcedureCode ::= 30
+id-BCBearerContextModificationRequired							ProcedureCode ::= 31
+id-BCBearerContextRelease										ProcedureCode ::= 32
+id-BCBearerContextReleaseRequest								ProcedureCode ::= 33
+id-MCBearerContextSetup											ProcedureCode ::= 34
+id-MCBearerContextModification									ProcedureCode ::= 35
+id-MCBearerContextModificationRequired							ProcedureCode ::= 36
+id-MCBearerContextRelease										ProcedureCode ::= 37
+id-MCBearerContextReleaseRequest								ProcedureCode ::= 38
+
 
 
 -- **************************************************************
@@ -86,6 +97,12 @@ maxnoofExtSliceItems						INTEGER ::= 65535
 maxnoofDataForwardingTunneltoE-UTRAN		INTEGER ::= 256
 maxnoofExtNRCGI 							INTEGER	::= 16384
 maxnoofPSKs									INTEGER	::= 256
+maxnoofECGI 								INTEGER	::= 512
+maxnoofSMBRValues							INTEGER	::= 8
+maxnoofMBSAreaSessionIDs					INTEGER ::= 256
+maxnoofSharedNG-UTerminations				INTEGER ::= 8
+maxnoofMRBs									INTEGER ::= 32
+maxnoofMBSSessionIDs						INTEGER ::= 512
 
 
 -- **************************************************************
@@ -219,7 +236,7 @@ id-CHOInitiation												ProtocolIE-ID ::= 121
 id-EarlyForwardingCOUNTReq										ProtocolIE-ID ::= 122
 id-EarlyForwardingCOUNTInfo										ProtocolIE-ID ::= 123
 id-AlternativeQoSParaSetList									ProtocolIE-ID ::= 124
-	id-ExtendedSliceSupportList									ProtocolIE-ID ::= 125
+id-ExtendedSliceSupportList								ProtocolIE-ID ::= 125
 id-MCG-OfferedGBRQoSFlowInfo									ProtocolIE-ID ::= 126
 id-Number-of-tunnels											ProtocolIE-ID ::= 127
 id-DRB-Measurement-Results-Information-List						ProtocolIE-ID ::= 128
@@ -238,7 +255,41 @@ id-EarlyDataForwardingIndicator									ProtocolIE-ID ::= 140
 id-QoSFlowsDRBRemapping											ProtocolIE-ID ::= 141
 id-DataForwardingSourceIPAddress								ProtocolIE-ID ::= 142
 id-SecurityIndicationModify										ProtocolIE-ID ::= 143
-id-IAB-Donor-CU-UPPSKInfo											ProtocolIE-ID ::= 144
+id-IAB-Donor-CU-UPPSKInfo										ProtocolIE-ID ::= 144
+id-ECGI-Support-List											ProtocolIE-ID ::= 145
+id-MDTPollutedMeasurementIndicator								ProtocolIE-ID ::= 146
+id-M4ReportAmount 												ProtocolIE-ID ::= 147
+id-M6ReportAmount 												ProtocolIE-ID ::= 148
+id-M7ReportAmount 												ProtocolIE-ID ::= 149
+id-UESliceMaximumBitRateList									ProtocolIE-ID ::= 150
+id-PDUSession-PairID											ProtocolIE-ID ::= 151
+id-SurvivalTime													ProtocolIE-ID ::= 152
+id-UDC-Parameters												ProtocolIE-ID ::= 153
+id-SCGActivationStatus											ProtocolIE-ID ::= 154
+id-GNB-CU-CP-MBS-E1AP-ID										ProtocolIE-ID ::= 155
+id-GNB-CU-UP-MBS-E1AP-ID										ProtocolIE-ID ::= 156
+id-GlobalMBSSessionID											ProtocolIE-ID ::= 157
+id-BCBearerContextToSetup										ProtocolIE-ID ::= 158
+id-BCBearerContextToSetupResponse								ProtocolIE-ID ::= 159
+id-BCBearerContextToModify										ProtocolIE-ID ::= 160
+id-BCBearerContextToModifyResponse								ProtocolIE-ID ::= 161
+id-BCBearerContextToModifyRequired								ProtocolIE-ID ::= 162
+id-BCBearerContextToModifyConfirm								ProtocolIE-ID ::= 163
+id-MCBearerContextToSetup										ProtocolIE-ID ::= 164
+id-MCBearerContextToSetupResponse								ProtocolIE-ID ::= 165
+id-MCBearerContextToModify										ProtocolIE-ID ::= 166
+id-MCBearerContextToModifyResponse								ProtocolIE-ID ::= 167
+id-MCBearerContextToModifyRequired								ProtocolIE-ID ::= 168
+id-MCBearerContextToModifyConfirm								ProtocolIE-ID ::= 169
+id-MBSMulticastF1UContextDescriptor								ProtocolIE-ID ::= 170
+id-gNB-CU-UP-MBS-Support-Info									ProtocolIE-ID ::= 171
+id-SecurityIndication											ProtocolIE-ID ::= 172
+id-SecurityResult												ProtocolIE-ID ::= 173
+id-SDTContinueROHC												ProtocolIE-ID ::= 174
+id-SDTindicatorSetup											ProtocolIE-ID ::= 175
+id-SDTindicatorMod												ProtocolIE-ID ::= 176
+id-DiscardTimerExtended											ProtocolIE-ID ::= 177
+id-ManagementBasedMDTPLMNModificationList						ProtocolIE-ID ::= 178
 
 
 END

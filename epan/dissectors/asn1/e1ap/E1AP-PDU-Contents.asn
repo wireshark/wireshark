@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.9.0 (2022-04)
+-- 3GPP TS 37.483 V17.1.0 (2022-06)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -23,6 +23,8 @@ IMPORTS
 
 	Cause,
 	CriticalityDiagnostics,
+	GNB-CU-CP-MBS-E1AP-ID,
+	GNB-CU-UP-MBS-E1AP-ID,
 	GNB-CU-CP-UE-E1AP-ID,
 	GNB-CU-UP-UE-E1AP-ID,
 	UE-associatedLogicalE1-ConnectionItem,
@@ -116,8 +118,28 @@ IMPORTS
 	AdditionalHandoverInfo,
 	Extended-NR-CGI-Support-List,
 	DirectForwardingPathAvailability,
-	IAB-Donor-CU-UPPSKInfo-Item
-
+	IAB-Donor-CU-UPPSKInfo-Item,
+	ECGI-Support-List,
+	MDTPollutedMeasurementIndicator,
+	UESliceMaximumBitRateList,
+	SCGActivationStatus,
+	GlobalMBSSessionID,
+	BCBearerContextToSetup,
+	BCBearerContextToSetupResponse,
+	BCBearerContextToModify,
+	BCBearerContextToModifyResponse,
+	BCBearerContextToModifyRequired,
+	BCBearerContextToModifyConfirm,
+	MCBearerContextToSetup,
+	MCBearerContextToSetupResponse,
+	MCBearerContextToModify,
+	MCBearerContextToModifyResponse,
+	MCBearerContextToModifyRequired,
+	MCBearerContextToModifyConfirm,
+	MBSMulticastF1UContextDescriptor,
+	GNB-CU-UP-MBS-Support-Info,
+	SDTContinueROHC,
+	MDTPLMNModificationList
 
 FROM E1AP-IEs
 
@@ -235,8 +257,30 @@ FROM E1AP-Containers
 	id-ExtendedSliceSupportList,
 	id-AdditionalHandoverInfo,
 	id-Extended-NR-CGI-Support-List,
-	id-DirectForwardingPathAvailability,
-	id-IAB-Donor-CU-UPPSKInfo,
+	id-DirectForwardingPathAvailability,	id-IAB-Donor-CU-UPPSKInfo,
+	id-ECGI-Support-List,
+	id-MDTPollutedMeasurementIndicator,
+	id-UESliceMaximumBitRateList,
+	id-SCGActivationStatus,
+	id-GNB-CU-CP-MBS-E1AP-ID,
+	id-GNB-CU-UP-MBS-E1AP-ID,
+	id-GlobalMBSSessionID,
+	id-BCBearerContextToSetup,
+	id-BCBearerContextToSetupResponse,
+	id-BCBearerContextToModify,
+	id-BCBearerContextToModifyResponse,
+	id-BCBearerContextToModifyRequired,
+	id-BCBearerContextToModifyConfirm,
+	id-MCBearerContextToSetup,
+	id-MCBearerContextToSetupResponse,
+	id-MCBearerContextToModify,
+	id-MCBearerContextToModifyResponse,
+	id-MCBearerContextToModifyRequired,
+	id-MCBearerContextToModifyConfirm,
+	id-MBSMulticastF1UContextDescriptor,
+	id-gNB-CU-UP-MBS-Support-Info,
+	id-SDTContinueROHC,
+	id-ManagementBasedMDTPLMNModificationList,
 
 	maxnoofErrors,
 	maxnoofSPLMNs,
@@ -338,7 +382,9 @@ ErrorIndication-IEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY ignore	TYPE GNB-CU-CP-UE-E1AP-ID		PRESENCE optional}|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UP-UE-E1AP-ID		PRESENCE optional}|
 	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE optional}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY ignore	TYPE GNB-CU-CP-MBS-E1AP-ID		PRESENCE optional}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UP-MBS-E1AP-ID		PRESENCE optional},
 	...
 }
 
@@ -366,8 +412,9 @@ GNB-CU-UP-E1SetupRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-CNSupport							CRITICALITY reject	TYPE CNSupport						PRESENCE mandatory	}|
 	{ ID id-SupportedPLMNs						CRITICALITY reject	TYPE SupportedPLMNs-List			PRESENCE mandatory	}|
 	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity			   PRESENCE optional	}|
-	{ ID id-Transport-Layer-Address-Info	CRITICALITY ignore	TYPE Transport-Layer-Address-Info	PRESENCE optional	}|
-	{ ID id-Extended-GNB-CU-UP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-UP-Name		PRESENCE optional	},
+	{ ID id-Transport-Layer-Address-Info		CRITICALITY ignore	TYPE Transport-Layer-Address-Info	PRESENCE optional	}|
+	{ ID id-Extended-GNB-CU-UP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-UP-Name		PRESENCE optional	}|
+	{ ID id-gNB-CU-UP-MBS-Support-Info			CRITICALITY reject	TYPE GNB-CU-UP-MBS-Support-Info	PRESENCE optional	},
 	...
 }
 
@@ -385,7 +432,8 @@ SupportedPLMNs-Item ::= SEQUENCE {
 SupportedPLMNs-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-NPNSupportInfo					CRITICALITY reject	EXTENSION NPNSupportInfo					PRESENCE optional}|
 	{ ID id-ExtendedSliceSupportList		CRITICALITY reject	EXTENSION ExtendedSliceSupportList 		PRESENCE optional}|
-	{ ID id-Extended-NR-CGI-Support-List	CRITICALITY ignore	EXTENSION Extended-NR-CGI-Support-List	PRESENCE optional},
+	{ ID id-Extended-NR-CGI-Support-List	CRITICALITY ignore	EXTENSION Extended-NR-CGI-Support-List	PRESENCE optional}|
+	{ ID id-ECGI-Support-List				CRITICALITY ignore	EXTENSION ECGI-Support-List					PRESENCE optional},
 	...
 }
 
@@ -519,7 +567,8 @@ GNB-CU-UP-ConfigurationUpdateIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity			   PRESENCE optional	}|
 	{ ID id-GNB-CU-UP-TNLA-To-Remove-List		CRITICALITY reject	TYPE GNB-CU-UP-TNLA-To-Remove-List	PRESENCE optional	}|
 	{ ID id-Transport-Layer-Address-Info		CRITICALITY ignore	TYPE Transport-Layer-Address-Info	PRESENCE optional	}|
-	{ ID id-Extended-GNB-CU-UP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-UP-Name		PRESENCE optional	},
+	{ ID id-Extended-GNB-CU-UP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-UP-Name		PRESENCE optional	}|
+	{ ID id-gNB-CU-UP-MBS-Support-Info			CRITICALITY reject	TYPE GNB-CU-UP-MBS-Support-Info	PRESENCE optional	},
 	...
 }
 
@@ -711,7 +760,10 @@ BearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-CHOInitiation						CRITICALITY reject	TYPE CHOInitiation									PRESENCE optional }|
 	{ ID id-AdditionalHandoverInfo				CRITICALITY ignore	TYPE AdditionalHandoverInfo							PRESENCE optional }|
 	{ ID id-DirectForwardingPathAvailability	CRITICALITY ignore	TYPE DirectForwardingPathAvailability			PRESENCE optional }|
-	{ ID id-gNB-CU-UP-UE-E1AP-ID				CRITICALITY ignore	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE optional },
+	{ ID id-gNB-CU-UP-UE-E1AP-ID				CRITICALITY ignore	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE optional }|
+	{ ID id-MDTPollutedMeasurementIndicator		CRITICALITY ignore	TYPE MDTPollutedMeasurementIndicator			PRESENCE optional }|
+	{ ID id-UESliceMaximumBitRateList			CRITICALITY ignore	TYPE UESliceMaximumBitRateList				   PRESENCE optional }|
+	{ ID id-SCGActivationStatus					CRITICALITY ignore	TYPE SCGActivationStatus							PRESENCE optional },
 	...
 }
 
@@ -830,7 +882,12 @@ BearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-System-BearerContextModificationRequest	CRITICALITY reject	TYPE System-BearerContextModificationRequest		PRESENCE optional  }|
 	{ ID id-RANUEID										CRITICALITY ignore	TYPE RANUEID												PRESENCE optional }|
 	{ ID id-GNB-DU-ID									CRITICALITY ignore	TYPE GNB-DU-ID												PRESENCE optional }|
-	{ ID id-ActivityNotificationLevel					CRITICALITY ignore	TYPE ActivityNotificationLevel							PRESENCE optional },
+	{ ID id-ActivityNotificationLevel					CRITICALITY ignore	TYPE ActivityNotificationLevel							PRESENCE optional }|
+	{ ID id-MDTPollutedMeasurementIndicator				CRITICALITY ignore	TYPE MDTPollutedMeasurementIndicator					PRESENCE optional }|
+	{ ID id-UESliceMaximumBitRateList					CRITICALITY ignore	TYPE UESliceMaximumBitRateList				      PRESENCE optional }|
+	{ ID id-SCGActivationStatus							CRITICALITY ignore	TYPE SCGActivationStatus					PRESENCE optional }|
+	{ ID id-SDTContinueROHC								CRITICALITY reject	TYPE SDTContinueROHC										PRESENCE optional }|
+	{ ID id-ManagementBasedMDTPLMNModificationList			CRITICALITY	ignore	TYPE MDTPLMNModificationList 							PRESENCE optional},
 	...
 }
 
@@ -1582,5 +1639,474 @@ IABPSKNotificationIEs E1AP-PROTOCOL-IES ::= {
 }
 
 IAB-Donor-CU-UPPSKInfo	::= SEQUENCE (SIZE(1.. maxnoofPSKs)) OF IAB-Donor-CU-UPPSKInfo-Item
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT SETUP
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT SETUP REQUEST
+--
+-- **************************************************************
+
+BCBearerContextSetupRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextSetupRequestIEs } },
+	...
+}
+
+BCBearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GlobalMBSSessionID				CRITICALITY reject	TYPE 	GlobalMBSSessionID					PRESENCE mandatory	}|
+	{ ID id-BCBearerContextToSetup			CRITICALITY reject	TYPE 	BCBearerContextToSetup				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT SETUP RESPONSE
+--
+-- **************************************************************
+
+BCBearerContextSetupResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextSetupResponseIEs } },
+	...
+}
+
+BCBearerContextSetupResponseIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-BCBearerContextToSetupResponse	CRITICALITY reject	TYPE 	BCBearerContextToSetupResponse	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE 	CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT SETUP FAILURE
+--
+-- **************************************************************
+
+BCBearerContextSetupFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextSetupFailureIEs } },
+	...
+}
+
+BCBearerContextSetupFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY ignore	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE optional	}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT MODIFICATION
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT MODIFICATION REQUEST
+--
+-- **************************************************************
+
+BCBearerContextModificationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextModificationRequestIEs } },
+	...
+}
+
+BCBearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-BCBearerContextToModify			CRITICALITY reject	TYPE 	BCBearerContextToModify				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT MODIFICATION RESPONSE
+--
+-- **************************************************************
+
+BCBearerContextModificationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextModificationResponseIEs } },
+	...
+}
+
+BCBearerContextModificationResponseIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-BCBearerContextToModifyResponse	CRITICALITY reject	TYPE 	BCBearerContextToModifyResponse	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE 	CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT MODIFICATION FAILURE
+--
+-- **************************************************************
+
+BCBearerContextModificationFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextModificationFailureIEs } },
+	...
+}
+
+BCBearerContextModificationFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT MODIFICATION REQUIRED
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT MODIFICATION REQUIRED
+--
+-- **************************************************************
+
+BCBearerContextModificationRequired ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextModificationRequiredIEs } },
+	...
+}
+
+BCBearerContextModificationRequiredIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-BCBearerContextToModifyRequired	CRITICALITY reject	TYPE 	BCBearerContextToModifyRequired	PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT MODIFICATION CONFIRM
+--
+-- **************************************************************
+
+BCBearerContextModificationConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextModificationConfirmIEs } },
+	...
+}
+
+BCBearerContextModificationConfirmIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory }|
+	{ ID id-BCBearerContextToModifyConfirm	CRITICALITY reject	TYPE 	BCBearerContextToModifyConfirm	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE 	CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT RELEASE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT RELEASE COMMAND
+--
+-- **************************************************************
+
+BCBearerContextReleaseCommand ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextReleaseCommandIEs } },
+	...
+}
+
+BCBearerContextReleaseCommandIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT RELEASE COMPLETE
+--
+-- **************************************************************
+
+BCBearerContextReleaseComplete ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextReleaseCompleteIEs } },
+	...
+}
+
+BCBearerContextReleaseCompleteIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT RELEASE REQUEST
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- BC BEARER CONTEXT RELEASE REQUEST
+--
+-- **************************************************************
+
+BCBearerContextReleaseRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { BCBearerContextReleaseRequestIEs } },
+	...
+}
+
+BCBearerContextReleaseRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT SETUP
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT SETUP REQUEST
+--
+-- **************************************************************
+
+MCBearerContextSetupRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextSetupRequestIEs } },
+	...
+}
+
+MCBearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GlobalMBSSessionID				CRITICALITY reject	TYPE 	GlobalMBSSessionID					PRESENCE mandatory	}|
+	{ ID id-MCBearerContextToSetup			CRITICALITY reject	TYPE 	MCBearerContextToSetup				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT SETUP RESPONSE
+--
+-- **************************************************************
+
+
+MCBearerContextSetupResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextSetupResponseIEs } },
+	...
+}
+
+MCBearerContextSetupResponseIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-MCBearerContextToSetupResponse	CRITICALITY reject	TYPE 	MCBearerContextToSetupResponse	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE 	CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT SETUP FAILURE
+--
+-- **************************************************************
+
+MCBearerContextSetupFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextSetupFailureIEs } },
+	...
+}
+
+MCBearerContextSetupFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY ignore	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE optional	}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT MODIFICATION
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT MODIFICATION REQUEST
+--
+-- **************************************************************
+
+MCBearerContextModificationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextModificationRequestIEs } },
+	...
+}
+
+MCBearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-MCBearerContextToModify			CRITICALITY reject	TYPE 	MCBearerContextToModify				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT MODIFICATION RESPONSE
+--
+-- **************************************************************
+
+MCBearerContextModificationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextModificationResponseIEs } },
+	...
+}
+
+MCBearerContextModificationResponseIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-MCBearerContextToModifyResponse	CRITICALITY reject	TYPE 	MCBearerContextToModifyResponse	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE 	CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT MODIFICATION FAILURE
+--
+-- **************************************************************
+
+MCBearerContextModificationFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextModificationFailureIEs } },
+	...
+}
+
+MCBearerContextModificationFailureIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID				CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID					PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID				CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID					PRESENCE mandatory }|
+	{ ID id-MBSMulticastF1UContextDescriptor	CRITICALITY reject	TYPE 	MBSMulticastF1UContextDescriptor	PRESENCE optional	 }|
+	{ ID id-Cause								CRITICALITY ignore	TYPE 	Cause									PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE 	CriticalityDiagnostics				PRESENCE optional	 },
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT MODIFICATION REQUIRED
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT MODIFICATION REQUIRED
+--
+-- **************************************************************
+
+MCBearerContextModificationRequired ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextModificationRequiredIEs } },
+	...
+}
+
+MCBearerContextModificationRequiredIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory	}|
+	{ ID id-MCBearerContextToModifyRequired	CRITICALITY ignore	TYPE 	MCBearerContextToModifyRequired	PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT MODIFICATION CONFIRM
+--
+-- **************************************************************
+
+MCBearerContextModificationConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextModificationConfirmIEs } },
+	...
+}
+
+MCBearerContextModificationConfirmIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID				PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID				PRESENCE mandatory }|
+	{ ID id-MCBearerContextToModifyConfirm	CRITICALITY reject	TYPE 	MCBearerContextToModifyConfirm	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE 	CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT RELEASE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT RELEASE COMMAND
+--
+-- **************************************************************
+
+MCBearerContextReleaseCommand ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextReleaseCommandIEs } },
+	...
+}
+
+MCBearerContextReleaseCommandIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT RELEASE COMPLETE
+--
+-- **************************************************************
+
+MCBearerContextReleaseComplete ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextReleaseCompleteIEs } },
+	...
+}
+
+MCBearerContextReleaseCompleteIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT RELEASE REQUEST
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MC BEARER CONTEXT RELEASE REQUEST
+--
+-- **************************************************************
+
+MCBearerContextReleaseRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { MCBearerContextReleaseRequestIEs } },
+	...
+}
+
+MCBearerContextReleaseRequestIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-GNB-CU-CP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-CP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-GNB-CU-UP-MBS-E1AP-ID			CRITICALITY reject	TYPE 	GNB-CU-UP-MBS-E1AP-ID			PRESENCE mandatory }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE 	Cause							PRESENCE mandatory	},
+	...
+}
+
 
 END
