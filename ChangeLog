@@ -1,3 +1,101 @@
+d474537133 Windows: upgrade Npcap to 1.71
+6e300adf79 coap, thread: special-case application/octet-stream for CoAP for TMF.
+b87045a13e TLS: fix GREASE extension
+ca79c3ea70 Clarify dissector description, protocol short name, and protocol ong name.
+2149e32152 Give dissectors a descriptive string.
+0e7dc604d1 STUN: fix calculation of CRC-32 with TCP framing
+98d8ee02ee coap: have different dissectors for different transports.
+7bca62a1c2 tcp: Don't try to desegment at FIN if we can't desegment the frame
+2077f15fc5 Qt: Fix 29West dialog deletion.
+bf7de047b7 Qt: Fix a variable name.
+2976206fd1 Qt: Fix crash on copy as actions in protocols pane
+6bf808c2d4 Qt: Connect menu actions with Qt::QueuedConnection
+b78e4b795b [Automatic update for 2022-09-11]
+a54175a97b Dissector names are not protocol names.
+5a5b9ac793 ISAKMP: Add some Fortinet (VID)
+43aa7f7af0 Tools: source CT log list in V3 schema
+652d31c6ba oscore: minor cleanups.
+09c7dc45ed dumpcap: typo in pcap_geterr() string comparison
+5798d913fa Release notes: Add OCP.1
+818ce7c4a4 Qt: Fix resolved addresses dialog sorting, filtering, Ethernet groups
+50f685eb18 Qt: Don't use obsolete signal in DCE-RPC/ONC-RPC SRT
+04177dce54 NSIS: Uninstall more files.
+b19aa11ee0 GitLab CI: Update our digest algorithms.
+3b3e020d8b Qt: Connect ExportDissectionDialog to filesSelected
+04dadaaab1 DoIP: Prepare for ISO 13400-2:2019Amd1 and newer
+358b96bbae Tools: Switch make-manuf.py URLs to HTTPS.
+e531bdffe6 f5ethtrailer: Fix possible infinite loop in legacy trailer heuristic
+433b305fe8 Qt: Fix export objects memory leak
+4c287a9028 AppleTalk, DSI: get rid of the "command" field.
+f7529c6cb7 SCTP: remove support for NONCE_SUPPORTED parameter
+85169e65e8 [Automatic update for 2022-09-04]
+279a9fb0ed AppleTalk, DSI: fix some names to be more correct.
+6b4b844d96 frame: always add the "length < caplen" expert info.
+f1cd15cc7d Fix bogus tvbuffs to make sure reported length >= captured length.
+7914ea233c AT: Add support for AT+CGDCONT
+8f4c402b98 lapdm: Remove stray debug statement
+b1256a0e07 conversation: bring back conversation_pt_to_endpoint_type().
+9ed8d47516 TCP: use unsigned type for AccECN counters
+5f9b418955 TCP: Raise an expert info for non-zero data after EOL
+dd9dddeacd TCP: Improve consistency of reproting the SACK supported option
+111210454f TCP: Implement AccECN
+b56040c5d3 TCP: Add support for TARR option
+c36f18e53b TCP: Use RFC 6994 for experimental options
+dfee7711a8 conversation: fix debug logging code so that it compiles.
+eda6c63457 http: Fix a problem with a key expiring
+8e7dc85f27 conversation: give more details of the various conversation keys.
+5b800dd1d0 conversation: speak of the "conversation key" as just address/port endpoints.
+ab3cfb065b tcp: Fix a comparison that should be strict in OOO processing
+4a7eb9172a OCP.1: Fix potential infinite loop
+8a098d3de0 OCP1: Make all value_strings static
+72b77d6787 Diameter AVPs: Fix a couple of copy-paste errors
+656aeaee6f [Automatic update for 2022-08-28]
+6ef7edd302 EAP: fix TEAP Identity TLV decoding caused by typo
+69d6e685d3 tls 1.3: set CCM aad_len for draft >= 25
+9d262b460e debian packaging: Fix missing symbols for renamed routines
+f534f16095 tcp: Update the maxnextseq on ooo MSPs properly
+205a59f94c CMake: Build test_programs automatically when running test
+9058184d94 OCP.1: Change Protocol Short Name
+e805328d93 AT: Implement CMGR command (binary mode)
+4db91c2df8 conversation: fix some comments.
+6d45dde21e Rename routines that talk about conversation keys to talk about elements.
+724967be60 Rename a bunch of things with "conversation".
+d830fb3fc4 OCP1: Dissector for Open Control Protocol OCP.1/AES70
+5d5fdd2787 Gitlab CI: Clean up formatting
+2becd8293a mxproxy: don't mix PT_ and ENDPOINT_ values.
+bf79c32980 epan: Add back missing public API declaration.
+272a68d6d2 dtls: Handle invalid use_srtp protection profiles length
+631c33768f Change names to reflect that it's an endpoint table.
+c7091568e7 Qt: Enable compilation on gcc 12.1 and Qt6
+f8cd0a4b59 Qt: Silence warning
+39691aa269 Fix comments to reflect reality.
+33e33f1c97 Fix deprecation warning.
+19dc5d7be7 Rename some functions and types for endpoint tables.
+8c25fc7a9f blf: change description and add/extend comments.
+839140a317 Gitlab CI: Use DWARF-4 with Valgrind Fuzz job
+665a4d2baa Turn off the ABI checker for now.
+00fb5a04c1 Gitlab CI: Try to fix ABI Checker job
+8c5ef30dbe Gitlab CI: Use DWARF-4 with ABI Check job
+28f08b1046 BLF: Adding ObjectHeader format 2 and 3
+57c544e162 [Automatic update for 2022-08-21]
+6f65142e6e Windows: Upgrade libgcrypt to 1.10.1.
+b15dc832a6 QUIC: In stateless reset only set from_server if token found
+11aa22178f QUIC: Add support for stateless reset
+7f4b5c862a Protobuf: correct the starting offsets of the field name and type tree items
+7c1d570315 rdpudp: fix leaking copy_address.
+448eb6a619 RTPS: Added new Security PIDs in Participant and Endpoint Discovery
+0fc6194fd4 Release notes: The macOS packages now ship with Qt 6.2.4.
+0ad625578e macOS: Make sure we rpathify QtNetwork.
+9465d9043d macOS: Try to make sure we can find brotli.
+55034467e3 GitLab CI: Fix our macOS Intel deployment target.
+f8de84a985 GitLab CI: Enable Qt6 for the macOS builds.
+f60ea4a4e2 GitLab CI: Switch the macOS builds to Qt 6.2.4.
+a341fe25db Docs: Add a SharkFest link to the release notes.
+b05f87c887 BTATT: Fix bitmask for btatt.battery_power_state
+727033d61e Bluetooth: Decode LL_VERSION_IND packets with version 5.3
+dc2a259bd9 Prep for the next release candidate.
+21d15395de Build: 4.0.0rc1.
+5dedc8bdc3 Windows: Upgrade Npcap to 1.70.
 01af6ff1db win32-utils: Explicitly list inherited handles
 e160346bff XnAP: upgrade dissector to v17.1.0
 f96bf96d50 Falco Bridge: Update to match falcosecurity-libs 0.8.0.
