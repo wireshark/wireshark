@@ -458,7 +458,7 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                     rohc_sn_crumbs[1].crumb_bit_offset += val_len*8;
                 }
                 /* R-0-CRC subtree */
-                col_set_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
+                col_append_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
                 pkt_tree = proto_tree_add_subtree(tree, tvb, offset, 2+val_len, ett_rohc_packet, NULL, "R-0-CRC packet");
                 /* SN */
                 proto_tree_add_split_bits_item_ret_val(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3),
@@ -488,7 +488,7 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 get_self_describing_var_len_val(tvb, tree, offset+1, hf_rohc_large_cid, &val_len);
             }
             /* UO-0 subtree */
-            col_set_str(pinfo->cinfo, COL_INFO, "UO-0");
+            col_append_str(pinfo->cinfo, COL_INFO, "UO-0");
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, 1+val_len, ett_rohc_packet, NULL, "UO-0 packet");
 
             /* SN */
@@ -504,7 +504,7 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             break;
 
         default:
-            col_set_str(pinfo->cinfo, COL_INFO, "Packet type 0");
+            col_append_str(pinfo->cinfo, COL_INFO, "Packet type 0");
             break;
     }
 
@@ -861,7 +861,7 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             *   | X |           IP-ID           |
             *   +---+---+---+---+---+---+---+---+
             */
-        col_set_str(pinfo->cinfo, COL_INFO, "R-1");
+        col_append_str(pinfo->cinfo, COL_INFO, "R-1");
 
         /* Create R-1 subtree */
         pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "R-1 packet");
@@ -907,7 +907,7 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 *   | M | X |T=0|       IP-ID       |
                 *   +---+---+---+---+---+---+---+---+
                 */
-            col_set_str(pinfo->cinfo, COL_INFO, "R-1-ID");
+            col_append_str(pinfo->cinfo, COL_INFO, "R-1-ID");
             /* Create R-1-ID subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "R-1-ID packet");
         } else {
@@ -920,7 +920,7 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 *   | M | X |T=1|        TS         |
                 *   +---+---+---+---+---+---+---+---+
                 */
-            col_set_str(pinfo->cinfo, COL_INFO, "R-1-TS");
+            col_append_str(pinfo->cinfo, COL_INFO, "R-1-TS");
             /* Create R-1-TS subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "R-1-TS packet");
         }
@@ -994,7 +994,7 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             *   |        SN         |    CRC    |
             *   +---+---+---+---+---+---+---+---+
             */
-        col_set_str(pinfo->cinfo, COL_INFO, "UO-1");
+        col_append_str(pinfo->cinfo, COL_INFO, "UO-1");
 
         /* Create subtree */
         pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UO-1 packet");
@@ -1037,7 +1037,7 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 *   | X |      SN       |    CRC    |
                 *   +---+---+---+---+---+---+---+---+
                 */
-            col_set_str(pinfo->cinfo, COL_INFO, "UO-1-ID");
+            col_append_str(pinfo->cinfo, COL_INFO, "UO-1-ID");
 
             /* UO-1-ID subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UO-1-ID packet");
@@ -1062,7 +1062,7 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 *   | M |      SN       |    CRC    |
                 *   +---+---+---+---+---+---+---+---+
                 */
-            col_set_str(pinfo->cinfo, COL_INFO, "UO-1-TS");
+            col_append_str(pinfo->cinfo, COL_INFO, "UO-1-TS");
 
             /* UO-1-TS subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UO-1-TS packet");
@@ -1133,7 +1133,7 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             *   | X |            CRC            |
             *   +---+---+---+---+---+---+---+---+
             */
-        col_set_str(pinfo->cinfo, COL_INFO, "UOR-2");
+        col_append_str(pinfo->cinfo, COL_INFO, "UOR-2");
 
         /* UOR-2 subtree */
         pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UOR-2 packet");
@@ -1192,7 +1192,7 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   | X |            CRC            |
                 *   +---+---+---+---+---+---+---+---+
                 */
-            col_set_str(pinfo->cinfo, COL_INFO, "UOR-2-ID");
+            col_append_str(pinfo->cinfo, COL_INFO, "UOR-2-ID");
 
             /* UOR-2-ID subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UOR-2-ID packet");
@@ -1211,7 +1211,7 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   | X |            CRC            |
                 *   +---+---+---+---+---+---+---+---+
                 */
-            col_set_str(pinfo->cinfo, COL_INFO, "UOR-2-TS");
+            col_append_str(pinfo->cinfo, COL_INFO, "UOR-2-TS");
 
             /* UOR-2-TS subtree */
             pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UOR-2-TS packet");
@@ -2122,7 +2122,8 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
             /* 5.7.7.5.  Initialization of UDP Header [RFC-768].
              * Static part
              */
-            guint16 source_port, dest_port, ssrc;
+            guint16 source_port, dest_port;
+            guint32 ssrc;
 
             /* Create static UDP subtree */
             tree_start_offset = offset;
@@ -2161,7 +2162,7 @@ dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packe
             offset += 4;
 
             /* Add summary to root item */
-            proto_item_append_text(rtp_item, " (SSRC=%u)", ssrc);
+            proto_item_append_text(rtp_item, " (SSRC=0x%08x)", ssrc);
 
             proto_item_set_len(item, offset - start_offset);
 
@@ -2526,6 +2527,8 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data /* 
             /* Profile */
             conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_profile, tvb, offset, 0, rohc_cid_context->profile);
             proto_item_set_generated(conf_item);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ", val_to_str_const(rohc_cid_context->profile, rohc_profile_vals, "Unknown"));
+
             /* IP Version number */
             conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_ip_version, tvb, offset, 0, rohc_cid_context->rohc_ip_version);
             proto_item_set_generated(conf_item);
@@ -2659,7 +2662,7 @@ start_over:
      *    header is damaged).
      */
     if((oct&0xfe) == 0xfc){
-        col_append_str(pinfo->cinfo, COL_INFO, "IR packet");
+        col_append_str(pinfo->cinfo, COL_INFO, "IR");
         offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
             /* Could not parse header */
