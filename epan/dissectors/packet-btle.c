@@ -4735,7 +4735,7 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_control_cte_rfu,
-           { "MinCTELenReq", "btle.control.cte.rfu",
+           { "Reserved", "btle.control.cte.rfu",
             FT_UINT8, BASE_DEC, NULL, 0x20,
             NULL, HFILL }
         },
