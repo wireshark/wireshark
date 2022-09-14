@@ -152,7 +152,7 @@ bool TrafficTypesModel::setData(const QModelIndex &idx, const QVariant &value, i
     if (_allTaps.count() <= idx.row())
         return false;
 
-    _allTaps[idx.row()].setChecked(value == Qt::Checked);
+    _allTaps[idx.row()].setChecked(value.toInt() == Qt::Checked);
 
     QList<int> selected;
     prefs_clear_string_list(*_recentList);
