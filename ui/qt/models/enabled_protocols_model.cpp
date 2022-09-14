@@ -265,7 +265,7 @@ bool EnabledProtocolsModel::setData(const QModelIndex &index, const QVariant &va
     if (item == NULL)
         return false;
 
-    item->setEnabled(value == Qt::Checked ? true : false);
+    item->setEnabled(value.toInt() == Qt::Checked ? true : false);
 
     QVector<int> roles;
     roles << role;

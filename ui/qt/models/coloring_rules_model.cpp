@@ -340,7 +340,7 @@ bool ColoringRulesModel::setData(const QModelIndex &dataIndex, const QVariant &v
         switch (dataIndex.column())
         {
         case colName:
-            rule->disabled_ = (value == Qt::Checked) ? false : true;
+            rule->disabled_ = (value.toInt() == Qt::Checked) ? false : true;
             break;
         default:
             return false;
