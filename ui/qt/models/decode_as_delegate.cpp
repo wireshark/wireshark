@@ -289,6 +289,17 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
     return editor;
 }
 
+void DecodeAsDelegate::destroyEditor(QWidget *editor, const QModelIndex &index) const
+{
+    if (index.column() == DecodeAsModel::colProtocol) {
+        QComboBox *cb_editor = (QComboBox*)editor;
+        for (int i=0; i < cb_editor->count(); ++i) {
+            delete VariantPointer<dissector_info_t>::asPtr(cb_editor->itemData(i));
+        }
+    }
+    QStyledItemDelegate::destroyEditor(editor, index);
+}
+
 void DecodeAsDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     DecodeAsItem* item = indexToField(index);
