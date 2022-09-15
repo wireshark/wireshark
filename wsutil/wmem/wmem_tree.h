@@ -90,6 +90,13 @@ WS_DLL_PUBLIC
 void
 wmem_tree_insert32(wmem_tree_t *tree, guint32 key, void *data);
 
+/** Look up a node in the tree indexed by a guint32 integer value. Return TRUE
+ * if present.
+ */
+WS_DLL_PUBLIC
+gboolean
+wmem_tree_contains32(wmem_tree_t *tree, guint32 key);
+
 /** Look up a node in the tree indexed by a guint32 integer value. If no node is
  * found the function will return NULL.
  */

@@ -13,12 +13,8 @@
  */
 
 /* TODO:
- * - Check for expected Acks and link between Data and Ack frames
  * - Calculate/verify Checksum field
- * - Sequence number analysis, i.e.
- *     - check next expected Msg Id
- *     - flag out-of-order Fragment Number within a MsgId?
- */
+  */
 
 #include "config.h"
 
@@ -26,6 +22,8 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+
+#include <wsutil/wmem/wmem_tree.h>
 
 void proto_register_udpcp(void);
 
@@ -49,6 +47,10 @@ static int hf_udpcp_message_id = -1;
 static int hf_udpcp_message_data_length = -1;
 
 static int hf_udpcp_payload = -1;
+
+static int hf_udpcp_ack_frame = -1;
+static int hf_udpcp_sn_frame = -1;
+
 
 /* For reassembly */
 static int hf_udpcp_fragments = -1;
@@ -93,6 +95,9 @@ static expert_field ei_udpcp_d_not_zero_for_data = EI_INIT;
 static expert_field ei_udpcp_reserved_not_zero = EI_INIT;
 static expert_field ei_udpcp_n_s_ack = EI_INIT;
 static expert_field ei_udpcp_payload_wrong_size = EI_INIT;
+static expert_field ei_udpcp_wrong_sequence_number = EI_INIT;
+static expert_field ei_udpcp_no_ack = EI_INIT;
+static expert_field ei_udpcp_no_sn_frame = EI_INIT;
 
 static dissector_handle_t udpcp_handle;
 
@@ -111,6 +116,26 @@ static const value_string msg_type_vals[] = {
   { ACK_FORMAT,    "Ack Packet" },
   { 0,     NULL }
 };
+
+typedef struct {
+    /* Protocol is bi-directional, so need to distinguish */
+    guint16 first_dest_port;
+    address first_dest_address;
+
+    /* Main these so can link between SN frames and ACKs */
+    wmem_tree_t *sn_table_first;
+    wmem_tree_t *ack_table_first;
+    wmem_tree_t *sn_table_second;
+    wmem_tree_t *ack_table_second;
+
+    /* Remember next expected message-id in each direction */
+    guint32 next_message_id_first;
+    guint32 next_message_id_second;
+} udpcp_conversation_t;
+
+
+/* Framenum -> expected_sequence_number */
+static wmem_tree_t *sequence_number_result_table = NULL;
 
 
 /* Reassembly table. */
@@ -173,9 +198,9 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         return 0;
     }
 
-    /* Must be Data or Ack format. */
+    /* Has to be Data or Ack format. */
     guint32 msg_type = tvb_get_guint8(tvb, 4) >> 6;
-    if (msg_type != DATA_FORMAT && msg_type != ACK_FORMAT) {
+    if ((msg_type != DATA_FORMAT) && (msg_type != ACK_FORMAT)) {
         return 0;
     }
 
@@ -265,7 +290,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     /* Message ID & Message Data Length */
     guint32 message_id;
-    proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_message_id, tvb, offset, 2, ENC_BIG_ENDIAN, &message_id);
+    proto_item *message_id_ti = proto_tree_add_item_ret_uint(udpcp_tree, hf_udpcp_message_id, tvb, offset, 2, ENC_BIG_ENDIAN, &message_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, " Msg_ID=%3u", message_id);
     offset += 2;
     guint32 data_length;
@@ -278,8 +303,6 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             if (!message_id && !n && !s) {
                 col_append_str(pinfo->cinfo, COL_INFO, "  [Sync]");
             }
-            /* Nothing more to show here */
-            return offset;
         }
 
         /* Show if/when this frame should be acknowledged */
@@ -298,7 +321,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                         fragment_number+1, fragment_amount);
 
         /* There is data */
-        if ((fragment_amount == 1) && (fragment_number == 0)) {
+        if ((fragment_amount == 1) && (fragment_number == 0) && data_length) {
             /* Not fragmented - show payload now */
             proto_item *data_ti = proto_tree_add_item(udpcp_tree, hf_udpcp_payload, tvb, offset, -1, ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, "  Data (%u bytes)", data_length);
@@ -317,7 +340,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         }
         else {
             /* Fragmented */
-            if (global_udpcp_reassemble) {
+            if (global_udpcp_reassemble && data_length) {
                 /* Reassembly */
                 /* Set fragmented flag. */
                 gboolean save_fragmented = pinfo->fragmented;
@@ -372,11 +395,149 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             proto_item_append_text(packet_transfer_options_ti, " (duplicate)");
             col_append_str(pinfo->cinfo, COL_INFO, " (duplicate)");
         }
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK for Msg_ID=%3u", message_id);
+    }
+
+    /* Look up conversation */
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* First pass */
+        conversation_t *p_conv;
+        udpcp_conversation_t *p_conv_data;
+
+        p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                                   conversation_pt_to_conversation_type(pinfo->ptype),
+                                   pinfo->destport, pinfo->srcport,
+                                   0 /* options */);
+
+        /* Look up data from conversation */
+        p_conv_data = (udpcp_conversation_t *)conversation_get_proto_data(p_conv, proto_udpcp);
+
+        /* Create new data for conversation data if not found */
+        if (!p_conv_data) {
+            p_conv_data = wmem_new(wmem_file_scope(), udpcp_conversation_t);
+
+            /* Set initial values */
+            p_conv_data->first_dest_port = pinfo->destport;
+            copy_address(&p_conv_data->first_dest_address, &pinfo->dst);
+            p_conv_data->next_message_id_first = 0;
+            p_conv_data->next_message_id_second = 0;
+
+            /* SN and ACK tables */
+            p_conv_data->sn_table_first = wmem_tree_new(wmem_file_scope());
+            p_conv_data->ack_table_first = wmem_tree_new(wmem_file_scope());
+            p_conv_data->sn_table_second = wmem_tree_new(wmem_file_scope());
+            p_conv_data->ack_table_second = wmem_tree_new(wmem_file_scope());
+
+            /* Store in conversation */
+            conversation_add_proto_data(p_conv, proto_udpcp, p_conv_data);
+        }
+
+        /* Check which direction this is in */
+        gboolean first_dir = (pinfo->destport == p_conv_data->first_dest_port) &&
+                             addresses_equal(&pinfo->dst, &p_conv_data->first_dest_address);
+
+        /* Check for expected sequence nuber */
+        if (msg_type == DATA_FORMAT) {
+            if (first_dir) {
+                if (message_id != p_conv_data->next_message_id_first) {
+                    wmem_tree_insert32(sequence_number_result_table, pinfo->num, GUINT_TO_POINTER(p_conv_data->next_message_id_first));
+                }
+                /* Only inc when have seen last fragment */
+                if (fragment_number == fragment_amount-1) {
+                    p_conv_data->next_message_id_first = message_id + 1;
+                }
+
+                /* Store SN entry in table */
+                wmem_tree_insert32(p_conv_data->sn_table_first, message_id, GUINT_TO_POINTER(pinfo->num));
+            }
+            /* 2nd Direction */
+            else {
+                if (message_id != p_conv_data->next_message_id_second) {
+                    wmem_tree_insert32(sequence_number_result_table, pinfo->num, GUINT_TO_POINTER(p_conv_data->next_message_id_second));
+                }
+                /* Only inc when have seen last fragment */
+                if (fragment_number == fragment_amount-1) {
+                    p_conv_data->next_message_id_second = message_id + 1;
+                }
+
+                /* Store SN entry in table */
+                wmem_tree_insert32(p_conv_data->sn_table_second, message_id, GUINT_TO_POINTER(pinfo->num));
+            }
+        }
+
+        if (msg_type == ACK_FORMAT) {
+            /* N.B., directions reversed here to apply to data direction */
+            if (first_dir) {
+                wmem_tree_insert32(p_conv_data->ack_table_first, message_id, GUINT_TO_POINTER(pinfo->num));
+            }
+            else {
+                wmem_tree_insert32(p_conv_data->ack_table_second, message_id, GUINT_TO_POINTER(pinfo->num));
+            }
+        }
+    }
+
+    if (PINFO_FD_VISITED(pinfo)) {
+        /* Look up conversation here */
+        conversation_t *p_conv;
+        udpcp_conversation_t *p_conv_data;
+
+        p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                                   conversation_pt_to_conversation_type(pinfo->ptype),
+                                   pinfo->destport, pinfo->srcport,
+                                   0 /* options */);
+
+        /* Look up data from conversation */
+        p_conv_data = (udpcp_conversation_t *)conversation_get_proto_data(p_conv, proto_udpcp);
+        if (!p_conv_data) {
+            /* TODO: error if not found? */
+            return offset;
+        }
+
+        /* Check which direction this is in */
+        gboolean first_dir = (pinfo->destport == p_conv_data->first_dest_port) &&
+                             addresses_equal(&pinfo->dst, &p_conv_data->first_dest_address);
+
+
+        if (msg_type == DATA_FORMAT) {
+            /* Check for unexpected sequence number, but not if message_id is still 0 (as it may be repeated) */
+            if (message_id > 1) {
+                if (wmem_tree_contains32(sequence_number_result_table, pinfo->num)) {
+                    guint32 seqno = GPOINTER_TO_UINT(wmem_tree_lookup32(sequence_number_result_table, pinfo->num));
+                    expert_add_info_format(pinfo, message_id_ti, &ei_udpcp_wrong_sequence_number, "SN %u expected, but found %u instead",
+                                           seqno, message_id);
+                }
+            }
+
+            /* Look for ACK for this data PDU, link or expert info */
+            wmem_tree_t *ack_table = (first_dir) ? p_conv_data->ack_table_second : p_conv_data->ack_table_first;
+            if (wmem_tree_contains32(ack_table, message_id)) {
+                guint32 ack = GPOINTER_TO_UINT(wmem_tree_lookup32(ack_table, message_id));
+                proto_tree_add_uint(udpcp_tree,  hf_udpcp_ack_frame, tvb, 0, 0, ack);
+            }
+            else {
+                expert_add_info_format(pinfo, message_id_ti, &ei_udpcp_no_ack, "No ACK seen for this data frame (message_id=%u",
+                                       message_id);
+
+            }
+
+        }
+        else if (msg_type == ACK_FORMAT) {
+            /* Look up corresponding Data frame, link or expert info */
+            wmem_tree_t *sn_table = (first_dir) ? p_conv_data->sn_table_second : p_conv_data->sn_table_first;
+            if (wmem_tree_contains32(sn_table, message_id)) {
+                guint32 sn_frame = GPOINTER_TO_UINT(wmem_tree_lookup32(sn_table, message_id));
+                proto_tree_add_uint(udpcp_tree,  hf_udpcp_sn_frame, tvb, 0, 0, sn_frame);
+            }
+            else {
+                expert_add_info_format(pinfo, message_id_ti, &ei_udpcp_no_sn_frame, "No SN frame seen corresponding to this ACK (message_id=%u",
+                                       message_id);
+            }
+        }
     }
 
     return offset;
 }
-
 
 void
 proto_register_udpcp(void)
@@ -466,6 +627,13 @@ proto_register_udpcp(void)
       { &hf_udpcp_reassembled_data,
         { "Reassembled data", "udpcp.reassembled.data", FT_BYTES, BASE_NONE,
           NULL, 0x0, "The reassembled payload", HFILL }},
+
+      { &hf_udpcp_ack_frame,
+        { "Ack Frame", "udpcp.ack-frame", FT_FRAMENUM, BASE_NONE,
+          NULL, 0x0, "Frame that ACKs this data", HFILL }},
+      { &hf_udpcp_sn_frame,
+        { "SN Frame", "udpcp.sn-frame", FT_FRAMENUM, BASE_NONE,
+          NULL, 0x0, "Data frame ACKd by this one", HFILL }},
     };
 
     static gint *ett[] = {
@@ -481,7 +649,9 @@ proto_register_udpcp(void)
         { &ei_udpcp_reserved_not_zero,       { "udpcp.reserved-not-zero", PI_MALFORMED, PI_WARN, "Reserved bits not zero", EXPFILL }},
         { &ei_udpcp_n_s_ack,                 { "udpcp.n-s-set-ack", PI_MALFORMED, PI_ERROR, "N or S set for ACK frame", EXPFILL }},
         { &ei_udpcp_payload_wrong_size,      { "udpcp.payload-wrong-size", PI_MALFORMED, PI_ERROR, "Payload seen does not match size field", EXPFILL }},
-
+        { &ei_udpcp_wrong_sequence_number,   { "udpcp.sequence-nuber-wrong", PI_SEQUENCE, PI_WARN, "Unexpected sequence number", EXPFILL }},
+        { &ei_udpcp_no_ack,                  { "udpcp.no-ack", PI_SEQUENCE, PI_WARN, "No ACK seen for data frame", EXPFILL }},
+        { &ei_udpcp_no_sn_frame,             { "udpcp.no-sn-frame", PI_SEQUENCE, PI_WARN, "No SN frame seen for ACK", EXPFILL }},
     };
 
     module_t *udpcp_module;
@@ -514,6 +684,8 @@ proto_register_udpcp(void)
         "Call XML dissector for payload",
         "",
         &global_udpcp_decode_payload_as_soap);
+
+    sequence_number_result_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 static void

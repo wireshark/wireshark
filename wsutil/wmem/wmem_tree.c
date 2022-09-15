@@ -499,6 +499,25 @@ wmem_tree_insert32(wmem_tree_t *tree, guint32 key, void *data)
     lookup_or_insert32(tree, key, NULL, data, FALSE, TRUE);
 }
 
+gboolean wmem_tree_contains32(wmem_tree_t *tree, guint32 key)
+{
+    wmem_tree_node_t *node = tree->root;
+
+    while (node) {
+        if (key == GPOINTER_TO_UINT(node->key)) {
+            return TRUE;
+        }
+        else if (key < GPOINTER_TO_UINT(node->key)) {
+            node = node->left;
+        }
+        else if (key > GPOINTER_TO_UINT(node->key)) {
+            node = node->right;
+        }
+    }
+
+    return FALSE;
+}
+
 void *
 wmem_tree_lookup32(wmem_tree_t *tree, guint32 key)
 {
