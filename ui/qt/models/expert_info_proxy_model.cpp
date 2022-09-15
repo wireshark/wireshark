@@ -234,6 +234,8 @@ bool ExpertInfoProxyModel::filterAcceptItem(ExpertPacketItem& item) const
     if (!textFilter_.isEmpty()) {
         QRegularExpression regex(textFilter_, QRegularExpression::CaseInsensitiveOption |
                                  QRegularExpression::UseUnicodePropertiesOption);
+        if (! regex.isValid())
+            return false;
 
         if (item.protocol().contains(regex))
             return true;

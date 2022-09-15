@@ -420,6 +420,8 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
         return false;
 
     QRegularExpression regex(filter_, QRegularExpression::CaseInsensitiveOption);
+    if (! regex.isValid())
+        return false;
 
     if ((type_ != EnabledProtocolsProxyModel::EnabledItems && type_ != EnabledProtocolsProxyModel::DisabledItems) &&
         (protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type()) )

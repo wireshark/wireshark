@@ -211,6 +211,8 @@ bool SupportedProtocolsProxyModel::lessThan(const QModelIndex &left, const QMode
 bool SupportedProtocolsProxyModel::filterAcceptItem(SupportedProtocolsItem& item) const
 {
     QRegularExpression regex(filter_, QRegularExpression::CaseInsensitiveOption);
+    if (! regex.isValid())
+        return false;
 
     if (item.name().contains(regex))
         return true;
