@@ -164,6 +164,20 @@ WS_DLL_PUBLIC
 void
 wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data);
 
+/** Run a function against all key/value pairs in the map. If the
+ * function returns TRUE, then the key/value pair is removed from
+ * the map. The order of the calls is unpredictable, since it is
+ * based on the internal storage of data.
+ *
+ * @param map The map to use
+ * @param foreach_func the function to call for each key/value pair
+ * @param user_data user data to pass to the function
+ * @return The number of items removed
+ */
+WS_DLL_PUBLIC
+guint
+wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, gpointer user_data);
+
 /** Return the number of elements of the map.
  *
  * @param map The map to use

@@ -283,6 +283,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_list_tail@Base 3.5.0
  wmem_map_contains@Base 3.5.0
  wmem_map_foreach@Base 3.5.0
+ wmem_map_foreach_remove@Base 4.1.0
  wmem_map_get_keys@Base 3.5.0
  wmem_map_insert@Base 3.5.0
  wmem_map_lookup@Base 3.5.0

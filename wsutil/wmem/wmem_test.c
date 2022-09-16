@@ -894,6 +894,12 @@ check_val_map(gpointer key _U_, gpointer val, gpointer user_data)
     g_assert_true(val == user_data);
 }
 
+static gboolean
+equal_val_map(gpointer key _U_, gpointer val, gpointer user_data)
+{
+    return val == user_data;
+}
+
 static void
 wmem_test_map(void)
 {
@@ -990,6 +996,9 @@ wmem_test_map(void)
     }
     wmem_map_foreach(map, check_val_map, GINT_TO_POINTER(2));
 
+    wmem_map_foreach_remove(map, equal_val_map, GINT_TO_POINTER(2));
+    g_assert_true(wmem_map_size(map) == 0);
+
     /* test size */
     map = wmem_map_new(allocator, g_direct_hash, g_direct_equal);
     g_assert_true(map);
@@ -997,6 +1006,11 @@ wmem_test_map(void)
         wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(i));
     }
     g_assert_true(wmem_map_size(map) == CONTAINER_ITERS);
+
+    for (i=0; i<CONTAINER_ITERS; i+=2) {
+        wmem_map_foreach_remove(map, equal_val_map, GINT_TO_POINTER(i));
+    }
+    g_assert_true(wmem_map_size(map) == CONTAINER_ITERS/2);
 
     wmem_destroy_allocator(extra_allocator);
     wmem_destroy_allocator(allocator);

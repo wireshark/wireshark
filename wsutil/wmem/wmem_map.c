@@ -409,6 +409,34 @@ wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data)
 }
 
 guint
+wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, gpointer user_data)
+{
+    wmem_map_item_t **item, *tmp;
+    unsigned i, deleted = 0;
+
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < CAPACITY(map); i++) {
+        item = &(map->table[i]);
+        while (*item) {
+            if (foreach_func((gpointer)(*item)->key, (gpointer)(*item)->value, user_data)) {
+                tmp   = *item;
+                *item = tmp->next;
+                wmem_free(map->data_allocator, tmp);
+                map->count--;
+                deleted++;
+            } else {
+                item = &((*item)->next);
+            }
+        }
+    }
+    return deleted;
+}
+
+guint
 wmem_map_size(wmem_map_t *map)
 {
     return map->count;
