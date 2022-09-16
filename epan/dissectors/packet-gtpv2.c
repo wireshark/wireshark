@@ -8670,7 +8670,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
 
                 if (!is_cause_accepted(last_cause, 2)){
                     /* If the cause is not accepted then we have to remove all the session information about its corresponding request */
-                    remove_frame_info(&gcrp->req_frame);
+                    remove_frame_info(gcrp->req_frame);
                 }
             }
         }
@@ -8703,7 +8703,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                 && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_RESPONSE)) {
                 /* If the lists are not empty*/
                 if (wmem_list_count(teid_list) && wmem_list_count(ip_list)) {
-                    remove_frame_info(&pinfo->num);
+                    remove_frame_info(pinfo->num);
                 }
             }
 

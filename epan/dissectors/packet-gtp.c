@@ -2485,70 +2485,63 @@ guint32 gtp_session_count;
 /* Relation between frame -> session */
 GHashTable* session_table;
 /* Relation between <teid,ip> -> frame */
-wmem_tree_t* frame_tree;
+wmem_map_t* frame_map;
 
 typedef struct {
     guint32 teid;
-    guint32 frame;
+    address addr;
 } gtp_info_t;
+
+static guint
+gtp_info_hash(gconstpointer key)
+{
+    const gtp_info_t *k = (const gtp_info_t *)key;
+
+    /* The TEID is likely unique, so just use it. */
+    return g_int_hash(&k->teid);
+}
+
+static gboolean
+gtp_info_equal(gconstpointer key1, gconstpointer key2)
+{
+    const gtp_info_t *a = (const gtp_info_t *)key1;
+    const gtp_info_t *b = (const gtp_info_t *)key2;
+
+    return (a->teid == b->teid && (cmp_address(&a->addr, &b->addr) == 0));
+}
 
 /* GTP Session funcs*/
 guint32
 get_frame(address ip, guint32 teid, guint32 *frame) {
-    gboolean found = FALSE;
-    wmem_list_frame_t *elem;
-    gtp_info_t *info;
-    wmem_list_t *info_list;
-    gchar *ip_str;
+    gtp_info_t info;
+    guint32 *value;
 
-    /* First we get the teid list*/
-    ip_str = address_to_str(wmem_packet_scope(), &ip);
-    info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip_str, 0);
-    if (info_list != NULL) {
-        elem = wmem_list_head(info_list);
-        while (!found && elem) {
-            info = (gtp_info_t*)wmem_list_frame_data(elem);
-            if (teid == info->teid) {
-                *frame = info->frame;
-                return 1;
-            }
-            elem = wmem_list_frame_next(elem);
-        }
+    info.teid = teid;
+    copy_address_shallow(&info.addr, &ip);
+    value = wmem_map_lookup(frame_map, &info);
+    if (value != NULL) {
+        *frame = GPOINTER_TO_UINT(value);
+        return 1;
     }
     return 0;
 }
 
 static gboolean
-call_foreach_ip(const void *key _U_, void *value, void *data){
-    wmem_list_frame_t * elem;
-    wmem_list_t *info_list = (wmem_list_t *)value;
-    gtp_info_t *info;
-    guint32* frame = (guint32*)data;
+frame_equal(void *key _U_, void *value, void *data){
+    guint32 frame = GPOINTER_TO_UINT(data);
 
-    /* We loop over the <teid, frame> list */
-    elem = wmem_list_head(info_list);
-    while (elem) {
-        info = (gtp_info_t*)wmem_list_frame_data(elem);
-        if (info->frame == *frame) {
-            wmem_list_frame_t * del = elem;
-            /* proceed to next request */
-            elem = wmem_list_frame_next(elem);
-            /* If we find the frame we remove its information from the list */
-            wmem_list_remove_frame(info_list, del);
-            wmem_free(wmem_file_scope(), info);
-        }
-        else {
-            elem = wmem_list_frame_next(elem);
-        }
-    }
-
-    return FALSE;
+    return (GPOINTER_TO_UINT(value) == frame);
 }
 
 void
-remove_frame_info(guint32 *f) {
-    /* For each ip node */
-    wmem_tree_foreach(frame_tree, call_foreach_ip, (void *)f);
+remove_frame_info(guint32 f) {
+    /* XXX: This iterates through the entire map and it is slow if done
+     * often. For large files with lots of removals, there are better
+     * alternatives, e.g. marking sessions as expired and then periodically
+     * removing all expired sessions from the map, or using a bijective
+     * map to coordinate removals.
+     */
+    wmem_map_foreach_remove(frame_map, frame_equal, GUINT_TO_POINTER(f));
 }
 
 void
@@ -2587,50 +2580,34 @@ ip_exists(address ip, wmem_list_t *ip_list) {
     return found;
 }
 
-static gboolean
-info_exists(gtp_info_t *wanted, wmem_list_t *info_list) {
-    wmem_list_frame_t *elem;
-    gtp_info_t *info;
-    gboolean found;
-    found = FALSE;
-    elem = wmem_list_head(info_list);
-    while (!found && elem) {
-        info = (gtp_info_t*)wmem_list_frame_data(elem);
-        found = wanted->teid == info->teid;
-        elem = wmem_list_frame_next(elem);
-    }
-    return found;
-}
-
 void
 fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
     wmem_list_frame_t *elem_ip, *elem_teid;
     gtp_info_t *gtp_info;
-    wmem_list_t * info_list; /* List of <teids,frames>*/
-    guint32 *f;
     gpointer session_p, fr_p;
     GHashTableIter iter;
-    guint32 teid, session, fr;
-    gchar *ip;
+    guint32 teid, session;
+    address *ip;
 
+    /* XXX: This adds all combinations of addresses and TEIDs. It
+     * should only add matching pairs for a F-TEID, though this is
+     * difficult to determine for GTPv1 (especially if the check_etsi
+     * preference is off) unlike with GTPv2.
+     * It also should not add anything that uses the reserved TEID
+     * (0), such as happens in GTPv2 on S11/S4 interfaces for the
+     * PGW S5/S8 TEID on initial attach, etc.
+     */
     elem_ip = wmem_list_head(ip_list);
     while (elem_ip) {
-        ip = address_to_str(wmem_file_scope(), (address*)wmem_list_frame_data(elem_ip));
-        /* We check if a teid list exists for this ip */
-        info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip, 0);
-        if (info_list == NULL) {
-            info_list = wmem_list_new(wmem_file_scope());
-        }
+        ip = (address*)wmem_list_frame_data(elem_ip);
         /* We loop over the teid list */
         elem_teid = wmem_list_head(teid_list);
         while (elem_teid) {
             teid = *(guint32*)wmem_list_frame_data(elem_teid);
-            f = wmem_new0(wmem_file_scope(), guint32);
-            *f = frame;
             gtp_info = wmem_new0(wmem_file_scope(), gtp_info_t);
             gtp_info->teid = teid;
-            gtp_info->frame = *f;
-            if (info_exists(gtp_info, info_list)) {
+            copy_address_wmem(wmem_file_scope(), &gtp_info->addr, ip);
+            if (wmem_map_lookup(frame_map, gtp_info)) {
                 /* If the teid and ip already maps to a session, that means
                  * that we need to remove old info about that session */
                 /* We look for its session ID */
@@ -2641,16 +2618,14 @@ fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
                         /* If the msg has the same session ID and it's not the upd req we have to remove its info */
                         if (GPOINTER_TO_UINT(session_p) == session) {
                             /* If it's the session we are looking for, we remove all the frame information */
-                            fr = GPOINTER_TO_UINT(fr_p);
-                            remove_frame_info(&fr);
+                            remove_frame_info(GPOINTER_TO_UINT(fr_p));
                         }
                     }
                 }
             }
-            wmem_list_prepend(info_list, gtp_info);
+            wmem_map_insert(frame_map, gtp_info, GUINT_TO_POINTER(frame));
             elem_teid = wmem_list_frame_next(elem_teid);
         }
-        wmem_tree_insert_string(frame_tree, ip, info_list, 0);
         elem_ip = wmem_list_frame_next(elem_ip);
     }
 }
@@ -4399,7 +4374,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
 
                     if (!is_cause_accepted(last_cause, gtp_version)){
                         /* If the cause is not accepted then we have to remove all the session information about its corresponding request */
-                        remove_frame_info(&gcrp->req_frame);
+                        remove_frame_info(gcrp->req_frame);
                     }
                 }
             }
@@ -9823,12 +9798,20 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
         /* If the message does not have any session ID */
         session = GPOINTER_TO_UINT(g_hash_table_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
-            /* If the message is not a CPDPCRES, CPDPCREQ, UPDPREQ, UPDPRES then we remove its information from teid and ip lists */
+            /* If the message is not a CPDPCRES, CPDPCREQ, UPDPREQ, UPDPRES
+             * then we remove its information from teid and ip lists
+             * XXX: Wouldn't it be better not to insert this information
+             * in the first place for other message types, instead of
+             * inserting it and then immediately removing it?
+             * At the very least, it would be faster to iterate through the
+             * teid_list and ip_list and remove via keys rather than doing
+             * removal through a reverse lookup.
+             */
             if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
                 && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
                 /* If the lists are not empty*/
                 if (wmem_list_count(teid_list) && wmem_list_count(ip_list)) {
-                    remove_frame_info(&pinfo->num);
+                    remove_frame_info(pinfo->num);
                 }
             }
 
@@ -10899,7 +10882,7 @@ gtp_init(void)
 {
     gtp_session_count = 1;
     session_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    frame_tree = wmem_tree_new(wmem_file_scope());
+    frame_map = wmem_map_new(wmem_file_scope(), gtp_info_hash, gtp_info_equal);
 }
 
 static void

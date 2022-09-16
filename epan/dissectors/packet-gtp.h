@@ -164,11 +164,11 @@ typedef struct session_args {
 extern GHashTable* session_table;
 
 /* Relation between <teid,ip> -> frame */
-extern wmem_tree_t* frame_tree;
+extern wmem_map_t* frame_map;
 
 guint32 get_frame(address ip, guint32 teid, guint32 *frame);
 
-void remove_frame_info(guint32 *f);
+void remove_frame_info(guint32 f);
 
 void add_gtp_session(guint32 frame, guint32 session);
 
