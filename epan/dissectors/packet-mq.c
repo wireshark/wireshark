@@ -4351,7 +4351,7 @@ void proto_register_mq(void)
         {&hf_mq_md_persistence, {"Persist..", "mq.md.persistence", FT_UINT32, BASE_DEC, VALS(GET_VALSV(MQPER)), 0x0, "MD persistence", HFILL}},
         {&hf_mq_md_msgid, {"Msg ID...", "mq.md.msgid", FT_BYTES, BASE_NONE, NULL, 0x0, "MD Message Id", HFILL}},
         {&hf_mq_md_correlid, {"CorrelID.", "mq.md.correlid", FT_BYTES, BASE_NONE, NULL, 0x0, "MD Correlation Id", HFILL}},
-        {&hf_mq_md_backoutcnt, {"BackoCnt.", "mq.md.backount", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Backout count", HFILL}},
+        {&hf_mq_md_backoutcnt, {"BackoCnt.", "mq.md.backoutcnt", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Backout count", HFILL}},
         {&hf_mq_md_replytoq, {"ReplyToQ.", "mq.md.replytoq", FT_STRING, BASE_NONE, NULL, 0x0, "MD ReplyTo queue", HFILL}},
         {&hf_mq_md_replytoqmgr, {"RepToQMgr", "mq.md.replytoqmgr", FT_STRING, BASE_NONE, NULL, 0x0, "MD ReplyTo queue manager", HFILL}},
         {&hf_mq_md_userid, {"UserId...", "mq.md.userid", FT_STRING, BASE_NONE, NULL, 0x0, "MD UserId", HFILL}},

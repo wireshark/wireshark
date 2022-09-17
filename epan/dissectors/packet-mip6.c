@@ -459,7 +459,7 @@ static const value_string mip6_auth_subtype_value[] = {
 
 /* mobile network prefix flag description */
 static const true_false_string mip6_ipv4ha_p_flag_value = {
-    "mobile network prefixt requested",
+    "mobile network prefix requested",
     "mobile network prefix not requested"
 };
 

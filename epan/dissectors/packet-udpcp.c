@@ -437,7 +437,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         gboolean first_dir = (pinfo->destport == p_conv_data->first_dest_port) &&
                              addresses_equal(&pinfo->dst, &p_conv_data->first_dest_address);
 
-        /* Check for expected sequence nuber */
+        /* Check for expected sequence number */
         if (msg_type == DATA_FORMAT) {
             if (first_dir) {
                 if (message_id != p_conv_data->next_message_id_first) {
@@ -649,7 +649,7 @@ proto_register_udpcp(void)
         { &ei_udpcp_reserved_not_zero,       { "udpcp.reserved-not-zero", PI_MALFORMED, PI_WARN, "Reserved bits not zero", EXPFILL }},
         { &ei_udpcp_n_s_ack,                 { "udpcp.n-s-set-ack", PI_MALFORMED, PI_ERROR, "N or S set for ACK frame", EXPFILL }},
         { &ei_udpcp_payload_wrong_size,      { "udpcp.payload-wrong-size", PI_MALFORMED, PI_ERROR, "Payload seen does not match size field", EXPFILL }},
-        { &ei_udpcp_wrong_sequence_number,   { "udpcp.sequence-nuber-wrong", PI_SEQUENCE, PI_WARN, "Unexpected sequence number", EXPFILL }},
+        { &ei_udpcp_wrong_sequence_number,   { "udpcp.sequence-number-wrong", PI_SEQUENCE, PI_WARN, "Unexpected sequence number", EXPFILL }},
         { &ei_udpcp_no_ack,                  { "udpcp.no-ack", PI_SEQUENCE, PI_WARN, "No ACK seen for data frame", EXPFILL }},
         { &ei_udpcp_no_sn_frame,             { "udpcp.no-sn-frame", PI_SEQUENCE, PI_WARN, "No SN frame seen for ACK", EXPFILL }},
     };

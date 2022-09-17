@@ -500,7 +500,7 @@ proto_register_netlink_generic(void)
 		{ &hf_genl_version,
 			{ "Family Version", "genl.version",
 			  FT_UINT8, BASE_DEC, NULL, 0x00,
-			  "Family-specfic version", HFILL }
+			  "Family-specific version", HFILL }
 		},
 		{ &hf_genl_reserved,
 			{ "Reserved", "genl.reserved",

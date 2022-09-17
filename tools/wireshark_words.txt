@@ -30,6 +30,7 @@ adlink
 administrable
 adpclk
 adspec
+advatek
 adwin
 aes128
 aes256
@@ -298,6 +299,7 @@ customizable
 customization
 customizing
 cyphering
+daintree
 datagram
 datagrams
 dataitem
@@ -511,6 +513,7 @@ flavored
 flexray
 flowid
 flowmod
+flowset
 flowspec
 fmconfig
 followup
@@ -601,6 +604,7 @@ htons
 http2
 https
 huffman
+hytec
 icmpv
 ident
 idiographic
@@ -669,6 +673,7 @@ ipaddr
 ipaddress
 ipconfig
 ipfix
+ipphone
 ipprim
 ipsec
 ipseckey
@@ -950,6 +955,7 @@ optimizer
 optiplex
 ordinal
 oscillatory
+oscore
 osmocom
 ospf6
 outhdr
@@ -1059,6 +1065,7 @@ pubkey
 pucch
 pusch
 pwach
+pwrprof
 pxeclient
 pytest
 qam16
@@ -1224,6 +1231,7 @@ ruleset
 rxchannel
 rxreq
 s7comm
+sabme
 sacch
 sanicap
 sanitize
@@ -1247,6 +1255,7 @@ sendto
 separability
 separators
 seqno
+seqnr
 seqnum
 sequenceno
 sercos
@@ -1673,6 +1682,7 @@ x509if
 x509sat
 xattr
 xchannel
+xcode
 xetra
 xferext
 xmlns
