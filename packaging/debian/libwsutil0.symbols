@@ -335,6 +335,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_strndup@Base 3.5.0
  wmem_strong_hash@Base 3.5.0
  wmem_strsplit@Base 3.5.0
+ wmem_tree_contains32@Base 4.1.0
  wmem_tree_count@Base 3.5.0
  wmem_tree_destroy@Base 3.5.0
  wmem_tree_foreach@Base 3.5.0
