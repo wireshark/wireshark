@@ -32,6 +32,7 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/address.h>
+#include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include "packet-tcp.h"
 
@@ -53,39 +54,54 @@ static gint	ett_tplink_smarthome	= -1;		/* Initialize the subtree pointers */
 static int	hf_tplink_smarthome_Len	= -1;
 static int	hf_tplink_smarthome_Msg	= -1;
 
+static gboolean
+test_tplink_smarthome(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	guint8		key = 171;
+	guint8		c, d;
+	if (tvb_captured_length_remaining(tvb, offset) < 2) {
+		return FALSE;
+	}
+
+	/* The message is always JSON, so test the first two characters.
+         * They must be {" or {}, as the protocol doesn't appear to
+         * have whitespace.). */
+	c = tvb_get_guint8(tvb, offset);
+	d = c ^ key;
+	if (d != '{') {
+		return FALSE;
+	}
+	d = c ^ tvb_get_guint8(tvb, offset+1);
+	if (d != '"' && d != '}') {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 static int
 dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		void *data _U_)
 {
 	proto_item	*ti;
 	proto_tree	*tplink_smarthome_tree;
-	gint8		start;
+	gint8		start = 0;
 	guint8		c, d;
 	guint8		key = 171;
 	gint32		len = tvb_captured_length(tvb);
 
-	switch (pinfo->ptype) {									/* look at the IP port type */
-		case PT_UDP:									/* UDP */
-			if (len < 2) return 0;							/* don't dissect unless it contains enough to hold minimum valid JSON i.e. '{}' */
-			start = 0;								/* and the JSON message starts immediately */
-			break;
-		case PT_TCP:									/* TCP */
-			if (len < (4 + 2)) return 0;						/* don't dissect unless it has the msg length plus minimal JSON */
-			start = 4;								/* and the JSON message starts after that */
-			break;
-		default:
-			return 0;
+	switch (pinfo->ptype) {                                                                 /* look at the IP port type */
+	       case PT_UDP:
+		       start = 0;
+		       break;
+	       case PT_TCP:
+		       start = 4;
+		       break;
+	       default:
+		       return 0;
 	}
-	/* The message is always JSON, so test the first two characters.
-         * They must be {" or {}, as the protocol doesn't appear to
-         * have whitespace.). */
-	c = tvb_get_guint8(tvb, start);
-	d = c ^ key;
-	if (d != '{') {
-		return 0;
-	}
-	d = c ^ tvb_get_guint8(tvb, start+1);
-	if (d != '"' && d != '}') {
+
+	if (!test_tplink_smarthome(pinfo, tvb, start, data)) {
 		return 0;
 	}
 
@@ -140,12 +156,15 @@ get_tplink_smarthome_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
 static int
 dissect_tplink_smarthome(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	if (pinfo->ptype == PT_UDP) {
-		dissect_tplink_smarthome_message(tvb, pinfo, tree, data);
-	} else {
-		tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
-			get_tplink_smarthome_message_len, dissect_tplink_smarthome_message, data);
+	conversation_t *conv = find_or_create_conversation(pinfo);
+	if (!conversation_get_proto_data(conv, proto_tplink_smarthome)) {
+		if (!test_tplink_smarthome(pinfo, tvb, FRAME_HEADER_LEN, data)) {
+			return 0;
+		}
+		conversation_add_proto_data(conv, proto_tplink_smarthome, GUINT_TO_POINTER(1));
 	}
+	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+		get_tplink_smarthome_message_len, dissect_tplink_smarthome_message, data);
 	return tvb_captured_length(tvb);
 }
 
@@ -185,6 +204,7 @@ proto_reg_handoff_tplink_smarthome(void)
 
 	tplink_smarthome_handle = create_dissector_handle(dissect_tplink_smarthome, proto_tplink_smarthome);
 	dissector_add_uint_with_preference("tcp.port", TPLINK_SMARTHOME_PORT, tplink_smarthome_handle);
+	tplink_smarthome_handle = create_dissector_handle(dissect_tplink_smarthome_message, proto_tplink_smarthome);
 	dissector_add_uint_with_preference("udp.port", TPLINK_SMARTHOME_PORT, tplink_smarthome_handle);
 }
 
