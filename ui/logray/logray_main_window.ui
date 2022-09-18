@@ -719,7 +719,7 @@
   </action>
   <action name="actionHelpWebsite">
    <property name="icon">
-    <iconset resource="../../image/stock_icons.qrc">
+    <iconset resource="../../resources/stock_icons.qrc">
      <normaloff>:/menu/help/lricon16.png</normaloff>:/menu/help/lricon16.png</iconset>
    </property>
    <property name="text">
@@ -738,7 +738,7 @@
   </action>
   <action name="actionHelpWiki">
    <property name="icon">
-    <iconset resource="../../image/stock_icons.qrc">
+    <iconset resource="../../resources/stock_icons.qrc">
      <normaloff>:/menu/help/lricon16.png</normaloff>:/menu/help/lricon16.png</iconset>
    </property>
    <property name="text">
@@ -763,7 +763,7 @@
   </action>
   <action name="actionHelpAsk">
    <property name="icon">
-    <iconset resource="../../image/stock_icons.qrc">
+    <iconset resource="../../resources/stock_icons.qrc">
      <normaloff>:/menu/help/wsicon-ask.png</normaloff>:/menu/help/wsicon-ask.png</iconset>
    </property>
    <property name="text">
@@ -2259,8 +2259,8 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../image/stock_icons.qrc"/>
-  <include location="../../image/stock_icons.qrc"/>
+  <include location="../../resources/stock_icons.qrc"/>
+  <include location="../../resources/stock_icons.qrc"/>
  </resources>
  <connections>
   <connection>
