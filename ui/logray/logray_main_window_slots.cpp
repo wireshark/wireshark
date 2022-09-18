@@ -1944,27 +1944,118 @@ void LograyMainWindow::on_actionCopyAllVisibleSelectedTreeItems_triggered()
     actionEditCopyTriggered(CopyAllVisibleSelectedTreeItems);
 }
 
-void LograyMainWindow::on_actionEditCopyDescription_triggered()
+void LograyMainWindow::connectEditMenuActions()
 {
-    actionEditCopyTriggered(CopySelectedDescription);
+    connect(main_ui_->actionEditCopyDescription, &QAction::triggered, this,
+            [this]() { actionEditCopyTriggered(CopySelectedDescription); });
+
+    connect(main_ui_->actionEditCopyFieldName, &QAction::triggered, this,
+            [this]() { actionEditCopyTriggered(CopySelectedFieldName); });
+
+    connect(main_ui_->actionEditCopyValue, &QAction::triggered, this,
+            [this]() { actionEditCopyTriggered(CopySelectedValue); });
+
+    connect(main_ui_->actionEditCopyAsFilter, &QAction::triggered, this,
+            [this]() { matchFieldFilter(FilterAction::ActionCopy, FilterAction::ActionTypePlain); });
+
+    connect(main_ui_->actionEditFindPacket, &QAction::triggered, this,
+            [this]() { findPacket(); });
+
+    connect(main_ui_->actionEditFindNext, &QAction::triggered, this,
+            [this]() { main_ui_->searchFrame->findNext(); });
+
+    connect(main_ui_->actionEditFindPrevious, &QAction::triggered, this,
+            [this]() { main_ui_->searchFrame->findPrevious(); });
+
+    // The items below are used in the packet list and detail context menus.
+    // Use QueuedConnections so that the context menus aren't destroyed
+    // prematurely.
+    connect(main_ui_->actionEditMarkPacket, &QAction::triggered, this, [this]() {
+        freeze();
+        packet_list_->markFrame();
+        thaw();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditMarkAllDisplayed, &QAction::triggered, this, [this]() {
+        freeze();
+        packet_list_->markAllDisplayedFrames(true);
+        thaw();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditUnmarkAllDisplayed, &QAction::triggered, this, [this]() {
+        freeze();
+        packet_list_->markAllDisplayedFrames(false);
+        thaw();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditNextMark, &QAction::triggered, this, [this]() {
+        if (capture_file_.capFile()) {
+            cf_find_packet_marked(capture_file_.capFile(), SD_FORWARD);
+        }
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditPreviousMark, &QAction::triggered, this, [this]() {
+        if (capture_file_.capFile()) {
+            cf_find_packet_marked(capture_file_.capFile(), SD_BACKWARD);
+        }
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditIgnorePacket, &QAction::triggered, this, [this]() {
+        freeze();
+        packet_list_->ignoreFrame();
+        thaw();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditIgnoreAllDisplayed, &QAction::triggered, this, [this]() {
+        freeze();
+        packet_list_->ignoreAllDisplayedFrames(true);
+        thaw();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditUnignoreAllDisplayed, &QAction::triggered, this, [this]() {
+        freeze();
+        packet_list_->ignoreAllDisplayedFrames(false);
+        thaw();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditSetTimeReference, &QAction::triggered, this, [this]() {
+        packet_list_->setTimeReference();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditUnsetAllTimeReferences, &QAction::triggered, this, [this]() {
+        packet_list_->unsetAllTimeReferences();
+        setMenusForSelectedPacket();
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditNextTimeReference, &QAction::triggered, this, [this]() {
+        if (!capture_file_.capFile()) return;
+        cf_find_packet_time_reference(capture_file_.capFile(), SD_FORWARD);
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditPreviousTimeReference, &QAction::triggered, this, [this]() {
+        if (!capture_file_.capFile()) return;
+        cf_find_packet_time_reference(capture_file_.capFile(), SD_BACKWARD);
+    }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditTimeShift, &QAction::triggered, this,
+            [this]() { editTimeShift(); }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditConfigurationProfiles, &QAction::triggered, this,
+            [this]() { editConfigurationProfiles(); }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditPreferences, &QAction::triggered, this,
+            [this]() { showPreferencesDialog(PrefsModel::typeToString(PrefsModel::Appearance)); }, Qt::QueuedConnection);
 }
 
-void LograyMainWindow::on_actionEditCopyFieldName_triggered()
-{
-    actionEditCopyTriggered(CopySelectedFieldName);
-}
 
-void LograyMainWindow::on_actionEditCopyValue_triggered()
-{
-    actionEditCopyTriggered(CopySelectedValue);
-}
-
-void LograyMainWindow::on_actionEditCopyAsFilter_triggered()
-{
-    matchFieldFilter(FilterAction::ActionCopy, FilterAction::ActionTypePlain);
-}
-
-void LograyMainWindow::on_actionEditFindPacket_triggered()
+void LograyMainWindow::findPacket()
 {
     if (! packet_list_->model() || packet_list_->model()->rowCount() < 1) {
         return;
@@ -1979,101 +2070,7 @@ void LograyMainWindow::on_actionEditFindPacket_triggered()
     main_ui_->searchFrame->setFocus();
 }
 
-void LograyMainWindow::on_actionEditFindNext_triggered()
-{
-    main_ui_->searchFrame->findNext();
-}
-
-void LograyMainWindow::on_actionEditFindPrevious_triggered()
-{
-    main_ui_->searchFrame->findPrevious();
-}
-
-void LograyMainWindow::on_actionEditMarkPacket_triggered()
-{
-    freeze();
-    packet_list_->markFrame();
-    thaw();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditMarkAllDisplayed_triggered()
-{
-    freeze();
-    packet_list_->markAllDisplayedFrames(true);
-    thaw();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditUnmarkAllDisplayed_triggered()
-{
-    freeze();
-    packet_list_->markAllDisplayedFrames(false);
-    thaw();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditNextMark_triggered()
-{
-    if (capture_file_.capFile())
-        cf_find_packet_marked(capture_file_.capFile(), SD_FORWARD);
-}
-
-void LograyMainWindow::on_actionEditPreviousMark_triggered()
-{
-    if (capture_file_.capFile())
-        cf_find_packet_marked(capture_file_.capFile(), SD_BACKWARD);
-}
-
-void LograyMainWindow::on_actionEditIgnorePacket_triggered()
-{
-    freeze();
-    packet_list_->ignoreFrame();
-    thaw();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditIgnoreAllDisplayed_triggered()
-{
-    freeze();
-    packet_list_->ignoreAllDisplayedFrames(true);
-    thaw();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditUnignoreAllDisplayed_triggered()
-{
-    freeze();
-    packet_list_->ignoreAllDisplayedFrames(false);
-    thaw();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditSetTimeReference_triggered()
-{
-    packet_list_->setTimeReference();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditUnsetAllTimeReferences_triggered()
-{
-    packet_list_->unsetAllTimeReferences();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionEditNextTimeReference_triggered()
-{
-    if (!capture_file_.capFile()) return;
-    cf_find_packet_time_reference(capture_file_.capFile(), SD_FORWARD);
-}
-
-void LograyMainWindow::on_actionEditPreviousTimeReference_triggered()
-{
-    if (!capture_file_.capFile()) return;
-    cf_find_packet_time_reference(capture_file_.capFile(), SD_BACKWARD);
-}
-
-void LograyMainWindow::on_actionEditTimeShift_triggered()
+void LograyMainWindow::editTimeShift()
 {
     TimeShiftDialog *ts_dialog = new TimeShiftDialog(this, capture_file_.capFile());
     connect(ts_dialog, SIGNAL(finished(int)), this, SLOT(editTimeShiftFinished(int)));
@@ -2183,7 +2180,7 @@ void LograyMainWindow::deleteAllPacketCommentsFinished(int result)
     }
 }
 
-void LograyMainWindow::on_actionEditConfigurationProfiles_triggered()
+void LograyMainWindow::editConfigurationProfiles()
 {
     ProfileDialog *cp_dialog = new ProfileDialog();
     cp_dialog->setWindowModality(Qt::ApplicationModal);
@@ -2201,11 +2198,6 @@ void LograyMainWindow::showPreferencesDialog(QString module_name)
     pref_dialog->setWindowModality(Qt::ApplicationModal);
     pref_dialog->setAttribute(Qt::WA_DeleteOnClose);
     pref_dialog->show();
-}
-
-void LograyMainWindow::on_actionEditPreferences_triggered()
-{
-    showPreferencesDialog(PrefsModel::typeToString(PrefsModel::Appearance));
 }
 
 // View Menu

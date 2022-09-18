@@ -626,6 +626,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
 
+    connectEditMenuActions();
+
     connect(main_ui_->actionAnalyzeFollowTCPStream, &QAction::triggered, this,
             [this]() { this->openFollowStreamDialogForType(FOLLOW_TCP); },
             Qt::QueuedConnection);

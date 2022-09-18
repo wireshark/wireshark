@@ -598,6 +598,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
 
+    connectEditMenuActions();
+
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
     connect(main_ui_->actionGoPreviousPacket, SIGNAL(triggered()),
