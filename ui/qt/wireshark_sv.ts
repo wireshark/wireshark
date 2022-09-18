@@ -2320,8 +2320,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sträng</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>Dissekerare</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">Dissekerare</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3412,7 +3413,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No streams</source>
-        <translation>Inga strömmar</translation>
+        <translation type="vanished">Inga strömmar</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

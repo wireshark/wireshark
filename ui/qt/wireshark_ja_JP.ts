@@ -2312,8 +2312,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>文字列</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>ダイセクタ</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">ダイセクタ</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3395,7 +3396,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No streams</source>
-        <translation>ストリームなし</translation>
+        <translation type="vanished">ストリームなし</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -10912,7 +10913,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Percent-Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>パーセント-エンコーディング</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>

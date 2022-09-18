@@ -2318,8 +2318,9 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Chaine de Caractères</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>Dissecteur</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">Dissecteur</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3410,7 +3411,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>No streams</source>
-        <translation>Aucun flux</translation>
+        <translation type="vanished">Aucun flux</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

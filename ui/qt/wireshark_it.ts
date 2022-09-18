@@ -2320,8 +2320,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Stringa</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>Decodificatore</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">Decodificatore</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3412,7 +3413,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No streams</source>
-        <translation>Nessun flusso</translation>
+        <translation type="vanished">Nessun flusso</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

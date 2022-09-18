@@ -2295,7 +2295,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Cadena</translation>
     </message>
     <message>
-        <source>Dissector</source>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3370,10 +3371,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>No streams</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

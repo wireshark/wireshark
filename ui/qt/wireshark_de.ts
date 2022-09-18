@@ -2320,8 +2320,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zeichenkette</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>Dissector</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">Dissector</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3412,7 +3413,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>No streams</source>
-        <translation>Keine Streams</translation>
+        <translation type="vanished">Keine Streams</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

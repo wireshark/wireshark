@@ -2313,8 +2313,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Dize</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>Tespit edici</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">Tespit edici</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3396,7 +3397,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No streams</source>
-        <translation>Akış yok</translation>
+        <translation type="vanished">Akış yok</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
