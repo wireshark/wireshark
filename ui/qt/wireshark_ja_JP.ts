@@ -2316,8 +2316,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>文字列</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>ダイセクタ</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">ダイセクタ</translation>
     </message>
     <message>
         <source>Integer</source>

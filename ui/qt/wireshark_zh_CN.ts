@@ -2293,8 +2293,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>字符串</translation>
     </message>
     <message>
-        <source>Dissector</source>
-        <translation>解析器</translation>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
+        <translation type="unfinished">解析器</translation>
     </message>
     <message>
         <source>Integer</source>
@@ -4613,7 +4614,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished">解析器</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The IP protocol ID for each frame</source>

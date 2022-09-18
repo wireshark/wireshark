@@ -2299,7 +2299,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Cadena</translation>
     </message>
     <message>
-        <source>Dissector</source>
+        <source>Dissector Description</source>
+        <oldsource>Dissector</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -1,4 +1,4 @@
-Wireshark 4.0.0 Release Notes
+Wireshark 4.0.0rc2 Release Notes
 
  This is the second release candidate for Wireshark 4.0.
 
@@ -125,6 +125,9 @@ Wireshark 4.0.0 Release Notes
 
      • The macOS packages now ship with Qt 6.2.4 and require macOS
        10.14. They previously shipped with Qt 5.15.3.
+
+     • The Windows installers now ship with Npcap 1.71. They previously
+       shipped with Npcap 1.70.
 
    The following features are new (or have been significantly updated)
    since version 3.7.2:
