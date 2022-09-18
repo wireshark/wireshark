@@ -427,34 +427,18 @@ private slots:
     void on_actionCopyListAsText_triggered();
     void on_actionCopyListAsCSV_triggered();
     void on_actionCopyListAsYAML_triggered();
-    void on_actionEditCopyDescription_triggered();
-    void on_actionEditCopyFieldName_triggered();
-    void on_actionEditCopyValue_triggered();
-    void on_actionEditCopyAsFilter_triggered();
-    void on_actionEditFindPacket_triggered();
-    void on_actionEditFindNext_triggered();
-    void on_actionEditFindPrevious_triggered();
-    void on_actionEditMarkPacket_triggered();
-    void on_actionEditMarkAllDisplayed_triggered();
-    void on_actionEditUnmarkAllDisplayed_triggered();
-    void on_actionEditNextMark_triggered();
-    void on_actionEditPreviousMark_triggered();
-    void on_actionEditIgnorePacket_triggered();
-    void on_actionEditIgnoreAllDisplayed_triggered();
-    void on_actionEditUnignoreAllDisplayed_triggered();
-    void on_actionEditSetTimeReference_triggered();
-    void on_actionEditUnsetAllTimeReferences_triggered();
-    void on_actionEditNextTimeReference_triggered();
-    void on_actionEditPreviousTimeReference_triggered();
-    void on_actionEditTimeShift_triggered();
+
+    void connectEditMenuActions();
+    void findPacket();
+    void editTimeShift();
+    void editConfigurationProfiles();
+
     void editTimeShiftFinished(int);
     void addPacketCommentFinished(PacketCommentDialog* pc_dialog, int result);
     void editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result, guint nComment);
     void on_actionDeleteAllPacketComments_triggered();
     void deleteAllPacketCommentsFinished(int result);
-    void on_actionEditConfigurationProfiles_triggered();
     void showPreferencesDialog(QString module_name);
-    void on_actionEditPreferences_triggered();
 
     void showHideMainWidgets(QAction *action);
     void setTimestampFormat(QAction *action);
