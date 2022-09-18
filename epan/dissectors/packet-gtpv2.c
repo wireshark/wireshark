@@ -22,6 +22,8 @@
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
+#include <epan/tap.h>
+#include <epan/srt_table.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -907,6 +909,8 @@ static expert_field ei_gtpv2_ie = EI_INIT;
 static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
 static expert_field ei_gtpv2_apn_too_long = EI_INIT;
 
+static int gtpv2_tap = -1;
+
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK              0x01
 #define GTPv2_ULI_SAI_MASK              0x02
@@ -1541,6 +1545,60 @@ gtpv2_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     }
 
     return key1->seq_nr == key2->seq_nr;
+}
+
+static GHashTable *gtpv2_stat_msg_idx_hash = NULL;
+
+static void
+gtpv2_stat_init(struct register_srt* srt _U_, GArray*srt_array)
+{
+    if (gtpv2_stat_msg_idx_hash != NULL) {
+        g_hash_table_destroy(gtpv2_stat_msg_idx_hash);
+    }
+    gtpv2_stat_msg_idx_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+
+    init_srt_table("GTPv2 Requests", NULL, srt_array, 0, NULL, NULL, NULL);
+}
+
+static tap_packet_status
+gtpv2_stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
+{
+    guint i = 0;
+    srt_stat_table *gtpv2_srt_table;
+    srt_data_t *srt_data = (srt_data_t*)pss;
+    const gtpv2_msg_hash_t *gcrp = (const gtpv2_msg_hash_t *)prv;
+    int idx = 0;
+
+    /* We are only interested in matched reply packets. */
+    if (gcrp->is_request) {
+        return TAP_PACKET_DONT_REDRAW;
+    }
+    if (!gcrp->req_frame) {
+        return TAP_PACKET_DONT_REDRAW;
+    }
+
+    gtpv2_srt_table = g_array_index(srt_data->srt_array, srt_stat_table*, i);
+
+    /* XXX: It would be nice if srt_table handled hashing so that the
+     * real procedure number could be displayed in the table without
+     * having to add empty rows for unused message types and responses
+     * (requests and responses have different message types, and we
+     * only use the request value.)
+     */
+    idx = GPOINTER_TO_UINT(g_hash_table_lookup(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype)));
+
+    /* Store the row value incremented by 1 to distinguish 0 from NULL */
+    if (idx == 0) {
+        idx = g_hash_table_size(gtpv2_stat_msg_idx_hash);
+        g_hash_table_insert(gtpv2_stat_msg_idx_hash, GUINT_TO_POINTER(gcrp->msgtype), GUINT_TO_POINTER(idx + 1));
+        init_srt_table_row(gtpv2_srt_table, idx, val_to_str_ext(gcrp->msgtype, &gtpv2_message_type_vals_ext, "Unknown (%d)"));
+    } else {
+        idx -= 1;
+    }
+
+    add_srt_table_data(gtpv2_srt_table, idx, &gcrp->req_time, pinfo);
+
+    return TAP_PACKET_REDRAW;
 }
 
 /* Make this a common function ???*/
@@ -8827,6 +8885,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     gtpv2_conv_info_t *gtpv2_info;
     session_args_t  *args = NULL;
     gtpv2_hdr_t * gtpv2_hdr = NULL;
+    gtpv2_msg_hash_t *gcrp = NULL;
     guint64 gtpv2_hdr_flags;
 
     static int * const gtpv2_flags[] = {
@@ -8972,7 +9031,10 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         fill_map(args->teid_list, args->ip_list, pinfo->num);
         cause_aux = args->last_cause;
     }
-    gtpv2_match_response(tvb, pinfo, gtpv2_tree, seq_no, message_type, gtpv2_info, cause_aux);
+    gcrp = gtpv2_match_response(tvb, pinfo, gtpv2_tree, seq_no, message_type, gtpv2_info, cause_aux);
+    if (gcrp) {
+        tap_queue_packet(gtpv2_tap, pinfo, gcrp);
+    }
     if (args) {
         track_gtpv2_session(tvb, pinfo, gtpv2_tree, gtpv2_hdr, args->teid_list, args->ip_list, args->last_teid, args->last_ip);
     }
@@ -12415,6 +12477,10 @@ void proto_register_gtpv2(void)
     register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
     /* Dissector table for private extensions */
     gtpv2_priv_ext_dissector_table = register_dissector_table("gtpv2.priv_ext", "GTPv2 Private Extension", proto_gtpv2, FT_UINT16, BASE_DEC);
+
+    gtpv2_tap = register_tap("gtpv2");
+
+    register_srt_table(proto_gtpv2, NULL, 1, gtpv2_stat_packet, gtpv2_stat_init, NULL);
 }
 
 void

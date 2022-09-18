@@ -1738,8 +1738,17 @@ and results separately and combined is displayed.
 --
 Collect requests/response SRT (Service Response Time) data for GTP.
 Data collected is the number of calls, minimum SRT, maximum SRT, average
-SRT, and sum SRT for Echo and Create/Update/Delete PDP context commands only.
-Currently no statistics are gathered on unpaired messages.
+SRT, and sum SRT for certain commands.  Currently no statistics are gathered
+on unpaired messages.
+--
+
+*-z* gtpv2,srt[,__filter__]::
++
+--
+Collect requests/response SRT (Service Response Time) data for GTP.
+Data collected is the number of calls, minimum SRT, maximum SRT, average
+SRT, and sum SRT for certain commands.  Currently no statistics are gathered
+on unpaired messages.
 --
 
 *-z* h225,counter[,__filter__]::
