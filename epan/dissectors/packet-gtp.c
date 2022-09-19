@@ -2408,16 +2408,17 @@ static const value_string gtp_ext_hdr_pdu_ses_cont_pdu_type_vals[] = {
 #define MM_PROTO_SESSION_MGMT           0x0A
 #define MM_PROTO_NON_CALL_RELATED       0x0B
 
+static GHashTable *gtpstat_msg_idx_hash = NULL;
+
 static void
 gtpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
-    srt_stat_table *gtp_srt_table;
+    if (gtpstat_msg_idx_hash != NULL) {
+        g_hash_table_destroy(gtpstat_msg_idx_hash);
+    }
+    gtpstat_msg_idx_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    gtp_srt_table = init_srt_table("GTP Requests", NULL, srt_array, 4, NULL, NULL, NULL);
-    init_srt_table_row(gtp_srt_table, 0, "Echo");
-    init_srt_table_row(gtp_srt_table, 1, "Create PDP context");
-    init_srt_table_row(gtp_srt_table, 2, "Update PDP context");
-    init_srt_table_row(gtp_srt_table, 3, "Delete PDP context");
+    init_srt_table("GTP Requests", NULL, srt_array, 0, NULL, NULL, NULL);
 }
 
 static tap_packet_status
@@ -2427,7 +2428,7 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     srt_stat_table *gtp_srt_table;
     srt_data_t *data = (srt_data_t *)pss;
     const gtp_msg_hash_t *gtp=(const gtp_msg_hash_t *)prv;
-    int idx=0;
+    int idx = 0;
 
     /* we are only interested in reply packets */
     if(gtp->is_request){
@@ -2438,26 +2439,24 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         return TAP_PACKET_DONT_REDRAW;
     }
 
-    /* Only use the commands we know how to handle, this is not a comprehensive list */
-    /* Redoing the message indexing is bit reduntant,                    */
-    /*  but using message type as such would yield a long gtp_srt_table. */
-    /*  Only a fraction of the messages are matchable req/resp pairs,    */
-    /*  it just doesn't feel feasible.                                   */
-
-    switch(gtp->msgtype){
-    case GTP_MSG_ECHO_REQ: idx=0;
-        break;
-    case GTP_MSG_CREATE_PDP_REQ: idx=1;
-        break;
-    case GTP_MSG_UPDATE_PDP_REQ: idx=2;
-        break;
-    case GTP_MSG_DELETE_PDP_REQ: idx=3;
-        break;
-    default:
-        return TAP_PACKET_DONT_REDRAW;
-    }
+    /* Redoing the message indexing is bit redundant (and keeps us from
+     * passing in the filter "gtp.message" in init_srt_table above),
+     * but using message type as such would yield a long gtp_srt_table.
+     */
 
     gtp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+
+    idx = GPOINTER_TO_UINT(g_hash_table_lookup(gtpstat_msg_idx_hash, GUINT_TO_POINTER(gtp->msgtype)));
+
+    /* Store the value incremented by 1 to avoid confusing index 0 with NULL */
+    if (idx == 0) {
+        idx = g_hash_table_size(gtpstat_msg_idx_hash);
+        g_hash_table_insert(gtpstat_msg_idx_hash, GUINT_TO_POINTER(gtp->msgtype), GUINT_TO_POINTER(idx + 1));
+        init_srt_table_row(gtp_srt_table, idx, val_to_str_ext(gtp->msgtype, &gtp_message_type_ext, "Unknown (%d)"));
+    } else {
+        idx -= 1;
+    }
+
     add_srt_table_data(gtp_srt_table, idx, &gtp->req_time, pinfo);
 
     return TAP_PACKET_REDRAW;
