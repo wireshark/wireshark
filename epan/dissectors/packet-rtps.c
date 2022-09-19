@@ -754,6 +754,7 @@ static dissector_table_t rtps_type_name_table;
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_NONE      (0)
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB      (1)
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2     (2)
+#define RTI_OSAPI_COMPRESSION_CLASS_ID_LZ4       (4)
 #define RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO      (G_MAXUINT32)
 
 /* VENDOR_BUILTIN_ENDPOINT_SET FLAGS */
@@ -1214,6 +1215,10 @@ static int hf_rtps_param_participant_security_symmetric_cipher_algorithms_suppor
 static int hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm                           = -1;
 static int hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm                           = -1;
 static int hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm                     = -1;
+static int hf_rtps_param_compression_id_mask                                                = -1;
+static int hf_rtps_flag_compression_id_zlib                                                 = -1;
+static int hf_rtps_flag_compression_id_bzip2                                                = -1;
+static int hf_rtps_flag_compression_id_lz4                                                  = -1;
 static int hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_supported_mask                   = -1;
 static int hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_used_mask                        = -1;
 static int hf_rtps_param_participant_security_digital_signature_algorithms_auth_supported_mask                          = -1;
@@ -2522,6 +2527,13 @@ static int* const SECURITY_SIMMETRIC_CIPHER_MASK_FLAGS[] = {
   &hf_rtps_flag_security_symmetric_cipher_mask_custom_algorithm,
   &hf_rtps_flag_security_symmetric_cipher_mask_aes256_gcm,
   &hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm,
+  NULL
+};
+
+static int* const COMPRESSION_ID_MASK_FLAGS[] = {
+  &hf_rtps_flag_compression_id_lz4,
+  &hf_rtps_flag_compression_id_bzip2,
+  &hf_rtps_flag_compression_id_zlib,
   NULL
 };
 
@@ -8733,7 +8745,14 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
     * +---------------+-------------------------------+---------------+
     * | ...                           | int16 DataRepresentationId[N] |
     * +---------------+---------------+---------------+---------------+
+    * |             uint32_t Compression_id (Optional)                |
+    * +---------------+---------------+---------------+---------------+
+    * compression_iD flags:
+    * ZLIB: 0001b
+    * BZIP: 0010b
+    * LZ4:  0100b
     */
+
     case PID_DATA_REPRESENTATION: {
       proto_tree *data_representation_seq_subtree;
       proto_item *item;
@@ -8741,6 +8760,8 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
       guint item_offset;
       guint seq_size;
       guint counter = 0;
+      guint initial_offset = offset;
+      guint compression_id_offset = 0;
 
       seq_size = tvb_get_guint32(tvb, offset, encoding);
       data_representation_seq_subtree = proto_tree_add_subtree_format(rtps_parameter_tree, tvb, offset,
@@ -8753,6 +8774,18 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
           val_to_str(value, data_representation_kind_vals, "Unknown data representation value: %u"),
           value);
         item_offset += 2;
+      }
+      compression_id_offset = item_offset;
+      ALIGN_ME(compression_id_offset, 4);
+      if (compression_id_offset - initial_offset >= 4) {
+        proto_tree_add_bitmask(
+            rtps_parameter_tree,
+            tvb,
+            compression_id_offset,
+            hf_rtps_param_compression_id_mask,
+            ett_rtps_flags,
+            COMPRESSION_ID_MASK_FLAGS,
+            encoding);
       }
       break;
     }
@@ -15450,6 +15483,22 @@ void proto_register_rtps(void) {
         "Supported Mask", "rtps.param.participant_security_symmetric_cipher_algorithms.supported_mask",
         FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing Symmetric Cipher algorithms the participant supports",
 		HFILL }
+    },
+    { &hf_rtps_param_compression_id_mask, {
+        "Compression Id Mask", "rtps.param.compression_id_mask",
+        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing compression id.", HFILL }
+    },
+    { &hf_rtps_flag_compression_id_zlib, {
+        "ZLIB", "rtps.flag.compression_id_zlib",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB, NULL, HFILL }
+    },
+    { &hf_rtps_flag_compression_id_bzip2, {
+        "BZIP2", "rtps.flag.compression_id_bzip2",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2, NULL, HFILL }
+    },
+    { &hf_rtps_flag_compression_id_lz4, {
+        "LZ4", "rtps.flag.compression_id_lz4",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), RTI_OSAPI_COMPRESSION_CLASS_ID_LZ4, NULL, HFILL }
     },
     { &hf_rtps_flag_security_symmetric_cipher_mask_aes128_gcm, {
         "AES128 GCM", "rtps.flag.security_symmetric_cipher_mask.aes128_gcm",
