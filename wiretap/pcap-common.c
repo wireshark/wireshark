@@ -493,6 +493,9 @@ static const struct {
 	{ 294,		WTAP_ENCAP_USB_2_0_FULL_SPEED },
 	{ 295,		WTAP_ENCAP_USB_2_0_HIGH_SPEED },
 
+	/* Auerswald log file captured from any supported Auerswald device */
+	{ 296,		WTAP_ENCAP_AUERSWALD_LOG },
+
 	/*
 	 * To repeat:
 	 *

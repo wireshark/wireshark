@@ -1191,6 +1191,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_AUTOSAR_DLT */
 	{ "autosardlt", "AUTOSAR DLT" },
+
+	/* WTAP_ENCAP_AUERSWALD_LOG */
+	{ "auerlog", "Auerswald Log" },
 };
 
 WS_DLL_LOCAL
