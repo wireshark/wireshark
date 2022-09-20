@@ -359,6 +359,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                         item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,val);
                     }
                     break;
+                case FT_CHAR:
                 case FT_UINT8:
                 case FT_UINT16:
                 case FT_UINT24:
