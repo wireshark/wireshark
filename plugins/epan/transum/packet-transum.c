@@ -831,7 +831,7 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if (in_rrpd->req_first_frame)
     {
-        pi = proto_tree_add_item(tree, proto_transum, tvb, 0, -1, ENC_NA);
+        pi = proto_tree_add_item(tree, proto_transum, tvb, 0, 0, ENC_NA);
         rte_tree = proto_item_add_subtree(pi, ett_transum);
 
         nstime_delta(&rte_reqspread, &(in_rrpd->req_last_rtime), &(in_rrpd->req_first_rtime));
