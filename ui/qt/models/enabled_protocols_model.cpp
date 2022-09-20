@@ -484,8 +484,7 @@ void EnabledProtocolsProxyModel::setItemsEnable(EnabledProtocolsProxyModel::Enab
     if (! parent.isValid())
         beginResetModel();
 
-    int rowcount = rowCount(parent);
-    for (int row = 0; row < rowcount; row++)
+    for (int row = 0; row < rowCount(parent); row++)
     {
         QModelIndex idx = index(row, EnabledProtocolsModel::colProtocol, parent);
 
