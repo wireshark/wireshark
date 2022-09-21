@@ -1814,6 +1814,7 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
         return;
     }
 
+    /* XXX: Why not use xml_escape() from epan/strutil.h ? */
     for (p = unescaped_string; *p != '\0' && (offset<(ESCAPED_BUFFER_MAX-1)); p++) {
         switch (*p) {
         case '&':
@@ -1836,8 +1837,22 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
             (void) g_strlcpy(&temp_buffer[offset], "&#x27;", ESCAPED_BUFFER_MAX-offset);
             offset += 6;
             break;
-        default:
+        case '\t':
+        case '\n':
+        case '\r':
             temp_buffer[offset++] = *p;
+            break;
+        default:
+            /* XML 1.0 doesn't allow ASCII control characters, except
+             * for the three whitespace ones above (which do *not*
+             * include '\v' and '\f', so not the same group as isspace),
+             * even as character references.
+             * There's no official way to escape them, so we'll do this. */
+            if (g_ascii_iscntrl(*p)) {
+                offset += snprintf(&temp_buffer[offset], ESCAPED_BUFFER_MAX-offset, "\\x%x", (guint8)*p);
+            } else {
+                temp_buffer[offset++] = *p;
+            }
         }
         if (offset > ESCAPED_BUFFER_MAX-8) {
             /* Getting close to end of buffer so flush to fh */

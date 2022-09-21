@@ -1027,8 +1027,22 @@ xml_escape(const gchar *unescaped)
             case '"':
                 g_string_append(buffer, "&quot;");
                 break;
-            default:
+            case '\t':
+            case '\n':
+            case '\r':
                 g_string_append_c(buffer, c);
+                break;
+            default:
+                /* XML 1.0 doesn't allow ASCII control characters, except
+                 * for the three whitespace ones above (which do *not*
+                 * include '\v' and '\f', so not the same group as isspace),
+                 * even as character references.
+                 * There's no official way to escape them, so we'll do this. */
+                if (g_ascii_iscntrl(c)) {
+                    g_string_append_printf(buffer, "\\x%x", c);
+                } else {
+                    g_string_append_c(buffer, c);
+                }
                 break;
         }
     }
