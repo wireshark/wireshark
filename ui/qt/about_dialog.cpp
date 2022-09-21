@@ -587,7 +587,7 @@ void AboutDialog::copyActionTriggered(bool copyRow)
     int copyColumn = -1;
     if (! copyRow)
     {
-        QMenu * menu = qobject_cast<QMenu *>(sendingAction->parentWidget());
+        QMenu * menu = qobject_cast<QMenu *>(sendingAction->parent());
         if (menu)
         {
             QPoint menuPosOnTable = tree->mapFromGlobal(menu->pos());
