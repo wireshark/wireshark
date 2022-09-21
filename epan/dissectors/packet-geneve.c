@@ -359,7 +359,7 @@ proto_register_geneve(void)
         },
         { &hf_geneve_vni,
           { "Virtual Network Identifier (VNI)", "geneve.vni",
-            FT_UINT24, BASE_HEX, NULL, 0x0,
+            FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_geneve_reserved,
