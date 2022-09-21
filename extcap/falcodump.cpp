@@ -51,6 +51,7 @@
 
 #define FALCODUMP_PLUGIN_PLACEHOLDER "<plugin name>"
 
+// We load our plugins and fetch their configs before we set our log level.
 // #define DEBUG_JSON_PARSING
 // #define DEBUG_SINSP
 
@@ -75,6 +76,7 @@ struct config_schema_properties {
     std::string type;           // "boolean", "integer", "string"
     std::string description;
     std::string default_value;
+    std::vector<std::string>enum_values;
     std::string current_value;
 };
 
@@ -91,7 +93,7 @@ struct plugin_configuration {
                 continue;
             }
             json_dumper_set_member_name(&dumper, prop.name.c_str());
-            if (prop.type == "string") {
+            if (prop.type == "string" || prop.type == "selector") {
                 json_dumper_value_string(&dumper, prop.current_value.c_str());
             } else {
                 json_dumper_value_anyf(&dumper, "%s", prop.current_value.c_str());
@@ -149,10 +151,41 @@ const std::pair<std::string,bool> find_json_value(const std::string blob, const 
             return std::pair<std::string,bool>(value, true);
         }
 #ifdef DEBUG_JSON_PARSING
-        else if (cur_key == key) ws_debug("|%s(%d): %s(%d)|\n", cur_key.c_str(), k_tok.type, blob.substr(v_tok.start, v_tok.end - v_tok.start).c_str(), v_tok.type);
+        else if (cur_key == key) ws_warning("|%s(%d): %s(%d)|\n", cur_key.c_str(), k_tok.type, blob.substr(v_tok.start, v_tok.end - v_tok.start).c_str(), v_tok.type);
 #endif
     }
     return std::pair<std::string,bool>("", false);
+}
+
+// Convert a JSON array to a string vector.
+// Returns (vector, true) on success, or (err_str, false) on failure.
+const std::pair<std::vector<std::string>,bool> get_json_array(const std::string blob) {
+    std::vector<jsmntok_t> tokens;
+    int num_tokens = json_parse(blob.c_str(), NULL, 0);
+
+    switch (num_tokens) {
+    case JSMN_ERROR_INVAL:
+        return std::pair<std::vector<std::string>,bool>(std::vector<std::string>{"invalid"}, false);
+    case JSMN_ERROR_PART:
+    {
+        return std::pair<std::vector<std::string>,bool>(std::vector<std::string>{"incomplete"}, false);
+    }
+    default:
+        break;
+    }
+
+    tokens.resize(num_tokens);
+    json_parse(blob.c_str(), tokens.data(), num_tokens);
+    std::vector<std::string> elements;
+    // First token is the full array.
+    for (int idx = 1; idx < num_tokens; idx++) {
+        jsmntok_t &el_tok = tokens[idx];
+        elements.push_back(blob.substr(el_tok.start, el_tok.end - el_tok.start));
+    }
+#ifdef DEBUG_JSON_PARSING
+    ws_warning("%s: %d\n", blob.c_str(), (int)elements.size());
+#endif
+    return std::pair<std::vector<std::string>,bool>(elements, true);
 }
 
 // Given a JSON blob containing a schema properties map, add each property to the
@@ -187,25 +220,26 @@ const std::pair<std::string,bool> parse_schema_properties(const std::string prop
         std::string display = name;
         jsmntok_t &p_tok = tokens[idx+1];
         std::string property_blob = props_blob.substr(p_tok.start, p_tok.end - p_tok.start);
+        std::vector<std::string> enum_values;
 
-        std::pair<std::string,bool> jv = find_json_value(property_blob, "title", JSMN_OBJECT|JSMN_ARRAY, JSMN_OBJECT|JSMN_ARRAY);
+        std::pair<std::string,bool> jv = find_json_value(property_blob, "title", JSMN_STRING, JSMN_STRING);
         if (jv.second) {
             display = jv.first;
         }
         // else split+capitalize "name"?
 
-        jv = find_json_value(property_blob, "type", JSMN_OBJECT|JSMN_ARRAY, JSMN_OBJECT|JSMN_ARRAY);
+        jv = find_json_value(property_blob, "type", JSMN_STRING, JSMN_STRING);
         if (!jv.second) {
             return std::pair<std::string,bool>(jv.first, false);
         }
         std::string type = jv.first;
-        jv = find_json_value(property_blob, "description", JSMN_OBJECT|JSMN_ARRAY, JSMN_OBJECT|JSMN_ARRAY);
+        jv = find_json_value(property_blob, "description", JSMN_STRING, JSMN_STRING);
         if (!jv.second) {
             return std::pair<std::string,bool>(jv.first, false);
         }
         std::string description = jv.first;
         std::string default_value;
-        jv = find_json_value(property_blob, "default", JSMN_OBJECT|JSMN_ARRAY, JSMN_OBJECT|JSMN_ARRAY);
+        jv = find_json_value(property_blob, "default", JSMN_STRING, JSMN_STRING);
         if (jv.second) {
             default_value = jv.first;
         } else {
@@ -217,8 +251,16 @@ const std::pair<std::string,bool> parse_schema_properties(const std::string prop
                 default_value = default_value.erase(pfx_pos);
             }
         }
+        jv = find_json_value(property_blob, "enum", JSMN_STRING, JSMN_ARRAY);
+        if (jv.second) {
+            const std::pair<std::vector<std::string>,bool> ja = get_json_array(jv.first);
+            if (ja.second) {
+                enum_values = ja.first;
+                type = "selector";
+            }
+        }
 #ifdef DEBUG_JSON_PARSING
-        ws_debug("%s: %s, %s\n", name.c_str(), type.c_str(), description.c_str());
+        ws_warning("%s: %s, %s, [%d]\n", name.c_str(), type.c_str(), description.c_str(), (int)enum_values.size());
 #endif
         const char *call = g_ascii_strdown(name.c_str(), -1);
         config_schema_properties properties = {
@@ -229,7 +271,8 @@ const std::pair<std::string,bool> parse_schema_properties(const std::string prop
             type,
             description,
             default_value,
-            default_value
+            enum_values,
+            default_value,
         };
         plugin_config.properties.push_back(properties);
         g_free((gpointer)call);
@@ -274,30 +317,46 @@ static bool get_plugin_config_schema(const std::shared_ptr<sinsp_plugin> &plugin
 {
     ss_plugin_schema_type schema_type = SS_PLUGIN_SCHEMA_JSON;
     std::string init_schema = plugin->get_init_schema(schema_type);
+    std::string config_name;
 
-    std::pair<std::string,bool> jv = find_json_value(init_schema, "definitions", JSMN_OBJECT|JSMN_ARRAY, JSMN_OBJECT);
+#ifdef DEBUG_JSON_PARSING
+    ws_warning("schema: %s\n", init_schema.c_str());
+#endif
+
+    std::pair<std::string,bool> jv = find_json_value(init_schema, "$ref", JSMN_STRING, JSMN_STRING);
     if (!jv.second) {
-        ws_warning("ERROR: Interface \"%s\" has an %s configuration schema.", plugin->name().c_str(), jv.first.c_str());
+        ws_warning("ERROR: Unable to find schema reference for interface \"%s\".", plugin->name().c_str());
         return false;
     }
-#ifdef DEBUG_JSON_PARSING
-    ws_debug("%s\n", jv.first.c_str());
-#endif
-    std::string definitions = jv.first;
-    jv = find_json_value(definitions, "PluginConfig", JSMN_OBJECT|JSMN_ARRAY, JSMN_OBJECT);
+
+    std::string schema_ref = jv.first;
+    std::string ref_pfx = "#/definitions/";
+    if (schema_ref.substr(0, ref_pfx.size()) == ref_pfx) {
+      config_name = schema_ref.substr(ref_pfx.size());
+    }
+
+    if (config_name.size() < 1) {
+        ws_warning("ERROR: Unable to find configuration name for interface \"%s\".", plugin->name().c_str());
+        return false;
+    }
+
+    jv = find_json_value(init_schema, "definitions", JSMN_STRING, JSMN_OBJECT);
     if (!jv.second) {
-        ws_warning("ERROR: Interface \"%s\" has an %s configuration schema.", plugin->name().c_str(), jv.first.c_str());
+        ws_warning("ERROR: Definitions not found in interface \"%s\" configuration schema.", plugin->name().c_str());
+        return false;
+    }
+    std::string definitions = jv.first;
+    jv = find_json_value(definitions, config_name, JSMN_STRING, JSMN_OBJECT);
+    if (!jv.second) {
+        ws_warning("ERROR: Configuration \"%s\" not found in interface \"%s\" configuration schema.", config_name.c_str(), plugin->name().c_str());
         return false;
     }
     std::string pluginconfig = jv.first;
-    jv = find_json_value(pluginconfig, "properties", JSMN_OBJECT|JSMN_ARRAY, JSMN_OBJECT);
+    jv = find_json_value(pluginconfig, "properties", JSMN_STRING, JSMN_OBJECT);
     if (!jv.second) {
         ws_warning("ERROR: Interface \"%s\" has an %s configuration schema.", plugin->name().c_str(), jv.first.c_str());
         return false;
     }
-#ifdef DEBUG_JSON_PARSING
-    ws_debug("properties: %s\n", jv.first.c_str());
-#endif
     jv = parse_schema_properties(jv.first, plugin->name(), plugin_config);
     if (!jv.second) {
         ws_warning("ERROR: Interface \"%s\" has an %s configuration schema.", plugin->name().c_str(), jv.first.c_str());
@@ -373,23 +432,33 @@ static int show_config(const std::string &interface, const struct plugin_configu
         arg_num++);
 //    if (plugin_filter)
 //        printf("{default=%s}", plugin_filter);
-//    printf("{group=Capture}\n");
     for (const auto &properties : plugin_config.properties) {
         std::string default_value;
         if (!properties.default_value.empty()) {
             default_value = "{default=" + properties.default_value + "}";
         }
-        const char *cfg_line = g_strdup_printf(
+        printf(
             "arg {number=%d}"
             "{call=--%s}"
             "{display=%s}"
             "{type=%s}"
             "%s"
             "{tooltip=%s}"
-            "{group=Capture}",
-            arg_num++, properties.option.c_str(), properties.display.c_str(), properties.type.c_str(), default_value.c_str(), properties.description.c_str());
-        puts(cfg_line);
-        g_free((gpointer)cfg_line);
+            "{group=Capture}"
+            "\n",
+            arg_num, properties.option.c_str(), properties.display.c_str(), properties.type.c_str(), default_value.c_str(), properties.description.c_str());
+        if (properties.enum_values.size() > 0) {
+            for (const auto &enum_val : properties.enum_values) {
+                printf(
+                  "value {arg=%d}"
+                  "{value=%s}"
+                  "{display=%s}"
+                  "%s"
+                  "\n",
+                  arg_num, enum_val.c_str(), enum_val.c_str(), enum_val == default_value ? "{default=true}" : "");
+            }
+        }
+        arg_num++;
     }
     extcap_config_debug(&arg_num);
 

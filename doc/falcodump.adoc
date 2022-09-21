@@ -69,6 +69,17 @@ Save captured packet to file or send it through pipe.
 --plugin-source=<source path or URL>::
 Capture from the specified location.
 
+== PLUGINS
+
+=== cloudtrail (AWS CloudTrail)
+
+CloudTrail sources can be S3 buckets or SQS queue URLs. S3 bucket URLs have the form
+
+s3://__bucket_name__/AWSLogs/__id__/CloudTrail/__region__/__year__/_month_/__day__
+
+The __region__, __year__, _month_, and __day__ components can be omitted in order to fetch more or less data.
+For example, the source s3://mybucket/AWSLogs/012345678/CloudTrail/us-west-2/2023 will fetch all CloudWatch logs for the year 2023.
+
 == EXAMPLES
 
 To see program arguments:
