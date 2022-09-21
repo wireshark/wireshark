@@ -5,12 +5,12 @@ on: [push]
 jobs:
   ubuntu:
     name: Build & Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install deps
-        run: sudo tools/debian-setup.sh --install-optional --install-test-deps --install-deb-deps python3-pip -y
+        run: sudo tools/debian-setup.sh --install-all python3-pip -y
       - name: Mkdir
         run: mkdir build
       - name: Cmake
