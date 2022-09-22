@@ -891,6 +891,18 @@ static const value_string usb_endpoint_direction_vals[] = {
     {0, NULL}
 };
 
+static const range_string usb_setup_flag_rvals[] = {
+    {0, 0, "relevant"},
+    {1, 255, "not relevant"},
+    {0, 0, NULL}
+};
+
+static const range_string usb_data_flag_rvals[] = {
+    {0, 0, "present"},
+    {1, 255, "not present"},
+    {0, 0, NULL}
+};
+
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
 extern value_string_ext ext_usb_audio_subclass_vals;
@@ -4070,7 +4082,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8  endpoint_byte;
     guint8  transfer_type_and_direction;
     guint8  urb_type;
-    guint8  flag[2];
+    guint32 flag;
     guint32 bus_id;
 
     *urb_id = tvb_get_guint64(tvb, 0, ENC_HOST_ENDIAN);
@@ -4107,27 +4119,16 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
      * sizeof(struct usb_device_setup_hdr) bytes. The content of these
      * bytes only have meaning in case setup_flag == 0.
      */
-    flag[0] = tvb_get_guint8(tvb, 14);
-    flag[1] = '\0';
-    if (flag[0] == 0) {
+    proto_tree_add_item_ret_uint(tree, hf_usb_setup_flag, tvb, 14, 1, ENC_NA, &flag);
+    if (flag == 0) {
         usb_conv_info->is_setup = TRUE;
-        proto_tree_add_string(tree, hf_usb_setup_flag, tvb, 14, 1, "relevant (0)");
         if (usb_conv_info->transfer_type!=URB_CONTROL)
             proto_tree_add_expert(tree, pinfo, &ei_usb_invalid_setup, tvb, 14, 1);
     } else {
         usb_conv_info->is_setup = FALSE;
-        proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
-            14, 1, flag, "not relevant ('%c')", g_ascii_isprint(flag[0]) ? flag[0]: '.');
     }
 
-    flag[0] = tvb_get_guint8(tvb, 15);
-    flag[1] = '\0';
-    if (flag[0] == 0) {
-        proto_tree_add_string(tree, hf_usb_data_flag, tvb, 15, 1, "present (0)");
-    } else {
-        proto_tree_add_string_format_value(tree, hf_usb_data_flag, tvb,
-            15, 1, flag, "not present ('%c')", g_ascii_isprint(flag[0]) ? flag[0] : '.');
-    }
+    proto_tree_add_item(tree, hf_usb_data_flag, tvb, 15, 1, ENC_NA);
 
     proto_tree_add_item(tree, hf_usb_urb_ts_sec, tvb, 16, 8, ENC_HOST_ENDIAN);
     proto_tree_add_item(tree, hf_usb_urb_ts_usec, tvb, 24, 4, ENC_HOST_ENDIAN);
@@ -5830,12 +5831,12 @@ proto_register_usb(void)
 
         { &hf_usb_setup_flag,
           { "Device setup request", "usb.setup_flag",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_CHAR, BASE_HEX|BASE_RANGE_STRING, RVALS(usb_setup_flag_rvals), 0x0,
             "USB device setup request is relevant (0) or not", HFILL }},
 
         { &hf_usb_data_flag,
           { "Data", "usb.data_flag",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_CHAR, BASE_HEX|BASE_RANGE_STRING, RVALS(usb_data_flag_rvals), 0x0,
             "USB data is present (0) or not", HFILL }},
 
         { &hf_usb_urb_ts_sec,
