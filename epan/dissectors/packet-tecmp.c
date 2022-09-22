@@ -1616,7 +1616,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
                     offset2 += length2;
 
-                    if ((dataflags & DATA_FLAG_FR_NF) != 0 && !flexray_call_subdissectors(payload_tvb, pinfo, tree, &fr_info, heuristic_first)) {
+                    if ((dataflags & DATA_FLAG_FR_NF) != 0 || !flexray_call_subdissectors(payload_tvb, pinfo, tree, &fr_info, heuristic_first)) {
                         dissect_data(payload_tvb, pinfo, tree, device_id, tecmp_msg_type, data_type, interface_id);
                     }
                 }
