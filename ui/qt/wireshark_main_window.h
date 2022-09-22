@@ -152,17 +152,6 @@ private:
         MatchSelectedOrNot
     };
 
-    enum CopySelected {
-        CopyAllVisibleItems,
-        CopyAllVisibleSelectedTreeItems,
-        CopySelectedDescription,
-        CopySelectedFieldName,
-        CopySelectedValue,
-        CopyListAsText,
-        CopyListAsCSV,
-        CopyListAsYAML
-    };
-
     enum FileCloseContext {
         Default,
         Quit,
@@ -446,14 +435,8 @@ private slots:
     void on_actionFileStripHeaders_triggered();
     void on_actionFileExportTLSSessionKeys_triggered();
 
-    void actionEditCopyTriggered(WiresharkMainWindow::CopySelected selection_type);
-    void on_actionCopyAllVisibleItems_triggered();
-    void on_actionCopyAllVisibleSelectedTreeItems_triggered();
-    void on_actionCopyListAsText_triggered();
-    void on_actionCopyListAsCSV_triggered();
-    void on_actionCopyListAsYAML_triggered();
-
     void connectEditMenuActions();
+    void copySelectedItems(WiresharkMainWindow::CopySelected selection_type);
     void findPacket();
     void editTimeShift();
     void editConfigurationProfiles();

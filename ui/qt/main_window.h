@@ -50,6 +50,17 @@ public slots:
     void applyRecentPaneGeometry();
 
 protected:
+    enum CopySelected {
+        CopyAllVisibleItems,
+        CopyAllVisibleSelectedTreeItems,
+        CopySelectedDescription,
+        CopySelectedFieldName,
+        CopySelectedValue,
+        CopyListAsText,
+        CopyListAsCSV,
+        CopyListAsYAML
+    };
+
     void showWelcome();
     void showCapture();
 
