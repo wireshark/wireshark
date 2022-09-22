@@ -5,7 +5,12 @@ on: [push]
 jobs:
   windows:
     name: Build & Test
-    runs-on: windows-latest
+    runs-on: windows-2022
+    env:
+      PLATFORM: x64
+      WIRESHARK_BASE_DIR: C:\Development
+      CMAKE_PREFIX_PATH: D:\a\wireshark\Qt\6.2.3\msvc2019_64
+      WIRESHARK_VERSION_EXTRA: -GithubActionBuild
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,7 +24,11 @@ jobs:
           perl-version: '5.30'
           distribution: strawberry
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
+        with:
+          arch: win64_msvc2019_64
+          version: 6.2.3
+          modules: 'qt5compat'
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
         with:
@@ -29,7 +38,7 @@ jobs:
       - name: Mkdir
         run: mkdir build
       - name: Cmake
-        run: cmake -DCMAKE_SYSTEM_VERSION=10.0.20348.0 -A x64 ..
+        run: cmake -DCMAKE_SYSTEM_VERSION="10.0.20348.0" -A x64 ..
         env:
           PLATFORM: x64
           WIRESHARK_BASE_DIR: C:/wireshark-libs
@@ -57,8 +66,8 @@ jobs:
         working-directory: build
       - name: Build Windows pkg
         run: |
-          msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
-          msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
+          msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis_prep.vcxproj
+          msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
         working-directory: build
       - name: Upload Windows packages
         uses: actions/upload-artifact@v2
