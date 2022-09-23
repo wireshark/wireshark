@@ -1651,6 +1651,10 @@ typedef enum
     DE_EMM_UE_RADIO_CAP_ID_DEL_IND, /* 9.9.3.61 UE radio capability ID deletion indication */
     DE_EMM_WUS_ASSIST_INFO,     /* 9.9.3.62 WUS assistance information */
     DE_EMM_NB_S1_DRX_PARAM,     /* 9.9.3.63 NB-S1 DRX parameter */
+    DE_EMM_IMSI_OFFSET,         /* 9.9.3.64 IMSI offset */
+    DE_EMM_UE_REQUEST_TYPE,     /* 9.9.3.65 UE request type */
+    DE_EMM_PAGING_RESTRICTION,  /* 9.9.3.66 Paging restriction */
+    DE_EMM_EPS_ADD_REQ_RESULT,  /* 9.9.3.67 EPS additional request result */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;

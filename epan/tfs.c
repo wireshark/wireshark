@@ -39,6 +39,7 @@ const true_false_string tfs_odd_even = { "Odd", "Even" };
 const true_false_string tfs_allow_block = { "Allow", "Block" };
 const true_false_string tfs_restricted_allowed = { "Restricted", "Allowed" };
 const true_false_string tfs_restricted_not_restricted = { "Restricted", "Not restricted" };
+const true_false_string tfs_not_restricted_restricted = { "Not restricted", "Restricted" };
 const true_false_string tfs_accept_reject = { "Accept", "Reject" };
 const true_false_string tfs_more_nomore = { "More", "No more" };
 const true_false_string tfs_present_absent = { "Present", "Absent" };

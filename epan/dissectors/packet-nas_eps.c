@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V16.7.0 (2020-12)
+ * References: 3GPP TS 24.301 V17.7.0 (2022-06)
  */
 
 #include "config.h"
@@ -103,6 +103,11 @@ static int hf_nas_eps_emm_epco = -1;
 static int hf_nas_eps_emm_hc_cp_ciot = -1;
 static int hf_nas_eps_emm_s1_u_data = -1;
 static int hf_nas_eps_emm_up_ciot = -1;
+static int hf_nas_eps_emm_ptcc = -1;
+static int hf_nas_eps_emm_pr = -1;
+static int hf_nas_eps_emm_rpr = -1;
+static int hf_nas_eps_emm_piv = -1;
+static int hf_nas_eps_emm_ncr = -1;
 static int hf_nas_eps_emm_nas_key_set_id = -1;
 static int hf_nas_eps_tsc = -1;
 static int hf_nas_eps_emm_odd_even = -1;
@@ -145,7 +150,7 @@ static int hf_nas_eps_emm_eia3 = -1;
 static int hf_nas_eps_emm_eia4 = -1;
 static int hf_nas_eps_emm_eia5 = -1;
 static int hf_nas_eps_emm_eia6 = -1;
-static int hf_nas_eps_emm_eia7 = -1;
+static int hf_nas_eps_emm_eps_upip = -1;
 static int hf_nas_eps_emm_uea0 = -1;
 static int hf_nas_eps_emm_uea1 = -1;
 static int hf_nas_eps_emm_uea2 = -1;
@@ -198,11 +203,16 @@ static int hf_nas_eps_cp_backoff_cap = -1;
 static int hf_nas_eps_restrict_ec_cap = -1;
 static int hf_nas_eps_v2x_pc5_cap = -1;
 static int hf_nas_eps_multiple_drb_cap = -1;
+static int hf_nas_eps_rpr_cap = -1;
+static int hf_nas_eps_piv_cap = -1;
+static int hf_nas_eps_ncr_cap = -1;
 static int hf_nas_eps_v2x_nr_pc5_cap = -1;
 static int hf_nas_eps_up_mt_edt_cap = -1;
 static int hf_nas_eps_cp_mt_edt_cap = -1;
 static int hf_nas_eps_wsua_cap = -1;
 static int hf_nas_eps_racs_cap = -1;
+static int hf_nas_eps_ptcc_cap = -1;
+static int hf_nas_eps_pr_cap = -1;
 static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg = -1;
 static int hf_nas_eps_emm_ss_code = -1;
 static int hf_nas_eps_emm_lcs_ind = -1;
@@ -291,6 +301,7 @@ static int hf_nas_eps_emm_detach_req_DL = -1;
 static int hf_nas_eps_emm_switch_off = -1;
 static int hf_nas_eps_emm_detach_type_UL = -1;
 static int hf_nas_eps_emm_detach_type_DL = -1;
+static int hf_nas_eps_emm_5g_ehc_cp_ciot = -1;
 static int hf_nas_eps_emm_5gs_pnb_ciot = -1;
 static int hf_nas_eps_emm_5g_up_ciot = -1;
 static int hf_nas_eps_emm_5g_hc_cp_ciot = -1;
@@ -301,6 +312,26 @@ static int hf_nas_eps_emm_ue_radio_cap_id_request = -1;
 static int hf_nas_eps_emm_wus_assist_info_type = -1;
 static int hf_nas_eps_emm_wus_assist_info_ue_paging_prob = -1;
 static int hf_nas_eps_emm_nb_s1_drx_param = -1;
+static int hf_nas_eps_emm_imsi_offset = -1;
+static int hf_nas_eps_emm_ue_request_type = -1;
+static int hf_nas_eps_emm_paging_restriction_type = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi7 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi6 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi5 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi4 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi3 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi2 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi1 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi0 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi15 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi14 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi13 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi12 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi11 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi10 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi9 = -1;
+static int hf_nas_eps_emm_paging_restriction_ebi8 = -1;
+static int hf_nas_eps_emm_paging_restriction_decision = -1;
 
 static int hf_nas_eps_esm_qci = -1;
 static int hf_nas_eps_esm_mbr_ul = -1;
@@ -902,6 +933,10 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_UE_RADIO_CAP_ID_DEL_IND, "UE radio capability ID deletion indication" }, /* 9.9.3.61 UE radio capability ID deletion indication */
     { DE_EMM_WUS_ASSIST_INFO, "WUS assistance information" },                  /* 9.9.3.62 WUS assistance information */
     { DE_EMM_NB_S1_DRX_PARAM, "NB-S1 DRX parameter" },                         /* 9.9.3.63 NB-S1 DRX parameter */
+    { DE_EMM_IMSI_OFFSET, "IMSI offset" },                                     /* 9.9.3.64 IMSI offset */
+    { DE_EMM_UE_REQUEST_TYPE, "UE request type" },                             /* 9.9.3.65 UE request type */
+    { DE_EMM_PAGING_RESTRICTION, "Paging restriction" },                       /* 9.9.3.66 Paging restriction */
+    { DE_EMM_EPS_ADD_REQ_RESULT, "EPS additional request result" },            /* 9.9.3.67 EPS additional request result */
 
     { 0, NULL }
 };
@@ -995,6 +1030,10 @@ typedef enum
     DE_EMM_UE_RADIO_CAP_ID_DEL_IND, /* 9.9.3.61 UE radio capability ID deletion indication */
     DE_EMM_WUS_ASSIST_INFO,     /* 9.9.3.62 WUS assistance information */
     DE_EMM_NB_S1_DRX_PARAM,     /* 9.9.3.63 NB-S1 DRX parameter */
+    DE_EMM_IMSI_OFFSET,         /* 9.9.3.64 IMSI offset */
+    DE_EMM_UE_REQUEST_TYPE,     /* 9.9.3.65 UE request type */
+    DE_EMM_PAGING_RESTRICTION,  /* 9.9.3.66 Paging restriction */
+    DE_EMM_EPS_ADD_REQ_RESULT,  /* 9.9.3.67 EPS additional request result */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -1252,6 +1291,7 @@ const value_string nas_eps_emm_cause_values[] = {
     { 0x27, "CS service temporarily not available"},
     { 0x28, "No EPS bearer context activated"},
     { 0x2a, "Severe network failure"},
+    { 0x4e, "PLMN not allowed to operate at the present UE location"},
     { 0x5f, "Semantically incorrect message"},
     { 0x60, "Invalid mandatory information"},
     { 0x61, "Message type non-existent or not implemented"},
@@ -1426,6 +1466,15 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
         NULL
     };
 
+    static int* const oct5_flags[] = {
+        &hf_nas_eps_emm_ptcc,
+        &hf_nas_eps_emm_pr,
+        &hf_nas_eps_emm_rpr,
+        &hf_nas_eps_emm_piv,
+        &hf_nas_eps_emm_ncr,
+        NULL
+    };
+
     curr_offset = offset;
 
     /* CP CIoT  ERw/oPDN    ESR PS  CS-LCS  EPC-LCS EMC BS  IMS VoPS */
@@ -1437,6 +1486,13 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
         return (len);
 
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct5_flags, ENC_NA);
     curr_offset++;
 
     return len;
@@ -2067,7 +2123,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         &hf_nas_eps_emm_eia4,
         &hf_nas_eps_emm_eia5,
         &hf_nas_eps_emm_eia6,
-        &hf_nas_eps_emm_eia7,
+        &hf_nas_eps_emm_eps_upip,
         NULL
     };
 
@@ -2132,11 +2188,20 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     };
 
     static int * const oct10_flags[] = {
+        &hf_nas_eps_rpr_cap,
+        &hf_nas_eps_piv_cap,
+        &hf_nas_eps_ncr_cap,
         &hf_nas_eps_v2x_nr_pc5_cap,
         &hf_nas_eps_up_mt_edt_cap,
         &hf_nas_eps_cp_mt_edt_cap,
         &hf_nas_eps_wsua_cap,
         &hf_nas_eps_racs_cap,
+        NULL
+    };
+
+    static int * const oct11_flags[] = {
+        &hf_nas_eps_ptcc_cap,
+        &hf_nas_eps_pr_cap,
         NULL
     };
 
@@ -2149,7 +2214,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset++;
 
     /* EPS integrity algorithms supported (octet 4) */
-    /* EIA0    128-EIA1    128-EIA2    128-EIA3    EIA4    EIA5    EIA6    EIA7 */
+    /* EIA0    128-EIA1    128-EIA2    128-EIA3    EIA4    EIA5    EIA6    EPS-UPIP */
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
     curr_offset++;
 
@@ -2202,10 +2267,19 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     /* Octet 10
-     * 0    0    0    V2X NR-PC5    UP-MT-EDT    CP-MT-EDT    WSUA    RACS
+     * RPR    PIV    NCR    V2X NR-PC5    UP-MT-EDT    CP-MT-EDT    WSUA    RACS
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 3, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct10_flags, ENC_NA);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    /* Octet 11
+     * 0    0    0    0    0    0    PTCC    PR
+     */
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 6, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct11_flags, ENC_NA);
     curr_offset++;
 
     while ((curr_offset - offset) < len) {
@@ -2270,7 +2344,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         &hf_nas_eps_emm_eia4,
         &hf_nas_eps_emm_eia5,
         &hf_nas_eps_emm_eia6,
-        &hf_nas_eps_emm_eia7,
+        &hf_nas_eps_emm_eps_upip,
         NULL
     };
 
@@ -2317,7 +2391,7 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset++;
 
     /* EPS integrity algorithms supported (octet 4) */
-    /* EIA0    128-EIA1    128-EIA2    128-EIA3    EIA4    EIA5    EIA6    EIA7 */
+    /* EIA0    128-EIA1    128-EIA2    128-EIA3    EIA4    EIA5    EIA6    EPS-UPIP */
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
     curr_offset++;
 
@@ -2864,6 +2938,7 @@ de_emm_n1_ue_network_cap(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_
     guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
 {
     static int* const flags_oct1[] = {
+        &hf_nas_eps_emm_5g_ehc_cp_ciot,
         &hf_nas_eps_emm_5gs_pnb_ciot,
         &hf_nas_eps_emm_5g_up_ciot,
         &hf_nas_eps_emm_5g_hc_cp_ciot,
@@ -2872,7 +2947,7 @@ de_emm_n1_ue_network_cap(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_
         NULL
     };
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3), 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_oct1, ENC_NA);
 
     return 1;
@@ -2984,6 +3059,106 @@ de_emm_nb_s1_drx_param(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     return len;
 }
 
+/*
+ * 9.9.3.64    IMSI offset
+ */
+static guint16
+de_emm_imsi_offset(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_nas_eps_emm_imsi_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    return len;
+}
+
+/*
+ * 9.9.3.65    UE request type
+ */
+static const value_string nas_eps_emm_ue_request_type_vals[] = {
+    { 0x1, "NAS signalling connection release"},
+    { 0x2, "Rejection of paging"},
+    { 0, NULL }
+};
+
+static guint16
+de_emm_ue_request_type(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset<<3, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_ue_request_type, tvb, (offset<<3) + 4, 4, ENC_BIG_ENDIAN);
+
+    return len;
+}
+
+/*
+ * 9.9.3.66    Paging restriction
+ */
+static const value_string nas_eps_emm_paging_restriction_type_vals[] = {
+    { 0x1, "All paging is restricted"},
+    { 0x2, "All paging is restricted except for voice service"},
+    { 0x3, "All paging is restricted except for specified PDN connection(s)"},
+    { 0x4, "All paging is restricted except for voice service and specified PDN connection(s)"},
+    { 0, NULL }
+};
+
+static guint16
+de_emm_paging_restriction(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
+{
+    guint64 type;
+    guint32 curr_offset = offset;
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_ret_val(tree, hf_nas_eps_emm_paging_restriction_type,
+                                tvb, (curr_offset<<3)+4, 4, &type, ENC_BIG_ENDIAN);
+    curr_offset++;
+    if (type == 3 || type == 4) {
+        static int* const flags[] = {
+            &hf_nas_eps_emm_paging_restriction_ebi7,
+            &hf_nas_eps_emm_paging_restriction_ebi6,
+            &hf_nas_eps_emm_paging_restriction_ebi5,
+            &hf_nas_eps_emm_paging_restriction_ebi4,
+            &hf_nas_eps_emm_paging_restriction_ebi3,
+            &hf_nas_eps_emm_paging_restriction_ebi2,
+            &hf_nas_eps_emm_paging_restriction_ebi1,
+            &hf_nas_eps_emm_paging_restriction_ebi0,
+            &hf_nas_eps_emm_paging_restriction_ebi15,
+            &hf_nas_eps_emm_paging_restriction_ebi14,
+            &hf_nas_eps_emm_paging_restriction_ebi13,
+            &hf_nas_eps_emm_paging_restriction_ebi12,
+            &hf_nas_eps_emm_paging_restriction_ebi11,
+            &hf_nas_eps_emm_paging_restriction_ebi10,
+            &hf_nas_eps_emm_paging_restriction_ebi9,
+            &hf_nas_eps_emm_paging_restriction_ebi8,
+            NULL
+        };
+
+        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 2, flags, ENC_BIG_ENDIAN);
+        curr_offset += 2;
+    }
+
+    return (curr_offset - offset);
+}
+
+/*
+ * 9.9.3.67    EPS additional request result
+ */
+static const value_string nas_eps_emm_eps_add_req_result_vals[] = {
+    { 0x0, "no additional information"},
+    { 0x1, "paging restriction is accepted"},
+    { 0x2, "paging restriction is rejected"},
+    { 0, NULL }
+};
+
+static guint16
+de_emm_eps_add_req_result(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset<<3, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_paging_restriction_decision, tvb, (offset<<3) + 6, 2, ENC_BIG_ENDIAN);
+
+    return len;
+}
 /*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
@@ -4219,6 +4394,10 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,                       /* 9.9.3.61 UE radio capability ID deletion indication */
     de_emm_wus_assist_info,     /* 9.9.3.62 WUS assistance information */
     de_emm_nb_s1_drx_param,     /* 9.9.3.63 NB-S1 DRX parameter */
+    de_emm_imsi_offset,         /* 9.9.3.64 IMSI offset */
+    de_emm_ue_request_type,     /* 9.9.3.65 UE request type */
+    de_emm_paging_restriction,  /* 9.9.3.66 Paging restriction */
+    de_emm_eps_add_req_result,  /* 9.9.3.67 EPS additional request result */
 
     NULL,   /* NONE */
 };
@@ -4430,6 +4609,12 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Negotiated");
     /* 36   Negotiated DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
     ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, " - Negotiated");
+    /* 38   Negotiated IMSI offset IMSI offset 9.9.3.64 O TLV 4 */
+    ELEM_OPT_TLV(0x38, NAS_PDU_TYPE_EMM, DE_EMM_IMSI_OFFSET, " - Negotiated");
+    /* 1D   Forbidden TAI(s) for the list of "forbidden tracking areas for roaming" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
+    /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4480,6 +4665,10 @@ nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x16, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3402 value");
     /* A-   Extended EMM cause   Extended EMM cause 9.9.3.26A  O   TV  1 */
     ELEM_OPT_TV_SHORT( 0xA0, NAS_PDU_TYPE_EMM, DE_EMM_EXT_CAUSE, NULL );
+    /* 1D   Forbidden TAI(s) for the list of "forbidden tracking areas for roaming" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
+    /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 
@@ -4574,6 +4763,8 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Requested");
     /* 36   DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
     ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
+    /* 38   Requested IMSI offset IMSI offset 9.9.3.64 O TLV 4 */
+    ELEM_OPT_TLV(0x38, NAS_PDU_TYPE_EMM, DE_EMM_IMSI_OFFSET, " - Requested");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4781,6 +4972,10 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     /* EMM cause    EMM cause 9.9.3.9   O   TV  2 */
     ELEM_OPT_TV(0x53, NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
+    /* Forbidden TAI(s) for the list of "forbidden tracking areas for roaming" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
+    /* Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4906,6 +5101,10 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     ELEM_OPT_TLV(0x57, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_EPS_BE_CTX_STATUS, NULL);
     /* D-   Device properties  Device properties 9.9.2.0A O   TV  1 */
     ELEM_OPT_TV_SHORT(0xD0 , GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
+    /* 29   UE request type   UE request type 9.9.3.65   O   TLV 3 */
+    ELEM_OPT_TLV(0x29, NAS_PDU_TYPE_EMM, DE_EMM_UE_REQUEST_TYPE, NULL);
+    /* 28   Paging restriction   Paging restriction 9.9.3.66   O   TLV 3-5 */
+    ELEM_OPT_TLV(0x57, NAS_PDU_TYPE_EMM, DE_EMM_PAGING_RESTRICTION, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5113,6 +5312,10 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     ELEM_OPT_TLV(0x5F, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
+    /* 1D   Forbidden TAI(s) for the list of "forbidden tracking areas for roaming" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
+    /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5235,6 +5438,14 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Negotiated");
     /* 36   Negotiated DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
     ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, " - Negotiated");
+    /* 38   Negotiated IMSI offset IMSI offset 9.9.3.64 O TLV 4 */
+    ELEM_OPT_TLV(0x38, NAS_PDU_TYPE_EMM, DE_EMM_IMSI_OFFSET, " - Negotiated");
+    /* 37   EPS additional request result EPS additional request result 9.9.3.67 O TLV 3 */
+    ELEM_OPT_TLV(0x37, NAS_PDU_TYPE_EMM, DE_EMM_EPS_ADD_REQ_RESULT, NULL);
+    /* 1D   Forbidden TAI(s) for the list of "forbidden tracking areas for roaming" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
+    /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
+    ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5505,6 +5716,8 @@ nas_emm_serv_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_OPT_TLV(0x57, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_EPS_BE_CTX_STATUS, NULL);
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
+    /* 37   EPS additional request result EPS additional request result 9.9.3.67 O TLV 3 */
+    ELEM_OPT_TLV(0x37, NAS_PDU_TYPE_EMM, DE_EMM_EPS_ADD_REQ_RESULT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -7082,6 +7295,31 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_ptcc,
+        { "Paging timing collision control","nas_eps.emm.ptcc",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_pr,
+        { "Paging restriction","nas_eps.emm.pr",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_rpr,
+        { "Reject paging request","nas_eps.emm.rpr",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_piv,
+        { "Paging indication for voice services","nas_eps.emm.piv",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_ncr,
+        { "NAS signalling connection release","nas_eps.emm.ncr",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_tsc,
         { "Type of security context flag (TSC)","nas_eps.emm.tsc",
         FT_BOOLEAN,BASE_DEC, TFS(&nas_eps_tsc_value), 0x0,
@@ -7292,8 +7530,8 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_eia7,
-        { "EIA7","nas_eps.emm.eia7",
+    { &hf_nas_eps_emm_eps_upip,
+        { "EPS-UPIP","nas_eps.emm.eps_upip",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
@@ -7530,7 +7768,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_n1mode_cap,
-        { "N1 mode","nas_eps.emm.n1mode_cap",
+        { "N1 mode for 3GPP access","nas_eps.emm.n1mode_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
         NULL, HFILL }
     },
@@ -7559,6 +7797,21 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
+    { &hf_nas_eps_rpr_cap,
+        { "Reject paging request","nas_eps.emm.rpr_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_piv_cap,
+        { "Paging indication for voice services","nas_eps.emm.piv_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_ncr_cap,
+        { "NAS signalling connection release","nas_eps.emm.ncr_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_v2x_nr_pc5_cap,
         { "V2X communication over NR-PC5","nas_eps.emm.v2x_nr_pc5_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
@@ -7580,7 +7833,17 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_racs_cap,
-        { "Radio capability signaling optimisation","nas_eps.emm.racs_cap",
+        { "Radio capability signalling optimisation","nas_eps.emm.racs_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_ptcc_cap,
+        { "Paging timing collision control","nas_eps.emm.ptcc_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_pr_cap,
+        { "Paging restriction","nas_eps.emm.pr_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
@@ -8465,6 +8728,11 @@ proto_register_nas_eps(void)
         FT_UINT8, BASE_DEC, VALS(nas_eps_esm_request_type_values), 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_5g_ehc_cp_ciot,
+        { "Ethernet header compression for control plane CIoT 5GS optimization", "nas_eps.emm.5g_ehc_cp_ciot",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_5gs_pnb_ciot,
         { "5GS Preferred CIoT network behaviour", "nas_eps.emm.5gs_pnb_ciot",
         FT_UINT8, BASE_DEC, VALS(nas_eps_emm_5gs_pnb_ciot_vals), 0x30,
@@ -8513,6 +8781,106 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_nb_s1_drx_param,
         { "DRX value", "nas_eps.emm.nb_s1_drx_param",
         FT_UINT8, BASE_DEC, VALS(nas_eps_emm_nb_s1_drx_params_vals), 0x0f,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_imsi_offset,
+        { "IMSI offset", "nas_eps.emm.imsi_offset",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_ue_request_type,
+        { "UE request type", "nas_eps.emm.ue_request_type",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_ue_request_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_type,
+        { "Paging restriction type", "nas_eps.emm.paging_restriction.type",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_paging_restriction_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi7,
+        { "EBI(7)", "nas_eps.esm.paging_restriction.ebi7",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x8000,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi6,
+        { "EBI(6)", "nas_eps.esm.paging_restriction.ebi6",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x4000,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi5,
+        { "EBI(5)", "nas_eps.esm.paging_restriction.ebi5",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x2000,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi4,
+        { "EBI(4)", "nas_eps.esm.paging_restriction.ebi4",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x1000,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi3,
+        { "EBI(3)", "nas_eps.esm.paging_restriction.ebi3",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0800,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi2,
+        { "EBI(2)", "nas_eps.esm.paging_restriction.ebi2",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0400,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi1,
+        { "EBI(1)", "nas_eps.esm.paging_restriction.ebi1",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0200,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi0,
+        { "EBI(0)", "nas_eps.esm.paging_restriction.ebi0",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0100,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi15,
+        { "EBI(15)", "nas_eps.esm.paging_restriction.ebi15",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0080,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi14,
+        { "EBI(14)", "nas_eps.esm.paging_restriction.ebi14",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0040,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi13,
+        { "EBI(13)", "nas_eps.esm.paging_restriction.ebi13",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0020,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi12,
+        { "EBI(12)", "nas_eps.esm.paging_restriction.ebi12",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0010,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi11,
+        { "EBI(11)", "nas_eps.esm.paging_restriction.ebi11",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0008,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi10,
+        { "EBI(10)", "nas_eps.esm.paging_restriction.ebi10",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0004,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi9,
+        { "EBI(9)", "nas_eps.esm.paging_restriction.ebi9",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0002,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_ebi8,
+        { "EBI(8)", "nas_eps.esm.paging_restriction.ebi8",
+        FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0001,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_paging_restriction_decision,
+        { "Paging restriction decision", "nas_eps.esm.paging_restriction.decision",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_eps_add_req_result_vals), 0x0,
         NULL, HFILL }
     },
   };
