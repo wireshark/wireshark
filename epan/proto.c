@@ -5004,11 +5004,14 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	DISSECTOR_ASSERT(length >= 0);
 	/* XXX: We could have a preference or a define to turn off
 	 * validation (which is slightly slow) and trust subdissectors
-	 * to validate strings passed in. Or we could not just validate
-	 * but do (more expensive) sanitization of strings passed in.
+	 * to validate strings passed in.
 	 */
 	if (value) {
-		DISSECTOR_ASSERT(g_utf8_validate(value, -1, NULL));
+		if (!g_utf8_validate(value, -1, NULL)) {
+			proto_tree_set_string(PNODE_FINFO(pi), get_utf_8_string(PNODE_POOL(tree), value, (int)(strlen(value))));
+			/* We could turn this assertion off, and just sanitize */
+			DISSECTOR_ASSERT_HINT(0, "Unsanitized UTF-8 string");
+		}
 	}
 	proto_tree_set_string(PNODE_FINFO(pi), value);
 
