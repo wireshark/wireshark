@@ -59,6 +59,7 @@ static int hf_rohc_opt_type = -1;
 static int hf_rohc_opt_len = -1;
 static int hf_rohc_crc = -1;
 static int hf_rohc_opt_sn = -1;
+static int hf_rohc_ext = -1;
 static int hf_rohc_ext_sn = -1;
 static int hf_rohc_opt_clock = -1;
 static int hf_rohc_opt_jitter = -1;
@@ -190,6 +191,7 @@ static int ett_rohc_dynamic_udp = -1;
 static int ett_rohc_dynamic_rtp = -1;
 static int ett_rohc_compressed_list = -1;
 static int ett_rohc_packet = -1;
+static int ett_rohc_ext = -1;
 static int ett_rohc_ext3_flags = -1;
 static int ett_rohc_ext3_inner_ip_flags = -1;
 static int ett_rohc_ext3_outer_ip_flags = -1;
@@ -519,8 +521,17 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 {
     guint8 ext_type = tvb_get_guint8(tvb, offset) & 0xc0;
 
+    /* Extension subtree */
+    int start_offset = offset;
+    proto_item *ext_ti = proto_tree_add_string_format(tree,
+                                                      hf_rohc_ext,
+                                                      tvb, offset, 0,
+                                                      "", "Extension");
+    proto_tree *ext_tree = proto_item_add_subtree(ext_ti, ett_rohc_ext);
+
+
     if (ext_type != 0xc0) {
-        proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(ext_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 3, ENC_BIG_ENDIAN);
     }
     if (ext_type == 0x00) {
         /*   Extension 0:
@@ -530,10 +541,12 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             *   | 0   0 |    SN     |    +T     |
             *   +---+---+---+---+---+---+---+---+
             */
+        proto_item_append_text(ext_ti, " 0");
+
         if ((t == 0) || (rohc_cid_context->profile == ROHC_PROFILE_UDP)) {
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
         } else {
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
         }
         offset++;
     } else if (ext_type == 0x40) {
@@ -545,21 +558,23 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             *   |              -T               |
             *   +---+---+---+---+---+---+---+---+
             */
+        proto_item_append_text(ext_ti, " 1");
+
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
             offset++;
         }else if (t == 0) {
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
             offset++;
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         } else if (t == 1) {
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
             offset++;
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         } else {
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
             offset++;
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         }
         offset++;
     } else if (ext_type == 0x80) {
@@ -573,22 +588,24 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             *   |              -T               |
             *   +---+---+---+---+---+---+---+---+
             */
+        proto_item_append_text(ext_ti, " 2");
+
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         }else if (t == 0) {
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         } else if (t == 1) {
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bits_item(tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         } else {
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bits_item(tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         }
         offset++;
     } else {
@@ -622,6 +639,8 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
              * |                                               |  if rtp = 1
              *  ..... ..... ..... ..... ..... ..... ..... .....
              */
+            proto_item_append_text(ext_ti, " 3");
+
             static int * const ext3_flags[] = {
                 &hf_rohc_ext3_s,
                 &hf_rohc_ext3_r_ts,
@@ -635,7 +654,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             guint64 ext3_inner_ip_flags_value = 0;
             guint64 ext3_outer_ip_flags_value = 0;
 
-            proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rohc_ext3_flags, ett_rohc_ext3_flags, ext3_flags, ENC_BIG_ENDIAN, &ext3_flags_value);
+            proto_tree_add_bitmask_ret_uint64(ext_tree, tvb, offset, hf_rohc_ext3_flags, ett_rohc_ext3_flags, ext3_flags, ENC_BIG_ENDIAN, &ext3_flags_value);
             offset++;
 
             if (ext3_flags_value & ROHC_RTP_EXT3_IP_MASK) {
@@ -660,7 +679,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  * | TOS | TTL | DF  | PR  | IPX | NBO | RND | ip2 |  if ip = 1
                  *  ..... ..... ..... ..... ..... ..... ..... .....
                  */
-                proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rohc_ext3_inner_ip_flags, ett_rohc_ext3_inner_ip_flags, inner_ip_flags, ENC_BIG_ENDIAN, &ext3_inner_ip_flags_value);
+                proto_tree_add_bitmask_ret_uint64(ext_tree, tvb, offset, hf_rohc_ext3_inner_ip_flags, ett_rohc_ext3_inner_ip_flags, inner_ip_flags, ENC_BIG_ENDIAN, &ext3_inner_ip_flags_value);
                 rohc_cid_context->rnd = ((ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_RND_MASK) != 0);
                 offset++;
             }
@@ -686,18 +705,18 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  * | TOS2| TTL2| DF2 | PR2 |IPX2 |NBO2 |RND2 |  I2 |  if ip2 = 1
                  *  ..... ..... ..... ..... ..... ..... ..... .....
                  */
-                proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rohc_ext3_outer_ip_flags, ett_rohc_ext3_outer_ip_flags, outer_ip_flags, ENC_BIG_ENDIAN, &ext3_outer_ip_flags_value);
+                proto_tree_add_bitmask_ret_uint64(ext_tree, tvb, offset, hf_rohc_ext3_outer_ip_flags, ett_rohc_ext3_outer_ip_flags, outer_ip_flags, ENC_BIG_ENDIAN, &ext3_outer_ip_flags_value);
                 /* TODO Update rnd when adding support for inner/outer behavior */
                 rohc_cid_context->rnd = ((ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_RND_MASK) != 0);
                 offset++;
             }
             if (ext3_flags_value & ROHC_RTP_EXT3_S_MASK) {
-                proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(ext_tree, hf_rohc_comp_sn, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
                 offset++;
             }
             if (ext3_flags_value & ROHC_RTP_EXT3_R_TS_MASK) {
                 guint8 val_len = 0;
-                get_self_describing_var_len_val(tvb, tree, offset, hf_rohc_ts, &val_len);
+                get_self_describing_var_len_val(tvb, ext_tree, offset, hf_rohc_ts, &val_len);
                 offset += val_len;
             }
             if (ext3_flags_value & ROHC_RTP_EXT3_IP_MASK) {
@@ -714,23 +733,23 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  *  ..... ..... ..... ..... ..... ..... ..... .....   if IPX = 1
                  */
                 if (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_TOS_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 if (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_TTL_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 if (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_PR_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 if (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_IPX_MASK) {
-                    offset = dissect_compressed_list(0, pinfo, tree, tvb, offset);
+                    offset = dissect_compressed_list(0, pinfo, ext_tree, tvb, offset);
                 }
             }
             if (ext3_flags_value & ROHC_RTP_EXT3_I_MASK) {
-                proto_tree_add_item(tree, hf_rohc_comp_ip_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ext_tree, hf_rohc_comp_ip_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
             if (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_IP2_MASK) {
@@ -749,22 +768,22 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  *  ..... ..... ..... ..... ..... ..... ..... .....    if I2 = 1
                  */
                 if (ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_TOS_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 if (ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_TTL_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 if (ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_PR_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 if (ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_IPX_MASK) {
-                    offset = dissect_compressed_list(0, pinfo, tree, tvb, offset);
+                    offset = dissect_compressed_list(0, pinfo, ext_tree, tvb, offset);
                 }
                 if (ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_I2_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_comp_ip_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_comp_ip_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                 }
             }
@@ -795,35 +814,37 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  * /           TIME_STRIDE (milliseconds)          /  1-4 oct if TIS = 1
                  *  ..... ..... ..... ..... ..... ..... ..... .....
                  */
-                proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rohc_ext3_rtp_flags, ett_rohc_ext3_rtp_flags, rtp_flags, ENC_BIG_ENDIAN, &ext3_rtp_flags_value);
+                proto_tree_add_bitmask_ret_uint64(ext_tree, tvb, offset, hf_rohc_ext3_rtp_flags, ett_rohc_ext3_rtp_flags, rtp_flags, ENC_BIG_ENDIAN, &ext3_rtp_flags_value);
                 rohc_cid_context->mode = (enum rohc_mode)((ext3_rtp_flags_value & ROHC_RTP_EXT3_MODE_MASK)>>6);
                 offset++;
 
                 if (ext3_rtp_flags_value & ROHC_RTP_EXT3_R_PT_MASK) {
-                    proto_tree_add_item(tree, hf_rohc_ext3_r_p, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_rohc_rtp_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_ext3_r_p, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ext_tree, hf_rohc_rtp_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 if (ext3_rtp_flags_value & ROHC_RTP_EXT3_CSRC_MASK) {
-                    offset = dissect_compressed_list(0, pinfo, tree, tvb, offset);
+                    offset = dissect_compressed_list(0, pinfo, ext_tree, tvb, offset);
                 }
                 if (ext3_rtp_flags_value & ROHC_RTP_EXT3_TSS_MASK) {
                     guint8 val_len = 0;
-                    get_self_describing_var_len_val(tvb, tree, offset, hf_rohc_rtp_ts_stride, &val_len);
+                    get_self_describing_var_len_val(tvb, ext_tree, offset, hf_rohc_rtp_ts_stride, &val_len);
                     offset += val_len;
                 }
                 if (ext3_rtp_flags_value & ROHC_RTP_EXT3_TIS_MASK) {
                     guint8 val_len = 0;
-                    get_self_describing_var_len_val(tvb, tree, offset, hf_rohc_rtp_time_stride, &val_len);
+                    get_self_describing_var_len_val(tvb, ext_tree, offset, hf_rohc_rtp_time_stride, &val_len);
                     offset += val_len;
                 }
             }
         } else {
-            proto_tree_add_expert_format(tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1, "extension 3 [Not dissected yet]");
+            proto_tree_add_expert_format(ext_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1, "extension 3 [Not dissected yet]");
             if (tvb_captured_length_remaining(tvb, offset) > 0)
                 offset += tvb_captured_length_remaining(tvb, offset);
         }
     }
+
+    proto_item_set_len(ext_ti, offset-start_offset);
     return offset;
 }
 
@@ -875,6 +896,8 @@ dissect_rohc_pkt_type_1_r_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* Show SN in info column */
         col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
+            /* UDP Profile */
+
             /* X */
             x= tvb_get_bits8(tvb, (offset<<3), 1);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_x, tvb, (offset<<3), 1, ENC_BIG_ENDIAN);
@@ -3006,6 +3029,12 @@ proto_register_rohc(void)
                 "Feedback Option SN", HFILL
               }
             },
+            { &hf_rohc_ext,
+              { "Extension","rohc.ext",
+                FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
             { &hf_rohc_ext_sn,
               { "SN LSB","rohc.sn",
                 FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
@@ -3681,6 +3710,7 @@ proto_register_rohc(void)
         &ett_rohc_dynamic_rtp,
         &ett_rohc_compressed_list,
         &ett_rohc_packet,
+        &ett_rohc_ext,
         &ett_rohc_ext3_flags,
         &ett_rohc_ext3_inner_ip_flags,
         &ett_rohc_ext3_outer_ip_flags,
