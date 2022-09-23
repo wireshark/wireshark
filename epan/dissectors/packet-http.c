@@ -3110,6 +3110,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	guchar c;
 	int value_offset;
 	int value_len;
+	guint8 *value_bytes;
 	char *value;
 	char *header_name;
 	char *p;
@@ -3159,31 +3160,41 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	/*
 	 * Fetch the value.
 	 *
-	 * XXX - the line may well have a NUL in it.  Wireshark should
-	 * really treat strings extracted from packets as counted
-	 * strings, so that NUL isn't any different from any other
-	 * character.  For now, we just allocate a buffer that's
+	 * XXX - RFC 9110 5.5 "Specification for newly defined fields
+	 * SHOULD limit their values to visible US-ASCII octets (VCHAR),
+	 * SP, and HTAB. A recipient SHOULD treat other allowed octets in
+	 * field content (i.e., obs-text [%x80-FF]) as opaque data...
+	 * Field values containing CR, LF, or NUL characters are invalid
+	 * and dangerous." (Up to RFC 7230, an obsolete "line-folding"
+	 * mechanism that included CRLF was allowed.)
+	 *
+	 * So NUL is not allowed, and we should have one or more
+	 * expert infos if the field value has anything other than
+	 * ASCII printable + TAB. (Possibly different severities
+	 * depending on whether it contains obsolete characters
+	 * like \x80-\xFF vs characters never allowed like NUL.)
+	 * All known field types respect this (using Base64, etc.)
+	 * Unknown field types (possibly including those registered
+	 * through the UAT) should be treated like FT_BYTES with
+	 * BASE_SHOW_ASCII_PRINTABLE instead of FT_STRING, but it's
+	 * more difficult to do that with the custom formatting
+	 * that uses the header name.
+	 *
+	 * Instead, for now for display purposes we will treat strings
+	 * as ASCII and pass the raw value to subdissectors via the
+	 * header_value_map. For the latter, we allocate a buffer that's
 	 * value_len+1 bytes long, copy value_len bytes, and stick
 	 * in a NUL terminator, so that the buffer for value actually
 	 * has value_len bytes in it.
-	 *
-	 * XXX - RFC 7230 3.2.4 "Newly defined header fields SHOULD
-	 * limit their field values to US-ASCII octets. A recipient
-	 * SHOULD treat other octets in field content as opaque data."
-	 * So unknown values (and possibly those registered through
-	 * the UAT) should be treated like FT_BYTES with
-	 * BASE_SHOW_ASCII_PRINTABLE instead of FT_STRING, but it's
-	 * more difficult to do that with the custom formatting
-	 * that uses the header name. Instead we will just validate the
-	 * string as ASCII before adding it to the tree.
 	 */
 	value_len = line_end_offset - value_offset;
-	value = (char *)wmem_alloc(wmem_packet_scope(), value_len+1);
-	memcpy(value, &line[value_offset - offset], value_len);
-	value[value_len] = '\0';
+	value_bytes = (char *)wmem_alloc(wmem_packet_scope(), value_len+1);
+	memcpy(value_bytes, &line[value_offset - offset], value_len);
+	value_bytes[value_len] = '\0';
+	value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_len, ENC_ASCII);
 
 	if (header_value_map) {
-		wmem_map_insert(header_value_map, header_name, value);
+		wmem_map_insert(header_value_map, header_name, value_bytes);
 	}
 
 	if (hf_index == -1) {
@@ -3213,8 +3224,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 			} else {
 				proto_tree_add_string_format(tree,
-					*hf_id, tvb, offset, len,
-					get_ascii_string(pinfo->pool, value, value_len),
+					*hf_id, tvb, offset, len, value,
 					"%s", format_text(pinfo->pool, line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
@@ -3266,7 +3276,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			default:
 				hdr_item = proto_tree_add_string_format(tree,
 				    *headers[hf_index].hf, tvb, offset, len,
-				    get_ascii_string(pinfo->pool, value, value_len),
+				    value,
 				    "%s", format_text(pinfo->pool, line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
