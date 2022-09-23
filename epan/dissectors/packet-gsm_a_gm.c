@@ -77,6 +77,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 16.6.0 Release 16)
  *
+ *   Reference [17]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 17.7.0 Release 17)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -587,6 +593,31 @@ static int hf_gsm_a_gm_sm_pco_dns_serv_sec_info_spki_pin_set = -1;
 static int hf_gsm_a_gm_sm_pco_dns_serv_sec_info_root_certificate = -1;
 static int hf_gsm_a_gm_sm_pco_dns_serv_sec_info_raw_public_key = -1;
 static int hf_gsm_a_gm_sm_pco_dns_serv_sec_info_value_part = -1;
+static int hf_gsm_a_gm_sm_pco_ecs_addr_type = -1;
+static int hf_gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_type = -1;
+static int hf_gsm_a_gm_sm_pco_ecs_addr_ipv4 = -1;
+static int hf_gsm_a_gm_sm_pco_ecs_addr_ipv6 = -1;
+static int hf_gsm_a_gm_sm_pco_ecs_addr_fqdn_len = -1;
+static int hf_gsm_a_gm_sm_pco_ecs_addr_fqdn = -1;
+static int hf_gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_cont = -1;
+static int hf_gsm_a_gm_sm_pco_ecsp_id = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_ipv4 = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_ipv6 = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_name_len = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_name = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_s_nssai_ind = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_dnn_ind = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_dnn_len = -1;
+static int hf_gsm_a_gm_sm_pco_pvs_s_nssai_len = -1;
+static int hf_gsm_a_gm_sm_pco_dns_serv_sec_prot_support = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_fqdn = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_ipv6 = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_ipv4 = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv4_range_low = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv4_range_high = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_low = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_high = -1;
+static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_fqdn = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
 static int hf_gsm_a_gm_ti_value = -1;
@@ -3940,42 +3971,42 @@ de_gmm_net_res_id_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 /* [13] 10.5.5.32 Extended DRX parameters */
 static const value_string gsm_a_gm_paging_time_window_vals[] = {
-	{0x0,	"Iu: 0 s / WB-S1/WB-N1: 1.28 s / NB-S1/NB-N1: 2.56 s"},
-	{0x1,	"Iu: 1 s / WB-S1/WB-N1: 2.56 s / NB-S1/NB-N1: 5.12 s"},
-	{0x2,	"Iu: 2 s / WB-S1/WB-N1: 3.84 s / NB-S1/NB-N1: 7.68 s"},
-	{0x3,	"Iu: 3 s / WB-S1/WB-N1: 5.12 s / NB-S1/NB-N1: 10.24 s"},
-	{0x4,	"Iu: 4 s / WB-S1/WB-N1: 6.4 s / NB-S1/NB-N1: 12.8 s"},
-	{0x5,	"Iu: 5 s / WB-S1/WB-N1: 7.68 s / NB-S1/NB-N1: 15.36 s"},
-	{0x6,	"Iu: 6 s / WB-S1/WB-N1: 8.96 s / NB-S1/NB-N1: 17.92 s"},
-	{0x7,	"Iu: 7 s / WB-S1/WB-N1: 10.24 s / NB-S1/NB-N1: 20.48 s"},
-	{0x8,	"Iu: 8 s / WB-S1/WB-N1: 11.52 s / NB-S1/NB-N1: 23.04 s"},
-	{0x9,	"Iu: 9 s / WB-S1/WB-N1: 12.8 s / NB-S1/NB-N1: 25.6 s"},
-	{0xa,	"Iu: 10 s / WB-S1/WB-N1: 14.08 s / NB-S1/NB-N1: 28.16 s"},
-	{0xb,	"Iu: 12 s / WB-S1/WB-N1: 15.36 s / NB-S1/NB-N1: 30.72 s"},
-	{0xc,	"Iu: 14 s / WB-S1/WB-N1: 16.64 s / NB-S1/NB-N1: 33.28 s"},
-	{0xd,	"Iu: 16 s / WB-S1/WB-N1: 17.92 s / NB-S1/NB-N1: 35.84 s"},
-	{0xe,	"Iu: 18 s / WB-S1/WB-N1: 19.2 s / NB-S1/NB-N1: 38.4 s"},
-	{0xf,	"Iu: 20 s / WB-S1/WB-N1: 20.48 s / NB-S1/NB-N1: 40.96 s"},
+	{0x0,	"Iu: 0 s / WB-S1/WB-N1/NR-5GCN: 1.28 s / NB-S1/NB-N1: 2.56 s"},
+	{0x1,	"Iu: 1 s / WB-S1/WB-N1/NR-5GCN: 2.56 s / NB-S1/NB-N1: 5.12 s"},
+	{0x2,	"Iu: 2 s / WB-S1/WB-N1/NR-5GCN: 3.84 s / NB-S1/NB-N1: 7.68 s"},
+	{0x3,	"Iu: 3 s / WB-S1/WB-N1/NR-5GCN: 5.12 s / NB-S1/NB-N1: 10.24 s"},
+	{0x4,	"Iu: 4 s / WB-S1/WB-N1/NR-5GCN: 6.4 s / NB-S1/NB-N1: 12.8 s"},
+	{0x5,	"Iu: 5 s / WB-S1/WB-N1/NR-5GCN: 7.68 s / NB-S1/NB-N1: 15.36 s"},
+	{0x6,	"Iu: 6 s / WB-S1/WB-N1/NR-5GCN: 8.96 s / NB-S1/NB-N1: 17.92 s"},
+	{0x7,	"Iu: 7 s / WB-S1/WB-N1/NR-5GCN: 10.24 s / NB-S1/NB-N1: 20.48 s"},
+	{0x8,	"Iu: 8 s / WB-S1/WB-N1/NR-5GCN: 11.52 s / NB-S1/NB-N1: 23.04 s"},
+	{0x9,	"Iu: 9 s / WB-S1/WB-N1/NR-5GCN: 12.8 s / NB-S1/NB-N1: 25.6 s"},
+	{0xa,	"Iu: 10 s / WB-S1/WB-N1/NR-5GCN: 14.08 s / NB-S1/NB-N1: 28.16 s"},
+	{0xb,	"Iu: 12 s / WB-S1/WB-N1/NR-5GCN: 15.36 s / NB-S1/NB-N1: 30.72 s"},
+	{0xc,	"Iu: 14 s / WB-S1/WB-N1/NR-5GCN: 16.64 s / NB-S1/NB-N1: 33.28 s"},
+	{0xd,	"Iu: 16 s / WB-S1/WB-N1/NR-5GCN: 17.92 s / NB-S1/NB-N1: 35.84 s"},
+	{0xe,	"Iu: 18 s / WB-S1/WB-N1/NR-5GCN: 19.2 s / NB-S1/NB-N1: 38.4 s"},
+	{0xf,	"Iu: 20 s / WB-S1/WB-N1/NR-5GCN: 20.48 s / NB-S1/NB-N1: 40.96 s"},
 	{  0,	NULL }
 };
 
 static const value_string gsm_a_gm_edrx_vals[] = {
-	{0x0,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 5.12 s"},
-	{0x1,	"GERAN: 3.76 s / UTRAN: 20.48 s / E-UTRAN: 10.24 s"},
-	{0x2,	"GERAN: 7.53 s / UTRAN: 40.96 s / E-UTRAN: 20.48 s"},
-	{0x3,	"GERAN: 12.24 s / UTRAN: 81.92 s / E-UTRAN: 40.96 s"},
-	{0x4,	"GERAN: 24.48 s / UTRAN: 163.84 s / E-UTRAN: 61.44 s"},
-	{0x5,	"GERAN: 48.96 s / UTRAN: 327.68 s / E-UTRAN: 81.92 s"},
-	{0x6,	"GERAN: 97.92 s / UTRAN: 655.36 s / E-UTRAN: 102.4 s"},
-	{0x7,	"GERAN: 195.84 s / UTRAN: 1310.72 s / E-UTRAN: 122.88 s"},
-	{0x8,	"GERAN: 391.68 s / UTRAN: 1966.08 s / E-UTRAN: 143.36 s"},
-	{0x9,	"GERAN: 783.36 s / UTRAN: 2621.44 s / E-UTRAN: 163.84 s"},
-	{0xa,	"GERAN: 1566.72 s / UTRAN: 10.24 s / E-UTRAN: 327.68 s"},
-	{0xb,	"GERAN: 3133.44 s / UTRAN: 10.24 s / E-UTRAN: 655.36 s"},
-	{0xc,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 1310.72 s"},
-	{0xd,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 2621.44 s"},
-	{0xe,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 5242.88 s"},
-	{0xf,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 10485.76 s"},
+	{0x0,	"GERAN: 1.88 s / UTRAN: 10.24 s / S1,NB-N1,WB-N1: 5.12 s / NR-5GCN: 2.56 s"},
+	{0x1,	"GERAN: 3.76 s / UTRAN: 20.48 s / S1,NB-N1,WB-N1: 10.24 s / NR-5GCN: 5.12 s"},
+	{0x2,	"GERAN: 7.53 s / UTRAN: 40.96 s / S1,NB-N1,WB-N1: 20.48 s / NR-5GCN: 10.24 s"},
+	{0x3,	"GERAN: 12.24 s / UTRAN: 81.92 s / S1,NB-N1,WB-N1: 40.96 s / NR-5GCN: 20,48 s"},
+	{0x4,	"GERAN: 24.48 s / UTRAN: 163.84 s / S1,NB-N1,WB-N1: 61.44 s / NR-5GCN: 40.96 s"},
+	{0x5,	"GERAN: 48.96 s / UTRAN: 327.68 s / S1,NB-N1,WB-N1: 81.92 s / NR-5GCN: 81.92 s"},
+	{0x6,	"GERAN: 97.92 s / UTRAN: 655.36 s / S1,NB-N1,WB-N1: 102.4 s / NR-5GCN: 163.84 s"},
+	{0x7,	"GERAN: 195.84 s / UTRAN: 1310.72 s / S1,NB-N1,WB-N1: 122.88 s / NR-5GCN: 327.68 s"},
+	{0x8,	"GERAN: 391.68 s / UTRAN: 1966.08 s / S1,NB-N1,WB-N1: 143.36 s / NR-5GCN: 655.36 s"},
+	{0x9,	"GERAN: 783.36 s / UTRAN: 2621.44 s / S1,NB-N1,WB-N1: 163.84 s / NR-5GCN: 1310.72 s"},
+	{0xa,	"GERAN: 1566.72 s / UTRAN: 10.24 s / S1,NB-N1,WB-N1: 327.68 s / NR-5GCN: 2621.44 s"},
+	{0xb,	"GERAN: 3133.44 s / UTRAN: 10.24 s / S1,NB-N1,WB-N1: 655.36 s / NR-5GCN: 5242.88 s"},
+	{0xc,	"GERAN: 1.88 s / UTRAN: 10.24 s / S1,NB-N1,WB-N1: 1310.72 s / NR-5GCN: 10485.76 s"},
+	{0xd,	"GERAN: 1.88 s / UTRAN: 10.24 s / S1,NB-N1,WB-N1: 2621.44 s / NR-5GCN: 2.56 s"},
+	{0xe,	"GERAN: 1.88 s / UTRAN: 10.24 s / S1,NB-N1,WB-N1: 5242.88 s / NR-5GCN: 2.56 s"},
+	{0xf,	"GERAN: 1.88 s / UTRAN: 10.24 s / S1,NB-N1,WB-N1: 10485.76 s / NR-5GCN: 2.56 s"},
 	{  0,	NULL }
 };
 
@@ -4461,6 +4492,13 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0027, 0x0027, "ACS information request" },
 	{ 0x0030, 0x0030, "ATSSS request" },
 	{ 0x0031, 0x0031, "DNS server security information indicator" },
+	{ 0x0032, 0x0032, "ECS configuration information provisioning support indicator" },
+	{ 0x0036, 0x0036, "PVS information request" },
+	{ 0x0039, 0x0039, "DNS server security protocol support" },
+	{ 0x003a, 0x003a, "EAS rediscovery support indication" },
+	{ 0x0041, 0x0041, "Service-level-AA container with the length of two octets" },
+	{ 0x0047, 0x0047, "EDC support indicator" },
+	{ 0x004a, 0x004a, "MS support of MAC address range in 5GS indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4510,6 +4548,22 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x002b, 0x002b, "Initial additional APN rate control for exception data parameters" },
 	{ 0x0030, 0x0030, "ATSSS response with the length of two octets" },
 	{ 0x0031, 0x0031, "DNS server security information with length of two octets" },
+	{ 0x0032, 0x0032, "ECS address with the length of two octets" },
+	{ 0x0035, 0x0035, "ECSP identifier" },
+	{ 0x0036, 0x0036, "PVS IPv4 Address" },
+	{ 0x0037, 0x0037, "PVS IPv6 Address" },
+	{ 0x0038, 0x0038, "PVS name" },
+	{ 0x003a, 0x003a, "EAS rediscovery indication without indicated impact" },
+	{ 0x003b, 0x003b, "EAS rediscovery indication with impacted EAS IPv4 address range" },
+	{ 0x003c, 0x003c, "EAS rediscovery indication with impacted EAS IPv6 address range" },
+	{ 0x003d, 0x003d, "EAS rediscovery indication with impacted EAS FQDN" },
+	{ 0x003e, 0x003e, "Uplink data not allowed" },
+	{ 0x003f, 0x003f, "Uplink data allowed" },
+	{ 0x0040, 0x0040, "UAS services not allowed indication" },
+	{ 0x0041, 0x0041, "Service-level-AA container with the length of two octets" },
+	{ 0x0048, 0x0048, "EDC usage allowed indicator" },
+	{ 0x0049, 0x0049, "EDC usage required indicator" },
+	{ 0x004a, 0x004a, "Network support of MAC address range in 5GS indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4566,6 +4620,27 @@ static const value_string gsm_a_gm_sm_pco_dns_serv_sec_info_type_vals[] = {
 static const value_string gsm_a_gm_sm_pco_dns_serv_sec_info_sec_proto_vals[] = {
 	{ 0, "TLS"},
 	{ 1, "DTLS"},
+	{ 0, NULL}
+};
+
+static const value_string gsm_a_gm_sm_pco_ecs_addr_type_vals[] = {
+	{ 0, "IPv4"},
+	{ 1, "IPv6"},
+	{ 2, "FQDN"},
+	{ 0, NULL}
+};
+
+static const value_string gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_type_vals[] = {
+	{ 0, "No spatial validity condition"},
+	{ 1, "Geographical service area"},
+	{ 2, "Tracking area"},
+	{ 3, "Country-wide"},
+	{ 0, NULL}
+};
+
+static const value_string gsm_a_gm_sm_pco_dns_serv_sec_prot_support_vals[] = {
+	{ 1, "TLS"},
+	{ 2, "DTLS"},
 	{ 0, NULL}
 };
 
@@ -4627,7 +4702,8 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 		curr_len    -= 2;
 		curr_offset += 2;
-		if (link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024 || prot == 0x0030 || prot == 0x0031)) {
+		if ((link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024 || prot == 0x0030 || prot == 0x0031 || prot == 0x0032 || prot == 0x0041)) ||
+		    (link_dir == P2P_DIR_UL && prot == 0x0041)) {
 			proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_length2, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &e_len);
 			curr_len    -= 2;
 			curr_offset += 2;
@@ -4663,6 +4739,13 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0012:
 			case 0x0013:
 			case 0x0018:
+			case 0x003e:
+			case 0x003f:
+			case 0x0040:
+			case 0x0047:
+			case 0x0048:
+			case 0x0049:
+			case 0x004a:
 				break;
 			case 0x0004:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 1)) {
@@ -4829,18 +4912,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_port_number, tvb, curr_offset+1, 2, ENC_BIG_ENDIAN);
 							break;
 						case 2:
-							{
-								guint8 *str = tvb_get_string_enc(pinfo->pool, tvb, curr_offset+1, e_len-1, ENC_ASCII|ENC_NA);
-								guint str_offset = 0;
-
-								while (str_offset < (e_len-1))
-								{
-									guint step = str[str_offset];
-									str[str_offset] = '.';
-									str_offset += step+1;
-								}
-								proto_tree_add_string(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_auth_domain_name, tvb, curr_offset+1, e_len-1, str+1);
-							}
+							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_auth_domain_name, tvb, curr_offset+1, e_len-1, ENC_APN_STR | ENC_NA);
 							break;
 						case 3:
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_spki_pin_set, tvb, curr_offset+1, e_len-1, ENC_NA);
@@ -4855,6 +4927,113 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_value_part, tvb, curr_offset+1, e_len-1, ENC_NA);
 							break;
 					}
+				}
+				break;
+			case 0x0032:
+				if (link_dir == P2P_DIR_DL && e_len > 1) {
+					guint32 ecs_addr_type, ie_offset, fqdn_len;
+
+					ie_offset = curr_offset;
+					proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_type, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &ecs_addr_type);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_type, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+					ie_offset++;
+					switch (ecs_addr_type) {
+						case 0:
+							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_ipv4, tvb, ie_offset, 4, ENC_BIG_ENDIAN);
+							ie_offset += 4;
+							break;
+						case 1:
+							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_ipv6, tvb, ie_offset, 16, ENC_NA);
+							ie_offset += 16;
+							break;
+						case 2:
+							proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_fqdn_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &fqdn_len);
+							ie_offset++;
+							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_fqdn, tvb, ie_offset, fqdn_len, ENC_NA|ENC_APN_STR);
+							ie_offset += fqdn_len;
+							break;
+						default:
+							goto skip_ecs_addr;
+					}
+					if ((ie_offset - curr_offset) < e_len)
+						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_cont, tvb, ie_offset, e_len - (ie_offset - curr_offset), ENC_NA);
+					skip_ecs_addr:;
+				}
+				break;
+			case 0x0035:
+				if (link_dir == P2P_DIR_DL && e_len > 1) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecsp_id, tvb, curr_offset, e_len, ENC_NA|ENC_UTF_8);
+				}
+				break;
+			case 0x0036:
+			case 0x0037:
+			case 0x0038:
+				if (link_dir == P2P_DIR_DL) {
+					guint64 flags;
+					guint32 field_len, ie_offset = curr_offset;
+					static int* const ind[] = {
+						&hf_gsm_a_gm_sm_pco_pvs_s_nssai_ind,
+						&hf_gsm_a_gm_sm_pco_pvs_dnn_ind,
+						NULL
+					};
+
+					if (prot == 0x0036) {
+						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pvs_ipv4, tvb, ie_offset, 4, ENC_BIG_ENDIAN);
+						ie_offset += 4;
+					} else if (prot == 0x0037) {
+						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pvs_ipv6, tvb, ie_offset, 16, ENC_NA);
+						ie_offset += 16;
+					} else {
+						proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_pvs_name_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
+						ie_offset++;
+						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pvs_name, tvb, ie_offset, field_len, ENC_NA|ENC_APN_STR);
+						ie_offset += field_len;
+					}
+					proto_tree_add_bitmask_list_ret_uint64(pco_tree, tvb, ie_offset, 1, ind, ENC_BIG_ENDIAN, &flags);
+					ie_offset++;
+					if (flags & 0x01) {
+						proto_tree_add_item_ret_uint(tree, hf_gsm_a_gm_sm_pco_pvs_dnn_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
+						ie_offset++;
+						ie_offset += de_nas_5gs_cmn_dnn(tvb, pco_tree, pinfo, ie_offset, field_len, NULL, 0);
+					}
+					if (flags & 0x02) {
+						proto_tree_add_item_ret_uint(tree, hf_gsm_a_gm_sm_pco_pvs_s_nssai_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
+						ie_offset++;
+						de_nas_5gs_cmn_s_nssai(tvb, pco_tree, pinfo, ie_offset, field_len, NULL, 0);
+					}
+				}
+				break;
+			case 0x0039:
+				if (link_dir == P2P_DIR_UL && e_len == 1) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_prot_support, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x003a:
+				if (link_dir == P2P_DIR_UL && e_len > 0) {
+					static int* const oct1_flags[] = {
+						&hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_fqdn,
+						&hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_ipv6,
+						&hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_ipv4,
+						NULL
+					};
+					proto_tree_add_bitmask_list(pco_tree, tvb, curr_offset, 1, oct1_flags, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x003b:
+				if (link_dir == P2P_DIR_DL && e_len == 8) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv4_range_low, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv4_range_high, tvb, curr_offset+4, 4, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x003c:
+				if (link_dir == P2P_DIR_DL && e_len == 32) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_low, tvb, curr_offset, 16, ENC_NA);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_high, tvb, curr_offset+16, 16, ENC_NA);
+				}
+				break;
+			case 0x003d:
+				if (link_dir == P2P_DIR_DL && e_len > 0) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_fqdn, tvb, curr_offset, e_len, ENC_NA|ENC_APN_STR);
 				}
 				break;
 			default:
@@ -9571,6 +9750,131 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_pco_dns_serv_sec_info_value_part,
 		  { "Value part", "gsm_a.gm.sm.pco.dns_serv_sec_info.value_part",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecs_addr_type,
+		  { "Type of ECS address", "gsm_a.gm.sm.pco.ecs_addr.type",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_pco_ecs_addr_type_vals), 0xf0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_type,
+		  { "Type of spatial validity condition", "gsm_a.gm.sm.pco.ecs_addr.spatial_valid_cond_type",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_type_vals), 0x0f,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecs_addr_ipv4,
+		  { "ECS IPv4 address", "gsm_a.gm.sm.pco.ecs_addr.ipv4",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecs_addr_ipv6,
+		  { "ECS IPv6 address", "gsm_a.gm.sm.pco.ecs_addr.ipv6",
+		    FT_IPv6, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecs_addr_fqdn_len,
+		  { "ECS FQDN address length", "gsm_a.gm.sm.pco.ecs_addr.fqdn.len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecs_addr_fqdn,
+		  { "ECS FQDN address", "gsm_a.gm.sm.pco.ecs_addr.fqdn",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecs_addr_spatial_valid_cond_cont,
+		  { "Spatial validity condition contents", "gsm_a.gm.sm.pco.ecs_addr.spatial_valid_cond_cont",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_ecsp_id,
+		  { "ECSP identifier", "gsm_a.gm.sm.pco.ecsp_id",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_ipv4,
+		  { "PVS IPv4 address", "gsm_a.gm.sm.pco.pvs.ipv4",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_ipv6,
+		  { "PVS IPv6 address", "gsm_a.gm.sm.pco.pvs.ipv6",
+		    FT_IPv6, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_name_len,
+		  { "PVS name length", "gsm_a.gm.sm.pco.pvs.name.len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_name,
+		  { "PVS name", "gsm_a.gm.sm.pco.pvs.name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_s_nssai_ind,
+		  { "S-NSSAI indicator", "gsm_a.gm.sm.pco.pvs.s_nssai_ind",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_dnn_ind,
+		  { "DNN indicator", "gsm_a.gm.sm.pco.pvs.dnn_ind",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_dnn_len,
+		  { "DNN length", "gsm_a.gm.sm.pco.pvs.dnn_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_pvs_s_nssai_len,
+		  { "S-NSSAI length", "gsm_a.gm.sm.pco.pvs.s_nssai_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_dns_serv_sec_prot_support,
+		  { "DNS server security protocol type", "gsm_a.gm.sm.pco.dns_serv_sec_prot_support",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_pco_dns_serv_sec_prot_support_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_fqdn,
+		  { "With impacted EAS FQDN address range", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind.fqdn",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_ipv6,
+		  { "With impacted EAS IPv6 address range", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind.ipv6",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_ipv4,
+		  { "With impacted EAS IPv4 address range", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind.ipv4",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv4_range_low,
+		  { "With impacted EAS IPv4 address range low", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind_with_impacted_eas_ipv4_range.low",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv4_range_high,
+		  { "With impacted EAS IPv4 address range high", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind_with_impacted_eas_ipv4_range.high",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_low,
+		  { "With impacted EAS IPv6 address range low", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind_with_impacted_eas_ipv6_range.low",
+		    FT_IPv6, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_high,
+		  { "With impacted EAS IPv6 address range high", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind_with_impacted_eas_ipv6_range.high",
+		    FT_IPv6, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_fqdn,
+		  { "With impacted EAS FQDN", "gsm_a.gm.sm.pco.eas_rediscovery_support_ind_with_impacted_eas_fqdn",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */
