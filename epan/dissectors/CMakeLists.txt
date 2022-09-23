@@ -1763,6 +1763,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sadmind.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sametime.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sapni.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sasp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbus.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sbc.c
