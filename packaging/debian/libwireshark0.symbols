@@ -1709,6 +1709,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_no_extension_extension@Base 3.3.0
  tfs_no_yes@Base 1.9.1
  tfs_not_allowed_allowed@Base 1.9.1
+ tfs_not_restricted_restricted@Base 4.1.0
  tfs_not_supported_supported@Base 2.9.1
  tfs_odd_even@Base 1.9.1
  tfs_ok_error@Base 1.9.1
