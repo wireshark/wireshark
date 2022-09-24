@@ -318,10 +318,10 @@ private slots:
     void mainStackChanged(int);
     void updateRecentCaptures();
     void recentActionTriggered();
-    void actionAddPacketComment();
-    void actionEditPacketComment();
-    void actionDeletePacketComment();
-    void actionDeleteCommentsFromPackets();
+    void addPacketComment();
+    void editPacketComment();
+    void deletePacketComment();
+    void deleteCommentsFromPackets();
     QString commentToMenuText(QString text, int max_len = 40);
     void setEditCommentsMenu();
     void setMenusForSelectedPacket();
@@ -398,11 +398,10 @@ private slots:
     void findPacket();
     void editTimeShift();
     void editConfigurationProfiles();
-
     void editTimeShiftFinished(int);
     void addPacketCommentFinished(PacketCommentDialog* pc_dialog, int result);
     void editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result, guint nComment);
-    void on_actionDeleteAllPacketComments_triggered();
+    void deleteAllPacketComments();
     void deleteAllPacketCommentsFinished(int result);
     void showPreferencesDialog(QString module_name);
 
@@ -512,7 +511,6 @@ private slots:
     void on_actionStatisticsEndpoints_triggered();
     void on_actionStatisticsPacketLengths_triggered();
     void on_actionStatisticsIOGraph_triggered();
-    void actionStatisticsPlugin_triggered();
 
     void externalMenuItem_triggered();
 

@@ -1669,7 +1669,12 @@ void WiresharkMainWindow::addStatsPluginsToMenu() {
             stats_tree_action = new QAction(stat_name, this);
             stats_tree_action->setData(cfg->abbr);
             parent_menu->addAction(stats_tree_action);
-            connect(stats_tree_action, SIGNAL(triggered()), this, SLOT(actionStatisticsPlugin_triggered()));
+            connect(stats_tree_action, &QAction::triggered, this, [this]() {
+                QAction* action = qobject_cast<QAction*>(sender());
+                if (action) {
+                    openStatisticsTreeDialog(action->data().toString().toUtf8());
+                }
+            });
         }
     }
     g_list_free(cfg_list);
@@ -2084,6 +2089,9 @@ void WiresharkMainWindow::connectEditMenuActions()
     connect(main_ui_->actionEditTimeShift, &QAction::triggered, this,
             [this]() { editTimeShift(); }, Qt::QueuedConnection);
 
+    connect(main_ui_->actionDeleteAllPacketComments, &QAction::triggered, this,
+            [this]() { deleteAllPacketComments(); }, Qt::QueuedConnection);
+
     connect(main_ui_->actionEditConfigurationProfiles, &QAction::triggered, this,
             [this]() { editConfigurationProfiles(); }, Qt::QueuedConnection);
 
@@ -2225,7 +2233,7 @@ void WiresharkMainWindow::editTimeShiftFinished(int)
     }
 }
 
-void WiresharkMainWindow::actionAddPacketComment()
+void WiresharkMainWindow::addPacketComment()
 {
     QList<int> rows = selectedRows();
     if (rows.count() == 0)
@@ -2251,7 +2259,7 @@ void WiresharkMainWindow::addPacketCommentFinished(PacketCommentDialog* pc_dialo
     }
 }
 
-void WiresharkMainWindow::actionEditPacketComment()
+void WiresharkMainWindow::editPacketComment()
 {
     QList<int> rows = selectedRows();
     if (rows.count() != 1)
@@ -2275,7 +2283,7 @@ void WiresharkMainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dial
     }
 }
 
-void WiresharkMainWindow::actionDeletePacketComment()
+void WiresharkMainWindow::deletePacketComment()
 {
     QAction *ra = qobject_cast<QAction*>(sender());
     guint nComment = ra->data().toUInt();
@@ -2283,13 +2291,13 @@ void WiresharkMainWindow::actionDeletePacketComment()
     updateForUnsavedChanges();
 }
 
-void WiresharkMainWindow::actionDeleteCommentsFromPackets()
+void WiresharkMainWindow::deleteCommentsFromPackets()
 {
     packet_list_->deleteCommentsFromPackets();
     updateForUnsavedChanges();
 }
 
-void WiresharkMainWindow::on_actionDeleteAllPacketComments_triggered()
+void WiresharkMainWindow::deleteAllPacketComments()
 {
     QMessageBox *msg_dialog = new QMessageBox();
     connect(msg_dialog, SIGNAL(finished(int)), this, SLOT(deleteAllPacketCommentsFinished(int)));
@@ -3284,14 +3292,6 @@ void WiresharkMainWindow::on_actionStatisticsSametime_triggered()
 void WiresharkMainWindow::on_actionStatisticsDNS_triggered()
 {
     openStatisticsTreeDialog("dns");
-}
-
-void WiresharkMainWindow::actionStatisticsPlugin_triggered()
-{
-    QAction* action = qobject_cast<QAction*>(sender());
-    if (action) {
-        openStatisticsTreeDialog(action->data().toString().toUtf8());
-    }
 }
 
 void WiresharkMainWindow::on_actionStatisticsHTTP2_triggered()
