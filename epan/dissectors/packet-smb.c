@@ -1719,12 +1719,8 @@ static GSList *conv_tables = NULL;
    End of request/response matching functions
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
-/* Max string length for displaying Unicode strings.  */
-#define	MAX_UNICODE_STR_LEN	256
-
 /* Turn a little-endian Unicode '\0'-terminated string into a string we
    can display.
-   XXX - for now, we just handle the ISO 8859-1 characters.
    If exactlen==TRUE then us_lenp contains the exact len of the string in
    bytes. It might not be null terminated !
    bc specifies the number of bytes in the byte parameters; Windows 2000,
@@ -1735,64 +1731,23 @@ static gchar *
 unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
 	       guint16 bc)
 {
-	gchar    *cur;
-	gchar    *p;
-	guint16   uchar;
-	int       len;
-	int       us_len;
-	gboolean  overflow = FALSE;
-
-	cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_UNICODE_STR_LEN+3+1);
-	p = cur;
-	len = MAX_UNICODE_STR_LEN;
-	us_len = 0;
-	for (;;) {
-		if (bc == 0)
-			break;
-
-		if (bc == 1) {
-			/* XXX - explain this */
-			if (!exactlen)
-				us_len += 1;	/* this is a one-byte null terminator */
-			break;
-		}
-
-		uchar = tvb_get_letohs(tvb, offset);
-		if (uchar == 0) {
-			us_len += 2;	/* this is a two-byte null terminator */
-			break;
-		}
-
-		if (len > 0) {
-			if ((uchar & 0xFF00) == 0)
-				*p++ = (gchar) uchar;	/* ISO 8859-1 */
-			else
-				*p++ = '?';	/* not 8859-1 */
-			len--;
-		} else
-			overflow = TRUE;
-
-		offset += 2;
-		bc -= 2;
-		us_len += 2;
-
-		if(exactlen){
-			if(us_len>= *us_lenp){
-				break;
+	int len;
+	if (exactlen) {
+		return tvb_get_string_enc(wmem_packet_scope(), tvb, offset, *us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	} else {
+		/* Handle the odd cases where Windows 2000 has a Unicode
+		 * string followed by a single NUL byte when the string
+		 * takes up the entire byte count.
+		 */
+		len = tvb_find_guint16(tvb, offset, bc, 0);
+		if (len == -1) {
+			if (bc % 1 == 1	&& tvb_get_guint8(tvb, offset + bc - 1) == 0) {
+				*us_lenp = bc;
+				return tvb_get_string_enc(wmem_packet_scope(), tvb, offset, bc - 1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 			}
 		}
+		return tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	}
-	if (overflow) {
-		/* Note that we're not showing the full string.  */
-		*p++ = '.';
-		*p++ = '.';
-		*p++ = '.';
-	}
-
-	*p = '\0';
-	*us_lenp = us_len;
-
-	return cur;
 }
 
 /* nopad == TRUE : Do not add any padding before this string
@@ -1805,11 +1760,9 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 			    gboolean useunicode, int *len, gboolean nopad, gboolean exactlen,
 			    guint16 *bcp)
 {
-	gchar       *cur;
 	const gchar *string;
 	int          string_len = 0;
 	int          copylen;
-	gboolean     overflow   = FALSE;
 
 	if (*bcp == 0) {
 		/* Not enough data in buffer */
@@ -1840,11 +1793,16 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 		string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
 
 	} else {
+		/* XXX: Use the local OEM (extended ASCII DOS) code page.
+                 * On US English machines that means ENC_CP437, but it
+                 * could be CP850 (which contains the characters of
+                 * ISO-8859-1, arranged differently), CP866, etc.
+                 * Using ENC_ASCII is safest.
+                 *
+                 * There could be a preference for local code page.
+                 * (The same should apply in packet-smb-browser.c too)
+                 */
 		if(exactlen){
-			/*
-			 * The string we return must be null-terminated.
-			 */
-			cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_UNICODE_STR_LEN+3+1);
 			copylen = *len;
 
 			if (copylen < 0) {
@@ -1854,23 +1812,9 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 				copylen = INT_MAX;
 			}
 
-			tvb_ensure_bytes_exist(tvb, *offsetp, copylen);
-
-			if (copylen > MAX_UNICODE_STR_LEN) {
-				copylen = MAX_UNICODE_STR_LEN;
-				overflow = TRUE;
-			}
-
-			tvb_memcpy(tvb, (guint8 *)cur, *offsetp, copylen);
-			cur[copylen] = '\0';
-
-			if (overflow)
-				(void) g_strlcat(cur, "...",MAX_UNICODE_STR_LEN+3+1);
-
-			string_len = *len;
-			string = cur;
+			return tvb_get_string_enc(wmem_packet_scope(), tvb, *offsetp, copylen, ENC_ASCII);
 		} else {
-			string = tvb_get_const_stringz(tvb, *offsetp, &string_len);
+			return tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offsetp, len, ENC_ASCII);
 		}
 	}
 
