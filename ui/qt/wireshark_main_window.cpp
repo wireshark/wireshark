@@ -628,6 +628,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
     connectFileMenuActions();
     connectEditMenuActions();
+    connectViewMenuActions();
 
     connect(main_ui_->actionAnalyzeFollowTCPStream, &QAction::triggered, this,
             [this]() { this->openFollowStreamDialogForType(FOLLOW_TCP); },
