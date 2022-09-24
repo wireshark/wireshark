@@ -14,6 +14,8 @@
  * https://www.ietf.org/rfc/rfc3095             RObust Header Compression (ROHC): Framework and four profiles: RTP, UDP, ESP, and uncompressed
  * https://datatracker.ietf.org/doc/rfc4815/    RObust Header Compression (ROHC): Corrections and Clarifications to RFC 3095
  * https://datatracker.ietf.org/doc/rfc5225/    RObust Header Compression Version 2 (ROHCv2): Profiles for RTP, UDP, IP, ESP and UDP-Lite
+ *
+ * Only RTP (1) and UDP (2) are currently implemented.
  */
 
 #include "config.h"
@@ -117,13 +119,16 @@ static int hf_rohc_r_0_crc = -1;
 static int hf_rohc_x = -1;
 static int hf_rohc_ts = -1;
 static int hf_rohc_comp_ip_id = -1;
+static int hf_rohc_comp_ip_id2 = -1;
 static int hf_rohc_t = -1;
 static int hf_rohc_ext3_flags = -1;
 static int hf_rohc_ext3_s = -1;
 static int hf_rohc_ext3_r_ts = -1;
 static int hf_rohc_ext3_tsc = -1;
+static int hf_rohc_ext3_udp_mode = -1;
 static int hf_rohc_ext3_i = -1;
 static int hf_rohc_ext3_ip = -1;
+static int hf_rohc_ext3_ip2 = -1;
 static int hf_rohc_ext3_rtp = -1;
 static int hf_rohc_ext3_inner_ip_flags = -1;
 static int hf_rohc_ext3_inner_tos = -1;
@@ -144,7 +149,7 @@ static int hf_rohc_ext3_outer_nbo = -1;
 static int hf_rohc_ext3_outer_rnd = -1;
 static int hf_rohc_ext3_outer_i2 = -1;
 static int hf_rohc_ext3_rtp_flags = -1;
-static int hf_rohc_ext3_mode = -1;
+static int hf_rohc_ext3_rtp_mode = -1;
 static int hf_rohc_ext3_r_pt = -1;
 static int hf_rohc_ext3_m = -1;
 static int hf_rohc_ext3_r_x = -1;
@@ -349,7 +354,7 @@ static const value_string compressed_list_ps_vals[] =
 #define ROHC_RTP_EXT3_OUTER_RND_MASK    0x02
 #define ROHC_RTP_EXT3_OUTER_I2_MASK     0x01
 /* RTP header flags masks */
-#define ROHC_RTP_EXT3_MODE_MASK         0xc0
+#define ROHC_RTP_EXT3_RTP_MODE_MASK     0xc0
 #define ROHC_RTP_EXT3_R_PT_MASK         0x20
 #define ROHC_RTP_EXT3_M_MASK            0x10
 #define ROHC_RTP_EXT3_R_X_MASK          0x08
@@ -358,6 +363,11 @@ static const value_string compressed_list_ps_vals[] =
 #define ROHC_RTP_EXT3_TIS_MASK          0x01
 /* RTP header fields masks */
 #define ROHC_RTP_EXT3_R_P_MASK          0x80
+
+/* UDP extension 3 flag masks */
+#define ROHC_UDP_EXT3_UDP_MODE_MASK     0x18
+#define ROHC_UDP_EXT3_IP2_MASK          0x01
+
 
 /* 4.5.6.  Self-describing variable-length values */
 static guint32
@@ -511,16 +521,15 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     }
 
     return offset;
-
 }
 
 /* 5.7.5. Extension formats */
-/* TODO: need to add UDP profile extension variations as described in 5.7.5 */
+/* UDP profile extension variations as described in 5.11.4 */
 static int
-dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 t, rohc_cid_context_t *rohc_cid_context)
+dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                        guint8 t, /* T-bit from base compressed header */
+                        rohc_cid_context_t *rohc_cid_context)
 {
-    guint8 ext_type = tvb_get_guint8(tvb, offset) & 0xc0;
-
     /* Extension subtree */
     int start_offset = offset;
     proto_item *ext_ti = proto_tree_add_string_format(tree,
@@ -530,55 +539,83 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     proto_tree *ext_tree = proto_item_add_subtree(ext_ti, ett_rohc_ext);
 
 
-    if (ext_type != 0xc0) {
+    guint8 ext_type = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
+
+    if (ext_type != 3) {
+        /* SN (common to extensions 0,1,2) */
         proto_tree_add_bits_item(ext_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 3, ENC_BIG_ENDIAN);
     }
-    if (ext_type == 0x00) {
+
+    if (ext_type == 0) {
         /*   Extension 0:
-            *
+             RTP
             *     0   1   2   3   4   5   6   7
             *   +---+---+---+---+---+---+---+---+
             *   | 0   0 |    SN     |    +T     |
             *   +---+---+---+---+---+---+---+---+
+            *
+             UDP
+            *
+            *  +---+---+---+---+---+---+---+---+
+            *  | 0   0 |    SN     |   IP-ID   |
+            *  +---+---+---+---+---+---+---+---+
+            *
             */
         proto_item_append_text(ext_ti, " 0");
 
         if ((t == 0) || (rohc_cid_context->profile == ROHC_PROFILE_UDP)) {
+            /* IP-ID */
             proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
         } else {
+            /* TS */
             proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
         }
         offset++;
-    } else if (ext_type == 0x40) {
+
+    } else if (ext_type == 1) {
         /*   Extension 1:
+             RTP
             *
             *   +---+---+---+---+---+---+---+---+
             *   | 0   1 |    SN     |    +T     |
             *   +---+---+---+---+---+---+---+---+
             *   |              -T               |
             *   +---+---+---+---+---+---+---+---+
+            *
+             UDP
+            *   +---+---+---+---+---+---+---+---+
+            *   | 0   1 |    SN     |   IP-ID   |
+            *   +---+---+---+---+---+---+---+---+
+            *   |             IP-ID             |
+            *   +---+---+---+---+---+---+---+---+
             */
         proto_item_append_text(ext_ti, " 1");
 
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
+            /* IP-ID */
             proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
             offset++;
-        } else if (t == 0) {
-            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
-            offset++;
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
-        } else if (t == 1) {
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
-            offset++;
-            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         } else {
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            /* RTP profile */
+            if (t == 0) {
+                /* +T is IP-ID */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+                offset++;
+                /* -T is TS */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            } else if (t == 1) {
+                /* +T is TS */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+                offset++;
+                /* -T is IP-ID */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            }
             offset++;
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
         }
-        offset++;
-    } else if (ext_type == 0x80) {
+
+    } else if (ext_type == 2) {
         /*   Extension 2:
+             RTP
             *
             *   +---+---+---+---+---+---+---+---+
             *   | 1   0 |    SN     |    +T     |
@@ -587,29 +624,46 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             *   +---+---+---+---+---+---+---+---+
             *   |              -T               |
             *   +---+---+---+---+---+---+---+---+
+            *
+             UDP
+            *   +---+---+---+---+---+---+---+---+
+            *   | 1   0 |    SN     |   IP-ID2  |
+            *   +---+---+---+---+---+---+---+---+
+            *   |            IP-ID2             |
+            *   +---+---+---+---+---+---+---+---+
+            *   |             IP-ID             |
+            *   +---+---+---+---+---+---+---+---+
             */
         proto_item_append_text(ext_ti, " 2");
 
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
-            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+            /* IP-ID2 */
+            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id2, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
             offset += 2;
+            /* IP ID */
             proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
-        } else if (t == 0) {
-            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
-            offset += 2;
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
-        } else if (t == 1) {
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
-            offset += 2;
-            proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            offset++;
         } else {
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
-            offset += 2;
-            proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            /* RTP Profile */
+            if (t == 0) {
+                /* +T is IP-ID */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* -T is TS */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            } else if (t == 1) {
+                /* +T is TS */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_ts, tvb, (offset<<3)+5, 11, ENC_BIG_ENDIAN);
+                offset += 2;
+                /* -T is IP-ID */
+                proto_tree_add_bits_item(ext_tree, hf_rohc_comp_ip_id, tvb, (offset<<3), 8, ENC_BIG_ENDIAN);
+            }
+            offset++;
         }
-        offset++;
+
     } else {
-        if (rohc_cid_context->profile == ROHC_PROFILE_RTP) {
+        if ((rohc_cid_context->profile == ROHC_PROFILE_RTP) ||
+            (rohc_cid_context->profile == ROHC_PROFILE_UDP)) {
             /* Extension 3:
              *
              *    0     1     2     3     4     5     6     7
@@ -641,7 +695,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
              */
             proto_item_append_text(ext_ti, " 3");
 
-            static int * const ext3_flags[] = {
+            static int * const ext3_rtp_flags[] = {
                 &hf_rohc_ext3_s,
                 &hf_rohc_ext3_r_ts,
                 &hf_rohc_ext3_tsc,
@@ -650,11 +704,23 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 &hf_rohc_ext3_rtp,
                 NULL
             };
+            static int * const ext3_udp_flags[] = {
+                &hf_rohc_ext3_s,
+                &hf_rohc_ext3_udp_mode,
+                &hf_rohc_ext3_i,
+                &hf_rohc_ext3_ip,
+                &hf_rohc_ext3_ip2,
+                NULL
+            };
+
             guint64 ext3_flags_value = 0;
             guint64 ext3_inner_ip_flags_value = 0;
             guint64 ext3_outer_ip_flags_value = 0;
 
-            proto_tree_add_bitmask_ret_uint64(ext_tree, tvb, offset, hf_rohc_ext3_flags, ett_rohc_ext3_flags, ext3_flags, ENC_BIG_ENDIAN, &ext3_flags_value);
+            /* FLAGS */
+            proto_tree_add_bitmask_ret_uint64(ext_tree, tvb, offset, hf_rohc_ext3_flags, ett_rohc_ext3_flags,
+                                              (rohc_cid_context->profile == ROHC_PROFILE_RTP) ? ext3_rtp_flags : ext3_udp_flags,
+                                              ENC_BIG_ENDIAN, &ext3_flags_value);
             offset++;
 
             if (ext3_flags_value & ROHC_RTP_EXT3_IP_MASK) {
@@ -787,10 +853,12 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                     offset += 2;
                 }
             }
-            if (ext3_flags_value & ROHC_RTP_EXT3_RTP_MASK) {
+            if ((rohc_cid_context->profile == ROHC_PROFILE_RTP) &&
+                (ext3_flags_value & ROHC_RTP_EXT3_RTP_MASK)) {
+
                 guint64 ext3_rtp_flags_value = 0;
                 static int * const rtp_flags[] = {
-                    &hf_rohc_ext3_mode,
+                    &hf_rohc_ext3_rtp_mode,
                     &hf_rohc_ext3_r_pt,
                     &hf_rohc_ext3_m,
                     &hf_rohc_ext3_r_x,
@@ -815,7 +883,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  *  ..... ..... ..... ..... ..... ..... ..... .....
                  */
                 proto_tree_add_bitmask_ret_uint64(ext_tree, tvb, offset, hf_rohc_ext3_rtp_flags, ett_rohc_ext3_rtp_flags, rtp_flags, ENC_BIG_ENDIAN, &ext3_rtp_flags_value);
-                rohc_cid_context->mode = (enum rohc_mode)((ext3_rtp_flags_value & ROHC_RTP_EXT3_MODE_MASK)>>6);
+                rohc_cid_context->mode = (enum rohc_mode)((ext3_rtp_flags_value & ROHC_RTP_EXT3_RTP_MODE_MASK)>>6);
                 offset++;
 
                 if (ext3_rtp_flags_value & ROHC_RTP_EXT3_R_PT_MASK) {
@@ -838,7 +906,8 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 }
             }
         } else {
-            proto_tree_add_expert_format(ext_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1, "extension 3 [Not dissected yet]");
+            proto_tree_add_expert_format(ext_tree, pinfo, &ei_rohc_not_dissected_yet, tvb, offset, -1,
+                                         "extension 3 [Not dissected yet for profile %u]", rohc_cid_context->profile);
             if (tvb_captured_length_remaining(tvb, offset) > 0)
                 offset += tvb_captured_length_remaining(tvb, offset);
         }
@@ -1031,6 +1100,8 @@ dissect_rohc_pkt_type_1_u_o_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             sn = tvb_get_bits8(tvb, (offset<<3), 5);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3), 5, ENC_BIG_ENDIAN);
         } else {
+            /* RTP Profile */
+
             /* TS */
             proto_tree_add_bits_item(pkt_tree, hf_rohc_ts, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
             offset += 1 + val_len;
@@ -1162,6 +1233,8 @@ dissect_rohc_pkt_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         /* UOR-2 subtree */
         pkt_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rohc_packet, &ti, "UOR-2 packet");
         if (rohc_cid_context->profile == ROHC_PROFILE_UDP) {
+            /* UDP profile */
+
             /* SN */
             sn = tvb_get_bits8(tvb, (offset<<3)+3, 5);
             proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
@@ -1923,7 +1996,7 @@ dissect_rohc_ir_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         }
     }
 
-    /* UDP dynamic*/
+    /* UDP dynamic */
     if ( (profile == ROHC_PROFILE_UDP)  ||
          (profile == ROHC_PROFILE_RTP)      ) {
         /* 5.7.7.5.  Initialization of UDP Header
@@ -1937,7 +2010,7 @@ dissect_rohc_ir_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         root_ti = proto_tree_add_item(sub_tree, hf_rohc_dynamic_udp, tvb, offset, 2, ENC_NA);
         dynamic_udp_tree = proto_item_add_subtree(root_ti, ett_rohc_dynamic_udp);
         id = tvb_get_ntohs(tvb, offset);
-        rohc_cid_context->udp_checksum_present = id ? TRUE : FALSE;
+        rohc_cid_context->udp_checksum_present = (id) ? TRUE : FALSE;
         /* Checksum */
         proto_tree_add_checksum(dynamic_udp_tree, tvb, offset, hf_rohc_dynamic_udp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         offset += 2;
@@ -2334,7 +2407,8 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* Read profile */
     profile = tvb_get_guint8(tvb,offset);
 
-    if (profile==ROHC_PROFILE_RTP) {
+    /* D (all profiles?) */
+    if ((profile==ROHC_PROFILE_RTP) || (profile==ROHC_PROFILE_UDP)) {
         proto_tree_add_item(ir_tree, hf_rohc_d_bit, tvb, x_bit_offset, 1, ENC_BIG_ENDIAN);
     }
 
@@ -2530,6 +2604,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* Profile specific information */
     switch (profile ) {
         case ROHC_PROFILE_RTP:
+        case ROHC_PROFILE_UDP:
             offset = dissect_rohc_ir_profile_dynamic(tvb, pinfo, ir_tree, offset, profile, rohc_cid_context);
             break;
 
@@ -2889,7 +2964,7 @@ start_over:
         offset += 2;
     }
 
-    /* Any remainder is undissected data */
+    /* Any remainder is undissected data / payload */
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
     call_data_dissector(payload_tvb, pinfo, tree);
 
@@ -3380,6 +3455,12 @@ proto_register_rohc(void)
                 NULL , HFILL
               }
             },
+            { &hf_rohc_comp_ip_id2,
+              { "Compressed IP-ID2","rohc.comp_ip_id2",
+                FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+                NULL , HFILL
+              }
+            },
             { &hf_rohc_t,
               { "T bit","rohc.t",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3506,6 +3587,12 @@ proto_register_rohc(void)
                 NULL, HFILL
               }
             },
+            { &hf_rohc_ext3_udp_mode,
+              { "Mode","rohc.ext3.mode",
+                FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), ROHC_UDP_EXT3_UDP_MODE_MASK,
+                NULL, HFILL
+              }
+            },
             { &hf_rohc_ext3_i,
               { "I","rohc.ext3.i",
                 FT_BOOLEAN, 8, TFS(&tfs_set_notset), ROHC_RTP_EXT3_I_MASK,
@@ -3515,6 +3602,12 @@ proto_register_rohc(void)
             { &hf_rohc_ext3_ip,
               { "ip","rohc.ext3.ip",
                 FT_BOOLEAN, 8, TFS(&tfs_set_notset), ROHC_RTP_EXT3_IP_MASK,
+                NULL, HFILL
+              }
+            },
+            { &hf_rohc_ext3_ip2,
+              { "ip2","rohc.ext3.ip2",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), ROHC_UDP_EXT3_IP2_MASK,
                 NULL, HFILL
               }
             },
@@ -3638,9 +3731,9 @@ proto_register_rohc(void)
                 NULL, HFILL
               }
             },
-            { &hf_rohc_ext3_mode,
+            { &hf_rohc_ext3_rtp_mode,
               { "Mode","rohc.ext3.mode",
-                FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), ROHC_RTP_EXT3_MODE_MASK,
+                FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), ROHC_RTP_EXT3_RTP_MODE_MASK,
                 NULL, HFILL
               }
             },
