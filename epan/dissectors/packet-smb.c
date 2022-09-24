@@ -6011,11 +6011,11 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
-	/* XXX - [MS-CIFS] says this is 13 *bytes*, suggesting that it's
-	   in an OEM code page (i.e., ASCII superset), not Unicode in
-	   UTF-16 encoding.  Is it *ever* Unicode? */
+	/* [MS-CIFS] says this is 13 *bytes*, and also says "Unicode is
+           not supported; names are returned in the extended ASCII
+           (OEM) character set only." */
 	fn_len = 13;
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
+	fn = get_unicode_or_ascii_string(tvb, &offset, FALSE/*Never Unicode*/, &fn_len,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
