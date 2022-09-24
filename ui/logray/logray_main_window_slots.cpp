@@ -2177,6 +2177,118 @@ void LograyMainWindow::showPreferencesDialog(QString module_name)
 
 // View Menu
 
+void LograyMainWindow::connectViewMenuActions()
+{
+    connect(main_ui_->actionViewFullScreen, &QAction::triggered, this, [this](bool checked) {
+        if (checked) {
+            // Save the state for future restore
+            was_maximized_ = this->isMaximized();
+            this->showFullScreen();
+        } else {
+            // Restore the previous state
+            if (was_maximized_) {
+                this->showMaximized();
+            } else {
+                this->showNormal();
+            }
+        }
+    });
+
+    connect(main_ui_->actionViewTimeDisplaySecondsWithHoursAndMinutes, &QAction::triggered, this,
+            [this](bool checked) { setTimeDisplaySecondsWithHoursAndMinutes(checked); });
+
+    connect(main_ui_->actionViewEditResolvedName, &QAction::triggered, this,
+            [this]() { editResolvedName(); });
+
+    connect(main_ui_->actionViewNameResolutionPhysical, &QAction::triggered, this,
+            [this]() { setNameResolution(); });
+
+    connect(main_ui_->actionViewNameResolutionNetwork, &QAction::triggered, this,
+            [this]() { setNameResolution(); });
+
+    connect(main_ui_->actionViewNameResolutionTransport, &QAction::triggered, this,
+            [this]() { setNameResolution(); });
+
+    connect(main_ui_->actionViewZoomIn, &QAction::triggered, this, [this]() {
+        recent.gui_zoom_level++;
+        zoomText();
+    });
+
+    connect(main_ui_->actionViewZoomOut, &QAction::triggered, this, [this]() {
+        recent.gui_zoom_level--;
+        zoomText();
+    });
+
+    connect(main_ui_->actionViewNormalSize, &QAction::triggered, this, [this]() {
+        recent.gui_zoom_level = 0;
+        zoomText();
+    });
+
+    connect(main_ui_->actionViewColorizePacketList, &QAction::triggered, this, [this](bool checked) {
+        recent.packet_list_colorize = checked;
+        packet_list_->recolorPackets();
+    });
+
+    connect(main_ui_->actionViewColoringRules, &QAction::triggered, this,
+            [this]() { showColoringRulesDialog(); });
+
+    connect(main_ui_->actionViewColorizeResetColorization, &QAction::triggered, this, [this]() {
+        gchar *err_msg = NULL;
+        if (!color_filters_reset_tmp(&err_msg)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+            g_free(err_msg);
+        }
+        packet_list_->recolorPackets();
+        setMenusForSelectedPacket();
+    });
+
+    connect(main_ui_->actionViewColorizeNewColoringRule, &QAction::triggered, this,
+            [this]() { colorizeConversation(true); });
+
+    connect(main_ui_->actionViewResetLayout, &QAction::triggered, this, [this]() {
+        recent.gui_geometry_main_upper_pane = 0;
+        recent.gui_geometry_main_lower_pane = 0;
+        applyRecentPaneGeometry();
+    });
+
+    connect(main_ui_->actionViewResizeColumns, &QAction::triggered, this, [this]() {
+        if (! packet_list_->model())
+            return;
+        for (int col = 0; col < packet_list_->model()->columnCount(); col++) {
+            packet_list_->resizeColumnToContents(col);
+            recent_set_column_width(col, packet_list_->columnWidth(col));
+        }
+    });
+
+    connect(main_ui_->actionViewInternalsConversationHashTables, &QAction::triggered, this, [this]() {
+        ConversationHashTablesDialog *conversation_hash_tables_dlg = new ConversationHashTablesDialog(this);
+        conversation_hash_tables_dlg->show();
+    });
+
+    connect(main_ui_->actionViewInternalsDissectorTables, &QAction::triggered, this, [this]() {
+        DissectorTablesDialog *dissector_tables_dlg = new DissectorTablesDialog(this);
+        dissector_tables_dlg->show();
+    });
+
+    connect(main_ui_->actionViewInternalsSupportedProtocols, &QAction::triggered, this, [this]() {
+        SupportedProtocolsDialog *supported_protocols_dlg = new SupportedProtocolsDialog(this);
+        supported_protocols_dlg->show();
+    });
+
+    connect(main_ui_->actionViewShowPacketInNewWindow, &QAction::triggered, this,
+            [this]() { openPacketDialog(); });
+
+    // This is only used in ProtoTree. Defining it here makes more sense.
+    connect(main_ui_->actionContextShowLinkedPacketInNewWindow, &QAction::triggered, this,
+            [this]() { openPacketDialog(true); });
+
+    connect(main_ui_->actionViewReload_as_File_Format_or_Capture, &QAction::triggered, this,
+            [this]() { reloadCaptureFileAsFormatOrCapture(); });
+
+    connect(main_ui_->actionViewReload, &QAction::triggered, this,
+            [this]() { reloadCaptureFile(); });
+}
+
 void LograyMainWindow::showHideMainWidgets(QAction *action)
 {
     if (!action) {
@@ -2281,7 +2393,7 @@ void LograyMainWindow::setTimestampPrecision(QAction *action)
     }
 }
 
-void LograyMainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bool checked)
+void LograyMainWindow::setTimeDisplaySecondsWithHoursAndMinutes(bool checked)
 {
     if (checked) {
         recent.gui_seconds_format = TS_SECONDS_HOUR_MIN_SEC;
@@ -2296,7 +2408,7 @@ void LograyMainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_trigge
     }
 }
 
-void LograyMainWindow::on_actionViewEditResolvedName_triggered()
+void LograyMainWindow::editResolvedName()
 {
     //int column = packet_list_->selectedColumn();
     int column = -1;
@@ -2321,56 +2433,18 @@ void LograyMainWindow::setNameResolution()
     mainApp->emitAppSignal(WiresharkApplication::NameResolutionChanged);
 }
 
-void LograyMainWindow::on_actionViewNameResolutionPhysical_triggered()
-{
-    setNameResolution();
-}
-
-void LograyMainWindow::on_actionViewNameResolutionNetwork_triggered()
-{
-    setNameResolution();
-}
-
-void LograyMainWindow::on_actionViewNameResolutionTransport_triggered()
-{
-    setNameResolution();
-}
-
 void LograyMainWindow::zoomText()
 {
     mainApp->zoomTextFont(recent.gui_zoom_level);
 }
 
-void LograyMainWindow::on_actionViewZoomIn_triggered()
-{
-    recent.gui_zoom_level++;
-    zoomText();
-}
-
-void LograyMainWindow::on_actionViewZoomOut_triggered()
-{
-    recent.gui_zoom_level--;
-    zoomText();
-}
-
-void LograyMainWindow::on_actionViewNormalSize_triggered()
-{
-    recent.gui_zoom_level = 0;
-    zoomText();
-}
-
-void LograyMainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
-    recent.packet_list_colorize = checked;
-    packet_list_->recolorPackets();
-}
-
-void LograyMainWindow::on_actionViewColoringRules_triggered()
+void LograyMainWindow::showColoringRulesDialog()
 {
     ColoringRulesDialog *coloring_rules_dialog = new ColoringRulesDialog(this);
-    connect(coloring_rules_dialog, SIGNAL(accepted()),
-            packet_list_, SLOT(recolorPackets()));
-    connect(coloring_rules_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    connect(coloring_rules_dialog, &ColoringRulesDialog::accepted,
+            packet_list_, &PacketList::recolorPackets);
+    connect(coloring_rules_dialog, &ColoringRulesDialog::filterAction,
+            this, &LograyMainWindow::filterAction);
 
     coloring_rules_dialog->setWindowModality(Qt::ApplicationModal);
     coloring_rules_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -2394,10 +2468,10 @@ void LograyMainWindow::colorizeConversation(bool create_rule)
 
         if (create_rule) {
             ColoringRulesDialog coloring_rules_dialog(this, filter);
-            connect(&coloring_rules_dialog, SIGNAL(accepted()),
-                    packet_list_, SLOT(recolorPackets()));
-            connect(&coloring_rules_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-                    this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+            connect(&coloring_rules_dialog, &ColoringRulesDialog::accepted,
+                packet_list_, &PacketList::recolorPackets);
+            connect(&coloring_rules_dialog, &ColoringRulesDialog::filterAction,
+                this, &LograyMainWindow::filterAction);
             coloring_rules_dialog.exec();
         } else {
             gchar *err_msg = NULL;
@@ -2446,47 +2520,13 @@ void LograyMainWindow::colorizeWithFilter(QByteArray filter, int color_number)
     } else {
         // New coloring rule
         ColoringRulesDialog coloring_rules_dialog(window(), filter);
-        connect(&coloring_rules_dialog, SIGNAL(accepted()),
-            packet_list_, SLOT(recolorPackets()));
-        connect(&coloring_rules_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+        connect(&coloring_rules_dialog, &ColoringRulesDialog::accepted,
+            packet_list_, &PacketList::recolorPackets);
+        connect(&coloring_rules_dialog, &ColoringRulesDialog::filterAction,
+            this, &LograyMainWindow::filterAction);
         coloring_rules_dialog.exec();
     }
     main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
-}
-
-void LograyMainWindow::on_actionViewColorizeResetColorization_triggered()
-{
-    gchar *err_msg = NULL;
-    if (!color_filters_reset_tmp(&err_msg)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
-        g_free(err_msg);
-    }
-    packet_list_->recolorPackets();
-    setMenusForSelectedPacket();
-}
-
-void LograyMainWindow::on_actionViewColorizeNewColoringRule_triggered()
-{
-    colorizeConversation(true);
-}
-
-void LograyMainWindow::on_actionViewResetLayout_triggered()
-{
-    recent.gui_geometry_main_upper_pane = 0;
-    recent.gui_geometry_main_lower_pane = 0;
-
-    applyRecentPaneGeometry();
-}
-
-void LograyMainWindow::on_actionViewResizeColumns_triggered()
-{
-    if (! packet_list_->model())
-        return;
-    for (int col = 0; col < packet_list_->model()->columnCount(); col++) {
-        packet_list_->resizeColumnToContents(col);
-        recent_set_column_width(col, packet_list_->columnWidth(col));
-    }
 }
 
 void LograyMainWindow::openPacketDialog(bool from_reference)
@@ -2509,62 +2549,19 @@ void LograyMainWindow::openPacketDialog(bool from_reference)
     if (fdata) {
         PacketDialog *packet_dialog = new PacketDialog(*this, capture_file_, fdata);
 
-        connect(packet_dialog, SIGNAL(showProtocolPreferences(QString)),
-                this, SLOT(showPreferencesDialog(QString)));
+        connect(packet_dialog, &PacketDialog::showProtocolPreferences,
+                this, &LograyMainWindow::showPreferencesDialog);
         connect(packet_dialog, SIGNAL(editProtocolPreference(preference*, pref_module*)),
                 main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
 
-        connect(this, SIGNAL(closePacketDialogs()),
-                packet_dialog, SLOT(close()));
+        connect(this, &LograyMainWindow::closePacketDialogs, packet_dialog, &PacketDialog::close);
         zoomText(); // Emits mainApp->zoomMonospaceFont(QFont)
 
         packet_dialog->show();
     }
 }
 
-void LograyMainWindow::on_actionViewInternalsConversationHashTables_triggered()
-{
-    ConversationHashTablesDialog *conversation_hash_tables_dlg = new ConversationHashTablesDialog(this);
-    conversation_hash_tables_dlg->show();
-}
-
-void LograyMainWindow::on_actionViewInternalsDissectorTables_triggered()
-{
-    DissectorTablesDialog *dissector_tables_dlg = new DissectorTablesDialog(this);
-    dissector_tables_dlg->show();
-}
-
-void LograyMainWindow::on_actionViewInternalsSupportedProtocols_triggered()
-{
-    SupportedProtocolsDialog *supported_protocols_dlg = new SupportedProtocolsDialog(this);
-    supported_protocols_dlg->show();
-}
-
-void LograyMainWindow::on_actionViewShowPacketInNewWindow_triggered()
-{
-    openPacketDialog();
-}
-
-// This is only used in ProtoTree. Defining it here makes more sense.
-void LograyMainWindow::on_actionContextShowLinkedPacketInNewWindow_triggered()
-{
-    openPacketDialog(true);
-}
-
-void LograyMainWindow::on_actionViewReload_triggered()
-{
-    capture_file *cf = CaptureFile::globalCapFile();
-
-    if (cf->unsaved_changes) {
-        QString before_what(tr(" before reloading the file"));
-        if (!testCaptureFileClose(before_what, Reload))
-            return;
-    }
-
-    cf_reload(cf);
-}
-
-void LograyMainWindow::on_actionViewReload_as_File_Format_or_Capture_triggered()
+void LograyMainWindow::reloadCaptureFileAsFormatOrCapture()
 {
     capture_file *cf = CaptureFile::globalCapFile();
 
@@ -2578,6 +2575,19 @@ void LograyMainWindow::on_actionViewReload_as_File_Format_or_Capture_triggered()
         cf->open_type = open_info_name_to_type("MIME Files Format");
     else /* TODO: This should be latest format chosen by user */
         cf->open_type = WTAP_TYPE_AUTO;
+
+    cf_reload(cf);
+}
+
+void LograyMainWindow::reloadCaptureFile()
+{
+    capture_file *cf = CaptureFile::globalCapFile();
+
+    if (cf->unsaved_changes) {
+        QString before_what(tr(" before reloading the file"));
+        if (!testCaptureFileClose(before_what, Reload))
+            return;
+    }
 
     cf_reload(cf);
 }
@@ -3298,21 +3308,6 @@ void LograyMainWindow::on_actionContextFilterFieldReference_triggered()
             .arg(proto_abbrev[0])
             .arg(proto_abbrev);
     QDesktopServices::openUrl(dfref_url);
-}
-
-void LograyMainWindow::on_actionViewFullScreen_triggered(bool checked)
-{
-    if (checked) {
-        // Save the state for future restore
-        was_maximized_ = this->isMaximized();
-        this->showFullScreen();
-    } else {
-        // Restore the previous state
-        if (was_maximized_)
-            this->showMaximized();
-        else
-            this->showNormal();
-    }
 }
 
 void LograyMainWindow::activatePluginIFToolbar(bool)

@@ -303,8 +303,6 @@ public slots:
     void launchRLCGraph(bool channelKnown, guint16 ueid, guint8 rlcMode,
                         guint16 channelType, guint16 channelId, guint8 direction);
 
-    void on_actionViewFullScreen_triggered(bool checked);
-
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids);
@@ -430,38 +428,20 @@ private slots:
     void deleteAllPacketCommentsFinished(int result);
     void showPreferencesDialog(QString module_name);
 
+    void connectViewMenuActions();
     void showHideMainWidgets(QAction *action);
     void setTimestampFormat(QAction *action);
     void setTimestampPrecision(QAction *action);
-    void on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bool checked);
-    void on_actionViewEditResolvedName_triggered();
+    void setTimeDisplaySecondsWithHoursAndMinutes(bool checked);
+    void editResolvedName();
     void setNameResolution();
-    void on_actionViewNameResolutionPhysical_triggered();
-    void on_actionViewNameResolutionNetwork_triggered();
-    void on_actionViewNameResolutionTransport_triggered();
-    // XXX We're not porting the concurrency action from GTK+ on purpose.
     void zoomText();
-    void on_actionViewZoomIn_triggered();
-    void on_actionViewZoomOut_triggered();
-    void on_actionViewNormalSize_triggered();
-    void on_actionViewColorizePacketList_triggered(bool checked);
-    void on_actionViewColoringRules_triggered();
+    void showColoringRulesDialog();
     void colorizeConversation(bool create_rule = false);
     void colorizeActionTriggered();
-    void on_actionViewColorizeResetColorization_triggered();
-    void on_actionViewColorizeNewColoringRule_triggered();
-    void on_actionViewResetLayout_triggered();
-    void on_actionViewResizeColumns_triggered();
-
-    void on_actionViewInternalsConversationHashTables_triggered();
-    void on_actionViewInternalsDissectorTables_triggered();
-    void on_actionViewInternalsSupportedProtocols_triggered();
-
     void openPacketDialog(bool from_reference = false);
-    void on_actionViewShowPacketInNewWindow_triggered();
-    void on_actionContextShowLinkedPacketInNewWindow_triggered();
-    void on_actionViewReload_triggered();
-    void on_actionViewReload_as_File_Format_or_Capture_triggered();
+    void reloadCaptureFileAsFormatOrCapture();
+    void reloadCaptureFile();
 
     void on_actionGoGoToPacket_triggered();
     void on_actionGoGoToLinkedPacket_triggered();

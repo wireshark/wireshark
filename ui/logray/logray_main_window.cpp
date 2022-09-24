@@ -600,6 +600,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
     connectFileMenuActions();
     connectEditMenuActions();
+    connectViewMenuActions();
 
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
