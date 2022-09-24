@@ -1562,7 +1562,12 @@ void LograyMainWindow::addStatsPluginsToMenu() {
             stats_tree_action = new QAction(stat_name, this);
             stats_tree_action->setData(cfg->abbr);
             parent_menu->addAction(stats_tree_action);
-            connect(stats_tree_action, SIGNAL(triggered()), this, SLOT(actionStatisticsPlugin_triggered()));
+            connect(stats_tree_action, &QAction::triggered, this, [this]() {
+                QAction* action = qobject_cast<QAction*>(sender());
+                if (action) {
+                    openStatisticsTreeDialog(action->data().toString().toUtf8());
+                }
+            });
         }
     }
     g_list_free(cfg_list);
@@ -1917,6 +1922,9 @@ void LograyMainWindow::connectEditMenuActions()
     connect(main_ui_->actionEditTimeShift, &QAction::triggered, this,
             [this]() { editTimeShift(); }, Qt::QueuedConnection);
 
+    connect(main_ui_->actionDeleteAllPacketComments, &QAction::triggered, this,
+            [this]() { deleteAllPacketComments(); }, Qt::QueuedConnection);
+
     connect(main_ui_->actionEditConfigurationProfiles, &QAction::triggered, this,
             [this]() { editConfigurationProfiles(); }, Qt::QueuedConnection);
 
@@ -2058,7 +2066,7 @@ void LograyMainWindow::editTimeShiftFinished(int)
     }
 }
 
-void LograyMainWindow::actionAddPacketComment()
+void LograyMainWindow::addPacketComment()
 {
     QList<int> rows = selectedRows();
     if (rows.count() == 0)
@@ -2084,7 +2092,7 @@ void LograyMainWindow::addPacketCommentFinished(PacketCommentDialog* pc_dialog _
     }
 }
 
-void LograyMainWindow::actionEditPacketComment()
+void LograyMainWindow::editPacketComment()
 {
     QList<int> rows = selectedRows();
     if (rows.count() != 1)
@@ -2108,7 +2116,7 @@ void LograyMainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dialog 
     }
 }
 
-void LograyMainWindow::actionDeletePacketComment()
+void LograyMainWindow::deletePacketComment()
 {
     QAction *ra = qobject_cast<QAction*>(sender());
     guint nComment = ra->data().toUInt();
@@ -2116,13 +2124,13 @@ void LograyMainWindow::actionDeletePacketComment()
     updateForUnsavedChanges();
 }
 
-void LograyMainWindow::actionDeleteCommentsFromPackets()
+void LograyMainWindow::deleteCommentsFromPackets()
 {
     packet_list_->deleteCommentsFromPackets();
     updateForUnsavedChanges();
 }
 
-void LograyMainWindow::on_actionDeleteAllPacketComments_triggered()
+void LograyMainWindow::deleteAllPacketComments()
 {
     QMessageBox *msg_dialog = new QMessageBox();
     connect(msg_dialog, SIGNAL(finished(int)), this, SLOT(deleteAllPacketCommentsFinished(int)));
@@ -2829,14 +2837,6 @@ void LograyMainWindow::on_actionStatisticsIOGraph_triggered()
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
-}
-
-void LograyMainWindow::actionStatisticsPlugin_triggered()
-{
-    QAction* action = qobject_cast<QAction*>(sender());
-    if (action) {
-        openStatisticsTreeDialog(action->data().toString().toUtf8());
-    }
 }
 
 // Tools Menu
