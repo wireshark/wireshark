@@ -3109,7 +3109,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	gint hf_index;
 	guchar c;
 	int value_offset;
-	int value_len;
+	int value_len, value_bytes_len;
 	guint8 *value_bytes;
 	char *value;
 	char *header_name;
@@ -3183,15 +3183,17 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * Instead, for now for display purposes we will treat strings
 	 * as ASCII and pass the raw value to subdissectors via the
 	 * header_value_map. For the latter, we allocate a buffer that's
-	 * value_len+1 bytes long, copy value_len bytes, and stick
-	 * in a NUL terminator, so that the buffer for value actually
-	 * has value_len bytes in it.
+	 * value_bytes_len+1 bytes long, copy value_bytes_len bytes, and
+	 * stick in a NUL terminator, so that the buffer for value actually
+	 * has value_bytes_len bytes in it.
 	 */
-	value_len = line_end_offset - value_offset;
-	value_bytes = (char *)wmem_alloc(wmem_packet_scope(), value_len+1);
-	memcpy(value_bytes, &line[value_offset - offset], value_len);
-	value_bytes[value_len] = '\0';
-	value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_len, ENC_ASCII);
+	value_bytes_len = line_end_offset - value_offset;
+	value_bytes = (char *)wmem_alloc(wmem_packet_scope(), value_bytes_len+1);
+	memcpy(value_bytes, &line[value_offset - offset], value_bytes_len);
+	value_bytes[value_bytes_len] = '\0';
+	value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_bytes_len, ENC_ASCII);
+	/* The length of the value might change after UTF-8 sanitization */
+	value_len = (int)strlen(value);
 
 	if (header_value_map) {
 		wmem_map_insert(header_value_map, header_name, value_bytes);
@@ -3326,7 +3328,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_TYPE:
-			eh_ptr->content_type = (gchar*) wmem_memdup(wmem_packet_scope(), (guint8*)value,value_len + 1);
+			eh_ptr->content_type = wmem_strdup(pinfo->pool, value);
 
 			for (i = 0; i < value_len; i++) {
 				c = value[i];
@@ -3476,7 +3478,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		case HDR_HTTP2_SETTINGS:
 		{
 			proto_tree* settings_tree = proto_item_add_subtree(hdr_item, ett_http_http2_settings_item);
-			tvbuff_t* new_tvb = base64uri_tvb_to_new_tvb(tvb, value_offset, value_len);
+			tvbuff_t* new_tvb = base64uri_tvb_to_new_tvb(tvb, value_offset, value_bytes_len);
 			add_new_data_source(pinfo, new_tvb, "Base64uri decoded");
 			TRY{
 				dissect_http2_settings_ext(new_tvb, pinfo, settings_tree, 0);
