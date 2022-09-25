@@ -3471,7 +3471,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 		case HDR_LOCATION:
 			if (conv_data->request_uri){
-				stat_info->location_target = wmem_strndup(wmem_packet_scope(), value, value_offset);
+				stat_info->location_target = wmem_strndup(wmem_packet_scope(), value, value_len);
 				stat_info->location_base_uri = wmem_strdup(wmem_packet_scope(), conv_data->full_uri);
 			}
 			break;
