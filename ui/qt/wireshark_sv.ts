@@ -2321,8 +2321,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Dissekerare</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3410,10 +3409,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
             <numerusform>Maximalt QUIC-ström-ID för den valda förbindelsen: %Ln</numerusform>
             <numerusform>Maximalt QUIC-ström-ID för den valda förbindelsen: %Ln</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>No streams</source>
-        <translation type="vanished">Inga strömmar</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

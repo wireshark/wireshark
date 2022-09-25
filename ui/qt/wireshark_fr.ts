@@ -2319,8 +2319,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Dissecteur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3408,10 +3407,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
             <numerusform>ID de flux QUIC maximum pour la connexion sélectionné : %Ln</numerusform>
             <numerusform>ID de flux QUIC maximum pour la connexion sélectionné : %Ln</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>No streams</source>
-        <translation type="vanished">Aucun flux</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

@@ -2328,8 +2328,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Диссектор</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Integer</source>
@@ -3426,10 +3425,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>No streams</source>
-        <translation type="vanished">Нет потоков</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
