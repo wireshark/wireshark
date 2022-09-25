@@ -447,11 +447,9 @@ private slots:
 
     void resetPreviousFocus();
 
-    void on_actionCaptureOptions_triggered();
-#ifdef HAVE_LIBPCAP
-    void on_actionCaptureRefreshInterfaces_triggered();
-#endif
-    void on_actionCaptureCaptureFilters_triggered();
+    void connectCaptureMenuActions();
+    void showCaptureOptionsDialog();
+    void startCaptureTriggered();
 
     void on_actionAnalyzeDisplayFilters_triggered();
     void on_actionAnalyzeDisplayFilterMacros_triggered();
@@ -499,9 +497,6 @@ private slots:
     void on_goToCancel_clicked();
     void on_goToGo_clicked();
     void on_goToLineEdit_returnPressed();
-    void on_actionCaptureStart_triggered();
-    void on_actionCaptureStop_triggered();
-    void on_actionCaptureRestart_triggered();
 
     void on_actionStatisticsCaptureFileProperties_triggered();
     void on_actionStatisticsResolvedAddresses_triggered();

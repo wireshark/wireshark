@@ -2703,6 +2703,137 @@ void LograyMainWindow::goToConversationFrame(bool go_next) {
     g_free(filter);
 }
 
+// Capture Menu
+
+void LograyMainWindow::connectCaptureMenuActions()
+{
+#ifdef HAVE_LIBPCAP
+    connect(main_ui_->actionCaptureOptions, &QAction::triggered, this,
+            [this]() { showCaptureOptionsDialog(); });
+#endif
+
+    connect(main_ui_->actionCaptureStart, &QAction::triggered, this,
+            [this]() { startCaptureTriggered(); });
+
+    connect(main_ui_->actionCaptureStop, &QAction::triggered, this,
+            [this]() { stopCapture(); });
+
+    connect(main_ui_->actionCaptureRestart, &QAction::triggered, this, [this]() {
+#ifdef HAVE_LIBPCAP
+        QString before_what(tr(" before restarting the capture"));
+        cap_session_.capture_opts->restart = TRUE;
+        if (!testCaptureFileClose(before_what, Restart)) {
+            return;
+        }
+        startCapture(QStringList());
+#endif // HAVE_LIBPCAP
+    });
+
+    connect(main_ui_->actionCaptureCaptureFilters, &QAction::triggered, this, [this]() {
+        if (!capture_filter_dlg_) {
+            capture_filter_dlg_ = new FilterDialog(this, FilterDialog::CaptureFilter);
+        }
+        capture_filter_dlg_->show();
+        capture_filter_dlg_->raise();
+        capture_filter_dlg_->activateWindow();
+    });
+
+#ifdef HAVE_LIBPCAP
+    connect(main_ui_->actionCaptureRefreshInterfaces, &QAction::triggered, this, [this]() {
+        main_ui_->actionCaptureRefreshInterfaces->setEnabled(false);
+        mainApp->refreshLocalInterfaces();
+        main_ui_->actionCaptureRefreshInterfaces->setEnabled(true);
+    });
+#endif
+}
+
+void LograyMainWindow::showCaptureOptionsDialog()
+{
+#ifdef HAVE_LIBPCAP
+    if (!capture_options_dialog_) {
+        capture_options_dialog_ = new CaptureOptionsDialog(this);
+
+        connect(capture_options_dialog_, &CaptureOptionsDialog::startCapture, this, [this]() { startCapture(); });
+        connect(capture_options_dialog_, &CaptureOptionsDialog::stopCapture, this, &LograyMainWindow::stopCapture);
+
+        connect(capture_options_dialog_, &CaptureOptionsDialog::interfacesChanged,
+                this->welcome_page_, &WelcomePage::interfaceSelected);
+        connect(capture_options_dialog_, &CaptureOptionsDialog::interfacesChanged,
+                this->welcome_page_->getInterfaceFrame(), &InterfaceFrame::updateSelectedInterfaces);
+        connect(capture_options_dialog_, &CaptureOptionsDialog::interfaceListChanged,
+                this->welcome_page_->getInterfaceFrame(), &InterfaceFrame::interfaceListChanged);
+        connect(capture_options_dialog_, &CaptureOptionsDialog::captureFilterTextEdited,
+                this->welcome_page_, &WelcomePage::setCaptureFilterText);
+        // Propagate selection changes from main UI to dialog.
+        connect(this->welcome_page_, &WelcomePage::interfacesChanged,
+                capture_options_dialog_, &CaptureOptionsDialog::interfaceSelected);
+
+        connect(capture_options_dialog_, &CaptureOptionsDialog::setFilterValid,
+                this, &LograyMainWindow::startInterfaceCapture);
+
+        connect(capture_options_dialog_, &CaptureOptionsDialog::showExtcapOptions,
+                this, &LograyMainWindow::showExtcapOptionsDialog);
+    }
+    capture_options_dialog_->updateInterfaces();
+
+    if (capture_options_dialog_->isMinimized()) {
+        capture_options_dialog_->showNormal();
+    } else {
+        capture_options_dialog_->show();
+    }
+
+    capture_options_dialog_->raise();
+    capture_options_dialog_->activateWindow();
+#endif
+}
+
+void LograyMainWindow::startCaptureTriggered()
+{
+//#ifdef HAVE_AIRPCAP
+//  airpcap_if_active = airpcap_if_selected;
+//  if (airpcap_if_active)
+//    airpcap_set_toolbar_start_capture(airpcap_if_active);
+//#endif
+
+//  if (cap_open_w) {
+//    /*
+//     * There's an options dialog; get the values from it and close it.
+//     */
+//    gboolean success;
+
+//    /* Determine if "capture start" while building of the "capture options" window */
+//    /*  is in progress. If so, ignore the "capture start.                          */
+//    /* XXX: Would it be better/cleaner for the "capture options" window code to    */
+//    /*      disable the capture start button temporarily ?                         */
+//    if (cap_open_complete == FALSE) {
+//      return;  /* Building options window: ignore "capture start" */
+//    }
+//    success = capture_dlg_prep(cap_open_w);
+//    window_destroy(GTK_WIDGET(cap_open_w));
+//    if (!success)
+//      return;   /* error in options dialog */
+//  }
+
+#ifdef HAVE_LIBPCAP
+    if (global_capture_opts.num_selected == 0) {
+        QString err_msg = tr("No Interface Selected.");
+        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, err_msg);
+        main_ui_->actionCaptureStart->setChecked(false);
+        return;
+    }
+
+    /* XXX - will closing this remove a temporary file? */
+    QString before_what(tr(" before starting a new capture"));
+    if (testCaptureFileClose(before_what)) {
+        startCapture();
+    } else {
+        // simply clicking the button sets it to 'checked' even though we've
+        // decided to do nothing, so undo that
+        main_ui_->actionCaptureStart->setChecked(false);
+    }
+#endif // HAVE_LIBPCAP
+}
+
 // Analyze Menu
 
 void LograyMainWindow::filterMenuAboutToShow()
@@ -3086,80 +3217,6 @@ void LograyMainWindow::on_goToLineEdit_returnPressed()
     on_goToGo_clicked();
 }
 
-void LograyMainWindow::on_actionCaptureStart_triggered()
-{
-//#ifdef HAVE_AIRPCAP
-//  airpcap_if_active = airpcap_if_selected;
-//  if (airpcap_if_active)
-//    airpcap_set_toolbar_start_capture(airpcap_if_active);
-//#endif
-
-//  if (cap_open_w) {
-//    /*
-//     * There's an options dialog; get the values from it and close it.
-//     */
-//    gboolean success;
-
-//    /* Determine if "capture start" while building of the "capture options" window */
-//    /*  is in progress. If so, ignore the "capture start.                          */
-//    /* XXX: Would it be better/cleaner for the "capture options" window code to    */
-//    /*      disable the capture start button temporarily ?                         */
-//    if (cap_open_complete == FALSE) {
-//      return;  /* Building options window: ignore "capture start" */
-//    }
-//    success = capture_dlg_prep(cap_open_w);
-//    window_destroy(GTK_WIDGET(cap_open_w));
-//    if (!success)
-//      return;   /* error in options dialog */
-//  }
-
-#ifdef HAVE_LIBPCAP
-    if (global_capture_opts.num_selected == 0) {
-        QString err_msg = tr("No Interface Selected.");
-        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, err_msg);
-        main_ui_->actionCaptureStart->setChecked(false);
-        return;
-    }
-
-    /* XXX - will closing this remove a temporary file? */
-    QString before_what(tr(" before starting a new capture"));
-    if (testCaptureFileClose(before_what)) {
-        startCapture();
-    } else {
-        // simply clicking the button sets it to 'checked' even though we've
-        // decided to do nothing, so undo that
-        main_ui_->actionCaptureStart->setChecked(false);
-    }
-#endif // HAVE_LIBPCAP
-}
-
-void LograyMainWindow::on_actionCaptureStop_triggered()
-{
-    stopCapture();
-}
-
-void LograyMainWindow::on_actionCaptureRestart_triggered()
-{
-#ifdef HAVE_LIBPCAP
-    QString before_what(tr(" before restarting the capture"));
-    cap_session_.capture_opts->restart = TRUE;
-    if (!testCaptureFileClose(before_what, Restart))
-        return;
-
-    startCapture();
-#endif // HAVE_LIBPCAP
-}
-
-void LograyMainWindow::on_actionCaptureCaptureFilters_triggered()
-{
-    if (!capture_filter_dlg_) {
-        capture_filter_dlg_ = new FilterDialog(this, FilterDialog::CaptureFilter);
-    }
-    capture_filter_dlg_->show();
-    capture_filter_dlg_->raise();
-    capture_filter_dlg_->activateWindow();
-}
-
 void LograyMainWindow::on_actionStatisticsCaptureFileProperties_triggered()
 {
     CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);
@@ -3189,55 +3246,6 @@ void LograyMainWindow::on_actionStatisticsProtocolHierarchy_triggered()
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     phd->show();
 }
-
-void LograyMainWindow::on_actionCaptureOptions_triggered()
-{
-#ifdef HAVE_LIBPCAP
-    if (!capture_options_dialog_) {
-        capture_options_dialog_ = new CaptureOptionsDialog(this);
-
-        connect(capture_options_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
-        connect(capture_options_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
-
-        connect(capture_options_dialog_, SIGNAL(interfacesChanged()),
-                this->welcome_page_, SLOT(interfaceSelected()));
-        connect(capture_options_dialog_, SIGNAL(interfacesChanged()),
-                this->welcome_page_->getInterfaceFrame(), SLOT(updateSelectedInterfaces()));
-        connect(capture_options_dialog_, SIGNAL(interfaceListChanged()),
-                this->welcome_page_->getInterfaceFrame(), SLOT(interfaceListChanged()));
-        connect(capture_options_dialog_, SIGNAL(captureFilterTextEdited(QString)),
-                this->welcome_page_, SLOT(setCaptureFilterText(QString)));
-        // Propagate selection changes from main UI to dialog.
-        connect(this->welcome_page_, SIGNAL(interfacesChanged()),
-                capture_options_dialog_, SLOT(interfaceSelected()));
-
-        connect(capture_options_dialog_, SIGNAL(setFilterValid(bool, const QString)),
-                this, SLOT(startInterfaceCapture(bool, const QString)));
-
-        connect(capture_options_dialog_, SIGNAL(showExtcapOptions(QString&, bool)),
-                this, SLOT(showExtcapOptionsDialog(QString&, bool)));
-    }
-    capture_options_dialog_->updateInterfaces();
-
-    if (capture_options_dialog_->isMinimized()) {
-        capture_options_dialog_->showNormal();
-    } else {
-        capture_options_dialog_->show();
-    }
-
-    capture_options_dialog_->raise();
-    capture_options_dialog_->activateWindow();
-#endif
-}
-
-#ifdef HAVE_LIBPCAP
-void LograyMainWindow::on_actionCaptureRefreshInterfaces_triggered()
-{
-    main_ui_->actionCaptureRefreshInterfaces->setEnabled(false);
-    mainApp->refreshLocalInterfaces();
-    main_ui_->actionCaptureRefreshInterfaces->setEnabled(true);
-}
-#endif
 
 void LograyMainWindow::externalMenuItem_triggered()
 {
