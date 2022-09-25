@@ -443,11 +443,8 @@ private slots:
     void reloadCaptureFileAsFormatOrCapture();
     void reloadCaptureFile();
 
-    void on_actionGoGoToPacket_triggered();
-    void on_actionGoGoToLinkedPacket_triggered();
-    void on_actionGoNextConversationPacket_triggered();
-    void on_actionGoPreviousConversationPacket_triggered();
-    void on_actionGoAutoScroll_toggled(bool checked);
+    void connectGoMenuActions();
+
     void resetPreviousFocus();
 
     void on_actionCaptureOptions_triggered();

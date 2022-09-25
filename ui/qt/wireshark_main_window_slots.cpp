@@ -2391,6 +2391,18 @@ void WiresharkMainWindow::connectViewMenuActions()
         zoomText();
     });
 
+    connect(main_ui_->actionViewExpandSubtrees, &QAction::triggered,
+            proto_tree_, &ProtoTree::expandSubtrees);
+
+    connect(main_ui_->actionViewCollapseSubtrees, &QAction::triggered,
+            proto_tree_, &ProtoTree::collapseSubtrees);
+
+    connect(main_ui_->actionViewExpandAll, &QAction::triggered,
+            proto_tree_, &ProtoTree::expandAll);
+
+    connect(main_ui_->actionViewCollapseAll, &QAction::triggered,
+            proto_tree_, &ProtoTree::collapseAll);
+
     connect(main_ui_->actionViewColorizePacketList, &QAction::triggered, this, [this](bool checked) {
         recent.packet_list_colorize = checked;
         packet_list_->recolorPackets();
@@ -2768,6 +2780,100 @@ void WiresharkMainWindow::reloadCaptureFile()
 // Expand / collapse slots in proto_tree
 
 // Go Menu
+
+void WiresharkMainWindow::connectGoMenuActions()
+{
+    connect(main_ui_->actionGoGoToPacket, &QAction::triggered, this, [this]() {
+        if (! packet_list_->model() || packet_list_->model()->rowCount() < 1) {
+            return;
+        }
+        previous_focus_ = mainApp->focusWidget();
+        connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
+
+        showAccordionFrame(main_ui_->goToFrame, true);
+        if (main_ui_->goToFrame->isVisible()) {
+            main_ui_->goToLineEdit->clear();
+            main_ui_->goToLineEdit->setFocus();
+        }
+    });
+
+    connect(main_ui_->actionGoGoToLinkedPacket, &QAction::triggered, this, [this]() {
+        QAction *gta = qobject_cast<QAction*>(sender());
+        if (!gta) return;
+
+        bool ok = false;
+        int packet_num = gta->data().toInt(&ok);
+        if (!ok) return;
+
+        packet_list_->goToPacket(packet_num);
+    });
+
+    connect(main_ui_->actionGoNextPacket, &QAction::triggered,
+            packet_list_, &PacketList::goNextPacket);
+
+    connect(main_ui_->actionGoPreviousPacket, &QAction::triggered,
+            packet_list_, &PacketList::goPreviousPacket);
+
+    connect(main_ui_->actionGoFirstPacket, &QAction::triggered,
+            packet_list_, &PacketList::goFirstPacket);
+
+    connect(main_ui_->actionGoLastPacket, &QAction::triggered,
+            packet_list_, &PacketList::goLastPacket);
+
+    connect(main_ui_->actionGoNextConversationPacket, &QAction::triggered, this,
+            [this]() { goToConversationFrame(true); });
+
+    connect(main_ui_->actionGoPreviousConversationPacket, &QAction::triggered, this,
+            [this]() { goToConversationFrame(false); });
+
+    connect(main_ui_->actionGoNextHistoryPacket, &QAction::triggered,
+            packet_list_, &PacketList::goNextHistoryPacket);
+
+    connect(main_ui_->actionGoPreviousHistoryPacket, &QAction::triggered,
+            packet_list_, &PacketList::goPreviousHistoryPacket);
+
+    connect(main_ui_->actionGoAutoScroll, &QAction::triggered, this,
+            [this](bool checked) { packet_list_->setVerticalAutoScroll(checked); });
+}
+
+void WiresharkMainWindow::goToConversationFrame(bool go_next) {
+    gchar     *filter       = NULL;
+    dfilter_t *dfcode       = NULL;
+    gboolean   found_packet = FALSE;
+    packet_info *pi = capture_file_.packetInfo();
+
+    if (!pi) {
+        // No packet was selected, or multiple packets were selected.
+        return;
+    }
+
+    /* Try to build a conversation
+     * filter in the order TCP, UDP, IP, Ethernet and apply the
+     * coloring */
+    filter = conversation_filter_from_packet(pi);
+    if (filter == NULL) {
+        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to build conversation filter."));
+        g_free(filter);
+        return;
+    }
+
+    if (!dfilter_compile(filter, &dfcode, NULL)) {
+        /* The attempt failed; report an error. */
+        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Error compiling filter for this conversation."));
+        g_free(filter);
+        return;
+    }
+
+    found_packet = cf_find_packet_dfilter(capture_file_.capFile(), dfcode, go_next ? SD_FORWARD : SD_BACKWARD);
+
+    if (!found_packet) {
+        /* We didn't find a packet */
+        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("No previous/next packet in conversation."));
+    }
+
+    dfilter_free(dfcode);
+    g_free(filter);
+}
 
 // Analyze Menu
 
@@ -3690,87 +3796,6 @@ void WiresharkMainWindow::on_actionHelpAbout_triggered()
 
     about_dialog->raise();
     about_dialog->activateWindow();
-}
-
-void WiresharkMainWindow::on_actionGoGoToPacket_triggered() {
-    if (! packet_list_->model() || packet_list_->model()->rowCount() < 1) {
-        return;
-    }
-    previous_focus_ = mainApp->focusWidget();
-    connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
-
-    showAccordionFrame(main_ui_->goToFrame, true);
-    if (main_ui_->goToFrame->isVisible()) {
-        main_ui_->goToLineEdit->clear();
-        main_ui_->goToLineEdit->setFocus();
-    }
-}
-
-void WiresharkMainWindow::on_actionGoGoToLinkedPacket_triggered()
-{
-    QAction *gta = qobject_cast<QAction*>(sender());
-    if (!gta) return;
-
-    bool ok = false;
-    int packet_num = gta->data().toInt(&ok);
-    if (!ok) return;
-
-    packet_list_->goToPacket(packet_num);
-}
-
-// gtk/main_menubar.c:goto_conversation_frame
-void WiresharkMainWindow::goToConversationFrame(bool go_next) {
-    gchar     *filter       = NULL;
-    dfilter_t *dfcode       = NULL;
-    gboolean   found_packet = FALSE;
-    packet_info *pi = capture_file_.packetInfo();
-
-    if (!pi) {
-        // No packet was selected, or multiple packets were selected.
-        return;
-    }
-
-    /* Try to build a conversation
-     * filter in the order TCP, UDP, IP, Ethernet and apply the
-     * coloring */
-    filter = conversation_filter_from_packet(pi);
-    if (filter == NULL) {
-        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to build conversation filter."));
-        g_free(filter);
-        return;
-    }
-
-    if (!dfilter_compile(filter, &dfcode, NULL)) {
-        /* The attempt failed; report an error. */
-        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Error compiling filter for this conversation."));
-        g_free(filter);
-        return;
-    }
-
-    found_packet = cf_find_packet_dfilter(capture_file_.capFile(), dfcode, go_next ? SD_FORWARD : SD_BACKWARD);
-
-    if (!found_packet) {
-        /* We didn't find a packet */
-        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("No previous/next packet in conversation."));
-    }
-
-    dfilter_free(dfcode);
-    g_free(filter);
-}
-
-void WiresharkMainWindow::on_actionGoNextConversationPacket_triggered()
-{
-    goToConversationFrame(true);
-}
-
-void WiresharkMainWindow::on_actionGoPreviousConversationPacket_triggered()
-{
-    goToConversationFrame(false);
-}
-
-void WiresharkMainWindow::on_actionGoAutoScroll_toggled(bool checked)
-{
-    packet_list_->setVerticalAutoScroll(checked);
 }
 
 void WiresharkMainWindow::resetPreviousFocus() {
