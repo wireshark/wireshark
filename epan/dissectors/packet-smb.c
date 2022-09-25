@@ -1741,7 +1741,7 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
 		 */
 		len = tvb_find_guint16(tvb, offset, bc, 0);
 		if (len == -1) {
-			if (bc % 1 == 1	&& tvb_get_guint8(tvb, offset + bc - 1) == 0) {
+			if (bc % 2 == 1	&& tvb_get_guint8(tvb, offset + bc - 1) == 0) {
 				*us_lenp = bc;
 				return tvb_get_string_enc(wmem_packet_scope(), tvb, offset, bc - 1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 			}
