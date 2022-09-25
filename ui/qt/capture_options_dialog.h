@@ -62,6 +62,9 @@ public:
 
     void updateInterfaces();
 
+public slots:
+    void interfaceSelected();
+
 protected:
     virtual void showEvent(QShowEvent *);
 
@@ -80,7 +83,6 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
-    void interfaceSelected();
     void filterEdited();
     void updateWidgets();
     void updateStatistics(void);
