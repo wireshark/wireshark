@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.1.0 (2022-06)
+-- 3GPP TS 36.413 V17.2.0 (2022-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -165,6 +165,7 @@ maxNARFCN										INTEGER ::= 3279165
 maxRS-IndexCellQual								INTEGER ::= 16
 maxnoofPSCellsPerPrimaryCellinUEHistoryInfo		INTEGER ::= 8
 maxnoofTACsInNTN								INTEGER ::= 12
+maxnoofSensorName								INTEGER ::= 3
 
 
 -- **************************************************************
@@ -333,7 +334,7 @@ id-CellAccessMode									ProtocolIE-ID ::= 145
 id-CSGMembershipStatus 								ProtocolIE-ID ::= 146
 id-LPPa-PDU											ProtocolIE-ID ::= 147
 id-Routing-ID										ProtocolIE-ID ::= 148
-id-Time-Synchronisation-Info							ProtocolIE-ID ::= 149
+id-Time-Synchronisation-Info						ProtocolIE-ID ::= 149
 id-PS-ServiceNotAvailable							ProtocolIE-ID ::= 150
 id-PagingPriority									ProtocolIE-ID ::= 151
 id-x2TNLConfigurationInfo							ProtocolIE-ID ::= 152
@@ -532,5 +533,7 @@ id-SourceNodeTransportLayerAddress					ProtocolIE-ID ::= 340
 id-E-RABToBeUpdatedList								ProtocolIE-ID ::= 341
 id-E-RABToBeUpdatedItem								ProtocolIE-ID ::= 342
 id-SourceSNID										ProtocolIE-ID ::= 343
+id-LoggedMDTTrigger									ProtocolIE-ID ::= 344
+id-SensorMeasurementConfiguration					ProtocolIE-ID ::= 345
 
 END

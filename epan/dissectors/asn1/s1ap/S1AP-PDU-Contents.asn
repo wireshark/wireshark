@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.1.0 (2022-06)
+-- 3GPP TS 36.413 V17.2.0 (2022-09)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -1784,16 +1784,17 @@ DownlinkNASTransport-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-SubscriberProfileIDforRFP	CRITICALITY ignore	TYPE SubscriberProfileIDforRFP		PRESENCE optional}|
 	{ ID id-SRVCCOperationPossible		CRITICALITY ignore	TYPE SRVCCOperationPossible			PRESENCE optional}|
 	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability				PRESENCE optional}|
-	{ ID id-DLNASPDUDeliveryAckRequest	CRITICALITY ignore	TYPE DLNASPDUDeliveryAckRequest	PRESENCE optional}|
+	{ ID id-DLNASPDUDeliveryAckRequest	CRITICALITY ignore	TYPE DLNASPDUDeliveryAckRequest		PRESENCE optional}|
 	{ ID id-EnhancedCoverageRestricted	CRITICALITY ignore	TYPE EnhancedCoverageRestricted		PRESENCE optional}|
 	{ ID id-NRUESecurityCapabilities	CRITICALITY ignore	TYPE NRUESecurityCapabilities		PRESENCE optional}|
 	{ ID id-CE-ModeBRestricted			CRITICALITY ignore	TYPE CE-ModeBRestricted				PRESENCE optional}|
-	{ ID id-UECapabilityInfoRequest		CRITICALITY ignore	TYPE UECapabilityInfoRequest	PRESENCE optional}|
+	{ ID id-UECapabilityInfoRequest		CRITICALITY ignore	TYPE UECapabilityInfoRequest		PRESENCE optional}|
 	{ ID id-EndIndication				CRITICALITY ignore	TYPE EndIndication					PRESENCE optional}|
 	{ ID id-PendingDataIndication		CRITICALITY ignore	TYPE PendingDataIndication			PRESENCE optional}|
 	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional}|
 	{ ID id-AdditionalRRMPriorityIndex	CRITICALITY ignore	TYPE AdditionalRRMPriorityIndex		PRESENCE optional}|
-	{ ID id-UERadioCapabilityID			CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional},
+	{ ID id-UERadioCapabilityID			CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional}|
+	{ ID id-Masked-IMEISV				CRITICALITY ignore	TYPE Masked-IMEISV					PRESENCE optional},
 	...
 }
 
@@ -2432,8 +2433,8 @@ DeactivateTraceIEs S1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 CellTrafficTrace ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
-...
+     protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
+     ...
 }
 
 CellTrafficTraceIEs S1AP-PROTOCOL-IES ::= {
@@ -3218,8 +3219,8 @@ ConnectionEstablishmentIndicationIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-EndIndication				CRITICALITY ignore	TYPE EndIndication				PRESENCE optional}|
 	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional}|
 	{ ID id-UE-Level-QoS-Parameters		CRITICALITY ignore	TYPE E-RABLevelQoSParameters	PRESENCE optional}|
-	{ ID id-UERadioCapabilityID			CRITICALITY reject	TYPE UERadioCapabilityID		PRESENCE optional}
-,
+	{ ID id-UERadioCapabilityID			CRITICALITY reject	TYPE UERadioCapabilityID		PRESENCE optional}|
+	{ ID id-Masked-IMEISV				CRITICALITY ignore	TYPE Masked-IMEISV				PRESENCE optional},
 	...
 }
 
@@ -3256,7 +3257,8 @@ UEInformationTransferIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-UE-Level-QoS-Parameters		CRITICALITY ignore	TYPE E-RABLevelQoSParameters	PRESENCE optional}|
 	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability			PRESENCE optional}|
 	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional}|
-	{ ID id-PendingDataIndication		CRITICALITY ignore	TYPE PendingDataIndication		PRESENCE optional},
+	{ ID id-PendingDataIndication		CRITICALITY ignore	TYPE PendingDataIndication		PRESENCE optional}|
+	{ ID id-Masked-IMEISV				CRITICALITY ignore	TYPE Masked-IMEISV				PRESENCE optional},
 	...
 }
 

@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V17.1.0 (2022-06)
+ * References: 3GPP TS 36.413 V17.2.0 (2022-09)
  */
 
 #include "config.h"
@@ -270,6 +270,12 @@ static void
 s1ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
+}
+
+static void
+s1ap_Hysteresis_fmt(gchar *s, guint32 v)
+{
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", (float)v/2, v);
 }
 
 static const true_false_string s1ap_tfs_interfacesToTrace = {

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.1.0 (2022-06)
+-- 3GPP TS 36.413 V17.2.0 (2022-09)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -96,6 +96,8 @@ IMPORTS
 	id-SourceNodeTransportLayerAddress,
 	id-SourceSNID,
 	id-Direct-Forwarding-Path-Availability,
+	id-LoggedMDTTrigger,
+	id-SensorMeasurementConfiguration,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -142,7 +144,8 @@ IMPORTS
 	maxNARFCN,
 	maxRS-IndexCellQual,
 	maxnoofPSCellsPerPrimaryCellinUEHistoryInfo,
-	maxnoofTACsInNTN
+	maxnoofTACsInNTN,
+	maxnoofSensorName
 
 
 
@@ -1194,6 +1197,28 @@ EUTRAN-CGI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 EUTRANRoundTripDelayEstimationInfo ::= INTEGER (0..2047)
 
+EventL1LoggedMDTConfig ::= SEQUENCE {
+	l1Threshold					MeasurementThresholdL1LoggedMDT,
+	hysteresis					Hysteresis,
+	timeToTrigger				TimeToTrigger,
+	iE-Extensions				ProtocolExtensionContainer { { EventL1LoggedMDTConfig-ExtIEs} } OPTIONAL,
+	...
+}
+
+EventL1LoggedMDTConfig-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EventTrigger::= CHOICE {
+	outOfCoverage				ENUMERATED {true, ...},
+	eventL1LoggedMDTConfig		EventL1LoggedMDTConfig,
+	choice-Extensions			ProtocolIE-SingleContainer { { EventTrigger-ExtIEs} }
+}
+
+EventTrigger-ExtIEs S1AP-PROTOCOL-IES ::= {
+	...
+}
+
 ExpectedUEBehaviour ::= SEQUENCE {
 	expectedActivity		ExpectedUEActivityBehaviour OPTIONAL,
 	expectedHOInterval		ExpectedHOInterval		 	OPTIONAL,
@@ -1389,6 +1414,8 @@ HFNModified ::= INTEGER (0..131071)
 
 HFNforPDCP-SNlength18 ::= INTEGER (0..16383)
 
+Hysteresis ::= INTEGER (0..30)
+
 -- I
 
 Masked-IMEISV ::= BIT STRING (SIZE (64))
@@ -1412,7 +1439,8 @@ ImmediateMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-M6Configuration		CRITICALITY ignore	EXTENSION M6Configuration		PRESENCE conditional}|
 	{ ID id-M7Configuration		CRITICALITY ignore	EXTENSION M7Configuration		PRESENCE conditional}|
 	{ ID id-BluetoothMeasurementConfiguration		CRITICALITY ignore	EXTENSION BluetoothMeasurementConfiguration		PRESENCE optional}|
-	{ ID id-WLANMeasurementConfiguration		CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration		PRESENCE optional},
+	{ ID id-WLANMeasurementConfiguration			CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration			PRESENCE optional}|
+	{ ID id-SensorMeasurementConfiguration			CRITICALITY ignore	EXTENSION SensorMeasurementConfiguration			PRESENCE optional},
 	...
 }
 
@@ -1608,7 +1636,9 @@ LoggedMDT ::= SEQUENCE {
 
 LoggedMDT-ExtIEs	S1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-BluetoothMeasurementConfiguration		CRITICALITY ignore	EXTENSION BluetoothMeasurementConfiguration		PRESENCE optional}|
-	{ ID id-WLANMeasurementConfiguration			CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration				PRESENCE optional},
+	{ ID id-WLANMeasurementConfiguration			CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration			PRESENCE optional}|
+	{ ID id-LoggedMDTTrigger						CRITICALITY ignore	EXTENSION LoggedMDTTrigger							PRESENCE optional}|
+	{ ID id-SensorMeasurementConfiguration			CRITICALITY ignore	EXTENSION SensorMeasurementConfiguration			PRESENCE optional},
 ...
 }
 
@@ -1625,6 +1655,12 @@ LoggedMBSFNMDT ::= SEQUENCE {
 }
 
 LoggedMBSFNMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+LoggedMDTTrigger ::= CHOICE{
+	periodical		NULL,
+	eventTrigger	EventTrigger,
 	...
 }
 
@@ -1775,6 +1811,16 @@ MeasurementsToActivate ::= BIT STRING (SIZE (8))
 MeasurementThresholdA2 ::= CHOICE {
 	threshold-RSRP				Threshold-RSRP,
 	threshold-RSRQ				Threshold-RSRQ,
+	...
+}
+
+MeasurementThresholdL1LoggedMDT ::= CHOICE {
+	threshold-RSRP				Threshold-RSRP,
+	threshold-RSRQ				Threshold-RSRQ,
+	choice-Extensions		ProtocolIE-SingleContainer { { MeasurementThresholdL1LoggedMDT-ExtIEs} }
+}
+
+MeasurementThresholdL1LoggedMDT-ExtIEs S1AP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -2409,6 +2455,40 @@ SecurityResult-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SensorMeasConfig::= ENUMERATED {setup,...}
+
+SensorMeasConfigNameItem ::= SEQUENCE {
+	sensorNameConfig		SensorNameConfig,
+	iE-Extensions		ProtocolExtensionContainer { { SensorMeasConfigNameItem-ExtIEs } } 	OPTIONAL,
+	...
+}
+
+SensorMeasConfigNameItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SensorMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofSensorName)) OF SensorMeasConfigNameItem
+
+SensorMeasurementConfiguration ::=	SEQUENCE {
+	sensorMeasConfig			SensorMeasConfig,
+	sensorMeasConfigNameList	SensorMeasConfigNameList										OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {SensorMeasurementConfiguration-ExtIEs} } 	OPTIONAL,
+	...
+}
+
+SensorMeasurementConfiguration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SensorNameConfig ::= CHOICE {
+	uncompensatedBarometricConfig		ENUMERATED {true, ...},
+	choice-Extensions		ProtocolIE-SingleContainer { {SensorNameConfig-ExtIEs} }
+}
+
+SensorNameConfig-ExtIEs S1AP-PROTOCOL-IES ::= {
+	...
+}
+
 SerialNumber ::= BIT STRING (SIZE (16))
 
 ServiceType ::= ENUMERATED{
@@ -2901,6 +2981,8 @@ Threshold-RSRP ::= INTEGER(0..97)
 
 Threshold-RSRQ ::= INTEGER(0..34)
 
+TimeToTrigger ::= ENUMERATED {ms0, ms40, ms64, ms80, ms100, ms128, ms160, ms256, ms320, ms480, ms512, ms640, ms1024, ms1280, ms2560, ms5120}
+
 TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
 
 Time-UE-StayedInCell ::= INTEGER (0..4095)
@@ -2920,8 +3002,8 @@ TransportLayerAddress		::= BIT STRING (SIZE(1..160, ...))
 TraceActivation ::= SEQUENCE {
 	e-UTRAN-Trace-ID					E-UTRAN-Trace-ID,
 	interfacesToTrace					InterfacesToTrace,
-traceDepth							TraceDepth,
-traceCollectionEntityIPAddress		TransportLayerAddress,
+     traceDepth							TraceDepth,
+     traceCollectionEntityIPAddress		TransportLayerAddress,
 	iE-Extensions						ProtocolExtensionContainer { { TraceActivation-ExtIEs} }	OPTIONAL,
 	...
 }
