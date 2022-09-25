@@ -81,7 +81,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 17.7.0 Release 17)
+ *   (3GPP TS 24.008 version 17.8.0 Release 17)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -390,6 +390,7 @@ static int hf_gsm_a_gm_ptmsi_type = -1;
 static int hf_gsm_a_gm_nri_cont = -1;
 static int hf_gsm_a_gm_paging_time_window = -1;
 static int hf_gsm_a_gm_edrx_value = -1;
+static int hf_gsm_a_gm_ext_paging_time_window = -1;
 static int hf_gsm_a_gm_mac = -1;
 static int hf_gsm_a_gm_up_integ_ind = -1;
 static int hf_gsm_a_gm_dcn_id = -1;
@@ -3971,22 +3972,22 @@ de_gmm_net_res_id_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 /* [13] 10.5.5.32 Extended DRX parameters */
 static const value_string gsm_a_gm_paging_time_window_vals[] = {
-	{0x0,	"Iu: 0 s / WB-S1/WB-N1/NR-5GCN: 1.28 s / NB-S1/NB-N1: 2.56 s"},
-	{0x1,	"Iu: 1 s / WB-S1/WB-N1/NR-5GCN: 2.56 s / NB-S1/NB-N1: 5.12 s"},
-	{0x2,	"Iu: 2 s / WB-S1/WB-N1/NR-5GCN: 3.84 s / NB-S1/NB-N1: 7.68 s"},
-	{0x3,	"Iu: 3 s / WB-S1/WB-N1/NR-5GCN: 5.12 s / NB-S1/NB-N1: 10.24 s"},
-	{0x4,	"Iu: 4 s / WB-S1/WB-N1/NR-5GCN: 6.4 s / NB-S1/NB-N1: 12.8 s"},
-	{0x5,	"Iu: 5 s / WB-S1/WB-N1/NR-5GCN: 7.68 s / NB-S1/NB-N1: 15.36 s"},
-	{0x6,	"Iu: 6 s / WB-S1/WB-N1/NR-5GCN: 8.96 s / NB-S1/NB-N1: 17.92 s"},
-	{0x7,	"Iu: 7 s / WB-S1/WB-N1/NR-5GCN: 10.24 s / NB-S1/NB-N1: 20.48 s"},
-	{0x8,	"Iu: 8 s / WB-S1/WB-N1/NR-5GCN: 11.52 s / NB-S1/NB-N1: 23.04 s"},
-	{0x9,	"Iu: 9 s / WB-S1/WB-N1/NR-5GCN: 12.8 s / NB-S1/NB-N1: 25.6 s"},
-	{0xa,	"Iu: 10 s / WB-S1/WB-N1/NR-5GCN: 14.08 s / NB-S1/NB-N1: 28.16 s"},
-	{0xb,	"Iu: 12 s / WB-S1/WB-N1/NR-5GCN: 15.36 s / NB-S1/NB-N1: 30.72 s"},
-	{0xc,	"Iu: 14 s / WB-S1/WB-N1/NR-5GCN: 16.64 s / NB-S1/NB-N1: 33.28 s"},
-	{0xd,	"Iu: 16 s / WB-S1/WB-N1/NR-5GCN: 17.92 s / NB-S1/NB-N1: 35.84 s"},
-	{0xe,	"Iu: 18 s / WB-S1/WB-N1/NR-5GCN: 19.2 s / NB-S1/NB-N1: 38.4 s"},
-	{0xf,	"Iu: 20 s / WB-S1/WB-N1/NR-5GCN: 20.48 s / NB-S1/NB-N1: 40.96 s"},
+	{0x0,	"Iu: 0 s / WB-S1/WB-N1: 1.28 s / NB-S1/NB-N1: 2.56 s"},
+	{0x1,	"Iu: 1 s / WB-S1/WB-N1: 2.56 s / NB-S1/NB-N1: 5.12 s"},
+	{0x2,	"Iu: 2 s / WB-S1/WB-N1: 3.84 s / NB-S1/NB-N1: 7.68 s"},
+	{0x3,	"Iu: 3 s / WB-S1/WB-N1: 5.12 s / NB-S1/NB-N1: 10.24 s"},
+	{0x4,	"Iu: 4 s / WB-S1/WB-N1: 6.4 s / NB-S1/NB-N1: 12.8 s"},
+	{0x5,	"Iu: 5 s / WB-S1/WB-N1: 7.68 s / NB-S1/NB-N1: 15.36 s"},
+	{0x6,	"Iu: 6 s / WB-S1/WB-N1: 8.96 s / NB-S1/NB-N1: 17.92 s"},
+	{0x7,	"Iu: 7 s / WB-S1/WB-N1: 10.24 s / NB-S1/NB-N1: 20.48 s"},
+	{0x8,	"Iu: 8 s / WB-S1/WB-N1: 11.52 s / NB-S1/NB-N1: 23.04 s"},
+	{0x9,	"Iu: 9 s / WB-S1/WB-N1: 12.8 s / NB-S1/NB-N1: 25.6 s"},
+	{0xa,	"Iu: 10 s / WB-S1/WB-N1: 14.08 s / NB-S1/NB-N1: 28.16 s"},
+	{0xb,	"Iu: 12 s / WB-S1/WB-N1: 15.36 s / NB-S1/NB-N1: 30.72 s"},
+	{0xc,	"Iu: 14 s / WB-S1/WB-N1: 16.64 s / NB-S1/NB-N1: 33.28 s"},
+	{0xd,	"Iu: 16 s / WB-S1/WB-N1: 17.92 s / NB-S1/NB-N1: 35.84 s"},
+	{0xe,	"Iu: 18 s / WB-S1/WB-N1: 19.2 s / NB-S1/NB-N1: 38.4 s"},
+	{0xf,	"Iu: 20 s / WB-S1/WB-N1: 20.48 s / NB-S1/NB-N1: 40.96 s"},
 	{  0,	NULL }
 };
 
@@ -4010,6 +4011,42 @@ static const value_string gsm_a_gm_edrx_vals[] = {
 	{  0,	NULL }
 };
 
+static const value_string gsm_a_gm_paging_time_window_nr_5gcn_vals[] = {
+	{0x00,	"NR-5GCN: 1.28 s"},
+	{0x01,	"NR-5GCN: 2.56 s"},
+	{0x02,	"NR-5GCN: 3.84 s"},
+	{0x03,	"NR-5GCN: 5.12 s"},
+	{0x04,	"NR-5GCN: 6.4 s"},
+	{0x05,	"NR-5GCN: 7.68 s"},
+	{0x06,	"NR-5GCN: 8.96 s"},
+	{0x07,	"NR-5GCN: 10.24 s"},
+	{0x08,	"NR-5GCN: 11.52 s"},
+	{0x09,	"NR-5GCN: 12.8 s"},
+	{0x0a,	"NR-5GCN: 14.08 s"},
+	{0x0b,	"NR-5GCN: 15.36 s"},
+	{0x0c,	"NR-5GCN: 16.64 s"},
+	{0x0d,	"NR-5GCN: 17.92 s"},
+	{0x0e,	"NR-5GCN: 19.2 s"},
+	{0x0f,	"NR-5GCN: 20.48 s"},
+	{0x10,	"NR-5GCN: 21.76 s"},
+	{0x11,	"NR-5GCN: 23.04 s"},
+	{0x12,	"NR-5GCN: 24.32 s"},
+	{0x13,	"NR-5GCN: 25.6 s"},
+	{0x14,	"NR-5GCN: 26.88 s"},
+	{0x15,	"NR-5GCN: 28.16 s"},
+	{0x16,	"NR-5GCN: 29.44 s"},
+	{0x17,	"NR-5GCN: 30.72 s"},
+	{0x18,	"NR-5GCN: 32 s"},
+	{0x19,	"NR-5GCN: 33.28 s"},
+	{0x1a,	"NR-5GCN: 34.56 s"},
+	{0x1b,	"NR-5GCN: 35.84 s"},
+	{0x1c,	"NR-5GCN: 37.12 s"},
+	{0x1d,	"NR-5GCN: 38.4 s"},
+	{0x1e,	"NR-5GCN: 39.68 s"},
+	{0x1f,	"NR-5GCN: 40.96 s"},
+	{  0,	NULL }
+};
+
 static guint16
 de_gmm_ext_drx_params(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -4019,6 +4056,12 @@ de_gmm_ext_drx_params(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
 	proto_tree_add_item(tree, hf_gsm_a_gm_paging_time_window, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_edrx_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	if ((curr_offset - offset) >= len)
+		return len;
+
+	proto_tree_add_item(tree, hf_gsm_a_gm_ext_paging_time_window, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	return len;
 }
@@ -8900,6 +8943,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_edrx_value,
 		  { "eDRX value", "gsm_a.gm.gmm.edrx_value",
 		    FT_UINT8, BASE_HEX, VALS(gsm_a_gm_edrx_vals), 0x0f,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_ext_paging_time_window,
+		  { "Extended Paging Time Window", "gsm_a.gm.gmm.extended_paging_time_window",
+		    FT_UINT8, BASE_HEX, VALS(gsm_a_gm_paging_time_window_nr_5gcn_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_mac,
