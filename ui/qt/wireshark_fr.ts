@@ -2300,8 +2300,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Dissecteur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Integer</source>

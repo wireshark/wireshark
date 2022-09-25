@@ -2306,8 +2306,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Диссектор</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Integer</source>

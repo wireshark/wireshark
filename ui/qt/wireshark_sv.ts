@@ -2325,8 +2325,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Dissekerare</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Integer</source>

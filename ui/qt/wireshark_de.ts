@@ -2325,8 +2325,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Dissector</translation>
+        <translation>Dissector Beschreibung</translation>
     </message>
     <message>
         <source>Integer</source>

@@ -2325,8 +2325,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Dissector Description</source>
-        <oldsource>Dissector</oldsource>
-        <translation type="unfinished">Decodificatore</translation>
+        <translation>Descrizione decodificatore</translation>
     </message>
     <message>
         <source>Integer</source>
