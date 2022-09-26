@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.1.0 (2022-06)
+-- 3GPP TS 38.423 V17.2.0 (2022-09)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -159,9 +159,9 @@ maxnoofMBSServiceAreaInformation				INTEGER ::= 256
 maxnoofTAIforMBS 							INTEGER ::= 1024
 maxnoofAssociatedMBSSessions				INTEGER ::= 32
 maxnoofMBSSessions							INTEGER ::= 256
-maxnoofSuccessfulHOReports					INTEGER ::= 64 
+maxnoofSuccessfulHOReports					INTEGER ::= 64
 maxnoofPSCellsPerSN 						INTEGER ::= 8
-maxnoofNR-UChannelIDs						INTEGER ::= 16 
+maxnoofNR-UChannelIDs						INTEGER ::= 16
 maxnoofCellsinCHO							INTEGER ::= 8
 maxnoofCHOexecutioncond						INTEGER ::= 2
 maxnoofServedCellsIAB						INTEGER ::= 512
@@ -191,6 +191,7 @@ maxnoofCSIRSneighbourCellsInMTC				INTEGER ::= 16
 maxnoofNeighbour-NG-RAN-Nodes				INTEGER ::= 256
 maxnoofSRBs									INTEGER ::= 5
 maxnoofSMBR									INTEGER ::= 8
+maxnoofNSAGs								INTEGER ::= 256
 
 -- **************************************************************
 --
@@ -563,6 +564,10 @@ id-PositioningInformation																			ProtocolIE-ID ::= 360
 id-UEAssistantIdentifier																			ProtocolIE-ID ::= 361
 id-ManagementBasedMDTPLMNModificationList															ProtocolIE-ID ::= 362
 id-F1-terminatingIAB-donorIndicator																	ProtocolIE-ID ::= 363
+id-TAINSAGSupportList																				ProtocolIE-ID ::= 364
+id-SCGreconfigNotification																			ProtocolIE-ID ::= 365
+id-earlyMeasurement																					ProtocolIE-ID ::= 366
+id-BeamMeasurementsReportConfiguration																ProtocolIE-ID ::= 367
 
 
 END

@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.1.0 (2022-06)
+-- 3GPP TS 38.423 V17.2.0 (2022-09)
 -- 9.3.8	Container definitions
 -- **************************************************************
 --
@@ -27,7 +27,7 @@ IMPORTS
 	Criticality,
 	Presence,
 	PrivateIE-ID,
-	ProtocolIE-ID	
+	ProtocolIE-ID
 FROM XnAP-CommonDataTypes;
 
 -- **************************************************************

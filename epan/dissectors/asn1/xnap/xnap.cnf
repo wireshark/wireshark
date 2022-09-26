@@ -1512,6 +1512,10 @@ id-PositioningInformation                           ProtocolIE-ID
 id-UEAssistantIdentifier                            ProtocolIE-ID
 id-ManagementBasedMDTPLMNModificationList           ProtocolIE-ID
 id-F1-terminatingIAB-donorIndicator                 ProtocolIE-ID
+id-TAINSAGSupportList                               ProtocolIE-ID
+id-SCGreconfigNotification                          ProtocolIE-ID
+id-earlyMeasurement                                 ProtocolIE-ID
+id-BeamMeasurementsReportConfiguration              ProtocolIE-ID
 
 #.REGISTER
 
@@ -1771,6 +1775,7 @@ PEIPSassistanceInformation                        N xnap.ies id-PEIPSassistanceI
 UESliceMaximumBitRateList                         N xnap.ies id-S-NG-RANnodeUE-Slice-MBR
 MDTPLMNModificationList                           N xnap.ies id-ManagementBasedMDTPLMNModificationList
 F1-terminatingIAB-donorIndicator                  N xnap.ies id-F1-terminatingIAB-donorIndicator
+SCGreconfigNotification                           N xnap.ies id-SCGreconfigNotification
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -1883,6 +1888,9 @@ Redcap-Bcast-Information                          N xnap.extension id-Redcap-Bca
 UESliceMaximumBitRateList                         N xnap.extension id-UESliceMaximumBitRateList
 PositioningInformation                            N xnap.extension id-PositioningInformation
 NG-RANnodeUEXnAPID                                N xnap.extension id-UEAssistantIdentifier
+TAINSAGSupportList                                N xnap.extension id-TAINSAGSupportList
+EarlyMeasurement                                  N xnap.extension id-earlyMeasurement
+BeamMeasurementsReportConfiguration               N xnap.extension id-BeamMeasurementsReportConfiguration
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

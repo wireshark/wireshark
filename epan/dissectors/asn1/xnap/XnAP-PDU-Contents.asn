@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.1.0 (2022-06)
+-- 3GPP TS 38.423 V17.2.0 (2022-09)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -136,6 +136,7 @@ IMPORTS
 	RRCConfigIndication,
 	RRCResumeCause,
 	SCGConfigurationQuery,
+	SCGreconfigNotification,
 	SecurityIndication,
 	S-NG-RANnode-SecurityKey,
 	SpectrumSharingGroupID,
@@ -329,6 +330,7 @@ FROM XnAP-Containers
 	id-ResetResponseTypeInfo,
 	id-RespondingNodeTypeConfigUpdateAck,
 	id-RRCResumeCause,
+	id-SCGreconfigNotification,
 	id-selectedPLMN,
 	id-ServedCellsToActivate,
 	id-servedCellsToUpdate-E-UTRA,
@@ -1461,7 +1463,8 @@ SNodeModificationRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-SCGIndicator							CRITICALITY ignore		TYPE SCGIndicator									PRESENCE optional }|
 	{ ID id-SCGUEHistoryInformation					CRITICALITY ignore		TYPE SCGUEHistoryInformation					PRESENCE optional }|
 	{ ID id-SCGActivationRequest					CRITICALITY ignore		TYPE SCGActivationRequest						PRESENCE optional }|
-	{ ID id-CPACInformationModRequired				CRITICALITY ignore		TYPE CPACInformationModRequired				PRESENCE optional },
+	{ ID id-CPACInformationModRequired				CRITICALITY ignore		TYPE CPACInformationModRequired				PRESENCE optional }|
+	{ ID id-SCGreconfigNotification					CRITICALITY ignore		TYPE SCGreconfigNotification					PRESENCE optional },
 	...
 }
 PDUSessionToBeModifiedSNModRequired::= SEQUENCE (SIZE (1.. maxnoofPDUSessions)) OF 	PDUSessionToBeModifiedSNModRequired-Item
@@ -2682,7 +2685,7 @@ ResourceStatusUpdate ::= SEQUENCE {
 ResourceStatusUpdate-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NGRAN-Node1-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
 	{ ID id-NGRAN-Node2-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
-     { ID id-CellMeasurementResult			CRITICALITY ignore	TYPE CellMeasurementResult			PRESENCE mandatory},
+{ ID id-CellMeasurementResult			CRITICALITY ignore	TYPE CellMeasurementResult			PRESENCE mandatory},
 	...
 }
 
@@ -2782,7 +2785,7 @@ CellTrafficTraceIEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NG-RANTraceID					CRITICALITY ignore	TYPE NG-RANTraceID				PRESENCE mandatory	}|
 	{ ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE mandatory	}|
 	{ ID id-PrivacyIndicator				CRITICALITY ignore	TYPE PrivacyIndicator				PRESENCE optional	}|
-     { ID id-TraceCollectionEntityURI		CRITICALITY ignore	TYPE URIaddress						PRESENCE optional},
+{ ID id-TraceCollectionEntityURI		CRITICALITY ignore	TYPE URIaddress						PRESENCE optional},
 	...
 }
 
