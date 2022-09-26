@@ -5939,7 +5939,7 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* 60    EPS bearer context status    EPS bearer context status 9.11.3.23A    O    TLV    4 */
     ELEM_OPT_TLV(0x60, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_EPS_BE_CTX_STATUS, NULL);
 
-    /* 6E    Requested extended DRX parameters    Extended DRX parameters 9.11.3.60    O    TLV    3 */
+    /* 6E    Requested extended DRX parameters    Extended DRX parameters 9.11.3.60    O    TLV    3-4 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 6A    T3324 value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3324 value");
@@ -6028,7 +6028,7 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
     /* 60    EPS bearer context status    EPS bearer context status 9.11.3.59    O    TLV    4 */
     ELEM_OPT_TLV(0x60, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_EPS_BE_CTX_STATUS, NULL);
-    /* 6E    Negotiated extended DRX parameters    Extended DRX parameters 9.11.3.60    O    TLV    3 */
+    /* 6E    Negotiated extended DRX parameters    Extended DRX parameters 9.11.3.60    O    TLV    3-4 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 6C    T3447 value    GPRS timer 3 9.11.2.5    O    TLV    3 */
     ELEM_OPT_TLV(0x6C, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447 value");

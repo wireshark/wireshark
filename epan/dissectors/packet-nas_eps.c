@@ -4583,7 +4583,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6A   T3324 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
-    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3-4 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 65   DCN-ID DCN-ID 9.9.3.48 O   TLV  4 */
     ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
@@ -4749,7 +4749,7 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 5E   T3412 extended value  GPRS timer 3 9.9.3.16B O  TLV 3 */
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
-    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3-4 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 6F   UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
     ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);
@@ -5414,7 +5414,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6A   T3324 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
-    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3-4 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 68   Header compression configuration status Header compression configuration status 9.9.4.27 O  TLV  5-257 */
     ELEM_OPT_TLV(0x68, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG_STATUS, NULL);
@@ -5570,7 +5570,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 5E   T3412 extended value  GPRS timer 3 9.9.3.16B O  TLV 3 */
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
-    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3-4 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 6F   UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
     ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, NULL);
