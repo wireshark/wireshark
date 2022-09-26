@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.1.0 (2022-06)
+-- 3GPP TS 36.423 V17.2.0 (2022-09)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -260,7 +260,8 @@ IMPORTS
 	ServedCellSpecificInfoReq-NR,
 	SecurityIndication,
 	SecurityResult,
-	TraceCollectionEntityIPAddress
+	TraceCollectionEntityIPAddress,
+	SCGreconfigNotification
 
 
 
@@ -641,6 +642,7 @@ FROM X2AP-Containers
 	id-ServedCellSpecificInfoReq-NR,
 	id-SecurityIndication,
 	id-SecurityResult,
+	id-SCGreconfigNotification,
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
@@ -3367,11 +3369,11 @@ SgNBModificationRequired ::= SEQUENCE {
 
 SgNBModificationRequired-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
-	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID								PRESENCE mandatory}|
 	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
-	{ ID id-PDCPChangeIndication						CRITICALITY ignore	TYPE PDCPChangeIndication							PRESENCE optional}|
+	{ ID id-PDCPChangeIndication					CRITICALITY ignore	TYPE PDCPChangeIndication							PRESENCE optional}|
 	{ ID id-E-RABs-ToBeReleased-SgNBModReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBModReqdList		PRESENCE optional}|
-	{ ID id-SgNBtoMeNBContainer						CRITICALITY ignore	TYPE SgNBtoMeNBContainer								PRESENCE optional}|
+	{ ID id-SgNBtoMeNBContainer						CRITICALITY ignore	TYPE SgNBtoMeNBContainer							PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
 	{ ID id-E-RABs-ToBeModified-SgNBModReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeModified-SgNBModReqdList		PRESENCE optional}|
 	{ ID id-SgNBResourceCoordinationInformation		CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation		PRESENCE optional}|
@@ -3379,7 +3381,8 @@ SgNBModificationRequired-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-LocationInformationSgNB					CRITICALITY ignore	TYPE LocationInformationSgNB						PRESENCE optional}|
 	{ ID id-SCG-UE-HistoryInformation				CRITICALITY ignore	TYPE SCG-UE-HistoryInformation					PRESENCE optional}|
 	{ ID id-SCGActivationRequest					CRITICALITY ignore	TYPE SCGActivationRequest							PRESENCE optional}|
-	{ ID id-CPACinformation-REQD					CRITICALITY ignore	TYPE CPACinformation-REQD							PRESENCE optional},
+	{ ID id-CPACinformation-REQD					CRITICALITY ignore	TYPE CPACinformation-REQD							PRESENCE optional}|
+	{ ID id-SCGreconfigNotification					CRITICALITY ignore	TYPE SCGreconfigNotification						PRESENCE optional},
 	...
 }
 

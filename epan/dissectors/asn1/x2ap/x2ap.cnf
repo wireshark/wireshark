@@ -1205,7 +1205,7 @@ id-endcresourceStatusReportingInitiation			ProcedureCode
 id-f1CTrafficTransfer						ProcedureCode
 id-UERadioCapabilityIDMapping					ProcedureCode
 id-accessAndMobilityIndication					ProcedureCode
-id-MIMOPRBusageInformation					ProcedureCode
+id-procedure-code-58-not-to-be-used				ProcedureCode
 id-CPC-cancel							ProcedureCode
 
 
@@ -1638,6 +1638,9 @@ id-ServedCellSpecificInfoReq-NR					ProtocolIE-ID
 id-SecurityIndication						ProtocolIE-ID
 id-SecurityResult						ProtocolIE-ID
 id-RAT-Restrictions						ProtocolIE-ID
+id-SCGreconfigNotification					ProtocolIE-ID
+id-MIMOPRBusageInformation					ProtocolIE-ID
+id-SensorMeasurementConfiguration				ProtocolIE-ID
 
 #.REGISTER
 
@@ -1805,7 +1808,7 @@ E-RABs-ToBeReleased-SgNBRelConfList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRel
 E-RABs-ToBeReleased-SgNBRelConf-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelConf-Item
 E-RABs-SubjectToSgNBCounterCheck-List				N x2ap.ies id-E-RABs-SubjectToSgNBCounterCheck-List
 E-RABs-SubjectToSgNBCounterCheck-Item				N x2ap.ies id-E-RABs-SubjectToSgNBCounterCheck-Item
-GlobalGNB-ID								N x2ap.ies id-Target-SgNB-ID
+GlobalGNB-ID							N x2ap.ies id-Target-SgNB-ID
 HandoverRestrictionList						N x2ap.ies id-HandoverRestrictionList
 SCGConfigurationQuery						N x2ap.ies id-SCGConfigurationQuery
 SplitSRB							N x2ap.ies id-SplitSRB
@@ -1939,6 +1942,7 @@ CPCinformation-REQD						N x2ap.ies id-CPCinformation-REQD
 CPCinformation-CONF						N x2ap.ies id-CPCinformation-CONF
 CPCinformation-NOTIFY						N x2ap.ies id-CPCinformation-NOTIFY
 CPCupdate-MOD							N x2ap.ies id-CPCupdate-MOD
+SCGreconfigNotification						N x2ap.ies id-SCGreconfigNotification
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -2072,6 +2076,7 @@ SecurityIndication						N x2ap.extension id-SecurityIndication
 SecurityResult							N x2ap.extension id-SecurityResult
 RAT-Restrictions						N x2ap.extension id-RAT-Restrictions
 MIMOPRBusageInformation						N x2ap.extension id-MIMOPRBusageInformation
+SensorMeasurementConfiguration					N x2ap.extension id-SensorMeasurementConfiguration
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

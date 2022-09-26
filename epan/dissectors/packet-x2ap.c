@@ -20,7 +20,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V17.1.0 (2022-06)
+ * 3GPP TS 36.423 V17.2.0 (2022-09)
  */
 
 #include "config.h"
@@ -129,6 +129,7 @@ void proto_register_x2ap(void);
 #define maxnoofCSIRSconfigurations     96
 #define maxnoofCSIRSneighbourCells     16
 #define maxnoofCSIRSneighbourCellsInMTC 16
+#define maxnoofSensorName              3
 
 typedef enum _ProcedureCode_enum {
   id_handoverPreparation =   0,
@@ -189,7 +190,7 @@ typedef enum _ProcedureCode_enum {
   id_f1CTrafficTransfer =  55,
   id_UERadioCapabilityIDMapping =  56,
   id_accessAndMobilityIndication =  57,
-  id_MIMOPRBusageInformation =  58,
+  id_procedure_code_58_not_to_be_used =  58,
   id_CPC_cancel =  59
 } ProcedureCode_enum;
 
@@ -631,7 +632,10 @@ typedef enum _ProtocolIE_ID_enum {
   id_ServedCellSpecificInfoReq_NR = 434,
   id_SecurityIndication = 435,
   id_SecurityResult = 436,
-  id_RAT_Restrictions = 437
+  id_RAT_Restrictions = 437,
+  id_SCGreconfigNotification = 438,
+  id_MIMOPRBusageInformation = 439,
+  id_SensorMeasurementConfiguration = 440
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
@@ -897,6 +901,7 @@ static int hf_x2ap_RSRPMRList_PDU = -1;           /* RSRPMRList */
 static int hf_x2ap_SCGActivationStatus_PDU = -1;  /* SCGActivationStatus */
 static int hf_x2ap_SCGActivationRequest_PDU = -1;  /* SCGActivationRequest */
 static int hf_x2ap_SCGChangeIndication_PDU = -1;  /* SCGChangeIndication */
+static int hf_x2ap_SCGreconfigNotification_PDU = -1;  /* SCGreconfigNotification */
 static int hf_x2ap_SCG_UE_HistoryInformation_PDU = -1;  /* SCG_UE_HistoryInformation */
 static int hf_x2ap_SecondaryRATUsageReportList_PDU = -1;  /* SecondaryRATUsageReportList */
 static int hf_x2ap_SecondaryRATUsageReport_Item_PDU = -1;  /* SecondaryRATUsageReport_Item */
@@ -904,6 +909,7 @@ static int hf_x2ap_SecurityIndication_PDU = -1;   /* SecurityIndication */
 static int hf_x2ap_SecurityResult_PDU = -1;       /* SecurityResult */
 static int hf_x2ap_SeNBSecurityKey_PDU = -1;      /* SeNBSecurityKey */
 static int hf_x2ap_SeNBtoMeNBContainer_PDU = -1;  /* SeNBtoMeNBContainer */
+static int hf_x2ap_SensorMeasurementConfiguration_PDU = -1;  /* SensorMeasurementConfiguration */
 static int hf_x2ap_ServedCells_PDU = -1;          /* ServedCells */
 static int hf_x2ap_ServedCellSpecificInfoReq_NR_PDU = -1;  /* ServedCellSpecificInfoReq_NR */
 static int hf_x2ap_ServiceType_PDU = -1;          /* ServiceType */
@@ -1618,6 +1624,11 @@ static int hf_x2ap_secondaryRATType = -1;         /* T_secondaryRATType */
 static int hf_x2ap_e_RABUsageReportList = -1;     /* E_RABUsageReportList */
 static int hf_x2ap_integrityProtectionIndication = -1;  /* IntegrityProtectionIndication */
 static int hf_x2ap_integrityProtectionResult = -1;  /* IntegrityProtectionResult */
+static int hf_x2ap_sensorMeasConfig = -1;         /* SensorMeasConfig */
+static int hf_x2ap_sensorMeasConfigNameList = -1;  /* SensorMeasConfigNameList */
+static int hf_x2ap_SensorMeasConfigNameList_item = -1;  /* SensorMeasConfigNameItem */
+static int hf_x2ap_sensorNameConfig = -1;         /* SensorNameConfig */
+static int hf_x2ap_uncompensatedBarometricConfig = -1;  /* T_uncompensatedBarometricConfig */
 static int hf_x2ap_ServedCells_item = -1;         /* ServedCells_item */
 static int hf_x2ap_servedCellInfo = -1;           /* ServedCell_Information */
 static int hf_x2ap_neighbour_Info = -1;           /* Neighbour_Information */
@@ -2282,6 +2293,10 @@ static gint ett_x2ap_SecondaryRATUsageReportList = -1;
 static gint ett_x2ap_SecondaryRATUsageReport_Item = -1;
 static gint ett_x2ap_SecurityIndication = -1;
 static gint ett_x2ap_SecurityResult = -1;
+static gint ett_x2ap_SensorMeasurementConfiguration = -1;
+static gint ett_x2ap_SensorMeasConfigNameList = -1;
+static gint ett_x2ap_SensorMeasConfigNameItem = -1;
+static gint ett_x2ap_SensorNameConfig = -1;
 static gint ett_x2ap_ServedCells = -1;
 static gint ett_x2ap_ServedCells_item = -1;
 static gint ett_x2ap_ServedCell_Information = -1;
@@ -2918,7 +2933,7 @@ static const value_string x2ap_ProcedureCode_vals[] = {
   { id_f1CTrafficTransfer, "id-f1CTrafficTransfer" },
   { id_UERadioCapabilityIDMapping, "id-UERadioCapabilityIDMapping" },
   { id_accessAndMobilityIndication, "id-accessAndMobilityIndication" },
-  { id_MIMOPRBusageInformation, "id-MIMOPRBusageInformation" },
+  { id_procedure_code_58_not_to_be_used, "id-procedure-code-58-not-to-be-used" },
   { id_CPC_cancel, "id-CPC-cancel" },
   { 0, NULL }
 };
@@ -3379,6 +3394,9 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_SecurityIndication, "id-SecurityIndication" },
   { id_SecurityResult, "id-SecurityResult" },
   { id_RAT_Restrictions, "id-RAT-Restrictions" },
+  { id_SCGreconfigNotification, "id-SCGreconfigNotification" },
+  { id_MIMOPRBusageInformation, "id-MIMOPRBusageInformation" },
+  { id_SensorMeasurementConfiguration, "id-SensorMeasurementConfiguration" },
   { 0, NULL }
 };
 
@@ -12395,6 +12413,21 @@ dissect_x2ap_SCGChangeIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const value_string x2ap_SCGreconfigNotification_vals[] = {
+  {   0, "executed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_SCGreconfigNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t SCG_UE_HistoryInformation_sequence_of[1] = {
   { &hf_x2ap_SCG_UE_HistoryInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_x2ap_LastVisitedPSCell_Item },
 };
@@ -12511,6 +12544,103 @@ dissect_x2ap_SeNBtoMeNBContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   dissect_lte_rrc_SCG_Config_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
 
+
+  return offset;
+}
+
+
+static const value_string x2ap_SensorMeasConfig_vals[] = {
+  {   0, "setup" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_SensorMeasConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string x2ap_T_uncompensatedBarometricConfig_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_T_uncompensatedBarometricConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string x2ap_SensorNameConfig_vals[] = {
+  {   0, "uncompensatedBarometricConfig" },
+  {   1, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t SensorNameConfig_choice[] = {
+  {   0, &hf_x2ap_uncompensatedBarometricConfig, ASN1_NO_EXTENSIONS     , dissect_x2ap_T_uncompensatedBarometricConfig },
+  {   1, &hf_x2ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_x2ap_ProtocolIE_Single_Container },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_x2ap_SensorNameConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_x2ap_SensorNameConfig, SensorNameConfig_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SensorMeasConfigNameItem_sequence[] = {
+  { &hf_x2ap_sensorNameConfig, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_SensorNameConfig },
+  { &hf_x2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_x2ap_SensorMeasConfigNameItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_x2ap_SensorMeasConfigNameItem, SensorMeasConfigNameItem_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SensorMeasConfigNameList_sequence_of[1] = {
+  { &hf_x2ap_SensorMeasConfigNameList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_x2ap_SensorMeasConfigNameItem },
+};
+
+static int
+dissect_x2ap_SensorMeasConfigNameList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_x2ap_SensorMeasConfigNameList, SensorMeasConfigNameList_sequence_of,
+                                                  1, maxnoofSensorName, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SensorMeasurementConfiguration_sequence[] = {
+  { &hf_x2ap_sensorMeasConfig, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_SensorMeasConfig },
+  { &hf_x2ap_sensorMeasConfigNameList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_SensorMeasConfigNameList },
+  { &hf_x2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_x2ap_SensorMeasurementConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_x2ap_SensorMeasurementConfiguration, SensorMeasurementConfiguration_sequence);
 
   return offset;
 }
@@ -20988,6 +21118,14 @@ static int dissect_SCGChangeIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SCGreconfigNotification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_SCGreconfigNotification(tvb, offset, &asn1_ctx, tree, hf_x2ap_SCGreconfigNotification_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SCG_UE_HistoryInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -21041,6 +21179,14 @@ static int dissect_SeNBtoMeNBContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_x2ap_SeNBtoMeNBContainer(tvb, offset, &asn1_ctx, tree, hf_x2ap_SeNBtoMeNBContainer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SensorMeasurementConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_SensorMeasurementConfiguration(tvb, offset, &asn1_ctx, tree, hf_x2ap_SensorMeasurementConfiguration_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -24430,6 +24576,10 @@ void proto_register_x2ap(void) {
       { "SCGChangeIndication", "x2ap.SCGChangeIndication",
         FT_UINT32, BASE_DEC, VALS(x2ap_SCGChangeIndication_vals), 0,
         NULL, HFILL }},
+    { &hf_x2ap_SCGreconfigNotification_PDU,
+      { "SCGreconfigNotification", "x2ap.SCGreconfigNotification",
+        FT_UINT32, BASE_DEC, VALS(x2ap_SCGreconfigNotification_vals), 0,
+        NULL, HFILL }},
     { &hf_x2ap_SCG_UE_HistoryInformation_PDU,
       { "SCG-UE-HistoryInformation", "x2ap.SCG_UE_HistoryInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -24457,6 +24607,10 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_SeNBtoMeNBContainer_PDU,
       { "SeNBtoMeNBContainer", "x2ap.SeNBtoMeNBContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_SensorMeasurementConfiguration_PDU,
+      { "SensorMeasurementConfiguration", "x2ap.SensorMeasurementConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x2ap_ServedCells_PDU,
       { "ServedCells", "x2ap.ServedCells",
@@ -27314,6 +27468,26 @@ void proto_register_x2ap(void) {
       { "integrityProtectionResult", "x2ap.integrityProtectionResult",
         FT_UINT32, BASE_DEC, VALS(x2ap_IntegrityProtectionResult_vals), 0,
         NULL, HFILL }},
+    { &hf_x2ap_sensorMeasConfig,
+      { "sensorMeasConfig", "x2ap.sensorMeasConfig",
+        FT_UINT32, BASE_DEC, VALS(x2ap_SensorMeasConfig_vals), 0,
+        NULL, HFILL }},
+    { &hf_x2ap_sensorMeasConfigNameList,
+      { "sensorMeasConfigNameList", "x2ap.sensorMeasConfigNameList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_SensorMeasConfigNameList_item,
+      { "SensorMeasConfigNameItem", "x2ap.SensorMeasConfigNameItem_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_sensorNameConfig,
+      { "sensorNameConfig", "x2ap.sensorNameConfig",
+        FT_UINT32, BASE_DEC, VALS(x2ap_SensorNameConfig_vals), 0,
+        NULL, HFILL }},
+    { &hf_x2ap_uncompensatedBarometricConfig,
+      { "uncompensatedBarometricConfig", "x2ap.uncompensatedBarometricConfig",
+        FT_UINT32, BASE_DEC, VALS(x2ap_T_uncompensatedBarometricConfig_vals), 0,
+        NULL, HFILL }},
     { &hf_x2ap_ServedCells_item,
       { "ServedCells item", "x2ap.ServedCells_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29105,6 +29279,10 @@ void proto_register_x2ap(void) {
     &ett_x2ap_SecondaryRATUsageReport_Item,
     &ett_x2ap_SecurityIndication,
     &ett_x2ap_SecurityResult,
+    &ett_x2ap_SensorMeasurementConfiguration,
+    &ett_x2ap_SensorMeasConfigNameList,
+    &ett_x2ap_SensorMeasConfigNameItem,
+    &ett_x2ap_SensorNameConfig,
     &ett_x2ap_ServedCells,
     &ett_x2ap_ServedCells_item,
     &ett_x2ap_ServedCell_Information,
@@ -29838,6 +30016,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.ies", id_CPCinformation_CONF, create_dissector_handle(dissect_CPCinformation_CONF_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CPCinformation_NOTIFY, create_dissector_handle(dissect_CPCinformation_NOTIFY_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CPCupdate_MOD, create_dissector_handle(dissect_CPCupdate_MOD_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_SCGreconfigNotification, create_dissector_handle(dissect_SCGreconfigNotification_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_Number_of_Antennaports, create_dissector_handle(dissect_Number_of_Antennaports_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_CompositeAvailableCapacityGroup, create_dissector_handle(dissect_CompositeAvailableCapacityGroup_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_PRACH_Configuration, create_dissector_handle(dissect_PRACH_Configuration_PDU, proto_x2ap));
@@ -29969,6 +30148,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_SecurityResult, create_dissector_handle(dissect_SecurityResult_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_RAT_Restrictions, create_dissector_handle(dissect_RAT_Restrictions_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_MIMOPRBusageInformation, create_dissector_handle(dissect_MIMOPRBusageInformation_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_SensorMeasurementConfiguration, create_dissector_handle(dissect_SensorMeasurementConfiguration_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));
