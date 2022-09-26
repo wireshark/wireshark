@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.1.0 (2022-06)
+-- 3GPP TS 37.483 V17.2.0 (2022-09)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -452,7 +452,8 @@ GNB-CU-UP-E1SetupResponseIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
 	{ ID id-gNB-CU-CP-Name						CRITICALITY ignore	TYPE GNB-CU-CP-Name						PRESENCE optional	}|
 	{ ID id-Transport-Layer-Address-Info		CRITICALITY ignore	TYPE Transport-Layer-Address-Info	PRESENCE optional	}|
-	{ ID id-Extended-GNB-CU-CP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-CP-Name			PRESENCE optional	},
+	{ ID id-Extended-GNB-CU-CP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-CP-Name			PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
 	...
 }
 
@@ -470,8 +471,8 @@ GNB-CU-UP-E1SetupFailure ::= SEQUENCE {
 GNB-CU-UP-E1SetupFailureIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
-	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
 	...
 }
 
@@ -514,12 +515,13 @@ GNB-CU-CP-E1SetupResponse ::= SEQUENCE {
 GNB-CU-CP-E1SetupResponseIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
 	{ ID id-gNB-CU-UP-ID						CRITICALITY reject	TYPE GNB-CU-UP-ID					PRESENCE mandatory	}|
-	{ ID id-gNB-CU-UP-Name						CRITICALITY ignore	TYPE GNB-CU-UP-Name					PRESENCE optional	}|
+	{ ID id-gNB-CU-UP-Name						CRITICALITY ignore	TYPE GNB-CU-UP-Name					PRESENCE optional		}|
 	{ ID id-CNSupport							CRITICALITY reject	TYPE CNSupport						PRESENCE mandatory	}|
 	{ ID id-SupportedPLMNs						CRITICALITY reject	TYPE SupportedPLMNs-List			PRESENCE mandatory	}|
-	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity				PRESENCE optional	}|
+	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity				PRESENCE optional		}|
 	{ ID id-Transport-Layer-Address-Info		CRITICALITY ignore	TYPE Transport-Layer-Address-Info	PRESENCE optional	}|
-	{ ID id-Extended-GNB-CU-UP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-UP-Name		PRESENCE optional	},
+	{ ID id-Extended-GNB-CU-UP-Name				CRITICALITY ignore	TYPE Extended-GNB-CU-UP-Name		PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional		},
 	...
 }
 
@@ -721,7 +723,8 @@ E1ReleaseResponse ::= SEQUENCE {
 }
 
 E1ReleaseResponseIEs E1AP-PROTOCOL-IES ::= {
-	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	},
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
 	...
 }
 
@@ -806,7 +809,8 @@ BearerContextSetupResponse ::= SEQUENCE {
 BearerContextSetupResponseIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID				CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory	}|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID				CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE mandatory	}|
-	{ ID id-System-BearerContextSetupResponse	CRITICALITY ignore	TYPE System-BearerContextSetupResponse				PRESENCE mandatory  },
+	{ ID id-System-BearerContextSetupResponse	CRITICALITY ignore	TYPE System-BearerContextSetupResponse				PRESENCE mandatory  }|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		},
 	...
 }
 
@@ -933,7 +937,8 @@ BearerContextModificationResponse ::= SEQUENCE {
 BearerContextModificationResponseIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID								PRESENCE mandatory }|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID								PRESENCE mandatory }|
-	{ ID id-System-BearerContextModificationResponse	CRITICALITY ignore	TYPE System-BearerContextModificationResponse		PRESENCE optional  },
+	{ ID id-System-BearerContextModificationResponse	CRITICALITY ignore	TYPE System-BearerContextModificationResponse		PRESENCE optional  }|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional  },
 	...
 }
 
@@ -1047,7 +1052,8 @@ BearerContextModificationConfirm ::= SEQUENCE {
 BearerContextModificationConfirmIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory }|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID						CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE mandatory }|
-	{ ID id-System-BearerContextModificationConfirm		CRITICALITY ignore	TYPE System-BearerContextModificationConfirm		PRESENCE optional  },
+	{ ID id-System-BearerContextModificationConfirm		CRITICALITY ignore	TYPE System-BearerContextModificationConfirm		PRESENCE optional  }|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional  },
 	...
 }
 

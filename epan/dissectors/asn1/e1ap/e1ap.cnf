@@ -339,6 +339,11 @@ id-SDTindicatorSetup                            ProtocolIE-ID
 id-SDTindicatorMod                              ProtocolIE-ID
 id-DiscardTimerExtended                         ProtocolIE-ID
 id-ManagementBasedMDTPLMNModificationList       ProtocolIE-ID
+id-MCForwardingResourceRequest                  ProtocolIE-ID
+id-MCForwardingResourceIndication               ProtocolIE-ID
+id-MCForwardingResourceResponse                 ProtocolIE-ID
+id-MCForwardingResourceRelease                  ProtocolIE-ID
+id-MCForwardingResourceReleaseIndication        ProtocolIE-ID
 
 #.END
 
@@ -526,6 +531,11 @@ SecurityResult                               N e1ap.extension id-SecurityResult
 SDTindicatorSetup                            N e1ap.extension id-SDTindicatorSetup
 SDTindicatorMod                              N e1ap.extension id-SDTindicatorMod
 DiscardTimerExtended                         N e1ap.extension id-DiscardTimerExtended
+MCForwardingResourceRequest                  N e1ap.extension id-MCForwardingResourceRequest
+MCForwardingResourceIndication               N e1ap.extension id-MCForwardingResourceIndication
+MCForwardingResourceResponse                 N e1ap.extension id-MCForwardingResourceResponse
+MCForwardingResourceRelease                  N e1ap.extension id-MCForwardingResourceRelease
+MCForwardingResourceReleaseIndication        N e1ap.extension id-MCForwardingResourceReleaseIndication
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset

@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.1.0 (2022-06)
+-- 3GPP TS 37.483 V17.2.0 (2022-09)
 -- **************************************************************
 --
 -- Constant definitions
@@ -290,6 +290,11 @@ id-SDTindicatorSetup											ProtocolIE-ID ::= 175
 id-SDTindicatorMod												ProtocolIE-ID ::= 176
 id-DiscardTimerExtended											ProtocolIE-ID ::= 177
 id-ManagementBasedMDTPLMNModificationList						ProtocolIE-ID ::= 178
+id-MCForwardingResourceRequest									ProtocolIE-ID ::= 179
+id-MCForwardingResourceIndication								ProtocolIE-ID ::= 180
+id-MCForwardingResourceResponse									ProtocolIE-ID ::= 181
+id-MCForwardingResourceRelease									ProtocolIE-ID ::= 182
+id-MCForwardingResourceReleaseIndication						ProtocolIE-ID ::= 183
 
 
 END
