@@ -16,66 +16,28 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-NOTE: We do not ship official 32-bit Windows packages for this branch.
-If you need to use Wireshark on that platform, please install the latest 3.6 release.
+__We no longer ship official 32-bit Windows packages starting with this release__.
+If you need to use Wireshark on that platform, we recommend using the latest 3.6 release.
 wsbuglink:17779[]
 
-* The display filter syntax is now more powerful with many new extensions.
-  See below for details.
+The display filter syntax is more powerful with many new extensions.
+See below for details.
 
-* The Conversation and Endpoint dialogs have been redesigned with the following improvements:
- - The context menu now includes the option to resize all columns, as well as copying elements.
- - Data may be exported as JSON.
- - Tabs may be detached and reattached from the dialog.
- - Adding and removing tabs will keep them in the same order all the time.
- - If a filter is applied, two columns are shown in either dialog detailing the difference between
-   unmatched and matched packets.
- - Columns are now sorted via secondary properties if an identical entry is found.
-   - Conversations are sorted via second address and first port number.
-   - Endpoints are sorted via port numbers.
-   - IPv6 addresses are sorted correctly after IPv4 addresses.
- - The dialog elements have been moved to make it easier to handle for new users.
-   - Selection of tap elements is done via a list.
-   - All configurations and options are done via a left side button row.
- - Columns for the Conversations and Endpoint dialogs can be hidden by a context menu.
- - TCP and UDP conversations now include the stream ID and allow filtering on it.
+The Conversation and Endpoint dialogs have been redesigned.
+See below for details.
 
-* Speed when using MaxMind geolocation has been greatly improved.
+The default main window layout has been changed so that the Packet Detail and Packet Bytes are side by side underneath the Packet List pane.
 
-* The Wireshark Lua API now uses the https://github.com/rrthomas/lrexlib[lrexlib] bindings to PCRE2.
-  Code using the Lua GRegex module will have to be updated to use lrexlib-pcre2 instead.
-  In most cases the API should be compatible and the conversion just requires a module name change.
+Hex dump imports from Wireshark and from `text2pcap` have been improved.
+See below for details.
 
-* The tap registration system has been updated and the list of arguments for tap_packet_cb has changed.
-  All taps registered through register_tap_listener have to be updated.
+Speed when using MaxMind geolocation has been greatly improved.
 
-* The https://www.pcre.org/[PCRE2 library] is now a required dependency to build Wireshark.
-
-* You must now have a compiler with C11 support in order to build Wireshark.
-
-* The following libraries and tools have had their minimum required version increased:
-  - CMake 3.10 is required on macOS and Linux.
-  - Qt version 5.12 (was 5.6.0), although compilation with 5.10 and 5.11 is still possible, but will trigger a warning during configuration.
-  - Windows SDK 10.0.18362.0 is required due to issues with C11 support.
-  - macOS version 10.10 (was 10.8) is required, if the Qt version is to be built, at least 10.11 is required, depending on the Qt version used (see below).
-  - GLib version 2.50.0 (was 2.38.0) is required.
-  - Libgcrypt version 1.8.0 (was 1.5.0) is required.
-  - c-ares version 1.14.0 (was 1.5.0).
-  - Python version 3.6.0 (was 3.4.0).
-  - GnuTLS version 3.5.8 (was 3.3.0).
-  - Nghttp2 minimum version has been set to 1.11.0 (none previous).
-
-* For building with Qt on macOS, the following versions are required depending on the Qt version to be used:
-  - Qt 5.10 or higher requires macOS version 10.11
-  - Qt 5.12 or higher requires macOS version 10.12
-  - Qt 5.14 or higher requires macOS version 10.13
-  - Qt 6.0 or higher requires macOS version 10.14
-
-* Perl is no longer required to build Wireshark, but may be required to build some source code files and run code analysis checks.
+The tools and libraries required to build Wireshark have changed.
+See “Other Development Changes” below for more details.
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
-
 
 // === Bug Fixes
 
@@ -87,6 +49,10 @@ See the “New and Updated Features” section below for more details.
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated) since version 4.0.0rc2:
+
+Nothing of note.
 
 The following features are new (or have been significantly updated) since version 4.0.0rc1:
 
@@ -131,7 +97,7 @@ They previously shipped with Qt 5.12.2.
 ** A syntax to match a specific layer in the protocol stack has been added.
    For example in an IP-over-IP packet “ip.addr#1 == 1.1.1.1” matches the outer layer addresses and “ip.addr#2 == 1.1.1.2” matches the inner layer addresses.
 ** Universal quantifiers "any" and "all" have been added to any relational operator.
-   For example the expression "all tcp.port > 1024" is true if and only if all tcp.port fields match the condition.
+   For example the expression "all tcp.port {gt} 1024" is true if and only if all tcp.port fields match the condition.
    Previously only the default behaviour to return true if any one field matches was supported.
 ** Field references, of the form ${some.field}, are now part of the syntax of display filters. Previously they were implemented as macros.
    The new implementation is more efficient and has the same properties as protocol fields, like matching on multiple values
@@ -181,6 +147,23 @@ They previously shipped with Qt 5.12.2.
 ** Booleans can be written as True/TRUE or False/FALSE. Previously they could only be written as 1 or 0.
 ** It is now possible to test for the existence of a slice.
 ** All integer sizes are now compatible. Unless overflow occurs any integer field can be compared with any other.
+
+* The Conversation and Endpoint dialogs have been redesigned with the following improvements:
+ - The context menu now includes the option to resize all columns, as well as copying elements.
+ - Data may be exported as JSON.
+ - Tabs may be detached and reattached from the dialog.
+ - Adding and removing tabs will keep them in the same order all the time.
+ - If a filter is applied, two columns are shown in either dialog detailing the difference between
+   unmatched and matched packets.
+ - Columns are now sorted via secondary properties if an identical entry is found.
+   - Conversations are sorted via second address and first port number.
+   - Endpoints are sorted via port numbers.
+   - IPv6 addresses are sorted correctly after IPv4 addresses.
+ - The dialog elements have been moved to make it easier to handle for new users.
+   - Selection of tap elements is done via a list.
+   - All configurations and options are done via a left side button row.
+ - Columns for the Conversations and Endpoint dialogs can be hidden by a context menu.
+ - TCP and UDP conversations now include the stream ID and allow filtering on it.
 
 * The `text2pcap` command and the “Import from Hex Dump” feature have been updated and enhanced:
 ** `text2pcap` supports writing the output file in all the capture file formats that wiretap library supports, using the same `-F` option as `editcap`, `mergecap`, and `tshark`.
@@ -297,6 +280,38 @@ Use "BASE_NONE" instead.
 * proto.h: The field display types for floats have been extended and refactored.
   The type BASE_FLOAT has been removed. Use BASE_NONE instead. New display
   types for floats are BASE_DEC, BASE_HEX, BASE_EXP and BASE_CUSTOM.
+
+* The Wireshark Lua API now uses the https://github.com/rrthomas/lrexlib[lrexlib] bindings to PCRE2.
+  Code using the Lua GRegex module will have to be updated to use lrexlib-pcre2 instead.
+  In most cases the API should be compatible and the conversion just requires a module name change.
+
+* The tap registration system has been updated and the list of arguments for tap_packet_cb has changed.
+  All taps registered through register_tap_listener have to be updated.
+
+=== Other Development Changes
+
+* The https://www.pcre.org/[PCRE2 library] is now required to build Wireshark.
+
+* You must now have a compiler with C11 support in order to build Wireshark.
+
+* The following libraries and tools have had their minimum required version increased:
+  - CMake 3.10 is required on macOS and Linux.
+  - Qt version 5.12 (was 5.6.0), although compilation with 5.10 and 5.11 is still possible, but will trigger a warning during configuration.
+  - Windows SDK 10.0.18362.0 is required due to issues with C11 support.
+  - macOS version 10.11 to 10.14 (was 10.8) is required depending on the version of Qt:
+    - Qt 5.10 or higher requires macOS version 10.11
+    - Qt 5.12 or higher requires macOS version 10.12
+    - Qt 5.14 or higher requires macOS version 10.13
+    - Qt 6.0 or higher requires macOS version 10.14
+
+  - GLib version 2.50.0 (was 2.38.0) is required.
+  - Libgcrypt version 1.8.0 (was 1.5.0) is required.
+  - c-ares version 1.14.0 (was 1.5.0).
+  - Python version 3.6.0 (was 3.4.0).
+  - GnuTLS version 3.5.8 (was 3.3.0).
+  - Nghttp2 minimum version has been set to 1.11.0 (none previous).
+
+* Perl is no longer required to build Wireshark, but may be required to build some source code files and run code analysis checks.
 
 == Getting Wireshark
 
