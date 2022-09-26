@@ -158,7 +158,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 
 	ssh_options_get_port(sshs, &remote_port);
 
-	if (capture_command_select == NULL || g_strcmp0(capture_command_select, "other")) {
+	if (capture_command_select == NULL || !g_strcmp0(capture_command_select, "other")) {
 		if (capture_command && *capture_command) {
 			cmdline = g_strdup(capture_command);
 			ws_debug("Remote capture command has disabled other options");
