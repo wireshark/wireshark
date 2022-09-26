@@ -917,6 +917,32 @@ is also an essential component of a plugin system (libwireshark has plugins
 for taps, dissectors and an experimental interface to augment dissection with
 new extension languages).
 
+7.5 Unicode and string encoding best practices
+
+Wireshark strings are always encoded in UTF-8 internally, regardless of the platform
+where it is running. The C datatype used is "pointer to char" and this is assumed
+to point to a valid UTF-8 string. Sometimes older code uses char to point to opaque
+byte strings but this archaic usage should be avoided. A better data type
+for that is uint8_t.
+
+Every untrusted string needs to be validated for correct and error-free UTF-8
+encoding, or converted from the source encoding to UTF-8. This should be done
+at the periphery of the code. This means converting input during dissection or
+when reading input generally. To reiterate: all the Wireshark APIs expect to
+receive valid UTF-8 strings. These include proto_tree_add_string(),
+proto_item_append_text() and col_append_fstr() just to name a few.
+
+If a dissector uses standard API functions to handle strings, such as
+proto_tree_add_item() with an FT_STRING header field type, the API will
+transparently handle the conversion from the source encoding to UTF-8 and
+nothing else needs to be done to ensure valid string input.
+
+If your dissector does text manipulation, token parsing and such and generally
+extracts text strings from the TVBuff or tries to do line oriented input from
+TVBuffs it *must* make sure it passes only valid UTF-8 to libwireshark APIs.
+This should be done using tvb_get_string_enc() to extract a string from a TVbuff
+or get_utf_8_string() to validate a string after it has been constructed.
+
 8. Miscellaneous notes
 
 Each commit in your branch corresponds to a different VCSVERSION string
