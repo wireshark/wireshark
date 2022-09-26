@@ -200,6 +200,7 @@ format_text_internal(wmem_allocator_t *allocator,
     FMTBUF_VARS;
     const guchar *stringend = string + len;
     guchar c;
+    bool is_valid_utf8 = true;
 
     while (string < stringend) {
         /*
@@ -350,6 +351,11 @@ format_text_internal(wmem_allocator_t *allocator,
                 uc = UNREPL;
             }
 
+            if (uc == UNREPL) {
+                /* Flag this UTF-8 string as having been sanitized. */
+                is_valid_utf8 = false;
+            }
+
             /*
              * OK, is it a printable Unicode character?
              */
@@ -487,6 +493,12 @@ format_text_internal(wmem_allocator_t *allocator,
     }
 
     FMTBUF_ENDSTR;
+
+    if (!is_valid_utf8) {
+        /* This function expects valid UTF-8 as input. The extra validation performed is a safeguard.
+         * In a brighter future it may be removed. Emit a warning and display the sanitized string. */
+        ws_warning("String argument contained UTF-8 errors: %s", fmtbuf);
+    }
     return fmtbuf;
 }
 
