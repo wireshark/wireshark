@@ -12,8 +12,7 @@
 #ifndef __WMEM_STRBUF_H__
 #define __WMEM_STRBUF_H__
 
-#include <string.h>
-#include <glib.h>
+#include <wireshark.h>
 
 #include "wmem_core.h"
 
@@ -137,6 +136,17 @@ wmem_strbuf_finalize(wmem_strbuf_t *strbuf);
 WS_DLL_PUBLIC
 void
 wmem_strbuf_destroy(wmem_strbuf_t *strbuf);
+
+/** Check the UTF-8 encoded strbuf for validity and sanitize the contents if needed,
+ * by replacing encoding errors with unicode replacement character. This function is
+ * intended for debugging purposes and is not optimized for speed.
+ *
+ * @param strbuf the strbuf to validate
+ * @return true if the string was sanitized, false otherwise
+ */
+WS_DLL_PUBLIC
+bool
+wmem_strbuf_sanitize_utf8(wmem_strbuf_t *strbuf);
 
 /**   @}
  *  @} */

@@ -215,6 +215,10 @@ get_compiled_version_info(gather_feature_func gather_compile)
 	g_string_append(str, ", without assertions");
 #endif
 
+#ifdef WS_DEBUG_UTF_8
+	g_string_append(str, ", with UTF-8 validation");
+#endif
+
 	g_string_append(str, ".");
 	end_string(str);
 	free_features(&l);

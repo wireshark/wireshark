@@ -15,6 +15,23 @@
 #include <strutil.h>
 #include <wsutil/ws_assert.h>
 
+
+#ifdef WS_DEBUG_UTF_8
+static inline void
+string_validate_utf8(fvalue_t *fv)
+{
+	if (wmem_strbuf_sanitize_utf8(fv->value.strbuf)) {
+		ws_warning("String fvalues must use a valid UTF-8 encoding."
+				" This string has been sanitized to look like this: %s",
+				wmem_strbuf_get_str(fv->value.strbuf));
+	}
+}
+#define CHECK_UTF_8(fv) string_validate_utf8(fv)
+#else /* !WS_DEBUG_UTF_8 */
+#define CHECK_UTF_8(fv)  (void)(fv)
+#endif /* WS_DEBUG_UTF_8 */
+
+
 static void
 string_fvalue_new(fvalue_t *fv)
 {
@@ -42,6 +59,7 @@ string_fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 	string_fvalue_free(fv);
 
 	fv->value.strbuf = value;
+	CHECK_UTF_8(fv);
 }
 
 static char *
@@ -73,20 +91,19 @@ val_from_string(fvalue_t *fv, const char *s, size_t len, gchar **err_msg _U_)
 		fv->value.strbuf = wmem_strbuf_new_len(NULL, s, len);
 	else
 		fv->value.strbuf = wmem_strbuf_new(NULL, s);
+
+	CHECK_UTF_8(fv);
 	return TRUE;
 }
 
 static gboolean
-val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg _U_)
+val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	/* Just turn it into a string */
 	/* XXX Should probably be a syntax error instead. It's more user-friendly to ask the
 	 * user to be explicit about the meaning of an unquoted literal than them trying to figure out
 	 * why a valid filter expression is giving wrong results. */
-	string_fvalue_free(fv);
-
-	fv->value.strbuf = wmem_strbuf_new(NULL, s);
-	return TRUE;
+	return val_from_string(fv, s, 0, err_msg);
 }
 
 static gboolean

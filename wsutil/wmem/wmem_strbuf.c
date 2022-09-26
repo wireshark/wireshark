@@ -331,6 +331,27 @@ wmem_strbuf_destroy(wmem_strbuf_t *strbuf)
     wmem_free(strbuf->allocator, strbuf);
 }
 
+bool
+wmem_strbuf_sanitize_utf8(wmem_strbuf_t *strbuf)
+{
+    if (g_utf8_validate(strbuf->str, -1, NULL)) {
+        return false;
+    }
+
+    /* Sanitize the contents to a temporary string. */
+    char *tmp = g_utf8_make_valid(strbuf->str, -1);
+
+    /* Reset the strbuf, keeping the backing memory allocation */
+    *strbuf->str = '\0';
+    strbuf->len = 0;
+
+    /* Copy the temporary string to the strbuf. */
+    wmem_strbuf_append(strbuf, tmp);
+    g_free(tmp);
+
+    return true;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
