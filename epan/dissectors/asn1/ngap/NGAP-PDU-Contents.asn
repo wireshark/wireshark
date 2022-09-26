@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.1.1 (2022-06)
+-- 3GPP TS 38.413 V17.2.0 (2022-09)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -1159,7 +1159,8 @@ UEInformationTransferIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability			PRESENCE optional		}|
 	{ ID id-S-NSSAI						CRITICALITY ignore	TYPE S-NSSAI					PRESENCE optional		}|
 	{ ID id-AllowedNSSAI				CRITICALITY ignore	TYPE AllowedNSSAI				PRESENCE optional		}|
-	{ ID id-UE-DifferentiationInfo		CRITICALITY ignore	TYPE UE-DifferentiationInfo		PRESENCE optional		},
+	{ ID id-UE-DifferentiationInfo		CRITICALITY ignore	TYPE UE-DifferentiationInfo		PRESENCE optional		}|
+	{ ID id-MaskedIMEISV				CRITICALITY ignore	TYPE MaskedIMEISV				PRESENCE optional		},
 	...
 }
 
@@ -1753,7 +1754,8 @@ DownlinkNASTransport-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UECapabilityInfoRequest			CRITICALITY ignore	TYPE UECapabilityInfoRequest		PRESENCE optional		}|
 	{ ID id-EndIndication					CRITICALITY ignore	TYPE EndIndication					PRESENCE optional		}|
 	{ ID id-UERadioCapabilityID				CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional		}|
-	{ ID id-TargetNSSAIInformation			CRITICALITY ignore	TYPE TargetNSSAIInformation			PRESENCE optional		},
+	{ ID id-TargetNSSAIInformation			CRITICALITY ignore	TYPE TargetNSSAIInformation			PRESENCE optional		}|
+	{ ID id-MaskedIMEISV					CRITICALITY ignore	TYPE MaskedIMEISV					PRESENCE optional		},
 	...
 }
 
@@ -2772,7 +2774,8 @@ ConnectionEstablishmentIndicationIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-NB-IoT-UEPriority				CRITICALITY ignore	TYPE NB-IoT-UEPriority				PRESENCE optional		}|
 	{ ID id-Enhanced-CoverageRestriction	CRITICALITY ignore	TYPE Enhanced-CoverageRestriction	PRESENCE optional		}|
 	{ ID id-CEmodeBrestricted				CRITICALITY ignore	TYPE CEmodeBrestricted				PRESENCE optional		}|
-	{ ID id-UERadioCapabilityID				CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional		},
+	{ ID id-UERadioCapabilityID				CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional		}|
+	{ ID id-MaskedIMEISV					CRITICALITY ignore	TYPE MaskedIMEISV					PRESENCE optional		},
 	...
 }
 
@@ -3041,9 +3044,14 @@ BroadcastSessionReleaseResponse ::= SEQUENCE {
 	...
 }
 
+-- WS modification: defien a dedicated type
+MBSSessionReleaseResponseTransfer-OCTET-STRING ::= OCTET STRING (CONTAINING MBSSessionReleaseResponseTransfer)
+
 BroadcastSessionReleaseResponseIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-MBS-SessionID								CRITICALITY reject	TYPE MBS-SessionID								PRESENCE mandatory	}|
-	{ ID id-MBSSessionReleaseResponseTransfer		CRITICALITY ignore	TYPE MBSSessionReleaseResponseTransfer		PRESENCE optional		}|
+-- WS modification: define a dedicated type
+--	{ ID id-MBSSessionReleaseResponseTransfer		CRITICALITY ignore	TYPE OCTET STRING (CONTAINING MBSSessionReleaseResponseTransfer)		PRESENCE optional		}|
+	{ ID id-MBSSessionReleaseResponseTransfer		CRITICALITY ignore	TYPE MBSSessionReleaseResponseTransfer-OCTET-STRING		PRESENCE optional		}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional		},
 	...
 }

@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.1.1 (2022-06)
+-- 3GPP TS 38.413 V17.2.0 (2022-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -158,6 +158,8 @@ IMPORTS
 	id-UserLocationInformationTNGF,
 	id-UserLocationInformationTWIF,
 	id-UserLocationInformationW-AGF,
+	id-EarlyMeasurement,
+	id-BeamMeasurementsReportConfiguration,
 	maxnoofAllowedAreas,
 	maxnoofAllowedCAGsperPLMN,
 	maxnoofAllowedS-NSSAIs,
@@ -607,6 +609,29 @@ AvailableRANVisibleQoEMetrics-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 -- B
 
+BeamMeasurementsReportConfiguration ::= SEQUENCE {
+	beamMeasurementsReportQuantity			BeamMeasurementsReportQuantity 	OPTIONAL,
+	maxNrofRS-IndexesToReport               MaxNrofRS-IndexesToReport		OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { BeamMeasurementsReportConfiguration-ExtIEs} } OPTIONAL,
+	...
+}
+
+BeamMeasurementsReportConfiguration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BeamMeasurementsReportQuantity ::= SEQUENCE {
+    rSRP						ENUMERATED {true, ...},
+    rSRQ						ENUMERATED {true, ...},
+    sINR						ENUMERATED {true, ...},
+	iE-Extensions			ProtocolExtensionContainer { { BeamMeasurementsReportQuantity-ExtIEs} } OPTIONAL,
+	...
+}
+
+BeamMeasurementsReportQuantity-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 BitRate	::= INTEGER (0..4000000000000, ...)
 
 BroadcastCancelledAreaList ::= CHOICE {
@@ -885,7 +910,11 @@ CauseRadioNetwork ::= ENUMERATED {
 	npn-access-denied,
 	cag-only-access-denied,
 	insufficient-ue-capabilities,
-	redcap-ue-not-supported
+	redcap-ue-not-supported,
+	unknown-MBS-Session-ID,
+	indicated-MBS-session-area-information-not-served-by-the-gNB,
+	inconsistent-slice-info-for-the-session,
+	misaligned-association-for-multicast-unicast
 }
 
 CauseTransport ::= ENUMERATED {
@@ -1209,7 +1238,7 @@ CellBasedQMC-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-CellIdListforQMC ::= SEQUENCE (SIZE(1..maxnoofCellIDforQMC)) OF NR-CGI
+CellIdListforQMC ::= SEQUENCE (SIZE(1..maxnoofCellIDforQMC)) OF NGRAN-CGI
 
 CellIdListforMDT-EUTRA ::= SEQUENCE (SIZE(1..maxnoofCellIDforMDT)) OF EUTRA-CGI
 
@@ -1437,6 +1466,8 @@ Dynamic5QIDescriptor-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 -- E
+
+EarlyMeasurement ::= ENUMERATED {true, ...}
 
 EarlyStatusTransfer-TransparentContainer ::= SEQUENCE {
 	procedureStage			ProcedureStageChoice,
@@ -2635,11 +2666,7 @@ ResourceStatusReportingSystem-ExtIEs NGAP-PROTOCOL-IES ::= {
 }
 
 EUTRAN-ReportingStatusIEs::= SEQUENCE {
-	eUTRAN-CellToReportList						EUTRAN-CellToReportList,
-	eUTRAN-CompositeAvailableCapacityGroup		EUTRAN-CompositeAvailableCapacityGroup,
-	eUTRAN-NumberOfActiveUEs					EUTRAN-NumberOfActiveUEs					OPTIONAL,
-	eUTRAN-NoofRRCConnections					NGRAN-NoofRRCConnections					OPTIONAL,
-	eUTRAN-RadioResourceStatus					EUTRAN-RadioResourceStatus					OPTIONAL,
+	eUTRAN-CellReportList						EUTRAN-CellReportList,
 	iE-Extensions		ProtocolExtensionContainer { {EUTRAN-ReportingStatusIEs-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2647,6 +2674,23 @@ EUTRAN-ReportingStatusIEs::= SEQUENCE {
 EUTRAN-ReportingStatusIEs-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+EUTRAN-CellReportList ::= SEQUENCE (SIZE(1..maxnoofReportedCells)) OF EUTRAN-CellReportItem
+
+EUTRAN-CellReportItem ::= SEQUENCE {
+	eCGI										EUTRA-CGI,
+	eUTRAN-CompositeAvailableCapacityGroup		EUTRAN-CompositeAvailableCapacityGroup,
+	eUTRAN-NumberOfActiveUEs					EUTRAN-NumberOfActiveUEs					OPTIONAL,
+	eUTRAN-NoofRRCConnections					NGRAN-NoofRRCConnections					OPTIONAL,
+	eUTRAN-RadioResourceStatus					EUTRAN-RadioResourceStatus					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {EUTRAN-CellReportItem-ExtIEs} }		OPTIONAL,
+	...
+}
+
+EUTRAN-CellReportItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 EUTRAN-CompositeAvailableCapacityGroup	::= SEQUENCE {
 	dL-CompositeAvailableCapacity					CompositeAvailableCapacity,
@@ -2690,11 +2734,7 @@ EUTRAN-RadioResourceStatus-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 NGRAN-ReportingStatusIEs ::= SEQUENCE {
-	nGRAN-CellToReportList						NGRAN-CellToReportList,
-	nGRAN-CompositeAvailableCapacityGroup		EUTRAN-CompositeAvailableCapacityGroup,
-	nGRAN-NumberOfActiveUEs						NGRAN-NumberOfActiveUEs						OPTIONAL,
-	nGRAN-NoofRRCConnections					NGRAN-NoofRRCConnections					OPTIONAL,
-	nGRAN-RadioResourceStatus					NGRAN-RadioResourceStatus					OPTIONAL,
+	nGRAN-CellReportList						NGRAN-CellReportList,
 	iE-Extensions		ProtocolExtensionContainer { {NGRAN-ReportingStatusIEs-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2702,6 +2742,23 @@ NGRAN-ReportingStatusIEs ::= SEQUENCE {
 NGRAN-ReportingStatusIEs-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+NGRAN-CellReportList ::= SEQUENCE (SIZE(1..maxnoofReportedCells)) OF NGRAN-CellReportItem
+
+NGRAN-CellReportItem ::= SEQUENCE {
+	nGRAN-CGI									NGRAN-CGI,
+	nGRAN-CompositeAvailableCapacityGroup		EUTRAN-CompositeAvailableCapacityGroup,
+	nGRAN-NumberOfActiveUEs						NGRAN-NumberOfActiveUEs						OPTIONAL,
+	nGRAN-NoofRRCConnections					NGRAN-NoofRRCConnections					OPTIONAL,
+	nGRAN-RadioResourceStatus					NGRAN-RadioResourceStatus					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {NGRAN-CellReportItem-ExtIEs} }		OPTIONAL,
+	...
+}
+
+NGRAN-CellReportItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 NGRAN-NumberOfActiveUEs ::= INTEGER (0..16777215, ...)
 
@@ -2870,6 +2927,7 @@ LoggedMDTNr ::= SEQUENCE {
 }
 
 LoggedMDTNr-ExtIEs	NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-EarlyMeasurement		CRITICALITY ignore	EXTENSION EarlyMeasurement		PRESENCE optional	},
 	...
 }
 
@@ -3403,7 +3461,7 @@ MDTModeEutra ::= OCTET STRING
 
 MeasurementsToActivate ::= BIT STRING(SIZE(8))
 
-MRB-ID ::= INTEGER (1..32, ...)
+MRB-ID ::= INTEGER (1..512, ...)
 
 MulticastSessionActivationRequestTransfer ::= SEQUENCE {
 	mBS-SessionID				MBS-SessionID,
@@ -3489,7 +3547,9 @@ M1Configuration ::= SEQUENCE {
 }
 
 M1Configuration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-IncludeBeamMeasurementsIndication		CRITICALITY ignore	EXTENSION IncludeBeamMeasurementsIndication		PRESENCE optional		},
+	{ ID id-IncludeBeamMeasurementsIndication		CRITICALITY ignore	EXTENSION IncludeBeamMeasurementsIndication		PRESENCE optional			}|
+	{ ID id-BeamMeasurementsReportConfiguration		CRITICALITY ignore	EXTENSION BeamMeasurementsReportConfiguration	PRESENCE conditional		},
+-- The above IE shall be present if the IncludeBeamMeasurementsIndication IE is set to “true”
 	...
 }
 
@@ -3497,6 +3557,8 @@ IncludeBeamMeasurementsIndication ::= ENUMERATED {
 	true,
 	...
 }
+
+MaxNrofRS-IndexesToReport ::= INTEGER (1..64, ...)
 
 M1ReportingTrigger ::= ENUMERATED {
 	periodic,
@@ -3858,7 +3920,9 @@ NR-Paging-Time-Window ::= ENUMERATED {
 	s1, s2, s3, s4, s5,
 	s6, s7, s8, s9, s10,
 	s11, s12, s13, s14, s15, s16,
-	...
+	...,
+	s17, s18, s19, s20, s21, s22, s23, s24,
+	s25, s26, s27, s28, s29, s30, s31, s32
 }
 
 NRencryptionAlgorithms ::= BIT STRING (SIZE(16, ...))

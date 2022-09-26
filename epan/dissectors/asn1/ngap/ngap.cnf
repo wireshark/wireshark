@@ -1673,6 +1673,8 @@ id-NGAPIESupportInformationResponseList            ProtocolIE-ID
 id-MBS-SessionFSAIDList                            ProtocolIE-ID
 id-MBSSessionReleaseResponseTransfer               ProtocolIE-ID
 id-ManagementBasedMDTPLMNModificationList          ProtocolIE-ID
+id-EarlyMeasurement                                ProtocolIE-ID
+id-BeamMeasurementsReportConfiguration             ProtocolIE-ID
 #.END
 
 
@@ -1944,7 +1946,7 @@ MBSSessionSetupOrModResponseTransfer-OCTET-STRING        N ngap.ies id-MBSSessio
 QosFlowListWithCause                                     N ngap.ies id-MBS-QoSFlowToReleaseList
 MBS-SessionTNLInfo5GC                                    N ngap.ies id-MBS-SessionTNLInfo5GC
 MBS-SessionFSAIDList                                     N ngap.ies id-MBS-SessionFSAIDList
-MBSSessionReleaseResponseTransfer                        N ngap.ies id-MBSSessionReleaseResponseTransfer
+MBSSessionReleaseResponseTransfer-OCTET-STRING           N ngap.ies id-MBSSessionReleaseResponseTransfer
 MDTPLMNModificationList                                  N ngap.ies id-ManagementBasedMDTPLMNModificationList
 
 #NGAP-PROTOCOL-EXTENSION
@@ -2043,6 +2045,8 @@ TAINSAGSupportList                                     N ngap.extension id-TAINS
 TransportLayerAddress                                  N ngap.extension id-SourceNodeTNLAddrInfo
 NGAPIESupportInformationRequestList                    N ngap.extension id-NGAPIESupportInformationRequestList
 NGAPIESupportInformationResponseList                   N ngap.extension id-NGAPIESupportInformationResponseList
+EarlyMeasurement                                       N ngap.extension id-EarlyMeasurement
+BeamMeasurementsReportConfiguration                    N ngap.extension id-BeamMeasurementsReportConfiguration
 
 #NGAP-ELEMENTARY-PROCEDURE
 

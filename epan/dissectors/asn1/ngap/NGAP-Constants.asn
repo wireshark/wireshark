@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.1.1 (2022-06)
+-- 3GPP TS 38.413 V17.2.0 (2022-09)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -485,7 +485,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-DAPSRequestInfo									ProtocolIE-ID ::= 266
 	id-DAPSResponseInfoList								ProtocolIE-ID ::= 267
 	id-EarlyStatusTransfer-TransparentContainer 			ProtocolIE-ID ::= 268
-	id-NotifySourceNGRANNode									ProtocolIE-ID ::= 269
+	id-NotifySourceNGRANNode								ProtocolIE-ID ::= 269
 	id-ExtendedSliceSupportList								ProtocolIE-ID ::= 270
 	id-ExtendedTAISliceSupportList							ProtocolIE-ID ::= 271
 	id-ConfiguredTACIndication								ProtocolIE-ID ::= 272
@@ -493,14 +493,14 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-Extended-AMFName										ProtocolIE-ID ::= 274
 	id-GlobalCable-ID										ProtocolIE-ID ::= 275
 	id-QosMonitoringReportingFrequency						ProtocolIE-ID ::= 276
-	id-QosFlowParametersList									ProtocolIE-ID ::= 277
+	id-QosFlowParametersList								ProtocolIE-ID ::= 277
 	id-QosFlowFeedbackList									ProtocolIE-ID ::= 278
 	id-BurstArrivalTimeDownlink								ProtocolIE-ID ::= 279
 	id-ExtendedUEIdentityIndexValue							ProtocolIE-ID ::= 280
-	id-PduSessionExpectedUEActivityBehaviour					ProtocolIE-ID ::= 281
+	id-PduSessionExpectedUEActivityBehaviour				ProtocolIE-ID ::= 281
 	id-MicoAllPLMN											ProtocolIE-ID ::= 282
 	id-QosFlowFailedToSetupList								ProtocolIE-ID ::= 283
-	id-SourceTNLAddrInfo										ProtocolIE-ID ::= 284
+	id-SourceTNLAddrInfo									ProtocolIE-ID ::= 284
 	id-ExtendedReportIntervalMDT							ProtocolIE-ID ::= 285
 	id-SourceNodeID											ProtocolIE-ID ::= 286
 	id-NRNTNTAIInformation									ProtocolIE-ID ::= 287
@@ -546,7 +546,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-OnboardingSupport									ProtocolIE-ID ::= 325
 	id-TimeSyncAssistanceInfo								ProtocolIE-ID ::= 326
 	id-SurvivalTime											ProtocolIE-ID ::= 327
-	id-QMCConfigInfo											ProtocolIE-ID ::= 328
+	id-QMCConfigInfo										ProtocolIE-ID ::= 328
 	id-QMCDeactivation										ProtocolIE-ID ::= 329
 	--WS extension
 	id-Unknown-330											ProtocolIE-ID ::= 330
@@ -564,7 +564,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-PagingCause											ProtocolIE-ID ::= 342
 	id-PagingCauseIndicationForVoiceService					ProtocolIE-ID ::= 343
 	id-PEIPSassistanceInformation							ProtocolIE-ID ::= 344
-	id-FiveG-ProSeAuthorized									ProtocolIE-ID ::= 345
+	id-FiveG-ProSeAuthorized								ProtocolIE-ID ::= 345
 	id-FiveG-ProSeUEPC5AggregateMaximumBitRate				ProtocolIE-ID ::= 346
 	id-FiveG-ProSePC5QoSParameters							ProtocolIE-ID ::= 347
 	id-MBSSessionModificationFailureTransfer				ProtocolIE-ID ::= 348
@@ -573,12 +573,14 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-MBS-QoSFlowToReleaseList								ProtocolIE-ID ::= 351
 	id-MBS-SessionTNLInfo5GC								ProtocolIE-ID ::= 352
 	id-TAINSAGSupportList									ProtocolIE-ID ::= 353
-	id-SourceNodeTNLAddrInfo									ProtocolIE-ID ::= 354
+	id-SourceNodeTNLAddrInfo								ProtocolIE-ID ::= 354
 	id-NGAPIESupportInformationRequestList					ProtocolIE-ID ::= 355
 	id-NGAPIESupportInformationResponseList					ProtocolIE-ID ::= 356
 	id-MBS-SessionFSAIDList									ProtocolIE-ID ::= 357
-	id-MBSSessionReleaseResponseTransfer						ProtocolIE-ID ::= 358
+	id-MBSSessionReleaseResponseTransfer					ProtocolIE-ID ::= 358
 	id-ManagementBasedMDTPLMNModificationList				ProtocolIE-ID ::= 359
+	id-EarlyMeasurement										ProtocolIE-ID ::= 360
+	id-BeamMeasurementsReportConfiguration					ProtocolIE-ID ::= 361
 
 
 END
