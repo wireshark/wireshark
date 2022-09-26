@@ -126,7 +126,7 @@ parse_size_field(const unsigned char *ch, int32_t cn, int16_t *size)
 }
 
 static int16_t
-opus_packet_get_samples_per_frame(const unsigned char *data, int16_t Fs)
+opus_packet_get_samples_per_frame(const unsigned char *data, uint16_t Fs)
 {
     int audiosize;
     if (data[0] & 0x80) {
