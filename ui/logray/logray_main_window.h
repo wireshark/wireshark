@@ -276,6 +276,8 @@ public slots:
     void setTitlebarForCaptureFile();
     void setWSWindowTitle(QString title = QString());
 
+    void showCaptureOptionsDialog();
+
 #ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *);
@@ -423,7 +425,6 @@ private slots:
     void resetPreviousFocus();
 
     void connectCaptureMenuActions();
-    void showCaptureOptionsDialog();
     void startCaptureTriggered();
 
     void on_actionAnalyzeDisplayFilters_triggered();

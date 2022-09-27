@@ -232,10 +232,10 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
     QAction *ca;
     ca = copy_menu->addAction(tr("as CSV"));
     ca->setToolTip(ui->actionCopyAsCsv->toolTip());
-    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsCsv_triggered()));
+    connect(ca, &QAction::triggered, this, &ProtocolHierarchyDialog::on_actionCopyAsCsv_triggered);
     ca = copy_menu->addAction(tr("as YAML"));
     ca->setToolTip(ui->actionCopyAsYaml->toolTip());
-    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsYaml_triggered()));
+    connect(ca, &QAction::triggered, this, &ProtocolHierarchyDialog::on_actionCopyAsYaml_triggered);
     copy_button_->setMenu(copy_menu);
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);

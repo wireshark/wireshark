@@ -310,7 +310,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     find_reverse_button_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     find_reverse_button_->setPopupMode(QToolButton::MenuButtonPopup);
 
-    connect(ui->actionFindReverse, SIGNAL(triggered()), this, SLOT(on_actionFindReverseNormal_triggered()));
+    connect(ui->actionFindReverse, &QAction::triggered, this, &RtpStreamDialog::on_actionFindReverseNormal_triggered);
     find_reverse_button_->setDefaultAction(ui->actionFindReverse);
     // Overrides text striping of shortcut undercode in QAction
     find_reverse_button_->setText(ui->actionFindReverseNormal->text());
@@ -319,22 +319,22 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     analyze_button_ = RtpAnalysisDialog::addAnalyzeButton(ui->buttonBox, this);
     prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
     prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
-    connect(prepare_button_, SIGNAL(pressed()), this, SLOT(on_actionPrepareFilter_triggered()));
+    connect(prepare_button_, &QPushButton::pressed, this, &RtpStreamDialog::on_actionPrepareFilter_triggered);
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox, this);
     copy_button_ = ui->buttonBox->addButton(ui->actionCopyButton->text(), QDialogButtonBox::ActionRole);
     copy_button_->setToolTip(ui->actionCopyButton->toolTip());
     export_button_ = ui->buttonBox->addButton(ui->actionExportAsRtpDump->text(), QDialogButtonBox::ActionRole);
     export_button_->setToolTip(ui->actionExportAsRtpDump->toolTip());
-    connect(export_button_, SIGNAL(pressed()), this, SLOT(on_actionExportAsRtpDump_triggered()));
+    connect(export_button_, &QPushButton::pressed, this, &RtpStreamDialog::on_actionExportAsRtpDump_triggered);
 
     QMenu *copy_menu = new QMenu(copy_button_);
     QAction *ca;
     ca = copy_menu->addAction(tr("as CSV"));
     ca->setToolTip(ui->actionCopyAsCsv->toolTip());
-    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsCsv_triggered()));
+    connect(ca, &QAction::triggered, this, &RtpStreamDialog::on_actionCopyAsCsv_triggered);
     ca = copy_menu->addAction(tr("as YAML"));
     ca->setToolTip(ui->actionCopyAsYaml->toolTip());
-    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsYaml_triggered()));
+    connect(ca, &QAction::triggered, this, &RtpStreamDialog::on_actionCopyAsYaml_triggered);
     copy_button_->setMenu(copy_menu);
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
             this, SLOT(captureEvent(CaptureEvent)));
