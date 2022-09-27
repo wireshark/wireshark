@@ -210,10 +210,12 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
         VG_ERR_CNT=0
 
         printf "    %s: " "$( basename "$CF" )"
-        "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP "$CF" "$TMP_DIR/$TMP_FILE" "$PACKET_RANGE" > /dev/null 2>&1
+        # shellcheck disable=SC2086
+        "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP "$CF" "$TMP_DIR/$TMP_FILE" $PACKET_RANGE > /dev/null 2>&1
         RETVAL=$?
         if [ $RETVAL -ne 0 ] ; then
-            "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP -T ether "$CF" "$TMP_DIR/$TMP_FILE" "$PACKET_RANGE" \
+            # shellcheck disable=SC2086
+            "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP -T ether "$CF" "$TMP_DIR/$TMP_FILE" $PACKET_RANGE \
                 > /dev/null 2>&1
             RETVAL=$?
             if [ $RETVAL -ne 0 ] ; then
