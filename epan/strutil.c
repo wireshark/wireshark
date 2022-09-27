@@ -497,7 +497,8 @@ format_text_internal(wmem_allocator_t *allocator,
     if (!is_valid_utf8) {
         /* This function expects valid UTF-8 as input. The extra validation performed is a safeguard.
          * In a brighter future it may be removed. Emit a warning and display the sanitized string. */
-        ws_warning("String argument contained UTF-8 errors: %s", fmtbuf);
+        ws_log_full(LOG_DOMAIN_UTF_8, LOG_LEVEL_DEBUG, __FILE__, -1, __func__,
+                        "String argument contained UTF-8 errors: %s", fmtbuf);
     }
     return fmtbuf;
 }

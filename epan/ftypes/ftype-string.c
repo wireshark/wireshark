@@ -21,7 +21,8 @@ static inline void
 string_validate_utf8(fvalue_t *fv)
 {
 	if (wmem_strbuf_sanitize_utf8(fv->value.strbuf)) {
-		ws_warning("String fvalues must use a valid UTF-8 encoding."
+		ws_log_full(LOG_DOMAIN_UTF_8, LOG_LEVEL_DEBUG, __FILE__, -1, __func__,
+				"String fvalues must use a valid UTF-8 encoding."
 				" This string has been sanitized to look like this: %s",
 				wmem_strbuf_get_str(fv->value.strbuf));
 	}
