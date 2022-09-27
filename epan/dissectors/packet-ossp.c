@@ -19,6 +19,7 @@
 
 #include <epan/slow_protocol_subtypes.h>
 #include <epan/addr_resolv.h>
+#include <epan/oui.h>
 #include <epan/expert.h>
 
 #include <wsutil/str_util.h>
@@ -30,101 +31,151 @@ void proto_reg_handoff_ossp(void);
 /*
  * ESMC
  */
-#define ITU_OUI_0                   0x00
-#define ITU_OUI_1                   0x19
-#define ITU_OUI_2                   0xa7
 #define OUI_SIZE                       3
 #define ESMC_ITU_SUBTYPE          0x0001
 #define ESMC_VERSION_1              0x01
 #define ESMC_QL_TLV_TYPE            0x01
 #define ESMC_QL_TLV_LENGTH          0x04
-#define ESMC_TIMESTAMP_TLV_TYPE     0x02
-#define ESMC_TIMESTAMP_TLV_LENGTH   0x08
+#define ESMC_EXTENDED_QL_TLV_TYPE   0x02
+#define ESMC_EXTENDED_QL_TLV_LENGTH 0x14
 
-static const value_string esmc_event_flag_vals[] = {
-    { 0, "Information ESMC PDU" },
-    { 1, "Time-critical Event ESMC PDU" },
-    { 0, NULL }
-};
+static const true_false_string esmc_event_flag_tfs =
+    { "Time-critical Event ESMC PDU", "Information ESMC PDU" };
 
 static const value_string esmc_tlv_type_vals[] = {
     { 1, "Quality Level" },
-    { 2, "Timestamp" },
-    { 0, NULL }
-};
-
-static const value_string esmc_timestamp_valid_flag_vals[] = {
-    { 0, "Not set. Do not use Timestamp value even if Timestamp TLV present" },
-    { 1, "Set. Timestamp TLV Present" },
+    { 2, "Extended Quality Level" },
     { 0, NULL }
 };
 
 /* G.781 5.5.1.1 Option I SDH (same in G.707) */
 static const value_string esmc_quality_level_opt_1_vals[] = {
-    {  2,   "QL-PRC, Primary reference clock (G.811)" },
-    {  4,   "QL-SSU-A, Type I or V SSU clock (G.812), 'transit node clock'" },
-    {  8,   "QL-SSU-B, Type VI SSU clock (G.812), 'local node clock'" },
-    { 11,   "QL-SEC, SEC clock (G.813, Option I) or QL-EEC1 (G.8262)" },
-    { 15,   "QL-DNU, 'Do Not Use'" },
+// SSM only codes
+    {              2,   "QL-PRC, Primary reference clock (G.811)" },
+    {              4,   "QL-SSU-A, Type I or V SSU clock (G.812), 'transit node clock'" },
+    {              8,   "QL-SSU-B, Type VI SSU clock (G.812), 'local node clock'" },
+    {             11,   "QL-EEC1, EEC (G.8262, Option I) or SEC clock (G.813, Option I)" },
+    {             15,   "QL-DNU, 'Do Not Use'" },
+// SSM+eSSM codes
+    { (0xFF<<8) |  2,   "QL-PRC, Primary reference clock (G.811)" },
+    { (0xFF<<8) |  4,   "QL-SSU-A, Type I or V SSU clock (G.812), 'transit node clock'" },
+    { (0xFF<<8) |  8,   "QL-SSU-B, Type VI SSU clock (G.812), 'local node clock'" },
+    { (0xFF<<8) | 11,   "QL-EEC1, EEC (G.8262, Option I) or SEC clock (G.813, Option I)" },
+    { (0xFF<<8) | 15,   "QL-DNU, 'Do Not Use'" },
+    { (0x20<<8) |  2,   "QL-PRTC, Primary Reference Time Clock" },
+    { (0x21<<8) |  2,   "QL-ePRTC, Enhanced Primary Reference Time Clock"},
+    { (0x22<<8) | 11,   "QL-eEEC, Enhanced Ethernet Equipment Clock" },
+    { (0x23<<8) |  2,   "QL-ePRC, Enhanced Primary Reference Clock" },
     { 0, NULL }
 };
 
 static const value_string esmc_quality_level_opt_1_vals_short[] = {
-    {  2,   "QL-PRC" },
-    {  4,   "QL-SSU-A" },
-    {  8,   "QL-SSU-B" },
-    { 11,   "QL-SEC" },
-    { 15,   "QL-DNU" },
+// SSM codes
+    {              2,   "QL-PRC" },
+    {              4,   "QL-SSU-A" },
+    {              8,   "QL-SSU-B" },
+    {             11,   "QL-EEC1" },
+    {             15,   "QL-DNU" },
+// SSM+eSSM codes
+    { (0xFF<<8) |  2,   "QL-PRC" },
+    { (0xFF<<8) |  4,   "QL-SSU-A" },
+    { (0xFF<<8) |  8,   "QL-SSU-B" },
+    { (0xFF<<8) | 11,   "QL-EEC1" },
+    { (0xFF<<8) | 15,   "QL-DNU" },
+    { (0x20<<8) |  2,   "QL-PRTC" },
+    { (0x21<<8) |  2,   "QL-ePRTC"},
+    { (0x22<<8) | 11,   "QL-eEEC" },
+    { (0x23<<8) |  2,   "QL-ePRC" },
     { 0, NULL }
 };
 
-#if 0 /*not used yet*/
 /* G.781 5.5.1.2 Option II SDH synchronization networking */
 static const value_string esmc_quality_level_opt_2_vals[] = {
-    {  0,   "QL-STU, unknown - signal does not carry the QL message of the source" },
-    {  1,   "QL-PRS, PRS clock (G.811) / ST1, Stratum 1 Traceable" },
-    {  4,   "QL-TNC, Transit Node Clock (G.812, Type V)" },
-    {  7,   "QL-ST2, Stratum 2 clock (G.812, Type II)" },
-    { 10,   "QL-ST3, Stratum 3 clock (G.812, Type IV) or QL-EEC2 (G.8262)" },
-    { 12,   "QL-SMC, SONET self timed clock (G.813, Option II) / SMC 20 ppm Clock Traceable" },
-    { 13,   "QL-ST3E, Stratum 3E clock (G.812, Type III)" },
-    { 14,   "QL-PROV, provisionable by the network operator / Reserved for Network Synchronization" },
-    { 15,   "QL-DUS, shall not be used for synchronization" },
+// SSM codes
+    {              0,   "QL-STU, unknown - signal does not carry the QL message of the source" },
+    {              1,   "QL-PRS, PRS clock (G.811) / ST1, Stratum 1 Traceable" },
+    {              4,   "QL-TNC, Transit Node Clock (G.812, Type V)" },
+    {              7,   "QL-ST2, Stratum 2 clock (G.812, Type II)" },
+    {             10,   "QL-ST3, Stratum 3 clock (G.812, Type IV) or QL-EEC2 (G.8262)" },
+    {             13,   "QL-ST3E, Stratum 3E clock (G.812, Type III)" },
+    {             14,   "QL-PROV, provisionable by the network operator / Reserved for Network Synchronization" },
+    {             15,   "QL-DUS, shall not be used for synchronization" },
+// SSM+eSSM codes
+    { (0xFF<<8) |  0,   "QL-STU, unknown - signal does not carry the QL message of the source" },
+    { (0xFF<<8) |  1,   "QL-PRS, PRS clock (G.811) / ST1, Stratum 1 Traceable" },
+    { (0xFF<<8) |  4,   "QL-TNC, Transit Node Clock (G.812, Type V)" },
+    { (0xFF<<8) |  7,   "QL-ST2, Stratum 2 clock (G.812, Type II)" },
+    { (0xFF<<8) | 10,   "QL-ST3, Stratum 3 clock (G.812, Type IV) or QL-EEC2 (G.8262)" },
+    { (0xFF<<8) | 13,   "QL-ST3E, Stratum 3E clock (G.812, Type III)" },
+    { (0xFF<<8) | 14,   "QL-PROV, provisionable by the network operator / Reserved for Network Synchronization" },
+    { (0xFF<<8) | 15,   "QL-DUS, shall not be used for synchronization" },
+    { (0x20<<8) |  1,   "QL-PRTC, Primary Reference Time Clock" },
+    { (0x21<<8) |  1,   "QL-ePRTC, Enhanced Primary Reference Time Clock" },
+    { (0x22<<8) | 10,   "QL-eEEC, Enhanced Ethernet Equipment Clock" },
+    { (0x23<<8) |  1,   "QL-ePRC, Enhanced Primary Reference Clock" },
     { 0, NULL }
 };
 
-static const value_string esmc_quality_level_opt_2_short[] = {
-    {  0,   "QL-STU" },
-    {  1,   "QL-PRS" },
-    {  4,   "QL-TNC" },
-    {  7,   "QL-ST2" },
-    { 10,   "QL-ST3" },
-    { 12,   "QL-SMC" },
-    { 13,   "QL-ST3E" },
-    { 14,   "QL-PROV" },
-    { 15,   "QL-DUS" },
+static const value_string esmc_quality_level_opt_2_vals_short[] = {
+// SSM codes
+    {              0,   "QL-STU" },
+    {              1,   "QL-PRS" },
+    {              4,   "QL-TNC" },
+    {              7,   "QL-ST2" },
+    {             10,   "QL-ST3" },
+    {             13,   "QL-ST3E" },
+    {             14,   "QL-PROV" },
+    {             15,   "QL-DUS" },
+// SSM+eSSM codes
+    { (0xFF<<8) |  0,   "QL-STU" },
+    { (0xFF<<8) |  1,   "QL-PRS" },
+    { (0xFF<<8) |  4,   "QL-TNC" },
+    { (0xFF<<8) |  7,   "QL-ST2" },
+    { (0xFF<<8) | 10,   "QL-ST3" },
+    { (0xFF<<8) | 13,   "QL-ST3E" },
+    { (0xFF<<8) | 14,   "QL-PROV" },
+    { (0xFF<<8) | 15,   "QL-DUS" },
+    { (0x20<<8) |  1,   "QL-PRTC" },
+    { (0x21<<8) |  1,   "QL-ePRTC" },
+    { (0x22<<8) | 10,   "QL-eEEC" },
+    { (0x23<<8) |  1,   "QL-ePRC" },
     { 0, NULL }
 };
-#endif
 
-static const value_string esmc_quality_level_invalid_vals[] = {
-    {  0,   "QL-INV0" },
-    {  1,   "QL-INV1" },
-    {  2,   "QL-INV2" },
-    {  3,   "QL-INV3" },
-    {  4,   "QL-INV4" },
-    {  5,   "QL-INV5" },
-    {  6,   "QL-INV6" },
-    {  7,   "QL-INV7" },
-    {  8,   "QL-INV8" },
-    {  9,   "QL-INV9" },
-    { 10,   "QL-INV10" },
-    { 11,   "QL-INV11" },
-    { 12,   "QL-INV12" },
-    { 13,   "QL-INV13" },
-    { 14,   "QL-INV14" },
-    { 15,   "QL-INV15" },
+/* G.781 5.5.1.3 Option III SDH synchronization networking */
+static const value_string esmc_quality_level_opt_3_vals[] = {
+// SSM
+    {              0,   "QL-UNK, Unknown" },
+    {             11,   "QL-EEC1, EEC (G.8262, Option I) or SEC clock (G.813, Option I)" },
+// SSM+eSSM codes
+    { (0xFF<<8) |  0,   "QL-UNK, Unknown" },
+    { (0xFF<<8) | 11,   "QL-EEC1, EEC (G.8262, Option I) or SEC clock (G.813, Option I)" },
     { 0, NULL }
+};
+
+static const value_string esmc_quality_level_opt_3_vals_short[] = {
+// SSM
+    {              0,   "QL-UNK" },
+    {             11,   "QL-EEC1" },
+// SSM+eSSM codes
+    { (0xFF<<8) |  0,   "QL-UNK" },
+    { (0xFF<<8) | 11,   "QL-EEC1" },
+    { 0, NULL }
+};
+
+
+static const value_string *esmc_quality_level_vals[] = {
+    NULL,
+    esmc_quality_level_opt_1_vals,
+    esmc_quality_level_opt_2_vals,
+    esmc_quality_level_opt_3_vals
+};
+
+static const value_string *esmc_quality_level_vals_short[] = {
+    NULL,
+    esmc_quality_level_opt_1_vals_short,
+    esmc_quality_level_opt_2_vals_short,
+    esmc_quality_level_opt_3_vals_short
 };
 
 /* Initialise the protocol and registered fields */
@@ -134,39 +185,23 @@ static int hf_ossp_oui = -1;
 static int hf_itu_subtype = -1;
 static int hf_esmc_version = -1;
 static int hf_esmc_event_flag = -1;
-static int hf_esmc_timestamp_valid_flag = -1;
-static int hf_esmc_reserved_32 = -1;
+static int hf_esmc_reserved_bits = -1;
+static int hf_esmc_reserved_octets = -1;
 static int hf_esmc_tlv = -1;
 static int hf_esmc_tlv_type = -1;
 static int hf_esmc_tlv_length = -1;
 static int hf_esmc_tlv_ql_unused = -1;
-static int hf_esmc_tlv_ts_reserved = -1;
-static int hf_esmc_quality_level_opt_1 = -1;
-#if 0 /*not used yet*/
-static int hf_esmc_quality_level_opt_2 = -1;
-#endif
-static int hf_esmc_quality_level_invalid = -1;
-static int hf_esmc_timestamp = -1;
+static int hf_esmc_tlv_ql_ssm = -1;
+static int hf_esmc_tlv_ext_ql_essm = -1;
+static int hf_esmc_tlv_ext_ql_clockid = -1;
+static int hf_esmc_tlv_ext_ql_flag_reserved = -1;
+static int hf_esmc_tlv_ext_ql_flag_chain = -1;
+static int hf_esmc_tlv_ext_ql_flag_mixed = -1;
+static int hf_esmc_tlv_ext_ql_eeec = -1;
+static int hf_esmc_tlv_ext_ql_eec = -1;
+static int hf_esmc_tlv_ext_ql_reserved = -1;
+static int hf_esmc_quality_level = -1;
 static int hf_esmc_padding = -1;
-
-/*
- * The Timestamp TLV and Timestamp Valid Flag fields
- * are proposed in WD56 document for G.8264.
- * WD56 is not accepted at this moment (June 2009).
- *
- * The following variable controls dissection of Timestamp fields.
- * Implementation is not fully complete yet -- in this version
- * Timestamp dissection is always enabled.
- *
- * I expect that when WD56 proposal for G.8264 will be accepted,
- * ESMC Version would be used to control Timestamp dissection.
- * In this case this variable will be eliminated (replaced).
- *
- * Until that, a preference which controls Timestamp
- * dissection may be added, if such need arise.
- * At the moment this is not practical as nobody needs this.
- */
-static gboolean pref_decode_esmc_timestamp = TRUE;
 
 /* Initialise the subtree pointers */
 
@@ -176,14 +211,23 @@ static gint ett_itu_ossp = -1;
 static gint ett_esmc = -1;
 
 static expert_field ei_esmc_tlv_type_ql_type_not_first = EI_INIT;
-static expert_field ei_esmc_tlv_type_not_timestamp = EI_INIT;
+static expert_field ei_esmc_tlv_type_not_ext_ql = EI_INIT;
 static expert_field ei_esmc_quality_level_invalid = EI_INIT;
 static expert_field ei_esmc_tlv_ql_unused_not_zero = EI_INIT;
-static expert_field ei_esmc_tlv_type_decoded_as_timestamp = EI_INIT;
+static expert_field ei_esmc_tlv_type_decoded_as_ext_ql = EI_INIT;
 static expert_field ei_esmc_tlv_type_decoded_as_ql_type = EI_INIT;
 static expert_field ei_esmc_version_compliance = EI_INIT;
 static expert_field ei_esmc_tlv_length_bad = EI_INIT;
 static expert_field ei_esmc_reserved_not_zero = EI_INIT;
+
+static gint pref_option_network = 1;
+static const enum_val_t pref_option_network_vals[] =
+{
+    { "1", "Option I network", 1 }, /* G.781 5.5.1.1 Option I SDH (same in G.707) */
+    { "2", "Option II network", 2 }, /* G.781 5.5.1.2 Option II SDH synchronization networking */
+    //{ "3", "Option III network", 3 }, /* G.781 5.5.1.3 Option III SDH synchronization networking */
+    { NULL, NULL, 0 }
+};
 
 static void
 dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex);
@@ -218,7 +262,6 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree   *ossp_tree;
     tvbuff_t     *ossp_tvb;
     guint32      oui;
-    const guint8  itu_oui[] = {ITU_OUI_0, ITU_OUI_1, ITU_OUI_2};
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSSP");
 
@@ -236,17 +279,17 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
      * support OUIs as keys in dissector tables.
      */
     ossp_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (tvb_memeql(tvb, 0, itu_oui, OUI_SIZE) == 0)
+    if (OUI_ITU_T == oui)
     {
        dissect_itu_ossp(ossp_tvb, pinfo, ossp_tree);
     }
 /*    new Organization Specific Slow Protocols go hereafter */
 #if 0
-    else if (tvb_memeql(tvb, 0, xxx_oui, OUI_SIZE) == 0)
+    else if (OUI_XXX == oui)
     {
         dissect_xxx_ossp(ossp_tvb, pinfo, ossp_tree);
     }
-    else if (tvb_memeql(tvb, 0, yyy_oui, OUI_SIZE) == 0)
+    else if (OUI_YYY == oui)
     {
         dissect_yyy_ossp(ossp_tvb, pinfo, ossp_tree);
     }
@@ -280,7 +323,9 @@ static void
 dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint16     subtype;
-    proto_tree *itu_ossp_tree, *ti;
+    proto_item *ti;
+    proto_tree *itu_ossp_tree;
+    tvbuff_t   *ossp_subtype_tvb;
 
     /* ITU-T OSSP Subtype */
     subtype = tvb_get_ntohs(tvb, 0);
@@ -288,10 +333,12 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     itu_ossp_tree = proto_item_add_subtree(ti, ett_itu_ossp);
 
+    ossp_subtype_tvb = tvb_new_subset_remaining(tvb, 2);
+
     switch (subtype)
     {
         case ESMC_ITU_SUBTYPE:
-            dissect_esmc_pdu(tvb, pinfo, itu_ossp_tree);
+            dissect_esmc_pdu(ossp_subtype_tvb, pinfo, itu_ossp_tree);
             break;
 
 /*  Other ITU-T defined slow protocols go hereafter */
@@ -307,20 +354,15 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * Description:
  *    This function is used to dissect ESMC PDU defined G.8264/Y.1364
- *    clause 11.3.1.1.
- *
- *    Added: TimeStamp TLV as per WD56 proposal for G.8264,
- *    "TLVs for ESMC and Querying Capability".
+ *    clause 11.3.1.
  */
 static void
 dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 {
-    gint     offset    = 2; /*starting from ESMC Version */
+    gint     offset    = 0;
     gboolean event_flag;
-    gboolean malformed = FALSE;
-    gint     ql        = -1; /*negative means unknown:*/
-    gboolean timestamp_valid_flag = FALSE; /*set if timestamp valid*/
-    gint32   timestamp = -1; /*nanoseconds*/
+    gint     ssm       = 0;
+    gint     essm      = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESMC");
 
@@ -334,7 +376,6 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             item_b = proto_tree_add_item(tree_a, hf_esmc_version, tvb, offset, 1, ENC_BIG_ENDIAN);
             if ((tvb_get_guint8(tvb, offset) >> 4) != ESMC_VERSION_1)
             {
-                malformed = TRUE;
                 expert_add_info_format(pinfo, item_b, &ei_esmc_version_compliance, "Version must be 0x%.1x claim compliance with Version 1 of this protocol", ESMC_VERSION_1);
             }
             /*stay at the same octet in tvb*/
@@ -344,28 +385,33 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             proto_tree_add_item(tree_a, hf_esmc_event_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             /*stay at the same octet in tvb*/
         }
-        if (pref_decode_esmc_timestamp)
-        { /* timestamp valid flag */
-            timestamp_valid_flag = ((tvb_get_guint8(tvb, offset) & 0x04) != 0);
-            proto_tree_add_item(tree_a, hf_esmc_timestamp_valid_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-            /*stay at the same octet in tvb*/
-        }
         { /* reserved bits */
             proto_item *item_b;
-            guint32 reserved;
-            reserved = tvb_get_ntohl(tvb, offset)
-                        & (pref_decode_esmc_timestamp ? 0x3ffffff : 0x7ffffff);
-            item_b = proto_tree_add_uint_format_value(tree_a, hf_esmc_reserved_32, tvb, offset, 4
-                                                    , reserved, "0x%.7x", reserved);
+            guint8 reserved;
+            reserved = tvb_get_guint8(tvb, offset) & 0x07;
+            item_b = proto_tree_add_uint_format_value(tree_a, hf_esmc_reserved_bits, tvb, offset, 1, reserved, "0x%.2x", reserved);
             if (reserved != 0x0)
             {
-                malformed = TRUE;
                 expert_add_info_format(pinfo, item_b, &ei_esmc_reserved_not_zero, "Reserved bits must be set to all zero on transmitter");
             }
-            offset += 4;
+            offset += 1;
+        }
+        { /* reserved octets */
+            proto_item *item_b;
+            guint32 reserved;
+            reserved = tvb_get_ntoh24(tvb, offset);
+            item_b = proto_tree_add_uint_format_value(tree_a, hf_esmc_reserved_octets, tvb, offset, 3, reserved, "0x%.6x", reserved);
+            if (reserved != 0x0)
+            {
+                expert_add_info_format(pinfo, item_b, &ei_esmc_reserved_not_zero, "Reserved octets must be set to all zero on transmitter");
+            }
+            offset += 3;
         }
         proto_item_append_text(treex, ", Event:%s", event_flag ?
                                "Time-critical" : "Information");
+
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Event:%s", event_flag ?
+                     "Time-critical" : "Information");
 
         /*
          * Quality Level TLV is mandatory at fixed location.
@@ -373,7 +419,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         {
             proto_item *item_b;
             guint8 type;
-            item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 4, ENC_NA);
+            item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, ESMC_QL_TLV_LENGTH, ENC_NA);
             {
                 proto_tree *tree_b;
                 tree_b = proto_item_add_subtree(item_b, ett_esmc);
@@ -387,10 +433,10 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (type != ESMC_QL_TLV_TYPE)
                     {
-                        malformed = TRUE;
                         expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_ql_type_not_first, "TLV Type must be == 0x%.2x (QL) because QL TLV must be first in the ESMC PDU", ESMC_QL_TLV_TYPE);
                         expert_add_info(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ql_type);
                     }
+                    proto_item_append_text(item_b, ", %s", val_to_str_const(type, esmc_tlv_type_vals, "Unknown"));
                     offset += 1;
 
                     /* length */
@@ -398,107 +444,130 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                     if (length != ESMC_QL_TLV_LENGTH)
                     {
-                        malformed = TRUE;
                         expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_length_bad, "QL TLV Length must be == 0x%.4x", ESMC_QL_TLV_LENGTH);
                         expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ql_type, "Let's decode this TLV as if Length has valid value");
                     }
                     offset += 2;
 
                     /* value */
-                    unused = tvb_get_guint8(tvb, offset); /*as temp var*/
-                    ql = unused & 0x0f;
-                    unused &= 0xf0;
+                    ssm = tvb_get_guint8(tvb, offset);
+                    unused = ssm & 0xf0;
+                    ssm &= 0x0f;
                     item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ql_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (unused != 0x00)
                     {
-                        malformed = TRUE;
                         expert_add_info(pinfo, item_c, &ei_esmc_tlv_ql_unused_not_zero);
                     }
-                    if (NULL != try_val_to_str(ql, esmc_quality_level_opt_1_vals))
-                    {
-                        proto_tree_add_item(tree_b, hf_esmc_quality_level_opt_1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    }
-                    else
-                    {
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_quality_level_invalid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        expert_add_info(pinfo, item_c, &ei_esmc_quality_level_invalid);
-                    }
+                    proto_tree_add_item(tree_b, hf_esmc_tlv_ql_ssm, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                 }
             }
-            proto_item_append_text(item_b, ", %s"
-                , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INV%d"));
         }
-        proto_item_append_text(treex, ", %s"
-            , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INV%d"));
 
-        if (pref_decode_esmc_timestamp)
+        /*
+         * Extended Quality Level TLV is optional at fixed location.
+         */
+        if (tvb_captured_length_remaining(tvb, offset) >= ESMC_EXTENDED_QL_TLV_LENGTH)
         {
-            /*
-             * Timestamp TLV is optional at fixed location.
-             * Decode it if Timestamp Valid flag is set,
-             * or if type of next TLV is 0x02.
-             */
             guint8 type;
             type = tvb_get_guint8(tvb, offset);
 
-            if (timestamp_valid_flag || type == ESMC_TIMESTAMP_TLV_TYPE)
+            if (type == ESMC_EXTENDED_QL_TLV_TYPE)
             {
                 proto_item *item_b;
-                item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 8, ENC_NA);
+                item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, ESMC_EXTENDED_QL_TLV_LENGTH, ENC_NA);
                 {
                     proto_tree *tree_b;
                     tree_b = proto_item_add_subtree(item_b, ett_esmc);
                     {
                         proto_item *item_c;
                         guint16 length;
-                        guint8 reserved;
+                        guint64 reserved;
 
                         /* type */
                         item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        if (type != ESMC_TIMESTAMP_TLV_TYPE)
+                        if (type != ESMC_EXTENDED_QL_TLV_TYPE)
                         {
-                            malformed = TRUE;
-                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_not_timestamp, "TLV Type must be == 0x%.2x (Timestamp) because Timestamp Valid Flag is set", ESMC_TIMESTAMP_TLV_TYPE);
-                            expert_add_info(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_timestamp);
+                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_not_ext_ql, "TLV Type must be == 0x%.2x (Extended QL)", ESMC_EXTENDED_QL_TLV_TYPE);
+                            expert_add_info(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ext_ql);
                         }
+                        proto_item_append_text(item_b, ", %s", val_to_str_const(type, esmc_tlv_type_vals, "Unknown"));
                         offset += 1;
 
                         /* length */
                         length = tvb_get_ntohs(tvb, offset);
                         item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        if (length != ESMC_TIMESTAMP_TLV_LENGTH)
+                        if (length != ESMC_EXTENDED_QL_TLV_LENGTH)
                         {
-                            malformed = TRUE;
-                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_length_bad, "Timestamp TLV Length must be == 0x%.4x", ESMC_TIMESTAMP_TLV_LENGTH);
-                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_timestamp, "Let's decode this TLV as if Length has valid value");
+                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_length_bad, "Extended QL TLV Length must be == 0x%.4x", ESMC_EXTENDED_QL_TLV_LENGTH);
+                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ext_ql, "Let's decode this TLV as if Length has valid value");
                         }
                         offset += 2;
 
-                        /* value */
-                        timestamp = tvb_get_ntohil(tvb, offset);
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        if (!timestamp_valid_flag) proto_item_append_text(item_c, " [invalid]");
-                        offset += 4;
+                        /* Enhanced SSM code */
+                        essm = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_essm, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
 
-                        /* reserved */
-                        reserved = tvb_get_guint8(tvb, offset);
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ts_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        /* SyncE clockIdentity */
+                        proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_clockid, tvb, offset, 8, ENC_BIG_ENDIAN);
+                        offset += 8;
+
+                        /* Flag */
+                        reserved = tvb_get_guint8(tvb, offset) & 0xfc;
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_flag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (reserved != 0x0)
                         {
                             expert_add_info(pinfo, item_c, &ei_esmc_reserved_not_zero);
                         }
+                        proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_flag_chain, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_flag_mixed, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset += 1;
+
+                        /* Cascaded eEECs */
+                        proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_eeec, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+
+                        /* Cascaded EECs */
+                        proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_eec, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+
+                        /* Reserved */
+                        reserved = tvb_get_guint40(tvb, offset, ENC_BIG_ENDIAN);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_reserved, tvb, offset, 5, ENC_BIG_ENDIAN);
+                        if (reserved != 0x0)
+                        {
+                            expert_add_info(pinfo, item_c, &ei_esmc_reserved_not_zero);
+                        }
+                        offset += 5;
                     }
                 }
-                proto_item_append_text(item_b, ", Timestamp: %d ns", timestamp);
-                if (!timestamp_valid_flag) proto_item_append_text(item_b, " [invalid]");
             }
         }
-        if (timestamp_valid_flag)
+    }
+
+    /* Derive Quality Level from SSM/eSSM based on
+     * ITU-T G.8264/Y.1364 (2017)/Amd.1 (03.2018)
+     * Table 11-7 and Table 11-8.
+     */
+    {
+        const value_string *ql_vals;
+        const value_string *ql_vals_short;
+        const gchar *ql_str;
+        proto_item *item_b;
+
+        ql_vals = esmc_quality_level_vals[pref_option_network];
+        ql_vals_short = esmc_quality_level_vals_short[pref_option_network];
+        ql_str = try_val_to_str((essm<<8) | ssm, ql_vals);
+        item_b = proto_tree_add_uint_format_value(treex, hf_esmc_quality_level, tvb, 6, offset-6,
+            (essm<<8) | ssm, "%s", (NULL != ql_str) ? ql_str : "Unknown Quality Level");
+        proto_item_set_generated(item_b);
+        if (NULL == ql_str)
         {
-            proto_item_append_text(treex, ", Timestamp:%d", timestamp);
+            expert_add_info(pinfo, item_b, &ei_esmc_quality_level_invalid);
         }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+            val_to_str((essm<<8) | ssm, ql_vals_short, "Unknown Quality Level"));
     }
 
     { /* padding */
@@ -513,8 +582,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                 tvbuff_t* tvb_next;
                 tvb_next = tvb_new_subset_remaining(tvb, offset);
                 item_b = proto_tree_add_item(tree_a, hf_esmc_padding, tvb_next, 0, -1, ENC_NA);
-                proto_item_append_text(item_b, ", %d %s%s", padding_size
-                , "octet", plurality(padding_size,"","s"));
+                proto_item_append_text(item_b, ", %d %s%s", padding_size,
+                    "octet", plurality(padding_size,"","s"));
                 {
                     proto_tree* tree_b;
                     tree_b = proto_item_add_subtree(item_b, ett_esmc);
@@ -522,23 +591,6 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                 }
             }
         }
-    }
-
-    /* append summary info */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Event:%s", event_flag ?
-                    "Time-critical" : "Information");
-    if (ql >= 0)
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s"
-        , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INVALID-%d"));
-    }
-    if (timestamp_valid_flag)
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", TS:%d", timestamp);
-    }
-    if (malformed)
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, ", Malformed PDU");
     }
 }
 
@@ -551,8 +603,8 @@ proto_register_ossp(void)
     static hf_register_info hf[] = {
         { &hf_ossp_oui,
           { "OUI",    "ossp.oui",
-            FT_UINT24,     BASE_OUI,    NULL,    0,
-            "IEEE assigned Organizationally Unique Identifier", HFILL }},
+            FT_UINT24,    BASE_OUI,    NULL,    0,
+            "IEEE assigned Organizational Unique Identifier", HFILL }},
 
         { &hf_itu_subtype,
           { "ITU-T OSSP Subtype",    "ossp.itu.subtype",
@@ -561,28 +613,28 @@ proto_register_ossp(void)
 
         { &hf_esmc_version,
           { "Version",    "ossp.esmc.version",
-            FT_UINT8,     BASE_HEX,    NULL,    0xf0,
-            "This field indicates the version of ITU-T SG15 Q13 OSSP frame format", HFILL }},
+            FT_UINT8,    BASE_HEX,    NULL,    0xf0,
+            "Version of ITU-T OSSP frame format", HFILL }},
 
         { &hf_esmc_event_flag,
           { "Event Flag",    "ossp.esmc.event_flag",
-            FT_UINT8,    BASE_HEX,    VALS(esmc_event_flag_vals),    0x08,
-            "This bit distinguishes the critical, time sensitive behaviour of the"
-            " ESMC Event PDU from the ESMC Information PDU", HFILL }},
+            FT_BOOLEAN,    8,    TFS(&esmc_event_flag_tfs),    0x08,
+            "This bit distinguishes the critical, time sensitive behaviour of the "
+            "ESMC Event PDU from the ESMC Information PDU", HFILL }},
 
-        { &hf_esmc_timestamp_valid_flag,
-          { "Timestamp Valid Flag",    "ossp.esmc.timestamp_valid_flag",
-            FT_UINT8,    BASE_HEX,    VALS(esmc_timestamp_valid_flag_vals),    0x04,
-            "Indicates validity (i.e. presence) of the Timestamp TLV", HFILL }},
+        { &hf_esmc_reserved_bits,
+          { "Reserved",    "ossp.esmc.reserved_bits",
+            FT_UINT8,    BASE_HEX,    NULL,    0x07,
+            "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
 
-        { &hf_esmc_reserved_32,
+        { &hf_esmc_reserved_octets,
           { "Reserved",    "ossp.esmc.reserved",
-            FT_UINT32,    BASE_HEX,    NULL,    0,
+            FT_UINT24,    BASE_HEX,    NULL,    0,
             "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
 
         { &hf_esmc_tlv,
           { "ESMC TLV",    "ossp.esmc.tlv",
-            FT_NONE,     BASE_NONE,    NULL,    0,
+            FT_NONE,    BASE_NONE,    NULL,    0,
             NULL, HFILL }},
 
         { &hf_esmc_tlv_type,
@@ -600,32 +652,55 @@ proto_register_ossp(void)
             FT_UINT8,     BASE_HEX,    NULL,    0xf0,
             "This field is not used in QL TLV", HFILL }},
 
-        { &hf_esmc_quality_level_opt_1,
-          { "SSM Code",    "ossp.esmc.ql",
-            FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_opt_1_vals),    0x0f,
-            "Quality Level information", HFILL }},
+        { &hf_esmc_tlv_ql_ssm,
+          { "SSM Code",    "ossp.esmc.tlv_ql_ssm",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0f,
+            NULL, HFILL }},
 
-#if 0 /*not used yet*/
-        { &hf_esmc_quality_level_opt_2,
-          { "SSM Code",    "ossp.esmc.ql",
-            FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_opt_2_vals),    0x0f,
-            "Quality Level information", HFILL }},
-#endif
+        { &hf_esmc_tlv_ext_ql_essm,
+          { "Enhanced SSM Code",    "ossp.esmc.tlv_ext_ql_essm",
+            FT_UINT8,    BASE_HEX,    NULL,    0,
+            NULL, HFILL }},
 
-        { &hf_esmc_quality_level_invalid,
-          { "SSM Code",    "ossp.esmc.ql",
-            FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_invalid_vals),    0x0f,
-            "Quality Level information", HFILL }},
+        { &hf_esmc_tlv_ext_ql_clockid,
+          { "SyncE clockID",    "ossp.esmc.tlv_ext_ql_clockid",
+            FT_UINT64,    BASE_HEX,    NULL,    0,
+            NULL, HFILL }},
 
-        { &hf_esmc_timestamp,
-          { "Timestamp (ns)",    "ossp.esmc.timestamp",
-            FT_INT32,    BASE_DEC,    NULL,    0,
-            "Timestamp according to the \"whole nanoseconds\" part of the IEEE 1588 originTimestamp", HFILL }},
-
-        { &hf_esmc_tlv_ts_reserved,
-          { "Reserved",    "ossp.esmc.tlv_ts_reserved",
-            FT_UINT8,     BASE_HEX,    NULL,    0,
+        { &hf_esmc_tlv_ext_ql_flag_reserved,
+          { "Reserved",    "ossp.esmc.tlv_ext_ql_flag_reserved",
+            FT_UINT8,    BASE_HEX,    NULL,    0xfc,
             "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
+
+        { &hf_esmc_tlv_ext_ql_flag_chain,
+          { "Partial chain",    "ossp.esmc.tlv_ext_ql_flag_chain",
+            FT_BOOLEAN,    8,    TFS(&tfs_yes_no),    0x02,
+            "Whether or not the TLV has been generated in the middle of the chain", HFILL }},
+
+        { &hf_esmc_tlv_ext_ql_flag_mixed,
+          { "Mixed EEC/eEEC clocks",    "ossp.esmc.tlv_ext_ql_flag_mixed",
+            FT_BOOLEAN,    8,    TFS(&tfs_yes_no),    0x01,
+            "Whether of not there is at least one non-eEEC clock in the chain", HFILL }},
+
+        { &hf_esmc_tlv_ext_ql_eeec,
+          { "Cascaded eEECs",    "ossp.esmc.tlv_ext_ql_eeec",
+            FT_UINT8,    BASE_DEC,    NULL,    0,
+            "Number of cascaded eEECs from nearest SSU/PRC", HFILL }},
+
+        { &hf_esmc_tlv_ext_ql_eec,
+          { "Cascaded EECs",    "ossp.esmc.tlv_ext_ql_eec",
+            FT_UINT8,    BASE_DEC,    NULL,    0,
+            "Number of cascaded EECs from nearest SSU/PRC", HFILL }},
+
+        { &hf_esmc_tlv_ext_ql_reserved,
+          { "Reserved",    "ossp.esmc.tlv_ext_ql_reserved",
+            FT_UINT40,     BASE_HEX,    NULL,    0,
+            "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
+
+        { &hf_esmc_quality_level,
+          { "Quality Level",    "ossp.esmc.ql",
+            FT_UINT16,    BASE_HEX,    NULL,    0,
+            NULL, HFILL }},
 
         { &hf_esmc_padding,
           { "Padding",    "ossp.esmc.padding",
@@ -641,6 +716,8 @@ proto_register_ossp(void)
         &ett_itu_ossp
     };
 
+    /* Setup expert info array */
+
     static ei_register_info ei[] = {
         { &ei_esmc_version_compliance, { "ossp.esmc.version.compliance", PI_MALFORMED, PI_ERROR, "Version must claim compliance with Version 1 of this protocol", EXPFILL }},
         { &ei_esmc_tlv_type_ql_type_not_first, { "ossp.esmc.tlv_type.ql_type_not_first", PI_MALFORMED, PI_ERROR, "TLV Type must be QL because QL TLV must be first in the ESMC PDU", EXPFILL }},
@@ -648,12 +725,14 @@ proto_register_ossp(void)
         { &ei_esmc_tlv_length_bad, { "ossp.esmc.tlv_length.bad", PI_MALFORMED, PI_ERROR, "QL TLV Length must be X", EXPFILL }},
         { &ei_esmc_tlv_ql_unused_not_zero, { "ossp.esmc.tlv_ql_unused.not_zero", PI_MALFORMED, PI_WARN, "Unused bits of TLV must be all zeroes", EXPFILL }},
         { &ei_esmc_quality_level_invalid, { "ossp.esmc.ql.invalid", PI_UNDECODED, PI_WARN, "Invalid SSM message, unknown QL code", EXPFILL }},
-        { &ei_esmc_tlv_type_not_timestamp, { "ossp.esmc.tlv_type.not_timestamp", PI_MALFORMED, PI_ERROR, "TLV Type must be == Timestamp because Timestamp Valid Flag is set", EXPFILL }},
-        { &ei_esmc_tlv_type_decoded_as_timestamp, { "ossp.esmc.tlv_type.decoded_as_timestamp", PI_UNDECODED, PI_NOTE, "Let's decode as if this is Timestamp TLV", EXPFILL }},
+        { &ei_esmc_tlv_type_not_ext_ql, { "ossp.esmc.tlv_type.not_ext_ql", PI_MALFORMED, PI_ERROR, "TLV Type must be == Extended QL", EXPFILL }},
+        { &ei_esmc_tlv_type_decoded_as_ext_ql, { "ossp.esmc.tlv_type.decoded_as_ext_ql", PI_UNDECODED, PI_NOTE, "Let's decode as if this is Extended QL TLV", EXPFILL }},
         { &ei_esmc_reserved_not_zero, { "ossp.esmc.reserved_bits_must_be_set_to_all_zero", PI_PROTOCOL, PI_WARN, "Reserved bits must be set to all zero", EXPFILL }},
     };
 
-    expert_module_t* expert_ossp;
+    expert_module_t *expert_ossp;
+
+    module_t *prefs_ossp;
 
     /* Register the protocol name and description */
 
@@ -663,8 +742,18 @@ proto_register_ossp(void)
 
     proto_register_field_array(proto_ossp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the exert items */
+
     expert_ossp = expert_register_protocol(proto_ossp);
     expert_register_field_array(expert_ossp, ei, array_length(ei));
+
+    /* Register the preferences */
+
+    prefs_ossp = prefs_register_protocol(proto_ossp, NULL);
+    prefs_register_enum_preference(prefs_ossp, "option_network",
+        "Regional option", "Select the option of the network to interpret the Quality Level for",
+        &pref_option_network, pref_option_network_vals, TRUE);
 }
 
 void
