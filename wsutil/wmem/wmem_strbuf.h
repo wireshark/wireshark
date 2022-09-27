@@ -33,21 +33,21 @@ extern "C" {
  *  len is the length of the string (not counting the null-terminator) and
  *      should be the same as strlen(str) unless the string contains embedded
  *      nulls.
- *  alloc_len is the length of the raw buffer pointed to by str, regardless of
+ *  alloc_size is the size of the raw buffer pointed to by str, regardless of
  *      what string is actually being stored (i.e. the buffer contents)
- *  max_len is the maximum permitted alloc_len (NOT the maximum permitted len,
- *      which must be one shorter than alloc_len to permit null-termination).
- *      When max_len is 0 (the default), no maximum is enforced.
+ *  max_size is the maximum permitted alloc_size (NOT the maximum permitted len,
+ *      which must be one shorter than alloc_size to permit null-termination).
+ *      When max_size is 0 (the default), no maximum is enforced.
  */
 struct _wmem_strbuf_t {
     /* read-only fields */
     wmem_allocator_t *allocator;
     gchar *str;
-    gsize len;
+    size_t len;
 
     /* private fields */
-    gsize alloc_len;
-    gsize max_len;
+    size_t alloc_size;
+    size_t max_size;
 };
 
 typedef struct _wmem_strbuf_t wmem_strbuf_t;
@@ -55,7 +55,7 @@ typedef struct _wmem_strbuf_t wmem_strbuf_t;
 WS_DLL_PUBLIC
 wmem_strbuf_t *
 wmem_strbuf_sized_new(wmem_allocator_t *allocator,
-                      gsize alloc_len, gsize max_len)
+                      size_t alloc_size, size_t max_size)
 G_GNUC_MALLOC;
 
 #define wmem_strbuf_new_label(ALLOCATOR) \
@@ -80,12 +80,12 @@ WS_DLL_PUBLIC
 void
 wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str);
 
-/* Appends up to append_len bytes (as allowed by strbuf->max_len) from
+/* Appends up to append_len bytes (as allowed by strbuf->max_size) from
  * str. Ensures that strbuf is null terminated afterwards but will copy
  * embedded nulls. */
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const gchar *str, gsize append_len);
+wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const gchar *str, size_t append_len);
 
 WS_DLL_PUBLIC
 void
@@ -106,14 +106,14 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c);
 
 WS_DLL_PUBLIC
 void
-wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const gsize len);
+wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const size_t len);
 
 WS_DLL_PUBLIC
 const gchar *
 wmem_strbuf_get_str(const wmem_strbuf_t *strbuf);
 
 WS_DLL_PUBLIC
-gsize
+size_t
 wmem_strbuf_get_len(const wmem_strbuf_t *strbuf);
 
 WS_DLL_PUBLIC
