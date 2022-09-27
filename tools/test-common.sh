@@ -50,6 +50,8 @@ MAX_VMEM=1000000
 MAX_STACK=2033
 # Insert z times an error into the capture file (0.02 seems to be a good value to find errors)
 ERR_PROB=0.02
+# Maximum number of packets to fuzz
+MAX_FUZZ_PACKETS=50000
 
 # Call *after* any changes to WIRESHARK_BIN_DIR (e.g., via command-line options)
 function ws_bind_exec_paths() {
