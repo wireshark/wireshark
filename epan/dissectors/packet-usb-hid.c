@@ -3935,6 +3935,7 @@ static gchar*
 get_usage_page_item_string(guint32 usage_page, guint32 id)
 {
     const char *str = NULL;
+    const char *fmt_str = NULL;
 
     switch (usage_page)
     {
@@ -3965,7 +3966,7 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
     case BUTTON_PAGE:
         str = try_val_to_str(id, usb_hid_button_usage_page_vals);
         if (!str)
-            str = "Button %u";
+            fmt_str = "Button %u";
         break;
     case ORDINAL_PAGE:
         str = try_val_to_str(id, usb_hid_ordinal_usage_page_vals);
@@ -3976,7 +3977,7 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
     case CONSUMER_PAGE:
         str = try_val_to_str(id, usb_hid_consumer_usage_page_vals);
         if (!str)
-            str = "Instance %u";
+            fmt_str = "Instance %u";
         break;
     case DIGITIZER_PAGE:
         str = try_val_to_str(id, usb_hid_digitizers_usage_page_vals);
@@ -3990,7 +3991,7 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
         str = try_val_to_str(id, usb_hid_physical_input_device_usage_page_vals);
         break;
     case UNICODE_PAGE:
-        str = "Character U+%04X";
+        fmt_str = "Character U+%04X";
         break;
     case EYE_AND_HEAD_TRACKER_PAGE:
         str = try_val_to_str(id, usb_hid_eye_and_head_tracker_usage_page_vals);
@@ -4016,7 +4017,7 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
         str = try_val_to_str(id, usb_hid_monitor_usage_page_vals);
         break;
     case USB_ENUMERATED_VALUES_PAGE:
-        str = "ENUM_%u";
+        fmt_str = "ENUM_%u";
         break;
     case VESA_VIRTUAL_CONTROLS_PAGE:
         str = try_val_to_str(id, usb_hid_vesa_virtual_control_usage_page_vals);
@@ -4051,10 +4052,13 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
         break;
     }
 
-    if (!str)
+    if (fmt_str) {
+        return wmem_strdup_printf(wmem_packet_scope(), fmt_str, id);
+    }
+    if (!str) {
         str = "Reserved";
-
-    return wmem_strdup_printf(wmem_packet_scope(), str, id);
+    }
+    return wmem_strdup_printf(wmem_packet_scope(), "%s", str);
 }
 
 /* Dissector for the data in a HID main report. */
