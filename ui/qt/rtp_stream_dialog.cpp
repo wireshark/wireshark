@@ -132,9 +132,11 @@ public:
             for (int i = 0; i < columnCount(); i++) {
                 QBrush bgBrush = background(i);
                 bgBrush.setColor(bgColor);
+                bgBrush.setStyle(Qt::SolidPattern);
                 setBackground(i, bgBrush);
                 QBrush fgBrush = foreground(i);
                 fgBrush.setColor(textColor);
+                fgBrush.setStyle(Qt::SolidPattern);
                 setForeground(i, fgBrush);
             }
         }
