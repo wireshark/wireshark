@@ -196,6 +196,8 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
         fi
 
         # Choose a random subset of large captures.
+        KEEP=
+        PACKET_RANGE=
         CF_PACKETS=$( "$CAPINFOS" -T -r -c "$CF" | cut -f2 )
         if [[ CF_PACKETS -gt $MAX_FUZZ_PACKETS ]] ; then
             START_PACKET=$(( CF_PACKETS - MAX_FUZZ_PACKETS ))
