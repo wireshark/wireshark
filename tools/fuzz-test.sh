@@ -66,7 +66,7 @@ while getopts "2b:C:d:e:agp:P:o:t:" OPTCHAR ; do
         P) MIN_PLUGINS=$OPTARG ;;
         o) CHANGE_OFFSET=$OPTARG ;;
         t) RUN_MAX_SECONDS=$(( RUN_START_SECONDS + OPTARG )) ;;
-        *) printf "Unknown option %s" "$OPTCHAR"
+        *) printf "Unknown option %s\n" "$OPTCHAR"
     esac
 done
 shift $((OPTIND - 1))
@@ -144,7 +144,7 @@ if [ "$MAX_PASSES" -gt 0 ]; then
     HOWMANY="$MAX_PASSES passes"
 fi
 echo -n "Running $RUNNER $COMMON_ARGS with args: "
-printf "\"%s\" " "${RUNNER_ARGS[@]}"
+printf "\"%s\"\n" "${RUNNER_ARGS[@]}"
 echo "($HOWMANY)"
 echo ""
 
@@ -183,7 +183,6 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
         if [ "$OSTYPE" == "cygwin" ] ; then
             CF=$( cygpath --windows "$CF" )
         fi
-        printf "    %s: " "$( basename "$CF" )"
 
         "$CAPINFOS" "$CF" > /dev/null 2> "$TMP_DIR/$ERR_FILE"
         RETVAL=$?
@@ -196,13 +195,25 @@ while { [ $PASS -lt "$MAX_PASSES" ] || [ "$MAX_PASSES" -lt 1 ]; } && ! $DONE ; d
             ws_exit_error
         fi
 
+        # Choose a random subset of large captures.
+        CF_PACKETS=$( "$CAPINFOS" -T -r -c "$CF" | cut -f2 )
+        if [[ CF_PACKETS -gt $MAX_FUZZ_PACKETS ]] ; then
+            START_PACKET=$(( CF_PACKETS - MAX_FUZZ_PACKETS ))
+            START_PACKET=$( shuf --input-range=1-$START_PACKET --head-count=1 )
+            END_PACKET=$(( START_PACKET + MAX_FUZZ_PACKETS ))
+            KEEP=-r
+            PACKET_RANGE="$START_PACKET-$END_PACKET"
+            printf "    Fuzzing packets %d-%d of %d\n" "$START_PACKET" "$END_PACKET" "$CF_PACKETS"
+        fi
+
         DISSECTOR_BUG=0
         VG_ERR_CNT=0
 
-        "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP "$CF" "$TMP_DIR/$TMP_FILE" $PACKET_RANGE > /dev/null 2>&1
+        printf "    %s: " "$( basename "$CF" )"
+        "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP "$CF" "$TMP_DIR/$TMP_FILE" "$PACKET_RANGE" > /dev/null 2>&1
         RETVAL=$?
         if [ $RETVAL -ne 0 ] ; then
-            "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP -T ether "$CF" "$TMP_DIR/$TMP_FILE" $PACKET_RANGE \
+            "$EDITCAP" -E "$ERR_PROB" -o "$CHANGE_OFFSET" $KEEP -T ether "$CF" "$TMP_DIR/$TMP_FILE" "$PACKET_RANGE" \
                 > /dev/null 2>&1
             RETVAL=$?
             if [ $RETVAL -ne 0 ] ; then
