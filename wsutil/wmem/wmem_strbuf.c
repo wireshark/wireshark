@@ -139,7 +139,7 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 
     wmem_strbuf_grow(strbuf, append_len);
 
-    (void) g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->max_size ? WMEM_STRBUF_RAW_ROOM(strbuf) : append_len+1);
+    (void) g_strlcpy(&strbuf->str[strbuf->len], str, WMEM_STRBUF_RAW_ROOM(strbuf));
 
     strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_size - 1);
 }
