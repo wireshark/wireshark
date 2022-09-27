@@ -696,8 +696,8 @@ int main(int argc, char *qt_argv[])
     // to force the issue.
     main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
             main_w, SLOT(openCaptureFile(QString,QString,unsigned int)));
-    main_w->connect(&ws_app, SIGNAL(openCaptureOptions()),
-            main_w, SLOT(on_actionCaptureOptions_triggered()));
+    main_w->connect(&ws_app, &WiresharkApplication::openCaptureOptions,
+            main_w, &WiresharkMainWindow::showCaptureOptionsDialog);
 
     /* Init the "Open file" dialog directory */
     /* (do this after the path settings are processed) */

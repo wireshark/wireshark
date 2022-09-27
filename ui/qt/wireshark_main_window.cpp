@@ -680,14 +680,14 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(proto_tree_, SIGNAL(editProtocolPreference(preference*, pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
 
-    connect(main_ui_->statusBar, SIGNAL(showExpertInfo()),
-            this, SLOT(on_actionAnalyzeExpertInfo_triggered()));
+    connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo,
+            this, &WiresharkMainWindow::on_actionAnalyzeExpertInfo_triggered);
 
-    connect(main_ui_->statusBar, SIGNAL(stopLoading()),
-            &capture_file_, SLOT(stopLoading()));
+    connect(main_ui_->statusBar, &MainStatusBar::stopLoading,
+            &capture_file_, &CaptureFile::stopLoading);
 
-    connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
-            this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
+    connect(main_ui_->statusBar, &MainStatusBar::editCaptureComment,
+            this, &WiresharkMainWindow::on_actionStatisticsCaptureFileProperties_triggered);
 
     connect(main_ui_->menuApplyAsFilter, &QMenu::aboutToShow,
             this, &WiresharkMainWindow::filterMenuAboutToShow);
