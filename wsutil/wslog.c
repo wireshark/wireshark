@@ -323,11 +323,11 @@ static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
 {
     va_list ap;
 
-    if (vcmdarg_err == NULL)
-        return;
-
     va_start(ap, fmt);
-    vcmdarg_err(fmt, ap);
+    if (vcmdarg_err)
+        vcmdarg_err(fmt, ap);
+    else
+        vfprintf(stderr, fmt, ap);
     va_end(ap);
     if (exit_failure != LOG_ARGS_NOEXIT)
         exit(exit_failure);
