@@ -128,6 +128,14 @@ enum ws_log_level ws_log_set_level_str(const char *str_level);
 WS_DLL_PUBLIC
 void ws_log_set_domain_filter(const char *domain_filter);
 
+/** Set a fatal domain filter from a string.
+ *
+ * Domain filter is a case insensitive list separated by ',' or ';'. Domains
+ * in the filter will cause the program to abort.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_fatal_domain_filter(const char *domain_filter);
+
 
 /** Set a debug filter from a string.
  *
@@ -155,7 +163,7 @@ void ws_log_set_noisy_filter(const char *str_filter);
  * Level LOG_LEVEL_ERROR is always fatal.
  */
 WS_DLL_PUBLIC
-enum ws_log_level ws_log_set_fatal(enum ws_log_level level);
+enum ws_log_level ws_log_set_fatal_level(enum ws_log_level level);
 
 
 /** Set the fatal log level from a string.
@@ -164,7 +172,7 @@ enum ws_log_level ws_log_set_fatal(enum ws_log_level level);
  * "warning" instead as arguments.
  */
 WS_DLL_PUBLIC
-enum ws_log_level  ws_log_set_fatal_str(const char *str_level);
+enum ws_log_level  ws_log_set_fatal_level_str(const char *str_level);
 
 
 /** Set the active log writer.

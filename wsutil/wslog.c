@@ -50,6 +50,12 @@
  * or "warning". */
 #define ENV_VAR_FATAL       "WIRESHARK_LOG_FATAL"
 
+/* Log domains that are fatal. */
+#define ENV_VAR_FATAL_DOMAIN    "WIRESHARK_LOG_FATAL_DOMAIN"
+
+/* Alias "domain" and "domains". */
+#define ENV_VAR_FATAL_DOMAIN_S  "WIRESHARK_LOG_FATAL_DOMAINS"
+
 /* Domains that will produce debug output, regardless of log level or
  * domain filter. */
 #define ENV_VAR_DEBUG       "WIRESHARK_LOG_DEBUG"
@@ -98,6 +104,9 @@ static log_filter_t *debug_filter = NULL;
 
 /* List of domains to output noisy level unconditionally. */
 static log_filter_t *noisy_filter = NULL;
+
+/* List of domains that are fatal. */
+static log_filter_t *fatal_filter = NULL;
 
 static ws_log_writer_cb *registered_log_writer = NULL;
 
@@ -309,10 +318,14 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 
 
 static const char *opt_level   = "--log-level";
-/* Alias "domain" and "domains". */
 static const char *opt_domain  = "--log-domain";
+/* Alias "domain" and "domains". */
+static const char *opt_domain_s = "--log-domains";
 static const char *opt_file    = "--log-file";
 static const char *opt_fatal   = "--log-fatal";
+static const char *opt_fatal_domain = "--log-fatal-domain";
+/* Alias "domain" and "domains". */
+static const char *opt_fatal_domain_s = "--log-fatal-domains";
 static const char *opt_debug   = "--log-debug";
 static const char *opt_noisy   = "--log-noisy";
 
@@ -415,6 +428,25 @@ parse_console_compat_option(char *argv[],
     ws_log_set_level(level);
 }
 
+/* Match "arg_name=value" or "arg_name value" to opt_name. */
+static bool optequal(const char *arg, const char *opt)
+{
+    ws_assert(arg);
+    ws_assert(opt);
+#define ARGEND(arg) (*(arg) == '\0' || *(arg) == ' ' || *(arg) == '=')
+
+    while (!ARGEND(arg) && *opt != '\0') {
+        if (*arg != *opt) {
+            return false;
+        }
+        arg += 1;
+        opt += 1;
+    }
+    if (ARGEND(arg) && *opt == '\0') {
+        return true;
+    }
+    return false;
+}
 
 int ws_log_parse_args(int *argc_ptr, char *argv[],
                         void (*vcmdarg_err)(const char *, va_list ap),
@@ -433,31 +465,39 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
     /* Configure from command line. */
 
     while (*ptr != NULL) {
-        if (g_str_has_prefix(*ptr, opt_level)) {
+        if (optequal(*ptr, opt_level)) {
             option = opt_level;
             optlen = strlen(opt_level);
         }
-        else if (g_str_has_prefix(*ptr, opt_domain)) {
+        else if (optequal(*ptr, opt_domain)) {
             option = opt_domain;
             optlen = strlen(opt_domain);
-            /* Alias "domain" and "domains". Last form wins. */
-            if (*(*ptr + optlen) == 's') {
-                optlen += 1;
-            }
         }
-        else if (g_str_has_prefix(*ptr, opt_file)) {
+        else if (optequal(*ptr, opt_domain_s)) {
+            option = opt_domain; /* Alias */
+            optlen = strlen(opt_domain_s);
+        }
+        else if (optequal(*ptr, opt_fatal_domain)) {
+            option = opt_fatal_domain;
+            optlen = strlen(opt_fatal_domain);
+        }
+        else if (optequal(*ptr, opt_fatal_domain_s)) {
+            option = opt_fatal_domain; /* Alias */
+            optlen = strlen(opt_fatal_domain_s);
+        }
+        else if (optequal(*ptr, opt_file)) {
             option = opt_file;
             optlen = strlen(opt_file);
         }
-        else if (g_str_has_prefix(*ptr, opt_fatal)) {
+        else if (optequal(*ptr, opt_fatal)) {
             option = opt_fatal;
             optlen = strlen(opt_fatal);
         }
-        else if (g_str_has_prefix(*ptr, opt_debug)) {
+        else if (optequal(*ptr, opt_debug)) {
             option = opt_debug;
             optlen = strlen(opt_debug);
         }
-        else if (g_str_has_prefix(*ptr, opt_noisy)) {
+        else if (optequal(*ptr, opt_noisy)) {
             option = opt_noisy;
             optlen = strlen(opt_noisy);
         }
@@ -517,6 +557,9 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
         else if (option == opt_domain) {
             ws_log_set_domain_filter(value);
         }
+        else if (option == opt_fatal_domain) {
+            ws_log_set_fatal_domain_filter(value);
+        }
         else if (value && option == opt_file) {
             FILE *fp = ws_fopen(value, "w");
             if (fp == NULL) {
@@ -530,7 +573,7 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
             }
         }
         else if (option == opt_fatal) {
-            if (ws_log_set_fatal_str(value) == LOG_LEVEL_NONE) {
+            if (ws_log_set_fatal_level_str(value) == LOG_LEVEL_NONE) {
                 print_err(vcmdarg_err, exit_failure,
                             "Fatal log level must be \"critical\" or "
                             "\"warning\", not \"%s\".\n", value);
@@ -626,6 +669,13 @@ void ws_log_set_domain_filter(const char *str_filter)
 }
 
 
+void ws_log_set_fatal_domain_filter(const char *str_filter)
+{
+    free_log_filter(&fatal_filter);
+    tokenize_filter_str(&fatal_filter, str_filter, LOG_LEVEL_NONE);
+}
+
+
 void ws_log_set_debug_filter(const char *str_filter)
 {
     free_log_filter(&debug_filter);
@@ -640,7 +690,7 @@ void ws_log_set_noisy_filter(const char *str_filter)
 }
 
 
-enum ws_log_level ws_log_set_fatal(enum ws_log_level level)
+enum ws_log_level ws_log_set_fatal_level(enum ws_log_level level)
 {
     if (level <= LOG_LEVEL_NONE || level >= _LOG_LEVEL_LAST)
         return LOG_LEVEL_NONE;
@@ -654,12 +704,12 @@ enum ws_log_level ws_log_set_fatal(enum ws_log_level level)
 }
 
 
-enum ws_log_level ws_log_set_fatal_str(const char *str_level)
+enum ws_log_level ws_log_set_fatal_level_str(const char *str_level)
 {
     enum ws_log_level level;
 
     level = string_to_log_level(str_level);
-    return ws_log_set_fatal(level);
+    return ws_log_set_fatal_level(level);
 }
 
 
@@ -760,7 +810,7 @@ void ws_log_init(const char *progname,
 
     env = g_getenv(ENV_VAR_FATAL);
     if (env != NULL) {
-        if (ws_log_set_fatal_str(env) == LOG_LEVEL_NONE) {
+        if (ws_log_set_fatal_level_str(env) == LOG_LEVEL_NONE) {
             print_err(vcmdarg_err, LOG_ARGS_NOEXIT,
                         "Ignoring invalid environment value %s=\"%s\"",
                         ENV_VAR_FATAL, env);
@@ -772,6 +822,12 @@ void ws_log_init(const char *progname,
         ws_log_set_domain_filter(env);
     else if ((env = g_getenv(ENV_VAR_DOMAIN)) != NULL)
         ws_log_set_domain_filter(env);
+
+    /* Alias "domain" and "domains". The plural form wins. */
+    if ((env = g_getenv(ENV_VAR_FATAL_DOMAIN_S)) != NULL)
+        ws_log_set_fatal_domain_filter(env);
+    else if ((env = g_getenv(ENV_VAR_FATAL_DOMAIN)) != NULL)
+        ws_log_set_fatal_domain_filter(env);
 
     env = g_getenv(ENV_VAR_DEBUG);
     if (env != NULL)
@@ -974,6 +1030,12 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 
     if (level >= fatal_log_level && level != LOG_LEVEL_ECHO) {
         abort();
+    }
+
+    if (fatal_filter != NULL) {
+        if (filter_contains(fatal_filter, domain) && fatal_filter->positive) {
+            abort();
+        }
     }
 }
 

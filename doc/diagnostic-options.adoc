@@ -10,12 +10,15 @@ For example, "warning" aborts on any "warning", "critical", or "error" messages.
 
 // XXX List available domains if no list is provided?
 --log-domains <list>:: Only print messages for the specified log domains, e.g. "GUI,Epan,sshdump".
-List of domains must be comma-separated.
+List of domains must be comma-separated. Can be negated with "!" as the first character (inverts the match).
 
 --log-debug <list>:: Force the specified domains to log at the "debug" level.
-List of domains must be comma-separated.
+List of domains must be comma-separated. Can be negated with "!" as the first character (inverts the match).
 
 --log-noisy <list>:: Force the specified domains to log at the "noisy" level.
+List of domains must be comma-separated. Can be negated with "!" as the first character (inverts the match).
+
+--log-fatal-domains <list>:: Abort the program if any messages are logged for the specified log domains.
 List of domains must be comma-separated.
 
 --log-file <path>:: Write log messages and stderr output to the specified file.
