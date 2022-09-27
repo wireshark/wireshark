@@ -742,6 +742,7 @@ void RtpPlayerDialog::addSingleRtpStream(rtpstream_id_t *id)
         for (int col = 0; col < ui->streamTreeWidget->columnCount(); col++) {
             QBrush fgBrush = ti->foreground(col);
             fgBrush.setColor(audio_stream->color());
+            fgBrush.setStyle(Qt::SolidPattern);
             ti->setForeground(col, fgBrush);
         }
 
