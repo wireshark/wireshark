@@ -89,6 +89,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     ui->setupUi(this);
     loadGeometry(parent.width() * 2 / 3, parent.height());
 
+    ui->streamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
+    ui->subStreamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
+
     switch(type)
     {
     case FOLLOW_TCP:
