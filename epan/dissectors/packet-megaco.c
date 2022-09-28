@@ -2705,10 +2705,8 @@ dissect_megaco_topologydescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
     gint    tokenlen;
 
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
-    proto_tree_add_string(megaco_tree_command_line, hf_megaco_topology_descriptor, tvb,
-                            tvb_previous_offset, tokenlen,
-                            tvb_format_text_wsp(wmem_packet_scope(), tvb, tvb_previous_offset,
-                            tokenlen));
+    proto_tree_add_item(megaco_tree_command_line, hf_megaco_topology_descriptor, tvb,
+                            tvb_previous_offset, tokenlen, ENC_ASCII);
 
 }
 static void
@@ -3753,7 +3751,7 @@ proto_register_megaco(void)
           { "Termination State Descriptor", "megaco.terminationstate", FT_NONE, BASE_NONE, NULL, 0x0,
             "Termination State Descriptor in Media Descriptor", HFILL }},
         { &hf_megaco_topology_descriptor,
-          { "Topology Descriptor", "megaco.topology", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Topology Descriptor", "megaco.topology", FT_STRING, BASE_STR_WSP, NULL, 0x0,
             "Topology Descriptor of the megaco Command", HFILL }},
         { &hf_megaco_transaction,
           { "Transaction", "megaco.transaction", FT_STRING, BASE_NONE, NULL, 0x0,

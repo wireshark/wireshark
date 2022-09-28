@@ -1070,14 +1070,21 @@ proto_registrar_get_id_byname(const char *field_name)
 
 
 static char *
-hfinfo_format_text(wmem_allocator_t *scope, const header_field_info *hfinfo _U_,
-    const guchar *string)
+format_text_hfinfo(wmem_allocator_t *scope, const header_field_info *hfinfo,
+			const guchar *string)
 {
-	return format_text_string(scope, string);
+	char *str = NULL;
+
+	if (FIELD_DISPLAY(hfinfo->display) & BASE_STR_WSP)
+		str = format_text_wsp(scope, string, strlen(string));
+	else
+		str = format_text(scope, string, strlen(string));
+
+	return str;
 }
 
 static char *
-hfinfo_format_bytes(wmem_allocator_t *scope, const header_field_info *hfinfo,
+format_bytes_hfinfo(wmem_allocator_t *scope, const header_field_info *hfinfo,
     const guint8 *bytes, guint length)
 {
 	char *str = NULL;
@@ -3815,33 +3822,33 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 	switch (hfinfo->type) {
 	case FT_STRING:
 		value = get_string_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);
+		*retval = format_text_hfinfo(scope, hfinfo, value);
 		break;
 	case FT_STRINGZ:
 		value = get_stringz_value(scope, tree, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);
+		*retval = format_text_hfinfo(scope, hfinfo, value);
 		break;
 	case FT_UINT_STRING:
 		value = get_uint_string_value(scope, tree, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);
+		*retval = format_text_hfinfo(scope, hfinfo, value);
 		break;
 	case FT_STRINGZPAD:
 		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);
+		*retval = format_text_hfinfo(scope, hfinfo, value);
 		break;
 	case FT_STRINGZTRUNC:
 		value = get_stringztrunc_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = hfinfo_format_text(scope, hfinfo, value);
+		*retval = format_text_hfinfo(scope, hfinfo, value);
 		break;
 	case FT_BYTES:
 		value = tvb_get_ptr(tvb, start, length);
-		*retval = hfinfo_format_bytes(scope, hfinfo, value, length);
+		*retval = format_bytes_hfinfo(scope, hfinfo, value, length);
 		*lenretval = length;
 		break;
 	case FT_UINT_BYTES:
 		n = get_uint_value(tree, tvb, start, length, encoding);
 		value = tvb_get_ptr(tvb, start + length, n);
-		*retval = hfinfo_format_bytes(scope, hfinfo, value, n);
+		*retval = format_bytes_hfinfo(scope, hfinfo, value, n);
 		*lenretval = length + n;
 		break;
 	default:
@@ -6483,7 +6490,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 
 		case FT_UINT_BYTES:
 		case FT_BYTES:
-			tmp_str = hfinfo_format_bytes(NULL,
+			tmp_str = format_bytes_hfinfo(NULL,
 				hfinfo,
 				fvalue_get_bytes(&finfo->value),
 				fvalue_length(&finfo->value));
@@ -6702,7 +6709,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
 			str = fvalue_get_string(&finfo->value);
-			tmp_str = hfinfo_format_text(NULL, hfinfo, str);
+			tmp_str = format_text_hfinfo(NULL, hfinfo, str);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
@@ -8764,6 +8771,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_STRINGZTRUNC:
 			switch (hfinfo->display) {
 				case BASE_NONE:
+				case BASE_STR_WSP:
 					break;
 
 				default:
@@ -9240,7 +9248,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_BYTES:
 		case FT_UINT_BYTES:
-			tmp = hfinfo_format_bytes(NULL, hfinfo,
+			tmp = format_bytes_hfinfo(NULL, hfinfo,
 			    fvalue_get_bytes(&fi->value),
 			    fvalue_length(&fi->value));
 			label_fill(label_str, 0, hfinfo, tmp);
@@ -9466,7 +9474,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
 			str = fvalue_get_string(&fi->value);
-			tmp = hfinfo_format_text(NULL, hfinfo, str);
+			tmp = format_text_hfinfo(NULL, hfinfo, str);
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
 			break;

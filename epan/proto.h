@@ -696,6 +696,9 @@ typedef enum {
     ABSOLUTE_TIME_UTC     = 19,     /**< UTC, with month and day */
     ABSOLUTE_TIME_DOY_UTC = 20,     /**< UTC, with 1-origin day-of-year */
     ABSOLUTE_TIME_NTP_UTC = 21,     /**< UTC, with "NULL" when timestamp is all zeros */
+
+/* String types */
+    BASE_STR_WSP = 22,              /**< Replace all whitespace characters (newline, formfeed, etc) with "space". */
 } field_display_e;
 
 #define FIELD_DISPLAY(d) ((d) & FIELD_DISPLAY_E_MASK)
