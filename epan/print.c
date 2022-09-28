@@ -1806,8 +1806,9 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
 {
     const char *p;
 
-#define ESCAPED_BUFFER_MAX 256
-    static char temp_buffer[ESCAPED_BUFFER_MAX];
+#define ESCAPED_BUFFER_SIZE 256
+#define ESCAPED_BUFFER_LIMIT (ESCAPED_BUFFER_SIZE - (int)sizeof("&quot;"))
+    static char temp_buffer[ESCAPED_BUFFER_SIZE];
     gint        offset = 0;
 
     if (fh == NULL || unescaped_string == NULL) {
@@ -1815,26 +1816,26 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
     }
 
     /* XXX: Why not use xml_escape() from epan/strutil.h ? */
-    for (p = unescaped_string; *p != '\0' && (offset<(ESCAPED_BUFFER_MAX-1)); p++) {
+    for (p = unescaped_string; *p != '\0' && (offset <= ESCAPED_BUFFER_LIMIT); p++) {
         switch (*p) {
         case '&':
-            (void) g_strlcpy(&temp_buffer[offset], "&amp;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&amp;", ESCAPED_BUFFER_SIZE-offset);
             offset += 5;
             break;
         case '<':
-            (void) g_strlcpy(&temp_buffer[offset], "&lt;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&lt;", ESCAPED_BUFFER_SIZE-offset);
             offset += 4;
             break;
         case '>':
-            (void) g_strlcpy(&temp_buffer[offset], "&gt;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&gt;", ESCAPED_BUFFER_SIZE-offset);
             offset += 4;
             break;
         case '"':
-            (void) g_strlcpy(&temp_buffer[offset], "&quot;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&quot;", ESCAPED_BUFFER_SIZE-offset);
             offset += 6;
             break;
         case '\'':
-            (void) g_strlcpy(&temp_buffer[offset], "&#x27;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&#x27;", ESCAPED_BUFFER_SIZE-offset);
             offset += 6;
             break;
         case '\t':
@@ -1849,12 +1850,12 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
              * even as character references.
              * There's no official way to escape them, so we'll do this. */
             if (g_ascii_iscntrl(*p)) {
-                offset += snprintf(&temp_buffer[offset], ESCAPED_BUFFER_MAX-offset, "\\x%x", (guint8)*p);
+                offset += snprintf(&temp_buffer[offset], ESCAPED_BUFFER_SIZE-offset, "\\x%x", (guint8)*p);
             } else {
                 temp_buffer[offset++] = *p;
             }
         }
-        if (offset > ESCAPED_BUFFER_MAX-8) {
+        if (offset > ESCAPED_BUFFER_LIMIT) {
             /* Getting close to end of buffer so flush to fh */
             temp_buffer[offset] = '\0';
             fputs(temp_buffer, fh);
