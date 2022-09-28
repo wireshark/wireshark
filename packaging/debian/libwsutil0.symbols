@@ -322,6 +322,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_strbuf_get_str@Base 3.5.0
  wmem_strbuf_new@Base 3.5.0
  wmem_strbuf_new_len@Base 3.7.1rc0-272-gfe25d701baa2
+ wmem_strbuf_sanitize_utf8@Base 4.1.0rc0-307-g402bb0ee81d8
  wmem_strbuf_sized_new@Base 3.5.0
  wmem_strbuf_strcmp@Base 3.7.1rc0-272-gfe25d701baa2
  wmem_strbuf_strstr@Base 3.7.1rc0-272-gfe25d701baa2
