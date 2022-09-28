@@ -69,7 +69,7 @@ variables:
 
 .build-ubuntu:
   extends: .build-linux
-  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev:2022-Q3
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
@@ -120,7 +120,7 @@ Clang 10:
     CC: "clang-$CLANG_VERSION"
     CXX: "clang++-$CLANG_VERSION"
 
-Source Package:
+.Source Package:
   extends: .build-ubuntu
   rules: !reference [.if-merged]
   script:
@@ -141,7 +141,7 @@ Source Package:
 
 CentOS 7 RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev:2022-Q3
   script:
     - mkdir build
     - cd build
@@ -149,7 +149,7 @@ CentOS 7 RPM Package:
     - ninja-build rpm-package
 CentOS 7 RPM Test:
   extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/centos-7-dev:2022-Q3
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -157,7 +157,7 @@ CentOS 7 RPM Test:
 
 openSUSE 15.3 RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev:2022-Q3
   script:
     - mkdir build
     - cd build
@@ -165,7 +165,7 @@ openSUSE 15.3 RPM Package:
     - ninja rpm-package
 openSUSE 15.3 RPM Test:
   extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev:2022-Q3
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -174,7 +174,7 @@ openSUSE 15.3 RPM Test:
 # Disabled for now due to issues with Fedora 33.
 .Fedora RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev:2022-Q3
   script:
     - mkdir build
     - cd build
@@ -193,7 +193,7 @@ openSUSE 15.3 RPM Test:
 Debian Stable APT Package:
   extends: .build-linux
   rules: !reference [.if-merged]
-  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev:2022-Q3
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -209,7 +209,7 @@ Debian Stable APT Package:
 Debian Stable APT Test:
   extends: .test-linux
   rules: !reference [.if-merged]
-  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev:2022-Q3
   stage: test
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
@@ -225,7 +225,7 @@ Debian Stable APT Test:
     GIT_STRATEGY: none
   dependencies: [ 'Debian Stable APT Package' ]
 
-Win64 Package:
+.Win64 Package:
   stage: build
   rules: !reference [.if-merged]
   tags:
@@ -269,7 +269,7 @@ Win64 Package:
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
 
-Win32 Package:
+.Win32 Package:
   stage: build
   rules: !reference [.if-merged]
   tags:
@@ -316,7 +316,7 @@ Win32 Package:
       }
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
 
-macOS Intel Package:
+.macOS Intel Package:
   stage: build
   rules: !reference [.if-merged]
   variables:
@@ -353,7 +353,7 @@ macOS Intel Package:
 # Disabled until we have versioned docs.
 .Documentation:
   extends: .build-linux
-  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev:2022-Q3
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       changes:
@@ -440,7 +440,7 @@ Code Checks + Clang Warnings:
 # Dockerfile at https://github.com/wireshark/wireshark-windows-dev-docker.
 # XXX We currently depend on Qt being installed in C:\Qt on the host. We should
 # find a more independent way of installing Qt, e.g. via a download+cache.
-Windows Build:
+.Windows Build:
   rules: !reference [.if-attached-merge-request]
   tags:
     - wireshark-windows-merge-req
@@ -501,16 +501,16 @@ Windows Build:
     - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
-    - |
-      if [ -n "$S3_DESTINATION_FUZZ" ] ; then
-        aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
-        aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
-      fi
+    # - |
+    #   if [ -n "$S3_DESTINATION_FUZZ" ] ; then
+    #     aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
+    #     aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
+    #   fi
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
     - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
 
-ASan Menagerie Fuzz:
+.ASan Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-asan
   script:
@@ -525,7 +525,7 @@ ASan Menagerie Fuzz:
     # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
     - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
 
-ASan randpkt Fuzz:
+.ASan randpkt Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-randpkt
   script:
@@ -539,7 +539,7 @@ ASan randpkt Fuzz:
     - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || echo "export FUZZ_PASSED=false" > /tmp/fuzz_result.sh
   needs: [ 'ASan Menagerie Fuzz' ]
 
-Valgrind Menagerie Fuzz:
+.Valgrind Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-valgrind
   script:
