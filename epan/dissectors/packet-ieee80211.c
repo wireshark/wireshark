@@ -6085,6 +6085,9 @@ static int hf_ieee80211_vs_mist_data = -1;
 static int hf_ieee80211_vs_ruckus_ap_name = -1;
 static int hf_ieee80211_vs_ruckus_data = -1;
 
+static int hf_ieee80211_vs_alcatel_ap_name = -1;
+static int hf_ieee80211_vs_alcatel_data = -1;
+
 static int hf_ieee80211_vs_fortinet_subtype = -1;
 static int hf_ieee80211_vs_fortinet_system_type = -1;
 static int hf_ieee80211_vs_fortinet_system_length = -1;
@@ -18124,6 +18127,37 @@ dissect_vendor_ie_ruckus(proto_item *item _U_, proto_tree *ietree,
     }
 }
 
+#define ALCATEL_APNAME 1
+static const value_string ieee80211_vs_alcatel_type_vals[] = {
+    { ALCATEL_APNAME, "AP Name"},
+    { 0, NULL }
+};
+static void
+dissect_vendor_ie_alcatel(proto_item *item _U_, proto_tree *ietree,
+                       tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+    guint32 type, length;
+    const guint8* apname;
+
+    /* VS OUI Type */
+    type = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_alcatel_type_vals, "Unknown"));
+    offset += 1;
+    tag_len -= 1;
+
+    switch(type){
+        case ALCATEL_APNAME:
+            length = tag_len;
+            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_alcatel_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &apname);
+            proto_item_append_text(item, " (%s)", apname);
+            break;
+
+        default:
+            proto_tree_add_item(ietree, hf_ieee80211_vs_alcatel_data, tvb, offset, tag_len, ENC_NA);
+            break;
+    }
+}
+
 enum vs_sgdsn_type {
   SGDSN_VERSION = 0x01,
   SGDSN_IDFR = 0x02,
@@ -27778,6 +27812,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     case OUI_RUCKUS:
       dissect_vendor_ie_ruckus(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      break;
+    case OUI_ALCATEL_LUCENT:
+      dissect_vendor_ie_alcatel(field_data->item_tag, tree, tvb, offset, tag_vs_len);
       break;
     case OUI_SGDSN:
       dissect_vendor_ie_sgdsn(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
@@ -47764,6 +47801,17 @@ proto_register_ieee80211(void)
      {"Data", "wlan.vs.ruckus.data",
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
+
+     /* Vendor Specific : Alcatel-Lucent */
+     {&hf_ieee80211_vs_alcatel_ap_name,
+      {"AP Name", "wlan.vs.alcatel.apname",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+     {&hf_ieee80211_vs_alcatel_data,
+      {"Data", "wlan.vs.alcatel.data",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
     /* Vendor Specific : Fortinet */
     {&hf_ieee80211_vs_fortinet_subtype,

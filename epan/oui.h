@@ -94,6 +94,7 @@
 #define OUI_ONOS            0xA42305    /* Open Networking Laboratory (ONOS) */
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
 #define OUI_AVAYA_EXTREME2  0xD88466    /* Avaya Extreme Fabric */
+#define OUI_ALCATEL_LUCENT  0xDC0856    /* Alcatel-Lucent */
 
 #endif
 
