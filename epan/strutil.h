@@ -72,7 +72,7 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
  * @see tvb_format_text()
  */
 WS_DLL_PUBLIC
-gchar*     format_text(wmem_allocator_t* allocator, const guchar *string, size_t len);
+char *format_text(wmem_allocator_t* allocator, const char *string, size_t len);
 
 /** Same as format_text() but accepts a nul-terminated string.
  *
@@ -83,7 +83,7 @@ gchar*     format_text(wmem_allocator_t* allocator, const guchar *string, size_t
  * @see tvb_format_text()
  */
 WS_DLL_PUBLIC
-gchar*     format_text_string(wmem_allocator_t* allocator, const guchar *string);
+char *format_text_string(wmem_allocator_t* allocator, const char *string);
 
 /**
  * Same as format_text() but replaces any whitespace characters
@@ -97,7 +97,7 @@ gchar*     format_text_string(wmem_allocator_t* allocator, const guchar *string)
  *
  */
 WS_DLL_PUBLIC
-gchar*     format_text_wsp(wmem_allocator_t* allocator, const guchar *line, size_t len);
+char *format_text_wsp(wmem_allocator_t* allocator, const char *line, size_t len);
 
 /**
  * Given a string, generate a string from it that shows non-printable

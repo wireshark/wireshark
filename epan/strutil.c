@@ -530,9 +530,9 @@ format_text_internal(wmem_allocator_t *allocator,
  *
  * and return a pointer to it.
  */
-gchar *
+char *
 format_text(wmem_allocator_t *allocator,
-                        const guchar *string, size_t len)
+                        const char *string, size_t len)
 {
     return format_text_internal(allocator, string, len, FALSE);
 }
@@ -555,8 +555,8 @@ format_text(wmem_allocator_t *allocator,
  *
  *  and return a pointer to it.
  */
-gchar *
-format_text_string(wmem_allocator_t* allocator, const guchar *string)
+char *
+format_text_string(wmem_allocator_t* allocator, const char *string)
 {
     return format_text_internal(allocator, string, strlen(string), FALSE);
 }
@@ -567,8 +567,8 @@ format_text_string(wmem_allocator_t* allocator, const guchar *string)
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
  * which will be replaced by a space, and return a pointer to it.
  */
-gchar *
-format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
+char *
+format_text_wsp(wmem_allocator_t* allocator, const char *string, size_t len)
 {
     return format_text_internal(allocator, string, len, TRUE);
 }
