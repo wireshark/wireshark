@@ -258,6 +258,9 @@ static const value_string eapwps_tlv_types[] = {
 #define WPS_WFA_EXT_REQUEST_TO_ENROLL     0x03
 #define WPS_WFA_EXT_SETTINGS_DELAY_TIME   0x04
 #define WPS_WFA_EXT_MULTI_AP              0x06
+#define WPS_WFA_EXT_MULTI_AP_PROFILE      0x07
+#define WPS_WFA_EXT_MULTI_AP_8021Q        0x08
+
 
 static const value_string eapwps_wfa_ext_types[] = {
   { WPS_WFA_EXT_VERSION2,              "Version2" },
@@ -266,6 +269,15 @@ static const value_string eapwps_wfa_ext_types[] = {
   { WPS_WFA_EXT_REQUEST_TO_ENROLL,     "Request to Enroll" },
   { WPS_WFA_EXT_SETTINGS_DELAY_TIME,   "Settings Delay Time" },
   { WPS_WFA_EXT_MULTI_AP,              "Multi-AP Extension" },
+  { WPS_WFA_EXT_MULTI_AP_PROFILE,      "Multi-AP Profile" },
+  { WPS_WFA_EXT_MULTI_AP_8021Q,        "Multi-AP Profile 8021Q Settings" },
+  { 0, NULL }
+};
+
+static const value_string wps_wfa_ext_multi_ap_profiles_vals[] = {
+  { 0x01, "Multi-AP Profile-1" },
+  { 0x02, "Multi-AP Profile-2" },
+  { 0x03, "Multi-AP Profile-3" },
   { 0, NULL }
 };
 #define WFA_OUI             0x0050F204
@@ -432,6 +444,8 @@ static int hf_multi_ap_fronthaul_bss = -1;
 static int hf_multi_ap_teardown_bsses = -1;
 static int hf_multi_ap_reserved = -1;
 static int hf_multi_ap_flags = -1;
+static int hf_multi_ap_profiles = -1;
+static int hf_multi_ap_8021q = -1;
 
 static gint ett_wps_tlv = -1;
 static gint ett_eap_wps_ap_channel = -1;
@@ -848,6 +862,15 @@ add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_bitmask(elem, tvb, offset, hf_multi_ap_flags, ett_multi_ap_flags,
                            flags, ENC_NA);
     offset++;
+    break;
+  case WPS_WFA_EXT_MULTI_AP_PROFILE:
+    proto_tree_add_item(elem, hf_multi_ap_profiles, tvb, offset, 1,
+                                                    ENC_BIG_ENDIAN);
+    break;
+  case WPS_WFA_EXT_MULTI_AP_8021Q:
+    proto_tree_add_item(elem, hf_multi_ap_8021q, tvb, offset, 2,
+                                                ENC_LITTLE_ENDIAN);
+    break;
   default:
     break;
   }
@@ -2437,6 +2460,15 @@ proto_register_wps(void)
     { &hf_multi_ap_flags,
       { "Multi-AP Flags", "wps.ext.multi_ap_flags",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_multi_ap_profiles,
+      { "Multi-AP Profile", "wps.ext.multi_ap_profile",
+        FT_UINT8, BASE_HEX, VALS(wps_wfa_ext_multi_ap_profiles_vals), 0x0, NULL,
+                                                                    HFILL }},
+
+    { &hf_multi_ap_8021q,
+      { "Primary VLAN ID", "wps.ext.primary_vlan_id",
+        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_eap_wps_attr,
