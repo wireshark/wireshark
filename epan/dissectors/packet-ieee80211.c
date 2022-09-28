@@ -18027,13 +18027,12 @@ dissect_vendor_ie_aerohive(proto_item *item _U_, proto_tree *ietree,
   tag_len -= 1;
 
   proto_tree_add_item(ietree, hf_ieee80211_vs_aerohive_version, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_aerohive_type_vals, "Unknown"));
   offset += 1;
   tag_len -= 1;
 
   switch(type){
     case AEROHIVE_HOSTNAME: /* Subtype (1 byte) + Host Name Length (1 byte) + Host Name */
-
-      proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_aerohive_type_vals, "Unknown"));
 
       proto_tree_add_item(ietree, hf_ieee80211_vs_aerohive_subtype, tvb, offset, 1, ENC_NA);
       offset += 1;
@@ -18073,18 +18072,15 @@ dissect_vendor_ie_mist(proto_item *item _U_, proto_tree *ietree,
 
     /* VS OUI Type */
     type = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_mist_type_vals, "Unknown"));
     offset += 1;
     tag_len -= 1;
 
     switch(type){
         case MIST_APNAME:
-
-            proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_mist_type_vals, "Unknown"));
-
             length = tag_len;
             proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_mist_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &apname);
             proto_item_append_text(item, " (%s)", apname);
-
             break;
 
         default:
@@ -18107,18 +18103,15 @@ dissect_vendor_ie_ruckus(proto_item *item _U_, proto_tree *ietree,
 
     /* VS OUI Type */
     type = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_ruckus_type_vals, "Unknown"));
     offset += 1;
     tag_len -= 1;
 
     switch(type){
         case RUCKUS_APNAME:
-
-            proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_ruckus_type_vals, "Unknown"));
-
-            length = tag_len;
+          length = tag_len;
             proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_ruckus_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &apname);
             proto_item_append_text(item, " (%s)", apname);
-
             break;
 
         default:
