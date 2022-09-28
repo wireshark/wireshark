@@ -249,6 +249,15 @@ bool ws_log_msg_is_active(const char *domain, enum ws_log_level level)
         return true;
 
     /*
+     * Check if the domain has been configured as fatal.
+     */
+    if (DOMAIN_DEFINED(domain) && fatal_filter != NULL) {
+        if (filter_contains(fatal_filter, domain) && fatal_filter->positive) {
+            return true;
+        }
+    }
+
+    /*
      * The debug/noisy filter overrides the other parameters.
      */
     if (DOMAIN_DEFINED(domain)) {
