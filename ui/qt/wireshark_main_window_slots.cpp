@@ -1129,39 +1129,42 @@ QString WiresharkMainWindow::commentToMenuText(QString text, int max_len)
 void WiresharkMainWindow::setEditCommentsMenu()
 {
     main_ui_->menuPacketComment->clear();
-    main_ui_->menuPacketComment->addAction(tr("Add New Comment…"), this, SLOT(actionAddPacketComment()), QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
+    QAction *action = main_ui_->menuPacketComment->addAction(tr("Add New Comment…"));
+    connect(action, &QAction::triggered, this, &WiresharkMainWindow::addPacketComment);
+    action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
     if (selectedRows().count() == 1) {
         const int thisRow = selectedRows().first();
         frame_data * current_frame = frameDataForRow(thisRow);
         wtap_block_t pkt_block = cf_get_packet_block(capture_file_.capFile(), current_frame);
         guint nComments = wtap_block_count_option(pkt_block, OPT_COMMENT);
         if (nComments > 0) {
-            QAction *aPtr;
             main_ui_->menuPacketComment->addSeparator();
             for (guint i = 0; i < nComments; i++) {
                 QString comment = packet_list_->getPacketComment(i);
                 comment = this->commentToMenuText(comment);
-                aPtr = main_ui_->menuPacketComment->addAction(tr("Edit \"%1\"", "edit packet comment").arg(comment),
-                        this, SLOT(actionEditPacketComment()));
-                aPtr->setData(i);
+                action = main_ui_->menuPacketComment->addAction(tr("Edit \"%1\"", "edit packet comment").arg(comment));
+                connect(action, &QAction::triggered, this, &WiresharkMainWindow::editPacketComment);
+                action->setData(i);
             }
 
             main_ui_->menuPacketComment->addSeparator();
             for (guint i = 0; i < nComments; i++) {
                 QString comment = packet_list_->getPacketComment(i);
                 comment = this->commentToMenuText(comment);
-                aPtr = main_ui_->menuPacketComment->addAction(tr("Delete \"%1\"", "delete packet comment").arg(comment),
-                        this, SLOT(actionDeletePacketComment()));
-                aPtr->setData(i);
+                action = main_ui_->menuPacketComment->addAction(tr("Delete \"%1\"", "delete packet comment").arg(comment));
+                connect(action, &QAction::triggered, this, &WiresharkMainWindow::deletePacketComment);
+                action->setData(i);
             }
             main_ui_->menuPacketComment->addSeparator();
-            main_ui_->menuPacketComment->addAction(tr("Delete packet comments"), this, SLOT(actionDeleteCommentsFromPackets()));
+            action = main_ui_->menuPacketComment->addAction(tr("Delete packet comments"));
+            connect(action, &QAction::triggered, this, &WiresharkMainWindow::deleteCommentsFromPackets);
         }
         wtap_block_unref(pkt_block);
     }
     if (selectedRows().count() > 1) {
         main_ui_->menuPacketComment->addSeparator();
-        main_ui_->menuPacketComment->addAction(tr("Delete comments from %n packet(s)", nullptr, static_cast<int>(selectedRows().count())), this, SLOT(actionDeleteCommentsFromPackets()));
+        action = main_ui_->menuPacketComment->addAction(tr("Delete comments from %n packet(s)", nullptr, static_cast<int>(selectedRows().count())));
+        connect(action, &QAction::triggered, this, &WiresharkMainWindow::deleteCommentsFromPackets);
     }
 }
 
