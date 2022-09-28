@@ -363,17 +363,15 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
 {
   proto_item *ti;
   gint len;
+  char *str;
 
   len = tvb_reported_length_remaining (tvb, offset);
   if (len <= 0)
     return;
 
-  col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
-                   tvb_format_text_wsp (pinfo->pool, tvb, offset, len));
-
-  ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII);
-  expert_add_info_format(pinfo, ti, &ei_error,
-                         "Error: %s", tvb_format_text_wsp (pinfo->pool, tvb, offset, len));
+  ti = proto_tree_add_item_ret_display_string(parent_tree, hf_error, tvb, offset, len, ENC_ASCII, pinfo->pool, &str);
+  expert_add_info_format(pinfo, ti, &ei_error, "Error: %s", str);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", str);
 }
 
 /*
@@ -1321,7 +1319,7 @@ proto_register_rpcap (void)
 
     /* Error */
     { &hf_error,
-      { "Error", "rpcap.error", FT_STRING, BASE_NONE,
+      { "Error", "rpcap.error", FT_STRING, BASE_STR_WSP,
         NULL, 0x0, "Error text", HFILL } },
     { &hf_error_value,
       { "Error value", "rpcap.error_value", FT_UINT16, BASE_DEC,

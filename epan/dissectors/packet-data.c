@@ -45,6 +45,7 @@ static int
 dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint bytes;
+	char *display_str;
 
 	if (tree) {
 		bytes = tvb_captured_length(tvb);
@@ -82,13 +83,17 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			}
 
 			if (show_as_text) {
+				tvbuff_t *text_tvb;
+				int text_length;
 				if (uncompr_tvb && uncompr_len > 0) {
-					proto_tree_add_item(data_tree, hf_data_text, uncompr_tvb, 0, uncompr_len, ENC_ASCII);
-					col_add_fstr(pinfo->cinfo, COL_INFO, "%s", tvb_format_text_wsp(pinfo->pool, uncompr_tvb, 0, uncompr_len));
+					text_tvb = uncompr_tvb;
+					text_length = uncompr_len;
 				} else {
-					proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, ENC_ASCII);
-					col_add_fstr(pinfo->cinfo, COL_INFO, "%s", tvb_format_text_wsp(pinfo->pool, data_tvb, 0, bytes));
+					text_tvb = data_tvb;
+					text_length = bytes;
 				}
+				proto_tree_add_item_ret_display_string(data_tree, hf_data_text, text_tvb, 0, text_length, ENC_ASCII, pinfo->pool, &display_str);
+				col_add_str(pinfo->cinfo, COL_INFO, display_str);
 			}
 
 			if(generate_md5_hash) {

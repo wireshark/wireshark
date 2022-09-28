@@ -986,12 +986,11 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
     } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment: %s",
-                tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset)));
         pitem = proto_tree_add_item(main_tree, hf_fragmented, tvb, 0, 0, ENC_NA);
         proto_item_set_generated(pitem);
-        proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
-                tvb_captured_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
+        char *display_str;
+        proto_tree_add_item_ret_display_string(main_tree, hf_fragment, tvb, offset, -1, ENC_ASCII, pinfo->pool, &display_str);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment: %s", display_str);
         offset = tvb_captured_length(tvb);
     }
 
