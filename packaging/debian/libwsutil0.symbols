@@ -79,6 +79,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  find_codec@Base 3.1.0
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size_wmem@Base 3.5.0
+ format_text@Base 4.1.0
+ format_text_chr@Base 4.1.0
+ format_text_string@Base 4.1.0
+ format_text_wsp@Base 4.1.0
  free_features@Base 3.7.0
  free_progdirs@Base 2.3.0
  get_basename@Base 1.12.0~rc1
@@ -322,7 +326,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_strbuf_get_str@Base 3.5.0
  wmem_strbuf_new@Base 3.5.0
  wmem_strbuf_new_len@Base 3.7.1rc0-272-gfe25d701baa2
- wmem_strbuf_sanitize_utf8@Base 4.1.0rc0-307-g402bb0ee81d8
+ wmem_strbuf_sanitize_utf8@Base 4.1.0
  wmem_strbuf_sized_new@Base 3.5.0
  wmem_strbuf_strcmp@Base 3.7.1rc0-272-gfe25d701baa2
  wmem_strbuf_strstr@Base 3.7.1rc0-272-gfe25d701baa2
