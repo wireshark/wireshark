@@ -49,6 +49,11 @@ typedef struct _http_req_res_t {
 	guint32 res_framenum;
 	/** timestamp of the request */
 	nstime_t req_ts;
+	guint    response_code;
+	gchar   *request_method;
+	gchar   *http_host;
+	gchar   *request_uri;
+	gchar   *full_uri;
 	/** pointer to the next element in the linked list, NULL for the tail node */
 	struct _http_req_res_t *next;
 	/** pointer to the previous element in the linked list, NULL for the head node */
@@ -57,12 +62,7 @@ typedef struct _http_req_res_t {
 
 /** Conversation data of a HTTP connection. */
 typedef struct _http_conv_t {
-	guint    response_code;
 	guint32  req_res_num;	/**< The number of requests in the conversation. */
-	gchar   *http_host;
-	gchar   *request_method;
-	gchar   *request_uri;
-	gchar   *full_uri;
 
         /* Used to speed up desegmenting of chunked Transfer-Encoding. */
 	wmem_map_t *chunk_offsets_fwd;
@@ -80,6 +80,12 @@ typedef struct _http_conv_t {
 	address server_addr;
 	/** the tail node of req_res */
 	http_req_res_t *req_res_tail;
+	/** Information from the last request or response can
+	 * be found in the tail node. It is only sensible to look
+	 * at on the first (sequential) pass, or after startframe /
+	 * startoffset on connections that have proxied/tunneled/Upgraded.
+	 */
+
 } http_conv_t;
 
 typedef enum _http_type {

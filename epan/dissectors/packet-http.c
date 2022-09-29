@@ -289,8 +289,8 @@ static range_t *http_tcp_range = NULL;
 static range_t *http_sctp_range = NULL;
 static range_t *http_tls_range = NULL;
 
-typedef void (*ReqRespDissector)(tvbuff_t*, proto_tree*, int, const guchar*,
-				 const guchar*, http_conv_t *);
+typedef void (*ReqRespDissector)(packet_info*, tvbuff_t*, proto_tree*, int, const guchar*,
+				 const guchar*, http_conv_t *, http_req_res_t *);
 
 /**
  * Transfer codings from
@@ -1037,7 +1037,8 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
  * create a new http_req_res_t and add it to the conversation.
  * @return the new allocated object which is already added to the linked list
  */
-static http_req_res_t* push_req_res(http_conv_t *conv_data)
+static http_req_res_t*
+push_req_res(http_conv_t *conv_data)
 {
 	http_req_res_t *req_res = wmem_new0(wmem_file_scope(), http_req_res_t);
 	nstime_set_unset(&(req_res->req_ts));
@@ -1057,7 +1058,8 @@ static http_req_res_t* push_req_res(http_conv_t *conv_data)
 /**
  * push a request frame number and its time stamp to the conversation data.
  */
-static void push_req(http_conv_t *conv_data, packet_info *pinfo)
+static http_req_res_t*
+push_req(http_conv_t *conv_data, packet_info *pinfo)
 {
 	/* a request will always create a new http_req_res_t object */
 	http_req_res_t *req_res = push_req_res(conv_data);
@@ -1065,26 +1067,45 @@ static void push_req(http_conv_t *conv_data, packet_info *pinfo)
 	req_res->req_framenum = pinfo->num;
 	req_res->req_ts = pinfo->abs_ts;
 
+	/* XXX: Using the same proto key for the frame doesn't work well
+         * with HTTP 1.1 pipelining, or other situations where more
+         * than one request can appear in a frame.
+         */
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_http, 0, req_res);
+
+	return req_res;
 }
 
 /**
  * push a response frame number to the conversation data.
  */
-static void push_res(http_conv_t *conv_data, packet_info *pinfo)
+static http_req_res_t*
+push_res(http_conv_t *conv_data, packet_info *pinfo)
 {
 	/* a response will create a new http_req_res_t object: if no
-	   object exists, or if one exists for another response. In
-	   both cases the corresponding request was not
+	   object exists, or if the most recent one is already for
+	   a different response. (Exception: If the previous response
+	   code was in the Informational 1xx category, then it was
+	   an interim response, and this response could be for the same
+	   request.) In both cases the corresponding request was not
 	   detected/included in the conversation. In all other cases
 	   the http_req_res_t object created by the request is
 	   used. */
+	/* XXX: This finds the only most recent request and doesn't support
+         * HTTP 1.1 pipelining.
+         */
 	http_req_res_t *req_res = conv_data->req_res_tail;
-	if (!req_res || req_res->res_framenum > 0) {
+	if (!req_res || (req_res->res_framenum > 0 && req_res->response_code >= 200)) {
 		req_res = push_req_res(conv_data);
 	}
 	req_res->res_framenum = pinfo->num;
+	/* XXX: Using the same proto key for the frame doesn't work well
+         * with HTTP 1.1 pipelining, or other situations where more
+         * than one request can appear in a frame.
+         */
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_http, 0, req_res);
+
+	return req_res;
 }
 
 /*
@@ -1134,6 +1155,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	wmem_map_t	*chunk_map = NULL;
 
 	conversation_t  *conversation;
+	http_req_res_t  *curr = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
 
 	conversation = find_or_create_conversation(pinfo);
 	if (cmp_address(&pinfo->src, conversation_key_addr1(conversation->key_ptr)) == 0 && pinfo->srcport == conversation_key_port1(conversation->key_ptr)) {
@@ -1172,7 +1194,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * actually HTTP (even if what we have here is part of a file being
 	 * transferred over HTTP).
 	 */
-	if (conv_data->request_uri)
+	if (conv_data->req_res_tail)
 		have_seen_http = TRUE;
 
 	/*
@@ -1270,14 +1292,27 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		try_desegment_body = (http_desegment_body && !end_of_stream);
 		if (try_desegment_body && http_type == HTTP_RESPONSE) {
 			/*
-			 * conv_data->response_code is not yet set, so extract
+			 * The response_code is not yet set, so extract
 			 * the response code from the current line.
 			 */
 			gint response_code = parse_http_status_code(firstline, firstline + first_linelen);
-			if ((g_strcmp0(conv_data->request_method, "HEAD") == 0 ||
+			/*
+			 * On a second pass, we should have already associated
+			 * the response with the request. On a first sequential
+			 * pass, we haven't done so yet (as we don't know if we
+			 * need more data), so get the request method from the
+			 * most recent request, if it exists.
+			 */
+			char* request_method = NULL;
+			if (curr) {
+				request_method = curr->request_method;
+			} else if (!PINFO_FD_VISITED(pinfo) && conv_data->req_res_tail) {
+				request_method = conv_data->req_res_tail->request_method;
+			}
+			if ((g_strcmp0(request_method, "HEAD") == 0 ||
 				(response_code / 100 == 2 &&
-					(g_strcmp0(conv_data->request_method, "CONNECT") == 0 ||
-					 g_strcmp0(conv_data->request_method, "SSTP_DUPLEX_POST") == 0)) ||
+					(g_strcmp0(request_method, "CONNECT") == 0 ||
+					 g_strcmp0(request_method, "SSTP_DUPLEX_POST") == 0)) ||
 				response_code / 100 == 1 ||
 				response_code == 204 ||
 				response_code == 304)) {
@@ -1477,9 +1512,17 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    offset, next_offset - offset, ett_http_request, &hdr_item, text);
 
 			expert_add_info_format(pinfo, hdr_item, &ei_http_chat, "%s", text);
+			if (!PINFO_FD_VISITED(pinfo)) {
+				if (http_type == HTTP_REQUEST) {
+					curr = push_req(conv_data, pinfo);
+					curr->request_method = wmem_strdup(wmem_file_scope(), stat_info->request_method);
+				} else if (http_type == HTTP_RESPONSE) {
+					curr = push_res(conv_data, pinfo);
+				}
+			}
 			if (reqresp_dissector) {
-				reqresp_dissector(tvb, req_tree, offset, line,
-						  lineend, conv_data);
+				reqresp_dissector(pinfo, tvb, req_tree, offset, line,
+						  lineend, conv_data, curr);
 			}
 		} else {
 			/*
@@ -1497,7 +1540,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		if ((g_ascii_strncasecmp(stat_info->request_uri, "http://", 7) == 0) ||
 		    (g_ascii_strncasecmp(stat_info->request_uri, "https://", 8) == 0) ||
-		    (g_ascii_strncasecmp(conv_data->request_method, "CONNECT", 7) == 0)) {
+		    (g_ascii_strncasecmp(stat_info->request_method, "CONNECT", 7) == 0)) {
 			uri = wmem_strdup(wmem_packet_scope(), stat_info->request_uri);
 		}
 		else {
@@ -1506,7 +1549,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    g_strstrip(wmem_strdup(wmem_packet_scope(), stat_info->http_host)), stat_info->request_uri);
 		}
 		stat_info->full_uri = wmem_strdup(wmem_packet_scope(), uri);
-		conv_data->full_uri = wmem_strdup(wmem_file_scope(), uri);
+		if (!PINFO_FD_VISITED(pinfo) && curr) {
+		        curr->full_uri = wmem_strdup(wmem_file_scope(), uri);
+		}
 		if (tree) {
 			e_ti = proto_tree_add_string(http_tree,
 					     hf_http_request_full_uri, tvb, 0,
@@ -1517,17 +1562,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	if (!PINFO_FD_VISITED(pinfo)) {
-		if (http_type == HTTP_REQUEST) {
-			push_req(conv_data, pinfo);
-		} else if (http_type == HTTP_RESPONSE) {
-			push_res(conv_data, pinfo);
-		}
-	}
-
 	if (tree) {
 		proto_item *pi;
-		http_req_res_t *curr = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
 		http_req_res_t *prev = curr ? curr->prev : NULL;
 		http_req_res_t *next = curr ? curr->next : NULL;
 
@@ -1580,13 +1616,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * add the request URI to the response to allow filtering responses filtered by URI
 			 */
-			if (conv_data && (conv_data->full_uri || conv_data->request_uri)) {
-				if (conv_data->full_uri) {
-					pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0, conv_data->full_uri);
-				}
-				else {
-					pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0, conv_data->request_uri);
-				}
+			if (curr && curr->request_uri) {
+				pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0, curr->full_uri ? curr->full_uri : curr->request_uri);
 				proto_item_set_generated(pi);
 			}
 
@@ -1902,10 +1933,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Data and not a complete object?
 		 */
 		if(have_tap_listener(http_eo_tap)) {
-			eo_info = wmem_new(wmem_packet_scope(), http_eo_t);
+			eo_info = wmem_new0(wmem_packet_scope(), http_eo_t);
 
-			eo_info->hostname = conv_data->http_host;
-			eo_info->filename = conv_data->request_uri;
+			if (curr) {
+				eo_info->hostname = curr->http_host;
+				eo_info->filename = curr->request_uri;
+			}
 			eo_info->content_type = headers.content_type;
 			eo_info->payload_len = tvb_captured_length(next_tvb);
 			eo_info->payload_data = tvb_get_ptr(next_tvb, 0, eo_info->payload_len);
@@ -2023,7 +2056,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* Detect protocol changes after receiving full response headers. */
-	if (conv_data->request_method && http_type == HTTP_RESPONSE && pinfo->desegment_offset <= 0 && pinfo->desegment_len <= 0) {
+	if (http_type == HTTP_RESPONSE && curr && pinfo->desegment_offset <= 0 && pinfo->desegment_len <= 0) {
 		dissector_handle_t next_handle = NULL;
 		gboolean server_acked = FALSE;
 
@@ -2031,7 +2064,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * SSTP uses a special request method (instead of the Upgrade
 		 * header) and expects a 200 response to set up the session.
 		 */
-		if (strcmp(conv_data->request_method, "SSTP_DUPLEX_POST") == 0 && conv_data->response_code == 200) {
+		if (g_strcmp0(curr->request_method, "SSTP_DUPLEX_POST") == 0 && curr->response_code == 200) {
 			next_handle = sstp_handle;
 			server_acked = TRUE;
 		}
@@ -2040,7 +2073,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * An HTTP/1.1 upgrade only proceeds if the server responds
 		 * with 101 Switching Protocols. See RFC 7230 Section 6.7.
 		 */
-		if (headers.upgrade && conv_data->response_code == 101) {
+		if (headers.upgrade && curr->response_code == 101) {
 			next_handle = dissector_get_string_handle(upgrade_subdissector_table, headers.upgrade);
 			if (!next_handle) {
 				char *slash_pos = strchr(headers.upgrade, '/');
@@ -2073,9 +2106,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * protocol version into a sub-tree.
  */
 static void
-basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
-			const guchar *line, const guchar *lineend,
-			http_conv_t *conv_data)
+basic_request_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
+			int offset, const guchar *line, const guchar *lineend,
+			http_conv_t *conv_data _U_, http_req_res_t *curr)
 {
 	const guchar *next_token;
 	const gchar *request_uri;
@@ -2104,8 +2137,9 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/* Save the request URI for various later uses */
 	request_uri = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
 	stat_info->request_uri = wmem_strdup(wmem_packet_scope(), request_uri);
-	conv_data->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
-
+	if (!PINFO_FD_VISITED(pinfo) && curr) {
+		curr->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
+	}
 	tj = proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen, request_uri);
 	if (( query_str = strchr(request_uri, '?')) != NULL) {
 		if (strlen(query_str) > 1) {
@@ -2167,9 +2201,9 @@ parse_http_status_code(const guchar *line, const guchar *lineend)
 }
 
 static void
-basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
-			 const guchar *line, const guchar *lineend,
-			 http_conv_t *conv_data _U_)
+basic_response_dissector(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree,
+			int offset, const guchar *line, const guchar *lineend,
+			 http_conv_t *conv_data _U_, http_req_res_t *curr)
 {
 	const guchar *next_token;
 	int tokenlen;
@@ -2201,8 +2235,11 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	memcpy(response_code_chars, line, 3);
 	response_code_chars[3] = '\0';
 
-	stat_info->response_code = conv_data->response_code =
+	stat_info->response_code =
 		(guint)strtoul(response_code_chars, NULL, 10);
+	if (curr) {
+		curr->response_code = stat_info->response_code;
+	}
 
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
 			    stat_info->response_code);
@@ -2598,7 +2635,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 		addresses_equal(&conv_data->server_addr, &pinfo->src);
 
 	/* Grab the destination port number from the request URI to find the right subdissector */
-	strings = wmem_strsplit(wmem_packet_scope(), conv_data->request_uri, ":", 2);
+	strings = wmem_strsplit(wmem_packet_scope(), conv_data->req_res_tail->request_uri, ":", 2);
 
 	if(strings[0] != NULL && strings[1] != NULL) {
 		/*
@@ -2671,7 +2708,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 static int
 is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			 ReqRespDissector *reqresp_dissector,
-			 http_conv_t *conv_data)
+			 http_conv_t *conv_data _U_)
 {
 	int isHttpRequestOrReply = FALSE;
 
@@ -2847,7 +2884,6 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			*reqresp_dissector = basic_request_dissector;
 
 			stat_info->request_method = wmem_strndup(wmem_packet_scope(), data, indx);
-			conv_data->request_method = wmem_strndup(wmem_file_scope(), data, indx);
 		}
 
 
@@ -3119,6 +3155,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	int i;
 	int* hf_id;
 	tap_credential_t* auth;
+	http_req_res_t  *curr_req_res = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
 
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
@@ -3414,7 +3451,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 		case HDR_HOST:
 			stat_info->http_host = wmem_strndup(wmem_packet_scope(), value, value_len);
-			conv_data->http_host = wmem_strndup(wmem_file_scope(), value, value_len);
+			if (!PINFO_FD_VISITED(pinfo) && curr_req_res) {
+				curr_req_res->http_host = wmem_strndup(wmem_file_scope(), value, value_len);
+			}
 			break;
 
 		case HDR_UPGRADE:
@@ -3470,9 +3509,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_LOCATION:
-			if (conv_data->request_uri){
+			if (curr_req_res && curr_req_res->request_uri){
 				stat_info->location_target = wmem_strndup(wmem_packet_scope(), value, value_len);
-				stat_info->location_base_uri = wmem_strdup(wmem_packet_scope(), conv_data->full_uri);
+				stat_info->location_base_uri = wmem_strdup(wmem_packet_scope(), curr_req_res->full_uri);
 			}
 			break;
 		case HDR_HTTP2_SETTINGS:
@@ -3842,11 +3881,13 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	 * Check if this is proxied connection and if so, hand of dissection to the
 	 * payload-dissector.
 	 * Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
+	http_req_res_t *curr_req_res = conv_data->req_res_tail;
 	if(pinfo->num >= conv_data->startframe &&
-	   conv_data->response_code == 200 &&
-	   conv_data->request_method &&
-	   strncmp(conv_data->request_method, "CONNECT", 7) == 0 &&
-	   conv_data->request_uri) {
+	   curr_req_res &&
+	   curr_req_res->response_code == 200 &&
+	   curr_req_res->request_method &&
+	   strncmp(curr_req_res->request_method, "CONNECT", 7) == 0 &&
+	   curr_req_res->request_uri) {
 		if (conv_data->startframe == 0 && !PINFO_FD_VISITED(pinfo)) {
 			conv_data->startframe = pinfo->num;
 			conv_data->startoffset = 0;

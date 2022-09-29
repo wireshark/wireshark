@@ -404,10 +404,9 @@ static int
 dissect_grpc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
     int ret;
-    http_conv_t* http_conv;
+    http_req_res_t* curr_req_res;
     tvbuff_t* real_data_tvb;
     grpc_context_info_t grpc_ctx = { 0 };
-    conversation_t* conv = find_or_create_conversation(pinfo);
     http_message_info_t* http_msg_info = (http_message_info_t*)data;
     gboolean is_grpc_web_text = g_str_has_prefix(pinfo->match_string, "application/grpc-web-text");
 
@@ -429,10 +428,10 @@ dissect_grpc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
         grpc_ctx.encoding = http2_get_header_value(pinfo, HTTP2_HEADER_GRPC_ENCODING, FALSE);
     }
     else if (proto_is_frame_protocol(pinfo->layers, "http")) {
-        http_conv = (http_conv_t*)conversation_get_proto_data(conv, proto_http);
-        DISSECTOR_ASSERT_HINT(http_conv && http_msg_info, "Unexpected error: HTTP conversation or HTTP message info not available.");
+        curr_req_res = (http_req_res_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, 0);
+        DISSECTOR_ASSERT_HINT(curr_req_res && http_msg_info, "Unexpected error: HTTP request/reply or HTTP message info not available.");
         grpc_ctx.is_request = (http_msg_info->type == HTTP_REQUEST);
-        grpc_ctx.path = http_conv->request_uri;
+        grpc_ctx.path = curr_req_res->request_uri;
         grpc_ctx.content_type = pinfo->match_string; /* only for grpc-web(-text) over http1.1 */
         if (http_msg_info->data) {
             grpc_ctx.encoding = (const gchar*)wmem_map_lookup((wmem_map_t *)http_msg_info->data, HTTP2_HEADER_GRPC_ENCODING);
