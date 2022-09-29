@@ -356,7 +356,7 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 if (tgt_ix < tgt_size) {
                     const guint64 *tgt_blknum = wmem_array_index(targets, tgt_ix);
                     proto_item *item_tgt_blknum = proto_tree_add_uint64(tree_result_tgt_list, hf_asb_result_tgt_ref, tvb, 0, 0, *tgt_blknum);
-                    PROTO_ITEM_SET_GENERATED(item_tgt_blknum);
+                    proto_item_set_generated(item_tgt_blknum);
                 }
 
                 // iterate all results for this target

@@ -371,7 +371,7 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
             pn_rsi_tree_item = proto_tree_get_parent(tree);
             pi = proto_tree_add_uint(pn_rsi_tree_item, hf_pn_rsi_reassembled_in,
                 tvb, 0, 0, fd_reass->reassembled_in);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
     }
 

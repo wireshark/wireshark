@@ -1015,7 +1015,7 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guin
     seg_meta->seen_len = prev_seen_len + data_len;
 
     proto_item *item_seen = proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_segment_seen_len, tvb, 0, 0, seg_meta->seen_len);
-    PROTO_ITEM_SET_GENERATED(item_seen);
+    proto_item_set_generated(item_seen);
     if (seg_meta->seen_len > ctx->rx_peer->transfer_mru) {
         expert_add_info(pinfo, item_seen, &ei_tcpclv4_xferload_over_xfer_mru);
     }
@@ -1028,17 +1028,17 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guin
             expert_add_info(pinfo, item_seen, &ei_xfer_mismatch_total_len);
         }
         proto_item *item_total = proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_total_len, tvb, 0, 0, *(xfer->total_length));
-        PROTO_ITEM_SET_GENERATED(item_total);
+        proto_item_set_generated(item_total);
     }
 
     if (seg_meta->related_ack) {
         proto_item *item_rel = proto_tree_add_uint(tree_msg, hf_tcpclv4_xfer_segment_related_ack, tvb, 0, 0, seg_meta->related_ack->frame_loc.frame_num);
-        PROTO_ITEM_SET_GENERATED(item_rel);
+        proto_item_set_generated(item_rel);
 
         nstime_t td;
         nstime_delta(&td, &(seg_meta->related_ack->frame_time), &(seg_meta->frame_time));
         proto_item *item_td = proto_tree_add_time(tree_msg, hf_tcpclv4_xfer_segment_time_diff, tvb, 0, 0, &td);
-        PROTO_ITEM_SET_GENERATED(item_td);
+        proto_item_set_generated(item_td);
 
     }
     else {
@@ -1046,12 +1046,12 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guin
     }
     if (seg_meta->related_start && (seg_meta->related_start != seg_meta)) {
         proto_item *item_rel = proto_tree_add_uint(tree_msg, hf_tcpclv4_xfer_segment_related_start, tvb, 0, 0, seg_meta->related_start->frame_loc.frame_num);
-        PROTO_ITEM_SET_GENERATED(item_rel);
+        proto_item_set_generated(item_rel);
 
         nstime_t td;
         nstime_delta(&td, &(seg_meta->frame_time), &(seg_meta->related_start->frame_time));
         proto_item *item_td = proto_tree_add_time(tree_msg, hf_tcpclv4_xfer_segment_time_start, tvb, 0, 0, &td);
-        PROTO_ITEM_SET_GENERATED(item_td);
+        proto_item_set_generated(item_td);
     }
 }
 
@@ -1099,16 +1099,16 @@ static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guint8 f
 
     if (xfer->total_length) {
         proto_item *item_total = proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_total_len, tvb, 0, 0, *(xfer->total_length));
-        PROTO_ITEM_SET_GENERATED(item_total);
+        proto_item_set_generated(item_total);
     }
     if (ack_meta->related_seg) {
         proto_item *item_rel = proto_tree_add_uint(tree_msg, hf_tcpclv4_xfer_ack_related_seg, tvb, 0, 0, ack_meta->related_seg->frame_loc.frame_num);
-        PROTO_ITEM_SET_GENERATED(item_rel);
+        proto_item_set_generated(item_rel);
 
         nstime_t td;
         nstime_delta(&td, &(ack_meta->frame_time), &(ack_meta->related_seg->frame_time));
         proto_item *item_td = proto_tree_add_time(tree_msg, hf_tcpclv4_xfer_ack_time_diff, tvb, 0, 0, &td);
-        PROTO_ITEM_SET_GENERATED(item_td);
+        proto_item_set_generated(item_td);
 
         if (item_flags && (ack_meta->flags != ack_meta->related_seg->flags)) {
             expert_add_info(pinfo, item_flags, &ei_xfer_ack_mismatch_flags);
@@ -1119,12 +1119,12 @@ static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guint8 f
     }
     if (ack_meta->related_start) {
         proto_item *item_rel = proto_tree_add_uint(tree_msg, hf_tcpclv4_xfer_ack_related_start, tvb, 0, 0, ack_meta->related_start->frame_loc.frame_num);
-        PROTO_ITEM_SET_GENERATED(item_rel);
+        proto_item_set_generated(item_rel);
 
         nstime_t td;
         nstime_delta(&td, &(ack_meta->frame_time), &(ack_meta->related_start->frame_time));
         proto_item *item_td = proto_tree_add_time(tree_msg, hf_tcpclv4_xfer_ack_time_start, tvb, 0, 0, &td);
-        PROTO_ITEM_SET_GENERATED(item_td);
+        proto_item_set_generated(item_td);
     }
 }
 
@@ -1141,7 +1141,7 @@ static void transfer_add_refuse(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id,
 
     if (seg_last) {
         proto_item *item_rel = proto_tree_add_uint(tree_msg, hf_tcpclv4_xfer_refuse_related_seg, tvb, 0, 0, seg_last->frame_loc.frame_num);
-        PROTO_ITEM_SET_GENERATED(item_rel);
+        proto_item_set_generated(item_rel);
     }
     else {
         expert_add_info(pinfo, item_msg, &ei_tcpclv4_xfer_refuse_no_transfer);
@@ -1275,7 +1275,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tcpcl_peer_associate_transfer(ctx->tx_peer, ctx->cur_loc, *xfer_id);
         }
         item_xfer_id = proto_tree_add_uint64(conv_tree, hf_tcpclv3_xfer_id, tvb, 0, 0, *xfer_id);
-        PROTO_ITEM_SET_GENERATED(item_xfer_id);
+        proto_item_set_generated(item_xfer_id);
 
         proto_tree_add_item(conv_tree, hf_tcpclv3_data_segment_data, tvb, offset, segment_length, ENC_NA);
 
@@ -1327,7 +1327,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tcpcl_peer_associate_transfer(ctx->rx_peer, ctx->cur_loc, *xfer_id);
         }
         item_xfer_id = proto_tree_add_uint64(conv_tree, hf_tcpclv3_xfer_id, tvb, 0, 0, *xfer_id);
-        PROTO_ITEM_SET_GENERATED(item_xfer_id);
+        proto_item_set_generated(item_xfer_id);
 
         if (tcpcl_analyze_sequence) {
             transfer_add_ack(ctx, *xfer_id, 0, segment_length, pinfo, tvb, conv_tree, conv_item, NULL);
@@ -1383,7 +1383,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tcpcl_peer_associate_transfer(ctx->rx_peer, ctx->cur_loc, *xfer_id);
         }
         item_xfer_id = proto_tree_add_uint64(conv_tree, hf_tcpclv3_xfer_id, tvb, 0, 0, *xfer_id);
-        PROTO_ITEM_SET_GENERATED(item_xfer_id);
+        proto_item_set_generated(item_xfer_id);
 
         if (tcpcl_analyze_sequence) {
             transfer_add_refuse(ctx, *xfer_id, pinfo, tvb, conv_tree, conv_item);
@@ -1618,7 +1618,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (tcpcl_analyze_sequence) {
                 if (ctx->rx_peer->sess_term_seen) {
                     proto_item *item_rel = proto_tree_add_uint(tree_msg, hf_tcpclv4_sess_term_related, tvb, 0, 0, ctx->rx_peer->sess_term_seen->frame_num);
-                    PROTO_ITEM_SET_GENERATED(item_rel);
+                    proto_item_set_generated(item_rel);
 
                     // Is this message after the other SESS_TERM?
                     if (tcpcl_frame_loc_compare(ctx->tx_peer->sess_term_seen, ctx->rx_peer->sess_term_seen, NULL) > 0) {
@@ -1864,11 +1864,11 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (ctx->convo->sess_negotiated) {
             if (ctx->rx_peer->sess_init_seen){
                 proto_item *item_nego = proto_tree_add_uint(tree_msg, hf_tcpclv4_sess_init_related, tvb, 0, 0, ctx->rx_peer->sess_init_seen->frame_num);
-                PROTO_ITEM_SET_GENERATED(item_nego);
+                proto_item_set_generated(item_nego);
             }
             {
                 proto_item *item_nego = proto_tree_add_uint(tree_msg, hf_tcpclv4_negotiate_keepalive, tvb, 0, 0, ctx->convo->sess_keepalive);
-                PROTO_ITEM_SET_GENERATED(item_nego);
+                proto_item_set_generated(item_nego);
             }
         }
     }
@@ -2038,11 +2038,11 @@ static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (ctx->convo->contact_negotiated) {
             if (ctx->rx_peer->chdr_seen) {
                 proto_item *item_nego = proto_tree_add_uint(tree_chdr, hf_chdr_related, tvb, 0, 0, ctx->rx_peer->chdr_seen->frame_num);
-                PROTO_ITEM_SET_GENERATED(item_nego);
+                proto_item_set_generated(item_nego);
             }
             if (ctx->tx_peer->version == 4) {
                 proto_item *item_nego = proto_tree_add_boolean(tree_chdr, hf_tcpclv4_negotiate_use_tls, tvb, 0, 0, ctx->convo->session_use_tls);
-                PROTO_ITEM_SET_GENERATED(item_nego);
+                proto_item_set_generated(item_nego);
             }
         }
     }

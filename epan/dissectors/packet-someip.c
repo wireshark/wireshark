@@ -3479,7 +3479,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* Message ID = Service ID + Method ID*/
     someip_messageid = tvb_get_ntohl(tvb, 0);
     ti = proto_tree_add_uint_format_value(someip_tree, hf_someip_messageid, tvb, offset, 4, someip_messageid, "0x%08x", someip_messageid);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     /* Service ID */
     ti = proto_tree_add_item_ret_uint(someip_tree, hf_someip_serviceid, tvb, offset, 2, ENC_BIG_ENDIAN, &someip_serviceid);

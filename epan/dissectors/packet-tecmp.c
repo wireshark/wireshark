@@ -1004,7 +1004,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_item_append_text(ti, " (synchronized or master)");
     }
     ti = proto_tree_add_uint64(tree, hf_tecmp_payload_timestamp_ns, tvb, offset + 4, 8, ns);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     proto_tree_add_item(tree, hf_tecmp_payload_length, tvb, offset+12, 2, ENC_BIG_ENDIAN);
     offset += 14;

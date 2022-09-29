@@ -679,7 +679,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         proto_item* ti_local = proto_tree_add_uint(prot3gpp_tree,
             hf_log3gpp_dissected_length,
             tvb, 0, 0, tvb_reported_length(tvb) - offset);
-        PROTO_ITEM_SET_GENERATED(ti_local);
+        proto_item_set_generated(ti_local);
     }
     return tvb_reported_length(tvb);
 }
