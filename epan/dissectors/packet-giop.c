@@ -2408,13 +2408,13 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     s_octet8 = get_CDR_long_long(tvb, offset, stream_is_big_endian, boundary);
     it = proto_tree_add_int64(tree, hf_giop_type_longlong, tvb, *offset-8, 8, s_octet8);
     if (data_name && strlen(data_name))
-      proto_item_set_text(it, "%s: %ld", data_name, s_octet8);
+      proto_item_set_text(it, "%s: %" PRId64, data_name, s_octet8);
     break;
   case tk_ulonglong:
     u_octet8 = get_CDR_ulong_long(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint64(tree, hf_giop_type_ulonglong, tvb, *offset-8, 8, u_octet8);
     if (data_name && strlen(data_name))
-      proto_item_set_text(it, "%s: %lu", data_name, u_octet8);
+      proto_item_set_text(it, "%s: %" PRIu64 , data_name, u_octet8);
     break;
   case tk_longdouble:
     break;
