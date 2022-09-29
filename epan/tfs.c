@@ -9,8 +9,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "config.h"
+/*
+ * Note: Adding a true_false_string here must be accompanied by an addition to
+ * both tfs.h and libwireshark*.symbols.
+ */
 
+#include "config.h"
 #include "tfs.h"
 
 /** Returns the string representing the true or false value. */
