@@ -1047,11 +1047,12 @@ typedef struct _pfcp_hdr {
 /* Relation between frame -> session */
 GHashTable* pfcp_session_table;
 /* Relation between <seid,ip> -> frame */
-wmem_tree_t* pfcp_frame_tree;
+wmem_map_t* pfcp_frame_map;
+
 
 typedef struct pfcp_info {
     guint64 seid;
-    guint32 frame;
+    address addr;
 } pfcp_info_t;
 
 typedef struct _pfcp_sub_dis_t {
@@ -1670,63 +1671,57 @@ static const value_string pfcp_ie_type[] = {
 static value_string_ext pfcp_ie_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_type);
 
 /* PFCP Session funcs*/
-static guint32
-pfcp_get_frame(packet_info *pinfo, address ip, guint64 seid, guint32 *frame) {
-    gboolean found = FALSE;
-    wmem_list_frame_t *elem;
-    pfcp_info_t *info;
-    wmem_list_t *info_list;
-    gchar *ip_str;
+static guint
+pfcp_info_hash(gconstpointer key)
+{
+    const pfcp_info_t *k = (const pfcp_info_t *)key;
 
-    /* First we get the seid list*/
-    ip_str = address_to_str(pinfo->pool, &ip);
-    info_list = (wmem_list_t*)wmem_tree_lookup_string(pfcp_frame_tree, ip_str, 0);
-    if (info_list != NULL) {
-        elem = wmem_list_head(info_list);
-        while (!found && elem) {
-            info = (pfcp_info_t*)wmem_list_frame_data(elem);
-            if (seid == info->seid) {
-                *frame = info->frame;
-                return 1;
-            }
-            elem = wmem_list_frame_next(elem);
-        }
+    /* The SEID is likely unique, so just use it. */
+    return g_int_hash(&k->seid);
+}
+
+static gboolean
+pfcp_info_equal(gconstpointer key1, gconstpointer key2)
+{
+    const pfcp_info_t *a = (const pfcp_info_t *)key1;
+    const pfcp_info_t *b = (const pfcp_info_t *)key2;
+
+    return (a->seid == b->seid && (cmp_address(&a->addr, &b->addr) == 0));
+}
+
+static guint32
+pfcp_get_frame(address ip, guint32 seid, guint32 *frame) {
+    pfcp_info_t info;
+    guint32 *value;
+
+    info.seid = seid;
+    copy_address_shallow(&info.addr, &ip);
+    value = wmem_map_lookup(pfcp_frame_map, &info);
+    if (value != NULL) {
+        *frame = GPOINTER_TO_UINT(value);
+        return 1;
     }
     return 0;
 }
 
 static gboolean
-pfcp_call_foreach_ip(const void *key _U_, void *value, void *data){
-    wmem_list_frame_t * elem;
-    wmem_list_t *info_list = (wmem_list_t *)value;
-    pfcp_info_t *info;
-    guint32* frame = (guint32*)data;
+pfcp_frame_equal(void *key _U_, void *value, void *data){
+    guint32 frame = GPOINTER_TO_UINT(data);
 
-    /* We loop over the <seid, frame> list */
-    elem = wmem_list_head(info_list);
-    while (elem) {
-        info = (pfcp_info_t*)wmem_list_frame_data(elem);
-        if (info->frame == *frame) {
-            wmem_list_frame_t * del = elem;
-            /* proceed to next request */
-            elem = wmem_list_frame_next(elem);
-            /* If we find the frame we remove its information from the list */
-            wmem_list_remove_frame(info_list, del);
-            wmem_free(wmem_file_scope(), info);
-        }
-        else {
-            elem = wmem_list_frame_next(elem);
-        }
-    }
-
-    return FALSE;
+    return (GPOINTER_TO_UINT(value) == frame);
 }
 
 static void
-pfcp_remove_frame_info(guint32 *f) {
-    /* For each ip node */
-    wmem_tree_foreach(pfcp_frame_tree, pfcp_call_foreach_ip, (void *)f);
+pfcp_remove_frame_info(guint32 f) {
+    /* XXX: This iterates through the entire map and it is slow if done
+     * often. For large files with lots of removals, there are better
+     * alternatives, e.g. marking sessions as expired and then periodically
+     * removing all expired sessions from the map, or using a bijective
+     * map to coordinate removals.
+     */
+    wmem_map_foreach_remove(pfcp_frame_map, pfcp_frame_equal, GUINT_TO_POINTER(f));
 }
+
 
 static void
 pfcp_add_session(guint32 frame, guint32 session) {
@@ -1764,76 +1759,45 @@ pfcp_ip_exists(address ip, wmem_list_t *ip_list) {
     return found;
 }
 
-static gboolean
-pfcp_info_exists(pfcp_info_t *wanted, wmem_list_t *info_list) {
-    wmem_list_frame_t *elem;
-    pfcp_info_t *info;
-    gboolean found;
-    found = FALSE;
-    elem = wmem_list_head(info_list);
-    while (!found && elem) {
-        info = (pfcp_info_t*)wmem_list_frame_data(elem);
-        found = wanted->seid == info->seid;
-        elem = wmem_list_frame_next(elem);
-    }
-    return found;
-}
-
 static void
 pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, guint32 frame) {
     wmem_list_frame_t *elem_ip, *elem_seid;
     pfcp_info_t *pfcp_info;
-    wmem_list_t * info_list; /* List of <seids,frames>*/
-    guint32 *f;
     gpointer session_p, fr_p;
     GHashTableIter iter;
     guint64 seid;
-    guint32 session, fr;
-    gchar *ip;
+    guint32 session;
+    address *ip;
 
     elem_ip = wmem_list_head(ip_list);
-
     while (elem_ip) {
-        ip = address_to_str(wmem_file_scope(), (address*)wmem_list_frame_data(elem_ip));
-        /* We check if a seid list exists for this ip */
-        info_list = (wmem_list_t*)wmem_tree_lookup_string(pfcp_frame_tree, ip, 0);
-        if (info_list == NULL) {
-            info_list = wmem_list_new(wmem_file_scope());
-        }
-
+        ip = (address*)wmem_list_frame_data(elem_ip);
         /* We loop over the seid list */
         elem_seid = wmem_list_head(seid_list);
         while (elem_seid) {
-            seid = *(guint64*)wmem_list_frame_data(elem_seid);
-            f = wmem_new0(wmem_file_scope(), guint32);
-            *f = frame;
+            seid = *(guint32*)wmem_list_frame_data(elem_seid);
             pfcp_info = wmem_new0(wmem_file_scope(), pfcp_info_t);
             pfcp_info->seid = seid;
-            pfcp_info->frame = *f;
-
-            if (pfcp_info_exists(pfcp_info, info_list)) {
+            copy_address_wmem(wmem_file_scope(), &pfcp_info->addr, ip);
+            if (wmem_map_lookup(pfcp_frame_map, pfcp_info)) {
                 /* If the seid and ip already maps to a session, that means
                  * that we need to remove old info about that session */
-
                 /* We look for its session ID */
                 session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(frame)));
                 if (session) {
                     g_hash_table_iter_init(&iter, pfcp_session_table);
-
                     while (g_hash_table_iter_next(&iter, &fr_p, &session_p)) {
                         /* If the msg has the same session ID and it's not the upd req we have to remove its info */
                         if (GPOINTER_TO_UINT(session_p) == session) {
                             /* If it's the session we are looking for, we remove all the frame information */
-                            fr = GPOINTER_TO_UINT(fr_p);
-                            pfcp_remove_frame_info(&fr);
+                            pfcp_remove_frame_info(GPOINTER_TO_UINT(fr_p));
                         }
                     }
                 }
             }
-            wmem_list_prepend(info_list, pfcp_info);
+            wmem_map_insert(pfcp_frame_map, pfcp_info, GUINT_TO_POINTER(frame));
             elem_seid = wmem_list_frame_next(elem_seid);
         }
-        wmem_tree_insert_string(pfcp_frame_tree, ip, info_list, 0);
         elem_ip = wmem_list_frame_next(elem_ip);
     }
 }
@@ -1928,14 +1892,22 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
         /* If the message does not have any session ID */
         session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
-            /* If the message is not a SEREQ, SERES, SMREQ, SERES, SDREQ, SDRES, SRREQ or SRRES then we remove its information from seid and ip lists */
+            /* If the message is not a SEREQ, SERES, SMREQ, SERES, SDREQ, SDRES, SRREQ or SRRES
+             * then we remove its information from seid and ip lists
+             * XXX: Wouldn't it be better not to insert this information
+             * in the first place for other message types, instead of
+             * inserting it and then immediately removing it?
+             * At the very least, it would be faster to iterate through the
+             * seid_list and ip_list and remove via keys rather than doing
+             * removal through a reverse lookup.
+             */
             if ((pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE &&
                 pfcp_hdr->message != PFCP_MSG_SESSION_MODIFICATION_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_MODIFICATION_RESPONSE &&
                 pfcp_hdr->message != PFCP_MSG_SESSION_DELETION_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_DELETION_RESPONSE &&
                 pfcp_hdr->message != PFCP_MSG_SESSION_REPORT_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_REPORT_RESPONSE)) {
                 /* If the lists are not empty*/
                 if (wmem_list_count(seid_list) && wmem_list_count(ip_list)) {
-                    pfcp_remove_frame_info(&pinfo->num);
+                    pfcp_remove_frame_info(pinfo->num);
                 }
             }
             if (pfcp_hdr->message == PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST){
@@ -1945,7 +1917,7 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
             else if (pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE) {
                 /* We have to check if its seid == seid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                 the corresponding session ID */
-                if ((pfcp_get_frame(pinfo, pinfo->dst, (guint32)pfcp_hdr->seid, &frame_seid_cp) == 1)) {
+                if ((pfcp_get_frame(pinfo->dst, (guint32)pfcp_hdr->seid, &frame_seid_cp) == 1)) {
                     /* Then we have to set its session ID */
                     session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(frame_seid_cp)));
                     if (session) {
@@ -9420,7 +9392,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint
 
                 if (!pfcp_is_cause_accepted(last_cause)){
                     /* If the cause is not accepted then we have to remove all the session information about its corresponding request */
-                    pfcp_remove_frame_info(&pcrp->req_frame);
+                    pfcp_remove_frame_info(pcrp->req_frame);
                 }
             }
         }
@@ -11186,7 +11158,8 @@ pfcp_init(void)
 {
     pfcp_session_count = 1;
     pfcp_session_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    pfcp_frame_tree = wmem_tree_new(wmem_file_scope());
+    pfcp_frame_map = wmem_map_new(wmem_file_scope(), pfcp_info_hash, pfcp_info_equal);
+
 }
 
 static void
