@@ -403,6 +403,7 @@ WS_DLL_PUBLIC guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offs
 WS_DLL_PUBLIC guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint *offset,
     gboolean stream_is_big_endian, int boundary, MessageHeader * header );
 
+
 /* Copy a 4 octet sequence from the tvbuff
  * which represents an unsigned long value, and convert
  * it to an unsigned long value, taking into account byte order.
