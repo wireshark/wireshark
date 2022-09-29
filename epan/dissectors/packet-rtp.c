@@ -1417,7 +1417,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
                 * Just add it as data.
                 */
                 if (len > 0)
-                    PROTO_ITEM_SET_HIDDEN(rtp_data);
+                    proto_item_set_hidden(rtp_data);
                 return;
             }
         }
@@ -1425,7 +1425,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 
     /* if we don't found, it is static OR could be set static from the preferences */
     if (dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
-        PROTO_ITEM_SET_HIDDEN(rtp_data);
+        proto_item_set_hidden(rtp_data);
 }
 
 /* Rtp payload reassembly

@@ -762,11 +762,11 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
 
     if (dtn_wkssp) {
         proto_item *item = proto_tree_add_string(tree_eid, hf_eid_dtn_wkssp, tvb, eid_start, *offset - eid_start, dtn_wkssp);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
     if (dtn_serv) {
         proto_item *item = proto_tree_add_string(tree_eid, hf_eid_dtn_serv, tvb, eid_start, *offset - eid_start, dtn_serv);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     char *uri = NULL;
@@ -774,7 +774,7 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
         uri = wmem_strbuf_finalize(uribuf);
 
         proto_item *item_uri = proto_tree_add_string(tree_eid, hfindex_uri, tvb, eid_start, *offset - eid_start, uri);
-        PROTO_ITEM_SET_GENERATED(item_uri);
+        proto_item_set_generated(item_uri);
 
         proto_item_append_text(item_eid, ": %s", uri);
     }
@@ -813,7 +813,7 @@ static void proto_tree_add_dtn_time(proto_tree *tree, int hfindex, packet_info *
             if (*dtntime > 0) {
                 const nstime_t utctime = dtn_to_utctime(*dtntime);
                 proto_item *item_utctime = proto_tree_add_time(tree_time, hf_time_utctime, tvb, chunk->start, chunk->data_length, &utctime);
-                PROTO_ITEM_SET_GENERATED(item_utctime);
+                proto_item_set_generated(item_utctime);
 
                 gchar *time_text = abs_time_to_str(wmem_packet_scope(), &utctime, ABSOLUTE_TIME_UTC, TRUE);
                 proto_item_append_text(item_time, ": %s", time_text);
@@ -938,7 +938,7 @@ static void proto_tree_add_ident(proto_tree *tree, int hfindex, tvbuff_t *tvb, c
     }
 
     proto_item *item_subj_ident = proto_tree_add_string(tree, hfindex, tvb, 0, 0, wmem_strbuf_get_str(ident_text));
-    PROTO_ITEM_SET_GENERATED(item_subj_ident);
+    proto_item_set_generated(item_subj_ident);
     wmem_strbuf_finalize(ident_text);
 }
 
@@ -1003,13 +1003,13 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if (lifetime) {
         nstime_t lifetime_exp = dtn_to_delta(*lifetime);
         proto_item *item_lifetime_exp = proto_tree_add_time(tree_block, hf_primary_lifetime_exp, tvb, chunk->start, chunk->head_length, &lifetime_exp);
-        PROTO_ITEM_SET_GENERATED(item_lifetime_exp);
+        proto_item_set_generated(item_lifetime_exp);
 
         if (block->ts.abstime.dtntime > 0) {
             nstime_t expiretime;
             nstime_sum(&expiretime, &(block->ts.abstime.utctime), &lifetime_exp);
             proto_item *item_expiretime = proto_tree_add_time(tree_block, hf_primary_expire_ts, tvb, 0, 0, &expiretime);
-            PROTO_ITEM_SET_GENERATED(item_expiretime);
+            proto_item_set_generated(item_expiretime);
         }
     }
     field_ix++;
@@ -1294,7 +1294,7 @@ static void show_status_subj_ref(gpointer key, gpointer val _U_, gpointer data) 
     const bp_bundle_t *status_found = wmem_map_lookup(bp_history->bundles, status_ident);
     if (status_found) {
         proto_item *item_subj_ref = proto_tree_add_uint(tree_bundle, hf_bundle_status_ref, NULL, 0, 0, status_found->frame_num);
-        PROTO_ITEM_SET_GENERATED(item_subj_ref);
+        proto_item_set_generated(item_subj_ref);
     }
 }
 
@@ -1389,12 +1389,12 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 const bp_bundle_t *seen_found = wmem_map_lookup(bp_history->bundles, bundle->ident);
                 if (seen_found && (seen_found->frame_num != pinfo->num)) {
                     proto_item *item_seen = proto_tree_add_uint(tree_bundle, hf_bundle_seen, tvb, 0, 0, seen_found->frame_num);
-                    PROTO_ITEM_SET_GENERATED(item_seen);
+                    proto_item_set_generated(item_seen);
 
                     nstime_t td;
                     nstime_delta(&td, &(bundle->frame_time), &(seen_found->frame_time));
                     proto_item *item_td = proto_tree_add_time(tree_bundle, hf_bundle_seen_time_diff, tvb, 0, 0, &td);
-                    PROTO_ITEM_SET_GENERATED(item_td);
+                    proto_item_set_generated(item_td);
                 }
 
                 // Indicate related status (may be multiple)
@@ -1656,12 +1656,12 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         const bp_bundle_t *subj_found = wmem_map_lookup(bp_history->bundles, subj);
         if (subj_found) {
             proto_item *item_subj_ref = proto_tree_add_uint(tree_status, hf_status_rep_subj_ref, tvb, 0, 0, subj_found->frame_num);
-            PROTO_ITEM_SET_GENERATED(item_subj_ref);
+            proto_item_set_generated(item_subj_ref);
 
             nstime_t td;
             nstime_delta(&td, &(context->bundle->frame_time), &(subj_found->frame_time));
             proto_item *item_td = proto_tree_add_time(tree_status, hf_status_time_diff, tvb, 0, 0, &td);
-            PROTO_ITEM_SET_GENERATED(item_td);
+            proto_item_set_generated(item_td);
         }
     }
     {

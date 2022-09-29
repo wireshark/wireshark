@@ -2449,7 +2449,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
          * for backward compatability for users that are accustomed to using
          * "f5ethtrailer.ingress" but mark it as generated to indicate that that
          * field no longer really exists. */
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         proto_tree_add_bitmask(
             tree, tvb, offset, hf_flags, ett_f5ethtrailer_low_flags, hf_flags__fields,
             ENC_BIG_ENDIAN);

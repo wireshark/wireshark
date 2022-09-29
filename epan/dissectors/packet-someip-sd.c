@@ -670,9 +670,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    if (ti != NULL) {
-        PROTO_ITEM_SET_HIDDEN(ti);
-    }
+    proto_item_set_hidden(ti);
 
     /* TAP */
     if (have_tap_listener(tap_someip_sd_entries)) {

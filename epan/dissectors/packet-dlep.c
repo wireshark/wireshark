@@ -387,7 +387,7 @@ decode_dataitem_status(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
 
   /* Add and hide the specific dataitem protocol item */
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_status, tvb, offset, len, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   if (len < DLEP_DIT_STATUS_MINLEN) {
     expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
@@ -414,7 +414,7 @@ decode_dataitem_v4conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   guint32 v4conn_port;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4conn, tvb, offset, len, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4conn_flags, tvb, offset, DLEP_DIT_V4CONN_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
@@ -446,7 +446,7 @@ decode_dataitem_v6conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   guint32 v6conn_port;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6conn, tvb, offset, len, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6conn_flags, tvb, offset, DLEP_DIT_V6CONN_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
@@ -477,7 +477,7 @@ decode_dataitem_peertype(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   proto_tree * flags_pt = NULL;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_peertype, tvb, offset, len, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   if (len < DLEP_DIT_PEERTYPE_MINLEN) {
     expert_add_info(pinfo, pi, &ei_dlep_dataitem_unexpected_length);
@@ -521,7 +521,7 @@ decode_dataitem_extsupp(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
   proto_item* tmp_pi = NULL;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_extsupp, tvb, offset, len, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   while(len > 0) {
     proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_extsupp_code, tvb, offset, 2, ENC_BIG_ENDIAN, &extension_code);
@@ -563,7 +563,7 @@ decode_dataitem_v4addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   proto_tree* flags_pt = NULL;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4addr, tvb, offset, DLEP_DIT_V4ADDR_LEN, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4addr_flags, tvb, offset, DLEP_DIT_V4ADDR_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
@@ -589,7 +589,7 @@ decode_dataitem_v6addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   proto_tree* flags_pt = NULL;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6addr, tvb, offset, DLEP_DIT_V6ADDR_LEN, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6addr_flags, tvb, offset, DLEP_DIT_V6ADDR_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
@@ -616,7 +616,7 @@ decode_dataitem_v4subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   guint32 prefixlen;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4subnet, tvb, offset, DLEP_DIT_V4SUBNET_LEN, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4subnet_flags, tvb, offset, DLEP_DIT_V4SUBNET_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
@@ -647,7 +647,7 @@ decode_dataitem_v6subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   guint32 prefixlen;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6subnet, tvb, offset, DLEP_DIT_V6SUBNET_LEN, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6subnet_flags, tvb, offset, DLEP_DIT_V6SUBNET_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
@@ -1035,7 +1035,7 @@ decode_signal_header(tvbuff_t *tvb, int offset, proto_item* pi, proto_tree *pt, 
   guint32 signal_length;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_signal, tvb, offset, 0, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   proto_tree_add_item(pt, hf_dlep_signal_signature, tvb, offset, 4, ENC_ASCII);
   offset+=4;
@@ -1073,7 +1073,7 @@ decode_message_header(tvbuff_t *tvb, int offset, proto_item* pi, proto_tree *pt,
   guint32 message_length;
 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_message, tvb, offset, 0, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(tmp_pi);
+  proto_item_set_hidden(tmp_pi);
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_message_type, tvb, offset, 2, ENC_BIG_ENDIAN, &message_type);
   proto_item_append_text(pi, ", Message: %s (%u)", val_to_str(message_type, message_type_vals, "Unknown"), message_type);

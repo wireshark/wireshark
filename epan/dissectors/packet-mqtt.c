@@ -1191,7 +1191,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             }
 
             ti = proto_tree_add_string(mqtt_tree, hf_mqtt_topic, tvb, offset, 0, topic_str);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (topic == NULL)
             {

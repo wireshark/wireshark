@@ -32128,13 +32128,13 @@ dissect_ieee80211_s1g_tack(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
   hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_ta_resolved,
                         tvb, offset, 6, ether_name);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   hidden_item = proto_tree_add_item(tree, hf_ieee80211_addr, tvb, offset, 6,
                         ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   hidden_item = proto_tree_add_string(tree, hf_ieee80211_addr_resolved, tvb,
                         offset, 6, ether_name);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   offset += 6;
   length += 6;
@@ -32924,10 +32924,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     set_dst_addr_cols(pinfo, tvb, offset, "RA");
     proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ra, tvb, offset, 6, ENC_NA);
     hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ra_resolved, tvb,
                                    offset, 6, ether_name);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     offset += 6;
   }
 
@@ -32950,10 +32950,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     /* TODO: why adding as visible *and* hidden? */
     proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
     hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb,
                                    offset, 6, ether_name);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     offset += 6;
   }
 
@@ -32979,10 +32979,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     set_dst_addr_cols(pinfo, tvb, offset, "DA");
     proto_tree_add_item(hdr_tree, hf_ieee80211_addr_da, tvb, offset, 6, ENC_NA);
     hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb,
                                    offset, 6, ether_name);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     offset += 6;
   }
 
@@ -32995,10 +32995,10 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     copy_address_shallow(&pinfo->src, &pinfo->dl_src);
     proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, offset, 6, ENC_NA);
     hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb,
                                    offset, 6, ether_name);
-    PROTO_ITEM_SET_HIDDEN(hidden);
+    proto_item_set_hidden(hidden);
     offset += 6;
   }
 

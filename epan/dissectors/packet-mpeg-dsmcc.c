@@ -2312,7 +2312,7 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
                         crc_len, 4, crc,
                         "CRC: 0x%08x [Failed Verification (Calculated: 0x%08x)]",
                         crc, calculated_crc );
-            PROTO_ITEM_SET_GENERATED(msg_error);
+            proto_item_set_generated(msg_error);
             expert_add_info( pinfo, msg_error, &ei_dsmcc_crc_invalid);
         }
     } else {

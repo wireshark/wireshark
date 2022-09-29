@@ -2972,13 +2972,13 @@ add_ipv6_address_embed_ipv4(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
         // The prefix
         ti = proto_tree_add_item(tree, hf_ipv6_embed_ipv4_prefix, tvb, offset, ipv4_prefix / 8, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         // Majority of IPv4 address is after u-field
         if (ipv4_prefix >= 56) {
             if (ipv4_prefix < 96) {
                 ti = proto_tree_add_item(tree, hf_ipv6_embed_ipv4_u, tvb, offset + 8, 1, ENC_NA);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
             if (tvb_get_guint8(tvb, offset + 8)) {
                 expert_add_info(pinfo, ti, &ei_ipv6_embed_ipv4_u_value);
@@ -2990,17 +2990,17 @@ add_ipv6_address_embed_ipv4(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         ti = proto_tree_add_ipv4(tree, hf_embed, tvb,
                                  offset + (ipv4_offset / 8),
                                  (ipv4_offset > 32 && ipv4_offset < 64) ? 5 : 4, ipv4_addr);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         ti = proto_tree_add_ipv4(tree, hf_ipv6_embed_ipv4, tvb,
                                  offset + (ipv4_offset / 8),
                                  (ipv4_offset > 32 && ipv4_offset < 64) ? 5 : 4, ipv4_addr);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         // Majority of IPv4 address is before u-field
         if (ipv4_prefix < 56) {
             ti = proto_tree_add_item(tree, hf_ipv6_embed_ipv4_u, tvb, offset + 8, 1, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             if (tvb_get_guint8(tvb, offset + 8)) {
                 expert_add_info(pinfo, ti, &ei_ipv6_embed_ipv4_u_value);
             }
@@ -3012,7 +3012,7 @@ add_ipv6_address_embed_ipv4(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                      offset + ((72 + ipv4_prefix - 32) / 8),
                                      (56 - (ipv4_prefix - 32)) / 8,
                                      ENC_NA);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
 }

@@ -154,5 +154,5 @@ ProtoNode ProtoNode::ChildIterator::element()
 
 bool ProtoNode::isHidden(proto_node * node)
 {
-    return PROTO_ITEM_IS_HIDDEN(node) && !prefs.display_hidden_proto_items;
+    return proto_item_is_hidden(node) && !prefs.display_hidden_proto_items;
 }

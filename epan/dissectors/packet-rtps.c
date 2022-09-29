@@ -3212,7 +3212,7 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
                 proto_item_append_text(member, "(base found 0x%016" PRIx64 ")", key);
                 dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL, mapping->member_type_id,
                     mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id, show);
-                PROTO_ITEM_SET_HIDDEN(member);
+                proto_item_set_hidden(member);
                 return offset + member_length;
             } else
                 proto_item_append_text(member, "(base not found 0x%016" PRIx64 " from 0x%016" PRIx64 ")",
@@ -3230,7 +3230,7 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
     } else
         proto_item_append_text(member, "(not found 0x%016" PRIx64 " from 0x%016" PRIx64 ")",
                   key, info->type_id);
-    PROTO_ITEM_SET_HIDDEN(member);
+    proto_item_set_hidden(member);
     return offset + member_length;
 }
 
