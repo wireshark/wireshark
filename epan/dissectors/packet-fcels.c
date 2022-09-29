@@ -1922,7 +1922,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         if (!conversation) {
             /* Finally check for FLOGI with both NO_PORT2 and NO_ADDR2 set */
-            find_options = NO_ADDR2 | NO_PORT2;
+            find_options = NO_ADDR_B | NO_PORT_B;
             conversation = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
                                               conversation_pt_to_conversation_type(pinfo->ptype), fchdr->oxid,
                                               fchdr->rxid, find_options);
