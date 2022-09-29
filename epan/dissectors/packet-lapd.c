@@ -767,7 +767,7 @@ proto_register_lapd(void)
 	expert_lapd = expert_register_protocol(proto_lapd);
 	expert_register_field_array(expert_lapd, ei, array_length(ei));
 
-	lapd_handle = create_dissector_handle(dissect_lapd, proto_lapd);
+	lapd_handle = register_dissector("lapd", dissect_lapd, proto_lapd);
 	lapd_phdr_handle = register_dissector("lapd-phdr", dissect_lapd_phdr, proto_lapd);
 	linux_lapd_handle = register_dissector("linux-lapd", dissect_linux_lapd, proto_lapd);
 	lapd_bitstream_handle = register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);

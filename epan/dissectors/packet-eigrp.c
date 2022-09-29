@@ -3358,6 +3358,7 @@ proto_register_eigrp(void)
         "EIGRP",                                        /* short name   */
         "eigrp"                                         /* abbrev       */
         );
+    register_dissector("eigrp", dissect_eigrp, proto_eigrp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_eigrp, hf, array_length(hf));
@@ -3386,12 +3387,10 @@ proto_register_eigrp(void)
 void
 proto_reg_handoff_eigrp(void)
 {
-    dissector_handle_t eigrp_handle;
+    dissector_handle_t eigrp_handle = find_dissector("eigrp");
 
     ipxsap_handle = find_dissector_add_dependency("ipxsap", proto_eigrp);
     media_type_table = find_dissector_table("media_type");
-
-    eigrp_handle = create_dissector_handle(dissect_eigrp, proto_eigrp);
 
     dissector_add_uint("ip.proto", IP_PROTO_EIGRP, eigrp_handle);
     dissector_add_uint("ddp.type", DDP_EIGRP, eigrp_handle);

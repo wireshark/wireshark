@@ -345,6 +345,7 @@ proto_register_aarp(void)
   proto_aarp = proto_register_protocol("Appletalk Address Resolution Protocol",
                                        "AARP",
                                        "aarp");
+  register_dissector("aarp", dissect_aarp, proto_aarp);
   proto_register_field_array(proto_aarp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
@@ -356,9 +357,8 @@ proto_register_aarp(void)
 void
 proto_reg_handoff_aarp(void)
 {
-  dissector_handle_t aarp_handle;
+  dissector_handle_t aarp_handle = find_dissector("aarp");
 
-  aarp_handle = create_dissector_handle(dissect_aarp, proto_aarp);
   dissector_add_uint("ethertype", ETHERTYPE_AARP, aarp_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_AARP, aarp_handle);
 }

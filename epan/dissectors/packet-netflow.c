@@ -143,6 +143,8 @@
 void proto_register_netflow(void);
 void proto_reg_handoff_netflow(void);
 
+static int dissect_tcp_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+
 #if 0
 #define ipfix_debug(...) ws_warning(__VA_ARGS__)
 #else
@@ -20942,6 +20944,8 @@ proto_register_netflow(void)
     expert_module_t* expert_netflow;
 
     proto_netflow = proto_register_protocol("Cisco NetFlow/IPFIX", "CFLOW", "cflow");
+    netflow_handle = register_dissector("netflow", dissect_netflow, proto_netflow);
+    netflow_tcp_handle = register_dissector("netflow_tcp", dissect_tcp_netflow, proto_netflow);
 
     register_dissector("cflow", dissect_netflow, proto_netflow);
 
@@ -21039,8 +21043,6 @@ proto_reg_handoff_netflow(void)
         /* Find eth_handle used for IE315*/
         eth_handle = find_dissector ("eth_withoutfcs");
 
-        netflow_handle = create_dissector_handle(dissect_netflow, proto_netflow);
-        netflow_tcp_handle = create_dissector_handle(dissect_tcp_netflow, proto_netflow);
         netflow_prefs_initialized = TRUE;
         dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
         dissector_add_uint_range_with_preference("tcp.port", IPFIX_UDP_PORTS, netflow_tcp_handle);

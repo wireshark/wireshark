@@ -250,6 +250,9 @@ proto_register_gopher(void)
     /* Register the protocol name and description */
     proto_gopher = proto_register_protocol("Gopher", "Gopher", "gopher");
 
+    /* Register the dissector handle */
+    gopher_handle = register_dissector("gopher", dissect_gopher, proto_gopher);
+
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_gopher, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -264,7 +267,6 @@ proto_register_gopher(void)
 void
 proto_reg_handoff_gopher(void)
 {
-    gopher_handle = create_dissector_handle(dissect_gopher, proto_gopher);
     dissector_add_uint_range_with_preference("tcp.port", TCP_DEFAULT_RANGE, gopher_handle);
     gopher_prefs_apply();
 }

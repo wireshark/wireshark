@@ -377,6 +377,7 @@ proto_register_slarp(void)
   };
 
   proto_slarp = proto_register_protocol("Cisco SLARP", "SLARP", "slarp");
+  register_dissector("slarp", dissect_slarp, proto_slarp);
   proto_register_field_array(proto_slarp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
@@ -387,10 +388,7 @@ proto_register_slarp(void)
 void
 proto_reg_handoff_slarp(void)
 {
-  dissector_handle_t slarp_handle;
-
-  slarp_handle = create_dissector_handle(dissect_slarp, proto_slarp);
-  dissector_add_uint("chdlc.protocol", CISCO_SLARP, slarp_handle);
+  dissector_add_uint("chdlc.protocol", CISCO_SLARP, find_dissector("slarp"));
 }
 
 /*

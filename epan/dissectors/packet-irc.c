@@ -542,6 +542,7 @@ proto_register_irc(void)
     expert_module_t* expert_irc;
 
     proto_irc = proto_register_protocol("Internet Relay Chat", "IRC", "irc");
+    register_dissector("irc", dissect_irc, proto_irc);
     proto_register_field_array(proto_irc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_irc = expert_register_protocol(proto_irc);
@@ -554,10 +555,7 @@ proto_register_irc(void)
 void
 proto_reg_handoff_irc(void)
 {
-    dissector_handle_t irc_handle;
-
-    irc_handle = create_dissector_handle(dissect_irc, proto_irc);
-    dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE, irc_handle);
+    dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE, find_dissector("irc"));
 }
 
 /*

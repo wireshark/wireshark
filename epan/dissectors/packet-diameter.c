@@ -2539,6 +2539,7 @@ proto_register_diameter(void)
 
 	/* Allow dissector to find be found by name. */
 	diameter_sctp_handle = register_dissector("diameter", dissect_diameter, proto_diameter);
+	diameter_udp_handle = create_dissector_handle(dissect_diameter, proto_diameter);
 	diameter_tcp_handle = register_dissector("diameter.tcp", dissect_diameter_tcp, proto_diameter);
 	/* Diameter AVPs without Diameter header, for EAP-TTLS (RFC 5281, Section 10) */
 	register_dissector("diameter_avps", dissect_diameter_avps, proto_diameter);
@@ -2586,7 +2587,6 @@ proto_register_diameter(void)
 void
 proto_reg_handoff_diameter(void)
 {
-	diameter_udp_handle = create_dissector_handle(dissect_diameter, proto_diameter);
 	data_handle = find_dissector("data");
 	eap_handle = find_dissector_add_dependency("eap", proto_diameter);
 

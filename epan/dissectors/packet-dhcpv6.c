@@ -3554,6 +3554,8 @@ proto_register_dhcpv6(void)
     expert_register_field_array(expert_dhcpv6, ei, array_length(ei));
 
     proto_dhcpv6_bulk_leasequery = proto_register_protocol("DHCPv6 Bulk Leasequery", "DHCPv6 Bulk Leasequery", "dhcpv6.bulk_leasequery");
+    register_dissector("dhcpv6.bulk_leasequery", dissect_dhcpv6_bulk_leasequery,
+                                            proto_dhcpv6_bulk_leasequery);
     proto_register_field_array(proto_dhcpv6_bulk_leasequery, bulk_leasequery_hf, array_length(bulk_leasequery_hf));
     proto_register_subtree_array(ett_bulk_leasequery, array_length(ett_bulk_leasequery));
 
@@ -3579,13 +3581,9 @@ proto_register_dhcpv6(void)
 void
 proto_reg_handoff_dhcpv6(void)
 {
-    dissector_handle_t dhcpv6_bulkquery_handle;
-
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_DHCPV6_RANGE, dhcpv6_handle);
 
-    dhcpv6_bulkquery_handle = create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
-                                            proto_dhcpv6_bulk_leasequery);
-    dissector_add_uint_with_preference("tcp.port", TCP_PORT_DHCPV6_UPSTREAM, dhcpv6_bulkquery_handle);
+    dissector_add_uint_with_preference("tcp.port", TCP_PORT_DHCPV6_UPSTREAM, find_dissector("dhcpv6.bulk_leasequery"));
 }
 
 /*

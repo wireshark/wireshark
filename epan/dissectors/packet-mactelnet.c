@@ -361,6 +361,7 @@ proto_register_mactelnet(void)
 
     /* Register the protocol name and description */
     proto_mactelnet = proto_register_protocol ("MikroTik MAC-Telnet Protocol", PROTO_TAG_MACTELNET, "mactelnet");
+    register_dissector("mactelnet", dissect_mactelnet, proto_mactelnet);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array (proto_mactelnet, hf, array_length (hf));
@@ -370,10 +371,7 @@ proto_register_mactelnet(void)
 void
 proto_reg_handoff_mactelnet(void)
 {
-    dissector_handle_t mactelnet_handle;
-
-    mactelnet_handle = create_dissector_handle(dissect_mactelnet, proto_mactelnet);
-    dissector_add_uint_with_preference("udp.port", MACTELNET_UDP_PORT, mactelnet_handle);
+    dissector_add_uint_with_preference("udp.port", MACTELNET_UDP_PORT, find_dissector("mactelnet"));
 }
 
 /*

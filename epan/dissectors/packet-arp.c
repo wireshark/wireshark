@@ -2038,6 +2038,8 @@ proto_register_arp(void)
   expert_register_field_array(expert_arp, ei, array_length(ei));
 
   arp_handle = register_dissector( "arp" , dissect_arp, proto_arp );
+  register_dissector("atm_arp", dissect_atmarp, proto_atmarp);
+  register_dissector("ax25_arp", dissect_ax25arp, proto_arp);
 
   arp_hw_table = register_dissector_table("arp.hw.type", "ARP Hardware Type", proto_arp, FT_UINT16, BASE_DEC);
 
@@ -2081,9 +2083,8 @@ proto_register_arp(void)
 void
 proto_reg_handoff_arp(void)
 {
-  dissector_handle_t atmarp_handle, ax25arp_handle;
-  atmarp_handle = create_dissector_handle(dissect_atmarp, proto_atmarp);
-  ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
+  dissector_handle_t atmarp_handle = find_dissector("atm_arp");
+  dissector_handle_t ax25arp_handle = find_dissector("ax25_arp");
 
   dissector_add_uint("ethertype", ETHERTYPE_ARP, arp_handle);
   dissector_add_uint("ethertype", ETHERTYPE_REVARP, arp_handle);

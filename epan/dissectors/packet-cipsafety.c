@@ -46,6 +46,7 @@ static int proto_cip_class_s_validator    = -1;
 static int proto_cip                      = -1;
 
 static dissector_table_t subdissector_class_table;
+static dissector_handle_t cip_class_s_supervisor_handle;
 static dissector_handle_t cip_class_s_validator_handle;
 
 /* CIP Safety field identifiers */
@@ -3059,6 +3060,7 @@ proto_register_cipsafety(void)
    /* Register CIP Safety objects */
    proto_cip_class_s_supervisor = proto_register_protocol("CIP Safety Supervisor",
        "CIPSSupervisor", "cipssupervisor");
+   cip_class_s_supervisor_handle = register_dissector("cipssupervisor",  dissect_cip_class_s_supervisor, proto_cip_class_s_supervisor );
    proto_register_field_array(proto_cip_class_s_supervisor, hf_ssupervisor, array_length(hf_ssupervisor));
    proto_register_subtree_array(ett_ssupervisor, array_length(ett_ssupervisor));
    expert_cip_class_s_supervisor = expert_register_protocol(proto_cip_class_s_supervisor);
@@ -3066,6 +3068,7 @@ proto_register_cipsafety(void)
 
    proto_cip_class_s_validator = proto_register_protocol("CIP Safety Validator",
        "CIPSValidator", "cipsvalidator");
+   cip_class_s_validator_handle = register_dissector("cipsvalidator",  dissect_cip_class_s_validator, proto_cip_class_s_validator );
    proto_register_field_array(proto_cip_class_s_validator, hf_svalidator, array_length(hf_svalidator));
    proto_register_subtree_array(ett_svalidator, array_length(ett_svalidator));
    expert_cip_class_s_validator = expert_register_protocol(proto_cip_class_s_validator);
@@ -3083,14 +3086,10 @@ proto_register_cipsafety(void)
 void
 proto_reg_handoff_cipsafety(void)
 {
-   dissector_handle_t cip_class_s_supervisor_handle;
-
-   /* Create and register dissector handle for Safety Supervisor */
-   cip_class_s_supervisor_handle = create_dissector_handle( dissect_cip_class_s_supervisor, proto_cip_class_s_supervisor );
+   /* Register dissector handle for Safety Supervisor */
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_SUPERVISOR, cip_class_s_supervisor_handle );
 
-   /* Create and register dissector handle for Safety Validator */
-   cip_class_s_validator_handle = create_dissector_handle( dissect_cip_class_s_validator, proto_cip_class_s_validator );
+   /* Register dissector handle for Safety Validator */
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_VALIDATOR, cip_class_s_validator_handle );
    heur_dissector_add("cip.sc", dissect_class_svalidator_heur, "CIP Safety Validator", "s_validator_cip", proto_cip_class_s_validator, HEURISTIC_ENABLE);
 

@@ -1503,10 +1503,7 @@ dissect_cql_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 void
 proto_reg_handoff_cql(void)
 {
-	static dissector_handle_t cql_handle;
-
-	cql_handle = create_dissector_handle(dissect_cql_tcp, proto_cql);
-	dissector_add_uint_with_preference("tcp.port", CQL_DEFAULT_PORT, cql_handle);
+	dissector_add_uint_with_preference("tcp.port", CQL_DEFAULT_PORT, find_dissector("cql"));
 }
 
 
@@ -2313,6 +2310,7 @@ proto_register_cql(void)
 	};
 
 	proto_cql = proto_register_protocol("Cassandra CQL Protocol", "CQL", "cql" );
+	register_dissector("cql", dissect_cql_tcp, proto_cql);
 
 	proto_register_field_array(proto_cql, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

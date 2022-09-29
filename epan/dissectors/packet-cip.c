@@ -70,6 +70,7 @@ static dissector_handle_t cip_handle;
 static dissector_handle_t cip_class_generic_handle;
 static dissector_handle_t cip_class_cm_handle;
 static dissector_handle_t cip_class_pccc_handle;
+static dissector_handle_t cip_class_mb_handle;
 static dissector_handle_t modbus_handle;
 static dissector_handle_t cip_class_cco_handle;
 static heur_dissector_list_t  heur_subdissector_service;
@@ -9067,25 +9068,35 @@ proto_register_cip(void)
    /* Register the protocol name and description */
    proto_cip_class_generic = proto_register_protocol("CIP Class Generic",
        "CIPCLS", "cipcls");
+   cip_class_generic_handle = register_dissector("cipcls",
+       dissect_cip_class_generic, proto_cip_class_generic);
 
    /* Register the protocol name and description */
    proto_cip_class_cm = proto_register_protocol("CIP Connection Manager",
        "CIPCM", "cipcm");
+   cip_class_cm_handle = register_dissector("cipcm",
+       dissect_cip_class_cm, proto_cip_class_cm);
    proto_register_field_array(proto_cip_class_cm, hf_cm, array_length(hf_cm));
    proto_register_subtree_array(ett_cm, array_length(ett_cm));
 
    proto_cip_class_pccc = proto_register_protocol("CIP PCCC Object",
        "CIPPCCC", "cippccc");
+   cip_class_pccc_handle = register_dissector("cippccc",
+       dissect_cip_class_pccc, proto_cip_class_pccc);
    proto_register_field_array(proto_cip_class_pccc, hf_pccc, array_length(hf_pccc));
    proto_register_subtree_array(ett_pccc, array_length(ett_pccc));
 
    proto_cip_class_mb = proto_register_protocol("CIP Modbus Object",
        "CIPMB", "cipmb");
+   cip_class_mb_handle = register_dissector("cipmb",
+       dissect_cip_class_mb, proto_cip_class_mb);
    proto_register_field_array(proto_cip_class_mb, hf_mb, array_length(hf_mb));
    proto_register_subtree_array(ett_mb, array_length(ett_mb));
 
    proto_cip_class_cco = proto_register_protocol("CIP Connection Configuration Object",
        "CIPCCO", "cipcco");
+   cip_class_cco_handle = register_dissector("cipcco",
+       dissect_cip_class_cco, proto_cip_class_cco);
    proto_register_field_array(proto_cip_class_cco, hf_cco, array_length(hf_cco));
    proto_register_subtree_array(ett_cco, array_length(ett_cco));
 
@@ -9099,33 +9110,25 @@ proto_register_cip(void)
 void
 proto_reg_handoff_cip(void)
 {
-   dissector_handle_t cip_class_mb_handle;
-
-   /* Create dissector handles */
    /* Register for UCMM CIP data, using EtherNet/IP SendRRData service*/
    dissector_add_uint( "enip.srrd.iface", ENIP_CIP_INTERFACE, cip_handle );
 
    dissector_add_uint("cip.connection.class", CI_CLS_MR, cip_handle);
 
-   /* Create and register dissector handle for generic class */
-   cip_class_generic_handle = create_dissector_handle( dissect_cip_class_generic, proto_cip_class_generic );
+   /* Register dissector handle for generic class */
    dissector_add_uint( "cip.class.iface", 0, cip_class_generic_handle );
 
-   /* Create and register dissector handle for Connection Manager */
-   cip_class_cm_handle = create_dissector_handle( dissect_cip_class_cm, proto_cip_class_cm );
+   /* Register dissector handle for Connection Manager */
    dissector_add_uint( "cip.class.iface", CI_CLS_CM, cip_class_cm_handle );
 
-   /* Create and register dissector handle for the PCCC class */
-   cip_class_pccc_handle = create_dissector_handle( dissect_cip_class_pccc, proto_cip_class_pccc );
+   /* Register dissector handle for the PCCC class */
    dissector_add_uint( "cip.class.iface", CI_CLS_PCCC, cip_class_pccc_handle );
 
-   /* Create and register dissector handle for Modbus Object */
-   cip_class_mb_handle = create_dissector_handle( dissect_cip_class_mb, proto_cip_class_mb );
+   /* Register dissector handle for Modbus Object */
    dissector_add_uint( "cip.class.iface", CI_CLS_MB, cip_class_mb_handle );
    modbus_handle = find_dissector_add_dependency("modbus", proto_cip_class_mb);
 
-   /* Create and register dissector handle for Connection Configuration Object */
-   cip_class_cco_handle = create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );
+   /* Register dissector handle for Connection Configuration Object */
    dissector_add_uint( "cip.class.iface", CI_CLS_CCO, cip_class_cco_handle );
    heur_dissector_add("cip.sc", dissect_class_cco_heur, "CIP Connection Configuration Object", "cco_cip", proto_cip_class_cco, HEURISTIC_ENABLE);
 

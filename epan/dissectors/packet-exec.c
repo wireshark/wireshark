@@ -365,6 +365,9 @@ proto_register_exec(void)
 	/* Register the protocol name and description */
 	proto_exec = proto_register_protocol("Remote Process Execution", "EXEC", "exec");
 
+	/* Register the dissector function */
+	register_dissector("exec", dissect_exec, proto_exec);
+
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_exec, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -387,10 +390,7 @@ proto_register_exec(void)
 void
 proto_reg_handoff_exec(void)
 {
-	dissector_handle_t exec_handle;
-
-	exec_handle = create_dissector_handle(dissect_exec, proto_exec);
-	dissector_add_uint_with_preference("tcp.port", EXEC_PORT, exec_handle);
+	dissector_add_uint_with_preference("tcp.port", EXEC_PORT, find_dissector("exec"));
 }
 
 /*
