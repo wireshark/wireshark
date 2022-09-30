@@ -306,7 +306,7 @@ Use "BASE_NONE" instead.
 
   - GLib version 2.50.0 (was 2.38.0) is required.
   - Libgcrypt version 1.8.0 (was 1.5.0) is required.
-  - c-ares version 1.14.0 (was 1.5.0).
+  - c-ares version 1.13.0 (was 1.5.0).
   - Python version 3.6.0 (was 3.4.0).
   - GnuTLS version 3.5.8 (was 3.3.0).
   - Nghttp2 minimum version has been set to 1.11.0 (none previous).
