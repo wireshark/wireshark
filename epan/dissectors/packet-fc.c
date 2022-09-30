@@ -240,7 +240,7 @@ fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
     srt_stat_table *fc_srt_table;
     guint32 i;
 
-    fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, NULL, NULL);
+    fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, "fc.type", NULL);
     for (i = 0; i < FC_NUM_PROCEDURES; i++)
     {
         gchar* tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
@@ -753,7 +753,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* Set up LUN data. OXID + LUN make up unique exchanges, but LUN is populated in subdissectors
        and not necessarily in every frame. Stub it here for now */
     fchdr->lun = 0xFFFF;
-    if (!pinfo->fd->visited) {
+    if (pinfo->fd->visited) {
         fchdr->lun = (guint16)GPOINTER_TO_UINT(wmem_tree_lookup32(fc_conv_data->luns, fchdr->oxid));
     }
 
@@ -1172,6 +1172,12 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 
     fchdr->fc_ex = fc_ex;
+
+    /* XXX: The ACK_1 frames (and other LINK_CONTROL frames) should
+     * probably be ignored (or treated specially) for SRT purposes,
+     * and not used to change the first exchange frame or start time
+     * of an exchange.
+     */
 
     /* populate the exchange struct */
     if(!pinfo->fd->visited){
