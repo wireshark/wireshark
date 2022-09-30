@@ -931,6 +931,7 @@ In the wireshark directory, type:
 [source,sh]
 ----
 ln -snf packaging/debian
+export DEB_BUILD_OPTIONS="nocheck"
 dpkg-buildpackage -b -us -uc -jauto
 ----
 

@@ -84,9 +84,9 @@ and Ninja.  Building with make took nearly 2x time as Ninja in one
 experiment.
 
 CMake builds are best done in a separate build directory, such as a
-`build` subdirectory of the top-level source directory.  If that
-directory is a subdirectory of the top-level source directory, to
-generate the build files, change to the build directory and enter the
+`build` subdirectory of the top-level source directory.  +
+If that directory is a subdirectory of the top-level source directory,
+to generate the build files, change to the build directory and enter the
 following command:
 
 ----
@@ -99,7 +99,9 @@ to use make as the build tool or
 $ cmake -G Ninja ..
 ----
 
-to use Ninja as the build tool.  If you create the build tool in the
+to use Ninja as the build tool.
+
+If you created the build directory in the
 same directory that contains the top-level Wireshark source directory,
 to generate the build files, change to the build directory and enter the
 following command:
@@ -114,7 +116,8 @@ to use make as the build tool or
 $ cmake -G Ninja ../{source directory}
 ----
 
-to use Ninja as the build tool.  `{source directory}` is the name of the
+to use Ninja as the build tool.  +
+`{source directory}` is the name of the
 top-level Wireshark source directory.
 
 If you need to build with a non-standard configuration, you can run
