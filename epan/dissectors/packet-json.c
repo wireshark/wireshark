@@ -165,7 +165,16 @@ static int hf_json_3gpp_suppfeat_npcf_59_aminfluence = -1;
 static int hf_json_3gpp_suppfeat_npcf_60_pvssupport = -1;
 
 static int hf_json_3gpp_suppfeat_npcf_61_enena = -1;
+static int hf_json_3gpp_suppfeat_62_biumr = -1;
+static int hf_json_3gpp_suppfeat_npcf_63_easipreplacement = -1;
+static int hf_json_3gpp_suppfeat_64_exposuretoeas = -1;
 
+static int hf_json_3gpp_suppfeat_65_simultconnectivity = -1;
+static int hf_json_3gpp_suppfeat_66_sgwrest = -1;
+static int hf_json_3gpp_suppfeat_67_releasetoreactivate = -1;
+static int hf_json_3gpp_suppfeat_68_easdiscovery = -1;
+
+static int hf_json_3gpp_suppfeat_69_accnetchargid_string = -1;
 
 
 
@@ -1506,6 +1515,9 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 
 	static int * const json_3gpp_suppfeat_npcf_list_16[] = {
 		&hf_json_3gpp_suppfeat_npcf_61_enena,
+		&hf_json_3gpp_suppfeat_62_biumr,
+		&hf_json_3gpp_suppfeat_npcf_63_easipreplacement,
+		&hf_json_3gpp_suppfeat_64_exposuretoeas,
 		NULL
 	};
 	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_16, ENC_UTF_8|BASE_DEC_HEX);
@@ -1515,8 +1527,34 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 		return;
 	}
 
+	static int* const json_3gpp_suppfeat_npcf_list_17[] = {
+		&hf_json_3gpp_suppfeat_65_simultconnectivity,
+		&hf_json_3gpp_suppfeat_66_sgwrest,
+		&hf_json_3gpp_suppfeat_67_releasetoreactivate,
+		&hf_json_3gpp_suppfeat_68_easdiscovery,
+		NULL
+	};
+	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_17, ENC_UTF_8 | BASE_DEC_HEX);
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int* const json_3gpp_suppfeat_npcf_list_18[] = {
+		&hf_json_3gpp_suppfeat_69_accnetchargid_string,
+		NULL
+	};
+
+	proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_list_18, ENC_UTF_8 | BASE_DEC_HEX);
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
 	if (offset_reverse > -1) {
-		proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+		proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, offset_reverse+1);
 	}
 }
 
@@ -2057,7 +2095,46 @@ proto_register_json(void)
 			FT_BOOLEAN, 4, NULL, 0x1,
 			NULL, HFILL }
 		},
-
+		{ &hf_json_3gpp_suppfeat_62_biumr,
+			{ "BIUMR", "json.3gpp.suppfeat.biumr",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_npcf_63_easipreplacement,
+			{ "EASIPreplacement", "json.3gpp.suppfeat.easipreplacement",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_64_exposuretoeas,
+			{ "ExposureToEAS", "json.3gpp.suppfeat.exposuretoeas",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_65_simultconnectivity,
+			{ "SimultConnectivity", "json.3gpp.suppfeat.simultconnectivity",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_66_sgwrest,
+			{ "SGWRest", "json.3gpp.suppfeat.sgwrest",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_67_releasetoreactivate,
+			{ "ReleaseToReactivate", "json.3gpp.suppfeat.releasetoreactivate",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_68_easdiscovery,
+			{ "EASDiscovery", "json.3gpp.suppfeat.enena",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_69_accnetchargid_string,
+			{ "AccNetChargId_String", "json.3gpp.suppfeat.accnetchargid_string",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
 	};
 
 	static gint *ett[] = {
