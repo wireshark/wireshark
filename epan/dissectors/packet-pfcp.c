@@ -1041,7 +1041,7 @@ typedef struct pfcp_session_args {
 typedef struct _pfcp_hdr {
     guint8 message; /* Message type */
     guint16 length; /* Length of header */
-    gint64 seid;    /* Tunnel End-point ID */
+    guint64 seid;    /* Session End-point ID */
 } pfcp_hdr_t;
 
 /* Relation between frame -> session */
@@ -1690,7 +1690,7 @@ pfcp_info_equal(gconstpointer key1, gconstpointer key2)
 }
 
 static guint32
-pfcp_get_frame(address ip, guint32 seid, guint32 *frame) {
+pfcp_get_frame(address ip, guint64 seid, guint32 *frame) {
     pfcp_info_t info;
     guint32 *value;
 
@@ -1775,7 +1775,7 @@ pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, guint32 frame) {
         /* We loop over the seid list */
         elem_seid = wmem_list_head(seid_list);
         while (elem_seid) {
-            seid = *(guint32*)wmem_list_frame_data(elem_seid);
+            seid = *(guint64*)wmem_list_frame_data(elem_seid);
             pfcp_info = wmem_new0(wmem_file_scope(), pfcp_info_t);
             pfcp_info->seid = seid;
             copy_address_wmem(wmem_file_scope(), &pfcp_info->addr, ip);
@@ -1917,7 +1917,7 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
             else if (pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE) {
                 /* We have to check if its seid == seid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                 the corresponding session ID */
-                if ((pfcp_get_frame(pinfo->dst, (guint32)pfcp_hdr->seid, &frame_seid_cp) == 1)) {
+                if ((pfcp_get_frame(pinfo->dst, pfcp_hdr->seid, &frame_seid_cp) == 1)) {
                     /* Then we have to set its session ID */
                     session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(frame_seid_cp)));
                     if (session) {
