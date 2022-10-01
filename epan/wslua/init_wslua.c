@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
+#include <epan/introspection.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
@@ -828,6 +829,134 @@ wslua_allocf(void *ud _U_, void *ptr, size_t osize _U_, size_t nsize)
     return g_realloc(ptr, nsize);
 }
 
+#define WSLUA_BASE_TABLE        "base"
+#define WSLUA_FTYPE_TABLE       "ftypes"
+#define WSLUA_FRAMETYPE_TABLE   "frametype"
+#define WSLUA_EXPERT_TABLE      "expert"
+#define WSLUA_EXPERT_GROUP_TABLE    "group"
+#define WSLUA_EXPERT_SEVERITY_TABLE "severity"
+
+static void
+add_table_symbol(const char *table, const char *name, int value)
+{
+    /* Get table from the global environment. */
+    lua_getglobal(L, table);
+    /* Set symbol in table. */
+    lua_pushstring(L, name);
+    lua_pushnumber(L, value);
+    lua_settable(L, -3);
+    /* Pop table from stack. */
+    lua_pop(L, 1);
+}
+
+static void
+add_global_symbol(const char *name, int value)
+{
+    /* Set symbol in global environment. */
+    lua_pushnumber(L, value);
+    lua_setglobal(L, name);
+}
+
+static void
+add_pi_severity_symbol(const char *name, int value)
+{
+    lua_getglobal(L, WSLUA_EXPERT_TABLE);
+    lua_getfield(L, -1, WSLUA_EXPERT_SEVERITY_TABLE);
+    lua_pushnumber(L, value);
+    lua_setfield(L, -2, name);
+    lua_pop(L, 2);
+}
+
+static void
+add_pi_group_symbol(const char *name, int value)
+{
+    lua_getglobal(L, WSLUA_EXPERT_TABLE);
+    lua_getfield(L, -1, WSLUA_EXPERT_GROUP_TABLE);
+    lua_pushnumber(L, value);
+    lua_setfield(L, -2, name);
+    lua_pop(L, 2);
+}
+
+static void
+add_menu_group_symbol(const char *name, int value)
+{
+    /* Set symbol in global environment. */
+    lua_pushnumber(L, value);
+    char *str = g_strdup(name);
+    char *s = strstr(str, "_GROUP_");
+    if (s == NULL)
+        return;
+    *s = '\0';
+    s += strlen("_GROUP_");
+    char *str2 = ws_strdup_printf("MENU_%s_%s", str, s);
+    lua_setglobal(L, str2);
+    g_free(str);
+    g_free(str2);
+}
+
+/*
+ * Read introspection constants and add them according to the historical
+ * (sometimes arbitrary) rules of make-init-lua.py. For efficiency reasons
+ * we only loop the enums array once.
+ */
+static void
+wslua_add_introspection(void)
+{
+    const ws_enum_t *ep;
+
+    /* Add empty tables to be populated. */
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_BASE_TABLE);
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_FTYPE_TABLE);
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_FRAMETYPE_TABLE);
+    lua_newtable(L);
+    lua_pushstring(L, WSLUA_EXPERT_GROUP_TABLE);
+    lua_newtable(L);
+    lua_settable(L, -3);
+    lua_pushstring(L, WSLUA_EXPERT_SEVERITY_TABLE);
+    lua_newtable(L);
+    lua_settable(L, -3);
+    lua_setglobal(L, WSLUA_EXPERT_TABLE);
+
+    for (ep = epan_inspect_enums(); ep->symbol != NULL; ep++) {
+
+        if (g_str_has_prefix(ep->symbol, "BASE_")) {
+            add_table_symbol(WSLUA_BASE_TABLE, ep->symbol + strlen("BASE_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "SEP_")) {
+            add_table_symbol(WSLUA_BASE_TABLE, ep->symbol + strlen("SEP_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "ABSOLUTE_TIME_")) {
+            add_table_symbol(WSLUA_BASE_TABLE, ep->symbol + strlen("ABSOLUTE_TIME_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "ENC_")) {
+            add_global_symbol(ep->symbol, ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "FT_FRAMENUM_")) {
+            add_table_symbol(WSLUA_FRAMETYPE_TABLE, ep->symbol + strlen("FT_FRAMENUM_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "FT_")) {
+            add_table_symbol(WSLUA_FTYPE_TABLE, ep->symbol + strlen("FT_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "PI_")) {
+            if (ep->value & PI_SEVERITY_MASK) {
+                add_pi_severity_symbol(ep->symbol + strlen("PI_"), ep->value);
+            }
+            else {
+                 add_pi_group_symbol(ep->symbol + strlen("PI_"), ep->value);
+            }
+            /* For backward compatibility. */
+            add_global_symbol(ep->symbol, ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "REGISTER_")) {
+            add_menu_group_symbol(ep->symbol + strlen("REGISTER_"), ep->value);
+        }
+
+    }
+}
+
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
@@ -1020,6 +1149,8 @@ void wslua_init(register_cb cb, gpointer client_data) {
     /* special constant used by PDU reassembly handling */
     /* see dissect_lua() for notes */
     WSLUA_REG_GLOBAL_NUMBER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
+
+    wslua_add_introspection();
 
     /* load system's init.lua */
     filename = get_datafile_path("init.lua");

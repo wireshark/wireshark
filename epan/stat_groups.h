@@ -25,24 +25,9 @@ extern "C" {
  *
  * XXX - stats should be able to register additional menu groups, although
  * the question then would be "in what order should they appear in the menu?"
- *
- * NOTE: the enum below is parsed by epan/wslua/make-init-lua.py in order
- * to generate usable values for Lua scripts to use, so they can add to
- * the menus in the GUI. The perl script's regex is such that the following
- * prefixes must only appear once in this list:
- * REGISTER_ANALYZE_GROUP_CONVERSATION
- * REGISTER_STAT_GROUP_CONVERSATION
- * REGISTER_STAT_GROUP_RESPONSE
- * REGISTER_STAT_GROUP_ENDPOINT
- * In other words, because there is a REGISTER_STAT_GROUP_RESPONSE_TIME, you cannot
- * add a REGISTER_STAT_GROUP_RESPONSE nor a REGISTER_STAT_GROUP_RESPONSE_FOOBAR
- * because they use the same "REGISTER_STAT_GROUP_RESPONSE" prefix.
- * Also, do NOT change the names in the enum - you can add, but not remove.
- * If you do, legacy scripts will break. (which is why the perl script regex isn't better)
  */
 
 /*! Statistics groups. Used for UI menu layout. */
-/* This is parsed by make-init-lua.py, so we can't do anything fancy here. */
 typedef enum register_stat_group_e {
     REGISTER_PACKET_ANALYZE_GROUP_UNSORTED,     /*!< Unsorted packet analysis */
     REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /*!< Conversation filters. Unused? */

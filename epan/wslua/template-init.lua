@@ -94,27 +94,19 @@ ${WTAP_TSPRECS}
 
 ${WTAP_COMMENT_TYPES}
 
-${FT_TYPES}
-
--- the following table is since 2.0
-${FT_FRAME_TYPES}
-
 -- the following table is since 1.12
 ${WTAP_REC_TYPES}
 
 -- the following table is since 1.11.3
 ${WTAP_PRESENCE_FLAGS}
 
-${BASES}
-
-${ENCODINGS}
-
-${EXPERT}
-
--- the following table is since 1.11.3
-${EXPERT_TABLE}
-
-${MENU_GROUPS}
+-- Old / deprecated menu groups. These shoudn't be used in new code.
+MENU_ANALYZE_UNSORTED = MENU_PACKET_ANALYZE_UNSORTED
+MENU_ANALYZE_CONVERSATION = MENU_ANALYZE_CONVERSATION_FILTER
+MENU_STAT_CONVERSATION = MENU_STAT_CONVERSATION_LIST
+MENU_STAT_ENDPOINT = MENU_STAT_ENDPOINT_LIST
+MENU_STAT_RESPONSE = MENU_STAT_RESPONSE_TIME
+MENU_STAT_UNSORTED = MENU_PACKET_STAT_UNSORTED
 
 -- the possible values for Pinfo's p2p_dir attribute
 P2P_DIR_UNKNOWN = -1
