@@ -37,6 +37,9 @@ CONFIG_PROFILE=
 # Run under valgrind ?
 VALGRIND=0
 
+# Abort on UTF-8 encoding errors
+CHECK_UTF_8="--log-fatal-domains=UTF-8 "
+
 # Run under AddressSanitizer ?
 ASAN=$CONFIGURED_WITH_ASAN
 
@@ -53,7 +56,7 @@ RUN_START_SECONDS=$SECONDS
 RUN_MAX_SECONDS=$(( RUN_START_SECONDS + 86400 ))
 
 # To do: add options for file names and limits
-while getopts "2b:C:d:e:agp:P:o:t:" OPTCHAR ; do
+while getopts "2b:C:d:e:agp:P:o:t:U" OPTCHAR ; do
     case $OPTCHAR in
         a) ASAN=1 ;;
         2) TWO_PASS="-2 " ;;
@@ -66,6 +69,7 @@ while getopts "2b:C:d:e:agp:P:o:t:" OPTCHAR ; do
         P) MIN_PLUGINS=$OPTARG ;;
         o) CHANGE_OFFSET=$OPTARG ;;
         t) RUN_MAX_SECONDS=$(( RUN_START_SECONDS + OPTARG )) ;;
+        U) CHECK_UTF_8= ;; # disable
         *) printf "Unknown option %s\n" "$OPTCHAR"
     esac
 done
@@ -76,7 +80,7 @@ shift $((OPTIND - 1))
 ws_bind_exec_paths
 ws_check_exec "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR"
 
-COMMON_ARGS="${CONFIG_PROFILE}${TWO_PASS}"
+COMMON_ARGS="${CONFIG_PROFILE}${TWO_PASS}${CHECK_UTF_8}"
 KEEP=
 PACKET_RANGE=
 if [ $VALGRIND -eq 1 ]; then
