@@ -1113,10 +1113,10 @@ static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t btmesh_handle;
 static dissector_handle_t btmesh_pbadv_handle;
 static dissector_handle_t btmesh_beacon_handle;
-static dissector_handle_t gaen_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
+static dissector_table_t  bluetooth_eir_ad_service_uuid;
 
 wmem_tree_t *bthci_cmds = NULL;
 
@@ -9180,13 +9180,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
             if (length - 2 > 0) {
                 uuid = get_bluetooth_uuid(tvb, offset-2, 2);
-                /* XXX A dissector table should be used here if we get many of these*/
-                if (uuid.bt_uuid == 0xFD6F) /* GAEN Identifier */
-                {
-                    call_dissector(gaen_handle, tvb, pinfo, entry_tree);
-                }
-                else
-                {
+                if (!dissector_try_string(bluetooth_eir_ad_service_uuid, print_numeric_bluetooth_uuid(&uuid),
+                        tvb_new_subset_length(tvb, offset, length - 2), pinfo, entry_tree, bluetooth_eir_ad_data)) {
                     proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
                 }
                 offset += length - 2;
@@ -9194,13 +9189,16 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0x20: /* Service Data - 32 bit UUID */
             uuid = get_bluetooth_uuid(tvb, offset, 4);
-            if (uuid.bt_uuid) {
-                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
-            }
-            else {
-                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_item_append_text(sub_item, " (%s)", print_bluetooth_uuid(&uuid));
+            if (!dissector_try_string(bluetooth_eir_ad_service_uuid, print_numeric_bluetooth_uuid(&uuid),
+                    tvb_new_subset_length(tvb, offset + 4, length - 4), pinfo, entry_tree, bluetooth_eir_ad_data)) {
+                if (uuid.bt_uuid) {
+                        sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
+                }
+                else {
+                    sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid_32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(sub_item, " (%s)", print_bluetooth_uuid(&uuid));
+                }
             }
             offset += 4;
 
@@ -9211,13 +9209,16 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0x21: /* Service Data - 128 bit UUID */
             uuid = get_bluetooth_uuid(tvb, offset, 16);
-            if (uuid.bt_uuid) {
-                sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_bluetooth_uuid(&uuid));
-                proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
-            }
-            else {
-                sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_custom_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_bluetooth_uuid(&uuid));
-                proto_item_append_text(sub_item, " (%s)", print_bluetooth_uuid(&uuid));
+            if (!dissector_try_string(bluetooth_eir_ad_service_uuid, print_numeric_bluetooth_uuid(&uuid),
+                    tvb_new_subset_length(tvb, offset + 16, length - 16), pinfo, entry_tree, bluetooth_eir_ad_data)) {
+                if (uuid.bt_uuid) {
+                    sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_bluetooth_uuid(&uuid));
+                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
+                }
+                else {
+                    sub_item = proto_tree_add_bytes_format_value(entry_tree, hf_btcommon_eir_ad_custom_uuid_128, tvb, offset, 16, uuid.data, "%s", print_numeric_bluetooth_uuid(&uuid));
+                    proto_item_append_text(sub_item, " (%s)", print_bluetooth_uuid(&uuid));
+                }
             }
             offset += 16;
 
@@ -10902,6 +10903,10 @@ proto_register_btcommon(void)
     bluetooth_eir_ad_manufacturer_company_id = register_dissector_table("btcommon.eir_ad.manufacturer_company_id", "BT EIR/AD Manufacturer Company ID", proto_btcommon, FT_UINT16, BASE_HEX);
     bluetooth_eir_ad_tds_organization_id     = register_dissector_table("btcommon.eir_ad.tds_organization_id",     "BT EIR/AD TDS Organization ID", proto_btcommon, FT_UINT8, BASE_HEX);
 
+    // Key for this table is the lower-case hex-representation of the service UUID. 16-bit UUIDs will have 4 characters, 32-bit UUIDs will have 8 characters.
+    // 128-bit UUIDs have 4 dashes in them, and therefore have 36 characters.
+    bluetooth_eir_ad_service_uuid            = register_dissector_table("btcommon.eir_ad.entry.uuid",              "BT EIR/AD Service UUID", proto_btcommon, FT_STRING, BASE_NONE);
+
     register_decode_as(&bluetooth_eir_ad_manufacturer_company_id_da);
     register_decode_as(&bluetooth_eir_ad_tds_organization_id_da);
 }
@@ -10912,7 +10917,6 @@ proto_reg_handoff_btcommon(void)
     btmesh_handle = find_dissector("btmesh.msg");
     btmesh_pbadv_handle = find_dissector("btmesh.pbadv");
     btmesh_beacon_handle = find_dissector("btmesh.beacon");
-    gaen_handle = find_dissector("bluetooth.gaen");
 }
 
 

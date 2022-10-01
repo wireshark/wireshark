@@ -5185,7 +5185,7 @@ proto_register_btad_gaen(void)
 void
 proto_reg_handoff_btad_gaen(void)
 {
-    dissector_add_for_decode_as("btcommon.eir_ad.manufacturer_company_id", btad_gaen);
+    dissector_add_string("btcommon.eir_ad.entry.uuid", "fd6f", btad_gaen);
 }
 
 /*
