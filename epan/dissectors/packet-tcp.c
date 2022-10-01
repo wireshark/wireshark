@@ -8404,7 +8404,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * for this flow, terminate reassembly and dissect the
              * results. */
             tcpd->fwd->fin = pinfo->num;
-            msp=(struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq-1);
+            msp=(struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq);
             if(msp) {
                 fragment_head *ipfd_head;
 

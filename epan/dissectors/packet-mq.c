@@ -4001,8 +4001,8 @@ static gboolean    dissect_mq_heur_nontcp(tvbuff_t* tvb, packet_info* pinfo, pro
 
 static gboolean    dissect_mq_heur_ssl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-    dissector_handle_t* app_handle = (dissector_handle_t*)data;
-    return dissect_mq_heur(tvb, pinfo, tree, FALSE, app_handle);
+    struct tlsinfo *tlsinfo = (struct tlsinfo*)data;
+    return dissect_mq_heur(tvb, pinfo, tree, FALSE, tlsinfo->app_handle);
 }
 
 void proto_register_mq(void)

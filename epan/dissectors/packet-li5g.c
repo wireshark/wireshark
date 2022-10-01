@@ -11,6 +11,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/ipproto.h>
+#include <epan/dissectors/packet-tls.h>
 
 void proto_reg_handoff_li5g(void);
 void proto_register_li5g(void);
@@ -194,6 +195,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static gboolean
 dissect_li5g_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    struct tlsinfo* tlsinfo = (struct tlsinfo*)data;
     if (tvb_captured_length(tvb) < LI_5G_HEADER_LEN_MIN)
         return FALSE;
     /* the version should be 1 */
@@ -204,7 +206,7 @@ dissect_li5g_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return (FALSE);
 
     /* TLS can hold it, no need to find the disect every time */
-    *(dissector_handle_t *)data = li5g_handle;
+    *(tlsinfo->app_handle) = li5g_handle;
     dissect_li5g(tvb, pinfo, tree, data);
 
     return TRUE;

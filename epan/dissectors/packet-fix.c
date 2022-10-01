@@ -448,7 +448,7 @@ dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static gboolean
 dissect_fix_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    dissector_handle_t *app_handle = (dissector_handle_t *) data;
+    struct tlsinfo *tlsinfo = (struct tlsinfo *)data;
     /* get at least the fix version: 8=FIX.x.x */
     if (fix_marker(tvb, 0) != 0) {
         /* not a fix packet */
@@ -456,7 +456,7 @@ dissect_fix_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     dissect_fix_pdus(tvb, pinfo, tree, data);
-    *app_handle = fix_handle;
+    *(tlsinfo->app_handle) = fix_handle;
     return TRUE;
 }
 

@@ -497,12 +497,14 @@ static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                 SslSession *session, gint is_from_server,
                                 gboolean *need_desegmentation,
                                 SslDecryptSession *conv_data,
-                                guint8 curr_layer_num_ssl);
+                                guint8 curr_layer_num_ssl,
+                                struct tlsinfo *tlsinfo);
 
 /* alert message dissector */
 static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset,
-                               guint32 record_length, const SslSession *session);
+                               guint32 record_length, const SslSession *session,
+                               struct tlsinfo *tlsinfo);
 
 /* handshake protocol dissector */
 static void dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
@@ -571,6 +573,17 @@ static gint  ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb,
                                                const guint32 offset,
                                                const guint32 record_length);
 
+static void
+process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, SslSession *session,
+                    dissector_handle_t app_handle_port,
+                    struct tlsinfo *tlsinfo);
+static guint32
+tls_msp_fragment_id(struct tcp_multisegment_pdu *msp);
+
+static void
+print_tls_fragment_tree(fragment_head *ipfd_head, proto_tree *tree, proto_tree *tls_tree, packet_info *pinfo, tvbuff_t *next_tvb);
+
 /*********************************************************************
  *
  * Main dissector
@@ -588,9 +601,11 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree        *ssl_tree;
     guint32            offset;
     gboolean           need_desegmentation;
-    SslDecryptSession *ssl_session;
+    SslDecryptSession *ssl_session, *ssl_session_save;
     SslSession        *session;
     gint               is_from_server;
+    struct tcpinfo    *tcpinfo;
+    struct tlsinfo     tlsinfo;
     /*
      * A single packet may contain multiple TLS records. Two possible scenarios:
      *
@@ -614,6 +629,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     offset = 0;
     ssl_session = NULL;
 
+    memset(&tlsinfo, 0, sizeof(tlsinfo));
+    tcpinfo = (struct tcpinfo*)data;
 
     if (tvb_captured_length(tvb) > 4) {
         const guint8 *tmp = tvb_get_ptr(tvb, 0, 4);
@@ -647,7 +664,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      *       in addition to conv_version
      */
     conversation = find_or_create_conversation(pinfo);
-    ssl_session = ssl_get_session(conversation, tls_handle);
+    ssl_session_save = ssl_session = ssl_get_session(conversation, tls_handle);
     session = &ssl_session->session;
     is_from_server = ssl_packet_from_server(session, ssl_associations, pinfo);
 
@@ -751,7 +768,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                              offset, session, is_from_server,
                                              &need_desegmentation,
                                              ssl_session,
-                                             curr_layer_num_ssl);
+                                             curr_layer_num_ssl, &tlsinfo);
             }
             break;
 
@@ -791,7 +808,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                              offset, session, is_from_server,
                                              &need_desegmentation,
                                              ssl_session,
-                                             curr_layer_num_ssl);
+                                             curr_layer_num_ssl, &tlsinfo);
             }
             else
             {
@@ -814,6 +831,104 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
     }
 
+    guint ret = tvb_captured_length(tvb);
+
+    /* Check for needing to reassemble at end of stream */
+    ssl_session = ssl_session_save;
+    if (ssl_session) {
+        SslDecoder *decoder;
+        /* retrieve decoder for this packet direction. Retrieve it
+         * here because the decoder could have been created while
+         * processing the records (e.g., an Early Data HTTP request
+         * and response, with no Content-Length.) */
+        if (is_from_server != 0) {
+            decoder = ssl_session->server;
+        }
+        else {
+            decoder = ssl_session->client;
+        }
+
+        if (decoder && decoder->flow && decoder->flow->flags & TCP_FLOW_REASSEMBLE_UNTIL_FIN) {
+            /* We want to reassemble at the end of the stream. Are we
+             * there? */
+            /* There might be more than one record, and we don't want to tell
+             * the application dissector that we got a TCP FIN if there are
+             * more app data records to come. We add the FIN here.
+             * XXX: We could have some logic to do so in dissect_ssl3_record()
+             * when we're on the last record. Note that the last record could
+             * be an alert, or this could be a FIN with no data, so we'd still
+             * have to check here anyway.)
+             */
+            if (tcpinfo) {
+                tlsinfo.end_of_stream |= (tcpinfo->flags & TH_FIN);
+            }
+            if (!tlsinfo.end_of_stream) {
+                /* No. Tell the TCP dissector that we want to desegment
+                 * at FIN, so that it will call the TLS dissector at FIN
+                 * even if there is no TCP payload.
+                 *
+                 * However, tell it that we've already dissected all the
+                 * the data in the packet, so that we avoid getting it
+                 * later and trying to decrypt the records again.
+                 * (XXX: An alternative would be checking for already decrypted
+                 * records before trying to decrypt on the first pass.)
+                 */
+                pinfo->desegment_offset = tvb_captured_length(tvb);
+                pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
+            } else {
+                ssl_debug_printf("  desegmenting at end of stream (FIN)\n");
+                struct tcp_multisegment_pdu *msp;
+                msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(decoder->flow->multisegment_pdus, decoder->flow->byte_seq);
+                if (msp) {
+                    fragment_head *ipfd_head;
+                    ipfd_head = fragment_add(&ssl_reassembly_table, tvb, offset,
+                                             pinfo, tls_msp_fragment_id(msp), msp,
+                                             decoder->flow->byte_seq - msp->seq,
+                                             0, FALSE);
+                    if (ipfd_head && ipfd_head->reassembled_in == pinfo->num) {
+                        tvbuff_t *next_tvb;
+
+                        /* create a new TVB structure for desegmented data */
+                        next_tvb = tvb_new_chain(tvb, ipfd_head->tvb_data);
+
+                        /* add desegmented data to the data source list */
+                        add_new_data_source(pinfo, next_tvb, "Reassembled TLS");
+
+                        /* Show details of the reassembly */
+                        print_tls_fragment_tree(ipfd_head, tree, ssl_tree, pinfo, next_tvb);
+
+                        /*
+                         * Supply the sequence number of the first of the
+                         * reassembled bytes.
+                         */
+                        tlsinfo.seq = msp->seq;
+
+                        /* indicate that this is reassembled data */
+                        tlsinfo.is_reassembled = TRUE;
+
+                        /* call subdissector */
+                        process_ssl_payload(next_tvb, 0, pinfo, tree, session, session->app_handle, &tlsinfo);
+
+                        if (ret == 0) {
+                            /* XXX: Workaround for #15159. Ordinarily we
+                             * return the number of bytes dissected, but zero
+                             * indicates the dissector rejecting the data. If
+                             * we are dissecting at FIN, but there were no new
+                             * records added, we want to indicate that the
+                             * dissector accepted the zero length payload so
+                             * that the TLS (and, e.g. HTTP) layers don't get
+                             * removed. So artificially return 1 instead.
+                             * (The TCP dissector will ignore the number.)
+                             */
+                            ret = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     ssl_debug_flush();
@@ -821,7 +936,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* Make data available to ssl_follow_tap_listener */
     tap_queue_packet(tls_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_ssl));
 
-    return tvb_captured_length(tvb);
+    return ret;
 }
 
 /*
@@ -1176,9 +1291,28 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 }
 
 static void
-process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                    proto_tree *tree, SslSession *session,
-                    dissector_handle_t app_handle_port);
+print_tls_fragment_tree(fragment_head *ipfd_head, proto_tree *tree, proto_tree *tls_tree, packet_info *pinfo, tvbuff_t *next_tvb)
+{
+    proto_item *tls_tree_item, *frag_tree_item;
+
+    /*
+     * The subdissector thought it was completely
+     * desegmented (although the stuff at the
+     * end may, in turn, require desegmentation),
+     * so we show a tree with all segments.
+     */
+    show_fragment_tree(ipfd_head, &ssl_segment_items,
+                       tree, pinfo, next_tvb, &frag_tree_item);
+    /*
+     * The toplevel fragment subtree is now
+     * behind all desegmented data; move it
+     * right behind the TLS tree.
+     */
+    tls_tree_item = proto_tree_get_parent(tls_tree);
+    if (frag_tree_item && tls_tree_item) {
+        proto_tree_move_item(tree, tls_tree_item, frag_tree_item);
+    }
+}
 
 static guint32
 tls_msp_fragment_id(struct tcp_multisegment_pdu *msp)
@@ -1204,7 +1338,8 @@ desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
               guint32 seq, guint32 nxtseq,
               SslSession *session,
               proto_tree *root_tree, proto_tree *tree,
-              SslFlow *flow, dissector_handle_t app_handle_port)
+              SslFlow *flow, dissector_handle_t app_handle_port,
+              struct tlsinfo *tlsinfo)
 {
     fragment_head *ipfd_head;
     gboolean       must_desegment;
@@ -1215,8 +1350,6 @@ desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
     guint32        deseg_seq;
     gint           nbytes;
     proto_item    *item;
-    proto_item    *frag_tree_item;
-    proto_item    *ssl_tree_item;
     struct tcp_multisegment_pdu *msp;
 
 again:
@@ -1331,7 +1464,15 @@ again:
          * contain a continuation of a higher-level PDU.
          * Call the normal subdissector.
          */
-        process_ssl_payload(tvb, offset, pinfo, tree, session, app_handle_port);
+
+        /*
+         * Supply the sequence number of this segment. We set this here
+         * because this segment could be after another in the same packet,
+         * in which case seq was incremented at the end of the loop.
+         */
+        tlsinfo->seq = seq;
+
+        process_ssl_payload(tvb, offset, pinfo, tree, session, app_handle_port, tlsinfo);
         called_dissector = TRUE;
 
         /* Did the subdissector ask us to desegment some more data
@@ -1374,6 +1515,8 @@ again:
              * This is *not* the last segment. It is part of a PDU in the same
              * frame, so no another PDU can follow this one.
              * Do not reassemble TLS yet, it will be done in the final segment.
+             * (If we are reassembling at FIN, we will do that in dissect_ssl()
+             * after iterating through all the records.)
              * Clear the Info column and avoid displaying [TLS segment of a
              * reassembled PDU], the payload dissector will typically set it.
              * (This is needed here for the second pass.)
@@ -1406,8 +1549,17 @@ again:
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, next_tvb, "Reassembled TLS");
 
+            /*
+             * Supply the sequence number of the first of the
+             * reassembled bytes.
+             */
+            tlsinfo->seq = msp->seq;
+
+            /* indicate that this is reassembled data */
+            tlsinfo->is_reassembled = TRUE;
+
             /* call subdissector */
-            process_ssl_payload(next_tvb, 0, pinfo, tree, session, app_handle_port);
+            process_ssl_payload(next_tvb, 0, pinfo, tree, session, app_handle_port, tlsinfo);
             called_dissector = TRUE;
 
             /*
@@ -1444,6 +1596,15 @@ again:
                      */
                     msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + 1;
                     msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+                } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                    /* This is not the first segment, and we thought reassembly
+                     * would be done now, but now we know we desegment at FIN.
+                     * E.g., a HTTP response where the headers were split
+                     * across segments (so previous ONE_MORE_SEGMENT) and
+                     * also no Content-Length (so now DESEGMENT_UNTIL_FIN).
+                     */
+                    flow->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+                    msp->nxtpdu = nxtseq + 0x40000000;
                 } else {
                     msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + pinfo->desegment_len;
                 }
@@ -1460,23 +1621,8 @@ again:
                 nbytes = tvb_reported_length_remaining(tvb, offset);
                 ssl_proto_tree_add_segment_data(tree, tvb, offset, nbytes, NULL);
 
-                /*
-                 * The subdissector thought it was completely
-                 * desegmented (although the stuff at the
-                 * end may, in turn, require desegmentation),
-                 * so we show a tree with all segments.
-                 */
-                show_fragment_tree(ipfd_head, &ssl_segment_items,
-                                   root_tree, pinfo, next_tvb, &frag_tree_item);
-                /*
-                 * The toplevel fragment subtree is now
-                 * behind all desegmented data; move it
-                 * right behind the TCP tree.
-                 */
-                ssl_tree_item = proto_tree_get_parent(tree);
-                if (frag_tree_item && ssl_tree_item) {
-                    proto_tree_move_item(root_tree, ssl_tree_item, frag_tree_item);
-                }
+                /* Show details of the reassembly */
+                print_tls_fragment_tree(ipfd_head, root_tree, tree, pinfo, next_tvb);
 
                 /* Did the subdissector ask us to desegment
                  * some more data?  This means that the data
@@ -1568,6 +1714,13 @@ again:
                 msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
                     deseg_seq, nxtseq+1, flow->multisegment_pdus);
                 msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+            } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
+                /* Set nxtseq very large so that reassembly won't happen
+                 * until we force it at the end of the stream in dissect_ssl()
+                 * outside this function.
+                 */
+                msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
+                    deseg_seq, nxtseq+0x40000000, flow->multisegment_pdus);
             } else {
                 msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
                     deseg_seq, nxtseq+pinfo->desegment_len, flow->multisegment_pdus);
@@ -1660,22 +1813,25 @@ export_pdu_packet(tvbuff_t *tvb, packet_info *pinfo, guint8 tag, const gchar *na
 static void
 process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, SslSession *session,
-                    dissector_handle_t app_handle_port)
+                    dissector_handle_t app_handle_port,
+                    struct tlsinfo *tlsinfo)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
     guint16 saved_match_port;
+
+    tlsinfo->app_handle = &session->app_handle;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     /* If the appdata proto is not yet known (no STARTTLS), try heuristics
      * first, then ports-based dissectors. Port 443 is too overloaded... */
     if (!session->app_handle) {
-        /* The heuristics dissector should set the app_handle if it wants to be
-         * called in the future. */
+        /* The heuristics dissector should set the app_handle via tlsinfo
+         * if it wants to be called in the future. */
         if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
                                     pinfo, proto_tree_get_root(tree), &hdtbl_entry,
-                                    &session->app_handle)) {
+                                    tlsinfo)) {
             ssl_debug_printf("%s: found heuristics dissector %s, app_handle is %p (%s)\n",
                              G_STRFUNC, hdtbl_entry->short_name,
                              (void *)session->app_handle,
@@ -1722,10 +1878,13 @@ static void
 dissect_ssl_payload(tvbuff_t *decrypted, packet_info *pinfo,
                     proto_tree *tree, SslSession *session,
                     SslRecordInfo *record,
-                    dissector_handle_t app_handle_port)
+                    dissector_handle_t app_handle_port,
+                    struct tlsinfo *tlsinfo)
 {
     gboolean     save_fragmented;
     guint16      save_can_desegment;
+
+    tlsinfo->seq = record->seq;
 
     /* Preserve current desegmentation ability to prevent the subdissector
      * from messing up the ssl desegmentation */
@@ -1741,7 +1900,7 @@ dissect_ssl_payload(tvbuff_t *decrypted, packet_info *pinfo,
         pinfo->can_desegment = 2;
         desegment_ssl(decrypted, pinfo, 0, record->seq, record->seq + record->data_len,
                       session, proto_tree_get_root(tree), tree,
-                      record->flow, app_handle_port);
+                      record->flow, app_handle_port, tlsinfo);
     } else if (session->app_handle || app_handle_port) {
         /* No - just call the subdissector.
            Mark this as fragmented, so if somebody throws an exception,
@@ -1750,7 +1909,7 @@ dissect_ssl_payload(tvbuff_t *decrypted, packet_info *pinfo,
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
 
-        process_ssl_payload(decrypted, 0, pinfo, tree, session, app_handle_port);
+        process_ssl_payload(decrypted, 0, pinfo, tree, session, app_handle_port, tlsinfo);
         pinfo->fragmented = save_fragmented;
     }
 
@@ -1770,7 +1929,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     SslSession *session, gint is_from_server,
                     gboolean *need_desegmentation,
                     SslDecryptSession *ssl,
-                    guint8 curr_layer_num_ssl)
+                    guint8 curr_layer_num_ssl, struct tlsinfo *tlsinfo)
 {
 
     /*
@@ -1947,7 +2106,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * record for later usage (without having to decrypt again). The offset is
      * used as 'key' to identify this record in the packet (we can have multiple
      * handshake records in the same frame).
-     * In TLS 1.3, only "Application Data" records are encrypted.
+     * In TLS 1.3, an encrypted record always has (outer) opaque_type of
+     * "Application Data". The actual content type of the record is found
+     * after decryption.
      */
     if (ssl && record_length && (session->version != TLSV1DOT3_VERSION || content_type == SSL_ID_APP_DATA)) {
         gboolean    decrypt_ok = FALSE;
@@ -2017,9 +2178,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     case SSL_ID_ALERT:
         if (decrypted) {
-            dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, 2, session);
+            dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, 2, session, tlsinfo);
         } else {
-            dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, record_length, session);
+            dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, record_length, session, tlsinfo);
         }
         break;
     case SSL_ID_HANDSHAKE:
@@ -2073,7 +2234,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         if (decrypted) {
-            dissect_ssl_payload(decrypted, pinfo, tree, session, record, app_handle);
+            dissect_ssl_payload(decrypted, pinfo, tree, session, record, app_handle, tlsinfo);
         }
 
         /* Set app proto again in case the heuristics found a different proto. */
@@ -2119,7 +2280,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree, guint32 offset, guint32 record_length,
-                   const SslSession *session)
+                   const SslSession *session, struct tlsinfo *tlsinfo)
 {
     /*     struct {
      *         AlertLevel level;
@@ -2163,6 +2324,13 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 
     desc_byte = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
     desc = val_to_str_const(desc_byte, ssl_31_alert_description, "Unknown");
+    if (desc_byte == 0) {
+        /* If this is a close_notify, mark it as the end of the stream.
+         * (XXX: Maybe we should do this for other alerts, and maybe
+         * reassembling at FIN should also try reassembling at RST as well?)
+         */
+        tlsinfo->end_of_stream = TRUE;
+    }
 
     /* now set the text in the record layer line */
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,

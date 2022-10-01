@@ -48,6 +48,7 @@
 #include <epan/addr_resolv.h>
 
 #include "packet-tcp.h"
+#include "packet-tls.h"
 #include "wsutil/pint.h"
 #include "wsutil/strtoi.h"
 #include "wsutil/str_util.h"
@@ -3944,9 +3945,9 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static gboolean
 dissect_http2_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    dissector_handle_t *app_handle = (dissector_handle_t *) data;
+    struct tlsinfo *tlsinfo = (struct tlsinfo *) data;
     if (dissect_http2_heur(tvb, pinfo, tree, NULL)) {
-        *app_handle = http2_handle;
+        *(tlsinfo->app_handle) = http2_handle;
         return TRUE;
     }
     return FALSE;

@@ -3940,18 +3940,13 @@ dissect_http_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
 	conversation_t *conversation;
 	http_conv_t *conv_data;
+	gboolean end_of_stream;
 
 	conv_data = get_http_conversation_data(pinfo, &conversation);
 
-	/*
-	 * XXX - we need to provide an end-of-stream indication.
-	 * tls should also provide the byte offset inside the stream,
-	 * similar to TCP sequence numbers. It already provides the
-	 * app_handle to heuristic dissectors as the (void *)data,
-	 * so we'd have to change it everywhere or pass it a different
-	 * way (e.g., pinfo->pool proto data).
-	 */
-	dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE, NULL);
+	struct tlsinfo *tlsinfo = (struct tlsinfo *)data;
+	end_of_stream = (tlsinfo && tlsinfo->end_of_stream);
+	dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream, tlsinfo ? &tlsinfo->seq : NULL);
 	return tvb_captured_length(tvb);
 }
 
@@ -3987,8 +3982,7 @@ dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		return FALSE;
 	}
 
-        conv_data = wmem_new0(wmem_file_scope(), http_conv_t);
-        conversation_add_proto_data(conversation, proto_http, conv_data);
+	conv_data = get_http_conversation_data(pinfo, &conversation);
 	dissect_http_tls(tvb, pinfo, tree, data);
 	return TRUE;
 }
