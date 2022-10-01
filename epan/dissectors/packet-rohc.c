@@ -1697,8 +1697,6 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_nbo, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_bits_item(dynamic_ipv4_tree, hf_rohc_spare_bits, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
                 offset++;
-                /* Set proper length for subtree */
-                proto_item_set_len(root_ti, offset-tree_start_offset);
 
                 /*   +---+---+---+---+---+---+---+---+
                  *   / Generic extension header list /  variable length
@@ -1707,6 +1705,9 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                  *   5.8.6.1, with all header items present in uncompressed form.
                  */
                 offset = dissect_compressed_list(0, pinfo, dynamic_ipv4_tree, tvb, offset);
+
+                /* Set proper length for subtree */
+                proto_item_set_len(root_ti, offset-tree_start_offset);
 
                 /* Add summary to ipv4 root item */
                 proto_item_append_text(root_ti, " (ToS=%u, TTL=%u, ID=%u, RND=%u, NBO=%u)",
