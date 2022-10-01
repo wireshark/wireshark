@@ -429,7 +429,7 @@ gboolean FilterExpressionToolBar::filter_expression_add_action(const void *key _
         dfb_action->setToolTip(fe->expression);
         dfb_action->setProperty(dfe_property_comment_, QString(fe->expression));
     }
-    dfb_action->setData(fe->expression);
+    dfb_action->setData(QString::fromUtf8(fe->expression));
     dfb_action->setProperty(dfe_property_, true);
     dfb_action->setProperty(dfe_property_label_, QString(fe->label));
     dfb_action->setProperty(dfe_property_expression_, QString(fe->expression));
