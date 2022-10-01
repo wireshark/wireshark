@@ -25,6 +25,7 @@ default_infiles = [
     "epan/ipproto.h",
     "epan/proto.h",
     "epan/ftypes/ftypes.h",
+    "epan/stat_groups.h",
 ]
 
 default_outfile = "epan/introspection-enums.c"
