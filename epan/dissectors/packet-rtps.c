@@ -2561,12 +2561,24 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             member_kind = type_id;
         }
     }
-    if (info && (flags & MEMBER_OPTIONAL) == MEMBER_OPTIONAL) {
-        gint offset_before = offset;
-        rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
-        offset = offset_before;
-        if (element_member_id != 0 && member_id != element_member_id)
+    if ((flags & MEMBER_OPTIONAL) != 0) {
+		gint offset_before = offset;
+		/* Parameter header is at minimun 4 bytes */
+		ALIGN_ZERO(
+            offset,
+            get_native_type_cdr_alignment(RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE, encoding_version),
+            offset_zero);
+		rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
+        if (info
+                && (flags & MEMBER_OPTIONAL) == MEMBER_OPTIONAL
+                && element_member_id != 0
+                && member_id != element_member_id) {
+			offset = offset_before;
             return offset;
+        }
+        if (member_length == 0) {
+            return offset;
+        }
     }
     if (extensibility == EXTENSIBILITY_MUTABLE) {
       rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
