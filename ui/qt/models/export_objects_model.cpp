@@ -77,13 +77,13 @@ QVariant ExportObjectModel::data(const QModelIndex &index, int role) const
         case colPacket:
             return QString::number(entry->pkt_num);
         case colHostname:
-            return entry->hostname;
+            return QString::fromUtf8(entry->hostname);
         case colContent:
-            return entry->content_type;
+            return QString::fromUtf8(entry->content_type);
         case colSize:
             return file_size_to_qstring(entry->payload_len);
         case colFilename:
-            return entry->filename;
+            return QString::fromUtf8(entry->filename);
         }
     }
     else if (role == Qt::UserRole)
