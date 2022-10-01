@@ -214,7 +214,8 @@ WS_DLL_PUBLIC
 char *ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len);
 
 /** Given a wmem scope, a not-necessarily-null-terminated string,
- *  expected to be in UTF-8 and the length of the string,
+ *  expected to be in UTF-8 but possibly containing invalid sequences
+ *  (as it may have come from packet data), and the length of the string,
  *  generate a valid UTF-8 string from it, allocated in the specified
  *  wmem scope, that:
  *
