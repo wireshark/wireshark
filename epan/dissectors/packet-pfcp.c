@@ -2295,19 +2295,11 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         if (name_len < 0x41) {
             /* APN */
             guint8 *apn = NULL;
-            int     tmp;
 
             name_len = tvb_get_guint8(tvb, offset);
 
             if (name_len < 0x20) {
-                apn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, length - 1, ENC_ASCII);
-                for (;;) {
-                    if (name_len >= length - 1)
-                        break;
-                    tmp = name_len;
-                    name_len = name_len + apn[tmp] + 1;
-                    apn[tmp] = '.';
-                }
+                apn = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_APN_STR);
             } else {
                 apn = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
             }
@@ -3595,7 +3587,7 @@ static const value_string pfcp_node_id_type_vals[] = {
 static int
 decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, gint offset, guint16 length)
 {
-    int name_len, tmp;
+    int name_len;
     guint8 *fqdn = NULL;
 
     /* FQDN, the Node ID value encoding shall be identical to the encoding of a FQDN
@@ -3606,14 +3598,7 @@ decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         name_len = tvb_get_guint8(tvb, offset);
         /* NOTE 1: The FQDN field in the IE is not encoded as a dotted string as commonly used in DNS master zone files. */
         if (name_len < 0x40) {
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, length - 2, ENC_ASCII);
-            for (;;) {
-                if (name_len >= length - 2)
-                    break;
-                tmp = name_len;
-                name_len = name_len + fqdn[tmp] + 1;
-                fqdn[tmp] = '.';
-            }
+            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_APN_STR);
         }
         /* In case the FQDN field is incorrectly in dotted string form.*/
         else {
