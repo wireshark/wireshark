@@ -176,6 +176,7 @@ static int hf_rsl_osmo_top_acch_facch = -1;
 static int hf_rsl_osmo_top_acch_rxqual = -1;
 static int hf_rsl_osmo_tsc_set = -1;
 static int hf_rsl_osmo_tsc_val = -1;
+static int hf_rsl_osmo_osmux_cid = -1;
 
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
@@ -439,6 +440,7 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_IE_OSMO_REP_ACCH_CAP          0x60
 #define RSL_IE_OSMO_TRAINING_SEQUENCE     0x61
 #define RSL_IE_OSMO_TOP_ACCH_CAP          0x62
+#define RSL_IE_OSMO_OSMUX_CID             0x63
 
 static const value_string rsl_msg_type_vals[] = {
       /*    0 0 0 0 - - - - Radio Link Layer Management messages: */
@@ -681,6 +683,7 @@ static const value_string rsl_ie_type_vals[] = {
 /* 0x60 */    { RSL_IE_OSMO_REP_ACCH_CAP, "Repeated ACCH Capabilities" },
 /* 0x61 */    { RSL_IE_OSMO_TRAINING_SEQUENCE, "Training Sequence Code/Set" },
 /* 0x62 */    { RSL_IE_OSMO_TOP_ACCH_CAP, "Temporary ACCH Overpower Capabilities" },
+/* 0x63 */    { RSL_IE_OSMO_OSMUX_CID, "Osmux CID" },
 /* 0xe0 */    { RSL_IE_IPAC_SRTP_CONFIG,"SRTP Configuration" },
 /* 0xe1 */    { RSL_IE_IPAC_PROXY_UDP,  "BSC Proxy UDP Port" },
 /* 0xe2 */    { RSL_IE_IPAC_BSCMPL_TOUT,"BSC Multiplex Timeout" },
@@ -3720,6 +3723,7 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     rtp_dyn_payload_t *dyn_pl = NULL;
     struct dyn_pl_info_t *dyn_pl_info;
     conversation_t *conv;
+    gboolean use_osmux = FALSE;
 
     msg_type = tvb_get_guint8(tvb, offset) & 0x7f;
     offset++;
@@ -3866,29 +3870,38 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             proto_tree_add_item(ie_tree, hf_rsl_cstat_avg_tx_dly, tvb,
                                 offset+24, 4, ENC_BIG_ENDIAN);
             break;
+        case RSL_IE_OSMO_OSMUX_CID:
+            if (global_rsl_use_osmo_bts) {
+                proto_tree_add_item(ie_tree, hf_rsl_osmo_osmux_cid, tvb,
+                                    offset, len, ENC_BIG_ENDIAN);
+                use_osmux = TRUE;
+            }
+            break;
         }
         offset += len;
     }
 
     switch (msg_type) {
     case RSL_MSG_TYPE_IPAC_CRCX_ACK:
-        /* Notify the RTP and RTCP dissectors about a new RTP stream */
-        src_addr.type = AT_IPv4;
-        src_addr.len = 4;
-        src_addr.data = (guint8 *)&local_addr;
+        if (!use_osmux) {
+            /* Notify the RTP and RTCP dissectors about a new RTP stream */
+            src_addr.type = AT_IPv4;
+            src_addr.len = 4;
+            src_addr.data = (guint8 *)&local_addr;
 
-        conv = find_or_create_conversation(pinfo);
-        dyn_pl_info = (struct dyn_pl_info_t *)conversation_get_proto_data(conv, proto_rsl);
-        if (dyn_pl_info && (dyn_pl_info->rtp_codec == 2 || dyn_pl_info->rtp_codec == 5)) {
-            dyn_pl = rtp_dyn_payload_new();
-            rtp_dyn_payload_insert(dyn_pl, dyn_pl_info->rtp_pt, "AMR", 8000);
+            conv = find_or_create_conversation(pinfo);
+            dyn_pl_info = (struct dyn_pl_info_t *)conversation_get_proto_data(conv, proto_rsl);
+            if (dyn_pl_info && (dyn_pl_info->rtp_codec == 2 || dyn_pl_info->rtp_codec == 5)) {
+                dyn_pl = rtp_dyn_payload_new();
+                rtp_dyn_payload_insert(dyn_pl, dyn_pl_info->rtp_pt, "AMR", 8000);
+            }
+            conversation_delete_proto_data(conv, proto_rsl);
+            wmem_free(wmem_file_scope(), dyn_pl_info);
+            rtp_add_address(pinfo, PT_UDP, &src_addr, local_port, 0,
+                            "GSM A-bis/IP", pinfo->num, 0, dyn_pl);
+            rtcp_add_address(pinfo, &src_addr, local_port+1, 0,
+                             "GSM A-bis/IP", pinfo->num);
         }
-        conversation_delete_proto_data(conv, proto_rsl);
-        wmem_free(wmem_file_scope(), dyn_pl_info);
-        rtp_add_address(pinfo, PT_UDP, &src_addr, local_port, 0,
-                        "GSM A-bis/IP", pinfo->num, 0, dyn_pl);
-        rtcp_add_address(pinfo, &src_addr, local_port+1, 0,
-                         "GSM A-bis/IP", pinfo->num);
         break;
     }
     return offset;
@@ -5298,6 +5311,11 @@ void proto_register_rsl(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_rsl_osmo_osmux_cid,
+          { "Osmux CID", "gsm_abis_rsl.osmo_osmux_cid",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_rsl_channel_description_tag, { "Channel Description Tag", "gsm_abis_rsl.channel_description_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag", "gsm_abis_rsl.mobile_allocation_tag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -5486,6 +5504,7 @@ void proto_register_rsl(void)
     RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_PAYLOAD,  TLV_TYPE_TV,            0);
     RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_CSD_FMT,  TLV_TYPE_TV,            0);
     RSL_ATT_TLVDEF(RSL_IE_OSMO_TRAINING_SEQUENCE, TLV_TYPE_TLV,      0);
+    RSL_ATT_TLVDEF(RSL_IE_OSMO_OSMUX_CID,    TLV_TYPE_TLV,           0);
 
     /* Register the protocol name and description */
     proto_rsl = proto_register_protocol("Radio Signalling Link (RSL)", "RSL", "gsm_abis_rsl");
