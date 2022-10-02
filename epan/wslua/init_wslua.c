@@ -830,6 +830,9 @@ wslua_allocf(void *ud _U_, void *ptr, size_t osize _U_, size_t nsize)
     return g_realloc(ptr, nsize);
 }
 
+#define WSLUA_EPAN_ENUMS_TABLE  "_EPAN"
+#define WSLUA_WTAP_ENUMS_TABLE  "_WTAP"
+
 #define WSLUA_BASE_TABLE        "base"
 #define WSLUA_FTYPE_TABLE       "ftypes"
 #define WSLUA_FRAMETYPE_TABLE   "frametype"
@@ -925,6 +928,9 @@ wslua_add_introspection(void)
     lua_newtable(L);
     lua_settable(L, -3);
     lua_setglobal(L, WSLUA_EXPERT_TABLE);
+    /* Add catch-all _EPAN table. */
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_EPAN_ENUMS_TABLE);
 
     for (ep = epan_inspect_enums(); ep->symbol != NULL; ep++) {
 
@@ -959,6 +965,7 @@ wslua_add_introspection(void)
         else if (g_str_has_prefix(ep->symbol, "REGISTER_")) {
             add_menu_group_symbol(ep->symbol + strlen("REGISTER_"), ep->value);
         }
+        add_table_symbol(WSLUA_EPAN_ENUMS_TABLE, ep->symbol, ep->value);
     }
 
     /* Add empty tables to be populated. */
@@ -972,6 +979,9 @@ wslua_add_introspection(void)
     lua_setglobal(L, WSLUA_WTAP_RECTYPES_TABLE);
     lua_newtable(L);
     lua_setglobal(L, WSLUA_WTAP_PRESENCE_FLAGS_TABLE);
+    /* Add catch-all _WTAP table. */
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_WTAP_ENUMS_TABLE);
 
     for (ep = wtap_inspect_enums(); ep->symbol != NULL; ep++) {
 
@@ -990,6 +1000,7 @@ wslua_add_introspection(void)
         else if (g_str_has_prefix(ep->symbol, "WTAP_HAS_")) {
             add_table_symbol(WSLUA_WTAP_PRESENCE_FLAGS_TABLE, ep->symbol + strlen("WTAP_HAS_"), ep->value);
         }
+        add_table_symbol(WSLUA_WTAP_ENUMS_TABLE, ep->symbol, ep->value);
     }
 }
 

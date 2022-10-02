@@ -111,9 +111,9 @@ set_target_properties(register_wslua PROPERTIES FOLDER "Libs/epan/wslua")
 
 install(
 	FILES
-		init.lua
 		console.lua
 		dtd_gen.lua
+		init.lua
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}
 )
