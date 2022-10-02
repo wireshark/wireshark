@@ -4688,18 +4688,17 @@ decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
 
     proto_tree *ext_tree_rp;
     proto_item *te;
-    guint8      nsapi, rp, spare;
+    guint8      nsapi, rp;
 
-    nsapi = tvb_get_guint8(tvb, offset + 1) & 0xF0;
-    spare = tvb_get_guint8(tvb, offset + 1) & 0x08;
+    nsapi = (tvb_get_guint8(tvb, offset + 1) & 0xF0) >> 4;
     rp = tvb_get_guint8(tvb, offset + 1) & 0x07;
 
     te = proto_tree_add_uint_format(tree, hf_gtp_rp, tvb, offset, 2, rp, "Radio Priority for NSAPI(%u) : %u", nsapi, rp);
     ext_tree_rp = proto_item_add_subtree(te, ett_gtp_rp);
 
-    proto_tree_add_uint(ext_tree_rp, hf_gtp_rp_nsapi, tvb, offset + 1, 1, nsapi);
-    proto_tree_add_uint(ext_tree_rp, hf_gtp_rp_spare, tvb, offset + 1, 1, spare);
-    proto_tree_add_uint(ext_tree_rp, hf_gtp_rp,       tvb, offset + 1, 1, rp);
+    proto_tree_add_item(ext_tree_rp, hf_gtp_rp_nsapi, tvb, offset + 1, 1, ENC_NA);
+    proto_tree_add_item(ext_tree_rp, hf_gtp_rp_spare, tvb, offset + 1, 1, ENC_NA);
+    proto_tree_add_item(ext_tree_rp, hf_gtp_rp,       tvb, offset + 1, 1, ENC_NA);
 
     return 2;
 }
