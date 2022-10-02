@@ -27,6 +27,7 @@
 #include <epan/follow.h>
 #include <epan/addr_resolv.h>
 #include <epan/uat.h>
+#include <epan/charsets.h>
 #include <epan/strutil.h>
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
@@ -3138,6 +3139,16 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * value_len+1 bytes long, copy value_len bytes, and stick
 	 * in a NUL terminator, so that the buffer for value actually
 	 * has value_len bytes in it.
+	 *
+	 * XXX - RFC 7230 3.2.4 "Newly defined header fields SHOULD
+	 * limit their field values to US-ASCII octets. A recipient
+	 * SHOULD treat other octets in field content as opaque data."
+	 * So unknown values (and possibly those registered through
+	 * the UAT) should be treated like FT_BYTES with
+	 * BASE_SHOW_ASCII_PRINTABLE instead of FT_STRING, but it's
+	 * more difficult to do that with the custom formatting
+	 * that uses the header name. Instead we will just validate the
+	 * string as ASCII before adding it to the tree.
 	 */
 	value_len = line_end_offset - value_offset;
 	value = (char *)wmem_alloc(wmem_packet_scope(), value_len+1);
@@ -3176,7 +3187,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			} else {
 				proto_tree_add_string_format(tree,
 					*hf_id, tvb, offset, len,
-					value, "%s", format_text(wmem_packet_scope(), line, len));
+					get_ascii_string(pinfo->pool, value, value_len),
+					"%s", format_text(pinfo->pool, line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
 					it = proto_tree_add_item(tree,
@@ -3227,7 +3239,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			default:
 				hdr_item = proto_tree_add_string_format(tree,
 				    *headers[hf_index].hf, tvb, offset, len,
-				    value, "%s", format_text(wmem_packet_scope(), line, len));
+				    get_ascii_string(pinfo->pool, value, value_len),
+				    "%s", format_text(pinfo->pool, line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
 					it = proto_tree_add_item(tree,
