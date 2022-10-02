@@ -506,6 +506,9 @@ void DisplayFilterExpressionDialog::on_searchLineEdit_textChanged(const QString 
     ui->fieldTreeWidget->setUpdatesEnabled(false);
     QTreeWidgetItemIterator it(ui->fieldTreeWidget);
     QRegularExpression regex(search_re, QRegularExpression::CaseInsensitiveOption);
+    if (! regex.isValid())
+        return;
+
     while (*it) {
         bool hidden = true;
         if (search_re.isEmpty() || (*it)->text(0).contains(regex)) {
