@@ -1615,7 +1615,7 @@ uninstall_snappy() {
         # just remove what we know it installs.
         #
         # $DO_MAKE_UNINSTALL || exit 1
-        if [ -s build_dir/install_manifest.txt] ; then
+        if [ -s build_dir/install_manifest.txt ] ; then
             while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat build_dir/install_manifest.txt; echo)
         else
             $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
