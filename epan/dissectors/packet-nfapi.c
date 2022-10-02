@@ -10729,7 +10729,7 @@ void proto_register_nfapi(void)
 			"The size of the DL CQI/PMI in bits in case of rank 1 report.", HFILL }
 		},
 		{ &hf_nfapi_dl_cqi_pmi_size_rank_greater_1,
-			{ "DL CQI PMI size rank greater 1", "nfapi.dl.cqi.pmi.size.rank.1",
+			{ "DL CQI PMI size rank greater 1", "nfapi.dl.cqi.pmi.size.rank.gt_1",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"The size of the DL CQI/PMI in bits in case of rank>1 report.", HFILL }
 		},

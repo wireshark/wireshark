@@ -1101,7 +1101,7 @@ proto_register_netlink_sock_diag(void)
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_sock_diag_unix_show_meminfo,
-			{ "Memory info of a socket", "netlink-sock_diag.unix_show.rqlen",
+			{ "Memory info of a socket", "netlink-sock_diag.unix_show.meminfo",
 			  FT_BOOLEAN, 32, TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_MEMINFO,
 			  NULL, HFILL }
 		},

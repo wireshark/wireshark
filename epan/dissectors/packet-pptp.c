@@ -280,10 +280,10 @@ dissect_stop_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 
   proto_tree_add_item(tree, hf_pptp_reason,   tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
-
+  /* Reserved1 */
   proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 1, ENC_NA);
   offset += 1;
-
+  /* Reserved2 */
   proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
 }
 
