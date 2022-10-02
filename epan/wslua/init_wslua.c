@@ -22,6 +22,7 @@
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
 #include <epan/introspection.h>
+#include <wiretap/introspection.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
@@ -835,6 +836,11 @@ wslua_allocf(void *ud _U_, void *ptr, size_t osize _U_, size_t nsize)
 #define WSLUA_EXPERT_TABLE      "expert"
 #define WSLUA_EXPERT_GROUP_TABLE    "group"
 #define WSLUA_EXPERT_SEVERITY_TABLE "severity"
+#define WSLUA_WTAP_ENCAPS_TABLE     "wtap_encaps"
+#define WSLUA_WTAP_TSPREC_TABLE     "wtap_tsprecs"
+#define WSLUA_WTAP_COMMENTS_TABLE   "wtap_comments"
+#define WSLUA_WTAP_RECTYPES_TABLE   "wtap_rec_types"
+#define WSLUA_WTAP_PRESENCE_FLAGS_TABLE "wtap_presence_flags"
 
 static void
 add_table_symbol(const char *table, const char *name, int value)
@@ -953,7 +959,37 @@ wslua_add_introspection(void)
         else if (g_str_has_prefix(ep->symbol, "REGISTER_")) {
             add_menu_group_symbol(ep->symbol + strlen("REGISTER_"), ep->value);
         }
+    }
 
+    /* Add empty tables to be populated. */
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_WTAP_ENCAPS_TABLE);
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_WTAP_TSPREC_TABLE);
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_WTAP_COMMENTS_TABLE);
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_WTAP_RECTYPES_TABLE);
+    lua_newtable(L);
+    lua_setglobal(L, WSLUA_WTAP_PRESENCE_FLAGS_TABLE);
+
+    for (ep = wtap_inspect_enums(); ep->symbol != NULL; ep++) {
+
+        if (g_str_has_prefix(ep->symbol, "WTAP_ENCAP_")) {
+            add_table_symbol(WSLUA_WTAP_ENCAPS_TABLE, ep->symbol + strlen("WTAP_ENCAP_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "WTAP_TSPREC_")) {
+            add_table_symbol(WSLUA_WTAP_TSPREC_TABLE, ep->symbol + strlen("WTAP_TSPREC_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "WTAP_COMMENT_")) {
+            add_table_symbol(WSLUA_WTAP_COMMENTS_TABLE, ep->symbol + strlen("WTAP_COMMENT_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "REC_TYPE_")) {
+            add_table_symbol(WSLUA_WTAP_RECTYPES_TABLE, ep->symbol + strlen("REC_TYPE_"), ep->value);
+        }
+        else if (g_str_has_prefix(ep->symbol, "WTAP_HAS_")) {
+            add_table_symbol(WSLUA_WTAP_PRESENCE_FLAGS_TABLE, ep->symbol + strlen("WTAP_HAS_"), ep->value);
+        }
     }
 }
 

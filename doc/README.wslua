@@ -48,20 +48,6 @@ epan/wslua/CMakeLists.txt. You also have to add the module name into
 docbook/user-guide.xml and docbook/wsluarm.xml, and the source files into
 docbook/CMakeLists.txt, to get it to be generated in the user guide.
 
-Another Python3 script is used as well, called 'make-init-lua.py', which
-generates the init.lua script.  A large part of it deals with exposing #define
-values into the Lua global table, or sub-tables.  Unfortunately not all of
-them are put in sub-tables, which means the global Lua table is quite polluted
-now.  If you add new ones in here, please think of putting them in a subtable,
-as they are for wtap, ftypes, and base.  For example, there are several put in
-as 'PI_' prefixed names, such as 'PI_SEVERITY_MASK = 15728640'.  The fact they
-all have a common 'PI_' prefix should be an indicator they can be put in a
-table named PI, or PacketInfo.  Just because C-code doesn't have namespaces,
-doesn't mean Lua can't. This has now been fixed, and the PI_* names are now in
-two separate subtables of a table named 'expert', as 'expert.group' and
-'expert.severity' subtables. Follow that model in 'make-init-lua.py'.
-
-
 Due to those documentation and registration scripts, you MUST follow some very
 specific conventions in the functions you write to expose C-side code to Lua,
 as described in this document.

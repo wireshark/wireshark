@@ -109,34 +109,11 @@ add_custom_target(
 
 set_target_properties(register_wslua PROPERTIES FOLDER "Libs/epan/wslua")
 
-add_custom_command(
-	OUTPUT init.lua
-	COMMAND ${PYTHON_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.py
-		${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
-		init.lua
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.py
-		${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
-		${CMAKE_SOURCE_DIR}/epan/ftypes/ftypes.h
-		${CMAKE_SOURCE_DIR}/wiretap/wtap.h
-		${CMAKE_SOURCE_DIR}/epan/epan.h
-		${CMAKE_SOURCE_DIR}/epan/stat_groups.h
-)
-
-add_custom_target(
-	wsluaauxiliary ALL
-	DEPENDS
-		init.lua
-)
-
-set_target_properties(wsluaauxiliary PROPERTIES FOLDER "Auxiliary")
-
 install(
 	FILES
+		init.lua
 		console.lua
 		dtd_gen.lua
-		${CMAKE_CURRENT_BINARY_DIR}/init.lua
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}
 )

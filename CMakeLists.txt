@@ -2299,7 +2299,7 @@ endif()
 # epan/wslua/CMakeLists.txt
 if(LUA_FOUND AND ENABLE_LUA)
 	set(_lua_files
-		"${CMAKE_BINARY_DIR}/epan/wslua/init.lua"
+		"${CMAKE_SOURCE_DIR}/epan/wslua/init.lua"
 		"${CMAKE_SOURCE_DIR}/epan/wslua/console.lua"
 		"${CMAKE_SOURCE_DIR}/epan/wslua/dtd_gen.lua"
 	)
@@ -2312,7 +2312,6 @@ if(LUA_FOUND AND ENABLE_LUA)
 				"${_lua_file}"
 				"${DATAFILE_DIR}/${_lua_filename}"
 			DEPENDS
-				wsluaauxiliary
 				"${_lua_file}"
 		)
 	endforeach()

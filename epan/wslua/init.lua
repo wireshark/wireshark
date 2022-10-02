@@ -76,7 +76,8 @@ function package.prepend_path(name)
     package.path = name .. sep .. "?.lua;" .. package.path
 end
 
-${WTAP_ENCAPS}
+-- for backward compatibility
+wtap = wtap_encaps
 
 --
 -- Generate the wtap_filetypes items for file types, for backwards
@@ -89,16 +90,6 @@ ${WTAP_ENCAPS}
 -- look up file types by name.
 --
 wtap_filetypes = get_wtap_filetypes()
-
-${WTAP_TSPRECS}
-
-${WTAP_COMMENT_TYPES}
-
--- the following table is since 1.12
-${WTAP_REC_TYPES}
-
--- the following table is since 1.11.3
-${WTAP_PRESENCE_FLAGS}
 
 -- Old / deprecated menu groups. These shoudn't be used in new code.
 MENU_ANALYZE_UNSORTED = MENU_PACKET_ANALYZE_UNSORTED
