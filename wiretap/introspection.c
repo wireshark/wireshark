@@ -14,18 +14,18 @@
 
 #include "introspection-enums.c"
 
-const ws_enum_t *epan_inspect_enums(void)
+const ws_enum_t *wtap_inspect_enums(void)
 {
     return all_enums;
 }
 
-size_t epan_inspect_enums_count(void)
+size_t wtap_inspect_enums_count(void)
 {
     /* Exclude null terminator */
     return sizeof(all_enums)/sizeof(ws_enum_t) - 1;
 }
 
-const ws_enum_t *epan_inspect_enums_bsearch(const char *needle)
+const ws_enum_t *wtap_inspect_enums_bsearch(const char *needle)
 {
-    return ws_enums_bsearch(all_enums, epan_inspect_enums_count(), needle);
+    return ws_enums_bsearch(all_enums, wtap_inspect_enums_count(), needle);
 }

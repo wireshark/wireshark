@@ -45,6 +45,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	inet_ipv4.h
 	inet_ipv6.h
 	interface.h
+	introspection.h
 	jsmn.h
 	json_dumper.h
 	mpeg-audio.h
@@ -110,6 +111,7 @@ set(WSUTIL_COMMON_FILES
 	g711.c
 	inet_addr.c
 	interface.c
+	introspection.c
 	jsmn.c
 	json_dumper.c
 	mpeg-audio.c

@@ -5,9 +5,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Generated automatically from make-enums.py.
- *
- * It can be re-created using "make gen-enums".
+ * Generated automatically from make-enums.py. It can be re-created by running
+ * "tools/make-enums.py" from the top source directory.
  *
  * It is fine to edit this file by hand. Particularly if a symbol
  * disappears from the API it can just be removed here. There is no
