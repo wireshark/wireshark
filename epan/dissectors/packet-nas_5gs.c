@@ -501,6 +501,7 @@ static int ett_nas_5gs_ciot_small_data_cont_data_contents = -1;
 static int ett_nas_5gs_user_data_cont = -1;
 static int ett_nas_5gs_ciph_data_set = -1;
 static int ett_nas_5gs_mm_mapped_nssai = -1;
+static int ett_nas_5gs_mm_partial_extended_rejected_nssai_list = -1;
 static int ett_nas_5gs_mm_ext_rej_nssai = -1;
 static int ett_nas_5gs_mm_op_def_acc_cat_def = -1;
 static int ett_nas_5gs_mm_op_def_acc_cat_criteria = -1;
@@ -648,7 +649,12 @@ static int hf_nas_5gs_mm_trunc_amf_pointer = -1;
 static int hf_nas_5gs_mm_n5gcreg_b0 = -1;
 static int hf_nas_5gs_mm_nb_n1_drx_value = -1;
 static int hf_nas_5gs_mm_scmr = -1;
+static int hf_nas_5gs_mm_extended_rejected_s_nssai_number_of_element = -1;
+static int hf_nas_5gs_mm_extended_rejected_s_nssai_type_of_list = -1;
+static int hf_nas_5gs_mm_extended_rejected_s_nssai_spare = -1;
+static int hf_nas_5gs_mm_extended_rejected_s_nssai_back_off_timer = -1;
 static int hf_nas_5gs_mm_len_of_rejected_s_nssai = -1;
+static int hf_nas_5gs_mm_rejected_s_nssai_cause_value = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -3764,46 +3770,74 @@ de_nas_5gs_mm_additional_conf_ind(tvbuff_t* tvb, proto_tree* tree, packet_info* 
 /*
  * 9.11.3.75    Extended rejected NSSAI
  */
+static const value_string nas_5gs_mm_extended_rej_s_nssai_cause_vals[] = {
+    { 0x00, "S-NSSAI not available in the current PLMN or SNPN" },
+    { 0x01, "S-NSSAI not available in the current registration area" },
+    { 0x02, "S-NSSAI not available due to the failed or revoked network slice-specific authentication and authorization" },
+    { 0x03, "S-NSSAI not available due to maximum number of UEs reached" },
+    {    0, NULL } };
+
 static guint16
 de_nas_5gs_mm_extended_rejected_nssai(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree* sub_tree;
+    proto_tree* sub_partial_tree;
+    proto_tree* sub_rejected_tree;
     proto_item* item;
-    guint num_items = 1;
+    int i = 1;
+    guint num_partial_items = 1;
     guint32 curr_offset = offset;
-    guint32 nssai_len;
+    guint32 type_of_list, number_of_element, nssai_len;
 
     /* Rejected NSSAI */
     while ((curr_offset - offset) < len) {
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_ext_rej_nssai,
-            &item, "Rejected S-NSSAI %u", num_items);
+        sub_partial_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_partial_extended_rejected_nssai_list,
+            &item, "Partial extended rejected NSSAI list %u", num_partial_items);
 
-        /* Octet 3 and octet 4 shall always be included*/
-        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_len_of_rejected_s_nssai, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &nssai_len);
-        proto_item_set_len(item, nssai_len);
+        proto_tree_add_item(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_type_of_list, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &type_of_list);
+        proto_tree_add_item_ret_uint(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_number_of_element, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &number_of_element);
         curr_offset++;
-        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sst, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset++;
-        if (nssai_len < 3) {
-            continue;
+
+        if (type_of_list > 0) {
+            proto_tree_add_item(sub_partial_tree, hf_nas_5gs_mm_extended_rejected_s_nssai_back_off_timer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
         }
-        /* If the octet 5 is included, then octet 6 and octet 7 shall be included.*/
-        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_sd, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
-        curr_offset += 3;
-        if (nssai_len < 6) {
-            continue;
+
+        for (i = 0; i < (int)number_of_element; i++)
+        {
+            sub_rejected_tree = proto_tree_add_subtree_format(sub_partial_tree, tvb, curr_offset, -1, ett_nas_5gs_mm_ext_rej_nssai,
+                &item, "Rejected S-NSSAI %u", i+1);
+
+            /* Octet 3 and octet 4 shall always be included*/
+            proto_tree_add_item_ret_uint(sub_rejected_tree, hf_nas_5gs_mm_len_of_rejected_s_nssai, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &nssai_len);
+            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_rejected_s_nssai_cause_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            proto_item_set_len(item, nssai_len);
+            curr_offset++;
+            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_sst, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+            if (nssai_len < 3) {
+                continue;
+            }
+            /* If the octet 5 is included, then octet 6 and octet 7 shall be included.*/
+            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_sd, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+            curr_offset += 3;
+            if (nssai_len < 6) {
+                continue;
+            }
+            /* If the octet 8 is included, then octets 9, 10, and 11 may be included*/
+            /* Mapped HPLMN SST */
+            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_mapped_hplmn_sst, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset += 1;
+            if (nssai_len < 7) {
+                continue;
+            }
+            /* Mapped HPLMN SD */
+            proto_tree_add_item(sub_rejected_tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
+            curr_offset += 3;
         }
-        /* If the octet 8 is included, then octets 9, 10, and 11 may be included*/
-        /* Mapped HPLMN SST */
-        proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_sst, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset += 1;
-        if (nssai_len < 7) {
-            continue;
-        }
-        /* Mapped HPLMN SD */
-        proto_tree_add_item(tree, hf_nas_5gs_mm_mapped_hplmn_ssd, tvb, offset, 3, ENC_BIG_ENDIAN);
+        num_partial_items++;
     }
     return len;
 }
@@ -11571,9 +11605,34 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_mm_scmr), 0x01,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_extended_rejected_s_nssai_number_of_element,
+        { "Number of element",   "nas_5gs.mm.extended_rejected_s_nssai.number_of_element",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_extended_rejected_s_nssai_type_of_list,
+        { "Type of list",   "nas_5gs.mm.extended_rejected_s_nssai.type_of_list",
+            FT_UINT8, BASE_DEC, NULL, 0x70,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_extended_rejected_s_nssai_spare,
+        { "Spare",   "nas_5gs.mm.extended_rejected_s_nssai.spare",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_extended_rejected_s_nssai_back_off_timer,
+        { "Back-off timer value",   "nas_5gs.mm.extended_rejected_s_nssai.back_off_timer",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_mm_len_of_rejected_s_nssai,
-        { "Length of rejected S-NSSAI",   "nas_5gs.mm.len_of_rejected_s_nssai",
-            FT_UINT8, BASE_DEC, NULL, 0,
+        { "Length of rejected S-NSSAI",   "nas_5gs.mm.rejected_s_nssai.length",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_rejected_s_nssai_cause_value,
+        { "Cause value",   "nas_5gs.mm.rejected_s_nssai.cause_value",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_extended_rej_s_nssai_cause_vals), 0x0f,
             NULL, HFILL }
         },
 
@@ -11583,7 +11642,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    33
+#define NUM_INDIVIDUAL_ELEMS    34
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -11621,9 +11680,10 @@ proto_register_nas_5gs(void)
     ett[27] = &ett_nas_5gs_user_data_cont;
     ett[28] = &ett_nas_5gs_ciph_data_set;
     ett[29] = &ett_nas_5gs_mm_mapped_nssai;
-    ett[30] = &ett_nas_5gs_mm_ext_rej_nssai;
-    ett[31] = &ett_nas_5gs_mm_op_def_acc_cat_def;
-    ett[32] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
+    ett[30] = &ett_nas_5gs_mm_partial_extended_rejected_nssai_list;
+    ett[31] = &ett_nas_5gs_mm_ext_rej_nssai;
+    ett[32] = &ett_nas_5gs_mm_op_def_acc_cat_def;
+    ett[33] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
