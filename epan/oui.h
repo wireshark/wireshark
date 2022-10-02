@@ -82,6 +82,7 @@
 #define OUI_APPLE_ATALK     0x080007    /* Appletalk */
 #define OUI_HP              0x080009    /* Hewlett-Packard */
 #define OUI_CERN            0x080030    /* CERN, The European Organization for Nuclear Research */
+#define OUI_WISUN           0x0C5A9E    /* Wi-SUN */
 #define OUI_IEEE_C37_238    0x1C129D    /* IEEE PES PSRC/SUB Working Group H7/Sub C7 (IEEE PC37.238) */
 #define OUI_HYTEC_GER       0x30B216    /* Hytec Geraetebau GmbH */
 #define OUI_ZIGBEE          0x4A191B    /* ZigBee Alliance */
