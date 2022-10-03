@@ -558,7 +558,7 @@ get_addr_str(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset, guint16 afi, gu
             return addr_str;
         case AFNUM_DISTNAME:
             *addr_len = tvb_strsize(tvb, offset);
-            addr_str  = tvb_get_const_stringz(tvb, offset, NULL);
+            addr_str  = tvb_get_stringz_enc(pool, tvb, offset, NULL, ENC_ASCII);
             return addr_str;
         default:
             return NULL;
@@ -767,6 +767,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16            addr_len = 0;
     guint16            afi;
     const gchar       *lcaf_str;
+    gchar             *disp_str;
     proto_item        *tir;
     proto_tree        *lisp_afi_list_tree;
 
@@ -811,8 +812,9 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case AFNUM_DISTNAME:
                 str_len = tvb_strsize(tvb, offset);
-                proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_dn, tvb, offset, str_len, ENC_ASCII);
-                proto_item_append_text(tir, " %d. Distinguished Name: %s", i, tvb_get_const_stringz(tvb, offset, NULL));
+                proto_tree_add_item_ret_display_string(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_dn, tvb, offset, str_len, ENC_ASCII,
+                                                        pinfo->pool, &disp_str);
+                proto_item_append_text(tir, " %d. Distinguished Name: %s", i, disp_str);
                 offset    += str_len;
                 remaining -= str_len;
                 break;
