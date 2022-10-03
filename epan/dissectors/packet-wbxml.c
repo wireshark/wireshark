@@ -1218,7 +1218,7 @@ static char *
 ext_t_0_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
 	char *str = wmem_strdup_printf(wmem_packet_scope(), "Variable substitution - escaped: '%s'",
-				    tvb_get_const_stringz(tvb, str_tbl + value, NULL));
+				    tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_tbl + value, NULL, ENC_ASCII));
 	return str;
 }
 
@@ -1226,7 +1226,7 @@ static char *
 ext_t_1_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
 	char *str = wmem_strdup_printf(wmem_packet_scope(), "Variable substitution - unescaped: '%s'",
-				    tvb_get_const_stringz(tvb, str_tbl + value, NULL));
+				    tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_tbl + value, NULL, ENC_ASCII));
 	return str;
 }
 
@@ -1234,7 +1234,7 @@ static char *
 ext_t_2_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
 	char *str = wmem_strdup_printf(wmem_packet_scope(), "Variable substitution - no transformation: '%s'",
-				    tvb_get_const_stringz(tvb, str_tbl + value, NULL));
+				    tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_tbl + value, NULL, ENC_ASCII));
 	return str;
 }
 /*****   Global extension tokens   *****/
