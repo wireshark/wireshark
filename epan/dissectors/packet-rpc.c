@@ -714,7 +714,8 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	/* int string_item_offset; */
 
 	char *string_buffer = NULL;
-	const char *string_buffer_print = NULL;
+	uint8_t *bytes_buffer;
+	const char *formatted_text = NULL;
 
 	if (fixed_length) {
 		string_length = length;
@@ -780,9 +781,9 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	if (string_data) {
 		string_buffer = tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset, string_length_copy, ENC_ASCII);
 	} else {
-		string_buffer = (char *)tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), string_length_copy+1), data_offset, string_length_copy);
+		bytes_buffer = tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), string_length_copy), data_offset, string_length_copy);
 	}
-	string_buffer[string_length_copy] = '\0';
+
 	/* calculate a nice printable string */
 	if (string_length) {
 		if (string_length != string_length_copy) {
@@ -791,25 +792,25 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 				formatted = format_text(wmem_packet_scope(), string_buffer, strlen(string_buffer));
 				/* copy over the data and append <TRUNCATED> */
-				string_buffer_print=wmem_strdup_printf(wmem_packet_scope(), "%s%s", formatted, RPC_STRING_TRUNCATED);
+				formatted_text=wmem_strdup_printf(wmem_packet_scope(), "%s%s", formatted, RPC_STRING_TRUNCATED);
 			} else {
-				string_buffer_print=RPC_STRING_DATA RPC_STRING_TRUNCATED;
+				formatted_text=RPC_STRING_DATA RPC_STRING_TRUNCATED;
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print = format_text(wmem_packet_scope(), string_buffer, strlen(string_buffer));
+				formatted_text = format_text(wmem_packet_scope(), string_buffer, strlen(string_buffer));
 			} else {
-				string_buffer_print=RPC_STRING_DATA;
+				formatted_text=RPC_STRING_DATA;
 			}
 		}
 	} else {
-		string_buffer_print=RPC_STRING_EMPTY;
+		formatted_text=RPC_STRING_EMPTY;
 	}
 
 	/* string_item_offset = offset; */
 	string_tree = proto_tree_add_subtree_format(tree, tvb,offset, -1,
 			ett_rpc_string, &string_item, "%s: %s", proto_registrar_get_name(hfindex),
-			string_buffer_print);
+			formatted_text);
 
 	if (!fixed_length) {
 		proto_tree_add_uint(string_tree, hf_rpc_opaque_length, tvb,offset, 4, string_length);
@@ -821,12 +822,12 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			proto_tree_add_string_format(string_tree,
 			    hfindex, tvb, offset, string_length_copy,
 			    string_buffer,
-			    "contents: %s", string_buffer_print);
+			    "contents: %s", formatted_text);
 		} else {
 			proto_tree_add_bytes_format(string_tree,
 			    hfindex, tvb, offset, string_length_copy,
-			    string_buffer,
-			    "contents: %s", string_buffer_print);
+			    bytes_buffer,
+			    "contents: %s", formatted_text);
 		}
 	}
 
@@ -847,7 +848,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	proto_item_set_end(string_item, tvb, offset);
 
 	if (string_buffer_ret != NULL)
-		*string_buffer_ret = string_buffer_print;
+		*string_buffer_ret = formatted_text;
 
 	/*
 	 * If the data was truncated, throw the appropriate exception,
