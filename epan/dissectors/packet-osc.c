@@ -401,7 +401,7 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
 
     /* peek/read path */
     path_offset = offset;
-    path = tvb_get_const_stringz(tvb, path_offset, &path_len);
+    path = tvb_get_stringz_enc(wmem_packet_scope(), tvb, path_offset, &path_len, ENC_ASCII);
     if( (rem = path_len%4) ) path_len += 4-rem;
 
     if(!is_valid_path(path))
@@ -409,7 +409,7 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
 
     /* peek/read fmt */
     format_offset = path_offset + path_len;
-    format = tvb_get_const_stringz(tvb, format_offset, &format_len);
+    format = tvb_get_stringz_enc(wmem_packet_scope(), tvb, format_offset, &format_len, ENC_ASCII);
     if( (rem = format_len%4) ) format_len += 4-rem;
 
     if(!is_valid_format(format))
@@ -1042,25 +1042,24 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         gint               offset = 0;
         gint               slen;
         gint               rem;
-        const gchar       *str;
         volatile gboolean  valid  = FALSE;
 
         /* Check for valid path */
         /* Don't propagate any exceptions upwards during heuristics check  */
         /* XXX: this check is a bit expensive; Consider: use UDP port pref ? */
         TRY {
-            str = tvb_get_const_stringz(tvb, offset, &slen);
-            if(is_valid_path(str)) {
+            slen = tvb_strsize(tvb, offset);
+            if(is_valid_path(tvb_get_ptr(tvb, offset, slen))) {
 
                 /* skip path */
                 if( (rem = slen%4) ) slen += 4-rem;
                 offset += slen;
 
                 /* peek next string */
-                str = tvb_get_const_stringz(tvb, offset, &slen);
+                slen = tvb_strsize(tvb, offset);
 
                 /* check for valid format */
-                if(is_valid_format(str))
+                if(is_valid_format(tvb_get_ptr(tvb, offset, slen)))
                     valid = TRUE;
             }
         }
