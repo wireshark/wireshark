@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V17.5.0 (2022-06-23)
+ * Ref 3GPP TS 29.244 V17.6.0 (2022-09-23)
  */
 #include "config.h"
 
@@ -3884,10 +3884,10 @@ static const value_string pfcp_fq_csid_node_type_vals[] = {
 
     { 0, "MME" },
     { 1, "SGW-C" },
-    { 2, "PGW-C" },
+    { 2, "PGW-C/SMF" },
     { 3, "ePDG" },
     { 4, "TWAN" },
-    { 5, "PGW-U/SGW-U" },
+    { 5, "PGW-U/SGW-U/UPF" },
     { 0, NULL }
 };
 
