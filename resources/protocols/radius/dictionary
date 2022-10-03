@@ -138,6 +138,7 @@ $INCLUDE dictionary.iana
 $INCLUDE dictionary.3com
 $INCLUDE dictionary.3gpp
 $INCLUDE dictionary.3gpp2
+$INCLUDE dictionary.5x9
 $INCLUDE dictionary.acc
 $INCLUDE dictionary.acme
 $INCLUDE dictionary.actelis
