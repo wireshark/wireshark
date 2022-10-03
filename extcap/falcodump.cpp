@@ -678,7 +678,10 @@ int main(int argc, char **argv)
     for (const auto &it : plugin_configs) {
         const struct plugin_configuration plugin_configs = it.second;
         for (const auto &prop : plugin_configs.property_list) {
-            extcap_help_add_option(extcap_conf, g_strdup_printf("%s", prop.option.c_str()), g_strdup(prop.description.c_str()));
+            if (prop.option_index < OPT_SCHEMA_PROPERTIES_START) {
+                continue;
+            }
+            extcap_help_add_option(extcap_conf, g_strdup_printf("--%s", prop.option.c_str()), g_strdup(prop.description.c_str()));
         }
     }
 
