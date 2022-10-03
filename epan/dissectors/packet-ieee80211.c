@@ -1261,6 +1261,8 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define CAT_HE                    30
 #define CAT_PROTECTED_HE          31
 #define CAT_PROTECTED_FTM         34
+#define CAT_EHT                   36
+#define CAT_PROTECTED_EHT         37
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
 #define CAT_VENDOR_SPECIFIC     127
 
@@ -2279,6 +2281,8 @@ static const value_string category_codes[] = {
   {CAT_HE,                               "HE"},
   {CAT_PROTECTED_HE,                     "Protected HE"},
   {CAT_PROTECTED_FTM,                    "Protected FTM"},
+  {CAT_EHT,                              "EHT"},
+  {CAT_PROTECTED_EHT,                    "Protected EHT"},
   {CAT_VENDOR_SPECIFIC_PROTECTED,        "Vendor-specific Protected"},
   {CAT_VENDOR_SPECIFIC,                  "Vendor Specific"},
 
@@ -2307,6 +2311,8 @@ static const value_string category_codes[] = {
   {0x80 | CAT_HE,                        "HE (error)"},
   {0x80 | CAT_PROTECTED_HE,              "Protected HE (error)"},
   {0x80 | CAT_PROTECTED_FTM,             "Protected FTM (error)"},
+  {0x80 | CAT_EHT,                       "EHT (error)"},
+  {0x80 | CAT_PROTECTED_EHT,             "Protected EHT (error)"},
   {0x80 | CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected (error)"},
   {0x80 | CAT_VENDOR_SPECIFIC,           "Vendor Specific (error)"},
   {0, NULL}
@@ -5597,6 +5603,7 @@ static int hf_ieee80211_vht_compressed_beamforming_psi_angle = -1;
 static int hf_ieee80211_ff_he_action = -1;
 static int hf_ieee80211_ff_protected_he_action = -1;
 static int hf_ieee80211_ff_protected_ftm_action = -1;
+static int hf_ieee80211_ff_protected_eht_action = -1;
 static int hf_ieee80211_he_mimo_control_nc_index = -1;
 static int hf_ieee80211_he_mimo_control_nr_index = -1;
 static int hf_ieee80211_he_mimo_control_bw = -1;
@@ -7248,6 +7255,14 @@ static int hf_ieee80211_he_uora_eocwmin = -1;
 static int hf_ieee80211_he_uora_owcwmax = -1;
 static int hf_ieee80211_he_uora_reserved = -1;
 
+/* ************************************************************************* */
+/*                              802.11BE fields                              */
+/* ************************************************************************* */
+static int hf_ieee80211_eht_eml_control_field = -1;
+static int hf_ieee80211_eht_eml_emlsr_mode = -1;
+static int hf_ieee80211_eht_eml_emlmr_mode = -1;
+static int hf_ieee80211_eht_eml_link_bitmap = -1;
+
 static int hf_ieee80211_multiple_bssid_configuration_bssid_count = -1;
 static int hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity = -1;
 static int hf_ieee80211_known_bssid_bitmap = -1;
@@ -7474,6 +7489,7 @@ static gint ett_vht_ranging_annc = -1;
 
 static gint ett_ff_he_action = -1;
 static gint ett_ff_protected_he_action = -1;
+static gint ett_ff_protected_eht_action = -1;
 static gint ett_ff_he_mimo_control = -1;
 static gint ett_ff_he_mimo_beamforming_report_snr = -1;
 static gint ett_ff_he_mimo_feedback_matrices = -1;
@@ -7815,6 +7831,8 @@ static gint ett_tbtt_infos = -1;
 static gint ett_rnr_bss_params_tree = -1;
 static gint ett_rnr_mld_params_tree = -1;
 
+/* 802.11be trees */
+static gint ett_eht_eml_control = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -13901,6 +13919,28 @@ add_ff_oct_mmpdu(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int of
   return offset - start;
 }
 
+static int * const eht_eml_control_field_mode_headers[] = {
+  &hf_ieee80211_eht_eml_emlsr_mode,
+  &hf_ieee80211_eht_eml_emlmr_mode,
+  NULL
+};
+
+static guint
+dissect_eht_eml_control_field(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_eht_eml_control_field,
+                                    ett_eht_eml_control,
+                                    eht_eml_control_field_mode_headers,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
+
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_eht_eml_link_bitmap,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  return 3;
+}
+
 static int
 add_tag_relay_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -14831,6 +14871,33 @@ static const range_string protected_he_action_rvals[] = {
   { 0, 0, NULL }
 };
 
+#define EHT_TID_LINK_MAP_REQ            0
+#define EHT_TID_LINK_MAP_RESP           1
+#define EHT_TID_LINK_MAP_TEAR_DOWN      2
+#define EHT_EPCS_PRIO_ACCESS_REQ        3
+#define EHT_EPCS_PRIO_ACCESS_RESP       4
+#define EHT_EPCS_PRIO_ACCESS_TEAR_DOWN  5
+#define EHT_EML_OP_MODE_NOTIFICATION    6
+
+static const range_string protected_eht_action_rvals[] = {
+  { EHT_TID_LINK_MAP_REQ, EHT_TID_LINK_MAP_REQ,
+        "EHT TID-to-Link Mapping Request" },
+  { EHT_TID_LINK_MAP_RESP, EHT_TID_LINK_MAP_RESP,
+        "EHT TID-to-Link Mapping Response" },
+  { EHT_TID_LINK_MAP_TEAR_DOWN, EHT_TID_LINK_MAP_TEAR_DOWN,
+        "EHT TID-to-Link Mapping Teardown" },
+  { EHT_EPCS_PRIO_ACCESS_REQ, EHT_EPCS_PRIO_ACCESS_REQ,
+        "EHT EPCS Priority Access Request" },
+  { EHT_EPCS_PRIO_ACCESS_RESP, EHT_EPCS_PRIO_ACCESS_RESP,
+        "EHT EPCS Priority Access Response" },
+  { EHT_EPCS_PRIO_ACCESS_TEAR_DOWN, EHT_EPCS_PRIO_ACCESS_TEAR_DOWN,
+        "EHT EPCS Priority Access Teardown" },
+  { EHT_EML_OP_MODE_NOTIFICATION, EHT_EML_OP_MODE_NOTIFICATION,
+        "EHT EML operating mode notification" },
+  { EHT_EML_OP_MODE_NOTIFICATION + 1, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
 /*
  * This currently only works for SU, 20MHz, 40MHz and 80MHz and grouping 4 and 16.
  */
@@ -15537,6 +15604,37 @@ add_ff_action_protected_ftm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static guint
+add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+  guint8 protected_eht_action;
+  proto_item *item;
+  proto_tree *subtree;
+
+  offset += add_ff_category_code(tree, tvb, pinfo, offset);
+
+  protected_eht_action = tvb_get_guint8(tvb, offset);
+
+  item = proto_tree_add_item(tree, hf_ieee80211_ff_protected_eht_action, tvb, offset,
+        1, ENC_NA);
+  offset += 1;
+
+  subtree = proto_item_add_subtree(item, ett_ff_protected_eht_action);
+
+  switch (protected_eht_action) {
+  case EHT_EML_OP_MODE_NOTIFICATION:
+    offset += add_ff_dialog_token(subtree, tvb, pinfo, offset);
+    offset += dissect_eht_eml_control_field(tvb, pinfo, subtree, offset);
+    break;
+
+  default:
+    break;
+  }
+
+  return offset - start;
+}
+
+static guint
 add_ff_action_fst(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8 code;
@@ -15815,6 +15913,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
     return add_ff_action_he(tree, tvb, pinfo, offset);
   case CAT_PROTECTED_HE:
     return add_ff_action_protected_he(tree, tvb, pinfo, offset);
+  case CAT_PROTECTED_EHT:
+    return add_ff_action_protected_eht(tree, tvb, pinfo, offset);
   case CAT_PROTECTED_FTM:
     return add_ff_action_protected_ftm(tree, tvb, pinfo, offset);
   case CAT_VENDOR_SPECIFIC_PROTECTED: /* Same as below for now */
@@ -38774,6 +38874,11 @@ proto_register_ieee80211(void)
        FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(protected_he_action_rvals), 0,
        NULL, HFILL }},
 
+    {&hf_ieee80211_ff_protected_eht_action,
+      {"Protected EHT Action", "wlan.eht.protected_action",
+       FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(protected_eht_action_rvals), 0,
+       NULL, HFILL }},
+
     {&hf_ieee80211_ff_protected_ftm_action,
       {"Protected FTM Action", "wlan.ftm.protected_action",
        FT_UINT8, BASE_DEC, VALS(protected_ftm_action_vals), 0,
@@ -51509,6 +51614,22 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_pasn_auth2_frame_len,
      {"Auth Frame 2 Length", "wlan.pasn_wrapped_data.auth_frame_2_len",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_control_field,
+     {"EML Control Field", "wlan.eht.eml_control",
+      FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_emlsr_mode,
+     {"EMLSR Mode", "wlan.eht.eml_control.emlsr_mode",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_emlmr_mode,
+     {"EMLMR Mode", "wlan.eht.eml_control.emlmr_mode",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_eml_link_bitmap,
+     {"Link bitmap", "wlan.eht.eml_control.link_bitmap",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -51707,6 +51828,7 @@ proto_register_ieee80211(void)
 
     &ett_ff_he_action,
     &ett_ff_protected_he_action,
+    &ett_ff_protected_eht_action,
     &ett_ff_he_mimo_control,
     &ett_ff_he_mimo_beamforming_report_snr,
     &ett_ff_he_mimo_feedback_matrices,
@@ -52000,6 +52122,9 @@ proto_register_ieee80211(void)
 
     &ett_ff_fils_discovery_frame_control,
     &ett_ff_fils_discovery_capability,
+
+    /* 802.11be tree */
+    &ett_eht_eml_control,
   };
 
   static ei_register_info ei[] = {
