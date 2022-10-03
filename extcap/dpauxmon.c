@@ -350,7 +350,7 @@ static int handle_data(struct nl_cache_ops *unused _U_, struct genl_cmd *cmd _U_
 	memcpy(&packet[2], data, data_size);
 
 	if (dump_packet(pcap_fp, packet, data_size + 2, ts) == EXIT_FAILURE)
-		extcap_end_application = FALSE;
+		extcap_end_application = TRUE;
 
 	return NL_OK;
 }

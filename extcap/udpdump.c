@@ -317,12 +317,12 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 #else
 					ws_warning("Error in recvfrom: %s (errno=%d)", strerror(errno), errno);
 #endif
-					extcap_end_application = FALSE;
+					extcap_end_application = TRUE;
 					break;
 			}
 		} else {
 			if (dump_packet(proto_name, port, buf, buflen, clientaddr, fp) == EXIT_FAILURE)
-				extcap_end_application = FALSE;
+				extcap_end_application = TRUE;
 		}
 	}
 
