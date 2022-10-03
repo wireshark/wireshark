@@ -2562,18 +2562,15 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         }
     }
     if ((flags & MEMBER_OPTIONAL) != 0) {
-		gint offset_before = offset;
-		/* Parameter header is at minimun 4 bytes */
-		ALIGN_ZERO(
-            offset,
-            get_native_type_cdr_alignment(RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE, encoding_version),
-            offset_zero);
-		rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
+        gint offset_before = offset;
+        /* Parameter header is at minimun 4 bytes */
+        ALIGN_ZERO(offset, 4, offset_zero);
+        rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
         if (info
                 && (flags & MEMBER_OPTIONAL) == MEMBER_OPTIONAL
                 && element_member_id != 0
                 && member_id != element_member_id) {
-			offset = offset_before;
+            offset = offset_before;
             return offset;
         }
         if (member_length == 0) {
