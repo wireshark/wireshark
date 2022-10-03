@@ -463,20 +463,6 @@ the string, including the terminating null.
 The buffer is allocated in the given wmem scope (see README.wmem for more
 information).
 
-const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-
-Returns a null-terminated const buffer containing data from the
-specified tvbuff, starting at the specified offset, and containing all
-bytes from the tvbuff up to and including a terminating null character
-in the tvbuff. "*lengthp" will be set to the length of the string,
-including the terminating null.
-
-You do not need to free() this buffer; it will happen automatically once
-the next packet is dissected. This function is slightly more efficient
-than the others because it does not allocate memory and copy the string,
-but it does not do any mapping to UTF-8 or checks for valid octet
-sequences.
-
 gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 
