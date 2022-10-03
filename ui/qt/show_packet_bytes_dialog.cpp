@@ -14,10 +14,7 @@
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
-#include "epan/charsets.h"
-#if !GLIB_CHECK_VERSION(2, 66, 0)
 #include "epan/strutil.h"
-#endif
 
 #include "wsutil/utf8_entities.h"
 

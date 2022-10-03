@@ -16,6 +16,7 @@
 #include "ws_symbol_export.h"
 
 #include <wsutil/color.h>
+#include <wsutil/str_util.h>
 
 #ifdef __cplusplus
 extern "C" {

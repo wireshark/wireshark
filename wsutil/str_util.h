@@ -288,6 +288,35 @@ WS_DLL_PUBLIC
 char *format_text_chr(wmem_allocator_t *allocator,
                         const char *string, size_t len, char chr);
 
+WS_DLL_PUBLIC
+void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
+
+WS_DLL_PUBLIC
+guint8 EBCDIC_to_ASCII1(guint8 c);
+
+/* Types of character encodings */
+typedef enum {
+    HEXDUMP_ENC_ASCII     = 0, /* ASCII */
+    HEXDUMP_ENC_EBCDIC    = 1  /* EBCDIC */
+} hex_dump_enc;
+
+/*
+ * Hexdump options for ASCII:
+ */
+
+#define HEXDUMP_ASCII_MASK            (0x0003U)
+#define HEXDUMP_ASCII_OPTION(option)  ((option) & HEXDUMP_ASCII_MASK)
+
+#define HEXDUMP_ASCII_INCLUDE         (0x0000U) /* include ASCII section no delimiters (legacy tshark behavior) */
+#define HEXDUMP_ASCII_DELIMIT         (0x0001U) /* include ASCII section with delimiters, useful for reliable detection of last hexdata */
+#define HEXDUMP_ASCII_EXCLUDE         (0x0002U) /* exclude ASCII section from hexdump reports, if we really don't want or need it */
+
+WS_DLL_PUBLIC
+gboolean hex_dump_buffer(gboolean (*print_line)(void *, const char *), void *fp,
+                                    const guchar *cp, guint length,
+                                    hex_dump_enc encoding,
+                                    guint ascii_option);
+
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 

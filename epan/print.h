@@ -82,17 +82,6 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
                                         print_stream_t *stream);
 
 /*
- * Hexdump options for ASCII:
- */
-
-#define HEXDUMP_ASCII_MASK            (0x0003U)
-#define HEXDUMP_ASCII_OPTION(option)  ((option) & HEXDUMP_ASCII_MASK)
-
-#define HEXDUMP_ASCII_INCLUDE         (0x0000U) /* include ASCII section no delimiters (legacy tshark behavior) */
-#define HEXDUMP_ASCII_DELIMIT         (0x0001U) /* include ASCII section with delimiters, useful for reliable detection of last hexdata */
-#define HEXDUMP_ASCII_EXCLUDE         (0x0002U) /* exclude ASCII section from hexdump reports, if we really don't want or need it */
-
-/*
  * Hexdump option for displaying data sources:
  */
 

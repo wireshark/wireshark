@@ -30,6 +30,7 @@
 #include <wsutil/json_dumper.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/str_util.h>
 #include <wsutil/ws_assert.h>
 #include <ftypes/ftypes.h>
 
@@ -2022,112 +2023,18 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_option
     return TRUE;
 }
 
-/*
- * This routine is based on a routine created by Dan Lasley
- * <DLASLEY@PROMUS.com>.
- *
- * It was modified for Wireshark by Gilbert Ramirez and others.
- */
-
-#define MAX_OFFSET_LEN   8       /* max length of hex offset of bytes */
-#define BYTES_PER_LINE  16      /* max byte values printed on a line */
-#define HEX_DUMP_LEN    (BYTES_PER_LINE*3)
-                                /* max number of characters hex dump takes -
-                                   2 digits plus trailing blank */
-#define DATA_DUMP_LEN   (HEX_DUMP_LEN + 2 + 2 + BYTES_PER_LINE)
-                                /* number of characters those bytes take;
-                                   3 characters per byte of hex dump,
-                                   2 blanks separating hex from ASCII,
-                                   2 optional ASCII dump delimiters,
-                                   1 character per byte of ASCII dump */
-#define MAX_LINE_LEN    (MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
-                                /* number of characters per line;
-                                   offset, 2 blanks separating offset
-                                   from data dump, data dump */
-
-static gboolean
-print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
-                      guint length, packet_char_enc encoding, guint ascii_option)
+static gboolean print_hex_data_line(void *stream, const char *line)
 {
-    register unsigned int ad, i, j, k, l;
-    guchar                c;
-    gchar                 line[MAX_LINE_LEN + 1];
-    unsigned int          use_digits;
+    return print_line(stream, 0, line);
+}
 
-    static gchar binhex[16] = {
-        '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
-    /*
-     * How many of the leading digits of the offset will we supply?
-     * We always supply at least 4 digits, but if the maximum offset
-     * won't fit in 4 digits, we use as many digits as will be needed.
-     */
-    if (((length - 1) & 0xF0000000) != 0)
-        use_digits = 8; /* need all 8 digits */
-    else if (((length - 1) & 0x0F000000) != 0)
-        use_digits = 7; /* need 7 digits */
-    else if (((length - 1) & 0x00F00000) != 0)
-        use_digits = 6; /* need 6 digits */
-    else if (((length - 1) & 0x000F0000) != 0)
-        use_digits = 5; /* need 5 digits */
-    else
-        use_digits = 4; /* we'll supply 4 digits */
-
-    ad = 0;
-    i = 0;
-    j = 0;
-    k = 0;
-    while (i < length) {
-        if ((i & 15) == 0) {
-            /*
-             * Start of a new line.
-             */
-            j = 0;
-            l = use_digits;
-            do {
-                l--;
-                c = (ad >> (l*4)) & 0xF;
-                line[j++] = binhex[c];
-            } while (l != 0);
-            line[j++] = ' ';
-            line[j++] = ' ';
-            memset(line+j, ' ', DATA_DUMP_LEN);
-
-            /*
-             * Offset in line of ASCII dump.
-             */
-            k = j + HEX_DUMP_LEN + 2;
-            if (ascii_option == HEXDUMP_ASCII_DELIMIT)
-                line[k++] = '|';
-        }
-        c = *cp++;
-        line[j++] = binhex[c>>4];
-        line[j++] = binhex[c&0xf];
-        j++;
-        if (ascii_option != HEXDUMP_ASCII_EXCLUDE ) {
-            if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
-                c = EBCDIC_to_ASCII1(c);
-            }
-            line[k++] = ((c >= ' ') && (c < 0x7f)) ? c : '.';
-        }
-        i++;
-        if (((i & 15) == 0) || (i == length)) {
-            /*
-             * We'll be starting a new line, or
-             * we're finished printing this buffer;
-             * dump out the line we've constructed,
-             * and advance the offset.
-             */
-            if (ascii_option == HEXDUMP_ASCII_DELIMIT)
-                line[k++] = '|';
-            line[k] = '\0';
-            if (!print_line(stream, 0, line))
-                return FALSE;
-            ad += 16;
-        }
-    }
-    return TRUE;
+static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
+                                      guint length, packet_char_enc encoding,
+                                      guint hexdump_options)
+{
+    return hex_dump_buffer(print_hex_data_line, stream, cp, length,
+                        encoding == PACKET_CHAR_ENC_CHAR_EBCDIC ? HEXDUMP_ENC_EBCDIC : HEXDUMP_ENC_ASCII,
+                        hexdump_options);
 }
 
 gsize output_fields_num_fields(output_fields_t* fields)

@@ -20,7 +20,7 @@
 
 #include <glib.h>
 #include <epan/addr_resolv.h>
-#include <epan/charsets.h>
+#include <wsutil/str_util.h>
 #include <epan/follow.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
