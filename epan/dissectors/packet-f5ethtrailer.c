@@ -4287,6 +4287,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     guint offset = 0;
     const guint8 *object;
     const gchar *platform = NULL;
+    const gchar *platform_name = NULL;
     gint objlen;
     struct f5fileinfo_tap_data *tap_data;
 
@@ -4309,20 +4310,19 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tap_data->magic = F5FILEINFO_TAP_MAGIC;
 
     while (tvb_captured_length_remaining(tvb, offset)) {
-        object = tvb_get_const_stringz(tvb, offset, &objlen);
+        object = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &objlen, ENC_ASCII);
 
         if (objlen <= 0 || object == NULL)
             break;
 
         if (strncmp(object, "CMD: ", 5) == 0) {
-            proto_tree_add_item(tree, hf_fi_command, tvb, offset + 5, objlen - 5, ENC_ASCII);
+            proto_tree_add_string(tree, hf_fi_command, tvb, offset + 5, objlen - 5, &object[5]);
             col_add_str(pinfo->cinfo, COL_INFO, &object[5]);
         } else if (strncmp(object, "VER: ", 5) == 0) {
             guint i;
             const guint8 *c;
 
-            proto_tree_add_item(
-                tree, hf_fi_version, tvb, offset + 5, objlen - 5, ENC_ASCII | ENC_NA);
+            proto_tree_add_string(tree, hf_fi_version, tvb, offset + 5, objlen - 5, &object[5]);
             for (c = object; *c && (*c < '0' || *c > '9'); c++);
             for (i = 0; i < 6 && *c; c++) {
                 if (*c < '0' || *c > '9') {
@@ -4332,19 +4332,15 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 tap_data->ver[i] = (tap_data->ver[i] * 10) + (*c - '0');
             }
         } else if (strncmp(object, "HOST: ", 6) == 0)
-            proto_tree_add_item(
-                tree, hf_fi_hostname, tvb, offset + 6, objlen - 6, ENC_ASCII | ENC_NA);
+            proto_tree_add_string(tree, hf_fi_hostname, tvb, offset + 6, objlen - 6, &object[6]);
         else if (strncmp(object, "PLAT: ", 6) == 0) {
-            proto_tree_add_item(
-                tree, hf_fi_platform, tvb, offset + 6, objlen - 6, ENC_ASCII | ENC_NA);
-            platform =
-                tvb_get_string_enc(pinfo->pool, tvb, offset + 6, objlen - 6, ENC_ASCII);
-            proto_tree_add_string_format(tree, hf_fi_platformname, tvb, offset + 6, objlen - 6, "",
-                "%s: %s", platform,
-                str_to_str(platform, f5info_platform_strings, "Unknown, please report"));
+            proto_tree_add_string(tree, hf_fi_platform, tvb, offset + 6, objlen - 6, &object[6]);
+            platform = &object[6];
+            platform_name = str_to_str(platform, f5info_platform_strings, "Unknown, please report");
+            proto_tree_add_string_format(tree, hf_fi_platformname, tvb, offset + 6, objlen - 6, platform_name,
+                "%s: %s", platform, platform_name);
         } else if (strncmp(object, "PROD: ", 6) == 0)
-            proto_tree_add_item(
-                tree, hf_fi_product, tvb, offset + 6, objlen - 6, ENC_ASCII | ENC_NA);
+            proto_tree_add_string(tree, hf_fi_product, tvb, offset + 6, objlen - 6, &object[6]);
 
         offset += objlen;
     }
