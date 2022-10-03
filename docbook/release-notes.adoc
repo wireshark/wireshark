@@ -70,6 +70,7 @@ The following features are new (or have been significantly updated) since versio
 [commaize]
 --
 SAP Network Interface (SAPNI)
+World of Warcraft World (WOWW)
 --
 
 === Updated Protocol Support
