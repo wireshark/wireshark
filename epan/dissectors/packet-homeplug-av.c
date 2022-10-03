@@ -5361,7 +5361,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_item_req(ptvcursor_t *cursor) {
 
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_offset, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_total_length, 4, ENC_LITTLE_ENDIAN);
-    tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
+    name_size = tvb_strsize(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size-1, ENC_ASCII);
     /* Skip terminator */
     ptvcursor_advance(cursor, 1);
@@ -5377,7 +5377,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_item_cnf(ptvcursor_t *cursor) {
 
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_offset, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_total_length, 4, ENC_LITTLE_ENDIAN);
-    tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
+    name_size = tvb_strsize(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII);
     /* Skip terminator */
     ptvcursor_advance(cursor,1);
@@ -5397,7 +5397,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_keylist_cnf(ptvcursor_t *cursor) {
         if ((tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)) == '\0')
             && (tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1) == '\0'))
             break;
-        tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
+        name_size = tvb_strsize(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII);
         /* Skip terminator */
         ptvcursor_advance(cursor,1);
@@ -5470,9 +5470,9 @@ dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_
 
     if (null_offset > -1) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                        tvb_get_const_stringz(ptvcursor_tvbuff(cursor),
+                        tvb_get_stringz_enc(wmem_packet_scope(), ptvcursor_tvbuff(cursor),
                                               ptvcursor_current_offset(cursor),
-                                              NULL));
+                                              NULL, ENC_ASCII));
     }
 
     if (!ptvcursor_tree(cursor))
