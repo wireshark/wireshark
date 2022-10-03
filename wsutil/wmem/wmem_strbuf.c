@@ -252,6 +252,23 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
     }
 }
 
+static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                              '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+void
+wmem_strbuf_append_hex(wmem_strbuf_t *strbuf, uint8_t ch)
+{
+    wmem_strbuf_grow(strbuf, 4);
+
+    if (!strbuf->max_size || WMEM_STRBUF_ROOM(strbuf) >= 4) {
+        strbuf->str[strbuf->len++] = '\\';
+        strbuf->str[strbuf->len++] = 'x';
+        strbuf->str[strbuf->len++] = hex[(ch >> 4) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >> 0) & 0xF];
+        strbuf->str[strbuf->len] = '\0';
+    }
+}
+
 void
 wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const size_t len)
 {
@@ -332,14 +349,16 @@ wmem_strbuf_destroy(wmem_strbuf_t *strbuf)
 }
 
 bool
-wmem_strbuf_sanitize_utf8(wmem_strbuf_t *strbuf)
+wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endptr)
 {
-    if (g_utf8_validate(strbuf->str, -1, NULL)) {
-        return false;
-    }
+    return g_utf8_validate(strbuf->str, strbuf->len, endptr);
+}
 
+void
+wmem_strbuf_utf8_make_valid(wmem_strbuf_t *strbuf)
+{
     /* Sanitize the contents to a temporary string. */
-    char *tmp = g_utf8_make_valid(strbuf->str, -1);
+    char *tmp = g_utf8_make_valid(strbuf->str, strbuf->len);
 
     /* Reset the strbuf, keeping the backing memory allocation */
     *strbuf->str = '\0';
@@ -348,8 +367,6 @@ wmem_strbuf_sanitize_utf8(wmem_strbuf_t *strbuf)
     /* Copy the temporary string to the strbuf. */
     wmem_strbuf_append(strbuf, tmp);
     g_free(tmp);
-
-    return true;
 }
 
 /*

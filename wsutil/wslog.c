@@ -1124,6 +1124,78 @@ void ws_log_write_always_full(const char *domain, enum ws_log_level level,
 }
 
 
+static char *
+make_utf8_display(const char *src, size_t src_length, size_t good_length)
+{
+    wmem_strbuf_t *buf;
+    char ch;
+    size_t offset = 0;
+
+    buf = wmem_strbuf_new(NULL, NULL);
+
+    for (size_t pos = 0; pos < src_length; pos++) {
+        ch = src[pos];
+        if (pos < good_length) {
+            if (g_ascii_isalnum(ch) || ch == ' ') {
+                wmem_strbuf_append_c(buf, ch);
+                offset += 1;
+            }
+            else {
+                wmem_strbuf_append_hex(buf, ch);
+                offset += 4;
+            }
+        }
+        else {
+            wmem_strbuf_append_hex(buf, ch);
+        }
+    }
+    wmem_strbuf_append_c(buf, '\n');
+    for (size_t pos = 0; pos < offset; pos++) {
+        wmem_strbuf_append_c(buf, ' ');
+    }
+    wmem_strbuf_append(buf, "^^^^");
+    for (size_t pos = good_length + 1; pos < src_length; pos++) {
+        wmem_strbuf_append(buf, "~~~~");
+    }
+    return wmem_strbuf_finalize(buf);
+}
+
+
+void ws_log_utf8_full(const char *domain, enum ws_log_level level,
+                    const char *file, long line, const char *func,
+                    const char *string, ssize_t _length, const char *endptr)
+{
+    if (!ws_log_msg_is_active(domain, level))
+        return;
+
+    char *display;
+    size_t length;
+    size_t good_length;
+
+    if (_length < 0)
+        length = strlen(string);
+    else
+        length = _length;
+
+    if (endptr == NULL || endptr < string) {
+        /* Find the pointer to the first invalid byte. */
+        if (g_utf8_validate(string, length, &endptr)) {
+            /* Valid string - should not happen. */
+            return;
+        }
+    }
+    good_length = endptr - string;
+
+    display = make_utf8_display(string, length, good_length);
+
+    ws_log_write_always_full(domain, level, file, line, func,
+            "Invalid UTF-8 at address %p offset %zu (length = %zu):\n%s",
+            string, good_length, length, display);
+
+    g_free(display);
+}
+
+
 void ws_log_buffer_full(const char *domain, enum ws_log_level level,
                     const char *file, long line, const char *func,
                     const uint8_t *ptr, size_t size,  size_t max_bytes_len,

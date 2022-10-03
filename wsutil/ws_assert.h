@@ -58,6 +58,17 @@ extern "C" {
 #define ws_assert_streq(s1, s2) \
         ws_assert((s1) && (s2) && strcmp((s1), (s2)) == 0)
 
+#define ws_assert_utf8(str, len) \
+        do {                                                            \
+            const char *__assert_endptr;                                \
+            if (_ASSERT_ENABLED &&                                      \
+                        !g_utf8_validate(str, len, &__assert_endptr)) { \
+                ws_log_utf8_full(LOG_DOMAIN_UTF_8, LOG_LEVEL_ERROR,     \
+                                    __FILE__, __LINE__, __func__,       \
+                                    str, len, __assert_endptr);         \
+            }                                                           \
+        } while (0)
+
 /*
  * We don't want to disable ws_assert_not_reached() with WS_DISABLE_ASSERT.
  * That would blast compiler warnings everywhere for no benefit, not

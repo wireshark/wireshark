@@ -22,6 +22,7 @@
 #include <ws_symbol_export.h>
 #include <ws_attributes.h>
 #include <ws_log_defs.h>
+#include <ws_posix_compat.h>
 
 #ifdef WS_LOG_DOMAIN
 #define _LOG_DOMAIN WS_LOG_DOMAIN
@@ -366,6 +367,22 @@ void ws_log_fatal_full(const char *domain, enum ws_log_level level,
 /** Used for temporary debug print outs, always active. */
 #define WS_DEBUG_HERE(...) \
         _LOG_FULL(true, LOG_LEVEL_ECHO, __VA_ARGS__)
+
+
+WS_DLL_PUBLIC
+void ws_log_utf8_full(const char *domain, enum ws_log_level level,
+                    const char *file, long line, const char *func,
+                    const char *string, ssize_t length, const char *endptr);
+
+
+#define ws_log_utf8(str, len, endptr) \
+    do {                                                        \
+        if (_LOG_DEBUG_ENABLED) {                               \
+            ws_log_utf8_full(LOG_DOMAIN_UTF_8, LOG_LEVEL_DEBUG, \
+                                __FILE__, __LINE__, __func__,   \
+                                str, len, endptr);              \
+        }                                                       \
+    } while (0)
 
 
 /** This function is called to log a buffer (bytes array).

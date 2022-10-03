@@ -28,6 +28,37 @@
 extern "C" {
 #endif
 
+#ifdef WS_DEBUG_UTF_8
+#define DEBUG_UTF_8_ENABLED true
+#else
+#define DEBUG_UTF_8_ENABLED false
+#endif
+
+#define _CHECK_UTF_8(level, str, len) \
+  do {                                                                \
+    const char *__uni_endptr;                                         \
+    if (DEBUG_UTF_8_ENABLED &&                                        \
+                        !g_utf8_validate(str, len, &__uni_endptr)) {  \
+      ws_log_utf8(str, len, __uni_endptr);                            \
+    }                                                                 \
+  } while (0)
+
+#define WS_UTF_8_CHECK(str, len) \
+  _CHECK_UTF_8(LOG_LEVEL_DEBUG, str, len)
+
+#define WS_UTF_8_DEBUG_HERE(str, len) \
+  _CHECK_UTF_8(LOG_LEVEL_ECHO, str, len)
+
+#define WS_UTF_8_SANITIZE_STRBUF(buf) \
+  do {                                                      \
+    const char *__uni_endptr;                               \
+    if (!wmem_strbuf_utf8_validate(buf, &__uni_endptr)) {   \
+      ws_log_utf8(buf->str, buf->len, __uni_endptr);        \
+      wmem_strbuf_utf8_make_valid(buf);                     \
+    }                                                       \
+  } while (0)
+
+
 WS_DLL_PUBLIC
 int ws_utf8_char_len(guint8 ch);
 

@@ -14,23 +14,7 @@
 
 #include <strutil.h>
 #include <wsutil/ws_assert.h>
-
-
-#ifdef WS_DEBUG_UTF_8
-static inline void
-string_validate_utf8(fvalue_t *fv)
-{
-	if (wmem_strbuf_sanitize_utf8(fv->value.strbuf)) {
-		ws_log_full(LOG_DOMAIN_UTF_8, LOG_LEVEL_DEBUG, __FILE__, -1, __func__,
-				"String fvalues must use a valid UTF-8 encoding."
-				" This string has been sanitized to look like this: %s",
-				wmem_strbuf_get_str(fv->value.strbuf));
-	}
-}
-#define CHECK_UTF_8(fv) string_validate_utf8(fv)
-#else /* !WS_DEBUG_UTF_8 */
-#define CHECK_UTF_8(fv)  (void)(fv)
-#endif /* WS_DEBUG_UTF_8 */
+#include <wsutil/unicode-utils.h>
 
 
 static void
@@ -60,7 +44,7 @@ string_fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 	string_fvalue_free(fv);
 
 	fv->value.strbuf = value;
-	CHECK_UTF_8(fv);
+	WS_UTF_8_SANITIZE_STRBUF(fv->value.strbuf);
 }
 
 static char *
@@ -93,7 +77,7 @@ val_from_string(fvalue_t *fv, const char *s, size_t len, gchar **err_msg _U_)
 	else
 		fv->value.strbuf = wmem_strbuf_new(NULL, s);
 
-	CHECK_UTF_8(fv);
+	WS_UTF_8_SANITIZE_STRBUF(fv->value.strbuf);
 	return TRUE;
 }
 
