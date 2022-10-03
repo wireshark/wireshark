@@ -2656,9 +2656,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		}
 
 		/* parameter descriptor */
-		param_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
-		proto_tree_add_item(tree, hf_param_desc, p_tvb, offset,
-		    descriptor_len, ENC_ASCII);
+		param_descrip = tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
+		proto_tree_add_string(tree, hf_param_desc, p_tvb, offset, descriptor_len, param_descrip);
 		if (!pinfo->fd->visited) {
 			/*
 			 * Save the parameter descriptor for future use.
@@ -2669,9 +2668,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		offset += descriptor_len;
 
 		/* return descriptor */
-		data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
-		proto_tree_add_item(tree, hf_return_desc, p_tvb, offset,
-		    descriptor_len, ENC_ASCII);
+		data_descrip = tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
+		proto_tree_add_string(tree, hf_return_desc, p_tvb, offset, descriptor_len, data_descrip);
 		if (!pinfo->fd->visited) {
 			/*
 			 * Save the return descriptor for future use.
@@ -2694,9 +2692,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * There are more parameters left, so the next
 			 * item is the auxiliary data descriptor.
 			 */
-			aux_data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
-			proto_tree_add_item(tree, hf_aux_data_desc, p_tvb, offset,
-			    descriptor_len, ENC_ASCII);
+			aux_data_descrip = tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
+			proto_tree_add_string(tree, hf_aux_data_desc, p_tvb, offset, descriptor_len, aux_data_descrip);
 			if (!pinfo->fd->visited) {
 				/*
 				 * Save the auxiliary data descriptor for
