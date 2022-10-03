@@ -46,6 +46,9 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
         for (int i = 0; i < printData.length(); i++)
             clipboard_text += QString("%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
         break;
+    case DP_Base64:
+        clipboard_text = printData.toBase64();
+        break;
     case DP_EscapedString:
         // Beginning quote
         clipboard_text += QString("\"");
@@ -212,6 +215,11 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
     action->setProperty("printertype", DataPrinter::DP_HexStream);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
+    action = new QAction(tr("…as a Base64 String"), actions);
+    action->setToolTip(tr("Copy packet bytes as a base64 encoded string."));
+    action->setProperty("printertype", DataPrinter::DP_Base64);
+    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
+
     action = new QAction(tr("…as Raw Binary"), actions);
     action->setToolTip(tr("Copy packet bytes as application/octet-stream MIME data."));
     action->setProperty("printertype", DataPrinter::DP_Binary);
@@ -240,7 +248,7 @@ void DataPrinter::copyIDataBytes(bool /* state */)
 
     int dump_type = sendingAction->property("printertype").toInt();
 
-    if (dump_type >= 0 && dump_type <= DataPrinter::DP_Binary) {
+    if (dump_type >= 0 && dump_type <= DataPrinter::DP_Base64) {
         DataPrinter printer;
         printer.toClipboard((DataPrinter::DumpType) dump_type, dynamic_cast<IDataPrintable *>(dataObject));
     }
