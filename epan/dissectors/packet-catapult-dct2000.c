@@ -2449,10 +2449,10 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* by the wiretap module                                             */
 
     /* Context Name */
-    context_name = tvb_get_const_stringz(tvb, offset, &context_length);
+    context_name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &context_length, ENC_ASCII);
     if (dct2000_tree) {
-        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_context, tvb,
-                            offset, context_length, ENC_ASCII);
+        proto_tree_add_string(dct2000_tree, hf_catapult_dct2000_context, tvb,
+                            offset, context_length, context_name);
     }
     offset += context_length;
 
@@ -2465,7 +2465,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     offset++;
 
     /* Timestamp in file */
-    timestamp_string = tvb_get_const_stringz(tvb, offset, &timestamp_length);
+    timestamp_string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &timestamp_length, ENC_ASCII);
     if (dct2000_tree) {
         /* g_ascii_strtod(timestamp_string, NULL)) is much simpler, but *very* slow..
            There will be seconds, a dot, and 4 decimal places.
@@ -2498,10 +2498,10 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 
     /* DCT2000 protocol name */
-    protocol_name = tvb_get_const_stringz(tvb, offset, &protocol_length);
+    protocol_name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &protocol_length, ENC_ASCII);
     if (dct2000_tree) {
-        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
-                            offset, protocol_length, ENC_ASCII);
+        proto_tree_add_string(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
+                            offset, protocol_length, protocol_name);
     }
     is_comment = (strcmp(protocol_name, "comment") == 0);
     if (!is_comment) {
@@ -2511,18 +2511,18 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 
     /* Protocol Variant */
-    variant_string = tvb_get_const_stringz(tvb, offset, &variant_length);
+    variant_string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &variant_length, ENC_ASCII);
     if (!is_comment && !is_sprint) {
-        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
-                            offset, variant_length, ENC_ASCII);
+        proto_tree_add_string(dct2000_tree, hf_catapult_dct2000_variant, tvb,
+                            offset, variant_length, variant_string);
     }
     offset += variant_length;
 
     /* Outhdr (shown as string) */
-    outhdr_string = tvb_get_const_stringz(tvb, offset, &outhdr_length);
+    outhdr_string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &outhdr_length, ENC_ASCII);
     if (!is_comment && !is_sprint && (outhdr_length > 1)) {
-        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
-                            offset, outhdr_length, ENC_ASCII);
+        proto_tree_add_string(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
+                            offset, outhdr_length, outhdr_string);
     }
     offset += outhdr_length;
 
