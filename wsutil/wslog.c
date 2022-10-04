@@ -1212,13 +1212,16 @@ void ws_log_add_custom_file(FILE *fp)
     "sets level to abort the program (\"critical\" or \"warning\")"
 
 #define USAGE_DOMAINS \
-    "comma separated list of the active log domains"
+    "comma-separated list of the active log domains"
+
+#define USAGE_FATAL_DOMAINS \
+    "list of domains that cause the program to abort"
 
 #define USAGE_DEBUG \
-    "comma separated list of domains with \"debug\" level"
+    "list of domains with \"debug\" level"
 
 #define USAGE_NOISY \
-    "comma separated list of domains with \"noisy\" level"
+    "list of domains with \"noisy\" level"
 
 #define USAGE_FILE \
     "file to output messages to (in addition to stderr)"
@@ -1229,6 +1232,8 @@ void ws_log_print_usage(FILE *fp)
     fprintf(fp, "  --log-level <level>      " USAGE_LEVEL "\n");
     fprintf(fp, "  --log-fatal <level>      " USAGE_FATAL "\n");
     fprintf(fp, "  --log-domains <[!]list>  " USAGE_DOMAINS "\n");
+    fprintf(fp, "  --log-fatal-domains <list>\n");
+    fprintf(fp, "                           " USAGE_FATAL_DOMAINS "\n");
     fprintf(fp, "  --log-debug <[!]list>    " USAGE_DEBUG "\n");
     fprintf(fp, "  --log-noisy <[!]list>    " USAGE_NOISY "\n");
     fprintf(fp, "  --log-file <path>        " USAGE_FILE "\n");
