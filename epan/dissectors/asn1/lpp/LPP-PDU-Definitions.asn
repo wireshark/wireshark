@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V17.1.0 (2022-06)
+-- 3GPP TS 37.355 V17.2.0 (2022-09)
 
 LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -1318,8 +1318,7 @@ NR-DL-PRS-ProcessingCapability-r16 ::= SEQUENCE {
 	simulLTE-NR-PRS-r16						ENUMERATED { supported }		OPTIONAL,
 	...,
 	[[
-	supportedDL-PRS-ProcessingSamples-RRC-Inactive-r17
-											ENUMERATED { m1, m2, ... }		OPTIONAL
+	dummy									ENUMERATED { m1, m2, ... }		OPTIONAL
 	]]
 }
 
@@ -1354,7 +1353,7 @@ PRS-ProcessingCapabilityPerBand-r16 ::= SEQUENCE {
 	},
 	...,
 	[[
-	supportedDL-PRS-ProcessingSamples-r17	ENUMERATED { supported }					OPTIONAL,
+	supportedDL-PRS-ProcessingSamples-RRC-CONNECTED-r17	ENUMERATED { supported }		OPTIONAL,
 	prs-ProcessingWindowType1A-r17			ENUMERATED { option1, option2, option3}		OPTIONAL,
 	prs-ProcessingWindowType1B-r17			ENUMERATED { option1, option2, option3}		OPTIONAL,
 	prs-ProcessingWindowType2-r17			ENUMERATED { option1, option2, option3}		OPTIONAL,
@@ -1383,7 +1382,10 @@ PRS-ProcessingCapabilityPerBand-r16 ::= SEQUENCE {
 															n32, n48, n64}				OPTIONAL,
 		...
 	}																					OPTIONAL,
-	lowerRxBeamSweepingThan8-FR2-r17			ENUMERATED { n1, n2, n4, n6 }			OPTIONAL
+	supportedLowerRxBeamSweepingFactor-FR2-r17	ENUMERATED { n1, n2, n4, n6 }			OPTIONAL
+	]],
+	[[
+	supportedDL-PRS-ProcessingSamples-RRC-Inactive-r17	ENUMERATED { supported }		OPTIONAL
 	]]
 }
 
@@ -1421,7 +1423,14 @@ PRS-ProcessingCapabilityOutsideMGinPPWperType-r17 ::= SEQUENCE {
 																						OPTIONAL,
 		...
 	},
-	...
+	...,
+	[[
+	ppw-maxNumOfDL-Bandwidth-r17		CHOICE {
+		fr1										ENUMERATED {mhz5, mhz10, mhz20, mhz40,
+															mhz50, mhz80, mhz100},
+		fr2										ENUMERATED {mhz50, mhz100, mhz200, mhz400}
+	}																					OPTIONAL
+	]]
 }
 
 
@@ -1504,7 +1513,10 @@ NR-DL-PRS-TRP-TEG-InfoPerTRP-r17 ::= SEQUENCE {
 	nr-ARFCN-r17							ARFCN-ValueNR-r15		OPTIONAL,	-- Need ON
 	dl-PRS-TEG-InfoSet-r17					SEQUENCE (SIZE(1..nrMaxSetsPerTrpPerFreqLayer-r16)) OF
 												DL-PRS-TEG-InfoPerResourceSet-r17,
-	...
+	...,
+	[[
+	nr-TRP-TxTEG-TimingErrorMargin-r17		TEG-TimingErrorMargin-r17		OPTIONAL  -- Need ON
+	]]
 }
 
 DL-PRS-TEG-InfoPerResourceSet-r17 ::= SEQUENCE (SIZE(1..nrMaxResourcesPerSet-r16)) OF
@@ -1549,11 +1561,11 @@ NR-On-Demand-DL-PRS-PerFreqLayer-r17 ::= SEQUENCE {
 																					OPTIONAL,
 	dl-prs-NumSymbolsReq-r17				ENUMERATED {n2, n4, n6, n12, ...}		OPTIONAL,
 	dl-prs-CombSizeN-Req-r17				ENUMERATED {n2, n4, n6, n12, ...}		OPTIONAL,
-	dl-prs-QCL-InformationReq-r17			DL-PRS-QCL-InformationReq-r17			OPTIONAL,
+	dl-prs-QCL-InformationReqTRPlist-r17	DL-PRS-QCL-InformationReqTRPlist-r17	OPTIONAL,
 	...
 }
 
-DL-PRS-QCL-InformationReq-r17 ::= SEQUENCE (SIZE (1..nrMaxTRPsPerFreq-r16)) OF
+DL-PRS-QCL-InformationReqTRPlist-r17 ::= SEQUENCE (SIZE (1..nrMaxTRPsPerFreq-r16)) OF
 													DL-PRS-QCL-InformationReqPerTRP-r17
 
 DL-PRS-QCL-InformationReqPerTRP-r17 ::= SEQUENCE {
@@ -1569,11 +1581,16 @@ DL-PRS-QCL-InformationReqPerTRP-r17 ::= SEQUENCE {
 DL-PRS-QCL-InfoReq-r17 ::= SEQUENCE {
 	nr-DL-PRS-ResourceSetID-r17			NR-DL-PRS-ResourceSetID-r16,
 	dl-prs-QCL-InformationReq-r17		CHOICE {
-					nr-DL-PRS-QCL-Source-r17			DL-PRS-QCL-Info-r16,
-					dl-prs-QCL-Info-requested-r17		NULL
+					dl-prs-QCL-InfoRecPerResourceSet-r17	DL-PRS-QCL-Info-r16,
+					dl-prs-QCL-Info-requested-r17			NULL
 					},
-	...
+	...,
+	[[
+	dl-prs-QCL-InfoRecPerResource-r17	SEQUENCE  (SIZE (1..nrMaxResourcesPerSet-r16)) OF
+														DL-PRS-QCL-Info-r16			OPTIONAL
+	]]
 }
+
 
 NR-On-Demand-DL-PRS-Request-r17 ::= SEQUENCE {
 	dl-prs-StartTime-and-Duration-r17			DL-PRS-StartTime-and-Duration-r17		OPTIONAL,
@@ -1985,6 +2002,14 @@ LocationUncertainty-r16 ::= SEQUENCE {
 	verticalUncertainty-r16					INTEGER (0..255),
 	verticalConfidence-r16					INTEGER (0..100)
 }
+
+
+TEG-TimingErrorMargin-r17 ::= ENUMERATED { tc0, tc2, tc4, tc6, tc8, tc12, tc16, tc20, tc24,
+											tc32, tc40, tc48, tc56, tc64, tc72, tc80 }
+
+
+RxTxTEG-TimingErrorMargin-r17 ::= ENUMERATED { tc0-5, tc1, tc2, tc4, tc8, tc12, tc16, tc20,
+												tc24, tc32, tc40, tc48, tc64, tc80, tc96, tc128 }
 
 
 OTDOA-ProvideAssistanceData ::= SEQUENCE {
@@ -3761,9 +3786,9 @@ ORBIT-IntegrityParameters-r17 ::= SEQUENCE {
 
 SSR-IntegrityOrbitBounds-r17 ::= SEQUENCE {
 	meanOrbitError-r17				RAC-OrbitalErrorComponents-r17,
-	varOrbitError-r17				RAC-OrbitalErrorComponents-r17,
+	stdDevOrbitError-r17			RAC-OrbitalErrorComponents-r17,
 	meanOrbitRateError-r17			RAC-OrbitalErrorComponents-r17,
-	varOrbitRateError-r17			RAC-OrbitalErrorComponents-r17,
+	stdDevOrbitRateError-r17		RAC-OrbitalErrorComponents-r17,
 	...
 }
 
@@ -6092,7 +6117,10 @@ NR-DL-TDOA-ProvideLocationInformation-r16 ::= SEQUENCE {
 NR-DL-TDOA-SignalMeasurementInformation-r16 ::= SEQUENCE {
 	dl-PRS-ReferenceInfo-r16		DL-PRS-ID-Info-r16,
 	nr-DL-TDOA-MeasList-r16			NR-DL-TDOA-MeasList-r16,
-	...
+	...,
+	[[
+	nr-UE-RxTEG-TimingErrorMargin-r17	TEG-TimingErrorMargin-r17		OPTIONAL	-- Cond UERxTEG
+	]]
 }
 
 NR-DL-TDOA-MeasList-r16 ::= SEQUENCE (SIZE(1..nrMaxTRPs-r16)) OF NR-DL-TDOA-MeasElement-r16
@@ -6212,8 +6240,8 @@ NR-DL-TDOA-ReportConfig-r16 ::= SEQUENCE {
 	measureSameDL-PRS-ResourceWithDifferentRxTEGs-r17
 												ENUMERATED { n0, n2, n3, n4, n6, n8, ... }
 																				OPTIONAL, -- Need ON
-	requestedDL-PRS-ProcessingSamples-r17		ENUMERATED { m1, ... }			OPTIONAL, -- Need ON
-	lowerRxBeamSweepingThan8-FR2-r17			ENUMERATED { requested } 		OPTIONAL  -- Need ON
+	reducedDL-PRS-ProcessingSamples-r17			ENUMERATED { requested, ... }	OPTIONAL, -- Need ON
+	lowerRxBeamSweepingFactor-FR2-r17			ENUMERATED { requested } 		OPTIONAL  -- Need ON
 	]]
 }
 
@@ -6470,8 +6498,9 @@ NR-DL-AoD-ReportConfig-r16 ::= SEQUENCE {
 																LOS-NLOS-IndicatorGranularity1-r17,
 													...
 												}							OPTIONAL, -- Need ON
-	requestedDL-PRS-ProcessingSamples-r17		ENUMERATED { m1, ... }		OPTIONAL, -- Need ON
-	lowerRxBeamSweepingThan8-FR2-r17			ENUMERATED { requested }	OPTIONAL  -- Need ON
+	reducedDL-PRS-ProcessingSamples-r17			ENUMERATED { requested, ... }
+																			OPTIONAL, -- Need ON
+	lowerRxBeamSweepingFactor-FR2-r17			ENUMERATED { requested }	OPTIONAL  -- Need ON
 	]]
 }
 
@@ -6634,6 +6663,11 @@ NR-Multi-RTT-SignalMeasurementInformation-r16 ::= SEQUENCE {
 	nr-SRS-TxTEG-Set-r17			SEQUENCE (SIZE(1..maxTxTEG-Sets-r17)) OF
 										NR-SRS-TxTEG-Element-r17					OPTIONAL
 																			 -- Cond Case2-3
+	]],
+	[[
+	nr-UE-RxTEG-TimingErrorMargin-r17	TEG-TimingErrorMargin-r17		OPTIONAL,-- Cond TEGCase3
+	nr-UE-TxTEG-TimingErrorMargin-r17	TEG-TimingErrorMargin-r17		OPTIONAL,-- Cond TEGCase2-3
+	nr-UE-RxTxTEG-TimingErrorMargin-r17	RxTxTEG-TimingErrorMargin-r17	OPTIONAL -- Cond TEGCase1-2
 	]]
 }
 
@@ -6752,8 +6786,8 @@ NR-Multi-RTT-RequestLocationInformation-r16 ::= SEQUENCE {
 	measureSameDL-PRS-ResourceWithDifferentRxTEGs-r17
 										ENUMERATED { n0, n2, n3, n4, n6, n8, ... }
 																			OPTIONAL, -- Need ON
-	requestedDL-PRS-ProcessingSamples-r17
-										ENUMERATED { m1, ... }				OPTIONAL, -- Need ON
+	reducedDL-PRS-ProcessingSamples-r17
+										ENUMERATED { requested, ... }		OPTIONAL, -- Need ON
 	nr-los-nlos-IndicatorRequest-r17	SEQUENCE {
 											type-r17		LOS-NLOS-IndicatorType1-r17,
 											granularity-r17	LOS-NLOS-IndicatorGranularity1-r17,
@@ -6763,7 +6797,7 @@ NR-Multi-RTT-RequestLocationInformation-r16 ::= SEQUENCE {
 	additionalPathsDL-PRS-RSRP-Request-r17
 										ENUMERATED { requested }			OPTIONAL, -- Need ON
 	multiMeasInSameReport-r17			ENUMERATED { requested }			OPTIONAL, -- Need ON
-	lowerRxBeamSweepingThan8-FR2-r17	ENUMERATED { requested }			OPTIONAL  -- Need ON
+	lowerRxBeamSweepingFactor-FR2-r17	ENUMERATED { requested }			OPTIONAL  -- Need ON
 	]]
 }
 

@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 17.1.0 Release 17
+ * Ref 3GPP TS 37.355 version 17.2.0 Release 17
  * http://www.3gpp.org
  */
 
@@ -595,7 +595,7 @@ static int hf_lpp_prs_ProcessingCapabilityBandList_r16 = -1;  /* SEQUENCE_SIZE_1
 static int hf_lpp_prs_ProcessingCapabilityBandList_r16_item = -1;  /* PRS_ProcessingCapabilityPerBand_r16 */
 static int hf_lpp_maxSupportedFreqLayers_r16 = -1;  /* INTEGER_1_4 */
 static int hf_lpp_simulLTE_NR_PRS_r16 = -1;       /* T_simulLTE_NR_PRS_r16 */
-static int hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17 = -1;  /* T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17 */
+static int hf_lpp_dummy = -1;                     /* T_dummy */
 static int hf_lpp_freqBandIndicatorNR_r16 = -1;   /* FreqBandIndicatorNR_r16 */
 static int hf_lpp_supportedBandwidthPRS_r16 = -1;  /* T_supportedBandwidthPRS_r16 */
 static int hf_lpp_fr1 = -1;                       /* T_fr1 */
@@ -609,7 +609,7 @@ static int hf_lpp_scs15_r16_01 = -1;              /* T_scs15_r16_01 */
 static int hf_lpp_scs30_r16_01 = -1;              /* T_scs30_r16_01 */
 static int hf_lpp_scs60_r16_01 = -1;              /* T_scs60_r16_01 */
 static int hf_lpp_scs120_r16_01 = -1;             /* T_scs120_r16_01 */
-static int hf_lpp_supportedDL_PRS_ProcessingSamples_r17 = -1;  /* T_supportedDL_PRS_ProcessingSamples_r17 */
+static int hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17 = -1;  /* T_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17 */
 static int hf_lpp_prs_ProcessingWindowType1A_r17 = -1;  /* T_prs_ProcessingWindowType1A_r17 */
 static int hf_lpp_prs_ProcessingWindowType1B_r17 = -1;  /* T_prs_ProcessingWindowType1B_r17 */
 static int hf_lpp_prs_ProcessingWindowType2_r17 = -1;  /* T_prs_ProcessingWindowType2_r17 */
@@ -624,7 +624,8 @@ static int hf_lpp_scs15_r17_01 = -1;              /* T_scs15_r17 */
 static int hf_lpp_scs30_r17_01 = -1;              /* T_scs30_r17 */
 static int hf_lpp_scs60_r17_01 = -1;              /* T_scs60_r17 */
 static int hf_lpp_scs120_r17_01 = -1;             /* T_scs120_r17 */
-static int hf_lpp_lowerRxBeamSweepingThan8_FR2_r17 = -1;  /* T_lowerRxBeamSweepingThan8_FR2_r17 */
+static int hf_lpp_supportedLowerRxBeamSweepingFactor_FR2_r17 = -1;  /* T_supportedLowerRxBeamSweepingFactor_FR2_r17 */
+static int hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17 = -1;  /* T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17 */
 static int hf_lpp_prsProcessingType_r17 = -1;     /* T_prsProcessingType_r17 */
 static int hf_lpp_ppw_dl_PRS_BufferType_r17 = -1;  /* T_ppw_dl_PRS_BufferType_r17 */
 static int hf_lpp_ppw_durationOfPRS_Processing1_r17 = -1;  /* T_ppw_durationOfPRS_Processing1_r17 */
@@ -638,6 +639,9 @@ static int hf_lpp_scs15_r17_02 = -1;              /* T_scs15_r17_01 */
 static int hf_lpp_scs30_r17_02 = -1;              /* T_scs30_r17_01 */
 static int hf_lpp_scs60_r17_02 = -1;              /* T_scs60_r17_01 */
 static int hf_lpp_scs120_r17_02 = -1;             /* T_scs120_r17_01 */
+static int hf_lpp_ppw_maxNumOfDL_Bandwidth_r17 = -1;  /* T_ppw_maxNumOfDL_Bandwidth_r17 */
+static int hf_lpp_fr1_01 = -1;                    /* T_fr1_01 */
+static int hf_lpp_fr2_01 = -1;                    /* T_fr2_01 */
 static int hf_lpp_dl_PRS_QCL_ProcessingCapabilityBandList_r16 = -1;  /* SEQUENCE_SIZE_1_nrMaxBands_r16_OF_DL_PRS_QCL_ProcessingCapabilityPerBand_r16 */
 static int hf_lpp_dl_PRS_QCL_ProcessingCapabilityBandList_r16_item = -1;  /* DL_PRS_QCL_ProcessingCapabilityPerBand_r16 */
 static int hf_lpp_ssb_FromNeighCellAsQCL_r16 = -1;  /* T_ssb_FromNeighCellAsQCL_r16 */
@@ -663,6 +667,7 @@ static int hf_lpp_NR_DL_PRS_TRP_TEG_Info_r17_item = -1;  /* NR_DL_PRS_TRP_TEG_In
 static int hf_lpp_NR_DL_PRS_TRP_TEG_InfoPerFreqLayer_r17_item = -1;  /* NR_DL_PRS_TRP_TEG_InfoPerTRP_r17 */
 static int hf_lpp_dl_PRS_TEG_InfoSet_r17 = -1;    /* SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_TEG_InfoPerResourceSet_r17 */
 static int hf_lpp_dl_PRS_TEG_InfoSet_r17_item = -1;  /* DL_PRS_TEG_InfoPerResourceSet_r17 */
+static int hf_lpp_nr_TRP_TxTEG_TimingErrorMargin_r17 = -1;  /* TEG_TimingErrorMargin_r17 */
 static int hf_lpp_DL_PRS_TEG_InfoPerResourceSet_r17_item = -1;  /* DL_PRS_TEG_InfoElement_r17 */
 static int hf_lpp_dl_prs_trp_Tx_TEG_ID_r17 = -1;  /* INTEGER_0_maxNumOfTRP_TxTEGs_1_r17 */
 static int hf_lpp_on_demand_dl_prs_configuration_list_r17 = -1;  /* SEQUENCE_SIZE_1_maxOD_DL_PRS_Configs_r17_OF_On_Demand_DL_PRS_Configuration_r17 */
@@ -678,14 +683,16 @@ static int hf_lpp_dl_prs_ResourceBandwidthReq_r17 = -1;  /* INTEGER_1_63 */
 static int hf_lpp_dl_prs_ResourceRepetitionFactorReq_r17 = -1;  /* T_dl_prs_ResourceRepetitionFactorReq_r17 */
 static int hf_lpp_dl_prs_NumSymbolsReq_r17 = -1;  /* T_dl_prs_NumSymbolsReq_r17 */
 static int hf_lpp_dl_prs_CombSizeN_Req_r17 = -1;  /* T_dl_prs_CombSizeN_Req_r17 */
-static int hf_lpp_dl_prs_QCL_InformationReq_r17 = -1;  /* DL_PRS_QCL_InformationReq_r17 */
-static int hf_lpp_DL_PRS_QCL_InformationReq_r17_item = -1;  /* DL_PRS_QCL_InformationReqPerTRP_r17 */
+static int hf_lpp_dl_prs_QCL_InformationReqTRPlist_r17 = -1;  /* DL_PRS_QCL_InformationReqTRPlist_r17 */
+static int hf_lpp_DL_PRS_QCL_InformationReqTRPlist_r17_item = -1;  /* DL_PRS_QCL_InformationReqPerTRP_r17 */
 static int hf_lpp_dl_prs_QCL_InformationReqSet_r17 = -1;  /* SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_QCL_InfoReq_r17 */
 static int hf_lpp_dl_prs_QCL_InformationReqSet_r17_item = -1;  /* DL_PRS_QCL_InfoReq_r17 */
 static int hf_lpp_nr_DL_PRS_ResourceSetID_r17 = -1;  /* NR_DL_PRS_ResourceSetID_r16 */
-static int hf_lpp_dl_prs_QCL_InformationReq_r17_01 = -1;  /* T_dl_prs_QCL_InformationReq_r17 */
-static int hf_lpp_nr_DL_PRS_QCL_Source_r17 = -1;  /* DL_PRS_QCL_Info_r16 */
+static int hf_lpp_dl_prs_QCL_InformationReq_r17 = -1;  /* T_dl_prs_QCL_InformationReq_r17 */
+static int hf_lpp_dl_prs_QCL_InfoRecPerResourceSet_r17 = -1;  /* DL_PRS_QCL_Info_r16 */
 static int hf_lpp_dl_prs_QCL_Info_requested_r17 = -1;  /* NULL */
+static int hf_lpp_dl_prs_QCL_InfoRecPerResource_r17 = -1;  /* SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16 */
+static int hf_lpp_dl_prs_QCL_InfoRecPerResource_r17_item = -1;  /* DL_PRS_QCL_Info_r16 */
 static int hf_lpp_dl_prs_StartTime_and_Duration_r17 = -1;  /* DL_PRS_StartTime_and_Duration_r17 */
 static int hf_lpp_nr_on_demand_DL_PRS_Information_r17 = -1;  /* NR_On_Demand_DL_PRS_Information_r17 */
 static int hf_lpp_dl_prs_configuration_id_PrefList_r17 = -1;  /* SEQUENCE_SIZE_1_maxOD_DL_PRS_Configs_r17_OF_DL_PRS_Configuration_ID_r17 */
@@ -1727,9 +1734,9 @@ static int hf_lpp_meanSatFaultDuration_r17 = -1;  /* INTEGER_1_3600 */
 static int hf_lpp_orbitRangeErrorCorrelationTime_r17 = -1;  /* INTEGER_0_255 */
 static int hf_lpp_orbitRangeRateErrorCorrelationTime_r17 = -1;  /* INTEGER_0_255 */
 static int hf_lpp_meanOrbitError_r17 = -1;        /* RAC_OrbitalErrorComponents_r17 */
-static int hf_lpp_varOrbitError_r17 = -1;         /* RAC_OrbitalErrorComponents_r17 */
+static int hf_lpp_stdDevOrbitError_r17 = -1;      /* RAC_OrbitalErrorComponents_r17 */
 static int hf_lpp_meanOrbitRateError_r17 = -1;    /* RAC_OrbitalErrorComponents_r17 */
-static int hf_lpp_varOrbitRateError_r17 = -1;     /* RAC_OrbitalErrorComponents_r17 */
+static int hf_lpp_stdDevOrbitRateError_r17 = -1;  /* RAC_OrbitalErrorComponents_r17 */
 static int hf_lpp_radial_r17 = -1;                /* INTEGER_0_255 */
 static int hf_lpp_alongTrack_r17 = -1;            /* INTEGER_0_255 */
 static int hf_lpp_crossTrack_r17 = -1;            /* INTEGER_0_255 */
@@ -2424,6 +2431,7 @@ static int hf_lpp_nr_DL_TDOA_LocationInformationInstances_r17 = -1;  /* SEQUENCE
 static int hf_lpp_nr_DL_TDOA_LocationInformationInstances_r17_item = -1;  /* NR_DL_TDOA_LocationInformation_r16 */
 static int hf_lpp_dl_PRS_ReferenceInfo_r16 = -1;  /* DL_PRS_ID_Info_r16 */
 static int hf_lpp_nr_DL_TDOA_MeasList_r16 = -1;   /* NR_DL_TDOA_MeasList_r16 */
+static int hf_lpp_nr_UE_RxTEG_TimingErrorMargin_r17 = -1;  /* TEG_TimingErrorMargin_r17 */
 static int hf_lpp_NR_DL_TDOA_MeasList_r16_item = -1;  /* NR_DL_TDOA_MeasElement_r16 */
 static int hf_lpp_nr_TimeStamp_r16 = -1;          /* NR_TimeStamp_r16 */
 static int hf_lpp_nr_RSTD_r16 = -1;               /* T_nr_RSTD_r16 */
@@ -2476,8 +2484,8 @@ static int hf_lpp_multiMeasInSameReport_r17 = -1;  /* T_multiMeasInSameReport_r1
 static int hf_lpp_maxDL_PRS_RSTD_MeasurementsPerTRPPair_r16 = -1;  /* INTEGER_1_4 */
 static int hf_lpp_timingReportingGranularityFactor_r16 = -1;  /* INTEGER_0_5 */
 static int hf_lpp_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_01 = -1;  /* T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_01 */
-static int hf_lpp_requestedDL_PRS_ProcessingSamples_r17 = -1;  /* T_requestedDL_PRS_ProcessingSamples_r17 */
-static int hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_01 = -1;  /* T_lowerRxBeamSweepingThan8_FR2_r17_01 */
+static int hf_lpp_reducedDL_PRS_ProcessingSamples_r17 = -1;  /* T_reducedDL_PRS_ProcessingSamples_r17 */
+static int hf_lpp_lowerRxBeamSweepingFactor_FR2_r17 = -1;  /* T_lowerRxBeamSweepingFactor_FR2_r17 */
 static int hf_lpp_nr_DL_TDOA_Mode_r16 = -1;       /* PositioningModes */
 static int hf_lpp_nr_DL_TDOA_PRS_Capability_r16 = -1;  /* NR_DL_PRS_ResourcesCapability_r16 */
 static int hf_lpp_nr_DL_TDOA_MeasurementCapability_r16 = -1;  /* NR_DL_TDOA_MeasurementCapability_r16 */
@@ -2544,8 +2552,8 @@ static int hf_lpp_maxDL_PRS_RSRP_MeasurementsPerTRP_r16 = -1;  /* INTEGER_1_8 */
 static int hf_lpp_maxDL_PRS_RSRP_MeasurementsPerTRP_r17 = -1;  /* INTEGER_9_24 */
 static int hf_lpp_maxDL_PRS_RSRPP_MeasurementsPerTRP_r17 = -1;  /* INTEGER_1_24 */
 static int hf_lpp_nr_los_nlos_IndicatorRequest_r17_01 = -1;  /* T_nr_los_nlos_IndicatorRequest_r17_01 */
-static int hf_lpp_requestedDL_PRS_ProcessingSamples_r17_01 = -1;  /* T_requestedDL_PRS_ProcessingSamples_r17_01 */
-static int hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_02 = -1;  /* T_lowerRxBeamSweepingThan8_FR2_r17_02 */
+static int hf_lpp_reducedDL_PRS_ProcessingSamples_r17_01 = -1;  /* T_reducedDL_PRS_ProcessingSamples_r17_01 */
+static int hf_lpp_lowerRxBeamSweepingFactor_FR2_r17_01 = -1;  /* T_lowerRxBeamSweepingFactor_FR2_r17_01 */
 static int hf_lpp_nr_DL_AoD_Mode_r16 = -1;        /* PositioningModes */
 static int hf_lpp_nr_DL_AoD_PRS_Capability_r16 = -1;  /* NR_DL_PRS_ResourcesCapability_r16 */
 static int hf_lpp_nr_DL_AoD_MeasurementCapability_r16 = -1;  /* NR_DL_AoD_MeasurementCapability_r16 */
@@ -2584,6 +2592,8 @@ static int hf_lpp_nr_Multi_RTT_MeasList_r16 = -1;  /* NR_Multi_RTT_MeasList_r16 
 static int hf_lpp_nr_NTA_Offset_r16 = -1;         /* T_nr_NTA_Offset_r16 */
 static int hf_lpp_nr_SRS_TxTEG_Set_r17 = -1;      /* SEQUENCE_SIZE_1_maxTxTEG_Sets_r17_OF_NR_SRS_TxTEG_Element_r17 */
 static int hf_lpp_nr_SRS_TxTEG_Set_r17_item = -1;  /* NR_SRS_TxTEG_Element_r17 */
+static int hf_lpp_nr_UE_TxTEG_TimingErrorMargin_r17 = -1;  /* TEG_TimingErrorMargin_r17 */
+static int hf_lpp_nr_UE_RxTxTEG_TimingErrorMargin_r17 = -1;  /* RxTxTEG_TimingErrorMargin_r17 */
 static int hf_lpp_NR_Multi_RTT_MeasList_r16_item = -1;  /* NR_Multi_RTT_MeasElement_r16 */
 static int hf_lpp_nr_UE_RxTxTimeDiff_r16 = -1;    /* T_nr_UE_RxTxTimeDiff_r16 */
 static int hf_lpp_nr_Multi_RTT_AdditionalMeasurements_r16 = -1;  /* NR_Multi_RTT_AdditionalMeasurements_r16 */
@@ -2611,12 +2621,12 @@ static int hf_lpp_additionalPaths_r16_01 = -1;    /* T_additionalPaths_r16_01 */
 static int hf_lpp_nr_UE_RxTxTEG_Request_r17 = -1;  /* T_nr_UE_RxTxTEG_Request_r17 */
 static int hf_lpp_measureSameDL_PRS_ResourceWithDifferentRxTxTEGs_r17 = -1;  /* T_measureSameDL_PRS_ResourceWithDifferentRxTxTEGs_r17 */
 static int hf_lpp_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_02 = -1;  /* T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_02 */
-static int hf_lpp_requestedDL_PRS_ProcessingSamples_r17_02 = -1;  /* T_requestedDL_PRS_ProcessingSamples_r17_02 */
+static int hf_lpp_reducedDL_PRS_ProcessingSamples_r17_02 = -1;  /* T_reducedDL_PRS_ProcessingSamples_r17_02 */
 static int hf_lpp_nr_los_nlos_IndicatorRequest_r17_02 = -1;  /* T_nr_los_nlos_IndicatorRequest_r17_02 */
 static int hf_lpp_additionalPathsExt_r17_01 = -1;  /* T_additionalPathsExt_r17_01 */
 static int hf_lpp_additionalPathsDL_PRS_RSRP_Request_r17_01 = -1;  /* T_additionalPathsDL_PRS_RSRP_Request_r17_01 */
 static int hf_lpp_multiMeasInSameReport_r17_02 = -1;  /* T_multiMeasInSameReport_r17_02 */
-static int hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_03 = -1;  /* T_lowerRxBeamSweepingThan8_FR2_r17_03 */
+static int hf_lpp_lowerRxBeamSweepingFactor_FR2_r17_02 = -1;  /* T_lowerRxBeamSweepingFactor_FR2_r17_02 */
 static int hf_lpp_maxDL_PRS_RxTxTimeDiffMeasPerTRP_r16 = -1;  /* INTEGER_1_4 */
 static int hf_lpp_nr_Multi_RTT_PRS_Capability_r16 = -1;  /* NR_DL_PRS_ResourcesCapability_r16 */
 static int hf_lpp_nr_Multi_RTT_MeasurementCapability_r16 = -1;  /* NR_Multi_RTT_MeasurementCapability_r16 */
@@ -3034,6 +3044,7 @@ static gint ett_lpp_PRS_ProcessingCapabilityOutsideMGinPPWperType_r17 = -1;
 static gint ett_lpp_T_ppw_durationOfPRS_Processing1_r17 = -1;
 static gint ett_lpp_T_ppw_durationOfPRS_Processing2_r17 = -1;
 static gint ett_lpp_T_ppw_maxNumOfDL_PRS_ResProcessedPerSlot_r17 = -1;
+static gint ett_lpp_T_ppw_maxNumOfDL_Bandwidth_r17 = -1;
 static gint ett_lpp_NR_DL_PRS_QCL_ProcessingCapability_r16 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxBands_r16_OF_DL_PRS_QCL_ProcessingCapabilityPerBand_r16 = -1;
 static gint ett_lpp_DL_PRS_QCL_ProcessingCapabilityPerBand_r16 = -1;
@@ -3057,11 +3068,12 @@ static gint ett_lpp_On_Demand_DL_PRS_Configuration_r17 = -1;
 static gint ett_lpp_DL_PRS_Configuration_ID_r17 = -1;
 static gint ett_lpp_NR_On_Demand_DL_PRS_Information_r17 = -1;
 static gint ett_lpp_NR_On_Demand_DL_PRS_PerFreqLayer_r17 = -1;
-static gint ett_lpp_DL_PRS_QCL_InformationReq_r17 = -1;
+static gint ett_lpp_DL_PRS_QCL_InformationReqTRPlist_r17 = -1;
 static gint ett_lpp_DL_PRS_QCL_InformationReqPerTRP_r17 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_QCL_InfoReq_r17 = -1;
 static gint ett_lpp_DL_PRS_QCL_InfoReq_r17 = -1;
 static gint ett_lpp_T_dl_prs_QCL_InformationReq_r17 = -1;
+static gint ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16 = -1;
 static gint ett_lpp_NR_On_Demand_DL_PRS_Request_r17 = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_maxOD_DL_PRS_Configs_r17_OF_DL_PRS_Configuration_ID_r17 = -1;
 static gint ett_lpp_DL_PRS_StartTime_and_Duration_r17 = -1;
@@ -10066,14 +10078,14 @@ dissect_lpp_T_maxNumOfDL_PRS_ResProcessedPerSlot_r16(tvbuff_t *tvb _U_, int offs
 }
 
 
-static const value_string lpp_T_supportedDL_PRS_ProcessingSamples_r17_vals[] = {
+static const value_string lpp_T_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_supportedDL_PRS_ProcessingSamples_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -10414,12 +10426,87 @@ dissect_lpp_T_ppw_maxNumOfDL_PRS_ResProcessedPerSlot_r17(tvbuff_t *tvb _U_, int 
 }
 
 
+static const value_string lpp_T_fr1_01_vals[] = {
+  {   0, "mhz5" },
+  {   1, "mhz10" },
+  {   2, "mhz20" },
+  {   3, "mhz40" },
+  {   4, "mhz50" },
+  {   5, "mhz80" },
+  {   6, "mhz100" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_fr1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     7, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_fr2_01_vals[] = {
+  {   0, "mhz50" },
+  {   1, "mhz100" },
+  {   2, "mhz200" },
+  {   3, "mhz400" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_fr2_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_ppw_maxNumOfDL_Bandwidth_r17_vals[] = {
+  {   0, "fr1" },
+  {   1, "fr2" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_ppw_maxNumOfDL_Bandwidth_r17_choice[] = {
+  {   0, &hf_lpp_fr1_01          , ASN1_NO_EXTENSIONS     , dissect_lpp_T_fr1_01 },
+  {   1, &hf_lpp_fr2_01          , ASN1_NO_EXTENSIONS     , dissect_lpp_T_fr2_01 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lpp_T_ppw_maxNumOfDL_Bandwidth_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lpp_T_ppw_maxNumOfDL_Bandwidth_r17, T_ppw_maxNumOfDL_Bandwidth_r17_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PRS_ProcessingCapabilityOutsideMGinPPWperType_r17_eag_1_sequence[] = {
+  { &hf_lpp_ppw_maxNumOfDL_Bandwidth_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_ppw_maxNumOfDL_Bandwidth_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_PRS_ProcessingCapabilityOutsideMGinPPWperType_r17_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, PRS_ProcessingCapabilityOutsideMGinPPWperType_r17_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t PRS_ProcessingCapabilityOutsideMGinPPWperType_r17_sequence[] = {
   { &hf_lpp_prsProcessingType_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_prsProcessingType_r17 },
   { &hf_lpp_ppw_dl_PRS_BufferType_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_ppw_dl_PRS_BufferType_r17 },
   { &hf_lpp_ppw_durationOfPRS_Processing1_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_ppw_durationOfPRS_Processing1_r17 },
   { &hf_lpp_ppw_durationOfPRS_Processing2_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_ppw_durationOfPRS_Processing2_r17 },
   { &hf_lpp_ppw_maxNumOfDL_PRS_ResProcessedPerSlot_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_ppw_maxNumOfDL_PRS_ResProcessedPerSlot_r17 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_PRS_ProcessingCapabilityOutsideMGinPPWperType_r17_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -10650,7 +10737,7 @@ dissect_lpp_T_maxNumOfDL_PRS_ResProcessedPerSlot_RRC_Inactive_r17(tvbuff_t *tvb 
 }
 
 
-static const value_string lpp_T_lowerRxBeamSweepingThan8_FR2_r17_vals[] = {
+static const value_string lpp_T_supportedLowerRxBeamSweepingFactor_FR2_r17_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n4" },
@@ -10660,7 +10747,7 @@ static const value_string lpp_T_lowerRxBeamSweepingThan8_FR2_r17_vals[] = {
 
 
 static int
-dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_supportedLowerRxBeamSweepingFactor_FR2_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      4, NULL, FALSE, 0, NULL);
 
@@ -10669,7 +10756,7 @@ dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17(tvbuff_t *tvb _U_, int offset _U_
 
 
 static const per_sequence_t PRS_ProcessingCapabilityPerBand_r16_eag_1_sequence[] = {
-  { &hf_lpp_supportedDL_PRS_ProcessingSamples_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportedDL_PRS_ProcessingSamples_r17 },
+  { &hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17 },
   { &hf_lpp_prs_ProcessingWindowType1A_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_prs_ProcessingWindowType1A_r17 },
   { &hf_lpp_prs_ProcessingWindowType1B_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_prs_ProcessingWindowType1B_r17 },
   { &hf_lpp_prs_ProcessingWindowType2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_prs_ProcessingWindowType2_r17 },
@@ -10677,13 +10764,41 @@ static const per_sequence_t PRS_ProcessingCapabilityPerBand_r16_eag_1_sequence[]
   { &hf_lpp_dl_PRS_BufferType_RRC_Inactive_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_dl_PRS_BufferType_RRC_Inactive_r17 },
   { &hf_lpp_durationOfPRS_Processing_RRC_Inactive_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_durationOfPRS_Processing_RRC_Inactive_r17 },
   { &hf_lpp_maxNumOfDL_PRS_ResProcessedPerSlot_RRC_Inactive_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_maxNumOfDL_PRS_ResProcessedPerSlot_RRC_Inactive_r17 },
-  { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17 },
+  { &hf_lpp_supportedLowerRxBeamSweepingFactor_FR2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportedLowerRxBeamSweepingFactor_FR2_r17 },
   { NULL, 0, 0, NULL }
 };
 
 static int
 dissect_lpp_PRS_ProcessingCapabilityPerBand_r16_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence_eag(tvb, offset, actx, tree, PRS_ProcessingCapabilityPerBand_r16_eag_1_sequence);
+
+  return offset;
+}
+
+
+static const value_string lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PRS_ProcessingCapabilityPerBand_r16_eag_2_sequence[] = {
+  { &hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_PRS_ProcessingCapabilityPerBand_r16_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, PRS_ProcessingCapabilityPerBand_r16_eag_2_sequence);
 
   return offset;
 }
@@ -10696,6 +10811,7 @@ static const per_sequence_t PRS_ProcessingCapabilityPerBand_r16_sequence[] = {
   { &hf_lpp_durationOfPRS_Processing_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_durationOfPRS_Processing_r16 },
   { &hf_lpp_maxNumOfDL_PRS_ResProcessedPerSlot_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_maxNumOfDL_PRS_ResProcessedPerSlot_r16 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_PRS_ProcessingCapabilityPerBand_r16_eag_1 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_PRS_ProcessingCapabilityPerBand_r16_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -10737,7 +10853,7 @@ dissect_lpp_T_simulLTE_NR_PRS_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const value_string lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17_vals[] = {
+static const value_string lpp_T_dummy_vals[] = {
   {   0, "m1" },
   {   1, "m2" },
   { 0, NULL }
@@ -10745,7 +10861,7 @@ static const value_string lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r
 
 
 static int
-dissect_lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_dummy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, TRUE, 0, NULL);
 
@@ -10754,7 +10870,7 @@ dissect_lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17(tvbuff_t *tvb _
 
 
 static const per_sequence_t NR_DL_PRS_ProcessingCapability_r16_eag_1_sequence[] = {
-  { &hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17 },
+  { &hf_lpp_dummy           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_dummy },
   { NULL, 0, 0, NULL }
 };
 
@@ -14934,13 +15050,13 @@ dissect_lpp_DL_PRS_QCL_Info_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const value_string lpp_T_dl_prs_QCL_InformationReq_r17_vals[] = {
-  {   0, "nr-DL-PRS-QCL-Source-r17" },
+  {   0, "dl-prs-QCL-InfoRecPerResourceSet-r17" },
   {   1, "dl-prs-QCL-Info-requested-r17" },
   { 0, NULL }
 };
 
 static const per_choice_t T_dl_prs_QCL_InformationReq_r17_choice[] = {
-  {   0, &hf_lpp_nr_DL_PRS_QCL_Source_r17, ASN1_NO_EXTENSIONS     , dissect_lpp_DL_PRS_QCL_Info_r16 },
+  {   0, &hf_lpp_dl_prs_QCL_InfoRecPerResourceSet_r17, ASN1_NO_EXTENSIONS     , dissect_lpp_DL_PRS_QCL_Info_r16 },
   {   1, &hf_lpp_dl_prs_QCL_Info_requested_r17, ASN1_NO_EXTENSIONS     , dissect_lpp_NULL },
   { 0, NULL, 0, NULL }
 };
@@ -14955,9 +15071,37 @@ dissect_lpp_T_dl_prs_QCL_InformationReq_r17(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+static const per_sequence_t SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16_sequence_of[1] = {
+  { &hf_lpp_dl_prs_QCL_InfoRecPerResource_r17_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_DL_PRS_QCL_Info_r16 },
+};
+
+static int
+dissect_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16, SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16_sequence_of,
+                                                  1, nrMaxResourcesPerSet_r16, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t DL_PRS_QCL_InfoReq_r17_eag_1_sequence[] = {
+  { &hf_lpp_dl_prs_QCL_InfoRecPerResource_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_DL_PRS_QCL_InfoReq_r17_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, DL_PRS_QCL_InfoReq_r17_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t DL_PRS_QCL_InfoReq_r17_sequence[] = {
   { &hf_lpp_nr_DL_PRS_ResourceSetID_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_PRS_ResourceSetID_r16 },
-  { &hf_lpp_dl_prs_QCL_InformationReq_r17_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_dl_prs_QCL_InformationReq_r17 },
+  { &hf_lpp_dl_prs_QCL_InformationReq_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_dl_prs_QCL_InformationReq_r17 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_DL_PRS_QCL_InfoReq_r17_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -15002,14 +15146,14 @@ dissect_lpp_DL_PRS_QCL_InformationReqPerTRP_r17(tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const per_sequence_t DL_PRS_QCL_InformationReq_r17_sequence_of[1] = {
-  { &hf_lpp_DL_PRS_QCL_InformationReq_r17_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_DL_PRS_QCL_InformationReqPerTRP_r17 },
+static const per_sequence_t DL_PRS_QCL_InformationReqTRPlist_r17_sequence_of[1] = {
+  { &hf_lpp_DL_PRS_QCL_InformationReqTRPlist_r17_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_DL_PRS_QCL_InformationReqPerTRP_r17 },
 };
 
 static int
-dissect_lpp_DL_PRS_QCL_InformationReq_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_DL_PRS_QCL_InformationReqTRPlist_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_lpp_DL_PRS_QCL_InformationReq_r17, DL_PRS_QCL_InformationReq_r17_sequence_of,
+                                                  ett_lpp_DL_PRS_QCL_InformationReqTRPlist_r17, DL_PRS_QCL_InformationReqTRPlist_r17_sequence_of,
                                                   1, nrMaxTRPsPerFreq_r16, FALSE);
 
   return offset;
@@ -15023,7 +15167,7 @@ static const per_sequence_t NR_On_Demand_DL_PRS_PerFreqLayer_r17_sequence[] = {
   { &hf_lpp_dl_prs_ResourceRepetitionFactorReq_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_dl_prs_ResourceRepetitionFactorReq_r17 },
   { &hf_lpp_dl_prs_NumSymbolsReq_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_dl_prs_NumSymbolsReq_r17 },
   { &hf_lpp_dl_prs_CombSizeN_Req_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_dl_prs_CombSizeN_Req_r17 },
-  { &hf_lpp_dl_prs_QCL_InformationReq_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_DL_PRS_QCL_InformationReq_r17 },
+  { &hf_lpp_dl_prs_QCL_InformationReqTRPlist_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_DL_PRS_QCL_InformationReqTRPlist_r17 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19764,9 +19908,9 @@ dissect_lpp_RAC_OrbitalErrorComponents_r17(tvbuff_t *tvb _U_, int offset _U_, as
 
 static const per_sequence_t SSR_IntegrityOrbitBounds_r17_sequence[] = {
   { &hf_lpp_meanOrbitError_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_RAC_OrbitalErrorComponents_r17 },
-  { &hf_lpp_varOrbitError_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_RAC_OrbitalErrorComponents_r17 },
+  { &hf_lpp_stdDevOrbitError_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_RAC_OrbitalErrorComponents_r17 },
   { &hf_lpp_meanOrbitRateError_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_RAC_OrbitalErrorComponents_r17 },
-  { &hf_lpp_varOrbitRateError_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_RAC_OrbitalErrorComponents_r17 },
+  { &hf_lpp_stdDevOrbitRateError_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_RAC_OrbitalErrorComponents_r17 },
   { NULL, 0, 0, NULL }
 };
 
@@ -25607,12 +25751,56 @@ dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_TEG_InfoPe
 }
 
 
+static const value_string lpp_TEG_TimingErrorMargin_r17_vals[] = {
+  {   0, "tc0" },
+  {   1, "tc2" },
+  {   2, "tc4" },
+  {   3, "tc6" },
+  {   4, "tc8" },
+  {   5, "tc12" },
+  {   6, "tc16" },
+  {   7, "tc20" },
+  {   8, "tc24" },
+  {   9, "tc32" },
+  {  10, "tc40" },
+  {  11, "tc48" },
+  {  12, "tc56" },
+  {  13, "tc64" },
+  {  14, "tc72" },
+  {  15, "tc80" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_TEG_TimingErrorMargin_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     16, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_DL_PRS_TRP_TEG_InfoPerTRP_r17_eag_1_sequence[] = {
+  { &hf_lpp_nr_TRP_TxTEG_TimingErrorMargin_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_TEG_TimingErrorMargin_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NR_DL_PRS_TRP_TEG_InfoPerTRP_r17_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NR_DL_PRS_TRP_TEG_InfoPerTRP_r17_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NR_DL_PRS_TRP_TEG_InfoPerTRP_r17_sequence[] = {
   { &hf_lpp_dl_PRS_ID_r17   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_255 },
   { &hf_lpp_nr_PhysCellID_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_NR_PhysCellID_r16 },
   { &hf_lpp_nr_CellGlobalID_r17, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_NCGI_r15 },
   { &hf_lpp_nr_ARFCN_r17    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueNR_r15 },
   { &hf_lpp_dl_PRS_TEG_InfoSet_r17, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_TEG_InfoPerResourceSet_r17 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_PRS_TRP_TEG_InfoPerTRP_r17_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -27166,14 +27354,14 @@ dissect_lpp_T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_02(tvbuff_t *tvb
 }
 
 
-static const value_string lpp_T_requestedDL_PRS_ProcessingSamples_r17_02_vals[] = {
-  {   0, "m1" },
+static const value_string lpp_T_reducedDL_PRS_ProcessingSamples_r17_02_vals[] = {
+  {   0, "requested" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_reducedDL_PRS_ProcessingSamples_r17_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, TRUE, 0, NULL);
 
@@ -27273,14 +27461,14 @@ dissect_lpp_T_multiMeasInSameReport_r17_02(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const value_string lpp_T_lowerRxBeamSweepingThan8_FR2_r17_03_vals[] = {
+static const value_string lpp_T_lowerRxBeamSweepingFactor_FR2_r17_02_vals[] = {
   {   0, "requested" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_lowerRxBeamSweepingFactor_FR2_r17_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -27292,12 +27480,12 @@ static const per_sequence_t NR_Multi_RTT_RequestLocationInformation_r16_eag_1_se
   { &hf_lpp_nr_UE_RxTxTEG_Request_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_UE_RxTxTEG_Request_r17 },
   { &hf_lpp_measureSameDL_PRS_ResourceWithDifferentRxTxTEGs_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_measureSameDL_PRS_ResourceWithDifferentRxTxTEGs_r17 },
   { &hf_lpp_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_02 },
-  { &hf_lpp_requestedDL_PRS_ProcessingSamples_r17_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17_02 },
+  { &hf_lpp_reducedDL_PRS_ProcessingSamples_r17_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_reducedDL_PRS_ProcessingSamples_r17_02 },
   { &hf_lpp_nr_los_nlos_IndicatorRequest_r17_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_los_nlos_IndicatorRequest_r17_02 },
   { &hf_lpp_additionalPathsExt_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_additionalPathsExt_r17_01 },
   { &hf_lpp_additionalPathsDL_PRS_RSRP_Request_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_additionalPathsDL_PRS_RSRP_Request_r17_01 },
   { &hf_lpp_multiMeasInSameReport_r17_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_multiMeasInSameReport_r17_02 },
-  { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_03, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17_03 },
+  { &hf_lpp_lowerRxBeamSweepingFactor_FR2_r17_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_lowerRxBeamSweepingFactor_FR2_r17_02 },
   { NULL, 0, 0, NULL }
 };
 
@@ -27353,14 +27541,14 @@ dissect_lpp_T_nr_los_nlos_IndicatorRequest_r17_01(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const value_string lpp_T_requestedDL_PRS_ProcessingSamples_r17_01_vals[] = {
-  {   0, "m1" },
+static const value_string lpp_T_reducedDL_PRS_ProcessingSamples_r17_01_vals[] = {
+  {   0, "requested" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_reducedDL_PRS_ProcessingSamples_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, TRUE, 0, NULL);
 
@@ -27368,14 +27556,14 @@ dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17_01(tvbuff_t *tvb _U_, int of
 }
 
 
-static const value_string lpp_T_lowerRxBeamSweepingThan8_FR2_r17_02_vals[] = {
+static const value_string lpp_T_lowerRxBeamSweepingFactor_FR2_r17_01_vals[] = {
   {   0, "requested" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_lowerRxBeamSweepingFactor_FR2_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -27387,8 +27575,8 @@ static const per_sequence_t NR_DL_AoD_ReportConfig_r16_eag_1_sequence[] = {
   { &hf_lpp_maxDL_PRS_RSRP_MeasurementsPerTRP_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_INTEGER_9_24 },
   { &hf_lpp_maxDL_PRS_RSRPP_MeasurementsPerTRP_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_INTEGER_1_24 },
   { &hf_lpp_nr_los_nlos_IndicatorRequest_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_nr_los_nlos_IndicatorRequest_r17_01 },
-  { &hf_lpp_requestedDL_PRS_ProcessingSamples_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17_01 },
-  { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17_02 },
+  { &hf_lpp_reducedDL_PRS_ProcessingSamples_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_reducedDL_PRS_ProcessingSamples_r17_01 },
+  { &hf_lpp_lowerRxBeamSweepingFactor_FR2_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_lowerRxBeamSweepingFactor_FR2_r17_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -27509,14 +27697,14 @@ dissect_lpp_T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_01(tvbuff_t *tvb
 }
 
 
-static const value_string lpp_T_requestedDL_PRS_ProcessingSamples_r17_vals[] = {
-  {   0, "m1" },
+static const value_string lpp_T_reducedDL_PRS_ProcessingSamples_r17_vals[] = {
+  {   0, "requested" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_reducedDL_PRS_ProcessingSamples_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, TRUE, 0, NULL);
 
@@ -27524,14 +27712,14 @@ dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17(tvbuff_t *tvb _U_, int offse
 }
 
 
-static const value_string lpp_T_lowerRxBeamSweepingThan8_FR2_r17_01_vals[] = {
+static const value_string lpp_T_lowerRxBeamSweepingFactor_FR2_r17_vals[] = {
   {   0, "requested" },
   { 0, NULL }
 };
 
 
 static int
-dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_lowerRxBeamSweepingFactor_FR2_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -27541,8 +27729,8 @@ dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17_01(tvbuff_t *tvb _U_, int offset 
 
 static const per_sequence_t NR_DL_TDOA_ReportConfig_r16_eag_1_sequence[] = {
   { &hf_lpp_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_01 },
-  { &hf_lpp_requestedDL_PRS_ProcessingSamples_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_requestedDL_PRS_ProcessingSamples_r17 },
-  { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_lowerRxBeamSweepingThan8_FR2_r17_01 },
+  { &hf_lpp_reducedDL_PRS_ProcessingSamples_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_reducedDL_PRS_ProcessingSamples_r17 },
+  { &hf_lpp_lowerRxBeamSweepingFactor_FR2_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_lowerRxBeamSweepingFactor_FR2_r17 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31198,10 +31386,56 @@ dissect_lpp_NR_Multi_RTT_SignalMeasurementInformation_r16_eag_1(tvbuff_t *tvb _U
 }
 
 
+static const value_string lpp_RxTxTEG_TimingErrorMargin_r17_vals[] = {
+  {   0, "tc0-5" },
+  {   1, "tc1" },
+  {   2, "tc2" },
+  {   3, "tc4" },
+  {   4, "tc8" },
+  {   5, "tc12" },
+  {   6, "tc16" },
+  {   7, "tc20" },
+  {   8, "tc24" },
+  {   9, "tc32" },
+  {  10, "tc40" },
+  {  11, "tc48" },
+  {  12, "tc64" },
+  {  13, "tc80" },
+  {  14, "tc96" },
+  {  15, "tc128" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_RxTxTEG_TimingErrorMargin_r17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     16, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_Multi_RTT_SignalMeasurementInformation_r16_eag_2_sequence[] = {
+  { &hf_lpp_nr_UE_RxTEG_TimingErrorMargin_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_TEG_TimingErrorMargin_r17 },
+  { &hf_lpp_nr_UE_TxTEG_TimingErrorMargin_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_TEG_TimingErrorMargin_r17 },
+  { &hf_lpp_nr_UE_RxTxTEG_TimingErrorMargin_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_RxTxTEG_TimingErrorMargin_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NR_Multi_RTT_SignalMeasurementInformation_r16_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NR_Multi_RTT_SignalMeasurementInformation_r16_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NR_Multi_RTT_SignalMeasurementInformation_r16_sequence[] = {
   { &hf_lpp_nr_Multi_RTT_MeasList_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_NR_Multi_RTT_MeasList_r16 },
   { &hf_lpp_nr_NTA_Offset_r16, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_nr_NTA_Offset_r16 },
   { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_Multi_RTT_SignalMeasurementInformation_r16_eag_1 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_Multi_RTT_SignalMeasurementInformation_r16_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -31726,9 +31960,23 @@ dissect_lpp_NR_DL_TDOA_MeasList_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const per_sequence_t NR_DL_TDOA_SignalMeasurementInformation_r16_eag_1_sequence[] = {
+  { &hf_lpp_nr_UE_RxTEG_TimingErrorMargin_r17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_TEG_TimingErrorMargin_r17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NR_DL_TDOA_SignalMeasurementInformation_r16_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NR_DL_TDOA_SignalMeasurementInformation_r16_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NR_DL_TDOA_SignalMeasurementInformation_r16_sequence[] = {
   { &hf_lpp_dl_PRS_ReferenceInfo_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_DL_PRS_ID_Info_r16 },
   { &hf_lpp_nr_DL_TDOA_MeasList_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_TDOA_MeasList_r16 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NR_DL_TDOA_SignalMeasurementInformation_r16_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -35318,9 +35566,9 @@ void proto_register_lpp(void) {
       { "simulLTE-NR-PRS-r16", "lpp.simulLTE_NR_PRS_r16",
         FT_UINT32, BASE_DEC, VALS(lpp_T_simulLTE_NR_PRS_r16_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17,
-      { "supportedDL-PRS-ProcessingSamples-RRC-Inactive-r17", "lpp.supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17_vals), 0,
+    { &hf_lpp_dummy,
+      { "dummy", "lpp.dummy",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_dummy_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_freqBandIndicatorNR_r16,
       { "freqBandIndicatorNR-r16", "lpp.freqBandIndicatorNR_r16",
@@ -35374,9 +35622,9 @@ void proto_register_lpp(void) {
       { "scs120-r16", "lpp.scs120_r16",
         FT_UINT32, BASE_DEC, VALS(lpp_T_scs120_r16_01_vals), 0,
         "T_scs120_r16_01", HFILL }},
-    { &hf_lpp_supportedDL_PRS_ProcessingSamples_r17,
-      { "supportedDL-PRS-ProcessingSamples-r17", "lpp.supportedDL_PRS_ProcessingSamples_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_supportedDL_PRS_ProcessingSamples_r17_vals), 0,
+    { &hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17,
+      { "supportedDL-PRS-ProcessingSamples-RRC-CONNECTED-r17", "lpp.supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_supportedDL_PRS_ProcessingSamples_RRC_CONNECTED_r17_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_prs_ProcessingWindowType1A_r17,
       { "prs-ProcessingWindowType1A-r17", "lpp.prs_ProcessingWindowType1A_r17",
@@ -35434,9 +35682,13 @@ void proto_register_lpp(void) {
       { "scs120-r17", "lpp.scs120_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_scs120_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17,
-      { "lowerRxBeamSweepingThan8-FR2-r17", "lpp.lowerRxBeamSweepingThan8_FR2_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_lowerRxBeamSweepingThan8_FR2_r17_vals), 0,
+    { &hf_lpp_supportedLowerRxBeamSweepingFactor_FR2_r17,
+      { "supportedLowerRxBeamSweepingFactor-FR2-r17", "lpp.supportedLowerRxBeamSweepingFactor_FR2_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_supportedLowerRxBeamSweepingFactor_FR2_r17_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17,
+      { "supportedDL-PRS-ProcessingSamples-RRC-Inactive-r17", "lpp.supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_supportedDL_PRS_ProcessingSamples_RRC_Inactive_r17_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_prsProcessingType_r17,
       { "prsProcessingType-r17", "lpp.prsProcessingType_r17",
@@ -35490,6 +35742,18 @@ void proto_register_lpp(void) {
       { "scs120-r17", "lpp.scs120_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_scs120_r17_01_vals), 0,
         "T_scs120_r17_01", HFILL }},
+    { &hf_lpp_ppw_maxNumOfDL_Bandwidth_r17,
+      { "ppw-maxNumOfDL-Bandwidth-r17", "lpp.ppw_maxNumOfDL_Bandwidth_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_ppw_maxNumOfDL_Bandwidth_r17_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_fr1_01,
+      { "fr1", "lpp.fr1",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_fr1_01_vals), 0,
+        "T_fr1_01", HFILL }},
+    { &hf_lpp_fr2_01,
+      { "fr2", "lpp.fr2",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_fr2_01_vals), 0,
+        "T_fr2_01", HFILL }},
     { &hf_lpp_dl_PRS_QCL_ProcessingCapabilityBandList_r16,
       { "dl-PRS-QCL-ProcessingCapabilityBandList-r16", "lpp.dl_PRS_QCL_ProcessingCapabilityBandList_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -35590,6 +35854,10 @@ void proto_register_lpp(void) {
       { "DL-PRS-TEG-InfoPerResourceSet-r17", "lpp.DL_PRS_TEG_InfoPerResourceSet_r17",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lpp_nr_TRP_TxTEG_TimingErrorMargin_r17,
+      { "nr-TRP-TxTEG-TimingErrorMargin-r17", "lpp.nr_TRP_TxTEG_TimingErrorMargin_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_TEG_TimingErrorMargin_r17_vals), 0,
+        "TEG_TimingErrorMargin_r17", HFILL }},
     { &hf_lpp_DL_PRS_TEG_InfoPerResourceSet_r17_item,
       { "DL-PRS-TEG-InfoElement-r17", "lpp.DL_PRS_TEG_InfoElement_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -35650,11 +35918,11 @@ void proto_register_lpp(void) {
       { "dl-prs-CombSizeN-Req-r17", "lpp.dl_prs_CombSizeN_Req_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_dl_prs_CombSizeN_Req_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_dl_prs_QCL_InformationReq_r17,
-      { "dl-prs-QCL-InformationReq-r17", "lpp.dl_prs_QCL_InformationReq_r17",
+    { &hf_lpp_dl_prs_QCL_InformationReqTRPlist_r17,
+      { "dl-prs-QCL-InformationReqTRPlist-r17", "lpp.dl_prs_QCL_InformationReqTRPlist_r17",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_DL_PRS_QCL_InformationReq_r17_item,
+    { &hf_lpp_DL_PRS_QCL_InformationReqTRPlist_r17_item,
       { "DL-PRS-QCL-InformationReqPerTRP-r17", "lpp.DL_PRS_QCL_InformationReqPerTRP_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -35670,17 +35938,25 @@ void proto_register_lpp(void) {
       { "nr-DL-PRS-ResourceSetID-r17", "lpp.nr_DL_PRS_ResourceSetID_r17",
         FT_UINT32, BASE_DEC, NULL, 0,
         "NR_DL_PRS_ResourceSetID_r16", HFILL }},
-    { &hf_lpp_dl_prs_QCL_InformationReq_r17_01,
+    { &hf_lpp_dl_prs_QCL_InformationReq_r17,
       { "dl-prs-QCL-InformationReq-r17", "lpp.dl_prs_QCL_InformationReq_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_dl_prs_QCL_InformationReq_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_nr_DL_PRS_QCL_Source_r17,
-      { "nr-DL-PRS-QCL-Source-r17", "lpp.nr_DL_PRS_QCL_Source_r17",
+    { &hf_lpp_dl_prs_QCL_InfoRecPerResourceSet_r17,
+      { "dl-prs-QCL-InfoRecPerResourceSet-r17", "lpp.dl_prs_QCL_InfoRecPerResourceSet_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_DL_PRS_QCL_Info_r16_vals), 0,
         "DL_PRS_QCL_Info_r16", HFILL }},
     { &hf_lpp_dl_prs_QCL_Info_requested_r17,
       { "dl-prs-QCL-Info-requested-r17", "lpp.dl_prs_QCL_Info_requested_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_dl_prs_QCL_InfoRecPerResource_r17,
+      { "dl-prs-QCL-InfoRecPerResource-r17", "lpp.dl_prs_QCL_InfoRecPerResource_r17",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16", HFILL }},
+    { &hf_lpp_dl_prs_QCL_InfoRecPerResource_r17_item,
+      { "DL-PRS-QCL-Info-r16", "lpp.DL_PRS_QCL_Info_r16",
+        FT_UINT32, BASE_DEC, VALS(lpp_DL_PRS_QCL_Info_r16_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_dl_prs_StartTime_and_Duration_r17,
       { "dl-prs-StartTime-and-Duration-r17", "lpp.dl_prs_StartTime_and_Duration_r17_element",
@@ -39846,16 +40122,16 @@ void proto_register_lpp(void) {
       { "meanOrbitError-r17", "lpp.meanOrbitError_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RAC_OrbitalErrorComponents_r17", HFILL }},
-    { &hf_lpp_varOrbitError_r17,
-      { "varOrbitError-r17", "lpp.varOrbitError_r17_element",
+    { &hf_lpp_stdDevOrbitError_r17,
+      { "stdDevOrbitError-r17", "lpp.stdDevOrbitError_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RAC_OrbitalErrorComponents_r17", HFILL }},
     { &hf_lpp_meanOrbitRateError_r17,
       { "meanOrbitRateError-r17", "lpp.meanOrbitRateError_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RAC_OrbitalErrorComponents_r17", HFILL }},
-    { &hf_lpp_varOrbitRateError_r17,
-      { "varOrbitRateError-r17", "lpp.varOrbitRateError_r17_element",
+    { &hf_lpp_stdDevOrbitRateError_r17,
+      { "stdDevOrbitRateError-r17", "lpp.stdDevOrbitRateError_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RAC_OrbitalErrorComponents_r17", HFILL }},
     { &hf_lpp_radial_r17,
@@ -42634,6 +42910,10 @@ void proto_register_lpp(void) {
       { "nr-DL-TDOA-MeasList-r16", "lpp.nr_DL_TDOA_MeasList_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lpp_nr_UE_RxTEG_TimingErrorMargin_r17,
+      { "nr-UE-RxTEG-TimingErrorMargin-r17", "lpp.nr_UE_RxTEG_TimingErrorMargin_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_TEG_TimingErrorMargin_r17_vals), 0,
+        "TEG_TimingErrorMargin_r17", HFILL }},
     { &hf_lpp_NR_DL_TDOA_MeasList_r16_item,
       { "NR-DL-TDOA-MeasElement-r16", "lpp.NR_DL_TDOA_MeasElement_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42842,14 +43122,14 @@ void proto_register_lpp(void) {
       { "measureSameDL-PRS-ResourceWithDifferentRxTEGs-r17", "lpp.measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_01_vals), 0,
         "T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_01", HFILL }},
-    { &hf_lpp_requestedDL_PRS_ProcessingSamples_r17,
-      { "requestedDL-PRS-ProcessingSamples-r17", "lpp.requestedDL_PRS_ProcessingSamples_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_requestedDL_PRS_ProcessingSamples_r17_vals), 0,
+    { &hf_lpp_reducedDL_PRS_ProcessingSamples_r17,
+      { "reducedDL-PRS-ProcessingSamples-r17", "lpp.reducedDL_PRS_ProcessingSamples_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_reducedDL_PRS_ProcessingSamples_r17_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_01,
-      { "lowerRxBeamSweepingThan8-FR2-r17", "lpp.lowerRxBeamSweepingThan8_FR2_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_lowerRxBeamSweepingThan8_FR2_r17_01_vals), 0,
-        "T_lowerRxBeamSweepingThan8_FR2_r17_01", HFILL }},
+    { &hf_lpp_lowerRxBeamSweepingFactor_FR2_r17,
+      { "lowerRxBeamSweepingFactor-FR2-r17", "lpp.lowerRxBeamSweepingFactor_FR2_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_lowerRxBeamSweepingFactor_FR2_r17_vals), 0,
+        NULL, HFILL }},
     { &hf_lpp_nr_DL_TDOA_Mode_r16,
       { "nr-DL-TDOA-Mode-r16", "lpp.nr_DL_TDOA_Mode_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43114,14 +43394,14 @@ void proto_register_lpp(void) {
       { "nr-los-nlos-IndicatorRequest-r17", "lpp.nr_los_nlos_IndicatorRequest_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nr_los_nlos_IndicatorRequest_r17_01", HFILL }},
-    { &hf_lpp_requestedDL_PRS_ProcessingSamples_r17_01,
-      { "requestedDL-PRS-ProcessingSamples-r17", "lpp.requestedDL_PRS_ProcessingSamples_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_requestedDL_PRS_ProcessingSamples_r17_01_vals), 0,
-        "T_requestedDL_PRS_ProcessingSamples_r17_01", HFILL }},
-    { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_02,
-      { "lowerRxBeamSweepingThan8-FR2-r17", "lpp.lowerRxBeamSweepingThan8_FR2_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_lowerRxBeamSweepingThan8_FR2_r17_02_vals), 0,
-        "T_lowerRxBeamSweepingThan8_FR2_r17_02", HFILL }},
+    { &hf_lpp_reducedDL_PRS_ProcessingSamples_r17_01,
+      { "reducedDL-PRS-ProcessingSamples-r17", "lpp.reducedDL_PRS_ProcessingSamples_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_reducedDL_PRS_ProcessingSamples_r17_01_vals), 0,
+        "T_reducedDL_PRS_ProcessingSamples_r17_01", HFILL }},
+    { &hf_lpp_lowerRxBeamSweepingFactor_FR2_r17_01,
+      { "lowerRxBeamSweepingFactor-FR2-r17", "lpp.lowerRxBeamSweepingFactor_FR2_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_lowerRxBeamSweepingFactor_FR2_r17_01_vals), 0,
+        "T_lowerRxBeamSweepingFactor_FR2_r17_01", HFILL }},
     { &hf_lpp_nr_DL_AoD_Mode_r16,
       { "nr-DL-AoD-Mode-r16", "lpp.nr_DL_AoD_Mode_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43274,6 +43554,14 @@ void proto_register_lpp(void) {
       { "NR-SRS-TxTEG-Element-r17", "lpp.NR_SRS_TxTEG_Element_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lpp_nr_UE_TxTEG_TimingErrorMargin_r17,
+      { "nr-UE-TxTEG-TimingErrorMargin-r17", "lpp.nr_UE_TxTEG_TimingErrorMargin_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_TEG_TimingErrorMargin_r17_vals), 0,
+        "TEG_TimingErrorMargin_r17", HFILL }},
+    { &hf_lpp_nr_UE_RxTxTEG_TimingErrorMargin_r17,
+      { "nr-UE-RxTxTEG-TimingErrorMargin-r17", "lpp.nr_UE_RxTxTEG_TimingErrorMargin_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_RxTxTEG_TimingErrorMargin_r17_vals), 0,
+        "RxTxTEG_TimingErrorMargin_r17", HFILL }},
     { &hf_lpp_NR_Multi_RTT_MeasList_r16_item,
       { "NR-Multi-RTT-MeasElement-r16", "lpp.NR_Multi_RTT_MeasElement_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43382,10 +43670,10 @@ void proto_register_lpp(void) {
       { "measureSameDL-PRS-ResourceWithDifferentRxTEGs-r17", "lpp.measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_02_vals), 0,
         "T_measureSameDL_PRS_ResourceWithDifferentRxTEGs_r17_02", HFILL }},
-    { &hf_lpp_requestedDL_PRS_ProcessingSamples_r17_02,
-      { "requestedDL-PRS-ProcessingSamples-r17", "lpp.requestedDL_PRS_ProcessingSamples_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_requestedDL_PRS_ProcessingSamples_r17_02_vals), 0,
-        "T_requestedDL_PRS_ProcessingSamples_r17_02", HFILL }},
+    { &hf_lpp_reducedDL_PRS_ProcessingSamples_r17_02,
+      { "reducedDL-PRS-ProcessingSamples-r17", "lpp.reducedDL_PRS_ProcessingSamples_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_reducedDL_PRS_ProcessingSamples_r17_02_vals), 0,
+        "T_reducedDL_PRS_ProcessingSamples_r17_02", HFILL }},
     { &hf_lpp_nr_los_nlos_IndicatorRequest_r17_02,
       { "nr-los-nlos-IndicatorRequest-r17", "lpp.nr_los_nlos_IndicatorRequest_r17_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43402,10 +43690,10 @@ void proto_register_lpp(void) {
       { "multiMeasInSameReport-r17", "lpp.multiMeasInSameReport_r17",
         FT_UINT32, BASE_DEC, VALS(lpp_T_multiMeasInSameReport_r17_02_vals), 0,
         "T_multiMeasInSameReport_r17_02", HFILL }},
-    { &hf_lpp_lowerRxBeamSweepingThan8_FR2_r17_03,
-      { "lowerRxBeamSweepingThan8-FR2-r17", "lpp.lowerRxBeamSweepingThan8_FR2_r17",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_lowerRxBeamSweepingThan8_FR2_r17_03_vals), 0,
-        "T_lowerRxBeamSweepingThan8_FR2_r17_03", HFILL }},
+    { &hf_lpp_lowerRxBeamSweepingFactor_FR2_r17_02,
+      { "lowerRxBeamSweepingFactor-FR2-r17", "lpp.lowerRxBeamSweepingFactor_FR2_r17",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_lowerRxBeamSweepingFactor_FR2_r17_02_vals), 0,
+        "T_lowerRxBeamSweepingFactor_FR2_r17_02", HFILL }},
     { &hf_lpp_maxDL_PRS_RxTxTimeDiffMeasPerTRP_r16,
       { "maxDL-PRS-RxTxTimeDiffMeasPerTRP-r16", "lpp.maxDL_PRS_RxTxTimeDiffMeasPerTRP_r16",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -44446,6 +44734,7 @@ void proto_register_lpp(void) {
     &ett_lpp_T_ppw_durationOfPRS_Processing1_r17,
     &ett_lpp_T_ppw_durationOfPRS_Processing2_r17,
     &ett_lpp_T_ppw_maxNumOfDL_PRS_ResProcessedPerSlot_r17,
+    &ett_lpp_T_ppw_maxNumOfDL_Bandwidth_r17,
     &ett_lpp_NR_DL_PRS_QCL_ProcessingCapability_r16,
     &ett_lpp_SEQUENCE_SIZE_1_nrMaxBands_r16_OF_DL_PRS_QCL_ProcessingCapabilityPerBand_r16,
     &ett_lpp_DL_PRS_QCL_ProcessingCapabilityPerBand_r16,
@@ -44469,11 +44758,12 @@ void proto_register_lpp(void) {
     &ett_lpp_DL_PRS_Configuration_ID_r17,
     &ett_lpp_NR_On_Demand_DL_PRS_Information_r17,
     &ett_lpp_NR_On_Demand_DL_PRS_PerFreqLayer_r17,
-    &ett_lpp_DL_PRS_QCL_InformationReq_r17,
+    &ett_lpp_DL_PRS_QCL_InformationReqTRPlist_r17,
     &ett_lpp_DL_PRS_QCL_InformationReqPerTRP_r17,
     &ett_lpp_SEQUENCE_SIZE_1_nrMaxSetsPerTrpPerFreqLayer_r16_OF_DL_PRS_QCL_InfoReq_r17,
     &ett_lpp_DL_PRS_QCL_InfoReq_r17,
     &ett_lpp_T_dl_prs_QCL_InformationReq_r17,
+    &ett_lpp_SEQUENCE_SIZE_1_nrMaxResourcesPerSet_r16_OF_DL_PRS_QCL_Info_r16,
     &ett_lpp_NR_On_Demand_DL_PRS_Request_r17,
     &ett_lpp_SEQUENCE_SIZE_1_maxOD_DL_PRS_Configs_r17_OF_DL_PRS_Configuration_ID_r17,
     &ett_lpp_DL_PRS_StartTime_and_Duration_r17,
