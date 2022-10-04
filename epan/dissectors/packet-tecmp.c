@@ -45,6 +45,7 @@ static int proto_vlan;
 
 static gboolean heuristic_first = FALSE;
 static gboolean analog_samples_are_signed_int = TRUE;
+static gboolean show_ethernet_in_tecmp_tree = FALSE;
 
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
@@ -1684,7 +1685,11 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             case TECMP_DATA_TYPE_ETH:
                 /* resetting VLAN count since this is another embedded Ethernet packet. */
                 p_set_proto_depth(pinfo, proto_vlan, 0);
-                call_dissector(eth_handle, sub_tvb, pinfo, tecmp_tree);
+                if (show_ethernet_in_tecmp_tree) {
+                    call_dissector(eth_handle, sub_tvb, pinfo, tecmp_tree);
+                } else {
+                    call_dissector(eth_handle, sub_tvb, pinfo, tree);
+                }
                 break;
 
             default:
@@ -2449,6 +2454,11 @@ proto_register_tecmp(void) {
         "Decode Analog Samples as Signed Integer",
         "Treat the analog samples as signed integers and decode them accordingly.",
         &analog_samples_are_signed_int);
+
+    prefs_register_bool_preference(tecmp_module, "move_ethernet_in_tecmp_tree",
+        "More compact Ethernet representation (move into TECMP Tree)",
+        "Move Ethernet into the TECMP Tree to be more space efficient.",
+        &show_ethernet_in_tecmp_tree);
 }
 
 void
