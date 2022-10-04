@@ -1341,8 +1341,8 @@ static const value_string bgp_sr_policy_list_type[] = {
 };
 
 static const true_false_string tfs_bgpext_com_type_auth = {
-    "Allocated on First Come First Serve Basis",
-    "Allocated on Standard Action, Early Allocation or Experimental Basis"
+    "Allocated on Standard Action, Early Allocation or Experimental Basis",
+    "Allocated on First Come First Serve Basis"
 };
 
 static const value_string bgpext_com_type_high[] = {
@@ -11798,7 +11798,7 @@ proto_register_bgp(void)
         { "IANA Authority", "bgp.ext_com.type.auth", FT_BOOLEAN, 8,
           TFS(&tfs_bgpext_com_type_auth), BGP_EXT_COM_TYPE_AUTH, "IANA Type Allocation Policy", HFILL }},
       {&hf_bgp_ext_com_type_tran,
-        { "Transitive across AS", "bgp.ext_com.type.tran", FT_BOOLEAN, 8,
+        { "Transitive across ASes", "bgp.ext_com.type.tran", FT_BOOLEAN, 8,
           TFS(&tfs_non_transitive_transitive), BGP_EXT_COM_TYPE_TRAN, "Transitivity of the attribute across autonomous systems", HFILL }},
       { &hf_bgp_ext_com_stype_low_unknown,
         { "Subtype", "bgp.ext_com.stype_unknown", FT_UINT8, BASE_HEX,
