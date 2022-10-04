@@ -652,19 +652,16 @@ else() # ! MSVC
 		-Wshorten-64-to-32
 		-Wredundant-decls
 		#
-		# -Wmaybe-uninitialized is enabled with -Wall. This is a low
-		# priority warning, sometimes with false positives, that
-		# can lay dormant and be triggered by increasing the optimization
-		# level to O3. This is a major inconvenience for developers
-		# (because the warning is typically unrelated to their code)
-		# and for end users it is a build breakage (with -Werror).
-		# For these reasons we disable the fatal error for this warning,
-		# until these procedural issues can be fixed or at least mitigated.
+		# Disable errors unconditionally for some static analysis warnings
+		# that are dormant at lower optimizations levels and also
+		# prone to false positives and compiler bugs. This is
+		# a big nuisance because the warning is dormant and a low
+		# priority target for action. That is very disruptive
+		# with -Werror enabled (the default on the master branch).
 		#
 		-Wno-error=maybe-uninitialized
-		# Disable errors for another warning that is prone to guesswork
-		# and false positives.
 		-Wno-error=alloc-size-larger-than=
+		-Wno-error=stringop-overflow=
 		#
 		# Converting from g_printf() and g_snprintf() to stdio.h turns
 		# up many of these warnings. They will have to be handled later.
