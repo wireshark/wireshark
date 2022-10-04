@@ -477,10 +477,6 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 		return;
 	}
 
-	if (offset_reverse == -1) {
-		return;
-	}
-
 	if (offset_reverse > -1) {
 		proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
 	}
