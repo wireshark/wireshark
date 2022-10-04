@@ -165,7 +165,7 @@ ReferenceTime-r16
 ReportConfigToAddMod
 RLC-BearerConfig
 RRCReconfiguration                 @rrc_reconf
-RRCReconfigurationComplete
+RRCReconfigurationComplete         @rrc_reconf_compl
 SBCCH-SL-BCH-Message               @sbcch.sl.bch
 SCCH-Message                       @scch
 SchedulingRequestResourceConfig
