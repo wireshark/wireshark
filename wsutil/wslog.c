@@ -1192,6 +1192,7 @@ static void ws_log_cleanup(void)
     free_log_filter(&domain_filter);
     free_log_filter(&debug_filter);
     free_log_filter(&noisy_filter);
+    free_log_filter(&fatal_filter);
 }
 
 
