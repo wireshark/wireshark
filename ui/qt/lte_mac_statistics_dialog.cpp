@@ -757,7 +757,10 @@ tap_packet_status LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _pa
     if (!mac_ue_ti) {
         mac_ue_ti = new MacUETreeWidgetItem(ws_dlg->statsTreeWidget(), mlt_info);
         for (int col = 0; col < ws_dlg->statsTreeWidget()->columnCount(); col++) {
-            mac_ue_ti->setTextAlignment(col, ws_dlg->statsTreeWidget()->headerItem()->textAlignment(col));
+            // int QTreeWidgetItem::textAlignment(int column) const
+            // Returns the text alignment for the label in the given column.
+            // Note: This function returns an int for historical reasons. It will be corrected to return Qt::Alignment in Qt 7.
+            mac_ue_ti->setTextAlignment(col, static_cast<Qt::Alignment>(ws_dlg->statsTreeWidget()->headerItem()->textAlignment(col)));
         }
     }
 

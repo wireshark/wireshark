@@ -386,7 +386,10 @@ public:
             WlanStationTreeWidgetItem *cur_ws_ti = dynamic_cast<WlanStationTreeWidgetItem *>(cur_ti);
             cur_ws_ti->draw(&bssid_, packets_ - beacon_);
             for (int col = 0; col < treeWidget()->columnCount(); col++) {
-                cur_ws_ti->setTextAlignment(col, treeWidget()->headerItem()->textAlignment(col));
+            // int QTreeWidgetItem::textAlignment(int column) const
+            // Returns the text alignment for the label in the given column.
+            // Note: This function returns an int for historical reasons. It will be corrected to return Qt::Alignment in Qt 7.
+                cur_ws_ti->setTextAlignment(col, static_cast<Qt::Alignment>(treeWidget()->headerItem()->textAlignment(col)));
             }
         }
 
@@ -594,7 +597,10 @@ tap_packet_status WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info
     if (!wn_ti) {
         wn_ti = new WlanNetworkTreeWidgetItem(ws_dlg->statsTreeWidget(), wlan_hdr);
         for (int col = 0; col < ws_dlg->statsTreeWidget()->columnCount(); col++) {
-            wn_ti->setTextAlignment(col, ws_dlg->statsTreeWidget()->headerItem()->textAlignment(col));
+            // int QTreeWidgetItem::textAlignment(int column) const
+            // Returns the text alignment for the label in the given column.
+            // Note: This function returns an int for historical reasons. It will be corrected to return Qt::Alignment in Qt 7.
+            wn_ti->setTextAlignment(col, static_cast<Qt::Alignment>(ws_dlg->statsTreeWidget()->headerItem()->textAlignment(col)));
         }
     }
 
