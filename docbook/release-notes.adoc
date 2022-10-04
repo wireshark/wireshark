@@ -16,13 +16,13 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-// Add *major* changes here.
+// Add a summary of major changes here.
+// Add other changes to "New and Updated Features" below.
 
-* Wireshark now builds with Qt6 by default. To use Qt5 instead pass USE_qt6=OFF to CMake.
+Wireshark is now better about generating valid UTF-8 output.
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
-
 
 // === Bug Fixes
 
@@ -31,7 +31,7 @@ See the “New and Updated Features” section below for more details.
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
-//* Wireshark insists on subscribing to two dozen streaming services but only watches three.
+//* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
 
 === New and Updated Features
 
@@ -40,6 +40,9 @@ The following features are new (or have been significantly updated) since versio
 // * The Windows installers now ship with Npcap 1.71.
 //   They previously shipped with Npcap 1.60.
 
+* The API has been updated to ensure that the dissection engine produces valid UTF-8 strings.
+
+* Wireshark now builds with Qt6 by default. To use Qt5 instead pass USE_qt6=OFF to CMake.
 
 
 // === Removed Features and Support
