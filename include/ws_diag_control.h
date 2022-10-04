@@ -46,6 +46,7 @@ extern "C" {
      */
     #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(clang diagnostic x)
     #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+    #define DIAG_WARN(x) DIAG_PRAGMA(push) DIAG_PRAGMA(warning DIAG_JOINSTR(-W,x))
     #define DIAG_ON(x) DIAG_PRAGMA(pop)
   #endif
 
@@ -87,6 +88,7 @@ extern "C" {
      */
     #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
     #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+    #define DIAG_WARN(x) DIAG_PRAGMA(push) DIAG_PRAGMA(warning DIAG_JOINSTR(-W,x))
     #define DIAG_ON(x) DIAG_PRAGMA(pop)
 
     /*
@@ -119,6 +121,7 @@ extern "C" {
    * warning flag for GCC and Clang and the error number for MSVC.
    */
   #define DIAG_OFF(x)
+  #define DIAG_WARN(x)
   #define DIAG_ON(x)
   #define DIAG_OFF_PEDANTIC
   #define DIAG_ON_PEDANTIC
@@ -129,6 +132,7 @@ extern "C" {
 /* Use for clang specific pragmas, so we can keep -Wpragmas enabled */
 #ifdef __clang__
 #  define DIAG_OFF_CLANG(x) DIAG_OFF(x)
+#  define DIAG_WARN_CLANG(x) DIAG_WARN(x)
 #  define DIAG_ON_CLANG(x)  DIAG_ON(x)
 #else
 #  define DIAG_OFF_CLANG(x)
