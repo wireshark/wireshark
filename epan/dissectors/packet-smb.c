@@ -2794,7 +2794,15 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 		/* XXX - what if this runs past bc? */
 		tvb_ensure_bytes_exist(tvb, offset+1, 1);
-		str = tvb_get_const_stringz(tvb, offset+1, &len);
+
+		/* XXX: This is an OEM String according to MS-CIFS and
+                 * should use the local OEM (extended ASCII DOS) code page,
+                 * It doesn't appear than any known dialect strings use
+                 * anything outside ASCII, though.
+                 *
+                 * There could be a dissector preference for local code page.
+                 */
+		str = tvb_get_stringz_enc(pinfo->pool, tvb, offset+1, &len, ENC_ASCII);
 
 		if (tr) {
 			dit = proto_tree_add_string(tr, hf_smb_dialect, tvb, offset, len+1, str);
@@ -2809,8 +2817,8 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 		/*Dialect Name */
 		CHECK_BYTE_COUNT(len);
-		proto_tree_add_string(dtr, hf_smb_dialect_name, tvb, offset,
-			len, str);
+		proto_tree_add_item(dtr, hf_smb_dialect_name, tvb,
+			offset, len, ENC_ASCII);
 		COUNT_BYTES(len);
 
 		if (!pinfo->fd->visited && dialects && (dialects->num < MAX_DIALECTS)) {
