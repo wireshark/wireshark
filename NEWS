@@ -1,4 +1,4 @@
-Wireshark 4.0.0rc2 Release Notes
+Wireshark 4.0.0 Release Notes
 
  This is the second release candidate for Wireshark 4.0.
 
@@ -77,8 +77,45 @@ Wireshark 4.0.0rc2 Release Notes
      • The Windows installers now ship with Qt 6.2.3. They previously
        shipped with Qt 6.2.4.
 
-     • The Conversation and Endpoint dialogs have been reworked
-       extensively
+     • The Conversation and Endpoint dialogs have been redesigned with
+       the following improvements:
+
+        • The context menu now includes the option to resize all
+       columns, as well as copying elements.
+
+        • Data may be exported as JSON.
+
+        • Tabs may be detached and reattached from the dialog.
+
+        • Adding and removing tabs will keep them in the same order all
+       the time.
+
+        • If a filter is applied, two columns are shown in either dialog
+       detailing the difference between unmatched and matched packets.
+
+        • Columns are now sorted via secondary properties if an
+       identical entry is found.
+
+        • Conversations are sorted via second address and first port
+       number.
+
+        • Endpoints are sorted via port numbers.
+
+        • IPv6 addresses are sorted correctly after IPv4 addresses.
+
+        • The dialog elements have been moved to make it easier to
+       handle for new users.
+
+        • Selection of tap elements is done via a list.
+
+        • All configurations and options are done via a left side button
+       row.
+
+        • Columns for the Conversations and Endpoint dialogs can be
+       hidden by a context menu.
+
+        • TCP and UDP conversations now include the stream ID and allow
+       filtering on it.
 
    The following features are new (or have been significantly updated)
    since version 3.6.0:
@@ -200,46 +237,6 @@ Wireshark 4.0.0rc2 Release Notes
 
         • All integer sizes are now compatible. Unless overflow occurs
        any integer field can be compared with any other.
-
-     • The Conversation and Endpoint dialogs have been redesigned with
-       the following improvements:
-
-        • The context menu now includes the option to resize all
-       columns, as well as copying elements.
-
-        • Data may be exported as JSON.
-
-        • Tabs may be detached and reattached from the dialog.
-
-        • Adding and removing tabs will keep them in the same order all
-       the time.
-
-        • If a filter is applied, two columns are shown in either dialog
-       detailing the difference between unmatched and matched packets.
-
-        • Columns are now sorted via secondary properties if an
-       identical entry is found.
-
-        • Conversations are sorted via second address and first port
-       number.
-
-        • Endpoints are sorted via port numbers.
-
-        • IPv6 addresses are sorted correctly after IPv4 addresses.
-
-        • The dialog elements have been moved to make it easier to
-       handle for new users.
-
-        • Selection of tap elements is done via a list.
-
-        • All configurations and options are done via a left side button
-       row.
-
-        • Columns for the Conversations and Endpoint dialogs can be
-       hidden by a context menu.
-
-        • TCP and UDP conversations now include the stream ID and allow
-       filtering on it.
 
      • The `text2pcap` command and the “Import from Hex Dump” feature
        have been updated and enhanced:

@@ -1,3 +1,74 @@
+4372f0fa50 Docs: Update the release notes.
+8c97c5b4ec Qt: Disable -Werror for a deprecated declaration
+c671175aa5 Add DIAG_WARN() diagnostic macros
+ecb51170d4 Qt: Remove workaround for Qt bug fixed in Qt 5.5.1
+afd2335d75 Qt: Fix deprecation of QByteArray::count()
+2d4a38fac8 Qt: Fix setTextAlignment() deprecation
+ceb9a1d3db CMake: Fix Qt -Werror compilation flag
+e474344ed1 lua: Support FT_STRINGZPAD in FieldInfo
+f59f68acb7 Qt: Fix compilation with Qt 6.4
+29eb9293f8 Mixed-up interpretation of bgp.ext_com.type.auth
+66d13d45cb macos-setup: fix a test.
+690815b197 Qt: if regex not valid don't attempt search
+5326463cae NAS-5GS: correction of IE Extended rejected NSSAI
+75bb5318fb tplink-smarthome: Reject packets that don't match
+68316626b8 RTPS: Added dissection of Compression Id in Data Representation
+5d143a9f50 GTP: Fix NSAPI shift in Radio Priority
+25de566390 packet-rsl: Support osmocom extension IE Osmux CID
+371b3767d3 GENEVE: Display also VNI to decimal format
+393cf69e13 Add Wi-SUN OUI
+33b614597d USB: Make setup and data flags FT_CHAR
+2d025122f7 Trivial: fix a couple of copy/paste consecutive filters
+0ec4934363 HTTP: sanitize encoding header field strings
+011207a91d pfcp: Use ENC_APN_STR
+2c148636bd [Automatic update for 2022-10-02]
+34a70a2a24 RTPS: Wrong deserialization of optional members.
+d9a5427dfe Qt: enabled/disabled protocols filtered list enable/disabled
+03e03087ee BBLog: refactor and update the list of events
+eac68e027b RTPS: PluginParticipantSecurityAttributesMask value is incorrectly displayed
+86679d48af tls: Don't update the msp end on a second pass
+955d86afe1 RoHC: set correct length for Dynamic IPv4 Chain subtree
+b5c2d5c585 RTPS: Added IP to IPv4 locator dissection.
+49add79ced Update docbook/release-notes.adoc
+cb342c49cd C-Ares: Move library to 1.13
+37f81c632b fc: Fix Service Response Table
+952e38029f Qt: plug resource leak in error path (CID-1504598)
+e9d4d189bc TECMP: Only NULL-Frame payload was shown (BUGFIX)
+1a92595b6f Replace the last of PROTO_ITEM_ macro calls with function calls
+c83d784170 ISKAMP: Add VID Auto-Discovery Sender (Fortinet)
+106dbaaf7a FCELS: one find_options conversion missed in 86fdbe2ea94
+73ad18d2b5 Qt: Fix our packet comment connections.
+40ef370f62 gtp: Fix UE-AMBR and APN-AMBR with NSAPI IEs
+52f7621579 netflow: Sequence numbers are by Transport Session
+7ff097ac0f gsmtap: fix dissection of LAPD-in-E1-in-GSMTAP traces
+f79c81f5d5 USB HID: Always use a format string.
+512799a37e OSSP: Update ESMC dissection to match current recommendation
+bf9b62e6c9 Tools: Make sure we reset our fuzz ranges.
+d03c609fb1 Tools: Our fuzz packet range should be unquoted.
+c0f9bd0481 RTP dialogs: Fix: Coloring of QTreeWidgetItem do not work
+350b4494fd Tools: Fuzz subsets of large files.
+0e1a66eced opus: Don't overflow a signed 16-bit integer
+996b34967d Docs: Update the release notes.
+992c78458f github: change workflow to build release-4.0 with Qt6
+899b2a74a2 sshdump: Fix remote-capture-command option
+d643255d2a Qt: Manually connect our "Capture" menu actions.
+5a8df30bd9 Qt: Manually connect our "Go" menu actions.
+95708cd222 Qt: Manually connect our "View" menu actions.
+ee55359fc8 Qt: More menu action cleanup.
+4d5eb220e9 Qt: Manually connect our "File" menu actions.
+cfbf1fb047 [Automatic update for 2022-09-25]
+95efffec78 Qt: Manually connect more "Edit" menu actions.
+270601d468 github: fix Windows action (Qt6; NSIS; Cmake -D syntax)
+622cb1640f Qt: Manually connect our "Edit" menu actions.
+abab04293e ui: Fix Qt deprecation messages
+50723627cc TLS:support decrypt TLS_SM4_GCM_SM3 ciphersuite
+6773cb8a0d TLS:support decrypt ECC_SM4_GCM_SM3 ciphersuite
+d5934d500e TLS:support decrypt ECC_SM4_CBC_SM3 ciphersuite
+7f9dde99f9 [Automatic update for 2022-09-18]
+42153e49b6 Bluetooth: Fix reserved field in CTE request control packet
+73829d30d0 Bluetooth: Handle PHY Update procedure with no change
+06f14b0d4c Qt6: add toInt() to QVariant == Qt::Checked
+0d976e7a44 Build: 4.0.0rc2
 d474537133 Windows: upgrade Npcap to 1.71
 6e300adf79 coap, thread: special-case application/octet-stream for CoAP for TMF.
 b87045a13e TLS: fix GREASE extension
