@@ -254,7 +254,7 @@ void ByteViewText::paintEvent(QPaintEvent *)
     painter.save();
 
     x_pos_to_column_.clear();
-    while ((int) (row_y + line_height_) < widget_height && offset < (int) data_.count()) {
+    while ((int) (row_y + line_height_) < widget_height && offset < (int) data_.size()) {
         drawLine(&painter, offset, row_y);
         offset += row_width_;
         row_y += line_height_ + leading;
@@ -386,7 +386,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
 
     // Build our pixel to byte offset vector the first time through.
     bool build_x_pos = x_pos_to_column_.empty() ? true : false;
-    int tvb_len = static_cast<int>(data_.count());
+    int tvb_len = static_cast<int>(data_.size());
     int max_tvb_pos = qMin(offset + row_width_, tvb_len) - 1;
     QList<QTextLayout::FormatRange> fmt_list;
 
@@ -613,7 +613,7 @@ void ByteViewText::scrollToByte(int byte)
 int ByteViewText::offsetChars(bool include_pad)
 {
     int padding = include_pad ? 2 : 0;
-    if (! isEmpty() && data_.count() > 0xffff) {
+    if (! isEmpty() && data_.size() > 0xffff) {
         return 8 + padding;
     }
     return 4 + padding;
@@ -676,7 +676,7 @@ void ByteViewText::copyBytes(bool)
 // math easier. Should we do smooth scrolling?
 void ByteViewText::updateScrollbars()
 {
-    const int length = static_cast<int>(data_.count());
+    const int length = static_cast<int>(data_.size());
     if (length > 0) {
         int all_lines_height = length / row_width_ + ((length % row_width_) ? 1 : 0) - viewport()->height() / line_height_;
 
@@ -696,7 +696,7 @@ int ByteViewText::byteOffsetAtPixel(QPoint pos)
     }
 
     byte += col;
-    if (byte > data_.count()) {
+    if (byte > data_.size()) {
         return -1;
     }
     return byte;
