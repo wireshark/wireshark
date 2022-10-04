@@ -153,6 +153,7 @@ static int hf_isakmp_notify_data = -1;
 static int hf_isakmp_notify_data_dpd_are_you_there = -1;
 static int hf_isakmp_notify_data_dpd_are_you_there_ack = -1;
 static int hf_isakmp_notify_data_unity_load_balance = -1;
+static int hf_isakmp_notify_data_fortinet_network_overlay_id = -1;
 static int hf_isakmp_notify_data_accepted_dh_group = -1;
 static int hf_isakmp_notify_data_ipcomp_cpi = -1;
 static int hf_isakmp_notify_data_ipcomp_transform_id = -1;
@@ -1514,8 +1515,12 @@ static const range_string notifmsg_v2_3gpp_type[] = {
   { 55505,55505,      "UP_IP6_ADDRESS" },                           /* TS 24.502 */
   { 55506,55506,      "NAS_TCP_PORT" },                             /* TS 24.502 */
   { 55507,55507,      "N3GPP_BACKOFF_TIMER" },                      /* TS 24.502 */
-  { 55508,65535,      "Private Use - STATUS TYPES" },
-
+  { 55508,61471,      "Private Use - STATUS TYPES" },
+  { 61472,61472,      "Auto-Discovery Sender (Fortinet)" },
+  { 61473,61473,      "Auto-Discovery Receiver (Fortinet)" },
+  { 61474,61519,      "Private Use - STATUS TYPES" },
+  { 61520,61520,      "Network Overlay ID (Fortinet" },
+  { 61521,65535,      "Private Use - STATUS TYPES" },
   { 0,0,        NULL },
 };
 
@@ -5055,6 +5060,9 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
           }
         }
         break;
+      case 61520: /* Network Overlay ID (Fortinet) */
+        proto_tree_add_item(tree, hf_isakmp_notify_data_fortinet_network_overlay_id, tvb, offset, length, ENC_BIG_ENDIAN);
+        break;
       default:
         /* No Default Action */
         break;
@@ -6781,6 +6789,10 @@ proto_register_isakmp(void)
     { &hf_isakmp_notify_data_unity_load_balance,
       { "UNITY LOAD BALANCE", "isakmp.notify.data.unity.load_balance",
         FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_network_overlay_id,
+      { "Network Overlay ID", "isakmp.notify.data.fortinet.network_overlay_id",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_notify_data_accepted_dh_group,
       { "Accepted DH group number", "isakmp.notify.data.accepted_dh_group",
