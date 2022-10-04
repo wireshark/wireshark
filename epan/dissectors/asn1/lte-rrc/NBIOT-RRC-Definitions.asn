@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.1.0 (2022-06)
+-- 3GPP TS 36.331 V17.2.0 (2022-09)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2173,6 +2173,9 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 		} OPTIONAL,	-- Cond NTN
 		npdsch-ConfigDedicated-v1700	NPDSCH-ConfigDedicated-NB-v1710	OPTIONAL,	-- Need ON
 		uplinkPowerControlDedicated-v1700	UplinkPowerControlDedicated-NB-v1700		OPTIONAL -- Cond npusch-16QAM
+	]],
+	[[
+	uplinkSegmentedPrecompensationGap-r17  ENUMERATED {sym1,sl1,sl2}	OPTIONAL  -- Need OR
 	]]
 }
 
@@ -2333,7 +2336,7 @@ RadioResourceConfigCommonSIB-NB-r13 ::=	SEQUENCE {
 			nprach-TxDurationFmt01-r17		NPRACH-TxDurationFmt01-NB-r17	OPTIONAL,	-- Need OR
 			nprach-TxDurationFmt2-r17		NPRACH-TxDurationFmt2-NB-r17	OPTIONAL,	-- Need OR
 			npusch-TxDuration-r17			NPUSCH-TxDuration-NB-r17		OPTIONAL	-- Need OR
-		}	OPTIONAL	-- Need OR
+		}	OPTIONAL	-- Cond NTN
 	]]
 }
 
@@ -2769,6 +2772,11 @@ UE-Capability-NB-v1710-IEs ::=	SEQUENCE {
 	measParameters-v1710				MeasParameters-NB-v1710		OPTIONAL,
 	rf-Parameters-v1710				RF-Parameters-NB-v1710,
 	tdd-UE-Capability-v1710			TDD-UE-Capability-NB-v1710,
+	nonCriticalExtension				UE-Capability-NB-v1720-IEs	OPTIONAL
+}
+
+UE-Capability-NB-v1720-IEs ::=	SEQUENCE {
+	ntn-Parameters-v1720				NTN-Parameters-NB-v1720,
 	nonCriticalExtension				SEQUENCE {}					OPTIONAL
 }
 
@@ -2830,6 +2838,10 @@ NTN-Parameters-NB-r17 ::=		SEQUENCE {
 	ntn-PUR-TimerDelay-r17		ENUMERATED {supported}			OPTIONAL,
 	ntn-OffsetTimingEnh-r17		ENUMERATED {supported}			OPTIONAL,
 	ntn-ScenarioSupport-r17		ENUMERATED {ngso,gso}				OPTIONAL
+}
+
+NTN-Parameters-NB-v1720 ::=		SEQUENCE {
+	ntn-SegmentedPrecompensationGaps-r17		ENUMERATED {sym1,sl1,sl2}		OPTIONAL
 }
 
 MeasParameters-NB-r16		::=		SEQUENCE {

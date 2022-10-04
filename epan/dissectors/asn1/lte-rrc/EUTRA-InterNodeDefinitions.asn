@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.1.0 (2022-06)
+-- 3GPP TS 36.331 V17.2.0 (2022-09)
 
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -243,7 +243,7 @@ SCG-Config-v12i0a-IEs ::=				SEQUENCE {
 }
 
 SCG-Config-v12i0b-IEs ::=				SEQUENCE {
-	scg-RadioConfig-v12i0				SCG-ConfigPartSCG-v12f0			OPTIONAL,	-- Need ON
+	scg-RadioConfig-v12i0				SCG-ConfigPartSCG-v12f0			OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
