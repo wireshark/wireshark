@@ -149,7 +149,8 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 return 1;
             }
         case FT_STRING:
-        case FT_STRINGZ: {
+        case FT_STRINGZ:
+        case FT_STRINGZPAD: {
                 gchar* repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DISPLAY,BASE_NONE);
                 if (repr)
                 {
