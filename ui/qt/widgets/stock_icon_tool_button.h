@@ -26,8 +26,6 @@ protected:
 private:
     QIcon base_icon_;
     QString icon_name_;
-    int leave_timer_;
-    static const int leave_interval_ = 500; // ms
 };
 
 #endif // STOCKICONTOOLBUTTON_H
