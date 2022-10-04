@@ -4195,7 +4195,7 @@ static const value_string gsm_a_gm_gprs_timer_unit_vals[] = {
 	{ 0, NULL }
 };
 
-static guint16
+guint16
 de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8       oct;
@@ -5078,6 +5078,9 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				if (link_dir == P2P_DIR_DL && e_len > 0) {
 					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_fqdn, tvb, curr_offset, e_len, ENC_NA|ENC_APN_STR);
 				}
+				break;
+			 case 0x0041:
+				de_nas_5gs_cmn_service_level_aa_cont(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
 				break;
 			default:
 			{

@@ -762,6 +762,7 @@ guint16 de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 
 guint16 de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
+guint16 de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 guint16 de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 WS_DLL_PUBLIC
@@ -809,6 +810,7 @@ void nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 guint16 de_nas_5gs_cmn_dnn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_mm_ue_radio_cap_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len, gchar* add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
+guint16 de_nas_5gs_cmn_service_level_aa_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
@@ -1823,7 +1825,7 @@ typedef enum
     DE_NAS_5GS_MM_SUPPORTED_CODEC_LIST,      /* 9.11.3.51A   Supported codec list */
     DE_NAS_5GS_MM_TZ,                        /* 9.11.3.52    Time zone*/
     DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.11.3.53    Time zone and time*/
-    DE_NAS_5GS_MM_UE_PAR_UPD_TRASNSP_CONT,   /* 9.11.3.53A   UE parameters update transparent container */
+    DE_NAS_5GS_MM_UE_PAR_UPD_TRANSP_CONT,    /* 9.11.3.53A   UE parameters update transparent container */
     DE_NAS_5GS_MM_UE_SEC_CAP,                /* 9.11.3.54    UE security capability*/
     DE_NAS_5GS_MM_UE_USAGE_SET,              /* 9.11.3.55    UE's usage setting */
     DE_NAS_5GS_MM_UE_STATUS,                 /* 9.11.3.56    UE status */
@@ -1836,6 +1838,21 @@ typedef enum
     DE_NAS_5GS_MM_NB_N1_MODE_DRX_PARS,       /* 9.11.3.73    NB-N1 mode DRX parameters*/
     DE_NAS_5GS_MM_ADDITIONAL_CONF_IND,       /* 9.11.3.74    Additional configuration indication*/
     DE_NAS_5GS_MM_EXTENDED_REJECTED_NSSAI,   /* 9.11.3.75    Extended rejected NSSAI*/
+    DE_NAS_5GS_MM_UE_REQUEST_TYPE,           /* 9.11.3.76    UE request type */
+    DE_NAS_5GS_MM_PAGING_RESTRICTION,        /* 9.11.3.77    Paging restriction */
+    DE_NAS_5GS_MM_NID,                       /* 9.11.3.79    NID */
+    DE_NAS_5GS_MM_PEIPS_ASSIST_INFO,         /* 9.11.3.80    PEIPS assistance information */
+    DE_NAS_5GS_MM_5GS_ADD_REQ_RES,           /* 9.11.3.81    5GS additional request result */
+    DE_NAS_5GS_MM_NSSRG_INFO,                /* 9.11.3.82    NSSRG information */
+    DE_NAS_5GS_MM_PLMNS_LIST_DISASTER_COND,  /* 9.11.3.83    List of PLMNs to be used in disaster condition */
+    DE_NAS_5GS_MM_REG_WAIT_RANGE,            /* 9.11.3.84    Registration wait range */
+    DE_NAS_5GS_MM_PLMN_ID,                   /* 9.11.3.85    PLMN identity */
+    DE_NAS_5GS_MM_EXT_CAG_INFO_LIST,         /* 9.11.3.86    Extended CAG information list */
+    DE_NAS_5GS_MM_NSAG_INFO,                 /* 9.11.3.87    NSAG information */
+    DE_NAS_5GS_MM_PROSE_RELAY_TRANS_ID,      /* 9.11.3.88    ProSe relay transaction identity */
+    DE_NAS_5GS_MM_RELAY_KEY_REQ_PARAMS,      /* 9.11.3.89    Relay key request parameters */
+    DE_NAS_5GS_MM_RELAY_KEY_RESP_PARAMS,     /* 9.11.3.90    Relay key response parameters */
+    DE_NAS_5GS_MM_PRIO_IND,                  /* 9.11.3.91    Priority indicator */
     DE_NAS_5GS_MM_NONE        /* NONE */
 }
 nas_5gs_mm_elem_idx_t;
