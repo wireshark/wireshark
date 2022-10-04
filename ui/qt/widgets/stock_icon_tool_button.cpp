@@ -25,8 +25,7 @@
 // Subclass QToolButton, which lets us catch events and set icons as needed.
 
 StockIconToolButton::StockIconToolButton(QWidget * parent, QString stock_icon_name) :
-    QToolButton(parent),
-    leave_timer_(0)
+    QToolButton(parent)
 {
     setStockIcon(stock_icon_name);
 }
@@ -61,8 +60,6 @@ bool StockIconToolButton::event(QEvent *event)
         case QEvent::Enter:
         if (isEnabled()) {
             setIconMode(QIcon::Active);
-            if (leave_timer_ > 0) killTimer(leave_timer_);
-            leave_timer_ = startTimer(leave_interval_);
         }
         break;
     case QEvent::MouseButtonPress:
@@ -70,31 +67,9 @@ bool StockIconToolButton::event(QEvent *event)
             setIconMode(QIcon::Selected);
         }
         break;
-    case QEvent::Leave:
-        if (leave_timer_ > 0) killTimer(leave_timer_);
-        leave_timer_ = 0;
-        // Fall through
     case QEvent::MouseButtonRelease:
         setIconMode();
         break;
-    case QEvent::Timer:
-    {
-        // We can lose QEvent::Leave, QEvent::HoverLeave and underMouse()
-        // on macOS if a tooltip appears:
-        // https://bugreports.qt.io/browse/QTBUG-46379
-        // Work around the issue by periodically checking the mouse
-        // position and scheduling a fake leave event when the mouse
-        // moves away.
-        QTimerEvent *te = (QTimerEvent *) event;
-        bool under_mouse = rect().contains(mapFromGlobal(QCursor::pos()));
-        if (te->timerId() == leave_timer_ && !under_mouse) {
-            killTimer(leave_timer_);
-            leave_timer_ = 0;
-            QMouseEvent *me = new QMouseEvent(QEvent::Leave, mapFromGlobal(QCursor::pos()), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-            QApplication::postEvent(this, me);
-        }
-        break;
-    }
     case QEvent::ApplicationPaletteChange:
         setStockIcon();
         break;
