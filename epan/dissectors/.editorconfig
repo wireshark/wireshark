@@ -1281,6 +1281,14 @@ indent_size = tab
 [packet-loop.[ch]]
 indent_size = 2
 
+[packet-loratap.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet-lorawan.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-lpd.[ch]]
 indent_style = tab
 indent_size = tab
