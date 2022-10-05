@@ -11487,7 +11487,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       rtps_util_add_seq_octets(rtps_pm_tree, pinfo, tvb, offset, encoding,
                                octets_to_next_header - (offset - old_offset) + 4, hf_rtps_data_serialize_data);
 
-    } else if (wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER) {
+    } else if (wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER || wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER) {
       /* PGM stands for Participant Generic Message */
       proto_tree * rtps_pgm_tree, * guid_tree, * message_identity_tree;
       proto_item *ti;
