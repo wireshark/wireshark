@@ -1837,9 +1837,8 @@ static true_false_string tfs_5gs_mm_cag_info_entry_cag_only = {
 };
 
 static guint16
-de_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
-    guint32 offset, guint len,
-    gchar* add_string _U_, int string_len _U_)
+dissect_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len, gboolean is_ext)
 {
     proto_tree *sub_tree;
     proto_item *item;
@@ -1850,8 +1849,9 @@ de_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_info*
     while ((curr_offset - offset) < len) {
         start_offset = curr_offset;
         sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_cag_info_entry,
-                                                 &item, "CAG information entry %u", num_entry);
-        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_cag_info_entry_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &entry_len);
+                                                 &item, "%sCAG information entry %u",
+                                                 is_ext ? "Extended " : "", num_entry);
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_cag_info_entry_len, tvb, curr_offset, is_ext ? 2 : 1, ENC_BIG_ENDIAN, &entry_len);
         curr_offset++;
         dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, TRUE);
         curr_offset += 3;
@@ -1867,6 +1867,14 @@ de_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_info*
     }
 
     return len;
+}
+
+static guint16
+de_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    return dissect_nas_5gs_mm_cag_information_list(tvb, tree, pinfo, offset, len, FALSE);
 }
 
 /*
@@ -4344,9 +4352,9 @@ de_nas_5gs_mm_plmn_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
 static guint16
 de_nas_5gs_mm_ext_cag_info_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
     guint32 offset, guint len,
-    gchar* add_string, int string_len)
+    gchar* add_string _U_ , int string_len _U_)
 {
-    return de_nas_5gs_mm_cag_information_list(tvb, tree, pinfo, offset, len, add_string, string_len);
+    return dissect_nas_5gs_mm_cag_information_list(tvb, tree, pinfo, offset, len, TRUE);
 }
 
 /*
@@ -10715,7 +10723,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_cag_info_entry_len,
         { "Length of entry contents",   "nas_5gs.mm.cag_info.entry.len",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_cag_info_entry_cag_only,
