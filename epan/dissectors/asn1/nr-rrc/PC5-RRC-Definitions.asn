@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.1.0 (2022-06)
+-- 3GPP TS 38.331 V17.2.0 (2022-09)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -129,7 +129,7 @@ SL-MeasResultListRelay-r17 ::=                  SEQUENCE (SIZE (1..maxNrofRelayM
 
 SL-MeasResultRelay-r17 ::=                      SEQUENCE {
     cellIdentity-r17                                CellAccessRelatedInfo,
-    sl-RelayUEIdentity-r17                          SL-SourceIdentity-r17,
+    sl-RelayUE-Identity-r17                         SL-SourceIdentity-r17,
     sl-MeasResult-r17                               SL-MeasResult-r16,
     ...
 }
@@ -292,7 +292,13 @@ RRCReconfigurationCompleteSidelink-r16-IEs ::= SEQUENCE {
 }
 
 RRCReconfigurationCompleteSidelink-v1710-IEs ::=   SEQUENCE {
-    sl-DRX-ConfigReject-r17                            ENUMERATED {true},
+    dummy                                              ENUMERATED {true},
+    nonCriticalExtension                               RRCReconfigurationCompleteSidelink-v1720-IEs                   OPTIONAL
+}
+
+
+RRCReconfigurationCompleteSidelink-v1720-IEs ::=   SEQUENCE {
+    sl-DRX-ConfigReject-v1720                          ENUMERATED {true}                                              OPTIONAL,
     nonCriticalExtension                               SEQUENCE {}                                                    OPTIONAL
 }
 

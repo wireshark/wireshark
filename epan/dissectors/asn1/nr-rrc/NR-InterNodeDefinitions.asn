@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.1.0 (2022-06)
+-- 3GPP TS 38.331 V17.2.0 (2022-09)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -24,10 +24,11 @@ IMPORTS
     maxBandsEUTRA,
     maxCellSFTD,
     maxFeatureSetsPerBand,
+    maxFreq,
     maxFreqIDC-MRDC,
     maxNrofCombIDC,
     maxNrofCondCells-r16,
-    ffsUpperLimit, -- to be removed later
+    maxNrofCondCells-1-r17,
     maxNrofPhysicalResourceBlocks,
     maxNrofSCells,
     maxNrofServingCells,
@@ -405,17 +406,16 @@ CandidateServingFreqListEUTRA ::= SEQUENCE (SIZE (1.. maxFreqIDC-MRDC)) OF ARFCN
 
 T-Offset-r16 ::= ENUMERATED {ms0dot5, ms0dot75, ms1, ms1dot5, ms2, ms2dot5, ms3, spare1}
 
-CandidateCellInfoListCPC-r17 ::= SEQUENCE (SIZE (1..ffsUpperLimit)) OF CandidateCellInfo-r17   -- FFS
+CandidateCellInfoListCPC-r17 ::= SEQUENCE (SIZE (1..maxFreq)) OF CandidateCellInfo-r17
 
 CandidateCellInfo-r17 ::=        SEQUENCE {
     ssbFrequency-r17                 ARFCN-ValueNR,
-    candidateList-r17                SEQUENCE (SIZE (1..ffsUpperLimit)) OF CandidateCell-r17   -- FFS
+    candidateList-r17                SEQUENCE (SIZE (1..maxNrofCondCells-r16)) OF CandidateCell-r17
 }
 
 CandidateCell-r17 ::=            SEQUENCE {
     physCellId-r17                   PhysCellId,
     condExecutionCondSCG-r17         OCTET STRING (CONTAINING CondReconfigExecCondSCG-r17)               OPTIONAL
---  FFS whether the Optional flag is to be removed from condExecutionConditionSN-r17
 }
 
 -- TAG-CG-CONFIG-STOP
@@ -527,7 +527,7 @@ CG-ConfigInfo-v1640-IEs ::=             SEQUENCE {
 
 CG-ConfigInfo-v1700-IEs ::=             SEQUENCE {
     candidateCellListCPC-r17                CandidateCellListCPC-r17                     OPTIONAL,
-    twoPHRModeSCG-r17                       ENUMERATED {enabled}                         OPTIONAL,
+    twoPHRModeMCG-r17                       ENUMERATED {enabled}                         OPTIONAL,
     lowMobilityEvaluationConnectedInPCell-r17 ENUMERATED {enabled}                       OPTIONAL,
     nonCriticalExtension                    SEQUENCE {}                                  OPTIONAL
 }
@@ -581,9 +581,8 @@ ConfigRestrictInfoSCG ::=       SEQUENCE {
     [[
     allowedReducedConfigForOverheating-r17      OverheatingAssistance-r17                             OPTIONAL,
     maxNumberUDC-DRB-r17             INTEGER(0..2)                                                    OPTIONAL,
-    maxNumberCPCCandidates-r17       INTEGER(1..maxNrofCondCells-r16)                                 OPTIONAL
+    maxNumberCPCCandidates-r17       INTEGER(0..maxNrofCondCells-1-r17)                               OPTIONAL
     ]]
--- This field is included according to a working assumption, it can be revisited in next meeting if complications are found
 }
 
 SelectedBandEntriesMN ::=       SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandEntryIndex
@@ -702,11 +701,11 @@ AffectedCarrierFreqCombEUTRA ::= SEQUENCE (SIZE (1..maxNrofServingCellsEUTRA)) O
 
 AffectedCarrierFreqCombNR ::= SEQUENCE (SIZE (1..maxNrofServingCells)) OF ARFCN-ValueNR
 
-CandidateCellListCPC-r17 ::= SEQUENCE (SIZE (1..ffsUpperLimit)) OF CandidateCellCPC-r17       -- FFS
+CandidateCellListCPC-r17 ::= SEQUENCE (SIZE (1..maxFreq)) OF CandidateCellCPC-r17
 
 CandidateCellCPC-r17 ::=           SEQUENCE {
     ssbFrequency-r17                   ARFCN-ValueNR,
-    candidateCellList-r17              SEQUENCE (SIZE (1..ffsUpperLimit)) OF PhysCellId       -- FFS
+    candidateCellList-r17              SEQUENCE (SIZE (1..maxNrofCondCells-r16)) OF PhysCellId
 }
 
 -- TAG-CG-CONFIG-INFO-STOP
@@ -792,7 +791,7 @@ UERadioPagingInformation-v1700-IEs ::= SEQUENCE {
     ue-RadioPagingInfo-r17                 OCTET STRING (CONTAINING UE-RadioPagingInfo-r17)     OPTIONAL,
     inactiveStatePO-Determination-r17      ENUMERATED {supported}                               OPTIONAL,
     numberOfRxRedCap-r17                   ENUMERATED {one, two}                                OPTIONAL,
-    hd-FDDRedCap-r17                       ENUMERATED {supported}                               OPTIONAL,
+    halfDuplexFDD-TypeA-RedCap-r17         SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicatorNR OPTIONAL,
     nonCriticalExtension                   SEQUENCE {}                                          OPTIONAL
 }
 

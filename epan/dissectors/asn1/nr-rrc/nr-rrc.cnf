@@ -24,8 +24,8 @@ DRX-Config/drx-RetransmissionTimerDL
 DRX-Config/drx-RetransmissionTimerUL
 DRX-Config/drx-LongCycleStartOffset
 DRX-Config/shortDRX/drx-ShortCycle
-DRX-ConfigSecondaryGroup/drx-onDurationTimer/milliSeconds
-DRX-ConfigSecondaryGroup/drx-InactivityTimer
+DRX-ConfigSecondaryGroup-r16/drx-onDurationTimer-r16/milliSeconds
+DRX-ConfigSecondaryGroup-r16/drx-InactivityTimer-r16
 DRX-Info/drx-LongCycleStartOffset
 DRX-Info/shortDRX/drx-ShortCycle
 DRX-Info2/drx-onDurationTimer/milliSeconds

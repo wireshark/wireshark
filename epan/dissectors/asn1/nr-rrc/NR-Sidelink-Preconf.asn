@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.1.0 (2022-06)
+-- 3GPP TS 38.331 V17.2.0 (2022-09)
 
 NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -6,8 +6,7 @@ BEGIN
 
 IMPORTS
     SL-RemoteUE-Config-r17,
-    SL-DRX-Config-GC-BC-r17,
-    ffsUpperLimit, -- to be removed later
+    SL-DRX-ConfigGC-BC-r17,
     SL-FreqConfigCommon-r16,
     SL-RadioBearerConfig-r16,
     SL-RLC-BearerConfig-r16,
@@ -47,7 +46,7 @@ SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
     sl-MaxCID-r16                               INTEGER (1..16383)                                                    DEFAULT 15,
     ...,
     [[
-    sl-DRX-PreConfig-GC-BC-r17                  SL-DRX-Config-GC-BC-r17                                               OPTIONAL,
+    sl-DRX-PreConfigGC-BC-r17                   SL-DRX-ConfigGC-BC-r17                                               OPTIONAL,
     sl-TxProfileList-r17                        SL-TxProfileList-r17                                                  OPTIONAL,
     sl-PreconfigDiscConfig-r17                  SL-RemoteUE-Config-r17                                                OPTIONAL
     ]]

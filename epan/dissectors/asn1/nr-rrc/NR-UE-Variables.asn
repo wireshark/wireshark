@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V17.1.0 (2022-06)
+-- 3GPP TS 38.331 V17.2.0 (2022-09)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -63,7 +63,8 @@ IMPORTS
     maxNrofCLI-RSSI-Resources-r16,
     maxNrofCLI-SRS-Resources-r16,
     RSSI-ResourceId-r16,
-    SRS-ResourceId
+    SRS-ResourceId,
+    VisitedPSCellInfoList-r17
 FROM NR-RRC-Definitions;
 
 -- NR-UE-VARIABLES-STOP
@@ -101,7 +102,6 @@ VarLogMeasConfig-r16-IEs ::= SEQUENCE {
         periodical                   LoggedPeriodicalReportConfig-r16,
         eventTriggered               LoggedEventTriggerConfig-r16
     },
-    sigLoggedMeasType-r17        ENUMERATED {true}            OPTIONAL,
     earlyMeasIndication-r17      ENUMERATED {true}            OPTIONAL,
     areaConfiguration-v1700      AreaConfiguration-v1700      OPTIONAL
 }
@@ -216,6 +216,11 @@ VarMeasReportSL-r16 ::=                   SEQUENCE {
 -- TAG-VARMOBILITYHISTORYREPORT-START
 
 VarMobilityHistoryReport-r16 ::= VisitedCellInfoList-r16
+
+VarMobilityHistoryReport-r17 ::= SEQUENCE {
+    visitedCellInfoList-r16          VisitedCellInfoList-r16,
+    visitedPSCellInfoListReport-r17  VisitedPSCellInfoList-r17         OPTIONAL
+}
 
 -- TAG-VARMOBILITYHISTORYREPORT-STOP
 -- TAG-VARPENDINGRNA-UPDATE-START
