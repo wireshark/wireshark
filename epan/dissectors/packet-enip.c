@@ -443,8 +443,10 @@ static dissector_handle_t  cip_io_generic_handle;
 static dissector_handle_t  cip_implicit_handle;
 static dissector_handle_t  cip_handle;
 static dissector_handle_t  enip_tcp_handle;
+static dissector_handle_t  enip_udp_handle;
 static dissector_handle_t  cipio_handle;
 static dissector_handle_t  cip_class1_handle;
+static dissector_handle_t  dtls_handle;
 
 static gboolean enip_desegment  = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
@@ -3146,65 +3148,65 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
            break;
    }
 
-   /* Command specific data - create tree */
-   if ( encap_data_length )
+   /* The packet may have some command specific data, build a sub tree for it */
+   csftree = proto_tree_add_subtree( enip_tree, tvb, 24, encap_data_length,
+                              ett_command_tree, NULL, "Command Specific Data");
+
+   switch ( encap_cmd )
    {
-      /* The packet have some command specific data, build a sub tree for it */
+      case NOP:
+         break;
 
-      csftree = proto_tree_add_subtree( enip_tree, tvb, 24, encap_data_length,
-                                ett_command_tree, NULL, "Command Specific Data");
+      case LIST_SERVICES:
+         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
+         break;
 
-      switch ( encap_cmd )
-      {
-         case NOP:
-            break;
+      case LIST_IDENTITY:
+         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
+         break;
 
-         case LIST_SERVICES:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
-            break;
+      case LIST_INTERFACES:
+         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
+         break;
 
-         case LIST_IDENTITY:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
-            break;
+      case REGISTER_SESSION:
+         proto_tree_add_item( csftree, hf_enip_rs_version,     tvb, 24, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item( csftree, hf_enip_rs_optionflags, tvb, 26, 2, ENC_LITTLE_ENDIAN );
+         break;
 
-         case LIST_INTERFACES:
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 24, 0 );
-            break;
+      case UNREGISTER_SESSION:
+         break;
 
-         case REGISTER_SESSION:
-            proto_tree_add_item( csftree, hf_enip_rs_version,     tvb, 24, 2, ENC_LITTLE_ENDIAN );
-            proto_tree_add_item( csftree, hf_enip_rs_optionflags, tvb, 26, 2, ENC_LITTLE_ENDIAN );
-            break;
+      case SEND_RR_DATA:
+         proto_tree_add_item( csftree, hf_enip_srrd_ifacehnd,  tvb, 24, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
 
-         case UNREGISTER_SESSION:
-            break;
+         ifacehndl = tvb_get_letohl( tvb, 24 );
+         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 30, ifacehndl );
+         break;
 
-         case SEND_RR_DATA:
-            proto_tree_add_item( csftree, hf_enip_srrd_ifacehnd,  tvb, 24, 4, ENC_LITTLE_ENDIAN );
-            proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
+      case SEND_UNIT_DATA:
+         proto_tree_add_item(csftree, hf_enip_sud_ifacehnd,    tvb, 24, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
 
-            ifacehndl = tvb_get_letohl( tvb, 24 );
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, NULL, 30, ifacehndl );
-            break;
+         ifacehndl = tvb_get_letohl( tvb, 24 );
+         dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, ti, 30, ifacehndl );
 
-         case SEND_UNIT_DATA:
-            proto_tree_add_item(csftree, hf_enip_sud_ifacehnd,    tvb, 24, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item( csftree, hf_enip_timeout,        tvb, 28, 2, ENC_LITTLE_ENDIAN );
+         break;
 
-            ifacehndl = tvb_get_letohl( tvb, 24 );
-            dissect_cpf( &request_key, encap_cmd, tvb, pinfo, csftree, tree, enip_tree, ti, 30, ifacehndl );
+      case START_DTLS:
+         if (packet_type == ENIP_RESPONSE_PACKET)
+         {
+            ssl_starttls_ack(dtls_handle, pinfo, enip_udp_handle);
+         }
+         break;
 
-            break;
+      default:
+         /* Can not decode - Just show the data */
+         proto_tree_add_item(header_tree, hf_enip_encap_data, tvb, 24, encap_data_length, ENC_NA);
+         break;
 
-         default:
-
-            /* Can not decode - Just show the data */
-            proto_tree_add_item(header_tree, hf_enip_encap_data, tvb, 24, encap_data_length, ENC_NA);
-            break;
-
-      } /* end of switch () */
-
-   } /* end of if ( encapsulated data ) */
+   } /* end of switch () */
 
    col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -3490,7 +3492,7 @@ proto_register_enip(void)
 
       { &hf_enip_encap_data,
         { "Encap Data", "enip.encap_data",
-          FT_BYTES, BASE_NONE, NULL, 0,
+          FT_BYTES, BASE_NONE | BASE_ALLOW_ZERO, NULL, 0,
           "Encapsulation Data", HFILL }},
 
       /* List Services Reply */
@@ -5083,7 +5085,6 @@ int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 void
 proto_reg_handoff_enip(void)
 {
-   dissector_handle_t enip_udp_handle;
    dissector_handle_t dlr_handle;
 
    /* Register for EtherNet/IP, using TCP */
@@ -5099,6 +5100,11 @@ proto_reg_handoff_enip(void)
    /* Register for EtherNet/IP TLS */
    ssl_dissector_add(ENIP_SECURE_PORT, enip_tcp_handle);
    dtls_dissector_add(ENIP_SECURE_PORT, cipio_handle);
+   dtls_handle = find_dissector("dtls");
+
+   // Allow DecodeAs for DTLS --> ENIP. This supports "UDP-only EtherNet/IP transport profile" over
+   // port 44818 (for Class 3 and Unconnected Messages)
+   dissector_add_for_decode_as("dtls.port", enip_udp_handle);
 
    /* Find ARP dissector for TCP/IP object */
    arp_handle = find_dissector_add_dependency("arp", proto_enip);
