@@ -77,7 +77,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  bp_bundle_ident_new@Base 3.5.1rc0-3265-gb0c69d7db316
  bp_bundle_new@Base 3.5.1rc0-3265-gb0c69d7db316
  bp_creation_ts_compare@Base 3.5.1rc0-3265-gb0c69d7db316
- bp_creation_ts_free@Base 3.5.1rc0-3265-gb0c69d7db316
  bp_eid_equal@Base 3.5.1rc0-3265-gb0c69d7db316
  bp_eid_free@Base 3.5.1rc0-3265-gb0c69d7db316
  bp_eid_new@Base 3.5.1rc0-3265-gb0c69d7db316

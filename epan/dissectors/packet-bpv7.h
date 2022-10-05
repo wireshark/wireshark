@@ -144,16 +144,6 @@ typedef struct {
     guint64 seqno;
 } bp_creation_ts_t;
 
-/** Construct a new timestamp.
- */
-WS_DLL_PUBLIC
-bp_creation_ts_t * bp_creation_ts_alloc(wmem_allocator_t *alloc);
-
-/** Function to match the GDestroyNotify signature.
- */
-WS_DLL_PUBLIC
-void bp_creation_ts_free(wmem_allocator_t *alloc, bp_creation_ts_t *obj);
-
 /** Function to match the GCompareDataFunc signature.
  */
 WS_DLL_PUBLIC
@@ -170,8 +160,8 @@ typedef enum {
 typedef struct {
     /// Scheme ID number
     gint64 scheme;
-    /// Derived URI text
-    const char *uri;
+    /// Derived URI text as address
+    address uri;
 
     /// Optional DTN-scheme well-known SSP
     const char *dtn_wkssp;
@@ -281,19 +271,24 @@ void bp_block_canonical_delete(wmem_allocator_t *alloc, bp_block_canonical_t *ob
 /// Identification of an individual bundle
 typedef struct {
     /// Normalized EID URI for the Source Node ID
-    const char *src;
-    /// Pointer to an external Creation Timestamp
-    bp_creation_ts_t *ts;
+    address src;
+    /// Creation Timestamp
+    bp_creation_ts_t ts;
     /// Pointer to external optional fragment start offset
-    guint64 *frag_offset;
+    const guint64 *frag_offset;
     /// Pointer to external optional bundle total length
-    guint64 *total_len;
+    const guint64 *total_len;
 } bp_bundle_ident_t;
 
 /** Construct a new object on the file allocator.
+ * @param alloc The allocator to use.
+ * @param src The non-null pointer to source EID.
+ * @param ts The non-null pointer to Timestamp.
+ * @param off Optional fragment offset value.
+ * @param len Optional fragment length value.
  */
 WS_DLL_PUBLIC
-bp_bundle_ident_t * bp_bundle_ident_new(wmem_allocator_t *alloc, bp_eid_t *src, bp_creation_ts_t *ts, guint64 *off, guint64 *len);
+bp_bundle_ident_t * bp_bundle_ident_new(wmem_allocator_t *alloc, const bp_eid_t *src, const bp_creation_ts_t *ts, const guint64 *off, const guint64 *len);
 
 WS_DLL_PUBLIC
 void bp_bundle_ident_free(wmem_allocator_t *alloc, bp_bundle_ident_t *obj);

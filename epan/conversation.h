@@ -91,6 +91,7 @@ typedef enum {
     CONVERSATION_LTP,		/* LTP Engine ID and Session Number */
     CONVERSATION_MCTP,
     CONVERSATION_NVME_MI,       /* NVMe management interface */
+    CONVERSATION_BP,		/* Bundle Protocol endpoint IDs */
 } conversation_type;
 
 /*
