@@ -1,6 +1,6 @@
 Dan Lasley <dlasley[AT]promus.com> gave permission for his `dumpit()` hex-dump routine to be used.
 
-We use the exception module from [Kazlib](http://www.kylheku.com/~kaz/kazlib.html), a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library.
+We use the exception module from [Kazlib](https://www.kylheku.com/~kaz/kazlib.html), a C library written by Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for his well-written library.
 
 We use [Lua](https://www.lua.org/about.html) to extend Wireshark APIs with scripting capabilities. Lua is a powerful, efficient, lightweight, embeddable scripting language developed and maintained by a team at PUC-Rio.
 
@@ -14,7 +14,7 @@ We use the natural order string comparison algorithm, written by Martin Pool <mb
 
 Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission to use [QCustomPlot](https://www.qcustomplot.com).
 
-Some icons made by [Freepik](http://www.freepik.com) from <https://www.flaticon.com>.
+Some icons made by [Freepik](https://www.freepik.com) from <https://www.flaticon.com>.
 
 Insecure.Com LLC ("The Nmap Project") has granted the Wireshark Foundation permission to distribute [Npcap](https://npcap.com) with our Windows installers.
 
