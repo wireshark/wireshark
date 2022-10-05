@@ -1607,7 +1607,7 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         proto_item_set_len(item_bundle, offset);
     }
 
-    {
+    if (bundle->ident) {
         // Keep bundle metadata around for the whole file
         wmem_list_t *found_list = wmem_map_lookup(bp_history->bundles, bundle->ident);
         if (!found_list) {
