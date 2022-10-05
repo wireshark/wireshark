@@ -8,7 +8,10 @@ INCLUDE(FindChocolatey)
 
 FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
     NAMES
+        asciidoctorj.cmd
+        asciidoctorj.bat
         asciidoctorj
+        asciidoctor.cmd
         asciidoctor.bat
         asciidoctor
         asciidoctor.ruby2.1
