@@ -90,13 +90,13 @@ to generate the build files, change to the build directory and enter the
 following command:
 
 ----
-$ cmake ..
+cmake ..
 ----
 
 to use make as the build tool or
 
 ----
-$ cmake -G Ninja ..
+cmake -G Ninja ..
 ----
 
 to use Ninja as the build tool.
@@ -107,13 +107,13 @@ to generate the build files, change to the build directory and enter the
 following command:
 
 ----
-$ cmake ../{source directory}
+cmake ../{source directory}
 ----
 
 to use make as the build tool or
 
 ----
-$ cmake -G Ninja ../{source directory}
+cmake -G Ninja ../{source directory}
 ----
 
 to use Ninja as the build tool.  +
@@ -124,7 +124,7 @@ If you need to build with a non-standard configuration, you can run
 
 [source,sh]
 ----
-$ cmake -LH ../{source directory}
+cmake -LH ../{source directory}
 ----
 
 to see what options you have.
@@ -132,9 +132,9 @@ to see what options you have.
 You can then run Ninja or make to build Wireshark.
 
 ----
-$ ninja
-$ # or
-$ make
+ninja
+# or
+make
 ----
 
 Once you have build Wireshark with `ninja` or `make` above, you should be able to test it
@@ -236,11 +236,11 @@ You can install Chocolatey packages using the command `choco install` (or its sh
 
 [source,cmd]
 ----
-> rem Flex is required.
-> choco install -y winflexbison3
-> rem Git, CMake, Python, etc are also required, but can be installed
-> rem via their respective installation packages.
-> choco install -y git cmake python3
+rem Flex is required.
+choco install -y winflexbison3
+rem Git, CMake, Python, etc are also required, but can be installed
+rem via their respective installation packages.
+choco install -y git cmake python3
 ----
 
 
@@ -261,9 +261,9 @@ You can alternatively use Chocolatey to install Visual Studio, using the Visual 
 Note that this includes Visual Studio’s CMake component.
 
 ----
-PS$> choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
-PS$> # OR
-PS$> choco install -y visualstudio2022community visualstudio2022-workload-nativedesktop
+choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
+# OR
+choco install -y visualstudio2022community visualstudio2022-workload-nativedesktop
 ----
 
 // winget has basic VS 2022 and 2019 packages, but no native desktop workload packages.
@@ -327,7 +327,7 @@ _C:\Users{backslash}**username**\AppData\Local\Programs\Python\Python310_, _C:\P
 Alternatively you can install Python using Chocolatey:
 
 ----
-PS$> choco install -y python3
+choco install -y python3
 ----
 
 // Not sure how to document Chocolatey's installation location other than "could be anywhere, LOL"
@@ -379,7 +379,7 @@ https://tortoisegit.org/download/.
 
 The command line client can be installed (and updated) using Chocolatey:
 ----
-PS$> choco install -y git
+choco install -y git
 ----
 
 // winget has git.
@@ -404,7 +404,7 @@ Ensure the directory containing cmake.exe is added to your path.
 Alternatively you can install it using Chocolatey:
 
 ----
-PS$> choco install -y cmake
+choco install -y cmake
 ----
 
 // winget has CMake.
@@ -426,8 +426,8 @@ Chocolatey doesn't support alternative package dependencies at the present time,
 As a result, installing the asciidoctorj package won't automatically install a Java runtime -- you must install one separately.
 
 ----
-PS$> choco install -y <your favorite Java runtime>
-PS$> choco install -y asciidoctorj xsltproc docbook-bundle
+choco install -y <your favorite Java runtime>
+choco install -y asciidoctorj xsltproc docbook-bundle
 ----
 
 Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
@@ -445,7 +445,7 @@ Ensure the directory containing win_flex.exe is on your path.
 Alternatively you can install Winflexbison using Chocolatey:
 
 ----
-PS$> choco install -y winflexbison3
+choco install -y winflexbison3
 ----
 
 Chocolatey ensures win_flex.exe is on your path.
@@ -463,9 +463,9 @@ and install Perl into the default location.
 Alternatively you can install Perl using Chocolatey:
 
 ----
-PS$> choco install -y strawberryperl
+choco install -y strawberryperl
 # ...or...
-PS$> choco install -y activeperl
+choco install -y activeperl
 ----
 
 // winget has StrawberryPerl.
@@ -487,8 +487,8 @@ _C:\Development\wireshark_ using either the command line or Git Extensions:
 Using the command line:
 
 ----
->cd C:\Development
->git clone https://gitlab.com/wireshark/wireshark.git
+cd C:\Development
+git clone https://gitlab.com/wireshark/wireshark.git
 ----
 
 Using Git extensions:
@@ -540,15 +540,15 @@ Set the following environment variables, using paths and values suitable for you
 
 [subs="attributes+"]
 ----
-> rem Let CMake determine the library download directory name under
-> rem WIRESHARK_BASE_DIR or set it explicitly by using WIRESHARK_LIB_DIR.
-> rem Set *one* of these.
-> set WIRESHARK_BASE_DIR=C:\Development
-> rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
-> rem Set the Qt installation directory
-> set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{qt6-lts-version}\msvc2019_64
-> rem Append a custom string to the package version. Optional.
-> set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
+rem Let CMake determine the library download directory name under
+rem WIRESHARK_BASE_DIR or set it explicitly by using WIRESHARK_LIB_DIR.
+rem Set *one* of these.
+set WIRESHARK_BASE_DIR=C:\Development
+rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
+rem Set the Qt installation directory
+set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{qt6-lts-version}\msvc2019_64
+rem Append a custom string to the package version. Optional.
+set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
 
 Setting these variables could be added to a batch file to be run after you open
@@ -571,8 +571,8 @@ Create (if required) and change to the appropriate build directory.
 --
 // XXX Our CI builds are in-tree in <src dir>/build.
 ----
-> mkdir C:\Development\wsbuild64
-> cd C:\Development\wsbuild64
+mkdir C:\Development\wsbuild64
+cd C:\Development\wsbuild64
 ----
 to create and jump into the build directory.
 
@@ -596,9 +596,9 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -G "Visual Studio 17 2022" -A x64 ..\wireshark
-> : or
-> cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
+cmake -G "Visual Studio 17 2022" -A x64 ..\wireshark
+: or
+cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
 ----
 
 Adjusting the path to the Wireshark source tree as required.
@@ -632,7 +632,7 @@ Now it’s time to build Wireshark!
 +
 --
 ----
-> msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln
+msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln
 ----
 to build Wireshark.
 --
@@ -677,13 +677,11 @@ NSIS. You can download it from http://nsis.sourceforge.net[].
 Note that the 32-bit version of NSIS will work for both 64-bit and 32-bit versions of Wireshark.
 NSIS version 3 is required.
 
-If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
-
-Run
+If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again. Run
 
 ----
-> msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis_prep.vcxproj
-> msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
+msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis_prep.vcxproj
+msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
 ----
 
 to build a Wireshark installer.
@@ -692,7 +690,7 @@ If you sign your executables you should do so between the “wireshark_nsis_prep
 Run
 
 ----
-> packaging\nsis\wireshark-win64-{wireshark-version}-myprotocol123.exe
+packaging\nsis\wireshark-win64-{wireshark-version}-myprotocol123.exe
 ----
 
 to test your new installer.
