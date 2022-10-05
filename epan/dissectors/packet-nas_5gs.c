@@ -4201,7 +4201,7 @@ static const value_string nas_5gs_mm_peips_assist_info_ue_paging_probability_inf
   { 20, "p100" },
   {  0, NULL }
 };
-value_string_ext nas_5gs_mm_peips_assist_info_ue_paging_probability_info_vals_ext =
+static value_string_ext nas_5gs_mm_peips_assist_info_ue_paging_probability_info_vals_ext =
     VALUE_STRING_EXT_INIT(nas_5gs_mm_peips_assist_info_ue_paging_probability_info_vals);
 
 static guint16
