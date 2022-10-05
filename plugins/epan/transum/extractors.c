@@ -118,7 +118,8 @@ int extract_bool(proto_tree *tree, int field_id, gboolean *result_array, size_t 
     {
         fvalue_t *fv = &(((field_info*)finfo_array->pdata[i])->value);
 
-        if (fv->value.uinteger)
+        ws_assert(fvalue_type_ftenum(fv) == FT_BOOLEAN);
+        if (fv->value.uinteger64)
             result_array[i] = TRUE;
         else
             result_array[i] = FALSE;
