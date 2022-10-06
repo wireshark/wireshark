@@ -141,6 +141,8 @@ Package: libwsutil-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends} , libwsutil14 (= ${binary:Version})
+Breaks: libwireshark-dev (<< 3.7.0~)
+Replaces: libwireshark-dev (<< 3.7.0~)
 Description: network packet dissection utilities library -- development files
  The libwsutil library provides utility functions for libwireshark6.
  .
