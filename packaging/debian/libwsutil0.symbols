@@ -315,6 +315,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_str_hash@Base 3.5.0
  wmem_strbuf_append@Base 3.5.0
  wmem_strbuf_append_c@Base 3.5.0
+ wmem_strbuf_append_hex@Base 4.1.0rc0-393-gb2cbc6f034d6
  wmem_strbuf_append_len@Base 3.5.0
  wmem_strbuf_append_printf@Base 3.5.0
  wmem_strbuf_append_unichar@Base 3.5.0
@@ -326,10 +327,11 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_strbuf_get_str@Base 3.5.0
  wmem_strbuf_new@Base 3.5.0
  wmem_strbuf_new_len@Base 3.7.1rc0-272-gfe25d701baa2
- wmem_strbuf_sanitize_utf8@Base 4.1.0
  wmem_strbuf_sized_new@Base 3.5.0
  wmem_strbuf_strcmp@Base 3.7.1rc0-272-gfe25d701baa2
  wmem_strbuf_strstr@Base 3.7.1rc0-272-gfe25d701baa2
+ wmem_strbuf_utf8_make_valid@Base 4.1.0rc0-393-gb2cbc6f034d6
+ wmem_strbuf_utf8_validate@Base 4.1.0rc0-393-gb2cbc6f034d6
  wmem_strbuf_truncate@Base 3.5.0
  wmem_strconcat@Base 3.5.0
  wmem_strdup@Base 3.5.0
@@ -423,6 +425,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_set_level_str@Base 3.5.0
  ws_log_set_writer@Base 3.7.0
  ws_log_set_writer_with_data@Base 3.7.0
+ ws_log_utf8_full@Base 4.1.0
  ws_log_write_always_full@Base 3.5.0
  ws_logv@Base 3.5.0
  ws_logv_full@Base 3.5.0
