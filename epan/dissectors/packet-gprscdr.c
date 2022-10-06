@@ -9,12 +9,15 @@
 /* packet-gprscdr-template.c
  * Copyright 2011 , Anders Broman <anders.broman [AT] ericsson.com>
  *
+ * Updates and corrections:
+ * Copyright 2018-2022, Joakim Karlsson <oakimk@gmail.com>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- * References: 3GPP TS 32.298 V16.7.0
+ * References: 3GPP TS 32.298 V17.4.0
  */
 
 #include "config.h"
@@ -530,7 +533,7 @@ static int hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange = -1;
 static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 36 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 39 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
@@ -644,7 +647,7 @@ static gint ett_gprscdr_VoLTEInformation = -1;
 static gint ett_gprscdr_WLANOperatorId = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 45 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 48 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
 static expert_field ei_gprscdr_choice_not_found = EI_INIT;
@@ -5153,7 +5156,7 @@ int dissect_gprscdr_CAMELInformationPDP_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 115 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 118 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -7104,7 +7107,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 125 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 128 "./asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -7221,7 +7224,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_WLANOperatorId,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 137 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 140 "./asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {

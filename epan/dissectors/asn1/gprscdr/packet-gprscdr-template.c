@@ -1,12 +1,15 @@
 /* packet-gprscdr-template.c
  * Copyright 2011 , Anders Broman <anders.broman [AT] ericsson.com>
  *
+ * Updates and corrections:
+ * Copyright 2018-2022, Joakim Karlsson <oakimk@gmail.com>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- * References: 3GPP TS 32.298 V16.7.0
+ * References: 3GPP TS 32.298 V17.4.0
  */
 
 #include "config.h"
