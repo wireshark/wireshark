@@ -8,6 +8,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
 
 #include <glib.h>
 
@@ -486,6 +487,7 @@ int main(int argc, char *qt_argv[])
     ws_log_init_with_writer("logray", console_log_writer, vcmdarg_err);
     /* For backward compatibility with GLib logging and Wireshark 3.4. */
     ws_log_console_writer_set_use_stdout(TRUE);
+    ws_noisy("Finished log init and parsing command line log arguments");
 
     qInstallMessageHandler(qt_log_message_handler);
 

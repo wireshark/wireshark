@@ -37,6 +37,12 @@
 #include "strtoi.h"
 
 
+#ifndef WS_DISABLE_ASSERT
+#define ASSERT(expr)    assert(expr)
+#else
+#define ASSERT(expr)    (void)(expr);
+#endif
+
 /* Runtime log level. */
 #define ENV_VAR_LEVEL       "WIRESHARK_LOG_LEVEL"
 
@@ -118,9 +124,7 @@ static FILE *custom_log = NULL;
 
 static enum ws_log_level fatal_log_level = LOG_LEVEL_ERROR;
 
-#ifndef WS_DISABLE_DEBUG
 static bool init_complete = false;
-#endif
 
 
 static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
@@ -371,7 +375,7 @@ parse_console_compat_option(char *argv[],
     uint32_t mask;
     enum ws_log_level level;
 
-    assert(argv != NULL);
+    ASSERT(argv != NULL);
 
     if (argv[0] == NULL)
         return;
@@ -440,8 +444,8 @@ parse_console_compat_option(char *argv[],
 /* Match "arg_name=value" or "arg_name value" to opt_name. */
 static bool optequal(const char *arg, const char *opt)
 {
-    ws_assert(arg);
-    ws_assert(opt);
+    ASSERT(arg);
+    ASSERT(opt);
 #define ARGEND(arg) (*(arg) == '\0' || *(arg) == ' ' || *(arg) == '=')
 
     while (!ARGEND(arg) && *opt != '\0') {
@@ -470,6 +474,9 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
 
     if (argc_ptr == NULL || argv == NULL)
         return -1;
+
+    /* Assert ws_log_init() was called before ws_log_parse_args(). */
+    ASSERT(init_complete);
 
     /* Configure from command line. */
 
@@ -636,8 +643,8 @@ static void tokenize_filter_str(log_filter_t **filter_ptr,
     bool negated = false;
     log_filter_t *filter;
 
-    assert(filter_ptr);
-    assert(*filter_ptr == NULL);
+    ASSERT(filter_ptr);
+    ASSERT(*filter_ptr == NULL);
 
     if (str_filter == NULL)
         return;
@@ -846,9 +853,7 @@ void ws_log_init(const char *progname,
     if (env != NULL)
         ws_log_set_noisy_filter(env);
 
-#ifndef WS_DISABLE_DEBUG
     init_complete = true;
-#endif
 }
 
 
@@ -925,10 +930,8 @@ static void log_write_do_work(FILE *fp, bool use_color,
                                 const char *file, long line, const char *func,
                                 const char *user_format, va_list user_ap)
 {
-#ifndef WS_DISABLE_DEBUG
     if (!init_complete)
         fputs(" ** (noinit)", fp);
-#endif
 
     /* Process */
     fprintf(fp, " ** (%s:%ld) ", registered_progname, (long)getpid());

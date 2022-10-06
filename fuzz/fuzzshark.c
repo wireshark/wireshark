@@ -10,6 +10,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -243,6 +244,8 @@ fuzz_init(int argc _U_, char **argv)
 
 	/* Early logging command-line initialization. */
 	ws_log_parse_args(&argc, argv, vcmdarg_err, LOG_ARGS_NOEXIT);
+
+	ws_noisy("Finished log init and parsing command line log arguments");
 
 	/*
 	 * Get credential information for later use, and drop privileges

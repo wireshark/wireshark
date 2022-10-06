@@ -16,6 +16,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1186,6 +1187,8 @@ main(int argc, char *argv[])
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
+
+    ws_noisy("Finished log init and parsing command line log arguments");
 
 #ifdef _WIN32
     create_app_running_mutex();

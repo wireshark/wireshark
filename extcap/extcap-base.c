@@ -169,6 +169,7 @@ void extcap_log_init(const char *progname)
     ws_log_init(progname, NULL);
     /* extcaps cannot write debug information to parent on stderr. */
     ws_log_console_writer_set_use_stdout(TRUE);
+    ws_noisy("Extcap log initialization finished");
 }
 
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument)

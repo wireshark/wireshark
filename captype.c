@@ -12,6 +12,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN  LOG_DOMAIN_MAIN
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -120,6 +121,8 @@ main(int argc, char *argv[])
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
+
+    ws_noisy("Finished log init and parsing command line log arguments");
 
     /* Initialize the version information. */
     ws_init_version_info("Captype", NULL, NULL);
