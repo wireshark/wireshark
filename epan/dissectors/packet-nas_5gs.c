@@ -5370,10 +5370,9 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     case 137:
                         proto_tree_add_item(sub_tree3, hf_nas_5gs_mac_addr_low, tvb, curr_offset, 6, ENC_NA);
                         curr_offset += 6;
-                        pfc_len = 6;
                         proto_tree_add_item(sub_tree3, hf_nas_5gs_mac_addr_high, tvb, curr_offset, 6, ENC_NA);
                         curr_offset += 6;
-                        pfc_len = 6;
+                        pfc_len = 12;
                         break;
                     default:
                         proto_tree_add_expert(sub_tree3, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, pf_len);
