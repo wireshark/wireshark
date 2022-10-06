@@ -329,7 +329,7 @@ static gboolean pref_walk_trailer = FALSE;
  * fields.*/
 static gboolean pref_pop_other_fields = FALSE;
 /** Wireshark preference to perform analysis */
-static gboolean pref_perform_analysis = TRUE;
+static gboolean pref_perform_analysis = FALSE;
 /** Wireshark preference to generate keylog entries from f5ethtrailer TLS data */
 static gboolean pref_generate_keylog = TRUE;
 /** Identifiers for taps (when enabled), only the address is important, the
