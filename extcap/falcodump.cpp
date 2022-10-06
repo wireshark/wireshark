@@ -15,14 +15,11 @@
 /*
  * To do:
  * - Pull plugin source description from list_open_params?
- * - Paste in environment variables?
  * - Add filtering.
  *   - Add an option to dump plugin fields.
  * - Add options for credentials.
  * - Let the user create preconfigured interfaces.
  * - Exit more cleanly (see MRs 2063 and 7673).
- * - Proper config schema parsing? We've hardcoded #/definitions/PluginConfig/properties.
- * - Better config schema property names in the UI (requires schema change).
  * - Better config schema default value parsing? Would likely require a schema change.
  * - Make sure all types are handled in parse_schema_properties.
  * - Handle "required" config schema annotation (Okta).
@@ -120,6 +117,150 @@ struct plugin_configuration {
         return config_blob;
     }
 };
+
+//using config_override_func = void(*)(int, const char *, const char *);
+
+// Read a line without trailing (CR)LF. Returns -1 on failure. Copied from addr_resolv.c.
+// XXX Use g_file_get_contents or GMappedFile instead?
+static size_t
+fgetline(char *buf, int size, FILE *fp)
+{
+    if (fgets(buf, size, fp)) {
+        size_t len = (int)strcspn(buf, "\r\n");
+        buf[len] = '\0';
+        return len;
+    }
+    return -1;
+}
+
+static const size_t MAX_AWS_LINELEN = 2048;
+void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const char *description) {
+    char buf[MAX_AWS_LINELEN];
+    char profile[MAX_AWS_LINELEN];
+    FILE *aws_fp;
+    std::set<const std::string>profiles;
+
+    // Look in files as specified in https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+    char *cred_path = g_strdup(g_getenv("AWS_SHARED_CREDENTIALS_FILE"));
+    if (cred_path == NULL) {
+        cred_path = g_build_filename(g_get_home_dir(), ".aws/credentials", (gchar *)NULL);
+    }
+
+    aws_fp = ws_fopen(cred_path, "r");
+    g_free(cred_path);
+
+    if (aws_fp != NULL) {
+
+        while (fgetline(buf, sizeof(buf), aws_fp) > 0) {
+            if (sscanf(buf, "[%2047[^]]s]", profile) == 1) {
+                if (strcmp(profile, "default") == 0) {
+                    continue;
+                }
+                profiles.insert(profile);
+            }
+        }
+        fclose(aws_fp);
+    }
+
+    char *conf_path = g_strdup(g_getenv("AWS_CONFIG_FILE"));
+    if (conf_path == NULL) {
+        conf_path = g_build_filename(g_get_home_dir(), ".aws/config", (gchar *)NULL);
+    }
+
+    aws_fp = ws_fopen(conf_path, "r");
+    g_free(conf_path);
+
+    if (aws_fp != NULL) {
+
+        while (fgetline(buf, sizeof(buf), aws_fp) > 0) {
+            if (sscanf(buf, "[profile %2047[^]]s]", profile) == 1) {
+                if (strcmp(profile, "default") == 0) {
+                    continue;
+                }
+                profiles.insert(profile);
+            }
+        }
+        fclose(aws_fp);
+    }
+
+    printf(
+        "arg {number=%d}"
+        "{call=--cloudtrail-aws-profile}"
+        "{display=%s}"
+        "{type=editselector}"
+        "{default=Default}"
+        "{tooltip=%s}"
+        "{group=Capture}"
+        "\n",
+        arg_num, display, description);
+    printf ("value {arg=%d}{value=}{display=Default}{default=true}\n", arg_num);
+    for (auto &profile : profiles) {
+        printf(
+            "value {arg=%d}"
+            "{value=%s}"
+            "{display=%s}"
+            "\n",
+            arg_num, profile.c_str(), profile.c_str());
+    }
+}
+
+void print_cloudtrail_aws_region_config(int arg_num, const char *display, const char *description) {
+    // aws ec2 describe-regions --all-regions --query "Regions[].{Name:RegionName}" --output text
+    std::set<const std::string> regions = {
+        "af-south-1",
+        "ap-east-1",
+        "ap-northeast-1",
+        "ap-northeast-2",
+        "ap-northeast-3",
+        "ap-south-1",
+        "ap-southeast-1",
+        "ap-southeast-2",
+        "ap-southeast-3",
+        "ca-central-1",
+        "eu-central-1",
+        "eu-north-1",
+        "eu-south-1",
+        "eu-west-1",
+        "eu-west-2",
+        "eu-west-3",
+        "me-central-1",
+        "me-south-1",
+        "sa-east-1",
+        "us-east-1",
+        "us-east-2",
+        "us-west-1",
+        "us-west-2",
+    };
+
+    const char *default_region = g_getenv("AWS_REGION");
+    if (default_region != NULL) {
+        regions.insert(default_region);
+    } else {
+        default_region = "From profile";
+    }
+
+    printf(
+        "arg {number=%d}"
+        "{call=--cloudtrail-aws-region}"
+        "{display=%s}"
+        "{type=editselector}"
+        "{default=%s}"
+        "{tooltip=%s}"
+        "{group=Capture}"
+        "\n",
+        arg_num, display, default_region, description);
+    printf ("value {arg=%d}{value=}{display=%s}{default=true}\n", arg_num, default_region);
+
+    for (auto &region : regions) {
+        printf(
+            "value {arg=%d}"
+            "{value=%s}"
+            "{display=%s}"
+            "\n",
+            arg_num, region.c_str(), region.c_str());
+    }
+}
+
 
 // Load our plugins. This should match the behavior of the Falco Bridge dissector.
 static void load_plugins(sinsp &inspector) {
@@ -582,25 +723,31 @@ static int show_config(const std::string &interface, const struct plugin_configu
         if (!properties.default_value.empty()) {
             default_value = "{default=" + properties.default_value + "}";
         }
-        printf(
-            "arg {number=%d}"
-            "{call=--%s}"
-            "{display=%s}"
-            "{type=%s}"
-            "%s"
-            "{tooltip=%s}"
-            "{group=Capture}"
-            "\n",
-            arg_num, properties.option.c_str(), properties.display.c_str(), properties.type.c_str(), default_value.c_str(), properties.description.c_str());
-        if (properties.enum_values.size() > 0) {
-            for (const auto &enum_val : properties.enum_values) {
-                printf(
-                  "value {arg=%d}"
-                  "{value=%s}"
-                  "{display=%s}"
-                  "%s"
-                  "\n",
-                  arg_num, enum_val.c_str(), enum_val.c_str(), enum_val == default_value ? "{default=true}" : "");
+        if (properties.option == "cloudtrail-aws-profile") {
+            print_cloudtrail_aws_profile_config(arg_num, properties.display.c_str(), properties.description.c_str());
+        } else if (properties.option == "cloudtrail-aws-region") {
+            print_cloudtrail_aws_region_config(arg_num, properties.display.c_str(), properties.description.c_str());
+        } else {
+            printf(
+                "arg {number=%d}"
+                "{call=--%s}"
+                "{display=%s}"
+                "{type=%s}"
+                "%s"
+                "{tooltip=%s}"
+                "{group=Capture}"
+                "\n",
+                arg_num, properties.option.c_str(), properties.display.c_str(), properties.type.c_str(), default_value.c_str(), properties.description.c_str());
+            if (properties.enum_values.size() > 0) {
+                for (const auto &enum_val : properties.enum_values) {
+                    printf(
+                      "value {arg=%d}"
+                      "{value=%s}"
+                      "{display=%s}"
+                      "%s"
+                      "\n",
+                      arg_num, enum_val.c_str(), enum_val.c_str(), enum_val == default_value ? "{default=true}" : "");
+                }
             }
         }
         arg_num++;
