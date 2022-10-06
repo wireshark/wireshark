@@ -142,6 +142,12 @@ set(WSUTIL_COMMON_FILES
 	xtea.c
 )
 
+if(WIN32)
+	list(APPEND WSUTIL_COMMON_FILES
+		console_win32.c
+	)
+endif()
+
 if(ENABLE_PLUGINS)
 	list(APPEND WSUTIL_COMMON_FILES
 		plugins.c
@@ -259,9 +265,13 @@ add_library(wsutil
 	${CMAKE_BINARY_DIR}/resources/libwsutil.rc
 )
 
+target_compile_definitions(wsutil PRIVATE
+	WS_BUILD_DLL
+	BUILD_WSUTIL
+)
+
 set_target_properties(wsutil PROPERTIES
 	PREFIX "lib"
-	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	VERSION "0.0.0" SOVERSION 0
 	FOLDER "DLLs"

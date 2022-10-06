@@ -12,6 +12,8 @@
 #ifndef __CONSOLE_WIN32_H__
 #define __CONSOLE_WIN32_H__
 
+#include <wireshark.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -25,35 +27,42 @@ extern "C" {
 /** Create Windows console.
  *
  */
+WS_DLL_PUBLIC
 void create_console(void);
 
 /** Connect to stdio if available.
  *
  */
+WS_DLL_PUBLIC
 void restore_pipes(void);
 
 /** Destroy Windows console.
  *
  */
+WS_DLL_PUBLIC
 void destroy_console(void);
 
 /** Set console wait. GTK+ only.
  * @param console_wait set/no set console wait
  */
+WS_DLL_PUBLIC
 void set_console_wait(gboolean console_wait);
 /** get console wait
  * @return set/no set console wait
  */
+WS_DLL_PUBLIC
 gboolean get_console_wait(void);
 
 /** Set stdin capture.
  * @param console_wait set/no stdin_capture
  */
+WS_DLL_PUBLIC
 void set_stdin_capture(gboolean set_stdin_capture);
 
 /** get stdin caputre
  * @return set/no set stdin_capture
  */
+WS_DLL_PUBLIC
 gboolean get_stdin_capture(void);
 #endif/* _WIN32 */
 

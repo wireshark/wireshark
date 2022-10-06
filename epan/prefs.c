@@ -16,6 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include <glib.h>
 
@@ -44,6 +47,9 @@
 
 #include "epan/wmem_scopes.h"
 #include <epan/stats_tree.h>
+
+#define CURRENT_USER_KEY "Software\\Wireshark"
+#define CONSOLE_OPEN_KEY "ConsoleOpen"
 
 /*
  * Module alias.
@@ -94,9 +100,9 @@ static int mgcp_udp_port_count;
 e_prefs prefs;
 
 static const enum_val_t gui_console_open_type[] = {
-    {"NEVER", "NEVER", console_open_never},
-    {"AUTOMATIC", "AUTOMATIC", console_open_auto},
-    {"ALWAYS", "ALWAYS", console_open_always},
+    {"NEVER", "NEVER", LOG_CONSOLE_OPEN_NEVER},
+    {"AUTOMATIC", "AUTOMATIC", LOG_CONSOLE_OPEN_AUTO},
+    {"ALWAYS", "ALWAYS", LOG_CONSOLE_OPEN_ALWAYS},
     {NULL, NULL, -1}
 };
 
@@ -3030,13 +3036,15 @@ prefs_register_modules(void)
     gui_module = prefs_register_module(NULL, "gui", "User Interface",
         "User Interface", &gui_callback, FALSE);
 
-    /* gui.console_open is placed first in the list so that any problems encountered
-     *  in the following prefs can be displayed in the console window.
+    /*
+     * gui.console_open is stored in the registry in addition to the
+     * preferences file. It is also read independently by ws_log_init()
+     * for early log initialization of the console.
      */
     prefs_register_enum_preference(gui_module, "console_open",
                        "Open a console window",
                        "Open a console window (Windows only)",
-                       (gint*)(void*)(&prefs.gui_console_open), gui_console_open_type, FALSE);
+                       &ws_log_console_open, gui_console_open_type, FALSE);
 
     prefs_register_obsolete_preference(gui_module, "scrollbar_on_right");
     prefs_register_obsolete_preference(gui_module, "packet_list_sel_browse");
@@ -4119,7 +4127,6 @@ pre_init_prefs(void)
     prefs.gui_geometry_save_position = TRUE;
     prefs.gui_geometry_save_size     = TRUE;
     prefs.gui_geometry_save_maximized= TRUE;
-    prefs.gui_console_open           = console_open_never;
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_df_entries_max  = 10;
     prefs.gui_recent_files_count_max = 10;
@@ -4353,6 +4360,35 @@ prefs_reset(void)
     wmem_tree_foreach(prefs_modules, reset_module_prefs, NULL);
 }
 
+#ifdef _WIN32
+static void
+read_registry(void)
+{
+    HKEY hTestKey;
+    DWORD data;
+    DWORD data_size = sizeof(DWORD);
+    DWORD ret;
+
+    ret = RegOpenKeyExA(HKEY_CURRENT_USER, CURRENT_USER_KEY, 0, KEY_READ, &hTestKey);
+    if (ret != ERROR_SUCCESS && ret != ERROR_FILE_NOT_FOUND) {
+        ws_noisy("Cannot open HKCU "CURRENT_USER_KEY": 0x%lx", ret);
+        return;
+    }
+
+    ret = RegQueryValueExA(hTestKey, CONSOLE_OPEN_KEY, NULL, NULL, (LPBYTE)&data, &data_size);
+    if (ret == ERROR_SUCCESS) {
+        ws_log_console_open = (enum ws_log_console_pref)data;
+        ws_noisy("Got "CONSOLE_OPEN_KEY" from Windows registry: %d", ws_log_console_open);
+    }
+    else if (ret != ERROR_FILE_NOT_FOUND) {
+        ws_noisy("Error reading registry key "CONSOLE_OPEN_KEY": 0x%lx", ret);
+    }
+
+    RegCloseKey(hTestKey);
+}
+#endif
+
+
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
    If we got an error (other than "it doesn't exist") we report it through
@@ -4368,6 +4404,10 @@ read_prefs(void)
     oids_cleanup();
 
     init_prefs();
+
+#ifdef _WIN32
+    read_registry();
+#endif
 
     /*
      * If we don't already have the pathname of the global preferences
@@ -6726,6 +6766,37 @@ write_module_prefs(module_t *module, gpointer user_data)
     return 0;
 }
 
+#ifdef _WIN32
+static void
+write_registry(void)
+{
+    HKEY hTestKey;
+    DWORD data;
+    DWORD data_size;
+    DWORD ret;
+
+    ret = RegCreateKeyExA(HKEY_CURRENT_USER, CURRENT_USER_KEY, 0, NULL,
+                            REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL,
+                            &hTestKey, NULL);
+    if (ret != ERROR_SUCCESS) {
+        ws_noisy("Cannot open HKCU "CURRENT_USER_KEY": 0x%lx", ret);
+        return;
+    }
+
+    data = ws_log_console_open;
+    data_size = sizeof(DWORD);
+    ret = RegSetValueExA(hTestKey, CONSOLE_OPEN_KEY, 0, REG_DWORD, (const BYTE *)&data, data_size);
+    if (ret == ERROR_SUCCESS) {
+        ws_noisy("Wrote "CONSOLE_OPEN_KEY" to Windows registry: 0x%lu", data);
+    }
+    else {
+        ws_noisy("Error writing registry key "CONSOLE_OPEN_KEY": 0x%lx", ret);
+    }
+
+    RegCloseKey(hTestKey);
+}
+#endif
+
 /* Write out "prefs" to the user's preferences file, and return 0.
 
    If the preferences file path is NULL, write to stdout.
@@ -6741,6 +6812,10 @@ write_prefs(char **pf_path_return)
 
     /* Needed for "-G defaultprefs" */
     init_prefs();
+
+#ifdef _WIN32
+    write_registry();
+#endif
 
     /* To do:
      * - Split output lines longer than MAX_VAL_LEN

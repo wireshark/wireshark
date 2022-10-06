@@ -29,12 +29,16 @@
 #ifdef _WIN32
 #include <process.h>
 #include <windows.h>
+#include <conio.h>
 #endif
 
 #include "file_util.h"
 #include "time_util.h"
 #include "to_str.h"
 #include "strtoi.h"
+#ifdef _WIN32
+#include "console_win32.h"
+#endif
 
 
 #ifndef WS_DISABLE_ASSERT
@@ -125,6 +129,8 @@ static FILE *custom_log = NULL;
 static enum ws_log_level fatal_log_level = LOG_LEVEL_ERROR;
 
 static bool init_complete = false;
+
+int ws_log_console_open = LOG_CONSOLE_OPEN_NEVER;
 
 
 static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
@@ -783,6 +789,30 @@ static void glib_log_handler(const char *domain, GLogLevelFlags flags,
 }
 
 
+#ifdef _WIN32
+static void load_registry()
+{
+    LONG lResult;
+    DWORD ptype;
+    DWORD data;
+    DWORD data_size = sizeof(DWORD);
+
+    lResult = RegGetValueA(HKEY_CURRENT_USER,
+                            "Software\\Wireshark",
+                            "OpenConsole",
+                            RRF_RT_REG_DWORD,
+                            &ptype,
+                            &data,
+                            &data_size);
+    if (lResult != ERROR_SUCCESS || ptype != REG_DWORD) {
+        return;
+    }
+
+    ws_log_console_open = (enum ws_log_console_pref)data;
+}
+#endif
+
+
 /*
  * We can't write to stderr in ws_log_init() because dumpcap uses stderr
  * to communicate with the parent and it will block. We have to use
@@ -810,6 +840,15 @@ void ws_log_init(const char *progname,
     /* Set the GLib log handler for GLib itself. */
     g_log_set_handler("GLib", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
                         glib_log_handler, NULL);
+
+#ifdef _WIN32
+    load_registry(vcmdarg_err);
+
+    /* if the user wants a console to be always there, well, we should open one for him */
+    if (ws_log_console_open == LOG_CONSOLE_OPEN_ALWAYS) {
+        create_console();
+    }
+#endif
 
     atexit(ws_log_cleanup);
 
@@ -1013,8 +1052,25 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
 {
     struct timespec tstamp;
     struct tm *cookie = NULL;
+    bool fatal_event = false;
+
+    if (level >= fatal_log_level && level != LOG_LEVEL_ECHO) {
+        fatal_event = true;
+    }
+    else if (fatal_filter != NULL) {
+        if (filter_contains(fatal_filter, domain) && fatal_filter->positive) {
+            fatal_event = true;
+        }
+    }
 
     ws_clock_get_realtime(&tstamp);
+
+#ifdef _WIN32
+    if (fatal_event || ws_log_console_open != LOG_CONSOLE_OPEN_NEVER) {
+        /* the user wants a console or the application will terminate immediately */
+        create_console();
+    }
+#endif /* _WIN32 */
 
     if (custom_log) {
         va_list user_ap_copy;
@@ -1040,14 +1096,17 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             user_format, user_ap);
     }
 
-    if (level >= fatal_log_level && level != LOG_LEVEL_ECHO) {
-        abort();
+#ifdef _WIN32
+    if (fatal_event) {
+        /* wait for a key press before the following error handler will terminate the program
+            this way the user at least can read the error message */
+        printf("\n\nPress any key to exit\n");
+        _getch();
     }
+#endif /* _WIN32 */
 
-    if (fatal_filter != NULL) {
-        if (filter_contains(fatal_filter, domain) && fatal_filter->positive) {
-            abort();
-        }
+    if (fatal_event) {
+        abort();
     }
 }
 

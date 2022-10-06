@@ -186,6 +186,22 @@
  */
 #define WS_DLL_PUBLIC  WS_DLL_PUBLIC_DEF extern
 
+/*
+ * This is necessary to export symbols from wsutil to another DLL
+ * (not an executable) using MSVC.
+ */
+#ifdef _MSC_VER
+#  ifdef BUILD_WSUTIL
+#    define WSUTIL_EXPORT  __declspec(dllexport) extern
+#  else
+#    define WSUTIL_EXPORT  __declspec(dllimport) extern
+#  endif
+#else /* _MSC_VER */
+#  define WSUTIL_EXPORT    WS_DLL_PUBLIC
+#endif /* _MSC_VER */
+
+
+
 #endif /* SYMBOL_EXPORT_H */
 
 /*

@@ -19,7 +19,7 @@
 #include <tchar.h>
 #include <wchar.h>
 #include <shellapi.h>
-#include "ui/win32/console_win32.h"
+#include <wsutil/console_win32.h>
 #endif
 
 #include <ui/clopts_common.h>
@@ -64,7 +64,6 @@
 #include "epan/srt_table.h"
 
 #include "ui/alert_box.h"
-#include "ui/console.h"
 #include "ui/iface_lists.h"
 #include "ui/language.h"
 #include "ui/persfilepath_opt.h"
@@ -484,7 +483,7 @@ int main(int argc, char *qt_argv[])
     cmdarg_err_init(logray_cmdarg_err, logray_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init_with_writer("logray", console_log_writer, vcmdarg_err);
+    ws_log_init("logray", vcmdarg_err);
     /* For backward compatibility with GLib logging and Wireshark 3.4. */
     ws_log_console_writer_set_use_stdout(TRUE);
 

@@ -46,6 +46,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+enum ws_log_console_pref {
+    LOG_CONSOLE_OPEN_NEVER,
+    LOG_CONSOLE_OPEN_AUTO, /* On demand. */
+    LOG_CONSOLE_OPEN_ALWAYS, /* Open during startup. */
+};
+
+WSUTIL_EXPORT
+int ws_log_console_open;
+
 
 /** Callback for registering a log writer. */
 typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,

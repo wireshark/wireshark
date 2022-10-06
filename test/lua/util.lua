@@ -16,6 +16,8 @@ local function test(name, ...)
     end
 end
 
+local console_open
+
 --------------------------
 
 -- Note: This tests expects some specific default values
@@ -32,7 +34,10 @@ test("get_preference-unknown-4",get_preference("ugi.ask_unsaved") == nil)
 test("get_preference-uint-0",get_preference("gui.fileopen.preview") == 3)
 test("get_preference-bool-0",get_preference("gui.ask_unsaved") == true)
 test("get_preference-bool-1",get_preference("gui.interfaces_show_hidden") == false)
-test("get_preference-enum-1",get_preference("gui.console_open") == "NEVER")
+-- gui.console_open is persistent (in the Windows registry) and for that
+-- reason does not have a default value.
+console_open = get_preference("gui.console_open")
+test("get_preference-enum-0",console_open == "NEVER" or console_open == "AUTOMATIC" or console_open == "ALWAYS")
 test("get_preference-string-0",get_preference("gui.window_title") == "")
 test("get_preference-range-0",get_preference("http.tls.port") == "443")
 success = pcall(get_preference, "user_dlt.encaps_table")
@@ -71,12 +76,8 @@ success = pcall(set_preference,"gui.console_open")
 test("set_preference-enum-0", not success)
 success = pcall(set_preference,"gui.console_open",true)
 test("set_preference-enum-1", not success)
-test("set_preference-enum-2",set_preference("gui.console_open","NEVER") == false)
-test("set_preference-enum-3",set_preference("gui.console_open","AUTOMATIC") == true)
-test("set_preference-enum-3-get",get_preference("gui.console_open") == "AUTOMATIC")
-test("set_preference-enum-4",set_preference("gui.console_open","ALWAYS") == true)
-test("set_preference-enum-5",set_preference("gui.console_open","unknown") == false)
-test("set_preference-enum-6",set_preference("gui.console_open",42) == false)
+-- false means unchanged
+test("set_preference-enum-2",set_preference("gui.console_open",console_open) == false)
 success = pcall(set_preference,"gui.window_title")
 test("set_preference-string-0", not success)
 success = pcall(set_preference,"gui.window_title",true)
@@ -112,8 +113,6 @@ test("reset_preference-uint-0",reset_preference("gui.fileopen.preview") == true)
 test("reset_preference-uint-0-get",get_preference("gui.fileopen.preview") == 3)
 test("reset_preference-bool-0",reset_preference("gui.ask_unsaved") == true)
 test("reset_preference-bool-0-get",get_preference("gui.ask_unsaved") == true)
-test("reset_preference-enum-0",reset_preference("gui.console_open") == true)
-test("reset_preference-enum-0-get",get_preference("gui.console_open") == "NEVER")
 test("reset_preference-string-0",reset_preference("gui.window_title") == true)
 test("reset_preference-string-0-get",get_preference("gui.window_title") == "")
 test("reset_preference-range-0",reset_preference("http.tls.port") == true)

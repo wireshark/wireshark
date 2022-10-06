@@ -14,7 +14,6 @@ set(NONGENERATED_UI_SRC
 	clopts_common.c
 	cmdarg_err.c
 	commandline.c
-	console.c
 	decode_as_utils.c
 	dissect_opts.c
 	export_pdu_ui_utils.c

@@ -63,7 +63,6 @@
 #include "wsutil/utf8_entities.h"
 
 #ifdef _WIN32
-#  include "ui/win32/console_win32.h"
 #  include "wsutil/file_util.h"
 #  include <QMessageBox>
 #  include <QSettings>
@@ -1072,13 +1071,6 @@ _e_prefs *MainApplication::readConfigurationFiles(bool reset)
 
     /* Load libwireshark settings from the current profile. */
     prefs_p = epan_load_settings();
-
-#ifdef _WIN32
-    /* if the user wants a console to be always there, well, we should open one for him */
-    if (prefs_p->gui_console_open == console_open_always) {
-        create_console();
-    }
-#endif
 
     /* Read the capture filter file. */
     read_filter_list(CFILTER_LIST);

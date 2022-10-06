@@ -25,6 +25,9 @@
 #include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_assert.h>
+#ifdef _WIN32
+#include <wsutil/console_win32.h>
+#endif
 
 #include <epan/ex-opt.h>
 #include <epan/packet.h>
@@ -36,7 +39,6 @@
 #include "capture_opts.h"
 #include "persfilepath_opt.h"
 #include "preference_utils.h"
-#include "console.h"
 #include "recent.h"
 #include "decode_as_utils.h"
 
