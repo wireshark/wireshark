@@ -263,6 +263,49 @@ void ExtArgSelector::setDefaultValue()
 }
 
 
+ExtArgEditSelector::ExtArgEditSelector(extcap_arg * argument, QObject * parent) :
+        ExtArgSelector(argument, parent) {}
+
+QWidget * ExtArgEditSelector::createEditor(QWidget * parent)
+{
+    QWidget *editor = ExtArgSelector::createEditor(parent);
+
+    boxSelection->setEditable(true);
+    boxSelection->setInsertPolicy(QComboBox::NoInsert);
+
+    return editor;
+}
+
+QString ExtArgEditSelector::value()
+{
+    if (boxSelection == nullptr) {
+        return QString();
+    }
+
+    return boxSelection->currentText();
+}
+
+void ExtArgEditSelector::setDefaultValue()
+{
+    ExtArgSelector::setDefaultValue();
+
+    if (boxSelection == nullptr) {
+        return;
+    }
+
+    const char *prefval = (_argument->pref_valptr && strlen(*_argument->pref_valptr)) ? *_argument->pref_valptr : NULL;
+    QString stored(prefval ? prefval : "");
+    QVariant data = boxSelection->currentData();
+
+    if (data.toString() != stored) {
+        // Apparently createEditor hasn't been called at this point.
+        boxSelection->setEditable(true);
+        boxSelection->setInsertPolicy(QComboBox::NoInsert);
+        boxSelection->setEditText(stored);
+    }
+
+}
+
 
 ExtArgRadio::ExtArgRadio(extcap_arg * argument, QObject * parent) :
         ExtcapArgument(argument, parent), selectorGroup(0), callStrings(0) {}
@@ -943,6 +986,8 @@ ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, QObject *parent)
         result = new ExtArgBool(argument, parent);
     else if (argument->arg_type == EXTCAP_ARG_SELECTOR)
         result = new ExtArgSelector(argument, parent);
+    else if (argument->arg_type == EXTCAP_ARG_EDIT_SELECTOR)
+        result = new ExtArgEditSelector(argument, parent);
     else if (argument->arg_type == EXTCAP_ARG_RADIO)
         result = new ExtArgRadio(argument, parent);
     else if (argument->arg_type == EXTCAP_ARG_FILESELECT)

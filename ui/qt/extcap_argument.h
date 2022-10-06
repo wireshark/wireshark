@@ -182,8 +182,7 @@ public:
 public Q_SLOTS:
     virtual void setDefaultValue();
 
-private:
-
+protected:
     QComboBox * boxSelection;
 
 private Q_SLOTS:
@@ -191,6 +190,19 @@ private Q_SLOTS:
 
 };
 
+
+class ExtArgEditSelector : public ExtArgSelector
+{
+    Q_OBJECT
+
+public:
+    ExtArgEditSelector(extcap_arg * argument, QObject *parent = Q_NULLPTR);
+    virtual QWidget * createEditor(QWidget * parent);
+    virtual QString value();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
+};
 
 
 class ExtArgRadio : public ExtcapArgument

@@ -285,10 +285,11 @@ When _mustexist=false_ is used, the GUI shows the user a file dialog for saving 
 arg {number=3}{call=--logfile}{display=Logfile}{tooltip=A file for log messages}{type=fileselect}{mustexist=false}
 ----
 
-_selector_, _radio_, _multicheck_::
+_selector_, __editselector__, _radio_, _multicheck_::
 Option fields where the user may choose from one or more options.
 If _parent_ is provided for the value items, the option fields for _multicheck_ and _selector_ are presented in a tree-like structure.
-_selector_ and _radio_ values must present a default value, which will be the value provided to the extcap binary for this argument
+_selector_ and _radio_ values must present a default value, which will be the value provided to the extcap binary for this argument.
+_editselector_ option fields let the user select from a list of items or enter a custom value.
 +
 [source,python]
 ----
