@@ -195,7 +195,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		if (count > 0)
 			count_str = ws_strdup_printf("-c %u", count);
 
-		cmdline = ws_strdup_printf("%s dumpcap %s %s -w - %s %s",
+		cmdline = ws_strdup_printf("%s dumpcap %s %s -w - %s -f %s",
 			use_sudo ? "sudo" : "",
 			noprom ? "-p" : "",
 			*ifaces ? ifaces : "",
