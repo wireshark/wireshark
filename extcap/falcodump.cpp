@@ -183,12 +183,21 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
         fclose(aws_fp);
     }
 
+    const char *aws_profile_env = g_getenv("AWS_PROFILE");
+    for (auto &profile : profiles) {
+        if (aws_profile_env && profile == aws_profile_env) {
+            aws_profile_env = nullptr;
+        }
+    }
+    if (aws_profile_env) {
+        profiles.insert(aws_profile_env);
+    }
+
     printf(
         "arg {number=%d}"
         "{call=--cloudtrail-aws-profile}"
         "{display=%s}"
         "{type=editselector}"
-        "{default=Default}"
         "{tooltip=%s}"
         "{group=Capture}"
         "\n",
@@ -232,11 +241,14 @@ void print_cloudtrail_aws_region_config(int arg_num, const char *display, const 
         "us-west-2",
     };
 
-    const char *default_region = g_getenv("AWS_REGION");
-    if (default_region != NULL) {
-        regions.insert(default_region);
-    } else {
-        default_region = "From profile";
+    const char *aws_region_env = g_getenv("AWS_REGION");
+    for (auto &region : regions) {
+        if (aws_region_env && region == aws_region_env) {
+            aws_region_env = nullptr;
+        }
+    }
+    if (aws_region_env) {
+        regions.insert(aws_region_env);
     }
 
     printf(
@@ -244,12 +256,11 @@ void print_cloudtrail_aws_region_config(int arg_num, const char *display, const 
         "{call=--cloudtrail-aws-region}"
         "{display=%s}"
         "{type=editselector}"
-        "{default=%s}"
         "{tooltip=%s}"
         "{group=Capture}"
         "\n",
-        arg_num, display, default_region, description);
-    printf ("value {arg=%d}{value=}{display=%s}{default=true}\n", arg_num, default_region);
+        arg_num, display, description);
+    printf ("value {arg=%d}{value=}{display=From profile}{default=true}\n", arg_num);
 
     for (auto &region : regions) {
         printf(
