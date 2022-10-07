@@ -2525,7 +2525,7 @@ static void dissect_tk_struct_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
   /* parameter count (of tuples)  */
-  guint32 *count = (guint32*) wmem_alloc0(wmem_packet_scope(), sizeof(guint32));
+  guint32 *count = wmem_new0(wmem_packet_scope(), guint32);
   /*guint32 seqlen;*/   /* sequence length */
   guint32  i;
 
@@ -2565,8 +2565,7 @@ static void dissect_tk_struct_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     wmem_list_append(params, (gchar *) str);
 
-    guint32 *typecode = (guint32*) wmem_alloc(wmem_packet_scope(),
-        sizeof(guint32));
+    guint32 *typecode = wmem_new(wmem_packet_scope(), guint32);
     wmem_list_t *inner_params = wmem_list_new(wmem_packet_scope());
     /* get member type */
     *typecode = get_CDR_typeCode_with_params(tvb, pinfo, tree, offset,
@@ -2690,8 +2689,7 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, packet_info *pinfo, proto_
   guint32  new_boundary;        /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
-  guint32  *u_octet4 = (guint32*) wmem_alloc(wmem_packet_scope(),
-      sizeof(guint32));            /* unsigned int32 */
+  guint32  *u_octet4 = wmem_new(wmem_packet_scope(), guint32);            /* unsigned int32 */
 
   /*guint32 seqlen;*/   /* sequence length */
 
@@ -2700,8 +2698,7 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, packet_info *pinfo, proto_
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
 
-  guint32 *typecode = (guint32*) wmem_alloc(wmem_packet_scope(),
-      sizeof(guint32));
+  guint32 *typecode = wmem_new(wmem_packet_scope(), guint32);
   wmem_list_t *inner_params = wmem_list_new(wmem_packet_scope());
   /* get element type */
   *typecode = get_CDR_typeCode_with_params(tvb, pinfo, tree, offset,
@@ -2724,8 +2721,7 @@ static void dissect_tk_array_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   guint32  new_boundary;             /* new boundary for encapsulation */
   gboolean new_stream_is_big_endian; /* new endianness for encapsulation */
 
-  guint32  *u_octet4 = (guint32*) wmem_alloc(wmem_packet_scope(),
-      sizeof(guint32)); /* unsigned int32 */
+  guint32  *u_octet4 = wmem_new(wmem_packet_scope(), guint32); /* unsigned int32 */
 
   /*guint32 seqlen;*/   /* sequence length */
 
@@ -2734,8 +2730,7 @@ static void dissect_tk_array_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       stream_is_big_endian, boundary,
       &new_stream_is_big_endian, &new_boundary);
 
-  guint32 *type_code = (guint32*) wmem_alloc(wmem_packet_scope(),
-      sizeof(guint32));
+  guint32 *type_code = wmem_new(wmem_packet_scope(), guint32);
   wmem_list_t *inner_params = wmem_list_new(wmem_packet_scope());
   /* get element type */
   *type_code = get_CDR_typeCode_with_params(tvb, pinfo, tree, offset,
@@ -2783,7 +2778,7 @@ static void dissect_tk_alias_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                 hf_giop_typecode_name, &str);
   wmem_list_append(params, (gchar *) str);
 
-  guint32 *tckind = (guint32*) wmem_alloc(wmem_packet_scope(), sizeof(guint32));
+  guint32 *tckind = wmem_new(wmem_packet_scope(), guint32);
   wmem_list_t *inner_params = wmem_list_new(wmem_packet_scope());
   /* get ??? (noname) TypeCode */
   *tckind = get_CDR_typeCode_with_params(tvb, pinfo, tree, offset,
@@ -3547,7 +3542,9 @@ giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
  * offset is then incremented, to indicate the  octets which
  * have been processed.
  *
- * returns number of octets in the sequence
+ * returns number of octets in the sequence - which is *NOT*
+ * necessarily the number of bytes in the string, which has been
+ * converted to UTF-8 for internal Wireshark use.
  *
  * Note: This function only supports single byte encoding at the
  *       moment until I get a handle on multibyte encoding etc.
@@ -3557,10 +3554,10 @@ giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
 
 guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean stream_is_big_endian,
                        int boundary ) {
-  const guint8 *seq_octets;
   guint32 slength;
   gint    reported_length;
 
+  /* This could be done as a FT_UINT_STRING */
   slength = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary); /* get length first */
 
 #if 0
@@ -3568,27 +3565,20 @@ guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean s
 #endif
 
   reported_length = tvb_reported_length_remaining(tvb, *offset-4);
+  /* XXX - CORBA 3.0 spec 13.10.2.6 "Code Set Negotiation"
+   * "If no char transmission code set is specified in the code set service
+   * context, then the char transmission code set is considered to be
+   * ISO 8859-1 for backward compatibility."
+   * Until we get this from conversation data, use ISO 8859-1.
+   */
   if (slength > (guint32)reported_length) {
     /* Size exceeds packet size, so just grab the rest of the packet */
     /* XXX - add expert_add_info_format note */
-    get_CDR_octet_seq(tvb, &seq_octets, offset, reported_length);
-    /* XXX - what encoding? */
-    *seq = seq_octets;
-    return reported_length;
+    slength = (guint32)reported_length;
   }
-  else if (slength > 0) {
-    get_CDR_octet_seq(tvb, &seq_octets, offset, slength);
-    if ((seq_octets)[slength-1] == '\0') {
-      slength--;
-    }
-    /* XXX - what encoding? */
-    *seq = seq_octets;
-  } else {
-    *seq = wmem_strdup(wmem_packet_scope(), "");        /* zero-length string */
-  }
+  *seq = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, slength, ENC_ISO_8859_1);
+  *offset += slength;
 
-  /* XXX: this returns a length which is only known to be less than reported_length_remaining,
-     but it could still be more than captured length, no? */
   return slength;               /* return length */
 
 }
@@ -4044,6 +4034,16 @@ static void decode_CodeSetServiceContext(tvbuff_t *tvb, proto_tree *tree,
      the beginning of the context_data sequence.
      Inside get_CDR_ulong(), the calculation will be (offset +(- boundary)) % 4
      to determine the correct alignment of the short. */
+
+  /* XXX We should save these code set values as conversation data.
+   * CORBA 3.0 spec 13.10.2.6 Code Set Negotiation:
+   * "Code set negotiation is not performed on a per-request basis,
+   * but only when a client initially connects to a server."
+   * The server sends its native code sets via the code set component of
+   * the IOR multi-component profile structure (13.10.2.4) and then
+   * the client determines based on that and its own native code sets
+   * what to use for each transmission.
+   */
   code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
   proto_tree_add_uint(tree, hf_giop_char_data, tvb, *offset - 4, 4, code_set_id);
 
