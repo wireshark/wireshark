@@ -42,7 +42,7 @@ static int hf_wimaxasncp_version                = -1;
 static int hf_wimaxasncp_flags                  = -1;
 static int hf_wimaxasncp_function_type          = -1;
 static int hf_wimaxasncp_op_id                  = -1;
-/* static int hf_wimaxasncp_message_type           = -1; */
+static int hf_wimaxasncp_message_type           = -1;
 /* static int hf_wimaxasncp_qos_msg                = -1; */
 /* static int hf_wimaxasncp_ho_control_msg         = -1; */
 /* static int hf_wimaxasncp_data_path_control_msg  = -1; */
@@ -95,6 +95,7 @@ static gint ett_wimaxasncp_port_range                            = -1;
 static expert_field ei_wimaxasncp_tlv_type = EI_INIT;
 static expert_field ei_wimaxasncp_function_type = EI_INIT;
 static expert_field ei_wimaxasncp_op_id = EI_INIT;
+static expert_field ei_wimaxasncp_message_type = EI_INIT;
 static expert_field ei_wimaxasncp_length_bad = EI_INIT;
 
 /* Header size, up to, but not including, the TLV fields. */
@@ -2322,7 +2323,7 @@ dissect_wimaxasncp(
     }
 
     item = proto_tree_add_uint_format(
-        wimaxasncp_tree, hf_wimaxasncp_op_id,
+        wimaxasncp_tree, hf_wimaxasncp_message_type,
         tvb, offset, 1, ui8,
         "Message Type: %s", message_name);
 
@@ -2331,8 +2332,8 @@ dissect_wimaxasncp(
     /* Add expert item if not matched */
     if (strcmp(message_name, unknown) == 0)
     {
-        expert_add_info_format(pinfo, item, &ei_wimaxasncp_op_id,
-                               "Unknown message op (%u)",
+        expert_add_info_format(pinfo, item, &ei_wimaxasncp_message_type,
+                               "Unknown message type (%u)",
                                0x1f & ui8);
     }
 
@@ -2823,7 +2824,6 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
-#if 0
             {
                 &hf_wimaxasncp_message_type,
                 {
@@ -2837,7 +2837,6 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
-#endif
 #if 0
             {
                 &hf_wimaxasncp_qos_msg,
@@ -3218,6 +3217,7 @@ register_wimaxasncp_fields(const char* unused _U_)
         { &ei_wimaxasncp_tlv_type, { "wimaxasncp.tlv.type.unknown", PI_UNDECODED, PI_WARN, "Unknown tlv", EXPFILL }},
         { &ei_wimaxasncp_function_type, { "wimaxasncp.function_type.unknown", PI_UNDECODED, PI_WARN, "Unknown function type", EXPFILL }},
         { &ei_wimaxasncp_op_id, { "wimaxasncp.opid.unknown", PI_UNDECODED, PI_WARN, "Unknown message op", EXPFILL }},
+        { &ei_wimaxasncp_message_type, { "wimaxasncp.message_type.unknown", PI_UNDECODED, PI_WARN, "Unknown message type", EXPFILL }},
         { &ei_wimaxasncp_length_bad, { "wimaxasncp.length.bad", PI_MALFORMED, PI_ERROR, "Bad length", EXPFILL }},
     };
 
