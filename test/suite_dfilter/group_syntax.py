@@ -148,10 +148,6 @@ class case_equality(unittest.TestCase):
         dfilter = "udp.srcport == .udp.dstport"
         checkDFilterCount(dfilter, 2)
 
-    def test_literal_1(self, checkDFilterCount):
-        dfilter = "udp.port == :5070"
-        checkDFilterCount(dfilter, 3)
-
     def test_literal_3(self, checkDFilterCount):
         dfilter = "frame[0:10] contains :00:01:6c"
         checkDFilterCount(dfilter, 1)
