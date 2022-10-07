@@ -448,15 +448,6 @@ hyphen-bytes	{hex2}(-{hex2})+
 	return set_lval_literal(yyextra, yytext + 1); /* Skip leading colon. */
 }
 
-"<"[^>=]+">"			{
-	/* Literal in-between angle brackets (cannot be parsed as a protocol field). */
-	/* Strip brackets. */
-	update_location(yyextra, yytext);
-	char *end = strchr(yytext, '>');
-	*end = '\0';
-	return set_lval_literal(yyextra, yytext + 1);
-}
-
 \.?{Identifier}			{
 	/* Identifier or unparsed. */
 	update_location(yyextra, yytext);
