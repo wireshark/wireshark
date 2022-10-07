@@ -282,6 +282,10 @@ QString ExtArgEditSelector::value()
         return QString();
     }
 
+    if (boxSelection->currentIndex() > -1) {
+        return ExtArgSelector::value();
+    }
+
     return boxSelection->currentText();
 }
 
@@ -298,12 +302,11 @@ void ExtArgEditSelector::setDefaultValue()
     QVariant data = boxSelection->currentData();
 
     if (data.toString() != stored) {
-        // Apparently createEditor hasn't been called at this point.
+        // createEditor may not have been called at this point?
         boxSelection->setEditable(true);
         boxSelection->setInsertPolicy(QComboBox::NoInsert);
         boxSelection->setEditText(stored);
     }
-
 }
 
 
