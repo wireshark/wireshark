@@ -334,9 +334,9 @@ static gboolean pref_perform_analysis = FALSE;
 static gboolean pref_generate_keylog = TRUE;
 /** Identifiers for taps (when enabled), only the address is important, the
  * values are unused. */
-static gint tap_ip_enabled;
-static gint tap_ipv6_enabled;
-static gint tap_tcp_enabled;
+static gboolean tap_ip_enabled;
+static gboolean tap_ipv6_enabled;
+static gboolean tap_tcp_enabled;
 
 /** Used "in" and "out" map for the true and false for ingress. (Not actually
  * used in field definition, but rather used to display via a format call
@@ -3574,18 +3574,24 @@ proto_init_f5ethtrailer(void)
         if (error_string) {
             ws_warning("Unable to register tap \"ip\" for f5ethtrailer: %s", error_string->str);
             g_string_free(error_string, TRUE);
+        } else {
+            tap_ip_enabled = TRUE;
         }
         error_string = register_tap_listener(
             "ipv6", &tap_ipv6_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ipv6_tap_pkt, NULL, NULL);
         if (error_string) {
             ws_warning("Unable to register tap \"ipv6\" for f5ethtrailer: %s", error_string->str);
             g_string_free(error_string, TRUE);
+        } else {
+            tap_ipv6_enabled = TRUE;
         }
         error_string = register_tap_listener(
             "tcp", &tap_tcp_enabled, NULL, TL_REQUIRES_NOTHING, NULL, tcp_tap_pkt, NULL, NULL);
         if (error_string) {
             ws_warning("Unable to register tap \"tcp\" for f5ethtrailer: %s", error_string->str);
             g_string_free(error_string, TRUE);
+        } else {
+            tap_tcp_enabled = TRUE;
         }
     }
 }
@@ -3597,9 +3603,18 @@ proto_init_f5ethtrailer(void)
 static void
 f5ethtrailer_cleanup(void)
 {
-    remove_tap_listener(&tap_tcp_enabled);
-    remove_tap_listener(&tap_ipv6_enabled);
-    remove_tap_listener(&tap_ip_enabled);
+    if (tap_tcp_enabled) {
+        remove_tap_listener(&tap_tcp_enabled);
+        tap_tcp_enabled = FALSE;
+    }
+    if (tap_ipv6_enabled) {
+        remove_tap_listener(&tap_ipv6_enabled);
+        tap_ipv6_enabled = FALSE;
+    }
+    if (tap_ip_enabled) {
+        remove_tap_listener(&tap_ip_enabled);
+        tap_ip_enabled = FALSE;
+    }
 }
 
 /**
