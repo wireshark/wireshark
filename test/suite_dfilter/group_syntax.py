@@ -119,6 +119,11 @@ class case_syntax(unittest.TestCase):
         dfilter = "tcp.flags.push == FALSE"
         checkDFilterCount(dfilter, 0)
 
+    def test_misc_1(self, checkDFilterSucceed):
+        # Issue #18418
+        dfilter = "icmp and ((icmp.type > 0 and icmp.type < 8) or icmp.type > 8)"
+        checkDFilterSucceed(dfilter)
+
 @fixtures.uses_fixtures
 class case_equality(unittest.TestCase):
     trace_file = "sip.pcapng"
@@ -147,10 +152,6 @@ class case_equality(unittest.TestCase):
         dfilter = "udp.port == :5070"
         checkDFilterCount(dfilter, 3)
 
-    def test_literal_2(self, checkDFilterCount):
-        dfilter = "udp contains <ce:13>"
-        checkDFilterCount(dfilter, 1)
-
     def test_literal_3(self, checkDFilterCount):
         dfilter = "frame[0:10] contains :00:01:6c"
         checkDFilterCount(dfilter, 1)
@@ -175,11 +176,6 @@ class case_equality(unittest.TestCase):
     def test_rhs_bias_2(self, checkDFilterCount):
         # Byte 0xFC on the RHS
         dfilter = 'frame[37] == :fc'
-        checkDFilterCount(dfilter, 1)
-
-    def test_rhs_literal_bias_3(self, checkDFilterCount):
-        # Byte 0xFC on the RHS
-        dfilter = 'frame[37] == <fc>'
         checkDFilterCount(dfilter, 1)
 
     def test_rhs_literal_bias_4(self, checkDFilterCount):

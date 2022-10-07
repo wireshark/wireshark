@@ -918,13 +918,11 @@ language syntax) and there is no protocol registered with the filter name 'fd'.
 
 How ambiguous values are interpreted may change in the future. To avoid this
 problem and resolve the ambiguity there is additional syntax available.
-Values in-between angle brackets are always and only treated as literal
-values. Bytes arrays and numeric values can also be prefixed with a colon to
-force interpretation as a literal value. Values prefixed with a dot are always
-treated as a protocol name. The dot stands for the root of the protocol namespace
-and is optional)
+Values prefixed with a dot are always treated as a protocol name. The
+dot stands for the root of the protocol namespace and is optional). Values
+prefixed with a colon are always interpreted as a byte array. 
 ----
-frame[10:] contains .fc or frame[10] == :fc and not frame contains <cafe.face>
+frame[10:] contains .fc or frame[10] == :fc
 ----
 If you are writing a script, or you think your expression may not be giving the
 expected results because of the syntactical ambiguity of some filter expression

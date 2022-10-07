@@ -43,7 +43,13 @@ The following bugs have been fixed:
 
 === New and Updated Features
 
-// === Removed Features and Support
+
+=== Removed Features and Support
+
+* The experimental display filter syntax for literals using angle brackets <...>
+  that was introduced in Wireshark 4.0.0 has been removed. For byte arrays a colon prefix
+  can be used instead.
+  See the https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html#_some_protocol_names_can_be_ambiguous[User’s Guide] for details.
 
 // === Removed Dissectors
 
