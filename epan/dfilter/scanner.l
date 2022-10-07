@@ -445,7 +445,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 :[[:xdigit:]]+		{
 	/* Numeric. */
 	update_location(yyextra, yytext);
-	return set_lval_literal(yyextra, yytext + 1); /* Skip leading colon. */
+	return set_lval_literal(yyextra, yytext); /* Keep leading colon. */
 }
 
 \.?{Identifier}			{
