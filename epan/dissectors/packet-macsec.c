@@ -44,6 +44,7 @@ static int hf_macsec_PN                    = -1;
 static int hf_macsec_SCI_system_identifier = -1;
 static int hf_macsec_SCI_port_identifier   = -1;
 static int hf_macsec_etype                 = -1;
+static int hf_macsec_eth_padding           = -1;
 static int hf_macsec_ICV                   = -1;
 
 /* Initialize the subtree pointers */
@@ -52,7 +53,8 @@ static gint ett_macsec_tci = -1;
 
 /* Code to actually dissect the packets */
 static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    unsigned    sectag_length, data_length, icv_length;
+    unsigned    sectag_length, data_length, short_length, icv_length;
+    unsigned    fcs_length = 0;
     unsigned    data_offset, icv_offset;
     guint8      tci_an_field;
 
@@ -75,14 +77,27 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         sectag_length = 6;
     }
 
-    /* Check for short length */
+    /* Check for length too short */
     if (tvb_captured_length(tvb) <= (sectag_length + icv_length)) {
         return 0;
     }
 
+    /* short length field: 1..47 bytes, 0 means 48 bytes or more */
+    short_length = (guint32)tvb_get_guint8(tvb, 1);
+
     /* Get the payload section */
+    if (short_length != 0) {
+        data_length = short_length;
+        fcs_length = tvb_captured_length(tvb) - sectag_length - icv_length - short_length;
+    } else {
+        /*
+         * This assumes that no FCS is present after the ICV, which might not be true!
+         * Workaround: turn Ethernet "Assume packets have FCS" = Always, when FCS present.
+         * TODO: Find better heuristic to detect presence of FCS.
+         */
+        data_length = tvb_captured_length(tvb) - sectag_length - icv_length;
+    }
     data_offset = sectag_length;
-    data_length = tvb_captured_length(tvb) - sectag_length - icv_length;
     icv_offset  = data_length + data_offset;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MACSEC");
@@ -138,15 +153,27 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         ethertype_data_t ethertype_data;
 
         ethertype_data.etype = tvb_get_ntohs(tvb, data_offset);
-        ethertype_data.payload_offset = data_offset + 2;
+        ethertype_data.payload_offset = 0;
         ethertype_data.fh_tree = macsec_tree;
-        ethertype_data.trailer_id = hf_macsec_ICV;
+        /* fallback, if ethernet dissector does not identify padding correctly */
+        ethertype_data.trailer_id = hf_macsec_eth_padding;
         ethertype_data.fcs_len = 0;
 
-        call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
-    }
+        /* lets hand over a buffer without ICV to limit effect of wrong padding calculation */
+        next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
 
-    return tvb_captured_length(tvb);
+        /* help eth padding calculation by substracting length of the sectag, ethertype, icv, and fcs */
+        gint pkt_len_saved = pinfo->fd->pkt_len;
+        pinfo->fd->pkt_len -= (sectag_length + 2 + icv_length + fcs_length);
+
+        call_dissector_with_data(ethertype_handle, next_tvb, pinfo, tree, &ethertype_data);
+
+        /* restore original value */
+        pinfo->fd->pkt_len = pkt_len_saved;
+
+        proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset, icv_length, ENC_NA);
+    }
+    return tvb_captured_length(tvb) - fcs_length;
 }
 
 void
@@ -203,6 +230,10 @@ proto_register_macsec(void)
         },
         { &hf_macsec_etype,
             { "Ethertype", "macsec.etype", FT_UINT16, BASE_HEX,
+              NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_eth_padding,
+            { "Padding", "macsec.eth_padding", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }
         },
         { &hf_macsec_ICV,
