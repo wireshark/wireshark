@@ -12,6 +12,8 @@
 #ifndef __WMEM_CORE_H__
 #define __WMEM_CORE_H__
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <glib.h>
 #include <ws_symbol_export.h>

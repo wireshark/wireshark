@@ -12,8 +12,6 @@
 #ifndef __WMEM_STRBUF_H__
 #define __WMEM_STRBUF_H__
 
-#include <wireshark.h>
-
 #include "wmem_core.h"
 
 #ifdef __cplusplus
