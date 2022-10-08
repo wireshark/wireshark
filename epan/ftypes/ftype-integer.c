@@ -18,6 +18,12 @@
 #include <wsutil/pint.h>
 #include <wsutil/safe-math.h>
 
+static gboolean
+binary_strtoll(const char *s, gint64 *ptr, char **err_msg);
+
+static gboolean
+binary_strtoull(const char *s, guint64 *ptr, char **err_msg);
+
 static void
 int_fvalue_new(fvalue_t *fv)
 {
@@ -49,54 +55,18 @@ get_sinteger(fvalue_t *fv)
 	return fv->value.sinteger;
 }
 
-static unsigned long
-binary_strtoul(const char *s, char **endptr)
-{
-	const char *binstr = s;
-
-	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
-		return strtoul(binstr + 2, endptr, 2);
-	}
-
-	return strtoul(s, endptr, 0);
-}
-
 static gboolean
-uint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
-		   guint32 max)
+_uint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
+		   guint64 max)
 {
-	unsigned long value;
-	char	*endptr;
+	guint64 value;
 
-	errno = 0;
-	value = binary_strtoul(s, &endptr);
-
-	if (errno == EINVAL || endptr == s || *endptr != '\0') {
-		/* This isn't a valid number. */
-		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
+	if (!binary_strtoull(s, &value, err_msg))
 		return FALSE;
-	}
-	if (errno == ERANGE) {
-		if (err_msg != NULL) {
-			if (value == ULONG_MAX) {
-				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.",
-				    s);
-			}
-			else {
-				/*
-				 * XXX - can "strtoul()" set errno to
-				 * ERANGE without returning ULONG_MAX?
-				 */
-				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
-			}
-		}
-		return FALSE;
-	}
 
 	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %u.", s, max);
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %"PRIu64".", s, max);
 		return FALSE;
 	}
 
@@ -107,25 +77,25 @@ uint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 static gboolean
 uint32_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXUINT32);
+	return _uint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXUINT32);
 }
 
 static gboolean
 uint24_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_literal (fv, s, allow_partial_value, err_msg, 0xFFFFFF);
+	return _uint_from_literal (fv, s, allow_partial_value, err_msg, 0xFFFFFF);
 }
 
 static gboolean
 uint16_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXUINT16);
+	return _uint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXUINT16);
 }
 
 static gboolean
 uint8_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXUINT8);
+	return _uint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXUINT8);
 }
 
 static gboolean
@@ -135,61 +105,24 @@ uint_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg _U_)
 	return TRUE;
 }
 
-static long
-binary_strtol(const char *s, char **endptr)
-{
-	const char *binstr = s;
-
-	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
-		return strtol(binstr + 2, endptr, 2);
-	}
-
-	return strtol(s, endptr, 0);
-}
-
 static gboolean
-sint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
-		   gint32 max, gint32 min)
+_sint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
+		   gint64 max, gint64 min)
 {
-	long value;
-	char *endptr;
+	gint64 value;
 
-	errno = 0;
-	value = binary_strtol(s, &endptr);
-
-	if (errno == EINVAL || endptr == s || *endptr != '\0') {
-		/* This isn't a valid number. */
-		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
+	if (!binary_strtoll(s, &value, err_msg))
 		return FALSE;
-	}
-	if (errno == ERANGE) {
-		if (err_msg != NULL) {
-			if (value == LONG_MAX) {
-				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
-			}
-			else if (value == LONG_MIN) {
-				*err_msg = ws_strdup_printf("\"%s\" causes an integer underflow.", s);
-			}
-			else {
-				/*
-				 * XXX - can "strtol()" set errno to
-				 * ERANGE without returning ULONG_MAX?
-				 */
-				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
-			}
-		}
-		return FALSE;
-	}
 
 	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %d.",
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %"PRId64".",
 				s, max);
 		return FALSE;
-	} else if (value < min) {
+	}
+	else if (value < min) {
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" too small for this field, minimum %d.",
+			*err_msg = ws_strdup_printf("\"%s\" too small for this field, minimum %"PRId64".",
 				s, min);
 		return FALSE;
 	}
@@ -201,25 +134,25 @@ sint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 static gboolean
 sint32_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXINT32, G_MININT32);
+	return _sint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXINT32, G_MININT32);
 }
 
 static gboolean
 sint24_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_literal (fv, s, allow_partial_value, err_msg, 0x7FFFFF, -0x800000);
+	return _sint_from_literal (fv, s, allow_partial_value, err_msg, 0x7FFFFF, -0x800000);
 }
 
 static gboolean
 sint16_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXINT16, G_MININT16);
+	return _sint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXINT16, G_MININT16);
 }
 
 static gboolean
 sint8_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXINT8, G_MININT8);
+	return _sint_from_literal (fv, s, allow_partial_value, err_msg, G_MAXINT8, G_MININT8);
 }
 
 static gboolean
@@ -472,27 +405,18 @@ get_sinteger64(fvalue_t *fv)
 	return fv->value.sinteger64;
 }
 
-static unsigned long long
-binary_strtoull(const char *s, char **endptr)
-{
-	const char *binstr = s;
-
-	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
-		return g_ascii_strtoull(binstr + 2, endptr, 2);
-	}
-
-	return g_ascii_strtoull(s, endptr, 0);
-}
-
 static gboolean
-_uint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
-		   guint64 max)
+binary_strtoull(const char *s, guint64 *ptr, char **err_msg)
 {
-	guint64 value;
-	char	*endptr;
+	char *endptr;
 
 	errno = 0;
-	value = binary_strtoull(s, &endptr);
+	if (s[0] == '0' && (s[1] == 'b' || s[1] == 'B')) {
+		*ptr = g_ascii_strtoull(s + 2, &endptr, 2);
+	}
+	else {
+		*ptr = g_ascii_strtoull(s, &endptr, 0);
+	}
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
@@ -501,20 +425,32 @@ _uint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (err_msg != NULL) {
-			if (value == G_MAXUINT64) {
+		if (*ptr == G_MAXUINT64) {
+			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
-			else {
-				/*
-				 * XXX - can "strtoul()" set errno to
-				 * ERANGE without returning ULONG_MAX?
-				 */
-				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
-			}
+		}
+		else if (err_msg != NULL) {
+			/*
+			 * XXX - can "strtol()" set errno to
+			 * ERANGE without returning LONG_MAX?
+			 */
+			*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
 		}
 		return FALSE;
 	}
+
+	return TRUE;
+}
+
+static gboolean
+_uint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
+		   guint64 max)
+{
+	guint64 value;
+
+	if (!binary_strtoull(s, &value, err_msg))
+		return FALSE;
 
 	if (value > max) {
 		if (err_msg != NULL)
@@ -557,27 +493,18 @@ uint64_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg _U_)
 	return TRUE;
 }
 
-static long long
-binary_strtoll(const char *s, char **endptr)
-{
-	const char *binstr = s;
-
-	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
-		return g_ascii_strtoll(binstr + 2, endptr, 2);
-	}
-
-	return g_ascii_strtoll(s, endptr, 0);
-}
-
 static gboolean
-_sint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
-		   gint64 max, gint64 min)
+binary_strtoll(const char *s, gint64 *ptr, char **err_msg)
 {
-	gint64 value;
-	char   *endptr;
+	char *endptr;
 
 	errno = 0;
-	value = binary_strtoll(s, &endptr);
+	if (s[0] == '0' && (s[1] == 'b' || s[1] == 'B')) {
+		*ptr = g_ascii_strtoll(s + 2, &endptr, 2);
+	}
+	else {
+		*ptr = g_ascii_strtoll(s, &endptr, 0);
+	}
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
@@ -586,35 +513,50 @@ _sint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (err_msg != NULL) {
-			if (value == G_MAXINT64) {
+		if (*ptr == G_MAXINT64) {
+			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
-			else if (value == G_MININT64) {
+		}
+		else if (*ptr == G_MININT64) {
+			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" causes an integer underflow.", s);
 			}
-			else {
-				/*
-				 * XXX - can "strtol()" set errno to
-				 * ERANGE without returning LONG_MAX?
-				 */
-				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
-			}
+		}
+		else if (err_msg != NULL) {
+			/*
+			 * XXX - can "strtol()" set errno to
+			 * ERANGE without returning LONG_MAX?
+			 */
+			*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
 		}
 		return FALSE;
 	}
 
+	return TRUE;
+}
+
+static gboolean
+_sint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
+		   gint64 max, gint64 min)
+{
+	gint64 value;
+
+	if (!binary_strtoll(s, &value, err_msg))
+		return FALSE;
+
 	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %" PRIu64".", s, max);
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %" PRId64".", s, max);
 		return FALSE;
-	} else if (value < min) {
+	}
+	else if (value < min) {
 		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" too small for this field, maximum %" PRIu64 ".", s, max);
+			*err_msg = ws_strdup_printf("\"%s\" too small for this field, minimum %" PRId64 ".", s, min);
 		return FALSE;
 	}
 
-	fv->value.sinteger64 = (guint64)value;
+	fv->value.sinteger64 = value;
 	return TRUE;
 }
 
