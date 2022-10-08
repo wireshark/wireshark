@@ -569,7 +569,7 @@ QVariant ConversationDataModel::headerData(int section, Qt::Orientation orientat
         case CONV_COLUMN_BYTES_AB:
             return tr("Bytes A " UTF8_RIGHTWARDS_ARROW " B"); break;
         case CONV_COLUMN_PKT_BA:
-            return tr("Packets A " UTF8_RIGHTWARDS_ARROW " B"); break;
+            return tr("Packets B " UTF8_RIGHTWARDS_ARROW " A"); break;
         case CONV_COLUMN_BYTES_BA:
             return tr("Bytes B " UTF8_RIGHTWARDS_ARROW " A"); break;
         case CONV_COLUMN_START:
