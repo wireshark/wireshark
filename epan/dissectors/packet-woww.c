@@ -110,6 +110,7 @@ static int hf_woww_amount_of_characters = -1;
 static int hf_woww_amount_of_characters_in_guild = -1;
 static int hf_woww_amount_of_choice_item_rewards = -1;
 static int hf_woww_amount_of_cooldowns = -1;
+static int hf_woww_amount_of_damages = -1;
 static int hf_woww_amount_of_effects = -1;
 static int hf_woww_amount_of_emotes = -1;
 static int hf_woww_amount_of_entries = -1;
@@ -193,6 +194,7 @@ static int hf_woww_billing_rested = -1;
 static int hf_woww_billing_time = -1;
 static int hf_woww_block = -1;
 static int hf_woww_blocked = -1;
+static int hf_woww_blocked_amount = -1;
 static int hf_woww_body = -1;
 static int hf_woww_body_text = -1;
 static int hf_woww_bonding = -1;
@@ -270,9 +272,12 @@ static int hf_woww_critical = -1;
 static int hf_woww_current_health = -1;
 static int hf_woww_current_power = -1;
 static int hf_woww_damage = -1;
+static int hf_woww_damage_float = -1;
 static int hf_woww_damage_maximum = -1;
 static int hf_woww_damage_minimum = -1;
+static int hf_woww_damage_state = -1;
 static int hf_woww_damage_type = -1;
+static int hf_woww_damage_uint = -1;
 static int hf_woww_data = -1;
 static int hf_woww_data_type = -1;
 static int hf_woww_datetime = -1;
@@ -743,6 +748,7 @@ static int hf_woww_spell_miss_info = -1;
 static int hf_woww_spell_on_lowest_slot = -1;
 static int hf_woww_spell_ppm_rate = -1;
 static int hf_woww_spell_school = -1;
+static int hf_woww_spell_school_mask = -1;
 static int hf_woww_spell_trigger = -1;
 static int hf_woww_spell_visual_kit = -1;
 static int hf_woww_spells = -1;
@@ -4886,6 +4892,42 @@ static const value_string e_ai_reaction_strings[] =  {
     { AI_REACTION_HOSTILE, "Hostile" },
     { AI_REACTION_AFRAID, "Afraid" },
     { AI_REACTION_DESTROY, "Destroy" },
+    { 0, NULL }
+};
+
+typedef enum {
+    HIT_INFO_NORMAL_SWING = 0x00000,
+    HIT_INFO_UNK1 = 0x00001,
+    HIT_INFO_AFFECTS_VICTIM = 0x00002,
+    HIT_INFO_LEFT_SWING = 0x00004,
+    HIT_INFO_EARLY_CRITICAL_HIT = 0x00008,
+    HIT_INFO_MISS = 0x00010,
+    HIT_INFO_ABSORB = 0x00020,
+    HIT_INFO_RESIST = 0x00040,
+    HIT_INFO_CRITICAL_HIT = 0x00080,
+    HIT_INFO_UNK9 = 0x00100,
+    HIT_INFO_UNK10 = 0x02000,
+    HIT_INFO_GLANCING = 0x04000,
+    HIT_INFO_CRUSHING = 0x08000,
+    HIT_INFO_NO_ACTION = 0x10000,
+    HIT_INFO_SWING_NO_HIT_SOUND = 0x80000,
+} e_hit_info;
+static const value_string e_hit_info_strings[] =  {
+    { HIT_INFO_NORMAL_SWING, "Normal Swing" },
+    { HIT_INFO_UNK1, "Unk1" },
+    { HIT_INFO_AFFECTS_VICTIM, "Affects Victim" },
+    { HIT_INFO_LEFT_SWING, "Left Swing" },
+    { HIT_INFO_EARLY_CRITICAL_HIT, "Early Critical Hit" },
+    { HIT_INFO_MISS, "Miss" },
+    { HIT_INFO_ABSORB, "Absorb" },
+    { HIT_INFO_RESIST, "Resist" },
+    { HIT_INFO_CRITICAL_HIT, "Critical Hit" },
+    { HIT_INFO_UNK9, "Unk9" },
+    { HIT_INFO_UNK10, "Unk10" },
+    { HIT_INFO_GLANCING, "Glancing" },
+    { HIT_INFO_CRUSHING, "Crushing" },
+    { HIT_INFO_NO_ACTION, "No Action" },
+    { HIT_INFO_SWING_NO_HIT_SOUND, "Swing No Hit Sound" },
     { 0, NULL }
 };
 
@@ -9148,6 +9190,7 @@ add_body_fields(guint32 opcode,
     guint32 amount_of_characters = 0;
     guint32 amount_of_choice_item_rewards = 0;
     guint32 amount_of_cooldowns = 0;
+    guint32 amount_of_damages = 0;
     guint32 amount_of_effects = 0;
     guint32 amount_of_emotes = 0;
     guint32 amount_of_entries = 0;
@@ -12642,7 +12685,6 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_activate_taxi_reply, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ADDON_INFO:
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
             while (ptvcursor_current_offset(ptv) < offset_packet_end) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Addon");
                 ptvcursor_add(ptv, hf_woww_addon_type, 1, ENC_LITTLE_ENDIAN);
@@ -12677,6 +12719,20 @@ add_body_fields(guint32 opcode,
             add_packed_guid(ptv, pinfo);
             add_packed_guid(ptv, pinfo);
             ptvcursor_add(ptv, hf_woww_total_damage, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_damages, 1, ENC_LITTLE_ENDIAN, &amount_of_damages);
+            for (i = 0; i < amount_of_damages; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "DamageInfo");
+                ptvcursor_add(ptv, hf_woww_spell_school_mask, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_damage_float, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_damage_uint, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_absorb, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_resist, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            ptvcursor_add(ptv, hf_woww_damage_state, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_spell_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_blocked_amount, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ATTACKSTART:
             ptvcursor_add(ptv, hf_woww_attacker_guid, 8, ENC_LITTLE_ENDIAN);
@@ -13003,7 +13059,6 @@ add_body_fields(guint32 opcode,
         case SMSG_DISPEL_FAILED:
             ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
             while (ptvcursor_current_offset(ptv) < offset_packet_end) {
                 ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
             }
@@ -14046,8 +14101,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_sequence_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_PROCRESIST:
-            ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_log_format, 1, ENC_LITTLE_ENDIAN);
             break;
@@ -14356,7 +14411,6 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_nearest_node, 4, ENC_LITTLE_ENDIAN);
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
             while (ptvcursor_current_offset(ptv) < offset_packet_end) {
                 ptvcursor_add(ptv, hf_woww_nodes, 4, ENC_LITTLE_ENDIAN);
             }
@@ -14484,7 +14538,6 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_SPELL_COOLDOWN:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
             while (ptvcursor_current_offset(ptv) < offset_packet_end) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellCooldownStatus");
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
@@ -15469,6 +15522,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_amount_of_damages,
+            { "Amount Of Damages", "woww.amount.of.damages",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_amount_of_effects,
             { "Amount Of Effects", "woww.amount.of.effects",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -15967,6 +16026,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_blocked_amount,
+            { "Blocked Amount", "woww.blocked.amount",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_body,
             { "Body", "woww.body",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
@@ -16429,6 +16494,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_damage_float,
+            { "Damage Float", "woww.damage.float",
+                FT_FLOAT, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_damage_maximum,
             { "Damage Maximum", "woww.damage.maximum",
                 FT_FLOAT, BASE_NONE, NULL, 0,
@@ -16441,8 +16512,20 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_damage_state,
+            { "Damage State", "woww.damage.state",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_damage_type,
             { "Damage Type", "woww.damage.type",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_damage_uint,
+            { "Damage Uint", "woww.damage.uint",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -17121,7 +17204,7 @@ proto_register_woww(void)
         },
         { &hf_woww_hit_info,
             { "Hit Info", "woww.hit.info",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_hit_info_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19264,6 +19347,12 @@ proto_register_woww(void)
         { &hf_woww_spell_school,
             { "Spell School", "woww.spell.school",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_spell_school_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_spell_school_mask,
+            { "Spell School Mask", "woww.spell.school.mask",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
