@@ -1113,10 +1113,7 @@ static enum ft_result sint_val_to_sinteger64(const fvalue_t *src, gint64 *dst)
 
 static enum ft_result uint64_val_to_uinteger64(const fvalue_t *src, guint64 *dst)
 {
-	if (src->value.sinteger < 0)
-		return FT_OVERFLOW;
-
-	*dst = (guint64)src->value.sinteger;
+	*dst = src->value.uinteger64;
 	return FT_OK;
 }
 
