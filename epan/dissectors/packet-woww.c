@@ -84,6 +84,7 @@ static int hf_woww_action_bars = -1;
 static int hf_woww_action_type = -1;
 static int hf_woww_activate_taxi_reply = -1;
 static int hf_woww_actual_roll = -1;
+static int hf_woww_addon_info = -1;
 static int hf_woww_agility = -1;
 static int hf_woww_ai_reaction = -1;
 static int hf_woww_allow_movement = -1;
@@ -239,7 +240,6 @@ static int hf_woww_client_proof = -1;
 static int hf_woww_client_seed = -1;
 static int hf_woww_code = -1;
 static int hf_woww_coded = -1;
-static int hf_woww_compressed_addon_info = -1;
 static int hf_woww_compressed_chat_data = -1;
 static int hf_woww_container_slots = -1;
 static int hf_woww_content = -1;
@@ -9226,7 +9226,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_client_proof, 20, ENC_NA);
             ptvcursor_add(ptv, hf_woww_decompressed_addon_info_size, 4, ENC_LITTLE_ENDIAN);
             len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_compressed_addon_info, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_addon_info, len, ENC_NA);
             break;
         case CMSG_AUTOBANK_ITEM:
             ptvcursor_add(ptv, hf_woww_bag_index, 1, ENC_LITTLE_ENDIAN);
@@ -15229,6 +15229,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_addon_info,
+            { "Addon Info", "woww.addon.info",
+                FT_BYTES, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_agility,
             { "Agility", "woww.agility",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -16156,12 +16162,6 @@ proto_register_woww(void)
         { &hf_woww_coded,
             { "Coded", "woww.coded",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_compressed_addon_info,
-            { "Compressed Addon Info", "woww.compressed.addon.info",
-                FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
