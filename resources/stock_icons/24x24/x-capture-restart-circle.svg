@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 15.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="24px"
+   height="24px"
+   viewBox="0 0 24 24"
+   enable-background="new 0 0 24 24"
+   xml:space="preserve"
+   sodipodi:docname="x-capture-restart-circle.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   inkscape:export-filename="x-capture-restart-circle@2x.png"
+   inkscape:export-xdpi="192"
+   inkscape:export-ydpi="192"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs577"><linearGradient
+   id="linearGradient5075"><stop
+     style="stop-color:#fffdff;stop-opacity:0.15753424;"
+     offset="0"
+     id="stop5077" /><stop
+     style="stop-color:#ffffff;stop-opacity:0;"
+     offset="1"
+     id="stop5079" /></linearGradient><linearGradient
+   inkscape:collect="always"
+   xlink:href="#linearGradient5075"
+   id="linearGradient14426"
+   x1="9.5641632"
+   y1="6"
+   x2="12"
+   y2="12"
+   gradientUnits="userSpaceOnUse" /><linearGradient
+   id="linearGradient5067"><stop
+     style="stop-color:#000000;stop-opacity:0.15753424;"
+     offset="0"
+     id="stop5069" /><stop
+     style="stop-color:#000000;stop-opacity:0;"
+     offset="1"
+     id="stop5071" /></linearGradient><linearGradient
+   inkscape:collect="always"
+   xlink:href="#linearGradient5067"
+   id="linearGradient19220"
+   x1="15"
+   y1="21"
+   x2="13"
+   y2="13"
+   gradientUnits="userSpaceOnUse" />
+			
+		</defs><sodipodi:namedview
+   id="namedview575"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1.0"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1"
+   showgrid="true"
+   inkscape:zoom="31.416667"
+   inkscape:cx="11.888594"
+   inkscape:cy="11.809019"
+   inkscape:window-width="1429"
+   inkscape:window-height="932"
+   inkscape:window-x="560"
+   inkscape:window-y="235"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="g572"><inkscape:grid
+     type="xygrid"
+     id="grid16610" /></sodipodi:namedview>
+<g
+   id="g572">
+	<circle
+   fill="#999999"
+   cx="12"
+   cy="12"
+   r="12"
+   id="circle554"
+   style="display:inline" /><circle
+   fill="#4d4d4d"
+   cx="11.903"
+   cy="11.952"
+   r="10.476"
+   id="circle25311"
+   style="display:inline;fill:#21de08;fill-opacity:1"
+   inkscape:label="main green" />
+	<circle
+   fill="#4d4d4d"
+   cx="11.903"
+   cy="11.952"
+   r="10.476"
+   id="circle556"
+   style="display:none;fill:#db0000;fill-opacity:1"
+   inkscape:label="main red" /><circle
+   fill="#4d4d4d"
+   id="circle16976"
+   style="display:inline;fill:url(#linearGradient19220);fill-opacity:1"
+   inkscape:label="main shade"
+   r="10.476"
+   cy="11.952"
+   cx="11.903" />
+	<circle
+   fill="#4d4d4d"
+   cx="11.903"
+   cy="11.952"
+   id="circle10986"
+   style="display:inline;fill:url(#linearGradient14426);fill-opacity:1"
+   inkscape:label="main highlight"
+   r="10.476" /><g
+   id="g570">
+		<g
+   id="g568">
+			<path
+   fill="#FFFFFF"
+   d="M12,1.144C6.015,1.144,1.144,6.013,1.144,12c0,5.985,4.871,10.856,10.856,10.856     c5.986,0,10.856-4.871,10.856-10.856C22.856,6.013,17.986,1.144,12,1.144z M12,20.935c-4.927,0-8.935-4.008-8.935-8.935     S7.073,3.064,12,3.064S20.936,7.073,20.936,12S16.927,20.935,12,20.935z"
+   id="path558" />
+			
+		</g>
+	</g>
+<path
+   fill="#ffffff"
+   d="m 15.797939,9.4743881 -0.282138,-0.2841965 -1.697971,1.6979714 0.283167,0.283166 c 0.493225,0.493225 0.765065,1.151202 0.765065,1.850367 0,0.700194 -0.272869,1.357141 -0.765065,1.850366 -0.98748,0.98748 -2.714282,0.98542 -3.699703,0 -1.0101327,-1.009104 -1.0152812,-2.644263 -0.0278,-3.666753 l 2.432145,2.34874 L 13.827098,6.167 6.265,7.072104 8.4438397,9.2735971 8.6744919,9.5042493 c -1.9265638,1.9584847 -1.9183262,5.1206847 0.027802,7.0647537 0.9452623,0.947322 2.2066411,1.467319 3.5473071,1.467319 1.342726,0 2.601016,-0.519997 3.546278,-1.467319 1.958485,-1.956425 1.958485,-5.13922 0.0021,-7.0946149 z"
+   id="path653"
+   style="stroke-width:1" /></g>
+</svg>
