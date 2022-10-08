@@ -803,12 +803,17 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
 
 void RtpAudioStream::startPlaying()
 {
+   // On Win32/Qt 6.x start() returns, but state() is QAudio::StoppedState even
+   // everything is OK
    audio_output_->start(temp_file_);
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+   // Bug is related to Qt 4.x and probably for 5.x, but not for 6.x
    // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
    // in case playback fails immediately.
    if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
        outputStateChanged(QAudio::StoppedState);
    }
+#endif
 }
 
 void RtpAudioStream::pausePlaying()

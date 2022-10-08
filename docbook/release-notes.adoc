@@ -39,6 +39,8 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
+* wsbuglink:18413[No Audio in RTP player with Wireshark 4.0.0] - RTP player do not play audio frequently on Win32 builds with Qt6
+
 === New and Updated Features
 
 // === Removed Features and Support
