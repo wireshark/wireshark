@@ -6,8 +6,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  DisengageRejectReason_vals@Base 1.9.1
  Dot11DecryptDestroyContext@Base 2.5.0
  Dot11DecryptInitContext@Base 2.5.0
- EBCDIC_to_ASCII1@Base 1.9.1
- EBCDIC_to_ASCII@Base 1.9.1
  FacilityReason_vals@Base 1.9.1
  GatekeeperRejectReason_vals@Base 1.9.1
  IA5_7BIT_decode@Base 1.9.1
