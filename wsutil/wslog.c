@@ -1128,28 +1128,25 @@ static char *
 make_utf8_display(const char *src, size_t src_length, size_t good_length)
 {
     wmem_strbuf_t *buf;
-    char ch;
+    unsigned char ch;
     size_t offset = 0;
 
     buf = wmem_strbuf_new(NULL, NULL);
 
-    for (size_t pos = 0; pos < src_length; pos++) {
+    for (size_t pos = 0; pos < good_length; pos++) {
         ch = src[pos];
-        if (pos < good_length) {
-            if (g_ascii_isalnum(ch) || ch == ' ') {
-                wmem_strbuf_append_c(buf, ch);
-                offset += 1;
-            }
-            else {
-                wmem_strbuf_append_hex(buf, ch);
-                offset += 4;
-            }
-        }
-        else {
-            wmem_strbuf_append_hex(buf, ch);
+        wmem_strbuf_append_c(buf, ch);
+        if ((ch >> 6) != 2) {
+            /* first byte */
+            offset += 1;
         }
     }
+    for (size_t pos = good_length; pos < src_length; pos++) {
+        ch = src[pos];
+        wmem_strbuf_append_hex(buf, ch);
+    }
     wmem_strbuf_append_c(buf, '\n');
+
     for (size_t pos = 0; pos < offset; pos++) {
         wmem_strbuf_append_c(buf, ' ');
     }
