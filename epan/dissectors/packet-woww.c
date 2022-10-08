@@ -19970,7 +19970,7 @@ void
 proto_reg_handoff_woww(void)
 {
     dissector_handle_t woww_handle = create_dissector_handle(dissect_woww, proto_woww);
-    dissector_add_uint_with_preference("tcp.port", WOWW_TCP_PORT, woww_handle);
+    dissector_add_for_decode_as("tcp.port",  woww_handle);
 }
 
 /*
