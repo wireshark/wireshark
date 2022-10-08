@@ -24,9 +24,11 @@ Wireshark is now better about generating valid UTF-8 output.
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
-// === Bug Fixes
+=== Bug Fixes
 
-// The following bugs have been fixed:
+The following bugs have been fixed:
+
+* wsbuglink:18413[No Audio in RTP player with Wireshark 4.0.0] - RTP player do not play audio frequently on Win32 builds with Qt6
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
