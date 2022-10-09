@@ -550,8 +550,9 @@ static int hf_ieee1905_max_total_serv_prio_rules = -1;
 static int hf_ieee1905_r2_ap_capa_reserved = -1;
 static int hf_ieee1905_r2_ap_capa_flags = -1;
 static int hf_ieee1905_byte_counter_units = -1;
-static int hf_ieee1905_basic_service_prio_flag = -1;
-static int hf_ieee1905_enhanced_service_prio_flag = -1;
+static int hf_ieee1905_ctag_service_prio_flag = -1;
+static int hf_ieee1905_dpp_onboarding_flag = -1;
+static int hf_ieee1905_traffic_separation_flag = -1;
 static int hf_ieee1905_r2_ap_capa_flags_reserved = -1;
 static int hf_ieee1905_max_vid_count = -1;
 static int hf_ieee1905_default_802_1q_settings_primary_vlan = -1;
@@ -6425,8 +6426,9 @@ static const value_string byte_counter_units_vals[] = {
 
 static int* const r2_ap_capa_flags[] = {
     &hf_ieee1905_byte_counter_units,
-    &hf_ieee1905_basic_service_prio_flag,
-    &hf_ieee1905_enhanced_service_prio_flag,
+    &hf_ieee1905_ctag_service_prio_flag,
+    &hf_ieee1905_dpp_onboarding_flag,
+    &hf_ieee1905_traffic_separation_flag,
     &hf_ieee1905_r2_ap_capa_flags_reserved,
     NULL
 };
@@ -10667,17 +10669,21 @@ proto_register_ieee1905(void)
           { "Byte Counter Units", "ieee1905.r2_ap_capabilities.byte_counter_units",
             FT_UINT8, BASE_DEC, VALS(byte_counter_units_vals), 0xC0, NULL, HFILL}},
 
-        { &hf_ieee1905_basic_service_prio_flag,
-          { "Basic Service Prioritization", "ieee1905.r2_ap_capabilities.basic_service_prioritization",
+        { &hf_ieee1905_ctag_service_prio_flag,
+          { "802.1Q C-TAG Service Prioritization", "ieee1905.r2_ap_capabilities.ctag_service_prioritization",
             FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20, NULL, HFILL }},
 
-        { &hf_ieee1905_enhanced_service_prio_flag,
-          { "Enhanced Service Prioritization", "ieee1905.r2_ap_capabilities.enhanced_service_prioritization" ,
+        { &hf_ieee1905_dpp_onboarding_flag,
+          { "DPP Onboarding procedure", "ieee1905.r2_ap_capabilities.dpp_onboarding" ,
             FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10, NULL, HFILL }},
+
+       { &hf_ieee1905_traffic_separation_flag,
+          { "802.1Q C-TAG Traffic Separation", "ieee1905.r2_ap_capabilities.traffic_separation" ,
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08, NULL, HFILL }},
 
         { &hf_ieee1905_r2_ap_capa_flags_reserved,
           { "Reserved", "ieee1905.r2_ap_capabilities.reserved",
-            FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }},
+            FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }},
 
         { &hf_ieee1905_max_vid_count,
           { "Max Total Number of VIDs", "ieee1905.r2_ap_capabilities.max_total_number_of_vids",
