@@ -1869,6 +1869,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Octets A</translation>
     </message>
     <message>
+        <source>Packets B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Bytes B </source>
         <translation>Octets B</translation>
     </message>
@@ -2021,6 +2025,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
         <translation>Copier les octets du paquet sous forme de flux Hex.</translation>
+    </message>
+    <message>
+        <source>…as a Base64 String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a base64 encoded string.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
@@ -2181,6 +2193,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Current filter: %1</source>
         <translation>Filtre actuel : %1</translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
+        <translation type="unfinished">Filtre invalide : </translation>
     </message>
     <message>
         <source>Save this filter</source>

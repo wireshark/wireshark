@@ -1860,6 +1860,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Packets B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Bytes B </source>
         <translation type="unfinished"></translation>
     </message>
@@ -2012,6 +2016,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
         <translation>将分组字节复制为十六进制流。</translation>
+    </message>
+    <message>
+        <source>…as a Base64 String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a base64 encoded string.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
@@ -2172,6 +2184,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Current filter: %1</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
+        <translation type="unfinished">无效的过滤器：</translation>
     </message>
     <message>
         <source>Save this filter</source>

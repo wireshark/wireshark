@@ -1844,6 +1844,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Packets B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Bytes B </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1995,6 +1999,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as a Base64 String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a base64 encoded string.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2155,6 +2167,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Current filter: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>

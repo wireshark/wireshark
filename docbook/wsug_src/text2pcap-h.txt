@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 4.1.0 (v4.1.0rc0-198-ga48298a93a39)
+Text2pcap (Wireshark) 4.1.0 (v4.1.0rc0-428-g517d2be1494f)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -95,9 +95,11 @@ Prepend dummy header:
 Diagnostic output:
   --log-level <level>      sets the active log level ("critical", "warning", etc.)
   --log-fatal <level>      sets level to abort the program ("critical" or "warning")
-  --log-domains <[!]list>  comma separated list of the active log domains
-  --log-debug <[!]list>    comma separated list of domains with "debug" level
-  --log-noisy <[!]list>    comma separated list of domains with "noisy" level
+  --log-domains <[!]list>  comma-separated list of the active log domains
+  --log-fatal-domains <list>
+                           list of domains that cause the program to abort
+  --log-debug <[!]list>    list of domains with "debug" level
+  --log-noisy <[!]list>    list of domains with "noisy" level
   --log-file <path>        file to output messages to (in addition to stderr)
 
 Miscellaneous:

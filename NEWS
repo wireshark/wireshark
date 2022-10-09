@@ -10,16 +10,35 @@ Wireshark 4.1.0 Release Notes
 
  What’s New
 
-    • Wireshark now builds with Qt6 by default. To use Qt5 instead pass
-      USE_qt6=OFF to CMake.
+  Wireshark is now better about generating valid UTF-8 output.
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
+
+  Bug Fixes
+
+   The following bugs have been fixed:
+
+     • Issue 18413[1] - RTP player do not play audio frequently on Win32
+       builds with Qt6
 
   New and Updated Features
 
    The following features are new (or have been significantly updated)
    since version 4.0.0:
+
+     • The API has been updated to ensure that the dissection engine
+       produces valid UTF-8 strings.
+
+     • Wireshark now builds with Qt6 by default. To use Qt5 instead pass
+       USE_qt6=OFF to CMake.
+
+  Removed Features and Support
+
+     • The experimental display filter syntax for literals using angle
+       brackets <…​> that was introduced in Wireshark 4.0.0 has been
+       removed. For byte arrays a colon prefix can be used instead. See
+       the User’s Guide[2] for details.
 
   New Protocol Support
 
@@ -39,7 +58,7 @@ Wireshark 4.1.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -54,24 +73,27 @@ Wireshark 4.1.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the issue tracker[4].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[5].
+  SharkFest[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[8].
 
  References
 
-   1. https://www.wireshark.org/download.html
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://sharkfest.wireshark.org
-   6. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/18413
+   2. https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDispla
+  yFilterSection.html#_some_protocol_names_can_be_ambiguous
+   3. https://www.wireshark.org/download.html
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://sharkfest.wireshark.org
+   8. https://www.wireshark.org/faq.html

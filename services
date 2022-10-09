@@ -5730,6 +5730,7 @@ rads		12302/tcp	# Remote Administration Daemon (RAD) is a system service that of
 warehouse-sss	12321/tcp/udp	# Warehouse Monitoring Syst SSS
 warehouse	12322/tcp/udp	# Warehouse Monitoring Syst
 italk		12345/tcp/udp	# Italk Chat System
+carb-repl-ctrl	12546/tcp	# Carbonite Server Replication Control
 tsaf		12753/tcp/udp	# tsaf port
 netperf		12865/tcp	# control port for the netperf benchmark
 i-zipqd		13160/tcp/udp	# I-ZIPQD

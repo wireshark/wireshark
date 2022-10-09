@@ -1869,6 +1869,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Byte A</translation>
     </message>
     <message>
+        <source>Packets B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Bytes B </source>
         <translation>Byte B</translation>
     </message>
@@ -2021,6 +2025,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
         <translation>Kopiera paketbyte som en ström av hex.</translation>
+    </message>
+    <message>
+        <source>…as a Base64 String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a base64 encoded string.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
@@ -2181,6 +2193,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Current filter: %1</source>
         <translation>Aktuellt filter: %1</translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
+        <translation type="unfinished">Felaktigt filter: </translation>
     </message>
     <message>
         <source>Save this filter</source>

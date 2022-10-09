@@ -1869,6 +1869,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Byte A</translation>
     </message>
     <message>
+        <source>Packets B </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Bytes B </source>
         <translation>Byte B</translation>
     </message>
@@ -2021,6 +2025,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
         <translation>Copia i byte del pacchetto come un flusso esadecimale.</translation>
+    </message>
+    <message>
+        <source>…as a Base64 String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as a base64 encoded string.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
@@ -2181,6 +2193,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Current filter: %1</source>
         <translation>Filtro attuale: %1</translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
+        <translation type="unfinished">Filtro non valido: </translation>
     </message>
     <message>
         <source>Save this filter</source>
