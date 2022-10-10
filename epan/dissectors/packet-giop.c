@@ -2010,7 +2010,7 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
         *pinfo = saved_pinfo;
         pinfo->current_proto =
           proto_get_protocol_short_name(subh->sub_proto);
-        res = (subh->sub_fn)(tvb, pinfo, tree, offset, header, operation, NULL); /* callit TODO - replace NULL */
+        (subh->sub_fn)(tvb, pinfo, tree, offset, header, operation, NULL); /* callit TODO - replace NULL */
         return TRUE;            /* found one, lets return */
       } else { // restoring data
         *pinfo  = saved_pinfo;
