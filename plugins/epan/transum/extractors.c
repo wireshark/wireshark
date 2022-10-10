@@ -129,6 +129,29 @@ int extract_bool(proto_tree *tree, int field_id, gboolean *result_array, size_t 
 }
 
 /*
+ * Extract a count of the number of instances of a given field.
+ */
+int extract_instance_count(proto_tree *tree, int field_id, size_t *element_count)
+{
+    GPtrArray *finfo_array;
+
+    *element_count = 0;
+    if (tree == NULL) {
+        return -1;
+    }
+
+    finfo_array = proto_get_finfo_ptr_array(tree, field_id);
+
+    if (finfo_array == NULL) {
+        return -1;
+    }
+
+    *element_count = g_ptr_array_len(finfo_array);
+
+    return 0;
+}
+
+/*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
