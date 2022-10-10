@@ -15259,9 +15259,9 @@ dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_i
                 "Average Signal to Noise Ratio");
 
   for (i = 0; i < nc; i++) {
-    gint8 snr = tvb_get_guint8(tvb, offset);
+    gint8 snr = tvb_get_gint8(tvb, offset);
 
-    proto_tree_add_uint_format(snr_tree,
+    proto_tree_add_int_format(snr_tree,
         hf_ieee80211_he_compressed_beamforming_report_snr, tvb, offset, 1,
         snr, "Stream %d: %s%0.2fdB (0x%02x)", i, (snr == 127 ? ">=" :
                                                   (snr == -128 ? "<=" : "")),
@@ -38837,7 +38837,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_compressed_beamforming_report_snr,
      {"AgvSNR", "wlan.he.mimo.beamforming_report.avgsnr",
-      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_compressed_beamform_scidx,
      {"SCIDX", "wlan.he.action.he_mimo_control.scidx",
