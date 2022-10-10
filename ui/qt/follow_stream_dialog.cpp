@@ -1067,9 +1067,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     }
     case FOLLOW_QUIC:
     {
-        ui->streamNumberSpinBox->setToolTip(tr("Total number of QUIC connections: %Ln", "", stream_count));
-        ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
-
         guint substream_max_id = 0;
         quic_get_stream_id_le(static_cast<guint>(stream_num), G_MAXINT32, &substream_max_id);
         stream_count = static_cast<gint>(substream_max_id);
