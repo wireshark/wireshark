@@ -3171,7 +3171,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
          */
         wblock->type = bh.block_type;
 
-        ws_debug("block_type 0x%08x", bh.block_type);
+        ws_debug("block_type BLOCK_TYPE_SHB (0x%08x)", bh.block_type);
 
         /*
          * Fill in the section_info_t passed to us for use when
@@ -3230,7 +3230,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
 
         wblock->type = bh.block_type;
 
-        ws_debug("block_type 0x%08x", bh.block_type);
+        ws_noisy("block_type 0x%08x", bh.block_type);
 
         /* Don't try to allocate memory for a huge number of options, as
            that might fail and, even if it succeeds, it might not leave
@@ -3599,7 +3599,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     /* read next block */
     while (1) {
         *data_offset = file_tell(wth->fh);
-        ws_debug("data_offset is %" PRId64, *data_offset);
+        ws_noisy("data_offset is %" PRId64, *data_offset);
 
         /*
          * Get the section_info_t for the current section.
@@ -3612,7 +3612,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
          */
         if (!pcapng_read_block(wth, wth->fh, pcapng, current_section,
                                &new_section, &wblock, err, err_info)) {
-            ws_debug("data_offset is finally %" PRId64, *data_offset);
+            ws_noisy("data_offset is finally %" PRId64, *data_offset);
             ws_debug("couldn't read packet block");
             wtap_block_unref(wblock.block);
             return FALSE;
@@ -3622,7 +3622,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
             /*
              * This is a block type we return to the caller to process.
              */
-            ws_debug("rec_type %u", wblock.rec->rec_type);
+            ws_noisy("rec_type %u", wblock.rec->rec_type);
             break;
         }
 
@@ -3731,7 +3731,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     }
 
     /*ws_debug("Read length: %u Packet length: %u", bytes_read, rec->rec_header.packet_header.caplen);*/
-    ws_debug("data_offset is finally %" PRId64, *data_offset);
+    ws_noisy("data_offset is finally %" PRId64, *data_offset);
 
     /* Provide the section number */
     rec->presence_flags |= WTAP_HAS_SECTION_NUMBER;
@@ -3755,7 +3755,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) < 0) {
         return FALSE;   /* Seek error */
     }
-    ws_debug("reading at offset %" PRIu64, seek_off);
+    ws_noisy("reading at offset %" PRIu64, seek_off);
 
     /*
      * Find the section_info_t for the section in which this block
