@@ -1992,6 +1992,7 @@ set(INSTALL_FILES
 
 if (BUILD_logray)
 	set(LOG_INSTALL_FILES
+		docbook/ws.css
 		resources/share/logray/colorfilters
 		resources/share/logray/dfilter_buttons
 	)
@@ -2009,7 +2010,6 @@ if (ASCIIDOCTOR_FOUND)
 		${CMAKE_BINARY_DIR}/doc/dumpcap.html
 		${CMAKE_BINARY_DIR}/doc/editcap.html
 		${CMAKE_BINARY_DIR}/doc/extcap.html
-		${CMAKE_BINARY_DIR}/doc/falcodump.html
 		${CMAKE_BINARY_DIR}/doc/mergecap.html
 		${CMAKE_BINARY_DIR}/doc/randpkt.html
 		${CMAKE_BINARY_DIR}/doc/randpktdump.html
@@ -2034,6 +2034,11 @@ if (ASCIIDOCTOR_FOUND)
 		list(APPEND INSTALL_FILES
 			${CMAKE_BINARY_DIR}/doc/asn2deb.html
 			${CMAKE_BINARY_DIR}/doc/idl2deb.html
+		)
+	endif()
+	if (BUILD_logray)
+		list(APPEND LOG_INSTALL_FILES
+			${CMAKE_BINARY_DIR}/doc/falcodump.html
 		)
 	endif()
 endif()
