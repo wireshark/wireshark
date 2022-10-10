@@ -669,6 +669,13 @@ else() # ! MSVC
 		# seem to flag very interesting issues.
 		#
 		-Wno-format-truncation
+		#
+		# Updating external dependencies can introduce new deprecations.
+		# Also fixing new internal deprecations takes time.
+		# We want to be able to build with -Werror in that case. New
+		# code should not introduce new deprecations in any case.
+		#
+		-Wno-error=deprecated-declarations
 	)
 
 	#

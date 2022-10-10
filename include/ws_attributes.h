@@ -76,6 +76,27 @@ extern "C" {
 #endif
 
 /*
+ * WS_DEPRECATED, before a function declaration, means "this function
+ * should not be used anymore and will be removed in a future version".
+ * WS_DEPRECATED_X() optionally takes a message saying what should be done
+ * instead (strongly recommended).
+ *
+ * This is not implemented on purpose with MSVC because that compiler has no
+ * equivalent to -Wno-error=deprecated-declarations, making it impossible
+ * to build with -Werror and deprecated declarations. The Microsoft developer
+ * team seems to not understand the requirement.
+ * https://developercommunity.visualstudio.com/t/cant-treat-deprecated-warning-as-warning-with-wx/786502
+ * https://developercommunity.visualstudio.com/t/impossible-to-treat-warning-as-error-except-specif/473936
+ */
+#if __has_attribute(deprecated)
+  #define WS_DEPRECATED         __attribute__((deprecated))
+  #define WS_DEPRECATED_X(msg)  __attribute__((deprecated(msg)))
+#else
+  #define WS_DEPRECATED
+  #define WS_DEPRECATED_X(msg)
+#endif
+
+/*
  * WS_THREAD_LOCAL means "this variable should go in thread-local
  * storage.
  *
