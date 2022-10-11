@@ -472,6 +472,17 @@ typedef struct attribute_info {
    attribute_dissector_func *pdissect;
 } attribute_info_t;
 
+// offset - starts at command specific data.
+// returns - size of data that was parsed.
+typedef int service_dissector_func(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, gboolean request);
+typedef struct cip_service_info {
+   guint32                 class_id;
+   guint8                  service_id;
+   const gchar            *service_name;
+   service_dissector_func *pdissect;
+} cip_service_info_t;
+
 // This describes a one-way connection. Each CIP Connection includes 2 of these.
 typedef struct cip_connID_info {
    // Connection ID from Forward Open Request. This may get updated in the Forward Open Response.
@@ -580,6 +591,7 @@ enum cip_elem_data_types {
 
 extern void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals);
 extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
+extern cip_service_info_t* cip_get_service_one_table(cip_service_info_t* services, size_t size, guint32 class_id, guint8 service_id);
 extern void cip_rpi_api_fmt(gchar *s, guint32 value);
 
 extern int  dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, attribute_info_t* attr, int offset, int total_len);

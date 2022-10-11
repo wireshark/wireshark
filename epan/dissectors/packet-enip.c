@@ -368,6 +368,7 @@ static int hf_eip_cert_capflags_reserved = -1;
 static int hf_eip_cert_capability_flags = -1;
 static int hf_eip_cert_num_certs = -1;
 static int hf_eip_cert_cert_name = -1;
+static int hf_eip_cert_verify_certificate = -1;
 static int hf_lldp_subtype = -1;
 static int hf_lldp_mac_address = -1;
 
@@ -2185,6 +2186,19 @@ dissect_eip_cert_ca_cert(packet_info *pinfo, proto_tree *tree, proto_item *item,
    return path_size + 1;
 }
 
+static int dissect_certificate_management_object_verify_certificate(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, int offset, gboolean request)
+{
+   if (request)
+   {
+      proto_tree_add_item(tree, hf_eip_cert_verify_certificate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      return 2;
+   }
+   else
+   {
+      return 0;
+   }
+}
+
 static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset)
 {
@@ -2365,6 +2379,21 @@ attribute_info_t enip_attribute_vals[] = {
    {0x5F, FALSE, 4, 3, "CA Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_ca_cert},
    {0x5F, FALSE, 5, 4, "Certificate Encoding", cip_usint, &hf_eip_cert_encoding, NULL },
 };
+
+// Table of CIP services defined by this dissector.
+static cip_service_info_t enip_obj_spec_service_table[] = {
+    // Certificate Management
+    { 0x5F, 0x4C, "Verify_Certificate", dissect_certificate_management_object_verify_certificate },
+};
+
+// Look up a given CIP service from this dissector.
+cip_service_info_t* cip_get_service_enip(guint32 class_id, guint8 service_id)
+{
+   return cip_get_service_one_table(&enip_obj_spec_service_table[0],
+      sizeof(enip_obj_spec_service_table) / sizeof(cip_service_info_t),
+      class_id,
+      service_id);
+}
 
 static void enip_init_protocol(void)
 {
@@ -4674,6 +4703,11 @@ proto_register_enip(void)
         { "Certificate name", "cip.eip_cert.cert_name",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
+
+      { &hf_eip_cert_verify_certificate,
+        { "Certificate", "cip.eip_cert.verify_certificate",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
 
       { &hf_lldp_subtype,
         { "ODVA LLDP Subtype", "cip.lldp.subtype",
