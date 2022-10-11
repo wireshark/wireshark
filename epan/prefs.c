@@ -3043,7 +3043,7 @@ prefs_register_modules(void)
     prefs_register_enum_preference(gui_module, "console_open",
                        "Open a console window",
                        "Open a console window (Windows only)",
-                       &ws_log_console_open, gui_console_open_type, FALSE);
+                       (int *)&ws_log_console_open, gui_console_open_type, FALSE);
 
     prefs_register_obsolete_preference(gui_module, "scrollbar_on_right");
     prefs_register_obsolete_preference(gui_module, "packet_list_sel_browse");
@@ -4376,7 +4376,7 @@ read_registry(void)
 
     ret = RegQueryValueExA(hTestKey, LOG_HKCU_CONSOLE_OPEN, NULL, NULL, (LPBYTE)&data, &data_size);
     if (ret == ERROR_SUCCESS) {
-        ws_log_console_open = (enum ws_log_console_pref)data;
+        ws_log_console_open = (ws_log_console_open_pref)data;
         ws_noisy("Got "LOG_HKCU_CONSOLE_OPEN" from Windows registry: %d", ws_log_console_open);
     }
     else if (ret != ERROR_FILE_NOT_FOUND) {

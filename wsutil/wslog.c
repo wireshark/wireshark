@@ -130,7 +130,7 @@ static enum ws_log_level fatal_log_level = LOG_LEVEL_ERROR;
 
 static bool init_complete = false;
 
-int ws_log_console_open = LOG_CONSOLE_OPEN_NEVER;
+ws_log_console_open_pref ws_log_console_open = LOG_CONSOLE_OPEN_NEVER;
 
 
 static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
@@ -808,7 +808,7 @@ static void load_registry()
         return;
     }
 
-    ws_log_console_open = (enum ws_log_console_pref)data;
+    ws_log_console_open = (ws_log_console_open_pref)data;
 }
 #endif
 

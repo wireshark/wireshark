@@ -52,14 +52,14 @@ extern "C" {
  */
 #define LOG_HKCU_CONSOLE_OPEN   "ConsoleOpen"
 
-enum ws_log_console_pref {
+typedef enum {
     LOG_CONSOLE_OPEN_NEVER,
     LOG_CONSOLE_OPEN_AUTO, /* On demand. */
     LOG_CONSOLE_OPEN_ALWAYS, /* Open during startup. */
-};
+} ws_log_console_open_pref;
 
 WSUTIL_EXPORT
-int ws_log_console_open;
+ws_log_console_open_pref ws_log_console_open;
 
 
 /** Callback for registering a log writer. */
