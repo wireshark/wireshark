@@ -48,8 +48,7 @@
 #include "epan/wmem_scopes.h"
 #include <epan/stats_tree.h>
 
-#define CURRENT_USER_KEY "Software\\Wireshark"
-#define CONSOLE_OPEN_KEY "ConsoleOpen"
+#define REG_HKCU_WIRESHARK_KEY "Software\\Wireshark"
 
 /*
  * Module alias.
@@ -4369,19 +4368,19 @@ read_registry(void)
     DWORD data_size = sizeof(DWORD);
     DWORD ret;
 
-    ret = RegOpenKeyExA(HKEY_CURRENT_USER, CURRENT_USER_KEY, 0, KEY_READ, &hTestKey);
+    ret = RegOpenKeyExA(HKEY_CURRENT_USER, REG_HKCU_WIRESHARK_KEY, 0, KEY_READ, &hTestKey);
     if (ret != ERROR_SUCCESS && ret != ERROR_FILE_NOT_FOUND) {
-        ws_noisy("Cannot open HKCU "CURRENT_USER_KEY": 0x%lx", ret);
+        ws_noisy("Cannot open HKCU "REG_HKCU_WIRESHARK_KEY": 0x%lx", ret);
         return;
     }
 
-    ret = RegQueryValueExA(hTestKey, CONSOLE_OPEN_KEY, NULL, NULL, (LPBYTE)&data, &data_size);
+    ret = RegQueryValueExA(hTestKey, LOG_HKCU_CONSOLE_OPEN, NULL, NULL, (LPBYTE)&data, &data_size);
     if (ret == ERROR_SUCCESS) {
         ws_log_console_open = (enum ws_log_console_pref)data;
-        ws_noisy("Got "CONSOLE_OPEN_KEY" from Windows registry: %d", ws_log_console_open);
+        ws_noisy("Got "LOG_HKCU_CONSOLE_OPEN" from Windows registry: %d", ws_log_console_open);
     }
     else if (ret != ERROR_FILE_NOT_FOUND) {
-        ws_noisy("Error reading registry key "CONSOLE_OPEN_KEY": 0x%lx", ret);
+        ws_noisy("Error reading registry key "LOG_HKCU_CONSOLE_OPEN": 0x%lx", ret);
     }
 
     RegCloseKey(hTestKey);
@@ -6775,22 +6774,22 @@ write_registry(void)
     DWORD data_size;
     DWORD ret;
 
-    ret = RegCreateKeyExA(HKEY_CURRENT_USER, CURRENT_USER_KEY, 0, NULL,
+    ret = RegCreateKeyExA(HKEY_CURRENT_USER, REG_HKCU_WIRESHARK_KEY, 0, NULL,
                             REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL,
                             &hTestKey, NULL);
     if (ret != ERROR_SUCCESS) {
-        ws_noisy("Cannot open HKCU "CURRENT_USER_KEY": 0x%lx", ret);
+        ws_noisy("Cannot open HKCU "REG_HKCU_WIRESHARK_KEY": 0x%lx", ret);
         return;
     }
 
     data = ws_log_console_open;
     data_size = sizeof(DWORD);
-    ret = RegSetValueExA(hTestKey, CONSOLE_OPEN_KEY, 0, REG_DWORD, (const BYTE *)&data, data_size);
+    ret = RegSetValueExA(hTestKey, LOG_HKCU_CONSOLE_OPEN, 0, REG_DWORD, (const BYTE *)&data, data_size);
     if (ret == ERROR_SUCCESS) {
-        ws_noisy("Wrote "CONSOLE_OPEN_KEY" to Windows registry: 0x%lu", data);
+        ws_noisy("Wrote "LOG_HKCU_CONSOLE_OPEN" to Windows registry: 0x%lu", data);
     }
     else {
-        ws_noisy("Error writing registry key "CONSOLE_OPEN_KEY": 0x%lx", ret);
+        ws_noisy("Error writing registry key "LOG_HKCU_CONSOLE_OPEN": 0x%lx", ret);
     }
 
     RegCloseKey(hTestKey);

@@ -46,6 +46,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*
+ * Console open preference is stored in the Windows registry.
+ *   HKEY_CURRENT_USER\Software\Wireshark\ConsoleOpen
+ */
+#define LOG_HKCU_CONSOLE_OPEN   "ConsoleOpen"
+
 enum ws_log_console_pref {
     LOG_CONSOLE_OPEN_NEVER,
     LOG_CONSOLE_OPEN_AUTO, /* On demand. */

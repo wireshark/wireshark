@@ -799,7 +799,7 @@ static void load_registry()
 
     lResult = RegGetValueA(HKEY_CURRENT_USER,
                             "Software\\Wireshark",
-                            "OpenConsole",
+                            LOG_HKCU_CONSOLE_OPEN,
                             RRF_RT_REG_DWORD,
                             &ptype,
                             &data,
