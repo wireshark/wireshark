@@ -1,0 +1,23 @@
+name: MSYS2
+on: [push]
+
+jobs:
+  msys2-mingw64:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+      - name: Install deps
+        run: |
+          echo 'Run deps script'
+          ./tools/msys2-setup.sh --install-all --noconfirm
+      - name: Build
+        run: |
+          echo 'Run build script'
+          ./tools/msys2-build.sh
