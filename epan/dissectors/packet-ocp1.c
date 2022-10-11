@@ -1,7 +1,7 @@
 /* packet-ocp1.c
  * Dissector for Open Control Protocol OCP.1/AES70
  *
- * Copyright (c) 2021 by Martin Mayer <martin.mayer@m2-it-solutions.de>
+ * Copyright (c) 2021-2022 by Martin Mayer <martin.mayer@m2-it-solutions.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -46,6 +46,7 @@ struct oca_request_hash_key {
 /* Handle Hashmap Val */
 struct oca_request_hash_val {
     guint32 pnum;
+    guint32 pnum_resp;
     guint32 ono;
     guint16 tree_level;
     guint16 method_index;
@@ -86,6 +87,7 @@ static int hf_ocp1_message_event_tree_level = -1;
 static int hf_ocp1_message_event_index = -1;
 static int hf_ocp1_message_parameter_count = -1;
 static int hf_ocp1_message_status_code = -1;
+static int hf_ocp1_response_in = -1;
 static int hf_ocp1_response_to = -1;
 
 /* Notification Fields */
@@ -2301,7 +2303,7 @@ static int
 dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, proto_tree *tree, guint msg_counter)
 {
     proto_tree *message_tree, *method_tree;
-    proto_item *ti, *tf, *t_occ;
+    proto_item *ti, *tf, *t_occ, *r_pkt;
     conversation_t *conversation;
 
     struct oca_request_hash_key request_key, *new_request_key;
@@ -2358,11 +2360,19 @@ dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *p
 
         request_val = wmem_new(wmem_file_scope(), struct oca_request_hash_val);
         request_val->pnum         = pinfo->num;
+        request_val->pnum_resp    = 0;
         request_val->ono          = tvb_get_guint32(tvb, offset + 8, ENC_BIG_ENDIAN);
         request_val->tree_level   = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
         request_val->method_index = tvb_get_guint16(tvb, offset + 14, ENC_BIG_ENDIAN);
 
         wmem_map_insert(oca_request_hash_map, new_request_key, request_val);
+    } else {
+
+        /* If response has populated response packet num */
+        if(request_val->pnum_resp > 0) {
+            r_pkt = proto_tree_add_uint(message_tree , hf_ocp1_response_in, tvb, 0, 0, request_val->pnum_resp);
+            proto_item_set_generated(r_pkt);
+        }
     }
 
     return length;
@@ -2483,6 +2493,7 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
     /* Add generated/expert info for packet lookup */
     if(request_val) {
         r_pkt = proto_tree_add_uint(message_tree , hf_ocp1_response_to, tvb, 0, 0, request_val->pnum);
+        request_val->pnum_resp = pinfo->num;
         proto_item_set_generated(r_pkt);
     } else {
         expert_add_info(pinfo, ti, &ei_ocp1_handle_fail);
@@ -2791,8 +2802,14 @@ proto_register_ocp1(void)
         },
 
         /* Responses */
+        { &hf_ocp1_response_in,
+            { "Response in", "ocp1.response_in",
+            FT_FRAMENUM, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_ocp1_response_to,
-            { "Response to", "ocp1.response_to",
+            { "Request in", "ocp1.response_to",
             FT_FRAMENUM, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
