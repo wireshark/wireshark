@@ -534,6 +534,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 			const char *format, va_list ap)
 {
 	char           formatted[ITEM_LABEL_LENGTH];
+	int            pos;
 	int            tap;
 	expert_info_t *ei;
 	proto_tree    *tree;
@@ -563,9 +564,32 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	}
 
 	if (use_vaformat) {
-		vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
+		pos = vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
 	} else {
-		(void) g_strlcpy(formatted, format, ITEM_LABEL_LENGTH);
+		pos = (int)g_strlcpy(formatted, format, ITEM_LABEL_LENGTH);
+	}
+
+	/* Both vsnprintf and g_strlcpy return the number of bytes attempted
+         * to write.
+         */
+        if (pos >= ITEM_LABEL_LENGTH) {
+		/* Truncation occured. It might have split a UTF-8 character. */
+		char* last_char;
+		last_char = g_utf8_find_prev_char(formatted, formatted + ITEM_LABEL_LENGTH - 1);
+		if (last_char != NULL && g_utf8_get_char_validated(last_char, -1) == (gunichar)-2) {
+			/* The last UTF-8 character was truncated into a
+			 * partial sequence, so end the string where that
+			 * character begins.
+			 */
+			*last_char = '\0';
+		}
+		/* Otherwise, formatted was truncated at a UTF-8 character
+		 * boundary (and is still a valid string), or else it was
+		 * not a valid UTF-8 string in the first place. In the latter
+		 * case leave it alone too and the UTF-8 validation in
+		 * ftype-string will catch it if enabled.
+		 * (We could sanitize it here too.)
+		 */
 	}
 
 	tree = expert_create_tree(pi, group, severity, formatted);
