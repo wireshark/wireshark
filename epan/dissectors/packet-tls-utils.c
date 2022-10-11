@@ -58,7 +58,7 @@ const value_string ssl_version_short_names[] = {
     { SSLV2_VERSION,        "SSLv2" },
     { SSLV3_VERSION,        "SSLv3" },
     { TLSV1_VERSION,        "TLSv1" },
-    { GMTLSV1_VERSION,      "GMTLSv1" },
+    { TLCPV1_VERSION,       "TLCP" },
     { TLSV1DOT1_VERSION,    "TLSv1.1" },
     { TLSV1DOT2_VERSION,    "TLSv1.2" },
     { TLSV1DOT3_VERSION,    "TLSv1.3" },
@@ -72,7 +72,7 @@ const value_string ssl_versions[] = {
     { SSLV2_VERSION,        "SSL 2.0" },
     { SSLV3_VERSION,        "SSL 3.0" },
     { TLSV1_VERSION,        "TLS 1.0" },
-    { GMTLSV1_VERSION,      "GMTLS" },
+    { TLCPV1_VERSION,       "TLCP" },
     { TLSV1DOT1_VERSION,    "TLS 1.1" },
     { TLSV1DOT2_VERSION,    "TLS 1.2" },
     { TLSV1DOT3_VERSION,    "TLS 1.3" },
@@ -4167,7 +4167,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
             ssl_session->session.version == TLSV1DOT2_VERSION ||
             ssl_session->session.version == DTLSV1DOT0_VERSION ||
             ssl_session->session.version == DTLSV1DOT2_VERSION ||
-            ssl_session->session.version == GMTLSV1_VERSION ))
+            ssl_session->session.version == TLCPV1_VERSION ))
         {
             encrlen  = tvb_get_ntohs(tvb, offset);
             skip = 2;
@@ -4271,7 +4271,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             case TLSV1DOT1_VERSION:
             case DTLSV1DOT0_VERSION:
             case DTLSV1DOT0_OPENSSL_VERSION:
-            case GMTLSV1_VERSION:
+            case TLCPV1_VERSION:
                 ret = tls_handshake_hash(ssl_session, &handshake_hashed_data);
                 break;
             default:
@@ -4909,7 +4909,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
      * ciphertext and authentication tag.
      */
     const guint16   version = ssl->session.version;
-    const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION || version == GMTLSV1_VERSION;
+    const gboolean  is_v12 = version == TLSV1DOT2_VERSION || version == DTLSV1DOT2_VERSION || version == TLCPV1_VERSION;
     gcry_error_t    err;
     const guchar   *explicit_nonce = NULL, *ciphertext;
     guint           ciphertext_len, auth_tag_len;
@@ -5077,11 +5077,11 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     }
 
     /*
-     * Increment the (implicit) sequence number for TLS 1.2/1.3 and GMTLSv1. This is done
+     * Increment the (implicit) sequence number for TLS 1.2/1.3 and TLCP 1.1. This is done
      * after successful authentication to ensure that early data is skipped when
      * CLIENT_EARLY_TRAFFIC_SECRET keys are unavailable.
      */
-    if (version == TLSV1DOT2_VERSION || version == TLSV1DOT3_VERSION || version == GMTLSV1_VERSION) {
+    if (version == TLSV1DOT2_VERSION || version == TLSV1DOT3_VERSION || version == TLCPV1_VERSION) {
         decoder->seq++;
     }
 
@@ -5156,7 +5156,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         case DTLSV1DOT0_VERSION:
         case DTLSV1DOT2_VERSION:
         case DTLSV1DOT0_OPENSSL_VERSION:
-        case GMTLSV1_VERSION:
+        case TLCPV1_VERSION:
             blocksize = ssl_get_cipher_blocksize(decoder->cipher_suite);
             if (inl < blocksize) {
                 ssl_debug_printf("ssl_decrypt_record failed: input %d has no space for IV %d\n",
@@ -5267,7 +5267,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
     }
-    else if(ssl->session.version==TLSV1_VERSION || ssl->session.version==TLSV1DOT1_VERSION || ssl->session.version==TLSV1DOT2_VERSION || ssl->session.version==GMTLSV1_VERSION){
+    else if(ssl->session.version==TLSV1_VERSION || ssl->session.version==TLSV1DOT1_VERSION || ssl->session.version==TLSV1DOT2_VERSION || ssl->session.version==TLCPV1_VERSION){
         if(tls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac)< 0) {
             if(ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
@@ -8857,7 +8857,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
     case TLSV1DOT1_VERSION:
     case TLSV1DOT2_VERSION:
     case TLSV1DOT3_VERSION:
-    case GMTLSV1_VERSION:
+    case TLCPV1_VERSION:
         if (is_dtls)
             return;
         break;

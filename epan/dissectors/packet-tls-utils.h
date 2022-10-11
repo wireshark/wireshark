@@ -251,7 +251,7 @@ typedef struct _StringInfo {
                                           http://www-archive.mozilla.org/projects/security/pki/nss/ssl/draft02.html */
 #define SSLV3_VERSION          0x300
 #define TLSV1_VERSION          0x301
-#define GMTLSV1_VERSION        0x101
+#define TLCPV1_VERSION         0x101
 #define TLSV1DOT1_VERSION      0x302
 #define TLSV1DOT2_VERSION      0x303
 #define TLSV1DOT3_VERSION      0x304
