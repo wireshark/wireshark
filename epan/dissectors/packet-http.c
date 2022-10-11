@@ -3545,7 +3545,7 @@ check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, gcha
 }
 
 static tap_credential_t*
-basic_auth_credentials(gchar* str)
+basic_auth_credentials(const gchar* str)
 {
 	gchar **tokens = g_strsplit(str, ":", -1);
 
@@ -3576,8 +3576,9 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, gchar 
 	};
 	const char **header;
 	size_t hdrlen;
+	const guint8 *decoded_value;
 	proto_tree *hdr_tree;
-	gsize len;
+	tvbuff_t *auth_tvb;
 
 	for (header = &basic_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
@@ -3589,13 +3590,17 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, gchar 
 				hdr_tree = NULL;
 			value += hdrlen;
 
-			if (strlen(value) > 1) {
-				g_base64_decode_inplace(value, &len);
-				value[len] = 0;
-			}
-			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
-			    0, 0, value);
-			tap_credential_t* auth = basic_auth_credentials(value);
+			auth_tvb = base64_to_tvb(tvb, value);
+			add_new_data_source(pinfo, auth_tvb, "Basic Credentials");
+			/* RFC 7617 says that the character encoding is only
+			 * known to be UTF-8 if the 'charset' parameter was
+			 * used. Otherwise, after Base64 decoding it could be
+			 * any character encoding.
+			 * XXX: Perhaps the field should be a FT_BYTES with
+			 * BASE_SHOW_UTF_8_PRINTABLE?
+			 */
+			proto_tree_add_item_ret_string(hdr_tree, hf_http_basic, auth_tvb, 0, tvb_reported_length(auth_tvb), ENC_UTF_8, pinfo->pool, &decoded_value);
+			tap_credential_t* auth = basic_auth_credentials(decoded_value);
 			if (auth) {
 				auth->num = auth->username_num = pinfo->num;
 				auth->password_hf_id = hf_http_basic;
