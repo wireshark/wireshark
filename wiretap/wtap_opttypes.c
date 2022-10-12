@@ -535,6 +535,7 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
         case WTAP_OPTTYPE_PACKET_VERDICT:
             wtap_block_add_packet_verdict_option(dest_block, src_opt->option_id, &src_opt->value.packet_verdictval);
             break;
+
         case WTAP_OPTTYPE_PACKET_HASH:
             wtap_block_add_packet_hash_option(dest_block, src_opt->option_id, &src_opt->value.packet_hash);
             break;
