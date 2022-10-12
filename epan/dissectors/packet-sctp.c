@@ -1421,14 +1421,20 @@ dissect_cookie_preservative_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 #define HOSTNAME_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, proto_item *additional_item)
 {
+  gchar *hostname;
   guint16 hostname_length;
 
   hostname_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII);
-  proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length, tvb_format_text(wmem_packet_scope(), parameter_tvb, HOSTNAME_OFFSET, hostname_length));
-
+  if (hostname_length > 1) {
+    hostname = tvb_format_text(wmem_packet_scope(), parameter_tvb, HOSTNAME_OFFSET, hostname_length - 1);
+    proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length - 1, hostname);
+    if (additional_item != NULL) {
+      proto_item_append_text(additional_item, " (Hostname: %.*s)", hostname_length - 1, hostname);
+    }
+  }
 }
 
 #define IPv4_ADDRESS_TYPE      5
@@ -1436,10 +1442,10 @@ dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 #define HOSTNAME_ADDRESS_TYPE 11
 
 static const value_string address_types_values[] = {
-  {  IPv4_ADDRESS_TYPE,    "IPv4 address"     },
-  {  IPv6_ADDRESS_TYPE,    "IPv6 address"     },
+  { IPv4_ADDRESS_TYPE,     "IPv4 address"     },
+  { IPv6_ADDRESS_TYPE,     "IPv6 address"     },
   { HOSTNAME_ADDRESS_TYPE, "Hostname address" },
-  {  0, NULL               }
+  { 0,                     NULL               }
 };
 
 #define SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH 2
@@ -1924,7 +1930,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     dissect_cookie_preservative_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case HOSTNAME_ADDRESS_PARAMETER_ID:
-    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item, additional_item);
     break;
   case SUPPORTED_ADDRESS_TYPES_PARAMETER_ID:
     dissect_supported_address_types_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -2105,9 +2111,7 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, prot
   parameter_tvb    = tvb_new_subset_length_caplen(cause_tvb, CAUSE_INFO_OFFSET,
                                     MIN(parameter_length, tvb_captured_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)),
                                     MIN(parameter_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
-  proto_item_append_text(cause_item, " (Address: ");
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE, FALSE);
-  proto_item_append_text(cause_item, ")");
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE, TRUE);
 }
 
 static gboolean
