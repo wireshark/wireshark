@@ -935,9 +935,6 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
  *
  * XXX - should map lead and trail surrogate values to a "substitute"
  * UTF-8 character?
- * XXX - should map code points > 10FFFF to REPLACEMENT CHARACTERs.
- * XXX - if the number of bytes isn't a multiple of 4, should put a
- * REPLACEMENT CHARACTER at the end.
  */
 guint8 *
 get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
@@ -954,14 +951,22 @@ get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
         else
             uchar = pletoh32(ptr + i);
 
-        wmem_strbuf_append_unichar(strbuf, uchar);
+        if (uchar > 0x10FFFF) {
+            /* Code points above 0x10FFFF are not legal */
+            wmem_strbuf_append_unichar(strbuf, UNREPL);
+        } else {
+            wmem_strbuf_append_unichar(strbuf, uchar);
+        }
     }
 
     /*
-     * XXX - if i < length, this means we were handed a number
-     * of bytes that's not a multiple of 4, so we're not a valid
-     * UCS-4 string.
+     * if i < length, this means we were handed a number of bytes
+     * that's not a multiple of 4, so not a valid UCS-4 string.
+     * Insert a REPLACEMENT CHARACTER for the remaining bytes.
      */
+    if (i < length) {
+        wmem_strbuf_append_unichar(strbuf, UNREPL);
+    }
     return (guint8 *)wmem_strbuf_finalize(strbuf);
 }
 
