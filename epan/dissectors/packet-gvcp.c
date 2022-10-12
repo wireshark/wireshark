@@ -2126,8 +2126,8 @@ static void dissect_discovery_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 	proto_tree *tree = NULL;
 
 	offset = startoffset;
-	string_manufacturer_name = tvb_get_const_stringz(tvb, 80, &string_length);
-	string_serial_number = tvb_get_const_stringz(tvb, 224, &string_length);
+	string_manufacturer_name = tvb_get_stringz_enc(pinfo->pool, tvb, 80, &string_length, ENC_ASCII);
+	string_serial_number = tvb_get_stringz_enc(pinfo->pool, tvb, 224, &string_length, ENC_ASCII);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s, %s)",string_manufacturer_name, string_serial_number);
 
