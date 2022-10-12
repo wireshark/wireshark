@@ -1683,13 +1683,21 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             case TECMP_DATA_TYPE_ETH:
+            {
                 /* resetting VLAN count since this is another embedded Ethernet packet. */
                 p_set_proto_depth(pinfo, proto_vlan, 0);
+
+                gint len_saved = pinfo->fd->pkt_len;
+                pinfo->fd->pkt_len = length;
+
                 if (show_ethernet_in_tecmp_tree) {
                     call_dissector(eth_handle, sub_tvb, pinfo, tecmp_tree);
                 } else {
                     call_dissector(eth_handle, sub_tvb, pinfo, tree);
                 }
+
+                pinfo->fd->pkt_len = len_saved;
+            }
                 break;
 
             default:
@@ -2306,7 +2314,7 @@ proto_register_tecmp_payload(void) {
 
 void
 proto_reg_handoff_tecmp_payload(void) {
-    eth_handle = find_dissector("eth_maybefcs");
+    eth_handle = find_dissector("eth_withfcs");
     proto_vlan = proto_get_id_by_filter_name("vlan");
 }
 
