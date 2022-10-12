@@ -1202,7 +1202,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
 
     canid = canheader.id;
 
-    if ((canheader.flags & BLF_CANMESSAGE_FLAG_RTR) == BLF_CANMESSAGE_FLAG_RTR) {
+    if (!canfd && (canheader.flags & BLF_CANMESSAGE_FLAG_RTR) == BLF_CANMESSAGE_FLAG_RTR) {
         canid |= CAN_RTR_FLAG;
         payload_length_valid = 0;
     }
@@ -1267,16 +1267,9 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
 
     canid = canheader.id;
 
-    if ((canid & CAN_EFF_FLAG) == CAN_EFF_FLAG) {
-        if ((canheader.flags & BLF_CANFDMESSAGE64_FLAG_SRR) == BLF_CANFDMESSAGE64_FLAG_SRR) {
-            canid |= CAN_RTR_FLAG;
-            payload_length_valid = 0;
-        }
-    } else {
-        if ((canheader.flags & BLF_CANFDMESSAGE64_FLAG_REMOTE_FRAME) == BLF_CANFDMESSAGE64_FLAG_REMOTE_FRAME) {
-            canid |= CAN_RTR_FLAG;
-            payload_length_valid = 0;
-        }
+    if (!canfd && (canheader.flags & BLF_CANFDMESSAGE64_FLAG_REMOTE_FRAME) == BLF_CANFDMESSAGE64_FLAG_REMOTE_FRAME) {
+        canid |= CAN_RTR_FLAG;
+        payload_length_valid = 0;
     }
 
     if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), timestamp, canheader.channel)) {
