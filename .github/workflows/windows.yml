@@ -13,7 +13,7 @@ jobs:
       WIRESHARK_VERSION_EXTRA: -GithubActionBuild
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Choco install
         run: cinst -y --force --no-progress asciidoctorj xsltproc docbook-bundle cmake nsis
       - name: Install winflexbison3
@@ -54,7 +54,7 @@ jobs:
         run: cmake --build . --config RelWithDebInfo --target test-programs
         working-directory: build
       - name: Set up Python 3.8
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: Install pytest
@@ -70,7 +70,7 @@ jobs:
           msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
         working-directory: build
       - name: Upload Windows packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: package
           path: build/packaging/nsis/*exe

@@ -8,9 +8,9 @@ jobs:
     runs-on: macos-11.0
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Python 3.8
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: Install dmgbuild
@@ -20,7 +20,7 @@ jobs:
       - name: Install biplist
         run: pip install biplist
       - name: Set up Ruby 2.6
-        uses: actions/setup-ruby@v1.1.2
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.6'
       - name: Install deps
@@ -47,7 +47,7 @@ jobs:
         run: ninja wireshark_dmg
         working-directory: build
       - name: Upload dmg packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: package
           path: build/run/*dmg

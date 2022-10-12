@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install deps
         run: sudo tools/debian-setup.sh --install-optional --install-test-deps --install-deb-deps python3-pip -y
       - name: Mkdir
@@ -23,7 +23,7 @@ jobs:
         run: ninja test-programs
         working-directory: build
       - name: Set up Python 3.8
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: Install pytest
@@ -46,7 +46,7 @@ jobs:
           mkdir deb
           mv ../*.deb deb
       - name: Upload deb packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: packages
           path: deb
