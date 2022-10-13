@@ -122,11 +122,11 @@ struct plugin_configuration {
 
 // Read a line without trailing (CR)LF. Returns -1 on failure. Copied from addr_resolv.c.
 // XXX Use g_file_get_contents or GMappedFile instead?
-static size_t
+static int
 fgetline(char *buf, int size, FILE *fp)
 {
     if (fgets(buf, size, fp)) {
-        size_t len = (int)strcspn(buf, "\r\n");
+        int len = (int)strcspn(buf, "\r\n");
         buf[len] = '\0';
         return len;
     }
@@ -143,15 +143,14 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
     // Look in files as specified in https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
     char *cred_path = g_strdup(g_getenv("AWS_SHARED_CREDENTIALS_FILE"));
     if (cred_path == NULL) {
-        cred_path = g_build_filename(g_get_home_dir(), ".aws/credentials", (gchar *)NULL);
+        cred_path = g_build_filename(g_get_home_dir(), ".aws", "credentials", (gchar *)NULL);
     }
 
     aws_fp = ws_fopen(cred_path, "r");
     g_free(cred_path);
 
     if (aws_fp != NULL) {
-
-        while (fgetline(buf, sizeof(buf), aws_fp) > 0) {
+        while (fgetline(buf, sizeof(buf), aws_fp) >= 0) {
             if (sscanf(buf, "[%2047[^]]s]", profile) == 1) {
                 if (strcmp(profile, "default") == 0) {
                     continue;
@@ -164,15 +163,14 @@ void print_cloudtrail_aws_profile_config(int arg_num, const char *display, const
 
     char *conf_path = g_strdup(g_getenv("AWS_CONFIG_FILE"));
     if (conf_path == NULL) {
-        conf_path = g_build_filename(g_get_home_dir(), ".aws/config", (gchar *)NULL);
+        conf_path = g_build_filename(g_get_home_dir(), ".aws", "config", (gchar *)NULL);
     }
 
     aws_fp = ws_fopen(conf_path, "r");
     g_free(conf_path);
 
     if (aws_fp != NULL) {
-
-        while (fgetline(buf, sizeof(buf), aws_fp) > 0) {
+        while (fgetline(buf, sizeof(buf), aws_fp) >= 0) {
             if (sscanf(buf, "[profile %2047[^]]s]", profile) == 1) {
                 if (strcmp(profile, "default") == 0) {
                     continue;
