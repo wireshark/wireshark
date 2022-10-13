@@ -182,7 +182,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
 #define UINT32_MAX  (0xffffffff)
 #endif
 
-static unsigned long qDateToDosDate(QDateTime time)
+static uint32_t qDateToDosDate(QDateTime time)
 {
     QDate ld = time.toLocalTime().date();
 
@@ -197,7 +197,7 @@ static unsigned long qDateToDosDate(QDateTime time)
     int month = ld.month() - 1;
     int day = ld.day();
 
-    if (year < 0 || year > 207 || month < 1 || month > 31)
+    if (year < 0 || year > 127 || month < 1 || month > 31)
         return 0;
 
     QTime lt = time.toLocalTime().time();
@@ -205,7 +205,7 @@ static unsigned long qDateToDosDate(QDateTime time)
     unsigned int dosDate = static_cast<unsigned int>((day + (32 * (month + 1)) + (512 * year)));
     unsigned int dosTime = static_cast<unsigned int>((lt.second() / 2) + (32 * lt.minute()) + (2048 * lt.hour()));
 
-    return dosDate << 16 | dosTime;
+    return (uint32_t)(dosDate << 16 | dosTime);
 }
 
 void WiresharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString fileInZip)
