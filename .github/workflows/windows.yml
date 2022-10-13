@@ -18,11 +18,11 @@ jobs:
         run: cinst -y --force --no-progress asciidoctorj xsltproc docbook-bundle cmake nsis
       - name: Install winflexbison3
         run: cinst -y --force winflexbison3 --version 2.5.18.20190508
-      - name: Install strawberryperl
-        uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: '5.30'
-          distribution: strawberry
+#      - name: Install strawberryperl
+#        uses: shogo82148/actions-setup-perl@v1
+#        with:
+#          perl-version: '5.30'
+#          distribution: strawberry
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -53,10 +53,10 @@ jobs:
       - name: Build test-programs
         run: cmake --build . --config RelWithDebInfo --target test-programs
         working-directory: build
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
+#      - name: Set up Python 3.8
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: 3.8
       - name: Install pytest
         run: pip install pytest pytest-xdist
       - name: Run tests
