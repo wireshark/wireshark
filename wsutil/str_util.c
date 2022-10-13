@@ -1031,6 +1031,21 @@ format_text_chr(wmem_allocator_t *allocator, const char *string, size_t len, cha
     return wmem_strbuf_finalize(buf);
 }
 
+char*
+ws_utf8_truncate(char *string, size_t len)
+{
+    char* last_char;
+
+    /* Ensure that it is null terminated */
+    string[len] = '\0';
+    last_char = g_utf8_find_prev_char(string, string + len);
+    if (last_char != NULL && g_utf8_get_char_validated(last_char, -1) == (gunichar)-2) {
+        /* The last UTF-8 character was truncated into a partial sequence. */
+        *last_char = '\0';
+    }
+    return string;
+}
+
 /* ASCII/EBCDIC conversion tables from
  * https://web.archive.org/web/20060813174742/http://www.room42.com/store/computer_center/code_tables.shtml
  */

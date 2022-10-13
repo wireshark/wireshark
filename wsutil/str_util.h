@@ -288,6 +288,29 @@ WS_DLL_PUBLIC
 char *format_text_chr(wmem_allocator_t *allocator,
                         const char *string, size_t len, char chr);
 
+/**
+ * Truncate a UTF-8 string in place so that it is no larger than len bytes,
+ * ensuring that the string is null terminated and ends with a complete
+ * character instead of a partial sequence (e.g., possibly truncating up
+ * to 3 additional bytes if the terminal character is 4 bytes long).
+ *
+ * The buffer holding the string must be large enough (at least len + 1
+ * including the null terminator), and the first len bytes of the buffer
+ * must be a valid UTF-8 string, except for possibly ending in a partial
+ * sequence or not being null terminated. This is a convenience function
+ * that for speed does not check either of those conditions.
+ *
+ * A common use case is when a valid UTF-8 string has been copied into a
+ * buffer of length len+1 via snprintf, strlcpy, or strlcat and truncated,
+ * to ensure that the final UTF-8 character is not a partial sequence.
+ *
+ * @param string A pointer to the input string
+ * @param len The maximum length to truncate to
+ * @return    ptr to the string
+ */
+WS_DLL_PUBLIC
+char* ws_utf8_truncate(char *string, size_t len);
+
 WS_DLL_PUBLIC
 void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
 
