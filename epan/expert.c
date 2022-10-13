@@ -24,6 +24,7 @@
 #include <epan/wmem_scopes.h>
 #include "tap.h"
 
+#include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
 
 /* proto_expert cannot be static because it's referenced in the
@@ -574,22 +575,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
          */
         if (pos >= ITEM_LABEL_LENGTH) {
 		/* Truncation occured. It might have split a UTF-8 character. */
-		char* last_char;
-		last_char = g_utf8_find_prev_char(formatted, formatted + ITEM_LABEL_LENGTH - 1);
-		if (last_char != NULL && g_utf8_get_char_validated(last_char, -1) == (gunichar)-2) {
-			/* The last UTF-8 character was truncated into a
-			 * partial sequence, so end the string where that
-			 * character begins.
-			 */
-			*last_char = '\0';
-		}
-		/* Otherwise, formatted was truncated at a UTF-8 character
-		 * boundary (and is still a valid string), or else it was
-		 * not a valid UTF-8 string in the first place. In the latter
-		 * case leave it alone too and the UTF-8 validation in
-		 * ftype-string will catch it if enabled.
-		 * (We could sanitize it here too.)
-		 */
+		ws_utf8_truncate(formatted, ITEM_LABEL_LENGTH - 1);
 	}
 
 	tree = expert_create_tree(pi, group, severity, formatted);
