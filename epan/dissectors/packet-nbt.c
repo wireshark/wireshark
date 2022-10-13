@@ -17,6 +17,8 @@
 #include <epan/prefs.h>
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <epan/charsets.h>
+#include <wsutil/str_util.h>
 
 #include "packet-dns.h"
 #include "packet-netbios.h"
@@ -403,7 +405,16 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
     if (cname == '.') {
         /* We have a scope ID, starting at "pname"; append that to
          * the decoded host name. */
-        snprintf(pname_ret, name_ret_len-(gulong)(pname_ret-name_ret), "%s", pname);
+        /* RFC 1001 says that scope IDs "meet the restricted character set
+         * of the domain system and has a leading period." Convert it from
+         * ASCII before appending it to our NBName, so we have a valid
+         * UTF-8 string.
+         */
+        const char* scope_id = get_ascii_string(wmem_packet_scope(), pname, (int)strlen(pname));
+        int bytes_attempted = (int)g_strlcat(name_ret, scope_id, name_ret_len);
+        if (bytes_attempted >= name_ret_len) {
+            ws_utf8_truncate(name_ret, name_ret_len - 1);
+        }
     }
     if (name_type_ret != NULL)
         *name_type_ret = name_type;
