@@ -62,44 +62,15 @@ int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index, char **data)
 {
-	char    *str, *p;
+	char    *str;
 	int      len;
-	int      charoffset;
-	guint16  character;
 
 	/* display a unicode string from the tree and return new offset */
 
-	/*
-	 * Get the length of the string.
-	 * XXX - is it a bug or a feature that this will throw an exception
-	 * if we don't find the '\0'?  I think it's a feature.
-	 */
-	len = 0;
-	while (tvb_get_letohs(tvb, offset + len) != '\0')
-		len += 2;
-	len += 2;	/* count the '\0' too */
-
-	/*
-	 * Allocate a buffer for the string; "len" is the length in
-	 * bytes, not the length in characters.
-	 */
-	str = (char *)wmem_alloc(pinfo->pool, len/2);
-
-	/*
-	 * XXX - this assumes the string is just ISO 8859-1; we need
-	 * to better handle multiple character sets in Wireshark,
-	 * including Unicode/ISO 10646, and multiple encodings of
-	 * that character set (UCS-2, UTF-8, etc.).
-	 */
-	charoffset = offset;
-	p = str;
-	while ((character = tvb_get_letohs(tvb, charoffset)) != '\0') {
-		*p++ = (char) character;
-		charoffset += 2;
-	}
-	*p = '\0';
-
+	str = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
+
+	/* Return a copy of the string if requested */
 
 	if (data)
 		*data = str;
