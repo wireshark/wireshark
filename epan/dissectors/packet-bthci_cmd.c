@@ -943,6 +943,8 @@ static gint hf_btcommon_eir_ad_biginfo_gskd = -1;
 static gint hf_btcommon_eir_ad_biginfo_big_control_access_address = -1;
 static gint hf_btcommon_eir_ad_biginfo_bis_access_address = -1;
 static gint hf_btcommon_eir_ad_broadcast_code = -1;
+static gint hf_btcommon_eir_ad_rsi = -1;
+static gint hf_btcommon_eir_ad_broadcast_name = -1;
 
 static gint hf_btcommon_cod_class_of_device = -1;
 static gint hf_btcommon_cod_format_type = -1;
@@ -1835,6 +1837,9 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x2B, "Mesh Beacon" },
     {0x2C, "BIGInfo" },
     {0x2D, "Broadcast Code" },
+    {0x2E, "Resolvable Set Identifier" },
+    {0x2F, "Advertising Interval - long" },
+    {0x30, "Broadcast_Name" },
     {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
@@ -9484,6 +9489,16 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             offset += length;
 
             break;
+        case 0x2e: /* Resolvable Set Identifier */
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_rsi, tvb, offset, length, ENC_NA);
+            offset += length;
+
+            break;
+        case 0x30: /* Broadcast Name */
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_broadcast_name, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+            offset += length;
+
+            break;
         case 0xFF: /* Manufacturer Specific */ {
             guint16  company_id;
 
@@ -10466,6 +10481,16 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_broadcast_code,
           { "Broadcast Code", "btcommon.eir_ad.entry.broadcast_code",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_rsi,
+          { "Resolvable Set Identifier", "btcommon.eir_ad.entry.rsi",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_broadcast_name,
+          { "Broadcast Name", "btcommon.eir_ad.entry.broadcast_name",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
