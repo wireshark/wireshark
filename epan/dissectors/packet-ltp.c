@@ -482,6 +482,10 @@ ltp_data_seg_find_report(gpointer key _U_, gpointer value, gpointer user_data)
 {
 	wmem_itree_t *rpt_clms = value;
 	const ltp_data_seg_info_t *data_seg = user_data;
+	if (!(data_seg->data_fst <= data_seg->data_lst))
+	{
+		return;
+	}
 
 	wmem_list_t *found = wmem_itree_find_intervals(rpt_clms, wmem_packet_scope(), data_seg->data_fst, data_seg->data_lst);
 	for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
@@ -502,8 +506,9 @@ ltp_data_seg_find_report(gpointer key _U_, gpointer value, gpointer user_data)
 
 static int
 dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int frame_offset,int ltp_type,
-		ltp_session_data_t *session, const ltp_session_id_t *sess_id, int *data_len, ltp_tap_info_t *tap)
+		int *data_len, ltp_tap_info_t *tap)
 {
+	ltp_session_data_t *session = tap->session;
 	guint64 client_id;
 	guint64 data_offset;
 	guint64 data_length;
@@ -565,25 +570,28 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	gboolean newdata = TRUE;
 	if (ltp_analyze_sequence && session)
 	{
-		wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, wmem_packet_scope(), data_fst, data_lst);
-		for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
-			it = wmem_list_frame_next(it))
+		if (data_fst <= data_lst)
 		{
-			const ltp_frame_info_t *frame = wmem_list_frame_data(it);
-			if (frame->frame_num == pinfo->num)
+			wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, wmem_packet_scope(), data_fst, data_lst);
+			for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
+				it = wmem_list_frame_next(it))
 			{
-				continue;
+				const ltp_frame_info_t *frame = wmem_list_frame_data(it);
+				if (frame->frame_num == pinfo->num)
+				{
+					continue;
+				}
+				PROTO_ITEM_SET_GENERATED(
+					proto_tree_add_uint(ltp_data_tree, hf_ltp_data_retrans, NULL, 0, 0, frame->frame_num)
+				);
+				newdata = false;
 			}
-			PROTO_ITEM_SET_GENERATED(
-				proto_tree_add_uint(ltp_data_tree, hf_ltp_data_retrans, NULL, 0, 0, frame->frame_num)
-			);
-			newdata = false;
-		}
 
-		if (newdata)
-		{
-			ltp_frame_info_t *val = ltp_frame_info_new(pinfo);
-			wmem_itree_insert(session->data_segs, data_fst, data_lst, val);
+			if (newdata)
+			{
+				ltp_frame_info_t *val = ltp_frame_info_new(pinfo);
+				wmem_itree_insert(session->data_segs, data_fst, data_lst, val);
+			}
 		}
 
 		ltp_data_seg_info_t data_seg_info;
@@ -673,7 +681,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	{
 		frag_msg = fragment_add_check(
 			&ltp_reassembly_table,
-			tvb, frame_offset, pinfo, 0, sess_id,
+			tvb, frame_offset, pinfo, 0, &(tap->sess_id),
 			(guint32)data_offset, (guint32)data_length, !is_eob
 		);
 	}
@@ -817,7 +825,8 @@ ltp_check_reception_gap(proto_tree *ltp_rpt_tree, packet_info *pinfo,
 
 
 static int
-dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, int frame_offset, ltp_session_data_t *session, ltp_tap_info_t *tap) {
+dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, int frame_offset, ltp_tap_info_t *tap) {
+	ltp_session_data_t *session = tap->session;
 	gint64 rpt_sno;
 	gint64 chkp_sno;
 	guint64 upper_bound;
@@ -908,25 +917,27 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 			wmem_map_insert(session->rpt_segs, key, rpt);
 		}
 
-		wmem_list_t *found = wmem_itree_find_intervals(rpt, wmem_packet_scope(), data_fst, data_lst);
-		for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
-			it = wmem_list_frame_next(it))
-		{
-			const ltp_frame_info_t *frame = wmem_list_frame_data(it);
-			if (frame->frame_num == pinfo->num)
+		if (data_fst <= data_lst) {
+			wmem_list_t *found = wmem_itree_find_intervals(rpt, wmem_packet_scope(), data_fst, data_lst);
+			for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
+				it = wmem_list_frame_next(it))
 			{
-				continue;
+				const ltp_frame_info_t *frame = wmem_list_frame_data(it);
+				if (frame->frame_num == pinfo->num)
+				{
+					continue;
+				}
+				PROTO_ITEM_SET_GENERATED(
+					proto_tree_add_uint(ltp_rpt_tree, hf_ltp_rpt_retrans, NULL, 0, 0, frame->frame_num)
+				);
+				newdata = false;
 			}
-			PROTO_ITEM_SET_GENERATED(
-				proto_tree_add_uint(ltp_rpt_tree, hf_ltp_rpt_retrans, NULL, 0, 0, frame->frame_num)
-			);
-			newdata = false;
-		}
 
-		if (newdata)
-		{
-			ltp_frame_info_t *val = ltp_frame_info_new(pinfo);
-			wmem_itree_insert(rpt, data_fst, data_lst, val);
+			if (newdata)
+			{
+				ltp_frame_info_t *val = ltp_frame_info_new(pinfo);
+				wmem_itree_insert(rpt, data_fst, data_lst, val);
+			}
 		}
 	}
 	tap->corr_orig = newdata;
@@ -983,7 +994,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 		);
 		proto_item_set_end(ltp_rpt_clm_item, tvb, frame_offset + segment_offset);
 
-		if (ltp_analyze_sequence && session)
+		if (ltp_analyze_sequence && session && (clm_fst <= clm_lst))
 		{
 			wmem_list_t *found = wmem_itree_find_intervals(session->data_segs, wmem_packet_scope(), clm_fst, clm_lst);
 			for (wmem_list_frame_t *it = wmem_list_head(found); it != NULL;
@@ -1013,9 +1024,9 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 
 
 static int
-dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset, ltp_session_data_t *session){
+dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset, ltp_tap_info_t *tap){
+	ltp_session_data_t *session = tap->session;
 	gint64 rpt_sno;
-
 	int rpt_sno_size;
 	int segment_offset = 0;
 
@@ -1050,7 +1061,7 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 
 
 static int
-dissect_cancel_segment(proto_tree * ltp_tree, tvbuff_t *tvb,int frame_offset, ltp_session_data_t *session _U_){
+dissect_cancel_segment(proto_tree * ltp_tree, tvbuff_t *tvb, int frame_offset, ltp_tap_info_t *tap _U_){
 	guint8 reason_code;
 
 	proto_tree *ltp_cancel_tree;
@@ -1321,28 +1332,28 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	/* Call sub routines to handle the segment content*/
 	if((ltp_type >= 0) && (ltp_type < 8)){
-		segment_offset = dissect_data_segment(ltp_tree,tvb,pinfo,frame_offset,ltp_type, session, &sess_id, &data_len, tap);
+		segment_offset = dissect_data_segment(ltp_tree,tvb,pinfo,frame_offset,ltp_type, &data_len, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
 	}
 	else if(ltp_type == 8){
-		segment_offset = dissect_report_segment(tvb, pinfo, ltp_tree,frame_offset, session, tap);
+		segment_offset = dissect_report_segment(tvb, pinfo, ltp_tree,frame_offset, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
 	}
 	else if(ltp_type == 9){
-		segment_offset = dissect_report_ack_segment(ltp_tree,tvb, pinfo, frame_offset, session);
+		segment_offset = dissect_report_ack_segment(ltp_tree,tvb, pinfo, frame_offset, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
 	}
 	else if(ltp_type == 12 || ltp_type == 14){
-		segment_offset = dissect_cancel_segment(ltp_tree,tvb,frame_offset, session);
+		segment_offset = dissect_cancel_segment(ltp_tree,tvb,frame_offset, tap);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
@@ -1662,7 +1673,7 @@ ltp_stats_tree_packet(stats_tree *st, packet_info *pinfo _U_, epan_dissect_t *ed
 		eng_addr = &(pinfo->dst);
 		break;
 	}
-	const gchar *eng_addr_str = address_to_display(wmem_packet_scope(), eng_addr);
+	const gchar *eng_addr_str = eng_addr ? address_to_display(pinfo->pool, eng_addr) : NULL;
 	if (eng_addr_str)
 	{
 		tick_stat_node(st, eng_addr_str, st_eng_id, FALSE);
