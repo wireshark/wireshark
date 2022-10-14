@@ -73,6 +73,9 @@ The following features are new (or have been significantly updated) since versio
 
 === Updated Protocol Support
 
+* The JSON dissector now has a preference to enable/disable "unescaping"
+  of string values. By default it is off. Previously it was always on.
+
 Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support

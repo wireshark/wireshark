@@ -31,6 +31,7 @@
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
 static char* json_string_unescape(tvbparse_elem_t *tok, gboolean enclose_in_quotation_marks);
+static char* get_json_string(tvbparse_elem_t *tok, gboolean enclose_in_quotation_marks);
 
 static dissector_handle_t json_handle;
 static dissector_handle_t json_file_handle;
@@ -76,6 +77,8 @@ static gboolean json_compact = FALSE;
 static gboolean ignore_leading_bytes = FALSE;
 
 static gboolean hide_extended_path_based_filtering = FALSE;
+
+static gboolean unescape_strings = FALSE;
 
 static tvbparse_wanted_t* want;
 static tvbparse_wanted_t* want_ignore;
@@ -419,6 +422,15 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 	return output_string;
 }
 
+static char*
+get_json_string(tvbparse_elem_t *tok, gboolean enclose_in_quotation_marks)
+{
+	if (unescape_strings)
+		return json_string_unescape(tok, enclose_in_quotation_marks);
+
+	return tvb_get_string_enc(wmem_packet_scope(), tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+}
+
 GHashTable* json_header_fields_hash;
 
 static proto_item*
@@ -680,9 +692,9 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	tvbparse_elem_t key_parse_element = tok->sub[0];
 	key_parse_element.offset += 1;
 	key_parse_element.len -= 2;
-	char* key_string_without_quotation_marks = json_string_unescape(&key_parse_element, FALSE);
+	char* key_string_without_quotation_marks = get_json_string(&key_parse_element, FALSE);
 
-	char* key_string_with_quotation_marks = json_string_unescape(tok->sub, FALSE);
+	char* key_string_with_quotation_marks = get_json_string(tok->sub, FALSE);
 
 	ti = proto_tree_add_string(tree, hf_json_member, tok->tvb, tok->offset, tok->len, key_string_without_quotation_marks);
 
@@ -732,7 +744,7 @@ after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 		tvbparse_elem_t key_parse_element = key_tok[0];
 		key_parse_element.offset += 1;
 		key_parse_element.len -= 2;
-		char* key_string_without_quotation_marks = json_string_unescape(&key_parse_element, FALSE);
+		char* key_string_without_quotation_marks = get_json_string(&key_parse_element, FALSE);
 
 		proto_tree_add_string(tree, hf_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key_string_without_quotation_marks);
 	}
@@ -837,11 +849,11 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 		key_parse_element.offset += 1;
 		key_parse_element.len -= 2;
 
-		value_str = json_string_unescape(&key_parse_element, FALSE);
+		value_str = get_json_string(&key_parse_element, FALSE);
 	}
 	else
 	{
-		value_str = json_string_unescape(tok, FALSE);
+		value_str = get_json_string(tok, FALSE);
 	}
 
 	char* path_with_value = join_strings(path, value_str, ':');
@@ -1230,6 +1242,11 @@ proto_register_json(void)
 		"Hide extended path based filtering",
 		"Hide extended path based filtering",
 		&hide_extended_path_based_filtering);
+
+	prefs_register_bool_preference(json_module, "unescape_strings",
+		"Replace character escapes with the escaped literal value",
+		"Replace character escapes with the escaped literal value",
+		&unescape_strings);
 
 	/* Fill hash table with static headers */
 	register_static_headers();
