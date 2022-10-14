@@ -292,7 +292,10 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* Could also test if try_bom is 0xnn00 or 0x00nn to guess endianness if we wanted */
     else {
         /* Assume it's UTF-8, either with or without BOM */
-        decoded = tvb;
+        const guint8 *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_8);
+        size_t l = strlen(data_str);
+        decoded = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
+        add_new_data_source(pinfo, decoded, "Decoded UTF-8 text");
     }
 
     tt = tvbparse_init(pinfo->pool, decoded, 0, -1, stack, want_ignore);
