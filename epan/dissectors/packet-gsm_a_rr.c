@@ -5198,11 +5198,14 @@ de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
 /*
  * [3] 10.5.2.30 Request Reference M V 3
  */
-static guint16 reduced_frame_number(guint16 fn)
+static guint16 parse_reduced_frame_number(tvbuff_t *tvb, const gint offset)
 {
     /* great care needed with signed/unsigned - -1 in unsigned is 0xffff, which mod(26) is not what you think !!! */
     gint16  t2, t3, t;
     guint16 frame, t1;
+    guint16 fn;
+
+    fn = tvb_get_ntohs(tvb, offset);
 
     t1 = (fn >> 11) & 0x1f;
     t2 = (fn >> 0) & 0x1f;
@@ -5223,14 +5226,12 @@ de_rr_req_ref(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
     proto_item *item;
     guint32     curr_offset;
     guint16     rfn;
-    guint16     fn;
 
     curr_offset = offset;
 
     proto_tree_add_item(subtree, hf_gsm_a_rr_ra, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
-    fn = tvb_get_ntohs(tvb,curr_offset);
-    rfn = reduced_frame_number(fn);
+    rfn = parse_reduced_frame_number(tvb, curr_offset);
     proto_tree_add_item(subtree, hf_gsm_a_rr_T1prim, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gsm_a_rr_T3, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset++;
@@ -8538,12 +8539,11 @@ de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 {
     proto_item *item;
     guint32     curr_offset;
-    guint16     rfn, fn;
+    guint16     rfn;
 
     curr_offset = offset;
 
-    fn = tvb_get_ntohs(tvb,curr_offset);
-    rfn = reduced_frame_number(fn);
+    rfn = parse_reduced_frame_number(tvb, curr_offset);
     proto_tree_add_item(tree, hf_gsm_a_rr_T1prim, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_rr_T3, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset++;
