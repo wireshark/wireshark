@@ -1,4 +1,5 @@
-name: MSYS2
+name: Build MSYS2
+
 on: [push]
 
 jobs:
