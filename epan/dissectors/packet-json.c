@@ -30,7 +30,7 @@
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
-static char* json_string_unescape(tvbparse_elem_t *tok, gboolean enclose_in_quotation_marks);
+static char* json_string_unescape(const char *string, gboolean enclose_in_quotation_marks);
 static char* get_json_string(tvbparse_elem_t *tok, gboolean enclose_in_quotation_marks);
 
 static dissector_handle_t json_handle;
@@ -138,11 +138,13 @@ json_object_add_key(json_parser_data_t *data)
 }
 
 static char*
-json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
+json_string_unescape(const char *string, gboolean enclose_in_quotation_marks)
 {
-	int read_index = 0;
+	size_t read_index = 0;
+	size_t string_length = strlen(string);
 
-	wmem_strbuf_t* output_string_buffer = wmem_strbuf_sized_new(wmem_packet_scope(), tok->len, tok->len + 2);
+	wmem_strbuf_t* output_string_buffer = wmem_strbuf_sized_new(wmem_packet_scope(),
+			enclose_in_quotation_marks ? string_length + 2 : string_length, 0);
 
 	if (enclose_in_quotation_marks == TRUE)
 	{
@@ -151,18 +153,13 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 
 	while (true)
 	{
-		// Do not overflow TVB
-		if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-		{
-			break;
-		}
 		// Do not overflow input string
-		if (!(read_index < tok->len))
+		if (!(read_index < string_length))
 		{
 			break;
 		}
 
-		guint8 current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+		guint8 current_character = string[read_index];
 
 		// character that IS NOT escaped
 		if (current_character != '\\')
@@ -178,20 +175,13 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 
 			for (int i = 0; i < utf8_character_length; i++)
 			{
-				// If it is a character of length 1 these checks are redundant.
-				// But it avoids a seperate code path since this loop works for lengths from 1 to 6
-				// Do not overflow TVB
-				if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-				{
-					break;
-				}
 				// Do not overflow input string
-				if (!(read_index < tok->len ))
+				if (!(read_index < string_length))
 				{
 					break;
 				}
 
-				current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+				current_character = string[read_index];
 				read_index++;
 				wmem_strbuf_append_c(output_string_buffer, current_character);
 			}
@@ -201,18 +191,13 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 		{
 			read_index++;
 
-			// Do not overflow TVB
-			if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-			{
-				break;
-			}
 			// Do not overflow input string
-			if (!(read_index < tok->len))
+			if (!(read_index < string_length))
 			{
 				break;
 			}
 
-			current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+			current_character = string[read_index];
 
 			if (current_character == '\"' || current_character == '\\' || current_character == '/')
 			{
@@ -253,20 +238,14 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 
 				for (int i = 0; i < 4; i++)
 				{
-					// Do not overflow TVB
-					if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-					{
-						is_valid_unicode_character = FALSE;
-						break;
-					}
 					// Do not overflow input string
-					if (!(read_index < tok->len))
+					if (!(read_index < string_length))
 					{
 						is_valid_unicode_character = FALSE;
 						break;
 					}
 
-					current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+					current_character = string[read_index];
 					read_index++;
 
 					int nibble = ws_xton(current_character);
@@ -283,34 +262,24 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 
 				if ((IS_LEAD_SURROGATE(code_point)))
 				{
-					// Do not overflow TVB
-					if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-					{
-						break;
-					}
 					// Do not overflow input string
-					if (!(read_index < tok->len))
+					if (!(read_index < string_length))
 					{
 						break;
 					}
-					current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+					current_character = string[read_index];
 
 					if (current_character == '\\')
 					{
 						read_index++;
 
-						// Do not overflow TVB
-						if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-						{
-							break;
-						}
 						// Do not overflow input string
-						if (!(read_index < tok->len))
+						if (!(read_index < string_length))
 						{
 							break;
 						}
 
-						current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+						current_character = string[read_index];
 						if (current_character == 'u') {
 							guint16 lead_surrogate = code_point;
 							guint16 trail_surrogate = 0;
@@ -319,20 +288,14 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 
 							for (int i = 0; i < 4; i++)
 							{
-								// Do not overflow TVB
-								if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-								{
-									is_valid_unicode_character = FALSE;
-									break;
-								}
 								// Do not overflow input string
-								if (!(read_index < tok->len))
+								if (!(read_index < string_length))
 								{
 									is_valid_unicode_character = FALSE;
 									break;
 								}
 
-								current_character = tvb_get_guint8(tok->tvb, tok->offset + read_index);
+								current_character = string[read_index];
 								read_index++;
 
 								int nibble = ws_xton(current_character);
@@ -382,17 +345,6 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 
 						for (int i = 0; i < utf8_character_length; i++)
 						{
-							// Do not overflow TVB
-							if (!tvb_offset_exists(tok->tvb, tok->offset + read_index))
-							{
-								break;
-							}
-							// Do not overflow input string
-							if (!(read_index < tok->len))
-							{
-								break;
-							}
-
 							current_character = length_test_buffer[i];
 							wmem_strbuf_append_c(output_string_buffer, current_character);
 
@@ -425,10 +377,13 @@ json_string_unescape(tvbparse_elem_t* tok, gboolean enclose_in_quotation_marks)
 static char*
 get_json_string(tvbparse_elem_t *tok, gboolean enclose_in_quotation_marks)
 {
-	if (unescape_strings)
-		return json_string_unescape(tok, enclose_in_quotation_marks);
+	char *string;
 
-	return tvb_get_string_enc(wmem_packet_scope(), tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+	string = tvb_get_string_enc(wmem_packet_scope(), tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+	if (unescape_strings)
+		string = json_string_unescape(string, enclose_in_quotation_marks);
+
+	return string;
 }
 
 GHashTable* json_header_fields_hash;
