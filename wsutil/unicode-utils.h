@@ -59,8 +59,16 @@ extern "C" {
   } while (0)
 
 
-WS_DLL_PUBLIC
-int ws_utf8_char_len(guint8 ch);
+WSUTIL_EXPORT
+int ws_utf8_seqlen[256];
+
+/** Given the first byte in an UTF-8 encoded code point,
+ * return the length of the multibyte sequence, or *ZERO*
+ * if the byte is invalid as the first byte in a multibyte
+ * sequence.
+ */
+#define ws_utf8_char_len(ch)  (ws_utf8_seqlen[(ch)])
+
 
 #ifdef _WIN32
 
