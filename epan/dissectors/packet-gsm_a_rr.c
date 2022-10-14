@@ -5198,7 +5198,7 @@ de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
 /*
  * [3] 10.5.2.30 Request Reference M V 3
  */
-static guint16 parse_reduced_frame_number(tvbuff_t *tvb, const gint offset)
+guint16 parse_reduced_frame_number(tvbuff_t *tvb, const gint offset)
 {
     /* great care needed with signed/unsigned - -1 in unsigned is 0xffff, which mod(26) is not what you think !!! */
     gint16  t2, t3, t;
