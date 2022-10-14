@@ -623,14 +623,17 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	return offset;
 }
 
+#define UNREPL 0xFFFD
 
 /* XXX we don't do >64k length strings   yet */
 static guint32
-dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_, guint16 lb _U_, guint16 ub, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, guint16 lb, guint16 ub, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
 	guint32 length;
 	gboolean byte_aligned, use_canonical_order;
-	guint8 *buf;
+	wmem_strbuf_t *buf;
+	int str_len;
+	char *str;
 	guint char_pos;
 	int bits_per_char;
 	guint32 old_offset;
@@ -742,7 +745,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	   that is one greater than the value assigned to the previous character in the canonical order. These are the values "v" */
 	use_canonical_order = (ub <= ((guint16)(1<<bits_per_char)-1)) ? FALSE : TRUE;
 
-	buf = (guint8 *)wmem_alloc(actx->pinfo->pool, length+1);
+	buf = wmem_strbuf_new_len(actx->pinfo->pool, NULL, length);
 	old_offset=offset;
 	for(char_pos=0;char_pos<length;char_pos++){
 		guchar val;
@@ -755,19 +758,25 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			val=(val<<1)|bit;
 		}
 		if(use_canonical_order == FALSE){
-			buf[char_pos]=val;
+			if (val > ub || val < lb) {
+				wmem_strbuf_append_unichar(buf, UNREPL);
+			} else {
+				wmem_strbuf_append_c(buf, val);
+			}
 		} else {
 			if (val < alphabet_length){
-				buf[char_pos]=alphabet[val];
+				wmem_strbuf_append_c(buf, alphabet[val]);
 			} else {
-				buf[char_pos] = '?';	/* XXX - how to mark this? */
+				wmem_strbuf_append_unichar(buf, UNREPL);
 			}
 		}
 	}
-	buf[char_pos]=0;
-	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), (char*)buf);
+	str_len = (int)wmem_strbuf_get_len(buf);
+	str = wmem_strbuf_finalize(buf);
+	/* Note that str can contain embedded nulls */
+	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), str);
 	if (value_tvb) {
-		*value_tvb = tvb_new_child_real_data(tvb, buf, length, length);
+		*value_tvb = tvb_new_child_real_data(tvb, str, str_len, str_len);
 	}
 	return offset;
 }
