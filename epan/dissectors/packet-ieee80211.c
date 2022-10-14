@@ -15281,18 +15281,18 @@ dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_i
    */
   if (feedback == 0) {  /* SU */
     if (codebook == 0) {
-      phi_bits = 2; psi_bits = 4;
+      psi_bits = 2; phi_bits = 4;
     } else {
-      phi_bits = 4; psi_bits = 6;
+      psi_bits = 4; phi_bits = 6;
     }
   } else if (feedback == 1) { /* MU */
     if (grouping == 1) {
-      phi_bits = 9; psi_bits = 7;
+      psi_bits = 9; phi_bits = 7;
     } else {
       if (codebook == 0) {
-        phi_bits = 5; psi_bits = 7;
+        psi_bits = 5; phi_bits = 7;
       } else {
-        phi_bits = 7; psi_bits = 9;
+        psi_bits = 7; phi_bits = 9;
       }
     }
   }  /* DO something about CQI etc. */
@@ -38836,7 +38836,7 @@ proto_register_ieee80211(void)
       FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_compressed_beamforming_report_snr,
-     {"AgvSNR", "wlan.he.mimo.beamforming_report.avgsnr",
+     {"AvgSNR", "wlan.he.mimo.beamforming_report.avgsnr",
       FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_he_compressed_beamform_scidx,
