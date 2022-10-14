@@ -20,12 +20,12 @@ extern GHashTable *json_header_fields_hash;
 
 /* json data decoding function
  */
-typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str, gboolean use_compact);
+typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str, gboolean use_compact);
 
 /* Array of functions to dissect IEs
 */
 typedef struct _json_ie {
-    void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str, gboolean use_compact);
+    json_data_decoder_func json_data_decoder;
 } json_ie_t;
 
 /* A struct to hold the hf and callback function stored in a hastable with the json key as key.
@@ -34,8 +34,8 @@ typedef struct _json_ie {
  * read config from file, similar to Diameter(filter only)?
  */
 typedef struct {
-	int *hf_id;
-	json_data_decoder_func json_data_decoder;
+    int *hf_id;
+    json_data_decoder_func json_data_decoder;
 } json_data_decoder_t;
 
 typedef struct _json_key {

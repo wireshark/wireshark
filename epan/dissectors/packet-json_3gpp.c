@@ -142,7 +142,7 @@ static int hf_json_3gpp_suppfeat_npcf_69_accnetchargid_string = -1;
 
 /* Functions to sub dissect json content */
 static void
-dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str _U_, gboolean use_compact _U_)
+dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_, gboolean use_compact _U_)
 {
 	/* base64-encoded characters, encoding the
 	 * EPS IE specified in 3GPP TS 29.274.
@@ -161,7 +161,7 @@ dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 }
 
 static void
-dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str, gboolean use_compact _U_)
+dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str, gboolean use_compact _U_)
 {
 	/* base64-encoded characters, encoding the
 	 * NAS-5G IE specified in 3GPP TS 24.501.
@@ -194,7 +194,7 @@ dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 }
 
 static void
-dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, int offset, int len, char* key_str _U_, gboolean use_compact)
+dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, int offset, int len, const char* key_str _U_, gboolean use_compact)
 {
 	/* TS 29.571 ch5.2.2
 	 * A string used to indicate the features supported by an API that is used as defined in clause 6.6 in 3GPP TS 29.500 [25].
@@ -561,7 +561,7 @@ register_static_headers(void) {
 	};
 
 	/* List of decoding functions the index matches the HF */
-	static void(*json_decode_fn[])(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, int offset, int len, char* key_str, gboolean use_compact) = {
+	static void(*json_decode_fn[])(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, int offset, int len, const char* key_str, gboolean use_compact) = {
 		dissect_base64decoded_eps_ie,   /* ueEpsPdnConnection */
 		dissect_base64decoded_eps_ie,   /* bearerLevelQoS */
 		dissect_base64decoded_eps_ie,   /* epsBearerSetup */
