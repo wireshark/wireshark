@@ -33,6 +33,8 @@
 void proto_register_rsl(void);
 void proto_reg_handoff_rsl(void);
 
+guint16 parse_reduced_frame_number(tvbuff_t *tvb, const gint offset);
+
 /* Initialize the protocol and registered fields */
 static int proto_rsl        = -1;
 
@@ -52,6 +54,7 @@ static int hf_rsl_req_ref_ra_est_cause = -1;
 static int hf_rsl_req_ref_T1prim       = -1;
 static int hf_rsl_req_ref_T3           = -1;
 static int hf_rsl_req_ref_T2           = -1;
+static int hf_rsl_req_ref_rfn          = -1;
 static int hf_rsl_timing_adv           = -1;
 static int hf_rsl_ho_ref               = -1;
 static int hf_rsl_l1inf_power_lev      = -1;
@@ -1306,7 +1309,9 @@ static int
 dissect_rsl_ie_frame_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
     proto_tree *ie_tree;
+    proto_item *ti;
     guint8      ie_id;
+    guint16     rfn;
 
     if (is_mandatory == FALSE) {
         ie_id = tvb_get_guint8(tvb, offset);
@@ -1320,11 +1325,14 @@ dissect_rsl_ie_frame_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
+    rfn = parse_reduced_frame_number(tvb, offset);
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T1prim, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T3, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    ti = proto_tree_add_uint(ie_tree, hf_rsl_req_ref_rfn, tvb, offset - 2, 2, rfn);
+    proto_item_set_generated(ti);
 
     return offset;
 }
@@ -1848,6 +1856,7 @@ dissect_rsl_ie_req_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
     proto_tree *ie_tree, *ra_tree;
     guint8      ie_id;
+    guint16     rfn;
     proto_item *ti;
 
     if (is_mandatory == FALSE) {
@@ -1865,11 +1874,14 @@ dissect_rsl_ie_req_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     ra_tree = proto_item_add_subtree(ti, ett_ie_req_ref_ra);
     proto_tree_add_item(ra_tree, hf_rsl_req_ref_ra_est_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    rfn = parse_reduced_frame_number(tvb, offset);
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T1prim, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T3, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    ti = proto_tree_add_uint(ie_tree, hf_rsl_req_ref_rfn, tvb, offset - 2, 2, rfn);
+    proto_item_set_generated(ti);
     return offset;
 }
 
@@ -4800,6 +4812,11 @@ void proto_register_rsl(void)
           { "T2",           "gsm_abis_rsl.req_ref_T2",
             FT_UINT8, BASE_DEC, NULL, 0x1f,
             NULL, HFILL }
+        },
+        { &hf_rsl_req_ref_rfn,
+          { "RFN",          "gsm_abis_rsl.req_ref_rfn",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Reduced Frame Number", HFILL }
         },
         { &hf_rsl_timing_adv,
           { "Timing Advance",           "gsm_abis_rsl.timing_adv",
