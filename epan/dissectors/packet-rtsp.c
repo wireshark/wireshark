@@ -1430,7 +1430,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
     while (url < lineend && !g_ascii_isspace(*url))
         url++;
     /* Create a URL-sized buffer and copy contents */
-    tmp_url = wmem_strndup(wmem_packet_scope(), url_start, url - url_start);
+    tmp_url = format_text(wmem_packet_scope(), url_start, url - url_start);
 
     /* Add URL to tree */
     proto_tree_add_string(sub_tree, hf_rtsp_url, tvb,
