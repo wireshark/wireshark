@@ -4535,10 +4535,11 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
                  * characters in the string.
                  */
 
-                gchar *val, *val2;
+                guchar *val;
+                wmem_strbuf_t *val2;
                 len *= 2;
-                val  = (gchar *)tvb_memdup(wmem_packet_scope(), tvb, offset2, len);
-                val2 = (gchar *)wmem_alloc(wmem_packet_scope(), len/2+1);
+                val  = tvb_memdup(wmem_packet_scope(), tvb, offset2, len);
+                val2 = wmem_strbuf_sized_new(wmem_packet_scope(), len/2+1, 0);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
                     val[j] ^= 0xA5;
@@ -4546,11 +4547,14 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
                     /* Swap the most and least significant bits */
                     val[j] = ((val[j] & 0x0F) << 4) | ((val[j] & 0xF0) >> 4);
 
-                    val2[k] = val[j];
+                    if (val[j] <= 0x7f)
+                        wmem_strbuf_append_c(val2, val[j]); /* ASCII */
+                    else
+                        wmem_strbuf_append_unichar_repl(val2);
                 }
-                val2[k] = '\0'; /* Null terminate our new string */
 
-                proto_tree_add_string_format_value(login_tree, login_hf, tvb, offset2, len, val2, "%s", val2);
+                proto_tree_add_string(login_tree, login_hf, tvb, offset2, len,
+                                        wmem_strbuf_get_str(val2));
             }
         }
     }
