@@ -4933,27 +4933,27 @@ dissect_tcpopt_tfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 /*
  * TCP ACK Rate Request option is based on
- * https://datatracker.ietf.org/doc/html/draft-gomez-tcpm-ack-rate-request-05
+ * https://datatracker.ietf.org/doc/html/draft-gomez-tcpm-ack-rate-request-06
  */
 
-#define TCPOPT_TARR_RATE_MASK     0xffe0
-#define TCPOPT_TARR_RESERVED_MASK 0x001f
-#define TCPOPT_TARR_RATE_SHIFT    5
+#define TCPOPT_TARR_RATE_MASK     0xfe
+#define TCPOPT_TARR_RESERVED_MASK 0x01
+#define TCPOPT_TARR_RATE_SHIFT    1
 
 static void
 dissect_tcpopt_tarr_data(tvbuff_t *tvb, int data_offset, guint data_len,
     packet_info *pinfo, proto_tree *tree, proto_item *item, void *data _U_)
 {
-    guint16 rate;
+    guint8 rate;
 
     switch (data_len) {
     case 0:
         col_append_str(pinfo->cinfo, COL_INFO, " TARR");
         break;
-    case 2:
-        rate = (tvb_get_ntohs(tvb, data_offset) & TCPOPT_TARR_RATE_MASK) >> TCPOPT_TARR_RATE_SHIFT;
-        proto_tree_add_item(tree, hf_tcp_option_tarr_rate, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_tcp_option_tarr_reserved, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+    case 1:
+        rate = (tvb_get_guint8(tvb, data_offset) & TCPOPT_TARR_RATE_MASK) >> TCPOPT_TARR_RATE_SHIFT;
+        proto_tree_add_item(tree, hf_tcp_option_tarr_rate, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tcp_option_tarr_reserved, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         tcp_info_append_uint(pinfo, "TARR", rate);
         proto_item_append_text(item, " %u", rate);
         break;
@@ -5083,9 +5083,9 @@ dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             proto_item_append_text(item, ": %s", val_to_str_const(exid, tcp_exid_vs, "Unknown"));
             switch (exid) {
             case TCPEXID_TARR:
-                if (optlen != 4 && optlen != 6) {
+                if (optlen != 4 && optlen != 5) {
                     expert_add_info_format(pinfo, length_item, &ei_tcp_opt_len_invalid,
-                                           "option length should be 4 or 6 instead of %d",
+                                           "option length should be 4 or 5 instead of %d",
                                            optlen);
                 } else {
                     dissect_tcpopt_tarr_data(tvb, offset + 4, optlen - 4,
@@ -8778,11 +8778,11 @@ proto_register_tcp(void)
             NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_tarr_rate,
-          { "TARR Rate", "tcp.options.tarr.rate", FT_UINT16, BASE_DEC,
+          { "TARR Rate", "tcp.options.tarr.rate", FT_UINT8, BASE_DEC,
             NULL, TCPOPT_TARR_RATE_MASK, NULL, HFILL}},
 
         { &hf_tcp_option_tarr_reserved,
-          { "TARR Reserved", "tcp.options.tar.reserved", FT_UINT16, BASE_DEC,
+          { "TARR Reserved", "tcp.options.tar.reserved", FT_UINT8, BASE_DEC,
             NULL, TCPOPT_TARR_RESERVED_MASK, NULL, HFILL}},
 
         { &hf_tcp_option_acc_ecn_ee0b,
