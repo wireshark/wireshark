@@ -3924,6 +3924,22 @@ gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 	return isprint_utf8_string(buf, abs_length);
 }
 
+gboolean tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset, const gint length)
+{
+	const guint8* buf = tvb_get_ptr(tvb, offset, length);
+	guint abs_offset, abs_length = length;
+
+	if (length == -1) {
+		/* tvb_get_ptr has already checked for exceptions. */
+		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
+	}
+	for (guint i = 0; i < abs_length; i++, buf++)
+		if (!g_ascii_isdigit(*buf))
+			return FALSE;
+
+	return TRUE;
+}
+
 static ws_mempbrk_pattern pbrk_crlf;
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts

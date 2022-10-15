@@ -463,8 +463,9 @@ static void create_and_link_data_conversation(packet_info *pinfo,
  * the address and port number.
  */
 static gboolean
-parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_port,
-    guint32 *pasv_offset, guint *ftp_ip_len, guint *ftp_port_len)
+parse_port_pasv(tvbuff_t *tvb, int offset, int linelen, guint32 *ftp_ip,
+    guint16 *ftp_port, guint32 *pasv_offset, guint *ftp_ip_len,
+    guint *ftp_port_len)
 {
     char     *args;
     char     *p;
@@ -476,7 +477,8 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
     /*
      * Copy the rest of the line into a null-terminated buffer.
      */
-    args = wmem_strndup(wmem_packet_scope(), line, linelen);
+    args = wmem_alloc(wmem_packet_scope(), linelen + 1);
+    tvb_get_raw_bytes_as_string(tvb, offset, args, linelen + 1);
     p = args;
 
     for (;;) {
@@ -571,7 +573,7 @@ isvalid_rfc2428_delimiter(const guchar c)
  *
  */
 static gboolean
-parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
+parse_eprt_request(tvbuff_t *tvb, int offset, gint linelen, guint32 *eprt_af,
         guint32 *eprt_ip, guint16 *eprt_ipv6, guint16 *ftp_port,
         guint32 *eprt_ip_len, guint32 *ftp_port_len)
 {
@@ -586,11 +588,12 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
 
 
     /* line contains the EPRT parameters, we need at least the 4 delimiters */
-    if (!line || linelen<4)
+    if (linelen<4)
         return FALSE;
 
     /* Copy the rest of the line into a null-terminated buffer. */
-    args = wmem_strndup(wmem_packet_scope(), line, linelen);
+    args = wmem_alloc(wmem_packet_scope(), linelen + 1);
+    tvb_get_raw_bytes_as_string(tvb, offset, args, linelen + 1);
     p = args;
     /*
      * Handle a NUL being in the line; if there's a NUL in the line,
@@ -706,8 +709,8 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
  *
  */
 static gboolean
-parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port,
-        guint *pasv_offset, guint *ftp_port_len)
+parse_extended_pasv_response(tvbuff_t *tvb, int offset, gint linelen,
+        guint16 *ftp_port, guint *pasv_offset, guint *ftp_port_len)
 {
     gint       n;
     gchar     *args;
@@ -720,7 +723,8 @@ parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port
     /*
      * Copy the rest of the line into a null-terminated buffer.
      */
-    args = wmem_strndup(wmem_packet_scope(), line, linelen);
+    args = wmem_alloc(wmem_packet_scope(), linelen + 1);
+    tvb_get_raw_bytes_as_string(tvb, offset, args, linelen + 1);
     p = args;
 
     /*
@@ -936,11 +940,13 @@ static void process_cwd_success(ftp_conversation_t *conv, const char *new_path)
 }
 
 /* When get a PWD command response, extract directory and set it in conversation.  */
-static void process_pwd_success(ftp_conversation_t *conv, const char *line,
-                                int linelen, packet_info *pinfo, proto_item *pi)
+static void process_pwd_success(ftp_conversation_t *conv, tvbuff_t *tvb,
+                                int offset, int linelen, packet_info *pinfo,
+                                proto_item *pi)
 {
-    wmem_strbuf_t *output = wmem_strbuf_new(wmem_file_scope(), NULL);
-    int offset;
+    wmem_strbuf_t *output;
+    const char *line = tvb_get_ptr(tvb, offset, linelen);
+    offset = 0;
     gboolean outputStarted = FALSE;
 
     /* Line must start with quotes */
@@ -948,6 +954,8 @@ static void process_pwd_success(ftp_conversation_t *conv, const char *line,
         expert_add_info(pinfo, pi, &ei_ftp_pwd_response_invalid);
         return;
     }
+
+    output = wmem_strbuf_new(wmem_file_scope(), NULL);
 
     /* For each character */
     for (offset=0;
@@ -977,10 +985,12 @@ static void process_pwd_success(ftp_conversation_t *conv, const char *line,
     /* Make sure output ends in " */
     if (offset >= linelen || line[offset] != '"') {
         expert_add_info(pinfo, pi, &ei_ftp_pwd_response_invalid);
+        wmem_strbuf_destroy(output);
         return;
     }
 
-    /* Save result */
+    /* Save result - assume it's UTF-8 */
+    wmem_strbuf_utf8_make_valid(output);
     conv->current_working_directory = output;
 }
 
@@ -1003,8 +1013,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree     *ftp_tree;
     proto_tree     *reqresp_tree;
     proto_item     *ti, *hidden_item;
-    gint            offset;
-    const guchar   *line;
+    gint            offset            = 0;
     guint32         code;
     gchar           code_str[4];
     gboolean        is_port_request   = FALSE;
@@ -1012,9 +1021,9 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     gboolean        is_pasv_response  = FALSE;
     gboolean        is_epasv_response = FALSE;
     gint            next_offset;
+    gint            next_token;
     int             linelen;
     int             tokenlen          = 0;
-    const guchar   *next_token;
     guint32         pasv_ip;
     guint32         pasv_offset;
     guint32         ftp_ip;
@@ -1053,8 +1062,26 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * not longer than what's in the buffer, so the "tvb_get_ptr()"
      * call won't throw an exception.
      */
+    /*
+     * Both request and reply arguments can be pathnames, which according
+     * to RFC 2640 MUST be assumed to be UTF-8 if they are valid UTF-8,
+     * unless explicitly configured to use another character set (and there
+     * is no official way to do so.) We don't have a preference for character
+     * set, so we'll display strings as UTF-8 (backwards compatible to ASCII).
+     *
+     * XXX: Non valid UTF-8 sequences SHOULD be treated as raw bytes,
+     * which means that the various extracted strings should be copied
+     * as raw bytes, and added as FT_BYTES with BASE_SHOW_UTF_8_PRINTABLE.
+     * That would work better for pathnames that are in a different character
+     * set, but worse for those intended to be in ASCII/UTF-8 but with errors.
+     * Pathnames would still need to be converted to a valid string for Export
+     * Objects, though.
+     *
+     * XXX: RFC 2640 allows embedded <CR> and <LF> in pathnames by enforcing
+     * that ftp commands end with \r\n and requiring that <CR> be padded
+     * with a <NUL> that is then stripped away upon receipt, similar to Telnet.
+     */
     linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
-    line    = tvb_get_ptr(tvb, 0, linelen);
 
     /*
      * Put the first line from the buffer into the summary
@@ -1062,7 +1089,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
         is_request ? "Request" : "Response",
-        format_text(wmem_packet_scope(), line, linelen));
+        tvb_format_text(pinfo->pool, tvb, 0, linelen));
 
     ti = proto_tree_add_item(tree, proto_ftp, tvb, 0, -1, ENC_NA);
     ftp_tree = proto_item_add_subtree(ti, ett_ftp);
@@ -1083,23 +1110,30 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * Extract the first token, and, if there is a first
          * token, add it as the request.
          */
-        tokenlen = get_token_len(line, line + linelen, &next_token);
+        /* RFC 2640 s3.1: "There MUST be only one <SP> between a ftp command
+         * and the pathname.  Implementations MUST assume <SP> characters
+         * following the initial <SP> as part of the pathname."
+         *
+         * tvb_get_token_len() does not skip trailing spaces, which is
+         * what we want. (get_token_len() _does_ skip extra spaces.)
+         */
+        tokenlen = tvb_get_token_len(tvb, 0, linelen, &next_token, FALSE);
         if (tokenlen != 0) {
             proto_tree_add_item(reqresp_tree, hf_ftp_request_command,
-                    tvb, 0, tokenlen, ENC_ASCII);
-            if (strncmp(line, "PORT", tokenlen) == 0)
+                    tvb, 0, tokenlen, ENC_UTF_8);
+            if (tvb_strneql(tvb, 0, "PORT", tokenlen) == 0)
                 is_port_request = TRUE;
             /*
              * EPRT request command, as per RFC 2428
              */
-            else if (strncmp(line, "EPRT", tokenlen) == 0)
+            else if (tvb_strneql(tvb, 0, "EPRT", tokenlen) == 0)
                 is_eprt_request = TRUE;
-            else if (strncmp(line, "USER", tokenlen) == 0) {
+            else if (tvb_strneql(tvb, 0, "USER", tokenlen) == 0) {
                 if (p_ftp_conv && !p_ftp_conv->username && linelen - tokenlen > 1) {
-                    p_ftp_conv->username = wmem_strndup(wmem_file_scope(), line + tokenlen + 1, linelen - tokenlen - 1);
+                    p_ftp_conv->username = tvb_get_string_enc(wmem_file_scope(), tvb, tokenlen + 1, linelen - tokenlen - 1, ENC_UTF_8);
                     p_ftp_conv->username_pkt_num = pinfo->num;
                 }
-            } else if (strncmp(line, "PASS", tokenlen) == 0) {
+            } else if (tvb_strneql(tvb, 0, "PASS", tokenlen) == 0) {
                 if (p_ftp_conv && p_ftp_conv->username) {
                     tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
                     auth->num = pinfo->num;
@@ -1116,16 +1150,16 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* If there is an ftp data conversation that doesn't have a
            command yet, attempt to update here */
         if (p_ftp_conv) {
-            p_ftp_conv->last_command = wmem_strndup(wmem_file_scope(), line, linelen);
+            p_ftp_conv->last_command = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
             p_ftp_conv->last_command_frame = pinfo->num;
 
-            if ( ( linelen == 8 ) && ! strncmp( "AUTH TLS", line, 8 ) )
-                p_ftp_conv->tls_requested = TRUE ;
+            if ( (linelen == 8) && ! tvb_strneql(tvb, 0, "AUTH TLS", 8) )
+                p_ftp_conv->tls_requested = TRUE;
         }
         /* And make sure set for FTP data conversation */
         if (p_ftp_conv && p_ftp_conv->current_data_conv && !p_ftp_conv->current_data_conv->command) {
             /* Store command and frame where it happened */
-            p_ftp_conv->current_data_conv->command = wmem_strndup(wmem_file_scope(), line, linelen);
+            p_ftp_conv->current_data_conv->command = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
             p_ftp_conv->current_data_conv->command_frame = pinfo->num;
 
             /* Add to table to ftp-data response can be shown with this frame on later passes */
@@ -1147,8 +1181,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * treat non-continuation lines not beginning with digits
          * as errors?
          */
-        if (linelen >= 3 && g_ascii_isdigit(line[0]) && g_ascii_isdigit(line[1])
-            && g_ascii_isdigit(line[2])) {
+        if (linelen >= 3 && tvb_ascii_isdigit(tvb, 0, 3)) {
             gboolean code_valid;
             proto_item* pi;
             /*
@@ -1220,7 +1253,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 if (!pinfo->fd->visited) {
                     if (p_ftp_conv && linelen >= 4) {
                         /* Want directory name, which will be between " " */
-                        process_pwd_success(p_ftp_conv, line+4, linelen-4, pinfo, pi);
+                        process_pwd_success(p_ftp_conv, tvb, 4, linelen-4, pinfo, pi);
 
                         /* Update path in packet */
                         if (!pinfo->fd->visited) {
@@ -1236,21 +1269,20 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * space or hyphen.
              */
             if (linelen >= 4)
-                next_token = line + 4;
+                next_token = 4;
             else
-                next_token = line + linelen;
+                next_token = linelen;
         } else {
             /*
              * Line doesn't start with 3 digits; assume it's
              * a line in the middle of a multi-line reply.
              */
-            next_token = line;
+            next_token = 0;
         }
     }
 
-    offset   = (gint) (next_token - line);
-    linelen -= (int) (next_token - line);
-    line     = next_token;
+    offset   = next_token;
+    linelen -= next_token;
 
     /*
      * Add the rest of the first line as request or
@@ -1260,21 +1292,19 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (is_request) {
             proto_tree_add_item(reqresp_tree,
                     hf_ftp_request_arg, tvb, offset,
-                    linelen, ENC_ASCII);
+                    linelen, ENC_UTF_8);
         } else {
             proto_tree_add_item(reqresp_tree,
                     hf_ftp_response_arg, tvb, offset,
-                    linelen, ENC_ASCII);
+                    linelen, ENC_UTF_8);
         }
     }
-    offset = next_offset;
-
 
     /*
      * If this is a PORT request or a PASV response, handle it.
      */
     if (is_port_request) {
-        if (parse_port_pasv(line, linelen, &ftp_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
+        if (parse_port_pasv(tvb, offset, linelen, &ftp_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
             proto_tree_add_ipv4(reqresp_tree, hf_ftp_active_ip,
                     tvb, pasv_offset + (tokenlen+1) , ftp_ip_len, ftp_ip);
             proto_tree_add_uint(reqresp_tree, hf_ftp_active_port,
@@ -1300,7 +1330,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * This frame contains a PASV response; set up a
              * conversation for the data.
              */
-            if (parse_port_pasv(line, linelen, &pasv_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
+            if (parse_port_pasv(tvb, offset, linelen, &pasv_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
                 proto_tree_add_ipv4(reqresp_tree, hf_ftp_pasv_ip,
                         tvb, pasv_offset + 4, ftp_ip_len, pasv_ip);
                 proto_tree_add_uint(reqresp_tree, hf_ftp_pasv_port,
@@ -1324,7 +1354,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * This frame contains a EPRT request; let's dissect it and set up a
          * conversation for the data connection.
          */
-        if (parse_eprt_request(line, linelen,
+        if (parse_eprt_request(tvb, offset, linelen,
                     &eprt_af, &eprt_ip, eprt_ipv6, &ftp_port,
                     &eprt_ip_len, &ftp_port_len)) {
 
@@ -1371,7 +1401,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * This frame contains an  EPSV response; set up a
              * conversation for the data.
              */
-            if (parse_extended_pasv_response(line, linelen,
+            if (parse_extended_pasv_response(tvb, offset, linelen,
                         &ftp_port, &pasv_offset, &ftp_port_len)) {
                 /* Add IP address and port number to tree */
 
@@ -1403,6 +1433,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
         }
     }
+
+    offset = next_offset;
 
     /*
      * Show the rest of the request or response as text,

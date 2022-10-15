@@ -835,6 +835,13 @@ WS_DLL_PUBLIC gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset,
 	const gint length);
 
+/** Iterates over the provided portion of the tvb checking that each byte
+* is an ascii digit.
+* Returns TRUE if all bytes are digits, FALSE otherwise
+*/
+WS_DLL_PUBLIC gboolean tvb_ascii_isdigit(tvbuff_t *tvb, const gint offset,
+	const gint length);
+
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
