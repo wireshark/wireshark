@@ -774,7 +774,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	str_len = (int)wmem_strbuf_get_len(buf);
 	str = wmem_strbuf_finalize(buf);
 	/* Note that str can contain embedded nulls */
-	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), str);
+	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3)+1, str);
 	if (value_tvb) {
 		*value_tvb = tvb_new_child_real_data(tvb, str, str_len, str_len);
 	}
@@ -782,7 +782,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 }
 
 static const char*
-sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
+sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length, guint16 *lb, guint16 *ub)
 {
 	int i, j;
 	guchar c, c_max, c_min;
@@ -790,7 +790,10 @@ sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
 
 	/*
 	 * XXX - presumably all members of alphabet will be in the
-	 * range 0 to 127.
+	 * range 0 to 127. asn2wrs.py doesn't properly handle the
+	 * Quadruple or CharacterStringList types needed for other
+	 * characters, nor representing characters outside ASCII
+	 * in the "cstring" notation (possibly in UTF-8?)
 	 */
 	if (!alphabet_length) return sorted_alphabet;
 	memset(tmp_buf, 0, 256);
@@ -804,6 +807,8 @@ sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
 	for (i=c_min,j=0; i<=c_max; i++) {
 		if (tmp_buf[i]) sorted_alphabet[j++] = i;
 	}
+	*lb = (guint16)c_min;
+	*ub = (guint16)c_max;
 	return sorted_alphabet;
 }
 
@@ -812,14 +817,24 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_
 {
 	const char *alphabet_ptr;
 	char sorted_alphabet[128];
+	guint16 lb = 0;
+	guint16 ub = 65535;
 
+	/* XXX: We don't handle permitted-alphabet characters outside the
+	 * ASCII range if used in BMPString (UCS2) or UniversalString (UCS4)
+	 */
 	if (alphabet_length > 127) {
 		alphabet_ptr = alphabet;
 	} else {
-		alphabet_ptr = sort_alphabet(sorted_alphabet, alphabet, alphabet_length);
+		alphabet_ptr = sort_alphabet(sorted_alphabet, alphabet, alphabet_length, &lb, &ub);
 	}
-	/* Not a known-multiplier character string: enforce lb and ub to max values */
-	return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, 0, 65535, alphabet_ptr, alphabet_length, value_tvb);
+
+	/* This is for a restricted character string type with a permitted-
+	 * alphabet constraint type. Such constraints are only PER-visible for
+	 * the known-multiplier character string types.
+	 */
+
+	return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, lb, ub, alphabet_ptr, alphabet_length, value_tvb);
 }
 
 guint32
