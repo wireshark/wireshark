@@ -9377,14 +9377,6 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_client_seed, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_client_proof, 20, ENC_NA);
             ptvcursor_add(ptv, hf_woww_decompressed_addon_info_size, 4, ENC_LITTLE_ENDIAN);
-            while (ptvcursor_current_offset(ptv) < offset_packet_end) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AddonInfo");
-                add_cstring(ptv, &hf_woww_addon_name);
-                ptvcursor_add(ptv, hf_woww_addon_has_signature, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_addon_crc, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_addon_extra_crc, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_pop_subtree(ptv);
-            }
             break;
         case CMSG_AUTOBANK_ITEM:
             ptvcursor_add(ptv, hf_woww_bag_index, 1, ENC_LITTLE_ENDIAN);
