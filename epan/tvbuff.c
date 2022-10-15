@@ -2654,9 +2654,6 @@ tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint
 	return format_text_wsp(allocator, ptr, stringlen);
 }
 
-/* Unicode REPLACEMENT CHARACTER */
-#define UNREPL 0x00FFFD
-
 /*
  * All string functions below take a scope as an argument.
  *
@@ -3062,7 +3059,7 @@ tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 				if (ch < 0x80)
 					wmem_strbuf_append_c(str, ch);
 				else
-					wmem_strbuf_append_unichar(str, UNREPL);
+					wmem_strbuf_append_unichar_repl(str);
 				ptr++;
 				label_len--;
 				length--;

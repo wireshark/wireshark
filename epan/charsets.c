@@ -77,7 +77,7 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
         if (ch < 0x80)
             wmem_strbuf_append_c(str, ch);
         else
-            wmem_strbuf_append_unichar(str, UNREPL);
+            wmem_strbuf_append_unichar_repl(str);
         ptr++;
         length--;
     }
@@ -120,7 +120,7 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
         if (ch < 0x80) {
             wmem_strbuf_append_c(str, ch);
         } else if (ch < 0xc2 || ch > 0xf4) {
-            wmem_strbuf_append_unichar(str, UNREPL);
+            wmem_strbuf_append_unichar_repl(str);
         } else {
             prev = ptr;
             if (ch < 0xe0) { /* 110xxxxx, 2 byte char */
@@ -130,25 +130,25 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
                 ptr++;
                 length--;
                 if (length < 1) {
-                    wmem_strbuf_append_unichar(str, UNREPL);
+                    wmem_strbuf_append_unichar_repl(str);
                     continue;
                 }
                 switch (ch) {
                     case 0xe0:
                         if (*ptr < 0xa0 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar(str, UNREPL);
+                            wmem_strbuf_append_unichar_repl(str);
                             continue;
                         }
                         break;
                     case 0xed:
                         if (*ptr < 0x80 || *ptr > 0x9f) {
-                            wmem_strbuf_append_unichar(str, UNREPL);
+                            wmem_strbuf_append_unichar_repl(str);
                             continue;
                         }
                         break;
                     default:
                         if (*ptr < 0x80 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar(str, UNREPL);
+                            wmem_strbuf_append_unichar_repl(str);
                             continue;
                         }
                 }
@@ -157,36 +157,36 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
                 ptr++;
                 length--;
                 if (length < 1) {
-                    wmem_strbuf_append_unichar(str, UNREPL);
+                    wmem_strbuf_append_unichar_repl(str);
                     continue;
                 }
                 switch (ch) {
                     case 0xf0:
                         if (*ptr < 0x90 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar(str, UNREPL);
+                            wmem_strbuf_append_unichar_repl(str);
                             continue;
                         }
                         break;
                     case 0xf4:
                         if (*ptr < 0x80 || *ptr > 0x8f) {
-                            wmem_strbuf_append_unichar(str, UNREPL);
+                            wmem_strbuf_append_unichar_repl(str);
                             continue;
                         }
                         break;
                     default:
                         if (*ptr < 0x80 || *ptr > 0xbf) {
-                            wmem_strbuf_append_unichar(str, UNREPL);
+                            wmem_strbuf_append_unichar_repl(str);
                             continue;
                         }
                 }
                 ptr++;
                 length--;
                 if (length < 1) {
-                    wmem_strbuf_append_unichar(str, UNREPL);
+                    wmem_strbuf_append_unichar_repl(str);
                     continue;
                 }
                 if (*ptr < 0x80 || *ptr > 0xbf) {
-                    wmem_strbuf_append_unichar(str, UNREPL);
+                    wmem_strbuf_append_unichar_repl(str);
                     continue;
                 }
             }
@@ -194,11 +194,11 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
             ptr++;
             length--;
             if (length < 1) {
-                wmem_strbuf_append_unichar(str, UNREPL);
+                wmem_strbuf_append_unichar_repl(str);
                 continue;
             }
             if (*ptr < 0x80 || *ptr > 0xbf) {
-                wmem_strbuf_append_unichar(str, UNREPL);
+                wmem_strbuf_append_unichar_repl(str);
                 continue;
             } else {
                 wmem_strbuf_append_len(str, prev, unichar_len);
@@ -257,7 +257,7 @@ get_iso_646_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, cons
         if (ch < 0x80)
             wmem_strbuf_append_unichar(str, table[ch]);
         else
-            wmem_strbuf_append_unichar(str, UNREPL);
+            wmem_strbuf_append_unichar_repl(str);
         ptr++;
         length--;
     }
@@ -1501,7 +1501,7 @@ get_string_enc_iconv(wmem_allocator_t *scope, const guint8 *ptr, gint length, co
             switch (errno) {
                 case EINVAL:
                     /* Incomplete sequence at the end, not an error */
-                    wmem_strbuf_append_unichar(str, UNREPL);
+                    wmem_strbuf_append_unichar_repl(str);
                     inbytes = 0;
                     break;
                 case E2BIG:
@@ -1519,7 +1519,7 @@ get_string_enc_iconv(wmem_allocator_t *scope, const guint8 *ptr, gint length, co
                     max_subpart = MAX(1, max_subpart-1);
                     ptr += max_subpart;
                     inbytes -= max_subpart;
-                    wmem_strbuf_append_unichar(str, UNREPL);
+                    wmem_strbuf_append_unichar_repl(str);
                     outptr = tempstr;
                     outbytes = tempstr_size;
                     break;

@@ -2223,8 +2223,6 @@ static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, guint length)
       return TRUE;
 }
 
-#define UNREPL 0x00FFFD
-
 /* XXX - assumes that the string encoding is ASCII; even if 0x00 through
    0x7F are ASCII, 0x80 through 0xFF might not be, and even 0x00 through
    0x7F aren't necessarily ASCII. */
@@ -2241,7 +2239,7 @@ static char *tvb_get_ascii_string16(tvbuff_t *tvb, int offset, guint length)
             if (ch < 0x80)
                   wmem_strbuf_append_c(str, ch);
             else
-                  wmem_strbuf_append_unichar(str, UNREPL);
+                  wmem_strbuf_append_unichar_repl(str);
             offset++;
       }
       return wmem_strbuf_finalize(str);

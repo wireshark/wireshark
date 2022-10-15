@@ -347,7 +347,7 @@ json_string_unescape(const char *string, size_t *length_ptr)
 				}
 				else
 				{
-					wmem_strbuf_append_unichar(output_string_buffer, 0xFFFD);
+					wmem_strbuf_append_unichar_repl(output_string_buffer);
 				}
 			}
 			else

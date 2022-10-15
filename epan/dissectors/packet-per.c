@@ -623,8 +623,6 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	return offset;
 }
 
-#define UNREPL 0xFFFD
-
 /* XXX we don't do >64k length strings   yet */
 static guint32
 dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, guint16 lb, guint16 ub, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
@@ -759,7 +757,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		}
 		if(use_canonical_order == FALSE){
 			if (val > ub || val < lb) {
-				wmem_strbuf_append_unichar(buf, UNREPL);
+				wmem_strbuf_append_unichar_repl(buf);
 			} else {
 				wmem_strbuf_append_c(buf, val);
 			}
@@ -767,7 +765,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			if (val < alphabet_length){
 				wmem_strbuf_append_c(buf, alphabet[val]);
 			} else {
-				wmem_strbuf_append_unichar(buf, UNREPL);
+				wmem_strbuf_append_unichar_repl(buf);
 			}
 		}
 	}
