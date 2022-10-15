@@ -255,18 +255,75 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
 static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                               '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
+#define HEX_CODELEN 4
+
 void
 wmem_strbuf_append_hex(wmem_strbuf_t *strbuf, uint8_t ch)
 {
-    wmem_strbuf_grow(strbuf, 4);
+    wmem_strbuf_grow(strbuf, HEX_CODELEN * 1);
 
-    if (!strbuf->max_size || WMEM_STRBUF_ROOM(strbuf) >= 4) {
+    if (!strbuf->max_size || WMEM_STRBUF_ROOM(strbuf) >= HEX_CODELEN * 1) {
         strbuf->str[strbuf->len++] = '\\';
         strbuf->str[strbuf->len++] = 'x';
         strbuf->str[strbuf->len++] = hex[(ch >> 4) & 0xF];
         strbuf->str[strbuf->len++] = hex[(ch >> 0) & 0xF];
         strbuf->str[strbuf->len] = '\0';
     }
+}
+
+#define BMP_CODELEN 6
+
+static inline
+void append_hex_bmp(wmem_strbuf_t *strbuf, gunichar ch)
+{
+    wmem_strbuf_grow(strbuf, BMP_CODELEN * 1);
+
+    if (!strbuf->max_size || WMEM_STRBUF_ROOM(strbuf) >= BMP_CODELEN * 1) {
+        strbuf->str[strbuf->len++] = '\\';
+        strbuf->str[strbuf->len++] = 'u';
+        strbuf->str[strbuf->len++] = hex[(ch >> 12) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >>  8) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >>  4) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >>  0) & 0xF];
+        strbuf->str[strbuf->len] = '\0';
+    }
+}
+
+#define ANY_CODELEN 10
+
+static inline
+void append_hex_any(wmem_strbuf_t *strbuf, gunichar ch)
+{
+    wmem_strbuf_grow(strbuf, ANY_CODELEN * 1);
+
+    if (!strbuf->max_size || WMEM_STRBUF_ROOM(strbuf) >= ANY_CODELEN * 1) {
+        strbuf->str[strbuf->len++] = '\\';
+        strbuf->str[strbuf->len++] = 'U';
+        strbuf->str[strbuf->len++] = hex[(ch >> 28) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >> 24) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >> 20) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >> 16) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >> 12) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >>  8) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >>  4) & 0xF];
+        strbuf->str[strbuf->len++] = hex[(ch >>  0) & 0xF];
+        strbuf->str[strbuf->len] = '\0';
+    }
+}
+
+size_t
+wmem_strbuf_append_hex_unichar(wmem_strbuf_t *strbuf, gunichar ch)
+{
+    if (ch <= 0x7f) {
+        wmem_strbuf_append_hex(strbuf, (uint8_t)ch);
+        return HEX_CODELEN;
+    }
+    if (ch <= 0xffff) {
+        append_hex_bmp(strbuf, ch);
+        return BMP_CODELEN;
+    }
+    append_hex_any(strbuf, ch);
+    return ANY_CODELEN;
 }
 
 void

@@ -1190,19 +1190,23 @@ static char *
 make_utf8_display(const char *src, size_t src_length, size_t good_length)
 {
     wmem_strbuf_t *buf;
-    unsigned char ch;
+    gunichar ch;
     size_t offset = 0;
 
     buf = wmem_strbuf_new(NULL, NULL);
 
-    for (size_t pos = 0; pos < good_length; pos++) {
-        ch = src[pos];
-        wmem_strbuf_append_c(buf, ch);
-        if ((ch >> 6) != 2) {
-            /* first byte */
+    for (const char *s = src; s < src + good_length; s = g_utf8_next_char(s)) {
+        ch = g_utf8_get_char(s);
+
+        if (g_unichar_isprint(ch)) {
+            wmem_strbuf_append_unichar(buf, ch);
             offset += 1;
         }
+        else {
+            offset += wmem_strbuf_append_hex_unichar(buf, ch);
+        }
     }
+
     for (size_t pos = good_length; pos < src_length; pos++) {
         ch = src[pos];
         wmem_strbuf_append_hex(buf, ch);
