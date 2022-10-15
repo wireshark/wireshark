@@ -10570,8 +10570,12 @@ typedef enum
     COUNT_COLUMN
 } ansi_a_stat_columns;
 
-static stat_tap_table_item dtap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
-    {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
+static stat_tap_table_item dtap_stat_fields[] =
+{
+    {TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "IEI",          "0x%02x  "},
+    {TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "Message Name", "%-50s"},
+    {TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Count",        "%d"}
+};
 
 static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat)
 {
@@ -10586,14 +10590,22 @@ static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat)
     items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
     items[COUNT_COLUMN].value.uint_value = 0;
 
+    /* N.B. user-data field not used by this protocol, but init anyway */
+    items[IEI_COLUMN].user_data.uint_value = 0;
+    items[MESSAGE_NAME_COLUMN].user_data.uint_value = 0;
+    items[COUNT_COLUMN].user_data.uint_value = 0;
+
+    /* Look for existing table */
     table = stat_tap_find_table(new_stat, table_name);
     if (table) {
         if (new_stat->stat_tap_reset_table_cb) {
             new_stat->stat_tap_reset_table_cb(table);
         }
+        /* Nothing more to do */
         return;
     }
 
+    /* Initialize table */
     table = stat_tap_init_table(table_name, num_fields, 0, NULL);
     stat_tap_add_table(new_stat, table);
 
