@@ -273,6 +273,7 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
@@ -295,6 +296,8 @@ void proto_reg_handoff_giop(void);
  */
 
 #define DEBUG   0
+
+#define GIOP_MAX_RECURSION_DEPTH 100 // Arbitrary
 
 /*
  * ------------------------------------------------------------------------------------------+
@@ -507,6 +510,8 @@ static expert_field ei_giop_length_too_big = EI_INIT;
 static expert_field ei_giop_version_not_supported = EI_INIT;
 static expert_field ei_giop_message_size_too_big = EI_INIT;
 static expert_field ei_giop_invalid_v_minor = EI_INIT;
+static expert_field ei_giop_max_recursion_depth_reached = EI_INIT;
+static expert_field ei_giop_offset_error = EI_INIT;
 
 
 static int * const giop_message_flags[] = {
@@ -2205,6 +2210,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
   wmem_list_t *inner_params;    // for recursive typecode resolution; e.g. alias, struct
   wmem_strbuf_t *strbuf = NULL; // string buffer for constructing strings
   proto_tree *mysubtree = NULL;
+  int old_offset;
 
   guint32 new_typecode;
 
@@ -2212,6 +2218,13 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
   proto_item *it = NULL;
 
   const gchar *buf = NULL;            /* ptr to string buffer */
+
+  unsigned recursion_depth = p_get_proto_depth(pinfo, proto_giop);
+  if (++recursion_depth >= GIOP_MAX_RECURSION_DEPTH) {
+    proto_tree_add_expert(tree, pinfo, &ei_giop_max_recursion_depth_reached, tvb, 0, 0);
+    return;
+  }
+  p_set_proto_depth(pinfo, proto_giop, recursion_depth);
 
   /* Grab the data according to data type */
 
@@ -2301,6 +2314,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     parameter = wmem_list_frame_next(parameter);
     u_octet4 = *((guint32*)wmem_list_frame_data(parameter));
 
+    old_offset = *offset;
     for (guint32 i = 0; i < u_octet4; i++) {
       parameter = wmem_list_frame_next(parameter);
       gchar *name = wmem_list_frame_data(parameter);
@@ -2312,6 +2326,10 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
       dissect_data_for_typecode_with_params(tvb, pinfo, mysubtree, item,
           offset, stream_is_big_endian, boundary, header, new_typecode,
           inner_params, name);
+      if (*offset <= old_offset) {
+        expert_add_info(pinfo, item, &ei_giop_offset_error);
+        break;
+      }
     }
     break;
   case tk_union:
@@ -2365,9 +2383,14 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
       // set max length to actual length
       u_octet8 = u_octet4;
     }
+    old_offset = *offset;
     for (guint64 i = 0; i < u_octet8; i ++) {
       dissect_data_for_typecode_with_params(tvb, pinfo, mysubtree, item, offset,
           stream_is_big_endian, boundary, header, new_typecode, inner_params, NULL);
+      if (*offset <= old_offset) {
+        expert_add_info(pinfo, mysubtree, &ei_giop_offset_error);
+        break;
+      }
     }
     break;
   case tk_array:
@@ -2386,9 +2409,14 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     mysubtree = proto_tree_add_subtree(tree, tvb, *offset, -1,
         ett_giop_array, NULL, wmem_strbuf_get_str(strbuf));
     (void)wmem_strbuf_destroy(strbuf), strbuf = NULL;
+    old_offset = *offset;
     for (guint32 i = 0; i < u_octet4; i ++) {
       dissect_data_for_typecode_with_params(tvb, pinfo, mysubtree, item, offset,
           stream_is_big_endian, boundary, header, new_typecode, inner_params, NULL);
+      if (*offset <= old_offset) {
+        expert_add_info(pinfo, mysubtree, &ei_giop_offset_error);
+        break;
+      }
     }
     break;
   case tk_alias:
@@ -2455,6 +2483,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     expert_add_info_format(pinfo, item, &ei_giop_unknown_typecode_datatype, "Unknown typecode data type %u", data_type);
     break;
   }
+  p_set_proto_depth(pinfo, proto_giop, recursion_depth - 1);
 }
 
 /*
@@ -2623,9 +2652,14 @@ static void dissect_tk_union_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   gchar *name = (gchar *)str;
 
   /* get all tuples */
+  int old_offset = *offset;
   for (i=0; i< count; i++) {
     /* get label value, based on TCKind above  */
     dissect_data_for_typecode_with_params(tvb, pinfo, tree, item, offset, new_stream_is_big_endian, new_boundary, header, TCKind, inner_params, name);
+    if (*offset <= old_offset) {
+      expert_add_info(pinfo, tree, &ei_giop_offset_error);
+      break;
+    }
 
     /* get member name */
     dissect_typecode_string_param(tvb, tree, offset, new_stream_is_big_endian, new_boundary,
@@ -5796,6 +5830,8 @@ proto_register_giop (void)
     { &ei_giop_version_not_supported, { "giop.version_not_supported", PI_PROTOCOL, PI_WARN, "Version not supported", EXPFILL }},
     { &ei_giop_message_size_too_big, { "giop.message_size_too_big", PI_PROTOCOL, PI_WARN, "Message size is too big", EXPFILL }},
     { &ei_giop_invalid_v_minor, { "giop.invalid_v_minor", PI_PROTOCOL, PI_WARN, "Invalid v_minor value", EXPFILL }},
+    { &ei_giop_max_recursion_depth_reached, { "giop.max_recursion_depth_reached", PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached. Dissection stopped.", EXPFILL }},
+    { &ei_giop_offset_error, { "giop.offset_error", PI_PROTOCOL, PI_WARN, "Offset field error", EXPFILL } },
   };
 
   module_t *giop_module;
