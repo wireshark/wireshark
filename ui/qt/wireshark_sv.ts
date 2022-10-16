@@ -3414,7 +3414,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Totalt antal QUIC-förbindelser: %Ln</numerusform>
             <numerusform>Totalt antal QUIC-förbindelse: %Ln</numerusform>
         </translation>
@@ -12958,6 +12958,10 @@ a:hover {
         <translation>SOME/IP</translation>
     </message>
     <message>
+        <source>&amp;DTN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation>Osmux</translation>
     </message>
@@ -13435,6 +13439,14 @@ a:hover {
     <message>
         <source>SOME/IP-SD Entries statistics</source>
         <translation>SOME/IP-SD-poststatistik</translation>
+    </message>
+    <message>
+        <source>&amp;LTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LTP segment and block statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>

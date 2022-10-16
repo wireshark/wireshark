@@ -3414,7 +3414,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Gesamtzahl an QUIC Verbindungen: %Ln</numerusform>
             <numerusform>Gesamtzahl an QUIC Verbindungen: %Ln</numerusform>
         </translation>
@@ -12996,6 +12996,10 @@ a:hover {
         <translation>SOME/IP</translation>
     </message>
     <message>
+        <source>&amp;DTN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation>Osmux</translation>
     </message>
@@ -13473,6 +13477,14 @@ a:hover {
     <message>
         <source>SOME/IP-SD Entries statistics</source>
         <translation>SOME/IP-SD-Einträge Statistiken</translation>
+    </message>
+    <message>
+        <source>&amp;LTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LTP segment and block statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>

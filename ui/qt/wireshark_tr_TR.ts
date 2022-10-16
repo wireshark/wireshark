@@ -1863,7 +1863,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>Paketler B</translation>
     </message>
     <message>
         <source>Bytes B </source>
@@ -2021,11 +2021,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as a Base64 String</source>
-        <translation type="unfinished"></translation>
+        <translation>…Base64 Dizesi olarak</translation>
     </message>
     <message>
         <source>Copy packet bytes as a base64 encoded string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket baytlarını base64 kodlu bir dize olarak kopyalayın.</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
@@ -2189,7 +2189,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished">Geçersiz filtre: </translation>
+        <translation>Geçersiz filtre: </translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -3400,7 +3400,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Toplam QUIC bağlantı sayısı: %Ln</numerusform>
         </translation>
     </message>
@@ -12964,6 +12964,10 @@ a:hover {
         <translation>BAZI/IP</translation>
     </message>
     <message>
+        <source>&amp;DTN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation>Osmux</translation>
     </message>
@@ -13441,6 +13445,14 @@ a:hover {
     <message>
         <source>SOME/IP-SD Entries statistics</source>
         <translation>BAZI/IP-SD Girdi istatistikleri</translation>
+    </message>
+    <message>
+        <source>&amp;LTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LTP segment and block statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>

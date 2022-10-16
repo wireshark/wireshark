@@ -1870,7 +1870,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetti B</translation>
     </message>
     <message>
         <source>Bytes B </source>
@@ -2028,11 +2028,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>…as a Base64 String</source>
-        <translation type="unfinished"></translation>
+        <translation>...come una stringa Base64</translation>
     </message>
     <message>
         <source>Copy packet bytes as a base64 encoded string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia i byte del pacchetto come stringa codificata in Base64.</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
@@ -2196,7 +2196,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished">Filtro non valido: </translation>
+        <translation>Filtro non valido: </translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -3414,7 +3414,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Numero totale di connessioni QUIC: %Ln</numerusform>
             <numerusform>Numero totale di connessioni QUIC: %Ln</numerusform>
         </translation>
@@ -12991,6 +12991,10 @@ a:hover {
         <translation>SOME/IP</translation>
     </message>
     <message>
+        <source>&amp;DTN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation>Osmux</translation>
     </message>
@@ -13468,6 +13472,14 @@ a:hover {
     <message>
         <source>SOME/IP-SD Entries statistics</source>
         <translation>Statistiche voci SOME/Messaggi IP</translation>
+    </message>
+    <message>
+        <source>&amp;LTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LTP segment and block statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>

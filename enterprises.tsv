@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2022-10-08)
+# (last updated 2022-10-15)
 
 0	Reserved
 1	NxNetworks
@@ -38039,7 +38039,7 @@
 38211	JSC 'Siberian Coal Energy Company'
 38212	Derichebourg
 38213	ACCENT-ELECTRONIC
-38214	Vlatacom
+38214	Vlatacom Institute
 38215	Hochschule Hamm-Lippstadt - University of Applied Sciences
 38216	Blumenthal S.R.L.
 38217	gigatec GmbH
@@ -52240,7 +52240,7 @@
 52432	Micro Foundry
 52433	Bernard Krone Holding SE & Co. KG
 52434	Williams Lea Limited
-52435	First Data Corporation
+52435	Fiserv Corporation
 52436	Family Footcare Specialist, Inc.
 52437	DroidSolutions GmbH
 52438	Zollihood Information Technology and Computer Sciences Research Laboratories
@@ -53310,7 +53310,7 @@
 53504	Stephens College
 53505	TELERYS COMMUNICATION
 53506	Kaman Inc.
-53507	First Data Education Loans
+53507	Fiserv Education Loans
 53508	Rhein-Neckar-Zeitung GmbH
 53509	Renaissance Lab
 53510	Zharfpouyan Toos
@@ -58127,7 +58127,7 @@
 58334	GEWIS
 58335	Capitol Broadcasting Company
 58336	Tekkgear
-58337	Rumble, Inc
+58337	runZero, Inc
 58338	Alauda
 58339	wellcloud
 58340	me0x
@@ -58168,7 +58168,7 @@
 58375	Jirotech
 58376	ImageMover MD
 58377	UVAX Concepts, S.L.
-58378	Delta Electronics (Shanghai) Co., Ltd. Hangzhou Design Center
+58378	Delta Electronics Inc.
 58379	International Data Spaces Association e.V.
 58380	Tailor, inc.
 58381	ТОО "Юникс-Beverage" (Unix-Beverage LLP)
@@ -59259,3 +59259,40 @@
 59467	Evolynx
 59468	VANTIS II SOFTWARE,LDA
 59469	Sigilence Technologies
+59470	magniX
+59471	Eberl Internationale Spedition GmbH & Co. KG
+59472	Algar Telecom S/A
+59473	China Society of Automotive Engineers (CSAE)
+59474	JSC KUCHUKSULPHATE
+59475	АО «НТЦ ЕЭС Информационные комплексы» (JSC "NTC UES Information complexes")
+59476	La Compagnie du Logement
+59477	Racklive
+59478	Liljestig
+59479	JORA Holding GmbH & Co. KG
+59480	Analytical Instrumentation Services
+59481	Trustoic PKI Consulting
+59482	Rady Children’s Hospital - San Diego
+59483	IUT de Bordeaux
+59484	Nafiux
+59485	Invenco Group Ltd
+59486	TANLA PLATFORMS LIMITED
+59487	JOHANN BUNTE Bauunternehmung SE & Co. KG
+59488	arkona technologies GmbH
+59489	aiMotive
+59490	OpenDrives
+59491	Joint Genome Institute
+59492	imvaria inc.
+59493	CRAG Consultants
+59494	Preston Meyer Group
+59495	Lion Elastomers Geismar
+59496	Shenzhen Phoenix Telecom Technology Co.,Ltd
+59497	MPEON Co, Ltd.
+59498	Juke NSS Lab
+59499	Juke Solutions Labs
+59500	Innofriends GmbH
+59501	Billund Aquaculture
+59502	Get-Random
+59503	Docentric d.o.o.
+59504	Mobtaker Ofoq
+59505	Devuan
+59506	Medical West Hospital

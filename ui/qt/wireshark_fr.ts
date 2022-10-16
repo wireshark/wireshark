@@ -3412,7 +3412,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message numerus="yes">
         <source>Total number of QUIC connections: %Ln</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Nombre total de connexions QUIC : %Ln</numerusform>
             <numerusform>Nombre total de connexions QUIC : %Ln</numerusform>
         </translation>
@@ -12956,6 +12956,10 @@ a:hover {
         <translation>SOME/IP</translation>
     </message>
     <message>
+        <source>&amp;DTN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation>Osmux</translation>
     </message>
@@ -13433,6 +13437,14 @@ a:hover {
     <message>
         <source>SOME/IP-SD Entries statistics</source>
         <translation>Statistiques des entrées SOME/IP-SD</translation>
+    </message>
+    <message>
+        <source>&amp;LTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LTP segment and block statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
