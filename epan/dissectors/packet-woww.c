@@ -5691,13 +5691,13 @@ static const value_string e_gm_ticket_response_strings[] =  {
 };
 
 typedef enum {
-    GM_TICKET_STATUS_DBERROR = 0x0,
-    GM_TICKET_STATUS_HASTEXT = 0x6,
+    GM_TICKET_STATUS_DB_ERROR = 0x0,
+    GM_TICKET_STATUS_HAS_TEXT = 0x6,
     GM_TICKET_STATUS_DEFAULT = 0xA,
 } e_gm_ticket_status;
 static const value_string e_gm_ticket_status_strings[] =  {
-    { GM_TICKET_STATUS_DBERROR, "Dberror" },
-    { GM_TICKET_STATUS_HASTEXT, "Hastext" },
+    { GM_TICKET_STATUS_DB_ERROR, "Db Error" },
+    { GM_TICKET_STATUS_HAS_TEXT, "Has Text" },
     { GM_TICKET_STATUS_DEFAULT, "Default" },
     { 0, NULL }
 };
@@ -13247,7 +13247,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_GMTICKET_GETTICKET:
             ptvcursor_add_ret_uint(ptv, hf_woww_gm_ticket_status, 4, ENC_LITTLE_ENDIAN, &status);
-            if (status == GM_TICKET_STATUS_HASTEXT) {
+            if (status == GM_TICKET_STATUS_HAS_TEXT) {
                 add_cstring(ptv, &hf_woww_text);
                 ptvcursor_add(ptv, hf_woww_gm_ticket_type, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_days_since_ticket_creation, 4, ENC_LITTLE_ENDIAN);
