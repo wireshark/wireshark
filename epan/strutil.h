@@ -190,6 +190,11 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
 WS_DLL_PUBLIC
 void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
+#define FORMAT_LABEL_REPLACE_SPACE      (0x1 << 0)
+
+WS_DLL_PUBLIC
+size_t ws_label_strcat(char *label_str, size_t bufsize, gsize pos, const uint8_t *str, int flags);
+
 /*
  * Check name is valid. This covers names for display filter fields, dissector
  * tables, preference modules, etc. Lower case is preferred.

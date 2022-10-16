@@ -16,6 +16,7 @@
 #include "strutil.h"
 
 #include <wsutil/str_util.h>
+#include <wsutil/unicode-utils.h>
 #include <epan/proto.h>
 
 #ifdef _WIN32
@@ -793,6 +794,143 @@ module_check_valid_name(const char *name, gboolean lower_only)
         return '.';
     }
     return c;
+}
+
+static const char _hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                              '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+/*
+ * Copy byte by byte without UTF-8 truncation (assume valid UTF-8 input).
+ * Return byte size written, or that would have been
+ * written with enough space.
+ */
+size_t
+ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
+                const uint8_t *str, int flags)
+{
+    if (pos >= buf_size)
+        return pos;
+
+    uint8_t r = 0;
+    ssize_t chlen;
+    ssize_t idx, src_len;
+    ssize_t free_len;
+
+    idx = 0;
+    src_len = strlen(str);
+    free_len = buf_size - pos - 1;
+    memset(label_str + pos, 0, free_len + 1);
+
+    while (idx < src_len) {
+        chlen = ws_utf8_char_len(str[idx]);
+        if (chlen <= 0) {
+            /* We were passed invalid UTF-8. This is an error. Complain and do... something. */
+            ws_log_utf8(str, -1, NULL);
+            /* Destination buffer is already nul terminated. */
+            /*
+             * XXX If we are going to return here instead of trying to recover maybe the log level should
+             * be higher than DEBUG.
+             */
+            return pos;
+        }
+
+        /* ASCII */
+        if (chlen == 1) {
+            if (flags & FORMAT_LABEL_REPLACE_SPACE && g_ascii_isspace(str[idx])) {
+                if (free_len >= 1) {
+                    label_str[pos] = ' ';
+                }
+                pos++;
+                idx++;
+                free_len--;
+                continue;
+            }
+
+            r = 0;
+            switch (str[idx]) {
+                case '\a': r = 'a'; break;
+                case '\b': r = 'b'; break;
+                case '\f': r = 'f'; break;
+                case '\n': r = 'n'; break;
+                case '\r': r = 'r'; break;
+                case '\t': r = 't'; break;
+                case '\v': r = 'v'; break;
+            }
+            if (r != 0) {
+                if (free_len >= 2) {
+                    label_str[pos] = '\\';
+                    label_str[pos+1] = r;
+                }
+                pos += 2;
+                idx += 1;
+                free_len -= 2;
+                continue;
+            }
+
+            if (g_ascii_isprint(str[idx])) {
+                if (free_len >= 1) {
+                    label_str[pos] = str[idx];
+                }
+                pos++;
+                idx++;
+                free_len--;
+                continue;
+            }
+
+            if (free_len >= 4) {
+                label_str[pos+0] = '\\';
+                label_str[pos+1] = 'x';
+
+                uint8_t ch = str[idx];
+                label_str[pos+2] = _hex[ch >> 4];
+                label_str[pos+3] = _hex[ch & 0x0F];
+            }
+            pos += 4;
+            idx += chlen;
+            free_len -= 4;
+            continue;
+        }
+
+        /* UTF-8 multibyte */
+        if (chlen == 2 && str[idx] == 0xC2 &&
+                                str[idx+1] >= 0x80 && str[idx+1] <= 0x9F) {
+            /*
+             * Escape the C1 control codes. C0 (covered above) and C1 are
+             * inband signalling and transparent to Unicode.
+             * Anything else probably has text semantics should not be removed.
+             */
+            /*
+             * Special case: The second UTF-8 byte is the same as the Unicode
+             * code point for range U+0080 - U+009F.
+             */
+            if (free_len >= 6) {
+                label_str[pos+0] = '\\';
+                label_str[pos+1] = 'u';
+                label_str[pos+2] = '0';
+                label_str[pos+3] = '0';
+
+                uint8_t ch = str[idx+1];
+                label_str[pos+4] = _hex[ch >> 4];
+                label_str[pos+5] = _hex[ch & 0x0F];
+            }
+            pos += 6;
+            idx += chlen;
+            free_len -= 6;
+            continue;
+        }
+
+        /* Just copy */
+        if (free_len >= chlen) {
+            for (ssize_t j = 0; j < chlen; j++) {
+                label_str[pos+j] = str[idx+j];
+            }
+        }
+        pos += chlen;
+        idx += chlen;
+        free_len -= chlen;
+    }
+
+    return pos;
 }
 
 /*

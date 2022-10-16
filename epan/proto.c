@@ -25,6 +25,7 @@
 #include <wsutil/json_dumper.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/unicode-utils.h>
 
 #include <ftypes/ftypes.h>
 
@@ -219,7 +220,9 @@ static int hfinfo_bitoffset(const header_field_info *hfinfo);
 static int hfinfo_mask_bitwidth(const header_field_info *hfinfo);
 static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
 
-static inline gsize label_concat(char *label_str, gsize pos, const char *str);
+#define label_concat(dst, pos, src) \
+	ws_label_strcat(dst, ITEM_LABEL_LENGTH, pos, src, 0)
+
 static void label_mark_truncated(char *label_str, gsize name_pos);
 #define LABEL_MARK_TRUNCATED_START(label_str) label_mark_truncated(label_str, 0)
 
@@ -1068,19 +1071,13 @@ proto_registrar_get_id_byname(const char *field_name)
 	return hfinfo->id;
 }
 
-
-static char *
-format_text_hfinfo(wmem_allocator_t *scope, const header_field_info *hfinfo,
-			const guchar *string)
+static int
+label_strcat_flags(const header_field_info *hfinfo)
 {
-	char *str = NULL;
-
 	if (FIELD_DISPLAY(hfinfo->display) & BASE_STR_WSP)
-		str = format_text_wsp(scope, string, strlen(string));
-	else
-		str = format_text(scope, string, strlen(string));
+		return FORMAT_LABEL_REPLACE_SPACE;
 
-	return str;
+	return 0;
 }
 
 static char *
@@ -3822,23 +3819,28 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 	switch (hfinfo->type) {
 	case FT_STRING:
 		value = get_string_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = format_text_hfinfo(scope, hfinfo, value);
+		*retval = wmem_alloc(scope, ITEM_LABEL_LENGTH);
+		ws_label_strcat(*retval, ITEM_LABEL_LENGTH, 0, value, label_strcat_flags(hfinfo));
 		break;
 	case FT_STRINGZ:
 		value = get_stringz_value(scope, tree, tvb, start, length, lenretval, encoding);
-		*retval = format_text_hfinfo(scope, hfinfo, value);
+		*retval = wmem_alloc(scope, ITEM_LABEL_LENGTH);
+		ws_label_strcat(*retval, ITEM_LABEL_LENGTH, 0, value, label_strcat_flags(hfinfo));
 		break;
 	case FT_UINT_STRING:
 		value = get_uint_string_value(scope, tree, tvb, start, length, lenretval, encoding);
-		*retval = format_text_hfinfo(scope, hfinfo, value);
+		*retval = wmem_alloc(scope, ITEM_LABEL_LENGTH);
+		ws_label_strcat(*retval, ITEM_LABEL_LENGTH, 0, value, label_strcat_flags(hfinfo));
 		break;
 	case FT_STRINGZPAD:
 		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = format_text_hfinfo(scope, hfinfo, value);
+		*retval = wmem_alloc(scope, ITEM_LABEL_LENGTH);
+		ws_label_strcat(*retval, ITEM_LABEL_LENGTH, 0, value, label_strcat_flags(hfinfo));
 		break;
 	case FT_STRINGZTRUNC:
 		value = get_stringztrunc_value(scope, tvb, start, length, lenretval, encoding);
-		*retval = format_text_hfinfo(scope, hfinfo, value);
+		*retval = wmem_alloc(scope, ITEM_LABEL_LENGTH);
+		ws_label_strcat(*retval, ITEM_LABEL_LENGTH, 0, value, label_strcat_flags(hfinfo));
 		break;
 	case FT_BYTES:
 		value = tvb_get_ptr(tvb, start, length);
@@ -6342,7 +6344,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 	 * items string representation */
 	if (PTREE_DATA(pi)->visible && !proto_item_is_hidden(pi)) {
 		gsize             name_pos, ret = 0;
-		char              *str, *tmp;
+		char              *str;
 		field_info        *fi = PITEM_FINFO(pi);
 		header_field_info *hf;
 
@@ -6371,11 +6373,9 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 
 		ret = label_concat(fi->rep->representation, ret, ": ");
 		/* If possible, Put in the value of the string */
-		str = ws_strdup_vprintf(format, ap);
-		tmp = format_text_string(NULL, str);
-		wmem_free(NULL, str);
-		ret = label_concat(fi->rep->representation, ret, tmp);
-		wmem_free(NULL, tmp);
+		str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
+		WS_UTF_8_CHECK(str, -1);
+		ret = ws_label_strcat(fi->rep->representation, ITEM_LABEL_LENGTH, ret, str, 0);
 		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
@@ -6392,7 +6392,7 @@ static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 {
 	gsize	    ret;	/*tmp return value */
-	char       *str, *tmp;
+	char       *str;
 	field_info *fi = PITEM_FINFO(pi);
 
 	DISSECTOR_ASSERT(fi);
@@ -6400,11 +6400,9 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	if (!proto_item_is_hidden(pi)) {
 		ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 
-		str = ws_strdup_vprintf(format, ap);
-		tmp = format_text_string(NULL, str);
-		wmem_free(NULL, str);
-		ret = label_concat(fi->rep->representation, 0, tmp);
-		wmem_free(NULL, tmp);
+		str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
+		WS_UTF_8_CHECK(str, -1);
+		ret = ws_label_strcat(fi->rep->representation, ITEM_LABEL_LENGTH, 0, str, 0);
 		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
@@ -6709,9 +6707,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
 			str = fvalue_get_string(&finfo->value);
-			tmp_str = format_text_hfinfo(NULL, hfinfo, str);
-			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
-			wmem_free(NULL, tmp_str);
+			label_len = (int)ws_label_strcat(display_label_str, label_str_size, 0, str, label_strcat_flags(hfinfo));
 			break;
 
 		default:
@@ -7040,7 +7036,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = NULL;
 	size_t      curlen;
-	char       *str, *tmp;
+	char       *str;
 	va_list     ap;
 
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
@@ -7071,12 +7067,10 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		 */
 		if (ITEM_LABEL_LENGTH > (curlen + 4)) {
 			va_start(ap, format);
-			str = ws_strdup_vprintf(format, ap);
+			str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
 			va_end(ap);
-			tmp = format_text_string(NULL, str);
-			wmem_free(NULL, str);
-			curlen = label_concat(fi->rep->representation, curlen, tmp);
-			wmem_free(NULL, tmp);
+			WS_UTF_8_CHECK(str, -1);
+			curlen = ws_label_strcat(fi->rep->representation, ITEM_LABEL_LENGTH, curlen, str, 0);
 			if (curlen >= ITEM_LABEL_LENGTH) {
 				/* Uh oh, we don't have enough room.  Tell the user
 				 * that the field is truncated.
@@ -7094,7 +7088,7 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 	field_info *fi = NULL;
 	gsize       pos;
 	char        representation[ITEM_LABEL_LENGTH];
-	char       *str, *tmp;
+	char       *str;
 	va_list     ap;
 
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
@@ -7116,13 +7110,11 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 			(void) g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
 
 		va_start(ap, format);
-		str = ws_strdup_vprintf(format, ap);
+		str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
 		va_end(ap);
-		tmp = format_text_string(NULL, str);
-		wmem_free(NULL, str);
-		pos = label_concat(fi->rep->representation, 0, tmp);
-		wmem_free(NULL, tmp);
-		pos = label_concat(fi->rep->representation, pos, representation);
+		WS_UTF_8_CHECK(str, -1);
+		pos = ws_label_strcat(fi->rep->representation, ITEM_LABEL_LENGTH, 0, str, 0);
+		pos = ws_label_strcat(fi->rep->representation, ITEM_LABEL_LENGTH, pos, representation, 0);
 		/* XXX: As above, if the old representation is close to the label
 		 * length, it might already be marked as truncated. */
 		if (pos >= ITEM_LABEL_LENGTH && (strlen(representation) + 4) <= ITEM_LABEL_LENGTH) {
@@ -9112,15 +9104,6 @@ proto_register_subtree_array(gint * const *indices, const int num_indices)
 	}
 }
 
-static inline gsize
-label_concat(char *label_str, gsize pos, const char *str)
-{
-	if (pos < ITEM_LABEL_LENGTH)
-		pos += g_strlcpy(label_str + pos, str, ITEM_LABEL_LENGTH - pos);
-
-	return pos;
-}
-
 static void
 label_mark_truncated(char *label_str, gsize name_pos)
 {
@@ -9169,7 +9152,7 @@ label_fill(char *label_str, gsize pos, const header_field_info *hfinfo, const ch
 	name_pos = pos = label_concat(label_str, pos, hfinfo->name);
 	if (!(hfinfo->display & BASE_NO_DISPLAY_VALUE)) {
 		pos = label_concat(label_str, pos, ": ");
-		pos = label_concat(label_str, pos, text ? text : "(null)");
+		pos = ws_label_strcat(label_str, ITEM_LABEL_LENGTH, pos, text ? text : "(null)", label_strcat_flags(hfinfo));
 	}
 
 	if (pos >= ITEM_LABEL_LENGTH) {
@@ -9474,9 +9457,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
 			str = fvalue_get_string(&fi->value);
-			tmp = format_text_hfinfo(NULL, hfinfo, str);
-			label_fill(label_str, 0, hfinfo, tmp);
-			wmem_free(NULL, tmp);
+			label_fill(label_str, 0, hfinfo, str);
 			break;
 
 		case FT_IEEE_11073_SFLOAT:

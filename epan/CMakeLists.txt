@@ -434,6 +434,14 @@ set_target_properties(wscbor_test PROPERTIES
     COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
+add_executable(test_epan EXCLUDE_FROM_ALL test_epan.c)
+target_link_libraries(test_epan epan)
+set_target_properties(test_epan PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
 CHECKAPI(
 	NAME
 	  epan
