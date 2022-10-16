@@ -21,8 +21,12 @@
 
 #include "charsets.h"
 
-/* REPLACEMENT CHARACTER */
-#define UNREPL 0xFFFD
+/*
+ * 6-character abbreviation for "Unicode REPLACEMENT CHARACTER", so it
+ * takes up the same amount of space as the 6-character hex values for
+ * Basic Multilingual Plane code points in the tables below.
+ */
+#define UNREPL UNICODE_REPLACEMENT_CHARACTER
 
 /*
  * Wikipedia's "Character encoding" template, giving a pile of character

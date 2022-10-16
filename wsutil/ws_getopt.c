@@ -32,6 +32,8 @@
 #include <string.h>
 #include <wchar.h>
 
+#include <ws_codepoints.h>
+
 #include <wsutil/ws_getopt.h>
 
 char *ws_optarg;
@@ -94,7 +96,7 @@ int ws_getopt(int argc, char * const argv[], const char *optstring)
 	if (!ws_optpos) ws_optpos++;
 	if ((k = mbtowc(&c, argv[ws_optind]+ws_optpos, MB_LEN_MAX)) < 0) {
 		k = 1;
-		c = 0xfffd; /* replacement char */
+		c = UNICODE_REPLACEMENT_CHARACTER; /* replacement char */
 	}
 	optchar = argv[ws_optind]+ws_optpos;
 	ws_optpos += k;

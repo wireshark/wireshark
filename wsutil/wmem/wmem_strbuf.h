@@ -12,6 +12,8 @@
 #ifndef __WMEM_STRBUF_H__
 #define __WMEM_STRBUF_H__
 
+#include <ws_codepoints.h>
+
 #include "wmem_core.h"
 
 #ifdef __cplusplus
@@ -103,7 +105,7 @@ void
 wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c);
 
 #define wmem_strbuf_append_unichar_repl(buf) \
-            wmem_strbuf_append_unichar(buf, 0xfffd)
+            wmem_strbuf_append_unichar(buf, UNICODE_REPLACEMENT_CHARACTER)
 
 WS_DLL_PUBLIC
 void

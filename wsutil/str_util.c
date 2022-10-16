@@ -14,6 +14,8 @@
 
 #include <string.h>
 
+#include <ws_codepoints.h>
+
 #include <wsutil/to_str.h>
 
 
@@ -626,11 +628,6 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
 #define FMTBUF_ENDSTR \
     fmtbuf[column] = '\0'
 
-/* REPLACEMENT CHARACTER */
-#define UNREPL 0xFFFD
-
-#define UNPOOP 0x1F4A9
-
 static gchar *
 format_text_internal(wmem_allocator_t *allocator,
                         const guchar *string, size_t len,
@@ -761,7 +758,7 @@ format_text_internal(wmem_allocator_t *allocator,
                          * instead, and then continue the loop, which
                          * will terminate.
                          */
-                        uc = UNREPL;
+                        uc = UNICODE_REPLACEMENT_CHARACTER;
                         break;
                     }
                     c = *string;
@@ -771,7 +768,7 @@ format_text_internal(wmem_allocator_t *allocator,
                          * a replacement character, and then re-process
                          * this octet as the beginning of a new character.
                          */
-                        uc = UNREPL;
+                        uc = UNICODE_REPLACEMENT_CHARACTER;
                         break;
                     }
                     string++;
@@ -783,10 +780,10 @@ format_text_internal(wmem_allocator_t *allocator,
                  * a REPLACEMENT CHARACTER.
                  */
                 if (!g_unichar_validate(uc))
-                    uc = UNREPL;
+                    uc = UNICODE_REPLACEMENT_CHARACTER;
             } else {
                 /* 0xfe or 0xff; put it a REPLACEMENT CHARACTER */
-                uc = UNREPL;
+                uc = UNICODE_REPLACEMENT_CHARACTER;
             }
 
             /*
