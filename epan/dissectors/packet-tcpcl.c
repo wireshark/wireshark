@@ -282,7 +282,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv3_xfer_id, {"Implied Transfer ID", "tcpcl.xfer_id", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv3_data_segment_length,
      {"Segment Length", "tcpcl.data.length",
-      FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+      FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_tcpclv3_data_segment_data,
      {"Segment Data", "tcpcl.data",
@@ -310,7 +310,7 @@ static hf_register_info hf_tcpcl[] = {
     },
     {&hf_tcpclv3_ack_length,
      {"Ack Length", "tcpcl.ack.length",
-      FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+      FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_tcpclv3_chdr_flags,
      {"Flags", "tcpcl.contact_hdr.flags",
@@ -338,7 +338,7 @@ static hf_register_info hf_tcpcl[] = {
     },
     {&hf_tcpclv3_chdr_local_eid_length,
      {"Local EID Length", "tcpcl.contact_hdr.local_eid_length",
-      FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+      FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
 
     {&hf_tcpclv4_chdr_flags, {"Contact Flags", "tcpcl.v4.chdr.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
@@ -532,6 +532,7 @@ static expert_field ei_invalid_version = EI_INIT;
 static expert_field ei_mismatch_version = EI_INIT;
 static expert_field ei_chdr_duplicate = EI_INIT;
 
+static expert_field ei_tcpclv3_eid_length = EI_INIT;
 static expert_field ei_tcpclv3_invalid_msg_type = EI_INIT;
 static expert_field ei_tcpclv3_data_flags = EI_INIT;
 static expert_field ei_tcpclv3_segment_length = EI_INIT;
@@ -564,6 +565,7 @@ static ei_register_info ei_tcpcl[] = {
     {&ei_mismatch_version, { "tcpcl.mismatch_contact_version", PI_PROTOCOL, PI_ERROR, "Protocol version mismatch", EXPFILL}},
     {&ei_chdr_duplicate, { "tcpcl.contact_duplicate", PI_SEQUENCE, PI_ERROR, "Duplicate Contact Header", EXPFILL}},
 
+    {&ei_tcpclv3_eid_length, { "tcpcl.eid_length_invalid", PI_PROTOCOL, PI_ERROR, "Invalid EID Length", EXPFILL }},
     {&ei_tcpclv3_invalid_msg_type, { "tcpcl.unknown_message_type", PI_UNDECODED, PI_ERROR, "Message type is unknown", EXPFILL}},
     {&ei_tcpclv3_data_flags, { "tcpcl.data.flags.invalid", PI_PROTOCOL, PI_WARN, "Invalid TCP CL Data Segment Flags", EXPFILL }},
     {&ei_tcpclv3_segment_length, { "tcpcl.data.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Data Length", EXPFILL }},
@@ -613,6 +615,10 @@ static const fragment_items xfer_frag_items = {
     /*Tag*/
     "Transfer fragments"
 };
+
+static guint tvb_get_sdnv(tvbuff_t *tvb, guint offset, guint64 *value) {
+    return tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, value, ENC_VARINT_SDNV);
+}
 
 static void tcpcl_frame_loc_init(tcpcl_frame_loc_t *loc, const packet_info *pinfo, tvbuff_t *tvb, const gint offset) {
     loc->frame_num = pinfo->num;
@@ -1164,7 +1170,8 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
                tcpcl_dissect_ctx_t *ctx _U_)
 {
     const int orig_offset = offset;
-    int    len, bytecount;
+    guint64 len;
+    guint bytecount;
     guint8 conv_hdr = tvb_get_guint8(tvb, offset);
     offset += 1;
 
@@ -1172,8 +1179,8 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
     {
     case TCPCLV3_DATA_SEGMENT:
         /* get length from sdnv */
-        len = evaluate_sdnv(tvb, offset, &bytecount);
-        if (len < 0)
+        bytecount = tvb_get_sdnv(tvb, offset, &len);
+        if (bytecount == 0)
             return 0;
 
         offset += bytecount+len;
@@ -1181,8 +1188,8 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
 
     case TCPCLV3_ACK_SEGMENT:
         /* get length from sdnv */
-        len = evaluate_sdnv(tvb, offset, &bytecount);
-        if (len < 0)
+        bytecount = tvb_get_sdnv(tvb, offset, &len);
+        if (bytecount == 0)
             return 0;
 
         offset += bytecount;
@@ -1203,8 +1210,8 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
 
     case TCPCLV3_LENGTH:
         /* get length from sdnv */
-        len = evaluate_sdnv(tvb, offset, &bytecount);
-        if (len < 0)
+        bytecount = tvb_get_sdnv(tvb, offset, &len);
+        if (bytecount == 0)
             return 0;
         offset += bytecount;
         break;
@@ -1222,7 +1229,8 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char *msgtype_name;
     guint8         refuse_bundle_hdr;
     int            offset = 0;
-    int            sdnv_length, segment_length;
+    gint sdnv_length;
+    guint64 segment_length;
     proto_item    *conv_item, *sub_item;
     proto_tree    *conv_tree, *sub_tree;
     guint64 *xfer_id = NULL;
@@ -1248,19 +1256,20 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ett_tcpclv3_data_procflags, v3_data_procflags,
             ENC_BIG_ENDIAN
         );
+        offset += 1;
 
         /* Only Start and End flags (bits 0 & 1) are valid in Data Segment */
         if ((conv_hdr & ~(TCPCLV3_TYPE_MASK | TCPCLV3_DATA_FLAGS)) != 0) {
             expert_add_info(pinfo, item_flags, &ei_tcpclv3_data_flags);
         }
 
-        segment_length = evaluate_sdnv(tvb, 1, &sdnv_length);
-        sub_item = proto_tree_add_int(conv_tree, hf_tcpclv3_data_segment_length, tvb, 1, sdnv_length, segment_length);
-        if (segment_length < 0) {
+        sub_item = proto_tree_add_item_ret_varint(conv_tree, hf_tcpclv3_data_segment_length, tvb, offset, -1, ENC_VARINT_SDNV, &segment_length, &sdnv_length);
+        if (sdnv_length == 0) {
             expert_add_info(pinfo, sub_item, &ei_tcpclv3_segment_length);
-            return 1;
+            return 0;
         }
-        offset += 1 + sdnv_length;
+        offset += sdnv_length;
+        const gint data_len_clamp = get_clamped_length(segment_length);
 
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->tx_peer->frame_loc_to_transfer, ctx->cur_loc);
@@ -1277,7 +1286,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         item_xfer_id = proto_tree_add_uint64(conv_tree, hf_tcpclv3_xfer_id, tvb, 0, 0, *xfer_id);
         proto_item_set_generated(item_xfer_id);
 
-        proto_tree_add_item(conv_tree, hf_tcpclv3_data_segment_data, tvb, offset, segment_length, ENC_NA);
+        proto_tree_add_item(conv_tree, hf_tcpclv3_data_segment_data, tvb, offset, data_len_clamp, ENC_NA);
 
         if (tcpcl_analyze_sequence) {
             transfer_add_segment(ctx, *xfer_id, (conv_hdr & TCPCLV3_DATA_FLAGS), segment_length, pinfo, tvb, conv_tree, conv_item, item_flags);
@@ -1290,7 +1299,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 &xfer_reassembly_table,
                 tvb, offset,
                 pinfo, 0, xfer_id,
-                segment_length,
+                data_len_clamp,
                 !(conv_hdr & TCPCLV3_DATA_END_FLAG)
             );
             ctx->xferload = process_reassembled_data(
@@ -1310,9 +1319,8 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*No valid flags*/
         offset += 1;
 
-        segment_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-        sub_item = proto_tree_add_int(conv_tree, hf_tcpclv3_ack_length, tvb, offset, sdnv_length, segment_length);
-        if (segment_length < 0) {
+        sub_item = proto_tree_add_item_ret_varint(conv_tree, hf_tcpclv3_ack_length, tvb, offset, -1, ENC_VARINT_SDNV, &segment_length, &sdnv_length);
+        if (sdnv_length == 0) {
             expert_add_info(pinfo, sub_item, &ei_tcpclv3_ack_length);
         } else {
             offset += sdnv_length;
@@ -1889,10 +1897,10 @@ static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, 
         guint8 version = tvb_get_guint8(tvb, offset);
         offset += 1;
         if (version == 3) {
-            offset += 3;
-            int bytecount;
-            int len = evaluate_sdnv(tvb, offset, &bytecount);
-            offset += len + 1;
+            offset += 3; // flags + keepalive
+            guint64 len;
+            guint bytecount = tvb_get_sdnv(tvb, offset, &len);
+            offset += bytecount+len;
         }
         else if (version == 4) {
             offset += 1;
@@ -1993,20 +2001,20 @@ static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 2;
 
             /*
-             * New format Contact header has length field followed by Bundle Header.
+             * New format Contact header has length field followed by EID.
              */
+            guint64 eid_length;
             int sdnv_length;
-            expert_field *ei_bundle_sdnv_length;
-            int eid_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei_bundle_sdnv_length);
-            proto_item *item_len = proto_tree_add_int(tree_chdr, hf_tcpclv3_chdr_local_eid_length, tvb, offset, sdnv_length, eid_length);
-            offset += sdnv_length;
-            if (ei_bundle_sdnv_length) {
-                expert_add_info(pinfo, item_len, ei_bundle_sdnv_length);
-                return offset;
+            proto_item *sub_item = proto_tree_add_item_ret_varint(tree_chdr, hf_tcpclv3_chdr_local_eid_length, tvb, offset, -1, ENC_VARINT_SDNV, &eid_length, &sdnv_length);
+            if (sdnv_length == 0) {
+                expert_add_info(pinfo, sub_item, &ei_tcpclv3_eid_length);
+                return 0;
             }
+            offset += sdnv_length;
+            const gint eid_len_clamp = get_clamped_length(eid_length);
 
-            proto_tree_add_item(tree_chdr, hf_tcpclv3_chdr_local_eid, tvb, offset, eid_length, ENC_NA|ENC_ASCII);
-            offset += eid_length;
+            proto_tree_add_item(tree_chdr, hf_tcpclv3_chdr_local_eid, tvb, offset, eid_len_clamp, ENC_NA|ENC_ASCII);
+            offset += eid_len_clamp;
 
             // assumed parameters
             ctx->tx_peer->segment_mru = G_MAXUINT64;

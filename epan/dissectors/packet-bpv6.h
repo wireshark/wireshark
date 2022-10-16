@@ -112,33 +112,6 @@ extern "C" {
 #define DTN_SCHEME_STR                  "dtn"
 #define IPN_SCHEME_STR                  "ipn"
 
-/*
- * SDNV has a zero in high-order bit position of last byte. The high-order
- * bit of all preceding bytes is set to one. This returns the numeric value
- * in an integer and sets the value of the second argument to the number of
- * bytes used to code the SDNV. A -1 is returned if the evaluation fails
- * (value exceeds maximum for signed integer). 0 is an acceptable value.
- */
-#define SDNV_MASK       0x7f
-
-int evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount);
-
-/// Return an error_info index if not valid
-int evaluate_sdnv_ei(tvbuff_t *tvb, int offset, int *bytecount, expert_field **error);
-
-gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
-
-
-/* Special Functions to evaluate unsigned SDNVs with error indication
- *    bytecount returns the number bytes consumed
- *    value returns the actual value
- *
- *    result is TRUE (1) on success else FALSE (0)
- */
-int evaluate_sdnv32(tvbuff_t *tvb, int offset, int *bytecount, guint32 *value);
-
-int evaluate_sdnv64(tvbuff_t *tvb, int offset, int *bytecount, guint64 *value);
-
 #ifdef __cplusplus
 }
 #endif

@@ -4563,6 +4563,29 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 		break;
 	}
 
+	case ENC_VARINT_SDNV:
+	{
+		/* Decodes similar to protobuf but in MSByte order */
+		guint i;
+		guint64 b; /* current byte */
+
+		for (i = 0; ((i < FT_VARINT_MAX_LEN) && (i < maxlen)); ++i) {
+			b = tvb_get_guint8(tvb, offset++);
+			if ((i == 9) && (*value >= 1ul<<(64-7))) {
+				// guaranteed overflow, not valid SDNV
+				return 0;
+			}
+			*value <<= 7;
+			*value |= (b & 0x7F); /* add lower 7 bits to val */
+
+			if (b < 0x80) {
+				/* end successfully because of last byte's msb(most significant bit) is zero */
+				return i + 1;
+			}
+		}
+		break;
+	}
+
 	case ENC_VARINT_QUIC:
 	{
 		/* calculate variable length */

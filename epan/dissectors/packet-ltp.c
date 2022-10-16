@@ -44,14 +44,10 @@
 #include <wsutil/wmem/wmem_map.h>
 #include <wsutil/wmem/wmem_interval_tree.h>
 
-#include "packet-bpv6.h"
-
 void proto_register_ltp(void);
 void proto_reg_handoff_ltp(void);
 
 #define LTP_MIN_DATA_BUFFER  5
-#define LTP_MAX_HDR_EXTN    16
-#define LTP_MAX_TRL_EXTN    16
 
 /// Unique session identifier
 typedef struct {
@@ -333,7 +329,6 @@ static int hf_ltp_fragment_count = -1;
 static int hf_ltp_reassembled_in = -1;
 static int hf_ltp_reassembled_length = -1;
 
-static expert_field ei_ltp_neg_reception_claim_count = EI_INIT;
 static expert_field ei_ltp_mal_reception_claim = EI_INIT;
 static expert_field ei_ltp_sdnv_length = EI_INIT;
 static expert_field ei_ltp_sno_larger_than_ccsds = EI_INIT;
@@ -445,24 +440,16 @@ static const fragment_items ltp_frag_items = {
 	"LTP fragments"
 };
 
-static int
-add_sdnv64_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int hf_sdnv, guint64 *value, proto_item** item_ret)
+static proto_item *
+add_sdnv64_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int hf_sdnv, guint64 *retval, gint *lenretval)
 {
-	int         sdnv_status;
-	int         sdnv_length;
-	guint64     sdnv_value;
-        proto_item* ti;
+	proto_item *ti;
+	ti = proto_tree_add_item_ret_varint(tree, hf_sdnv, tvb, offset, -1, ENC_VARINT_SDNV, retval, lenretval);
 
-	sdnv_status = evaluate_sdnv64(tvb, offset, &sdnv_length, &sdnv_value);
-	ti = proto_tree_add_uint64(tree, hf_sdnv, tvb, offset, sdnv_length, sdnv_value);
-
-	*value = sdnv_value;
-	if (NULL != *item_ret) *item_ret = ti;
-
-	if (!sdnv_status) {
+	if (*lenretval <= 0) {
 		expert_add_info(pinfo, ti, &ei_ltp_sdnv_length);
 	}
-	return sdnv_length;
+	return ti;
 }
 
 /// Summary of a data segment tree item
@@ -519,7 +506,6 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	unsigned segment_size = 0;
 
 	int sdnv_length;
-	int sdnv_status;
 
 	proto_tree *ltp_data_tree;
 	proto_item *ti;
@@ -531,22 +517,14 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	/* Create a subtree for data segment and add the other fields under it */
 	ltp_data_tree = proto_tree_add_subtree(ltp_tree, tvb, frame_offset, tvb_captured_length_remaining(tvb, frame_offset), ett_data_segm, NULL, "Data Segment");
 
-
 	/* Client ID - 0 = Bundle Protocol, 1 = CCSDS LTP Service Data Aggregation */
-	sdnv_status = evaluate_sdnv64(tvb, frame_offset, &sdnv_length, &client_id);
-	ti = proto_tree_add_uint64_format_value(ltp_data_tree, hf_ltp_data_clid, tvb, frame_offset, sdnv_length, client_id,
-						"%" PRIu64 " (%s)", client_id,
-						val64_to_str_const(client_id, client_service_id_info, "Invalid"));
-	if (!sdnv_status) {
-		expert_add_info(pinfo, ti, &ei_ltp_sdnv_length);
-		return 0;
-	}
+	add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_clid, &client_id, &sdnv_length);
 	frame_offset += sdnv_length;
 	segment_size += sdnv_length;
 
-
 	/* data segment offset */
-	if ((sdnv_length = add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_offset, &data_offset, &ti)) > 0) {
+	add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_offset, &data_offset, &sdnv_length);
+	if (sdnv_length > 0) {
 		frame_offset += sdnv_length;
 		segment_size += sdnv_length;
 	} else {
@@ -554,7 +532,8 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	}
 
 	/* data segment length */
-	if ((sdnv_length = add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_length, &data_length, &ti)) > 0) {
+	add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_length, &data_length, &sdnv_length);
+	if (sdnv_length > 0) {
 		frame_offset += sdnv_length;
 		segment_size += sdnv_length;
 
@@ -607,7 +586,8 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	if (ltp_type != 0 && ltp_type < 4)
 	{
 		/* checkpoint serial number - 32 bits per CCSDS */
-		if ((sdnv_length = add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_chkp, &chkp_sno, &ti)) > 0) {
+		ti = add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_chkp, &chkp_sno, &sdnv_length);
+		if (sdnv_length > 0) {
 			frame_offset += sdnv_length;
 			segment_size += sdnv_length;
 
@@ -626,7 +606,8 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		}
 
 		/* report serial number - 32 bits per CCSDS */
-		if ((sdnv_length = add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_rpt, &rpt_sno, &ti)) > 0) {
+		ti = add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_rpt, &rpt_sno, &sdnv_length);
+		if (sdnv_length > 0) {
 			frame_offset += sdnv_length;
 			segment_size += sdnv_length;
 
@@ -734,15 +715,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 			tvbuff_t *datatvb;
 
 			if (client_id == 2) {
-				sdnv_status = evaluate_sdnv64(new_tvb, parse_offset, &sdnv_length, &sda_client_id);
-				ti = proto_tree_add_uint64_format_value(root_tree, hf_ltp_data_sda_clid, new_tvb, parse_offset, sdnv_length, sda_client_id,
-									"%" G_GINT64_MODIFIER "u (%s)", sda_client_id, val64_to_str_const(sda_client_id, client_service_id_info, "Invalid"));
-
-				if (!sdnv_status) {
-					expert_add_info(pinfo, ti, &ei_ltp_sdnv_length);
-					return 0;
-				}
-
+				add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset+parse_offset, hf_ltp_data_sda_clid, &sda_client_id, &sdnv_length);
 				parse_offset += sdnv_length;
 				if (parse_offset == parse_length) {
 					col_set_str(pinfo->cinfo, COL_INFO, "CCSDS LTP SDA Protocol Error");
@@ -831,7 +804,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	gint64 chkp_sno;
 	guint64 upper_bound;
 	guint64 lower_bound;
-	int rcpt_clm_cnt;
+	guint64 rcpt_clm_cnt;
 	guint64 offset;
 	guint64 length;
 	guint64 clm_fst, clm_lst;
@@ -847,9 +820,9 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	int segment_offset = 0;
 	int gap_count = 0;
 	guint64 gap_total = 0;
-	int i;
 
 	proto_item *ltp_rpt_item;
+	proto_item *ltp_rpt_clm_cnt;
 	proto_item *ltp_rpt_clm_item;
 	proto_item *item_rpt_sno, *item_chkp_sno;
 
@@ -860,8 +833,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	ltp_rpt_tree = proto_tree_add_subtree(ltp_tree, tvb, frame_offset, -1, ett_rpt_segm, &ltp_rpt_item, "Report Segment");
 
 	/* Extract the report segment info */
-	rpt_sno = evaluate_sdnv_64(tvb, frame_offset, &rpt_sno_size);
-	item_rpt_sno = proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_sno, tvb, frame_offset + segment_offset, rpt_sno_size, (guint64)rpt_sno);
+	item_rpt_sno = add_sdnv64_to_tree(ltp_rpt_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_sno, &rpt_sno, &rpt_sno_size);
 	segment_offset += rpt_sno_size;
 	if (ltp_analyze_sequence && session)
 	{
@@ -871,8 +843,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 		ltp_ref_use(session->rpt_datas, rpt_sno, pinfo, tree_rpt_sno, hf_ltp_rpt_sno_data, -1);
 	}
 
-	chkp_sno = evaluate_sdnv_64(tvb, frame_offset + segment_offset, &chkp_sno_size);
-	item_chkp_sno = proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_chkp, tvb, frame_offset + segment_offset, chkp_sno_size, (guint64)chkp_sno);
+	item_chkp_sno = add_sdnv64_to_tree(ltp_rpt_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_chkp, &chkp_sno, &chkp_sno_size);
 	segment_offset += chkp_sno_size;
 	if (ltp_analyze_sequence && session)
 	{
@@ -886,12 +857,10 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 		}
 	}
 
-	upper_bound = evaluate_sdnv(tvb, frame_offset + segment_offset, &upper_bound_size);
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_ub, tvb, frame_offset + segment_offset, upper_bound_size, upper_bound);
+	add_sdnv64_to_tree(ltp_rpt_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_ub, &upper_bound, &upper_bound_size);
 	segment_offset += upper_bound_size;
 
-	lower_bound = evaluate_sdnv(tvb, frame_offset + segment_offset, &lower_bound_size);
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_lb, tvb, frame_offset + segment_offset, lower_bound_size, lower_bound);
+	add_sdnv64_to_tree(ltp_rpt_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_lb, &lower_bound, &lower_bound_size);
 	segment_offset += lower_bound_size;
 
 	PROTO_ITEM_SET_GENERATED(
@@ -942,42 +911,34 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	}
 	tap->corr_orig = newdata;
 
-	rcpt_clm_cnt = evaluate_sdnv(tvb, frame_offset + segment_offset, &rcpt_clm_cnt_size);
-	if (rcpt_clm_cnt < 0){
-		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
-		expert_add_info_format(pinfo, ltp_tree, &ei_ltp_neg_reception_claim_count,
-				"Negative reception claim count: %d", rcpt_clm_cnt);
-		return 0;
-	}
+	ltp_rpt_clm_cnt = add_sdnv64_to_tree(ltp_rpt_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_clm_cnt, &rcpt_clm_cnt, &rcpt_clm_cnt_size);
+	segment_offset += rcpt_clm_cnt_size;
 	/* Each reception claim is at least 2 bytes, so if the count is larger than the
 	 * max number of claims we can possibly squeeze into the remaining tvbuff, then
 	 * the packet is malformed.
 	 */
-	if (rcpt_clm_cnt > tvb_captured_length_remaining(tvb, frame_offset + segment_offset) / 2) {
-		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
-		expert_add_info_format(pinfo, ltp_tree, &ei_ltp_mal_reception_claim,
-				"Reception claim count impossibly large: %d > %d", rcpt_clm_cnt,
+	if (rcpt_clm_cnt > (guint64)tvb_captured_length_remaining(tvb, frame_offset + segment_offset) / 2) {
+		expert_add_info_format(pinfo, ltp_rpt_clm_cnt, &ei_ltp_mal_reception_claim,
+				"Reception claim count impossibly large: %" G_GINT64_MODIFIER "d > %d", rcpt_clm_cnt,
 				tvb_captured_length_remaining(tvb, frame_offset + segment_offset) / 2);
 		return 0;
 	}
-	proto_tree_add_uint(ltp_rpt_tree, hf_ltp_rpt_clm_cnt, tvb, frame_offset + segment_offset, rcpt_clm_cnt_size, rcpt_clm_cnt);
-	segment_offset += rcpt_clm_cnt_size;
 
 	clm_lst = lower_bound - 1;
 
 	/* There can be multiple reception claims in the same report segment */
-	for(i = 0; i<rcpt_clm_cnt; i++){
-		offset = evaluate_sdnv(tvb,frame_offset + segment_offset, &offset_size);
+	for(guint64 ix = 0; ix < rcpt_clm_cnt; ix++){
+		/* Peek at the offset to see if there is a preceeding gap */
+		tvb_get_varint(tvb, frame_offset + segment_offset, FT_VARINT_MAX_LEN, &offset, ENC_VARINT_SDNV);
 		clm_fst = lower_bound + offset;
 		ltp_check_reception_gap(ltp_rpt_tree, pinfo, session, clm_lst, clm_fst, &gap_count, &gap_total);
 
 		ltp_rpt_clm_tree = proto_tree_add_subtree(ltp_rpt_tree, tvb, frame_offset + segment_offset, -1, ett_rpt_clm, &ltp_rpt_clm_item, "Reception claim");
 
-		proto_tree_add_uint64(ltp_rpt_clm_tree, hf_ltp_rpt_clm_off, tvb, frame_offset + segment_offset, offset_size, offset);
+		add_sdnv64_to_tree(ltp_rpt_clm_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_clm_off, &offset, &offset_size);
 		segment_offset += offset_size;
 
-		length = evaluate_sdnv(tvb,frame_offset + segment_offset, &length_size);
-		proto_tree_add_uint64(ltp_rpt_clm_tree, hf_ltp_rpt_clm_len, tvb, frame_offset + segment_offset, length_size, length);
+		add_sdnv64_to_tree(ltp_rpt_clm_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_clm_len, &length, &length_size);
 		segment_offset += length_size;
 
 		PROTO_ITEM_SET_GENERATED(
@@ -1030,23 +991,18 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 	int rpt_sno_size;
 	int segment_offset = 0;
 
-	proto_item *item_rpt_sno;
+	proto_item *ltp_rpt_ack_item, *item_rpt_sno;
 	proto_tree *ltp_rpt_ack_tree;
 
+	/* Creating tree for the report ack segment */
+	ltp_rpt_ack_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, -1,
+												ett_rpt_ack_segm, &ltp_rpt_ack_item, "Report Ack Segment");
+
 	/* Extracing receipt serial number info */
-	rpt_sno = evaluate_sdnv_64(tvb,frame_offset, &rpt_sno_size);
-	/* XXX - verify that this does not overflow */
+	item_rpt_sno = add_sdnv64_to_tree(ltp_rpt_ack_tree, tvb, pinfo, frame_offset + segment_offset, hf_ltp_rpt_ack_sno, &rpt_sno, &rpt_sno_size);
 	segment_offset += rpt_sno_size;
 
-	if((unsigned)(frame_offset + segment_offset) > tvb_captured_length(tvb)){
-		return 0;
-	}
-
-	/* Creating tree for the report ack segment */
-	ltp_rpt_ack_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, segment_offset,
-												ett_rpt_ack_segm, NULL, "Report Ack Segment");
-
-	item_rpt_sno = proto_tree_add_uint64(ltp_rpt_ack_tree, hf_ltp_rpt_ack_sno, tvb, frame_offset,rpt_sno_size, (guint64)rpt_sno);
+	proto_item_set_end(ltp_rpt_ack_item, tvb, frame_offset + segment_offset);
 
 	if (ltp_analyze_sequence && session)
 	{
@@ -1079,97 +1035,60 @@ dissect_cancel_segment(proto_tree * ltp_tree, tvbuff_t *tvb, int frame_offset, l
 
 
 static int
-dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int hdr_extn_cnt){
-	guint8 extn_type[LTP_MAX_HDR_EXTN];
-	gint64 length[LTP_MAX_HDR_EXTN];
+dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset,int hdr_extn_cnt){
+	gint64 length;
+	int length_size;
 
-	int length_size[LTP_MAX_HDR_EXTN];
-
-	int i;
 	int extn_offset = 0;
 
+	proto_item *ltp_hdr_extn_item;
 	proto_tree *ltp_hdr_extn_tree;
 
-	/*  There can be more than one header extensions */
-	for(i = 0; i < hdr_extn_cnt; i++){
-		extn_type[i] = tvb_get_guint8(tvb,frame_offset);
-		extn_offset++;
+	ltp_hdr_extn_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, -1, ett_hdr_extn, &ltp_hdr_extn_item, "Header Extension");
 
-		length[i] = evaluate_sdnv_64(tvb,frame_offset+1,&length_size[i]);
-		if((guint64)(frame_offset + extn_offset + length_size[i] + length[i]) >= (guint64)tvb_captured_length(tvb)){
-			return 0;
-		}
-
-		extn_offset += length_size[i];
+	for(int ix = 0; ix < hdr_extn_cnt; ix++){
 		/* From RFC-5326, the total length of the Header Extension Tree will be length of the following:
 			a) Extension type length (1 byte)
 			b) The length of the 'length' field (as defined by the SDNV which handles dynamic size)
 			c) The length of the value field which is the decoded length */
-		extn_offset += (int)length[i];
+		proto_tree_add_item(ltp_hdr_extn_tree, hf_ltp_hdr_extn_tag, tvb, frame_offset + extn_offset, 1, ENC_NA);
+		extn_offset += 1;
+
+		add_sdnv64_to_tree(ltp_hdr_extn_tree, tvb, pinfo, frame_offset + extn_offset, hf_ltp_hdr_extn_len, &length, &length_size);
+		extn_offset += length_size;
+
+		proto_tree_add_item(ltp_hdr_extn_tree, hf_ltp_hdr_extn_val, tvb, frame_offset + extn_offset, (int)length, ENC_NA);
+		extn_offset += (int)length;
 	}
-	ltp_hdr_extn_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, extn_offset, ett_hdr_extn, NULL, "Header Extension");
 
-	for(i = 0; i < hdr_extn_cnt; i++){
-		proto_tree_add_uint_format_value(ltp_hdr_extn_tree, hf_ltp_hdr_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str_const(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
-		frame_offset += 1;
-
-		proto_tree_add_uint64_format(ltp_hdr_extn_tree, hf_ltp_hdr_extn_len, tvb, frame_offset, length_size[i],length[i], "Length [%d]: %"PRId64,i+1,length[i]);
-		frame_offset += length_size[i];
-
-		proto_tree_add_item (ltp_hdr_extn_tree, hf_ltp_hdr_extn_val, tvb, frame_offset, (int)length[i], ENC_NA);
-		frame_offset += (int)length[i];
-	}
+	proto_item_set_end(ltp_hdr_extn_item, tvb, frame_offset + extn_offset);
 	return extn_offset;
 }
 
 static int
-dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int trl_extn_cnt){
-	guint8 extn_type[LTP_MAX_TRL_EXTN];
-	gint64 length[LTP_MAX_TRL_EXTN];
+dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset,int trl_extn_cnt){
+	gint64 length;
+	int length_size;
 
-	int length_size[LTP_MAX_TRL_EXTN];
-
-	int i;
 	int extn_offset = 0;
 
+	proto_item *ltp_trl_extn_item;
 	proto_tree *ltp_trl_extn_tree;
 
-	DISSECTOR_ASSERT(trl_extn_cnt < LTP_MAX_TRL_EXTN);
+	ltp_trl_extn_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, -1, ett_trl_extn, &ltp_trl_extn_item, "Trailer Extension");
 
-	for(i = 0; i < trl_extn_cnt; i++){
-		extn_type[i] = tvb_get_guint8(tvb,frame_offset);
-		extn_offset++;
-
-		if((unsigned)(frame_offset + extn_offset) >= tvb_captured_length(tvb)){
-			return 0;
-		}
-
-		length[i] = evaluate_sdnv_64(tvb,frame_offset+1,&length_size[i]);
-		extn_offset += length_size[i];
-
-		if((guint64)(frame_offset + extn_offset + length_size[i] + length[i]) >= tvb_captured_length(tvb)){
-			return 0;
-		}
-
-		/* From RFC-5326, the total length of the Trailer Extension Tree will be length of the following:
-			a) Extension type length (1 byte)
-			b) The length of the 'length' field (as defined by the SDNV which handles dynamic size)
-			c) The length of the value field which is the decoded length */
-		extn_offset += (int)length[i];
-	}
-
-	ltp_trl_extn_tree = proto_tree_add_subtree(ltp_tree, tvb,frame_offset, extn_offset, ett_trl_extn, NULL, "Trailer Extension");
-
-	for(i = 0; i < trl_extn_cnt; i++){
-		proto_tree_add_uint_format_value(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str_const(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
+	for(int ix = 0; ix < trl_extn_cnt; ix++){
+		proto_tree_add_item(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset + extn_offset, 1, ENC_NA);
 		frame_offset += 1;
 
-		proto_tree_add_uint64_format(ltp_trl_extn_tree, hf_ltp_trl_extn_len, tvb, frame_offset, length_size[i], length[i], "Length [%d]: %"PRId64,i+1,length[i]);
-		frame_offset += length_size[i];
+		add_sdnv64_to_tree(ltp_trl_extn_tree, tvb, pinfo, frame_offset + extn_offset, hf_ltp_hdr_extn_len, &length, &length_size);
+		frame_offset += length_size;
 
-		proto_tree_add_item (ltp_trl_extn_tree, hf_ltp_trl_extn_val, tvb, frame_offset, (int)length[i], ENC_NA);
-		frame_offset += (int)length[i];
+		proto_tree_add_item(ltp_trl_extn_tree, hf_ltp_trl_extn_val, tvb, frame_offset + extn_offset, (int)length, ENC_NA);
+		frame_offset += (int)length;
 	}
+
+	proto_item_set_end(ltp_trl_extn_item, tvb, frame_offset + extn_offset);
 	return extn_offset;
 }
 
@@ -1224,21 +1143,11 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	ltp_session_tree = proto_tree_add_subtree(ltp_header_tree, tvb, frame_offset, 0, ett_hdr_session, NULL, "Session ID");
 	ltp_session_item = proto_tree_get_parent(ltp_session_tree);
 
-	sess_id.orig_eng_id = evaluate_sdnv_64(tvb,frame_offset,&engine_id_size);
-	proto_tree_add_uint64(ltp_session_tree,hf_ltp_session_orig,tvb,frame_offset,engine_id_size,sess_id.orig_eng_id);
+	add_sdnv64_to_tree(ltp_session_tree, tvb, pinfo, frame_offset, hf_ltp_session_orig, &sess_id.orig_eng_id, &engine_id_size);
 	frame_offset += engine_id_size;
-	if((unsigned)frame_offset >= tvb_captured_length(tvb)){
-		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-		return 0;
-	}
 
-	sess_id.sess_num = evaluate_sdnv_64(tvb,frame_offset,&session_num_size);
-	proto_tree_add_uint64(ltp_session_tree,hf_ltp_session_no, tvb, frame_offset,session_num_size,sess_id.sess_num);
+	add_sdnv64_to_tree(ltp_session_tree, tvb, pinfo, frame_offset, hf_ltp_session_no, &sess_id.sess_num, &session_num_size);
 	frame_offset += session_num_size;
-	if((unsigned)frame_offset >= tvb_captured_length(tvb)){
-		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-		return 0;
-	}
 
 	proto_item_set_end(ltp_session_item, tvb, frame_offset);
 	tap->sess_id = sess_id;
@@ -1303,31 +1212,10 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Session %s, %s", sess_name, val_to_str_const(ltp_type,ltp_type_col_info,"Protocol Error"));
 
 	/* Check if there are any header extensions */
-	if(hdr_extn_cnt > 0){
-		int hdr_extn_offset;
-
-		if((unsigned)frame_offset >= tvb_captured_length(tvb)){
-			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-			return 0;
-		}
-
-		hdr_extn_offset = dissect_header_extn(ltp_tree, tvb, frame_offset,hdr_extn_cnt);
-		if(hdr_extn_offset == 0){
-			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-			return 0;
-		}
+	if(hdr_extn_cnt > 0)
+	{
+		int hdr_extn_offset = dissect_header_extn(ltp_tree, tvb, pinfo, frame_offset,hdr_extn_cnt);
 		frame_offset += hdr_extn_offset;
-	}
-
-	if((unsigned)frame_offset > tvb_captured_length(tvb)){
-		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-		return 0;
-	}
-	else if((unsigned)frame_offset == tvb_captured_length(tvb)){
-		if(ltp_type != 13 && ltp_type != 15){
-			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-			return 0;
-		}
 	}
 
 	/* Call sub routines to handle the segment content*/
@@ -1366,17 +1254,9 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	/* Check to see if there are any trailer extensions */
 	const int trl_start = frame_offset;
-	int trl_length = 0;
-	if(trl_extn_cnt > 0){
-		if((unsigned)frame_offset >= tvb_captured_length(tvb)){
-		    col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-		    return 0;
-		}
-		trl_length = dissect_trailer_extn(ltp_tree, tvb, frame_offset,trl_extn_cnt);
-		if(0 == trl_length) {
-		    col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
-		    return 0;
-		}
+	if(trl_extn_cnt > 0)
+	{
+		int trl_length = dissect_trailer_extn(ltp_tree, tvb, pinfo, frame_offset,trl_extn_cnt);
 		frame_offset += trl_length;
 	}
 
@@ -1717,7 +1597,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_data_clid,
 		  {"Client service ID","ltp.data.client.id",
-		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC | BASE_VAL64_STRING, VALS64(client_service_id_info), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_data_offset,
 		  {"Offset","ltp.data.offset",
@@ -1818,7 +1698,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_rpt_clm_cnt,
 		  {"Reception claim count","ltp.rpt.clm.cnt",
-		  FT_UINT8,BASE_DEC,NULL, 0x0, NULL, HFILL}
+		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_rpt_clm_off,
 		  {"Offset","ltp.rpt.clm.off",
@@ -1876,7 +1756,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_hdr_extn_tag,
 		  {"Extension tag","ltp.hdr.extn.tag",
-		  FT_UINT8,BASE_HEX,NULL, 0x0, NULL, HFILL}
+		  FT_UINT8,BASE_HEX,VALS(extn_tag_codes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_hdr_extn_len,
 		  {"Length","ltp.hdr.extn.len",
@@ -1888,7 +1768,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_trl_extn_tag,
 		  {"Extension tag","ltp.trl.extn.tag",
-		  FT_UINT8,BASE_HEX,NULL, 0x0, NULL, HFILL}
+		  FT_UINT8,BASE_HEX,VALS(extn_tag_codes), 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_trl_extn_len,
 		  {"Length","ltp.trl.extn.len",
@@ -1973,7 +1853,6 @@ proto_register_ltp(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_ltp_neg_reception_claim_count, { "ltp.neg_reception_claim_count", PI_UNDECODED, PI_ERROR, "Negative reception claim count", EXPFILL }},
 		{ &ei_ltp_mal_reception_claim, { "ltp.mal_reception_claim", PI_MALFORMED, PI_ERROR, "Reception claim count impossibly large", EXPFILL }},
 		{ &ei_ltp_sdnv_length, { "ltp.sdnv_length_invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }},
 		{ &ei_ltp_sno_larger_than_ccsds, { "ltp.serial_number_too_large", PI_PROTOCOL, PI_WARN, "Serial number larger than CCSDS specification", EXPFILL }},
