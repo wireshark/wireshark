@@ -9970,6 +9970,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case CMSG_GMTICKET_UPDATETEXT:
+            ptvcursor_add(ptv, hf_woww_gm_ticket_type, 1, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_message);
             break;
         case CMSG_GOSSIP_HELLO:
