@@ -4082,13 +4082,9 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &olb);
 
-	/* treelen  +1 is overkill here if the string is unicode,
-	 * but who ever has more than a handful of TCON in a trace anyways
-	 */
 	if (!pinfo->fd->visited && si->saved && buf && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_TREENAME;
-		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
-		snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
+		si->saved->extra_info = wmem_strdup(wmem_file_scope(), buf);
 	}
 
 	if (buf) {
@@ -4417,8 +4413,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	if (!pinfo->fd->visited && si->saved && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_FINDPATTERN;
-		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
-		snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
+		si->saved->extra_info = wmem_strdup(wmem_file_scope(), buf);
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
@@ -8215,13 +8210,11 @@ add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, smb2_info_t *si,
 	if (!pinfo->fd->visited) {
 		if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 			gchar *saved_name = (gchar *)si->saved->extra_info;
-			gulong len = (gulong)strlen(saved_name);
 
-			si->saved->extra_info = (gchar *)wmem_alloc(wmem_file_scope(), len + 32 + 1);
-			snprintf((gchar *)si->saved->extra_info,
-				   len + 32 + 1 , "%s@%s", (char *)saved_name,
-				   abs_time_to_str(pinfo->pool, &ts,
-					           ABSOLUTE_TIME_UTC, FALSE));
+			si->saved->extra_info = wmem_strdup_printf(wmem_file_scope(),
+				"%s@%s", (char *)saved_name,
+				abs_time_to_str(pinfo->pool, &ts,
+					ABSOLUTE_TIME_UTC, FALSE));
 			wmem_free(wmem_file_scope(), saved_name);
 		}
 	}
@@ -9179,8 +9172,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		if (si->saved && f_olb.len < 1024) {
 			si->saved->extra_info_type = SMB2_EI_FILENAME;
-			si->saved->extra_info = (gchar *)wmem_alloc(wmem_file_scope(), f_olb.len+1);
-			snprintf((gchar *)si->saved->extra_info, f_olb.len+1, "%s", fname);
+			si->saved->extra_info = wmem_strdup(wmem_file_scope(), fname);
 		}
 	}
 
