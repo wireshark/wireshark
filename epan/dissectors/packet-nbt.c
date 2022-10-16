@@ -400,8 +400,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
     /* This one is; make its name printable. */
     name_type = process_netbios_name(nbname, name_ret, name_ret_len);
     pname_ret += MIN(strlen(name_ret), (size_t) name_ret_len);
-    pname_ret += MIN(name_ret_len-(pname_ret-name_ret),
-                     snprintf(pname_ret, name_ret_len-(gulong)(pname_ret-name_ret), "<%02x>", name_type));
+    snprintf(pname_ret, name_ret_len-(gulong)(pname_ret-name_ret), "<%02x>", name_type);
     if (cname == '.') {
         /* We have a scope ID, starting at "pname"; append that to
          * the decoded host name. */
