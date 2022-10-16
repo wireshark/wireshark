@@ -247,6 +247,7 @@ static int hf_woww_client_proof = -1;
 static int hf_woww_client_seed = -1;
 static int hf_woww_code = -1;
 static int hf_woww_coded = -1;
+static int hf_woww_comment = -1;
 static int hf_woww_compressed_chat_data = -1;
 static int hf_woww_container_slots = -1;
 static int hf_woww_content = -1;
@@ -9948,6 +9949,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "GmSurveyQuestion");
                 ptvcursor_add(ptv, hf_woww_question_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_answer, 1, ENC_LITTLE_ENDIAN);
+                add_cstring(ptv, &hf_woww_comment);
                 ptvcursor_pop_subtree(ptv);
             }
             add_cstring(ptv, &hf_woww_answer_comment);
@@ -16385,6 +16387,12 @@ proto_register_woww(void)
         { &hf_woww_coded,
             { "Coded", "woww.coded",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_comment,
+            { "Comment", "woww.comment",
+                FT_STRINGZ, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
