@@ -9967,8 +9967,6 @@ add_body_fields(guint32 opcode,
             if (category == GM_TICKET_TYPE_BEHAVIOR_HARASSMENT) {
                 ptvcursor_add(ptv, hf_woww_chat_data_line_count, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_chat_data_size_uncompressed, 4, ENC_LITTLE_ENDIAN);
-                len = offset_packet_end - ptvcursor_current_offset(ptv);
-                ptvcursor_add(ptv, hf_woww_compressed_chat_data, len, ENC_NA);
             }
             break;
         case CMSG_GMTICKET_UPDATETEXT:
