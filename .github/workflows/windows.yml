@@ -19,7 +19,7 @@ jobs:
           perl-version: '5.30'
           distribution: strawberry
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
         with:
