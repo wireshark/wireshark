@@ -783,29 +783,16 @@ WS_DEPRECATED_X("Use APIs that return a valid UTF-8 string instead")
 const guint8 *tvb_get_const_stringz(tvbuff_t *tvb,
     const gint offset, gint *lengthp);
 
-/** Looks for a stringz (NUL-terminated string) in tvbuff and copies
+/** Looks for a NUL byte in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
- * Returns length of string (not including terminating NUL), or -1 if the
- * string was truncated in the buffer due to not having reached the terminating
- * NUL.  In this way, it acts like snprintf().
+ * Returns number of bytes copied (not including terminating NUL).
  *
  * When processing a packet where the remaining number of bytes is less
  * than bufsize, an exception is not thrown if the end of the packet
- * is reached before the NUL is found. If no NUL is found before reaching
- * the end of the short packet, -1 is still returned, and the string
- * is truncated with a NUL, albeit not at buffer[bufsize - 1], but
- * at the correct spot, terminating the string.
+ * is reached before the NUL is found. The byte buffer is guaranteed to
+ * have a terminating NUL.
  */
-WS_DLL_PUBLIC gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset,
-    const guint bufsize, guint8 *buffer);
-
-/** Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
- * have a terminating NUL. If the string was truncated when copied into buffer,
- * a NUL is placed at the end of buffer to terminate it.
- *
- * bufsize MUST be greater than 0.
- */
-WS_DLL_PUBLIC gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const gint offset,
     const guint bufsize, guint8 *buffer);
 
 /*

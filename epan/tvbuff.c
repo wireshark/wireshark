@@ -3751,7 +3751,7 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
  * including the terminating-NUL.
  */
 static gint
-_tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer, gint *bytes_copied)
+_tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer, gint *bytes_copied)
 {
 	gint     stringlen;
 	guint    abs_offset = 0;
@@ -3818,41 +3818,14 @@ _tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 	return stringlen;
 }
 
-/* Looks for a stringz (NUL-terminated string) in tvbuff and copies
- * no more than bufsize number of bytes, including terminating NUL, to buffer.
- * Returns length of string (not including terminating NUL), or -1 if the string was
- * truncated in the buffer due to not having reached the terminating NUL.
- * In this way, it acts like snprintf().
- *
- * When processing a packet where the remaining number of bytes is less
- * than bufsize, an exception is not thrown if the end of the packet
- * is reached before the NUL is found. If no NUL is found before reaching
- * the end of the short packet, -1 is still returned, and the string
- * is truncated with a NUL, albeit not at buffer[bufsize - 1], but
- * at the correct spot, terminating the string.
- */
 gint
-tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8 *buffer)
-{
-	gint bytes_copied;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	return _tvb_get_nstringz(tvb, offset, bufsize, buffer, &bytes_copied);
-}
-
-/* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
- * have a terminating NUL. If the string was truncated when copied into buffer,
- * a NUL is placed at the end of buffer to terminate it.
- */
-gint
-tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer)
+tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer)
 {
 	gint	len, bytes_copied;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	len = _tvb_get_nstringz(tvb, offset, bufsize, buffer, &bytes_copied);
+	len = _tvb_get_raw_bytes_as_stringz(tvb, offset, bufsize, buffer, &bytes_copied);
 
 	if (len == -1) {
 		buffer[bufsize - 1] = 0;
