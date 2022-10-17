@@ -16,10 +16,10 @@ set -e -u -o pipefail
 function print_usage() {
 	printf "\\nUtility to setup a alpine system for Wireshark Development.\\n"
 	printf "The basic usage installs the needed software\\n\\n"
-	printf "Usage: %s [--install-optional] [--install-deb-deps] [...other options...]\\n" "$0"
+	printf "Usage: %s [--install-optional] [...other options...]\\n" "$0"
 	printf "\\t--install-optional: install optional software as well\\n"
 	printf "\\t--install-all: install everything\\n"
-	printf "\\t[other]: other options are passed as-is to apt\\n"
+	printf "\\t[other]: other options are passed as-is to apk\\n"
 }
 
 ADDITIONAL=0
