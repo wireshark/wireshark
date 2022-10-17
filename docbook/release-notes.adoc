@@ -18,6 +18,9 @@ __We no longer ship official 32-bit Windows packages starting with this release_
 If you need to use Wireshark on that platform, we recommend using the latest 3.6 release.
 wsbuglink:17779[]
 
+* The Windows installers now ship with Qt 5.12.2.
+They previously shipped with Qt 6.2.3.
+
 === Bug Fixes
 
 // The following vulnerabilities have been fixed:
