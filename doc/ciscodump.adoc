@@ -198,7 +198,7 @@ The path to a private key for authentication.
 --remote-interface=<remote interface>::
 +
 --
-The remote network interface to capture from. One interface or list of interface names can be used. Iterfaces are separated by comma.  Interface names must be supported by the device.
+The remote network interface to capture from. One interface or list of interface names can be used. Interfaces are separated by comma.  Interface names must be supported by the device.
 
 There are interface names causing different capture types. They are specific to used Cisco software.
 
@@ -218,7 +218,7 @@ There are interface names causing different capture types. They are specific to 
 ** `isakmp---ifname` - capture isakmp packets
 ** `lacp---ifname` - capture lacp packets (just physical interfaces are supported)
 ** `tls-proxy---ifname` - capture tls-proxy packets
-** `inline-tag---ifname` - capture all SGT tagget packets
+** `inline-tag---ifname` - capture all SGT tagged packets
 ** `raw-data---ifname` - same as `ifname`
 * syntax to capture decrypted traffic for some of capture types:
 ** `isakmp/decrypted---ifname` - capture isakmp packets including decrypted payload

@@ -13652,7 +13652,7 @@ proto_register_amqp(void)
         UAT_FLD_CSTRING(message_decode, topic_pattern, "Topic pattern", "Pattern to match for the topic"),
         UAT_FLD_PROTO(message_decode, payload_proto, "Payload protocol",
                       "Protocol to be used for the message part of the matching topic"),
-        UAT_FLD_CSTRING(message_decode, topic_more_info, "Additional Data", "Additional Data to pass to the disector"),
+        UAT_FLD_CSTRING(message_decode, topic_more_info, "Additional Data", "Additional Data to pass to the dissector"),
         UAT_END_FIELDS
     };
 

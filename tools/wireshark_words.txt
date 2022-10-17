@@ -353,6 +353,7 @@ demodulator
 demultiplexed
 demultiplexer
 demultiplexers
+denso
 deobfuscated
 depassivated
 deprecated
@@ -410,6 +411,7 @@ dmepi
 dnskey
 docsis
 dodag
+dot11Qos
 dot1q
 double
 downlink
@@ -468,6 +470,7 @@ epasv
 epdcch
 epsem
 equinf
+equiv
 ericsson
 erldp
 errinf
@@ -535,6 +538,7 @@ ftypes
 fujitsu
 functionalities
 funkt
+fuzzed
 fvalue
 g711a
 g711u
@@ -603,6 +607,7 @@ htonl
 htons
 http2
 https
+huawei
 huffman
 hytec
 icmpv
@@ -879,12 +884,14 @@ nettl
 netxray
 newpw
 nexthop
+nextseq
 nfs2err
 nfs4err
 nghttp
 ngran
 ngsniffer
 niagra
+noascii
 noauth
 nodeid
 nofcs
@@ -1077,12 +1084,14 @@ quadrature
 quadro
 quantifiers
 queryhit
+queryset
 quiescing
 quintuplet
 quintuplets
 radcom
 radeon
 radiotap
+radix
 ralink
 ranap
 randomization
@@ -1220,6 +1229,7 @@ rmcap
 rnsap
 roamer
 routable
+rowfmt
 rpcap
 rpmbuild
 rsocket
@@ -1524,6 +1534,7 @@ undissected
 unduplicated
 unencrypted
 unescaped
+unescaping
 unexported
 unformatted
 unfragmented
@@ -1647,6 +1658,7 @@ voipmetrics
 volerr
 vxlan
 wakeup
+wapforum
 wbxml
 webcam
 webkit

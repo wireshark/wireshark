@@ -38790,7 +38790,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number,
-     {"Sounding Dialog Token Number", "wlan.vht.mimo_control.sounding_dialog_tocken_nbr",
+     {"Sounding Dialog Token Number", "wlan.vht.mimo_control.sounding_dialog_token_nbr",
       FT_UINT24, BASE_HEX, NULL, 0xFC0000,
       NULL, HFILL }},
 

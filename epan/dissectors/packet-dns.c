@@ -5062,7 +5062,7 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_mb,
-      { "MailBox Domaine", "dns.mb",
+      { "MailBox Domain", "dns.mb",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
@@ -5072,7 +5072,7 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_mr,
-      { "Mail Rename domaine", "dns.mr",
+      { "Mail Rename domain", "dns.mr",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 

@@ -1756,7 +1756,7 @@ static gchar * get_modname_from_repoid(gchar *repoid) {
 //  struct giop_module_key *mk = (struct giop_module_key *) key;
 //
 //  ws_debug_printf("giop:module: Key = (%s) , Val = (%s) \n", mk->module, mv->subh->sub_name);
-//  ws_debug_printf("giop:module: poinuter = (%p)\n", user_data);
+//  ws_debug_printf("giop:module: pointer = (%p)\n", user_data);
 //
 //  return;
 //
@@ -1772,7 +1772,7 @@ static gchar * get_modname_from_repoid(gchar *repoid) {
 //  struct complete_reply_hash_key *mk = (struct complete_reply_hash_key *) key;
 //
 //  ws_debug_printf("giop:complete_reply: FN (key) = %8u , MFN (val) = %8u \n", mk->fn, mv->mfn);
-//  ws_debug_printf("giop:complete_reply: poinuter = (%p)\n", user_data);
+//  ws_debug_printf("giop:complete_reply: pointer = (%p)\n", user_data);
 //
 //  return;
 //
@@ -1790,7 +1790,7 @@ static gchar * get_modname_from_repoid(gchar *repoid) {
 //
 //
 //  ws_debug_printf("giop:objkey: Key->objkey_len = %u,  Key->objkey ",  mk->objkey_len);
-//  ws_debug_printf("giop:objkey: poinuter = (%p)\n", user_data);
+//  ws_debug_printf("giop:objkey: pointer = (%p)\n", user_data);
 //
 //  for (i=0; i<mk->objkey_len; i++) {
 //    ws_debug_printf("%.2x ", mk->objkey[i]);
