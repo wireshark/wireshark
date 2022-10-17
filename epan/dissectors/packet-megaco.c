@@ -39,6 +39,7 @@
 #include <epan/exported_pdu.h>
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
+#include <epan/charsets.h>
 #include <wsutil/strtoi.h>
 #include "packet-ber.h"
 #include "packet-tpkt.h"
@@ -1474,6 +1475,7 @@ nextcontext:
                     term = wmem_new0(wmem_packet_scope(), gcp_term_t);
                     wild_term = GCP_WILDCARD_NONE;
                     term->type = GCP_TERM_TYPE_UNKNOWN;
+                    int bytelen;
 
                     switch ( tempchar ){
 
@@ -1482,17 +1484,18 @@ nextcontext:
                             expert_add_info_format(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Invalid TermID length (%d)", tokenlen+1);
                             return tvb_captured_length(tvb);
                         }
-                        tvb_get_nstringz0(tvb,tvb_offset,tokenlen+1,TermID);
+                        bytelen = tvb_get_nstringz0(tvb,tvb_offset,tokenlen+1,TermID);
                         TermID[0] = 'e';
 
-                        term->len = tokenlen;
-                        term->str = (const gchar*)(term->buffer = TermID);
+                        term->buffer = get_utf_8_string(wmem_packet_scope(), TermID, bytelen);
+                        term->len = strlen(term->buffer);
+                        term->str = (const char *)term->buffer;
 
                         gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
 
                         /*** TERM ***/
                         proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
-                            tvb_offset, tokenlen, TermID);
+                            tvb_offset, tokenlen, term->str);
                         break;
 
                     case '*':
