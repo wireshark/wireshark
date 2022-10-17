@@ -3780,6 +3780,7 @@ set(SHARK_PUBLIC_HEADERS
 	cli_main.h
 	file.h
 	include/ws_attributes.h
+	include/ws_codepoints.h
 	include/ws_compiler_tests.h
 	include/ws_diag_control.h
 	include/ws_log_defs.h
