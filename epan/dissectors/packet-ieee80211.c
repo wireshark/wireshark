@@ -15195,13 +15195,13 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, int offset,
     for (ri = ci; ri < nr; ri++) {
       int angle = he_get_bits(tvb, bit_offset, phi_bits);
       str_offset += snprintf(angles + str_offset, sizeof(angles) - str_offset,
-                             ", h%d%d:%d", ri, ci, angle);
+                             ", φ%d%d:%d", ri, ci, angle);
       bit_offset += phi_bits;
     }
     for (ri = ci + 1; ri <= nr; ri++) {
       int angle = he_get_bits(tvb, bit_offset, psi_bits);
       str_offset += snprintf(angles + str_offset, sizeof(angles) - str_offset,
-                             ", s%d%d:%d", ri, ci, angle);
+                             ", ψ%d%d:%d", ri, ci, angle);
       bit_offset += psi_bits;
     }
   }
