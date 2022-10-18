@@ -1146,20 +1146,24 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
  *       (a.) to be aware of relative/partial names
  *       (b.) to detect protocol violations per keywords "MUST" "REQUIRED" and "SHALL"
  */
+/*
+ * This function assumes labels are encoded using ASCII. While RFC 1305 section 3.1
+ * supposedly doesn't formally mandate any one encoding, from my understanding of it,
+ * ASCII is "assumed" (and a de facto requirement for interoperability).
+ * An expert info for invalid ASCII in domain name labels would be a useful enhancement.
+ */
 static void
 dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, int hfindex,
               tvbuff_t *tvb, int dn_field_off, guint16 dn_field_len)
 {
     int      final_field_off;        /* Last offset of in DN field */
+    guint8  *label_str;
     guint8   label_len;
     int      remlen;                 /* The number of remaining octets in a domain field */
     guint8   num_labels;
     int      first_lab_off;          /* Offset of the first label of a DN */
-    char     decoded_name_str[320];  /* Array used to construct an FQDN or partial name. Although 255
-                                        is the max allowed FQDN length, the array is longer in order
-                                        to accommodate FQDNs greater than 255 for display in error
-                                        messages.  */
-    int      dpos;                   /* Current position within decoded_name_str[] */
+    wmem_strbuf_t *decoded_name_buf;  /* Array used to construct an FQDN or partial name. */
+    int      total_label_ascii_len;  /* Accumulated count of decoded label bytes, including separators. */
     int      offset;
     gboolean fqdn_seen, inc;
     proto_item *exi;
@@ -1181,8 +1185,8 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
     final_field_off     = dn_field_off + dn_field_len - 1;
     remlen              = dn_field_len;
     num_labels          = 0;
-    dpos                = 0;
-    decoded_name_str[0] = '\0';
+    total_label_ascii_len = 0;
+    decoded_name_buf = wmem_strbuf_new(pinfo->pool, NULL);
     fqdn_seen           = FALSE;
     inc                 = TRUE;
 
@@ -1207,18 +1211,16 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
             ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
 
             if (num_labels) {
-                decoded_name_str[dpos] = '\0';
                 proto_tree_add_string_format(ex_subtree, hf_dhcpv6_decoded_portion, tvb,
-                    first_lab_off, dpos, decoded_name_str,
-                    "The decoded portion of this FQDN to this point is [%s]\n", decoded_name_str);
+                    first_lab_off, total_label_ascii_len, decoded_name_buf->str,
+                    "The decoded portion of this FQDN to this point is [%s]\n", decoded_name_buf->str);
             }
             proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_non_dns_encoded_name, tvb, offset, 1);
             return;
         }
 
-        if(!dpos)
+        if(total_label_ascii_len == 0)
             first_lab_off = offset;
-        decoded_name_str[dpos] = '\0';
         offset++;
         remlen--;
 
@@ -1235,17 +1237,16 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
             ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
 
             if (num_labels) {
-                decoded_name_str[dpos] = '\0';
                 proto_tree_add_string_format(ex_subtree, hf_dhcpv6_decoded_portion, tvb,
-                    first_lab_off, dpos, decoded_name_str,
-                    "The successfully decoded portion of this FQDN: [%s]\n", decoded_name_str);
+                    first_lab_off, total_label_ascii_len, decoded_name_buf->str,
+                    "The successfully decoded portion of this FQDN: [%s]\n", decoded_name_buf->str);
             }
             proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_domain_field_len_exceeded, tvb,
                 dn_field_off, dn_field_len);
             return;
         }
 
-        if (dpos + label_len + 2 > 255) {
+        if (total_label_ascii_len + label_len + 2 > 255) {
             /*
              * RFC 1034 Section 3.1: "To simplify implementations, the total number of octets that
              * represent a domain name (i.e., the sum of all label octets and label lengths) is
@@ -1256,33 +1257,32 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
              * Since label_len is valid (<=63 and the name has not been truncated (i.e., its length
              * is <= remlen), display this oversized FQDN.
              */
-            decoded_name_str[dpos] = '.';
-            dpos++;
-            tvb_memcpy(tvb, decoded_name_str + dpos, offset, label_len);
+            wmem_strbuf_append_c(decoded_name_buf, '.');
+            total_label_ascii_len++;
+            label_str = tvb_get_string_enc(pinfo->pool, tvb, offset, label_len, ENC_ASCII);
+            wmem_strbuf_append(decoded_name_buf, label_str);
             offset += label_len;
-            dpos   += label_len;
+            total_label_ascii_len += label_len;
             if (tvb_get_guint8(tvb, offset) == 0) {
-                decoded_name_str[dpos]   = '.';
-                dpos++;
+                wmem_strbuf_append_c(decoded_name_buf, '.');
+                total_label_ascii_len++;
                 offset++;
                 inc = FALSE;
             }
-            decoded_name_str[dpos] = '\0';
             exi = proto_tree_add_uint_format(subtree, hf_dhcpv6_encoded_fqdn_len_gt_255, tvb,
-                      first_lab_off, dpos-1, dpos,
+                      first_lab_off, total_label_ascii_len-1, total_label_ascii_len,
                 "FQDN: %s%s\n"
                 "ERROR: The total length of DNS-encoded names of this FQDN, %d, exceeds 255,\n"
-                "the maximum allowed.", decoded_name_str, (inc ? "<incomplete>" : " "), dpos);
+                "the maximum allowed.", decoded_name_buf->str, (inc ? "<incomplete>" : " "), total_label_ascii_len);
             ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
             proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_encoded_fqdn_len_gt_255, tvb,
-               first_lab_off, dpos-1);
+               first_lab_off, total_label_ascii_len-1);
             return;
         }
 
         if (label_len==0) {
-            decoded_name_str[dpos] = '.';
-            dpos++;
-            decoded_name_str[dpos] = '\0';
+            wmem_strbuf_append_c(decoded_name_buf, '.');
+            total_label_ascii_len++;
 
             if (num_labels == 0) {
                 /*
@@ -1302,13 +1302,13 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
                  * TLDs consist of one DNS encoded label and a root label(0) (e.g., [com.] is
                  * encoded as [03 64 6F 6D 00]).
                  */
-                exi = proto_tree_add_string_format(subtree, hf_dhcpv6_tld, tvb, first_lab_off, dpos+1,
-                    decoded_name_str, "Top Level Domain name (TLD): %s", decoded_name_str);
+                exi = proto_tree_add_string_format(subtree, hf_dhcpv6_tld, tvb, first_lab_off, total_label_ascii_len+1,
+                    decoded_name_buf->str, "Top Level Domain name (TLD): %s", decoded_name_buf->str);
                 ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
-                proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_tld_lookup, tvb, first_lab_off, dpos+1);
+                proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_tld_lookup, tvb, first_lab_off, total_label_ascii_len+1);
 
                 num_labels = 0;
-                dpos = 0;
+                total_label_ascii_len = 0;
                 fqdn_seen = TRUE;
                 continue;   /* This was only a COMMENT/WARNING so continue */
             }
@@ -1317,9 +1317,9 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
              * indicate that the domain name is in fact an FQDN and not a multi-part partially
              * qualified domain name.
              */
-            proto_tree_add_string(subtree, hfindex, tvb, first_lab_off, dpos+1, decoded_name_str);
+            proto_tree_add_string(subtree, hfindex, tvb, first_lab_off, total_label_ascii_len+1, decoded_name_buf->str);
             num_labels = 0;
-            dpos = 0;
+            total_label_ascii_len = 0;
             fqdn_seen = TRUE;
             continue;   /* Decode the next FQDN, if any */
         }
@@ -1341,9 +1341,9 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
          * for more info.
          */
         if (offset + label_len - 1 == final_field_off) {
-            tvb_memcpy(tvb, decoded_name_str + dpos, first_lab_off + 1, label_len);
-            dpos += label_len;
-            decoded_name_str[dpos] = '\0';
+            label_str = tvb_get_string_enc(pinfo->pool, tvb, first_lab_off + 1, label_len, ENC_ASCII);
+            wmem_strbuf_append(decoded_name_buf, label_str);
+            total_label_ascii_len += label_len;
             num_labels++;
 
             if (fqdn_seen) {
@@ -1354,10 +1354,10 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
                 col_append_str(pinfo->cinfo, COL_INFO, " [PROTOCOL VIOLATION]");
 
                 exi = proto_tree_add_string_format(subtree, hf_dhcpv6_partial_name_preceded_by_fqdn,
-                        tvb, first_lab_off, label_len, decoded_name_str,
+                        tvb, first_lab_off, label_len, decoded_name_buf->str,
                         "Partial name: %s\n"
                         "ERROR: A single or multi-part partial name must be the only name in "
-                        "the domain field", decoded_name_str);
+                        "the domain field", decoded_name_buf->str);
                 ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
                 proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_partial_name_preceded_by_fqdn,
                     tvb, first_lab_off, label_len);
@@ -1367,13 +1367,13 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
             /* A conformant partial name
              */
             if (num_labels==1) {
-                proto_tree_add_string_format(subtree, hfindex, tvb, first_lab_off, dpos+1,
-                    decoded_name_str, "Partial domain name: %s", decoded_name_str);
+                proto_tree_add_string_format(subtree, hfindex, tvb, first_lab_off, total_label_ascii_len+1,
+                    decoded_name_buf->str, "Partial domain name: %s", decoded_name_buf->str);
             }
             else {
-                proto_tree_add_string_format(subtree, hfindex, tvb, first_lab_off, dpos+1,
-                    decoded_name_str, "Multi-part partially qualified Domain Name: %s",
-                    decoded_name_str);
+                proto_tree_add_string_format(subtree, hfindex, tvb, first_lab_off, total_label_ascii_len+1,
+                    decoded_name_buf->str, "Multi-part partially qualified Domain Name: %s",
+                    decoded_name_buf->str);
             }
             return;
         }
@@ -1383,14 +1383,14 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
          * trailing root label (0) is decoded as a dot. This is handled above.
          */
         if (num_labels) {
-            decoded_name_str[dpos] = '.';
-            dpos++;
+            wmem_strbuf_append_c(decoded_name_buf, '.');
+            total_label_ascii_len++;
         }
-        tvb_memcpy(tvb, decoded_name_str + dpos, offset, label_len);
+        label_str = tvb_get_string_enc(pinfo->pool, tvb, offset, label_len, ENC_ASCII);
+        wmem_strbuf_append(decoded_name_buf, label_str);
         offset += label_len;
         remlen -= label_len;
-        dpos   += label_len;
-        decoded_name_str[dpos] = '\0';
+        total_label_ascii_len += label_len;
         num_labels++;
     }
     /* End of while() loop */
