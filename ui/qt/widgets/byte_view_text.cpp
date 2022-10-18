@@ -32,9 +32,12 @@
 // - Add recent settings and context menu items to show/hide the offset.
 // - Add a UTF-8 and possibly UTF-xx option to the ASCII display.
 // - Move more common metrics to DataPrinter.
+
+// Alternative implementations:
 // - Pre-draw all of our characters and paint our display using pixmap
 //   copying? That would make this behave like a terminal screen, which
 //   is what we ultimately want.
+// - Use QGraphicsView + QGraphicsScene + QGraphicsTextItem instead?
 
 Q_DECLARE_METATYPE(bytes_view_type)
 Q_DECLARE_METATYPE(bytes_encoding_type)
@@ -250,14 +253,13 @@ void ByteViewText::paintEvent(QPaintEvent *)
 
     // Data rows
     int widget_height = height();
-    int leading = fontMetrics().leading();
     painter.save();
 
     x_pos_to_column_.clear();
     while ((int) (row_y + line_height_) < widget_height && offset < (int) data_.size()) {
         drawLine(&painter, offset, row_y);
         offset += row_width_;
-        row_y += line_height_ + leading;
+        row_y += line_height_;
     }
 
     painter.restore();
@@ -364,7 +366,7 @@ void ByteViewText::updateLayoutMetrics()
 {
     font_width_  = stringWidth("M");
     // We might want to match ProtoTree::rowHeight.
-    line_height_ = fontMetrics().height();
+    line_height_ = fontMetrics().lineSpacing();
 }
 
 int ByteViewText::stringWidth(const QString &line)
