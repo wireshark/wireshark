@@ -1157,11 +1157,13 @@ static guint32 dissect_cfdp_metadata_pdu(tvbuff_t *tvb, packet_info *pinfo, prot
     aux_byte = tvb_get_guint8(tvb, offset);
     if(aux_byte >0){
         proto_tree_add_item(tree, hf_cfdp_src_file_name, tvb, offset+1, aux_byte, ENC_ASCII);
-        offset += aux_byte+1;
-        aux_byte = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_cfdp_dst_file_name, tvb, offset+1, aux_byte, ENC_ASCII);
-        offset += aux_byte+1;
     }
+    offset += aux_byte+1;
+    aux_byte = tvb_get_guint8(tvb, offset);
+    if(aux_byte >0){
+        proto_tree_add_item(tree, hf_cfdp_dst_file_name, tvb, offset+1, aux_byte, ENC_ASCII);
+    }
+    offset += aux_byte+1;
     /* Add TLV fields */
     while(offset < cfdp_packet_data_length){
         tlv_type = tvb_get_guint8(tvb, offset);
