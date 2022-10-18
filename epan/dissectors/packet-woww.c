@@ -3895,7 +3895,7 @@ typedef enum {
     LANGUAGE_GNOMISH = 0x0000000D,
     LANGUAGE_TROLL = 0x0000000E,
     LANGUAGE_GUTTERSPEAK = 0x00000021,
-    LANGUAGE_ADDON = 0xFFFFFFFF,
+    LANGUAGE_ADDON = -0x0000001,
 } e_language;
 static const value_string e_language_strings[] =  {
     { LANGUAGE_UNIVERSAL, "Universal" },
@@ -5731,7 +5731,7 @@ typedef enum {
     BG_TYPE_ID_QUEUED_FOR_AV = 0x00000001,
     BG_TYPE_ID_QUEUED_FOR_WSG = 0x00000002,
     BG_TYPE_ID_QUEUED_FOR_AB = 0x00000003,
-    BG_TYPE_ID_REMOVE_FROM_QUEUE = 0xFFFFFFFE,
+    BG_TYPE_ID_REMOVE_FROM_QUEUE = -0x0000002,
 } e_bg_type_id;
 static const value_string e_bg_type_id_strings[] =  {
     { BG_TYPE_ID_NOT_ELIGIBLE, "Not Eligible" },
@@ -6772,7 +6772,7 @@ typedef enum {
     POWER_TYPE_FOCUS = 0x00000002,
     POWER_TYPE_ENERGY = 0x00000003,
     POWER_TYPE_HAPPINESS = 0x00000004,
-    POWER_TYPE_HEALTH = 0xFFFFFFFE,
+    POWER_TYPE_HEALTH = -0x0000002,
 } e_power_type;
 static const value_string e_power_type_strings[] =  {
     { POWER_TYPE_MANA, "Mana" },
@@ -7050,7 +7050,7 @@ typedef enum {
     SPLINE_FLAG_UNKNOWN28 = 0x10000000,
     SPLINE_FLAG_UNKNOWN29 = 0x20000000,
     SPLINE_FLAG_UNKNOWN30 = 0x40000000,
-    SPLINE_FLAG_UNKNOWN31 = 0x80000000,
+    SPLINE_FLAG_UNKNOWN31 = -0x80000000,
 } e_spline_flag;
 
 typedef enum {
