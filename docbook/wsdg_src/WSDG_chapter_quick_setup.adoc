@@ -28,45 +28,58 @@ To build the manual pages, Developer's Guide and User's Guide, Asciidoctor, Xslt
 Perl is required to generate some code and run some code analysis checks.
 
 Some features of Wireshark require additional libraries to be installed.
+There are shell scripts in the `tools` directory to install the packages
+and libraries required to build Wireshark. Usage is available with the
+`--help` option. `root` permission is required to run the scripts.
+The available scripts and their options:
 
-For Debian, and for Linux distributions based on Debian, such as Ubuntu,
-the script `tools/debian-setup.sh` will install the packages and
-libraries required to build Wireshark.  It supports the command-line
-options:
+Alpine Linux `(tools/alpine-setup.sh)`
 
-* `--install-optional` to install additional tools and to install
-libraries required for all Wireshark features;
-* `--install-deb-deps` to install packages required to build a .deb file
-for Wireshark;
-* `--install-test-deps` to install packages required to run all tests.
+* `--install-optional` install optional software as well
+* `--install-all` install everything
+* `[other]` other options are passed as-is to apk
 
-For RPM-based Linux distributions such as Red Hat, Centos, Fedora, and
-openSUSE, the script `tools/rpm-setup.sh` will install the packages and
-libraries required to build Wireshark.  It supports the command-line
-options:
+Arch Linux and pacman-based systems `(tools/arch-setup.sh)`
 
-* `--install-optional` to install additional tools and to install
-libraries required for all Wireshark features;
-* `--install-rpm-deps` to install packages required to build a .rpm file
-for Wireshark.
+* `--install-optional` install optional software as well
+* `--install-test-deps` install packages required to run all tests
+* `--install-all` install everything
+* `[other]` other options are passed as-is to pacman
 
-For Alpine Linux, the script `tools/alpine-setup.sh` will install the
-packages and libraries required to build Wireshark.  It supports the
-`--install-optional` command-line option to install additional tools and
-to install libraries required for all Wireshark features.
+BSD systems such as FreeBSD, NetBSD, OpenBSD, and DragonFly BSD
+`(tools/bsd-setup.sh)`
 
-For FreeBSD, NetBSD, OpenBSD, and DragonFly BSD, the script
-`tools/bsd-setup.sh` will install the packages and libraries required to
-build Wireshark.  It supports the `--install-optional` command-line
-option to install additional tools and to install libraries required for
-all Wireshark features.
+* `--install-optional` install optional software as well
+* `[other]` other options are passed as-is to pkg manager
 
-For macOS, you must first install Xcode.  After installing Xcode, the
+Debian, and Linux distributions based on Debian, such as Ubuntu
+`(tools/debian-setup.sh)`
+
+* `--install-optional` install optional software as well
+* `--install-deb-deps` install packages required to build the .deb file
+* `--install-test-deps` install packages required to run all tests
+* `--install-qt5-deps` force installation of packages required to use Qt5
+* `--install-qt6-deps` force installation of packages required to use Qt6
+* `--install-all` install everything
+* `[other]` other options are passed as-is to apt
+
+RPM-based Linux distributions such as Red Hat, Centos, Fedora, and
+openSUSE +
+`(tools/rpm-setup.sh)`
+
+* `--install-optional` install optional software as well
+* `--install-rpm-deps` install packages required to build the .rpm file
+* `--install-qt5-deps` force installation of packages required to use Qt5
+* `--install-qt6-deps` force installation of packages required to use Qt6
+* `--install-all` install everything
+* `[other]` other options are passed as-is to the packet manager
+
+For macOS, you must first install Xcode. After installing Xcode, the
 script `tools/macos-setup.sh` will install the rest of the tools and
 libraries required to build Wireshark, as well as the additional tools
 required to build the documentation and the libraries required for all
-Wireshark features.  If you're using Homebrew, the script
-`tools/macos-setup-brew.sh` will intall the same tools and libraries
+Wireshark features. If you're using Homebrew, the script
+`tools/macos-setup-brew.sh` will install the same tools and libraries
 from Homebrew.
 
 If an install package is not available or you have a
@@ -80,7 +93,7 @@ these sources.
 ==== Building
 
 The recommended (and fastest) way to build Wireshark is with CMake
-and Ninja.  Building with make took nearly 2x time as Ninja in one
+and Ninja. Building with make took nearly 2x time as Ninja in one
 experiment.
 
 CMake builds are best done in a separate build directory, such as a
@@ -358,7 +371,7 @@ Note that many of the GUI interfaces depend on the command line version.
 
 If installing the Windows version of git select the
 _Use Git from the Windows Command Prompt_ (in chocolatey the _/GitOnlyOnPath_
-option).  Do *not* select the _Use Git and optional Unix tools from the Windows Command Prompt_
+option). Do *not* select the _Use Git and optional Unix tools from the Windows Command Prompt_
 option (in chocolatey the _/GitAndUnixToolsOnPath_ option).
 
 ===== The Official Windows Installer
@@ -368,7 +381,7 @@ The official command-line installer is available at https://git-scm.com/download
 ===== Git Extensions
 
 Git Extensions is a native Windows graphical Git client for
-Windows.  You can download the installer from
+Windows. You can download the installer from
 https://github.com/gitextensions/gitextensions/releases/latest.
 
 ===== TortoiseGit
@@ -589,9 +602,9 @@ CMake is used to process the CMakeLists.txt files in the source tree and produce
 for your system.
 
 You can generate Visual Studio solution files to build either from within Visual Studio, or from the command
-line with MSBuild.  CMake can also generate other build types but they aren't supported.
+line with MSBuild. CMake can also generate other build types but they aren't supported.
 
-The initial generation step is only required the first time a build directory is created.  Subsequent
+The initial generation step is only required the first time a build directory is created. Subsequent
 builds will regenerate the build files as required.
 
 If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
@@ -657,7 +670,7 @@ The build files produced by CMake will regenerate themselves if required by chan
 
 ==== Debug Environment Setup
 
-You can debug using the Visual Studio Debugger or WinDbg.  See the section
+You can debug using the Visual Studio Debugger or WinDbg. See the section
 on using the <<ChToolsDebugger, Debugger Tools>>.
 
 ==== Optional: Create User’s and Developer’s Guide
