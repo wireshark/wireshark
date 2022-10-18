@@ -318,6 +318,13 @@ EndpointDataModel::EndpointDataModel(int protoId, QString filter, QObject *paren
 
 int EndpointDataModel::columnCount(const QModelIndex &) const
 {
+#ifdef HAVE_MAXMINDDB
+    int proto_ipv4 = proto_get_id_by_filter_name("ip");
+    int proto_ipv6 = proto_get_id_by_filter_name("ipv6");
+    if (protoId() == proto_ipv4 || protoId() == proto_ipv6) {
+        return ENDP_NUM_GEO_COLUMNS;
+    }
+#endif
     return ENDP_NUM_COLUMNS;
 }
 
@@ -358,8 +365,15 @@ QVariant EndpointDataModel::headerData(int section, Qt::Orientation orientation,
                 return tr("AS Organization"); break;
         }
     } else if (role == Qt::TextAlignmentRole) {
-        if (section == ENDP_COLUMN_ADDR)
+        switch (section) {
+        case ENDP_COLUMN_ADDR:
+        case ENDP_COLUMN_GEO_COUNTRY:
+        case ENDP_COLUMN_GEO_CITY:
+        case ENDP_COLUMN_GEO_AS_ORG:
             return Qt::AlignLeft;
+        default:
+            break;
+        }
         return Qt::AlignRight;
     }
 
@@ -465,8 +479,15 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             return QVariant();
         }
     } else if (role == Qt::TextAlignmentRole) {
-        if (idx.column() == ENDP_COLUMN_ADDR)
+        switch (idx.column()) {
+        case ENDP_COLUMN_ADDR:
+        case ENDP_COLUMN_GEO_COUNTRY:
+        case ENDP_COLUMN_GEO_CITY:
+        case ENDP_COLUMN_GEO_AS_ORG:
             return Qt::AlignLeft;
+        default:
+            break;
+        }
         return Qt::AlignRight;
     } else if (role == ATapDataModel::DISPLAY_FILTER) {
         return QString(get_endpoint_filter(item));
