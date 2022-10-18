@@ -22,7 +22,7 @@ function print_usage() {
 	printf "\\t--install-qt5-deps: force installation of packages required to use Qt5\\n"
 	printf "\\t--install-qt6-deps: force installation of packages required to use Qt6\\n"
 	printf "\\t--install-all: install everything\\n"
-	printf "\t[other]: other options are passed as-is to the packet manager\n"
+	printf "\t[other]: other options are passed as-is to the package manager\n"
 }
 
 ADDITIONAL=0
