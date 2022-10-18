@@ -15167,8 +15167,10 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, int offset,
                            int phi_bits, int psi_bits)
 {
   int ri, ci;
-  proto_item *pi = NULL;
   int start_bit_offset = bit_offset;
+  int start_offset = offset;
+  int str_offset = 0;
+  char angles[512];
 
   if (nc == nr)  /* If they are the same, reduce Nc by one */
     nc -= 1;
@@ -15185,25 +15187,29 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, int offset,
     }
   }
 
-  pi = proto_tree_add_int_format(tree, hf_ieee80211_he_compressed_beamform_scidx,
-                tvb, offset, ((bit_offset + 7) / 8) - offset, scidx,
-                "SCIDX: %d", scidx);
-
+  str_offset = snprintf(angles, sizeof(angles), "%d", scidx);
   /* Reset to the start bit offset */
   bit_offset = start_bit_offset;
 
   for (ci = 1; ci <= nc; ci++) {
     for (ri = ci; ri < nr; ri++) {
       int angle = he_get_bits(tvb, bit_offset, phi_bits);
-      proto_item_append_text(pi, ", phi%d%d:%d", ri, ci, angle);
+      str_offset += snprintf(angles + str_offset, sizeof(angles) - str_offset,
+                             ", h%d%d:%d", ri, ci, angle);
       bit_offset += phi_bits;
     }
     for (ri = ci + 1; ri <= nr; ri++) {
       int angle = he_get_bits(tvb, bit_offset, psi_bits);
-      proto_item_append_text(pi, ", psi%d%d:%d", ri, ci, angle);
+      str_offset += snprintf(angles + str_offset, sizeof(angles) - str_offset,
+                             ", s%d%d:%d", ri, ci, angle);
       bit_offset += psi_bits;
     }
   }
+
+  /* Update this */
+  proto_tree_add_string(tree, hf_ieee80211_he_compressed_beamform_scidx,
+                tvb, offset, ((start_bit_offset + 7) / 8) - start_offset,
+                angles);
 
   return bit_offset;
 }
@@ -38841,7 +38847,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_compressed_beamform_scidx,
      {"SCIDX", "wlan.he.action.he_mimo_control.scidx",
-      FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_beamforming_report_len,
      {"Report Len", "wlan.he.action.he_mimo_control.report_len",
