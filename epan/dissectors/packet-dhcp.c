@@ -5681,14 +5681,16 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 	int		   off	  = PKT_MDC_TLV_OFF + voff;
 	int		   subopt_off, max_len;
 	guint	       tlv_len, i, mib_val;
-	guint8	       asc_val[3] = "  ", flow_val_str[5];
+	guint8	       flow_val_str[5];
+	guint8        *asc_val;
 	proto_item    *ti, *mib_ti;
 	proto_tree    *subtree, *subtree2;
 
-	tvb_memcpy (tvb, asc_val, off, 2);
+	asc_val = tvb_get_string_enc(pinfo->pool, tvb, off, 2, ENC_ASCII);
 	if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len > 0xff) {
 		proto_tree_add_expert_format(v_tree, pinfo, &ei_dhcp_bad_length, tvb, off, len - off,
-			"Bogus length: %s", asc_val);
+			"Bogus length: %s",
+			format_text_string(pinfo->pool, asc_val));
 		return;
 	} else {
 		proto_tree_add_uint(v_tree, hf_dhcp_pkt_mta_cap_len, tvb, off, 2, tlv_len);
@@ -5699,11 +5701,12 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 			raw_val = tvb_get_ntohs (tvb, off);
 
 			/* Length */
-			tvb_memcpy(tvb, asc_val, off + 2, 2);
+			asc_val = tvb_get_string_enc(pinfo->pool, tvb, off + 2, 2, ENC_ASCII);
 			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1
 			    || tlv_len < 1 || tlv_len > G_MAXUINT16) {
 				proto_tree_add_expert_format(v_tree, pinfo, &ei_dhcp_bad_length, tvb, off, len - off,
-						    "Bogus length: %s", asc_val);
+					"Bogus length: %s",
+					format_text_string(pinfo->pool, asc_val));
 				return;
 			} else {
 				/* Value(s) */
@@ -5825,29 +5828,30 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 				while (subopt_off < max_len) {
 					raw_val = tvb_get_ntohs(tvb, subopt_off);
 					if (raw_val != 0x3032) { /* We only know how to handle a length of 2 */
-						tvb_memcpy(tvb, asc_val, subopt_off, 2);
+						asc_val = tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
 						proto_tree_add_expert_format(subtree, pinfo, &ei_dhcp_bad_length, tvb, subopt_off, 2,
-									"Bogus length: %s", asc_val);
+							"Bogus length: %s",
+							format_text_string(pinfo->pool, asc_val));
 						return;
 					}
 
 					subopt_off += 2;
 					raw_val = tvb_get_ntohs(tvb, subopt_off);
-					tvb_memcpy(tvb, asc_val, subopt_off, 2);
-
+					asc_val = tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
 					subtree2 = proto_tree_add_subtree_format(subtree, tvb, subopt_off, 2,
 						ett_dhcp_option, &mib_ti, "%s (%s)",
-						val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"), asc_val);
+						val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"),
+						format_text_string(pinfo->pool, asc_val));
 					if (subopt_off > off + 4 + 2) {
 						proto_item_append_text(ti, ", ");
 					}
 					proto_item_append_text(ti, "%s", val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"));
 
 					subopt_off += 2;
-					tvb_memcpy(tvb, asc_val, subopt_off, 2);
+					asc_val = tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
 					if (sscanf((gchar*)asc_val, "%x", &mib_val) != 1) {
 						proto_tree_add_expert_format(v_tree, pinfo, &ei_dhcp_bad_bitfield, tvb, subopt_off, 2,
-									"Bogus bitfield: %s", asc_val);
+							"Bogus bitfield: %s", format_text_string(pinfo->pool, asc_val));
 						return;
 					}
 					switch (raw_val) {
