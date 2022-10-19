@@ -124,7 +124,7 @@ static gboolean uat_expert_update_cb(void *r, char **err)
 	expert_level_entry_t *rec = (expert_level_entry_t *)r;
 
 	if (expert_registrar_get_byname(rec->field) == NULL) {
-		*err = ws_strdup_printf("Expert Info field doesn't exist");
+		*err = ws_strdup_printf("Expert Info field doesn't exist: %s", rec->field);
 		return FALSE;
 	}
 	return TRUE;
