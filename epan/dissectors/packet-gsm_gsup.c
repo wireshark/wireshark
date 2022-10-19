@@ -29,6 +29,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -790,9 +791,12 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 				if (ch == '*')
 					proto_item_append_text(ti, ", '*' (Wildcard)");
 			} else {
+                                char *name_out;
+
 				get_dns_name(tvb, offset, len, 0, &apn, &apn_len);
-				proto_tree_add_string(att_tree, hf_gsup_apn, tvb, offset, len, apn);
-				proto_item_append_text(ti, ", %s", apn);
+				name_out = format_text(pinfo->pool, apn, apn_len);
+				proto_tree_add_string(att_tree, hf_gsup_apn, tvb, offset, len, name_out);
+				proto_item_append_text(ti, ", %s", name_out);
 			}
 			break;
 		case OSMO_GSUP_PDP_CONTEXT_ID_IE:
