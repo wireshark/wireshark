@@ -3819,7 +3819,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
         if (!dissector_try_string(dns_tsig_dissector_table, tsig_algname, sub_tvb, pinfo, mac_tree, NULL)) {
           expert_add_info_format(pinfo, mac_item, &ei_dns_tsig_alg,
-                "No dissector for algorithm:%s", tsig_algname);
+                "No dissector for algorithm:%s", name_out);
         }
 
         cur_offset += tsig_siglen;
