@@ -33,6 +33,8 @@ static int hf_metamako_unknownext = -1;
 static int hf_metamako_seqnum = -1;
 static int hf_metamako_tagstring = -1;
 static int hf_metamako_fracns = -1;
+static int hf_metamako_crchash = -1;
+static int hf_metamako_egress_seqnum = -1;
 static int hf_metamako_time = -1;
 static int hf_metamako_flags = -1;
 static int hf_metamako_srcport = -1;
@@ -41,6 +43,9 @@ static int hf_metamako_tdiff = -1;
 
 static int hf_metamako_flags_orig_fcs_vld = -1;
 static int hf_metamako_flags_has_ext = -1;
+static int hf_metamako_flags_duplicate = -1;
+static int hf_metamako_flags_ts_degraded = -1;
+static int hf_metamako_flags_control_block_type = -1;
 static int hf_metamako_reserved = -1;
 
 static gint ett_metamako = -1;
@@ -48,9 +53,14 @@ static gint ett_metamako_timestamp = -1;
 static gint ett_metamako_extensions = -1;
 static gint ett_metamako_flags = -1;
 
+const true_false_string tfs_pcs49_btf = {"0x78", "0x33 or 0x66"};
+
 static int * const flags[] = {
-  &hf_metamako_flags_orig_fcs_vld,
+  &hf_metamako_flags_control_block_type,
+  &hf_metamako_flags_ts_degraded,
+  &hf_metamako_flags_duplicate,
   &hf_metamako_flags_has_ext,
+  &hf_metamako_flags_orig_fcs_vld,
   &hf_metamako_reserved,
   NULL
 };
@@ -278,6 +288,24 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
           offset += ( metamako_tlv_len + 1 ) * 4;
           break;
 
+        case 2:
+          /* De-duplication CRC64 Hash */
+          metamako_tlv_pos -= ( metamako_tlv_len + 1 ) * 4;
+          proto_tree_add_item(extensions_tree, hf_metamako_crchash, tvb, metamako_tlv_pos + 4, 8, ENC_BIG_ENDIAN);
+          proto_item_append_text(parent, ", CRC64 ECMA Hash: 0x%lx", tvb_get_ntoh64(tvb, metamako_tlv_pos + 4));
+          /* Increment the offset by the Data + Tag size */
+          offset += ( metamako_tlv_len + 1 ) * 4;
+          break;
+
+        case 3:
+          /* Egress Sequence Number */
+          metamako_tlv_pos -= ( metamako_tlv_len + 1 ) * 4;
+          proto_tree_add_item(extensions_tree, hf_metamako_egress_seqnum, tvb, metamako_tlv_pos + 4, 3, ENC_BIG_ENDIAN);
+          proto_item_append_text(parent, ", Egress Sequence No: %d", tvb_get_ntohl(tvb, metamako_tlv_pos + 3) & 0x000FFFFF);
+          /* Increment the offset by the Data + Tag size */
+          offset += ( metamako_tlv_len + 1 ) * 4;
+          break;
+
         case 31:
           /* Tag String */
           metamako_tlv_pos -= ( metamako_tlv_len + 1 ) * 4;
@@ -376,6 +404,16 @@ proto_register_metamako(void)
         FT_UINT24, BASE_CUSTOM, CF_FUNC(sub_nanos_base_custom), 0x0,
         NULL, HFILL }},
 
+    { &hf_metamako_crchash, {
+        "CRC64 ECMA Hash", "metamako.crchash",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_metamako_egress_seqnum, {
+        "Egress Sequence Number", "metamako.egrseqnum",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_metamako_tagstring, {
         "Tag String", "metamako.tagstring",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -401,9 +439,24 @@ proto_register_metamako(void)
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
         NULL, HFILL}},
 
+    {&hf_metamako_flags_duplicate, {
+        "Duplicate Packet", "metamako.flags.is_duplicate",
+        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+        NULL, HFILL}},
+
+    {&hf_metamako_flags_ts_degraded, {
+        "Timestamp degraded", "metamako.flags.ts_degraded",
+        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x10,
+        NULL, HFILL}},
+
+    {&hf_metamako_flags_control_block_type, {
+        "Clause 49 BTF", "metamako.flags.pcs49_btf",
+        FT_BOOLEAN, 8, TFS(&tfs_pcs49_btf), 0x20,
+        NULL, HFILL}},
+
     {&hf_metamako_reserved, {
         "Reserved", "metamako.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0xFC,
+        FT_UINT8, BASE_HEX, NULL, 0xC8,
         NULL, HFILL}},
 
     { &hf_metamako_srcdevice, {
