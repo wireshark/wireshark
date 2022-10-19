@@ -252,6 +252,16 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
     }
 }
 
+void
+wmem_strbuf_append_unichar_validated(wmem_strbuf_t *strbuf, const gunichar c)
+{
+    if (g_unichar_validate(c)) {
+        wmem_strbuf_append_unichar(strbuf, c);
+    } else {
+        wmem_strbuf_append_unichar(strbuf, UNICODE_REPLACEMENT_CHARACTER);
+    }
+}
+
 static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                               '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 

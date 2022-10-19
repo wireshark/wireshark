@@ -107,6 +107,13 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c);
 #define wmem_strbuf_append_unichar_repl(buf) \
             wmem_strbuf_append_unichar(buf, UNICODE_REPLACEMENT_CHARACTER)
 
+/* As wmem_strbuf_append_unichar but appends a REPLACEMENT CHARACTER
+ * instead for any invalid Unicode codepoints.
+ */
+WS_DLL_PUBLIC
+void
+wmem_strbuf_append_unichar_validated(wmem_strbuf_t *strbuf, const gunichar c);
+
 WS_DLL_PUBLIC
 void
 wmem_strbuf_append_hex(wmem_strbuf_t *strbuf, uint8_t);

@@ -805,11 +805,6 @@ get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, con
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
  * Specify length in bytes.
- *
- * XXX - should map lead and trail surrogate values to REPLACEMENT
- * CHARACTERs (0xFFFD)?
- * XXX - if there are an odd number of bytes, should put a
- * REPLACEMENT CHARACTER at the end.
  */
 guint8 *
 get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
@@ -826,13 +821,16 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
         }else{
             uchar = pletoh16(ptr + i);
         }
-        wmem_strbuf_append_unichar(strbuf, uchar);
+        wmem_strbuf_append_unichar_validated(strbuf, uchar);
     }
 
     /*
-     * XXX - if i < length, this means we were handed an odd
-     * number of bytes, so we're not a valid UCS-2 string.
+     * If i < length, this means we were handed an odd number of bytes;
+     * insert a REPLACEMENT CHARACTER to mark the error.
      */
+    if (i < length) {
+        wmem_strbuf_append_unichar_repl(strbuf);
+    }
     return (guint8 *) wmem_strbuf_finalize(strbuf);
 }
 
@@ -846,8 +844,6 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
  * Specify length in bytes.
- *
- * XXX - should map invalid Unicode characters to REPLACEMENT CHARACTERs.
  */
 guint8 *
 get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
@@ -936,9 +932,6 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Specify length in bytes
- *
- * XXX - should map lead and trail surrogate values to a "substitute"
- * UTF-8 character?
  */
 guint8 *
 get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
@@ -955,12 +948,7 @@ get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
         else
             uchar = pletoh32(ptr + i);
 
-        if (uchar > 0x10FFFF) {
-            /* Code points above 0x10FFFF are not legal */
-            wmem_strbuf_append_unichar(strbuf, UNREPL);
-        } else {
-            wmem_strbuf_append_unichar(strbuf, uchar);
-        }
+        wmem_strbuf_append_unichar_validated(strbuf, uchar);
     }
 
     /*
@@ -1281,13 +1269,11 @@ get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const guint8 *ptr,
             /*
              * XXX - if saw_escape is true, this is bogus.
              *
-             * XXX - should map lead and trail surrogate values to
-             * REPLACEMENT CHARACTERs (0xFFFD)?
              * XXX - if there are an odd number of bytes, should put a
              * REPLACEMENT CHARACTER at the end.
              */
             uchar = ucs2_base + (byte & 0x7f);
-            wmem_strbuf_append_unichar(strbuf, uchar);
+            wmem_strbuf_append_unichar_validated(strbuf, uchar);
         }
     }
 
