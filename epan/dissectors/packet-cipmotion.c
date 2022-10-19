@@ -2073,7 +2073,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
    guint8 ConnPoint = 2;
    if (io_data_input && io_data_input->conn_info)
    {
-      ConnPoint = io_data_input->conn_info->ConnPoint;
+      ConnPoint = io_data_input->conn_info->connection_path.iConnPoint;
    }
 
    /* Create display subtree for the protocol by creating an item and then
@@ -2188,7 +2188,7 @@ static int dissect_cipmotion3(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 {
    cip_conn_info_t conn_info;
    memset(&conn_info, 0, sizeof(conn_info));
-   conn_info.ConnPoint = 3;
+   conn_info.connection_path.iConnPoint = 3;
 
    cip_io_data_input io_data_input;
    io_data_input.conn_info = &conn_info;

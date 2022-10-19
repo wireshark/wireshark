@@ -530,10 +530,9 @@ typedef struct cip_conn_info {
    guint8                  TransportClass_trigger;
    guint32                 timeout_multiplier;
    cip_safety_epath_info_t safety;
-   guint32                 ClassID;
-   guint32                 ConnPoint;
    guint32                 FwdOpenPathLenBytes;
    void*                   pFwdOpenPathData;
+   cip_simple_request_info_t connection_path;
 
    // Information about specific packet numbers.
    guint32 open_req_frame;
@@ -632,7 +631,7 @@ extern int  dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, 
 extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
 extern void reset_cip_request_info(cip_simple_request_info_t* req_data);
 extern gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status);
-
+extern gboolean cip_connection_triad_match(const cip_connection_triad_t* left, const cip_connection_triad_t* right);
 
 /*
 ** Exported variables

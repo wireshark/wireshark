@@ -1108,9 +1108,7 @@ enip_conn_equal(gconstpointer v, gconstpointer w)
   const enip_conn_key_t *v1 = (const enip_conn_key_t *)v;
   const enip_conn_key_t *v2 = (const enip_conn_key_t *)w;
 
-  if ((v1->triad.ConnSerialNumber == v2->triad.ConnSerialNumber) &&
-      (v1->triad.VendorID == v2->triad.VendorID) &&
-      (v1->triad.DeviceSerialNumber == v2->triad.DeviceSerialNumber) &&
+  if (cip_connection_triad_match(&v1->triad, &v2->triad) &&
       ((v1->O2TConnID == 0) || (v2->O2TConnID == 0) || (v1->O2TConnID == v2->O2TConnID)) &&
       ((v1->T2OConnID == 0) || (v2->T2OConnID == 0) || (v1->T2OConnID == v2->T2OConnID)))
     return TRUE;
@@ -2614,7 +2612,7 @@ static void dissect_cip_class01_io(packet_info* pinfo, tvbuff_t* tvb, int offset
       }
       else
       {
-         dissector_handle_t dissector = dissector_get_uint_handle(subdissector_io_table, conn_info->ClassID);
+         dissector_handle_t dissector = dissector_get_uint_handle(subdissector_io_table, conn_info->connection_path.iClass);
          if (dissector)
          {
             call_dissector_with_data(dissector, next_tvb, pinfo, dissector_tree, &io_data_input);
@@ -2660,14 +2658,14 @@ static void dissect_cip_class23_data(packet_info* pinfo, tvbuff_t* tvb, int offs
 
    if (conn_info != NULL)
    {
-      dissector_handle_t dissector = dissector_get_uint_handle(subdissector_cip_connection_table, conn_info->ClassID);
+      dissector_handle_t dissector = dissector_get_uint_handle(subdissector_cip_connection_table, conn_info->connection_path.iClass);
       if (dissector)
       {
-         call_dissector_with_data(dissector, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID));
+         call_dissector_with_data(dissector, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->connection_path.iClass));
       }
       else
       {
-         call_dissector_with_data(cip_implicit_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID));
+         call_dissector_with_data(cip_implicit_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->connection_path.iClass));
       }
    }
    else
