@@ -15,8 +15,17 @@
 
 extern const value_string dns_classes[];
 
-/* Just like expand_dns_name, but pretty-prints empty names. */
-int get_dns_name(tvbuff_t *, int, int, int, const gchar **, gint*);
+/*
+ * Expands DNS name from TVB into a byte string.
+ *
+ * Returns int: byte size of DNS data.
+ * Returns char *name: a dot (.) separated raw string of DNS domain name labels.
+ * This string is null terminated. Labels are copied directly from raw packet
+ * data without any validation for a string encoding. This is the callers responsibility.
+ * Return int name_len: byte length of "name".
+ */
+int get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
+    const gchar **name, gint* name_len);
 
 #define MAX_DNAME_LEN   255             /* maximum domain name length */
 
