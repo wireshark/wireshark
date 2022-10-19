@@ -5875,7 +5875,6 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree;
 	int         fn_len;
 	const char *fn;
-	char        fname[11+1];
 
 	DISSECTOR_ASSERT(si);
 
@@ -5892,10 +5891,7 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo _U_,
 	fn = get_unicode_or_ascii_string(tvb, &offset, FALSE/*never Unicode*/, &fn_len,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
-	/* ensure that it's null-terminated */
-	(void) g_strlcpy(fname, fn, 11+1);
-	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, 11,
-		fname);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, 11, fn);
 	COUNT_BYTES_SUBR(fn_len);
 
 	if (has_find_id) {
@@ -5931,7 +5927,6 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree;
 	int         fn_len;
 	const char *fn;
-	char        fname[13+1];
 
 	DISSECTOR_ASSERT(si);
 
@@ -5970,10 +5965,7 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 	fn = get_unicode_or_ascii_string(tvb, &offset, FALSE/*Never Unicode*/, &fn_len,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
-	/* ensure that it's null-terminated */
-	(void) g_strlcpy(fname, fn, 13+1);
-	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
-		fname);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len, fn);
 	COUNT_BYTES_SUBR(fn_len);
 
 	*trunc = FALSE;
