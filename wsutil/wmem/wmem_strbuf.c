@@ -415,10 +415,35 @@ wmem_strbuf_destroy(wmem_strbuf_t *strbuf)
     wmem_free(strbuf->allocator, strbuf);
 }
 
-bool
-wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endptr)
+static bool
+string_utf8_validate(const char *str, ssize_t max_len, const char **endpptr)
 {
-    return g_utf8_validate(strbuf->str, strbuf->len, endptr);
+    bool valid;
+
+    if (max_len <= 0)
+        return true;
+
+    valid = g_utf8_validate(str, max_len, endpptr);
+    if (valid || **endpptr != '\0')
+        return valid;
+
+    /* Invalid because of a nul byte. Skip nuls and continue. */
+    max_len -= *endpptr - str;
+    str = *endpptr;
+    while (max_len > 0 && *str == '\0') {
+        str++;
+        max_len--;
+    }
+    return string_utf8_validate(str, max_len, endpptr);
+}
+
+/* g_utf8_validate() returns FALSE in the string contains embedded NUL
+ * bytes. We accept \x00 as valid and work around that to validate the
+ * entire len bytes. */
+bool
+wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endpptr)
+{
+    return string_utf8_validate(strbuf->str, strbuf->len, endpptr);
 }
 
 void
