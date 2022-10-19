@@ -4290,13 +4290,10 @@ static const value_string gsm_a_rr_ncell_vals [] = {
 guint16
 de_rr_meas_res(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
     gint    bit_offset;
     guint64 no_ncell_m;
 
-    curr_offset = offset;
-
-    bit_offset = curr_offset << 3;
+    bit_offset = offset << 3;
     /* 2nd octet */
     /* BA-USED */
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ba_used, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -4307,7 +4304,6 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint
     /* RXLEV-FULL-SERVING-CELL */
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rxlev_full_serv_cell, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     bit_offset += 6;
-    curr_offset++;
 
     /* 3rd octet */
     /* 3G-BA-USED */
@@ -4319,8 +4315,6 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint
     /* RXLEV-SUB-SERVING-CELL */
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rxlev_sub_serv_cell, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     bit_offset += 6;
-
-    curr_offset++;
 
     /* 4th octet */
     /* SI23_BA_USED */
