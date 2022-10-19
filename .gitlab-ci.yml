@@ -136,15 +136,25 @@ variables:
 .build-rpm:
   extends: .build-linux
   rules: !reference [.if-merged]
+  cache:
+    key: ${CI_JOB_NAME}-master
+    paths:
+      - ccache/
   before_script:
     # It might make sense to set "GIT_STRATEGY: none" and build from
     # the tarball.
+    - mkdir -p ccache
+    - ccache --show-stats
     - git config --global user.email "you@example.com"
     - git config --global user.name "Your Name"
     - mkdir build
     - cd build
     - ../tools/make-version.py --set-release ..
     - mv -v ../wireshark-*.tar.* .
+  after_script:
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   artifacts:
     paths:
       - build/packaging/rpm/RPMS
@@ -245,7 +255,7 @@ Fedora RPM Package:
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
     - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake3 -GNinja ..
+    - cmake3 -GNinja -DENABLE_CCACHE=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
@@ -262,7 +272,7 @@ openSUSE 15.3 RPM Package:
   image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja -DUSE_qt6=OFF ..
+    - cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
@@ -279,7 +289,7 @@ Rocky Linux 9 RPM Package:
   image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja -DUSE_qt6=OFF ..
+    - cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
