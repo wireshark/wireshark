@@ -98,6 +98,7 @@ static int hf_camelsrt_DeltaTime65=-1;
 static int hf_camelsrt_DeltaTime22=-1;
 static int hf_camelsrt_DeltaTime35=-1;
 static int hf_camelsrt_DeltaTime80=-1;
+static int hf_camel_timeandtimezone_bcd = -1;
 
 #include "packet-camel-hf.c"
 
@@ -140,12 +141,14 @@ static gint ett_camel_dTMFDigitsCompleted = -1;
 static gint ett_camel_dTMFDigitsTimeOut = -1;
 static gint ett_camel_number = -1;
 static gint ett_camel_digitsResponse = -1;
+static gint ett_camel_timeandtimezone = -1;
 
 #include "packet-camel-ett.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
 static expert_field ei_camel_unknown_returnErrorData = EI_INIT;
+static expert_field ei_camel_par_wrong_length = EI_INIT;
 
 /* Preference settings default */
 #define MAX_SSN 254
@@ -1447,7 +1450,12 @@ void proto_register_camel(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "DeltaTime between EventReportGPRS and ContinueGPRS", HFILL }
     },
-
+    { &hf_camel_timeandtimezone_bcd,
+      { "Time and timezone",
+        "camel.timeandtimezone_bcd",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 #ifdef REMOVED
 #endif
 #include "packet-camel-hfarr.c"
@@ -1476,6 +1484,7 @@ void proto_register_camel(void) {
     &ett_camel_dTMFDigitsTimeOut,
     &ett_camel_number,
     &ett_camel_digitsResponse,
+    &ett_camel_timeandtimezone,
 
 #include "packet-camel-ettarr.c"
   };
@@ -1484,6 +1493,7 @@ void proto_register_camel(void) {
      { &ei_camel_unknown_invokeData, { "camel.unknown.invokeData", PI_MALFORMED, PI_WARN, "Unknown invokeData", EXPFILL }},
      { &ei_camel_unknown_returnResultData, { "camel.unknown.returnResultData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
      { &ei_camel_unknown_returnErrorData, { "camel.unknown.returnErrorData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
+     { &ei_camel_par_wrong_length, { "camel.par_wrong_length", PI_PROTOCOL, PI_ERROR, "Wrong length of parameter", EXPFILL }},
   };
 
   expert_module_t* expert_camel;

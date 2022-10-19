@@ -106,6 +106,7 @@ static int hf_camelsrt_DeltaTime65=-1;
 static int hf_camelsrt_DeltaTime22=-1;
 static int hf_camelsrt_DeltaTime35=-1;
 static int hf_camelsrt_DeltaTime80=-1;
+static int hf_camel_timeandtimezone_bcd = -1;
 
 
 /*--- Included file: packet-camel-hf.c ---*/
@@ -598,7 +599,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 103 "./asn1/camel/packet-camel-template.c"
+#line 104 "./asn1/camel/packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -639,6 +640,7 @@ static gint ett_camel_dTMFDigitsCompleted = -1;
 static gint ett_camel_dTMFDigitsTimeOut = -1;
 static gint ett_camel_number = -1;
 static gint ett_camel_digitsResponse = -1;
+static gint ett_camel_timeandtimezone = -1;
 
 
 /*--- Included file: packet-camel-ett.c ---*/
@@ -841,11 +843,12 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 145 "./asn1/camel/packet-camel-template.c"
+#line 147 "./asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
 static expert_field ei_camel_unknown_returnErrorData = EI_INIT;
+static expert_field ei_camel_par_wrong_length = EI_INIT;
 
 /* Preference settings default */
 #define MAX_SSN 254
@@ -1183,7 +1186,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 302 "./asn1/camel/packet-camel-template.c"
+#line 305 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1273,7 +1276,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 304 "./asn1/camel/packet-camel-template.c"
+#line 307 "./asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -4641,8 +4644,56 @@ dissect_camel_QualityOfService(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_camel_TimeAndTimezone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+ tvbuff_t  *parameter_tvb;
+ proto_tree *subtree;
+ proto_item *item;
+ gchar *digit_str;
+ guint length;
+ gchar year[5];
+ gchar month[3];
+ gchar day[3];
+ gchar hour[3];
+ gchar minute[3];
+ gchar second[3];
+ gchar timezone_digits[3];
+
+ guint8 oct;
+ char   sign;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+  length = tvb_reported_length(parameter_tvb);
+  if (length < 8 /*cAPSpecificBoundSetminTimeAndTimezoneLength*/){
+    expert_add_info(actx->pinfo, actx->created_item, &ei_camel_par_wrong_length);
+    return offset;
+  }
+  subtree = proto_item_add_subtree(actx->created_item, ett_camel_timeandtimezone);
+  item = proto_tree_add_item_ret_display_string(subtree, hf_camel_timeandtimezone_bcd, parameter_tvb, 0, -1, ENC_BCD_DIGITS_0_9, actx->pinfo->pool, &digit_str);
+
+  (void) g_strlcpy(year, digit_str, 5);
+  (void) g_strlcpy(month, digit_str+4, 3);
+  (void) g_strlcpy(day, digit_str+6, 3);
+  (void) g_strlcpy(hour, digit_str+8, 3);
+  (void) g_strlcpy(minute, digit_str+10, 3);
+  (void) g_strlcpy(second, digit_str+12, 3);
+  (void) g_strlcpy(timezone_digits, digit_str+14, 3);
+
+/*
+The Time Zone indicates the difference, expressed in quarters of an hour, between the local time and GMT. In the first of the two semi octets,
+the first bit (bit 3 of the seventh octet of the TP Service Centre Time Stamp field) represents the algebraic sign of this difference (0: positive, 1: negative).
+*/
+  if (!ws_hexstrtou8(timezone_digits, NULL, &oct)){
+    return offset;
+  }
+  sign = (oct & 0x08)?'-':'+';
+  oct = (oct >> 4) + (oct & 0x07) * 10;
+
+  proto_item_append_text(item, "(%s-%s-%s %s:%s:%s GMT %c %d hours %d minutes)", year,month,day,hour,minute,second,sign, oct / 4, oct % 4 * 15);
+
+
 
   return offset;
 }
@@ -7226,7 +7277,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 405 "./asn1/camel/packet-camel-template.c"
+#line 408 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7433,7 +7484,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 407 "./asn1/camel/packet-camel-template.c"
+#line 410 "./asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8315,7 +8366,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1281 "./asn1/camel/packet-camel-template.c"
+#line 1284 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
@@ -8485,7 +8536,12 @@ void proto_register_camel(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "DeltaTime between EventReportGPRS and ContinueGPRS", HFILL }
     },
-
+    { &hf_camel_timeandtimezone_bcd,
+      { "Time and timezone",
+        "camel.timeandtimezone_bcd",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 #ifdef REMOVED
 #endif
 
@@ -10437,7 +10493,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1454 "./asn1/camel/packet-camel-template.c"
+#line 1462 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10463,6 +10519,7 @@ void proto_register_camel(void) {
     &ett_camel_dTMFDigitsTimeOut,
     &ett_camel_number,
     &ett_camel_digitsResponse,
+    &ett_camel_timeandtimezone,
 
 
 /*--- Included file: packet-camel-ettarr.c ---*/
@@ -10665,13 +10722,14 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1481 "./asn1/camel/packet-camel-template.c"
+#line 1490 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
      { &ei_camel_unknown_invokeData, { "camel.unknown.invokeData", PI_MALFORMED, PI_WARN, "Unknown invokeData", EXPFILL }},
      { &ei_camel_unknown_returnResultData, { "camel.unknown.returnResultData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
      { &ei_camel_unknown_returnErrorData, { "camel.unknown.returnErrorData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
+     { &ei_camel_par_wrong_length, { "camel.par_wrong_length", PI_PROTOCOL, PI_ERROR, "Wrong length of parameter", EXPFILL }},
   };
 
   expert_module_t* expert_camel;

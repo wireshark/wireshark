@@ -759,6 +759,55 @@ proto_tree *subtree;
   }
 %(DEFAULT_BODY)s
 
+#.FN_BODY TimeAndTimezone VAL_PTR = &parameter_tvb
+ tvbuff_t  *parameter_tvb;
+ proto_tree *subtree;
+ proto_item *item;
+ gchar *digit_str;
+ guint length;
+ gchar year[5];
+ gchar month[3];
+ gchar day[3];
+ gchar hour[3];
+ gchar minute[3];
+ gchar second[3];
+ gchar timezone_digits[3];
+
+ guint8 oct;
+ char   sign;
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+  length = tvb_reported_length(parameter_tvb);
+  if (length < 8 /*cAPSpecificBoundSetminTimeAndTimezoneLength*/){
+    expert_add_info(actx->pinfo, actx->created_item, &ei_camel_par_wrong_length);
+    return offset;
+  }
+  subtree = proto_item_add_subtree(actx->created_item, ett_camel_timeandtimezone);
+  item = proto_tree_add_item_ret_display_string(subtree, hf_camel_timeandtimezone_bcd, parameter_tvb, 0, -1, ENC_BCD_DIGITS_0_9, actx->pinfo->pool, &digit_str);
+
+  (void) g_strlcpy(year, digit_str, 5);
+  (void) g_strlcpy(month, digit_str+4, 3);
+  (void) g_strlcpy(day, digit_str+6, 3);
+  (void) g_strlcpy(hour, digit_str+8, 3);
+  (void) g_strlcpy(minute, digit_str+10, 3);
+  (void) g_strlcpy(second, digit_str+12, 3);
+  (void) g_strlcpy(timezone_digits, digit_str+14, 3);
+
+/*
+The Time Zone indicates the difference, expressed in quarters of an hour, between the local time and GMT. In the first of the two semi octets,
+the first bit (bit 3 of the seventh octet of the TP Service Centre Time Stamp field) represents the algebraic sign of this difference (0: positive, 1: negative).
+*/
+  if (!ws_hexstrtou8(timezone_digits, NULL, &oct)){
+    return offset;
+  }
+  sign = (oct & 0x08)?'-':'+';
+  oct = (oct >> 4) + (oct & 0x07) * 10;
+
+  proto_item_append_text(item, "(%%s-%%s-%%s %%s:%%s:%%s GMT %%c %%d hours %%d minutes)", year,month,day,hour,minute,second,sign, oct / 4, oct %% 4 * 15);
+
+
 #.TYPE_ATTR
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = BASE_NONE
