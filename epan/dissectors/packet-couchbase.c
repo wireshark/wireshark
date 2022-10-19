@@ -188,6 +188,7 @@ static bool is_request_magic(guint8 magic) {
 #define STATUS_RANGE_SCAN_CANCELLED 0xa5
 #define STATUS_RANGE_SCAN_MORE 0xa6
 #define STATUS_RANGE_SCAN_COMPLETE 0xa7
+#define STATUS_VBUUID_NOT_EQUAL 0xa8
 #define STATUS_SUBDOC_PATH_ENOENT         0xc0
 #define STATUS_SUBDOC_PATH_MISMATCH       0xc1
 #define STATUS_SUBDOC_PATH_EINVAL         0xc2
@@ -398,6 +399,10 @@ static bool is_request_magic(guint8 magic) {
 #define CLIENT_OPCODE_SUBDOC_MULTI_MUTATION   0xd1
 #define CLIENT_OPCODE_SUBDOC_GET_COUNT        0xd2
 #define CLIENT_OPCODE_SUBDOC_REPLACE_BODY_WITH_XATTR 0xd3
+
+#define CLIENT_OPCODE_RANGE_SCAN_CREATE       0xda
+#define CLIENT_OPCODE_RANGE_SCAN_CONTINUE     0xdb
+#define CLIENT_OPCODE_RANGE_SCAN_CANCEL       0xdc
 
 #define CLIENT_OPCODE_SCRUB                   0xf0
 #define CLIENT_OPCODE_ISASL_REFRESH           0xf1
@@ -611,6 +616,11 @@ static int hf_flex_frame_durability_req = -1;
 static int hf_flex_frame_dcp_stream_id = -1;
 static int hf_flex_frame_impersonated_user = -1;
 
+static int hf_range_scan_uuid  = -1;
+static int hf_range_scan_item_limit = -1;
+static int hf_range_scan_time_limit = -1;
+static int hf_range_scan_byte_limit = -1;
+
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
 static expert_field ef_warn_shall_not_have_key = EI_INIT;
@@ -762,6 +772,7 @@ static const value_string status_vals[] = {
   { STATUS_RANGE_SCAN_CANCELLED, "RangeScan was cancelled"},
   { STATUS_RANGE_SCAN_MORE, "RangeScan has more data available"},
   { STATUS_RANGE_SCAN_COMPLETE, "RangeScan has completed"},
+  { STATUS_VBUUID_NOT_EQUAL, "VB UUID does not equal server value"},
   { STATUS_SUBDOC_PATH_ENOENT,
     "Subdoc: Path not does not exist"},
   { STATUS_SUBDOC_PATH_MISMATCH,
@@ -975,6 +986,9 @@ static const value_string client_opcode_vals[] = {
   { CLIENT_OPCODE_SUBDOC_MULTI_MUTATION,      "Subdoc Multipath Mutation"},
   { CLIENT_OPCODE_SUBDOC_GET_COUNT,           "Subdoc Get Count"         },
   { CLIENT_OPCODE_SUBDOC_REPLACE_BODY_WITH_XATTR, "Subdoc Replace Body With Xattr"},
+  { CLIENT_OPCODE_RANGE_SCAN_CREATE,          "RangeScan Create"         },
+  { CLIENT_OPCODE_RANGE_SCAN_CONTINUE,        "RangeScan Continue"       },
+  { CLIENT_OPCODE_RANGE_SCAN_CANCEL,          "RangeScan Cancel"         },
   { CLIENT_OPCODE_SCRUB,                      "Scrub"                    },
   { CLIENT_OPCODE_ISASL_REFRESH,              "isasl Refresh"            },
   { CLIENT_OPCODE_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
@@ -1177,6 +1191,7 @@ has_json_value(gboolean is_request, guint8 opcode)
   if (is_request) {
     switch (opcode) {
     case CLIENT_OPCODE_AUDIT_PUT:
+    case CLIENT_OPCODE_RANGE_SCAN_CREATE:
       return TRUE;
 
     default:
@@ -2027,6 +2042,26 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset += 4;
     }
     break;
+  case CLIENT_OPCODE_RANGE_SCAN_CONTINUE:
+    // https://github.com/couchbase/kv_engine/blob/master/docs/range_scans/range_scan_continue.md
+    if (request) {
+      proto_tree_add_item(extras_tree, hf_range_scan_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+      offset += 16;
+      proto_tree_add_item(extras_tree, hf_range_scan_item_limit, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_range_scan_time_limit, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_range_scan_byte_limit, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+    }
+    break;
+  case CLIENT_OPCODE_RANGE_SCAN_CANCEL:
+    // https://github.com/couchbase/kv_engine/blob/master/docs/range_scans/range_scan_cancel.md
+    if (request) {
+      proto_tree_add_item(extras_tree, hf_range_scan_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+      offset += 16;
+    }
+    break;
   default:
     if (extlen) {
       /* Decode as unknown extras */
@@ -2596,6 +2631,9 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(hello_features_tree, hf_hello_features_feature, tvb, curr, 2, ENC_BIG_ENDIAN);
         curr += 2;
       }
+    } else if (!request && opcode == CLIENT_OPCODE_RANGE_SCAN_CREATE) {
+      proto_tree_add_item(tree, hf_range_scan_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+      offset += 16;
     } else if (path_len != 0) {
         ti = proto_tree_add_item(tree, hf_path, tvb, offset, path_len, ENC_ASCII | ENC_NA);
         value_len -= path_len;
@@ -3922,7 +3960,10 @@ proto_register_couchbase(void)
     { &hf_server_external_users, { "External users", "couchbase.server.external_users", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_server_get_authorization, { "Authorization", "couchbase.server.authorization", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-
+    { &hf_range_scan_uuid, { "Range Scan UUID", "couchbase.range_scan.uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_range_scan_item_limit, { "Range Scan item limit", "couchbase.range_scan.item_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_range_scan_time_limit, { "Range Scan time limit", "couchbase.range_scan.time_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_range_scan_byte_limit, { "Range Scan byte limit", "couchbase.range_scan.byte_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
   };
 
   static ei_register_info ei[] = {
