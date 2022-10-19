@@ -3789,7 +3789,7 @@ static const value_string e_map_strings[] =  {
 typedef enum {
     INVENTORY_TYPE_NON_EQUIP = 0x00,
     INVENTORY_TYPE_HEAD = 0x01,
-    INVENTORY_TYPE_NECK_OR_RELIC = 0x02,
+    INVENTORY_TYPE_NECK = 0x02,
     INVENTORY_TYPE_SHOULDERS = 0x03,
     INVENTORY_TYPE_BODY = 0x04,
     INVENTORY_TYPE_CHEST = 0x05,
@@ -3815,11 +3815,12 @@ typedef enum {
     INVENTORY_TYPE_THROWN = 0x19,
     INVENTORY_TYPE_RANGED_RIGHT = 0x1A,
     INVENTORY_TYPE_QUIVER = 0x1B,
+    INVENTORY_TYPE_RELIC = 0x1C,
 } e_inventory_type;
 static const value_string e_inventory_type_strings[] =  {
     { INVENTORY_TYPE_NON_EQUIP, "Non Equip" },
     { INVENTORY_TYPE_HEAD, "Head" },
-    { INVENTORY_TYPE_NECK_OR_RELIC, "Neck Or Relic" },
+    { INVENTORY_TYPE_NECK, "Neck" },
     { INVENTORY_TYPE_SHOULDERS, "Shoulders" },
     { INVENTORY_TYPE_BODY, "Body" },
     { INVENTORY_TYPE_CHEST, "Chest" },
@@ -3845,6 +3846,7 @@ static const value_string e_inventory_type_strings[] =  {
     { INVENTORY_TYPE_THROWN, "Thrown" },
     { INVENTORY_TYPE_RANGED_RIGHT, "Ranged Right" },
     { INVENTORY_TYPE_QUIVER, "Quiver" },
+    { INVENTORY_TYPE_RELIC, "Relic" },
     { 0, NULL }
 };
 
@@ -7050,7 +7052,7 @@ typedef enum {
     SPLINE_FLAG_UNKNOWN28 = 0x10000000,
     SPLINE_FLAG_UNKNOWN29 = 0x20000000,
     SPLINE_FLAG_UNKNOWN30 = 0x40000000,
-    SPLINE_FLAG_UNKNOWN31 = -0x80000000,
+    SPLINE_FLAG_UNKNOWN31 = -0x7FFFFFFF,
 } e_spline_flag;
 
 typedef enum {
