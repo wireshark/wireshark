@@ -89,7 +89,7 @@ typedef struct ldap_call_response {
 } ldap_call_response_t;
 
 WS_DLL_PUBLIC
-int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gboolean prepend_dot _U_);
+int dissect_mscldap_string(tvbuff_t *tvb, int offset, int max_len, char **str);
 
 WS_DLL_PUBLIC const value_string ldap_procedure_names[];
 

@@ -7667,27 +7667,27 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
     /* DNS domain name */
     if (messageflags&0x00000004) {
         int old_offset=offset;
-        char str[256];
+        char *str;
 
-        offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+        offset=dissect_mscldap_string(tvb, offset, 255, &str);
         proto_tree_add_string(subtree, hf_netlogon_secchan_nl_dns_domain, tvb, old_offset, offset-old_offset, str);
     }
 
     /* DNS host name */
     if (messageflags&0x00000008) {
         int old_offset=offset;
-        char str[256];
+        char *str;
 
-        offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+        offset=dissect_mscldap_string(tvb, offset, 255, &str);
         proto_tree_add_string(subtree, hf_netlogon_secchan_nl_dns_host, tvb, old_offset, offset-old_offset, str);
     }
 
     /* NetBios host name (UTF8) */
     if (messageflags&0x00000010) {
         int old_offset=offset;
-        char str[256];
+        char *str;
 
-        offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+        offset=dissect_mscldap_string(tvb, offset, 255, &str);
         proto_tree_add_string(subtree, hf_netlogon_secchan_nl_nb_host_utf8, tvb, old_offset, offset-old_offset, str);
     }
 
