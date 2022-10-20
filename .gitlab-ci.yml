@@ -512,10 +512,12 @@ Latest Clang:
   variables:
     CC: "clang-$CLANG_VERSION"
     CXX: "clang++-$CLANG_VERSION"
+  needs: [ 'Commit Check' ]
 
 GCC Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
+  needs: [ 'Commit Check' ]
   script:
     # build-ubuntu puts us in `build`.
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
@@ -537,6 +539,7 @@ Code Checks + Clang Warnings:
   variables:
     CC: "clang-$CLANG_VERSION"
     CXX: "clang++-$CLANG_VERSION"
+  needs: [ 'Commit Check' ]
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -574,6 +577,7 @@ Code Checks + Clang Warnings:
 No options:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
+  needs: [ 'Commit Check' ]
   script: |
     cmake -GNinja -DENABLE_CCACHE=ON \
       -DENABLE_BROTLI=OFF -DENABLE_CAP=OFF -DENABLE_CARES=OFF -DENABLE_CHECKHF_CONFLICT=ON -DENABLE_GNUTLS=OFF \
@@ -589,6 +593,7 @@ Windows Build:
   rules: !reference [.if-w-w-only-merge-request]
   tags:
     - wireshark-windows-merge-req
+  needs: [ 'Commit Check' ]
   script:
     - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
@@ -600,6 +605,7 @@ Windows Qt5 Build:
   rules: !reference [.if-w-w-only-merge-request]
   tags:
     - wireshark-windows-merge-req
+  needs: [ 'Commit Check' ]
   script:
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
     - cmake -G "Visual Studio 17 2022" -A x64 -DUSE_qt6=OFF -DENABLE_LTO=off ..
