@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/strutil.h>
 #include <epan/wmem_scopes.h>
 
 void proto_register_c15ch_hbeat(void);
@@ -4153,7 +4154,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
     {
         if ( len > (gint)max_str_len )
         {
-            field_stringz[ max_str_len - 1 ] = '\0';
+            ws_utf8_truncate(field_stringz, max_str_len - 1);
         }
         proto_tree_add_string(p_tree, hf_num,
                 tvb, str_start, max_str_len, field_stringz);
