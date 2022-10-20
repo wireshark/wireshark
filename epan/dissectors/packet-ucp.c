@@ -28,6 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
+#include <epan/strutil.h>
 
 #include <wsutil/strtoi.h>
 
@@ -870,7 +871,8 @@ ucp_handle_IRAstring(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     }
     if ((tmpoff - *offset) > 1)
         proto_tree_add_string(tree, field, tvb, *offset,
-                              tmpoff - *offset - 1, strval);
+                              tmpoff - *offset - 1,
+                              format_text_string(wmem_packet_scope(), strval));
     *offset = tmpoff;
 }
 
