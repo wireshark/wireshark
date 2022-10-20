@@ -426,7 +426,7 @@ wscbor_test_require_tstr_simple(void)
             g_assert_cmpuint(wscbor_has_errors(chunk), ==, 0);
             if (ex->head_value > 0) {
                 // only works because this is Latin-1 text
-                g_assert_cmpmem(val, strlen(val), ex->enc + ex->head_length, ex->head_value);
+                g_assert_cmpmem(val, (int)strlen(val), ex->enc + ex->head_length, (int)ex->head_value);
             }
         }
         else {
@@ -502,7 +502,7 @@ wscbor_test_require_bstr_simple(void)
                 const gint buflen = tvb_reported_length(val);
                 void *buf = tvb_memdup(test_scope, val, 0, buflen);
                 g_assert_nonnull(buf);
-                g_assert_cmpmem(buf, buflen, ex->enc + ex->head_length, ex->head_value);
+                g_assert_cmpmem(buf, (int)buflen, ex->enc + ex->head_length, (int)ex->head_value);
             }
         }
         else {
