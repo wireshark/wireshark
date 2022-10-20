@@ -397,6 +397,7 @@ set_target_properties(exntest PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 add_executable(oids_test EXCLUDE_FROM_ALL oids_test.c)
@@ -405,6 +406,7 @@ set_target_properties(oids_test PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 add_executable(reassemble_test EXCLUDE_FROM_ALL reassemble_test.c)
@@ -412,6 +414,7 @@ target_link_libraries(reassemble_test epan)
 set_target_properties(reassemble_test PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 add_executable(tvbtest EXCLUDE_FROM_ALL tvbtest.c)
@@ -420,6 +423,7 @@ set_target_properties(tvbtest PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 add_executable(wscbor_test EXCLUDE_FROM_ALL wscbor_test.c)
@@ -427,6 +431,7 @@ target_link_libraries(wscbor_test epan)
 set_target_properties(wscbor_test PROPERTIES
     FOLDER "Tests"
     EXCLUDE_FROM_DEFAULT_BUILD True
+    COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 CHECKAPI(

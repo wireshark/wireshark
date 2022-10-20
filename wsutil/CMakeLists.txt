@@ -322,6 +322,7 @@ target_link_libraries(test_wsutil ${GLIB2_LIBRARIES} wsutil)
 set_target_properties(test_wsutil PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 install(FILES ${WSUTIL_PUBLIC_HEADERS}
