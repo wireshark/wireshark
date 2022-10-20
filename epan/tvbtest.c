@@ -630,25 +630,25 @@ varint_test_s varint[] = {
 	{1, (const guint8 *)"\x00", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 0, 1},
 	{1, (const guint8 *)"\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 1, 1},
 	{1, (const guint8 *)"\x7f", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 0x7f, 1},
-	{2, (const guint8 *)"\x80\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 1ul<<7, 2},
+	{2, (const guint8 *)"\x80\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, G_GUINT64_CONSTANT(1)<<7, 2},
 	{1, (const guint8 *)"\x80", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, ReportedBoundsError, 0, 0}, // truncated data
 	{2, (const guint8 *)"\x80\x01", ENC_VARINT_PROTOBUF, 1, 0, 0, 0}, // truncated read
-	{5, (const guint8 *)"\x80\x80\x80\x80\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 1ul<<28, 5},
-	{10, (const guint8 *)"\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 1ul<<63, 10},
-	{10, (const guint8 *)"\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 0xfffffffffffffffful, 10},
+	{5, (const guint8 *)"\x80\x80\x80\x80\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, G_GUINT64_CONSTANT(1)<<28, 5},
+	{10, (const guint8 *)"\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, G_GUINT64_CONSTANT(1)<<63, 10},
+	{10, (const guint8 *)"\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 0xffffffffffffffff, 10},
 	{10, (const guint8 *)"\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, 0, 0, 10}, // overflow
 	// ENC_VARINT_SDNV
 	{0, (const guint8 *)"", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, ReportedBoundsError, 0, 0},
 	{1, (const guint8 *)"\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 0, 1},
 	{1, (const guint8 *)"\x01", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 1, 1},
 	{1, (const guint8 *)"\x7f", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 0x7f, 1},
-	{2, (const guint8 *)"\x81\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 1ul<<7, 2},
+	{2, (const guint8 *)"\x81\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, G_GUINT64_CONSTANT(1)<<7, 2},
 	{1, (const guint8 *)"\x81", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, ReportedBoundsError, 1, 0}, // truncated data
 	{2, (const guint8 *)"\x81\x00", ENC_VARINT_SDNV, 1, 0, 1, 0}, // truncated read
-	{5, (const guint8 *)"\x81\x80\x80\x80\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 1ul<<28, 5},
-	{10, (const guint8 *)"\x81\x80\x80\x80\x80\x80\x80\x80\x80\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 1ul<<63, 10},
-	{10, (const guint8 *)"\x81\xff\xff\xff\xff\xff\xff\xff\xff\x7f", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 0xfffffffffffffffful, 10},
-	{10, (const guint8 *)"\x82\x80\x80\x80\x80\x80\x80\x80\x80\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 1ul<<57, 0}, // overflow
+	{5, (const guint8 *)"\x81\x80\x80\x80\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, G_GUINT64_CONSTANT(1)<<28, 5},
+	{10, (const guint8 *)"\x81\x80\x80\x80\x80\x80\x80\x80\x80\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, G_GUINT64_CONSTANT(1)<<63, 10},
+	{10, (const guint8 *)"\x81\xff\xff\xff\xff\xff\xff\xff\xff\x7f", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, 0xffffffffffffffff, 10},
+	{10, (const guint8 *)"\x82\x80\x80\x80\x80\x80\x80\x80\x80\x00", ENC_VARINT_SDNV, FT_VARINT_MAX_LEN, 0, G_GUINT64_CONSTANT(1)<<57, 0}, // overflow
 };
 DIAG_ON_PEDANTIC
 
