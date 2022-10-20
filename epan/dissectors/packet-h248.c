@@ -36,7 +36,7 @@
 #include "packet-h248.h"
 
 #define PNAME  "H.248 MEGACO"
-#define PSNAME "H248"
+#define PSNAME "H.248"
 #define PFNAME "h248"
 
 void proto_register_h248(void);
@@ -1383,7 +1383,7 @@ static const value_string base_package_name_vals[] = {
     {   0x0027, "Intrusion Tones Q.1950 Annex A" },
     {   0x0028, "Business Tones Q.1950 Annex A" },
     {   0x0029, "Media Gateway Resource Congestion Handling H.248.10" },      /* H.248.10 */
-    {   0x002a, "H245 package H248.12" },                                     /* H.248.12 */
+    {   0x002a, "H245 package H.248.12" },                                    /* H.248.12 */
     {   0x002b, "H323 bearer control package H.248.12" },                     /* H.248.12 */
     {   0x002c, "H324 package H.248.12" },                                    /* H.248.12 */
     {   0x002d, "H245 command package H.248.12" },                            /* H.248.12 */
@@ -7693,7 +7693,7 @@ void proto_register_h248(void) {
     expert_h248 = expert_register_protocol(proto_h248);
     expert_register_field_array(expert_h248, ei, array_length(ei));
 
-    subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", proto_h248, FT_UINT32, BASE_HEX);
+    subdissector_table = register_dissector_table("h248.magic_num", "H.248 Magic Num", proto_h248, FT_UINT32, BASE_HEX);
 
     h248_module = prefs_register_protocol(proto_h248, NULL);
     prefs_register_bool_preference(h248_module, "ctx_info",
