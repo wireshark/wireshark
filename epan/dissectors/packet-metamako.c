@@ -292,7 +292,7 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
           /* De-duplication CRC64 Hash */
           metamako_tlv_pos -= ( metamako_tlv_len + 1 ) * 4;
           proto_tree_add_item(extensions_tree, hf_metamako_crchash, tvb, metamako_tlv_pos + 4, 8, ENC_BIG_ENDIAN);
-          proto_item_append_text(parent, ", CRC64 ECMA Hash: 0x%lx", tvb_get_ntoh64(tvb, metamako_tlv_pos + 4));
+          proto_item_append_text(parent, ", CRC64 ECMA Hash: 0x%" PRIu64, tvb_get_ntoh64(tvb, metamako_tlv_pos + 4));
           /* Increment the offset by the Data + Tag size */
           offset += ( metamako_tlv_len + 1 ) * 4;
           break;
