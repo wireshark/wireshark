@@ -339,16 +339,15 @@ hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar *
                 if (fail_if_partial) retval = FALSE;
                 break;
             }
-            ++end;
 
-            d = str_to_nibble[(guchar)*end];
+            d = str_to_nibble[(guchar)*(end+1)];
             if (d < 0) {
                 if (fail_if_partial) retval = FALSE;
                 break;
             }
             val = ((guint8)c * 16) + d;
             g_byte_array_append(bytes, &val, 1);
-            ++end;
+            end += 2;
 
             /* check for separator and peek at next char to make sure we should keep going */
             if (sep > 0 && *end == sep && str_to_nibble[(guchar)*(end+1)] > -1) {

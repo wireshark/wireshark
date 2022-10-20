@@ -1748,7 +1748,7 @@ tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 	ptr = (gchar*) tvb_get_raw_string(NULL, tvb, offset, length);
 	begin = ptr;
 
-	if (endoff) *endoff = 0;
+	if (endoff) *endoff = offset;
 
 	while (*begin == ' ') begin++;
 
