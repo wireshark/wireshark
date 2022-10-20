@@ -72,11 +72,16 @@ if [[ $COMMIT != \$F* ]] ; then
     exit 1
 fi
 
-COMMIT="${CI_COMMIT_SHA:-HEAD}"
-
 STASH_ID=$(git stash create || echo "")
-if [[ -n "$STASH_ID" ]] ; then
+
+if [[ -n "${CI_COMMIT_SHA-}" ]] ; then
+    echo "Setting commit from CI_COMMIT_SHA"
+    COMMIT="$CI_COMMIT_SHA"
+elif [[ -n "$STASH_ID" ]] ; then
+    echo "Setting commit from stash"
     COMMIT="$STASH_ID"
+else
+    COMMIT="HEAD"
 fi
 
 if [ -f "$TARBALL" ] ; then
