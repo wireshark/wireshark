@@ -673,7 +673,7 @@ varint_tests(void)
 		}
 		ENDTRY;
 		if (got_ex != vit->expect_except) {
-			printf("Failed varint #%zu with exception=%d while expected exception=%d\n",
+			printf("Failed varint #%zu with exception=%lu while expected exception=%lu\n",
 				   ix, got_ex, vit->expect_except);
 			failed = TRUE;
 			continue;
