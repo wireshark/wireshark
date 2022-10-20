@@ -145,7 +145,8 @@ variables:
     - BUILD_DIR=${BUILD_DIR%%.tar.*}
     - mkdir -p ccache
     - ccache --show-stats
-    - ccache --set-config absolute_paths_in_stderr=true
+    # Not yet supported by openSUSE
+    # - ccache --set-config absolute_paths_in_stderr=true
     - ccache --set-config base_dir="$CI_PROJECT_DIR/build/packaging/rpm/BUILD/$BUILD_DIR"
     - git config --global user.email "you@example.com"
     - git config --global user.name "Your Name"
