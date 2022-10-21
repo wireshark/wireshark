@@ -206,7 +206,7 @@ proto_register_h224(void)
     //};
 
     /* Register the protocol name and description */
-    proto_h224 = proto_register_protocol("h.224", "H.224", "h.224");
+    proto_h224 = proto_register_protocol("H.224", "H.224", "h224");
 
     /* Register the header fields and subtrees */
     proto_register_field_array(proto_h224, hf, array_length(hf));
