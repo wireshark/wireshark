@@ -146,8 +146,10 @@ variables:
     - mkdir -p ccache
     - ccache --show-stats
     # Not yet supported by openSUSE
-    # - ccache --set-config absolute_paths_in_stderr=true
+    - ccache --set-config absolute_paths_in_stderr=true || true
+    - ccache --set-config hash_dir=false
     - ccache --set-config base_dir="$CI_PROJECT_DIR/build/packaging/rpm/BUILD/$BUILD_DIR"
+    - cat "$CCACHE_DIR/ccache.conf"
     - git config --global user.email "you@example.com"
     - git config --global user.name "Your Name"
     - mkdir build
