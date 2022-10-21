@@ -103,7 +103,7 @@ enum {
  * @param col the writable column, -1 for checking the state of all columns
  * @return TRUE if it's writable, FALSE if not
  */
-WS_DLL_PUBLIC gboolean	col_get_writable(column_info *cinfo, const gint col);
+WS_DLL_PUBLIC gboolean col_get_writable(column_info *cinfo, const gint col);
 
 /** Set the columns writable.
  *
@@ -150,7 +150,10 @@ WS_DLL_PUBLIC const gchar *col_get_text(column_info *cinfo, const gint col);
  */
 WS_DLL_PUBLIC void col_clear(column_info *cinfo, const gint col);
 
-/** Set (replace) the text of a column element, the text won't be copied.
+/** Set (replace) the text of a column element, the text won't be formatted or copied.
+ *
+ * Use this for simple static strings like protocol names. Don't use for untrusted strings
+ * or strings that may contain unprintable characters.
  *
  * Usually used to set const strings!
  *
@@ -160,7 +163,9 @@ WS_DLL_PUBLIC void col_clear(column_info *cinfo, const gint col);
  */
 WS_DLL_PUBLIC void col_set_str(column_info *cinfo, const gint col, const gchar * str);
 
-/** Add (replace) the text of a column element, the text will be copied.
+/** Add (replace) the text of a column element, the text will be formatted and copied.
+ *
+ * Unprintable characters according to isprint() are escaped.
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
@@ -170,9 +175,12 @@ WS_DLL_PUBLIC void col_add_str(column_info *cinfo, const gint col, const gchar *
 
 /* terminator argument for col_add_lstr() function */
 #define COL_ADD_LSTR_TERMINATOR (const char *) -1
+
 WS_DLL_PUBLIC void col_add_lstr(column_info *cinfo, const gint el, const gchar *str, ...);
 
 /** Add (replace) the text of a column element, the text will be formatted and copied.
+ *
+ * Unprintable characters according to isprint() are escaped.
  *
  * Same function as col_add_str() but using a printf-like format string.
  *
@@ -184,7 +192,9 @@ WS_DLL_PUBLIC void col_add_lstr(column_info *cinfo, const gint el, const gchar *
 WS_DLL_PUBLIC void col_add_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
 
-/** Append the given text to a column element, the text will be copied.
+/** Append the given text to a column element, the text will be formatted and copied.
+ *
+ * Unprintable characters according to isprint() are escaped.
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
@@ -230,6 +240,8 @@ WS_DLL_PUBLIC void col_append_lstr(column_info *cinfo, const gint el, const gcha
 
 /** Append the given text to a column element, the text will be formatted and copied.
  *
+ * Unprintable characters according to isprint() are escaped.
+ *
  * Same function as col_append_str() but using a printf-like format string.
  *
  * @param cinfo the current packet row
@@ -242,6 +254,8 @@ WS_DLL_PUBLIC void col_append_fstr(column_info *cinfo, const gint col, const gch
 
 /** Prepend the given text to a column element, the text will be formatted and copied.
  *
+ * Unprintable characters according to isprint() are escaped.
+ *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
  * @param format the format string
@@ -250,7 +264,10 @@ WS_DLL_PUBLIC void col_append_fstr(column_info *cinfo, const gint col, const gch
 WS_DLL_PUBLIC void col_prepend_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
 
-/**Prepend the given text to a column element, the text will be formatted and copied.
+/** Prepend the given text to a column element, the text will be formatted and copied.
+ *
+ * Unprintable characters according to isprint() are escaped.
+ *
  * This function is similar to col_prepend_fstr() but this function will
  * unconditionally set a fence to the end of the prepended data even if there
  * were no fence before.
@@ -263,6 +280,8 @@ WS_DLL_PUBLIC void col_prepend_fence_fstr(column_info *cinfo, const gint col, co
 
 /** Append the given text (prepended by a separator) to a column element.
  *
+ * Unprintable characters according to isprint() are escaped.
+ *
  * Much like col_append_str() but will prepend the given separator if the column isn't empty.
  *
  * @param cinfo the current packet row
@@ -274,6 +293,8 @@ WS_DLL_PUBLIC void col_append_sep_str(column_info *cinfo, const gint col, const 
 		const gchar *str);
 
 /** Append the given text (prepended by a separator) to a column element.
+ *
+ * Unprintable characters according to isprint() are escaped.
  *
  * Much like col_append_fstr() but will prepend the given separator if the column isn't empty.
  *
@@ -297,7 +318,7 @@ WS_DLL_PUBLIC void col_append_sep_fstr(column_info *cinfo, const gint col, const
  * @param fieldname	the fieldname to use for creating a filter (when
  *			  applying/preparing/copying as filter)
  */
-WS_DLL_PUBLIC void 	col_set_time(column_info *cinfo, const int col,
+WS_DLL_PUBLIC void col_set_time(column_info *cinfo, const int col,
 			const nstime_t *ts, const char *fieldname);
 
 WS_DLL_PUBLIC void set_fd_time(const struct epan_session *epan, frame_data *fd, gchar *buf);

@@ -195,6 +195,9 @@ void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 WS_DLL_PUBLIC
 size_t ws_label_strcpy(char *label_str, size_t bufsize, gsize pos, const uint8_t *str, int flags);
 
+WS_DLL_PUBLIC
+size_t ws_label_strcat(char *label_str, size_t bufsize, const uint8_t *str, int flags);
+
 /*
  * Check name is valid. This covers names for display filter fields, dissector
  * tables, preference modules, etc. Lower case is preferred.

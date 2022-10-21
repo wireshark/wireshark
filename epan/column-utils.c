@@ -34,10 +34,14 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/unicode-utils.h>
 
 #ifdef HAVE_LUA
 #include <epan/wslua/wslua.h>
 #endif
+
+#define COL_BUF_MAX_LEN (((COL_MAX_INFO_LEN) > (COL_MAX_LEN)) ? \
+    (COL_MAX_INFO_LEN) : (COL_MAX_LEN))
 
 /* Used for locale decimal point */
 static char *col_decimal_point;
@@ -411,10 +415,11 @@ col_append_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
       va_start(ap, str1);
       str = str1;
       do {
-         if (G_UNLIKELY(str == NULL))
-             str = "(null)";
-
-         pos += g_strlcpy(&col_item->col_buf[pos], str, max_len - pos);
+        if (G_UNLIKELY(str == NULL)) {
+          str = "(null)";
+        }
+        WS_UTF_8_CHECK(str, -1);
+        pos = ws_label_strcpy(col_item->col_buf, max_len, pos, str, 0);
 
       } while (pos < max_len && (str = va_arg(ap, const char *)) != COL_ADD_LSTR_TERMINATOR);
       va_end(ap);
@@ -469,6 +474,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
   size_t len, max_len, sep_len;
   int    i;
   col_item_t* col_item;
+  char tmp[COL_BUF_MAX_LEN];
 
   sep_len = (separator) ? strlen(separator) : 0;
 
@@ -491,7 +497,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
        * If we have a separator, append it if the column isn't empty.
        */
       if (sep_len != 0 && len != 0) {
-        (void) g_strlcat(col_item->col_buf, separator, max_len);
+        (void) ws_label_strcat(col_item->col_buf, max_len, separator, 0);
         len += sep_len;
       }
 
@@ -499,8 +505,10 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
         va_list ap2;
 
         va_copy(ap2, ap);
-        vsnprintf(&col_item->col_buf[len], max_len - len, format, ap2);
+        vsnprintf(tmp, sizeof(tmp), format, ap2);
         va_end(ap2);
+        WS_UTF_8_CHECK(tmp, -1);
+        ws_label_strcpy(col_item->col_buf, max_len, len, tmp, 0);
       }
     }
   }
@@ -541,8 +549,6 @@ col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
 }
 
 /* Prepends a vararg list to a packet info string. */
-#define COL_BUF_MAX_LEN (((COL_MAX_INFO_LEN) > (COL_MAX_LEN)) ? \
-    (COL_MAX_INFO_LEN) : (COL_MAX_LEN))
 void
 col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
 {
@@ -552,6 +558,7 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
   const char *orig;
   int         max_len;
   col_item_t* col_item;
+  char tmp[COL_BUF_MAX_LEN];
 
   if (!CHECK_COL(cinfo, el))
     return;
@@ -572,8 +579,10 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
         orig = orig_buf;
       }
       va_start(ap, format);
-      vsnprintf(col_item->col_buf, max_len, format, ap);
+      vsnprintf(tmp, sizeof(tmp), format, ap);
       va_end(ap);
+      WS_UTF_8_CHECK(tmp, -1);
+      ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
 
       /*
        * Move the fence, unless it's at the beginning of the string.
@@ -595,6 +604,7 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
   const char *orig;
   int         max_len;
   col_item_t* col_item;
+  char tmp[COL_BUF_MAX_LEN];
 
   if (!CHECK_COL(cinfo, el))
     return;
@@ -615,8 +625,10 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
         orig = orig_buf;
       }
       va_start(ap, format);
-      vsnprintf(col_item->col_buf, max_len, format, ap);
+      vsnprintf(tmp, sizeof(tmp), format, ap);
       va_end(ap);
+      WS_UTF_8_CHECK(tmp, -1);
+      ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
 
       /*
        * Move the fence if it exists, else create a new fence at the
@@ -665,7 +677,8 @@ col_add_str(column_info *cinfo, const gint el, const gchar* str)
          */
         col_item->col_data = col_item->col_buf;
       }
-      (void) g_strlcpy(&col_item->col_buf[col_item->col_fence], str, max_len - col_item->col_fence);
+      WS_UTF_8_CHECK(str, -1);
+      (void) ws_label_strcpy(col_item->col_buf, max_len, col_item->col_fence, str, 0);
     }
   }
 }
@@ -749,10 +762,11 @@ col_add_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
       va_start(ap, str1);
       str = str1;
       do {
-         if (G_UNLIKELY(str == NULL))
-             str = "(null)";
-
-         pos += g_strlcpy(&col_item->col_buf[pos], str, max_len - pos);
+        if (G_UNLIKELY(str == NULL)) {
+          str = "(null)";
+        }
+        WS_UTF_8_CHECK(str, -1);
+        pos = ws_label_strcpy(col_item->col_buf, max_len, pos, str, 0);
 
       } while (pos < max_len && (str = va_arg(ap, const char *)) != COL_ADD_LSTR_TERMINATOR);
       va_end(ap);
@@ -768,6 +782,7 @@ col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
   int     i;
   int     max_len;
   col_item_t* col_item;
+  char tmp[COL_BUF_MAX_LEN];
 
   if (!CHECK_COL(cinfo, el))
     return;
@@ -793,8 +808,10 @@ col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
         col_item->col_data = col_item->col_buf;
       }
       va_start(ap, format);
-      vsnprintf(&col_item->col_buf[col_item->col_fence], max_len - col_item->col_fence, format, ap);
+      vsnprintf(tmp, sizeof(tmp), format, ap);
       va_end(ap);
+      WS_UTF_8_CHECK(tmp, -1);
+      ws_label_strcpy(col_item->col_buf, max_len, col_item->col_fence, tmp, 0);
     }
   }
 }
@@ -827,10 +844,11 @@ col_do_append_str(column_info *cinfo, const gint el, const gchar* separator,
        */
       if (separator != NULL) {
         if (len != 0) {
-          (void) g_strlcat(col_item->col_buf, separator, max_len);
+          (void) ws_label_strcat(col_item->col_buf, max_len, separator, 0);
         }
       }
-      (void) g_strlcat(col_item->col_buf, str, max_len);
+      WS_UTF_8_CHECK(str, -1);
+      (void) ws_label_strcat(col_item->col_buf, max_len, str, 0);
     }
   }
 }

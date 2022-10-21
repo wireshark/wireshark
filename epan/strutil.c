@@ -936,6 +936,12 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
     return pos;
 }
 
+size_t
+ws_label_strcat(char *label_str, size_t bufsize, const uint8_t *str, int flags)
+{
+    return ws_label_strcpy(label_str, bufsize, strlen(label_str), str, flags);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
