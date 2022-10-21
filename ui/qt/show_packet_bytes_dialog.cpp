@@ -470,10 +470,15 @@ void ShowPacketBytesDialog::sanitizeBuffer(QByteArray &ba, bool keep_CR)
 
 void ShowPacketBytesDialog::symbolizeBuffer(QByteArray &ba)
 {
-    // Replace all characters that aren't printable ASCII or ASCII
-    // control characters with MIDDLE DOT.
+    // Replace all octets that don't correspond to an ASCII
+    // character with MIDDLE DOT.  An octet corresponds to an
+    // ASCII character iff the 0x80 bit isn't set in its
+    // value; if char is signed (which it is *not* guaranteed
+    // to be; it is, for example, unsigned on non-Apple ARM
+    // platforms), sign-extension won't affect that bit, so
+    // simply testing the 0x80 bit suffices on all platforms.
     for (int i = 0; i < ba.length(); i++) {
-        if (!g_ascii_isprint(ba[i]) && !g_ascii_iscntrl(ba[i])) {
+        if (ba[i] & 0x80) {
             ba.replace(i, 1, UTF8_MIDDLE_DOT);
             i += sizeof(UTF8_MIDDLE_DOT) - 2;
         }
