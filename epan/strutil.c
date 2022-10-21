@@ -804,7 +804,7 @@ static const char _hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
  * written with enough space.
  */
 size_t
-ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
+ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
                 const uint8_t *str, int flags)
 {
     if (pos >= buf_size)

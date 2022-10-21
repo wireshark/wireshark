@@ -193,7 +193,7 @@ void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 #define FORMAT_LABEL_REPLACE_SPACE      (0x1 << 0)
 
 WS_DLL_PUBLIC
-size_t ws_label_strcat(char *label_str, size_t bufsize, gsize pos, const uint8_t *str, int flags);
+size_t ws_label_strcpy(char *label_str, size_t bufsize, gsize pos, const uint8_t *str, int flags);
 
 /*
  * Check name is valid. This covers names for display filter fields, dissector
