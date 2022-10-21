@@ -28,7 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
-#include <epan/strutil.h>
+#include <epan/charsets.h>
 
 #include <wsutil/strtoi.h>
 
@@ -824,56 +824,50 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         *offset += 1;   /* skip terminating '/' */
 }
 
-#define UCP_BUFSIZ 512
-
 static void
 ucp_handle_IRAstring(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    char         strval[UCP_BUFSIZ + 1],
-                *p_dst = strval;
-    guint8       byte;
-    int          idx = 0;
-    int          tmpoff = *offset;
+    GByteArray    *bytes;
+    wmem_strbuf_t *strbuf;
+    char          *strval = NULL;
+    int           idx, len;
+    int           tmpoff;
 
-    while (((byte = tvb_get_guint8(tvb, tmpoff++)) != '/') &&
-           (idx < UCP_BUFSIZ))
-    {
-        if (byte >= '0' && byte <= '9')
-        {
-            *p_dst = (byte - '0') * 16;
-        }
-        else
-        {
-            *p_dst = (byte - 'A' + 10) * 16;
-        }
-        if ((byte = tvb_get_guint8(tvb, tmpoff++)) == '/')
-        {
-            break;
-        }
-        if (byte >= '0' && byte <= '9')
-        {
-            *p_dst++ += byte - '0';
-        }
-        else
-        {
-            *p_dst++ += byte - 'A' + 10;
-        }
-        idx++;
+    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    if (idx == -1) {
+        /* Force the appropriate exception to be thrown. */
+        len = tvb_captured_length_remaining(tvb, *offset);
+        tvb_ensure_bytes_exist(tvb, *offset, len + 1);
+    } else {
+        len = idx - *offset;
     }
-    strval[idx] = '\0';
-    if (idx == UCP_BUFSIZ)
-    {
-        /*
-         * Data clipped, eat rest of field
-         */
-        while ((tvb_get_guint8(tvb, tmpoff++)) != '/')
-            ;
+    bytes = g_byte_array_sized_new(len);
+    if (tvb_get_string_bytes(tvb, *offset, len, ENC_ASCII|ENC_STR_HEX|ENC_SEP_NONE, bytes, &tmpoff)) {
+        strval = get_ts_23_038_7bits_string_unpacked(wmem_packet_scope(), bytes->data, bytes->len);
     }
-    if ((tmpoff - *offset) > 1)
+    strbuf = wmem_strbuf_new(wmem_packet_scope(), strval);
+    while ((tmpoff + 1) < idx) {
+        wmem_strbuf_append_unichar_repl(strbuf);
+        tmpoff += 2;
+        if ((tmpoff + 1) >= idx) break;
+        bytes = g_byte_array_set_size(bytes, 0);
+        if (tvb_get_string_bytes(tvb, tmpoff, idx-tmpoff, ENC_ASCII|ENC_STR_HEX|ENC_SEP_NONE, bytes, &tmpoff)) {
+            strval = get_ts_23_038_7bits_string_unpacked(wmem_packet_scope(), bytes->data, bytes->len);
+            wmem_strbuf_append(strbuf, strval);
+        }
+    }
+    if (tmpoff < idx) {
+        /* Odd string length, which is impossible and indicates an error. */
+        wmem_strbuf_append_unichar_repl(strbuf);
+    }
+    g_byte_array_free(bytes, TRUE);
+    if (len > 0) {
         proto_tree_add_string(tree, field, tvb, *offset,
-                              tmpoff - *offset - 1,
-                              format_text_string(wmem_packet_scope(), strval));
-    *offset = tmpoff;
+                              len, wmem_strbuf_finalize(strbuf));
+    }
+    *offset += len;
+    if (idx != -1)
+        *offset += 1;   /* skip terminating '/' */
 }
 
 static guint
