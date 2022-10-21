@@ -125,12 +125,6 @@ variables:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
-    - ninja shellcheck
-    - ninja test-programs
-    - chown -R user .
-    - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
-    - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
-    - su user -c pytest-3
   after_script:
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
@@ -499,15 +493,6 @@ Commit Check:
     - bash ./tools/pre-commit "HEAD~$NUM_COMMITS"
     - tools/validate-commit.py
 
-# Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-Latest Clang:
-  extends: .build-ubuntu
-  rules: !reference [.if-merge-request]
-  variables:
-    CC: "clang-$CLANG_VERSION"
-    CXX: "clang++-$CLANG_VERSION"
-  needs: [ 'Commit Check' ]
-
 GCC Warnings:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
@@ -522,6 +507,8 @@ GCC Warnings:
     - ansi2html < ../gcc_report.txt > ../gcc_report.html
     - ninja test-programs
     - chown -R user .
+    - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
+    - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
     - su user -c "ctest --parallel $(getconf _NPROCESSORS_ONLN) --force-new-ctest-process --output-on-failure"
   artifacts:
     paths:
@@ -558,6 +545,7 @@ Code Checks + Clang Warnings:
     - ansi2txt < ../tmp_clang_analyzer_check.txt > ../clang_analyzer_check.txt
     - ansi2html < ../tmp_clang_analyzer_check.txt > ../html/clang_analyzer_check.html
     - ninja checkAPI
+    - ninja shellcheck
   artifacts:
     paths:
       - clang_report.txt
