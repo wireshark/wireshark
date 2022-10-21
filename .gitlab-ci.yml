@@ -155,7 +155,7 @@ variables:
 
 .test-rpm:
   extends: .test-linux
-  rules: !reference [.if-merged]
+  rules: !reference [.if-2x-daily-schedule]
 
 .build-windows:
   stage: build
