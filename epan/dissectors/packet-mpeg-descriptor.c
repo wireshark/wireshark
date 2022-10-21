@@ -2803,15 +2803,12 @@ proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint of
 
     while (cnt > 0)
     {
-        guint8 lng[4];
+        guint8* lng;
         proto_tree * lng_tree;
 
         if (cnt < 3) return;
         guint lng_len = proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvb, offset, cnt);
-        lng[0] = tvb_get_guint8(tvb, offset + 0);
-        lng[1] = tvb_get_guint8(tvb, offset + 1);
-        lng[2] = tvb_get_guint8(tvb, offset + 2);
-        lng[3] = 0;
+        lng = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_ASCII);
         lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
                     ett_mpeg_descriptor_multilng_bouquet_name_desc_lng, NULL, "Language \"%s\"", lng);
 
