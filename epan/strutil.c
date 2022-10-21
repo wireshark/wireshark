@@ -818,14 +818,12 @@ ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
     idx = 0;
     src_len = strlen(str);
     free_len = buf_size - pos - 1;
-    memset(label_str + pos, 0, free_len + 1);
 
     while (idx < src_len) {
         chlen = ws_utf8_char_len(str[idx]);
         if (chlen <= 0) {
             /* We were passed invalid UTF-8. This is an error. Complain and do... something. */
             ws_log_utf8(str, -1, NULL);
-            /* Destination buffer is already nul terminated. */
             /*
              * XXX If we are going to return here instead of trying to recover maybe the log level should
              * be higher than DEBUG.
@@ -838,6 +836,7 @@ ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
             if (flags & FORMAT_LABEL_REPLACE_SPACE && g_ascii_isspace(str[idx])) {
                 if (free_len >= 1) {
                     label_str[pos] = ' ';
+                    label_str[pos+1] = '\0';
                 }
                 pos++;
                 idx++;
@@ -859,6 +858,7 @@ ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
                 if (free_len >= 2) {
                     label_str[pos] = '\\';
                     label_str[pos+1] = r;
+                    label_str[pos+2] = '\0';
                 }
                 pos += 2;
                 idx += 1;
@@ -869,6 +869,7 @@ ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
             if (g_ascii_isprint(str[idx])) {
                 if (free_len >= 1) {
                     label_str[pos] = str[idx];
+                    label_str[pos+1] = '\0';
                 }
                 pos++;
                 idx++;
@@ -883,6 +884,7 @@ ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
                 uint8_t ch = str[idx];
                 label_str[pos+2] = _hex[ch >> 4];
                 label_str[pos+3] = _hex[ch & 0x0F];
+                label_str[pos+4] = '\0';
             }
             pos += 4;
             idx += chlen;
@@ -911,6 +913,7 @@ ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
                 uint8_t ch = str[idx+1];
                 label_str[pos+4] = _hex[ch >> 4];
                 label_str[pos+5] = _hex[ch & 0x0F];
+                label_str[pos+6] = '\0';
             }
             pos += 6;
             idx += chlen;
@@ -923,6 +926,7 @@ ws_label_strcat(char *label_str, size_t buf_size, size_t pos,
             for (ssize_t j = 0; j < chlen; j++) {
                 label_str[pos+j] = str[idx+j];
             }
+            label_str[pos+chlen] = '\0';
         }
         pos += chlen;
         idx += chlen;
