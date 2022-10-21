@@ -656,15 +656,19 @@ static void
 varint_tests(void)
 {
 	tvbuff_t	*tvb_parent, *tvb;
+	volatile unsigned long got_ex;
+	guint64 got_val;
+	volatile guint got_len;
+
 	tvb_parent = tvb_new_real_data((const guint8*)"", 0, 0);
 
 	for (size_t ix = 0; ix < (sizeof(varint) / sizeof(varint_test_s)); ++ix) {
 		const varint_test_s *vit = &varint[ix];
 		tvb = tvb_new_child_real_data(tvb_parent, vit->enc, vit->enc_len, vit->enc_len);
 
-		unsigned long got_ex = 0;
-		guint64 got_val = 0;
-		guint got_len = 0;
+		got_ex = 0;
+		got_val = 0;
+		got_len = 0;
 		TRY {
 			got_len = tvb_get_varint(tvb, 0, vit->maxlen, &got_val, vit->encoding);
 		}
