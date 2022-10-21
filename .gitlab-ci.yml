@@ -80,7 +80,7 @@ variables:
   tags:
     - docker
   after_script:
-    - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build obj-*; do [ ! -d "$builddir/run" ] || break; done
+    - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark* build obj-*; do [ ! -d "$builddir/run" ] || break; done
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
   needs: []
@@ -141,15 +141,8 @@ variables:
     paths:
       - ccache/
   before_script:
-    - BUILD_DIR=$(ls wireshark-*.tar.*)
-    - BUILD_DIR=${BUILD_DIR%%.tar.*}
     - mkdir -p ccache
     - ccache --show-stats
-    # Not yet supported by openSUSE
-    - ccache --set-config absolute_paths_in_stderr=true || true
-    - ccache --set-config hash_dir=false
-    - ccache --set-config base_dir="$CI_PROJECT_DIR/build/packaging/rpm/BUILD/$BUILD_DIR"
-    - cat "$CCACHE_DIR/ccache.conf"
     - git config --global user.email "you@example.com"
     - git config --global user.name "Your Name"
     - mkdir build
@@ -159,7 +152,7 @@ variables:
   after_script:
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
-    - ccache --max-size $( du --summarize --block-size=1M $CI_PROJECT_DIR/build/packaging/rpm/BUILD/wireshark-* | awk '{printf ("%dM", $1 * 1.5)}' )
+    - ccache --max-size $( du --summarize --block-size=1M $CI_PROJECT_DIR/build/packaging/rpm/BUILD/wireshark | awk '{printf ("%dM", $1 * 1.5)}' )
   artifacts:
     paths:
       - build/packaging/rpm/RPMS
@@ -260,7 +253,7 @@ Fedora RPM Package:
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
     - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake3 -GNinja -DENABLE_CCACHE=ON ..
+    - cmake3 -G Ninja -DENABLE_CCACHE=ON -DRPMBUILD_EXTRA_ARGS="--define;__cmake_builddir $CI_PROJECT_DIR/build/packaging/rpm/BUILD/wireshark" ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
@@ -277,7 +270,7 @@ openSUSE 15.3 RPM Package:
   image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF ..
+    - cmake -G Ninja -DENABLE_CCACHE=ON -DRPMBUILD_EXTRA_ARGS="--define;__cmake_builddir $CI_PROJECT_DIR/build/packaging/rpm/BUILD/wireshark" -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
@@ -294,7 +287,7 @@ Rocky Linux 9 RPM Package:
   image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja -DENABLE_CCACHE=ON -DUSE_qt6=OFF ..
+    - cmake -G Ninja -DENABLE_CCACHE=ON -DRPMBUILD_EXTRA_ARGS="--define;__cmake_builddir $CI_PROJECT_DIR/build/packaging/rpm/BUILD/wireshark" -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 

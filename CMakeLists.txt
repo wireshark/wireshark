@@ -3547,7 +3547,7 @@ if(RPMBUILD_EXECUTABLE)
 		file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm/${_rpm_dir}")
 	endforeach()
 
-	set(_rpmbuild_with_args)
+	set(_rpmbuild_with_args ${RPMBUILD_EXTRA_ARGS})
 	#
 	# This is ugly.
 	#
