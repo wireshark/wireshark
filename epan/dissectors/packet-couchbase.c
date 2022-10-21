@@ -2633,7 +2633,6 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (!request && opcode == CLIENT_OPCODE_RANGE_SCAN_CREATE) {
       proto_tree_add_item(tree, hf_range_scan_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
-      offset += 16;
     } else if (path_len != 0) {
         ti = proto_tree_add_item(tree, hf_path, tvb, offset, path_len, ENC_ASCII | ENC_NA);
         value_len -= path_len;
