@@ -470,19 +470,38 @@ void ShowPacketBytesDialog::sanitizeBuffer(QByteArray &ba, bool keep_CR)
 
 void ShowPacketBytesDialog::symbolizeBuffer(QByteArray &ba)
 {
+    // Replace all characters that aren't printable ASCII or ASCII
+    // control characters with MIDDLE DOT.
     for (int i = 0; i < ba.length(); i++) {
-        if ((ba[i] < '\0' || ba[i] >= ' ') && ba[i] != (char)0x7f && !g_ascii_isprint(ba[i])) {
+        if (!g_ascii_isprint(ba[i]) && !g_ascii_iscntrl(ba[i])) {
             ba.replace(i, 1, UTF8_MIDDLE_DOT);
             i += sizeof(UTF8_MIDDLE_DOT) - 2;
         }
     }
 
+    // Replace all control characters (NUL through US, i.e. [0, ' '),
+    // and DEL, i.e. 0x7f) with the code point for the symbol for that
+    // character, i.e. the character's abbreviation in small letters.
+    //
+    // The UTF-8 encodings for those code points are all three octets
+    // long, from 0xe2 0x90 0x80 through 0xe2 0x90 0xa1, so we initialize
+    // a QByteArray with the octets for the symbol for NUL and, for
+    // each of the octets from 0x00 through 0x1f, replace all
+    // occurrences of that value with that sequence, and then add 1 to
+    // the last octet of the sequence to get the symbol for the next
+    // value and continue.
+    //
     QByteArray symbol(UTF8_SYMBOL_FOR_NULL);
     for (char i = 0; i < ' '; i++) {
+    	// Replace all occurrences of that value with that symbol.
         ba.replace(i, symbol);
+        // Get the symbol for the next value.
         symbol[2] = symbol[2] + 1;
     }
-    symbol[2] = symbol[2] + 1;      // Skip SP
+    // symbol now has the UTF-8 for the symbol for SP, as that follows
+    // the symbol for US; skip it - the next code point is for the
+    // symbol for DEL.
+    symbol[2] = symbol[2] + 1;
     ba.replace((char)0x7f, symbol); // DEL
 }
 
