@@ -84,6 +84,17 @@ PrivateIE-Field/value privateIE_Field_value
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
+#.FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
+%(DEFAULT_BODY)s
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
+
+#.FN_BODY PrivateIE-Field/value
+  if (actx->external.direct_ref_present){
+    offset=call_per_oid_callback(actx->external.direct_reference, tvb, actx->pinfo, tree, offset, actx, hf_index);
+  }else{
+    %(DEFAULT_BODY)s
+  }
+
 #.FN_BODY TargeteNBtoSource-eNBTransparentContainer  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
