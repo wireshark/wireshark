@@ -43,7 +43,7 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, QString captur
 
     QStringList title_parts = QStringList() << tr("Resolved Addresses");
 
-    if (captureFile.isEmpty()) {
+    if (!captureFile.isEmpty()) {
         file_name_ = captureFile;
         title_parts << file_name_;
     }
