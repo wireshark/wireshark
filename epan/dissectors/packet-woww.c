@@ -609,7 +609,6 @@ static int hf_woww_pet_tame_failure_reason = -1;
 static int hf_woww_petition = -1;
 static int hf_woww_petition_guid = -1;
 static int hf_woww_petition_result = -1;
-static int hf_woww_petition_turn_in_result = -1;
 static int hf_woww_pitch = -1;
 static int hf_woww_player = -1;
 static int hf_woww_player_chat_tag = -1;
@@ -6932,24 +6931,6 @@ static const value_string e_cinematic_sequence_id_strings[] =  {
     { CINEMATIC_SEQUENCE_ID_GNOME, "Gnome" },
     { CINEMATIC_SEQUENCE_ID_TROLL, "Troll" },
     { CINEMATIC_SEQUENCE_ID_TAUREN, "Tauren" },
-    { 0, NULL }
-};
-
-typedef enum {
-    PETITION_TURN_IN_RESULT_OK = 0x0,
-    PETITION_TURN_IN_RESULT_ALREADY_SIGNED = 0x1,
-    PETITION_TURN_IN_RESULT_ALREADY_IN_GUILD = 0x2,
-    PETITION_TURN_IN_RESULT_CANT_SIGN_OWN = 0x3,
-    PETITION_TURN_IN_RESULT_NEED_MORE = 0x4,
-    PETITION_TURN_IN_RESULT_NOT_SERVER = 0x5,
-} e_petition_turn_in_result;
-static const value_string e_petition_turn_in_result_strings[] =  {
-    { PETITION_TURN_IN_RESULT_OK, "Ok" },
-    { PETITION_TURN_IN_RESULT_ALREADY_SIGNED, "Already Signed" },
-    { PETITION_TURN_IN_RESULT_ALREADY_IN_GUILD, "Already In Guild" },
-    { PETITION_TURN_IN_RESULT_CANT_SIGN_OWN, "Cant Sign Own" },
-    { PETITION_TURN_IN_RESULT_NEED_MORE, "Need More" },
-    { PETITION_TURN_IN_RESULT_NOT_SERVER, "Not Server" },
     { 0, NULL }
 };
 
@@ -14972,7 +14953,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_cinematic_sequence_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_TURN_IN_PETITION_RESULTS:
-            ptvcursor_add(ptv, hf_woww_petition_turn_in_result, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition_result, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_TUTORIAL_FLAGS:
             for (i = 0; i < 8; ++i) {
@@ -18621,12 +18602,6 @@ proto_register_woww(void)
         { &hf_woww_petition_result,
             { "Petition Result", "woww.petition.result",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_petition_result_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_petition_turn_in_result,
-            { "Petition Turn In Result", "woww.petition.turn.in.result",
-                FT_UINT32, BASE_HEX_DEC, VALS(e_petition_turn_in_result_strings), 0,
                 NULL, HFILL
             }
         },
