@@ -142,6 +142,7 @@ static int hf_woww_amount_of_raid_infos = -1;
 static int hf_woww_amount_of_reactions = -1;
 static int hf_woww_amount_of_records = -1;
 static int hf_woww_amount_of_required_items = -1;
+static int hf_woww_amount_of_rights = -1;
 static int hf_woww_amount_of_signatures = -1;
 static int hf_woww_amount_of_spells = -1;
 static int hf_woww_amount_of_states = -1;
@@ -387,6 +388,7 @@ static int hf_woww_guild_event = -1;
 static int hf_woww_guild_guid = -1;
 static int hf_woww_guild_id = -1;
 static int hf_woww_guild_info = -1;
+static int hf_woww_guild_member_status = -1;
 static int hf_woww_guild_name = -1;
 static int hf_woww_hair_color = -1;
 static int hf_woww_hair_style = -1;
@@ -530,6 +532,7 @@ static int hf_woww_money_reward = -1;
 static int hf_woww_monster = -1;
 static int hf_woww_monster_move_type = -1;
 static int hf_woww_monster_name = -1;
+static int hf_woww_motd = -1;
 static int hf_woww_mount_result = -1;
 static int hf_woww_move_event = -1;
 static int hf_woww_movement_counter = -1;
@@ -564,6 +567,7 @@ static int hf_woww_objective_text = -1;
 static int hf_woww_objective_texts = -1;
 static int hf_woww_objectives = -1;
 static int hf_woww_offer_reward_text = -1;
+static int hf_woww_officer_note = -1;
 static int hf_woww_old_mover = -1;
 static int hf_woww_old_spell_id = -1;
 static int hf_woww_online_players = -1;
@@ -625,6 +629,7 @@ static int hf_woww_power_type = -1;
 static int hf_woww_price = -1;
 static int hf_woww_probability = -1;
 static int hf_woww_public_key = -1;
+static int hf_woww_public_note = -1;
 static int hf_woww_pvp_rank = -1;
 static int hf_woww_quest_completable = -1;
 static int hf_woww_quest_failed_reason = -1;
@@ -651,6 +656,7 @@ static int hf_woww_raid_target_update_type = -1;
 static int hf_woww_random_property = -1;
 static int hf_woww_random_property_id = -1;
 static int hf_woww_ranged_range_modification = -1;
+static int hf_woww_rank = -1;
 static int hf_woww_rank_id = -1;
 static int hf_woww_rank_name = -1;
 static int hf_woww_rank_names = -1;
@@ -807,6 +813,7 @@ static int hf_woww_time_in_queue_in_ms = -1;
 static int hf_woww_time_in_seconds = -1;
 static int hf_woww_time_left = -1;
 static int hf_woww_time_left_in_msecs = -1;
+static int hf_woww_time_offline = -1;
 static int hf_woww_time_passed = -1;
 static int hf_woww_time_remaining = -1;
 static int hf_woww_time_to_bg_autoleave_in_ms = -1;
@@ -3862,6 +3869,16 @@ static const value_string e_friend_status_strings[] =  {
     { FRIEND_STATUS_AFK, "Afk" },
     { FRIEND_STATUS_UNKNOWN3, "Unknown3" },
     { FRIEND_STATUS_DND, "Dnd" },
+    { 0, NULL }
+};
+
+typedef enum {
+    GUILD_MEMBER_STATUS_OFFLINE = 0x0,
+    GUILD_MEMBER_STATUS_ONLINE = 0x1,
+} e_guild_member_status;
+static const value_string e_guild_member_status_strings[] =  {
+    { GUILD_MEMBER_STATUS_OFFLINE, "Offline" },
+    { GUILD_MEMBER_STATUS_ONLINE, "Online" },
     { 0, NULL }
 };
 
@@ -9271,6 +9288,7 @@ add_body_fields(guint32 opcode,
     guint32 amount_of_reactions = 0;
     guint32 amount_of_records = 0;
     guint32 amount_of_required_items = 0;
+    guint32 amount_of_rights = 0;
     guint32 amount_of_spells = 0;
     guint32 amount_of_states = 0;
     guint32 amount_of_strings = 0;
@@ -13376,6 +13394,31 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_border_color, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_background_color, 4, ENC_LITTLE_ENDIAN);
             break;
+        case SMSG_GUILD_ROSTER:
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_members, 4, ENC_LITTLE_ENDIAN, &amount_of_members);
+            add_cstring(ptv, &hf_woww_motd);
+            add_cstring(ptv, &hf_woww_guild_info);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_rights, 4, ENC_LITTLE_ENDIAN, &amount_of_rights);
+            for (i = 0; i < amount_of_rights; ++i) {
+                ptvcursor_add(ptv, hf_woww_rights, 4, ENC_LITTLE_ENDIAN);
+            }
+            for (i = 0; i < amount_of_members; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "GuildMember");
+                ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_ret_uint(ptv, hf_woww_guild_member_status, 1, ENC_LITTLE_ENDIAN, &status);
+                add_cstring(ptv, &hf_woww_name);
+                ptvcursor_add(ptv, hf_woww_rank, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_level, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_class, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
+                if (status == GUILD_MEMBER_STATUS_OFFLINE) {
+                    ptvcursor_add(ptv, hf_woww_time_offline, 4, ENC_LITTLE_ENDIAN);
+                }
+                add_cstring(ptv, &hf_woww_public_note);
+                add_cstring(ptv, &hf_woww_officer_note);
+                ptvcursor_pop_subtree(ptv);
+            }
+            break;
         case SMSG_IGNORE_LIST:
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_ignored, 1, ENC_LITTLE_ENDIAN, &amount_of_ignored);
             for (i = 0; i < amount_of_ignored; ++i) {
@@ -15772,6 +15815,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_amount_of_rights,
+            { "Amount Of Rights", "woww.amount.of.rights",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_amount_of_signatures,
             { "Amount Of Signatures", "woww.amount.of.signatures",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -17242,6 +17291,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_guild_member_status,
+            { "Guild Member Status", "woww.guild.member.status",
+                FT_UINT8, BASE_HEX_DEC, VALS(e_guild_member_status_strings), 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_guild_name,
             { "Guild Name", "woww.guild.name",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
@@ -18100,6 +18155,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_motd,
+            { "Motd", "woww.motd",
+                FT_STRINGZ, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_mount_result,
             { "Mount Result", "woww.mount.result",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_mount_result_strings), 0,
@@ -18300,6 +18361,12 @@ proto_register_woww(void)
         },
         { &hf_woww_offer_reward_text,
             { "Offer Reward Text", "woww.offer.reward.text",
+                FT_STRINGZ, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_officer_note,
+            { "Officer Note", "woww.officer.note",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
@@ -18670,6 +18737,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_public_note,
+            { "Public Note", "woww.public.note",
+                FT_STRINGZ, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_pvp_rank,
             { "Pvp Rank", "woww.pvp.rank",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_pvp_rank_strings), 0,
@@ -18823,6 +18896,12 @@ proto_register_woww(void)
         { &hf_woww_ranged_range_modification,
             { "Ranged Range Modification", "woww.ranged.range.modification",
                 FT_FLOAT, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_rank,
+            { "Rank", "woww.rank",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19759,6 +19838,12 @@ proto_register_woww(void)
         { &hf_woww_time_left_in_msecs,
             { "Time Left In Msecs", "woww.time.left.in.msecs",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_time_offline,
+            { "Time Offline", "woww.time.offline",
+                FT_FLOAT, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
