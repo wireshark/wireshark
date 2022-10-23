@@ -3411,13 +3411,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         </translation>
     </message>
     <message numerus="yes">
-        <source>Total number of QUIC connections: %Ln</source>
-        <translation type="vanished">
-            <numerusform>Nombre total de connexions QUIC : %Ln</numerusform>
-            <numerusform>Nombre total de connexions QUIC : %Ln</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
         <translation>
             <numerusform>ID de flux QUIC maximum pour la connexion sélectionné : %Ln</numerusform>

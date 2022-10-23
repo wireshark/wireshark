@@ -3398,12 +3398,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message numerus="yes">
-        <source>Total number of QUIC connections: %Ln</source>
-        <translation type="vanished">
-            <numerusform>QUIC接続の総数: %Ln</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
         <translation>
             <numerusform>選択した接続の最大のQUICストリームID: %Ln</numerusform>

@@ -42,6 +42,8 @@ Wireshark 4.1.0 Release Notes
 
   New Protocol Support
 
+   SAP Network Interface (SAPNI)
+
   Updated Protocol Support
 
      • The JSON dissector now has a preference to enable/disable

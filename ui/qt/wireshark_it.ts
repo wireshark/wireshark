@@ -3413,13 +3413,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         </translation>
     </message>
     <message numerus="yes">
-        <source>Total number of QUIC connections: %Ln</source>
-        <translation type="vanished">
-            <numerusform>Numero totale di connessioni QUIC: %Ln</numerusform>
-            <numerusform>Numero totale di connessioni QUIC: %Ln</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
         <translation>
             <numerusform>ID massimo del flusso QUIC per la connessione selezionata: %Ln</numerusform>
@@ -12992,7 +12985,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;DTN</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DTN</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -13475,11 +13468,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;LTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;LTP</translation>
     </message>
     <message>
         <source>LTP segment and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche segmenti e blocchi LTP</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>

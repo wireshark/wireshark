@@ -3413,13 +3413,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         </translation>
     </message>
     <message numerus="yes">
-        <source>Total number of QUIC connections: %Ln</source>
-        <translation type="vanished">
-            <numerusform>Totalt antal QUIC-förbindelser: %Ln</numerusform>
-            <numerusform>Totalt antal QUIC-förbindelse: %Ln</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
         <translation>
             <numerusform>Maximalt QUIC-ström-ID för den valda förbindelsen: %Ln</numerusform>

@@ -3413,13 +3413,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         </translation>
     </message>
     <message numerus="yes">
-        <source>Total number of QUIC connections: %Ln</source>
-        <translation type="vanished">
-            <numerusform>Gesamtzahl an QUIC Verbindungen: %Ln</numerusform>
-            <numerusform>Gesamtzahl an QUIC Verbindungen: %Ln</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>Max QUIC Stream ID for the selected connection: %Ln</source>
         <translation>
             <numerusform>Max. QUIC Stream ID für die ausgewählte Verbindung: %Ln</numerusform>
