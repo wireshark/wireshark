@@ -14,7 +14,7 @@ jobs:
       - name: Install cmake 3.24.3
         run: cinst -y --force cmake --version 3.24.3
       - name: Install winflexbison3
-        run: cinst -y --force winflexbison3 --version 2.5.18.20190508
+        run: cinst -y --force winflexbison3
       - name: Install strawberryperl
         uses: shogo82148/actions-setup-perl@v1
         with:
