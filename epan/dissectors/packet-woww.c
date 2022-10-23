@@ -362,6 +362,7 @@ static int hf_woww_gift_bag_index = -1;
 static int hf_woww_gift_slot = -1;
 static int hf_woww_gift_wrapper = -1;
 static int hf_woww_gm_ticket_escalation_status = -1;
+static int hf_woww_gm_ticket_queue_status = -1;
 static int hf_woww_gm_ticket_response = -1;
 static int hf_woww_gm_ticket_status = -1;
 static int hf_woww_gm_ticket_status_response = -1;
@@ -717,7 +718,6 @@ static int hf_woww_sin_angle = -1;
 static int hf_woww_skill_id = -1;
 static int hf_woww_skin = -1;
 static int hf_woww_skin_color = -1;
-static int hf_woww_skip = -1;
 static int hf_woww_slot = -1;
 static int hf_woww_slot_id = -1;
 static int hf_woww_slot_index = -1;
@@ -870,7 +870,6 @@ static int hf_woww_victim_guid = -1;
 static int hf_woww_walking_speed = -1;
 static int hf_woww_weather_change_type = -1;
 static int hf_woww_weather_type = -1;
-static int hf_woww_will_accept_tickets = -1;
 static int hf_woww_winning_player_guid = -1;
 static int hf_woww_winning_roll = -1;
 static int hf_woww_wiping_npc = -1;
@@ -5717,6 +5716,16 @@ static const value_string e_gm_ticket_escalation_status_strings[] =  {
 };
 
 typedef enum {
+    GM_TICKET_QUEUE_STATUS_ENABLED = 0x1,
+    GM_TICKET_QUEUE_STATUS_DISABLED = 0x0,
+} e_gm_ticket_queue_status;
+static const value_string e_gm_ticket_queue_status_strings[] =  {
+    { GM_TICKET_QUEUE_STATUS_ENABLED, "Enabled" },
+    { GM_TICKET_QUEUE_STATUS_DISABLED, "Disabled" },
+    { 0, NULL }
+};
+
+typedef enum {
     GM_TICKET_STATUS_RESPONSE_UPDATED = 0x1,
     GM_TICKET_STATUS_RESPONSE_CLOSED = 0x2,
     GM_TICKET_STATUS_RESPONSE_SURVEY = 0x3,
@@ -10454,23 +10463,23 @@ add_body_fields(guint32 opcode,
             break;
         case CMSG_PETITION_BUY:
             ptvcursor_add(ptv, hf_woww_npc, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_guid, 8, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_name);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 2, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_index, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_skip, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_QUERY:
             ptvcursor_add(ptv, hf_woww_guild_guid, 4, ENC_LITTLE_ENDIAN);
@@ -13260,7 +13269,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_GMTICKET_SYSTEMSTATUS:
-            ptvcursor_add(ptv, hf_woww_will_accept_tickets, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_gm_ticket_queue_status, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_GMTICKET_UPDATETEXT:
             ptvcursor_add(ptv, hf_woww_gm_ticket_response, 4, ENC_LITTLE_ENDIAN);
@@ -13277,6 +13286,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_icon, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_coded, 1, ENC_NA);
+                add_cstring(ptv, &hf_woww_message);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_quests, 4, ENC_LITTLE_ENDIAN, &amount_of_quests);
@@ -13291,8 +13301,10 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_GOSSIP_POI:
             ptvcursor_add(ptv, hf_woww_flags, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_position_x, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_position_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector2d");
+            ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_pop_subtree(ptv);
             ptvcursor_add(ptv, hf_woww_icon, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_data, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_location_name);
@@ -13824,7 +13836,6 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_NPC_TEXT_UPDATE:
             ptvcursor_add(ptv, hf_woww_text_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_probability, 4, ENC_LITTLE_ENDIAN);
             for (i = 0; i < 8; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "NpcTextUpdate");
                 ptvcursor_add(ptv, hf_woww_probability, 4, ENC_LITTLE_ENDIAN);
@@ -17081,6 +17092,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_gm_ticket_queue_status,
+            { "Gm Ticket Queue Status", "woww.gm.ticket.queue.status",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_gm_ticket_queue_status_strings), 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_gm_ticket_response,
             { "Gm Ticket Response", "woww.gm.ticket.response",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_gm_ticket_response_strings), 0,
@@ -19211,12 +19228,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_skip,
-            { "Skip", "woww.skip",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_slot,
             { "Slot", "woww.slot",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -20126,12 +20137,6 @@ proto_register_woww(void)
         { &hf_woww_weather_type,
             { "Weather Type", "woww.weather.type",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_weather_type_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_will_accept_tickets,
-            { "Will Accept Tickets", "woww.will.accept.tickets",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
