@@ -1187,6 +1187,11 @@ static int hf_btatt_fitness_machine_targeted_time_in_light_zone = -1;
 static int hf_btatt_fitness_machine_targeted_time_in_moderate_zone = -1;
 static int hf_btatt_fitness_machine_targeted_time_in_hard_zone = -1;
 static int hf_btatt_fitness_machine_targeted_time_in_maximum_zone = -1;
+static int hf_btatt_volume_setting = -1;
+static int hf_btatt_volume_mute = -1;
+static int hf_btatt_volume_change_counter = -1;
+static int hf_btatt_volume_control_point_procedure = -1;
+static int hf_btatt_volume_flags = -1;
 
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
@@ -3986,6 +3991,16 @@ static const value_string fitness_machine_spin_down_status_vals[] = {
     {0, NULL }
 };
 
+static const value_string ots_volume_control_point_procedure_vals[] = {
+    { 0x00, "Relative Volume Down" },
+    { 0x01, "Relative Volume Up" },
+    { 0x02, "Unmute/Relative Volume Down" },
+    { 0x03, "Unmute/Relative Volume Up" },
+    { 0x04, "Set Absolute Volume" },
+    { 0x05, "Unmute" },
+    { 0x06, "Mute" },
+    {0, NULL }
+};
 
 static const true_false_string control_point_mask_value_tfs = {
     "Leave as Default",
@@ -10576,6 +10591,46 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             offset = tvb_captured_length(tvb);
         }
 
+        break;
+    case 0x2B7D: /* Volume State */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_volume_setting, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_volume_mute, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_volume_change_counter, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        break;
+    case 0x2B7E: /* Volume Control Point */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_volume_control_point_procedure, tvb, offset, 1, ENC_NA);
+        opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        /* All procedures must have change counter */
+        if (opcode <= 0x06) {
+            proto_tree_add_item(tree, hf_btatt_volume_change_counter, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        /* Set Absolute Volume also carries volume */
+        if (opcode == 0x04) {
+            proto_tree_add_item(tree, hf_btatt_volume_setting, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+        break;
+    case 0x2B7F: /* Volume Flags */
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_volume_flags, tvb, offset, 1, ENC_NA);
+        offset += 1;
         break;
     case 0x2A62: /* Pulse Oximetry Control Point */ /* APPROVED: NO */
     case 0x2AE0: /* Average Current */
@@ -17431,6 +17486,31 @@ proto_register_btatt(void)
         {&hf_btatt_fitness_machine_targeted_time_in_maximum_zone,
             {"Targeted Time in Maximum Zone", "btatt.fitness_machine.targeted_time_in_maximum_zone",
             FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_volume_setting,
+            {"Volume Setting", "btatt.volume_control.volume_setting",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_volume_mute,
+            {"Mute", "btatt.volume_control.mute",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_volume_change_counter,
+            {"Change counter", "btatt.volume_control.change_counter",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_volume_control_point_procedure,
+            {"Volume Control Point Procedure", "btatt.volume_control.procedure",
+            FT_UINT8, BASE_HEX, VALS(ots_volume_control_point_procedure_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_volume_flags,
+            {"Flags", "btatt.volume_control.volume_flags",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_request_in_frame,
