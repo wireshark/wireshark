@@ -719,6 +719,7 @@ static int hf_woww_set_assistant = -1;
 static int hf_woww_shadow_resistance = -1;
 static int hf_woww_sheath = -1;
 static int hf_woww_sheath_state = -1;
+static int hf_woww_signer = -1;
 static int hf_woww_simple_spell_cast_result = -1;
 static int hf_woww_sin_angle = -1;
 static int hf_woww_skill_id = -1;
@@ -9289,6 +9290,7 @@ add_body_fields(guint32 opcode,
     guint32 amount_of_records = 0;
     guint32 amount_of_required_items = 0;
     guint32 amount_of_rights = 0;
+    guint32 amount_of_signatures = 0;
     guint32 amount_of_spells = 0;
     guint32 amount_of_states = 0;
     guint32 amount_of_strings = 0;
@@ -14102,8 +14104,14 @@ add_body_fields(guint32 opcode,
         case SMSG_PETITION_SHOW_SIGNATURES:
             ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_owner_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_amount_of_signatures, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition_guid, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_signatures, 1, ENC_LITTLE_ENDIAN, &amount_of_signatures);
+            for (i = 0; i < amount_of_signatures; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "PetitionSignature");
+                ptvcursor_add(ptv, hf_woww_signer, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
             break;
         case SMSG_PETITION_SIGN_RESULTS:
             ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
@@ -18607,7 +18615,7 @@ proto_register_woww(void)
         },
         { &hf_woww_petition_guid,
             { "Petition Guid", "woww.petition.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19274,6 +19282,12 @@ proto_register_woww(void)
         { &hf_woww_sheath_state,
             { "Sheath State", "woww.sheath.state",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_sheath_state_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_signer,
+            { "Signer", "woww.signer",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
