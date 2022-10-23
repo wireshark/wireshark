@@ -6017,25 +6017,25 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
 static void
 decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, session_args_t * args _U_)
 {
-    guint8 *fqdn = NULL;
-    int     name_len, tmp;
+    int     name_len;
 
+    /* "The FQDN field encoding shall be identical to the encoding of a FQDN
+     * within a DNS message of clause 3.1 of IETF RFC 1035 [45] but excluding
+     * the trailing zero byte"
+     *
+     * XXX: is compression possible?
+     */
     if (length > 0) {
         name_len = tvb_get_guint8(tvb, offset);
 
-        if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
-            for (;;) {
-                if (name_len >= length - 1)
-                    break;
-                tmp = name_len;
-                name_len = name_len + fqdn[tmp] + 1;
-                fqdn[tmp] = '.';
-            }
+        /* "NOTE 1: The FQDN field in the IE is not encoded as a dotted string"
+         * but if the first byte is large (in the letter range or higher),
+         * assume that it is so encoded incorrectly.
+         */
+        if (name_len < 0x40) {
+            proto_tree_add_item(tree, hf_gtp_fqdn, tvb, offset, length, ENC_APN_STR);
         } else
-            fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
-
-        proto_tree_add_string(tree, hf_gtp_fqdn, tvb, offset, length, fqdn);
+            proto_tree_add_item(tree, hf_gtp_fqdn, tvb, offset, length, ENC_ASCII);
     }
 }
 
