@@ -14097,7 +14097,6 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_charter_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_guild_charter_cost, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             break;
