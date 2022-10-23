@@ -17,7 +17,7 @@ jobs:
       - name: Choco install
         run: cinst -y --force --no-progress asciidoctorj xsltproc docbook-bundle cmake nsis
       - name: Install winflexbison3
-        run: cinst -y --force winflexbison3 --version 2.5.18.20190508
+        run: cinst -y --force winflexbison3
       - name: Install strawberryperl
         uses: shogo82148/actions-setup-perl@v1
         with:
