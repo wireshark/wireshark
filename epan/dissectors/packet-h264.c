@@ -2468,7 +2468,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 
     /* Make entries in Protocol column and Info column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "H264");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.264");
 
     type = tvb_get_guint8(tvb, offset)&0x1f;
 

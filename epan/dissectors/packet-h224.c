@@ -63,7 +63,7 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 
 
     /* Set the Protocol column to the constant string of h224 */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "h224");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.224");
 
     ti = proto_tree_add_item(tree, proto_h224, tvb, offset, -1, ENC_NA);
     h224_tree = proto_item_add_subtree(ti, ett_h224);
