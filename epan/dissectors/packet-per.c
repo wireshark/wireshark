@@ -2744,7 +2744,8 @@ call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_
 	end_offset = offset + type_length;
 
 
-	val_tvb = tvb_new_octet_aligned(tvb, offset, type_length);
+	/* length in bits */
+	val_tvb = tvb_new_octet_aligned(tvb, offset, type_length * 8);
 	if ((offset & 7) != 0) {
 		add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
 	}
