@@ -2918,7 +2918,7 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 
 	/* Make entries in Protocol column and Info column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H265");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.265");
 
 	guint16 h265_nalu_hextet = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 	type = h265_nalu_hextet >> 9 & 0x3F;

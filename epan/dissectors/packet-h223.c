@@ -33,7 +33,7 @@
 /* debug the mux-pdu defragmentation code. warning: verbose output! */
 /* #define DEBUG_H223_FRAGMENTATION */
 
-#define PROTO_TAG_H223 "H223"
+#define PROTO_TAG_H223 "H.223"
 
 /* Wireshark ID of the H.223 protocol */
 static int proto_h223 = -1;
