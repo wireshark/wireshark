@@ -3414,7 +3414,7 @@ proto_register_thrift(void)
                 NULL, HFILL }
         },
         { &hf_thrift_num_set_pos,
-            { "Number of Set Items", "thrift.num_set_item",
+            { "Number of Set Items", "thrift.num_set_pos",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
@@ -3424,7 +3424,7 @@ proto_register_thrift(void)
                 NULL, HFILL }
         },
         { &hf_thrift_num_list_pos,
-            { "Number of List Items", "thrift.num_list_item",
+            { "Number of List Items", "thrift.num_list_pos",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
