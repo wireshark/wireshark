@@ -18,13 +18,14 @@ variables:
   # brighter, more glorious future we might be able to use --shallow-since:
   # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/3460
   # In the mean time, fetching the last 5000 commits does the job.
+  # Ensure that all variables are string
   GIT_DEPTH: "1"
   GIT_FETCH_EXTRA_FLAGS: "--depth=5000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
   # Preferred version of clang available on wireshark-ubuntu-dev
-  CLANG_VERSION: 14
+  CLANG_VERSION: "14"
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
-  CLICOLOR_FORCE: 1
+  CLICOLOR_FORCE: "1"
   # Skip irrelevant SAST scanners:
   SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
 
