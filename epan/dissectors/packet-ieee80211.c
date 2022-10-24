@@ -15163,22 +15163,21 @@ he_get_bits(tvbuff_t *tvb, int bit_offset, int bit_len)
 }
 
 static int
-dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, int offset,
+dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
                            int bit_offset, int scidx, int nr, int nc,
                            int phi_bits, int psi_bits)
 {
   int ri, ci;
   int start_bit_offset = bit_offset;
   int start_offset = offset;
-  int str_offset = 0;
-  char angles[512];
+  wmem_strbuf_t *angles = wmem_strbuf_new_label(pinfo->pool);
 
   if (nc == nr)  /* If they are the same, reduce Nc by one */
     nc -= 1;
 
   /*
- *    * Figure out how many bits we need
- *       */
+   * Figure out how many bits we need
+   */
   for (ci = 1; ci <= nc; ci++) {
     for (ri = ci; ri < nr; ri++) {
       bit_offset += phi_bits;
@@ -15188,21 +15187,19 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, int offset,
     }
   }
 
-  str_offset = snprintf(angles, sizeof(angles), "%d", scidx);
+  wmem_strbuf_append_printf(angles, "%d", scidx);
   /* Reset to the start bit offset */
   bit_offset = start_bit_offset;
 
   for (ci = 1; ci <= nc; ci++) {
     for (ri = ci; ri < nr; ri++) {
       int angle = he_get_bits(tvb, bit_offset, phi_bits);
-      str_offset += snprintf(angles + str_offset, sizeof(angles) - str_offset,
-                             ", φ%d%d:%d", ri, ci, angle);
+      wmem_strbuf_append_printf(angles, ", φ%d%d:%d", ri, ci, angle);
       bit_offset += phi_bits;
     }
     for (ri = ci + 1; ri <= nr; ri++) {
       int angle = he_get_bits(tvb, bit_offset, psi_bits);
-      str_offset += snprintf(angles + str_offset, sizeof(angles) - str_offset,
-                             ", ψ%d%d:%d", ri, ci, angle);
+      wmem_strbuf_append_printf(angles, ", ψ%d%d:%d", ri, ci, angle);
       bit_offset += psi_bits;
     }
   }
@@ -15210,7 +15207,7 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, int offset,
   /* Update this */
   proto_tree_add_string(tree, hf_ieee80211_he_compressed_beamform_scidx,
                 tvb, offset, ((start_bit_offset + 7) / 8) - start_offset,
-                angles);
+                wmem_strbuf_finalize(angles));
 
   return bit_offset;
 }
@@ -15314,7 +15311,7 @@ dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_i
   while ((scidx = next_he_scidx(scidx, bw, grouping, feedback,
           ru_start_index, ru_end_index)) != (int)SCIDX_END_SENTINAL) {
     int prev_bit_offset = bit_offset;
-    bit_offset = dissect_he_feedback_matrix(feedback_tree, tvb, offset,
+    bit_offset = dissect_he_feedback_matrix(feedback_tree, tvb, pinfo, offset,
                         bit_offset, scidx, nr, nc, phi_bits, psi_bits);
     if (bit_offset <= prev_bit_offset) {
       expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
