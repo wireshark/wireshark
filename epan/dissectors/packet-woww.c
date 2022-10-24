@@ -13480,10 +13480,10 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ITEM_ENCHANT_TIME_UPDATE:
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_player_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ITEM_NAME_QUERY_RESPONSE:
             ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
