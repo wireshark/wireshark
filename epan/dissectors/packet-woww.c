@@ -5159,13 +5159,13 @@ static const value_string e_status_id_strings[] =  {
 typedef enum {
     BUY_BANK_SLOT_RESULT_FAILED_TOO_MANY = 0x0,
     BUY_BANK_SLOT_RESULT_INSUFFICIENT_FUNDS = 0x1,
-    BUY_BANK_SLOT_RESULT_NOTBANKER = 0x2,
+    BUY_BANK_SLOT_RESULT_NOT_BANKER = 0x2,
     BUY_BANK_SLOT_RESULT_OK = 0x3,
 } e_buy_bank_slot_result;
 static const value_string e_buy_bank_slot_result_strings[] =  {
     { BUY_BANK_SLOT_RESULT_FAILED_TOO_MANY, "Failed Too Many" },
     { BUY_BANK_SLOT_RESULT_INSUFFICIENT_FUNDS, "Insufficient Funds" },
-    { BUY_BANK_SLOT_RESULT_NOTBANKER, "Notbanker" },
+    { BUY_BANK_SLOT_RESULT_NOT_BANKER, "Not Banker" },
     { BUY_BANK_SLOT_RESULT_OK, "Ok" },
     { 0, NULL }
 };
