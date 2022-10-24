@@ -489,7 +489,7 @@ static int hf_woww_lock_id = -1;
 static int hf_woww_log_format = -1;
 static int hf_woww_logout_result = -1;
 static int hf_woww_logout_speed = -1;
-static int hf_woww_loot_guid = -1;
+static int hf_woww_loot = -1;
 static int hf_woww_loot_master = -1;
 static int hf_woww_loot_method = -1;
 static int hf_woww_loot_slot = -1;
@@ -796,7 +796,6 @@ static int hf_woww_target = -1;
 static int hf_woww_target_error = -1;
 static int hf_woww_target_guid = -1;
 static int hf_woww_target_player = -1;
-static int hf_woww_target_player_guid = -1;
 static int hf_woww_target_string = -1;
 static int hf_woww_targets = -1;
 static int hf_woww_taxi_mask_node_known = -1;
@@ -10103,9 +10102,9 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_LOOT_MASTER_GIVE:
-            ptvcursor_add(ptv, hf_woww_loot_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_loot, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_slot_id, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_player_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_LOOT_METHOD:
             ptvcursor_add(ptv, hf_woww_group_loot_setting, 4, ENC_LITTLE_ENDIAN);
@@ -17885,8 +17884,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_loot_guid,
-            { "Loot Guid", "woww.loot.guid",
+        { &hf_woww_loot,
+            { "Loot", "woww.loot",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19724,12 +19723,6 @@ proto_register_woww(void)
         { &hf_woww_target_player,
             { "Target Player", "woww.target.player",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_target_player_guid,
-            { "Target Player Guid", "woww.target.player.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
