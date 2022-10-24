@@ -183,7 +183,7 @@ proto_register_h224(void)
             NULL, HFILL }
         },
         { &hf_h224_seg_b3b0,
-          { "Sequence number", "h224.flags_seq",
+          { "Segment number", "h224.flags_seg",
             FT_UINT8, BASE_DEC, NULL, 0x0f,
             NULL, HFILL }
         },
