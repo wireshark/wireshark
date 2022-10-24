@@ -1427,12 +1427,11 @@ dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
   guint16 hostname_length;
 
   hostname_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII);
+  proto_tree_add_item_ret_display_string(parameter_tree, hf_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII, wmem_packet_scope(), &hostname);
   if (hostname_length > 1) {
-    hostname = tvb_format_text(wmem_packet_scope(), parameter_tvb, HOSTNAME_OFFSET, hostname_length - 1);
-    proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length - 1, hostname);
+    proto_item_append_text(parameter_item, " (Hostname: %s)", hostname);
     if (additional_item != NULL) {
-      proto_item_append_text(additional_item, " (Hostname: %.*s)", hostname_length - 1, hostname);
+      proto_item_append_text(additional_item, " (Hostname: %s)", hostname);
     }
   }
 }
@@ -4957,7 +4956,7 @@ proto_register_sctp(void)
     { &hf_heartbeat_info,                           { "Heartbeat information",                          "sctp.parameter_heartbeat_information",                 FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_state_cookie,                             { "State cookie",                                   "sctp.parameter_state_cookie",                          FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_cookie_preservative_increment,            { "Suggested Cookie life-span increment (msec)",    "sctp.parameter_cookie_preservative_incr",              FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_hostname,                                 { "Hostname",                                       "sctp.parameter_hostname",                              FT_STRING,  BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_hostname,                                 { "Hostname",                                       "sctp.parameter_hostname",                              FT_STRINGZ,  BASE_NONE, NULL,                                           0x0,                               NULL, HFILL } },
     { &hf_supported_address_type,                   { "Supported address type",                         "sctp.parameter_supported_address_type",                FT_UINT16,  BASE_DEC,  VALS(address_types_values),                     0x0,                                NULL, HFILL } },
     { &hf_stream_reset_req_seq_nr,                  { "Re-configuration request sequence number",       "sctp.parameter_reconfig_request_sequence_number",      FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_stream_reset_rsp_seq_nr,                  { "Re-configuration response sequence number",      "sctp.parameter_reconfig_response_sequence_number",     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
