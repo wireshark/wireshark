@@ -141,7 +141,30 @@ typedef enum {
     IEEE802154_TAP_LQI                  = 0x000A,
     IEEE802154_TAP_CHANNEL_FREQUENCY    = 0x000B,
     IEEE802154_TAP_CHANNEL_PLAN         = 0x000C,
+    IEEE802154_TAP_PHY_HEADER           = 0x000D,
 } ieee802154_info_type_t;
+
+typedef enum {
+    PHR_RAW             = 0,
+    PHR_O_QPSK          = 1,
+    PHR_CSS             = 2,
+    PHR_HRP_UWB         = 3,
+    PHR_MSK             = 4,
+    PHR_LRP_UWB         = 5,
+    PHR_SUN_FSK         = 6,
+    PHR_SUN_OFDM        = 7,
+    PHR_SUN_O_QPSK      = 8,
+    PHR_LECIM_FSK       = 9,
+    PHR_TVWS_FSK        = 10,
+    PHR_TVWS_OFDM       = 11,
+    PHR_TVWS_NB_OFDM    = 12,
+    PHR_RCC_LMR         = 13,
+    PHR_CMB_O_QPSK      = 14,
+    PHR_CMB_GFSK        = 15,
+    PHR_TASK            = 16,
+    PHR_RS_GFSK         = 17,
+    PHR_WISUN_FSK_MS    = 18,
+} ieee802154_tap_phr_type_t;
 
 typedef enum {
     IEEE802154_FCS_TYPE_NONE        = 0,
@@ -680,6 +703,56 @@ static int hf_ieee802154_frame_duration = -1;
 static int hf_ieee802154_frame_end_offset = -1;
 static int hf_ieee802154_asn = -1;
 
+static int hf_ieee802154_tap_phr_type = -1;
+static int hf_ieee802154_tap_phr_bits = -1;
+static int hf_ieee802154_tap_phr_data = -1;
+
+static int hf_ieee802154_tap_phr_fsk = -1;
+static int hf_ieee802154_tap_fsk_ms_phr = -1;
+static int hf_ieee802154_tap_wisun_ms_phr = -1;
+
+static int hf_ieee802154_tap_phr_fsk_ms = -1;
+static int hf_ieee802154_tap_phr_fsk_fcs = -1;
+static int hf_ieee802154_tap_phr_fsk_dw = -1;
+static int hf_ieee802154_tap_phr_fsk_length = -1;
+
+static int hf_ieee802154_tap_phr_fsk_ms_param = -1;
+static int hf_ieee802154_tap_phr_fsk_ms_fec = -1;
+static int hf_ieee802154_tap_phr_fsk_ms_checksum = -1;
+static int hf_ieee802154_tap_phr_fsk_ms_parity = -1;
+
+static int hf_ieee802154_tap_phr_fsk_ms_mode_page = -1;
+static int hf_ieee802154_tap_phr_fsk_ms_mode_scheme = -1;
+static int hf_ieee802154_tap_phr_fsk_ms_mode_mode = -1;
+static int hf_ieee802154_tap_phr_fsk_ms_mode_addl_mode = -1;
+static int hf_ieee802154_tap_phr_wisun_fsk_ms_reserved = -1;
+static int hf_ieee802154_tap_phr_wisun_fsk_ms_phymodeid = -1;
+
+/* Bit-masks for SUN FSK PHR per IEEE 802.15.4-2020 19.2.4 */
+#define IEEE802154_TAP_PHR_FSK_MS               0x8000
+#define IEEE802154_TAP_PHR_FSK_FCS              0x0100
+#define IEEE802154_TAP_PHR_FSK_DW               0x0080
+#define IEEE802154_TAP_PHR_FSK_LENGTH           0x07ff
+
+/* Bit-masks for SUN FSK Mode Switch PHR per IEEE 802.15.4-2020 19.2.5 */
+#define IEEE802154_TAP_PHR_FSK_MS_PARAM         0x6000
+#define IEEE802154_TAP_PHR_FSK_MS_FEC           0x1000
+#define IEEE802154_TAP_PHR_FSK_MS_MODE          0x0FE0
+#define IEEE802154_TAP_PHR_FSK_MS_MODE_PAGE     0x0800
+#define IEEE802154_TAP_PHR_FSK_MS_MODE_SCHEME   0x0600
+#define IEEE802154_TAP_PHR_FSK_MS_MODE_MODE     0x01E0
+#define IEEE802154_TAP_PHR_FSK_MS_CHECKSUM      0x001E
+#define IEEE802154_TAP_PHR_FSK_MS_PARITY        0x0001
+
+#define IEEE802154_TAP_PHR_FSK_MS_SCHEME_FSK    0x0000
+#define IEEE802154_TAP_PHR_FSK_MS_SCHEME_OFDM   0x0200
+#define IEEE802154_TAP_PHR_FSK_MS_SCHEME_OQPSK  0x0400
+#define IEEE802154_TAP_PHR_FSK_MS_SCHEME_ADDL   0x0600
+
+/* Bit-masks for Wi-SUN FSK Mode Switch PHR */
+#define IEEE802154_TAP_PHR_WISUN_FSK_MS_RESERVED  0x6000
+#define IEEE802154_TAP_PHR_WISUN_FSK_MS_PHYMODEID 0x1FE0
+
 typedef struct _ieee802154_transaction_t {
     guint64 dst64;
     guint64 src64;
@@ -763,6 +836,7 @@ static gint ett_ieee802154_p_ie_6top_rel_cell_list = -1;
 static gint ett_ieee802154_p_ie_6top_cell = -1;
 static gint ett_ieee802159_mpx = -1;
 static gint ett_ieee802159_mpx_transaction_control = -1;
+static gint ett_ieee802154_tap_phr = -1;
 
 static expert_field ei_ieee802154_fcs_bitmask_len = EI_INIT;
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
@@ -794,6 +868,8 @@ static expert_field ei_ieee802154_tap_tlv_invalid_type = EI_INIT;
 static expert_field ei_ieee802154_tap_tlv_invalid_length = EI_INIT;
 static expert_field ei_ieee802154_tap_tlv_padding_not_zeros = EI_INIT;
 static expert_field ei_ieee802154_tap_tlv_invalid_fcs_type = EI_INIT;
+static expert_field ei_ieee802154_tap_tlv_reserved_not_zero = EI_INIT;
+static expert_field ei_ieee802154_tap_no_payload = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -1043,6 +1119,7 @@ static const value_string tap_tlv_types[] = {
     { IEEE802154_TAP_LQI, "Link Quality Indicator"},
     { IEEE802154_TAP_CHANNEL_FREQUENCY, "Channel center frequency"},
     { IEEE802154_TAP_CHANNEL_PLAN, "Channel plan"},
+    { IEEE802154_TAP_PHY_HEADER, "PHY Header"},
     { 0, NULL }
 };
 
@@ -1266,6 +1343,96 @@ static const value_string mpx_wisun_subid_vals[] = {
     { IEEE802159_MPX_WISUN_SUBID_MHDS, "WM-MHDS" },
     { IEEE802159_MPX_WISUN_SUBID_6LOWPAN, "WM-6LO" },
     { IEEE802159_MPX_WISUN_SUBID_SECURITY, "WM-SEC" },
+    { 0, NULL }
+};
+
+static const value_string ieee802154_phr_type_vals[] = {
+    { PHR_RAW             , "RAW" },
+    { PHR_O_QPSK          , "O-QPSK" },
+    { PHR_CSS             , "CSS" },
+    { PHR_HRP_UWB         , "HRP UWB" },
+    { PHR_MSK             , "MSK" },
+    { PHR_LRP_UWB         , "LRP UWB" },
+    { PHR_SUN_FSK         , "SUN FSK" },
+    { PHR_SUN_OFDM        , "SUN OFDM" },
+    { PHR_SUN_O_QPSK      , "SUN O-QPSK" },
+    { PHR_LECIM_FSK       , "LECIM FSK" },
+    { PHR_TVWS_FSK        , "TVWS FSK" },
+    { PHR_TVWS_OFDM       , "TVWS OFDM" },
+    { PHR_TVWS_NB_OFDM    , "TVWS-NB OFDM" },
+    { PHR_RCC_LMR         , "RCC LMR" },
+    { PHR_CMB_O_QPSK      , "CMB O-QPSK" },
+    { PHR_CMB_GFSK        , "CMB GFSK" },
+    { PHR_TASK            , "TASK" },
+    { PHR_RS_GFSK         , "RS GFSK" },
+    { PHR_WISUN_FSK_MS    , "Wi-SUN FSK MS" },
+    { 0, NULL }
+};
+
+/* SUN FSK PHR fields - IEEE 802.15.4-2020 19.2.4 */
+static const true_false_string tfs_fcs_type = { "2-octet FCS", "4-octet FCS" };
+static const value_string vals_fsk_ms_page[] = {
+    {0, "9"},
+    {1, "10"},
+    {0, NULL}
+};
+
+static const value_string ieee802154_phr_fsk_ms_scheme[] = {
+    { 0, "SUN FSK" },
+    { 1, "SUN OFDM" },
+    { 2, "SUN O-QPSK" },
+    { 3, "Additional" },
+    { 0, NULL }
+};
+
+static const value_string ieee802154_phr_fsk_ms_mode[] = {
+    { 1, "SUN FSK operating mode #1" },
+    { 2, "SUN FSK operating mode #2" },
+    { 4, "SUN FSK operating mode #3" },
+    { 8, "SUN FSK operating mode #4" },
+    { 0, NULL }
+};
+
+static const value_string ieee802154_phr_fsk_ms_additional_modes[] = {
+    { 0, "SUN FSK operating mode #5" },
+    { 1, "SUN FSK operating mode #1a" },
+    { 2, "SUN FSK operating mode #1b" },
+    { 0, NULL }
+};
+
+/* Wi-SUN phyModeID - Wi-SUN PHY Specification Revision 1v09 Annex F PHY Operating Mode */
+static const value_string ieee802154_phr_wisun_phymodeid[] = {
+    { 1, "FSK #1a 50ksym/s mod-index 0.5" },
+    { 2, "FSK #1b 50ksym/s mod-index 1.0" },
+    { 3, "FSK #2a 100ksym/s mod-index 0.5" },
+    { 4, "FSK #2b 100ksym/s mod-index 1.0" },
+    { 5, "FSK #3 150ksym/s mod-index 0.5" },
+    { 6, "FSK #4a 200ksym/s mod-index 0.5" },
+    { 7, "FSK #4b 200ksym/s mod-index 1.0" },
+    { 8, "FSK #5 300ksym/s mod-index 0.5" },
+    { 17, "FSK with FEC #1a 50ksym/s mod-index 0.5" },
+    { 18, "FSK with FEC #1b 50ksym/s mod-index 1.0" },
+    { 19, "FSK with FEC #2a 100ksym/s mod-index 0.5" },
+    { 20, "FSK with FEC #2b 100ksym/s mod-index 1.0" },
+    { 21, "FSK with FEC #3 150ksym/s mod-index 0.5" },
+    { 22, "FSK with FEC #4a 200ksym/s mod-index 0.5" },
+    { 23, "FSK with FEC #4b 200ksym/s mod-index 1.0" },
+    { 24, "FSK with FEC #5 300ksym/s mod-index 0.5" },
+    { 34, "OFDM Option 1 MCS 2 400kbps" },
+    { 35, "OFDM Option 1 MCS 3 800kbps" },
+    { 36, "OFDM Option 1 MCS 4 1200kbps" },
+    { 37, "OFDM Option 1 MCS 5 1600kbps" },
+    { 38, "OFDM Option 1 MCS 6 2400kbps" },
+    { 51, "OFDM Option 2 MCS 3 400kbps" },
+    { 52, "OFDM Option 2 MCS 4 600kbps" },
+    { 53, "OFDM Option 2 MCS 5 800kbps" },
+    { 54, "OFDM Option 2 MCS 6 1200kbps" },
+    { 68, "OFDM Option 3 MCS 4 300kbps" },
+    { 69, "OFDM Option 3 MCS 5 400kbps" },
+    { 70, "OFDM Option 3 MCS 6 600kbps" },
+    { 84, "OFDM Option 4 MCS 4 150kbps" },
+    { 85, "OFDM Option 4 MCS 5 200kbps" },
+    { 86, "OFDM Option 4 MCS 6 300kbps" },
     { 0, NULL }
 };
 
@@ -1815,6 +1982,7 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info *
             }
         }
     }
+    decrypt_info->key = NULL;
     if (decrypt_info->key_number == num_ieee802154_keys) {
         /* None of the stored keys seemed to work */
         *decrypt_info->status = DECRYPT_PACKET_NO_KEY;
@@ -2138,14 +2306,19 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     ti = proto_tree_add_uint(info_tree, hf_ieee802154_tap_data_length, NULL, 0, 0, data_length);
     proto_item_set_generated(ti);
 
-    /*
-     * Call the common dissector with the real 802.15.4 data which follows the TLV header.
-     * Create a separate packet bytes pane for the real data.
-     * Specified FCS length, no flags.
-     */
-    payload_tvb = tvb_new_child_real_data(tvb, tvb_get_ptr(tvb, length, data_length), data_length, data_length);
-    add_new_data_source(pinfo, payload_tvb, "IEEE 802.15.4 Data");
-    dissect_ieee802154_common(payload_tvb, pinfo, tree, fcs_len, 0);
+    if (data_length > 0) {
+        /*
+         * Call the common dissector with the real 802.15.4 data which follows the TLV header.
+         * Create a separate packet bytes pane for the real data.
+         * Specified FCS length, no flags.
+         */
+        payload_tvb = tvb_new_child_real_data(tvb, tvb_get_ptr(tvb, length, data_length), data_length, data_length);
+        add_new_data_source(pinfo, payload_tvb, "IEEE 802.15.4 Data");
+        dissect_ieee802154_common(payload_tvb, pinfo, tree, fcs_len, 0);
+    }
+    else {
+        expert_add_info(pinfo, ti, &ei_ieee802154_tap_no_payload);
+    }
 
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_tap */
@@ -3157,6 +3330,131 @@ dissect_ieee802154_tap_sun_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 } /* dissect_ieee802154_tap_sun_phy */
 
+static void
+dissect_ieee802154_tap_phy_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, guint length)
+{
+    guint32 phr_type;
+    guint32 phr_bits;
+
+    proto_tree_add_item_ret_uint(tree, hf_ieee802154_tap_phr_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &phr_type);
+    proto_tree_add_item_ret_uint(tree, hf_ieee802154_tap_phr_bits, tvb, offset+2, 2, ENC_LITTLE_ENDIAN, &phr_bits);
+
+    switch (phr_type) {
+        case PHR_WISUN_FSK_MS: {
+            guint32 phr_data = tvb_get_letohs(tvb, offset+4);
+            if (phr_data & IEEE802154_TAP_PHR_FSK_MS) {
+                static int* const ieee802154_tap_phr_fsk_wisun_ms_fields[] = {
+                    &hf_ieee802154_tap_phr_fsk_ms,
+                    &hf_ieee802154_tap_phr_wisun_fsk_ms_reserved,
+                    &hf_ieee802154_tap_phr_wisun_fsk_ms_phymodeid,
+                    &hf_ieee802154_tap_phr_fsk_ms_checksum,
+                    &hf_ieee802154_tap_phr_fsk_ms_parity,
+                    NULL
+                };
+                proto_item *pi = proto_tree_add_bitmask_with_flags(tree, tvb, offset+4, hf_ieee802154_tap_wisun_ms_phr,
+                        ett_ieee802154_tap_phr, ieee802154_tap_phr_fsk_wisun_ms_fields, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
+                if (phr_data & IEEE802154_TAP_PHR_WISUN_FSK_MS_RESERVED) {
+                    expert_add_info(NULL, pi, &ei_ieee802154_tap_tlv_reserved_not_zero);
+                }
+                /* TODO: expert info BCH(15,11) checksum check */
+                /* TODO: expert info parity check */
+            }
+            break;
+        }
+        case PHR_SUN_FSK: {
+            guint32 phr_data = tvb_get_letohs(tvb, offset+4);
+            if (phr_data & IEEE802154_TAP_PHR_FSK_MS) {
+                int *const *fields;
+                if ((phr_data & IEEE802154_TAP_PHR_FSK_MS_MODE_SCHEME) == IEEE802154_TAP_PHR_FSK_MS_SCHEME_FSK) {
+                    /* SUN FSK */
+                    static int* const ieee802154_tap_phr_fsk_ms_fields[] = {
+                        &hf_ieee802154_tap_phr_fsk_ms,
+                        &hf_ieee802154_tap_phr_fsk_ms_param,
+                        &hf_ieee802154_tap_phr_fsk_ms_fec,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_page,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_scheme,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_mode,
+                        &hf_ieee802154_tap_phr_fsk_ms_checksum,
+                        &hf_ieee802154_tap_phr_fsk_ms_parity,
+                        NULL
+                    };
+                    fields = ieee802154_tap_phr_fsk_ms_fields;
+                }
+                else if ((phr_data & IEEE802154_TAP_PHR_FSK_MS_MODE_SCHEME) == IEEE802154_TAP_PHR_FSK_MS_SCHEME_OFDM ||
+                    (phr_data & IEEE802154_TAP_PHR_FSK_MS_MODE_SCHEME) == IEEE802154_TAP_PHR_FSK_MS_SCHEME_OQPSK) {
+                    /* SUN OFDM or SUN O-QPSK */
+                    static int* const ieee802154_tap_phr_fsk_ms_ofdm_fields[] = {
+                        &hf_ieee802154_tap_phr_fsk_ms,
+                        &hf_ieee802154_tap_phr_fsk_ms_param,
+                        &hf_ieee802154_tap_phr_fsk_ms_fec,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_page,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_scheme,
+                        &hf_ieee802154_tap_phr_fsk_ms_checksum,
+                        &hf_ieee802154_tap_phr_fsk_ms_parity,
+                        NULL
+                    };
+                    fields = ieee802154_tap_phr_fsk_ms_ofdm_fields;
+                }
+                else /* if ((phr_data & IEEE802154_TAP_PHR_FSK_MS_MODE_SCHEME) == IEEE802154_TAP_PHR_FSK_MS_SCHEME_ADDL) */ {
+                    /* Additional Modes */
+                    static int* const ieee802154_tap_phr_fsk_ms_addl_fields[] = {
+                        &hf_ieee802154_tap_phr_fsk_ms,
+                        &hf_ieee802154_tap_phr_fsk_ms_param,
+                        &hf_ieee802154_tap_phr_fsk_ms_fec,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_page,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_scheme,
+                        &hf_ieee802154_tap_phr_fsk_ms_mode_addl_mode,
+                        &hf_ieee802154_tap_phr_fsk_ms_checksum,
+                        &hf_ieee802154_tap_phr_fsk_ms_parity,
+                        NULL
+                    };
+                    fields = ieee802154_tap_phr_fsk_ms_addl_fields;
+                }
+                proto_tree_add_bitmask_with_flags(tree, tvb, offset+4, hf_ieee802154_tap_fsk_ms_phr,
+                        ett_ieee802154_tap_phr, fields, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
+                /* TODO: expert info BCH(15,11) checksum check */
+                /* TODO: expert info parity check */
+            }
+            else {
+                static int* const ieee802154_tap_phr_fsk_fields[] = {
+                    &hf_ieee802154_tap_phr_fsk_ms,
+                    &hf_ieee802154_tap_phr_fsk_fcs,
+                    &hf_ieee802154_tap_phr_fsk_dw,
+                    &hf_ieee802154_tap_phr_fsk_length,
+                    NULL
+                };
+                proto_tree_add_bitmask_with_flags(tree, tvb, offset+4, hf_ieee802154_tap_phr_fsk,
+                    ett_ieee802154_tap_phr, ieee802154_tap_phr_fsk_fields, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
+            }
+            break;
+        }
+
+        case PHR_O_QPSK:
+        case PHR_CSS:
+        case PHR_HRP_UWB:
+        case PHR_MSK:
+        case PHR_LRP_UWB:
+        case PHR_SUN_OFDM:
+        case PHR_SUN_O_QPSK:
+        case PHR_LECIM_FSK:
+        case PHR_TVWS_FSK:
+        case PHR_TVWS_OFDM:
+        case PHR_TVWS_NB_OFDM:
+        case PHR_RCC_LMR:
+        case PHR_CMB_O_QPSK:
+        case PHR_CMB_GFSK:
+        case PHR_TASK:
+        case PHR_RS_GFSK:
+            /* TODO: write specific dissectors for these PHR types */
+            /* fall-through with RAW dissection */
+        case PHR_RAW:
+        default: {
+            proto_tree_add_item(tree, hf_ieee802154_tap_phr_data, tvb, offset+4, length-4, ENC_NA);
+            break;
+        }
+    }
+}
+
 /**
  * Create a tree for a TAP TLV
  *
@@ -3315,6 +3613,9 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item_append_text(proto_tree_get_parent(tlvtree), ", Channels %u", count);
                 break;
             }
+            case IEEE802154_TAP_PHY_HEADER:
+                dissect_ieee802154_tap_phy_header(tvb, pinfo, tlvtree, offset, length);
+                break;
             default:
                 proto_tree_add_item(tlvtree, hf_ieee802154_tap_tlv_unknown, tvb, offset, length, ENC_NA);
                 proto_item_append_text(proto_tree_get_parent(tlvtree), "Unknown TLV");
@@ -6721,6 +7022,85 @@ void proto_register_ieee802154(void)
         { "ASN", "wpan-tap.asn", FT_UINT64, BASE_DEC, NULL, 0x0,
             "Absolute Slot Number", HFILL }},
 
+        { &hf_ieee802154_tap_phr_type,
+        { "PHR Type",       "wpan-tap.phr.type", FT_UINT16, BASE_DEC, VALS(ieee802154_phr_type_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_phr_bits,
+        { "PHR Bits",       "wpan-tap.phr.bits", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_phr_data,
+        { "PHR Data",       "wpan-tap.phr.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk,
+        { "FSK PHR",        "wpan-tap.phr.fsk", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_fsk_ms_phr,
+        { "FSK Mode Switch PHR", "wpan-tap.phr.fsk_ms", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_wisun_ms_phr,
+        { "Wi-SUN Mode Switch PHR", "wpan-tap.phr.wisun_ms", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms,
+        { "MS",             "wpan-tap.phr.fsk.ms", FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), IEEE802154_TAP_PHR_FSK_MS,
+            "Mode Switch", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_fcs,
+        { "FCS Type",    "wpan-tap.phr.fsk.fcs", FT_BOOLEAN, 16, TFS(&tfs_fcs_type), IEEE802154_TAP_PHR_FSK_FCS,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_dw,
+        { "DW",             "wpan-tap.phr.fsk.dw", FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), IEEE802154_TAP_PHR_FSK_DW,
+            "Data Whitening", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_length,
+        { "Frame Length",   "wpan-tap.phr.fsk.length", FT_UINT16, BASE_HEX, NULL, IEEE802154_TAP_PHR_FSK_LENGTH,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_param,
+        { "Parameter",      "wpan-tap.phr.fsk_ms.length", FT_UINT16, BASE_HEX, NULL, IEEE802154_TAP_PHR_FSK_MS_PARAM,
+            "Mode Switch Parameter", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_fec,
+        { "FEC",            "wpan-tap.phr.fsk_ms.fec", FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), IEEE802154_TAP_PHR_FSK_MS_FEC,
+            "New Mode FEC", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_checksum,
+        { "Checksum",       "wpan-tap.phr.fsk_ms.checksum", FT_UINT16, BASE_HEX, NULL, IEEE802154_TAP_PHR_FSK_MS_CHECKSUM,
+            "BCH(15,11) checksum", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_parity,
+        { "Parity",         "wpan-tap.phr.fsk_ms.parity", FT_UINT16, BASE_HEX, NULL, IEEE802154_TAP_PHR_FSK_MS_PARITY,
+            "Parity Check bit", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_mode_page,
+        { "Page",        "wpan-tap.phr.fsk_ms.page", FT_UINT16, BASE_HEX, VALS(vals_fsk_ms_page), IEEE802154_TAP_PHR_FSK_MS_MODE_PAGE,
+            "New Mode Page", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_mode_scheme,
+        { "Scheme",        "wpan-tap.phr.fsk_ms.scheme", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_fsk_ms_scheme), IEEE802154_TAP_PHR_FSK_MS_MODE_SCHEME,
+            "New Mode Modulation Scheme", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_mode_mode,
+        { "Mode",  "wpan-tap.phr.fsk_ms.page", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_fsk_ms_mode), IEEE802154_TAP_PHR_FSK_MS_MODE_MODE,
+            "New Mode Mode", HFILL }},
+
+        { &hf_ieee802154_tap_phr_fsk_ms_mode_addl_mode,
+        { "Additional Mode",  "wpan-tap.phr.fsk_ms.page", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_fsk_ms_additional_modes), IEEE802154_TAP_PHR_FSK_MS_MODE_MODE,
+            "New Mode Additional Mode", HFILL }},
+
+        { &hf_ieee802154_tap_phr_wisun_fsk_ms_reserved,
+        { "Reserved",       "wpan-tap.phr.wisun_ms.reserved", FT_UINT16, BASE_HEX, NULL, IEEE802154_TAP_PHR_WISUN_FSK_MS_RESERVED,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_phr_wisun_fsk_ms_phymodeid,
+        { "PhyModeId",  "wpan-tap.phr.wisun_ms.phymodeid", FT_UINT16, BASE_HEX, VALS(ieee802154_phr_wisun_phymodeid), IEEE802154_TAP_PHR_WISUN_FSK_MS_PHYMODEID,
+            "New Wi-SUN PhyModeId", HFILL }},
     };
 
     /* Subtrees */
@@ -6781,7 +7161,8 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_p_ie_6top_cell_list,
         &ett_ieee802154_p_ie_6top_rel_cell_list,
         &ett_ieee802154_p_ie_6top_cand_cell_list,
-        &ett_ieee802154_p_ie_6top_cell
+        &ett_ieee802154_p_ie_6top_cell,
+        &ett_ieee802154_tap_phr,
     };
 
     static ei_register_info ei[] = {
@@ -6847,6 +7228,10 @@ void proto_register_ieee802154(void)
                 "TLV padding not zero", EXPFILL }},
         { &ei_ieee802154_tap_tlv_invalid_fcs_type, { "wpan-tap.tlv.invalid_fcs_type", PI_MALFORMED, PI_ERROR,
                 "Invalid FCS type", EXPFILL }},
+        { &ei_ieee802154_tap_tlv_reserved_not_zero, { "wpan-tap.tlv.reserved_not_zero", PI_PROTOCOL, PI_WARN,
+                "Reserved bits not zero", EXPFILL }},
+        { &ei_ieee802154_tap_no_payload, { "wpan-tap.tlv.no_payload", PI_COMMENTS_GROUP, PI_COMMENT,
+                "No payload", EXPFILL }},
     };
 
     /* Preferences. */
