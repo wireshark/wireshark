@@ -2733,19 +2733,18 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, guint of
 
     while (cnt > 0)
     {
-        guint8 lng[4];
+        char *lng_str;
         proto_tree * lng_tree;
+        proto_item * lng_item;
 
         if (cnt < 3) return;
         guint lng_len = proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvb, offset, cnt);
-        lng[0] = tvb_get_guint8(tvb, offset + 0);
-        lng[1] = tvb_get_guint8(tvb, offset + 1);
-        lng[2] = tvb_get_guint8(tvb, offset + 2);
-        lng[3] = 0;
-        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
-                    ett_mpeg_descriptor_multilng_network_name_desc_lng, NULL, "Language \"%s\"", lng);
+        lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_network_name_desc_lng, &lng_item, NULL);
 
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII);
+        proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_network_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
+                                                wmem_packet_scope(), &lng_str);
+        proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
         offset += 3;
         cnt    -= 3;
 
@@ -2803,16 +2802,18 @@ proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint of
 
     while (cnt > 0)
     {
-        guint8* lng;
+        char* lng_str;
         proto_tree * lng_tree;
+        proto_item * lng_item;
 
         if (cnt < 3) return;
         guint lng_len = proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvb, offset, cnt);
-        lng = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_ASCII);
-        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
-                    ett_mpeg_descriptor_multilng_bouquet_name_desc_lng, NULL, "Language \"%s\"", lng);
+        lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_bouquet_name_desc_lng, &lng_item, NULL);
 
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII);
+        proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
+                                                wmem_packet_scope(), &lng_str);
+        proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
         offset += 3;
         cnt    -= 3;
 
@@ -2882,19 +2883,18 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset
 
     while (cnt > 0)
     {
-        guint8 lng[4];
+        char *lng_str;
         proto_tree * lng_tree;
+        proto_item * lng_item;
 
         if (cnt < 3) return;
         guint lng_len = proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvb, offset, cnt);
-        lng[0] = tvb_get_guint8(tvb, offset + 0);
-        lng[1] = tvb_get_guint8(tvb, offset + 1);
-        lng[2] = tvb_get_guint8(tvb, offset + 2);
-        lng[3] = 0;
-        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
-                    ett_mpeg_descriptor_multilng_srv_name_desc_lng, NULL, "Language \"%s\"", lng);
+        lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_srv_name_desc_lng, &lng_item, NULL);
 
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII);
+        proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
+                                                wmem_packet_scope(), &lng_str);
+        proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
         offset += 3;
         cnt    -= 3;
 
@@ -2973,19 +2973,18 @@ proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, guint offse
 
     while (cnt > 0)
     {
-        guint8 lng[4];
+        char *lng_str;
         proto_tree * lng_tree;
+        proto_item * lng_item;
 
         if (cnt < 3) return;
         guint lng_len = proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvb, offset, cnt);
-        lng[0] = tvb_get_guint8(tvb, offset + 0);
-        lng[1] = tvb_get_guint8(tvb, offset + 1);
-        lng[2] = tvb_get_guint8(tvb, offset + 2);
-        lng[3] = 0;
-        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
-                    ett_mpeg_descriptor_multilng_component_desc_lng, NULL, "Language \"%s\"", lng);
+        lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_component_desc_lng, &lng_item, NULL);
 
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_component_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII);
+        proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_component_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
+                                                wmem_packet_scope(), &lng_str);
+        proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
         offset += 3;
         cnt    -= 3;
 
