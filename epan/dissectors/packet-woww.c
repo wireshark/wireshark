@@ -15576,7 +15576,7 @@ proto_register_woww(void)
         },
         { &hf_woww_amount,
             { "Amount", "woww.amount",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -15768,7 +15768,7 @@ proto_register_woww(void)
         },
         { &hf_woww_amount_of_players,
             { "Amount Of Players", "woww.amount.of.players",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -15816,7 +15816,7 @@ proto_register_woww(void)
         },
         { &hf_woww_amount_of_spells,
             { "Amount Of Spells", "woww.amount.of.spells",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17514,7 +17514,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item,
             { "Item", "woww.item",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17592,7 +17592,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_id,
             { "Item Id", "woww.item.id",
-                FT_UINT16, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17658,7 +17658,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_slot,
             { "Item Slot", "woww.item.slot",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17808,7 +17808,7 @@ proto_register_woww(void)
         },
         { &hf_woww_level,
             { "Level", "woww.level",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18024,7 +18024,7 @@ proto_register_woww(void)
         },
         { &hf_woww_maximum_level,
             { "Maximum Level", "woww.maximum.level",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18084,7 +18084,7 @@ proto_register_woww(void)
         },
         { &hf_woww_minimum_level,
             { "Minimum Level", "woww.minimum.level",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18498,7 +18498,7 @@ proto_register_woww(void)
         },
         { &hf_woww_pet_display_id,
             { "Pet Display Id", "woww.pet.display.id",
-                FT_UINT16, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18594,7 +18594,7 @@ proto_register_woww(void)
         },
         { &hf_woww_petition_guid,
             { "Petition Guid", "woww.petition.guid",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19014,7 +19014,7 @@ proto_register_woww(void)
         },
         { &hf_woww_required_level,
             { "Required Level", "woww.required.level",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19296,7 +19296,7 @@ proto_register_woww(void)
         },
         { &hf_woww_slot,
             { "Slot", "woww.slot",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19398,7 +19398,7 @@ proto_register_woww(void)
         },
         { &hf_woww_spell_category,
             { "Spell Category", "woww.spell.category",
-                FT_UINT16, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19422,7 +19422,7 @@ proto_register_woww(void)
         },
         { &hf_woww_spell_charges,
             { "Spell Charges", "woww.spell.charges",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_INT32, BASE_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19464,7 +19464,7 @@ proto_register_woww(void)
         },
         { &hf_woww_spell_id,
             { "Spell Id", "woww.spell.id",
-                FT_UINT16, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19608,7 +19608,7 @@ proto_register_woww(void)
         },
         { &hf_woww_state,
             { "State", "woww.state",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19986,7 +19986,7 @@ proto_register_woww(void)
         },
         { &hf_woww_transport,
             { "Transport", "woww.transport",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -20076,7 +20076,7 @@ proto_register_woww(void)
         },
         { &hf_woww_unknown_int,
             { "Unknown Int", "woww.unknown.int",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
