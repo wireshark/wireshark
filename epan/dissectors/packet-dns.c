@@ -2342,8 +2342,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       os_offset = cpu_offset + 1 + cpu_len;
       os_len = tvb_get_guint8(tvb, os_offset);
       os = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, os_offset + 1, os_len, ENC_ASCII|ENC_NA);
-      col_append_fstr(pinfo->cinfo, COL_INFO, " %.*s %.*s", cpu_len, cpu, os_len, os);
-      proto_item_append_text(trr, ", CPU %.*s, OS %.*s", cpu_len, cpu, os_len, os);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s", cpu, os);
+      proto_item_append_text(trr, ", CPU %s, OS %s", cpu, os);
 
       proto_tree_add_item(rr_tree, hf_dns_hinfo_cpu_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
