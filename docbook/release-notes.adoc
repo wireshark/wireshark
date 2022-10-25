@@ -14,7 +14,7 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-__We no longer ship official 32-bit Windows packages starting with this release__.
+__We do not ship official 32-bit Windows packages for Wireshark 4.0 and later__.
 If you need to use Wireshark on that platform, we recommend using the latest 3.6 release.
 wsbuglink:17779[]
 
@@ -42,7 +42,21 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark insists on subscribing to two dozen streaming services but only watches three.
 
-* wsbuglink:18413[No Audio in RTP player with Wireshark 4.0.0] - RTP player do not play audio frequently on Win32 builds with Qt6
+* Comparing a boolean field against 1 always succeeds on big-endian machines. wsbuglink:12236[].
+* Qt: MaxMind GeoIP columns not added to Endpoints table. wsbuglink:18320[].
+* Fuzz job crash output: fuzz-2022-10-04-7131.pcap. wsbuglink:18402[].
+* The RTP player might not play audio on Windows. wsbuglink:18413[].
+* Wireshark 4.0 breaks display filter expression with > sign. wsbuglink:18418[].
+* Capture filters not working when using SSH capture and dumpcap. wsbuglink:18420[].
+* Packet diagram field values are not terminated. wsbuglink:18428[].
+* Packet bytes not displayed completely if scrolling. wsbuglink:18438[].
+* Fuzz job crash output: fuzz-2022-10-13-7166.pcap. wsbuglink:18467[].
+* Decoding bug H.245 userInput Signal. wsbuglink:18468[].
+* CFDP dissector doesn't handle \"destination filename\" only. wsbuglink:18495[].
+* Home page capture button doesn't pop up capture options dialog. wsbuglink:18506[].
+* Missing dot in H.248 protocol name. wsbuglink:18513[].
+* Missing dot for protocol H.264 in protocol column. wsbuglink:18524[].
+* Fuzz job crash output: fuzz-2022-10-23-7240.pcap. wsbuglink:18534[].
 
 === New and Updated Features
 
@@ -69,18 +83,39 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.0.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.0.1.. | ag packet- | sort -u)
 [commaize]
 --
+ASN.1 PER
+CFDP
+Diameter
+DirectPlay
+F5 Ethernet Trailer
+GTP
+H.223
+H.248
+H.264
+H.265
+IEEE 802.11
+IPv4
+MBIM
+O-RAN FH CUS
+PFCP
+RTCP
+SCTP
+SMB
+TCP
+TRANSUM
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+--
 
 // === New and Updated Capture Interfaces support
 
