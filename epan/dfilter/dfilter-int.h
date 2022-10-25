@@ -34,6 +34,7 @@ struct epan_dfilter {
 	GPtrArray	*deprecated;
 	char		*expanded_text;
 	GHashTable	*references;
+	GHashTable	*raw_references;
 	char		*syntax_tree_str;
 	/* Used to pass arguments to functions. List of Lists (list of registers). */
 	GSList		*function_stack;
@@ -52,6 +53,7 @@ typedef struct {
 	int		next_register;
 	GPtrArray	*deprecated;
 	GHashTable	*references; /* hfinfo -> pointer to array of references */
+	GHashTable	*raw_references; /* hfinfo -> pointer to array of references */
 	char		*expanded_text;
 	stloc_t		err_loc;
 } dfwork_t;
@@ -119,7 +121,7 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st);
 const char *tokenstr(int token);
 
 df_reference_t *
-reference_new(const field_info *finfo);
+reference_new(const field_info *finfo, gboolean raw);
 
 void
 reference_free(df_reference_t *ref);

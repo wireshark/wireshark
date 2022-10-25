@@ -509,6 +509,28 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 		}
 	}
 
+	if (print_references && g_hash_table_size(df->raw_references) > 0) {
+		wmem_strbuf_append(buf, "\nRaw references:\n");
+		g_hash_table_iter_init(&ref_iter, df->raw_references);
+		while (g_hash_table_iter_next(&ref_iter, &key, &value)) {
+			const char *abbrev = ((header_field_info *)key)->abbrev;
+			GPtrArray *refs_array = value;
+			df_reference_t *ref;
+
+			wmem_strbuf_append_printf(buf, "${@%s} = {", abbrev);
+			for (i = 0; i < refs_array->len; i++) {
+				if (i != 0) {
+					wmem_strbuf_append(buf, ", ");
+				}
+				ref = refs_array->pdata[i];
+				str = fvalue_to_debug_repr(NULL, ref->value);
+				wmem_strbuf_append_printf(buf, "%s <%s>", str, fvalue_type_name(ref->value));
+				g_free(str);
+			}
+			wmem_strbuf_append(buf, "}\n");
+		}
+	}
+
 	return wmem_strbuf_finalize(buf);
 }
 
@@ -563,8 +585,8 @@ drange_contains_layer(drange_t *dr, int num, int length)
 	return FALSE;
 }
 
-static fvalue_t *
-get_raw_fvalue(field_info *fi)
+fvalue_t *
+dfvm_get_raw_fvalue(const field_info *fi)
 {
 	GByteArray *bytes;
 	fvalue_t *fv;
@@ -614,7 +636,7 @@ filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range, gboole
 		if (cookie == layer) {
 			if (cookie_matches) {
 				if (raw)
-					fv = get_raw_fvalue(finfo);
+					fv = dfvm_get_raw_fvalue(finfo);
 				else
 					fv = &finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
@@ -625,7 +647,7 @@ filter_finfo_fvalues(GSList *fvalues, GPtrArray *finfos, drange_t *range, gboole
 			cookie_matches = drange_contains_layer(range, layer, length);
 			if (cookie_matches) {
 				if (raw)
-					fv = get_raw_fvalue(finfo);
+					fv = dfvm_get_raw_fvalue(finfo);
 				else
 					fv = &finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
@@ -686,7 +708,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 			for (i = 0; i < len; i++) {
 				finfo = g_ptr_array_index(finfos, i);
 				if (raw)
-					fv = get_raw_fvalue(finfo);
+					fv = dfvm_get_raw_fvalue(finfo);
 				else
 					fv = &finfo->value;
 				fvalues = g_slist_prepend(fvalues, fv);
@@ -759,8 +781,11 @@ read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 {
 	GPtrArray	*refs;
 	drange_t	*range = NULL;
+	gboolean	raw;
 
 	header_field_info *hfinfo = arg1->value.hfinfo;
+	raw = arg1->type == RAW_HFINFO;
+
 	int reg = arg2->value.numeric;
 
 	if (arg3) {
@@ -779,7 +804,10 @@ read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 
 	df->attempted_load[reg] = TRUE;
 
-	refs = g_hash_table_lookup(df->references, hfinfo);
+	if (raw)
+		refs = g_hash_table_lookup(df->raw_references, hfinfo);
+	else
+		refs = g_hash_table_lookup(df->references, hfinfo);
 	if (refs == NULL || refs->len == 0) {
 		df->registers[reg] = NULL;
 		return FALSE;

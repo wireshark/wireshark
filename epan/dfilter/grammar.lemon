@@ -192,6 +192,7 @@ reference(R) ::= DOLLAR LBRACE field(F) RBRACE.
     /* convert field to reference */
     R = stnode_new(STTYPE_REFERENCE, sttype_field_hfinfo(F), NULL, stnode_location(F));
     sttype_field_set_drange(R, sttype_field_drange_steal(F));
+    sttype_field_set_raw(R, sttype_field_raw(F));
     stnode_free(F);
 }
 

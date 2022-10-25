@@ -202,6 +202,7 @@ dfilter_free(dfilter_t *df)
 	g_free(df->interesting_fields);
 
 	g_hash_table_destroy(df->references);
+	g_hash_table_destroy(df->raw_references);
 
 	if (df->deprecated)
 		g_ptr_array_unref(df->deprecated);
@@ -235,6 +236,10 @@ dfwork_new(void)
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
 				NULL, (GDestroyNotify)free_refs_array);
 
+	dfw->raw_references =
+		g_hash_table_new_full(g_direct_hash, g_direct_equal,
+				NULL, (GDestroyNotify)free_refs_array);
+
 	return dfw;
 }
 
@@ -259,6 +264,10 @@ dfwork_free(dfwork_t *dfw)
 
 	if (dfw->references) {
 		g_hash_table_destroy(dfw->references);
+	}
+
+	if (dfw->raw_references) {
+		g_hash_table_destroy(dfw->raw_references);
 	}
 
 	if (dfw->insns) {
@@ -504,6 +513,8 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		dfw->expanded_text = NULL;
 		dfilter->references = dfw->references;
 		dfw->references = NULL;
+		dfilter->raw_references = dfw->raw_references;
+		dfw->raw_references = NULL;
 
 		if (save_tree) {
 			ws_assert(tree_str);
@@ -658,8 +669,8 @@ compare_ref_layer(gconstpointer _a, gconstpointer _b)
 	return a->proto_layer_num - b->proto_layer_num;
 }
 
-void
-dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
+static void
+load_references(GHashTable *table, proto_tree *tree, gboolean raw)
 {
 	GHashTableIter iter;
 	GPtrArray *finfos;
@@ -668,13 +679,13 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 	GPtrArray *refs;
 	int i, len;
 
-	if (g_hash_table_size(df->references) == 0) {
+	if (g_hash_table_size(table) == 0) {
 		/* Nothing to do. */
 		return;
 	}
 
-	g_hash_table_iter_init( &iter, df->references);
-	while (g_hash_table_iter_next (&iter, (void **)&hfinfo, (void **)&refs)) {
+	g_hash_table_iter_init(&iter, table);
+	while (g_hash_table_iter_next(&iter, (void **)&hfinfo, (void **)&refs)) {
 		/* If we have a previous array free the data */
 		g_ptr_array_set_size(refs, 0);
 
@@ -688,7 +699,7 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 			len = finfos->len;
 			for (i = 0; i < len; i++) {
 				finfo = g_ptr_array_index(finfos, i);
-				g_ptr_array_add(refs, reference_new(finfo));
+				g_ptr_array_add(refs, reference_new(finfo, raw));
 			}
 
 			hfinfo = hfinfo->same_name_next;
@@ -698,12 +709,24 @@ dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
 	}
 }
 
+void
+dfilter_load_field_references(const dfilter_t *df, proto_tree *tree)
+{
+	load_references(df->references, tree, FALSE);
+	load_references(df->raw_references, tree, TRUE);
+}
+
 df_reference_t *
-reference_new(const field_info *finfo)
+reference_new(const field_info *finfo, gboolean raw)
 {
 	df_reference_t *ref = g_new(df_reference_t, 1);
 	ref->hfinfo = finfo->hfinfo;
-	ref->value = fvalue_dup(&finfo->value);
+	if (raw) {
+		ref->value = dfvm_get_raw_fvalue(finfo);
+	}
+	else {
+		ref->value = fvalue_dup(&finfo->value);
+	}
 	ref->proto_layer_num = finfo->proto_layer_num;
 	return ref;
 }

@@ -148,4 +148,7 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree);
 
+fvalue_t *
+dfvm_get_raw_fvalue(const field_info *fi);
+
 #endif

@@ -348,3 +348,8 @@ class case_raw_modifier(unittest.TestCase):
     def test_raw2(self, checkDFilterCount):
         dfilter = '@s7comm.blockinfo.blocktype == 30:fe'
         checkDFilterCount(dfilter, 1)
+
+    def test_raw_ref(self, checkDFilterCountWithSelectedFrame):
+        dfilter = '@s7comm.blockinfo.blocktype == ${@s7comm.blockinfo.blocktype}'
+        # select frame 3, expect 2 frames out of 3.
+        checkDFilterCountWithSelectedFrame(dfilter, 2, 3)

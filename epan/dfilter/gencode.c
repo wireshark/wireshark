@@ -237,7 +237,10 @@ dfw_append_read_reference(dfwork_t *dfw, header_field_info *hfinfo,
 	dfw_append_insn(dfw, insn);
 
 	refs_array = g_ptr_array_new_with_free_func((GDestroyNotify)reference_free);
-	g_hash_table_insert(dfw->references, hfinfo, refs_array);
+	if (raw)
+		g_hash_table_insert(dfw->raw_references, hfinfo, refs_array);
+	else
+		g_hash_table_insert(dfw->references, hfinfo, refs_array);
 
 	/* Record the FIELD_ID in hash of interesting fields. */
 	while (hfinfo) {
