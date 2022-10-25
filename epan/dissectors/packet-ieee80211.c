@@ -8878,7 +8878,6 @@ dissect_dscp_policy_response(tvbuff_t *tvb, packet_info *pinfo,
   int start_offset = offset;
   guint8 count;
   wmem_strbuf_t *status_buf = wmem_strbuf_new_label(pinfo->pool);
-  guint sts_len = 0;
   int i;
 
   proto_tree_add_bitmask(tree, tvb, offset,
@@ -8903,7 +8902,7 @@ dissect_dscp_policy_response(tvbuff_t *tvb, packet_info *pinfo,
                                                 i);
     proto_tree_add_item(status_tree, hf_ieee80211_dscp_policy_id, tvb,
                         offset, 1, ENC_NA);
-    if (sts_len == 0) {
+    if (wmem_strbuf_get_len(status_buf) == 0) {
       wmem_strbuf_append_printf(status_buf, "%u:", scsid);
     } else {
       wmem_strbuf_append_printf(status_buf, " %u:", scsid);
