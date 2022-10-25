@@ -21,6 +21,7 @@ typedef enum {
 	EMPTY,
 	FVALUE,
 	HFINFO,
+	RAW_HFINFO,
 	INSN_NUMBER,
 	REGISTER,
 	INTEGER,
@@ -121,7 +122,7 @@ dfvm_value_t*
 dfvm_value_new_fvalue(fvalue_t *fv);
 
 dfvm_value_t*
-dfvm_value_new_hfinfo(header_field_info *hfinfo);
+dfvm_value_new_hfinfo(header_field_info *hfinfo, gboolean raw);
 
 dfvm_value_t*
 dfvm_value_new_register(int reg);

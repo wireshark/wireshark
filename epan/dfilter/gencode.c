@@ -131,12 +131,14 @@ dfw_append_jump(dfwork_t *dfw)
 /* returns register number */
 static dfvm_value_t *
 dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo,
-						drange_t *range)
+						drange_t *range,
+						gboolean raw)
 {
 	dfvm_insn_t	*insn;
 	int		reg = -1;
 	dfvm_value_t	*reg_val, *val1, *val3;
 	gboolean	added_new_hfinfo = FALSE;
+	GHashTable *loaded_fields;
 	void *loaded_key;
 
 	/* Rewind to find the first field of this name. */
@@ -144,11 +146,16 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo,
 		hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
 	}
 
+	if (raw)
+		loaded_fields = dfw->loaded_raw_fields;
+	else
+		loaded_fields = dfw->loaded_fields;
+
 	/* Keep track of which registers
 	 * were used for which hfinfo's so that we
 	 * can re-use registers. */
 	/* Re-use only if we are not using a range (layer filter). */
-	loaded_key = g_hash_table_lookup(dfw->loaded_fields, hfinfo);
+	loaded_key = g_hash_table_lookup(loaded_fields, hfinfo);
 	if (loaded_key != NULL) {
 		if (range == NULL) {
 			/*
@@ -165,13 +172,13 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo,
 	}
 	else {
 		reg = dfw->next_register++;
-		g_hash_table_insert(dfw->loaded_fields,
+		g_hash_table_insert(loaded_fields,
 			hfinfo, GINT_TO_POINTER(reg + 1));
 
 		added_new_hfinfo = TRUE;
 	}
 
-	val1 = dfvm_value_new_hfinfo(hfinfo);
+	val1 = dfvm_value_new_hfinfo(hfinfo, raw);
 	reg_val = dfvm_value_new_register(reg);
 	if (range) {
 		val3 = dfvm_value_new_drange(range);
@@ -200,7 +207,8 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo,
 /* returns register number */
 static dfvm_value_t *
 dfw_append_read_reference(dfwork_t *dfw, header_field_info *hfinfo,
-						drange_t *range)
+						drange_t *range,
+						gboolean raw)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*reg_val, *val1, *val3;
@@ -213,7 +221,7 @@ dfw_append_read_reference(dfwork_t *dfw, header_field_info *hfinfo,
 
 	/* We can't reuse registers with a filter so just skip
 	 * that optimization and don't reuse them at all. */
-	val1 = dfvm_value_new_hfinfo(hfinfo);
+	val1 = dfvm_value_new_hfinfo(hfinfo, raw);
 	reg_val = dfvm_value_new_register(dfw->next_register++);
 	if (range) {
 		val3 = dfvm_value_new_drange(range);
@@ -537,18 +545,21 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	dfvm_value_t      *val;
 	header_field_info *hfinfo;
 	drange_t *range = NULL;
+	gboolean raw;
 	e_type = stnode_type_id(st_arg);
 
 	if (e_type == STTYPE_FIELD) {
 		hfinfo = sttype_field_hfinfo(st_arg);
 		range = sttype_field_drange_steal(st_arg);
-		val = dfw_append_read_tree(dfw, hfinfo, range);
+		raw = sttype_field_raw(st_arg);
+		val = dfw_append_read_tree(dfw, hfinfo, range, raw);
 		*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
 	}
 	else if (e_type == STTYPE_REFERENCE) {
 		hfinfo = sttype_field_hfinfo(st_arg);
 		range = sttype_field_drange_steal(st_arg);
-		val = dfw_append_read_reference(dfw, hfinfo, range);
+		raw = sttype_field_raw(st_arg);
+		val = dfw_append_read_reference(dfw, hfinfo, range, raw);
 		*jumps_ptr = g_slist_prepend(*jumps_ptr, dfw_append_jump(dfw));
 	}
 	else if (e_type == STTYPE_FVALUE) {
@@ -589,7 +600,8 @@ gen_exists(dfwork_t *dfw, stnode_t *st_node)
 		hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
 	}
 
-	val1 = dfvm_value_new_hfinfo(hfinfo);
+	/* Ignore "rawness" for existence tests. */
+	val1 = dfvm_value_new_hfinfo(hfinfo, FALSE);
 	if (range) {
 		val2 = dfvm_value_new_drange(range);
 	}
@@ -827,6 +839,7 @@ dfw_gencode(dfwork_t *dfw)
 {
 	dfw->insns = g_ptr_array_new();
 	dfw->loaded_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
+	dfw->loaded_raw_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
 	dfw->interesting_fields = g_hash_table_new(g_int_hash, g_int_equal);
 	gencode(dfw, dfw->st_root);
 	dfw_append_insn(dfw, dfvm_insn_new(DFVM_RETURN));

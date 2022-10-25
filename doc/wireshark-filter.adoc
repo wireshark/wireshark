@@ -388,6 +388,26 @@ For more complicated ranges the same syntax used with slices is valid:
 means layers number 2, 3 or 4 inclusive. The hash symbol is required to
 distinguish a layer range from a slice.
 
+== The at operator
+
+By prefixing the field name with an at sign (@) the comparison is done against
+the raw packet data for the field.
+
+A character string must be decoded from a source encoding during dissection.
+If there are decoding errors the resulting string will usually contain
+replacement characters:
+
+[subs="replacements"]
+----
+browser.comment == "string is &#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;"
+----
+
+The at operator allows testing the raw undecoded data:
+
+    @browser.comment == 73:74:72:69:6e:67:20:69:73:20:aa:aa:aa:aa
+
+The syntactical rules for a bytes field type apply to the second example.
+
 === The membership operator
 
 A field may be checked for matches against a set of values simply with the

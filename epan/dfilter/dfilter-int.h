@@ -46,6 +46,7 @@ typedef struct {
 	gchar		*error_message;
 	GPtrArray	*insns;
 	GHashTable	*loaded_fields;
+	GHashTable	*loaded_raw_fields;
 	GHashTable	*interesting_fields;
 	int		next_insn_id;
 	int		next_register;

@@ -23,6 +23,7 @@ typedef struct {
 	guint32	   magic;
 	header_field_info *hfinfo;
 	drange_t  *drange;
+	gboolean raw;
 } field_t;
 
 #define FIELD_MAGIC	0xfc2002cf
@@ -36,6 +37,7 @@ field_new(gpointer hfinfo)
 	field->magic = FIELD_MAGIC;
 	field->hfinfo = hfinfo;
 	field->drange = NULL;
+	field->raw = FALSE;
 
 	return field;
 }
@@ -50,6 +52,7 @@ field_dup(gconstpointer data)
 	field = field_new(NULL);
 	field->hfinfo = org->hfinfo;
 	field->drange = drange_dup(org->drange);
+	field->raw = org->raw;
 
 	return field;
 }
@@ -76,12 +79,12 @@ field_tostr(const void *data, gboolean pretty _U_)
 		repr = ws_strdup_printf("%s#[%s] <%s>",
 				field->hfinfo->abbrev,
 				drange_str,
-				ftype_name(field->hfinfo->type));
+				field->raw ? "RAW" : ftype_name(field->hfinfo->type));
 		g_free(drange_str);
 	}
 	else {
 		repr = ws_strdup_printf("%s <%s>", field->hfinfo->abbrev,
-					ftype_name(field->hfinfo->type));
+				field->raw ? "RAW" : ftype_name(field->hfinfo->type));
 	}
 
 	return repr;
@@ -100,6 +103,8 @@ sttype_field_ftenum(stnode_t *node)
 {
 	field_t *field = node->data;
 	ws_assert_magic(field, FIELD_MAGIC);
+	if (field->raw)
+		return FT_BYTES;
 	return field->hfinfo->type;
 }
 
@@ -109,6 +114,14 @@ sttype_field_drange(stnode_t *node)
 	field_t *field = node->data;
 	ws_assert_magic(field, FIELD_MAGIC);
 	return field->drange;
+}
+
+gboolean
+sttype_field_raw(stnode_t *node)
+{
+	field_t *field = node->data;
+	ws_assert_magic(field, FIELD_MAGIC);
+	return field->raw;
 }
 
 drange_t *
@@ -150,6 +163,14 @@ sttype_field_set_drange(stnode_t *node, drange_t *dr)
 	ws_assert_magic(field, FIELD_MAGIC);
 	ws_assert(field->drange == NULL);
 	field->drange = dr;
+}
+
+void
+sttype_field_set_raw(stnode_t *node, gboolean raw)
+{
+	field_t *field = stnode_data(node);
+	ws_assert_magic(field, FIELD_MAGIC);
+	field->raw = raw;
 }
 
 char *

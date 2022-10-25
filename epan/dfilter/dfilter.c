@@ -249,6 +249,10 @@ dfwork_free(dfwork_t *dfw)
 		g_hash_table_destroy(dfw->loaded_fields);
 	}
 
+	if (dfw->loaded_raw_fields) {
+		g_hash_table_destroy(dfw->loaded_raw_fields);
+	}
+
 	if (dfw->interesting_fields) {
 		g_hash_table_destroy(dfw->interesting_fields);
 	}
@@ -311,6 +315,7 @@ const char *tokenstr(int token)
 		case TOKEN_LPAREN:	return "LPAREN";
 		case TOKEN_RPAREN:	return "RPAREN";
 		case TOKEN_DOLLAR:	return "DOLLAR";
+		case TOKEN_ATSIGN:	return "ATSIGN";
 	}
 	return "<unknown>";
 }

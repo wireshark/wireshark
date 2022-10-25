@@ -332,3 +332,19 @@ class case_quantifiers(unittest.TestCase):
     def test_all_1(self, checkDFilterCount):
         dfilter = 'all ip.addr > 1.1.1.1'
         checkDFilterCount(dfilter, 1)
+
+@fixtures.uses_fixtures
+class case_raw_modifier(unittest.TestCase):
+    trace_file = "s7comm-fuzz.pcapng.gz"
+
+    def test_regular(self, checkDFilterCount):
+        dfilter = 's7comm.blockinfo.blocktype == "0\uFFFD"'
+        checkDFilterCount(dfilter, 3)
+
+    def test_raw1(self, checkDFilterCount):
+        dfilter = '@s7comm.blockinfo.blocktype == 30:aa'
+        checkDFilterCount(dfilter, 2)
+
+    def test_raw2(self, checkDFilterCount):
+        dfilter = '@s7comm.blockinfo.blocktype == 30:fe'
+        checkDFilterCount(dfilter, 1)
