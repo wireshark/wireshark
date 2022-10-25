@@ -16374,7 +16374,7 @@ proto_register_woww(void)
         },
         { &hf_woww_chat_type,
             { "Chat Type", "woww.chat.type",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_chat_type_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_chat_type_strings), 0,
                 NULL, HFILL
             }
         },
@@ -16398,7 +16398,7 @@ proto_register_woww(void)
         },
         { &hf_woww_class,
             { "Class", "woww.class",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_class_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_class_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17100,7 +17100,7 @@ proto_register_woww(void)
         },
         { &hf_woww_gender,
             { "Gender", "woww.gender",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_gender_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_gender_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17184,7 +17184,7 @@ proto_register_woww(void)
         },
         { &hf_woww_group_loot_setting,
             { "Group Loot Setting", "woww.group.loot.setting",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_group_loot_setting_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_group_loot_setting_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17238,13 +17238,13 @@ proto_register_woww(void)
         },
         { &hf_woww_guild_command,
             { "Guild Command", "woww.guild.command",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_guild_command_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_guild_command_strings), 0,
                 NULL, HFILL
             }
         },
         { &hf_woww_guild_command_result,
             { "Guild Command Result", "woww.guild.command.result",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_guild_command_result_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_guild_command_result_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17466,13 +17466,13 @@ proto_register_woww(void)
         },
         { &hf_woww_inventory_result,
             { "Inventory Result", "woww.inventory.result",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_inventory_result_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_inventory_result_strings), 0,
                 NULL, HFILL
             }
         },
         { &hf_woww_inventory_type,
             { "Inventory Type", "woww.inventory.type",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_inventory_type_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_inventory_type_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17532,7 +17532,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_class,
             { "Item Class", "woww.item.class",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_item_class_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_item_class_strings), 0,
                 NULL, HFILL
             }
         },
@@ -17622,7 +17622,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_quality,
             { "Item Quality", "woww.item.quality",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_item_quality_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_item_quality_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18450,13 +18450,13 @@ proto_register_woww(void)
         },
         { &hf_woww_party_operation,
             { "Party Operation", "woww.party.operation",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_party_operation_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_party_operation_strings), 0,
                 NULL, HFILL
             }
         },
         { &hf_woww_party_result,
             { "Party Result", "woww.party.result",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_party_result_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_party_result_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18726,7 +18726,7 @@ proto_register_woww(void)
         },
         { &hf_woww_pvp_rank,
             { "Pvp Rank", "woww.pvp.rank",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_pvp_rank_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_pvp_rank_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18750,7 +18750,7 @@ proto_register_woww(void)
         },
         { &hf_woww_quest_giver_status,
             { "Quest Giver Status", "woww.quest.giver.status",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_quest_giver_status_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_quest_giver_status_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18816,7 +18816,7 @@ proto_register_woww(void)
         },
         { &hf_woww_race,
             { "Race", "woww.race",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_race_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_race_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19254,7 +19254,7 @@ proto_register_woww(void)
         },
         { &hf_woww_sheath_state,
             { "Sheath State", "woww.sheath.state",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_sheath_state_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_sheath_state_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19494,7 +19494,7 @@ proto_register_woww(void)
         },
         { &hf_woww_spell_school,
             { "Spell School", "woww.spell.school",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_spell_school_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_spell_school_strings), 0,
                 NULL, HFILL
             }
         },
@@ -20040,7 +20040,7 @@ proto_register_woww(void)
         },
         { &hf_woww_unit_stand_state,
             { "Unit Stand State", "woww.unit.stand.state",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_unit_stand_state_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_unit_stand_state_strings), 0,
                 NULL, HFILL
             }
         },
