@@ -135,6 +135,8 @@ variables:
   extends: .build-linux
   rules: !reference [.if-2x-daily-schedule]
   before_script:
+    # Hack to let ninja make full use of the system on Fedora and Rocky.
+    - export RPM_BUILD_NCPUS=$(( $( getconf _NPROCESSORS_ONLN ) + 2 ))
     - git config --global user.email "you@example.com"
     - git config --global user.name "Your Name"
     - mkdir build
