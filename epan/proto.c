@@ -237,7 +237,6 @@ static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_si
 static size_t fill_display_label_float(field_info *fi, gchar *label_str);
 static void fill_label_float(field_info *fi, gchar *label_str);
 
-static const char *hfinfo_char_value_format_display(int display, char buf[7], guint32 value);
 static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value);
 static const char *hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[48], guint64 value);
 static const char *hfinfo_char_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
@@ -10103,7 +10102,7 @@ hfinfo_hex_digits(const header_field_info *hfinfo)
 	return (bitwidth + 3) / 4;
 }
 
-static const char *
+const char *
 hfinfo_char_value_format_display(int display, char buf[7], guint32 value)
 {
 	char *ptr = &buf[6];

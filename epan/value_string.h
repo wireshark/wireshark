@@ -124,6 +124,10 @@ WS_DLL_PUBLIC
 const gchar *
 try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx);
 
+WS_DLL_PUBLIC
+const gchar *
+char_val_to_str(char val, const value_string *vs, const char *msg);
+
 /* 64-BIT VALUE TO STRING MATCHING */
 
 typedef struct _val64_string {

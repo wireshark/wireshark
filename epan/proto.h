@@ -3357,6 +3357,9 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
 
 /** @} */
 
+const char *
+hfinfo_char_value_format_display(int display, char buf[7], guint32 value);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -106,6 +106,22 @@ try_val_to_str(const guint32 val, const value_string *vs)
     return try_val_to_str_idx(val, vs, &ignore_me);
 }
 
+const gchar *
+char_val_to_str(char val, const value_string *vs, const char *msg)
+{
+    const gchar *ret;
+    char buf[7];
+
+    DISSECTOR_ASSERT(msg != NULL);
+
+    ret = try_val_to_str(val, vs);
+    if (ret != NULL)
+        return ret;
+
+    return wmem_strdup_printf(wmem_packet_scope(), "%s: %s",
+            msg, hfinfo_char_value_format_display(BASE_HEX, buf, val));
+}
+
 /* 64-BIT VALUE STRING */
 
 const gchar *
