@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Compress PNGs
+# compress-pngs.py - Compress PNGs
 #
 # By Gerald Combs <gerald@wireshark.org
 #
@@ -42,7 +42,7 @@ def get_compressors():
 def compress_png(png_file, compressors):
     for compressor in compressors:
         if not compressors[compressor].get('path', False):
-            next
+            continue
 
         args = compressors[compressor]['args']
         args = [arg.replace(PNG_FILE_ARG, png_file) for arg in args]
@@ -57,7 +57,7 @@ def main():
     parser = argparse.ArgumentParser(description='Compress PNGs')
     parser.add_argument('--list', action='store_true',
                         help='List available compressors')
-    parser.add_argument('png_files', nargs='+', metavar='png file', help='Files to compress')
+    parser.add_argument('png_files', nargs='*', metavar='png file', help='Files to compress')
     args = parser.parse_args()
 
     compressors = get_compressors()
