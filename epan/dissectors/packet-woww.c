@@ -9454,13 +9454,13 @@ add_body_fields(guint32 opcode,
             break;
         case CMSG_BUY_ITEM:
             ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BUY_ITEM_IN_SLOT:
             ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bag_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bag_slot, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
@@ -12890,7 +12890,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_AUCTION_REMOVED_NOTIFICATION:
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_template, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_random_property_id, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -12960,7 +12960,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_BUY_FAILED:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_buy_result, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_BUY_ITEM:
@@ -13486,7 +13486,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ITEM_NAME_QUERY_RESPONSE:
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_item_name);
             break;
         case SMSG_ITEM_PUSH_RESULT:
@@ -13496,7 +13496,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_new_item_chat_alert, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bag_slot, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_count, 4, ENC_LITTLE_ENDIAN);
@@ -13614,7 +13614,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < amount_of_items; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "ListInventoryItem");
                 ptvcursor_add(ptv, hf_woww_item_stack_count, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_max_items, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_price, 4, ENC_LITTLE_ENDIAN);
@@ -13652,7 +13652,7 @@ add_body_fields(guint32 opcode,
         case SMSG_LOOT_ALL_PASSED:
             ptvcursor_add(ptv, hf_woww_looted_target_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix_id, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -13689,7 +13689,7 @@ add_body_fields(guint32 opcode,
         case SMSG_LOOT_ROLL_WON:
             ptvcursor_add(ptv, hf_woww_looted_target_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_winning_player_guid, 8, ENC_LITTLE_ENDIAN);
@@ -13699,7 +13699,7 @@ add_body_fields(guint32 opcode,
         case SMSG_LOOT_START_ROLL:
             ptvcursor_add(ptv, hf_woww_creature_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_countdown_time, 4, ENC_LITTLE_ENDIAN);
@@ -13724,7 +13724,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_item_text_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stationery, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchant_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -14890,7 +14890,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < 7; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TradeSlot");
                 ptvcursor_add(ptv, hf_woww_trade_slot_number, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stack_count, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_is_wrapped, 4, ENC_LITTLE_ENDIAN);
