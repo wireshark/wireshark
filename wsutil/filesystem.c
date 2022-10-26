@@ -1586,6 +1586,45 @@ delete_directory (const char *directory, char **pf_dir_path_return)
     return ret;
 }
 
+/* Copy files from one directory to another. Does not recursively copy directories */
+static int
+copy_directory(const char *from_dir, const char *to_dir, char **pf_filename_return)
+{
+    int ret = 0;
+    gchar *from_file, *to_file;
+    const char *filename;
+    WS_DIR *dir;
+    WS_DIRENT *file;
+
+    if ((dir = ws_dir_open(from_dir, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            filename = ws_dir_get_name(file);
+            from_file = ws_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
+            if (test_for_directory(from_file) != EISDIR) {
+                to_file =  ws_strdup_printf ("%s%s%s", to_dir, G_DIR_SEPARATOR_S, filename);
+                if (!copy_file_binary_mode(from_file, to_file)) {
+                    *pf_filename_return = g_strdup(filename);
+                    g_free (from_file);
+                    g_free (to_file);
+                    ret = -1;
+                    break;
+                }
+                g_free (to_file);
+#if 0
+            } else {
+                /* The user has manually created a directory in the profile
+                 * directory. Do not copy the directory recursively (yet?)
+                 */
+#endif
+            }
+            g_free (from_file);
+        }
+        ws_dir_close(dir);
+    }
+
+    return ret;
+}
+
 static int
 reset_default_profile(char **pf_dir_path_return)
 {
@@ -1774,37 +1813,47 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
     int ret = 0;
     gchar *from_dir;
     gchar *to_dir = get_persconffile_dir(toname);
-    gchar *filename, *from_file, *to_file;
-    GList *files, *file;
+    gchar *from_file, *to_file;
+    const char *filename;
+    GHashTableIter files;
+    gpointer file;
 
     from_dir = get_profile_dir(fromname, from_global);
 
-    files = g_hash_table_get_keys(profile_files);
-    file = g_list_first(files);
-    while (file) {
-        filename = (gchar *)file->data;
-        from_file = ws_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
-        to_file =  ws_strdup_printf ("%s%s%s", to_dir, G_DIR_SEPARATOR_S, filename);
+    if (!profile_files || do_store_persconffiles) {
+        /* Either the profile_files hashtable does not exist yet
+         * (this is very early in startup) or we are still adding
+         * files to it. Just copy all the non-directories.
+         */
+        ret = copy_directory(from_dir, to_dir, pf_filename_return);
+    } else {
 
-        if (file_exists(from_file) && !copy_file_binary_mode(from_file, to_file)) {
-            *pf_filename_return = g_strdup(filename);
-            *pf_to_dir_path_return = to_dir;
-            *pf_from_dir_path_return = from_dir;
-            g_free (from_file);
+        g_hash_table_iter_init(&files, profile_files);
+        while (g_hash_table_iter_next(&files, &file, NULL)) {
+            filename = (const char *)file;
+            from_file = ws_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
+            to_file = ws_strdup_printf ("%s%s%s", to_dir, G_DIR_SEPARATOR_S, filename);
+
+            if (file_exists(from_file) && !copy_file_binary_mode(from_file, to_file)) {
+                *pf_filename_return = g_strdup(filename);
+                g_free (from_file);
+                g_free (to_file);
+                ret = -1;
+                break;
+            }
+
             g_free (to_file);
-            ret = -1;
-            break;
+            g_free (from_file);
         }
-
-        g_free (from_file);
-        g_free (to_file);
-
-        file = g_list_next(file);
     }
 
-    g_list_free (files);
-    g_free (from_dir);
-    g_free (to_dir);
+    if (ret != 0) {
+        *pf_to_dir_path_return = to_dir;
+        *pf_from_dir_path_return = from_dir;
+    } else {
+        g_free (to_dir);
+        g_free (from_dir);
+    }
 
     return ret;
 }
