@@ -44,7 +44,6 @@ string_fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 	string_fvalue_free(fv);
 
 	fv->value.strbuf = value;
-	WS_UTF_8_SANITIZE_STRBUF(fv->value.strbuf);
 }
 
 static char *
@@ -77,7 +76,6 @@ val_from_string(fvalue_t *fv, const char *s, size_t len, gchar **err_msg _U_)
 	else
 		fv->value.strbuf = wmem_strbuf_new(NULL, s);
 
-	WS_UTF_8_SANITIZE_STRBUF(fv->value.strbuf);
 	return TRUE;
 }
 

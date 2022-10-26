@@ -1986,6 +1986,13 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
     proto_tree. The value passed in should be a UTF-8 encoded null terminated
     string, such as produced by tvb_get_string_enc(), regardless of the original
     packet data.
+
+    String must be valid UTF-8 but do not format the string for display in any way,
+    for example by escaping unprintable characters, because this is packet data,
+    not a display string. Formatting is a concern of the UI. Doing that here would
+    change the meaning of the captured data and make display filtering very
+    unintuitive for speacial characters.
+
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data

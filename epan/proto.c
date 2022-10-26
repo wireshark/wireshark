@@ -5010,6 +5010,8 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
 	DISSECTOR_ASSERT(length >= 0);
+
+	WS_UTF_8_CHECK(value, -1);
 	proto_tree_set_string(PNODE_FINFO(pi), value);
 
 	return pi;
@@ -5059,7 +5061,6 @@ static void
 proto_tree_set_string(field_info *fi, const char* value)
 {
 	if (value) {
-		/* String must be valid UTF-8. It is sanitized otherwise (if enabled at compile time). */
 		fvalue_set_string(&fi->value, value);
 	} else {
 		/*
