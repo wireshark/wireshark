@@ -6189,29 +6189,29 @@ static const value_string e_monster_move_type_strings[] =  {
 };
 
 typedef enum {
-    MOUNT_RESULT_INVALIDMOUNTEE = 0x0,
-    MOUNT_RESULT_TOOFARAWAY = 0x1,
-    MOUNT_RESULT_ALREADYMOUNTED = 0x2,
-    MOUNT_RESULT_NOTMOUNTABLE = 0x3,
-    MOUNT_RESULT_NOTYOURPET = 0x4,
+    MOUNT_RESULT_INVALID_MOUNTEE = 0x0,
+    MOUNT_RESULT_TOO_FAR_AWAY = 0x1,
+    MOUNT_RESULT_ALREADY_MOUNTED = 0x2,
+    MOUNT_RESULT_NOT_MOUNTABLE = 0x3,
+    MOUNT_RESULT_NOT_YOUR_PET = 0x4,
     MOUNT_RESULT_OTHER = 0x5,
     MOUNT_RESULT_LOOTING = 0x6,
-    MOUNT_RESULT_RACECANTMOUNT = 0x7,
+    MOUNT_RESULT_RACE_CANT_MOUNT = 0x7,
     MOUNT_RESULT_SHAPESHIFTED = 0x8,
-    MOUNT_RESULT_FORCEDDISMOUNT = 0x9,
+    MOUNT_RESULT_FORCED_DISMOUNT = 0x9,
     MOUNT_RESULT_OK = 0xA,
 } e_mount_result;
 static const value_string e_mount_result_strings[] =  {
-    { MOUNT_RESULT_INVALIDMOUNTEE, "Invalidmountee" },
-    { MOUNT_RESULT_TOOFARAWAY, "Toofaraway" },
-    { MOUNT_RESULT_ALREADYMOUNTED, "Alreadymounted" },
-    { MOUNT_RESULT_NOTMOUNTABLE, "Notmountable" },
-    { MOUNT_RESULT_NOTYOURPET, "Notyourpet" },
+    { MOUNT_RESULT_INVALID_MOUNTEE, "Invalid Mountee" },
+    { MOUNT_RESULT_TOO_FAR_AWAY, "Too Far Away" },
+    { MOUNT_RESULT_ALREADY_MOUNTED, "Already Mounted" },
+    { MOUNT_RESULT_NOT_MOUNTABLE, "Not Mountable" },
+    { MOUNT_RESULT_NOT_YOUR_PET, "Not Your Pet" },
     { MOUNT_RESULT_OTHER, "Other" },
     { MOUNT_RESULT_LOOTING, "Looting" },
-    { MOUNT_RESULT_RACECANTMOUNT, "Racecantmount" },
+    { MOUNT_RESULT_RACE_CANT_MOUNT, "Race Cant Mount" },
     { MOUNT_RESULT_SHAPESHIFTED, "Shapeshifted" },
-    { MOUNT_RESULT_FORCEDDISMOUNT, "Forceddismount" },
+    { MOUNT_RESULT_FORCED_DISMOUNT, "Forced Dismount" },
     { MOUNT_RESULT_OK, "Ok" },
     { 0, NULL }
 };
