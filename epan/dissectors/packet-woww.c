@@ -13679,8 +13679,8 @@ add_body_fields(guint32 opcode,
         case SMSG_LOOT_ROLL:
             ptvcursor_add(ptv, hf_woww_creature_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_number, 1, ENC_LITTLE_ENDIAN);
