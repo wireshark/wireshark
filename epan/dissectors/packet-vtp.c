@@ -136,6 +136,8 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	guint8 *upd_timestamp;
 	int vlan_info_len;
 	int pruning_vlan_id;
+	int yy, mm, dd, hh, _mm, ss;
+	char *display;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
 	set_vtp_info_col(tvb, pinfo);
@@ -168,12 +170,13 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		proto_tree_add_item(vtp_tree, hf_vtp_upd_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		upd_timestamp = tvb_get_string_enc(pinfo->pool, tvb, offset, 12, ENC_ASCII);
+		upd_timestamp = display = tvb_get_string_enc(pinfo->pool, tvb, offset, 12, ENC_ASCII);
+		if (sscanf(upd_timestamp, "%2d%2d%2d%2d%2d%2d", &yy, &mm, &dd, &hh, &_mm, &ss) == 6) {
+			display = wmem_strdup_printf(pinfo->pool, "%02d-%02d-%02d %02d:%02d:%02d",
+									yy, mm, dd, hh, _mm, ss);
+		}
 		proto_tree_add_string_format_value(vtp_tree, hf_vtp_upd_ts, tvb,
-			offset, 12, (gchar*)upd_timestamp,
-			"%.2s-%.2s-%.2s %.2s:%.2s:%.2s",
-			&upd_timestamp[0], &upd_timestamp[2], &upd_timestamp[4],
-			&upd_timestamp[6], &upd_timestamp[8], &upd_timestamp[10]);
+			offset, 12, upd_timestamp, "%s", display);
 		offset += 12;
 
 		proto_tree_add_item(vtp_tree, hf_vtp_md5_digest, tvb, offset, 16, ENC_NA);
