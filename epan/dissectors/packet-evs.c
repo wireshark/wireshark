@@ -98,7 +98,7 @@ static const value_string evs_d_bits_t0_values[] = {
     { 0x3, "NB 9.6 kbps" },
     { 0x4, "NB 13.2 kbps" },
     { 0x5, "NB 16.4 kbps" },
-    { 0x6, "Not used" },
+    { 0x6, "NB 24.4 kbps" },
     { 0x7, "Not used" },
     { 0x8, "Not used" },
     { 0x9, "Not used" },
