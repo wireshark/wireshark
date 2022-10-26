@@ -262,7 +262,7 @@ static int hf_woww_corpse_target_enemy = -1;
 static int hf_woww_cos_angle = -1;
 static int hf_woww_cost_in_copper = -1;
 static int hf_woww_count = -1;
-static int hf_woww_countdown_time = -1;
+static int hf_woww_countdown_time_in_milliseconds = -1;
 static int hf_woww_counter = -1;
 static int hf_woww_create_id = -1;
 static int hf_woww_created_day = -1;
@@ -13702,7 +13702,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_countdown_time, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_countdown_time_in_milliseconds, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_MAIL_LIST_RESULT:
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_mails, 1, ENC_LITTLE_ENDIAN, &amount_of_mails);
@@ -16517,8 +16517,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_countdown_time,
-            { "Countdown Time", "woww.countdown.time",
+        { &hf_woww_countdown_time_in_milliseconds,
+            { "Countdown Time In Milliseconds", "woww.countdown.time.in.milliseconds",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
