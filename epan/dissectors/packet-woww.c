@@ -500,7 +500,6 @@ static int hf_woww_mail_id = -1;
 static int hf_woww_mail_template_id = -1;
 static int hf_woww_mail_type = -1;
 static int hf_woww_mailbox = -1;
-static int hf_woww_mailbox_guid = -1;
 static int hf_woww_mailbox_id = -1;
 static int hf_woww_mana = -1;
 static int hf_woww_map = -1;
@@ -9953,7 +9952,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_GET_MAIL_LIST:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_GMSURVEY_SUBMIT:
             ptvcursor_add(ptv, hf_woww_survey_id, 4, ENC_LITTLE_ENDIAN);
@@ -10121,7 +10120,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_CREATE_TEXT_ITEM:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_template_id, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -10130,7 +10129,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_MARK_AS_READ:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_RETURN_TO_SENDER:
@@ -10138,11 +10137,11 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_TAKE_ITEM:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MAIL_TAKE_MONEY:
-            ptvcursor_add(ptv, hf_woww_mailbox_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_mailbox, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_mail_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_MEETINGSTONE_JOIN:
@@ -17941,12 +17940,6 @@ proto_register_woww(void)
         },
         { &hf_woww_mailbox,
             { "Mailbox", "woww.mailbox",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_mailbox_guid,
-            { "Mailbox Guid", "woww.mailbox.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
