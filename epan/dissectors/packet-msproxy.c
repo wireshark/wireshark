@@ -561,7 +561,7 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 
 	if ( tree){
 		name_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 1,
-			ett_msproxy_name, NULL, "Host Name: %.*s", length,
+			ett_msproxy_name, NULL, "Host Name: %s",
 			tvb_get_string_enc( pinfo->pool,  tvb, offset + 18, length, ENC_ASCII));
 
 		proto_tree_add_item(name_tree, hf_msproxy_req_resolve_length, tvb, offset, 1, ENC_NA);

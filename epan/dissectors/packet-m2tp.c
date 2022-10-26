@@ -324,7 +324,7 @@ dissect_m2tp_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree,
     length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
     info_string_length = length - PARAMETER_HEADER_LENGTH;
     proto_tree_add_item_ret_string(parameter_tree, hf_m2tp_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII, wmem_packet_scope(), &info_string);
-    proto_item_set_text(parameter_item, "Info String (%.*s)", info_string_length, info_string);
+    proto_item_set_text(parameter_item, "Info String (%s)", info_string);
   }
 }
 

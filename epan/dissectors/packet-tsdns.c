@@ -51,10 +51,10 @@ static int dissect_tsdns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
   if (request) {
     col_set_str(pinfo->cinfo, COL_INFO, "Request");
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %.*s", pLen - 5, tvb_get_string_enc(pinfo->pool, tvb, 0, pLen - 5, ENC_ASCII|ENC_NA));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_get_string_enc(pinfo->pool, tvb, 0, pLen - 5, ENC_ASCII));
   } else {
     col_set_str(pinfo->cinfo, COL_INFO, "Response");
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %.*s", pLen, tvb_get_string_enc(pinfo->pool, tvb, 0, pLen, ENC_ASCII|ENC_NA));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_get_string_enc(pinfo->pool, tvb, 0, pLen, ENC_ASCII));
   }
 
   proto_tree *tsdns_tree;

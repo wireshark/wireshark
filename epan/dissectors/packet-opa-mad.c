@@ -6063,8 +6063,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         old_offset = *offset;
         label = val_to_str_const(MAD.AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
         SA_record_tree = proto_tree_add_subtree_format(parentTree, tvb, old_offset,
-            (SA_HEADER.AttributeOffset * 8), ett_rmpp_sa_record, NULL, "%.*s Record %u: ",
-            (gint)strlen(&label[11]) - 1, &label[11], r);
+            (SA_HEADER.AttributeOffset * 8), ett_rmpp_sa_record, NULL, "%s Record %u: ", label, r);
 
         if (!parse_SUBA_Attribute(SA_record_tree, tvb, offset, &MAD, &RMPP, &SA_HEADER)) {
             expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,

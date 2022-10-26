@@ -663,8 +663,8 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                 }
                 contact = tvb_get_string_enc(wmem_packet_scope(), tvb, sep_offset_prev + 1, sz_local, ENC_ASCII);
                 proto_tree_add_string_format(subtree, hf_icq_msg_contact, tvb, offset, sz_local + svsz,
-                            contact, "%.*s: %.*s", svsz - 1,
-                            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, svsz, ENC_ASCII), sz_local - 1,
+                            contact, "%s: %s",
+                            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, svsz, ENC_ASCII),
                             contact);
                 n_local += 2;
             }

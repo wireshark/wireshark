@@ -130,7 +130,7 @@ dissect_sta_ack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * co
 
     /* add the data channel bond sub-tree item */
     bond_item = proto_tree_add_item(tree, hf_cl3dcw_dcbond, tvb, offset, 6, ENC_NA);
-    proto_item_append_text(bond_item, " -> \"%.*s\"", (guint)ssid_len, ssidbuf);
+    proto_item_append_text(bond_item, " -> \"%s\"", ssidbuf);
     proto_item_set_len(bond_item, 6 + 1 + ssid_len);
     bond_tree = proto_item_add_subtree(bond_item, ett_cl3dcw_dcbond);
 
@@ -143,8 +143,7 @@ dissect_sta_ack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * co
      *     without printing it in the string... i suspect there is a better way of doing this
      */
     proto_tree_add_string_format(bond_tree, hf_cl3dcw_dcssid, tvb, offset, 1 + ssid_len,
-                                 "", "Data Channel SSID: %.*s",
-                                 (guint)ssid_len, ssidbuf);
+                                 "", "Data Channel SSID: %s", ssidbuf);
     offset += 1 + ssid_len;
   }
 
@@ -197,8 +196,7 @@ dissect_ap_accept_sta(tvbuff_t * const tvb, packet_info * const pinfo, proto_tre
      *     without printing it in the string... i suspect there is a better way of doing this
      */
     proto_tree_add_string_format(tree, hf_cl3dcw_dcssid, tvb, offset, 1 + ssid_len,
-                                 "", "Data Channel SSID: %.*s",
-                                 (guint)ssid_len, ssidbuf);
+                                 "", "Data Channel SSID: %s", ssidbuf);
     offset += 1 + ssid_len;
   }
 
