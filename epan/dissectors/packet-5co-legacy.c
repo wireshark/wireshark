@@ -261,7 +261,6 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     guint8 ucRegAdd, ucRegSize;
     guint32 unOffset;
     guint32 unSize;
-    char *string_buf = NULL;
 
     /* Load protocol payload length (including checksum) */
     tcp_data_length = tvb_captured_length(tvb);
@@ -521,10 +520,7 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 aRegisters[ucRegAdd].nsWsHeaderID,
                                 tvb, i, ucRegSize,
                                 ENC_NA);
-                            string_buf = wmem_alloc(wmem_packet_scope(), (size_t)ucRegSize + 1);
-                            // Get string from tvb with an extra char for null terminaison
-                            tvb_get_raw_bytes_as_string(tvb, i, string_buf, (size_t)ucRegSize + 1);
-                            proto_item_append_text(fiveco_data_item, ": %.16s", string_buf);
+                            proto_item_append_text(fiveco_data_item, ": %s", tvb_format_text(pinfo->pool, tvb, i, ucRegSize));
                             i += ucRegSize;
                         }
                         // else display raw data in hex
@@ -650,10 +646,7 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 														    aRegisters[ucRegAdd].nsWsHeaderID,
 														    tvb, i, ucRegSize,
                                                             ENC_NA);
-                                    string_buf = wmem_alloc(wmem_packet_scope(), (size_t)ucRegSize + 1);
-                                    // Get string from tvb with an extra char for null terminaison
-                                    tvb_get_raw_bytes_as_string(tvb, i, string_buf, (size_t)ucRegSize + 1);
-                                    proto_item_append_text(fiveco_data_item, ": %.16s", string_buf);
+                                    proto_item_append_text(fiveco_data_item, ": %s", tvb_format_text(pinfo->pool, tvb, i, ucRegSize));
                                     i += ucRegSize;
                                 }
                                 // else display raw data in hex
@@ -694,9 +687,7 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 break;
             case FLASH_AREA_ANSWER:
                 if ( header_data_length > 1 ) {
-                    string_buf = wmem_alloc(wmem_packet_scope(), header_data_length);
-                    tvb_get_raw_bytes_as_string(tvb, tcp_data_offset, string_buf, header_data_length - 1);
-                    proto_item_append_text(fiveco_data_item, " (%s)", string_buf);
+                    proto_item_append_text(fiveco_data_item, " (%s)", tvb_format_text(pinfo->pool, tvb, tcp_data_offset, header_data_length - 1));
                 }
                 break;
 
