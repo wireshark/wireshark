@@ -648,11 +648,11 @@ static dissector_table_t rtps_type_name_table;
 #define ENCAPSULATION_SHMEM_REF_FLAT_DATA    (0xC001)
 
 /* Data encapsulation options */
-#define ENCAPSULATION_OPTIONS_COMPRESSION_BYTES_MASK            (0b11100)
+#define ENCAPSULATION_OPTIONS_COMPRESSION_BYTES_MASK            (0x1C)
 #define GET_ENCAPSULATION_COMPRESSION_OPTIONS(encapsulation_options_in, compression_options_out) \
     (compression_options_out = (((encapsulation_options_in) & (ENCAPSULATION_OPTIONS_COMPRESSION_BYTES_MASK)) >> 2))
 #define ENCAPSULATION_OPTIONS_COMPRESSION_EXTENDED_HEADER_VALUE ENCAPSULATION_OPTIONS_COMPRESSION_BYTES_MASK
-#define ENCAPSULATION_OPTIONS_COMPRESSION_PADDING_BYTES_MASK    (0b11)
+#define ENCAPSULATION_OPTIONS_COMPRESSION_PADDING_BYTES_MASK    (0x3)
 
 
 /* Parameter Liveliness */
@@ -2975,9 +2975,12 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             gint base_offset = offset;
             gboolean show_current_element = TRUE;
             gint array_kind_length = 0;
-            guint bound = (guint)info->bound;
+            guint bound = 0;
             gint first_skipped_element_offset = 0;
 
+            if (info != NULL) {
+                bound = (guint)info->bound;
+            }
             /* In case this array is not shown and is a native type. We get the sze length for calculating
              * the whole array length */
             array_kind_length = get_native_type_cdr_length(info->base_type_id);
@@ -3052,7 +3055,9 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
 
             /* In case this sequence is not shown and is a native type. We get the sze length for calculating
              * the whole seuqnece length */
-            sequence_kind_length = get_native_type_cdr_length(info->base_type_id);
+            if (info != NULL) {
+                sequence_kind_length = get_native_type_cdr_length(info->base_type_id);
+            }
             if (show) {
                 aux_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_rtps_dissection_tree,
                     NULL, "%s (%u elements)", name, seq_size);
@@ -3124,8 +3129,12 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE: {
+            guint64 base_type_id = 0;
+            if (info != NULL) {
+                base_type_id = info->base_type_id;
+            }
             offset = dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL,
-                         info->base_type_id, name, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show);
+                         base_type_id, name, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show);
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE: {
@@ -3177,7 +3186,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                 aux_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_dissection_tree,
                     NULL, name);
             }
-            if (info->extensibility == EXTENSIBILITY_MUTABLE) {
+            if (info != NULL && info->extensibility == EXTENSIBILITY_MUTABLE) {
                 gboolean is_end = FALSE;
                 /* Don't know beforehand the number of elements. Need to count them */
                 while (!is_end) {
@@ -3561,7 +3570,7 @@ static void rtps_util_detect_coherent_set_end_empty_data_case(
 
     coherent_set_info_entry = (coherent_set_info*)wmem_map_lookup(coherent_set_tracking.coherent_set_registry_map, &key);
     if (coherent_set_info_entry
-                && coherent_set_entry->expected_coherent_set_end_writers_seq_number == coherent_set_entity_info_object->writer_seq_number
+                && (coherent_set_entry->expected_coherent_set_end_writers_seq_number == coherent_set_entity_info_object->writer_seq_number)
                 && !coherent_set_info_entry->is_set) {
         coherent_set_info_entry->is_set = TRUE;
         coherent_set_info_entry->writer_seq_number = coherent_set_entry->expected_coherent_set_end_writers_seq_number - 1;
@@ -9126,7 +9135,6 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     rtps_util_insert_type_mapping_in_registry(pinfo, type_mapping_object);
     offset += param_length;
   }
-  proto_item_set_len(ti, offset - initial_offset);
   return offset;
 }
 
