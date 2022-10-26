@@ -1784,6 +1784,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rsvp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rsync.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtacser.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtag.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtcdc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtitcp.c
