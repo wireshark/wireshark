@@ -1087,6 +1087,7 @@ static const value_string ieee802154_psie_names[] = {
     { IEEE802154_MLME_SUBIE_TMCP_SPECIFICATION,       "TMCTP Specification IE" },
     { IEEE802154_MLME_SUBIE_RCC_PHY_OPER_MODE,        "RCC PHY Operating Mode IE" },
     { IEEE802154_IETF_SUBIE_6TOP,                     "6top IE" },
+    { IEEE802154_IETF_SUBIE_6TOP_DRAFT,               "6top IE (draft)" },
     { 0, NULL }
 };
 
@@ -3885,7 +3886,6 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
     proto_tree *p_inf_elem_tree = ieee802154_create_pie_tree(tvb, ies_tree, hf_ieee802154_pie_ietf, ett_ieee802154_pie_ietf);
     guint      offset = 2;
     guint      pie_length = tvb_reported_length(tvb) - 2;
-    guint8     subie;
     guint8     version;
     guint8     type;
     guint8     code;
@@ -3913,10 +3913,9 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
         return pie_length + 2;
     }
 
-    subie = tvb_get_guint8(tvb, offset);
     version =  tvb_get_guint8(tvb, offset + 1) & IETF_6TOP_VERSION;
 
-    if (subie != IEEE802154_IETF_SUBIE_6TOP || version != supported_6p_version) {
+    if (version != supported_6p_version) {
         return pie_length + 2;
     }
 

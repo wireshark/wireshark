@@ -310,7 +310,8 @@ typedef enum {
 /* 0x37-0x7f Reserved */
 
 /* IETF IE - Sub IE */
-#define IEEE802154_IETF_SUBIE_6TOP  0xC9 /* not formally assigned yet */
+#define IEEE802154_IETF_SUBIE_6TOP_DRAFT                 0xC9 /* not formally assigned yet */
+#define IEEE802154_IETF_SUBIE_6TOP                       0x01 /* not formally assigned yet */
 
 /* IEEE 802.15.4 cipher block size. */
 #define IEEE802154_CIPHER_SIZE                16
