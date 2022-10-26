@@ -409,6 +409,8 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     guint32 snonce;
     guint string_len;
     const guint8 *timestr;
+    char *display;
+    int yy, mm, dd, hh, _mm, ss;
 
     /* Server Nonce */
     snonce=tvb_get_ntohl(tvb, offset);
@@ -422,10 +424,13 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
     /* Timestamp: YYMMDDhhmmssZ */
     /* They really came up with a two-digit year in late 1990s! =8o */
-    timestr=tvb_get_string_enc(pinfo->pool, tvb, offset, 13, ENC_ASCII);
-    proto_tree_add_string_format_value(tree, hf_pktc_timestamp, tvb, offset, 13, timestr,
-                                "%.2s-%.2s-%.2s %.2s:%.2s:%.2s",
-                                 timestr, timestr+2, timestr+4, timestr+6, timestr+8, timestr+10);
+    timestr=display=tvb_get_string_enc(pinfo->pool, tvb, offset, 13, ENC_ASCII);
+    if (sscanf(timestr, "%2d%2d%2d%2d%2d%2dZ", &yy, &mm, &dd, &hh, &_mm, &ss) == 6) {
+        display = wmem_strdup_printf(pinfo->pool, "%02d-%02d-%02d %02d:%02d:%02d",
+                                            yy, mm, dd, hh, _mm, ss);
+    }
+    proto_tree_add_string_format_value(tree, hf_pktc_timestamp, tvb,
+                                offset, 13, timestr, "%s", display);
     offset+=13;
 
     /* app specific data */
