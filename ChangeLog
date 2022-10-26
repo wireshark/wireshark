@@ -1,0 +1,626 @@
+commit f2c836a9a6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Oct 25 12:23:23 2022 -0700
+
+    GitLab CI: Build RPMs in parallel.
+
+    Our RPM spec runs `cmake --build ... -j1` on Fedora and Rocky. Set
+    RPM_BUILD_NCPUS, which increases the `-j` value so that ninja can make
+    full use of the system.
+
+    [skip ci]
+
+    (cherry picked from commit 23f206c8b8887bd11b121b28d54e749b69febbe9)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit d588319880
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Oct 25 12:17:59 2022 -0700
+
+    Prep for 3.6.9.
+
+    [skip ci]
+
+commit a9dc401b34
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Oct 25 09:06:33 2022 -0700
+
+    IEEE 802.11: Fix a length check.
+
+    Fix a length check issue introduced in 85a9e05c52.
+
+    (cherry picked from commit 708da485267804865278e43960495446a2c06329)
+
+commit 3f7d3a5b90
+Author: Alexander Funke <alexander.funke@fh-muenster.de>
+Date:   Thu Oct 20 14:49:58 2022 +0200
+
+    IP: Fix fragment offset value calculation
+
+    The bitmask was applied twice, through the header_field_info
+     and before calling proto_tree_add_uint.
+    Now using _format_value for correct calculation.
+
+    (cherry picked from commit 1ab15061b56ac549a1eae9002f4965990a87c9a4)
+
+commit aea8d10584
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Mon Oct 24 19:49:04 2022 +0200
+
+    PER: Fix call_per_oid_callback() open type length is in bytes.
+
+    tvb_new_octet_aligned() expects the length in bits.
+
+    (cherry picked from commit 92d58f297dfcbb4e9dabb771e2002dbd3b326d38)
+
+commit 95ce6c0db1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Oct 24 10:04:27 2022 -0700
+
+    IEEE 802.11: Fix DSCP string handling
+
+    Replace looped snprintfs with wmem_strbuf_append_printfs.
+
+    (cherry picked from commit 85a9e05c52b1d011eb128d94d4c9c6893fe32472)
+
+    Conflicts:
+            epan/dissectors/packet-ieee80211.c
+
+commit 06e20e9765
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Oct 12 19:59:27 2022 +0200
+
+    BLF: Fixing the interpretation of SRR and RTR
+
+    This fixes a bug in the canfdmessage64 encoding in BLF that leads to
+    CAN-FD frames being interpreted as Remote Frames instead of correctly
+    ignoring the SRR flag. Makes canfdmessage encoding more robust as well.
+
+commit 9a69b909fd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 23 16:38:05 2022 +0000
+
+    [Automatic update for 2022-10-23]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit db6382e41e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Oct 21 00:42:42 2022 -0700
+
+    packet bytes: do a simpler test for "is this ASCII?"
+
+    Just test whether the octet has the 0x80 bit set.
+
+    (cherry picked from commit 10703285972f0e992e25409667464d302c949304)
+
+commit 38f37fb895
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Oct 20 23:07:23 2022 -0700
+
+    packet bytes: don't assume the unadorned "char" type is signed.
+
+    The C language does not guarantee that "char" is signed or unsigned; it
+    just states that it's "implementation-dependent".
+
+    At least some C compilers for some architectures make it unsigned, so
+    you need "signed char" to get a signed value.  In particular, it's
+    unsigned for most ARM compilers (compilers for Darwin-based OSes such as
+    macOS make it signed on all platforms, including ARM), which causes a
+    warning about "ba[i] < '\0'" always being false.
+
+    The purpose of that test is to check for octets that correspond neither
+    to ASCII printable characters nor ASCII control characters; just test
+    with !g_ascii_isprint(ba[i]) && !g_ascii_iscntrl(ba[i]).  (Those are
+    macros, so it's not as if that adds any subroutine call overhead.)
+
+    Add some comments to explain what's being done in
+    ShowPacketBytesDialog::symbolizeBuffer() while we're at it.  (Not one of
+    the better uses of C++ polymorphism, giving "replace the octet at this
+    location with this sequence of octets" and "replace all octets equal to
+    this value with this sequence of octets" the same name, even though what
+    they do differs significantly.  I would have called one replace_at and
+    the other replace_all or something such as that, but the Qt developers
+    didn't ask me....)
+
+    (cherry picked from commit de50666ec077a0b09f3d61ccd20870a03db52c92)
+
+commit 3e7b8fdb47
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Tue Oct 18 21:28:14 2022 +0200
+
+    CFDP: Fix empty source filename
+
+    Fixes: #18495
+
+commit ce9a6c2768
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 16 16:36:02 2022 +0000
+
+    [Automatic update for 2022-10-16]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 5d1944cb8d
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Sun Oct 16 11:44:15 2022 -0500
+
+    github: 3.6 branch - jurplel/install-qt-action v2->v3
+
+    Ping #18462
+
+commit 2ae58506e6
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Oct 15 22:26:08 2022 +0200
+
+    PER, asn2wrs: Fix permitted-alphabet constrained character strings
+
+    Effective permitted-alphabet constraints are only PER-visible for
+    the known-multiplier character string types (X.691 27.1). When
+    PER-visible, the upper bound of any code point used in the
+    alphabet needs to be calculated, in particular for the ALIGNED
+    variant, because that determines whether or not canonical order
+    is used (X.691 27.5.2, 27.5.4).
+
+    Note that even with the change to asn2wrs.py none of the generated
+    dissectors change, because we don't have any example of ASN.1
+    with non-PER visible permitted alphabet constraints because of
+    using them on non known-multiplier character string types
+    (like UTF8String).
+
+    There's some various edge cases that we still don't handle, but
+    nothing that any of the ASN.1 modules in the repository use.
+    (Permitted-alphabet constraints using characters outside the
+    ASCII range, possibly with "CharacterStringList", "Quadruple",
+    or "Tuple" notation, permitted-alphabet constraints that are
+    extensible and thus not PER-visible, etc.)
+
+    Also fix a fencepost error with the length of the octets to highlight.
+
+    Fix #18468
+
+    (cherry picked from commit cb23c5e8d74223ab8c2fb7fcb081d7128ffaf2fd)
+
+commit 990b17346b
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sun Dec 26 23:56:20 2021 +0100
+
+    github: bump msbuild version.
+
+    (cherry picked from commit 1810ad641d85e521fbce9be062c27c992c9e8152)
+
+commit 4736f3807e
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Wed Oct 12 14:43:05 2022 -0500
+
+    Github actions: newer verions with node12 -> node16
+
+    Ping #18462
+
+    (cherry picked from commit 3c0936d83e5e1ddda369533b072d5c0a62bf38d3)
+
+commit aa42de9d8c
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sun Dec 26 23:53:59 2021 +0100
+
+    github: update artifacts uploading.
+
+    (cherry picked from commit c3bbca8e73fb470407a9bfd301a3c8be827192c5)
+
+commit f0933bc28b
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Oct 12 01:25:04 2022 -0700
+
+    Match declaration style of other functions.
+
+    All other functions are declared with two lines:
+
+        WS_DLL_PUBLIC <type>
+        <function_name(<args>);
+
+    Declare wtap_block_foreach_option() that  way, too, for consistency.
+
+    (cherry picked from commit 670bacedc9e0c455b9104166791a48ce338c26d2)
+
+commit 283543baad
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Oct 11 23:53:03 2022 -0700
+
+    Use "a" before consonant sounds, use "an" before vowel sounds.
+
+    (cherry picked from commit f7422a5cc85a3b58b371fa7ec22c55dc0662215c)
+
+commit 20fe44a2d8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Oct 10 09:18:22 2022 -0700
+
+    Qt: Properly truncate our FieldInformation strings.
+
+    As the Qt6 QString::QString(const QByteArray &ba) documenation says:
+
+    "Note: any null ('\0') bytes in the byte array will be included in this
+    string, converted to Unicode null characters (U+0000). This behavior is
+    different from Qt 5.x."
+
+    Make sure FieldInformation::toString() truncates its display label byte
+    array before converting it to a QString.
+
+    Fixes #18428
+
+    (cherry picked from commit f3f1556d456a7a3d3a70c7c4f05cdd02f01463e6)
+
+    Conflicts:
+            ui/qt/utils/field_information.cpp
+
+commit b76d92288c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Oct 10 16:00:53 2022 -0700
+
+    transum: expert infos are not Boolean fields.
+
+    They're of type FT_NONE, meaning that they do not have values, they're
+    just present or not.
+
+    Handle the TCP analysis fields "tcp.analysis.retransmission" and
+    "tcp.analysis.keep_alive", both of which are expert infos, by just
+    seeing if they're present or not.
+
+    Fixes a problem mentioned in a comment in merge request !8412.
+
+    (cherry picked from commit 3db17dab82d41d97c6426d8767971dd3d40bc8f2)
+
+commit a770476333
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 9 16:40:19 2022 +0000
+
+    [Automatic update for 2022-10-09]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1861dcbe21
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Oct 5 14:57:08 2022 -0700
+
+    TRANSUM: fix fetching of Boolean values.
+
+    As of a change many years ago, Boolean values are stored as 64-bit (the
+    change was made to handle Boolean bitfields in 64-bit fields).  Fix the
+    extractor for Boolean values to fetch from the 64-bit unsigned integer
+    field, and, while we're at it, add a change that the field in question
+    really *is* a Boolean field (the functions used to fetch the value in
+    the other extractors do such a check).
+
+    (cherry picked from commit b2cbc6f034d6ef5e0813f59a45387cc79b9311e4)
+
+commit 7a80719404
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Oct 4 07:58:43 2022 +0000
+
+    Mixed-up interpretation of bgp.ext_com.type.auth
+
+commit 21ddaa577e
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Oct 3 09:07:13 2022 +0200
+
+    RTPS: Fix commit ba9ee57746
+
+commit 16c3bd5ccc
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Oct 2 17:19:17 2022 +0000
+
+    NAS-5GS: correction of IE Extended rejected NSSAI
+
+commit 2f0e3ed876
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Oct 2 17:16:36 2022 +0000
+
+    GTP: Fix NSAPI shift in Radio Priority
+
+commit 8054b2191d
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Oct 2 17:16:02 2022 +0000
+
+    HTTP: sanitize encoding header field strings
+
+commit 4c6402bba3
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Oct 2 17:15:12 2022 +0000
+
+    pfcp: Use ENC_APN_STR
+
+commit ba9ee57746
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Oct 1 22:54:23 2022 +0000
+
+    RTPS: Wrong deserialization of optional members.
+
+commit 021ac6ea9e
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Oct 1 13:24:02 2022 +0000
+
+    RTPS: PluginParticipantSecurityAttributesMask value is incorrectly displayed
+
+commit b313096c08
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Sep 30 00:16:51 2022 -0400
+
+    fc: Fix Service Response Table
+
+    The lun value is stored in the tree on the first pass. Do
+    the lookup when it's not the first pass.
+
+    Also add the display filter to the SRT table so that the GUI
+    generated filters work properly.
+
+    Fix #16084.
+
+    (cherry picked from commit 67b4650559fb309aaec4e1696f084e7c536cc54b)
+
+commit 7bf7665bc4
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Tue Sep 20 10:45:04 2022 +0000
+
+    ISKAMP: Add VID Auto-Discovery Sender (Fortinet)
+
+    (cherry picked from commit fd97378da46cdd3606a3dc3bbb58418a36f21da8)
+
+commit e6579b9e02
+Author: Harald Welte <laforge@osmocom.org>
+Date:   Sun Feb 27 19:18:46 2022 +0100
+
+    gsmtap: fix dissection of LAPD-in-E1-in-GSMTAP traces
+
+    When the ability to dispatch GSMTAP E1/T1 frames to the LAPD dissector
+    was merged in August 2020, a recent July 2020 change earlier has
+    restructured and renamed the lapd dissector.  So at the time the GSMTAP
+    support for LAPD was added, the dissector was no longer called 'lapd'
+    and hence it never worked.
+
+    commit 75c739e4b71f1fb6d907b8d5ceb31db50dbd1fc7
+    Author: Guy Harris <gharris@sonic.net>
+    Date:   Sat Jul 25 02:20:10 2020 -0700
+    ISDN, LAPD: clean up the way they connect to other dissectors.
+
+    commit 132d6ec70bd9e17e124e4f94537c903bd4b286d7
+    Author: Harald Welte <laforge@osmocom.org>
+    Date:   Thu Aug 20 19:11:58 2020 +0200
+
+    Let's fix this by properly dispatching the LAPD frames from GSMTAP.
+
+    (cherry picked from commit 2ca164446d6d1fd1d90ef96bee9cc743a43f37ef)
+
+commit 025ba5fdf6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Sep 27 13:53:25 2022 -0700
+
+    USB HID: Always use a format string.
+
+    Ensure that the second argument to wmem_strdup_printf is always a format
+    string.
+    Fixes #18384.
+
+    (cherry picked from commit 402bb0ee81d89c3effa55baadf682a2e0ed1813b)
+
+commit 56ee135c60
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Sep 27 09:56:49 2022 -0700
+
+    Tools: Make sure we reset our fuzz ranges.
+
+    [skip ci]
+
+    (cherry picked from commit 7b53fd127ef42a39a9d5a71732eab13c5b42dc33)
+
+commit 27b18f4c5f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Sep 27 09:38:23 2022 -0700
+
+    Tools: Our fuzz packet range should be unquoted.
+
+    [skip ci]
+
+    (cherry picked from commit 12334494bae947f625a10088ef7424cfb51e8e8f)
+
+commit 5c86a24f94
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Sep 26 17:07:19 2022 -0700
+
+    Tools: Fuzz subsets of large files.
+
+    If our capture file has more than a designated maximum number of
+    packets, fuzz a random subset.
+
+    (cherry picked from commit dc521850e5756b3dfcd2fa836717b16e973bd540)
+
+commit 30fe379541
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu May 5 09:53:24 2022 -0700
+
+    Fuzz: Fix our elapsed times.
+
+    We use SECONDS in multiple places, so don't reset it.
+
+    [skip ci]
+
+    (cherry picked from commit 5a48815fb46a76d6a8fc479c13f6aea9c9d94ae1)
+
+commit ff0b4b0536
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 2 15:35:22 2022 -0700
+
+    Tools: Show elapsed time when fuzzing.
+
+    (cherry picked from commit e8bcaad686de4f6ab09a9421518d68833a53507c)
+
+commit 85973954cc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon May 2 09:52:46 2022 -0700
+
+    tools: Show recent commits in fuzz output.
+
+    Show commits from the past 48 hours instead of the most recent commit.
+
+    (cherry picked from commit 3b6734389d04702c4cc1e7861b544a1b3a41e7e1)
+
+commit 15519cfd8a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Apr 29 16:13:47 2022 -0700
+
+    Tools: Add a timestamp to our fuzz test error header.
+
+    Print the UTC date and time.
+
+    (cherry picked from commit 76660922e11206f90a7fe534f905d94dbe0aa543)
+
+commit 918d72282a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 27 11:57:07 2022 -0700
+
+    Tools: Update our fuzz test error header.
+
+    Add the GitLab job URL and reorder other items.
+
+    (cherry picked from commit b104af1c7d096f56cad2152a7091115629ecb54b)
+
+commit 1a87d9ba31
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Sep 27 16:38:52 2022 +0000
+
+    RTP dialogs: Fix: Coloring of QTreeWidgetItem do not work
+
+commit 5db46d3a7c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Sep 26 19:55:59 2022 -0400
+
+    opus: Don't overflow a signed 16-bit integer
+
+    The internal sample rate of 48KHz overflows a signed 16-bit
+    integer, and causes incorrect calculations. Use an unsigned integer.
+
+    Fix #18378
+
+    (cherry picked from commit 749a8d091200b43175268689996471b59fa34266)
+
+commit 0ebb4803bb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 25 16:37:17 2022 +0000
+
+    [Automatic update for 2022-09-25]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b26687a675
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 18 16:37:49 2022 +0000
+
+    [Automatic update for 2022-09-18]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b1a697e4b9
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Sep 13 17:50:16 2022 +0000
+
+    TLS: fix GREASE extension
+
+commit 8733c4e9b8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Sep 11 19:35:08 2022 -0400
+
+    tcp: Don't try to desegment at FIN if we can't desegment the frame
+
+    Check pinfo->can_desegment before trying to desegment at FIN.
+    Fix #18335
+
+    (cherry picked from commit 9954de392b8f65c43775e7ad0804108da56c1bcb)
+
+commit 9041700826
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 11 12:41:49 2022 -0700
+
+    Qt: Fix 29West dialog deletion.
+
+    Set the Qt::WA_DeleteOnClose attribute (which calls deleteLater())
+    instead of deleting dialogs under themselves.
+    Fixes #18334.
+
+    (cherry picked from commit 834bf082904aa30d217b7aac394d2835d06bfed7)
+
+    Conflicts:
+            ui/qt/lbm_stream_dialog.cpp
+
+commit 77f757c0eb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 11 16:37:53 2022 +0000
+
+    [Automatic update for 2022-09-11]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9aefba6e7b
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Sep 7 08:47:20 2022 +0000
+
+    ISAKMP: Add some Fortinet (VID)
+
+    * Auto-Discovery Receiver (Fortinet)
+    * Exchange Interface IP (Fortinet)
+
+    (cherry picked from commit 232386e551d64e467e716fb4e8bd3880dd299a9d)
+
+commit b7461be982
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Sep 10 21:13:34 2022 +0000
+
+    Tools: source CT log list in V3 schema
+
+commit 6e6911b3b6
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Fri Sep 9 22:46:32 2022 -0500
+
+    dumpcap: typo in pcap_geterr() string comparison
+
+    Ping #18332
+
+    (cherry picked from commit 8064d9a721428cedbe42d32e326d856323f6a4f5)
+
+commit 847e5a47d3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Sep 7 22:55:34 2022 -0400
+
+    Qt: Don't use obsolete signal in DCE-RPC/ONC-RPC SRT
+
+    QComboBox::currentIndexChanged(QString) has been marked
+    obsolete for a while and finally removed in Qt 6 in favor
+    of currentIndexChanged(int) and currentTextChanged(const QString)
+
+    Use QComboBox::currentTextChanged(const QString) instead.
+    Also do a little bit of checking to see if the return value
+    of dcerpc_get_proto_sub_dissector is NULL.
+
+    Fix #18319.
+
+    (cherry picked from commit 33fe76612abd37a3f1339e5a3327dcf2016a9a47)
+
+commit 7875e4983b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 7 10:37:35 2022 -0700
+
+    GitLab CI: Update our digest algorithms.
+
+    OpenSSL 3 deprecated RIPEMD160. Remove it from our list of digest
+    algorithms and add SHA512.
+
+    (cherry picked from commit b54219f7ada4ed1a9529d4c72ecfb3533cf25dc8)
+
+commit ea0b6e53b9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 7 11:33:37 2022 -0700
+
+    Version: 3.6.8 → 3.6.9
+
+    [skip ci]

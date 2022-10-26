@@ -7,13 +7,38 @@
 
  What’s New
 
- Note: This is the last release branch with support for 32-bit Windows.
- Updates will no longer be available after May 22, 2024 for that
- platform. Issue 17779[1]
+  This is the last release branch with support for 32-bit Windows.
+  Updates will no longer be available after May 22, 2024 for that
+  platform. Issue 17779[1]
 
   Bug Fixes
 
+     • wnpa-sec-2022-07[2] OPUS dissector crash. Issue 18378[3].
+
+     • wnpa-sec-2022-08[4] USB-HID dissector crash on Windows. Issue
+       18384[5].
+
    The following bugs have been fixed:
+
+     • Wireshark no longer calculates Statistics → Service Response Time
+       → FC properly. Issue 16084[6].
+
+     • Qt: Crash when opening Statistics → Service Response Time →
+       DCE-RPC. Issue 18319[7].
+
+     • Qt: Crash when closing 3 of the 14 dialogs available from the
+       menu item Statistics → 29West Issue 18334[8].
+
+     • TCP: Dissector bug, protocol TCP, in packet 13:
+       …​/wireshark/epan/reassemble.c:1420: failed assertion
+       "tvb_bytes_exist(tvb, offset, frag_data_len)" Issue 18335[9].
+
+     • Packet diagram field values are not terminated Issue 18428[10].
+
+     • Decoding bug H.245 userInput Signal Issue 18468[11].
+
+     • CFDP dissector doesn’t handle "destination filename" only Issue
+       18495[12].
 
   New and Updated Features
 
@@ -23,9 +48,12 @@
 
   Updated Protocol Support
 
+   ASN.1 PER, BGP, CFDP, FC, GSMTAP, GTP, HTTP, IEEE 802.11, IPv4,
+   ISAKMP, NAS-5GS, OPUS, PFCP, RTPS, TCP, and USB HID
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   BLF
 
   New File Format Decoding Support
 
@@ -41,7 +69,7 @@
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[13] on the Wireshark web site.
 
  File Locations
 
@@ -56,21 +84,32 @@
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[14] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[15].
 
-  Bugs and feature requests can be reported on the issue tracker[5].
+  Bugs and feature requests can be reported on the issue tracker[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[17].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://www.wireshark.org/download.html
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://gitlab.com/wireshark/wireshark/-/issues
-   6. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/security/wnpa-sec-2022-07
+   3. https://gitlab.com/wireshark/wireshark/-/issues/18378
+   4. https://www.wireshark.org/security/wnpa-sec-2022-08
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18384
+   6. https://gitlab.com/wireshark/wireshark/-/issues/16084
+   7. https://gitlab.com/wireshark/wireshark/-/issues/18319
+   8. https://gitlab.com/wireshark/wireshark/-/issues/18334
+   9. https://gitlab.com/wireshark/wireshark/-/issues/18335
+  10. https://gitlab.com/wireshark/wireshark/-/issues/18428
+  11. https://gitlab.com/wireshark/wireshark/-/issues/18468
+  12. https://gitlab.com/wireshark/wireshark/-/issues/18495
+  13. https://www.wireshark.org/download.html
+  14. https://ask.wireshark.org/
+  15. https://www.wireshark.org/lists/
+  16. https://gitlab.com/wireshark/wireshark/-/issues
+  17. https://www.wireshark.org/faq.html
