@@ -7,8 +7,8 @@ Wireshark 4.0.1 Release Notes
 
  What’s New
 
-  We no longer ship official 32-bit Windows packages starting with this
-  release. If you need to use Wireshark on that platform, we recommend
+  We do not ship official 32-bit Windows packages for Wireshark 4.0 and
+  later. If you need to use Wireshark on that platform, we recommend
   using the latest 3.6 release. Issue 17779[1]
 
     • The Windows installers now ship with Qt 5.12.2. They previously
@@ -18,8 +18,45 @@ Wireshark 4.0.1 Release Notes
 
    The following bugs have been fixed:
 
-     • Issue 18413[2] - RTP player do not play audio frequently on Win32
-       builds with Qt6
+     • Comparing a boolean field against 1 always succeeds on big-endian
+       machines. Issue 12236[2].
+
+     • Qt: MaxMind GeoIP columns not added to Endpoints table. Issue
+       18320[3].
+
+     • Fuzz job crash output: fuzz-2022-10-04-7131.pcap. Issue 18402[4].
+
+     • The RTP player might not play audio on Windows. Issue 18413[5].
+
+     • Wireshark 4.0 breaks display filter expression with > sign. Issue
+       18418[6].
+
+     • Capture filters not working when using SSH capture and dumpcap.
+       Issue 18420[7].
+
+     • Packet diagram field values are not terminated. Issue 18428[8].
+
+     • Packet bytes not displayed completely if scrolling. Issue
+       18438[9].
+
+     • Fuzz job crash output: fuzz-2022-10-13-7166.pcap. Issue
+       18467[10].
+
+     • Decoding bug H.245 userInput Signal. Issue 18468[11].
+
+     • CFDP dissector doesn’t handle \"destination filename\" only.
+       Issue 18495[12].
+
+     • Home page capture button doesn’t pop up capture options dialog.
+       Issue 18506[13].
+
+     • Missing dot in H.248 protocol name. Issue 18513[14].
+
+     • Missing dot for protocol H.264 in protocol column. Issue
+       18524[15].
+
+     • Fuzz job crash output: fuzz-2022-10-23-7240.pcap. Issue
+       18534[16].
 
   New and Updated Features
 
@@ -28,7 +65,7 @@ Wireshark 4.0.1 Release Notes
      • The experimental display filter syntax for literals using angle
        brackets <…​> that was introduced in Wireshark 4.0.0 has been
        removed. For byte arrays a colon prefix can be used instead. See
-       the User’s Guide[3] for details.
+       the User’s Guide[17] for details.
 
   New Protocol Support
 
@@ -36,9 +73,13 @@ Wireshark 4.0.1 Release Notes
 
   Updated Protocol Support
 
+   ASN.1 PER, CFDP, Diameter, DirectPlay, F5 Ethernet Trailer, GTP,
+   H.223, H.248, H.264, H.265, IEEE 802.11, IPv4, MBIM, O-RAN FH CUS,
+   PFCP, RTCP, SCTP, SMB, TCP, and TRANSUM
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   BLF
 
   New File Format Decoding Support
 
@@ -54,7 +95,7 @@ Wireshark 4.0.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[4] on the Wireshark web site.
+   be found on the download page[18] on the Wireshark web site.
 
  File Locations
 
@@ -69,28 +110,42 @@ Wireshark 4.0.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[5] and on the
+  Community support is available on Wireshark’s Q&A site[19] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[6].
+  for all of Wireshark’s mailing lists can be found on the web site[20].
 
-  Bugs and feature requests can be reported on the issue tracker[7].
+  Bugs and feature requests can be reported on the issue tracker[21].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[8].
+  SharkFest[22].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[9].
+  A complete FAQ is available on the Wireshark web site[23].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
-   2. https://gitlab.com/wireshark/wireshark/-/issues/18413
-   3. https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDispla
+   2. https://gitlab.com/wireshark/wireshark/-/issues/12236
+   3. https://gitlab.com/wireshark/wireshark/-/issues/18320
+   4. https://gitlab.com/wireshark/wireshark/-/issues/18402
+   5. https://gitlab.com/wireshark/wireshark/-/issues/18413
+   6. https://gitlab.com/wireshark/wireshark/-/issues/18418
+   7. https://gitlab.com/wireshark/wireshark/-/issues/18420
+   8. https://gitlab.com/wireshark/wireshark/-/issues/18428
+   9. https://gitlab.com/wireshark/wireshark/-/issues/18438
+  10. https://gitlab.com/wireshark/wireshark/-/issues/18467
+  11. https://gitlab.com/wireshark/wireshark/-/issues/18468
+  12. https://gitlab.com/wireshark/wireshark/-/issues/18495
+  13. https://gitlab.com/wireshark/wireshark/-/issues/18506
+  14. https://gitlab.com/wireshark/wireshark/-/issues/18513
+  15. https://gitlab.com/wireshark/wireshark/-/issues/18524
+  16. https://gitlab.com/wireshark/wireshark/-/issues/18534
+  17. https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDispla
   yFilterSection.html#_some_protocol_names_can_be_ambiguous
-   4. https://www.wireshark.org/download.html
-   5. https://ask.wireshark.org/
-   6. https://www.wireshark.org/lists/
-   7. https://gitlab.com/wireshark/wireshark/-/issues
-   8. https://sharkfest.wireshark.org
-   9. https://www.wireshark.org/faq.html
+  18. https://www.wireshark.org/download.html
+  19. https://ask.wireshark.org/
+  20. https://www.wireshark.org/lists/
+  21. https://gitlab.com/wireshark/wireshark/-/issues
+  22. https://sharkfest.wireshark.org
+  23. https://www.wireshark.org/faq.html
