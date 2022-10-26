@@ -306,6 +306,7 @@ static int hf_woww_destination_position_z = -1;
 static int hf_woww_destination_slot = -1;
 static int hf_woww_destionation_slot = -1;
 static int hf_woww_details = -1;
+static int hf_woww_dismount_result = -1;
 static int hf_woww_display_id = -1;
 static int hf_woww_duel_winner_reason = -1;
 static int hf_woww_durability = -1;
@@ -5572,30 +5573,12 @@ static const value_string e_chat_notify_strings[] =  {
 };
 
 typedef enum {
-    MOUNT_RESULT_INVALIDMOUNTEE = 0x0,
-    MOUNT_RESULT_TOOFARAWAY = 0x1,
-    MOUNT_RESULT_ALREADYMOUNTED = 0x2,
-    MOUNT_RESULT_NOTMOUNTABLE = 0x3,
-    MOUNT_RESULT_NOTYOURPET = 0x4,
-    MOUNT_RESULT_OTHER = 0x5,
-    MOUNT_RESULT_LOOTING = 0x6,
-    MOUNT_RESULT_RACECANTMOUNT = 0x7,
-    MOUNT_RESULT_SHAPESHIFTED = 0x8,
-    MOUNT_RESULT_FORCEDDISMOUNT = 0x9,
-    MOUNT_RESULT_OK = 0xA,
-} e_mount_result;
-static const value_string e_mount_result_strings[] =  {
-    { MOUNT_RESULT_INVALIDMOUNTEE, "Invalidmountee" },
-    { MOUNT_RESULT_TOOFARAWAY, "Toofaraway" },
-    { MOUNT_RESULT_ALREADYMOUNTED, "Alreadymounted" },
-    { MOUNT_RESULT_NOTMOUNTABLE, "Notmountable" },
-    { MOUNT_RESULT_NOTYOURPET, "Notyourpet" },
-    { MOUNT_RESULT_OTHER, "Other" },
-    { MOUNT_RESULT_LOOTING, "Looting" },
-    { MOUNT_RESULT_RACECANTMOUNT, "Racecantmount" },
-    { MOUNT_RESULT_SHAPESHIFTED, "Shapeshifted" },
-    { MOUNT_RESULT_FORCEDDISMOUNT, "Forceddismount" },
-    { MOUNT_RESULT_OK, "Ok" },
+    DISMOUNT_RESULT_NOT_MOUNTED = 0x1,
+    DISMOUNT_RESULT_OK = 0x3,
+} e_dismount_result;
+static const value_string e_dismount_result_strings[] =  {
+    { DISMOUNT_RESULT_NOT_MOUNTED, "Not Mounted" },
+    { DISMOUNT_RESULT_OK, "Ok" },
     { 0, NULL }
 };
 
@@ -6202,6 +6185,34 @@ static const value_string e_monster_move_type_strings[] =  {
     { MONSTER_MOVE_TYPE_FACING_SPOT, "Facing Spot" },
     { MONSTER_MOVE_TYPE_FACING_TARGET, "Facing Target" },
     { MONSTER_MOVE_TYPE_FACING_ANGLE, "Facing Angle" },
+    { 0, NULL }
+};
+
+typedef enum {
+    MOUNT_RESULT_INVALIDMOUNTEE = 0x0,
+    MOUNT_RESULT_TOOFARAWAY = 0x1,
+    MOUNT_RESULT_ALREADYMOUNTED = 0x2,
+    MOUNT_RESULT_NOTMOUNTABLE = 0x3,
+    MOUNT_RESULT_NOTYOURPET = 0x4,
+    MOUNT_RESULT_OTHER = 0x5,
+    MOUNT_RESULT_LOOTING = 0x6,
+    MOUNT_RESULT_RACECANTMOUNT = 0x7,
+    MOUNT_RESULT_SHAPESHIFTED = 0x8,
+    MOUNT_RESULT_FORCEDDISMOUNT = 0x9,
+    MOUNT_RESULT_OK = 0xA,
+} e_mount_result;
+static const value_string e_mount_result_strings[] =  {
+    { MOUNT_RESULT_INVALIDMOUNTEE, "Invalidmountee" },
+    { MOUNT_RESULT_TOOFARAWAY, "Toofaraway" },
+    { MOUNT_RESULT_ALREADYMOUNTED, "Alreadymounted" },
+    { MOUNT_RESULT_NOTMOUNTABLE, "Notmountable" },
+    { MOUNT_RESULT_NOTYOURPET, "Notyourpet" },
+    { MOUNT_RESULT_OTHER, "Other" },
+    { MOUNT_RESULT_LOOTING, "Looting" },
+    { MOUNT_RESULT_RACECANTMOUNT, "Racecantmount" },
+    { MOUNT_RESULT_SHAPESHIFTED, "Shapeshifted" },
+    { MOUNT_RESULT_FORCEDDISMOUNT, "Forceddismount" },
+    { MOUNT_RESULT_OK, "Ok" },
     { 0, NULL }
 };
 
@@ -13110,7 +13121,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DISMOUNTRESULT:
-            ptvcursor_add(ptv, hf_woww_mount_result, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_dismount_result, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DISPEL_FAILED:
             ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
@@ -16777,6 +16788,12 @@ proto_register_woww(void)
         { &hf_woww_details,
             { "Details", "woww.details",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_dismount_result,
+            { "Dismount Result", "woww.dismount.result",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_dismount_result_strings), 0,
                 NULL, HFILL
             }
         },
