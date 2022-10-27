@@ -1452,7 +1452,7 @@ control_proc_invalid_collision(packet_info const *pinfo,
      * That is, if there exists are response in the other procedure at this point in
      * time, there is a procedure violation.
      */
-    if (control_proc_other->frames[1] < pinfo->num)
+    if (control_proc_other->frames[1] && (control_proc_other->frames[1] < pinfo->num))
         return TRUE;
     else
         return FALSE;
