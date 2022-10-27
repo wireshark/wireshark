@@ -815,6 +815,8 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
     ssize_t idx, src_len;
     ssize_t free_len;
 
+    label_str[pos] = '\0';
+
     idx = 0;
     src_len = strlen(str);
     free_len = buf_size - pos - 1;
