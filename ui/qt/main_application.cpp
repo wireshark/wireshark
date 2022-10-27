@@ -340,14 +340,18 @@ void MainApplication::setMonospaceFont(const char *font_string) {
 #if defined(Q_OS_WIN)
     const char *default_font = win_default_font;
     substitutes << win_alt_font << osx_default_font << osx_alt_fonts << x11_default_font << x11_alt_fonts << fallback_fonts;
+# if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    font_size_adjust = 1;
+# else // QT_VERSION
     font_size_adjust = 2;
+# endif // QT_VERSION
 #elif defined(Q_OS_MAC)
     const char *default_font = osx_default_font;
     substitutes << osx_alt_fonts << win_default_font << win_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
-#else
+#else // Q_OS
     const char *default_font = x11_default_font;
     substitutes << x11_alt_fonts << win_default_font << win_alt_font << osx_default_font << osx_alt_fonts << fallback_fonts;
-#endif
+#endif // Q_OS
 
     mono_font_.setFamily(default_font);
     mono_font_.insertSubstitutions(default_font, substitutes);
