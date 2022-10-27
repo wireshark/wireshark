@@ -684,6 +684,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			bits_per_char=8;
 		}
 	}
+
 	/* 27.4	If the type is extensible for PER encodings (see 9.3.16),
 	 * then a bit-field consisting of a single bit shall be added to the field-list.
 	 * The single bit shall be set to zero if the value is within the range of the extension root,
@@ -765,7 +766,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		}
 	}
 	buf[char_pos]=0;
-	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3)+1, (char*)buf);
+	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), ((offset+7)>>3)-(old_offset>>3), (char*)buf);
 	if (value_tvb) {
 		*value_tvb = tvb_new_child_real_data(tvb, buf, length, length);
 	}
