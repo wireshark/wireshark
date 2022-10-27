@@ -2398,6 +2398,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
     proto_item *ti;
     guint       vallen;
     guint8      type;
+    char        type_buf[7] = { 0 };
     const char *amqp_typename;
     const char *value;
     nstime_t    tv;
@@ -2581,7 +2582,9 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
     else
         proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
                                    value_start, offset - value_start,
-                                   "%s: unknown type %x (%c)", name, type, type);
+                                   "%s: unknown type %s",
+                                   name,
+                                   hfinfo_char_value_format_display(BASE_HEX, type_buf, type));
     return offset - value_start;
 }
 
