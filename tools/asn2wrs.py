@@ -815,7 +815,7 @@ class EthCtx:
 
     #--- eth_reg_assign ---------------------------------------------------------
     def eth_reg_assign(self, ident, val, virt=False):
-        #print "eth_reg_assign(ident='%s')" % (ident)
+        #print("eth_reg_assign(ident='%s')" % (ident), 'module=', self.Module())
         if ident in self.assign:
             raise DuplicateError("assignment", ident)
         self.assign[ident] = { 'val' : val , 'virt' : virt }
@@ -935,13 +935,14 @@ class EthCtx:
 
     #--- eth_reg_type -----------------------------------------------------------
     def eth_reg_type(self, ident, val, mod=None):
-        #print "eth_reg_type(ident='%s', type='%s')" % (ident, val.type)
+        #print("eth_reg_type(ident='%s', type='%s')" % (ident, val.type))
         if ident in self.type:
             if self.type[ident]['import'] and (self.type[ident]['import'] == self.Module()) :
                 # replace imported type
                 del self.type[ident]
                 self.type_imp.remove(ident)
             else:
+                #print('DuplicateError: import=', self.type[ident]['import'], 'module=', self.Module())
                 raise DuplicateError("type", ident)
         val.ident = ident
         self.type[ident] = { 'val' : val, 'import' : None }

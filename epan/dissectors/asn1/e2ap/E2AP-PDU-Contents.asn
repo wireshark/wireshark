@@ -2,12 +2,12 @@
 -- **************************************************************
 --
 -- PDU definitions for E2AP
--- Derived from 3GPP 38.413 v15.4.0 NGAP
+-- Derived from 3GPP 38.413 (NGAP)
 --
 -- **************************************************************
 
 E2AP-PDU-Contents {
-iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2ap(1) e2ap-PDU-Contents (1) }
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version2 (2) e2ap(1) e2ap-PDU-Contents (1) }
 
 DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -20,76 +20,113 @@ BEGIN
 -- **************************************************************
 
 IMPORTS
-Cause,
-CriticalityDiagnostics,
-GlobalE2node-ID,
-GlobalRIC-ID,
-RANfunctionDefinition,
-RANfunctionID,
-RANfunctionRevision,
-RICactionDefinition,
-RICactionID,
-RICactionType,
-RICcallProcessID,
-RICcontrolAckRequest,
-RICcontrolHeader,
-RICcontrolMessage,
-RICcontrolOutcome,
-RICcontrolStatus,
-RICeventTriggerDefinition,
-RICindicationHeader,
-RICindicationMessage,
-RICindicationSN,
-RICindicationType,
-RICrequestID,
-RICsubsequentAction,
-TimeToWait
+        Cause,
+        CriticalityDiagnostics,
+        E2nodeComponentConfiguration,
+        E2nodeComponentConfigurationAck,
+        E2nodeComponentID,
+        E2nodeComponentInterfaceType,
+        GlobalE2node-ID,
+        GlobalRIC-ID,
+        RANfunctionDefinition,
+        RANfunctionID,
+        RANfunctionOID,
+        RANfunctionRevision,
+        RICactionDefinition,
+        RICactionID,
+        RICactionType,
+        RICcallProcessID,
+        RICcontrolAckRequest,
+        RICcontrolHeader,
+        RICcontrolMessage,
+        RICcontrolOutcome,
+        RICeventTriggerDefinition,
+        RICindicationHeader,
+        RICindicationMessage,
+        RICindicationSN,
+        RICindicationType,
+        RICrequestID,
+        RICsubsequentAction,
+        TimeToWait,
+        TNLinformation,
+        TNLusage,
+        TransactionID
 FROM E2AP-IEs
 
-ProtocolIE-Container{},
-ProtocolIE-ContainerList{},
-ProtocolIE-SingleContainer{},
-E2AP-PROTOCOL-IES,
-E2AP-PROTOCOL-IES-PAIR
+        ProtocolIE-Container{},
+        ProtocolIE-ContainerList{},
+        ProtocolIE-SingleContainer{},
+        E2AP-PROTOCOL-IES,
+        E2AP-PROTOCOL-IES-PAIR
 FROM E2AP-Containers
 
-id-Cause,
-id-CriticalityDiagnostics,
-id-GlobalE2node-ID,
-id-GlobalRIC-ID,
-id-RANfunctionID,
-id-RANfunctionID-Item,
-id-RANfunctionIEcause-Item,
-id-RANfunction-Item,
-id-RANfunctionsAccepted,
-id-RANfunctionsAdded,
-id-RANfunctionsDeleted,
-id-RANfunctionsModified,
-id-RANfunctionsRejected,
-id-RICaction-Admitted-Item,
-id-RICactionID,
-id-RICaction-NotAdmitted-Item,
-id-RICactions-Admitted,
-id-RICactions-NotAdmitted,
-id-RICaction-ToBeSetup-Item,
-id-RICcallProcessID,
-id-RICcontrolAckRequest,
-id-RICcontrolHeader,
-id-RICcontrolMessage,
-id-RICcontrolOutcome,
-id-RICcontrolStatus,
-id-RICindicationHeader,
-id-RICindicationMessage,
-id-RICindicationSN,
-id-RICindicationType,
-id-RICrequestID,
-id-RICserviceQuery,
-id-RICsubscriptionDetails,
-id-TimeToWait,
+        id-Cause,
+        id-CriticalityDiagnostics,
+        id-E2connectionSetup,
+        id-E2connectionSetupFailed,
+        id-E2connectionSetupFailed-Item,
+        id-E2connectionFailed-Item,
+        id-E2connectionUpdate-Item,
+        id-E2connectionUpdateAdd,
+        id-E2connectionUpdateModify,
+        id-E2connectionUpdateRemove,
+        id-E2connectionUpdateRemove-Item,
+        id-E2nodeComponentConfigAddition,
+        id-E2nodeComponentConfigAddition-Item,
+        id-E2nodeComponentConfigAdditionAck,
+        id-E2nodeComponentConfigAdditionAck-Item,
+        id-E2nodeComponentConfigRemoval,
+        id-E2nodeComponentConfigRemoval-Item,
+        id-E2nodeComponentConfigRemovalAck,
+        id-E2nodeComponentConfigRemovalAck-Item,
+        id-E2nodeComponentConfigUpdate,
+        id-E2nodeComponentConfigUpdate-Item,
+        id-E2nodeComponentConfigUpdateAck,
+        id-E2nodeComponentConfigUpdateAck-Item,
+        id-E2nodeTNLassociationRemoval,
+        id-E2nodeTNLassociationRemoval-Item,
+        id-GlobalE2node-ID,
+        id-GlobalRIC-ID,
+        id-RANfunctionID,
+        id-RANfunctionID-Item,
+        id-RANfunctionIEcause-Item,
+        id-RANfunction-Item,
+        id-RANfunctionsAccepted,
+        id-RANfunctionsAdded,
+        id-RANfunctionsDeleted,
+        id-RANfunctionsModified,
+        id-RANfunctionsRejected,
+        id-RICaction-Admitted-Item,
+        id-RICactionID,
+        id-RICaction-NotAdmitted-Item,
+        id-RICactions-Admitted,
+        id-RICactions-NotAdmitted,
+        id-RICaction-ToBeSetup-Item,
+        id-RICcallProcessID,
+        id-RICcontrolAckRequest,
+        id-RICcontrolHeader,
+        id-RICcontrolMessage,
+        id-RICcontrolOutcome,
+        id-RICindicationHeader,
+        id-RICindicationMessage,
+        id-RICindicationSN,
+        id-RICindicationType,
+        id-RICrequestID,
+        id-RICserviceQuery,
+        id-RICsubscriptionDetails,
+        id-RICsubscriptionToBeRemoved,
+        id-RICsubscription-withCause-Item,
+        id-TimeToWait,
+        id-TNLinformation,
+        id-TransactionID,
 
-maxofRANfunctionID,
-maxofRICactionID
+        maxofE2nodeComponents,
+        maxofRANfunctionID,
+        maxofRICactionID,
+        maxofRICrequestID,
+        maxofTNLA
 FROM E2AP-Constants;
+
 
 -- **************************************************************
 --
@@ -108,37 +145,37 @@ FROM E2AP-Constants;
 --
 -- **************************************************************
 RICsubscriptionRequest ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICsubscriptionRequest-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionRequest-IEs}},
+        ...
 }
 
 RICsubscriptionRequest-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
-{ ID id-RICsubscriptionDetails		CRITICALITY reject	TYPE RICsubscriptionDetails			PRESENCE mandatory},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+        { ID id-RICsubscriptionDetails		CRITICALITY reject	TYPE RICsubscriptionDetails			PRESENCE mandatory},
+        ...
 }
 
 
 RICsubscriptionDetails ::= SEQUENCE {
-ricEventTriggerDefinition	RICeventTriggerDefinition,
-ricAction-ToBeSetup-List	RICactions-ToBeSetup-List,
-...
+        ricEventTriggerDefinition	RICeventTriggerDefinition,
+        ricAction-ToBeSetup-List	RICactions-ToBeSetup-List,
+        ...
 }
 
 RICactions-ToBeSetup-List ::= SEQUENCE (SIZE(1..maxofRICactionID)) OF ProtocolIE-SingleContainer { {RICaction-ToBeSetup-ItemIEs} }
 
 RICaction-ToBeSetup-ItemIEs 	E2AP-PROTOCOL-IES ::= {
-{ ID id-RICaction-ToBeSetup-Item	CRITICALITY ignore 	TYPE RICaction-ToBeSetup-Item 	PRESENCE mandatory },
-...
+        { ID id-RICaction-ToBeSetup-Item	CRITICALITY ignore 	TYPE RICaction-ToBeSetup-Item 	PRESENCE mandatory },
+        ...
 }
 
 RICaction-ToBeSetup-Item ::= SEQUENCE {
-ricActionID					RICactionID,
-ricActionType				RICactionType,
-ricActionDefinition			RICactionDefinition 	OPTIONAL,
-ricSubsequentAction			RICsubsequentAction 	OPTIONAL,
-...
+        ricActionID					RICactionID,
+        ricActionType				RICactionType,
+        ricActionDefinition			RICactionDefinition 	OPTIONAL,
+        ricSubsequentAction			RICsubsequentAction 	OPTIONAL,
+        ...
 }
 
 -- **************************************************************
@@ -147,16 +184,16 @@ ricSubsequentAction			RICsubsequentAction 	OPTIONAL,
 --
 -- **************************************************************
 RICsubscriptionResponse ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container{{RICsubscriptionResponse-IEs}},
-...
+        protocolIEs					ProtocolIE-Container{{RICsubscriptionResponse-IEs}},
+        ...
 }
 
 RICsubscriptionResponse-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject		TYPE RICrequestID				PRESENCE mandatory } |
-{ ID id-RANfunctionID				CRITICALITY reject		TYPE RANfunctionID				PRESENCE mandatory } |
-{ ID id-RICactions-Admitted			CRITICALITY reject		TYPE RICaction-Admitted-List	PRESENCE mandatory } |
-{ ID id-RICactions-NotAdmitted		CRITICALITY reject		TYPE RICaction-NotAdmitted-List	PRESENCE optional },
-...
+        { ID id-RICrequestID				CRITICALITY reject		TYPE RICrequestID				PRESENCE mandatory } |
+        { ID id-RANfunctionID				CRITICALITY reject		TYPE RANfunctionID				PRESENCE mandatory } |
+        { ID id-RICactions-Admitted			CRITICALITY reject		TYPE RICaction-Admitted-List	PRESENCE mandatory } |
+        { ID id-RICactions-NotAdmitted		CRITICALITY reject		TYPE RICaction-NotAdmitted-List	PRESENCE optional },
+        ...
 }
 
 
@@ -164,26 +201,26 @@ RICsubscriptionResponse-IEs E2AP-PROTOCOL-IES ::= {
 RICaction-Admitted-List ::= SEQUENCE (SIZE(1..maxofRICactionID)) OF ProtocolIE-SingleContainer{{RICaction-Admitted-ItemIEs}}
 
 RICaction-Admitted-ItemIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICaction-Admitted-Item		CRITICALITY ignore		TYPE RICaction-Admitted-Item	PRESENCE mandatory },
-...
+        { ID id-RICaction-Admitted-Item		CRITICALITY ignore		TYPE RICaction-Admitted-Item	PRESENCE mandatory },
+        ...
 }
 
 RICaction-Admitted-Item ::= SEQUENCE {
-ricActionID					RICactionID,
-...
+        ricActionID					RICactionID,
+        ...
 }
 
 RICaction-NotAdmitted-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-SingleContainer { {RICaction-NotAdmitted-ItemIEs} }
 
 RICaction-NotAdmitted-ItemIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICaction-NotAdmitted-Item	CRITICALITY ignore	TYPE RICaction-NotAdmitted-Item		PRESENCE mandatory },
-...
+        { ID id-RICaction-NotAdmitted-Item	CRITICALITY ignore	TYPE RICaction-NotAdmitted-Item		PRESENCE mandatory },
+        ...
 }
 
 RICaction-NotAdmitted-Item ::= SEQUENCE {
-ricActionID					RICactionID,
-cause						Cause,
-...
+        ricActionID					RICactionID,
+        cause						Cause,
+        ...
 }
 
 -- **************************************************************
@@ -192,16 +229,16 @@ cause						Cause,
 --
 -- **************************************************************
 RICsubscriptionFailure ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICsubscriptionFailure-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionFailure-IEs}},
+        ...
 }
 
 RICsubscriptionFailure-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
-{ ID id-RICactions-NotAdmitted		CRITICALITY reject	TYPE RICaction-NotAdmitted-List		PRESENCE mandatory	}|
-{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-Cause		CRITICALITY reject	TYPE Cause		PRESENCE mandatory	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+        ...
 }
 
 -- **************************************************************
@@ -215,14 +252,14 @@ RICsubscriptionFailure-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICsubscriptionDeleteRequest ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteRequest-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteRequest-IEs}},
+        ...
 }
 
 RICsubscriptionDeleteRequest-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	},
+        ...
 }
 
 -- **************************************************************
@@ -231,14 +268,14 @@ RICsubscriptionDeleteRequest-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICsubscriptionDeleteResponse ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteResponse-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteResponse-IEs}},
+        ...
 }
 
 RICsubscriptionDeleteResponse-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	},
+        ...
 }
 -- **************************************************************
 --
@@ -246,16 +283,51 @@ RICsubscriptionDeleteResponse-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICsubscriptionDeleteFailure ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteFailure-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteFailure-IEs}},
+        ...
 }
 
 RICsubscriptionDeleteFailure-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
-{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
-{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+        ...
+}
+
+-- **************************************************************
+--
+-- RIC Subscription Delete Required Elementary Procedure
+--
+-- **************************************************************
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION DELETE REQUIRED
+--
+-- **************************************************************
+
+RICsubscriptionDeleteRequired ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteRequired-IEs}},
+        ...
+}
+
+RICsubscriptionDeleteRequired-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-RICsubscriptionToBeRemoved		CRITICALITY ignore	TYPE RICsubscription-List-withCause	PRESENCE mandatory	},
+        ...
+}
+
+RICsubscription-List-withCause ::= SEQUENCE (SIZE(1..maxofRICrequestID)) OF ProtocolIE-SingleContainer { {RICsubscription-withCause-ItemIEs} }
+
+RICsubscription-withCause-ItemIEs	E2AP-PROTOCOL-IES ::= {
+        { ID id-RICsubscription-withCause-Item	CRITICALITY ignore 	TYPE RICsubscription-withCause-Item 	PRESENCE mandatory	},
+        ...
+}
+
+RICsubscription-withCause-Item ::= SEQUENCE {
+        ricRequestID				RICrequestID,
+        ranFunctionID  				RANfunctionID,
+        cause						Cause,
+        ...
 }
 
 -- **************************************************************
@@ -269,20 +341,20 @@ RICsubscriptionDeleteFailure-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICindication ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICindication-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICindication-IEs}},
+        ...
 }
 
 RICindication-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
-{ ID id-RICactionID					CRITICALITY reject	TYPE RICactionID					PRESENCE mandatory	}|
-{ ID id-RICindicationSN				CRITICALITY reject	TYPE RICindicationSN				PRESENCE optional	}|
-{ ID id-RICindicationType			CRITICALITY reject	TYPE RICindicationType  			PRESENCE mandatory	}|
-{ ID id-RICindicationHeader			CRITICALITY reject	TYPE RICindicationHeader			PRESENCE mandatory	}|
-{ ID id-RICindicationMessage		CRITICALITY reject	TYPE RICindicationMessage			PRESENCE mandatory	}|
-{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-RICactionID					CRITICALITY reject	TYPE RICactionID					PRESENCE mandatory	}|
+        { ID id-RICindicationSN				CRITICALITY reject	TYPE RICindicationSN				PRESENCE optional	}|
+        { ID id-RICindicationType			CRITICALITY reject	TYPE RICindicationType  			PRESENCE mandatory	}|
+        { ID id-RICindicationHeader			CRITICALITY reject	TYPE RICindicationHeader			PRESENCE mandatory	}|
+        { ID id-RICindicationMessage		CRITICALITY reject	TYPE RICindicationMessage			PRESENCE mandatory	}|
+        { ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	},
+        ...
 }
 
 -- **************************************************************
@@ -296,18 +368,18 @@ RICindication-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICcontrolRequest ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICcontrolRequest-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICcontrolRequest-IEs}},
+        ...
 }
 
 RICcontrolRequest-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
-{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	}|
-{ ID id-RICcontrolHeader			CRITICALITY reject	TYPE RICcontrolHeader				PRESENCE mandatory	}|
-{ ID id-RICcontrolMessage			CRITICALITY reject	TYPE RICcontrolMessage				PRESENCE mandatory	}|
-{ ID id-RICcontrolAckRequest		CRITICALITY reject	TYPE RICcontrolAckRequest			PRESENCE optional	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	}|
+        { ID id-RICcontrolHeader			CRITICALITY reject	TYPE RICcontrolHeader				PRESENCE mandatory	}|
+        { ID id-RICcontrolMessage			CRITICALITY reject	TYPE RICcontrolMessage				PRESENCE mandatory	}|
+        { ID id-RICcontrolAckRequest		CRITICALITY reject	TYPE RICcontrolAckRequest			PRESENCE optional	},
+        ...
 }
 -- **************************************************************
 --
@@ -315,17 +387,16 @@ RICcontrolRequest-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICcontrolAcknowledge ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICcontrolAcknowledge-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICcontrolAcknowledge-IEs}},
+        ...
 }
 
 RICcontrolAcknowledge-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
-{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	}|
-{ ID id-RICcontrolStatus			CRITICALITY reject	TYPE RICcontrolStatus				PRESENCE mandatory	} |
-{ ID id-RICcontrolOutcome			CRITICALITY reject	TYPE RICcontrolOutcome				PRESENCE optional	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	}|
+        { ID id-RICcontrolOutcome			CRITICALITY reject	TYPE RICcontrolOutcome				PRESENCE optional	},
+        ...
 }
 -- **************************************************************
 --
@@ -333,17 +404,17 @@ RICcontrolAcknowledge-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICcontrolFailure ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICcontrolFailure-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICcontrolFailure-IEs}},
+        ...
 }
 
 RICcontrolFailure-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
-{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	}|
-{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	} |
-{ ID id-RICcontrolOutcome			CRITICALITY reject	TYPE RICcontrolOutcome				PRESENCE optional	},
-...
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory	}|
+        { ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional	}|
+        { ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+        { ID id-RICcontrolOutcome			CRITICALITY reject	TYPE RICcontrolOutcome				PRESENCE optional	},
+        ...
 }
 
 -- **************************************************************
@@ -363,16 +434,17 @@ RICcontrolFailure-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 ErrorIndication ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{ErrorIndication-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{ErrorIndication-IEs}},
+        ...
 }
 
 ErrorIndication-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID				PRESENCE optional	}|
-{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID				PRESENCE optional	}|
-{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional	}|
-{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE optional	}|
+        { ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID				PRESENCE optional	}|
+        { ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID				PRESENCE optional	}|
+        { ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+        ...
 }
 
 -- **************************************************************
@@ -387,14 +459,16 @@ ErrorIndication-IEs E2AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 E2setupRequest ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container		{ {E2setupRequestIEs} },
-...
+        protocolIEs		ProtocolIE-Container		{ {E2setupRequestIEs} },
+        ...
 }
 
 E2setupRequestIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-GlobalE2node-ID			CRITICALITY reject	TYPE GlobalE2node-ID				PRESENCE mandatory	}|
-{ ID id-RANfunctionsAdded		CRITICALITY reject	TYPE RANfunctions-List				PRESENCE optional	},
-...
+        { ID id-TransactionID					CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
+        { ID id-GlobalE2node-ID					CRITICALITY reject	TYPE GlobalE2node-ID				PRESENCE mandatory	}|
+        { ID id-RANfunctionsAdded				CRITICALITY reject	TYPE RANfunctions-List				PRESENCE mandatory	}|
+        { ID id-E2nodeComponentConfigAddition	CRITICALITY reject	TYPE E2nodeComponentConfigAddition-List	PRESENCE mandatory	},
+        ...
 }
 
 -- **************************************************************
@@ -404,15 +478,17 @@ E2setupRequestIEs E2AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 E2setupResponse ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container		{ {E2setupResponseIEs} },
-...
+        protocolIEs		ProtocolIE-Container		{ {E2setupResponseIEs} },
+        ...
 }
 
 E2setupResponseIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-GlobalRIC-ID				CRITICALITY reject	TYPE GlobalRIC-ID				PRESENCE mandatory	}|
-{ ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List		PRESENCE optional	}|
-{ ID id-RANfunctionsRejected		CRITICALITY reject	TYPE RANfunctionsIDcause-List	PRESENCE optional	},
-...
+        { ID id-TransactionID						CRITICALITY reject	TYPE TransactionID							PRESENCE mandatory	}|
+        { ID id-GlobalRIC-ID						CRITICALITY reject	TYPE GlobalRIC-ID							PRESENCE mandatory	}|
+        { ID id-RANfunctionsAccepted				CRITICALITY reject	TYPE RANfunctionsID-List					PRESENCE optional	}|
+        { ID id-RANfunctionsRejected				CRITICALITY reject	TYPE RANfunctionsIDcause-List				PRESENCE optional	}|
+        { ID id-E2nodeComponentConfigAdditionAck	CRITICALITY reject	TYPE E2nodeComponentConfigAdditionAck-List	PRESENCE mandatory	},
+        ...
 }
 
 -- **************************************************************
@@ -422,15 +498,272 @@ E2setupResponseIEs E2AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 E2setupFailure ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container		{ {E2setupFailureIEs} },
-...
+        protocolIEs		ProtocolIE-Container		{ {E2setupFailureIEs} },
+        ...
 }
 
 E2setupFailureIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
-{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
-{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+        { ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+        { ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	}|
+        { ID id-TNLinformation				CRITICALITY ignore	TYPE TNLinformation				PRESENCE optional	},
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 Connection Update Elementary Procedure
+--
+-- **************************************************************
+-- **************************************************************
+--
+-- E2 CONNECTION UPDATE
+--
+-- **************************************************************
+E2connectionUpdate ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{E2connectionUpdate-IEs}},
+        ...
+}
+
+E2connectionUpdate-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
+        { ID id-E2connectionUpdateAdd		CRITICALITY reject	TYPE E2connectionUpdate-List			PRESENCE optional	}|
+        { ID id-E2connectionUpdateRemove	CRITICALITY reject	TYPE E2connectionUpdateRemove-List		PRESENCE optional	}|
+        { ID id-E2connectionUpdateModify	CRITICALITY reject	TYPE E2connectionUpdate-List			PRESENCE optional	},
+        ...
+}
+
+E2connectionUpdate-List ::= SEQUENCE (SIZE(1..maxofTNLA)) OF ProtocolIE-SingleContainer { {E2connectionUpdate-ItemIEs} }
+
+E2connectionUpdate-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2connectionUpdate-Item			CRITICALITY ignore 	TYPE E2connectionUpdate-Item 		PRESENCE mandatory	},
+        ...
+}
+
+E2connectionUpdate-Item ::= SEQUENCE {
+        tnlInformation					TNLinformation,
+        tnlUsage  						TNLusage,
+        ...
+}
+
+E2connectionUpdateRemove-List ::= SEQUENCE (SIZE(1..maxofTNLA)) OF ProtocolIE-SingleContainer { {E2connectionUpdateRemove-ItemIEs} }
+
+E2connectionUpdateRemove-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2connectionUpdateRemove-Item	CRITICALITY ignore 	TYPE E2connectionUpdateRemove-Item 	PRESENCE mandatory	},
+        ...
+}
+
+E2connectionUpdateRemove-Item ::= SEQUENCE {
+        tnlInformation					TNLinformation,
+        ...
+}
+
+
+
+-- **************************************************************
+--
+-- E2 CONNECTION UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+E2connectionUpdateAcknowledge ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{E2connectionUpdateAck-IEs}},
+        ...
+}
+
+E2connectionUpdateAck-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
+        { ID id-E2connectionSetup			CRITICALITY reject	TYPE E2connectionUpdate-List			PRESENCE optional	}|
+        { ID id-E2connectionSetupFailed		CRITICALITY reject	TYPE E2connectionSetupFailed-List		PRESENCE optional	},
+        ...
+}
+
+E2connectionSetupFailed-List ::= SEQUENCE (SIZE(1..maxofTNLA)) OF ProtocolIE-SingleContainer { {E2connectionSetupFailed-ItemIEs} }
+
+E2connectionSetupFailed-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2connectionSetupFailed-Item			CRITICALITY ignore 	TYPE E2connectionSetupFailed-Item 		PRESENCE mandatory	},
+        ...
+}
+
+E2connectionSetupFailed-Item ::= SEQUENCE {
+        tnlInformation					TNLinformation,
+        cause							Cause,
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 CONNECTION UPDATE FAILURE
+--
+-- **************************************************************
+E2connectionUpdateFailure ::= SEQUENCE {
+        protocolIEs			ProtocolIE-Container	{{E2connectionUpdateFailure-IEs}},
+        ...
+}
+
+E2connectionUpdateFailure-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID						CRITICALITY reject	TYPE TransactionID							PRESENCE mandatory	}|
+        { ID id-Cause								CRITICALITY reject	TYPE Cause									PRESENCE optional	}|
+        { ID id-TimeToWait							CRITICALITY ignore	TYPE TimeToWait								PRESENCE optional	}|
+        { ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional	},
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 Node Configuration Update Elementary Procedure
+--
+-- **************************************************************
+-- **************************************************************
+--
+-- E2 NODE CONFIGURATION UPDATE
+--
+-- **************************************************************
+E2nodeConfigurationUpdate ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{E2nodeConfigurationUpdate-IEs}},
+        ...
+}
+
+E2nodeConfigurationUpdate-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID					CRITICALITY reject	TYPE TransactionID								PRESENCE mandatory	}|
+        { ID id-GlobalE2node-ID					CRITICALITY reject	TYPE GlobalE2node-ID							PRESENCE optional	}|
+        { ID id-E2nodeComponentConfigAddition	CRITICALITY reject	TYPE E2nodeComponentConfigAddition-List			PRESENCE optional	}|
+        { ID id-E2nodeComponentConfigUpdate		CRITICALITY reject	TYPE E2nodeComponentConfigUpdate-List			PRESENCE optional	}|
+        { ID id-E2nodeComponentConfigRemoval	CRITICALITY reject	TYPE E2nodeComponentConfigRemoval-List			PRESENCE optional	}|
+        { ID id-E2nodeTNLassociationRemoval		CRITICALITY reject	TYPE E2nodeTNLassociationRemoval-List			PRESENCE optional	},
+        ...
+}
+
+E2nodeComponentConfigAddition-List ::= SEQUENCE (SIZE(1..maxofE2nodeComponents)) OF ProtocolIE-SingleContainer { {E2nodeComponentConfigAddition-ItemIEs} }
+
+E2nodeComponentConfigAddition-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2nodeComponentConfigAddition-Item	CRITICALITY reject 	TYPE E2nodeComponentConfigAddition-Item 		PRESENCE mandatory	},
+        ...
+}
+
+E2nodeComponentConfigAddition-Item ::= SEQUENCE {
+        e2nodeComponentInterfaceType		E2nodeComponentInterfaceType,
+        e2nodeComponentID					E2nodeComponentID,
+        e2nodeComponentConfiguration		E2nodeComponentConfiguration,
+        ...
+}
+
+E2nodeComponentConfigUpdate-List ::= SEQUENCE (SIZE(1..maxofE2nodeComponents)) OF ProtocolIE-SingleContainer { {E2nodeComponentConfigUpdate-ItemIEs} }
+
+E2nodeComponentConfigUpdate-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2nodeComponentConfigUpdate-Item	CRITICALITY reject 	TYPE E2nodeComponentConfigUpdate-Item 		PRESENCE mandatory	},
+        ...
+}
+
+E2nodeComponentConfigUpdate-Item ::= SEQUENCE {
+        e2nodeComponentInterfaceType		E2nodeComponentInterfaceType,
+        e2nodeComponentID					E2nodeComponentID,
+        e2nodeComponentConfiguration		E2nodeComponentConfiguration,
+        ...
+}
+
+E2nodeComponentConfigRemoval-List ::= SEQUENCE (SIZE(1..maxofE2nodeComponents)) OF ProtocolIE-SingleContainer { {E2nodeComponentConfigRemoval-ItemIEs} }
+
+E2nodeComponentConfigRemoval-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2nodeComponentConfigRemoval-Item	CRITICALITY reject 	TYPE E2nodeComponentConfigRemoval-Item 		PRESENCE mandatory	},
+        ...
+}
+
+E2nodeComponentConfigRemoval-Item ::= SEQUENCE {
+        e2nodeComponentInterfaceType		E2nodeComponentInterfaceType,
+        e2nodeComponentID					E2nodeComponentID,
+        ...
+}
+
+E2nodeTNLassociationRemoval-List ::= SEQUENCE (SIZE(1..maxofTNLA)) OF ProtocolIE-SingleContainer { {E2nodeTNLassociationRemoval-ItemIEs} }
+
+E2nodeTNLassociationRemoval-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2nodeTNLassociationRemoval-Item	CRITICALITY reject 	TYPE E2nodeTNLassociationRemoval-Item 		PRESENCE mandatory	},
+        ...
+}
+
+E2nodeTNLassociationRemoval-Item ::= SEQUENCE {
+        tnlInformation						TNLinformation,
+        tnlInformationRIC					TNLinformation,
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 NODE CONFIGURATION UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+E2nodeConfigurationUpdateAcknowledge ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{{E2nodeConfigurationUpdateAcknowledge-IEs}},
+        ...
+}
+
+E2nodeConfigurationUpdateAcknowledge-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID							CRITICALITY reject	TYPE TransactionID								PRESENCE mandatory	}|
+        { ID id-E2nodeComponentConfigAdditionAck		CRITICALITY reject	TYPE E2nodeComponentConfigAdditionAck-List		PRESENCE optional	}|
+        { ID id-E2nodeComponentConfigUpdateAck			CRITICALITY reject	TYPE E2nodeComponentConfigUpdateAck-List		PRESENCE optional	}|
+        { ID id-E2nodeComponentConfigRemovalAck			CRITICALITY reject	TYPE E2nodeComponentConfigRemovalAck-List		PRESENCE optional	},
+        ...
+}
+
+E2nodeComponentConfigAdditionAck-List ::= SEQUENCE (SIZE(1..maxofE2nodeComponents)) OF ProtocolIE-SingleContainer { {E2nodeComponentConfigAdditionAck-ItemIEs} }
+
+E2nodeComponentConfigAdditionAck-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2nodeComponentConfigAdditionAck-Item			CRITICALITY reject 	TYPE E2nodeComponentConfigAdditionAck-Item 	PRESENCE mandatory	},
+        ...
+}
+
+E2nodeComponentConfigAdditionAck-Item ::= SEQUENCE {
+        e2nodeComponentInterfaceType		E2nodeComponentInterfaceType,
+        e2nodeComponentID					E2nodeComponentID,
+        e2nodeComponentConfigurationAck		E2nodeComponentConfigurationAck,
+        ...
+}
+
+E2nodeComponentConfigUpdateAck-List ::= SEQUENCE (SIZE(1..maxofE2nodeComponents)) OF ProtocolIE-SingleContainer { {E2nodeComponentConfigUpdateAck-ItemIEs} }
+
+E2nodeComponentConfigUpdateAck-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2nodeComponentConfigUpdateAck-Item			CRITICALITY reject 	TYPE E2nodeComponentConfigUpdateAck-Item 	PRESENCE mandatory	},
+        ...
+}
+
+E2nodeComponentConfigUpdateAck-Item ::= SEQUENCE {
+        e2nodeComponentInterfaceType		E2nodeComponentInterfaceType,
+        e2nodeComponentID					E2nodeComponentID,
+        e2nodeComponentConfigurationAck		E2nodeComponentConfigurationAck,
+        ...
+}
+
+E2nodeComponentConfigRemovalAck-List ::= SEQUENCE (SIZE(1..maxofE2nodeComponents)) OF ProtocolIE-SingleContainer { {E2nodeComponentConfigRemovalAck-ItemIEs} }
+
+E2nodeComponentConfigRemovalAck-ItemIEs 	E2AP-PROTOCOL-IES ::= {
+        { ID id-E2nodeComponentConfigRemovalAck-Item			CRITICALITY reject 	TYPE E2nodeComponentConfigRemovalAck-Item 	PRESENCE mandatory	},
+        ...
+}
+
+E2nodeComponentConfigRemovalAck-Item ::= SEQUENCE {
+        e2nodeComponentInterfaceType		E2nodeComponentInterfaceType,
+        e2nodeComponentID					E2nodeComponentID,
+        e2nodeComponentConfigurationAck		E2nodeComponentConfigurationAck,
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 NODE CONFIGURATION UPDATE FAILURE
+--
+-- **************************************************************
+E2nodeConfigurationUpdateFailure ::= SEQUENCE {
+        protocolIEs			ProtocolIE-Container	{{E2nodeConfigurationUpdateFailure-IEs}},
+        ...
+}
+
+E2nodeConfigurationUpdateFailure-IEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID						CRITICALITY reject	TYPE TransactionID								PRESENCE mandatory	}|
+        { ID id-Cause								CRITICALITY ignore	TYPE Cause										PRESENCE mandatory	}|
+        { ID id-TimeToWait							CRITICALITY ignore	TYPE TimeToWait									PRESENCE optional	}|
+        { ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional	},
+        ...
 }
 
 -- **************************************************************
@@ -446,13 +779,14 @@ E2setupFailureIEs E2AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 ResetRequest ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container		{ {ResetRequestIEs} },
-...
+        protocolIEs		ProtocolIE-Container		{ {ResetRequestIEs} },
+        ...
 }
 
 ResetRequestIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+        { ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
+        ...
 }
 
 -- **************************************************************
@@ -462,13 +796,14 @@ ResetRequestIEs E2AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 ResetResponse ::= SEQUENCE {
-protocolIEs		ProtocolIE-Container		{ {ResetResponseIEs} },
-...
+        protocolIEs		ProtocolIE-Container		{ {ResetResponseIEs} },
+        ...
 }
 
 ResetResponseIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+        ...
 }
 
 -- **************************************************************
@@ -482,45 +817,45 @@ ResetResponseIEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICserviceUpdate ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICserviceUpdate-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICserviceUpdate-IEs}},
+        ...
 }
 
 RICserviceUpdate-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RANfunctionsAdded			CRITICALITY reject	TYPE RANfunctions-List				PRESENCE optional	}|
-{ ID id-RANfunctionsModified		CRITICALITY reject	TYPE RANfunctions-List				PRESENCE optional	}|
-{ ID id-RANfunctionsDeleted			CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+        { ID id-RANfunctionsAdded			CRITICALITY reject	TYPE RANfunctions-List				PRESENCE optional	}|
+        { ID id-RANfunctionsModified		CRITICALITY reject	TYPE RANfunctions-List				PRESENCE optional	}|
+        { ID id-RANfunctionsDeleted			CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional	},
+        ...
 }
 
-RANfunctions-List ::= SEQUENCE (SIZE(0..maxofRANfunctionID)) OF ProtocolIE-SingleContainer { {RANfunction-ItemIEs} }
--- TODO (dodgy). also note that NGAP doesn't do this...
---RANfunctions-List ::= SEQUENCE (SIZE(0..maxofRANfunctionID)) OF RANfunction-ItemIEs
+RANfunctions-List ::= SEQUENCE (SIZE(1..maxofRANfunctionID)) OF ProtocolIE-SingleContainer { {RANfunction-ItemIEs} }
 
 RANfunction-ItemIEs 	E2AP-PROTOCOL-IES ::= {
-{ ID id-RANfunction-Item			CRITICALITY ignore 	TYPE RANfunction-Item 				PRESENCE mandatory	},
-...
+        { ID id-RANfunction-Item			CRITICALITY ignore 	TYPE RANfunction-Item 				PRESENCE mandatory	},
+        ...
 }
 
 
 RANfunction-Item ::= SEQUENCE {
-ranFunctionID				RANfunctionID,
-ranFunctionDefinition  		RANfunctionDefinition,
-ranFunctionRevision			RANfunctionRevision,
-...
+        ranFunctionID				RANfunctionID,
+        ranFunctionDefinition  		RANfunctionDefinition,
+        ranFunctionRevision			RANfunctionRevision,
+        ranFunctionOID				RANfunctionOID,
+        ...
 }
 
-RANfunctionsID-List ::= SEQUENCE (SIZE(0..maxofRANfunctionID)) OF ProtocolIE-SingleContainer{{RANfunctionID-ItemIEs}}
+RANfunctionsID-List ::= SEQUENCE (SIZE(1..maxofRANfunctionID)) OF ProtocolIE-SingleContainer{{RANfunctionID-ItemIEs}}
 
 RANfunctionID-ItemIEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RANfunctionID-Item			CRITICALITY ignore		TYPE RANfunctionID-Item			PRESENCE mandatory	},
-...
+        { ID id-RANfunctionID-Item			CRITICALITY ignore		TYPE RANfunctionID-Item			PRESENCE mandatory	},
+        ...
 }
 
 RANfunctionID-Item ::= SEQUENCE {
-ranFunctionID				RANfunctionID,
-ranFunctionRevision			RANfunctionRevision,
-...
+        ranFunctionID				RANfunctionID,
+        ranFunctionRevision			RANfunctionRevision,
+        ...
 }
 
 -- **************************************************************
@@ -529,28 +864,29 @@ ranFunctionRevision			RANfunctionRevision,
 --
 -- **************************************************************
 RICserviceUpdateAcknowledge ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICserviceUpdateAcknowledge-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICserviceUpdateAcknowledge-IEs}},
+        ...
 }
 
 RICserviceUpdateAcknowledge-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional	}|
-{ ID id-RANfunctionsRejected		CRITICALITY reject	TYPE RANfunctionsIDcause-List		PRESENCE optional	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+        { ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE mandatory	}|
+        { ID id-RANfunctionsRejected		CRITICALITY reject	TYPE RANfunctionsIDcause-List		PRESENCE optional	},
+        ...
 }
 
-RANfunctionsIDcause-List ::= SEQUENCE (SIZE(0..maxofRANfunctionID)) OF ProtocolIE-SingleContainer { {RANfunctionIDcause-ItemIEs} }
+RANfunctionsIDcause-List ::= SEQUENCE (SIZE(1..maxofRANfunctionID)) OF ProtocolIE-SingleContainer { {RANfunctionIDcause-ItemIEs} }
 
 RANfunctionIDcause-ItemIEs 	E2AP-PROTOCOL-IES ::= {
-{ ID id-RANfunctionIEcause-Item		CRITICALITY ignore 	TYPE RANfunctionIDcause-Item 		PRESENCE mandatory	},
-...
+        { ID id-RANfunctionIEcause-Item		CRITICALITY ignore 	TYPE RANfunctionIDcause-Item 		PRESENCE mandatory	},
+        ...
 }
 
 
 RANfunctionIDcause-Item ::= SEQUENCE {
-ranFunctionID				RANfunctionID,
-cause						Cause,
-...
+        ranFunctionID				RANfunctionID,
+        cause						Cause,
+        ...
 }
 
 
@@ -560,15 +896,16 @@ cause						Cause,
 --
 -- **************************************************************
 RICserviceUpdateFailure ::= SEQUENCE {
-protocolIEs			ProtocolIE-Container	{{RICserviceUpdateFailure-IEs}},
-...
+        protocolIEs			ProtocolIE-Container	{{RICserviceUpdateFailure-IEs}},
+        ...
 }
 
 RICserviceUpdateFailure-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RANfunctionsRejected		CRITICALITY ignore	TYPE RANfunctionsIDcause-List		PRESENCE optional	}|
-{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait						PRESENCE optional	}|
-{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+        { ID id-Cause						CRITICALITY reject	TYPE Cause							PRESENCE mandatory	}|
+        { ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait						PRESENCE optional	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+        ...
 }
 
 -- **************************************************************
@@ -582,13 +919,70 @@ RICserviceUpdateFailure-IEs E2AP-PROTOCOL-IES ::= {
 --
 -- **************************************************************
 RICserviceQuery ::= SEQUENCE {
-protocolIEs					ProtocolIE-Container	{{RICserviceQuery-IEs}},
-...
+        protocolIEs					ProtocolIE-Container	{{RICserviceQuery-IEs}},
+        ...
 }
 
 RICserviceQuery-IEs E2AP-PROTOCOL-IES ::= {
-{ ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional	},
-...
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+        { ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional	},
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 Removal Elementary Procedure
+--
+-- **************************************************************
+-- **************************************************************
+--
+-- E2 REMOVAL REQUEST
+--
+-- **************************************************************
+
+E2RemovalRequest ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{ {E2RemovalRequestIEs} },
+        ...
+}
+
+E2RemovalRequestIEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	},
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 REMOVAL RESPONSE
+--
+-- **************************************************************
+
+E2RemovalResponse ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{ {E2RemovalResponseIEs} },
+        ...
+}
+
+E2RemovalResponseIEs  E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID							PRESENCE mandatory	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+        ...
+}
+
+-- **************************************************************
+--
+-- E2 REMOVAL FAILURE
+--
+-- **************************************************************
+
+E2RemovalFailure ::= SEQUENCE {
+        protocolIEs					ProtocolIE-Container	{ {E2RemovalFailureIEs} },
+        ...
+}
+
+E2RemovalFailureIEs E2AP-PROTOCOL-IES ::= {
+        { ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+        { ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+        { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+        ...
 }
 
 END

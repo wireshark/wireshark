@@ -6,7 +6,7 @@
 -- **************************************************************
 
 E2AP-PDU-Descriptions {
-iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1 (1) e2ap(1) e2ap-PDU-Descriptions (0) }
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version2 (2) e2ap(1) e2ap-PDU-Descriptions (0) }
 
 DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -19,43 +19,57 @@ BEGIN
 -- **************************************************************
 
 IMPORTS
-Criticality,
-ProcedureCode
+        Criticality,
+        ProcedureCode
 FROM E2AP-CommonDataTypes
 
 
 
-E2setupFailure,
-E2setupRequest,
-E2setupResponse,
-ErrorIndication,
-ResetRequest,
-ResetResponse,
-RICcontrolAcknowledge,
-RICcontrolFailure,
-RICcontrolRequest,
-RICindication,
-RICserviceQuery,
-RICserviceUpdate,
-RICserviceUpdateAcknowledge,
-RICserviceUpdateFailure,
-RICsubscriptionFailure,
-RICsubscriptionRequest,
-RICsubscriptionResponse,
-RICsubscriptionDeleteFailure,
-RICsubscriptionDeleteRequest,
-RICsubscriptionDeleteResponse
+        E2connectionUpdate,
+        E2connectionUpdateAcknowledge,
+        E2connectionUpdateFailure,
+        E2nodeConfigurationUpdate,
+        E2nodeConfigurationUpdateAcknowledge,
+        E2nodeConfigurationUpdateFailure,
+        E2setupFailure,
+        E2setupRequest,
+        E2setupResponse,
+        ErrorIndication,
+        ResetRequest,
+        ResetResponse,
+        RICcontrolAcknowledge,
+        RICcontrolFailure,
+        RICcontrolRequest,
+        RICindication,
+        RICserviceQuery,
+        RICserviceUpdate,
+        RICserviceUpdateAcknowledge,
+        RICserviceUpdateFailure,
+        RICsubscriptionFailure,
+        RICsubscriptionRequest,
+        RICsubscriptionResponse,
+        RICsubscriptionDeleteFailure,
+        RICsubscriptionDeleteRequest,
+        RICsubscriptionDeleteResponse,
+        RICsubscriptionDeleteRequired,
+        E2RemovalFailure,
+        E2RemovalRequest,
+        E2RemovalResponse
 FROM E2AP-PDU-Contents
 
-id-E2setup,
-id-ErrorIndication,
-id-Reset,
-id-RICcontrol,
-id-RICindication,
-id-RICserviceQuery,
-id-RICserviceUpdate,
-id-RICsubscription,
-id-RICsubscriptionDelete
+        id-E2connectionUpdate,
+        id-E2nodeConfigurationUpdate,
+        id-E2setup,
+        id-ErrorIndication,
+        id-Reset,
+        id-RICcontrol,
+        id-RICindication,
+        id-RICserviceQuery,
+        id-RICserviceUpdate,
+        id-RICsubscription,
+        id-RICsubscriptionDelete,
+        id-RICsubscriptionDeleteRequired,
+        id-E2removal
 FROM E2AP-Constants;
 
 -- **************************************************************
@@ -65,19 +79,19 @@ FROM E2AP-Constants;
 -- **************************************************************
 
 E2AP-ELEMENTARY-PROCEDURE ::= CLASS {
-&InitiatingMessage										,
-&SuccessfulOutcome							OPTIONAL	,
-&UnsuccessfulOutcome						OPTIONAL	,
-&procedureCode				ProcedureCode	UNIQUE	,
-&criticality				Criticality		DEFAULT ignore
+        &InitiatingMessage										,
+        &SuccessfulOutcome							OPTIONAL	,
+        &UnsuccessfulOutcome						OPTIONAL	,
+        &procedureCode				ProcedureCode	UNIQUE	,
+        &criticality				Criticality		DEFAULT ignore
 }
 
 WITH SYNTAX {
-INITIATING MESSAGE			&InitiatingMessage
-[SUCCESSFUL OUTCOME			&SuccessfulOutcome]
-[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
-PROCEDURE CODE				&procedureCode
-[CRITICALITY				&criticality]
+        INITIATING MESSAGE			&InitiatingMessage
+        [SUCCESSFUL OUTCOME			&SuccessfulOutcome]
+        [UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+        PROCEDURE CODE				&procedureCode
+        [CRITICALITY				&criticality]
 }
 
 -- **************************************************************
@@ -87,28 +101,28 @@ PROCEDURE CODE				&procedureCode
 -- **************************************************************
 
 E2AP-PDU ::= CHOICE {
-initiatingMessage			InitiatingMessage,
-successfulOutcome			SuccessfulOutcome,
-unsuccessfulOutcome			UnsuccessfulOutcome,
-...
+        initiatingMessage			InitiatingMessage,
+        successfulOutcome			SuccessfulOutcome,
+        unsuccessfulOutcome			UnsuccessfulOutcome,
+        ...
 }
 
 InitiatingMessage ::= SEQUENCE {
-procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
-criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-value			E2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+        procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
+        criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+        value			E2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 SuccessfulOutcome ::= SEQUENCE {
-procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
-criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-value			E2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+        procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
+        criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+        value			E2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 UnsuccessfulOutcome ::= SEQUENCE {
-procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
-criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-value			E2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+        procedureCode	E2AP-ELEMENTARY-PROCEDURE.&procedureCode		({E2AP-ELEMENTARY-PROCEDURES}),
+        criticality		E2AP-ELEMENTARY-PROCEDURE.&criticality			({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+        value			E2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 -- **************************************************************
@@ -118,26 +132,30 @@ value			E2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({E2AP-ELEMENTARY-PROCEDU
 -- **************************************************************
 
 E2AP-ELEMENTARY-PROCEDURES E2AP-ELEMENTARY-PROCEDURE ::= {
-E2AP-ELEMENTARY-PROCEDURES-CLASS-1					|
-E2AP-ELEMENTARY-PROCEDURES-CLASS-2,
-...
+        E2AP-ELEMENTARY-PROCEDURES-CLASS-1					|
+        E2AP-ELEMENTARY-PROCEDURES-CLASS-2,
+        ...
 }
 
 E2AP-ELEMENTARY-PROCEDURES-CLASS-1 E2AP-ELEMENTARY-PROCEDURE ::= {
-ricSubscription										|
-ricSubscriptionDelete								|
-ricServiceUpdate									|
-ricControl											|
-e2setup												|
-reset,
-...
+        ricSubscription										|
+        ricSubscriptionDelete								|
+        ricServiceUpdate									|
+        ricControl											|
+        e2setup												|
+        e2nodeConfigurationUpdate							|
+        e2connectionUpdate									|
+        reset												|
+        e2removal,
+        ...
 }
 
 E2AP-ELEMENTARY-PROCEDURES-CLASS-2 E2AP-ELEMENTARY-PROCEDURE ::= {
-ricIndication										|
-ricServiceQuery										|
-errorIndication,
-...
+        ricIndication										|
+        ricServiceQuery										|
+        errorIndication										|
+        ricSubscriptionDeleteRequired,
+        ...
 }
 
 -- **************************************************************
@@ -146,71 +164,102 @@ errorIndication,
 --
 -- **************************************************************
 
+-- New for v01.01
+e2connectionUpdate		E2AP-ELEMENTARY-PROCEDURE ::= {
+        INITIATING MESSAGE		E2connectionUpdate
+        SUCCESSFUL OUTCOME		E2connectionUpdateAcknowledge
+        UNSUCCESSFUL OUTCOME	E2connectionUpdateFailure
+        PROCEDURE CODE			id-E2connectionUpdate
+        CRITICALITY				reject
+}
+
+e2nodeConfigurationUpdate	E2AP-ELEMENTARY-PROCEDURE ::= {
+        INITIATING MESSAGE		E2nodeConfigurationUpdate
+        SUCCESSFUL OUTCOME		E2nodeConfigurationUpdateAcknowledge
+        UNSUCCESSFUL OUTCOME	E2nodeConfigurationUpdateFailure
+        PROCEDURE CODE			id-E2nodeConfigurationUpdate
+        CRITICALITY				reject
+}
+
+-- New for v02.01
+e2removal	E2AP-ELEMENTARY-PROCEDURE ::= {
+        INITIATING MESSAGE		E2RemovalRequest
+        SUCCESSFUL OUTCOME		E2RemovalResponse
+        UNSUCCESSFUL OUTCOME	E2RemovalFailure
+        PROCEDURE CODE			id-E2removal
+        CRITICALITY				reject
+}
+
 e2setup	E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		E2setupRequest
-SUCCESSFUL OUTCOME		E2setupResponse
-UNSUCCESSFUL OUTCOME	E2setupFailure
-PROCEDURE CODE			id-E2setup
-CRITICALITY				reject
+        INITIATING MESSAGE		E2setupRequest
+        SUCCESSFUL OUTCOME		E2setupResponse
+        UNSUCCESSFUL OUTCOME	E2setupFailure
+        PROCEDURE CODE			id-E2setup
+        CRITICALITY				reject
 }
 
 errorIndication E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		ErrorIndication
-PROCEDURE CODE			id-ErrorIndication
-CRITICALITY				ignore
+        INITIATING MESSAGE		ErrorIndication
+        PROCEDURE CODE			id-ErrorIndication
+        CRITICALITY				ignore
 }
 
 reset	E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		ResetRequest
-SUCCESSFUL OUTCOME		ResetResponse
-PROCEDURE CODE			id-Reset
-CRITICALITY				reject
+        INITIATING MESSAGE		ResetRequest
+        SUCCESSFUL OUTCOME		ResetResponse
+        PROCEDURE CODE			id-Reset
+        CRITICALITY				reject
 }
 
 ricControl E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		RICcontrolRequest
-SUCCESSFUL OUTCOME		RICcontrolAcknowledge
-UNSUCCESSFUL OUTCOME	RICcontrolFailure
-PROCEDURE CODE			id-RICcontrol
-CRITICALITY				reject
+        INITIATING MESSAGE		RICcontrolRequest
+        SUCCESSFUL OUTCOME		RICcontrolAcknowledge
+        UNSUCCESSFUL OUTCOME	RICcontrolFailure
+        PROCEDURE CODE			id-RICcontrol
+        CRITICALITY				reject
 }
 
 ricIndication E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		RICindication
-PROCEDURE CODE			id-RICindication
-CRITICALITY				ignore
+        INITIATING MESSAGE		RICindication
+        PROCEDURE CODE			id-RICindication
+        CRITICALITY				ignore
 }
 
 ricServiceQuery E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		RICserviceQuery
-PROCEDURE CODE			id-RICserviceQuery
-CRITICALITY				ignore
+        INITIATING MESSAGE		RICserviceQuery
+        PROCEDURE CODE			id-RICserviceQuery
+        CRITICALITY				ignore
 }
 
 ricServiceUpdate E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		RICserviceUpdate
-SUCCESSFUL OUTCOME		RICserviceUpdateAcknowledge
-UNSUCCESSFUL OUTCOME	RICserviceUpdateFailure
-PROCEDURE CODE			id-RICserviceUpdate
-CRITICALITY				reject
+        INITIATING MESSAGE		RICserviceUpdate
+        SUCCESSFUL OUTCOME		RICserviceUpdateAcknowledge
+        UNSUCCESSFUL OUTCOME	RICserviceUpdateFailure
+        PROCEDURE CODE			id-RICserviceUpdate
+        CRITICALITY				reject
 }
 
 ricSubscription E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		RICsubscriptionRequest
-SUCCESSFUL OUTCOME		RICsubscriptionResponse
-UNSUCCESSFUL OUTCOME	RICsubscriptionFailure
-PROCEDURE CODE			id-RICsubscription
-CRITICALITY				reject
+        INITIATING MESSAGE		RICsubscriptionRequest
+        SUCCESSFUL OUTCOME		RICsubscriptionResponse
+        UNSUCCESSFUL OUTCOME	RICsubscriptionFailure
+        PROCEDURE CODE			id-RICsubscription
+        CRITICALITY				reject
 }
 
 ricSubscriptionDelete E2AP-ELEMENTARY-PROCEDURE ::= {
-INITIATING MESSAGE		RICsubscriptionDeleteRequest
-SUCCESSFUL OUTCOME		RICsubscriptionDeleteResponse
-UNSUCCESSFUL OUTCOME	RICsubscriptionDeleteFailure
-PROCEDURE CODE			id-RICsubscriptionDelete
-CRITICALITY				reject
+        INITIATING MESSAGE		RICsubscriptionDeleteRequest
+        SUCCESSFUL OUTCOME		RICsubscriptionDeleteResponse
+        UNSUCCESSFUL OUTCOME	RICsubscriptionDeleteFailure
+        PROCEDURE CODE			id-RICsubscriptionDelete
+        CRITICALITY				reject
 }
 
+ricSubscriptionDeleteRequired E2AP-ELEMENTARY-PROCEDURE ::= {
+        INITIATING MESSAGE		RICsubscriptionDeleteRequired
+        PROCEDURE CODE			id-RICsubscriptionDeleteRequired
+        CRITICALITY				ignore
+}
 
 END
 -- ASN1STOP
