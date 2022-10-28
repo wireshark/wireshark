@@ -55,6 +55,7 @@ maxofE2nodeComponents						INTEGER ::= 1024
 maxofRANfunctionID							INTEGER ::= 256
 maxofRICactionID							INTEGER ::= 16
 maxofTNLA									INTEGER ::= 32
+-- N.B. value taken from v02.03 (rather than 4294967295, which causes a compilation issue with clang)
 maxofRICrequestID							INTEGER ::= 1024
 
 
