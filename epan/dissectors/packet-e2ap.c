@@ -56,7 +56,7 @@ static dissector_handle_t e2ap_handle;
 #define maxofRANfunctionID             256
 #define maxofRICactionID               16
 #define maxofTNLA                      32
-#define maxofRICrequestID              4294967295
+#define maxofRICrequestID              1024
 #define maxE1APid                      65535
 #define maxF1APid                      4
 #define maxEARFCN                      65535
