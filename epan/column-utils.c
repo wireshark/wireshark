@@ -471,7 +471,7 @@ col_append_frame_number(packet_info *pinfo, const gint col, const gchar *fmt_str
 static void
 col_do_append_fstr(column_info *cinfo, const int el, const char *separator, const char *format, va_list ap)
 {
-  size_t len, max_len, sep_len;
+  size_t len, max_len, sep_len, pos;
   int    i;
   col_item_t* col_item;
   char tmp[COL_BUF_MAX_LEN];
@@ -505,8 +505,11 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
         va_list ap2;
 
         va_copy(ap2, ap);
-        vsnprintf(tmp, sizeof(tmp), format, ap2);
+        pos = vsnprintf(tmp, sizeof(tmp), format, ap2);
         va_end(ap2);
+        if (pos >= max_len) {
+          ws_utf8_truncate(tmp, max_len - 1);
+        }
         WS_UTF_8_CHECK(tmp, -1);
         ws_label_strcpy(col_item->col_buf, max_len, len, tmp, 0);
       }
@@ -556,7 +559,7 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
   int         i;
   char        orig_buf[COL_BUF_MAX_LEN];
   const char *orig;
-  int         max_len;
+  size_t      max_len, pos;
   col_item_t* col_item;
   char tmp[COL_BUF_MAX_LEN];
 
@@ -579,10 +582,13 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
         orig = orig_buf;
       }
       va_start(ap, format);
-      vsnprintf(tmp, sizeof(tmp), format, ap);
+      pos = vsnprintf(tmp, sizeof(tmp), format, ap);
       va_end(ap);
+      if (pos >= max_len) {
+        ws_utf8_truncate(tmp, max_len - 1);
+      }
       WS_UTF_8_CHECK(tmp, -1);
-      ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
+      pos = ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
 
       /*
        * Move the fence, unless it's at the beginning of the string.
@@ -590,7 +596,10 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
       if (col_item->col_fence > 0)
         col_item->col_fence += (int) strlen(col_item->col_buf);
 
-      (void) g_strlcat(col_item->col_buf, orig, max_len);
+      /*
+       * Append the original data.
+       */
+      ws_label_strcpy(col_item->col_buf, max_len, pos, orig, 0);
       col_item->col_data = col_item->col_buf;
     }
   }
@@ -602,7 +611,7 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
   int         i;
   char        orig_buf[COL_BUF_MAX_LEN];
   const char *orig;
-  int         max_len;
+  size_t      max_len, pos;
   col_item_t* col_item;
   char tmp[COL_BUF_MAX_LEN];
 
@@ -625,10 +634,13 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
         orig = orig_buf;
       }
       va_start(ap, format);
-      vsnprintf(tmp, sizeof(tmp), format, ap);
+      pos = vsnprintf(tmp, sizeof(tmp), format, ap);
       va_end(ap);
+      if (pos >= max_len) {
+        ws_utf8_truncate(tmp, max_len - 1);
+      }
       WS_UTF_8_CHECK(tmp, -1);
-      ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
+      pos = ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
 
       /*
        * Move the fence if it exists, else create a new fence at the
@@ -639,7 +651,10 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
       } else {
         col_item->col_fence = (int) strlen(col_item->col_buf);
       }
-      (void) g_strlcat(col_item->col_buf, orig, max_len);
+      /*
+       * Append the original data.
+       */
+      ws_label_strcpy(col_item->col_buf, max_len, pos, orig, 0);
       col_item->col_data = col_item->col_buf;
     }
   }
@@ -779,7 +794,7 @@ void
 col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
 {
   va_list ap;
-  int     i;
+  int     i, pos;
   int     max_len;
   col_item_t* col_item;
   char tmp[COL_BUF_MAX_LEN];
@@ -808,8 +823,11 @@ col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
         col_item->col_data = col_item->col_buf;
       }
       va_start(ap, format);
-      vsnprintf(tmp, sizeof(tmp), format, ap);
+      pos = vsnprintf(tmp, sizeof(tmp), format, ap);
       va_end(ap);
+      if (pos >= max_len) {
+        ws_utf8_truncate(tmp, max_len - 1);
+      }
       WS_UTF_8_CHECK(tmp, -1);
       ws_label_strcpy(col_item->col_buf, max_len, col_item->col_fence, tmp, 0);
     }
