@@ -535,6 +535,10 @@ void TrafficTree::customContextMenu(const QPoint &pos)
     bool isConv = false;
 
     QModelIndex idx = indexAt(pos);
+    TrafficDataFilterProxy * proxy = qobject_cast<TrafficDataFilterProxy *>(model());
+    if (proxy)
+        idx = proxy->mapToSource(idx);
+
     ConversationDataModel * model = qobject_cast<ConversationDataModel *>(dataModel());
     if (model)
         isConv = true;
