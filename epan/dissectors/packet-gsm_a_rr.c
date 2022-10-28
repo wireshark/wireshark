@@ -1470,10 +1470,13 @@ static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, 
  * that we don't handle,
  * or a malformed PDU.
  *
- * len:        total length of buffer
  * bit_offset: bit offset in TVB of first bit to be examined
+ * octet_len:  total length of buffer
+ * pattern:    padding pattern (usually 0x2b or 0x00)
  */
-static void gsm_rr_csn_padding_bits(proto_tree* tree, tvbuff_t* tvb, guint16 bit_offset, guint8 octet_len)
+static void gsm_rr_padding_bits(proto_tree* tree, tvbuff_t* tvb,
+                                guint16 bit_offset, guint8 octet_len,
+                                const guint8 pattern)
 {
     guint    i;
     gboolean non_padding_found = FALSE;
@@ -1483,7 +1486,7 @@ static void gsm_rr_csn_padding_bits(proto_tree* tree, tvbuff_t* tvb, guint16 bit
     {
         /* there is spare room, check the first padding octet */
         guint8 bit_mask = 0xFF >> (bit_offset & 0x07);
-        if ((tvb_get_guint8(tvb, octet_offset) & bit_mask) != (PADDING_BYTE & bit_mask))
+        if ((tvb_get_guint8(tvb, octet_offset) & bit_mask) != (pattern & bit_mask))
         {
                non_padding_found = TRUE;
         }
@@ -1491,7 +1494,7 @@ static void gsm_rr_csn_padding_bits(proto_tree* tree, tvbuff_t* tvb, guint16 bit
         {
            for (i=octet_offset+1; (i<octet_len) && !non_padding_found; i++)
            {
-               if (tvb_get_guint8(tvb, i) != PADDING_BYTE)
+               if (tvb_get_guint8(tvb, i) != pattern)
                    non_padding_found = TRUE;
            }
         }
@@ -4148,7 +4151,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
             }
         }
     }
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -4183,7 +4186,7 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
         }
     }
 
-    gsm_rr_csn_padding_bits(subtree, tvb, curr_bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, curr_bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -4206,7 +4209,7 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
         curr_bit_offset += 3;
     }
 
-    gsm_rr_csn_padding_bits(subtree, tvb, curr_bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, curr_bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -4741,7 +4744,7 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
 
     /* Truncation allowed (see 44.018 section 8.9) */
 
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -4803,7 +4806,7 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     }
 
     /* Truncation allowed (see 44.018 section 8.9 */
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -4862,7 +4865,7 @@ de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     }
 
     /* Truncation allowed (see 44.018 section 8.9 */
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -5315,7 +5318,7 @@ de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     }
     gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, hf_gsm_a_rr_band_indicator);
 
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -5506,7 +5509,7 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
             }
         }
     }
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -7428,7 +7431,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
             }
         }
     }
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -7671,7 +7674,7 @@ de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si21_position, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -7796,7 +7799,7 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
         gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, hf_gsm_a_rr_break_indicator);
     }
     /* Truncation allowed (see 44.018 section 8.9 */
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -7919,7 +7922,7 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     }
     else
     { /* L <spare padding> -- (no randomization) */
-        gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+        gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     }
     return tvb_len - offset;
 }
@@ -8478,7 +8481,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
            }
         }
     }
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -8527,7 +8530,7 @@ de_rr_si21_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
 
         proto_item_set_len(item2, (bit_offset >> 3) - (bit_offset_sav >> 3) + 1);
     }
-    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(subtree, tvb, bit_offset, tvb_len, PADDING_BYTE);
     return tvb_len - offset;
 }
 
@@ -11306,7 +11309,7 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             }
         }
     }
-    gsm_rr_csn_padding_bits(tree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(tree, tvb, bit_offset, tvb_len, PADDING_BYTE);
 }
 
 static guint32
@@ -11507,7 +11510,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
            proto_item_set_len(item, (bit_offset>>3) - (bit_offset_sav>>3)+1);
        }
     }
-    gsm_rr_csn_padding_bits(tree, tvb, bit_offset, tvb_len);
+    gsm_rr_padding_bits(tree, tvb, bit_offset, tvb_len, PADDING_BYTE);
 }
 
 /*
