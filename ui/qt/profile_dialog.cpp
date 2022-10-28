@@ -580,8 +580,9 @@ void ProfileDialog::exportProfiles(bool exportAllPersonalProfiles)
     {
         foreach (QModelIndex idx, selectedProfiles())
         {
-            if (! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
-                items << idx;
+            QModelIndex baseIdx = sort_model_->index(idx.row(), ProfileModel::COL_NAME);
+            if (! baseIdx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! baseIdx.data(ProfileModel::DATA_IS_DEFAULT).toBool())
+                items << sort_model_->mapToSource(baseIdx);
             else
                 skipped++;
         }
