@@ -34,9 +34,6 @@
 // To do:
 // - https://gitlab.com/wireshark/wireshark/-/issues/6727
 //   - Wide last column?
-//   + No arrows on unsorted columns
-//   - Add follow stream to context menu
-//   + Change "A <- B" to "B -> A"
 // - Improper wildcard handling https://gitlab.com/wireshark/wireshark/-/issues/8010
 // - TShark consolidation https://gitlab.com/wireshark/wireshark/-/issues/6310
 // - Display filter entry?
@@ -45,8 +42,6 @@
 // Bugs:
 // - Slow for large numbers of items.
 // - Name resolution doesn't do anything if its preference is disabled.
-// - Columns don't resize correctly.
-// - Closing the capture file clears conversation data.
 
 // Fixed bugs:
 // - Friendly unit displays https://gitlab.com/wireshark/wireshark/-/issues/9231
