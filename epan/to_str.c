@@ -109,40 +109,18 @@ get_fmt_broken_down_time(field_display_e fmt, const time_t *secs)
 	ws_assert_not_reached();
 }
 
-static const char *
-get_fmt_zonename(char *buf, size_t size, field_display_e fmt, struct tm *tmp, int flags)
-{
-	switch (fmt) {
-		case ABSOLUTE_TIME_UTC:
-		case ABSOLUTE_TIME_DOY_UTC:
-		case ABSOLUTE_TIME_NTP_UTC:
-			snprintf(buf, size, " UTC");
-			break;
-		case ABSOLUTE_TIME_LOCAL:
-			if (flags & ABS_TIME_TO_STR_SHOW_ZONE)
-				snprintf(buf, size, " %s", get_zonename(tmp));
-			else
-				*buf = '\0';
-			break;
-		default:
-			ws_assert_not_reached();
-	}
-
-	return buf;
-}
-
 static char *
 snprint_abs_time_secs(wmem_allocator_t *scope,
 				field_display_e fmt, struct tm *tmp,
-				const char *nsecs_str, const char *tzone_str,
-				gboolean add_quotes)
+				const char *nsecs_str, const char *tzone_sep,
+				const char *tzone_str, gboolean add_quotes)
 {
 	char *buf;
 
 	switch (fmt) {
 		case ABSOLUTE_TIME_DOY_UTC:
 			buf = wmem_strdup_printf(scope,
-					"%s%04d/%03d:%02d:%02d:%02d%s%s%s",
+					"%s%04d/%03d:%02d:%02d:%02d%s%s%s%s",
 					add_quotes ? "\"" : "",
 					tmp->tm_year + 1900,
 					tmp->tm_yday + 1,
@@ -150,6 +128,7 @@ snprint_abs_time_secs(wmem_allocator_t *scope,
 					tmp->tm_min,
 					tmp->tm_sec,
 					nsecs_str,
+					tzone_sep,
 					tzone_str,
 					add_quotes ? "\"" : "");
 			break;
@@ -157,7 +136,7 @@ snprint_abs_time_secs(wmem_allocator_t *scope,
 		case ABSOLUTE_TIME_UTC:		/* FALLTHROUGH */
 		case ABSOLUTE_TIME_LOCAL:
 			buf = wmem_strdup_printf(scope,
-					"%s%s %2d, %d %02d:%02d:%02d%s%s%s",
+					"%s%s %2d, %d %02d:%02d:%02d%s%s%s%s",
 					add_quotes ? "\"" : "",
 					mon_names[tmp->tm_mon],
 					tmp->tm_mday,
@@ -166,6 +145,7 @@ snprint_abs_time_secs(wmem_allocator_t *scope,
 					tmp->tm_min,
 					tmp->tm_sec,
 					nsecs_str,
+					tzone_sep,
 					tzone_str,
 					add_quotes ? "\"" : "");
 			break;
@@ -181,7 +161,7 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 {
 	struct tm *tmp;
 	char buf_nsecs[32];
-	char buf_tzone[256];
+	const char *tzone_sep, *tzone_str;
 
 	if (fmt == BASE_NONE)
 		fmt = ABSOLUTE_TIME_LOCAL;
@@ -203,12 +183,30 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 		snprintf(buf_nsecs, sizeof(buf_nsecs), ".%09d", abs_time->nsecs);
 	}
 
-	*buf_tzone = '\0';
+	tzone_sep = "";
+	tzone_str = "";
 	if (flags & ABS_TIME_TO_STR_SHOW_ZONE || flags & ABS_TIME_TO_STR_SHOW_UTC_ONLY) {
-		get_fmt_zonename(buf_tzone, sizeof(buf_tzone), fmt, tmp, flags);
+		switch (fmt) {
+
+		case ABSOLUTE_TIME_UTC:
+		case ABSOLUTE_TIME_DOY_UTC:
+		case ABSOLUTE_TIME_NTP_UTC:
+			tzone_sep = " ";
+			tzone_str = "UTC";
+			break;
+
+		case ABSOLUTE_TIME_LOCAL:
+			if (flags & ABS_TIME_TO_STR_SHOW_ZONE) {
+				tzone_sep = " ";
+				tzone_str = get_zonename(tmp);
+			}
+			break;
+		default:
+			ws_assert_not_reached();
+		}
 	}
 
-	return snprint_abs_time_secs(scope, fmt, tmp, buf_nsecs, buf_tzone, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
+	return snprint_abs_time_secs(scope, fmt, tmp, buf_nsecs, tzone_sep, tzone_str, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
 }
 
 char *
