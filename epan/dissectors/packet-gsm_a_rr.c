@@ -4343,7 +4343,10 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint
         no_ncell_m -= 1;
     }
 
-    return(len);
+
+    /* The Measurement Results is a type 3 information element with 17 octets length.
+     * Thus the value part is 17 - 1 == 16 octets long. */
+    return(16);
 }
 
 /*
