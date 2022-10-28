@@ -693,8 +693,16 @@ void TrafficTree::copyToClipboard(eTrafficTreeClipboard type)
     QTextStream stream(&clipText, QIODevice::Text);
 
     if (type == CLIPBOARD_CSV) {
+        QMap<int, QString> headers;
+        QStringList rdsl;
+        for (int cnt = 0; cnt < model->columnCount(); cnt++)
+        {
+            rdsl << model->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString();
+        }
+        stream << rdsl.join(",") << "\n";
+
         for (int row = 0; row < model->rowCount(); row++) {
-            QStringList rdsl;
+            rdsl.clear();
             for (int col = 0; col < model->columnCount(); col++) {
                 QModelIndex idx = model->index(row, col);
                 QVariant v = model->data(idx, _exportRole);
@@ -710,12 +718,16 @@ void TrafficTree::copyToClipboard(eTrafficTreeClipboard type)
         }
     } else if (type == CLIPBOARD_YAML) {
         stream << "---" << '\n';
+        QMap<int, QString> headers;
+        for (int cnt = 0; cnt < model->columnCount(); cnt++)
+            headers.insert(cnt, model->headerData(cnt, Qt::Horizontal, Qt::DisplayRole).toString());
+
         for (int row = 0; row < model->rowCount(); row++) {
             stream << "-" << '\n';
             for (int col = 0; col < model->columnCount(); col++) {
                 QModelIndex idx = model->index(row, col);
                 QVariant v = model->data(idx, _exportRole);
-                stream << " - " << v.toString() << '\n';
+                stream << " - " << headers[col] << ": " << v.toString() << '\n';
             }
         }
     } else if (type == CLIPBOARD_JSON) {
