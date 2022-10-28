@@ -51,7 +51,6 @@ typedef struct {
 	int		next_register;
 	GPtrArray	*deprecated;
 	GHashTable	*references; /* hfinfo -> pointer to array of references */
-	GHashTable	*loaded_references;
 	char		*expanded_text;
 	stloc_t		err_loc;
 } dfwork_t;

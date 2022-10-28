@@ -235,10 +235,6 @@ dfwork_new(void)
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
 				NULL, (GDestroyNotify)free_refs_array);
 
-	dfw->loaded_references =
-		g_hash_table_new_full(g_direct_hash, g_direct_equal,
-				NULL, (GDestroyNotify)dfvm_value_unref);
-
 	return dfw;
 }
 
@@ -259,10 +255,6 @@ dfwork_free(dfwork_t *dfw)
 
 	if (dfw->references) {
 		g_hash_table_destroy(dfw->references);
-	}
-
-	if (dfw->loaded_references) {
-		g_hash_table_destroy(dfw->loaded_references);
 	}
 
 	if (dfw->insns) {
