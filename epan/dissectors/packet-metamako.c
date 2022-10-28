@@ -53,7 +53,7 @@ static gint ett_metamako_timestamp = -1;
 static gint ett_metamako_extensions = -1;
 static gint ett_metamako_flags = -1;
 
-const true_false_string tfs_pcs49_btf = {"0x78", "0x33 or 0x66"};
+static const true_false_string tfs_pcs49_btf = {"0x78", "0x33 or 0x66"};
 
 static int * const flags[] = {
   &hf_metamako_flags_control_block_type,
