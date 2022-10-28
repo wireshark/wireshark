@@ -1427,7 +1427,7 @@ add_charstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     if (tag == TAG_MEMBERATTRNAME)
         proto_tree_add_item(tree, hf_ipp_memberattrname, tvb, valoffset, value_length, ENC_ASCII);
     else
-        proto_tree_add_string_format(tree, hf_ipp_charstring_value, tvb, valoffset, value_length, NULL, "%s value: '%s'", tag_desc, tvb_format_text(wmem_packet_scope(), tvb, valoffset, value_length));
+        proto_tree_add_string_format(tree, hf_ipp_charstring_value, tvb, valoffset, value_length, "%s value: '%s'", tag_desc, tvb_format_text(wmem_packet_scope(), tvb, valoffset, value_length));
 }
 
 static int
