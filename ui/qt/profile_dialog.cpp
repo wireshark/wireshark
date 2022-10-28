@@ -81,17 +81,17 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     export_button_ = pd_ui_->buttonBox->addButton(tr("Export", "noun"), QDialogButtonBox::ActionRole);
 
     QMenu * importMenu = new QMenu(import_button_);
-    QAction * entry = importMenu->addAction(tr("from zip file"));
+    QAction * entry = importMenu->addAction(tr("From Zip File..."));
     connect(entry, &QAction::triggered, this, &ProfileDialog::importFromZip);
-    entry = importMenu->addAction(tr("from directory"));
+    entry = importMenu->addAction(tr("From Directory..."));
     connect(entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory);
     import_button_->setMenu(importMenu);
 
     QMenu * exportMenu = new QMenu(export_button_);
-    export_selected_entry_ = exportMenu->addAction(tr("%Ln selected personal profile(s)", "", 0));
+    export_selected_entry_ = exportMenu->addAction(tr("%Ln Selected Personal Profile(s)...", "", 0));
     export_selected_entry_->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_SELECTED);
     connect(export_selected_entry_, &QAction::triggered, this, &ProfileDialog::exportProfiles);
-    entry = exportMenu->addAction(tr("all personal profiles"));
+    entry = exportMenu->addAction(tr("All Personal Profiles..."));
     entry->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_ALL);
     connect(entry, &QAction::triggered, this, &ProfileDialog::exportProfiles);
     export_button_->setMenu(exportMenu);
@@ -293,7 +293,7 @@ void ProfileDialog::updateWidgets()
         /* multiple profiles are being selected, copy is no longer allowed */
         pd_ui_->copyToolButton->setEnabled(false);
 
-        msg = tr("%Ln selected personal profile(s)", "", user_profiles);
+        msg = tr("%Ln Selected Personal Profile(s)...", "", user_profiles);
         pd_ui_->hintLabel->setText(msg);
 #ifdef HAVE_MINIZIP
         export_selected_entry_->setText(msg);
@@ -311,7 +311,7 @@ void ProfileDialog::updateWidgets()
             pd_ui_->hintLabel->setToolTip(index.data(Qt::ToolTipRole).toString());
 
             if (! index.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! index.data(ProfileModel::DATA_IS_DEFAULT).toBool())
-                msg = tr("%Ln selected personal profile(s)", "", 1);
+                msg = tr("%Ln Selected Personal Profile(s)...", "", 1);
         }
 
         pd_ui_->copyToolButton->setEnabled(true);
