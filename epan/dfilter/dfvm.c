@@ -671,20 +671,20 @@ filter_refs_fvalues(GPtrArray *refs_array, drange_t *range)
 		int layer = ref->proto_layer_num;
 
 		if (range == NULL) {
-			fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
+			fvalues = g_slist_prepend(fvalues, ref->value);
 			continue;
 		}
 
 		if (cookie == layer) {
 			if (cookie_matches) {
-				fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
+				fvalues = g_slist_prepend(fvalues, ref->value);
 			}
 		}
 		else {
 			cookie = layer;
 			cookie_matches = drange_contains_layer(range, layer, length);
 			if (cookie_matches) {
-				fvalues = g_slist_prepend(fvalues, fvalue_dup(ref->value));
+				fvalues = g_slist_prepend(fvalues, ref->value);
 			}
 		}
 	}
@@ -723,10 +723,9 @@ read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 		return FALSE;
 	}
 
-	/* Shallow copy */
 	df->registers[reg] = filter_refs_fvalues(refs, range);
-	/* Creates new value so own it. */
-	df->free_registers[reg] = (GDestroyNotify)fvalue_free;
+	// These values are referenced only, do not try to free it later.
+	df->free_registers[reg] = NULL;
 	return TRUE;
 }
 
