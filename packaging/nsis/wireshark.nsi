@@ -998,47 +998,7 @@ SectionEnd
 
 SectionGroup "Plugins & Extensions" SecPluginsGroup
 
-Section "Dissector Plugins" SecPlugins
-;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\ethercat.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\gryphon.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\irda.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\opcua.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\profinet.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\unistim.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimax.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxasncp.dll"
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxmacphy.dll"
-!include "custom_plugins.txt"
-SectionEnd
-
-Section "Tree Statistics Plugin" SecStatsTree
-;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
-SectionEnd
-
-Section "Mate - Meta Analysis and Tracing Engine" SecMate
-;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
-SectionEnd
-
-
-Section "TRANSUM - network and application performance analysis" SecTransum
-;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\transum.dll"
-SectionEnd
-
-Section "File type plugins - capture file support" SecWiretap
-;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap'
-File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap\usbdump.dll"
-SectionEnd
-
-Section "Codec plugins" SecCodec
+Section "Codec Plugins" SecCodec
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs'
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\codecs\g711.dll"
@@ -1063,6 +1023,33 @@ SetOutPath '$INSTDIR\profiles\No Reassembly'
 File "${STAGING_DIR}\profiles\No Reassembly\preferences"
 SectionEnd
 
+Section "Dissector Plugins" SecPlugins
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\ethercat.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\gryphon.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\irda.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\opcua.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\profinet.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\unistim.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimax.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxasncp.dll"
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\wimaxmacphy.dll"
+!include "custom_plugins.txt"
+SectionEnd
+
+Section "File Type Plugins - capture file support" SecWiretap
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\wiretap\usbdump.dll"
+SectionEnd
+
+Section "Mate - Meta Analysis and Tracing Engine" SecMate
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
+SectionEnd
+
 !ifdef SMI_DIR
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
@@ -1077,45 +1064,21 @@ File "${SMI_DIR}\share\yang\*.yang"
 SectionEnd
 !endif
 
+Section "TRANSUM - performance analysis" SecTransum
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\transum.dll"
+SectionEnd
+
+Section "Tree Statistics Plugin" SecStatsTree
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan'
+File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\stats_tree.dll"
+SectionEnd
+
 SectionGroupEnd ; "Plugins / Extensions"
 
-
 SectionGroup "Tools" SecToolsGroup
-
-Section "Editcap" SecEditcap
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\editcap.exe"
-File "${STAGING_DIR}\editcap.html"
-SectionEnd
-
-Section "Text2Pcap" SecText2Pcap
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\text2pcap.exe"
-File "${STAGING_DIR}\text2pcap.html"
-SectionEnd
-
-Section "Mergecap" SecMergecap
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\mergecap.exe"
-File "${STAGING_DIR}\mergecap.html"
-SectionEnd
-
-Section "Reordercap" SecReordercap
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\reordercap.exe"
-File "${STAGING_DIR}\reordercap.html"
-SectionEnd
-
-Section "DFTest" SecDFTest
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "${STAGING_DIR}\dftest.exe"
-File "${STAGING_DIR}\dftest.html"
-SectionEnd
 
 Section "Capinfos" SecCapinfos
 ;-------------------------------------------
@@ -1131,18 +1094,25 @@ File "${STAGING_DIR}\captype.exe"
 File "${STAGING_DIR}\captype.html"
 SectionEnd
 
-Section "Rawshark" SecRawshark
+Section "DFTest" SecDFTest
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\rawshark.exe"
-File "${STAGING_DIR}\rawshark.html"
+File "${STAGING_DIR}\dftest.exe"
+File "${STAGING_DIR}\dftest.html"
 SectionEnd
 
-Section /o "Randpkt" SecRandpkt
+Section "Editcap" SecEditcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\randpkt.exe"
-File "${STAGING_DIR}\randpkt.html"
+File "${STAGING_DIR}\editcap.exe"
+File "${STAGING_DIR}\editcap.html"
+SectionEnd
+
+Section "Mergecap" SecMergecap
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\mergecap.exe"
+File "${STAGING_DIR}\mergecap.html"
 SectionEnd
 
 !ifdef MMDBRESOLVE_EXE
@@ -1155,11 +1125,55 @@ File "${STAGING_DIR}\mmdbresolve.exe"
 SectionEnd
 !endif
 
+Section /o "Randpkt" SecRandpkt
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\randpkt.exe"
+File "${STAGING_DIR}\randpkt.html"
+SectionEnd
+
+Section "Rawshark" SecRawshark
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\rawshark.exe"
+File "${STAGING_DIR}\rawshark.html"
+SectionEnd
+
+Section "Reordercap" SecReordercap
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\reordercap.exe"
+File "${STAGING_DIR}\reordercap.html"
+SectionEnd
+
+Section "Text2Pcap" SecText2Pcap
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\text2pcap.exe"
+File "${STAGING_DIR}\text2pcap.html"
+SectionEnd
+
+SectionGroupEnd ; "Tools"
+
+SectionGroup "External Capture (extcap)" SecExtcapGroup
+
 Section /o "Androiddump" SecAndroiddump
 ;-------------------------------------------
   !insertmacro InstallExtcap "androiddump"
 SectionEnd
 !insertmacro CheckExtrasFlag "androiddump"
+
+Section /o "Etwdump" SecEtwdump
+;-------------------------------------------
+  !insertmacro InstallExtcap "Etwdump"
+SectionEnd
+!insertmacro CheckExtrasFlag "Etwdump"
+
+Section /o "Randpktdump" SecRandpktdump
+;-------------------------------------------
+  !insertmacro InstallExtcap "randpktdump"
+SectionEnd
+!insertmacro CheckExtrasFlag "randpktdump"
 
 Section /o "Sshdump, Ciscodump, and Wifidump" SecSshdump
 ;-------------------------------------------
@@ -1177,19 +1191,11 @@ Section /o "UDPdump" SecUDPdump
 SectionEnd
 !insertmacro CheckExtrasFlag "udpdump"
 
-Section /o "Randpktdump" SecRandpktdump
-;-------------------------------------------
-  !insertmacro InstallExtcap "randpktdump"
-SectionEnd
-!insertmacro CheckExtrasFlag "randpktdump"
+SectionGroupEnd ; "External Capture (extcap)"
 
-Section /o "Etwdump" SecEtwdump
-;-------------------------------------------
-  !insertmacro InstallExtcap "Etwdump"
+Section "-Clear Partial Selected"
+!insertmacro ClearSectionFlag ${SecExtcapGroup} ${SF_PSELECTED}
 SectionEnd
-!insertmacro CheckExtrasFlag "Etwdump"
-
-SectionGroupEnd ; "Tools"
 
 !ifdef DOCBOOK_DIR
 Section "Documentation" SecDocumentation
@@ -1223,34 +1229,36 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "Text based network protocol analyzer."
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Plugins and extensions for both ${PROGRAM_NAME} and TShark."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Additional protocol dissectors."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Extended statistics."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecTransum} "TRANSUM plugin - network and application performance analysis."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiretap} "Additional capture file support."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCodec} "Additional codec support."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecProfiles} "Configuration profiles"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecProfiles} "Additional configuration profiles."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Additional protocol dissectors."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiretap} "Extend wiretap support for capture file types. (e.g. usbdump)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin that allows the user to specify how different frames are related to each other."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Extended statistics. (see stats_tree in WSDG; Packet Lengths in WSUG)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecTransum} "Plugin to calculate Response Time Element (RTE) statistics."
 
 !ifdef SMI_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
 !endif
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddump} "Provide capture interfaces from Android devices"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecSshdump} "Provide remote capture through SSH"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface that gets UDP packets from network devices"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdump} "Provide random packet generator"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtwdump} "Provide ETW reader"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimming packets, omitting them, or saving to a different format."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Shows display filter byte-code, for debugging dfilter routines"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecCaptype} "Print the types capture files."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Random packet generator."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCaptype} "Print the type(format) of capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Show display filter byte-code, for debugging dfilter routines."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimming packets, omitting them, or saving to a different format."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool - read IPv4 and IPv6 addresses and print their IP geolocation information."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Create a pcap trace file full of random packets. (randpkt produces very bad packets)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Dump and analyze raw pcap data."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Generate a capture file from an ASCII hexdump of packets."
+
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecExtcapGroup} "External Capture Interfaces"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddump} "Provide capture interfaces from Android devices."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtwdump} "Provide an interface to read Event Tracing for Windows (ETW) event trace (ETL)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdump} "Provide an interface to the random packet generator. (see also randpkt)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecSshdump} "Provide remote capture through SSH. (tcpdump, Cisco EPC, wifi)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface to receive UDP packets streamed from network devices."
 
 !ifdef DOCBOOK_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install an offline copy of the User's Guide and FAQ."

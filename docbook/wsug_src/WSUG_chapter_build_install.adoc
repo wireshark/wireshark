@@ -72,32 +72,60 @@ On the _Choose Components_ page of the installer you can select from the followi
 
 * *Plugins &amp; Extensions* - Extras for the Wireshark and TShark dissection engines
 
-  - *Dissector Plugins* - Plugins with some extended dissections.
+  - *Codec Plugins* - Additional codec support.
 
-  - *Tree Statistics Plugins* - Extended statistics.
+  - *Configuration Profiles* - Additional configuration profiles.
+
+  - *Dissector Plugins* - Additional protocol dissectors.
+
+  - *File Type Plugins - capture file support* - Extend wiretap support for capture file types. (e.g. usbdump)
 
   - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s)
     of the display filter engine, see <<ChMate>> for details.
 
   - *SNMP MIBs* - SNMP MIBs for a more detailed SNMP dissection.
 
-* *Tools* - Additional command line tools to work with capture files
+  - *TRANSUM - performance analysis* - Plugin to calculate Response Time Element (RTE) statistics.
 
-  - *Editcap* - Reads a capture file and writes some or all of the packets into
-    another capture file.
+  - *Tree Statistics Plugin* - Extended statistics. (see stats_tree in WSDG; Packet Lengths in WSUG)
 
-  - *Text2Pcap* - Reads in an ASCII hex dump and writes the data into a
-    pcap capture file.
+* *Tools* - Additional command line tools to work with capture files and troubleshoot
 
-  - *Reordercap* - Reorders a capture file by timestamp.
+  - *Capinfos* - Print information about capture files.
 
-  - *Mergecap* - Combines multiple saved capture files into a single output file.
+  - *Captype* - Print the type(format) of capture files.
 
-  - *Capinfos* - Provides information on capture files.
+  - *DFTest* - Show display filter byte-code, for debugging dfilter routines.
 
-  - *Rawshark* - Raw packet filter.
+  - *Editcap* - Copy packets to a new file, optionally trimming packets, omitting them,
+  or saving to a different format.
 
-* *User’s Guide* - Local installation of the User’s Guide. The Help buttons on
+  - *Mergecap* - Combine multiple saved capture files into a single output file.
+
+  - *MMDBResolve* - MaxMind Database resolution tool - read IPv4 and IPv6 addresses and
+  print their IP geolocation information.
+
+  - *Randpkt* - Create a pcap trace file full of random packets. (randpkt produces very bad packets)
+
+  - *Rawshark* - Dump and analyze raw pcap data.
+
+  - *Reordercap* - Copy packets to a new file, sorted by time.
+
+  - *Text2Pcap* - Generate a capture file from an ASCII hexdump of packets.
+
+* *External Capture (extcap)* - External Capture Interfaces
+
+  - *Androiddump* - Provide capture interfaces from Android devices.
+
+  - *Etwdump* - Provide an interface to read Event Tracing for Windows (ETW) event trace (ETL).
+
+  - *Randpktdump* - Provide an interface to the random packet generator. (see also randpkt)
+
+  - *Sshdump, Ciscodump, and Wifidump* - Provide remote capture through SSH. (tcpdump, Cisco EPC, wifi)
+
+  - *UDPdump* - Provide capture interface to receive UDP packets streamed from network devices.
+
+* *Documentation* - Local installation of the User’s Guide and FAQ. The Help buttons on
   most dialogs will require an internet connection to show help pages if the
   User’s Guide is not installed locally.
 
@@ -105,13 +133,11 @@ On the _Choose Components_ page of the installer you can select from the followi
 
 ==== Additional Tasks
 
-* *Start Menu Shortcuts* - Add some start menu shortcuts.
+* *Wireshark Start Menu Item* - Add a shortcut to the start menu.
 
-* *Desktop Icon* - Add a Wireshark icon to the desktop.
+* *Wireshark Desktop Icon* - Add a Wireshark icon to the desktop.
 
-* *Quick Launch Icon* - add a Wireshark icon to the Explorer quick launch toolbar.
-
-* *Associate file extensions to Wireshark* - Associate standard network trace files to Wireshark.
+* *Associate trace file extensions with Wireshark* - Associate standard network trace files to Wireshark.
 
 [#ChBuildInstallWinLocation]
 
