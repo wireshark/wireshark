@@ -34,6 +34,8 @@ static int hf_llt_node_id = -1;
 static int hf_llt_message_type = -1;
 static int hf_llt_sequence_num = -1;
 static int hf_llt_message_time = -1;
+static int hf_llt_dst_node_id = -1;
+static int hf_llt_src_node_id = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_llt = -1;
@@ -46,23 +48,35 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_item *ti;
 	proto_tree *llt_tree;
 	guint8 message_type;
+        guint16 magic;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLT");
 
-	message_type = tvb_get_guint8(tvb, 3);
+	magic = tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN);
+	if(magic == 0x0602){ /* v2 ? */
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str(message_type, message_type_vs, "Unknown (0x%02x)"));
+		ti = proto_tree_add_item(tree, proto_llt, tvb, 0, -1, ENC_NA);
+		llt_tree = proto_item_add_subtree(ti, ett_llt);
 
-	ti = proto_tree_add_item(tree, proto_llt, tvb, 0, -1, ENC_NA);
-	llt_tree = proto_item_add_subtree(ti, ett_llt);
+		proto_tree_add_item(llt_tree, hf_llt_cluster_num, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(llt_tree, hf_llt_dst_node_id, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(llt_tree, hf_llt_src_node_id, tvb, 8, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_item(llt_tree, hf_llt_cluster_num, tvb, 2, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(llt_tree, hf_llt_message_type, tvb, 3, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(llt_tree, hf_llt_node_id, tvb, 7, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(llt_tree, hf_llt_sequence_num, tvb, 24, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(llt_tree, hf_llt_message_time, tvb, 40, 4, ENC_BIG_ENDIAN);
+	} else {
+		message_type = tvb_get_guint8(tvb, 3);
 
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str(message_type, message_type_vs, "Unknown (0x%02x)"));
+
+		ti = proto_tree_add_item(tree, proto_llt, tvb, 0, -1, ENC_NA);
+		llt_tree = proto_item_add_subtree(ti, ett_llt);
+
+		proto_tree_add_item(llt_tree, hf_llt_cluster_num, tvb, 2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(llt_tree, hf_llt_message_type, tvb, 3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(llt_tree, hf_llt_node_id, tvb, 7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(llt_tree, hf_llt_sequence_num, tvb, 24, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(llt_tree, hf_llt_message_time, tvb, 40, 4, ENC_BIG_ENDIAN);
+	}
 	return tvb_captured_length(tvb);
 }
 
@@ -92,7 +106,16 @@ proto_register_llt(void)
 
 		{ &hf_llt_message_time, { "Message time", "llt.message_time",
 					  FT_UINT32, BASE_DEC, NULL, 0,
-					  "Number of ticks since this node was last rebooted", HFILL } }
+					  "Number of ticks since this node was last rebooted", HFILL } },
+
+		{ &hf_llt_dst_node_id,  { "Destination Node ID", "llt.dst.node_id",
+					  FT_UINT8, BASE_DEC, NULL, 0,
+					  "Number identifying destination node within the cluster", HFILL } },
+
+		{ &hf_llt_src_node_id,  { "Source Node ID", "llt.src.node_id",
+					  FT_UINT8, BASE_DEC, NULL, 0,
+					  "Number identifying source node within the cluster", HFILL } },
+
 	};
 
 	/* Setup protocol subtree array */
