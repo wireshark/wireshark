@@ -181,7 +181,7 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 {
 	struct tm *tmp;
 	char buf_nsecs[32];
-	char buf_tzone[32];
+	char buf_tzone[256];
 
 	if (fmt == BASE_NONE)
 		fmt = ABSOLUTE_TIME_LOCAL;
