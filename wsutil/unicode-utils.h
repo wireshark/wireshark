@@ -37,7 +37,7 @@ extern "C" {
 #define _CHECK_UTF_8(level, str, len) \
   do {                                                                \
     const char *__uni_endptr;                                         \
-    if (DEBUG_UTF_8_ENABLED &&                                        \
+    if (DEBUG_UTF_8_ENABLED && (str) != NULL &&                       \
                         !g_utf8_validate(str, len, &__uni_endptr)) {  \
       ws_log_utf8(str, len, __uni_endptr);                            \
     }                                                                 \
