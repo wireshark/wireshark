@@ -274,10 +274,10 @@ void proto_register_dect_dlc(void)
 }
 
 #if 0
-void proto_reg_handoff_dect_aastra(void)
-{
-	dissector_handle_t dlc_handle  = create_dissector_handle(dissect_aamide_xdlc, proto_dect_dlc);
-}
+//void proto_reg_handoff_dect_aastra(void)
+//{
+//	dissector_handle_t dlc_handle  = create_dissector_handle(dissect_aamide_xdlc, proto_dect_dlc);
+//}
 #endif
 
 /*
