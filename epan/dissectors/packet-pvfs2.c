@@ -864,22 +864,16 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	}
 
 	if (string_data) {
-		char *tmpstr;
-
-		tmpstr = (char *) tvb_get_string_enc(pinfo->pool, tvb, data_offset,
-				string_length_copy, ENC_ASCII);
-
-		string_buffer = (char *)memcpy(wmem_alloc(pinfo->pool, string_length_copy+1), tmpstr, string_length_copy);
+		string_buffer = tvb_get_string_enc(pinfo->pool, tvb, data_offset, string_length_copy, ENC_ASCII);
 	} else {
 		string_buffer = (char *) tvb_memcpy(tvb,
 				wmem_alloc(pinfo->pool, string_length_copy+1), data_offset, string_length_copy);
+		string_buffer[string_length_copy] = '\0';
 	}
-
-	string_buffer[string_length_copy] = '\0';
 
 	/* calculate a nice printable string */
 	if (string_length) {
-		if (string_length != string_length_copy) {
+		if (string_length != strlen(string_buffer)) {
 			if (string_data) {
 				char *formatted;
 				size_t string_buffer_size = 0;
