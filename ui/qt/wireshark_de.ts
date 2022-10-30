@@ -6346,12 +6346,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Importieren</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>von Zipdatei</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">von Zipdatei</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>von einem Verzeichnis</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">von einem Verzeichnis</translation>
     </message>
     <message>
         <source>Export</source>
@@ -6446,12 +6448,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Keine Pakete</translation>
     </message>
     <message>
-        <source>selected personal profile</source>
-        <translation>Ausgewähltes persönliches Profil</translation>
+        <source>Selected Personal Profile...</source>
+        <oldsource>selected personal profile</oldsource>
+        <translation type="unfinished">Ausgewähltes persönliches Profil</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>Alle persönlichen Profile</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">Alle persönlichen Profile</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7403,8 +7407,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <oldsource>%Ln selected personal profile(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln ausgewähltes persönliches Profil</numerusform>
             <numerusform>%Ln ausgewählte persönliche Profile</numerusform>
         </translation>
@@ -7445,16 +7450,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zipdatei (*.zip)</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>von Zipdatei</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">von Zipdatei</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>von einem Verzeichnis</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">von einem Verzeichnis</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>Alle persönlichen Profile</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">Alle persönlichen Profile</translation>
     </message>
     <message>
         <source>Error</source>

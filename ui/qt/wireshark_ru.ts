@@ -6364,12 +6364,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Импорт</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>из zip файла</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">из zip файла</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>из каталога</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">из каталога</translation>
     </message>
     <message>
         <source>Export</source>
@@ -6465,12 +6467,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Нет Пакетов</translation>
     </message>
     <message>
-        <source>selected personal profile</source>
-        <translation>выбранный личный профиль</translation>
+        <source>Selected Personal Profile...</source>
+        <oldsource>selected personal profile</oldsource>
+        <translation type="unfinished">выбранный личный профиль</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>все личные профили</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">все личные профили</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7424,8 +7428,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <oldsource>%Ln selected personal profile(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln выбранный личный профиль</numerusform>
             <numerusform>%Ln выбранных личных профиля</numerusform>
             <numerusform>%Ln выбранных личных профиля</numerusform>
@@ -7468,16 +7473,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Файл ZIP (*.zip)</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>из zip файла</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">из zip файла</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>из каталога</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">из каталога</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>все личные профили</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">все личные профили</translation>
     </message>
     <message>
         <source>Error</source>

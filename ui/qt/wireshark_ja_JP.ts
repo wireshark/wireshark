@@ -1862,7 +1862,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>パケット B </translation>
     </message>
     <message>
         <source>Bytes B </source>
@@ -2020,11 +2020,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as a Base64 String</source>
-        <translation type="unfinished"></translation>
+        <translation>BASE64文字列として...</translation>
     </message>
     <message>
         <source>Copy packet bytes as a base64 encoded string.</source>
-        <translation type="unfinished"></translation>
+        <translation>BASE64エンコードされた文字列としてパケットバイト列をコピー</translation>
     </message>
     <message>
         <source>…as Raw Binary</source>
@@ -2188,7 +2188,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished">無効なフィルタ:</translation>
+        <translation>無効なフィルタ:</translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -6331,12 +6331,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>インポート</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>zipファイルより</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">zipファイルより</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>ディレクトリより</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">ディレクトリより</translation>
     </message>
     <message>
         <source>Export</source>
@@ -6430,12 +6432,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>パケットなし</translation>
     </message>
     <message>
-        <source>selected personal profile</source>
-        <translation>選択された個人プロファイル</translation>
+        <source>Selected Personal Profile...</source>
+        <oldsource>selected personal profile</oldsource>
+        <translation type="unfinished">選択された個人プロファイル</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>すべての個人プロファイル</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">すべての個人プロファイル</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7385,8 +7389,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <oldsource>%Ln selected personal profile(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln 選択された個人プロファイル</numerusform>
         </translation>
     </message>
@@ -7425,16 +7430,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Zipファイル (*.zip)</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>zipファイルより</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">zipファイルより</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>ディレクトリより</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">ディレクトリより</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>すべての個人プロファイル</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">すべての個人プロファイル</translation>
     </message>
     <message>
         <source>Error</source>
@@ -12962,7 +12970,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;DTN</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DTN</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -13445,11 +13453,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;LTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;LTP</translation>
     </message>
     <message>
         <source>LTP segment and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTPセグメントとブロック統計</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>

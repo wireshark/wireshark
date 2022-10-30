@@ -6354,11 +6354,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Importuj</translation>
     </message>
     <message>
-        <source>from zip file</source>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>from directory</source>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6455,11 +6457,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Brak pakietów</translation>
     </message>
     <message>
-        <source>selected personal profile</source>
+        <source>Selected Personal Profile...</source>
+        <oldsource>selected personal profile</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>all personal profiles</source>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7405,7 +7409,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <oldsource>%Ln selected personal profile(s)</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -7449,15 +7454,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>from zip file</source>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>from directory</source>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>all personal profiles</source>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

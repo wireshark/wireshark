@@ -6345,12 +6345,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Importer</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>à partir du fichier zip</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">à partir du fichier zip</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>à partir du répertoire</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">à partir du répertoire</translation>
     </message>
     <message>
         <source>Export</source>
@@ -6445,12 +6447,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Pas de paquets</translation>
     </message>
     <message>
-        <source>selected personal profile</source>
-        <translation>profil personnel sélectionné</translation>
+        <source>Selected Personal Profile...</source>
+        <oldsource>selected personal profile</oldsource>
+        <translation type="unfinished">profil personnel sélectionné</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>tous les profils personnels</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">tous les profils personnels</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7402,8 +7406,9 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <oldsource>%Ln selected personal profile(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln profil personnel sélectionné</numerusform>
             <numerusform>%Ln profils personnels sélectionnés</numerusform>
         </translation>
@@ -7444,16 +7449,19 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Fichier zip (*.zip)</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>à partir du fichier zip</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">à partir du fichier zip</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>à partir du répertoire</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">à partir du répertoire</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>tous les profils personnels</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">tous les profils personnels</translation>
     </message>
     <message>
         <source>Error</source>

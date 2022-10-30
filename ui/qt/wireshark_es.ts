@@ -6282,12 +6282,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Importar</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>desde archivo zip</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">desde archivo zip</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>desde directorio</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">desde directorio</translation>
     </message>
     <message>
         <source>Export</source>
@@ -6382,12 +6384,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>No hay paquetes</translation>
     </message>
     <message>
-        <source>selected personal profile</source>
-        <translation>Perfil personal seleccionado</translation>
+        <source>Selected Personal Profile...</source>
+        <oldsource>selected personal profile</oldsource>
+        <translation type="unfinished">Perfil personal seleccionado</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>Todos los perfiles personales</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">Todos los perfiles personales</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7330,8 +7334,9 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Seleccione archivo zip para exportar</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <oldsource>%Ln selected personal profile(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln perfil personal seleccionado</numerusform>
             <numerusform>%Ln perfiles personales seleccionados</numerusform>
         </translation>
@@ -7372,16 +7377,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Archivo zip (*.zip)</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>desde archivo zip</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">desde archivo zip</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>desde directorio</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">desde directorio</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>Todos los perfiles personales</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">Todos los perfiles personales</translation>
     </message>
     <message>
         <source>Error</source>

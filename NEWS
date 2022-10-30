@@ -42,7 +42,9 @@ Wireshark 4.1.0 Release Notes
 
   New Protocol Support
 
-   SAP Network Interface (SAPNI)
+   SAP Network Interface (SAPNI), Support for almost all WoW 1.12
+   messages has been added., and World of Warcraft World (WOWW) display
+   filters have been changed to be more internally consistent.
 
   Updated Protocol Support
 

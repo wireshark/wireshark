@@ -6328,12 +6328,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>İçe Aktar</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>zip dosyasından</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">zip dosyasından</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>dizinden</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">dizinden</translation>
     </message>
     <message>
         <source>Export</source>
@@ -6427,12 +6429,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Paket Yok</translation>
     </message>
     <message>
-        <source>selected personal profile</source>
-        <translation>seçilen kişisel profil</translation>
+        <source>Selected Personal Profile...</source>
+        <oldsource>selected personal profile</oldsource>
+        <translation type="unfinished">seçilen kişisel profil</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>tüm kişisel profiller</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">tüm kişisel profiller</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7382,8 +7386,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <oldsource>%Ln selected personal profile(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln seçilmiş kişisel profil</numerusform>
         </translation>
     </message>
@@ -7422,16 +7427,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Zip Dosyası (*.zip)</translation>
     </message>
     <message>
-        <source>from zip file</source>
-        <translation>zip dosyasından</translation>
+        <source>From Zip File...</source>
+        <oldsource>from zip file</oldsource>
+        <translation type="unfinished">zip dosyasından</translation>
     </message>
     <message>
-        <source>from directory</source>
-        <translation>dizinden</translation>
+        <source>From Directory...</source>
+        <oldsource>from directory</oldsource>
+        <translation type="unfinished">dizinden</translation>
     </message>
     <message>
-        <source>all personal profiles</source>
-        <translation>tüm kişisel profiller</translation>
+        <source>All Personal Profiles...</source>
+        <oldsource>all personal profiles</oldsource>
+        <translation type="unfinished">tüm kişisel profiller</translation>
     </message>
     <message>
         <source>Error</source>
@@ -12959,7 +12967,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;DTN</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DTN</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -13442,11 +13450,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;LTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;LTP</translation>
     </message>
     <message>
         <source>LTP segment and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTP bölümü ve blok istatistikleri</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
