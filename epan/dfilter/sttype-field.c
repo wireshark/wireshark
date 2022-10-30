@@ -73,21 +73,33 @@ field_tostr(const void *data, gboolean pretty _U_)
 {
 	const field_t *field = data;
 	ws_assert_magic(field, FIELD_MAGIC);
-	char *repr, *drange_str;
+	wmem_strbuf_t *repr;
+	char *drange_str = NULL;
 
-	if (field->drange && (drange_str = drange_tostr(field->drange))) {
-		repr = ws_strdup_printf("%s#[%s] <%s>",
-				field->hfinfo->abbrev,
-				drange_str,
-				field->raw ? "RAW" : ftype_name(field->hfinfo->type));
+
+	repr = wmem_strbuf_new(NULL, NULL);
+
+	if (field->raw) {
+		wmem_strbuf_append_c(repr, '@');
+	}
+
+	wmem_strbuf_append(repr, field->hfinfo->abbrev);
+
+	if (field->drange) {
+		drange_str = drange_tostr(field->drange);
+		wmem_strbuf_append_printf(repr, "#[%s]", drange_str);
 		g_free(drange_str);
 	}
+
+	if (field->raw) {
+		wmem_strbuf_append(repr, " <FT_BYTES>");
+	}
 	else {
-		repr = ws_strdup_printf("%s <%s>", field->hfinfo->abbrev,
-				field->raw ? "RAW" : ftype_name(field->hfinfo->type));
+		wmem_strbuf_append_printf(repr, " <%s>",
+				ftype_name(field->hfinfo->type));
 	}
 
-	return repr;
+	return wmem_strbuf_finalize(repr);
 }
 
 header_field_info *

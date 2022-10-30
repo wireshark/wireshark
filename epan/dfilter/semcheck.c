@@ -612,7 +612,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
-					hfinfo1->abbrev, stnode_todisplay(st_arg2));
+					stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
 		}
 		/* Do this check even though you'd think that if
 		 * they're compatible, then can_func() would pass. */

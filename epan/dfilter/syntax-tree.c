@@ -249,6 +249,10 @@ stnode_location(stnode_t *node)
 	return &node->location;
 }
 
+#define IS_OPERATOR(node) \
+	(stnode_type_id(node) == STTYPE_TEST || \
+		stnode_type_id(node) == STTYPE_ARITHMETIC)
+
 static char *
 _node_tostr(stnode_t *node, gboolean pretty)
 {
@@ -262,8 +266,7 @@ _node_tostr(stnode_t *node, gboolean pretty)
 	if (pretty)
 		return s;
 
-	if (stnode_type_id(node) == STTYPE_TEST ||
-		stnode_type_id(node) == STTYPE_ARITHMETIC) {
+	if (IS_OPERATOR(node)) {
 		repr = s;
 	}
 	else {
@@ -279,7 +282,9 @@ stnode_tostr(stnode_t *node, gboolean pretty)
 {
 	ws_assert_magic(node, STNODE_MAGIC);
 
-	if (pretty && node->repr_token != NULL) {
+	if (pretty && IS_OPERATOR(node) && node->repr_token != NULL) {
+		/* Some operators can have synonyms, like "or" and "||".
+		 * Show the user the same representation as he typed. */
 		g_free(node->repr_display);
 		node->repr_display = g_strdup(node->repr_token);
 		return node->repr_display;
