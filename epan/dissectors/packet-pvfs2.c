@@ -2367,8 +2367,8 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 
 		*pentry= '\0';
 
-		tmp_entry = get_ascii_string(pinfo->pool, pentry, entry_length);
-		tmp_entry_length = entry_length;
+		tmp_entry = get_ascii_string(pinfo->pool, entry, entry_length);
+		tmp_entry_length = (guint32)strlen(tmp_entry);
 
 		/* Remove all whitespace from front of entry */
 		while ((tmp_entry_length > 0) && (!g_ascii_isalnum(*tmp_entry)) &&
