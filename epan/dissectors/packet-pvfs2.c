@@ -7,6 +7,9 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * Dissector for Parallel Virtual File System (PVFS) version 2.
+ * https://web.archive.org/web/20160701052501/http://www.pvfs.org/
+ *
  * Copied from packet-smb.c and others
  *
  * TODO
@@ -25,6 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
+#include <epan/charsets.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
 
@@ -2369,7 +2373,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 
 		*pentry= '\0';
 
-		tmp_entry = entry;
+		tmp_entry = get_ascii_string(pinfo->pool, pentry, entry_length);
 		tmp_entry_length = entry_length;
 
 		/* Remove all whitespace from front of entry */
