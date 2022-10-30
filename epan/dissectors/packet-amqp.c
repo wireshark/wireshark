@@ -1451,6 +1451,20 @@ static int hf_amqp_method_dtx_start_dtx_identifier = -1;
 static int hf_amqp_method_tunnel_request_meta_data = -1;
 static int hf_amqp_method_confirm_select_nowait = -1;
 static int hf_amqp_field = -1;
+static int hf_amqp_field_name = -1;
+static int hf_amqp_field_type = -1;
+static int hf_amqp_field_integer = -1;
+static int hf_amqp_field_unsigned_integer = -1;
+static int hf_amqp_field_string = -1;
+static int hf_amqp_field_boolean = -1;
+static int hf_amqp_field_byte = -1;
+static int hf_amqp_field_unsigned_byte = -1;
+static int hf_amqp_field_short_int = -1;
+static int hf_amqp_field_short_uint = -1;
+static int hf_amqp_field_long_int = -1;
+static int hf_amqp_field_float = -1;
+static int hf_amqp_field_double = -1;
+static int hf_amqp_field_decimal = -1;
 static int hf_amqp_field_timestamp = -1;
 static int hf_amqp_field_byte_array = -1;
 static int hf_amqp_header_class_id = -1;
@@ -1525,6 +1539,7 @@ static gint ett_args = -1;
 static gint ett_props = -1;
 static gint ett_field_table = -1;
 static gint ett_amqp_init = -1;
+static gint ett_amqp_0_9_field = -1;
 static gint ett_amqp_0_10_map = -1;
 static gint ett_amqp_0_10_array = -1;
 static gint ett_amqp_0_10_struct = -1;
@@ -2381,25 +2396,30 @@ get_amqp_0_9_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static void
 dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item)
 {
-    proto_tree *field_table_tree;
+    proto_tree *field_table_tree, *field_item_tree;
+    proto_item *field_item;
     guint       namelen, vallen;
-    const char *name;
+    const guint8 *name;
     int         field_start;
 
     field_table_tree = proto_item_add_subtree(item, ett_amqp);
 
     while (length != 0) {
         field_start = offset;
+        field_item = proto_tree_add_item(field_table_tree, hf_amqp_field, tvb,
+                                   offset, 1, ENC_NA);
         namelen = tvb_get_guint8(tvb, offset);
         offset += 1;
         length -= 1;
         if (length < namelen)
             goto too_short;
-        name = (char*) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, namelen, ENC_UTF_8|ENC_NA);
+        field_item_tree = proto_item_add_subtree(field_item, ett_amqp_0_9_field);
+        proto_tree_add_item_ret_string(field_item_tree, hf_amqp_field_name, tvb, offset, namelen, ENC_UTF_8, pinfo->pool, &name);
+        proto_item_set_text(field_item, "%s", name);
         offset += namelen;
         length -= namelen;
 
-        vallen = dissect_amqp_0_9_field_value(tvb, pinfo, offset, length, name, field_table_tree);
+        vallen = dissect_amqp_0_9_field_value(tvb, pinfo, offset, length, name, field_item_tree);
         if(vallen == 0)
             goto too_short;
         offset += vallen;
@@ -2417,7 +2437,8 @@ too_short:
 static void
 dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item)
 {
-    proto_tree *field_table_tree;
+    proto_tree *field_table_tree, *field_item_tree;
+    proto_item *field_item;
     int         field_start, idx;
     guint       vallen;
     const char *name;
@@ -2427,9 +2448,12 @@ dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
 
     while (length != 0) {
         field_start = offset;
-        name = wmem_strdup_printf(wmem_packet_scope(), "[%i]", idx);
+        field_item = proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
+                                   offset, 0, "[%i]", idx);
+        field_item_tree = proto_item_add_subtree(field_item, ett_amqp_0_9_field);
+        name = wmem_strdup_printf(pinfo->pool, "[%i]", idx);
 
-        vallen = dissect_amqp_0_9_field_value(tvb, pinfo, offset, length, name, field_table_tree);
+        vallen = dissect_amqp_0_9_field_value(tvb, pinfo, offset, length, name, field_item_tree);
         if(vallen == 0)
             goto too_short;
         offset += vallen;
@@ -2477,67 +2501,77 @@ too_short:
  * who follows the 0-9-1 spec for this bit.
  */
 
+static const value_string amqp_0_9_field_type_vals[] = {
+    { 'A', "array" },
+    { 'B', "unsigned byte" },
+    { 'D', "decimal" },
+    { 'F', "field table" },
+    { 'I', "integer" },
+    { 'S', "string" },
+    { 'T', "timestamp" },
+    { 'V', "void" },
+    { 'b', "byte" },
+    { 'd', "double" },
+    { 'f', "float" },
+    { 'i', "unsigned integer" },
+    { 'l', "long int" },
+    { 's', "short int" },
+    { 't', "boolean" },
+    { 'u', "short uint" },
+    { 'x', "byte array" },
+    { 0, NULL },
+};
+
 static guint
 dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length,
-                             const char *name, proto_tree *field_table_tree)
+                             const char *name _U_, proto_tree *field_tree)
 {
-    proto_item *ti;
+    proto_item *field_item, *type_item, *ti = NULL;
     guint       vallen;
     guint8      type;
-    char        type_buf[7] = { 0 };
     const char *amqp_typename;
-    const char *value;
-    nstime_t    tv;
     int         value_start;
 
     value_start = offset;
     if (length < 1)
         return 0; /* too short */
     type = tvb_get_guint8(tvb, offset);
+    amqp_typename = char_val_to_str(type, amqp_0_9_field_type_vals, "unknown type");
+    field_item = proto_tree_get_parent(field_tree);
+    proto_item_append_text(field_item, " (%s)", amqp_typename);
+    type_item = proto_tree_add_item(field_tree, hf_amqp_field_type, tvb, offset, 1, ENC_NA);
     offset += 1;
     length -= 1;
     switch (type) {
     case 'I': /* signed 32-bit */
-        amqp_typename = "integer";
         if (length < 4)
             return 0; /* too short */
-        value  = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi32,
-                                    tvb_get_ntohil(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_integer, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
-    case 'D':
-        amqp_typename = "decimal";
+    case 'D': /* 40-bit decimal floating point, biased towards small numbers */
+    {
         if (length < 5)
             return 0; /* too short */
-        value  = wmem_strdup_printf(wmem_packet_scope(), "%f",
-                                    tvb_get_ntohl(tvb, offset+1) / pow(10, tvb_get_guint8(tvb, offset)));
+        double decimal = tvb_get_ntohl(tvb, offset + 1) / pow(10, tvb_get_guint8(tvb, offset));
+        ti = proto_tree_add_double(field_tree, hf_amqp_field_decimal, tvb, offset, 5, decimal);
         offset += 5;
         break;
+    }
     case 'S': /* long string, UTF-8 encoded */
-        amqp_typename = "string";
         if (length < 4)
             return 0; /* too short */
-        vallen  = tvb_get_ntohl(tvb, offset);
-        offset += 4;
-        length -= 4;
-        if (length < vallen)
-            return 0; /* too short */
-        value  = (char*) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, vallen, ENC_UTF_8|ENC_NA);
+        ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_string, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_UTF_8, &vallen);
         offset += vallen;
         break;
     case 'T': /* timestamp (u64) */
         if (length < 8)
             return 0; /* too short */
-        tv.secs = (time_t)tvb_get_ntoh64(tvb, offset);
-        tv.nsecs = 0;
-
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_timestamp, tvb,
+                            offset, 8, ENC_TIME_SECS|ENC_BIG_ENDIAN);
         offset += 8;
-        ti = proto_tree_add_time(field_table_tree, hf_amqp_field_timestamp, tvb,
-                            value_start, offset - value_start, &tv);
-        proto_item_prepend_text(ti, "%s ", name);
-        return offset - value_start;
+        break;
     case 'F': /* nested table */
-        amqp_typename =  "field table";
         if (length < 4)
             return 0; /* too short */
         vallen  = tvb_get_ntohl(tvb, offset);
@@ -2545,90 +2579,67 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         length -= 4;
         if (length < vallen)
             return 0; /* too short */
-        ti = proto_tree_add_item(field_table_tree, hf_amqp_field, tvb,
-            value_start, offset+vallen - value_start, ENC_NA);
-        proto_item_set_text(ti, "%s (%s)", name, amqp_typename);
-        dissect_amqp_0_9_field_table(tvb, pinfo, offset, vallen, ti);
+        dissect_amqp_0_9_field_table(tvb, pinfo, offset, vallen, field_tree);
         offset += vallen;
-        return offset - value_start;
+        break;
     case 'V':
-        amqp_typename = "void";
-        value = "";
         break;
     /* AMQP 0-9-1 types */
     case 't': /* boolean */
-        amqp_typename = "boolean";
         if (length < 1)
             return 0; /* too short */
-        value   = tvb_get_guint8(tvb, offset) ? "true" : "false";
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_boolean, tvb, offset, 1, ENC_NA);
         offset += 1;
         break;
     case 'b': /* signed 8-bit */
-        amqp_typename = "byte";
         if (length < 1)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%d",
-                                     tvb_get_gint8(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_byte, tvb, offset, 1, ENC_NA);
         offset += 1;
         break;
     case 'B': /* unsigned 8-bit */
-        amqp_typename = "unsigned byte";
         if (length < 1)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%u",
-                                     tvb_get_guint8(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_unsigned_byte, tvb, offset, 1, ENC_NA);
         offset += 1;
         break;
     case 's': /* signed 16-bit */
-        amqp_typename = "short int";
         if (length < 2)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi16,
-                                     tvb_get_ntohis(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_short_int, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
     case 'u': /* unsigned 16-bit */
-        amqp_typename = "short uint";
         if (length < 2)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIu16,
-                                     tvb_get_ntohs(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_short_uint, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
     case 'i': /* unsigned 32-bit */
-        amqp_typename = "unsigned integer";
         if (length < 4)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIu32,
-                                     tvb_get_ntohl(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_unsigned_integer, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     case 'l': /* signed 64-bit */
-        amqp_typename = "long int";
         if (length < 8)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi64,
-                                     tvb_get_ntohi64(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_long_int, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         break;
     case 'f': /* 32-bit float */
-        amqp_typename = "float";
         if (length < 4)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%f",
-                                     tvb_get_ntohieee_float(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_float, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     case 'd': /* 64-bit float */
-        amqp_typename = "double";
         if (length < 8)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%f",
-                                     tvb_get_ntohieee_double(tvb, offset));
+        ti = proto_tree_add_item(field_tree, hf_amqp_field_double, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         break;
     case 'A': /* array */
-        amqp_typename = "array";
         if (length < 4)
             return 0; /* too short */
         vallen  = tvb_get_ntohl(tvb, offset);
@@ -2636,41 +2647,27 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         length -= 4;
         if (length < vallen)
             return 0; /* too short */
-        ti = proto_tree_add_item(field_table_tree, hf_amqp_field, tvb,
-            value_start, offset+vallen - value_start, ENC_NA);
-        proto_item_set_text(ti, "%s (%s)", name, amqp_typename);
         dissect_amqp_0_9_field_array(tvb, pinfo, offset, vallen, ti);
         offset += vallen;
-        return offset - value_start;
+        break;
     case 'x': /* byte array */
         if (length < 4)
             return 0; /* too short */
-        vallen  = tvb_get_ntohl(tvb, offset);
-        offset += 4;
-        length -= 4;
-        if (length < vallen)
-            return 0; /* too short */
-        ti = proto_tree_add_item(field_table_tree, hf_amqp_field_byte_array, tvb,
-                                 offset, vallen, ENC_NA);
-        proto_item_prepend_text(ti, "%s ", name);
+        ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_byte_array, tvb,
+                                 offset, 4, ENC_NA, &vallen);
         offset += vallen;
-        return offset - value_start;
-    default:
-        amqp_typename = "";
-        value = NULL;
         break;
+    default:
+        expert_add_info(pinfo, type_item, &ei_amqp_array_type_unknown);
+        /* Without knowing the type, we don't know how much to increment
+         * the offset, so break out. */
+        return 0;
     }
 
-    if (value != NULL)
-        proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
-                                   value_start, offset - value_start,
-                                   "%s (%s): %s", name, amqp_typename, value);
-    else
-        proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
-                                   value_start, offset - value_start,
-                                   "%s: unknown type %s",
-                                   name,
-                                   hfinfo_char_value_format_display(BASE_HEX, type_buf, type));
+    proto_item_set_end(field_item, tvb, offset);
+    if (ti != NULL) {
+        proto_item_append_text(field_item, ": %s", proto_item_get_display_repr(pinfo->pool, ti));
+    }
     return offset - value_start;
 }
 
@@ -13270,16 +13267,72 @@ proto_register_amqp(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL}},
         {&hf_amqp_field, {
-            "AMQP", "amqp.field",
+            "Field", "amqp.field",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
+        {&hf_amqp_field_name, {
+            "Name", "amqp.field.name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_type, {
+            "Type", "amqp.field.type",
+            FT_CHAR, BASE_HEX, VALS(amqp_0_9_field_type_vals), 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_integer, {
+            "Value", "amqp.field.integer",
+            FT_INT32, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_unsigned_integer, {
+            "Value", "amqp.field.unsigned_integer",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_string, {
+            "Value", "amqp.field.string",
+            FT_UINT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_boolean, {
+            "Value", "amqp.field.boolean",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_byte, {
+            "Value", "amqp.field.byte",
+            FT_INT8, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_unsigned_byte, {
+            "Value", "amqp.field.unsigned_byte",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_short_int, {
+            "Value", "amqp.field.short_int",
+            FT_INT16, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_short_uint, {
+            "Value", "amqp.field.short_uint",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_long_int, {
+            "Value", "amqp.field.long_int",
+            FT_INT64, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_float, {
+            "Value", "amqp.field.float",
+            FT_FLOAT, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_double, {
+            "Value", "amqp.field.double",
+            FT_DOUBLE, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_decimal, {
+            "Value", "amqp.field.decimal",
+            FT_DOUBLE, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
         {&hf_amqp_field_timestamp, {
-            "(timestamp)", "amqp.field.timestamp",
+            "Value", "amqp.field.timestamp",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL}},
         {&hf_amqp_field_byte_array, {
-            "(byte array)", "amqp.field.byte_array",
-            FT_BYTES, BASE_NONE, NULL, 0,
+            "Value", "amqp.field.byte_array",
+            FT_UINT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_header_class_id, {
             "Class ID", "amqp.header.class",
@@ -13552,6 +13605,7 @@ proto_register_amqp(void)
          &ett_props,
          &ett_field_table,
          &ett_amqp_init,
+         &ett_amqp_0_9_field,
          &ett_amqp_0_10_map,
          &ett_amqp_0_10_array,
          &ett_amqp_0_10_struct,
