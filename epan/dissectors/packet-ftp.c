@@ -946,7 +946,6 @@ static void process_pwd_success(ftp_conversation_t *conv, tvbuff_t *tvb,
 {
     wmem_strbuf_t *output;
     const char *line = tvb_get_ptr(tvb, offset, linelen);
-    offset = 0;
     gboolean outputStarted = FALSE;
 
     /* Line must start with quotes */
