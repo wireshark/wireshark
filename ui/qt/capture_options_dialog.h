@@ -91,7 +91,7 @@ private slots:
     void browseButtonClicked();
     void interfaceItemChanged(QTreeWidgetItem *item, int column);
     void itemClicked(QTreeWidgetItem *item, int column);
-    void itemDoubleClicked(QTreeWidgetItem *item);
+    void itemDoubleClicked(QTreeWidgetItem *item, int column);
     void changeEvent(QEvent* event);
     void tempDirBrowseButtonClicked();
 

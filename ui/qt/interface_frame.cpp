@@ -434,7 +434,10 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
     }
 #endif
 
-    startCapture(interfaces);
+    // Start capture for all columns except the first one with extcap
+    if (IFTREE_COL_EXTCAP != realIndex.column()) {
+        startCapture(interfaces);
+    }
 }
 
 #ifdef HAVE_LIBPCAP

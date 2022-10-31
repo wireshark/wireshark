@@ -233,7 +233,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
     connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
     connect(ui->interfaceTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
-    connect(ui->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*)));
+    connect(ui->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->tempDirBrowseButton, SIGNAL(clicked()), this, SLOT(tempDirBrowseButtonClicked()));
 
     ui->tabWidget->setCurrentIndex(0);
@@ -518,29 +518,41 @@ void CaptureOptionsDialog::itemClicked(QTreeWidgetItem *item, int column)
 #endif /* HAVE_LIBPCAP */
 }
 
-void CaptureOptionsDialog::itemDoubleClicked(QTreeWidgetItem *item)
+void CaptureOptionsDialog::itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(item);
     if (!ti) return;
 
-#ifdef HAVE_LIBPCAP
-    interface_t *device;
-    QString interface_name = ti->text(col_interface_);
-    device = find_device_by_if_name(interface_name);
-    if (!device) return;
+    switch(column) {
 
-    if (device->if_info.type == IF_EXTCAP) {
-        /* this checks if configuration is required and not yet provided or saved via prefs */
-        QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
-        if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
-        {
-            emit showExtcapOptions(device_name, true);
-            return;
+    // Double click starts capture just on columns which are not editable
+    case col_interface_:
+    case col_traffic_:
+    {
+#ifdef HAVE_LIBPCAP
+        interface_t *device;
+        QString interface_name = ti->text(col_interface_);
+        device = find_device_by_if_name(interface_name);
+        if (!device) return;
+
+        if (device->if_info.type == IF_EXTCAP) {
+            /* this checks if configuration is required and not yet provided or saved via prefs */
+            QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
+            if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
+            {
+                emit showExtcapOptions(device_name, true);
+                return;
+            }
         }
-    }
 #endif /* HAVE_LIBPCAP */
-    emit startCapture();
-    close();
+        emit startCapture();
+        close();
+        break;
+    }
+
+    default:
+        break;
+    }
 }
 
 void CaptureOptionsDialog::on_gbStopCaptureAuto_toggled(bool checked)
