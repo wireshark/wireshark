@@ -630,10 +630,11 @@ void MainStatusBar::manageProfile()
     QAction *pa = qobject_cast<QAction*>(sender());
 
     if (pa) {
-        ProfileDialog cp_dialog;
+        ProfileDialog * cp_dialog = new ProfileDialog(this);
+        cp_dialog->setAttribute(Qt::WA_DeleteOnClose);
 
         int profileAction = pa->property("dialog_action_").toInt();
-        cp_dialog.execAction(static_cast<ProfileDialog::ProfileAction>(profileAction));
+        cp_dialog->execAction(static_cast<ProfileDialog::ProfileAction>(profileAction));
     }
 }
 
