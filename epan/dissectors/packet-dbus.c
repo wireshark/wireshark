@@ -1019,7 +1019,7 @@ add_conversation(dbus_packet_t *packet, proto_tree *header_field_tree) {
 			// the conversation can be found.
 			address sender_addr;
 			set_address(&sender_addr, AT_STRINGZ, (int)strlen(request_dest)+1, request_dest);
-			conversation_create_endpoint(packet->pinfo, &sender_addr, &packet->pinfo->dst,
+			conversation_set_conv_addr_port_endpoints(packet->pinfo, &sender_addr, &packet->pinfo->dst,
 					conversation_pt_to_endpoint_type(packet->pinfo->ptype),
 					packet->pinfo->srcport, packet->pinfo->destport);
 
