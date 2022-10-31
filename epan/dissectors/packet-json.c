@@ -30,8 +30,8 @@
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
-static char* json_string_unescape(const char *string, size_t *length_ptr);
-static const char* get_json_string(tvbparse_elem_t *tok, gboolean remove_quotes);
+static char* json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length_ptr);
+static const char* get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, gboolean remove_quotes);
 
 static dissector_handle_t json_handle;
 static dissector_handle_t json_file_handle;
@@ -138,12 +138,12 @@ json_object_add_key(json_parser_data_t *data)
 }
 
 static char*
-json_string_unescape(const char *string, size_t *length_ptr)
+json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length_ptr)
 {
 	size_t read_index = 0;
 	size_t string_length = strlen(string);
 
-	wmem_strbuf_t* output_string_buffer = wmem_strbuf_sized_new(wmem_packet_scope(), string_length, 0);
+	wmem_strbuf_t* output_string_buffer = wmem_strbuf_sized_new(scope, string_length, 0);
 
 	while (true)
 	{
@@ -367,15 +367,15 @@ json_string_unescape(const char *string, size_t *length_ptr)
 /* This functions allocates memory with packet_scope but the returned pointer
  * cannot be freed. */
 static const char*
-get_json_string(tvbparse_elem_t *tok, gboolean remove_quotes)
+get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, gboolean remove_quotes)
 {
 	char *string;
 	size_t length;
 
-	string = tvb_get_string_enc(wmem_packet_scope(), tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+	string = tvb_get_string_enc(scope, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 
 	if (unescape_strings) {
-		string = json_string_unescape(string, &length);
+		string = json_string_unescape(scope, string, &length);
 	}
 	else {
 		length = strlen(string);
@@ -426,7 +426,7 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 }
 
 static char*
-join_strings(const char* string_a, const char* string_b, char separator)
+join_strings(wmem_allocator_t *pool, const char* string_a, const char* string_b, char separator)
 {
 	if (string_a == NULL)
 	{
@@ -437,7 +437,7 @@ join_strings(const char* string_a, const char* string_b, char separator)
 		return NULL;
 	}
 
-	wmem_strbuf_t* output_string_buffer = wmem_strbuf_new(wmem_packet_scope(), string_a);
+	wmem_strbuf_t* output_string_buffer = wmem_strbuf_new(pool, string_a);
 
 	if (separator != '\0')
 	{
@@ -515,11 +515,11 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	/* XXX*/
 	p_add_proto_data(pinfo->pool, pinfo, proto_json, 0, tvb);
 
-	parser_data.stack = wmem_stack_new(wmem_packet_scope());
+	parser_data.stack = wmem_stack_new(pinfo->pool);
 	wmem_stack_push(parser_data.stack, json_tree);
 
 	// extended path based filtering
-	parser_data.stack_path = wmem_stack_new(wmem_packet_scope());
+	parser_data.stack_path = wmem_stack_new(pinfo->pool);
 	wmem_stack_push(parser_data.stack_path, "");
 	wmem_stack_push(parser_data.stack_path, "");
 
@@ -546,10 +546,10 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		proto_tree* json_tree_compact = NULL;
 		json_tree_compact = proto_tree_add_subtree(json_tree, tvb, 0, -1, ett_json_compact, NULL, "JSON compact form:");
 
-		parser_data.stack_compact = wmem_stack_new(wmem_packet_scope());
+		parser_data.stack_compact = wmem_stack_new(pinfo->pool);
 		wmem_stack_push(parser_data.stack_compact, json_tree_compact);
 
-		parser_data.array_idx = wmem_stack_new(wmem_packet_scope());
+		parser_data.array_idx = wmem_stack_new(pinfo->pool);
 		wmem_stack_push(parser_data.array_idx, GINT_TO_POINTER(JSON_COMPACT_TOP_ITEM)); /* top element */
 	}
 
@@ -650,7 +650,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	proto_tree *subtree;
 	proto_item *ti;
 
-	const char* key_string_without_quotation_marks = get_json_string(tok->sub, TRUE);
+	const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, tok->sub, TRUE);
 
 	ti = proto_tree_add_string(tree, hf_json_member, tok->tvb, tok->offset, tok->len, key_string_without_quotation_marks);
 
@@ -663,7 +663,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	wmem_stack_push(data->stack_path, base_path);
 	wmem_stack_push(data->stack_path, last_key_string);
 
-	char* path = join_strings(base_path, key_string_without_quotation_marks, '/');
+	char* path = join_strings(data->pinfo->pool, base_path, key_string_without_quotation_marks, '/');
 	wmem_stack_push(data->stack_path, path);
 	/* stack won't write/free pointer. */
 	wmem_stack_push(data->stack_path, (void *)key_string_without_quotation_marks);
@@ -698,7 +698,7 @@ after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	tvbparse_elem_t* key_tok = tok->sub;
 	if (tree && key_tok && key_tok->id == JSON_TOKEN_STRING) {
 
-		const char* key_string_without_quotation_marks = get_json_string(key_tok, TRUE);
+		const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, key_tok, TRUE);
 
 		proto_tree_add_string(tree, hf_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key_string_without_quotation_marks);
 	}
@@ -741,7 +741,7 @@ before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	wmem_stack_push(data->stack_path, base_path);
 	wmem_stack_push(data->stack_path, last_key_string);
 
-	char* path = join_strings(base_path, "[]", '/');
+	char* path = join_strings(data->pinfo->pool, base_path, "[]", '/');
 
 	wmem_stack_push(data->stack_path, path);
 	wmem_stack_push(data->stack_path, "[]");
@@ -798,15 +798,15 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 	const char* value_str = NULL;
 	if (value_id == JSON_TOKEN_STRING && tok->len >= 2)
 	{
-		value_str = get_json_string(tok, TRUE);
+		value_str = get_json_string(data->pinfo->pool, tok, TRUE);
 	}
 	else
 	{
-		value_str = get_json_string(tok, FALSE);
+		value_str = get_json_string(data->pinfo->pool, tok, FALSE);
 	}
 
-	char* path_with_value = join_strings(path, value_str, ':');
-	char* memeber_with_value = join_strings(key_string, value_str, ':');
+	char* path_with_value = join_strings(data->pinfo->pool, path, value_str, ':');
+	char* memeber_with_value = join_strings(data->pinfo->pool, key_string, value_str, ':');
 	proto_item* path_with_value_item = proto_tree_add_string(tree, hf_json_path_with_value, tok->tvb, tok->offset, tok->len, path_with_value);
 	proto_item* member_with_value_item = proto_tree_add_string(tree, hf_json_member_with_value, tok->tvb, tok->offset, tok->len, memeber_with_value);
 
@@ -875,7 +875,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 
 		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
-		char *val_str = tvb_get_string_enc(wmem_packet_scope(), tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+		char *val_str = tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 
 		if (JSON_INSIDE_ARRAY(idx)) {
 			proto_tree_add_none_format(tree_compact, hf_json_array_item_compact, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
@@ -1027,7 +1027,7 @@ static gboolean
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint len = tvb_captured_length(tvb);
-	const guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
+	const guint8* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, len, ENC_ASCII);
 
 	if (json_validate(buf, len) == FALSE)
 		return FALSE;
