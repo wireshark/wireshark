@@ -33078,10 +33078,7 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
     set_src_addr_cols(pinfo, tvb, offset, "TA");
-    /* TODO: why adding as visible *and* hidden? */
     proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-    hidden = proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-    proto_item_set_hidden(hidden);
     hidden = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_ta_resolved, tvb,
                                    offset, 6, ether_name);
     proto_item_set_hidden(hidden);
