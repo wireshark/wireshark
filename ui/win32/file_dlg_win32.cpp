@@ -49,7 +49,7 @@ typedef enum {
     merge_prepend
 } merge_action_e;
 
-#define FILE_OPEN_DEFAULT 1 /* All Files */
+#define FILE_OPEN_DEFAULT 2 /* All Capture Files */
 
 #define FILE_MERGE_DEFAULT FILE_OPEN_DEFAULT
 

@@ -703,7 +703,9 @@ QDialogButtonBox *CaptureFileDialog::addHelpButton(topic_action_e help_topic)
 
 int CaptureFileDialog::open(QString &file_name, unsigned int &type, QString &display_filter) {
     setWindowTitle(mainApp->windowTitleString(tr("Open Capture File")));
-    setNameFilters(buildFileOpenTypeList());
+    QStringList open_type_filters(buildFileOpenTypeList());
+    setNameFilters(open_type_filters);
+    selectNameFilter(open_type_filters.at(1));
     setFileMode(QFileDialog::ExistingFile);
 
     addFormatTypeSelector(left_v_box_);
