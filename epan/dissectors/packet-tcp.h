@@ -320,6 +320,8 @@ typedef struct tcp_analyze_seq_flow_info_t {
 				 * fast retransmissions and outoforder
 				 */
 
+	guint8  lastacklen;     /* length of the last fwd ACK packet - 0 means pure ACK */
+
 	/*
 	 * Handling of SACK blocks
 	 * Copied from tcpheader

@@ -2470,14 +2470,28 @@ finished_fwd:
                         ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
                     }
 
-                    if( seq_not_advanced // XXX is this neccessary?
-                    && t < ooo_thres
-                    && tcpd->fwd->tcp_analyze_seq_info->nextseq != (seq + seglen + (flags&(TH_SYN|TH_FIN) ? 1 : 0))) {
-                        if(!tcpd->ta) {
-                            tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                    if(seq_not_advanced && t < ooo_thres) {
+                        /* ordinary OOO with SEQ numbers and lengths clearly stating the situation */
+                        if( tcpd->fwd->tcp_analyze_seq_info->nextseq != (seq + seglen + (flags&(TH_SYN|TH_FIN) ? 1 : 0))) {
+                            if(!tcpd->ta) {
+                                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                            }
+
+                            tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
+                            goto finished_checking_retransmission_type;
                         }
-                        tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
-                        goto finished_checking_retransmission_type;
+                        else {
+                            /* facing an OOO closing a series of disordered packets,
+                               all preceded by a pure ACK. See issue 17214 */
+                            if(tcpd->fwd->tcp_analyze_seq_info->lastacklen == 0) {
+                                if(!tcpd->ta) {
+                                    tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                                }
+
+                                tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
+                                goto finished_checking_retransmission_type;
+                            }
+                        }
                     }
                     precedence_count=!precedence_count;
                     break;
@@ -2532,6 +2546,14 @@ finished_checking_retransmission_type:
             nextseq+=1;
         }
         ual->nextseq=nextseq;
+    }
+
+    /* Every time we are moving the highest number seen,
+     * we are also tracking the segment length then we will know for sure,
+     * later, if this was a pure ACK or an ordinary data packet. */
+    if(!tcpd->fwd->tcp_analyze_seq_info->nextseq
+       || GT_SEQ(nextseq, tcpd->fwd->tcp_analyze_seq_info->nextseq + (flags&(TH_SYN|TH_FIN) ? 1 : 0))) {
+        tcpd->fwd->tcp_analyze_seq_info->lastacklen=seglen;
     }
 
     /* Store the highest number seen so far for nextseq so we can detect
