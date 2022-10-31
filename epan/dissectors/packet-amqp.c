@@ -29,12 +29,14 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
 #include <wsutil/str_util.h>
+#include <epan/uat.h>
 #include "packet-tcp.h"
 #include "packet-tls.h"
 
@@ -90,6 +92,30 @@ typedef struct _amqp_channel_t {
     amqp_delivery *last_delivery2;       /* list of unacked messages on tcp flow2 */
     amqp_content_params *content_params; /* parameters of content */
 } amqp_channel_t;
+
+typedef struct _amqp_message_decode_t {
+    guint32 match_criteria;
+    char *topic_pattern;
+    GRegex *topic_regex;
+    char *payload_proto_name;
+    dissector_handle_t payload_proto;
+    char *topic_more_info;
+} amqp_message_decode_t;
+
+#define MATCH_CRITERIA_EQUAL        0
+#define MATCH_CRITERIA_CONTAINS     1
+#define MATCH_CRITERIA_STARTS_WITH  2
+#define MATCH_CRITERIA_ENDS_WITH    3
+#define MATCH_CRITERIA_REGEX        4
+
+static const value_string match_criteria[] = {
+    { MATCH_CRITERIA_EQUAL,       "Equal to" },
+    { MATCH_CRITERIA_CONTAINS,    "Contains" },
+    { MATCH_CRITERIA_STARTS_WITH, "Starts with" },
+    { MATCH_CRITERIA_ENDS_WITH,   "Ends with" },
+    { MATCH_CRITERIA_REGEX,       "Regular Expression" },
+    { 0, NULL }
+};
 
 #define MAX_BUFFER 256
 
@@ -1537,6 +1563,66 @@ static expert_field ei_amqp_size_exceeds_65K = EI_INIT;
 static expert_field ei_amqp_array_type_unknown = EI_INIT;
 
 static dissector_handle_t amqp_tcp_handle = NULL;
+
+static amqp_message_decode_t *amqp_message_decodes;
+static guint num_amqp_message_decodes;
+
+static void *amqp_message_decode_copy_cb(void *dest, const void *orig, size_t len _U_)
+{
+    const amqp_message_decode_t *o = (const amqp_message_decode_t *)orig;
+    amqp_message_decode_t *d = (amqp_message_decode_t *)dest;
+
+    d->match_criteria = o->match_criteria;
+    d->topic_pattern = g_strdup(o->topic_pattern);
+    d->payload_proto_name = g_strdup(o->payload_proto_name);
+    d->payload_proto = o->payload_proto;
+    d->topic_more_info = g_strdup(o->topic_more_info);
+
+    return d;
+}
+
+static gboolean amqp_message_decode_update_cb(void *record, char **error)
+{
+    amqp_message_decode_t *u = (amqp_message_decode_t *)record;
+
+    if (u->topic_pattern == NULL || strlen(u->topic_pattern) == 0) {
+        *error = g_strdup("Missing topic pattern");
+        return FALSE;
+    }
+
+    if (u->payload_proto_name == NULL || strlen(u->payload_proto_name) == 0) {
+        *error = g_strdup("Missing payload protocol");
+        return FALSE;
+    }
+
+    if (u->match_criteria == MATCH_CRITERIA_REGEX) {
+        u->topic_regex = g_regex_new(u->topic_pattern, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
+        if (!u->topic_regex) {
+            *error = g_strdup_printf("Invalid regex: %s", u->topic_pattern);
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+static void amqp_message_decode_free_cb(void *record)
+{
+    amqp_message_decode_t *u = (amqp_message_decode_t *)record;
+
+    g_free(u->topic_pattern);
+    if (u->topic_regex) {
+        g_regex_unref(u->topic_regex);
+    }
+    g_free(u->payload_proto_name);
+    g_free(u->topic_more_info);
+}
+
+UAT_VS_DEF(message_decode, match_criteria, amqp_message_decode_t, guint32, MATCH_CRITERIA_EQUAL, "Equal to")
+UAT_CSTRING_CB_DEF(message_decode, topic_pattern, amqp_message_decode_t)
+UAT_PROTO_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, amqp_message_decode_t)
+UAT_CSTRING_CB_DEF(message_decode, topic_more_info, amqp_message_decode_t)
+
 
 /*  Various enumerations  */
 
@@ -10208,6 +10294,86 @@ dissect_amqp_1_0_fixed(tvbuff_t *tvb, packet_info *pinfo _U_,
     return length;
 }
 
+
+static gboolean find_data_dissector(tvbuff_t *msg_tvb, packet_info *pinfo, proto_tree *item)
+{
+    //get amqp to string field
+    if (item == NULL) return FALSE;
+
+    GPtrArray *array = proto_find_finfo(item, hf_amqp_1_0_to_str);
+
+    if (array == NULL) return FALSE;
+    if (array->len == 0) {
+        g_ptr_array_free(array, TRUE);
+        return FALSE;
+    }
+
+    field_info *fi = (field_info*)array->pdata[0];
+    if (fi == NULL || !IS_FT_STRING(fvalue_type_ftenum(&fi->value))) {
+        g_ptr_array_free(array, TRUE);
+        return FALSE;
+    }
+
+    const char* msg_to = fvalue_get_string(&fi->value);
+
+    amqp_message_decode_t *message_decode_entry = NULL;
+    size_t topic_str_len;
+    size_t topic_pattern_len;
+    gboolean match_found = FALSE;
+
+    //compare amqp to string field with uat entries
+    for (guint i = 0; i < num_amqp_message_decodes && !match_found; i++) {
+        message_decode_entry = &amqp_message_decodes[i];
+        switch (message_decode_entry->match_criteria) {
+
+            case MATCH_CRITERIA_EQUAL:
+                match_found = (strcmp(msg_to, message_decode_entry->topic_pattern) == 0);
+                break;
+
+            case MATCH_CRITERIA_CONTAINS:
+                match_found = (strstr(msg_to, message_decode_entry->topic_pattern) != NULL);
+                break;
+
+            case MATCH_CRITERIA_STARTS_WITH:
+                topic_str_len = strlen(msg_to);
+                topic_pattern_len = strlen(message_decode_entry->topic_pattern);
+                match_found = ((topic_str_len >= topic_pattern_len) &&
+                               (strncmp(msg_to, message_decode_entry->topic_pattern, topic_pattern_len) == 0));
+                break;
+
+            case MATCH_CRITERIA_ENDS_WITH:
+                topic_str_len = strlen(msg_to);
+                topic_pattern_len = strlen(message_decode_entry->topic_pattern);
+                match_found = ((topic_str_len >= topic_pattern_len) &&
+                               (strcmp(msg_to + (topic_str_len - topic_pattern_len), message_decode_entry->topic_pattern) == 0));
+                break;
+
+            case MATCH_CRITERIA_REGEX:
+                if (message_decode_entry->topic_regex) {
+                  GMatchInfo *match_info = NULL;
+                  g_regex_match(message_decode_entry->topic_regex, msg_to, (GRegexMatchFlags) 0, &match_info);
+                  match_found = g_match_info_matches(match_info);
+                  g_match_info_free(match_info);
+                }
+                break;
+
+            default:
+                /* Unknown match criteria */
+                break;
+        }
+
+
+        if (match_found) {
+            call_dissector_with_data(message_decode_entry->payload_proto, msg_tvb, pinfo, item , message_decode_entry->topic_more_info);
+        }
+    }
+
+
+    g_ptr_array_free(array, TRUE);
+
+    return match_found;
+}
+
 static int
 dissect_amqp_1_0_variable(tvbuff_t *tvb, packet_info *pinfo,
                           guint offset, guint length,
@@ -10226,7 +10392,15 @@ dissect_amqp_1_0_variable(tvbuff_t *tvb, packet_info *pinfo,
     }
     offset += length;
 
-    proto_tree_add_item(item, hf_amqp_type, tvb, offset, bin_length, ENC_NA);
+    gboolean is_dissected = FALSE;
+    if (hf_amqp_type == hf_amqp_1_0_data) {
+        tvbuff_t *msg_tvb = tvb_new_subset_length_caplen(tvb, offset, bin_length, bin_length);
+        is_dissected = find_data_dissector(msg_tvb, pinfo, item);
+    }
+
+    if (!is_dissected) {
+        proto_tree_add_item(item, hf_amqp_type, tvb, offset, bin_length, ENC_NA);
+    }
     return length+bin_length;
 }
 
@@ -13418,6 +13592,32 @@ proto_register_amqp(void)
         { &ei_amqp_array_type_unknown, { "amqp.array_type_unknown", PI_PROTOCOL, PI_WARN, "Array type unknown", EXPFILL}},
     };
 
+
+    static uat_field_t amqp_message_decode_flds[] = {
+        UAT_FLD_VS(message_decode, match_criteria, "Match criteria", match_criteria, "Match criteria"),
+        UAT_FLD_CSTRING(message_decode, topic_pattern, "Topic pattern", "Pattern to match for the topic"),
+        UAT_FLD_PROTO(message_decode, payload_proto, "Payload protocol",
+                      "Protocol to be used for the message part of the matching topic"),
+        UAT_FLD_CSTRING(message_decode, topic_more_info, "Additional Data", "Additional Data to pass to the disector"),
+        UAT_END_FIELDS
+    };
+
+    uat_t *message_uat = uat_new("Message Decoding",
+                               sizeof(amqp_message_decode_t),
+                               "amqp_message_decoding",
+                               TRUE,
+                               &amqp_message_decodes,
+                               &num_amqp_message_decodes,
+                               UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
+                               "ChamqpMessageDecoding",
+                               amqp_message_decode_copy_cb,
+                               amqp_message_decode_update_cb,
+                               amqp_message_decode_free_cb,
+                               NULL,
+                               NULL,
+                               amqp_message_decode_flds);
+
+
     expert_module_t* expert_amqp;
     module_t *amqp_module;
 
@@ -13453,6 +13653,11 @@ proto_register_amqp(void)
     prefs_register_obsolete_preference(amqp_module, "ssl.port");
 
     register_decode_as(&amqp_da);
+
+    prefs_register_uat_preference(amqp_module, "message_decode_table",
+                                "Message Decoding",
+                                "A table that enumerates custom message decodes to be used for a certain topic",
+                                message_uat);
 }
 
 void
