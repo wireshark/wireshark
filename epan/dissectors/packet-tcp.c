@@ -2516,11 +2516,17 @@ finished_fwd:
              * better case scenario: if we have a list of the previous unacked packets,
              * go back to the eldest one, which in theory is likely to be the one retransmitted here.
              * It's not always the perfect match, particularly when original captured packet used LSO
+             * We may parse this list and try to find an obvious matching packet present in the
+             * capture. If such packet is actually missing, we'll reach the list first entry.
+             * See : issue #12259
+             * See : issue #17714
              */
             ual = tcpd->fwd->tcp_analyze_seq_info->segments;
             while(ual) {
-                nstime_delta(&tcpd->ta->rto_ts, &pinfo->abs_ts, &ual->ts );
-                tcpd->ta->rto_frame=ual->frame;
+                if(GE_SEQ(ual->seq, seq)) {
+                    nstime_delta(&tcpd->ta->rto_ts, &pinfo->abs_ts, &ual->ts );
+                    tcpd->ta->rto_frame=ual->frame;
+                }
                 ual=ual->next;
             }
         }
