@@ -36504,7 +36504,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_pv1_cnt_bat_bitmap,
      {"BAT Bitmap", "wlan.pv1.control.bat.bat_bitmap",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_pv1_mgmt_reserved,
      {"PV1 Reserved Management frame", "wlan.pv1.management.reserved",
@@ -37138,7 +37138,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_key_data_length,
      {"Key Data Length", "wlan.fixed.key_data_length",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_wnm_notification_type,
      {"WNM-Notification type", "wlan.fixed.wnm_notification_type",
@@ -41337,7 +41337,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_hs20_icons_avail_len,
      {"Icons Available Length", "wlan.hs20.osu_icons_avail_len",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_hs20_osu_providers_list_ssid_len,
      {"SSID Length", "wlan.hs20.anqp_osu_prov_list.ssid_len",
@@ -42958,7 +42958,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_pentapartial_timestamp,
      {"Pentapartial Timestamp", "wlan.s1g.pentapartial_timestamp",
-      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_tack_next_twt_info,
      {"Next TWT Info/Suspend Duration", "wlan.s1g.next_twt_info",
@@ -43610,7 +43610,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_s1g_short_beacon_interval,
      {"Short Beacon Interval", "wlan.sig.short_beacon_interval",
-      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_change_sequence,
      {"Change Sequence", "wlan.s1g.change_sequence",
