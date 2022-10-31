@@ -5520,8 +5520,8 @@ dissect_e2ap_EventTrigger_Cell_Info_Item_Choice_Individual(tvbuff_t *tvb _U_, in
 
 static int
 dissect_e2ap_RANParameter_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 4294967295U, NULL, TRUE);
+  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
+                                                            1U, G_GUINT64_CONSTANT(4294967296), NULL, TRUE);
 
   return offset;
 }
@@ -11994,7 +11994,7 @@ void proto_register_e2ap(void) {
         NULL, HFILL }},
     { &hf_e2ap_ranParameter_ID,
       { "ranParameter-ID", "e2ap.ranParameter_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e2ap_ranParameter_name,
       { "ranParameter-name", "e2ap.ranParameter_name",

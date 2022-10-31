@@ -204,8 +204,7 @@ EventTrigger-UEevent-Info-Item ::= SEQUENCE {
 -------------------------------
 
 -- RANParameter-ID 	::= INTEGER (1..2^32, ...)
--- N.B. will not cope with highest value..
-RANParameter-ID 	::= INTEGER (1..4294967295, ...)
+RANParameter-ID 	::= INTEGER (1..4294967296, ...)
 
 RANParameter-Name ::= PrintableString (SIZE(1..150, ...))
 
