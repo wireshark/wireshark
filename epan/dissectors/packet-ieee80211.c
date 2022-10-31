@@ -48775,12 +48775,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_ndp_annc_ru_start,
      {"RU Start Index", "wlan.he_ndp.sta_info.ru_start",
-      FT_UINT32, BASE_HEX, NULL, 0x3F800,
+      FT_UINT32, BASE_HEX, NULL, 0x0003F800,
       "26-tone RU start index of the target STA", HFILL }},
 
     {&hf_ieee80211_he_ndp_annc_ru_end,
      {"RU End Index", "wlan.he_ndp.sta_info.ru_end",
-      FT_UINT32, BASE_HEX, NULL, 0x1FC0000,
+      FT_UINT32, BASE_HEX, NULL, 0x01FC0000,
       "26-tone RU end index  of the target STA", HFILL }},
 
     {&hf_ieee80211_he_ndp_annc_feedback_type_and_ng,
