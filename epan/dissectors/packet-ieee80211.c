@@ -1839,6 +1839,28 @@ static const value_string ieee80211_tag_measure_report_beacon_sub_id_vals[] = {
   { 0x00, NULL}
 };
 
+#define MEASURE_REP_LCI_SUB_REPORTED_LCI 0
+#define MEASURE_REP_LCI_SUB_REPORTED_AZIMUTH_REPORT 1
+#define MEASURE_REP_LCI_SUB_REPORTED_OR_STA 2
+#define MEASURE_REP_LCI_SUB_REPORTED_T_MAC 3
+#define MEASURE_REP_LCI_SUB_REPORTED_Z 4
+#define MEASURE_REP_LCI_SUB_REPORTED_RLE 5
+#define MEASURE_REP_LCI_SUB_REPORTED_URP 6
+#define MEASURE_REP_LCI_SUB_REPORTED_CO_BSSID 7
+
+static const value_string ieee80211_tag_measure_report_lci_sub_id_vals[] = {
+  { MEASURE_REP_LCI_SUB_REPORTED_LCI, "LCI" },
+  { MEASURE_REP_LCI_SUB_REPORTED_AZIMUTH_REPORT, "Azimuth Report" },
+  { MEASURE_REP_LCI_SUB_REPORTED_OR_STA, "Originator Requesting STA MAC Address" },
+  { MEASURE_REP_LCI_SUB_REPORTED_T_MAC, "Target MAC Address" },
+  { MEASURE_REP_LCI_SUB_REPORTED_Z, "Z" },
+  { MEASURE_REP_LCI_SUB_REPORTED_RLE, "Relative Location Error" },
+  { MEASURE_REP_LCI_SUB_REPORTED_URP, "Usage Rules/Policy" },
+  { MEASURE_REP_LCI_SUB_REPORTED_CO_BSSID, "Co-Located BSSID List" },
+  { 221, "Vendor Specific" },
+  { 0x00, NULL}
+};
+
 static const value_string frame_type[] = {
   {MGT_FRAME,       "Management frame"},
   {CONTROL_FRAME,   "Control frame"},
@@ -5331,6 +5353,15 @@ static int hf_ieee80211_tag_measure_reported_frame_frag_rep_id = -1;
 static int hf_ieee80211_tag_measure_reported_frame_frag_number = -1;
 static int hf_ieee80211_tag_measure_reported_frame_frag_more =-1;
 
+static int hf_ieee80211_tag_measure_report_lci_sub_id = -1;
+static int hf_ieee80211_tag_measure_report_lci_lci = -1;
+static int hf_ieee80211_tag_measure_report_lci_z_sta_floor_info = -1;
+static int hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_expected_to_move = -1;
+static int hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_sta_floor_number = -1;
+static int hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor = -1;
+static int hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor_uncertainty = -1;
+static int hf_ieee80211_tag_measure_report_lci_unknown = -1;
+
 static int hf_ieee80211_tag_measure_report_unknown = -1;
 
 static int hf_ieee80211_tag_quiet_count = -1;
@@ -7559,6 +7590,7 @@ static gint ett_tag_measure_report_frame_tree = -1;
 static gint ett_tag_measure_report_sub_element_tree = -1;
 static gint ett_tag_measure_reported_frame_tree = -1;
 static gint ett_tag_measure_reported_frame_frag_id_tree = -1;
+static gint ett_tag_measure_reported_lci_z_tree = -1;
 static gint ett_tag_bss_bitmask_tree = -1;
 static gint ett_tag_dfs_map_tree = -1;
 static gint ett_tag_dfs_map_flags_tree = -1;
@@ -7720,6 +7752,7 @@ static expert_field ei_ieee80211_tag_measure_request_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_measure_request_beacon_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_measure_report_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_measure_report_beacon_unknown = EI_INIT;
+static expert_field ei_ieee80211_tag_measure_report_lci_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_number = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_info_length = EI_INIT;
 static expert_field ei_hs20_anqp_ofn_length = EI_INIT;
@@ -27575,7 +27608,80 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case 7: /* BSTA Statistics Report */
     /* TODO */
   case 8: /* Location Configuration Information Report element */
-    /* TODO */
+    //proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_parent_tsf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    //offset += 4;
+
+    while (offset < tag_len)
+    {
+      guint8 sub_id, sub_length, sub_tag_end;;
+      proto_item *sub_elem_item, *sub_elem_len_item;
+      proto_tree *sub_elem_tree;
+
+      sub_elem_item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_lci_sub_id,
+                                          tvb, offset, 1, ENC_NA);
+      sub_id = tvb_get_guint8(tvb, offset);
+      offset += 1;
+
+      sub_elem_tree = proto_item_add_subtree(sub_elem_item, ett_tag_measure_report_sub_element_tree);
+
+      sub_elem_len_item = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_subelement_length,
+                                              tvb, offset, 1, ENC_NA);
+      sub_length = tvb_get_guint8(tvb, offset);
+      offset += 1;
+      sub_tag_end = offset + sub_length;
+
+      if (sub_tag_end > tag_len)
+      {
+        expert_add_info_format(pinfo, sub_elem_len_item, &ei_ieee80211_tag_length, "Sub Element length exceed Tag length");
+        return tvb_captured_length(tvb);
+      }
+
+      switch (sub_id) {
+        case MEASURE_REP_LCI_SUB_REPORTED_LCI: /* Location Configuration Information (0) */
+        {
+          proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_lci,
+                              tvb, offset, 16, ENC_LITTLE_ENDIAN);
+          offset += 16;
+          break;
+        }
+        case MEASURE_REP_LCI_SUB_REPORTED_Z: /* Z (4) */
+        {
+          static int * const ieee80211_tag_measure_reported_lci_z_sta_floor_info[] = {
+            &hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_expected_to_move,
+            &hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_sta_floor_number,
+            NULL
+          };
+          proto_tree_add_bitmask_with_flags(sub_elem_tree, tvb, offset,
+                                            hf_ieee80211_tag_measure_report_lci_z_sta_floor_info,
+                                            ett_tag_measure_reported_lci_z_tree,
+                                            ieee80211_tag_measure_reported_lci_z_sta_floor_info,
+                                            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+          offset += 2;
+
+          proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor,
+                              tvb, offset, 3, ENC_LITTLE_ENDIAN);
+          offset += 3;
+
+          proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor_uncertainty,
+                              tvb, offset, 1, ENC_LITTLE_ENDIAN);
+          offset += 1;
+          break;
+        }
+        default:
+          /* no default action */
+          break;
+      }
+
+      if (offset < sub_tag_end)
+      {
+        proto_item *tix;
+        tix = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_unknown,
+                                  tvb, offset, sub_tag_end - offset, ENC_NA);
+        expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_report_lci_unknown);
+        offset = sub_tag_end;
+      }
+    }
+    break;
   case 9: /* Transmit Stream Measurement Report */
     /* TODO */
   case 10: /* Multicast Diagnostics Report */
@@ -45912,6 +46018,46 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, BASE_DEC, TFS(&tfs_yes_no), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_measure_report_lci_sub_id,
+     {"SubElement ID", "wlan.measure.req.lci.sub.id",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_report_lci_sub_id_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_lci,
+     {"LCI", "wlan.measure.req.lci.lci",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "Location Configuration Information", HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_z_sta_floor_info,
+     {"STA Floor Info", "wlan.measure.req.lci.z.sta_floor_info",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_expected_to_move,
+     {"Expected To Move", "wlan.measure.req.lci.z.sta_floor_info.expected_to_move",
+      FT_UINT16, BASE_DEC, NULL, 0x0003,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_sta_floor_number,
+     {"STA Floor Number", "wlan.measure.req.lci.z.sta_floor_info.sta_floor_number",
+      FT_UINT16, BASE_DEC, NULL, 0xFFFC,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor,
+     {"STA Height Above Floor", "wlan.measure.req.lci.z.sta_height_above_floor",
+      FT_UINT24, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor_uncertainty,
+     {"STA Height Above Floor Uncertainty", "wlan.measure.req.lci.z.sta_height_above_floor_uncertainty",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_unknown,
+     {"Unknown Data", "wlan.measure.rep.lci.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "(not interpreted)", HFILL }},
+
     {&hf_ieee80211_tag_quiet_count,
      {"Count", "wlan.quiet.count",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -51854,6 +52000,7 @@ proto_register_ieee80211(void)
     &ett_tag_measure_report_sub_element_tree,
     &ett_tag_measure_reported_frame_tree,
     &ett_tag_measure_reported_frame_frag_id_tree,
+    &ett_tag_measure_reported_lci_z_tree,
     &ett_tag_bss_bitmask_tree,
     &ett_tag_dfs_map_tree,
     &ett_tag_dfs_map_flags_tree,
@@ -52231,6 +52378,10 @@ proto_register_ieee80211(void)
 
     { &ei_ieee80211_tag_measure_report_beacon_unknown,
       { "wlan.measure.rep.beacon.unknown.expert", PI_UNDECODED, PI_WARN,
+        "Unknown Data (not interpreted)", EXPFILL }},
+
+    { &ei_ieee80211_tag_measure_report_lci_unknown,
+      { "wlan.measure.rep.lci.unknown.expert", PI_UNDECODED, PI_WARN,
         "Unknown Data (not interpreted)", EXPFILL }},
 
     { &ei_ieee80211_tag_data,
