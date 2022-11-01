@@ -429,6 +429,8 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
         copy_address(&follow_info->client_ip, &pinfo->src);
+        follow_info->server_port = pinfo->destport;
+        copy_address(&follow_info->server_ip, &pinfo->dst);
     }
     if (addresses_equal(&follow_info->client_ip, &pinfo->src) &&
             follow_info->client_port == pinfo->srcport) {
