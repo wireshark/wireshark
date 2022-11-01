@@ -20,7 +20,8 @@
 
 ## Sample capture file
 
-(If possible attach a sample capture file, not screenshot of dissection, showing this issue)
+(If possible attach a sample capture file, not screenshot of dissection, showing this issue.
+ You can do so by using the paper clip button in the editor menu bar.)
 
 
 ## Relevant logs and/or screenshots
