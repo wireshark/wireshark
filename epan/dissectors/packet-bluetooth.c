@@ -18,6 +18,8 @@
 
 #include <string.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/uat.h>
 #include <epan/to_str.h>
 #include <epan/conversation_table.h>
 #include <epan/decode_as.h>
@@ -63,6 +65,14 @@ wmem_tree_t *bluetooth_uuids = NULL;
 static int bluetooth_tap = -1;
 int bluetooth_device_tap = -1;
 int bluetooth_hci_summary_tap = -1;
+
+// UAT structure
+typedef struct _bt_uuid_t {
+    gchar *uuid;
+    gchar *label;
+} bt_uuid_t;
+static bt_uuid_t *bt_uuids;
+static guint num_bt_uuids;
 
 // Registery updated to published status of 12 March 2022
 
@@ -4271,6 +4281,86 @@ guint32 bluetooth_max_disconnect_in_frame = G_MAXUINT32;
 void proto_register_bluetooth(void);
 void proto_reg_handoff_bluetooth(void);
 
+/* UAT routines */
+static gboolean
+bt_uuids_update_cb(void *r, char **err)
+{
+    bt_uuid_t *rec = (bt_uuid_t *)r;
+
+    if (rec->uuid == NULL) {
+        *err = g_strdup("UUID can't be empty");
+        return FALSE;
+    }
+    g_strstrip(rec->uuid);
+    if (rec->uuid[0] == 0) {
+        *err = g_strdup("UUID can't be empty");
+        return FALSE;
+    }
+
+    if (rec->label == NULL) {
+        *err = g_strdup("UUID Name can't be empty");
+        return FALSE;
+    }
+    g_strstrip(rec->label);
+    if (rec->label[0] == 0) {
+        *err = g_strdup("UUID Name can't be empty");
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+static void *
+bt_uuids_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+    bt_uuid_t* new_rec = (bt_uuid_t*)n;
+    const bt_uuid_t* old_rec = (const bt_uuid_t*)o;
+
+    new_rec->uuid = g_strdup(old_rec->uuid);
+    new_rec->label = g_strdup(old_rec->label);
+
+    return new_rec;
+}
+
+static void
+bt_uuids_free_cb(void*r)
+{
+    bt_uuid_t* rec = (bt_uuid_t*)r;
+
+    const gchar *found_label;
+
+    found_label = wmem_tree_lookup_string(bluetooth_uuids, rec->uuid, 0);
+
+    if (found_label != NULL && !strcmp(found_label, rec->label)) {
+        wmem_tree_remove_string(bluetooth_uuids, rec->uuid, 0);
+    }
+
+    g_free(rec->uuid);
+    g_free(rec->label);
+}
+
+static void
+bt_uuids_post_update_cb(void)
+{
+    if (num_bt_uuids) {
+        for (guint i = 0; i < num_bt_uuids; i++) {
+            wmem_tree_insert_string(bluetooth_uuids, bt_uuids[i].uuid,
+                                    bt_uuids[i].label,
+                                    0);
+        }
+    }
+}
+
+static void
+bt_uuids_reset_cb(void)
+{
+}
+
+UAT_CSTRING_CB_DEF(bt_uuids, uuid, bt_uuid_t)
+UAT_CSTRING_CB_DEF(bt_uuids, label, bt_uuid_t)
+
+/* Decode As routines */
 static void bluetooth_uuid_prompt(packet_info *pinfo, gchar* result)
 {
     gchar *value_data;
@@ -4863,6 +4953,15 @@ proto_register_bluetooth(void)
         &ett_bluetooth,
     };
 
+    // UAT
+    module_t *bluetooth_module;
+    uat_t* bluetooth_uuids_uat;
+    static uat_field_t bluetooth_uuids_uat_fields[] = {
+        UAT_FLD_CSTRING(bt_uuids, uuid, "UUID", "UUID"),
+        UAT_FLD_CSTRING(bt_uuids, label, "UUID Name", "Readable label"),
+        UAT_END_FIELDS
+    };
+
     /* Decode As handling */
     static build_valid_func bluetooth_uuid_da_build_value[1] = {bluetooth_uuid_value};
     static decode_as_value_t bluetooth_uuid_da_values = {bluetooth_uuid_prompt, 1, bluetooth_uuid_da_build_value};
@@ -4904,6 +5003,27 @@ proto_register_bluetooth(void)
     register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_endpoint_packet);
 
     register_decode_as(&bluetooth_uuid_da);
+
+    bluetooth_module = prefs_register_protocol(proto_bluetooth, NULL);
+    bluetooth_uuids_uat = uat_new("Custom Bluetooth UUID names",
+                                  sizeof(bt_uuid_t),
+                                  "bluetooth_uuids",
+                                  TRUE,
+                                  &bt_uuids,
+                                  &num_bt_uuids,
+                                  UAT_AFFECTS_DISSECTION,
+                                  NULL,
+                                  bt_uuids_copy_cb,
+                                  bt_uuids_update_cb,
+                                  bt_uuids_free_cb,
+                                  bt_uuids_post_update_cb,
+                                  bt_uuids_reset_cb,
+                                  bluetooth_uuids_uat_fields);
+
+    prefs_register_uat_preference(bluetooth_module, "uuids",
+                                  "Custom Bluetooth UUID names",
+                                  "Assign readable names to custom UUIDs",
+                                  bluetooth_uuids_uat);
 }
 
 void
