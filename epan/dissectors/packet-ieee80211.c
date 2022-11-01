@@ -1659,7 +1659,14 @@ static const value_string ieee80211_tag_measure_request_type_flags[] = {
   {0x07, "STA Statistics Request"},
   {0x08, "Location Configuration Indication (LCI) Request"},
   {0x09, "Transmit Stream Measurement Request"},
-  {0x0A, "Measurement Pause Request"},
+  {0x0a, "Multicast Diagnostics Request"},
+  {0x0b, "Location Civic Request"},
+  {0x0c, "Location Identifier Request"},
+  {0x0d, "Directional Channel Quality Request"},
+  {0x0e, "Directional Measurement Request"},
+  {0x0f, "Directional Statistics Request"},
+  {0x10, "Fine Timing Measurement Range Request"},
+  {0xFF, "Measurement Pause Request"},
   {0x00, NULL}
 };
 static value_string_ext ieee80211_tag_measure_request_type_flags_ext =
@@ -1676,6 +1683,13 @@ static const value_string ieee80211_tag_measure_report_type_flags[] = {
   { 0x07, "STA Statistics Report" },
   { 0x08, "Location Configuration Information (LCI) Report" },
   { 0x09, "Transmit Stream Measurement Report" },
+  { 0x0a, "Multicast Diagnostics Report"},
+  { 0x0b, "Location Civic Report"},
+  { 0x0c, "Location Identifier Report"},
+  { 0x0d, "Directional Channel Quality Report"},
+  { 0x0e, "Directional Measurement Report"},
+  { 0x0f, "Directional Statistics Report"},
+  { 0x10, "Fine Timing Measurement Range Report"},
   { 0x00, NULL }
 };
 static value_string_ext ieee80211_tag_measure_report_type_flags_ext =
@@ -27188,19 +27202,21 @@ ieee80211_tag_measure_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
      break;
    case 9: /* Transmit Stream Measurement Request */
     /* TODO */
-   case 10: /* Multicast diagnostics request */
+   case 10: /* Multicast Diagnostics Request */
     /* TODO */
-   case 11: /* Location Civic request */
+   case 11: /* Location Civic Request */
     /* TODO */
-   case 12: /* Location Identifier request */
+   case 12: /* Location Identifier Request */
     /* TODO */
-   case 13: /* Directional channel quality request */
+   case 13: /* Directional Channel Quality Request */
     /* TODO */
-   case 14: /* Directional measurement request */
+   case 14: /* Directional Measurement Request */
     /* TODO */
-   case 15: /* Directional statistics request */
+   case 15: /* Directional Statistics Request */
     /* TODO */
-   case 255: /* Measurement Pause Request*/
+   case 16: /* Fine Timing Measurement Range Request */
+    /* TODO */
+   case 255: /* Measurement Pause Request */
     /* TODO */
    default: /* unknown */
     break;
@@ -27562,17 +27578,19 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* TODO */
   case 9: /* Transmit Stream Measurement Report */
     /* TODO */
-  case 10: /* Multicast diagnostics Report */
+  case 10: /* Multicast Diagnostics Report */
     /* TODO */
   case 11: /* Location Civic Report */
     /* TODO */
   case 12: /* Location Identifier Report */
     /* TODO */
-  case 13: /* Directional channel quality Report */
+  case 13: /* Directional Channel Quality Report */
     /* TODO */
-  case 14: /* Directional measurement Report */
+  case 14: /* Directional Measurement Report */
     /* TODO */
-  case 15: /* Directional statistics Report */
+  case 15: /* Directional Statistics Report */
+    /* TODO */
+  case 16: /* Fine Timing Measurement range Report */
     /* TODO */
   default: /* unknown */
     break;
