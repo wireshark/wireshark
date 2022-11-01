@@ -1766,6 +1766,13 @@ static const value_string ieee80211_tag_measure_request_group_id_flags[] = {
 static value_string_ext ieee80211_tag_measure_request_group_id_flags_ext =
   VALUE_STRING_EXT_INIT(ieee80211_tag_measure_request_group_id_flags);
 
+static const value_string ieee80211_tag_measure_request_location_subject[] = {
+  { 0, "Local" },
+  { 1, "Remote" },
+  { 2, "Third party" },
+  { 0x00, NULL }
+};
+
 static const value_string ieee80211_tclas_process_flag[] = {
   {0x00, "Incoming MSDU's higher layer parameters have to match to the parameters in all associated TCLAS elements."},
   {0x01, "Incoming MSDU's higher layer parameters have to match to at least one of the associated TCLAS elements."},
@@ -4677,6 +4684,8 @@ static int hf_ieee80211_tag_measure_request_frame_request_type = -1;
 static int hf_ieee80211_tag_measure_request_mac_address  = -1;
 static int hf_ieee80211_tag_measure_request_peer_mac_address = -1;
 static int hf_ieee80211_tag_measure_request_group_id = -1;
+
+static int hf_ieee80211_tag_measure_request_location_subject = -1;
 
 static int hf_ieee80211_tag_measure_request_unknown = -1;
 
@@ -27172,7 +27181,11 @@ ieee80211_tag_measure_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
      break;
    }
    case 8: /* Location Configuration Indication (LCI) Request */
-    /* TODO */
+     proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_location_subject, tvb, offset, 1, ENC_NA);
+     offset += 1;
+
+     /* TODO Add Optional Subelements */
+     break;
    case 9: /* Transmit Stream Measurement Request */
     /* TODO */
    case 10: /* Multicast diagnostics request */
@@ -45579,6 +45592,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_measure_request_group_id,
      {"Group ID", "wlan.measure.req.groupid",
       FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ieee80211_tag_measure_request_group_id_flags_ext, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_location_subject,
+     {"Location Subject", "wlan.measure.req.location_subject",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_location_subject), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_unknown,
