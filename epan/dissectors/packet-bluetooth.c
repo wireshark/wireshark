@@ -4314,7 +4314,7 @@ dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
     if (have_tap_listener(bluetooth_device_tap)) {
         bluetooth_device_tap_t  *tap_device;
 
-        tap_device = wmem_new(wmem_packet_scope(), bluetooth_device_tap_t);
+        tap_device = wmem_new(pinfo->pool, bluetooth_device_tap_t);
         tap_device->interface_id = interface_id;
         tap_device->adapter_id   = adapter_id;
         memcpy(tap_device->bd_addr, bd_addr, 6);
@@ -4353,7 +4353,7 @@ save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinf
         switch(tvb_get_guint8(tvb, offset + i + 1)) {
         case 0x08: /* Device Name, shortened */
         case 0x09: /* Device Name, full */
-            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + i + 2, length - 1, ENC_ASCII);
+            name = tvb_get_string_enc(pinfo->pool, tvb, offset + i + 2, length - 1, ENC_ASCII);
 
             k_interface_id = bluetooth_data->interface_id;
             k_adapter_id = bluetooth_data->adapter_id;
@@ -4531,17 +4531,17 @@ get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size)
 }
 
 const gchar *
-print_numeric_bluetooth_uuid(bluetooth_uuid_t *uuid)
+print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
 {
     if (!(uuid && uuid->size > 0))
         return NULL;
 
     if (uuid->size != 16) {
-        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+        return bytes_to_str(pool, uuid->data, uuid->size);
     } else {
         gchar *text;
 
-        text = (gchar *) wmem_alloc(wmem_packet_scope(), 38);
+        text = (gchar *) wmem_alloc(pool, 38);
         bytes_to_hexstr(&text[0], uuid->data, 4);
         text[8] = '-';
         bytes_to_hexstr(&text[9], uuid->data + 4, 2);
@@ -4560,7 +4560,7 @@ print_numeric_bluetooth_uuid(bluetooth_uuid_t *uuid)
 }
 
 const gchar *
-print_bluetooth_uuid(bluetooth_uuid_t *uuid)
+print_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
 {
     const gchar *description;
 
@@ -4584,7 +4584,7 @@ print_bluetooth_uuid(bluetooth_uuid_t *uuid)
          */
     }
 
-    description = print_numeric_bluetooth_uuid(uuid);
+    description = print_numeric_bluetooth_uuid(pool, uuid);
 
     if (description) {
         description = (const gchar *) wmem_tree_lookup_string(bluetooth_uuids, description, 0);
@@ -4627,7 +4627,7 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     main_item = proto_tree_add_item(tree, proto_bluetooth, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_bluetooth);
 
-    bluetooth_data = (bluetooth_data_t *) wmem_new(wmem_packet_scope(), bluetooth_data_t);
+    bluetooth_data = (bluetooth_data_t *) wmem_new(pinfo->pool, bluetooth_data_t);
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
         bluetooth_data->interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
@@ -4647,7 +4647,7 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (have_tap_listener(bluetooth_tap)) {
         bluetooth_tap_data_t  *bluetooth_tap_data;
 
-        bluetooth_tap_data                = wmem_new(wmem_packet_scope(), bluetooth_tap_data_t);
+        bluetooth_tap_data                = wmem_new(pinfo->pool, bluetooth_tap_data_t);
         bluetooth_tap_data->interface_id  = bluetooth_data->interface_id;
         bluetooth_tap_data->adapter_id    = bluetooth_data->adapter_id;
 

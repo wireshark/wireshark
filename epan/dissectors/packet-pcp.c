@@ -502,7 +502,7 @@ static inline int client_to_server(packet_info *pinfo);
 static inline int server_to_client(packet_info *pinfo);
 static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo);
 static guint get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
-static const gchar *get_pcp_features_to_string(guint16 feature_flags);
+static const gchar *get_pcp_features_to_string(wmem_allocator_t *pool, guint16 feature_flags);
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -563,19 +563,19 @@ static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo) {
 
     name = (guint8*)wmem_map_lookup(pmid_to_name, GINT_TO_POINTER(pmid));
     if(!name) {
-        name = (guint8*)wmem_strdup(wmem_packet_scope(), "Metric name unknown");
+        name = (guint8*)wmem_strdup(pinfo->pool, "Metric name unknown");
     }
 
     return name;
 }
 
-static const gchar *get_pcp_features_to_string(guint16 feature_flags)
+static const gchar *get_pcp_features_to_string(wmem_allocator_t *pool, guint16 feature_flags)
 {
     const value_string *flag_under_test;
     wmem_strbuf_t *string_buffer;
     gsize string_length;
 
-    string_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
+    string_buffer = wmem_strbuf_new(pool, "");
 
     /* Build the comma-separated list of feature flags as a string. EG 'SECURE, COMPRESS, AUTH, ' */
     flag_under_test = &pcp_feature_flags[0];
@@ -1709,7 +1709,7 @@ static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto
     };
 
     feature_flags = tvb_get_ntohs(tvb, offset);
-    feature_flags_string = get_pcp_features_to_string(feature_flags);
+    feature_flags_string = get_pcp_features_to_string(pinfo->pool, feature_flags);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " Features=[%s]", feature_flags_string);
 
@@ -1814,8 +1814,8 @@ static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_value, tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
 
     /* Add to subtree  */
-    guint8 *name = tvb_get_string_enc(wmem_packet_scope(), tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);
-    guint8 *value = tvb_get_string_enc(wmem_packet_scope(), tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
+    guint8 *name = tvb_get_string_enc(pinfo->pool, tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);
+    guint8 *value = tvb_get_string_enc(pinfo->pool, tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
     proto_item_append_text(pcp_label_sets_label_item, " (%s:%s)", name, value);
 
     proto_item_set_end(pcp_label_sets_label_item, tvb, offset);

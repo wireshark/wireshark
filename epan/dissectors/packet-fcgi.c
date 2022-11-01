@@ -86,7 +86,7 @@ static const value_string protocol_statuses[] = {
 };
 
 static void
-dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_nv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    gint end_offset = offset + len;
 
@@ -113,11 +113,11 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
          offset += 4;
       }
 
-      name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, namelen, ENC_ASCII);
+      name = tvb_get_string_enc(pinfo->pool, tvb, offset, namelen, ENC_ASCII);
       offset += namelen;
 
       if (valuelen > 0) {
-         value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, valuelen, ENC_ASCII);
+         value = tvb_get_string_enc(pinfo->pool, tvb, offset, valuelen, ENC_ASCII);
          offset += valuelen;
 
          proto_tree_add_string_format(fcgi_tree, hf_fcgi_nv_name, tvb, start_offset, offset - start_offset,
@@ -130,7 +130,7 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 }
 
 static int
-dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_begin_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_tree *br_tree;
 
@@ -149,7 +149,7 @@ dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
 }
 
 static void
-dissect_abort_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_abort_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_abort_request, NULL, "Abort Request:");
 
@@ -157,7 +157,7 @@ dissect_abort_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
 }
 
 static int
-dissect_end_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_end_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_tree *er_tree;
 
@@ -175,37 +175,37 @@ dissect_end_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 l
 }
 
 static void
-dissect_params(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_tree *p_tree;
 
    p_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_params, NULL, "Params:");
 
-   dissect_nv_pairs(tvb, p_tree, offset, len);
+   dissect_nv_pairs(tvb, pinfo, p_tree, offset, len);
 
    return;
 }
 
 static void
-dissect_get_values(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_get_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_tree *gv_tree;
 
    gv_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_params, NULL, "Get Values:");
 
-   dissect_nv_pairs(tvb, gv_tree, offset, len);
+   dissect_nv_pairs(tvb, pinfo, gv_tree, offset, len);
 
    return;
 }
 
 static void
-dissect_get_values_result(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
+dissect_get_values_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_tree *gvr_tree;
 
    gvr_tree = proto_tree_add_subtree(fcgi_tree, tvb, offset, len, ett_fcgi_params, NULL, "Get Values:");
 
-   dissect_nv_pairs(tvb, gvr_tree, offset, len);
+   dissect_nv_pairs(tvb, pinfo, gvr_tree, offset, len);
 
    return;
 }
@@ -263,27 +263,27 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
       switch (type)
       {
       case FCGI_BEGIN_REQUEST:
-         dissect_begin_request(tvb, fcgi_tree, offset, clen);
+         dissect_begin_request(tvb, pinfo, fcgi_tree, offset, clen);
          offset += clen;
          break;
       case FCGI_ABORT_REQUEST:
-         dissect_abort_request(tvb, fcgi_tree, offset, clen);
+         dissect_abort_request(tvb, pinfo, fcgi_tree, offset, clen);
          offset += clen;
          break;
       case FCGI_END_REQUEST:
-         dissect_end_request(tvb, fcgi_tree, offset, clen);
+         dissect_end_request(tvb, pinfo, fcgi_tree, offset, clen);
          offset += clen;
          break;
       case FCGI_PARAMS:
-         dissect_params(tvb, fcgi_tree, offset, clen);
+         dissect_params(tvb, pinfo, fcgi_tree, offset, clen);
          offset += clen;
          break;
       case FCGI_GET_VALUES:
-         dissect_get_values(tvb, fcgi_tree, offset, clen);
+         dissect_get_values(tvb, pinfo, fcgi_tree, offset, clen);
          offset += clen;
          break;
       case FCGI_GET_VALUES_RESULT:
-         dissect_get_values_result(tvb, fcgi_tree, offset, clen);
+         dissect_get_values_result(tvb, pinfo, fcgi_tree, offset, clen);
          offset += clen;
          break;
       default:

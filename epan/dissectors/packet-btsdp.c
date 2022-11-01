@@ -1131,7 +1131,7 @@ service_info_t* btsdp_get_service_info(wmem_tree_key_t* key)
 }
 
 static bluetooth_uuid_t
-get_specified_uuid(wmem_array_t  *uuid_array)
+get_specified_uuid(wmem_allocator_t *pool, wmem_array_t  *uuid_array)
 {
     bluetooth_uuid_t uuid;
 
@@ -1151,7 +1151,7 @@ get_specified_uuid(wmem_array_t  *uuid_array)
                 break;
             if (p_uuid->size == 0)
                 continue;
-            if (dissector_get_string_handle(bluetooth_uuid_table, print_numeric_bluetooth_uuid(p_uuid)))
+            if (dissector_get_string_handle(bluetooth_uuid_table, print_numeric_bluetooth_uuid(pool, p_uuid)))
                 break;
         }
 
@@ -1376,7 +1376,7 @@ get_int_by_size(tvbuff_t *tvb, gint off, gint size)
 }
 
 static gint
-dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, bluetooth_uuid_t *uuid)
+dissect_uuid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint size, bluetooth_uuid_t *uuid)
 {
     proto_item  *item;
 
@@ -1398,7 +1398,7 @@ dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, bluetooth_
         item = proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
         x_uuid = get_bluetooth_uuid(tvb, offset, size);
 
-        proto_item_append_text(item, " (%s)", print_bluetooth_uuid(&x_uuid));
+        proto_item_append_text(item, " (%s)", print_bluetooth_uuid(pinfo->pool, &x_uuid));
 
         uuid->bt_uuid = 0;
     }
@@ -2011,9 +2011,9 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         new_offset = get_type_length(tvb, entry_offset, &length);
         entry_offset = new_offset;
 
-        dissect_uuid(sub_tree, tvb, entry_offset, length, &uuid);
+        dissect_uuid(sub_tree, pinfo, tvb, entry_offset, length, &uuid);
 
-        uuid_str = print_bluetooth_uuid(&uuid);
+        uuid_str = print_bluetooth_uuid(pinfo->pool, &uuid);
         wmem_strbuf_append(info_buf, uuid_str);
         proto_item_append_text(feature_item, ": %s", uuid_str);
         proto_item_append_text(entry_item, ": %s", uuid_str);
@@ -3305,9 +3305,9 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(next_tree, &entry_tree, pinfo, tvb, list_offset);
                 list_offset = get_type_length(tvb, list_offset, &list_length);
 
-                dissect_uuid(entry_tree, tvb, list_offset, list_length, &uuid);
+                dissect_uuid(entry_tree, pinfo, tvb, list_offset, list_length, &uuid);
 
-                wmem_strbuf_append(info_buf, print_bluetooth_uuid(&uuid));
+                wmem_strbuf_append(info_buf, print_bluetooth_uuid(pinfo->pool, &uuid));
                 list_offset += list_length;
 
                 if (list_offset - offset < size)
@@ -3320,8 +3320,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             wmem_strbuf_append_printf(info_buf, "0x%08x (%u)", value, value);
             break;
         case 0x003:
-            dissect_uuid(next_tree, tvb, offset, size, &uuid);
-            wmem_strbuf_append(info_buf, print_bluetooth_uuid(&uuid));
+            dissect_uuid(next_tree, pinfo, tvb, offset, size, &uuid);
+            wmem_strbuf_append(info_buf, print_bluetooth_uuid(pinfo->pool, &uuid));
             break;
         case 0x004:
             protocol_order = 0;
@@ -3334,9 +3334,9 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(next_tree, &entry_tree, pinfo, tvb, list_offset);
                 list_offset = get_type_length(tvb, list_offset, &list_length);
 
-                dissect_uuid(entry_tree, tvb, list_offset, list_length, &uuid);
+                dissect_uuid(entry_tree, pinfo, tvb, list_offset, list_length, &uuid);
 
-                wmem_strbuf_append(info_buf, print_bluetooth_uuid(&uuid));
+                wmem_strbuf_append(info_buf, print_bluetooth_uuid(pinfo->pool, &uuid));
                 list_offset += list_length;
 
                 if (list_offset - offset < size)
@@ -3403,9 +3403,9 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
                 entry_offset = get_type_length(tvb, entry_offset, &entry_length);
 
-                dissect_uuid(sub_tree, tvb, entry_offset, entry_length, &uuid);
+                dissect_uuid(sub_tree, pinfo, tvb, entry_offset, entry_length, &uuid);
 
-                uuid_str = print_bluetooth_uuid(&uuid);
+                uuid_str = print_bluetooth_uuid(pinfo->pool, &uuid);
                 wmem_strbuf_append(info_buf, uuid_str);
                 proto_item_append_text(entry_item, ": %s", uuid_str);
 
@@ -3498,8 +3498,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     }
     case 3:
-        dissect_uuid(next_tree, tvb, offset, size, &uuid);
-        wmem_strbuf_append_printf(info_buf, ": %s", print_bluetooth_uuid(&uuid));
+        dissect_uuid(next_tree, pinfo, tvb, offset, size, &uuid);
+        wmem_strbuf_append_printf(info_buf, ": %s", print_bluetooth_uuid(pinfo->pool, &uuid));
         break;
     case 8: /* fall through */
     case 4: {
@@ -3936,7 +3936,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
             new_offset = 0;
             while (new_offset <= search_offset) {
                 new_offset = get_type_length(tvb, search_offset, &element_length);
-                dissect_uuid(NULL, tvb, new_offset, element_length, &uuid);
+                dissect_uuid(NULL, pinfo, tvb, new_offset, element_length, &uuid);
                 wmem_array_append_one(uuid_array, uuid);
                 new_offset += element_length;
             }
@@ -3946,7 +3946,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
         number_of_attributes += 1;
     }
 
-    uuid = get_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(pinfo->pool, uuid_array);
     if (uuid.size == 0 && service_uuid)
         uuid = *service_uuid;
 
@@ -4020,7 +4020,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
     if (uuid.size)
         proto_item_append_text(list_tree, " [count = %2u] (%s%s)",
-                number_of_attributes, (uuid.bt_uuid) ? "" : "CustomUUID: ", print_bluetooth_uuid(&uuid));
+                number_of_attributes, (uuid.bt_uuid) ? "" : "CustomUUID: ", print_bluetooth_uuid(pinfo->pool, &uuid));
     else
         proto_item_append_text(list_tree, " [count = %2u]",
                 number_of_attributes);
@@ -4099,7 +4099,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
         size = dissect_sdp_type(sub_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, -1, NULL, &str);
 
         entry_offset = get_type_length(tvb, offset, &entry_size);
-        dissect_uuid(NULL, tvb, entry_offset, entry_size, &uuid);
+        dissect_uuid(NULL, pinfo, tvb, entry_offset, entry_size, &uuid);
         if (uuid_array)
             wmem_array_append_one(uuid_array, uuid);
 
@@ -4279,7 +4279,7 @@ dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     offset += 2;
 
     uuid_array = get_uuids(pinfo, record_handle, l2cap_data);
-    uuid = get_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(pinfo->pool, uuid_array);
 
     offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
 
@@ -4317,7 +4317,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
         wmem_array_t  *uuid_array;
 
         uuid_array = get_uuids(pinfo, record_handle, l2cap_data);
-        uuid = get_specified_uuid(uuid_array);
+        uuid = get_specified_uuid(pinfo->pool, uuid_array);
     } else {
         memset(&uuid, 0, sizeof(bluetooth_uuid_t));
     }
@@ -4397,7 +4397,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
         col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(info_buf));
 
         entry_offset = get_type_length(tvb, offset, &entry_size);
-        dissect_uuid(NULL, tvb, entry_offset, entry_size, &a_uuid);
+        dissect_uuid(NULL, pinfo, tvb, entry_offset, entry_size, &a_uuid);
         if (uuid_array)
             wmem_array_append_one(uuid_array, a_uuid);
 
@@ -4410,7 +4410,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    uuid = get_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(pinfo->pool, uuid_array);
 
     offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
 
@@ -4444,7 +4444,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
             PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, &new_tvb, &is_first,
             &is_continued, &uuid_array, NULL, l2cap_data);
 
-    uuid = get_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(pinfo->pool, uuid_array);
 
     if (is_first && !is_continued) {
         dissect_sdp_service_attribute_list_array(tree, tvb, offset, pinfo,

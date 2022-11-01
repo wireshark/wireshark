@@ -313,8 +313,8 @@ extern gint dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tre
         guint32 interface_id, guint32 adapter_id, guint8 *bdaddr);
 
 extern bluetooth_uuid_t  get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size);
-WS_DLL_PUBLIC const gchar  *print_bluetooth_uuid(bluetooth_uuid_t *uuid);
-WS_DLL_PUBLIC const gchar  *print_numeric_bluetooth_uuid(bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC const gchar  *print_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC const gchar  *print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid);
 
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);

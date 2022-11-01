@@ -30,7 +30,7 @@ static gint ett_form_urlencoded = -1;
 static gint ett_form_keyvalue = -1;
 
 static int
-get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
+get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset, char stop)
 {
 	const int orig_offset = offset;
 	char *tmp;
@@ -61,7 +61,7 @@ get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 		offset++;
 	}
 
-	*ptr = tmp = (char*)wmem_alloc(wmem_packet_scope(), len + 1);
+	*ptr = tmp = (char*)wmem_alloc(pool, len + 1);
 	tmp[len] = '\0';
 
 	len = 0;
@@ -146,7 +146,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 		sub = proto_tree_add_subtree(url_tree, tvb, offset, 0, ett_form_keyvalue, &ti, "Form item");
 
-		next_offset = get_form_key_value(tvb, &key, offset, '=');
+		next_offset = get_form_key_value(pinfo->pool, tvb, &key, offset, '=');
 		if (next_offset == -1)
 			break;
 		/* XXX: Only UTF-8 is conforming according to WHATWG, though we
@@ -162,7 +162,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 		offset = next_offset+1;
 
-		next_offset = get_form_key_value(tvb, &value, offset, '&');
+		next_offset = get_form_key_value(pinfo->pool, tvb, &value, offset, '&');
 		if (next_offset == -1)
 			break;
 		value_decoded = get_utf_8_string(pinfo->pool, value, (int)strlen(value));

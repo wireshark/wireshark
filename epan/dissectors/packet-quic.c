@@ -968,12 +968,12 @@ quic_set_full_packet_number(quic_info_data_t *quic_info, quic_packet_info_t *qui
 }
 
 static const char *
-cid_to_string(const quic_cid_t *cid)
+cid_to_string(wmem_allocator_t *pool, const quic_cid_t *cid)
 {
     if (cid->len == 0) {
         return "(none)";
     }
-    char *str = (char *)wmem_alloc0(wmem_packet_scope(), 2 * cid->len + 1);
+    char *str = (char *)wmem_alloc0(pool, 2 * cid->len + 1);
     bytes_to_hexstr(str, cid->cid, cid->len);
     return str;
 }
@@ -2345,7 +2345,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
             if (have_tap_listener(quic_follow_tap)) {
-                quic_follow_tap_data_t *follow_data = wmem_new0(wmem_packet_scope(), quic_follow_tap_data_t);
+                quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
 
                 follow_data->tvb = tvb_new_subset_remaining(tvb, offset);
                 follow_data->stream_id = stream_id;
@@ -2765,7 +2765,7 @@ quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length,
  */
 static void
 quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, guint header_length,
-                     guint8 first_byte, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result)
+                     guint8 first_byte, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result, wmem_allocator_t *pool)
 {
     gcry_error_t    err;
     guint8         *header;
@@ -2780,7 +2780,7 @@ quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, guint header_len
     DISSECTOR_ASSERT(pkn_len < header_length);
     DISSECTOR_ASSERT(1 <= pkn_len && pkn_len <= 4);
     // copy header, but replace encrypted first byte and PKN by plaintext.
-    header = (guint8 *)tvb_memdup(wmem_packet_scope(), head, 0, header_length);
+    header = (guint8 *)tvb_memdup(pool, head, 0, header_length);
     header[0] = first_byte;
     for (guint i = 0; i < pkn_len; i++) {
         header[header_length - 1 - i] = (guint8)(packet_number >> (8 * i));
@@ -3105,7 +3105,7 @@ quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphe
     }
 
     guint hash_len = gcry_md_get_algo_dlen(quic_info->hash_algo);
-    char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
+    char *secret = (char *)wmem_alloc0(pinfo->pool, hash_len);
 
     if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, hash_len, secret)) {
         *error = "Secrets are not available";
@@ -3127,7 +3127,7 @@ static gboolean
 quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
 {
     guint hash_len = gcry_md_get_algo_dlen(hash_algo);
-    char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
+    char *secret = (char *)wmem_alloc0(pinfo->pool, hash_len);
     if (!tls13_get_quic_secret(pinfo, !from_client, TLS_SECRET_APP, hash_len, hash_len, secret)) {
         return FALSE;
     }
@@ -3353,7 +3353,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
      */
     if (!PINFO_FD_VISITED(pinfo)) {
         if (!quic_packet->decryption.error && quic_is_pp_cipher_initialized(pp_cipher)) {
-            quic_decrypt_message(pp_cipher, tvb, offset, first_byte, pkn_len, quic_packet->packet_number, &quic_packet->decryption);
+            quic_decrypt_message(pp_cipher, tvb, offset, first_byte, pkn_len, quic_packet->packet_number, &quic_packet->decryption, pinfo->pool);
         }
     }
 
@@ -3577,10 +3577,10 @@ quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, qu
     pi = proto_tree_add_uint(ctree, hf_quic_connection_number, tvb, 0, 0, conn->number);
     proto_item_set_generated(pi);
 #if 0
-    proto_tree_add_debug_text(ctree, "Client CID: %s", cid_to_string(&conn->client_cids.data));
-    proto_tree_add_debug_text(ctree, "Server CID: %s", cid_to_string(&conn->server_cids.data));
+    proto_tree_add_debug_text(ctree, "Client CID: %s", cid_to_string(pinfo->pool, &conn->client_cids.data));
+    proto_tree_add_debug_text(ctree, "Server CID: %s", cid_to_string(pinfo->pool, &conn->server_cids.data));
     // Note: for Retry, this value has been cleared before.
-    proto_tree_add_debug_text(ctree, "InitialCID: %s", cid_to_string(&conn->client_dcid_initial));
+    proto_tree_add_debug_text(ctree, "InitialCID: %s", cid_to_string(pinfo->pool, &conn->client_dcid_initial));
 #endif
 }
 
@@ -3630,10 +3630,10 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     }
 
     if (dcid->len > 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", DCID=%s", cid_to_string(dcid));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", DCID=%s", cid_to_string(pinfo->pool, dcid));
     }
     if (scid->len > 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", SCID=%s", cid_to_string(scid));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", SCID=%s", cid_to_string(pinfo->pool, scid));
     }
     return offset;
 }
@@ -3935,7 +3935,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         proto_tree_add_item(hdr_tree, hf_quic_dcid, tvb, offset, dcid.len, ENC_NA);
         tvb_memcpy(tvb, dcid.cid, offset, dcid.len);
         offset += dcid.len;
-        const char *dcid_str = cid_to_string(&dcid);
+        const char *dcid_str = cid_to_string(pinfo->pool, &dcid);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", DCID=%s", dcid_str);
         proto_item_append_text(pi, " DCID=%s", dcid_str);
     }
@@ -4230,7 +4230,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dgram_info->conn = conn;
         dgram_info->from_server = from_server;
 #if 0
-        proto_tree_add_debug_text(quic_tree, "Connection: %d %p DCID=%s SCID=%s from_server:%d", pinfo->num, dgram_info->conn, cid_to_string(&dcid), cid_to_string(&scid), dgram_info->from_server);
+        proto_tree_add_debug_text(quic_tree, "Connection: %d %p DCID=%s SCID=%s from_server:%d", pinfo->num, dgram_info->conn, cid_to_string(pinfo->pool, &dcid), cid_to_string(pinfo->pool, &scid), dgram_info->from_server);
     } else {
         proto_tree_add_debug_text(quic_tree, "Connection: %d %p from_server:%d", pinfo->num, dgram_info->conn, dgram_info->from_server);
 #endif

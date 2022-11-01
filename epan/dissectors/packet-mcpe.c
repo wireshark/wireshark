@@ -150,7 +150,7 @@ mcpe_get_session_state(packet_info *pinfo) {
  * Packet dissectors
  */
 static void
-mcpe_dissect_string(proto_tree *tree, int hf, tvbuff_t *tvb, gint *offset, guint encoding) {
+mcpe_dissect_string(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, gint *offset, guint encoding) {
     proto_item *ti;
     proto_tree *string_tree;
     guint32 length;
@@ -172,7 +172,7 @@ mcpe_dissect_string(proto_tree *tree, int hf, tvbuff_t *tvb, gint *offset, guint
     if (encoding & ENC_UTF_8) {
         guint8 *string;
 
-        string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset + length_width, length, ENC_UTF_8);
+        string = tvb_get_string_enc(pinfo->pool, tvb, *offset + length_width, length, ENC_UTF_8);
 
         ti = proto_tree_add_string(tree, hf, tvb, *offset, length + length_width, string);
         string_tree = proto_item_add_subtree(ti, ett_mcpe_string);
@@ -188,7 +188,7 @@ mcpe_dissect_string(proto_tree *tree, int hf, tvbuff_t *tvb, gint *offset, guint
     else {
         guint8 *bytes;
 
-        bytes = (guint8*)tvb_memdup(wmem_packet_scope(), tvb, *offset + length_width, length);
+        bytes = (guint8*)tvb_memdup(pinfo->pool, tvb, *offset + length_width, length);
 
         ti = proto_tree_add_bytes_with_length(tree, hf, tvb, *offset, length + length_width, bytes, length);
         string_tree = proto_item_add_subtree(ti, ett_mcpe_string);
@@ -204,7 +204,7 @@ mcpe_dissect_string(proto_tree *tree, int hf, tvbuff_t *tvb, gint *offset, guint
 }
 
 static int
-mcpe_dissect_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+mcpe_dissect_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     if (tree) {
         gint item_size;
@@ -243,8 +243,8 @@ mcpe_dissect_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
             proto_item_append_text(ti, " (%u octets)", decomp_length);
             proto_item_set_generated(ti);
 
-            mcpe_dissect_string(login_tree, hf_mcpe_chain_JSON     , login_tvb, &offset, ENC_LITTLE_ENDIAN | ENC_UTF_8);
-            mcpe_dissect_string(login_tree, hf_mcpe_client_data_JWT, login_tvb, &offset, ENC_LITTLE_ENDIAN | ENC_UTF_8);
+            mcpe_dissect_string(pinfo, login_tree, hf_mcpe_chain_JSON     , login_tvb, &offset, ENC_LITTLE_ENDIAN | ENC_UTF_8);
+            mcpe_dissect_string(pinfo, login_tree, hf_mcpe_client_data_JWT, login_tvb, &offset, ENC_LITTLE_ENDIAN | ENC_UTF_8);
         }
         else {
             expert_add_info(pinfo, ti, &ei_mcpe_decompression_failed);
@@ -260,8 +260,8 @@ mcpe_dissect_server_to_client_handshake(tvbuff_t *tvb, packet_info *pinfo, proto
         gint offset = 1;
         mcpe_session_state_t *state;
 
-        mcpe_dissect_string(tree, hf_mcpe_public_key, tvb, &offset, ENC_BIG_ENDIAN | ENC_UTF_8);
-        mcpe_dissect_string(tree, hf_mcpe_server_token, tvb, &offset, ENC_BIG_ENDIAN);
+        mcpe_dissect_string(pinfo, tree, hf_mcpe_public_key, tvb, &offset, ENC_BIG_ENDIAN | ENC_UTF_8);
+        mcpe_dissect_string(pinfo, tree, hf_mcpe_server_token, tvb, &offset, ENC_BIG_ENDIAN);
 
         /*
          * Everything will be encrypted once the server sends this.

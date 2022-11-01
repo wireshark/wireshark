@@ -143,12 +143,12 @@ dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 /* "NFS Illustrated 14.7.13 */
 static char *
-pcnfsd_decode_obscure(const char* data, int len)
+pcnfsd_decode_obscure(wmem_allocator_t *pool, const char* data, int len)
 {
     char *decoded_buf;
     char *decoded_data;
 
-    decoded_buf = (char *)wmem_alloc(wmem_packet_scope(), len);
+    decoded_buf = (char *)wmem_alloc(pool, len);
     decoded_data = decoded_buf;
     for ( ; len>0 ; len--, data++, decoded_data++) {
         *decoded_data = (*data ^ 0x5b) & 0x7f;
@@ -159,7 +159,7 @@ pcnfsd_decode_obscure(const char* data, int len)
 
 /* "NFS Illustrated" 14.7.13 */
 static int
-dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data _U_)
 {
     int         newoffset;
@@ -185,7 +185,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (ident) {
         /* Only attempt to decode the ident if it has been specified */
         if (strcmp(ident, RPC_STRING_EMPTY) != 0)
-            ident_decoded = pcnfsd_decode_obscure(ident, (int)strlen(ident));
+            ident_decoded = pcnfsd_decode_obscure(pinfo->pool, ident, (int)strlen(ident));
         else
             ident_decoded = ident;
 
@@ -214,7 +214,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (password) {
         /* Only attempt to decode the password if it has been specified */
         if (strcmp(password, RPC_STRING_EMPTY))
-            pcnfsd_decode_obscure(password, (int)strlen(password));
+            pcnfsd_decode_obscure(pinfo->pool, password, (int)strlen(password));
 
         if (password_tree)
             proto_tree_add_string(password_tree,

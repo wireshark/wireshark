@@ -84,7 +84,8 @@ _(VLIB_NODE_PROTO_HINT_TCP, tcp)                        \
 _(VLIB_NODE_PROTO_HINT_UDP, udp)
 
 static void
-add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
+add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                              gint start,
                               gint len, int hf)
 {
     gint next;
@@ -95,7 +96,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
         line_len = tvb_find_line_end(tvb, start, len, &next, FALSE);
         data_len = next - start;
         proto_tree_add_string(tree, hf, tvb, start, data_len,
-                              tvb_format_stringzpad(wmem_packet_scope(), tvb, start, line_len));
+                              tvb_format_stringzpad(pinfo->pool, tvb, start, line_len));
         start += data_len;
         len -= data_len;
     }
@@ -119,7 +120,7 @@ dissect_vpp_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* How long is the metadata string? */
     metadata_string_length = tvb_strsize(tvb, offset);
 
-    add_multi_line_string_to_tree(metadata_tree, tvb, 0,
+    add_multi_line_string_to_tree(metadata_tree, tvb, pinfo, 0,
                                   metadata_string_length,
                                   hf_vpp_metadata);
     return tvb_captured_length(tvb);
@@ -143,7 +144,7 @@ dissect_vpp_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* How long is the trace string? */
     trace_string_length = tvb_strsize(tvb, offset);
 
-    add_multi_line_string_to_tree(trace_tree, tvb, 0,
+    add_multi_line_string_to_tree(trace_tree, tvb, pinfo, 0,
                                   trace_string_length,
                                   hf_vpp_buffer_trace);
     return tvb_captured_length(tvb);
@@ -166,7 +167,7 @@ dissect_vpp_opaque(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     opaque_tree = proto_item_add_subtree(ti, ett_vpp_opaque);
 
     opaque_string_length = tvb_strsize(tvb, offset);
-    add_multi_line_string_to_tree(opaque_tree, tvb, 0, opaque_string_length,
+    add_multi_line_string_to_tree(opaque_tree, tvb, pinfo, 0, opaque_string_length,
                                   hf_vpp_buffer_opaque);
 
     return tvb_captured_length(tvb);
@@ -188,7 +189,7 @@ dissect_vpp_opaque2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     opaque2_tree = proto_item_add_subtree(ti, ett_vpp_opaque2);
 
     opaque2_string_length = tvb_strsize(tvb, offset);
-    add_multi_line_string_to_tree(opaque2_tree, tvb, 0, opaque2_string_length,
+    add_multi_line_string_to_tree(opaque2_tree, tvb, pinfo, 0, opaque2_string_length,
                                   hf_vpp_buffer_opaque2);
 
     return tvb_captured_length(tvb);

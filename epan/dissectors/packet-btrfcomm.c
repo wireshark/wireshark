@@ -736,7 +736,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == FRAME_TYPE_SABM) && service_info) {
         if (service_info->uuid.size==16)
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_bluetooth_uuid(&service_info->uuid));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_bluetooth_uuid(pinfo->pool, &service_info->uuid));
         else
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
                     val_to_str_ext_const(service_info->uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
@@ -845,7 +845,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
             guint8 *value_data;
 
-            value_data = wmem_strdup(wmem_file_scope(), print_numeric_bluetooth_uuid(&service_info->uuid));
+            value_data = wmem_strdup(wmem_file_scope(), print_numeric_bluetooth_uuid(pinfo->pool, &service_info->uuid));
 
             p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
         }
@@ -853,7 +853,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (!dissector_try_uint_new(rfcomm_dlci_dissector_table, (guint32) dlci,
                 next_tvb, pinfo, tree, TRUE, rfcomm_data)) {
             if (service_info && (service_info->uuid.size == 0 ||
-                !dissector_try_string(bluetooth_uuid_table, print_numeric_bluetooth_uuid(&service_info->uuid),
+                !dissector_try_string(bluetooth_uuid_table, print_numeric_bluetooth_uuid(pinfo->pool, &service_info->uuid),
                     next_tvb, pinfo, tree, rfcomm_data))) {
                 decode_by_dissector = find_proto_by_channel(dlci >> 1);
                 if (rfcomm_channels_enabled && decode_by_dissector) {

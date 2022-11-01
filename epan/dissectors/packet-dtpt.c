@@ -215,7 +215,7 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 
 static int
-dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
+dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, int hfindex)
 {
 	guint32	wstring_length;
 	guint32	wstring_size;
@@ -223,7 +223,7 @@ dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 	guint32	wstring_padding = 0;
 
 	wstring_length = tvb_get_letohl(tvb, offset);
-	wstring_data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, wstring_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	wstring_data = tvb_get_string_enc(pinfo->pool, tvb, offset+4, wstring_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	wstring_size = wstring_length;
 	if (wstring_size%4) {
 		wstring_padding = (4-wstring_size%4);
@@ -251,7 +251,7 @@ dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 }
 
 static int
-dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
+dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, int hfindex)
 {
 	guint32	guid_length;
 
@@ -270,10 +270,10 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 		}
 		dtpt_guid_item = proto_tree_add_guid(tree, hfindex, tvb, offset, 4 + guid_length, &guid);
 		if (dtpt_guid_item) {
-			guid_name = guids_get_guid_name(&guid, wmem_packet_scope());
+			guid_name = guids_get_guid_name(&guid, pinfo->pool);
 			if (guid_name != NULL)
 				proto_item_set_text(dtpt_guid_item, "%s: %s (%s)",
-				proto_registrar_get_name(hfindex), guid_name, guid_to_str(wmem_packet_scope(), &guid));
+				proto_registrar_get_name(hfindex), guid_name, guid_to_str(pinfo->pool, &guid));
 			dtpt_guid_tree = proto_item_add_subtree(dtpt_guid_item, ett_dtpt_guid);
 		}
 		if (dtpt_guid_tree) {
@@ -287,7 +287,7 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 				if (guid_name != NULL && dtpt_guid_data_item != NULL) {
 					proto_item_set_text(dtpt_guid_data_item, "%s: %s (%s)",
 					proto_registrar_get_name(hf_dtpt_guid_data),
-					guid_name, guid_to_str(wmem_packet_scope(), &guid));
+					guid_name, guid_to_str(pinfo->pool, &guid));
 				}
 			}
 		}
@@ -299,7 +299,7 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 }
 
 static int
-dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex, int sockaddr_type)
+dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info *pinfo, int hfindex, int sockaddr_type)
 {
 	guint32	sockaddr_length = 0;
 	proto_item	*sockaddr_item = NULL;
@@ -350,7 +350,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
 											tvb, offset+4,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+8, 8, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb,offset+4), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(pinfo->pool, tvb,offset+4), port);
 					}
 					break;
 				}
@@ -373,7 +373,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
 							tvb, offset+10,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+14, 16, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb,offset+10), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(pinfo->pool, tvb,offset+10), port);
 					}
 					break;
 				}
@@ -481,11 +481,11 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 4;
 	offset += 60;
 
-	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, hf_dtpt_service_instance_name);
-	offset = dissect_dtpt_guid   (tvb, offset, dtpt_tree, hf_dtpt_service_class_id     );
-	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, hf_dtpt_comment              );
-	offset = dissect_dtpt_guid   (tvb, offset, dtpt_tree, hf_dtpt_ns_provider_id       );
-	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, hf_dtpt_context              );
+	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, pinfo, hf_dtpt_service_instance_name);
+	offset = dissect_dtpt_guid   (tvb, offset, dtpt_tree, pinfo, hf_dtpt_service_class_id     );
+	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, pinfo, hf_dtpt_comment              );
+	offset = dissect_dtpt_guid   (tvb, offset, dtpt_tree, pinfo, hf_dtpt_ns_provider_id       );
+	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, pinfo, hf_dtpt_context              );
 	num_protocols = tvb_get_letohl(tvb, offset);
 	if (num_protocols>0) {
 		protocols_length = tvb_get_letohl(tvb, offset+4);
@@ -518,7 +518,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	offset += 4 + (num_protocols>0?4:0) + num_protocols*8;
-	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, hf_dtpt_query_string);
+	offset = dissect_dtpt_wstring(tvb, offset, dtpt_tree, pinfo, hf_dtpt_query_string);
 
 	addrs_start = offset;
 	num_addrs = tvb_get_letohl(tvb, offset);
@@ -573,8 +573,8 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			offset2_start = offset2;
 
-			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_local, SOCKADDR_WITH_LEN);
-			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_remote, SOCKADDR_WITH_LEN);
+			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, pinfo, hf_dtpt_cs_addr_local, SOCKADDR_WITH_LEN);
+			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, pinfo, hf_dtpt_cs_addr_remote, SOCKADDR_WITH_LEN);
 
 			proto_item_set_len(dtpt_addr2_item,
 					offset2 - offset2_start);
@@ -738,19 +738,19 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			}
 			break;
 			case ConnectRequest: {
-				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
+				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, pinfo, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
 				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
 					tvb, 32, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case ConnectResponseOK: {
-				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
+				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, pinfo, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
 				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
 					tvb, 32, 4, ENC_LITTLE_ENDIAN);
 			}
 			break;
 			case ConnectResponseERR: {
-				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
+				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, pinfo, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
 				proto_tree_add_item(dtpt_tree, hf_dtpt_error,
 					tvb, 32, 4, ENC_LITTLE_ENDIAN);
 			}

@@ -438,7 +438,7 @@ ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
 
 /* dissects RDMA Read Request and Terminate message header */
 static int
-dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
+dissect_iwarp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rdma_tree, guint32 offset,
 		rdmap_info_t *info)
 {
 	proto_tree *rdma_header_tree = NULL;
@@ -452,7 +452,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 	guint8 layer, etype, hdrct;
 
 	if (info->opcode == RDMA_READ_REQUEST) {
-		info->read_request = wmem_new(wmem_packet_scope(), rdmap_request_t);
+		info->read_request = wmem_new(pinfo->pool, rdmap_request_t);
 
 		rdma_header_subitem = proto_tree_add_item(rdma_tree,
 				hf_iwarp_rdma_rr_header, tvb, offset, -1, ENC_NA);
@@ -846,12 +846,12 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	/* do further dissection for RDMA messages RDMA Read Request & Terminate */
 	if (info.opcode == RDMA_READ_REQUEST) {
-		offset = dissect_iwarp_rdmap(tvb, rdma_tree, offset, &info);
+		offset = dissect_iwarp_rdmap(tvb, pinfo, rdma_tree, offset, &info);
 		/* Call upper layer dissector for message reassembly */
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		dissect_rdmap_payload(next_tvb, pinfo, tree, &info);
 	} else if (info.opcode == RDMA_TERMINATE) {
-		dissect_iwarp_rdmap(tvb, rdma_tree, offset, &info);
+		dissect_iwarp_rdmap(tvb, pinfo, rdma_tree, offset, &info);
 	}
 
 	/* do further dissection for RDMA messages RDMA Atomic Request & Response */

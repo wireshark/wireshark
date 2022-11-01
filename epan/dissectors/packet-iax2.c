@@ -1533,7 +1533,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                 break;
 
               default:
-                ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, ies_len, ENC_ASCII);
+                ptr = tvb_get_string_enc(pinfo->pool, tvb, offset + 2, ies_len, ENC_ASCII);
                 ie_item =
                   proto_tree_add_string_format(ies_tree, hf_IAX_IE_UNKNOWN_BYTES,
                                                tvb, offset+2, ies_len, ptr,
@@ -1555,7 +1555,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
           proto_item_set_text(ti, "Information Element: %s",
                               ie_finfo->rep->representation);
         else {
-          guint8 *ie_val = (guint8 *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
+          guint8 *ie_val = (guint8 *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
           proto_item_fill_label(ie_finfo, ie_val);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);
@@ -2172,9 +2172,9 @@ typedef struct _call_list {
   struct _call_list *next;
 } call_list;
 
-static call_list *call_list_append(call_list *list, guint16 scallno)
+static call_list *call_list_append(wmem_allocator_t *pool, call_list *list, guint16 scallno)
 {
-  call_list *node = wmem_new0(wmem_packet_scope(), call_list);
+  call_list *node = wmem_new0(pool, call_list);
 
   node->scallno = scallno;
 
@@ -2255,7 +2255,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
       guint16 scallno;
       offset = dissect_trunkcall_ts(tvb, offset, iax2_tree, &scallno);
       if (!call_list_find(calls, scallno)) {
-        calls = call_list_append(calls, scallno);
+        calls = call_list_append(pinfo->pool, calls, scallno);
       }
       nframes++;
     }
@@ -2266,7 +2266,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
       guint16 scallno;
       offset = dissect_trunkcall_nots(tvb, offset, iax2_tree, &scallno);
       if (!call_list_find(calls, scallno)) {
-        calls = call_list_append(calls, scallno);
+        calls = call_list_append(pinfo->pool, calls, scallno);
       }
       nframes++;
     }

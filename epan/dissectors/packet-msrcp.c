@@ -170,7 +170,7 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
                 }
                 else if ((!(type == MSRCP_RESPONSE)) && (msrcp_trans->req_frame != pinfo->num))
                 {
-                    msrcp_transaction_t* retrans_msrcp = wmem_new(wmem_packet_scope(), msrcp_transaction_t);
+                    msrcp_transaction_t* retrans_msrcp = wmem_new(pinfo->pool, msrcp_transaction_t);
                     retrans_msrcp->req_frame = msrcp_trans->req_frame;
                     retrans_msrcp->rep_frame = 0;
                     retrans_msrcp->req_time = pinfo->abs_ts;
@@ -180,7 +180,7 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
         }
         if (!msrcp_trans)
         {
-            msrcp_trans = wmem_new(wmem_packet_scope(), msrcp_transaction_t);
+            msrcp_trans = wmem_new(pinfo->pool, msrcp_transaction_t);
             msrcp_trans->req_frame = 0;
             msrcp_trans->rep_frame = 0;
             msrcp_trans->req_time = pinfo->abs_ts;
