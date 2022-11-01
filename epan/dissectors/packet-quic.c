@@ -280,7 +280,7 @@ static const fragment_items quic_crypto_fragment_items = {
  * - QUIC packets might appear out-of-order (short packets before handshake
  *   message is captured), lost or retransmitted/duplicated.
  * - During live capture, keys might not be immediately be available. 1-RTT
- *   client keys will be ready while client proceses Server Hello (Handshake).
+ *   client keys will be ready while client processes Server Hello (Handshake).
  *   1-RTT server keys will be ready while server creates Handshake message in
  *   response to Initial Handshake.
  * - So delay cipher creation until first short packet is received.
