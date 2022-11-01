@@ -17199,10 +17199,15 @@ SL-PHY-MAC-RLC-Config-r16::=         SEQUENCE {
     networkControlledSyncTx-r16          ENUMERATED {on, off}                                                   OPTIONAL     -- Need M
 }
 
+-- WS modification: define a dedicated type
+SL-RLC-ChannelToAddModList-r17 ::= SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-ChannelConfig-r17
+
 SL-PHY-MAC-RLC-Config-v1700 ::=      SEQUENCE {
     sl-DRX-Config-r17                    SL-DRX-Config-r17                                                      OPTIONAL,    -- Need M
     sl-RLC-ChannelToReleaseList-r17      SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-ChannelID-r17            OPTIONAL, -- Cond L2U2N
-    sl-RLC-ChannelToAddModList-r17       SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-ChannelConfig-r17        OPTIONAL, -- Cond L2U2N
+-- WS modification: define a dedicated type
+--    sl-RLC-ChannelToAddModList-r17       SEQUENCE (SIZE (1..maxSL-LCID-r16)) OF SL-RLC-ChannelConfig-r17        OPTIONAL, -- -- Cond L2U2N
+    sl-RLC-ChannelToAddModList-r17       SL-RLC-ChannelToAddModList-r17        OPTIONAL, -- Cond L2U2N
     ...
 }
 
