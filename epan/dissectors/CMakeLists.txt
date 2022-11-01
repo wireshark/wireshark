@@ -657,6 +657,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 
 set(DISSECTOR_HEADER_FILES
 	${DISSECTOR_PUBLIC_HEADERS}
+	${CUSTOM_DISSECTOR_HEADER_FILES}
 )
 
 set(DISSECTOR_SRC
@@ -2067,6 +2068,7 @@ set(DISSECTOR_SUPPORT_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-nt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-snort-config.c
 	${CMAKE_CURRENT_SOURCE_DIR}/usb.c
+	${CUSTOM_DISSECTOR_SUPPORT_SRC}
 )
 source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
 
@@ -2140,7 +2142,6 @@ set_source_files_properties(
 add_library(dissectors OBJECT
 	#Included so that Visual Studio can properly put header files in solution
 	${DISSECTOR_HEADER_FILES}
-
 
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
