@@ -91,6 +91,7 @@ typedef struct _frame_data {
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
   guint32      frame_ref_num; /**< Previous reference frame (0 if this is one) */
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
+  guint8       tcp_snd_manual_analysis;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET */
 } frame_data;
 DIAG_ON_PEDANTIC
 

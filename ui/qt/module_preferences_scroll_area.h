@@ -53,6 +53,7 @@ private slots:
     void saveFilenamePushButtonClicked();
     void openFilenamePushButtonClicked();
     void dirnamePushButtonClicked();
+    void enumComboBoxCurrentIndexChanged_PROTO_TCP(int index);
 };
 
 #endif // MODULE_PREFERENCES_SCROLL_AREA_H

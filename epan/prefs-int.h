@@ -102,6 +102,11 @@ struct pref_custom_cbs {
 #define PREF_DECODE_AS_RANGE  (1u << 13) /* use and not as a generic protocol preference */
 #define PREF_OPEN_FILENAME    (1u << 14)
 #define PREF_PASSWORD         (1u << 15) /* like string, but never saved to prefs file */
+/**
+ * Dedicated to TCP PROTOCOL for handling manual SEQ interpretation,
+ * and allow users manage the sender traffic ambiguities
+ */
+#define PREF_PROTO_TCP_SNDAMB_ENUM   (1u << 16)
 
 typedef enum {
 	GUI_ALL,

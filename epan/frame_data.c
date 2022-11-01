@@ -167,6 +167,7 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
   fdata->ref_time = 0;
   fdata->ignored = 0;
   fdata->has_ts = (rec->presence_flags & WTAP_HAS_TS) ? 1 : 0;
+  fdata->tcp_snd_manual_analysis = 0;
   switch (rec->rec_type) {
 
   case REC_TYPE_PACKET:

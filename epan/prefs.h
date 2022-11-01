@@ -777,6 +777,30 @@ WS_DLL_PUBLIC void prefs_register_obsolete_preference(module_t *module,
     const char *name);
 
 /**
+ * Register a preference with an enumerated value.
+ * @param module the preferences module returned by prefs_register_protocol() or
+ *               prefs_register_protocol_subtree()
+ * @param name the preference's identifier. This is appended to the name of the
+ *             protocol, with a "." between them, to create a unique identifier.
+ *             The identifier should not include the protocol name, as the name in
+ *             the preference file will already have it. Make sure that
+ *             only lower-case ASCII letters, numbers, underscores and
+ *             dots appear in the preference name.
+ * @param title Field's title in the preferences dialog
+ * @param description description to include in the preferences file
+ *                    and shown as tooltip in the GUI, or NULL
+ * @param var pointer to the storage location that is updated when the
+ *                    field is changed in the preference dialog box
+ * @param enumvals a null-terminated array of enum_val_t structures
+ * @param radio_buttons TRUE if the field is to be displayed in the
+ *                  preferences dialog as a set of radio buttons,
+ *                  FALSE if it is to be displayed as an option menu
+ */
+WS_DLL_PUBLIC void prefs_register_custom_preference_TCP_Analysis(module_t *module, const char *name,
+    const char *title, const char *description, gint *var,
+    const enum_val_t *enumvals, gboolean radio_buttons);
+
+/**
  * Mark a preference that affects fields change. This works for bool, enum,
  * int, string (containing filename), range preferences. UAT is not included,
  * because you can specified UAT_AFFECTS_FIELDS at uat_new().

@@ -2997,14 +2997,6 @@ void WiresharkMainWindow::setMwFileName(QString fileName)
     return;
 }
 
-frame_data * WiresharkMainWindow::frameDataForRow(int row) const
-{
-    if (packet_list_)
-        return packet_list_->getFDataForRow(row);
-
-    return Q_NULLPTR;
-}
-
 // Finds rtp id for selected stream and adds it to stream_ids
 // If reverse is set, tries to find reverse stream too
 // Return error string if error happens

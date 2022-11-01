@@ -12,6 +12,11 @@
 
 #include <epan/prefs.h>
 #include <epan/stat_groups.h>
+#include <epan/frame_data.h>
+
+// frame_data also available with this include in the original wireshark_main_window code
+//#include "follow_stream_dialog.h"
+
 
 #include "filter_action.h"
 
@@ -40,6 +45,7 @@ public:
     QList<int> selectedRows(bool useFrameNum = false);
     void insertColumn(QString name, QString abbrev, gint pos = -1);
     void gotoFrame(int packet_num);
+    frame_data* frameDataForRow(int) const;
 
     QString getFilter();
     MainStatusBar *statusBar();

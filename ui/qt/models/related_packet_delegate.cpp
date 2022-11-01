@@ -172,6 +172,16 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             other_pen.setStyle(Qt::DashLine);
             painter->setPen(other_pen);
         }
+
+            // analysis overriding mark (three horizontal lines)
+            if(fd->tcp_snd_manual_analysis) {
+                int wbound = (en_w - 1) / 2;
+
+                painter->drawLine(-wbound, 1, wbound, 1);
+                painter->drawLine(-wbound, height / 2, wbound, height / 2);
+                painter->drawLine(-wbound, height - 2, wbound, height - 2);
+            }
+
         painter->drawLine(0, 0, 0, height);
         painter->restore();
         break;
@@ -184,6 +194,18 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             QPoint(0, 0)
         };
         painter->drawPolyline(end_line, 3);
+            /* analysis overriding on the last packet of the conversation,
+             * we mark it with an additional horizontal line only. 
+             * See issue 10725 for example.
+             */
+            // analysis overriding mark (three horizontal lines)
+            if(fd->tcp_snd_manual_analysis) {
+                int wbound = (en_w - 1) / 2;
+
+                painter->drawLine(-wbound, 1, wbound, 1);
+                painter->drawLine(-wbound, height / 2, wbound, height / 2);
+            }
+
         break;
     }
     default:

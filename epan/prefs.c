@@ -354,6 +354,9 @@ free_pref(gpointer data, gpointer user_data _U_)
           pref->stashed_val.boolval = TRUE;
         pref->custom_cbs.free_cb(pref);
         break;
+    /* non-generic preferences */
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
+        break;
     }
 
     g_free(pref);
@@ -1885,6 +1888,28 @@ prefs_register_custom_preference(module_t *module, const char *name,
 }
 
 /*
+ * Register a dedicated TCP preference for SEQ analysis overriding.
+ * We are reusing the data structure from enum preference, as they are
+ * similar in practice.
+
+ */
+void
+prefs_register_custom_preference_TCP_Analysis(module_t *module, const char *name,
+                               const char *title, const char *description,
+                               gint *var, const enum_val_t *enumvals,
+                               gboolean radio_buttons)
+{
+    pref_t *preference;
+
+    preference = register_preference(module, name, title, description,
+                                     PREF_PROTO_TCP_SNDAMB_ENUM);
+    preference->varp.enump = var;
+    preference->default_val.enumval = *var;
+    preference->info.enum_info.enumvals = enumvals;
+    preference->info.enum_info.radio_buttons = radio_buttons;
+}
+
+/*
  * Register a (internal) "Decode As" preference with a ranged value.
  */
 void prefs_register_decode_as_range_preference(module_t *module, const char *name,
@@ -2023,6 +2048,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         pref->stashed_val.enumval = *pref->varp.enump;
         break;
 
@@ -2110,6 +2136,15 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
             *pref->varp.enump = pref->stashed_val.enumval;
         }
+        break;
+
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
+        /*if (*pref->varp.enump != pref->stashed_val.enumval) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+            //unstash_data->module->prefs_changed_flags = 1;
+            *pref->varp.enump = pref->stashed_val.enumval;
+        }*/
+        unstash_data->module->prefs_changed_flags = 1;
         break;
 
     case PREF_STRING:
@@ -2216,6 +2251,7 @@ reset_stashed_pref(pref_t *pref) {
         break;
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         pref->stashed_val.enumval = pref->default_val.enumval;
         break;
 
@@ -2262,6 +2298,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         break;
 
     case PREF_STRING:
@@ -4257,6 +4294,7 @@ reset_pref(pref_t *pref)
         break;
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         /*
          * For now, we save the "description" value, so that if we
          * save the preferences older versions of Wireshark can at
@@ -6037,6 +6075,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             break;
 
         case PREF_ENUM:
+        case PREF_PROTO_TCP_SNDAMB_ENUM:
             /* XXX - give an error if it doesn't match? */
             enum_val = find_val_for_string(value, pref->info.enum_info.enumvals,
                                            *pref->varp.enump);
@@ -6197,6 +6236,7 @@ prefs_pref_type_name(pref_t *pref)
         break;
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         type_name = "Choice";
         break;
 
@@ -6332,6 +6372,7 @@ prefs_pref_type_description(pref_t *pref)
         break;
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
     {
         const enum_val_t *enum_valp = pref->info.enum_info.enumvals;
         GString *enum_str = g_string_new("One of: ");
@@ -6433,6 +6474,7 @@ prefs_pref_is_default(pref_t *pref)
         break;
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
         if (pref->default_val.enumval == *pref->varp.enump)
             return TRUE;
         break;
@@ -6538,6 +6580,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
         return g_strdup((*(gboolean *) valp) ? "TRUE" : "FALSE");
 
     case PREF_ENUM:
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
     {
         gint pref_enumval = *(gint *) valp;
         /*

@@ -47,6 +47,14 @@ QList<int> MainWindow::selectedRows(bool useFrameNum)
     return QList<int>();
 }
 
+frame_data* MainWindow::frameDataForRow(int row) const
+{
+    if (packet_list_)
+        return packet_list_->getFDataForRow(row);
+
+    return Q_NULLPTR;
+}
+
 void MainWindow::insertColumn(QString name, QString abbrev, gint pos)
 {
     gint colnr = 0;

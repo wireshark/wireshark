@@ -2856,11 +2856,3 @@ void LograyMainWindow::setMwFileName(QString fileName)
     mwFileName_ = fileName;
     return;
 }
-
-frame_data * LograyMainWindow::frameDataForRow(int row) const
-{
-    if (packet_list_)
-        return packet_list_->getFDataForRow(row);
-
-    return Q_NULLPTR;
-}

@@ -506,6 +506,7 @@ struct tcp_analysis {
  */
 struct tcp_per_packet_data_t {
 	nstime_t	ts_del;
+	guint8		tcp_snd_manual_analysis;
 };
 
 /* Structure that keeps per packet data. Some operations are cpu-intensive and are

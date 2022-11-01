@@ -96,6 +96,18 @@ static gboolean tcp_check_checksum = FALSE;
 };
 
 /*
+ * Analysis overriding values to be used when not satisfied by the automatic
+ * result. (Accessed through preferences but not stored as a preference)
+ */
+ enum override_analysis_value {
+  OverrideAnalysis_0=0,
+  OverrideAnalysis_1,
+  OverrideAnalysis_2,
+  OverrideAnalysis_3,
+  OverrideAnalysis_4
+};
+
+/*
  * Using enum instead of boolean make API easier
  */
 enum mptcp_dsn_conversion {
@@ -121,6 +133,8 @@ static const value_string mp_tcprst_reasons[] = {
 };
 
 static gint tcp_default_window_scaling = (gint)WindowScaling_NotKnown;
+
+static gint tcp_default_override_analysis = (gint)OverrideAnalysis_0;
 
 static int proto_tcp = -1;
 static int proto_ip = -1;
@@ -2108,7 +2122,7 @@ tcp_analyze_get_acked_struct(guint32 frame, guint32 seq, guint32 ack, gboolean c
  * Guide: docbook/wsug_src/WSUG_chapter_advanced.adoc
  */
 static void
-tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint16 flags, guint32 window, struct tcp_analysis *tcpd)
+tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint16 flags, guint32 window, struct tcp_analysis *tcpd, struct tcp_per_packet_data_t *tcppd)
 {
     tcp_unacked_t *ual=NULL;
     tcp_unacked_t *prevual=NULL;
@@ -2533,6 +2547,53 @@ finished_fwd:
     }
 
 finished_checking_retransmission_type:
+
+    /* Override the TCP sequence analysis with the value given
+     * manually by the user. This only applies to flagged packets.
+     */
+    if(tcppd && tcpd->ta &&
+      (tcppd->tcp_snd_manual_analysis>0) &&
+      (tcpd->ta->flags & TCP_A_RETRANSMISSION ||
+       tcpd->ta->flags & TCP_A_OUT_OF_ORDER ||
+       tcpd->ta->flags & TCP_A_FAST_RETRANSMISSION ||
+       tcpd->ta->flags & TCP_A_SPURIOUS_RETRANSMISSION)) {
+
+        /* clean flags set during the automatic analysis */
+        tcpd->ta->flags &= ~(TCP_A_RETRANSMISSION|
+                             TCP_A_OUT_OF_ORDER|
+                             TCP_A_FAST_RETRANSMISSION|
+                             TCP_A_SPURIOUS_RETRANSMISSION);
+
+        /* set the corresponding flag chosen by the user */
+        switch(tcppd->tcp_snd_manual_analysis) {
+            case 0:
+                /* the user asked for an empty overriding, which
+                 * means removing any previous value, thus restoring
+                 * the automatic analysis.
+                 */
+                break;
+
+            case 1:
+                tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
+                break;
+
+            case 2:
+                tcpd->ta->flags|=TCP_A_RETRANSMISSION;
+                break;
+
+            case 3:
+                tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
+                break;
+
+            case 4:
+                tcpd->ta->flags|=TCP_A_SPURIOUS_RETRANSMISSION;
+                break;
+
+            default:
+                /* there is no expected default case */
+                break;
+        }
+    }
 
     nextseq = seq+seglen;
     if ((seglen || flags&(TH_SYN|TH_FIN)) && tcpd->fwd->tcp_analyze_seq_info->segment_count < TCP_MAX_UNACKED_SEGMENTS) {
@@ -7695,6 +7756,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tcp_calculate_timestamps(pinfo, tcpd, tcppd);
     }
 
+    /* is there any manual analysis waiting ? */
+    if(pinfo->fd->tcp_snd_manual_analysis > 0) {
+        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
+        tcppd->tcp_snd_manual_analysis = pinfo->fd->tcp_snd_manual_analysis;
+    }
+
     /*
      * If we've been handed an IP fragment, we don't know how big the TCP
      * segment is, so don't do anything that requires that we know that.
@@ -7731,7 +7798,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* handle TCP seq# analysis parse all new segments we see */
             if(tcp_analyze_seq) {
                 if(!(pinfo->fd->visited)) {
-                    tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd);
+                    tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd, tcppd);
                 }
                 if(tcpd && tcp_relative_seq) {
                     (tcph->th_seq) -= tcpd->fwd->base_seq;
@@ -9351,6 +9418,15 @@ proto_register_tcp(void)
         {NULL, NULL, -1}
     };
 
+    static const enum_val_t override_analysis_vals[] = {
+        {"0",          "0 (none)",                   OverrideAnalysis_0},
+        {"1",          "1 (Out-of-Order)",           OverrideAnalysis_1},
+        {"2",          "2 (Retransmission)",         OverrideAnalysis_2},
+        {"3",          "3 (Fast Retransmission)",    OverrideAnalysis_3},
+        {"4",          "4 (Spurious Retransmission)",OverrideAnalysis_4},
+        {NULL, NULL, -1}
+    };
+
     static ei_register_info ei[] = {
         { &ei_tcp_opt_len_invalid, { "tcp.option.len.invalid", PI_SEQUENCE, PI_NOTE, "Invalid length for option", EXPFILL }},
         { &ei_tcp_analysis_retransmission, { "tcp.analysis.retransmission", PI_SEQUENCE, PI_NOTE, "This frame is a (suspected) retransmission", EXPFILL }},
@@ -9556,6 +9632,12 @@ proto_register_tcp(void)
         "Make the TCP dissector use relative sequence numbers instead of absolute ones. "
         "To use this option you must also enable \"Analyze TCP sequence numbers\". ",
         &tcp_relative_seq);
+
+    prefs_register_custom_preference_TCP_Analysis(tcp_module, "default_override_analysis",
+        "Force interpretation to selected packet(s)",
+        "Override the default analysis with this value for the selected packet",
+        &tcp_default_override_analysis, override_analysis_vals, FALSE);
+
     prefs_register_enum_preference(tcp_module, "default_window_scaling",
         "Scaling factor to use when not available from capture",
         "Make the TCP dissector use this scaling factor for streams where the signalled scaling factor "

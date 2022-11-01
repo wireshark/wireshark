@@ -130,8 +130,6 @@ public:
     QString getMwFileName();
     void setMwFileName(QString fileName);
 
-    frame_data * frameDataForRow(int row) const;
-
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
     virtual bool event(QEvent *event);
