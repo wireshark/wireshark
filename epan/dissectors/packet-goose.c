@@ -626,14 +626,13 @@ dissect_goose_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 	int len = tvb_reported_length_remaining(tvb, offset);
 
-	if ((len == FLOAT_ENC_LENGTH) && (tvb_get_guint8(tvb,0) == SINGLE_FLOAT_EXP_BITS) ){
-		/* IEEE 754 single precision floating point */
-		proto_tree_add_item(tree, hf_goose_float_value, tvb, 1, (FLOAT_ENC_LENGTH-1), ENC_BIG_ENDIAN);
-		offset = len;
-	}else{
-		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
+	if ((len == FLOAT_ENC_LENGTH) && (tvb_get_guint8(tvb,0) == SINGLE_FLOAT_EXP_BITS) ){
+		/* IEEE 754 single precision floating point */
+		proto_item_set_hidden(actx->created_item);
+		proto_tree_add_item(tree, hf_goose_float_value, tvb, 1, (FLOAT_ENC_LENGTH-1), ENC_BIG_ENDIAN);
 	}
 
 
