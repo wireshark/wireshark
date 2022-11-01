@@ -253,6 +253,21 @@ void qvector_rtpstream_ids_free(QVector<rtpstream_id_t *> stream_ids);
  */
 QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> stream_ids);
 
+/**
+ * @brief Return the last directory that had been opened.
+ *
+ * This can be influenced by prefs.gui_fileopen_style which will allow to either
+ * open the real last dir or have the user set one specifically.
+ *
+ * @return a reference to that directory.
+ */
+QString lastOpenDir();
+
+/**
+ * @brief Store the directory as last directory being used
+ */
+void storeLastDir(QString dir);
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration

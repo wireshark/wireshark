@@ -682,6 +682,8 @@ void ProfileDialog::finishImport(QFileInfo fi, int count, int skipped, QStringLi
         if (skipped > 0)
             msg.append(tr(", %Ln profile(s) skipped", "", skipped));
     }
+    QMessageBox msgBox(icon, tr("Importing profiles"), msg, QMessageBox::Ok, this);
+    msgBox.exec();
 
     storeLastDir(fi.absolutePath());
 
@@ -695,48 +697,7 @@ void ProfileDialog::finishImport(QFileInfo fi, int count, int skipped, QStringLi
         pd_ui_->profileTreeView->selectRow(idx.isValid() ? idx.row() : 0);
     }
 
-    QMessageBox msgBox(icon, tr("Importing profiles"), msg, QMessageBox::Ok, this);
-    msgBox.exec();
-
     updateWidgets();
-}
-
-QString ProfileDialog::lastOpenDir()
-{
-    QString result;
-
-    switch (prefs.gui_fileopen_style) {
-
-    case FO_STYLE_LAST_OPENED:
-        /* The user has specified that we should start out in the last directory
-           we looked in.  If we've already opened a file, use its containing
-           directory, if we could determine it, as the directory, otherwise
-           use the "last opened" directory saved in the preferences file if
-           there was one. */
-        /* This is now the default behaviour in file_selection_new() */
-        result = QString(get_last_open_dir());
-        break;
-
-    case FO_STYLE_SPECIFIED:
-        /* The user has specified that we should always start out in a
-           specified directory; if they've specified that directory,
-           start out by showing the files in that dir. */
-        if (prefs.gui_fileopen_dir[0] != '\0')
-            result = QString(prefs.gui_fileopen_dir);
-        break;
-    }
-
-    QDir ld(result);
-    if (ld.exists())
-        return result;
-
-    return QString();
-}
-
-void ProfileDialog::storeLastDir(QString dir)
-{
-    if (mainApp && dir.length() > 0)
-        mainApp->setLastOpenDir(qUtf8Printable(dir));
 }
 
 void ProfileDialog::resetTreeView()
