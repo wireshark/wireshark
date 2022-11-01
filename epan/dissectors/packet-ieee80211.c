@@ -8021,10 +8021,15 @@ wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
   conv_hash_t *hash = (conv_hash_t*) pct;
   hash->flags = flags;
   const wlan_hdr_t *whdr=(const wlan_hdr_t *)vip;
+  tap_packet_status status = TAP_PACKET_DONT_REDRAW;
 
-  add_conversation_table_data(hash, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &wlan_ct_dissector_info, CONVERSATION_NONE);
+  if ((whdr->src.type != AT_NONE) && (whdr->dst.type != AT_NONE)) {
+    add_conversation_table_data(hash, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &wlan_ct_dissector_info, CONVERSATION_NONE);
 
-  return TAP_PACKET_REDRAW;
+    status = TAP_PACKET_REDRAW;
+  }
+
+  return status;
 }
 
 static const char*
@@ -8044,14 +8049,22 @@ wlan_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
   conv_hash_t *hash = (conv_hash_t*) pit;
   hash->flags = flags;
   const wlan_hdr_t *whdr=(const wlan_hdr_t *)vip;
+  tap_packet_status status = TAP_PACKET_DONT_REDRAW;
 
   /* Take two "add" passes per packet, adding for each direction, ensures that all
   packets are counted properly (even if address is sending to itself)
   XXX - this could probably be done more efficiently inside endpoint_table */
-  add_endpoint_table_data(hash, &whdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &wlan_endpoint_dissector_info, ENDPOINT_NONE);
-  add_endpoint_table_data(hash, &whdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &wlan_endpoint_dissector_info, ENDPOINT_NONE);
+  if (whdr->src.type != AT_NONE) {
+    add_endpoint_table_data(hash, &whdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &wlan_endpoint_dissector_info, ENDPOINT_NONE);
+    status = TAP_PACKET_REDRAW;
+  }
 
-  return TAP_PACKET_REDRAW;
+  if (whdr->dst.type != AT_NONE) {
+    add_endpoint_table_data(hash, &whdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &wlan_endpoint_dissector_info, ENDPOINT_NONE);
+    status = TAP_PACKET_REDRAW;
+  }
+
+  return status;
 }
 
 static const char*
@@ -35214,6 +35227,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
 
+  memset(&whdrs[0], 0, sizeof(wlan_hdr_t) * 4);
   whdr= &whdrs[0];
 
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_S1G_KEY, GINT_TO_POINTER(isS1G));
