@@ -53,6 +53,7 @@
  * draft-ietf-bess-srv6-services-05
  * RFC9104 Distribution of Traffic Engineering Extended Administrative Groups
            Using the Border Gateway Protocol - Link State
+ * RFC8365 A Network Virtualization Overlay Solution Using Ethernet VPN (EVPN)
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -1957,12 +1958,23 @@ static const value_string bgp_mup_route_types[] = {
     { 0, NULL }
 };
 
+static const value_string bgp_ext_com_local_admin_types[] = {
+    { 0, "VID (802.1Q VLAN ID)" },
+    { 1, "VXLAN" },
+    { 2, "NVGRE" },
+    { 3, "I-SID" },
+    { 4, "EVI" },
+    { 5, "dual-VID (QinQ VLAN ID)" },
+    { 0, NULL }
+};
+
 static const true_false_string tfs_non_transitive_transitive = { "Non-transitive", "Transitive" };
 static const true_false_string tfs_esi_label_flag = { "Single-Active redundancy", "All-Active redundancy" };
 static const true_false_string tfs_ospf_rt_mt = { "Type-2", "Type-1" };
 static const true_false_string tfs_eigrp_rtype = { "Internal" , "External" };
 static const true_false_string tfs_cost_replace = { "Replaces the original attribute value", "Evaluated after the original attribute value" };
 static const true_false_string tfs_exclude_include = { "Exclude", "Include" };
+static const true_false_string tfs_manually_auto_derived = { "manually derived", "auto-derived"};
 
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
@@ -2735,6 +2747,11 @@ static int hf_bgp_ext_com_value_ospf_rt_options = -1;
 static int hf_bgp_ext_com_value_ospf_rt_options_mt = -1;
 static int hf_bgp_ext_com_value_ospf_rid = -1;
 static int hf_bgp_ext_com_value_fs_remark = -1;
+static int hf_bgp_ext_com_local_admin_flags = -1;
+static int hf_bgp_ext_com_local_admin_auto_derived_flag = -1;
+static int hf_bgp_ext_com_local_admin_type = -1;
+static int hf_bgp_ext_com_local_admin_domain_id = -1;
+static int hf_bgp_ext_com_local_admin_service_id = -1;
 
 /* BGP QoS propagation draft-knoll-idr-qos-attribute */
 
@@ -3109,6 +3126,33 @@ static path_attr_data*
 load_path_attr_data(packet_info *pinfo) {
     path_attr_data *data =
         (path_attr_data*)p_get_proto_data(wmem_file_scope(), pinfo, proto_bgp, PATH_ATTR_DATA_KEY);
+    return data;
+}
+
+typedef struct _afi_safi_data {
+    guint16 afi;
+    guint8  safi;  /* offset at which the LINK_STATE path attribute starts */
+} afi_safi_data;
+
+#define AFI_SAFI_DATA_KEY 2
+
+static void
+save_afi_safi_data(packet_info *pinfo, guint16 afi, guint8 safi) {
+    afi_safi_data *data =
+        (afi_safi_data*)p_get_proto_data(wmem_file_scope(), pinfo, proto_bgp, AFI_SAFI_DATA_KEY);
+    if (!data) {
+        data = wmem_new0(wmem_file_scope(), afi_safi_data);
+    }
+    data->afi  = afi;
+    data->safi = safi;
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_bgp, AFI_SAFI_DATA_KEY, data);
+    return;
+}
+
+static afi_safi_data*
+load_afi_safi_data(packet_info *pinfo) {
+    afi_safi_data *data =
+        (afi_safi_data*)p_get_proto_data(wmem_file_scope(), pinfo, proto_bgp, AFI_SAFI_DATA_KEY);
     return data;
 }
 
@@ -8239,6 +8283,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
     proto_item      *community_item=NULL;
     proto_item      *community_type_item=NULL;
     guint32         encaps_tunnel_type;
+    afi_safi_data   *data = NULL;
 
     offset = tvb_off ;
     end = tvb_off + tlen ;
@@ -8295,9 +8340,24 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
         switch (com_type_high_byte) {
             case BGP_EXT_COM_TYPE_HIGH_TR_AS2: /* Transitive Two-Octet AS-Specific Extended Community */
+
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_as2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                data = load_afi_safi_data(pinfo);
+
+                if(data && data->afi == AFNUM_L2VPN && data->safi == SAFNUM_EVPN) {
+                        static int * const local_admin_flags[] = {
+                            &hf_bgp_ext_com_local_admin_auto_derived_flag,
+                            &hf_bgp_ext_com_local_admin_type,
+                            &hf_bgp_ext_com_local_admin_domain_id,
+                            NULL
+                        };
+                        proto_tree_add_bitmask(community_tree, tvb, offset+4, hf_bgp_ext_com_local_admin_flags,
+                                ett_bgp_vxlan, local_admin_flags, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_local_admin_service_id, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+                } else {
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                }
 
                 proto_item_set_text(community_item, "%s: %u:%u",
                         val_to_str(com_stype_low_byte, bgpext_com_stype_tr_as2, "Unknown subtype 0x%02x"),
@@ -9493,6 +9553,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 proto_tree_add_item_ret_uint(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_safi, tvb,
                                     o + i + aoff + 2, 1, ENC_BIG_ENDIAN, &saf);
                 nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
+                save_afi_safi_data(pinfo, (guint16)af, (guint8)saf);
 
                 decode_mp_next_hop(tvb_new_subset_length(tvb, o + i + aoff + 3, nexthop_len + 1), subtree2, pinfo, af, saf, nexthop_len);
 
@@ -9550,6 +9611,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
                 proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_unreach_nlri_safi, tvb,
                                     o + i + aoff+2, 1, ENC_BIG_ENDIAN);
+                save_afi_safi_data(pinfo, (guint16)af, (guint8)saf);
 
                 ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_unreach_nlri, tvb, o + i + aoff + 3, tlen - 3, ENC_NA);
                 subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_unreach_nlri);
@@ -10618,6 +10680,8 @@ dissect_bgp_route_refresh(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     guint8          entryflag;  /* ORF Entry flag: action(add,del,delall) match(permit,deny) */
     int             entrylen;   /* ORF Entry length */
     int             advance;    /* tmp                      */
+    guint32         afi;
+    guint32         safi;
 
 
 /*
@@ -10643,7 +10707,7 @@ example 2
     p = BGP_HEADER_SIZE;
 
     /* AFI */
-    proto_tree_add_item(tree, hf_bgp_route_refresh_afi, tvb, p, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_bgp_route_refresh_afi, tvb, p, 2, ENC_BIG_ENDIAN, &afi);
     p += 2;
 
     /*  Subtype in draft-ietf-idr-bgp-enhanced-route-refresh-02 (for Enhanced Route Refresh Capability) before Reserved*/
@@ -10651,8 +10715,9 @@ example 2
     p++;
 
     /* SAFI */
-    proto_tree_add_item(tree, hf_bgp_route_refresh_safi, tvb, p, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_bgp_route_refresh_safi, tvb, p, 1, ENC_BIG_ENDIAN, &safi);
     p++;
+    save_afi_safi_data(pinfo, (guint16)afi, (guint8)safi);
 
     if ( hlen == BGP_HEADER_SIZE + 4 )
         return;
@@ -12359,6 +12424,21 @@ proto_register_bgp(void)
       { &hf_bgp_ext_com_value_fs_remark,
         { "Remarking value", "bgp.ext_com.value_fs_dscp", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
           &dscp_vals_ext, BGPNLRI_FSPEC_DSCP_BITMASK, NULL, HFILL }},
+      { &hf_bgp_ext_com_local_admin_flags,
+        { "Local Administrator", "bgp.ext_com.local_admin", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_ext_com_local_admin_auto_derived_flag,
+        { "A-Bit", "bgp.ext_com.local_admin.auto_derived", FT_BOOLEAN, 8,
+          TFS(&tfs_manually_auto_derived), 0x80, NULL, HFILL }},
+      { &hf_bgp_ext_com_local_admin_type,
+        { "Type", "bgp.ext_com.local_admin.type", FT_UINT8, BASE_DEC,
+          VALS(bgp_ext_com_local_admin_types), 0x70, NULL, HFILL }},
+      { &hf_bgp_ext_com_local_admin_domain_id,
+        { "Domain Id", "bgp.ext_com.local_admin.domain_id", FT_UINT8, BASE_DEC,
+          NULL, 0x0F, NULL, HFILL }},
+      { &hf_bgp_ext_com_local_admin_service_id,
+        { "Service Id", "bgp.ext_com.local_admin.service_id", FT_UINT24, BASE_DEC,
+          NULL, 0x00, NULL, HFILL }},
       { &hf_bgp_ext_com_value_raw,
         { "Raw Value", "bgp.ext_com.value_raw", FT_UINT48, BASE_HEX,
           NULL, 0x0, "Raw value of the lowmost 6 octets of the Extended Community attribute", HFILL }},
