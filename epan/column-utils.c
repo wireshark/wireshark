@@ -383,6 +383,25 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
   }
 }
 
+char*
+col_custom_get_filter(epan_dissect_t *edt, column_info *cinfo, const gint col)
+{
+  col_item_t* col_item;
+
+  ws_assert(cinfo);
+  ws_assert(col < cinfo->num_cols);
+
+  col_item = &cinfo->columns[col];
+  if (col_item->fmt_matx[COL_CUSTOM] &&
+      col_item->col_custom_fields &&
+      col_item->col_custom_fields_ids) {
+
+      return proto_custom_get_filter(edt, col_item->col_custom_fields_ids,
+                                     col_item->col_custom_occurrence);
+  }
+  return NULL;
+}
+
 void
 col_append_lstr(column_info *cinfo, const gint el, const gchar *str1, ...)
 {

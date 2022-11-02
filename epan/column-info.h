@@ -75,7 +75,7 @@ extern void col_init(column_info *cinfo, const struct epan_session *epan);
  */
 WS_DLL_PUBLIC void col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col, gboolean const fill_col_exprs);
 
-/** Fill in all columns of the given packet.
+/** Fill in all (non-custom) columns of the given packet.
  */
 WS_DLL_PUBLIC void col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
 
@@ -93,6 +93,11 @@ void col_custom_set_edt(struct epan_dissect *edt, column_info *cinfo);
 
 WS_DLL_PUBLIC
 void col_custom_prime_edt(struct epan_dissect *edt, column_info *cinfo);
+
+/** Get a filter expression for a custom column. This string must be g_free'd.
+ */
+WS_DLL_PUBLIC
+char* col_custom_get_filter(struct epan_dissect *edt, column_info *cinfo, const gint col);
 
 WS_DLL_PUBLIC
 gboolean have_custom_cols(column_info *cinfo);

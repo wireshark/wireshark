@@ -3349,9 +3349,9 @@ WS_DLL_PUBLIC guchar
 proto_check_field_name_lower(const gchar *field_name);
 
 
-/** Check if given string is a valid field name
+/** Set the column text for a custom column
  @param tree the tree to append this item to
- @param field_id the field id used for custom column
+ @param field_id the field ids used for custom column
  @param occurrence the occurrence of the field used for custom column
  @param result the buffer to fill with the field string
  @param expr the filter expression
@@ -3361,6 +3361,14 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
                              gint occurrence,
                              gchar *result,
                              gchar *expr, const int size );
+
+/** Construct a display filter string for a custom column
+ @param edt epan dissecting
+ @param field_id the field ids used for custom column
+ @param occurrence the occurrence of the field used for custom column
+ @return allocated display filter string.  Needs to be freed with g_free(...) */
+gchar *
+proto_custom_get_filter(struct epan_dissect *edt, GSList *field_id, gint occurrence);
 
 /** @} */
 

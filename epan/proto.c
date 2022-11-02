@@ -7006,6 +7006,108 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 	return abbrev ? abbrev : "";
 }
 
+gchar *
+proto_custom_get_filter(epan_dissect_t* edt, GSList *field_ids, gint occurrence)
+{
+	int                 len, prev_len, last, i;
+	GPtrArray          *finfos;
+	field_info         *finfo         = NULL;
+	header_field_info*  hfinfo;
+
+	char *filter = NULL;
+	GPtrArray *filter_array;
+
+	int field_id;
+
+	ws_assert(field_ids != NULL);
+	filter_array = g_ptr_array_new_full(g_slist_length(field_ids), g_free);
+	for (GSList *iter = field_ids; iter; iter = iter->next) {
+		field_id = *(int *)iter->data;
+		PROTO_REGISTRAR_GET_NTH((guint)field_id, hfinfo);
+
+		/* do we need to rewind ? */
+		if (!hfinfo)
+			return NULL;
+
+		if (occurrence < 0) {
+			/* Search other direction */
+			while (hfinfo->same_name_prev_id != -1) {
+				PROTO_REGISTRAR_GET_NTH(hfinfo->same_name_prev_id, hfinfo);
+			}
+		}
+
+		prev_len = 0; /* Reset handled occurrences */
+
+		while (hfinfo) {
+			finfos = proto_get_finfo_ptr_array(edt->tree, hfinfo->id);
+
+			if (!finfos || !(len = g_ptr_array_len(finfos))) {
+				if (occurrence < 0) {
+					hfinfo = hfinfo->same_name_next;
+				} else {
+					hfinfo = hfinfo_same_name_get_prev(hfinfo);
+				}
+				continue;
+			}
+
+			/* Are there enough occurrences of the field? */
+			if (((occurrence - prev_len) > len) || ((occurrence + prev_len) < -len)) {
+				if (occurrence < 0) {
+					hfinfo = hfinfo->same_name_next;
+				} else {
+					hfinfo = hfinfo_same_name_get_prev(hfinfo);
+				}
+				prev_len += len;
+				continue;
+			}
+
+			/* Calculate single index or set outer bounderies */
+			if (occurrence < 0) {
+				i = occurrence + len + prev_len;
+				last = i;
+			} else if (occurrence > 0) {
+				i = occurrence - 1 - prev_len;
+				last = i;
+			} else {
+				i = 0;
+				last = len - 1;
+			}
+
+			prev_len += len; /* Count handled occurrences */
+
+			while (i <= last) {
+				finfo = (field_info *)g_ptr_array_index(finfos, i);
+
+				filter = proto_construct_match_selected_string(finfo, edt);
+				if (filter) {
+					/* Only add the same expression once (especially for FT_PROTOCOL).
+					 * The ptr array doesn't have NULL entries so g_str_equal is fine.
+					 */
+					if (!g_ptr_array_find_with_equal_func(filter_array, filter, g_str_equal, NULL)) {
+						g_ptr_array_add(filter_array, filter);
+					}
+				}
+				i++;
+			}
+
+			if (occurrence == 0) {
+				/* Fetch next hfinfo with same name (abbrev) */
+				hfinfo = hfinfo_same_name_get_prev(hfinfo);
+			} else {
+				hfinfo = NULL;
+			}
+		}
+	}
+
+	g_ptr_array_add(filter_array, NULL);
+
+	/* XXX: Should this be || or && ? */
+	gchar *output = g_strjoinv(" || ", (char **)filter_array->pdata);
+
+	g_ptr_array_free(filter_array, TRUE);
+
+	return output;
+}
 
 /* Set text of proto_item after having already been created. */
 void

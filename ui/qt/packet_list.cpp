@@ -1314,54 +1314,25 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
         epan_dissect_run(&edt, cap_file_->cd_t, &rec,
                          frame_tvbuff_new_buffer(&cap_file_->provider, fdata, &buf),
                          fdata, &cap_file_->cinfo);
-        epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-        if ((cap_file_->cinfo.columns[column].col_custom_fields_ids == NULL) ||
-            (g_slist_length(cap_file_->cinfo.columns[column].col_custom_fields_ids) == 1))
-        {
-            /* Don't construct a filter on multifield custom columns, because
-             * we don't have a good reference for which values were found by
-             * which field. Fixing that requires changing logic in several
-             * places in the code (perhaps making col_expr_t a linked list?)
+        if (cap_file_->cinfo.columns[column].col_fmt == COL_CUSTOM) {
+            filter.append(gchar_free_to_qstring(col_custom_get_filter(&edt, &cap_file_->cinfo, column)));
+        } else {
+            /* We don't need to fill in the custom columns, as we get their
+             * filters above.
              */
+            col_fill_in(&edt.pi, TRUE, TRUE);
             if (strlen(cap_file_->cinfo.col_expr.col_expr[column]) != 0 &&
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[column]) != 0) {
                 gboolean is_string_value = FALSE;
-                gboolean is_multiple_values = (strchr (cap_file_->cinfo.col_expr.col_expr_val[column], ',') != NULL);
-                if (cap_file_->cinfo.columns[column].col_fmt == COL_CUSTOM) {
-                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[column].col_custom_fields);
-                    if (hfi && hfi->parent == -1) {
-                        /* Protocol only */
-                        filter.append(cap_file_->cinfo.col_expr.col_expr[column]);
-                    } else if (hfi && hfi->type == FT_STRING) {
-                        /* Custom string, add quotes */
-                        is_string_value = TRUE;
-                    }
-                } else {
-                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_expr.col_expr[column]);
-                    if (hfi && hfi->type == FT_STRING) {
-                        /* Could be an address type such as usb.src which must be quoted. */
-                        is_string_value = TRUE;
-                    }
+                header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_expr.col_expr[column]);
+                if (hfi && hfi->type == FT_STRING) {
+                    /* Could be an address type such as usb.src which must be quoted. */
+                    is_string_value = TRUE;
                 }
 
                 if (filter.isEmpty()) {
-                    if (is_multiple_values) {
-                        /* Use the membership operator and find packets that have
-                         * at least one matching value. Not clear if this (which
-                         * is equivalent to OR) makes more sense than AND matching
-                         * logic, but it's easy to construct.
-                         */
-                        if (is_string_value) {
-                            filter.append(QString("%1 in {\"%2\"}")
-                                          .arg(cap_file_->cinfo.col_expr.col_expr[column])
-                                          .arg(cap_file_->cinfo.col_expr.col_expr_val[column]).split(",").join("\",\""));
-                        } else {
-                            filter.append(QString("%1 in {%2}")
-                                          .arg(cap_file_->cinfo.col_expr.col_expr[column])
-                                          .arg(cap_file_->cinfo.col_expr.col_expr_val[column]));
-                        }
-                    } else if (is_string_value) {
+                    if (is_string_value) {
                         filter.append(QString("%1 == \"%2\"")
                                       .arg(cap_file_->cinfo.col_expr.col_expr[column])
                                       .arg(cap_file_->cinfo.col_expr.col_expr_val[column]));
