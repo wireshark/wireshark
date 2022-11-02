@@ -234,4 +234,9 @@ gint dissect_rtp_shim_header(tvbuff_t *tvb, gint start,
                              packet_info *pinfo, proto_tree *tree,
                              struct _rtp_info *rtp_info);
 
+struct _rtp_pkt_info {
+    guint payload_len;
+    guint8 padding_len; /* without padding count byte */
+};
+
 #endif /*__PACKET_RTP_H__*/

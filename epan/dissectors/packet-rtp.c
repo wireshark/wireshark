@@ -2321,6 +2321,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
              * There's data left over when you take out
              * the padding; dissect it.
              */
+            struct _rtp_pkt_info *rtp_pkt_info = wmem_new(pinfo->pool, struct _rtp_pkt_info);
+
+            rtp_pkt_info->payload_len = data_len;
+            rtp_pkt_info->padding_len = padding_count - 1;
+            p_add_proto_data(pinfo->pool, pinfo, proto_rtp, pinfo->curr_layer_num, rtp_pkt_info);
+
             /* Ensure that tap is called after packet dissection, even in case of exception */
             TRY {
                 dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
@@ -2390,6 +2396,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            struct _rtp_pkt_info *rtp_pkt_info = wmem_new(pinfo->pool, struct _rtp_pkt_info);
+
+            rtp_pkt_info->payload_len = tvb_captured_length_remaining(tvb, offset);
+            rtp_pkt_info->padding_len = 0;
+            p_set_proto_data(pinfo->pool, pinfo, proto_rtp, pinfo->curr_layer_num, rtp_pkt_info);
+
             /* Ensure that tap is called after packet dissection, even in case of exception */
             TRY {
                 dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
