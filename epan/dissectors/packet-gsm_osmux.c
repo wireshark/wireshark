@@ -66,7 +66,7 @@ static const value_string amr_ft_names[] =
     {0, NULL}
 };
 
-static guint8 amr_ft_bytes[AMR_FT_MAX] = {12, 13, 15, 17, 19, 20, 26, 31, 6};
+static guint8 amr_ft_bytes[AMR_FT_MAX] = {12, 13, 15, 17, 19, 20, 26, 31, 5};
 
 #define OSMUX_AMR_HEADER_LEN 4
 
