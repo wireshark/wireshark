@@ -16,7 +16,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-
+#include <epan/proto_data.h>
+#include "packet-rtp.h"
 
 void proto_register_evs(void);
 void proto_reg_handoff_evs(void);
@@ -25,6 +26,7 @@ static dissector_handle_t evs_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_evs = -1;
+static int proto_rtp = -1;
 
 static int hf_evs_packet_length = -1;
 static int hf_evs_voice_data = -1;
@@ -610,6 +612,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     int num_toc, num_data;
     guint64 value;
     gboolean is_compact = FALSE;
+    struct _rtp_pkt_info *rtp_pkt_info = p_get_proto_data(pinfo->pool, pinfo, proto_rtp, pinfo->curr_layer_num-1);
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EVS");
@@ -618,6 +621,8 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* Find out if we have one of the reserved packet sizes*/
     packet_len = tvb_reported_length(tvb);
     num_bits = packet_len * 8;
+    if (rtp_pkt_info)
+        num_bits += rtp_pkt_info->padding_len * 8; /* take into account RTP padding if any */
     if (num_bits == 56) {
         /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
         /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
@@ -1094,6 +1099,7 @@ proto_reg_handoff_evs(void)
 {
     dissector_add_string("rtp_dyn_payload_type", "EVS", evs_handle);
     dissector_add_uint_range_with_preference("rtp.pt", "", evs_handle);
+    proto_rtp = proto_get_id_by_filter_name("rtp");
 }
 
 /*
