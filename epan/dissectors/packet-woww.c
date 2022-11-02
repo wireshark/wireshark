@@ -13082,10 +13082,6 @@ add_body_fields(guint32 opcode,
             len = offset_packet_end - ptvcursor_current_offset(ptv);
             ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
             break;
-        case SMSG_COMPRESSED_UPDATE_OBJECT:
-            len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
-            break;
         case SMSG_COOLDOWN_EVENT:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
