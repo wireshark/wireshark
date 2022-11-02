@@ -11541,7 +11541,6 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	int		   i;
 	gint		   start, length, length_remaining;
 	guint8		   c;
-	gchar		   is_signed_num = FALSE;
 
 	if (!finfo)
 		return FALSE;
@@ -11549,6 +11548,25 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	hfinfo     = finfo->hfinfo;
 	DISSECTOR_ASSERT(hfinfo);
 
+	/* If we have BASE_NONE and strings (a non-NULL FIELDCONVERT),
+	 * then "the numeric value ... is not used when preparing
+	 * filters for the field in question." If it's any other
+	 * base, we'll generate the filter normally (which will
+	 * be numeric, even though the human-readable string does
+	 * work for filtering.)
+	 *
+	 * XXX - It might be nice to use fvalue_to_string_repr() in
+	 * "proto_item_fill_label()" as well, although, there, you'd
+	 * have to deal with the base *and* with resolved values for
+	 * addresses.
+	 *
+	 * Perhaps in addition to taking the repr type (DISPLAY
+	 * or DFILTER) and the display (base), fvalue_to_string_repr()
+	 * should have the the "strings" values in the header_field_info
+	 * structure for the field as a parameter, so it can have
+	 * if the field is Boolean or an enumerated integer type,
+	 * the tables used to generate human-readable values.
+	 */
 	if (hfinfo->strings && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
 		const gchar *str = NULL;
 
@@ -11579,97 +11597,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		}
 	}
 
-	/*
-	 * XXX - we can't use the "val_to_string_repr" function
-	 * for FT_UINT and FT_INT types, as we choose the base in
-	 * the string expression based on the display base of the field.
-	 *
-	 * Note that the base does matter, as this is also used for
-	 * the protocolinfo tap.
-	 *
-	 * It might be nice to use them in "proto_item_fill_label()"
-	 * as well, although, there, you'd have to deal with the base
-	 * *and* with resolved values for addresses.
-	 *
-	 * Perhaps we need two different val_to_string routines, one
-	 * to generate items for display filters and one to generate
-	 * strings for display, and pass to both of them the
-	 * "display" and "strings" values in the header_field_info
-	 * structure for the field, so they can get the base and,
-	 * if the field is Boolean or an enumerated integer type,
-	 * the tables used to generate human-readable values.
-	 */
 	switch (hfinfo->type) {
-
-		case FT_CHAR:
-			if (filter != NULL) {
-				guint32 number;
-
-				char buf [48];
-				const char *out;
-
-				number = fvalue_get_uinteger(&finfo->value);
-
-				out = hfinfo_char_value_format(hfinfo, buf, number);
-
-				*filter = wmem_strdup_printf(NULL, "%s == %s", hfinfo->abbrev, out);
-			}
-			break;
-
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-			is_signed_num = TRUE;
-			/* FALLTHRU */
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_FRAMENUM:
-			if (filter != NULL) {
-				guint32 number;
-
-				char buf[32];
-				const char *out;
-
-				if (is_signed_num)
-					number = fvalue_get_sinteger(&finfo->value);
-				else
-					number = fvalue_get_uinteger(&finfo->value);
-
-				out = hfinfo_numeric_value_format(hfinfo, buf, number);
-
-				*filter = wmem_strdup_printf(NULL, "%s == %s", hfinfo->abbrev, out);
-			}
-			break;
-
-		case FT_INT40:
-		case FT_INT48:
-		case FT_INT56:
-		case FT_INT64:
-			is_signed_num = TRUE;
-			/* FALLTHRU */
-		case FT_UINT40:
-		case FT_UINT48:
-		case FT_UINT56:
-		case FT_UINT64:
-			if (filter != NULL) {
-				guint64 number;
-
-				char buf [48];
-				const char *out;
-
-				if (is_signed_num)
-					number = fvalue_get_sinteger64(&finfo->value);
-				else
-					number = fvalue_get_uinteger64(&finfo->value);
-
-				out = hfinfo_numeric_value_format64(hfinfo, buf, number);
-
-				*filter = wmem_strdup_printf(NULL, "%s == %s", hfinfo->abbrev, out);
-			}
-			break;
 
 		case FT_PROTOCOL:
 			if (filter != NULL)
