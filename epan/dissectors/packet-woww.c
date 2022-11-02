@@ -13076,7 +13076,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_CLIENT_CONTROL_UPDATE:
             add_packed_guid(ptv, pinfo);
-            ptvcursor_add(ptv, hf_woww_allow_movement, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_allow_movement, 1, ENC_NA);
             break;
         case SMSG_COMPRESSED_MOVES:
             len = offset_packet_end - ptvcursor_current_offset(ptv);
