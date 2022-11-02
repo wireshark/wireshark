@@ -93,6 +93,9 @@ void proto_reg_handoff_locamation_im(void);
 #define MASK_RANGES_SAMPLE_2 0x000c
 #define MASK_RANGES_SAMPLE_1 0x0003
 
+#define MASK_TIMESTAMP_ADDITIONAL_STATUS_HOLDOVER_STATE 0x01
+#define MASK_TIMESTAMP_ADDITIONAL_STATUS_MASTER_CLOCK_SWITCH 0x02
+
 /*
  * ########################################################################
  * #
@@ -130,6 +133,25 @@ static const value_string company_pid_vals[] = {
  * };
  */
 #define SAMPLE_SET_SIZE 34
+
+/*
+ * struct _timestamp_t {
+ * 	guint8 sync_status;
+ * 	guint8 additional_status;
+ * 	guint32 sec;
+ * 	guint32 nsec;
+ * };
+ */
+#define TIMESTAMP_SIZE 10
+
+/*
+ * struct _timestamps_t {
+ * 	guint8 version;
+ * 	guint24 reserved;
+ * 	struct _timestamp_t timestamps[8];
+ * };
+ */
+#define TIMESTAMPS_SIZE 84
 
 /*
  * ########################################################################
@@ -445,6 +467,152 @@ static void add_rms_values(tvbuff_t *tvb, gint *tvb_offset, int *hfs, guint hfs_
 	}
 }
 
+static gint hst_samples_timestamps_sample = -1;
+static gint hst_samples_timestamps_sample_reserved = -1;
+static gint hst_samples_timestamps_sample_timestamp = -1;
+
+static int hf_samples_timestamps_sample_sync_status = -1;
+static int hf_samples_timestamps_sample_additional_status = -1;
+static int hf_samples_timestamps_sample_additional_status_holdover_state = -1;
+static int hf_samples_timestamps_sample_additional_status_master_clock_switch = -1;
+static int hf_samples_timestamps_sample_timestamp = -1;
+static int hf_samples_timestamps_sample_timestamp_seconds = -1;
+static int hf_samples_timestamps_sample_timestamp_nanoseconds = -1;
+
+static const value_string samples_timestamps_sample_additional_status_holdover_state_vals[] = {
+    {0, "Inactive"},
+    {1, "Active"},
+    {0, NULL}};
+
+static const value_string samples_timestamps_sample_additional_status_master_clock_switch_vals[] = {
+    {0, "No"},
+    {1, "Yes"},
+    {0, NULL}};
+
+static void samples_timestamps_sample_sync_status(gchar *result, guint8 sync_status) {
+	char *str = NULL;
+	switch (sync_status) {
+		case 0:
+			str = "None";
+			break;
+		case 1:
+			str = "Local";
+			break;
+		case 2:
+			str = "Global";
+			break;
+		default:
+			str = "Invalid";
+			break;
+	}
+
+	snprintf(result, ITEM_LABEL_LENGTH, "%s", str);
+}
+
+static int *const timestamp_additional_status_bits[] = {
+    &hf_samples_timestamps_sample_additional_status_holdover_state,
+    &hf_samples_timestamps_sample_additional_status_master_clock_switch,
+    NULL};
+
+static expert_field ei_samples_timestamp_sync_status_invalid = EI_INIT;
+
+static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_offset_previous, gint *tvb_offset, int hf, proto_tree *tree) {
+	gint item_size = TIMESTAMP_SIZE;
+	tvb_ensure_bytes_exist(tvb, *tvb_offset, item_size);
+
+	/* Get the timestamp components */
+	guint8 sync_status = tvb_get_guint8(tvb, *tvb_offset);
+	guint32 seconds = tvb_get_guint32(tvb, *tvb_offset + 2, ENC_BIG_ENDIAN);
+	guint32 nanoseconds = tvb_get_guint32(tvb, *tvb_offset + 6, ENC_BIG_ENDIAN);
+
+	/* Convert the timestamp seconds to a split time type */
+	time_t sample_time = (time_t)seconds;
+	struct tm sample_time_split;
+	gmtime_r(&sample_time, &sample_time_split);
+
+	/* Construct the readable sync status */
+	gchar sync_status_buf[ITEM_LABEL_LENGTH];
+	samples_timestamps_sample_sync_status(sync_status_buf, sync_status);
+
+	/* Construct the readable timestamp */
+	gchar timestamp_buf[ITEM_LABEL_LENGTH];
+	size_t timestamp_length = 0;
+	timestamp_length += strftime(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%Y-%m-%d %H:%M:%S.", &sample_time_split);
+	timestamp_length += snprintf(&timestamp_buf[timestamp_length], ITEM_LABEL_LENGTH - timestamp_length, "%09u TAI", nanoseconds);
+
+	/* Construct the readable sample text */
+	char title_buf[ITEM_LABEL_LENGTH];
+	size_t title_length = 0;
+	title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, "%s (Sync: %s", timestamp_buf, sync_status_buf);
+	if (tvb_offset_previous != NULL) {
+		/* Get the previous timestamp components and calculate the time difference */
+		guint32 seconds_previous = tvb_get_guint32(tvb, *tvb_offset_previous + 2, ENC_BIG_ENDIAN);
+		guint32 nanoseconds_previous = tvb_get_guint32(tvb, *tvb_offset_previous + 6, ENC_BIG_ENDIAN);
+		guint64 time_previous = ((guint64)seconds_previous << 32) | nanoseconds_previous;
+		guint64 time_now = ((guint64)seconds << 32) | nanoseconds;
+		guint64 time_diff;
+		gchar time_difference_sign[2] = {'\0', '\0'};
+		if (time_now >= time_previous) {
+			time_diff = time_now - time_previous;
+			time_difference_sign[0] = '\0';
+		} else {
+			time_diff = time_previous - time_now;
+			time_difference_sign[0] = '-';
+		}
+		double frequency = 1.0 / ((double)time_diff * 1.0E-09);
+		title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ", Time Difference: %s%lu nsec = %f Hz", time_difference_sign, time_diff, frequency);
+	}
+	title_length += snprintf(&title_buf[title_length], ITEM_LABEL_LENGTH - title_length, ")");
+
+	proto_item *sample_timestamp_item = proto_tree_add_string(tree, hf, tvb, *tvb_offset, item_size, title_buf);
+
+	proto_tree *sample_timestamp_item_subtree = proto_item_add_subtree(sample_timestamp_item, hst_samples_timestamps_sample);
+
+	/* Sync Status */
+	item_size = 1;
+	tvb_ensure_bytes_exist(tvb, *tvb_offset, item_size);
+	proto_item *sync_status_item = proto_tree_add_item(sample_timestamp_item_subtree, hf_samples_timestamps_sample_sync_status, tvb, *tvb_offset, item_size, ENC_BIG_ENDIAN);
+	*tvb_offset += item_size;
+
+	if (sync_status > 2) {
+		expert_add_info(pinfo, sync_status_item, &ei_samples_timestamp_sync_status_invalid);
+	}
+
+	/* Additional Status */
+	item_size = 1;
+	tvb_ensure_bytes_exist(tvb, *tvb_offset, item_size);
+	proto_tree_add_bitmask(sample_timestamp_item_subtree, tvb, *tvb_offset, hf_samples_timestamps_sample_additional_status, hst_samples_timestamps_sample_reserved, timestamp_additional_status_bits, ENC_BIG_ENDIAN);
+	*tvb_offset += item_size;
+
+	/* Timestamp */
+	item_size = 8;
+	tvb_ensure_bytes_exist(tvb, *tvb_offset, item_size);
+	proto_item *sample_timestamp_timestamp_item = proto_tree_add_string(sample_timestamp_item_subtree, hf_samples_timestamps_sample_timestamp, tvb, *tvb_offset, item_size, timestamp_buf);
+
+	proto_tree *sample_timestamp_timestamp_item_subtree = proto_item_add_subtree(sample_timestamp_timestamp_item, hst_samples_timestamps_sample_timestamp);
+
+	/* Seconds */
+	item_size = 4;
+	tvb_ensure_bytes_exist(tvb, *tvb_offset, item_size);
+	proto_tree_add_item(sample_timestamp_timestamp_item_subtree, hf_samples_timestamps_sample_timestamp_seconds, tvb, *tvb_offset, item_size, ENC_BIG_ENDIAN);
+	*tvb_offset += item_size;
+
+	/* Nanoseconds */
+	item_size = 4;
+	tvb_ensure_bytes_exist(tvb, *tvb_offset, item_size);
+	proto_tree_add_item(sample_timestamp_timestamp_item_subtree, hf_samples_timestamps_sample_timestamp_nanoseconds, tvb, *tvb_offset, item_size, ENC_BIG_ENDIAN);
+	*tvb_offset += item_size;
+}
+
+static void add_timestamps_set(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_offset, int *hfs, guint hfs_size, proto_tree *tree) {
+	gint tvb_offset_previous = 0;
+	for (guint index_timestamp = 0; index_timestamp < hfs_size; index_timestamp++) {
+		gint tvb_offset_saved = *tvb_offset;
+		add_timestamp_sample(tvb, pinfo, (index_timestamp == 0) ? NULL : &tvb_offset_previous, tvb_offset, hfs[index_timestamp], tree);
+		tvb_offset_previous = tvb_offset_saved;
+	}
+}
+
 /*
  * Samples Packets
  *
@@ -551,6 +719,48 @@ static void add_rms_values(tvbuff_t *tvb, gint *tvb_offset, int *hfs, guint hfs_
  *     value 6  0                               0
  *     value 7  0                               0
  *     value 8  0                               0
+ * Timestamps
+ *   * Timestamps are PTP driven and are stored in a versioned block.
+ *     Each timestamp also has status information.
+ *
+ *   * IM1
+ *     Timestamps are not applicable for IM1.
+ *
+ *   * IM2R0
+ *     Timestamps are optional.
+ *
+ *     Timestamps Block
+ *     ================
+ *     Version   1 byte, unsigned
+ *     Reserved  3 bytes, unsigned
+ *     Sample 1  Timestamp (oldest sample)
+ *     Sample 2  Timestamp
+ *     Sample 3  Timestamp
+ *     Sample 4  Timestamp
+ *     Sample 5  Timestamp
+ *     Sample 6  Timestamp
+ *     Sample 7  Timestamp
+ *     Sample 8  Timestamp (newest sample)
+ *
+ *     Timestamp
+ *     =========
+ *     Sync Status  1 byte, unsigned
+ *       0     = Not synchronized (during start-up or synchronization lost)
+ *       1     = Synchronized but not to a Grand Master Clock
+ *       2     = Synchronized to a Grand Master Clock
+ *       3-255 = Invalid
+ *     Additional Status  1 byte, bitmap
+ *       bits [7, 2]: Reserved
+ *       bits [1]   : Master clock switch
+ *         1 = The device switched to a different master clock or
+ *             became synchronized to a master clock for the first time.
+ *         0 = The device did not switch to a different master clock nor
+ *             became synchronized to a master clock for the first time.
+ *       bits [0]   : Holdover state
+ *         1 = The device is in its holdover state.
+ *         0 = The device is not in its holdover state.
+ *     Seconds      4 bytes, unsigned
+ *     Nanoseconds  4 bytes, unsigned
  */
 
 static gint hst_protocol_samples = -1;
@@ -559,6 +769,8 @@ static gint hst_samples_sets = -1;
 static gint hst_samples_sets_set = -1;
 static gint hst_samples_rms = -1;
 static gint hst_samples_rms_values = -1;
+static gint hst_samples_timestamps = -1;
+static gint hst_samples_timestamps_set = -1;
 
 static expert_field ei_samples_im_version_invalid = EI_INIT;
 
@@ -574,6 +786,7 @@ static int hf_samples_padding = -1;
 static int hf_samples_adc_status = -1;
 static int hf_samples_sample_set = -1;
 static int hf_samples_rms_values = -1;
+static int hf_samples_timestamps = -1;
 
 static int *const controlBits[] = {
     &hf_samples_control_type,
@@ -599,6 +812,17 @@ static int hf_samples_rms_values_protection_channel_1 = -1;
 static int hf_samples_rms_values_protection_channel_2 = -1;
 static int hf_samples_rms_values_protection_channel_3 = -1;
 static int hf_samples_rms_values_channel_unused = -1;
+
+static int hf_samples_timestamps_version = -1;
+static int hf_samples_timestamps_reserved = -1;
+static int hf_samples_timestamps_sample_1 = -1;
+static int hf_samples_timestamps_sample_2 = -1;
+static int hf_samples_timestamps_sample_3 = -1;
+static int hf_samples_timestamps_sample_4 = -1;
+static int hf_samples_timestamps_sample_5 = -1;
+static int hf_samples_timestamps_sample_6 = -1;
+static int hf_samples_timestamps_sample_7 = -1;
+static int hf_samples_timestamps_sample_8 = -1;
 
 static int dissect_samples_im(gboolean im1, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, int h_protocol_samples) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, im1 ? PROTOCOL_SHORTNAME_SAMPLES_IM1 : PROTOCOL_SHORTNAME_SAMPLES_IM2R0);
@@ -782,6 +1006,43 @@ static int dissect_samples_im(gboolean im1, tvbuff_t *tvb, packet_info *pinfo, p
 		}
 	}
 
+	/* Timestamps */
+	if (isIM2R0 && tvb_bytes_exist(tvb, tvb_offset, TIMESTAMPS_SIZE)) {
+		proto_tree *samples_timestamps_subtree = proto_item_add_subtree(samples_item, hst_samples_timestamps);
+
+		item_size = TIMESTAMPS_SIZE;
+		tvb_ensure_bytes_exist(tvb, tvb_offset, item_size);
+		proto_item *samples_timestamps_subtree_item = proto_tree_add_item(samples_timestamps_subtree, hf_samples_timestamps, tvb, tvb_offset, item_size, ENC_NA);
+
+		proto_tree *samples_timestamps_subtree_item_subtree = proto_item_add_subtree(samples_timestamps_subtree_item, hst_samples_timestamps_set);
+
+		/* Version */
+		item_size = 1;
+		tvb_ensure_bytes_exist(tvb, tvb_offset, item_size);
+		proto_tree_add_item(samples_timestamps_subtree_item_subtree, hf_samples_timestamps_version, tvb, tvb_offset, item_size, ENC_BIG_ENDIAN);
+		tvb_offset += item_size;
+
+		/* Reserved */
+		item_size = 3;
+		tvb_ensure_bytes_exist(tvb, tvb_offset, item_size);
+		proto_tree_add_item(samples_timestamps_subtree_item_subtree, hf_samples_timestamps_reserved, tvb, tvb_offset, item_size, ENC_BIG_ENDIAN);
+		tvb_offset += item_size;
+
+		/* Sample Timestamps */
+
+		int hfs[] = {
+		    hf_samples_timestamps_sample_1,
+		    hf_samples_timestamps_sample_2,
+		    hf_samples_timestamps_sample_3,
+		    hf_samples_timestamps_sample_4,
+		    hf_samples_timestamps_sample_5,
+		    hf_samples_timestamps_sample_6,
+		    hf_samples_timestamps_sample_7,
+		    hf_samples_timestamps_sample_8};
+
+		add_timestamps_set(tvb, pinfo, &tvb_offset, hfs, array_length(hfs), samples_timestamps_subtree_item_subtree);
+	}
+
 	return tvb_captured_length(tvb);
 }
 
@@ -900,8 +1161,29 @@ static int dissect_samples_im1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * ########################################################################
  */
 
+static hf_register_info protocol_registration_samples_im2[] = {
+    {&hf_samples_timestamps, {"Timestamps", "locamation-im.samples.timestamps", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_version, {"Version", "locamation-im.samples.timestamps.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_reserved, {"Reserved", "locamation-im.samples.timestamps.reserved", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_1, {"Sample 1", "locamation-im.samples.timestamps.sample.1", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_2, {"Sample 2", "locamation-im.samples.timestamps.sample.2", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_3, {"Sample 3", "locamation-im.samples.timestamps.sample.3", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_4, {"Sample 4", "locamation-im.samples.timestamps.sample.4", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_5, {"Sample 5", "locamation-im.samples.timestamps.sample.5", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_6, {"Sample 6", "locamation-im.samples.timestamps.sample.6", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_7, {"Sample 7", "locamation-im.samples.timestamps.sample.7", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_8, {"Sample 8", "locamation-im.samples.timestamps.sample.8", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_sync_status, {"Sync Status", "locamation-im.samples.timestamps.sample.sync.status", FT_UINT8, BASE_CUSTOM, CF_FUNC(samples_timestamps_sample_sync_status), 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_additional_status, {"Additional Status", "locamation-im.samples.timestamps.sample.additional.status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_additional_status_holdover_state, {"Holdover", "locamation-im.samples.timestamps.sample.additional.status.holdover.state", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_additional_status_holdover_state_vals), MASK_TIMESTAMP_ADDITIONAL_STATUS_HOLDOVER_STATE, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_additional_status_master_clock_switch, {"Master Clock Switch", "locamation-im.samples.timestamps.sample.additional.status.master.clock.switch", FT_UINT8, BASE_DEC, VALS(samples_timestamps_sample_additional_status_master_clock_switch_vals), MASK_TIMESTAMP_ADDITIONAL_STATUS_MASTER_CLOCK_SWITCH, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_timestamp, {"Timestamp", "locamation-im.samples.timestamps.sample.timestamp", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_timestamp_seconds, {"Seconds", "locamation-im.samples.timestamps.sample.timestamp.seconds", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_samples_timestamps_sample_timestamp_nanoseconds, {"Nanoseconds", "locamation-im.samples.timestamps.sample.timestamp.nanoseconds", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}}};
+
 static ei_register_info ei_samples_im2r0[] = {
-    {&ei_samples_im_version_invalid, {"locamation-im.samples.control.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL}}};
+    {&ei_samples_im_version_invalid, {"locamation-im.samples.control.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL}},
+    {&ei_samples_timestamp_sync_status_invalid, {"locamation-im.samples.timestamps.sample.sync.status.invalid", PI_MALFORMED, PI_ERROR, "Invalid Status", EXPFILL}}};
 
 static int h_protocol_samples_im2r0 = -1;
 
@@ -943,7 +1225,12 @@ static gint *protocol_subtree[] = {
     &hst_samples_sets,
     &hst_samples_sets_set,
     &hst_samples_rms,
-    &hst_samples_rms_values};
+    &hst_samples_rms_values,
+    &hst_samples_timestamps,
+    &hst_samples_timestamps_set,
+    &hst_samples_timestamps_sample,
+    &hst_samples_timestamps_sample_timestamp,
+    &hst_samples_timestamps_sample_reserved};
 
 static dissector_handle_t h_calibration;
 static dissector_handle_t h_ident;
@@ -974,7 +1261,7 @@ void proto_register_locamation_im(void) {
 
 	/* Samples - IM2R0 */
 	h_protocol_samples_im2r0 = proto_register_protocol(PROTOCOL_NAME_SAMPLES_IM2R0, PROTOCOL_SHORTNAME_SAMPLES_IM2R0, "locamation-im.samples.im2r0");
-	proto_register_field_array(h_protocol_samples_im2r0, NULL, 0);
+	proto_register_field_array(h_protocol_samples_im2r0, protocol_registration_samples_im2, array_length(protocol_registration_samples_im2));
 	expert_module_t *expert_samples_im2r0 = expert_register_protocol(h_protocol_samples_im2r0);
 	expert_register_field_array(expert_samples_im2r0, ei_samples_im2r0, array_length(ei_samples_im2r0));
 
