@@ -74,6 +74,11 @@ static int dissect_E2SM_RC_IndicationMessage_PDU(tvbuff_t *tvb _U_, packet_info 
 static int dissect_E2SM_RC_IndicationHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_E2SM_RC_CallProcessID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
+static int dissect_E2SM_RC_ControlHeader_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_RC_ControlMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_E2SM_RC_ControlOutcome_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+
+
 
 enum {
   INITIATING_MESSAGE,
@@ -118,6 +123,11 @@ typedef int (*pdu_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 /* Function pointers for a RANFunction */
 typedef struct {
     pdu_dissector_t ran_function_definition_dissector;
+
+    pdu_dissector_t ric_control_header_dissector;
+    pdu_dissector_t ric_control_message_dissector;
+    pdu_dissector_t ric_control_outcome_dissector;
+
     pdu_dissector_t ran_action_definition_dissector;
     pdu_dissector_t ran_indication_message_dissector;
     pdu_dissector_t ran_indication_header_dissector;
@@ -141,6 +151,11 @@ typedef struct {
 static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTIONS] =
 {
   { "ORAN-E2SM-KPM", {  dissect_E2SM_KPM_RANfunction_Description_PDU,
+
+                        NULL,
+                        NULL,
+                        NULL,
+
                         dissect_E2SM_KPM_ActionDefinition_PDU,
                         dissect_E2SM_KPM_IndicationMessage_PDU,
                         dissect_E2SM_KPM_IndicationHeader_PDU,
@@ -149,6 +164,11 @@ static const ran_function_name_mapping_t g_ran_functioname_table[MAX_RANFUNCTION
                      }
   },
   { "ORAN-E2SM-RC",  {  dissect_E2SM_RC_RANFunctionDefinition_PDU,
+
+                        dissect_E2SM_RC_ControlHeader_PDU,
+                        dissect_E2SM_RC_ControlMessage_PDU,
+                        dissect_E2SM_RC_ControlOutcome_PDU,
+
                         dissect_E2SM_RC_ActionDefinition_PDU,
                         dissect_E2SM_RC_IndicationMessage_PDU,
                         dissect_E2SM_RC_IndicationHeader_PDU,

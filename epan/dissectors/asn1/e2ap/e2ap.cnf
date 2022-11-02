@@ -31,6 +31,11 @@ E2SM-RC-IndicationMessage
 E2SM-RC-IndicationHeader
 E2SM-RC-CallProcessID
 
+E2SM-RC-ControlHeader
+E2SM-RC-ControlMessage
+E2SM-RC-ControlOutcome
+
+
 
 #.MAKE_ENUM
 ProcedureCode
@@ -46,15 +51,6 @@ ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 Presence
-E2SM-RC-ControlOutcome
-E2SM-RC-ControlOutcome-Format3
-E2SM-RC-ControlOutcome-Format2
-E2SM-RC-ControlOutcome-Format1
-E2SM-RC-ControlOutcome-Format3-Item
-E2SM-RC-ControlOutcome-Format2-Style-Item
-E2SM-RC-ControlOutcome-Format1-Item
-E2SM-RC-ControlMessage
-E2SM-RC-ControlHeader
 FreqBandNrItem
 S-NSSAI
 IndexToRFSP
@@ -65,18 +61,6 @@ SubscriberProfileIDforRFP
 QoSID
 GroupID
 CoreCPID
-E2RemovalFailure
-E2RemovalResponse
-E2RemovalRequest
-E2SM-RC-ControlOutcome-Format2-ControlOutcome-Item
-E2SM-RC-ControlMessage-Format2
-E2SM-RC-ControlHeader-Format2
-E2SM-RC-ControlHeader-Format1
-E2SM-RC-ControlOutcome-Format2-RANP-Item
-E2SM-RC-ControlMessage-Format2-Style-Item
-E2SM-RC-ControlMessage-Format2-ControlAction-Item
-E2SM-RC-ControlMessage-Format1
-E2SM-RC-ControlMessage-Format1-Item
 
 #.END
 
@@ -275,6 +259,32 @@ SuccessfulOutcome/value successfulOutcome_value
                            "ShortName does not match any known Service Model");
   }
 
+
+#.FN_BODY RICcontrolHeader VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
+  if (functions && functions->ric_control_header_dissector) {
+    functions->ric_control_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY RICcontrolMessage VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
+  if (functions && functions->ric_control_message_dissector) {
+    functions->ric_control_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY RICcontrolOutcome VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  ran_function_pointers_t* functions = lookup_ranfunction_pointers(actx->pinfo, tree, parameter_tvb);
+  if (functions && functions->ric_control_outcome_dissector) {
+    functions->ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
+  }
+
+
 #.FN_BODY RICeventTriggerDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
@@ -333,6 +343,8 @@ id-RICsubscriptionDelete                     ProcedureCode
 id-E2nodeConfigurationUpdate	             ProcedureCode
 id-E2connectionUpdate                        ProcedureCode
 id-RICsubscriptionDeleteRequired             ProcedureCode
+id-E2removal                                 ProcedureCode
+
 
 
 
@@ -437,6 +449,9 @@ RICindicationSN                             N e2ap.ies id-RICindicationSN
 RICindicationType                           N e2ap.ies id-RICindicationType
 RICrequestID                                N e2ap.ies id-RICrequestID
 RICsubscriptionDetails                      N e2ap.ies id-RICsubscriptionDetails
+RICcontrolHeader                            N e2ap.ies id-RICcontrolHeader
+RICcontrolMessage                           N e2ap.ies id-RICcontrolMessage
+
 TimeToWait                                  N e2ap.ies id-TimeToWait
 #RICcontrolOutcome                           N e2ap.ies id-RICcontrolOutcome
 
@@ -513,6 +528,10 @@ RICsubscriptionDeleteRequest             N e2ap.proc.imsg id-RICsubscriptionDele
 RICsubscriptionDeleteResponse            N e2ap.proc.sout id-RICsubscriptionDelete
 
 RICsubscriptionDeleteRequired            N e2ap.proc.sout id-RICsubscriptionDeleteRequired
+
+E2RemovalFailure                         N e2ap.proc.uout id-E2removal
+E2RemovalRequest                         N e2ap.proc.imsg id-E2removal
+E2RemovalResponse                        N e2ap.proc.sout id-E2removal
 
 
 
