@@ -158,6 +158,7 @@ static int hf_woww_answer_comment = -1;
 static int hf_woww_apply = -1;
 static int hf_woww_arcane_resistance = -1;
 static int hf_woww_area = -1;
+static int hf_woww_argument = -1;
 static int hf_woww_armor = -1;
 static int hf_woww_attacker = -1;
 static int hf_woww_attacker_guid = -1;
@@ -580,7 +581,6 @@ static int hf_woww_outbid_item_ids = -1;
 static int hf_woww_outfit_id = -1;
 static int hf_woww_own_flags = -1;
 static int hf_woww_owner_guid = -1;
-static int hf_woww_padding = -1;
 static int hf_woww_page_id = -1;
 static int hf_woww_page_material = -1;
 static int hf_woww_page_text = -1;
@@ -14945,7 +14945,7 @@ add_body_fields(guint32 opcode,
         case SMSG_TRANSFER_ABORTED:
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_transfer_abort_reason, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_padding, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_argument, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_TRANSFER_PENDING:
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
@@ -15896,6 +15896,12 @@ proto_register_woww(void)
         { &hf_woww_area,
             { "Area", "woww.area",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_area_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_argument,
+            { "Argument", "woww.argument",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18428,12 +18434,6 @@ proto_register_woww(void)
         { &hf_woww_owner_guid,
             { "Owner Guid", "woww.owner.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_padding,
-            { "Padding", "woww.padding",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
