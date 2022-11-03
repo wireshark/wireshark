@@ -313,9 +313,9 @@ set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
 # Make sure our executables can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
 # https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
-set(LIBRARY_INSTALL_RPATH "")
-set(EXECUTABLE_INSTALL_RPATH "")
-set(EXTCAP_INSTALL_RPATH "")
+set(LIBRARY_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}")
+set(EXECUTABLE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}")
+set(EXTCAP_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}")
 if(NOT (WIN32 OR APPLE OR USE_STATIC))
 	# Try to set a RPATH for installed binaries if the library directory is
 	# not already included in the default search list.
