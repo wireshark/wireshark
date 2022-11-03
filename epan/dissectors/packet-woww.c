@@ -10521,6 +10521,46 @@ add_body_fields(guint32 opcode,
         case CMSG_PET_CAST_SPELL:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellCastTargets");
+            ptvcursor_add_ret_uint(ptv, hf_woww_spell_cast_target_flags, 2, ENC_LITTLE_ENDIAN, &target_flags);
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
+                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
+                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
+                add_cstring(ptv, &hf_woww_target_string);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
+                add_packed_guid(ptv, pinfo);
+            }
+            ptvcursor_pop_subtree(ptv);
             break;
         case CMSG_PET_NAME_QUERY:
             ptvcursor_add(ptv, hf_woww_pet_number, 4, ENC_LITTLE_ENDIAN);
