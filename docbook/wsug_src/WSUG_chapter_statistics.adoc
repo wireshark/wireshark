@@ -800,13 +800,13 @@ Illustrated” series of books.
 
 Time Sequence (tcptrace):: Shows TCP metrics similar to the
 http://www.tcptrace.org/[tcptrace] utility, including forward segments,
-acknowledgements, selective acknowledgements, reverse window sizes, and
+acknowledgments, selective acknowledgments, reverse window sizes, and
 zero windows.
 
 Throughput:: Average throughput and goodput.
 
 Round Trip Time:: Round trip time vs time or sequence number. RTT is
-based on the acknowledgement timestamp corresponding to a particular
+based on the acknowledgment timestamp corresponding to a particular
 segment.
 
 Window Scaling:: Window size and outstanding bytes.

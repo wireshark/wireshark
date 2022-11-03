@@ -493,7 +493,7 @@ image::wsug_graphics/ws-tcp-analysis.png[{screenshot-attrs}]
 
 TCP Analysis flags are added to the TCP protocol tree under “SEQ/ACK
 analysis”. Each flag is described below. Terms such as “next expected
-sequence number” and “next expected acknowledgement number” refer to
+sequence number” and “next expected acknowledgment number” refer to
 the following”:
 
 // tcp_analyze_seq_info->nextseq
@@ -504,7 +504,7 @@ previous packet in the same TCP flow. Note that this may not be the same
 as the tcp.nxtseq protocol field.
 
 // tcp_analyze_seq_info->maxseqtobeacked
-Next expected acknowledgement number:: The last-seen sequence number for
+Next expected acknowledgment number:: The last-seen sequence number for
 segments. Set when there are no analysis flags and for zero window probes.
 
 // tcp_analyze_seq_info->lastack
@@ -519,12 +519,12 @@ that this is not the same as the next expected acknowledgment number.
 [discrete]
 ==== TCP ACKed unseen segment
 
-Set when the expected next acknowledgement number is set for the reverse
-direction and it’s less than the current acknowledgement number.
+Set when the expected next acknowledgment number is set for the reverse
+direction and it’s less than the current acknowledgment number.
 
 // TCP_A_DUPLICATE_ACK
 [discrete]
-==== TCP Dup ACK __<frame>__#__<acknowledgement number>__
+==== TCP Dup ACK __<frame>__#__<acknowledgment number>__
 
 Set when all of the following are true:
 
@@ -543,8 +543,8 @@ Set when all of the following are true:
 * In the forward direction, the segment size is greater than zero or the SYN or FIN is set.
 * The next expected sequence number is greater than the current sequence number.
 * We have more than two duplicate ACKs in the reverse direction.
-* The current sequence number equals the next expected acknowledgement number.
-* We saw the last acknowledgement less than 20ms ago.
+* The current sequence number equals the next expected acknowledgment number.
+* We saw the last acknowledgment less than 20ms ago.
 
 Supersedes “Out-Of-Order” and “Retransmission”.
 
@@ -568,7 +568,7 @@ Set when all of the following are true:
 * The segment size is zero.
 * The window size is non-zero and hasn’t changed.
 * The current sequence number is the same as the next expected sequence number.
-* The current acknowledgement number is the same as the last-seen acknowledgement number.
+* The current acknowledgment number is the same as the last-seen acknowledgment number.
 * The most recently seen packet in the reverse direction was a keepalive.
 * The packet is not a SYN, FIN, or RST.
 
@@ -611,8 +611,8 @@ direction. Set when all of the following are true:
 * The SYN or FIN flag is set.
 * This is not a keepalive packet.
 * The segment length is greater than zero.
-* Data for this flow has been acknowledged. That is, the last-seen acknowledgement number has been set.
-* The next sequence number is less than or equal to the last-seen acknowledgement number.
+* Data for this flow has been acknowledged. That is, the last-seen acknowledgment number has been set.
+* The next sequence number is less than or equal to the last-seen acknowledgment number.
 
 Supersedes “Fast Retransmission”, “Out-Of-Order”, and “Retransmission”.
 
@@ -643,7 +643,7 @@ Set when the all of the following are true:
 * The segment size is zero.
 * The window size is non-zero and not equal to the last-seen window size.
 * The sequence number is equal to the next expected sequence number.
-* The acknowledgement number is equal to the last-seen acknowledgement number.
+* The acknowledgment number is equal to the last-seen acknowledgment number.
 * None of SYN, FIN, or RST are set.
 
 // TCP_A_ZERO_WINDOW
@@ -683,7 +683,7 @@ Set when the all of the following are true:
 * The segment size is zero.
 * The window size is zero.
 * The sequence number is equal to the next expected sequence number.
-* The acknowledgement number is equal to the last-seen acknowledgement number.
+* The acknowledgment number is equal to the last-seen acknowledgment number.
 * The last-seen packet in the reverse direction was a zero window probe.
 
 Supersedes “TCP Dup ACK”.
