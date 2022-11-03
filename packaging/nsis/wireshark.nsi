@@ -1163,7 +1163,7 @@ Section /o "Androiddump" SecAndroiddump
 SectionEnd
 !insertmacro CheckExtrasFlag "androiddump"
 
-Section /o "Etwdump" SecEtwdump
+Section "Etwdump" SecEtwdump
 ;-------------------------------------------
   !insertmacro InstallExtcap "Etwdump"
 SectionEnd
