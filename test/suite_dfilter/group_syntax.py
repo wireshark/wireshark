@@ -124,6 +124,10 @@ class case_syntax(unittest.TestCase):
         dfilter = "icmp and ((icmp.type > 0 and icmp.type < 8) or icmp.type > 8)"
         checkDFilterSucceed(dfilter)
 
+    def test_whitespace(self, checkDFilterSucceed):
+        dfilter = '\ttcp.stream \r\n== 1'
+        checkDFilterSucceed(dfilter)
+
 @fixtures.uses_fixtures
 class case_equality(unittest.TestCase):
     trace_file = "sip.pcapng"

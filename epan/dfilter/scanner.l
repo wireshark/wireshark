@@ -143,7 +143,7 @@ hyphen-bytes	{hex2}(-{hex2})+
 
 %%
 
-[[:blank:]\n]+	{
+[[:blank:]\n\r]+	{
 	update_location(yyextra, yytext);
 }
 
