@@ -2893,6 +2893,8 @@ addr_resolve_pref_init(module_t *nameres)
         c_ares_set_dns_servers,
         NULL,
         dns_server_uats_flds);
+    static const char *dnsserver_uat_defaults[] = { NULL, "53", "53" };
+    uat_set_default_values(dnsserver_uat, dnsserver_uat_defaults);
     prefs_register_uat_preference(nameres, "dns_servers",
         "DNS Servers",
         "A table of IPv4 and IPv6 addresses of DNS servers to be used to resolve IP names and addresses",
