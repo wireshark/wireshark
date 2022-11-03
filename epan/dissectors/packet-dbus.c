@@ -1099,7 +1099,7 @@ add_conversation(dbus_packet_t *packet, proto_tree *header_field_tree) {
 	}
 }
 
-void
+static void
 resolve_unique_name(dbus_packet_t *packet, proto_tree *header_field_tree) {
 	proto_item *it;
 	tvbuff_t *tvb = ptvcursor_tvbuff(packet->cursor);
