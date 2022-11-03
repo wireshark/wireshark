@@ -176,6 +176,7 @@ static int hf_woww_aura_slot = -1;
 static int hf_woww_aura_type = -1;
 static int hf_woww_auto_decline_time_in_msecs = -1;
 static int hf_woww_auto_finish = -1;
+static int hf_woww_autocast_enabled = -1;
 static int hf_woww_average_wait_time_in_ms = -1;
 static int hf_woww_background_color = -1;
 static int hf_woww_backwards_running_speed = -1;
@@ -321,7 +322,6 @@ static int hf_woww_emote_enum = -1;
 static int hf_woww_emote_int = -1;
 static int hf_woww_enable_next = -1;
 static int hf_woww_enable_pvp = -1;
-static int hf_woww_enabled = -1;
 static int hf_woww_enchantment = -1;
 static int hf_woww_end_text = -1;
 static int hf_woww_ended_without_interruption = -1;
@@ -10583,7 +10583,7 @@ add_body_fields(guint32 opcode,
         case CMSG_PET_SPELL_AUTOCAST:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_enabled, 1, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_autocast_enabled, 1, ENC_NA);
             break;
         case CMSG_PET_STOP_ATTACK:
             ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
@@ -16047,6 +16047,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_autocast_enabled,
+            { "Autocast Enabled", "woww.autocast.enabled",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_average_wait_time_in_ms,
             { "Average Wait Time In Ms", "woww.average.wait.time.in.ms",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -16913,12 +16919,6 @@ proto_register_woww(void)
         },
         { &hf_woww_enable_pvp,
             { "Enable Pvp", "woww.enable.pvp",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_enabled,
-            { "Enabled", "woww.enabled",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
