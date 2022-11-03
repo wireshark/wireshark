@@ -66,15 +66,15 @@ def xml2obj(src):
             # treat single element as a list of 1
             return 1
         def __getitem__(self, key):
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 return self._attrs.get(key,None)
             else:
                 return [self][key]
 
         def __contains__(self, name):
-            return self._attrs.has_key(name)
+            return name in self._attrs
 
-        def __nonzero__(self):
+        def __bool__(self):
             return bool(self._attrs or self.data)
 
         def __getattr__(self, name):
@@ -108,7 +108,7 @@ def xml2obj(src):
             items = {}
             if self.data:
                 items.append(('data', self.data))
-            return u'{%s}' % ', '.join([u'%s:%s' % (k,repr(v)) for k,v in items])
+            return '{%s}' % ', '.join(['%s:%s' % (k,repr(v)) for k,v in items])
 
         def __setitem__(self, key, value):
             self._attrs[key] = value
@@ -312,7 +312,7 @@ def xml2obj(src):
             if self.type in int_sizes:
                 self.intsize = int_sizes[self.type]
             else:
-                print("ERROR integer %s with type: %s, could not be found" %(self.name, self.type))
+                print(("ERROR integer %s with type: %s, could not be found" %(self.name, self.type)))
 
             if self.declare == "yes" or self.make_additional_info == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
@@ -422,7 +422,7 @@ def xml2obj(src):
             if self.type in enum_sizes:
                 self.intsize = enum_sizes[self.type]
             else:
-                print("ERROR enum %s with type: %s, could not be found" %(self.name, self.type))
+                print(("ERROR enum %s with type: %s, could not be found" %(self.name, self.type)))
 
             if self.declare == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
@@ -589,14 +589,14 @@ def xml2obj(src):
                 ret += self.indent_out('if (%s_len > 1) {\n' %self.name)
                 if self.name in si_fields.keys():
                     ret += self.indent_out('  %s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s_len));\n' %(si_fields[self.name], self.name))
-                ret += self.indent_out('  ptvcursor_add(cursor, hf_skinny_%s, %s_len, ENC_ASCII|ENC_NA);\n' %(self.name, self.name))
+                ret += self.indent_out('  ptvcursor_add(cursor, hf_skinny_%s, %s_len, ENC_ASCII);\n' %(self.name, self.name))
                 ret += self.indent_out('} else {\n')
                 ret += self.indent_out('  ptvcursor_advance(cursor, 1);\n')
                 ret += self.indent_out('}\n')
             elif self.size_fieldname:
                 if self.name in si_fields.keys():
                     ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size_fieldname))
-                ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %s, ENC_ASCII|ENC_NA);\n' %(self.name, self.size_fieldname))
+                ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %s, ENC_ASCII);\n' %(self.name, self.size_fieldname))
             else:
                 if self.name in si_fields.keys():
                     ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size))
@@ -612,7 +612,7 @@ def xml2obj(src):
                     self.decr_indent()
                     ret += self.indent_out('}\n')
 
-                ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %s, ENC_ASCII|ENC_NA);\n' %(self.name, self.size))
+                ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %s, ENC_ASCII);\n' %(self.name, self.size))
 
             return ret
 
@@ -1028,7 +1028,7 @@ def xml2obj(src):
             self.current.parent = self.previous
             self.current.basemessage = self.basemessage
             # xml attributes --> python attributes
-            for k, v in attrs.items():
+            for k, v in list(attrs.items()):
                 self.current._add_xml_attr(_name_mangle(k), v)
 
         def endElement(self, name):
@@ -1048,7 +1048,7 @@ def xml2obj(src):
 
     builder = TreeBuilder()
     xml.sax.parse(src, builder)
-    return builder.root._attrs.values()[0]
+    return list(builder.root._attrs.values())[0]
 
 #       skinny = xml2obj('SkinnyProtocolOptimized.xml')
 #       for message in skinny.message:
