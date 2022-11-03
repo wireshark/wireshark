@@ -62,36 +62,8 @@ static const value_string xcsl_action_vals[] = {
     { 0, NULL }
 };
 
-/* This routine gets the next item from the ';' separated list */
-static gboolean get_next_item(tvbuff_t *tvb, gint offset, gint maxlen, guint8 *str, gint *next_offset, guint *len)
-{
-    guint  idx = 0;
-    guint8 ch;
-
-    /* Obtain items */
-    while (maxlen > 1) {
-        ch = tvb_get_guint8(tvb, offset+idx);
-        if (ch == ';' || ch == '\r' || ch == '\n')
-            break;
-        /* Array protect */
-        if (idx == MAXLEN - 1) {
-            *next_offset = offset + idx;
-            *len = idx;
-            return FALSE;
-        }
-        /* Copy data into string array */
-        str[idx++] = ch;
-        maxlen--;
-    }
-    /* Null terminate the item */
-    str[idx] = '\0';
-
-    /* Update admin for next item */
-    *next_offset = offset + idx;
-    *len = idx;
-
-    return TRUE;
-}
+/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+static ws_mempbrk_pattern pbrk_param_end;
 
 /* Dissector for xcsl */
 static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -101,7 +73,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint8       idx;
     gboolean     request;
     guint8       par;
-    guint8       str[MAXLEN];
+    guint8      *str;
     guint8       result;
     const gchar *code;
     guint        len;
@@ -131,16 +103,21 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
 
         /* get next item */
-        if (!(get_next_item(tvb, offset, length_remaining, str, &next_offset, &len))) {
-            /* do not continue when get_next_item returns false */
-            return;
+        next_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, length_remaining, &pbrk_param_end, NULL);
+        if (next_offset == -1) {
+            len = length_remaining;
+            next_offset = offset + len;
+        } else {
+            len = next_offset - offset;
         }
 
         /* do not add to the tree when the string is of zero length */
-        if ( strlen(str) == 0 ) {
+        if ( len == 0 ) {
             offset = next_offset + 1;
             continue;
         }
+
+        str = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
 
         /* Xcsl (Call Specification Language) protocol in brief :
          *
@@ -312,6 +289,9 @@ void proto_register_xcsl(void) {
     proto_xcsl = proto_register_protocol("Call Specification Language (Xcsl)", "XCSL", "xcsl");
     proto_register_field_array(proto_xcsl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* compile patterns */
+    ws_mempbrk_compile(&pbrk_param_end, ";\r\n");
 }
 
 /* In case it concerns TCP, try to match on the xcsl header */
