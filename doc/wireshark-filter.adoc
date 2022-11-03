@@ -388,7 +388,7 @@ For more complicated ranges the same syntax used with slices is valid:
 means layers number 2, 3 or 4 inclusive. The hash symbol is required to
 distinguish a layer range from a slice.
 
-== The at operator
+=== The at operator
 
 By prefixing the field name with an at sign (@) the comparison is done against
 the raw packet data for the field.

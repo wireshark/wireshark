@@ -762,6 +762,24 @@ eth.src[0:3,1-2,:4,4:,2] ==
 Wireshark allows you to string together single ranges in a comma separated list
 to form compound ranges as shown above.
 
+==== The Layer Operator
+
+A field can be restricted to a certain layer in the protocol stack using the
+layer operator (#), followed by a decimal number:
+
+    ip.addr#2 == 192.168.30.40
+
+matches only the inner (second) layer in the packet.
+Layers use simple stacking semantics and protocol layers are counted sequentially starting from 1.
+For example, in a packet that contains two IPv4 headers, the outer (first) source address can be matched with "ip.src#1" and the inner (second) source address can be matched with "ip.src#2".
+
+For more complicated ranges the same syntax used with slices is valid:
+
+    tcp.port#[2-4]
+
+means layers number 2, 3 or 4 inclusive. The hash symbol is required to
+distinguish a layer range from a slice.
+
 ==== Membership Operator
 Wireshark allows you to test a field for membership in a set of values or
 fields. After the field name, use the `in` operator followed by the set items
@@ -920,7 +938,7 @@ How ambiguous values are interpreted may change in the future. To avoid this
 problem and resolve the ambiguity there is additional syntax available.
 Values prefixed with a dot are always treated as a protocol name. The
 dot stands for the root of the protocol namespace and is optional). Values
-prefixed with a colon are always interpreted as a byte array. 
+prefixed with a colon are always interpreted as a byte array.
 ----
 frame[10:] contains .fc or frame[10] == :fc
 ----
