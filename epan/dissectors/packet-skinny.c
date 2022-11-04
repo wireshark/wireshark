@@ -21,7 +21,7 @@
  */
 
 /*
- * Generated Automatically Using (from wireshark base directory):
+ * Generated automatically Using (from wireshark base directory):
  *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.c epan/dissectors/packet-skinny.c.in
  */
 
@@ -2251,7 +2251,7 @@ dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32
     length = maxlength;
   }
 
-  ptvcursor_add_no_advance(cursor, hfindex, length, ENC_ASCII|ENC_NA);
+  ptvcursor_add_no_advance(cursor, hfindex, length, ENC_ASCII);
 
   item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, offset, length, ENC_ASCII);
   subtree = proto_item_add_subtree(item, 0);
@@ -2337,7 +2337,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
     }
   }
 
-  item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
+  item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII);
 
   wmem_new = wmem_strbuf_sized_new(pinfo->pool, length + 1, 0);
   disp_string = (gchar*) wmem_alloc(pinfo->pool, length + 1);
