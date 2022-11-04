@@ -440,7 +440,6 @@ static int hf_woww_item_display_id = -1;
 static int hf_woww_item_display_info = -1;
 static int hf_woww_item_enchant_id = -1;
 static int hf_woww_item_enchantment = -1;
-static int hf_woww_item_entry = -1;
 static int hf_woww_item_guid = -1;
 static int hf_woww_item_icon = -1;
 static int hf_woww_item_id = -1;
@@ -10080,7 +10079,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_ITEM_NAME_QUERY:
-            ptvcursor_add(ptv, hf_woww_item_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_ITEM_QUERY_SINGLE:
@@ -12857,7 +12856,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < count; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AuctionListItem");
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -12892,7 +12891,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < count; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AuctionListItem");
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -12914,7 +12913,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < count; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "AuctionListItem");
                 ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_suffix_factor, 4, ENC_LITTLE_ENDIAN);
@@ -12936,7 +12935,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_bid, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auction_out_bid, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bidder, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_entry, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_AUCTION_REMOVED_NOTIFICATION:
@@ -17631,12 +17630,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_entry,
-            { "Item Entry", "woww.item.entry",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_item_guid,
             { "Item Guid", "woww.item.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
@@ -17651,7 +17644,7 @@ proto_register_woww(void)
         },
         { &hf_woww_item_id,
             { "Item Id", "woww.item.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT16, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
