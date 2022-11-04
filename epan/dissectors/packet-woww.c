@@ -7668,7 +7668,7 @@ typedef enum
     CMSG_GM_SET_SECURITY_GROUP                      = 0x1F9,
     CMSG_GM_NUKE                                    = 0x1FA,
     MSG_RANDOM_ROLL                                 = 0x1FB,
-    SMSG_ENVIRONMENTALDAMAGELOG                     = 0x1FC,
+    SMSG_ENVIRONMENTAL_DAMAGE_LOG                   = 0x1FC,
     CMSG_RWHOIS_OBSOLETE                            = 0x1FD,
     SMSG_RWHOIS                                     = 0x1FE,
     MSG_LOOKING_FOR_GROUP                           = 0x1FF,
@@ -8577,7 +8577,7 @@ static const value_string world_packet_strings[] = {
     { CMSG_GM_SET_SECURITY_GROUP, "CMSG_GM_SET_SECURITY_GROUP" },
     { CMSG_GM_NUKE, "CMSG_GM_NUKE" },
     { MSG_RANDOM_ROLL, "MSG_RANDOM_ROLL" },
-    { SMSG_ENVIRONMENTALDAMAGELOG, "SMSG_ENVIRONMENTALDAMAGELOG" },
+    { SMSG_ENVIRONMENTAL_DAMAGE_LOG, "SMSG_ENVIRONMENTAL_DAMAGE_LOG" },
     { CMSG_RWHOIS_OBSOLETE, "CMSG_RWHOIS_OBSOLETE" },
     { SMSG_RWHOIS, "SMSG_RWHOIS" },
     { MSG_LOOKING_FOR_GROUP, "MSG_LOOKING_FOR_GROUP" },
@@ -13192,7 +13192,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             break;
-        case SMSG_ENVIRONMENTALDAMAGELOG:
+        case SMSG_ENVIRONMENTAL_DAMAGE_LOG:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_environmental_damage_type, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_damage, 4, ENC_LITTLE_ENDIAN);
