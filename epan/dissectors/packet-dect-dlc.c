@@ -16,8 +16,10 @@
  */
 
 #include "config.h"
+#include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/reassemble.h>
 #include <epan/xdlc.h>
 
 static int proto_dect_dlc = -1;
@@ -53,6 +55,52 @@ static dissector_handle_t data_handle;
 
 static dissector_table_t dlc_sapi_dissector_table;
 
+static reassembly_table dect_dlc_reassembly_table;
+
+static int hf_dect_dlc_fragment_data = -1;
+static int hf_dect_dlc_fragment = -1;
+static int hf_dect_dlc_fragments = -1;
+static int hf_dect_dlc_fragment_overlap = -1;
+static int hf_dect_dlc_fragment_overlap_conflicts = -1;
+static int hf_dect_dlc_fragment_multiple_tails = -1;
+static int hf_dect_dlc_fragment_too_long_fragment = -1;
+static int hf_dect_dlc_fragment_error = -1;
+static int hf_dect_dlc_fragment_count = -1;
+static int hf_dect_dlc_reassembled_in = -1;
+static int hf_dect_dlc_reassembled_length = -1;
+
+static gint ett_dect_dlc_fragment = -1;
+static gint ett_dect_dlc_fragments = -1;
+
+static const fragment_items dlc_frag_items = {
+    /* Fragment subtrees */
+    &ett_dect_dlc_fragment,
+    &ett_dect_dlc_fragments,
+    /* Fragment fields */
+    &hf_dect_dlc_fragments,
+    &hf_dect_dlc_fragment,
+    &hf_dect_dlc_fragment_overlap,
+    &hf_dect_dlc_fragment_overlap_conflicts,
+    &hf_dect_dlc_fragment_multiple_tails,
+    &hf_dect_dlc_fragment_too_long_fragment,
+    &hf_dect_dlc_fragment_error,
+    &hf_dect_dlc_fragment_count,
+    /* Reassembled in field */
+    &hf_dect_dlc_reassembled_in,
+    /* Reassembled length field */
+    &hf_dect_dlc_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "fragments"
+};
+
+static wmem_map_t *dect_dlc_last_n_s_map;
+
+#define DECT_DLC_M          0x02
+#define DECT_DLC_M_SHIFT    1
+
+static gboolean reassemble_dect_dlc = TRUE;
 
 static const xdlc_cf_items dlc_cf_items = {
 	&hf_dlc_n_r,
@@ -102,9 +150,11 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *dlc_tree, *addr_tree, *length_tree;
 	proto_item *dlc_ti, *addr_ti, *length_ti;
 	gboolean is_response = FALSE;
+	gboolean m;
 	int available_length;
+	int control;
 	tvbuff_t *payload;
-	guint8 cr, sapi, length, len;
+	guint8 cr, sapi, length, len, n_s;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT-DLC");
 
@@ -126,9 +176,10 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(addr_tree, hf_dlc_sapi, tvb, 0, 1, ENC_NA);
 	proto_tree_add_item(addr_tree, hf_dlc_cr, tvb, 0, 1, ENC_NA);
 
-	dissect_xdlc_control(tvb, 1, pinfo, dlc_tree, hf_dlc_control,
+	control = dissect_xdlc_control(tvb, 1, pinfo, dlc_tree, hf_dlc_control,
 				ett_dect_dlc_control, &dlc_cf_items, NULL, NULL, NULL,
 				is_response, FALSE, FALSE);
+	n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
 
 	length_ti = proto_tree_add_item(dlc_tree, hf_dlc_length, tvb, 2, 1, ENC_NA);
 	length_tree = proto_item_add_subtree(length_ti, ett_dect_dlc_length);
@@ -142,10 +193,74 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (available_length > 0) {
 		payload = tvb_new_subset_length_caplen(tvb, 3, MIN(len, available_length), len);
 
-		/* FIXME: fragment reassembly like in packet-lapdm.c */
+		/* Potentially segmented I frame */
+		if( (control & XDLC_I_MASK) == XDLC_I && reassemble_dect_dlc && !pinfo->flags.in_error_pkt )
+		{
+			fragment_head *fd_m = NULL;
+			tvbuff_t *reassembled = NULL;
+			guint32 fragment_id;
+			gboolean save_fragmented = pinfo->fragmented, add_frag;
 
-		if (!dissector_try_uint(dlc_sapi_dissector_table, sapi, payload, pinfo, tree))
-			call_data_dissector(payload, pinfo, tree);
+			m = (length & DECT_DLC_M) >> DECT_DLC_M_SHIFT;
+			pinfo->fragmented = m;
+
+			fragment_id = (conversation_get_id_from_elements(pinfo, CONVERSATION_NONE, USE_LAST_ENDPOINT) << 3) | ( sapi << 1) | pinfo->p2p_dir;
+
+			if (!PINFO_FD_VISITED(pinfo)) {
+				/* Check if new N(S) is equal to previous N(S) (to avoid adding retransmissions in reassembly table)
+				As GUINT_TO_POINTER macro does not allow to differentiate NULL from 0, use 1-8 range instead of 0-7 */
+				guint *p_last_n_s = (guint*)wmem_map_lookup(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id));
+				if (GPOINTER_TO_UINT(p_last_n_s) == (guint)(n_s+1)) {
+					add_frag = FALSE;
+				} else {
+					add_frag = TRUE;
+					wmem_map_insert(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(n_s+1));
+				}
+			} else {
+				add_frag = TRUE;
+			}
+
+			if (add_frag) {
+				/* This doesn't seem the best way of doing it as doesn't
+				take N(S) into account, but N(S) isn't always 0 for
+				the first fragment!	*/
+				fd_m = fragment_add_seq_next (&dect_dlc_reassembly_table, payload, 0,
+											pinfo,
+											fragment_id, /* guint32 ID for fragments belonging together */
+											NULL,
+											/*n_s guint32 fragment sequence number */
+											len, /* guint32 fragment length */
+											m); /* More fragments? */
+
+				reassembled = process_reassembled_data(payload, 0, pinfo,
+													"Reassembled DLC", fd_m, &dlc_frag_items,
+													NULL, dlc_tree);
+
+				/* Reassembled into this packet	*/
+				if (fd_m && pinfo->num == fd_m->reassembled_in) {
+					if (!dissector_try_uint(dlc_sapi_dissector_table, sapi,
+											reassembled, pinfo, tree))
+						call_data_dissector(reassembled, pinfo, tree);
+				}
+				else {
+					col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
+					proto_tree_add_item(dlc_tree, hf_dect_dlc_fragment_data, payload, 0, -1, ENC_NA);
+				}
+			}
+
+			/* Now reset fragmentation information in pinfo	*/
+			pinfo->fragmented = save_fragmented;
+		}
+		else
+		{
+			if (!PINFO_FD_VISITED(pinfo) && ((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
+				/* SABM frame; reset the last N(S) to an invalid value */
+				guint32 fragment_id = (conversation_get_id_from_elements(pinfo, CONVERSATION_GSMTAP, USE_LAST_ENDPOINT) << 3) | (sapi << 1) | pinfo->p2p_dir;
+				wmem_map_insert(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(0));
+			}
+			if (!dissector_try_uint(dlc_sapi_dissector_table, sapi, payload, pinfo, tree))
+				call_data_dissector(payload, pinfo, tree);
+		}
 	}
 
 	return tvb_captured_length(tvb);
@@ -251,6 +366,64 @@ void proto_register_dect_dlc(void)
 			}
 		},
 
+		/* Fragment reassembly */
+		{ &hf_dect_dlc_fragment_data,
+			{ "Fragment Data", "dect_dlc.fragment_data", FT_NONE, BASE_NONE,
+				NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragments,
+			{ "Message fragments", "dect_dlc.fragments",
+				FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragment,
+			{ "Message fragment", "dlc_.fragment",
+				FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragment_overlap,
+			{ "Message fragment overlap", "dect_dlc.fragment.overlap",
+				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragment_overlap_conflicts,
+			{ "Message fragment overlapping with conflicting data",
+				"dect_dlc.fragment.overlap.conflicts",
+				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragment_multiple_tails,
+			{ "Message has multiple tail fragments",
+				"dect_dlc.fragment.multiple_tails",
+				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragment_too_long_fragment,
+			{ "Message fragment too long", "dect_dlc.fragment.too_long_fragment",
+				FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragment_error,
+			{ "Message defragmentation error", "dect_dlc.fragment.error",
+				FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_fragment_count,
+			{ "Message fragment count", "dect_dlc.fragment.count",
+				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_reassembled_in,
+			{ "Reassembled in", "dect_dlc.reassembled.in",
+				FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{ &hf_dect_dlc_reassembled_length,
+			{ "Reassembled length", "dect_dlc.reassembled.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
+			}
+		},
 	};
 
 	static gint *ett[] = {
@@ -258,6 +431,8 @@ void proto_register_dect_dlc(void)
 		&ett_dect_dlc_address,
 		&ett_dect_dlc_control,
 		&ett_dect_dlc_length,
+		&ett_dect_dlc_fragment,
+		&ett_dect_dlc_fragments,
 	};
 
 	/* Register protocol */
@@ -271,6 +446,10 @@ void proto_register_dect_dlc(void)
 	dlc_sapi_dissector_table = register_dissector_table("dect_dlc.sapi", "DECT DLC SAPI", proto_dect_dlc, FT_UINT8, BASE_DEC);
 
 	data_handle = find_dissector("data");
+
+	reassembly_table_register(&dect_dlc_reassembly_table,
+                           &addresses_reassembly_table_functions);
+	dect_dlc_last_n_s_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 #if 0
