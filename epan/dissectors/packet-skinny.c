@@ -2357,6 +2357,8 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
       x++;        /* swallow replaced characters */
       wmem_strbuf_append(wmem_new, replacestr);
       show_replaced_str = TRUE;
+    } else if (disp_string[x] & 0x80) {
+      wmem_strbuf_append_unichar_repl(wmem_new);
     } else {
       wmem_strbuf_append_c(wmem_new, disp_string[x]);
     }
