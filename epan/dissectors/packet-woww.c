@@ -6302,13 +6302,13 @@ static const value_string e_petition_result_strings[] =  {
 
 typedef enum {
     PET_FEEDBACK_PET_DEAD = 0x1,
-    PET_FEEDBACK_NOTHING_TO_EAT = 0x2,
+    PET_FEEDBACK_NOTHING_TO_ATTACK = 0x2,
     PET_FEEDBACK_CANT_ATTACK_TARGET = 0x3,
     PET_FEEDBACK_NO_PATH_TO = 0x4,
 } e_pet_feedback;
 static const value_string e_pet_feedback_strings[] =  {
     { PET_FEEDBACK_PET_DEAD, "Pet Dead" },
-    { PET_FEEDBACK_NOTHING_TO_EAT, "Nothing To Eat" },
+    { PET_FEEDBACK_NOTHING_TO_ATTACK, "Nothing To Attack" },
     { PET_FEEDBACK_CANT_ATTACK_TARGET, "Cant Attack Target" },
     { PET_FEEDBACK_NO_PATH_TO, "No Path To" },
     { 0, NULL }
