@@ -846,12 +846,12 @@
     <fields endversion="17" fixed="yes">
       <string comment="" name="directoryNum" size="24" type="char"/>
       <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
-      <enum comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
+      <enum comment="Stats Processing Mode" longcomment="What to do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
     </fields>
     <fields beginversion="18" endversion="22" fixed="yes">
       <string comment="" name="directoryNum" size="28" type="char"/>
       <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
-      <integer comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint8"/>
+      <integer comment="Stats Processing Mode" longcomment="What to do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint8"/>
     </fields>
     <fields>
       <integer comment="Number of Packets Sent" name="numberPacketsSent" type="uint32"/>

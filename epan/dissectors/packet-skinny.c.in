@@ -210,7 +210,7 @@ dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32
     length = maxlength;
   }
 
-  ptvcursor_add_no_advance(cursor, hfindex, length, ENC_ASCII|ENC_NA);
+  ptvcursor_add_no_advance(cursor, hfindex, length, ENC_ASCII);
 
   item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, offset, length, ENC_ASCII);
   subtree = proto_item_add_subtree(item, 0);
@@ -296,7 +296,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
     }
   }
 
-  item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII | ENC_NA);
+  item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII);
 
   wmem_new = wmem_strbuf_sized_new(pinfo->pool, length + 1, 0);
   disp_string = (gchar*) wmem_alloc(pinfo->pool, length + 1);
@@ -410,9 +410,9 @@ cog.out('static const skinny_opcode_map_t skinny_opcode_map[] = {\n')
 for message in skinny.message:
     msg_type = "SKINNY_MSGTYPE_EVENT"
     if message.msgtype == "request":
-	msg_type = "SKINNY_MSGTYPE_REQUEST"
+        msg_type = "SKINNY_MSGTYPE_REQUEST"
     if message.msgtype == "response" and message.request is not None:
-	msg_type = "SKINNY_MSGTYPE_RESPONSE"
+        msg_type = "SKINNY_MSGTYPE_RESPONSE"
     cog.out('  {%-6s, %-47s, %-24s, "%s"},\n' %(message.opcode, message.gen_handler(), msg_type, message.name))
 cog.out('};\n')
 ]]]*/
