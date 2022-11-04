@@ -12655,7 +12655,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_pop_subtree(ptv);
             }
             else {
-                ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
+                add_packed_guid(ptv, pinfo);
                 ptvcursor_add(ptv, hf_woww_movement_counter, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_time_in_msecs, 4, ENC_LITTLE_ENDIAN);
             }
