@@ -1618,6 +1618,11 @@ dissect_ecn_parameter(tvbuff_t *parameter_tvb _U_)
 {
 }
 
+static void
+dissect_zero_checksum_acceptable_parameter(tvbuff_t *parameter_tvb _U_)
+{
+}
+
 #define RANDOM_NUMBER_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
@@ -1812,6 +1817,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 #define ADD_OUTGOING_STREAMS_REQUEST_PARAMETER_ID 0x0011
 #define ADD_INCOMING_STREAMS_REQUEST_PARAMETER_ID 0x0012
 #define ECN_PARAMETER_ID                          0x8000
+#define ZERO_CHECKSUM_ACCEPTABLE_PARAMETER_ID     0x8001
 #define RANDOM_PARAMETER_ID                       0x8002
 #define CHUNKS_PARAMETER_ID                       0x8003
 #define HMAC_ALGO_PARAMETER_ID                    0x8004
@@ -1840,6 +1846,7 @@ static const value_string parameter_identifier_values[] = {
   { ADD_INCOMING_STREAMS_REQUEST_PARAMETER_ID, "Add incoming streams request" },
   { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID,      "Supported address types"      },
   { ECN_PARAMETER_ID,                          "ECN"                          },
+  { ZERO_CHECKSUM_ACCEPTABLE_PARAMETER_ID,     "Zero checksum acceptable"     },
   { RANDOM_PARAMETER_ID,                       "Random"                       },
   { CHUNKS_PARAMETER_ID,                       "Authenticated Chunk list"     },
   { HMAC_ALGO_PARAMETER_ID,                    "Requested HMAC Algorithm"     },
@@ -1955,6 +1962,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
   case ECN_PARAMETER_ID:
     dissect_ecn_parameter(parameter_tvb);
     break;
+  case ZERO_CHECKSUM_ACCEPTABLE_PARAMETER_ID:
+    dissect_zero_checksum_acceptable_parameter(parameter_tvb);
     break;
   case RANDOM_PARAMETER_ID:
     dissect_random_parameter(parameter_tvb, parameter_tree);
