@@ -7058,6 +7058,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 	const char  *attr_save_literal = NULL; /* Will contain the LITERAL attr identity */
 	const gchar *str;
 	unsigned     recursion_level = p_get_proto_depth(pinfo, proto_wbxml);
+	unsigned     encoding = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wbxml, 0));
 
 	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n", recursion_level, offset));
 	/* Parse attributes */
@@ -7097,8 +7098,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			}
 			break;
 		case 0x03: /* STR_I */
-			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
+			str = tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
 			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+len, str,
 					     "  %3d |  Attr | A %3d    | STR_I (Inline string)           |     %s\'%s\'",
 					     recursion_level, *codepage_attr, Indent (recursion_level), str);
@@ -7110,9 +7110,8 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			 */
 			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			if (len <= tvb_len) {
-				str_len = tvb_strsize (tvb, str_tbl+idx);
 				attr_save_known = 0;
-				attr_save_literal = tvb_format_text (pinfo->pool, tvb, str_tbl+idx, str_len-1);
+				attr_save_literal = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
 				proto_tree_add_string_format(tree, hf_wbxml_literal, tvb, off, 1+len, attr_save_literal,
 					         "  %3d |  Attr | A %3d    | LITERAL (Literal Attribute)     |   %s<%s />",
 					         recursion_level, *codepage_attr, Indent (recursion_level), attr_save_literal);
@@ -7126,8 +7125,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 		case 0x41: /* EXT_I_1 */
 		case 0x42: /* EXT_I_2 */
 			/* Extension tokens */
-			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
+			str = tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
 			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+len, str,
 					     "  %3d |  Attr | A %3d    | EXT_I_%1x    (Extension Token)    |     %s(%s: \'%s\')",
 					     recursion_level, *codepage_attr, peek & 0x0f, Indent (recursion_level),
@@ -7168,8 +7166,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 		case 0x83: /* STR_T */
 			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			if (len <= tvb_len) {
-				str_len = tvb_strsize (tvb, str_tbl+idx);
-				str = tvb_format_text (pinfo->pool, tvb, str_tbl+idx, str_len-1);
+				str = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
 				proto_tree_add_string_format(tree, hf_wbxml_str_t, tvb, off, 1+len, str,
 					         "  %3d |  Attr | A %3d    | STR_T (Tableref string)         |     %s\'%s\'",
 					         recursion_level, *codepage_attr, Indent (recursion_level), str);
@@ -7334,7 +7331,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 						     The initial state is FALSE.
 						     This state will trigger recursion. */
 
-	unsigned recursion_level = p_get_proto_depth(pinfo, proto_wbxml);
+	unsigned     recursion_level = p_get_proto_depth(pinfo, proto_wbxml);
+	unsigned     encoding = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wbxml, 0));
 	if (++recursion_level >= WBXML_MAX_RECURSION_LEVEL) {
 		proto_tree_add_expert(tree, pinfo, &ei_wbxml_too_much_recursion, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 		return tvb_len;
@@ -7378,8 +7376,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 			off += 1+len;
 			break;
 		case 0x03: /* STR_I */
-			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
+			str = tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
 			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+len, str,
 					     "  %3d | Tag   | T %3d    | STR_I (Inline string)           | %s\'%s\'",
 					     recursion_level, *codepage_stag, Indent(recursion_level),
@@ -7390,8 +7387,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 		case 0x41: /* EXT_I_1 */
 		case 0x42: /* EXT_I_2 */
 			/* Extension tokens */
-			len = tvb_strsize (tvb, off+1);
-			str = tvb_format_text (pinfo->pool, tvb, off+1, len-1);
+			str = tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
 			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+len, str,
 					     "  %3d | Tag   | T %3d    | EXT_I_%1x    (Extension Token)    | %s(%s: \'%s\')",
 					     recursion_level, *codepage_stag,
@@ -7444,8 +7440,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 			break;
 		case 0x83: /* STR_T */
 			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
-			str_len = tvb_strsize (tvb, str_tbl+idx);
-			str = tvb_format_text (pinfo->pool, tvb, str_tbl+idx, str_len-1);
+			str = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
 			proto_tree_add_string_format(tree, hf_wbxml_str_t, tvb, off, 1+len, str,
 					     "  %3d | Tag   | T %3d    | STR_T (Tableref string)         | %s\'%s\'",
 					     recursion_level, *codepage_stag, Indent (recursion_level), str);
@@ -7531,8 +7526,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 			if ((peek & 0x3F) == 4) { /* LITERAL */
 				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u) - TableRef follows!\n", peek, off));
 				idx = tvb_get_guintvar (tvb, off+1, &tag_len, pinfo, &ei_wbxml_oversized_uintvar);
-				str_len = tvb_strsize (tvb, str_tbl+idx);
-				tag_new_literal = (const gchar*)tvb_get_ptr (tvb, str_tbl+idx, str_len);
+				tag_new_literal = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
@@ -7706,6 +7700,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint32               len;
 	guint32               charset         = 0;
 	guint32               charset_len     = 0;
+	guint                 encoding;
 	guint32               publicid;
 	guint32               publicid_index  = 0;
 	guint32               publicid_len;
@@ -7777,6 +7772,17 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	}
 
+	if (charset) {
+		encoding = mibenum_charset_to_encoding(charset);
+	} else {
+		/* XXX: If the charset is 0 we should look if there is a charset
+		 * parameter in the Content-Type / media_type if passed to
+		 * the dissector. Otherwise the default is UTF-8.
+		 */
+		encoding = ENC_UTF_8;
+	}
+	p_add_proto_data(pinfo->pool, pinfo, proto_wbxml, 0, GUINT_TO_POINTER(encoding));
+
 	/* String table: read string table length in bytes */
 	tvb_get_guintvar (tvb, offset, &str_tbl_len_len, pinfo, &ei_wbxml_oversized_uintvar);
 	str_tbl = offset + str_tbl_len_len; /* Start of 1st string in string table */
@@ -7788,10 +7794,9 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					  val_to_str_ext (publicid, &vals_wbxml_public_ids_ext, "(unknown 0x%x)"));
 	} else {
 		/* Read length of Public ID from string table */
-		len = tvb_strsize (tvb, str_tbl + publicid_index);
 		summary = wmem_strdup_printf(pinfo->pool, "%s, Public ID: \"%s\"",
 					  val_to_str_ext (version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
-					  tvb_format_text (pinfo->pool, tvb, str_tbl + publicid_index, len - 1));
+					  tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl + publicid_index, &len, encoding));
 	}
 
 	/* Add summary to INFO column if it is enabled */
