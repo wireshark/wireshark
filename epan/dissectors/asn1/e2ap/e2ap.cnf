@@ -549,7 +549,8 @@ E2RemovalResponse                        N e2ap.proc.sout id-E2removal
   /* TODO: is there a nicer/reliable way to get PrintableString here (VAL_PTR won't get assigned..) */
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   ran_functionid_table_t *table = get_ran_functionid_table(actx->pinfo);
-  store_ran_function_mapping(actx->pinfo, table, e2ap_data->ran_function_id, tvb_get_ptr(tvb, (start_offset+15)/8, (offset-start_offset)/8));
+  store_ran_function_mapping(actx->pinfo, table, e2ap_data->ran_function_id,
+                             tvb_get_stringz_enc(wmem_packet_scope(), tvb, (start_offset+15)/8, NULL, ENC_ASCII));
 
 
 
