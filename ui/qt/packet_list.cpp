@@ -882,7 +882,10 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
 void PacketList::keyPressEvent(QKeyEvent *event)
 {
     bool handled = false;
-    if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Up) {
+    // If scrolling up/down, want to preserve horizontal scroll extent.
+    if (event->key() == Qt::Key_Down     || event->key() == Qt::Key_Up ||
+        event->key() == Qt::Key_PageDown || event->key() == Qt::Key_PageUp)
+    {
         if (currentIndex().isValid() && currentIndex().column() > 0) {
             int pos = horizontalScrollBar()->value();
             QTreeView::keyPressEvent(event);
