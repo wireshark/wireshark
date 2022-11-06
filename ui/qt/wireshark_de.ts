@@ -1870,7 +1870,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete B</translation>
     </message>
     <message>
         <source>Bytes B </source>
