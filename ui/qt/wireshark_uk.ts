@@ -4423,7 +4423,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тег:</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
@@ -4713,7 +4713,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Джерела</translation>
     </message>
     <message>
         <source>Address/Transport</source>
@@ -4998,7 +4998,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Джерела</translation>
     </message>
     <message>
         <source>Address/Transport/Client</source>
@@ -11833,7 +11833,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sent Verification Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Надісланий верифікаційний тег:</translation>
     </message>
     <message>
         <source>Minimum Number of Inbound Streams:</source>
