@@ -2914,7 +2914,7 @@ add_ipv6_address_embed_ipv4(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     gboolean ipv6_embed_ipv4 = false;
 
     if (tvb_memeql(tvb, offset, well_known_prefix, sizeof well_known_prefix) == 0) {
-        ipv4_addr = tvb_get_bits32(tvb, 96, 32, ENC_BIG_ENDIAN);
+        ipv4_addr = tvb_get_bits32(tvb, (offset * 8) + 96, 32, ENC_BIG_ENDIAN);
         ipv4_prefix = 96;
         ipv4_offset = 96;
         ipv6_embed_ipv4 = true;
