@@ -6364,16 +6364,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Импорт</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">из zip файла</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">из каталога</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation>Экспорт</translation>
     </message>
@@ -6467,14 +6457,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Нет Пакетов</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Selected Personal Profile...</source>
-        <oldsource>selected personal profile</oldsource>
-        <translation type="unfinished">выбранный личный профиль</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">все личные профили</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7400,6 +7396,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Экспорт</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>All Personal Profiles...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation>Новый профиль</translation>
     </message>
@@ -7428,9 +7444,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <oldsource>%Ln selected personal profile(s)</oldsource>
-        <translation type="unfinished">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
             <numerusform>%Ln выбранный личный профиль</numerusform>
             <numerusform>%Ln выбранных личных профиля</numerusform>
             <numerusform>%Ln выбранных личных профиля</numerusform>
@@ -7471,21 +7486,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Zip File (*.zip)</source>
         <translation>Файл ZIP (*.zip)</translation>
-    </message>
-    <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">из zip файла</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">из каталога</translation>
-    </message>
-    <message>
-        <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">все личные профили</translation>
     </message>
     <message>
         <source>Error</source>

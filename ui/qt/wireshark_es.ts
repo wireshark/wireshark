@@ -6282,16 +6282,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Importar</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">desde archivo zip</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">desde directorio</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation>Exportar</translation>
     </message>
@@ -6384,14 +6374,20 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>No hay paquetes</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Selected Personal Profile...</source>
-        <oldsource>selected personal profile</oldsource>
-        <translation type="unfinished">Perfil personal seleccionado</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">Todos los perfiles personales</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7314,6 +7310,25 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Exportar</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>All Personal Profiles...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation>Nuevo perfil</translation>
     </message>
@@ -7334,9 +7349,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Seleccione archivo zip para exportar</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <oldsource>%Ln selected personal profile(s)</oldsource>
-        <translation type="unfinished">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
             <numerusform>%Ln perfil personal seleccionado</numerusform>
             <numerusform>%Ln perfiles personales seleccionados</numerusform>
         </translation>
@@ -7375,21 +7389,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Zip File (*.zip)</source>
         <translation>Archivo zip (*.zip)</translation>
-    </message>
-    <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">desde archivo zip</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">desde directorio</translation>
-    </message>
-    <message>
-        <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">Todos los perfiles personales</translation>
     </message>
     <message>
         <source>Error</source>

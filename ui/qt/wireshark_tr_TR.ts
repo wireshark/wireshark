@@ -6328,16 +6328,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>İçe Aktar</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">zip dosyasından</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">dizinden</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation>Dışarı aktar</translation>
     </message>
@@ -6429,14 +6419,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Paket Yok</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation>Zip Dosyasından...</translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation>Dizinden...</translation>
+    </message>
+    <message>
         <source>Selected Personal Profile...</source>
-        <oldsource>selected personal profile</oldsource>
-        <translation type="unfinished">seçilen kişisel profil</translation>
+        <translation>Seçilen Kişisel Profil...</translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">tüm kişisel profiller</translation>
+        <translation>Tüm Kişisel Profiller...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7360,6 +7356,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Dışarı aktar</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation>Zip Dosyasından...</translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation>Dizinden...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <translation>
+            <numerusform>%Ln Seçilen Kişisel Profil(ler)...</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>All Personal Profiles...</source>
+        <translation>Tüm Kişisel Profiller...</translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation>Yeni profil</translation>
     </message>
@@ -7386,9 +7400,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <oldsource>%Ln selected personal profile(s)</oldsource>
-        <translation type="unfinished">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
             <numerusform>%Ln seçilmiş kişisel profil</numerusform>
         </translation>
     </message>
@@ -7425,21 +7438,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Zip File (*.zip)</source>
         <translation>Zip Dosyası (*.zip)</translation>
-    </message>
-    <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">zip dosyasından</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">dizinden</translation>
-    </message>
-    <message>
-        <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">tüm kişisel profiller</translation>
     </message>
     <message>
         <source>Error</source>

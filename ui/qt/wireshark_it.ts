@@ -6346,16 +6346,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Importa</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">da file zip</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">da cartella</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation>Esporta</translation>
     </message>
@@ -6448,14 +6438,20 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Nessun pacchetto</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation>Da file Zip...</translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation>Da cartella...</translation>
+    </message>
+    <message>
         <source>Selected Personal Profile...</source>
-        <oldsource>selected personal profile</oldsource>
-        <translation type="unfinished">profilo personale selezionato</translation>
+        <translation>Profilo personale selezionato...</translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">tutti i profili personali</translation>
+        <translation>Tutti i profili personali...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7380,6 +7376,25 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Esporta</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation>Da file Zip...</translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation>Da cartella...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <translation>
+            <numerusform>%Ln profilo personale selezionato...</numerusform>
+            <numerusform>%Ln profili personali selezionati</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>All Personal Profiles...</source>
+        <translation>Tutti i profili personali...</translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation>Nuon profilo</translation>
     </message>
@@ -7407,9 +7422,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <oldsource>%Ln selected personal profile(s)</oldsource>
-        <translation type="unfinished">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
             <numerusform>%Ln profilo personale selezionato</numerusform>
             <numerusform>%Ln profili personali selezionati</numerusform>
         </translation>
@@ -7448,21 +7462,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Zip File (*.zip)</source>
         <translation>File Zip (*.zip)</translation>
-    </message>
-    <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">da file zip</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">da cartella</translation>
-    </message>
-    <message>
-        <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">tutti i profili personali</translation>
     </message>
     <message>
         <source>Error</source>

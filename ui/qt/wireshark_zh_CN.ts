@@ -6324,16 +6324,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">导入</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation type="unfinished">导出</translation>
     </message>
@@ -6425,13 +6415,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>无分组</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Selected Personal Profile...</source>
-        <oldsource>selected personal profile</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7355,6 +7351,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">导出</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>All Personal Profiles...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7373,13 +7387,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Select zip file for export</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <oldsource>%Ln selected personal profile(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
@@ -7413,21 +7420,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Zip File (*.zip)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

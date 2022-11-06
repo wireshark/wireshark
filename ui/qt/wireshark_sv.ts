@@ -6346,16 +6346,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Importera</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">från en zip-fil</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">från en katalog</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation>Exportera</translation>
     </message>
@@ -6448,14 +6438,20 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Inga paket</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Selected Personal Profile...</source>
-        <oldsource>selected personal profile</oldsource>
-        <translation type="unfinished">vald personlig profil</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">alla personliga profiler</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7380,6 +7376,25 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Export</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>All Personal Profiles...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation>Ny profil</translation>
     </message>
@@ -7407,9 +7422,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <oldsource>%Ln selected personal profile(s)</oldsource>
-        <translation type="unfinished">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
             <numerusform>%Ln vald personlig profil</numerusform>
             <numerusform>%Ln valda personliga profiler</numerusform>
         </translation>
@@ -7448,21 +7462,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Zip File (*.zip)</source>
         <translation>Zip-fil (*.zip)</translation>
-    </message>
-    <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">från en zip-fil</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">från en katalog</translation>
-    </message>
-    <message>
-        <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">alla personliga profiler</translation>
     </message>
     <message>
         <source>Error</source>

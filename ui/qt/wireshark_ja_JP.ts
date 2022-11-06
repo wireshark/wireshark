@@ -6331,16 +6331,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>インポート</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">zipファイルより</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">ディレクトリより</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation>エクスポート</translation>
     </message>
@@ -6432,14 +6422,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>パケットなし</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation>Zipファイルより...</translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation>ディレクトリより...</translation>
+    </message>
+    <message>
         <source>Selected Personal Profile...</source>
-        <oldsource>selected personal profile</oldsource>
-        <translation type="unfinished">選択された個人プロファイル</translation>
+        <translation>選択された個人プロファイル...</translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">すべての個人プロファイル</translation>
+        <translation>すべての個人プロファイル...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7363,6 +7359,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>エクスポート</translation>
     </message>
     <message>
+        <source>From Zip File...</source>
+        <translation>Zipファイルより...</translation>
+    </message>
+    <message>
+        <source>From Directory...</source>
+        <translation>ディレクトリより...</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln Selected Personal Profile(s)...</source>
+        <translation>
+            <numerusform>%Ln 選択された個人プロファイル...</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>All Personal Profiles...</source>
+        <translation>すべての個人プロファイル...</translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation>新規プロファイル</translation>
     </message>
@@ -7389,9 +7403,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <oldsource>%Ln selected personal profile(s)</oldsource>
-        <translation type="unfinished">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
             <numerusform>%Ln 選択された個人プロファイル</numerusform>
         </translation>
     </message>
@@ -7428,21 +7441,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Zip File (*.zip)</source>
         <translation>Zipファイル (*.zip)</translation>
-    </message>
-    <message>
-        <source>From Zip File...</source>
-        <oldsource>from zip file</oldsource>
-        <translation type="unfinished">zipファイルより</translation>
-    </message>
-    <message>
-        <source>From Directory...</source>
-        <oldsource>from directory</oldsource>
-        <translation type="unfinished">ディレクトリより</translation>
-    </message>
-    <message>
-        <source>All Personal Profiles...</source>
-        <oldsource>all personal profiles</oldsource>
-        <translation type="unfinished">すべての個人プロファイル</translation>
     </message>
     <message>
         <source>Error</source>

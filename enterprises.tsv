@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2022-10-29)
+# (last updated 2022-11-04)
 
 0	Reserved
 1	NxNetworks
@@ -1005,7 +1005,7 @@
 996	Softlink Ltd.
 997	ProSum
 998	March Systems Consultancy, Ltd.
-999	Hong Technology, Inc.
+999	EasyNet, Inc.
 1000	Internet Assigned Numbers Authority
 1001	PECO Energy Co.
 1002	United Parcel Service
@@ -4376,6 +4376,7 @@
 4375	DT Research, Inc
 4376	Nettech Systems, Inc.
 4377	X-Point Communications
+4378	---none---
 4379	Alien Internet Services
 4380	Elipse Software
 4381	Astracon Inc.
@@ -5174,8 +5175,10 @@
 5180	The DocSpace Company Inc.
 5181	Firat Universites
 5182	I Theta Corp.
+5183	---none---
 5184	C&N Touristic AG
 5185	Sungmi Telecom Electronics Co., Ltd.
+5186	---none---
 5187	Bytware, Inc.
 5188	BITHOP SYSTEMS, Inc.
 5189	TELEFONICA I+D
@@ -6862,6 +6865,7 @@
 6877	Evergreen Internet
 6878	Black Box Corp.
 6879	digiMine.com
+6880	---none---
 6881	Kal
 6882	Micro Electronics Inc
 6883	Linux NetworX, Inc.
@@ -7165,6 +7169,7 @@
 7181	Trendium, Inc.
 7182	ypass.net
 7183	Springfield Public Schools
+7184	---none---
 7185	Latitude Communications
 7186	BayPackets Inc
 7187	Netsystems, Inc.
@@ -7244,6 +7249,7 @@
 7261	InfoSpace
 7262	DragonWave
 7263	Litt Productions Ltd.
+7264	---none---
 7265	Interactive Portal, Inc.
 7266	Softfront
 7267	BroadLink Technologies, Inc.
@@ -11475,6 +11481,7 @@
 11503	METRAWARE
 11504	NDSL, Inc.
 11505	Network-1 Security Solutions, Inc.
+11506	---none---
 11507	ProBusiness
 11508	School of Banking and Management in Cracow
 11509	Schweizer Electronic AG
@@ -11997,7 +12004,7 @@
 12128	RoDoGu Consulting
 12129	Safeweb Ltda
 12130	SciQuest, Inc
-12131	Siegfried Holding AG
+12131	Siegfried AG
 12132	Simutronics Corporation
 12133	Talking Blocks, Inc.
 12134	Tradetrans Inc
@@ -13515,6 +13522,7 @@
 13649	Polizei Rheinland-Pfalz
 13650	Relativity
 13651	RexKramer
+13652	---none---
 13653	Seoul Mobile Telecom, Inc.
 13654	SHENZHEN XIFENG NETWORK TECHNOLOGIES CO.,LTD
 13655	SpaceMonster Gaming Network
@@ -14987,6 +14995,7 @@
 15123	Fachhochschule Oldenburg/Ostfriesland/Wilhelmshaven
 15124	Rodan Systems S.A.
 15125	Vectura
+15126	---none---
 15127	CUNY/CIS
 15128	Vergata EDV-Beratung
 15129	E-CARD Ltd.
@@ -16037,7 +16046,7 @@
 16175	TRIADE Beratungsgesellschaft für Informationstechnologie mbH
 16176	Zephra Corp.
 16177	Westermo Teleindustri AB
-16178	WellPoint Health Networks
+16178	Elevance Health, Inc.
 16179	WAN Norway
 16180	Blue Data Networks Ltd
 16181	E3Switch LLC
@@ -18131,6 +18140,7 @@
 18274	Shenzhen Experiment School
 18275	CIBERNET Corporation
 18276	Lurcher Link
+18277	---none---
 18278	Columbus Metropolitan Library
 18279	Rainer Fischer, EDV-Service
 18280	NetTempo, Inc.
@@ -18279,16 +18289,19 @@
 18423	NetHarmonix, Inc.
 18424	MooreWare
 18425	COMCO AG
+18426	---none---
 18427	Patrick Näf
 18428	American Registry for Internet Numbers
 18429	IT Consulting & Education Ltd.
 18430	GenerationE Technologies LLC
 18431	Stmk. Krankenanstalten GesmbH
+18432	---none---
 18433	deny all
 18434	University of Leipzig
 18435	Advanced Computer Systems, ACS S.P.A.
 18436	Bell Mobility
 18437	W.I.S.V. Christiaan Huygens
+18438	---none---
 18439	Composite Software, Inc.
 18440	peerix
 18441	National Football League
@@ -18612,6 +18625,7 @@
 18761	Regal Cyber Limited
 18762	Sumtech Inc
 18763	TheNetWerk
+18764	---none---
 18765	Comtel Electronics GmbH
 18766	Procitec GmbH
 18767	Kaba Management + Consulting AG
@@ -19825,6 +19839,7 @@
 19977	Theta Networks, Inc.
 19978	o2 (Germany) GmbH & Co. OHG
 19979	INPES
+19980	---none---
 19981	Venetica
 19982	Cap Gemini Norway
 19983	Cu-nes
@@ -35318,7 +35333,7 @@
 35486	Television New Zealand Ltd
 35487	The Salvation Army USA Western Territory
 35488	The Corosync Cluster Engine Project
-35489	IRZ AUTOMATION TECHNOLOGIES LTD	# formerly 'Radiofid Ltd'
+35489	RADIOFID SYSTEMS COMPANY LIMITED
 35490	AGEPS - APHP
 35491	M.S. Projekt Management + Vertrieb GmbH
 35492	RheinLand Versicherungen
@@ -48866,6 +48881,7 @@
 49047	Ville de Québec
 49048	AFONWeb
 49049	Oster Consulting
+49050	PRINT SOLUTION
 49051	IKEM AD
 49052	Trätåg AB
 49053	Cesare Ceneri
@@ -56720,7 +56736,7 @@
 56924	WuXi ANKTech Co.,Ltd
 56925	POMCube Inc
 56926	Causal Sarl
-56927	Dr. Welsch Security
+56927	Dr. Welsch - IT Services
 56928	Changsha Asterfusion Data Technologies  Co.,Ltd
 56929	Securent Solutions, LLC
 56930	Syntonics Corp LLC
@@ -57057,7 +57073,7 @@
 57261	ESPi
 57262	TechArgos
 57263	Attono Limited
-57264	Sigstore
+57264	Sigstore a series of LF Projects LLC
 57265	Intelligent Wave Inc.
 57266	Ross School
 57267	Bravas Sistemas Ltda
@@ -59287,7 +59303,7 @@
 59495	Lion Elastomers Geismar
 59496	Shenzhen Phoenix Telecom Technology Co.,Ltd
 59497	MPEON Co, Ltd.
-59498	Juke NSS Lab
+59498	PT Juke Solusi Teknologi
 59499	Juke Solutions Labs
 59500	Innofriends GmbH
 59501	Billund Aquaculture
@@ -59363,3 +59379,48 @@
 59571	Sibopt, LLC
 59572	Exonetik
 59573	Jan F. Orth
+59574	Solution 2000
+59575	CMX Corp
+59576	CYMERTEK
+59577	Telecommunicatiebedrijf Suriname ( TELESUR )
+59578	CYBERSECURITY.KR
+59579	Valence Group, Inc.
+59580	Skylane Optics
+59581	BotGuard OÜ
+59582	Shengli Technologies Co., Ltd
+59583	Ptavvs.Net
+59584	MoeYork
+59585	Luminar Technologies, Inc.
+59586	MAHESH CHANDRA
+59587	Magnolia Bank
+59588	Laboratoire Méthodes Formelles
+59589	Canopy Growth
+59590	NPO RTT LLC
+59591	Logeo Seine
+59592	Take 2 Identity, Inc.
+59593	Alereon, Inc
+59594	Yunnan Nantian Electronics Information Corp.,Ltd.
+59595	Busse Design+Engineering GmbH
+59596	Palantir Technologies
+59597	Municipality of Central Huron
+59598	Elektrotechnik Nagel
+59599	James Law
+59600	Polestar Performance AB
+59601	Hope Community Resources
+59602	Comprehensive Blood & Cancer Center
+59603	Century Yuasa Batteries
+59604	Statens geotekniska institut
+59605	Andrea Perfetti
+59606	FAREVA
+59607	Tygerclan
+59608	Hytex
+59609	LLC Gelarm
+59610	Best Secret
+59611	ITENERUM
+59612	Stoll Berne
+59613	Katzkin Leather
+59614	Miramar Consulting
+59615	General Electric (GE) HealthCare
+59616	Jonathan Foreman
+59617	Mulliken LLC
+59618	FEV Europe GmbH
