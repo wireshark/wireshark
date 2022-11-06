@@ -545,18 +545,23 @@ static void OUT_RXString(ptvcursor_t *cursor, int field)
 static void OUT_RXStringV(ptvcursor_t *cursor, int field, guint32 length)
 {
 	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
-	char* str = (char*)wmem_alloc(wmem_packet_scope(), length+1);
+	wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), length+1, 0);
 	int offset = ptvcursor_current_offset(cursor),
 		start_offset = offset;
 	guint32 idx;
 
 	for (idx = 0; idx<length; idx++)
 	{
-		str[idx] = (char)tvb_get_ntohl(tvb, offset);
+		wmem_strbuf_append_c(strbuf, (char)tvb_get_ntohl(tvb, offset));
 		offset += 4;
 	}
-	str[length] = '\0';
-	proto_tree_add_string(ptvcursor_tree(cursor), field, tvb, start_offset, length*4, str);
+	/* XXX: There's no indication what encoding this string has.
+	 * Treat it as UTF-8 for now.
+	 */
+	if (!wmem_strbuf_utf8_validate(strbuf, NULL)) {
+		wmem_strbuf_utf8_make_valid(strbuf);
+	}
+	proto_tree_add_string(ptvcursor_tree(cursor), field, tvb, start_offset, length*4, wmem_strbuf_finalize(strbuf));
 	ptvcursor_advance(cursor, length*4);
 }
 
