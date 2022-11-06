@@ -31,7 +31,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-
+#include <epan/charsets.h>
 
 void proto_register_hl7(void);
 void proto_reg_handoff_hl7(void);
@@ -739,10 +739,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
             continue;
         }
         if (field_number == 9) { /* 9th field is the message type[^event] */
-            msh->message_type[0] = tvb_get_guint8(tvb, offset);
-            msh->message_type[1] = tvb_get_guint8(tvb, offset + 1);
-            msh->message_type[2] = tvb_get_guint8(tvb, offset + 2);
-            msh->message_type[3] = '\0';
+            tvb_get_raw_bytes_as_string(tvb, offset, msh->message_type, 4);
             if (tree) {
                 proto_item *hidden_item;
                 hidden_item = proto_tree_add_item(tree, hf_hl7_message_type,
@@ -751,10 +748,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
                 proto_item_set_hidden(hidden_item);
             }
             if (tvb_get_guint8(tvb, offset + 3) == msh->component_separator) {
-                msh->trigger_event[0] = tvb_get_guint8(tvb, offset + 4);
-                msh->trigger_event[1] = tvb_get_guint8(tvb, offset + 5);
-                msh->trigger_event[2] = tvb_get_guint8(tvb, offset + 6);
-                msh->trigger_event[3] = '\0';
+                tvb_get_raw_bytes_as_string(tvb, offset + 4, msh->trigger_event, 4);
                 if (tree) {
                     proto_item *hidden_item;
                     hidden_item = proto_tree_add_item(tree, hf_hl7_event_type,
@@ -878,23 +872,12 @@ dissect_hl7_message(tvbuff_t *tvb, guint tvb_offset, gint len,
 
     /* enrich info column */
     if (event_present(&msh)) {
-        if (offset == 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
-                            msh.message_type,
-                            msh.trigger_event);
-        } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s (%s)",
-                            msh.message_type,
-                            msh.trigger_event);
-        }
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s (%s)",
+                            get_ascii_string(pinfo->pool, msh.message_type, 3),
+                            get_ascii_string(pinfo->pool, msh.trigger_event, 3));
     } else {
-        if (offset == 0) {
-            col_append_str(pinfo->cinfo, COL_INFO,
-                            msh.message_type);
-        } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                            msh.message_type);
-        }
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+                            get_ascii_string(pinfo->pool, msh.message_type, 3));
     }
     /* set a fence so that subsequent col_clear calls will
      * not wipe out col information regarding this PDU */
