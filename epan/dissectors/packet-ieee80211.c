@@ -5360,6 +5360,12 @@ static int hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_expected_to_move
 static int hf_ieee80211_tag_measure_report_lci_z_sta_floor_info_sta_floor_number = -1;
 static int hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor = -1;
 static int hf_ieee80211_tag_measure_report_lci_z_sta_height_above_floor_uncertainty = -1;
+static int hf_ieee80211_tag_measure_report_lci_urp = -1;
+static int hf_ieee80211_tag_measure_report_lci_urp_retransmission_allowed = -1;
+static int hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative_present = -1;
+static int hf_ieee80211_tag_measure_report_lci_urp_sta_location_policy = -1;
+static int hf_ieee80211_tag_measure_report_lci_urp_reserved = -1;
+static int hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative = -1;
 static int hf_ieee80211_tag_measure_report_lci_unknown = -1;
 
 static int hf_ieee80211_tag_measure_report_unknown = -1;
@@ -7591,6 +7597,7 @@ static gint ett_tag_measure_report_sub_element_tree = -1;
 static gint ett_tag_measure_reported_frame_tree = -1;
 static gint ett_tag_measure_reported_frame_frag_id_tree = -1;
 static gint ett_tag_measure_reported_lci_z_tree = -1;
+static gint ett_tag_measure_reported_lci_urp_tree = -1;
 static gint ett_tag_bss_bitmask_tree = -1;
 static gint ett_tag_dfs_map_tree = -1;
 static gint ett_tag_dfs_map_flags_tree = -1;
@@ -27667,6 +27674,30 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
           offset += 1;
           break;
         }
+        case MEASURE_REP_LCI_SUB_REPORTED_URP: /* Usage Rules/Policy (6) */
+        {
+          static int * const ieee80211_tag_measure_reported_lci_urp[] = {
+            &hf_ieee80211_tag_measure_report_lci_urp_retransmission_allowed,
+            &hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative_present,
+            &hf_ieee80211_tag_measure_report_lci_urp_sta_location_policy,
+            &hf_ieee80211_tag_measure_report_lci_urp_reserved,
+            NULL
+          };
+          proto_tree_add_bitmask_with_flags(sub_elem_tree, tvb, offset,
+                                            hf_ieee80211_tag_measure_report_lci_urp,
+                                            ett_tag_measure_reported_lci_urp_tree,
+                                            ieee80211_tag_measure_reported_lci_urp,
+                                            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+          offset += 1;
+          
+          /* Retention Expires Relative (optional) */
+          if ((sub_tag_end - 1) == 2 ) {
+            proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative,
+                                  tvb, offset, 2, ENC_NA);
+            offset += 1;
+          }
+          break;
+        }
         default:
           /* no default action */
           break;
@@ -46053,6 +46084,36 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_measure_report_lci_urp,
+     {"Usage Rules/Policy Parameters", "wlan.measure.req.lci.urp",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_urp_retransmission_allowed,
+     {"Retransmission Allowed", "wlan.measure.req.lci.urp.retransmission_allowed",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative_present,
+     {"Retention Expires Relative Present", "wlan.measure.req.lci.urp.retention_expires_relative_present",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_urp_sta_location_policy,
+     {"STA Location Policy", "wlan.measure.req.lci.urp.sta_location_policy",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_urp_reserved,
+     {"Reserved", "wlan.measure.req.lci.urp.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xF8,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative,
+     {"Retention Expires Relative", "wlan.measure.req.lci.urp.retention_expires_relative",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_measure_report_lci_unknown,
      {"Unknown Data", "wlan.measure.rep.lci.unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
@@ -52001,6 +52062,7 @@ proto_register_ieee80211(void)
     &ett_tag_measure_reported_frame_tree,
     &ett_tag_measure_reported_frame_frag_id_tree,
     &ett_tag_measure_reported_lci_z_tree,
+    &ett_tag_measure_reported_lci_urp_tree,
     &ett_tag_bss_bitmask_tree,
     &ett_tag_dfs_map_tree,
     &ett_tag_dfs_map_flags_tree,
