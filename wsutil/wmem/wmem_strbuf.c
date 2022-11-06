@@ -419,17 +419,27 @@ static bool
 string_utf8_validate(const char *str, ssize_t max_len, const char **endpptr)
 {
     bool valid;
+    const char *endp;
 
-    if (max_len <= 0)
+    if (max_len <= 0) {
+        if (endpptr) {
+            *endpptr = str;
+        }
         return true;
+    }
 
-    valid = g_utf8_validate(str, max_len, endpptr);
-    if (valid || **endpptr != '\0')
+    valid = g_utf8_validate(str, max_len, &endp);
+
+    if (valid || *endp != '\0') {
+        if (endpptr) {
+            *endpptr = endp;
+        }
         return valid;
+    }
 
     /* Invalid because of a nul byte. Skip nuls and continue. */
-    max_len -= *endpptr - str;
-    str = *endpptr;
+    max_len -= endp - str;
+    str = endp;
     while (max_len > 0 && *str == '\0') {
         str++;
         max_len--;

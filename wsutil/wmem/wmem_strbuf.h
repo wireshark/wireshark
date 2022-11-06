@@ -156,6 +156,11 @@ WS_DLL_PUBLIC
 void
 wmem_strbuf_destroy(wmem_strbuf_t *strbuf);
 
+/* Validates the string buffer as UTF-8.
+ * Unlike g_utf8_validate(), accepts embedded NUL bytes as valid UTF-8.
+ * If endpptr is non-NULL, then the end of the valid range is stored there
+ * (i.e. the first invalid character, or the end of the buffer otherwise).
+ */
 WS_DLL_PUBLIC
 bool
 wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endptr);
