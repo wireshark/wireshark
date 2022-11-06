@@ -1183,38 +1183,22 @@ write_ek_summary(column_info *cinfo, write_json_data* pdata)
 
 /* Write out a tree's data, and any child nodes, as JSON for EK */
 static void
-ek_fill_attr(proto_node *node, GSList **attr_list, GHashTable *attr_table, write_json_data *pdata)
+ek_fill_attr(proto_node *node, GHashTable *attr_table, write_json_data *pdata)
 {
     field_info *fi         = NULL;
-    field_info *fi_parent  = NULL;
-    gchar *node_name       = NULL;
     GSList *attr_instances = NULL;
 
     proto_node *current_node = node->first_child;
     while (current_node != NULL) {
         fi        = PNODE_FINFO(current_node);
-        fi_parent = PNODE_FINFO(current_node->parent);
 
         /* dissection with an invisible proto tree? */
         ws_assert(fi);
 
-        if (fi_parent == NULL) {
-            node_name = g_strdup(fi->hfinfo->abbrev);
-        } else {
-            node_name = g_strconcat(fi_parent->hfinfo->abbrev, "_", fi->hfinfo->abbrev, NULL);
-        }
-
-        attr_instances = (GSList *) g_hash_table_lookup(attr_table, node_name);
-        // First time we encounter this attr
-        if (attr_instances == NULL) {
-            attr_instances = g_slist_append(attr_instances, current_node);
-            *attr_list = g_slist_prepend(*attr_list, attr_instances);
-        } else {
-            attr_instances = g_slist_append(attr_instances, current_node);
-        }
-
+        attr_instances = (GSList *) g_hash_table_lookup(attr_table, fi->hfinfo->abbrev);
+        attr_instances = g_slist_append(attr_instances, current_node);
         // Update instance list for this attr in hash table
-        g_hash_table_insert(attr_table, node_name, attr_instances);
+        g_hash_table_insert(attr_table, g_strdup(fi->hfinfo->abbrev), attr_instances);
 
         /* Field, recurse through children*/
         if (fi->hfinfo->type != FT_PROTOCOL && current_node->first_child != NULL) {
@@ -1227,7 +1211,7 @@ ek_fill_attr(proto_node *node, GSList **attr_list, GHashTable *attr_table, write
                         pdata->filter = NULL;
                     }
 
-                    ek_fill_attr(current_node, attr_list, attr_table, pdata);
+                    ek_fill_attr(current_node, attr_table, pdata);
 
                     /* Put protocol filter back */
                     if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
@@ -1237,7 +1221,7 @@ ek_fill_attr(proto_node *node, GSList **attr_list, GHashTable *attr_table, write
                     // Don't traverse children if filtered out
                 }
             } else {
-                ek_fill_attr(current_node, attr_list, attr_table, pdata);
+                ek_fill_attr(current_node, attr_table, pdata);
             }
         } else {
             // Will descend into object at another point
@@ -1489,29 +1473,22 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
     }
 }
 
+void process_ek_attrs(gpointer key _U_, gpointer value, gpointer pdata)
+{
+    GSList *attr_instances = (GSList *) value;
+    ek_write_attr(attr_instances, pdata);
+}
+
 /* Write out a tree's data, and any child nodes, as JSON for EK */
 static void
 proto_tree_write_node_ek(proto_node *node, write_json_data *pdata)
 {
-    GSList *attr_list  = NULL;
     GHashTable *attr_table  = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-
-    ek_fill_attr(node, &attr_list, attr_table, pdata);
-
-    g_hash_table_destroy(attr_table);
+    ek_fill_attr(node, attr_table, pdata);
 
     // Print attributes
-    attr_list = g_slist_reverse(attr_list);
-    GSList *current_attr = attr_list;
-    while (current_attr != NULL) {
-        GSList *attr_instances = (GSList *) current_attr->data;
-
-        ek_write_attr(attr_instances, pdata);
-
-        current_attr = current_attr->next;
-    }
-
-    g_slist_free_full(attr_list, (GDestroyNotify) g_slist_free);
+    g_hash_table_foreach(attr_table, process_ek_attrs, pdata);
+    g_hash_table_destroy(attr_table);
 }
 
 /* Print info for a 'geninfo' pseudo-protocol. This is required by
