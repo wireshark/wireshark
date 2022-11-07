@@ -10086,7 +10086,7 @@ dissect_hs20_osu_provider(proto_tree *tree, tvbuff_t *tvb,
 
   if (osu_nai_len > 0) {
     proto_tree_add_item(prov_tree, hf_ieee80211_hs20_osu_nai, tvb, offset,
-                        osu_nai_len, ENC_NA);
+                        osu_nai_len, ENC_ASCII);
     offset += osu_nai_len;
   }
 
@@ -41495,7 +41495,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_hs20_osu_nai,
      {"OSU_NAI", "wlan.hs20.osu_nai",
-      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_hs20_osu_service_desc_len,
      {"OSU Service Description Length", "wlan.hs20.osu_service_desc_len",
