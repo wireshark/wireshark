@@ -266,7 +266,6 @@ static int hf_woww_cost_in_copper = -1;
 static int hf_woww_count = -1;
 static int hf_woww_countdown_time_in_milliseconds = -1;
 static int hf_woww_counter = -1;
-static int hf_woww_create_id = -1;
 static int hf_woww_created_day = -1;
 static int hf_woww_created_month = -1;
 static int hf_woww_created_year = -1;
@@ -14377,7 +14376,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_QUESTUPDATE_ADD_KILL:
             ptvcursor_add(ptv, hf_woww_quest_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_create_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_creature_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_kill_count, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_required_kill_count, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -16582,12 +16581,6 @@ proto_register_woww(void)
         },
         { &hf_woww_counter,
             { "Counter", "woww.counter",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_create_id,
-            { "Create Id", "woww.create.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
