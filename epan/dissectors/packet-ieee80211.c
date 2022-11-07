@@ -1867,6 +1867,28 @@ static const value_string ieee80211_tag_measure_report_lci_sub_id_vals[] = {
   { 0x00, NULL}
 };
 
+#define MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_CIVIC 0
+#define MEASURE_REP_CIVIC_SUB_REPORTED_OR_STA 1
+#define MEASURE_REP_CIVIC_SUB_REPORTED_T_MAC 2
+#define MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_REFERENCE 4
+#define MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_SHAPE 4
+#define MEASURE_REP_CIVIC_SUB_REPORTED_MAP_IMAGE 5
+#define MEASURE_REP_CIVIC_SUB_REPORTED_RESERVED 6
+#define MEASURE_REP_CIVIC_SUB_REPORTED_CO_BSSID 7
+
+static const value_string ieee80211_tag_measure_report_civic_sub_id_vals[] = {
+  { MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_CIVIC, "Location Civic" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_OR_STA, "Originator Requesting STA MAC Address" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_T_MAC, "Target MAC Address" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_REFERENCE, "Location Reference" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_SHAPE, "Location Shape" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_MAP_IMAGE, "Map Image" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_RESERVED, "Reserved" },
+  { MEASURE_REP_CIVIC_SUB_REPORTED_CO_BSSID, "Co-Locatel BSSID List" },
+  { 221, "Vendor Specific" },
+  { 0x00, NULL}
+};
+
 static const value_string frame_type[] = {
   {MGT_FRAME,       "Management frame"},
   {CONTROL_FRAME,   "Control frame"},
@@ -5376,6 +5398,13 @@ static int hf_ieee80211_tag_measure_report_lci_urp_sta_location_policy = -1;
 static int hf_ieee80211_tag_measure_report_lci_urp_reserved = -1;
 static int hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative = -1;
 static int hf_ieee80211_tag_measure_report_lci_unknown = -1;
+
+static int hf_ieee80211_tag_measure_report_civic_location_type = -1;
+static int hf_ieee80211_tag_measure_report_civic_sub_id = -1;
+static int hf_ieee80211_tag_measure_report_location_civic_country = -1;
+static int hf_ieee80211_tag_measure_report_location_civic_type = -1;
+static int hf_ieee80211_tag_measure_report_location_civic_length = -1;
+static int hf_ieee80211_tag_measure_report_location_civic = -1;
 
 static int hf_ieee80211_tag_measure_report_unknown = -1;
 
@@ -27739,7 +27768,70 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case 10: /* Multicast Diagnostics Report */
     /* TODO */
   case 11: /* Location Civic Report */
-    /* TODO */
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_civic_location_type, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+    while (offset < tag_len)
+    {
+      guint8 sub_id, sub_length, sub_tag_end;;
+      proto_item *sub_elem_item, *sub_elem_len_item;
+      proto_tree *sub_elem_tree;
+
+      sub_elem_item = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_civic_sub_id,
+                                          tvb, offset, 1, ENC_NA);
+      sub_id = tvb_get_guint8(tvb, offset);
+      offset += 1;
+
+      sub_elem_tree = proto_item_add_subtree(sub_elem_item, ett_tag_measure_report_sub_element_tree);
+
+      sub_elem_len_item = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_subelement_length,
+                                              tvb, offset, 1, ENC_NA);
+      sub_length = tvb_get_guint8(tvb, offset);
+      offset += 1;
+      sub_tag_end = offset + sub_length;
+
+      if (sub_tag_end > tag_len)
+      {
+        expert_add_info_format(pinfo, sub_elem_len_item, &ei_ieee80211_tag_length, "Sub Element length exceed Tag length");
+        return tvb_captured_length(tvb);
+      }
+
+      switch (sub_id) {
+        case MEASURE_REP_CIVIC_SUB_REPORTED_LOCATION_CIVIC: /* Location Civic (0) */
+        {
+          guint32 length;
+          proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_country,
+                              tvb, offset, 2, ENC_LITTLE_ENDIAN);
+          offset += 2;
+
+          proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_type,
+                              tvb, offset, 1, ENC_LITTLE_ENDIAN);
+          offset += 1;
+
+          proto_tree_add_item_ret_uint(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_length,
+                              tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+          offset += 1;
+
+          proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic,
+                              tvb, offset, length, ENC_LITTLE_ENDIAN);
+          offset += length;
+          break;
+        }
+        default:
+          /* no default action */
+          break;
+      }
+
+      if (offset < sub_tag_end)
+      {
+        proto_item *tix;
+        tix = proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_unknown,
+                                  tvb, offset, sub_tag_end - offset, ENC_NA);
+        expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_report_lci_unknown);
+        offset = sub_tag_end;
+      }
+    }
+    break;
   case 12: /* Location Identifier Report */
     /* TODO */
   case 13: /* Directional Channel Quality Report */
@@ -46154,6 +46246,36 @@ proto_register_ieee80211(void)
      {"Unknown Data", "wlan.measure.rep.lci.unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
       "(not interpreted)", HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_civic_location_type,
+     {"Civic Location Type", "wlan.measure.rep.location_subject",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_civic_location_type), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_civic_sub_id,
+     {"SubElement ID", "wlan.measure.rep.civic.sub.id",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_report_civic_sub_id_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_location_civic_country,
+     {"Country", "wlan.measure.rep.civic.sub.country",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_location_civic_type,
+     {"Type", "wlan.measure.rep.civic.sub.type",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_location_civic_length,
+     {"Length", "wlan.measure.rep.civic.sub.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_location_civic,
+     {"Location Civic", "wlan.measure.rep.civic.sub.location_civic",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_quiet_count,
      {"Count", "wlan.quiet.count",
