@@ -11340,6 +11340,7 @@ proto_registrar_dump_elastic(const gchar* filter)
 			}
 			/* Skip the fields that would map into string. This is the default in elasticsearch. */
 			type = ws_type_to_elastic(hfinfo->type);
+			/* when type is NULL, we have the default mapping: string */
 			if (type) {
 				str = ws_strdup_printf("%s_%s", prev_proto, hfinfo->abbrev);
 				dot_to_underscore(str);

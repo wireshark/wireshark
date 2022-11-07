@@ -468,7 +468,8 @@ Field 4:: base for display (for integer types)
 Field 5:: protocol name
 Field 6:: "decode as" support
 
-*elastic-mapping*  Dumps the ElasticSearch mapping file to stdout.
+*elastic-mapping*  Dumps the ElasticSearch mapping file to stdout. Fields
+falling in the default case (string) won't be mapped.
 
 *fieldcount*  Dumps the number of header fields to stdout.
 
