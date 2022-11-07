@@ -1787,6 +1787,12 @@ static const value_string ieee80211_tag_measure_request_location_subject[] = {
   { 0x00, NULL }
 };
 
+static const value_string ieee80211_tag_measure_request_civic_location_type[] = {
+  { 0, "IETF RFC 4776" },
+  { 1, "Vendor Specific" },
+  { 0x00, NULL }
+};
+
 static const value_string ieee80211_tclas_process_flag[] = {
   {0x00, "Incoming MSDU's higher layer parameters have to match to the parameters in all associated TCLAS elements."},
   {0x01, "Incoming MSDU's higher layer parameters have to match to at least one of the associated TCLAS elements."},
@@ -4722,6 +4728,9 @@ static int hf_ieee80211_tag_measure_request_peer_mac_address = -1;
 static int hf_ieee80211_tag_measure_request_group_id = -1;
 
 static int hf_ieee80211_tag_measure_request_location_subject = -1;
+static int hf_ieee80211_tag_measure_request_civic_location_type = -1;
+static int hf_ieee80211_tag_measure_request_location_service_interval_units = -1;
+static int hf_ieee80211_tag_measure_request_location_service_interval = -1;
 
 static int hf_ieee80211_tag_measure_request_unknown = -1;
 
@@ -27245,7 +27254,19 @@ ieee80211_tag_measure_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
    case 10: /* Multicast Diagnostics Request */
     /* TODO */
    case 11: /* Location Civic Request */
-    /* TODO */
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_location_subject, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_civic_location_type, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_location_service_interval_units, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_location_service_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+     /* TODO Add Optional Subelements */
+      break;
    case 12: /* Location Identifier Request */
     /* TODO */
    case 13: /* Directional Channel Quality Request */
@@ -45752,6 +45773,21 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_measure_request_location_subject,
      {"Location Subject", "wlan.measure.req.location_subject",
       FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_location_subject), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_civic_location_type,
+     {"Civic Location Type", "wlan.measure.req.location_subject",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_civic_location_type), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_location_service_interval_units,
+     {"Location Service Interval Units", "wlan.measure.req.location_service_interval_units",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_location_service_interval,
+     {"Location Service Interval", "wlan.measure.req.location_service_interval",
+      FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_unknown,
