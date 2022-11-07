@@ -325,14 +325,11 @@ static void parse_wiphy_bands(struct ws80211_interface *iface,
 {
 	struct nlattr *nl_band;
 	struct nlattr *tb_band[NL80211_BAND_ATTR_MAX + 1];
-	int bandidx = 1;
 	int rem_band;
 
 	if (!tb) return;
 
 	nla_for_each_nested(nl_band, tb, rem_band) {
-		bandidx++;
-
 		nla_parse(tb_band, NL80211_BAND_ATTR_MAX,
 			  (struct nlattr *)nla_data(nl_band),
 			  nla_len(nl_band), NULL);
