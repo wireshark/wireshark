@@ -11799,7 +11799,7 @@ dissect_zcl_calendar_publish_seasons(tvbuff_t *tvb, proto_tree *tree, guint *off
     proto_tree_add_item(tree, hf_zbee_zcl_calendar_total_number_of_commands, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    for (gint i = 0; tvb_reported_length_remaining(tvb, *offset) >= 5; i++) {
+    while (tvb_reported_length_remaining(tvb, *offset) >= 5) {
         /* Season Start Date */
         dissect_zcl_date(tvb, tree, offset, ett_zbee_zcl_calendar_season_start_date, "Season Start Date", hf_zbee_zcl_calendar_date_year, hf_zbee_zcl_calendar_date_month, hf_zbee_zcl_calendar_date_month_day, hf_zbee_zcl_calendar_date_week_day);
 

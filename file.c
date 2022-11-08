@@ -569,8 +569,6 @@ cf_read(capture_file *cf, gboolean reloading)
     ws_buffer_init(&buf, 1514);
 
     TRY {
-        guint32 count             = 0;
-
         gint64  file_pos;
         gint64  data_offset;
 
@@ -588,7 +586,6 @@ cf_read(capture_file *cf, gboolean reloading)
                     too_many_records = TRUE;
                     break;
                 }
-                count++;
                 file_pos = wtap_read_so_far(cf->provider.wth);
 
                 /* Create the progress bar if necessary. */
@@ -4533,7 +4530,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
     gchar                status_str[100];
     guint32              framenum;
     frame_data          *fdata;
-    int                  count          = 0;
 
     /* Close the old handle. */
     wtap_close(cf->provider.wth);
@@ -4597,7 +4593,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
             fdata->file_off = data_offset;
         }
         if (size >= 0) {
-            count++;
             cf->f_datalen = wtap_read_so_far(cf->provider.wth);
 
             /* Create the progress bar if necessary. */

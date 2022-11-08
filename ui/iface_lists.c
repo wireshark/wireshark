@@ -139,7 +139,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
     if_info_t         *if_info, temp;
     gchar             *descr;
     if_capabilities_t *caps=NULL;
-    gint              linktype_count;
     gboolean          monitor_mode;
     GSList            *curr_addr;
     int               ips = 0, i;
@@ -300,7 +299,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
         device.remote_opts.sampling_method = global_capture_opts.default_options.sampling_method;
         device.remote_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
-        linktype_count = 0;
         device.links = NULL;
         if (caps != NULL) {
 #if defined(HAVE_PCAP_CREATE)
@@ -321,7 +319,6 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                     link->name = ws_strdup_printf("%s (not supported)", data_link_info->name);
                 }
                 device.links = g_list_append(device.links, link);
-                linktype_count++;
             }
 
             /*

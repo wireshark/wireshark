@@ -163,7 +163,6 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
     if (!st || !st->cfg || !st->cfg->pr || !st->cfg->pr->st_dlg) return;
     TapParameterDialog *st_dlg = st->cfg->pr->st_dlg;
     QTreeWidgetItemIterator iter(st_dlg->statsTreeWidget());
-    int node_count = 0;
 
     while (*iter) {
         stat_node *node = VariantPointer<stat_node>::asPtr((*iter)->data(item_col_, Qt::UserRole));
@@ -177,7 +176,6 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
                                  (!(node->st_flags&ST_FLG_DEF_NOEXPAND)));
             g_free(valstrs);
         }
-        node_count++;
         ++iter;
     }
 

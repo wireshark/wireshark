@@ -1929,7 +1929,7 @@ void IOGraph::clearAllData()
 void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
 {
     /* Moving average variables */
-    unsigned int mavg_in_average_count = 0, mavg_left = 0, mavg_right = 0;
+    unsigned int mavg_in_average_count = 0, mavg_left = 0;
     unsigned int mavg_to_remove = 0, mavg_to_add = 0;
     double mavg_cumulated = 0;
     QCPAxis *x_axis = nullptr;
@@ -1964,7 +1964,6 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
 
             mavg_cumulated += getItemValue((int)warmup_interval / interval_, cap_file);
             mavg_in_average_count++;
-            mavg_right++;
         }
         mavg_to_add = (unsigned int)warmup_interval;
     }
@@ -1989,8 +1988,6 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
                     mavg_in_average_count++;
                     mavg_cumulated += getItemValue((int)mavg_to_add / interval_, cap_file);
                     mavg_to_add += interval_;
-                } else {
-                    mavg_right--;
                 }
             }
             if (mavg_in_average_count > 0) {

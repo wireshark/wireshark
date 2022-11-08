@@ -1919,11 +1919,10 @@ static void
 dissect_tlv_mac(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree   *val_tree;
-    guint8        ix;
 
     val_tree=proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_tlv_val, NULL, "MAC addresses");
 
-    for(ix=1; rem >= 6; ix++, offset += 6, rem -= 6) {
+    for(; rem >= 6; offset += 6, rem -= 6) {
         proto_tree_add_item(val_tree, hf_ldp_tlv_mac, tvb, offset, 6, ENC_NA);
     }
     if (rem)

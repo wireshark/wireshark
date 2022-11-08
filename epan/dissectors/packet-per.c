@@ -1766,7 +1766,6 @@ dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
 {
 	gboolean /*extension_present,*/ extension_flag;
 	int extension_root_entries;
-	int extension_addition_entries;
 	guint32 choice_index;
 	int i, idx, cidx;
 	guint32 ext_length = 0;
@@ -1790,7 +1789,6 @@ DEBUG_ENTRY("dissect_per_choice");
 
 	/* count the number of entries in the extension root and extension addition */
 	extension_root_entries = 0;
-	extension_addition_entries = 0;
 	for (i=0; choice[i].p_id; i++) {
 		switch(choice[i].extension){
 			case ASN1_NO_EXTENSIONS:
@@ -1798,7 +1796,6 @@ DEBUG_ENTRY("dissect_per_choice");
 				extension_root_entries++;
 				break;
 			case ASN1_NOT_EXTENSION_ROOT:
-				extension_addition_entries++;
 				break;
 		}
 	}

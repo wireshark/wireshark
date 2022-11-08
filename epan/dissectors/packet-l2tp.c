@@ -1772,7 +1772,7 @@ static int dissect_l2tp_ericsson_tei_sc_map(tvbuff_t *tvb, proto_tree *parent_tr
     return offset;
 }
 
-static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 ccid)
+static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 ccid _U_)
 {
     int offset = 0;
     int         avp_type;
@@ -1812,8 +1812,6 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_ericsson_avp_type, tvb, offset, 2, avp_type);
     offset += 2;
     avp_len -= 2;
-
-    ccid++;
 
     switch (avp_type) {
     case ERICSSON_MSG_TYPE:

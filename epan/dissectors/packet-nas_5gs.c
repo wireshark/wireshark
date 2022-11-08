@@ -4754,9 +4754,8 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     proto_tree * sub_tree, *sub_tree1;
     guint32 num_cont, length, opt_code, num_eps_parms, param_id;
     proto_item * item;
-    guint i, curr_len;
+    guint i;
 
-    curr_len = len;
     curr_offset = offset;
     num_cont = 1;
 
@@ -4785,12 +4784,10 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         /* EPS bearer identity */
         proto_tree_add_item(sub_tree, hf_nas_5gs_sm_mapd_eps_b_cont_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
-        curr_len--;
 
         /* Length of Mapped EPS bearer context*/
         proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_sm_length, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &length);
         curr_offset += 2;
-        curr_len -= 2;
 
         /*  8     7     6     5     4     3     2     1          */
         /* operation code | spare | E | number of EPS params     */
@@ -4810,7 +4807,6 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
         }
         curr_offset++;
-        curr_len--;
         i = 1;
 
         /* EPS parameters list */
@@ -4823,12 +4819,10 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             proto_tree_add_item_ret_uint(sub_tree1, hf_nas_5gs_sm_mapd_eps_b_cont_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_id);
             proto_item_append_text(item, " - %s", val_to_str_const(param_id, nas_5gs_sm_mapd_eps_b_cont_param_id_vals, "Unknown"));
             curr_offset++;
-            curr_len--;
 
             /*length of the EPS parameter contents field */
             proto_tree_add_item_ret_uint(sub_tree1, hf_nas_5gs_sm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
             curr_offset++;
-            curr_len--;
 
             proto_item_set_len(item, length + 2);
             /*content of the EPS parameter contents field */
@@ -4858,7 +4852,6 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                 break;
             }
             curr_offset +=length;
-            curr_len -= length;
             i++;
             num_eps_parms--;
         }

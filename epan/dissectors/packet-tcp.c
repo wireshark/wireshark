@@ -2127,7 +2127,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
     tcp_unacked_t *ual=NULL;
     tcp_unacked_t *prevual=NULL;
     guint32 nextseq;
-    int ackcount;
 
 #if 0
     printf("\nanalyze_sequence numbers   frame:%u\n",pinfo->num);
@@ -2673,7 +2672,6 @@ finished_checking_retransmission_type:
 
     /* remove all segments this ACKs and we don't need to keep around any more
      */
-    ackcount=0;
     prevual = NULL;
     ual = tcpd->rev->tcp_analyze_seq_info->segments;
     while(ual) {
@@ -2698,7 +2696,6 @@ finished_checking_retransmission_type:
         }
 
         /* This segment is old, or an exact match.  Delete the segment from the list */
-        ackcount++;
         tmpual=ual->next;
 
         if (tcpd->rev->scps_capable) {
@@ -3313,6 +3310,7 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
 
     proto_item_set_generated(item);
 
+#if 0 // nbOptionsChanged is currently unused.
     /* store the TCP Options related to MPTCP then we will avoid false DUP ACKs later */
     guint8 nbOptionsChanged = 0;
     if((tcpd->mptcp_analysis->mp_operations&(0x01))!=tcph->th_mptcp->mh_mpc) {
@@ -3348,6 +3346,7 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
         nbOptionsChanged++;
     }
     /* we could track MPTCP option changes here, with nbOptionsChanged */
+#endif
 
     item = proto_tree_add_uint(tree, hf_mptcp_stream, tvb, 0, 0, mptcpd->stream);
     proto_item_set_generated(item);

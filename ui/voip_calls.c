@@ -453,7 +453,6 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
 {
     seq_analysis_item_t *gai, *new_gai;
     GList    *list;
-    guint     item_num;
     gboolean  inserted;
     gchar     time_str[COL_MAX_LEN];
 
@@ -484,7 +483,6 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
     new_gai->time_str = g_strdup(time_str);
     new_gai->display=FALSE;
 
-    item_num = 0;
     inserted = FALSE;
 
     list = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
@@ -498,7 +496,6 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
             break;
         }
         list = g_list_next(list);
-        item_num++;
     }
 
     if (!inserted) {
