@@ -324,7 +324,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
   guint32 msti_regional_root_mstid, msti_regional_root_priority;
   const gchar *msti_regional_root_mac_str;
   guint16 msti_bridge_identifier_priority, msti_port_identifier_priority;
-  int   total_msti_length, offset, msti, msti_format;
+  int   total_msti_length, offset, msti_format;
   int   msti_length_remaining;
 
   int spt_offset = 0;
@@ -816,7 +816,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                           BPDU_CIST_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
       /* MSTI messages */
       offset = BPDU_MSTI;
-      msti = 1;
       msti_length_remaining = total_msti_length;
       while (msti_length_remaining > 0) {
         switch(msti_format) {
@@ -904,7 +903,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           offset += ALT_MSTI_MESSAGE_SIZE;
           break;
         }
-        msti++;
       }
 
       if (protocol_version_identifier >= 4 && version_1_length == 0
