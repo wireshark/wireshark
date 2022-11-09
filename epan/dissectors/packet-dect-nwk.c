@@ -658,12 +658,59 @@ static int dissect_dect_nwk_s_ie_escape_to_proprietary(tvbuff_t *tvb, guint offs
 	return offset;
 }
 
-static int dissect_dect_nwk_lce(tvbuff_t *tvb, guint8 msg_type, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
+static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
 {
 	gboolean fixed_length;
 	guint8 element_type, element_length, fl_ie_type;
 	proto_tree *field_tree;
 	proto_tree *field_tree_item;
+
+	fixed_length = (tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FIXED_LENGTH_MASK) >> DECT_NWK_S_IE_FIXED_LENGTH_SHIFT;
+	if(fixed_length) {
+		/* FIXME: Fixed Lenght IE dissection */
+		fl_ie_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FL_TYPE_MASK ) >> DECT_NWK_S_IE_FL_TYPE_SHIFT;
+		offset++;
+		if ( fl_ie_type == DECT_NWK_S_IE_FL_DOUBLE_OCTET_ELEMENT ) {
+			offset++;
+		}
+	} else {
+		element_type = ( tvb_get_guint8(tvb, offset) & 0x7F);
+		element_length = tvb_get_guint8(tvb, offset + 1);
+		field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length + 2, ett_dect_nwk_s_ie_element, &field_tree_item, "Element: ");
+		proto_item_append_text(field_tree_item, "%s", val_to_str(element_type, dect_nwk_s_ie_type_val, "Unkown: 0x%0x"));
+		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_type, tvb, offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_length, tvb, offset, 1, ENC_NA);
+		offset++;
+		switch (element_type) {
+			case DECT_NWK_S_IE_CIPHER_INFO:
+				offset = dissect_dect_nwk_s_ie_cipher_info(tvb, offset, field_tree, data);
+				break;
+			case DECT_NWK_S_IE_FIXED_IDENTITY:
+				offset = dissect_dect_nwk_s_ie_fixed_identity(tvb, offset, field_tree, data);
+				break;
+			case DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY:
+				offset = dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
+				break;
+			case DECT_NWK_S_IE_PORTABLE_IDENTITY:
+				offset = dissect_dect_nwk_s_ie_portable_identity(tvb, offset, field_tree, data);
+				break;
+			case DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY:
+				dissect_dect_nwk_s_ie_escape_to_proprietary(tvb, offset, field_tree, data);
+				offset += element_length;
+				break;
+			default:
+				offset += element_length;
+				break;
+		}
+	}
+	return offset;
+}
+
+static int dissect_dect_nwk_lce(tvbuff_t *tvb, guint8 msg_type, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
+{
+
 
 	proto_tree_add_item(tree, hf_nwk_msg_type_lce, tvb, offset, 1, ENC_NA);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
@@ -671,46 +718,7 @@ static int dissect_dect_nwk_lce(tvbuff_t *tvb, guint8 msg_type, guint offset, pa
 	offset++;
 
 	while(tvb_reported_length_remaining(tvb, offset)) {
-		fixed_length = (tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FIXED_LENGTH_MASK) >> DECT_NWK_S_IE_FIXED_LENGTH_SHIFT;
-		if(fixed_length) {
-			/* FIXME: Fixed Lenght IE dissection */
-			fl_ie_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FL_TYPE_MASK ) >> DECT_NWK_S_IE_FL_TYPE_SHIFT;
-			offset++;
-			if ( fl_ie_type == DECT_NWK_S_IE_FL_DOUBLE_OCTET_ELEMENT ) {
-				offset++;
-			}
-		} else {
-			element_type = ( tvb_get_guint8(tvb, offset) & 0x7F);
-			element_length = tvb_get_guint8(tvb, offset + 1);
-			field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length + 2, ett_dect_nwk_s_ie_element, &field_tree_item, "Element: ");
-			proto_item_append_text(field_tree_item, "%s", val_to_str(element_type, dect_nwk_s_ie_type_val, "Unkown: 0x%0x"));
-			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl, tvb, offset, 1, ENC_NA);
-			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_type, tvb, offset, 1, ENC_NA);
-			offset++;
-			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_length, tvb, offset, 1, ENC_NA);
-			offset++;
-			switch (element_type) {
-				case DECT_NWK_S_IE_CIPHER_INFO:
-					offset = dissect_dect_nwk_s_ie_cipher_info(tvb, offset, field_tree, data);
-					break;
-				case DECT_NWK_S_IE_FIXED_IDENTITY:
-					offset = dissect_dect_nwk_s_ie_fixed_identity(tvb, offset, field_tree, data);
-					break;
-				case DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY:
-					offset = dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
-					break;
-				case DECT_NWK_S_IE_PORTABLE_IDENTITY:
-					offset = dissect_dect_nwk_s_ie_portable_identity(tvb, offset, field_tree, data);
-					break;
-				case DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY:
-					dissect_dect_nwk_s_ie_escape_to_proprietary(tvb, offset, field_tree, data);
-					offset += element_length;
-					break;
-				default:
-					offset += element_length;
-					break;
-			}
-		}
+		offset = dissect_dect_nwk_s_ie(tvb, offset, tree, data);
 	}
 
 	/* TOOD: dissection of TLVs/IEs */
@@ -724,6 +732,10 @@ static int dissect_dect_nwk_cc(tvbuff_t *tvb, guint8 msg_type, guint offset, pac
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(msg_type, nwk_cc_msgt_vals, "Unknown 0x%02x"));
 	offset++;
+
+	while(tvb_reported_length_remaining(tvb, offset)) {
+		offset = dissect_dect_nwk_s_ie(tvb, offset, tree, data);
+	}
 
 	/* TOOD: dissection of TLVs/IEs */
 
