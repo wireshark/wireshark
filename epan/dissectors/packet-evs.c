@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <wsutil/str_util.h>
+#include <wsutil/utf8_entities.h>
 #include "packet-rtp.h"
 
 void proto_register_evs(void);
@@ -881,7 +883,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     num_data = num_toc;
     num_toc = 1;
-    col_append_fstr(pinfo->cinfo, COL_INFO, "... ( %u frames in packet)", num_data);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%u frame%s in packet)", UTF8_HORIZONTAL_ELLIPSIS, num_data, plurality(num_data, "", "s"));
     while (num_data > 0) {
         proto_tree *speech_tree;
 
@@ -1095,6 +1097,7 @@ proto_register_evs(void)
                                    "Header-Full format only",
                                    "Decode payload assuming that Header-Full format only is used",
                                    &evs_hf_only);
+
     evs_handle = register_dissector("evs", dissect_evs, proto_evs);
 }
 
