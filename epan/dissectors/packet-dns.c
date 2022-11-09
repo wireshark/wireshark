@@ -517,6 +517,7 @@ static int hf_dns_opt_padding;
 static int hf_dns_opt_chain_fqdn;
 static int hf_dns_opt_ext_error_info_code;
 static int hf_dns_opt_ext_error_extra_text;
+static int hf_dns_opt_agent_domain;
 static int hf_dns_nsec3_algo;
 static int hf_dns_nsec3_flags;
 static int hf_dns_nsec3_flag_optout;
@@ -872,6 +873,7 @@ typedef struct _dns_conv_info_t {
 #define O_PADDING       12              /* EDNS(0) Padding Option (RFC7830) */
 #define O_CHAIN         13              /* draft-ietf-dnsop-edns-chain-query */
 #define O_EXT_ERROR     15              /* Extended DNS Errors (RFC8914) */
+#define O_REPORT_CHANNEL 18             /* DNS Error Reporting (RFC9567) */
 
 #define MIN_DNAME_LEN    2              /* minimum domain name length */
 
@@ -1318,6 +1320,7 @@ static const value_string edns0_opt_code_vals[] = {
   {O_PADDING,     "PADDING"},
   {O_CHAIN,       "CHAIN"},
   {O_EXT_ERROR,   "Extended DNS Error"},
+  {O_REPORT_CHANNEL, "Report-Channel"},
   {0,             NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
@@ -3450,6 +3453,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           }
           break;
 
+          case O_REPORT_CHANNEL:
+          {
+
+            const gchar  *dname;
+            int           dname_len;
+
+            used_bytes = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
+                                    &dname, &dname_len);
+            name_out = format_text(wmem_packet_scope(), (const guchar*)dname, dname_len);
+            proto_tree_add_string(rropt_tree, hf_dns_opt_agent_domain, tvb, cur_offset, used_bytes, name_out);
+
+            cur_offset += used_bytes;
+            rropt_len  -= used_bytes;
+          }
+          break;
           default:
           {
             cur_offset += optlen;
@@ -7241,6 +7259,11 @@ proto_register_dns(void)
 
     { &hf_dns_opt_ext_error_extra_text,
       { "Extra Text", "dns.opt.ext_error.extra_text",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_opt_agent_domain,
+      { "Agent Domain", "dns.opt.agent_domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
