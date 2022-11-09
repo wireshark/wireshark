@@ -469,6 +469,10 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
     }  /* end switch() */
   } while (offset < final_offset-1);
 
+  // Restore depth.
+  nest_level--;
+  p_set_proto_depth(pinfo, proto_mongo, nest_level);
+
   return document_length;
 }
 
