@@ -33,6 +33,32 @@ static gint hf_nwk_msg_type_mm = -1;
 static gint ett_dect_nwk_s_ie_element = -1;
 
 static gint hf_dect_nwk_s_ie_fl = -1;
+
+static gint hf_dect_nwk_s_ie_fl_type = -1;
+static gint hf_dect_nwk_s_ie_fl_double_octet_type = -1;
+
+static gint hf_dect_nwk_s_ie_fl_control_type = -1;
+
+static gint hf_dect_nwk_s_ie_fl_repeat_indicator_type = -1;
+
+static gint hf_dect_nwk_s_ie_fl_shift_locking = -1;
+static gint hf_dect_nwk_s_ie_fl_shift_new_codeset = -1;
+
+static gint hf_dect_nwk_s_ie_fl_basic_service_call_class = -1;
+static gint hf_dect_nwk_s_ie_fl_basic_service_type = -1;
+
+static gint hf_dect_nwk_s_ie_fl_single_display_display_info = -1;
+
+static gint hf_dect_nwk_s_ie_fl_single_keypad_keypad_info = -1;
+
+static gint hf_dect_nwk_s_ie_fl_release_reason_code = -1;
+
+static gint hf_dect_nwk_s_ie_fl_signal_value = -1;
+
+static gint hf_dect_nwk_s_ie_fl_timer_restart_value = -1;
+
+static gint hf_dect_nwk_s_ie_fl_test_hook_control_hook_value = -1;
+
 static gint hf_dect_nwk_s_ie_type = -1;
 static gint hf_dect_nwk_s_ie_length = -1;
 
@@ -175,10 +201,17 @@ enum dect_nwk_lce_msg_type {
 	DECT_NWK_LCE_PAGE_REJ		= 0x72,
 };
 
-/* Section 7.6.1 */
+/* Section 7.5.3 */
+enum dect_nwk_s_fl_ie_shift_codeset {
+	DECT_NWK_S_FL_IE_SHIFT_CODESET_INITIAL        = 0x0,
+	DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_0 = 0x4,
+	DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_1 = 0x5,
+	DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_2 = 0x6,
+	DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_3 = 0x7,
+};
 
+/* Section 7.6.1 */
 enum dect_nwk_s_fl_ie_type {
-	DECT_NWK_S_IE_FL_RESERVERD            = 0x0,
 	DECT_NWK_S_IE_FL_SHIFT                = 0x1,
 	DECT_NWK_S_IE_FL_CONTROL              = 0x2,
 	DECT_NWK_S_IE_FL_REPEAT_INDICATOR     = 0x5,
@@ -192,14 +225,122 @@ enum dect_nwk_s_fl_ie_control_type {
 };
 
 enum dect_nwk_s_fl_ie_double_octet_type {
-	DECT_NWK_S_IE_DOUBLE_OCTET_BASIC_SERVICE     = 0x0,
-	DECT_NWK_S_IE_DOUBLE_OCTET_RELEASE_REASON    = 0x2,
-	DECT_NWK_S_IE_DOUBLE_OCTET_SIGNAL            = 0x4,
-	DECT_NWK_S_IE_DOUBLE_OCTET_TIMER_RESTART     = 0x5,
-	DECT_NWK_S_IE_DOUBLE_OCTET_TEST_HOOK_CONTROL = 0x6,
-	DECT_NWK_S_IE_DOUBLE_OCTET_SINGLE_DISPLAY    = 0x8,
-	DECT_NWK_S_IE_DOUBLE_OCTET_SINGLE_KEYPAD     = 0x9,
-	DECT_NWK_S_IE_DOUBLE_OCTET_RESERVED          = 0xF,
+	DECT_NWK_S_IE_FL_DOUBLE_OCTET_BASIC_SERVICE     = 0x0,
+	DECT_NWK_S_IE_FL_DOUBLE_OCTET_RELEASE_REASON    = 0x2,
+	DECT_NWK_S_IE_FL_DOUBLE_OCTET_SIGNAL            = 0x4,
+	DECT_NWK_S_IE_FL_DOUBLE_OCTET_TIMER_RESTART     = 0x5,
+	DECT_NWK_S_IE_FL_DOUBLE_OCTET_TEST_HOOK_CONTROL = 0x6,
+	DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_DISPLAY    = 0x8,
+	DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_KEYPAD     = 0x9,
+};
+
+/* Section 7.6.3 */
+enum dect_nwk_s_ie_fl_repeat_indicator_type {
+	DECT_NWK_S_IE_FL_REPEAT_INDICATOR_NON_PRIORITIZED = 0x1,
+	DECT_NWK_S_IE_FL_REPEAT_INDICATOR_PRIORITIZED     = 0x2,
+};
+
+/* Section 7.6.4 */
+enum dect_nwk_s_ie_fl_basic_service_call_class {
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_LIA                   = 0x2,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_ULE                   = 0x3,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_MESSAGE               = 0x4,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_DECT_ISDN_IIP         = 0x7,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_NORMAL                = 0x8,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_INTERNAL              = 0x9,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_EMERGENCY             = 0xA,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_SERVICE               = 0xB,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_EXTERNAL_HANDOVER     = 0xC,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_SUPPLEMENTARY_SERVICE = 0xD,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_OA_M                  = 0xE,
+};
+
+enum dect_nwk_s_ie_fl_basic_service_type {
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_BASIC_SPEECH              = 0x0,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_DECT_GSM_IWP              = 0x4,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_LRMS                      = 0x5,
+	/* Specification assigns 0b0110 to DECT UMTS IWP and GSM IWP SMS*/
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_DECT_UMTS_IWP_GSM_IWP_SMS = 0x6,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_WIDEBAND_SPEECH           = 0x8,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_SUOTA_CLASS_4_DPRS        = 0x9,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_SUOTA_CLASS_3_DPRS        = 0xA,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_DTAM_WIDEBAND_SPEECH      = 0xB,
+	DECT_NWK_S_IE_FL_BASIC_SERVICE_OTHER                     = 0xF,
+};
+
+/* Section 7.6.7 */
+enum dect_nwk_s_ie_fl_release_reason {
+	DECT_NWK_S_IE_FL_RELEASE_REASON_NORMAL                                = 0x00,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_UNEXPECTED_MESSAGE                    = 0x01,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_UNKNOWN_TRANSACTION_IDENTIFIER        = 0x02,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_MANDATORY_INFORMATION_ELEMENT_MISSING = 0x03,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_INVALID_INFORMATION_ELEMENT_CONTENTS  = 0x04,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_INCOMPATIBLE_SERVICE                  = 0x05,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_SERVICE_NOT_IMPLEMENTED               = 0x06,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_NEGOTIATION_NOT_SUPPORTED             = 0x07,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_INVALID_ENTITY                        = 0x08,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_AUTHENTICATION_FAILED                 = 0x09,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_UNKNOWN_IDENTITY                      = 0x0A,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_NEGOTIATION_FAILED                    = 0x0B,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_COLLISION                             = 0x0C,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_TIMER_EXPIRY                          = 0x0D,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_PARTIAL_RELEASE                       = 0x0E,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_UNKNOWN                               = 0x0F,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_USER_DETACHED                         = 0x10,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_USER_NOT_IN_RANGE                     = 0x11,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_USER_UNKNOWN                          = 0x12,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_USER_ALREADY_ACTIVE                   = 0x13,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_USER_BUSY                             = 0x14,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_USER_REJECTION                        = 0x15,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_USER_CALL_MODIFY                      = 0x16,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_EXTERNAL_HANDOVER_NOT_SUPPORTED       = 0x21,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_NETWORK_PARAMETERS_MISSING            = 0x22,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_EXTERNAL_HANDOVER_RELEASE             = 0x23,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_OVERLOAD                              = 0x31,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_INSUFFICIENT_RESOURCES                = 0x32,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_INSUFFICIENT_BEARERS_AVAILABLE        = 0x33,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_IWU_CONGESTION                        = 0x34,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_SECURITY_ATTACK_ASSUMED               = 0x40,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_ENCRYPTION_ACTIVATION_FAILED          = 0x41,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_RE_KEYING_FAILED                      = 0x42,
+	DECT_NWK_S_IE_FL_RELEASE_REASON_NO_CIPHER_KEY_AVAILABLE               = 0x43,
+};
+
+/* Section 7.6.8 */
+enum dect_nwk_s_ie_fl_signal_value {
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_DIAL_TONE_ON = 0x00,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_RINGBACK_TONE_ON = 0x01,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_INTERCEPT_TONE_ON = 0x02,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_NETWORK_CONGESTION_TONE_ON = 0x03,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_BUSY_TONE_ON               = 0x04,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_CONFIRM_TONE_ON            = 0x05,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ANSWER_TONE_ON             = 0x06,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_CALL_WAITING_TONE_ON       = 0x07,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_OFF_HOOK_WARNING_TONE_ON   = 0x08,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_NEGATIVE_ACK_TONE          = 0x09,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_TONES_OFF                  = 0x3F,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_0      = 0x40,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_1      = 0x41,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_2      = 0x42,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_3      = 0x43,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_4      = 0x44,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_5      = 0x45,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_6      = 0x46,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_7      = 0x47,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_CONTINUOUS     = 0x48,
+	DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_OFF               = 0x4F,
+};
+
+/* Section 7.6.9 */
+enum dect_nwk_s_ie_fl_timer_restart_value {
+	DECT_NWK_S_IE_FL_TIMER_RESTART_VALUE_RESTART_TIMER = 0x00,
+	DECT_NWK_S_IE_FL_TIMER_RESTART_VALUE_STOP_TIMER = 0x01,
+};
+
+/* Section 7.6.10 */
+enum dect_nwk_s_ie_fl_test_hook_control_hook_value {
+	DECT_NWK_S_IE_FL_TEST_HOOK_CONTROL_HOOK_VALUE_ON_HOOK  = 0x00,
+	DECT_NWK_S_IE_FL_TEST_HOOK_CONTROL_HOOK_VALUE_OFF_HOOK = 0x01,
 };
 
 /* Section 7.7.1 */
@@ -422,6 +563,152 @@ static const value_string nwk_lce_msgt_vals[] = {
 	{ 0, NULL }
 };
 
+/* Section 7.5.3 */
+static const true_false_string dect_nwk_s_ie_fl_shift_locking_tfs = {
+	"non-locking",
+	"locking"
+};
+
+static const value_string dect_nwk_s_ie_fl_shift_codeset_val[] = {
+	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_INITIAL, "Initial codeset" },
+	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_0, "Non-Standard codeset 0" },
+	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_1, "Non-Standard codeset 1" },
+	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_2, "Non-Standard codeset 2" },
+	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_3, "Non-Standard codeset 3" },
+};
+
+/* Section 7.6.1 */
+static const value_string dect_nwk_s_ie_fl_type_val[] = {
+	{ DECT_NWK_S_IE_FL_SHIFT,                "SHIFT" },
+	{ DECT_NWK_S_IE_FL_CONTROL,              "CONTROL" },
+	{ DECT_NWK_S_IE_FL_REPEAT_INDICATOR,     "REPEAT-INDICATOR" },
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_ELEMENT, "DOUBLE-OCTET-ELEMENT" },
+};
+
+static const value_string dect_nwk_s_ie_fl_control_type_val[] = {
+	{ DECT_NWK_S_IE_FL_CONTROL_SENDING_COMPLETE,  "SENDING-COMPLETE" },
+	{ DECT_NWK_S_IE_FL_CONTROL_DELIMITER_REQUEST, "DELIMITER-REQUEST" },
+	{ DECT_NWK_S_IE_FL_CONTROL_USE_TPUI,          "USE-TPUI" },
+};
+
+static const value_string dect_nwk_s_ie_fl_double_octet_type_val[] = {
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_BASIC_SERVICE,     "BASIC-SERVICE" },
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_RELEASE_REASON,    "RELEASE-REASON" },
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_SIGNAL,            "SIGNAL" },
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_TIMER_RESTART,     "TIMER-RESTART" },
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_TEST_HOOK_CONTROL, "TEST-HOOK-CONTROL" },
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_DISPLAY,    "SINGLE-DISPLAY" },
+	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_KEYPAD,     "SINGLE-KEYPAD" },
+};
+
+/* Section 7.6.3 */
+static const value_string dect_nwk_s_ie_fl_repeat_indicator_type_val[] = {
+	{ DECT_NWK_S_IE_FL_REPEAT_INDICATOR_NON_PRIORITIZED, "Non prioritized list" },
+	{ DECT_NWK_S_IE_FL_REPEAT_INDICATOR_PRIORITIZED,     "Prioritized list" },
+};
+
+/* Section 7.6.4 */
+static const value_string dect_nwk_s_ie_fl_basic_service_call_class_val[] = {
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_LIA,                   "Basic speech default setup attributes" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_ULE,                   "ULE service call setup"},
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_MESSAGE,               "Message call setup" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_DECT_ISDN_IIP,         "DECT/ISDN IIP" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_NORMAL,                "Normal call setup" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_INTERNAL,              "Internal call setup" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_EMERGENCY,             "Emergency call setup" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_SERVICE,               "Service call setup" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_EXTERNAL_HANDOVER,     "External handover call setup" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_SUPPLEMENTARY_SERVICE, "Supplementary service call setup" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_OA_M,                  "OA&M call setup" },
+};
+
+static const value_string dect_nwk_s_ie_fl_basic_service_type_val[] = {
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_BASIC_SPEECH,              "Basic speech default setup attributes" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_DECT_GSM_IWP,              "DECT GSM IWP profile (Phase 2)" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_LRMS,                      "LRMS (E-profile) service" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_DECT_UMTS_IWP_GSM_IWP_SMS, "DECT UMTS IWP or GSM IWP SMS" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_WIDEBAND_SPEECH,           "Wideband speech default setup attributes" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_SUOTA_CLASS_4_DPRS,        "Light data services: SUOTA, Class 4 DPRS management, default setup attributes" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_SUOTA_CLASS_3_DPRS,        "Light data services: SUOTA, Class 3 DPRS management, default setup attributes" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_DTAM_WIDEBAND_SPEECH,      "DTAM Wideband speech default setup attributes" },
+	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_OTHER,                     "Other" },
+};
+
+/* Section 7.6.7 */
+static const value_string dect_nwk_s_ie_fl_release_reason_val[] = {
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_NORMAL,                                "Normal" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_UNEXPECTED_MESSAGE,                    "Unexpected Message" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_UNKNOWN_TRANSACTION_IDENTIFIER,        "Unknown Transaction Identifier" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_MANDATORY_INFORMATION_ELEMENT_MISSING, "Mandatory information element missing" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_INVALID_INFORMATION_ELEMENT_CONTENTS,  "Invalid information element contents" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_INCOMPATIBLE_SERVICE,                  "Incompatible service" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_SERVICE_NOT_IMPLEMENTED,               "Service not implemented" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_NEGOTIATION_NOT_SUPPORTED,             "Negotiation not supported" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_INVALID_ENTITY,                        "Invalid identity" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_AUTHENTICATION_FAILED,                 "Authentication failed" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_UNKNOWN_IDENTITY,                      "Unknown identity" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_NEGOTIATION_FAILED,                    "Negotiation failed" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_COLLISION,                             "Collision" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_TIMER_EXPIRY,                          "Timer expiry" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_PARTIAL_RELEASE,                       "Partial release" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_UNKNOWN,                               "Unknown" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_USER_DETACHED,                         "User detached" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_USER_NOT_IN_RANGE,                     "User not in range" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_USER_UNKNOWN,                          "User unknown" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_USER_ALREADY_ACTIVE,                   "User already active" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_USER_BUSY,                             "User busy" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_USER_REJECTION,                        "User rejection" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_USER_CALL_MODIFY,                      "User call modify" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_EXTERNAL_HANDOVER_NOT_SUPPORTED,       "External Handover not supported" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_NETWORK_PARAMETERS_MISSING,            "Network Parameters missing" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_EXTERNAL_HANDOVER_RELEASE,             "External Handover release" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_OVERLOAD,                              "Overload" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_INSUFFICIENT_RESOURCES,                "Insufficient resources" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_INSUFFICIENT_BEARERS_AVAILABLE,        "Insufficient bearers available" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_IWU_CONGESTION,                        "IWU congestion" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_SECURITY_ATTACK_ASSUMED,               "Security attack assumed" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_ENCRYPTION_ACTIVATION_FAILED,          "Encryption activation failed" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_RE_KEYING_FAILED,                      "Re-Keying failed" },
+	{ DECT_NWK_S_IE_FL_RELEASE_REASON_NO_CIPHER_KEY_AVAILABLE,               "No Cipher Key available" },
+};
+
+/* Section 7.6.8 */
+static const value_string dect_nwk_s_ie_fl_signal_value_val[] = {
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_DIAL_TONE_ON,               "Dial tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_RINGBACK_TONE_ON,           "Ring-back tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_INTERCEPT_TONE_ON,          "Intercep tone on " },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_NETWORK_CONGESTION_TONE_ON, "Network congestion tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_BUSY_TONE_ON,               "Busy tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_CONFIRM_TONE_ON,            "Confirm tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ANSWER_TONE_ON,             "Answer tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_CALL_WAITING_TONE_ON,       "Call waiting tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_OFF_HOOK_WARNING_TONE_ON,   "Off-hook warning tone on" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_NEGATIVE_ACK_TONE,          "Negative acknowledgement tone" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_TONES_OFF,                  "Tones off" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_0,      "Alerting on - pattern 0" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_1,      "Alerting on - pattern 1" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_2,      "Alerting on - pattern 2" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_3,      "Alerting on - pattern 3" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_4,      "Alerting on - pattern 4" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_5,      "Alerting on - pattern 5" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_6,      "Alerting on - pattern 6" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_7,      "Alerting on - pattern 7" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_CONTINUOUS,     "Alerting on - continuous" },
+	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_OFF,               "Alerting off" },
+};
+
+/* Section 7.6.9 */
+static const value_string dect_nwk_s_ie_fl_timer_restart_value_val[] = {
+	{ DECT_NWK_S_IE_FL_TIMER_RESTART_VALUE_RESTART_TIMER, "Restart timer" },
+	{ DECT_NWK_S_IE_FL_TIMER_RESTART_VALUE_STOP_TIMER,    "Stop timer" },
+};
+
+/* Section 7.6.10 */
+static const value_string dect_nwk_s_ie_fl_test_hook_control_hook_value_val[] = {
+	{ DECT_NWK_S_IE_FL_TEST_HOOK_CONTROL_HOOK_VALUE_ON_HOOK,  "On-Hook" },
+	{ DECT_NWK_S_IE_FL_TEST_HOOK_CONTROL_HOOK_VALUE_OFF_HOOK, "Off-Hook" },
+};
+
 /* Section 7.7.1 */
 static const value_string dect_nwk_s_ie_type_val[] = {
 	{ DECT_NWK_S_IE_INFO_TYPE,                 "INFO-TYPE" },
@@ -609,6 +896,7 @@ static const true_false_string tfs_last_more = {
 
 #define DECT_NWK_S_IE_FL_TYPE_MASK 0x70
 #define DECT_NWK_S_IE_FL_TYPE_SHIFT 4
+#define DECT_NWK_S_IE_FL_DOUBLE_OCTET_TYPE_MASK 0x0F
 
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_TYPE_MASK 0x7F
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK 0xF0
@@ -781,18 +1069,68 @@ static int dissect_dect_nwk_s_ie_escape_to_proprietary(tvbuff_t *tvb, guint offs
 static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
 {
 	gboolean fixed_length;
-	guint8 element_type, element_length, fl_ie_type;
+	guint8 element_type, element_length, fl_ie_type, fl_ie_double_octet_type;
 	proto_tree *field_tree;
 	proto_tree *field_tree_item;
 
 	fixed_length = (tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FIXED_LENGTH_MASK) >> DECT_NWK_S_IE_FIXED_LENGTH_SHIFT;
 	if(fixed_length) {
-		/* FIXME: Fixed Lenght IE dissection */
 		fl_ie_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FL_TYPE_MASK ) >> DECT_NWK_S_IE_FL_TYPE_SHIFT;
-		offset++;
+		fl_ie_double_octet_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FL_DOUBLE_OCTET_TYPE_MASK );
 		if ( fl_ie_type == DECT_NWK_S_IE_FL_DOUBLE_OCTET_ELEMENT ) {
+			element_length = 2;
+			field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length, ett_dect_nwk_s_ie_element, &field_tree_item, "Fixed length Element: ");
+			proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_double_octet_type, dect_nwk_s_ie_fl_double_octet_type_val, "Unkown: 0x%0x"));
+			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_type, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_double_octet_type, tvb, offset, 1, ENC_NA);
 			offset++;
+			switch (fl_ie_double_octet_type) {
+				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_BASIC_SERVICE:
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_basic_service_call_class, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_basic_service_type, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_RELEASE_REASON:
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_release_reason_code, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_SIGNAL:
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_signal_value, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_TIMER_RESTART:
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_timer_restart_value, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_TEST_HOOK_CONTROL:
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_test_hook_control_hook_value, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_DISPLAY:
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_display_display_info, tvb, offset, 1, ENC_3GPP_TS_23_038_7BITS_UNPACKED);
+					break;
+				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_KEYPAD:
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_keypad_keypad_info, tvb, offset, 1, ENC_3GPP_TS_23_038_7BITS_UNPACKED);
+					break;
+			}
+		} else {
+			element_length = 1;
+			field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length, ett_dect_nwk_s_ie_element, &field_tree_item, "Fixed length Element: ");
+			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_type, tvb, offset, 1, ENC_NA);
+			if ( fl_ie_type == DECT_NWK_S_IE_FL_CONTROL ) {
+				proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_control_type, tvb, offset, 1, ENC_NA);
+				proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_double_octet_type, dect_nwk_s_ie_fl_control_type_val, "Unkown: 0x%0x"));
+			} else {
+				proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_type, dect_nwk_s_ie_fl_type_val, "Unkown: 0x%0x"));
+				switch (fl_ie_type) {
+					case DECT_NWK_S_IE_FL_SHIFT:
+						proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_shift_locking, tvb, offset, 1, ENC_NA);
+						proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_shift_new_codeset, tvb, offset, 1, ENC_NA);
+						break;
+					case DECT_NWK_S_IE_FL_REPEAT_INDICATOR:
+						proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_repeat_indicator_type, tvb, offset, 1, ENC_NA);
+						break;
+				}
+			}
 		}
+		offset ++;
 	} else {
 		element_type = ( tvb_get_guint8(tvb, offset) & 0x7F);
 		element_length = tvb_get_guint8(tvb, offset + 1);
@@ -976,6 +1314,86 @@ void proto_register_dect_nwk(void)
 		{ &hf_dect_nwk_s_ie_octet_group_extension,
 			{ "Extension", "dect_nwk.s.ie.group_extension", FT_BOOLEAN, 8,
 				TFS(&tfs_last_more), 0x80, NULL, HFILL
+			}
+		},
+		/* Fixed length elements */
+		{ &hf_dect_nwk_s_ie_fl_type,
+			{ "Message Type", "dect_nwk.s.ie.fl.type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_type_val), 0x70, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_fl_control_type,
+			{ "CTRL Type", "dect_nwk.s.ie.fl.control_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_control_type_val), 0x0F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_fl_double_octet_type,
+			{ "Double Octet Type", "dect_nwk.s.ie.fl.double_octet_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_double_octet_type_val), 0x0F, NULL, HFILL
+			}
+		},
+		/* Shift */
+		{ &hf_dect_nwk_s_ie_fl_shift_locking,
+			{ "Shift Procedure", "dect_nwk.s.ie.fl.shift.locking", FT_BOOLEAN, 8,
+				TFS(&dect_nwk_s_ie_fl_shift_locking_tfs), 0x08, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_fl_shift_new_codeset,
+			{ "New Codeset", "dect_nwk.s.ie.fl.shift.new_codeset", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_shift_codeset_val), 0x07, NULL, HFILL
+			}
+		},
+		/* Repeat indicator */
+		{ &hf_dect_nwk_s_ie_fl_repeat_indicator_type,
+			{ "Indicator Type", "dect_nwk.s.ie.fl.repeat_indicator.type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_repeat_indicator_type_val), 0x0F, NULL, HFILL
+			}
+		},
+		/* Basic service */
+		{ &hf_dect_nwk_s_ie_fl_basic_service_call_class,
+			{ "Call class", "dect_nwk.s.ie.fl.basic_service.call_class", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_basic_service_call_class_val), 0xF0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_fl_basic_service_type,
+			{ "Basic Service", "dect_nwk.s.ie.fl.basic_service", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_basic_service_type_val), 0x0F, NULL, HFILL
+			}
+		},
+		/* Single display */
+		{ &hf_dect_nwk_s_ie_fl_single_display_display_info,
+			{ "Display Info", "dect_nwk.s.ie.fl.single_display.display_info", FT_CHAR, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* Single keypad */
+		{ &hf_dect_nwk_s_ie_fl_single_keypad_keypad_info,
+			{ "Keypad Info", "dect_nwk.s.ie.fl.single_keypad.keypad_info", FT_CHAR, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* Release reason */
+		{ &hf_dect_nwk_s_ie_fl_release_reason_code,
+			{ "Release Reason Code", "dect_nwk.s.ie.fl.release_reason.code", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_release_reason_val), 0x0, NULL, HFILL
+			}
+		},
+		/* Signal */
+		{ &hf_dect_nwk_s_ie_fl_signal_value,
+			{ "Signal value", "dect_nwk.s.ie.fl.signal.value", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_signal_value_val), 0x0, NULL, HFILL
+			}
+		},
+		/* Timer restart */
+		{ &hf_dect_nwk_s_ie_fl_timer_restart_value,
+			{ "Restart value", "dect_nwk.s.ie.fl.timer_restart.restart_value", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_timer_restart_value_val), 0x0, NULL, HFILL
+			}
+		},
+		/* Test hook control */
+		{ &hf_dect_nwk_s_ie_fl_test_hook_control_hook_value,
+			{ "Hook value", "dect_nwk.s.ie.fl.test_hook_control.hook_value", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_fl_test_hook_control_hook_value_val), 0x0, NULL, HFILL
 			}
 		},
 		/* Calling party number */
