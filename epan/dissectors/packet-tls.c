@@ -1108,7 +1108,7 @@ dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, tls_handle);
+    conversation_set_dissector_from_frame_number(conversation, pinfo->num, tls_handle);
     return dissect_ssl(tvb, pinfo, tree, data);
 }
 
