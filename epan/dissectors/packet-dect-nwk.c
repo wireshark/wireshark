@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/proto.h>
+#include <epan/tfs.h>
 #include <epan/tvbuff.h>
 #include <epan/value_string.h>
 #include <ftypes/ftypes.h>
@@ -34,6 +35,14 @@ static gint ett_dect_nwk_s_ie_element = -1;
 static gint hf_dect_nwk_s_ie_fl = -1;
 static gint hf_dect_nwk_s_ie_type = -1;
 static gint hf_dect_nwk_s_ie_length = -1;
+
+static gint hf_dect_nwk_s_ie_octet_group_extension = -1;
+
+static gint hf_dect_nwk_s_ie_calling_party_number_type = -1;
+static gint hf_dect_nwk_s_ie_calling_party_number_numbering_plan = -1;
+static gint hf_dect_nwk_s_ie_calling_party_number_presentation = -1;
+static gint hf_dect_nwk_s_ie_calling_party_number_screening = -1;
+static gint hf_dect_nwk_s_ie_calling_party_number_address = -1;
 
 static gint hf_dect_nwk_s_ie_cipher_info_yn = -1;
 static gint hf_dect_nwk_s_ie_cipher_info_algorithm = -1;
@@ -255,6 +264,46 @@ enum dect_nkw_s_ie_type {
 	DECT_NWK_S_IE_ESCAPE_FOR_EXTENSION       = 0x7F,
 };
 
+/* Section 7.7.9 */
+enum dect_nwk_s_ie_calling_party_number_type {
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_UNKNOWN          = 0x0,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_INTERNATIONAL    = 0x1,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_NATIONAL         = 0x2,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_NETWORK_SPECIFIC = 0x3,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_SUBSCRIBER       = 0x4,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_ABBREVIATED      = 0x6,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_RESERVED         = 0x7,
+};
+
+enum dect_nwk_s_ie_calling_party_number_numbering_plan {
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_UNKNOWN  = 0x0,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_ISDN     = 0x1,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_DATA     = 0x3,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_TCP_IP   = 0x7,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_NATIONAL = 0x8,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_PRIVATE  = 0x9,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_SIP      = 0xA,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_INTERNET = 0xB,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_LAN_MAC  = 0xC,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_X400     = 0xD,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_PROFILE  = 0xE,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_RESERVED = 0xF,
+};
+
+enum dect_nwk_s_ie_calling_party_number_presentation {
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_ALLOWED              = 0x0,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_RESTRICTED           = 0x1,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_NUMBER_NOT_AVAILABLE = 0x2,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_RESERVED             = 0x3,
+};
+
+enum dect_nwk_s_ie_calling_party_number_screening {
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_NOT_SCREENED    = 0x0,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_VERIFIED_PASSED = 0x1,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_VERIFIED_FAILED = 0x2,
+	DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_NETWORK              = 0x3,
+};
+
 /* Section 7.7.10 */
 enum dect_nwk_s_ie_cipher_info_algorithm {
 	DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_DSC         = 0x01,
@@ -435,6 +484,46 @@ static const value_string dect_nwk_s_ie_type_val[] = {
 	{ DECT_NWK_S_IE_ESCAPE_FOR_EXTENSION,       "ESCAPE-FOR-EXTENSION" },
 };
 
+/* Section 7.7.9 */
+static const value_string dect_nwk_s_ie_calling_party_number_type_val[] = {
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_UNKNOWN,          "Unknown" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_INTERNATIONAL,    "International number" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_NATIONAL,         "National number" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_NETWORK_SPECIFIC, "Network specific number" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_SUBSCRIBER,       "Subscriber number" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_ABBREVIATED,      "Abbreviated number" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_RESERVED,         "Reserved for extension" },
+};
+
+static const value_string dect_nwk_s_ie_calling_party_number_numbering_plan_val[] = {
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_UNKNOWN,  "Unknown" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_ISDN,     "ISDN/telephony plan" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_DATA,     "Data plan" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_TCP_IP,   "TCP/IP address" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_NATIONAL, "National standard plan" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_PRIVATE,  "Private plan" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_SIP,      "SIP addressing scheme, \"From:\" field" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_INTERNET, "Internet character format address" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_LAN_MAC,  "LAN MAC address" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_X400,     "Recommendation ITU-T X.400 address" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_PROFILE,  "Profile service specific alphanumeric identifier" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_RESERVED, "Reserved for extension" },
+};
+
+static const value_string dect_nwk_s_ie_calling_party_number_presentation_val[] = {
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_ALLOWED,              "Presentation allowed" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_RESTRICTED,           "Presentation restricted" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_NUMBER_NOT_AVAILABLE, "Number not available" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_RESERVED,             "Reserved" },
+};
+
+static const value_string dect_nwk_s_ie_calling_party_number_screening_val[] = {
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_NOT_SCREENED,    "User-provided, not screened" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_VERIFIED_PASSED, "User-provided, verified and passed" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_VERIFIED_FAILED, "User-provided, verified and failed" },
+	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_NETWORK,              "Network provided" },
+};
+
 /* Section 7.7.10 */
 static const value_string dect_nwk_s_ie_cipher_info_algorithm_val[] = {
 	{ DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_DSC,         "DECT Standard Cipher algorithm #1 (DSC)" },
@@ -503,7 +592,15 @@ static const value_string dect_nwk_s_ie_escape_to_proprietary_discriminator_type
 	{ DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_EMC,         "EMC" },
 };
 
+static const true_false_string tfs_last_more = {
+	"Last",
+	"More"
+};
+
 /* TOOD: value_string for other protocols */
+
+#define DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK 0x80
+#define DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT 7
 
 #define DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_MASK 0x7F
 
@@ -522,6 +619,29 @@ static const value_string dect_nwk_s_ie_escape_to_proprietary_discriminator_type
 /*********************************************************************************
  * DECT dissector code
  *********************************************************************************/
+
+static int dissect_dect_nwk_s_ie_calling_party_number(tvbuff_t *tvb, guint offset, guint8 ie_length, proto_tree *tree, void _U_ *data)
+{
+	gboolean octet_group_extension;
+	guint8 address_length;
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_numbering_plan, tvb, offset, 1, ENC_NA);
+	octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+	offset++;
+	if ( !octet_group_extension ) {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_presentation, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_screening, tvb, offset, 1, ENC_NA);
+		offset++;
+		address_length = ie_length - 2;
+	} else {
+		address_length = ie_length - 1;
+	}
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_address, tvb, offset, address_length, ENC_3GPP_TS_23_038_7BITS_UNPACKED);
+	/* TODO: Check encoding of address field */
+	return offset + address_length;
+}
 
 static int dissect_dect_nwk_s_ie_cipher_info(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
 {
@@ -684,6 +804,9 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_length, tvb, offset, 1, ENC_NA);
 		offset++;
 		switch (element_type) {
+			case DECT_NWK_S_IE_CALLING_PARTY_NUMBER:
+				offset = dissect_dect_nwk_s_ie_calling_party_number(tvb, offset, element_length, field_tree, data);
+				break;
 			case DECT_NWK_S_IE_CIPHER_INFO:
 				offset = dissect_dect_nwk_s_ie_cipher_info(tvb, offset, field_tree, data);
 				break;
@@ -848,6 +971,37 @@ void proto_register_dect_nwk(void)
 		{ &hf_dect_nwk_s_ie_length,
 			{ "Content Length", "dect_nwk.s.ie.length", FT_UINT8, BASE_DEC,
 				NULL, 0xFF, "Length indicator", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_octet_group_extension,
+			{ "Extension", "dect_nwk.s.ie.group_extension", FT_BOOLEAN, 8,
+				TFS(&tfs_last_more), 0x80, NULL, HFILL
+			}
+		},
+		/* Calling party number */
+		{ &hf_dect_nwk_s_ie_calling_party_number_type,
+			{ "Type", "dect_nwk.s.ie.calling_party_number.type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_calling_party_number_type_val), 0x70, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_calling_party_number_numbering_plan,
+			{ "Numbering plan", "dect_nwk.s.ie.calling_party_number.numbering_plan", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_calling_party_number_numbering_plan_val), 0x0F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_calling_party_number_presentation,
+			{ "Presentation", "dect_nwk.s.ie.calling_party_number.presentation", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_calling_party_number_presentation_val), 0x60, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_calling_party_number_screening,
+			{ "Screening", "dect_nwk.s.ie.calling_party_number.screening", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_calling_party_number_screening_val), 0x03, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_calling_party_number_address,
+			{ "Address", "dect_nwk.s.ie.calling_party_number.address", FT_STRING, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
 			}
 		},
 		/* Cipher info */
