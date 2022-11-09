@@ -844,7 +844,7 @@ pcapng_process_custom_option(wtapng_block_t *wblock,
         break;
     default:
         ret = wtap_block_add_custom_option(wblock->block, option_code, pen, option_content + 4, option_length - 4) == WTAP_OPTTYPE_SUCCESS;
-        ws_debug("Custom option type 0x%04x with unknown pen %u with custom data of length %u", option_code, pen, option_length - 4);
+        ws_debug("Custom option type %u (0x%04x) with unknown pen %u with custom data of length %u", option_code, option_code, pen, option_length - 4);
         break;
     }
     ws_debug("returning %d", ret);
