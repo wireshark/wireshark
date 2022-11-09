@@ -594,8 +594,6 @@ dissect_ascii_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    conversation_t    *conversation;
-
     if (is_tpkt(tvb, 0) == -1) {
         /* Doesn't look like TPKT directly. Might be over TLS, so reject
          * and let the TLS heuristic dissector take a look
@@ -603,8 +601,6 @@ dissect_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
     }
 
-    conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, tpkt_handle);
     return dissect_tpkt(tvb, pinfo, tree, data);
 }
 

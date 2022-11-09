@@ -222,7 +222,7 @@ find_channel_name_by_id(packet_info *pinfo, drdynvc_conv_info_t *dyninfo, guint3
 	if (dynChannel)
 		return dynChannel->name;
 
-	/* scan fort static channel in the RDP dissector */
+	/* scan for static channel in the RDP dissector */
 	conv = find_conversation_pinfo(pinfo, 0);
 	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
 	if (!rdp_info)

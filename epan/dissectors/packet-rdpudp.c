@@ -619,11 +619,11 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 			seqPtr = (guint64 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rdpudp, RDPUDP_FULLSEQ_KEY);
 		}
 		proto_item_set_generated(
-				proto_tree_add_uint(data_tree, pf_rdpudp2_DataChannelFullSeqNumber, tvb2, offset, 2, *seqPtr)
+				proto_tree_add_uint(data_tree, pf_rdpudp2_DataChannelFullSeqNumber, tvb2, offset, 2, (guint16)*seqPtr)
 		);
 		offset += 2;
 
-		chunk = wmem_tree_lookup32(targetTree, *seqPtr);
+		chunk = wmem_tree_lookup32(targetTree, (guint32)*seqPtr);
 		data_tvb = tvb_new_composite();
 
 		if (chunk)
@@ -641,7 +641,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		if (!PINFO_FD_VISITED(pinfo) && pinfo->desegment_len) {
 			gint remaining = tvb_captured_length_remaining(subtvb, pinfo->desegment_offset);
 			chunk = tvb_clone_offset_len(data_tvb, pinfo->desegment_offset, remaining);
-			wmem_tree_insert32(targetTree, *seqPtr + 1, chunk);
+			wmem_tree_insert32(targetTree, (guint32)(*seqPtr + 1), chunk);
 		}
 
 		offset = tvb_captured_length(tvb2);
