@@ -355,7 +355,6 @@ static int hf_woww_first_login = -1;
 static int hf_woww_first_rank = -1;
 static int hf_woww_flags = -1;
 static int hf_woww_focus = -1;
-static int hf_woww_friend_name = -1;
 static int hf_woww_friend_result = -1;
 static int hf_woww_friend_status = -1;
 static int hf_woww_frost_resistance = -1;
@@ -409,7 +408,6 @@ static int hf_woww_honorable_kills = -1;
 static int hf_woww_horizontal_speed = -1;
 static int hf_woww_icon = -1;
 static int hf_woww_id = -1;
-static int hf_woww_ignore_name = -1;
 static int hf_woww_ignored = -1;
 static int hf_woww_inactive = -1;
 static int hf_woww_index = -1;
@@ -9334,10 +9332,10 @@ add_body_fields(guint32 opcode,
             }
             break;
         case CMSG_ADD_FRIEND:
-            add_cstring(ptv, &hf_woww_friend_name);
+            add_cstring(ptv, &hf_woww_name);
             break;
         case CMSG_ADD_IGNORE:
-            add_cstring(ptv, &hf_woww_ignore_name);
+            add_cstring(ptv, &hf_woww_name);
             break;
         case CMSG_AREATRIGGER:
             ptvcursor_add(ptv, hf_woww_trigger_id, 4, ENC_LITTLE_ENDIAN);
@@ -17119,12 +17117,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_friend_name,
-            { "Friend Name", "woww.friend.name",
-                FT_STRINGZ, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_friend_result,
             { "Friend Result", "woww.friend.result",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_friend_result_strings), 0,
@@ -17440,12 +17432,6 @@ proto_register_woww(void)
         { &hf_woww_id,
             { "Id", "woww.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_ignore_name,
-            { "Ignore Name", "woww.ignore.name",
-                FT_STRINGZ, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
