@@ -24,6 +24,8 @@ void proto_reg_handoff_evs(void);
 
 static dissector_handle_t evs_handle;
 
+static gboolean evs_hf_only = FALSE;
+
 /* Initialize the protocol and registered fields */
 static int proto_evs = -1;
 static int proto_rtp = -1;
@@ -639,7 +641,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* EVS AMR-WB IO SID */
             str = "EVS AMR-WB IO SID";
         }
-    } else {
+    } else if (!evs_hf_only) {
         str = try_val_to_str_idx(num_bits, evs_protected_payload_sizes_value, &idx);
         if (str) {
             is_compact = TRUE;
@@ -1089,9 +1091,11 @@ proto_register_evs(void)
     evs_module = prefs_register_protocol(proto_evs, NULL);
 
     prefs_register_obsolete_preference(evs_module, "dynamic.payload.type");
-
+    prefs_register_bool_preference(evs_module, "hf_only",
+                                   "Header-Full format only",
+                                   "Decode payload assuming that Header-Full format only is used",
+                                   &evs_hf_only);
     evs_handle = register_dissector("evs", dissect_evs, proto_evs);
-
 }
 
 void
