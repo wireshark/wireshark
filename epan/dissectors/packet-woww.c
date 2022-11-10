@@ -260,7 +260,6 @@ static int hf_woww_cooldown_in_msecs = -1;
 static int hf_woww_cooldown_time_in_msecs = -1;
 static int hf_woww_corpse_query_result = -1;
 static int hf_woww_corpse_target_ally = -1;
-static int hf_woww_corpse_target_enemy = -1;
 static int hf_woww_cos_angle = -1;
 static int hf_woww_cost_in_copper = -1;
 static int hf_woww_count = -1;
@@ -301,9 +300,6 @@ static int hf_woww_delay_time = -1;
 static int hf_woww_description = -1;
 static int hf_woww_destination_bag = -1;
 static int hf_woww_destination_node = -1;
-static int hf_woww_destination_position_x = -1;
-static int hf_woww_destination_position_y = -1;
-static int hf_woww_destination_position_z = -1;
 static int hf_woww_destination_slot = -1;
 static int hf_woww_destionation_slot = -1;
 static int hf_woww_details = -1;
@@ -463,7 +459,6 @@ static int hf_woww_item_target = -1;
 static int hf_woww_item_target_entry = -1;
 static int hf_woww_item_template = -1;
 static int hf_woww_item_text_id = -1;
-static int hf_woww_item_trade_target = -1;
 static int hf_woww_items_required = -1;
 static int hf_woww_join_as_group = -1;
 static int hf_woww_key_version = -1;
@@ -559,7 +554,6 @@ static int hf_woww_npc_guid = -1;
 static int hf_woww_number_of_battlegrounds = -1;
 static int hf_woww_number_of_choices = -1;
 static int hf_woww_object_target = -1;
-static int hf_woww_object_target_locked = -1;
 static int hf_woww_object_type = -1;
 static int hf_woww_objective_text = -1;
 static int hf_woww_objective_texts = -1;
@@ -728,9 +722,6 @@ static int hf_woww_sound_id = -1;
 static int hf_woww_source_bag = -1;
 static int hf_woww_source_item_id = -1;
 static int hf_woww_source_node = -1;
-static int hf_woww_source_position_x = -1;
-static int hf_woww_source_position_y = -1;
-static int hf_woww_source_position_z = -1;
 static int hf_woww_source_slot = -1;
 static int hf_woww_speech_bubble_credit = -1;
 static int hf_woww_speed = -1;
@@ -844,7 +835,6 @@ static int hf_woww_tutorial_data = -1;
 static int hf_woww_tutorial_flag = -1;
 static int hf_woww_type_flags = -1;
 static int hf_woww_unimplemented = -1;
-static int hf_woww_unit_enemy_target = -1;
 static int hf_woww_unit_stand_state = -1;
 static int hf_woww_unit_target = -1;
 static int hf_woww_unknown_bytes = -1;
@@ -9490,38 +9480,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -10522,38 +10504,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -10807,38 +10781,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -14710,38 +14676,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -14761,38 +14719,30 @@ add_body_fields(guint32 opcode,
             if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_UNIT_ENEMY) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_GAMEOBJECT) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_LOCKED) {
                 add_packed_guid(ptv, pinfo);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_ITEM) {
                 add_packed_guid(ptv, pinfo);
             }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_TRADE_ITEM) {
-                add_packed_guid(ptv, pinfo);
-            }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_SOURCE_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_source_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_source_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_DEST_LOCATION) {
-                ptvcursor_add(ptv, hf_woww_destination_position_x, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_y, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_destination_position_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_STRING) {
                 add_cstring(ptv, &hf_woww_target_string);
             }
             if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ALLY) {
-                add_packed_guid(ptv, pinfo);
-            }
-            if (target_flags & SPELL_CAST_TARGET_FLAGS_CORPSE_ENEMY) {
                 add_packed_guid(ptv, pinfo);
             }
             ptvcursor_pop_subtree(ptv);
@@ -16547,12 +16497,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_corpse_target_enemy,
-            { "Corpse Target Enemy", "woww.corpse.target.enemy",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_cos_angle,
             { "Cos Angle", "woww.cos.angle",
                 FT_FLOAT, BASE_NONE, NULL, 0,
@@ -16790,24 +16734,6 @@ proto_register_woww(void)
         { &hf_woww_destination_node,
             { "Destination Node", "woww.destination.node",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_destination_position_x,
-            { "Destination Position X", "woww.destination.position.x",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_destination_position_y,
-            { "Destination Position Y", "woww.destination.position.y",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_destination_position_z,
-            { "Destination Position Z", "woww.destination.position.z",
-                FT_FLOAT, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17765,12 +17691,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_trade_target,
-            { "Item Trade Target", "woww.item.trade.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_items_required,
             { "Items Required", "woww.items.required",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18337,12 +18257,6 @@ proto_register_woww(void)
         },
         { &hf_woww_object_target,
             { "Object Target", "woww.object.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_object_target_locked,
-            { "Object Target Locked", "woww.object.target.locked",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19355,24 +19269,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_source_position_x,
-            { "Source Position X", "woww.source.position.x",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_source_position_y,
-            { "Source Position Y", "woww.source.position.y",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_source_position_z,
-            { "Source Position Z", "woww.source.position.z",
-                FT_FLOAT, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_source_slot,
             { "Source Slot", "woww.source.slot",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -20048,12 +19944,6 @@ proto_register_woww(void)
         { &hf_woww_unimplemented,
             { "Unimplemented", "woww.unimplemented",
                 FT_BYTES, BASE_NONE, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_unit_enemy_target,
-            { "Unit Enemy Target", "woww.unit.enemy.target",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
