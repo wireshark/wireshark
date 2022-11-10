@@ -64,6 +64,19 @@ static gint hf_dect_nwk_s_ie_length = -1;
 
 static gint hf_dect_nwk_s_ie_octet_group_extension = -1;
 
+static gint hf_dect_nwk_s_ie_auth_type_authentication_algorithm = -1;
+static gint hf_dect_nwk_s_ie_auth_type_proprietary_algorithm = -1;
+static gint hf_dect_nwk_s_ie_auth_type_ak_type = -1;
+static gint hf_dect_nwk_s_ie_auth_type_ak_number = -1;
+static gint hf_dect_nwk_s_ie_auth_type_inc = -1;
+static gint hf_dect_nwk_s_ie_auth_type_def = -1;
+static gint hf_dect_nwk_s_ie_auth_type_txc = -1;
+static gint hf_dect_nwk_s_ie_auth_type_upc = -1;
+static gint hf_dect_nwk_s_ie_auth_type_cipher_key_number = -1;
+static gint hf_dect_nwk_s_ie_auth_type_cipher_key_number_related = -1;
+static gint hf_dect_nwk_s_ie_auth_type_default_cipher_key_index = -1;
+static gint hf_dect_nwk_s_ie_auth_type_default_cipher_key_algorithm = -1;
+
 static gint hf_dect_nwk_s_ie_calling_party_number_type = -1;
 static gint hf_dect_nwk_s_ie_calling_party_number_numbering_plan = -1;
 static gint hf_dect_nwk_s_ie_calling_party_number_presentation = -1;
@@ -403,6 +416,26 @@ enum dect_nkw_s_ie_type {
 	DECT_NWK_S_IE_EVENTS_NOTIFICATION        = 0x7D,
 	DECT_NWK_S_IE_CALL_INFORMATION           = 0x7E,
 	DECT_NWK_S_IE_ESCAPE_FOR_EXTENSION       = 0x7F,
+};
+
+/* Section 7.7.4 */
+enum dect_nwk_s_ie_auth_type_authentication_algorithm {
+	DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_DSAA        = 0x01,
+	DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_DSAA2       = 0x02,
+	DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_UMTS        = 0x20,
+	DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_GSM         = 0x40,
+	DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_PROPRIETARY = 0x7F,
+};
+
+enum dect_nwk_s_ie_auth_type_ak_type {
+	DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_USER_AK             = 0x1,
+	DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_USER_PERSONAL_ID    = 0x3,
+	DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_AUTHENTICATION_CODE = 0x4,
+};
+
+enum dect_nwk_s_ie_auth_type_default_cipher_key_algorithm {
+	DECT_NWK_S_IE_AUTH_TYPE_DEFAULT_CIPHER_KEY_ALGORITHM_DSC =  0x0,
+	DECT_NWK_S_IE_AUTH_TYPE_DEFAULT_CIPHER_KEY_ALGORITHM_DSC2 = 0x1,
 };
 
 /* Section 7.7.9 */
@@ -796,6 +829,31 @@ static const value_string dect_nwk_s_ie_type_val[] = {
 	{ DECT_NWK_S_IE_ESCAPE_FOR_EXTENSION,       "ESCAPE-FOR-EXTENSION" },
 };
 
+/* Section 7.7.4 */
+static const value_string dect_nwk_s_ie_auth_type_authentication_algorithm_val[] = {
+	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_DSAA,        "DECT standard authentication algorithm (DSAA)" },
+	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_DSAA2,       "DECT standard authentication algorithm #2 (DSAA2)" },
+	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_UMTS,        "GSM authentication algorithm" },
+	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_GSM,         "UMTS authentication algorithm" },
+	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_PROPRIETARY, "Escape to proprietary algorithm identifier" },
+};
+
+static const value_string dect_nwk_s_ie_auth_type_ak_type_val[] = {
+	{ DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_USER_AK,             "User authentication key" },
+	{ DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_USER_PERSONAL_ID,    "User personal identity" },
+	{ DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_AUTHENTICATION_CODE, "Authentication code" },
+};
+
+static const value_string dect_nwk_s_ie_auth_type_default_cipher_key_algorithm_val[] = {
+	{ DECT_NWK_S_IE_AUTH_TYPE_DEFAULT_CIPHER_KEY_ALGORITHM_DSC,  "DSC" },
+	{ DECT_NWK_S_IE_AUTH_TYPE_DEFAULT_CIPHER_KEY_ALGORITHM_DSC2, "DSC2" },
+};
+
+static const true_false_string dect_nwk_s_ie_auth_type_cipher_key_number_related_tfs = {
+	"IPUI/PARK pair",
+	"IPUI"
+};
+
 /* Section 7.7.9 */
 static const value_string dect_nwk_s_ie_calling_party_number_type_val[] = {
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_UNKNOWN,          "Unknown" },
@@ -923,6 +981,9 @@ static const true_false_string tfs_last_more = {
 #define DECT_NWK_S_IE_FL_TYPE_SHIFT 4
 #define DECT_NWK_S_IE_FL_DOUBLE_OCTET_TYPE_MASK 0x0F
 
+#define DECT_NWK_S_IE_AUTH_TYPE_DEF_MASK 0x40
+#define DECT_NWK_S_IE_AUTH_TYPE_DEF_SHIFT 6
+
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_TYPE_MASK 0x7F
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK 0xF0
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_SHIFT 4
@@ -932,6 +993,38 @@ static const true_false_string tfs_last_more = {
 /*********************************************************************************
  * DECT dissector code
  *********************************************************************************/
+
+static int dissect_dect_nwk_s_ie_auth_type(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
+{
+	guint8 authentication_algorithm;
+	gboolean def;
+
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_authentication_algorithm, tvb, offset, 1, ENC_NA);
+	authentication_algorithm = tvb_get_guint8(tvb, offset);
+	offset++;
+	if ( authentication_algorithm == DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_PROPRIETARY ) {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_proprietary_algorithm, tvb, offset, 1, ENC_NA);
+		offset++;
+	}
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_ak_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_ak_number, tvb, offset, 1, ENC_NA);
+	offset++;
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_inc, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_def, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_txc, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_upc, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_cipher_key_number, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_cipher_key_number_related, tvb, offset, 1, ENC_NA);
+	def = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_AUTH_TYPE_DEF_MASK ) >> DECT_NWK_S_IE_AUTH_TYPE_DEF_SHIFT;
+	offset++;
+	if( def ) {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_index, tvb, offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_algorithm, tvb, offset, 2, ENC_NA);
+		offset++;
+	}
+	return offset;
+}
 
 static int dissect_dect_nwk_s_ie_calling_party_number(tvbuff_t *tvb, guint offset, guint8 ie_length, proto_tree *tree, void _U_ *data)
 {
@@ -1167,6 +1260,9 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_length, tvb, offset, 1, ENC_NA);
 		offset++;
 		switch (element_type) {
+			case DECT_NWK_S_IE_AUTH_TYPE:
+				offset = dissect_dect_nwk_s_ie_auth_type(tvb, offset, field_tree, data);
+				break;
 			case DECT_NWK_S_IE_CALLING_PARTY_NUMBER:
 				offset = dissect_dect_nwk_s_ie_calling_party_number(tvb, offset, element_length, field_tree, data);
 				break;
@@ -1422,6 +1518,67 @@ void proto_register_dect_nwk(void)
 		{ &hf_dect_nwk_s_ie_fl_test_hook_control_hook_value,
 			{ "Hook value", "dect_nwk.s.ie.fl.test_hook_control.hook_value", FT_UINT8, BASE_HEX,
 				VALS(dect_nwk_s_ie_fl_test_hook_control_hook_value_val), 0x0, NULL, HFILL
+			}
+		},
+		/* Auth type*/
+		{ &hf_dect_nwk_s_ie_auth_type_authentication_algorithm,
+			{ "Authentication algorithm", "dect_nwk.s.ie.auth_type.authentication_algorithm", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_auth_type_authentication_algorithm_val), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_proprietary_algorithm,
+			{ "Proprietary algorithm", "dect_nwk.s.ie.auth_type.proprietary_algorithm", FT_UINT8, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_ak_type,
+			{ "AK Type", "dect_nwk.s.ie.auth_type.ak_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_auth_type_ak_type_val), 0xF0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_ak_number,
+			{ "AK Number", "dect_nwk.s.ie.auth_type.ak_number", FT_UINT8, BASE_HEX,
+				NULL, 0x0F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_inc,
+			{ "INC", "dect_nwk.s.ie.auth_type.inc", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x80, "Increment value of the ZAP field", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_def,
+			{ "DEF", "dect_nwk.s.ie.auth_type.def", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x40, "Use generated derived cipher key as default cipher key for early encryption", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_txc,
+			{ "TXC", "dect_nwk.s.ie.auth_type.tx", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x20, "Include derived cipher key in the AUTHENTICATION-REPLY message", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_upc,
+			{ "UPC", "dect_nwk.s.ie.auth_type.upc", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x10, "Store derived cipher key", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_cipher_key_number,
+			{ "Cipher key number", "dect_nwk.s.ie.auth_type.cipher_key_number", FT_UINT8, BASE_HEX,
+				NULL, 0x0F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_cipher_key_number_related,
+			{ "Key related to", "dect_nwk.s.ie.auth_type.key_related_to", FT_BOOLEAN, 8,
+				TFS(&dect_nwk_s_ie_auth_type_cipher_key_number_related_tfs), 0x08, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_default_cipher_key_index,
+			{ "Default Cipher Key Index", "dect_nwk.s.ie.auth_type.default_cipher_key_index", FT_UINT16, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_auth_type_default_cipher_key_algorithm,
+			{ "Default Cipher Key Algorithm", "dect_nwk.s.ie.auth_type.default_cipher_key_algorithm", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_auth_type_default_cipher_key_algorithm_val), 0x03, NULL, HFILL
 			}
 		},
 		/* Calling party number */
