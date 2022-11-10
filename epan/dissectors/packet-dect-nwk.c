@@ -457,7 +457,7 @@ enum dect_nwk_s_ie_cipher_info_algorithm {
 	DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_GPRS_GEA5   = 0x2D,
 	DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_GPRS_GEA6   = 0x2E,
 	DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_GPRS_GEA7   = 0x2F,
-	DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_PROPRIETARY = 0xFF,
+	DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_PROPRIETARY = 0x7F,
 };
 
 enum dect_nwk_s_ie_cipher_info_key_type {
@@ -1424,7 +1424,7 @@ void proto_register_dect_nwk(void)
 		},
 		/* Cipher info */
 		{ &hf_dect_nwk_s_ie_cipher_info_yn,
-			{ "Y/N", "dect_nwk.s.ie.cipher_info.yn", FT_BOOLEAN, BASE_NONE, NULL, 0x80, NULL, HFILL}
+			{ "Y/N", "dect_nwk.s.ie.cipher_info.yn", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
 		},
 		{ &hf_dect_nwk_s_ie_cipher_info_algorithm,
 			{ "Algorithm", "dect_nwk.s.ie.cipher_info.algorithm", FT_UINT8, BASE_HEX,
