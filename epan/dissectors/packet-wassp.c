@@ -5887,7 +5887,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	fragment_head *wassp_frag_msg = NULL;
 	gboolean   save_fragmented;
 	tvbuff_t *next_tvb = NULL, *combined_tvb = NULL;
-	char *label;
+	const char *label;
 	conversation_t  *conv = NULL;
 	guint32 reassembly_id;
 
@@ -5912,7 +5912,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if ( ru_msg_type == WASSP_Data ) // wassp mu header
 	{
-		label = (char*)try_val_to_str(tvb_get_guint8(tvb, WASSP_HDR_LEN + WASSP_MU_HDR_TYPE), wassp_mu_header_types);
+		label = val_to_str_const(tvb_get_guint8(tvb, WASSP_HDR_LEN + WASSP_MU_HDR_TYPE), wassp_mu_header_types, "Unknown WASSP MU Message Type");
 		col_add_str(pinfo->cinfo, COL_INFO, label);
 	}
 	else if (ru_msg_type == WASSP_RU_Discov) /* ap discover header*/
@@ -5922,10 +5922,10 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		else
 			col_add_str(pinfo->cinfo, COL_INFO, "RU Discover Response");
 	}
-	else if (ru_msg_type != WASSP_Data)
-		col_add_str(pinfo->cinfo, COL_INFO, (char*)try_val_to_str(tvb_get_guint8(tvb, WASSP_HDR_TYPE), wassp_header_types));
 	else
-		col_add_str(pinfo->cinfo, COL_INFO, "Unknown WASSP Message Type");
+        {
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(tvb, WASSP_HDR_TYPE), wassp_header_types, "Unknown WASSP Message Type"));
+        }
 
 	save_fragmented = pinfo->fragmented;
 
