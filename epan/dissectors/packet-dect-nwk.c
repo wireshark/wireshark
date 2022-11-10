@@ -106,6 +106,12 @@ static gint hf_dect_nwk_s_ie_portable_identity_put = -1;
 static gint hf_dect_nwk_s_ie_portable_identity_padding = -1;
 static gint hf_dect_ipui_o_number = -1;
 
+static gint hf_dect_nwk_s_ie_rand_rand_field = -1;
+
+static gint hf_dect_nwk_s_ie_res_res_field = -1;
+
+static gint hf_dect_nwk_s_ie_rs_rs_field = -1;
+
 static gint hf_dect_nwk_s_ie_escape_to_proprietary_discriminator_type = -1;
 static gint hf_dect_nwk_s_ie_escape_to_proprietary_discriminator = -1;
 
@@ -1278,6 +1284,18 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 			case DECT_NWK_S_IE_PORTABLE_IDENTITY:
 				offset = dissect_dect_nwk_s_ie_portable_identity(tvb, offset, field_tree, data);
 				break;
+			case DECT_NWK_S_IE_RAND:
+				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_rand_rand_field, tvb, offset, element_length, ENC_NA);
+				offset += element_length;
+				break;
+			case DECT_NWK_S_IE_RES:
+				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_res_res_field, tvb, offset, element_length, ENC_NA);
+				offset += element_length;
+				break;
+			case DECT_NWK_S_IE_RS:
+				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_rs_rs_field, tvb, offset, element_length, ENC_NA);
+				offset += element_length;
+				break;
 			case DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY:
 				dissect_dect_nwk_s_ie_escape_to_proprietary(tvb, offset, field_tree, data);
 				offset += element_length;
@@ -1697,6 +1715,18 @@ void proto_register_dect_nwk(void)
 			{ "Padding", "dect_nwk.s.ie.portable_identity.padding", FT_NONE, BASE_NONE,
 				NULL, 0x0, NULL, HFILL
 			}
+		},
+		/* RAND */
+		{ &hf_dect_nwk_s_ie_rand_rand_field,
+			{ "RAND Field", "dect_nwk.s.ie.rand.rand_field", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		/* RES */
+		{ &hf_dect_nwk_s_ie_res_res_field,
+			{ "RES Field", "dect_nwk.s.ie.res.res_field", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		/* RS */
+		{ &hf_dect_nwk_s_ie_rs_rs_field,
+			{ "RS Field", "dect_nwk.s.ie.rs.rs_field", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		/* Escape to proprietary */
 		{ &hf_dect_nwk_s_ie_escape_to_proprietary_discriminator_type,
