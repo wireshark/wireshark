@@ -9986,7 +9986,7 @@ add_body_fields(guint32 opcode,
             break;
         case CMSG_GROUP_ASSISTANT_LEADER:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_set_assistant, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_set_assistant, 1, ENC_NA);
             break;
         case CMSG_GROUP_CHANGE_SUB_GROUP:
             add_cstring(ptv, &hf_woww_name);
