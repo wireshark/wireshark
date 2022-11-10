@@ -22,6 +22,8 @@
 #include <epan/value_string.h>
 #include <ftypes/ftypes.h>
 
+#include "packet-e212.h"
+
 static int proto_dect_nwk = -1;
 
 static gint hf_nwk_ti = -1;
@@ -94,6 +96,15 @@ static gint hf_dect_nwk_s_ie_fixed_identity_value_length = -1;
 static gint hf_dect_nwk_s_ie_fixed_identity_arc = -1;
 static gint hf_dect_nwk_s_ie_fixed_identity_ard = -1;
 static gint hf_dect_nwk_s_ie_fixed_identity_padding = -1;
+
+static gint ett_dect_nwk_s_ie_location_area_li_type = -1;
+static gint hf_dect_nwk_s_ie_location_area_li_type = -1;
+static gint hf_dect_nwk_s_ie_location_area_la_level_included = -1;
+static gint hf_dect_nwk_s_ie_location_area_li_extended_included = -1;
+static gint hf_dect_nwk_s_ie_location_area_la_level = -1;
+static gint hf_dect_nwk_s_ie_location_area_eli_type = -1;
+static gint hf_dect_nwk_s_ie_location_area_lac = -1;
+static gint hf_dect_nwk_s_ie_location_area_ci = -1;
 
 static gint hf_dect_nwk_s_ie_nwk_assigned_identity_type = -1;
 static gint hf_dect_nwk_s_ie_nwk_assigned_identity_value_length = -1;
@@ -523,6 +534,12 @@ enum dect_nwk_arc_type {
 	DECT_NWK_ARC_TYPE_H = 0x7,
 };
 
+/* Section 7.7.25 */
+enum dect_nwk_s_ie_location_area_eli_type {
+	DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI_REQ_NOT_INCLUDED = 0x7,
+	DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI                  = 0xF,
+};
+
 /* Section 7.7.28 */
 enum dect_nwk_s_ie_nwk_assigned_identity_type {
 	DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY_TMSI        = 0xE4,
@@ -936,6 +953,12 @@ static const value_string dect_nwk_arc_type_val[] = {
 	{ DECT_NWK_ARC_TYPE_E, "E (PP-to-PP)"},
 };
 
+/* Section 7.7.25 */
+static const value_string dect_nwk_s_ie_location_area_eli_type_val[] = {
+	{ DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI_REQ_NOT_INCLUDED, "Location information is requested and not included" },
+	{ DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI,                  "Location information" },
+};
+
 /* Section 7.7.28 */
 static const value_string dect_nwk_s_ie_nwk_assigned_identity_type_val[] = {
 	{ DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY_TMSI,        "Temporary Mobile Subscriber Identity (TMSI, P-TMSI)" },
@@ -993,6 +1016,11 @@ static const true_false_string tfs_last_more = {
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_TYPE_MASK 0x7F
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK 0xF0
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_SHIFT 4
+
+#define DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_MASK 0x80
+#define DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_SHIFT 7
+#define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK 0xE0
+#define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_SHIFT 5
 
 #define DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_MASK 0x7F
 
@@ -1095,6 +1123,36 @@ static int dissect_dect_nwk_s_ie_fixed_identity(tvbuff_t *tvb, guint offset, pro
 	return offset;
 }
 
+static int dissect_dect_nwk_s_ie_location_area(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
+{
+	guint8 eli_type;
+	gboolean li_extended_included;
+	proto_tree *li_type_tree;
+	proto_item *li_type_item;
+
+	li_type_item = proto_tree_add_item(tree, hf_dect_nwk_s_ie_location_area_li_type, tvb, offset, 1, ENC_NA);
+	li_type_tree = proto_item_add_subtree(li_type_item, ett_dect_nwk_s_ie_location_area_li_type);
+	proto_tree_add_item(li_type_tree, hf_dect_nwk_s_ie_location_area_li_extended_included, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(li_type_tree, hf_dect_nwk_s_ie_location_area_la_level_included, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_location_area_la_level, tvb, offset, 1, ENC_NA);
+	li_extended_included = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_MASK ) >> DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_SHIFT;
+	offset++;
+
+	if ( li_extended_included ) {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_location_area_eli_type, tvb, offset, 1, ENC_NA);
+		eli_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK ) >> DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_SHIFT;
+		offset++;
+		if ( eli_type == DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI ) {
+			offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, FALSE);
+			proto_tree_add_item(tree, hf_dect_nwk_s_ie_location_area_lac, tvb, offset, 2, ENC_NA);
+			offset += 2;
+			proto_tree_add_item(tree, hf_dect_nwk_s_ie_location_area_ci, tvb, offset, 2, ENC_NA);
+			offset += 2;
+		}
+	}
+	return offset;
+}
+
 static int dissect_dect_nwk_s_ie_nwk_assigned_identity(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
 {
 	guint8 value_length;
@@ -1190,7 +1248,7 @@ static int dissect_dect_nwk_s_ie_escape_to_proprietary(tvbuff_t *tvb, guint offs
 	return offset;
 }
 
-static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
+static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
 {
 	gboolean fixed_length;
 	guint8 element_type, element_length, fl_ie_type, fl_ie_double_octet_type;
@@ -1278,6 +1336,9 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 			case DECT_NWK_S_IE_FIXED_IDENTITY:
 				offset = dissect_dect_nwk_s_ie_fixed_identity(tvb, offset, field_tree, data);
 				break;
+			case DECT_NWK_S_IE_LOCATION_AREA:
+				offset = dissect_dect_nwk_s_ie_location_area(tvb, offset, pinfo, field_tree, data);
+				break;
 			case DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY:
 				offset = dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
 				break;
@@ -1318,7 +1379,7 @@ static int dissect_dect_nwk_lce(tvbuff_t *tvb, guint8 msg_type, guint offset, pa
 	offset++;
 
 	while(tvb_reported_length_remaining(tvb, offset)) {
-		offset = dissect_dect_nwk_s_ie(tvb, offset, tree, data);
+		offset = dissect_dect_nwk_s_ie(tvb, offset, pinfo, tree, data);
 	}
 
 	/* TOOD: dissection of TLVs/IEs */
@@ -1334,7 +1395,7 @@ static int dissect_dect_nwk_cc(tvbuff_t *tvb, guint8 msg_type, guint offset, pac
 	offset++;
 
 	while(tvb_reported_length_remaining(tvb, offset)) {
-		offset = dissect_dect_nwk_s_ie(tvb, offset, tree, data);
+		offset = dissect_dect_nwk_s_ie(tvb, offset, pinfo, tree, data);
 	}
 
 	/* TOOD: dissection of TLVs/IEs */
@@ -1350,7 +1411,7 @@ static int dissect_dect_nwk_mm(tvbuff_t *tvb, guint8 msg_type, guint offset, pac
 	offset++;
 
 	while(tvb_reported_length_remaining(tvb, offset)) {
-		offset = dissect_dect_nwk_s_ie(tvb, offset, tree, data);
+		offset = dissect_dect_nwk_s_ie(tvb, offset, pinfo, tree, data);
 	}
 	/* TOOD: dissection of TLVs/IEs */
 
@@ -1673,6 +1734,38 @@ void proto_register_dect_nwk(void)
 				NULL, 0x0, NULL, HFILL
 			}
 		},
+		/* Location area */
+		{ &hf_dect_nwk_s_ie_location_area_li_type,
+			{ "LI-Type", "dect_nwk.s.ie.location_area.li_type", FT_UINT8, BASE_HEX,
+				NULL, 0xC0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_location_area_li_extended_included,
+			{ "Ext. LI included", "dect_nwk.s.ie.location_area.li_extended_included", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x80, "Extended location information is included", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_location_area_la_level_included,
+			{ "LA level included", "dect_nwk.s.ie.location_area.la_level_included", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x40, "Location area level is included (LA level field is valid)", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_location_area_la_level,
+			{ "Location area level", "dect_nwk.s.ie.location_area.la_level", FT_UINT8, BASE_DEC,
+				NULL, 0x3F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_location_area_eli_type,
+			{ "ELI-Type", "dect_nwk.s.ie.location_area.eli_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_location_area_eli_type_val), 0xF0, "Extended Location Information type", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_location_area_lac,
+			{ "LAC", "dect_nwk.s.ie.location_area.lac", FT_BYTES, BASE_NONE, NULL, 0x0, "Location Area Code", HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_location_area_ci,
+			{ "CI", "dect_nwk.s.ie.location_area.ci", FT_BYTES, BASE_NONE, NULL, 0x0, "Cell Identity", HFILL }
+		},
 		/* NWK assigend Identity */
 		{ &hf_dect_nwk_s_ie_nwk_assigned_identity_type,
 			{ "Type", "dect_nwk.s.ie.nwk_assigned_identity.type", FT_UINT8, BASE_HEX,
@@ -1744,6 +1837,7 @@ void proto_register_dect_nwk(void)
 	static gint *ett[] = {
 		&ett_dect_nwk,
 		&ett_dect_nwk_s_ie_element,
+		&ett_dect_nwk_s_ie_location_area_li_type
 	};
 
 	/* Register protocol */
