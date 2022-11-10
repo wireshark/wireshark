@@ -550,9 +550,34 @@ static const value_string nwk_cc_msgt_vals[] = {
 
 /* Section 7.4.5 */
 static const value_string nwk_mm_msgt_vals[] = {
-	{ DECT_NWK_MM_AUTH_REQ,		"MM-AUTH-REQ" },
-	{ DECT_NWK_MM_AUTH_REPLY,	"MM-AUTH-REPLY" },
-	/* FIXME: all other MM messages */
+	{ DECT_NWK_MM_AUTH_REQ,            "MM-AUTH-REQ" },
+	{ DECT_NWK_MM_AUTH_REPLY,          "MM-AUTH-REPLY" },
+	{ DECT_NWK_MM_KEY_ALLOC,           "MM-KEY-ALLOCATE" },
+	{ DECT_NWK_MM_AUTH_REJ,            "MM-AUTH-REJECT" },
+	{ DECT_NWK_MM_ACC_RIGHTS_REQ,      "MM-ACCESS-RIGHTS-REQUEST" },
+	{ DECT_NWK_MM_ACC_RIGHTS_ACK,      "MM-ACCESS-RIGHTS-ACCEPT" },
+	{ DECT_NWK_MM_ACC_RIGHTS_REJ,      "MM-ACCESS-RIGHTS-REJECT" },
+	{ DECT_NWK_MM_ACC_RIGHTS_TERM_REQ, "MM-ACCESS-RIGHTS-TERMINATE-REQUEST" },
+	{ DECT_NWK_MM_ACC_RIGHTS_ACK,      "MM-ACCESS-RIGHTS-TERMINATE-ACCEPT" },
+	{ DECT_NWK_MM_ACC_RIGHTS_TERM_REJ, "MM-ACCESS-RIGHTS-TERMINATE-REJECT" },
+	{ DECT_NWK_MM_CIPH_REQ,            "MM-CIPHER-REQUEST" },
+	{ DECT_NWK_MM_CIPH_SUGGEST,        "MM-CIPHER-SUGGEST" },
+	{ DECT_NWK_MM_CIPH_REJ,            "MM-CIPHER-REJECT" },
+	{ DECT_NWK_MM_INFO_REQ,            "MM-INFO-REQUEST" },
+	{ DECT_NWK_MM_INFO_ACK,            "MM-INFO-ACCEPT" },
+	{ DECT_NWK_MM_INFO_SUGGEST,        "MM-INFO-SUGGEST" },
+	{ DECT_NWK_MM_INFO_REJ,            "MM-INFO-REJECT" },
+	{ DECT_NWK_MM_LOCATE_REQ,          "MM-LOCATE-REQUEST" },
+	{ DECT_NWK_MM_LOCATE_ACK,          "MM-LOCATE-ACCEPT" },
+	{ DECT_NWK_MM_DETACH,              "MM-DETACH" },
+	{ DECT_NWK_MM_LOCATE_REJ,          "MM-LOCATE-REJECT" },
+	{ DECT_NWK_MM_ID_REQ,              "MM-IDENTITY-REQUEST" },
+	{ DECT_NWK_MM_ID_REPLY,            "MM-IDENTITY-REPLY" },
+	{ DECT_NWK_MM_IWU,                 "MM-IWU" },
+	{ DECT_NWK_MM_TID_ASSIGN,          "MM-TEMPORARY-IDENTITY-ASSIGN" },
+	{ DECT_NWK_MM_TID_ASSIGN_ACK,      "MM-TEMPORARY-IDENTITY-ASSIGN-ACK" },
+	{ DECT_NWK_MM_TID_ASSIGN_REJ,      "MM-TEMPORARY-IDENTITY-ASSIGN-REJ" },
+	{ DECT_NWK_MM_NOTIFY,              "MM-NOTIFY" },
 	{ 0, NULL }
 };
 
@@ -1210,6 +1235,9 @@ static int dissect_dect_nwk_mm(tvbuff_t *tvb, guint8 msg_type, guint offset, pac
 			val_to_str(msg_type, nwk_mm_msgt_vals, "Unknown 0x%02x"));
 	offset++;
 
+	while(tvb_reported_length_remaining(tvb, offset)) {
+		offset = dissect_dect_nwk_s_ie(tvb, offset, tree, data);
+	}
 	/* TOOD: dissection of TLVs/IEs */
 
 	return offset;
