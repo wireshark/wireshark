@@ -74,6 +74,7 @@ The following features are new (or have been significantly updated) since versio
 // git log --oneline --diff-filter=A --stat v3.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
+SAP HANA SQL Command Network Protocol (SAPHDB)
 SAP Network Interface (SAPNI)
 World of Warcraft World (WOWW) display filters have been changed to be more internally consistent.
 Support for almost all WoW 1.12 messages has been added.
