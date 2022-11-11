@@ -1014,6 +1014,7 @@ static const value_string dect_nwk_s_ie_fl_shift_codeset_val[] = {
 	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_1, "Non-Standard codeset 1" },
 	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_2, "Non-Standard codeset 2" },
 	{ DECT_NWK_S_FL_IE_SHIFT_CODESET_NON_STANDARD_3, "Non-Standard codeset 3" },
+	{ 0, NULL }
 };
 
 /* Section 7.6.1 */
@@ -1022,12 +1023,14 @@ static const value_string dect_nwk_s_ie_fl_type_val[] = {
 	{ DECT_NWK_S_IE_FL_CONTROL,              "CONTROL" },
 	{ DECT_NWK_S_IE_FL_REPEAT_INDICATOR,     "REPEAT-INDICATOR" },
 	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_ELEMENT, "DOUBLE-OCTET-ELEMENT" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_fl_control_type_val[] = {
 	{ DECT_NWK_S_IE_FL_CONTROL_SENDING_COMPLETE,  "SENDING-COMPLETE" },
 	{ DECT_NWK_S_IE_FL_CONTROL_DELIMITER_REQUEST, "DELIMITER-REQUEST" },
 	{ DECT_NWK_S_IE_FL_CONTROL_USE_TPUI,          "USE-TPUI" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_fl_double_octet_type_val[] = {
@@ -1038,12 +1041,14 @@ static const value_string dect_nwk_s_ie_fl_double_octet_type_val[] = {
 	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_TEST_HOOK_CONTROL, "TEST-HOOK-CONTROL" },
 	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_DISPLAY,    "SINGLE-DISPLAY" },
 	{ DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_KEYPAD,     "SINGLE-KEYPAD" },
+	{ 0, NULL }
 };
 
 /* Section 7.6.3 */
 static const value_string dect_nwk_s_ie_fl_repeat_indicator_type_val[] = {
 	{ DECT_NWK_S_IE_FL_REPEAT_INDICATOR_NON_PRIORITIZED, "Non prioritized list" },
 	{ DECT_NWK_S_IE_FL_REPEAT_INDICATOR_PRIORITIZED,     "Prioritized list" },
+	{ 0, NULL }
 };
 
 /* Section 7.6.4 */
@@ -1059,6 +1064,7 @@ static const value_string dect_nwk_s_ie_fl_basic_service_call_class_val[] = {
 	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_EXTERNAL_HANDOVER,     "External handover call setup" },
 	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_SUPPLEMENTARY_SERVICE, "Supplementary service call setup" },
 	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_CALL_CLASS_OA_M,                  "OA&M call setup" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_fl_basic_service_type_val[] = {
@@ -1071,6 +1077,7 @@ static const value_string dect_nwk_s_ie_fl_basic_service_type_val[] = {
 	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_SUOTA_CLASS_3_DPRS,        "Light data services: SUOTA, Class 3 DPRS management, default setup attributes" },
 	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_DTAM_WIDEBAND_SPEECH,      "DTAM Wideband speech default setup attributes" },
 	{ DECT_NWK_S_IE_FL_BASIC_SERVICE_OTHER,                     "Other" },
+	{ 0, NULL }
 };
 
 /* Section 7.6.7 */
@@ -1109,6 +1116,7 @@ static const value_string dect_nwk_s_ie_fl_release_reason_val[] = {
 	{ DECT_NWK_S_IE_FL_RELEASE_REASON_ENCRYPTION_ACTIVATION_FAILED,          "Encryption activation failed" },
 	{ DECT_NWK_S_IE_FL_RELEASE_REASON_RE_KEYING_FAILED,                      "Re-Keying failed" },
 	{ DECT_NWK_S_IE_FL_RELEASE_REASON_NO_CIPHER_KEY_AVAILABLE,               "No Cipher Key available" },
+	{ 0, NULL }
 };
 
 /* Section 7.6.8 */
@@ -1134,18 +1142,21 @@ static const value_string dect_nwk_s_ie_fl_signal_value_val[] = {
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_PATTERN_7,      "Alerting on - pattern 7" },
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_ON_CONTINUOUS,     "Alerting on - continuous" },
 	{ DECT_NWK_S_IE_FL_SIGNAL_VALUE_ALERTING_OFF,               "Alerting off" },
+	{ 0, NULL }
 };
 
 /* Section 7.6.9 */
 static const value_string dect_nwk_s_ie_fl_timer_restart_value_val[] = {
 	{ DECT_NWK_S_IE_FL_TIMER_RESTART_VALUE_RESTART_TIMER, "Restart timer" },
 	{ DECT_NWK_S_IE_FL_TIMER_RESTART_VALUE_STOP_TIMER,    "Stop timer" },
+	{ 0, NULL }
 };
 
 /* Section 7.6.10 */
 static const value_string dect_nwk_s_ie_fl_test_hook_control_hook_value_val[] = {
 	{ DECT_NWK_S_IE_FL_TEST_HOOK_CONTROL_HOOK_VALUE_ON_HOOK,  "On-Hook" },
 	{ DECT_NWK_S_IE_FL_TEST_HOOK_CONTROL_HOOK_VALUE_OFF_HOOK, "Off-Hook" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.1 */
@@ -1208,6 +1219,7 @@ static const value_string dect_nwk_s_ie_type_val[] = {
 	{ DECT_NWK_S_IE_EVENTS_NOTIFICATION,        "EVENTS-NOTIFICATION" },
 	{ DECT_NWK_S_IE_CALL_INFORMATION,           "CALL-INFORMATION" },
 	{ DECT_NWK_S_IE_ESCAPE_FOR_EXTENSION,       "ESCAPE-FOR-EXTENSION" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.4 */
@@ -1217,17 +1229,20 @@ static const value_string dect_nwk_s_ie_auth_type_authentication_algorithm_val[]
 	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_UMTS,        "GSM authentication algorithm" },
 	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_GSM,         "UMTS authentication algorithm" },
 	{ DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_PROPRIETARY, "Escape to proprietary algorithm identifier" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_auth_type_ak_type_val[] = {
 	{ DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_USER_AK,             "User authentication key" },
 	{ DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_USER_PERSONAL_ID,    "User personal identity" },
 	{ DECT_NWK_S_IE_AUTH_TYPE_AK_TYPE_AUTHENTICATION_CODE, "Authentication code" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_auth_type_default_cipher_key_algorithm_val[] = {
 	{ DECT_NWK_S_IE_AUTH_TYPE_DEFAULT_CIPHER_KEY_ALGORITHM_DSC,  "DSC" },
 	{ DECT_NWK_S_IE_AUTH_TYPE_DEFAULT_CIPHER_KEY_ALGORITHM_DSC2, "DSC2" },
+	{ 0, NULL }
 };
 
 static const true_false_string dect_nwk_s_ie_auth_type_cipher_key_number_related_tfs = {
@@ -1244,6 +1259,7 @@ static const value_string dect_nwk_s_ie_calling_party_number_type_val[] = {
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_SUBSCRIBER,       "Subscriber number" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_ABBREVIATED,      "Abbreviated number" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_TYPE_RESERVED,         "Reserved for extension" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_calling_party_number_numbering_plan_val[] = {
@@ -1259,6 +1275,7 @@ static const value_string dect_nwk_s_ie_calling_party_number_numbering_plan_val[
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_X400,     "Recommendation ITU-T X.400 address" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_PROFILE,  "Profile service specific alphanumeric identifier" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_NUMBERING_PLAN_RESERVED, "Reserved for extension" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_calling_party_number_presentation_val[] = {
@@ -1266,6 +1283,7 @@ static const value_string dect_nwk_s_ie_calling_party_number_presentation_val[] 
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_RESTRICTED,           "Presentation restricted" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_NUMBER_NOT_AVAILABLE, "Number not available" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_RESERVED,             "Reserved" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_calling_party_number_screening_val[] = {
@@ -1273,6 +1291,7 @@ static const value_string dect_nwk_s_ie_calling_party_number_screening_val[] = {
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_VERIFIED_PASSED, "User-provided, verified and passed" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_USER_VERIFIED_FAILED, "User-provided, verified and failed" },
 	{ DECT_NWK_S_IE_CALLING_PARTY_NUMBER_PRESENTATION_NETWORK,              "Network provided" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.10 */
@@ -1288,11 +1307,13 @@ static const value_string dect_nwk_s_ie_cipher_info_algorithm_val[] = {
 	{ DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_GPRS_GEA6,   "GPRS encryption algorithm GEA/6" },
 	{ DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_GPRS_GEA7,   "GPRS encryption algorithm GEA/7" },
 	{ DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_PROPRIETARY, "Escape to proprietary algorithm identifier" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_cipher_info_key_type_val[] = {
 	{ DECT_NWK_S_IE_CIPHER_INFO_KEY_TYPE_DERIVED, "Derived cipher key" },
 	{ DECT_NWK_S_IE_CIPHER_INFO_KEY_TYPE_STATIC,  "Static cipher key" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.18 */
@@ -1301,6 +1322,7 @@ static const value_string dect_nwk_s_ie_fixed_identity_type_val[] = {
 	{ DECT_NWK_S_IE_FIXED_IDENTITY_ARI_PLUS_RPN,     "Access rights identity plus radio fixed part number (ARI + RPN)" },
 	{ DECT_NWK_S_IE_FIXED_IDENTITY_ARI_PLUS_RPN_WRS, "Access rights identity plus radio fixed part number for WRS (ARI + RPN for WRS)" },
 	{ DECT_NWK_S_IE_FIXED_IDENTITY_PARK,             "Portable access rights key (PARK)" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_arc_type_val[] = {
@@ -1309,18 +1331,21 @@ static const value_string dect_nwk_arc_type_val[] = {
 	{ DECT_NWK_ARC_TYPE_C, "C (public access)" },
 	{ DECT_NWK_ARC_TYPE_D, "D (public with GSM/UMTS)" },
 	{ DECT_NWK_ARC_TYPE_E, "E (PP-to-PP)"},
+	{ 0, NULL }
 };
 
 /* Section 7.7.25 */
 static const value_string dect_nwk_s_ie_location_area_eli_type_val[] = {
 	{ DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI_REQ_NOT_INCLUDED, "Location information is requested and not included" },
 	{ DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI,                  "Location information" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.28 */
 static const value_string dect_nwk_s_ie_nwk_assigned_identity_type_val[] = {
 	{ DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY_TMSI,        "Temporary Mobile Subscriber Identity (TMSI, P-TMSI)" },
 	{ DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY_PROPRIETARY, "Proprietary (application specific)" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.30 */
@@ -1340,7 +1365,8 @@ static const value_string dect_nwk_ipui_type_val[] = {
 	{ DECT_NWK_IPUI_TYPE_R, "R (public/IMSI)" },
 	{ DECT_NWK_IPUI_TYPE_S, "S (PSTN/ISDN)" },
 	{ DECT_NWK_IPUI_TYPE_T, "T (private extended)" },
-	{ DECT_NWK_IPUI_TYPE_U, "U (public/general)" }
+	{ DECT_NWK_IPUI_TYPE_U, "U (public/general)" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.41 */
@@ -1350,6 +1376,7 @@ static const value_string dect_nwk_s_ie_terminal_capability_tone_capabilites_val
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_DIAL_TONE_ONLY,                "Dial tone only" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_E182_TONES_SUPPORTED,          "Recommendation ITU-T E.182 tones supported" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_COMPLETE_DECT_TONES_SUPPORTED, "Complete DECT tones supported" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_display_capabilities_val[] = {
@@ -1359,6 +1386,7 @@ static const value_string dect_nwk_s_ie_terminal_capability_display_capabilities
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NUMERIC_PLUS, "Numeric-plus" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_ALPHANUMERIC, "Alphanumeric" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_FULL_DISPLAY, "Full display" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_echo_parameters_val[] = {
@@ -1366,24 +1394,28 @@ static const value_string dect_nwk_s_ie_terminal_capability_echo_parameters_val[
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_MINIMUM_TCLW,         "Minimum TCLw" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_TCLW_FULL,            "TCLw > 46 dB (Full TCLw)" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_TCLW_VOIP_COMPATIBLE, "TCLw > 55 dB (VoIP compatible TCLw)" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_n_rej_capabilities_val[] = {
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_NA,       "Not applicable" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_NO,       "No noise rejection" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_PROVIDED, "Noise rejection" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_a_vol_capabilities_val[] = {
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_NA,            "Not applicable" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_NO_PP_A_VOL,   "No PP adaptive volume control" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_PP_A_VOL_USED, "PP adaptive volume control used" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_scrolling_behaviour_type_val[] = {
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_NOT_SPECIFIED, "Not specified" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_TYPE_1,        "Type 1"},
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_TYPE_2,        "Type 2"},
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_profile_indicator_8_packet_data_categories_val[] = {
@@ -1393,6 +1425,7 @@ static const value_string dect_nwk_s_ie_terminal_capability_profile_indicator_8_
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_3,       "Cat 3 (high-end data devices)" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_4_8PSK,  "Cat 4 (high-level modulation up to 8PSK)" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_4_64QAM, "Cat 4 (high-level modulation up to 64QAM" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_profile_indicator_9_dect_ule_versions_val[] = {
@@ -1400,6 +1433,7 @@ static const value_string dect_nwk_s_ie_terminal_capability_profile_indicator_9_
 	{ DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_1_V121, "Phase 1 version v1.2.1" },
 	{ DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_2,      "Phase 2" },
 	{ DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_3,      "Phase 3" },
+	{ 0, NULL }
 };
 
 static const value_string  dect_nwk_s_ie_terminal_capability_control_codes_val[] =  {
@@ -1408,6 +1442,7 @@ static const value_string  dect_nwk_s_ie_terminal_capability_control_codes_val[]
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_001,    "Coding 001 plus 0x08 to 0x0B and 0x0D" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_010,    "Coding 010 plus 0x02, 0x03, 0x06, 0x07, 0x19, 0x1A" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_011,    "Coding 011 plus 0x0E, 0x0F" },
+	{ 0, NULL }
 };
 
 static const value_string dect_nwk_s_ie_terminal_capability_blind_slot_indication_val[] = {
@@ -1415,12 +1450,14 @@ static const value_string dect_nwk_s_ie_terminal_capability_blind_slot_indicatio
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NOT_POSSIBLE_ADJACENT,         "Setup is not possible on both slots adjacent to an active slot" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NOT_POSSIBLE_EVERY_SECOND,     "Setup is not possible on every second slot" },
 	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_LIMITATIONS_IN_FOLLOWING_BITS, "Limitations indicated in the following bits" },
+	{ 0, NULL }
 };
 
 /* Section 7.7.45 */
 static const value_string dect_nwk_s_ie_escape_to_proprietary_discriminator_type_val[] = {
 	{ DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_UNSPECIFIED, "Unspecified" },
 	{ DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_EMC,         "EMC" },
+	{ 0, NULL }
 };
 
 static const true_false_string tfs_last_more = {
@@ -1457,6 +1494,7 @@ static const value_string dect_charset_control_codes_val[] = {
 	{ DECT_CHARSET_CLEAR_TO_END_OF_LINE,                      "Clear to end of line" },
 	{ DECT_CHARSET_ESC,                                       "ESC. ESCape in the IA5 sense" },
 	{ DECT_CHARSET_SUPPLEMENTARY_SERVICE,                     "Supplementary service" },
+	{ 0, NULL }
 };
 
 /* TOOD: value_string for other protocols */
