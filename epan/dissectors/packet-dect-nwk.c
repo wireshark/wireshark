@@ -106,6 +106,10 @@ static gint hf_dect_nwk_s_ie_location_area_eli_type = -1;
 static gint hf_dect_nwk_s_ie_location_area_lac = -1;
 static gint hf_dect_nwk_s_ie_location_area_ci = -1;
 
+static gint hf_dect_nwk_s_ie_multi_display_information = -1;
+
+static gint hf_dect_nwk_s_ie_multi_keypad_information = -1;
+
 static gint hf_dect_nwk_s_ie_nwk_assigned_identity_type = -1;
 static gint hf_dect_nwk_s_ie_nwk_assigned_identity_value_length = -1;
 static gint hf_dect_nwk_s_ie_nwk_assigned_identity_value = -1;
@@ -525,7 +529,7 @@ enum dect_nkw_s_ie_type {
 	DECT_NWK_S_IE_MMS_EXTENDED_HEADER        = 0x22,
 	DECT_NWK_S_IE_TIME_DATE                  = 0x23,
 	DECT_NWK_S_IE_MULTI_DISPLAY              = 0x28,
-	DECT_NWK_S_IE_MULTI_KEYPAD               = 0x2A,
+	DECT_NWK_S_IE_MULTI_KEYPAD               = 0x2C,
 	DECT_NWK_S_IE_FEATURE_ACTIVATE           = 0x38,
 	DECT_NWK_S_IE_FEATURE_INDICATE           = 0x39,
 	DECT_NWK_S_IE_NETWORK_PARAMETER          = 0x41,
@@ -891,6 +895,37 @@ enum dect_nwk_s_ie_terminal_capability_blind_slot_6a {
 enum dect_nwk_s_ie_escape_to_proprietary_discriminator_type {
 	DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_UNSPECIFIED = 0x00,
 	DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_EMC = 0x01,
+};
+
+/* Annex D.2.2 */
+/* TODO: Handling the DECT charset should most likely be done better with charset/string functions */
+enum dect_charset_control_codes {
+	DECT_CHARSET_CANCEL_DTMF_TONE                          = 0x00,
+	DECT_CHARSET_RETURN_HOME                               = 0x02,
+	DECT_CHARSET_RETURN_END                                = 0x03,
+	DECT_CHARSET_DIALLING_PAUSE                            = 0x05,
+	DECT_CHARSET_MOVE_FORWARD_TO_NEXT_COLUMN_TAB_POSITION  = 0x06,
+	DECT_CHARSET_MOVE_BACKWARD_TO_NEXT_COLUMN_TAB_POSITION = 0x07,
+	DECT_CHARSET_MOVE_BACKWARD_ONE_COLUMN                  = 0x08,
+	DECT_CHARSET_MOVE_FORWARD_ONE_COLUMN                   = 0x09,
+	DECT_CHARSET_MOVE_DOWN_ONE_ROW                         = 0x0A,
+	DECT_CHARSET_MOVE_UP_ONE_ROW                           = 0x0B,
+	DECT_CHARSET_CLEAR_DISPLAY                             = 0x0C,
+	DECT_CHARSET_RETURN_TO_START_OF_CURRENT_ROW            = 0x0D,
+	DECT_CHARSET_FLASH_OFF                                 = 0x0E,
+	DECT_CHARSET_FLASH_ON                                  = 0x0F,
+	DECT_CHARSET_XON                                       = 0x11,
+	DECT_CHARSET_GO_TO_PULSE_DIALLING                      = 0x12,
+	DECT_CHARSET_XOFF                                      = 0x13,
+	DECT_CHARSET_GO_TO_DTMF_DIALLING_DEFINED_TONE_LENGTH   = 0x14,
+	DECT_CHARSET_REGISTER_RECALL                           = 0x15,
+	DECT_CHARSET_GO_TO_DTMF_DIALLING_INFINITE_TONE_LENGTH  = 0x16,
+	DECT_CHARSET_INTERNAL_CALL                             = 0x17,
+	DECT_CHARSET_SERVICE_CALL                              = 0x18,
+	DECT_CHARSET_CLEAR_TO_END_OF_DISPLAY                   = 0x19,
+	DECT_CHARSET_CLEAR_TO_END_OF_LINE                      = 0x1A,
+	DECT_CHARSET_ESC                                       = 0x1B,
+	DECT_CHARSET_SUPPLEMENTARY_SERVICE                     = 0x1C,
 };
 
 /*********************************************************************************
@@ -1393,6 +1428,37 @@ static const true_false_string tfs_last_more = {
 	"More"
 };
 
+/* Annex D.2.2 */
+/* TODO: Handling the DECT charset should most likely be done better with charset/string functions */
+static const value_string dect_charset_control_codes_val[] = {
+	{ DECT_CHARSET_CANCEL_DTMF_TONE,                          "Null/cancel DTMF tone" },
+	{ DECT_CHARSET_RETURN_HOME,                               "Return home" },
+	{ DECT_CHARSET_RETURN_END,                                "Return end" },
+	{ DECT_CHARSET_DIALLING_PAUSE,                            "Dialling pause" },
+	{ DECT_CHARSET_MOVE_FORWARD_TO_NEXT_COLUMN_TAB_POSITION,  "Move forward to next column tab position" },
+	{ DECT_CHARSET_MOVE_BACKWARD_TO_NEXT_COLUMN_TAB_POSITION, "Move backward to next column tab position" },
+	{ DECT_CHARSET_MOVE_BACKWARD_ONE_COLUMN,                  "Move backward one column" },
+	{ DECT_CHARSET_MOVE_FORWARD_ONE_COLUMN,                   "Move forward one column" },
+	{ DECT_CHARSET_MOVE_DOWN_ONE_ROW,                         "Move down one row" },
+	{ DECT_CHARSET_MOVE_UP_ONE_ROW,                           "Move up one row" },
+	{ DECT_CHARSET_CLEAR_DISPLAY,                             "Clear display (and return home)" },
+	{ DECT_CHARSET_RETURN_TO_START_OF_CURRENT_ROW,            "Return (to start of current row)" },
+	{ DECT_CHARSET_FLASH_OFF,                                 "Flash off (see note 2)" },
+	{ DECT_CHARSET_FLASH_ON,                                  "Flash on (see note 2)" },
+	{ DECT_CHARSET_XON,                                       "XON (resume transmission)" },
+	{ DECT_CHARSET_GO_TO_PULSE_DIALLING,                      "Go to pulse dialling" },
+	{ DECT_CHARSET_XOFF,                                      "XOFF (stop transmission)" },
+	{ DECT_CHARSET_GO_TO_DTMF_DIALLING_DEFINED_TONE_LENGTH,   "Go to DTMF dialling; defined tone length" },
+	{ DECT_CHARSET_REGISTER_RECALL,                           "Register recall" },
+	{ DECT_CHARSET_GO_TO_DTMF_DIALLING_INFINITE_TONE_LENGTH,  "Go to DTMF dialling; infinite tone length" },
+	{ DECT_CHARSET_INTERNAL_CALL,                             "Internal call" },
+	{ DECT_CHARSET_SERVICE_CALL,                              "Service call" },
+	{ DECT_CHARSET_CLEAR_TO_END_OF_DISPLAY,                   "Clear to end of display" },
+	{ DECT_CHARSET_CLEAR_TO_END_OF_LINE,                      "Clear to end of line" },
+	{ DECT_CHARSET_ESC,                                       "ESC. ESCape in the IA5 sense" },
+	{ DECT_CHARSET_SUPPLEMENTARY_SERVICE,                     "Supplementary service" },
+};
+
 /* TOOD: value_string for other protocols */
 
 #define DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK 0x80
@@ -1568,6 +1634,36 @@ static int dissect_dect_nwk_s_ie_nwk_assigned_identity(tvbuff_t *tvb, guint offs
 	if (value_length % 8) {
 		no_of_bits = 8 - (value_length % 8);
 		proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_nwk_assigned_identity_padding, tvb, bit_offset, no_of_bits, ENC_NA);
+		offset++;
+	}
+	return offset;
+}
+
+static int dissect_dect_nwk_s_ie_multi_display(tvbuff_t *tvb, guint offset, guint8 ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data)
+{
+	guint next_element_offset;
+	guint8 display_information;
+
+	next_element_offset = offset + ie_length;
+	while ( offset != next_element_offset ) {
+		display_information = tvb_get_guint8(tvb, offset);
+		proto_tree_add_string(tree, hf_dect_nwk_s_ie_multi_display_information, tvb, offset, 1,
+			val_to_str(display_information, dect_charset_control_codes_val, "raw: 0x%02x"));
+		offset++;
+	}
+	return offset;
+}
+
+static int dissect_dect_nwk_s_ie_multi_keypad(tvbuff_t *tvb, guint offset, guint8 ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data)
+{
+	guint next_element_offset;
+	guint8 keypad_information;
+
+	next_element_offset = offset + ie_length;
+	while ( offset != next_element_offset ) {
+		keypad_information = tvb_get_guint8(tvb, offset);
+		proto_tree_add_string(tree, hf_dect_nwk_s_ie_multi_keypad_information, tvb, offset, 1,
+			val_to_str(keypad_information, dect_charset_control_codes_val, "raw: 0x%02x"));
 		offset++;
 	}
 	return offset;
@@ -2018,6 +2114,12 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 			case DECT_NWK_S_IE_LOCATION_AREA:
 				offset = dissect_dect_nwk_s_ie_location_area(tvb, offset, pinfo, field_tree, data);
 				break;
+			case DECT_NWK_S_IE_MULTI_DISPLAY:
+				offset = dissect_dect_nwk_s_ie_multi_display(tvb, offset, element_length, pinfo, field_tree, data);
+				break;
+			case DECT_NWK_S_IE_MULTI_KEYPAD:
+				offset = dissect_dect_nwk_s_ie_multi_keypad(tvb, offset, element_length, pinfo, field_tree, data);
+				break;
 			case DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY:
 				offset = dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
 				break;
@@ -2447,6 +2549,18 @@ void proto_register_dect_nwk(void)
 		},
 		{ &hf_dect_nwk_s_ie_location_area_ci,
 			{ "CI", "dect_nwk.s.ie.location_area.ci", FT_BYTES, BASE_NONE, NULL, 0x0, "Cell Identity", HFILL }
+		},
+		/* Multi-display */
+		{ &hf_dect_nwk_s_ie_multi_display_information,
+			{ "Display Information", "dect_nwk.s.ie.multi_display.information", FT_STRING, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* Multi-keypad */
+		{ &hf_dect_nwk_s_ie_multi_keypad_information,
+			{ "Keypad Information", "dect_nwk.s.ie.multi_keypad.information", FT_STRING, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
+			}
 		},
 		/* NWK assigend Identity */
 		{ &hf_dect_nwk_s_ie_nwk_assigned_identity_type,
