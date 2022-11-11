@@ -674,7 +674,6 @@ static int hf_woww_required_opposite_faction = -1;
 static int hf_woww_required_opposite_reputation_value = -1;
 static int hf_woww_required_reputation_faction = -1;
 static int hf_woww_required_reputation_rank = -1;
-static int hf_woww_required_skill = -1;
 static int hf_woww_required_skill_rank = -1;
 static int hf_woww_required_skill_value = -1;
 static int hf_woww_required_spell = -1;
@@ -712,7 +711,7 @@ static int hf_woww_sheath_state = -1;
 static int hf_woww_signer = -1;
 static int hf_woww_simple_spell_cast_result = -1;
 static int hf_woww_sin_angle = -1;
-static int hf_woww_skill_id = -1;
+static int hf_woww_skill = -1;
 static int hf_woww_skin = -1;
 static int hf_woww_skin_color = -1;
 static int hf_woww_slot = -1;
@@ -744,7 +743,6 @@ static int hf_woww_spell_id = -1;
 static int hf_woww_spell_index = -1;
 static int hf_woww_spell_miss_info = -1;
 static int hf_woww_spell_on_lowest_slot = -1;
-static int hf_woww_spell_ppm_rate = -1;
 static int hf_woww_spell_school = -1;
 static int hf_woww_spell_school_mask = -1;
 static int hf_woww_spell_trigger = -1;
@@ -4287,6 +4285,260 @@ static const value_string e_trainer_spell_state_strings[] =  {
     { TRAINER_SPELL_STATE_GREEN, "Green" },
     { TRAINER_SPELL_STATE_RED, "Red" },
     { TRAINER_SPELL_STATE_GRAY, "Gray" },
+    { 0, NULL }
+};
+
+typedef enum {
+    SKILL_NONE = 0x000,
+    SKILL_FROST = 0x006,
+    SKILL_FIRE = 0x008,
+    SKILL_ARMS = 0x01A,
+    SKILL_COMBAT = 0x026,
+    SKILL_SUBTLETY = 0x027,
+    SKILL_POISONS = 0x028,
+    SKILL_SWORDS = 0x02B,
+    SKILL_AXES = 0x02C,
+    SKILL_BOWS = 0x02D,
+    SKILL_GUNS = 0x02E,
+    SKILL_BEAST_MASTERY = 0x032,
+    SKILL_SURVIVAL = 0x033,
+    SKILL_MACES = 0x036,
+    SKILL_TWO_HANDED_SWORDS = 0x037,
+    SKILL_HOLY = 0x038,
+    SKILL_SHADOW = 0x04E,
+    SKILL_DEFENSE = 0x05F,
+    SKILL_LANGUAGE_COMMON = 0x062,
+    SKILL_RACIAL_DWARVEN = 0x065,
+    SKILL_LANGUAGE_ORCISH = 0x06D,
+    SKILL_LANGUAGE_DWARVEN = 0x06F,
+    SKILL_LANGUAGE_DARNASSIAN = 0x071,
+    SKILL_LANGUAGE_TAURAHE = 0x073,
+    SKILL_DUAL_WIELD = 0x076,
+    SKILL_RACIAL_TAUREN = 0x07C,
+    SKILL_ORC_RACIAL = 0x07D,
+    SKILL_RACIAL_NIGHT_ELF = 0x07E,
+    SKILL_FIRST_AID = 0x081,
+    SKILL_FERAL_COMBAT = 0x086,
+    SKILL_STAVES = 0x088,
+    SKILL_LANGUAGE_THALASSIAN = 0x089,
+    SKILL_LANGUAGE_DRACONIC = 0x08A,
+    SKILL_LANGUAGE_DEMON_TONGUE = 0x08B,
+    SKILL_LANGUAGE_TITAN = 0x08C,
+    SKILL_LANGUAGE_OLD_TONGUE = 0x08D,
+    SKILL_SURVIVAL2 = 0x08E,
+    SKILL_RIDING_HORSE = 0x094,
+    SKILL_RIDING_WOLF = 0x095,
+    SKILL_RIDING_TIGER = 0x096,
+    SKILL_RIDING_RAM = 0x098,
+    SKILL_SWIMING = 0x09B,
+    SKILL_TWO_HANDED_MACES = 0x0A0,
+    SKILL_UNARMED = 0x0A2,
+    SKILL_MARKSMANSHIP = 0x0A3,
+    SKILL_BLACKSMITHING = 0x0A4,
+    SKILL_LEATHERWORKING = 0x0A5,
+    SKILL_ALCHEMY = 0x0AB,
+    SKILL_TWO_HANDED_AXES = 0x0AC,
+    SKILL_DAGGERS = 0x0AD,
+    SKILL_THROWN = 0x0B0,
+    SKILL_HERBALISM = 0x0B6,
+    SKILL_GENERIC_DND = 0x0B7,
+    SKILL_RETRIBUTION = 0x0B8,
+    SKILL_COOKING = 0x0B9,
+    SKILL_MINING = 0x0BA,
+    SKILL_PET_IMP = 0x0BC,
+    SKILL_PET_FELHUNTER = 0x0BD,
+    SKILL_TAILORING = 0x0C5,
+    SKILL_ENGINEERING = 0x0CA,
+    SKILL_PET_SPIDER = 0x0CB,
+    SKILL_PET_VOIDWALKER = 0x0CC,
+    SKILL_PET_SUCCUBUS = 0x0CD,
+    SKILL_PET_INFERNAL = 0x0CE,
+    SKILL_PET_DOOMGUARD = 0x0CF,
+    SKILL_PET_WOLF = 0x0D0,
+    SKILL_PET_CAT = 0x0D1,
+    SKILL_PET_BEAR = 0x0D2,
+    SKILL_PET_BOAR = 0x0D3,
+    SKILL_PET_CROCILISK = 0x0D4,
+    SKILL_PET_CARRION_BIRD = 0x0D5,
+    SKILL_PET_CRAB = 0x0D6,
+    SKILL_PET_GORILLA = 0x0D7,
+    SKILL_PET_RAPTOR = 0x0D9,
+    SKILL_PET_TALLSTRIDER = 0x0DA,
+    SKILL_RACIAL_UNDED = 0x0DC,
+    SKILL_CROSSBOWS = 0x0E2,
+    SKILL_WANDS = 0x0E4,
+    SKILL_POLEARMS = 0x0E5,
+    SKILL_PET_SCORPID = 0x0EC,
+    SKILL_ARCANE = 0x0ED,
+    SKILL_PET_TURTLE = 0x0FB,
+    SKILL_ASSASSINATION = 0x0FD,
+    SKILL_FURY = 0x100,
+    SKILL_PROTECTION = 0x101,
+    SKILL_BEAST_TRAINING = 0x105,
+    SKILL_PROTECTION2 = 0x10B,
+    SKILL_PET_TALENTS = 0x10E,
+    SKILL_PLATE_MAIL = 0x125,
+    SKILL_LANGUAGE_GNOMISH = 0x139,
+    SKILL_LANGUAGE_TROLL = 0x13B,
+    SKILL_ENCHANTING = 0x14D,
+    SKILL_DEMONOLOGY = 0x162,
+    SKILL_AFFLICTION = 0x163,
+    SKILL_FISHING = 0x164,
+    SKILL_ENHANCEMENT = 0x175,
+    SKILL_RESTORATION = 0x176,
+    SKILL_ELEMENTAL_COMBAT = 0x177,
+    SKILL_SKINNING = 0x189,
+    SKILL_MAIL = 0x19D,
+    SKILL_LEATHER = 0x19E,
+    SKILL_CLOTH = 0x19F,
+    SKILL_SHIELD = 0x1B1,
+    SKILL_FIST_WEAPONS = 0x1D9,
+    SKILL_RIDING_RAPTOR = 0x215,
+    SKILL_RIDING_MECHANOSTRIDER = 0x229,
+    SKILL_RIDING_UNDEAD_HORSE = 0x22A,
+    SKILL_RESTORATION2 = 0x23D,
+    SKILL_BALANCE = 0x23E,
+    SKILL_DESTRUCTION = 0x251,
+    SKILL_HOLY2 = 0x252,
+    SKILL_DISCIPLINE = 0x265,
+    SKILL_LOCKPICKING = 0x279,
+    SKILL_PET_BAT = 0x28D,
+    SKILL_PET_HYENA = 0x28E,
+    SKILL_PET_OWL = 0x28F,
+    SKILL_PET_WIND_SERPENT = 0x290,
+    SKILL_LANGUAGE_GUTTERSPEAK = 0x2A1,
+    SKILL_RIDING_KODO = 0x2C9,
+    SKILL_RACIAL_TROLL = 0x2DD,
+    SKILL_RACIAL_GNOME = 0x2F1,
+    SKILL_RACIAL_HUMAN = 0x2F2,
+    SKILL_PET_EVENT_RC = 0x2F6,
+    SKILL_RIDING = 0x2FA,
+} e_skill;
+static const value_string e_skill_strings[] =  {
+    { SKILL_NONE, "None" },
+    { SKILL_FROST, "Frost" },
+    { SKILL_FIRE, "Fire" },
+    { SKILL_ARMS, "Arms" },
+    { SKILL_COMBAT, "Combat" },
+    { SKILL_SUBTLETY, "Subtlety" },
+    { SKILL_POISONS, "Poisons" },
+    { SKILL_SWORDS, "Swords" },
+    { SKILL_AXES, "Axes" },
+    { SKILL_BOWS, "Bows" },
+    { SKILL_GUNS, "Guns" },
+    { SKILL_BEAST_MASTERY, "Beast Mastery" },
+    { SKILL_SURVIVAL, "Survival" },
+    { SKILL_MACES, "Maces" },
+    { SKILL_TWO_HANDED_SWORDS, "Two Handed Swords" },
+    { SKILL_HOLY, "Holy" },
+    { SKILL_SHADOW, "Shadow" },
+    { SKILL_DEFENSE, "Defense" },
+    { SKILL_LANGUAGE_COMMON, "Language Common" },
+    { SKILL_RACIAL_DWARVEN, "Racial Dwarven" },
+    { SKILL_LANGUAGE_ORCISH, "Language Orcish" },
+    { SKILL_LANGUAGE_DWARVEN, "Language Dwarven" },
+    { SKILL_LANGUAGE_DARNASSIAN, "Language Darnassian" },
+    { SKILL_LANGUAGE_TAURAHE, "Language Taurahe" },
+    { SKILL_DUAL_WIELD, "Dual Wield" },
+    { SKILL_RACIAL_TAUREN, "Racial Tauren" },
+    { SKILL_ORC_RACIAL, "Orc Racial" },
+    { SKILL_RACIAL_NIGHT_ELF, "Racial Night Elf" },
+    { SKILL_FIRST_AID, "First Aid" },
+    { SKILL_FERAL_COMBAT, "Feral Combat" },
+    { SKILL_STAVES, "Staves" },
+    { SKILL_LANGUAGE_THALASSIAN, "Language Thalassian" },
+    { SKILL_LANGUAGE_DRACONIC, "Language Draconic" },
+    { SKILL_LANGUAGE_DEMON_TONGUE, "Language Demon Tongue" },
+    { SKILL_LANGUAGE_TITAN, "Language Titan" },
+    { SKILL_LANGUAGE_OLD_TONGUE, "Language Old Tongue" },
+    { SKILL_SURVIVAL2, "Survival2" },
+    { SKILL_RIDING_HORSE, "Riding Horse" },
+    { SKILL_RIDING_WOLF, "Riding Wolf" },
+    { SKILL_RIDING_TIGER, "Riding Tiger" },
+    { SKILL_RIDING_RAM, "Riding Ram" },
+    { SKILL_SWIMING, "Swiming" },
+    { SKILL_TWO_HANDED_MACES, "Two Handed Maces" },
+    { SKILL_UNARMED, "Unarmed" },
+    { SKILL_MARKSMANSHIP, "Marksmanship" },
+    { SKILL_BLACKSMITHING, "Blacksmithing" },
+    { SKILL_LEATHERWORKING, "Leatherworking" },
+    { SKILL_ALCHEMY, "Alchemy" },
+    { SKILL_TWO_HANDED_AXES, "Two Handed Axes" },
+    { SKILL_DAGGERS, "Daggers" },
+    { SKILL_THROWN, "Thrown" },
+    { SKILL_HERBALISM, "Herbalism" },
+    { SKILL_GENERIC_DND, "Generic Dnd" },
+    { SKILL_RETRIBUTION, "Retribution" },
+    { SKILL_COOKING, "Cooking" },
+    { SKILL_MINING, "Mining" },
+    { SKILL_PET_IMP, "Pet Imp" },
+    { SKILL_PET_FELHUNTER, "Pet Felhunter" },
+    { SKILL_TAILORING, "Tailoring" },
+    { SKILL_ENGINEERING, "Engineering" },
+    { SKILL_PET_SPIDER, "Pet Spider" },
+    { SKILL_PET_VOIDWALKER, "Pet Voidwalker" },
+    { SKILL_PET_SUCCUBUS, "Pet Succubus" },
+    { SKILL_PET_INFERNAL, "Pet Infernal" },
+    { SKILL_PET_DOOMGUARD, "Pet Doomguard" },
+    { SKILL_PET_WOLF, "Pet Wolf" },
+    { SKILL_PET_CAT, "Pet Cat" },
+    { SKILL_PET_BEAR, "Pet Bear" },
+    { SKILL_PET_BOAR, "Pet Boar" },
+    { SKILL_PET_CROCILISK, "Pet Crocilisk" },
+    { SKILL_PET_CARRION_BIRD, "Pet Carrion Bird" },
+    { SKILL_PET_CRAB, "Pet Crab" },
+    { SKILL_PET_GORILLA, "Pet Gorilla" },
+    { SKILL_PET_RAPTOR, "Pet Raptor" },
+    { SKILL_PET_TALLSTRIDER, "Pet Tallstrider" },
+    { SKILL_RACIAL_UNDED, "Racial Unded" },
+    { SKILL_CROSSBOWS, "Crossbows" },
+    { SKILL_WANDS, "Wands" },
+    { SKILL_POLEARMS, "Polearms" },
+    { SKILL_PET_SCORPID, "Pet Scorpid" },
+    { SKILL_ARCANE, "Arcane" },
+    { SKILL_PET_TURTLE, "Pet Turtle" },
+    { SKILL_ASSASSINATION, "Assassination" },
+    { SKILL_FURY, "Fury" },
+    { SKILL_PROTECTION, "Protection" },
+    { SKILL_BEAST_TRAINING, "Beast Training" },
+    { SKILL_PROTECTION2, "Protection2" },
+    { SKILL_PET_TALENTS, "Pet Talents" },
+    { SKILL_PLATE_MAIL, "Plate Mail" },
+    { SKILL_LANGUAGE_GNOMISH, "Language Gnomish" },
+    { SKILL_LANGUAGE_TROLL, "Language Troll" },
+    { SKILL_ENCHANTING, "Enchanting" },
+    { SKILL_DEMONOLOGY, "Demonology" },
+    { SKILL_AFFLICTION, "Affliction" },
+    { SKILL_FISHING, "Fishing" },
+    { SKILL_ENHANCEMENT, "Enhancement" },
+    { SKILL_RESTORATION, "Restoration" },
+    { SKILL_ELEMENTAL_COMBAT, "Elemental Combat" },
+    { SKILL_SKINNING, "Skinning" },
+    { SKILL_MAIL, "Mail" },
+    { SKILL_LEATHER, "Leather" },
+    { SKILL_CLOTH, "Cloth" },
+    { SKILL_SHIELD, "Shield" },
+    { SKILL_FIST_WEAPONS, "Fist Weapons" },
+    { SKILL_RIDING_RAPTOR, "Riding Raptor" },
+    { SKILL_RIDING_MECHANOSTRIDER, "Riding Mechanostrider" },
+    { SKILL_RIDING_UNDEAD_HORSE, "Riding Undead Horse" },
+    { SKILL_RESTORATION2, "Restoration2" },
+    { SKILL_BALANCE, "Balance" },
+    { SKILL_DESTRUCTION, "Destruction" },
+    { SKILL_HOLY2, "Holy2" },
+    { SKILL_DISCIPLINE, "Discipline" },
+    { SKILL_LOCKPICKING, "Lockpicking" },
+    { SKILL_PET_BAT, "Pet Bat" },
+    { SKILL_PET_HYENA, "Pet Hyena" },
+    { SKILL_PET_OWL, "Pet Owl" },
+    { SKILL_PET_WIND_SERPENT, "Pet Wind Serpent" },
+    { SKILL_LANGUAGE_GUTTERSPEAK, "Language Gutterspeak" },
+    { SKILL_RIDING_KODO, "Riding Kodo" },
+    { SKILL_RACIAL_TROLL, "Racial Troll" },
+    { SKILL_RACIAL_GNOME, "Racial Gnome" },
+    { SKILL_RACIAL_HUMAN, "Racial Human" },
+    { SKILL_PET_EVENT_RC, "Pet Event Rc" },
+    { SKILL_RIDING, "Riding" },
     { 0, NULL }
 };
 
@@ -10760,7 +11012,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_tutorial_flag, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UNLEARN_SKILL:
-            ptvcursor_add(ptv, hf_woww_skill_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UNSTABLE_PET:
             ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
@@ -13474,9 +13726,6 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_INVENTORY_CHANGE_FAILURE:
             ptvcursor_add_ret_uint(ptv, hf_woww_inventory_result, 1, ENC_LITTLE_ENDIAN, &result);
-            if (result == INVENTORY_RESULT_CANT_EQUIP_LEVEL_I) {
-                ptvcursor_add(ptv, hf_woww_required_level, 4, ENC_LITTLE_ENDIAN);
-            }
             if (result != INVENTORY_RESULT_OK) {
                 ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
@@ -13529,7 +13778,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_allowed_race, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_level, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_level, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_skill, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_skill_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_spell, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_honor_rank, 4, ENC_LITTLE_ENDIAN);
@@ -13567,7 +13816,6 @@ add_body_fields(guint32 opcode,
                     ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_trigger, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_charges, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_spell_ppm_rate, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_cooldown, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_category, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_spell_category_cooldown, 4, ENC_LITTLE_ENDIAN);
@@ -14388,8 +14636,10 @@ add_body_fields(guint32 opcode,
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add(ptv, hf_woww_point_map_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_position_x, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_position_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector2d");
+            ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_pop_subtree(ptv);
             ptvcursor_add(ptv, hf_woww_point_opt, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_title);
             add_cstring(ptv, &hf_woww_objective_text);
@@ -14919,7 +15169,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_talent_point_cost, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_first_rank, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_level, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_required_skill, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_skill_value, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_spell_chain_required, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_spell_chain_previous, 4, ENC_LITTLE_ENDIAN);
@@ -18981,12 +19231,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_required_skill,
-            { "Required Skill", "woww.required.skill",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_required_skill_rank,
             { "Required Skill Rank", "woww.required.skill.rank",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -19209,9 +19453,9 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_skill_id,
-            { "Skill Id", "woww.skill.id",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        { &hf_woww_skill,
+            { "Skill", "woww.skill",
+                FT_UINT32, BASE_HEX_DEC, VALS(e_skill_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19398,12 +19642,6 @@ proto_register_woww(void)
         { &hf_woww_spell_on_lowest_slot,
             { "Spell On Lowest Slot", "woww.spell.on.lowest.slot",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_spell_ppm_rate,
-            { "Spell Ppm Rate", "woww.spell.ppm.rate",
-                FT_FLOAT, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
