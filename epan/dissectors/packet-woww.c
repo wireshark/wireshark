@@ -223,7 +223,6 @@ static int hf_woww_cast_flags = -1;
 static int hf_woww_cast_item = -1;
 static int hf_woww_caster = -1;
 static int hf_woww_caster_guid = -1;
-static int hf_woww_caster_is_spirit_healer = -1;
 static int hf_woww_category_cooldown_in_msecs = -1;
 static int hf_woww_channel = -1;
 static int hf_woww_channel_flags = -1;
@@ -613,7 +612,6 @@ static int hf_woww_position_x_int = -1;
 static int hf_woww_position_y = -1;
 static int hf_woww_position_y_int = -1;
 static int hf_woww_power = -1;
-static int hf_woww_power_type = -1;
 static int hf_woww_price = -1;
 static int hf_woww_probability = -1;
 static int hf_woww_public_key = -1;
@@ -680,7 +678,6 @@ static int hf_woww_reserved_for_future_use = -1;
 static int hf_woww_reset_time = -1;
 static int hf_woww_resist = -1;
 static int hf_woww_resisted = -1;
-static int hf_woww_respect_resurrection_timer = -1;
 static int hf_woww_reward = -1;
 static int hf_woww_reward_spell = -1;
 static int hf_woww_reward_spell_cast = -1;
@@ -7038,24 +7035,6 @@ static const value_string e_server_message_type_strings[] =  {
     { SERVER_MESSAGE_TYPE_CUSTOM, "Custom" },
     { SERVER_MESSAGE_TYPE_SHUTDOWN_CANCELLED, "Shutdown Cancelled" },
     { SERVER_MESSAGE_TYPE_RESTART_CANCELLED, "Restart Cancelled" },
-    { 0, NULL }
-};
-
-typedef enum {
-    POWER_TYPE_MANA = 0x00000000,
-    POWER_TYPE_RAGE = 0x00000001,
-    POWER_TYPE_FOCUS = 0x00000002,
-    POWER_TYPE_ENERGY = 0x00000003,
-    POWER_TYPE_HAPPINESS = 0x00000004,
-    POWER_TYPE_HEALTH = -0x0000002,
-} e_power_type;
-static const value_string e_power_type_strings[] =  {
-    { POWER_TYPE_MANA, "Mana" },
-    { POWER_TYPE_RAGE, "Rage" },
-    { POWER_TYPE_FOCUS, "Focus" },
-    { POWER_TYPE_ENERGY, "Energy" },
-    { POWER_TYPE_HAPPINESS, "Happiness" },
-    { POWER_TYPE_HEALTH, "Health" },
     { 0, NULL }
 };
 
@@ -14704,8 +14683,7 @@ add_body_fields(guint32 opcode,
         case SMSG_RESURRECT_REQUEST:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             add_sized_cstring(ptv, &hf_woww_name);
-            ptvcursor_add(ptv, hf_woww_caster_is_spirit_healer, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_respect_resurrection_timer, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 1, ENC_NA);
             break;
         case SMSG_SELL_ITEM:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -14787,7 +14765,7 @@ add_body_fields(guint32 opcode,
             add_packed_guid(ptv, pinfo);
             add_packed_guid(ptv, pinfo);
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_power_type, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_power, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_damage, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLHEALLOG:
@@ -16526,12 +16504,6 @@ proto_register_woww(void)
         { &hf_woww_caster_guid,
             { "Caster Guid", "woww.caster.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_caster_is_spirit_healer,
-            { "Caster Is Spirit Healer", "woww.caster.is.spirit.healer",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18865,13 +18837,7 @@ proto_register_woww(void)
         },
         { &hf_woww_power,
             { "Power", "woww.power",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_power_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_power_type,
-            { "Power Type", "woww.power.type",
-                FT_UINT32, BASE_HEX_DEC, VALS(e_power_type_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_power_strings), 0,
                 NULL, HFILL
             }
         },
@@ -19268,12 +19234,6 @@ proto_register_woww(void)
         { &hf_woww_resisted,
             { "Resisted", "woww.resisted",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_respect_resurrection_timer,
-            { "Respect Resurrection Timer", "woww.respect.resurrection.timer",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
