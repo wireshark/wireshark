@@ -721,7 +721,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         the contents of every message in a TCP packet. Could it be
         done any better? */
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s%c",
-                    ( first_message ? "" : "/" ), type);
+                    ( first_message ? "" : "/" ), g_ascii_isprint(type) ? type : '?');
     first_message = FALSE;
 
     {
