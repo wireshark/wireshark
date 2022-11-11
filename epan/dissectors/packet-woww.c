@@ -485,6 +485,7 @@ static int hf_woww_loot = -1;
 static int hf_woww_loot_master = -1;
 static int hf_woww_loot_method = -1;
 static int hf_woww_loot_slot = -1;
+static int hf_woww_loot_slot_type = -1;
 static int hf_woww_looted_target_guid = -1;
 static int hf_woww_loyalty = -1;
 static int hf_woww_mail_id = -1;
@@ -3859,6 +3860,22 @@ typedef enum {
 static const value_string e_guild_member_status_strings[] =  {
     { GUILD_MEMBER_STATUS_OFFLINE, "Offline" },
     { GUILD_MEMBER_STATUS_ONLINE, "Online" },
+    { 0, NULL }
+};
+
+typedef enum {
+    LOOT_SLOT_TYPE_TYPE_ALLOW_LOOT = 0x0,
+    LOOT_SLOT_TYPE_TYPE_ROLL_ONGOING = 0x1,
+    LOOT_SLOT_TYPE_TYPE_MASTER = 0x2,
+    LOOT_SLOT_TYPE_TYPE_LOCKED = 0x3,
+    LOOT_SLOT_TYPE_TYPE_OWNER = 0x4,
+} e_loot_slot_type;
+static const value_string e_loot_slot_type_strings[] =  {
+    { LOOT_SLOT_TYPE_TYPE_ALLOW_LOOT, "Type Allow Loot" },
+    { LOOT_SLOT_TYPE_TYPE_ROLL_ONGOING, "Type Roll Ongoing" },
+    { LOOT_SLOT_TYPE_TYPE_MASTER, "Type Master" },
+    { LOOT_SLOT_TYPE_TYPE_LOCKED, "Type Locked" },
+    { LOOT_SLOT_TYPE_TYPE_OWNER, "Type Owner" },
     { 0, NULL }
 };
 
@@ -13911,6 +13928,15 @@ add_body_fields(guint32 opcode,
         case SMSG_LOOT_RESPONSE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_method, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_gold, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_items, 1, ENC_LITTLE_ENDIAN, &amount_of_items);
+            for (i = 0; i < amount_of_items; ++i) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "LootItem");
+                ptvcursor_add(ptv, hf_woww_index, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_loot_slot_type, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
             break;
         case SMSG_LOOT_ROLL:
             ptvcursor_add(ptv, hf_woww_creature_guid, 8, ENC_LITTLE_ENDIAN);
@@ -18076,6 +18102,12 @@ proto_register_woww(void)
         { &hf_woww_loot_slot,
             { "Loot Slot", "woww.loot.slot",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_loot_slot_type,
+            { "Loot Slot Type", "woww.loot.slot.type",
+                FT_UINT8, BASE_HEX_DEC, VALS(e_loot_slot_type_strings), 0,
                 NULL, HFILL
             }
         },
