@@ -421,7 +421,6 @@ static int hf_woww_invited_player = -1;
 static int hf_woww_is_applied = -1;
 static int hf_woww_is_frozen = -1;
 static int hf_woww_is_online = -1;
-static int hf_woww_is_wrapped = -1;
 static int hf_woww_issue_date = -1;
 static int hf_woww_item = -1;
 static int hf_woww_item_bag_index = -1;
@@ -865,6 +864,7 @@ static int hf_woww_winning_roll = -1;
 static int hf_woww_wiping_npc = -1;
 static int hf_woww_won = -1;
 static int hf_woww_world_result = -1;
+static int hf_woww_wrapped = -1;
 static int hf_woww_x = -1;
 static int hf_woww_xy_speed = -1;
 static int hf_woww_y = -1;
@@ -9540,6 +9540,7 @@ add_body_fields(guint32 opcode,
     guint32 map = 0;
     guint32 mask = 0;
     guint32 message_type = 0;
+    guint32 miss_info = 0;
     guint32 node_count = 0;
     guint32 number_of_battlegrounds = 0;
     guint32 reason = 0;
@@ -14185,6 +14186,9 @@ add_body_fields(guint32 opcode,
             if (mask & GROUP_UPDATE_FLAGS_FLAG_AURAS) {
                 add_aura_mask(ptv);
             }
+            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_GUID) {
+                ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
+            }
             if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_NAME) {
                 add_cstring(ptv, &hf_woww_pet_name);
             }
@@ -14859,7 +14863,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < amount_of_targets; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellMiss");
                 ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_ret_uint(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN, &miss_info);
                 ptvcursor_pop_subtree(ptv);
             }
             break;
@@ -14902,7 +14906,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_SPELL_FAILURE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell_cast_result, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELL_GO:
@@ -14918,7 +14922,7 @@ add_body_fields(guint32 opcode,
             for (i = 0; i < amount_of_misses; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellMiss");
                 ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_ret_uint(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN, &miss_info);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellCastTargets");
@@ -15135,7 +15139,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stack_count, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_is_wrapped, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_wrapped, 4, ENC_NA);
                 ptvcursor_add(ptv, hf_woww_gift_wrapper, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_creator, 8, ENC_LITTLE_ENDIAN);
@@ -17710,12 +17714,6 @@ proto_register_woww(void)
         { &hf_woww_is_online,
             { "Is Online", "woww.is.online",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_is_wrapped,
-            { "Is Wrapped", "woww.is.wrapped",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -20374,6 +20372,12 @@ proto_register_woww(void)
         { &hf_woww_world_result,
             { "World Result", "woww.world.result",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_world_result_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_wrapped,
+            { "Wrapped", "woww.wrapped",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
