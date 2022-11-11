@@ -71,3 +71,11 @@ make -j $(getconf _NPROCESSORS_ONLN)
 ----
 
 If you want to add other Falco plugins later you can copy them to a `falco` subfolder in the Global Plugins folder. The path to the Global Plugins folder is shown in the "Folders" tab in the "About Stratoshark" dialog.
+
+== Falco Plugin Recommendations
+
+Falco plugins may not return field offset information, which means that they won't be highlighted properly in the byte or text view panes in Stratoshark.
+In order to support offsets, plugins must check for the request_offsets member of the ss_plugin_field_extract_input and set the start offset and length as follows:
+
+  - 0,0: Indicates that the field doesn't have single, valid start and end values, e.g. it's generated from other data.
+  - <start>,<length>: Each value must be a zero-indexed offset value from the start of the event or log data and the data length.

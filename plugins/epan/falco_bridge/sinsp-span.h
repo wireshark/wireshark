@@ -90,6 +90,7 @@ typedef struct plugin_field_extract_t {
     const char *field_name;     // in
     enum ftenum type;           // in, out
     bool is_present;            // out
+    bool is_generated;          // out
     union {
         uint8_t *bytes;
         const char *str;
@@ -102,6 +103,8 @@ typedef struct plugin_field_extract_t {
         bool boolean;
     } res;
     int res_len;                // out
+    int data_start;             // out
+    int data_length;            // out
 //    sinsp_syscall_category_e parent_category;     // out
 } plugin_field_extract_t;
 

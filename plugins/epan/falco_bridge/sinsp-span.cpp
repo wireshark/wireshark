@@ -994,6 +994,9 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
     }
 
     std::vector<ss_plugin_extract_field> fields;
+#if SINSP_CHECK_VERSION(0, 21, 0)
+    std::vector<ss_plugin_extract_value_offsets> offsets;
+#endif
 
     // PPME_PLUGINEVENT_E events have the following format:
     // | scap_evt header | uint32_t sizeof(id) = 4 | uint32_t evt_datalen | uint32_t id | uint8_t[] evt_data |
@@ -1020,8 +1023,14 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
     ssi->evt->init(ssi->evt_storage, 0);
     ssi->evt->set_num(event_num);
 
-    fields.resize(sinsp_field_len);
+    // Extract our field values.
     // We must supply field_id, field, arg, and type.
+    // XXX Handle multiple paths, e.g. in/out byte counts.
+
+    fields.resize(sinsp_field_len);
+#if SINSP_CHECK_VERSION(0, 21, 0)
+    offsets.resize(sinsp_field_len);
+#endif
     for (size_t i = 0; i < sinsp_field_len; i++) {
         fields.at(i).field_id = sinsp_fields[i].field_id;
         fields.at(i).field = sinsp_fields[i].field_name;
@@ -1030,12 +1039,24 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
         } else {
             fields.at(i).ftype = FTYPE_UINT64;
         }
+        sinsp_fields[i].is_generated = false;
+        sinsp_fields[i].data_start = 0;
+        sinsp_fields[i].data_length = 0;
+#if SINSP_CHECK_VERSION(0, 21, 0)
+        offsets.at(i) = {nullptr, nullptr};
+#endif
     }
 
     bool status = true;
+#if SINSP_CHECK_VERSION(0, 21, 0)
+    if (!ssi->source->extract_fields_and_offsets(ssi->evt, sinsp_field_len, fields.data(), offsets.data())) {
+        status = false;
+    }
+#else
     if (!ssi->source->extract_fields(ssi->evt, sinsp_field_len, fields.data())) {
         status = false;
     }
+#endif
 
     for (size_t i = 0; i < sinsp_field_len; i++) {
         sinsp_fields[i].is_present = fields.at(i).res_len > 0;
@@ -1047,8 +1068,20 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
             } else {
                 status = false;
             }
+#if SINSP_CHECK_VERSION(0, 21, 0)
+            if (offsets.at(i).start && offsets.at(i).length && offsets.at(i).start[0] != UINT32_MAX && offsets.at(i).length[0] != UINT32_MAX) {
+                int start = (int) offsets.at(i).start[0];
+                int length = (int) offsets.at(i).length[0];
+                if (start == 0 && length == 0) {
+                    sinsp_fields[i].is_generated = true;
+                }
+                sinsp_fields[i].data_start = start;
+                sinsp_fields[i].data_length = length;
+            }
+#endif
         }
     }
+
     return status;
 }
 
