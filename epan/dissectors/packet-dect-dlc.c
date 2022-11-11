@@ -362,7 +362,7 @@ void proto_register_dect_dlc(void)
 		},
 		{ &hf_dlc_len,
 			{ "Length", "dect_dlc.length", FT_UINT8, BASE_DEC,
-				NULL, 0xFC, "LEngth indicator", HFILL
+				NULL, 0xFC, "Length indicator", HFILL
 			}
 		},
 
@@ -378,7 +378,7 @@ void proto_register_dect_dlc(void)
 			}
 		},
 		{ &hf_dect_dlc_fragment,
-			{ "Message fragment", "dlc_.fragment",
+			{ "Message fragment", "dect_dlc.fragment",
 				FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
