@@ -569,7 +569,6 @@ static int hf_woww_orientation = -1;
 static int hf_woww_out_bid = -1;
 static int hf_woww_outbid_item_ids = -1;
 static int hf_woww_outfit_id = -1;
-static int hf_woww_own_flags = -1;
 static int hf_woww_owner_guid = -1;
 static int hf_woww_page_id = -1;
 static int hf_woww_page_material = -1;
@@ -13581,13 +13580,14 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_GROUP_LIST:
             ptvcursor_add(ptv, hf_woww_group_type, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_own_flags, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_flags, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_members, 4, ENC_LITTLE_ENDIAN, &amount_of_members);
             for (i = 0; i < amount_of_members; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "GroupListMember");
                 add_cstring(ptv, &hf_woww_name);
                 ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_is_online, 1, ENC_NA);
+                ptvcursor_add(ptv, hf_woww_flags, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add(ptv, hf_woww_leader, 8, ENC_LITTLE_ENDIAN);
@@ -18597,12 +18597,6 @@ proto_register_woww(void)
         },
         { &hf_woww_outfit_id,
             { "Outfit Id", "woww.outfit.id",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_own_flags,
-            { "Own Flags", "woww.own.flags",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
