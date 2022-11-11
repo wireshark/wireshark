@@ -2358,7 +2358,7 @@ finished_fwd:
         /* update 'max seq to be acked' in the other direction so we don't get
          * this indication again.
          */
-        if( tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked > tcpd->rev->tcp_analyze_seq_info->nextseq ) {
+        if( LT_SEQ(tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked, tcpd->rev->tcp_analyze_seq_info->nextseq) ) {
           tcpd->rev->tcp_analyze_seq_info->maxseqtobeacked=tcpd->rev->tcp_analyze_seq_info->nextseq;
           tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
         }
