@@ -676,12 +676,6 @@ else() # ! MSVC
 		# code should not introduce new deprecations in any case.
 		#
 		-Wno-error=deprecated-declarations
-		#
-		# GCC < 6.0 had issues with false positives, but current versions
-		# and clang appear to be OK.
-		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66543
-		#
-		-Werror=unused-but-set-variable
 	)
 
 	#
