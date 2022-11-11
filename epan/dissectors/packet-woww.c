@@ -15459,7 +15459,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_level, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_class, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_race, 1, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_zone_id, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_party_status, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
