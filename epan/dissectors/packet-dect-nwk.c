@@ -3170,7 +3170,7 @@ void proto_register_dect_nwk(void)
 		},
 		{ &hf_dect_nwk_s_ie_terminal_capability_blind_slot_6a,
 			{ "Blind Slot Octet 6a", "dect_nwk.s.ie.terminal_capability.blind_slot_6a", FT_UINT8, BASE_HEX,
-				TFS(&tfs_yes_no), 0x7F, NULL, HFILL
+				NULL, 0x7F, NULL, HFILL
 			}
 		},
 		{ &hf_dect_nwk_s_ie_terminal_capability_sp5,
