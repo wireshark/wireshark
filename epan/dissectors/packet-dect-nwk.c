@@ -123,6 +123,117 @@ static gint hf_dect_nwk_s_ie_res_res_field = -1;
 
 static gint hf_dect_nwk_s_ie_rs_rs_field = -1;
 
+static gint hf_dect_nwk_s_ie_terminal_capability_tone_capabilities = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_display_capabilities = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_echo_parameter = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_n_rej = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_a_vol = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_slot_type_capability = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_slot_type_half_80 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_slot_type_long_640 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_slot_type_long_672 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_slot_type_full = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_slot_type_double = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_stored_display_characters = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_lines_in_display = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_chars_per_line = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_scrolling_behaviour = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_cap = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_gap = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dect_gsm = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_isdn = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_lrms = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dprs_stream = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dprs_asymmetric = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dprs_class_2 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_data_services = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_isdn = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_bearer = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_sms = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_facsimile = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_rap = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_dect_gsm = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_wrs = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_sms = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_dmap = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_cta = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_ethernet = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_token_ring = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ip = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ppp = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_v24 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_cf = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ipq = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_rap_2 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_dprs = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_2bz = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_4bz = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_8bz = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_16bz = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_2a = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_4a = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_8a = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_dect_umts = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_dect_umts_gprs = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_odap = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_f_mms = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_gf = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_fast_hopping = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_no_emission = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_mod64 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_1 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_3 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_headset_management = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_re_keying = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_associated_melody = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_5 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_mux_e_u = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_channel_ipf = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_channel_sipf = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_packet_data_category = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dprs_3 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dprs_4 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dect_ule = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_light_data = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_date_time_recovery = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_extended_list_change = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_screening = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_wrs_2 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_wrs_ule = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_dsaa2 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_dsc2 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_control_codes = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no1 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no9 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no5 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_greek = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_blind_slot_6 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_blind_slot_indication = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp0 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp1 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp2 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp3 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp4 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_blind_slot_6a = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp5 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp6 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp7 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp8 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp9 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp10 = -1;
+static gint hf_dect_nwk_s_ie_terminal_capability_sp11 = -1;
+
 static gint hf_dect_nwk_s_ie_escape_to_proprietary_discriminator_type = -1;
 static gint hf_dect_nwk_s_ie_escape_to_proprietary_discriminator = -1;
 
@@ -229,6 +340,20 @@ enum dect_nwk_mm_msg_type {
 enum dect_nwk_lce_msg_type {
 	DECT_NWK_LCE_PAGE_RESP		= 0x71,
 	DECT_NWK_LCE_PAGE_REJ		= 0x72,
+};
+
+/* Section 7.5.1 */
+enum dect_nwk_s_ie_octet_identifier {
+	DECT_NWK_S_IE_OCTET_FIRST = 0,
+	DECT_NWK_S_IE_OCTET_A     = 1,
+	DECT_NWK_S_IE_OCTET_B     = 2,
+	DECT_NWK_S_IE_OCTET_C     = 3,
+	DECT_NWK_S_IE_OCTET_D     = 4,
+	DECT_NWK_S_IE_OCTET_E     = 5,
+	DECT_NWK_S_IE_OCTET_F     = 6,
+	DECT_NWK_S_IE_OCTET_G     = 7,
+	DECT_NWK_S_IE_OCTET_H     = 8,
+	DECT_NWK_S_IE_OCTET_I     = 9,
 };
 
 /* Section 7.5.3 */
@@ -562,6 +687,204 @@ enum dect_nwk_ipui_type {
 	DECT_NWK_IPUI_TYPE_S = 0x5,
 	DECT_NWK_IPUI_TYPE_T = 0x6,
 	DECT_NWK_IPUI_TYPE_U = 0x7,
+};
+
+/* Section 7.7.41 */
+enum dect_nwk_s_ie_terminal_capability_tone_capabilites {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_NA                            = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_NO_TONE_CAPABILITY            = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_DIAL_TONE_ONLY                = 0x2,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_E182_TONES_SUPPORTED          = 0x3,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_COMPLETE_DECT_TONES_SUPPORTED = 0x4,
+};
+
+enum dect_nwk_s_ie_terminal_capability_display_capabilities {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NA           = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NO_DISPLAY   = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NUMERIC      = 0x2,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NUMERIC_PLUS = 0x3,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_ALPHANUMERIC = 0x4,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_FULL_DISPLAY = 0x5,
+};
+
+enum dect_nwk_s_ie_terminal_capability_echo_parameters {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_NA                   = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_MINIMUM_TCLW         = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_TCLW_FULL            = 0x2,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_TCLW_VOIP_COMPATIBLE = 0x3,
+};
+
+enum dect_nwk_s_ie_terminal_capability_n_rej_capabilities {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_NA       = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_NO       = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_PROVIDED = 0x2,
+};
+
+enum dect_nwk_s_ie_terminal_capability_a_vol_capabilities {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_NA            = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_NO_PP_A_VOL   = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_PP_A_VOL_USED = 0x2,
+};
+
+enum dect_nwk_s_ie_terminal_capability_slot_type {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_HALF_80  = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_LONG_640 = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_LONG_672 = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_FULL     = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_DOUBLE   = 0x10,
+};
+
+enum dect_nwk_s_ie_terminal_capability_scrolling_behaviour_type {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_NOT_SPECIFIED = 0x00,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_TYPE_1 = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_TYPE_2 = 0x02,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_1 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_CAP             = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_GAP             = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_DECT_GSM        = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_ISDN            = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_LRMS            = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_DPRS_STREAM     = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_DPRS_ASYMMETRIC = 0x40,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_2 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DPRS_CLASS_2        = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DATA_SERVICES       = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_ISDN                = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DECT_UMTS_BEARER    = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DECT_UMTS_SMS       = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DECT_UMTS_FACSIMILE = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_RAP                 = 0x40,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_3 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_DECT_GSM   = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_WRS        = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_SMS        = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_DMAP       = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_CTA        = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_ETHERNET   = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_TOKEN_RING = 0x40,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_4 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_IP    = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_PPP   = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_V24  = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_CF    = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_IPQ   = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_RAP_2 = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_DPRS  = 0x40,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_5 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_2BZ      = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_4BZ      = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_8BZ      = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_16BZ     = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_2A       = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_4A       = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_8A       = 0x40,
+};
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_6 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_DECT_UMTS      = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_DECT_UMTS_GPRS = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_ODAP           = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_F_MMS          = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_GF             = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_FAST_HOPPING   = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_NO_EMISSION    = 0x40,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_7 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_MOD64              = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_NG_DECT_1          = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_NG_DECT_3          = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_HEADSET_MANAGEMENT = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_RE_KEYING          = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_ASSOCIATED_MELODY  = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_NG_DECT_5          = 0x40,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_8 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_MUX_E_U              = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_CHANNEL_IPF          = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_CHANNEL_SIPF         = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CATEGORY = 0x78,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_9 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_DPRS_3     = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_DPRS_4     = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE   = 0x1C,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_LIGHT_DATA = 0x20,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_10 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_DATE_TIME_RECOVERY   = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_EXTENDED_LIST_CHANGE = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_SCREENING            = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_WRS_2                = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_WRS_ULE              = 0x10,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_8_packet_data_categories {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_NO          = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_1       = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_2       = 0x2,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_3       = 0x3,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_4_8PSK  = 0x4,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_4_64QAM = 0x5,
+};
+
+enum dect_nwk_s_ie_terminal_capability_profile_indicator_9_dect_ule_versions {
+	DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_1_V111 = 0x1,
+	DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_1_V121 = 0x3,
+	DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_2      = 0x5,
+	DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_3      = 0x7,
+};
+
+enum dect_nwk_s_ie_terminal_capability_control_codes {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_NOT_SPECIFIED = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_0CH           = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_001    = 0x2,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_010    = 0x3,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_011    = 0x4,
+};
+
+enum dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_LATIN_NO1 = 0x01,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_LATIN_NO9 = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_LATIN_NO5 = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_GREEK     = 0x08,
+};
+
+enum dect_nwk_s_ie_terminal_capability_blind_slot_indication {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NO                            = 0x0,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NOT_POSSIBLE_ADJACENT         = 0x1,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NOT_POSSIBLE_EVERY_SECOND     = 0x2,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_LIMITATIONS_IN_FOLLOWING_BITS = 0x3,
+};
+
+enum dect_nwk_s_ie_terminal_capability_blind_slot_6 {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP0 = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP1 = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP2 = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP3 = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP4 = 0x01,
+};
+
+enum dect_nwk_s_ie_terminal_capability_blind_slot_6a {
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP5 = 0x40,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP6 = 0x20,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP7 = 0x10,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP8 = 0x08,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP9 = 0x04,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP10 = 0x02,
+	DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP11 = 0x01,
 };
 
 /* Section 7.7.45 */
@@ -985,6 +1308,80 @@ static const value_string dect_nwk_ipui_type_val[] = {
 	{ DECT_NWK_IPUI_TYPE_U, "U (public/general)" }
 };
 
+/* Section 7.7.41 */
+static const value_string dect_nwk_s_ie_terminal_capability_tone_capabilites_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_NA,                            "Not applicable" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_NO_TONE_CAPABILITY,            "No tone capability" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_DIAL_TONE_ONLY,                "Dial tone only" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_E182_TONES_SUPPORTED,          "Recommendation ITU-T E.182 tones supported" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_TONE_CAPABILITY_COMPLETE_DECT_TONES_SUPPORTED, "Complete DECT tones supported" },
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_display_capabilities_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NA,           "Not applicable" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NO_DISPLAY,   "No Display" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NUMERIC,      "Numeric" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_NUMERIC_PLUS, "Numeric-plus" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_ALPHANUMERIC, "Alphanumeric" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_DISPLAY_CAPABILITY_FULL_DISPLAY, "Full display" },
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_echo_parameters_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_NA,                   "Not applicable" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_MINIMUM_TCLW,         "Minimum TCLw" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_TCLW_FULL,            "TCLw > 46 dB (Full TCLw)" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_ECHO_PARAMETER_TCLW_VOIP_COMPATIBLE, "TCLw > 55 dB (VoIP compatible TCLw)" },
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_n_rej_capabilities_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_NA,       "Not applicable" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_NO,       "No noise rejection" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_N_REJ_PROVIDED, "Noise rejection" },
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_a_vol_capabilities_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_NA,            "Not applicable" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_NO_PP_A_VOL,   "No PP adaptive volume control" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_A_VOL_PP_A_VOL_USED, "PP adaptive volume control used" },
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_scrolling_behaviour_type_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_NOT_SPECIFIED, "Not specified" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_TYPE_1,        "Type 1"},
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_SCROLLING_BEHAVIOUR_TYPE_2,        "Type 2"},
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_profile_indicator_8_packet_data_categories_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_NO,          "No packet data supported or non categorized system" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_1,       "Cat 1 (low-end data devices)" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_2,       "Cat 2 (mid-end data devices)" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_3,       "Cat 3 (high-end data devices)" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_4_8PSK,  "Cat 4 (high-level modulation up to 8PSK)" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CAT_4_64QAM, "Cat 4 (high-level modulation up to 64QAM" },
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_profile_indicator_9_dect_ule_versions_val[] = {
+	{ DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_1_V111, "Phase 1 version v1.1.1" },
+	{ DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_1_V121, "Phase 1 version v1.2.1" },
+	{ DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_2,      "Phase 2" },
+	{ DECT_NWK_S_IE_TERMINA_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE_3,      "Phase 3" },
+};
+
+static const value_string  dect_nwk_s_ie_terminal_capability_control_codes_val[] =  {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_NOT_SPECIFIED, "Not specified" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_0CH,           "0CH (clear display)" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_001,    "Coding 001 plus 0x08 to 0x0B and 0x0D" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_010,    "Coding 010 plus 0x02, 0x03, 0x06, 0x07, 0x19, 0x1A" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_CONTROL_CODES_CODING_011,    "Coding 011 plus 0x0E, 0x0F" },
+};
+
+static const value_string dect_nwk_s_ie_terminal_capability_blind_slot_indication_val[] = {
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NO,                            "No blind slots" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NOT_POSSIBLE_ADJACENT,         "Setup is not possible on both slots adjacent to an active slot" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_NOT_POSSIBLE_EVERY_SECOND,     "Setup is not possible on every second slot" },
+	{ DECT_NWK_S_IE_TERMINAL_CAPABILITY_BLIND_SLOT_INDICATION_LIMITATIONS_IN_FOLLOWING_BITS, "Limitations indicated in the following bits" },
+};
+
 /* Section 7.7.45 */
 static const value_string dect_nwk_s_ie_escape_to_proprietary_discriminator_type_val[] = {
 	{ DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_UNSPECIFIED, "Unspecified" },
@@ -1021,6 +1418,8 @@ static const true_false_string tfs_last_more = {
 #define DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_SHIFT 7
 #define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK 0xE0
 #define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_SHIFT 5
+
+#define DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK 0x7F
 
 #define DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_MASK 0x7F
 
@@ -1234,6 +1633,286 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, 
 	return offset;
 }
 
+static int dissect_dect_nwk_s_ie_terminal_capability(tvbuff_t *tvb, guint offset, guint8 ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data)
+{
+	gboolean octet_group_extension;
+	guint octet_identifier, next_element_offset;
+	guint16 stored_display_characters;
+
+	static int* const slot_type_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_slot_type_double,
+		&hf_dect_nwk_s_ie_terminal_capability_slot_type_full,
+		&hf_dect_nwk_s_ie_terminal_capability_slot_type_long_672,
+		&hf_dect_nwk_s_ie_terminal_capability_slot_type_long_640,
+		&hf_dect_nwk_s_ie_terminal_capability_slot_type_half_80,
+		NULL
+	};
+
+	static int* const profile_indicator_1_flags [] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_cap,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_gap,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dect_gsm,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_isdn,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_lrms,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dprs_stream,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dprs_asymmetric,
+		NULL
+	};
+
+	static int* const profile_indicator_2_flags [] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dprs_class_2,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_data_services,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_isdn,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_bearer,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_sms,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_facsimile,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_rap,
+		NULL
+	};
+
+	static int* const profile_indicator_3_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_dect_gsm,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_wrs,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_sms,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_dmap,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_cta,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_ethernet,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_token_ring,
+		NULL
+	};
+
+	static int* const profile_indicator_4_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ip,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ppp,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_v24,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_cf,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ipq,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_rap_2,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_dprs,
+		NULL
+	};
+
+	static int* const profile_indicator_5_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_2bz,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_4bz,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_8bz,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_16bz,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_2a,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_4a,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_8a,
+		NULL
+	};
+
+	static int* const profile_indicator_6_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_dect_umts,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_dect_umts_gprs,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_odap,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_f_mms,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_gf,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_fast_hopping,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_no_emission,
+		NULL
+	};
+
+	static int* const profile_indicator_7_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_mod64,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_1,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_3,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_headset_management,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_re_keying,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_associated_melody,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_5,
+		NULL
+	};
+
+	static int* const profile_indicator_8_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_mux_e_u,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_channel_ipf,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_channel_sipf,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_packet_data_category,
+		NULL
+	};
+
+	static int* const profile_indicator_9_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dprs_3,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dprs_4,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dect_ule,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_light_data,
+		NULL
+	};
+
+	static int* const profile_indicator_10_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_date_time_recovery,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_extended_list_change,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_screening,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_wrs_2,
+		&hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_wrs_ule,
+		NULL
+	};
+
+	static int* const escape_to_char_sets_1_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no1,
+		&hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no9,
+		&hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no5,
+		&hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_greek,
+		NULL
+	};
+
+	static int* const blind_slot_6_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_blind_slot_indication,
+		&hf_dect_nwk_s_ie_terminal_capability_sp0,
+		&hf_dect_nwk_s_ie_terminal_capability_sp1,
+		&hf_dect_nwk_s_ie_terminal_capability_sp2,
+		&hf_dect_nwk_s_ie_terminal_capability_sp3,
+		&hf_dect_nwk_s_ie_terminal_capability_sp4,
+		NULL
+	};
+
+	static int* const blind_slot_6a_flags[] = {
+		&hf_dect_nwk_s_ie_terminal_capability_sp5,
+		&hf_dect_nwk_s_ie_terminal_capability_sp6,
+		&hf_dect_nwk_s_ie_terminal_capability_sp7,
+		&hf_dect_nwk_s_ie_terminal_capability_sp8,
+		&hf_dect_nwk_s_ie_terminal_capability_sp9,
+		&hf_dect_nwk_s_ie_terminal_capability_sp10,
+		&hf_dect_nwk_s_ie_terminal_capability_sp11,
+		NULL
+	};
+
+	next_element_offset = offset + ie_length;
+
+	octet_identifier = DECT_NWK_S_IE_OCTET_FIRST;
+	do {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
+		switch(octet_identifier) {
+			case DECT_NWK_S_IE_OCTET_FIRST:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_tone_capabilities, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_display_capabilities, tvb, offset, 1, ENC_NA);
+				/* Octet 3a is intentionally missing according to the standard */
+				octet_identifier++;
+				break;
+			case DECT_NWK_S_IE_OCTET_B:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_echo_parameter, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_n_rej, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_a_vol, tvb, offset, 1, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_C:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_slot_type_capability, ett_dect_nwk_s_ie_element, slot_type_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_D:
+				stored_display_characters = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK ) << 7;
+				break;
+			case DECT_NWK_S_IE_OCTET_E:
+				stored_display_characters = stored_display_characters |	( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK );
+				proto_tree_add_uint(tree, hf_dect_nwk_s_ie_terminal_capability_stored_display_characters, tvb, offset-1, 2, stored_display_characters);
+				break;
+			case DECT_NWK_S_IE_OCTET_F:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_lines_in_display, tvb, offset, 1, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_G:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_chars_per_line, tvb, offset, 1, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_H:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_scrolling_behaviour, tvb, offset, 1, ENC_NA);
+				break;
+		}
+		octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+		octet_identifier++;
+		offset++;
+	} while ( !octet_group_extension );
+
+	octet_identifier = DECT_NWK_S_IE_OCTET_FIRST;
+	do {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
+		switch(octet_identifier) {
+			case DECT_NWK_S_IE_OCTET_FIRST:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1, ett_dect_nwk_s_ie_element,
+					profile_indicator_1_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_A:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2, ett_dect_nwk_s_ie_element,
+					profile_indicator_2_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_B:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3, ett_dect_nwk_s_ie_element,
+					profile_indicator_3_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_C:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4, ett_dect_nwk_s_ie_element,
+					profile_indicator_4_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_D:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5, ett_dect_nwk_s_ie_element,
+					profile_indicator_5_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_E:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6, ett_dect_nwk_s_ie_element,
+					profile_indicator_6_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_F:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7, ett_dect_nwk_s_ie_element,
+					profile_indicator_7_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_G:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8, ett_dect_nwk_s_ie_element,
+					profile_indicator_8_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_H:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9, ett_dect_nwk_s_ie_element,
+					profile_indicator_9_flags, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_I:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10, ett_dect_nwk_s_ie_element,
+					profile_indicator_10_flags, ENC_NA);
+				break;
+		}
+		octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+		octet_identifier++;
+		offset++;
+	} while ( !octet_group_extension );
+
+	octet_identifier = DECT_NWK_S_IE_OCTET_FIRST;
+	do {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
+		switch(octet_identifier) {
+			case DECT_NWK_S_IE_OCTET_FIRST:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_dsaa2, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_dsc2, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_control_codes, tvb, offset, 1, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_A:
+				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1, ett_dect_nwk_s_ie_element,
+					escape_to_char_sets_1_flags, ENC_NA);
+				break;
+		}
+		octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+		octet_identifier++;
+		offset++;
+	} while ( !octet_group_extension );
+
+	/* Octet 6 is not always submitted according to standard */
+	if (offset != next_element_offset) {
+		octet_identifier = DECT_NWK_S_IE_OCTET_FIRST;
+		do {
+			proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
+			switch(octet_identifier) {
+				case DECT_NWK_S_IE_OCTET_FIRST:
+					proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_blind_slot_6, ett_dect_nwk_s_ie_element,
+						blind_slot_6_flags, ENC_NA);
+					break;
+				case DECT_NWK_S_IE_OCTET_A:
+					proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_blind_slot_6a, ett_dect_nwk_s_ie_element,
+						blind_slot_6a_flags, ENC_NA);
+					break;
+			}
+			octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+			octet_identifier++;
+			offset++;
+		} while ( !octet_group_extension );
+	}
+	return offset;
+}
+
 static int dissect_dect_nwk_s_ie_escape_to_proprietary(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
 {
 	guint8 discriminator_type;
@@ -1356,6 +2035,9 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 			case DECT_NWK_S_IE_RS:
 				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_rs_rs_field, tvb, offset, element_length, ENC_NA);
 				offset += element_length;
+				break;
+			case DECT_NWK_S_IE_TERMINAL_CAPABILITY:
+				offset = dissect_dect_nwk_s_ie_terminal_capability(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY:
 				dissect_dect_nwk_s_ie_escape_to_proprietary(tvb, offset, field_tree, data);
@@ -1820,6 +2502,559 @@ void proto_register_dect_nwk(void)
 		/* RS */
 		{ &hf_dect_nwk_s_ie_rs_rs_field,
 			{ "RS Field", "dect_nwk.s.ie.rs.rs_field", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		/* Terminal capability */
+		{ &hf_dect_nwk_s_ie_terminal_capability_tone_capabilities,
+			{ "tone capabilities", "dect_nwk.s.ie.terminal_capability.tone_capabilities", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_tone_capabilites_val), 0x70, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_display_capabilities,
+			{ "display capabilities", "dect_nwk.s.ie.terminal_capability.display_capabilities", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_display_capabilities_val), 0x0F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_echo_parameter,
+			{ "echo parameter", "dect_nwk.s.ie.terminal_capability.echo_parameter", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_echo_parameters_val), 0x70, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_n_rej,
+			{ "N-REJ", "dect_nwk.s.ie.terminal_capability.n_rej", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_n_rej_capabilities_val), 0x0C, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_a_vol,
+			{ "A-VOL", "dect_nwk.s.ie.terminal_capability.a_vol", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_a_vol_capabilities_val), 0x03, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_slot_type_capability,
+			{ "slot type capability", "dect_nwk.s.ie.terminal_capability.slot_type_capability", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_slot_type_half_80,
+			{ "Half slot; j = 80", "dect_nwk.s.ie.terminal_capability.slot_type.half_80", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_HALF_80, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_slot_type_long_640,
+			{ "Long slot; j = 640", "dect_nwk.s.ie.terminal_capability.slot_type.long_640", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_LONG_640, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_slot_type_long_672,
+			{ "Long slot; j = 672", "dect_nwk.s.ie.terminal_capability.slot_type.long_672", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_LONG_672, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_slot_type_full,
+			{ "Full slot", "dect_nwk.s.ie.terminal_capability.slot_type.full", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_FULL, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_slot_type_double,
+			{ "Double slot", "dect_nwk.s.ie.terminal_capability.slot_type.double", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SLOT_TYPE_DOUBLE, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_stored_display_characters,
+			{ "Stored display characters", "dect_nwk.s.ie.terminal_capability.stored_display_characters", FT_UINT16, BASE_DEC,
+				NULL, 0x3FFF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_lines_in_display,
+			{ "Lines in display", "dect_nwk.s.ie.terminal_capability.lines_in_display", FT_UINT8, BASE_DEC,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_chars_per_line,
+			{ "Characters/line", "dect_nwk.s.ie.terminal_capability.chars_per_line", FT_UINT8, BASE_DEC,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_scrolling_behaviour,
+			{ "Scrolling behaviour", "dect_nwk.s.ie.terminal_capability.scrolling_behaviour", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_scrolling_behaviour_type_val), 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1,
+			{ "Profile indicator 1", "dect_nwk.s.ie.terminal_capability.profile_indicator_1", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_cap,
+			{ "CAP", "dect_nwk.s.ie.terminal_capability.profile_indicator_1.cap", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_CAP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_gap,
+			{ "GAP", "dect_nwk.s.ie.terminal_capability.profile_indicator_1.gap", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_GAP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dect_gsm,
+			{ "DECT/GSM interworking profile", "dect_nwk.s.ie.terminal_capability.profile_indicator_1.dect_gsm", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_DECT_GSM, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_isdn,
+			{ "ISDN End-system", "dect_nwk.s.ie.terminal_capability.profile_indicator_1.isdn", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_ISDN, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_lrms,
+			{ "LRMS", "dect_nwk.s.ie.terminal_capability.profile_indicator_1.lrms", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_LRMS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dprs_stream,
+			{ "DPRS Stream", "dect_nwk.s.ie.terminal_capability.profile_indicator_1.dprs_stream", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_DPRS_STREAM, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_1_dprs_asymmetric,
+			{ "DPRS asymmetric bearers", "dect_nwk.s.ie.terminal_capability.profile_indicator_1.dprs_asymmetric", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_1_DPRS_ASYMMETRIC, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2,
+			{ "Profile indicator 2", "dect_nwk.s.ie.terminal_capability.profile_indicator_2", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dprs_class_2,
+			{ "DPRS Class 2 management and B-Field procedures", "dect_nwk.s.ie.terminal_capability.profile_indicator_2.dprs_class_2", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DPRS_CLASS_2, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_data_services,
+			{ "Data Services Profile D, Class 2", "dect_nwk.s.ie.terminal_capability.profile_indicator_2.data_services", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DATA_SERVICES, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_isdn,
+			{ "ISDN Intermediate Access Profile", "dect_nwk.s.ie.terminal_capability.profile_indicator_2.isdn", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_ISDN, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_bearer,
+			{ "DECT/UMTS-GSM interworking - UMTS-GSM Bearer service", "dect_nwk.s.ie.terminal_capability.profile_indicator_2.dect_umts_bearer", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DECT_UMTS_BEARER, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_sms,
+			{ "DECT/UMTS-GSM interworking - UMTS-GSM SMS service", "dect_nwk.s.ie.terminal_capability.profile_indicator_2.dect_umts_sms", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DECT_UMTS_SMS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_dect_umts_facsimile,
+			{ "DECT/UMTS-GSM interworking - UMTS-GSM Facsimile", "dect_nwk.s.ie.terminal_capability.profile_indicator_2.dect_umts_facsimile", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_DECT_UMTS_FACSIMILE, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_2_rap,
+			{ "RAP 1 Profile", "dect_nwk.s.ie.terminal_capability.profile_indicator_2.rap", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_2_RAP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3,
+			{ "Profile indicator 3", "dect_nwk.s.ie.terminal_capability.profile_indicator_3", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_dect_gsm,
+			{ "DECT/GSM dual mode terminal", "dect_nwk.s.ie.terminal_capability.profile_indicator_3.dect_gsm", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_DECT_GSM, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_wrs,
+			{ "\"V1\" WRS", "dect_nwk.s.ie.terminal_capability.profile_indicator_3.wrs", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_WRS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_sms,
+			{ "SMS over LRMS", "dect_nwk.s.ie.terminal_capability.profile_indicator_3.sms", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_SMS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_dmap,
+			{ "DMAP", "dect_nwk.s.ie.terminal_capability.profile_indicator_3.dmap", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_DMAP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_cta,
+			{ "Multiport CTA", "dect_nwk.s.ie.terminal_capability.profile_indicator_3.cta", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_CTA, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_ethernet,
+			{ "Ethernet", "dect_nwk.s.ie.terminal_capability.profile_indicator_3.ethernet", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_ETHERNET, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_3_token_ring,
+			{ "Token Ring", "dect_nwk.s.ie.terminal_capability.profile_indicator_3.token_ring", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_3_TOKEN_RING, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4,
+			{ "Profile indicator 4", "dect_nwk.s.ie.terminal_capability.profile_indicator_4", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ip,
+			{ "IP", "dect_nwk.s.ie.terminal_capability.profile_indicator_4.ip", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_IP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ppp,
+			{ "PPP", "dect_nwk.s.ie.terminal_capability.profile_indicator_4.ppp", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_PPP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_v24,
+			{ "V.24", "dect_nwk.s.ie.terminal_capability.profile_indicator_4.v24", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_V24, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_cf,
+			{ "C F", "dect_nwk.s.ie.terminal_capability.profile_indicator_4.cf", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_CF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_ipq,
+			{ "I PQ", "dect_nwk.s.ie.terminal_capability.profile_indicator_4.ipq", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_IPQ, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_rap_2,
+			{ "RAP 2 Profile", "dect_nwk.s.ie.terminal_capability.profile_indicator_4.rap_2", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_RAP_2, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_4_dprs,
+			{ "Generic Media Encapsulation transport (DPRS)", "dect_nwk.s.ie.terminal_capability.profile_indicator_4.dprs", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_4_DPRS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5,
+			{ "Profile indicator 5", "dect_nwk.s.ie.terminal_capability.profile_indicator_5", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_2bz,
+			{ "2-level modulation scheme (B+Z field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_5.mod_2bz", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_2BZ, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_4bz,
+			{ "4-level modulation scheme (B+Z field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_5.mod_4bz", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_4BZ, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_8bz,
+			{ "8-level modulation scheme (B+Z field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_5.mod_8bz", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_8BZ, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_16bz,
+			{ "16-level modulation scheme (B+Z field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_5.mod_16bz", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_16BZ, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_2a,
+			{ "2-level modulation scheme (A field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_5.mod_2a", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_2A, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_4a,
+			{ "4-level modulation scheme (A field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_5.mod_4a", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_4A, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_5_mod_8a,
+			{ "8-level modulation scheme (A field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_5.mod_8a", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_5_MOD_8A, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6,
+			{ "Profile indicator 6", "dect_nwk.s.ie.terminal_capability.profile_indicator_6", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_dect_umts,
+			{ "DECT/UMTS interworking profile", "dect_nwk.s.ie.terminal_capability.profile_indicator_6.dect_umts", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_DECT_UMTS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_dect_umts_gprs,
+			{ "DECT/UMTS interworking - GPRS services", "dect_nwk.s.ie.terminal_capability.profile_indicator_6.dect_umts_gprs", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_DECT_UMTS_GPRS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_odap,
+			{ "Basic ODAP", "dect_nwk.s.ie.terminal_capability.profile_indicator_6.odap", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_ODAP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_f_mms,
+			{ "F-MMS Interworking profile", "dect_nwk.s.ie.terminal_capability.profile_indicator_6.f_mms", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_F_MMS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_gf,
+			{ "Channel GF", "dect_nwk.s.ie.terminal_capability.profile_indicator_6.gf", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_GF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_fast_hopping,
+			{ "PT with fast hopping radio", "dect_nwk.s.ie.terminal_capability.profile_indicator_6.fast_hopping", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_FAST_HOPPING, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_6_no_emission,
+			{ "Capability to support \"no emission\" or U-NEMo mode", "dect_nwk.s.ie.terminal_capability.profile_indicator_6.no_emission", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_6_NO_EMISSION, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7,
+			{ "Profile indicator 7", "dect_nwk.s.ie.terminal_capability.profile_indicator_7", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_mod64,
+			{ "64-level modulation scheme (B+Z field)", "dect_nwk.s.ie.terminal_capability.profile_indicator_7.mod64", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_MOD64, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_1,
+			{ "NG-DECT Part 1: Wideband voice", "dect_nwk.s.ie.terminal_capability.profile_indicator_7.ng_dect_1", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_NG_DECT_1, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_3,
+			{ "NG-DECT Part 3", "dect_nwk.s.ie.terminal_capability.profile_indicator_7.ng_dect_3", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_NG_DECT_3, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_headset_management,
+			{ "Headset management", "dect_nwk.s.ie.terminal_capability.profile_indicator_7.headset_management", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_HEADSET_MANAGEMENT, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_re_keying,
+			{ "Re-keying and default cipher key early encryption mechanism", "dect_nwk.s.ie.terminal_capability.profile_indicator_7.re_keying", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_RE_KEYING, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_associated_melody,
+			{ "associated melody per contact", "dect_nwk.s.ie.terminal_capability.profile_indicator_7.associated_melody", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_ASSOCIATED_MELODY, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_7_ng_dect_5,
+			{ "NG-DECT Part 5", "dect_nwk.s.ie.terminal_capability.profile_indicator_7.ng_dect_5", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_7_NG_DECT_5, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8,
+			{ "Profile indicator 8", "dect_nwk.s.ie.terminal_capability.profile_indicator_8", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_mux_e_u,
+			{ "E+U-type mux and channel I PF basic procedures", "dect_nwk.s.ie.terminal_capability.profile_indicator_8.mux_e_u", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_MUX_E_U, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_channel_ipf,
+			{ "Channel I PF advanced procedures", "dect_nwk.s.ie.terminal_capability.profile_indicator_8.channel_ipf", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_CHANNEL_IPF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_channel_sipf,
+			{ "Channel SI PF", "dect_nwk.s.ie.terminal_capability.profile_indicator_8.channel_sipf", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_CHANNEL_SIPF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_8_packet_data_category,
+			{ "DPRS/NG-DECT Packet Data Category", "dect_nwk.s.ie.terminal_capability.profile_indicator_8.packet_data_category", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_profile_indicator_8_packet_data_categories_val),
+				DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_8_PACKET_DATA_CATEGORY, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9,
+			{ "Profile indicator 9", "dect_nwk.s.ie.terminal_capability.profile_indicator_9", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dprs_3,
+			{ "DPRS Class 3 management and A-field procedures", "dect_nwk.s.ie.terminal_capability.profile_indicator_9.dprs_3", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_DPRS_3, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dprs_4,
+			{ "DPRS Class 4 management and A-field procedures", "dect_nwk.s.ie.terminal_capability.profile_indicator_9.dprs_4", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_DPRS_4, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_dect_ule,
+			{ "DECT ULE", "dect_nwk.s.ie.terminal_capability.profile_indicator_9.dect_ule", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_profile_indicator_9_dect_ule_versions_val),
+				DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_DECT_ULE, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_9_light_data,
+			{ "Light data services", "dect_nwk.s.ie.terminal_capability.profile_indicator_9.light_data", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_9_LIGHT_DATA, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10,
+			{ "Profile indicator 10", "dect_nwk.s.ie.terminal_capability.profile_indicator_10", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_date_time_recovery,
+			{ "Date and Time recovery", "dect_nwk.s.ie.terminal_capability.profile_indicator_10.date_time_recovery", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_DATE_TIME_RECOVERY, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_extended_list_change,
+			{ "Extended list change notification", "dect_nwk.s.ie.terminal_capability.profile_indicator_10.extended_list_change", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_EXTENDED_LIST_CHANGE, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_screening,
+			{ "Screening", "dect_nwk.s.ie.terminal_capability.profile_indicator_10.screening", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_SCREENING, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_wrs_2,
+			{ "\"V2\" WRS", "dect_nwk.s.ie.terminal_capability.profile_indicator_10.wrs_2", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_WRS_2, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_profile_indicator_10_wrs_ule,
+			{ "WRS for ULE", "dect_nwk.s.ie.terminal_capability.profile_indicator_10.wrs_ule", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_PROFILE_INDICATOR_10_WRS_ULE, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_dsaa2,
+			{ "DSAA2 supported", "dect_nwk.s.ie.terminal_capability.dsaa2", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x40, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_dsc2,
+			{ "DSC2 supported", "dect_nwk.s.ie.terminal_capability.dsc2", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x20, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_control_codes,
+			{ "Control Codes", "dect_nwk.s.ie.terminal_capability.control_codes", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_control_codes_val), 0x20, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1,
+			{ "escape to 8 bit character sets_1", "dect_nwk.s.ie.terminal_capability.escape_to_char_sets_1", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no1,
+			{ "ISO-8859-1", "dect_nwk.s.ie.terminal_capability.escape_to_char_sets_1.latin_no1", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_LATIN_NO1, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no9,
+			{ "ISO-8859-15", "dect_nwk.s.ie.terminal_capability.escape_to_char_sets_1.latin_no9", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_LATIN_NO9, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_latin_no5,
+			{ "ISO-8859-9", "dect_nwk.s.ie.terminal_capability.escape_to_char_sets_1.latin_no5", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_LATIN_NO5, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1_greek,
+			{ "ISO-8859-7", "dect_nwk.s.ie.terminal_capability.escape_to_char_sets_1.greek", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_ESCAPE_TO_CHAR_SETS_1_GREEK, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_blind_slot_6,
+			{ "Blind Slot Octet 6", "dect_nwk.s.ie.terminal_capability.blind_slot_6", FT_UINT8, BASE_HEX,
+				NULL, 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_blind_slot_indication,
+			{ "Blind slot indication", "dect_nwk.s.ie.terminal_capability.blind_slot_indication", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_terminal_capability_blind_slot_indication_val), 0x60, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp0,
+			{ "SP0", "dect_nwk.s.ie.terminal_capability.sp0", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp1,
+			{ "SP1", "dect_nwk.s.ie.terminal_capability.sp1", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP1, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp2,
+			{ "SP2", "dect_nwk.s.ie.terminal_capability.sp2", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP2, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp3,
+			{ "SP3", "dect_nwk.s.ie.terminal_capability.sp3", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP3, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp4,
+			{ "SP4", "dect_nwk.s.ie.terminal_capability.sp4", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP4, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_blind_slot_6a,
+			{ "Blind Slot Octet 6a", "dect_nwk.s.ie.terminal_capability.blind_slot_6a", FT_UINT8, BASE_HEX,
+				TFS(&tfs_yes_no), 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp5,
+			{ "SP5", "dect_nwk.s.ie.terminal_capability.sp5", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP5, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp6,
+			{ "SP6", "dect_nwk.s.ie.terminal_capability.sp6", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP6, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp7,
+			{ "SP7", "dect_nwk.s.ie.terminal_capability.sp7", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP7, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp8,
+			{ "SP8", "dect_nwk.s.ie.terminal_capability.sp8", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP8, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp9,
+			{ "SP9", "dect_nwk.s.ie.terminal_capability.sp9", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP9, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp10,
+			{ "SP10", "dect_nwk.s.ie.terminal_capability.sp10", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP10, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_terminal_capability_sp11,
+			{ "SP11", "dect_nwk.s.ie.terminal_capability.sp11", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), DECT_NWK_S_IE_TERMINAL_CAPABILITY_SP11, NULL, HFILL
+			}
 		},
 		/* Escape to proprietary */
 		{ &hf_dect_nwk_s_ie_escape_to_proprietary_discriminator_type,
