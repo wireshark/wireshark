@@ -1749,7 +1749,7 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, 
 			offset += value_length / 8;
 			if (value_length % 8) {
 				no_of_bits = 8 - (value_length % 8);
-				proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_fixed_identity_padding, tvb, bit_offset, no_of_bits, ENC_NA);
+				proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_padding, tvb, bit_offset, no_of_bits, ENC_NA);
 				offset++;
 			}
 			break;
