@@ -718,7 +718,7 @@ else() # ! MSVC
 	# These are not enabled by default, because the warnings they
 	# produce are very hard or impossible to eliminate.
 	#
-	if(ENABLE_EXTRA_COMPILER_WARNINGS)   # This overrides -Werror
+	if(ENABLE_EXTRA_COMPILER_WARNINGS)
 		list(APPEND WIRESHARK_COMMON_FLAGS
 			# The following are for C and C++
 			-Wpedantic
@@ -963,7 +963,7 @@ if(MSVC)
 endif()
 
 set(WERROR_COMMON_FLAGS "")
-if(ENABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
+if(ENABLE_WERROR)
 	if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(WERROR_COMMON_FLAGS "/WX")
 	else()
