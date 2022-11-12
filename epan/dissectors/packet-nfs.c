@@ -8110,8 +8110,7 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			* Get the entry name and create subtree of field nfs.name
 			*/
-			name = (char *)tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), name_len+1), offset + 16, name_len);
-			name[name_len] = '\0';
+			name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 16, name_len, ENC_UTF_8);
 
 			eitem = proto_tree_add_string_format(
 				dirlist_tree, hf_nfs_name, tvb, offset, -1, name, "Entry: %s", name);
