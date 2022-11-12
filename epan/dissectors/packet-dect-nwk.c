@@ -3105,7 +3105,7 @@ void proto_register_dect_nwk(void)
 		},
 		{ &hf_dect_nwk_s_ie_terminal_capability_control_codes,
 			{ "Control Codes", "dect_nwk.s.ie.terminal_capability.control_codes", FT_UINT8, BASE_HEX,
-				VALS(dect_nwk_s_ie_terminal_capability_control_codes_val), 0x20, NULL, HFILL
+				VALS(dect_nwk_s_ie_terminal_capability_control_codes_val), 0x07, NULL, HFILL
 			}
 		},
 		{ &hf_dect_nwk_s_ie_terminal_capability_escape_to_char_sets_1,
