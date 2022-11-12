@@ -328,7 +328,7 @@ static const option_part_definition saphdb_part_connect_options_vals[] = {
 	{ 32, "OS User", 29 },
 	{ 33, "Row Slot Image Result", 0 },   /* This is BITVECTOR type ??? */
 	{ 34, "Endianness", 3 },
-	{ 35, "Update Topology Anwhere", 28 },
+	{ 35, "Update Topology Anywhere", 28 },
 	{ 36, "Enable Array Type", 28 },
 	{ 37, "Implicit LOB Streaming", 28 },
 	{ 38, "Cached View Property", 28 },
@@ -714,8 +714,8 @@ dissect_saphdb_part_multi_line_options_data(tvbuff_t *tvb, packet_info *pinfo, p
 static void
 dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
-	guint8 field_short_length = 0, commtype = 0;
-	guint16 field_count = 0, field_length = 0;
+	guint8 field_short_length, commtype = 0;
+	guint16 field_count = 0, field_length;
 
 	/* Parse the field count */
 	field_count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -769,8 +769,8 @@ dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, prot
 static int
 dissect_saphdb_part_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
-	guint8 field_short_length = 0;
-	guint16 field_count = 0, field_length = 0;
+	guint8 field_short_length;
+	guint16 field_count = 0, field_length;
 	guint32 parsed_length = 0;
 
 	proto_item *gss_item = NULL;
