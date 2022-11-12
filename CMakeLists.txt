@@ -616,8 +616,18 @@ else() # ! MSVC
 		endif()
 	endif()
 
+	#
+	# NOTE: Adding new warnings is a policy decision that can have far-reaching
+	# implications for the project and each developers workflow. Modern
+	# C compilers are on a race to add new warnings, not always sensibly.
+	# They are opt-in so take a moment to fully consider the implications
+	# of enabling the latest shiny new warning.
+	# If in doubt ask on the Wireshark developer list (recommended).
+	#
 	list(APPEND WIRESHARK_COMMON_FLAGS
-		# The following are for C and C++
+		#
+		### Flags common to C and C++ ###
+		#
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
 		-Wextra
@@ -650,13 +660,6 @@ else() # ! MSVC
 		#-Wno-error=alloc-size-larger-than=
 		#-Wno-error=stringop-overflow=
 		#
-		# Converting from g_printf() and g_snprintf() to stdio.h turns
-		# up many of these warnings. They will have to be handled later.
-		# It can be a lot of work to fix properly and none of them
-		# seem to flag very interesting issues.
-		#
-		-Wno-format-truncation
-		#
 		# Updating external dependencies can introduce new deprecations.
 		# Also fixing new internal deprecations takes time.
 		# We want to be able to build with -Werror in that case. New
@@ -665,9 +668,6 @@ else() # ! MSVC
 		-Wno-error=deprecated-declarations
 	)
 
-	#
-	# Code that may be worth looking into (coding practices)
-	#
 	if((NOT ENABLE_ASAN) AND (NOT ENABLE_TSAN) AND (NOT ENABLE_UBSAN) AND (NOT DISABLE_FRAME_LARGER_THAN_WARNING))
 		#
 		# Only do this if none of ASan, TSan, and UBSan are
@@ -675,12 +675,15 @@ else() # ! MSVC
 		# the stack usage - we only care about stack
 		# usage in normal operation.
 		#
-		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
+		list(APPEND WIRESHARK_COMMON_FLAGS
 			-Wframe-larger-than=32768
 		)
 	endif()
 
 	list(APPEND WIRESHARK_C_ONLY_FLAGS
+		#
+		### Flags for C only ###
+		#
 		# The following are C only, not C++
 		-Wunused-const-variable
 		#
@@ -712,16 +715,54 @@ else() # ! MSVC
 		list(APPEND WIRESHARK_C_ONLY_FLAGS -Wno-missing-braces)
 	endif()
 
-
 	list(APPEND WIRESHARK_CXX_ONLY_FLAGS
+		#
+		### Flags for C++ only ###
+		#
 		-Wextra-semi	# Clang-only
 	)
+
+	#
+	# Not all warnings are the same. They fall on a spectrum from "critical"
+	# to "pedantic nonsense". These are warnings that realistically are worth
+	# fixing eventually.
+	#
+	if(ENABLE_TODO_WARNINGS)
+		list(APPEND WIRESHARK_COMMON_FLAGS
+			#
+			# All the registration functions block these for now.
+			#
+			-Wmissing-prototypes
+			-Wmissing-declarations
+			#
+			# A bunch of "that might not work on SPARC" code blocks
+			# this one for now; some of it is code that *will* work
+			# on SPARC, such as casts of "struct sockaddr *" to
+			# "struct sockaddr_in *", which are required by some
+			# APIs such as getifaddrs().
+			#
+			-Wcast-align
+		)
+	else()
+		list(APPEND WIRESHARK_COMMON_FLAGS
+			#
+			# Converting from g_printf() and g_snprintf() to stdio.h turns
+			# up many of these warnings. They will have to be handled later.
+			# It can be a lot of work to fix properly and none of them
+			# seem to flag very interesting issues.
+			#
+			-Wno-format-truncation # Enabled with -Wall
+		)
+		list(APPEND WIRESHARK_C_ONLY_FLAGS
+			-Wno-pointer-sign # Enabled with -Wall
+		)
+	endif()
 
 	#
 	# These are not enabled by default, because the warnings they
 	# produce are very hard or impossible to eliminate.
 	#
-	if(ENABLE_EXTRA_COMPILER_WARNINGS)
+	if(ENABLE_PEDANTIC_COMPILER_WARNINGS)
 		list(APPEND WIRESHARK_COMMON_FLAGS
 			# The following are for C and C++
 			-Wpedantic
@@ -743,19 +784,6 @@ else() # ! MSVC
 			# never enable this one with -Werror.
 			#
 			-Wcast-qual
-			#
-			# All the registration functions block these for now.
-			#
-			-Wmissing-prototypes
-			-Wmissing-declarations
-			#
-			# A bunch of "that might not work on SPARC" code blocks
-			# this one for now; some of it is code that *will* work
-			# on SPARC, such as casts of "struct sockaddr *" to
-			# "struct sockaddr_in *", which are required by some
-			# APIs such as getifaddrs().
-			#
-			-Wcast-align
 			#
 			# Doesn't warn of interesting issues. Usually the
 			# duplicated branches are protocol constants that
@@ -793,20 +821,6 @@ else() # ! MSVC
 		)
 
 		list(APPEND WIRESHARK_CXX_ONLY_FLAGS
-		)
-	else()
-		#
-		# -Wpointer-sign is a default test we get with -Wall and
-		# -W, but for some reason we were suppressing it -
-		# unconditionally.  Suppress it only without the extra
-		# warnings, so we can at least see how much we get.
-		# (This would have caught at least one error - the one
-		# in change https://code.wireshark.org/review/33234,
-		# which would have suggested that the wrong
-		# proto_tree_add_ret_ call was being used.)
-		#
-		list(APPEND WIRESHARK_C_ONLY_FLAGS
-			-Wno-pointer-sign
 		)
 	endif()
 
