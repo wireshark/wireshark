@@ -794,7 +794,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
             /* Only defragment valid frames with a good FCS */
             if (sent_fcs == fcs)
             {
-              fragment_item *frag_msg = NULL;
+              fragment_head *frag_msg = NULL;
               frag_msg = fragment_add_seq_check(&docsis_reassembly_table,
                                                 tvb, hdrlen, pinfo,
                                                 frag_sid, NULL, /* ID for fragments belonging together */

@@ -4733,7 +4733,7 @@ again:
         {
             offset = (pinfo->desegment_offset==-1?0:pinfo->desegment_offset);
             tvbuff_t *new_tvb = NULL;
-            fragment_item *frag_msg = NULL;
+            fragment_head *frag_msg = NULL;
             pinfo->fragmented = TRUE;
             frag_msg = fragment_add_seq_next(&msg_reassembly_table,
                                              tvb, offset, pinfo,

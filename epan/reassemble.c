@@ -326,17 +326,25 @@ static gboolean
 free_all_fragments(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
 {
 	fragment_head *fd_head;
-	fragment_item *tmp_fd;
+	fragment_item *fd_i = NULL, *tmp_fd;
 
 	/* g_hash_table_new_full() was used to supply a function
 	 * to free the key and anything to which it points
 	 */
-	for (fd_head = (fragment_head *)value; fd_head != NULL; fd_head = tmp_fd) {
-		tmp_fd=fd_head->next;
-
+	fd_head = (fragment_head *)value;
+	if (fd_head != NULL) {
+		fd_i = fd_head->next;
 		if(fd_head->tvb_data && !(fd_head->flags&FD_SUBSET_TVB))
 			tvb_free(fd_head->tvb_data);
-		g_slice_free(fragment_item, fd_head);
+		g_slice_free(fragment_head, fd_head);
+	}
+
+	for (; fd_i != NULL; fd_i = tmp_fd) {
+		tmp_fd=fd_i->next;
+
+		if(fd_i->tvb_data && !(fd_i->flags&FD_SUBSET_TVB))
+			tvb_free(fd_i->tvb_data);
+		g_slice_free(fragment_item, fd_i);
 	}
 
 	return TRUE;
@@ -369,16 +377,19 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 	GPtrArray *allocated_fragments = (GPtrArray *) user_data;
 	fragment_head *fd_head;
 
-	for (fd_head = (fragment_head *)value; fd_head != NULL; fd_head = fd_head->next) {
+	fd_head = (fragment_head *)value;
+	if (fd_head != NULL) {
 		/*
 		 * A reassembled packet is inserted into the
 		 * hash table once for every frame that made
-		 * up the reassembled packet; add first seen
-		 * fragments to array and later free them in
+		 * up the reassembled packet; add to the array
+		 * the first time seen and later free them in
 		 * free_fragments()
 		 */
-		if (fd_head->flags == FD_VISITED_FREE)
-			break;
+		if (fd_head->flags == FD_VISITED_FREE) {
+			/* Already visited with another key */
+			return TRUE;
+		}
 		if (fd_head->flags & FD_SUBSET_TVB)
 			fd_head->tvb_data = NULL;
 		g_ptr_array_add(allocated_fragments, fd_head);
@@ -391,11 +402,21 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 static void
 free_fragments(gpointer data, gpointer user_data _U_)
 {
-	fragment_item *fd_head = (fragment_item *) data;
+	fragment_head *fd_head = (fragment_head *) data;
+	fragment_item *fd_i, *tmp;
 
 	if (fd_head->tvb_data)
 		tvb_free(fd_head->tvb_data);
-	g_slice_free(fragment_item, fd_head);
+	for (fd_i = fd_head->next; fd_i; fd_i = tmp) {
+		tmp = fd_i->next;
+		if (fd_i->flags & FD_SUBSET_TVB)
+			fd_i->tvb_data = NULL;
+		if (fd_i->tvb_data) {
+			tvb_free(fd_i->tvb_data);
+		}
+		g_slice_free(fragment_item, fd_i);
+	}
+	g_slice_free(fragment_head, fd_head);
 }
 
 typedef struct register_reassembly_table {
@@ -723,9 +744,8 @@ fragment_set_tot_len(reassembly_table *table, const packet_info *pinfo,
 	 * doesn't conflict with values set by existing fragments.
 	 * XXX - eliminate this check?
 	 */
-	fd = fd_head;
 	if (fd_head->flags & FD_BLOCKSEQUENCE) {
-		while (fd) {
+		for (fd = fd_head->next; fd; fd = fd->next) {
 			if (fd->offset > max_offset) {
 				max_offset = fd->offset;
 				if (max_offset > tot_len) {
@@ -733,7 +753,6 @@ fragment_set_tot_len(reassembly_table *table, const packet_info *pinfo,
 					THROW_MESSAGE(ReassemblyError, fd_head->error);
 				}
 			}
-			fd = fd->next;
 		}
 	}
 
@@ -829,7 +848,7 @@ fragment_truncate(reassembly_table *table, const packet_info *pinfo,
 	 * so we'll just leave the overlap flags as-is.
 	 */
 	fd_head->flags &= ~(FD_OVERLAP|FD_OVERLAPCONFLICT|FD_TOOLONGFRAGMENT|FD_MULTIPLETAILS);
-	fragment_item *fd_i, *prev_fd = fd_head;
+	fragment_item *fd_i, *prev_fd = NULL;
 	for (fd_i = fd_head->next; fd_i && (fd_i->offset < tot_len); fd_i = fd_i->next) {
 		fd_i->flags &= ~(FD_TOOLONGFRAGMENT|FD_MULTIPLETAILS);
 		/* Check for the split point occuring in the middle of the
@@ -850,7 +869,11 @@ fragment_truncate(reassembly_table *table, const packet_info *pinfo,
 	}
 
 	/* Remove all the other fragments, as they are past the split point. */
-        prev_fd->next = NULL;
+	if (prev_fd) {
+		prev_fd->next = NULL;
+	} else {
+		fd_head->next = NULL;
+	}
 	fragment_item *tmp_fd;
 	for (; fd_i; fd_i = tmp_fd) {
 		tmp_fd=fd_i->next;
@@ -1007,12 +1030,18 @@ LINK_FRAG(fragment_head *fd_head,fragment_item *fd)
 	fragment_item *fd_i;
 
 	/* add fragment to list, keep list sorted */
-	for(fd_i= fd_head; fd_i->next;fd_i=fd_i->next) {
-		if (fd->offset < fd_i->next->offset )
-			break;
+	if (fd_head->next == NULL || fd->offset < fd_head->next->offset) {
+		/* New first fragment */
+		fd->next = fd_head->next;
+		fd_head->next = fd;
+	} else {
+		for(fd_i = fd_head->next; fd_i->next; fd_i=fd_i->next) {
+			if (fd->offset < fd_i->next->offset )
+				break;
+		}
+		fd->next = fd_i->next;
+		fd_i->next = fd;
 	}
-	fd->next=fd_i->next;
-	fd_i->next=fd;
 }
 
 static void
@@ -1022,7 +1051,12 @@ MERGE_FRAG(fragment_head *fd_head, fragment_item *fd)
 
 	if (fd == NULL) return;
 
-	for(fd_i = fd_head; fd_i->next; fd_i=fd_i->next) {
+	if (fd_head->next == NULL || fd->offset < fd_head->next->offset) {
+		tmp = fd_head->next;
+		fd_head->next = fd;
+		fd = tmp;
+	}
+	for(fd_i = fd_head->next; fd_i->next; fd_i=fd_i->next) {
 		if (fd->offset < fd_i->next->offset) {
 			tmp = fd_i->next;
 			fd_i->next = fd;
@@ -1071,10 +1105,8 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	fd->flags = 0;
 	fd->frame = frag_frame;
 	fd->offset = frag_offset;
-	fd->fragment_nr_offset = 0; /* will only be used with sequence */
 	fd->len  = frag_data_len;
 	fd->tvb_data = NULL;
-	fd->error = NULL;
 
 	/*
 	 * Are we adding to an already-completed reassembly?
@@ -1260,7 +1292,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	tvb_set_free_cb(fd_head->tvb_data, g_free);
 
 	/* add all data fragments */
-	for (dfpos=0,fd_i=fd_head;fd_i;fd_i=fd_i->next) {
+	for (dfpos=0,fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
 		if (fd_i->len) {
 			/*
 			 * The loop above that calculates max also
@@ -1839,7 +1871,6 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	fd->offset = frag_number_work;
 	fd->len  = frag_data_len;
 	fd->tvb_data = NULL;
-	fd->error = NULL;
 
 	/* fd_head->frame is the maximum of the frame numbers of all the
 	 * fragments added to the reassembly. */
@@ -2106,7 +2137,7 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			 * use the next expected fragment number as the fragment
 			 * number for this fragment.
 			 */
-			for (fd = fd_head; fd != NULL; fd = fd->next) {
+			for (fd = fd_head->next; fd != NULL; fd = fd->next) {
 				if (fd->next == NULL)
 					frag_number = fd->offset + 1;
 			}
@@ -2289,7 +2320,7 @@ fragment_add_seq_single_move(reassembly_table *table, const packet_info *pinfo,
 	new_fh = lookup_fd_head(table, pinfo, id+offset, data, NULL);
 	if (new_fh != NULL) {
 		/* Attach to the end of the sorted list. */
-		for(prev_fd = fh; prev_fd->next != NULL; prev_fd=prev_fd->next) {}
+		for(prev_fd = fh->next; prev_fd->next != NULL; prev_fd=prev_fd->next) {}
 		/* Don't take a reassembly starting with a First fragment. */
 		fd = new_fh->next;
 		if (fd && fd->offset != 0) {
@@ -2363,7 +2394,7 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 		for (frag_number=1; frag_number < max_frags; frag_number++) {
 			new_fh = lookup_fd_head(table, pinfo, id-frag_number, data, NULL);
 			if (new_fh != NULL) {
-				prev_fd = new_fh;
+				prev_fd = new_fh->next;
 				new_fh->frame = 0;
 				for (fd=new_fh->next; fd && fd->offset < frag_number; fd=fd->next) {
 					prev_fd = fd;
@@ -2371,7 +2402,9 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 						new_fh->frame = fd->frame;
 					}
 				}
-				prev_fd->next = NULL;
+				if (prev_fd) {
+					prev_fd->next = NULL;
+				}
 				break;
 			}
 		}
@@ -2441,7 +2474,7 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 	}
 	if (last) {
 		/* Look for fragments past the end set by this Last fragment. */
-		prev_fd = fh;
+		prev_fd = fh->next;
 		for (fd=fh->next; fd && fd->offset <= frag_number; fd=fd->next) {
 			prev_fd = fd;
 		}
@@ -2453,7 +2486,9 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 		 * looped around on the sequence numbers. It can also happen
 		 * if bit errors mess up Last or First. */
 		if (fd != NULL) {
-			prev_fd->next = NULL;
+			if (prev_fd) {
+				prev_fd->next = NULL;
+			}
 			fh->frame = 0;
 			for (prev_fd=fh->next; prev_fd; prev_fd=prev_fd->next) {
 				if (fh->frame < prev_fd->frame) {
@@ -2588,7 +2623,6 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 		fd_head = g_slice_new(fragment_head);
 		fd_head->next = NULL;
 		fd_head->frame = 0;
-		fd_head->offset = 0;
 		fd_head->len = 0;
 		fd_head->fragment_nr_offset = 0;
 		fd_head->datalen = tot_len;
@@ -2609,7 +2643,9 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 	reassembled_key reass_key;
 	reassembled_key *new_key;
 	fragment_head *fd_head;
+	fragment_item *fd;
 	gpointer orig_key;
+	guint32 max_offset = 0;
 
 	/*
 	 * Have we already seen this frame?
@@ -2624,7 +2660,12 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 	fd_head = lookup_fd_head(table, pinfo, id, data, &orig_key);
 
 	if (fd_head) {
-		fd_head->datalen = fd_head->offset;
+		for (fd = fd_head->next; fd; fd = fd->next) {
+			if (fd->offset > max_offset) {
+				max_offset = fd->offset;
+			}
+		}
+		fd_head->datalen = max_offset;
 		fd_head->flags |= FD_DATALEN_SET;
 
 		fragment_defragment_and_free (fd_head, pinfo);

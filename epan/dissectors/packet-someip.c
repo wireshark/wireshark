@@ -3589,7 +3589,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         gboolean        tp_more_segments = FALSE;
         gboolean        update_col_info = TRUE;
         guint32         segment_key;
-        fragment_item  *someip_tp_head = NULL;
+        fragment_head  *someip_tp_head = NULL;
         proto_tree     *tp_tree = NULL;
 
         ti = proto_tree_add_item(someip_tree, hf_someip_tp, tvb, offset, someip_payload_length, ENC_NA);

@@ -573,16 +573,17 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             guint32 frag_id, enum pid_payload_type pload_type)
 {
     mp2t_stream_key *stream;
-    fragment_head *frag;
+    fragment_head *frag_head;
+    fragment_item *frag = NULL;
     tvbuff_t      *len_tvb = NULL, *frag_tvb = NULL, *data_tvb = NULL;
     gint           pkt_len = 0;
     guint          remaining_len;
 
     stream = (mp2t_stream_key *)p_get_proto_data(pinfo->pool, pinfo, proto_mp2t, MP2T_PROTO_DATA_STREAM);
     if (pinfo->fd->visited) {
-        frag = fragment_get_reassembled_id(&mp2t_reassembly_table, pinfo, frag_id);
-        if (frag) {
-            len_tvb = frag->tvb_data;
+        frag_head = fragment_get_reassembled_id(&mp2t_reassembly_table, pinfo, frag_id);
+        if (frag_head) {
+            len_tvb = frag_head->tvb_data;
             offset = 0;
         } else {
             /* Not reassembled on the first pass. There are two possibilities:
@@ -590,8 +591,8 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
              * put in the table.
              * 2) Dangling fragments at the end of the capture.
              */
-            frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, stream);
-            if (!frag) {
+            frag_head = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, stream);
+            if (!frag_head) {
                 /* This is the entire packet */
                 len_tvb = tvb;
             } else {
@@ -602,9 +603,10 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             }
         }
     } else {
-        frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, stream);
-        if (frag)
-            frag = frag->next;
+        frag_head = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, stream);
+        if (frag_head) {
+            frag = frag_head->next;
+        }
 
         if (!frag) { /* First frame */
             len_tvb = tvb;

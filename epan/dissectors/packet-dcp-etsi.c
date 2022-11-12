@@ -316,10 +316,12 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     got = (guint32 *)wmem_alloc(pinfo->pool, fcount*sizeof(guint32));
 
     /* make a list of the findex (offset) numbers of the fragments we have */
-    fd = fragment_get(&dcp_reassembly_table, pinfo, seq, NULL);
-    for (fd_head = fd; fd_head != NULL && fragments < fcount; fd_head = fd_head->next) {
-      if(fd_head->tvb_data) {
-        got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
+    fd_head = fragment_get(&dcp_reassembly_table, pinfo, seq, NULL);
+    if (fd_head) {
+      for (fd = fd_head->next; fd != NULL && fragments < fcount; fd = fd->next) {
+        if(fd->tvb_data) {
+          got[fragments++] = fd->offset; /* this is the findex of the fragment */
+        }
       }
     }
     /* have we got enough for Reed Solomon to try to correct ? */

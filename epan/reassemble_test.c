@@ -108,16 +108,32 @@ static struct _fd_flags {
 #define N_FD_FLAGS (signed)(sizeof(fd_flags)/sizeof(struct _fd_flags))
 
 static void
-print_fd(fragment_head *fd, gboolean is_head) {
+print_fd_head(fragment_head *fd) {
+    int i;
+
+    g_assert_true(fd != NULL);
+    printf("        %16p %16p %3u %3u", (void *)fd, (void *)(fd->next), fd->frame, fd->len);
+
+    printf(" %3u %3u", fd->datalen, fd->reassembled_in);
+
+    if (fd->tvb_data != NULL) {
+        printf(" %16p", tvb_get_ptr(fd->tvb_data, 0, 1)); /* Address of first byte only... */
+    } else {
+        printf(" %16s", "<null tvb_data>");
+    }
+    for (i=0; i < N_FD_FLAGS; i++) {
+        printf(" %s", (fd->flags & fd_flags[i].flag) ? fd_flags[i].flag_name : "  ");
+    }
+    printf("\n");
+}
+
+static void
+print_fd_item(fragment_item *fd) {
     int i;
 
     g_assert_true(fd != NULL);
     printf("        %16p %16p %3u %3u %3u", (void *)fd, (void *)(fd->next), fd->frame, fd->offset, fd->len);
-    if (is_head) {
-        printf(" %3u %3u", fd->datalen, fd->reassembled_in);
-    } else {
-        printf( "        ");
-    }
+    printf( "        ");
     if (fd->tvb_data != NULL) {
         printf(" %16p", tvb_get_ptr(fd->tvb_data, 0, 1)); /* Address of first byte only... */
     } else {
@@ -134,9 +150,9 @@ print_fd_chain(fragment_head *fd_head) {
     fragment_item *fdp;
 
     g_assert_true(fd_head != NULL);
-    print_fd(fd_head, TRUE);
+    print_fd_head(fd_head);
     for (fdp=fd_head->next; fdp != NULL; fdp=fdp->next) {
-        print_fd(fdp, FALSE);
+        print_fd_item(fdp);
     }
 }
 
@@ -248,7 +264,6 @@ test_simple_fragment_add_seq(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame number of fragment in assembly */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(170,fd_head->len); /* the length of data we have */
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -348,7 +363,6 @@ test_fragment_add_seq_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(1,fd_head->frame);  /* max frame in reassembly */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(50,fd_head->len); /* the length of data we have */
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(1,fd_head->reassembled_in);
@@ -385,7 +399,6 @@ test_fragment_add_seq_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(2,fd_head->frame);   /* max frame in reassembly */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     /* ASSERT_EQ(50,fd_head->len);     the length of data we have */
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(0,fd_head->reassembled_in);
@@ -420,7 +433,6 @@ test_fragment_add_seq_partial_reassembly(void)
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
     ASSERT_EQ(3,fd_head->frame);   /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     /* ASSERT_EQ(50,fd_head->len);     the length of data we have */
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(0,fd_head->reassembled_in);
@@ -464,7 +476,6 @@ test_fragment_add_seq_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(190,fd_head->len); /* the length of data we have */
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -522,7 +533,6 @@ test_fragment_add_seq_partial_reassembly(void)
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
     ASSERT_EQ(5,fd_head->frame);   /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     ASSERT_EQ(230,fd_head->len);   /* the length of data we have */
     ASSERT_EQ(3,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(5,fd_head->reassembled_in);
@@ -629,7 +639,6 @@ test_fragment_add_seq_duplicate_first(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(150,fd_head->len); /* the length of data we have */
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(3,fd_head->reassembled_in);
@@ -728,7 +737,6 @@ test_fragment_add_seq_duplicate_middle(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(150,fd_head->len); /* the length of data we have */
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -826,7 +834,6 @@ test_fragment_add_seq_duplicate_last(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(150,fd_head->len); /* the length of data we have */
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(3,fd_head->reassembled_in);
@@ -928,7 +935,6 @@ test_fragment_add_seq_duplicate_conflict(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(150,fd_head->len); /* the length of data we have */
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -1040,7 +1046,6 @@ test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(170,fd_head->len); /* the length of data we have */
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -1119,7 +1124,6 @@ test_fragment_add_seq_check_1(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(2,fd_head->frame);  /* max frame of fragment in structure */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(110,fd_head->len); /* the length of data we have */
     ASSERT_EQ(1,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(2,fd_head->reassembled_in);
@@ -1174,7 +1178,6 @@ test_fragment_add_seq_802_11_0(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(0,fd_head->frame);  /* unused */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len);    /* unused */
     ASSERT_EQ(0,fd_head->datalen); /* unused */
     ASSERT_EQ(1,fd_head->reassembled_in);
@@ -1312,7 +1315,6 @@ test_simple_fragment_add_seq_next(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(3,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(110,fd_head->len); /* the length of data we have */
     ASSERT_EQ(1,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(3,fd_head->reassembled_in);
@@ -1365,7 +1367,6 @@ test_missing_data_fragment_add_seq_next(void)
     /* check the contents of the structure. Reassembly failed so everything
      * should be null (meaning, just use the original tvb)  */
     ASSERT_EQ(0,fd_head->frame);  /* unused */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* the length of data we have */
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(0,fd_head->reassembled_in);
@@ -1488,7 +1489,6 @@ test_missing_data_fragment_add_seq_next_3(void)
 
     /* check the contents of the structure. */
     ASSERT_EQ(0,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* the length of data we have */
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(20,fd_head->reassembled_in);
@@ -1507,7 +1507,6 @@ test_missing_data_fragment_add_seq_next_3(void)
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
     ASSERT_NE_POINTER(NULL,fd_head);
     ASSERT_EQ(0,fd_head->frame);  /* unused */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* the length of data we have */
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(20,fd_head->reassembled_in);
@@ -1584,7 +1583,6 @@ test_simple_fragment_add(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame number of fragment in assembly */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused in fragment_add */
     ASSERT_EQ(170,fd_head->datalen); /* total datalen of assembly */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -1685,7 +1683,6 @@ test_fragment_add_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(1,fd_head->frame);  /* max frame in reassembly */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(50,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(1,fd_head->reassembled_in);
@@ -1722,7 +1719,6 @@ test_fragment_add_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(2,fd_head->frame);   /* max frame in reassembly */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     ASSERT_EQ(0,fd_head->len);     /* unused */
     /* ASSERT_EQ(0,fd_head->datalen);
      * reassembly not finished; datalen not well defined.
@@ -1759,7 +1755,6 @@ test_fragment_add_partial_reassembly(void)
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
     ASSERT_EQ(3,fd_head->frame);   /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     ASSERT_EQ(0,fd_head->len);     /* unused */
     /* ASSERT_EQ(0,fd_head->datalen);
      * reassembly not finished; datalen not well defined.
@@ -1805,7 +1800,6 @@ test_fragment_add_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(190,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -1863,7 +1857,6 @@ test_fragment_add_partial_reassembly(void)
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
     ASSERT_EQ(5,fd_head->frame);   /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     ASSERT_EQ(0,fd_head->len);   /* unused */
     ASSERT_EQ(230,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(5,fd_head->reassembled_in);
@@ -1992,7 +1985,6 @@ test_fragment_add_duplicate_first(void)
     /* check the contents of the structure */
     /*ASSERT_EQ(4,fd_head->frame);  max frame we have */
     ASSERT_EQ(3,fd_head->frame);  /* never add the duplicate frame */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(3,fd_head->reassembled_in);
@@ -2100,7 +2092,6 @@ test_fragment_add_duplicate_middle(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -2224,7 +2215,6 @@ test_fragment_add_duplicate_last(void)
     /* check the contents of the structure */
     /* ASSERT_EQ(4,fd_head->frame); never add the last frame again */
     ASSERT_EQ(3,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(3,fd_head->reassembled_in);
@@ -2336,7 +2326,6 @@ test_fragment_add_duplicate_conflict(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -2458,7 +2447,6 @@ test_simple_fragment_add_check(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame number of fragment in assembly */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused in fragment_add */
     ASSERT_EQ(170,fd_head->datalen); /* total datalen of assembly */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -2565,7 +2553,6 @@ test_fragment_add_check_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(1,fd_head->frame);  /* max frame in reassembly */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(50,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(1,fd_head->reassembled_in);
@@ -2603,7 +2590,6 @@ test_fragment_add_check_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(2,fd_head->frame);   /* max frame in reassembly */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     ASSERT_EQ(0,fd_head->len);     /* unused */
     /* ASSERT_EQ(0,fd_head->datalen);
      * reassembly not finished; datalen not well defined.
@@ -2640,7 +2626,6 @@ test_fragment_add_check_partial_reassembly(void)
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
     ASSERT_EQ(3,fd_head->frame);   /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     ASSERT_EQ(0,fd_head->len);     /* unused */
     /* ASSERT_EQ(0,fd_head->datalen);
      * reassembly not finished; datalen not well defined.
@@ -2686,7 +2671,6 @@ test_fragment_add_check_partial_reassembly(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(190,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -2744,7 +2728,6 @@ test_fragment_add_check_partial_reassembly(void)
     fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
     ASSERT_NE_POINTER(NULL,fd_head);
     ASSERT_EQ(5,fd_head->frame);   /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset);  /* unused */
     ASSERT_EQ(0,fd_head->len);   /* unused */
     ASSERT_EQ(230,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(5,fd_head->reassembled_in);
@@ -2878,7 +2861,6 @@ test_fragment_add_check_duplicate_first(void)
     /* check the contents of the structure */
     /*ASSERT_EQ(4,fd_head->frame);  max frame we have */
     ASSERT_EQ(3,fd_head->frame);  /* never add the duplicate frame */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(3,fd_head->reassembled_in);
@@ -2990,7 +2972,6 @@ test_fragment_add_check_duplicate_middle(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(4,fd_head->reassembled_in);
@@ -3102,7 +3083,6 @@ test_fragment_add_check_duplicate_last(void)
     /* check the contents of the structure */
     /* ASSERT_EQ(4,fd_head->frame); never add the last frame again */
     ASSERT_EQ(3,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(3,fd_head->reassembled_in);
@@ -3218,7 +3198,6 @@ test_fragment_add_check_duplicate_conflict(void)
 
     /* check the contents of the structure */
     ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
     ASSERT_EQ(150,fd_head->datalen);
     ASSERT_EQ(4,fd_head->reassembled_in);

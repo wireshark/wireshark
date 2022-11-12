@@ -3693,7 +3693,7 @@ find_maxnextseq(packet_info *pinfo, struct tcp_multisegment_pdu *msp, guint32 ma
 
     /* Find length of contiguous fragments. */
     guint32 max = maxnextseq - msp->seq;
-    for (fragment_item *frag = fd_head; frag; frag = frag->next) {
+    for (fragment_item *frag = fd_head->next; frag; frag = frag->next) {
         guint32 frag_end = frag->offset + frag->len;
         if (frag->offset <= max && max < frag_end) {
             max = frag_end;

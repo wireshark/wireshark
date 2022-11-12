@@ -2226,6 +2226,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree    *main_tree;
     proto_item    *sub_item;
     fragment_head *frag_msg       = NULL;
+    fragment_item *frag           = NULL;
     gboolean       save_fragmented;
     gboolean       complete;
     tvbuff_t*      new_tvb        = NULL;
@@ -2353,14 +2354,12 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 /* packet stream is guaranted to be sequence of fragments, one by one,
                    so find last fragment for its offset and length */
-                while (frag_msg->next) {
-                    frag_msg = frag_msg->next;
-                }
+                for (frag = frag_msg->next; frag; frag = frag->next) {}
 
                 frag_msg = fragment_add_check(&obex_reassembly_table,
                         tvb, 0, pinfo, pinfo->p2p_dir, NULL,
-                        frag_msg->offset + frag_msg->len, tvb_reported_length(tvb),
-                                ((frag_msg->offset + frag_msg->len + tvb_reported_length(tvb)) <
+                        frag->offset + frag->len, tvb_reported_length(tvb),
+                                ((frag->offset + frag->len + tvb_reported_length(tvb)) <
                                     fragment_get_tot_len(&obex_reassembly_table, pinfo, pinfo->p2p_dir, NULL)) ? TRUE : FALSE);
 
                 new_tvb = process_reassembled_data(tvb, 0, pinfo,

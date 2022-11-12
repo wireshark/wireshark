@@ -1107,9 +1107,10 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* Make sure we aren't going to go past AGGREGATE_MAX
          * and caclulate our full A-MPDU length */
         fd_head = fragment_get(&ampdu_reassembly_table, pinfo, ampdu_id, NULL);
-        while (fd_head) {
-            ampdu_len += fd_head->len + PADDING4(fd_head->len) + 4;
-            fd_head = fd_head->next;
+        if (fd_head) {
+            for (ft_fdh = fd_head->next; ft_fdh; ft_fdh = ft_fdh->next) {
+                ampdu_len += ft_fdh->len + PADDING4(ft_fdh->len) + 4;
+            }
         }
         if (ampdu_len > AGGREGATE_MAX) {
             proto_tree_add_expert_format(ppi_tree, pinfo, &ei_ppi_invalid_length, tvb, offset, -1, "Aggregate length greater than maximum (%u)", AGGREGATE_MAX);
@@ -1132,7 +1133,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         /* Show our fragments */
         if (fd_head && tree) {
-            ft_fdh = fd_head;
+            ft_fdh = fd_head->next;
             /* List our fragments */
             seg_tree = proto_tree_add_subtree_format(ppi_tree, tvb, offset, -1,
                     ett_ampdu_segments, &ti, "A-MPDU (%u bytes w/hdrs):", ampdu_len);
@@ -1168,18 +1169,17 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 agg_tree = proto_item_add_subtree(ti, ett_ampdu);
             }
 
-            while (fd_head) {
-                if (fd_head->tvb_data && fd_head->len) {
+            for (ft_fdh = fd_head->next; ft_fdh; ft_fdh = ft_fdh->next) {
+                if (ft_fdh->tvb_data && ft_fdh->len) {
                     mpdu_count++;
                     mpdu_str = wmem_strdup_printf(pinfo->pool, "MPDU #%d", mpdu_count);
 
-                    next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+                    next_tvb = tvb_new_chain(tvb, ft_fdh->tvb_data);
                     add_new_data_source(pinfo, next_tvb, mpdu_str);
 
                     ampdu_tree = proto_tree_add_subtree(agg_tree, next_tvb, 0, -1, ett_ampdu_segment, NULL, mpdu_str);
                     call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, ampdu_tree, &phdr);
                 }
-                fd_head = fd_head->next;
             }
             proto_tree_add_uint(seg_tree, hf_ampdu_count, tvb, 0, 0, mpdu_count);
             pinfo->fragmented=FALSE;
