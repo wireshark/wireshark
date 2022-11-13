@@ -2393,7 +2393,7 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 		if ( fl_ie_type == DECT_NWK_S_IE_FL_DOUBLE_OCTET_ELEMENT ) {
 			element_length = 2;
 			field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length, ett_dect_nwk_s_ie_element, &field_tree_item, "Fixed length Element: ");
-			proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_double_octet_type, dect_nwk_s_ie_fl_double_octet_type_val, "Unkown: 0x%0x"));
+			proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_double_octet_type, dect_nwk_s_ie_fl_double_octet_type_val, "Unknown: 0x%0x"));
 			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl, tvb, offset, 1, ENC_NA);
 			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_type, tvb, offset, 1, ENC_NA);
 			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_double_octet_type, tvb, offset, 1, ENC_NA);
@@ -2429,9 +2429,9 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 			proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_type, tvb, offset, 1, ENC_NA);
 			if ( fl_ie_type == DECT_NWK_S_IE_FL_CONTROL ) {
 				proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_control_type, tvb, offset, 1, ENC_NA);
-				proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_double_octet_type, dect_nwk_s_ie_fl_control_type_val, "Unkown: 0x%0x"));
+				proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_double_octet_type, dect_nwk_s_ie_fl_control_type_val, "Unknown: 0x%0x"));
 			} else {
-				proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_type, dect_nwk_s_ie_fl_type_val, "Unkown: 0x%0x"));
+				proto_item_append_text(field_tree_item, "%s", val_to_str(fl_ie_type, dect_nwk_s_ie_fl_type_val, "Unknown: 0x%0x"));
 				switch (fl_ie_type) {
 					case DECT_NWK_S_IE_FL_SHIFT:
 						proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_shift_locking, tvb, offset, 1, ENC_NA);
@@ -2448,7 +2448,7 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 		element_type = ( tvb_get_guint8(tvb, offset) & 0x7F);
 		element_length = tvb_get_guint8(tvb, offset + 1);
 		field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length + 2, ett_dect_nwk_s_ie_element, &field_tree_item, "Element: ");
-		proto_item_append_text(field_tree_item, "%s", val_to_str(element_type, dect_nwk_s_ie_type_val, "Unkown: 0x%0x"));
+		proto_item_append_text(field_tree_item, "%s", val_to_str(element_type, dect_nwk_s_ie_type_val, "Unknown: 0x%0x"));
 		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_type, tvb, offset, 1, ENC_NA);
 		offset++;
@@ -2629,7 +2629,7 @@ void proto_register_dect_nwk(void)
 			}
 		},
 		{ &hf_nwk_pdisc,
-			{ "Proticol Discriminator", "dect_nwk.pdisc", FT_UINT8, BASE_HEX,
+			{ "Protocol Discriminator", "dect_nwk.pdisc", FT_UINT8, BASE_HEX,
 				VALS(nwk_pdisc_vals), 0x0F, NULL, HFILL
 			}
 		},
