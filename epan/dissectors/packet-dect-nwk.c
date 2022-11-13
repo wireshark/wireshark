@@ -24,6 +24,9 @@
 
 #include "packet-e212.h"
 
+void proto_register_dect_nwk(void);
+void proto_reg_handoff_dect_nwk(void);
+
 static int proto_dect_nwk = -1;
 
 static gint hf_nwk_ti = -1;
