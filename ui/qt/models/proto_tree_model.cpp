@@ -23,9 +23,15 @@
 // - Add ProtoTreeModel to CaptureFile
 
 ProtoTreeModel::ProtoTreeModel(QObject * parent) :
-    QAbstractItemModel(parent),
-    root_node_(0)
-{}
+    QAbstractItemModel(parent)
+{
+    root_node_ = new ProtoNode(NULL);
+}
+
+ProtoTreeModel::~ProtoTreeModel()
+{
+    delete root_node_;
+}
 
 Qt::ItemFlags ProtoTreeModel::flags(const QModelIndex &index) const
 {
@@ -39,44 +45,39 @@ Qt::ItemFlags ProtoTreeModel::flags(const QModelIndex &index) const
 
 QModelIndex ProtoTreeModel::index(int row, int, const QModelIndex &parent) const
 {
-    ProtoNode parent_node(root_node_);
+    ProtoNode *parent_node = root_node_;
 
     if (parent.isValid()) {
         // index is not a top level item.
         parent_node = protoNodeFromIndex(parent);
     }
 
-    if (! parent_node.isValid())
+    if (! parent_node->isValid())
         return QModelIndex();
 
-    int cur_row = 0;
-    ProtoNode::ChildIterator kids = parent_node.children();
-    while (kids.element().isValid())
-    {
-        if (cur_row == row)
-            break;
-        cur_row++;
-        kids.next();
-    }
-    if (! kids.element().isValid()) {
+    ProtoNode *child = parent_node->child(row);
+    if (! child) {
         return QModelIndex();
     }
 
-    return createIndex(row, 0, static_cast<void *>(kids.element().protoNode()));
+    return createIndex(row, 0, static_cast<void *>(child));
 }
 
 QModelIndex ProtoTreeModel::parent(const QModelIndex &index) const
 {
-    ProtoNode parent_node = protoNodeFromIndex(index).parentNode();
+    if (!index.isValid())
+        return QModelIndex();
+
+    ProtoNode *parent_node = protoNodeFromIndex(index)->parentNode();
     return indexFromProtoNode(parent_node);
 }
 
 int ProtoTreeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        return protoNodeFromIndex(parent).childrenCount();
+        return protoNodeFromIndex(parent)->childrenCount();
     }
-    return ProtoNode(root_node_).childrenCount();
+    return root_node_->childrenCount();
 }
 
 // The QItemDelegate documentation says
@@ -87,15 +88,18 @@ int ProtoTreeModel::rowCount(const QModelIndex &parent) const
 // We might want to move this to a delegate regardless.
 QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
 {
-    ProtoNode index_node = protoNodeFromIndex(index);
-    FieldInformation finfo(index_node.protoNode());
+    if (!index.isValid())
+        return QVariant();
+
+    ProtoNode *index_node = protoNodeFromIndex(index);
+    FieldInformation finfo(index_node);
     if (!finfo.isValid()) {
         return QVariant();
     }
 
     switch (role) {
     case Qt::DisplayRole:
-        return index_node.labelText();
+        return index_node->labelText();
     case Qt::BackgroundRole:
     {
         switch(finfo.flag(PI_SEVERITY_MASK)) {
@@ -148,45 +152,55 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
 void ProtoTreeModel::setRootNode(proto_node *root_node)
 {
     beginResetModel();
-    root_node_ = root_node;
+    delete root_node_;
+    root_node_ = new ProtoNode(root_node);
     endResetModel();
     if (!root_node) return;
 
-    int row_count = ProtoNode(root_node_).childrenCount();
+    int row_count = root_node_->childrenCount();
     if (row_count < 1) return;
     beginInsertRows(QModelIndex(), 0, row_count - 1);
     endInsertRows();
 }
 
-ProtoNode ProtoTreeModel::protoNodeFromIndex(const QModelIndex &index) const
+ProtoNode* ProtoTreeModel::protoNodeFromIndex(const QModelIndex &index) const
 {
-    return ProtoNode(static_cast<proto_node*>(index.internalPointer()));
+    return static_cast<ProtoNode*>(index.internalPointer());
 }
 
-QModelIndex ProtoTreeModel::indexFromProtoNode(ProtoNode &index_node) const
+QModelIndex ProtoTreeModel::indexFromProtoNode(ProtoNode *index_node) const
 {
-    int row = index_node.row();
-
-    if (!index_node.isValid() || row < 0) {
+    if (!index_node) {
         return QModelIndex();
     }
 
-    return createIndex(row, 0, static_cast<void *>(index_node.protoNode()));
+    int row = index_node->row();
+
+    if (!index_node->isValid() || row < 0) {
+        return QModelIndex();
+    }
+
+    return createIndex(row, 0, static_cast<void *>(index_node));
 }
 
 struct find_hfid_ {
     int hfid;
-    ProtoNode node;
+    ProtoNode *node;
 };
 
-void ProtoTreeModel::foreachFindHfid(proto_node *node, gpointer find_hfid_ptr)
+bool ProtoTreeModel::foreachFindHfid(ProtoNode *node, gpointer find_hfid_ptr)
 {
     struct find_hfid_ *find_hfid = (struct find_hfid_ *) find_hfid_ptr;
-    if (PNODE_FINFO(node)->hfinfo->id == find_hfid->hfid) {
-        find_hfid->node = ProtoNode(node);
-        return;
+    if (PNODE_FINFO(node->protoNode())->hfinfo->id == find_hfid->hfid) {
+        find_hfid->node = node;
+        return true;
     }
-    proto_tree_children_foreach(node, foreachFindHfid, find_hfid);
+    for (int i = 0; i < node->childrenCount(); i++) {
+        if (foreachFindHfid(node->child(i), &find_hfid)) {
+                return true;
+        }
+    }
+    return false;
 }
 
 QModelIndex ProtoTreeModel::findFirstHfid(int hf_id)
@@ -196,9 +210,7 @@ QModelIndex ProtoTreeModel::findFirstHfid(int hf_id)
     struct find_hfid_ find_hfid;
     find_hfid.hfid = hf_id;
 
-    proto_tree_children_foreach(root_node_, foreachFindHfid, &find_hfid);
-
-    if (find_hfid.node.isValid()) {
+    if (foreachFindHfid(root_node_, &find_hfid) && find_hfid.node->isValid()) {
         return indexFromProtoNode(find_hfid.node);
     }
     return QModelIndex();
@@ -206,17 +218,22 @@ QModelIndex ProtoTreeModel::findFirstHfid(int hf_id)
 
 struct find_field_info_ {
     field_info *fi;
-    ProtoNode node;
+    ProtoNode *node;
 };
 
-void ProtoTreeModel::foreachFindField(proto_node *node, gpointer find_finfo_ptr)
+bool ProtoTreeModel::foreachFindField(ProtoNode *node, gpointer find_finfo_ptr)
 {
     struct find_field_info_ *find_finfo = (struct find_field_info_ *) find_finfo_ptr;
-    if (PNODE_FINFO(node) == find_finfo->fi) {
-        find_finfo->node = ProtoNode(node);
-        return;
+    if (PNODE_FINFO(node->protoNode()) == find_finfo->fi) {
+        find_finfo->node = node;
+        return true;
     }
-    proto_tree_children_foreach(node, foreachFindField, find_finfo);
+    for (int i = 0; i < node->childrenCount(); i++) {
+        if (foreachFindField(node->child(i), &find_finfo)) {
+                return true;
+        }
+    }
+    return false;
 }
 
 QModelIndex ProtoTreeModel::findFieldInformation(FieldInformation *finfo)
@@ -228,8 +245,7 @@ QModelIndex ProtoTreeModel::findFieldInformation(FieldInformation *finfo)
     struct find_field_info_ find_finfo;
     find_finfo.fi = fi;
 
-    proto_tree_children_foreach(root_node_, foreachFindField, &find_finfo);
-    if (find_finfo.node.isValid()) {
+    if (foreachFindField(root_node_, &find_finfo) && find_finfo.node->isValid()) {
         return indexFromProtoNode(find_finfo.node);
     }
     return QModelIndex();

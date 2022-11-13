@@ -71,6 +71,7 @@ private:
 
     void saveSelectedField(QModelIndex &index);
     static void foreachTreeNode(proto_node *node, gpointer proto_tree_ptr);
+    void foreachExpand(const QModelIndex &index);
 
 signals:
     void fieldSelected(FieldInformation *);

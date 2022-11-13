@@ -18,12 +18,12 @@ FieldInformation::FieldInformation(field_info *fi, QObject * parent)
     parent_fi_ = NULL;
 }
 
-FieldInformation::FieldInformation(proto_node *node, QObject * parent)
+FieldInformation::FieldInformation(ProtoNode *node, QObject * parent)
 :QObject(parent)
 {
     fi_ = NULL;
-    if (node) {
-        fi_ = node->finfo;
+    if (node && node->isValid()) {
+        fi_ = node->protoNode()->finfo;
     }
     parent_fi_ = NULL;
 }

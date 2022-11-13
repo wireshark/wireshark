@@ -8,12 +8,35 @@
  */
 
 #include <ui/qt/utils/proto_node.h>
+#include <ui/qt/utils/field_information.h>
 
 #include <epan/prefs.h>
 
-ProtoNode::ProtoNode(proto_node *node) :
-    node_(node)
+ProtoNode::ProtoNode(proto_node *node, ProtoNode *parent) :
+    node_(node), parent_(parent)
 {
+    if (node_) {
+
+        int num_children = 0;
+        for (proto_node *child = node_->first_child; child; child = child->next) {
+            if (!isHidden(child)) {
+                num_children++;
+            }
+        }
+
+        m_children.reserve(num_children);
+
+        for (proto_node *child = node_->first_child; child; child = child->next) {
+            if (!isHidden(child)) {
+                m_children.append(new ProtoNode(child, this));
+            }
+        }
+    }
+}
+
+ProtoNode::~ProtoNode()
+{
+    qDeleteAll(m_children);
 }
 
 bool ProtoNode::isValid() const
@@ -26,12 +49,9 @@ bool ProtoNode::isChild() const
     return node_ && node_->parent;
 }
 
-ProtoNode ProtoNode::parentNode()
+ProtoNode* ProtoNode::parentNode()
 {
-    if (node_) {
-        return ProtoNode(node_->parent);
-    }
-    return ProtoNode(NULL);
+    return parent_;
 }
 
 QString ProtoNode::labelText() const
@@ -71,15 +91,7 @@ int ProtoNode::childrenCount() const
 {
     if (!node_) return 0;
 
-    int row_count = 0;
-    ChildIterator kids = children();
-    while (kids.element().isValid())
-    {
-        row_count++;
-        kids.next();
-    }
-
-    return row_count;
+    return (int)m_children.count();
 }
 
 int ProtoNode::row()
@@ -88,20 +100,7 @@ int ProtoNode::row()
         return -1;
     }
 
-    int cur_row = 0;
-    ProtoNode::ChildIterator kids = parentNode().children();
-    while (kids.element().isValid())
-    {
-        if (kids.element().protoNode() == node_) {
-            break;
-        }
-        cur_row++;
-        kids.next();
-    }
-    if (! kids.element().isValid()) {
-        return -1;
-    }
-    return cur_row;
+    return (int)parent_->m_children.indexOf(const_cast<ProtoNode*>(this));
 }
 
 bool ProtoNode::isExpanded() const
@@ -117,8 +116,17 @@ proto_node * ProtoNode::protoNode() const
     return node_;
 }
 
+ProtoNode* ProtoNode::child(int row)
+{
+    if (row < 0 || row >= m_children.size())
+        return nullptr;
+    return m_children.at(row);
+}
+
 ProtoNode::ChildIterator ProtoNode::children() const
 {
+    /* XXX: Iterate over m_children instead?
+     * Somewhat faster as m_children already excludes any hidden items. */
     proto_node *child = node_->first_child;
     while (child && isHidden(child)) {
         child = child->next;

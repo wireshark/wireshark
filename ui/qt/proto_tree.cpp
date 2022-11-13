@@ -134,7 +134,7 @@ void ProtoTree::ctxCopyVisibleItems()
 void ProtoTree::ctxCopyAsFilter()
 {
     QModelIndex idx = selectionModel()->selectedIndexes().first();
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx));
     if (finfo.isValid())
     {
         epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
@@ -156,7 +156,7 @@ void ProtoTree::ctxCopySelectedInfo()
         val = send->property("field_type").toInt();
 
     QModelIndex idx = selectionModel()->selectedIndexes().first();
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx));
     if (! finfo.isValid())
         return;
 
@@ -194,7 +194,7 @@ void ProtoTree::ctxOpenUrlWiki()
     if (send && send->property("field_reference").isValid())
         is_field_reference = send->property("field_reference").toBool();
     QModelIndex idx = selectionModel()->selectedIndexes().first();
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx));
 
     int field_id = finfo.headerInfo().id;
     if (!proto_registrar_is_protocol(field_id) && (field_id != hf_text_only)) {
@@ -250,7 +250,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     QAction *action;
 
     bool have_subtree = false;
-    FieldInformation *finfo = new FieldInformation(proto_tree_model_->protoNodeFromIndex(index).protoNode(), ctx_menu);
+    FieldInformation *finfo = new FieldInformation(proto_tree_model_->protoNodeFromIndex(index), ctx_menu);
     field_info * fi = finfo->fieldInfo();
     bool is_selected = false;
     epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
@@ -376,9 +376,10 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     // The "text only" header field will not give preferences for the selected protocol.
     // Use parent in this case.
-    proto_node *node = proto_tree_model_->protoNodeFromIndex(index).protoNode();
-    while (node && node->finfo && node->finfo->hfinfo && node->finfo->hfinfo->id == hf_text_only)
-        node = node->parent;
+    ProtoNode *node = proto_tree_model_->protoNodeFromIndex(index);
+    while (node && node->isValid() && node->protoNode()->finfo && node->protoNode()->finfo->hfinfo && node->protoNode()->finfo->hfinfo->id == hf_text_only) {
+        node = node->parentNode();
+    }
 
     FieldInformation pref_finfo(node);
     proto_prefs_menu_.setModule(pref_finfo.moduleName());
@@ -438,19 +439,31 @@ void ProtoTree::foreachTreeNode(proto_node *node, gpointer proto_tree_ptr)
         return;
     }
 
-    // Expanded state
-    if (tree_expanded(node->finfo->tree_type)) {
-        ProtoNode expand_node = ProtoNode(node);
-        tree_view->expand(model->indexFromProtoNode(expand_node));
-    }
-
-    // Related frames
+    // Related frames - there might be hidden FT_FRAMENUM nodes, so do this
+    // for each proto_node and not just the ProtoNodes in the model
     if (node->finfo->hfinfo->type == FT_FRAMENUM) {
         ft_framenum_type_t framenum_type = (ft_framenum_type_t)GPOINTER_TO_INT(node->finfo->hfinfo->strings);
         tree_view->emitRelatedFrame(node->finfo->value.value.uinteger, framenum_type);
     }
 
     proto_tree_children_foreach(node, foreachTreeNode, proto_tree_ptr);
+}
+
+void ProtoTree::foreachExpand(const QModelIndex &index = QModelIndex()) {
+
+    // Restore expanded state. (Note QModelIndex() refers to the root node)
+    int children = proto_tree_model_->rowCount(index);
+    QModelIndex childIndex;
+    for (int child = 0; child < children; child++) {
+        childIndex = proto_tree_model_->index(child, 0, index);
+        if (childIndex.isValid()) {
+            ProtoNode *node = proto_tree_model_->protoNodeFromIndex(childIndex);
+            if (node && node->isValid() && tree_expanded(node->protoNode()->finfo->tree_type)) {
+                expand(childIndex);
+            }
+            foreachExpand(childIndex);
+        }
+    }
 }
 
 // setRootNode sets the new contents for the protocol tree and subsequently
@@ -463,6 +476,7 @@ void ProtoTree::setRootNode(proto_node *root_node) {
 
     disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
     proto_tree_children_foreach(root_node, foreachTreeNode, this);
+    foreachExpand();
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(syncExpanded(QModelIndex)));
 
     updateContentWidth();
@@ -505,14 +519,14 @@ void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSele
     // Find and highlight the protocol bytes. select above won't call
     // selectionChanged if the current and selected indexes are the same
     // so we do this here.
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode(), this);
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index), this);
     if (finfo.isValid()) {
         QModelIndex parent = index;
         while (parent.isValid() && parent.parent().isValid()) {
             parent = parent.parent();
         }
         if (parent.isValid()) {
-            FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent).protoNode());
+            FieldInformation parent_finfo(proto_tree_model_->protoNodeFromIndex(parent));
             finfo.setParentField(parent_finfo.fieldInfo());
         }
         emit fieldSelected(&finfo);
@@ -520,7 +534,7 @@ void ProtoTree::selectionChanged(const QItemSelection &selected, const QItemSele
 }
 
 void ProtoTree::syncExpanded(const QModelIndex &index) {
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index));
     if (!finfo.isValid()) return;
 
     /*
@@ -533,7 +547,7 @@ void ProtoTree::syncExpanded(const QModelIndex &index) {
 }
 
 void ProtoTree::syncCollapsed(const QModelIndex &index) {
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index));
     if (!finfo.isValid()) return;
 
     /*
@@ -612,7 +626,7 @@ void ProtoTree::itemClicked(const QModelIndex &index)
     if (selectionModel()->selectedIndexes().isEmpty()) {
         emit fieldSelected(0);
     } else if (index == selectionModel()->selectedIndexes().first()) {
-        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index));
 
         if (finfo.isValid()) {
             emit fieldSelected(&finfo);
@@ -622,7 +636,7 @@ void ProtoTree::itemClicked(const QModelIndex &index)
 
 void ProtoTree::itemDoubleClicked(const QModelIndex &index)
 {
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index));
     if (!finfo.isValid()) return;
 
     if (finfo.headerInfo().type == FT_FRAMENUM) {
@@ -679,7 +693,7 @@ void ProtoTree::saveSelectedField(QModelIndex &index)
     selected_hfid_path_.clear();
     QModelIndex save_index = index;
     while (save_index.isValid()) {
-        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(save_index).protoNode());
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(save_index));
         if (!finfo.isValid()) break;
         selected_hfid_path_.prepend(QPair<int,int>(save_index.row(), finfo.headerInfo().id));
         save_index = save_index.parent();
@@ -697,7 +711,7 @@ void ProtoTree::restoreSelectedField()
         int row = path_entry.first;
         int hf_id = path_entry.second;
         cur_index = proto_tree_model_->index(row, 0, cur_index);
-        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(cur_index).protoNode());
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(cur_index));
         if (!finfo.isValid() || finfo.headerInfo().id != hf_id) {
             // Did not find the selected hfid path in the selected packet
             cur_index = QModelIndex();
@@ -780,7 +794,7 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                  > QApplication::startDragDistance())
         {
             QModelIndex idx = indexAt(drag_start_position_);
-            FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+            FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx));
             if (finfo.isValid())
             {
                 /* Hack to prevent QItemSelection taking the item which has been dragged over at start

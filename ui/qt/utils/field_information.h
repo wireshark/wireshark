@@ -14,6 +14,7 @@
 
 #include <epan/proto.h>
 
+#include <ui/qt/utils/proto_node.h>
 #include "data_printer.h"
 
 #include <QObject>
@@ -43,7 +44,7 @@ public:
     };
 
     explicit FieldInformation(field_info * fi, QObject * parent = Q_NULLPTR);
-    explicit FieldInformation(proto_node * node, QObject * parent = Q_NULLPTR);
+    explicit FieldInformation(ProtoNode * node, QObject * parent = Q_NULLPTR);
 
     bool isValid() const;
     bool isLink() const ;
