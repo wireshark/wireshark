@@ -91,11 +91,23 @@ static gint hf_dect_nwk_s_ie_cipher_info_proprietary_algorithm = -1;
 static gint hf_dect_nwk_s_ie_cipher_info_key_type = -1;
 static gint hf_dect_nwk_s_ie_cipher_info_key_number = -1;
 
+static gint hf_dect_nwk_s_ie_duration_lock_limits = -1;
+static gint hf_dect_nwk_s_ie_duration_time_limits = -1;
+static gint hf_dect_nwk_s_ie_duration_time_duration = -1;
+
 static gint hf_dect_nwk_s_ie_fixed_identity_type = -1;
 static gint hf_dect_nwk_s_ie_fixed_identity_value_length = -1;
 static gint hf_dect_nwk_s_ie_fixed_identity_arc = -1;
 static gint hf_dect_nwk_s_ie_fixed_identity_ard = -1;
 static gint hf_dect_nwk_s_ie_fixed_identity_padding = -1;
+
+static gint hf_dect_nwk_s_ie_iwu_to_iwu_sr = -1;
+static gint hf_dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator = -1;
+static gint hf_dect_nwk_s_ie_iwu_to_iwu_information = -1;
+static gint hf_dect_nwk_s_ie_iwu_to_iwu_discriminator_type = -1;
+static gint hf_dect_nwk_s_ie_iwu_to_iwu_user_specific_contents = -1;
+static gint hf_dect_nwk_s_ie_iwu_to_iwu_emc_discriminator = -1;
+static gint hf_dect_nwk_s_ie_iwu_to_iwu_proprietary_contents = -1;
 
 static gint ett_dect_nwk_s_ie_location_area_li_type = -1;
 static gint hf_dect_nwk_s_ie_location_area_li_type = -1;
@@ -240,6 +252,17 @@ static gint hf_dect_nwk_s_ie_terminal_capability_sp11 = -1;
 
 static gint hf_dect_nwk_s_ie_escape_to_proprietary_discriminator_type = -1;
 static gint hf_dect_nwk_s_ie_escape_to_proprietary_discriminator = -1;
+
+static gint hf_dect_nwk_s_ie_model_identifier_manic = -1;
+static gint hf_dect_nwk_s_ie_model_identifier_modic = -1;
+static gint hf_dect_nwk_s_ie_model_identifier_imeisv = -1;
+
+static gint hf_dect_nwk_s_ie_codec_list_negotiation_indicator = -1;
+static gint hf_dect_nwk_s_ie_codec_list_codec_identifier = -1;
+static gint hf_dect_nwk_s_ie_codec_list_mac_and_dlc_service = -1;
+static gint hf_dect_nwk_s_ie_codec_list_last_codec = -1;
+static gint hf_dect_nwk_s_ie_codec_list_c_plane_routing = -1;
+static gint hf_dect_nwk_s_ie_codec_list_slot_size = -1;
 
 static gint ett_dect_nwk = -1;
 
@@ -644,6 +667,21 @@ enum dect_nwk_s_ie_cipher_info_key_type {
 	DECT_NWK_S_IE_CIPHER_INFO_KEY_TYPE_STATIC  = 0xA,
 };
 
+/* Section 7.7.13 */
+enum dect_nwk_s_ie_duration_lock_limits_type {
+	DECT_NWK_S_IE_DURATION_LOCK_LIMITS_TEMPORARY2 = 0x5,
+	DECT_NWK_S_IE_DURATION_LOCK_LIMITS_TEMPORARY  = 0x6,
+	DECT_NWK_S_IE_DURATION_LOCK_LIMITS_NO         = 0x7,
+};
+
+enum dect_nwk_s_ie_duration_time_limits_type {
+	DECT_NWK_S_IE_DURATION_TIME_LIMITS_ERASE     = 0x0,
+	DECT_NWK_S_IE_DURATION_TIME_LIMITS_DEFINED_1 = 0x1,
+	DECT_NWK_S_IE_DURATION_TIME_LIMITS_DEFINED_2 = 0x2,
+	DECT_NWK_S_IE_DURATION_TIME_LIMITS_STANDARD  = 0x4,
+	DECT_NWK_S_IE_DURATION_TIME_LIMITS_INFINITE  = 0xF,
+};
+
 /* Section 7.7.18 */
 enum dect_nwk_s_ie_fixed_identity_type {
 	DECT_NWK_S_IE_FIXED_IDENTITY_ARI              = 0x00,
@@ -661,6 +699,44 @@ enum dect_nwk_arc_type {
 	DECT_NWK_ARC_TYPE_F = 0x5,
 	DECT_NWK_ARC_TYPE_G = 0x6,
 	DECT_NWK_ARC_TYPE_H = 0x7,
+};
+
+/* Section 7.7.23 */
+enum dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator_type {
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_USER_SPECIFIC     = 0x00,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_OSI_HIGH_LAYER    = 0x01,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_X263              = 0x02,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_LIST_ACCESS       = 0x03,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_IA5_CHARS         = 0x04,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_NON_CCM       = 0x05,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_SUOTA             = 0x06,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_V120              = 0x07,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_Q931_MESSAGE      = 0x08,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_Q931_IE           = 0x09,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_Q931_PARTIAL      = 0x0A,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_CCM_AUX0      = 0x0C,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_CCM_AUX1      = 0x0D,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_CCM_AUX2      = 0x0E,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DTAM              = 0x0F,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_GSM_MESSAGE       = 0x10,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_GSM_IE            = 0x11,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_UMTS_GPRS_IE      = 0x12,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_UMTS_GPRS_MESSAGE = 0x13,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_LRMS              = 0x14,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_RLL_AP            = 0x15,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_WRS               = 0x16,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_ISDN_C_PLANE = 0x20,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_ISDN_U_PLANE = 0x21,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_ISDN_OPER    = 0x22,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_TERMINAL_DATA     = 0x23,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_IP           = 0x24,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_MPEG4             = 0x25,
+	DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_UNKNOWN           = 0x2F,
+};
+
+enum dect_nwk_s_ie_iwu_to_iwu_discriminator_type {
+	DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_UNSPECIFIED = 0x00,
+	DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_EMC         = 0x01,
 };
 
 /* Section 7.7.25 */
@@ -895,6 +971,48 @@ enum dect_nwk_s_ie_terminal_capability_blind_slot_6a {
 enum dect_nwk_s_ie_escape_to_proprietary_discriminator_type {
 	DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_UNSPECIFIED = 0x00,
 	DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_EMC = 0x01,
+};
+
+/* Section 7.7.54 */
+enum dect_nwk_s_ie_codec_list_negotiation_indicator_type {
+	DECT_NWK_S_IE_CODEC_LIST_NEGOTIATION_INDICATOR_NOT_POSSIBLE      = 0x0,
+	DECT_NWK_S_IE_CODEC_LIST_NEGOTIATION_INDICATOR_CODEC_NEGOTIATION = 0x1,
+};
+
+enum dect_nwk_s_ie_codec_list_codec_identifier_type {
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_USER_32      = 0x01,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G726_32      = 0x02,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G722_64      = 0x03,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G711_ALAW_64 = 0x04,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G711_ULAW_64 = 0x05,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G729_1_32    = 0x06,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_MPEG4_32     = 0x07,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_MPEG4_64     = 0x08,
+	DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_USER_64      = 0x09,
+};
+
+enum dect_nwk_s_ie_codec_list_mac_and_dlc_service_type {
+	DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_INA  = 0x0,
+	DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_INB  = 0x1,
+	DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_IPM  = 0x2,
+	DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_IPQ  = 0x3,
+	DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU7_INB  = 0x4,
+	DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU12_INB = 0x5,
+};
+
+enum dect_nwk_s_ie_codec_list_c_plane_routing_type {
+	DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CS_ONLY                  = 0x0,
+	DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CS_PREFERRED_CF_ACCEPTED = 0x1,
+	DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CF_PREFERRED_CS_ACCEPTED = 0x2,
+	DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CF_ONLY                  = 0x4,
+};
+
+enum dect_nwk_s_ie_codec_list_slot_size_type {
+	DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_HALF     = 0x0,
+	DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_LONG_640 = 0x1,
+	DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_LONG_672 = 0x2,
+	DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_FULL     = 0x4,
+	DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_DOUBLE   = 0x5,
 };
 
 /* Annex D.2.2 */
@@ -1316,6 +1434,23 @@ static const value_string dect_nwk_s_ie_cipher_info_key_type_val[] = {
 	{ 0, NULL }
 };
 
+/* Section 7.7.13 */
+static const value_string dect_nwk_s_ie_duration_lock_limits_type_val[] = {
+	{ DECT_NWK_S_IE_DURATION_LOCK_LIMITS_TEMPORARY2, "Temporary user limits 2" },
+	{ DECT_NWK_S_IE_DURATION_LOCK_LIMITS_TEMPORARY,  "Temporary user limits" },
+	{ DECT_NWK_S_IE_DURATION_LOCK_LIMITS_NO,         "No limits" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nwk_s_ie_duration_time_limits_type_val[] = {
+	{ DECT_NWK_S_IE_DURATION_TIME_LIMITS_ERASE,     "Erase (time limit zero)" },
+	{ DECT_NWK_S_IE_DURATION_TIME_LIMITS_DEFINED_1, "Defined time limit 1" },
+	{ DECT_NWK_S_IE_DURATION_TIME_LIMITS_DEFINED_2, "Defined time limit 2" },
+	{ DECT_NWK_S_IE_DURATION_TIME_LIMITS_STANDARD,  "Standard time limit" },
+	{ DECT_NWK_S_IE_DURATION_TIME_LIMITS_INFINITE,  "Infinite" },
+	{ 0, NULL }
+};
+
 /* Section 7.7.18 */
 static const value_string dect_nwk_s_ie_fixed_identity_type_val[] = {
 	{ DECT_NWK_S_IE_FIXED_IDENTITY_ARI,              "Access rights identity (ARI)" },
@@ -1331,6 +1466,46 @@ static const value_string dect_nwk_arc_type_val[] = {
 	{ DECT_NWK_ARC_TYPE_C, "C (public access)" },
 	{ DECT_NWK_ARC_TYPE_D, "D (public with GSM/UMTS)" },
 	{ DECT_NWK_ARC_TYPE_E, "E (PP-to-PP)"},
+	{ 0, NULL }
+};
+
+/* Section 7.7.23 */
+static const value_string dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator_type_val[] = {
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_USER_SPECIFIC,     "User specifid" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_OSI_HIGH_LAYER,    "OSI high layer protocols" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_X263,              "ITU-T X.263" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_LIST_ACCESS,       "List Access" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_IA5_CHARS,         "IA 5 characters" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_NON_CCM,       "ULE Configuration and Control (non CCM encrypted) service channel" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_SUOTA,             "Light data service, Software Upgrade Over The Air (SUOTA)" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_V120,              "ITU-T V.120 Rate adaption" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_Q931_MESSAGE,      "ITU-T Q.931, message" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_Q931_IE,           "ITU-T Q.931, information element(s)" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_Q931_PARTIAL,      "ITU-T Q.931, partial message" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_CCM_AUX0,      "ULE CCM encrypted service channel AUX0" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_CCM_AUX1,      "ULE CCM encrypted service channel AUX1" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_ULE_CCM_AUX2,      "ULE CCM encrypted service channel AUX2" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DTAM,              "Digital Telephone Answering Machine (DTAM)" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_GSM_MESSAGE,       "GSM, message" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_GSM_IE,            "GSM, information element(s)" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_UMTS_GPRS_IE,      "UMTS/GPRS, information element(s)" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_UMTS_GPRS_MESSAGE, "UMTS/GPRS, messages" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_LRMS,              "LRMS" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_RLL_AP,            "RLL Access Profile" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_WRS,               "WRS" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_ISDN_C_PLANE, "DECT/ISDN Intermediate System C-plane specific" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_ISDN_U_PLANE, "DECT/ISDN Intermediate System U-plane specific" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_ISDN_OPER,    "DECT/ISDN Intermediate System Operation and Maintenance" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_TERMINAL_DATA,     "Terminal Data" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_DECT_IP,           "DECT access to IP Networks specific" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_MPEG4,             "MPEG-4 ER AAC-LD Configuration Description" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_UNKNOWN,           "Unknown" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nwk_s_ie_iwu_to_iwu_discriminator_type_val[] = {
+	{ DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_UNSPECIFIED, "Unspecified" },
+	{ DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_EMC,         "EMC" },
 	{ 0, NULL }
 };
 
@@ -1465,6 +1640,53 @@ static const true_false_string tfs_last_more = {
 	"More"
 };
 
+/* Section 7.7.54 */
+static const value_string dect_nwk_s_ie_codec_list_negotiation_indicator_type_val[] = {
+	{ DECT_NWK_S_IE_CODEC_LIST_NEGOTIATION_INDICATOR_NOT_POSSIBLE,      "Negotiation not possible" },
+	{ DECT_NWK_S_IE_CODEC_LIST_NEGOTIATION_INDICATOR_CODEC_NEGOTIATION, "Codec negotiation" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nwk_s_ie_codec_list_codec_identifier_type_val[] = {
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_USER_32,      "user specific, 32 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G726_32,      "G.726 ADPCM, 32 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G722_64,      "G.722, 64 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G711_ALAW_64, "G.711 alaw, 64 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G711_ULAW_64, "G.711 ulaw, 64 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_G729_1_32,    "G.729.1, 32 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_MPEG4_32,     "MPEG-4 ER AAC-LD, 32 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_MPEG4_64,     "MPEG-4 ER AAC-LD, 64 kbit/s" },
+	{ DECT_NWK_S_IE_CODEC_LIST_CODEC_IDENTIFIER_USER_64,      "user specific, 64 kbit/s" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nwk_s_ie_codec_list_mac_and_dlc_service_type_val[] = {
+	{ DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_INA,  "DLC service LU1, MAC service INA" },
+	{ DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_INB,  "DLC service LU1, MAC service INB" },
+	{ DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_IPM,  "DLC service LU1, MAC service IPM" },
+	{ DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU1_IPQ,  "DLC service LU1, MAC service IPQ" },
+	{ DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU7_INB,  "DLC service LU7, MAC service INB" },
+	{ DECT_NWK_S_IE_CODEC_LIST_MAC_AND_DLC_SERVICE_LU12_INB, "DLC service LU12, MAC service INB" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nwk_s_ie_codec_list_c_plane_routing_type_val[] = {
+	{ DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CS_ONLY,                  "CS only" },
+	{ DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CS_PREFERRED_CF_ACCEPTED, "CS preferred / CF accepted" },
+	{ DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CF_PREFERRED_CS_ACCEPTED, "CF preferred / CS accepted" },
+	{ DECT_NWK_S_IE_CODEC_LIST_C_PLANE_ROUTING_CF_ONLY,                  "CF only" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nwk_s_ie_codec_list_slot_size_type_val[] = {
+	{ DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_HALF,     "Half slot; j = 0" },
+	{ DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_LONG_640, "Long slot; j = 640" },
+	{ DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_LONG_672, "Long slot; j = 672" },
+	{ DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_FULL,     "Full slot" },
+	{ DECT_NWK_S_IE_CODEC_LIST_SLOT_SIZE_DOUBLE,   "Double slot" },
+	{ 0, NULL }
+};
+
 /* Annex D.2.2 */
 /* TODO: Handling the DECT charset should most likely be done better with charset/string functions */
 static const value_string dect_charset_control_codes_val[] = {
@@ -1518,6 +1740,9 @@ static const value_string dect_charset_control_codes_val[] = {
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK 0xF0
 #define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_SHIFT 4
 
+#define DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_MASK 0x3F
+#define DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_MASK 0x7F
+
 #define DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_MASK 0x80
 #define DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_SHIFT 7
 #define DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK 0xE0
@@ -1526,6 +1751,9 @@ static const value_string dect_charset_control_codes_val[] = {
 #define DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK 0x7F
 
 #define DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_MASK 0x7F
+
+#define DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_MASK 0x80
+#define DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_SHIFT 7
 
 /*********************************************************************************
  * DECT dissector code
@@ -1603,6 +1831,24 @@ static int dissect_dect_nwk_s_ie_cipher_info(tvbuff_t *tvb, guint offset, proto_
 	return offset;
 }
 
+static int dissect_dect_nwk_s_ie_duration(tvbuff_t *tvb, guint offset, guint8 _U_ ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data) {
+	gboolean octet_group_extension;
+
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_duration_lock_limits, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_duration_time_limits, tvb, offset, 1, ENC_NA);
+	octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+	offset++;
+
+	if ( !octet_group_extension ) {
+		/* Octet 3a does not have an group extension indicator, it is solely defined by the one in octet 3 */
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_duration_time_duration, tvb, offset, 1, ENC_NA);
+		offset++;
+	}
+
+	return offset;
+}
+
 static int dissect_dect_nwk_s_ie_fixed_identity(tvbuff_t *tvb, guint offset, proto_tree *tree, void _U_ *data)
 {
 	guint8 value_length;
@@ -1624,6 +1870,34 @@ static int dissect_dect_nwk_s_ie_fixed_identity(tvbuff_t *tvb, guint offset, pro
 		offset++;
 	}
 	return offset;
+}
+
+static int dissect_dect_nwk_s_ie_iwu_to_iwu(tvbuff_t *tvb, guint offset, guint8 ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data) {
+	guint8 protocol_discriminator, discriminator_type, remaining_length;
+
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_sr, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator, tvb, offset, 1, ENC_NA);
+	protocol_discriminator = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_MASK;
+	offset++;
+	remaining_length = ie_length -1;
+
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_information, tvb, offset, remaining_length, ENC_NA);
+	if ( protocol_discriminator == DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_USER_SPECIFIC ) {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_discriminator_type, tvb, offset, 1, ENC_NA);
+		discriminator_type = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_MASK;
+		offset++;
+		remaining_length--;
+
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_user_specific_contents, tvb, offset, remaining_length, ENC_NA);
+		if ( discriminator_type == DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_EMC ) {
+			proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_emc_discriminator, tvb, offset, 2, ENC_NA);
+			offset += 2;
+			remaining_length -= 2;
+			proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_proprietary_contents, tvb, offset, remaining_length, ENC_NA);
+		}
+	}
+
+	return offset + remaining_length;
 }
 
 static int dissect_dect_nwk_s_ie_location_area(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
@@ -2061,6 +2335,50 @@ static int dissect_dect_nwk_s_ie_escape_to_proprietary(tvbuff_t *tvb, guint offs
 	return offset;
 }
 
+static int dissect_dect_nwk_s_ie_model_identifier(tvbuff_t *tvb, guint offset, guint8 ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data) {
+	if ( ie_length == 3) {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_model_identifier_manic, tvb, offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_model_identifier_modic, tvb, offset, 1, ENC_NA);
+		offset++;
+	} else if ( ie_length == 20) {
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_model_identifier_imeisv, tvb, offset, ie_length, ENC_NA);
+		offset += ie_length;
+	}
+
+	return offset;
+}
+
+static int dissect_dect_nwk_s_ie_codec_list(tvbuff_t *tvb, guint offset, guint8 _U_ ie_length, packet_info _U_ *pinfo, proto_tree *tree, void _U_ *data) {
+	gboolean last_codec;
+	guint octet_identifier;
+
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_negotiation_indicator, tvb, offset, 1, ENC_NA);
+	offset++;
+
+	octet_identifier = DECT_NWK_S_IE_OCTET_FIRST;
+	do {
+		switch(octet_identifier) {
+			case DECT_NWK_S_IE_OCTET_FIRST:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_codec_identifier, tvb, offset, 1, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_A:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_mac_and_dlc_service, tvb, offset, 1, ENC_NA);
+				break;
+			case DECT_NWK_S_IE_OCTET_B:
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_last_codec, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_c_plane_routing, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_slot_size, tvb, offset, 1, ENC_NA);
+				last_codec = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_MASK ) >> DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_SHIFT;
+				break;
+		}
+		octet_identifier = (octet_identifier + 1) % 3;
+		offset++;
+	} while ( !last_codec );
+
+	return offset;
+}
+
 static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
 {
 	gboolean fixed_length;
@@ -2146,8 +2464,14 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 			case DECT_NWK_S_IE_CIPHER_INFO:
 				offset = dissect_dect_nwk_s_ie_cipher_info(tvb, offset, field_tree, data);
 				break;
+			case DECT_NWK_S_IE_DURATION:
+				offset = dissect_dect_nwk_s_ie_duration(tvb, offset, element_length, pinfo, field_tree, data);
+				break;
 			case DECT_NWK_S_IE_FIXED_IDENTITY:
 				offset = dissect_dect_nwk_s_ie_fixed_identity(tvb, offset, field_tree, data);
+				break;
+			case DECT_NWK_S_IE_IWU_TO_IWU:
+				offset = dissect_dect_nwk_s_ie_iwu_to_iwu(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_LOCATION_AREA:
 				offset = dissect_dect_nwk_s_ie_location_area(tvb, offset, pinfo, field_tree, data);
@@ -2182,6 +2506,12 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 			case DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY:
 				dissect_dect_nwk_s_ie_escape_to_proprietary(tvb, offset, field_tree, data);
 				offset += element_length;
+				break;
+			case DECT_NWK_S_IE_MODEL_IDENTIFIER:
+				offset = dissect_dect_nwk_s_ie_model_identifier(tvb, offset, element_length, pinfo, field_tree, data);
+				break;
+			case DECT_NWK_S_IE_CODEC_LIST:
+				offset = dissect_dect_nwk_s_ie_codec_list(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			default:
 				offset += element_length;
@@ -2532,6 +2862,22 @@ void proto_register_dect_nwk(void)
 				NULL, 0x0F, NULL, HFILL
 			}
 		},
+		/* Duration */
+		{ &hf_dect_nwk_s_ie_duration_lock_limits,
+			{ "Lock Limits", "dect_nwk.s.ie.duration.lock_limits", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_duration_lock_limits_type_val), 0x70, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_duration_time_limits,
+			{ "Time Limits", "dect_nwk.s.ie.duration.time_limits", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_duration_time_limits_type_val), 0x0F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_duration_time_duration,
+			{ "Time duration", "dect_nwk.s.ie.duration.time_duration", FT_UINT8, BASE_DEC,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
 		/* Fixed Identity */
 		{ &hf_dect_nwk_s_ie_fixed_identity_type,
 			{ "Type", "dect_nwk.s.ie.fixed_identity.type", FT_UINT8, BASE_HEX,
@@ -2553,6 +2899,42 @@ void proto_register_dect_nwk(void)
 		},
 		{ &hf_dect_nwk_s_ie_fixed_identity_padding,
 			{ "Padding", "dect_nwk.s.ie.fixed_identity.padding", FT_NONE, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* IWU to IWU */
+		{ &hf_dect_nwk_s_ie_iwu_to_iwu_sr,
+			{ "S/R", "dect_nwk.s.ie.iwu_to_iwu.sr", FT_BOOLEAN, 8,
+				NULL, 0x40, "Send/Reject", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator,
+			{ "Protocol Discriminator", "dect_nwk.s.ie.iwu_to_iwu.protocol_discriminator", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator_type_val), 0x3F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_iwu_to_iwu_information,
+			{ "Information", "dect_nwk.s.ie.iwu_to_iwu.information", FT_BYTES, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_iwu_to_iwu_discriminator_type,
+			{ "Discriminator Type", "dect_nwk.s.ie.iwu_to_iwu.protocol_discriminator", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_iwu_to_iwu_discriminator_type_val), 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_iwu_to_iwu_user_specific_contents,
+			{ "User specific contents", "dect_nwk.s.ie.iwu_to_iwu.user_specific_contents", FT_BYTES, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_iwu_to_iwu_emc_discriminator,
+			{ "EMC", "dect_nwk.s.ie.iwu_to_iwu.emc_discriminator", FT_UINT16, BASE_HEX,
+				NULL, 0x0, "Discriminator (EMC)", HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_iwu_to_iwu_proprietary_contents,
+			{ "Proprietary", "dect_nwk.s.ie.iwu_to_iwu.proprietary_contents", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
@@ -3217,6 +3599,53 @@ void proto_register_dect_nwk(void)
 		{ &hf_dect_nwk_s_ie_escape_to_proprietary_discriminator,
 			{ "Discriminator", "dect_nwk.s.ie.escape_to_proprietary.discriminator", FT_UINT16, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* Model identifier */
+		{ &hf_dect_nwk_s_ie_model_identifier_manic,
+			{ "MANIC", "dect_nwk.s.ie.model_identifier.manic", FT_BYTES, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_model_identifier_modic,
+			{ "MODIC", "dect_nwk.s.ie.model_identifier.modic", FT_UINT8, BASE_DEC,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_model_identifier_imeisv,
+			{ "EIMEISV", "dect_nwk.s.ie.model_identifier.imeisv", FT_BYTES, BASE_NONE,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* Codec list */
+		{ &hf_dect_nwk_s_ie_codec_list_negotiation_indicator,
+			{ "Negotiation indicator", "dect_nwk.s.ie.codec_list.negotiation_indicator", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_codec_list_negotiation_indicator_type_val), 0x70, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_codec_list_codec_identifier,
+			{ "Codec identifier", "dect_nwk.s.ie.codec_list.codec_identifier", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_codec_list_codec_identifier_type_val), 0x7F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_codec_list_mac_and_dlc_service,
+			{ "MAC and DLC service", "dect_nwk.s.ie.codec_list.mac_and_dlc_service", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_codec_list_mac_and_dlc_service_type_val), 0x0F, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_codec_list_last_codec,
+			{ "Last codec", "dect_nwk.s.ie.codec_list.last_codec", FT_BOOLEAN, 8,
+				TFS(&tfs_yes_no), 0x80, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_codec_list_c_plane_routing,
+			{ "C-plane routing", "dect_nwk.s.ie.codec_list.c_plane_routing", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_codec_list_c_plane_routing_type_val), 0x70, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_s_ie_codec_list_slot_size,
+			{ "Slot size", "dect_nwk.s.ie.codec_list.slot_size", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_codec_list_slot_size_type_val), 0x0F, NULL, HFILL
 			}
 		},
 	};
