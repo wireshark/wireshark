@@ -22,6 +22,8 @@
 #include <epan/reassemble.h>
 #include <epan/xdlc.h>
 
+void proto_register_dect_dlc(void);
+
 static int proto_dect_dlc = -1;
 
 static gint hf_dlc_address = -1;
