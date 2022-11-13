@@ -2481,6 +2481,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Ort</translation>
     </message>
     <message>
+        <source>Latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>AS Number</source>
         <translation>AS Nummer</translation>
     </message>

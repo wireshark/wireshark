@@ -2479,6 +2479,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Ville</translation>
     </message>
     <message>
+        <source>Latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>AS Number</source>
         <translation>Numéro AS</translation>
     </message>

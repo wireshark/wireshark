@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: f08f8a089af8484595bd984d359dc6ce523f2861
+git revision: fb7db5d454274560f627ec68e989807c4bb46db0
 
 
 */
@@ -15034,7 +15034,7 @@ static const FieldPart I016_V1_0_410_LON = { 32, 0.00000008381903171539306640625
 static gint hf_016_V1_0_410_ALT = -1;
 static const FieldPart I016_V1_0_410_ALT = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_V1_0_410_ALT, NULL };
 static gint hf_016_V1_0_410_TTO = -1;
-static const FieldPart I016_V1_0_410_TTO = { 32, 2.0, FIELD_PART_UFLOAT, &hf_016_V1_0_410_TTO, NULL };
+static const FieldPart I016_V1_0_410_TTO = { 32, 2.0, FIELD_PART_FLOAT, &hf_016_V1_0_410_TTO, NULL };
 static gint hf_016_V1_0_410_ATO = -1;
 static const FieldPart I016_V1_0_410_ATO = { 20, 1.0, FIELD_PART_UFLOAT, &hf_016_V1_0_410_ATO, NULL };
 static gint hf_016_V1_0_410_PCI = -1;
@@ -15163,7 +15163,7 @@ static const FieldPart I016_410_LON = { 32, 0.00000008381903171539306640625, FIE
 static gint hf_016_410_ALT = -1;
 static const FieldPart I016_410_ALT = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_410_ALT, NULL };
 static gint hf_016_410_TTO = -1;
-static const FieldPart I016_410_TTO = { 32, 2.0, FIELD_PART_UFLOAT, &hf_016_410_TTO, NULL };
+static const FieldPart I016_410_TTO = { 32, 2.0, FIELD_PART_FLOAT, &hf_016_410_TTO, NULL };
 static gint hf_016_410_ATO = -1;
 static const FieldPart I016_410_ATO = { 20, 1.0, FIELD_PART_UFLOAT, &hf_016_410_ATO, NULL };
 static gint hf_016_410_PCI = -1;

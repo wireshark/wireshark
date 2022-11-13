@@ -49,10 +49,11 @@ Wireshark 4.1.0 Release Notes
 
   New Protocol Support
 
-   SAP Internet Graphic Server (SAP IGS), SAP Network Interface (SAPNI),
-   Support for almost all WoW 1.12 messages has been added., and World
-   of Warcraft World (WOWW) display filters have been changed to be more
-   internally consistent.
+   SAP HANA SQL Command Network Protocol (SAPHDB), SAP Internet Graphic
+   Server (SAP IGS), SAP Network Interface (SAPNI), Support for almost
+   all WoW 1.12 messages has been added., and World of Warcraft World
+   (WOWW) display filters have been changed to be more internally
+   consistent.
 
   Updated Protocol Support
 

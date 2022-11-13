@@ -2481,6 +2481,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Stad</translation>
     </message>
     <message>
+        <source>Latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>AS Number</source>
         <translation>AS-nummer</translation>
     </message>

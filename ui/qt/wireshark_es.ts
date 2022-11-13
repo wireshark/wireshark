@@ -2456,6 +2456,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>AS Number</source>
         <translation type="unfinished"></translation>
     </message>
