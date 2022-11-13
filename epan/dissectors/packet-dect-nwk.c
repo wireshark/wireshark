@@ -1785,7 +1785,7 @@ static int dissect_dect_nwk_s_ie_auth_type(tvbuff_t *tvb, guint offset, proto_tr
 	if( def ) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_index, tvb, offset, 2, ENC_NA);
 		offset += 2;
-		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_algorithm, tvb, offset, 2, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_algorithm, tvb, offset, 1, ENC_NA);
 		offset++;
 	}
 	return offset;
