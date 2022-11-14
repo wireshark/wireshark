@@ -89,6 +89,7 @@ Management Component Transport Protocol (MCTP)
 Management Component Transport Protocol - Control Protocol (MCTP CP)
 Non-volatile Memory Express - Management Interface (NVMe-MI) over MCTP
 DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
+DECT DLC protocol layer (DECT-DLC)
 --
 
 === Updated Protocol Support
