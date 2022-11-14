@@ -196,7 +196,7 @@ bool ProtoTreeModel::foreachFindHfid(ProtoNode *node, gpointer find_hfid_ptr)
         return true;
     }
     for (int i = 0; i < node->childrenCount(); i++) {
-        if (foreachFindHfid(node->child(i), &find_hfid)) {
+        if (foreachFindHfid(node->child(i), find_hfid)) {
                 return true;
         }
     }
@@ -229,7 +229,7 @@ bool ProtoTreeModel::foreachFindField(ProtoNode *node, gpointer find_finfo_ptr)
         return true;
     }
     for (int i = 0; i < node->childrenCount(); i++) {
-        if (foreachFindField(node->child(i), &find_finfo)) {
+        if (foreachFindField(node->child(i), find_finfo)) {
                 return true;
         }
     }
