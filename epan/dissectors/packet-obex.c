@@ -2354,7 +2354,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 /* packet stream is guaranted to be sequence of fragments, one by one,
                    so find last fragment for its offset and length */
-                for (frag = frag_msg->next; frag; frag = frag->next) {}
+                for (frag = frag_msg->next; frag->next; frag = frag->next) {}
 
                 frag_msg = fragment_add_check(&obex_reassembly_table,
                         tvb, 0, pinfo, pinfo->p2p_dir, NULL,

@@ -3326,7 +3326,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		   we might pick up from the Read/Write calls instead of
 		   assuming we always get them in the correct order
 		*/
-		for (fd_i = fd_head->next; fd_i; fd_i = fd_i->next) {}
+		for (fd_i = fd_head->next; fd_i->next; fd_i = fd_i->next) {}
 		fd_head=fragment_add_check(&dcerpc_reassembly_table,
 			d_tvb, 0, pinfo, fid, NULL,
 			fd_i->offset+fd_i->len,
