@@ -134,6 +134,9 @@ static gint hf_dect_nwk_s_ie_portable_identity_type = -1;
 static gint hf_dect_nwk_s_ie_portable_identity_value_length = -1;
 static gint hf_dect_nwk_s_ie_portable_identity_put = -1;
 static gint hf_dect_nwk_s_ie_portable_identity_padding = -1;
+static gint hf_dect_nwk_s_ie_portable_identity_ipei = -1;
+static gint hf_dect_nwk_s_ie_portable_identity_tpui_assignment_type = -1;
+static gint hf_dect_nwk_s_ie_portable_identity_tpui_value = -1;
 static gint hf_dect_ipui_o_number = -1;
 
 static gint hf_dect_nwk_s_ie_rand_rand_field = -1;
@@ -759,6 +762,11 @@ enum dect_nwk_s_ie_portable_identity_type {
 	DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI = 0x00,
 	DECT_NWK_S_IE_PORTABLE_IDENTITY_IPEI = 0x10,
 	DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI = 0x20,
+};
+
+enum dect_nwk_s_ie_portable_identity_tpui_assignment_type_coding {
+	DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI_ASSIGNMENT_TYPE_TPUI                      = 0x0,
+	DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI_ASSIGNMENT_TYPE_TPUI_WITH_NUMBER_ASSIGNED = 0x1,
 };
 
 enum dect_nwk_ipui_type {
@@ -1534,6 +1542,12 @@ static const value_string dect_nwk_s_ie_portable_identity_type_val[] = {
 	{ 0, NULL }
 };
 
+static const value_string dect_nwk_s_ie_portable_identity_tpui_assignment_type_val[] = {
+	{ DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI_ASSIGNMENT_TYPE_TPUI,                      "TPUI" },
+	{ DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI_ASSIGNMENT_TYPE_TPUI_WITH_NUMBER_ASSIGNED, "TPUI with number assigned" },
+	{ 0, NULL }
+};
+
 /* Section 6.2 in ETSI EN 300 175-6 */
 static const value_string dect_nwk_ipui_type_val[] = {
 	{ DECT_NWK_IPUI_TYPE_N, "N (residential/default)" },
@@ -2002,7 +2016,7 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, 
 			no_of_bits = value_length - 4;
 			switch(ipui_type) {
 				case DECT_NWK_IPUI_TYPE_N:
-					/* FIXME implement this*/
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_NA);
 					break;
 				case DECT_NWK_IPUI_TYPE_O:
 					proto_tree_add_bits_item(tree, hf_dect_ipui_o_number, tvb, bit_offset, no_of_bits, ENC_NA);
@@ -2032,13 +2046,14 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, guint offset, 
 			break;
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_IPEI:
 			no_of_bits = value_length - 4;
+			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_NA);
 			offset += 5;
-			/* FIXME IPEI decoding */
 			break;
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI:
 			no_of_bits = value_length;
+			proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_assignment_type, tvb, offset, 1, ENC_NA);
+			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_value, tvb, bit_offset, no_of_bits, ENC_NA);
 			offset += 3;
-			/* FIXME TPUI decoding */
 			break;
 	}
 	return offset;
@@ -2622,6 +2637,40 @@ static int dissect_dect_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return tvb_captured_length(tvb);
 }
 
+/*
+ETSI EN 300 175-6 V2.7.1 Annex C
+IPEI will be displayed as EEEEE PPPPPPP C
+where:
+* EEEEE is the decimal representation of the first 16 bits
+* PPPPPPP is the decimal representation of the last 20 bits
+* C is calculated based on the digits by multiplying the digit with its position
+  (starting with 1 on the leftmost one), and taking the sum of those multiply results
+  module 11. If the result is 10 a '*' is displayed insted.
+*/
+void fmt_dect_nwk_ipei(gchar *ipei_string, guint64 ipei) {
+	guint16 emc, check_digit;
+	guint32 psn;
+	guint64 digit_divisor, ipei_digits;
+
+	emc = ( ipei & 0xFFFF00000 ) >> 20;
+	psn = ipei & 0xFFFFF;
+
+	digit_divisor = 100000000000;
+	ipei_digits = emc * 100000000 + psn;
+	check_digit = 0;
+	for(int i = 1; i <= 12; i++) {
+		check_digit += ( ipei_digits / digit_divisor ) * i;
+		ipei_digits = ipei_digits % digit_divisor;
+	}
+	check_digit = check_digit % 11;
+
+	if ( check_digit == 10) {
+		snprintf(ipei_string, 15, "%05d %07d *", emc, psn);
+	} else {
+		snprintf(ipei_string, 15, "%05d %07d %d", emc, psn, check_digit);
+	}
+}
+
 void proto_register_dect_nwk(void)
 {
 	static hf_register_info hf[] =
@@ -3019,6 +3068,18 @@ void proto_register_dect_nwk(void)
 			{ "PUT", "dect_nwk.s.ie.portable_identity.ipui.put", FT_UINT8, BASE_HEX,
 				VALS(dect_nwk_ipui_type_val), 0xF0, NULL, HFILL
 			}
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_ipei,
+			{ "IPEI", "dect_nwk.s.ie.portable_identity.ipei", FT_UINT64, BASE_CUSTOM,
+				CF_FUNC(&fmt_dect_nwk_ipei), 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_tpui_assignment_type,
+			{ "Assignment Type", "dect_nwk.s.ie.portable_identity.tpui_assignemtn_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_s_ie_portable_identity_tpui_assignment_type_val), 0xF0, NULL, HFILL }
+		},
+		{ &hf_dect_nwk_s_ie_portable_identity_tpui_value,
+			{ "TPUI value", "dect_nwk.s.ie.portable_identity.tpui_value", FT_UINT32, BASE_HEX,
+				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_ipui_o_number,
 			{ "Number", "dect_nwk.s.ie.portable_identity.ipui.number", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
