@@ -33,6 +33,10 @@ static gint hf_nwk_ti = -1;
 static gint hf_nwk_pdisc = -1;
 static gint hf_nwk_msg_type_lce = -1;
 static gint hf_nwk_msg_type_cc = -1;
+static gint hf_dect_nwk_message_type_ciss = -1;
+static gint hf_dect_nwk_message_type_crss = -1;
+static gint hf_dect_nwk_message_type_clms = -1;
+static gint hf_dect_nwk_message_type_coms = -1;
 static gint hf_nwk_msg_type_mm = -1;
 
 static gint ett_dect_nwk_s_ie_element = -1;
@@ -284,7 +288,7 @@ enum dect_nwk_proto_disc {
 	DECT_NWK_PDISC_CC		= 0x3,
 	DECT_NWK_PDISC_CISS		= 0x4,
 	DECT_NWK_PDISC_MM		= 0x5,
-	DECT_NWK_PDISC_CMSS		= 0x6,
+	DECT_NWK_PDISC_CLMS		= 0x6,
 	DECT_NWK_PDISC_COMS		= 0x7,
 };
 
@@ -1067,7 +1071,7 @@ static const value_string nwk_pdisc_vals[] = {
 	{ DECT_NWK_PDISC_CC,		"Call Control (CC)" },
 	{ DECT_NWK_PDISC_CISS,		"Call Independent Supplementary Services (CISS)" },
 	{ DECT_NWK_PDISC_MM,		"Mobility Management (MM)" },
-	{ DECT_NWK_PDISC_CMSS,		"ConnectionLess Message Service (CMSS)" },
+	{ DECT_NWK_PDISC_CLMS,		"ConnectionLess Message Service (CLMS)" },
 	{ DECT_NWK_PDISC_COMS,		"Connection Oriented Message Service (COMS)" },
 	{ 0, NULL }
 };
@@ -1088,6 +1092,43 @@ static const value_string nwk_cc_msgt_vals[] = {
 	{ DECT_NWK_CC_IWU_INFO,		"CC-IWU-INFO" },
 	{ DECT_NWK_CC_NOTIFY,		"CC-NOTIFY" },
 	{ DECT_NWK_CC_INFO,		"CC-INFO" },
+	{ 0, NULL }
+};
+
+/* Section 7.4.2 */
+static const value_string dect_nwk_ciss_message_type_vals[] = {
+	{ DECT_NWK_SS_CISS_RELEASE_COM, "CISS-RELEASE-COM" },
+	{ DECT_NWK_SS_CISS_FACILITY,    "FACILITY" },
+	{ DECT_NWK_SS_CISS_REGISTER,    "CISS-REGISTER" },
+	{ 0, NULL }
+};
+
+static const value_string dect_nwk_crss_message_type_vals[] = {
+	{ DECT_NWK_SS_CRSS_HOLD,         "HOLD" },
+	{ DECT_NWK_SS_CRSS_HOLD_ACK,     "HOLD-ACK" },
+	{ DECT_NWK_SS_CRSS_HOLD_REJ,     "HOLD-REJECT" },
+	{ DECT_NWK_SS_CRSS_RETRIEVE,     "RETRIEVE" },
+	{ DECT_NWK_SS_CRSS_RETRIEVE_ACK, "RETRIEVE-ACK" },
+	{ DECT_NWK_SS_CRSS_RETRIEVE_REJ, "RETRIEVE-REJECT" },
+	{ DECT_NWK_SS_CRSS_FACILITY,     "FACILITY" },
+	{ 0, NULL }
+};
+
+/* Section 7.4.3 */
+static const value_string dect_nwk_coms_message_type_vals[] = {
+	{ DECT_NWK_COMS_SETUP,       "COMS-SETUP" },
+	{ DECT_NWK_COMS_CONNECT,     "COMS-CONNECT" },
+	{ DECT_NWK_COMS_NOTIFY,      "COMS-NOTIFY" },
+	{ DECT_NWK_COMS_RELEASE,     "COMS-RELEASE" },
+	{ DECT_NWK_COMS_RELEASE_COM, "COMS-RELEASE-COM" },
+	{ DECT_NWK_COMS_INFO,        "COMS-INFO" },
+	{ DECT_NWK_COMS_ACK,         "COMS-ACK" },
+	{ 0, NULL }
+};
+
+/* Section 7.4.4 */
+static const value_string  dect_nwk_clms_message_type_vals[] = {
+	{ DECT_NWK_CLMS_VARIABLE, "CLMS-VARIABLE" },
 	{ 0, NULL }
 };
 
@@ -2559,16 +2600,70 @@ static int dissect_dect_nwk_lce(tvbuff_t *tvb, guint8 msg_type, guint offset, pa
 
 static int dissect_dect_nwk_cc(tvbuff_t *tvb, guint8 msg_type, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
 {
-	proto_tree_add_item(tree, hf_nwk_msg_type_cc, tvb, offset, 1, ENC_NA);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(msg_type, nwk_cc_msgt_vals, "Unknown 0x%02x"));
+	/* According to Section 7.2 CC also contains CRSS messages */
+	if ( msg_type == DECT_NWK_SS_CRSS_HOLD ||
+			msg_type == DECT_NWK_SS_CRSS_HOLD_ACK ||
+			msg_type == DECT_NWK_SS_CRSS_HOLD_REJ ||
+			msg_type == DECT_NWK_SS_CRSS_RETRIEVE ||
+			msg_type == DECT_NWK_SS_CRSS_RETRIEVE_ACK ||
+			msg_type == DECT_NWK_SS_CRSS_RETRIEVE_REJ ||
+			msg_type == DECT_NWK_SS_CISS_FACILITY ) {
+		proto_tree_add_item(tree, hf_dect_nwk_message_type_crss, tvb, offset, 1, ENC_NA);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(msg_type, dect_nwk_crss_message_type_vals, "Unknown 0x%02x"));
+	} else {
+		proto_tree_add_item(tree, hf_nwk_msg_type_cc, tvb, offset, 1, ENC_NA);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(msg_type, nwk_cc_msgt_vals, "Unknown 0x%02x"));
+	}
 	offset++;
 
 	while(tvb_reported_length_remaining(tvb, offset)) {
 		offset = dissect_dect_nwk_s_ie(tvb, offset, pinfo, tree, data);
 	}
 
-	/* TOOD: dissection of TLVs/IEs */
+	return offset;
+}
+
+static int dissect_dect_nwk_ciss(tvbuff_t *tvb, guint8 msg_type, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
+{
+	proto_tree_add_item(tree, hf_dect_nwk_message_type_ciss, tvb, offset, 1, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(msg_type, dect_nwk_ciss_message_type_vals, "Unknown 0x%02x"));
+	offset++;
+
+	while(tvb_reported_length_remaining(tvb, offset)) {
+		offset = dissect_dect_nwk_s_ie(tvb, offset, pinfo, tree, data);
+	}
+
+	return offset;
+}
+
+static int dissect_dect_nwk_coms(tvbuff_t *tvb, guint8 msg_type, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
+{
+	proto_tree_add_item(tree, hf_dect_nwk_message_type_coms, tvb, offset, 1, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(msg_type, dect_nwk_coms_message_type_vals, "Unknown 0x%02x"));
+	offset++;
+
+	while(tvb_reported_length_remaining(tvb, offset)) {
+		offset = dissect_dect_nwk_s_ie(tvb, offset, pinfo, tree, data);
+	}
+
+	return offset;
+}
+
+
+static int dissect_dect_nwk_clms(tvbuff_t *tvb, guint8 msg_type, guint offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
+{
+	proto_tree_add_item(tree, hf_dect_nwk_message_type_clms, tvb, offset, 1, ENC_NA);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(msg_type, dect_nwk_clms_message_type_vals, "Unknown 0x%02x"));
+	offset++;
+
+	while(tvb_reported_length_remaining(tvb, offset)) {
+		offset = dissect_dect_nwk_s_ie(tvb, offset, pinfo, tree, data);
+	}
 
 	return offset;
 }
@@ -2621,9 +2716,14 @@ static int dissect_dect_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset = dissect_dect_nwk_mm(tvb, msg_type, 1, pinfo, nwk_tree, data);
 		break;
 	case DECT_NWK_PDISC_CISS:
-	case DECT_NWK_PDISC_CMSS:
+		offset = dissect_dect_nwk_ciss(tvb, msg_type, 1, pinfo, nwk_tree, data);
+		break;
+	case DECT_NWK_PDISC_CLMS:
+		offset = dissect_dect_nwk_clms(tvb, msg_type, 1, pinfo, nwk_tree, data);
+		break;
 	case DECT_NWK_PDISC_COMS:
-		/* FIXME */
+		offset = dissect_dect_nwk_coms(tvb, msg_type, 1, pinfo, nwk_tree, data);
+		break;
 	default:
 		break;
 	}
@@ -2688,6 +2788,26 @@ void proto_register_dect_nwk(void)
 		{ &hf_nwk_msg_type_cc,
 			{ "Message Type", "dect_nwk.msg_type", FT_UINT8, BASE_HEX,
 				VALS(nwk_cc_msgt_vals), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_message_type_ciss,
+			{ "Message Type", "dect_nwk.msg_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_ciss_message_type_vals), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_message_type_crss,
+			{ "Message Type", "dect_nwk.msg_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_crss_message_type_vals), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_message_type_coms,
+			{ "Message Type", "dect_nwk.msg_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_coms_message_type_vals), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_nwk_message_type_clms,
+			{ "Message Type", "dect_nwk.msg_type", FT_UINT8, BASE_HEX,
+				VALS(dect_nwk_clms_message_type_vals), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_nwk_msg_type_mm,
