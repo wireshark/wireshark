@@ -26,6 +26,7 @@
 
 void proto_register_winsrepl(void);
 void proto_reg_handoff_winsrepl(void);
+static dissector_handle_t winsrepl_handle;
 
 static gboolean winsrepl_reassemble = TRUE;
 
@@ -851,6 +852,7 @@ proto_register_winsrepl(void)
 	proto_register_field_array(proto_winsrepl, hf, array_length(hf));
 	expert_winsrepl = expert_register_protocol(proto_winsrepl);
 	expert_register_field_array(expert_winsrepl, ei, array_length(ei));
+	winsrepl_handle = register_dissector("winsrepl", dissect_winsrepl, proto_winsrepl);
 
 	winsrepl_module = prefs_register_protocol(proto_winsrepl, NULL);
 	prefs_register_bool_preference(winsrepl_module, "reassemble",
@@ -863,9 +865,6 @@ proto_register_winsrepl(void)
 void
 proto_reg_handoff_winsrepl(void)
 {
-	dissector_handle_t winsrepl_handle;
-
-	winsrepl_handle = create_dissector_handle(dissect_winsrepl, proto_winsrepl);
 	dissector_add_uint_with_preference("tcp.port", WINS_REPLICATION_PORT, winsrepl_handle);
 }
 

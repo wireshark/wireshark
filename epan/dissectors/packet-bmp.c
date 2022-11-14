@@ -364,6 +364,7 @@ static gint ett_bmp_route_policy_tlv_policy = -1;
 
 static expert_field ei_stat_data_unknown = EI_INIT;
 
+static dissector_handle_t bmp_handle;
 static dissector_handle_t dissector_bgp;
 
 /* desegmentation */
@@ -1560,6 +1561,8 @@ proto_register_bmp(void)
             "bmp"                      /* abbrev */
             );
 
+    bmp_handle = register_dissector("bmp", dissect_bmp, proto_bmp);
+
     proto_register_field_array(proto_bmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -1578,9 +1581,6 @@ proto_register_bmp(void)
 void
 proto_reg_handoff_bmp(void)
 {
-    static dissector_handle_t bmp_handle;
-
-    bmp_handle = create_dissector_handle(dissect_bmp, proto_bmp);
     dissector_add_for_decode_as_with_preference("tcp.port", bmp_handle);
     dissector_bgp = find_dissector_add_dependency("bgp", proto_bmp);
 }

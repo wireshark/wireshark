@@ -20,6 +20,7 @@
 
 void proto_register_tsdns(void);
 void proto_reg_handoff_tsdns(void);
+static dissector_handle_t tsdns_handle;
 
 static int proto_tsdns = -1;
 
@@ -137,14 +138,12 @@ void proto_register_tsdns(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_tsdns = expert_register_protocol(proto_tsdns);
   expert_register_field_array(expert_tsdns, ei, array_length(ei));
+
+  tsdns_handle = register_dissector("tsdns", dissect_tsdns, proto_tsdns);
 }
 
 void proto_reg_handoff_tsdns(void)
 {
-  dissector_handle_t tsdns_handle;
-
-  tsdns_handle = create_dissector_handle(dissect_tsdns, proto_tsdns);
-
   /* Default port to not dissect the protocol*/
   dissector_add_uint_with_preference("tcp.port", 0, tsdns_handle);
 }

@@ -29,6 +29,7 @@ static int hf_zdst       = -1;
 
 static gint ett_raw = -1;
 
+static dissector_handle_t ipnet_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
@@ -126,20 +127,18 @@ proto_register_ipnet(void)
   proto_ipnet = proto_register_protocol("Solaris IPNET", "IPNET", "ipnet");
   proto_register_field_array(proto_ipnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  ipnet_handle = register_dissector("ipnet", dissect_ipnet, proto_ipnet);
 }
 
 void
 proto_reg_handoff_ipnet(void)
 {
-  dissector_handle_t ipnet_handle;
-
   /*
    * Get handles for the IP and IPv6 dissectors.
    */
   ip_handle = find_dissector_add_dependency("ip", proto_ipnet);
   ipv6_handle = find_dissector_add_dependency("ipv6", proto_ipnet);
 
-  ipnet_handle = create_dissector_handle(dissect_ipnet, proto_ipnet);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IPNET, ipnet_handle);
 }
 

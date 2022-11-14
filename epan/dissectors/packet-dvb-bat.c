@@ -18,6 +18,8 @@
 void proto_register_dvb_bat(void);
 void proto_reg_handoff_dvb_bat(void);
 
+static dissector_handle_t dvb_bat_handle;
+
 static int proto_dvb_bat = -1;
 static int hf_dvb_bat_bouquet_id = -1;
 static int hf_dvb_bat_reserved1 = -1;
@@ -237,6 +239,7 @@ proto_register_dvb_bat(void)
     };
 
     proto_dvb_bat = proto_register_protocol("DVB Bouquet Association Table", "DVB BAT", "dvb_bat");
+    dvb_bat_handle = register_dissector("dvb_bat", dissect_dvb_bat, proto_dvb_bat);
 
     proto_register_field_array(proto_dvb_bat, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -246,10 +249,6 @@ proto_register_dvb_bat(void)
 
 void proto_reg_handoff_dvb_bat(void)
 {
-    dissector_handle_t dvb_bat_handle;
-
-    dvb_bat_handle = create_dissector_handle(dissect_dvb_bat, proto_dvb_bat);
-
     dissector_add_uint("mpeg_sect.tid", DVB_BAT_TID, dvb_bat_handle);
 }
 

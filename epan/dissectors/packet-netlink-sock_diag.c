@@ -1267,7 +1267,7 @@ proto_register_netlink_sock_diag(void)
 	proto_register_field_array(proto_netlink_sock_diag, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	netlink_sock_diag_handle = create_dissector_handle(dissect_netlink_sock_diag, proto_netlink_sock_diag);
+	netlink_sock_diag_handle = register_dissector("netlink-sock_diag", dissect_netlink_sock_diag, proto_netlink_sock_diag);
 }
 
 void

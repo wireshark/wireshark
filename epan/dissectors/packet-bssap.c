@@ -32,6 +32,7 @@ void proto_register_bssap(void);
 void proto_reg_handoff_bssap(void);
 
 static dissector_handle_t bssap_handle;
+static dissector_handle_t bssap_plus_handle;
 static dissector_handle_t bsap_handle;
 static dissector_handle_t bssap_le_handle;
 
@@ -2568,7 +2569,7 @@ proto_register_bssap(void)
     bsap_handle = register_dissector("bsap", dissect_bsap, proto_bsap);
     bssap_le_handle = register_dissector("bssap_le", dissect_bssap_le, proto_bssap_le);
     register_dissector("bssap.imei", dissect_bssap_imei_dissector, proto_bssap);
-    register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
+    bssap_plus_handle = register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bssap, hf, array_length(hf));
@@ -2606,12 +2607,10 @@ proto_register_bssap(void)
 void
 proto_reg_handoff_bssap(void)
 {
-    static dissector_handle_t bssap_plus_handle;
 
     heur_dissector_add("sccp", dissect_bssap_heur, "BSSAP over SCCP", "bssap_sccp", proto_bssap, HEURISTIC_ENABLE);
     heur_dissector_add("sua", dissect_bssap_heur, "BSSAP over SUA", "bssap_sua", proto_bssap, HEURISTIC_ENABLE);
     /* BSSAP+ */
-    bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap_plus);
 
     rrlp_handle = find_dissector_add_dependency("rrlp", proto_bssap_plus);
     gsm_bssmap_le_dissector_handle = find_dissector_add_dependency("gsm_bssmap_le", proto_bssap);

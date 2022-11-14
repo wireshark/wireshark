@@ -16,6 +16,7 @@
 
 void proto_register_spp(void);
 void proto_reg_handoff_spp(void);
+static dissector_handle_t spp_handle;
 
 static int proto_spp = -1;
 static int hf_spp_connection_control = -1;
@@ -247,6 +248,7 @@ proto_register_spp(void)
 	    "SPP", "spp");
 	proto_register_field_array(proto_spp, hf_spp, array_length(hf_spp));
 	proto_register_subtree_array(ett, array_length(ett));
+	spp_handle = register_dissector("spp", dissect_spp, proto_spp);
 
 	spp_socket_dissector_table = register_dissector_table("spp.socket",
 	    "SPP socket", proto_spp, FT_UINT16, BASE_HEX);
@@ -255,9 +257,6 @@ proto_register_spp(void)
 void
 proto_reg_handoff_spp(void)
 {
-	dissector_handle_t spp_handle;
-
-	spp_handle = create_dissector_handle(dissect_spp, proto_spp);
 	dissector_add_uint("idp.packet_type", IDP_PACKET_TYPE_SPP, spp_handle);
 }
 

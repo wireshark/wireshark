@@ -60,6 +60,7 @@
 
 void proto_reg_handoff_woww(void);
 void proto_register_woww(void);
+static dissector_handle_t woww_handle;
 
 static int proto_woww = -1;
 
@@ -20307,6 +20308,7 @@ proto_register_woww(void)
 
     proto_woww = proto_register_protocol("World of Warcraft World",
             "WOWW", "woww");
+    woww_handle = register_dissector("woww", dissect_woww, proto_woww);
 
     proto_register_field_array(proto_woww, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -20318,7 +20320,6 @@ proto_register_woww(void)
 void
 proto_reg_handoff_woww(void)
 {
-    dissector_handle_t woww_handle = create_dissector_handle(dissect_woww, proto_woww);
     dissector_add_for_decode_as("tcp.port",  woww_handle);
 }
 

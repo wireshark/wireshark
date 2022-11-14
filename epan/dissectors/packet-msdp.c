@@ -156,6 +156,7 @@ static gint ett_msdp_not_data = -1;
 static expert_field ei_msdp_tlv_len_too_short = EI_INIT;
 static expert_field ei_msdp_tlv_len_too_long = EI_INIT;
 
+static dissector_handle_t msdp_handle;
 static dissector_handle_t ip_handle;
 
 
@@ -722,6 +723,7 @@ proto_register_msdp(void)
 
         proto_msdp = proto_register_protocol("Multicast Source Discovery Protocol",
             "MSDP", "msdp");
+        msdp_handle = register_dissector("msdp", dissect_msdp, proto_msdp);
 
         proto_register_field_array(proto_msdp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
@@ -732,9 +734,6 @@ proto_register_msdp(void)
 void
 proto_reg_handoff_msdp(void)
 {
-        dissector_handle_t msdp_handle;
-
-        msdp_handle = create_dissector_handle(dissect_msdp, proto_msdp);
         dissector_add_uint_with_preference("tcp.port", MSDP_PORT, msdp_handle);
 
         ip_handle = find_dissector_add_dependency("ip", proto_msdp);

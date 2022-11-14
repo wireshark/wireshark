@@ -4575,7 +4575,7 @@ proto_register_netlink_nl80211(void)
     proto_register_field_array(proto_netlink_nl80211, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    netlink_nl80211_handle = create_dissector_handle(dissect_netlink_nl80211, proto_netlink_nl80211);
+    netlink_nl80211_handle = register_dissector("nl80211", dissect_netlink_nl80211, proto_netlink_nl80211);
     ieee80211_handle = find_dissector_add_dependency("wlan", proto_netlink_nl80211);
     ieee80211_tag_dissector_table = find_dissector_table("wlan.tag.number");
 }

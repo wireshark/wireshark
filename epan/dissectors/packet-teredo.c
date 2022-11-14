@@ -58,6 +58,7 @@ typedef struct {
 
 static dissector_table_t teredo_dissector_table;
 /*static heur_dissector_list_t heur_subdissector_list;*/
+static dissector_handle_t teredo_handle;
 static dissector_handle_t data_handle;
 
 static int
@@ -370,6 +371,7 @@ proto_register_teredo(void)
 		"Teredo IPv6 over UDP tunneling", "Teredo", "teredo");
 	proto_register_field_array(proto_teredo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	teredo_handle = register_dissector("teredo", dissect_teredo, proto_teredo);
 
 /* subdissector code */
 	teredo_dissector_table = register_dissector_table("teredo", "Teredo", proto_teredo, FT_UINT16, BASE_DEC);
@@ -383,9 +385,6 @@ proto_register_teredo(void)
 void
 proto_reg_handoff_teredo(void)
 {
-	dissector_handle_t teredo_handle;
-
-	teredo_handle = create_dissector_handle(dissect_teredo, proto_teredo);
 	data_handle   = find_dissector("ipv6");
 	teredo_tap    = register_tap("teredo");
 

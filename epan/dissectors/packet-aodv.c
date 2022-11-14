@@ -32,6 +32,7 @@
  */
 void proto_register_aodv(void);
 void proto_reg_handoff_aodv(void);
+static dissector_handle_t aodv_handle;
 
 #define INET6_ADDRLEN   16
 #define UDP_PORT_AODV   654
@@ -852,6 +853,7 @@ proto_register_aodv(void)
 
 /* Register the protocol name and description */
     proto_aodv = proto_register_protocol("Ad hoc On-demand Distance Vector Routing Protocol", "AODV", "aodv");
+    aodv_handle = register_dissector("aodv", dissect_aodv, proto_aodv);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_aodv, hf, array_length(hf));
@@ -864,10 +866,6 @@ proto_register_aodv(void)
 void
 proto_reg_handoff_aodv(void)
 {
-    dissector_handle_t aodv_handle;
-
-    aodv_handle = create_dissector_handle(dissect_aodv,
-                                              proto_aodv);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_AODV, aodv_handle);
 }
 

@@ -15,6 +15,8 @@
 #include <epan/packet.h>
 #include <file-rbm.h>
 
+static dissector_handle_t drb_handle;
+
 static int proto_drb = -1;
 
 static int hf_drb_len = -1;
@@ -108,6 +110,7 @@ void proto_register_drb(void)
 	};
 
 	proto_drb = proto_register_protocol("Distributed Ruby", "DRb", "drb");
+	drb_handle = register_dissector("drb", dissect_drb, proto_drb);
 
 	proto_register_field_array(proto_drb, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -115,9 +118,6 @@ void proto_register_drb(void)
 
 void proto_reg_handoff_drb(void)
 {
-	dissector_handle_t drb_handle;
-
-	drb_handle = create_dissector_handle(dissect_drb, proto_drb);
 	dissector_add_for_decode_as_with_preference("tcp.port", drb_handle);
 }
 

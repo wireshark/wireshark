@@ -315,6 +315,7 @@ static expert_field ei_sm_rp_oa_invalid = EI_INIT;
 static expert_field ei_gsup_ie_len_invalid = EI_INIT;
 
 static dissector_handle_t gsm_map_handle;
+static dissector_handle_t gsup_handle;
 static dissector_handle_t gsm_sms_handle;
 static dissector_handle_t bssap_imei_handle;
 static dissector_handle_t bssap_handle;
@@ -1029,6 +1030,8 @@ proto_register_gsup(void)
 	proto_register_field_array(proto_gsup, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	gsup_handle = register_dissector("gsup", dissect_gsup, proto_gsup);
+
 	expert_gsup = expert_register_protocol(proto_gsup);
 	expert_register_field_array(expert_gsup, ei, array_length(ei));
 
@@ -1043,8 +1046,6 @@ proto_register_gsup(void)
 void
 proto_reg_handoff_gsup(void)
 {
-	dissector_handle_t gsup_handle;
-	gsup_handle = create_dissector_handle(dissect_gsup, proto_gsup);
 	dissector_add_uint_with_preference("ipa.osmo.protocol", IPAC_PROTO_EXT_GSUP, gsup_handle);
 	gsm_map_handle = find_dissector_add_dependency("gsm_map", proto_gsup);
 	gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsup);
