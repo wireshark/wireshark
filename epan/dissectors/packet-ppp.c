@@ -5789,7 +5789,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             NULL, mp_tree);
 
         if (frag_mp) {
-            if (pinfo->num == frag_mp->reassembled_in) {
+            if (next_tvb) {
                 dissect_ppp(next_tvb, pinfo, tree, NULL);
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO,
