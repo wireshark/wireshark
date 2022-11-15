@@ -2394,7 +2394,7 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 		for (frag_number=1; frag_number < max_frags; frag_number++) {
 			new_fh = lookup_fd_head(table, pinfo, id-frag_number, data, NULL);
 			if (new_fh != NULL) {
-				prev_fd = new_fh->next;
+				prev_fd = NULL;
 				new_fh->frame = 0;
 				for (fd=new_fh->next; fd && fd->offset < frag_number; fd=fd->next) {
 					prev_fd = fd;
@@ -2404,6 +2404,8 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 				}
 				if (prev_fd) {
 					prev_fd->next = NULL;
+				} else {
+					new_fh->next = NULL;
 				}
 				break;
 			}
@@ -2474,7 +2476,7 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 	}
 	if (last) {
 		/* Look for fragments past the end set by this Last fragment. */
-		prev_fd = fh->next;
+		prev_fd = NULL;
 		for (fd=fh->next; fd && fd->offset <= frag_number; fd=fd->next) {
 			prev_fd = fd;
 		}
@@ -2488,6 +2490,8 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 		if (fd != NULL) {
 			if (prev_fd) {
 				prev_fd->next = NULL;
+			} else {
+			    fh->next = NULL;
 			}
 			fh->frame = 0;
 			for (prev_fd=fh->next; prev_fd; prev_fd=prev_fd->next) {
