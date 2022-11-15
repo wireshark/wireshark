@@ -497,7 +497,6 @@ enum abis_nm_pcause_type {
 	NM_PCAUSE_T_MANUF	= 0x03
 };
 
-#if 0
 /* Section 9.4.36: NACK Causes */
 enum abis_nm_nack_cause {
 	/* General Nack Causes */
@@ -535,7 +534,6 @@ enum abis_nm_nack_cause {
 	NM_NACK_MEAS_NOTSUPP		= 0x2b,
 	NM_NACK_MEAS_NOTSTART		= 0x2c
 };
-#endif
 
 /* Section 9.4.1 */
 struct abis_nm_channel {
@@ -665,6 +663,7 @@ static int hf_attr_oper_state = -1;
 static int hf_attr_avail_state = -1;
 static int hf_attr_event_type = -1;
 static int hf_attr_severity = -1;
+static int hf_attr_nack_causes = -1;
 static int hf_attr_bcch_arfcn = -1;
 static int hf_attr_bsic = -1;
 static int hf_attr_test_no = -1;
@@ -1310,9 +1309,8 @@ static const value_string oml_severity_vals[] = {
 	{ 0, NULL }
 };
 
-#if 0
 /* Section 9.4.36: NACK Causes */
-static const value_string oml_nack_cause[] = {
+static const value_string oml_nack_causes[] = {
 	{ NM_NACK_INCORR_STRUCT,	"Incorrect message structure" },
 	{ NM_NACK_MSGTYPE_INVAL,	"Invalid message type value" },
 	{ NM_NACK_OBJCLASS_INVAL,	"Invalid Object class value" },
@@ -1348,7 +1346,6 @@ static const value_string oml_nack_cause[] = {
 	{ 0xff,				"NULL" },
 	{ 0, NULL }
 };
-#endif
 
 static const value_string oml_test_no_vals[] = {
 	{ NM_IPACC_TESTNO_RLOOP_ANT,	"Radio Loop test via antenna" },
@@ -1723,6 +1720,10 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			break;
 		case NM_ATT_SEVERITY:
 			proto_tree_add_item(att_tree, hf_attr_severity, tvb,
+					    offset, len, ENC_LITTLE_ENDIAN);
+			break;
+		case NM_ATT_NACK_CAUSES:
+			proto_tree_add_item(att_tree, hf_attr_nack_causes, tvb,
 					    offset, len, ENC_LITTLE_ENDIAN);
 			break;
 		case NM_ATT_TEST_REPORT:
@@ -2168,6 +2169,11 @@ proto_register_abis_oml(void)
 		{ &hf_attr_severity,
 			{ "Severity", "gsm_abis_oml.fom.attr.severity",
 			  FT_UINT8, BASE_HEX, VALS(oml_severity_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_nack_causes,
+			{ "NACK Causes", "gsm_abis_oml.fom.attr.nack_causes",
+			  FT_UINT8, BASE_HEX, VALS(oml_nack_causes), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_bcch_arfcn,
