@@ -1,5 +1,5 @@
 --
--- 3GPP TS 25.453 V11.0.0 (2012-09)
+-- 3GPP TS 25.453 V17.0.0 (2022-04
 --
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
@@ -51,6 +51,11 @@ IMPORTS
 	maxGANSS-1,
 	maxNrOfIRATMeasurements,
 	maxReportedGERANCells,
+	maxIonGridInfo,
+	maxAddPos,
+	maxBeacons,
+	maxBTs,
+	maxWLANs,
 
 
 	id-UTRAN-GPSReferenceTime,
@@ -115,7 +120,20 @@ IMPORTS
 	id-GPS-Week-Cycle,
 	id-GANSS-Day-Cycle,
 	id-ganss-Delta-T,
-	id-requestedCellIDGERANMeasurements
+	id-requestedCellIDGERANMeasurements,
+	id-GANSS-alm-keplerianBDSAlmanac,
+	id-BDS-Ionospheric-Grid-Model,
+	id-DBDS-Correction-Information,
+	id-BDSIonosphericGridModel,
+	id-DBDSCorrection,
+	id-Confidence,
+	id-ExtraDopplerInfoExtension,
+	id-GANSS-Confidence,
+	id-GANSS-ExtraDopplerExtension,
+	id-Additional-PositioningDataSet,
+	id-Additional-PositioningMethod,
+	id-AddPos-MeasuredResults,
+	id-AddPosSupport
 
 
 FROM PCAP-Constants
@@ -163,6 +181,105 @@ AdditionalMethodType ::= ENUMERATED {
 	...
 }
 
+-- **************************************************************
+--
+-- Additional Positioning Measured Results
+--
+-- **************************************************************
+
+AddPos-MeasuredResults ::= SEQUENCE (SIZE (1..maxAddPos)) OF AddPos-MeasuredResults-Element
+
+AddPos-MeasuredResults-Element ::= SEQUENCE {
+	timestamp					UTCTime																		OPTIONAL,
+	type						CHOICE {
+		barometricPressure				SEQUENCE {
+			uncompensatedBarometricPressure		BaroMeasurement,
+			iE-Extensions						ProtocolExtensionContainer	{ { BarometricPressure-ExtIEs } }	OPTIONAL,
+			...
+		},
+		wlan							SEQUENCE {
+			wlanMeasurementList					WLANMeasurementList,
+			iE-Extensions						ProtocolExtensionContainer	{ { WLANMeasurementList-ExtIEs } }	OPTIONAL,
+			...
+		},
+		bt								SEQUENCE {
+			btMeasurementList					BTMeasurementList,
+			iE-Extensions						ProtocolExtensionContainer	{ { BTMeasurementList-ExtIEs } }	OPTIONAL,
+			...
+		},
+		mbs								SEQUENCE {
+			mbsMeasurementList					MBSMeasurementList,
+			iE-Extensions						ProtocolExtensionContainer	{ { MBSMeasurementList-ExtIEs } }	OPTIONAL,
+			...
+		},
+		...
+	},
+	...
+}
+
+BarometricPressure-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLANMeasurementList-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BTMeasurementList-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBSMeasurementList-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLANMeasurementList ::= SEQUENCE (SIZE (1..maxWLANs)) OF WLANMeasurementList-Element
+
+WLANMeasurementList-Element ::= SEQUENCE {
+	wlanBSSID					OCTET STRING (SIZE (6)),
+	wlanSSID					OCTET STRING (SIZE(1..32))												OPTIONAL,
+	wlanRSSI					INTEGER(-127..128)														OPTIONAL,
+	wlanRTTvalue				INTEGER(0..16777215)													OPTIONAL,
+	wlanRTTunits				ENUMERATED { microseconds,hundredsofnanoseconds, tensofnanoseconds, nanoseconds, tenthsofnanosecond, ...} OPTIONAL,
+	wlanRTTaccuracy				INTEGER(0..255)															OPTIONAL,
+	wlanAPChannelFrequency		INTEGER(0..256)															OPTIONAL,
+	wlanServingFlag				BOOLEAN																	OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { WLANMeasurementList-Element-ExtIEs } }	OPTIONAL,
+	...
+}
+
+WLANMeasurementList-Element-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BTMeasurementList ::= SEQUENCE (SIZE (1..maxBTs)) OF BTMeasurementList-Element
+
+BTMeasurementList-Element ::= SEQUENCE {
+	btADDR					OCTET STRING (SIZE(6)),
+	btRSSI					INTEGER(-127..128)														OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { BTMeasurementList-Element-ExtIEs } }		OPTIONAL,
+	...
+}
+
+BTMeasurementList-Element-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBSMeasurementList ::= SEQUENCE (SIZE (1..maxBeacons)) OF MBSMeasurementList-Element
+
+MBSMeasurementList-Element ::= SEQUENCE {
+	transmitterID				INTEGER(0..32767),
+	codephase					INTEGER(0..2097151),
+	codephaseRMS				INTEGER(0..63),
+	iE-Extensions				ProtocolExtensionContainer { { MBSMeasurementList-Element-ExtIEs } }		OPTIONAL,
+	...
+}
+
+MBSMeasurementList-Element-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BaroMeasurement ::= INTEGER(30000..115000)
 
 -- **************************************************************
 --
@@ -229,7 +346,10 @@ CauseRadioNetwork ::= ENUMERATED {
 	position-calculation-error-invalid-GANSS-measured-results,
 	position-calculation-error-AGANSS-positioning-method-not-supported,
 	ue-positioning-error-Not-enough-GANSS-Satellites,
-	ue-positioning-error-Not-Accomplished-GANSS-Timing-of-Cell-Frames
+	ue-positioning-error-Not-Accomplished-GANSS-Timing-of-Cell-Frames,
+	position-calculation-error-invalid-BDS-measured-results,
+	ue-Positioning-Error-Not-enough-BDS-Satellites,
+	position-calculation-error-A-BDS-positioning-method-not-supported
 }
 
 CauseTransport ::= ENUMERATED {
@@ -590,6 +710,7 @@ ClientType ::= ENUMERATED {
 	plmn-operator-target-ms-service-support,
 	...
 }
+
 -- **************************************************************
 --
 -- CriticalityDiagnostics
@@ -726,11 +847,11 @@ RRC ::=								INTEGER (-127..127)
 
 -- IMEI
 
-IMEI ::=	OCTET STRING (SIZE (3..8))
+IMEI ::=	OCTET STRING (SIZE (8))
 
 -- IMSI
 
-IMSI ::=	OCTET STRING (SIZE (8))
+IMSI ::=	OCTET STRING (SIZE (3..8))
 
 
 -- **************************************************************
@@ -896,7 +1017,7 @@ Extension-ReferenceTimeChoice-IE PCAP-PROTOCOL-IES ::= {
 }
 
 
-Cell-Timing ::=  SEQUENCE {
+Cell-Timing ::= SEQUENCE {
 	sfn					INTEGER (0..4095),
 	uC-ID				UC-ID,
 	iE-Extensions	ProtocolExtensionContainer { { Cell-Timing-ExtIEs } }	OPTIONAL,
@@ -937,13 +1058,14 @@ PositionDataUEbased-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 PositionData ::= SEQUENCE {
 	positioningDataDiscriminator		PositioningDataDiscriminator,
 	positioningDataSet					PositioningDataSet											OPTIONAL,
--- This IE shall be present if the PositioningDataDiscriminator IE is set to the value "0000"  --
+-- This IE shall be present if the PositioningDataDiscriminator IE is set to the value "0000"		--
 	iE-Extensions						ProtocolExtensionContainer { {PositionData-ExtIEs} } 		OPTIONAL,
 	...
 }
 
 PositionData-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-GANSS-PositioningDataSet			CRITICALITY ignore	EXTENSION GANSS-PositioningDataSet				PRESENCE optional },
+	{ ID id-GANSS-PositioningDataSet			CRITICALITY ignore	EXTENSION GANSS-PositioningDataSet			PRESENCE optional}|
+	{ ID id-Additional-PositioningDataSet		CRITICALITY ignore	EXTENSION Additional-PositioningDataSet		PRESENCE optional},
 	...
 }
 
@@ -956,6 +1078,11 @@ PositioningDataDiscriminator ::= BIT STRING (SIZE(4))
 PositioningDataSet ::= SEQUENCE(SIZE(1..maxSet)) OF PositioningMethodAndUsage
 
 PositioningMethodAndUsage ::= OCTET STRING (SIZE(1))
+
+Additional-PositioningDataSet ::= SEQUENCE(SIZE(1..maxAddPos)) OF Additional-PositioningMethodAndUsage
+
+Additional-PositioningMethodAndUsage ::= OCTET STRING (SIZE(1))
+
 
 -- **************************************************************
 --
@@ -972,8 +1099,9 @@ GPS-AcquisitionAssistance ::=	SEQUENCE {
 }
 
 GPS-AcquisitionAssistance-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-	{ID id-UTRAN-GPSReferenceTime		CRITICALITY	ignore	EXTENSION	UTRAN-GPSReferenceTime			PRESENCE optional} |
-	{ID id-GPSReferenceTimeUncertainty	CRITICALITY	ignore	EXTENSION	GPSReferenceTimeUncertainty	PRESENCE optional} ,
+	{ID id-UTRAN-GPSReferenceTime		CRITICALITY ignore	EXTENSION UTRAN-GPSReferenceTime		PRESENCE optional}|
+	{ID id-GPSReferenceTimeUncertainty	CRITICALITY ignore	EXTENSION GPSReferenceTimeUncertainty		PRESENCE optional}|
+	{ID id-Confidence						CRITICALITY ignore	EXTENSION Confidence						PRESENCE optional},
 	...
 }
 
@@ -994,6 +1122,7 @@ AcquisitionSatInfo ::=				SEQUENCE {
 }
 
 AcquisitionSatInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-ExtraDopplerInfoExtension		CRITICALITY ignore	EXTENSION ExtraDopplerInfoExtension		PRESENCE optional},
 	...
 }
 
@@ -1008,8 +1137,22 @@ ExtraDopplerInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+ExtraDopplerInfoExtension ::= SEQUENCE {
+	doppler1stOrder					INTEGER (-42..21),
+	dopplerUncertaintyExtension		DopplerUncertaintyExtension,
+	iE-Extensions						ProtocolExtensionContainer { { ExtraDopplerInfoExtension-ExtIEs } }	OPTIONAL,
+	...
+}
+
+ExtraDopplerInfoExtension-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 DopplerUncertainty ::=				ENUMERATED {
 										hz12-5, hz25, hz50, hz100, hz200, ...}
+
+DopplerUncertaintyExtension ::= ENUMERATED {
+										hz300, hz400, hz500, hz600, noInformation, ...}
 
 CodePhaseSearchWindow ::=			ENUMERATED {
 										w1023, w1, w2, w3, w4, w6, w8,
@@ -1039,6 +1182,8 @@ AzimuthAndElevationLSB-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Confidence ::= INTEGER(0..100)
+
 -- **************************************************************
 --
 -- GANSS Elements
@@ -1060,7 +1205,7 @@ AuxInfoGANSS-ID1-element-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 AuxInfoGANSS-ID3 ::= SEQUENCE (SIZE(1.. maxGANSSSat)) OF AuxInfoGANSS-ID3-element
 
-AuxInfoGANSS-ID3-element  ::= SEQUENCE {
+AuxInfoGANSS-ID3-element ::= SEQUENCE {
 	svID				INTEGER(0..63),
 	signalsAvailable	BIT STRING (SIZE(8)),
 	channelNumber		INTEGER (-7..13),
@@ -1146,7 +1291,7 @@ DGANSS-SignalInformationItem ::= SEQUENCE {
 }
 
 DGANSS-SignalInformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-	{ID id-DGNSS-ValidityPeriod	CRITICALITY	ignore	EXTENSION	DGNSS-ValidityPeriod	PRESENCE	optional},
+	{ID id-DGNSS-ValidityPeriod		CRITICALITY ignore	EXTENSION DGNSS-ValidityPeriod		PRESENCE optional},
 	...
 }
 
@@ -1155,7 +1300,8 @@ GANSS-AddClockModels ::= CHOICE {
 	cnavClockModel			 		CNAVclockModel,
 	glonassClockModel		 		GLONASSclockModel,
 	sbasClockModel			 		SBASclockModel,
-	...
+	...,
+	bDSClockModel					BDSClockModel
 	}
 
 GANSS-AddOrbitModels ::= CHOICE {
@@ -1163,7 +1309,8 @@ GANSS-AddOrbitModels ::= CHOICE {
 	cnavKeplerianSet				NavModel-CNAVKeplerianSet,
 	glonassECEF						NavModel-GLONASSecef,
 	sbasECEF						NavModel-SBASecef,
-	...
+	...,
+	bDSKeplerianSet					NavModel-BDSKeplerianSet
 	}
 
 GANSS-Additional-Ionospheric-Model ::= SEQUENCE {
@@ -1194,6 +1341,41 @@ GANSS-Additional-UTC-Models ::= CHOICE {
 	utcModel1			UTCmodelSet1,
 	utcModel2			UTCmodelSet2,
 	utcModel3			UTCmodelSet3,
+	...,
+	utcModel4			UTCmodelSet4
+}
+
+GANSS-ALM-BDSKeplericanset ::= SEQUENCE {
+	satellite-Information-BDS-KP-List	Satellite-Information-BDS-KP-List,
+	ie-Extensions						ProtocolExtensionContainer { { GANSS-ALM-BDSKeplericanset-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-ALM-BDSKeplericanset-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Satellite-Information-BDS-KP-List ::= SEQUENCE (SIZE (1..maxGANSSSatAlmanac)) OF Satellite-Information-BDS-KP-Item
+
+Satellite-Information-BDS-KP-Item ::= SEQUENCE {
+	sVID-BDS					INTEGER (0..63),
+	tOA-BDS						BIT STRING( SIZE(8) ),
+	a21-BDS						BIT STRING( SIZE(24) ),
+	e-BDS						BIT STRING( SIZE(17) ),
+	omg-lower-BDS				BIT STRING( SIZE(24) ),
+	m0-BDS						BIT STRING( SIZE(24) ),
+	omg-0-BDS					BIT STRING( SIZE(24) ),
+	omg-upper-BDS				BIT STRING( SIZE(17) ),
+	delta-i-BDS					BIT STRING( SIZE(16) ),
+	a0-BDS						BIT STRING( SIZE(11) ),
+	a1-BDS						BIT STRING( SIZE(11) ),
+-- The following IE is mandatory present if the sVID-BDS is between 0 and 29 and not needed otherwise.
+	hea-BDS						BIT STRING( SIZE(9) )					OPTIONAL,
+	ie-Extensions				ProtocolExtensionContainer { { Satellite-Information-BDS-KP-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+Satellite-Information-BDS-KP-Item-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1274,11 +1456,12 @@ GANSS-AlmanacModel ::= CHOICE {
 Extension-GANSS-AlmanacModel ::= ProtocolIE-Single-Container {{ Extension-GANSS-AlmanacModel-IE }}
 
 Extension-GANSS-AlmanacModel-IE PCAP-PROTOCOL-IES ::= {
-	{ ID id-GANSS-alm-keplerianNAVAlmanac			CRITICALITY		ignore		TYPE	GANSS-ALM-NAVKeplerianSet			PRESENCE	mandatory}|
-	{ ID id-GANSS-alm-keplerianReducedAlmanac		CRITICALITY		ignore		TYPE	GANSS-ALM-ReducedKeplerianSet		PRESENCE	mandatory}|
-	{ ID id-GANSS-alm-keplerianMidiAlmanac			CRITICALITY		ignore		TYPE	GANSS-ALM-MidiAlmanacSet				PRESENCE	mandatory}|
-	{ ID id-GANSS-alm-keplerianGLONASS				CRITICALITY		ignore		TYPE	GANSS-ALM-GlonassAlmanacSet			PRESENCE	mandatory}|
-	{ ID id-GANSS-alm-ecefSBASAlmanac				CRITICALITY		ignore		TYPE	GANSS-ALM-ECEFsbasAlmanacSet		PRESENCE	mandatory}
+	{ ID id-GANSS-alm-keplerianNAVAlmanac			CRITICALITY ignore	TYPE GANSS-ALM-NAVKeplerianSet			PRESENCE mandatory}|
+	{ ID id-GANSS-alm-keplerianReducedAlmanac		CRITICALITY ignore	TYPE GANSS-ALM-ReducedKeplerianSet		PRESENCE mandatory}|
+	{ ID id-GANSS-alm-keplerianMidiAlmanac			CRITICALITY ignore	TYPE GANSS-ALM-MidiAlmanacSet			PRESENCE mandatory}|
+	{ ID id-GANSS-alm-keplerianGLONASS				CRITICALITY ignore	TYPE GANSS-ALM-GlonassAlmanacSet			PRESENCE mandatory}|
+	{ ID id-GANSS-alm-ecefSBASAlmanac				CRITICALITY ignore	TYPE GANSS-ALM-ECEFsbasAlmanacSet		PRESENCE mandatory}|
+	{ ID id-GANSS-alm-keplerianBDSAlmanac			CRITICALITY ignore	TYPE GANSS-ALM-BDSKeplericanset			PRESENCE mandatory}
 }
 
 
@@ -1384,6 +1567,17 @@ GANSS-ExtraDoppler-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-ExtraDopplerExtension ::= SEQUENCE {
+	dopplerFirstOrder				INTEGER(-42..21),
+	dopplerUncertaintyExtension	ENUMERATED{dH60,dH80,dH100,dH120,noInformation},
+	ie-Extensions					ProtocolExtensionContainer { { GANSS-ExtraDopplerExtension-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-ExtraDopplerExtension-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 GANSS-GenericAssistanceDataList ::= SEQUENCE (SIZE (1..maxGANSS)) OF GANSSGenericAssistanceData
 
 GANSSGenericAssistanceData ::= SEQUENCE{
@@ -1402,11 +1596,73 @@ GANSSGenericAssistanceData ::= SEQUENCE{
 
 GANSSGenericAssistance-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-GANSS-Additional-Time-Models			CRITICALITY ignore	EXTENSION GANSS-Additional-Time-Models			PRESENCE optional }|
-	{ ID id-GANSS-Additional-Navigation-Models		CRITICALITY ignore	EXTENSION GANSS-Additional-Navigation-Models	PRESENCE optional }|
-	{ ID id-GANSS-Additional-UTC-Models				CRITICALITY ignore	EXTENSION GANSS-Additional-UTC-Models				PRESENCE optional }|
-	{ ID id-GANSS-Auxiliary-Information				CRITICALITY ignore	EXTENSION GANSS-Auxiliary-Information				PRESENCE optional }|
-	-- the following IE shall be present if 'GANSSID' in 'GANSSGenericAssistanceData' is '0' (SBAS)
-	{ ID id-GANSS-SBAS-ID							CRITICALITY ignore	EXTENSION GANSS-SBAS-ID			PRESENCE optional },
+	{ ID id-GANSS-Additional-Navigation-Models		CRITICALITY ignore	EXTENSION GANSS-Additional-Navigation-Models		PRESENCE optional }|
+	{ ID id-GANSS-Additional-UTC-Models				CRITICALITY ignore	EXTENSION GANSS-Additional-UTC-Models			PRESENCE optional }|
+	{ ID id-GANSS-Auxiliary-Information				CRITICALITY ignore	EXTENSION GANSS-Auxiliary-Information			PRESENCE optional }|
+	-- the following IE shall be present if ‘GANSSID’ in ‘GANSSGenericAssistanceData’ is ‘0’ (SBAS)
+	{ ID id-GANSS-SBAS-ID							CRITICALITY ignore	EXTENSION GANSS-SBAS-ID				PRESENCE optional }|
+	{ ID id-BDS-Ionospheric-Grid-Model				CRITICALITY ignore	EXTENSION BDS-Ionospheric-Grid-Model			PRESENCE optional }|
+	{ ID id-DBDS-Correction-Information				CRITICALITY ignore	EXTENSION DBDS-Correction-Information			PRESENCE optional },
+	...
+}
+
+BDS-Ionospheric-Grid-Model ::= SEQUENCE {
+	bDS-Reference-Time						BDS-Reference-Time,
+	bDS-Ionospheric-Grid-Information		BDS-Ionospheric-Grid-Information,
+	ie-Extensions		ProtocolExtensionContainer { { BDS-Ionospheric-Grid-Model-ExtIEs } } OPTIONAL,
+	...
+}
+
+BDS-Ionospheric-Grid-Model-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BDS-Reference-Time ::= INTEGER(0..3570) -- by step of 30
+
+BDS-Ionospheric-Grid-Information ::= SEQUENCE(SIZE(1.. maxIonGridInfo)) OF SEQUENCE {
+	iGP-number-BDS				INTEGER (1..320),
+	vertical-Delay-BDS			BIT STRING ( SIZE(9)),
+	gIVEI-BDS					BIT STRING ( SIZE(4)),
+	ie-Extensions				ProtocolExtensionContainer { { BDS-Ionospheric-Grid-Information-ExtIEs } }	OPTIONAL,
+	...
+}
+
+BDS-Ionospheric-Grid-Information-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DBDS-Correction-Information ::= SEQUENCE {
+	bDS-Reference-Time			BDS-Reference-Time,
+	dBDS-Information			DBDS-Information,
+	ie-Extensions				ProtocolExtensionContainer { { DBDS-Correction-Information-ExtIEs } }	OPTIONAL,
+	...
+}
+
+DBDS-Correction-Information-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DBDS-Information ::= SEQUENCE(SIZE(1..maxSgnType)) OF SEQUENCE {
+	dBDS-Signal-ID				GANSSID					OPTIONAL,
+	dGANSS-Signal-Information	DGANSS-Signal-Information,
+	ie-Extensions				ProtocolExtensionContainer { { DBDS-Information-ExtIEs } }	OPTIONAL,
+	...
+}
+
+DBDS-Information-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DGANSS-Signal-Information ::= SEQUENCE(SIZE(1.. maxGANSSSat)) OF SEQUENCE {
+	sat-ID-BDS					INTEGER(0..63),
+	uDREI-BDS					INTEGER(0..15),
+	rURAI-BDS					INTEGER(0..15),
+	delta-t-BDS					BIT STRING (SIZE (13)),
+	ie-Extensions				ProtocolExtensionContainer { { DGANSS-Signal-Information-ExtIEs } }	OPTIONAL,
+	...
+}
+
+DGANSS-Signal-Information-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1457,9 +1713,9 @@ GanssCodePhaseAmbiguityExt-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 
 GANSS-Ionospheric-Model ::= SEQUENCE {
-	alpha-zero-ionos					BIT STRING (SIZE (12)),
-	alpha-one-ionos						BIT STRING (SIZE (12)),
-	alpha-two-ionos						BIT STRING (SIZE (12)),
+	alpha-zero-ionos					BIT STRING (SIZE (11)),
+	alpha-one-ionos						BIT STRING (SIZE (11)),
+	alpha-two-ionos						BIT STRING (SIZE (14)),
 	gANSS-IonosphereRegionalStormFlags	GANSS-IonosphereRegionalStormFlags						OPTIONAL,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-Ionospheric-Model-ExtIEs } }	OPTIONAL,
 	...
@@ -1484,8 +1740,8 @@ GANSS-IonosphereRegionalStormFlags-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 }
 
 GANSS-KeplerianParametersAlm ::= SEQUENCE {
-	t-oa								INTEGER(0..255),
-	iod-a								INTEGER(0..3),
+	t-oa								INTEGER(0..1023),
+	iod-a								INTEGER(0..15),
 	gANSS-SatelliteInformationKP		GANSS-SatelliteInformationKP,
 	ie-Extensions		 				ProtocolExtensionContainer { { GANSS-KeplerianParametersAlm-ExtIEs } }		OPTIONAL,
 	...
@@ -1617,6 +1873,7 @@ GANSS-ReferenceMeasurementInfo ::= SEQUENCE {
 }
 
 GANSS-ReferenceMeasurementInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-GANSS-Confidence		CRITICALITY ignore	EXTENSION Confidence			PRESENCE optional},
 	...
 }
 
@@ -1652,10 +1909,11 @@ GANSS-ReferenceTimeOnly-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 GANSS-SatelliteClockModelItem ::= SEQUENCE {
 	t-oc								BIT STRING (SIZE(14)),
-	a-i2								BIT STRING (SIZE(12)),
-	a-i1								BIT STRING (SIZE(18)),
-	a-i0								BIT STRING (SIZE(28)),
+	a-i2								BIT STRING (SIZE(6)),
+	a-i1								BIT STRING (SIZE(21)),
+	a-i0								BIT STRING (SIZE(31)),
 	t-gd								BIT STRING (SIZE(10))			OPTIONAL,
+	sisa								BIT STRING (SIZE(8)),
 	model-id							INTEGER(0..3)					OPTIONAL,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-SatelliteClockModelItem-ExtIEs } }	OPTIONAL,
 	...
@@ -1680,6 +1938,7 @@ GANSS-SatelliteInformationItem ::= SEQUENCE {
 }
 
 GANSS-SatelliteInformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-GANSS-ExtraDopplerExtension	CRITICALITY ignore	EXTENSION GANSS-ExtraDopplerExtension		PRESENCE optional},
 	...
 }
 
@@ -1690,13 +1949,14 @@ GANSS-SatelliteInformationKPItem ::= SEQUENCE {
 	ganss-e-alm							BIT STRING (SIZE (11)),
 	ganss-delta-I-alm					BIT STRING (SIZE (11)),
 	ganss-omegadot-alm					BIT STRING (SIZE (11)),
-	ganss-svhealth-alm					BIT STRING (SIZE (4)),
-	ganss-delta-a-sqrt-alm				BIT STRING (SIZE (17)),
+	ganss-svStatusINAV-alm				BIT STRING (SIZE (4)),
+	ganss-svStatusFNAV-alm				BIT STRING (SIZE (2))			OPTIONAL,
+	ganss-delta-a-sqrt-alm				BIT STRING (SIZE (13)),
 	ganss-omegazero-alm					BIT STRING (SIZE (16)),
 	ganss-m-zero-alm					BIT STRING (SIZE (16)),
 	ganss-omega-alm						BIT STRING (SIZE (16)),
-	ganss-af-zero-alm					BIT STRING (SIZE (14)),
-	ganss-af-one-alm 					BIT STRING (SIZE (11)),
+	ganss-af-zero-alm					BIT STRING (SIZE (16)),
+	ganss-af-one-alm 					BIT STRING (SIZE (13)),
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-SatelliteInformationKPItem-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1830,7 +2090,7 @@ Ganss-Sat-Info-AddNavList-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 GANSS-Sat-Info-Nav ::= SEQUENCE (SIZE(1..maxGANSSSat)) OF SEQUENCE {
 	satId						INTEGER(0..63),
-	svHealth					BIT STRING (SIZE(5)),
+	svHealth					BIT STRING (SIZE(9)),
 	iod							BIT STRING (SIZE(10)),
 	ganssClockModel				GANSS-Clock-Model,
 	ganssOrbitModel				GANSS-Orbit-Model,
@@ -1868,7 +2128,7 @@ GANSS-Time-Model ::= SEQUENCE {
 	ganss-t-a0							INTEGER(-2147483648..2147483647),
 	ganss-t-a1							INTEGER(-8388608..8388607)									OPTIONAL,
 	ganss-t-a2							INTEGER(-64..63)											OPTIONAL,
-	gnss-to-id							ENUMERATED{gps,...,galileo,qzss,glonass},
+	gnss-to-id							ENUMERATED{gps,...,galileo,qzss,glonass,bds},
 	ganss-wk-number						INTEGER(0..8191)											OPTIONAL,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-Time-Model-ExtIEs } }	OPTIONAL,
 	...
@@ -2035,7 +2295,7 @@ NavModel-NAVKeplerianSet-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 }
 
 NavModel-SBASecef ::= SEQUENCE {
-	-- the following IE shall be present if 'SBASclockModel' in 'GANSS-AddClockModels' is not included in 'Ganss-Sat-Info-AddNavList'
+	-- the following IE shall be present if ‘SBASclockModel’ in ‘GANSS-AddClockModels’ is not included in ‘Ganss-Sat-Info-AddNavList’
 	sbasTo					BIT STRING (SIZE (13))										OPTIONAL,
 	sbasAccuracy			BIT STRING (SIZE (4)),
 	sbasXg					BIT STRING (SIZE (30)),
@@ -2055,6 +2315,33 @@ NavModel-SBASecef-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+NavModel-BDSKeplerianSet ::= SEQUENCE {
+	uRAIndex-BDS			BIT STRING (SIZE (4)),
+	tOA-BDS					BIT STRING (SIZE (17)),
+	a1-2-BDS				BIT STRING (SIZE (32)),
+	e-BDS					BIT STRING (SIZE (32)),
+	oMG-BDS					BIT STRING (SIZE (32)),
+	dLTn-BDS				BIT STRING (SIZE (16)),
+	m0-BDS					BIT STRING (SIZE (32)),
+	oMG0-BDS				BIT STRING (SIZE (32)),
+	oMGdot-BDS				BIT STRING (SIZE (24)),
+	i0-BDS					BIT STRING (SIZE (32)),
+	iDOT-BDS				BIT STRING (SIZE (14)),
+	cuc-BDS					BIT STRING (SIZE (18)),
+	cus-BDS					BIT STRING (SIZE (18)),
+	crc-BDS					BIT STRING (SIZE (18)),
+	crs-BDS					BIT STRING (SIZE (18)),
+	cic-BDS					BIT STRING (SIZE (18)),
+	cis-BDS					BIT STRING (SIZE (18)),
+	aODE-BDS				BIT STRING (SIZE (5)),
+	ie-Extensions			ProtocolExtensionContainer { { NavModel-BDSKeplerianSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+NavModel-BDSKeplerianSet-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 SBASclockModel ::= SEQUENCE {
 	sbasTo					BIT STRING (SIZE (13)),
 	sbasAgfo				BIT STRING (SIZE (12)),
@@ -2064,6 +2351,21 @@ SBASclockModel ::= SEQUENCE {
 }
 
 SBASclockModel-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BDSClockModel ::= SEQUENCE {
+	toc-BDS				BIT STRING (SIZE (17) ),
+	a0-BDS				BIT STRING (SIZE (24) ),
+	a1-BDS				BIT STRING (SIZE (22) ),
+	a2-BDS				BIT STRING (SIZE (11) ),
+	tGD1-BDS			BIT STRING (SIZE (10) ),
+	aODC-BDS			BIT STRING (SIZE (5) ),
+	ie-Extensions		ProtocolExtensionContainer { { BDSClockModel-ExtIEs } }	OPTIONAL,
+	...
+}
+
+BDSClockModel-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2113,6 +2415,23 @@ UTCmodelSet3 ::= SEQUENCE {
 }
 
 UTCmodelSet3-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UTCmodelSet4 ::= SEQUENCE {
+	utca0-BDS			BIT STRING (SIZE(32)),
+	utca1-BDS			BIT STRING (SIZE(24)),
+	utcDeltatLS-BDS		BIT STRING (SIZE(8)),
+	utcWNt				BIT STRING (SIZE(8)),
+	utcDeltaTls			BIT STRING (SIZE(8)),
+	utcWNlsf-BDS		BIT STRING (SIZE(8)),
+	utcDN-BDS			BIT STRING (SIZE(8)),
+	utcDeltaTlsf-BDS	BIT STRING (SIZE(8)),
+	ie-Extensions		ProtocolExtensionContainer { { UTCmodelSet4-ExtIEs } }	OPTIONAL,
+	...
+}
+
+UTCmodelSet4-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2428,7 +2747,7 @@ UTRAN-GPS-DriftRate ::=				ENUMERATED {
 									utran-GPSDrift25, utran-GPSDrift50, utran-GPSDrift-1,
 									utran-GPSDrift-2, utran-GPSDrift-5, utran-GPSDrift-10,
 									utran-GPSDrift-15, utran-GPSDrift-25, utran-GPSDrift-50,
-                                    ...}
+									...}
 
 -- **************************************************************
 --
@@ -2575,11 +2894,25 @@ GanssReqGenericData ::=				SEQUENCE {
 	...}
 
 GanssReqGenericData-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-	{ID id-ganssAddNavigationModel-req		CRITICALITY	ignore	EXTENSION	GANSS-AddNavigationModel-Req	PRESENCE	optional}|
-	{ID id-ganssAddUTCModel-req				CRITICALITY	ignore	EXTENSION	GANSS-AddUTCModel-Req				PRESENCE	optional}|
-	{ID id-ganssAuxInfo-req					CRITICALITY	ignore	EXTENSION	GANSS-AuxInfo-req					PRESENCE	optional}|
-	{ID id-GANSS-SBAS-ID					CRITICALITY	ignore	EXTENSION	GANSS-SBAS-ID						PRESENCE	optional}|
-	{ID id-GANSS-AddADchoices				CRITICALITY	ignore	EXTENSION	GANSS-AddADchoices					PRESENCE	optional},
+	{ID id-ganssAddNavigationModel-req		CRITICALITY ignore	EXTENSION GANSS-AddNavigationModel-Req		PRESENCE optional}|
+	{ID id-ganssAddUTCModel-req				CRITICALITY ignore	EXTENSION GANSS-AddUTCModel-Req				PRESENCE optional}|
+	{ID id-ganssAuxInfo-req					CRITICALITY ignore	EXTENSION GANSS-AuxInfo-req					PRESENCE optional}|
+	{ID id-GANSS-SBAS-ID					CRITICALITY ignore	EXTENSION GANSS-SBAS-ID						PRESENCE optional}|
+	{ID id-GANSS-AddADchoices				CRITICALITY ignore	EXTENSION GANSS-AddADchoices				PRESENCE optional}|
+	{ID id-BDSIonosphericGridModel			CRITICALITY ignore	EXTENSION BDSIonosphericGridModel			PRESENCE optional}|
+	{ID id-DBDSCorrection					CRITICALITY ignore	EXTENSION DBDSCorrection					PRESENCE optional},
+	...
+}
+
+BDSIonosphericGridModel ::= BOOLEAN
+
+DBDSCorrection ::=	SEQUENCE {
+	dGANSSSignalBDS				BIT STRING (SIZE (8)),
+	iE-Extensions				ProtocolExtensionContainer { { DBDSCorrection-ExtIEs } }	OPTIONAL,
+	...
+}
+
+DBDSCorrection-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2771,8 +3104,10 @@ GANSSGenericDataReq ::= SEQUENCE {
 	ganss-AddNavModelsReq				AddNavigationModelsGANSS				OPTIONAL,
 	ganss-AddUtcModelsReq				GANSS-AddUtcModelsReq					OPTIONAL,
 	ganss-AuxInfoReq					GANSS-AuxInfoReq						OPTIONAL,
-	-- the following IE shall be present if GANSSID is '0' (SBAS)
-	ganss-SBAS-ID						GANSS-SBAS-ID							OPTIONAL
+	-- the following IE shall be present if GANSSID is ‘0’ (SBAS)
+	ganss-SBAS-ID						GANSS-SBAS-ID							OPTIONAL,
+	dBDS-Corrections					DBDS-Corrections						OPTIONAL,
+	bDS-Ionospheric-Grid-Model-Request	BDS-Ionospheric-Grid-Model-Request		OPTIONAL
 }
 
 AddNavigationModelsGANSS ::= SEQUENCE {
@@ -2798,6 +3133,22 @@ AddSatelliteRelatedDataGANSS ::= SEQUENCE {
 }
 
 AddSatelliteRelatedDataGANSS-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BDS-Ionospheric-Grid-Model-Request ::= ENUMERATED 	{
+	requested,
+	...
+}
+
+DBDS-Corrections ::= SEQUENCE {
+	transmissionGanssTimeIndicator	TransmissionGanssTimeIndicator	OPTIONAL,
+	dGANSS-Signal					BIT STRING( SIZE (8)),
+	iE-Extensions					ProtocolExtensionContainer { { DBDS-Corrections-ExtIEs } } 	OPTIONAL,
+	...
+}
+
+DBDS-Corrections-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -3329,12 +3680,16 @@ PositioningMethod ::= SEQUENCE {
 
 
 PositioningMethod-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
--- The following IE shall be present if the Selected Position Method IE value is set to "GNSS" or "OTDOA or GNSS"
-	{ ID id-GNSS-PositioningMethod	CRITICALITY ignore	EXTENSION GNSS-PositioningMethod	PRESENCE conditional },
+-- The following IE shall be present if the Selected Position Method IE value is set to "GNSS" or “OTDOA or GNSS”
+	{ ID id-GNSS-PositioningMethod			CRITICALITY ignore	EXTENSION GNSS-PositioningMethod		PRESENCE conditional}|
+-- This IE shall be present if the Selected Position Method IE value is set to “GPS and AddPos” or “OTDOA or GPS and AddPos”
+	{ ID id-Additional-PositioningMethod	CRITICALITY ignore	EXTENSION Additional-PositioningMethod	PRESENCE conditional},
 	...
 }
 
 GNSS-PositioningMethod ::= BIT STRING (SIZE(9))
+
+Additional-PositioningMethod ::= BIT STRING (SIZE(8))
 
 SelectedPositionMethod ::= ENUMERATED {
 	oTDOA,
@@ -3344,7 +3699,9 @@ SelectedPositionMethod ::= ENUMERATED {
 	uTDOA,
 	...,
 	gNSS,
-	oTDOA-or-GNSS
+	oTDOA-or-GNSS,
+	gPS-and-AddPos,
+	oTDOA-or-GPS-and-AddPos
 }
 
 -- **************************************************************
@@ -3500,7 +3857,8 @@ UE-PositioningCapability ::= SEQUENCE {
 }
 
 UE-PositioningCapability-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-NetworkAssistedGANSSSuport			CRITICALITY ignore	EXTENSION NetworkAssistedGANSSSupport				PRESENCE optional },
+	{ ID id-NetworkAssistedGANSSSuport		CRITICALITY ignore	EXTENSION NetworkAssistedGANSSSupport		PRESENCE optional}|
+	{ ID id-AddPosSupport					CRITICALITY ignore	EXTENSION AddPosSupport						PRESENCE optional},
 	...
 }
 
@@ -3519,8 +3877,27 @@ NetworkAssistedGANSSSupport ::= SEQUENCE (SIZE (1..maxGANSS)) OF SEQUENCE {
 	...
 }
 
+AddPosSupport ::= SEQUENCE (SIZE (1..maxAddPos)) OF AddPosSupport-Element
+
+AddPosSupport-Element ::= SEQUENCE {
+	addPosID			ENUMERATED {
+							barometricPressure,
+							wLAN,
+							bluetooth,
+							mBS,
+							...
+						},
+	addPosMode			ENUMERATED {
+							standalone,
+							ue-assisted,
+							both,
+							...
+						},
+	...
+}
+
 NetworkAssistedGANSSSuport-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-	-- the following IE shall be present if 'GANSSID' in 'NetworkAssistedGANSSSupport' is '0' (SBAS)
+	-- the following IE shall be present if ‘GANSSID’ in ‘NetworkAssistedGANSSSupport’ is ‘0’ (SBAS)
 	{ ID id-GANSS-SBAS-IDs					CRITICALITY ignore	EXTENSION GANSS-SBAS-IDs						PRESENCE optional }|
 	{ ID id-GANSS-Signal-IDs				CRITICALITY ignore	EXTENSION GANSS-Signal-IDs						PRESENCE optional }|
 	{ ID id-supportGANSSNonNativeADchoices	CRITICALITY ignore	EXTENSION SupportGANSSNonNativeADchoices	PRESENCE optional },
@@ -3858,6 +4235,7 @@ SFN-SFN-Drift ::= 					ENUMERATED {
 FineSFNSFN		::=	INTEGER (0..15)
 -- Range 0..0.9375 step size 0.0625
 
+
 -- **************************************************************
 --
 -- Vertical Accuracy Code
@@ -3939,7 +4317,7 @@ UTDOA-CELLDCH ::=		SEQUENCE {
 	compressedModeAssistanceData				Compressed-Mode-Assistance-Data		OPTIONAL,
 	dCH-Information								DCH-Information		OPTIONAL,
 	e-DPCH-Information							E-DPCH-Information	OPTIONAL,
-	iE-Extensions   				ProtocolExtensionContainer { { UTDOA-CELLDCH-ExtIEs} } OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { { UTDOA-CELLDCH-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -4101,7 +4479,7 @@ TrChInfoList ::= SEQUENCE (SIZE(1..maxTrCH)) OF
 UL-TrCHInfo ::=		SEQUENCE {
 	uL-TrCHtype							UL-TrCHType,
 	tfs									TransportFormatSet,
-	iE-Extensions   					ProtocolExtensionContainer { { UL-TrCHInfo-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { UL-TrCHInfo-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -4566,7 +4944,7 @@ UschParameters ::=	SEQUENCE {
 	uL-Timeslot-Information				UL-Timeslot-Information,
 	tFCS								TFCS,
 	trChInfo							TrChInfoList,
-	iE-Extensions   ProtocolExtensionContainer { { UschParameters-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { UschParameters-ExtIEs} } OPTIONAL,
 	...
 }
 
