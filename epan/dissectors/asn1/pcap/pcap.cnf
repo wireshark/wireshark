@@ -274,6 +274,19 @@ id-requestedCellIDGERANMeasurements				ProtocolIE-ID
 id-CellId-IRATMeasuredResultsSets				ProtocolIE-ID
 id-IMSI											ProtocolIE-ID
 id-IMEI											ProtocolIE-ID
+id-GANSS-alm-keplerianBDSAlmanac				ProtocolIE-ID
+id-BDS-Ionospheric-Grid-Model					ProtocolIE-ID
+id-DBDS-Correction-Information					ProtocolIE-ID
+id-BDSIonosphericGridModel						ProtocolIE-ID
+id-DBDSCorrection								ProtocolIE-ID
+id-Confidence									ProtocolIE-ID
+id-ExtraDopplerInfoExtension					ProtocolIE-ID
+id-GANSS-Confidence								ProtocolIE-ID
+id-GANSS-ExtraDopplerExtension					ProtocolIE-ID
+id-Additional-PositioningDataSet				ProtocolIE-ID
+id-Additional-PositioningMethod					ProtocolIE-ID
+id-AddPos-MeasuredResults						ProtocolIE-ID
+id-AddPosSupport								ProtocolIE-ID
 
 #.END
 
@@ -316,6 +329,7 @@ UE-PositionEstimateInfo							N pcap.ies id-UE-PositionEstimateInfo
 OTDOA-MeasuredResultsSets						N pcap.ies id-OTDOA-MeasuredResultsSets
 PeriodicPosCalcInfo								N pcap.ies id-PeriodicPosCalcInfo
 PeriodicTerminationCause						N pcap.ies id-PeriodicTerminationCause
+GANSS-ALM-BDSKeplericanset						N pcap.ies id-GANSS-alm-keplerianBDSAlmanac
 
 #PCAP-PROTOCOL-EXTENSION
 CellId-MeasuredResultsSets						N pcap.extension id-CellId-MeasuredResultsSets
@@ -396,7 +410,18 @@ RequestedCellIDGERANMeasurements				N pcap.extension id-requestedCellIDGERANMeas
 CellId-IRATMeasuredResultsSets					N pcap.extension id-CellId-IRATMeasuredResultsSets
 IMSI											N pcap.extension id-IMSI
 IMEI											N pcap.extension id-IMEI
-
+BDS-Ionospheric-Grid-Model					N pcap.extension id-BDS-Ionospheric-Grid-Model
+DBDS-Correction-Information					N pcap.extension id-DBDS-Correction-Information
+BDSIonosphericGridModel						N pcap.extension id-BDSIonosphericGridModel
+DBDSCorrection							N pcap.extension id-DBDSCorrection
+Confidence							N pcap.extension id-Confidence
+ExtraDopplerInfoExtension					N pcap.extension id-ExtraDopplerInfoExtension
+Confidence							N pcap.extension id-GANSS-Confidence
+GANSS-ExtraDopplerExtension					N pcap.extension id-GANSS-ExtraDopplerExtension
+Additional-PositioningDataSet					N pcap.extension id-Additional-PositioningDataSet
+Additional-PositioningMethod					N pcap.extension id-Additional-PositioningMethod
+AddPos-MeasuredResults						N pcap.extension id-AddPos-MeasuredResults
+AddPosSupport							N pcap.extension id-AddPosSupport
 
 #PCAP-ELEMENTARY-PROCEDURE
 

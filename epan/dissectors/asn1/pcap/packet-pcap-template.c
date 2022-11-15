@@ -11,7 +11,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: ETSI TS 125 453 V7.9.0 (2008-02)
+ * References: ETSI TS 125 453 V17.0.0 (2022-04)
  */
 
 #include "config.h"
