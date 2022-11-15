@@ -160,6 +160,7 @@ static int hf_ipv6_plen                         = -1;
 static int hf_ipv6_nxt                          = -1;
 static int hf_ipv6_hlim                         = -1;
 static int hf_ipv6_src                          = -1;
+static int hf_ipv6_src_addr_space               = -1;
 static int hf_ipv6_src_host                     = -1;
 static int hf_ipv6_src_slaac_mac                = -1;
 static int hf_ipv6_src_isatap_ipv4              = -1;
@@ -170,6 +171,7 @@ static int hf_ipv6_src_teredo_port              = -1;
 static int hf_ipv6_src_teredo_client_ipv4       = -1;
 static int hf_ipv6_src_embed_ipv4               = -1;
 static int hf_ipv6_dst                          = -1;
+static int hf_ipv6_dst_addr_space               = -1;
 static int hf_ipv6_dst_host                     = -1;
 static int hf_ipv6_dst_slaac_mac                = -1;
 static int hf_ipv6_dst_isatap_ipv4              = -1;
@@ -180,6 +182,7 @@ static int hf_ipv6_dst_teredo_port              = -1;
 static int hf_ipv6_dst_teredo_client_ipv4       = -1;
 static int hf_ipv6_dst_embed_ipv4               = -1;
 static int hf_ipv6_addr                         = -1;
+static int hf_ipv6_addr_space                   = -1;
 static int hf_ipv6_host                         = -1;
 static int hf_ipv6_slaac_mac                    = -1;
 static int hf_ipv6_isatap_ipv4                  = -1;
@@ -359,6 +362,23 @@ static int hf_ipv6_routing_crh32_current_sid      = -1;
 static int hf_ipv6_routing_crh16_segment_id     = -1;
 static int hf_ipv6_routing_crh32_segment_id     = -1;
 
+struct ipv6_addr_info_s {
+    int *hf_addr;
+    int *hf_addr_space;
+    int *hf_host;
+};
+
+static struct ipv6_addr_info_s ipv6_src_info = {
+    &hf_ipv6_src,
+    &hf_ipv6_src_addr_space,
+    &hf_ipv6_src_host,
+};
+static struct ipv6_addr_info_s ipv6_dst_info = {
+    &hf_ipv6_dst,
+    &hf_ipv6_dst_addr_space,
+    &hf_ipv6_dst_host,
+};
+
 static int hf_geoip_country             = -1;
 static int hf_geoip_country_iso         = -1;
 static int hf_geoip_city                = -1;
@@ -384,6 +404,7 @@ static int hf_geoip_dst_latitude        = -1;
 static int hf_geoip_dst_longitude       = -1;
 
 static gint ett_ipv6_proto              = -1;
+static gint ett_ipv6_detail             = -1;
 static gint ett_ipv6_traffic_class      = -1;
 static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_opt_type           = -1;
@@ -405,6 +426,8 @@ static gint ett_geoip_info              = -1;
 static expert_field ei_ipv6_routing_invalid_length = EI_INIT;
 static expert_field ei_ipv6_routing_invalid_segleft = EI_INIT;
 static expert_field ei_ipv6_routing_undecoded = EI_INIT;
+static expert_field ei_ipv6_dst_addr_not_unspecified = EI_INIT;
+static expert_field ei_ipv6_src_addr_not_multicast = EI_INIT;
 static expert_field ei_ipv6_dst_addr_not_multicast = EI_INIT;
 static expert_field ei_ipv6_src_route_list_mult_inst_same_addr = EI_INIT;
 static expert_field ei_ipv6_src_route_list_src_addr = EI_INIT;
@@ -700,6 +723,9 @@ static gboolean ipv6_reassemble = TRUE;
 
 /* Place IPv6 summary in proto tree */
 static gboolean ipv6_summary_in_tree = TRUE;
+
+/* Show expanded information about IPv6 address */
+static gboolean ipv6_address_detail = FALSE;
 
 /* Look up addresses via mmdbresolve */
 static gboolean ipv6_use_geoip = TRUE;
@@ -2778,21 +2804,92 @@ ipv6_get_jumbo_plen(tvbuff_t *tvb, gint offset)
 }
 
 static void
+add_ipv6_address_detail(packet_info *pinfo, proto_item *vis, proto_item *invis,
+                        tvbuff_t *tvb, int offset, struct ipv6_addr_info_s *addr_info)
+{
+    proto_item *ti;
+    proto_tree *vtree;      /* visible tree */
+    proto_tree *itree;      /* invisible tree */
+    const guint8 unspecified[IPv6_ADDR_SIZE] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    const guint8 loopback[IPv6_ADDR_SIZE]    = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
+
+    vtree = proto_item_add_subtree(vis, ett_ipv6_detail);
+    itree = proto_item_add_subtree(invis, ett_ipv6_detail);
+
+    if (tvb_memeql(tvb, offset, unspecified, IPv6_ADDR_SIZE) == 0) {
+        /* RFC 4291 section 2.4: unspecified address */
+        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Unspecified");
+        proto_item_set_generated(ti);
+        if (addr_info == &ipv6_dst_info) {
+            /* "Shouldn't" see this one as a destination */
+            expert_add_info(pinfo, ti, &ei_ipv6_dst_addr_not_unspecified);
+        }
+
+        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Unspecified");
+        proto_item_set_generated(ti);
+    }
+    else if (tvb_memeql(tvb, offset, loopback, IPv6_ADDR_SIZE) == 0) {
+        /* RFC 4291 section 2.4: loopback address */
+        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Loopback");
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, IPv6_ADDR_SIZE, "Loopback");
+        proto_item_set_generated(ti);
+    }
+    else if (tvb_get_guint8(tvb, offset) == 0xFF) {
+        /* RFC 4291 section 2.4: multicast prefix */
+        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 1, "Multicast");
+        proto_item_set_generated(ti);
+        if (addr_info == &ipv6_src_info) {
+            /* "Shouldn't" see this one as a source */
+            expert_add_info(pinfo, ti, &ei_ipv6_src_addr_not_multicast);
+        }
+
+        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 1, "Multicast");
+        proto_item_set_generated(ti);
+    }
+    else if ((tvb_get_ntohs(tvb, offset) & 0xFFC0) == 0xFE80) {
+        /* RFC 4291 section 2.4: Link-local unicast */
+        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 2, "Link-Local Unicast");
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 2, "Link-Local Unicast");
+        proto_item_set_generated(ti);
+    }
+    else if ((tvb_get_guint8(tvb, offset) & 0x30) == 0x20) {
+        /* RFC 4291 section 2.4: Global unicast */
+        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 2, "Global Unicast");
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 2, "Global Unicast");
+        proto_item_set_generated(ti);
+    }
+    else {
+        /* Technically anything else is also global unicast, but... */
+        ti = proto_tree_add_string(vtree, *addr_info->hf_addr_space, tvb, offset, 2, "Reserved by IETF");
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_string(itree, hf_ipv6_addr_space, tvb, offset, 2, "Reserved by IETF");
+        proto_item_set_generated(ti);
+    }
+}
+
+static void
 add_ipv6_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
-                        gint hf_addr, gint hf_host)
+                        struct ipv6_addr_info_s *addr_info)
 {
     address addr;
     const char *name;
-    proto_item *ti;
+    proto_item *ti, *vis, *invis;
 
-    proto_tree_add_item(tree, hf_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
-    ti = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
-    proto_item_set_hidden(ti);
+    vis = proto_tree_add_item(tree, *addr_info->hf_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
+    invis = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
+    proto_item_set_hidden(invis);
 
     set_address_ipv6_tvb(&addr, tvb, offset);
     name = address_to_display(pinfo->pool, &addr);
 
-    ti = proto_tree_add_string(tree, hf_host, tvb, offset, IPv6_ADDR_SIZE, name);
+    if (ipv6_address_detail) {
+        add_ipv6_address_detail(pinfo, vis, invis, tvb, offset, addr_info);
+    }
+
+    ti = proto_tree_add_string(tree, *addr_info->hf_host, tvb, offset, IPv6_ADDR_SIZE, name);
     proto_item_set_generated(ti);
     proto_item_set_hidden(ti);
     ti = proto_tree_add_string(tree, hf_ipv6_host, tvb, offset, IPv6_ADDR_SIZE, name);
@@ -3129,13 +3226,13 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ip6_hlim = tvb_get_guint8(tvb, offset + IP6H_CTL_HLIM);
 
     /* Source address */
-    add_ipv6_address(pinfo, ipv6_tree, tvb, offset + IP6H_SRC, hf_ipv6_src, hf_ipv6_src_host);
+    add_ipv6_address(pinfo, ipv6_tree, tvb, offset + IP6H_SRC, &ipv6_src_info);
     ip6_src = tvb_get_ptr_ipv6(tvb, offset + IP6H_SRC);
     alloc_address_wmem_ipv6(pinfo->pool, &pinfo->net_src, ip6_src);
     copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
     /* Destination address */
-    add_ipv6_address(pinfo, ipv6_tree, tvb, offset + IP6H_DST, hf_ipv6_dst, hf_ipv6_dst_host);
+    add_ipv6_address(pinfo, ipv6_tree, tvb, offset + IP6H_DST, &ipv6_dst_info);
     ip6_dst = tvb_get_ptr_ipv6(tvb, offset + IP6H_DST);
     alloc_address_wmem_ipv6(pinfo->pool, &pinfo->net_dst, ip6_dst);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
@@ -3347,6 +3444,11 @@ proto_register_ipv6(void)
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Source IPv6 Address", HFILL }
         },
+        { &hf_ipv6_src_addr_space,
+            { "Source Address Space", "ipv6.src_addr_space",
+                FT_STRING, BASE_NONE, NULL, 0x0,
+                "Source IPv6 Address Space", HFILL }
+        },
         { &hf_ipv6_src_host,
             { "Source Host", "ipv6.src_host",
                 FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3397,6 +3499,11 @@ proto_register_ipv6(void)
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Destination IPv6 Address", HFILL }
         },
+        { &hf_ipv6_dst_addr_space,
+            { "Destination Address Space", "ipv6.dst_addr_space",
+                FT_STRING, BASE_NONE, NULL, 0x0,
+                "Destination IPv6 Address Space", HFILL }
+        },
         { &hf_ipv6_dst_host,
             { "Destination Host", "ipv6.dst_host",
                 FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3445,6 +3552,11 @@ proto_register_ipv6(void)
         { &hf_ipv6_addr,
             { "Source or Destination Address", "ipv6.addr",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_addr_space,
+            { "Source or Destination Address Space", "ipv6.addr_space",
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_host,
@@ -4456,6 +4568,7 @@ proto_register_ipv6(void)
 
     static gint *ett_ipv6[] = {
         &ett_ipv6_proto,
+        &ett_ipv6_detail,
         &ett_ipv6_traffic_class,
         &ett_geoip_info,
         &ett_ipv6_opt,
@@ -4554,6 +4667,10 @@ proto_register_ipv6(void)
         { &ei_ipv6_embed_ipv4_u_value,
             { "ipv6.embed_ipv4.u.nonzero", PI_PROTOCOL, PI_WARN,
                 "IPv4-Embedded IPv6 address bit 64 to 71 must be zero", EXPFILL }
+        },
+        { &ei_ipv6_dst_addr_not_unspecified,
+            { "ipv6.addr.not_unspecified", PI_PROTOCOL, PI_WARN,
+                "Unspecified address cannot appear as a destination", EXPFILL }
         }
     };
 
@@ -4565,6 +4682,10 @@ proto_register_ipv6(void)
     };
 
     static ei_register_info ei_ipv6_routing[] = {
+        { &ei_ipv6_src_addr_not_multicast,
+            { "ipv6.src_addr.not_multicast", PI_PROTOCOL, PI_WARN,
+                "Source address must not be a multicast address", EXPFILL }
+        },
         { &ei_ipv6_dst_addr_not_multicast,
             { "ipv6.dst_addr.not_multicast", PI_PROTOCOL, PI_WARN,
                 "Destination address must not be a multicast address", EXPFILL }
@@ -4684,6 +4805,10 @@ proto_register_ipv6(void)
                                    "Show IPv6 summary in protocol tree",
                                    "Whether the IPv6 summary line should be shown in the protocol tree",
                                    &ipv6_summary_in_tree);
+    prefs_register_bool_preference(ipv6_module, "address_detail" ,
+                                   "Show details about IPv6 addresses",
+                                   "Whether to show extended information about IPv6 addresses",
+                                   &ipv6_address_detail);
     prefs_register_bool_preference(ipv6_module, "use_geoip" ,
                                    "Enable IPv6 geolocation",
                                    "Whether to look up IPv6 addresses in each MaxMind database we have loaded",
