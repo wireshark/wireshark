@@ -582,7 +582,6 @@ static int hf_woww_pet_current_health = -1;
 static int hf_woww_pet_current_power = -1;
 static int hf_woww_pet_display_id = -1;
 static int hf_woww_pet_enabled = -1;
-static int hf_woww_pet_family = -1;
 static int hf_woww_pet_feedback = -1;
 static int hf_woww_pet_guid = -1;
 static int hf_woww_pet_level = -1;
@@ -3770,6 +3769,60 @@ static const value_string e_map_strings[] =  {
     { MAP_ARATHI_BASIN, "Arathi Basin" },
     { MAP_AHN_QIRAJ_TEMPLE, "Ahn Qiraj Temple" },
     { MAP_NAXXRAMAS, "Naxxramas" },
+    { 0, NULL }
+};
+
+typedef enum {
+    CREATURE_FAMILY_NONE = 0x00,
+    CREATURE_FAMILY_WOLF = 0x01,
+    CREATURE_FAMILY_CAT = 0x02,
+    CREATURE_FAMILY_SPIDER = 0x03,
+    CREATURE_FAMILY_BEAR = 0x04,
+    CREATURE_FAMILY_BOAR = 0x05,
+    CREATURE_FAMILY_CROCOLISK = 0x06,
+    CREATURE_FAMILY_CARRION_BIRD = 0x07,
+    CREATURE_FAMILY_CRAB = 0x08,
+    CREATURE_FAMILY_GORILLA = 0x09,
+    CREATURE_FAMILY_RAPTOR = 0x0B,
+    CREATURE_FAMILY_TALLSTRIDER = 0x0C,
+    CREATURE_FAMILY_FELHUNTER = 0x0F,
+    CREATURE_FAMILY_VOIDWALKER = 0x10,
+    CREATURE_FAMILY_SUCCUBUS = 0x11,
+    CREATURE_FAMILY_DOOMGUARD = 0x13,
+    CREATURE_FAMILY_SCORPID = 0x14,
+    CREATURE_FAMILY_TURTLE = 0x15,
+    CREATURE_FAMILY_IMP = 0x17,
+    CREATURE_FAMILY_BAT = 0x18,
+    CREATURE_FAMILY_HYENA = 0x19,
+    CREATURE_FAMILY_OWL = 0x1A,
+    CREATURE_FAMILY_WIND_SERPENT = 0x1B,
+    CREATURE_FAMILY_REMOTE_CONTROL = 0x1C,
+} e_creature_family;
+static const value_string e_creature_family_strings[] =  {
+    { CREATURE_FAMILY_NONE, "None" },
+    { CREATURE_FAMILY_WOLF, "Wolf" },
+    { CREATURE_FAMILY_CAT, "Cat" },
+    { CREATURE_FAMILY_SPIDER, "Spider" },
+    { CREATURE_FAMILY_BEAR, "Bear" },
+    { CREATURE_FAMILY_BOAR, "Boar" },
+    { CREATURE_FAMILY_CROCOLISK, "Crocolisk" },
+    { CREATURE_FAMILY_CARRION_BIRD, "Carrion Bird" },
+    { CREATURE_FAMILY_CRAB, "Crab" },
+    { CREATURE_FAMILY_GORILLA, "Gorilla" },
+    { CREATURE_FAMILY_RAPTOR, "Raptor" },
+    { CREATURE_FAMILY_TALLSTRIDER, "Tallstrider" },
+    { CREATURE_FAMILY_FELHUNTER, "Felhunter" },
+    { CREATURE_FAMILY_VOIDWALKER, "Voidwalker" },
+    { CREATURE_FAMILY_SUCCUBUS, "Succubus" },
+    { CREATURE_FAMILY_DOOMGUARD, "Doomguard" },
+    { CREATURE_FAMILY_SCORPID, "Scorpid" },
+    { CREATURE_FAMILY_TURTLE, "Turtle" },
+    { CREATURE_FAMILY_IMP, "Imp" },
+    { CREATURE_FAMILY_BAT, "Bat" },
+    { CREATURE_FAMILY_HYENA, "Hyena" },
+    { CREATURE_FAMILY_OWL, "Owl" },
+    { CREATURE_FAMILY_WIND_SERPENT, "Wind Serpent" },
+    { CREATURE_FAMILY_REMOTE_CONTROL, "Remote Control" },
     { 0, NULL }
 };
 
@@ -13298,7 +13351,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_first_login, 1, ENC_NA);
                 ptvcursor_add(ptv, hf_woww_pet_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_pet_level, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_pet_family, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_creature_family, 4, ENC_LITTLE_ENDIAN);
                 for (i = 0; i < 19; ++i) {
                     ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "CharacterGear");
                     ptvcursor_add(ptv, hf_woww_equipment_display_id, 4, ENC_LITTLE_ENDIAN);
@@ -16815,7 +16868,7 @@ proto_register_woww(void)
         },
         { &hf_woww_creature_family,
             { "Creature Family", "woww.creature.family",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_creature_family_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18688,12 +18741,6 @@ proto_register_woww(void)
         { &hf_woww_pet_enabled,
             { "Pet Enabled", "woww.pet.enabled",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_pet_enabled_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_pet_family,
-            { "Pet Family", "woww.pet.family",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
