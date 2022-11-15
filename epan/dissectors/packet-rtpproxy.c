@@ -603,7 +603,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     /* Get payload string */
-    rawstr = tvb_format_text(pinfo->pool, tvb, offset, realsize - offset);
+    rawstr = tvb_format_text_wsp(pinfo->pool, tvb, offset, realsize - offset);
 
     /* Extract command */
     tmp = g_ascii_tolower(tvb_get_guint8(tvb, offset));
@@ -615,7 +615,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* FIXME https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#information */
             rtpproxy_add_tid(FALSE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
             if ('e' == tvb_get_guint8(tvb, offset+1)){
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Reply: %s", format_text_wsp(pinfo->pool, rawstr, realsize - offset));
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Reply: %s", rawstr);
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_reply, tvb, offset, -1, ENC_NA);
 
                 rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_reply);
