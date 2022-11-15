@@ -30,7 +30,9 @@ variables:
   SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
 
 # Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
+# - 2x-daily: Twice daily at 07:00 and 19:00 UTC
 # - daily: Daily at 10:00 UTC
+# - weekly: Sunday at 14:00 UTC
 # - coverity-visual-c++: Monday, Wednesday, & Friday at 12:00 UTC
 # - coverity-gcc: Sunday, Tuesday, Thursday & Saturday at 12:00 UTC
 
@@ -65,8 +67,11 @@ variables:
 .if-w-w-only-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
     when: always
-# Daily jobs. Care should be taken when changing this since the scheduler
+# Scheduled jobs. Care should be taken when changing this since the scheduler
 # often doesn't report errors.
+.if-weekly-schedule:
+  - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "weekly"'
+    when: always
 .if-daily-schedule:
   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
     when: always
