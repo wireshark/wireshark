@@ -14397,25 +14397,29 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_PET_SPELLS:
             ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_pet_react_state, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_pet_command_state, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 2, ENC_LITTLE_ENDIAN);
-            for (i = 0; i < 10; ++i) {
-                ptvcursor_add(ptv, hf_woww_action_bars, 4, ENC_LITTLE_ENDIAN);
-            }
-            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_spells, 1, ENC_LITTLE_ENDIAN, &amount_of_spells);
-            for (i = 0; i < amount_of_spells; ++i) {
-                ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
-            }
-            ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_cooldowns, 1, ENC_LITTLE_ENDIAN, &amount_of_cooldowns);
-            for (i = 0; i < amount_of_cooldowns; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "PetSpellCooldown");
-                ptvcursor_add(ptv, hf_woww_spell_id, 2, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_category, 2, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_category_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_pop_subtree(ptv);
+            len = offset_packet_end - ptvcursor_current_offset(ptv);
+            if (len > 0) {
+                ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_pet_react_state, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_pet_command_state, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_pet_enabled, 1, ENC_LITTLE_ENDIAN);
+                for (i = 0; i < 10; ++i) {
+                    ptvcursor_add(ptv, hf_woww_action_bars, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_spells, 1, ENC_LITTLE_ENDIAN, &amount_of_spells);
+                for (i = 0; i < amount_of_spells; ++i) {
+                    ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_cooldowns, 1, ENC_LITTLE_ENDIAN, &amount_of_cooldowns);
+                for (i = 0; i < amount_of_cooldowns; ++i) {
+                    ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "PetSpellCooldown");
+                    ptvcursor_add(ptv, hf_woww_spell, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_spell_category, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_category_cooldown_in_msecs, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_pop_subtree(ptv);
+                }
             }
             break;
         case SMSG_PET_TAME_FAILURE:
