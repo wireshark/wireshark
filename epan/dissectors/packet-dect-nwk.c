@@ -2415,6 +2415,7 @@ static int dissect_dect_nwk_s_ie_codec_list(tvbuff_t *tvb, guint offset, guint8 
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_negotiation_indicator, tvb, offset, 1, ENC_NA);
 	offset++;
 
+	last_codec = false;
 	octet_identifier = DECT_NWK_S_IE_OCTET_FIRST;
 	do {
 		switch(octet_identifier) {
