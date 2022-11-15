@@ -314,7 +314,6 @@ static int hf_woww_emote_delay = -1;
 static int hf_woww_emote_delay_in_msecs = -1;
 static int hf_woww_emote_enum = -1;
 static int hf_woww_emote_int = -1;
-static int hf_woww_enable_next = -1;
 static int hf_woww_enable_pvp = -1;
 static int hf_woww_enchantment = -1;
 static int hf_woww_end_text = -1;
@@ -596,6 +595,7 @@ static int hf_woww_pet_talk_reason = -1;
 static int hf_woww_pet_tame_failure_reason = -1;
 static int hf_woww_petition = -1;
 static int hf_woww_petition_guid = -1;
+static int hf_woww_petition_id = -1;
 static int hf_woww_petition_result = -1;
 static int hf_woww_pitch = -1;
 static int hf_woww_player = -1;
@@ -674,6 +674,7 @@ static int hf_woww_required_skill_rank = -1;
 static int hf_woww_required_skill_value = -1;
 static int hf_woww_required_spell = -1;
 static int hf_woww_required_spell_focus = -1;
+static int hf_woww_required_spells = -1;
 static int hf_woww_reserved_for_future_use = -1;
 static int hf_woww_reset_time = -1;
 static int hf_woww_resist = -1;
@@ -703,6 +704,7 @@ static int hf_woww_set_assistant = -1;
 static int hf_woww_shadow_resistance = -1;
 static int hf_woww_sheath = -1;
 static int hf_woww_sheath_state = -1;
+static int hf_woww_show_affiliation = -1;
 static int hf_woww_signer = -1;
 static int hf_woww_simple_spell_cast_result = -1;
 static int hf_woww_sin_angle = -1;
@@ -725,8 +727,6 @@ static int hf_woww_spell_cast_result = -1;
 static int hf_woww_spell_cast_target_flags = -1;
 static int hf_woww_spell_category = -1;
 static int hf_woww_spell_category_cooldown = -1;
-static int hf_woww_spell_chain_previous = -1;
-static int hf_woww_spell_chain_required = -1;
 static int hf_woww_spell_charges = -1;
 static int hf_woww_spell_cooldown = -1;
 static int hf_woww_spell_cost = -1;
@@ -6575,13 +6575,13 @@ static const value_string e_power_strings[] =  {
 typedef enum {
     TIMER_TYPE_FATIGUE = 0x0,
     TIMER_TYPE_BREATH = 0x1,
-    TIMER_TYPE_FEIGNDEATH = 0x2,
+    TIMER_TYPE_FEIGN_DEATH = 0x2,
     TIMER_TYPE_ENVIRONMENTAL = 0x3,
 } e_timer_type;
 static const value_string e_timer_type_strings[] =  {
     { TIMER_TYPE_FATIGUE, "Fatigue" },
     { TIMER_TYPE_BREATH, "Breath" },
-    { TIMER_TYPE_FEIGNDEATH, "Feigndeath" },
+    { TIMER_TYPE_FEIGN_DEATH, "Feign Death" },
     { TIMER_TYPE_ENVIRONMENTAL, "Environmental" },
     { 0, NULL }
 };
@@ -13453,7 +13453,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_show_affiliation, 1, ENC_NA);
             break;
         case SMSG_ENVIRONMENTAL_DAMAGE_LOG:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -14333,7 +14333,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_PAUSE_MIRROR_TIMER:
             ptvcursor_add(ptv, hf_woww_timer_type, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_is_frozen, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_is_frozen, 1, ENC_NA);
             break;
         case SMSG_PERIODICAURALOG:
             add_packed_guid(ptv, pinfo);
@@ -14368,7 +14368,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_PETITION_QUERY_RESPONSE:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_charter_owner, 8, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_guild_name);
             add_cstring(ptv, &hf_woww_body_text);
@@ -14530,7 +14530,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_quest_id, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_title);
             add_cstring(ptv, &hf_woww_offer_reward_text);
-            ptvcursor_add(ptv, hf_woww_enable_next, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_NA);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_emotes, 4, ENC_LITTLE_ENDIAN, &amount_of_emotes);
             for (i = 0; i < amount_of_emotes; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "NpcTextUpdateEmote");
@@ -14540,16 +14540,18 @@ add_body_fields(guint32 opcode,
             }
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_choice_item_rewards, 4, ENC_LITTLE_ENDIAN, &amount_of_choice_item_rewards);
             for (i = 0; i < amount_of_choice_item_rewards; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemReward");
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemRequirement");
                 ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_count, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_item_rewards, 4, ENC_LITTLE_ENDIAN, &amount_of_item_rewards);
             for (i = 0; i < amount_of_item_rewards; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemReward");
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemRequirement");
                 ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_count, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_item_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             ptvcursor_add(ptv, hf_woww_money_reward, 4, ENC_LITTLE_ENDIAN);
@@ -14575,7 +14577,7 @@ add_body_fields(guint32 opcode,
             add_cstring(ptv, &hf_woww_title);
             add_cstring(ptv, &hf_woww_details);
             add_cstring(ptv, &hf_woww_objectives);
-            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_NA);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_choice_item_rewards, 4, ENC_LITTLE_ENDIAN, &amount_of_choice_item_rewards);
             for (i = 0; i < amount_of_choice_item_rewards; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemReward");
@@ -14629,7 +14631,7 @@ add_body_fields(guint32 opcode,
             add_cstring(ptv, &hf_woww_request_items_text);
             ptvcursor_add(ptv, hf_woww_emote_delay, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_emote_int, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_NA);
             ptvcursor_add(ptv, hf_woww_required_money, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_required_items, 4, ENC_LITTLE_ENDIAN, &amount_of_required_items);
             for (i = 0; i < amount_of_required_items; ++i) {
@@ -14752,7 +14754,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_REMOVED_SPELL:
-            ptvcursor_add(ptv, hf_woww_spell_id, 2, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_spell, 2, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_RESISTLOG:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -15236,9 +15238,9 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_required_level, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_required_skill_value, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_chain_required, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_spell_chain_previous, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                for (i = 0; i < 3; ++i) {
+                    ptvcursor_add(ptv, hf_woww_required_spells, 4, ENC_LITTLE_ENDIAN);
+                }
                 ptvcursor_pop_subtree(ptv);
             }
             add_cstring(ptv, &hf_woww_greeting);
@@ -17136,12 +17138,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_enable_next,
-            { "Enable Next", "woww.enable.next",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_enable_pvp,
             { "Enable Pvp", "woww.enable.pvp",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -18828,6 +18824,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_petition_id,
+            { "Petition Id", "woww.petition.id",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_petition_result,
             { "Petition Result", "woww.petition.result",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_petition_result_strings), 0,
@@ -19296,6 +19298,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_required_spells,
+            { "Required Spells", "woww.required.spells",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_reserved_for_future_use,
             { "Reserved For Future Use", "woww.reserved.for.future.use",
                 FT_STRINGZ, BASE_NONE, NULL, 0,
@@ -19470,6 +19478,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_show_affiliation,
+            { "Show Affiliation", "woww.show.affiliation",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_signer,
             { "Signer", "woww.signer",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
@@ -19599,18 +19613,6 @@ proto_register_woww(void)
         { &hf_woww_spell_category_cooldown,
             { "Spell Category Cooldown", "woww.spell.category.cooldown",
                 FT_INT32, BASE_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_spell_chain_previous,
-            { "Spell Chain Previous", "woww.spell.chain.previous",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_spell_chain_required,
-            { "Spell Chain Required", "woww.spell.chain.required",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
