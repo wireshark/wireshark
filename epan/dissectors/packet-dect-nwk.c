@@ -2747,7 +2747,7 @@ where:
   (starting with 1 on the leftmost one), and taking the sum of those multiply results
   module 11. If the result is 10 a '*' is displayed insted.
 */
-void fmt_dect_nwk_ipei(gchar *ipei_string, guint64 ipei) {
+static void fmt_dect_nwk_ipei(gchar *ipei_string, guint64 ipei) {
 	guint16 emc, check_digit;
 	guint32 psn;
 	guint64 digit_divisor, ipei_digits;
