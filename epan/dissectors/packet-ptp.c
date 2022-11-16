@@ -1801,6 +1801,7 @@ static expert_field ei_ptp_v2_pdresp_no_pdreq   = EI_INIT;
 static expert_field ei_ptp_v2_pdresp_no_pdfup   = EI_INIT;
 static expert_field ei_ptp_v2_pdresp_twostep    = EI_INIT;
 static expert_field ei_ptp_v2_pdfup_no_pdresp   = EI_INIT;
+static expert_field ei_ptp_v2_period_invalid    = EI_INIT;
 
 /* END Definitions and fields for PTPv2 dissection. */
 
@@ -2924,15 +2925,19 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                     nstime_delta(&delta_capture_ts, &(frame_info->sync.sync_ts), &(frame_info->prev->sync.sync_ts));
 
                     frame_info->sync.syncInterval = nstime_to_sec(&delta_capture_ts);
-                    frame_info->sync.syncInterval_valid = true;
+                    if (frame_info->sync.syncInterval > 0)
+                        frame_info->sync.syncInterval_valid = true;
 
                     if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info->prev) && frame_info->sync.calculated_timestamp_valid && frame_info->prev->sync.calculated_timestamp_valid) {
                         nstime_t delta_sync_ts;
                         nstime_delta(&delta_sync_ts, &(frame_info->sync.calculated_timestamp), &(frame_info->prev->sync.calculated_timestamp));
 
-                        frame_info->sync.syncRateRatio = nstime_to_sec(&delta_sync_ts) / nstime_to_sec(&delta_capture_ts);
-                        frame_info->sync.syncRateRatio_valid = true;
-                        frame_info->sync.syncRateRatio_ppm = (gint32)((1.0 - frame_info->sync.syncRateRatio) * 1000 * 1000);
+                        if (frame_info->sync.syncInterval_valid) {
+                            frame_info->sync.syncRateRatio = nstime_to_sec(&delta_sync_ts) / nstime_to_sec(&delta_capture_ts);
+                            frame_info->sync.syncRateRatio_valid = true;
+                            frame_info->sync.syncRateRatio_ppm =
+                                (gint32)((1.0 - frame_info->sync.syncRateRatio) * 1000 * 1000);
+                        }
                     }
                 }
             }
@@ -2942,7 +2947,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 nstime_delta(&t4_delta, &frame_info->pdelay.pdelay_res_ts, &frame_info->prev->pdelay.pdelay_res_ts);
 
                 frame_info->pdelay.pdelayInterval = nstime_to_sec(&t4_delta);
-                frame_info->pdelay.pdelayInterval_valid = true;
+                if (frame_info->pdelay.pdelayInterval > 0)
+                    frame_info->pdelay.pdelayInterval_valid = true;
 
                 if (PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) && PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info->prev)) {
                     /* lets calculate rate t3_delta / t4_delta */
@@ -2951,9 +2957,12 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                     nstime_t t3_prev = NSTIME_INIT_SECS_NSECS(frame_info->prev->pdelay.pdelay_res_send_ts_s, frame_info->prev->pdelay.pdelay_res_send_ts_ns);
                     nstime_delta(&t3_delta, &t3_curr, &t3_prev);
 
-                    frame_info->pdelay.neighborRateRatio = nstime_to_sec(&t3_delta) / nstime_to_sec(&t4_delta);
-                    frame_info->pdelay.neighborRateRatio_valid = true;
-                    frame_info->pdelay.neighborRateRatio_ppm = (gint32)((1.0 - frame_info->pdelay.neighborRateRatio) * 1000 * 1000);
+                    if (frame_info->pdelay.pdelayInterval_valid) {
+                        frame_info->pdelay.neighborRateRatio = nstime_to_sec(&t3_delta) / nstime_to_sec(&t4_delta);
+                        frame_info->pdelay.neighborRateRatio_valid = true;
+                        frame_info->pdelay.neighborRateRatio_ppm =
+                            (gint32)((1.0 - frame_info->pdelay.neighborRateRatio) * 1000 * 1000);
+                    }
                 }
             }
 
@@ -4042,7 +4051,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                 /* 16.1.4.1.4 logInterMessagePeriod */
                                 log_inter_message_period = tvb_get_guint8(tvb, tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET);
                                 period = pow(2, log_inter_message_period);
-                                rate   = 1/period;
 
                                 ptp_tlv_period = proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod, tvb,
                                                                      tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, ENC_BIG_ENDIAN);
@@ -4052,8 +4060,16 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                 proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_period, tvb,
                                                                 tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "every %lg seconds", period);
 
-                                proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate, tvb,
+                                if (period > 0) {
+                                    rate = 1 / period;
+                                    proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate, tvb,
                                                                 tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "%lg packets/sec", rate);
+                                } else {
+                                    proto_tree_add_expert_format(ptp_tlv_period_tree, pinfo, &ei_ptp_v2_period_invalid,
+                                        tvb, tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET,
+                                        PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN,
+                                        "Invalid InterMessagePeriod: %lg", period);
+                                }
 
                                 /* 16.1.4.1.5 durationField */
                                 proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_durationField, tvb,
@@ -4071,7 +4087,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                 /* 16.1.4.2.4 logInterMessagePeriod */
                                 log_inter_message_period = tvb_get_guint8(tvb, tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET);
                                 period = pow(2, log_inter_message_period);
-                                rate   = 1/period;
 
                                 ptp_tlv_period = proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod, tvb,
                                                                      tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, ENC_BIG_ENDIAN);
@@ -4081,8 +4096,16 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                 proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_period, tvb,
                                                                 tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "every %lg seconds", period);
 
-                                proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate, tvb,
+                                if (period > 0) {
+                                    rate = 1 / period;
+                                    proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate, tvb,
                                                                 tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "%lg packets/sec", rate);
+                                } else {
+                                    proto_tree_add_expert_format(ptp_tlv_period_tree, pinfo, &ei_ptp_v2_period_invalid,
+                                        tvb, tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET,
+                                        PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN,
+                                        "Invalid InterMessagePeriod: %lg", period);
+                                }
 
                                 /* 16.1.4.2.5 durationField */
                                 proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_durationField, tvb,
@@ -7541,6 +7564,7 @@ proto_register_ptp(void)
         { &ei_ptp_v2_pdresp_no_pdfup,   { "ptp.v2.pdelay_resp_without_fup", PI_PROTOCOL, PI_WARN, "No Follow Up for this Peer Delay Response", EXPFILL }},
         { &ei_ptp_v2_pdresp_twostep,    { "ptp.v2.pdelay_resp_two_step_false", PI_PROTOCOL, PI_WARN, "Peer Delay Response with Two Step Flag set to false but Follow Up", EXPFILL }},
         { &ei_ptp_v2_pdfup_no_pdresp,   { "ptp.v2.pdelay_fup_without_resp", PI_PROTOCOL, PI_WARN, "No Response for this Peer Delay Follow Up", EXPFILL }},
+        { &ei_ptp_v2_period_invalid,    { "ptp.v2.period.invalid", PI_PROTOCOL, PI_WARN, "Period invalid", EXPFILL }},
     };
 
     expert_module_t* expert_ptp;
