@@ -328,8 +328,6 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY RelativeDistinguishedName
-  char *temp_dn;
-
   rdn_one_value = FALSE;
   top_of_rdn = tree;
   last_rdn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
@@ -341,13 +339,16 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   proto_item_append_text(top_of_rdn, " (%%s)", wmem_strbuf_get_str(last_rdn_buf));
 
   /* now append this to the DN */
-  if (last_dn) {
-    if(*last_dn) {
-      temp_dn = (char *)wmem_strdup_printf(actx->pinfo->pool, "%%s,%%s", wmem_strbuf_get_str(last_rdn_buf), last_dn);
-      last_dn[0] = '\0';
-      (void) g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
+  if (last_dn_buf) {
+    if(wmem_strbuf_get_len(last_dn_buf) > 0) {
+      wmem_strbuf_t *temp_dn_buf = wmem_strbuf_sized_new(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1, 0);
+      wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
+      wmem_strbuf_append_c(temp_dn_buf, ',');
+      wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_dn_buf));
+      wmem_strbuf_destroy(last_dn_buf);
+      last_dn_buf = temp_dn_buf;
     } else {
-      (void) g_strlcat(last_dn, wmem_strbuf_get_str(last_rdn_buf), MAX_DN_STR_LEN);
+      wmem_strbuf_append(last_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
     }
   }
 
@@ -372,7 +373,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   const char *fmt;
 
   dn_one_rdn = FALSE; /* reset */
-  last_dn = (char *)wmem_alloc(actx->pinfo->pool, MAX_DN_STR_LEN); *last_dn = '\0';
+  last_dn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   top_of_dn = NULL;
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
@@ -380,12 +381,12 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   %(DEFAULT_BODY)s
 
   /* we've finished - append the dn */
-  proto_item_append_text(top_of_dn, " (%%s)", last_dn);
+  proto_item_append_text(top_of_dn, " (%%s)", wmem_strbuf_get_str(last_dn_buf));
 
  /* see if we should append this to the col info */
   if((fmt = val_to_str_const(hf_index, fmt_vals, "")) && *fmt) {
-      /* we have a format */
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s%%s", fmt, last_dn);
+    /* we have a format */
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s%%s", fmt, wmem_strbuf_get_str(last_dn_buf));
   }
 
 

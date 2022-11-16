@@ -45,10 +45,7 @@ static gboolean rdn_one_value = FALSE; /* have we seen one value in an RDN yet *
 static gboolean dn_one_rdn = FALSE; /* have we seen one RDN in a DN yet */
 static gboolean doing_attr = FALSE;
 
-#define MAX_RDN_STR_LEN   128
-#define MAX_DN_STR_LEN    (20 * MAX_RDN_STR_LEN)
-
-static char *last_dn = NULL;
+static wmem_strbuf_t *last_dn_buf = NULL;
 static wmem_strbuf_t *last_rdn_buf = NULL;
 
 static int ava_hf_index;
@@ -67,7 +64,7 @@ x509if_frame_end(void)
   dn_one_rdn = FALSE;
   doing_attr = FALSE;
 
-  last_dn = NULL;
+  last_dn_buf = NULL;
   last_rdn_buf = NULL;
   last_ava = NULL;
 }
@@ -76,7 +73,7 @@ x509if_frame_end(void)
 
 const char * x509if_get_last_dn(void)
 {
-  return last_dn;
+  return wmem_strbuf_get_str(last_dn_buf);
 }
 
 gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
