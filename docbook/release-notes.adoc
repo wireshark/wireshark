@@ -83,6 +83,8 @@ Support for almost all WoW 1.12 messages has been added.
 Management Component Transport Protocol (MCTP)
 Management Component Transport Protocol - Control Protocol (MCTP CP)
 Non-volatile Memory Express - Management Interface (NVMe-MI) over MCTP
+SAP Internet Graphic Server (SAP IGS)
+DECT proprietary Mitel OMM/RFP Protocol (also named AaMiDe)
 --
 
 === Updated Protocol Support
