@@ -37,6 +37,10 @@
  *
  * Feb 19, 2021: added service code types
  * (Thomas Dreibholz)
+ *
+ * Nov 16, 2022: added MP-DCCP support
+ * (Gregorio Maglione)
+ *
  */
 
 #include "config.h"
@@ -79,6 +83,8 @@
 
 void proto_register_dccp(void);
 void proto_reg_handoff_dccp(void);
+
+static dissector_handle_t dccp_handle;
 
 /*
  * FF: please keep this list in sync with
@@ -160,7 +166,7 @@ static const range_string dccp_options_rvals[] = {
     {0x2A, 0x2A, "Timestamp Echo"},
     {0x2B, 0x2B, "Elapsed Time"},
     {0x2C, 0x2C, "Data checksum"},
-    {0x2D, 0x2D, "Reserved"},
+    {0x2D, 0x7F, "Reserved"},
     {0x2E, 0x2E, "MPDCCP"},
     {0x2F, 0x7F, "Reserved"},
     {0x80, 0xBF, "CCID option"},
@@ -252,14 +258,21 @@ static int hf_mpdccp_rtt_type = -1;
 static int hf_mpdccp_rtt_value = -1;
 static int hf_mpdccp_rtt_age = -1;
 
-//static int hf_mpdccp_addaddr = -1;
-//static int hf_mpdccp_removeaddr = -1;
+static int hf_mpdccp_addaddr = -1;
+static int hf_mpdccp_addrid = -1;
+//static int hf_mpdccp_addr=-1;
+static int hf_mpdccp_addr_dec=-1;
+static int hf_mpdccp_addr_hex=-1;
+static int hf_mpdccp_addrport=-1;
+
+static int hf_mpdccp_removeaddr = -1;
 
 static int hf_mpdccp_prio = -1;
 static int hf_mpdccp_prio_value = -1;
-static int hf_mpdccp_prio_id = -1;
 
 static int hf_mpdccp_close = -1;
+
+static int hf_mpdccp_exp=-1;
 
 static int hf_dccp_option_data = -1;
 
@@ -317,7 +330,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * determine if this packet is part of a conversation and call dissector
      * for the conversation if available
      */
-    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, ENDPOINT_DCCP, sport,
+    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, CONVERSATION_DCCP, sport,
                                    dport, next_tvb, pinfo, tree, NULL, 0)) {
         return;
     }
@@ -476,17 +489,18 @@ static const char* dccp_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 static ct_dissector_info_t dccp_ct_dissector_info = {&dccp_conv_get_filter_type};
 
 static tap_packet_status
-dccpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+dccpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
+    hash->flags = flags;
     const e_dccphdr *dccphdr=(const e_dccphdr *)vip;
 
-    add_conversation_table_data_with_conv_id(hash, &dccphdr->ip_src, &dccphdr->ip_dst, dccphdr->sport, dccphdr->dport, (conv_id_t) dccphdr->stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &dccp_ct_dissector_info, ENDPOINT_DCCP);
+    add_conversation_table_data_with_conv_id(hash, &dccphdr->ip_src, &dccphdr->ip_dst, dccphdr->sport, dccphdr->dport, (conv_id_t) dccphdr->stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &dccp_ct_dissector_info, CONVERSATION_DCCP);
 
     return TAP_PACKET_REDRAW;
 }
 
-static const char* dccp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+static const char* dccp_endpoint_get_filter_type(endpoint_item_t* endpoint, conv_filter_type_e filter)
 {
 
     if (filter == CONV_FT_SRC_PORT)
@@ -498,48 +512,49 @@ static const char* dccp_host_get_filter_type(hostlist_talker_t* host, conv_filte
     if (filter == CONV_FT_ANY_PORT)
         return "dccp.port";
 
-    if(!host) {
+    if(!endpoint) {
         return CONV_FILTER_INVALID;
     }
 
 
     if (filter == CONV_FT_SRC_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.src";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.src";
     }
 
     if (filter == CONV_FT_DST_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.dst";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.dst";
     }
 
     if (filter == CONV_FT_ANY_ADDRESS) {
-        if (host->myaddress.type == AT_IPv4)
+        if (endpoint->myaddress.type == AT_IPv4)
             return "ip.addr";
-        if (host->myaddress.type == AT_IPv6)
+        if (endpoint->myaddress.type == AT_IPv6)
             return "ipv6.addr";
     }
 
     return CONV_FILTER_INVALID;
 }
 
-static hostlist_dissector_info_t dccp_host_dissector_info = {&dccp_host_get_filter_type};
+static et_dissector_info_t dccp_endpoint_dissector_info = {&dccp_endpoint_get_filter_type};
 
 static tap_packet_status
-dccpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+dccpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags )
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
+    hash->flags = flags;
     const e_dccphdr *dccphdr=(const e_dccphdr *)vip;
 
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
-    XXX - this could probably be done more efficiently inside hostlist_table */
-    add_hostlist_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
-    add_hostlist_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
+    XXX - this could probably be done more efficiently inside endpoint_table */
+    add_endpoint_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
+    add_endpoint_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_endpoint_dissector_info, ENDPOINT_DCCP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -583,9 +598,16 @@ static gchar *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinf
     conversation_t *conv;
     struct dccp_analysis *dccpd;
 
-    if( ((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
-            (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
-          && (conv=find_conversation_pinfo(pinfo, 0)) != NULL )
+    /* XXX: Since DCCP doesn't use the endpoint API, we can only look
+     * up using the current pinfo addresses and ports. We don't want
+     * to create a new conversation or stream.
+     * Eventually the endpoint API should support storing multiple
+     * endpoints and DCCP should be changed to use the endpoint API.
+     */
+    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
+        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
+        && (pinfo->ptype == PT_DCCP) &&
+        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, CONVERSATION_DCCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
     {
         /* DCCP over IPv4/6 */
         dccpd = get_dccp_conversation_data(conv, pinfo);
@@ -737,12 +759,13 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
     guint8      option_len  = 0;
     guint32     p;
     guint8      mp_option_type = 0;
-
-
+    
+    
     proto_item *option_item;
     proto_tree *option_tree;
     proto_item *mp_option_sub_item;
     proto_tree *mp_option_sub_tree;
+
 
 
     while (offset < offset_end) {
@@ -859,10 +882,11 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
 
             switch (mp_option_type) {
                 case 0:
-                    proto_tree_add_item(option_tree, hf_mpdccp_confirm, tvb, offset, option_len, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(option_tree, hf_mpdccp_confirm, tvb, offset+1, option_len, ENC_BIG_ENDIAN);
+                    offset+=1;
                     break;
                 case 1:
-                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_join, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_join, tvb, offset+1, 9, ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
                     if (option_len == 9) {
@@ -877,85 +901,125 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                     break;
 
                 case 2:
-                    proto_tree_add_item(option_tree, hf_mpdccp_fast_close, tvb, offset, option_len, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(option_tree, hf_mpdccp_fast_close, tvb, offset+1, option_len, ENC_BIG_ENDIAN);
+                    offset+=1;
                     break;
                 case 3:
-                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_key, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_key, tvb, offset+1, option_len, ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
                     if (option_len > 8 && option_len < 69) {
                         proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_key_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_key_key, tvb, offset+1, option_len, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_key_key, tvb, offset+1, option_len-1, ENC_BIG_ENDIAN);
                     } else {
                         mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-                                   "Wrong Data checksum length, [%u < 9]", option_len);
+                                   "Wrong Data checksum length, [8 < %u < 69]", option_len);
                     }
                     break;
                 case 4:
-                    if (option_len == 4) {
-                        proto_tree_add_item(option_tree, hf_mpdccp_seq, tvb, offset, 4, ENC_BIG_ENDIAN);
+                      if (option_len == 6) {
+                        proto_tree_add_item(option_tree, hf_mpdccp_seq, tvb, offset+1, 6, ENC_BIG_ENDIAN);
                         //col_add_fstr(pinfo->cinfo, COL_INFO, "OaSeq: %u", tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN));
                     } else  {
-                        mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_seq, tvb, offset, option_len, ENC_BIG_ENDIAN);
+                        mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_seq, tvb, offset+1, option_len, ENC_NA);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-                                   "Wrong Data checksum length, [%u != 4]", option_len);
+                                   "Wrong Data checksum length, [%u != 6]", option_len);
                     }
+                    offset+=1;
                     break;
                 case 5:
                     if (option_len == 20) {
-                        proto_tree_add_item(option_tree, hf_mpdccp_hmac, tvb, offset, 20, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(option_tree, hf_mpdccp_hmac, tvb, offset+1, 20, ENC_BIG_ENDIAN);
                     } else {
-                        mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_hmac, tvb, offset, option_len, ENC_BIG_ENDIAN);
+                        mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_hmac, tvb, offset+1, option_len, ENC_BIG_ENDIAN);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
                                    "Wrong Data checksum length, [%u != 20]", option_len);
                     }
+                    offset+=1;
                     break;
                 case 6:
-                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_rtt, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_rtt, tvb, offset+1, 9, ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
                     if (option_len == 9) {
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_rtt_type,
-                                    tvb, offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_rtt_value,
-                                    tvb, offset+1, 4, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_rtt_age,
-                                    tvb, offset+5, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_rtt_type,tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_rtt_value,tvb, offset+1, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_rtt_age,tvb, offset+5, 4, ENC_BIG_ENDIAN);
                     } else {
                         mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
                                    "Wrong Data checksum length, [%u != 9]", option_len);
                     }
                     break;
-/*              case 7:              //To-Do add MP_ADDADDR and MP_REMOVEADDR 
-                    break;
-                case 8:
-                    break; */
-                case 9:
-                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
+              	
+              	case 7:
+                    mp_option_sub_item=proto_tree_add_item(option_tree,hf_mpdccp_addaddr,tvb,offset+1,option_len,ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
-                    if (option_len == 2) {
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_prio_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(mp_option_sub_tree, hf_mpdccp_prio_value, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+               	    if (option_len == 5){
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_BIG_ENDIAN);
+               	}
+                    else if (option_len == 7){
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_BIG_ENDIAN);
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+5,2,ENC_BIG_ENDIAN);
+               	}
+               	   else if (option_len == 17){
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+               	}
+                   else if (option_len == 19){
+               		proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_hex,tvb,offset+1,16,ENC_BIG_ENDIAN);
+			proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+17,2,ENC_BIG_ENDIAN);
+               	
                     } else {
                         mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
                         expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
-                                   "Wrong Data checksum length, [%u != 2]", option_len);
+                                   "Wrong Data checksum length, [%u != 5 || 7 || 17 || 19]", option_len);
                     }
                     break;
+                
+                case 8:
+                    if (option_len == 1) {
+                        mp_option_sub_item=proto_tree_add_item(option_tree,hf_mpdccp_removeaddr,tvb,offset+1,1,ENC_BIG_ENDIAN);
+                    } else {
+                        mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_removeaddr, tvb, offset+1, option_len, ENC_BIG_ENDIAN);
+                        expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
+                                   "Wrong Data checksum length, [%u != 1]", option_len);
+                    }
+                    offset+=1;
+                    break;
+                case 9:
+                    if (option_len == 1) {
+                        proto_tree_add_item(option_tree, hf_mpdccp_prio_value, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    } else {
+                        mp_option_sub_item = proto_tree_add_item(option_tree, hf_dccp_option_data, tvb, offset+1, option_len, ENC_NA);
+                        expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
+                                   "Wrong Data checksum length, [%u != 1]", option_len);
+                    }
+                    offset += 1;
+                    break;
                 case 10:
-                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_close,
-                                    tvb, offset, option_len, ENC_BIG_ENDIAN);
+                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_close,tvb, offset+1, option_len, ENC_BIG_ENDIAN);
+                    offset+=1;
+                    break;
+                case 11:
+                    proto_tree_add_item(option_tree, hf_mpdccp_exp, tvb, offset+1, option_len, ENC_BIG_ENDIAN);
+                    offset+=1;
                     break;
                 default:
-                    mp_option_sub_item = proto_tree_add_item(mp_option_sub_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
+                    offset+=1;
+                    mp_option_sub_item = proto_tree_add_item(option_tree, hf_dccp_option_data, tvb, offset, option_len, ENC_NA);
                     expert_add_info_format(pinfo, mp_option_sub_item, &ei_dccp_option_len_bad,
                                    "MP-DCCP option [%u] not defined, [len: %u ]", mp_option_type, option_len);
                     break;
             }
             break;
+
 
         case 192: /* RFC 4342, 8.5 */
             if (option_len == 4) {
@@ -1795,7 +1859,7 @@ proto_register_dccp(void)
         {&hf_mpdccp_key_type,{"MP_KEY type", "mpdccp.mp_key_type",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_mpdccp_key_key,{"MP_KEY hash", "mpdccp.mp_key_hash",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_mpdccp_seq,{"MP_SEQ", "mpdccp.mp_seq",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_seq,{"MP_SEQ", "mpdccp.mp_seq",FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_mpdccp_hmac,{"MP_HMAC", "mpdccp.mp_hmac",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
@@ -1804,15 +1868,23 @@ proto_register_dccp(void)
         {&hf_mpdccp_rtt_value,{"RTT_VALUE", "mpdccp.rtt_value",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         {&hf_mpdccp_rtt_age,{"RTT_AGE", "mpdccp.rtt_age",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-    //  {&hf_mpdccp_addaddr,{"MP_ADDADDR", "mpdccp.mp_addaddr",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    //  {&hf_mpdccp_removeaddr,{"MP_REMOVEADDR", "mpdccp.mp_removeaddr",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      {&hf_mpdccp_addaddr,{"MP_ADDADDR", "mpdccp.mp_addaddr",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      {&hf_mpdccp_addrid,{"MP_ADDRID", "mpdccp.mp_addrid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      {&hf_mpdccp_addr_dec,{"MP_ADDR", "mpdccp.mp_addr",FT_IPv4, BASE_NETMASK, NULL, 0x0, NULL, HFILL}},
+      {&hf_mpdccp_addr_hex,{"MP_ADDR", "mpdccp.mp_addr",FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      {&hf_mpdccp_addrport,{"MP_ADDRPORT", "mpdccp.mp_addrport",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      
+      {&hf_mpdccp_removeaddr,{"MP_REMOVEADDR", "mpdccp.mp_removeaddr",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      
         {&hf_mpdccp_prio,{"MP_PRIO", "mpdccp.mp_prio",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_mpdccp_prio_id,{"MP_PRIO id", "mpdccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         {&hf_mpdccp_prio_value,{"MP_PRIO value", "mpdccp.mp_prio",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_mpdccp_close,{"MP_CLOSE", "mpdccp.mp_close",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
+	{&hf_mpdccp_exp,{"MP_EXP", "mpdccp.mp_exp",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
         {&hf_dccp_option_data,{"Option data", "mpdccp.mp_option",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
 
         {
             &hf_dccp_options,
@@ -1858,6 +1930,7 @@ proto_register_dccp(void)
     proto_dccp =
         proto_register_protocol("Datagram Congestion Control Protocol", "DCCP",
                                 "dccp");
+    dccp_handle = register_dissector("dccp", dissect_dccp, proto_dccp);
     proto_register_field_array(proto_dccp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_dccp = expert_register_protocol(proto_dccp);
@@ -1899,10 +1972,10 @@ proto_register_dccp(void)
         "Make the DCCP dissector use relative sequence numbers instead of absolute ones.",
         &dccp_relative_seq);
 
-    register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_hostlist_packet);
+    register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_endpoint_packet);
     register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter);
     register_follow_stream(proto_dccp, "dccp_follow", dccp_follow_conv_filter, dccp_follow_index_filter, dccp_follow_address_filter,
-                           dccp_port_to_display, follow_tvb_tap_listener);
+                           dccp_port_to_display, follow_tvb_tap_listener, get_dccp_stream_count);
 
     register_init_routine(dccp_init);
 }
@@ -1910,9 +1983,6 @@ proto_register_dccp(void)
 void
 proto_reg_handoff_dccp(void)
 {
-    dissector_handle_t dccp_handle;
-
-    dccp_handle = create_dissector_handle(dissect_dccp, proto_dccp);
     dissector_add_uint("ip.proto", IP_PROTO_DCCP, dccp_handle);
     dccp_tap    = register_tap("dccp");
     dccp_follow_tap = register_tap("dccp_follow");
