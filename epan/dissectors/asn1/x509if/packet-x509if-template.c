@@ -49,7 +49,7 @@ static gboolean doing_attr = FALSE;
 #define MAX_DN_STR_LEN    (20 * MAX_RDN_STR_LEN)
 
 static char *last_dn = NULL;
-static char *last_rdn = NULL;
+static wmem_strbuf_t *last_rdn_buf = NULL;
 
 static int ava_hf_index;
 #define MAX_FMT_VALS   32
@@ -68,7 +68,7 @@ x509if_frame_end(void)
   doing_attr = FALSE;
 
   last_dn = NULL;
-  last_rdn = NULL;
+  last_rdn_buf = NULL;
   last_ava = NULL;
 }
 
