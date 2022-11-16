@@ -15,6 +15,7 @@
 #include <epan/proto.h>
 
 #include <QObject>
+#include <QVector>
 
 class ProtoNode
 {
