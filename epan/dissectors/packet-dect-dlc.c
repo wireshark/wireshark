@@ -26,27 +26,27 @@ void proto_register_dect_dlc(void);
 
 static int proto_dect_dlc = -1;
 
-static gint hf_dlc_address = -1;
-static gint hf_dlc_nlf = -1;
-static gint hf_dlc_lln = -1;
-static gint hf_dlc_sapi = -1;
-static gint hf_dlc_cr = -1;
+static gint hf_dect_dlc_address = -1;
+static gint hf_dect_dlc_nlf = -1;
+static gint hf_dect_dlc_lln = -1;
+static gint hf_dect_dlc_sapi = -1;
+static gint hf_dect_dlc_cr = -1;
 
-static int hf_dlc_control = -1;
-static int hf_dlc_n_r = -1;
-static int hf_dlc_n_s = -1;
-static int hf_dlc_p = -1;
-static int hf_dlc_f = -1;
-static int hf_dlc_s_ftype = -1;
-static int hf_dlc_u_modifier_cmd = -1;
-static int hf_dlc_u_modifier_resp = -1;
-static int hf_dlc_ftype_i = -1;
-static int hf_dlc_ftype_s_u = -1;
+static int hf_dect_dlc_control = -1;
+static int hf_dect_dlc_n_r = -1;
+static int hf_dect_dlc_n_s = -1;
+static int hf_dect_dlc_p = -1;
+static int hf_dect_dlc_f = -1;
+static int hf_dect_dlc_s_ftype = -1;
+static int hf_dect_dlc_u_modifier_cmd = -1;
+static int hf_dect_dlc_u_modifier_resp = -1;
+static int hf_dect_dlc_ftype_i = -1;
+static int hf_dect_dlc_ftype_s_u = -1;
 
-static int hf_dlc_length = -1;
-static int hf_dlc_el = -1;
-static int hf_dlc_m = -1;
-static int hf_dlc_len = -1;
+static int hf_dect_dlc_length = -1;
+static int hf_dect_dlc_el = -1;
+static int hf_dect_dlc_m = -1;
+static int hf_dect_dlc_len = -1;
 
 static gint ett_dect_dlc = -1;
 static gint ett_dect_dlc_address = -1;
@@ -74,7 +74,7 @@ static int hf_dect_dlc_reassembled_length = -1;
 static gint ett_dect_dlc_fragment = -1;
 static gint ett_dect_dlc_fragments = -1;
 
-static const fragment_items dlc_frag_items = {
+static const fragment_items dect_dlc_frag_items = {
     /* Fragment subtrees */
     &ett_dect_dlc_fragment,
     &ett_dect_dlc_fragments,
@@ -104,25 +104,25 @@ static wmem_map_t *dect_dlc_last_n_s_map;
 
 static gboolean reassemble_dect_dlc = TRUE;
 
-static const xdlc_cf_items dlc_cf_items = {
-	&hf_dlc_n_r,
-	&hf_dlc_n_s,
-	&hf_dlc_p,
-	&hf_dlc_f,
-	&hf_dlc_s_ftype,
-	&hf_dlc_u_modifier_cmd,
-	&hf_dlc_u_modifier_resp,
-	&hf_dlc_ftype_i,
-	&hf_dlc_ftype_s_u
+static const xdlc_cf_items dect_dlc_cf_items = {
+	&hf_dect_dlc_n_r,
+	&hf_dect_dlc_n_s,
+	&hf_dect_dlc_p,
+	&hf_dect_dlc_f,
+	&hf_dect_dlc_s_ftype,
+	&hf_dect_dlc_u_modifier_cmd,
+	&hf_dect_dlc_u_modifier_resp,
+	&hf_dect_dlc_ftype_i,
+	&hf_dect_dlc_ftype_s_u
 };
 
-static const value_string dlc_sapi_vals[] = {
+static const value_string dect_dlc_sapi_vals[] = {
 	{ 0, "Connection oriented signalling" },
 	{ 3, "Connectionless signalling" },
 	{ 0, NULL }
 };
 
-static const value_string dlc_lln_vals[] = {
+static const value_string dect_dlc_lln_vals[] = {
 	{ 0, "U0" },
 	{ 1, "A1" },
 	{ 2, "B2" },
@@ -134,13 +134,13 @@ static const value_string dlc_lln_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string dlc_m_vals[] = {
+static const value_string dect_dlc_m_vals[] = {
 	{ 0, "Last segment" },
 	{ 1, "More segments" },
 	{ 0, NULL }
 };
 
-static const value_string dlc_el_vals[] = {
+static const value_string dect_dlc_el_vals[] = {
 	{ 0, "More octets" },
 	{ 1, "Final octet" },
 	{ 0, NULL }
@@ -169,26 +169,26 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	dlc_ti = proto_tree_add_item(tree, proto_dect_dlc, tvb, 0, 3, ENC_NA);
 	dlc_tree = proto_item_add_subtree(dlc_ti, ett_dect_dlc);
 
-	addr_ti = proto_tree_add_item(dlc_tree, hf_dlc_address, tvb, 0, 1, ENC_NA);
+	addr_ti = proto_tree_add_item(dlc_tree, hf_dect_dlc_address, tvb, 0, 1, ENC_NA);
 	addr_tree = proto_item_add_subtree(addr_ti, ett_dect_dlc_address);
 
 	sapi = (tvb_get_guint8(tvb, 0) & 0x0C) >> 2;
-	proto_tree_add_item(addr_tree, hf_dlc_nlf, tvb, 0, 1, ENC_NA);
-	proto_tree_add_item(addr_tree, hf_dlc_lln, tvb, 0, 1, ENC_NA);
-	proto_tree_add_item(addr_tree, hf_dlc_sapi, tvb, 0, 1, ENC_NA);
-	proto_tree_add_item(addr_tree, hf_dlc_cr, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(addr_tree, hf_dect_dlc_nlf, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(addr_tree, hf_dect_dlc_lln, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(addr_tree, hf_dect_dlc_sapi, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item(addr_tree, hf_dect_dlc_cr, tvb, 0, 1, ENC_NA);
 
-	control = dissect_xdlc_control(tvb, 1, pinfo, dlc_tree, hf_dlc_control,
-				ett_dect_dlc_control, &dlc_cf_items, NULL, NULL, NULL,
+	control = dissect_xdlc_control(tvb, 1, pinfo, dlc_tree, hf_dect_dlc_control,
+				ett_dect_dlc_control, &dect_dlc_cf_items, NULL, NULL, NULL,
 				is_response, FALSE, FALSE);
 	n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
 
-	length_ti = proto_tree_add_item(dlc_tree, hf_dlc_length, tvb, 2, 1, ENC_NA);
+	length_ti = proto_tree_add_item(dlc_tree, hf_dect_dlc_length, tvb, 2, 1, ENC_NA);
 	length_tree = proto_item_add_subtree(length_ti, ett_dect_dlc_length);
 	length = tvb_get_guint8(tvb, 2);
-	proto_tree_add_uint(length_tree, hf_dlc_len, tvb, 2, 1, length);
-	proto_tree_add_uint(length_tree, hf_dlc_m, tvb, 2, 1, length);
-	proto_tree_add_uint(length_tree, hf_dlc_el, tvb, 2, 1, length);
+	proto_tree_add_uint(length_tree, hf_dect_dlc_len, tvb, 2, 1, length);
+	proto_tree_add_uint(length_tree, hf_dect_dlc_m, tvb, 2, 1, length);
+	proto_tree_add_uint(length_tree, hf_dect_dlc_el, tvb, 2, 1, length);
 	len = length >> 2;
 
 	available_length = tvb_captured_length(tvb) - 3;
@@ -235,7 +235,7 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 											m); /* More fragments? */
 
 				reassembled = process_reassembled_data(payload, 0, pinfo,
-													"Reassembled DLC", fd_m, &dlc_frag_items,
+													"Reassembled DLC", fd_m, &dect_dlc_frag_items,
 													NULL, dlc_tree);
 
 				/* Reassembled into this packet	*/
@@ -272,97 +272,97 @@ void proto_register_dect_dlc(void)
 {
 	static hf_register_info hf[] =
 	{
-		{ &hf_dlc_address,
+		{ &hf_dect_dlc_address,
 			{ "Address Field", "dect_dlc.address_field", FT_UINT8, BASE_HEX,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_nlf,
+		{ &hf_dect_dlc_nlf,
 			{ "NLF", "dect_dlc.nlf", FT_UINT8, BASE_DEC,
 				NULL, 0x80, "New Link Flag", HFILL
 			}
 		},
-		{ &hf_dlc_lln,
+		{ &hf_dect_dlc_lln,
 			{ "LLN", "dect_dlc.lln", FT_UINT8, BASE_DEC,
-				VALS(dlc_lln_vals), 0x70, "Logical Link Number", HFILL
+				VALS(dect_dlc_lln_vals), 0x70, "Logical Link Number", HFILL
 			}
 		},
-		{ &hf_dlc_sapi,
+		{ &hf_dect_dlc_sapi,
 			{ "SAPI", "dect_dlc.sapi", FT_UINT8, BASE_DEC,
-				VALS(dlc_sapi_vals), 0x0C, "Service Access Point Identifier", HFILL
+				VALS(dect_dlc_sapi_vals), 0x0C, "Service Access Point Identifier", HFILL
 			}
 		},
-		{ &hf_dlc_cr,
+		{ &hf_dect_dlc_cr,
 			{ "C/R", "dect_dlc.cr", FT_UINT8, BASE_DEC,
 				NULL, 0x02, "Command/Response field bit", HFILL
 			}
 		},
-		{ &hf_dlc_control,
+		{ &hf_dect_dlc_control,
 			{ "Control Field", "dect_dlc.control_field", FT_UINT8, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_n_r,
+		{ &hf_dect_dlc_n_r,
 			{ "N(R)", "dect_dlc.control.n_r", FT_UINT8, BASE_DEC,
 				NULL, 0xE0, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_n_s,
+		{ &hf_dect_dlc_n_s,
 			{ "N(S)", "dect_dlc.control.n_s", FT_UINT8, BASE_DEC,
 				NULL, 0x0E, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_p,
+		{ &hf_dect_dlc_p,
 			{ "Poll", "dect_dlc.control.p", FT_BOOLEAN, 8,
 				TFS(&tfs_true_false), 0x10, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_f,
+		{ &hf_dect_dlc_f,
 			{ "Final", "dect_dlc.control.f", FT_BOOLEAN, 8,
 				TFS(&tfs_true_false), 0x10, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_s_ftype,
+		{ &hf_dect_dlc_s_ftype,
 			{ "Supervisory frame type", "dect_dlc.control.s_ftype", FT_UINT8, BASE_HEX,
 				VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_u_modifier_cmd,
+		{ &hf_dect_dlc_u_modifier_cmd,
 			{ "Command", "dect_dlc.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
 				VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_u_modifier_resp,
+		{ &hf_dect_dlc_u_modifier_resp,
 			{ "Response", "dect_dlc.control.u_modifier_resp", FT_UINT8, BASE_HEX,
 				VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_ftype_i,
+		{ &hf_dect_dlc_ftype_i,
 			{ "Frame type", "dect_dlc.control.ftype", FT_UINT8, BASE_HEX,
 				VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_ftype_s_u,
+		{ &hf_dect_dlc_ftype_s_u,
 			{ "Frame type", "dect_dlc.control.ftype", FT_UINT8, BASE_HEX,
 				VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_length,
+		{ &hf_dect_dlc_length,
 			{ "Length Field", "dect_dlc.length_field", FT_UINT8, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
-		{ &hf_dlc_el,
+		{ &hf_dect_dlc_el,
 			{ "EL", "dect_dlc.el", FT_UINT8, BASE_DEC,
-				VALS(dlc_el_vals), 0x01, "Length indicator field extension bit", HFILL
+				VALS(dect_dlc_el_vals), 0x01, "Length indicator field extension bit", HFILL
 			}
 		},
-		{ &hf_dlc_m,
+		{ &hf_dect_dlc_m,
 			{ "M", "dect_dlc.m", FT_UINT8, BASE_DEC,
-				VALS(dlc_m_vals), 0x02, "More data bit", HFILL
+				VALS(dect_dlc_m_vals), 0x02, "More data bit", HFILL
 			}
 		},
-		{ &hf_dlc_len,
+		{ &hf_dect_dlc_len,
 			{ "Length", "dect_dlc.length", FT_UINT8, BASE_DEC,
 				NULL, 0xFC, "Length indicator", HFILL
 			}
