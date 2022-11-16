@@ -454,13 +454,6 @@ void proto_register_dect_dlc(void)
 	dect_dlc_last_n_s_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
-#if 0
-//void proto_reg_handoff_dect_aastra(void)
-//{
-//	dissector_handle_t dlc_handle  = create_dissector_handle(dissect_aamide_xdlc, proto_dect_dlc);
-//}
-#endif
-
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
