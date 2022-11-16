@@ -5,6 +5,7 @@
  * base stations.
  *
  * Copyright 2018 by Harald Welte <laforge@gnumonks.org>
+ * Copyright 2022 by Bernhard Dick <bernhard@bdick.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -18,6 +19,8 @@
 #include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/value_string.h>
+#include <ftypes/ftypes.h>
+#include <epan/proto.h>
 #include <tvbuff.h>
 
 void proto_register_dect_mitel_eth(void);
@@ -26,11 +29,16 @@ void proto_reg_handoff_dect_mitelrfp(void);
 static int proto_dect_mitel_eth = -1;
 
 static gint hf_dect_mitel_eth_len = -1;
+static gint hf_dect_mitel_eth_layer = -1;
 static gint hf_dect_mitel_eth_prim_type = -1;
 static gint hf_dect_mitel_eth_mcei = -1;
 static gint hf_dect_mitel_eth_info_string = -1;
 static gint hf_dect_mitel_eth_pmid = -1;
 static gint hf_dect_mitel_eth_subfield = -1;
+
+static gint hf_dect_mitel_eth_mt_item_key = -1;
+static gint hf_dect_mitel_eth_mt_item_length = -1;
+static gint hf_dect_mitel_eth_mt_item_value = -1;
 
 static gint ett_dect_mitel_eth = -1;
 
@@ -41,6 +49,14 @@ static dissector_handle_t dlc_handle;
 #define DECT_MITEL_ETH_T_DOWNLOAD	0xA002
 #define DECT_MITEL_ETH_T_VIDEO	0xA003
 #define DECT_MITEL_ETH_T_AUDIOLOG	0xA004
+
+enum dect_mitel_eth_layer_coding {
+	DECT_MITEL_ETH_LAYER_RFPC = 0x78,
+	DECT_MITEL_ETH_LAYER_LC   = 0x79,
+	DECT_MITEL_ETH_LAYER_MAC  = 0x7A,
+	DECT_MITEL_ETH_LAYER_MT   = 0x7C,
+	DECT_MITEL_ETH_LAYER_SYNC = 0x7D,
+};
 
 enum dect_mitel_eth_prim_coding {
 	DECT_MITEL_ETH_MAC_CON_IND              = 0x01,
@@ -70,6 +86,15 @@ enum dect_mitel_eth_prim_coding {
 	DECT_MITEL_ETH_MAC_CLEAR_DEF_CKEY_REQ   = 0x1f,
 	DECT_MITEL_ETH_MAC_GET_CURR_CKEY_ID_REQ = 0x20,
 	DECT_MITEL_ETH_MAC_GET_CURR_CKEY_ID_CNF = 0x21,
+};
+
+static const value_string dect_mitel_eth_layer_val[] = {
+	{ DECT_MITEL_ETH_LAYER_RFPC, "RFPc" },
+	{ DECT_MITEL_ETH_LAYER_LC,   "Lc" },
+	{ DECT_MITEL_ETH_LAYER_MAC,  "MAC" },
+	{ DECT_MITEL_ETH_LAYER_MT,   "Mt" },
+	{ DECT_MITEL_ETH_LAYER_SYNC, "Sync" },
+	{ 0, NULL }
 };
 
 static const value_string dect_mitel_eth_prim_coding_val[] = {
@@ -112,7 +137,7 @@ static const value_string dect_mitel_eth_subfield_val[] = {
 static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint16 mitel_eth_len, payload_len;
-	guint8 prim_type, mcei;
+	guint8 prim_type, layer, mcei, mt_item_length;
 	int offset = 0;
 	gboolean ip_encapsulated;
 	tvbuff_t *payload_tvb = NULL;
@@ -139,6 +164,8 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		offset += 4;
 	}
 
+	proto_tree_add_item(tree, hf_dect_mitel_eth_layer, tvb, offset, 1, ENC_NA);
+	layer = tvb_get_guint8(tvb, offset);
 	offset++;
 	prim_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
@@ -147,77 +174,95 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			val_to_str(prim_type, dect_mitel_eth_prim_coding_val, "Unknown 0x%02x"));
 	offset++;
 
-	switch (prim_type) {
-	case DECT_MITEL_ETH_MAC_PAGE_REQ:
-		pinfo->p2p_dir = P2P_DIR_SENT;
-		payload_len = tvb_get_guint8(tvb, offset);
-		offset++;
-		payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
-		break;
-	case DECT_MITEL_ETH_MAC_CON_IND:
-		pinfo->p2p_dir = P2P_DIR_RECV;
-		mcei = tvb_get_guint8(tvb, offset);
-		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-		offset += 2;
-		proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 2, ENC_BIG_ENDIAN);
-		break;
-	case DECT_MITEL_ETH_MAC_INFO_IND:
-		pinfo->p2p_dir = P2P_DIR_RECV;
-		mcei = tvb_get_guint8(tvb, offset);
-		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-		/* from offset 9 onwards, there's a null-terminated string */
-		offset += 5;
-		proto_tree_add_item(tree, hf_dect_mitel_eth_info_string, tvb, offset,
-					tvb_captured_length_remaining(tvb, offset+9), ENC_ASCII|ENC_NA);
-		break;
-	case DECT_MITEL_ETH_MAC_DIS_REQ:
-	case DECT_MITEL_ETH_MAC_DIS_IND:
-		if(prim_type == DECT_MITEL_ETH_MAC_DIS_REQ) {
-			pinfo->p2p_dir = P2P_DIR_SENT;
-		} else {
-			pinfo->p2p_dir = P2P_DIR_RECV;
-		}
-		mcei = tvb_get_guint8(tvb, offset);
-		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-		break;
-	case DECT_MITEL_ETH_LC_DTR_IND:
-		pinfo->p2p_dir = P2P_DIR_RECV;
-		mcei = tvb_get_guint8(tvb, offset);
-		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-		offset++;
-		proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
-		break;
-	case DECT_MITEL_ETH_LC_DATA_REQ:
-	case DECT_MITEL_ETH_LC_DATA_IND:
-		if(prim_type == DECT_MITEL_ETH_LC_DATA_REQ) {
-			pinfo->p2p_dir = P2P_DIR_SENT;
-		} else {
-			pinfo->p2p_dir = P2P_DIR_RECV;
-		}
-		mcei = tvb_get_guint8(tvb, offset);
-		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-		offset++;
-		proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
-		offset++;
-		payload_len = tvb_get_guint8(tvb, offset);
-		offset++;
-		payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
-		if (payload_tvb)
-			call_dissector(dlc_handle, payload_tvb, pinfo, tree);
-		payload_tvb = NULL;
-		break;
-	default:
-		break;
+	switch (layer) {
+		case DECT_MITEL_ETH_LAYER_RFPC:
+			break;
+		case DECT_MITEL_ETH_LAYER_MT:
+			while ( tvb_reported_length_remaining(tvb, offset) ) {
+				proto_tree_add_item(tree, hf_dect_mitel_eth_mt_item_key, tvb, offset, 1, ENC_NA);
+				offset++;
+				proto_tree_add_item(tree, hf_dect_mitel_eth_mt_item_length, tvb, offset, 1, ENC_NA);
+				mt_item_length = tvb_get_guint8(tvb, offset);
+				offset++;
+				proto_tree_add_item(tree, hf_dect_mitel_eth_mt_item_value, tvb, offset, mt_item_length, ENC_NA);
+				offset += mt_item_length;
+			}
+			break;
+		case DECT_MITEL_ETH_LAYER_LC:
+		case DECT_MITEL_ETH_LAYER_MAC:
+			switch (prim_type) {
+				case DECT_MITEL_ETH_MAC_PAGE_REQ:
+					pinfo->p2p_dir = P2P_DIR_SENT;
+					payload_len = tvb_get_guint8(tvb, offset);
+					offset++;
+					payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
+					break;
+				case DECT_MITEL_ETH_MAC_CON_IND:
+					pinfo->p2p_dir = P2P_DIR_RECV;
+					mcei = tvb_get_guint8(tvb, offset);
+					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					offset += 2;
+					proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 2, ENC_BIG_ENDIAN);
+					break;
+				case DECT_MITEL_ETH_MAC_INFO_IND:
+					pinfo->p2p_dir = P2P_DIR_RECV;
+					mcei = tvb_get_guint8(tvb, offset);
+					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					/* from offset 9 onwards, there's a null-terminated string */
+					offset += 5;
+					proto_tree_add_item(tree, hf_dect_mitel_eth_info_string, tvb, offset,
+								tvb_captured_length_remaining(tvb, offset+9), ENC_ASCII|ENC_NA);
+					break;
+				case DECT_MITEL_ETH_MAC_DIS_REQ:
+				case DECT_MITEL_ETH_MAC_DIS_IND:
+					if(prim_type == DECT_MITEL_ETH_MAC_DIS_REQ) {
+						pinfo->p2p_dir = P2P_DIR_SENT;
+					} else {
+						pinfo->p2p_dir = P2P_DIR_RECV;
+					}
+					mcei = tvb_get_guint8(tvb, offset);
+					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_MITEL_ETH_LC_DTR_IND:
+					pinfo->p2p_dir = P2P_DIR_RECV;
+					mcei = tvb_get_guint8(tvb, offset);
+					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					offset++;
+					proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_MITEL_ETH_LC_DATA_REQ:
+				case DECT_MITEL_ETH_LC_DATA_IND:
+					if(prim_type == DECT_MITEL_ETH_LC_DATA_REQ) {
+						pinfo->p2p_dir = P2P_DIR_SENT;
+					} else {
+						pinfo->p2p_dir = P2P_DIR_RECV;
+					}
+					mcei = tvb_get_guint8(tvb, offset);
+					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					offset++;
+					proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
+					offset++;
+					payload_len = tvb_get_guint8(tvb, offset);
+					offset++;
+					payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
+					if (payload_tvb)
+						call_dissector(dlc_handle, payload_tvb, pinfo, tree);
+					payload_tvb = NULL;
+					break;
+				default:
+					break;
+			}
+			break;
 	}
 
 	if (payload_tvb)
@@ -234,6 +279,11 @@ void proto_register_dect_mitelrfp(void)
 		{ &hf_dect_mitel_eth_len,
 			{ "Length", "dect_mitel_eth.length", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_layer,
+			{ "Interface layer", "dect_mitel_eth.layer", FT_UINT8, BASE_HEX,
+				 VALS(dect_mitel_eth_layer_val), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_eth_prim_type,
@@ -259,6 +309,21 @@ void proto_register_dect_mitelrfp(void)
 		{ &hf_dect_mitel_eth_subfield,
 			{ "Subfield", "dect_mitel_eth.subfield", FT_UINT8, BASE_HEX,
 				VALS(dect_mitel_eth_subfield_val), 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_mt_item_key,
+			{ "Key", "dect_mitel_eth.mt.item.key", FT_UINT8, BASE_HEX,
+				 NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_mt_item_length,
+			{ "Length", "dect_mitel_eth.mt.item.length", FT_UINT8, BASE_DEC,
+				 NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_mt_item_value,
+			{ "Value", "dect_mitel_eth.mt.item.value", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, NULL, HFILL
 			}
 		},
 	};
