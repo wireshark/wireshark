@@ -15254,18 +15254,6 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   if (nc == nr)  /* If they are the same, reduce Nc by one */
     nc -= 1;
 
-  /*
-   * Figure out how many bits we need
-   */
-  for (ci = 1; ci <= nc; ci++) {
-    for (ri = ci; ri < nr; ri++) {
-      bit_offset += phi_bits;
-    }
-    for (ri = ci + 1; ri <= nr; ri++) {
-      bit_offset += psi_bits;
-    }
-  }
-
   wmem_strbuf_append_printf(angles, "%d", scidx);
   /* Reset to the start bit offset */
   bit_offset = start_bit_offset;
