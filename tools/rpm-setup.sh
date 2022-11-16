@@ -138,9 +138,6 @@ add_packages() {
 	eval "${list}=\"\${${list}} \${pkgnames}\""
 }
 
-add_package BASIC_LIST cmake3 || add_package BASIC_LIST cmake ||
-echo "Required package cmake|cmake3 is unavailable" >&2
-
 add_package BASIC_LIST glib2 || add_package BASIC_LIST libglib-2_0-0 ||
 echo "Required package glib2|libglib-2_0-0 is unavailable" >&2
 
