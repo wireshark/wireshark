@@ -1051,11 +1051,17 @@ MERGE_FRAG(fragment_head *fd_head, fragment_item *fd)
 
 	if (fd == NULL) return;
 
-	if (fd_head->next == NULL || fd->offset < fd_head->next->offset) {
+	if (fd_head->next == NULL) {
+		fd_head->next = fd;
+		return;
+	}
+
+	if (fd->offset < fd_head->next->offset) {
 		tmp = fd_head->next;
 		fd_head->next = fd;
 		fd = tmp;
 	}
+
 	for(fd_i = fd_head->next; fd_i->next; fd_i=fd_i->next) {
 		if (fd->offset < fd_i->next->offset) {
 			tmp = fd_i->next;
@@ -2320,11 +2326,18 @@ fragment_add_seq_single_move(reassembly_table *table, const packet_info *pinfo,
 	new_fh = lookup_fd_head(table, pinfo, id+offset, data, NULL);
 	if (new_fh != NULL) {
 		/* Attach to the end of the sorted list. */
-		for(prev_fd = fh->next; prev_fd->next != NULL; prev_fd=prev_fd->next) {}
+		prev_fd = NULL;
+		for(fd = fh->next; fd != NULL; fd=fd->next) {
+		    prev_fd = fd;
+		}
 		/* Don't take a reassembly starting with a First fragment. */
 		fd = new_fh->next;
 		if (fd && fd->offset != 0) {
-			prev_fd->next = fd;
+			if (prev_fd) {
+				prev_fd->next = fd;
+			} else {
+				fh->next = fd;
+			}
 			for (; fd; fd=fd->next) {
 				fd->offset += offset;
 				if (fh->frame < fd->frame) {
