@@ -634,22 +634,16 @@ else() # ! MSVC
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
 		-Wextra
-		-Wendif-labels
 		-Wpointer-arith
 		-Wformat-security
 		-fwrapv
 		-fno-strict-overflow
 		-Wvla
-		-Waddress
 		-Wattributes
-		-Wdiv-by-zero
-		-Wignored-qualifiers
-		-Wpragmas
-		-Wno-overlength-strings
-		-Wno-long-long
-		-Wheader-guard
-		-Wcomma
-		-Wshorten-64-to-32
+		-Wpragmas		# Clang-only
+		-Wheader-guard		# Clang-only
+		-Wcomma			# Clang-only
+		-Wshorten-64-to-32	# Clang-only
 		-Wredundant-decls
 		#
 		# Disable errors unconditionally for some static analysis warnings
@@ -714,12 +708,6 @@ else() # ! MSVC
 		#
 		-Wlogical-op
 		-Wjump-misses-init
-		#
-		# Implicit function declarations are an error in C++ and most
-		# likely a programming error in C. Turn -Wimplicit-int and
-		# -Wimplicit-function-declaration into an error by default.
-		#
-		-Werror=implicit
 	)
 
 	#
@@ -740,7 +728,7 @@ else() # ! MSVC
 
 
 	list(APPEND WIRESHARK_CXX_ONLY_FLAGS
-		-Wextra-semi
+		-Wextra-semi	# Clang-only
 	)
 
 	#
@@ -751,6 +739,8 @@ else() # ! MSVC
 		list(APPEND WIRESHARK_COMMON_FLAGS
 			# The following are for C and C++
 			-Wpedantic
+			-Wno-overlength-strings
+			-Wno-long-long
 			#
 			# As we use variadic macros, we don't want warnings
 			# about them, even with -Wpedantic.
