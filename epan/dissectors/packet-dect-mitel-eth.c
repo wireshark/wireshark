@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/value_string.h>
+#include <tvbuff.h>
 
 void proto_register_dect_mitel_eth(void);
 void proto_reg_handoff_dect_mitelrfp(void);
@@ -108,51 +109,69 @@ static const value_string dect_mitel_eth_subfield_val[] = {
 	{ 0, NULL }
 };
 
-static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint16 mitel_eth_len, payload_len;
 	guint8 prim_type, mcei;
 	int offset = 0;
+	gboolean ip_encapsulated;
 	tvbuff_t *payload_tvb = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MI-DECToE");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	mitel_eth_len = tvb_get_guint16(tvb, offset, 2);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
+	/*
+	 * When the protocol is used within the internal Ethernet channel in the RFP there is a two byte
+	 * field with not yet really known content and a two byte length field. This is not in place / consumed
+	 * by the upper layer dissector if this protocol is used in OMM<>RFP communication. So the data parameter
+	 * is used to get information from the dect-mitel-rfp dissector whether it was IP encapsulated or not.
+     */
+	if(data) {
+		ip_encapsulated = *( ( gboolean* )data );
+	} else {
+		ip_encapsulated = false;
+	}
+	if(!ip_encapsulated) {
+		mitel_eth_len = tvb_get_guint16(tvb, offset, 2);
+		proto_tree_add_item(tree, hf_dect_mitel_eth_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		if (mitel_eth_len < 3)
+			return tvb_captured_length(tvb);
+		offset += 4;
+	}
 
-	if (mitel_eth_len < 3)
-		return tvb_captured_length(tvb);
-
-	prim_type = tvb_get_guint8(tvb, offset+3);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_prim_type, tvb, offset+3, 1, ENC_NA);
+	offset++;
+	prim_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(prim_type, dect_mitel_eth_prim_coding_val, "Unknown 0x%02x"));
+	offset++;
 
 	switch (prim_type) {
 	case DECT_MITEL_ETH_MAC_PAGE_REQ:
 		pinfo->p2p_dir = P2P_DIR_SENT;
-		payload_len = tvb_get_guint8(tvb, offset+4);
-		payload_tvb = tvb_new_subset_length(tvb, offset+5, payload_len);
+		payload_len = tvb_get_guint8(tvb, offset);
+		offset++;
+		payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
 		break;
 	case DECT_MITEL_ETH_MAC_CON_IND:
 		pinfo->p2p_dir = P2P_DIR_RECV;
-		mcei = tvb_get_guint8(tvb, offset+4);
+		mcei = tvb_get_guint8(tvb, offset);
 		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset+4, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case DECT_MITEL_ETH_MAC_INFO_IND:
 		pinfo->p2p_dir = P2P_DIR_RECV;
-		mcei = tvb_get_guint8(tvb, offset+4);
+		mcei = tvb_get_guint8(tvb, offset);
 		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset+4, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
 		/* from offset 9 onwards, there's a null-terminated string */
-		proto_tree_add_item(tree, hf_dect_mitel_eth_info_string, tvb, offset+9,
+		offset += 5;
+		proto_tree_add_item(tree, hf_dect_mitel_eth_info_string, tvb, offset,
 					tvb_captured_length_remaining(tvb, offset+9), ENC_ASCII|ENC_NA);
 		break;
 	case DECT_MITEL_ETH_MAC_DIS_REQ:
@@ -162,18 +181,19 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		} else {
 			pinfo->p2p_dir = P2P_DIR_RECV;
 		}
-		mcei = tvb_get_guint8(tvb, offset+4);
+		mcei = tvb_get_guint8(tvb, offset);
 		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset+4, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
 		break;
 	case DECT_MITEL_ETH_LC_DTR_IND:
 		pinfo->p2p_dir = P2P_DIR_RECV;
-		mcei = tvb_get_guint8(tvb, offset+4);
+		mcei = tvb_get_guint8(tvb, offset);
 		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset+4, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset+5, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
 		break;
 	case DECT_MITEL_ETH_LC_DATA_REQ:
 	case DECT_MITEL_ETH_LC_DATA_IND:
@@ -182,14 +202,16 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		} else {
 			pinfo->p2p_dir = P2P_DIR_RECV;
 		}
-		mcei = tvb_get_guint8(tvb, offset+4);
+		mcei = tvb_get_guint8(tvb, offset);
 		conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset+4, 1, ENC_NA);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset+5, 1, ENC_NA);
-		payload_len = tvb_get_guint8(tvb, offset+6);
-		payload_len = tvb_get_guint8(tvb, offset+6);
-		payload_tvb = tvb_new_subset_length(tvb, offset+7, payload_len);
+		proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
+		offset++;
+		payload_len = tvb_get_guint8(tvb, offset);
+		offset++;
+		payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
 		if (payload_tvb)
 			call_dissector(dlc_handle, payload_tvb, pinfo, tree);
 		payload_tvb = NULL;
@@ -250,6 +272,8 @@ void proto_register_dect_mitelrfp(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_dect_mitel_eth, hf, array_length(hf));
+
+	register_dissector("dect_mitel_eth", dissect_dect_mitel_eth, proto_dect_mitel_eth);
 }
 
 void proto_reg_handoff_dect_mitel_eth(void)
