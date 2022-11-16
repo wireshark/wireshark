@@ -263,7 +263,8 @@ Fedora RPM Package:
 #     - tshark --version
 #  needs: [ 'Fedora RPM Package' ]
 
-openSUSE 15.3 RPM Package:
+# openSUSE 15.3 support ended in November 2022: https://en.opensuse.org/Lifetime
+.openSUSE 15.3 RPM Package:
   extends: .build-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
   script:
@@ -272,7 +273,7 @@ openSUSE 15.3 RPM Package:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja rpm-package
 
-openSUSE 15.3 RPM Test:
+.openSUSE 15.3 RPM Test:
   extends: .test-rpm
   image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
   script:
