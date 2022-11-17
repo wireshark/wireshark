@@ -15,6 +15,9 @@
 
 #include "grammar.h"
 
+/* Generated lemon code warns on this. */
+DIAG_OFF(unreachable-code)
+
 #ifdef _WIN32
 #pragma warning(disable:4671)
 #endif
