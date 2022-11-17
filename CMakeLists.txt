@@ -642,10 +642,13 @@ else() # ! MSVC
 		# a big nuisance because the warning is dormant and a low
 		# priority target for action. That is very disruptive
 		# with -Werror enabled (the default on the master branch).
+		# XXX Now that we have a CI job with Release build type (using
+		# -O3 optimization level) the dormancy issue should be ameliorated
+		# so comment out these exceptions to re-evaluate the impact.
 		#
-		-Wno-error=maybe-uninitialized
-		-Wno-error=alloc-size-larger-than=
-		-Wno-error=stringop-overflow=
+		#-Wno-error=maybe-uninitialized
+		#-Wno-error=alloc-size-larger-than=
+		#-Wno-error=stringop-overflow=
 		#
 		# Converting from g_printf() and g_snprintf() to stdio.h turns
 		# up many of these warnings. They will have to be handled later.
