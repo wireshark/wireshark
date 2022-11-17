@@ -16034,7 +16034,7 @@ void QCustomPlot::legendRemoved(QCPLegend *legend)
 
   Then, the actual selection is done by calling the plottables' \ref
   QCPAbstractPlottable::selectEvent, placing the found selected data points in the \a details
-  parameter as <tt>QVariant(\ref QCPDataSelection)</tt>. All plottables that weren't touched by \a
+  parameter as <tt>QVariant(QCPDataSelection)</tt>. All plottables that weren't touched by \a
   rect receive a \ref QCPAbstractPlottable::deselectEvent.
 
   \see processRectZoom
@@ -27907,7 +27907,7 @@ QRectF QCPFinancial::selectionHitBox(QCPFinancialDataContainer::const_iterator i
   position
 
   The container for storing the error bar information is \ref QCPErrorBarsDataContainer. It is a
-  typedef for <tt>QVector<\ref QCPErrorBarsData></tt>.
+  typedef for <tt>QVector<QCPErrorBarsData></tt>.
 
   \see QCPErrorBarsDataContainer
 */

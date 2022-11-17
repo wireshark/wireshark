@@ -6304,8 +6304,8 @@ Q_DECLARE_TYPEINFO(QCPErrorBarsData, Q_PRIMITIVE_TYPE);
 
 /*! \typedef QCPErrorBarsDataContainer
 
-  Container for storing \ref QCPErrorBarsData points. It is a typedef for <tt>QVector<\ref
-  QCPErrorBarsData></tt>.
+  Container for storing \ref QCPErrorBarsData points. It is a typedef for
+  <tt>QVector<QCPErrorBarsData></tt>.
 
   This is the container in which \ref QCPErrorBars holds its data. Unlike most other data
   containers for plottables, it is not based on \ref QCPDataContainer. This is because the error
