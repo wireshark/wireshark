@@ -95,7 +95,7 @@ static int list_config(char* interface)
     printf("arg {number=%u}{call=--etlfile}{display=etl file}"
         "{type=fileselect}{tooltip=Select etl file to display in Wireshark}{required=false}{group=Capture}\n",
         inc++);
-    printf("arg {number=%u}{call=--params}{display=filter parmeters}"
+    printf("arg {number=%u}{call=--params}{display=filter parameters}"
         "{type=string}{tooltip=Input providers, keyword and level filters for the etl file and live session}{group=Capture}\n",
         inc++);
     /*
