@@ -139,10 +139,7 @@ static const value_string company_pid_vals[] = {
  * ########################################################################
  */
 
-static void add_split_lines(packet_info *pinfo, tvbuff_t *tvb, int tvb_offset, proto_tree *tree, int hf, gboolean line_numbers) {
-
-	char *line;
-	int line_nr = 1;
+static void add_split_lines(packet_info *pinfo, tvbuff_t *tvb, int tvb_offset, proto_tree *tree, int hf) {
 	int offset = tvb_offset;
 	int next_offset;
 	int len;
@@ -152,12 +149,7 @@ static void add_split_lines(packet_info *pinfo, tvbuff_t *tvb, int tvb_offset, p
 			break;
 		}
 
-		if (line_numbers) {
-			line = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_UTF_8);
-			proto_tree_add_string_format_value(tree, hf, tvb, offset, len, line, " %2d:%s", line_nr++, line);
-		} else {
-			proto_tree_add_item(tree, hf, tvb, offset, len, ENC_UTF_8);
-		}
+		proto_tree_add_item(tree, hf, tvb, offset, len, ENC_UTF_8);
 		offset = next_offset;
 	}
 }
@@ -264,7 +256,7 @@ static int dissect_calibration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		/* Name - Lines */
 		proto_tree *name_item_subtree = proto_item_add_subtree(name_item, hst_calibration_lines);
-		add_split_lines(pinfo, tvb, tvb_offset, name_item_subtree, hf_calibration_name_line, FALSE);
+		add_split_lines(pinfo, tvb, tvb_offset, name_item_subtree, hf_calibration_name_line);
 	} else {
 		/* Chunk Packet */
 
@@ -274,7 +266,7 @@ static int dissect_calibration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		/* Chunk - Lines */
 		proto_tree *chunk_item_subtree = proto_item_add_subtree(chunk_item, hst_calibration_lines);
-		add_split_lines(pinfo, tvb, tvb_offset, chunk_item_subtree, hf_calibration_chunk_line, FALSE);
+		add_split_lines(pinfo, tvb, tvb_offset, chunk_item_subtree, hf_calibration_chunk_line);
 	}
 
 	return tvb_captured_length(tvb);
@@ -321,7 +313,7 @@ static int dissect_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 	/* Contents - Lines */
 	proto_tree *contents_item_subtree = proto_item_add_subtree(contents_item, hst_ident_lines);
-	add_split_lines(pinfo, tvb, 0, contents_item_subtree, hf_ident_contents_line, FALSE);
+	add_split_lines(pinfo, tvb, 0, contents_item_subtree, hf_ident_contents_line);
 
 	return tvb_captured_length(tvb);
 }
