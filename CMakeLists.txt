@@ -616,19 +616,6 @@ else() # ! MSVC
 		endif()
 	endif()
 
-	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-			# avoid "argument unused during compilation" warnings
-			# (for example, when getting the -gsplit-dwarf option or
-			# when combining -fwrapv with -fno-strict-overflow)
-			-Qunused-arguments
-		)
-	else()
-		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
-			-fexcess-precision=fast
-		)
-	endif()
-
 	list(APPEND WIRESHARK_COMMON_FLAGS
 		# The following are for C and C++
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
@@ -636,8 +623,8 @@ else() # ! MSVC
 		-Wextra
 		-Wpointer-arith
 		-Wformat-security
-		-fwrapv
 		-fno-strict-overflow
+		-fexcess-precision=fast	# GCC-only
 		-Wvla
 		-Wattributes
 		-Wpragmas		# Clang-only
