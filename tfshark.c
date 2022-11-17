@@ -2014,11 +2014,8 @@ write_finale(void)
 }
 
 cf_status_t
-cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err _U_)
 {
-    gchar *err_info;
-    char   err_msg[2048+1];
-
     /* The open isn't implemented yet.  Fill in the information for this file. */
 
     /* Create new epan session for dissection. */
@@ -2055,10 +2052,14 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
     return CF_OK;
 
 /* fail: */
+/*
+    gchar *err_info;
+    char   err_msg[2048+1];
     snprintf(err_msg, sizeof err_msg,
             cf_open_error_message(*err, err_info, FALSE, cf->cd_t), fname);
     cmdarg_err("%s", err_msg);
     return CF_ERROR;
+*/
 }
 
 static void
@@ -2085,7 +2086,7 @@ show_print_file_io_error(int err)
     }
 }
 
-static const char *
+static const char * _U_
 cf_open_error_message(int err, gchar *err_info _U_, gboolean for_writing,
         int file_type _U_)
 {

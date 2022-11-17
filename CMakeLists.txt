@@ -3711,6 +3711,7 @@ set(CLEAN_C_FILES
 	${dumpcap_FILES}
 	${wireshark_FILES}
 	${tshark_FILES}
+	${tfshark_FILES}
 	${rawshark_FILES}
 	${dftest_FILES}
 	${randpkt_FILES}
