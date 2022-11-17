@@ -142,14 +142,14 @@ static const value_string company_pid_vals[] = {
 static void add_split_lines(packet_info *pinfo, tvbuff_t *tvb, int tvb_offset, proto_tree *tree, int hf) {
 	int offset = tvb_offset;
 	int next_offset;
-	int len;
 	while (tvb_offset_exists(tvb, offset)) {
-		len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		int len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 		if (len == -1) {
 			break;
 		}
 
-		proto_tree_add_item(tree, hf, tvb, offset, len, ENC_UTF_8);
+		char *line = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_UTF_8);
+		proto_tree_add_string_format_value(tree, hf, tvb, offset, (next_offset - offset), line, "%s", line);
 		offset = next_offset;
 	}
 }
