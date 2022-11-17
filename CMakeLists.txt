@@ -647,6 +647,7 @@ else() # ! MSVC
 		-Wredundant-decls
 		-Wunreachable-code	# Clang-only
 		-Wdocumentation		# Clang-only
+		-Wlogical-op		# GCC-only
 		#
 		# Disable errors unconditionally for some static analysis warnings
 		# that are dormant at lower optimizations levels and also
@@ -702,13 +703,6 @@ else() # ! MSVC
 		-Wshadow
 		-Wold-style-definition
 		-Wstrict-prototypes
-		#
-		# Some versions of GCC, such as 4.3.2 and 4.4.5,
-		# generate logical-op warnings when strchr() is given a
-		# constant string.  The autoconf script checked for that;
-		# we don't.
-		#
-		-Wlogical-op
 		-Wjump-misses-init
 	)
 
