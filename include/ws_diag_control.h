@@ -182,6 +182,8 @@ extern "C" {
    *   -Wsigned-compare warnings
    *   -Wshorten-64-to-32 warnings, if the compiler *has* -Wshorten-64-to-32
    *   -Wunreachable-code warnings
+   * The version of Flex in the macOS Intel build bots triggers documentation warnings.
+   *   -Wdocumentation
    *
    * We use DIAG_OFF() and DIAG_ON(), so we only use features that the
    * compiler supports.
@@ -199,8 +201,10 @@ extern "C" {
     #define DIAG_OFF_FLEX \
       DIAG_OFF(sign-compare) \
       DIAG_OFF(shorten-64-to-32) \
-      DIAG_OFF(unreachable-code)
+      DIAG_OFF(unreachable-code) \
+      DIAG_OFF(documentation)
     #define DIAG_ON_FLEX \
+      DIAG_ON(documentation)    \
       DIAG_ON(unreachable-code) \
       DIAG_ON(shorten-64-to-32) \
       DIAG_ON(sign-compare)
