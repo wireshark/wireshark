@@ -194,7 +194,7 @@ static guint pref_ru_port_id_bits = 4;
 static guint pref_sample_bit_width_uplink = 14;
 static guint pref_sample_bit_width_downlink = 14;
 
-
+/* Compression schemes */
 #define COMP_NONE                  0
 #define COMP_BLOCK_FP              1
 #define COMP_BLOCK_SCALE           2
@@ -299,18 +299,18 @@ static const range_string section_types_short[] = {
 };
 
 static const range_string ud_comp_header_width[] = {
-    {0, 0, "I and Q are each 16 bits wide"},
+    {0, 0,  "I and Q are each 16 bits wide"},
     {1, 15, "Bit width of I and Q"},
     {0, 0, NULL} };
 
 static const range_string ud_comp_header_meth[] = {
-    {0, 0, "No compression" },
-    {1, 1, "Block floating point compression" },
-    {2, 2, "Block scaling" },
-    {3, 3, "Mu - law" },
-    {4, 4, "Modulation compression" },
-    {5, 5, "BFP + selective RE sending" },
-    {6, 6, "mod-compr + selective RE sending" },
+    {COMP_NONE,                  COMP_NONE,                  "No compression" },
+    {COMP_BLOCK_FP,              COMP_BLOCK_FP,              "Block floating point compression" },
+    {COMP_BLOCK_SCALE,           COMP_BLOCK_SCALE,           "Block scaling" },
+    {COMP_U_LAW,                 COMP_U_LAW,                 "Mu - law" },
+    {COMP_MODULATION,            COMP_MODULATION,            "Modulation compression" },
+    {BFP_AND_SELECTIVE_RE,       BFP_AND_SELECTIVE_RE,       "BFP + selective RE sending" },
+    {MOD_COMPR_AND_SELECTIVE_RE, MOD_COMPR_AND_SELECTIVE_RE, "mod-compr + selective RE sending" },
     {7, 15, "Reserved"},
     {0, 0, NULL}
 };
@@ -533,7 +533,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name)
     proto_item_set_generated(pi);
 }
 
-/* 3.1.3.1.6 (message identfier) */
+/* 3.1.3.1.6 (message series identfier) */
 static void
 addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, gint *offset)
 {
@@ -1392,7 +1392,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     return offset;
 }
 
-static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, guint *bit_width)
+static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset,
+                             guint *bit_width, guint *comp_meth)
 {
     /* Subtree */
     proto_item *udcomphdr_ti = proto_tree_add_string_format(tree, hf_oran_udCompHdr,
@@ -1409,6 +1410,9 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     /* udCompMeth */
     guint32 ud_comp_meth;
     proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA, &ud_comp_meth);
+    if (comp_meth) {
+        *comp_meth = ud_comp_meth;
+    }
     offset += 1;
 
     /* Summary */
@@ -1512,7 +1516,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case SEC_C_NORMAL:      /* Section Type "1" */
         case SEC_C_UE_SCHED:    /* Section Type "5" */
             /* udCompHdr */
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width);
+            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width, NULL);
             /* reserved */
             proto_tree_add_item(section_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -1533,7 +1537,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item(section_tree, hf_oran_cpLength, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             /* udCompHdr */
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width);
+            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width, NULL);
             break;
 
         case SEC_C_CH_INFO:
@@ -1573,7 +1577,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return tvb_captured_length(tvb);
 }
 
-/* User plane dissector */
+/* User plane dissector (6.3.2) */
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1648,13 +1652,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         return offset;
     }
 
-    guint nBytesForSamples = (sample_bit_width * 12 * 2) / 8;
-    guint nBytesPerPrb = nBytesForSamples;
-    if (compression != COMP_NONE)
-        nBytesPerPrb++;         /* 1 extra byte reserved/exponent */
     guint bytesLeft;
 
     guint number_of_sections = 0;
+    guint nBytesPerPrb;
+
     do {
         proto_item *sectionHeading;
         proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 2, ett_oran_u_section, &sectionHeading, "Section");
@@ -1681,15 +1683,22 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (includeUdCompHeader) {
             /* 5.4.4.10.  Described in 6.3.3.13 */
-            /* TODO: extract these values to inform how wide IQ samples in each PRB will be? */
-            /* TODO: should this be setting sample_bit_width ?? */
-            guint bit_width;
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width);
+            /* Extract these values to inform how wide IQ samples in each PRB will be? */
+            /* TODO: should be setting compression here as well? */
+            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &sample_bit_width, &compression);
 
             /* Not part of udCompHdr */
             proto_tree_add_item(section_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
+
+        /* Work this out each time, as udCompHdr may have changed things */
+        guint nBytesForSamples = (sample_bit_width * 12 * 2) / 8;
+        nBytesPerPrb = nBytesForSamples;
+        if ((compression != COMP_NONE) && (compression != COMP_MODULATION)) {
+            nBytesPerPrb++;         /* 1 extra byte reserved/exponent */
+        }
+
 
         write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu);
 
@@ -1704,7 +1713,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_item *prbHeading;
             proto_tree *rb_tree = proto_tree_add_subtree(section_tree, tvb, offset, nBytesPerPrb, ett_oran_u_prb, &prbHeading, "PRB");
             guint32 exponent = 0;
-            if (compression != COMP_NONE) {
+            if ((compression != COMP_NONE) && (compression != COMP_MODULATION)) {
                 proto_tree_add_item(rb_tree, hf_oran_rsvd4, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item_ret_uint(rb_tree, hf_oran_exponent, tvb, offset, 1, ENC_BIG_ENDIAN, &exponent);
                 offset += 1;
