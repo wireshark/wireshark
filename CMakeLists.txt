@@ -15,15 +15,8 @@ if(DEFINED ENV{FORCE_CMAKE_NINJA_NON_VERBOSE})
 	unset(CMAKE_VERBOSE_MAKEFILE CACHE)
 endif()
 
-if(WIN32)
-	# Needed for add_custom_command() WORKING_DIRECTORY generator expressions
-	cmake_minimum_required(VERSION 3.13)
-else()
-	cmake_minimum_required(VERSION 3.10)
-endif()
-if(POLICY CMP0074)
-	cmake_policy(SET CMP0074 NEW)
-endif()
+# Needed for add_custom_command() WORKING_DIRECTORY generator expressions
+cmake_minimum_required(VERSION 3.13)
 if(POLICY CMP0083)
 	cmake_policy(SET CMP0083 NEW)
 endif()
@@ -1142,18 +1135,10 @@ find_package(LEX REQUIRED)
 find_package(Perl)
 find_package(PCRE2 REQUIRED)
 
-if(CMAKE_VERSION VERSION_LESS "3.12")
-	# Locate the Python interpreter. Finds the wrong (Python 2) version if:
-	# - PATH contains python3.6, but not python3 (3.4). Affects RHEL7+EPEL.
-	# - Path contains C:\Python27 but not C:\Python37 (which is installed,
-	#   but not present in PATH).
-	find_package(PythonInterp 3.6 REQUIRED)
-else()
-	find_package(Python3 3.6 REQUIRED)
-	# Several files (including LocatePythonModule) still use the old name
-	# from FindPythonInterp, let's stick to it for now.
-	set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-endif()
+find_package(Python3 3.6 REQUIRED)
+# Several files (including LocatePythonModule) still use the old name
+# from FindPythonInterp, let's stick to it for now.
+set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
 
 if (NOT WIN32)
 	find_package(Gettext)
