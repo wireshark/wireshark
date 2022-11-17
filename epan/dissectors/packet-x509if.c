@@ -955,7 +955,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   const char *fmt;
 
   dn_one_rdn = FALSE; /* reset */
-  last_dn_buf = wmem_strbuf_new(actx->pinfo->pool, 0);
+  last_dn_buf = wmem_strbuf_new(actx->pinfo->pool, "");
   top_of_dn = NULL;
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
