@@ -71,7 +71,7 @@ add_lex_files(LEX_FILES UI_SRC
 )
 
 set_source_files_properties(
-	${UI_SRC}
+	${NONGENERATED_UI_SRC}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )

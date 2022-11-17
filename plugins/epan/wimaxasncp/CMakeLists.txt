@@ -26,7 +26,7 @@ add_lex_files(LEX_FILES PLUGIN_FILES
 )
 
 set_source_files_properties(
-	${PLUGIN_FILES}
+	${DISSECTOR_SRC}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )

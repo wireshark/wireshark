@@ -160,7 +160,7 @@ add_custom_command(
 # All files are warning-clean.  (Let's keep it that way.)
 #
 set_source_files_properties(
-	${WIRETAP_FILES}
+	${WIRETAP_NONGENERATED_C_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
