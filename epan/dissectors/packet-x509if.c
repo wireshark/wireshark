@@ -2092,7 +2092,7 @@ static int dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 const char * x509if_get_last_dn(void)
 {
-  return wmem_strbuf_get_str(last_dn_buf);
+  return last_dn_buf ? wmem_strbuf_get_str(last_dn_buf) : NULL;
 }
 
 gboolean x509if_register_fmt(int hf_index, const gchar *fmt)

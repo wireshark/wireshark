@@ -73,7 +73,7 @@ x509if_frame_end(void)
 
 const char * x509if_get_last_dn(void)
 {
-  return wmem_strbuf_get_str(last_dn_buf);
+  return last_dn_buf ? wmem_strbuf_get_str(last_dn_buf) : NULL;
 }
 
 gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
