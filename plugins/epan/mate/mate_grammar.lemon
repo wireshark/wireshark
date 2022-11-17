@@ -26,6 +26,9 @@
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 
+/* Generated lemon code warns on this. */
+DIAG_OFF(unreachable-code)
+
 #define DUMMY void*
 
 typedef struct _extraction {

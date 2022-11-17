@@ -18,8 +18,12 @@
 #include <stdio.h>
 #include <glib.h>
 #include <assert.h>
+#include <ws_diag_control.h>
 #include "dtd.h"
 #include "dtd_parse.h"
+
+/* Generated lemon code warns on this. */
+DIAG_OFF(unreachable-code)
 
 static dtd_named_list_t* dtd_named_list_new(gchar* name, GPtrArray* list) {
 	dtd_named_list_t* nl = g_new(dtd_named_list_t,1);

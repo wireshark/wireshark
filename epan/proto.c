@@ -8668,7 +8668,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
-					wmem_free(NULL, tmp_str);
+					//wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->display & BASE_UNIT_STRING) {
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is a character value (%s) but has a unit string",
@@ -8698,7 +8698,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
-					wmem_free(NULL, tmp_str);
+					//wmem_free(NULL, tmp_str);
 			}
 			/* FALL THROUGH */
 		case FT_UINT8:
@@ -8792,7 +8792,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
-					wmem_free(NULL, tmp_str);
+					//wmem_free(NULL, tmp_str);
 			}
 			break;
 		case FT_BYTES:
@@ -8811,7 +8811,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE",
 						hfinfo->name, hfinfo->abbrev, tmp_str);
-					wmem_free(NULL, tmp_str);
+					//wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->bitmask != 0)
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a bitmask",
@@ -8831,7 +8831,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type), tmp_str);
-				wmem_free(NULL, tmp_str);
+				//wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->bitmask != 0)
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a bitmask",
@@ -8850,7 +8850,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time",
 					hfinfo->name, hfinfo->abbrev, ftype_name(hfinfo->type), tmp_str);
-				wmem_free(NULL, tmp_str);
+				//wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->bitmask != 0)
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a bitmask",
@@ -8874,7 +8874,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
-					wmem_free(NULL, tmp_str);
+					//wmem_free(NULL, tmp_str);
 			}
 
 			if (hfinfo->bitmask != 0)
@@ -8899,7 +8899,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
-					wmem_free(NULL, tmp_str);
+					//wmem_free(NULL, tmp_str);
 					break;
 			}
 			break;
@@ -8918,7 +8918,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
-					wmem_free(NULL, tmp_str);
+					//wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->bitmask != 0)
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a bitmask",
@@ -8936,7 +8936,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type),
 					tmp_str);
-				wmem_free(NULL, tmp_str);
+				//wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->bitmask != 0)
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but has a bitmask",

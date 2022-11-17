@@ -62,9 +62,9 @@ fill_named_table(gpointer key, gpointer value _U_, gpointer user_data)
             }
             html_table->append(QString("<th>%1</th>").arg(title));
         }
+title_done:
         html_table->append("</tr>\n");
     }
-title_done:
 
     html_table->append("<tr>");
 

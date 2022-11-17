@@ -24,10 +24,14 @@
 #include <stdarg.h>
 #include <glib.h>
 #include <assert.h>
+#include <ws_diag_control.h>
 #include <wsutil/file_util.h>
 #include "protobuf_lang_tree.h"
 #include "protobuf_lang_parser.h"
 #include "protobuf_lang_scanner_lex.h"
+
+/* Generated lemon code warns on this. */
+DIAG_OFF(unreachable-code)
 
 #define NAME_TO_BE_SET "<NAME_TO_BE_SET>"
 #define NEED_NOT_NAME "<NEED_NOT_NAME>"

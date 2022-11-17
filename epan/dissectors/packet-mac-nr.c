@@ -1308,10 +1308,10 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
                                          "(RAPID=%u TA=%u Temp C-RNTI=%u) ", rapid, ta, c_rnti);
             }
-            else {
-                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                         "(RAPID=%u) ", rapid);
-            }
+            //else {
+            //    write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
+            //                             "(RAPID=%u) ", rapid);
+            //}
         }
         /* Set subheader (+subpdu..) length */
         proto_item_set_end(subheader_ti, tvb, offset);

@@ -2134,10 +2134,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
           if (err)
           {
+            gcry_cipher_close(*cipher_hd);
             REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s, Mode %d, gcry_cipher_decrypt failed: %s\n",
                                  gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gcry_strerror(err));
-            gcry_cipher_close(*cipher_hd);
-            decrypt_ok = FALSE;
           }
           else
           {

@@ -140,6 +140,9 @@ static void AscendParserFree(void *p, void (*freeProc)(void*));
 #define ascend_debug(...)
 #endif
 
+/* Generated lemon code warns on this. */
+DIAG_OFF(unreachable-code)
+
 } // %include
 
 %name AscendParser

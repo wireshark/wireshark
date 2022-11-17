@@ -645,6 +645,8 @@ else() # ! MSVC
 		-Wcomma			# Clang-only
 		-Wshorten-64-to-32	# Clang-only
 		-Wredundant-decls
+		-Wunreachable-code	# Clang-only
+		-Wdocumentation		# Clang-only
 		#
 		# Disable errors unconditionally for some static analysis warnings
 		# that are dormant at lower optimizations levels and also
@@ -771,18 +773,13 @@ else() # ! MSVC
 			#
 			-Wcast-align
 			#
-			# Works only with Clang
+			# Doesn't warn of interesting issues. Usually the
+			# duplicated branches are protocol constants that
+			# happen to be equal and are relevant for documentation
+			# and readability and are trivially optimized by the
+			# compiler.
 			#
-			-Wunreachable-code
-			#
-			# Works only with Clang but generates a lot of warnings
-			# (about glib library not using Doxygen)
-			#
-			-Wdocumentation
-			#
-			# Works only with GCC 7
-			#
-			-Wduplicated-branches
+			-Wduplicated-branches		# GCC-only
 			#
 			# No longer supported by El Capitan clang on C++
 			# XXX - is this one of those where CMake's check

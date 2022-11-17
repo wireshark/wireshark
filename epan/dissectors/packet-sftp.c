@@ -484,7 +484,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         return offset;
 }
 
-static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo,
+static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo _U_,
         int offset, proto_item *msg_type_tree)
 {
         wmem_strbuf_t *title = wmem_strbuf_new(wmem_packet_scope(), "SFTP attributes");
@@ -527,8 +527,6 @@ static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo,
         proto_item_set_len(sftp_attrs_tree, offset - offset0);
 
         return offset - offset0;
-
-(void)pinfo;
 }
 
 void
