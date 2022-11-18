@@ -2523,9 +2523,17 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
     guint8 *apn = NULL;
-    int     name_len, tmp;
+    int     name_len;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_ssm, ett_mip6_opt_ssm, &ti, option_len, MIP6_SSM_MINLEN);
+    /* RFC 5149 3. Service Selection Mobility Option
+     * Identifier: A variable-length encoded service identifier string
+     * used to identify the requested service.  The identifier string
+     * length is between 1 and 255 octets.  This specification allows
+     * international identifier strings that are based on the use of
+     * Unicode characters, encoded as UTF-8, and formatted using
+     * Normalization Form KC (NFKC).
+     */
 
     /* 3GPP TS 29.275 version 10.5.0 Release 10, Table 5.1.1.1-2
      * Set to the EPS Access Point Name to which the UE
@@ -2543,18 +2551,18 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if (option_len > 0) {
         name_len = tvb_get_guint8(tvb, offset);
 
+        /* As can be seen above, RFC 5149 "allows" the use of UTF-8 encoded
+         * strings, but the 3GPP chose to encode as other APN fields,
+         * similar to RFC 1035 DNS labels (but without pointer compression).
+         * As a heuristic, if the first byte is less than 0x20, interpret
+         * it as a length (rather than a control code) and use APN encoding,
+         * otherwise interpret as a string.
+         */
         if (name_len < 0x20) {
-            apn = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, option_len - 1, ENC_ASCII);
-            for (;;) {
-                if (name_len >= option_len - 1)
-                    break;
-                tmp = name_len;
-                name_len = name_len + apn[tmp] + 1;
-                apn[tmp] = '.';
-            }
+            apn = tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_APN_STR);
         }
         else {
-            apn = tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_ASCII);
+            apn = tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_UTF_8);
         }
         proto_tree_add_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, option_len, apn);
     }
