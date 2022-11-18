@@ -5456,7 +5456,7 @@ void QCPLineEnding::draw(QCPPainter *painter, const QCPVector2D &pos, double ang
 //////////////////// QCPLabelPainterPrivate
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*! \class QCPLabelPainterPrivate
+/*! QCPLabelPainterPrivate
 
   \internal
   \brief (Private)
@@ -15209,7 +15209,6 @@ void QCustomPlot::rescaleAxes(bool onlyVisiblePlottables)
 
   Returns true on success.
 
-  \warning
   \li If you plan on editing the exported PDF file with a vector graphics editor like Inkscape, it
   is advised to set \a exportPen to \ref QCP::epNoCosmetic to avoid losing those cosmetic lines
   (which might be quite many, because cosmetic pens are the default for e.g. axes and tick marks).
@@ -34347,7 +34346,7 @@ void QCPPolarGrid::drawAngularGrid(QCPPainter *painter, const QPointF &center, d
 //////////////////// QCPPolarLegendItem
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*! \class QCPPolarLegendItem
+/*! QCPPolarLegendItem
   \brief A legend item for polar plots
 
   \warning In this QCustomPlot version, polar plots are a tech preview. Expect documentation and
@@ -34930,7 +34929,7 @@ double QCPPolarGraph::selectTest(const QPointF &pos, bool onlySelectable, QVaria
     double result = pointDistance(pos, closestDataPoint);
     if (details)
     {
-      int pointIndex = closestDataPoint-mDataContainer->constBegin();
+      int pointIndex = int(closestDataPoint-mDataContainer->constBegin());
       details->setValue(QCPDataSelection(QCPDataRange(pointIndex, pointIndex+1)));
     }
     return result;
