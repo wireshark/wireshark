@@ -288,6 +288,24 @@ WS_DLL_PUBLIC
 char *format_text_chr(wmem_allocator_t *allocator,
                         const char *string, size_t len, char chr);
 
+/** Given a wmem scope and an 8-bit character
+ *  generate a valid UTF-8 string from it, allocated in the specified
+ *  wmem scope, that:
+ *
+ *   shows printable Unicode characters as themselves;
+ *
+ *   shows non-printable ASCII characters as C-style escapes (hex
+ *   if not one of the standard ones such as LF -> '\n');
+ *
+ *  and return a pointer to it.
+ *
+ * @param allocator The wmem scope
+ * @param c A character to format
+ * @return A pointer to the formatted string
+ */
+WS_DLL_PUBLIC
+char *format_char(wmem_allocator_t *allocator, char c);
+
 /**
  * Truncate a UTF-8 string in place so that it is no larger than len bytes,
  * ensuring that the string is null terminated and ends with a complete

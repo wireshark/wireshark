@@ -1028,6 +1028,34 @@ format_text_chr(wmem_allocator_t *allocator, const char *string, size_t len, cha
     return wmem_strbuf_finalize(buf);
 }
 
+char *
+format_char(wmem_allocator_t *allocator, char c)
+{
+    char *buf;
+    char r;
+
+    if (g_ascii_isprint(c)) {
+        buf = wmem_alloc_array(allocator, char, 2);
+        buf[0] = c;
+        buf[1] = '\0';
+        return buf;
+    }
+    if (escape_char(c, &r)) {
+        buf = wmem_alloc_array(allocator, char, 3);
+        buf[0] = '\\';
+        buf[1] = r;
+        buf[2] = '\0';
+        return buf;
+    }
+    buf = wmem_alloc_array(allocator, char, 5);
+    buf[0] = '\\';
+    buf[1] = 'x';
+    buf[2] = hex[((uint8_t)c >> 4) & 0xF];
+    buf[3] = hex[((uint8_t)c >> 0) & 0xF];
+    buf[4] = '\0';
+    return buf;
+}
+
 char*
 ws_utf8_truncate(char *string, size_t len)
 {

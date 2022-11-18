@@ -1853,7 +1853,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
     proto_tree_add_item(packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, ENC_ASCII);
     offset += 10;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " digit %c", csub);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " digit %s", format_char(pinfo->pool, csub));
     break;
 
   case AST_FRAME_CONTROL:
