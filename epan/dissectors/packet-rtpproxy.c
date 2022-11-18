@@ -484,7 +484,7 @@ static void
 rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, guint begin, guint end)
 {
     gint offset = 0;
-    gint tmp = 0;
+    gint tmp;
     gboolean ipv6 = FALSE;
     guint32 ipaddr[4]; /* Enough room for IPv4 or IPv6 */
 

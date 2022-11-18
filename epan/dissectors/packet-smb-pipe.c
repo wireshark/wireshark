@@ -2764,8 +2764,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* ok we have seen this one before */
 
 		/* if it looks like an interim response, update COL_INFO and return */
-		if( ( (p_tvb==NULL) || (tvb_reported_length(p_tvb)==0) )
-		&&  ( (d_tvb==NULL) || (tvb_reported_length(d_tvb)==0) ) ){
+		if( ( tvb_reported_length(p_tvb)==0 )
+		&&  ( tvb_reported_length(d_tvb)==0 ) ){
 			/* command */
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Interim Response",
 					     val_to_str_ext(trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));

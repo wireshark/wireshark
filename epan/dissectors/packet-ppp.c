@@ -5224,7 +5224,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     static guint16  pid;
     tvbuff_t       *next_tvb;
     int             offset       = 0, length_remaining;
-    int             length_field = 0, pid_field = 0, hdr_length = 0;
+    int             length_field, pid_field, hdr_length;
     static int * const subframe_flags[] = {
         &hf_pppmux_flags_pid,
         &hf_pppmux_flags_field_length,
@@ -5990,12 +5990,10 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         col_set_str(pinfo->cinfo, COL_INFO, "PPP Fragment");
         length = offset;
         proto_tree_add_item(bs_tree, hf_ppp_hdlc_fragment, tvb, 0, length, ENC_NA);
-        if (length != 0) {
-            ppp_tvb = remove_escape_chars(tvb, pinfo, 0, length - 1);
-            if (ppp_tvb != NULL) {
-                add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
-                call_data_dissector(ppp_tvb, pinfo, tree);
-            }
+        ppp_tvb = remove_escape_chars(tvb, pinfo, 0, length - 1);
+        if (ppp_tvb != NULL) {
+            add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
+            call_data_dissector(ppp_tvb, pinfo, tree);
         }
     }
     while (tvb_reported_length_remaining(tvb, offset) > 0) {

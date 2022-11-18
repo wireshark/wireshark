@@ -4564,7 +4564,8 @@ static gint dissect_gatt_uuid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
     if (tvb_reported_length_remaining(tvb, offset) == 2) {
         proto_tree_add_item(tree, hf_btatt_uuid16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        sub_uuid = get_bluetooth_uuid(tvb, offset, 2);
+        /* TODO: want to do this and show? */
+        /* sub_uuid = get_bluetooth_uuid(tvb, offset, 2); */
         offset += 2;
     } else if (tvb_reported_length_remaining(tvb, offset) == 16) {
         sub_item = proto_tree_add_item(tree, hf_btatt_uuid128, tvb, offset, 16, ENC_NA);
@@ -10900,7 +10901,7 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
         sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(fragments, key);
         while (1) {
             fragment_data = (sub_wmemtree) ? (fragment_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
-            if (!fragment_data || (fragment_data && fragment_data->offset >= last_offset))
+            if (!fragment_data || (fragment_data->offset >= last_offset))
                 break;
 
             if (first) {

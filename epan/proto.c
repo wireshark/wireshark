@@ -9583,7 +9583,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 static void
 fill_label_boolean(field_info *fi, gchar *label_str)
 {
-	char	*p                    = label_str;
+	char	*p;
 	int      bitfield_byte_length = 0, bitwidth;
 	guint64  unshifted_value;
 	guint64  value;

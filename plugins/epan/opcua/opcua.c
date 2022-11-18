@@ -224,7 +224,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             guint8 chunkType = 0;
             guint32 opcua_seqid = 0;
             guint32 opcua_num = 0;
-            guint32 opcua_seqnum = 0;
+            guint32 opcua_seqnum;
             fragment_head *frag_msg = NULL;
             fragment_item *frag_i = NULL;
 

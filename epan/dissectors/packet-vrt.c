@@ -640,7 +640,7 @@ static int dissect_context(tvbuff_t *tvb, proto_tree *tree, int offset)
 static int dissect_context_as_cif(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t cif,
                                   complex_dissector_t *complex_fptr, int **item_ptr, const int *size_ptr, int stop) {
     for (int i = 31; i > stop; i--) {
-        if (cif & (1 << i)) {
+        if (cif & (1u << i)) {
             if (complex_fptr[i] != NULL) {
                 // a complex dissector returns the variable part of field length (in bytes)
                 offset += (*complex_fptr[i])(tree, tvb, offset);

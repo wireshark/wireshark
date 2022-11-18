@@ -9179,7 +9179,7 @@ add_aura_mask(ptvcursor_t* ptv) {
     ptvcursor_add_ret_uint(ptv, hf_woww_aura_mask, 4, ENC_LITTLE_ENDIAN, &mask);
 
     for (gint i = 0; i < 32; ++i) {
-        if (mask & (1 << i)) {
+        if (mask & (1u << i)) {
           ptvcursor_add(ptv, hf_woww_aura, 4, ENC_LITTLE_ENDIAN);
         }
     }
@@ -9197,7 +9197,7 @@ add_update_mask(ptvcursor_t* ptv) {
 
     for (guint32 mask = 0; mask < amount_of_masks; ++mask) {
         for (guint32 i = 0; i < 32; ++i) {
-            if (masks[mask] & (1 << i)) {
+            if (masks[mask] & (1u << i)) {
               ptvcursor_add(ptv, hf_woww_update_mask_value, 4, ENC_LITTLE_ENDIAN);
             }
         }

@@ -277,7 +277,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
   proto_item *ti;
   proto_tree *link_type_tree;
 
-  guint16     message_size = 0;
+  guint16     message_size;
 
   if (message_end - offset < 4) {
     proto_tree_add_expert_format(olsr_tree, pinfo, &ei_olsr_not_enough_bytes, tvb, offset, message_end - offset,

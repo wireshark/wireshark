@@ -1009,8 +1009,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
             }
 
             /* Check for full packets within this TS frame */
-            if (frag_tot_len &&
-                    frag_tot_len <= remaining_len) {
+            if (frag_tot_len <= remaining_len) {
                 next_tvb = tvb_new_subset_length(tvb, offset, frag_tot_len);
                 mp2t_dissect_packet(next_tvb, pid_analysis->pload_type, pinfo, tree);
                 remaining_len -= frag_tot_len;
@@ -1403,10 +1402,8 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     if (pid_analysis->pload_type == pid_pload_docsis && (afc != 1)) {
         /* DOCSIS packets should not have an adaptation field */
-        if (afc != 1) {
-            expert_add_info_format(pinfo, afci, &ei_mp2t_invalid_afc,
-                    "Adaptation Field Control for DOCSIS packets must be 0x01");
-        }
+        expert_add_info_format(pinfo, afci, &ei_mp2t_invalid_afc,
+                               "Adaptation Field Control for DOCSIS packets must be 0x01");
     }
 
     if (pid_analysis->pload_type == pid_pload_null) {

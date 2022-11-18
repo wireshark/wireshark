@@ -6254,8 +6254,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* Was this a Msg3 that led to a CR answer? */
     if (PINFO_FD_VISITED(pinfo)) {
         if ((p_mac_lte_info->direction == DIRECTION_UPLINK) &&
-            (number_of_headers >= 1) &&
-            (lcids[0] == 0)) {
+            (lcids[0] == 0)) /* N.B. there has to be at least 1 lcid if we got here */ {
 
             guint32 cr_frame = GPOINTER_TO_UINT (g_hash_table_lookup(mac_lte_msg3_cr_hash,
                                                                      GUINT_TO_POINTER(pinfo->num)));

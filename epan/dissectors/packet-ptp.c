@@ -2123,33 +2123,32 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             hf_ptp_controlfield, tvb, PTP_CONTROLFIELD_OFFSET, 1, ENC_BIG_ENDIAN);
 
         /* Subtree for the flag-field */
-        if(tree){
-            flags_ti = proto_tree_add_item(ptp_tree,
-                hf_ptp_flags, tvb, PTP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
+        /* TODO: use proto_tree_add_bitmask_list() ? */
+        flags_ti = proto_tree_add_item(ptp_tree,
+            hf_ptp_flags, tvb, PTP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            ptp_flags_tree = proto_item_add_subtree(flags_ti, ett_ptp_flags);
+        ptp_flags_tree = proto_item_add_subtree(flags_ti, ett_ptp_flags);
 
-            proto_tree_add_item(ptp_flags_tree,
-                hf_ptp_flags_li61, tvb, PTP_FLAGS_LI61_OFFSET, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_flags_li61, tvb, PTP_FLAGS_LI61_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(ptp_flags_tree,
-                hf_ptp_flags_li59, tvb, PTP_FLAGS_LI59_OFFSET, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_flags_li59, tvb, PTP_FLAGS_LI59_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(ptp_flags_tree,
-                hf_ptp_flags_boundary_clock, tvb, PTP_FLAGS_BOUNDARY_CLOCK_OFFSET, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_flags_boundary_clock, tvb, PTP_FLAGS_BOUNDARY_CLOCK_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(ptp_flags_tree,
-                hf_ptp_flags_assist, tvb, PTP_FLAGS_ASSIST_OFFSET, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_flags_assist, tvb, PTP_FLAGS_ASSIST_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(ptp_flags_tree,
-                hf_ptp_flags_ext_sync, tvb, PTP_FLAGS_EXT_SYNC_OFFSET, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_flags_ext_sync, tvb, PTP_FLAGS_EXT_SYNC_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(ptp_flags_tree,
-                hf_ptp_flags_parent, tvb, PTP_FLAGS_PARENT_STATS_OFFSET, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_flags_parent, tvb, PTP_FLAGS_PARENT_STATS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(ptp_flags_tree,
-                hf_ptp_flags_sync_burst, tvb, PTP_FLAGS_SYNC_BURST_OFFSET, 2, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_flags_sync_burst, tvb, PTP_FLAGS_SYNC_BURST_OFFSET, 2, ENC_BIG_ENDIAN);
 
         /* The rest of the ptp-dissector depends on the control-field  */
 
@@ -2979,7 +2978,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                 /* now take only 1/2 of it */
                 frame_info->pdelay.mean_propagation_delay_unscaled.nsecs /= 2;
-                if (frame_info->pdelay.mean_propagation_delay_unscaled.secs % 1 == 1) {
+                if ((frame_info->pdelay.mean_propagation_delay_unscaled.secs % 2) == 1) {
                     frame_info->pdelay.mean_propagation_delay_unscaled.secs -= 1;
                     frame_info->pdelay.mean_propagation_delay_unscaled.nsecs += NS_PER_S / 2;
                 }
