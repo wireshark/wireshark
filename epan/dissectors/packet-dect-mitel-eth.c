@@ -36,6 +36,15 @@ static gint hf_dect_mitel_eth_info_string = -1;
 static gint hf_dect_mitel_eth_pmid = -1;
 static gint hf_dect_mitel_eth_subfield = -1;
 
+static gint hf_dect_mitel_eth_mac_enc_key_req_key = -1;
+static gint hf_dect_mitel_eth_mac_enc_key_req_id = -1;
+
+static gint hf_dect_mitel_eth_mac_enc_eks_ind_type = -1;
+static gint hf_dect_mitel_eth_mac_enc_eks_ind_id = -1;
+static gint hf_dect_mitel_eth_mac_enc_eks_ind_ppn = -1;
+
+static gint hf_dect_mitel_eth_mac_ho_failed_ind_reason = -1;
+
 static gint hf_dect_mitel_eth_mt_item_key = -1;
 static gint hf_dect_mitel_eth_mt_item_length = -1;
 static gint hf_dect_mitel_eth_mt_item_value = -1;
@@ -70,7 +79,7 @@ enum dect_mitel_eth_prim_coding {
 	DECT_MITEL_ETH_MAC_ENC_EKS_IND          = 0x0a,
 	DECT_MITEL_ETH_HO_IN_PROGRESS_IND       = 0x0b,
 	DECT_MITEL_ETH_HO_IN_PROGRESS_RES       = 0x0c,
-	DECT_MITEL_ETH_HO_FAILED_IND            = 0x0d,
+	DECT_MITEL_ETH_MAC_HO_FAILED_IND        = 0x0d,
 	DECT_MITEL_ETH_HO_FAILED_REQ            = 0x0e,
 	DECT_MITEL_ETH_DLC_RFP_ERROR_IND        = 0x14,
 	DECT_MITEL_ETH_MAC_CON_EXT_IND          = 0x15,
@@ -86,6 +95,17 @@ enum dect_mitel_eth_prim_coding {
 	DECT_MITEL_ETH_MAC_CLEAR_DEF_CKEY_REQ   = 0x1f,
 	DECT_MITEL_ETH_MAC_GET_CURR_CKEY_ID_REQ = 0x20,
 	DECT_MITEL_ETH_MAC_GET_CURR_CKEY_ID_CNF = 0x21,
+};
+
+/* MAC_ENC_EKS_IND */
+enum dect_mitel_eth_mac_enc_eks_ind_type_coding {
+	DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED         = 0x01,
+	DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED_WITH_ID = 0x02,
+};
+
+/* MAC_HO_FAILED_IND */
+enum dect_mitel_eth_mac_ho_failed_ind_reason_coding {
+	DECT_MITEL_ETH_MAC_HO_FAILED_IND_REASON_SETUP_FAILED = 0x01,
 };
 
 static const value_string dect_mitel_eth_layer_val[] = {
@@ -109,7 +129,7 @@ static const value_string dect_mitel_eth_prim_coding_val[] = {
 	{ DECT_MITEL_ETH_MAC_ENC_EKS_IND,          "MAC_ENC_EKS_IND" },
 	{ DECT_MITEL_ETH_HO_IN_PROGRESS_IND,       "HO_IN_PROGRRESS_IND" },
 	{ DECT_MITEL_ETH_HO_IN_PROGRESS_RES,       "HO_IN_PROGRERSS_RES" },
-	{ DECT_MITEL_ETH_HO_FAILED_IND,            "HO_FAILED_IND" },
+	{ DECT_MITEL_ETH_MAC_HO_FAILED_IND,        "MAC_HO_FAILED_IND" },
 	{ DECT_MITEL_ETH_HO_FAILED_REQ,            "HO_FAILED_REQ" },
 	{ DECT_MITEL_ETH_DLC_RFP_ERROR_IND,        "RFP_ERROR_IND" },
 	{ DECT_MITEL_ETH_MAC_CON_EXT_IND,          "MAC_CON_EXT_IND" },
@@ -133,6 +153,71 @@ static const value_string dect_mitel_eth_subfield_val[] = {
 	{ 0x10, "B1" },
 	{ 0, NULL }
 };
+
+/* MAC_ENC_EKS_IND */
+static const value_string dect_mitel_eth_mac_enc_eks_ind_type_val[] = {
+	{ DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED,         "Encrypted" },
+	{ DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED_WITH_ID, "Encrypted with ID" },
+	{ 0, NULL }
+};
+
+/* MAC_HO_FAILED_IND */
+static const value_string dect_mitel_eth_mac_ho_failed_ind_reason_val[] = {
+	{ DECT_MITEL_ETH_MAC_HO_FAILED_IND_REASON_SETUP_FAILED, "Setup failed" },
+	{ 0, NULL }
+};
+
+/*
+MAC_ENC_KEY_REQ Message
+| Offset | Len | Content   |
+| ------ | --- | --------- |
+|      0 |   8 | Key       |
+|      8 |   1 | (Key?) ID |
+ */
+static guint dissect_dect_mitel_eth_mac_enc_key_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_key_req_key, tvb, offset, 8, ENC_NA);
+	offset += 8;
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_key_req_id, tvb, offset, 1, ENC_NA);
+	offset++;
+	return offset;
+}
+
+/*
+MAC_ENC_EKS_IND Message
+| Offset | Len | Content   | Comment            |
+| ------ | --- | --------- | ------------------ |
+|      0 |   1 | Type      |                    |
+|      1 |   1 | (Key?) ID | if Type == with ID |
+|      2 |   2 | PPN       | if Type == with ID |
+ */
+static guint dissect_dect_mitel_eth_mac_enc_eks_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint8 type;
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_eks_ind_type, tvb, offset, 1, ENC_NA);
+	type = tvb_get_guint8(tvb, offset);
+	offset++;
+	if ( type == DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED_WITH_ID ) {
+		proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_eks_ind_id, tvb, offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_eks_ind_ppn, tvb, offset, 2, ENC_NA);
+		offset += 2;
+	}
+	return offset;
+}
+
+/*
+MAC_HO_FAILED_IND Message
+| Offset | Len | Content |
+| ------ | --- | ------- |
+|      0 |   1 | Reason  |
+ */
+static guint dissect_dect_mitel_eth_mac_ho_failed_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_ho_failed_ind_reason, tvb, offset, 1, ENC_NA);
+	offset++;
+	return offset;
+}
 
 static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -196,6 +281,15 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					payload_len = tvb_get_guint8(tvb, offset);
 					offset++;
 					payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
+					break;
+				case DECT_MITEL_ETH_MAC_ENC_KEY_REQ:
+					offset = dissect_dect_mitel_eth_mac_enc_key_req(tvb, pinfo, tree, data, offset);
+					break;
+				case DECT_MITEL_ETH_MAC_ENC_EKS_IND:
+					offset = dissect_dect_mitel_eth_mac_enc_eks_ind(tvb, pinfo, tree, data, offset);
+					break;
+				case DECT_MITEL_ETH_MAC_HO_FAILED_IND:
+					offset = dissect_dect_mitel_eth_mac_ho_failed_ind(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_CON_IND:
 					pinfo->p2p_dir = P2P_DIR_RECV;
@@ -309,6 +403,39 @@ void proto_register_dect_mitelrfp(void)
 		{ &hf_dect_mitel_eth_subfield,
 			{ "Subfield", "dect_mitel_eth.subfield", FT_UINT8, BASE_HEX,
 				VALS(dect_mitel_eth_subfield_val), 0, NULL, HFILL
+			}
+		},
+		/* MAC_ENC_KEY_REQ */
+		{ &hf_dect_mitel_eth_mac_enc_key_req_key,
+			{ "Key", "dect_mitel_eth.mac.enc_key_req.key", FT_UINT64, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_mac_enc_key_req_id,
+			{ "ID", "dect_mitel_eth.mac.enc_key_req.id", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MAC_ENC_EKS_IND */
+		{ &hf_dect_mitel_eth_mac_enc_eks_ind_type,
+			{ "Type", "dect_mitel_eth.mac.enc_eks_ind.type", FT_UINT8, BASE_HEX,
+				VALS(dect_mitel_eth_mac_enc_eks_ind_type_val), 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_mac_enc_eks_ind_id,
+			{ "ID", "dect_mitel_eth.mac.enc_eks_ind.id", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_mac_enc_eks_ind_ppn,
+			{ "PPN", "dect_mitel_eth.mac.enc_eks_ind.ppn", FT_UINT16, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MAC_HO_FAILED_IND */
+		{ &hf_dect_mitel_eth_mac_ho_failed_ind_reason,
+			{ "Reason", "dect_mitel_eth.mac.ho_failed_ind.reason", FT_UINT8, BASE_HEX,
+				VALS(dect_mitel_eth_mac_ho_failed_ind_reason_val), 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_eth_mt_item_key,
