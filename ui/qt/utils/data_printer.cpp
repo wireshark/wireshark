@@ -47,7 +47,13 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
             clipboard_text += QString("%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
         break;
     case DP_Base64:
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_OFF(stringop-overread)
+#endif
         clipboard_text = printData.toBase64();
+#if WS_IS_AT_LEAST_GNUC_VERSION(12,1)
+DIAG_ON(stringop-overread)
+#endif
         break;
     case DP_EscapedString:
         // Beginning quote
