@@ -39,6 +39,8 @@ static gint hf_dect_mitel_eth_subfield = -1;
 static gint hf_dect_mitel_eth_mac_con_ind_flags = -1;
 static gint hf_dect_mitel_eth_mac_con_ind_flag_handover = -1;
 
+static gint hf_dect_mitel_eth_mac_dis_ind_reason = -1;
+
 static gint hf_dect_mitel_eth_mac_enc_key_req_key = -1;
 static gint hf_dect_mitel_eth_mac_enc_key_req_id = -1;
 
@@ -105,6 +107,13 @@ enum dect_mitel_eth_mac_con_ind_flags_coding {
 	DECT_MITEL_ETH_MAC_CON_IND_FLAG_HANDOVER = 0x02,
 };
 
+/* MAC_DIS_IND */
+enum dect_mitel_eth_mac_dis_ind_reason_coding {
+	DECT_MITEL_ETH_MAC_DIS_IND_REASON_UNSPECIFIED = 0x01,
+	DECT_MITEL_ETH_MAC_DIS_IND_REASON_NORMAL      = 0x02,
+	DECT_MITEL_ETH_MAC_DIS_IND_REASON_ABNORMAL    = 0x03,
+};
+
 /* MAC_ENC_EKS_IND */
 enum dect_mitel_eth_mac_enc_eks_ind_type_coding {
 	DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED         = 0x01,
@@ -162,6 +171,14 @@ static const value_string dect_mitel_eth_subfield_val[] = {
 	{ 0, NULL }
 };
 
+/* MAC_DIS_IND */
+static const value_string dect_mitel_eth_mac_dis_ind_reason_val[] = {
+	{ DECT_MITEL_ETH_MAC_DIS_IND_REASON_UNSPECIFIED, "Unspecified" },
+	{ DECT_MITEL_ETH_MAC_DIS_IND_REASON_NORMAL,      "Normal" },
+	{ DECT_MITEL_ETH_MAC_DIS_IND_REASON_ABNORMAL,    "Abnormal" },
+	{ 0, NULL }
+};
+
 /* MAC_ENC_EKS_IND */
 static const value_string dect_mitel_eth_mac_enc_eks_ind_type_val[] = {
 	{ DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED,         "Encrypted" },
@@ -201,6 +218,29 @@ static guint dissect_dect_mitel_eth_mac_con_ind(tvbuff_t *tvb, packet_info *pinf
 	offset+=3;
 	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_mac_con_ind_flags, ett_dect_mitel_eth, mac_con_ind_flags, ENC_NA);
 	offset++;
+	return offset;
+}
+
+/*
+MAC_DIS_IND Message
+| Offset | Len | Content |
+| ------ | --- | ------- |
+|      0 |   1 | MCEI    |
+|      1 |   1 | Reason  |
+*/
+static guint dissect_dect_mitel_eth_mac_dis_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint8 mcei;
+
+	pinfo->p2p_dir = P2P_DIR_RECV;
+	mcei = tvb_get_guint8(tvb, offset);
+	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_dis_ind_reason, tvb, offset, 1, ENC_NA);
+
 	return offset;
 }
 
@@ -360,16 +400,14 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					offset = dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_REQ:
-				case DECT_MITEL_ETH_MAC_DIS_IND:
-					if(prim_type == DECT_MITEL_ETH_MAC_DIS_REQ) {
-						pinfo->p2p_dir = P2P_DIR_SENT;
-					} else {
-						pinfo->p2p_dir = P2P_DIR_RECV;
-					}
+					pinfo->p2p_dir = P2P_DIR_SENT;
 					mcei = tvb_get_guint8(tvb, offset);
 					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
 					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					break;
+				case DECT_MITEL_ETH_MAC_DIS_IND:
+					offset = dissect_dect_mitel_eth_mac_dis_ind(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_LC_DTR_IND:
 					pinfo->p2p_dir = P2P_DIR_RECV;
@@ -462,6 +500,12 @@ void proto_register_dect_mitelrfp(void)
 		{ &hf_dect_mitel_eth_mac_con_ind_flag_handover,
 			{ "Handover", "dect_mitel_eth.mac_con_ind.flags.handover", FT_BOOLEAN, 8,
 				TFS(&tfs_yes_no), DECT_MITEL_ETH_MAC_CON_IND_FLAG_HANDOVER, NULL, HFILL
+			}
+		},
+		/* MAC_DIS_IND */
+		{ &hf_dect_mitel_eth_mac_dis_ind_reason,
+			{ "Reason", "dect_mitel_eth.mac_dis_ind.reason", FT_UINT8, BASE_HEX,
+				VALS(dect_mitel_eth_mac_dis_ind_reason_val), 0x0, NULL, HFILL
 			}
 		},
 		/* MAC_ENC_KEY_REQ */
