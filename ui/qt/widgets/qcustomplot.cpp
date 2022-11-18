@@ -16732,7 +16732,11 @@ void QCPColorGradient::colorize(const double *data, const QCPRange &range, QRgb 
         if (index < 0)
           index += mLevelCount;
       }
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+      scanLine[i] = mColorBuffer.at(static_cast<int>(index));
+#else
       scanLine[i] = mColorBuffer.at(index);
+#endif
     } else
     {
       switch(mNanHandling)
@@ -16795,10 +16799,18 @@ void QCPColorGradient::colorize(const double *data, const unsigned char *alpha, 
       }
       if (alpha[dataIndexFactor*i] == 255)
       {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        scanLine[i] = mColorBuffer.at(static_cast<int>(index));
+#else
         scanLine[i] = mColorBuffer.at(index);
+#endif
       } else
       {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        const QRgb rgb = mColorBuffer.at(static_cast<int>(index));
+#else
         const QRgb rgb = mColorBuffer.at(index);
+#endif
         const float alphaF = alpha[dataIndexFactor*i]/255.0f;
         scanLine[i] = qRgba(int(qRed(rgb)*alphaF), int(qGreen(rgb)*alphaF), int(qBlue(rgb)*alphaF), int(qAlpha(rgb)*alphaF)); // also multiply r,g,b with alpha, to conform to Format_ARGB32_Premultiplied
       }
