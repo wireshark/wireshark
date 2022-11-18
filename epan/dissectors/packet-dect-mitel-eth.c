@@ -48,6 +48,9 @@ static gint hf_dect_mitel_eth_mac_enc_eks_ind_type = -1;
 static gint hf_dect_mitel_eth_mac_enc_eks_ind_id = -1;
 static gint hf_dect_mitel_eth_mac_enc_eks_ind_ppn = -1;
 
+static gint hf_dect_mitel_eth_mac_ho_in_progress_res_key = -1;
+static gint hf_dect_mitel_eth_mac_ho_in_progress_res_id = -1;
+
 static gint hf_dect_mitel_eth_mac_ho_failed_ind_reason = -1;
 
 static gint hf_dect_mitel_eth_mt_item_key = -1;
@@ -82,8 +85,8 @@ enum dect_mitel_eth_prim_coding {
 	DECT_MITEL_ETH_MAC_PAGE_REQ             = 0x08,
 	DECT_MITEL_ETH_MAC_ENC_KEY_REQ          = 0x09,
 	DECT_MITEL_ETH_MAC_ENC_EKS_IND          = 0x0a,
-	DECT_MITEL_ETH_HO_IN_PROGRESS_IND       = 0x0b,
-	DECT_MITEL_ETH_HO_IN_PROGRESS_RES       = 0x0c,
+	DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND   = 0x0b,
+	DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES   = 0x0c,
 	DECT_MITEL_ETH_MAC_HO_FAILED_IND        = 0x0d,
 	DECT_MITEL_ETH_HO_FAILED_REQ            = 0x0e,
 	DECT_MITEL_ETH_DLC_RFP_ERROR_IND        = 0x14,
@@ -144,8 +147,8 @@ static const value_string dect_mitel_eth_prim_coding_val[] = {
 	{ DECT_MITEL_ETH_MAC_PAGE_REQ,             "MAC_PAGE_REQ" },
 	{ DECT_MITEL_ETH_MAC_ENC_KEY_REQ,          "MAC_ENC_KEY_REQ" },
 	{ DECT_MITEL_ETH_MAC_ENC_EKS_IND,          "MAC_ENC_EKS_IND" },
-	{ DECT_MITEL_ETH_HO_IN_PROGRESS_IND,       "HO_IN_PROGRRESS_IND" },
-	{ DECT_MITEL_ETH_HO_IN_PROGRESS_RES,       "HO_IN_PROGRERSS_RES" },
+	{ DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND,   "MAC_HO_IN_PROGRRESS_IND" },
+	{ DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES,   "MAC_HO_IN_PROGRERSS_RES" },
 	{ DECT_MITEL_ETH_MAC_HO_FAILED_IND,        "MAC_HO_FAILED_IND" },
 	{ DECT_MITEL_ETH_HO_FAILED_REQ,            "HO_FAILED_REQ" },
 	{ DECT_MITEL_ETH_DLC_RFP_ERROR_IND,        "RFP_ERROR_IND" },
@@ -285,6 +288,54 @@ static guint dissect_dect_mitel_eth_mac_enc_eks_ind(tvbuff_t *tvb, packet_info *
 }
 
 /*
+DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND Message
+| Offset | Len | Content               |
+| ------ | --- | --------------------- |
+|      0 |   1 | MCEI                  |
+|      1 |   3 | PMID (in last 20bits) |
+ */
+static guint dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint8 mcei;
+
+	mcei = tvb_get_guint8(tvb, offset);
+	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 3, ENC_NA);
+	offset += 3;
+	return offset;
+}
+
+/*
+DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES Message
+| Offset | Len | Content   |
+| ------ | --- | --------- |
+|      0 |   1 | MCEI      |
+|      2 |   8 | Key       |
+|     11 |   1 | (Key?) ID |
+ */
+static guint dissect_dect_mitel_eth_mac_ho_in_progress_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint8 mcei;
+
+	mcei = tvb_get_guint8(tvb, offset);
+	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_ho_in_progress_res_key, tvb, offset, 8, ENC_NA);
+	offset += 9;
+
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_ho_in_progress_res_id, tvb, offset, 1, ENC_NA);
+	offset++;
+	return offset;
+}
+
+/*
 MAC_HO_FAILED_IND Message
 | Offset | Len | Content |
 | ------ | --- | ------- |
@@ -378,6 +429,12 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					break;
 				case DECT_MITEL_ETH_MAC_ENC_EKS_IND:
 					offset = dissect_dect_mitel_eth_mac_enc_eks_ind(tvb, pinfo, tree, data, offset);
+					break;
+				case DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND:
+					offset = dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvb, pinfo, tree, data, offset);
+					break;
+				case DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES:
+					offset = dissect_dect_mitel_eth_mac_ho_in_progress_res(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_HO_FAILED_IND:
 					offset = dissect_dect_mitel_eth_mac_ho_failed_ind(tvb, pinfo, tree, data, offset);
@@ -532,6 +589,17 @@ void proto_register_dect_mitelrfp(void)
 		},
 		{ &hf_dect_mitel_eth_mac_enc_eks_ind_ppn,
 			{ "PPN", "dect_mitel_eth.mac.enc_eks_ind.ppn", FT_UINT16, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MAC_HO_IN_PROGRESS_RES */
+		{ &hf_dect_mitel_eth_mac_ho_in_progress_res_key,
+			{ "Key", "dect_mitel_eth.mac.ho_in_progress_res.key", FT_UINT64, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_mac_ho_in_progress_res_id,
+			{ "ID", "dect_mitel_eth.mac.ho_in_progress_res.id", FT_UINT8, BASE_HEX,
 				NULL, 0, NULL, HFILL
 			}
 		},
