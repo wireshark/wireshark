@@ -257,6 +257,19 @@ static guint dissect_dect_mitel_eth_mac_ho_failed_ind(tvbuff_t *tvb, packet_info
 	return offset;
 }
 
+/*
+MAC_CLEAR_DEF_CKEY_REQ Message
+| Offset | Len | Content               |
+| ------ | --- | --------------------- |
+|      0 |   3 | PMID (in last 20bits) |
+*/
+static guint dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 3, ENC_BIG_ENDIAN);
+	offset+=3;
+	return offset;
+}
+
 static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint16 mitel_eth_len, payload_len;
@@ -342,6 +355,9 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					offset += 5;
 					proto_tree_add_item(tree, hf_dect_mitel_eth_info_string, tvb, offset,
 								tvb_captured_length_remaining(tvb, offset+9), ENC_ASCII|ENC_NA);
+					break;
+				case DECT_MITEL_ETH_MAC_CLEAR_DEF_CKEY_REQ:
+					offset = dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_REQ:
 				case DECT_MITEL_ETH_MAC_DIS_IND:
