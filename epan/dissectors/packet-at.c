@@ -19,6 +19,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/strutil.h>
 
 #include "packet-e212.h"
 
@@ -2272,9 +2273,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
 
-        name = (char *) wmem_alloc(pinfo->pool, i_char + 2);
-        (void) g_strlcpy(name, at_command, i_char + 1);
-        name[i_char + 1] = '\0';
+        name = format_text(pinfo->pool, at_command, i_char + 1);
 
         if (i_at_cmd && i_at_cmd->name == NULL) {
             proto_item_append_text(command_item, ": %s (Unknown)", name);
