@@ -292,6 +292,7 @@ static int hf_woww_days_since_oldest_ticket_creation = -1;
 static int hf_woww_days_since_ticket_creation = -1;
 static int hf_woww_deadline = -1;
 static int hf_woww_deaths = -1;
+static int hf_woww_debug_log_format = -1;
 static int hf_woww_decompressed_addon_info_size = -1;
 static int hf_woww_delay = -1;
 static int hf_woww_delay_in_seconds = -1;
@@ -14973,17 +14974,17 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_spell_school, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_absorbed_damage, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_resisted, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_periodic_log, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_periodic_log, 1, ENC_NA);
             ptvcursor_add(ptv, hf_woww_unused, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_blocked, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_hit_info, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_extend_flag, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLORDAMAGE_IMMUNE:
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_debug_log_format, 1, ENC_NA);
             break;
         case SMSG_SPELL_COOLDOWN:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -17038,6 +17039,12 @@ proto_register_woww(void)
         { &hf_woww_deaths,
             { "Deaths", "woww.deaths",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_debug_log_format,
+            { "Debug Log Format", "woww.debug.log.format",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
