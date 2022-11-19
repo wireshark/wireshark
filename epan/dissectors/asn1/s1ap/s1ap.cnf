@@ -2686,13 +2686,13 @@ MMEEarlyStatusTransfer                  N s1ap.proc.imsg id-MMEEarlyStatusTransf
 %(DEFAULT_BODY)s
 
 #.FIELD_ATTR
-EUTRAN-CGI/cell-ID ABBREV=CellIdentity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+EUTRAN-CGI/cell-ID ABBREV=CellIdentity TYPE=FT_UINT32 DISPLAY=BASE_HEX BITMASK=0xFFFFFFF0
+
 #.FN_BODY CellIdentity VAL_PTR = &cell_id_tvb HF_INDEX=-1
   tvbuff_t *cell_id_tvb = NULL;
 %(DEFAULT_BODY)s
   if (cell_id_tvb) {
-    guint32 cell_id = tvb_get_bits32(cell_id_tvb, 0, 28, ENC_BIG_ENDIAN);
-    actx->created_item = proto_tree_add_uint(tree, hf_index, cell_id_tvb, 0, 4, cell_id);
+    actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 4, ENC_BIG_ENDIAN);
   }
 #.END
 
