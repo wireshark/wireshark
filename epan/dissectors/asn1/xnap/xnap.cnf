@@ -300,39 +300,38 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
   }
 
 #.FIELD_ATTR
-BPLMN-ID-Info-NR-Item/nr-CI ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX
+BPLMN-ID-Info-NR-Item/nr-CI ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX BITMASK=0xFFFFFFFFF0
 
 #.FIELD_ATTR
-Cell-Type-Choice/ng-ran-nr ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX
+Cell-Type-Choice/ng-ran-nr ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX BITMASK=0xFFFFFFFFF0
 
 #.FIELD_ATTR
-NG-RAN-Cell-Identity/nr ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX
+NG-RAN-Cell-Identity/nr ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX BITMASK=0xFFFFFFFFF0
 
 #.FIELD_ATTR
-NR-CGI/nr-CI ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX
+NR-CGI/nr-CI ABBREV=NR_Cell_Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX BITMASK=0xFFFFFFFFF0
 
 #.FN_BODY NR-Cell-Identity VAL_PTR = &cell_id_tvb HF_INDEX=-1
   tvbuff_t *cell_id_tvb = NULL;
 %(DEFAULT_BODY)s
   if (cell_id_tvb) {
-    guint64 cell_id = tvb_get_bits64(cell_id_tvb, 0, 36, ENC_BIG_ENDIAN);
-    actx->created_item = proto_tree_add_uint64(tree, hf_index, cell_id_tvb, 0, 5, cell_id);
+    actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 5, ENC_BIG_ENDIAN);
   }
 
 #.FIELD_ATTR
-BPLMN-ID-Info-EUTRA-Item/e-utraCI ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+BPLMN-ID-Info-EUTRA-Item/e-utraCI ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX BITMASK=0xFFFFFFF0
 
 #.FIELD_ATTR
-Cell-Type-Choice/ng-ran-e-utra ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+Cell-Type-Choice/ng-ran-e-utra ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX BITMASK=0xFFFFFFF0
 
 #.FIELD_ATTR
-Cell-Type-Choice/e-utran ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+Cell-Type-Choice/e-utran ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX BITMASK=0xFFFFFFF0
 
 #.FIELD_ATTR
-E-UTRA-CGI/e-utra-CI ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+E-UTRA-CGI/e-utra-CI ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX BITMASK=0xFFFFFFF0
 
 #.FIELD_ATTR
-NG-RAN-Cell-Identity/e-utra ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+NG-RAN-Cell-Identity/e-utra ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX BITMASK=0xFFFFFFF0
 
 #.FN_BODY NR-CGI
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
@@ -348,8 +347,7 @@ NG-RAN-Cell-Identity/e-utra ABBREV=E_UTRA_Cell_Identity TYPE=FT_UINT32 DISPLAY=B
   tvbuff_t *cell_id_tvb = NULL;
 %(DEFAULT_BODY)s
   if (cell_id_tvb) {
-    guint32 cell_id = tvb_get_bits32(cell_id_tvb, 0, 28, ENC_BIG_ENDIAN);
-    actx->created_item = proto_tree_add_uint(tree, hf_index, cell_id_tvb, 0, 4, cell_id);
+    actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 4, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY ServedCellInformation-NR/measurementTimingConfiguration VAL_PTR = &param_tvb
