@@ -76,9 +76,11 @@ private:
     StockIconToolButton *apply_button_;
     bool leftAlignActions_;
     QString last_applied_;
+    QString filter_word_preamble_;
+    bool autocomplete_accepts_field_;
 
     void setDefaultPlaceholderText();
-    void buildCompletionList(const QString& field_word);
+    void buildCompletionList(const QString &field_word, const QString &preamble);
 
     void createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText = QString());
 

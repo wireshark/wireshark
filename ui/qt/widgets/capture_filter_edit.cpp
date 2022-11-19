@@ -462,7 +462,7 @@ void CaptureFilterEdit::clearFilter()
     emit textEdited(text());
 }
 
-void CaptureFilterEdit::buildCompletionList(const QString &primitive_word)
+void CaptureFilterEdit::buildCompletionList(const QString &primitive_word, const QString &preamble _U_)
 {
     if (primitive_word.length() < 1) {
         completion_model_->setStringList(QStringList());

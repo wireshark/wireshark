@@ -377,10 +377,9 @@ void SyntaxLineEdit::completionKeyPressEvent(QKeyEvent *event)
         return;
     }
 
-    QPoint token_coords(getTokenUnderCursor());
-
-    QString token_word = text().mid(token_coords.x(), token_coords.y());
-    buildCompletionList(token_word);
+    QStringList sentence(splitLineUnderCursor());
+    Q_ASSERT(sentence.size() == 2);     // (preamble, token)
+    buildCompletionList(sentence[1] /* token */, sentence[0] /* preamble */);
 
     if (completion_model_->stringList().length() < 1) {
         completer_->popup()->hide();
@@ -531,4 +530,20 @@ QPoint SyntaxLineEdit::getTokenUnderCursor()
     }
 
     return QPoint(start, len);
+}
+
+QStringList SyntaxLineEdit::splitLineUnderCursor()
+{
+    QPoint token_coords(getTokenUnderCursor());
+
+    // Split line into preamble and word under cursor.
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QString preamble = text().first(token_coords.x()).trimmed();
+#else
+    QString preamble = text().mid(0, token_coords.x()).trimmed();
+#endif
+    // This should be trimmed already
+    QString token_word = text().mid(token_coords.x(), token_coords.y());
+
+    return QStringList{ preamble, token_word };
 }

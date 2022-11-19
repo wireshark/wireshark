@@ -53,6 +53,7 @@ dfilter_expand(const char *expr, char **err_ret);
  */
 
 #define DF_ERROR_GENERIC		-1
+#define DF_ERROR_UNEXPECTED_END		-2
 
 typedef struct _dfilter_loc {
 	long col_start;

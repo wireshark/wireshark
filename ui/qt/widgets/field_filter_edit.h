@@ -42,7 +42,7 @@ private:
     QString placeholder_text_;
 
     void setDefaultPlaceholderText();
-    void buildCompletionList(const QString& field_word);
+    void buildCompletionList(const QString &field_word, const QString &preamble);
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

@@ -66,7 +66,7 @@ private:
     CaptureFilterSyntaxWorker *syntax_worker_;
     QThread *syntax_thread_;
 
-    void buildCompletionList(const QString& primitive_word);
+    void buildCompletionList(const QString &primitive_word, const QString &preamble);
 
 signals:
     void captureFilterSyntaxChanged(bool valid);

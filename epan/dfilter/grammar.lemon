@@ -65,7 +65,7 @@ DIAG_ON_LEMON()
 any "error" symbols are shifted, if possible. */
 %syntax_error {
     if (!TOKEN) {
-        dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "Unexpected end of filter expression.");
+        dfilter_fail(dfw, DF_ERROR_UNEXPECTED_END, NULL, "Unexpected end of filter expression.");
         return;
     }
     FAIL(dfw, TOKEN, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));

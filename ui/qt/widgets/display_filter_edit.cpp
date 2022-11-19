@@ -71,7 +71,9 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     clear_button_(NULL),
     apply_button_(NULL),
     leftAlignActions_(false),
-    last_applied_(QString())
+    last_applied_(QString()),
+    filter_word_preamble_(QString()),
+    autocomplete_accepts_field_(true)
 {
     setAccessibleName(tr("Display filter entry"));
 
@@ -472,7 +474,7 @@ void DisplayFilterEdit::updateBookmarkMenu()
 // - Recent and saved display filters in popup when editing first word.
 
 // ui/gtk/filter_autocomplete.c:build_autocompletion_list
-void DisplayFilterEdit::buildCompletionList(const QString &field_word)
+void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QString &preamble)
 {
     // Push a hint about the current field.
     if (syntaxState() == Valid) {
@@ -521,33 +523,57 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
     completion_model_->setStringList(complex_list);
     completer()->setCompletionPrefix(field_word);
 
-    void *proto_cookie;
+    // Only add fields to completion if a field is valid at this position.
+    // Try to compile preamble and check error message.
+    if (preamble != filter_word_preamble_) {
+        df_error_t *df_err = NULL;
+        dfilter_t *test_df = NULL;
+        if (preamble.size() > 0) {
+            dfilter_compile_real(qUtf8Printable(preamble), &test_df, &df_err,
+                                            DF_EXPAND_MACROS, __func__);
+        }
+        if (test_df == NULL || (df_err != NULL && df_err->code == DF_ERROR_UNEXPECTED_END)) {
+            // Unexpected end of expression means "expected identifier (field) or literal".
+            autocomplete_accepts_field_ = true;
+        }
+        else {
+            autocomplete_accepts_field_ = false;
+        }
+        dfilter_free(test_df);
+        dfilter_error_free(df_err);
+        filter_word_preamble_ = preamble;
+    }
+
     QStringList field_list;
-    int field_dots = static_cast<int>(field_word.count('.')); // Some protocol names (_ws.expert) contain periods.
-    for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1; proto_id = proto_get_next_protocol(&proto_cookie)) {
-        protocol_t *protocol = find_protocol_by_id(proto_id);
-        if (!proto_is_protocol_enabled(protocol)) continue;
+    if (autocomplete_accepts_field_) {
+        void *proto_cookie;
 
-        const QString pfname = proto_get_protocol_filter_name(proto_id);
-        field_list << pfname;
+        int field_dots = static_cast<int>(field_word.count('.')); // Some protocol names (_ws.expert) contain periods.
+        for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1; proto_id = proto_get_next_protocol(&proto_cookie)) {
+            protocol_t *protocol = find_protocol_by_id(proto_id);
+            if (!proto_is_protocol_enabled(protocol)) continue;
 
-        // Add fields only if we're past the protocol name and only for the
-        // current protocol.
-        if (field_dots > pfname.count('.')) {
-            void *field_cookie;
-            const QByteArray fw_ba = field_word.toUtf8(); // or toLatin1 or toStdString?
-            const char *fw_utf8 = fw_ba.constData();
-            gsize fw_len = (gsize) strlen(fw_utf8);
-            for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
-                if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
+            const QString pfname = proto_get_protocol_filter_name(proto_id);
+            field_list << pfname;
 
-                if (!g_ascii_strncasecmp(fw_utf8, hfinfo->abbrev, fw_len)) {
-                    if ((gsize) strlen(hfinfo->abbrev) != fw_len) field_list << hfinfo->abbrev;
+            // Add fields only if we're past the protocol name and only for the
+            // current protocol.
+            if (field_dots > pfname.count('.')) {
+                void *field_cookie;
+                const QByteArray fw_ba = field_word.toUtf8(); // or toLatin1 or toStdString?
+                const char *fw_utf8 = fw_ba.constData();
+                gsize fw_len = (gsize) strlen(fw_utf8);
+                for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
+                    if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
+
+                    if (!g_ascii_strncasecmp(fw_utf8, hfinfo->abbrev, fw_len)) {
+                        if ((gsize) strlen(hfinfo->abbrev) != fw_len) field_list << hfinfo->abbrev;
+                    }
                 }
             }
         }
+        field_list.sort();
     }
-    field_list.sort();
 
     completion_model_->setStringList(complex_list + field_list);
     completer()->setCompletionPrefix(field_word);

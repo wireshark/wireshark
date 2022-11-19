@@ -125,7 +125,7 @@ void FieldFilterEdit::checkFilter(const QString& filter_text)
 // - Recent and saved display filters in popup when editing first word.
 
 // ui/gtk/filter_autocomplete.c:build_autocompletion_list
-void FieldFilterEdit::buildCompletionList(const QString &field_word)
+void FieldFilterEdit::buildCompletionList(const QString &field_word, const QString &preamble _U_)
 {
     // Push a hint about the current field.
     if (syntaxState() == Valid) {

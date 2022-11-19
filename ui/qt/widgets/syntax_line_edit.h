@@ -60,9 +60,11 @@ protected:
     QStringListModel *completion_model_;
     void setCompletionTokenChars(const QString &token_chars) { token_chars_ = token_chars; }
     bool isComplexFilter(const QString &filter);
-    virtual void buildCompletionList(const QString&) { }
+    virtual void buildCompletionList(const QString &field_word, const QString &preamble) { Q_UNUSED(field_word); Q_UNUSED(preamble); }
     // x = Start position, y = length
     QPoint getTokenUnderCursor();
+    // Returns (preamble, token)
+    QStringList splitLineUnderCursor();
 
     virtual bool event(QEvent *event);
     void completionKeyPressEvent(QKeyEvent *event);
