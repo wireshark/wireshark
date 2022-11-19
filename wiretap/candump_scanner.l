@@ -89,7 +89,7 @@ static int candump_yyinput(void *buf, candump_state_t *state)
 #define candump_realloc(ptr, size, yyscanner)   (void *)realloc((char *)(ptr), (size))
 #define candump_free(ptr, yyscanner)            free((char *)(ptr))
 
-DIAG_OFF_FLEX
+DIAG_OFF_FLEX()
 
 %}
 
@@ -141,4 +141,4 @@ R                       {
 
 %%
 
-DIAG_ON_FLEX
+DIAG_ON_FLEX()

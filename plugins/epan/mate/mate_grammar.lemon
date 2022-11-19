@@ -26,9 +26,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 
-/* Generated lemon code warns on this. */
-DIAG_OFF(unreachable-code)
-
 #define DUMMY void*
 
 typedef struct _extraction {
@@ -171,6 +168,11 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 	return r;
 }
 
+DIAG_OFF_LEMON()
+} /* end of %include */
+
+%code {
+DIAG_ON_LEMON()
 }
 
 %name MateParser

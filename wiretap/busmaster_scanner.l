@@ -86,7 +86,7 @@ static int busmaster_yyinput(void *buf, unsigned int length, busmaster_state_t *
 #define busmaster_realloc(ptr, size, yyscanner)   (void *)realloc((char *)(ptr), (size))
 #define busmaster_free(ptr, yyscanner)            free((char *)(ptr))
 
-DIAG_OFF_FLEX
+DIAG_OFF_FLEX()
 
 %}
 
@@ -196,4 +196,4 @@ NUM (0x)?[0-9A-Fa-f]+
 
 %%
 
-DIAG_ON_FLEX
+DIAG_ON_FLEX()

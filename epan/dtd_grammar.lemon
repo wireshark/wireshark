@@ -22,9 +22,6 @@
 #include "dtd.h"
 #include "dtd_parse.h"
 
-/* Generated lemon code warns on this. */
-DIAG_OFF(unreachable-code)
-
 static dtd_named_list_t* dtd_named_list_new(gchar* name, GPtrArray* list) {
 	dtd_named_list_t* nl = g_new(dtd_named_list_t,1);
 
@@ -45,6 +42,11 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 	return a;
 }
 
+DIAG_OFF_LEMON()
+} /* end of %include */
+
+%code {
+DIAG_ON_LEMON()
 }
 
 %name DtdParse

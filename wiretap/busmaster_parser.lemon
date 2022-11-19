@@ -34,8 +34,11 @@ static void merge_msg_data(msg_data_t *dst, const msg_data_t *a, const msg_data_
     memcpy(&dst->data[a->length], &b->data[0], b->length);
 }
 
-DIAG_OFF(unreachable-code)
+DIAG_OFF_LEMON()
+} /* end of %include */
 
+%code {
+DIAG_ON_LEMON()
 }
 
 %name BusmasterParser
@@ -368,8 +371,6 @@ data48(R) ::= data32(A) data16(B) . { merge_msg_data(&R, &A, &B); }
 data64(R) ::= data32(A) data32(B) . { merge_msg_data(&R, &A, &B); }
 
 %code {
-
-DIAG_ON(unreachable-code)
 
 #include "busmaster_scanner_lex.h"
 #include "busmaster_parser.h"
