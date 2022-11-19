@@ -319,6 +319,8 @@ static int hf_woww_enchantment = -1;
 static int hf_woww_end_text = -1;
 static int hf_woww_ended_without_interruption = -1;
 static int hf_woww_enemy = -1;
+static int hf_woww_energize_amount = -1;
+static int hf_woww_energize_power = -1;
 static int hf_woww_energy = -1;
 static int hf_woww_entry = -1;
 static int hf_woww_entry_id = -1;
@@ -335,12 +337,14 @@ static int hf_woww_experience_reward = -1;
 static int hf_woww_experience_without_rested = -1;
 static int hf_woww_expiration_time = -1;
 static int hf_woww_extend_flag = -1;
+static int hf_woww_extra_attacks = -1;
 static int hf_woww_face = -1;
 static int hf_woww_facial_hair = -1;
 static int hf_woww_faction_flag = -1;
 static int hf_woww_faction_id = -1;
 static int hf_woww_fall_time = -1;
 static int hf_woww_far_sight_operation = -1;
+static int hf_woww_feed_pet_item = -1;
 static int hf_woww_fields = -1;
 static int hf_woww_fire_resistance = -1;
 static int hf_woww_first_bag_display_id = -1;
@@ -390,6 +394,8 @@ static int hf_woww_hair_style = -1;
 static int hf_woww_happiness = -1;
 static int hf_woww_has_been_saved = -1;
 static int hf_woww_has_transport = -1;
+static int hf_woww_heal_amount = -1;
+static int hf_woww_heal_critical = -1;
 static int hf_woww_health = -1;
 static int hf_woww_highest_bid = -1;
 static int hf_woww_highest_bidder = -1;
@@ -453,9 +459,9 @@ static int hf_woww_item_sub_class = -1;
 static int hf_woww_item_sub_class_mask = -1;
 static int hf_woww_item_suffix_factor = -1;
 static int hf_woww_item_target = -1;
-static int hf_woww_item_target_entry = -1;
 static int hf_woww_item_template = -1;
 static int hf_woww_item_text_id = -1;
+static int hf_woww_item_to_damage = -1;
 static int hf_woww_items_required = -1;
 static int hf_woww_join_as_group = -1;
 static int hf_woww_key_version = -1;
@@ -528,6 +534,7 @@ static int hf_woww_mount_result = -1;
 static int hf_woww_move_event = -1;
 static int hf_woww_movement_counter = -1;
 static int hf_woww_movement_flags = -1;
+static int hf_woww_multiplier = -1;
 static int hf_woww_name = -1;
 static int hf_woww_nature_resistance = -1;
 static int hf_woww_nearest_node = -1;
@@ -733,7 +740,6 @@ static int hf_woww_spell_cost = -1;
 static int hf_woww_spell_count = -1;
 static int hf_woww_spell_data_id = -1;
 static int hf_woww_spell_effect = -1;
-static int hf_woww_spell_effect_item_type = -1;
 static int hf_woww_spell_id = -1;
 static int hf_woww_spell_index = -1;
 static int hf_woww_spell_miss_info = -1;
@@ -4313,6 +4319,24 @@ static const value_string e_spell_effect_strings[] =  {
 };
 
 typedef enum {
+    POWER_MANA = 0x00,
+    POWER_RAGE = 0x01,
+    POWER_FOCUS = 0x02,
+    POWER_ENERGY = 0x03,
+    POWER_HAPPINESS = 0x04,
+    POWER_HEALTH = 0xFE,
+} e_power;
+static const value_string e_power_strings[] =  {
+    { POWER_MANA, "Mana" },
+    { POWER_RAGE, "Rage" },
+    { POWER_FOCUS, "Focus" },
+    { POWER_ENERGY, "Energy" },
+    { POWER_HAPPINESS, "Happiness" },
+    { POWER_HEALTH, "Health" },
+    { 0, NULL }
+};
+
+typedef enum {
     SPELL_MISS_INFO_NONE = 0x0,
     SPELL_MISS_INFO_MISS = 0x1,
     SPELL_MISS_INFO_RESIST = 0x2,
@@ -6551,24 +6575,6 @@ static const value_string e_party_result_strings[] =  {
     { PARTY_RESULT_NOT_LEADER, "Not Leader" },
     { PARTY_RESULT_PLAYER_WRONG_FACTION, "Player Wrong Faction" },
     { PARTY_RESULT_IGNORING_YOU, "Ignoring You" },
-    { 0, NULL }
-};
-
-typedef enum {
-    POWER_MANA = 0x00,
-    POWER_RAGE = 0x01,
-    POWER_FOCUS = 0x02,
-    POWER_ENERGY = 0x03,
-    POWER_HAPPINESS = 0x04,
-    POWER_HEALTH = 0xFE,
-} e_power;
-static const value_string e_power_strings[] =  {
-    { POWER_MANA, "Mana" },
-    { POWER_RAGE, "Rage" },
-    { POWER_FOCUS, "Focus" },
-    { POWER_ENERGY, "Energy" },
-    { POWER_HAPPINESS, "Happiness" },
-    { POWER_HEALTH, "Health" },
     { 0, NULL }
 };
 
@@ -14874,13 +14880,27 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_amount_of_logs, 4, ENC_LITTLE_ENDIAN);
                 if (effect == SPELL_EFFECT_POWER_DRAIN) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_float, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_amount, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_power, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_multiplier, 4, ENC_LITTLE_ENDIAN);
+                }
+                else if (effect == SPELL_EFFECT_HEAL
+                 || effect == SPELL_EFFECT_HEAL_MAX_HEALTH) {
+                    ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_heal_amount, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_heal_critical, 4, ENC_LITTLE_ENDIAN);
+                }
+                else if (effect == SPELL_EFFECT_ENERGIZE) {
+                    ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_energize_amount, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_energize_power, 4, ENC_LITTLE_ENDIAN);
                 }
                 else if (effect == SPELL_EFFECT_ADD_EXTRA_ATTACKS) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_extra_attacks, 4, ENC_LITTLE_ENDIAN);
+                }
+                else if (effect == SPELL_EFFECT_CREATE_ITEM) {
+                    ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 }
                 else if (effect == SPELL_EFFECT_INTERRUPT_CAST) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
@@ -14888,16 +14908,14 @@ add_body_fields(guint32 opcode,
                 }
                 else if (effect == SPELL_EFFECT_DURABILITY_DAMAGE) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_item_to_damage, 4, ENC_LITTLE_ENDIAN);
                     ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                    ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
-                }
-                else if (effect == SPELL_EFFECT_CREATE_ITEM) {
-                    ptvcursor_add(ptv, hf_woww_spell_effect_item_type, 4, ENC_LITTLE_ENDIAN);
                 }
                 else if (effect == SPELL_EFFECT_FEED_PET) {
-                    ptvcursor_add(ptv, hf_woww_item_target_entry, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_feed_pet_item, 4, ENC_LITTLE_ENDIAN);
                 }
-                else if (effect == SPELL_EFFECT_RESURRECT
+                else if (effect == SPELL_EFFECT_INSTAKILL
+                 || effect == SPELL_EFFECT_RESURRECT
                  || effect == SPELL_EFFECT_DISPEL
                  || effect == SPELL_EFFECT_THREAT
                  || effect == SPELL_EFFECT_DISTRACT
@@ -14909,10 +14927,27 @@ add_body_fields(guint32 opcode,
                  || effect == SPELL_EFFECT_SKIN_PLAYER_CORPSE
                  || effect == SPELL_EFFECT_MODIFY_THREAT_PERCENT
                  || effect == SPELL_EFFECT_UNKNOWN126
-                 || effect == SPELL_EFFECT_DISMISS_PET
                  || effect == SPELL_EFFECT_OPEN_LOCK
                  || effect == SPELL_EFFECT_OPEN_LOCK_ITEM
-                 || effect == SPELL_EFFECT_INSTAKILL) {
+                 || effect == SPELL_EFFECT_DISMISS_PET
+                 || effect == SPELL_EFFECT_TRANS_DOOR
+                 || effect == SPELL_EFFECT_SUMMON
+                 || effect == SPELL_EFFECT_SUMMON_PET
+                 || effect == SPELL_EFFECT_SUMMON_WILD
+                 || effect == SPELL_EFFECT_SUMMON_GUARDIAN
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT1
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT2
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT3
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM_SLOT4
+                 || effect == SPELL_EFFECT_SUMMON_POSSESSED
+                 || effect == SPELL_EFFECT_SUMMON_TOTEM
+                 || effect == SPELL_EFFECT_SUMMON_CRITTER
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_WILD
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT1
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT2
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT3
+                 || effect == SPELL_EFFECT_SUMMON_OBJECT_SLOT4
+                 || effect == SPELL_EFFECT_SUMMON_DEMON) {
                     ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
                 }
                 ptvcursor_pop_subtree(ptv);
@@ -14924,9 +14959,9 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_targets, 4, ENC_LITTLE_ENDIAN, &amount_of_targets);
             for (i = 0; i < amount_of_targets; ++i) {
-                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellMiss");
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellLogMiss");
                 ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
-                ptvcursor_add_ret_uint(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN, &miss_info);
+                ptvcursor_add(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
             break;
@@ -17168,6 +17203,18 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_energize_amount,
+            { "Energize Amount", "woww.energize.amount",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_energize_power,
+            { "Energize Power", "woww.energize.power",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_energy,
             { "Energy", "woww.energy",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -17264,6 +17311,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_extra_attacks,
+            { "Extra Attacks", "woww.extra.attacks",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_face,
             { "Face", "woww.face",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -17297,6 +17350,12 @@ proto_register_woww(void)
         { &hf_woww_far_sight_operation,
             { "Far Sight Operation", "woww.far.sight.operation",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_far_sight_operation_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_feed_pet_item,
+            { "Feed Pet Item", "woww.feed.pet.item",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17591,6 +17650,18 @@ proto_register_woww(void)
         { &hf_woww_has_transport,
             { "Has Transport", "woww.has.transport",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_heal_amount,
+            { "Heal Amount", "woww.heal.amount",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_heal_critical,
+            { "Heal Critical", "woww.heal.critical",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17972,12 +18043,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_item_target_entry,
-            { "Item Target Entry", "woww.item.target.entry",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_item_template,
             { "Item Template", "woww.item.template",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -17986,6 +18051,12 @@ proto_register_woww(void)
         },
         { &hf_woww_item_text_id,
             { "Item Text Id", "woww.item.text.id",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_item_to_damage,
+            { "Item To Damage", "woww.item.to.damage",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -18419,6 +18490,12 @@ proto_register_woww(void)
         { &hf_woww_movement_flags,
             { "Movement Flags", "woww.movement.flags",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_multiplier,
+            { "Multiplier", "woww.multiplier",
+                FT_FLOAT, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19649,12 +19726,6 @@ proto_register_woww(void)
         { &hf_woww_spell_effect,
             { "Spell Effect", "woww.spell.effect",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_spell_effect_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_spell_effect_item_type,
-            { "Spell Effect Item Type", "woww.spell.effect.item.type",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
