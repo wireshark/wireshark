@@ -13241,7 +13241,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_queue_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN, &map);
             if (map != MAP_EASTERN_KINGDOMS) {
-                ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_battleground_bracket, 1, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_client_instance_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add_ret_uint(ptv, hf_woww_status_id, 1, ENC_LITTLE_ENDIAN, &status_id);
                 if (status_id == STATUS_ID_WAIT_QUEUE) {
