@@ -615,14 +615,13 @@ TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLA
 %(DEFAULT_BODY)s
 
 #.FIELD_ATTR
-NR-CGI/nRCellIdentity ABBREV=NRCellIdentity TYPE=FT_UINT40 DISPLAY=BASE_HEX
+NR-CGI/nRCellIdentity ABBREV=NRCellIdentity TYPE=FT_UINT40 DISPLAY=BASE_HEX BITMASK=0xFFFFFFFFF0
 
 #.FN_BODY NRCellIdentity VAL_PTR = &cell_id_tvb HF_INDEX=-1
   tvbuff_t *cell_id_tvb = NULL;
 %(DEFAULT_BODY)s
   if (cell_id_tvb) {
-    guint64 cell_id = tvb_get_bits64(cell_id_tvb, 0, 36, ENC_BIG_ENDIAN);
-    actx->created_item = proto_tree_add_uint64(tree, hf_index, cell_id_tvb, 0, 5, cell_id);
+    actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 5, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY EUTRA-CGI
@@ -631,14 +630,13 @@ NR-CGI/nRCellIdentity ABBREV=NRCellIdentity TYPE=FT_UINT40 DISPLAY=BASE_HEX
 %(DEFAULT_BODY)s
 
 #.FIELD_ATTR
-EUTRA-CGI/eUTRACellIdentity ABBREV=EUTRACellIdentity TYPE=FT_UINT32 DISPLAY=BASE_HEX
+EUTRA-CGI/eUTRACellIdentity ABBREV=EUTRACellIdentity TYPE=FT_UINT32 DISPLAY=BASE_HEX BITMASK=0xFFFFFFF0
 
 #.FN_BODY EUTRACellIdentity VAL_PTR = &cell_id_tvb HF_INDEX=-1
   tvbuff_t *cell_id_tvb = NULL;
 %(DEFAULT_BODY)s
   if (cell_id_tvb) {
-    guint32 cell_id = tvb_get_bits32(cell_id_tvb, 0, 28, ENC_BIG_ENDIAN);
-    actx->created_item = proto_tree_add_uint(tree, hf_index, cell_id_tvb, 0, 4, cell_id);
+    actx->created_item = proto_tree_add_item(tree, hf_index, cell_id_tvb, 0, 4, ENC_BIG_ENDIAN);
   }
 
 #.TYPE_ATTR
