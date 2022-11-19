@@ -156,7 +156,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
     color_filter_t *colorf;
     dfilter_t      *compiled_filter;
     guint8         i;
-    gchar          *local_err_msg = NULL;
+    df_error_t     *df_err = NULL;
     /* Go through the temporary filters and look for the same filter string.
      * If found, clear it so that a filter can be "moved" up and down the list
      */
@@ -179,9 +179,9 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
              * or if we found a matching filter string which need to be cleared
              */
             tmpfilter = ( (filter==NULL) || (i!=filt_nr) ) ? "frame" : filter;
-            if (!dfilter_compile(tmpfilter, &compiled_filter, &local_err_msg)) {
-                *err_msg = ws_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, local_err_msg);
-                g_free(local_err_msg);
+            if (!dfilter_compile(tmpfilter, &compiled_filter, &df_err)) {
+                *err_msg = ws_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, df_err->msg);
+                dfilter_error_free(df_err);
                 g_free(name);
                 return FALSE;
             } else {
@@ -405,17 +405,17 @@ color_filter_compile_cb(gpointer filter_arg, gpointer err)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
     gchar **err_msg = (gchar**)err;
-    gchar *local_err_msg = NULL;
+    df_error_t *df_err = NULL;
 
     ws_assert(colorf->c_colorfilter == NULL);
 
     /* If the filter is disabled it doesn't matter if it compiles or not. */
     if (colorf->disabled) return;
 
-    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
+    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &df_err)) {
         *err_msg = ws_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
-                      colorf->filter_name, colorf->filter_text, local_err_msg);
-        g_free(local_err_msg);
+                      colorf->filter_name, colorf->filter_text, df_err->msg);
+        dfilter_error_free(df_err);
         /* this filter was compilable before, so this should never happen */
         /* except if the OK button of the parent window has been clicked */
         /* so don't use ws_assert_not_reached() but check the filters again */
@@ -427,17 +427,17 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
     gchar **err_msg = (gchar**)err;
-    gchar *local_err_msg;
+    df_error_t *df_err = NULL;
 
     ws_assert(colorf->c_colorfilter == NULL);
 
     /* If the filter is disabled it doesn't matter if it compiles or not. */
     if (colorf->disabled) return;
 
-    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
+    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &df_err)) {
         *err_msg = ws_strdup_printf("Disabling color filter name: \"%s\" filter: \"%s\".\n%s",
-                      colorf->filter_name, colorf->filter_text, local_err_msg);
-        g_free(local_err_msg);
+                      colorf->filter_name, colorf->filter_text, df_err->msg);
+        dfilter_error_free(df_err);
 
         /* Disable the color filter in the list of color filters. */
         colorf->disabled = TRUE;
@@ -651,12 +651,12 @@ read_filters_file(const gchar *path, FILE *f, gpointer user_data, color_filter_a
             color_t bg_color, fg_color;
             color_filter_t *colorf;
             dfilter_t *temp_dfilter = NULL;
-            gchar *local_err_msg = NULL;
+            df_error_t *df_err = NULL;
 
-            if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
+            if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
                 ws_warning("Could not compile \"%s\" in colorfilters file \"%s\".\n%s",
-                          name, path, local_err_msg);
-                g_free(local_err_msg);
+                          name, path, df_err->msg);
+                dfilter_error_free(df_err);
                 prefs.unknown_colorfilters = TRUE;
 
                 /* skip_end_of_line = TRUE; */

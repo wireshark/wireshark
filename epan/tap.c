@@ -541,7 +541,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	int tap_id;
 	dfilter_t *code=NULL;
 	GString *error_string;
-	gchar *err_msg;
+	df_error_t *df_err;
 
 	tap_id=find_tap_id(tapname);
 	if(!tap_id){
@@ -555,12 +555,12 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	tl->failed=FALSE;
 	tl->flags=flags;
 	if(fstring){
-		if(!dfilter_compile(fstring, &code, &err_msg)){
+		if(!dfilter_compile(fstring, &code, &df_err)){
 			error_string = g_string_new("");
 			g_string_printf(error_string,
 			    "Filter \"%s\" is invalid - %s",
-			    fstring, err_msg);
-			g_free(err_msg);
+			    fstring, df_err->msg);
+			dfilter_error_free(df_err);
 			free_tap_listener(tl);
 			return error_string;
 		}
@@ -589,7 +589,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 	tap_listener_t *tl=NULL,*tl2;
 	dfilter_t *code=NULL;
 	GString *error_string;
-	gchar *err_msg;
+	df_error_t *df_err;
 
 	if(!tap_listener_queue){
 		return NULL;
@@ -615,13 +615,13 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 		tl->needs_redraw=TRUE;
 		g_free(tl->fstring);
 		if(fstring){
-			if(!dfilter_compile(fstring, &code, &err_msg)){
+			if(!dfilter_compile(fstring, &code, &df_err)){
 				tl->fstring=NULL;
 				error_string = g_string_new("");
 				g_string_printf(error_string,
 						 "Filter \"%s\" is invalid - %s",
-						 fstring, err_msg);
-				g_free(err_msg);
+						 fstring, df_err->msg);
+				dfilter_error_free(df_err);
 				return error_string;
 			}
 		}
@@ -639,7 +639,6 @@ tap_listeners_dfilter_recompile(void)
 {
 	tap_listener_t *tl;
 	dfilter_t *code;
-	gchar *err_msg;
 
 	for(tl=tap_listener_queue;tl;tl=tl->next){
 		if(tl->code){
@@ -649,12 +648,9 @@ tap_listeners_dfilter_recompile(void)
 		tl->needs_redraw=TRUE;
 		code=NULL;
 		if(tl->fstring){
-			if(!dfilter_compile(tl->fstring, &code, &err_msg)){
-				g_free(err_msg);
-				err_msg = NULL;
+			if(!dfilter_compile(tl->fstring, &code, NULL)){
 				/* Not valid, make a dfilter matching no packets */
-				if (!dfilter_compile("frame.number == 0", &code, &err_msg))
-					g_free(err_msg);
+				dfilter_compile("frame.number == 0", &code, NULL);
 			}
 		}
 		tl->code=code;

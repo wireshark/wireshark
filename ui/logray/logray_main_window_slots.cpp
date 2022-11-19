@@ -161,7 +161,7 @@ bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, uns
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;
-    gchar *err_msg;
+    df_error_t *df_err = NULL;
     int err;
     gboolean name_param;
     gboolean ret = true;
@@ -194,7 +194,7 @@ bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, uns
             goto finish;
         }
 
-        if (dfilter_compile(qUtf8Printable(read_filter), &rfcode, &err_msg)) {
+        if (dfilter_compile(qUtf8Printable(read_filter), &rfcode, &df_err)) {
             cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
         } else {
             /* Not valid.  Tell the user, and go back and run the file
@@ -204,8 +204,9 @@ bool LograyMainWindow::openCaptureFile(QString cf_path, QString read_filter, uns
                     QString("The filter expression ") +
                     read_filter +
                     QString(" isn't a valid display filter. (") +
-                    err_msg + QString(")."),
+                    df_err->msg + QString(")."),
                     QMessageBox::Ok);
+            dfilter_error_free(df_err);
 
             if (!name_param) {
                 // go back to the selection dialogue only if the file

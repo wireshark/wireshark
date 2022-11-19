@@ -282,7 +282,7 @@ main(int argc, char *argv[])
     gchar               *dfilter = NULL;
     dfilter_t           *rfcode = NULL;
     dfilter_t           *dfcode = NULL;
-    gchar               *err_msg;
+    df_error_t          *df_err;
     e_prefs             *prefs_p;
     gchar               *output_only = NULL;
 
@@ -859,9 +859,9 @@ main(int argc, char *argv[])
     build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
 
     if (rfilter != NULL) {
-        if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
-            cmdarg_err("%s", err_msg);
-            g_free(err_msg);
+        if (!dfilter_compile(rfilter, &rfcode, &df_err)) {
+            cmdarg_err("%s", df_err->msg);
+            dfilter_error_free(df_err);
             exit_status = INVALID_FILTER;
             goto clean_exit;
         }
@@ -869,9 +869,9 @@ main(int argc, char *argv[])
     cfile.rfcode = rfcode;
 
     if (dfilter != NULL) {
-        if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
-            cmdarg_err("%s", err_msg);
-            g_free(err_msg);
+        if (!dfilter_compile(dfilter, &dfcode, &df_err)) {
+            cmdarg_err("%s", df_err->msg);
+            dfilter_error_free(df_err);
             exit_status = INVALID_FILTER;
             goto clean_exit;
         }

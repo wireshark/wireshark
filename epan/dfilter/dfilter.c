@@ -42,46 +42,44 @@ static void*	ParserObj = NULL;
 dfwork_t *global_dfw;
 
 void
-dfilter_vfail(dfwork_t *dfw, stloc_t *loc,
+dfilter_vfail(dfwork_t *dfw, int code, stloc_t *loc,
 				const char *format, va_list args)
 {
-	/* Flag a syntax error. This is currently only used in
-	 * the grammar parsing stage to terminate the parsing
-	 * loop. */
-	dfw->syntax_error = TRUE;
+	dfw->parse_failure = TRUE;
 
 	/* If we've already reported one error, don't overwite it */
-	if (dfw->error_message != NULL)
+	if (dfw->error.code < 0 || dfw->error.msg != NULL)
 		return;
 
-	dfw->error_message = ws_strdup_vprintf(format, args);
+	dfw->error.code = code;
+	dfw->error.msg = ws_strdup_vprintf(format, args);
 	if (loc) {
-		dfw->err_loc = *loc;
+		dfw->error.loc = *(dfilter_loc_t *)loc;
 	}
 	else {
-		dfw->err_loc.col_start = -1;
-		dfw->err_loc.col_len = 0;
+		dfw->error.loc.col_start = -1;
+		dfw->error.loc.col_len = 0;
 	}
 }
 
 void
-dfilter_fail(dfwork_t *dfw, stloc_t *loc,
+dfilter_fail(dfwork_t *dfw, int code, stloc_t *loc,
 				const char *format, ...)
 {
 	va_list	args;
 
 	va_start(args, format);
-	dfilter_vfail(dfw, loc, format, args);
+	dfilter_vfail(dfw, code, loc, format, args);
 	va_end(args);
 }
 
 void
-dfilter_fail_throw(dfwork_t *dfw, stloc_t *loc, const char *format, ...)
+dfilter_fail_throw(dfwork_t *dfw, int code, stloc_t *loc, const char *format, ...)
 {
 	va_list	args;
 
 	va_start(args, format);
-	dfilter_vfail(dfw, loc, format, args);
+	dfilter_vfail(dfw, code, loc, format, args);
 	va_end(args);
 	THROW(TypeError);
 }
@@ -91,7 +89,7 @@ dfw_set_error_location(dfwork_t *dfw, stloc_t *loc)
 {
 	/* Set new location. */
 	ws_assert(loc);
-	dfw->err_loc = *loc;
+	dfw->error.loc = *(dfilter_loc_t *)loc;
 }
 
 header_field_info *
@@ -232,6 +230,8 @@ dfwork_new(void)
 {
 	dfwork_t *dfw = g_new0(dfwork_t, 1);
 
+	dfw_error_init(&dfw->error);
+
 	dfw->references =
 		g_hash_table_new_full(g_direct_hash, g_direct_equal,
 				NULL, (GDestroyNotify)free_refs_array);
@@ -355,7 +355,7 @@ dfilter_expand(const char *expr, char **err_ret)
 
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			gchar **error_ret, dfilter_loc_t *loc_ptr,
+			df_error_t **errpp,
 			const char *caller, gboolean save_tree,
 			gboolean apply_macros)
 {
@@ -376,10 +376,8 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
 			"%s() called from %s() with null filter",
 			__func__, caller);
-		if (error_ret != NULL) {
-			/* XXX This BUG happens often. Some callers are ignoring these errors. */
-			*error_ret = g_strdup("BUG: NULL text pointer passed to dfilter_compile");
-		}
+		/* XXX This BUG happens often. Some callers are ignoring these errors. */
+		dfw_error_set_msg(errpp, "BUG: NULL text pointer passed to dfilter_compile");
 		return FALSE;
 	}
 	else if (*text == '\0') {
@@ -397,7 +395,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	dfw = dfwork_new();
 
 	if (apply_macros) {
-		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error_message);
+		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error.msg);
 		if (dfw->expanded_text == NULL) {
 			goto FAILURE;
 		}
@@ -409,7 +407,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	}
 
 	if (df_lex_init(&scanner) != 0) {
-		dfw->error_message = ws_strdup_printf("Can't initialize scanner: %s", g_strerror(errno));
+		dfw_error_set_msg(errpp, "Can't initialize scanner: %s", g_strerror(errno));
 		goto FAILURE;
 	}
 
@@ -444,7 +442,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 		/* The parser has freed the lval for us. */
 		df_lval = NULL;
 
-		if (dfw->syntax_error) {
+		if (dfw->parse_failure) {
 			failure = TRUE;
 			break;
 		}
@@ -467,7 +465,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	Dfilter(ParserObj, 0, NULL, dfw);
 
 	/* One last check for syntax error (after EOF) */
-	if (dfw->syntax_error)
+	if (dfw->parse_failure)
 		failure = TRUE;
 
 	/* Free scanner state */
@@ -547,22 +545,13 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 
 FAILURE:
 	ws_assert(dfw);
-	if (dfw->error_message == NULL) {
+	if (dfw->error.msg == NULL) {
 		/* We require an error message. */
 		ws_critical("Unknown error compiling filter: %s", text);
 	}
 	else {
-		ws_debug("Compiling filter failed with error: %s.", dfw->error_message);
-		if (error_ret != NULL) {
-			*error_ret = dfw->error_message;
-		}
-		else {
-			g_free(dfw->error_message);
-		}
-		if (loc_ptr != NULL) {
-			loc_ptr->col_start = dfw->err_loc.col_start;
-			loc_ptr->col_len = dfw->err_loc.col_len;
-		}
+		ws_debug("Compiling filter failed with error: %s.", dfw->error.msg);
+		dfw_error_take(errpp, &dfw->error);
 	}
 
 	global_dfw = NULL;
@@ -736,6 +725,63 @@ reference_free(df_reference_t *ref)
 {
 	fvalue_free(ref->value);
 	g_free(ref);
+}
+
+void
+dfw_error_init(df_error_t *err) {
+	err->code = 0;
+	err->msg = NULL;
+	err->loc.col_start = -1;
+	err->loc.col_len = 0;
+}
+
+void
+dfw_error_clear(df_error_t *err) {
+	g_free(err->msg);
+	dfw_error_init(err);
+}
+
+void
+dfw_error_set_msg(df_error_t **errpp, const char *fmt, ...)
+{
+	if (errpp == NULL) {
+		return;
+	}
+	va_list ap;
+
+	df_error_t *errp = g_new(df_error_t, 1);
+	errp->code = DF_ERROR_GENERIC;
+	va_start(ap, fmt);
+	errp->msg = ws_strdup_vprintf(fmt, ap);
+	va_end(ap);
+	errp->loc.col_start = -1;
+	errp->loc.col_len = 0;
+	*errpp = errp;
+}
+
+void
+dfw_error_take(df_error_t **errpp, df_error_t *src)
+{
+	if (errpp == NULL) {
+		g_free(src->msg);
+		dfw_error_init(src);
+		return;
+	}
+	df_error_t *errp = g_new(df_error_t, 1);
+	errp->code = src->code;
+	errp->msg = src->msg;
+	errp->loc = src->loc;
+	*errpp = errp;
+	dfw_error_init(src);
+}
+
+void
+dfilter_error_free(df_error_t *errp)
+{
+	if (errp == NULL)
+		return;
+	g_free(errp->msg);
+	g_free(errp);
 }
 
 /*

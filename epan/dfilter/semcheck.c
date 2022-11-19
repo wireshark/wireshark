@@ -34,7 +34,7 @@
 #define FAIL(dfw, node, ...) \
 	do {								\
 		ws_noisy("Semantic check failed here.");		\
-		dfilter_fail_throw(dfw, stnode_location(node), __VA_ARGS__); \
+		dfilter_fail_throw(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__); \
 	} while (0)
 
 static void
@@ -151,6 +151,18 @@ node_is_constant(stnode_t *node)
 	return FALSE;
 }
 
+/* Don't set the error message if it's already set. */
+#define SET_ERROR(dfw, str) \
+	do {						\
+		if ((str) != NULL && (dfw)->error.msg == NULL) { \
+			(dfw)->error.msg = str;		\
+			(dfw)->error.code = DF_ERROR_GENERIC;	\
+		}					\
+		else {					\
+			g_free(str);			\
+		}					\
+	} while (0)
+
 /* Gets an fvalue from a string, and sets the error message on failure. */
 WS_RETNONNULL
 fvalue_t*
@@ -159,10 +171,11 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 {
 	fvalue_t *fv;
 	const char *s = stnode_data(st);
+	gchar *error_message = NULL;
 
-	/* Don't set the error message if it's already set. */
-	fv = fvalue_from_literal(ftype, s, allow_partial_value,
-		dfw->error_message == NULL ? &dfw->error_message : NULL);
+	fv = fvalue_from_literal(ftype, s, allow_partial_value, &error_message);
+	SET_ERROR(dfw, error_message);
+
 	if (fv == NULL && hfinfo_value_string) {
 		/* check value_string */
 		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, s);
@@ -170,9 +183,8 @@ dfilter_fvalue_from_literal(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 		 * Ignore previous errors if this can be mapped
 		 * to an item from value_string.
 		 */
-		if (fv && dfw->error_message) {
-			g_free(dfw->error_message);
-			dfw->error_message = NULL;
+		if (fv) {
+			dfw_error_clear(&dfw->error);
 		}
 	}
 	if (fv == NULL) {
@@ -191,18 +203,19 @@ dfilter_fvalue_from_string(dfwork_t *dfw, ftenum_t ftype, stnode_t *st,
 {
 	fvalue_t *fv;
 	const GString *gs = stnode_string(st);
+	gchar *error_message = NULL;
 
-	fv = fvalue_from_string(ftype, gs->str, gs->len,
-	    dfw->error_message == NULL ? &dfw->error_message : NULL);
+	fv = fvalue_from_string(ftype, gs->str, gs->len, &error_message);
+	SET_ERROR(dfw, error_message);
+
 	if (fv == NULL && hfinfo_value_string) {
 		fv = mk_fvalue_from_val_string(dfw, hfinfo_value_string, gs->str);
 		/*
 		 * Ignore previous errors if this can be mapped
 		 * to an item from value_string.
 		 */
-		if (fv && dfw->error_message) {
-			g_free(dfw->error_message);
-			dfw->error_message = NULL;
+		if (fv) {
+			dfw_error_clear(&dfw->error);
 		}
 	}
 	if (fv == NULL) {
@@ -319,9 +332,8 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			 * Prefer this error message to whatever error message
 			 * has already been set.
 			 */
-			g_free(dfw->error_message);
-			dfw->error_message = NULL;
-			dfilter_fail(dfw, NULL, "\"%s\" cannot be found among the possible values for %s.",
+			dfw_error_clear(&dfw->error);
+			dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 			return NULL;
 		}
@@ -329,7 +341,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 
 	/* Do val_strings exist? */
 	if (!hfinfo->strings) {
-		dfilter_fail(dfw, NULL, "%s cannot accept strings as values.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "%s cannot accept strings as values.",
 				hfinfo->abbrev);
 		return NULL;
 	}
@@ -337,11 +349,10 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 	/* Reset the error message, since *something* interesting will happen,
 	 * and the error message will be more interesting than any error message
 	 * I happen to have now. */
-	g_free(dfw->error_message);
-	dfw->error_message = NULL;
+	dfw_error_clear(&dfw->error);
 
 	if (hfinfo->display & BASE_RANGE_STRING) {
-		dfilter_fail(dfw, NULL, "\"%s\" cannot accept [range] strings as values.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot accept [range] strings as values.",
 				hfinfo->abbrev);
 	}
 	else if (hfinfo->display & BASE_VAL64_STRING) {
@@ -353,7 +364,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			}
 			vals++;
 		}
-		dfilter_fail(dfw, NULL, "\"%s\" cannot be found among the possible values for %s.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
@@ -363,7 +374,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 		 *  integer, we have the string they're trying to match.
 		 *  -><-
 		 */
-		dfilter_fail(dfw, NULL, "\"%s\" cannot accept [custom] strings as values.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot accept [custom] strings as values.",
 				hfinfo->abbrev);
 	}
 	else {
@@ -377,7 +388,7 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *
 			}
 			vals++;
 		}
-		dfilter_fail(dfw, NULL, "\"%s\" cannot be found among the possible values for %s.",
+		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 	}
 	return NULL;
@@ -567,9 +578,10 @@ dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
 {
 	fvalue_t *fvalue;
 	unsigned long *nump = stnode_data(st);
+	char *error_message = NULL;
 
-	fvalue = fvalue_from_charconst(ftype, *nump,
-			dfw->error_message == NULL ? &dfw->error_message : NULL);
+	fvalue = fvalue_from_charconst(ftype, *nump, &error_message);
+	SET_ERROR(dfw, error_message);
 
 	if (fvalue == NULL) {
 		dfw_set_error_location(dfw, stnode_location(st));
@@ -980,7 +992,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 
 	pcre = ws_regex_compile_ex(patt->str, patt->len, &errmsg, WS_REGEX_CASELESS|WS_REGEX_NEVER_UTF);
 	if (errmsg) {
-		dfilter_fail(dfw, NULL, "Regex compilation error: %s.", errmsg);
+		dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "Regex compilation error: %s.", errmsg);
 		g_free(errmsg);
 		THROW(TypeError);
 	}
@@ -1177,7 +1189,7 @@ check_arithmetic_expr(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 			char *err_msg;
 			fvalue_t *new_fv = fvalue_unary_minus(stnode_data(st_arg1), &err_msg);
 			if (new_fv == NULL) {
-				dfilter_fail(dfw, stnode_location(st_arg1),
+				dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(st_arg1),
 							"%s: %s", stnode_todisplay(st_arg1), err_msg);
 				g_free(err_msg);
 				THROW(TypeError);

@@ -201,9 +201,8 @@ bool SyntaxLineEdit::checkDisplayFilter(QString filter)
     }
 
     dfilter_t *dfp = NULL;
-    gchar *err_msg;
-    dfilter_loc_t loc;
-    if (dfilter_compile2(filter.toUtf8().constData(), &dfp, &err_msg, &loc)) {
+    df_error_t *df_err = NULL;
+    if (dfilter_compile(filter.toUtf8().constData(), &dfp, &df_err)) {
         GPtrArray *depr = NULL;
         if (dfp) {
             depr = dfilter_deprecated_tokens(dfp);
@@ -231,9 +230,9 @@ bool SyntaxLineEdit::checkDisplayFilter(QString filter)
         }
     } else {
         setSyntaxState(SyntaxLineEdit::Invalid);
-        syntax_error_message_ = QString::fromUtf8(err_msg);
-        syntax_error_message_full_ = createSyntaxErrorMessageFull(filter, syntax_error_message_, loc.col_start, loc.col_len);
-        g_free(err_msg);
+        syntax_error_message_ = QString::fromUtf8(df_err->msg);
+        syntax_error_message_full_ = createSyntaxErrorMessageFull(filter, syntax_error_message_, df_err->loc.col_start, df_err->loc.col_len);
+        dfilter_error_free(df_err);
     }
     dfilter_free(dfp);
 

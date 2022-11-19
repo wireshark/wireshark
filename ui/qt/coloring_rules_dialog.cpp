@@ -174,17 +174,17 @@ void ColoringRulesDialog::rowCountChanged()
 bool ColoringRulesDialog::isValidFilter(QString filter, QString * error)
 {
     dfilter_t *dfp = NULL;
-    gchar *err_msg;
+    df_error_t *df_err = NULL;
 
-    if (dfilter_compile(filter.toUtf8().constData(), &dfp, &err_msg)) {
+    if (dfilter_compile(filter.toUtf8().constData(), &dfp, &df_err)) {
         dfilter_free(dfp);
         return true;
     }
 
-    if (err_msg)
+    if (df_err)
     {
-        error->append(err_msg);
-        g_free(err_msg);
+        error->append(df_err->msg);
+        dfilter_error_free(df_err);
     }
 
     return false;

@@ -110,7 +110,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     }
 
     /* No real filter yet */
-    if (!dfilter_compile("rlc-lte", &sfcode, err_msg)) {
+    if (!dfilter_compile("rlc-lte", &sfcode, NULL)) {
         return NULL;
     }
 

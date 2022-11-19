@@ -4069,26 +4069,27 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
 
     if (tok_filter != NULL)
     {
-        char *err_msg = NULL;
         dfilter_t *dfp;
+        df_error_t *df_err = NULL;
 
-        if (dfilter_compile(tok_filter, &dfp, &err_msg))
+        if (dfilter_compile(tok_filter, &dfp, &df_err))
         {
             if (dfp && dfilter_deprecated_tokens(dfp))
-                sharkd_json_warning(rpcid, err_msg);
+                sharkd_json_warning(rpcid, df_err->msg);
             else
                 sharkd_json_simple_ok(rpcid);
 
             dfilter_free(dfp);
-            g_free(err_msg);
+            dfilter_error_free(df_err);
             return 0;
         }
         else
         {
             sharkd_json_error(
                     rpcid, -5001, NULL,
-                    "Filter invalid - %s", err_msg
+                    "Filter invalid - %s", df_err->msg
                     );
+            dfilter_error_free(df_err);
             return -5001;
         }
     }

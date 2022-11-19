@@ -614,8 +614,8 @@ static gboolean
 _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
 {
     gboolean ok;
-    dfilter_loc_t err_loc;
     char *err_msg = NULL;
+    df_error_t *df_err;
     char *err_off;
     char *expanded;
 
@@ -626,16 +626,17 @@ _compile_dfilter(const char *text, dfilter_t **dfp, const char *caller)
         return FALSE;
     }
 
-    ok = dfilter_compile_real(expanded, dfp, &err_msg, &err_loc, caller, FALSE, FALSE);
+    ok = dfilter_compile_real(expanded, dfp, &df_err, caller, FALSE, FALSE);
     if (!ok ) {
-        cmdarg_err("%s", err_msg);
-        g_free(err_msg);
-        if (err_loc.col_start >= 0) {
-            err_off = ws_strdup_underline(NULL, err_loc.col_start, err_loc.col_len);
+        cmdarg_err("%s", df_err->msg);
+
+        if (df_err->loc.col_start >= 0) {
+            err_off = ws_strdup_underline(NULL, df_err->loc.col_start, df_err->loc.col_len);
             cmdarg_err_cont("    %s", expanded);
             cmdarg_err_cont("    %s", err_off);
             g_free(err_off);
         }
+        dfilter_error_free(df_err);
     }
 
     g_free(expanded);

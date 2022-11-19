@@ -646,8 +646,7 @@ sharkd_filter(const char *dftext, guint8 **result)
 
     epan_dissect_t edt;
 
-    if (!dfilter_compile(dftext, &dfcode, &err_info)) {
-        g_free(err_info);
+    if (!dfilter_compile(dftext, &dfcode, NULL)) {
         return -1;
     }
 

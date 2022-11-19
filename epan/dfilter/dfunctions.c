@@ -22,7 +22,7 @@
 #include <wsutil/ws_assert.h>
 
 #define FAIL(dfw, node, ...) \
-	dfilter_fail_throw(dfw, stnode_location(node), __VA_ARGS__)
+	dfilter_fail_throw(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__)
 
 /* Convert an FT_STRING using a callback function */
 static gboolean

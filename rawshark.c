@@ -398,6 +398,7 @@ main(int argc, char *argv[])
 {
     char                *err_msg;
     int                  opt, i;
+    df_error_t          *df_err;
 
 #ifndef _WIN32
     struct rlimit limit;
@@ -759,9 +760,9 @@ main(int argc, char *argv[])
 
     if (n_rfilters != 0) {
         for (i = 0; i < n_rfilters; i++) {
-            if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes], &err_msg)) {
-                cmdarg_err("%s", err_msg);
-                g_free(err_msg);
+            if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes], &df_err)) {
+                cmdarg_err("%s", df_err->msg);
+                dfilter_error_free(df_err);
                 ret = INVALID_DFILTER;
                 goto clean_exit;
             }

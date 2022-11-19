@@ -52,23 +52,32 @@ dfilter_expand(const char *expr, char **err_ret);
  * Returns TRUE on success, FALSE on failure.
  */
 
+#define DF_ERROR_GENERIC		-1
+
 typedef struct _dfilter_loc {
 	long col_start;
 	size_t col_len;
 } dfilter_loc_t;
 
+typedef struct {
+	int code;
+	char *msg;
+	dfilter_loc_t loc;
+} df_error_t;
+
+WS_DLL_PUBLIC
+void
+dfilter_error_free(df_error_t *);
+
 WS_DLL_PUBLIC
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
-			gchar **err_msg, dfilter_loc_t *loc_ptr,
+			df_error_t **errpp,
 			const char *caller, gboolean save_tree,
 			gboolean apply_macros);
 
-#define dfilter_compile(text, dfp, err_msg) \
-	dfilter_compile_real(text, dfp, err_msg, NULL, __func__, FALSE, TRUE)
-
-#define dfilter_compile2(text, dfp, err_msg, loc_ptr) \
-	dfilter_compile_real(text, dfp, err_msg, loc_ptr, __func__, FALSE, TRUE)
+#define dfilter_compile(text, dfp, errp) \
+	dfilter_compile_real(text, dfp, errp, __func__, FALSE, TRUE)
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */

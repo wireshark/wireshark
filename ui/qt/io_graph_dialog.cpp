@@ -1660,12 +1660,12 @@ void IOGraph::setFilter(const QString &filter)
     if (!full_filter.isEmpty()) {
         dfilter_t *dfilter;
         bool status;
-        gchar *err_msg;
-        status = dfilter_compile(full_filter.toUtf8().constData(), &dfilter, &err_msg);
+        df_error_t *df_err = NULL;
+        status = dfilter_compile(full_filter.toUtf8().constData(), &dfilter, &df_err);
         dfilter_free(dfilter);
         if (!status) {
-            config_err_ = QString::fromUtf8(err_msg);
-            g_free(err_msg);
+            config_err_ = QString::fromUtf8(df_err->msg);
+            dfilter_error_free(df_err);
             filter_ = full_filter;
             return;
         }

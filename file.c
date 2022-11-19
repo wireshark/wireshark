@@ -1475,7 +1475,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     const char *filter_new = dftext ? dftext : "";
     const char *filter_old = cf->dfilter ? cf->dfilter : "";
     dfilter_t  *dfcode;
-    gchar      *err_msg;
+    df_error_t *df_err;
 
     /* if new filter equals old one, do nothing unless told to do so */
     if (!force && strcmp(filter_new, filter_old) == 0) {
@@ -1494,13 +1494,13 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
          * and try to compile it.
          */
         dftext = g_strdup(dftext);
-        if (!dfilter_compile(dftext, &dfcode, &err_msg)) {
+        if (!dfilter_compile(dftext, &dfcode, &df_err)) {
             /* The attempt failed; report an error. */
             simple_message_box(ESD_TYPE_ERROR, NULL,
                     "See the help for a description of the display filter syntax.",
                     "\"%s\" isn't a valid display filter: %s",
-                    dftext, err_msg);
-            g_free(err_msg);
+                    dftext, df_err->msg);
+            dfilter_error_free(df_err);
             g_free(dftext);
             return CF_ERROR;
         }

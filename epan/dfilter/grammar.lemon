@@ -22,7 +22,7 @@
 static stnode_t *
 new_function(dfwork_t *dfw, stnode_t *node);
 
-#define FAIL(dfw, node, ...) dfilter_fail(dfw, stnode_location(node), __VA_ARGS__)
+#define FAIL(dfw, node, ...) dfilter_fail(dfw, DF_ERROR_GENERIC, stnode_location(node), __VA_ARGS__)
 
 DIAG_OFF_LEMON()
 } /* end of %include */
@@ -65,7 +65,7 @@ DIAG_ON_LEMON()
 any "error" symbols are shifted, if possible. */
 %syntax_error {
     if (!TOKEN) {
-        dfilter_fail(dfw, NULL, "Unexpected end of filter expression.");
+        dfilter_fail(dfw, DF_ERROR_GENERIC, NULL, "Unexpected end of filter expression.");
         return;
     }
     FAIL(dfw, TOKEN, "\"%s\" was unexpected in this context.", stnode_token(TOKEN));
@@ -76,7 +76,7 @@ the above syntax_error code and after the parser fails to
 use error recovery, shifting an "error" symbol and successfully
 shifting 3 more symbols. */
 %parse_failure {
-    dfw->syntax_error = TRUE;
+    dfw->parse_failure = TRUE;
 }
 
 /* ----------------- The grammar -------------- */

@@ -428,6 +428,7 @@ int main(int argc, char *qt_argv[])
 #endif
 #endif
     gchar               *err_msg = NULL;
+    df_error_t          *df_err = NULL;
 
     QString              dfilter, read_filter;
 #ifdef HAVE_LIBPCAP
@@ -960,13 +961,13 @@ int main(int argc, char *qt_argv[])
             } else if (global_commandline_info.jfilter != NULL) {
                 dfilter_t *jump_to_filter = NULL;
                 /* try to compile given filter */
-                if (!dfilter_compile(global_commandline_info.jfilter, &jump_to_filter, &err_msg)) {
+                if (!dfilter_compile(global_commandline_info.jfilter, &jump_to_filter, &df_err)) {
                     // Similar code in MainWindow::mergeCaptureFile().
                     QMessageBox::warning(main_w, QObject::tr("Invalid Display Filter"),
                                          QObject::tr("The filter expression %1 isn't a valid display filter. (%2).")
-                                                 .arg(global_commandline_info.jfilter, err_msg),
+                                                 .arg(global_commandline_info.jfilter, df_err->msg),
                                          QMessageBox::Ok);
-                    g_free(err_msg);
+                    dfilter_error_free(df_err);
                 } else {
                     /* Filter ok, jump to the first packet matching the filter
                        conditions. Default search direction is forward, but if

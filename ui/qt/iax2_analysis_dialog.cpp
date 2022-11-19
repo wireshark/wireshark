@@ -294,12 +294,12 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     const gchar filter_text[] = "iax2 && (ip || ipv6)";
 #endif
     dfilter_t *sfcode;
-    gchar *err_msg;
+    df_error_t *df_err;
 
     /* Try to compile the filter. */
-    if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
-        err_str_ = QString(err_msg);
-        g_free(err_msg);
+    if (!dfilter_compile(filter_text, &sfcode, &df_err)) {
+        err_str_ = QString(df_err->msg);
+        dfilter_error_free(df_err);
         updateWidgets();
         return;
     }

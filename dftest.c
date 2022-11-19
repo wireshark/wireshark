@@ -75,7 +75,7 @@ main(int argc, char **argv)
     char		*expanded_text;
     dfilter_t		*df;
     gchar		*err_msg;
-    dfilter_loc_t	err_loc;
+    df_error_t          *df_err;
 
     cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
 
@@ -164,15 +164,15 @@ main(int argc, char **argv)
     printf("Filter: %s\n", expanded_text);
 
     /* Compile it */
-    if (!dfilter_compile_real(expanded_text, &df, &err_msg, &err_loc,
+    if (!dfilter_compile_real(expanded_text, &df, &df_err,
                                                 "dftest", TRUE, FALSE)) {
-        fprintf(stderr, "dftest: %s\n", err_msg);
-        if (err_loc.col_start >= 0) {
+        fprintf(stderr, "dftest: %s\n", df_err->msg);
+        if (df_err->loc.col_start >= 0) {
             fprintf(stderr, "\t%s\n", expanded_text);
             fputc('\t', stderr);
-            putloc(stderr, err_loc);
+            putloc(stderr, df_err->loc);
         }
-        g_free(err_msg);
+        dfilter_error_free(df_err);
         g_free(expanded_text);
         epan_cleanup();
         exit(2);

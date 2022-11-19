@@ -256,7 +256,7 @@ select_tcpip_session(capture_file *cf)
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
     guint32         th_stream;
-    gchar          *err_msg;
+    df_error_t     *df_err;
     GString        *error_string;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
@@ -265,9 +265,9 @@ select_tcpip_session(capture_file *cf)
     }
 
     /* no real filter yet */
-    if (!dfilter_compile("tcp", &sfcode, &err_msg)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
-        g_free(err_msg);
+    if (!dfilter_compile("tcp", &sfcode, &df_err)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", df_err->msg);
+        dfilter_error_free(df_err);
         return G_MAXUINT32;
     }
 

@@ -1164,16 +1164,16 @@ void LograyMainWindow::mergeCaptureFile()
         char        *tmpname;
 
         if (merge_dlg.merge(file_name, read_filter)) {
-            gchar *err_msg;
+            df_error_t *df_err = NULL;
 
-            if (!dfilter_compile(qUtf8Printable(read_filter), &rfcode, &err_msg)) {
+            if (!dfilter_compile(qUtf8Printable(read_filter), &rfcode, &df_err)) {
                 /* Not valid. Tell the user, and go back and run the file
                    selection box again once they dismiss the alert. */
                 // Similar to commandline_info.jfilter section in main().
                 QMessageBox::warning(this, tr("Invalid Read Filter"),
-                                     QString(tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, err_msg)),
+                                     QString(tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, df_err->msg)),
                                      QMessageBox::Ok);
-                g_free(err_msg);
+                dfilter_error_free(df_err);
                 continue;
             }
         } else {
