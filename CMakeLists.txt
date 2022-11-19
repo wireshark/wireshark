@@ -3715,6 +3715,7 @@ set(CLEAN_C_FILES
 	${editcap_FILES}
 	${idl2wrs_FILES}
 	${mmdbresolve_FILES}
+	${sharkd_FILES}
 )
 
 if(CLEAN_C_FILES)
