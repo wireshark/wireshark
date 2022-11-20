@@ -393,7 +393,6 @@ static int hf_woww_guild_name = -1;
 static int hf_woww_hair_color = -1;
 static int hf_woww_hair_style = -1;
 static int hf_woww_happiness = -1;
-static int hf_woww_has_been_saved = -1;
 static int hf_woww_has_transport = -1;
 static int hf_woww_heal_amount = -1;
 static int hf_woww_heal_critical = -1;
@@ -609,6 +608,7 @@ static int hf_woww_pitch = -1;
 static int hf_woww_player = -1;
 static int hf_woww_player_chat_tag = -1;
 static int hf_woww_player_guid = -1;
+static int hf_woww_player_is_saved_to_a_raid = -1;
 static int hf_woww_player_name = -1;
 static int hf_woww_player_rank = -1;
 static int hf_woww_player_with_killing_blow = -1;
@@ -7398,28 +7398,28 @@ typedef enum {
 } e_channel_flags;
 
 typedef enum {
-    GROUP_UPDATE_FLAGS_FLAG_NONE = 0x00000000,
-    GROUP_UPDATE_FLAGS_FLAG_STATUS = 0x00000001,
-    GROUP_UPDATE_FLAGS_FLAG_CUR_HP = 0x00000002,
-    GROUP_UPDATE_FLAGS_FLAG_MAX_HP = 0x00000004,
-    GROUP_UPDATE_FLAGS_FLAG_POWER_TYPE = 0x00000008,
-    GROUP_UPDATE_FLAGS_FLAG_CUR_POWER = 0x00000010,
-    GROUP_UPDATE_FLAGS_FLAG_MAX_POWER = 0x00000020,
-    GROUP_UPDATE_FLAGS_FLAG_LEVEL = 0x00000040,
-    GROUP_UPDATE_FLAGS_FLAG_ZONE = 0x00000080,
-    GROUP_UPDATE_FLAGS_FLAG_POSITION = 0x00000100,
-    GROUP_UPDATE_FLAGS_FLAG_AURAS = 0x00000200,
-    GROUP_UPDATE_FLAGS_FLAG_AURAS_2 = 0x00000400,
-    GROUP_UPDATE_FLAGS_FLAG_PET_GUID = 0x00000800,
-    GROUP_UPDATE_FLAGS_FLAG_PET_NAME = 0x00001000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_MODEL_ID = 0x00002000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_CUR_HP = 0x00004000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_MAX_HP = 0x00008000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_POWER_TYPE = 0x00010000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_CUR_POWER = 0x00020000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_MAX_POWER = 0x00040000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_AURAS = 0x00080000,
-    GROUP_UPDATE_FLAGS_FLAG_PET_AURAS_2 = 0x00100000,
+    GROUP_UPDATE_FLAGS_NONE = 0x00000000,
+    GROUP_UPDATE_FLAGS_STATUS = 0x00000001,
+    GROUP_UPDATE_FLAGS_CUR_HP = 0x00000002,
+    GROUP_UPDATE_FLAGS_MAX_HP = 0x00000004,
+    GROUP_UPDATE_FLAGS_POWER_TYPE = 0x00000008,
+    GROUP_UPDATE_FLAGS_CUR_POWER = 0x00000010,
+    GROUP_UPDATE_FLAGS_MAX_POWER = 0x00000020,
+    GROUP_UPDATE_FLAGS_LEVEL = 0x00000040,
+    GROUP_UPDATE_FLAGS_ZONE = 0x00000080,
+    GROUP_UPDATE_FLAGS_POSITION = 0x00000100,
+    GROUP_UPDATE_FLAGS_AURAS = 0x00000200,
+    GROUP_UPDATE_FLAGS_AURAS_2 = 0x00000400,
+    GROUP_UPDATE_FLAGS_PET_GUID = 0x00000800,
+    GROUP_UPDATE_FLAGS_PET_NAME = 0x00001000,
+    GROUP_UPDATE_FLAGS_PET_MODEL_ID = 0x00002000,
+    GROUP_UPDATE_FLAGS_PET_CUR_HP = 0x00004000,
+    GROUP_UPDATE_FLAGS_PET_MAX_HP = 0x00008000,
+    GROUP_UPDATE_FLAGS_PET_POWER_TYPE = 0x00010000,
+    GROUP_UPDATE_FLAGS_PET_CUR_POWER = 0x00020000,
+    GROUP_UPDATE_FLAGS_PET_MAX_POWER = 0x00040000,
+    GROUP_UPDATE_FLAGS_PET_AURAS = 0x00080000,
+    GROUP_UPDATE_FLAGS_PET_AURAS_2 = 0x00100000,
     GROUP_UPDATE_FLAGS_MODE_OFFLINE = 0x10000000,
 } e_group_update_flags;
 
@@ -13772,7 +13772,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_INSTANCE_RESET_FAILED:
-            ptvcursor_add(ptv, hf_woww_instance_reset_failed_reason, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_instance_reset_failed_reason, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_INSTANCE_SAVE_CREATED:
@@ -14220,121 +14220,121 @@ add_body_fields(guint32 opcode,
         case SMSG_PARTY_MEMBER_STATS:
             add_packed_guid(ptv, pinfo);
             ptvcursor_add_ret_uint(ptv, hf_woww_group_update_flags, 4, ENC_LITTLE_ENDIAN, &mask);
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_STATUS) {
+            if (mask & GROUP_UPDATE_FLAGS_STATUS) {
                 ptvcursor_add(ptv, hf_woww_group_member_online_status, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_LEVEL) {
+            if (mask & GROUP_UPDATE_FLAGS_LEVEL) {
                 ptvcursor_add(ptv, hf_woww_level, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_ZONE) {
+            if (mask & GROUP_UPDATE_FLAGS_ZONE) {
                 ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POSITION) {
+            if (mask & GROUP_UPDATE_FLAGS_POSITION) {
                 ptvcursor_add(ptv, hf_woww_position_x_int, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_position_y_int, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_AURAS) {
                 add_aura_mask(ptv);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_GUID) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_GUID) {
                 ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_NAME) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_NAME) {
                 add_cstring(ptv, &hf_woww_pet_name);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MODEL_ID) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MODEL_ID) {
                 ptvcursor_add(ptv, hf_woww_pet_display_id, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_AURAS) {
                 add_aura_mask(ptv);
             }
             break;
         case SMSG_PARTY_MEMBER_STATS_FULL:
             add_packed_guid(ptv, pinfo);
             ptvcursor_add_ret_uint(ptv, hf_woww_group_update_flags, 4, ENC_LITTLE_ENDIAN, &mask);
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_STATUS) {
+            if (mask & GROUP_UPDATE_FLAGS_STATUS) {
                 ptvcursor_add(ptv, hf_woww_group_member_online_status, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_LEVEL) {
+            if (mask & GROUP_UPDATE_FLAGS_LEVEL) {
                 ptvcursor_add(ptv, hf_woww_level, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_ZONE) {
+            if (mask & GROUP_UPDATE_FLAGS_ZONE) {
                 ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_POSITION) {
+            if (mask & GROUP_UPDATE_FLAGS_POSITION) {
                 ptvcursor_add(ptv, hf_woww_position_x_int, 2, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_position_y_int, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_AURAS) {
                 add_aura_mask(ptv);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_NAME) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_NAME) {
                 add_cstring(ptv, &hf_woww_pet_name);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MODEL_ID) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MODEL_ID) {
                 ptvcursor_add(ptv, hf_woww_pet_display_id, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_current_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_HP) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_HP) {
                 ptvcursor_add(ptv, hf_woww_pet_max_health, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_POWER_TYPE) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_POWER_TYPE) {
                 ptvcursor_add(ptv, hf_woww_power, 1, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_CUR_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_CUR_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_current_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_MAX_POWER) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_MAX_POWER) {
                 ptvcursor_add(ptv, hf_woww_pet_max_power, 2, ENC_LITTLE_ENDIAN);
             }
-            if (mask & GROUP_UPDATE_FLAGS_FLAG_PET_AURAS) {
+            if (mask & GROUP_UPDATE_FLAGS_PET_AURAS) {
                 add_aura_mask(ptv);
             }
             break;
@@ -15313,7 +15313,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_aura_duration, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_UPDATE_INSTANCE_OWNERSHIP:
-            ptvcursor_add(ptv, hf_woww_has_been_saved, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player_is_saved_to_a_raid, 4, ENC_NA);
             break;
         case SMSG_UPDATE_LAST_INSTANCE:
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
@@ -17651,12 +17651,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_has_been_saved,
-            { "Has Been Saved", "woww.has.been.saved",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_has_transport,
             { "Has Transport", "woww.has.transport",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
@@ -17797,7 +17791,7 @@ proto_register_woww(void)
         },
         { &hf_woww_instance_reset_failed_reason,
             { "Instance Reset Failed Reason", "woww.instance.reset.failed.reason",
-                FT_UINT8, BASE_HEX_DEC, VALS(e_instance_reset_failed_reason_strings), 0,
+                FT_UINT32, BASE_HEX_DEC, VALS(e_instance_reset_failed_reason_strings), 0,
                 NULL, HFILL
             }
         },
@@ -18944,6 +18938,12 @@ proto_register_woww(void)
         { &hf_woww_player_guid,
             { "Player Guid", "woww.player.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_player_is_saved_to_a_raid,
+            { "Player Is Saved To A Raid", "woww.player.is.saved.to.a.raid",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
