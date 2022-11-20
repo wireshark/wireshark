@@ -632,6 +632,79 @@ header_fields_free_cb(void*r)
 
 }
 
+static hf_register_info* hf_uat = NULL;
+
+static void
+deregister_header_fields(void)
+{
+    if (hf_uat) {
+        for (guint i = 0; i < num_header_fields_cleanup; ++i) {
+            proto_deregister_field(proto_http2, *(hf_uat[i].p_id));
+            g_free(hf_uat[i].p_id);
+        }
+        proto_add_deregistered_data(hf_uat);
+        hf_uat = NULL;
+        num_header_fields_cleanup = 0;
+    }
+
+    /* header_fields_hash also contains the static header list (used for
+     * look ups to avoid duplicate entries, so we don't destroy it here.
+     * The dynamic entries are removed from the hash table in
+     * header_fields_free_cb().
+     */
+}
+
+static void
+header_fields_post_update_cb(void)
+{
+    gint* hf_id;
+    gchar* header_name;
+    gchar* header_name_key;
+
+    deregister_header_fields();
+
+    /* Add to hash table headers from UAT */
+    if (num_header_fields) {
+        hf_uat = g_new0(hf_register_info, num_header_fields);
+        num_header_fields_cleanup = num_header_fields;
+
+        for (guint i = 0; i < num_header_fields; i++) {
+            hf_id = g_new(gint,1);
+            *hf_id = -1;
+            header_name = g_strdup(header_fields[i].header_name);
+            header_name_key = g_ascii_strdown(header_name, -1);
+
+            hf_uat[i].p_id = hf_id;
+            hf_uat[i].hfinfo.name = header_name;
+            hf_uat[i].hfinfo.abbrev = ws_strdup_printf("http2.headers.%s", header_name);
+            switch(header_fields[i].header_type) {
+                case val_uint64:
+                    hf_uat[i].hfinfo.type = FT_UINT64;
+                    hf_uat[i].hfinfo.display = BASE_DEC;
+                    break;
+                default: // string
+                    hf_uat[i].hfinfo.type = FT_STRING;
+                    hf_uat[i].hfinfo.display = BASE_NONE;
+                    break;
+            }
+            hf_uat[i].hfinfo.strings = NULL;
+            hf_uat[i].hfinfo.bitmask = 0;
+            hf_uat[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
+            HFILL_INIT(hf_uat[i]);
+
+            g_hash_table_insert(header_fields_hash, header_name_key, hf_id);
+        }
+
+        proto_register_field_array(proto_http2, hf_uat, num_header_fields);
+    }
+}
+
+static void
+header_fields_reset_cb(void)
+{
+    deregister_header_fields();
+}
+
 static void
 register_static_headers(void) {
     header_fields_hash = g_hash_table_new_full(g_str_hash, g_str_equal,
@@ -954,8 +1027,6 @@ UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
 UAT_VS_DEF(header_fields, header_type, header_field_t, enum header_field_type, val_string, "string")
 UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
 
-static hf_register_info* hf_uat = NULL;
-
 /* message/stream direction (to or from server) vals */
 #define http2_direction_type_vals_VALUE_STRING_LIST(XXX)    \
     XXX(DIRECTION_IN, 0, "IN")  \
@@ -1096,60 +1167,12 @@ get_fake_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_
 static void
 http2_init_protocol(void)
 {
-#if HAVE_NGHTTP2
-    gint* hf_id;
-    guint i;
-    gchar* header_name;
-    gchar* header_name_key;
-
-    /* Add to hash table headers from UAT */
-    if (num_header_fields) {
-        hf_uat = g_new0(hf_register_info, num_header_fields);
-        num_header_fields_cleanup = num_header_fields;
-
-        for (i = 0; i < num_header_fields; i++) {
-            hf_id = g_new(gint,1);
-            *hf_id = -1;
-            header_name = g_strdup(header_fields[i].header_name);
-            header_name_key = g_ascii_strdown(header_name, -1);
-
-            hf_uat[i].p_id = hf_id;
-            hf_uat[i].hfinfo.name = header_name;
-            hf_uat[i].hfinfo.abbrev = ws_strdup_printf("http2.headers.%s", header_name);
-            switch(header_fields[i].header_type) {
-                case val_uint64:
-                    hf_uat[i].hfinfo.type = FT_UINT64;
-                    hf_uat[i].hfinfo.display = BASE_DEC;
-                    break;
-                default: // string
-                    hf_uat[i].hfinfo.type = FT_STRING;
-                    hf_uat[i].hfinfo.display = BASE_NONE;
-                    break;
-            }
-            hf_uat[i].hfinfo.strings = NULL;
-            hf_uat[i].hfinfo.bitmask = 0;
-            hf_uat[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
-            HFILL_INIT(hf_uat[i]);
-
-            g_hash_table_insert(header_fields_hash, header_name_key, hf_id);
-        }
-
-        proto_register_field_array(proto_http2, hf_uat, num_header_fields);
-    }
-#endif
     /* Init hash table with mapping of stream id -> frames count for Follow HTTP2 */
     streamid_hash = g_hash_table_new_full(NULL, NULL, NULL, (GDestroyNotify)g_hash_table_destroy);
 }
 
 static void
 http2_cleanup_protocol(void) {
-#if HAVE_NGHTTP2
-    for (guint i = 0; i < num_header_fields_cleanup; ++i) {
-        proto_deregister_field(proto_http2, *(hf_uat[i].p_id));
-    }
-    proto_add_deregistered_data(hf_uat);
-    proto_free_deregistered_fields();
-#endif
     g_hash_table_destroy(streamid_hash);
 }
 
@@ -4536,8 +4559,8 @@ proto_register_http2(void)
                           header_fields_copy_cb,
                           header_fields_update_cb,
                           header_fields_free_cb,
-                          NULL,
-                          NULL,
+                          header_fields_post_update_cb,
+                          header_fields_reset_cb,
                           custom_header_uat_fields
     );
 
