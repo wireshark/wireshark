@@ -275,16 +275,23 @@ gather_wireshark_runtime_info(feature_list l)
 }
 
 static void
-qt_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString &msg)
+qt_log_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    enum ws_log_level log_level = LOG_LEVEL_DEBUG;
+    enum ws_log_level log_level = LOG_LEVEL_NONE;
+
+    // QMessageLogContext may contain null/zero for release builds.
+    const char *file = context.file;
+    int line = context.line > 0 ? context.line : -1;
+    const char *func = context.function;
 
     switch (type) {
     case QtInfoMsg:
         log_level = LOG_LEVEL_INFO;
+        // Omit the file/line/function for this level.
+        file = nullptr;
+        line = -1;
+        func = nullptr;
         break;
-    // We want qDebug() messages to show up at our default log level.
-    case QtDebugMsg:
     case QtWarningMsg:
         log_level = LOG_LEVEL_WARNING;
         break;
@@ -294,10 +301,24 @@ qt_log_message_handler(QtMsgType type, const QMessageLogContext &, const QString
     case QtFatalMsg:
         log_level = LOG_LEVEL_ERROR;
         break;
-    default:
+    // We want qDebug() messages to show up always for temporary print-outs.
+    case QtDebugMsg:
+        log_level = LOG_LEVEL_ECHO;
         break;
     }
-    ws_log(LOG_DOMAIN_QTUI, log_level, "%s", qUtf8Printable(msg));
+
+    // Qt gives the full method declaration as the function. Our convention
+    // (following the C/C++ standards) is to display only the function name.
+    // Hack the name into the message as a workaround to avoid formatting
+    // issues.
+    if (func != nullptr) {
+        ws_log_full(LOG_DOMAIN_QTUI, log_level, file, line, nullptr,
+                        "%s -- %s", func, qUtf8Printable(msg));
+    }
+    else {
+        ws_log_full(LOG_DOMAIN_QTUI, log_level, file, line, nullptr,
+                        "%s", qUtf8Printable(msg));
+    }
 }
 
 #ifdef HAVE_LIBPCAP
