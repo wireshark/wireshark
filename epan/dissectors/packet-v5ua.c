@@ -246,7 +246,7 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
             "ISDN (%u)", efa);
       proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
    }
-   else if (efa > 8175 && efa <= 8180){
+   else if (efa <= 8180){
       proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
             "%s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
       proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str_const(efa, efa_values, "unknown EFA-value"),efa);

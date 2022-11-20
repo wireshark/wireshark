@@ -4026,7 +4026,7 @@ de_nas_5gs_mm_extended_rejected_nssai(tvbuff_t* tvb, proto_tree* tree, packet_in
     proto_tree* sub_partial_tree;
     proto_tree* sub_rejected_tree;
     proto_item* item;
-    int i = 1;
+    int i;
     guint num_partial_items = 1;
     guint32 curr_offset = offset;
     guint32 type_of_list, number_of_element, nssai_len;
@@ -10256,10 +10256,9 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             str = json_get_string(json_data, cur_tok, "contentId");
         } else {
             /* TS 29.502 ch6.1.6.4.4 n1SmInfoFromUe, n1SmInfoToUe, unknownN1SmInfo */
-            if (!cur_tok) {
-                cur_tok = json_get_object(json_data, tokens, N1_SMINFO_FROM_UE);
-                n1_msg_class = N1_SMINFO_FROM_UE;
-            }
+            cur_tok = json_get_object(json_data, tokens, N1_SMINFO_FROM_UE);
+            n1_msg_class = N1_SMINFO_FROM_UE;
+
             if (!cur_tok) {
                 cur_tok = json_get_object(json_data, tokens, N1_SMINFO_TO_UE);
                 n1_msg_class = N1_SMINFO_TO_UE;

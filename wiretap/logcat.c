@@ -267,15 +267,14 @@ wtap_open_return_val logcat_open(wtap *wth, int *err, gchar **err_info)
             return WTAP_OPEN_ERROR; /* I/O error */
         if (tmp_version == 0)
             return WTAP_OPEN_NOT_MINE;  /* not a logcat file */
-        if (tmp_version != -2) {
-            /*
-             * we've read three packets and the first two have the same
-             * version; does the third have the same version?
-             */
-            if (tmp_version != version) {
-                /* no, so this is presumably not a logcat file */
-                return WTAP_OPEN_NOT_MINE;
-            }
+
+        /*
+         * we've read three packets and the first two have the same
+         * version; does the third have the same version?
+         */
+        if (tmp_version != version) {
+            /* no, so this is presumably not a logcat file */
+            return WTAP_OPEN_NOT_MINE;
         }
     }
 

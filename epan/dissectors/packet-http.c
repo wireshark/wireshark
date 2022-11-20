@@ -3982,7 +3982,6 @@ dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		return FALSE;
 	}
 
-	conv_data = get_http_conversation_data(pinfo, &conversation);
 	dissect_http_tls(tvb, pinfo, tree, data);
 	return TRUE;
 }

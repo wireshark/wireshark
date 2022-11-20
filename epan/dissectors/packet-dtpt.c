@@ -426,7 +426,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*dtpt_addrs_tree = NULL;
 	guint32		blob_rawsize = 0;
 	guint32		blob_size = 0;
-	guint32		blob_data_length = 0;
+	guint32		blob_data_length;
 
 	queryset_rawsize = tvb_get_letohl(tvb, offset + 0);
 	if (queryset_rawsize != 60) return 0;

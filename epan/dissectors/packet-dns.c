@@ -4453,7 +4453,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ext_tree = proto_tree_add_subtree_format(dns_tree, tvb, cur_off, extraneous_length,
                                              ett_dns_extraneous, &it, "Extraneous Data (%d bytes)", extraneous_length);
 
-    it = proto_tree_add_item(ext_tree, hf_dns_extraneous_data, tvb, cur_off, extraneous_length, ENC_NA);
+    proto_tree_add_item(ext_tree, hf_dns_extraneous_data, tvb, cur_off, extraneous_length, ENC_NA);
 
     it = proto_tree_add_int(ext_tree, hf_dns_extraneous_length, tvb, 0, 0, extraneous_length);
     proto_item_set_generated(it);

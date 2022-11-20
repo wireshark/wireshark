@@ -662,7 +662,7 @@ dissect_sapms_adm_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 	proto_item *record = NULL, *value = NULL;
 	proto_tree *record_tree = NULL, *value_tree = NULL;
-	guint8 adm_opcode = 0;
+	guint8 adm_opcode;
 
 	while (length>=104){
 

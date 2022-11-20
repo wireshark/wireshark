@@ -38,7 +38,7 @@ static gboolean do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 			buf_flag_count = 32;
 		}
 		buf_flag_count--;
-		if ((buf_flags & (1 << buf_flag_count)) == 0) {
+		if ((buf_flags & (1u << buf_flag_count)) == 0) {
 			guint8 v = tvb_get_guint8(tvb, offset+in_off);
 			wmem_array_append_one(obuf, v);
 			in_off++;

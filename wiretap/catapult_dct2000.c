@@ -819,10 +819,10 @@ parse_line(gchar *linebuff, gint line_length,
     int  n = 0;
     int  port_digits;
     char port_number_string[MAX_PORT_DIGITS+1];
-    int  variant_digits = 0;
+    int  variant_digits;
     int  variant = 1;
-    int  protocol_chars = 0;
-    int  outhdr_chars = 0;
+    int  protocol_chars;
+    int  outhdr_chars;
 
     char seconds_buff[MAX_SECONDS_CHARS+1];
     int  seconds_chars;

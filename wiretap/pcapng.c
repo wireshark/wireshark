@@ -3999,7 +3999,7 @@ static guint32 pcapng_compute_packet_verdict_option_size(wtap_optval_t *optval)
 static gboolean
 compute_block_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type, wtap_optval_t *optval, void *user_data)
 {
-    compute_options_size_t* compute_options_size = (compute_options_size_t*)user_data;
+    compute_options_size_t* options_size = (compute_options_size_t*)user_data;
     guint32 size = 0;
 
     /*
@@ -4027,7 +4027,7 @@ compute_block_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_
         break;
     default:
         /* Block-type dependent; call the callback. */
-        size = (*compute_options_size->compute_option_size)(block, option_id, option_type, optval);
+        size = (*options_size->compute_option_size)(block, option_id, option_type, optval);
         break;
     }
 
@@ -4039,15 +4039,15 @@ compute_block_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_
          * Yes.  Add the size of the option header to the size of the
          * option data.
          */
-        compute_options_size->size += 4;
+        options_size->size += 4;
 
         /* Now add the size of the option value. */
-        compute_options_size->size += size;
+        options_size->size += size;
 
         /* Add optional padding to 32 bits */
         if ((size & 0x03) != 0)
         {
-            compute_options_size->size += 4 - (size & 0x03);
+            options_size->size += 4 - (size & 0x03);
         }
     }
     return TRUE; /* we always succeed */
@@ -4605,7 +4605,7 @@ static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint optio
 
 static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, void* user_data)
 {
-    write_options_t* write_options = (write_options_t*)user_data;
+    write_options_t* options = (write_options_t*)user_data;
 
     /*
      * Process the option IDs that are the same for all block types here;
@@ -4614,12 +4614,12 @@ static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opt
     switch(option_id)
     {
     case OPT_COMMENT:
-        if (!pcapng_write_string_option(write_options->wdh, option_id, optval, write_options->err))
+        if (!pcapng_write_string_option(options->wdh, option_id, optval, options->err))
             return FALSE;
         break;
     case OPT_CUSTOM_STR_COPY:
     case OPT_CUSTOM_BIN_COPY:
-        if (!pcapng_write_custom_option(write_options->wdh, option_id, optval, write_options->err))
+        if (!pcapng_write_custom_option(options->wdh, option_id, optval, options->err))
             return FALSE;
         break;
     case OPT_CUSTOM_STR_NO_COPY:
@@ -4634,8 +4634,8 @@ static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opt
         break;
     default:
         /* Block-type dependent; call the callback, if we have one. */
-        if (write_options->write_option != NULL &&
-            !(*write_options->write_option)(write_options->wdh, block, option_id, option_type, optval, write_options->err))
+        if (options->write_option != NULL &&
+            !(*options->write_option)(options->wdh, block, option_id, option_type, optval, options->err))
             return FALSE;
         break;
     }
@@ -4645,12 +4645,12 @@ static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opt
 static gboolean
 write_options(wtap_dumper *wdh, wtap_block_t block, write_option_func write_option, int *err)
 {
-    write_options_t write_options;
+    write_options_t options;
 
-    write_options.wdh = wdh;
-    write_options.err = err;
-    write_options.write_option = write_option;
-    if (!wtap_block_foreach_option(block, write_block_option, &write_options))
+    options.wdh = wdh;
+    options.err = err;
+    options.write_option = write_option;
+    if (!wtap_block_foreach_option(block, write_block_option, &options))
         return FALSE;
 
     /* Write end of options */

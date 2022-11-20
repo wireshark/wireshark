@@ -1486,7 +1486,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
-    guint header_length = 0;
+    guint header_length;
 
     /* Header CRC */
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
@@ -1742,7 +1742,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
-    guint header_length = 0;
+    guint header_length;
 
     /* Header CRC */
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
@@ -2538,7 +2538,7 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint32 ft;
     guint32   cfn;
-    guint header_length = 0;
+    guint header_length;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
 
@@ -2613,7 +2613,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     proto_item * item;
-    guint header_length = 0;
+    guint header_length;
     rlc_info * rlcinf;
 
     if (p_fp_info->edch_type == 1) {
@@ -2645,7 +2645,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         /********************************/
         /* E-DCH data here              */
-        guint  bit_offset = 0;
+        guint  bit_offset;
         guint  total_pdus = 0;
         guint  total_bits = 0;
         gboolean dissected = FALSE;
@@ -3169,7 +3169,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             int offset, struct fp_info *p_fp_info, void *data)
 {
     guint32 ft;
-    guint header_length = 0;
+    guint header_length;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
 
@@ -3388,7 +3388,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
-    guint16 header_length = 0;
+    guint16 header_length;
 
     /* Header CRC */
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);
@@ -3649,7 +3649,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     guint32 ft;
     guint32 header_crc = 0;
     proto_item * header_crc_pi = NULL;
-    guint header_length = 0;
+    guint header_length;
 
     /* Header CRC */
     header_crc_pi = proto_tree_add_item_ret_uint(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN, &header_crc);

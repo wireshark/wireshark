@@ -416,7 +416,7 @@ static int
 dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	tvbuff_t *next_tvb = NULL;
-	guint8 opcode = 0;
+	guint8 opcode;
 	guint32 offset = 0, eyecatcher_length = 0;
 	conversation_t *conversation = NULL;
 	saprouter_session_state *session_state = NULL;

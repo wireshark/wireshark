@@ -585,9 +585,9 @@ dissect_amqp_1_0_skip(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                       proto_item *item _U_, int hf_amqp_type _U_);
 
 static int
-dissect_amqp_1_0_zero(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
-                      guint offset _U_, guint length _U_,
-                      proto_item *item _U_, int hf_amqp_type _U_);
+dissect_amqp_1_0_zero(tvbuff_t *tvb, packet_info *pinfo,
+                      guint offset, guint length _U_,
+                      proto_item *item, int hf_amqp_type);
 
 static int
 dissect_amqp_1_0_true(tvbuff_t *tvb, packet_info *pinfo,
@@ -601,8 +601,8 @@ dissect_amqp_1_0_false(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 format_amqp_1_0_null(tvbuff_t *tvb _U_,
-                     guint offset, guint length _U_,
-                     const char **value _U_);
+                     guint offset _U_, guint length _U_,
+                     const char **value);
 
 static int
 format_amqp_1_0_boolean_true(tvbuff_t *tvb, guint offset, guint length _U_,

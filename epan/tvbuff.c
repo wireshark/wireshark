@@ -132,7 +132,7 @@ tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing)
 void
 tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 {
-	tvbuff_t *tmp = child;
+	tvbuff_t *tmp;
 
 	DISSECTOR_ASSERT(parent);
 	DISSECTOR_ASSERT(child);
@@ -4208,7 +4208,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 gint
 tvb_skip_wsp(tvbuff_t *tvb, const gint offset, const gint maxlength)
 {
-	gint   counter = offset;
+	gint   counter;
 	gint   end, tvb_len;
 	guint8 tempchar;
 
@@ -4237,7 +4237,7 @@ tvb_skip_wsp(tvbuff_t *tvb, const gint offset, const gint maxlength)
 gint
 tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset)
 {
-	gint   counter = offset;
+	gint   counter;
 	guint8 tempchar;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);

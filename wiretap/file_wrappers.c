@@ -2202,7 +2202,7 @@ gzwfile_close(GZWFILE_T state)
     int ret = 0;
 
     /* flush, free memory, and close file */
-    if (gz_comp(state, Z_FINISH) == -1 && ret == 0)
+    if (gz_comp(state, Z_FINISH) == -1)
         ret = state->err;
     (void)deflateEnd(&(state->strm));
     g_free(state->out);

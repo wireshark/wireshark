@@ -4788,7 +4788,7 @@ static int decode_bgp_link_node_nlri_common_fields(tvbuff_t *tvb,
     length -= dissected_length;
 
     /* dissect Local Node Descriptors TLV */
-    if (length > 0 && length < 4) {
+    if (length < 4) {
         expert_add_info_format(pinfo, tree, &ei_bgp_ls_error,
                 "Unknown data in Link-State Link NLRI! length = %d bytes", length);
         return dissected_length;

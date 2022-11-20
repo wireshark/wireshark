@@ -717,7 +717,7 @@ dissect_pvfs2_attrmask(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	for (i = 0; i < 32; i++)
 	{
-		if (attrmask & (1 << i))
+		if (attrmask & (1u << i))
 			proto_tree_add_uint(attrtree, hf_pvfs_attr, tvb, offset, 4, i);
 	}
 

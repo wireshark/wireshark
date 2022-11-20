@@ -4051,7 +4051,6 @@ proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvbuff_t *tvb, guint offset, guint l
         guint8  channel_list_id;
         guint8  channel_list_name_length;
         guint8  descriptor_length;
-        if (cnt < 1) return;
 
         channel_list_id = tvb_get_guint8(tvb, offset);
         channel_list_tree = proto_tree_add_subtree_format(tree, tvb, offset, ch_list_len,
