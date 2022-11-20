@@ -9438,7 +9438,7 @@ static gint32
 get_null_terminated_string_length( tvbuff_t* tvb,
                                    gint32 offset)
 {
-    const gint32 maximum_length = 255;
+    const gint32 maximum_length = 0x7FFF;
     for (gint32 length = 0; length < maximum_length; length++) {
         guint8 character = tvb_get_guint8(tvb, offset + length);
         if (character == 0) {
