@@ -14871,7 +14871,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_critical, 1, ENC_NA);
             break;
         case SMSG_SPELLINSTAKILLLOG:
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLLOGEXECUTE:
