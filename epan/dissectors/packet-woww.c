@@ -161,7 +161,6 @@ static int hf_woww_area = -1;
 static int hf_woww_argument = -1;
 static int hf_woww_armor = -1;
 static int hf_woww_attacker = -1;
-static int hf_woww_attacker_guid = -1;
 static int hf_woww_auction_duration_in_minutes = -1;
 static int hf_woww_auction_house_id = -1;
 static int hf_woww_auction_id = -1;
@@ -170,7 +169,6 @@ static int hf_woww_auction_out_bid = -1;
 static int hf_woww_auction_slot_id = -1;
 static int hf_woww_auction_sub_category = -1;
 static int hf_woww_auctioneer = -1;
-static int hf_woww_auctioneer_guid = -1;
 static int hf_woww_aura_duration = -1;
 static int hf_woww_aura_slot = -1;
 static int hf_woww_aura_type = -1;
@@ -183,7 +181,6 @@ static int hf_woww_backwards_running_speed = -1;
 static int hf_woww_backwards_swimming_speed = -1;
 static int hf_woww_bag = -1;
 static int hf_woww_bag_family = -1;
-static int hf_woww_bag_guid = -1;
 static int hf_woww_bag_index = -1;
 static int hf_woww_bag_slot = -1;
 static int hf_woww_bag_type_subclass = -1;
@@ -222,7 +219,6 @@ static int hf_woww_cast_failure_reason = -1;
 static int hf_woww_cast_flags = -1;
 static int hf_woww_cast_item = -1;
 static int hf_woww_caster = -1;
-static int hf_woww_caster_guid = -1;
 static int hf_woww_category_cooldown_in_msecs = -1;
 static int hf_woww_channel = -1;
 static int hf_woww_channel_flags = -1;
@@ -270,7 +266,6 @@ static int hf_woww_created_year = -1;
 static int hf_woww_creature = -1;
 static int hf_woww_creature_entry = -1;
 static int hf_woww_creature_family = -1;
-static int hf_woww_creature_guid = -1;
 static int hf_woww_creature_id = -1;
 static int hf_woww_creature_rank = -1;
 static int hf_woww_creature_type = -1;
@@ -385,7 +380,6 @@ static int hf_woww_guild_command = -1;
 static int hf_woww_guild_command_result = -1;
 static int hf_woww_guild_emblem_result = -1;
 static int hf_woww_guild_event = -1;
-static int hf_woww_guild_guid = -1;
 static int hf_woww_guild_id = -1;
 static int hf_woww_guild_info = -1;
 static int hf_woww_guild_member_status = -1;
@@ -413,7 +407,7 @@ static int hf_woww_inactive = -1;
 static int hf_woww_index = -1;
 static int hf_woww_info_block = -1;
 static int hf_woww_info_type = -1;
-static int hf_woww_initiator_guid = -1;
+static int hf_woww_initiator = -1;
 static int hf_woww_initiator_name = -1;
 static int hf_woww_instance_id = -1;
 static int hf_woww_instance_reset_failed_reason = -1;
@@ -436,7 +430,6 @@ static int hf_woww_item_display_id = -1;
 static int hf_woww_item_display_info = -1;
 static int hf_woww_item_enchant_id = -1;
 static int hf_woww_item_enchantment = -1;
-static int hf_woww_item_guid = -1;
 static int hf_woww_item_icon = -1;
 static int hf_woww_item_id = -1;
 static int hf_woww_item_level = -1;
@@ -491,7 +484,7 @@ static int hf_woww_loot_master = -1;
 static int hf_woww_loot_method = -1;
 static int hf_woww_loot_slot = -1;
 static int hf_woww_loot_slot_type = -1;
-static int hf_woww_looted_target_guid = -1;
+static int hf_woww_looted_target = -1;
 static int hf_woww_loyalty = -1;
 static int hf_woww_mail_id = -1;
 static int hf_woww_mail_template_id = -1;
@@ -555,7 +548,6 @@ static int hf_woww_nodes = -1;
 static int hf_woww_note = -1;
 static int hf_woww_notification = -1;
 static int hf_woww_npc = -1;
-static int hf_woww_npc_guid = -1;
 static int hf_woww_number_of_battlegrounds = -1;
 static int hf_woww_number_of_choices = -1;
 static int hf_woww_object_target = -1;
@@ -574,7 +566,7 @@ static int hf_woww_orientation = -1;
 static int hf_woww_out_bid = -1;
 static int hf_woww_outbid_item_ids = -1;
 static int hf_woww_outfit_id = -1;
-static int hf_woww_owner_guid = -1;
+static int hf_woww_owner = -1;
 static int hf_woww_page_id = -1;
 static int hf_woww_page_material = -1;
 static int hf_woww_page_text = -1;
@@ -589,7 +581,6 @@ static int hf_woww_pet_current_power = -1;
 static int hf_woww_pet_display_id = -1;
 static int hf_woww_pet_enabled = -1;
 static int hf_woww_pet_feedback = -1;
-static int hf_woww_pet_guid = -1;
 static int hf_woww_pet_level = -1;
 static int hf_woww_pet_max_health = -1;
 static int hf_woww_pet_max_power = -1;
@@ -601,13 +592,11 @@ static int hf_woww_pet_slot = -1;
 static int hf_woww_pet_talk_reason = -1;
 static int hf_woww_pet_tame_failure_reason = -1;
 static int hf_woww_petition = -1;
-static int hf_woww_petition_guid = -1;
 static int hf_woww_petition_id = -1;
 static int hf_woww_petition_result = -1;
 static int hf_woww_pitch = -1;
 static int hf_woww_player = -1;
 static int hf_woww_player_chat_tag = -1;
-static int hf_woww_player_guid = -1;
 static int hf_woww_player_is_saved_to_a_raid = -1;
 static int hf_woww_player_name = -1;
 static int hf_woww_player_rank = -1;
@@ -755,6 +744,7 @@ static int hf_woww_spirit_released = -1;
 static int hf_woww_spline_elevation = -1;
 static int hf_woww_spline_flag = -1;
 static int hf_woww_spline_id = -1;
+static int hf_woww_stable_master = -1;
 static int hf_woww_stable_result = -1;
 static int hf_woww_stable_slots = -1;
 static int hf_woww_stack_count = -1;
@@ -774,7 +764,7 @@ static int hf_woww_string = -1;
 static int hf_woww_sub_name = -1;
 static int hf_woww_subject = -1;
 static int hf_woww_suggestion = -1;
-static int hf_woww_summoner_guid = -1;
+static int hf_woww_summoner = -1;
 static int hf_woww_survey_id = -1;
 static int hf_woww_swap_with_name = -1;
 static int hf_woww_swimming_speed = -1;
@@ -783,7 +773,6 @@ static int hf_woww_talent_point_cost = -1;
 static int hf_woww_talent_reset_cost = -1;
 static int hf_woww_target = -1;
 static int hf_woww_target_error = -1;
-static int hf_woww_target_guid = -1;
 static int hf_woww_target_player = -1;
 static int hf_woww_target_string = -1;
 static int hf_woww_targets = -1;
@@ -856,15 +845,13 @@ static int hf_woww_v_cos = -1;
 static int hf_woww_v_sin = -1;
 static int hf_woww_value = -1;
 static int hf_woww_vendor = -1;
-static int hf_woww_vendor_guid = -1;
 static int hf_woww_vendor_slot = -1;
 static int hf_woww_vertical_speed = -1;
 static int hf_woww_victim = -1;
-static int hf_woww_victim_guid = -1;
 static int hf_woww_walking_speed = -1;
 static int hf_woww_weather_change_type = -1;
 static int hf_woww_weather_type = -1;
-static int hf_woww_winning_player_guid = -1;
+static int hf_woww_winning_player = -1;
 static int hf_woww_winning_roll = -1;
 static int hf_woww_wiping_npc = -1;
 static int hf_woww_won = -1;
@@ -9656,7 +9643,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case CMSG_AUCTION_LIST_ITEMS:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_list_start_item, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_searched_name);
             ptvcursor_add(ptv, hf_woww_minimum_level, 1, ENC_LITTLE_ENDIAN);
@@ -9668,16 +9655,16 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_usable, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_LIST_OWNER_ITEMS:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_list_from, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_PLACE_BID:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auction_id, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_price, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_REMOVE_ITEM:
-            ptvcursor_add(ptv, hf_woww_auctioneer_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_auctioneer, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auction_id, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_AUCTION_SELL_ITEM:
@@ -9757,20 +9744,20 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BUY_ITEM:
-            ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_vendor, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BUY_ITEM_IN_SLOT:
-            ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_vendor, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_bag_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_bag, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_bag_slot, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_BUY_STABLE_SLOT:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_npc, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_CANCEL_AURA:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
@@ -10412,7 +10399,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_LOOT_ROLL:
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
@@ -10748,8 +10735,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_OFFER_PETITION:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_OPEN_ITEM:
             ptvcursor_add(ptv, hf_woww_bag_index, 1, ENC_LITTLE_ENDIAN);
@@ -10779,26 +10766,26 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unknown_int, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_QUERY:
-            ptvcursor_add(ptv, hf_woww_guild_guid, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_guild_id, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_SHOWLIST:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_SHOW_SIGNATURES:
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PETITION_SIGN:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_ABANDON:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_ACTION:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_data, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_CANCEL_AURA:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -10845,7 +10832,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_RENAME:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_name);
             break;
         case CMSG_PET_SET_ACTION:
@@ -10864,10 +10851,10 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_autocast_enabled, 1, ENC_NA);
             break;
         case CMSG_PET_STOP_ATTACK:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PET_UNLEARN:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_PING:
             ptvcursor_add(ptv, hf_woww_sequence_id, 4, ENC_LITTLE_ENDIAN);
@@ -10927,8 +10914,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_REPAIR_ITEM:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_npc, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_REQUEST_ACCOUNT_DATA:
             ptvcursor_add(ptv, hf_woww_data_type, 4, ENC_LITTLE_ENDIAN);
@@ -10941,8 +10928,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_status, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SELL_ITEM:
-            ptvcursor_add(ptv, hf_woww_vendor_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_vendor, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SEND_MAIL:
@@ -11012,7 +10999,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_amount, 1, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_STABLE_PET:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_stable_master, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_STABLE_SWAP_PET:
             ptvcursor_add(ptv, hf_woww_npc, 8, ENC_LITTLE_ENDIAN);
@@ -11022,7 +11009,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_unit_stand_state, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SUMMON_RESPONSE:
-            ptvcursor_add(ptv, hf_woww_summoner_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_summoner, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_SWAP_INV_ITEM:
             ptvcursor_add(ptv, hf_woww_source_slot, 1, ENC_LITTLE_ENDIAN);
@@ -11062,7 +11049,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_TURN_IN_PETITION:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_TUTORIAL_FLAG:
             ptvcursor_add(ptv, hf_woww_tutorial_flag, 4, ENC_LITTLE_ENDIAN);
@@ -11071,7 +11058,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_skill, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UNSTABLE_PET:
-            ptvcursor_add(ptv, hf_woww_npc_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_stable_master, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_pet_number, 4, ENC_LITTLE_ENDIAN);
             break;
         case CMSG_UPDATE_ACCOUNT_DATA:
@@ -12934,7 +12921,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             break;
         case MSG_PETITION_RENAME:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_new_name);
             break;
         case MSG_PVP_LOG_DATA:
@@ -13114,8 +13101,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_blocked_amount, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ATTACKSTART:
-            ptvcursor_add(ptv, hf_woww_attacker_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_victim_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_attacker, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_victim, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ATTACKSTOP:
             add_packed_guid(ptv, pinfo);
@@ -13258,7 +13245,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_BATTLEGROUND_PLAYER_JOINED:
-            ptvcursor_add(ptv, hf_woww_player_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_BATTLEGROUND_PLAYER_LEFT:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
@@ -13382,7 +13369,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_CLEAR_COOLDOWN:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_CLIENT_CONTROL_UPDATE:
             add_packed_guid(ptv, pinfo);
@@ -13430,8 +13417,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_dismount_result, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DISPEL_FAILED:
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             while (ptvcursor_current_offset(ptv) < offset_packet_end) {
                 ptvcursor_add(ptv, hf_woww_spells, 4, ENC_LITTLE_ENDIAN);
             }
@@ -13443,8 +13430,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_time_in_seconds, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DUEL_REQUESTED:
-            ptvcursor_add(ptv, hf_woww_initiator_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_initiator, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_DUEL_WINNER:
             ptvcursor_add(ptv, hf_woww_duel_winner_reason, 1, ENC_LITTLE_ENDIAN);
@@ -13456,8 +13443,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_ENCHANTMENTLOG:
-            ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_show_affiliation, 1, ENC_NA);
@@ -13963,7 +13950,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_LOOT_ALL_PASSED:
-            ptvcursor_add(ptv, hf_woww_looted_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_looted_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
@@ -13999,7 +13986,7 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_LOOT_ROLL:
-            ptvcursor_add(ptv, hf_woww_creature_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_creature, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_player, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
@@ -14009,17 +13996,17 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_LOOT_ROLL_WON:
-            ptvcursor_add(ptv, hf_woww_looted_target_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_looted_target, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_property_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_winning_player_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_winning_player, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_winning_roll, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_roll_vote, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_LOOT_START_ROLL:
-            ptvcursor_add(ptv, hf_woww_creature_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_creature, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_loot_slot, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_item_random_suffix, 4, ENC_LITTLE_ENDIAN);
@@ -14407,9 +14394,9 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_PETITION_SHOW_SIGNATURES:
-            ptvcursor_add(ptv, hf_woww_item_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_owner_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_petition_guid, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_item, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_owner, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_signatures, 1, ENC_LITTLE_ENDIAN, &amount_of_signatures);
             for (i = 0; i < amount_of_signatures; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "PetitionSignature");
@@ -14419,8 +14406,8 @@ add_body_fields(guint32 opcode,
             }
             break;
         case SMSG_PETITION_SIGN_RESULTS:
-            ptvcursor_add(ptv, hf_woww_petition_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_owner_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_owner, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_petition_result, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_PET_ACTION_FEEDBACK:
@@ -14486,7 +14473,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_pet_tame_failure_reason, 1, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_PET_UNLEARN_CONFIRM:
-            ptvcursor_add(ptv, hf_woww_pet_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_pet, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_talent_reset_cost, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_PLAYED_TIME:
@@ -14843,8 +14830,8 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SPELLDAMAGESHIELD:
-            ptvcursor_add(ptv, hf_woww_victim_guid, 8, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_victim, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_damage, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_spell_school, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -14959,12 +14946,12 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_SPELLLOGMISS:
             ptvcursor_add(ptv, hf_woww_id, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_caster_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_caster, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_unknown_int, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_targets, 4, ENC_LITTLE_ENDIAN, &amount_of_targets);
             for (i = 0; i < amount_of_targets; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellLogMiss");
-                ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_pop_subtree(ptv);
             }
@@ -15023,7 +15010,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_misses, 1, ENC_LITTLE_ENDIAN, &amount_of_misses);
             for (i = 0; i < amount_of_misses; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "SpellMiss");
-                ptvcursor_add(ptv, hf_woww_target_guid, 8, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_target, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add_ret_uint(ptv, hf_woww_spell_miss_info, 4, ENC_LITTLE_ENDIAN, &miss_info);
                 ptvcursor_pop_subtree(ptv);
             }
@@ -15196,7 +15183,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_timer_type, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_SUMMON_REQUEST:
-            ptvcursor_add(ptv, hf_woww_summoner_guid, 8, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_summoner, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_area, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_auto_decline_time_in_msecs, 4, ENC_LITTLE_ENDIAN);
             break;
@@ -16259,12 +16246,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_attacker_guid,
-            { "Attacker Guid", "woww.attacker.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_auction_duration_in_minutes,
             { "Auction Duration In Minutes", "woww.auction.duration.in.minutes",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -16309,12 +16290,6 @@ proto_register_woww(void)
         },
         { &hf_woww_auctioneer,
             { "Auctioneer", "woww.auctioneer",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_auctioneer_guid,
-            { "Auctioneer Guid", "woww.auctioneer.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -16381,19 +16356,13 @@ proto_register_woww(void)
         },
         { &hf_woww_bag,
             { "Bag", "woww.bag",
-                FT_UINT8, BASE_HEX_DEC, NULL, 0,
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
         { &hf_woww_bag_family,
             { "Bag Family", "woww.bag.family",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_bag_guid,
-            { "Bag Guid", "woww.bag.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -16621,12 +16590,6 @@ proto_register_woww(void)
         },
         { &hf_woww_caster,
             { "Caster", "woww.caster",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_caster_guid,
-            { "Caster Guid", "woww.caster.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -16897,7 +16860,7 @@ proto_register_woww(void)
         },
         { &hf_woww_creature,
             { "Creature", "woww.creature",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -16910,12 +16873,6 @@ proto_register_woww(void)
         { &hf_woww_creature_family,
             { "Creature Family", "woww.creature.family",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_creature_family_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_creature_guid,
-            { "Creature Guid", "woww.creature.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -17603,12 +17560,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_guild_guid,
-            { "Guild Guid", "woww.guild.guid",
-                FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_guild_id,
             { "Guild Id", "woww.guild.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -17771,8 +17722,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_initiator_guid,
-            { "Initiator Guid", "woww.initiator.guid",
+        { &hf_woww_initiator,
+            { "Initiator", "woww.initiator",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -17906,12 +17857,6 @@ proto_register_woww(void)
         { &hf_woww_item_enchantment,
             { "Item Enchantment", "woww.item.enchantment",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_item_guid,
-            { "Item Guid", "woww.item.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -18239,8 +18184,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_looted_target_guid,
-            { "Looted Target Guid", "woww.looted.target.guid",
+        { &hf_woww_looted_target,
+            { "Looted Target", "woww.looted.target",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -18623,12 +18568,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_npc_guid,
-            { "Npc Guid", "woww.npc.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_number_of_battlegrounds,
             { "Number Of Battlegrounds", "woww.number.of.battlegrounds",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18737,8 +18676,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_owner_guid,
-            { "Owner Guid", "woww.owner.guid",
+        { &hf_woww_owner,
+            { "Owner", "woww.owner",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -18827,12 +18766,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_pet_guid,
-            { "Pet Guid", "woww.pet.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_pet_level,
             { "Pet Level", "woww.pet.level",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18899,12 +18832,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_petition_guid,
-            { "Petition Guid", "woww.petition.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_petition_id,
             { "Petition Id", "woww.petition.id",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -18932,12 +18859,6 @@ proto_register_woww(void)
         { &hf_woww_player_chat_tag,
             { "Player Chat Tag", "woww.player.chat.tag",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_player_chat_tag_strings), 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_player_guid,
-            { "Player Guid", "woww.player.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -19823,6 +19744,12 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
+        { &hf_woww_stable_master,
+            { "Stable Master", "woww.stable.master",
+                FT_UINT64, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
         { &hf_woww_stable_result,
             { "Stable Result", "woww.stable.result",
                 FT_UINT8, BASE_HEX_DEC, VALS(e_stable_result_strings), 0,
@@ -19937,8 +19864,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_summoner_guid,
-            { "Summoner Guid", "woww.summoner.guid",
+        { &hf_woww_summoner,
+            { "Summoner", "woww.summoner",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -19988,12 +19915,6 @@ proto_register_woww(void)
         { &hf_woww_target_error,
             { "Target Error", "woww.target.error",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_target_guid,
-            { "Target Guid", "woww.target.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
         },
@@ -20429,12 +20350,6 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_vendor_guid,
-            { "Vendor Guid", "woww.vendor.guid",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
         { &hf_woww_vendor_slot,
             { "Vendor Slot", "woww.vendor.slot",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
@@ -20449,12 +20364,6 @@ proto_register_woww(void)
         },
         { &hf_woww_victim,
             { "Victim", "woww.victim",
-                FT_UINT64, BASE_HEX_DEC, NULL, 0,
-                NULL, HFILL
-            }
-        },
-        { &hf_woww_victim_guid,
-            { "Victim Guid", "woww.victim.guid",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
@@ -20477,8 +20386,8 @@ proto_register_woww(void)
                 NULL, HFILL
             }
         },
-        { &hf_woww_winning_player_guid,
-            { "Winning Player Guid", "woww.winning.player.guid",
+        { &hf_woww_winning_player,
+            { "Winning Player", "woww.winning.player",
                 FT_UINT64, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
