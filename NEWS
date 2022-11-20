@@ -40,20 +40,16 @@ Wireshark 4.1.0 Release Notes
        to filter on malformed UTF-8 strings, among other use cases where
        it is necessary to look at the field’s raw data.
 
-  Removed Features and Support
-
-     • The experimental display filter syntax for literals using angle
-       brackets <…​> that was introduced in Wireshark 4.0.0 has been
-       removed. For byte arrays a colon prefix can be used instead. See
-       the User’s Guide[2] for details.
-
   New Protocol Support
 
-   SAP HANA SQL Command Network Protocol (SAPHDB), SAP Internet Graphic
-   Server (SAP IGS), SAP Network Interface (SAPNI), Support for almost
-   all WoW 1.12 messages has been added., and World of Warcraft World
-   (WOWW) display filters have been changed to be more internally
-   consistent.
+   Management Component Transport Protocol (MCTP), Management Component
+   Transport Protocol - Control Protocol (MCTP CP), Non-volatile Memory
+   Express - Management Interface (NVMe-MI) over MCTP, SAP Enqueue
+   Server (SAPEnqueue), SAP HANA SQL Command Network Protocol (SAPHDB),
+   SAP Internet Graphic Server (SAP IGS), SAP Network Interface (SAPNI),
+   Support for almost all WoW 1.12 messages has been added., and World
+   of Warcraft World (WOWW) display filters have been changed to be more
+   internally consistent.
 
   Updated Protocol Support
 
@@ -75,7 +71,7 @@ Wireshark 4.1.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -90,27 +86,25 @@ Wireshark 4.1.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[7].
+  SharkFest[6].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[7].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/18413
-   2. https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDispla
-  yFilterSection.html#_some_protocol_names_can_be_ambiguous
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://sharkfest.wireshark.org
-   8. https://www.wireshark.org/faq.html
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://sharkfest.wireshark.org
+   7. https://www.wireshark.org/faq.html
