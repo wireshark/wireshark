@@ -95,6 +95,7 @@ static const value_string flag_vals[] = {
 };
 
 static dissector_table_t mctp_dissector_table;
+static dissector_table_t mctp_encap_dissector_table;
 static reassembly_table mctp_reassembly_table;
 
 static int
@@ -208,9 +209,17 @@ dissect_mctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (next_tvb) {
+        int rc;
+
         type = tvb_get_guint8(next_tvb, 0);
-        dissector_try_uint_new(mctp_dissector_table, type & 0x7f, next_tvb,
-                               pinfo, tree, true, NULL);
+        rc = dissector_try_uint_new(mctp_dissector_table, type & 0x7f,
+                                    next_tvb, pinfo, tree, true, NULL);
+
+        if (!rc && !(type & 0x80)) {
+            tvbuff_t *encap_tvb = tvb_new_subset_remaining(next_tvb, 1);
+            dissector_try_uint_new(mctp_encap_dissector_table, type,
+                                   encap_tvb, pinfo, tree, true, NULL);
+        }
     }
 
     pinfo->fragmented = save_fragmented;
@@ -330,9 +339,31 @@ proto_register_mctp(void)
     proto_register_field_array(proto_mctp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* We have two dissector tables here, both keyed off the type byte, but
+     * with different decode semantics:
+     *
+     * mctp.type: for protocols that are "MCTP-aware" - they perform their
+     *    own decoding of the type byte, including the IC bit, and possibly the
+     *    message integrity check (which is type-specific!). For example,
+     *    NVMe-MI, which includes the type byte in packet specifications
+     *
+     * mctp.encap-type: for procotols that are trivially encapsulated in a
+     *    MCTP message, and do not handle the type byte themselves. For
+     *    example, NC-SI over MCTP, which just wraps a NC-SI packet within
+     *    a MCTP message.
+     *
+     * it doesn't make sense to allow encap-type decoders to also have the IC
+     * bit set, as there is no specification for what format the message
+     * integrity check is in. So, we disallow the IC bit in the type field
+     * for those dissectors.
+     */
     mctp_dissector_table = register_dissector_table("mctp.type", "MCTP type",
                                                     proto_mctp, FT_UINT8,
                                                     BASE_HEX);
+    mctp_encap_dissector_table = register_dissector_table("mctp.encap-type",
+                                                          "MCTP encapsulated type",
+                                                          proto_mctp, FT_UINT8,
+                                                          BASE_HEX);
 
     reassembly_table_register(&mctp_reassembly_table,
                               &addresses_reassembly_table_functions);

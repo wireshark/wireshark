@@ -26,6 +26,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/pci-ids.h>
+#include <epan/dissectors/packet-mctp.h>
 
 void proto_reg_handoff_ncsi(void);
 void proto_register_ncsi(void);
@@ -1670,6 +1671,7 @@ void
 proto_reg_handoff_ncsi(void)
 {
     dissector_add_uint("ethertype", ETHERTYPE_NCSI, ncsi_handle);
+    dissector_add_uint("mctp.encap-type", MCTP_TYPE_NCSI, ncsi_handle);
 }
 
 /*
