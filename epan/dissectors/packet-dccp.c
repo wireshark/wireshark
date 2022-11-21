@@ -188,6 +188,7 @@ static const range_string dccp_feature_numbers_rvals[] = {
     {0x07, 0x07, "Send NDP Count" },
     {0x08, 0x08, "Minimum Checksum Coverage" },
     {0x09, 0x09, "Check Data Checksum" },
+    {0x0A, 0x0A, "MP_CAPABLE" },
     {0x03, 0x7F, "Reserved"},
     {0xC0, 0xC0, "Send Loss Event Rate"}, /* CCID3, RFC 4342, 8.5 */
     {0xC1, 0xFF, "CCID-specific feature"},
@@ -237,6 +238,8 @@ static int hf_dccp_data_checksum = -1;
 
 /* MP-DCCP Option fields */
 static int hf_mpdccp_confirm = -1;
+
+static int hf_mpdccp_version = -1;
 
 static int hf_mpdccp_join = -1;
 static int hf_mpdccp_join_id = -1;
@@ -683,8 +686,7 @@ dccp_ntoh_var(tvbuff_t *tvb, gint offset, guint nbytes)
 
 static void
 dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
-                        int offset, guint8 option_len,
-                        guint8 option_type)
+                        int offset, guint8 option_len)
 {
     guint8      feature_number = tvb_get_guint8(tvb, offset);
     proto_item *dccp_item;
@@ -694,10 +696,13 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
     feature_tree =
         proto_tree_add_subtree_format(dccp_options_tree, tvb, offset, option_len,
                             ett_dccp_feature, &dccp_item, "%s(",
-                            rval_to_str_const(option_type, dccp_feature_numbers_rvals, "Unknown feature number"));
-
-    proto_tree_add_uint(feature_tree, hf_dccp_feature_number, tvb,
-                            offset, 1, feature_number);
+                            rval_to_str_const(feature_number, dccp_feature_numbers_rvals, "Unknown feature number"));
+    if (feature_number != 10)
+        proto_tree_add_uint(feature_tree, hf_dccp_feature_number, tvb,
+                                offset, 1, feature_number);
+    else
+        proto_tree_add_uint(feature_tree, hf_mpdccp_version, tvb,
+                                offset+1, option_len, ENC_BIG_ENDIAN);
     offset++;
     option_len--;
 
@@ -733,6 +738,10 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
         break;
 
     /* Reserved, specific, or unknown features */
+    case 10:       /* MP_CAPABLE; fall through             */
+        for (i = 0; i < option_len; i++)
+            proto_item_append_text(dccp_item, "%s %d", i ? "," : "", feature_number);
+        break;
     default:
         proto_item_append_text(dccp_item, "%d", feature_number);
         break;
@@ -809,8 +818,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
         case 33:
         case 34:
         case 35:
-            dissect_feature_options(option_tree, tvb, offset, option_len,
-                                    option_type);
+            dissect_feature_options(option_tree, tvb, offset, option_len);
             break;
         case 36:
             proto_tree_add_item(option_tree, hf_dccp_init_cookie, tvb, offset, option_len, ENC_NA);
@@ -1847,6 +1855,7 @@ proto_register_dccp(void)
 
         /*  MP-DCCP related option fields  */
         {&hf_mpdccp_confirm,{"MP_CONFIRM", "mpdccp.mp_confirm",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mpdccp_version,{"version", "mpdccp.version",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_mpdccp_join,{"MP_JOIN", "mpdccp.mp_join",FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_mpdccp_join_id,{"MP_JOIN id", "mpdccp.mp_join",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
