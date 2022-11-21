@@ -565,7 +565,7 @@
 #define AL_OBJ_FILE_CMD         0x4603   /* 70 03 File Control - Command */
 #define AL_OBJ_FILE_STAT        0x4604   /* 70 04 File Control - Status */
 #define AL_OBJ_FILE_TRANS       0x4605   /* 70 05 File Control - Transport */
-#define AL_OBJ_FILE_TRAN_ST     0x4606   /* 70 05 File Control - Transport Status */
+#define AL_OBJ_FILE_TRAN_ST     0x4606   /* 70 06 File Control - Transport Status */
 
 /* File Control Mode flags */
 #define AL_OBJ_FILE_MODE_NULL   0x00   /* NULL */
