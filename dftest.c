@@ -165,7 +165,7 @@ main(int argc, char **argv)
 
     /* Compile it */
     if (!dfilter_compile_real(expanded_text, &df, &df_err,
-                                                "dftest", TRUE, FALSE)) {
+                                                "dftest", TRUE, FALSE, FALSE)) {
         fprintf(stderr, "dftest: %s\n", df_err->msg);
         if (df_err->loc.col_start >= 0) {
             fprintf(stderr, "\t%s\n", expanded_text);

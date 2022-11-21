@@ -846,7 +846,9 @@ dfw_gencode(dfwork_t *dfw)
 	dfw->interesting_fields = g_hash_table_new(g_int_hash, g_int_equal);
 	gencode(dfw, dfw->st_root);
 	dfw_append_insn(dfw, dfvm_insn_new(DFVM_RETURN));
-	optimize(dfw);
+	if (dfw->apply_optimization) {
+		optimize(dfw);
+	}
 }
 
 

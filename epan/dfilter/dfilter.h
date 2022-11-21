@@ -69,15 +69,16 @@ WS_DLL_PUBLIC
 void
 dfilter_error_free(df_error_t *);
 
+// TODO: Replace booleans with a bit flag.
 WS_DLL_PUBLIC
 gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 			df_error_t **errpp,
 			const char *caller, gboolean save_tree,
-			gboolean apply_macros);
+			gboolean apply_macros, gboolean apply_optimization);
 
 #define dfilter_compile(text, dfp, errp) \
-	dfilter_compile_real(text, dfp, errp, __func__, FALSE, TRUE)
+	dfilter_compile_real(text, dfp, errp, __func__, FALSE, TRUE, TRUE)
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */

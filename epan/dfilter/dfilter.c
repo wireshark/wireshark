@@ -357,7 +357,7 @@ gboolean
 dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 			df_error_t **errpp,
 			const char *caller, gboolean save_tree,
-			gboolean apply_macros)
+			gboolean apply_macros, gboolean apply_optimization)
 {
 	int		token;
 	dfilter_t	*dfilter;
@@ -393,6 +393,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	}
 
 	dfw = dfwork_new();
+	dfw->apply_optimization = apply_optimization;
 
 	if (apply_macros) {
 		dfw->expanded_text = dfilter_macro_apply(text, &dfw->error.msg);

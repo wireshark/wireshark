@@ -55,6 +55,7 @@ typedef struct {
 	GHashTable	*references; /* hfinfo -> pointer to array of references */
 	GHashTable	*raw_references; /* hfinfo -> pointer to array of references */
 	char		*expanded_text;
+	gboolean	apply_optimization;
 } dfwork_t;
 
 /*
