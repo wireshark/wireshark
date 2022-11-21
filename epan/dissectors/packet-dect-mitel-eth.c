@@ -41,6 +41,8 @@ static gint hf_dect_mitel_eth_mac_con_ind_flag_handover = -1;
 
 static gint hf_dect_mitel_eth_mac_dis_ind_reason = -1;
 
+static gint hf_dect_mitel_eth_mac_page_req_flags = -1;
+
 static gint hf_dect_mitel_eth_mac_enc_key_req_key = -1;
 static gint hf_dect_mitel_eth_mac_enc_key_req_id = -1;
 
@@ -247,6 +249,20 @@ static guint dissect_dect_mitel_eth_mac_dis_ind(tvbuff_t *tvb, packet_info *pinf
 	return offset;
 }
 
+/*
+MAC_PAGE_REQ Message
+| Offset | Len | Content         |
+| ------ | --- | --------------- |
+|      1 |   1 | Flags (unknown) |
+ */
+static guint dissect_dect_mitel_eth_mac_page_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	pinfo->p2p_dir = P2P_DIR_SENT;
+	offset++;
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_page_req_flags, tvb, offset, 1, ENC_NA);
+	offset += 3;
+	return offset;
+}
 
 /*
 MAC_ENC_KEY_REQ Message
@@ -446,10 +462,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case DECT_MITEL_ETH_LAYER_MAC:
 			switch (prim_type) {
 				case DECT_MITEL_ETH_MAC_PAGE_REQ:
-					pinfo->p2p_dir = P2P_DIR_SENT;
-					payload_len = tvb_get_guint8(tvb, offset);
-					offset++;
-					payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
+					offset = dissect_dect_mitel_eth_mac_page_req(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_ENC_KEY_REQ:
 					offset = dissect_dect_mitel_eth_mac_enc_key_req(tvb, pinfo, tree, data, offset);
@@ -582,6 +595,12 @@ void proto_register_dect_mitelrfp(void)
 		{ &hf_dect_mitel_eth_mac_dis_ind_reason,
 			{ "Reason", "dect_mitel_eth.mac_dis_ind.reason", FT_UINT8, BASE_HEX,
 				VALS(dect_mitel_eth_mac_dis_ind_reason_val), 0x0, NULL, HFILL
+			}
+		},
+		/* MAC_PAGE_REQ */
+		{ &hf_dect_mitel_eth_mac_page_req_flags,
+			{ "Flags", "dect_mitel_eth.mac_page_req.flags", FT_UINT8, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
 			}
 		},
 		/* MAC_ENC_KEY_REQ */
