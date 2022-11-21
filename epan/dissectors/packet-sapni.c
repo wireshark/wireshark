@@ -27,6 +27,8 @@
 #include <epan/conversation.h>
 #include <wsutil/wmem/wmem.h>
 
+#include "packet-sapni.h"
+
 
 /*
  * Define default ports. The right range should be 32NN and 4NNNN, but as port numbers are proprietary and not
@@ -88,7 +90,7 @@ get_sap_protocol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, 
  * heuristics as a first try as some protocols uses the same TCP ports
  * (e.g. 3200/tcp for Enqueue Server and Diag).
  */
-static void
+void
 dissect_sap_protocol_payload(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, guint16 sport, guint16 dport){
 	guint16 low_port = 0, high_port = 0;
 	tvbuff_t *next_tvb = NULL;
