@@ -7,6 +7,9 @@
  * Copyright 2018 by Harald Welte <laforge@gnumonks.org>
  * Copyright 2022 by Bernhard Dick <bernhard@bdick.de>
  *
+ * Parts are based on the EVENTPHONE rfpproxy project that is MIT licensed
+ * and Copyright (c) 2019 Bianco Veigel <devel at zivillian.de>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -21,6 +24,7 @@
 #include <epan/value_string.h>
 #include <ftypes/ftypes.h>
 #include <epan/proto.h>
+#include <epan/tfs.h>
 #include <tvbuff.h>
 
 void proto_register_dect_mitel_eth(void);
@@ -35,6 +39,39 @@ static gint hf_dect_mitel_eth_mcei = -1;
 static gint hf_dect_mitel_eth_mac_info_ind_string = -1;
 static gint hf_dect_mitel_eth_pmid = -1;
 static gint hf_dect_mitel_eth_subfield = -1;
+
+static gint hf_dect_mitel_eth_rfpc_message_type = -1;
+static gint hf_dect_mitel_eth_rfpc_item_type = -1;
+static gint hf_dect_mitel_eth_rfpc_item_length = -1;
+static gint hf_dect_mitel_eth_rfpc_item_value = -1;
+
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_wireless_relay_stations = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_flags = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_isdn_data_services = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_class_2 = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_class_3_or_4 = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_data_service_profile_d = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_lrms = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_asymmetric_bearers_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_emergency_call_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_location_registration_with_tpui_allowed = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_sync_to_gps_achieved = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_isdn_intermediate_system = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_rap_part_1_profile = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_v24 = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_ppp = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_ip = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_token_ring = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_ethernet = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_ip_roaming_unrestricted_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_basis_odap_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_fmms_interworking_profile_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_extended_fp_info2 = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_ipq_services_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_mac_suspend_resume = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_frequency_replacement_supported = -1;
+static gint hf_dect_mitel_eth_rfpc_extended_capabilities_syncronization = -1;
 
 static gint hf_dect_mitel_eth_mac_con_ind_flags = -1;
 static gint hf_dect_mitel_eth_mac_con_ind_flag_handover = -1;
@@ -107,6 +144,95 @@ enum dect_mitel_eth_prim_coding {
 	DECT_MITEL_ETH_MAC_GET_CURR_CKEY_ID_CNF = 0x21,
 };
 
+/* RFPC */
+enum dect_mitel_eth_rfpc_message_type_coding {
+	DECT_MITEL_ETH_RFPC_MESSAGE_TYPE_READY_IND                            = 0x01,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_INIT_REQ                             = 0x02,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_INIT_CFM                             = 0x03,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_SARI_LIST_REQ                        = 0x05,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_HIGHER_LAYER_CAPABILITIES_REQ = 0x06,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_HIGHER_LAYER_CAPABILITIES_CFM = 0x07,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_STATUS_INFO_REQ               = 0x08,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_STATUS_INFO_CFM               = 0x09,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVATE_REQ                         = 0x0f,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVATE_CFM                         = 0x10,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_DEACTIVATE_REQ                       = 0x11,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_DEACTIVATE_CFM                       = 0x12,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_RESET_REQ                            = 0x13,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_STATISTICS_DATA_REQ                  = 0x16,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_STATISTICS_DATA_CFM                  = 0x17,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ERROR_IND                            = 0x18,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TO_RFP_IND                           = 0x20,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TO_RFP_REQ                           = 0x21,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TOPO_DATA_REQ                        = 0x22,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TOPO_DATA_IND                        = 0x23,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_BMC_RESTART_REQ                      = 0x24,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_MASTER_REQ                    = 0x25,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_INFO_IND                             = 0x26,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVE_IND                           = 0x30,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVE_RES                           = 0x31,
+	DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_PAGING_QUEUE_OVERFLOW_IND            = 0x32,
+};
+
+enum dect_mitel_eth_rfpc_item_type_coding {
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_NUMBER_OF_UPN             = 0x01,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_REVISION                  = 0x02,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_NUMBER_OF_BEARER          = 0x03,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFPI                      = 0x04,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_SARI                      = 0x05,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_HIGHER_LAYER_CAPABILITIES = 0x06,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES     = 0x07,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATUS_INFO               = 0x08,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_MAC_CAPABILITIES          = 0x0d,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATISTIC_DATA_RESET      = 0x0f,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATISTIC_DATA            = 0x10,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_ERROR_CAUSE               = 0x11,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_FU6_WINDOW_SIZE       = 0x12,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_TO_RFP                = 0x14,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_TOPO                  = 0x15,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_LAST_ERROR                = 0x20,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_PABX_DATA                 = 0x21,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_MONI_DATA                 = 0x22,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_LAST_ERROR_EXT            = 0x23,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_FPGA_REVISION             = 0x24,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_STRING                = 0x25,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_SITE_LOCATION         = 0x26,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_PLI                   = 0x27,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_REFLECTING_ENVIRONMENT    = 0x28,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES2    = 0x29,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_FREQUENCY_BAND            = 0x2a,
+	DECT_MITEL_ETH_RFPC_ITEM_TYPE_RF_POWER                  = 0x2b,
+};
+
+/* RFPc Extended Capabilities*/
+enum dect_mitel_eth_rfpc_extended_capabilities_flags_coding {
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ISDN_DATA_SERVICES                      = 0x00000001,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DPRS_CLASS_2                            = 0x00000002,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DPRS_CLASS_3_OR_4                       = 0x00000004,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DATA_SERVICE_PROFILE_D                  = 0x00000008,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_LRMS                                    = 0x00000010,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ASYMMETRIC_BEARERS_SUPPORTED            = 0x00000020,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_EMERGENCY_CALL_SUPPORTED                = 0x00000040,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_LOCATION_REGISTRATION_WITH_TPUI_ALLOWED = 0x00000080,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_SYNCHRONIZATION_TO_GPS_ACHIEVED         = 0x00000100,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ISDN_INTERMEDIATE_SYSTEM                = 0x00000200,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_RAP_PART_1_PROFILE                      = 0x00000400,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_V24                                     = 0x00000800,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_PPP                                     = 0x00001000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_IP                                      = 0x00002000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_TOKEN_RING                              = 0x00004000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ETHERNET                                = 0x00008000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_IP_ROAMING_UNRESTRICTED_SUPPORTED       = 0x00010000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DPRS_SUPPORTED                          = 0x00020000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_BASIC_ODAP_SUPPORTED                    = 0x00040000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_FMMS_INTERWORKING_PROFILE_SUPPORTED     = 0x00080000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_EXTENDED_FP_INFOR_2                     = 0x01000000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_IPQ_SERVICES_SUPPORTED                  = 0x02000000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_MAC_SUSPEND_RESUME                      = 0x04000000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_FREQUENCY_REPLACEMENT_SUPPORTED         = 0x08000000,
+	DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_SYNCHRONIZATION                         = 0x10000000,
+};
+
 /* MAC_CON_IND */
 enum dect_mitel_eth_mac_con_ind_flags_coding {
 	DECT_MITEL_ETH_MAC_CON_IND_FLAG_HANDOVER = 0x02,
@@ -176,6 +302,74 @@ static const value_string dect_mitel_eth_subfield_val[] = {
 	{ 0, NULL }
 };
 
+/* RFPC */
+static const value_string dect_mitel_eth_rfpc_message_type_val[] = {
+	{ DECT_MITEL_ETH_RFPC_MESSAGE_TYPE_READY_IND,                            "READY_IND" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_INIT_REQ,                             "INIT_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_INIT_CFM,                             "INIT_CFM" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_SARI_LIST_REQ,                        "SARI_LIST_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_HIGHER_LAYER_CAPABILITIES_REQ, "CHANGE_HIGHER_LAYER_CAPABILITIES_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_HIGHER_LAYER_CAPABILITIES_CFM, "CHANGE_HIGHER_LAYER_CAPABILITIES_CFM" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_STATUS_INFO_REQ,               "CHANGE_STATUS_INFO_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_STATUS_INFO_CFM,               "CHANGE_STATUS_INFO_CFM" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVATE_REQ,                         "ACTIVATE_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVATE_CFM,                         "ACTIVATE_CFM" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_DEACTIVATE_REQ,                       "DEACTIVATE_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_DEACTIVATE_CFM,                       "DEACTIVATE_CFM" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_RESET_REQ,                            "RESET_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_STATISTICS_DATA_REQ,                  "STATISTICS_DATA_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_STATISTICS_DATA_CFM,                  "STATISTICS_DATA_CFM" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ERROR_IND,                            "ERROR_IND" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TO_RFP_IND,                           "TO_RFP_IND" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TO_RFP_REQ,                           "TO_RFP_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TOPO_DATA_REQ,                        "TOPO_DATA_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_TOPO_DATA_IND,                        "TOPO_DATA_IND" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_BMC_RESTART_REQ,                      "BMC_RESTART_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_CHANGE_MASTER_REQ,                    "CHANGE_MASTER_REQ" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_INFO_IND,                             "INFO_IND" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVE_IND,                           "ACTIVE_IND" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_ACTIVE_RES,                           "ACTIVE_RES" },
+	{ DECT_MITEL_ETH_RPFC_MESSAGE_TYPE_PAGING_QUEUE_OVERFLOW_IND,            "PAGING_QUEUE_OVERFLOW_IND" },
+	{ 0, NULL }
+};
+
+static const value_string  dect_mitel_eth_rfpc_item_type_val[] = {
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_NUMBER_OF_UPN,             "NUMBER_OF_UPN" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_REVISION,                  "REVISION" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_NUMBER_OF_BEARER,          "NUMBER_OF_BEARER" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFPI,                      "RFPI" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_SARI,                      "SARI" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_HIGHER_LAYER_CAPABILITIES, "HIGHER_LAYER_CAPABILITIES" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES,     "EXTENDED_CAPABILITIES" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATUS_INFO,               "STATUS_INFO" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_MAC_CAPABILITIES,          "MAC_CAPABILITIES" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATISTIC_DATA_RESET,      "STATISTIC_DATA_RESET" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATISTIC_DATA,            "STATISTIC_DATA" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_ERROR_CAUSE,               "ERROR_CAUSE" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_FU6_WINDOW_SIZE,       "RFP_FU6_WINDOW_SIZE" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_TO_RFP,                "RFP_TO_RFP" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_TOPO,                  "RFP_TOPO" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_LAST_ERROR,                "LAST_ERROR" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_PABX_DATA,                 "PABX_DATA" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_MONI_DATA,                 "MONI_DATA" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_LAST_ERROR_EXT,            "LAST_ERROR_EXT" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_FPGA_REVISION,             "FPGA_REVISION" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_STRING,                "RFP_STRING" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_SITE_LOCATION,         "RFP_SITE_LOCATION" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_PLI,                   "RFP_PLI" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_REFLECTING_ENVIRONMENT,    "REFLECTING_ENVIRONMENT" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES2,    "EXTENDED_CAPABILITIES2" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_FREQUENCY_BAND,            "FREQUENCY_BAND" },
+	{ DECT_MITEL_ETH_RFPC_ITEM_TYPE_RF_POWER,                  "RF_POWER" },
+	{ 0, NULL }
+};
+
+/* RFPc Extended Capabilities*/
+static const true_false_string tfs_prolonged_standard = {
+	"Prolonged",
+	"Standard"
+};
+
 /* MAC_DIS_IND */
 static const value_string dect_mitel_eth_mac_dis_ind_reason_val[] = {
 	{ DECT_MITEL_ETH_MAC_DIS_IND_REASON_UNSPECIFIED, "Unspecified" },
@@ -196,6 +390,98 @@ static const value_string dect_mitel_eth_mac_ho_failed_ind_reason_val[] = {
 	{ DECT_MITEL_ETH_MAC_HO_FAILED_IND_REASON_SETUP_FAILED, "Setup failed" },
 	{ 0, NULL }
 };
+
+
+/*
+RFPc Extended capabilities field
+| Offset | Len | Content                 | Mask         |
+| ------ | --- | ----------------------- | ------------ |
+|      0 |   2 | Wireless Relay Stations | 0x0FC0       |
+|      1 |   4 | Flags                   | 0x3FFFFFFFFF |
+ */
+static guint dissect_dect_mitel_eth_rfpc_extended_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	static int* const flags[] = {
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_isdn_data_services,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_class_2,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_class_3_or_4,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_data_service_profile_d,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_lrms,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_asymmetric_bearers_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_emergency_call_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_location_registration_with_tpui_allowed,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_sync_to_gps_achieved,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_isdn_intermediate_system,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_rap_part_1_profile,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_v24,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_ppp,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_ip,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_token_ring,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_ethernet,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_ip_roaming_unrestricted_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_basis_odap_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_fmms_interworking_profile_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_extended_fp_info2,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_ipq_services_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_mac_suspend_resume,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_frequency_replacement_supported,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_syncronization,
+		NULL
+	};
+
+	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_extended_capabilities_wireless_relay_stations, tvb, offset, 2, ENC_NA);
+	offset++;
+	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_extended_capabilities_flags, ett_dect_mitel_eth, flags, ENC_NA);
+
+	offset += 4;
+	return offset;
+}
+
+/*
+RFPc Message
+| Offset  | Len | Content           |
+| ------- | --- | ----------------- |
+|       0 |   1 | RFPc Message Type |
+|       1 |   1 | Element0 key      |
+|       2 |   1 | Element0 length   |
+|       3 | len | Element0 content  |
+|   3+len |   1 | Element1 key      |
+| 3+len+1 |   1 | Element1 length   |
+| 3+len+2 | len | Element1 content  |
+| ...     | ... | ...               |
+
+ */
+static guint dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint8 message_type, item_type, item_length;
+	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_message_type, tvb, offset, 1, ENC_NA);
+	message_type = tvb_get_guint8(tvb, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "RFPc: %s ",
+				val_to_str(message_type, dect_mitel_eth_rfpc_message_type_val, "Unknown 0x%02x"));
+	offset++;
+
+	while ( tvb_reported_length_remaining(tvb, offset) ) {
+		proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_item_type, tvb, offset, 1, ENC_NA);
+		item_type = tvb_get_guint8(tvb, offset);
+		offset++;
+
+		proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_item_length, tvb, offset, 1, ENC_NA);
+		item_length = tvb_get_guint8(tvb, offset);
+		offset ++;
+
+		switch (item_type) {
+			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES:
+				offset = dissect_dect_mitel_eth_rfpc_extended_capabilities(tvb, pinfo, tree, data, offset);
+				break;
+			default:
+				proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_item_value, tvb, offset, item_length, ENC_NA);
+				offset += item_length;
+				break;
+		}
+	}
+	return offset;
+}
 
 /*
 MAC_CON_IND Message
@@ -437,15 +723,19 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_layer, tvb, offset, 1, ENC_NA);
 	layer = tvb_get_guint8(tvb, offset);
 	offset++;
-	prim_type = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(prim_type, dect_mitel_eth_prim_coding_val, "Unknown 0x%02x"));
-	offset++;
+	if ( layer != DECT_MITEL_ETH_LAYER_RFPC) {
+		prim_type = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(prim_type, dect_mitel_eth_prim_coding_val, "Unknown 0x%02x"));
+		offset++;
+	}
 
 	switch (layer) {
 		case DECT_MITEL_ETH_LAYER_RFPC:
+			offset = dissect_dect_mitel_eth_rfpc(tvb, pinfo, tree, data, offset);
 			break;
 		case DECT_MITEL_ETH_LAYER_MT:
 			while ( tvb_reported_length_remaining(tvb, offset) ) {
@@ -578,6 +868,163 @@ void proto_register_dect_mitelrfp(void)
 		{ &hf_dect_mitel_eth_subfield,
 			{ "Subfield", "dect_mitel_eth.subfield", FT_UINT8, BASE_HEX,
 				VALS(dect_mitel_eth_subfield_val), 0, NULL, HFILL
+			}
+		},
+		/* RFPc Message */
+		{ &hf_dect_mitel_eth_rfpc_message_type,
+			{ "Message Type", "dect_mitel_eth.rfpc.message_type", FT_UINT8, BASE_HEX,
+				VALS(dect_mitel_eth_rfpc_message_type_val), 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_item_type,
+			{ "Item Type", "dect_mitel_eth.rfpc.item.type", FT_UINT8, BASE_HEX,
+				VALS(dect_mitel_eth_rfpc_item_type_val), 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_item_length,
+			{ "Item Length", "dect_mitel_eth.rfpc.item.length", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_item_value,
+			{ "Item Value", "dect_mitel_eth.rfpc.item.value", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* RFPc Extended capabilities */
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_wireless_relay_stations,
+			{ "Wireless relay stations", "dect_mitel_eth.rfpc.extended_capabilities.wireless_relay_stations", FT_UINT16, BASE_DEC,
+				NULL, 0x0FC0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_flags,
+			{ "Flags", "dect_mitel_eth.rfpc.extended_capabilities.isdn_data_services", FT_UINT32, BASE_HEX,
+				NULL, 0x3FFFFFFF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_isdn_data_services,
+			{ "ISDN data services", "dect_mitel_eth.rfpc.extended_capabilities.isdn_data_services", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ISDN_DATA_SERVICES, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_class_2,
+			{ "DPRS class 2", "dect_mitel_eth.rfpc.extended_capabilities.dprs_class_2", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DPRS_CLASS_2, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_class_3_or_4,
+			{ "DPRS class 3 or 4", "dect_mitel_eth.rfpc.extended_capabilities.dprs_class_3_or_4", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DPRS_CLASS_3_OR_4, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_data_service_profile_d,
+			{ "Data service profile D", "dect_mitel_eth.rfpc.extended_capabilities.data_service_profile_d", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DATA_SERVICE_PROFILE_D, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_lrms,
+			{ "LRMS", "dect_mitel_eth.rfpc.extended_capabilities.lrms", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_LRMS, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_asymmetric_bearers_supported,
+			{ "Asymmetric bearers supported", "dect_mitel_eth.rfpc.extended_capabilities.asymmetric_bearers_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ASYMMETRIC_BEARERS_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_emergency_call_supported,
+			{ "Emergency call supported", "dect_mitel_eth.rfpc.extended_capabilities.emergency_call_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_EMERGENCY_CALL_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_location_registration_with_tpui_allowed,
+			{ "Location registration with TPUI allowed", "dect_mitel_eth.rfpc.extended_capabilities.location_registration_with_tpui_allowed", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_LOCATION_REGISTRATION_WITH_TPUI_ALLOWED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_sync_to_gps_achieved,
+			{ "Sync to GPS achieved", "dect_mitel_eth.rfpc.extended_capabilities.sync_to_gps_achieved", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_SYNCHRONIZATION_TO_GPS_ACHIEVED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_isdn_intermediate_system,
+			{ "ISDN intermediate system", "dect_mitel_eth.rfpc.extended_capabilities.isdn_intermediate_system", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ISDN_INTERMEDIATE_SYSTEM, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_rap_part_1_profile,
+			{ "RAP part 1 profile", "dect_mitel_eth.rfpc.extended_capabilities.rap_part_1_profile", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_RAP_PART_1_PROFILE, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_v24,
+			{ "V24", "dect_mitel_eth.rfpc.extended_capabilities.v24", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_V24, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_ppp,
+			{ "PPP", "dect_mitel_eth.rfpc.extended_capabilities.ppp", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_PPP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_ip,
+			{ "IP", "dect_mitel_eth.rfpc.extended_capabilities.ip", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_IP, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_token_ring,
+			{ "Token Ring", "dect_mitel_eth.rfpc.extended_capabilities.token_ring", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_TOKEN_RING, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_ethernet,
+			{ "Ethernet", "dect_mitel_eth.rfpc.extended_capabilities.ethernet", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_ETHERNET, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_ip_roaming_unrestricted_supported,
+			{ "IP roaming unrestricted supported", "dect_mitel_eth.rfpc.extended_capabilities.ip_roaming_unrestricted_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_IP_ROAMING_UNRESTRICTED_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_dprs_supported,
+			{ "DPRS supported", "dect_mitel_eth.rfpc.extended_capabilities.dprs_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_DPRS_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_basis_odap_supported,
+			{ "Basic ODAP supported", "dect_mitel_eth.rfpc.extended_capabilities.basic_odap_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_BASIC_ODAP_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_fmms_interworking_profile_supported,
+			{ "FMMS interworking profile supported", "dect_mitel_eth.rfpc.extended_capabilities.fmms_interworking_profile_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_FMMS_INTERWORKING_PROFILE_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_extended_fp_info2,
+			{ "Extended FP info 2", "dect_mitel_eth.rfpc.extended_capabilities.extended_fp_info2", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_EXTENDED_FP_INFOR_2, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_ipq_services_supported,
+			{ "IPq serices supported", "dect_mitel_eth.rfpc.extended_capabilities.ipq_services_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_IPQ_SERVICES_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_mac_suspend_resume,
+			{ "MAC suspend resume", "dect_mitel_eth.rfpc.extended_capabilities.mac_suspend_resume", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_MAC_SUSPEND_RESUME, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_frequency_replacement_supported,
+			{ "Frequency replacement supported", "dect_mitel_eth.rfpc.extended_capabilities.frequency_replacement_supported", FT_BOOLEAN, 32,
+				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_FREQUENCY_REPLACEMENT_SUPPORTED, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_syncronization,
+			{ "Synchronization", "dect_mitel_eth.rfpc.extended_capabilities.synchronization", FT_BOOLEAN, 32,
+				TFS(&tfs_prolonged_standard), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_SYNCHRONIZATION, NULL, HFILL
 			}
 		},
 		/* MAC_CON_IND */
