@@ -20,6 +20,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/dissectors/packet-sll.h>
+#include <epan/dissectors/packet-mctp.h>
 #include <epan/dissectors/packet-nvme.h>
 
 void proto_register_nvme_mi(void);
@@ -630,7 +631,7 @@ proto_reg_handoff_nvme_mi(void)
 {
     dissector_handle_t nvme_mi_handle;
     nvme_mi_handle = create_dissector_handle(dissect_nvme_mi, proto_nvme_mi);
-    dissector_add_uint("mctp.type", 4, nvme_mi_handle);
+    dissector_add_uint("mctp.type", MCTP_TYPE_NVME, nvme_mi_handle);
 }
 
 /*

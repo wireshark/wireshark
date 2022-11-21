@@ -23,6 +23,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/dissectors/packet-mctp.h>
 #include <epan/dissectors/packet-sll.h>
 
 #define MCTP_CTRL_MIN_LENGTH 3
@@ -187,7 +188,7 @@ proto_reg_handoff_mctp_control(void)
 {
     dissector_handle_t mctp_ctrl_handle;
     mctp_ctrl_handle = create_dissector_handle(dissect_mctp_ctrl, proto_mctp_ctrl);
-    dissector_add_uint("mctp.type", 0, mctp_ctrl_handle);
+    dissector_add_uint("mctp.type", MCTP_TYPE_CONTROL, mctp_ctrl_handle);
 }
 
 /*
