@@ -32,7 +32,7 @@ static gint hf_dect_mitel_eth_len = -1;
 static gint hf_dect_mitel_eth_layer = -1;
 static gint hf_dect_mitel_eth_prim_type = -1;
 static gint hf_dect_mitel_eth_mcei = -1;
-static gint hf_dect_mitel_eth_info_string = -1;
+static gint hf_dect_mitel_eth_mac_info_ind_string = -1;
 static gint hf_dect_mitel_eth_pmid = -1;
 static gint hf_dect_mitel_eth_subfield = -1;
 
@@ -349,6 +349,33 @@ static guint dissect_dect_mitel_eth_mac_ho_failed_ind(tvbuff_t *tvb, packet_info
 }
 
 /*
+MAC_INFO_IND Message
+| Offset | Len | Content               |
+| ------ | --- | --------------------- |
+|      0 |   1 | MCEI                  |
+|      1 |   3 | PMID (in last 20bits) |
+|      5 |     | String                |
+*/
+static guint dissect_dect_mitel_eth_mac_info_ind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, guint offset)
+{
+	guint8 mcei;
+
+	pinfo->p2p_dir = P2P_DIR_RECV;
+	mcei = tvb_get_guint8(tvb, offset);
+	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 3, ENC_BIG_ENDIAN);
+	offset+=4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_info_ind_string, tvb, offset,
+				tvb_captured_length_remaining(tvb, offset+9), ENC_ASCII|ENC_NA);
+	return offset;
+}
+
+/*
 MAC_CLEAR_DEF_CKEY_REQ Message
 | Offset | Len | Content               |
 | ------ | --- | --------------------- |
@@ -443,15 +470,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					offset = dissect_dect_mitel_eth_mac_con_ind(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_INFO_IND:
-					pinfo->p2p_dir = P2P_DIR_RECV;
-					mcei = tvb_get_guint8(tvb, offset);
-					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-					/* from offset 9 onwards, there's a null-terminated string */
-					offset += 5;
-					proto_tree_add_item(tree, hf_dect_mitel_eth_info_string, tvb, offset,
-								tvb_captured_length_remaining(tvb, offset+9), ENC_ASCII|ENC_NA);
+					offset = dissect_dect_mitel_eth_mac_info_ind(tvb, pinfo, tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_CLEAR_DEF_CKEY_REQ:
 					offset = dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvb, pinfo, tree, data, offset);
@@ -533,7 +552,7 @@ void proto_register_dect_mitelrfp(void)
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
-		{ &hf_dect_mitel_eth_info_string,
+		{ &hf_dect_mitel_eth_mac_info_ind_string,
 			{ "MAC Info String", "dect_mitel_eth.mac_info_str", FT_STRING, BASE_NONE,
 				NULL, 0, NULL, HFILL
 			}
