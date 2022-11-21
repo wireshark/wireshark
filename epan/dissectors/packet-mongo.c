@@ -23,6 +23,8 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <wsutil/crc32.h> // CRC32C_PRELOAD
+#include <epan/crc32-tvb.h> // crc32c_tvb_offset_calculate
 #include "packet-tcp.h"
 #include "packet-tls.h"
 #ifdef HAVE_SNAPPY
@@ -260,6 +262,7 @@ static int hf_mongo_msg_sections_section_body = -1;
 static int hf_mongo_msg_sections_section_doc_sequence = -1;
 static int hf_mongo_msg_sections_section_size = -1;
 static int hf_mongo_msg_sections_section_doc_sequence_id = -1;
+static int hf_mongo_msg_checksum = -1;
 
 static gint ett_mongo = -1;
 static gint ett_mongo_doc = -1;
@@ -840,12 +843,29 @@ dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
     &hf_mongo_msg_flags_exhaustallowed,
     NULL
   };
+  gint64 op_msg_flags;
+  bool checksum_present = false;
 
-  proto_tree_add_bitmask(tree, tvb, offset, hf_mongo_msg_flags, ett_mongo_msg_flags, mongo_msg_flags, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask_ret_uint64 (tree, tvb, offset, hf_mongo_msg_flags, ett_mongo_msg_flags, mongo_msg_flags, ENC_LITTLE_ENDIAN, &op_msg_flags);
+  if (op_msg_flags & 0x00000001) {
+    checksum_present = true;
+  }
+
   offset += 4;
 
-  while (tvb_reported_length_remaining(tvb, offset) > 0){
+  while (tvb_reported_length_remaining(tvb, offset) > (checksum_present ? 4 : 0)){
     offset += dissect_op_msg_section(tvb, pinfo, offset, tree);
+  }
+
+  if (checksum_present) {
+    guint32 calculated_checksum = ~crc32c_tvb_offset_calculate (tvb, 0, tvb_reported_length (tvb) - 4, CRC32C_PRELOAD);
+    guint32 dissected_checksum = tvb_get_ntohl(tvb, offset);
+    if(calculated_checksum == dissected_checksum) {
+        proto_tree_add_uint_format_value(tree, hf_mongo_msg_checksum, tvb, offset, 4, dissected_checksum, "0x%08x (Good CRC32)", dissected_checksum);
+    } else {
+        proto_tree_add_uint_format_value(tree, hf_mongo_msg_checksum, tvb, offset, 4, dissected_checksum, "0x%08x (Bad CRC32, should be 0x%08x)", dissected_checksum, calculated_checksum);
+    }
+    offset += 4;
   }
 
   return offset;
@@ -1271,6 +1291,11 @@ proto_register_mongo(void)
       { "SeqID", "mongo.msg.sections.section.doc_sequence_id",
       FT_STRING, BASE_NONE, NULL, 0x0,
       "Document sequence identifier", HFILL }
+    },
+    { &hf_mongo_msg_checksum,
+      { "Checksum", "mongo.msg.checksum",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
+      "CRC32C checksum.", HFILL }
     },
     { &hf_mongo_number_of_cursor_ids,
       { "Number of Cursor IDS", "mongo.number_to_cursor_ids",
