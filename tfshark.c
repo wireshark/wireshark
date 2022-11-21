@@ -121,8 +121,6 @@ static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
 static gboolean write_finale(void);
-static const char *cf_open_error_message(int err, gchar *err_info,
-        gboolean for_writing, int file_type);
 
 static void tfshark_cmdarg_err(const char *msg_format, va_list ap);
 static void tfshark_cmdarg_err_cont(const char *msg_format, va_list ap);
@@ -2084,130 +2082,6 @@ show_print_file_io_error(int err)
                     g_strerror(err));
             break;
     }
-}
-
-static const char * _U_
-cf_open_error_message(int err, gchar *err_info _U_, gboolean for_writing,
-        int file_type _U_)
-{
-    const char *errmsg;
-    /* static char errmsg_errno[1024+1]; */
-
-#if 0
-    if (err < 0) {
-        /* Wiretap error. */
-        switch (err) {
-
-            case FTAP_ERR_NOT_REGULAR_FILE:
-                errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
-                break;
-
-            case FTAP_ERR_RANDOM_OPEN_PIPE:
-                /* Seen only when opening a capture file for reading. */
-                errmsg = "The file \"%s\" is a pipe or FIFO; TFShark can't read pipe or FIFO files in two-pass mode.";
-                break;
-
-            case FTAP_ERR_FILE_UNKNOWN_FORMAT:
-                /* Seen only when opening a capture file for reading. */
-                errmsg = "The file \"%s\" isn't a capture file in a format TFShark understands.";
-                break;
-
-            case FTAP_ERR_UNSUPPORTED:
-                /* Seen only when opening a capture file for reading. */
-                snprintf(errmsg_errno, sizeof(errmsg_errno),
-                        "The file \"%%s\" isn't a capture file in a format TFShark understands.\n"
-                        "(%s)", err_info);
-                g_free(err_info);
-                errmsg = errmsg_errno;
-                break;
-
-            case FTAP_ERR_CANT_WRITE_TO_PIPE:
-                /* Seen only when opening a capture file for writing. */
-                snprintf(errmsg_errno, sizeof(errmsg_errno),
-                        "The file \"%%s\" is a pipe, and \"%s\" capture files can't be "
-                        "written to a pipe.", ftap_file_type_subtype_short_string(file_type));
-                errmsg = errmsg_errno;
-                break;
-
-            case FTAP_ERR_UNSUPPORTED_FILE_TYPE:
-                /* Seen only when opening a capture file for writing. */
-                errmsg = "TFShark doesn't support writing capture files in that format.";
-                break;
-
-            case FTAP_ERR_UNSUPPORTED_ENCAP:
-                if (for_writing) {
-                    snprintf(errmsg_errno, sizeof(errmsg_errno),
-                            "TFShark can't save this capture as a \"%s\" file.",
-                            ftap_file_type_subtype_short_string(file_type));
-                } else {
-                    snprintf(errmsg_errno, sizeof(errmsg_errno),
-                            "The file \"%%s\" is a capture for a network type that TFShark doesn't support.\n"
-                            "(%s)", err_info);
-                    g_free(err_info);
-                }
-                errmsg = errmsg_errno;
-                break;
-
-            case FTAP_ERR_ENCAP_PER_RECORD_UNSUPPORTED:
-                if (for_writing) {
-                    snprintf(errmsg_errno, sizeof(errmsg_errno),
-                            "TFShark can't save this capture as a \"%s\" file.",
-                            ftap_file_type_subtype_short_string(file_type));
-                    errmsg = errmsg_errno;
-                } else
-                    errmsg = "The file \"%s\" is a capture for a network type that TFShark doesn't support.";
-                break;
-
-            case FTAP_ERR_BAD_FILE:
-                /* Seen only when opening a capture file for reading. */
-                snprintf(errmsg_errno, sizeof(errmsg_errno),
-                        "The file \"%%s\" appears to be damaged or corrupt.\n"
-                        "(%s)", err_info);
-                g_free(err_info);
-                errmsg = errmsg_errno;
-                break;
-
-            case FTAP_ERR_CANT_OPEN:
-                if (for_writing)
-                    errmsg = "The file \"%s\" could not be created for some unknown reason.";
-                else
-                    errmsg = "The file \"%s\" could not be opened for some unknown reason.";
-                break;
-
-            case FTAP_ERR_SHORT_READ:
-                errmsg = "The file \"%s\" appears to have been cut short"
-                    " in the middle of a packet or other data.";
-                break;
-
-            case FTAP_ERR_SHORT_WRITE:
-                errmsg = "A full header couldn't be written to the file \"%s\".";
-                break;
-
-            case FTAP_ERR_COMPRESSION_NOT_SUPPORTED:
-                errmsg = "This file type cannot be written as a compressed file.";
-                break;
-
-            case FTAP_ERR_DECOMPRESS:
-                /* Seen only when opening a capture file for reading. */
-                snprintf(errmsg_errno, sizeof(errmsg_errno),
-                        "The compressed file \"%%s\" appears to be damaged or corrupt.\n"
-                        "(%s)", err_info);
-                g_free(err_info);
-                errmsg = errmsg_errno;
-                break;
-
-            default:
-                snprintf(errmsg_errno, sizeof(errmsg_errno),
-                        "The file \"%%s\" could not be %s: %s.",
-                        for_writing ? "created" : "opened",
-                        ftap_strerror(err));
-                errmsg = errmsg_errno;
-                break;
-        }
-    } else
-#endif
-        errmsg = file_open_error_message(err, for_writing);
-    return errmsg;
 }
 
 /*
