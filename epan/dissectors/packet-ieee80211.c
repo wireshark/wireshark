@@ -5588,7 +5588,7 @@ static int * const hf_ieee80211_ff_vht_mimo_cntrl_fields[] = {
 
 static int hf_ieee80211_vht_compressed_beamforming_report = -1;
 static int hf_ieee80211_vht_compressed_beamforming_report_snr = -1;
-static int hf_ieee80211_vht_compressed_beamforming_feedback_matrix = -1;
+static int hf_ieee80211_vht_compressed_beamform_scidx = -1;
 static int hf_ieee80211_vht_group_id_management = -1;
 static int hf_ieee80211_vht_membership_status_array = -1;
 static int hf_ieee80211_vht_user_position_array = -1;
@@ -5597,8 +5597,6 @@ static int hf_ieee80211_vht_membership_status_field = -1;
 static int hf_ieee80211_vht_user_position_field = -1;
 static int hf_ieee80211_vht_mu_exclusive_beamforming_report = -1;
 static int hf_ieee80211_vht_mu_exclusive_beamforming_delta_snr = -1;
-static int hf_ieee80211_vht_compressed_beamforming_phi_angle = -1;
-static int hf_ieee80211_vht_compressed_beamforming_psi_angle = -1;
 
 static int hf_ieee80211_ff_he_action = -1;
 static int hf_ieee80211_ff_protected_he_action = -1;
@@ -14323,6 +14321,13 @@ static inline int vht_exclusive_skip_scidx(guint8 nchan_width, guint8 ng, int sc
   return scidx;
 }
 
+static int
+dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                           int offset, int bit_offset, int scidx,
+                           int nr, int nc,
+                           int phi_bits, int psi_bits,
+                           int hf);
+
 static guint
 add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -14333,23 +14338,13 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
   guint8 grouping;
   gboolean codebook_info;
   gboolean feedback_type;
-  proto_item *vht_beam_item, *vht_excl_beam_item, *phi_angle, *psi_angle;
-  proto_tree *vht_beam_tree, *subtree, *vht_excl_beam_tree, *angletree;
-  int i, matrix_size, len, pos, ns, scidx = 0, matrix_len;
+  proto_item *vht_beam_item, *vht_excl_beam_item;
+  proto_tree *vht_beam_tree, *subtree, *vht_excl_beam_tree;
+  int i, len, pos, ns, scidx = 0;
   guint8 phi, psi, carry;
   int j, ic, off_len = 0, sscidx = 0, xnsc;
-  int ir, off_pos, angle_val;
-  /* Table 8-53d Order of angles in the Compressed Beamforming Feedback
-   * Matrix subfield, IEEE Std 802.11ac-2013 amendment */
-  static const guint8 na_arr[8][8] = { {  0,  0,  0,  0,  0,  0,  0,  0 },
-                                       {  2,  2,  0,  0,  0,  0,  0,  0 },
-                                       {  4,  6,  6,  0,  0,  0,  0,  0 },
-                                       {  6, 10, 12, 12,  0,  0,  0,  0 },
-                                       {  8, 14, 18, 20, 20,  0,  0,  0 },
-                                       { 10, 18, 24, 28, 30, 30,  0,  0 },
-                                       { 12, 22, 30, 36, 40, 42, 42,  0 },
-                                       { 14, 26, 36, 44, 50, 54, 56, 56 }
-                                     };
+  int bit_offset = 0;
+  int start_offset = 0;
   /* Table 8-53g Subcarriers for which a Compressed Beamforming Feedback Matrix
    * subfield is sent back. IEEE Std 802.11ac-2013 amendment */
   static const int ns_arr[4][3] = { {  52,  30,  16 },
@@ -14425,43 +14420,6 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
     offset += 1;
   }
 
-  matrix_size = na_arr[nr - 1][nc -1] * (psi + phi)/2;
-  if (matrix_size % 8) {
-    carry = 1;
-  } else {
-    carry = 0;
-  }
-  off_len = (matrix_size/8) + carry;
-  angletree = proto_tree_add_subtree_format(vht_beam_tree, tvb, offset, off_len,
-                        ett_ff_vhtmimo_beamforming_angle, NULL,"PHI and PSI Angle Decode");
-
-  off_pos = offset*8;
-  phi_angle = proto_tree_add_none_format(angletree, hf_ieee80211_vht_compressed_beamforming_phi_angle, tvb, offset, 0, "PHI(%u bits):    ", phi);
-  for (ic = 1; ic <= nc; ic++) {
-      for (ir = 1; ir < nr; ir++) {
-          if (ir >= ic) {
-              angle_val = (int) tvb_get_bits16(tvb, off_pos, phi, ENC_BIG_ENDIAN);
-              if ((ir+1 < nr) || (ic+1 <= nc))
-                proto_item_append_text(phi_angle, "PHI%d%d: %d, ", ir, ic, angle_val);
-              else
-                proto_item_append_text(phi_angle, "PHI%d%d: %d", ir, ic, angle_val);
-              off_pos = off_pos + phi;
-          }
-      }
-  }
-
-  psi_angle = proto_tree_add_none_format(angletree, hf_ieee80211_vht_compressed_beamforming_psi_angle, tvb, offset, 0, "PSI(%u bits):    ", psi);
-  for (ic = 1; ic <= nc; ic++)
-      for (ir = 2; ir <= nr; ir++)
-          if (ir > ic) {
-              angle_val = (int) tvb_get_bits8(tvb, off_pos, psi);
-              if ((ir+1 <= nr) || (ic+1 <= nc))
-                proto_item_append_text(psi_angle, "PSI%d%d: %d, ", ir, ic, angle_val);
-              else
-                proto_item_append_text(psi_angle, "PSI%d%d: %d", ir, ic, angle_val);
-              off_pos = off_pos + psi;
-          }
-
   /* Table 8-53c Subfields of the VHT MIMO Control field (802.11ac-2013)
    * reserves value 3 of the Grouping subfield. */
   if (grouping == 3) {
@@ -14470,15 +14428,12 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
     return offset;
   }
 
+  start_offset = offset;
+  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, -1,
+                        ett_ff_vhtmimo_beamforming_report_feedback_matrices,
+                        NULL, "Feedback Matrices");
+
   ns = ns_arr[chan_width][grouping];
-  if (((matrix_size)*(ns)) % 8)
-      matrix_len = (((matrix_size) * (ns)) / (8)) + 1;
-  else
-      matrix_len = (((matrix_size) * (ns)) / (8));
-  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, matrix_len,
-                        ett_ff_vhtmimo_beamforming_report_feedback_matrices, NULL, "Beamforming Feedback Matrix");
-
-
   switch(chan_width) {
     case 0:
       scidx = -28;
@@ -14496,24 +14451,23 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
       break;
   }
 
+  bit_offset = offset * 8;
   pos = 0;
   for (i = 0; i < ns; i++) {
     if (pos % 8)
       carry = 1;
     else
       carry = 0;
-    len = WS_ROUNDUP_8(pos + matrix_size)/8 - WS_ROUNDUP_8(pos)/8;
+
     scidx = vht_compressed_skip_scidx(chan_width, grouping, scidx);
 
-    /* TODO : For certain values from na_arr, there is always going be a carry over or overflow from the previous or
-       into the next octet. The largest of possible unaligned values can be 41 bytes long, and masking and shifting
-       whole buffers to show correct values with padding and overflow bits is hence skipped, we only mark the bytes
-       of interest instead */
-    proto_tree_add_none_format(subtree, hf_ieee80211_vht_compressed_beamforming_feedback_matrix, tvb,
-                                    offset - carry, len + carry, "Compressed Beamforming Feedback Matrix for subcarrier %d", scidx++);
-    offset += len;
-    pos += matrix_size;
+    bit_offset = dissect_he_feedback_matrix(subtree, tvb, pinfo, offset,
+                                    bit_offset, scidx++, nr, nc, phi, psi,
+                                    hf_ieee80211_vht_compressed_beamform_scidx);
+    offset = bit_offset / 8;
   }
+
+  proto_item_set_len(subtree, offset - start_offset);
 
   if (feedback_type) {
     xnsc = delta_ns_arr[chan_width][grouping];
@@ -15242,9 +15196,10 @@ he_get_bits(tvbuff_t *tvb, int bit_offset, int bit_len)
 }
 
 static int
-dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
-                           int bit_offset, int scidx, int nr, int nc,
-                           int phi_bits, int psi_bits)
+dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                           int offset, int bit_offset, int scidx,
+                           int nr, int nc, int phi_bits, int psi_bits,
+                           int hf)
 {
   int ri, ci;
   int start_bit_offset = bit_offset;
@@ -15272,9 +15227,9 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   }
 
   /* Update this */
-  proto_tree_add_string(tree, hf_ieee80211_he_compressed_beamform_scidx,
-                tvb, offset, ((start_bit_offset + 7) / 8) - start_offset,
-                wmem_strbuf_finalize(angles));
+  proto_tree_add_string(tree, hf, tvb, offset,
+                        ((start_bit_offset + 7) / 8) - start_offset,
+                        wmem_strbuf_finalize(angles));
 
   return bit_offset;
 }
@@ -15379,7 +15334,8 @@ dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_i
           ru_start_index, ru_end_index)) != (int)SCIDX_END_SENTINAL) {
     int prev_bit_offset = bit_offset;
     bit_offset = dissect_he_feedback_matrix(feedback_tree, tvb, pinfo, offset,
-                        bit_offset, scidx, nr, nc, phi_bits, psi_bits);
+                        bit_offset, scidx, nr, nc, phi_bits, psi_bits,
+                        hf_ieee80211_he_compressed_beamform_scidx);
     if (bit_offset <= prev_bit_offset) {
       expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
       break;
@@ -38816,20 +38772,9 @@ proto_register_ieee80211(void)
        FT_INT8, BASE_DEC, NULL, 0,
        NULL, HFILL }},
 
-    {&hf_ieee80211_vht_compressed_beamforming_phi_angle,
-      {"PHI", "wlan.vht.compressed_beamforming_report.phi",
-       FT_NONE, BASE_NONE, NULL, 0,
-       NULL, HFILL }},
-
-    {&hf_ieee80211_vht_compressed_beamforming_psi_angle,
-      {"PSI", "wlan.vht.compressed_beamforming_report.psi",
-       FT_NONE, BASE_NONE, NULL, 0,
-       NULL, HFILL }},
-
-    {&hf_ieee80211_vht_compressed_beamforming_feedback_matrix,
-      {"Compressed Beamforming Feedback Matrix", "wlan.vht.compressed_beamforming_report.feedback_matrix",
-       FT_NONE, BASE_NONE, NULL, 0,
-       NULL, HFILL }},
+    {&hf_ieee80211_vht_compressed_beamform_scidx,
+     {"SCIDX", "wlan.vht.compressed_beamforming_report.scidx",
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_vht_mu_exclusive_beamforming_delta_snr,
       {"Delta SNR for space-time stream Nc for subcarrier k", "wlan.vht.exclusive_beamforming_report.delta_snr",
