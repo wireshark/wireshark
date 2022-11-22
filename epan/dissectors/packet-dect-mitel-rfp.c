@@ -415,6 +415,7 @@ static guint tcp_port_pref = DECT_MITEL_RFP_TCP_PORT;
 
 /* Initialize the subtree pointers */
 static gint ett_dect_mitel_rfp = -1;
+static gint ett_dect_mitel_rfp_sys_init_rfp_capabilities = -1;
 
 /*
 CONTROL-ACK Message
@@ -559,7 +560,7 @@ static guint dissect_dect_mitel_rfp_sys_init(tvbuff_t *tvb, packet_info *pinfo _
 	offset += 8;
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_init_rfp_mac, tvb, offset, 6, ENC_NA);
 	offset += 12;
-	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_rfp_sys_init_rfp_capabilities, ett_dect_mitel_rfp, capabilities_flags, ENC_NA);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_rfp_sys_init_rfp_capabilities, ett_dect_mitel_rfp_sys_init_rfp_capabilities, capabilities_flags, ENC_NA);
 	offset += 4;
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_init_crypted, tvb, offset, 64, ENC_NA);
 	offset += 64;
@@ -604,25 +605,25 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	switch ( message_type ) {
 		case DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_ACK:
-			offset = dissect_dect_mitel_rfp_control_ack(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_rfp_control_ack(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_NACK:
-			offset = dissect_dect_mitel_rfp_control_nack(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_rfp_control_nack(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_HEARTBEAT:
-			offset = dissect_dect_mitel_rfp_control_heartbeat(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_rfp_control_heartbeat(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_IP_OPTIONS:
-			offset = dissect_dect_mitel_rfp_sys_ip_options(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_rfp_sys_ip_options(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_LED:
-			offset = dissect_dect_mitel_rfp_sys_led(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_rfp_sys_led(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_AUTHENTICATE:
-			offset = dissect_dect_mitel_rfp_sys_authenticate(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_rfp_sys_authenticate(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_INIT:
-			offset = dissect_dect_mitel_rfp_sys_init(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_rfp_sys_init(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_ETH:
 			/* Handover to DECT-MITEL-ETH*/
@@ -816,7 +817,8 @@ void proto_register_dect_mitel_rfp(void)
 	};
 
 	static gint *ett[] = {
-		&ett_dect_mitel_rfp
+		&ett_dect_mitel_rfp,
+		&ett_dect_mitel_rfp_sys_init_rfp_capabilities,
 	};
 
 	proto_dect_mitel_rfp = proto_register_protocol("Mitel RFP/OMM TCP communication protocol",
