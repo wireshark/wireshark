@@ -356,6 +356,11 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (!dissector_try_uint(lapdm_sapi_dissector_table, sapi,
                                         reassembled, pinfo, tree))
                     call_data_dissector(reassembled, pinfo, tree);
+
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    /* If reassembling is done, allow fragment_id reuse */
+                    wmem_map_remove(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id));
+                }
             }
             else {
                 col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
