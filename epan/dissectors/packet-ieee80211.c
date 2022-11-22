@@ -14452,12 +14452,7 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
   }
 
   bit_offset = offset * 8;
-  pos = 0;
   for (i = 0; i < ns; i++) {
-    if (pos % 8)
-      carry = 1;
-    else
-      carry = 0;
 
     scidx = vht_compressed_skip_scidx(chan_width, grouping, scidx);
 
