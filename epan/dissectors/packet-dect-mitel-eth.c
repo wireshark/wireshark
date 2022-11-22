@@ -28,7 +28,7 @@
 #include <tvbuff.h>
 
 void proto_register_dect_mitel_eth(void);
-void proto_reg_handoff_dect_mitelrfp(void);
+void proto_reg_handoff_dect_mitel_eth(void);
 
 static int proto_dect_mitel_eth = -1;
 
@@ -1308,7 +1308,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return tvb_captured_length(tvb);
 }
 
-void proto_register_dect_mitelrfp(void)
+void proto_register_dect_mitel_eth(void)
 {
 
 	static hf_register_info hf[] =
