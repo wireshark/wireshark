@@ -263,6 +263,7 @@ static int hf_mongo_msg_sections_section_doc_sequence = -1;
 static int hf_mongo_msg_sections_section_size = -1;
 static int hf_mongo_msg_sections_section_doc_sequence_id = -1;
 static int hf_mongo_msg_checksum = -1;
+static int hf_mongo_msg_checksum_status = -1;
 
 static gint ett_mongo = -1;
 static gint ett_mongo_doc = -1;
@@ -284,6 +285,7 @@ static expert_field ei_mongo_document_length_bad = EI_INIT;
 static expert_field ei_mongo_unknown = EI_INIT;
 static expert_field ei_mongo_unsupported_compression = EI_INIT;
 static expert_field ei_mongo_too_large_compressed = EI_INIT;
+static expert_field ei_mongo_msg_checksum = EI_INIT;
 
 static int
 dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -859,12 +861,7 @@ dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
 
   if (checksum_present) {
     guint32 calculated_checksum = ~crc32c_tvb_offset_calculate (tvb, 0, tvb_reported_length (tvb) - 4, CRC32C_PRELOAD);
-    guint32 dissected_checksum = tvb_get_ntohl(tvb, offset);
-    if(calculated_checksum == dissected_checksum) {
-        proto_tree_add_uint_format_value(tree, hf_mongo_msg_checksum, tvb, offset, 4, dissected_checksum, "0x%08x (Good CRC32)", dissected_checksum);
-    } else {
-        proto_tree_add_uint_format_value(tree, hf_mongo_msg_checksum, tvb, offset, 4, dissected_checksum, "0x%08x (Bad CRC32, should be 0x%08x)", dissected_checksum, calculated_checksum);
-    }
+    proto_tree_add_checksum(tree, tvb, offset, hf_mongo_msg_checksum, hf_mongo_msg_checksum_status, &ei_mongo_msg_checksum, pinfo, calculated_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     offset += 4;
   }
 
@@ -1297,6 +1294,11 @@ proto_register_mongo(void)
       FT_UINT32, BASE_HEX, NULL, 0x0,
       "CRC32C checksum.", HFILL }
     },
+    { &hf_mongo_msg_checksum_status,
+      { "Checksum Status", "mongo.msg.checksum.status",
+      FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+      NULL, HFILL }
+    },
     { &hf_mongo_number_of_cursor_ids,
       { "Number of Cursor IDS", "mongo.number_to_cursor_ids",
       FT_INT32, BASE_DEC, NULL, 0x0,
@@ -1477,6 +1479,7 @@ proto_register_mongo(void)
      { &ei_mongo_unknown, { "mongo.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
      { &ei_mongo_unsupported_compression, { "mongo.unsupported_compression.expert", PI_UNDECODED, PI_WARN, "This packet was compressed with an unsupported compressor", EXPFILL }},
      { &ei_mongo_too_large_compressed, { "mongo.too_large_compressed.expert", PI_UNDECODED, PI_WARN, "The size of the uncompressed packet exceeded the maximum allowed value", EXPFILL }},
+     { &ei_mongo_msg_checksum, { "mongo.bad_checksum.expert", PI_UNDECODED, PI_ERROR, "Bad checksum", EXPFILL }},
   };
 
   proto_mongo = proto_register_protocol("Mongo Wire Protocol", "MONGO", "mongo");
