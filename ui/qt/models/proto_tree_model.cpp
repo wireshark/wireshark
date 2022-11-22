@@ -191,7 +191,7 @@ struct find_hfid_ {
 bool ProtoTreeModel::foreachFindHfid(ProtoNode *node, gpointer find_hfid_ptr)
 {
     struct find_hfid_ *find_hfid = (struct find_hfid_ *) find_hfid_ptr;
-    if (PNODE_FINFO(node->protoNode())->hfinfo->id == find_hfid->hfid) {
+    if (PNODE_FINFO(node->protoNode()) && PNODE_FINFO(node->protoNode())->hfinfo->id == find_hfid->hfid) {
         find_hfid->node = node;
         return true;
     }
