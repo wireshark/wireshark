@@ -1213,7 +1213,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	switch (layer) {
 		case DECT_MITEL_ETH_LAYER_RFPC:
-			offset = dissect_dect_mitel_eth_rfpc(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+			dissect_dect_mitel_eth_rfpc(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 			break;
 		case DECT_MITEL_ETH_LAYER_MT:
 			while ( tvb_reported_length_remaining(tvb, offset) ) {
@@ -1230,31 +1230,31 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case DECT_MITEL_ETH_LAYER_MAC:
 			switch (prim_type) {
 				case DECT_MITEL_ETH_MAC_PAGE_REQ:
-					offset = dissect_dect_mitel_eth_mac_page_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_page_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_ENC_KEY_REQ:
-					offset = dissect_dect_mitel_eth_mac_enc_key_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_enc_key_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_ENC_EKS_IND:
-					offset = dissect_dect_mitel_eth_mac_enc_eks_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_enc_eks_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND:
-					offset = dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES:
-					offset = dissect_dect_mitel_eth_mac_ho_in_progress_res(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_ho_in_progress_res(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_HO_FAILED_IND:
-					offset = dissect_dect_mitel_eth_mac_ho_failed_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_ho_failed_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_CON_IND:
-					offset = dissect_dect_mitel_eth_mac_con_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_con_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_INFO_IND:
-					offset = dissect_dect_mitel_eth_mac_info_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_info_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_CLEAR_DEF_CKEY_REQ:
-					offset = dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_REQ:
 					pinfo->p2p_dir = P2P_DIR_SENT;
@@ -1264,7 +1264,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_IND:
-					offset = dissect_dect_mitel_eth_mac_dis_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+					dissect_dect_mitel_eth_mac_dis_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_LC_DTR_IND:
 					pinfo->p2p_dir = P2P_DIR_RECV;
