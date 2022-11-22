@@ -48,6 +48,13 @@ static int hf_dect_mitel_rfp_control_nack_reason = -1;
 static int hf_dect_mitel_rfp_control_heartbeat_milliseconds = -1;
 static int hf_dect_mitel_rfp_control_heartbeat_nanoseconds = -1;
 
+/* SYS-IP-OPTIONS */
+static int hf_dect_mitel_rfp_sys_ip_options_voice_tos = -1;
+static int hf_dect_mitel_rfp_sys_ip_options_signalling_tos = -1;
+static int hf_dect_mitel_rfp_sys_ip_options_ttl = -1;
+static int hf_dect_mitel_rfp_sys_ip_options_signal_vlan_priority = -1;
+static int hf_dect_mitel_rfp_sys_ip_options_voice_vlan_priority = -1;
+
 /* SYS-LED */
 static int hf_dect_mitel_rfp_sys_led_id    = -1;
 static int hf_dect_mitel_rfp_sys_led_color = -1;
@@ -458,6 +465,31 @@ static guint dissect_dect_mitel_rfp_control_heartbeat(tvbuff_t *tvb, packet_info
 }
 
 /*
+SYS-IP-OPTIONS Message
+| Offset | Len | Content                     |
+| ------ | --- | --------------------------- |
+|      0 |   1 | Voice Type of Service (ToS) |
+|      1 |   1 | Signalling ToS              |
+|      2 |   1 | TTL                         |
+|      3 |   1 | Signal VLAN priority        |
+|      4 |   1 | Voice VLAN priority         |
+ */
+static guint dissect_dect_mitel_rfp_sys_ip_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_ip_options_voice_tos, tvb, offset, 1, ENC_NA);
+	offset++;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_ip_options_signalling_tos, tvb, offset, 1, ENC_NA);
+	offset++;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_ip_options_ttl, tvb, offset, 1, ENC_NA);
+	offset++;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_ip_options_signal_vlan_priority, tvb, offset, 1, ENC_NA);
+	offset++;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_ip_options_voice_vlan_priority, tvb, offset, 1, ENC_NA);
+	offset++;
+	return offset;
+}
+
+/*
 SYS-LED Message
 | Offset | Len | Content     |
 | ------ | --- | ----------- |
@@ -577,6 +609,9 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_HEARTBEAT:
 			offset = dissect_dect_mitel_rfp_control_heartbeat(tvb, pinfo, tree, data, offset);
 			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_IP_OPTIONS:
+			offset = dissect_dect_mitel_rfp_sys_ip_options(tvb, pinfo, tree, data, offset);
+			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_LED:
 			offset = dissect_dect_mitel_rfp_sys_led(tvb, pinfo, tree, data, offset);
 			break;
@@ -648,6 +683,32 @@ void proto_register_dect_mitel_rfp(void)
 		},
 		{ &hf_dect_mitel_rfp_control_heartbeat_nanoseconds,
 			{ "Nanoseconds", "dect_mitel_rfp.control.heartbeat.nanoseconds", FT_UINT32, BASE_DEC,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* SYS-IP-OPTIONS */
+		{ &hf_dect_mitel_rfp_sys_ip_options_voice_tos,
+			{ "Voice ToS", "dect_mitel_rfp.sys.ip_options.voice_tos", FT_UINT8, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_ip_options_signalling_tos,
+			{ "Signalling ToS", "dect_mitel_rfp.sys.ip_options.signalling_tos", FT_UINT8, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_ip_options_ttl,
+			{ "TTL", "dect_mitel_rfp.sys.ip_options.ttl", FT_UINT8, BASE_DEC,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_ip_options_signal_vlan_priority,
+			{ "Signal VLAN priority", "dect_mitel_rfp.sys.ip_options.signal_vlan_priority", FT_UINT8, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_ip_options_voice_vlan_priority,
+			{ "Voice VLAN priority", "dect_mitel_rfp.sys.ip_options.voice_vlan_priority", FT_UINT8, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
 			}
 		},
