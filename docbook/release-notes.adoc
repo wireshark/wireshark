@@ -72,6 +72,7 @@ The following features are new (or have been significantly updated) since versio
 SAP Enqueue Server (SAPEnqueue)
 SAP HANA SQL Command Network Protocol (SAPHDB)
 SAP Internet Graphic Server (SAP IGS)
+SAP Message Server (SAPMS)
 SAP Network Interface (SAPNI)
 SAP Router (SAPROUTER)
 World of Warcraft World (WOWW) display filters have been changed to be more internally consistent.
