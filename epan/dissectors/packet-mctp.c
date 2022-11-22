@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
+#include <epan/dissectors/packet-mctp.h>
 #include <epan/dissectors/packet-sll.h>
 
 #define MCTP_MIN_LENGTH 5       /* 4-byte header, plus message type */
@@ -41,11 +42,14 @@ static int hf_mctp_seq = -1;
 static int hf_mctp_tag = -1;
 static int hf_mctp_tag_to = -1;
 static int hf_mctp_tag_value = -1;
+static int hf_mctp_msg_ic = -1;
+static int hf_mctp_msg_type = -1;
 
 static gint ett_mctp = -1;
 static gint ett_mctp_fst = -1;
 static gint ett_mctp_flags = -1;
 static gint ett_mctp_tag = -1;
+static gint ett_mctp_type = -1;
 
 static const true_false_string tfs_tag_to = { "Sender", "Receiver" };
 
@@ -92,6 +96,15 @@ static const value_string flag_vals[] = {
     { 0x02, "SOM" },
     { 0x03, "SOM|EOM" },
     { 0x00, NULL },
+};
+
+static const value_string type_vals[] = {
+    { MCTP_TYPE_CONTROL, "MCTP Control Protocol" },
+    { MCTP_TYPE_PLDM, "PLDM" },
+    { MCTP_TYPE_NCSI, "NC-SI" },
+    { MCTP_TYPE_ETHERNET, "Ethernet" },
+    { MCTP_TYPE_NVME, "NVMe-MI" },
+    { 0, NULL },
 };
 
 static dissector_table_t mctp_dissector_table;
@@ -209,9 +222,24 @@ dissect_mctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (next_tvb) {
+        proto_tree *type_tree;
         int rc;
 
         type = tvb_get_guint8(next_tvb, 0);
+        type_tree = proto_tree_add_subtree_format(mctp_tree, next_tvb, 0, 1,
+                                                  ett_mctp_type,
+                                                  &tti, "Type: %s (0x%x)%s",
+                                                  val_to_str_const(type & 0x7f,
+                                                                   type_vals,
+                                                                   "unknown"),
+                                                  type & 0x7f,
+                                                  type & 0x80 ? " + IC" : "");
+
+        proto_tree_add_item(type_tree, hf_mctp_msg_type, next_tvb, 0, 1,
+                            ENC_NA);
+        proto_tree_add_item(type_tree, hf_mctp_msg_ic, next_tvb, 0, 1,
+                            ENC_NA);
+
         rc = dissector_try_uint_new(mctp_dissector_table, type & 0x7f,
                                     next_tvb, pinfo, tree, true, NULL);
 
@@ -284,6 +312,18 @@ proto_register_mctp(void)
             NULL, HFILL },
         },
 
+        /* message header */
+        { &hf_mctp_msg_ic,
+          { "Integrity check", "mctp.msg.ic",
+            FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x80,
+            NULL, HFILL },
+        },
+        { &hf_mctp_msg_type,
+          { "Message type", "mctp.msg.type",
+            FT_UINT8, BASE_HEX, VALS(type_vals), 0x7f,
+            NULL, HFILL },
+        },
+
         /* generic fragmentation */
         {&hf_mctp_fragments,
             {"Message fragments", "mctp.fragments",
@@ -328,6 +368,7 @@ proto_register_mctp(void)
         &ett_mctp_flags,
         &ett_mctp_fst,
         &ett_mctp_tag,
+        &ett_mctp_type,
         &ett_mctp_fragment,
         &ett_mctp_fragments,
     };
