@@ -2,6 +2,9 @@
  * Routines for DECT-Mitel-RFP dissection
  * Copyright 2022, Bernhard Dick <bernhard@bdick.de>
  *
+ * Parts are based on the EVENTPHONE rfpproxy project that is MIT licensed
+ * and Copyright (c) 2019 Bianco Veigel <devel at zivillian.de>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
