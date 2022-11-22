@@ -605,25 +605,25 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	switch ( message_type ) {
 		case DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_ACK:
-			offset = dissect_dect_mitel_rfp_control_ack(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			dissect_dect_mitel_rfp_control_ack(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_NACK:
-			offset = dissect_dect_mitel_rfp_control_nack(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			dissect_dect_mitel_rfp_control_nack(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_HEARTBEAT:
-			offset = dissect_dect_mitel_rfp_control_heartbeat(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			dissect_dect_mitel_rfp_control_heartbeat(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_IP_OPTIONS:
-			offset = dissect_dect_mitel_rfp_sys_ip_options(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			dissect_dect_mitel_rfp_sys_ip_options(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_LED:
-			offset = dissect_dect_mitel_rfp_sys_led(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			dissect_dect_mitel_rfp_sys_led(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_AUTHENTICATE:
-			offset = dissect_dect_mitel_rfp_sys_authenticate(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			dissect_dect_mitel_rfp_sys_authenticate(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_INIT:
-			offset = dissect_dect_mitel_rfp_sys_init(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			dissect_dect_mitel_rfp_sys_init(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_ETH:
 			/* Handover to DECT-MITEL-ETH*/
