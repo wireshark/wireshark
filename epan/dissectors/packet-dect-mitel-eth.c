@@ -186,6 +186,14 @@ static gint hf_dect_mitel_eth_mt_item_value = -1;
 
 static gint ett_dect_mitel_eth = -1;
 
+static gint ett_dect_mitel_eth_rfpc_item = -1;
+
+static gint ett_dect_mitel_eth_higher_layer_capabilities_flags = -1;
+static gint ett_dect_mitel_eth_extended_capabilities_flags = -1;
+static gint ett_dect_mitel_eth_mac_capabilities_flags = -1;
+static gint ett_dect_mitel_eth_extended_capabilities2_mac_capability_flags = -1;
+static gint ett_dect_mitel_eth_extended_capabilities2_flags = -1;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t dlc_handle;
 
@@ -662,7 +670,7 @@ static guint dissect_dect_mitel_eth_rfpc_higher_layer_capabilities(tvbuff_t *tvb
 		NULL
 	};
 
-	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_higher_layer_capabilities_flags, ett_dect_mitel_eth, flags, ENC_NA);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_higher_layer_capabilities_flags, ett_dect_mitel_eth_higher_layer_capabilities_flags, flags, ENC_NA);
 	offset += 2;
 	return offset;
 }
@@ -707,7 +715,7 @@ static guint dissect_dect_mitel_eth_rfpc_extended_capabilities(tvbuff_t *tvb, pa
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_extended_capabilities_wireless_relay_stations, tvb, offset, 2, ENC_NA);
 	offset++;
-	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_extended_capabilities_flags, ett_dect_mitel_eth, flags, ENC_NA);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_extended_capabilities_flags, ett_dect_mitel_eth_extended_capabilities_flags, flags, ENC_NA);
 
 	offset += 4;
 	return offset;
@@ -744,7 +752,7 @@ static guint dissect_dect_mitel_eth_rfpc_mac_capabilities(tvbuff_t *tvb, packet_
 		NULL
 	};
 
-	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_mac_capabilities_flags, ett_dect_mitel_eth, flags, ENC_NA);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_mac_capabilities_flags, ett_dect_mitel_eth_mac_capabilities_flags, flags, ENC_NA);
 
 	offset += 3;
 	return offset;
@@ -869,10 +877,10 @@ static guint dissect_dect_mitel_eth_rfpc_extended_capabilities2(tvbuff_t *tvb, p
 		NULL
 	};
 
-	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_extended_capabilities2_mac_capability_flags, ett_dect_mitel_eth, mac_capability_flags, ENC_NA);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_extended_capabilities2_mac_capability_flags, ett_dect_mitel_eth_extended_capabilities2_mac_capability_flags, mac_capability_flags, ENC_NA);
 	offset += 2;
 
-	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_extended_capabilities2_flags, ett_dect_mitel_eth, capability_flags, ENC_NA);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_rfpc_extended_capabilities2_flags, ett_dect_mitel_eth_extended_capabilities2_flags, capability_flags, ENC_NA);
 	offset += 3;
 	return offset;
 }
@@ -894,6 +902,9 @@ RFPc Message
 static guint dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
 {
 	guint8 message_type, item_type, item_length;
+	proto_tree *rfpc_item_tree;
+	proto_item *rfpc_item_tree_item;
+
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_message_type, tvb, offset, 1, ENC_NA);
 	message_type = tvb_get_guint8(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "RFPc: %s ",
@@ -901,41 +912,43 @@ static guint dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	offset++;
 
 	while ( tvb_reported_length_remaining(tvb, offset) ) {
-		proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_item_type, tvb, offset, 1, ENC_NA);
 		item_type = tvb_get_guint8(tvb, offset);
+		item_length = tvb_get_guint8(tvb, offset + 1);
+		rfpc_item_tree = proto_tree_add_subtree_format(tree, tvb, offset, item_length + 2, ett_dect_mitel_eth_rfpc_item, &rfpc_item_tree_item,
+			"Item: %s", val_to_str(item_type, dect_mitel_eth_rfpc_item_type_val, "Unknown: 0x%0x"));
+		proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_type, tvb, offset, 1, ENC_NA);
 		offset++;
 
-		proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_item_length, tvb, offset, 1, ENC_NA);
-		item_length = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_length, tvb, offset, 1, ENC_NA);
 		offset ++;
 
 		switch (item_type) {
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_REVISION:
-				offset = dissect_dect_mitel_eth_rfpc_revision(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_revision(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFPI:
-				offset = dissect_dect_mitel_eth_rfpc_rfpi(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_rfpi(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_HIGHER_LAYER_CAPABILITIES:
-				offset = dissect_dect_mitel_eth_rfpc_higher_layer_capabilities(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_higher_layer_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES:
-				offset = dissect_dect_mitel_eth_rfpc_extended_capabilities(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_extended_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_MAC_CAPABILITIES:
-				offset = dissect_dect_mitel_eth_rfpc_mac_capabilities(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_mac_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATISTIC_DATA:
-				offset = dissect_dect_mitel_eth_rfpc_statistic_data(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_statistic_data(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_PLI:
-				offset = dissect_dect_mitel_eth_rfpc_rfp_pli(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_rfp_pli(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES2:
-				offset = dissect_dect_mitel_eth_rfpc_extended_capabilities2(tvb, pinfo, tree, data, offset);
+				offset = dissect_dect_mitel_eth_rfpc_extended_capabilities2(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			default:
-				proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_item_value, tvb, offset, item_length, ENC_NA);
+				proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_value, tvb, offset, item_length, ENC_NA);
 				offset += item_length;
 				break;
 		}
@@ -1152,6 +1165,9 @@ static guint dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvbuff_t *tvb _U_, pa
 
 static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+	proto_item *dect_mitel_eth_tree_item;
+	proto_tree *dect_mitel_eth_tree;
+
 	guint16 mitel_eth_len, payload_len;
 	guint8 prim_type, layer, mcei, mt_item_length;
 	int offset = 0;
@@ -1161,6 +1177,8 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MI-DECToE");
 	col_clear(pinfo->cinfo, COL_INFO);
 
+	dect_mitel_eth_tree_item = proto_tree_add_item(tree, proto_dect_mitel_eth, tvb, 0, -1, ENC_NA);
+	dect_mitel_eth_tree = proto_item_add_subtree(dect_mitel_eth_tree_item, ett_dect_mitel_eth);
 	/*
 	 * When the protocol is used within the internal Ethernet channel in the RFP there is a two byte
 	 * field with not yet really known content and a two byte length field. This is not in place / consumed
@@ -1174,19 +1192,19 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 	if(!ip_encapsulated) {
 		mitel_eth_len = tvb_get_guint16(tvb, offset, 2);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 		if (mitel_eth_len < 3)
 			return tvb_captured_length(tvb);
 		offset += 4;
 	}
 
-	proto_tree_add_item(tree, hf_dect_mitel_eth_layer, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_layer, tvb, offset, 1, ENC_NA);
 	layer = tvb_get_guint8(tvb, offset);
 	offset++;
 
 	if ( layer != DECT_MITEL_ETH_LAYER_RFPC) {
 		prim_type = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 				val_to_str(prim_type, dect_mitel_eth_prim_coding_val, "Unknown 0x%02x"));
@@ -1195,16 +1213,16 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	switch (layer) {
 		case DECT_MITEL_ETH_LAYER_RFPC:
-			offset = dissect_dect_mitel_eth_rfpc(tvb, pinfo, tree, data, offset);
+			offset = dissect_dect_mitel_eth_rfpc(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 			break;
 		case DECT_MITEL_ETH_LAYER_MT:
 			while ( tvb_reported_length_remaining(tvb, offset) ) {
-				proto_tree_add_item(tree, hf_dect_mitel_eth_mt_item_key, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_key, tvb, offset, 1, ENC_NA);
 				offset++;
-				proto_tree_add_item(tree, hf_dect_mitel_eth_mt_item_length, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_length, tvb, offset, 1, ENC_NA);
 				mt_item_length = tvb_get_guint8(tvb, offset);
 				offset++;
-				proto_tree_add_item(tree, hf_dect_mitel_eth_mt_item_value, tvb, offset, mt_item_length, ENC_NA);
+				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_value, tvb, offset, mt_item_length, ENC_NA);
 				offset += mt_item_length;
 			}
 			break;
@@ -1212,50 +1230,50 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case DECT_MITEL_ETH_LAYER_MAC:
 			switch (prim_type) {
 				case DECT_MITEL_ETH_MAC_PAGE_REQ:
-					offset = dissect_dect_mitel_eth_mac_page_req(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_page_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_ENC_KEY_REQ:
-					offset = dissect_dect_mitel_eth_mac_enc_key_req(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_enc_key_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_ENC_EKS_IND:
-					offset = dissect_dect_mitel_eth_mac_enc_eks_ind(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_enc_eks_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND:
-					offset = dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES:
-					offset = dissect_dect_mitel_eth_mac_ho_in_progress_res(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_ho_in_progress_res(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_HO_FAILED_IND:
-					offset = dissect_dect_mitel_eth_mac_ho_failed_ind(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_ho_failed_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_CON_IND:
-					offset = dissect_dect_mitel_eth_mac_con_ind(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_con_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_INFO_IND:
-					offset = dissect_dect_mitel_eth_mac_info_ind(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_info_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_CLEAR_DEF_CKEY_REQ:
-					offset = dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_clear_def_ckey_req(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_REQ:
 					pinfo->p2p_dir = P2P_DIR_SENT;
 					mcei = tvb_get_guint8(tvb, offset);
 					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_IND:
-					offset = dissect_dect_mitel_eth_mac_dis_ind(tvb, pinfo, tree, data, offset);
+					offset = dissect_dect_mitel_eth_mac_dis_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_LC_DTR_IND:
 					pinfo->p2p_dir = P2P_DIR_RECV;
 					mcei = tvb_get_guint8(tvb, offset);
 					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
 					offset++;
-					proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
 					break;
 				case DECT_MITEL_ETH_LC_DATA_REQ:
 				case DECT_MITEL_ETH_LC_DATA_IND:
@@ -1267,9 +1285,9 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					mcei = tvb_get_guint8(tvb, offset);
 					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-					proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
 					offset++;
-					proto_tree_add_item(tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
+					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
 					offset++;
 					payload_len = tvb_get_guint8(tvb, offset);
 					offset++;
@@ -1337,17 +1355,17 @@ void proto_register_dect_mitelrfp(void)
 			}
 		},
 		{ &hf_dect_mitel_eth_rfpc_item_type,
-			{ "Item Type", "dect_mitel_eth.rfpc.item.type", FT_UINT8, BASE_HEX,
+			{ "Type", "dect_mitel_eth.rfpc.item.type", FT_UINT8, BASE_HEX,
 				VALS(dect_mitel_eth_rfpc_item_type_val), 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_eth_rfpc_item_length,
-			{ "Item Length", "dect_mitel_eth.rfpc.item.length", FT_UINT8, BASE_HEX,
+			{ "Length", "dect_mitel_eth.rfpc.item.length", FT_UINT8, BASE_HEX,
 				NULL, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_eth_rfpc_item_value,
-			{ "Item Value", "dect_mitel_eth.rfpc.item.value", FT_BYTES, BASE_NONE,
+			{ "Value", "dect_mitel_eth.rfpc.item.value", FT_BYTES, BASE_NONE,
 				NULL, 0, NULL, HFILL
 			}
 		},
@@ -1985,6 +2003,12 @@ void proto_register_dect_mitelrfp(void)
 
 	static gint *ett[] = {
 		&ett_dect_mitel_eth,
+		&ett_dect_mitel_eth_rfpc_item,
+		&ett_dect_mitel_eth_higher_layer_capabilities_flags,
+		&ett_dect_mitel_eth_extended_capabilities_flags,
+		&ett_dect_mitel_eth_mac_capabilities_flags,
+		&ett_dect_mitel_eth_extended_capabilities2_mac_capability_flags,
+		&ett_dect_mitel_eth_extended_capabilities2_flags,
 	};
 
 	/* Register protocol */
