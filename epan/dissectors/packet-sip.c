@@ -290,6 +290,7 @@ static expert_field ei_sip_header_not_terminated = EI_INIT;
 #if 0
 static expert_field ei_sip_odd_register_response = EI_INIT;
 #endif
+static expert_field ei_sip_call_id_invalid = EI_INIT;
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
 static expert_field ei_sip_via_sent_by_port = EI_INIT;
 static expert_field ei_sip_content_length_invalid = EI_INIT;
@@ -3425,7 +3426,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     guint32 cseq_number = 0;
     guchar  cseq_number_set = 0;
     char    cseq_method[MAX_CSEQ_METHOD_SIZE] = "";
-    char    call_id[MAX_CALL_ID_SIZE] = "";
+    char   *call_id = NULL;
     gchar  *media_type_str_lower_case = NULL;
     http_message_info_t message_info = { SIP_DATA, NULL, NULL, NULL };
     char   *content_encoding_parameter_str = NULL;
@@ -4188,22 +4189,21 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                     case POS_CALL_ID :
                     {
-                        char *value = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, value_len, ENC_UTF_8|ENC_NA);
+                        call_id = tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_len, ENC_UTF_8|ENC_NA);
                         proto_item *gen_item;
 
                         /* Store the Call-id */
-                        (void) g_strlcpy(call_id, value, MAX_CALL_ID_SIZE);
-                        stat_info->tap_call_id = wmem_strdup(wmem_packet_scope(), call_id);
+                        stat_info->tap_call_id = call_id;
 
                         /* Add 'Call-id' string item to tree */
                         sip_element_item = proto_tree_add_string(hdr_tree,
                                                     hf_header_array[hf_index], tvb,
                                                     offset, next_offset - offset,
-                                                    value);
+                                                    call_id);
                         gen_item = proto_tree_add_string(hdr_tree,
                                                     hf_sip_call_id_gen, tvb,
                                                     offset, next_offset - offset,
-                                                    value);
+                                                    call_id);
                         proto_item_set_generated(gen_item);
                         if (sip_hide_generatd_call_ids) {
                             proto_item_set_hidden(gen_item);
@@ -4663,6 +4663,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             datalen = content_length;
         if (reported_datalen > content_length)
             reported_datalen = content_length;
+    }
+
+    if (!call_id) {
+        call_id = wmem_strdup(pinfo->pool, "");
+        expert_add_info(pinfo, hdr_tree, &ei_sip_call_id_invalid);
+        /* XXX: The hash table lookups below (setup time, request/response,
+         * resend) are less reliable when the mandatory Call-Id header field
+         * is missing.
+         */
     }
 
     /* Add to info column interesting things learned from header fields. */
@@ -7554,6 +7563,7 @@ void proto_register_sip(void)
 #if 0
         { &ei_sip_odd_register_response, { "sip.response.unusual", PI_RESPONSE_CODE, PI_WARN, "SIP Response is unusual", EXPFILL }},
 #endif
+        { &ei_sip_call_id_invalid, { "sip.Call-ID.invalid", PI_PROTOCOL, PI_WARN, "Call ID is mandatory", EXPFILL }},
         { &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
         { &ei_sip_via_sent_by_port, { "sip.Via.sent-by.port.invalid", PI_MALFORMED, PI_NOTE, "Invalid SIP Via sent-by-port", EXPFILL }},
         { &ei_sip_content_length_invalid, { "sip.content_length.invalid", PI_MALFORMED, PI_NOTE, "Invalid content_length", EXPFILL }},
