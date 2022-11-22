@@ -614,6 +614,7 @@ static int hf_woww_probability = -1;
 static int hf_woww_public_key = -1;
 static int hf_woww_public_note = -1;
 static int hf_woww_pvp_rank = -1;
+static int hf_woww_query = -1;
 static int hf_woww_quest_completable = -1;
 static int hf_woww_quest_failed_reason = -1;
 static int hf_woww_quest_flags = -1;
@@ -9884,6 +9885,9 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_creature, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
+        case CMSG_DBLOOKUP:
+            add_cstring(ptv, &hf_woww_query);
+            break;
         case CMSG_DEL_FRIEND:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             break;
@@ -14527,7 +14531,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_quest_id, 4, ENC_LITTLE_ENDIAN);
             add_cstring(ptv, &hf_woww_title);
             add_cstring(ptv, &hf_woww_offer_reward_text);
-            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_emotes, 4, ENC_LITTLE_ENDIAN, &amount_of_emotes);
             for (i = 0; i < amount_of_emotes; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "NpcTextUpdateEmote");
@@ -14574,7 +14578,7 @@ add_body_fields(guint32 opcode,
             add_cstring(ptv, &hf_woww_title);
             add_cstring(ptv, &hf_woww_details);
             add_cstring(ptv, &hf_woww_objectives);
-            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_choice_item_rewards, 4, ENC_LITTLE_ENDIAN, &amount_of_choice_item_rewards);
             for (i = 0; i < amount_of_choice_item_rewards; ++i) {
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "QuestItemReward");
@@ -14628,7 +14632,7 @@ add_body_fields(guint32 opcode,
             add_cstring(ptv, &hf_woww_request_items_text);
             ptvcursor_add(ptv, hf_woww_emote_delay, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_emote_int, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_auto_finish, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_required_money, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add_ret_uint(ptv, hf_woww_amount_of_required_items, 4, ENC_LITTLE_ENDIAN, &amount_of_required_items);
             for (i = 0; i < amount_of_required_items; ++i) {
@@ -15228,7 +15232,7 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_item, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_display_id, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_stack_count, 4, ENC_LITTLE_ENDIAN);
-                ptvcursor_add(ptv, hf_woww_wrapped, 4, ENC_NA);
+                ptvcursor_add(ptv, hf_woww_wrapped, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_gift_wrapper, 8, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_enchantment, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_item_creator, 8, ENC_LITTLE_ENDIAN);
@@ -15300,7 +15304,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_aura_duration, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_UPDATE_INSTANCE_OWNERSHIP:
-            ptvcursor_add(ptv, hf_woww_player_is_saved_to_a_raid, 4, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_player_is_saved_to_a_raid, 4, ENC_LITTLE_ENDIAN);
             break;
         case SMSG_UPDATE_LAST_INSTANCE:
             ptvcursor_add(ptv, hf_woww_map, 4, ENC_LITTLE_ENDIAN);
@@ -18961,6 +18965,12 @@ proto_register_woww(void)
         { &hf_woww_pvp_rank,
             { "Pvp Rank", "woww.pvp.rank",
                 FT_UINT32, BASE_HEX_DEC, VALS(e_pvp_rank_strings), 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_query,
+            { "Query", "woww.query",
+                FT_STRINGZ, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
