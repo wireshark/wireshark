@@ -601,6 +601,18 @@ static const value_string dect_mitel_eth_mac_ho_failed_ind_reason_val[] = {
 	{ 0, NULL }
 };
 
+static guint dissect_dect_mitel_eth_mcei_field(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, guint offset)
+{
+	guint8 mcei;
+	mcei = tvb_get_guint8(tvb, offset);
+	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
+	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+	offset++;
+
+	return offset;
+}
+
 /*
 RFPc Revision
 | Offset | Len | Content       |
@@ -964,20 +976,15 @@ MAC_CON_IND Message
 |      1 |   3 | PMID (in last 20bits) |
 |      4 |   1 | Flags                 |
 */
-static guint dissect_dect_mitel_eth_mac_con_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_con_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
-	guint8 mcei;
-
 	static int *const mac_con_ind_flags[] = {
 		&hf_dect_mitel_eth_mac_con_ind_flag_handover,
 	};
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
-	mcei = tvb_get_guint8(tvb, offset);
-	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-	offset++;
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
+
 	proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset+=3;
 	proto_tree_add_bitmask(tree, tvb, offset, hf_dect_mitel_eth_mac_con_ind_flags, ett_dect_mitel_eth, mac_con_ind_flags, ENC_NA);
@@ -992,16 +999,9 @@ MAC_DIS_IND Message
 |      0 |   1 | MCEI    |
 |      1 |   1 | Reason  |
 */
-static guint dissect_dect_mitel_eth_mac_dis_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_dis_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
-	guint8 mcei;
-
-	pinfo->p2p_dir = P2P_DIR_RECV;
-	mcei = tvb_get_guint8(tvb, offset);
-	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-	offset++;
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_dis_ind_reason, tvb, offset, 1, ENC_NA);
 
@@ -1027,11 +1027,14 @@ static guint dissect_dect_mitel_eth_mac_page_req(tvbuff_t *tvb, packet_info *pin
 MAC_ENC_KEY_REQ Message
 | Offset | Len | Content   |
 | ------ | --- | --------- |
-|      0 |   8 | Key       |
-|      8 |   1 | (Key?) ID |
+|      0 |   1 | MCEI      |
+|      1 |   8 | Key       |
+|      9 |   1 | (Key?) ID |
  */
-static guint dissect_dect_mitel_eth_mac_enc_key_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_enc_key_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
+
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_key_req_key, tvb, offset, 8, ENC_NA);
 	offset += 8;
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_key_req_id, tvb, offset, 1, ENC_NA);
@@ -1043,13 +1046,16 @@ static guint dissect_dect_mitel_eth_mac_enc_key_req(tvbuff_t *tvb, packet_info *
 MAC_ENC_EKS_IND Message
 | Offset | Len | Content   | Comment            |
 | ------ | --- | --------- | ------------------ |
-|      0 |   1 | Type      |                    |
-|      1 |   1 | (Key?) ID | if Type == with ID |
-|      2 |   2 | PPN       | if Type == with ID |
+|      0 |   1 | MCEI      |                    |
+|      1 |   1 | Type      |                    |
+|      2 |   1 | (Key?) ID | if Type == with ID |
+|      3 |   2 | PPN       | if Type == with ID |
  */
-static guint dissect_dect_mitel_eth_mac_enc_eks_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_enc_eks_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
 	guint8 type;
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
+
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_eks_ind_type, tvb, offset, 1, ENC_NA);
 	type = tvb_get_guint8(tvb, offset);
 	offset++;
@@ -1069,15 +1075,9 @@ DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_IND Message
 |      0 |   1 | MCEI                  |
 |      1 |   3 | PMID (in last 20bits) |
  */
-static guint dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_ho_in_progress_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
-	guint8 mcei;
-
-	mcei = tvb_get_guint8(tvb, offset);
-	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-	offset++;
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 3, ENC_NA);
 	offset += 3;
@@ -1092,15 +1092,11 @@ DECT_MITEL_ETH_MAC_HO_IN_PROGRESS_RES Message
 |      2 |   8 | Key       |
 |     11 |   1 | (Key?) ID |
  */
-static guint dissect_dect_mitel_eth_mac_ho_in_progress_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_ho_in_progress_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
-	guint8 mcei;
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
-	mcei = tvb_get_guint8(tvb, offset);
-	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-	offset+=2;
+	offset++;
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_ho_in_progress_res_key, tvb, offset, 8, ENC_NA);
 	offset += 9;
@@ -1114,10 +1110,13 @@ static guint dissect_dect_mitel_eth_mac_ho_in_progress_res(tvbuff_t *tvb, packet
 MAC_HO_FAILED_IND Message
 | Offset | Len | Content |
 | ------ | --- | ------- |
-|      0 |   1 | Reason  |
+|      0 |   1 | MCEI    |
+|      1 |   1 | Reason  |
  */
-static guint dissect_dect_mitel_eth_mac_ho_failed_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_ho_failed_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
+
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_ho_failed_ind_reason, tvb, offset, 1, ENC_NA);
 	offset++;
 	return offset;
@@ -1131,16 +1130,10 @@ MAC_INFO_IND Message
 |      1 |   3 | PMID (in last 20bits) |
 |      5 |     | String                |
 */
-static guint dissect_dect_mitel_eth_mac_info_ind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, guint offset)
+static guint dissect_dect_mitel_eth_mac_info_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset)
 {
-	guint8 mcei;
-
 	pinfo->p2p_dir = P2P_DIR_RECV;
-	mcei = tvb_get_guint8(tvb, offset);
-	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-	offset++;
+	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_pmid, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset+=4;
@@ -1169,7 +1162,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree *dect_mitel_eth_tree;
 
 	guint16 mitel_eth_len, payload_len;
-	guint8 prim_type, layer, mcei, mt_item_length;
+	guint8 prim_type, layer, mt_item_length;
 	int offset = 0;
 	gboolean ip_encapsulated;
 	tvbuff_t *payload_tvb = NULL;
@@ -1258,21 +1251,15 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_REQ:
 					pinfo->p2p_dir = P2P_DIR_SENT;
-					mcei = tvb_get_guint8(tvb, offset);
-					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
+					dissect_dect_mitel_eth_mcei_field(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_MAC_DIS_IND:
 					dissect_dect_mitel_eth_mac_dis_ind(tvb, pinfo, dect_mitel_eth_tree, data, offset);
 					break;
 				case DECT_MITEL_ETH_LC_DTR_IND:
 					pinfo->p2p_dir = P2P_DIR_RECV;
-					mcei = tvb_get_guint8(tvb, offset);
-					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-					offset++;
+					offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+
 					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
 					break;
 				case DECT_MITEL_ETH_LC_DATA_REQ:
@@ -1282,11 +1269,8 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 					} else {
 						pinfo->p2p_dir = P2P_DIR_RECV;
 					}
-					mcei = tvb_get_guint8(tvb, offset);
-					conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
-					col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
-					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
-					offset++;
+					offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, dect_mitel_eth_tree, data, offset);
+
 					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
 					offset++;
 					payload_len = tvb_get_guint8(tvb, offset);
