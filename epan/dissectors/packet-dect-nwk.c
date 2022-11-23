@@ -2746,7 +2746,7 @@ where:
 * PPPPPPP is the decimal representation of the last 20 bits
 * C is calculated based on the digits by multiplying the digit with its position
   (starting with 1 on the leftmost one), and taking the sum of those multiply results
-  module 11. If the result is 10 a '*' is displayed insted.
+  modulo 11. If the result is 10 a '*' is displayed instead.
 */
 static void fmt_dect_nwk_ipei(gchar *ipei_string, guint64 ipei) {
 	guint16 emc, check_digit;
@@ -2757,18 +2757,19 @@ static void fmt_dect_nwk_ipei(gchar *ipei_string, guint64 ipei) {
 	psn = ipei & 0xFFFFF;
 
 	digit_divisor = 100000000000;
-	ipei_digits = emc * 100000000 + psn;
+	ipei_digits = emc * 10000000 + psn;
 	check_digit = 0;
 	for(int i = 1; i <= 12; i++) {
 		check_digit += ( ipei_digits / digit_divisor ) * i;
 		ipei_digits = ipei_digits % digit_divisor;
+		digit_divisor /= 10;
 	}
 	check_digit = check_digit % 11;
 
 	if ( check_digit == 10) {
-		snprintf(ipei_string, 15, "%05d %07d *", emc, psn);
+		snprintf(ipei_string, 16, "%05d %07d *", emc, psn);
 	} else {
-		snprintf(ipei_string, 15, "%05d %07d %d", emc, psn, check_digit);
+		snprintf(ipei_string, 16, "%05d %07d %d", emc, psn, check_digit);
 	}
 }
 
