@@ -311,8 +311,6 @@ static int hf_ansi_637_tele_srvc_cat_prog_data_max_messages = -1;
 static int hf_ansi_637_tele_srvc_cat_prog_data_alert_option = -1;
 static int hf_ansi_637_tele_srvc_cat_prog_data_num_fields = -1;
 static int hf_ansi_637_tele_srvc_cat_prog_data_text = -1;
-static int hf_ansi_637_msb_first_field = -1;
-static int hf_ansi_637_lsb_last_field = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_637_tele = -1;
@@ -1987,6 +1985,7 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
     gboolean    email_addr;
     guint32     i, saved_offset, required_octs;
     guint64     num_fields;
+    tvbuff_t   *tvb_out;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -2013,38 +2012,24 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
             proto_tree_add_bits_ret_val(tree, hf_ansi_637_trans_addr_param_num_fields, tvb, (offset*8)+5, 8, &num_fields, ENC_BIG_ENDIAN);
             if (num_fields == 0) return;
             offset += 1;
-            oct = tvb_get_guint8(tvb, offset);;
 
             SHORT_DATA_CHECK(len - 2, num_fields);
 
-            proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, offset*8, 3, ENC_NA);
-            offset += 1;
-
-            i = 0;
-            while (i < num_fields)
-            {
-                ansi_637_bigbuf[i] = (oct & 0x07) << 5;
-                ansi_637_bigbuf[i] |= ((oct = tvb_get_guint8(tvb, offset + i)) & 0xf8) >> 3;
-                i += 1;
-            }
-            ansi_637_bigbuf[i] = '\0';
+            tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 5, (gint)num_fields*8);
+            add_new_data_source(pinfo, tvb_out, "Address");
 
             if (email_addr)
             {
-                proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, (gint)num_fields + 1,
-                    ansi_637_bigbuf,
-                    "Number: %s",
-                    ansi_637_bigbuf);
+                proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_number, tvb_out, 0, (gint)num_fields,
+                    ENC_ASCII);
             }
             else
             {
-                proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset - 1, (gint)num_fields + 1,
-                    (guint8 *) ansi_637_bigbuf);
+                proto_tree_add_item(tree, hf_ansi_637_trans_bin_addr, tvb_out, 0, (gint)num_fields, ENC_NA);
             }
 
-            offset += ((guint32)num_fields - 1);
+            offset += ((guint32)num_fields);
 
-            proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, offset*8, 5, ENC_NA);
             proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_07, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         else
@@ -2068,27 +2053,14 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint l
 
             SHORT_DATA_CHECK(len - 3, num_fields);
 
-            proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, (offset*8)+1, 7, ENC_NA);
-            oct = tvb_get_guint8(tvb, offset);
-            offset += 1;
+            tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 1, (gint)num_fields*8);
+            add_new_data_source(pinfo, tvb_out, "Address");
 
-            i = 0;
-            while (i < num_fields)
-            {
-                ansi_637_bigbuf[i] = (oct & 0x7f) << 1;
-                ansi_637_bigbuf[i] |= ((oct = tvb_get_guint8(tvb, offset + i)) & 0x80) >> 7;
-                i += 1;
-            }
-            ansi_637_bigbuf[i] = '\0';
+            proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_number, tvb_out, 0, (gint)num_fields,
+                ENC_ASCII);
 
-            proto_tree_add_string_format(tree, hf_ansi_637_trans_addr_param_number, tvb, offset - 1, (gint)num_fields + 1,
-                ansi_637_bigbuf,
-                "Number: %s",
-                ansi_637_bigbuf);
+            offset += ((guint32)num_fields);
 
-            offset += ((guint32)num_fields - 1);
-
-            proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, offset*8, 1, ENC_NA);
             proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_7f, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
     }
@@ -2153,9 +2125,9 @@ static const value_string trans_param_subaddr_type_strings[] = {
 static void
 trans_param_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len _U_)
 {
-    guint8      oct, num_fields;
+    guint8      num_fields;
     guint32     value;
-    guint32     i;
+    tvbuff_t   *tvb_out;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -2175,25 +2147,13 @@ trans_param_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     SHORT_DATA_CHECK(len - 2, num_fields);
 
-    proto_tree_add_bits_item(tree, hf_ansi_637_msb_first_field, tvb, (offset*8)+12, 4, ENC_NA);
-    offset += 2;
+    offset += 1;
+    tvb_out = tvb_new_octet_aligned(tvb, offset*8 + 4, num_fields*8);
+    add_new_data_source(pinfo, tvb_out, "Subaddress");
 
-    oct = value & 0x000f;
-    i = 0;
-    while (i < num_fields)
-    {
-        ansi_637_bigbuf[i] = (oct & 0x0f) << 4;
-        ansi_637_bigbuf[i] |= ((oct = tvb_get_guint8(tvb, offset + i)) & 0xf0) >> 4;
-        i += 1;
-    }
-    ansi_637_bigbuf[i] = '\0';
+    proto_tree_add_item(tree, hf_ansi_637_trans_bin_addr, tvb_out, 0, num_fields, ENC_NA);
 
-    proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset, num_fields - 1,
-        (guint8 *) ansi_637_bigbuf);
-
-    offset += (num_fields - 1);
-
-    proto_tree_add_bits_item(tree, hf_ansi_637_lsb_last_field, tvb, offset*8, 4, ENC_NA);
+    offset += num_fields;
 
     proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_0f, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -3251,16 +3211,6 @@ proto_register_ansi_637(void)
         { &hf_ansi_637_tele_srvc_cat_prog_data_text,
             { "Encoded program data", "ansi_637_tele.srvc_cat_prog_data.text",
             FT_STRING, BASE_NONE, NULL, 0,
-            NULL, HFILL }
-        },
-        { &hf_ansi_637_msb_first_field,
-            { "Most significant bits of first field", "ansi_637_tele.msb_first_field",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_ansi_637_lsb_last_field,
-            { "Least significant bits of last field", "ansi_637_tele.lsb_last_field",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
     };
