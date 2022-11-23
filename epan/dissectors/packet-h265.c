@@ -937,8 +937,8 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 		codenum = G_MAXUINT32;
 		if (descriptor == H265_SE_V) {
 			/* For signed, must read the last bit to get the sign. */
-			value = tvb_get_bits32(tvb, bit_offset + leading_zero_bits / 32, leading_zero_bits % 32, ENC_BIG_ENDIAN);
-			if (value % 1) {
+			value = tvb_get_bits32(tvb, bit_offset + 32*(leading_zero_bits / 32), leading_zero_bits % 32, ENC_BIG_ENDIAN);
+			if (value % 2) {
 				se_value = G_MININT32;
 			} else {
 				se_value = G_MAXINT32;
@@ -954,7 +954,7 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 			if (value != 1) {
 				overflow = TRUE;
 			}
-			if (value % 1) {
+			if (value % 2) {
 				se_value = G_MININT32;
 			} else {
 				se_value = G_MAXINT32;

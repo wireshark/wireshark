@@ -688,8 +688,8 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
         overflow = TRUE;
         codenum = G_MAXUINT32;
         if (descriptor == H264_SE_V) {
-            value = tvb_get_bits32(tvb, bit_offset + leading_zero_bits / 32, leading_zero_bits % 32, ENC_BIG_ENDIAN);
-            if (value % 1) {
+            value = tvb_get_bits32(tvb, bit_offset + 32*(leading_zero_bits / 32), leading_zero_bits % 32, ENC_BIG_ENDIAN);
+            if (value % 2) {
                 se_value = G_MININT32;
             } else {
                 se_value = G_MAXINT32;
@@ -705,7 +705,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
             if (value != 1) {
                 overflow = TRUE;
             }
-            if (value % 1) {
+            if (value % 2) {
                 se_value = G_MININT32;
             } else {
                 se_value = G_MAXINT32;
