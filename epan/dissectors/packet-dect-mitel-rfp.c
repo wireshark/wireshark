@@ -83,6 +83,77 @@ static int hf_dect_mitel_rfp_sys_init_rfp_brand = -1;
 static int hf_dect_mitel_rfp_sys_init_rfp_software_version = -1;
 static int hf_dect_mitel_rfp_sys_init_signature = -1;
 
+/* MEDIA */
+static gint hf_dect_mitel_rfp_media_handle = -1;
+static gint hf_dect_mitel_rfp_media_mcei = -1;
+static gint hf_dect_mitel_rfp_media_direction = -1;
+
+/* MEDIA-OPEN */
+static gint hf_dect_mitel_rfp_media_open_codec = -1;
+static gint hf_dect_mitel_rfp_media_open_slot_count = -1;
+static gint hf_dect_mitel_rfp_media_open_flags = -1;
+
+/* MEDIA-CONF */
+static gint hf_dect_mitel_rfp_media_conf_vif = -1;
+static gint hf_dect_mitel_rfp_media_conf_vad = -1;
+static gint hf_dect_mitel_rfp_media_conf_codec_count = -1;
+static gint hf_dect_mitel_rfp_media_conf_codec_type = -1;
+static gint hf_dect_mitel_rfp_media_conf_codec_pt = -1;
+static gint hf_dect_mitel_rfp_media_conf_codec_rate = -1;
+static gint hf_dect_mitel_rfp_media_conf_ppn = -1;
+static gint hf_dect_mitel_rfp_media_conf_local_port_1 = -1;
+static gint hf_dect_mitel_rfp_media_conf_local_port_2 = -1;
+static gint hf_dect_mitel_rfp_media_conf_rx_ip_address = -1;
+static gint hf_dect_mitel_rfp_media_conf_rx_port_1 = -1;
+static gint hf_dect_mitel_rfp_media_conf_rx_port_2 = -1;
+static gint hf_dect_mitel_rfp_media_conf_tx_ip_address = -1;
+static gint hf_dect_mitel_rfp_media_conf_tx_port_1 = -1;
+static gint hf_dect_mitel_rfp_media_conf_tx_port_2 = -1;
+
+/* MEDIA-START */
+static gint hf_dect_mitel_rfp_media_start_time = -1;
+static gint hf_dect_mitel_rfp_media_start_met_keep_alive = -1;
+
+/* MEDIA-STATISTICS */
+static gint hf_dect_mitel_rfp_media_statistics_duration = -1;
+static gint hf_dect_mitel_rfp_media_statistics_tx_packets = -1;
+static gint hf_dect_mitel_rfp_media_statistics_tx_bytes = -1;
+static gint hf_dect_mitel_rfp_media_statistics_rx_packets = -1;
+static gint hf_dect_mitel_rfp_media_statistics_rx_bytes = -1;
+static gint hf_dect_mitel_rfp_media_statistics_lost_packets = -1;
+static gint hf_dect_mitel_rfp_media_statistics_max_jitter = -1;
+static gint hf_dect_mitel_rfp_media_statistics_rtp_ip_address = -1;
+
+/* MEDIA-REDIRECT-START */
+static gint hf_dect_mitel_rfp_media_redirect_start_local_port_1 = -1;
+static gint hf_dect_mitel_rfp_media_redirect_start_local_port_2 = -1;
+static gint hf_dect_mitel_rfp_media_redirect_start_remote_ip_address = -1;
+static gint hf_dect_mitel_rfp_media_redirect_start_remote_port_1 = -1;
+static gint hf_dect_mitel_rfp_media_redirect_start_remote_port_2 = -1;
+static gint hf_dect_mitel_rfp_media_redirect_start_time = -1;
+
+/* MEDIA-REDIRECT-STOP */
+static gint hf_dect_mitel_rfp_media_redirect_stop_fallback = -1;
+
+/* MEDIA-DTMF */
+static gint hf_dect_mitel_rfp_media_dtmf_duration = -1;
+static gint hf_dect_mitel_rfp_media_dtmf_key = -1;
+
+/* MEDIA-TONE */
+static gint hf_dect_mitel_rfp_media_tone_count = -1;
+static gint hf_dect_mitel_rfp_media_tone_frequency_1 = -1;
+static gint hf_dect_mitel_rfp_media_tone_frequency_2 = -1;
+static gint hf_dect_mitel_rfp_media_tone_frequency_3 = -1;
+static gint hf_dect_mitel_rfp_media_tone_frequency_4 = -1;
+static gint hf_dect_mitel_rfp_media_tone_cb_1 = -1;
+static gint hf_dect_mitel_rfp_media_tone_cb_2 = -1;
+static gint hf_dect_mitel_rfp_media_tone_cb_3 = -1;
+static gint hf_dect_mitel_rfp_media_tone_cb_4 = -1;
+static gint hf_dect_mitel_rfp_media_tone_duration= -1;
+static gint hf_dect_mitel_rfp_media_tone_cycle_count = -1;
+static gint hf_dect_mitel_rfp_media_tone_cycle_to = -1;
+static gint hf_dect_mitel_rfp_media_tone_next = -1;
+
 /* Message Type */
 enum dect_mitel_rfp_message_type_coding {
 	DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_ACK                  = 0x0001,
@@ -130,7 +201,7 @@ enum dect_mitel_rfp_message_type_coding {
 	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_RESTART                = 0x0208,
 	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_DTMF                   = 0x0209,
 	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_DSP_CLOSE              = 0x020a,
-	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_TONE2                  = 0x020b,
+	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_TONE                   = 0x020b,
 	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_BANDWIDTH_SWO          = 0x020c,
 	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_MUTE                   = 0x020d,
 	DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_G729_USED              = 0x020e,
@@ -247,6 +318,23 @@ enum dect_mitel_rfp_sys_init_rfp_brand_coding {
 	DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_OCX    = 0x020,
 };
 
+/* MEDIA */
+enum dect_mitel_rfp_media_direction_coding {
+	DECT_MITEL_RFP_MEDIA_DIRECTION_NONE = 0x0,
+	DECT_MITEL_RFP_MEDIA_DIRECTION_RX   = 0x1,
+	DECT_MITEL_RFP_MEDIA_DIRECTION_TX   = 0x2,
+	DECT_MITEL_RFP_MEDIA_DIRECTION_RXTX = 0x3,
+};
+
+/* MEDIA-CONF */
+enum dect_mitel_rfp_media_conf_codec_type_coding {
+	DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G711_A    = 0x0,
+	DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G723_1_53 = 0x1,
+	DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G723_1_63 = 0x2,
+	DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G729      = 0x3,
+	DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G711_U    = 0x4,
+};
+
 /* Message Type */
 static const value_string dect_mitel_rfp_message_type_val[] = {
 	{ DECT_MITEL_RFP_MESSAGE_TYPE_CONTROL_ACK,                  "CONTROL-ACK" },
@@ -294,7 +382,7 @@ static const value_string dect_mitel_rfp_message_type_val[] = {
 	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_RESTART,                "MEDIA-RESTART" },
 	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_DTMF,                   "MEDIA-DTMF" },
 	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_DSP_CLOSE,              "MEDIA-DSP-CLOSE" },
-	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_TONE2,                  "MEDIA-TONE2" },
+	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_TONE,                   "MEDIA-TONE" },
 	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_BANDWIDTH_SWO,          "MEDIA-BANDWIDTH-SWO" },
 	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_MUTE,                   "MEDIA-MUTE" },
 	{ DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_G729_USED,              "MEDIA-G729-USED" },
@@ -406,6 +494,26 @@ static const value_string dect_mitel_rfp_sys_init_rfp_brand_val[] = {
 	{ 0, NULL }
 };
 
+/* MEDIA */
+static const value_string dect_mitel_rfp_media_direction_val[] = {
+	{ DECT_MITEL_RFP_MEDIA_DIRECTION_NONE, "None" },
+	{ DECT_MITEL_RFP_MEDIA_DIRECTION_RX,   "RX" },
+	{ DECT_MITEL_RFP_MEDIA_DIRECTION_TX,   "TX" },
+	{ DECT_MITEL_RFP_MEDIA_DIRECTION_RXTX, "RX+TX" },
+	{ 0, NULL }
+};
+
+/* MEDIA-CONF */
+static const value_string dect_mitel_rfp_media_conf_codec_type_val[] = {
+	{ DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G711_A,    "G.711 alaw" },
+	{ DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G723_1_53, "G.723 5.3kbit/s" },
+	{ DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G723_1_63, "G.723 6.3kbit/s" },
+	{ DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G729,      "G.729" },
+	{ DECT_MITEL_RFP_MEDIA_CONF_CODEC_TYPE_G711_U,    "G.711 ulaw" },
+	{ 0, NULL }
+};
+
+
 static dissector_handle_t dect_mitel_rfp_handle;
 static dissector_handle_t dect_mitel_eth_handle;
 
@@ -416,6 +524,7 @@ static guint tcp_port_pref = DECT_MITEL_RFP_TCP_PORT;
 /* Initialize the subtree pointers */
 static gint ett_dect_mitel_rfp = -1;
 static gint ett_dect_mitel_rfp_sys_init_rfp_capabilities = -1;
+static gint ett_dect_mitel_rfp_media_tone_entry = -1;
 
 /*
 CONTROL-ACK Message
@@ -573,6 +682,403 @@ static guint dissect_dect_mitel_rfp_sys_init(tvbuff_t *tvb, packet_info *pinfo _
 	return offset;
 }
 
+/*
+MEDIA-OPEN Message
+| Offset | Len | Content    |
+| ------ | --- | ---------- |
+|      0 |   1 | Codec      |
+|      1 |   1 | Slot count |
+|      2 |   4 | Flags      |
+*/
+static guint dissect_dect_mitel_rfp_media_open(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_codec, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_slot_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset+=4;
+
+	return offset;
+}
+
+/*
+MEDIA-CONF Message
+| Offset | Len | Content       |
+| ------ | --- | ------------- |
+|      2 |   1 | Vif           |
+|      3 |   1 | VAD           |
+|      4 |   1 | Codec count   |
+|      5 |   1 | Codec 1 Type  |
+|      6 |   1 | Codec 1 Pt    |
+|      7 |   1 | Codec 1 Rate  |
+|     .. | ..  | ...           |
+|     56 |   1 | MCEI          |
+|     58 |   2 | PPN           |
+|     64 |   2 | Local port 1  |
+|     66 |   2 | Local port 2  |
+|     70 |   4 | RX IP address |
+|     74 |   2 | RX port 1     |
+|     76 |   2 | RX port 2     |
+|     78 |   4 | TX IP address |
+|     82 |   2 | TX port 1     |
+|     84 |   2 | TX port 2     |
+*/
+static guint dissect_dect_mitel_rfp_media_conf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint32 codec_count;
+	guint mcei_offset;
+	mcei_offset = offset + 56;
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_vif, tvb, offset, 1,ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_vad, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item_ret_uint(tree, hf_dect_mitel_rfp_media_conf_codec_count, tvb, offset, 1, ENC_BIG_ENDIAN, &codec_count);
+	offset++;
+
+	for (guint32 i = 0; i < codec_count && offset < mcei_offset; i++) {
+		proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_codec_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_codec_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_codec_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+	offset = mcei_offset;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_mcei, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_ppn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 6;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_local_port_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_local_port_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_rx_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_rx_port_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_rx_port_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_tx_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_tx_port_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_conf_tx_port_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	return offset;
+}
+
+/*
+MEDIA-START Message
+| Offset | Len | Content       |
+| ------ | --- | ------------- |
+|      0 |   1 | Direction     |
+|      2 |   4 | Time          |
+|      6 |   1 | Met keepalive |
+*/
+static guint dissect_dect_mitel_rfp_media_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_start_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_start_met_keep_alive, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	return offset;
+}
+
+/*
+MEDIA-STOP Message
+| Offset | Len | Content       |
+| ------ | --- | ------------- |
+|      0 |   1 | Direction     |
+*/
+static guint dissect_dect_mitel_rfp_media_stop(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	return offset;
+}
+
+/*
+MEDIA-STATISTICS Message
+| Offset | Len | Content        |
+| ------ | --- | -------------- |
+|      2 |   4 | Duration       |
+|      6 |   4 | TX packets     |
+|     10 |   4 | TX bytes       |
+|     14 |   4 | RX packets     |
+|     18 |   4 | RX bytes       |
+|     22 |   4 | Lost packets   |
+|     26 |   4 | Max jitter     |
+|     30 |   4 | RTP IP address |
+*/
+static guint dissect_dect_mitel_rfp_media_statistics(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_duration, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_tx_packets, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_tx_bytes, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_rx_packets, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_rx_bytes, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_lost_packets, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_max_jitter, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_statistics_rtp_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+/*
+MEDIA-REDIRECT-START Message
+| Offset | Len | Content            |
+| ------ | --- | ------------------ |
+|      2 |   2 | Local port 1       |
+|      4 |   2 | Local port 2       |
+|      6 |   4 | Remote IP address  |
+|     10 |   2 | Remote port 1      |
+|     12 |   2 | Remote port 2      |
+|     14 |   4 | Time               |
+*/
+static guint dissect_dect_mitel_rfp_media_redirect_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_redirect_start_local_port_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_redirect_start_local_port_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_redirect_start_remote_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_redirect_start_remote_port_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_redirect_start_remote_port_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_redirect_start_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	return offset;
+}
+
+/*
+MEDIA-REDIRECT-STOP Message
+| Offset | Len | Content       |
+| ------ | --- | ------------- |
+|      0 |   1 | Fallback      |
+*/
+static guint dissect_dect_mitel_rfp_media_redirect_stop(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_redirect_stop_fallback, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	return offset;
+}
+
+/*
+MEDIA-RESTART Message
+| Offset | Len | Content |
+| ------ | --- | ------- |
+|      0 |   1 | MCEI    |
+*/
+static guint dissect_dect_mitel_rfp_media_restart(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_mcei, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	return offset;
+}
+
+/*
+MEDIA-DTMF Message
+| Offset | Len | Content   |
+| ------ | --- | --------- |
+|      0 |   2 | Duration  |
+|      2 |   1 | Key       |
+|      3 |   1 | Direction |
+*/
+static guint dissect_dect_mitel_rfp_media_dtmf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_dtmf_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_dtmf_key, tvb, offset, 1, ENC_ASCII_7BITS);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	return offset;
+}
+
+/*
+MEDIA-TONE Message
+| Offset | Len | Content   |
+| ------ | --- | --------- |
+|      0 |   1 | Direction |
+|      1 |   1 | Count     |
+|      6 |  24 | Tone 0    |
+| ...    | ... | ...       |
+| 6+24*n |  24 | Tone n    |
+
+Tone:
+| Offset | Len | Content     |
+| ------ | --- | ----------- |
+|      0 |   2 | Frequency 1 |
+|      2 |   2 | Frequency 2 |
+|      4 |   2 | Frequency 3 |
+|      6 |   2 | Frequency 4 |
+|      8 |   2 | cB 1        |
+|     10 |   2 | cB 2        |
+|     12 |   2 | cB 3        |
+|     14 |   2 | cB 4        |
+|     16 |   2 | Duration    |
+|     18 |   2 | Cycle count |
+|     20 |   2 | Cycle to    |
+|     22 |   2 | Next        |
+*/
+static guint dissect_dect_mitel_rfp_media_tone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint8 tone_count;
+	proto_tree *tone_tree;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_tone_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+	tone_count = tvb_get_guint8(tvb, offset);
+	offset += 5;
+
+	for (guint8 i = 0; i < tone_count; i++) {
+		tone_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_dect_mitel_rfp_media_tone_entry, NULL, "Tone entry");
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_frequency_1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_frequency_2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_frequency_3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_frequency_4, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_cb_1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_cb_2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_cb_3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_cb_4, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_cycle_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_cycle_to, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tone_tree, hf_dect_mitel_rfp_media_tone_next, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+	}
+
+	return offset;
+}
+
+/*
+MEDIA Message
+| Offset | Len | Content         |
+| ------ | --- | --------------- |
+|      0 |   2 | Handle          |
+|      2 |     | Message content |
+*/
+static guint dissect_dect_mitel_rfp_media(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, guint offset, guint16 message_type)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_handle, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	switch(message_type) {
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_OPEN:
+			offset = dissect_dect_mitel_rfp_media_open(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_CONF:
+			offset = dissect_dect_mitel_rfp_media_conf(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_CLOSE:
+			offset += 2;
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_START:
+			offset = dissect_dect_mitel_rfp_media_start(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_STOP:
+			offset = dissect_dect_mitel_rfp_media_stop(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_STATISTICS:
+			offset = dissect_dect_mitel_rfp_media_statistics(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_REDIRECT_START:
+			offset = dissect_dect_mitel_rfp_media_redirect_start(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_REDIRECT_STOP:
+			offset = dissect_dect_mitel_rfp_media_redirect_stop(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_RESTART:
+			offset = dissect_dect_mitel_rfp_media_restart(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_DTMF:
+			offset = dissect_dect_mitel_rfp_media_dtmf(tvb, pinfo, tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_TONE:
+			offset = dissect_dect_mitel_rfp_media_tone(tvb, pinfo, tree, data, offset);
+			break;
+	}
+	return offset;
+}
+
 static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
@@ -625,6 +1131,28 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_INIT:
 			dissect_dect_mitel_rfp_sys_init(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_OPEN:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_CONF:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_CLOSE:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_START:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_STOP:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_STATISTICS:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_REDIRECT_START:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_REDIRECT_STOP:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_RESTART:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_DTMF:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_DSP_CLOSE:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_TONE:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_BANDWIDTH_SWO:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_MUTE:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_G729_USED:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_TRACE_PPN:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_EOS_DETECT:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_AUDIO_STATISTICS:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_VIDEO_STATE:
+		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_CHANNEL_MOD_INFO:
+			dissect_dect_mitel_rfp_media(tvb, pinfo, dect_mitel_rfp_tree, data, offset, message_type);
+			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_ETH:
 			/* Handover to DECT-MITEL-ETH*/
 			next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -635,6 +1163,16 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	return tvb_captured_length(tvb);
+}
+
+static void fmt_dect_mitel_rfp_media_conf_codec_rate(gchar *rate_string, guint32 rate)
+{
+	snprintf(rate_string, 9, "%d000Hz", rate);
+}
+
+static void fmt_dect_mitel_rfp_media_statistics_max_jitter(gchar *max_jitter_string, guint32 max_jitter)
+{
+	snprintf(max_jitter_string, 14, "%.3fms", max_jitter / 1000.0);
 }
 
 void proto_register_dect_mitel_rfp(void)
@@ -814,11 +1352,286 @@ void proto_register_dect_mitel_rfp(void)
 				NULL, 0x0, NULL, HFILL
 			}
 		},
+		/* MEDIA */
+		{ &hf_dect_mitel_rfp_media_handle,
+			{ "Handle", "dect_mitel_rfp.media.handle", FT_UINT16, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_mcei,
+			{ "MCEI", "dect_mitel_rfp.media.mcei", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_direction,
+			{ "Direction", "dect_mitel_rfp.media.start.direction", FT_UINT8, BASE_HEX,
+				VALS(dect_mitel_rfp_media_direction_val), 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-OPEN */
+		{ &hf_dect_mitel_rfp_media_open_codec,
+			{ "Codec", "dect_mitel_rfp.media.open.codec", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_open_slot_count,
+			{ "Slot count", "dect_mitel_rfp.media.open.slot_count", FT_UINT8, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_open_flags,
+			{ "Flags", "dect_mitel_rfp.media.open.flags", FT_UINT32, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-CONF */
+		{ &hf_dect_mitel_rfp_media_conf_vif,
+			{ "VIF", "dect_mitel_rfp.media.conf.vif", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_vad,
+			{ "VAD", "dect_mitel_rfp.media.conf.vad", FT_BOOLEAN, 8,
+				NULL, 0x01, "Voice Activity Detection (VAD)", HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_codec_count,
+			{ "Codec count", "dect_mitel_rfp.media.conf.codec_count", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_codec_type,
+			{ "Type", "dect_mitel_rfp.media.conf.codec.type", FT_UINT8, BASE_HEX,
+				VALS(dect_mitel_rfp_media_conf_codec_type_val), 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_codec_pt,
+			{ "Priority", "dect_mitel_rfp.media.conf.codec.priority", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_codec_rate,
+			{ "Rate", "dect_mitel_rfp.media.conf.codec.rate", FT_UINT8, BASE_CUSTOM,
+				CF_FUNC(&fmt_dect_mitel_rfp_media_conf_codec_rate), 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_ppn,
+			{ "PPN", "dect_mitel_rfp.media.conf.ppn", FT_UINT16, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_local_port_1,
+			{ "Local port 1", "dect_mitel_rfp.media.conf.local_port_1", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_local_port_2,
+			{ "Local port 2", "dect_mitel_rfp.media.conf.local_port_2", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_rx_ip_address,
+			{ "RX IP Address", "dect_mitel_rfp.media.conf.rx_ip_address", FT_IPv4, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_rx_port_1,
+			{ "RX port 1", "dect_mitel_rfp.media.conf.rx_port_1", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_rx_port_2,
+			{ "RX port 2", "dect_mitel_rfp.media.conf.rx_port_2", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_tx_ip_address,
+			{ "TX IP Address", "dect_mitel_rfp.media.conf.tx_ip_address", FT_IPv4, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_tx_port_1,
+			{ "TX port 1", "dect_mitel_rfp.media.conf.tx_port_1", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_conf_tx_port_2,
+			{ "TX port 2", "dect_mitel_rfp.media.conf.tx_port_2", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-START */
+		{ &hf_dect_mitel_rfp_media_start_time,
+			{ "Time", "dect_mitel_rfp.media.start.time", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_start_met_keep_alive,
+			{ "Met keep alive", "dect_mitel_rfp.media.start.met_keep_alive", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-STATISTICS */
+		{ &hf_dect_mitel_rfp_media_statistics_duration,
+			{ "Duration", "dect_mitel_rfp.media.statistics.duration", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_statistics_tx_packets,
+			{ "TX packets", "dect_mitel_rfp.media.statistics.tx_packets", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_statistics_tx_bytes,
+			{ "TX bytes", "dect_mitel_rfp.media.statistics.tx_bytes", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_statistics_rx_packets,
+			{ "RX packets", "dect_mitel_rfp.media.statistics.rx_packets", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_statistics_rx_bytes,
+			{ "RX bytes", "dect_mitel_rfp.media.statistics.rx_bytes", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_statistics_lost_packets,
+			{ "Lost packets", "dect_mitel_rfp.media.statistics.lost_packets", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_statistics_max_jitter,
+			{ "Max jitter", "dect_mitel_rfp.media.statistics.max_jitter", FT_UINT32, BASE_CUSTOM,
+				CF_FUNC(&fmt_dect_mitel_rfp_media_statistics_max_jitter), 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_statistics_rtp_ip_address,
+			{ "RTP IP address", "dect_mitel_rfp.media.statistics.rtp_ip_address", FT_IPv4, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-REDIRECT-START */
+		{ &hf_dect_mitel_rfp_media_redirect_start_local_port_1,
+			{ "Local port 1", "dect_mitel_rfp.media.redirect_start.local_port_1", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_redirect_start_local_port_2,
+			{ "Local port 2", "dect_mitel_rfp.media.redirect_start.local_port_2", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_redirect_start_remote_ip_address,
+			{ "Remote IP address", "dect_mitel_rfp.media.redirect_start.remote_ip_address", FT_IPv4, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_redirect_start_remote_port_1,
+			{ "Remote port 1", "dect_mitel_rfp.media.redirect_start.remote_port_1", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_redirect_start_remote_port_2,
+			{ "Remote port 2", "dect_mitel_rfp.media.redirect_start.remote_port_2", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_redirect_start_time,
+			{ "Time", "dect_mitel_rfp.media.redirect_start.time", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-REDIRECT-STOP */
+		{ &hf_dect_mitel_rfp_media_redirect_stop_fallback,
+			{ "Fallback", "dect_mitel_rfp.media.redirect_stop.fallback", FT_UINT8, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-DTMF */
+		{ &hf_dect_mitel_rfp_media_dtmf_duration,
+			{ "Duration", "dect_mitel_rfp.media.dtmf.duration", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_dtmf_key,
+			{ "Key", "dect_mitel_rfp.media.dtmf.key", FT_CHAR, BASE_HEX,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* MEDIA-TONE */
+		{ &hf_dect_mitel_rfp_media_tone_count,
+			{ "Count", "dect_mitel_rfp.media.tone.count", FT_UINT8, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_frequency_1,
+			{ "Frequency 1", "dect_mitel_rfp.media.tone.frequency_1", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_frequency_2,
+			{ "Frequency 2", "dect_mitel_rfp.media.tone.frequency_2", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_frequency_3,
+			{ "Frequency 3", "dect_mitel_rfp.media.tone.frequency_3", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_frequency_4,
+			{ "Frequency 4", "dect_mitel_rfp.media.tone.frequency_4", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_cb_1,
+			{ "cB 1", "dect_mitel_rfp.media.tone.cb_1", FT_INT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_cb_2,
+			{ "cB 2", "dect_mitel_rfp.media.tone.cb_2", FT_INT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_cb_3,
+			{ "cB 3", "dect_mitel_rfp.media.tone.cb_3", FT_INT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_cb_4,
+			{ "cB 4", "dect_mitel_rfp.media.tone.cb_4", FT_INT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_duration,
+			{ "Duration", "dect_mitel_rfp.media.tone.duration", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_cycle_count,
+			{ "Cycle count", "dect_mitel_rfp.media.tone.cycle_count", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_cycle_to,
+			{ "Cycle to", "dect_mitel_rfp.media.tone.cycle_to", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_media_tone_next,
+			{ "Next", "dect_mitel_rfp.media.tone.next", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
 	};
 
 	static gint *ett[] = {
 		&ett_dect_mitel_rfp,
 		&ett_dect_mitel_rfp_sys_init_rfp_capabilities,
+		&ett_dect_mitel_rfp_media_tone_entry,
 	};
 
 	proto_dect_mitel_rfp = proto_register_protocol("Mitel RFP/OMM TCP communication protocol",
