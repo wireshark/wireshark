@@ -20,6 +20,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/proto.h>
 //#include <epan/expert.h>
 //#include <epan/prefs.h>
 
@@ -29,6 +30,8 @@ void proto_register_h224(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_h224 = -1;
+static int hf_h224_q922_dlci_priority = -1;
+static int hf_h224_q922_ctl = -1;
 static int hf_h224_dta = -1;
 static int hf_h224_sta = -1;
 static int hf_h224_reserved = -1;
@@ -52,6 +55,15 @@ static dissector_handle_t h224_handle;
 /* Initialize the subtree pointers */
 static gint ett_h224 = -1;
 
+#define H224_DATA_PRI_MASK      0xFCF0
+/* DLCI address for data priority */
+static const value_string h224_data_priority[] =
+        {
+                { 6, "Low Priority Data" },
+                { 7, "High Priority Data" },
+                { 0, NULL },
+        };
+
 /* Code to actually dissect the packets */
 static int
 dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
@@ -71,9 +83,16 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     /* On IP transport networks, the H.224 protocol octet structure shall be the same as Figure 2/H.224
      * except that the HDLC bit stuffing, HDLC flags and HDLC Frame Check Sequence shall be omitted.
      */
+     /* The 10-bit DLCI address for data priority */
+    proto_tree_add_item(h224_tree, hf_h224_q922_dlci_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+     /* Q.922 UI-Mode format 1 octets */
+    proto_tree_add_item(h224_tree, hf_h224_q922_ctl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
      /* Destination terminal address 2 octets */
     proto_tree_add_item(h224_tree, hf_h224_dta, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
+     /* Source terminal address 2 octets */
     proto_tree_add_item(h224_tree, hf_h224_sta, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(h224_tree, hf_h224_reserved, tvb, offset, 1, ENC_NA);
@@ -127,6 +146,16 @@ proto_register_h224(void)
     //expert_module_t *expert_h224;
 
     static hf_register_info hf[] = {
+        { &hf_h224_q922_dlci_priority,
+          { "Q.922 DLCI Priority", "h224.q922_dlci_pri",
+            FT_UINT16, BASE_DEC, VALS(h224_data_priority), H224_DATA_PRI_MASK,
+            NULL, HFILL }
+        },
+        { &hf_h224_q922_ctl,
+          { "Q.922 Control Octet", "h224.q922_ctl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_h224_dta,
           { "Destination Terminal Address", "h224.dta",
             FT_UINT16, BASE_DEC, NULL, 0x0,
