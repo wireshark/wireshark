@@ -1473,7 +1473,7 @@ void proto_register_dect_mitel_eth(void)
 			}
 		},
 		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_flags,
-			{ "Flags", "dect_mitel_eth.rfpc.extended_capabilities.isdn_data_services", FT_UINT32, BASE_HEX,
+			{ "Flags", "dect_mitel_eth.rfpc.extended_capabilities.flags", FT_UINT32, BASE_HEX,
 				NULL, 0x3FFFFFFF, NULL, HFILL
 			}
 		},
