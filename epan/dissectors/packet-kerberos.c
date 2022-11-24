@@ -266,6 +266,7 @@ static gint hf_krb_pac_attributes_info_flags;
 static gint hf_krb_pac_attributes_info_flags_pac_was_requested;
 static gint hf_krb_pac_attributes_info_flags_pac_was_given_implicitly;
 static gint hf_krb_pac_requester_sid;
+static gint hf_krb_pac_full_checksum;
 static gint hf_krb_pa_supported_enctypes;
 static gint hf_krb_pa_supported_enctypes_des_cbc_crc;
 static gint hf_krb_pa_supported_enctypes_des_cbc_md5;
@@ -568,6 +569,7 @@ static gint ett_krb_pac_ticket_checksum;
 static gint ett_krb_pac_attributes_info;
 static gint ett_krb_pac_attributes_info_flags;
 static gint ett_krb_pac_requester_sid;
+static gint ett_krb_pac_full_checksum;
 static gint ett_krb_pa_supported_enctypes;
 static gint ett_krb_ad_ap_options;
 static gint ett_kerberos_KERB_TICKET_LOGON;
@@ -2319,6 +2321,8 @@ keytype_for_cksumtype(krb5_cksumtype checksum)
 }
 
 struct verify_krb5_pac_state {
+	int pacbuffer_length;
+	const guint8 *pacbuffer;
 	krb5_pac pac;
 	krb5_cksumtype server_checksum;
 	guint server_count;
@@ -2328,6 +2332,10 @@ struct verify_krb5_pac_state {
 	enc_key_t *kdc_ek;
 	krb5_cksumtype ticket_checksum_type;
 	const krb5_data *ticket_checksum_data;
+	krb5_cksumtype full_checksum_type;
+	const krb5_data *full_checksum_data;
+	guint full_count;
+	enc_key_t *full_ek;
 };
 
 static void
@@ -2651,6 +2659,216 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 #endif /* HAVE_DECODE_KRB5_ENC_TKT_PART */
 }
 
+#define __KRB5_PAC_FULL_CHECKSUM 19
+
+static void
+verify_krb5_pac_full_checksum(proto_tree *tree,
+			      asn1_ctx_t *actx,
+			      tvbuff_t *orig_pactvb,
+			      struct verify_krb5_pac_state *state)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	krb5_error_code ret;
+	krb5_keyblock kdc_key = { .magic = KV5M_KEYBLOCK, };
+	size_t checksum_length = 0;
+	krb5_checksum checksum = { .checksum_type = 0, };
+	krb5_data pac_data = { .length = 0, };
+	tvbuff_t *copy_pactvb = NULL;
+	guint32 cur_offset;
+	guint32 num_buffers;
+	guint32 idx;
+	krb5_boolean valid = FALSE;
+
+	if (state->kdc_ek == NULL) {
+		int keytype = keytype_for_cksumtype(state->full_checksum_type);
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    orig_pactvb, state->full_checksum_type,
+				    keytype,
+				    "Missing KDC (for full)",
+				    "kdc_checksum_key",
+				    0,
+				    0);
+		return;
+	}
+
+	kdc_key.magic = KV5M_KEYBLOCK;
+	kdc_key.enctype = state->kdc_ek->keytype;
+	kdc_key.length = state->kdc_ek->keylength;
+	kdc_key.contents = (guint8 *)state->kdc_ek->keyvalue;
+
+	ret = krb5_c_checksum_length(krb5_ctx,
+				     state->full_checksum_type,
+				     &checksum_length);
+	if (ret != 0) {
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    orig_pactvb, state->full_checksum_type,
+				    state->kdc_ek->keytype,
+				    "krb5_c_checksum_length failed for Full Signature",
+				    "kdc_checksum_key",
+				    1,
+				    0);
+		return;
+	}
+
+	/*
+	 * The checksum element begins with 4 bytes of type
+	 * (state->full_checksum_type) before the crypto checksum
+	 */
+	if (state->full_checksum_data->length < (4 + checksum_length)) {
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    orig_pactvb, state->full_checksum_type,
+				    state->kdc_ek->keytype,
+				    "pacbuffer_length too short for Full Signature",
+				    "kdc_checksum_key",
+				    1,
+				    0);
+		return;
+	}
+
+	pac_data.data = wmem_memdup(actx->pinfo->pool, state->pacbuffer, state->pacbuffer_length);
+	if (pac_data.data == NULL) {
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    orig_pactvb, state->full_checksum_type,
+				    state->kdc_ek->keytype,
+				    "wmem_memdup(pacbuffer) failed",
+				    "kdc_checksum_key",
+				    1,
+				    0);
+		return;
+	}
+	pac_data.length = state->pacbuffer_length;
+
+	copy_pactvb = tvb_new_child_real_data(orig_pactvb,
+					      (guint8 *)pac_data.data,
+					      pac_data.length,
+					      pac_data.length);
+	if (copy_pactvb == NULL) {
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    orig_pactvb, state->full_checksum_type,
+				    state->kdc_ek->keytype,
+				    "tvb_new_child_real_data(pac_copy) failed",
+				    "kdc_checksum_key",
+				    1,
+				    0);
+		return;
+	}
+
+#define __PAC_CHECK_OFFSET_SIZE(__offset, __length, __reason) do { \
+	guint64 __end = state->pacbuffer_length; \
+	guint64 __offset64 = __offset; \
+	guint64 __length64 = __length; \
+	guint64 __last; \
+	if (__offset64 > G_MAXINT32) { \
+		missing_signing_key(tree, actx->pinfo, private_data, \
+				    orig_pactvb, state->full_checksum_type, \
+				    state->kdc_ek->keytype, \
+				    __reason, \
+				    "kdc_checksum_key", \
+				    1, \
+				    0); \
+		return; \
+	} \
+	if (__length64 > G_MAXINT32) { \
+		missing_signing_key(tree, actx->pinfo, private_data, \
+				    orig_pactvb, state->full_checksum_type, \
+				    state->kdc_ek->keytype, \
+				    __reason, \
+				    "kdc_checksum_key", \
+				    1, \
+				    0); \
+		return; \
+	} \
+	__last = __offset64 + __length64; \
+	if (__last > __end) { \
+		missing_signing_key(tree, actx->pinfo, private_data, \
+				    orig_pactvb, state->full_checksum_type, \
+				    state->kdc_ek->keytype, \
+				    __reason, \
+				    "kdc_checksum_key", \
+				    1, \
+				    0); \
+		return; \
+	} \
+} while(0)
+
+	cur_offset = 0;
+	__PAC_CHECK_OFFSET_SIZE(cur_offset, 8, "PACTYPE Header");
+	num_buffers = tvb_get_guint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+	cur_offset += 4;
+	/* ignore 4 byte version */
+	cur_offset += 4;
+
+	for (idx = 0; idx < num_buffers; idx++) {
+		guint32 b_type;
+		guint32 b_length;
+		guint64 b_offset;
+
+		__PAC_CHECK_OFFSET_SIZE(cur_offset, 16, "PAC_INFO_BUFFER Header");
+		b_type = tvb_get_guint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+		cur_offset += 4;
+		b_length = tvb_get_guint32(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+		cur_offset += 4;
+		b_offset = tvb_get_guint64(copy_pactvb, cur_offset, ENC_LITTLE_ENDIAN);
+		cur_offset += 8;
+
+		__PAC_CHECK_OFFSET_SIZE(b_offset, b_length, "PAC_INFO_BUFFER Payload");
+
+		if (b_length <= 4) {
+			continue;
+		}
+
+		/*
+		 * Leave PAC_TICKET_CHECKSUM and clear all other checksums
+		 * and their possible RODC identifier, but leaving their
+		 * checksum type as is.
+		 */
+		switch (b_type) {
+		case KRB5_PAC_SERVER_CHECKSUM:
+		case KRB5_PAC_PRIVSVR_CHECKSUM:
+		case __KRB5_PAC_FULL_CHECKSUM:
+			memset(pac_data.data + b_offset+4, 0, b_length-4);
+			break;
+		}
+	}
+
+	checksum.checksum_type = state->full_checksum_type;
+	checksum.contents = (guint8 *)state->full_checksum_data->data + 4;
+	checksum.length = (unsigned)checksum_length;
+
+	ret = krb5_c_verify_checksum(krb5_ctx, &kdc_key,
+				     KRB5_KEYUSAGE_APP_DATA_CKSUM,
+				     &pac_data, &checksum, &valid);
+	if (ret != 0) {
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    orig_pactvb, state->full_checksum_type,
+				    state->kdc_ek->keytype,
+				    "krb5_c_verify_checksum failed for Full PAC Signature",
+				    "kdc_checksum_key",
+				    1,
+				    1);
+		return;
+	}
+
+	if (valid == FALSE) {
+		missing_signing_key(tree, actx->pinfo, private_data,
+				    orig_pactvb, state->full_checksum_type,
+				    state->kdc_ek->keytype,
+				    "Invalid Full PAC Signature",
+				    "kdc_checksum_key",
+				    1,
+				    1);
+		return;
+	}
+
+	used_signing_key(tree, actx->pinfo, private_data,
+			 state->kdc_ek, orig_pactvb,
+			 state->full_checksum_type,
+			 "Verified Full PAC",
+			 "kdc_checksum_key",
+			 1,
+			 1);
+}
+
 static void
 verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 {
@@ -2658,6 +2876,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	krb5_error_code ret;
 	krb5_data checksum_data = {0,0,NULL};
 	krb5_data ticket_checksum_data = {0,0,NULL};
+	krb5_data full_checksum_data = {0,0,NULL};
 	int length = tvb_captured_length(pactvb);
 	const guint8 *pacbuffer = NULL;
 	struct verify_krb5_pac_state state = {
@@ -2675,6 +2894,8 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	}
 
 	pacbuffer = tvb_get_ptr(pactvb, 0, length);
+	state.pacbuffer_length = length;
+	state.pacbuffer = pacbuffer;
 
 	ret = krb5_pac_parse(krb5_ctx, pacbuffer, length, &state.pac);
 	if (ret != 0) {
@@ -2703,6 +2924,13 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	if (ret == 0) {
 		state.ticket_checksum_data = &ticket_checksum_data;
 		state.ticket_checksum_type = pletoh32(ticket_checksum_data.data);
+	};
+	ret = krb5_pac_get_buffer(krb5_ctx, state.pac,
+				  __KRB5_PAC_FULL_CHECKSUM,
+				  &full_checksum_data);
+	if (ret == 0) {
+		state.full_checksum_data = &full_checksum_data;
+		state.full_checksum_type = pletoh32(full_checksum_data.data);
 	};
 
 	read_keytab_file_from_preferences();
@@ -2752,6 +2980,14 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 
 	if (state.ticket_checksum_data != NULL) {
 		krb5_free_data_contents(krb5_ctx, &ticket_checksum_data);
+	}
+
+	if (state.full_checksum_type != 0) {
+		verify_krb5_pac_full_checksum(tree, actx, pactvb, &state);
+	}
+
+	if (state.full_checksum_data != NULL) {
+		krb5_free_data_contents(krb5_ctx, &full_checksum_data);
 	}
 
 	krb5_pac_free(krb5_ctx, state.pac);
@@ -3456,6 +3692,7 @@ static const value_string krb5_error_codes[] = {
 #define PAC_TICKET_CHECKSUM	16
 #define PAC_ATTRIBUTES_INFO	17
 #define PAC_REQUESTER_SID	18
+#define PAC_FULL_CHECKSUM	19
 static const value_string w2k_pac_types[] = {
 	{ PAC_LOGON_INFO		, "Logon Info" },
 	{ PAC_CREDENTIAL_TYPE		, "Credential Type" },
@@ -3470,6 +3707,7 @@ static const value_string w2k_pac_types[] = {
 	{ PAC_TICKET_CHECKSUM		, "Ticket Checksum" },
 	{ PAC_ATTRIBUTES_INFO		, "Attributes Info" },
 	{ PAC_REQUESTER_SID		, "Requester Sid" },
+	{ PAC_FULL_CHECKSUM		, "Full Checksum" },
 	{ 0, NULL },
 };
 
@@ -4661,6 +4899,25 @@ dissect_krb5_PAC_REQUESTER_SID(proto_tree *parent_tree, tvbuff_t *tvb, int offse
 }
 
 static int
+dissect_krb5_PAC_FULL_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_item *item;
+	proto_tree *tree;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_full_checksum, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_full_checksum);
+
+	/* signature type */
+	proto_tree_add_item(tree, hf_krb_pac_signature_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	/* signature data */
+	proto_tree_add_item(tree, hf_krb_pac_signature_signature, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
 dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx)
 {
 	guint32 pac_type;
@@ -4727,6 +4984,9 @@ dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, as
 		break;
 	case PAC_REQUESTER_SID:
 		dissect_krb5_PAC_REQUESTER_SID(tr, next_tvb, 0, actx);
+		break;
+	case PAC_FULL_CHECKSUM:
+		dissect_krb5_PAC_FULL_CHECKSUM(tr, next_tvb, 0, actx);
 		break;
 
 	default:
@@ -8568,6 +8828,9 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_pac_requester_sid, {
 		"PAC_REQUESTER_SID", "kerberos.pac_requester_sid", FT_BYTES, BASE_NONE,
 		NULL, 0, "PAC_REQUESTER_SID structure", HFILL }},
+	{ &hf_krb_pac_full_checksum, {
+		"PAC_FULL_CHECKSUM", "kerberos.pac_full_checksum", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_FULL_CHECKSUM structure", HFILL }},
 	{ &hf_krb_pa_supported_enctypes,
 	  { "SupportedEnctypes", "kerberos.supported_entypes",
 	    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -9687,6 +9950,7 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_attributes_info,
 		&ett_krb_pac_attributes_info_flags,
 		&ett_krb_pac_requester_sid,
+		&ett_krb_pac_full_checksum,
 		&ett_krb_pa_supported_enctypes,
 		&ett_krb_ad_ap_options,
 		&ett_kerberos_KERB_TICKET_LOGON,
