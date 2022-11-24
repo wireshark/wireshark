@@ -1867,7 +1867,7 @@ static int dissect_dect_nwk_s_ie_calling_party_number(tvbuff_t *tvb, guint offse
 	} else {
 		address_length = ie_length - 1;
 	}
-	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_address, tvb, offset, address_length, ENC_3GPP_TS_23_038_7BITS_UNPACKED);
+	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_address, tvb, offset, address_length, ENC_DECT_STANDARD_8BITS);
 	/* TODO: Check encoding of address field */
 	return offset + address_length;
 }
@@ -2476,10 +2476,10 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, guint offset, packet_info *pinfo
 					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_test_hook_control_hook_value, tvb, offset, 1, ENC_NA);
 					break;
 				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_DISPLAY:
-					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_display_display_info, tvb, offset, 1, ENC_3GPP_TS_23_038_7BITS_UNPACKED);
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_display_display_info, tvb, offset, 1, ENC_DECT_STANDARD_8BITS);
 					break;
 				case DECT_NWK_S_IE_FL_DOUBLE_OCTET_SINGLE_KEYPAD:
-					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_keypad_keypad_info, tvb, offset, 1, ENC_3GPP_TS_23_038_7BITS_UNPACKED);
+					proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl_single_keypad_keypad_info, tvb, offset, 1, ENC_DECT_STANDARD_8BITS);
 					break;
 			}
 		} else {
