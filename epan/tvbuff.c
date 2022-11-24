@@ -1722,6 +1722,7 @@ validate_single_byte_ascii_encoding(const guint encoding)
 	    case ENC_KEYPAD_BC_TBCD:
 	    case ENC_ETSI_TS_102_221_ANNEX_A:
 	    case ENC_APN_STR:
+		case ENC_DECT_STANDARD_4BITS_TBCD:
 	    REPORT_DISSECTOR_BUG("Invalid string encoding type passed to tvb_get_string_XXX");
 	    break;
 	    default:
@@ -3009,6 +3010,13 @@ static const dgt_set_t Dgt_ansi_tbcd = {
 	}
 };
 
+static const dgt_set_t Dgt_dect_standard_4bits_tbcd = {
+	{
+		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f */
+		   '0','1','2','3','4','5','6','7','8','9','?',' ','?','?','?','?'
+	}
+};
+
 static guint8 *
 tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 			     gint length)
@@ -3074,6 +3082,15 @@ tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 end:
 	return (guint8 *) wmem_strbuf_finalize(str);
+}
+
+static guint8 *
+tvb_get_dect_standard_8bits_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
+{
+	const guint8  *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_dect_standard_8bits_string(scope, ptr, length);
 }
 
 /*
@@ -3313,6 +3330,20 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	case ENC_APN_STR:
 		strptr = tvb_get_apn_string(scope, tvb, offset, length);
 		break;
+
+	case ENC_DECT_STANDARD_8BITS:
+		strptr = tvb_get_dect_standard_8bits_string(scope, tvb, offset, length);
+		break;
+
+	case ENC_DECT_STANDARD_4BITS_TBCD:
+		/*
+		 * DECT standard 4bits "telephony BCD" - packed BCD, with
+		 * digits 0-9 and symbol SPACE for 0xb.
+		 */
+		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
+		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_dect_standard_4bits_tbcd, skip_first, odd, FALSE);
+		break;
 	}
 	return strptr;
 }
@@ -3545,6 +3576,20 @@ tvb_get_euc_kr_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint
 	return get_euc_kr_string(scope, ptr, size);
 }
 
+static guint8 *
+tvb_get_dect_standard_8bits_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint	       size;
+	const guint8  *ptr;
+
+	size = tvb_strsize(tvb, offset);
+	ptr  = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
+	if (lengthp)
+		*lengthp = size;
+	return get_t61_string(scope, ptr, size);
+}
+
 guint8 *
 tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -3726,6 +3771,10 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_EUC_KR:
 		strptr = tvb_get_euc_kr_stringz(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_DECT_STANDARD_8BITS:
+		strptr = tvb_get_dect_standard_8bits_stringz(scope, tvb, offset, lengthp);
 		break;
 	}
 

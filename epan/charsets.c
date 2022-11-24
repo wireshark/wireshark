@@ -1880,6 +1880,46 @@ get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
     return (guint8 *)wmem_strbuf_finalize(strbuf);
 }
 
+/* The DECT standard charset from ETSI EN 300 175-5 Annex D
+ */
+static const gunichar2 dect_standard_8bits_code_table[] = {
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+    ' ',  '!',  '\"', '#',  '$',  '%',  '&',  '\'',
+    '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',
+    '0',  '1',  '2',  '3',  '4',  '5',  '6',  '7',
+    '8',  '9',  ':',  ';',  '<',  '=',  '>',  '?',
+    '@',  'A',  'B',  'C',  'D',  'E',  'F',  'G',
+    'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+    'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',
+    'X',  'Y',  'Z',  '[', '\\',  ']',  '^',  '_',
+    '`',  'a',  'b',  'c',  'd',  'e',  'f',  'g',
+    'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
+    'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+    'x',  'y',  'z',  '{',  '|',  '}',  '~', 0x7f,
+};
+
+guint8 *
+get_dect_standard_8bits_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
+{
+    gint           position;
+    const guint8  *current_byte_ptr;
+    wmem_strbuf_t *strbuf;
+
+    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+
+    for (position = 0, current_byte_ptr = ptr; position < length; current_byte_ptr++, position++) {
+        if (!dect_standard_8bits_code_table[*current_byte_ptr]) {
+            wmem_strbuf_append_unichar(strbuf, UNREPL);
+        } else {
+            wmem_strbuf_append_unichar(strbuf, dect_standard_8bits_code_table[*current_byte_ptr]);
+        }
+    }
+
+    return (guint8 *)wmem_strbuf_finalize(strbuf);
+}
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

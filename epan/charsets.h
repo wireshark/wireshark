@@ -214,6 +214,8 @@ get_euc_kr_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
 WS_DLL_PUBLIC guint8 *
 get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
 
+WS_DLL_PUBLIC guint8 *
+get_dect_standard_8bits_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -1534,6 +1534,10 @@ currently supported are:
     ENC_KEYPAD_BC_TBCD - keypad-with-B/C "telephony packed BCD" = 0-9, B, C, *, #
     ENC_GB18030 - GB 18030
     ENC_EUC_KR - EUC-KR
+    ENC_DECT_STANDARD_8BITS - DECT standard 8 bit character set as defined in
+        ETSI EN 300 175-5
+    ENC_DECT_STANDARD_4BITS_TBCD - DECT standard 4 bit character set "telephony
+        packet BCD" = 0-9, 0xb = SPACE
 
 Other encodings will be added in the future.
 
