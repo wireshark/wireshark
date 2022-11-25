@@ -19,7 +19,7 @@ versions are not as friendly towards adding support for devices other
 than standard network interfaces.
 
 First, read
-link:https://github.com/the-tcpdump-group/libpcap/blob/master/doc/README.capture-module[the
+link:https://www.tcpdump.org/libpcap-module-HOWTO.html[the
 libpcap documentation on writing a new libpcap module]
 
 (It's currently incomplete, but I'll be finishing it up over time.  If
