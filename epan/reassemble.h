@@ -264,6 +264,22 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		   const guint32 frag_data_len, const gboolean more_frags);
 
 /*
+ * Like fragment_add_check, but handles retransmissions after reassembly.
+ *
+ * Start new reassembly only if there is no reassembly in progress and there
+ * is no completed reassembly reachable from fallback_frame. If there is
+ * completed reassembly (reachable from fallback_frame), simply links this
+ * packet into the list, updating the flags if necessary (however actual data
+ * and reassembled in frame won't be modified).
+ */
+WS_DLL_PUBLIC fragment_head *
+fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const int offset,
+		   const packet_info *pinfo, const guint32 id,
+		   const void *data, const guint32 frag_offset,
+		   const guint32 frag_data_len, const gboolean more_frags,
+		   const guint32 fallback_frame);
+
+/*
  * Like fragment_add, but fragments have a block sequence number starting from
  * zero (for the first fragment of each datagram). This differs from
  * fragment_add for which the fragment may start at any offset.

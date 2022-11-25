@@ -1200,7 +1200,7 @@ static gboolean
 fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 		 const packet_info *pinfo, const guint32 frag_offset,
 		 const guint32 frag_data_len, const gboolean more_frags,
-		 const guint32 frag_frame)
+		 const guint32 frag_frame, const gboolean allow_overlaps)
 {
 	fragment_item *fd;
 	fragment_item *fd_i;
@@ -1220,7 +1220,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	/*
 	 * Are we adding to an already-completed reassembly?
 	 */
-	if (fd_head->flags & FD_DEFRAGMENTED) {
+	if ((fd_head->flags & FD_DEFRAGMENTED) && !allow_overlaps) {
 		/*
 		 * Yes.  Does this fragment go past the end of the results
 		 * of that reassembly?
@@ -1698,7 +1698,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	}
 
 	if (fragment_add_work(fd_head, tvb, offset, pinfo, frag_offset,
-		frag_data_len, more_frags, frag_frame)) {
+		frag_data_len, more_frags, frag_frame, FALSE)) {
 		/*
 		 * Reassembly is complete.
 		 */
@@ -1759,14 +1759,16 @@ fragment_add_out_of_order(reassembly_table *table, tvbuff_t *tvb,
 }
 
 fragment_head *
-fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
+fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		   const packet_info *pinfo, const guint32 id,
 		   const void *data, const guint32 frag_offset,
-		   const guint32 frag_data_len, const gboolean more_frags)
+		   const guint32 frag_data_len, const gboolean more_frags,
+		   const guint32 fallback_frame)
 {
 	reassembled_key reass_key;
 	fragment_head *fd_head;
 	gpointer orig_key;
+	gboolean late_retransmission = FALSE;
 
 	/*
 	 * If this isn't the first pass, look for this frame in the table
@@ -1783,6 +1785,20 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	 * the memory allocated for the original key, for example before calling g_hash_table_remove()
 	 */
 	fd_head = lookup_fd_head(table, pinfo, id, data, &orig_key);
+	if ((fd_head == NULL) && (fallback_frame != pinfo->num)) {
+		/* Check if there is completed reassembly reachable from fallback frame */
+		reass_key.frame = fallback_frame;
+		reass_key.id = id;
+		fd_head = (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
+		if (fd_head != NULL) {
+			/* Found completely reassembled packet, hash it with current frame number */
+			reassembled_key *new_key = g_slice_new(reassembled_key);
+			new_key->frame = pinfo->num;
+			new_key->id = id;
+			g_hash_table_insert(table->reassembled_table, new_key, fd_head);
+			late_retransmission = TRUE;
+		}
+	}
 	if (fd_head == NULL) {
 		/* not found, this must be the first snooped fragment for this
 		 * packet. Create list-head.
@@ -1804,7 +1820,11 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	}
 
 	if (fragment_add_work(fd_head, tvb, offset, pinfo, frag_offset,
-		frag_data_len, more_frags, pinfo->num)) {
+		frag_data_len, more_frags, pinfo->num, late_retransmission)) {
+		/* Nothing left to do if it was a late retransmission */
+		if (late_retransmission) {
+			return fd_head;
+		}
 		/*
 		 * Reassembly is complete.
 		 * Remove this from the table of in-progress
@@ -1829,6 +1849,16 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		 */
 		return NULL;
 	}
+}
+
+fragment_head *
+fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
+		   const packet_info *pinfo, const guint32 id,
+		   const void *data, const guint32 frag_offset,
+		   const guint32 frag_data_len, const gboolean more_frags)
+{
+	return fragment_add_check_with_fallback(table, tvb, offset, pinfo, id, data,
+		frag_offset, frag_data_len, more_frags, pinfo->num);
 }
 
 static void

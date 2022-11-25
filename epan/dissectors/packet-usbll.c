@@ -1628,9 +1628,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                  */
             }
         }
-        else if ((ep_info->type == USBLL_EP_BULK) ||
-                 (ep_info->type == USBLL_EP_INTERRUPT) ||
-                 (ep_info->type == USBLL_EP_ISOCHRONOUS))
+        else if ((ep_info->type == USBLL_EP_BULK) || (ep_info->type == USBLL_EP_INTERRUPT))
         {
             if (pid == ep_info->last_data_pid)
             {
@@ -1679,6 +1677,17 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                 ep_info->last_data_len = data_size;
             }
         }
+        else if (ep_info->type == USBLL_EP_ISOCHRONOUS)
+        {
+            /* TODO: Reassemble high-bandwidth endpoints data */
+            transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
+            transfer->first_packet = pinfo->num;
+            transfer->offset = 0;
+            transfer->type = ep_info->type;
+            transfer->from_host = from_host;
+            transfer->more_frags = FALSE;
+            wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
+        }
     }
 
     transfer = (usbll_transfer_info_t *)wmem_map_lookup(transfer_info, GUINT_TO_POINTER(pinfo->num));
@@ -1686,7 +1695,9 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     {
         tvbuff_t *transfer_tvb;
 
-        if ((transfer->first_packet == pinfo->num) && (!transfer->more_frags))
+        if ((transfer->first_packet == pinfo->num) && (!transfer->more_frags) &&
+            (((transfer->type == USBLL_EP_CONTROL) && (transfer->from_host)) ||
+             (transfer->type == USBLL_EP_ISOCHRONOUS)))
         {
             /* No multi-packet reassembly needed, simply construct tvb */
             transfer_tvb = tvb_new_subset_length(tvb, data_offset, data_size);
@@ -1695,9 +1706,10 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
         else
         {
             fragment_head *head;
-            head = fragment_add_check(&usbll_reassembly_table, tvb, data_offset,
-                                      pinfo, transfer->first_packet, NULL,
-                                      transfer->offset, data_size, transfer->more_frags);
+            head = fragment_add_check_with_fallback(&usbll_reassembly_table,
+                       tvb, data_offset,
+                       pinfo, transfer->first_packet, NULL,
+                       transfer->offset, data_size, transfer->more_frags, transfer->first_packet);
             transfer_tvb = process_reassembled_data(tvb, data_offset, pinfo,
                                                     "USB transfer", head, &usbll_frag_items,
                                                     NULL, tree);
