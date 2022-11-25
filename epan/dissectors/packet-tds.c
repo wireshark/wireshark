@@ -4539,7 +4539,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
                 wmem_strbuf_t *val2;
                 len *= 2;
                 val  = tvb_memdup(wmem_packet_scope(), tvb, offset2, len);
-                val2 = wmem_strbuf_sized_new(wmem_packet_scope(), len/2+1, 0);
+                val2 = wmem_strbuf_new_sized(wmem_packet_scope(), len/2+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
                     val[j] ^= 0xA5;

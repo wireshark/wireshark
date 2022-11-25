@@ -44,7 +44,7 @@ string_walk(GSList *args, guint32 arg_count, GSList **retval, gchar(*conv_func)(
         /* XXX - it would be nice to handle FT_TVBUFF, too */
         if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
             src = fvalue_get_strbuf(arg_fvalue);
-            dst = wmem_strbuf_sized_new(NULL, src->len, 0);
+            dst = wmem_strbuf_new_sized(NULL, src->len);
             for (size_t i = 0; i < src->len; i++) {
                     wmem_strbuf_append_c(dst, conv_func(src->str[i]));
             }

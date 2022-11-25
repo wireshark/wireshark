@@ -143,7 +143,7 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 	size_t read_index = 0;
 	size_t string_length = strlen(string);
 
-	wmem_strbuf_t* output_string_buffer = wmem_strbuf_sized_new(scope, string_length, 0);
+	wmem_strbuf_t* output_string_buffer = wmem_strbuf_new_sized(scope, string_length);
 
 	while (true)
 	{

@@ -492,7 +492,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             offset = starting_offset + 16;
             delta  = 148;
 
-            sb = wmem_strbuf_sized_new(wmem_packet_scope(), 8, SHORT_STR);
+            sb = wmem_strbuf_new_sized(wmem_packet_scope(), 8);
 
             for (iLoop = 0; iLoop < num_bss_entries; iLoop++)
             {

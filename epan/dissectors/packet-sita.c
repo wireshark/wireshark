@@ -69,7 +69,7 @@ format_flags_string(guchar value, const gchar *array[])
     wmem_strbuf_t   *buf;
     const char  *sep = "";
 
-    buf = wmem_strbuf_sized_new(wmem_packet_scope(), MAX_FLAGS_LEN, MAX_FLAGS_LEN);
+    buf = wmem_strbuf_new_sized(wmem_packet_scope(), MAX_FLAGS_LEN);
     for (i = 0; i < 8; i++) {
         bpos = 1 << i;
         if (value & bpos) {

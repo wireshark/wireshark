@@ -423,7 +423,7 @@ unsigned_time_secs_to_str(wmem_allocator_t *scope, const guint32 time_val)
 		return wmem_strdup(scope, "0 seconds");
 	}
 
-	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1, TIME_SECS_LEN+1);
+	buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1);
 
 	unsigned_time_secs_to_str_buf(time_val, 0, FALSE, buf);
 
@@ -478,7 +478,7 @@ signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 		return wmem_strdup(scope, "0 seconds");
 	}
 
-	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1, TIME_SECS_LEN+1);
+	buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1);
 
 	signed_time_secs_to_str_buf(time_val, 0, FALSE, buf);
 
@@ -499,7 +499,7 @@ signed_time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val)
 		return wmem_strdup(scope, "0 seconds");
 	}
 
-	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1+3+1, TIME_SECS_LEN+1+3+1);
+	buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1+3+1);
 
 	if (time_val<0) {
 		/* oops we got passed a negative time */
@@ -537,7 +537,7 @@ rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 		return wmem_strdup(scope, "0.000000000 seconds");
 	}
 
-	buf = wmem_strbuf_sized_new(scope, 1+TIME_SECS_LEN+1+6+1, 1+TIME_SECS_LEN+1+6+1);
+	buf = wmem_strbuf_new_sized(scope, 1+TIME_SECS_LEN+1+6+1);
 
 	if (nsec < 0) {
 		nsec = -nsec;

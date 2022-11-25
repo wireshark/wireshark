@@ -680,7 +680,7 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 		return wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
 	}
 
-	filterstr = wmem_strbuf_sized_new(wmem_packet_scope(), 128, 128);
+	filterstr = wmem_strbuf_new_sized(wmem_packet_scope(), 128);
 
 	ti = proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
 	ascend_tree = proto_item_add_subtree(ti, ett_radius_ascend);

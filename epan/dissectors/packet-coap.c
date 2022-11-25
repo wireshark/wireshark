@@ -1323,8 +1323,8 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	coinfo->block_option = 0;
 	coinfo->block_number = DEFAULT_COAP_BLOCK_NUMBER;
 	coinfo->block_mflag  = 0;
-	coinfo->uri_str_strbuf   = wmem_strbuf_sized_new(pinfo->pool, 0, 1024);
-	coinfo->uri_query_strbuf = wmem_strbuf_sized_new(pinfo->pool, 0, 1024);
+	coinfo->uri_str_strbuf   = wmem_strbuf_create(pinfo->pool);
+	coinfo->uri_query_strbuf = wmem_strbuf_create(pinfo->pool);
 	 /* Allocate pointers and static elements of oscore_info_t, arrays are allocated only if object security option is found during option parsing */
 	coinfo->oscore_info = wmem_new0(pinfo->pool, oscore_info_t);
 	coinfo->object_security = FALSE;

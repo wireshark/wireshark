@@ -2231,7 +2231,7 @@ static char *tvb_get_ascii_string16(tvbuff_t *tvb, int offset, guint length)
       wmem_strbuf_t *str;
       guint8 ch;
 
-      str = wmem_strbuf_sized_new(wmem_packet_scope(), length + 1, 0);
+      str = wmem_strbuf_new_sized(wmem_packet_scope(), length + 1);
 
       while(length--) {
             offset++;

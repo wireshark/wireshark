@@ -1700,7 +1700,7 @@ buffer_error(const gchar *fmt, ...)
     va_start(ap, fmt);
 
     if (err_msg_buf == NULL)
-        err_msg_buf = wmem_strbuf_sized_new(wmem_epan_scope(), MIN_ERR_STR_BUF_SIZE, MAX_ERR_STR_BUF_SIZE);
+        err_msg_buf = wmem_strbuf_new_sized(wmem_epan_scope(), MIN_ERR_STR_BUF_SIZE);
 
     wmem_strbuf_append_vprintf(err_msg_buf, fmt, ap);
 

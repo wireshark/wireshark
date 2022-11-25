@@ -545,7 +545,7 @@ static void OUT_RXString(ptvcursor_t *cursor, int field)
 static void OUT_RXStringV(ptvcursor_t *cursor, int field, guint32 length)
 {
 	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
-	wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), length+1, 0);
+	wmem_strbuf_t *strbuf = wmem_strbuf_new_sized(wmem_packet_scope(), length+1);
 	int offset = ptvcursor_current_offset(cursor),
 		start_offset = offset;
 	guint32 idx;

@@ -73,7 +73,7 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
     wmem_strbuf_t *str;
 
-    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_new_sized(scope, length+1);
 
     while (length > 0) {
         guint8 ch = *ptr;
@@ -111,7 +111,7 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
     guint8 ch;
     const guint8 *prev;
 
-    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_new_sized(scope, length+1);
 
     /* See the Unicode Standard conformance chapter at
      * https://www.unicode.org/versions/Unicode13.0.0/ch03.pdf especially
@@ -253,7 +253,7 @@ get_iso_646_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, cons
 {
     wmem_strbuf_t *str;
 
-    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_new_sized(scope, length+1);
 
     while (length > 0) {
         guint8 ch = *ptr;
@@ -279,7 +279,7 @@ get_8859_1_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
     wmem_strbuf_t *str;
 
-    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_new_sized(scope, length+1);
 
     while (length > 0) {
         guint8 ch = *ptr;
@@ -779,7 +779,7 @@ get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, con
 {
     wmem_strbuf_t *str;
 
-    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_new_sized(scope, length+1);
 
     while (length > 0) {
         guint8 ch = *ptr;
@@ -813,7 +813,7 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
     gint           i;       /* Byte counter for string */
     wmem_strbuf_t *strbuf;
 
-    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     for(i = 0; i + 1 < length; i += 2) {
         if (encoding == ENC_BIG_ENDIAN){
@@ -853,7 +853,7 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
     gunichar       uchar;
     gint           i;       /* Byte counter for string */
 
-    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     for(i = 0; i + 1 < length; i += 2) {
         if (encoding == ENC_BIG_ENDIAN)
@@ -940,7 +940,7 @@ get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
     gint           i;       /* Byte counter for string */
     wmem_strbuf_t *strbuf;
 
-    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     for(i = 0; i + 3 < length; i += 4) {
         if (encoding == ENC_BIG_ENDIAN)
@@ -1073,7 +1073,7 @@ get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, const guint8 *ptr,
     gboolean       saw_escape = FALSE;
     int            bits;
 
-    strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, no_of_chars+1);
 
     bits = bit_offset & 0x07;
     if (!bits) {
@@ -1142,7 +1142,7 @@ get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, const guint8 *ptr,
     gint           i;       /* Byte counter for string */
     gboolean       saw_escape = FALSE;
 
-    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     for (i = 0; i < length; i++)
         saw_escape = handle_ts_23_038_char(strbuf, *ptr++, saw_escape);
@@ -1218,7 +1218,7 @@ get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const guint8 *ptr,
     ptr++;
     length--;
 
-    strbuf = wmem_strbuf_sized_new(scope, 2*string_len+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, 2*string_len+1);
 
     /*
      * Get the UCS-2 base.
@@ -1295,7 +1295,7 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
         bits = 7;
     }
 
-    strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, no_of_chars+1);
     for(char_count = 0; char_count < no_of_chars; ptr++) {
         /* Get the next byte from the string. */
         in_byte = *ptr;
@@ -1428,7 +1428,7 @@ get_nonascii_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint le
 {
     wmem_strbuf_t *str;
 
-    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_new_sized(scope, length+1);
 
     while (length > 0) {
         guint8 ch = *ptr;
@@ -1471,7 +1471,7 @@ get_string_enc_iconv(wmem_allocator_t *scope, const guint8 *ptr, gint length, co
     }
 
     inbytes = length;
-    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_new_sized(scope, length+1);
     /* XXX: If speed becomes an issue, the faster way to do this would
      * involve passing the wmem_strbuf_t's string buffer directly into
      * g_iconv to avoid a memcpy later, but that requires changes to the
@@ -1846,7 +1846,7 @@ get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
     const guint8  *c;
     wmem_strbuf_t *strbuf;
 
-    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     for (i = 0, c = ptr; i < length; c++, i++) {
         if (!t61_tab[*c]) {

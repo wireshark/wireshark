@@ -730,7 +730,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   offset += 2;
 
   /* make sufficient space for channel decodings: 5 chars/channel (3-digit number + ', ') */
-  strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 5 * channels, 5 * channels);
+  strbuf = wmem_strbuf_new_sized(wmem_packet_scope(), 5 * channels);
 
   switch (seq_enc) {
   case AWDL_CHANSEQ_ENC_CHANNELNUMBER:
@@ -1139,7 +1139,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
   const guchar *component;
   wmem_strbuf_t *strbuf;
 
-  strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), MAX_DNAME_LEN, MAX_DNAME_LEN);
+  strbuf = wmem_strbuf_new_sized(wmem_packet_scope(), MAX_DNAME_LEN);
 
   while (offset < (len + start_offset)) {
     component_len = tvb_get_guint8(tvb, offset);

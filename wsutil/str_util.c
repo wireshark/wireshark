@@ -492,7 +492,7 @@ escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
     if (add_quotes)
         alloc_size += 2;
 
-    buf = wmem_strbuf_sized_new(alloc, alloc_size, 0);
+    buf = wmem_strbuf_new_sized(alloc, alloc_size);
 
     if (add_quotes)
         wmem_strbuf_append_c(buf, '"');
@@ -552,7 +552,7 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
     if (offset < 0)
         return NULL;
 
-    wmem_strbuf_t *buf = wmem_strbuf_sized_new(allocator, offset + len, 0);
+    wmem_strbuf_t *buf = wmem_strbuf_new_sized(allocator, offset + len);
 
     for (int i = 0; i < offset; i++) {
         wmem_strbuf_append_c(buf, ' ');
@@ -1013,7 +1013,7 @@ format_text_chr(wmem_allocator_t *allocator, const char *string, size_t len, cha
 {
     wmem_strbuf_t *buf;
 
-    buf = wmem_strbuf_sized_new(allocator, len + 1, 0);
+    buf = wmem_strbuf_new_sized(allocator, len + 1);
     for (const char *p = string; p < string + len; p++) {
         if (g_ascii_isprint(*p)) {
             wmem_strbuf_append_c(buf, *p);

@@ -2525,7 +2525,7 @@ static const fragment_items opa_rmpp_frag_items = {
  * @param[out] num_ports optional: pointer to a number of ports in set in port
  *                                 select mask and portlist if provided.
  * @return gchar* pointer to range string allocated using
- *                wmem_strbuf_sized_new(wmem_packet_scope(),...)
+ *                wmem_strbuf_new_sized(wmem_packet_scope(),...)
  */
 static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **port_list, guint8 *num_ports)
 {
@@ -2542,7 +2542,7 @@ static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **p
     psm[2] = tvb_get_ntoh64(tvb, offset + 16);
     psm[3] = tvb_get_ntoh64(tvb, offset + 24);
 
-    buf = wmem_strbuf_sized_new(wmem_packet_scope(), 0, ITEM_LABEL_LENGTH);
+    buf = wmem_strbuf_create(wmem_packet_scope());
 
     if (port_list) {
         /* Allocate list of ports; max = 256 = 64 * 4 */

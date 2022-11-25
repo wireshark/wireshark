@@ -3033,7 +3033,7 @@ tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	 * the upper 2 bits of the length don't indicate that it's a
 	 * pointer or an extended label (RFC 2673).
 	 */
-	str = wmem_strbuf_sized_new(scope, length + 1, 0);
+	str = wmem_strbuf_new_sized(scope, length + 1);
 	if (length > 0) {
 		const guint8 *ptr;
 

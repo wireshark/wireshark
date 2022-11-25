@@ -47,15 +47,13 @@ struct _wmem_strbuf_t {
 
     /* private fields */
     size_t alloc_size;
-    size_t max_size;
 };
 
 typedef struct _wmem_strbuf_t wmem_strbuf_t;
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_sized_new(wmem_allocator_t *allocator,
-                      size_t alloc_size, size_t max_size)
+wmem_strbuf_new_sized(wmem_allocator_t *allocator, size_t alloc_size)
 G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC

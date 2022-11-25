@@ -11704,7 +11704,7 @@ dtap_rr_ec_paging_imsi(tvbuff_t *tvb, proto_tree *tree, guint32 curr_bit_offset)
     proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_ec_imsi_digits, tvb, curr_bit_offset, 4, &imsi_digits, ENC_BIG_ENDIAN);
     curr_bit_offset += 4;
     sav_bit_offset = curr_bit_offset;
-    imsi_str = wmem_strbuf_sized_new(wmem_packet_scope(), (gsize)imsi_digits+2, 0);
+    imsi_str = wmem_strbuf_new_sized(wmem_packet_scope(), (gsize)imsi_digits+2);
     for (i = 0; i <= (guint8)imsi_digits; i++) {
         wmem_strbuf_append_c(imsi_str, digits[tvb_get_bits8(tvb, curr_bit_offset, 4)]);
         curr_bit_offset += 4;

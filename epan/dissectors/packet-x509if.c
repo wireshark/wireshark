@@ -862,7 +862,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
   /* now append this to the DN */
   if (last_dn_buf) {
     if(wmem_strbuf_get_len(last_dn_buf) > 0) {
-      wmem_strbuf_t *temp_dn_buf = wmem_strbuf_sized_new(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1, 0);
+      wmem_strbuf_t *temp_dn_buf = wmem_strbuf_new_sized(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1);
       wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
       wmem_strbuf_append_c(temp_dn_buf, ',');
       wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_dn_buf));

@@ -564,7 +564,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   g_size   = endOffset - g_offset;
 
   payloadText = tvb_get_ptr(tvb, g_offset, g_size);
-  tmpBuffer = wmem_strbuf_sized_new(wmem_packet_scope(), g_size+1, 0);
+  tmpBuffer = wmem_strbuf_new_sized(wmem_packet_scope(), g_size+1);
   for (loop = 0; loop < g_size; loop++)
   {
     if (payloadText[loop] == '_')

@@ -412,8 +412,7 @@ construct_dag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *xip_tree,
 	ti = proto_tree_add_item(xip_tree, hf, tvb, offset,
 		num_nodes * XIA_NODE_SIZE, ENC_BIG_ENDIAN);
 
-	buf = wmem_strbuf_sized_new(pinfo->pool,
-		XIA_MAX_STRADDR_SIZE, XIA_MAX_STRADDR_SIZE);
+	buf = wmem_strbuf_new_sized(pinfo->pool, XIA_MAX_STRADDR_SIZE);
 
 	dag_tree = proto_item_add_subtree(ti, ett);
 

@@ -8044,7 +8044,7 @@ proto_list_layers(const packet_info *pinfo)
 	wmem_strbuf_t *buf;
 	wmem_list_frame_t *layers = wmem_list_head(pinfo->layers);
 
-	buf = wmem_strbuf_sized_new(pinfo->pool, 128, 0);
+	buf = wmem_strbuf_new_sized(pinfo->pool, 128);
 
 	/* Walk the list of layers in the packet and
 	   return a string of all entries. */

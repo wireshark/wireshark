@@ -304,10 +304,6 @@ enum _9p_qid_t {
 #define _9P_NONUNAME	(guint32)(~0)
 #define _9P_MAXWELEM	16
 
-#ifndef MAXPATHLEN
-#define MAXPATHLEN 1024
-#endif
-
 
 /**
  * @brief Length prefixed string type
@@ -1337,7 +1333,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		fid_path = conv_get_fid(pinfo, fid);
 		proto_item_append_text(ti, " (%s)", fid_path);
 		if (!pinfo->fd->visited) {
-			tmppath = wmem_strbuf_sized_new(pinfo->pool, 0, MAXPATHLEN);
+			tmppath = wmem_strbuf_create(pinfo->pool);
 			wmem_strbuf_append(tmppath, fid_path);
 		}
 		offset += 4;
@@ -1430,7 +1426,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		if (!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
-			tmppath = wmem_strbuf_sized_new(pinfo->pool, 0, MAXPATHLEN);
+			tmppath = wmem_strbuf_create(pinfo->pool);
 			wmem_strbuf_append(tmppath, fid_path);
 			wmem_strbuf_append_c(tmppath, '/');
 			tvb_s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -1463,7 +1459,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		if (!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
-			tmppath = wmem_strbuf_sized_new(pinfo->pool, 0, MAXPATHLEN);
+			tmppath = wmem_strbuf_create(pinfo->pool);
 			wmem_strbuf_append(tmppath, fid_path);
 			wmem_strbuf_append_c(tmppath, '/');
 			tvb_s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -1808,7 +1804,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		if (!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
-			tmppath = wmem_strbuf_sized_new(pinfo->pool, 0, MAXPATHLEN);
+			tmppath = wmem_strbuf_create(pinfo->pool);
 			wmem_strbuf_append(tmppath, conv_get_fid(pinfo, dfid));
 			wmem_strbuf_append_c(tmppath, '/');
 

@@ -641,8 +641,7 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 	wmem_strbuf_t	*buf;
 #define MAX_BUF_LEN 3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1
 
-	buf = wmem_strbuf_sized_new(wmem_packet_scope(),
-			MAX_BUF_LEN, MAX_BUF_LEN);
+	buf = wmem_strbuf_new_sized(wmem_packet_scope(), MAX_BUF_LEN);
 	/* Only process so many  bytes of RIF, as per TR spec, and not overflow
 	 * static buffer above */
 	unprocessed_rif = rcf_len - RIF_BYTES_TO_PROCESS;
