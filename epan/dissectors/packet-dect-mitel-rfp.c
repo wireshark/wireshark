@@ -26,6 +26,7 @@
 #include <proto.h>
 #include <tfs.h>
 #include <tvbuff.h>
+#include <epan/unit_strings.h>
 #include <value_string.h>
 
 /* Prototypes */
@@ -62,9 +63,49 @@ static int hf_dect_mitel_rfp_sys_ip_options_voice_vlan_priority = -1;
 static int hf_dect_mitel_rfp_sys_led_id    = -1;
 static int hf_dect_mitel_rfp_sys_led_color = -1;
 
+/* SYS-HEARTBEAT-INTERVAL */
+static gint hf_dect_mitel_rfp_sys_heartbeat_interval_value = -1;
+
+/* SYS-SYSLOG */
+static gint hf_dect_mitel_rfp_sys_syslog_ip_address = -1;
+static gint hf_dect_mitel_rfp_sys_syslog_port = -1;
+
+/* SYS-MAX-CHANNELS */
+static gint hf_dect_mitel_rfp_sys_max_channels_dsp = -1;
+static gint hf_dect_mitel_rfp_sys_max_channels_sessions = -1;
+
+/* SYS-HTTP-SET */
+static gint hf_dect_mitel_rfp_sys_http_set_ip_address = -1;
+static gint hf_dect_mitel_rfp_sys_http_set_port = -1;
+
+/* SYS-PASSWD */
+static gint hf_dect_mitel_rfp_sys_passwd_remote_access_enabled = -1;
+static gint hf_dect_mitel_rfp_sys_passwd_root_username = -1;
+static gint hf_dect_mitel_rfp_sys_passwd_root_password = -1;
+static gint hf_dect_mitel_rfp_sys_passwd_admin_username = -1;
+static gint hf_dect_mitel_rfp_sys_passwd_admin_password = -1;
+
+/* SYS-RPING */
+static gint hf_dect_mitel_rfp_sys_rping_ip_address = -1;
+static gint hf_dect_mitel_rfp_sys_rping_rtt = -1;
+
+/* SYS-CORE-DUMP */
+static gint hf_dect_mitel_rfp_sys_core_dump_url = -1;
+
+/* SYS-VSNTP-TIME */
+static gint hf_dect_mitel_rfp_sys_vsntp_time_t1_seconds = -1;
+static gint hf_dect_mitel_rfp_sys_vsntp_time_t1_nanoseconds = -1;
+static gint hf_dect_mitel_rfp_sys_vsntp_time_t2_seconds = -1;
+static gint hf_dect_mitel_rfp_sys_vsntp_time_t2_nanoseconds = -1;
+
 /* SYS-AUTHENTICATE */
 static int hf_dect_mitel_rfp_sys_authenticate_omm_iv = -1;
 static int hf_dect_mitel_rfp_sys_authenticate_rfp_iv = -1;
+
+/* SYS-LICENSE-TIMER */
+static gint hf_dect_mitel_rfp_sys_license_timer_query = -1;
+static gint hf_dect_mitel_rfp_sys_license_timer_grace_period = -1;
+static gint hf_dect_mitel_rfp_sys_license_timer_checksum = -1;
 
 /* SYS-INIT */
 static int hf_dect_mitel_rfp_sys_init_rfp_model = -1;
@@ -624,6 +665,165 @@ static guint dissect_dect_mitel_rfp_sys_led(tvbuff_t *tvb, packet_info *pinfo _U
 }
 
 /*
+SYS-HEARTBEAT-INTERVAL Message
+| Offset | Len | Content            |
+| ------ | --- | ------------------ |
+|      0 |   1 | Interval value (s) |
+*/
+static guint dissect_dect_mitel_rfp_sys_heartbeat_interval(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	guint8 interval;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_heartbeat_interval_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+	interval = tvb_get_guint8(tvb, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Interval: %ds", interval);
+	offset++;
+
+	return offset;
+}
+
+/*
+SYS-SYSLOG Message
+| Offset | Len | Content            |
+| ------ | --- | ------------------ |
+|      0 |  16 | IP Address         |
+|     16 |   2 | Port               |
+*/
+static guint dissect_dect_mitel_rfp_sys_syslog(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_syslog_ip_address, tvb, offset, 16, ENC_NA);
+	offset += 16;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_syslog_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	return offset;
+}
+
+/*
+SYS-MAX-CHANNELS Message
+| Offset | Len | Content   |
+| ------ | --- | --------- |
+|      0 |   1 | DSP       |
+|      1 |   1 | Sesseions |
+*/
+static guint dissect_dect_mitel_rfp_sys_max_channels(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_max_channels_dsp, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_max_channels_sessions, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	return offset;
+}
+
+/*
+SYS-HTTP-SET Message
+| Offset | Len | Content            |
+| ------ | --- | ------------------ |
+|      0 |  16 | IP Address         |
+|     16 |   2 | Port               |
+*/
+static guint dissect_dect_mitel_rfp_sys_http_set(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_http_set_ip_address, tvb, offset, 16, ENC_NA);
+	offset += 16;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_http_set_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	return offset;
+}
+
+/*
+SYS-PASSWD Message
+| Offset | Len | Content                     |
+| ------ | --- | --------------------------- |
+|      0 |   1 | Remote Access Enabled (0x1) |
+|      2 |  65 | Root username               |
+|     67 |  65 | Root password               |
+|    132 |  65 | Admin username              |
+|    197 |  65 | Admin password              |
+*/
+static guint dissect_dect_mitel_rfp_sys_passwd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_passwd_remote_access_enabled, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_passwd_root_username, tvb, offset, 65, ENC_ASCII);
+	offset += 65;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_passwd_root_password, tvb, offset, 65, ENC_ASCII);
+	offset += 65;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_passwd_admin_username, tvb, offset, 65, ENC_ASCII);
+	offset += 65;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_passwd_admin_password, tvb, offset, 65, ENC_ASCII);
+	offset += 65;
+
+	return offset;
+}
+
+/*
+SYS-RPING Message
+| Offset | Len | Content    |
+| ------ | --- | ---------- |
+|      0 |  16 | IP Address |
+|     16 |   4 | RTT (ms)   |
+*/
+static guint dissect_dect_mitel_rfp_sys_rping(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_rping_ip_address, tvb, offset, 16, ENC_NA);
+	offset += 16;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_rping_rtt, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+/*
+SYS-CORE-DUMP Message
+| Offset | Len | Content |
+| ------ | --- | ------- |
+|      0 | len | URL     |
+*/
+static guint dissect_dect_mitel_rfp_sys_core_dump(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset, guint16 message_length)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_core_dump_url, tvb, offset, message_length, ENC_ASCII);
+	offset += message_length;
+
+	return offset;
+}
+
+/*
+SYS-VSNTP-TIME Message
+| Offset | Len | Content        |
+| ------ | --- | -------------- |
+|      0 |   4 | T1 seconds     |
+|      4 |   4 | T1 nanoseconds |
+|      8 |   4 | T2 seconds     |
+|     12 |   4 | T2 nanoseconds |
+*/
+static guint dissect_dect_mitel_rfp_sys_vsntp_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_vsntp_time_t1_seconds, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_vsntp_time_t1_nanoseconds, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_vsntp_time_t2_seconds, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_vsntp_time_t2_nanoseconds, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+/*
 SYS-AUTHENTICATE Message
 | Offset | Len | Content         |
 | ------ | --- | --------------- |
@@ -637,6 +837,25 @@ static guint dissect_dect_mitel_rfp_sys_authenticate(tvbuff_t *tvb, packet_info 
 	offset += 16;
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_authenticate_omm_iv, tvb, offset, 8, ENC_NA);
 	offset += 8;
+	return offset;
+}
+
+/*
+SYS-LICENSE-TIMER Message
+| Offset | Len | Content          | Comment                              |
+| ------ | --- | ---------------- | ------------------------------------ |
+|      0 |   4 | Grace period (m) | Most significant bit indicates QUERY |
+|      4 |  16 | Checksum         |                                      |
+*/
+static guint dissect_dect_mitel_rfp_sys_license_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_query, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_grace_period, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_checksum, tvb, offset, 16, ENC_NA);
+	offset += 16;
+
 	return offset;
 }
 
@@ -1085,7 +1304,7 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree *dect_mitel_rfp_tree;
 
 	guint offset = 0;
-	guint16 message_type;
+	guint16 message_type, message_length;
 	tvbuff_t *next_tvb;
 	gboolean ip_encapsulated = true;
 
@@ -1107,6 +1326,7 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	proto_tree_add_item(dect_mitel_rfp_tree, hf_dect_mitel_rfp_message_length, tvb,
 		offset, 2, ENC_NA);
+	message_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	switch ( message_type ) {
@@ -1125,8 +1345,35 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_LED:
 			dissect_dect_mitel_rfp_sys_led(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_HEARTBEAT_INTERVAL:
+			dissect_dect_mitel_rfp_sys_heartbeat_interval(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_SYSLOG:
+			dissect_dect_mitel_rfp_sys_syslog(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_MAX_CHANNELS:
+			dissect_dect_mitel_rfp_sys_max_channels(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_HTTP_SET:
+			dissect_dect_mitel_rfp_sys_http_set(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_PASSWD:
+			dissect_dect_mitel_rfp_sys_passwd(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_RPING:
+			dissect_dect_mitel_rfp_sys_rping(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_CORE_DUMP:
+			dissect_dect_mitel_rfp_sys_core_dump(tvb, pinfo, dect_mitel_rfp_tree, data, offset, message_length);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_VSNTP_TIME:
+			dissect_dect_mitel_rfp_sys_vsntp_time(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_AUTHENTICATE:
 			dissect_dect_mitel_rfp_sys_authenticate(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_LICENSE_TIMER:
+			dissect_dect_mitel_rfp_sys_license_timer(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_INIT:
 			dissect_dect_mitel_rfp_sys_init(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
@@ -1264,6 +1511,109 @@ void proto_register_dect_mitel_rfp(void)
 				VALS(dect_mitel_rfp_sys_led_color_val), 0x0, NULL, HFILL
 			}
 		},
+		/* SYS-HEARTBEAT-INTERVAL */
+		{ &hf_dect_mitel_rfp_sys_heartbeat_interval_value,
+			{ "Interval", "dect_mitel_rfp.sys.heartbeat_interval.value", FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
+				&units_seconds, 0, NULL, HFILL
+			}
+		},
+		/* SYS-SYSLOG */
+		{ &hf_dect_mitel_rfp_sys_syslog_ip_address,
+			{ "IP address", "dect_mitel_rfp.sys.syslog.ip_address", FT_IPv6, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_syslog_port,
+			{ "Port", "dect_mitel_rfp.sys.syslog.port", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* SYS-MAX-CHANNELS */
+		{ &hf_dect_mitel_rfp_sys_max_channels_dsp,
+			{ "DSP", "dect_mitel_rfp.sys.max_channels.dsp", FT_UINT8, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_max_channels_sessions,
+			{ "Sessions", "dect_mitel_rfp.sys.max_channels.sessions", FT_UINT8, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* SYS-HTTP-SET */
+		{ &hf_dect_mitel_rfp_sys_http_set_ip_address,
+			{ "IP address", "dect_mitel_rfp.sys.http_set.ip_address", FT_IPv6, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_http_set_port,
+			{ "Port", "dect_mitel_rfp.sys.http_set.port", FT_UINT16, BASE_DEC,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* SYS-PASSWD */
+		{ &hf_dect_mitel_rfp_sys_passwd_remote_access_enabled,
+			{ "Remote access enabled", "dect_mitel_rfp.sys.passwd.remote_access_enabled", FT_BOOLEAN, 8,
+				NULL, 0x1, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_passwd_root_username,
+			{ "Root username", "dect_mitel_rfp.sys.passwd.root_username", FT_STRINGZ, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_passwd_root_password,
+			{ "Root password", "dect_mitel_rfp.sys.passwd.root_password", FT_STRINGZ, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_passwd_admin_username,
+			{ "Admin username", "dect_mitel_rfp.sys.passwd.admin_username", FT_STRINGZ, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_passwd_admin_password,
+			{ "Admin password", "dect_mitel_rfp.sys.passwd.admin_password", FT_STRINGZ, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* SYS-RPING */
+		{ &hf_dect_mitel_rfp_sys_rping_ip_address,
+			{ "IP address", "dect_mitel_rfp.sys.rping.ip_address", FT_IPv6, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_rping_rtt,
+			{ "RTT", "dect_mitel_rfp.sys.rping.rtt", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_milliseconds, 0, NULL, HFILL
+			}
+		},
+		/* SYS-CORE-DUMP */
+		{ &hf_dect_mitel_rfp_sys_core_dump_url,
+			{ "URL", "dect_mitel_rfp.sys.core_dump.url", FT_STRINGZ, BASE_NONE,
+				NULL, 0, NULL, HFILL
+			}
+		},
+		/* SYS-VSNTP-TIME */
+		{ &hf_dect_mitel_rfp_sys_vsntp_time_t1_seconds,
+			{ "T1 seconds", "dect_mitel_rfp.sys.vsntp_time.t1_seconds", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_seconds, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_vsntp_time_t1_nanoseconds,
+			{ "T1 nanoseconds", "dect_mitel_rfp.sys.vsntp_time.t1_nanoseconds", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_nanoseconds, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_vsntp_time_t2_seconds,
+			{ "T2 seconds", "dect_mitel_rfp.sys.vsntp_time.t2_seconds", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_seconds, 0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_vsntp_time_t2_nanoseconds,
+			{ "T2 nanoseconds", "dect_mitel_rfp.sys.vsntp_time.t2_nanoseconds", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_nanoseconds, 0, NULL, HFILL
+			}
+		},
 		/* SYS-AUTHENTICATE */
 		{ &hf_dect_mitel_rfp_sys_authenticate_rfp_iv,
 			{ "RFP IV", "dect_mitel_rfp.sys.authenticate.rfp_iv", FT_UINT64, BASE_HEX,
@@ -1273,6 +1623,22 @@ void proto_register_dect_mitel_rfp(void)
 		{ &hf_dect_mitel_rfp_sys_authenticate_omm_iv,
 			{ "OMM IV", "dect_mitel_rfp.sys.authenticate.omm_iv", FT_UINT64, BASE_HEX,
 				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* SYS-LICENSE-TIMER */
+		{ &hf_dect_mitel_rfp_sys_license_timer_query,
+			{ "Query", "dect_mitel_rfp.sys.license_timer.query", FT_BOOLEAN, 32,
+				NULL, 0x80000000, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_license_timer_grace_period,
+			{ "Grace period", "dect_mitel_rfp.sys.license_timer.grace_period", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_minutes, 0x7FFFFFFF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_license_timer_checksum,
+			{ "Checksum", "dect_mitel_rfp.sys.license_timer.checksum", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL
 			}
 		},
 		/* SYS-INIT */
