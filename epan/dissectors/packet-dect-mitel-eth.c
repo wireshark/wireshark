@@ -925,13 +925,14 @@ static guint dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 	while ( tvb_reported_length_remaining(tvb, offset) ) {
 		item_type = tvb_get_guint8(tvb, offset);
-		item_length = tvb_get_guint8(tvb, offset + 1);
-		rfpc_item_tree = proto_tree_add_subtree_format(tree, tvb, offset, item_length + 2, ett_dect_mitel_eth_rfpc_item, &rfpc_item_tree_item,
+		rfpc_item_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_dect_mitel_eth_rfpc_item, &rfpc_item_tree_item,
 			"Item: %s", val_to_str(item_type, dect_mitel_eth_rfpc_item_type_val, "Unknown: 0x%0x"));
 		proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_type, tvb, offset, 1, ENC_NA);
 		offset++;
 
+		item_length = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_length, tvb, offset, 1, ENC_NA);
+		proto_item_set_len(rfpc_item_tree_item, item_length + 2);
 		offset ++;
 
 		switch (item_type) {
