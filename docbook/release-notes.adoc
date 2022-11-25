@@ -37,6 +37,9 @@ wsbuglink:17779[]
 
 The following bugs have been fixed:
 
+* wsbuglink:18510[Paused playback cannot continue to play] - Playback marker do not move after unpause with Qt6
+
+
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
