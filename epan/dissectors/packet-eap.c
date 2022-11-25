@@ -1778,8 +1778,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   static address null_address = ADDRESS_INIT_NONE;
   static guint8 pae_group_address_mac_addr[6] = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x03 };
   static address pae_group_address = ADDRESS_INIT(AT_ETHER, sizeof(pae_group_address_mac_addr), pae_group_address_mac_addr);
-  packet_info    pinfo_eapol;
-  packet_info    *pinfo_conv;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1815,19 +1813,11 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * We set the port so the TLS decoder can figure out which side is the server
    */
   if (pinfo->src.type == AT_ETHER) {
-    memcpy(&pinfo_eapol, pinfo, sizeof(packet_info));
-    pinfo_conv = &pinfo_eapol;
     if (eap_code == EAP_REQUEST) {	/* server -> client */
-      copy_address_shallow(&pinfo_conv->src, &null_address);
-      copy_address_shallow(&pinfo_conv->dst, &pae_group_address);
-      pinfo_conv->srcport = 443;
+      conversation_set_conv_addr_port_endpoints(pinfo, &null_address, &pae_group_address, conversation_pt_to_conversation_type(pinfo->ptype), 443, pinfo->destport);
     } else {				/* client -> server */
-      copy_address_shallow(&pinfo_conv->src, &pae_group_address);
-      copy_address_shallow(&pinfo_conv->dst, &null_address);
-      pinfo_conv->destport = 443;
+      conversation_set_conv_addr_port_endpoints(pinfo, &pae_group_address, &null_address, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, 443);
     }
-  } else {
-    pinfo_conv = pinfo;
   }
 
   /*
@@ -1836,20 +1826,20 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * as offsets for p_get_proto_data/p_add_proto_data and as done for
    * EAPOL above we massage the client port using this too
    */
-  guint32 tls_group = pinfo_conv->curr_proto_layer_num << 16;
+  guint32 tls_group = pinfo->curr_proto_layer_num << 16;
   if (eap_code == EAP_REQUEST) {	/* server -> client */
-    pinfo_conv->destport |= tls_group;
+    conversation_set_conv_addr_port_endpoints(pinfo, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport | tls_group);
   } else {				/* client -> server */
-    pinfo_conv->srcport |= tls_group;
+    conversation_set_conv_addr_port_endpoints(pinfo, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport | tls_group, pinfo->destport);
   }
 
-  if (PINFO_FD_VISITED(pinfo_conv) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
-    conversation = find_conversation_pinfo(pinfo_conv, 0);
+  if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
+    conversation = find_conversation_pinfo(pinfo, 0);
   }
   if (conversation == NULL) {
-    conversation = conversation_new(pinfo_conv->num, &pinfo_conv->src,
-		      &pinfo_conv->dst, conversation_pt_to_conversation_type(pinfo_conv->ptype),
-		      pinfo_conv->srcport, pinfo_conv->destport, 0);
+    conversation = conversation_new(pinfo->num, &pinfo->src,
+		      &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
+		      pinfo->srcport, pinfo->destport, 0);
   }
 
   /*
@@ -2264,23 +2254,23 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           if (next_tvb) {
             switch (eap_type) {
               case EAP_TYPE_TTLS:
-                tls_set_appdata_dissector(tls_handle, pinfo_conv, diameter_avps_handle);
+                tls_set_appdata_dissector(tls_handle, pinfo, diameter_avps_handle);
                 break;
               case EAP_TYPE_PEAP:
                 p_add_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB | tls_group, tvb);
-                tls_set_appdata_dissector(tls_handle, pinfo_conv, peap_handle);
+                tls_set_appdata_dissector(tls_handle, pinfo, peap_handle);
                 break;
               case EAP_TYPE_TEAP:
                 if (outer_tlvs) {	/* https://www.rfc-editor.org/rfc/rfc7170.html#section-4.1 */
                   tvbuff_t *teap_tvb = tvb_new_subset_length(tvb, offset + size - outer_tlvs_length, outer_tlvs_length);
-                  call_dissector(teap_handle, teap_tvb, pinfo_conv, eap_tree);
+                  call_dissector(teap_handle, teap_tvb, pinfo, eap_tree);
                   if (size == outer_tlvs_length) goto skip_tls_dissector;
                   next_tvb = tvb_new_subset_length(next_tvb, 0, size - outer_tlvs_length);
                 }
-                tls_set_appdata_dissector(tls_handle, pinfo_conv, teap_handle);
+                tls_set_appdata_dissector(tls_handle, pinfo, teap_handle);
                 break;
             }
-            call_dissector(tls_handle, next_tvb, pinfo_conv, eap_tree);
+            call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
           }
         }
       }
