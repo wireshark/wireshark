@@ -3179,7 +3179,7 @@ s7comm_decode_pistart_parameters(tvbuff_t *tvb,
     guint8 i;
     guint8 len;
     wmem_strbuf_t *args_buf;
-    args_buf = wmem_strbuf_new_label(pinfo->pool);
+    args_buf = wmem_strbuf_create(pinfo->pool);
 
     for (i = 0; i < nfields; i++) {
         len = tvb_get_guint8(tvb, offset);

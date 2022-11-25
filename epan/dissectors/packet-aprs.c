@@ -1106,7 +1106,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 
 	dti	 = tvb_get_guint8( tvb, offset );
 
-	sb = wmem_strbuf_new_label(wmem_packet_scope());
+	sb = wmem_strbuf_create(wmem_packet_scope());
 
 	if (dti != '!')
 		wmem_strbuf_append(sb, val_to_str_ext_const(dti, &aprs_description_ext, ""));

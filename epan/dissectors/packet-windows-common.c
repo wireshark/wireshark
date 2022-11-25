@@ -1546,18 +1546,18 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		offset++;
 	}
 
-	sid_in_dec_str = wmem_strbuf_new_label(wmem_packet_scope());
+	sid_in_dec_str = wmem_strbuf_create(wmem_packet_scope());
 	wmem_strbuf_append_printf (sid_in_dec_str, "S-%u-%" PRIu64, revision, authority);
 
 	/*  If sid_display_hex is set, sid_in_dec_str is still needed for
 		looking up well-known SIDs*/
 	if (sid_display_hex) {
-		sid_in_hex_str = wmem_strbuf_new_label(wmem_packet_scope());
+		sid_in_hex_str = wmem_strbuf_create(wmem_packet_scope());
 		wmem_strbuf_append_printf (sid_in_hex_str, "S-%x-%" PRIx64, revision, authority);
 	}
 
-	wkwn_sid1_str = wmem_strbuf_new_label(wmem_packet_scope());
-	label_str = wmem_strbuf_new_label(wmem_packet_scope());
+	wkwn_sid1_str = wmem_strbuf_create(wmem_packet_scope());
+	label_str = wmem_strbuf_create(wmem_packet_scope());
 
 	if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-16")==0)
 		S_1_16 = TRUE;
@@ -1582,9 +1582,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 
 	sa_offset = offset;
-	sa_str = wmem_strbuf_new_label(wmem_packet_scope());
-	wkwn_sid2_str = wmem_strbuf_new_label(wmem_packet_scope());
-	domain_str = wmem_strbuf_new_label(wmem_packet_scope());
+	sa_str = wmem_strbuf_create(wmem_packet_scope());
+	wkwn_sid2_str = wmem_strbuf_create(wmem_packet_scope());
+	domain_str = wmem_strbuf_create(wmem_packet_scope());
 
 	/* Build the sub-authorities and full SID strings */
 	for(i=1; i<num_auth+1; i++) {

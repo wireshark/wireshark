@@ -1057,7 +1057,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     break;
 
   case Ack_PDU:
-    message_id_list = wmem_strbuf_new_label(pinfo->pool);
+    message_id_list = wmem_strbuf_create(pinfo->pool);
 
     for (i = 0; i < count; i++) {
       /* Ack Info Entry */

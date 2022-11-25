@@ -513,7 +513,7 @@ read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     const gchar *symbol = NULL;
     guint32      hash   = 0;
 
-    gbl_symbol_buffer = wmem_strbuf_new_label(wmem_packet_scope());  /* no symbol found yet */
+    gbl_symbol_buffer = wmem_strbuf_create(wmem_packet_scope());  /* no symbol found yet */
     if (byteLength == 4) {
       hash = tvb_get_ntohl(tvb, *offset);
       symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
@@ -667,7 +667,7 @@ get_column_info(tvbuff_t *tvb)
   int            my_offset = 0;
 
   /* We've a full PDU: 8 bytes + pdu_packetlen bytes  */
-  result_buf = wmem_strbuf_new_label(wmem_packet_scope());
+  result_buf = wmem_strbuf_create(wmem_packet_scope());
 
   my_offset += (4 + 4 + 1); /* skip Magic, Length, Version */
 

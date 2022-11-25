@@ -3367,7 +3367,7 @@ static void append_status_info(packet_info *pinfo,
   gchar * writerId = NULL;
   gchar * disposeFlag = NULL;
   gchar * unregisterFlag = NULL;
-  wmem_strbuf_t *buffer = wmem_strbuf_new_label(wmem_packet_scope());
+  wmem_strbuf_t *buffer = wmem_strbuf_create(wmem_packet_scope());
 
   switch(writer_id) {
     case ENTITYID_PARTICIPANT:
@@ -5231,7 +5231,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
   /* Array print */
   if (arr_dimension != NULL) {
     /* Printing an array */
-    wmem_strbuf_t *dim_str = wmem_strbuf_new_label(wmem_packet_scope());
+    wmem_strbuf_t *dim_str = wmem_strbuf_create(wmem_packet_scope());
     for (i = 0; i < MAX_ARRAY_DIMENSION; ++i) {
       if (arr_dimension[i] != 0) {
         wmem_strbuf_append_printf(dim_str, "[%d]", arr_dimension[i]);
@@ -6042,8 +6042,8 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         gboolean show_analysis) {
   gint32 num_bits;
   guint32 data;
-  wmem_strbuf_t *temp_buff = wmem_strbuf_new_label(wmem_packet_scope());
-  wmem_strbuf_t *analysis_buff = wmem_strbuf_new_label(wmem_packet_scope());
+  wmem_strbuf_t *temp_buff = wmem_strbuf_create(wmem_packet_scope());
+  wmem_strbuf_t *analysis_buff = wmem_strbuf_create(wmem_packet_scope());
   gint i, j, idx;
   gchar *last_one;
   proto_item *ti = NULL, *ti_tree = NULL;
@@ -6141,7 +6141,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
   guint64 base;
   gint32 num_bits;
   guint32 data;
-  wmem_strbuf_t *temp_buff = wmem_strbuf_new_label(wmem_packet_scope());
+  wmem_strbuf_t *temp_buff = wmem_strbuf_create(wmem_packet_scope());
   gchar *last_one;
   int i, j, idx;
   proto_item *ti;

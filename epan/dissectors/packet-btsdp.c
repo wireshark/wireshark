@@ -2158,7 +2158,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     gint           protocol_order;
     wmem_strbuf_t *info_buf;
 
-    info_buf = wmem_strbuf_new_label(pinfo->pool);
+    info_buf = wmem_strbuf_create(pinfo->pool);
     *pinfo_buf = info_buf;
 
 

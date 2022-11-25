@@ -1308,9 +1308,9 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         return -needed;
     }
 
-    src_addr = wmem_strbuf_new_label(pinfo->pool);
+    src_addr = wmem_strbuf_create(pinfo->pool);
     wmem_strbuf_append(src_addr, address_to_str(pinfo->pool, &pinfo->src));
-    dst_addr = wmem_strbuf_new_label(pinfo->pool);
+    dst_addr = wmem_strbuf_create(pinfo->pool);
     wmem_strbuf_append(dst_addr, address_to_str(pinfo->pool, &pinfo->dst));
 
     /* append the port if appropriate */

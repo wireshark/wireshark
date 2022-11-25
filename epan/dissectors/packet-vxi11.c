@@ -236,7 +236,7 @@ dissect_flags(tvbuff_t *tvb, int offset, proto_tree *tree)
 
             if (flags != 0)
             {
-                wmem_strbuf_t *strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                wmem_strbuf_t *strbuf = wmem_strbuf_create(wmem_packet_scope());
 
                 if (flags & VXI11_CORE_FLAG_WAITLOCK)
                 {
@@ -281,7 +281,7 @@ dissect_reason(tvbuff_t *tvb, int offset, proto_tree *tree)
 
             if (reason != 0)
             {
-                wmem_strbuf_t *strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+                wmem_strbuf_t *strbuf = wmem_strbuf_create(wmem_packet_scope());
 
                 if (reason & VXI11_CORE_REASON_REQCNT)
                 {

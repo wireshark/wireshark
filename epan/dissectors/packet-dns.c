@@ -2256,7 +2256,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int            port_num;
       int            i;
       proto_item     *ti_wks;
-      wmem_strbuf_t *bitnames = wmem_strbuf_new_label(wmem_packet_scope());
+      wmem_strbuf_t *bitnames = wmem_strbuf_create(wmem_packet_scope());
 
       wks_addr = tvb_ip_to_str(pinfo->pool, tvb, cur_offset);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", wks_addr);

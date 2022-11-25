@@ -4377,7 +4377,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case ICMP6_ND_NEIGHBOR_ADVERT: /* Neighbor Advertisement (136) */
             {
                 guint32 na_flags;
-                wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                wmem_strbuf_t *flags_strbuf = wmem_strbuf_create(pinfo->pool);
                 static int * const nd_na_flags[] = {
                     &hf_icmpv6_nd_na_flag_r,
                     &hf_icmpv6_nd_na_flag_s,

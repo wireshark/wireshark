@@ -1665,7 +1665,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	it104 = proto_tree_add_item(tree, proto_iec60870_asdu, tvb, offset, -1, ENC_NA);
 	it104tree = proto_item_add_subtree(it104, ett_asdu);
 
-	res = wmem_strbuf_new_label(pinfo->pool);
+	res = wmem_strbuf_create(pinfo->pool);
 
 	/* Type identification */
 	asduh.TypeId = tvb_get_guint8(tvb, offset);
@@ -2074,7 +2074,7 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	it104 = proto_tree_add_item(tree, proto_iec60870_104, tvb, 0, -1, ENC_NA);
 	it104tree = proto_item_add_subtree(it104, ett_apci);
 
-	res = wmem_strbuf_new_label(pinfo->pool);
+	res = wmem_strbuf_create(pinfo->pool);
 
 	Start = 0;
 	for (Off = 0; Off <= TcpLen - 2; Off++) {

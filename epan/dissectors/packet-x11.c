@@ -1319,7 +1319,7 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
       if (do_red_green_blue) {
             int sep = FALSE;
-            wmem_strbuf_t *buffer = wmem_strbuf_new_label(wmem_packet_scope());
+            wmem_strbuf_t *buffer = wmem_strbuf_create(wmem_packet_scope());
             wmem_strbuf_append(buffer, "flags: ");
 
             if (do_red_green_blue & 0x1) {
@@ -1517,7 +1517,7 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             wmem_strbuf_t *buffer;
             const char *sep;
 
-            buffer=wmem_strbuf_new_label(wmem_packet_scope());
+            buffer=wmem_strbuf_create(wmem_packet_scope());
             wmem_strbuf_append(buffer, "colorItem ");
             red = tvb_get_guint16(tvb, *offsetp + 4, byte_order);
             green = tvb_get_guint16(tvb, *offsetp + 6, byte_order);

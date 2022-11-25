@@ -132,7 +132,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   static const char     fw1_header[] = "FW1 Monitor";
   ethertype_data_t ethertype_data;
 
-  header = wmem_strbuf_new_label(pinfo->pool);
+  header = wmem_strbuf_create(pinfo->pool);
   wmem_strbuf_append(header, fw1_header);
 
   /* Make entries in Protocol column and Info column on summary display */

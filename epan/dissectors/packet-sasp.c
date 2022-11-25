@@ -514,7 +514,7 @@ static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pay
     proto_tree      *dereg_req_data;
     guint8           reason_flag;
     static gboolean  first_flag         = TRUE;
-    wmem_strbuf_t   *reasonflags_strbuf = wmem_strbuf_new_label(pinfo->pool);
+    wmem_strbuf_t   *reasonflags_strbuf = wmem_strbuf_create(pinfo->pool);
     static const gchar *fstr[] = {"No Reason", "Learned & Purposeful" };
 
     dereg_req_data = proto_tree_add_subtree(pay_load, tvb, offset, -1, ett_sasp_dereg_req_sz, NULL, "DeReg Request");

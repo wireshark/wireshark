@@ -58,13 +58,13 @@ wmem_strbuf_sized_new(wmem_allocator_t *allocator,
                       size_t alloc_size, size_t max_size)
 G_GNUC_MALLOC;
 
-#define wmem_strbuf_new_label(ALLOCATOR) \
-    wmem_strbuf_sized_new((ALLOCATOR), 0, ITEM_LABEL_LENGTH)
-
 WS_DLL_PUBLIC
 wmem_strbuf_t *
 wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
 G_GNUC_MALLOC;
+
+#define wmem_strbuf_create(allocator) \
+    wmem_strbuf_new(allocator, "")
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *

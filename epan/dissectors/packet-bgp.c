@@ -3409,7 +3409,7 @@ decode_bgp_rd(wmem_allocator_t *pool, tvbuff_t *tvb, gint offset)
     wmem_strbuf_t *strbuf;
 
     rd_type = tvb_get_ntohs(tvb,offset);
-    strbuf = wmem_strbuf_new_label(pool);
+    strbuf = wmem_strbuf_create(pool);
 
     switch (rd_type) {
         case FORMAT_AS2_LOC:
@@ -4390,7 +4390,7 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 
     int            length, offset = 0;
     wmem_strbuf_t *strbuf;
 
-    strbuf = wmem_strbuf_new_label(pinfo->pool);
+    strbuf = wmem_strbuf_create(pinfo->pool);
 
     /* BGP Multiprotocol Next Hop Principles
      *
@@ -7045,7 +7045,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 /* snarf length */
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                stack_strbuf = wmem_strbuf_create(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -7116,7 +7116,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
 
                 length = (plen + 7)/8;
-                comm_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                comm_strbuf = wmem_strbuf_create(pinfo->pool);
 
                 switch (tvb_get_ntohs(tvb, offset + 1 + 4)) {
                 case BGP_EXT_COM_RT_AS2:
@@ -7203,7 +7203,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                stack_strbuf = wmem_strbuf_create(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -7293,7 +7293,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 /* snarf length */
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                stack_strbuf = wmem_strbuf_create(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -7402,7 +7402,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                stack_strbuf = wmem_strbuf_create(pinfo->pool);
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -7538,7 +7538,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 
                     proto_tree_add_item(tree, hf_bgp_vplsbgp_labelblock_offset, tvb, offset+12, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_bgp_vplsbgp_labelblock_size, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-                    stack_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                    stack_strbuf = wmem_strbuf_create(pinfo->pool);
                     decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
                     proto_tree_add_string(tree, hf_bgp_vplsbgp_labelblock_base, tvb, offset+16, plen-14, wmem_strbuf_get_str(stack_strbuf));
 
@@ -10011,7 +10011,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 q = o + i + aoff;
                 end = q + tlen;
                 wmem_strbuf_t *comm_strbuf;
-                comm_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                comm_strbuf = wmem_strbuf_create(pinfo->pool);
                 while (q < end) {
                     guint32 ga, ldp1, ldp2;
                     ga = tvb_get_ntohl(tvb, q);
@@ -10416,7 +10416,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 q = o + i + aoff;
                 end = q + tlen;
                 wmem_strbuf_t *dpath_strbuf;
-                dpath_strbuf = wmem_strbuf_new_label(pinfo->pool);
+                dpath_strbuf = wmem_strbuf_create(pinfo->pool);
                 guint8 dpath_len;
                 dpath_len = tvb_get_guint8(tvb, q);
                 proto_tree_add_item(subtree2, hf_bgp_d_path_length, tvb,

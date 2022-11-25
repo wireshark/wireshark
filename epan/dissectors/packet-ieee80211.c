@@ -8906,7 +8906,7 @@ dissect_dscp_policy_response(tvbuff_t *tvb, packet_info *pinfo,
 {
   int start_offset = offset;
   guint8 count;
-  wmem_strbuf_t *status_buf = wmem_strbuf_new_label(pinfo->pool);
+  wmem_strbuf_t *status_buf = wmem_strbuf_create(pinfo->pool);
   int i;
 
   proto_tree_add_bitmask(tree, tvb, offset,

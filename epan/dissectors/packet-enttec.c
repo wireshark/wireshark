@@ -255,7 +255,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		si = proto_item_add_subtree(hi, ett_enttec);
 
 		row_count = (ui/global_disp_col_count) + ((ui%global_disp_col_count) == 0 ? 0 : 1);
-		dmx_epstr = wmem_strbuf_new_label(wmem_packet_scope());
+		dmx_epstr = wmem_strbuf_create(wmem_packet_scope());
 		for (r=0; r < row_count;r++) {
 			for (c=0;(c < global_disp_col_count) && (((r*global_disp_col_count)+c) < ui);c++) {
 				if ((global_disp_col_count > 1) && (c % (global_disp_col_count/2)) == 0) {
