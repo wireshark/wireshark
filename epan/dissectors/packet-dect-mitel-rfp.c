@@ -1155,6 +1155,7 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_ETH:
 			/* Handover to DECT-MITEL-ETH*/
+			proto_item_set_len(ti, 4);
 			next_tvb = tvb_new_subset_remaining(tvb, offset);
 			call_dissector_with_data(dect_mitel_eth_handle, next_tvb, pinfo, tree, &ip_encapsulated);
 			break;
