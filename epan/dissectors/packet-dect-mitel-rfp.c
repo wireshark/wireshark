@@ -692,10 +692,10 @@ MEDIA-OPEN Message
 */
 static guint dissect_dect_mitel_rfp_media_open(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
 {
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_codec, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_codec, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_slot_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_slot_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_open_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
