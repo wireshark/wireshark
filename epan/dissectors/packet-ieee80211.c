@@ -15199,7 +15199,7 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   int ri, ci;
   int start_bit_offset = bit_offset;
   int start_offset = offset;
-  wmem_strbuf_t *angles = wmem_strbuf_new_label(pinfo->pool);
+  wmem_strbuf_t *angles = wmem_strbuf_new(pinfo->pool, NULL);
 
   if (nc == nr)  /* If they are the same, reduce Nc by one */
     nc -= 1;
@@ -15224,7 +15224,7 @@ dissect_he_feedback_matrix(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   /* Update this */
   proto_tree_add_string(tree, hf, tvb, offset,
                         ((start_bit_offset + 7) / 8) - start_offset,
-                        wmem_strbuf_finalize(angles));
+                        wmem_strbuf_get_str(angles));
 
   return bit_offset;
 }
