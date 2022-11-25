@@ -1177,8 +1177,6 @@ static void fmt_dect_mitel_rfp_media_statistics_max_jitter(gchar *max_jitter_str
 
 void proto_register_dect_mitel_rfp(void)
 {
-	module_t        *dect_mitel_rfp_module;
-
 	static hf_register_info hf[] = {
 		{ &hf_dect_mitel_rfp_message_type,
 			{ "Message Type", "dect_mitel_rfp.message.type", FT_UINT16, BASE_HEX,
@@ -1642,29 +1640,10 @@ void proto_register_dect_mitel_rfp(void)
 
 	dect_mitel_rfp_handle = register_dissector("dect_mitel_rfp", dissect_dect_mitel_rfp,
 			proto_dect_mitel_rfp);
-
-	dect_mitel_rfp_module = prefs_register_protocol(proto_dect_mitel_rfp,
-			proto_reg_handoff_dect_mitel_rfp);
-
-	prefs_register_uint_preference(dect_mitel_rfp_module, "tcp.port", "dect_mitel_rfp TCP Port",
-			" dect_mitel_rfp TCP port if other than the default",
-			10, &tcp_port_pref);
-
 }
 
 void proto_reg_handoff_dect_mitel_rfp(void)
 {
-	static gboolean initialized = FALSE;
-	static int current_tcp_port;
-
-	if (!initialized) {
-		dissector_add_uint_with_preference("tcp.port", tcp_port_pref, dect_mitel_rfp_handle);
-
-		initialized = TRUE;
-	} else {
-		dissector_delete_uint("tcp.port", current_tcp_port, dect_mitel_rfp_handle);
-	}
-	current_tcp_port = tcp_port_pref;
 	dissector_add_uint_with_preference("tcp.port", tcp_port_pref, dect_mitel_rfp_handle);
 
 	dect_mitel_eth_handle = find_dissector("dect_mitel_eth");
