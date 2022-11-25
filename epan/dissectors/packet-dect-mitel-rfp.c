@@ -98,15 +98,6 @@ static gint hf_dect_mitel_rfp_sys_vsntp_time_t1_nanoseconds = -1;
 static gint hf_dect_mitel_rfp_sys_vsntp_time_t2_seconds = -1;
 static gint hf_dect_mitel_rfp_sys_vsntp_time_t2_nanoseconds = -1;
 
-/* SYS-AUTHENTICATE */
-static int hf_dect_mitel_rfp_sys_authenticate_omm_iv = -1;
-static int hf_dect_mitel_rfp_sys_authenticate_rfp_iv = -1;
-
-/* SYS-LICENSE-TIMER */
-static gint hf_dect_mitel_rfp_sys_license_timer_query = -1;
-static gint hf_dect_mitel_rfp_sys_license_timer_grace_period = -1;
-static gint hf_dect_mitel_rfp_sys_license_timer_checksum = -1;
-
 /* SYS-INIT */
 static int hf_dect_mitel_rfp_sys_init_rfp_model = -1;
 static int hf_dect_mitel_rfp_sys_init_rfp_mac = -1;
@@ -120,9 +111,17 @@ static int hf_dect_mitel_rfp_sys_init_rfp_capability_encryption = -1;
 static int hf_dect_mitel_rfp_sys_init_rfp_capability_frequency_shift = -1;
 static int hf_dect_mitel_rfp_sys_init_rfp_capability_low_tx = -1;
 static int hf_dect_mitel_rfp_sys_init_rfp_capability_advanced_feature = -1;
-static int hf_dect_mitel_rfp_sys_init_rfp_brand = -1;
 static int hf_dect_mitel_rfp_sys_init_rfp_software_version = -1;
 static int hf_dect_mitel_rfp_sys_init_signature = -1;
+
+/* SYS-AUTHENTICATE */
+static int hf_dect_mitel_rfp_sys_authenticate_omm_iv = -1;
+static int hf_dect_mitel_rfp_sys_authenticate_rfp_iv = -1;
+
+/* SYS-LICENSE-TIMER */
+static gint hf_dect_mitel_rfp_sys_license_timer_query = -1;
+static gint hf_dect_mitel_rfp_sys_license_timer_grace_period = -1;
+static gint hf_dect_mitel_rfp_sys_license_timer_checksum = -1;
 
 /* MEDIA */
 static gint hf_dect_mitel_rfp_media_handle = -1;
@@ -350,15 +349,6 @@ enum dect_mitel_rfp_sys_init_rfp_capability_coding {
 	DECT_MITEL_RFP_SYS_INIT_RFP_CAPABILITY_ADVANCED_FEATURE = 0x00008000,
 };
 
-enum dect_mitel_rfp_sys_init_rfp_brand_coding {
-	DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_AVAYA  = 0x001,
-	DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_FFSIP  = 0x002,
-	DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_A5000  = 0x004,
-	DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_Mitel  = 0x008,
-	DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_OC01XX = 0x010,
-	DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_OCX    = 0x020,
-};
-
 /* MEDIA */
 enum dect_mitel_rfp_media_direction_coding {
 	DECT_MITEL_RFP_MEDIA_DIRECTION_NONE = 0x0,
@@ -522,16 +512,6 @@ static const value_string dect_mitel_rfp_sys_init_rfp_model_val[] = {
 	{ DECT_MITEL_RFP_SYS_INIT_RFP_MODEL_RFPSL36,  "RFP SL36" },
 	{ DECT_MITEL_RFP_SYS_INIT_RFP_MODEL_RFPSL43,  "RFP SL43" },
 	{ DECT_MITEL_RFP_SYS_INIT_RFP_MODEL_RFPSL37,  "RFP SL37" },
-	{ 0, NULL }
-};
-
-static const value_string dect_mitel_rfp_sys_init_rfp_brand_val[] = {
-	{DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_AVAYA,  "Avaya" },
-	{DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_FFSIP,  "FF-SIP" },
-	{DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_A5000,  "A5000" },
-	{DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_Mitel,  "Mitel" },
-	{DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_OC01XX, "OC01XX" },
-	{DECT_MITEL_RFP_SYS_INIT_RFP_BRAND_OCX,    "OCX" },
 	{ 0, NULL }
 };
 
@@ -824,42 +804,6 @@ static guint dissect_dect_mitel_rfp_sys_vsntp_time(tvbuff_t *tvb, packet_info *p
 }
 
 /*
-SYS-AUTHENTICATE Message
-| Offset | Len | Content         |
-| ------ | --- | --------------- |
-|      7 |   8 | RFP Blowfish IV |
-|     21 |   8 | OMM Blowfish IV |
-*/
-static guint dissect_dect_mitel_rfp_sys_authenticate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
-{
-	offset += 7;
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_authenticate_rfp_iv, tvb, offset, 8, ENC_NA);
-	offset += 16;
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_authenticate_omm_iv, tvb, offset, 8, ENC_NA);
-	offset += 8;
-	return offset;
-}
-
-/*
-SYS-LICENSE-TIMER Message
-| Offset | Len | Content          | Comment                              |
-| ------ | --- | ---------------- | ------------------------------------ |
-|      0 |   4 | Grace period (m) | Most significant bit indicates QUERY |
-|      4 |  16 | Checksum         |                                      |
-*/
-static guint dissect_dect_mitel_rfp_sys_license_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
-{
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_query, tvb, offset, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_grace_period, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_checksum, tvb, offset, 16, ENC_NA);
-	offset += 16;
-
-	return offset;
-}
-
-/*
 SYS-INIT Message
 | Offset | Len | Content           |
 | ------ | --- | ----------------- |
@@ -898,6 +842,42 @@ static guint dissect_dect_mitel_rfp_sys_init(tvbuff_t *tvb, packet_info *pinfo _
 	offset += 144;
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_init_signature, tvb, offset, 16, ENC_NA);
 	offset += 16;
+	return offset;
+}
+
+/*
+SYS-AUTHENTICATE Message
+| Offset | Len | Content         |
+| ------ | --- | --------------- |
+|      7 |   8 | RFP Blowfish IV |
+|     21 |   8 | OMM Blowfish IV |
+*/
+static guint dissect_dect_mitel_rfp_sys_authenticate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	offset += 7;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_authenticate_rfp_iv, tvb, offset, 8, ENC_NA);
+	offset += 16;
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_authenticate_omm_iv, tvb, offset, 8, ENC_NA);
+	offset += 8;
+	return offset;
+}
+
+/*
+SYS-LICENSE-TIMER Message
+| Offset | Len | Content          | Comment                              |
+| ------ | --- | ---------------- | ------------------------------------ |
+|      0 |   4 | Grace period (m) | Most significant bit indicates QUERY |
+|      4 |  16 | Checksum         |                                      |
+*/
+static guint dissect_dect_mitel_rfp_sys_license_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, guint offset)
+{
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_query, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_grace_period, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_sys_license_timer_checksum, tvb, offset, 16, ENC_NA);
+	offset += 16;
+
 	return offset;
 }
 
@@ -1369,14 +1349,14 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_VSNTP_TIME:
 			dissect_dect_mitel_rfp_sys_vsntp_time(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
+		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_INIT:
+			dissect_dect_mitel_rfp_sys_init(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
+			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_AUTHENTICATE:
 			dissect_dect_mitel_rfp_sys_authenticate(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_LICENSE_TIMER:
 			dissect_dect_mitel_rfp_sys_license_timer(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
-			break;
-		case DECT_MITEL_RFP_MESSAGE_TYPE_SYS_INIT:
-			dissect_dect_mitel_rfp_sys_init(tvb, pinfo, dect_mitel_rfp_tree, data, offset);
 			break;
 		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_OPEN:
 		case DECT_MITEL_RFP_MESSAGE_TYPE_MEDIA_CONF:
@@ -1614,33 +1594,6 @@ void proto_register_dect_mitel_rfp(void)
 				&units_nanoseconds, 0, NULL, HFILL
 			}
 		},
-		/* SYS-AUTHENTICATE */
-		{ &hf_dect_mitel_rfp_sys_authenticate_rfp_iv,
-			{ "RFP IV", "dect_mitel_rfp.sys.authenticate.rfp_iv", FT_UINT64, BASE_HEX,
-				NULL, 0x0, NULL, HFILL
-			}
-		},
-		{ &hf_dect_mitel_rfp_sys_authenticate_omm_iv,
-			{ "OMM IV", "dect_mitel_rfp.sys.authenticate.omm_iv", FT_UINT64, BASE_HEX,
-				NULL, 0x0, NULL, HFILL
-			}
-		},
-		/* SYS-LICENSE-TIMER */
-		{ &hf_dect_mitel_rfp_sys_license_timer_query,
-			{ "Query", "dect_mitel_rfp.sys.license_timer.query", FT_BOOLEAN, 32,
-				NULL, 0x80000000, NULL, HFILL
-			}
-		},
-		{ &hf_dect_mitel_rfp_sys_license_timer_grace_period,
-			{ "Grace period", "dect_mitel_rfp.sys.license_timer.grace_period", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
-				&units_minutes, 0x7FFFFFFF, NULL, HFILL
-			}
-		},
-		{ &hf_dect_mitel_rfp_sys_license_timer_checksum,
-			{ "Checksum", "dect_mitel_rfp.sys.license_timer.checksum", FT_BYTES, BASE_NONE,
-				NULL, 0, NULL, HFILL
-			}
-		},
 		/* SYS-INIT */
 		{ &hf_dect_mitel_rfp_sys_init_rfp_model,
 			{ "RFP Model", "dect_mitel_rfp.sys.init.rfp_model", FT_UINT32, BASE_HEX,
@@ -1702,11 +1655,6 @@ void proto_register_dect_mitel_rfp(void)
 				TFS(&tfs_yes_no), DECT_MITEL_RFP_SYS_INIT_RFP_CAPABILITY_ADVANCED_FEATURE, NULL, HFILL
 			}
 		},
-		{ &hf_dect_mitel_rfp_sys_init_rfp_brand,
-			{ "RFP Brand", "dect_mitel_rfp.sys.init.rfp_brand", FT_UINT16, BASE_HEX,
-				VALS(dect_mitel_rfp_sys_init_rfp_brand_val), 0x03FF, NULL, HFILL
-			}
-		},
 		{ &hf_dect_mitel_rfp_sys_init_rfp_software_version,
 			{ "RFP Software Version", "dect_mitel_rfp.sys.init.rfp_software_version", FT_STRING, BASE_NONE,
 				NULL, 0x0, NULL, HFILL
@@ -1715,6 +1663,33 @@ void proto_register_dect_mitel_rfp(void)
 		{ &hf_dect_mitel_rfp_sys_init_signature,
 			{ "Signature", "dect_mitel_rfp.sys.init.signature", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* SYS-AUTHENTICATE */
+		{ &hf_dect_mitel_rfp_sys_authenticate_rfp_iv,
+			{ "RFP IV", "dect_mitel_rfp.sys.authenticate.rfp_iv", FT_UINT64, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_authenticate_omm_iv,
+			{ "OMM IV", "dect_mitel_rfp.sys.authenticate.omm_iv", FT_UINT64, BASE_HEX,
+				NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* SYS-LICENSE-TIMER */
+		{ &hf_dect_mitel_rfp_sys_license_timer_query,
+			{ "Query", "dect_mitel_rfp.sys.license_timer.query", FT_BOOLEAN, 32,
+				NULL, 0x80000000, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_license_timer_grace_period,
+			{ "Grace period", "dect_mitel_rfp.sys.license_timer.grace_period", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_minutes, 0x7FFFFFFF, NULL, HFILL
+			}
+		},
+		{ &hf_dect_mitel_rfp_sys_license_timer_checksum,
+			{ "Checksum", "dect_mitel_rfp.sys.license_timer.checksum", FT_BYTES, BASE_NONE,
+				NULL, 0, NULL, HFILL
 			}
 		},
 		/* MEDIA */
