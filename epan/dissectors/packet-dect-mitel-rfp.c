@@ -22,12 +22,12 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <ftypes/ftypes.h>
-#include <proto.h>
-#include <tfs.h>
-#include <tvbuff.h>
+#include <epan/proto.h>
+#include <epan/tfs.h>
+#include <epan/tvbuff.h>
 #include <epan/unit_strings.h>
-#include <value_string.h>
+#include <epan/value_string.h>
+#include <ftypes/ftypes.h>
 
 /* Prototypes */
 void proto_reg_handoff_dect_mitel_rfp(void);
