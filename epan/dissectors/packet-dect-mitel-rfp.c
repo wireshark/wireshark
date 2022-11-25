@@ -1445,13 +1445,13 @@ void proto_register_dect_mitel_rfp(void)
 		},
 		/* CONTROL-HEARTBEAT */
 		{ &hf_dect_mitel_rfp_control_heartbeat_milliseconds,
-			{ "Milliseconds", "dect_mitel_rfp.control.heartbeat.milliseconds", FT_UINT32, BASE_DEC,
-				NULL, 0x0, NULL, HFILL
+			{ "Milliseconds", "dect_mitel_rfp.control.heartbeat.milliseconds", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_milliseconds, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_control_heartbeat_nanoseconds,
-			{ "Nanoseconds", "dect_mitel_rfp.control.heartbeat.nanoseconds", FT_UINT32, BASE_DEC,
-				NULL, 0x0, NULL, HFILL
+			{ "Nanoseconds", "dect_mitel_rfp.control.heartbeat.nanoseconds", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_nanoseconds, 0x0, NULL, HFILL
 			}
 		},
 		/* SYS-IP-OPTIONS */
@@ -1813,8 +1813,8 @@ void proto_register_dect_mitel_rfp(void)
 		},
 		/* MEDIA-STATISTICS */
 		{ &hf_dect_mitel_rfp_media_statistics_duration,
-			{ "Duration", "dect_mitel_rfp.media.statistics.duration", FT_UINT32, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "Duration", "dect_mitel_rfp.media.statistics.duration", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+				&units_seconds, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_statistics_tx_packets,
@@ -1891,8 +1891,8 @@ void proto_register_dect_mitel_rfp(void)
 		},
 		/* MEDIA-DTMF */
 		{ &hf_dect_mitel_rfp_media_dtmf_duration,
-			{ "Duration", "dect_mitel_rfp.media.dtmf.duration", FT_UINT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "Duration", "dect_mitel_rfp.media.dtmf.duration", FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_milliseconds, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_dtmf_key,
@@ -1907,43 +1907,43 @@ void proto_register_dect_mitel_rfp(void)
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_frequency_1,
-			{ "Frequency 1", "dect_mitel_rfp.media.tone.frequency_1", FT_UINT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "Frequency 1", "dect_mitel_rfp.media.tone.frequency_1", FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_hz, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_frequency_2,
-			{ "Frequency 2", "dect_mitel_rfp.media.tone.frequency_2", FT_UINT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "Frequency 2", "dect_mitel_rfp.media.tone.frequency_2", FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_hz, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_frequency_3,
-			{ "Frequency 3", "dect_mitel_rfp.media.tone.frequency_3", FT_UINT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "Frequency 3", "dect_mitel_rfp.media.tone.frequency_3", FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_hz, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_frequency_4,
-			{ "Frequency 4", "dect_mitel_rfp.media.tone.frequency_4", FT_UINT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "Frequency 4", "dect_mitel_rfp.media.tone.frequency_4", FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_hz, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_cb_1,
-			{ "cB 1", "dect_mitel_rfp.media.tone.cb_1", FT_INT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "cB 1", "dect_mitel_rfp.media.tone.cb_1", FT_INT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_centibels, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_cb_2,
-			{ "cB 2", "dect_mitel_rfp.media.tone.cb_2", FT_INT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "cB 2", "dect_mitel_rfp.media.tone.cb_2", FT_INT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_centibels, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_cb_3,
-			{ "cB 3", "dect_mitel_rfp.media.tone.cb_3", FT_INT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "cB 3", "dect_mitel_rfp.media.tone.cb_3", FT_INT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_centibels, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_cb_4,
-			{ "cB 4", "dect_mitel_rfp.media.tone.cb_4", FT_INT16, BASE_DEC,
-				NULL, 0, NULL, HFILL
+			{ "cB 4", "dect_mitel_rfp.media.tone.cb_4", FT_INT16, BASE_DEC|BASE_UNIT_STRING,
+				&units_centibels, 0, NULL, HFILL
 			}
 		},
 		{ &hf_dect_mitel_rfp_media_tone_duration,
