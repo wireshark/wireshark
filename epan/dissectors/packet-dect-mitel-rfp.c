@@ -65,39 +65,39 @@ static int hf_dect_mitel_rfp_sys_led_id    = -1;
 static int hf_dect_mitel_rfp_sys_led_color = -1;
 
 /* SYS-HEARTBEAT-INTERVAL */
-static gint hf_dect_mitel_rfp_sys_heartbeat_interval_value = -1;
+static int hf_dect_mitel_rfp_sys_heartbeat_interval_value = -1;
 
 /* SYS-SYSLOG */
-static gint hf_dect_mitel_rfp_sys_syslog_ip_address = -1;
-static gint hf_dect_mitel_rfp_sys_syslog_port = -1;
+static int hf_dect_mitel_rfp_sys_syslog_ip_address = -1;
+static int hf_dect_mitel_rfp_sys_syslog_port = -1;
 
 /* SYS-MAX-CHANNELS */
-static gint hf_dect_mitel_rfp_sys_max_channels_dsp = -1;
-static gint hf_dect_mitel_rfp_sys_max_channels_sessions = -1;
+static int hf_dect_mitel_rfp_sys_max_channels_dsp = -1;
+static int hf_dect_mitel_rfp_sys_max_channels_sessions = -1;
 
 /* SYS-HTTP-SET */
-static gint hf_dect_mitel_rfp_sys_http_set_ip_address = -1;
-static gint hf_dect_mitel_rfp_sys_http_set_port = -1;
+static int hf_dect_mitel_rfp_sys_http_set_ip_address = -1;
+static int hf_dect_mitel_rfp_sys_http_set_port = -1;
 
 /* SYS-PASSWD */
-static gint hf_dect_mitel_rfp_sys_passwd_remote_access_enabled = -1;
-static gint hf_dect_mitel_rfp_sys_passwd_root_username = -1;
-static gint hf_dect_mitel_rfp_sys_passwd_root_password = -1;
-static gint hf_dect_mitel_rfp_sys_passwd_admin_username = -1;
-static gint hf_dect_mitel_rfp_sys_passwd_admin_password = -1;
+static int hf_dect_mitel_rfp_sys_passwd_remote_access_enabled = -1;
+static int hf_dect_mitel_rfp_sys_passwd_root_username = -1;
+static int hf_dect_mitel_rfp_sys_passwd_root_password = -1;
+static int hf_dect_mitel_rfp_sys_passwd_admin_username = -1;
+static int hf_dect_mitel_rfp_sys_passwd_admin_password = -1;
 
 /* SYS-RPING */
-static gint hf_dect_mitel_rfp_sys_rping_ip_address = -1;
-static gint hf_dect_mitel_rfp_sys_rping_rtt = -1;
+static int hf_dect_mitel_rfp_sys_rping_ip_address = -1;
+static int hf_dect_mitel_rfp_sys_rping_rtt = -1;
 
 /* SYS-CORE-DUMP */
-static gint hf_dect_mitel_rfp_sys_core_dump_url = -1;
+static int hf_dect_mitel_rfp_sys_core_dump_url = -1;
 
 /* SYS-VSNTP-TIME */
-static gint hf_dect_mitel_rfp_sys_vsntp_time_t1_seconds = -1;
-static gint hf_dect_mitel_rfp_sys_vsntp_time_t1_nanoseconds = -1;
-static gint hf_dect_mitel_rfp_sys_vsntp_time_t2_seconds = -1;
-static gint hf_dect_mitel_rfp_sys_vsntp_time_t2_nanoseconds = -1;
+static int hf_dect_mitel_rfp_sys_vsntp_time_t1_seconds = -1;
+static int hf_dect_mitel_rfp_sys_vsntp_time_t1_nanoseconds = -1;
+static int hf_dect_mitel_rfp_sys_vsntp_time_t2_seconds = -1;
+static int hf_dect_mitel_rfp_sys_vsntp_time_t2_nanoseconds = -1;
 
 /* SYS-INIT */
 static int hf_dect_mitel_rfp_sys_init_rfp_model = -1;
@@ -120,113 +120,113 @@ static int hf_dect_mitel_rfp_sys_authenticate_omm_iv = -1;
 static int hf_dect_mitel_rfp_sys_authenticate_rfp_iv = -1;
 
 /* SYS-LICENSE-TIMER */
-static gint hf_dect_mitel_rfp_sys_license_timer_query = -1;
-static gint hf_dect_mitel_rfp_sys_license_timer_grace_period = -1;
-static gint hf_dect_mitel_rfp_sys_license_timer_checksum = -1;
+static int hf_dect_mitel_rfp_sys_license_timer_query = -1;
+static int hf_dect_mitel_rfp_sys_license_timer_grace_period = -1;
+static int hf_dect_mitel_rfp_sys_license_timer_checksum = -1;
 
 /* MEDIA */
-static gint hf_dect_mitel_rfp_media_handle = -1;
-static gint hf_dect_mitel_rfp_media_mcei = -1;
-static gint hf_dect_mitel_rfp_media_direction = -1;
+static int hf_dect_mitel_rfp_media_handle = -1;
+static int hf_dect_mitel_rfp_media_mcei = -1;
+static int hf_dect_mitel_rfp_media_direction = -1;
 
 /* MEDIA-OPEN */
-static gint hf_dect_mitel_rfp_media_open_codec = -1;
-static gint hf_dect_mitel_rfp_media_open_slot_count = -1;
-static gint hf_dect_mitel_rfp_media_open_flags = -1;
+static int hf_dect_mitel_rfp_media_open_codec = -1;
+static int hf_dect_mitel_rfp_media_open_slot_count = -1;
+static int hf_dect_mitel_rfp_media_open_flags = -1;
 
 /* MEDIA-CONF */
-static gint hf_dect_mitel_rfp_media_conf_vif = -1;
-static gint hf_dect_mitel_rfp_media_conf_vad = -1;
-static gint hf_dect_mitel_rfp_media_conf_codec_count = -1;
-static gint hf_dect_mitel_rfp_media_conf_codec_type = -1;
-static gint hf_dect_mitel_rfp_media_conf_codec_pt = -1;
-static gint hf_dect_mitel_rfp_media_conf_codec_rate = -1;
-static gint hf_dect_mitel_rfp_media_conf_ppn = -1;
-static gint hf_dect_mitel_rfp_media_conf_local_port_1 = -1;
-static gint hf_dect_mitel_rfp_media_conf_local_port_2 = -1;
-static gint hf_dect_mitel_rfp_media_conf_rx_ip_address = -1;
-static gint hf_dect_mitel_rfp_media_conf_rx_port_1 = -1;
-static gint hf_dect_mitel_rfp_media_conf_rx_port_2 = -1;
-static gint hf_dect_mitel_rfp_media_conf_tx_ip_address = -1;
-static gint hf_dect_mitel_rfp_media_conf_tx_port_1 = -1;
-static gint hf_dect_mitel_rfp_media_conf_tx_port_2 = -1;
+static int hf_dect_mitel_rfp_media_conf_vif = -1;
+static int hf_dect_mitel_rfp_media_conf_vad = -1;
+static int hf_dect_mitel_rfp_media_conf_codec_count = -1;
+static int hf_dect_mitel_rfp_media_conf_codec_type = -1;
+static int hf_dect_mitel_rfp_media_conf_codec_pt = -1;
+static int hf_dect_mitel_rfp_media_conf_codec_rate = -1;
+static int hf_dect_mitel_rfp_media_conf_ppn = -1;
+static int hf_dect_mitel_rfp_media_conf_local_port_1 = -1;
+static int hf_dect_mitel_rfp_media_conf_local_port_2 = -1;
+static int hf_dect_mitel_rfp_media_conf_rx_ip_address = -1;
+static int hf_dect_mitel_rfp_media_conf_rx_port_1 = -1;
+static int hf_dect_mitel_rfp_media_conf_rx_port_2 = -1;
+static int hf_dect_mitel_rfp_media_conf_tx_ip_address = -1;
+static int hf_dect_mitel_rfp_media_conf_tx_port_1 = -1;
+static int hf_dect_mitel_rfp_media_conf_tx_port_2 = -1;
 
 /* MEDIA-START */
-static gint hf_dect_mitel_rfp_media_start_time = -1;
-static gint hf_dect_mitel_rfp_media_start_met_keep_alive = -1;
+static int hf_dect_mitel_rfp_media_start_time = -1;
+static int hf_dect_mitel_rfp_media_start_met_keep_alive = -1;
 
 /* MEDIA-STATISTICS */
-static gint hf_dect_mitel_rfp_media_statistics_duration = -1;
-static gint hf_dect_mitel_rfp_media_statistics_tx_packets = -1;
-static gint hf_dect_mitel_rfp_media_statistics_tx_bytes = -1;
-static gint hf_dect_mitel_rfp_media_statistics_rx_packets = -1;
-static gint hf_dect_mitel_rfp_media_statistics_rx_bytes = -1;
-static gint hf_dect_mitel_rfp_media_statistics_lost_packets = -1;
-static gint hf_dect_mitel_rfp_media_statistics_max_jitter = -1;
-static gint hf_dect_mitel_rfp_media_statistics_rtp_ip_address = -1;
+static int hf_dect_mitel_rfp_media_statistics_duration = -1;
+static int hf_dect_mitel_rfp_media_statistics_tx_packets = -1;
+static int hf_dect_mitel_rfp_media_statistics_tx_bytes = -1;
+static int hf_dect_mitel_rfp_media_statistics_rx_packets = -1;
+static int hf_dect_mitel_rfp_media_statistics_rx_bytes = -1;
+static int hf_dect_mitel_rfp_media_statistics_lost_packets = -1;
+static int hf_dect_mitel_rfp_media_statistics_max_jitter = -1;
+static int hf_dect_mitel_rfp_media_statistics_rtp_ip_address = -1;
 
 /* MEDIA-REDIRECT-START */
-static gint hf_dect_mitel_rfp_media_redirect_start_local_port_1 = -1;
-static gint hf_dect_mitel_rfp_media_redirect_start_local_port_2 = -1;
-static gint hf_dect_mitel_rfp_media_redirect_start_remote_ip_address = -1;
-static gint hf_dect_mitel_rfp_media_redirect_start_remote_port_1 = -1;
-static gint hf_dect_mitel_rfp_media_redirect_start_remote_port_2 = -1;
-static gint hf_dect_mitel_rfp_media_redirect_start_time = -1;
+static int hf_dect_mitel_rfp_media_redirect_start_local_port_1 = -1;
+static int hf_dect_mitel_rfp_media_redirect_start_local_port_2 = -1;
+static int hf_dect_mitel_rfp_media_redirect_start_remote_ip_address = -1;
+static int hf_dect_mitel_rfp_media_redirect_start_remote_port_1 = -1;
+static int hf_dect_mitel_rfp_media_redirect_start_remote_port_2 = -1;
+static int hf_dect_mitel_rfp_media_redirect_start_time = -1;
 
 /* MEDIA-REDIRECT-STOP */
-static gint hf_dect_mitel_rfp_media_redirect_stop_fallback = -1;
+static int hf_dect_mitel_rfp_media_redirect_stop_fallback = -1;
 
 /* MEDIA-DTMF */
-static gint hf_dect_mitel_rfp_media_dtmf_duration = -1;
-static gint hf_dect_mitel_rfp_media_dtmf_key = -1;
+static int hf_dect_mitel_rfp_media_dtmf_duration = -1;
+static int hf_dect_mitel_rfp_media_dtmf_key = -1;
 
 /* MEDIA-TONE */
-static gint hf_dect_mitel_rfp_media_tone_count = -1;
-static gint hf_dect_mitel_rfp_media_tone_frequency_1 = -1;
-static gint hf_dect_mitel_rfp_media_tone_frequency_2 = -1;
-static gint hf_dect_mitel_rfp_media_tone_frequency_3 = -1;
-static gint hf_dect_mitel_rfp_media_tone_frequency_4 = -1;
-static gint hf_dect_mitel_rfp_media_tone_cb_1 = -1;
-static gint hf_dect_mitel_rfp_media_tone_cb_2 = -1;
-static gint hf_dect_mitel_rfp_media_tone_cb_3 = -1;
-static gint hf_dect_mitel_rfp_media_tone_cb_4 = -1;
-static gint hf_dect_mitel_rfp_media_tone_duration= -1;
-static gint hf_dect_mitel_rfp_media_tone_cycle_count = -1;
-static gint hf_dect_mitel_rfp_media_tone_cycle_to = -1;
-static gint hf_dect_mitel_rfp_media_tone_next = -1;
+static int hf_dect_mitel_rfp_media_tone_count = -1;
+static int hf_dect_mitel_rfp_media_tone_frequency_1 = -1;
+static int hf_dect_mitel_rfp_media_tone_frequency_2 = -1;
+static int hf_dect_mitel_rfp_media_tone_frequency_3 = -1;
+static int hf_dect_mitel_rfp_media_tone_frequency_4 = -1;
+static int hf_dect_mitel_rfp_media_tone_cb_1 = -1;
+static int hf_dect_mitel_rfp_media_tone_cb_2 = -1;
+static int hf_dect_mitel_rfp_media_tone_cb_3 = -1;
+static int hf_dect_mitel_rfp_media_tone_cb_4 = -1;
+static int hf_dect_mitel_rfp_media_tone_duration= -1;
+static int hf_dect_mitel_rfp_media_tone_cycle_count = -1;
+static int hf_dect_mitel_rfp_media_tone_cycle_to = -1;
+static int hf_dect_mitel_rfp_media_tone_next = -1;
 
 /* SYNC */
-static gint hf_dect_mitel_rfp_sync_payload_type = -1;
-static gint hf_dect_mitel_rfp_sync_payload_length = -1;
+static int hf_dect_mitel_rfp_sync_payload_type = -1;
+static int hf_dect_mitel_rfp_sync_payload_length = -1;
 
 /* SYNC FREQ_CTRL_MODE_IND */
-static gint hf_dect_mitel_rfp_sync_freq_ctrl_mode_ind_mode = -1;
+static int hf_dect_mitel_rfp_sync_freq_ctrl_mode_ind_mode = -1;
 
 /* SYNC FREQ_CTRL_MODE_CFM */
-static gint hf_dect_mitel_rfp_sync_freq_ctrl_mode_cfm_mode = -1;
-static gint hf_dect_mitel_rfp_sync_freq_ctrl_mode_cfm_ppm = -1;
-static gint hf_dect_mitel_rfp_sync_freq_ctrl_mode_cfm_avg = -1;
+static int hf_dect_mitel_rfp_sync_freq_ctrl_mode_cfm_mode = -1;
+static int hf_dect_mitel_rfp_sync_freq_ctrl_mode_cfm_ppm = -1;
+static int hf_dect_mitel_rfp_sync_freq_ctrl_mode_cfm_avg = -1;
 
 /* SYNC SET_FREQUENCY */
-static gint hf_dect_mitel_rfp_sync_set_frequency_value = -1;
+static int hf_dect_mitel_rfp_sync_set_frequency_value = -1;
 
 /* SYNC START_MAC_SLAVE_MODE_IND */
-static gint hf_dect_mitel_rfp_sync_start_mac_slave_mode_ind_rfp = -1;
+static int hf_dect_mitel_rfp_sync_start_mac_slave_mode_ind_rfp = -1;
 
 /* SYNC SYSTEM_SEARCH_IND */
-static gint hf_dect_mitel_rfp_sync_system_search_ind_mode = -1;
+static int hf_dect_mitel_rfp_sync_system_search_ind_mode = -1;
 
 /* SYNC SYSTEM_SEARCH_CFM */
-static gint hf_dect_mitel_rfp_sync_system_search_cfm_count = -1;
-static gint hf_dect_mitel_rfp_sync_system_search_cfm_item_rpn = -1;
-static gint hf_dect_mitel_rfp_sync_system_search_cfm_item_rssi = -1;
+static int hf_dect_mitel_rfp_sync_system_search_cfm_count = -1;
+static int hf_dect_mitel_rfp_sync_system_search_cfm_item_rpn = -1;
+static int hf_dect_mitel_rfp_sync_system_search_cfm_item_rssi = -1;
 
 /* SYNC PHASE_OFS_WITH_RSSI_IND */
-static gint hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_count = -1;
-static gint hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_rpn = -1;
-static gint hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_offset = -1;
-static gint hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_rssi = -1;
-static gint hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_qt_sync_check = -1;
+static int hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_count = -1;
+static int hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_rpn = -1;
+static int hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_offset = -1;
+static int hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_rssi = -1;
+static int hf_dect_mitel_rfp_sync_phase_ofs_with_rssi_ind_item_qt_sync_check = -1;
 
 /* Message Type */
 enum dect_mitel_rfp_message_type_coding {
