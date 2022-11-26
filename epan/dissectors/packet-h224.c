@@ -37,7 +37,8 @@ static int hf_h224_sta = -1;
 static int hf_h224_reserved = -1;
 static int hf_h224_standard_client_id = -1;
 static int hf_h224_extended_client_id = -1;
-static int hf_h224_client_id_country = -1;
+static int hf_h224_country_code = -1;
+static int hf_h224_manufacturer_code = -1;
 static int hf_h224_client_id_manufacturer = -1;
 
 static int hf_h224_es_b7 = -1;
@@ -106,15 +107,17 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     */
     oct = tvb_get_guint8(tvb, offset);
     if (oct == 0x7e) {
-        proto_tree_add_item(h224_tree, hf_h224_extended_client_id, tvb, offset, 2, ENC_NA);
-        offset += 2;
+        offset++;
+        proto_tree_add_item(h224_tree, hf_h224_extended_client_id, tvb, offset, 1, ENC_NA);
+        offset++;
     } else if (oct == 0x7f){
-        proto_tree_add_item(h224_tree, hf_h224_client_id_country, tvb, offset, 2, ENC_NA);
+        offset++;
+        proto_tree_add_item(h224_tree, hf_h224_country_code, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(h224_tree, hf_h224_client_id_manufacturer, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(h224_tree, hf_h224_manufacturer_code, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(h224_tree, hf_h224_extended_client_id, tvb, offset, 2, ENC_NA);
-        offset += 2;
+        proto_tree_add_item(h224_tree, hf_h224_client_id_manufacturer, tvb, offset, 1, ENC_NA);
+        offset++;
     } else {
         proto_tree_add_item(h224_tree, hf_h224_standard_client_id, tvb, offset, 1, ENC_NA);
         offset++;
@@ -148,12 +151,12 @@ proto_register_h224(void)
     static hf_register_info hf[] = {
         { &hf_h224_q922_dlci_priority,
           { "Q.922 DLCI Priority", "h224.q922_dlci_pri",
-            FT_UINT16, BASE_DEC, VALS(h224_data_priority), H224_DATA_PRI_MASK,
+            FT_UINT16, BASE_HEX, VALS(h224_data_priority), H224_DATA_PRI_MASK,
             NULL, HFILL }
         },
         { &hf_h224_q922_ctl,
           { "Q.922 Control Octet", "h224.q922_ctl",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h224_dta,
@@ -173,22 +176,27 @@ proto_register_h224(void)
         },
         { &hf_h224_standard_client_id,
           { "Standard Client ID", "h224.standard_client_id",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            FT_UINT8, BASE_HEX, NULL, 0x7f,
             NULL, HFILL }
         },
         { &hf_h224_extended_client_id,
-          { "Extended Client ID", "h224.standard_client_id",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+          { "Extended Client ID", "h224.extended_client_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_h224_client_id_country,
-          { "Client ID country", "h224.standard_client_id_country",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+        { &hf_h224_country_code,
+          { "Country code", "h224.country_code",
+            FT_UINT16, BASE_HEX, NULL, 0xffff,
+            NULL, HFILL }
+        },
+        { &hf_h224_manufacturer_code,
+          { "Manufacturer code", "h224.manufacturer_code",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h224_client_id_manufacturer,
           { "Manufacturer Client ID", "h224.manufacturer_client_id",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h224_es_b7,
