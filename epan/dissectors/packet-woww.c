@@ -312,6 +312,7 @@ static int hf_woww_emote_enum = -1;
 static int hf_woww_emote_int = -1;
 static int hf_woww_enable_pvp = -1;
 static int hf_woww_enchantment = -1;
+static int hf_woww_encrypted_data = -1;
 static int hf_woww_end_text = -1;
 static int hf_woww_ended_without_interruption = -1;
 static int hf_woww_enemy = -1;
@@ -11110,7 +11111,7 @@ add_body_fields(guint32 opcode,
             break;
         case CMSG_WARDEN_DATA:
             len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_encrypted_data, len, ENC_NA);
             break;
         case CMSG_WHO:
             ptvcursor_add(ptv, hf_woww_minimum_level, 4, ENC_LITTLE_ENDIAN);
@@ -15538,7 +15539,7 @@ add_body_fields(guint32 opcode,
             break;
         case SMSG_WARDEN_DATA:
             len = offset_packet_end - ptvcursor_current_offset(ptv);
-            ptvcursor_add(ptv, hf_woww_unimplemented, len, ENC_NA);
+            ptvcursor_add(ptv, hf_woww_encrypted_data, len, ENC_NA);
             break;
         case SMSG_WEATHER:
             ptvcursor_add(ptv, hf_woww_weather_type, 4, ENC_LITTLE_ENDIAN);
@@ -17153,6 +17154,12 @@ proto_register_woww(void)
         { &hf_woww_enchantment,
             { "Enchantment", "woww.enchantment",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_encrypted_data,
+            { "Encrypted Data", "woww.encrypted.data",
+                FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL
             }
         },
