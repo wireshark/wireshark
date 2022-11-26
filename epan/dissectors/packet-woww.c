@@ -11182,6 +11182,12 @@ add_body_fields(guint32 opcode,
             else {
             }
             break;
+        case MSG_CHANNEL_START:
+            if (WOWW_SERVER_TO_CLIENT) {
+                ptvcursor_add(ptv, hf_woww_spell, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
+            }
+            break;
         case MSG_CORPSE_QUERY:
             if (WOWW_SERVER_TO_CLIENT) {
                 ptvcursor_add_ret_uint(ptv, hf_woww_corpse_query_result, 1, ENC_LITTLE_ENDIAN, &result);
