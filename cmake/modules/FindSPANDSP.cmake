@@ -12,10 +12,11 @@ FindWSWinLibs( "spandsp-.*" "SPANDSP_HINTS" )
 if( NOT WIN32)
   find_package(PkgConfig)
   pkg_search_module(SPANDSP spandsp)
+
+  # spandsp.h might include tiffio.h.
+  find_package(TIFF QUIET)
 endif()
 
-# spandsp.h includes tiffio.h.
-find_package(TIFF QUIET)
 
 find_path( SPANDSP_INCLUDE_DIR
   NAMES spandsp.h
