@@ -14,6 +14,7 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/time_util.h>
 #include <wsutil/to_str.h>
+#include <wsutil/saplzclzh.h>
 
 #include "inet_addr.h"
 
@@ -897,6 +898,92 @@ static void test_getopt_opterr1(void)
 #endif
 }
 
+static const uint8_t sap_lzclzh_expected[] =
+    "TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST"
+    "TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST"
+    "TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST"
+    "TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST"
+    "TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST";
+
+static const uint8_t sap_lzh_compressed[] = {
+    0x18, 0x1, 0x0, 0x0, 0x12, 0x1f, 0x9d, 0x2, 0x5d, 0x88, 0x6b, 0x70, 0x48, 0xc8, 0x28, 0xc6, 0xc0, 0x0
+};
+
+static const uint8_t sap_lzc_compressed[] = {
+    0x18, 0x1, 0x0, 0x0, 0x11, 0x1f, 0x9d, 0x8d, 0x54, 0x8a, 0x4c, 0xa1, 0x12, 0x70, 0x60, 0x41, 0x82, 0x2,
+    0x11, 0x1a, 0x4c, 0x78, 0xb0, 0x21, 0xc3, 0x87, 0xb, 0x23, 0x2a, 0x9c, 0xe8, 0x50, 0x62, 0x45, 0x8a, 0x10,
+    0x31, 0x5a, 0xcc, 0x78, 0xb1, 0x23, 0xc7, 0x8f, 0x1b, 0x43, 0x6a, 0x1c, 0xe9, 0x51, 0x64, 0x49, 0x92, 0x20,
+    0x51, 0x9a, 0x4c, 0x79, 0xf2, 0x20
+};
+
+static void
+test_sap_lzclzh_decompress(void)
+{
+    int rt = 0;
+    wmem_allocator_t *allocator;
+    uint8_t* str_out;
+    unsigned str_in_len, str_out_len;
+    const unsigned str_out_expected_len = (unsigned)strlen((const char*)sap_lzclzh_expected);
+
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+
+    /* LZH Decompression */
+    str_in_len = sizeof(sap_lzh_compressed);
+    str_out_len = str_out_expected_len;
+    str_out = wmem_alloc0(allocator, str_out_expected_len);
+    rt = sap_lzclzh_decompress(allocator, sap_lzh_compressed, str_in_len, str_out, &str_out_len);
+    g_assert_cmpint(rt, == , CS_END_OF_STREAM);
+    g_assert_cmpuint(str_out_len, ==, str_out_expected_len);
+    g_assert_cmpmem(sap_lzclzh_expected, str_out_expected_len, str_out, str_out_len);
+    wmem_free(allocator, str_out);
+
+    /* LZC Decompression */
+    str_in_len = sizeof(sap_lzc_compressed);
+    str_out_len = str_out_expected_len;
+    str_out = wmem_alloc0(allocator, str_out_expected_len);
+    rt = sap_lzclzh_decompress(allocator, sap_lzc_compressed, str_in_len, str_out, &str_out_len);
+    g_assert_cmpint(rt, ==, CS_END_OF_STREAM);
+    g_assert_cmpuint(str_out_len, ==, str_out_expected_len);
+    g_assert_cmpmem(sap_lzclzh_expected, str_out_expected_len, str_out, str_out_len);
+    wmem_free(allocator, str_out);
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
+test_sap_lzclzh_decompress_errors(void)
+{
+    uint8_t str_out[sizeof(sap_lzclzh_expected)];
+    uint8_t bad_magic[] = { 0x18, 0x1, 0x0, 0x0, 0x11, 0x0, 0x0, 0x0 };
+    uint8_t unknown_algorithm[] = { 0x18, 0x1, 0x0, 0x0, 0x13, 0x1f, 0x9d, 0x0 };
+    unsigned str_out_len;
+    int rt;
+
+    str_out_len = sizeof(str_out);
+    rt = sap_lzclzh_decompress(NULL, NULL, sizeof(sap_lzh_compressed), str_out, &str_out_len);
+    g_assert_cmpint(rt, ==, CS_E_INVALID_ADDR);
+
+    rt = sap_lzclzh_decompress(NULL, sap_lzh_compressed, sizeof(sap_lzh_compressed), str_out, NULL);
+    g_assert_cmpint(rt, ==, CS_E_INVALID_ADDR);
+
+    str_out_len = 0;
+    rt = sap_lzclzh_decompress(NULL, sap_lzh_compressed, sizeof(sap_lzh_compressed), str_out, &str_out_len);
+    g_assert_cmpint(rt, ==, CS_E_OUT_BUFFER_LEN);
+
+    str_out_len = 1;
+    rt = sap_lzclzh_decompress(NULL, sap_lzh_compressed, sizeof(sap_lzh_compressed), str_out, &str_out_len);
+    g_assert_cmpint(rt, ==, CS_END_OUTBUFFER);
+
+    str_out_len = sizeof(str_out);
+    rt = sap_lzclzh_decompress(NULL, bad_magic, sizeof(bad_magic), str_out, &str_out_len);
+    g_assert_cmpint(rt, ==, CS_E_FILENOTCOMPRESSED);
+
+    str_out_len = sizeof(str_out);
+    rt = sap_lzclzh_decompress(NULL, unknown_algorithm, sizeof(unknown_algorithm), str_out, &str_out_len);
+    g_assert_cmpint(rt, ==, CS_E_UNKNOWN_ALG);
+}
+
+
 #include <wsutil/strtoi.h>
 
 static void
@@ -1238,6 +1325,9 @@ int main(int argc, char **argv)
     g_test_add_func("/strtoi/basebuftoi64", test_ws_basebuftoi64);
     g_test_add_func("/strtoi/basebuftoi64_end", test_ws_basebuftoi64_end);
     g_test_add_func("/strtoi/hexbuftoi64", test_ws_hexbuftoi64);
+
+    g_test_add_func("/sap_lzclzh_decompress", test_sap_lzclzh_decompress);
+    g_test_add_func("/sap_lzclzh_decompress/errors", test_sap_lzclzh_decompress_errors);
 
     ret = g_test_run();
 
