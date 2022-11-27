@@ -24,6 +24,9 @@ Wireshark 4.1.0 Release Notes
      • Issue 18413[1] - RTP player do not play audio frequently on Win32
        builds with Qt6
 
+     • Issue 18510[2] - Playback marker do not move after unpause with
+       Qt6
+
   New and Updated Features
 
    The following features are new (or have been significantly updated)
@@ -46,10 +49,11 @@ Wireshark 4.1.0 Release Notes
    Transport Protocol - Control Protocol (MCTP CP), Non-volatile Memory
    Express - Management Interface (NVMe-MI) over MCTP, SAP Enqueue
    Server (SAPEnqueue), SAP HANA SQL Command Network Protocol (SAPHDB),
-   SAP Internet Graphic Server (SAP IGS), SAP Network Interface (SAPNI),
-   Support for almost all WoW 1.12 messages has been added., and World
-   of Warcraft World (WOWW) display filters have been changed to be more
-   internally consistent.
+   SAP Internet Graphic Server (SAP IGS), SAP Message Server (SAPMS),
+   SAP Network Interface (SAPNI), SAP Router (SAPROUTER), Support for
+   almost all WoW 1.12 messages has been added., and World of Warcraft
+   World (WOWW) display filters have been changed to be more internally
+   consistent.
 
   Updated Protocol Support
 
@@ -71,7 +75,7 @@ Wireshark 4.1.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -86,25 +90,26 @@ Wireshark 4.1.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the issue tracker[5].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[6].
+  SharkFest[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[8].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/18413
-   2. https://www.wireshark.org/download.html
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://gitlab.com/wireshark/wireshark/-/issues
-   6. https://sharkfest.wireshark.org
-   7. https://www.wireshark.org/faq.html
+   2. https://gitlab.com/wireshark/wireshark/-/issues/18510
+   3. https://www.wireshark.org/download.html
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://sharkfest.wireshark.org
+   8. https://www.wireshark.org/faq.html
