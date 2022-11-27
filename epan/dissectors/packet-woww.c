@@ -795,6 +795,7 @@ static int hf_woww_time_left_in_msecs = -1;
 static int hf_woww_time_offline = -1;
 static int hf_woww_time_passed = -1;
 static int hf_woww_time_remaining = -1;
+static int hf_woww_time_skipped = -1;
 static int hf_woww_time_to_bg_autoleave_in_ms = -1;
 static int hf_woww_time_to_bg_start_in_ms = -1;
 static int hf_woww_time_to_remove_in_queue_in_ms = -1;
@@ -11188,6 +11189,11 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_duration, 4, ENC_LITTLE_ENDIAN);
             }
             break;
+        case MSG_CHANNEL_UPDATE:
+            if (WOWW_SERVER_TO_CLIENT) {
+                ptvcursor_add(ptv, hf_woww_time, 4, ENC_LITTLE_ENDIAN);
+            }
+            break;
         case MSG_CORPSE_QUERY:
             if (WOWW_SERVER_TO_CLIENT) {
                 ptvcursor_add_ret_uint(ptv, hf_woww_corpse_query_result, 1, ENC_LITTLE_ENDIAN, &result);
@@ -11305,6 +11311,46 @@ add_body_fields(guint32 opcode,
                 ptvcursor_pop_subtree(ptv);
             }
             else {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "MovementInfo");
+                ptvcursor_add_ret_uint(ptv, hf_woww_movement_flags, 4, ENC_LITTLE_ENDIAN, &flags);
+                ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+                ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+                if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
+                    ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
+                    add_packed_guid(ptv, pinfo);
+                    ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                    ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_pop_subtree(ptv);
+                    ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_pop_subtree(ptv);
+                }
+                if (flags & MOVEMENT_FLAGS_SWIMMING) {
+                    ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_add(ptv, hf_woww_fall_time, 4, ENC_LITTLE_ENDIAN);
+                if (flags & MOVEMENT_FLAGS_JUMPING) {
+                    ptvcursor_add(ptv, hf_woww_z_speed, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_cos_angle, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_sin_angle, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptv, hf_woww_xy_speed, 4, ENC_LITTLE_ENDIAN);
+                }
+                if (flags & MOVEMENT_FLAGS_SPLINE_ELEVATION) {
+                    ptvcursor_add(ptv, hf_woww_spline_elevation, 4, ENC_LITTLE_ENDIAN);
+                }
+                ptvcursor_pop_subtree(ptv);
+            }
+            break;
+        case MSG_MOVE_FEATHER_FALL:
+            if (WOWW_SERVER_TO_CLIENT) {
+                add_packed_guid(ptv, pinfo);
                 ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "MovementInfo");
                 ptvcursor_add_ret_uint(ptv, hf_woww_movement_flags, 4, ENC_LITTLE_ENDIAN, &flags);
                 ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
@@ -12927,6 +12973,50 @@ add_body_fields(guint32 opcode,
                 ptvcursor_add(ptv, hf_woww_movement_counter, 4, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(ptv, hf_woww_time_in_msecs, 4, ENC_LITTLE_ENDIAN);
             }
+            break;
+        case MSG_MOVE_TIME_SKIPPED:
+            if (WOWW_SERVER_TO_CLIENT) {
+                add_packed_guid(ptv, pinfo);
+                ptvcursor_add(ptv, hf_woww_time_skipped, 4, ENC_LITTLE_ENDIAN);
+            }
+            break;
+        case MSG_MOVE_WATER_WALK:
+            add_packed_guid(ptv, pinfo);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "MovementInfo");
+            ptvcursor_add_ret_uint(ptv, hf_woww_movement_flags, 4, ENC_LITTLE_ENDIAN, &flags);
+            ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+            ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_pop_subtree(ptv);
+            ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+            if (flags & MOVEMENT_FLAGS_ON_TRANSPORT) {
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "TransportInfo");
+                add_packed_guid(ptv, pinfo);
+                ptvcursor_add_text_with_subtree(ptv, SUBTREE_UNDEFINED_LENGTH, ett_message, "Vector3d");
+                ptvcursor_add(ptv, hf_woww_x, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_y, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_z, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+                ptvcursor_add(ptv, hf_woww_orientation, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_timestamp, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_pop_subtree(ptv);
+            }
+            if (flags & MOVEMENT_FLAGS_SWIMMING) {
+                ptvcursor_add(ptv, hf_woww_pitch, 4, ENC_LITTLE_ENDIAN);
+            }
+            ptvcursor_add(ptv, hf_woww_fall_time, 4, ENC_LITTLE_ENDIAN);
+            if (flags & MOVEMENT_FLAGS_JUMPING) {
+                ptvcursor_add(ptv, hf_woww_z_speed, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_cos_angle, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_sin_angle, 4, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(ptv, hf_woww_xy_speed, 4, ENC_LITTLE_ENDIAN);
+            }
+            if (flags & MOVEMENT_FLAGS_SPLINE_ELEVATION) {
+                ptvcursor_add(ptv, hf_woww_spline_elevation, 4, ENC_LITTLE_ENDIAN);
+            }
+            ptvcursor_pop_subtree(ptv);
             break;
         case MSG_PETITION_DECLINE:
             ptvcursor_add(ptv, hf_woww_petition, 8, ENC_LITTLE_ENDIAN);
@@ -20057,6 +20147,12 @@ proto_register_woww(void)
         },
         { &hf_woww_time_remaining,
             { "Time Remaining", "woww.time.remaining",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0,
+                NULL, HFILL
+            }
+        },
+        { &hf_woww_time_skipped,
+            { "Time Skipped", "woww.time.skipped",
                 FT_UINT32, BASE_HEX_DEC, NULL, 0,
                 NULL, HFILL
             }
